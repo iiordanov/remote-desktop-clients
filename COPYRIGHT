@@ -1,8 +1,19 @@
-bVNC VNC client:
+I.   bVNC VNC client:
 
   Copyright (C) 2012 Iordan Iordanov, iiordanov at gmail dot com
 
-Based on android-vnc-viewer, which is:
+II.  bVNC uses code from android-vnc-viewer, TightVNC, and antlersoft.
+
+  android-vnc-viewer:
+    http://code.google.com/p/android-vnc-viewer/
+
+  TightVNC:
+    http://www.tightvnc.com/
+
+  antlersoft:
+    http://cgibin.starpower.net/mmacdonald31/freesoftwarenews.html
+
+III. android-vnc-viewer VNC client:
 
   Copyright 2009,2010 Michael A. MacDonald
 
@@ -16,9 +27,10 @@ Other portions of android-vnc-viewer are:
   Copyright (C) 2001,2002 Constantin Kaplinsky.  All Rights Reserved.
   Copyright (C) 2000 Tridia Corporation.  All Rights Reserved.
   Copyright (C) 1999 AT&T Laboratories Cambridge.  All Rights Reserved.
-  Copyright (c) 1996 Widget Workshop, Inc.  See the source file for details.
-  Copyright (c) 1996 Widget Workshop, Inc. All Rights Reserved.
+  Copyright (C) 1996 Widget Workshop, Inc.  See the source file for details.
+  Copyright (C) 1996 Widget Workshop, Inc. All Rights Reserved.
   Copyright (C) 1996 by Jef Poskanzer <jef@acme.com>.  All rights reserved.
+
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
