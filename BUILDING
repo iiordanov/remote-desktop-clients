@@ -1,0 +1,6 @@
+I. Install sqlitegen plugin into Eclipse from:
+
+  http://code.google.com/p/sqlitegen/
+
+II. Add bVNC and ZoomerWithKeys to Eclipse as Android projects.
+
