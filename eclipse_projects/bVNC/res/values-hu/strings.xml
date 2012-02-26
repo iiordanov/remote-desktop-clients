@@ -2,7 +2,7 @@
 <resources>
     <string name="address_caption">C�m</string>
     <string name="alt_check">Alt</string>
-    <string name="app_name">androidVNC</string>
+    <string name="app_name">bVNC</string>
     <string name="arrow_down">Le ny�l</string>
     <string name="arrow_left">Bal ny�l</string>
     <string name="arrow_right">Jobb ny�l</string>

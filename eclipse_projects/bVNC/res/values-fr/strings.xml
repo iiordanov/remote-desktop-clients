@@ -2,7 +2,7 @@
 <resources>
     <string name="address_caption">Adresse</string>
     <string name="alt_check">Alt</string>
-    <string name="app_name">androidVNC</string>
+    <string name="app_name">bVNC</string>
     <string name="arrow_down">Flèche du bas</string>
     <string name="arrow_left">Flèche de gauche</string>
     <string name="arrow_right">Flèche de droite</string>
