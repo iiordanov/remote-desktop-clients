@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+    <string name="address_caption">Adresse</string>
+    <string name="alt_check">Alt</string>
+    <string name="app_name">androidVNC</string>
+    <string name="arrow_down">Flèche du bas</string>
+    <string name="arrow_left">Flèche de gauche</string>
+    <string name="arrow_right">Flèche de droite</string>
+    <string name="arrow_up">Flèche du haut</string>
+    <string name="button_send_text">Envoi du texte</string>
+<string name="center_mouse">Souris @</string>
+<string name="color_format_caption">Format de couleur</string>
+<string name="color_mode">Mode de couleur</string>
+<string name="connect_button">Connecter</string>
+<string name="connection_caption">Connexion</string>
+<string name="control_check">Ctrl</string>
+<string name="copy_list_button">Liste de copie</string>
+<string name="ctrl_alt_del">Ctrl-Alt-Del</string>
+<string name="delete_connection">Connexion supprimée</string>
+<string name="delete_key">Touche sélectionnée supprimée</string>
+<string name="delete_key_list">Liste de touche supprimée</string>
+<string name="disconnect">Déconnecter</string>
+<string name="enter_text_title">Entrer le texte à envoyer</string>
+<string name="enter_text">Envoi du texte</string>
+<string name="fit_to_screen">Ajuster à l\'écran</string>
+<string name="force_full_check">Forcer en plein écran bitmap</string>
+<string name="info">Info</string>
+<string name="input_mode">Mode d\'entrée</string>
+<string name="input_mode_fit_to_screen">Aucun curseur; Souris trackball</string>
+<string name="input_mode_mouse">Mode de contrôle du pointeur de souris</string>
+<string name="input_mode_panning">Mode panoramique du bureau</string>
+<string name="input_mode_touchpad_pan_trackball_mouse">Curseur tactile; Souris trackball</string>
+<string name="input_mode_dpad_pan_touchpad_mouse">Souris tactile; Curseur flèches</string>
+<string name="input_mode_touch_pan_zoom_mouse">Souris curseur et zoom tactile</string>
+<string name="input_mode_touchpad">Touchpad</string><string name="keep_password_button">Retenir</string>
+<string name="keys_caption">Touches</string>
+<string name="list_caption">Liste</string>
+<string name="list_name_caption">Nom de liste</string>
+<string name="local_mouse_check">Pointeur de souris locale</string>
+<string name="meta_key_title">Envoi touches spéciales</string>
+<string name="mouse_follow_pan">Souris suit le curseur</string>
+<string name="new_list_button">Nouvelle liste</string>
+<string name="nickname_caption">Surnom</string>
+<string name="one_to_one">1:1</string>
+<string name="open_doc">Manuel/Wiki</string>
+<string name="pan_follow_mouse">Curseur suit la souris</string>
+<string name="password_caption">Mot de passe</string>
+<string name="port_caption">Port</string>
+<string name="repeater_button">Répétiteur</string>
+<string name="repeater_caption">Entrer l\'adresse du répétiteur &lt;b&gt;seulement si&lt;/b&gt; vous utilisez un&lt;br&gt;&lt;i&gt;UltraVNC&lt;/i&gt;-type répétiteur</string>
+<string name="repeater_clear">Ne pas utiliser de répétiteur</string>
+<string name="repeater_dialog_title">Information sur le répétiteur</string>
+<string name="repeater_empty_text">Sans répétiteur</string>
+<string name="repeater_save">Utiliser cette adresse de répétiteur</string>
+<string name="save_as_copy">Sauver une copie</string>
+<string name="scaling">Mise à l\'échelle</string>
+<string name="scaling_zoomable">Zoomable</string>
+<!-- Send selected metakey -->
+<string name="send_button">Envoyer</string>
+<string name="send_key_again">Envoie touche encore</string>
+<string name="shift_check">Shift</string>
+<string name="shortcut_label">Connexion VNC</string>
+<string name="special_keys">Envoi touches</string>
+
+</resources>

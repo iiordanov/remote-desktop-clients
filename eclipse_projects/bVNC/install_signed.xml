@@ -1,0 +1,15 @@
+<?xml version="1.0" ?>
+<project name="bVNC" default="DEVICE-INSTALL">
+	<import file="build.xml" />
+
+	<!-- Build & install a signed APK to your USB-tethered Android device. -->
+	<target name="DEVICE-INSTALL" depends="build">
+		<echo>Installing ${signed.apk} onto Android device...</echo>
+		<exec executable="${adb}" failonerror="true">
+			<arg value="-d" />
+			<arg value="install" />
+			<arg value="-r" />
+			<arg value="${signed.apk}" />
+		</exec>
+	</target>
+</project>

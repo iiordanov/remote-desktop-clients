@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+    <string name="address_caption">C�m</string>
+    <string name="alt_check">Alt</string>
+    <string name="app_name">androidVNC</string>
+    <string name="arrow_down">Le ny�l</string>
+    <string name="arrow_left">Bal ny�l</string>
+    <string name="arrow_right">Jobb ny�l</string>
+    <string name="arrow_up">Fel ny�l</string>
+    <string name="button_send_text">Sz�veg k�ld�se</string>
+<string name="center_mouse">Eg�r @</string>
+<string name="close">Bez�r</string>
+<string name="color_format_caption">Sz�nform�tum</string>
+<string name="color_mode">Sz�nm�d</string>
+<string name="connect_button">Csatlakoz�s</string>
+<string name="connection_caption">Csatlakoz�s</string>
+<string name="control_check">Ctrl</string>
+<string name="copy_list_button">Lista m�sol�sa</string>
+<string name="ctrl_alt_del">Ctrl-Alt-Del</string>
+<string name="delete_connection">Kapcsolat t�rl�se</string>
+<string name="delete_key">Kiv�lasztott t�rl�se</string>
+<string name="delete_key_list">Lista t�rl�se</string>
+<string name="disconnect">Bont�s</string>
+<string name="enter_text_title">�rjon be sz�veget a k�ld�shez</string>
+<string name="enter_text">Sz�veg k�ld�se</string>
+<string name="fit_to_screen">K�perny�h�z igaz�t</string>
+<string name="force_full_check">K�nyszer�tett teljes k�perny�</string>
+<string name="info">Inf�</string>
+<string name="intro_text">Ha sz�ks�ge van seg�ts�gre: &lt;a href="http://code.google.com/p/android-vnc-viewer/wiki/Documentation"&gt;manual&lt;/a&gt; (Nyomja meg a \Menu gombot a kezel�sihez, �s egy�b funkci�khoz), vagy a&lt;a href="http://code.google.com/p/android-vnc-viewer/wiki/faq"&gt;FAQ&lt;/a&gt;.&lt;br&gt;</string>
+<string name="intro_title">�dv�z�lj�k</string>
+<string name="intro_version_text">&lt;br&gt;--Pinch zoom for 2.0+ phones in gesture modes&lt;br&gt;--Fix sending uppercase from physical keyboard&lt;br&gt;--Crash bug fixes</string>
+<string name="input_mode">Beviteli m�d</string>
+<string name="input_mode_fit_to_screen">Nincs p�szt�z�s; Trackball eg�r</string>
+<string name="input_mode_mouse">Eg�r vez�relt m�d</string>
+<string name="input_mode_panning">Asztal p�szt�z�s m�d</string>
+<string name="input_mode_touchpad_pan_trackball_mouse">�rint�ssel p�szt�z�s; Trackball eg�r</string>
+<string name="input_mode_dpad_pan_touchpad_mouse">�rint�s eg�r; D-Pad P�szt�z�s</string>
+<string name="input_mode_touch_pan_zoom_mouse">Eg�r p�szt�z�s �s nagy�t�s</string>
+<string name="input_mode_touchpad">Touchpad</string><string name="keep_password_button">Megtart</string>
+<string name="intro_dont_show">Ne mutassa �jra</string>
+<string name="keys_caption">Billenty�k</string>
+<string name="list_caption">Lista</string>
+<string name="list_name_caption">Lista Neve</string>
+<string name="local_mouse_check">Helyi eg�r pointer</string>
+<string name="meta_key_title">Spec billenty�k k�d�se</string>
+<string name="mouse_follow_pan">P�szt�z�s k�vet� eg�r</string>
+<string name="new_list_button">�j lista</string>
+<string name="nickname_caption">Becen�c</string>
+<string name="one_to_one">1:1</string>
+<string name="open_doc">Kezel�si/Wiki</string>
+<string name="pan_follow_mouse">Eg�rk�vet� p�szt�z�s</string>
+<string name="password_caption">Jelsz�</string>
+<string name="port_caption">Port</string>
+<string name="repeater_button">Ism�tl�s</string>
+<string name="repeater_caption">�sse be a repeater c�met &lt;b&gt;csak ha&lt;/b&gt; &lt;br&gt;&lt;i&gt;UltraVNC&lt; t�pus� repeatert haszn�lsz/i&gt;</string>
+<string name="repeater_clear">Nem haszn�lok repeatert</string>
+<string name="repeater_dialog_title">Repeater Inform�ci�</string>
+<string name="repeater_empty_text">Nincs repeater</string>
+<string name="repeater_save">Ezt a repeater c�met haszn�lja</string>
+<string name="save_as_copy">M�sol�s</string>
+<string name="scaling">M�retez�s</string>
+<string name="scaling_zoomable">Nagy�that�</string>
+<!-- Kiv�lasztott metakey k�ld�se -->
+<string name="send_button">K�ld</string>
+<string name="send_key_again">Kulcs k�ld�se �jra</string>
+<string name="shift_check">Shift</string>
+<string name="shortcut_label">VNC kapcsolat</string>
+<string name="showkbd_label">Billenty�zet</string>
+<string name="special_keys">K�ld�s</string>
+<string name="username_caption">Felhaszn�l�n�v</string>
+<string name="username_hint">For Windows Hiteles�t�s</string>
+</resources>

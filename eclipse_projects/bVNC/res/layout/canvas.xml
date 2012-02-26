@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    >
+
+<com.iiordanov.bVNC.VncCanvas
+    android:id="@+id/vnc_canvas"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:layout_gravity="bottom|center"
+    >
+</com.iiordanov.bVNC.VncCanvas>
+  
+<com.iiordanov.android.zoomer.ZoomControls
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:id="@+id/zoomer"
+    android:layout_gravity="bottom|center"
+/>
+
+</FrameLayout>

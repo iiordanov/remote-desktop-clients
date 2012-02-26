@@ -1,0 +1,36 @@
+bVNC VNC client:
+
+  Copyright (C) 2012 Iordan Iordanov, iiordanov at gmail dot com
+
+Based on android-vnc-viewer, which is:
+
+  Copyright 2009,2010 Michael A. MacDonald
+
+Other portions of android-vnc-viewer are:
+  Copyright (C) 2004 Horizon Wimba.  All Rights Reserved.
+  Copyright (C) 2003 Constantin Kaplinsky.  All Rights Reserved.
+  Copyright (C) 2002-2005 RealVNC Ltd.  All Rights Reserved.
+  Copyright (C) 2001-2006 Constantin Kaplinsky.  All Rights Reserved.
+  Copyright (C) 2001-2004 HorizonLive.com, Inc.  All Rights Reserved.
+  Copyright (C) 2001-2003 HorizonLive.com, Inc.  All Rights Reserved.
+  Copyright (C) 2001,2002 Constantin Kaplinsky.  All Rights Reserved.
+  Copyright (C) 2000 Tridia Corporation.  All Rights Reserved.
+  Copyright (C) 1999 AT&T Laboratories Cambridge.  All Rights Reserved.
+  Copyright (c) 1996 Widget Workshop, Inc.  See the source file for details.
+  Copyright (c) 1996 Widget Workshop, Inc. All Rights Reserved.
+  Copyright (C) 1996 by Jef Poskanzer <jef@acme.com>.  All rights reserved.
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
