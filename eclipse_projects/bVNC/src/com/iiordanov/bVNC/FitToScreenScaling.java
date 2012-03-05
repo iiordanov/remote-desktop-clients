@@ -1,4 +1,5 @@
 /**
+ * Copyright (C) 2012 Iordan Iordanov
  * Copyright (C) 2009 Michael A. MacDonald
  */
 package com.iiordanov.bVNC;

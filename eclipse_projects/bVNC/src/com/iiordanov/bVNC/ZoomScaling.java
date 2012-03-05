@@ -1,4 +1,5 @@
 /**
+ * Copyright (C) 2012 Iordan Iordanov
  * Copyright (C) 2009 Michael A. MacDonald
  */
 package com.iiordanov.bVNC;
@@ -117,18 +118,10 @@ class ZoomScaling extends AbstractScaling {
 	/* (non-Javadoc)
 	 * @see com.iiordanov.bVNC.AbstractScaling#adjust(com.iiordanov.bVNC.VncCanvasActivity, float, float, float)
 	 */
-	/* Disabling method due to terrible effects when detecting multi-touch events for
-	 * mouse clicks.
-	 */
-	/*
 	@Override
-	void adjust(VncCanvasActivity activity, float scaleFactor, float fx,
-			float fy) {
+	void adjust(VncCanvasActivity activity, float scaleFactor, float fx, float fy) {
 		
-		
-		return;
-        
-	
+		float oldScale;
 		
 		float newScale = scaleFactor * scaling;
 		if (scaleFactor < 1)
@@ -149,6 +142,7 @@ class ZoomScaling extends AbstractScaling {
 			}
 			activity.zoomer.setIsZoomOutEnabled(true);
 		}
+		
 		// ax is the absolute x of the focus
 		int xPan = activity.vncCanvas.absoluteXPosition;
 		float ax = (fx / scaling) + xPan;
@@ -157,15 +151,16 @@ class ZoomScaling extends AbstractScaling {
 		float ay = (fy / scaling) + yPan;
 		float newYPan = (scaling * yPan - scaling * ay + newScale * ay)/newScale;
 		resetMatrix();
+		oldScale = scaling;
 		scaling = newScale;
 		matrix.postScale(scaling, scaling);
 		activity.vncCanvas.setImageMatrix(matrix);
 		resolveZoom(activity);
-		activity.vncCanvas.pan((int)(newXPan - xPan), (int)(newYPan - yPan));
-    
-	}
-    */
-	
+		
+		// Pan only if we are zooming in.
+		if (oldScale < newScale)
+			activity.vncCanvas.pan((int)(newXPan - xPan), (int)(newYPan - yPan));
+	}	
 	
 	private void resetMatrix()
 	{

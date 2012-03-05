@@ -1,4 +1,5 @@
 /**
+ * Copyright (C) 2012 Iordan Iordanov
  * Copyright (C) 2009 Michael A. MacDonald
  */
 package com.iiordanov.bVNC;
@@ -23,7 +24,9 @@ abstract class AbstractGestureInputHandler extends GestureDetector.SimpleOnGestu
 	
 	float xInitialFocus;
 	float yInitialFocus;
-	boolean inScaling;
+	boolean inScaling = false;
+	boolean ignoreScaling = false;
+	boolean scalingJustFinished = false;
 	
 	private static final String TAG = "AbstractGestureInputHandler";
 	
@@ -35,6 +38,7 @@ abstract class AbstractGestureInputHandler extends GestureDetector.SimpleOnGestu
 		scaleGestures=BCFactory.getInstance().getScaleGestureDetector(c, this);
 	}
 
+	
 	@Override
 	public boolean onTouchEvent(MotionEvent evt) {
 		scaleGestures.onTouchEvent(evt);
@@ -47,19 +51,25 @@ abstract class AbstractGestureInputHandler extends GestureDetector.SimpleOnGestu
 	@Override
 	public boolean onScale(IBCScaleGestureDetector detector) {
 		boolean consumed = true;
-		//if (detector.)
+
 		//Log.i(TAG,"Focus("+detector.getFocusX()+","+detector.getFocusY()+") scaleFactor = "+detector.getScaleFactor());
+
 		// Calculate focus shift
 		float fx = detector.getFocusX();
 		float fy = detector.getFocusY(); 
 		double xfs = fx - xInitialFocus;
 		double yfs = fy - yInitialFocus;
 		double fs = Math.sqrt(xfs * xfs + yfs * yfs);
-		if (Math.abs(1.0 - detector.getScaleFactor())<0.02)
+		
+		if (Math.abs(1.0 - detector.getScaleFactor()) < 0.1) {
+			//Log.i(TAG,"Not scaling due to small scale factor.");
 			consumed = false;
-		if (fs * 2< Math.abs(detector.getCurrentSpan() - detector.getPreviousSpan()))
+		}
+		
+		if (fs < Math.abs(detector.getCurrentSpan() - detector.getPreviousSpan()))
 		{
 			inScaling = true;
+			
 			if (consumed)
 			{
 				//Log.i(TAG,"Adjust scaling "+detector.getScaleFactor());
@@ -75,6 +85,7 @@ abstract class AbstractGestureInputHandler extends GestureDetector.SimpleOnGestu
 	 */
 	@Override
 	public boolean onScaleBegin(IBCScaleGestureDetector detector) {
+
 		xInitialFocus = detector.getFocusX();
 		yInitialFocus = detector.getFocusY();
 		inScaling = false;
@@ -89,5 +100,6 @@ abstract class AbstractGestureInputHandler extends GestureDetector.SimpleOnGestu
 	public void onScaleEnd(IBCScaleGestureDetector detector) {
 		//Log.i(TAG,"scale end");
 		inScaling = false;
+		scalingJustFinished = true;
 	}
 }

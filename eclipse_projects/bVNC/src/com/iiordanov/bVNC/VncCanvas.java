@@ -1,4 +1,4 @@
-//
+//  Copyright (C) 2012 Iordan Iordanov
 //  Copyright (C) 2010 Michael A. MacDonald
 //  Copyright (C) 2004 Horizon Wimba.  All Rights Reserved.
 //  Copyright (C) 2001-2003 HorizonLive.com, Inc.  All Rights Reserved.
@@ -70,6 +70,7 @@ public class VncCanvas extends ImageView {
 	private boolean maintainConnection = true;
 	private boolean showDesktopInfo = true;
 	private boolean repaintsEnabled = true;
+
 	
 	/**
 	 * Use camera button as meta key for right mouse button
@@ -146,6 +147,7 @@ public class VncCanvas extends ImageView {
 	 * @param setModes Callback to run on UI thread after connection is set up
 	 */
 	void initializeVncCanvas(ConnectionBean bean, final Runnable setModes) {
+
 		connection = bean;
 		this.pendingColorModel = COLORMODEL.valueOf(bean.getColorModel());
 
@@ -840,7 +842,7 @@ public class VncCanvas extends ImageView {
 	 * @return true if event was actually sent
 	 */
 	public boolean processPointerEvent(MotionEvent evt, boolean downEvent, boolean useRightButton) {
-		return processPointerEvent((int)evt.getX(),(int)evt.getY(), evt.getActionMasked(), 
+		return processPointerEvent((int)evt.getX(),(int)evt.getY(), evt.getAction(), 
 									evt.getMetaState(), downEvent, useRightButton, false);
 	}
 
@@ -858,20 +860,19 @@ public class VncCanvas extends ImageView {
 		
 		if (rfb != null && rfb.inNormalProtocol) {
 			if (mouseIsDown && useRightButton) {
-		    	//Log.i("","Right mouse button mask set");
+		    	//Log.i(TAG,"Right mouse button mask set");
 		        pointerMask = MOUSE_BUTTON_RIGHT;
 			} else if (mouseIsDown && useMiddleButton) {
-			    //Log.i("","Middle mouse button mask set");
+			    //Log.i(TAG,"Middle mouse button mask set");
 			    pointerMask = MOUSE_BUTTON_MIDDLE;
-			} else if (  (mouseIsDown && action == MotionEvent.ACTION_DOWN)
-					   ||(mouseIsDown && action == MotionEvent.ACTION_MOVE)) {
-			    //Log.i("","Left mouse button mask set");
+			} else if (mouseIsDown && (action == MotionEvent.ACTION_DOWN || action == MotionEvent.ACTION_MOVE)) {
+			    //Log.i(TAG,"Left mouse button mask set");
 		        pointerMask = MOUSE_BUTTON_LEFT;
-		    } else if (action == MotionEvent.ACTION_UP) {
-			    //Log.i("","Mouse button mask cleared");
+		    } else {
+			    //Log.i(TAG,"Mouse button mask cleared");
 		    	pointerMask = 0;
 		    }
-			
+						
 		    bitmapData.invalidateMousePosition();
 		    mouseX= x;
 		    mouseY= y;
@@ -922,7 +923,7 @@ public class VncCanvas extends ImageView {
 	}
 
 	public boolean processLocalKeyEvent(int keyCode, KeyEvent evt) {
-		Log.i(TAG,"there was a key event.");
+		//Log.i(TAG,"there was a key event.");
 		
 		if (keyCode == KeyEvent.KEYCODE_MENU)
 			// Ignore menu key
@@ -1026,7 +1027,7 @@ public class VncCanvas extends ImageView {
 	    		}
 	    		if (down)
 	    			lastKeyDown = key;
-	    		Log.i(TAG,"key = " + key + " metastate = " + metaState + " keycode = " + keyCode);
+	    		//Log.i(TAG,"key = " + key + " metastate = " + metaState + " keycode = " + keyCode);
 	    		rfb.writeKeyEvent(key, metaState|onScreenMetaState, down);
 			} catch (Exception e) {
 				e.printStackTrace();
