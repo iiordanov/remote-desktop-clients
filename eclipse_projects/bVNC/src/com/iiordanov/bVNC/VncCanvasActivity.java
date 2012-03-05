@@ -43,6 +43,7 @@ import android.database.Cursor;
 import android.graphics.PointF;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.SystemClock;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -253,13 +254,7 @@ public class VncCanvasActivity extends Activity {
 	        	// Enable right drag mode immediately, so we can drag our finger along the context menu.
 	        	rightDragMode = true;
 	        	vncCanvas.changeTouchCoordinatesToFullFrame(e);
-	        	float x = e.getX();
-	        	float y = e.getY();
 	        	vncCanvas.processPointerEvent(e, true, true, false);
-	        	// Offset the pointer before releasing the button to prevent inadvertent clicks on the menu.
-				remoteMouseSetCoordinates(e, x - 1.f, y - 1.f);
-	        	vncCanvas.processPointerEvent(e, false, true, false);
-				remoteMouseSetCoordinates(e, x, y);
 				// Pass this event on to the parent class in order to end scaling as it was certainly
 				// started when the second pointer went down.
 				return super.onTouchEvent(e);
@@ -273,8 +268,10 @@ public class VncCanvasActivity extends Activity {
 				return vncCanvas.processPointerEvent(e, false, false, true);
 	        } else if (pointerCnt == 1 && pointerID == 0 && rightDragMode) {
 				vncCanvas.changeTouchCoordinatesToFullFrame(e);
-				if (action == MotionEvent.ACTION_UP)
+				if (action == MotionEvent.ACTION_UP) {
 					rightDragMode = false;
+					return vncCanvas.processPointerEvent(e, false, true, false);
+				}
 				return vncCanvas.processPointerEvent(e, true, true, false);
 	        } else if (pointerCnt == 1 && pointerID == 0 && dragMode) {
 				vncCanvas.changeTouchCoordinatesToFullFrame(e);
@@ -594,12 +591,8 @@ public class VncCanvasActivity extends Activity {
 	        	rightDragMode = true;
 	        	dragX = e.getX();
 	        	dragY = e.getY();
-	        	
 	        	remoteMouseStayPut(e);
 	        	vncCanvas.processPointerEvent(e, true, true, false);
-	        	remoteMouseSetCoordinates(e, vncCanvas.mouseX - 1.f, vncCanvas.mouseY - 1.f);
-	        	vncCanvas.processPointerEvent(e, false, true, false);
-	        	remoteMouseSetCoordinates(e, vncCanvas.mouseX + 1.f, vncCanvas.mouseY + 1.f);
 				// Pass this event on to the parent class in order to end scaling as it was certainly
 				// started when the second pointer went down.
 				return super.onTouchEvent(e);
@@ -626,9 +619,11 @@ public class VncCanvasActivity extends Activity {
 				float newRemoteY = vncCanvas.mouseY + deltaY;
 				
 				e.setLocation(newRemoteX, newRemoteY);
-	        	
-				if (action == MotionEvent.ACTION_UP)
+				
+				if (action == MotionEvent.ACTION_UP) {
 					rightDragMode = false;
+					return vncCanvas.processPointerEvent(e, false, true, false);
+				}
 				return vncCanvas.processPointerEvent(e, true, true, false);
 			} else if (pointerCnt == 1 && pointerID == 0 && dragMode) {	
 
