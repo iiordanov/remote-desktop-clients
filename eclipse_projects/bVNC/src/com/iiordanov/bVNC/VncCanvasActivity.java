@@ -79,14 +79,15 @@ public class VncCanvasActivity extends Activity {
 		 * without sending them through the gesture detector
 		 */
 		private boolean dragMode = false;
-
+		
 		/**
-		 * In right drag mode, entered after right-click, we process mouse events
-		 * without sending them through the gesture detector
+		 * In right-drag mode (entered when a right-click occurs) you process mouse events
+		 * without sending them through the gesture detector, and only send the location of
+		 * the pointer to the remote machine.
 		 */
 		private boolean rightDragMode = false;
-		
-		/*
+
+		/**
 		 * These variables hold the coordinates of the last double-tap down event.
 		 */
 		float doubleTapX, doubleTapY;
@@ -243,26 +244,26 @@ public class VncCanvasActivity extends Activity {
 	        // We have lifted the first pointer off the screen, so we can stop ignoring scaling and left-clicks.
 	        // Also, activity by the first index causes the third pointer state to be cleared.
 	        if (pointerID == 0 && (action == MotionEvent.ACTION_UP||action == MotionEvent.ACTION_DOWN)) {
-	        	//Log.i(TAG,"Stopping to ignore scaling, dragmode stuff, right-clicks");
-	        	ignoreScaling = false;
-	        	// Permit sending mouse-down even on longtap again.
+	        	// Permit sending mouse-down even on long-tap again.
 	        	secondPointerWasDown = false;
 	        	// Permit right-clicking again.
 	        	thirdPointerWasDown = false;
-	        	// Reset drag modes.
-	        	//dragMode = false;
+	        	// Cancel right-drag mode.
+	        	rightDragMode = false;
 	        }
 
-        	// Here we only prepare for the second click, which we perform on ACTION_UP for pointerID==1.
+        	// Here we only prepare for the second click, which we perform on ACTION_POINTER_UP for pointerID==1.
 	        if (pointerID == 1 && action == MotionEvent.ACTION_POINTER_DOWN) {
-	        	//Log.i(TAG,"Stopping to ignore scaling, dragmode stuff, right-clicks");
-	        	ignoreScaling = false;
-	        	// Permit sending mouse-down even on longtap again.
+	        	// If drag mode is on then stop it and indicate button was released.
+	        	if (dragMode) {
+					dragMode = false;
+					vncCanvas.changeTouchCoordinatesToFullFrame(e);
+					vncCanvas.processPointerEvent(e, false, false, false);       		
+	        	}
+	        	// Permit sending mouse-down even on long-tap again.
 	        	secondPointerWasDown = true;
 	        	// Permit right-clicking again.
 	        	thirdPointerWasDown = false;
-	        	// Reset drag mode.
-	        	//dragMode = false;
 	        }
 
 	        // If user taps with a second finger while first finger is down, then we treat this as
@@ -271,9 +272,9 @@ public class VncCanvasActivity extends Activity {
 	        // finger is down, we treat it as a middle mouse click. We ignore the lifting of the
 	        // second index when the third index has gone down (using the thirdPointerWasDown variable)
 	        // to prevent inadvertent right-clicks when a middle click has been performed.
-	        if (!inScaling && !thirdPointerWasDown
-                           && pointerID == 1 && action == MotionEvent.ACTION_POINTER_UP) {
-	        	// Enable right drag mode immediately, so we can drag our finger along the context menu.
+	        if (!inScaling && !thirdPointerWasDown && pointerID == 1 && action == MotionEvent.ACTION_POINTER_UP) {
+	        	// Enter right-drag mode so we can move the pointer to an entry in the context menu
+	        	// without clicking.
 	        	rightDragMode = true;
 	        	vncCanvas.changeTouchCoordinatesToFullFrame(e);
 	        	vncCanvas.processPointerEvent(e, true, true, false);
@@ -291,11 +292,7 @@ public class VncCanvasActivity extends Activity {
 				return vncCanvas.processPointerEvent(e, false, false, true);
 	        } else if (pointerCnt == 1 && pointerID == 0 && rightDragMode) {
 				vncCanvas.changeTouchCoordinatesToFullFrame(e);
-				if (action == MotionEvent.ACTION_UP) {
-					rightDragMode = false;
-					return vncCanvas.processPointerEvent(e, false, true, false);
-				}
-				return vncCanvas.processPointerEvent(e, true, true, false);
+				return vncCanvas.processPointerEvent(e, false, false, false);
 	        } else if (pointerCnt == 1 && pointerID == 0 && dragMode) {
 				vncCanvas.changeTouchCoordinatesToFullFrame(e);
 				if (action == MotionEvent.ACTION_UP) {
@@ -303,9 +300,8 @@ public class VncCanvasActivity extends Activity {
 					return vncCanvas.processPointerEvent(e, false, false, false);
 				}
 				return vncCanvas.processPointerEvent(e, true, false, false);
-			} else {
+			} else
 				return super.onTouchEvent(e);
-			}
 		}
 
 		/*
@@ -374,44 +370,15 @@ public class VncCanvasActivity extends Activity {
 		 */
 		@Override
 		public boolean onDoubleTap (MotionEvent e) {
-			//Log.i(TAG, "Now entering onDoubleTap.");
 			vncCanvas.changeTouchCoordinatesToFullFrame(e);
-		    //Log.i(TAG, "Sending mouse down/up at " + e.getX() + " " + e.getY());
 			vncCanvas.processPointerEvent(e, true);
 			SystemClock.sleep(50);
 			vncCanvas.processPointerEvent(e, false);
 			SystemClock.sleep(50);
-			remoteMouseStayPut(e);
-		    //Log.i(TAG, "Sending mouse down/up at " + e.getX() + " " + e.getY());
 			vncCanvas.processPointerEvent(e, true);
 			SystemClock.sleep(50);
 			return vncCanvas.processPointerEvent(e, false);
 		}
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see android.view.GestureDetector.SimpleOnGestureListener#onDoubleTapEvent(android.view.MotionEvent)
-		 */
-/*		@Override
-		public boolean onDoubleTapEvent (MotionEvent e) {
-
-			Log.i(TAG, "Now entering onDoubleTapEvent.");
-						
-			if (e.getAction() == MotionEvent.ACTION_DOWN) {
-				vncCanvas.changeTouchCoordinatesToFullFrame(e);
-			    Log.i(TAG, "Sending second mouse down at " + e.getX() + " " + e.getY());        	
-			    return vncCanvas.processPointerEvent(e, true);
-			} else if (e.getAction() == MotionEvent.ACTION_UP) {
-				vncCanvas.changeTouchCoordinatesToFullFrame(e);
-			    Log.i(TAG, "Sending second mouse up at" + e.getX() + " " + e.getY());
-			    return vncCanvas.processPointerEvent(e, false);
-			}
-			else
-				Log.i(TAG, "Some other MotionEvent.");
-			
-			return true;
-		}*/
 	}
 
 	public class TouchpadInputHandler extends AbstractGestureInputHandler {
@@ -566,13 +533,13 @@ public class VncCanvasActivity extends Activity {
 
 			showZoomer(true);
 
-			// compute the relative movement offset on the remote screen.
+			// Compute the relative movement offset on the remote screen.
 			float deltaX = -distanceX *vncCanvas.getScale();
 			float deltaY = -distanceY *vncCanvas.getScale();
 			deltaX = fineCtrlScale(deltaX);
 			deltaY = fineCtrlScale(deltaY);
 			
-			// compute the absolution new mouse pos on the remote site.
+			// Compute the absolute new mouse position on the remote site.
 			float newRemoteX = vncCanvas.mouseX + deltaX;
 			float newRemoteY = vncCanvas.mouseY + deltaY;
 			
@@ -582,11 +549,9 @@ public class VncCanvasActivity extends Activity {
 				
 				dragX = e2.getX();
 				dragY = e2.getY();
-				//Log.i(TAG, "Setting pointer location in onScroll in dragmode");
 				e2.setLocation(newRemoteX, newRemoteY);
 				return vncCanvas.processPointerEvent(e2, true);
 			} else {
-				//Log.i(TAG, "Setting pointer location in onScroll outside dragmode");
 				e2.setLocation(newRemoteX, newRemoteY);
 				vncCanvas.processPointerEvent(e2, false);
 			}
@@ -616,26 +581,28 @@ public class VncCanvasActivity extends Activity {
 	        
 	        //Log.i(TAG, String.format("Action, index, pointerID, fingerscount: %d, %d, %d, %d",
 	        //						   action, index, pointerID, fingersCount));
-	        
+
 	        // We have lifted the first pointer off the screen, so we can stop ignoring scaling and left-clicks.
 	        // Also, activity by the first index causes the third pointer state to be cleared.
 	        if (pointerID == 0 && (action == MotionEvent.ACTION_UP||action == MotionEvent.ACTION_DOWN)) {
-	        	//Log.i(TAG,"Stopping to ignore scaling, dragmode stuff, right-clicks");
-	        	ignoreScaling = false;
-	        	// Permit sending mouse-down even on longtap again.
+	        	// Permit sending mouse-down even on long-tap again.
 	        	secondPointerWasDown = false;
 	        	// Permit right-clicking again.
 	        	thirdPointerWasDown = false;
-	        	// Reset drag mode.
-	        	dragMode = false;
 	        }
 
-        	// Here we only prepare for the second click, which we perform on ACTION_UP for pointerID==1.
+        	// Here we only prepare for the second click, which we perform on ACTION_POINTER_UP for pointerID==1.
 	        if (pointerID == 1 && action == MotionEvent.ACTION_POINTER_DOWN) {
-	        	// Disable drag mode in case it was on
-	        	dragMode = false;
-	        	// Indicate the second pointer has gone down.
+	        	// If drag mode is on then stop it and indicate button was released.
+	        	if (dragMode) {
+					dragMode = false;
+		        	remoteMouseStayPut(e);
+					vncCanvas.processPointerEvent(e, false, false, false);       		
+	        	}
+	        	// Permit sending mouse-down even on long-tap again.
 	        	secondPointerWasDown = true;
+	        	// Permit right-clicking again.
+	        	thirdPointerWasDown = false;
 	        }
 
 	        // If user taps with a second finger while first finger is down, then we treat this as
@@ -644,49 +611,27 @@ public class VncCanvasActivity extends Activity {
 	        // finger is down, we treat it as a middle mouse click. We ignore the lifting of the
 	        // second index when the third index has gone down (using the thirdPointerWasDown variable)
 	        // to prevent inadvertent right-clicks when a middle click has been performed.
-	        if (!inScaling && !thirdPointerWasDown
-                           && pointerID == 1 && action == MotionEvent.ACTION_POINTER_UP) {
-	        	// Enable right drag mode immediately, so we can drag our finger along the context menu.
-	        	rightDragMode = true;
+	        if (!inScaling && !thirdPointerWasDown && pointerID == 1 && action == MotionEvent.ACTION_POINTER_UP) {
+	        	/*rightDragMode = true; // This initialization was needed for rightDrag mode.
 	        	dragX = e.getX();
-	        	dragY = e.getY();
+	        	dragY = e.getY();*/	        	
 	        	remoteMouseStayPut(e);
 	        	vncCanvas.processPointerEvent(e, true, true, false);
+	        	//remoteMouseSetCoordinates(e, vncCanvas.mouseX - 1.f, vncCanvas.mouseY);
+	        	vncCanvas.processPointerEvent(e, false, true, false);
+	        	//remoteMouseSetCoordinates(e, vncCanvas.mouseX + 1.f, vncCanvas.mouseY);
 				// Pass this event on to the parent class in order to end scaling as it was certainly
 				// started when the second pointer went down.
 				return super.onTouchEvent(e);
-	        } else if (pointerID == 2 && action == MotionEvent.ACTION_POINTER_DOWN) {
-	        	// Disable drag mode, as this is clearly not what we are trying to do.
-	        	dragMode = false;
+	        } else if (!inScaling && pointerID == 2 && action == MotionEvent.ACTION_POINTER_DOWN) {
 	        	// This boolean prevents the right-click from firing simultaneously as a middle button click.
 	        	thirdPointerWasDown = true;
 	        	remoteMouseStayPut(e);
 	        	vncCanvas.processPointerEvent(e, true, false, true);
-				return vncCanvas.processPointerEvent(e, false, false, true);
-	        } else if (pointerCnt == 1 && pointerID == 0 && rightDragMode) {
-	        	//remoteMouseStayPut(e);
-	        	// compute the relative movement offset on the remote screen.
-				float deltaX = (e.getX() - dragX) *vncCanvas.getScale();
-				float deltaY = (e.getY() - dragY) *vncCanvas.getScale();
-				dragX = e.getX();
-				dragY = e.getY();
-				deltaX = fineCtrlScale(deltaX);
-				deltaY = fineCtrlScale(deltaY);
-	
-				// compute the absolution new mouse pos on the remote site.
-				float newRemoteX = vncCanvas.mouseX + deltaX;
-				float newRemoteY = vncCanvas.mouseY + deltaY;
-				
-				e.setLocation(newRemoteX, newRemoteY);
-				
-				if (action == MotionEvent.ACTION_UP) {
-					rightDragMode = false;
-					return vncCanvas.processPointerEvent(e, false, true, false);
-				}
-				return vncCanvas.processPointerEvent(e, true, true, false);
+				return vncCanvas.processPointerEvent(e, false, false, true);			
 			} else if (pointerCnt == 1 && pointerID == 0 && dragMode) {	
 
-	        	// compute the relative movement offset on the remote screen.
+	        	// Compute the relative movement offset on the remote screen.
 				float deltaX = (e.getX() - dragX) *vncCanvas.getScale();
 				float deltaY = (e.getY() - dragY) *vncCanvas.getScale();
 				dragX = e.getX();
@@ -694,14 +639,16 @@ public class VncCanvasActivity extends Activity {
 				deltaX = fineCtrlScale(deltaX);
 				deltaY = fineCtrlScale(deltaY);
 	
-				// compute the absolution new mouse pos on the remote site.
+				// Compute the absolute new mouse position on the remote site.
 				float newRemoteX = vncCanvas.mouseX + deltaX;
 				float newRemoteY = vncCanvas.mouseY + deltaY;
 				
 				e.setLocation(newRemoteX, newRemoteY);
 
-	        	if (action == MotionEvent.ACTION_UP)
+				if (action == MotionEvent.ACTION_UP) {
 					dragMode = false;
+					return vncCanvas.processPointerEvent(e, false, false, false);
+				}
 				return vncCanvas.processPointerEvent(e, true, false, false);
 			} else
 				return super.onTouchEvent(e);
@@ -738,8 +685,11 @@ public class VncCanvasActivity extends Activity {
 		public boolean onDoubleTap(MotionEvent e) {
 			remoteMouseStayPut(e);
 			vncCanvas.processPointerEvent(e, true);
+			SystemClock.sleep(50);
 			vncCanvas.processPointerEvent(e, false);
+			SystemClock.sleep(50);
 			vncCanvas.processPointerEvent(e, true);
+			SystemClock.sleep(50);
 			return vncCanvas.processPointerEvent(e, false);
 		}
 		

@@ -25,7 +25,6 @@ abstract class AbstractGestureInputHandler extends GestureDetector.SimpleOnGestu
 	float xInitialFocus;
 	float yInitialFocus;
 	boolean inScaling = false;
-	boolean ignoreScaling = false;
 	boolean scalingJustFinished = false;
 	
 	private static final String TAG = "AbstractGestureInputHandler";

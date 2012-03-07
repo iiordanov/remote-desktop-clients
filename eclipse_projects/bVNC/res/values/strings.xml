@@ -36,17 +36,21 @@
 <string name="info">Info</string>
 <string name="intro_text">
 bVNC automatically saves sessions. Once connected, you can choose between Zoomable, Fit to Screen, and One to One scaling. 
-bVNC also supports two Input Modes, Touch Mouse and Simulated Touchpad, in each of the scaling modes. To change the Scaling 
-or Input Mode, swipe down from beyond top edge to access the Menu. If you need help with the Input Modes available (i.e how 
-to move the mouse or click each mouse button), please select the Menu->More->Input Mode Help item.
+bVNC also supports two Input Modes, Touch Mouse and Simulated Touchpad. To change the Scaling or Input Mode, or get Help,
+swipe down from beyond top edge to access the Menu. For help with Input Modes (i.e. how to control the remote mouse),
+select Menu->More->Input Mode Help. Please note that full-screen mode in Android Player must be enabled in order to
+see the Zoom controls at the bottom of the screen.
 &lt;br&gt;
-&lt;br&gt;Other Menu items include toggling Ctrl/Alt, various shortcuts to keys, and sending arbitrary text and key combinations.</string>
+&lt;br&gt;Other Menu items include toggling Ctrl/Alt, various shortcuts to keys, and sending arbitrary text and key
+combinations.</string>
 <string name="intro_title">bVNC</string>
 <string name="intro_version_text"></string>
 <string name="input_mode">Input Mode</string>
 <string name="input_mode_fit_to_screen">No Pan; Trackball Mouse</string>
 <string name="input_mode_help_text">
-"In any Input Mode, swipe up diagonally from the bottom left corner or press the icon between the Zoom controls to get the keyboard.
+"Please note that full-screen mode in Android Player must be enabled in order to see the Zoom controls at the bottom of the screen.
+
+In any Input Mode, swipe up diagonally from the bottom left corner or press the keyboard icon between the Zoom controls to get the on-screen keyboard.
 
 Use Touch Mouse and Swipe Pan Mode for more intuitive touch-screen control. Use Simulated Touchpad Mode for finer control over the mouse.
 
@@ -63,12 +67,12 @@ Simulated Touchpad Mode:
 
 All Input Modes:
  - Tap once to left-click.
- - Tap twice to double-click.
- - Tap-hold and tap with second finger to right-click.
+ - Double-tap to double-click.
+ - Tap-hold and tap with a second finger to right-click.
  - Tap-hold and tap with two more fingers to middle-click.
  - Tap-hold-long and swipe to drag.
- - When in Zoomable scaling, zoom in/out with +/- buttons.
- - Use the \"Back\" functionality of your device for ESC."
+ - When in Zoomable scaling, you can pinch-zoom or use the +/- Zoom buttons.
+ - Use the \"Back\" functionality of your device for ESC (diagonal swipe from bottom or back arrow symbol)."
 </string>
 <string name="input_mode_mouse">Mouse Pointer Control</string>
 <string name="input_mode_panning">Desktop Panning Mode</string>
