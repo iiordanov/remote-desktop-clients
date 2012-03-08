@@ -68,8 +68,8 @@ Simulated Touchpad Mode:
 All Input Modes:
  - Tap once to left-click.
  - Double-tap to double-click.
- - Tap-hold and tap with a second finger to right-click.
- - Tap-hold and tap with two more fingers to middle-click.
+ - Tap-hold and tap with a second finger (anywhere else on screen) to right-click.
+ - Tap-hold and tap with two more fingers (anywhere else on screen) to middle-click.
  - Tap-hold-long and swipe to drag.
  - When in Zoomable scaling, you can pinch-zoom or use the +/- Zoom buttons.
  - Use the \"Back\" functionality of your device for ESC (diagonal swipe from bottom or back arrow symbol)."
@@ -84,7 +84,7 @@ All Input Modes:
 <string name="keys_caption">Keys</string>
 <string name="list_caption">List</string>
 <string name="list_name_caption">List Name</string>
-<string name="local_mouse_check">Local mouse pointer</string>
+<string name="local_mouse_check">Local mouse pointer (select if pointer is invisible)</string>
 <string name="main_screen_help">Connection Help</string>
 <string name="main_screen_help_text">
    "When you first start bVNC, you will see a connection configuration page. Here you can set up a new VNC connection, or choose a preexisting one. The page is divided into two sections. The top section contains a drop-down list of the connection configurations you've created previously. The first time your run bVNC, you will only be able to make a new connection. Next to the list is a Connect button. The Connect button will start the VNC client with the currently selected configuration. Below that is where you enter your connection configurations. There are more options than will fit on the page, so scroll down through this section.

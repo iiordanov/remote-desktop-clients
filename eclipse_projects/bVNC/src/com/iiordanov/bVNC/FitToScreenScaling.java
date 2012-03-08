@@ -62,29 +62,37 @@ class FitToScreenScaling extends AbstractScaling {
 	void setScaleTypeForActivity(VncCanvasActivity activity) {
 		super.setScaleTypeForActivity(activity);
 
+		float factor = 1.f;
 		activity.vncCanvas.absoluteXPosition = 0;
 		activity.vncCanvas.absoluteYPosition = 0;
 		activity.vncCanvas.scrollTo(0, 0);
 		
-		float ratioScreen = (float)activity.vncCanvas.getWidth()
-                           /(float)activity.vncCanvas.getHeight();
-		float ratioFrameBuffer = (float)activity.vncCanvas.rfb.framebufferWidth
-                                /(float)activity.vncCanvas.rfb.framebufferHeight;
-
+		float screenWidth  = activity.vncCanvas.getWidth();
+		float screenHeight = activity.vncCanvas.getHeight();
+		float fbWidth  = activity.vncCanvas.rfb.framebufferWidth;
+		float fbHeight = activity.vncCanvas.rfb.framebufferHeight;
+		
+		float ratioScreen = screenWidth/screenHeight;
+		float ratioFrameBuffer = fbWidth/fbHeight;
+		
 		// Compute the correct absoluteXPosition and absoluteYPosition values depending on the
 		// height/width ratio of the device's screen vs. the framebuffer's ratio.
 		if (ratioScreen > ratioFrameBuffer) {
-			activity.vncCanvas.absoluteXPosition = 
-					-((activity.vncCanvas.getWidth() - activity.vncCanvas.getHeight()
-							*activity.vncCanvas.rfb.framebufferWidth
-							/activity.vncCanvas.rfb.framebufferHeight));
-			scaling = (float)activity.vncCanvas.getHeight()/(float)activity.vncCanvas.rfb.framebufferHeight;
+			if (fbWidth <= screenWidth)
+				factor = ratioScreen;
+				
+			activity.vncCanvas.absoluteXPosition = -(int)(((screenWidth - screenHeight*fbWidth/fbHeight))/factor);
+			scaling = screenHeight/fbHeight;
+			
 		} else if (ratioScreen < ratioFrameBuffer) {
-			activity.vncCanvas.absoluteYPosition =
-					-((activity.vncCanvas.getHeight() - activity.vncCanvas.getWidth()
-							*activity.vncCanvas.rfb.framebufferHeight
-							/activity.vncCanvas.rfb.framebufferWidth));
-			scaling = (float)activity.vncCanvas.getWidth()/(float)activity.vncCanvas.rfb.framebufferWidth;
+			if (fbHeight <= screenHeight)
+				factor = ratioScreen;
+			
+			activity.vncCanvas.absoluteYPosition = -(int)(((screenHeight - screenWidth*fbHeight/fbWidth))/factor);
+			scaling = screenWidth/fbWidth;
 		}
+		
+		Log.i("", "X position: " + activity.vncCanvas.absoluteXPosition
+			    + " Y position: " + activity.vncCanvas.absoluteYPosition + " Scaling: " + scaling);
 	}
 }

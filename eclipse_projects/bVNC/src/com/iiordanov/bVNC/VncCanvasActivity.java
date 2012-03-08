@@ -611,15 +611,16 @@ public class VncCanvasActivity extends Activity {
 	        // finger is down, we treat it as a middle mouse click. We ignore the lifting of the
 	        // second index when the third index has gone down (using the thirdPointerWasDown variable)
 	        // to prevent inadvertent right-clicks when a middle click has been performed.
-	        if (!inScaling && !thirdPointerWasDown && pointerID == 1 && action == MotionEvent.ACTION_POINTER_UP) {
-	        	/*rightDragMode = true; // This initialization was needed for rightDrag mode.
-	        	dragX = e.getX();
-	        	dragY = e.getY();*/	        	
+	        if (!inScaling && !thirdPointerWasDown && pointerID == 1 && action == MotionEvent.ACTION_POINTER_UP) {     	
 	        	remoteMouseStayPut(e);
+	        	// We offset the click down and up by one pixel to workaround for Firefox (and any other application)
+	        	// where if the two events are in the same spot the context menu may disappear.
 	        	vncCanvas.processPointerEvent(e, true, true, false);
-	        	//remoteMouseSetCoordinates(e, vncCanvas.mouseX - 1.f, vncCanvas.mouseY);
+	        	remoteMouseSetCoordinates(e, vncCanvas.mouseX - 1.f, vncCanvas.mouseY);
 	        	vncCanvas.processPointerEvent(e, false, true, false);
-	        	//remoteMouseSetCoordinates(e, vncCanvas.mouseX + 1.f, vncCanvas.mouseY);
+	        	// Put the pointer where it was before the 1px offset.
+	        	remoteMouseSetCoordinates(e, vncCanvas.mouseX + 1.f, vncCanvas.mouseY);
+	        	vncCanvas.mouseX = vncCanvas.mouseX + 1;
 				// Pass this event on to the parent class in order to end scaling as it was certainly
 				// started when the second pointer went down.
 				return super.onTouchEvent(e);

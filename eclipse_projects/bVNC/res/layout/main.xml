@@ -21,7 +21,7 @@
 			    android:textAppearance="?android:attr/textAppearanceMedium"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:textSize="26sp"
+				android:textSize="27sp"
 			/>
 		</LinearLayout>
 		<Spinner 
@@ -85,22 +85,27 @@
 					<TextView android:text="@string/username_caption" android:paddingRight="10dip" android:gravity="right|center_vertical" android:textAppearance="?android:attr/textAppearanceMedium" />
 					<EditText android:layout_width="fill_parent" android:hint="@string/username_hint" android:layout_height="wrap_content" android:singleLine="true" android:layout_weight="1" android:id="@+id/textUsername"/>
 				</TableRow>
+				<TableRow>
+					<TextView
+					    android:layout_height="wrap_content"
+					    android:layout_width="wrap_content"
+					    android:layout_gravity="left|center_vertical"
+						android:textAppearance="?android:attr/textAppearanceMedium"
+						android:text="@string/color_format_caption"
+					/>
+					<Spinner 
+					    android:id="@+id/colorformat" 
+					    android:layout_width="fill_parent"
+						android:layout_height="wrap_content"
+						android:layout_weight="1"
+					/>
+				</TableRow>
 			</TableLayout>
-			<TextView
-			    android:layout_height="wrap_content"
-			    android:layout_width="wrap_content"
-			    android:layout_gravity="left|center_vertical"
-				android:textAppearance="?android:attr/textAppearanceMedium"
-				android:text="@string/color_format_caption"
-			/>
-			<Spinner 
-			    android:id="@+id/colorformat" 
-			    android:layout_width="fill_parent"
-				android:layout_height="wrap_content"
-			/>
+			
 			<CheckBox
 				android:id="@+id/checkboxUseLocalCursor"
 			    android:text="@string/local_mouse_check"
+			    android:textAppearance="?android:attr/textAppearanceMedium"
 			    android:layout_width="wrap_content"
 			    android:gravity="left|center_vertical"
 			    android:layout_height="wrap_content"
@@ -113,6 +118,7 @@
 				>
 				<TextView
 					android:text="@string/force_full_check"
+					android:textAppearance="?android:attr/textAppearanceMedium"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
 					/> 
@@ -125,18 +131,21 @@
 					<RadioButton
 						android:id="@+id/radioForceFullScreenAuto"
 					    android:text="@string/auto"
+					    android:textAppearance="?android:attr/textAppearanceMedium"
 					    android:layout_width="wrap_content"
 					    android:layout_height="wrap_content"
 					/>
 					<RadioButton
 						android:id="@+id/radioForceFullScreenOn"
 					    android:text="@string/on"
+					    android:textAppearance="?android:attr/textAppearanceMedium"
 					    android:layout_width="wrap_content"
 					    android:layout_height="wrap_content"
 					/>
 					<RadioButton
 						android:id="@+id/radioForceFullScreenOff"
 					    android:text="@string/off"
+						android:textAppearance="?android:attr/textAppearanceMedium"
 					    android:layout_width="wrap_content"
 					    android:layout_height="wrap_content"
 					/>
@@ -149,6 +158,7 @@
 				<Button
 					android:id="@+id/buttonRepeater"
 					android:text="@string/repeater_button"
+					android:textAppearance="?android:attr/textAppearanceMedium"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
 					/>
@@ -158,11 +168,13 @@
 					android:layout_height="wrap_content"
 					android:gravity="left|center_vertical"
 					android:text="@string/repeater_empty_text"
+					android:textAppearance="?android:attr/textAppearanceMedium"
 					/>
 			</LinearLayout>
 			<Button
 				android:id="@+id/buttonImportExport"
 				android:text="@string/import_export_settings"
+				android:textAppearance="?android:attr/textAppearanceMedium"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				/>

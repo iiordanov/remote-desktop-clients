@@ -93,7 +93,7 @@ public class androidVNC extends Activity {
 		});
 		colorSpinner = (Spinner)findViewById(R.id.colorformat);
 		COLORMODEL[] models=COLORMODEL.values();
-		ArrayAdapter<COLORMODEL> colorSpinnerAdapter = new ArrayAdapter<COLORMODEL>(this, android.R.layout.simple_spinner_item, models);
+		ArrayAdapter<COLORMODEL> colorSpinnerAdapter = new ArrayAdapter<COLORMODEL>(this, R.layout.connection_list_entry, models);
 		groupForceFullScreen = (RadioGroup)findViewById(R.id.groupForceFullScreen);
 		checkboxKeepPassword = (CheckBox)findViewById(R.id.checkboxKeepPassword);
 		checkboxLocalCursor = (CheckBox)findViewById(R.id.checkboxUseLocalCursor);
@@ -341,7 +341,7 @@ public class androidVNC extends Activity {
 				}
 			}
 		}
-		spinnerConnection.setAdapter(new ArrayAdapter<ConnectionBean>(this,R.layout.connection_list_entry,
+		spinnerConnection.setAdapter(new ArrayAdapter<ConnectionBean>(this, R.layout.connection_list_entry,
 				connections.toArray(new ConnectionBean[connections.size()])));
 		spinnerConnection.setSelection(connectionIndex,false);
 		selected=connections.get(connectionIndex);
