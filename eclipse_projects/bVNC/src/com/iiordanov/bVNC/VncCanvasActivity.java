@@ -278,8 +278,11 @@ public class VncCanvasActivity extends Activity {
 	        	rightDragMode = true;
 	        	vncCanvas.changeTouchCoordinatesToFullFrame(e);
 	        	vncCanvas.processPointerEvent(e, true, true, false);
+				SystemClock.sleep(50);
+	        	// Offset the pointer by one pixel to prevent accidental click and disappearing context menu.
 	        	remoteMouseSetCoordinates(e, vncCanvas.mouseX - 1.f, vncCanvas.mouseY);
 	        	vncCanvas.processPointerEvent(e, false, true, false);
+	        	// Put the pointer where it was before the 1px offset.
 	        	remoteMouseSetCoordinates(e, vncCanvas.mouseX + 1.f, vncCanvas.mouseY);
 				// Pass this event on to the parent class in order to end scaling as it was certainly
 				// started when the second pointer went down.
@@ -288,6 +291,7 @@ public class VncCanvasActivity extends Activity {
 	        	// This boolean prevents the right-click from firing simultaneously as a middle button click.
 	        	thirdPointerWasDown = true;
 	        	vncCanvas.changeTouchCoordinatesToFullFrame(e);
+				SystemClock.sleep(50);
 	        	vncCanvas.processPointerEvent(e, true, false, true);
 				return vncCanvas.processPointerEvent(e, false, false, true);
 	        } else if (pointerCnt == 1 && pointerID == 0 && rightDragMode) {
@@ -360,6 +364,7 @@ public class VncCanvasActivity extends Activity {
 		public boolean onSingleTapConfirmed(MotionEvent e) {
 			vncCanvas.changeTouchCoordinatesToFullFrame(e);
 			vncCanvas.processPointerEvent(e, true);
+			SystemClock.sleep(50);
 			return vncCanvas.processPointerEvent(e, false);
 		}
 		
@@ -616,6 +621,8 @@ public class VncCanvasActivity extends Activity {
 	        	// We offset the click down and up by one pixel to workaround for Firefox (and any other application)
 	        	// where if the two events are in the same spot the context menu may disappear.
 	        	vncCanvas.processPointerEvent(e, true, true, false);
+				SystemClock.sleep(50);
+	        	// Offset the pointer by one pixel to prevent accidental click and disappearing context menu.
 	        	remoteMouseSetCoordinates(e, vncCanvas.mouseX - 1.f, vncCanvas.mouseY);
 	        	vncCanvas.processPointerEvent(e, false, true, false);
 	        	// Put the pointer where it was before the 1px offset.
@@ -629,6 +636,7 @@ public class VncCanvasActivity extends Activity {
 	        	thirdPointerWasDown = true;
 	        	remoteMouseStayPut(e);
 	        	vncCanvas.processPointerEvent(e, true, false, true);
+				SystemClock.sleep(50);
 				return vncCanvas.processPointerEvent(e, false, false, true);			
 			} else if (pointerCnt == 1 && pointerID == 0 && dragMode) {	
 
@@ -674,6 +682,7 @@ public class VncCanvasActivity extends Activity {
 		public boolean onSingleTapConfirmed(MotionEvent e) {
 			remoteMouseStayPut(e);
 			vncCanvas.processPointerEvent(e, true);
+			SystemClock.sleep(50);
 			return vncCanvas.processPointerEvent(e, false);
 		}
 
