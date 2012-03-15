@@ -13,14 +13,14 @@
   		android:layout_height="wrap_content"
   		android:text="@string/import_settings_file_url"
 		android:gravity="right|center_vertical"
-		android:textAppearance="?android:attr/textAppearanceMedium"
+		android:textAppearance="?android:attr/textAppearanceLarge"
   		/>
   	<EditText
   		android:id="@+id/textImportUrl"
   		android:layout_width="fill_parent"
   		android:layout_height="wrap_content"
  		android:layout_weight="1"
- 		android:textAppearance="?android:attr/textAppearanceMedium"
+ 		android:textAppearance="?android:attr/textAppearanceLarge"
   		android:singleLine="true"
   		/>
   	<Button
@@ -28,7 +28,7 @@
   		android:layout_width="wrap_content"
   		android:layout_height="wrap_content"
   		android:text="@string/import_settings"
-  		android:textAppearance="?android:attr/textAppearanceMedium"
+  		android:textAppearance="?android:attr/textAppearanceLarge"
   		/>
   </TableRow>
   <TableRow>
@@ -37,14 +37,14 @@
   		android:layout_height="wrap_content"
   		android:text="@string/export_settings_path"
 		android:gravity="right|center_vertical"
-		android:textAppearance="?android:attr/textAppearanceMedium"
+		android:textAppearance="?android:attr/textAppearanceLarge"
   		/>
   	<EditText
   		android:id="@+id/textExportPath"
   		android:layout_width="fill_parent"
   		android:layout_height="wrap_content"
   		android:layout_weight="1"
-  		android:textAppearance="?android:attr/textAppearanceSmall"
+  		android:textAppearance="?android:attr/textAppearanceLarge"
   		android:singleLine="true"
   		/>
   	<Button
@@ -52,7 +52,7 @@
   		android:layout_width="wrap_content"
   		android:layout_height="wrap_content"
   		android:text="@string/export_settings"
-  		android:textAppearance="?android:attr/textAppearanceMedium"
+  		android:textAppearance="?android:attr/textAppearanceLarge"
   		/>
   </TableRow>
 </TableLayout>

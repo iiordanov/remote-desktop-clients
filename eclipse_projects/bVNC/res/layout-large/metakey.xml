@@ -15,21 +15,21 @@
 			android:layout_height="wrap_content"
 			android:text="@string/shift_check"
 			android:layout_weight="0"
-			android:textAppearance="?android:attr/textAppearanceMedium"
+			android:textAppearance="?android:attr/textAppearanceLarge"
 		/>
 		<CheckBox android:id="@+id/checkboxCtrl"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:text="@string/control_check"
 			android:layout_weight="0"
-			android:textAppearance="?android:attr/textAppearanceMedium"
+			android:textAppearance="?android:attr/textAppearanceLarge"
 		/>
 		<CheckBox android:id="@+id/checkboxAlt"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:text="@string/alt_check"
 			android:layout_weight="0"
-			android:textAppearance="?android:attr/textAppearanceMedium"
+			android:textAppearance="?android:attr/textAppearanceLarge"
 		/>
 		<Spinner android:id="@+id/spinnerKeySelect"
 			android:layout_width="fill_parent"
@@ -45,12 +45,12 @@
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:text="@string/send_button"
-			android:textAppearance="?android:attr/textAppearanceMedium"
+			android:textAppearance="?android:attr/textAppearanceLarge"
 		/>
 		<TextView android:id="@+id/textKeyDesc"
 			android:layout_width="fill_parent"
 			android:layout_height="wrap_content"
-			android:textAppearance="?android:attr/textAppearanceMedium"
+			android:textAppearance="?android:attr/textAppearanceLarge"
 		/>
 	</LinearLayout>
 	<ImageView android:layout_width="fill_parent" android:layout_height="wrap_content" android:src="@android:drawable/divider_horizontal_bright"/>
@@ -70,15 +70,15 @@
 				android:padding="0dip"
 				>
 				<TableRow>
-					<TextView android:text="@string/keys_caption" android:paddingRight="10dip" android:gravity="right|center_vertical" android:textAppearance="?android:attr/textAppearanceMedium"/>
+					<TextView android:text="@string/keys_caption" android:paddingRight="10dip" android:gravity="right|center_vertical" android:textAppearance="?android:attr/textAppearanceLarge"/>
 					<Spinner android:id="@+id/spinnerKeysInList" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_weight="1"/>
 				</TableRow>
 				<TableRow>
-					<TextView android:text="@string/list_caption" android:paddingRight="10dip" android:gravity="right|center_vertical" android:textAppearance="?android:attr/textAppearanceMedium"/>
+					<TextView android:text="@string/list_caption" android:paddingRight="10dip" android:gravity="right|center_vertical" android:textAppearance="?android:attr/textAppearanceLarge"/>
 					<Spinner android:id="@+id/spinnerLists" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_weight="1"/>
 				</TableRow>
 				<TableRow>
-					<TextView android:text="@string/list_name_caption" android:paddingRight="10dip" android:gravity="right|center_vertical" android:textAppearance="?android:attr/textAppearanceMedium"/>
+					<TextView android:text="@string/list_name_caption" android:paddingRight="10dip" android:gravity="right|center_vertical" android:textAppearance="?android:attr/textAppearanceLarge"/>
 					<EditText android:id="@+id/textListName" android:layout_width="fill_parent" android:layout_height="wrap_content" android:singleLine="true" android:layout_weight="1"/>
 				</TableRow>
 			</TableLayout>
@@ -97,7 +97,7 @@
 						android:text="@string/new_list_button"
 						android:layout_width="wrap_content"
 						android:layout_height="wrap_content"
-						android:textAppearance="?android:attr/textAppearanceMedium"
+						android:textAppearance="?android:attr/textAppearanceLarge"
 						/>
 				</LinearLayout>
 				<LinearLayout
@@ -110,7 +110,7 @@
 						android:text="@string/copy_list_button"
 						android:layout_width="wrap_content"
 						android:layout_height="wrap_content"
-						android:textAppearance="?android:attr/textAppearanceMedium"
+						android:textAppearance="?android:attr/textAppearanceLarge"
 						/>
 				</LinearLayout>
 			</LinearLayout>

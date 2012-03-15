@@ -36,19 +36,19 @@
 <string name="info">Info</string>
 <string name="intro_text">
 bVNC automatically saves sessions. Once connected, you can choose between Zoomable, Fit to Screen, and One to One scaling. 
-bVNC also supports two Input Modes, Touch Mouse and Simulated Touchpad. To change the Scaling or Input Mode, or get Help,
-swipe down from beyond top edge to access the Menu. For help with Input Modes (i.e. how to control the remote mouse),
-select Menu->More->Input Mode Help. Please note that full-screen mode in Android Player must be enabled in order to
-see the Zoom controls at the bottom of the screen.
+bVNC also supports two Input Modes, Touch Mouse and Simulated Touchpad. To delete connections on the main screen, change
+the Scaling or Input Mode while connected, or get Help anywhere, use the Menu. For help with Input Modes (i.e. how to control
+the remote mouse), select Menu->More->Input Mode Help. Please note that in order to see the Keyboard and Zoom buttons at the
+bottom of the screen when connected, you must be in full-screen mode (i.e. the system must not be hiding the bottom of the screen).
 &lt;br&gt;
-&lt;br&gt;Other Menu items include toggling Ctrl/Alt, various shortcuts to keys, and sending arbitrary text and key
-combinations.</string>
+&lt;br&gt;Other Menu items include toggling Ctrl/Alt, shortcuts to arrow keys, and sending arbitrary text and key combinations.
+</string>
 <string name="intro_title">bVNC</string>
 <string name="intro_version_text"></string>
 <string name="input_mode">Input Mode</string>
 <string name="input_mode_fit_to_screen">No Pan; Trackball Mouse</string>
 <string name="input_mode_help_text">
-"Please note that full-screen mode in Android Player must be enabled in order to see the Zoom controls at the bottom of the screen.
+"Please note that in order to see the Keyboard and Zoom buttons at the bottom of the screen, you must be in full-screen mode (i.e. the system must not be hiding the bottom of the screen).
 
 In any Input Mode, swipe up diagonally from the bottom left corner or press the keyboard icon between the Zoom controls to get the on-screen keyboard.
 
@@ -123,7 +123,7 @@ All Input Modes:
 <string name="repeater_clear">Don\'t use repeater</string>
 <string name="repeater_dialog_title">Repeater Information</string>
 <string name="repeater_empty_text">No repeater</string>
-<string name="repeater_save">Use this repeater address</string>
+<string name="repeater_save">Use this repeater</string>
 <string name="save_as_copy">Save as Copy</string>
 <string name="scaling">Scaling</string>
 <string name="scaling_zoomable">Zoomable</string>

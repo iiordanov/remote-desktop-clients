@@ -199,7 +199,7 @@ class MetaKeyDialog extends Dialog implements ConnectionSettable {
 			_lists = new ArrayList<MetaList>();
 			MetaList.getAll(_database.getReadableDatabase(), MetaList.GEN_TABLE_NAME, _lists, MetaList.GEN_NEW);
 		}
-		_spinnerKeySelect.setAdapter(new ArrayAdapter<String>(getOwnerActivity(), android.R.layout.simple_spinner_item, MetaKeyBean.allKeysNames));
+		_spinnerKeySelect.setAdapter(new ArrayAdapter<String>(getOwnerActivity(), R.layout.key_list_entry, MetaKeyBean.allKeysNames));
 		_spinnerKeySelect.setSelection(0);
 		
 		setListSpinner();
@@ -524,7 +524,7 @@ class MetaKeyDialog extends Dialog implements ConnectionSettable {
 							selectedOffset = j;
 						}
 					}
-					_spinnerKeysInList.setAdapter(new ArrayAdapter<String>(getOwnerActivity(), android.R.layout.simple_spinner_item, keys));
+					_spinnerKeysInList.setAdapter(new ArrayAdapter<String>(getOwnerActivity(), R.layout.key_list_entry, keys));
 					if (keys.size()>0)
 					{
 						_spinnerKeysInList.setSelection(selectedOffset);
@@ -581,7 +581,7 @@ class MetaKeyDialog extends Dialog implements ConnectionSettable {
 			MetaList l = _lists.get(i);
 			listNames.add(l.getName());
 		}
-		_spinnerLists.setAdapter(new ArrayAdapter<String>(getOwnerActivity(),android.R.layout.simple_spinner_item, listNames));
+		_spinnerLists.setAdapter(new ArrayAdapter<String>(getOwnerActivity(), R.layout.key_list_entry, listNames));
 	}
 
 	/**

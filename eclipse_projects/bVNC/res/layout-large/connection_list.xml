@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  android:layout_width="fill_parent"
+  android:layout_height="fill_parent"
+  android:padding="5sp"
+  android:orientation="vertical"
+  >
+<ListView
+  android:id="@+android:id/android:list"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent"/>
+
+  >
+  <TextView
+   	android:id="@+id/list_text_nickname"
+  	android:layout_width="match_parent"
+  	android:layout_height="match_parent"
+  	/>
+  <TextView
+	  	android:layout_width="match_parent"
+	  	android:layout_height="match_parent"
+	  	android:id="@+id/list_text_address"
+	  	/>
+  <TextView
+	  	android:layout_width="match_parent"
+	  	android:layout_height="match_parent"
+	  	android:id="@+id/list_text_separator"
+	  	android:text=":"
+	  	/> 	
+  <TextView
+	  	android:layout_width="match_parent"
+	  	android:layout_height="match_parent"
+	  	android:id="@+id/list_text_port"
+	  	/> 	
+  <TextView
+	  	android:layout_width="match_parent"
+	  	android:layout_height="match_parent"
+	  	android:text=" "
+	  	/> 	
+  <TextView
+	  	android:layout_width="match_parent"
+	  	android:layout_height="match_parent"
+	  	android:id="@+id/list_text_repeater"
+	  	/> 	
+</LinearLayout>

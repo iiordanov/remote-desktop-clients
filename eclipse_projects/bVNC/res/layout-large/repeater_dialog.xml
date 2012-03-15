@@ -11,9 +11,9 @@
   	android:layout_width="wrap_content"
   	android:layout_height="wrap_content"
   	android:text="@string/repeater_caption"
-  	android:textAppearance="?android:attr/textAppearanceMedium"
+  	android:textAppearance="?android:attr/textAppearanceLarge"
   	/>
-	<EditText android:id="@+id/textRepeaterInfo" android:layout_width="fill_parent" android:layout_height="wrap_content" android:singleLine="true" android:layout_weight="1" />
+	<EditText android:id="@+id/textRepeaterInfo" android:layout_width="fill_parent" android:layout_height="wrap_content" android:singleLine="true" android:layout_weight="1" android:textAppearance="?android:attr/textAppearanceLarge"/>
 	<LinearLayout
 	  android:layout_width="wrap_content"
 	  android:layout_height="wrap_content"
@@ -26,7 +26,7 @@
 	    android:layout_height="wrap_content"
 	    android:text="@string/repeater_save"
 	    android:gravity="left|center_vertical"
-	    android:textAppearance="?android:attr/textAppearanceMedium"
+	    android:textAppearance="?android:attr/textAppearanceLarge"
 	    />
 	  <Button
 	    android:id="@+id/buttonClearRepeater"
@@ -34,7 +34,7 @@
 	    android:layout_height="wrap_content"
 	    android:text="@string/repeater_clear"
 	    android:gravity="right|center_vertical"
-	    android:textAppearance="?android:attr/textAppearanceMedium"
+	    android:textAppearance="?android:attr/textAppearanceLarge"
 	    />
 	</LinearLayout>
 </LinearLayout>

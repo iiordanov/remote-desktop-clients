@@ -12,10 +12,10 @@
 		android:minEms="18"
 		android:layout_height="wrap_content"
 		android:lines="2"
-		android:textAppearance="?android:attr/textAppearanceMedium"
+		android:textAppearance="?android:attr/textAppearanceLarge"
 		/>
 	<LinearLayout android:id="@+id/LinearLayout01" android:layout_width="fill_parent" android:layout_height="wrap_content" android:orientation="horizontal">
-		<Button android:text="@string/button_send_text" android:id="@+id/buttonSendText" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textAppearance="?android:attr/textAppearanceMedium"></Button>
+		<Button android:text="@string/button_send_text" android:id="@+id/buttonSendText" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textAppearance="?android:attr/textAppearanceLarge"></Button>
 		<LinearLayout android:gravity="right" android:layout_width="fill_parent" android:layout_height="wrap_content" android:orientation="horizontal">
 			<ImageButton android:gravity="right|center_vertical" android:id="@+id/buttonPreviousEntry" android:src="@android:drawable/arrow_up_float" android:layout_width="wrap_content" android:layout_height="wrap_content" />
 			<ImageButton android:gravity="right|center_vertical" android:id="@+id/buttonNextEntry" android:src="@android:drawable/arrow_down_float" android:layout_width="wrap_content" android:layout_height="wrap_content" />
@@ -23,7 +23,7 @@
 	</LinearLayout>
 	<LinearLayout android:layout_width="fill_parent" android:layout_height="12dp"/>
 	<LinearLayout android:layout_width="fill_parent" android:layout_height="fill_parent" android:gravity="bottom" android:orientation="horizontal">
-		<Button android:text="@string/button_send_without_saving" android:id="@+id/buttonSendWithoutSaving" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textAppearance="?android:attr/textAppearanceMedium"/>
+		<Button android:text="@string/button_send_without_saving" android:id="@+id/buttonSendWithoutSaving" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textAppearance="?android:attr/textAppearanceLarge"/>
 		<LinearLayout android:layout_width="fill_parent" android:layout_height="wrap_content" android:orientation="vertical" android:gravity="right|center_vertical">
 			<ImageButton android:id="@+id/buttonTextDelete" android:src="@android:drawable/ic_menu_delete" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
 		</LinearLayout>
