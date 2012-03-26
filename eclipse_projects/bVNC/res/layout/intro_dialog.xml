@@ -3,19 +3,21 @@
   xmlns:android="http://schemas.android.com/apk/res/android"
   android:layout_width="fill_parent"
   android:layout_height="fill_parent"
-  android:padding="5sp"
+  android:padding="0sp"
   android:orientation="vertical"
   >
     <TextView
       android:id="@+id/textIntroText"
       android:layout_width="fill_parent"
       android:layout_height="wrap_content"
-      android:textAppearance="?android:attr/textAppearanceMedium"
+      android:textAppearance="?android:attr/textAppearanceSmall"
+      android:maxLines="10"
+      android:scrollbars = "vertical"
       />
 	<LinearLayout
 	  android:layout_width="fill_parent"
 	  android:layout_height="wrap_content"
-	  android:padding="5sp"
+	  android:padding="0sp"
 	  android:orientation="horizontal"
 	  android:gravity="left|center_vertical"
 	  >
@@ -24,7 +26,7 @@
 	    android:layout_width="wrap_content"
 	    android:layout_height="wrap_content"
 	    android:text="@string/intro_dont_show"
-	    android:textAppearance="?android:attr/textAppearanceMedium"
+	    android:textAppearance="?android:attr/textAppearanceSmall"
 	    />
 	  <LinearLayout
 	  	android:layout_width="fill_parent"
@@ -38,7 +40,7 @@
 		<LinearLayout
 		  android:layout_width="fill_parent"
 		  android:layout_height="wrap_content"
-		  android:padding="5sp"
+		  android:padding="0sp"
 		  android:orientation="horizontal"
 		  android:gravity="right|center_vertical"
 		  >
@@ -47,7 +49,7 @@
 		    android:layout_width="wrap_content"
 		    android:layout_height="wrap_content"
 		    android:text="@string/close"
-		    android:textAppearance="?android:attr/textAppearanceMedium"
+		    android:textAppearance="?android:attr/textAppearanceSmall"
 		    />
       	</LinearLayout>
 	  </LinearLayout>

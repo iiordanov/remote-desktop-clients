@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.iiordanov.bVNC" android:installLocation="auto" android:versionCode="16" android:versionName="v1.0">
 
-    <uses-sdk android:minSdkVersion="4" android:targetSdkVersion="4"></uses-sdk>
+    <uses-sdk android:minSdkVersion="8" android:targetSdkVersion="8"></uses-sdk>
     <uses-permission android:name="android.permission.INTERNET"></uses-permission>
 	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"></uses-permission>
     <supports-screens android:anyDensity="true"/>
