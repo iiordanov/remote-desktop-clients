@@ -1,4 +1,5 @@
 /**
+ * Copyright (C) 2012 Iordan Iordanov
  * Copyright (c) 2010 Michael A. MacDonald
  */
 package com.iiordanov.bVNC;
@@ -69,8 +70,8 @@ class IntroTextDialog extends Dialog {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.intro_dialog);
 		StringBuilder sb = new StringBuilder(getContext().getResources().getString(R.string.intro_title));
-		sb.append(" ");
-		sb.append(packageInfo.versionName);
+		//sb.append(" ");
+		//sb.append(packageInfo.versionName);
 		setTitle(sb);
 		sb.delete(0, sb.length());
 		sb.append(getContext().getResources().getString(R.string.intro_text));

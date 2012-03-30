@@ -92,7 +92,7 @@ class FitToScreenScaling extends AbstractScaling {
 			scaling = screenWidth/fbWidth;
 		}
 		
-		Log.i("", "X position: " + activity.vncCanvas.absoluteXPosition
-			    + " Y position: " + activity.vncCanvas.absoluteYPosition + " Scaling: " + scaling);
+		//Log.i("", "X position: " + activity.vncCanvas.absoluteXPosition
+		//	    + " Y position: " + activity.vncCanvas.absoluteYPosition + " Scaling: " + scaling);
 	}
 }

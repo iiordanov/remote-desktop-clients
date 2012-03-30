@@ -6,6 +6,7 @@ package com.iiordanov.bVNC;
 
 import android.graphics.Matrix;
 import android.util.Log;
+import android.widget.Toast;
 import android.widget.ImageView.ScaleType;
 
 /**
@@ -150,8 +151,19 @@ class ZoomScaling extends AbstractScaling {
 		int yPan = activity.vncCanvas.absoluteYPosition;
 		float ay = (fy / scaling) + yPan;
 		float newYPan = (scaling * yPan - scaling * ay + newScale * ay)/newScale;
-		resetMatrix();
+		
+		// Here we do snapping to 1:1. If we are approaching scale = 1, we snap to it.
 		oldScale = scaling;
+		if ( (newScale > 0.90f && newScale < 1.00f) ||
+			 (newScale > 1.00f && newScale < 1.10f) ) {
+			newScale = 1.f;
+			// Only if oldScale is outside the snap region, do we inform the user.
+			if (oldScale < 0.90f || oldScale > 1.10f)
+				Toast.makeText(activity.vncCanvas.getContext(),
+                               R.string.snap_one_to_one, Toast.LENGTH_SHORT).show();
+		}
+		
+		resetMatrix();
 		scaling = newScale;
 		matrix.postScale(scaling, scaling);
 		activity.vncCanvas.setImageMatrix(matrix);

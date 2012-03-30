@@ -802,6 +802,9 @@ public class VncCanvas extends ImageView {
 	static final int MOUSE_BUTTON_RIGHT = 4;
 	static final int MOUSE_BUTTON_SCROLL_UP = 8;
 	static final int MOUSE_BUTTON_SCROLL_DOWN = 16;
+//  ARE THESE VALUES CORRECT? TODO
+//	static final int MOUSE_BUTTON_SCROLL_LEFT = 32;
+//	static final int MOUSE_BUTTON_SCROLL_RIGHT = 64;
 	
 	/**
 	 * Current state of "mouse" buttons
@@ -826,11 +829,35 @@ public class VncCanvas extends ImageView {
 	}
 
 	/**
-	 *  Overloaded processPointerEvent method which supports middle mouse button.
+	 *  Overloaded processPointerEvent method which supports mouse scroll button.
+	 * @param evt motion event; x and y must already have been converted from screen coordinates
+	 * to remote frame buffer coordinates.
+	 * @param downEvent True if "mouse button" (touch or trackball button) is down when this happens
+	 * @param useRightButton If true, event is interpreted as happening with right mouse button
+	 * @param useMiddleButton If true, event is interpreted as click happening with middle mouse button
+	 * @param useScrollButton If true, event is interpreted as click happening with mouse scroll button
+	 * @param direction Indicates the direction of the scroll event: 0 for up, 1 for down, 2 for left, 3 for right.
+	 * @return true if event was actually sent
 	 */
-	public boolean processPointerEvent(MotionEvent evt, boolean downEvent, boolean useRightButton, boolean useMiddleButton) {
+	public boolean processPointerEvent(MotionEvent evt, boolean downEvent, 
+                                       boolean useRightButton, boolean useMiddleButton, boolean useScrollButton, int direction) {
 		return processPointerEvent((int)evt.getX(),(int)evt.getY(), evt.getActionMasked(), 
-									evt.getMetaState(), downEvent, useRightButton, useMiddleButton);
+									evt.getMetaState(), downEvent, useRightButton, useMiddleButton, useScrollButton, direction);
+	}
+	
+	/**
+	 *  Overloaded processPointerEvent method which supports middle mouse button.
+	 * @param evt motion event; x and y must already have been converted from screen coordinates
+	 * to remote frame buffer coordinates.
+	 * @param downEvent True if "mouse button" (touch or trackball button) is down when this happens
+	 * @param useRightButton If true, event is interpreted as happening with right mouse button
+	 * @param useMiddleButton If true, event is interpreted as click happening with middle mouse button
+	 * @return true if event was actually sent
+	 */
+	public boolean processPointerEvent(MotionEvent evt, boolean downEvent, 
+                                       boolean useRightButton, boolean useMiddleButton) {
+		return processPointerEvent((int)evt.getX(),(int)evt.getY(), evt.getActionMasked(), 
+									evt.getMetaState(), downEvent, useRightButton, useMiddleButton, false, -1);
 	}
 
 	/**
@@ -843,17 +870,23 @@ public class VncCanvas extends ImageView {
 	 */
 	public boolean processPointerEvent(MotionEvent evt, boolean downEvent, boolean useRightButton) {
 		return processPointerEvent((int)evt.getX(),(int)evt.getY(), evt.getAction(), 
-									evt.getMetaState(), downEvent, useRightButton, false);
+									evt.getMetaState(), downEvent, useRightButton, false, false, -1);
 	}
 
 	/**
-	 *  Overloaded processPointerEvent method which supports middle mouse button.
+	 *  Overloaded processPointerEvent method which supports right mouse button.
+	 * @param evt motion event; x and y must already have been converted from screen coordinates
+	 * to remote frame buffer coordinates.
+	 * @param downEvent True if "mouse button" (touch or trackball button) is down when this happens
+	 * @param useRightButton If true, event is interpreted as happening with right mouse button
+	 * @return true if event was actually sent
 	 */
 	boolean processPointerEvent(int x, int y, int action, int modifiers, boolean mouseIsDown, boolean useRightButton) {
-		return processPointerEvent(x, y, action, modifiers, mouseIsDown, useRightButton, false);
+		return processPointerEvent(x, y, action, modifiers, mouseIsDown, useRightButton, false, false, -1);
 	}
 	
-	boolean processPointerEvent(int x, int y, int action, int modifiers, boolean mouseIsDown, boolean useRightButton, boolean useMiddleButton) {
+	boolean processPointerEvent(int x, int y, int action, int modifiers, 
+			                    boolean mouseIsDown, boolean useRightButton, boolean useMiddleButton, boolean useScrollButton, int direction) {
 		
 		// IF none of the conditions below are satisfied, clear the pointer mask.
 		pointerMask = 0;
@@ -868,22 +901,28 @@ public class VncCanvas extends ImageView {
 			} else if (mouseIsDown && (action == MotionEvent.ACTION_DOWN || action == MotionEvent.ACTION_MOVE)) {
 			    //Log.i(TAG,"Left mouse button mask set");
 		        pointerMask = MOUSE_BUTTON_LEFT;
+			} else if (!mouseIsDown && useScrollButton) {
+				//Log.d(TAG, "Sending a Mouse Scroll event: " + direction);
+				if      ( direction == 0 )
+					pointerMask = MOUSE_BUTTON_SCROLL_UP;
+				else if ( direction == 1 )
+					pointerMask = MOUSE_BUTTON_SCROLL_DOWN;
 		    } else {
 			    //Log.i(TAG,"Mouse button mask cleared");
 		    	pointerMask = 0;
 		    }
 						
 		    bitmapData.invalidateMousePosition();
-		    mouseX= x;
-		    mouseY= y;
-		    if ( mouseX<0) mouseX=0;
-		    else if ( mouseX>=rfb.framebufferWidth) mouseX=rfb.framebufferWidth-1;
-		    if ( mouseY<0) mouseY=0;
-		    else if ( mouseY>=rfb.framebufferHeight) mouseY=rfb.framebufferHeight-1;
+		    mouseX = x;
+		    mouseY = y;
+		    if ( mouseX < 0) mouseX=0;
+		    else if ( mouseX >= rfb.framebufferWidth ) mouseX = rfb.framebufferWidth - 1;
+		    if ( mouseY < 0) mouseY=0;
+		    else if ( mouseY >= rfb.framebufferHeight) mouseY = rfb.framebufferHeight - 1;
 		    bitmapData.invalidateMousePosition();
 
 		    try {
-				rfb.writePointerEvent(mouseX,mouseY,modifiers|onScreenMetaState,pointerMask);
+				rfb.writePointerEvent(mouseX, mouseY, modifiers|onScreenMetaState, pointerMask);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -923,7 +962,7 @@ public class VncCanvas extends ImageView {
 	}
 
 	public boolean processLocalKeyEvent(int keyCode, KeyEvent evt) {
-		//Log.i(TAG,"there was a key event.");
+		//Log.i(TAG,"there was a key event: " + keyCode);
 		
 		if (keyCode == KeyEvent.KEYCODE_MENU)
 			// Ignore menu key

@@ -43,14 +43,14 @@ bottom of the screen when connected, you must be in full-screen mode (i.e. the s
 &lt;br&gt;
 &lt;br&gt;Other Menu items include toggling Ctrl/Alt, shortcuts to arrow keys, and sending arbitrary text and key combinations.
 </string>
-<string name="intro_title">bVNC</string>
+<string name="intro_title">Welcome to bVNC - a mobile VNC client with an intuitive user interface</string>
 <string name="intro_version_text"></string>
 <string name="input_mode">Input Mode</string>
 <string name="input_mode_fit_to_screen">No Pan; Trackball Mouse</string>
 <string name="input_mode_help_text">
 "Please note that in order to see the Keyboard and Zoom buttons at the bottom of the screen, you must be in full-screen mode (i.e. the system must not be hiding the bottom of the screen).
 
-In any Input Mode, swipe up diagonally from the bottom left corner or press the keyboard icon between the Zoom controls to get the on-screen keyboard.
+In any Input Mode, press the keyboard icon between the Zoom controls to get the on-screen keyboard. On some devices you can swipe up diagonally from the bottom left corner (Playbook).
 
 Use Touch Mouse and Swipe Pan Mode for more intuitive touch-screen control. Use Simulated Touchpad Mode for finer control over the mouse.
 
@@ -58,21 +58,27 @@ Touch Mouse and Swipe Pan Mode:
  - Control the mouse directly through touch.
  - Swipe to pan around.
  - Tapping makes the mouse click where you tapped.
+ - Scroll events are sent between the two fingers where a two-finger swipe started.
  
 Simulated Touchpad Mode:
  - Use your screen like a touchpad.
  - Swipe to move the mouse pointer around.
  - Move mouse beyond edge of screen to pan.
  - Tapping makes the mouse click where the pointer is.
+ - Scroll events are sent where the mouse pointer is located.
 
 All Input Modes:
- - Tap once to left-click.
- - Double-tap to double-click.
- - Tap-hold and tap with a second finger (anywhere else on screen) to right-click.
- - Tap-hold and tap with two more fingers (anywhere else on screen) to middle-click.
- - Tap-hold-long and swipe to drag.
- - When in Zoomable scaling, you can pinch-zoom or use the +/- Zoom buttons.
- - Use the \"Back\" functionality of your device for ESC (diagonal swipe from bottom or back arrow symbol)."
+ - Left-click: Tap once.
+ - Double-click: Double-tap.
+ - Right-click: Tap-hold and tap with a second finger (anywhere else on screen).
+ - Middle-click: Tap-hold and tap with two more fingers (anywhere else on screen).
+ - Mouse-drag: Tap-hold-long and swipe.
+ - Scroll-wheel: Two-finger swipe up/down. Swipe quickly (flick) to scroll really quickly.
+ - Zoom in/out: When in Zoomable scaling, you can pinch-zoom or use the +/- Zoom buttons.
+ - ESC key: Use the \"Back\" functionality of your device (e.g. diagonal swipe from bottom or back arrow symbol).
+ - Ctrl/Alt key: Menu, and then toggle Ctrl/Alt with corresponding key. Don't forget to toggle off when done!
+ - Key combos: Menu->More->Send Keys.
+ - Send text: Either type on the on-screen keyboard, or use Menu->More->Send Text."
 </string>
 <string name="input_mode_mouse">Mouse Pointer Control</string>
 <string name="input_mode_panning">Desktop Panning Mode</string>
@@ -133,6 +139,7 @@ All Input Modes:
 <string name="shift_check">Shift</string>
 <string name="shortcut_label">VNC Connection</string>
 <string name="showkbd_label">Keyboard</string>
+<string name="snap_one_to_one">Snapped to 1:1 zoom</string>
 <string name="special_keys">Send Keys</string>
 <string name="username_caption">Username</string>
 <string name="username_hint">For Windows Authentication</string>

@@ -1,4 +1,5 @@
 /**
+ * Copyright (C) 2012 Iordan Iordanov
  * Copyright (C) 2009 Michael A. MacDonald
  */
 package com.iiordanov.bVNC;
@@ -10,6 +11,8 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.widget.ImageView;
+import android.util.Log;
+
 
 /**
  * Abstract interface between the VncCanvas and the bitmap and pixel data buffers that actually contain
@@ -62,15 +65,7 @@ abstract class AbstractBitmapData {
 	 */
 	float getMinimumScale()
 	{
-		double scale = 0.25;
-		int displayWidth = vncCanvas.getWidth();
-		int displayHeight = vncCanvas.getHeight();
-		for (; scale >= 0; scale -= 0.25)
-		{
-			if (scale * bitmapwidth < displayWidth || scale * bitmapheight < displayHeight)
-				break;
-		}
-		return (float)(scale + 0.25);
+		return Math.min((float)vncCanvas.getWidth()/bitmapwidth, (float)vncCanvas.getHeight()/bitmapheight);
 	}
 	
 	/**

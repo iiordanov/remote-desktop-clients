@@ -22,10 +22,33 @@ abstract class AbstractGestureInputHandler extends GestureDetector.SimpleOnGestu
 	protected IBCScaleGestureDetector scaleGestures;
 	private VncCanvasActivity activity;
 	
+	// This is the initial "focal point" of the gesture (between the two fingers).
 	float xInitialFocus;
 	float yInitialFocus;
-	boolean inScaling = false;
+	
+	// This is the final "focal point" of the gesture (between the two fingers).
+	float xCurrentFocus;
+	float yCurrentFocus;
+	float xPreviousFocus;
+	float yPreviousFocus;
+	
+	// These variables record whether there was a two-finger swipe performed up or down.
+	boolean inSwiping          = false;
+	boolean twoFingerSwipeUp   = false;
+	boolean twoFingerSwipeDown = false;
+	
+	// The variable which indicates how many scroll events to send per swipe event.
+	long    swipeSpeed = 1;
+	// If swipe events are registered once every baseSwipeTime miliseconds, then
+	// swipeSpeed will be one. If more often, swipe-speed goes up, if less, down.
+	final long    baseSwipeTime = 600;
+	// This is how far the swipe has to travel before a swipe event is generated.
+	final float   baseSwipeDist = 40.f;
+	
+	boolean inScaling           = false;
 	boolean scalingJustFinished = false;
+	// The minimum distance a scale event has to traverse the FIRST time before scaling starts.
+	final double  minScaleFactor = 0.1;
 	
 	private static final String TAG = "AbstractGestureInputHandler";
 	
@@ -49,30 +72,66 @@ abstract class AbstractGestureInputHandler extends GestureDetector.SimpleOnGestu
 	 */
 	@Override
 	public boolean onScale(IBCScaleGestureDetector detector) {
+
 		boolean consumed = true;
 
-		//Log.i(TAG,"Focus("+detector.getFocusX()+","+detector.getFocusY()+") scaleFactor = "+detector.getScaleFactor());
-
-		// Calculate focus shift
-		float fx = detector.getFocusX();
-		float fy = detector.getFocusY(); 
-		double xfs = fx - xInitialFocus;
-		double yfs = fy - yInitialFocus;
-		double fs = Math.sqrt(xfs * xfs + yfs * yfs);
+		// Get the current focus.
+		xCurrentFocus = detector.getFocusX();
+		yCurrentFocus = detector.getFocusY();
 		
-		if (Math.abs(1.0 - detector.getScaleFactor()) < 0.1) {
-			//Log.i(TAG,"Not scaling due to small scale factor.");
-			consumed = false;
+		// If we haven't started scaling yet, we check whether a swipe is being performed.
+		// The arbitrary fudge factor may not be the best way to set a tolerance...
+		if (!inScaling) {
+			
+			// Start swiping mode only after we've moved away from the initial focal point some distance.
+			if (!inSwiping) {
+				if ( (yCurrentFocus < (yInitialFocus - baseSwipeDist)) ||
+			         (yCurrentFocus > (yInitialFocus + baseSwipeDist)) ) {
+					inSwiping      = true;
+					xPreviousFocus = xInitialFocus;
+					yPreviousFocus = yInitialFocus;
+				}
+			}
+			
+			// If in swiping mode, indicate a swipe at regular intervals.
+			if (inSwiping) {
+				if        (yCurrentFocus < (yPreviousFocus - baseSwipeDist)) {
+					twoFingerSwipeUp   = false;					
+					twoFingerSwipeDown = true;
+					xPreviousFocus = xCurrentFocus;
+					yPreviousFocus = yCurrentFocus;
+				} else if (yCurrentFocus > (yPreviousFocus + baseSwipeDist)) {
+					twoFingerSwipeUp   = true;
+					twoFingerSwipeDown = false;
+					xPreviousFocus = xCurrentFocus;
+					yPreviousFocus = yCurrentFocus;
+				} else {
+					twoFingerSwipeUp   = false;					
+					twoFingerSwipeDown = false;
+					consumed           = false;
+				}
+				// The faster we swipe, the faster we traverse the screen, and hence, the 
+				// smaller the time-delta between consumed events. We take the reciprocal
+				// obtain swipeSpeed. If it goes to zero, we set it to at least one.
+				long elapsedTime = detector.getTimeDelta();
+				swipeSpeed = baseSwipeTime/elapsedTime;
+				if (swipeSpeed == 0) swipeSpeed = 1;
+				//if (consumed)        Log.d(TAG,"Current swipe speed: " + swipeSpeed);
+			}
 		}
 		
-		if (fs < Math.abs(detector.getCurrentSpan() - detector.getPreviousSpan()))
-		{
+		if (!inSwiping) {
+			if ( !inScaling && Math.abs(1.0 - detector.getScaleFactor()) < minScaleFactor ) {
+				//Log.i(TAG,"Not scaling due to small scale factor.");
+				consumed = false;
+			}
+
 			if (consumed)
 			{
 				inScaling = true;
-				//Log.i(TAG,"Adjust scaling "+detector.getScaleFactor());
+				//Log.i(TAG,"Adjust scaling " + detector.getScaleFactor());
 				if (activity.vncCanvas != null && activity.vncCanvas.scaling != null)
-					activity.vncCanvas.scaling.adjust(activity, detector.getScaleFactor(), fx, fy);
+					activity.vncCanvas.scaling.adjust(activity, detector.getScaleFactor(), xCurrentFocus, yCurrentFocus);
 			}
 		}
 		return consumed;
@@ -86,7 +145,12 @@ abstract class AbstractGestureInputHandler extends GestureDetector.SimpleOnGestu
 
 		xInitialFocus = detector.getFocusX();
 		yInitialFocus = detector.getFocusY();
-		inScaling = false;
+		inScaling           = false;
+		scalingJustFinished = false;
+		// Cancel any swipes that may have been registered last time.
+		inSwiping           = false;
+		twoFingerSwipeUp    = false;
+		twoFingerSwipeDown  = false;
 		//Log.i(TAG,"scale begin ("+xInitialFocus+","+yInitialFocus+")");
 		return true;
 	}
@@ -98,6 +162,7 @@ abstract class AbstractGestureInputHandler extends GestureDetector.SimpleOnGestu
 	public void onScaleEnd(IBCScaleGestureDetector detector) {
 		//Log.i(TAG,"scale end");
 		inScaling = false;
+		inSwiping = false;
 		scalingJustFinished = true;
 	}
 }
