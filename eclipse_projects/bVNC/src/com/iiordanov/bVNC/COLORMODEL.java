@@ -3,7 +3,7 @@ package com.iiordanov.bVNC;
 import java.io.IOException;
 
 public enum COLORMODEL {
-	C24bit, C256, C64, C8, C4, C2;
+	C24bit, C256, C64, C8; //, C4, C2;
 
 	public int bpp() {
 		switch (this) {
@@ -24,12 +24,13 @@ public enum COLORMODEL {
 			return ColorModel64.colors;
 		case C8:
 			return ColorModel8.colors;
-		case C4:
+/*		case C4:
 			return ColorModel64.colors;
 		case C2:
 			return ColorModel8.colors;
+ */
 		default:
-			return ColorModel256.colors;
+			return null;
 		}
 	}
 	
@@ -53,7 +54,7 @@ public enum COLORMODEL {
 		case C8:
 			rfb.writeSetPixelFormat(8, 3, false, true, 1, 1, 1, 2, 1, 0, false);
 			break;
-		case C4:
+/*		case C4:
 			// Greyscale
 			rfb.writeSetPixelFormat(8, 6, false, true, 3, 3, 3, 4, 2, 0, true);
 			break;
@@ -61,9 +62,10 @@ public enum COLORMODEL {
 			// B&W
 			rfb.writeSetPixelFormat(8, 3, false, true, 1, 1, 1, 2, 1, 0, true);
 			break;
+ */
 		default:
-			// Default is 256 colors
-			rfb.writeSetPixelFormat(8, 8, false, true, 7, 7, 3, 0, 3, 6, false);
+			// Default is 24 bit color
+			rfb.writeSetPixelFormat(32, 24, false, true, 255, 255, 255, 16, 8, 0, false);
 			break;
 		}
 	}
@@ -78,12 +80,13 @@ public enum COLORMODEL {
 			return "64 colors (1 bpp)";
 		case C8:
 			return "8 colors (1 bpp)";
-		case C4:
+/*		case C4:
 			return "Greyscale (1 bpp)";
 		case C2:
 			return "Black & White (1 bpp)";
+ */
 		default:
-			return "256 colors (1 bpp)";
+			return "24-bit color (4 bpp)";
 		}
 	}
 }

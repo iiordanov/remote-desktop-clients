@@ -169,8 +169,8 @@ class ZoomScaling extends AbstractScaling {
 		activity.vncCanvas.setImageMatrix(matrix);
 		resolveZoom(activity);
 		
-		// Pan only if we are zooming in.
-		if (oldScale < newScale)
+		// Only if we have actually scaled do we pan.
+		if (oldScale != newScale)
 			activity.vncCanvas.pan((int)(newXPan - xPan), (int)(newYPan - yPan));
 	}	
 	

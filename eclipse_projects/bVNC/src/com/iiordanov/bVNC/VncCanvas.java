@@ -47,6 +47,8 @@ import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.widget.ImageView;
 import android.widget.Toast;
+import android.graphics.BitmapFactory;
+import android.graphics.Bitmap;
 
 import com.iiordanov.android.bc.BCFactory;
 
@@ -95,20 +97,32 @@ public class VncCanvas extends ImageView {
 	public Handler handler = new Handler();
 
 	// VNC Encoding parameters
-	private boolean useCopyRect = false; // TODO CopyRect is not working
+	private boolean useCopyRect = false;
 	private int preferredEncoding = -1;
 
 	// Unimplemented VNC encoding parameters
 	private boolean requestCursorUpdates = false;
 	private boolean ignoreCursorUpdates = true;
 
-	// Unimplemented TIGHT encoding parameters
-	private int compressLevel = -1;
-	private int jpegQuality = -1;
+	// Tight encoding parameters
+	private int compressLevel = 9;
+	private int jpegQuality = 7;
 
 	// Used to determine if encoding update is necessary
 	private int[] encodingsSaved = new int[20];
 	private int nEncodingsSaved = 0;
+
+	// Tight encoder's data.
+	Inflater[] tightInflaters;
+	private Paint handleTightRectPaint;
+	byte[] jpegBuffer;
+	byte[] solidColorBuf;
+	byte[] tightPalette8;
+	int[]  tightPalette24;
+	byte[] colorBuf;
+	byte[] uncompDataBuf;
+	byte[] zlibData;
+	byte[] inflBuf;
 
 	// ZRLE encoder's data.
 	private byte[] zrleBuf;
@@ -138,6 +152,17 @@ public class VncCanvas extends ImageView {
 		scrollRunnable = new MouseScrollRunnable();
 		handleRREPaint = new Paint();
 		handleRREPaint.setStyle(Style.FILL);
+	    tightInflaters = new Inflater[4];
+	    jpegBuffer = new byte[8192];
+	    solidColorBuf = new byte[3];
+		tightPalette8  = new byte[2];
+		tightPalette24 = new int[256];
+		handleTightRectPaint = new Paint();
+		handleTightRectPaint.setStyle(Style.FILL);
+		colorBuf = new byte[768];
+		uncompDataBuf = new byte[RfbProto.TightMinToCompress*3];
+		zlibData = new byte[4096];
+		inflBuf = new byte[8192];
 	}
 
 	/**
@@ -349,14 +374,14 @@ public class VncCanvas extends ImageView {
 						int rw = rfb.updateRectW, rh = rfb.updateRectH;
 
 						if (rfb.updateRectEncoding == RfbProto.EncodingLastRect) {
-							Log.v(TAG, "rfb.EncodingLastRect");
+							//Log.v(TAG, "rfb.EncodingLastRect");
 							break;
 						}
 
 						if (rfb.updateRectEncoding == RfbProto.EncodingNewFBSize) {
 							rfb.setFramebufferSize(rw, rh);
 							// - updateFramebufferSize();
-							Log.v(TAG, "rfb.EncodingNewFBSize");
+							//Log.v(TAG, "rfb.EncodingNewFBSize");
 							break;
 						}
 
@@ -364,7 +389,7 @@ public class VncCanvas extends ImageView {
 							// - handleCursorShapeUpdate(rfb.updateRectEncoding,
 							// rx,
 							// ry, rw, rh);
-							Log.v(TAG, "rfb.EncodingCursor");
+							//Log.v(TAG, "rfb.EncodingCursor");
 							continue;
 
 						}
@@ -373,7 +398,7 @@ public class VncCanvas extends ImageView {
 							// This never actually happens
 							mouseX=rx;
 							mouseY=ry;
-							Log.v(TAG, "rfb.EncodingPointerPos");
+							//Log.v(TAG, "rfb.EncodingPointerPos");
 							continue;
 						}
 
@@ -385,7 +410,6 @@ public class VncCanvas extends ImageView {
 							break;
 						case RfbProto.EncodingCopyRect:
 							handleCopyRect(rx, ry, rw, rh);
-							Log.v(TAG, "CopyRect is Buggy!");
 							break;
 						case RfbProto.EncodingRRE:
 							handleRRERect(rx, ry, rw, rh);
@@ -401,6 +425,9 @@ public class VncCanvas extends ImageView {
 							break;
 						case RfbProto.EncodingZlib:
 							handleZlibRect(rx, ry, rw, rh);
+							break;
+						case RfbProto.EncodingTight:
+							handleTightRect(rx, ry, rw, rh);
 							break;
 						default:
 							Log.e(TAG, "Unknown RFB rectangle encoding " + rfb.updateRectEncoding + " (0x" + Integer.toHexString(rfb.updateRectEncoding) + ")");
@@ -673,7 +700,7 @@ public class VncCanvas extends ImageView {
 		  
 			final int l = w * 4;
 			if (l>handleRawRectBuffer.length) {
-      handleRawRectBuffer = new byte[l];
+				handleRawRectBuffer = new byte[l];
 			}
 			int i, offset;
 			for (int dy = y; dy < y + h; dy++) {
@@ -1148,8 +1175,7 @@ public class VncCanvas extends ImageView {
 			return;
 
 		if (preferredEncoding == -1) {
-			// Preferred format is ZRLE
-			preferredEncoding = RfbProto.EncodingZRLE;
+			preferredEncoding =  RfbProto.EncodingTight;
 		} else {
 			// Auto encoder selection is not enabled.
 			if (autoSelectOnly)
@@ -1160,10 +1186,11 @@ public class VncCanvas extends ImageView {
 		int nEncodings = 0;
 
 		encodings[nEncodings++] = preferredEncoding;
+		
 		if (useCopyRect)
 			encodings[nEncodings++] = RfbProto.EncodingCopyRect;
-		// if (preferredEncoding != RfbProto.EncodingTight)
-		// encodings[nEncodings++] = RfbProto.EncodingTight;
+		if (preferredEncoding != RfbProto.EncodingTight)
+			encodings[nEncodings++] = RfbProto.EncodingTight;
 		if (preferredEncoding != RfbProto.EncodingZRLE)
 			encodings[nEncodings++] = RfbProto.EncodingZRLE;
 		if (preferredEncoding != RfbProto.EncodingHextile)
@@ -1174,7 +1201,7 @@ public class VncCanvas extends ImageView {
 			encodings[nEncodings++] = RfbProto.EncodingCoRRE;
 		if (preferredEncoding != RfbProto.EncodingRRE)
 			encodings[nEncodings++] = RfbProto.EncodingRRE;
-
+		
 		if (compressLevel >= 0 && compressLevel <= 9)
 			encodings[nEncodings++] = RfbProto.EncodingCompressLevel0 + compressLevel;
 		if (jpegQuality >= 0 && jpegQuality <= 9)
@@ -1219,18 +1246,15 @@ public class VncCanvas extends ImageView {
 
   final Paint handleCopyRectPaint = new Paint();
 	private void handleCopyRect(int x, int y, int w, int h) throws IOException {
-
-		/**
-		 * This does not work properly yet.
-		 */
-
+		//Log.e(TAG, "handleCopyRect");
+		
 		rfb.readCopyRect();
 		if ( ! bitmapData.validDraw(x, y, w, h))
 			return;
 		// Source Coordinates
 		int leftSrc = rfb.copyRectSrcX;
 		int topSrc = rfb.copyRectSrcY;
-		int rightSrc = topSrc + w;
+		int rightSrc = leftSrc + w;
 		int bottomSrc = topSrc + h;
 
 		// Change
@@ -1770,5 +1794,323 @@ public class VncCanvas extends ImageView {
 		}
 
 		bitmapData.updateBitmap(x, y, w, h);
+	}
+
+	
+	//
+	// Handle a Tight-encoded rectangle.
+	//
+	
+	void handleTightRect(int x, int y, int w, int h) throws Exception {
+		
+		int[] pixels = bitmapData.bitmapPixels;
+
+		int comp_ctl = rfb.is.readUnsignedByte();
+
+		// Flush zlib streams if we are told by the server to do so.
+		for (int stream_id = 0; stream_id < 4; stream_id++) {
+			if ((comp_ctl & 1) != 0 && tightInflaters[stream_id] != null) {
+				tightInflaters[stream_id] = null;
+			}
+			comp_ctl >>= 1;
+		}
+
+		// Check correctness of subencoding value.
+		if (comp_ctl > RfbProto.TightMaxSubencoding) {
+			throw new Exception("Incorrect tight subencoding: " + comp_ctl);
+		}
+
+		// Handle solid-color rectangles.
+		if (comp_ctl == RfbProto.TightFill) {
+			if (bytesPerPixel == 1) {
+				int idx = rfb.is.readUnsignedByte();
+				handleTightRectPaint.setColor(colorPalette[0xFF & idx]);
+			} else {
+				rfb.readFully(solidColorBuf, 0, 3);
+				handleTightRectPaint.setColor(0xFF000000 | (solidColorBuf[0] & 0xFF) << 16 
+														 | (solidColorBuf[1] & 0xFF) << 8 | (solidColorBuf[2] & 0xFF));
+			}
+			bitmapData.drawRect(x, y, w, h, handleTightRectPaint);
+			reDraw();
+			return;
+		}
+
+		if (comp_ctl == RfbProto.TightJpeg) {
+			// Read JPEG data.
+			int jpegDataLen = rfb.readCompactLen();
+			if (jpegDataLen > jpegBuffer.length) {
+				jpegBuffer = new byte[2*jpegDataLen];
+			}
+			rfb.readFully(jpegBuffer, 0, jpegDataLen);
+			// Decode JPEG data
+			Bitmap tightBitmap = BitmapFactory.decodeByteArray(jpegBuffer, 0, jpegDataLen);
+			// Copy JPEG data into bitmap.
+			for (int j = 0; j < h; j++) {
+				tightBitmap.getPixels(pixels, bitmapData.offset(x, y + j), w, 0, j, w, 1);
+			}
+			// Update the bitmap
+			bitmapData.updateBitmap(x, y, w, h);
+			reDraw();
+			return;
+		}
+
+		// Read filter id and parameters.
+		int    numColors = 0, rowSize = w;
+		boolean useGradient = false;
+
+		if ((comp_ctl & RfbProto.TightExplicitFilter) != 0) {
+			int filter_id = rfb.is.readUnsignedByte();
+
+			if (filter_id == RfbProto.TightFilterPalette) {
+				numColors = rfb.is.readUnsignedByte() + 1;
+				
+				if (bytesPerPixel == 1) {
+					if (numColors != 2) {
+						throw new Exception("Incorrect tight palette size: " + numColors);
+					}
+					rfb.readFully(tightPalette8, 0, 2);
+
+				} else {
+					rfb.readFully(colorBuf, 0, numColors*3);
+					for (int i = 0; i < numColors; i++) {
+						tightPalette24[i] = ((colorBuf[i * 3]     & 0xFF) << 16 |
+											 (colorBuf[i * 3 + 1] & 0xFF) << 8  |
+											 (colorBuf[i * 3 + 2] & 0xFF));
+					}
+				}
+
+				if (numColors == 2)
+					rowSize = (w + 7) / 8;
+
+			} else if (filter_id == RfbProto.TightFilterGradient) {
+				useGradient = true;
+			} else if (filter_id != RfbProto.TightFilterCopy) {
+				throw new Exception("Incorrect tight filter id: " + filter_id);
+			}
+		}
+
+		if (numColors == 0 && bytesPerPixel == 4)
+			rowSize *= 3;
+
+		// Read, optionally uncompress and decode data.
+		int dataSize = h * rowSize;
+
+		if (dataSize < RfbProto.TightMinToCompress) {
+			// Data size is small - not compressed with zlib.
+
+			if (numColors != 0) {
+				// Indexed colors.
+				rfb.readFully(uncompDataBuf, 0, dataSize);
+
+				if (numColors == 2) {
+					// Two colors.
+					if (bytesPerPixel == 1) {
+						decodeMonoData(x, y, w, h, uncompDataBuf, tightPalette8);
+					} else {
+						decodeMonoData(x, y, w, h, uncompDataBuf, tightPalette24);
+					}	
+				} else {
+					// 3..255 colors (assuming bytesPerPixel == 4).
+					int i = 0;
+					for (int dy = y; dy < y + h; dy++) {
+						for (int dx = x; dx < x + w; dx++) {
+							int offset = bitmapData.offset(dx, dy);
+							pixels[offset] = tightPalette24[uncompDataBuf[i++] & 0xFF];
+						}
+					}
+				}
+			} else if (useGradient) {
+				// "Gradient"-processed data
+				rfb.readFully(uncompDataBuf, 0, dataSize);
+				decodeGradientData(x, y, w, h, uncompDataBuf);
+			} else {
+				// Raw true-color data.
+				int i, offset;
+				if (bytesPerPixel == 1) {
+					for (int dy = y; dy < y + h; dy++) {
+						rfb.readFully(uncompDataBuf, 0, rowSize);
+						offset = bitmapData.offset(x, dy);
+						for (i = 0; i < w; i++) {
+							pixels[offset + i] = colorPalette[0xFF & uncompDataBuf[i]];
+						}						
+					}
+				} else {
+					for (int dy = y; dy < y + h; dy++) {
+						rfb.readFully(uncompDataBuf, 0, rowSize);
+						offset = bitmapData.offset(x, dy);
+						for (i = 0; i < w; i++) {
+							pixels[offset + i] = (uncompDataBuf[i * 3]     & 0xFF) << 16 | 
+												 (uncompDataBuf[i * 3 + 1] & 0xFF) << 8  |
+												 (uncompDataBuf[i * 3 + 2] & 0xFF);
+						}
+					}
+				}
+			}
+
+		} else {
+			// Data was compressed with zlib.
+			int zlibDataLen = rfb.readCompactLen();
+			if (zlibDataLen > zlibData.length) {
+				zlibData = new byte[zlibDataLen*2];
+			}
+			rfb.readFully(zlibData, 0, zlibDataLen);
+			
+			int stream_id = comp_ctl & 0x03;
+			if (tightInflaters[stream_id] == null) {
+				tightInflaters[stream_id] = new Inflater();
+			}
+
+			Inflater myInflater = tightInflaters[stream_id];
+			myInflater.setInput(zlibData, 0, zlibDataLen);
+			
+			if (dataSize > inflBuf.length) {
+				inflBuf = new byte[dataSize*2];
+			}
+
+			if (numColors != 0) {
+				myInflater.inflate(inflBuf, 0, dataSize);
+
+				// Indexed colors.
+				if (numColors == 2) {
+					// Two colors.
+					if (bytesPerPixel == 1) {
+						decodeMonoData(x, y, w, h, inflBuf, tightPalette8);
+					} else {
+						decodeMonoData(x, y, w, h, inflBuf, tightPalette24);
+					}
+				} else {
+					// More than two colors (assuming bytesPerPixel == 4).
+					int i = 0;
+					for (int dy = y; dy < y + h; dy++) {
+						for (int dx = x; dx < x + w; dx++) {
+							int offset = bitmapData.offset(dx, dy);
+							pixels[offset] = tightPalette24[inflBuf[i++] & 0xFF];
+						}
+					}
+				}
+			} else if (useGradient) {
+				// Compressed "Gradient"-filtered data (assuming bytesPerPixel == 4).
+				myInflater.inflate(inflBuf, 0, dataSize);
+				decodeGradientData(x, y, w, h, inflBuf);
+			} else {
+				// Compressed true-color data.
+				if (bytesPerPixel == 1) {
+					for (int dy = y; dy < y + h; dy++) {
+						myInflater.inflate(inflBuf, 0, rowSize);
+						int offset = bitmapData.offset(x, dy);
+						for (int i = 0; i < w; i++) {
+							pixels[offset + i] = colorPalette[0xFF & inflBuf[i]];
+						}
+					}
+				} else {
+					int offset;
+					for (int dy = y; dy < y + h; dy++) {
+						myInflater.inflate(inflBuf, 0, rowSize);
+						offset = bitmapData.offset(x, dy);
+						for (int i = 0; i < w; i++) {
+							final int idx = i*3;
+							pixels[offset + i] = (inflBuf[idx] & 0xFF)     << 16 |
+												 (inflBuf[idx + 1] & 0xFF) << 8  |
+												 (inflBuf[idx + 2] & 0xFF);
+						}
+					}
+				}
+			}
+		}
+		bitmapData.updateBitmap(x, y, w, h);
+		reDraw();
+	}
+	  
+	//
+	// Decode 1bpp-encoded bi-color rectangle (8-bit and 24-bit versions).
+	//
+	
+	void decodeMonoData(int x, int y, int w, int h, byte[] src, byte[] palette) {
+
+		int dx, dy, n;
+		int i = bitmapData.offset(x, y);
+		int[] pixels = bitmapData.bitmapPixels;
+		int rowBytes = (w + 7) / 8;
+		byte b;
+
+		for (dy = 0; dy < h; dy++) {
+			for (dx = 0; dx < w / 8; dx++) {
+				b = src[dy*rowBytes+dx];
+				for (n = 7; n >= 0; n--) {
+					pixels[i++] = colorPalette[0xFF & palette[b >> n & 1]];
+				}
+			}
+			for (n = 7; n >= 8 - w % 8; n--) {
+				pixels[i++] = colorPalette[0xFF & palette[src[dy*rowBytes+dx] >> n & 1]];
+			}
+			i += (rfb.framebufferWidth - w);
+		}
+	}
+
+	void decodeMonoData(int x, int y, int w, int h, byte[] src, int[] palette) {
+
+		int dx, dy, n;
+		int i = bitmapData.offset(x, y);
+		int[] pixels = bitmapData.bitmapPixels;
+		int rowBytes = (w + 7) / 8;
+		byte b;
+
+		for (dy = 0; dy < h; dy++) {
+			for (dx = 0; dx < w / 8; dx++) {
+				b = src[dy*rowBytes+dx];
+				for (n = 7; n >= 0; n--) {
+					pixels[i++] = palette[b >> n & 1];
+				}
+			}
+			for (n = 7; n >= 8 - w % 8; n--) {
+				pixels[i++] = palette[src[dy*rowBytes+dx] >> n & 1];
+			}
+			i += (rfb.framebufferWidth - w);
+		}
+	}
+
+	//
+	// Decode data processed with the "Gradient" filter.
+	//
+
+	void decodeGradientData (int x, int y, int w, int h, byte[] buf) {
+
+		int dx, dy, c;
+		byte[] prevRow = new byte[w * 3];
+		byte[] thisRow = new byte[w * 3];
+		byte[] pix = new byte[3];
+		int[] est = new int[3];
+		int[] pixels = bitmapData.bitmapPixels;
+
+		int offset = bitmapData.offset(x, y);
+
+		for (dy = 0; dy < h; dy++) {
+
+			/* First pixel in a row */
+			for (c = 0; c < 3; c++) {
+				pix[c] = (byte)(prevRow[c] + buf[dy * w * 3 + c]);
+				thisRow[c] = pix[c];
+			}
+			pixels[offset++] = (pix[0] & 0xFF) << 16 | (pix[1] & 0xFF) << 8 | (pix[2] & 0xFF);
+
+			/* Remaining pixels of a row */
+			for (dx = 1; dx < w; dx++) {
+				for (c = 0; c < 3; c++) {
+					est[c] = ((prevRow[dx * 3 + c] & 0xFF) + (pix[c] & 0xFF) -
+							  (prevRow[(dx-1) * 3 + c] & 0xFF));
+					if (est[c] > 0xFF) {
+						est[c] = 0xFF;
+					} else if (est[c] < 0x00) {
+						est[c] = 0x00;
+					}
+					pix[c] = (byte)(est[c] + buf[(dy * w + dx) * 3 + c]);
+					thisRow[dx * 3 + c] = pix[c];
+				}
+				pixels[offset++] = (pix[0] & 0xFF) << 16 | (pix[1] & 0xFF) << 8 | (pix[2] & 0xFF);
+			}
+
+			System.arraycopy(thisRow, 0, prevRow, 0, w * 3);
+			offset += (rfb.framebufferWidth - w);
+		}
 	}
 }

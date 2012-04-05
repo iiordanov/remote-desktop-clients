@@ -28,6 +28,6 @@ public class MemInStream extends InStream {
   public int pos() { return ptr; }
 
   protected int overrun(int itemSize, int nItems) throws Exception {
-    throw new Exception("MemInStream overrun: end of stream");
+	  throw new Exception("MemInStream overrun: end of stream");
   }
 }

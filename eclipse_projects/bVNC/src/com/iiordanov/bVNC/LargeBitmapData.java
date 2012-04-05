@@ -1,4 +1,5 @@
 /**
+ * Copyright (C) 2012 Iordan Iordanov
  * Copyright (C) 2009 Michael A. MacDonald
  */
 package com.iiordanov.bVNC;
@@ -14,6 +15,8 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.util.Log;
+
 
 /**
  * @author Michael A. MacDonald
@@ -115,6 +118,7 @@ class LargeBitmapData extends AbstractBitmapData {
 	@Override
 	void copyRect(Rect src, Rect dest, Paint paint) {
 		// TODO copy rect working?
+		Log.e("LargeBitmapData", "copyRect Does not seem to be implemented at the moment!");
 		throw new RuntimeException( "copyrect Not implemented");
 	}
 

@@ -1,4 +1,5 @@
 /**
+ * Copyright (C) 2012 Iordan Iordanov
  * Copyright (c) 2010 Michael A. MacDonald
  */
 package com.iiordanov.bVNC;
@@ -112,6 +113,7 @@ class FullBufferBitmapData extends AbstractBitmapData {
 	@Override
 	void copyRect(Rect src, Rect dest, Paint paint) {
 		// TODO copy rect working?
+		Log.e("FullBufferBitmapData", "copyRect Does not seem to be implemented at the moment!");
 		throw new RuntimeException( "copyrect Not implemented");
 	}
 
