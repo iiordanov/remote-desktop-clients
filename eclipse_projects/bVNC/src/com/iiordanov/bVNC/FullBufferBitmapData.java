@@ -111,12 +111,31 @@ class FullBufferBitmapData extends AbstractBitmapData {
 	 * @see com.iiordanov.bVNC.AbstractBitmapData#copyRect(android.graphics.Rect, android.graphics.Rect, android.graphics.Paint)
 	 */
 	@Override
-	void copyRect(Rect src, Rect dest, Paint paint) {
-		// TODO copy rect working?
-		Log.e("FullBufferBitmapData", "copyRect Does not seem to be implemented at the moment!");
-		throw new RuntimeException( "copyrect Not implemented");
+	void copyRect(Rect src, Rect dest) {
+		int srcX = src.left;
+		int srcY = src.top;
+		int srcOffset, dstOffset;
+		
+		int startSrcY, endSrcY, dstY, deltaY;
+		if (srcY > dest.top) {
+			startSrcY = srcY;
+			endSrcY = srcY + dest.height();
+			dstY = dest.top;
+			deltaY = +1;
+		} else {
+			startSrcY = srcY + dest.height() - 1;
+			endSrcY = srcY -1;
+			dstY = dest.top + dest.height() - 1;
+			deltaY = -1;
+		}
+		for (int y = startSrcY; y != endSrcY; y += deltaY) {
+			srcOffset = offset(srcX, y);
+			dstOffset = offset(dest.left, dstY);
+			System.arraycopy(bitmapPixels, srcOffset, bitmapPixels, dstOffset, dest.width());
+			dstY += deltaY;
+		}
 	}
-
+	
 	/* (non-Javadoc)
 	 * @see com.iiordanov.bVNC.AbstractBitmapData#createDrawable()
 	 */

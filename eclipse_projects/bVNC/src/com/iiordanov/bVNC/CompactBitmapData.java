@@ -1,4 +1,5 @@
 /**
+ * Copyright (C) 2012 Iordan Iordanov
  * Copyright (C) 2009 Michael A. MacDonald
  */
 package com.iiordanov.bVNC;
@@ -76,8 +77,8 @@ class CompactBitmapData extends AbstractBitmapData {
 	 * @see com.iiordanov.bVNC.AbstractBitmapData#copyRect(android.graphics.Rect, android.graphics.Rect, android.graphics.Paint)
 	 */
 	@Override
-	void copyRect(Rect src, Rect dest, Paint paint) {
-		memGraphics.drawBitmap(mbitmap, src, dest, paint);
+	void copyRect(Rect src, Rect dest) {
+		memGraphics.drawBitmap(mbitmap, src, dest, null);
 	}
 
 	/* (non-Javadoc)

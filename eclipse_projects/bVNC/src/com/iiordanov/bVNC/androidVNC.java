@@ -130,7 +130,8 @@ public class androidVNC extends Activity {
 		goButton.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View view) {
-				canvasStart();
+				if (ipText.getText().length() != 0 && portText.getText().length() != 0)
+					canvasStart();
 			}
 		});
 		

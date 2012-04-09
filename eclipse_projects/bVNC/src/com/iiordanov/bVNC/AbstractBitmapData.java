@@ -126,7 +126,7 @@ abstract class AbstractBitmapData {
 	 * @param dest Destination rectangle in full-frame coordinates
 	 * @param paint Paint specifier
 	 */
-	abstract void copyRect( Rect src, Rect dest, Paint paint);
+	abstract void copyRect( Rect src, Rect dest );
 	
 	/**
 	 * Draw a rectangle in the bitmap with coordinates given in full frame

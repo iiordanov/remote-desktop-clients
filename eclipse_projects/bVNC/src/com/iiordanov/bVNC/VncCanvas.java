@@ -94,10 +94,11 @@ public class VncCanvas extends ImageView {
 
 	// Internal bitmap data
 	AbstractBitmapData bitmapData;
+	boolean useFull = false;
 	public Handler handler = new Handler();
 
 	// VNC Encoding parameters
-	private boolean useCopyRect = false;
+	private boolean useCopyRect = true;
 	private int preferredEncoding = -1;
 
 	// Unimplemented VNC encoding parameters
@@ -296,7 +297,6 @@ public class VncCanvas extends ImageView {
 		Log.i(TAG, "Desktop name is " + rfb.desktopName);
 		Log.i(TAG, "Desktop size is " + rfb.framebufferWidth + " x " + rfb.framebufferHeight);
 
-		boolean useFull = false;
 		int capacity = BCFactory.getInstance().getBCActivityManager().getMemoryClass(Utils.getActivityManager(getContext()));
 		if (connection.getForceFull() == BitmapImplHint.AUTO)
 		{
@@ -305,10 +305,12 @@ public class VncCanvas extends ImageView {
 		}
 		else
 			useFull = (connection.getForceFull() == BitmapImplHint.FULL);
+
 		if (! useFull)
 			bitmapData=new LargeBitmapData(rfb,this,dx,dy,capacity);
 		else
 			bitmapData=new FullBufferBitmapData(rfb,this, capacity);
+
 		mouseX=rfb.framebufferWidth/2;
 		mouseY=rfb.framebufferHeight/2;
 
@@ -1175,7 +1177,10 @@ public class VncCanvas extends ImageView {
 			return;
 
 		if (preferredEncoding == -1) {
-			preferredEncoding =  RfbProto.EncodingTight;
+			if (useFull)
+				preferredEncoding =  RfbProto.EncodingTight;
+			else
+				preferredEncoding =  RfbProto.EncodingZRLE;
 		} else {
 			// Auto encoder selection is not enabled.
 			if (autoSelectOnly)
@@ -1187,9 +1192,9 @@ public class VncCanvas extends ImageView {
 
 		encodings[nEncodings++] = preferredEncoding;
 		
-		if (useCopyRect)
+		if (useFull && useCopyRect)
 			encodings[nEncodings++] = RfbProto.EncodingCopyRect;
-		if (preferredEncoding != RfbProto.EncodingTight)
+		if (useFull && preferredEncoding != RfbProto.EncodingTight)
 			encodings[nEncodings++] = RfbProto.EncodingTight;
 		if (preferredEncoding != RfbProto.EncodingZRLE)
 			encodings[nEncodings++] = RfbProto.EncodingZRLE;
@@ -1244,13 +1249,14 @@ public class VncCanvas extends ImageView {
 	// Handle a CopyRect rectangle.
 	//
 
-  final Paint handleCopyRectPaint = new Paint();
 	private void handleCopyRect(int x, int y, int w, int h) throws IOException {
-		//Log.e(TAG, "handleCopyRect");
-		
+
+		// Read the source coordinates.
 		rfb.readCopyRect();
+		
 		if ( ! bitmapData.validDraw(x, y, w, h))
 			return;
+		
 		// Source Coordinates
 		int leftSrc = rfb.copyRectSrcX;
 		int topSrc = rfb.copyRectSrcY;
@@ -1267,10 +1273,11 @@ public class VncCanvas extends ImageView {
 		int rightDest = rightSrc + dx;
 		int bottomDest = bottomSrc + dy;
 
-		bitmapData.copyRect(new Rect(leftSrc, topSrc, rightSrc, bottomSrc), new Rect(leftDest, topDest, rightDest, bottomDest), handleCopyRectPaint);
+		bitmapData.copyRect(new Rect(leftSrc, topSrc, rightSrc, bottomSrc), new Rect(leftDest, topDest, rightDest, bottomDest));
 
 		reDraw();
 	}
+	
 	byte[] bg_buf = new byte[4];
 	byte[] rre_buf = new byte[128];
 	//
@@ -1800,7 +1807,7 @@ public class VncCanvas extends ImageView {
 	//
 	// Handle a Tight-encoded rectangle.
 	//
-	
+	// TODO: Tight encoding does not work with LargeBitmapData.
 	void handleTightRect(int x, int y, int w, int h) throws Exception {
 		
 		int[] pixels = bitmapData.bitmapPixels;
