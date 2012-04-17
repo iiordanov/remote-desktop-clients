@@ -47,9 +47,23 @@ class FullBufferBitmapData extends AbstractBitmapData {
 			}
 			else
 			{
-				float scale = vncCanvas.getScale();
-				int xo = xoffset < 0 ? 0 : xoffset;
-				int yo = yoffset < 0 ? 0 : yoffset;
+				//float scale = vncCanvas.getScale();
+				int xo, yo;
+				
+				if (xoffset < 0)
+					xo = 0;
+				else if (xoffset > data.framebufferwidth)
+					xo = data.framebufferwidth;
+				else
+					xo = xoffset;
+
+				if (yoffset < 0)
+					yo = 0;
+				else if (yoffset > data.framebufferheight)
+					yo = data.framebufferheight;
+				else
+					yo = yoffset;
+				
 				/*
 				if (scale == 1 || scale <= 0)
 				{

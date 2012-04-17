@@ -48,8 +48,98 @@
 				android:padding="10dip"
 				>
 				<TableRow>
-					<TextView android:text="@string/nickname_caption" android:paddingRight="10dip" android:gravity="right|center_vertical" android:textAppearance="?android:attr/textAppearanceLarge" />
-					<EditText android:id="@+id/textNickname" android:layout_width="fill_parent" android:layout_height="wrap_content" android:singleLine="true" android:layout_weight="1" android:textAppearance="?android:attr/textAppearanceLarge"/>
+				    <TextView
+					    android:layout_height="wrap_content"
+					    android:layout_width="wrap_content"
+					    android:layout_gravity="left|center_vertical"
+						android:textAppearance="?android:attr/textAppearanceLarge"
+						android:text="@string/connection_type_caption"
+					/>
+					<Spinner 
+					    android:id="@+id/connectionType" 
+					    android:layout_width="fill_parent"
+						android:layout_height="wrap_content"
+						android:layout_weight="1"
+						android:entries="@array/connection_type"
+						android:textAppearance="?android:attr/textAppearanceLarge"
+					/>
+				</TableRow>
+				<TableRow>
+					<TextView android:text="@string/nickname_caption" android:paddingRight="10dip" android:gravity="right|center_vertical"
+							  android:textAppearance="?android:attr/textAppearanceLarge" />
+					<EditText android:id="@+id/textNickname" android:layout_width="fill_parent" android:layout_height="wrap_content"
+					    	  android:singleLine="true" android:layout_weight="1" android:textAppearance="?android:attr/textAppearanceLarge"
+					    	  android:hint="@string/nickname_caption_hint"/>
+				</TableRow>
+				<TableRow>
+				    	<TextView android:id="@+id/sshServerEntryCaption" android:text="@string/address_caption_ssh" android:paddingRight="10dip" 
+				    	          android:gravity="right|center_vertical" android:textAppearance="?android:attr/textAppearanceLarge"
+				    	          android:visibility="gone"/>
+				    	<LinearLayout
+				    	    android:id="@+id/sshServerEntry"
+							android:layout_width="fill_parent"
+							android:layout_height="wrap_content"
+							android:orientation="horizontal"
+							android:layout_weight="1"
+							android:visibility="gone"
+							>
+							<EditText android:id="@+id/sshServer" android:layout_width="fill_parent" android:layout_height="wrap_content"
+								android:singleLine="true" android:layout_weight="1" android:textAppearance="?android:attr/textAppearanceLarge"
+								android:hint="@string/address_caption_ssh_hint" android:nextFocusDown="@+id/sshPort"/>
+							<EditText android:id="@+id/sshPort"
+								android:text="22" android:hint="@string/port_ssh_hint" android:layout_width="wrap_content" 
+								android:layout_height="wrap_content" android:singleLine="true" android:layout_weight="0"
+								android:textAppearance="?android:attr/textAppearanceLarge" android:nextFocusDown="@+id/sshUser"/>
+						</LinearLayout>					
+				</TableRow>
+				<TableRow>
+				    	<TextView android:id="@+id/sshCredentialsCaption" android:text="@string/password_caption_ssh" android:paddingRight="10dip" 
+				    	          android:gravity="right|center_vertical" android:textAppearance="?android:attr/textAppearanceLarge"
+				    	          android:visibility="gone"/>
+				    	<LinearLayout
+				    	    android:id="@+id/sshCredentials"
+							android:layout_width="fill_parent"
+							android:layout_height="wrap_content"
+							android:orientation="horizontal"
+							android:layout_weight="1"
+							android:visibility="gone"
+							>
+							<EditText android:id="@+id/sshUser"
+								android:layout_width="fill_parent" android:layout_height="wrap_content"
+								android:singleLine="true" android:layout_weight="1" android:textAppearance="?android:attr/textAppearanceLarge"
+								android:hint="@string/username_hint_ssh" android:nextFocusDown="@+id/sshPassword"/>
+							<EditText android:id="@+id/sshPassword"
+							    android:password="true"
+								android:layout_width="fill_parent" android:layout_height="wrap_content"
+								android:singleLine="true" android:layout_weight="1" android:textAppearance="?android:attr/textAppearanceLarge"
+								android:hint="@string/password_hint_ssh"/>
+						</LinearLayout>					
+				</TableRow>
+				<TableRow>
+   					<TextView android:text="@string/address_caption" android:hint="localhost" android:paddingRight="10dip" 
+					          android:gravity="right|center_vertical" android:textAppearance="?android:attr/textAppearanceLarge" />
+				   <LinearLayout
+							android:layout_width="fill_parent"
+							android:layout_height="wrap_content"
+							android:orientation="horizontal"
+							android:layout_weight="1"
+							>
+					<EditText android:id="@+id/textIP" android:layout_width="fill_parent" android:layout_height="wrap_content"
+					          android:singleLine="true" android:layout_weight="1" android:textAppearance="?android:attr/textAppearanceLarge"
+					          android:hint="@string/address_caption_hint" android:nextFocusDown="@+id/textPORT"/>
+					<EditText android:id="@+id/textPORT"
+						android:text="5900" android:hint="@string/port_hint"
+						android:layout_width="wrap_content" android:layout_height="wrap_content" android:singleLine="true"
+						android:layout_weight="0" android:textAppearance="?android:attr/textAppearanceLarge"/>
+					</LinearLayout>
+				</TableRow>
+				<TableRow>
+					<TextView android:id="@+id/textUsernameCaption" android:text="@string/username_caption" android:paddingRight="10dip" 
+					    	  android:gravity="right|center_vertical" android:textAppearance="?android:attr/textAppearanceLarge"
+					    	  android:visibility="visible" />
+					<EditText android:id="@+id/textUsername" android:layout_width="fill_parent" 
+							  android:hint="@string/username_hint" android:layout_height="wrap_content"
+							  android:singleLine="true" android:layout_weight="1" android:textAppearance="?android:attr/textAppearanceLarge"/>
 				</TableRow>
 				<TableRow>
 					<TextView android:text="@string/password_caption" android:paddingRight="10dip" android:gravity="right|center_vertical" android:textAppearance="?android:attr/textAppearanceLarge" />
@@ -61,38 +151,24 @@
 						>
 						<EditText android:id="@+id/textPASSWORD"
 							android:password="true"
-							android:layout_width="fill_parent" android:layout_height="wrap_content" android:singleLine="true" android:layout_weight="1" android:textAppearance="?android:attr/textAppearanceLarge"/>
+							android:layout_width="fill_parent" android:layout_height="wrap_content" android:singleLine="true" 
+							android:layout_weight="1" android:textAppearance="?android:attr/textAppearanceLarge"
+							android:hint="@string/password_caption_hint" android:nextFocusDown="@+id/checkboxKeepPassword"/>
 						<CheckBox android:id="@+id/checkboxKeepPassword"
-							android:layout_width="wrap_content"
-							android:layout_height="wrap_content"
-							android:text="@string/keep_password_button"
-							android:layout_weight="0"
-							android:textAppearance="?android:attr/textAppearanceLarge"
+							android:layout_width="wrap_content" android:layout_height="wrap_content"
+							android:text="@string/keep_password_button"	android:layout_weight="0"
+							android:textAppearance="?android:attr/textAppearanceLarge" android:singleLine="true" 
 						/>
 					</LinearLayout>
-				</TableRow>
-				<TableRow>
-					<TextView android:text="@string/address_caption" android:hint="localhost" android:paddingRight="10dip" android:gravity="right|center_vertical" android:textAppearance="?android:attr/textAppearanceLarge" />
-					<EditText android:id="@+id/textIP" android:layout_width="fill_parent" android:layout_height="wrap_content" android:singleLine="true" android:layout_weight="1" android:textAppearance="?android:attr/textAppearanceLarge"/>
-				</TableRow>
-				<TableRow>
-					<TextView android:text="@string/port_caption" android:paddingRight="10dip" android:gravity="right|center_vertical" android:textAppearance="?android:attr/textAppearanceLarge" />
-					<EditText android:id="@+id/textPORT"
-						android:text="5900"
-						android:layout_width="fill_parent"
-						android:layout_height="wrap_content" android:singleLine="true" android:layout_weight="1" android:textAppearance="?android:attr/textAppearanceLarge"/>
-				</TableRow>
-				<TableRow>
-					<TextView android:text="@string/username_caption" android:paddingRight="10dip" android:gravity="right|center_vertical" android:textAppearance="?android:attr/textAppearanceLarge" />
-					<EditText android:layout_width="fill_parent" android:hint="@string/username_hint" android:layout_height="wrap_content" android:singleLine="true" android:layout_weight="1" android:id="@+id/textUsername" android:textAppearance="?android:attr/textAppearanceLarge"/>
 				</TableRow>
 				<TableRow>
 					<TextView
 					    android:layout_height="wrap_content"
 					    android:layout_width="wrap_content"
-					    android:layout_gravity="left|center_vertical"
+					    android:layout_gravity="right|center_vertical"
 						android:textAppearance="?android:attr/textAppearanceLarge"
 						android:text="@string/color_format_caption"
+						android:paddingRight="10dip"
 					/>
 					<Spinner 
 					    android:id="@+id/colorformat" 
@@ -152,9 +228,11 @@
 					/>
 				</RadioGroup>
 			</LinearLayout>
-			<LinearLayout android:orientation="horizontal"
+			<LinearLayout android:id="@+id/repeaterEntry"
+			    android:orientation="horizontal"
 				android:layout_width="fill_parent"
 				android:layout_height="wrap_content"
+				android:visibility="gone"
 				>
 				<Button
 					android:id="@+id/buttonRepeater"

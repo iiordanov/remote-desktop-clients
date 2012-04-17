@@ -17,7 +17,8 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:id="@+id/zoomer"
-    android:layout_gravity="bottom|center"
+    android:layout_gravity="bottom|right"
+    android:padding="20sp"
 />
 
 </FrameLayout>

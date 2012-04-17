@@ -69,8 +69,8 @@ class FitToScreenScaling extends AbstractScaling {
 		
 		float screenWidth  = activity.vncCanvas.getWidth();
 		float screenHeight = activity.vncCanvas.getHeight();
-		float fbWidth  = activity.vncCanvas.rfb.framebufferWidth;
-		float fbHeight = activity.vncCanvas.rfb.framebufferHeight;
+		float fbWidth  = activity.vncCanvas.bitmapData.framebufferwidth;
+		float fbHeight = activity.vncCanvas.bitmapData.framebufferheight;
 		
 		float ratioScreen = screenWidth/screenHeight;
 		float ratioFrameBuffer = fbWidth/fbHeight;
@@ -84,7 +84,7 @@ class FitToScreenScaling extends AbstractScaling {
 			activity.vncCanvas.absoluteXPosition = -(int)(((screenWidth - screenHeight*fbWidth/fbHeight))/factor);
 			scaling = screenHeight/fbHeight;
 			
-		} else if (ratioScreen < ratioFrameBuffer) {
+		} else if (ratioScreen <= ratioFrameBuffer) {
 			if (fbHeight <= screenHeight)
 				factor = ratioScreen;
 			

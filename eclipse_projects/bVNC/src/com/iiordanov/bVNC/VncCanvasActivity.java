@@ -387,6 +387,7 @@ public class VncCanvasActivity extends Activity {
 		 */
 		@Override
 		public boolean onSingleTapConfirmed(MotionEvent e) {
+			showZoomer(true);
 			vncCanvas.changeTouchCoordinatesToFullFrame(e);
 			vncCanvas.processPointerEvent(e, true);
 			SystemClock.sleep(50);
@@ -718,6 +719,7 @@ public class VncCanvasActivity extends Activity {
 		 */
 		@Override
 		public boolean onSingleTapConfirmed(MotionEvent e) {
+			showZoomer(true);
 			remoteMouseStayPut(e);
 			vncCanvas.processPointerEvent(e, true);
 			SystemClock.sleep(50);
@@ -763,6 +765,7 @@ public class VncCanvasActivity extends Activity {
 	VncDatabase database;
 
 	private MenuItem[] inputModeMenuItems;
+	private MenuItem[] scalingModeMenuItems;
 	private AbstractInputHandler inputModeHandlers[];
 	private ConnectionBean connection;
 	private boolean trackballButtonDown;
@@ -774,10 +777,30 @@ public class VncCanvasActivity extends Activity {
  */
 	private static final int inputModeIds[] = { R.id.itemInputTouchpad,
 		                                        R.id.itemInputTouchPanZoomMouse };
+	private static final int scalingModeIds[] = { R.id.itemZoomable, R.id.itemFitToScreen,
+												  R.id.itemOneToOne};
 
 	ZoomControls zoomer;
 	Panner panner;
 
+	/**
+	 * Function used to initialize an empty SSH HostKey for a new VNC over SSH connection.
+	 */
+	private void initializeSshHostKey() {
+		// If the SSH HostKey is empty, then we need to grab the HostKey from the server and save it.
+		if (connection.getSshHostKey().equals("")) {
+			Log.d("initializeSshHostKey", "Initializing SSH HostKey from server.");
+			SSHConnection sshConnection = new SSHConnection(connection.getSshServer(), connection.getSshPort());
+			if (!sshConnection.connect()) {
+				Utils.showFatalErrorMessage(this, "Could not connect to SSH server to obtain server HostKey. " +
+											"Check the address and port and try again.");
+			}
+			connection.setSshHostKey(sshConnection.getServerHostKey());
+			connection.save(database.getWritableDatabase());
+			sshConnection.disconnect();
+		}
+	}
+		
 	@Override
 	public void onCreate(Bundle icicle) {
 
@@ -790,8 +813,12 @@ public class VncCanvasActivity extends Activity {
 
 		Intent i = getIntent();
 		connection = new ConnectionBean(this);
+		
 		Uri data = i.getData();
 		if ((data != null) && (data.getScheme().equals("vnc"))) {
+			
+			// TODO: Can we also handle VNC over SSH connections with a new URI format?
+			
 			String host = data.getHost();
 			// This should not happen according to Uri contract, but bug introduced in Froyo (2.2)
 			// has made this parsing of host necessary
@@ -824,9 +851,7 @@ public class VncCanvasActivity extends Activity {
 						bean.Gen_update(database.getWritableDatabase());
 					}
 				}
-			}
-			else
-			{
+			} else {
 			    connection.setAddress(host);
 			    connection.setNickname(connection.getAddress());
 			    connection.setPort(port);
@@ -849,6 +874,9 @@ public class VncCanvasActivity extends Activity {
 		    }
 		    if (connection.getPort() == 0)
 			    connection.setPort(5900);
+		    
+		    if (connection.getSshPort() == 0)
+			    connection.setSshPort(22);
 
             // Parse a HOST:PORT entry
 		    String host = connection.getAddress();
@@ -861,6 +889,11 @@ public class VncCanvasActivity extends Activity {
 			    connection.setAddress(host.substring(0, host.indexOf(':')));
 	  	    }
 		}
+		
+		// TODO: Switch away from numeric representation of VNC connection type.
+		if (connection.getConnectionType() == 1)
+			initializeSshHostKey();
+		
 		setContentView(R.layout.canvas);
 
 		vncCanvas = (VncCanvas) findViewById(R.id.vnc_canvas);
@@ -1003,12 +1036,19 @@ public class VncCanvasActivity extends Activity {
 			menu.findItem(vncCanvas.scaling.getId()).setChecked(true);
 
 		Menu inputMenu = menu.findItem(R.id.itemInputMode).getSubMenu();
-
 		inputModeMenuItems = new MenuItem[inputModeIds.length];
 		for (int i = 0; i < inputModeIds.length; i++) {
 			inputModeMenuItems[i] = inputMenu.findItem(inputModeIds[i]);
 		}
 		updateInputMenu();
+		
+		Menu scalingMenu = menu.findItem(R.id.itemScaling).getSubMenu();
+		scalingModeMenuItems = new MenuItem[scalingModeIds.length];
+		for (int i = 0; i < scalingModeIds.length; i++) {
+			scalingModeMenuItems[i] = scalingMenu.findItem(scalingModeIds[i]);
+		}
+		updateScalingMenu();
+		
 /*		menu.findItem(R.id.itemFollowMouse).setChecked(
 				connection.getFollowMouse());
 		menu.findItem(R.id.itemFollowPan).setChecked(connection.getFollowPan());
@@ -1016,6 +1056,26 @@ public class VncCanvasActivity extends Activity {
 		return true;
 	}
 
+	/**
+	 * Change the scaling mode sub-menu to reflect available scaling modes.
+	 */
+	void updateScalingMenu() {
+		if (scalingModeMenuItems == null) {
+			return;
+		}
+		for (MenuItem item : scalingModeMenuItems) {
+			// If the entire framebuffer is NOT contained in the bitmap, fit-to-screen is meaningless.
+			if (item.getItemId() == R.id.itemFitToScreen) {
+				if (vncCanvas.bitmapData.bitmapheight != vncCanvas.bitmapData.framebufferheight ||
+					vncCanvas.bitmapData.bitmapwidth  != vncCanvas.bitmapData.framebufferwidth)
+					item.setEnabled(false);
+				else
+					item.setEnabled(true);
+			} else
+				item.setEnabled(true);
+		}
+	}	
+	
 	/**
 	 * Change the input mode sub-menu to reflect change in scaling
 	 */
@@ -1116,8 +1176,7 @@ public class VncCanvasActivity extends Activity {
 		case R.id.itemZoomable:
 		case R.id.itemOneToOne:
 		case R.id.itemFitToScreen:
-			AbstractScaling.getById(item.getItemId()).setScaleTypeForActivity(
-					this);
+			AbstractScaling.getById(item.getItemId()).setScaleTypeForActivity(this);
 			item.setChecked(true);
 			showPanningState();
 			return true;
@@ -1488,6 +1547,7 @@ public class VncCanvasActivity extends Activity {
 		 */
 		@Override
 		public boolean onKeyUp(int keyCode, KeyEvent evt) {
+			// TODO: Review this.
 			// Ignore KeyUp events for DPAD keys in Panning Mode; trackball
 			// button switches to mouse mode
 			switch (keyCode) {
@@ -1736,6 +1796,7 @@ public class VncCanvasActivity extends Activity {
 		 */
 		@Override
 		public boolean onKeyUp(int keyCode, KeyEvent evt) {
+			// TODO: Review this.
 			if (keyCode == KeyEvent.KEYCODE_DPAD_CENTER) {
 				inputHandler = getInputHandlerById(R.id.itemInputTouchPanZoomMouse);
 				showPanningState();

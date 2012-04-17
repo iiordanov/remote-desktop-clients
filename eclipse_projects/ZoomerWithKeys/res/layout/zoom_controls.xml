@@ -22,15 +22,17 @@
         android:background="@drawable/btn_zoom_down" 
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:visibility="gone"
         />
     <ImageButton android:id="@+id/zoomKeys"
-    	android:background="@android:drawable/ic_dialog_dialer"
-    	android:layout_width="wrap_content"
-    	android:layout_height="wrap_content"
-    	/>
+        android:background="@drawable/ic_keyboard"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        />
     <ZoomButton android:id="@+id/zoomIn" 
         android:background="@drawable/btn_zoom_up"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:visibility="gone"
         />
 </merge>

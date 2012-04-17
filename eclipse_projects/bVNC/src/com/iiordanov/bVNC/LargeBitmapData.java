@@ -117,8 +117,7 @@ class LargeBitmapData extends AbstractBitmapData {
 	 */
 	@Override
 	void copyRect(Rect src, Rect dest) {
-		
-		// TODO: This is probably not working properly because we don't have the entire bitmap in memory at all times.
+
 		int srcX = src.left;
 		int srcY = src.top;
 		int srcOffset, dstOffset;
@@ -138,9 +137,11 @@ class LargeBitmapData extends AbstractBitmapData {
 		for (int y = startSrcY; y != endSrcY; y += deltaY) {
 			srcOffset = offset(srcX, y);
 			dstOffset = offset(dest.left, dstY);
+			mbitmap.getPixels(bitmapPixels, srcOffset, bitmapwidth, srcX-xoffset, y-yoffset, dest.width(), 1);
 			System.arraycopy(bitmapPixels, srcOffset, bitmapPixels, dstOffset, dest.width());
 			dstY += deltaY;
 		}
+		updateBitmap(dest.left, dest.top, dest.width(), dest.height());
 	}
 	
 	/* (non-Javadoc)

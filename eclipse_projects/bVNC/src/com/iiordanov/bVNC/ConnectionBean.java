@@ -8,12 +8,16 @@ import android.content.ContentValues;
 import android.database.sqlite.SQLiteDatabase;
 import android.widget.ImageView.ScaleType;
 
+import com.antlersoft.android.db.FieldAccessor;
 import com.antlersoft.android.dbimpl.NewInstance;
+import com.iiordanov.bVNC.COLORMODEL;
+import com.iiordanov.bVNC.VncCanvasActivity;
 
 import java.lang.Comparable;
 import android.content.Context;
 
 /**
+ * @author Iordan Iordanov
  * @author Michael A. MacDonald
  *
  */
@@ -31,6 +35,22 @@ class ConnectionBean extends AbstractConnectionBean implements Comparable<Connec
 		setPassword("");
 		setKeepPassword(true);
 		setNickname("");
+		// TODO: Switch away from using a hard-coded numeric value for the connection type.
+		setConnectionType(0);
+		setSshServer("");
+		setSshPort(22);
+		setSshUser("");
+		setSshPassword("");
+		setKeepSshPassword(false);
+		setSshPubKey("");
+		setSshPrivKey("");
+		setSshPassPhrase("");
+		setUseSshPubKey(false);
+		setSshHostKey("");
+		setSshRemoteCommandOS(0);
+		setSshRemoteCommand("");
+		setSshRemoteCommandTimeout(5);
+		setUseSshRemoteCommand(false);
 		setUserName("");
 		setPort(5900);
 		setColorModel(COLORMODEL.C24bit.nameString());
@@ -49,6 +69,8 @@ class ConnectionBean extends AbstractConnectionBean implements Comparable<Connec
 	void save(SQLiteDatabase database) {
 		ContentValues values=Gen_getValues();
 		values.remove(GEN_FIELD__ID);
+		// Never save the SSH password.
+		values.put(GEN_FIELD_SSHPASSWORD, "");
 		if ( ! getKeepPassword()) {
 			values.put(GEN_FIELD_PASSWORD, "");
 		}
@@ -71,11 +93,24 @@ class ConnectionBean extends AbstractConnectionBean implements Comparable<Connec
 	
 	@Override
 	public String toString() {
-		if ( isNew())
+		if (isNew())
 		{
 			return c.getString(R.string.new_connection);
 		}
-		return getNickname()+":"+getAddress()+":"+getPort();
+		String result = new String("");
+		
+		// Add the nickname if it has been set.
+		if (!getNickname().equals(""))
+			result += getNickname()+":";
+		
+		// If this is an VNC over SSH connection, add the SSH server:port in parentheses
+		// TODO: Switch away from numeric representation of position in list.
+		if (getConnectionType() == 1)
+			result += "(" + getSshServer() + ":" + getSshPort() + ")" + ":";
+
+		// Add the VNC server and port.
+		result += getAddress()+":"+getPort();
+		return result;
 	}
 
 	/* (non-Javadoc)
@@ -85,10 +120,19 @@ class ConnectionBean extends AbstractConnectionBean implements Comparable<Connec
 	public int compareTo(ConnectionBean another) {
 		int result = getNickname().compareTo(another.getNickname());
 		if (result == 0) {
+			result = getConnectionType() - another.getConnectionType();
+		}		
+		if (result == 0) {
 			result = getAddress().compareTo(another.getAddress());
-			if ( result == 0) {
-				result = getPort() - another.getPort();
-			}
+		}
+		if ( result == 0) {
+			result = getPort() - another.getPort();
+		}
+		if (result == 0) {
+			result = getSshServer().compareTo(another.getSshServer());
+		}
+		if (result == 0) {
+			result = getSshPort() - another.getSshPort();
 		}
 		return result;
 	}

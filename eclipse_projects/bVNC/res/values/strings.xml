@@ -1,21 +1,34 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resources>
-    <string name="address_caption">Address</string>
-    <string name="alt_check">Alt</string>
-    <string name="app_name">bVNC</string>
-    <string name="arrow_down">Down Arrow</string>
-    <string name="arrow_left">Left Arrow</string>
-    <string name="arrow_right">Right Arrow</string>
-    <string name="arrow_up">Up Arrow</string>
-    <string name="auto">Auto</string>
-    <string name="button_send_text">Send Text</string>
-    <string name="button_send_without_saving">Send Text/Don\'t Save It</string>
+<string name="address_caption">VNC Server</string>
+<string name="address_caption_hint">Address of VNC Server</string>
+<string name="address_caption_hint_tunneled">Address as seen from SSH server</string>
+<string name="address_caption_ssh">SSH Server</string>
+<string name="address_caption_ssh_hint">Server to Tunnel Through</string>
+<string name="alt_check">Alt</string>
+<string name="app_name">bVNC</string>
+<string name="arrow_down">Down Arrow</string>
+<string name="arrow_left">Left Arrow</string>
+<string name="arrow_right">Right Arrow</string>
+<string name="arrow_up">Up Arrow</string>
+<string name="auto">Auto</string>
+<string name="button_send_text">Send Text</string>
+<string name="button_send_without_saving">Send Text/Don\'t Save It</string>
 <string name="center_mouse">Mouse @</string>
 <string name="close">Close</string>
-<string name="color_format_caption">Color Format</string>
+<string name="color_format_caption">Color Mode</string>
 <string name="color_mode">Color Mode</string>
 <string name="connect_button">Connect</string>
 <string name="connection_caption">Connection</string>
+<string name="connection_type_caption">Conn. Type</string>
+<string name="connection_type_vnc">VNC</string>
+<string name="connection_type_vnc_over_ssh">VNC over SSH</string>
+<string name="connection_type_ultravnc">UltraVNC</string>
+<string-array name="connection_type">
+    <item>@string/connection_type_vnc</item>
+    <item>@string/connection_type_vnc_over_ssh</item>
+    <item>@string/connection_type_ultravnc</item>
+</string-array>
 <string name="control_check">Ctrl</string>
 <string name="copy_list_button">Copy List</string>
 <string name="ctrl_alt_del">Ctrl-Alt-Del</string>
@@ -35,22 +48,23 @@
 <string name="input_mode_help">Input Mode Help</string>
 <string name="info">Info</string>
 <string name="intro_text">
-bVNC automatically saves sessions. Once connected, you can choose between Zoomable, Fit to Screen, and One to One scaling. 
-bVNC also supports two Input Modes, Touch Mouse and Simulated Touchpad. To delete connections on the main screen, change
-the Scaling or Input Mode while connected, or get Help anywhere, use the Menu. For help with Input Modes (i.e. how to control
-the remote mouse), select Menu->More->Input Mode Help. Please note that in order to see the Keyboard and Zoom buttons at the
-bottom of the screen when connected, you must be in full-screen mode (i.e. the system must not be hiding the bottom of the screen).
+bVNC now supports tunneling VNC over SSH, UltraVNC with Windows Logon, as well as plain VNC. Sessions are automatically saved.
+Once connected, you can choose between Zoomable, Fit to Screen, and One to One scaling, as well as between Touch Mouse and
+Simulated Touchpad input modes. To delete connections on the main screen, change the Scaling or Input Mode while connected,
+or get Help anywhere, use the Menu. For help with Input Modes (i.e. how to control the remote mouse), select
+Menu->More->Input Mode Help. In order to see the Keyboard button at the bottom of the screen when connected, you must be
+in full-screen mode.
 &lt;br&gt;
 &lt;br&gt;Other Menu items include toggling Ctrl/Alt, shortcuts to arrow keys, and sending arbitrary text and key combinations.
 </string>
-<string name="intro_title">Welcome to bVNC - a mobile VNC client with an intuitive user interface</string>
+<string name="intro_title">Welcome to bVNC - an advanced mobile VNC client with an intuitive user interface</string>
 <string name="intro_version_text"></string>
 <string name="input_mode">Input Mode</string>
 <string name="input_mode_fit_to_screen">No Pan; Trackball Mouse</string>
 <string name="input_mode_help_text">
-"Please note that in order to see the Keyboard and Zoom buttons at the bottom of the screen, you must be in full-screen mode (i.e. the system must not be hiding the bottom of the screen).
+"Please note that in order to see the Keyboard button at the bottom of the screen, you must be in full-screen mode (i.e. the system must not be hiding the bottom of the screen).
 
-In any Input Mode, press the keyboard icon between the Zoom controls to get the on-screen keyboard. On some devices you can swipe up diagonally from the bottom left corner (Playbook).
+In any Input Mode, tap the keyboard icon to get the on-screen keyboard. On some devices you can swipe up diagonally from the bottom left corner (Playbook).
 
 Use Touch Mouse and Swipe Pan Mode for more intuitive touch-screen control. Use Simulated Touchpad Mode for finer control over the mouse.
 
@@ -74,7 +88,7 @@ All Input Modes:
  - Middle-click: Tap-hold and tap with two more fingers (anywhere else on screen).
  - Mouse-drag: Tap-hold-long and swipe.
  - Scroll-wheel: Two-finger swipe up/down. Swipe quickly (flick) to scroll really quickly.
- - Zoom in/out: When in Zoomable scaling, you can pinch-zoom or use the +/- Zoom buttons.
+ - Zoom in/out: When in Zoomable scaling, you can pinch-zoom to control scaling.
  - ESC key: Use the \"Back\" functionality of your device (e.g. diagonal swipe from bottom or back arrow symbol).
  - Ctrl/Alt key: Menu, and then toggle Ctrl/Alt with corresponding key. Don't forget to toggle off when done!
  - Key combos: Menu->More->Send Keys.
@@ -93,28 +107,35 @@ All Input Modes:
 <string name="local_mouse_check">Local mouse pointer (select if pointer is invisible)</string>
 <string name="main_screen_help">Connection Help</string>
 <string name="main_screen_help_text">
-   "When you first start bVNC, you will see a connection configuration page. Here you can set up a new VNC connection, or choose a preexisting one. The page is divided into two sections. The top section contains a drop-down list of the connection configurations you've created previously. The first time your run bVNC, you will only be able to make a new connection. Next to the list is a Connect button. The Connect button will start the VNC client with the currently selected configuration. Below that is where you enter your connection configurations. There are more options than will fit on the page, so scroll down through this section.
+"When you first start bVNC, you will see a connection configuration page. Here you can set up a new VNC connection, or choose a preexisting one. The page is divided into two sections. The top section contains a drop-down list of the connection configurations you've created previously. The first time your run bVNC, you will only be able to make a new connection. Next to the list is a Connect button. The Connect button will start the VNC client with the currently selected configuration. Below that is where you configure your connection.
+
+If you are looking for a quick performance boost, try setting the Color mode to a lower value. Also, try removing any desktop background image on the VNC server. Finally, ensure your device has good network connectivity and avoid covering its antenna and reducing the signal strength.
 
  - Nickname: Each configuration you create can have a nickname to easily identify it on the list.
+ 
+ - SSH Server/Port: Available in VNC over SSH mode, this is the address and port of the SSH server that the connection will be tunnelled through. By default SSH listens on port 22.
+ 
+ - SSH Auth.: Available in VNC over SSH mode, these are the username and password of the account on the SSH server. The password will be filled in on this page if you haven't quit bVNC since you last entered it.
 
- - Password: If your VNC server configuration requires a password, enter that password here. Secure storage is not used for passwords, and the password will be stored only if you check the "Keep" box. The password will be filled in on this page if you haven't quit bVNC since you last entered it.
+ - VNC Server/Port: This is where you enter the host name or IP address and port of the computer running the VNC server that you wish to contact. In VNC over SSH mode, this address is as seen from the SSH Server. If the SSH Server and VNC server are the same computer, you can use localhost. VNC servers typically listen starting at port 5900 (the first VNC screen, screen :0).
 
- - Address: This is where you enter the host name or IP address of the computer running the VNC server that you wish to contact.
+ - VNC User: Available in UltraVNC with Windows Logon mode, this is where you enter your Windows username.
 
- - Port: This is the port number of the VNC server. This field will be 5900 by default, which is the first VNC port. 
+ - VNC Auth.: If your VNC server configuration requires a password, enter that password here. In UltraVNC with Windows Logon mode, put your Windows account password here. Secure storage is not used for passwords, and the password will be stored only if you check the "Keep" box. The password will be filled in on this page if you haven't quit bVNC since you last entered it.
 
- - Color Format: The client supports several color formats. Formats with more bits per pixel provide a better visual experience at the expense of greater bandwidth and more CPU on your device. Some VNC servers do not support all color depths (e.g. OS/X Remote Desktop requires 24-bit color). If you are having trouble connecting, try another color depth. 
+ - Color Mode: The client supports several color modes. Modes with more colors provide a better visual experience at the expense of greater bandwidth and more CPU computation on your device. Some VNC servers do not support all color depths (e.g. OS/X Remote Desktop requires 24-bit color). If you are having trouble connecting, try another color depth.
 
  - Use local mouse pointer: Some VNC servers (e.g. OS/X Remote Desktop) will not draw the mouse pointer on the client. Checking this option will cause bVNC to draw a small square at the mouse position. 
 
  - Force full-screen bitmap: The VNC client uses a bitmap to represent the remote display. For very large remote displays, especially in fit-to-screen mode, you may experience strange visual artifacts when in fit-to-screen mode, due to per-process memory limitations. If that happens, try checking this option. Keep in mind that checking the option may cause bVNC to quit on connection.
 
- - Repeater: If you use a UltraVNC repeater to connect to your VNC server, enter its address and port separated by colons in this field."</string>
+ - Repeater: Available in UltraVNC mode, if you use a repeater to connect to your VNC server, enter its address and port separated by a colon in this field."</string>
 <string name="meta_key_title">Send Special Keys</string>
 <string name="mouse_follow_pan">Mouse follows pan</string>
 <string name="new_list_button">New List</string>
 <string name="new_connection">New Connection</string>
 <string name="nickname_caption">Nickname</string>
+<string name="nickname_caption_hint">Name for Saved Connection (optional)</string>
 <string name="off">Off</string>
 <string name="on">On</string>
 <string name="one_to_one">One to One</string>
@@ -122,9 +143,15 @@ All Input Modes:
 <string name="tap_enable">Enable</string>
 <string name="tap_disable">Disable</string>
 <string name="pan_follow_mouse">Pan follows mouse</string>
-<string name="password_caption">Password</string>
-<string name="port_caption">Port</string>
-<string name="repeater_button">Repeater</string>
+<string name="password_caption">VNC Auth.</string>
+<string name="password_caption_hint">VNC Password</string>
+<string name="password_caption_ssh">SSH Auth.</string>
+<string name="password_hint_ssh">SSH Password</string>
+<string name="port_caption">VNC Port</string>
+<string name="port_caption_ssh">SSH Port</string>
+<string name="port_hint">VNC Pt</string>
+<string name="port_ssh_hint">SSH Pt</string>
+<string name="repeater_button">UltraVNC Repeater</string>
 <string name="repeater_caption">Enter the repeater address &lt;b&gt;only if&lt;/b&gt; you are using an&lt;br&gt;&lt;i&gt;UltraVNC&lt;/i&gt;-type repeater</string>
 <string name="repeater_clear">Don\'t use repeater</string>
 <string name="repeater_dialog_title">Repeater Information</string>
@@ -141,6 +168,7 @@ All Input Modes:
 <string name="showkbd_label">Keyboard</string>
 <string name="snap_one_to_one">Snapped to 1:1 zoom</string>
 <string name="special_keys">Send Keys</string>
-<string name="username_caption">Username</string>
-<string name="username_hint">For Windows Authentication</string>
+<string name="username_caption">VNC User</string>
+<string name="username_hint">UltraVNC MS Logon Username</string>
+<string name="username_hint_ssh">SSH Username</string>
 </resources>

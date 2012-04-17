@@ -22,11 +22,12 @@
 package com.iiordanov.bVNC;
 
 import java.io.IOException;
+import java.io.InputStream;
 
 import com.trilead.ssh2.Connection;
 import com.trilead.ssh2.ConnectionInfo;
 import com.trilead.ssh2.ServerHostKeyVerifier;
-//import com.trilead.ssh2.Session;
+import com.trilead.ssh2.Session;
 
 public class SSHConnection {
 	private Connection connection;
@@ -36,7 +37,8 @@ public class SSHConnection {
 	ServerHostKeyVerifier hostKeyVerifier;
 	private ConnectionInfo connectionInfo;
 	private String serverHostKey;
-	//private Session session;
+	private Session session;
+	private byte[] iobuffer = new byte[1024];
 
 	public SSHConnection(String host, int sshPort) {
 		
@@ -55,10 +57,7 @@ public class SSHConnection {
 			// TODO: Start controlling timeouts.
 			connectionInfo = connection.connect();
 			serverHostKey = new String(connectionInfo.serverHostKey);
-			
-			// TODO: session can be used to execute a remote command.
-			//session = connection.openSession();
-
+		
 			return true;
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -126,5 +125,19 @@ public class SSHConnection {
 			}			
 		}
 		return -1;
+	}
+	
+	public boolean execRemoteCommand (String cmd, long sleepTime){
+		try {
+			session = connection.openSession();
+			session.execCommand(cmd);
+			Thread.sleep(sleepTime);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return false;
+		}
+
+		return true;
 	}
 }

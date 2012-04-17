@@ -42,18 +42,35 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.util.Log;
+import com.iiordanov.bVNC.Utils;
 
 import java.util.ArrayList;
 import java.util.Collections;
 
 public class androidVNC extends Activity {
+	private Spinner connectionType;
+	private int selectedConnType;
+	private TextView sshCredentialsCaption;
+	private LinearLayout sshCredentials;
+	private TextView sshServerEntryCaption;
+	private LinearLayout sshServerEntry;
+	private EditText sshServer;
+	private EditText sshPort;
+	private EditText sshUser;
+	private EditText sshPassword;
+	private TextView sshPubKey;
+	private boolean sshPubkeyTextSet = false;
 	private EditText ipText;
 	private EditText portText;
 	private EditText passwordText;
 	private Button goButton;
+	private Button repeaterButton;
+	private LinearLayout repeaterEntry;
 	private TextView repeaterText;
 	private RadioGroup groupForceFullScreen;
 	private Spinner colorSpinner;
@@ -62,6 +79,7 @@ public class androidVNC extends Activity {
 	private ConnectionBean selected;
 	private EditText textNickname;
 	private EditText textUsername;
+	private TextView textUsernameCaption;
 	private CheckBox checkboxKeepPassword;
 	private CheckBox checkboxLocalCursor;
 	private boolean repeaterTextSet;
@@ -73,24 +91,92 @@ public class androidVNC extends Activity {
 		setContentView(R.layout.main);
 
 		ipText = (EditText) findViewById(R.id.textIP);
+		sshServer = (EditText) findViewById(R.id.sshServer);
+		sshPort = (EditText) findViewById(R.id.sshPort);
+		sshUser = (EditText) findViewById(R.id.sshUser);
+		sshPassword = (EditText) findViewById(R.id.sshPassword);
+		sshCredentials = (LinearLayout) findViewById(R.id.sshCredentials);
+		sshCredentialsCaption = (TextView) findViewById(R.id.sshCredentialsCaption);
+		sshServerEntry = (LinearLayout) findViewById(R.id.sshServerEntry);
+		sshServerEntryCaption = (TextView) findViewById(R.id.sshServerEntryCaption);
 		portText = (EditText) findViewById(R.id.textPORT);
 		passwordText = (EditText) findViewById(R.id.textPASSWORD);
 		textNickname = (EditText) findViewById(R.id.textNickname);
 		textUsername = (EditText) findViewById(R.id.textUsername);
-		goButton = (Button) findViewById(R.id.buttonGO);
-		((Button) findViewById(R.id.buttonRepeater)).setOnClickListener(new View.OnClickListener() {
-			
+		textUsernameCaption = (TextView) findViewById(R.id.textUsernameCaption);
+
+		// Define what happens when the Repeater button is pressed.
+		repeaterButton = (Button) findViewById(R.id.buttonRepeater);
+		repeaterEntry = (LinearLayout) findViewById(R.id.repeaterEntry);
+		repeaterButton.setOnClickListener(new View.OnClickListener() {	
 			@Override
 			public void onClick(View v) {
 				showDialog(R.layout.repeater_dialog);
 			}
 		});
+	
+		// Define what happens when somebody selects different VNC connection types.
+		connectionType = (Spinner) findViewById(R.id.connectionType);
+		connectionType.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+			@Override
+			public void onItemSelected(AdapterView<?> ad, View view, int itemIndex, long id) {
+
+				// TODO: Make position values not hard-coded numbers but derived positions based on ID's.
+				// This didn't quite work:
+				// connectionType.getPositionForView(findViewById(R.string.connection_type_ultravnc)
+
+				selectedConnType = itemIndex;
+			
+				if (selectedConnType == 0) {
+					sshCredentials.setVisibility(View.GONE);
+					sshCredentialsCaption.setVisibility(View.GONE);
+					sshServerEntry.setVisibility(View.GONE);
+					ipText.setHint(R.string.address_caption_hint);
+					sshServerEntryCaption.setVisibility(View.GONE);
+					textUsername.setVisibility(View.GONE);
+					textUsernameCaption.setVisibility(View.GONE);
+					repeaterEntry.setVisibility(View.GONE);
+				} else if (selectedConnType == 1) {
+					sshCredentials.setVisibility(View.VISIBLE);
+					sshCredentialsCaption.setVisibility(View.VISIBLE);
+					sshServerEntry.setVisibility(View.VISIBLE);
+					ipText.setText("localhost");
+					ipText.setHint(R.string.address_caption_hint_tunneled);
+					sshServerEntryCaption.setVisibility(View.VISIBLE);
+					textUsername.setVisibility(View.GONE);
+					textUsernameCaption.setVisibility(View.GONE);
+					repeaterEntry.setVisibility(View.GONE);
+				} else if (selectedConnType == 2) {
+					sshCredentials.setVisibility(View.GONE);
+					sshCredentialsCaption.setVisibility(View.GONE);
+					sshServerEntry.setVisibility(View.GONE);
+					ipText.setHint(R.string.address_caption_hint);
+					sshServerEntryCaption.setVisibility(View.GONE);
+					textUsernameCaption.setVisibility(View.VISIBLE);
+					textUsername.setVisibility(View.VISIBLE);
+					repeaterEntry.setVisibility(View.VISIBLE);
+				}
+			}
+			@Override
+			public void onNothingSelected(AdapterView<?> ad) {
+				sshCredentials.setVisibility(View.GONE);
+				sshCredentialsCaption.setVisibility(View.GONE);
+				sshServerEntry.setVisibility(View.GONE);
+				sshServerEntryCaption.setVisibility(View.GONE);
+				textUsername.setVisibility(View.GONE);
+			}
+		});
+
+		goButton = (Button) findViewById(R.id.buttonGO);
+
+		// Define what happens when the Import/Export button is pressed.
 		((Button)findViewById(R.id.buttonImportExport)).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				showDialog(R.layout.importexport);
 			}
 		});
+		
 		colorSpinner = (Spinner)findViewById(R.id.colorformat);
 		COLORMODEL[] models=COLORMODEL.values();
 		ArrayAdapter<COLORMODEL> colorSpinnerAdapter = new ArrayAdapter<COLORMODEL>(this, R.layout.connection_list_entry, models);
@@ -228,8 +314,17 @@ public class androidVNC extends Activity {
 	private void updateViewFromSelected() {
 		if (selected==null)
 			return;
+		selectedConnType = selected.getConnectionType();
+		connectionType.setSelection(selectedConnType);
+		sshServer.setText(selected.getSshServer());
+		sshPort.setText(Integer.toString(selected.getSshPort()));
+		sshUser.setText(selected.getSshUser());
+		sshPassword.setText(selected.getSshPassword());
+		updateSshPubKeyInfo(selected.getUseSshPubKey(), selected.getSshPubKey());
+
 		ipText.setText(selected.getAddress());
 		portText.setText(Integer.toString(selected.getPort()));
+		
 		if (selected.getKeepPassword() || selected.getPassword().length()>0) {
 			passwordText.setText(selected.getPassword());
 		}
@@ -269,6 +364,27 @@ public class androidVNC extends Activity {
 		}
 	}
 	
+	/**
+	 * Called when changing view to match selected connection or from
+	 * SSH PubKey dialog to update the PubKey information shown.
+	 * @param sshPubKey If null or empty, show text for not using sshPubKey
+	 */
+	void updateSshPubKeyInfo(boolean useSshPubKey, String newSshPubKey)
+	{
+		if (useSshPubKey)
+		{
+			sshPubKey.setText(newSshPubKey);
+			useSshPubKey = true;
+		}
+		else
+		{
+			//TODO: When I am done implementing the interface for SSH pubkeys, I can re-enable this.
+			//sshPubKey.setText("");
+			useSshPubKey = false;
+		}
+	}
+	
+	
 	private void updateSelectedFromView() {
 		if (selected==null) {
 			return;
@@ -277,12 +393,29 @@ public class androidVNC extends Activity {
 		try
 		{
 			selected.setPort(Integer.parseInt(portText.getText().toString()));
+			selected.setSshPort(Integer.parseInt(sshPort.getText().toString()));
 		}
 		catch (NumberFormatException nfe)
 		{
 			
 		}
 		selected.setNickname(textNickname.getText().toString());
+		selected.setConnectionType(selectedConnType);
+		selected.setSshServer(sshServer.getText().toString());
+		selected.setSshUser(sshUser.getText().toString());
+		selected.setSshPassword(sshPassword.getText().toString());
+		selected.setKeepSshPassword(false);
+		if (sshPubkeyTextSet)
+		{
+			selected.setSshPubKey(repeaterText.getText().toString());
+			selected.setUseSshPubKey(true);
+		}
+		else
+		{
+			selected.setUseSshPubKey(false);
+			selected.setSshPubKey("");
+			selected.setSshPassPhrase("");
+		}
 		selected.setUserName(textUsername.getText().toString());
 		selected.setForceFull(groupForceFullScreen.getCheckedRadioButtonId()==R.id.radioForceFullScreenAuto ? BitmapImplHint.AUTO : (groupForceFullScreen.getCheckedRadioButtonId()==R.id.radioForceFullScreenOn ? BitmapImplHint.FULL : BitmapImplHint.TILE));
 		selected.setPassword(passwordText.getText().toString());

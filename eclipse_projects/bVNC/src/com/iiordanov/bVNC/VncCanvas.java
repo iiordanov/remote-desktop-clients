@@ -67,6 +67,7 @@ public class VncCanvas extends ImageView {
 	
 	// Connection parameters
 	ConnectionBean connection;
+	private SSHConnection sshConnection;
 
 	// Runtime control flags
 	private boolean maintainConnection = true;
@@ -98,7 +99,6 @@ public class VncCanvas extends ImageView {
 	public Handler handler = new Handler();
 
 	// VNC Encoding parameters
-	private boolean useCopyRect = true;
 	private int preferredEncoding = -1;
 
 	// Unimplemented VNC encoding parameters
@@ -177,18 +177,24 @@ public class VncCanvas extends ImageView {
 		connection = bean;
 		this.pendingColorModel = COLORMODEL.valueOf(bean.getColorModel());
 
-		// Startup the RFB thread with a nifty progess dialog
-		final ProgressDialog pd = ProgressDialog.show(getContext(), "Connecting...", "Establishing handshake.\nPlease wait...", true, true, new DialogInterface.OnCancelListener() {
+		// Startup the RFB thread with a nifty progress dialog
+		final ProgressDialog pd = ProgressDialog.show(getContext(), 
+													  "Connecting...", "Establishing handshake.\nPlease wait...", true,
+													  true, new DialogInterface.OnCancelListener() {
 			@Override
 			public void onCancel(DialogInterface dialog) {
 				closeConnection();
 				handler.post(new Runnable() {
 					public void run() {
-						Utils.showErrorMessage(getContext(), "VNC connection aborted!");
+						Utils.showFatalErrorMessage(getContext(), "VNC connection aborted!");
 					}
 				});
 			}
 		});
+
+		// Make this dialog cancellable only upon hitting the Back button and not touching outside.
+		pd.setCanceledOnTouchOutside(false);
+
 		final Display display = pd.getWindow().getWindowManager().getDefaultDisplay();
 		Thread t = new Thread() {
 			public void run() {
@@ -209,22 +215,19 @@ public class VncCanvas extends ImageView {
 						// before we fatal error finish
 						if (pd.isShowing())
 							pd.dismiss();
+						
 						if (e instanceof OutOfMemoryError) {
-							// TODO  Not sure if this will happen but...
-							// figure out how to gracefully notify the user
-							// Instantiating an alert dialog here doesn't work
-							// because we are out of memory. :(
+							System.gc();
+							showFatalMessageAndQuit("A fatal error has occurred. The device is out of free memory.");
 						} else {
 							String error = "VNC connection failed!";
-							if (e.getMessage() != null && (e.getMessage().indexOf("authentication") > -1)) {
-								error = "VNC authentication failed!";
- 							}
-							final String error_ = error + "<br>" + e.getLocalizedMessage();
-							handler.post(new Runnable() {
-								public void run() {
-									Utils.showFatalErrorMessage(getContext(), error_);
+							if (e.getMessage() != null) {
+								if (e.getMessage().indexOf("authentication") > -1) {
+									error = "VNC authentication failed! Check VNC password.";
 								}
-							});
+								error = error + "<br>" + e.getLocalizedMessage();
+							}
+							showFatalMessageAndQuit(error);
 						}
 					}
 				}
@@ -232,13 +235,63 @@ public class VncCanvas extends ImageView {
 		};
 		t.start();
 	}
+	
+	void showFatalMessageAndQuit (final String error) {
+		closeConnection();
+		handler.post(new Runnable() {
+			public void run() {
+				Utils.showFatalErrorMessage(getContext(), error);
+			}
+		});
+	}
 
 	void connectAndAuthenticate(String us,String pw) throws Exception {
 		Log.i(TAG, "Connecting to " + connection.getAddress() + ", port " + connection.getPort() + "...");
 
-		rfb = new RfbProto(connection.getAddress(), connection.getPort());
-		if (LOCAL_LOGV) Log.v(TAG, "Connected to server");
+		// TODO: Switch from hard-coded numeric position to something better (at least an enumeration).
+		if (connection.getConnectionType() == 1) {
+			int localForwardedPort;
+			sshConnection = new SSHConnection(connection.getSshServer(), connection.getSshPort());
+		
+			// Attempt to connect.
+			if (!sshConnection.connect())
+				throw new Exception("Failed to connect to SSH server. Check SSH Server IP or hostname and port.");
+			
+			// Verify host key against saved one.
+			if (!sshConnection.verifyHostKey(connection.getSshHostKey()))
+				throw new Exception("ERROR! The server host key has changed. " +
+									"If this is intentional, delete and recreate the connection." +
+									"Otherwise, this may be a man in the middle attack.");
 
+			// Authenticate and set up port forwarding.
+			if (sshConnection.canAuthWithPass(connection.getSshUser())) {
+				if (sshConnection.authenticate(connection.getSshUser(), connection.getSshPassword())) {
+					localForwardedPort = sshConnection.createPortForward(connection.getPort(),
+																		 connection.getAddress(), connection.getPort());
+					
+					// If we got back a negative number, port forwarding failed.
+					if (localForwardedPort < 0) {
+						throw new Exception("Could not set up the port forwarding for tunneling VNC traffic over SSH." +
+								"Please ensure your SSH server is configured to allow port forwarding and try again.");
+					}
+					
+					// TODO: This is a proof of concept for remote command execution.
+					//if (!sshConnection.execRemoteCommand("/usr/bin/x11vnc -N -forever -auth guess -localhost -display :0 1>/dev/null 2>/dev/null", 5000))
+					//	throw new Exception("Could not execute remote command.");
+				} else {
+					throw new Exception("Failed to authenticate to SSH server. Please check your username and password.");
+				}
+			} else {
+				throw new Exception("Remote server " + connection.getAddress() + " does not support" +
+									"password-based SSH authentication. Please reconfigure it and try again.");
+			}
+			rfb = new RfbProto("localhost", localForwardedPort);
+		} else {
+			rfb = new RfbProto(connection.getAddress(), connection.getPort());
+		}
+		
+		if (LOCAL_LOGV) Log.v(TAG, "Connected to server");
+	
 		// <RepeaterMagic>
 		if (connection.getUseRepeater() && connection.getRepeaterId() != null && connection.getRepeaterId().length()>0) {
 			Log.i(TAG, "Negotiating repeater/proxy connection");
@@ -991,7 +1044,6 @@ public class VncCanvas extends ImageView {
 	}
 
 	public boolean processLocalKeyEvent(int keyCode, KeyEvent evt) {
-		//Log.i(TAG,"there was a key event: " + keyCode);
 		
 		if (keyCode == KeyEvent.KEYCODE_MENU)
 			// Ignore menu key
@@ -1107,6 +1159,12 @@ public class VncCanvas extends ImageView {
 
 	public void closeConnection() {
 		maintainConnection = false;
+		// Tell the server to release any meta keys.
+		onScreenMetaState = 0;
+		processLocalKeyEvent(0, new KeyEvent(KeyEvent.ACTION_UP, 0));
+		// TODO: Switch from hard-coded numeric position to something better (at least an enumeration).
+		if (connection.getConnectionType() == 1)
+			sshConnection.disconnect();
 	}
 	
 	void sendMetaKey(MetaKeyBean meta)
@@ -1177,10 +1235,7 @@ public class VncCanvas extends ImageView {
 			return;
 
 		if (preferredEncoding == -1) {
-			if (useFull)
-				preferredEncoding =  RfbProto.EncodingTight;
-			else
-				preferredEncoding =  RfbProto.EncodingZRLE;
+			preferredEncoding = RfbProto.EncodingTight;
 		} else {
 			// Auto encoder selection is not enabled.
 			if (autoSelectOnly)
@@ -1191,10 +1246,8 @@ public class VncCanvas extends ImageView {
 		int nEncodings = 0;
 
 		encodings[nEncodings++] = preferredEncoding;
-		
-		if (useFull && useCopyRect)
-			encodings[nEncodings++] = RfbProto.EncodingCopyRect;
-		if (useFull && preferredEncoding != RfbProto.EncodingTight)
+		encodings[nEncodings++] = RfbProto.EncodingCopyRect;
+		if (preferredEncoding != RfbProto.EncodingTight)
 			encodings[nEncodings++] = RfbProto.EncodingTight;
 		if (preferredEncoding != RfbProto.EncodingZRLE)
 			encodings[nEncodings++] = RfbProto.EncodingZRLE;
@@ -1807,9 +1860,9 @@ public class VncCanvas extends ImageView {
 	//
 	// Handle a Tight-encoded rectangle.
 	//
-	// TODO: Tight encoding does not work with LargeBitmapData.
 	void handleTightRect(int x, int y, int w, int h) throws Exception {
 		
+		boolean valid = bitmapData.validDraw(x, y, w, h);
 		int[] pixels = bitmapData.bitmapPixels;
 
 		int comp_ctl = rfb.is.readUnsignedByte();
@@ -1837,8 +1890,10 @@ public class VncCanvas extends ImageView {
 				handleTightRectPaint.setColor(0xFF000000 | (solidColorBuf[0] & 0xFF) << 16 
 														 | (solidColorBuf[1] & 0xFF) << 8 | (solidColorBuf[2] & 0xFF));
 			}
-			bitmapData.drawRect(x, y, w, h, handleTightRectPaint);
-			reDraw();
+			if (valid) {
+				bitmapData.drawRect(x, y, w, h, handleTightRectPaint);
+				reDraw();
+			}
 			return;
 		}
 
@@ -1849,6 +1904,10 @@ public class VncCanvas extends ImageView {
 				jpegBuffer = new byte[2*jpegDataLen];
 			}
 			rfb.readFully(jpegBuffer, 0, jpegDataLen);
+			
+			if (!valid)
+				return;
+
 			// Decode JPEG data
 			Bitmap tightBitmap = BitmapFactory.decodeByteArray(jpegBuffer, 0, jpegDataLen);
 			// Copy JPEG data into bitmap.
@@ -1908,6 +1967,8 @@ public class VncCanvas extends ImageView {
 			if (numColors != 0) {
 				// Indexed colors.
 				rfb.readFully(uncompDataBuf, 0, dataSize);
+				if (!valid)
+					return;
 
 				if (numColors == 2) {
 					// Two colors.
@@ -1929,6 +1990,9 @@ public class VncCanvas extends ImageView {
 			} else if (useGradient) {
 				// "Gradient"-processed data
 				rfb.readFully(uncompDataBuf, 0, dataSize);
+				if (!valid)
+					return;
+
 				decodeGradientData(x, y, w, h, uncompDataBuf);
 			} else {
 				// Raw true-color data.
@@ -1936,6 +2000,9 @@ public class VncCanvas extends ImageView {
 				if (bytesPerPixel == 1) {
 					for (int dy = y; dy < y + h; dy++) {
 						rfb.readFully(uncompDataBuf, 0, rowSize);
+						if (!valid)
+							continue;
+
 						offset = bitmapData.offset(x, dy);
 						for (i = 0; i < w; i++) {
 							pixels[offset + i] = colorPalette[0xFF & uncompDataBuf[i]];
@@ -1944,6 +2011,9 @@ public class VncCanvas extends ImageView {
 				} else {
 					for (int dy = y; dy < y + h; dy++) {
 						rfb.readFully(uncompDataBuf, 0, rowSize);
+						if (!valid)
+							continue;
+						
 						offset = bitmapData.offset(x, dy);
 						for (i = 0; i < w; i++) {
 							pixels[offset + i] = (uncompDataBuf[i * 3]     & 0xFF) << 16 | 
@@ -1976,6 +2046,8 @@ public class VncCanvas extends ImageView {
 
 			if (numColors != 0) {
 				myInflater.inflate(inflBuf, 0, dataSize);
+				if (!valid)
+					return;
 
 				// Indexed colors.
 				if (numColors == 2) {
@@ -1998,12 +2070,18 @@ public class VncCanvas extends ImageView {
 			} else if (useGradient) {
 				// Compressed "Gradient"-filtered data (assuming bytesPerPixel == 4).
 				myInflater.inflate(inflBuf, 0, dataSize);
+				if (!valid)
+					return;
+
 				decodeGradientData(x, y, w, h, inflBuf);
 			} else {
 				// Compressed true-color data.
 				if (bytesPerPixel == 1) {
 					for (int dy = y; dy < y + h; dy++) {
 						myInflater.inflate(inflBuf, 0, rowSize);
+						if (!valid)
+							continue;
+
 						int offset = bitmapData.offset(x, dy);
 						for (int i = 0; i < w; i++) {
 							pixels[offset + i] = colorPalette[0xFF & inflBuf[i]];
@@ -2013,6 +2091,9 @@ public class VncCanvas extends ImageView {
 					int offset;
 					for (int dy = y; dy < y + h; dy++) {
 						myInflater.inflate(inflBuf, 0, rowSize);
+						if (!valid)
+							continue;
+
 						offset = bitmapData.offset(x, dy);
 						for (int i = 0; i < w; i++) {
 							final int idx = i*3;
@@ -2024,6 +2105,8 @@ public class VncCanvas extends ImageView {
 				}
 			}
 		}
+		if (!valid)
+			return;
 		bitmapData.updateBitmap(x, y, w, h);
 		reDraw();
 	}
@@ -2031,7 +2114,7 @@ public class VncCanvas extends ImageView {
 	//
 	// Decode 1bpp-encoded bi-color rectangle (8-bit and 24-bit versions).
 	//
-	
+	// TODO: Switch to bitmapData.offset rather than direct calculations
 	void decodeMonoData(int x, int y, int w, int h, byte[] src, byte[] palette) {
 
 		int dx, dy, n;
@@ -2050,10 +2133,11 @@ public class VncCanvas extends ImageView {
 			for (n = 7; n >= 8 - w % 8; n--) {
 				pixels[i++] = colorPalette[0xFF & palette[src[dy*rowBytes+dx] >> n & 1]];
 			}
-			i += (rfb.framebufferWidth - w);
+			i += (bitmapData.bitmapwidth - w);
 		}
 	}
 
+	// TODO: Switch to bitmapData.offset rather than direct calculations
 	void decodeMonoData(int x, int y, int w, int h, byte[] src, int[] palette) {
 
 		int dx, dy, n;
@@ -2072,14 +2156,14 @@ public class VncCanvas extends ImageView {
 			for (n = 7; n >= 8 - w % 8; n--) {
 				pixels[i++] = palette[src[dy*rowBytes+dx] >> n & 1];
 			}
-			i += (rfb.framebufferWidth - w);
+			i += (bitmapData.bitmapwidth - w);
 		}
 	}
 
 	//
 	// Decode data processed with the "Gradient" filter.
 	//
-
+	// TODO: Switch to bitmapData.offset rather than direct calculations
 	void decodeGradientData (int x, int y, int w, int h, byte[] buf) {
 
 		int dx, dy, c;
@@ -2117,7 +2201,7 @@ public class VncCanvas extends ImageView {
 			}
 
 			System.arraycopy(thisRow, 0, prevRow, 0, w * 3);
-			offset += (rfb.framebufferWidth - w);
+			offset += (bitmapData.bitmapwidth - w);
 		}
 	}
 }

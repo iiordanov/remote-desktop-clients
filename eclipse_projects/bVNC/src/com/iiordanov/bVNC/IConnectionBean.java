@@ -6,6 +6,7 @@ package com.iiordanov.bVNC;
 import com.antlersoft.android.db.*;
 
 /**
+ * @author Iordan Iordanov
  * @author Michael A. MacDonald
  *
  */
@@ -15,6 +16,36 @@ interface IConnectionBean {
 	long get_Id();
 	@FieldAccessor
 	String getNickname();
+	@FieldAccessor
+	int getConnectionType();
+	@FieldAccessor
+	String getSshServer();
+	@FieldAccessor
+	int getSshPort();
+	@FieldAccessor
+	String getSshUser();
+	@FieldAccessor
+	String getSshPassword();
+	@FieldAccessor
+	boolean getKeepSshPassword();
+	@FieldAccessor
+	String getSshPubKey();
+	@FieldAccessor
+	String getSshPrivKey();
+	@FieldAccessor
+	String getSshPassPhrase();
+	@FieldAccessor
+	boolean getUseSshPubKey();
+	@FieldAccessor
+	int getSshRemoteCommandOS();
+	@FieldAccessor
+	String getSshRemoteCommand();
+	@FieldAccessor
+	int getSshRemoteCommandTimeout();
+	@FieldAccessor
+	boolean getUseSshRemoteCommand();
+	@FieldAccessor
+	String getSshHostKey();
 	@FieldAccessor
 	String getAddress();
 	@FieldAccessor
