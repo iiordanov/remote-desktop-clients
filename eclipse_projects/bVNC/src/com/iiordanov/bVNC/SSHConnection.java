@@ -22,14 +22,17 @@
 package com.iiordanov.bVNC;
 
 import java.io.IOException;
-import java.io.InputStream;
 
 import com.trilead.ssh2.Connection;
 import com.trilead.ssh2.ConnectionInfo;
 import com.trilead.ssh2.ServerHostKeyVerifier;
 import com.trilead.ssh2.Session;
+import android.util.Base64;
+import android.util.Log;
+
 
 public class SSHConnection {
+	private final static String TAG = "SSHConnection";
 	private Connection connection;
 	private final int authWaitPeriod = 300;
 	private final int numAuthWaits = 10;
@@ -38,7 +41,6 @@ public class SSHConnection {
 	private ConnectionInfo connectionInfo;
 	private String serverHostKey;
 	private Session session;
-	private byte[] iobuffer = new byte[1024];
 
 	public SSHConnection(String host, int sshPort) {
 		
@@ -52,27 +54,26 @@ public class SSHConnection {
 	public boolean connect () {
 		try {
 			connection.setTCPNoDelay(true);
-			connection.setCompression(false);
+			//connection.setCompression(false);
 			
 			// TODO: Start controlling timeouts.
 			connectionInfo = connection.connect();
-			serverHostKey = new String(connectionInfo.serverHostKey);
+			
+			// Store a base64 encoded string representing the HostKey
+			serverHostKey = Base64.encodeToString(connectionInfo.serverHostKey, Base64.DEFAULT);
 		
 			return true;
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return false;
 		}
 	}
 	
 	public boolean verifyHostKey (String savedHostKey) {
-		// Check if server hostKey has changed.
-		if (savedHostKey != null && !serverHostKey.equals("")){
-			if (!serverHostKey.equals(savedHostKey))
-				return false;
-		}
-		return true;
+		// Because JSch returns the host key base64 encoded, and trilead ssh returns it not base64 encoded,
+		// we compare savedHostKey to serverHostKey both base64 encoded and not.
+		return savedHostKey.equals(serverHostKey) ||
+				savedHostKey.equals(new String(Base64.decode(serverHostKey, Base64.DEFAULT)));
 	}
 
 	public void disconnect () {
@@ -83,7 +84,6 @@ public class SSHConnection {
 		try {
 			return connection.isAuthMethodAvailable(user, "password");
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return false;
 		}
@@ -95,7 +95,6 @@ public class SSHConnection {
 		try {
 			connection.authenticateWithPassword(user, password);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return false;
 		}
@@ -106,7 +105,6 @@ public class SSHConnection {
 			try {
 				Thread.sleep(authWaitPeriod);
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			numWaited++;

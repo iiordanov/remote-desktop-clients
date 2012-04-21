@@ -48,16 +48,16 @@
 <string name="input_mode_help">Input Mode Help</string>
 <string name="info">Info</string>
 <string name="intro_text">
-bVNC now supports tunneling VNC over SSH, UltraVNC with Windows Logon, as well as plain VNC. Sessions are automatically saved.
-Once connected, you can choose between Zoomable, Fit to Screen, and One to One scaling, as well as between Touch Mouse and
-Simulated Touchpad input modes. To delete connections on the main screen, change the Scaling or Input Mode while connected,
-or get Help anywhere, use the Menu. For help with Input Modes (i.e. how to control the remote mouse), select
-Menu->More->Input Mode Help. In order to see the Keyboard button at the bottom of the screen when connected, you must be
-in full-screen mode.
+bVNC now supports tunneling VNC over SSH for enterprise-level security. It also supports UltraVNC with Windows Logon, 
+as well as plain VNC. Sessions are automatically saved. Once connected, you can choose between Zoomable, Fit to Screen,
+and One to One scaling, as well as between Touch Mouse and Simulated Touchpad input modes. To delete connections on the
+main screen, change the Scaling or Input Mode while connected, or get Help anywhere, use the Menu. For help with Input
+Modes (i.e. how to control the remote mouse), select Menu->More->Input Mode Help. In order to see the Keyboard button
+at the bottom of the screen when connected, you must be in full-screen mode.
 &lt;br&gt;
 &lt;br&gt;Other Menu items include toggling Ctrl/Alt, shortcuts to arrow keys, and sending arbitrary text and key combinations.
 </string>
-<string name="intro_title">Welcome to bVNC - an advanced mobile VNC client with an intuitive user interface</string>
+<string name="intro_title">bVNC, a secure VNC client with an intuitive UI</string>
 <string name="intro_version_text"></string>
 <string name="input_mode">Input Mode</string>
 <string name="input_mode_fit_to_screen">No Pan; Trackball Mouse</string>

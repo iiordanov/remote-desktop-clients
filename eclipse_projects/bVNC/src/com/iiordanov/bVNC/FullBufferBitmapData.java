@@ -47,20 +47,21 @@ class FullBufferBitmapData extends AbstractBitmapData {
 			}
 			else
 			{
+				//TODO: Do we need to call drawBitmap if xo or yo was set to data.framebufferwidth/height - 1?
 				//float scale = vncCanvas.getScale();
 				int xo, yo;
 				
 				if (xoffset < 0)
 					xo = 0;
-				else if (xoffset > data.framebufferwidth)
-					xo = data.framebufferwidth;
+				else if (xoffset >= data.framebufferwidth)
+					xo = data.framebufferwidth - 1;
 				else
 					xo = xoffset;
 
 				if (yoffset < 0)
 					yo = 0;
-				else if (yoffset > data.framebufferheight)
-					yo = data.framebufferheight;
+				else if (yoffset >= data.framebufferheight)
+					yo = data.framebufferheight - 1;
 				else
 					yo = yoffset;
 				
@@ -69,11 +70,11 @@ class FullBufferBitmapData extends AbstractBitmapData {
 				{
 				*/
 					int drawWidth = vncCanvas.getVisibleWidth();
-					if (drawWidth + xo > data.framebufferwidth)
-						drawWidth = data.framebufferwidth - xo;
+					if (drawWidth + xo >= data.framebufferwidth)
+						drawWidth = data.framebufferwidth - xo - 1;
 					int drawHeight = vncCanvas.getVisibleHeight();
-					if (drawHeight + yo > data.framebufferheight)
-						drawHeight = data.framebufferheight - yo;
+					if (drawHeight + yo >= data.framebufferheight)
+						drawHeight = data.framebufferheight - yo - 1;
 					canvas.drawBitmap(data.bitmapPixels, offset(xo, yo), data.framebufferwidth, xo, yo, drawWidth, drawHeight, false, null);
 				/*
 				}

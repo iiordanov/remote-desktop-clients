@@ -789,7 +789,7 @@ public class VncCanvasActivity extends Activity {
 	private void initializeSshHostKey() {
 		// If the SSH HostKey is empty, then we need to grab the HostKey from the server and save it.
 		if (connection.getSshHostKey().equals("")) {
-			Log.d("initializeSshHostKey", "Initializing SSH HostKey from server.");
+			Log.d(TAG, "Initializing SSH HostKey from server.");
 			SSHConnection sshConnection = new SSHConnection(connection.getSshServer(), connection.getSshPort());
 			if (!sshConnection.connect()) {
 				Utils.showFatalErrorMessage(this, "Could not connect to SSH server to obtain server HostKey. " +
