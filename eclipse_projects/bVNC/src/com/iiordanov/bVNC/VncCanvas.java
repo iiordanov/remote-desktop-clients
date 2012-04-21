@@ -1910,11 +1910,10 @@ public class VncCanvas extends ImageView {
 
 			// Decode JPEG data
 			Bitmap tightBitmap = BitmapFactory.decodeByteArray(jpegBuffer, 0, jpegDataLen);
+
 			// Copy JPEG data into bitmap.
-			for (int j = 0; j < h; j++) {
-				tightBitmap.getPixels(pixels, bitmapData.offset(x, y + j), w, 0, j, w, 1);
-			}
-			// Update the bitmap
+			tightBitmap.getPixels(pixels, bitmapData.offset(x, y), bitmapData.bitmapwidth, 0, 0, w, h);
+
 			bitmapData.updateBitmap(x, y, w, h);
 			reDraw();
 			return;
