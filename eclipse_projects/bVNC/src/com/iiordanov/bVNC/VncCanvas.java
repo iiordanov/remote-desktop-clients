@@ -116,7 +116,6 @@ public class VncCanvas extends ImageView {
 	// Tight encoder's data.
 	Inflater[] tightInflaters;
 	private Paint handleTightRectPaint;
-	byte[] jpegBuffer;
 	byte[] solidColorBuf;
 	byte[] tightPalette8;
 	int[]  tightPalette24;
@@ -154,7 +153,6 @@ public class VncCanvas extends ImageView {
 		handleRREPaint = new Paint();
 		handleRREPaint.setStyle(Style.FILL);
 	    tightInflaters = new Inflater[4];
-	    jpegBuffer = new byte[8192];
 	    solidColorBuf = new byte[3];
 		tightPalette8  = new byte[2];
 		tightPalette24 = new int[256];
@@ -1875,7 +1873,7 @@ public class VncCanvas extends ImageView {
 			comp_ctl >>= 1;
 		}
 
-		// Check correctness of subencoding value.
+		// Check correctness of sub-encoding value.
 		if (comp_ctl > RfbProto.TightMaxSubencoding) {
 			throw new Exception("Incorrect tight subencoding: " + comp_ctl);
 		}
@@ -1900,16 +1898,16 @@ public class VncCanvas extends ImageView {
 		if (comp_ctl == RfbProto.TightJpeg) {
 			// Read JPEG data.
 			int jpegDataLen = rfb.readCompactLen();
-			if (jpegDataLen > jpegBuffer.length) {
-				jpegBuffer = new byte[2*jpegDataLen];
+			if (jpegDataLen > inflBuf.length) {
+				inflBuf = new byte[2*jpegDataLen];
 			}
-			rfb.readFully(jpegBuffer, 0, jpegDataLen);
+			rfb.readFully(inflBuf, 0, jpegDataLen);
 			
 			if (!valid)
 				return;
 
 			// Decode JPEG data
-			Bitmap tightBitmap = BitmapFactory.decodeByteArray(jpegBuffer, 0, jpegDataLen);
+			Bitmap tightBitmap = BitmapFactory.decodeByteArray(inflBuf, 0, jpegDataLen);
 
 			// Copy JPEG data into bitmap.
 			tightBitmap.getPixels(pixels, bitmapData.offset(x, y), bitmapData.bitmapwidth, 0, 0, w, h);
@@ -1978,11 +1976,11 @@ public class VncCanvas extends ImageView {
 					}	
 				} else {
 					// 3..255 colors (assuming bytesPerPixel == 4).
-					int i = 0;
+					int i = 0, offset;
 					for (int dy = y; dy < y + h; dy++) {
+						offset = bitmapData.offset(x, dy);
 						for (int dx = x; dx < x + w; dx++) {
-							int offset = bitmapData.offset(dx, dy);
-							pixels[offset] = tightPalette24[uncompDataBuf[i++] & 0xFF];
+							pixels[offset++] = tightPalette24[uncompDataBuf[i++] & 0xFF];
 						}
 					}
 				}
@@ -2058,11 +2056,11 @@ public class VncCanvas extends ImageView {
 					}
 				} else {
 					// More than two colors (assuming bytesPerPixel == 4).
-					int i = 0;
+					int i = 0, offset;
 					for (int dy = y; dy < y + h; dy++) {
+						offset = bitmapData.offset(x, dy);
 						for (int dx = x; dx < x + w; dx++) {
-							int offset = bitmapData.offset(dx, dy);
-							pixels[offset] = tightPalette24[inflBuf[i++] & 0xFF];
+							pixels[offset++] = tightPalette24[inflBuf[i++] & 0xFF];
 						}
 					}
 				}

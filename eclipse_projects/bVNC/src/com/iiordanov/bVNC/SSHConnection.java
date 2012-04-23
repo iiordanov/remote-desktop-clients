@@ -35,7 +35,7 @@ public class SSHConnection {
 	private final static String TAG = "SSHConnection";
 	private Connection connection;
 	private final int authWaitPeriod = 300;
-	private final int numAuthWaits = 10;
+	private final int numAuthWaits = 3;
 	private final int numPortTries = 100;
 	ServerHostKeyVerifier hostKeyVerifier;
 	private ConnectionInfo connectionInfo;
