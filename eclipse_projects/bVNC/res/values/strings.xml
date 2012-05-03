@@ -35,6 +35,7 @@
 <string name="delete_connection">Delete Connection</string>
 <string name="delete_key">Delete Selected Key</string>
 <string name="delete_key_list">Delete Key List</string>
+<string name="dpad_as_arrows">Use D-Pad/Trackpad for arrows rather than mouse control</string>
 <string name="disconnect">Disconnect</string>
 <string name="export_settings">Export</string>
 <string name="export_settings_path">Export to file</string>
@@ -48,14 +49,17 @@
 <string name="input_mode_help">Input Mode Help</string>
 <string name="info">Info</string>
 <string name="intro_text">
-bVNC now supports tunneling VNC over SSH for enterprise-level security. It also supports UltraVNC with Windows Logon, 
-as well as plain VNC. Sessions are automatically saved. Once connected, you can choose between Zoomable, Fit to Screen,
-and One to One scaling, as well as between Touch Mouse and Simulated Touchpad input modes. To delete connections on the
-main screen, change the Scaling or Input Mode while connected, or get Help anywhere, use the Menu. For help with Input
-Modes (i.e. how to control the remote mouse), select Menu->More->Input Mode Help. In order to see the Keyboard button
-at the bottom of the screen when connected, you must be in full-screen mode.
+bVNC now supports tunneling VNC over SSH for enterprise-level security. It also supports UltraVNC with Windows Logon.
+Sessions are automatically saved. Once connected, you can choose between Zoomable, Fit to Screen,
+and One to One scaling, as well as between Touch Mouse and Simulated Touchpad input modes. Use the Menu to: 
+delete connections on the main screen, change the Scaling or Input Mode when connected, or get Help.
+In addition, you can toggle Ctrl/Alt, use the arrow keys, and send arbitrary text and key combinations.
+Input Mode Help (how to control the remote mouse) is available at Menu->More->Input Mode Help.
 &lt;br&gt;
-&lt;br&gt;Other Menu items include toggling Ctrl/Alt, shortcuts to arrow keys, and sending arbitrary text and key combinations.
+* WARNING: Beware that using a hardware Trackpad/ball triggers a bug in Android which prevents bVNC from
+resizing the visible screen when the soft-keyboard is up (and it starts to cover part of the screen). Using
+a software D-pad, or soft-keyboard arrow keys causes no problems. Note that bVNC now has the option to
+use D-pad or Trackpad/ball to send arrow keys instead of moving the mouse pointer.
 </string>
 <string name="intro_title">bVNC, a secure VNC client with an intuitive UI</string>
 <string name="intro_version_text"></string>
@@ -125,7 +129,13 @@ If you are looking for a quick performance boost, try setting the Color mode to 
 
  - Color Mode: The client supports several color modes. Modes with more colors provide a better visual experience at the expense of greater bandwidth and more CPU computation on your device. Some VNC servers do not support all color depths (e.g. OS/X Remote Desktop requires 24-bit color). If you are having trouble connecting, try another color depth.
 
- - Use local mouse pointer: Some VNC servers (e.g. OS/X Remote Desktop) will not draw the mouse pointer on the client. Checking this option will cause bVNC to draw a small square at the mouse position. 
+ - Use D-Pad for arrows: If you prefer, you can use the D-Pad of your Bluetooth keyboard or arrows on your on-screen keyboard to send arrows to the VNC server.
+
+ - Rotate D-Pad: Phones paired with a Bluetooth keyboard may need the keyboard's D-pad to be rotated anti-clockwise to send correct directions to the server.
+ 
+ - Switch to portrait: If you prefer portrait mode (one handed use, or more vertical space with soft-keyboard), check this box to switch to portrait mode when connected. Main screen will stay in landscape mode.
+
+ - Local mouse pointer: Some VNC servers (e.g. OS/X Remote Desktop) will not draw the mouse pointer on the client. Checking this option will cause bVNC to draw a small square at the mouse position. 
 
  - Force full-screen bitmap: The VNC client uses a bitmap to represent the remote display. For very large remote displays, especially in fit-to-screen mode, you may experience strange visual artifacts when in fit-to-screen mode, due to per-process memory limitations. If that happens, try checking this option. Keep in mind that checking the option may cause bVNC to quit on connection.
 
@@ -151,12 +161,14 @@ If you are looking for a quick performance boost, try setting the Color mode to 
 <string name="port_caption_ssh">SSH Port</string>
 <string name="port_hint">VNC Pt</string>
 <string name="port_ssh_hint">SSH Pt</string>
+<string name="portrait_mode">Switch to portrait mode when connected</string>
 <string name="repeater_button">UltraVNC Repeater</string>
 <string name="repeater_caption">Enter the repeater address &lt;b&gt;only if&lt;/b&gt; you are using an&lt;br&gt;&lt;i&gt;UltraVNC&lt;/i&gt;-type repeater</string>
 <string name="repeater_clear">Don\'t use repeater</string>
 <string name="repeater_dialog_title">Repeater Information</string>
 <string name="repeater_empty_text">No repeater</string>
 <string name="repeater_save">Use this repeater</string>
+<string name="rotate_dpad">Rotate Bluetooth or Software D-Pad</string>
 <string name="save_as_copy">Save as Copy</string>
 <string name="scaling">Scaling</string>
 <string name="scaling_zoomable">Zoomable</string>

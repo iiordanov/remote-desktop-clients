@@ -52,7 +52,6 @@ import android.graphics.Bitmap;
 
 import com.iiordanov.android.bc.BCFactory;
 
-
 public class VncCanvas extends ImageView {
 	private final static String TAG = "VncCanvas";
 	private final static boolean LOCAL_LOGV = true;
@@ -74,6 +73,21 @@ public class VncCanvas extends ImageView {
 	private boolean showDesktopInfo = true;
 	private boolean repaintsEnabled = true;
 
+	private final static int SCAN_ESC = 1;
+	private final static int SCAN_LEFTCTRL = 29;
+	private final static int SCAN_RIGHTCTRL = 97;
+	private final static int SCAN_F1 = 59;
+	private final static int SCAN_F2 = 60;
+	private final static int SCAN_F3 = 61;
+	private final static int SCAN_F4 = 62;
+	private final static int SCAN_F5 = 63;
+	private final static int SCAN_F6 = 64;
+	private final static int SCAN_F7 = 65;
+	private final static int SCAN_F8 = 66;
+	private final static int SCAN_F9 = 67;
+	private final static int SCAN_F10 = 68;
+	private final static int SCAN_HOME = 102;
+	private final static int SCAN_END = 107;
 	
 	/**
 	 * Use camera button as meta key for right mouse button
@@ -136,12 +150,20 @@ public class VncCanvas extends ImageView {
 	
 	private Paint handleRREPaint;
 	
+	private XKeySymCoverter xKeySymConv;
+	
 	/**
 	 * Position of the top left portion of the <i>visible</i> part of the screen, in
 	 * full-frame coordinates
 	 */
 	int absoluteXPosition = 0, absoluteYPosition = 0;
 
+	/**
+	 * This variable holds the height of the visible rectangle of the screen. It is used to keep track
+	 * of how much of the screen is hidden by the soft keyboard if any.
+	 */
+	int visibleHeight = -1;
+	
 	/**
 	 * Constructor used by the inflation apparatus
 	 * @param context
@@ -162,8 +184,9 @@ public class VncCanvas extends ImageView {
 		uncompDataBuf = new byte[RfbProto.TightMinToCompress*3];
 		zlibData = new byte[4096];
 		inflBuf = new byte[8192];
+		xKeySymConv = new XKeySymCoverter();
 	}
-
+	
 	/**
 	 * Create a view showing a VNC connection
 	 * @param context Containing context (activity)
@@ -216,7 +239,8 @@ public class VncCanvas extends ImageView {
 						
 						if (e instanceof OutOfMemoryError) {
 							System.gc();
-							showFatalMessageAndQuit("A fatal error has occurred. The device is out of free memory.");
+							showFatalMessageAndQuit("A fatal error has occurred. The device appears to be out of free memory. " +
+									                "Try restarting the application and failing that, restart your device.");
 						} else {
 							String error = "VNC connection failed!";
 							if (e.getMessage() != null) {
@@ -253,12 +277,12 @@ public class VncCanvas extends ImageView {
 		
 			// Attempt to connect.
 			if (!sshConnection.connect())
-				throw new Exception("Failed to connect to SSH server. Check SSH Server IP or hostname and port.");
+				throw new Exception("Failed to connect to SSH server. Please check network connection status, and SSH Server address and port.");
 			
 			// Verify host key against saved one.
 			if (!sshConnection.verifyHostKey(connection.getSshHostKey()))
 				throw new Exception("ERROR! The server host key has changed. " +
-									"If this is intentional, delete and recreate the connection." +
+									"If this is intentional, please delete and recreate the connection." +
 									"Otherwise, this may be a man in the middle attack.");
 
 			// Authenticate and set up port forwarding.
@@ -405,6 +429,7 @@ public class VncCanvas extends ImageView {
 
 	public void processNormalProtocol(final Context context, ProgressDialog pd, final Runnable setModes) throws Exception {
 		try {
+			setEncodings(true);
 			bitmapData.writeFullUpdateRequest(false);
 
 			handler.post(setModes);
@@ -1002,7 +1027,7 @@ public class VncCanvas extends ImageView {
 		    bitmapData.invalidateMousePosition();
 
 		    try {
-				rfb.writePointerEvent(mouseX, mouseY, modifiers|onScreenMetaState, pointerMask);
+		    	rfb.writePointerEvent(mouseX, mouseY, modifiers|onScreenMetaState, pointerMask);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -1042,7 +1067,7 @@ public class VncCanvas extends ImageView {
 	}
 
 	public boolean processLocalKeyEvent(int keyCode, KeyEvent evt) {
-		
+
 		if (keyCode == KeyEvent.KEYCODE_MENU)
 			// Ignore menu key
 			return true;
@@ -1080,15 +1105,25 @@ public class VncCanvas extends ImageView {
 			return true;
 		}
 		if (rfb != null && rfb.inNormalProtocol) {
-		   boolean down = (evt.getAction() == KeyEvent.ACTION_DOWN);
-		   int key;
+		   boolean down = (evt.getAction() == KeyEvent.ACTION_DOWN) ||
+				   		  (evt.getAction() == KeyEvent.ACTION_MULTIPLE);
+		   int key = 0;
 		   int metaState = evt.getMetaState();
 		   
+		   if (evt.getAction() == KeyEvent.ACTION_UP) {
+			   switch (evt.getScanCode()) {
+			   case SCAN_LEFTCTRL:
+			   case SCAN_RIGHTCTRL:
+				   onScreenMetaState = onScreenMetaState & ~CTRL_MASK;
+				   return true;
+				}
+		   }
+		   
 		   switch(keyCode) {
-		   	  case KeyEvent.KEYCODE_BACK :        key = 0xff1b; break;
+		   	  case KeyEvent.KEYCODE_BACK:         key = 0xff1b; break;
 		      case KeyEvent.KEYCODE_DPAD_LEFT:    key = 0xff51; break;
 		   	  case KeyEvent.KEYCODE_DPAD_UP:      key = 0xff52; break;
-		   	  case KeyEvent.KEYCODE_DPAD_RIGHT		   	 :   key = 0xff53; break;
+		   	  case KeyEvent.KEYCODE_DPAD_RIGHT:   key = 0xff53; break;
 		   	  case KeyEvent.KEYCODE_DPAD_DOWN:    key = 0xff54; break;
 		      case KeyEvent.KEYCODE_DEL: 		  key = 0xff08; break;
 		      case KeyEvent.KEYCODE_ENTER:        key = 0xff0d; break;
@@ -1109,7 +1144,7 @@ public class VncCanvas extends ImageView {
 		   	  case 122 /* KEYCODE_MOVE_HOME */:   key = 0xff50; break;
 		   	  case 123 /* KEYCODE_MOVE_END */:    key = 0xff57; break;
 		   	  case 124 /* KEYCODE_INSERT */:      key = 0xff63; break;
-		   	  case 131 /* KEYCODE_F1 */:      		   	     key = 0xffbe; break;
+		   	  case 131 /* KEYCODE_F1 */:          key = 0xffbe; break;
 		   	  case 132 /* KEYCODE_F2 */:          key = 0xffbf; break;
 		   	  case 133 /* KEYCODE_F3 */:          key = 0xffc0; break;
 		   	  case 134 /* KEYCODE_F4 */:          key = 0xffc1; break;
@@ -1118,10 +1153,14 @@ public class VncCanvas extends ImageView {
 		   	  case 137 /* KEYCODE_F7 */:          key = 0xffc4; break;
 		   	  case 138 /* KEYCODE_F8 */:          key = 0xffc5; break;
 		   	  case 139 /* KEYCODE_F9 */:          key = 0xffc6; break;
-		   	  case 140 /* KEYCODE_F10 */:     		   	     key = 0xffc7; break;
+		   	  case 140 /* KEYCODE_F10 */:         key = 0xffc7; break;
 		   	  case 141 /* KEYCODE_F11 */:         key = 0xffc8; break;
 		   	  case 142 /* KEYCODE_F12 */:         key = 0xffc9; break;
 		   	  case 143 /* KEYCODE_NUM_LOCK */:    key = 0xff7f; break;
+		   	  case KeyEvent.KEYCODE_UNKNOWN:
+		   		  if (evt.getCharacters() != null)
+		   			  key = evt.getCharacters().charAt(0);
+	    		  break;
 		      default: 							  
 		    	  // Modifier handling is a bit tricky. Alt and Ctrl should be passed
 		    	  // through to the VNC server so that they get handled there, but strip
@@ -1132,25 +1171,46 @@ public class VncCanvas extends ImageView {
 		    	  KeyEvent copy = new KeyEvent(evt.getDownTime(), evt.getEventTime(), evt.getAction(),
 		    	                               evt.getKeyCode(),  evt.getRepeatCount(),
 		    	                               metaState & ~vncEventMask, evt.getDeviceId(), evt.getScanCode());
-		    	  key = copy.getUnicodeChar();
-		    	  //metaState &= vncEventMask;
+	    		  key = copy.getUnicodeChar();
 		    	  break;
-		    }
-	    	try {
-	    		if (afterMenu)
-	    		{
-	    			afterMenu = false;
-	    			if (!down && key != lastKeyDown)
-	    				return true;
-	    		}
-	    		if (down)
-	    			lastKeyDown = key;
-	    		//Log.i(TAG,"key = " + key + " metastate = " + metaState + " keycode = " + keyCode);
-	    		rfb.writeKeyEvent(key, metaState|onScreenMetaState, down);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-			return true;
+		   }
+
+		   // Look for standard scan-codes from external keyboards
+		   switch (evt.getScanCode()) {
+		   case SCAN_ESC:				key = 0xff1b;				break;
+		   case SCAN_LEFTCTRL:
+		   case SCAN_RIGHTCTRL:
+			   onScreenMetaState = onScreenMetaState | CTRL_MASK;
+			   return true;
+		   case SCAN_F1:				key = 0xffbe;				break;
+		   case SCAN_F2:				key = 0xffbf;				break;
+		   case SCAN_F3:				key = 0xffc0;				break;
+		   case SCAN_F4:				key = 0xffc1;				break;
+		   case SCAN_F5:				key = 0xffc2;				break;
+		   case SCAN_F6:				key = 0xffc3;				break;
+		   case SCAN_F7:				key = 0xffc4;				break;
+		   case SCAN_F8:				key = 0xffc5;				break;
+		   case SCAN_F9:				key = 0xffc6;				break;
+		   case SCAN_F10:				key = 0xffc7;				break;
+		   }
+
+		   try {
+			   if (afterMenu)
+			   {
+				   afterMenu = false;
+				   if (!down && key != lastKeyDown)
+					   return true;
+			   }
+			   if (down)
+				   lastKeyDown = key;
+			   // Convert key to an X keysym code.
+			   key = (int)xKeySymConv.ucs2keysym(key);
+			   //Log.d(TAG,"key = " + key + " metastate = " + metaState + " keycode = " + keyCode);
+			   rfb.writeKeyEvent(key, metaState|onScreenMetaState, down);
+		   } catch (Exception e) {
+			   e.printStackTrace();
+		   }
+		   return true;
 		}
 		return false;
 	}
@@ -1201,8 +1261,15 @@ public class VncCanvas extends ImageView {
 		return (int)((double)getWidth() / getScale() + 0.5);
 	}
 
+	public void setVisibleHeight(int newHeight){
+		visibleHeight = newHeight;
+	}
+	
 	public int getVisibleHeight() {
-		return (int)((double)getHeight() / getScale() + 0.5);
+		if (visibleHeight > 0)
+			return (int)((double)visibleHeight / getScale() + 0.5);
+		else
+			return (int)((double)getHeight() / getScale() + 0.5);
 	}
 
 	public int getImageWidth() {

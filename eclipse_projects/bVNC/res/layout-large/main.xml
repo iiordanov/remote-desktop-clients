@@ -178,7 +178,30 @@
 					/>
 				</TableRow>
 			</TableLayout>
-			
+			<CheckBox
+				android:id="@+id/checkboxUseDpadAsArrows"
+			    android:text="@string/dpad_as_arrows"
+			    android:textAppearance="?android:attr/textAppearanceLarge"
+			    android:layout_width="wrap_content"
+			    android:gravity="left|center_vertical"
+			    android:layout_height="wrap_content"
+			/>
+			<CheckBox
+				android:id="@+id/checkboxRotateDpad"
+			    android:text="@string/rotate_dpad"
+			    android:textAppearance="?android:attr/textAppearanceLarge"
+			    android:layout_width="wrap_content"
+			    android:gravity="left|center_vertical"
+			    android:layout_height="wrap_content"
+			/>
+			<CheckBox
+				android:id="@+id/checkboxUsePortrait"
+			    android:text="@string/portrait_mode"
+			    android:textAppearance="?android:attr/textAppearanceLarge"
+			    android:layout_width="wrap_content"
+			    android:gravity="left|center_vertical"
+			    android:layout_height="wrap_content"
+			/>
 			<CheckBox
 				android:id="@+id/checkboxUseLocalCursor"
 			    android:text="@string/local_mouse_check"

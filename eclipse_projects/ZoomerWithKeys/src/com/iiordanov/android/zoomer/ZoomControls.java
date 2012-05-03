@@ -52,6 +52,7 @@ public class ZoomControls extends LinearLayout {
     private final ZoomButton mZoomIn;
     private final ZoomButton mZoomOut;
     private final ImageButton mZoomKeyboard;
+    private boolean disabled = false;
         
     public ZoomControls(Context context) {
         this(context, null);
@@ -102,13 +103,24 @@ public class ZoomControls extends LinearLayout {
     }
     
     public void show() {
-        fade(View.VISIBLE, 0.0f, 1.0f);
+    	if (!disabled)
+    		setVisibility(View.VISIBLE);
+    		//fade(View.VISIBLE, 0.0f, 1.0f);
     }
     
     public void hide() {
-        fade(View.GONE, 1.0f, 0.0f);
+		setVisibility(View.GONE);
+		//fade(View.GONE, 1.0f, 0.0f);
     }
-    
+
+    public void disable() {
+    	disabled = true;
+    }
+
+    public void enable() {
+    	disabled = false;
+    }
+
     private void fade(int visibility, float startAlpha, float endAlpha) {
         AlphaAnimation anim = new AlphaAnimation(startAlpha, endAlpha);
         anim.setDuration(500);

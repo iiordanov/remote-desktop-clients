@@ -69,6 +69,12 @@ interface IConnectionBean {
 	@FieldAccessor(Name="SCALEMODE")
 	String getScaleModeAsString();
 	@FieldAccessor
+	boolean getUseDpadAsArrows();
+	@FieldAccessor
+	boolean getRotateDpad();
+	@FieldAccessor
+	boolean getUsePortrait();
+	@FieldAccessor
 	boolean getUseLocalCursor();
 	@FieldAccessor
 	boolean getKeepPassword();

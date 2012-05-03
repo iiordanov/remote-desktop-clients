@@ -46,6 +46,7 @@ import android.widget.LinearLayout;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.util.Log;
 import com.iiordanov.bVNC.Utils;
 
@@ -53,6 +54,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 public class androidVNC extends Activity {
+	private final static String TAG = "androidVNC";
 	private Spinner connectionType;
 	private int selectedConnType;
 	private TextView sshCredentialsCaption;
@@ -81,6 +83,9 @@ public class androidVNC extends Activity {
 	private EditText textUsername;
 	private TextView textUsernameCaption;
 	private CheckBox checkboxKeepPassword;
+	private CheckBox checkboxUseDpadAsArrows;
+	private CheckBox checkboxRotateDpad;
+	private CheckBox checkboxUsePortrait;
 	private CheckBox checkboxLocalCursor;
 	private boolean repeaterTextSet;
 
@@ -140,7 +145,8 @@ public class androidVNC extends Activity {
 					sshCredentials.setVisibility(View.VISIBLE);
 					sshCredentialsCaption.setVisibility(View.VISIBLE);
 					sshServerEntry.setVisibility(View.VISIBLE);
-					ipText.setText("localhost");
+					if (ipText.getText().toString().equals(""))
+						ipText.setText("localhost");
 					ipText.setHint(R.string.address_caption_hint_tunneled);
 					sshServerEntryCaption.setVisibility(View.VISIBLE);
 					textUsername.setVisibility(View.GONE);
@@ -182,6 +188,9 @@ public class androidVNC extends Activity {
 		ArrayAdapter<COLORMODEL> colorSpinnerAdapter = new ArrayAdapter<COLORMODEL>(this, R.layout.connection_list_entry, models);
 		groupForceFullScreen = (RadioGroup)findViewById(R.id.groupForceFullScreen);
 		checkboxKeepPassword = (CheckBox)findViewById(R.id.checkboxKeepPassword);
+		checkboxUseDpadAsArrows = (CheckBox)findViewById(R.id.checkboxUseDpadAsArrows);
+		checkboxRotateDpad = (CheckBox)findViewById(R.id.checkboxRotateDpad);
+		checkboxUsePortrait = (CheckBox)findViewById(R.id.checkboxUsePortrait);
 		checkboxLocalCursor = (CheckBox)findViewById(R.id.checkboxUseLocalCursor);
 		colorSpinner.setAdapter(colorSpinnerAdapter);
 		colorSpinner.setSelection(0);
@@ -218,6 +227,9 @@ public class androidVNC extends Activity {
 			public void onClick(View view) {
 				if (ipText.getText().length() != 0 && portText.getText().length() != 0)
 					canvasStart();
+				else
+					Toast.makeText(view.getContext(), "VNC Server or port empty. Cannot connect!",
+									Toast.LENGTH_LONG).show();
 			}
 		});
 		
@@ -254,7 +266,21 @@ public class androidVNC extends Activity {
 			return new RepeaterDialog(this);
 		}
 	}
-
+	
+/*
+	private Dialog createMainScreenHelpDialog(){
+		Dialog d = new AlertDialog.Builder(this)
+		.setMessage(R.string.main_screen_help_text)
+		.setPositiveButton(R.string.close,
+				new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog,
+							int whichButton) {
+						// We don't have to do anything.
+					}
+				}).create();
+		return d;
+	}
+*/
 	/* (non-Javadoc)
 	 * @see android.app.Activity#onCreateOptionsMenu(android.view.Menu)
 	 */
@@ -322,7 +348,12 @@ public class androidVNC extends Activity {
 		sshPassword.setText(selected.getSshPassword());
 		updateSshPubKeyInfo(selected.getUseSshPubKey(), selected.getSshPubKey());
 
-		ipText.setText(selected.getAddress());
+		// TODO: Switch away from using hard-coded numeric value for connection type.
+		if (selectedConnType == 1 && selected.getAddress().equals(""))
+			ipText.setText("localhost");
+		else
+			ipText.setText(selected.getAddress());
+
 		portText.setText(Integer.toString(selected.getPort()));
 		
 		if (selected.getKeepPassword() || selected.getPassword().length()>0) {
@@ -330,6 +361,9 @@ public class androidVNC extends Activity {
 		}
 		groupForceFullScreen.check(selected.getForceFull()==BitmapImplHint.AUTO ? R.id.radioForceFullScreenAuto : (selected.getForceFull() == BitmapImplHint.FULL ? R.id.radioForceFullScreenOn : R.id.radioForceFullScreenOff));
 		checkboxKeepPassword.setChecked(selected.getKeepPassword());
+		checkboxUseDpadAsArrows.setChecked(selected.getUseDpadAsArrows());
+		checkboxRotateDpad.setChecked(selected.getRotateDpad());
+		checkboxUsePortrait.setChecked(selected.getUsePortrait());
 		checkboxLocalCursor.setChecked(selected.getUseLocalCursor());
 		textNickname.setText(selected.getNickname());
 		textUsername.setText(selected.getUserName());
@@ -389,6 +423,7 @@ public class androidVNC extends Activity {
 		if (selected==null) {
 			return;
 		}
+		selected.setConnectionType(selectedConnType);
 		selected.setAddress(ipText.getText().toString());
 		try
 		{
@@ -400,7 +435,6 @@ public class androidVNC extends Activity {
 			
 		}
 		selected.setNickname(textNickname.getText().toString());
-		selected.setConnectionType(selectedConnType);
 		selected.setSshServer(sshServer.getText().toString());
 		selected.setSshUser(sshUser.getText().toString());
 		selected.setSshPassword(sshPassword.getText().toString());
@@ -420,6 +454,9 @@ public class androidVNC extends Activity {
 		selected.setForceFull(groupForceFullScreen.getCheckedRadioButtonId()==R.id.radioForceFullScreenAuto ? BitmapImplHint.AUTO : (groupForceFullScreen.getCheckedRadioButtonId()==R.id.radioForceFullScreenOn ? BitmapImplHint.FULL : BitmapImplHint.TILE));
 		selected.setPassword(passwordText.getText().toString());
 		selected.setKeepPassword(checkboxKeepPassword.isChecked());
+		selected.setUseDpadAsArrows(checkboxUseDpadAsArrows.isChecked());
+		selected.setRotateDpad(checkboxRotateDpad.isChecked());
+		selected.setUsePortrait(checkboxUsePortrait.isChecked());
 		selected.setUseLocalCursor(checkboxLocalCursor.isChecked());
 		selected.setColorModel(((COLORMODEL)colorSpinner.getSelectedItem()).nameString());
 		if (repeaterTextSet)
@@ -437,7 +474,12 @@ public class androidVNC extends Activity {
 		super.onStart();
 		arriveOnPage();
 	}
-	
+
+	protected void onResume() {
+		super.onStart();
+		arriveOnPage();
+	}
+
 	/**
 	 * Return the object representing the app global state in the database, or null
 	 * if the object hasn't been set up yet
@@ -489,7 +531,15 @@ public class androidVNC extends Activity {
 			return;
 		}
 		updateSelectedFromView();
-		selected.save(database.getWritableDatabase());
+
+		// We need VNC server or SSH server to be filled out to save. Otherwise, we keep adding empty
+		// connections when onStop gets called.
+		// TODO: Switch away from numeric values for connection type.
+		if (selected.getConnectionType() == 1 && selected.getSshServer().equals("") ||
+			selected.getAddress().equals(""))
+			return;
+		
+		saveAndWriteRecent();
 	}
 	
 	VncDatabase getDatabaseHelper()

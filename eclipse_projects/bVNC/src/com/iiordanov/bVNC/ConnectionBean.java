@@ -56,6 +56,10 @@ class ConnectionBean extends AbstractConnectionBean implements Comparable<Connec
 		setColorModel(COLORMODEL.C24bit.nameString());
 		setScaleMode(ScaleType.MATRIX);
 		setInputMode(VncCanvasActivity.TOUCH_ZOOM_MODE);
+		setUseDpadAsArrows(false);
+		setRotateDpad(false);
+		setUsePortrait(false);
+		setUseLocalCursor(false);
 		setRepeaterId("");
 		setMetaListId(1);
 		c = context;

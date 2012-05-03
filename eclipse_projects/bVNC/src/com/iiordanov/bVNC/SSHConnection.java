@@ -34,8 +34,6 @@ import android.util.Log;
 public class SSHConnection {
 	private final static String TAG = "SSHConnection";
 	private Connection connection;
-	private final int authWaitPeriod = 300;
-	private final int numAuthWaits = 3;
 	private final int numPortTries = 100;
 	ServerHostKeyVerifier hostKeyVerifier;
 	private ConnectionInfo connectionInfo;
@@ -89,9 +87,7 @@ public class SSHConnection {
 		}
 	}
 	
-	public boolean authenticate (String user, String password) {
-		int numWaited = 0;
-		
+	public boolean authenticate (String user, String password) {		
 		try {
 			connection.authenticateWithPassword(user, password);
 		} catch (IOException e) {
@@ -99,16 +95,9 @@ public class SSHConnection {
 			return false;
 		}
 		
-		while (!connection.isAuthenticationComplete()) {
-			if (numWaited >= numAuthWaits)
-				return false;
-			try {
-				Thread.sleep(authWaitPeriod);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-			numWaited++;
-		}
+		if (!connection.isAuthenticationComplete())
+			return false;
+
 		return true;
 	}
 	

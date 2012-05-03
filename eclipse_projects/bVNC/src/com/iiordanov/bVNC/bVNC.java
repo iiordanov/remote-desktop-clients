@@ -20,4 +20,5 @@
 package com.iiordanov.bVNC;
 
 public class bVNC extends androidVNC {
+	private final static String TAG = "bVNC";
 }

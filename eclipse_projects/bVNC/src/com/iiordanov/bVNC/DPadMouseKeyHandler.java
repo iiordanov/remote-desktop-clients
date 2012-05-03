@@ -1,4 +1,5 @@
 /**
+ * Copyright (c) 2012 Iordan Iordanov
  * Copyright (c) 2010 Michael A. MacDonald
  */
 package com.iiordanov.bVNC;
@@ -13,6 +14,7 @@ import android.view.MotionEvent;
  * from the DPad and uses them to perform mouse actions; other keystrokes are passed to
  * VncCanvasActivity.defaultKeyXXXHandler
  * 
+ * @author Iordan Iordanov
  * @author Michael A. MacDonald
  *
  */
@@ -22,40 +24,69 @@ class DPadMouseKeyHandler {
 	private VncCanvasActivity activity;
 	private VncCanvas canvas;
 	private boolean isMoving;
+	private boolean useDpadAsArrows = false;
+	private boolean rotateDpad      = false;
 	
-	DPadMouseKeyHandler(VncCanvasActivity activity, Handler handler)
+	DPadMouseKeyHandler(VncCanvasActivity activity, Handler handler, boolean arrows, boolean rotate)
 	{
 		this.activity = activity;
 		canvas = activity.vncCanvas;
 		mouseMover = new MouseMover(activity, handler);
+		useDpadAsArrows = arrows;
+		rotateDpad      = rotate;
 	}
 
 	public boolean onKeyDown(int keyCode, KeyEvent evt) {
 		int xv = 0;
 		int yv = 0;
 		boolean result = true;
-		switch (keyCode) {
-		case KeyEvent.KEYCODE_DPAD_LEFT:
-			xv = -1;
-			break;
-		case KeyEvent.KEYCODE_DPAD_RIGHT:
-			xv = 1;
-			break;
-		case KeyEvent.KEYCODE_DPAD_UP:
-			yv = -1;
-			break;
-		case KeyEvent.KEYCODE_DPAD_DOWN:
-			yv = 1;
-			break;
-		case KeyEvent.KEYCODE_DPAD_CENTER:
-			if (!mouseDown) {
-				mouseDown = true;
-				result = canvas.processPointerEvent(canvas.mouseX, canvas.mouseY, MotionEvent.ACTION_DOWN, evt.getMetaState(), mouseDown, canvas.cameraButtonDown);
+		
+		// If we are instructed to rotate the Dpad at 90 degrees, reassign KeyCodes.
+		if (rotateDpad) {
+			switch (keyCode) {
+			case KeyEvent.KEYCODE_DPAD_LEFT:
+				keyCode = KeyEvent.KEYCODE_DPAD_UP;
+				break;
+			case KeyEvent.KEYCODE_DPAD_RIGHT:
+				keyCode = KeyEvent.KEYCODE_DPAD_DOWN;
+				break;
+			case KeyEvent.KEYCODE_DPAD_UP:
+				keyCode = KeyEvent.KEYCODE_DPAD_RIGHT;
+				break;
+			case KeyEvent.KEYCODE_DPAD_DOWN:
+				keyCode = KeyEvent.KEYCODE_DPAD_LEFT;
+				break;
 			}
-			break;
-		default:
-			result = activity.defaultKeyDownHandler(keyCode, evt);
-			break;
+		}
+		
+		// If we are supposed to use the Dpad as arrows, pass the event to the default handler.
+		if (useDpadAsArrows) {
+			return activity.defaultKeyDownHandler(keyCode, evt);
+		// Otherwise, control the mouse.
+		} else {
+			switch (keyCode) {
+			case KeyEvent.KEYCODE_DPAD_LEFT:
+				xv = -1;
+				break;
+			case KeyEvent.KEYCODE_DPAD_RIGHT:
+				xv = 1;
+				break;
+			case KeyEvent.KEYCODE_DPAD_UP:
+				yv = -1;
+				break;
+			case KeyEvent.KEYCODE_DPAD_DOWN:
+				yv = 1;
+				break;
+			case KeyEvent.KEYCODE_DPAD_CENTER:
+				if (!mouseDown) {
+					mouseDown = true;
+					result = canvas.processPointerEvent(canvas.mouseX, canvas.mouseY, MotionEvent.ACTION_DOWN, evt.getMetaState(), mouseDown, canvas.cameraButtonDown);
+				}
+				break;
+			default:
+				result = activity.defaultKeyDownHandler(keyCode, evt);
+				break;
+			}
 		}
 		if ((xv != 0 || yv != 0) && !isMoving) {
 			final int x = xv;
@@ -87,6 +118,11 @@ class DPadMouseKeyHandler {
 	}
 
 	public boolean onKeyUp(int keyCode, KeyEvent evt) {
+		
+		// Pass the event on if we are not controlling the mouse.
+		if (useDpadAsArrows)
+			return activity.defaultKeyUpHandler(keyCode, evt);
+		
 		boolean result = false;
 
 		switch (keyCode) {

@@ -127,26 +127,26 @@ class FullBufferBitmapData extends AbstractBitmapData {
 	 */
 	@Override
 	void copyRect(Rect src, Rect dest) {
-		int srcX = src.left;
-		int srcY = src.top;
 		int srcOffset, dstOffset;
+		int dstH = dest.height();
+		int dstW = dest.width();
 		
 		int startSrcY, endSrcY, dstY, deltaY;
-		if (srcY > dest.top) {
-			startSrcY = srcY;
-			endSrcY = srcY + dest.height();
+		if (src.top > dest.top) {
+			startSrcY = src.top;
+			endSrcY = src.top + dstH;
 			dstY = dest.top;
 			deltaY = +1;
 		} else {
-			startSrcY = srcY + dest.height() - 1;
-			endSrcY = srcY -1;
-			dstY = dest.top + dest.height() - 1;
+			startSrcY = src.top + dstH - 1;
+			endSrcY = src.top - 1;
+			dstY = dest.top + dstH - 1;
 			deltaY = -1;
 		}
 		for (int y = startSrcY; y != endSrcY; y += deltaY) {
-			srcOffset = offset(srcX, y);
+			srcOffset = offset(src.left, y);
 			dstOffset = offset(dest.left, dstY);
-			System.arraycopy(bitmapPixels, srcOffset, bitmapPixels, dstOffset, dest.width());
+			System.arraycopy(bitmapPixels, srcOffset, bitmapPixels, dstOffset, dstW);
 			dstY += deltaY;
 		}
 	}

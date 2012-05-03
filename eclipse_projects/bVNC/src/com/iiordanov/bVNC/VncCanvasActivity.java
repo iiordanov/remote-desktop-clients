@@ -38,12 +38,13 @@ import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.DialogInterface.OnDismissListener;
+import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.graphics.PointF;
+import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.SystemClock;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -51,6 +52,9 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.View.OnKeyListener;
+import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.AdapterView;
@@ -58,16 +62,22 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.Button;
 import android.view.inputmethod.InputMethodManager;
 import android.content.Context;
 
 
-public class VncCanvasActivity extends Activity {
+public class VncCanvasActivity extends Activity implements OnKeyListener {
 	
 	private static boolean secondPointerWasDown = false;
 	private static boolean thirdPointerWasDown = false;
+	
+	// TODO: This boolean indicates whether the user has used a trackpad in this activity at all.
+	// If so, we cannot resize the visible size of the screen anymore due to something that seems
+	// like a horrible bug in Android. Once the trackpad is used, Android starts doing adjustPan
+	// on the activity even though it doesn't do so to begin with. 
+	private boolean trackPadWasUsed = false;
 
+	private boolean connectionFailed = false;
 	
 	/**
 	 * @author Michael A. MacDonald
@@ -96,13 +106,14 @@ public class VncCanvasActivity extends Activity {
 		 * Key handler delegate that handles DPad-based mouse motion
 		 */
 		private DPadMouseKeyHandler keyHandler;
-
+		
 		/**
 		 * @param c
 		 */
 		ZoomInputHandler() {
 			super(VncCanvasActivity.this);
-			keyHandler = new DPadMouseKeyHandler(VncCanvasActivity.this,vncCanvas.handler);
+			keyHandler = new DPadMouseKeyHandler(VncCanvasActivity.this,vncCanvas.handler,
+												 useDpadAsArrows,rotateDpad);
 		}
 
 		/*
@@ -434,7 +445,8 @@ public class VncCanvasActivity extends Activity {
 
 		TouchpadInputHandler() {
 			super(VncCanvasActivity.this);
-			keyHandler = new DPadMouseKeyHandler(VncCanvasActivity.this,vncCanvas.handler); 
+			keyHandler = new DPadMouseKeyHandler(VncCanvasActivity.this,vncCanvas.handler,
+					 							 useDpadAsArrows,rotateDpad);
 		}
 
 		/*
@@ -782,6 +794,12 @@ public class VncCanvasActivity extends Activity {
 
 	ZoomControls zoomer;
 	Panner panner;
+	
+	/**
+	 * TODO: REMOVE THIS AS SOON AS POSSIBLE.
+	 * Needed for a Playbook workaround, this variable indicates whether the soft keyboard was up upon screen lock.
+	 */
+	private boolean softKbdWasUp = false;
 
 	/**
 	 * Function used to initialize an empty SSH HostKey for a new VNC over SSH connection.
@@ -789,11 +807,14 @@ public class VncCanvasActivity extends Activity {
 	private void initializeSshHostKey() {
 		// If the SSH HostKey is empty, then we need to grab the HostKey from the server and save it.
 		if (connection.getSshHostKey().equals("")) {
-			Log.d(TAG, "Initializing SSH HostKey from server.");
+			Toast.makeText(this, "Attempting to initialize SSH HostKey.", Toast.LENGTH_SHORT).show();
+			Log.d(TAG, "Attempting to initialize SSH HostKey.");
 			SSHConnection sshConnection = new SSHConnection(connection.getSshServer(), connection.getSshPort());
 			if (!sshConnection.connect()) {
-				Utils.showFatalErrorMessage(this, "Could not connect to SSH server to obtain server HostKey. " +
-											"Check the address and port and try again.");
+				Toast.makeText(this, "Failed to connect to SSH Server in order to obtain initial SSH HostKey." +
+									 "Please check SSH Server address and port.",
+									 Toast.LENGTH_LONG).show();
+				finish();
 			}
 			connection.setSshHostKey(sshConnection.getServerHostKey());
 			connection.save(database.getWritableDatabase());
@@ -807,7 +828,7 @@ public class VncCanvasActivity extends Activity {
 		super.onCreate(icicle);
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-				WindowManager.LayoutParams.FLAG_FULLSCREEN);
+							 WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
 		database = new VncDatabase(this);
 
@@ -890,10 +911,16 @@ public class VncCanvasActivity extends Activity {
 	  	    }
 		}
 		
+		if (connection.getUsePortrait())
+			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+
 		// TODO: Switch away from numeric representation of VNC connection type.
 		if (connection.getConnectionType() == 1)
 			initializeSshHostKey();
 		
+		// TODO: Left-icon
+		//requestWindowFeature(Window.FEATURE_LEFT_ICON);
+		//setFeatureDrawableResource(Window.FEATURE_LEFT_ICON, R.drawable.icon); 
 		setContentView(R.layout.canvas);
 
 		vncCanvas = (VncCanvas) findViewById(R.id.vnc_canvas);
@@ -904,6 +931,45 @@ public class VncCanvasActivity extends Activity {
 				setModes();
 			}
 		});
+
+		
+		vncCanvas.setOnKeyListener(this);
+		vncCanvas.setFocusableInTouchMode(true);
+		
+		// This code detects when the soft keyboard is up and sets an appropriate visibleHeight in vncCanvas.
+		// When the keyboard is gone, it resets visibleHeight and pans zero distance to prevent us from being
+		// below the desktop image (if we scrolled all the way down when the keyboard was up).
+		// TODO: Move this into a separate function.
+        final View rootView = ((ViewGroup)findViewById(android.R.id.content)).getChildAt(0);
+        rootView.getViewTreeObserver().addOnGlobalLayoutListener(new OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                    Rect r = new Rect();
+
+                    rootView.getWindowVisibleDisplayFrame(r);
+
+                    //Log.d(TAG, "t.top, r.bottom: " + +r.top + ", " + r.bottom);
+                    // To avoid setting the visible height to a wrong value after an screen unlock event
+                    // (when r.bottom holds the width of the screen rather than the height due to a rotation)
+                    // we make sure r.top is zero (i.e. there is no notification bar and we are in full-screen mode)
+                    // It's a bit of a hack.
+                    if (!trackPadWasUsed && r.top == 0) {
+                    	if (vncCanvas.bitmapData != null) {
+                        	vncCanvas.setVisibleHeight(r.bottom);
+                    		vncCanvas.pan(0,0);
+                    	}
+                    }
+                    
+                    // Enable/show the zoomer if the keyboard is gone, and disable/hide otherwise.
+                    if (r.bottom == rootView.getHeight()) {
+                    	zoomer.enable();
+                    } else {
+                    	zoomer.hide();
+                    	zoomer.disable();
+                    }
+             }
+        });
+
 		zoomer.hide();
 		zoomer.setOnZoomInClickListener(new View.OnClickListener() {
 
@@ -944,8 +1010,8 @@ public class VncCanvasActivity extends Activity {
 			 */
 			@Override
 			public void onClick(View v) {
-              InputMethodManager inputMgr = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
-              inputMgr.toggleSoftInput(0, 0);
+				InputMethodManager inputMgr = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+				inputMgr.toggleSoftInput(0, 0);
 			}
 
 		});
@@ -953,7 +1019,31 @@ public class VncCanvasActivity extends Activity {
 
 		inputHandler = getInputHandlerById(R.id.itemInputTouchPanZoomMouse);
 	}
+	
+	/*
+	 * TODO: REMOVE THIS AS SOON AS POSSIBLE.
+	 * onPause: This is an ugly hack for the Playbook which hides the keyboard upon unlock. This causes the visible
+	 * height to remain less, as if the soft keyboard is still up. This hack must go away as soon
+	 * as the Playbook doesn't need it anymore.
+	 */
+	@Override
+	protected void onPause(){
+		super.onPause();
+		InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+		imm.hideSoftInputFromWindow(vncCanvas.getWindowToken(), 0);
+	}
 
+	/*
+	 * TODO: REMOVE THIS AS SOON AS POSSIBLE.
+	 * onPause: This is an ugly hack for the Playbook which hides the keyboard upon unlock. This causes the visible
+	 * height to remain less, as if the soft keyboard is still up. This hack must go away as soon
+	 * as the Playbook doesn't need it anymore.
+	 */
+	@Override
+	protected void onResume(){
+		super.onResume();
+	}
+	
 	/**
 	 * Set modes on start to match what is specified in the ConnectionBean;
 	 * color mode (already done) scaling, input mode
@@ -1305,7 +1395,26 @@ public class VncCanvasActivity extends Activity {
 	}
 
 	@Override
+	public boolean onKey(View v, int keyCode, KeyEvent evt) {
+
+		if (keyCode == KeyEvent.KEYCODE_MENU) {
+			if (evt.getAction() == KeyEvent.ACTION_DOWN)
+				return super.onKeyDown(keyCode, evt);
+			else
+				return super.onKeyUp(keyCode, evt);
+		} else if (evt.getAction() == KeyEvent.ACTION_DOWN ||
+				   evt.getAction() == KeyEvent.ACTION_MULTIPLE) {
+			return inputHandler.onKeyDown(keyCode, evt);
+		} else if (evt.getAction() == KeyEvent.ACTION_UP){
+			return inputHandler.onKeyUp(keyCode, evt);
+		}
+		// Should never get here.
+		return false;
+	}
+	
+/*	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent evt) {
+		Log.e(TAG, "BLAH");
 		if (keyCode == KeyEvent.KEYCODE_MENU)
 			return super.onKeyDown(keyCode, evt);
 
@@ -1314,11 +1423,12 @@ public class VncCanvasActivity extends Activity {
 
 	@Override
 	public boolean onKeyUp(int keyCode, KeyEvent evt) {
+		Log.e(TAG, "BLAHBLAH");
 		if (keyCode == KeyEvent.KEYCODE_MENU)
 			return super.onKeyUp(keyCode, evt);
 
 		return inputHandler.onKeyUp(keyCode, evt);
-	}
+	}*/
 
 	public void showPanningState() {
 		Toast.makeText(this, inputHandler.getHandlerDescription(),
@@ -1332,13 +1442,24 @@ public class VncCanvasActivity extends Activity {
 	 */
 	@Override
 	public boolean onTrackballEvent(MotionEvent event) {
+
+		// TODO: Remove this nasty hack as soon as Android is not buggy anymore and doesn't start
+		// adjust-panning on soft-keyboard showing up after the trackball/pad has been used a while.
+		// Here we tell it to stop controlling the visibleHeight (done elsewhere) so that we don't
+		// start panning as well as reducing the visible height (which results in a big black bar on-screen).
+		trackPadWasUsed = true;
+		
+		// If we are using the Dpad as arrow keys, don't send the event to the inputHandler.
+		if (connection.getUseDpadAsArrows())
+			return false;
+
 		switch (event.getAction()) {
-		case MotionEvent.ACTION_DOWN:
-			trackballButtonDown = true;
-			break;
-		case MotionEvent.ACTION_UP:
-			trackballButtonDown = false;
-			break;
+			case MotionEvent.ACTION_DOWN:
+				trackballButtonDown = true;
+				break;
+			case MotionEvent.ACTION_UP:
+				trackballButtonDown = false;
+				break;
 		}
 		return inputHandler.onTrackballEvent(event);
 	}
@@ -1457,6 +1578,16 @@ public class VncCanvasActivity extends Activity {
 			return true;
 		}
 		return VncCanvasActivity.super.onTouchEvent(evt);
+	}
+
+	// Returns whether we are using D-pad/Trackball to send arrow key events.
+	boolean getUseDpadAsArrows() {
+		return connection.getUseDpadAsArrows();
+	}
+
+	// Returns whether the D-pad should be rotated to accommodate BT keyboards paired with phones.
+	boolean getRotateDpad() {
+		return connection.getRotateDpad();
 	}
 
 	long hideZoomAfterMs;
@@ -1620,7 +1751,8 @@ public class VncCanvasActivity extends Activity {
 	 * 
 	 */
 	public class TouchPanTrackballMouse implements AbstractInputHandler {
-		private DPadMouseKeyHandler keyHandler = new DPadMouseKeyHandler(VncCanvasActivity.this, vncCanvas.handler);
+		private DPadMouseKeyHandler keyHandler = new DPadMouseKeyHandler(VncCanvasActivity.this, vncCanvas.handler,
+				 														 false, false);
 		
 		/*
 		 * (non-Javadoc)
@@ -1701,7 +1833,8 @@ public class VncCanvasActivity extends Activity {
 	 * 
 	 */
 	public class FitToScreenMode implements AbstractInputHandler {
-		private DPadMouseKeyHandler keyHandler = new DPadMouseKeyHandler(VncCanvasActivity.this, vncCanvas.handler);
+		private DPadMouseKeyHandler keyHandler = new DPadMouseKeyHandler(VncCanvasActivity.this, vncCanvas.handler,
+																		 false, false);
 		
 		/*
 		 * (non-Javadoc)

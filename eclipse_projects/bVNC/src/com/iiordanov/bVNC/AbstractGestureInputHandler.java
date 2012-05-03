@@ -37,6 +37,11 @@ abstract class AbstractGestureInputHandler extends GestureDetector.SimpleOnGestu
 	boolean twoFingerSwipeUp   = false;
 	boolean twoFingerSwipeDown = false;
 	
+	// These variables indicate whether the dpad should be used as arrow keys
+	// and whether it should be rotated.
+	boolean useDpadAsArrows    = false;
+	boolean rotateDpad         = false;
+	
 	// The variable which indicates how many scroll events to send per swipe event.
 	long    swipeSpeed = 1;
 	// If swipe events are registered once every baseSwipeTime miliseconds, then
@@ -58,6 +63,8 @@ abstract class AbstractGestureInputHandler extends GestureDetector.SimpleOnGestu
 		gestures=BCFactory.getInstance().getBCGestureDetector().createGestureDetector(c, this);
 		gestures.setOnDoubleTapListener(this);
 		scaleGestures=BCFactory.getInstance().getScaleGestureDetector(c, this);
+		useDpadAsArrows = activity.getUseDpadAsArrows();
+		rotateDpad      = activity.getRotateDpad();
 	}
 
 	
