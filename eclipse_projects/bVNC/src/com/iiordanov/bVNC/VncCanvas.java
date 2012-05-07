@@ -304,8 +304,9 @@ public class VncCanvas extends ImageView {
 					throw new Exception("Failed to authenticate to SSH server. Please check your username and password.");
 				}
 			} else {
-				throw new Exception("Remote server " + connection.getAddress() + " does not support" +
-									"password-based SSH authentication. Please reconfigure it and try again.");
+				throw new Exception("Remote server " + connection.getAddress() + " does not allow us to authenticate " +
+									"with a password. Please reconfigure it to permit authenticating with a password" +
+									"and try again.");
 			}
 			rfb = new RfbProto("localhost", localForwardedPort);
 		} else {
@@ -822,7 +823,7 @@ public class VncCanvas extends ImageView {
 	
 	// Toggles on-screen Ctrl mask. Returns true if result is Ctrl enabled, false otherwise.
 	public boolean onScreenCtrlToggle()	{
-		// If we find Ctrl on, turn it off. Otherwise, trurn it on.
+		// If we find Ctrl on, turn it off. Otherwise, turn it on.
 		if (onScreenMetaState == (onScreenMetaState | CTRL_MASK)) {
 			onScreenMetaState = onScreenMetaState & ~CTRL_MASK;
 			return false;
@@ -898,8 +899,8 @@ public class VncCanvas extends ImageView {
 
     final static int CTRL_MASK  = KeyEvent.META_SYM_ON;
     final static int SHIFT_MASK = KeyEvent.META_SHIFT_ON;
-    final static int META_MASK  = 0;
     final static int ALT_MASK   = KeyEvent.META_ALT_ON;
+    final static int META_MASK  = 0;
     
 	private static final int MOUSE_BUTTON_NONE = 0;
 	static final int MOUSE_BUTTON_LEFT = 1;
@@ -1067,10 +1068,10 @@ public class VncCanvas extends ImageView {
 	}
 
 	public boolean processLocalKeyEvent(int keyCode, KeyEvent evt) {
+		//Log.d(TAG, "keycode = " + keyCode);
 
 		if (keyCode == KeyEvent.KEYCODE_MENU)
-			// Ignore menu key
-			return true;
+			return true; 			              // Ignore menu key
 		if (keyCode == KeyEvent.KEYCODE_CAMERA)
 		{
 			cameraButtonDown = (evt.getAction() != KeyEvent.ACTION_UP);
@@ -1098,9 +1099,9 @@ public class VncCanvas extends ImageView {
 			{
 				rfb.writePointerEvent(mouseX, mouseY, evt.getMetaState()|onScreenMetaState, pointerMask);
 			}
-			catch (IOException ioe)
+			catch (IOException e)
 			{
-				// TODO: do something with exception
+				e.printStackTrace();
 			}
 			return true;
 		}
@@ -1109,16 +1110,22 @@ public class VncCanvas extends ImageView {
 				   		  (evt.getAction() == KeyEvent.ACTION_MULTIPLE);
 		   int key = 0;
 		   int metaState = evt.getMetaState();
-		   
+
 		   if (evt.getAction() == KeyEvent.ACTION_UP) {
 			   switch (evt.getScanCode()) {
+			   case SCAN_ESC:               key = 0xff1b; break;
 			   case SCAN_LEFTCTRL:
 			   case SCAN_RIGHTCTRL:
-				   onScreenMetaState = onScreenMetaState & ~CTRL_MASK;
+				   onScreenMetaState &= ~CTRL_MASK;
 				   return true;
-				}
+			   }
+			   // Handle Alt key up event.
+			   if (keyCode == KeyEvent.KEYCODE_ALT_LEFT || keyCode == KeyEvent.KEYCODE_ALT_RIGHT) {
+				   onScreenMetaState &= ~ALT_MASK;
+				   return true;
+			   }
 		   }
-		   
+	   
 		   switch(keyCode) {
 		   	  case KeyEvent.KEYCODE_BACK:         key = 0xff1b; break;
 		      case KeyEvent.KEYCODE_DPAD_LEFT:    key = 0xff51; break;
@@ -1157,7 +1164,8 @@ public class VncCanvas extends ImageView {
 		   	  case 141 /* KEYCODE_F11 */:         key = 0xffc8; break;
 		   	  case 142 /* KEYCODE_F12 */:         key = 0xffc9; break;
 		   	  case 143 /* KEYCODE_NUM_LOCK */:    key = 0xff7f; break;
-		   	  case KeyEvent.KEYCODE_UNKNOWN:
+		   	  case 0   /* KEYCODE_UNKNOWN */:
+					// TODO: This should be sending all characters, not just the first one.
 		   		  if (evt.getCharacters() != null)
 		   			  key = evt.getCharacters().charAt(0);
 	    		  break;
@@ -1167,7 +1175,7 @@ public class VncCanvas extends ImageView {
 		    	  // them from the character before retrieving the Unicode char from it.
 		    	  // Don't clear Shift, we still want uppercase characters.
 		    	  int vncEventMask = ( 0x7000    /* KeyEvent.META_CTRL_MASK */
-		    	                     | 0x0032 ); /* KeyEvent.META_ALT_MASK */
+		    			  			 | 0x0032 ); /* KeyEvent.META_ALT_MASK */
 		    	  KeyEvent copy = new KeyEvent(evt.getDownTime(), evt.getEventTime(), evt.getAction(),
 		    	                               evt.getKeyCode(),  evt.getRepeatCount(),
 		    	                               metaState & ~vncEventMask, evt.getDeviceId(), evt.getScanCode());
@@ -1175,23 +1183,31 @@ public class VncCanvas extends ImageView {
 		    	  break;
 		   }
 
-		   // Look for standard scan-codes from external keyboards
-		   switch (evt.getScanCode()) {
-		   case SCAN_ESC:				key = 0xff1b;				break;
-		   case SCAN_LEFTCTRL:
-		   case SCAN_RIGHTCTRL:
-			   onScreenMetaState = onScreenMetaState | CTRL_MASK;
-			   return true;
-		   case SCAN_F1:				key = 0xffbe;				break;
-		   case SCAN_F2:				key = 0xffbf;				break;
-		   case SCAN_F3:				key = 0xffc0;				break;
-		   case SCAN_F4:				key = 0xffc1;				break;
-		   case SCAN_F5:				key = 0xffc2;				break;
-		   case SCAN_F6:				key = 0xffc3;				break;
-		   case SCAN_F7:				key = 0xffc4;				break;
-		   case SCAN_F8:				key = 0xffc5;				break;
-		   case SCAN_F9:				key = 0xffc6;				break;
-		   case SCAN_F10:				key = 0xffc7;				break;
+		   if (evt.getAction() == KeyEvent.ACTION_DOWN ||
+				   evt.getAction() == KeyEvent.ACTION_MULTIPLE) {
+			   // Look for standard scan-codes from external keyboards
+			   switch (evt.getScanCode()) {
+			   case SCAN_ESC:               key = 0xff1b; break;
+			   case SCAN_LEFTCTRL:
+			   case SCAN_RIGHTCTRL:
+				   onScreenMetaState |= CTRL_MASK;
+				   return true;
+			   case SCAN_F1:				key = 0xffbe;				break;
+			   case SCAN_F2:				key = 0xffbf;				break;
+			   case SCAN_F3:				key = 0xffc0;				break;
+			   case SCAN_F4:				key = 0xffc1;				break;
+			   case SCAN_F5:				key = 0xffc2;				break;
+			   case SCAN_F6:				key = 0xffc3;				break;
+			   case SCAN_F7:				key = 0xffc4;				break;
+			   case SCAN_F8:				key = 0xffc5;				break;
+			   case SCAN_F9:				key = 0xffc6;				break;
+			   case SCAN_F10:				key = 0xffc7;				break;
+			   }
+			   // Handle Alt key down event.
+			   if (keyCode == KeyEvent.KEYCODE_ALT_LEFT || keyCode == KeyEvent.KEYCODE_ALT_RIGHT) {
+				   onScreenMetaState |= ALT_MASK;
+				   return true;
+			   }
 		   }
 
 		   try {
