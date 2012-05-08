@@ -27,11 +27,12 @@ import com.trilead.ssh2.Connection;
 import com.trilead.ssh2.ConnectionInfo;
 import com.trilead.ssh2.ServerHostKeyVerifier;
 import com.trilead.ssh2.Session;
+import com.trilead.ssh2.InteractiveCallback;
 import android.util.Base64;
 import android.util.Log;
 
 
-public class SSHConnection {
+public class SSHConnection implements InteractiveCallback {
 	private final static String TAG = "SSHConnection";
 	private Connection connection;
 	private final int numPortTries = 100;
@@ -39,6 +40,9 @@ public class SSHConnection {
 	private ConnectionInfo connectionInfo;
 	private String serverHostKey;
 	private Session session;
+	boolean passwordAuth = false;
+	boolean keyboardInteractiveAuth = false;
+	String sshPassword = null;
 
 	public SSHConnection(String host, int sshPort) {
 		
@@ -49,17 +53,19 @@ public class SSHConnection {
 		return serverHostKey;
 	}
 	
-	public boolean connect () {
+	public boolean connect (String user) {
 		try {
 			connection.setTCPNoDelay(true);
-			//connection.setCompression(false);
 			
-			// TODO: Start controlling timeouts.
 			connectionInfo = connection.connect();
 			
 			// Store a base64 encoded string representing the HostKey
 			serverHostKey = Base64.encodeToString(connectionInfo.serverHostKey, Base64.DEFAULT);
-		
+
+			// Get information on supported authentication methods we're interested in.
+			passwordAuth            = connection.isAuthMethodAvailable(user, "password");
+			keyboardInteractiveAuth = connection.isAuthMethodAvailable(user, "keyboard-interactive");
+			
 			return true;
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -79,26 +85,28 @@ public class SSHConnection {
 	}
 
 	public boolean canAuthWithPass (String user) {
-		try {
-			return connection.isAuthMethodAvailable(user, "password");
-		} catch (IOException e) {
-			e.printStackTrace();
-			return false;
-		}
+		return passwordAuth || keyboardInteractiveAuth;
 	}
 	
-	public boolean authenticate (String user, String password) {		
+	public boolean authenticate (String user, String password) {
+		sshPassword = new String(password);
+		boolean isAuthenticated = false;
+
 		try {
-			connection.authenticateWithPassword(user, password);
+			if (passwordAuth) {
+				Log.i(TAG, "Trying SSH password authentication.");
+				isAuthenticated = connection.authenticateWithPassword(user, sshPassword);
+			}
+			if (!isAuthenticated && keyboardInteractiveAuth) {
+				Log.i(TAG, "Trying SSH keyboard-interactive authentication.");
+				isAuthenticated = connection.authenticateWithKeyboardInteractive(user, this);				
+			}
+
+			return isAuthenticated;
 		} catch (IOException e) {
 			e.printStackTrace();
 			return false;
 		}
-		
-		if (!connection.isAuthenticationComplete())
-			return false;
-
-		return true;
 	}
 	
 	public int createPortForward (int localPortStart, String remoteHost, int remotePort) {
@@ -120,11 +128,21 @@ public class SSHConnection {
 			session.execCommand(cmd);
 			Thread.sleep(sleepTime);
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return false;
 		}
 
 		return true;
+	}
+
+	@Override
+	public String[] replyToChallenge(String name, String instruction,
+									int numPrompts, String[] prompt,
+									boolean[] echo) throws Exception {
+        String[] responses = new String[numPrompts];
+        for (int x=0; x < numPrompts; x++) {
+            responses[x] = sshPassword;
+        }
+        return responses;	
 	}
 }

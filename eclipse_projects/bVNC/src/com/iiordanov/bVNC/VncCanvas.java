@@ -242,7 +242,7 @@ public class VncCanvas extends ImageView {
 							showFatalMessageAndQuit("A fatal error has occurred. The device appears to be out of free memory. " +
 									                "Try restarting the application and failing that, restart your device.");
 						} else {
-							String error = "VNC connection failed!";
+							String error = "Connection failed!";
 							if (e.getMessage() != null) {
 								if (e.getMessage().indexOf("authentication") > -1) {
 									error = "VNC authentication failed! Check VNC password.";
@@ -276,15 +276,15 @@ public class VncCanvas extends ImageView {
 			sshConnection = new SSHConnection(connection.getSshServer(), connection.getSshPort());
 		
 			// Attempt to connect.
-			if (!sshConnection.connect())
+			if (!sshConnection.connect(connection.getSshUser()))
 				throw new Exception("Failed to connect to SSH server. Please check network connection status, and SSH Server address and port.");
 			
 			// Verify host key against saved one.
 			if (!sshConnection.verifyHostKey(connection.getSshHostKey()))
-				throw new Exception("ERROR! The server host key has changed. " +
-									"If this is intentional, please delete and recreate the connection." +
-									"Otherwise, this may be a man in the middle attack.");
-
+				throw new Exception("ERROR! The server host key has changed. If this is intentional, " +
+									"please delete and recreate the connection. Otherwise, this may be " +
+									"a man in the middle attack. Not continuing.");
+			
 			// Authenticate and set up port forwarding.
 			if (sshConnection.canAuthWithPass(connection.getSshUser())) {
 				if (sshConnection.authenticate(connection.getSshUser(), connection.getSshPassword())) {
@@ -304,9 +304,9 @@ public class VncCanvas extends ImageView {
 					throw new Exception("Failed to authenticate to SSH server. Please check your username and password.");
 				}
 			} else {
-				throw new Exception("Remote server " + connection.getAddress() + " does not allow us to authenticate " +
-									"with a password. Please reconfigure it to permit authenticating with a password" +
-									"and try again.");
+				throw new Exception("Remote server " + connection.getAddress() + " supports neither \"password\" nor " +
+									"\"keyboard-interactive\" auth methods. Please configure it to allow at least one " +
+									"of the two methods and try again.");
 			}
 			rfb = new RfbProto("localhost", localForwardedPort);
 		} else {

@@ -807,13 +807,12 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 	private void initializeSshHostKey() {
 		// If the SSH HostKey is empty, then we need to grab the HostKey from the server and save it.
 		if (connection.getSshHostKey().equals("")) {
-			Toast.makeText(this, "Attempting to initialize SSH HostKey.", Toast.LENGTH_SHORT).show();
+			Toast.makeText(this, "Attempting to initialize SSH HostKey.", Toast.LENGTH_LONG).show();
 			Log.d(TAG, "Attempting to initialize SSH HostKey.");
 			SSHConnection sshConnection = new SSHConnection(connection.getSshServer(), connection.getSshPort());
-			if (!sshConnection.connect()) {
-				Toast.makeText(this, "Failed to connect to SSH Server in order to obtain initial SSH HostKey." +
-									 "Please check SSH Server address and port.",
-									 Toast.LENGTH_LONG).show();
+			if (!sshConnection.connect(connection.getSshUser())) {
+				Toast.makeText(this, "Failed to connect to SSH Server. Please check network connectivity, " +
+								"and SSH Server address and port.", Toast.LENGTH_LONG).show();
 				finish();
 			}
 			connection.setSshHostKey(sshConnection.getServerHostKey());
