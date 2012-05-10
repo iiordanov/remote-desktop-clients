@@ -1,5 +1,8 @@
 /* This module converts keysym values into the corresponding ISO 10646
- * (UCS, Unicode) values.
+ * (UCS, Unicode) values and back.
+ * 
+ * Modified from the public domain program keysym2ucs.c, and Mark Doffman's
+ * pyatspi2 project.
  *
  * The array keysymtab contains pairs of X11 keysym values for graphical
  * characters and the corresponding Unicode value. The function
@@ -7,10 +10,6 @@
  * therefore keysymtab[] must remain SORTED by keysym value.
  * 
  * The array keysymtabbyucs, on the other hand, is sorted by unicode value.
- *
- * The keysym -> UTF-8 conversion will hopefully one day be provided
- * by Xlib via XmbLookupString() and should ideally not have to be
- * done in X applications. But we are not there yet.
  *
  * We allow to represent any UCS character in the range U-00000000 to
  * U-00FFFFFF by a keysym value in the range 0x01000000 to 0x01ffffff.
@@ -33,7 +32,6 @@
  * an initial draft of the mapping table.
  *
  * This software is in the public domain. Share and enjoy!
- *
  */
 
 package com.iiordanov.bVNC;

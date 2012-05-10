@@ -21,6 +21,8 @@ class FullBufferBitmapData extends AbstractBitmapData {
 
 	int xoffset;
 	int yoffset;
+	int dataWidth;
+	int dataHeight;
 	
 	/**
 	 * @author Michael A. MacDonald
@@ -41,6 +43,10 @@ class FullBufferBitmapData extends AbstractBitmapData {
 		 */
 		@Override
 		public void draw(Canvas canvas) {
+			// If we are currently (re)allocating bitmapPixels, do not attempt to draw.
+			if (data.bitmapPixels == null)
+				return;
+			
 			if (vncCanvas.getScaleType() == ImageView.ScaleType.FIT_CENTER)
 			{
 				canvas.drawBitmap(data.bitmapPixels, 0, data.framebufferwidth, xoffset, yoffset, framebufferwidth, framebufferheight, false, null);				
@@ -118,6 +124,8 @@ class FullBufferBitmapData extends AbstractBitmapData {
 		framebufferheight=rfb.framebufferHeight;
 		bitmapwidth=framebufferwidth;
 		bitmapheight=framebufferheight;
+		dataWidth=framebufferwidth;
+		dataHeight=framebufferheight;
 		android.util.Log.i("FBBM", "bitmapsize = ("+bitmapwidth+","+bitmapheight+")");
 		bitmapPixels = new int[framebufferwidth * framebufferheight];
 	}
@@ -203,6 +211,25 @@ class FullBufferBitmapData extends AbstractBitmapData {
 	}
 
 	/* (non-Javadoc)
+	 * @see com.iiordanov.bVNC.AbstractBitmapData#frameBufferSizeChanged(RfbProto)
+	 */
+	@Override
+	void frameBufferSizeChanged () {
+		framebufferwidth=rfb.framebufferWidth;
+		framebufferheight=rfb.framebufferHeight;
+		bitmapwidth=framebufferwidth;
+		bitmapheight=framebufferheight;
+		android.util.Log.i("FBBM", "bitmapsize changed = ("+bitmapwidth+","+bitmapheight+")");
+		if ( dataWidth < framebufferwidth || dataHeight < framebufferheight ) {
+			bitmapPixels = null;
+			System.gc();
+			dataWidth  = framebufferwidth;
+			dataHeight = framebufferheight;
+			bitmapPixels = new int[framebufferwidth * framebufferheight];
+		}
+	}
+	
+	/* (non-Javadoc)
 	 * @see com.iiordanov.bVNC.AbstractBitmapData#syncScroll()
 	 */
 	@Override
@@ -225,7 +252,9 @@ class FullBufferBitmapData extends AbstractBitmapData {
 	 */
 	@Override
 	boolean validDraw(int x, int y, int w, int h) {
-		return true;
+	    if (x + w > bitmapwidth || y + h > bitmapheight)
+	    	return false;
+	    return true;
 	}
 
 	/* (non-Javadoc)

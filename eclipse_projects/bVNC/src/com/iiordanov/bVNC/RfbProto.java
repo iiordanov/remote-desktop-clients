@@ -815,8 +815,8 @@ class RfbProto {
 
     if (updateRectEncoding == EncodingZlib ||
         updateRectEncoding == EncodingZRLE ||
-	updateRectEncoding == EncodingTight)
-      wereZlibUpdates = true;
+        updateRectEncoding == EncodingTight)
+    	wereZlibUpdates = true;
 
     // If the session is being recorded:
     /*-
@@ -848,15 +848,18 @@ class RfbProto {
     }
 	*/
 
-    if (updateRectEncoding != RfbProto.EncodingPointerPos && ( updateRectEncoding < 0 || updateRectEncoding > MaxNormalEncoding ))
-      return;
+	/*
+    if (updateRectEncoding != RfbProto.EncodingPointerPos &&
+    	( updateRectEncoding < 0 || updateRectEncoding > MaxNormalEncoding ))
+    	return;
 
     if (updateRectX + updateRectW > framebufferWidth ||
-	updateRectY + updateRectH > framebufferHeight) {
-      throw new Exception("Framebuffer update rectangle too large: " +
-			  updateRectW + "x" + updateRectH + " at (" +
-			  updateRectX + "," + updateRectY + ")");
+    	updateRectY + updateRectH > framebufferHeight) {
+    	throw new Exception("Framebuffer update rectangle too large: " +
+    						updateRectW + "x" + updateRectH + " at (" +
+    						updateRectX + "," + updateRectY + ")");
     }
+    */
   }
 
   // Read CopyRect source X and Y.

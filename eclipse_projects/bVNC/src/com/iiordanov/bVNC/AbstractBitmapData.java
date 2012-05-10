@@ -147,6 +147,14 @@ abstract class AbstractBitmapData {
 	 * @param newy Position of top edge of visible part in full-frame coordinates
 	 */
 	abstract void scrollChanged( int newx, int newy);
+
+	/**
+	 * Remote framebuffer size has changed.
+	 * <p>
+	 * This method is called when the framebuffer has changed size and reinitializes the
+	 * necessary data structures to support that change.
+	 */
+	abstract void frameBufferSizeChanged ();
 	
 	/**
 	 * Sync scroll -- called from network thread; copies scroll changes from UI to network state

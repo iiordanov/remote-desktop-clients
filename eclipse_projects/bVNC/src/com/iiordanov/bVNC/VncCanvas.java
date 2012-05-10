@@ -108,6 +108,7 @@ public class VncCanvas extends ImageView {
 	public RfbProto rfb;
 
 	// Internal bitmap data
+	private int capacity;
 	AbstractBitmapData bitmapData;
 	boolean useFull = false;
 	public Handler handler = new Handler();
@@ -240,7 +241,8 @@ public class VncCanvas extends ImageView {
 						if (e instanceof OutOfMemoryError) {
 							System.gc();
 							showFatalMessageAndQuit("A fatal error has occurred. The device appears to be out of free memory. " +
-									                "Try restarting the application and failing that, restart your device.");
+									                "Try reconnecting, and if that fails, try killing and restarting the application. " +
+									                "As a last resort, you may try restarting your device.");
 						} else {
 							String error = "Connection failed!";
 							if (e.getMessage() != null) {
@@ -370,10 +372,14 @@ public class VncCanvas extends ImageView {
 		rfb.writeClientInit();
 		rfb.readServerInit();
 
+		initializeBitmap (dx, dy);
+	}
+
+	void initializeBitmap (int dx, int dy) throws IOException {
 		Log.i(TAG, "Desktop name is " + rfb.desktopName);
 		Log.i(TAG, "Desktop size is " + rfb.framebufferWidth + " x " + rfb.framebufferHeight);
 
-		int capacity = BCFactory.getInstance().getBCActivityManager().getMemoryClass(Utils.getActivityManager(getContext()));
+		capacity = BCFactory.getInstance().getBCActivityManager().getMemoryClass(Utils.getActivityManager(getContext()));
 		if (connection.getForceFull() == BitmapImplHint.AUTO)
 		{
 			if (rfb.framebufferWidth * rfb.framebufferHeight * FullBufferBitmapData.CAPACITY_MULTIPLIER <= capacity * 1024 * 1024)
@@ -382,10 +388,10 @@ public class VncCanvas extends ImageView {
 		else
 			useFull = (connection.getForceFull() == BitmapImplHint.FULL);
 
-		if (! useFull)
-			bitmapData=new LargeBitmapData(rfb,this,dx,dy,capacity);
+		if (!useFull)
+			bitmapData=new LargeBitmapData(rfb, this, dx, dy, capacity);
 		else
-			bitmapData=new FullBufferBitmapData(rfb,this, capacity);
+			bitmapData=new FullBufferBitmapData(rfb, this, capacity);
 
 		mouseX=rfb.framebufferWidth/2;
 		mouseY=rfb.framebufferHeight/2;
@@ -459,8 +465,18 @@ public class VncCanvas extends ImageView {
 
 						if (rfb.updateRectEncoding == RfbProto.EncodingNewFBSize) {
 							rfb.setFramebufferSize(rw, rh);
-							// - updateFramebufferSize();
-							//Log.v(TAG, "rfb.EncodingNewFBSize");
+							try {
+								bitmapData.frameBufferSizeChanged ();
+							} catch (Throwable e) {
+								// If we've run out of memory, try using an LBM.
+								if (e instanceof OutOfMemoryError) {
+									useFull    = false;
+									bitmapData = new LargeBitmapData(rfb, this, getWidth(), getHeight(), capacity);
+								}
+							}
+							bitmapData.writeFullUpdateRequest(false);
+							handler.post(setModes);
+							bitmapData.syncScroll();
 							break;
 						}
 

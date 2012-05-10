@@ -38,6 +38,9 @@ class LargeBitmapData extends AbstractBitmapData {
 	private Paint defaultPaint;
 	private RectList invalidList;
 	private RectList pendingList;
+	private int capacity;
+	private int displayWidth;
+	private int displayHeight;
 	
 	/**
 	 * Pool of temporary rectangle objects.  Need to synchronize externally access from
@@ -102,8 +105,11 @@ class LargeBitmapData extends AbstractBitmapData {
 		bitmapPixels = new int[bitmapwidth * bitmapheight];
 		invalidList = new RectList(rectPool);
 		pendingList = new RectList(rectPool);
-		bitmapRect=new Rect(0,0,bitmapwidth,bitmapheight);
+		bitmapRect = new Rect(0,0,bitmapwidth,bitmapheight);
 		defaultPaint = new Paint();
+		this.capacity = capacity;
+		this.displayWidth = displayWidth;
+		this.displayHeight = displayHeight;
 	}
 	
 	@Override
@@ -171,7 +177,7 @@ class LargeBitmapData extends AbstractBitmapData {
 		int newScrolledToY = scrolledToY;
 		int visibleWidth = vncCanvas.getVisibleWidth();
 		int visibleHeight = vncCanvas.getVisibleHeight();
-		if (newx - xoffset < 0 )
+		if (newx - xoffset < 0)
 		{
 			newScrolledToX = newx + visibleWidth / 2 - bitmapwidth / 2;
 			if (newScrolledToX < 0)
@@ -339,5 +345,36 @@ class LargeBitmapData extends AbstractBitmapData {
 		}
 		waitingForInput=true;
 		//android.util.Log.i("LBM", "pending "+pendingList.toString() + "invalid "+invalidList.toString());
+	}
+	
+	/* (non-Javadoc)
+	 * @see com.iiordanov.bVNC.AbstractBitmapData#frameBufferSizeChanged(RfbProto)
+	 */
+	@Override
+	void frameBufferSizeChanged () {
+		xoffset = 0;
+		yoffset = 0;
+		scrolledToX = 0;
+		scrolledToY = 0;
+		framebufferwidth = rfb.framebufferWidth;
+		framebufferheight = rfb.framebufferHeight;
+		double scaleMultiplier = Math.sqrt((double)(capacity * 1024 * 1024) /
+								(double)(CAPACITY_MULTIPLIER * framebufferwidth * framebufferheight));
+		if (scaleMultiplier > 1)
+			scaleMultiplier = 1;
+		bitmapwidth=(int)((double)framebufferwidth * scaleMultiplier);
+		if (bitmapwidth < displayWidth)
+			bitmapwidth = displayWidth;
+		bitmapheight=(int)((double)framebufferheight * scaleMultiplier);
+		if (bitmapheight < displayHeight)
+			bitmapheight = displayHeight;
+		android.util.Log.i("LBM", "bitmapsize changed = ("+bitmapwidth+","+bitmapheight+")");
+		mbitmap = Bitmap.createBitmap(bitmapwidth, bitmapheight, Bitmap.Config.RGB_565);
+		memGraphics = new Canvas(mbitmap);
+		bitmapPixels = new int[bitmapwidth * bitmapheight];
+		invalidList = new RectList(rectPool);
+		pendingList = new RectList(rectPool);
+		bitmapRect = new Rect(0, 0, bitmapwidth, bitmapheight);
+		defaultPaint = new Paint();
 	}
 }

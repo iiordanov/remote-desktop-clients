@@ -98,6 +98,21 @@ class CompactBitmapData extends AbstractBitmapData {
 	}
 
 	/* (non-Javadoc)
+	 * @see com.iiordanov.bVNC.AbstractBitmapData#frameBufferSizeChanged(RfbProto)
+	 */
+	@Override
+	void frameBufferSizeChanged () {
+		framebufferwidth=rfb.framebufferWidth;
+		framebufferheight=rfb.framebufferHeight;
+		bitmapwidth=framebufferwidth;
+		bitmapheight=framebufferheight;
+		android.util.Log.i("CBM", "bitmapsize changed = ("+bitmapwidth+","+bitmapheight+")");
+		bitmapPixels = null;
+		System.gc();
+		bitmapPixels = new int[framebufferwidth * framebufferheight];
+	}
+	
+	/* (non-Javadoc)
 	 * @see com.iiordanov.bVNC.AbstractBitmapData#syncScroll()
 	 */
 	@Override

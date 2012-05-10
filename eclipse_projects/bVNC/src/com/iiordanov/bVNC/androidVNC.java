@@ -37,6 +37,8 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager.LayoutParams;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -247,28 +249,20 @@ public class androidVNC extends Activity {
 	@Override
 	protected Dialog onCreateDialog(int id) {
 		switch (id) {
-
 		case R.layout.importexport:
 			return new ImportExportDialog(this);
-			
 		case R.id.itemMainScreenHelp:
-			return new AlertDialog.Builder(this)
-			.setMessage(R.string.main_screen_help_text)
-			.setPositiveButton(R.string.close,
-					new DialogInterface.OnClickListener() {
-						public void onClick(DialogInterface dialog,
-								int whichButton) {
-							// We don't have to do anything.
-						}
-					}).create();
-	
+			return createMainScreenHelpDialog();
 		default:
 			return new RepeaterDialog(this);
 		}
 	}
 	
-/*
-	private Dialog createMainScreenHelpDialog(){
+	/*
+	 * Creates the main screen help dialog.
+	 * TODO: I need a high resolution device device to develop and test this on.
+	 */
+	private Dialog createMainScreenHelpDialog() {
 		Dialog d = new AlertDialog.Builder(this)
 		.setMessage(R.string.main_screen_help_text)
 		.setPositiveButton(R.string.close,
@@ -278,9 +272,17 @@ public class androidVNC extends Activity {
 						// We don't have to do anything.
 					}
 				}).create();
+
+		WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
+	    lp.copyFrom(d.getWindow().getAttributes());
+	    lp.width = WindowManager.LayoutParams.FILL_PARENT;
+	    lp.height = WindowManager.LayoutParams.FILL_PARENT;
+	    
+		//d.getWindow().setLayout(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT);
+	    d.getWindow().setAttributes(lp);
 		return d;
 	}
-*/
+
 	/* (non-Javadoc)
 	 * @see android.app.Activity#onCreateOptionsMenu(android.view.Menu)
 	 */

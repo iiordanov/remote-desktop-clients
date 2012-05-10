@@ -960,7 +960,7 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
                     }
                     
                     // Enable/show the zoomer if the keyboard is gone, and disable/hide otherwise.
-                    if (r.bottom == rootView.getHeight()) {
+                    if (r.bottom > rootView.getHeight() - 100) {
                     	zoomer.enable();
                     } else {
                     	zoomer.hide();

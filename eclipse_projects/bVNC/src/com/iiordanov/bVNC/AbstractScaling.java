@@ -50,8 +50,8 @@ abstract class AbstractScaling {
 	 * Returns the scale factor of this scaling mode.
 	 * @return
 	 */
-	float getScale() { return 1; }
-	
+	float getScale() { return 1.f; }
+
 	void zoomIn(VncCanvasActivity activity) {}
 	void zoomOut(VncCanvasActivity activity) {}
 	
