@@ -40,6 +40,7 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.Paint.Style;
 import android.os.Handler;
+import android.text.ClipboardManager;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.Display;
@@ -151,7 +152,11 @@ public class VncCanvas extends ImageView {
 	
 	private Paint handleRREPaint;
 	
+	// Used to convert unicode characters to X keysym values.
 	private XKeySymCoverter xKeySymConv;
+	
+	// Used to set the contents of the clipboard.
+	ClipboardManager clipboard;
 	
 	/**
 	 * Position of the top left portion of the <i>visible</i> part of the screen, in
@@ -186,6 +191,7 @@ public class VncCanvas extends ImageView {
 		zlibData = new byte[4096];
 		inflBuf = new byte[8192];
 		xKeySymConv = new XKeySymCoverter();
+		clipboard = (ClipboardManager)getContext().getSystemService(Context.CLIPBOARD_SERVICE);
 	}
 	
 	/**
@@ -559,7 +565,7 @@ public class VncCanvas extends ImageView {
 				case RfbProto.ServerCutText:
 					String s = rfb.readServerCutText();
 					if (s != null && s.length() > 0) {
-						// TODO implement cut & paste
+						clipboard.setText(s);
 					}
 					break;
 

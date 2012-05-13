@@ -26,6 +26,7 @@ package com.iiordanov.bVNC;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
 
 import com.iiordanov.android.bc.BCFactory;
 
@@ -794,6 +795,7 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 
 	ZoomControls zoomer;
 	Panner panner;
+	Timer clipboardMonitorTimer;
 	
 	/**
 	 * TODO: REMOVE THIS AS SOON AS POSSIBLE.
@@ -1017,6 +1019,9 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 		panner = new Panner(this, vncCanvas.handler);
 
 		inputHandler = getInputHandlerById(R.id.itemInputTouchPanZoomMouse);
+		
+		clipboardMonitorTimer = new Timer ();
+		clipboardMonitorTimer.schedule(new ClipboardMonitor(this, vncCanvas), 0, 500);
 	}
 	
 	/*
