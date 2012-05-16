@@ -46,28 +46,28 @@ class FullBufferBitmapData extends AbstractBitmapData {
 			// If we are currently (re)allocating bitmapPixels, do not attempt to draw.
 			if (data.bitmapPixels == null)
 				return;
-			
+/*			
 			if (vncCanvas.getScaleType() == ImageView.ScaleType.FIT_CENTER)
 			{
 				canvas.drawBitmap(data.bitmapPixels, 0, data.framebufferwidth, xoffset, yoffset, framebufferwidth, framebufferheight, false, null);				
 			}
 			else
 			{
-				//TODO: Do we need to call drawBitmap if xo or yo was set to data.framebufferwidth/height - 1?
+*/				
 				//float scale = vncCanvas.getScale();
 				int xo, yo;
 				
 				if (xoffset < 0)
 					xo = 0;
 				else if (xoffset >= data.framebufferwidth)
-					xo = data.framebufferwidth - 1;
+					return;
 				else
 					xo = xoffset;
 
 				if (yoffset < 0)
 					yo = 0;
 				else if (yoffset >= data.framebufferheight)
-					yo = data.framebufferheight - 1;
+					return;
 				else
 					yo = yoffset;
 				
@@ -95,7 +95,7 @@ class FullBufferBitmapData extends AbstractBitmapData {
 					canvas.drawBitmap(data.bitmapPixels, offset(xo, yo), data.framebufferwidth, xo, yo, scalewidth, scaleheight, false, null);				
 				}
 				*/
-			}
+//			}
 			if(data.vncCanvas.connection.getUseLocalCursor())
 			{
 				setCursorRect(data.vncCanvas.mouseX, data.vncCanvas.mouseY);

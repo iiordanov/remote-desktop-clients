@@ -139,6 +139,7 @@ public class VncCanvas extends ImageView {
 	byte[] uncompDataBuf;
 	byte[] zlibData;
 	byte[] inflBuf;
+	BitmapFactory.Options bitmapopts;
 
 	// ZRLE encoder's data.
 	private byte[] zrleBuf;
@@ -192,6 +193,10 @@ public class VncCanvas extends ImageView {
 		inflBuf = new byte[8192];
 		xKeySymConv = new XKeySymCoverter();
 		clipboard = (ClipboardManager)getContext().getSystemService(Context.CLIPBOARD_SERVICE);
+		bitmapopts = new BitmapFactory.Options();
+		bitmapopts.inPurgeable = true;
+		bitmapopts.inDither = false;
+		bitmapopts.inTempStorage = new byte[16384];
 	}
 	
 	/**
@@ -252,7 +257,8 @@ public class VncCanvas extends ImageView {
 						} else {
 							String error = "Connection failed!";
 							if (e.getMessage() != null) {
-								if (e.getMessage().indexOf("authentication") > -1) {
+								if (e.getMessage().indexOf("authentication") > -1 ||
+									e.getMessage().indexOf("password check failed") > -1) {
 									error = "VNC authentication failed! Check VNC password.";
 								}
 								error = error + "<br>" + e.getLocalizedMessage();
@@ -2012,12 +2018,13 @@ public class VncCanvas extends ImageView {
 				return;
 
 			// Decode JPEG data
-			Bitmap tightBitmap = BitmapFactory.decodeByteArray(inflBuf, 0, jpegDataLen);
+			Bitmap tightBitmap = BitmapFactory.decodeByteArray(inflBuf, 0, jpegDataLen, bitmapopts);
 
-			// Copy JPEG data into bitmap.
+			// Copy decoded data into bitmapData and recycle bitmap.
 			tightBitmap.getPixels(pixels, bitmapData.offset(x, y), bitmapData.bitmapwidth, 0, 0, w, h);
-
 			bitmapData.updateBitmap(x, y, w, h);
+			tightBitmap.recycle();
+			
 			reDraw();
 			return;
 		}

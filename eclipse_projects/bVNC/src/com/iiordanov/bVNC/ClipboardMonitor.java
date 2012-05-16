@@ -29,7 +29,10 @@ public class ClipboardMonitor extends TimerTask {
 	 * Grab the currrent clipboard contents.
 	 */
 	private String getClipboardContents () {
-		return clipboard.getText().toString();
+		if (clipboard != null && clipboard.getText() != null)
+			return clipboard.getText().toString();
+		else
+			return null;
 	}
 	
 	/*
@@ -42,11 +45,12 @@ public class ClipboardMonitor extends TimerTask {
 		//Log.d(TAG, "Current clipboard contents: " + currentClipboardContents);
 		//Log.d(TAG, "Previously known clipboard contents: " + knownClipboardContents);
 		
-		if (currentClipboardContents.compareTo(knownClipboardContents) != 0){
+		if (currentClipboardContents != null &&
+			currentClipboardContents.compareTo(knownClipboardContents) != 0){
 			try {
 				if (vncCanvas.rfb != null && vncCanvas.rfb.inNormalProtocol)
 					vncCanvas.rfb.writeClientCutText(currentClipboardContents);
-					knownClipboardContents = currentClipboardContents;
+					knownClipboardContents = new String(currentClipboardContents);
 					//Log.d(TAG, "Wrote: " + knownClipboardContents + " to remote clipboard.");
 			} catch (IOException e) {
 				// TODO Auto-generated catch block

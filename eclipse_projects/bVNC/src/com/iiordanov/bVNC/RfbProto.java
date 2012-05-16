@@ -253,8 +253,9 @@ class RfbProto {
     } */
     //+
     sock = new Socket(host, port);
+    sock.setTcpNoDelay(true);
     is = new DataInputStream(new BufferedInputStream(sock.getInputStream(),
-						     16384));
+    		65000));
     os = sock.getOutputStream();
 
     timing = false;
