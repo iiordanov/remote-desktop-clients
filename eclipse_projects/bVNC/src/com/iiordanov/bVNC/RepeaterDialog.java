@@ -5,7 +5,6 @@ package com.iiordanov.bVNC;
 
 import android.app.Activity;
 import android.app.Dialog;
-import android.content.Context;
 import android.os.Bundle;
 import android.text.Html;
 import android.view.View;

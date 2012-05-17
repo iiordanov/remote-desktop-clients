@@ -100,6 +100,14 @@ class LargeBitmapData extends AbstractBitmapData {
 		if (bitmapheight < displayHeight)
 			bitmapheight = displayHeight;
 		android.util.Log.i("LBM", "bitmapsize = ("+bitmapwidth+","+bitmapheight+")");
+		mbitmap = null;
+		memGraphics = null;
+		bitmapPixels = null;
+		invalidList = null;
+		pendingList = null;
+		bitmapRect = null;
+		defaultPaint = null;
+		System.gc();
 		mbitmap = Bitmap.createBitmap(bitmapwidth, bitmapheight, Bitmap.Config.RGB_565);
 		memGraphics = new Canvas(mbitmap);
 		bitmapPixels = new int[bitmapwidth * bitmapheight];

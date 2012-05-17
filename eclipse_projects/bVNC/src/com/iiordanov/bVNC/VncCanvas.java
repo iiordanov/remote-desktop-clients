@@ -87,8 +87,8 @@ public class VncCanvas extends ImageView {
 	private final static int SCAN_F8 = 66;
 	private final static int SCAN_F9 = 67;
 	private final static int SCAN_F10 = 68;
-	private final static int SCAN_HOME = 102;
-	private final static int SCAN_END = 107;
+	//private final static int SCAN_HOME = 102;
+	//private final static int SCAN_END = 107;
 	
 	/**
 	 * Use camera button as meta key for right mouse button
@@ -287,41 +287,8 @@ public class VncCanvas extends ImageView {
 		// TODO: Switch from hard-coded numeric position to something better (at least an enumeration).
 		if (connection.getConnectionType() == 1) {
 			int localForwardedPort;
-			sshConnection = new SSHConnection(connection.getSshServer(), connection.getSshPort());
-		
-			// Attempt to connect.
-			if (!sshConnection.connect(connection.getSshUser()))
-				throw new Exception("Failed to connect to SSH server. Please check network connection status, and SSH Server address and port.");
-			
-			// Verify host key against saved one.
-			if (!sshConnection.verifyHostKey(connection.getSshHostKey()))
-				throw new Exception("ERROR! The server host key has changed. If this is intentional, " +
-									"please delete and recreate the connection. Otherwise, this may be " +
-									"a man in the middle attack. Not continuing.");
-			
-			// Authenticate and set up port forwarding.
-			if (sshConnection.canAuthWithPass(connection.getSshUser())) {
-				if (sshConnection.authenticate(connection.getSshUser(), connection.getSshPassword())) {
-					localForwardedPort = sshConnection.createPortForward(connection.getPort(),
-																		 connection.getAddress(), connection.getPort());
-					
-					// If we got back a negative number, port forwarding failed.
-					if (localForwardedPort < 0) {
-						throw new Exception("Could not set up the port forwarding for tunneling VNC traffic over SSH." +
-								"Please ensure your SSH server is configured to allow port forwarding and try again.");
-					}
-					
-					// TODO: This is a proof of concept for remote command execution.
-					//if (!sshConnection.execRemoteCommand("/usr/bin/x11vnc -N -forever -auth guess -localhost -display :0 1>/dev/null 2>/dev/null", 5000))
-					//	throw new Exception("Could not execute remote command.");
-				} else {
-					throw new Exception("Failed to authenticate to SSH server. Please check your username and password.");
-				}
-			} else {
-				throw new Exception("Remote server " + connection.getAddress() + " supports neither \"password\" nor " +
-									"\"keyboard-interactive\" auth methods. Please configure it to allow at least one " +
-									"of the two methods and try again.");
-			}
+			sshConnection = new SSHConnection(connection);
+			localForwardedPort = sshConnection.initializeSSHTunnel ();
 			rfb = new RfbProto("localhost", localForwardedPort);
 		} else {
 			rfb = new RfbProto(connection.getAddress(), connection.getPort());
@@ -2013,7 +1980,6 @@ public class VncCanvas extends ImageView {
 				inflBuf = new byte[2*jpegDataLen];
 			}
 			rfb.readFully(inflBuf, 0, jpegDataLen);
-			
 			if (!valid)
 				return;
 
@@ -2223,7 +2189,6 @@ public class VncCanvas extends ImageView {
 	//
 	// Decode 1bpp-encoded bi-color rectangle (8-bit and 24-bit versions).
 	//
-	// TODO: Switch to bitmapData.offset rather than direct calculations
 	void decodeMonoData(int x, int y, int w, int h, byte[] src, byte[] palette) {
 
 		int dx, dy, n;
@@ -2246,7 +2211,6 @@ public class VncCanvas extends ImageView {
 		}
 	}
 
-	// TODO: Switch to bitmapData.offset rather than direct calculations
 	void decodeMonoData(int x, int y, int w, int h, byte[] src, int[] palette) {
 
 		int dx, dy, n;
@@ -2272,7 +2236,6 @@ public class VncCanvas extends ImageView {
 	//
 	// Decode data processed with the "Gradient" filter.
 	//
-	// TODO: Switch to bitmapData.offset rather than direct calculations
 	void decodeGradientData (int x, int y, int w, int h, byte[] buf) {
 
 		int dx, dy, c;

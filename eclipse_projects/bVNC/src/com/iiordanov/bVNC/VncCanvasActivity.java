@@ -77,8 +77,6 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 	// like a horrible bug in Android. Once the trackpad is used, Android starts doing adjustPan
 	// on the activity even though it doesn't do so to begin with. 
 	private boolean trackPadWasUsed = false;
-
-	private boolean connectionFailed = false;
 	
 	/**
 	 * @author Michael A. MacDonald
@@ -227,17 +225,8 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 					});
 			return true;
 		}
-		
-		/**
-		 * Modify the event so that it does not move the mouse on the
-		 * remote server.
-		 * @param e
-		 */
-		private void remoteMouseStayPut(MotionEvent e) {
-			//Log.i(TAG, "Setting pointer location in remoteMouseStayPut");
-			e.setLocation(vncCanvas.mouseX, vncCanvas.mouseY);	
-		}
-		
+
+
 		/**
 		 * Modify the event so that the mouse goes where we specify.
 		 * @param e
@@ -430,12 +419,6 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 		 * without sending them through the gesture detector
 		 */
 		private boolean dragMode;
-		
-		/**
-		 * In right drag mode, entered after right-click, we process mouse events
-		 * without sending them through the gesture detector
-		 */
-		private boolean rightDragMode = false;
 		
 		float dragX, dragY;
 		
@@ -796,12 +779,8 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 	ZoomControls zoomer;
 	Panner panner;
 	Timer clipboardMonitorTimer;
+	SSHConnection sshConnection;
 	
-	/**
-	 * TODO: REMOVE THIS AS SOON AS POSSIBLE.
-	 * Needed for a Playbook workaround, this variable indicates whether the soft keyboard was up upon screen lock.
-	 */
-	private boolean softKbdWasUp = false;
 
 	/**
 	 * Function used to initialize an empty SSH HostKey for a new VNC over SSH connection.
@@ -809,17 +788,47 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 	private void initializeSshHostKey() {
 		// If the SSH HostKey is empty, then we need to grab the HostKey from the server and save it.
 		if (connection.getSshHostKey().equals("")) {
-			Toast.makeText(this, "Attempting to initialize SSH HostKey.", Toast.LENGTH_LONG).show();
+			Toast.makeText(this, "Attempting to initialize SSH HostKey.", Toast.LENGTH_SHORT).show();
 			Log.d(TAG, "Attempting to initialize SSH HostKey.");
-			SSHConnection sshConnection = new SSHConnection(connection.getSshServer(), connection.getSshPort());
-			if (!sshConnection.connect(connection.getSshUser())) {
-				Toast.makeText(this, "Failed to connect to SSH Server. Please check network connectivity, " +
-								"and SSH Server address and port.", Toast.LENGTH_LONG).show();
-				finish();
+			
+			sshConnection = new SSHConnection(connection);
+			if (!sshConnection.connect()) {
+				// Failed to connect, so show error message and quit activity.
+				Utils.showFatalErrorMessage(this,
+						"Failed to connect to SSH Server. Please check network connectivity, " +
+						"and SSH Server address and port.");
+			} else {
+				// Show a dialog with the key signature.
+				DialogInterface.OnClickListener signatureNo = new DialogInterface.OnClickListener() {
+					
+		            @Override
+		            public void onClick(DialogInterface dialog, int which) {
+		                // We were told to not continue, so stop the activity
+		                finish();    
+		            }
+	
+		        };
+		        DialogInterface.OnClickListener signatureYes = new DialogInterface.OnClickListener() {
+	
+		            @Override
+		            public void onClick(DialogInterface dialog, int which) {
+		    			// We were told to go ahead with the connection.
+		    			connection.setSshHostKey(sshConnection.getServerHostKey());
+		    			connection.save(database.getWritableDatabase());
+		    			sshConnection.disconnect();
+		            	continueConnecting();
+		            }
+	
+		        };
+		        
+				Utils.showYesNoPrompt(this, "Continue connecting to " + connection.getSshServer() + "?", 
+									"The key fingerprint is: " + sshConnection.getHostKeySignature(),
+									signatureYes, signatureNo);
+
 			}
-			connection.setSshHostKey(sshConnection.getServerHostKey());
-			connection.save(database.getWritableDatabase());
-			sshConnection.disconnect();
+		} else {
+			// There is no need to initialize the HostKey, so continue connecting.
+			continueConnecting();
 		}
 	}
 		
@@ -914,16 +923,20 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 		
 		if (connection.getUsePortrait())
 			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-
-		// TODO: Switch away from numeric representation of VNC connection type.
-		if (connection.getConnectionType() == 1)
-			initializeSshHostKey();
 		
-		// TODO: Left-icon
+		// TODO: Switch away from numeric representation of VNC connection type.
+		if (connection.getConnectionType() == 1) {
+			initializeSshHostKey();
+		} else
+			continueConnecting();
+	}
+
+	void continueConnecting () {
+		// TODO: Implement left-icon
 		//requestWindowFeature(Window.FEATURE_LEFT_ICON);
 		//setFeatureDrawableResource(Window.FEATURE_LEFT_ICON, R.drawable.icon); 
-		setContentView(R.layout.canvas);
 
+		setContentView(R.layout.canvas);
 		vncCanvas = (VncCanvas) findViewById(R.id.vnc_canvas);
 		zoomer = (ZoomControls) findViewById(R.id.zoomer);
 
@@ -1034,7 +1047,8 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 	protected void onPause(){
 		super.onPause();
 		InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-		imm.hideSoftInputFromWindow(vncCanvas.getWindowToken(), 0);
+		if (vncCanvas != null)
+			imm.hideSoftInputFromWindow(vncCanvas.getWindowToken(), 0);
 	}
 
 	/*
@@ -1111,7 +1125,8 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 
 	@Override
 	protected void onStop() {
-		vncCanvas.disableRepaints();
+		if (vncCanvas != null)
+			vncCanvas.disableRepaints();
 		super.onStop();
 	}
 
@@ -1392,8 +1407,10 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 	protected void onDestroy() {
 		super.onDestroy();
 		if (isFinishing()) {
-			vncCanvas.closeConnection();
-			vncCanvas.onDestroy();
+			if (vncCanvas != null) {
+				vncCanvas.closeConnection();
+				vncCanvas.onDestroy();
+			}
 			database.close();
 		}
 	}

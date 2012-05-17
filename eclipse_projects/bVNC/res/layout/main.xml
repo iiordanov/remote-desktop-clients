@@ -112,7 +112,7 @@
 							    android:password="true"
 								android:layout_width="fill_parent" android:layout_height="wrap_content"
 								android:singleLine="true" android:layout_weight="1" android:textAppearance="?android:attr/textAppearanceMedium"
-								android:hint="@string/password_hint_ssh"/>
+								android:hint="@string/password_hint_ssh" android:nextFocusDown="@+id/textIP"/>
 						</LinearLayout>					
 				</TableRow>
 				<TableRow>

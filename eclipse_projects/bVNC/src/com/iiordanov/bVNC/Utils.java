@@ -16,7 +16,7 @@ public class Utils {
 	public static void showYesNoPrompt(Context _context, String title, String message, OnClickListener onYesListener, OnClickListener onNoListener) {
 		AlertDialog.Builder builder = new AlertDialog.Builder(_context);
 		builder.setTitle(title);
-		builder.setIcon(android.R.drawable.ic_dialog_info); // lame icon
+		builder.setIcon(android.R.drawable.ic_dialog_info);
 		builder.setMessage(message);
 		builder.setCancelable(false);
 		builder.setPositiveButton("Yes", onYesListener);

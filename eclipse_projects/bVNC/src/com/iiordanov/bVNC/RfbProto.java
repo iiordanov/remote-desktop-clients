@@ -254,8 +254,7 @@ class RfbProto {
     //+
     sock = new Socket(host, port);
     sock.setTcpNoDelay(true);
-    is = new DataInputStream(new BufferedInputStream(sock.getInputStream(),
-    		65000));
+    is = new DataInputStream(new BufferedInputStream(sock.getInputStream(), 8192));
     os = sock.getOutputStream();
 
     timing = false;
@@ -905,15 +904,15 @@ class RfbProto {
   int readCompactLen() throws IOException {
     int[] portion = new int[3];
     portion[0] = is.readUnsignedByte();
-    int byteCount = 1;
+    //int byteCount = 1;
     int len = portion[0] & 0x7F;
     if ((portion[0] & 0x80) != 0) {
       portion[1] = is.readUnsignedByte();
-      byteCount++;
+      //byteCount++;
       len |= (portion[1] & 0x7F) << 7;
       if ((portion[1] & 0x80) != 0) {
 	portion[2] = is.readUnsignedByte();
-	byteCount++;
+	//byteCount++;
 	len |= (portion[2] & 0xFF) << 14;
       }
     }
@@ -1215,14 +1214,17 @@ class RfbProto {
   }
 
   public void readFully(byte b[], int off, int len) throws IOException {
+	/*
     long before = 0;
     timing = false; // for test
     
     if (timing)
       before = System.currentTimeMillis();
+     */
 
     is.readFully(b, off, len);
 
+    /*
     if (timing) {
       long after = System.currentTimeMillis();
       long newTimeWaited = (after - before) * 10;
@@ -1236,6 +1238,7 @@ class RfbProto {
       timeWaitedIn100us += newTimeWaited;
       timedKbits += newKbits;
     }
+    */
   }
 
     synchronized void writeOpenChat() throws Exception {

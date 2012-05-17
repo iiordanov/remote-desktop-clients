@@ -27,9 +27,6 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
-import android.content.Context;
-
-import java.util.ArrayList;
 
 /**
  * @author Michael A. MacDonald
