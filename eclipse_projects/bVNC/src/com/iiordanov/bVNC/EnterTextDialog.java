@@ -73,7 +73,7 @@ class EnterTextDialog extends Dialog {
 	
 	private void sendText(String s)
 	{
-		RfbProto rfb = _canvasActivity.vncCanvas.rfb;
+		RfbConnectable rfbconn = _canvasActivity.vncCanvas.rfbconn;
 		int l = s.length();
 		for (int i = 0; i<l; i++)
 		{
@@ -87,15 +87,8 @@ class EnterTextDialog extends Dialog {
 				else
 					continue;
 			}
-			try
-			{
-				rfb.writeKeyEvent(keysym, meta, true);
-				rfb.writeKeyEvent(keysym, meta, false);
-			}
-			catch (IOException ioe)
-			{
-				// TODO: log this
-			}
+			rfbconn.writeKeyEvent(keysym, meta, true);
+			rfbconn.writeKeyEvent(keysym, meta, false);
 		}		
 	}
 

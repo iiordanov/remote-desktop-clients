@@ -38,7 +38,7 @@ public enum COLORMODEL {
 		return super.toString();
 	}
 
-	public void setPixelFormat(RfbProto rfb) throws IOException {
+	public void setPixelFormat(RfbConnectable rfb) throws IOException {
 		switch (this) {
 		case C24bit:
 			// 24-bit color

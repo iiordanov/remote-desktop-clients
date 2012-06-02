@@ -21,12 +21,12 @@ import android.util.Log;
  * @author Michael A. MacDonald
  *
  */
-abstract class AbstractBitmapData {
+abstract public class AbstractBitmapData {
 	int framebufferwidth;
 	int framebufferheight;
 	int bitmapwidth;
 	int bitmapheight;
-	RfbProto rfb;
+	RfbConnectable rfb;
 	Bitmap mbitmap;
 	int bitmapPixels[];
 	Canvas memGraphics;
@@ -34,12 +34,13 @@ abstract class AbstractBitmapData {
 	VncCanvas vncCanvas;
 	private AbstractBitmapDrawable drawable;
 
-	AbstractBitmapData( RfbProto p, VncCanvas c)
+	AbstractBitmapData(RfbConnectable p, VncCanvas c)
 	{
 		rfb=p;
 		vncCanvas = c;
-		framebufferwidth=rfb.framebufferWidth;
-		framebufferheight=rfb.framebufferHeight;
+		framebufferwidth=rfb.framebufferWidth();
+		framebufferheight=rfb.framebufferHeight();
+		drawable = createDrawable();
 	}
 	
 	synchronized void doneWaiting()
@@ -51,8 +52,6 @@ abstract class AbstractBitmapData {
 	{
 		if (vncCanvas.connection.getUseLocalCursor())
 		{
-			if (drawable==null)
-				drawable = createDrawable();
 			drawable.setCursorRect(vncCanvas.mouseX,vncCanvas.mouseY);
 			vncCanvas.invalidate(drawable.cursorRect);
 		}
@@ -90,7 +89,7 @@ abstract class AbstractBitmapData {
 	 * @param y
 	 * @return Offset in bitmapPixels array of color data for that point
 	 */
-	abstract int offset( int x, int y);
+	public abstract int offset( int x, int y);
 	
 	/**
 	 * Update pixels in the bitmap with data from the bitmapPixels array, positioned
@@ -100,7 +99,7 @@ abstract class AbstractBitmapData {
 	 * @param w width (pixels)
 	 * @param h height (pixels)
 	 */
-	abstract void updateBitmap( int x, int y, int w, int h);
+	public abstract void updateBitmap( int x, int y, int w, int h);
 	
 	/**
 	 * Create drawable appropriate for this data
@@ -108,15 +107,23 @@ abstract class AbstractBitmapData {
 	 */
 	abstract AbstractBitmapDrawable createDrawable();
 	
+	
+	/**
+	 * Sets the canvas's drawable
+	 * @param v ImageView displaying bitmap data
+	 */
+	void setImageDrawable(ImageView v)
+	{
+		v.setImageDrawable(drawable);
+	}
+	
+	
 	/**
 	 * Call in UI thread; tell ImageView we've changed
 	 * @param v ImageView displaying bitmap data
 	 */
 	void updateView(ImageView v)
 	{
-		if (drawable==null)
-			drawable = createDrawable();
-		v.setImageDrawable(drawable);
 		v.invalidate();
 	}
 	
@@ -126,7 +133,22 @@ abstract class AbstractBitmapData {
 	 * @param dest Destination rectangle in full-frame coordinates
 	 * @param paint Paint specifier
 	 */
-	abstract void copyRect( Rect src, Rect dest );
+	public abstract void copyRect( Rect src, Rect dest );
+
+	public void fillRect(int x, int y, int w, int h, int pix) {
+		if (validDraw(x, y, w, h)) {
+			for (int ry = y; ry < y + h; ry++)
+				for (int rx = x; rx < x + w; rx++)
+					bitmapPixels[ry * bitmapwidth + rx] = pix;
+		}
+	}
+
+	public void imageRect(int x, int y, int w, int h, int[] pix) {
+		if (validDraw(x, y, w, h)) {
+			for (int j = 0; j < h; j++)
+				System.arraycopy(pix, (w * j), bitmapPixels, bitmapwidth * (y + j) + x, w);
+		}
+	}
 	
 	/**
 	 * Draw a rectangle in the bitmap with coordinates given in full frame
@@ -154,7 +176,7 @@ abstract class AbstractBitmapData {
 	 * This method is called when the framebuffer has changed size and reinitializes the
 	 * necessary data structures to support that change.
 	 */
-	abstract void frameBufferSizeChanged ();
+	public abstract void frameBufferSizeChanged ();
 	
 	/**
 	 * Sync scroll -- called from network thread; copies scroll changes from UI to network state
@@ -170,5 +192,13 @@ abstract class AbstractBitmapData {
 			mbitmap.recycle();
 		memGraphics = null;
 		bitmapPixels = null;
+	}
+	
+	public int width () {
+		return framebufferwidth;
+	}
+
+	public int height () {
+		return framebufferheight;
 	}
 }

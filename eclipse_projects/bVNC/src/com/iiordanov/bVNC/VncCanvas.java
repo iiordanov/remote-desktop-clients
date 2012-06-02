@@ -29,9 +29,20 @@
 
 package com.iiordanov.bVNC;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateEncodingException;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
+import java.security.cert.CertificateFactory;
+import java.util.Timer;
 import java.util.zip.Inflater;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -40,8 +51,10 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.Paint.Style;
 import android.os.Handler;
+import android.os.Message;
 import android.text.ClipboardManager;
 import android.util.AttributeSet;
+import android.util.Base64;
 import android.util.Log;
 import android.view.Display;
 import android.view.KeyEvent;
@@ -52,6 +65,10 @@ import android.graphics.BitmapFactory;
 import android.graphics.Bitmap;
 
 import com.iiordanov.android.bc.BCFactory;
+
+import com.iiordanov.tigervnc.rdr.EndOfStream;
+import com.iiordanov.tigervnc.rfb.UnicodeToKeysym;
+import com.iiordanov.tigervnc.vncviewer.CConn;
 
 public class VncCanvas extends ImageView {
 	private final static String TAG = "VncCanvas";
@@ -67,6 +84,7 @@ public class VncCanvas extends ImageView {
 	
 	// Connection parameters
 	ConnectionBean connection;
+	VncDatabase database;
 	private SSHConnection sshConnection;
 
 	// Runtime control flags
@@ -106,13 +124,97 @@ public class VncCanvas extends ImageView {
 	private int[] colorPalette = null;
 
 	// VNC protocol connection
-	public RfbProto rfb;
+	public RfbConnectable rfbconn = null;
+	public RfbProto rfb = null;
+	Socket sock = null;
+	public CConn cc = null;
 
 	// Internal bitmap data
 	private int capacity;
-	AbstractBitmapData bitmapData;
+	public AbstractBitmapData bitmapData;
 	boolean useFull = false;
-	public Handler handler = new Handler();
+	public Handler handler = new Handler() {
+	    @Override
+	    public void handleMessage(Message msg) {
+	        switch (msg.what) {
+	        // TODO: Change this numeric message.what to something more sane.
+	        case 1:
+	        	final X509Certificate cert = (X509Certificate)msg.obj;
+
+	        	if (connection.getSshHostKey().equals("")) {
+	    			// Show a dialog with the key signature for approval.
+	    			DialogInterface.OnClickListener signatureNo = new DialogInterface.OnClickListener() {
+	    	            @Override
+	    	            public void onClick(DialogInterface dialog, int which) {
+	    	                // We were told not to continue, so stop the activity
+	    	            	((Activity) getContext()).finish();
+	    	            }
+	    	        };
+	    	        DialogInterface.OnClickListener signatureYes = new DialogInterface.OnClickListener() {
+	    	            @Override
+	    	            public void onClick(DialogInterface dialog, int which) {
+	    	    			// We were told to go ahead with the connection, so save the key into the database.
+	    	            	String certificate = null;
+	    	            	try {
+	    	            		certificate = Base64.encodeToString(cert.getEncoded(), Base64.DEFAULT);
+							} catch (CertificateEncodingException e) {
+								Log.e(TAG, "Certificate encoding could not be generated.");
+								e.printStackTrace();
+				            	((Activity) getContext()).finish();
+							}
+							connection.setSshHostKey(certificate);
+			    			connection.save(database.getWritableDatabase());
+			    			// Indicate the certificate was accepted.
+	    	            	VncCanvas.this.certificateAccepted = true;
+	    	            }
+	    	        };
+
+					// Generate a sha1 signature of the certificate.
+				    MessageDigest sha1;
+					try {
+						sha1 = MessageDigest.getInstance("SHA1");
+			    	    //android.util.Log.e("  Subject ", cert.getSubjectDN().toString());
+			    	    //android.util.Log.e("   Issuer  ", cert.getIssuerDN().toString());
+			    	    sha1.update(cert.getEncoded());
+		    			Utils.showYesNoPrompt(getContext(), "Continue connecting to host?", 
+		    									toHexString(sha1.digest()), signatureYes, signatureNo);
+					} catch (NoSuchAlgorithmException e2) {
+						Log.e(TAG, "Could not generate SHA1 signature of certificate. No SHA1 algorithm found.");
+						e2.printStackTrace();
+		            	((Activity) getContext()).finish();
+					} catch (CertificateEncodingException e) {
+						Log.e(TAG, "Certificate encoding could not be generated.");
+						e.printStackTrace();
+		            	((Activity) getContext()).finish();
+					}
+	        	} else {
+					// Compare saved with obtained certificate and quit if they don't match.
+	        		try {
+						if (!connection.getSshHostKey().equals(Base64.encodeToString(cert.getEncoded(), Base64.DEFAULT))) {
+							Utils.showFatalErrorMessage(getContext(), "Saved certificate does not match server certificate!");
+						} else {
+							// TODO: In case we need to display information about the certificate, we can reconstruct it.
+							//CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
+							//ByteArrayInputStream in = new ByteArrayInputStream(Base64.decode(connection.getSshHostKey(), Base64.DEFAULT));
+							//X509Certificate c = (X509Certificate)certFactory.generateCertificate(in);
+
+							// The certificate matches, so we proceed.
+	    	            	VncCanvas.this.certificateAccepted = true;
+						}
+					} catch (CertificateEncodingException e) {
+						Log.e(TAG, "Certificate encoding could not be generated.");
+						e.printStackTrace();
+		            	((Activity) getContext()).finish();
+					} catch (CertificateException e) {
+						Log.e(TAG, "Could not generate x509 certificate from saved data.");
+						e.printStackTrace();
+		            	((Activity) getContext()).finish();
+					}
+				}
+	            break;
+	        }
+	    }
+	};
 
 	// VNC Encoding parameters
 	private int preferredEncoding = -1;
@@ -123,7 +225,7 @@ public class VncCanvas extends ImageView {
 
 	// Tight encoding parameters
 	private int compressLevel = 9;
-	private int jpegQuality = 7;
+	private int jpegQuality = 6;
 
 	// Used to determine if encoding update is necessary
 	private int[] encodingsSaved = new int[20];
@@ -158,6 +260,16 @@ public class VncCanvas extends ImageView {
 	
 	// Used to set the contents of the clipboard.
 	ClipboardManager clipboard;
+	Timer clipboardMonitorTimer;
+	ClipboardMonitor clipboardMonitor;
+	public boolean serverJustCutText = false;
+	
+	private Runnable setModes;
+	
+	// This variable indicates whether or not the user has accepted an untrusted
+	// security certificate. Used to control progress while the dialog asking the user
+	// to confirm the authenticity of a certificate is displayed.
+	public boolean certificateAccepted = false;
 	
 	/**
 	 * Position of the top left portion of the <i>visible</i> part of the screen, in
@@ -198,16 +310,18 @@ public class VncCanvas extends ImageView {
 		bitmapopts.inDither = false;
 		bitmapopts.inTempStorage = new byte[16384];
 	}
-	
+
 	/**
 	 * Create a view showing a VNC connection
 	 * @param context Containing context (activity)
 	 * @param bean Connection settings
 	 * @param setModes Callback to run on UI thread after connection is set up
 	 */
-	void initializeVncCanvas(ConnectionBean bean, final Runnable setModes) {
+	void initializeVncCanvas(ConnectionBean bean, VncDatabase db, final Runnable setModes) {
 
+		this.setModes = setModes;
 		connection = bean;
+		database = db;
 		this.pendingColorModel = COLORMODEL.valueOf(bean.getColorModel());
 
 		// Startup the RFB thread with a nifty progress dialog
@@ -224,22 +338,30 @@ public class VncCanvas extends ImageView {
 				});
 			}
 		});
-
+		
 		// Make this dialog cancellable only upon hitting the Back button and not touching outside.
 		pd.setCanceledOnTouchOutside(false);
 
 		final Display display = pd.getWindow().getWindowManager().getDefaultDisplay();
 		Thread t = new Thread() {
 			public void run() {
-				try {
-					connectAndAuthenticate(connection.getUserName(),connection.getPassword());
-					doProtocolInitialisation(display.getWidth(), display.getHeight());
-					handler.post(new Runnable() {
-						public void run() {
-							pd.setMessage("Downloading first frame.\nPlease wait...");
-						}
-					});
-					processNormalProtocol(getContext(), pd, setModes);
+			    try {
+			    	if (connection.getConnectionType() < 4) {
+			    		connectAndAuthenticate(connection.getUserName(),connection.getPassword());
+			    		rfbconn = rfb;
+			    		doProtocolInitialisation(display.getWidth(), display.getHeight());
+			    		handler.post(new Runnable() {
+			    			public void run() {
+			    				pd.setMessage("Downloading first frame.\nPlease wait...");
+			    			}
+			    		});
+			    		processNormalProtocol(getContext(), pd, setModes);
+			    	} else {
+			    		cc = new CConn(VncCanvas.this, sock, null, false, connection);
+			    		rfbconn = cc;
+			    		initializeBitmap(rfbconn, display.getWidth(), display.getHeight());
+			    		processNormalProtocolSecure(getContext(), pd, setModes);
+			    	}
 				} catch (Throwable e) {
 					if (maintainConnection) {
 						Log.e(TAG, e.toString());
@@ -258,8 +380,9 @@ public class VncCanvas extends ImageView {
 							String error = "Connection failed!";
 							if (e.getMessage() != null) {
 								if (e.getMessage().indexOf("authentication") > -1 ||
+									e.getMessage().indexOf("Unknown security result") > -1 ||
 									e.getMessage().indexOf("password check failed") > -1) {
-									error = "VNC authentication failed! Check VNC password.";
+									error = "VNC authentication failed! Check VNC password (and user if applicable).";
 								}
 								error = error + "<br>" + e.getLocalizedMessage();
 							}
@@ -270,6 +393,10 @@ public class VncCanvas extends ImageView {
 			}
 		};
 		t.start();
+
+		clipboardMonitor = new ClipboardMonitor(getContext(), this);
+		clipboardMonitorTimer = new Timer ();
+		clipboardMonitorTimer.schedule(clipboardMonitor, 0, 500);
 	}
 	
 	void showFatalMessageAndQuit (final String error) {
@@ -283,8 +410,9 @@ public class VncCanvas extends ImageView {
 
 	void connectAndAuthenticate(String us,String pw) throws Exception {
 		Log.i(TAG, "Connecting to " + connection.getAddress() + ", port " + connection.getPort() + "...");
-
 		// TODO: Switch from hard-coded numeric position to something better (at least an enumeration).
+		boolean anontls = (connection.getConnectionType() == 3);
+
 		if (connection.getConnectionType() == 1) {
 			int localForwardedPort;
 			sshConnection = new SSHConnection(connection);
@@ -317,7 +445,7 @@ public class VncCanvas extends ImageView {
 		if(connection.getUserName().length()>0)
 		  bitPref|=1;
 		Log.d("debug","bitPref="+bitPref);
-		int secType = rfb.negotiateSecurity(bitPref);
+		int secType = rfb.negotiateSecurity(bitPref, anontls);
 		int authType;
 		if (secType == RfbProto.SecTypeTight) {
 			rfb.initCapabilities();
@@ -326,6 +454,12 @@ public class VncCanvas extends ImageView {
 		} else if (secType == RfbProto.SecTypeUltra34) {
 			rfb.prepareDH();
 			authType = RfbProto.AuthUltra;
+		} else if (secType == RfbProto.SecTypeTLS) {
+			rfb.performTLSHandshake ();
+			authType = rfb.negotiateSecurity(bitPref, false);
+		//} else if (secType == RfbProto.SecTypeVeNCrypt) {
+		//	rfb.performTLSHandshake ();
+		//	authType = rfb.selectVeNCryptSecurityType();
 		} else {
 			authType = secType;
 		}
@@ -351,35 +485,34 @@ public class VncCanvas extends ImageView {
 		rfb.writeClientInit();
 		rfb.readServerInit();
 
-		initializeBitmap (dx, dy);
+		initializeBitmap (rfb, dx, dy);
+		setPixelFormat();
 	}
 
-	void initializeBitmap (int dx, int dy) throws IOException {
-		Log.i(TAG, "Desktop name is " + rfb.desktopName);
-		Log.i(TAG, "Desktop size is " + rfb.framebufferWidth + " x " + rfb.framebufferHeight);
+	void initializeBitmap (RfbConnectable rfbconn, int dx, int dy) throws IOException {
+		Log.i(TAG, "Desktop name is " + rfbconn.desktopName());
+		Log.i(TAG, "Desktop size is " + rfbconn.framebufferWidth() + " x " + rfbconn.framebufferHeight());
 
 		capacity = BCFactory.getInstance().getBCActivityManager().getMemoryClass(Utils.getActivityManager(getContext()));
 		if (connection.getForceFull() == BitmapImplHint.AUTO)
 		{
-			if (rfb.framebufferWidth * rfb.framebufferHeight * FullBufferBitmapData.CAPACITY_MULTIPLIER <= capacity * 1024 * 1024)
+			if (rfbconn.framebufferWidth()* rfbconn.framebufferHeight() * FullBufferBitmapData.CAPACITY_MULTIPLIER <= capacity * 1024 * 1024)
 				useFull = true;
 		}
 		else
 			useFull = (connection.getForceFull() == BitmapImplHint.FULL);
 
 		if (!useFull)
-			bitmapData=new LargeBitmapData(rfb, this, dx, dy, capacity);
+			bitmapData=new LargeBitmapData(rfbconn, this, dx, dy, capacity);
 		else
-			bitmapData=new FullBufferBitmapData(rfb, this, capacity);
+			bitmapData=new FullBufferBitmapData(rfbconn, this, capacity);
 
-		mouseX=rfb.framebufferWidth/2;
-		mouseY=rfb.framebufferHeight/2;
-
-		setPixelFormat();
+		mouseX=rfbconn.framebufferWidth()/2;
+		mouseY=rfbconn.framebufferHeight()/2;
 	}
 
 	private void setPixelFormat() throws IOException {
-		pendingColorModel.setPixelFormat(rfb);
+		pendingColorModel.setPixelFormat(rfbconn);
 		bytesPerPixel = pendingColorModel.bpp();
 		colorPalette = pendingColorModel.palette();
 		colorModel = pendingColorModel;
@@ -413,12 +546,64 @@ public class VncCanvas extends ImageView {
 		}
 	}
 
+	public void updateFBSize () {
+		try {
+			bitmapData.frameBufferSizeChanged ();
+		} catch (Throwable e) {
+			// If we've run out of memory, try using an LBM.
+			if (e instanceof OutOfMemoryError) {
+				useFull = false;
+				bitmapData = new LargeBitmapData(rfbconn, this, getWidth(), getHeight(), capacity);
+			}
+		}
+		handler.post(drawableSetter);
+		handler.post(setModes);
+		handler.post(desktopInfo);		
+		bitmapData.syncScroll();
+		showDesktopInfo = true;
+	}
+	
+	public void processNormalProtocolSecure (final Context context, final ProgressDialog pd, final Runnable setModes) throws Exception {
+		try {
+			// CCon calls updateFBSize at the start so a lot of stuff is initialized there.
+			//handler.post(drawableSetter);
+
+    		// Initialize the protocol before we dismiss the progress dialog and request for the right
+    		// modes to be set.
+    		for (int i = 0; i < 6; i++)
+    			cc.processMsg();
+    		
+    		handler.post(new Runnable() {
+    			public void run() {
+    				pd.setMessage("Downloading first frame.\nPlease wait...");
+    			}
+    		});
+    		
+    		for (int i = 0; i < 3; i++)
+    			cc.processMsg();
+    		
+			// Hide progress dialog
+			if (pd.isShowing())
+				pd.dismiss();
+
+			cc.processProtocol();
+		} catch (Exception e) {
+			throw e;
+		} finally {
+			Log.v(TAG, "Closing VNC Connection");
+			cc.close();
+		}
+	}
+	
+	
 	public void processNormalProtocol(final Context context, ProgressDialog pd, final Runnable setModes) throws Exception {
 		try {
 			setEncodings(true);
 			bitmapData.writeFullUpdateRequest(false);
 
+			handler.post(drawableSetter);
 			handler.post(setModes);
+			handler.post(desktopInfo);
 			//
 			// main dispatch loop
 			//
@@ -444,18 +629,7 @@ public class VncCanvas extends ImageView {
 
 						if (rfb.updateRectEncoding == RfbProto.EncodingNewFBSize) {
 							rfb.setFramebufferSize(rw, rh);
-							try {
-								bitmapData.frameBufferSizeChanged ();
-							} catch (Throwable e) {
-								// If we've run out of memory, try using an LBM.
-								if (e instanceof OutOfMemoryError) {
-									useFull    = false;
-									bitmapData = new LargeBitmapData(rfb, this, getWidth(), getHeight(), capacity);
-								}
-							}
-							bitmapData.writeFullUpdateRequest(false);
-							handler.post(setModes);
-							bitmapData.syncScroll();
+							updateFBSize();
 							break;
 						}
 
@@ -479,6 +653,9 @@ public class VncCanvas extends ImageView {
 						rfb.startTiming();
 
 						switch (rfb.updateRectEncoding) {
+						case RfbProto.EncodingTight:
+							handleTightRect(rx, ry, rw, rh);
+							break;
 						case RfbProto.EncodingRaw:
 							handleRawRect(rx, ry, rw, rh);
 							break;
@@ -499,9 +676,6 @@ public class VncCanvas extends ImageView {
 							break;
 						case RfbProto.EncodingZlib:
 							handleZlibRect(rx, ry, rw, rh);
-							break;
-						case RfbProto.EncodingTight:
-							handleTightRect(rx, ry, rw, rh);
 							break;
 						default:
 							Log.e(TAG, "Unknown RFB rectangle encoding " + rfb.updateRectEncoding + " (0x" + Integer.toHexString(rfb.updateRectEncoding) + ")");
@@ -536,10 +710,8 @@ public class VncCanvas extends ImageView {
 					break;
 
 				case RfbProto.ServerCutText:
-					String s = rfb.readServerCutText();
-					if (s != null && s.length() > 0) {
-						clipboard.setText(s);
-					}
+					serverJustCutText = true;
+					setClipboardText(rfb.readServerCutText());
 					break;
 
 				case RfbProto.TextChat:
@@ -563,6 +735,16 @@ public class VncCanvas extends ImageView {
 	}
 	
 	/**
+	 * Set the device clipboard text with the string parameter.
+	 * @param readServerCutText set the device clipboard to the text in this parameter.
+	 */
+	public void setClipboardText(String s) {
+		if (s != null && s.length() > 0) {
+			clipboard.setText(s);
+		}
+	}
+
+	/**
 	 * Apply scroll offset and scaling to convert touch-space coordinates to the corresponding
 	 * point on the full frame.
 	 * @param e MotionEvent with the original, touch space coordinates.  This event is altered in place.
@@ -583,6 +765,11 @@ public class VncCanvas extends ImageView {
 		Log.v(TAG, "Cleaning up resources");
 		if ( bitmapData!=null) bitmapData.dispose();
 		bitmapData = null;
+		clipboardMonitorTimer.cancel();
+		clipboardMonitorTimer = null;
+		clipboardMonitor = null;
+		rfb = null;
+		cc = null;
 	}
 	
 	/**
@@ -596,14 +783,7 @@ public class VncCanvas extends ImageView {
 		mouseX=x;
 		mouseY=y;
 		bitmapData.invalidateMousePosition();
-		try
-		{
-			rfb.writePointerEvent(x, y, 0, MOUSE_BUTTON_NONE);
-		}
-		catch ( IOException ioe)
-		{
-			Log.w(TAG,ioe);
-		}
+		rfbconn.writePointerEvent(x, y, 0, MOUSE_BUTTON_NONE);
 	}
 
 	/*
@@ -799,21 +979,41 @@ public class VncCanvas extends ImageView {
 			reDraw();
 	}
 
-	private Runnable reDraw = new Runnable() {
+	/**
+	 * This runnable sets the drawable (contained in bitmapData) for the VncCanvas (ImageView).
+	 */
+	private Runnable drawableSetter = new Runnable() {
 		public void run() {
-			if (showDesktopInfo) {
-				// Show a Toast with the desktop info on first frame draw.
-				showDesktopInfo = false;
-				showConnectionInfo();
-			}
 			if (bitmapData != null)
-				bitmapData.updateView(VncCanvas.this);
+				bitmapData.setImageDrawable(VncCanvas.this);
+			}
+	};
+
+	/**
+	 * This runnable causes a toast with information about the current connection to be shown.
+	 */
+	private Runnable desktopInfo = new Runnable() {
+		public void run() {
+			showConnectionInfo();
 		}
 	};
 	
-	private void reDraw() {
-		if (repaintsEnabled)
-			handler.post(reDraw);
+	/**
+	 * This runnable causes a redraw of the bitmapData to happen.
+	 */
+	private Runnable reDraw = new Runnable() {
+		public void run() {
+			VncCanvas.this.invalidate();
+		}
+	};
+	
+	/**
+	 * This callback causes all pending redraws to be dropped and a new one to be
+	 * inserted at the front of the queue.
+	 */
+	public void reDraw() {
+		handler.removeCallbacks(reDraw);
+		handler.postAtFrontOfQueue(reDraw);
 	}
 	
 	// Toggles on-screen Ctrl mask. Returns true if result is Ctrl enabled, false otherwise.
@@ -851,22 +1051,25 @@ public class VncCanvas extends ImageView {
 	}
 
 	public void showConnectionInfo() {
-		String msg = rfb.desktopName;
-		int idx = rfb.desktopName.indexOf("(");
-		if (idx > -1) {
+		String msg = null;
+		int idx = rfbconn.desktopName().indexOf("(");
+		if (idx > 0) {
 			// Breakup actual desktop name from IP addresses for improved
 			// readability
-			String dn = rfb.desktopName.substring(0, idx).trim();
-			String ip = rfb.desktopName.substring(idx).trim();
+			String dn = rfbconn.desktopName().substring(0, idx).trim();
+			String ip = rfbconn.desktopName().substring(idx).trim();
 			msg = dn + "\n" + ip;
-		}
-		msg += "\n" + rfb.framebufferWidth + "x" + rfb.framebufferHeight;
+		} else
+			msg = rfbconn.desktopName();
+		msg += "\n" + rfbconn.framebufferWidth() + "x" + rfbconn.framebufferHeight();
 		String enc = getEncoding();
 		// Encoding might not be set when we display this message
-		if (enc != null && !enc.equals(""))
-			msg += ", " + getEncoding() + " encoding, " + colorModel.toString();
-		else
-			msg += ", " + colorModel.toString();
+		if (colorModel != null) {
+			if (enc != null && !enc.equals(""))
+				msg += ", " + getEncoding() + " encoding, " + colorModel.toString();
+			else 
+				msg += ", " + colorModel.toString();
+		}
 		Toast.makeText(getContext(), msg, Toast.LENGTH_LONG).show();
 	}
 
@@ -892,10 +1095,10 @@ public class VncCanvas extends ImageView {
 
     // Useful shortcuts for modifier masks.
 
-    final static int CTRL_MASK  = KeyEvent.META_SYM_ON;
-    final static int SHIFT_MASK = KeyEvent.META_SHIFT_ON;
-    final static int ALT_MASK   = KeyEvent.META_ALT_ON;
-    final static int META_MASK  = 0;
+    public final static int CTRL_MASK  = KeyEvent.META_SYM_ON;
+    public final static int SHIFT_MASK = KeyEvent.META_SHIFT_ON;
+    public final static int ALT_MASK   = KeyEvent.META_ALT_ON;
+    public final static int META_MASK  = 0;
     
 	private static final int MOUSE_BUTTON_NONE = 0;
 	static final int MOUSE_BUTTON_LEFT = 1;
@@ -903,9 +1106,8 @@ public class VncCanvas extends ImageView {
 	static final int MOUSE_BUTTON_RIGHT = 4;
 	static final int MOUSE_BUTTON_SCROLL_UP = 8;
 	static final int MOUSE_BUTTON_SCROLL_DOWN = 16;
-//  ARE THESE VALUES CORRECT? TODO
-//	static final int MOUSE_BUTTON_SCROLL_LEFT = 32;
-//	static final int MOUSE_BUTTON_SCROLL_RIGHT = 64;
+	static final int MOUSE_BUTTON_SCROLL_LEFT = 32;
+	static final int MOUSE_BUTTON_SCROLL_RIGHT = 64;
 	
 	/**
 	 * Current state of "mouse" buttons
@@ -989,10 +1191,10 @@ public class VncCanvas extends ImageView {
 	boolean processPointerEvent(int x, int y, int action, int modifiers, 
 			                    boolean mouseIsDown, boolean useRightButton, boolean useMiddleButton, boolean useScrollButton, int direction) {
 		
-		// IF none of the conditions below are satisfied, clear the pointer mask.
+		// If none of the conditions below are satisfied, clear the pointer mask.
 		pointerMask = 0;
 		
-		if (rfb != null && rfb.inNormalProtocol) {
+		if (rfbconn != null) {
 			if (mouseIsDown && useRightButton) {
 		    	//Log.i(TAG,"Right mouse button mask set");
 		        pointerMask = MOUSE_BUTTON_RIGHT;
@@ -1008,6 +1210,10 @@ public class VncCanvas extends ImageView {
 					pointerMask = MOUSE_BUTTON_SCROLL_UP;
 				else if ( direction == 1 )
 					pointerMask = MOUSE_BUTTON_SCROLL_DOWN;
+				if      ( direction == 2 )
+					pointerMask = MOUSE_BUTTON_SCROLL_LEFT;
+				else if ( direction == 3 )
+					pointerMask = MOUSE_BUTTON_SCROLL_RIGHT;
 		    } else {
 			    //Log.i(TAG,"Mouse button mask cleared");
 		    	pointerMask = 0;
@@ -1017,16 +1223,12 @@ public class VncCanvas extends ImageView {
 		    mouseX = x;
 		    mouseY = y;
 		    if ( mouseX < 0) mouseX=0;
-		    else if ( mouseX >= rfb.framebufferWidth ) mouseX = rfb.framebufferWidth - 1;
+		    else if ( mouseX >= bitmapData.width()) mouseX = bitmapData.width() - 1;
 		    if ( mouseY < 0) mouseY=0;
-		    else if ( mouseY >= rfb.framebufferHeight) mouseY = rfb.framebufferHeight - 1;
+		    else if ( mouseY >= bitmapData.height()) mouseY = bitmapData.height() - 1;
 		    bitmapData.invalidateMousePosition();
 
-		    try {
-		    	rfb.writePointerEvent(mouseX, mouseY, modifiers|onScreenMetaState, pointerMask);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+    		rfbconn.writePointerEvent(mouseX, mouseY, modifiers|onScreenMetaState, pointerMask);
 		    panToMouse();
 			return true;
 		}
@@ -1048,160 +1250,152 @@ public class VncCanvas extends ImageView {
 		 */
 		@Override
 		public void run() {
-			try
-			{
-				rfb.writePointerEvent(mouseX, mouseY, 0, scrollButton);
-				rfb.writePointerEvent(mouseX, mouseY, 0, 0);
-				
-				handler.postDelayed(this, delay);
-			}
-			catch (IOException ioe)
-			{
-				
-			}
+			rfb.writePointerEvent(mouseX, mouseY, 0, scrollButton);
+			rfb.writePointerEvent(mouseX, mouseY, 0, 0);				
+			handler.postDelayed(this, delay);
 		}		
 	}
 
 	public boolean processLocalKeyEvent(int keyCode, KeyEvent evt) {
-		//Log.d(TAG, "keycode = " + keyCode);
+		if (rfbconn != null && rfbconn.isInNormalProtocol()) {
+			boolean down = (evt.getAction() == KeyEvent.ACTION_DOWN) ||
+						   (evt.getAction() == KeyEvent.ACTION_MULTIPLE);
+			
+			int metaState = 0;
+			int keyboardMetaState = evt.getMetaState();
 
-		if (keyCode == KeyEvent.KEYCODE_MENU)
-			return true; 			              // Ignore menu key
-		if (keyCode == KeyEvent.KEYCODE_CAMERA)
-		{
-			cameraButtonDown = (evt.getAction() != KeyEvent.ACTION_UP);
-		}
-		else if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN || keyCode == KeyEvent.KEYCODE_VOLUME_UP)
-		{
-			int mouseChange = keyCode == KeyEvent.KEYCODE_VOLUME_DOWN ? MOUSE_BUTTON_SCROLL_DOWN : MOUSE_BUTTON_SCROLL_UP;
-			if (evt.getAction() == KeyEvent.ACTION_DOWN)
-			{
-				// If not auto-repeat
-				if (scrollRunnable.scrollButton != mouseChange)
-				{
-					pointerMask |= mouseChange;
-					scrollRunnable.scrollButton = mouseChange;
-					handler.postDelayed(scrollRunnable,200);
+			// If the keyboardMetaState contains any hint of CTRL, add CTRL_MASK to metaState
+			if ((keyboardMetaState & 0x7000)!=0)
+				metaState |= CTRL_MASK;
+			// If the keyboardMetaState contains left ALT, add ALT_MASK to metaState
+			if ((keyboardMetaState & (KeyEvent.META_ALT_LEFT_ON|KeyEvent.META_ALT_RIGHT_ON|0x00030000))!=0)
+				metaState |= ALT_MASK;
+			
+			if (keyCode == KeyEvent.KEYCODE_MENU)
+				return true; 			              // Ignore menu key
+			if (keyCode == KeyEvent.KEYCODE_CAMERA) {
+				cameraButtonDown = down;
+				pointerMask = MOUSE_BUTTON_RIGHT;
+				rfbconn.writePointerEvent(mouseX, mouseY, metaState|onScreenMetaState, pointerMask);
+				return true;
+			} else if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN || keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
+				int mouseChange = keyCode == KeyEvent.KEYCODE_VOLUME_DOWN ? MOUSE_BUTTON_SCROLL_DOWN : MOUSE_BUTTON_SCROLL_UP;
+				if (evt.getAction() == KeyEvent.ACTION_DOWN) {
+					// If not auto-repeat
+					if (scrollRunnable.scrollButton != mouseChange) {
+						pointerMask |= mouseChange;
+						scrollRunnable.scrollButton = mouseChange;
+						handler.postDelayed(scrollRunnable,200);
+					}
+				} else {
+					handler.removeCallbacks(scrollRunnable);
+					scrollRunnable.scrollButton = 0;
+					pointerMask &= ~mouseChange;
 				}
+				rfbconn.writePointerEvent(mouseX, mouseY, metaState|onScreenMetaState, pointerMask);
+				return true;
 			}
-			else
-			{
-				handler.removeCallbacks(scrollRunnable);
-				scrollRunnable.scrollButton = 0;
-				pointerMask &= ~mouseChange;
-			}
-			try
-			{
-				rfb.writePointerEvent(mouseX, mouseY, evt.getMetaState()|onScreenMetaState, pointerMask);
-			}
-			catch (IOException e)
-			{
-				e.printStackTrace();
-			}
-			return true;
-		}
-		if (rfb != null && rfb.inNormalProtocol) {
-		   boolean down = (evt.getAction() == KeyEvent.ACTION_DOWN) ||
-				   		  (evt.getAction() == KeyEvent.ACTION_MULTIPLE);
-		   int key = 0;
-		   int metaState = evt.getMetaState();
 
-		   if (evt.getAction() == KeyEvent.ACTION_UP) {
+		   int key = 0, keysym = 0;
+		   
+		   if (!down) {
 			   switch (evt.getScanCode()) {
 			   case SCAN_ESC:               key = 0xff1b; break;
 			   case SCAN_LEFTCTRL:
 			   case SCAN_RIGHTCTRL:
 				   onScreenMetaState &= ~CTRL_MASK;
-				   return true;
+				   break;
 			   }
-			   // Handle Alt key up event.
-			   if (keyCode == KeyEvent.KEYCODE_ALT_LEFT || keyCode == KeyEvent.KEYCODE_ALT_RIGHT) {
-				   onScreenMetaState &= ~ALT_MASK;
-				   return true;
+			   
+			   if (keyCode == KeyEvent.KEYCODE_DPAD_CENTER) {
+				   onScreenMetaState &= ~CTRL_MASK;
 			   }
 		   }
 	   
 		   switch(keyCode) {
-		   	  case KeyEvent.KEYCODE_BACK:         key = 0xff1b; break;
-		      case KeyEvent.KEYCODE_DPAD_LEFT:    key = 0xff51; break;
-		   	  case KeyEvent.KEYCODE_DPAD_UP:      key = 0xff52; break;
-		   	  case KeyEvent.KEYCODE_DPAD_RIGHT:   key = 0xff53; break;
-		   	  case KeyEvent.KEYCODE_DPAD_DOWN:    key = 0xff54; break;
-		      case KeyEvent.KEYCODE_DEL: 		  key = 0xff08; break;
-		      case KeyEvent.KEYCODE_ENTER:        key = 0xff0d; break;
-		      case KeyEvent.KEYCODE_DPAD_CENTER:  key = 0xff0d; break;
-		   	  case KeyEvent.KEYCODE_TAB:          key = 0xff09; break;
-		   	  case KeyEvent.KEYCODE_ALT_LEFT:     key = 0xffe9; break;
-		   	  case KeyEvent.KEYCODE_ALT_RIGHT:    key = 0xffea; break;
-		   	  case 92 /* KEYCODE_PAGE_UP */:      key = 0xff55; break;
-		   	  case 93 /* KEYCODE_PAGE_DOWN */:    key = 0xff56; break;
-		   	  case 111 /* KEYCODE_ESCAPE */:      key = 0xff1b; break;
-		   	  case 112 /* KEYCODE_FORWARD_DEL */: key = 0xffff; break;
-		   	  case 113 /* KEYCODE_CTRL_LEFT */:   key = 0xffe3; break;
-		   	  case 114 /* KEYCODE_CTRL_RIGHT */:  key = 0xffe4; break;
-		   	  case 115 /* KEYCODE_CAPS_LOCK */:   key = 0xffe5; break;
-		   	  case 116 /* KEYCODE_SCROLL_LOCK */: key = 0xff14; break;
-		   	  case 120 /* KEYCODE_SYSRQ */:       key = 0xff61; break;
-		   	  case 121 /* KEYCODE_BREAK */:       key = 0xff6b; break;
-		   	  case 122 /* KEYCODE_MOVE_HOME */:   key = 0xff50; break;
-		   	  case 123 /* KEYCODE_MOVE_END */:    key = 0xff57; break;
-		   	  case 124 /* KEYCODE_INSERT */:      key = 0xff63; break;
-		   	  case 131 /* KEYCODE_F1 */:          key = 0xffbe; break;
-		   	  case 132 /* KEYCODE_F2 */:          key = 0xffbf; break;
-		   	  case 133 /* KEYCODE_F3 */:          key = 0xffc0; break;
-		   	  case 134 /* KEYCODE_F4 */:          key = 0xffc1; break;
-		   	  case 135 /* KEYCODE_F5 */:          key = 0xffc2; break;
-		   	  case 136 /* KEYCODE_F6 */:          key = 0xffc3; break;
-		   	  case 137 /* KEYCODE_F7 */:          key = 0xffc4; break;
-		   	  case 138 /* KEYCODE_F8 */:          key = 0xffc5; break;
-		   	  case 139 /* KEYCODE_F9 */:          key = 0xffc6; break;
-		   	  case 140 /* KEYCODE_F10 */:         key = 0xffc7; break;
-		   	  case 141 /* KEYCODE_F11 */:         key = 0xffc8; break;
-		   	  case 142 /* KEYCODE_F12 */:         key = 0xffc9; break;
-		   	  case 143 /* KEYCODE_NUM_LOCK */:    key = 0xff7f; break;
+		   	  case KeyEvent.KEYCODE_BACK:         keysym = 0xff1b; break;
+		      case KeyEvent.KEYCODE_DPAD_LEFT:    keysym = 0xff51; break;
+		   	  case KeyEvent.KEYCODE_DPAD_UP:      keysym = 0xff52; break;
+		   	  case KeyEvent.KEYCODE_DPAD_RIGHT:   keysym = 0xff53; break;
+		   	  case KeyEvent.KEYCODE_DPAD_DOWN:    keysym = 0xff54; break;
+		      case KeyEvent.KEYCODE_DEL: 		  keysym = 0xff08; break;
+		      case KeyEvent.KEYCODE_ENTER:        keysym = 0xff0d; break;
+		   	  case KeyEvent.KEYCODE_TAB:          keysym = 0xff09; break;
+		   	  // These keycodes do not work with hackerskeyboard, as it sends it before sending
+		   	  // SHIFT and some of the numbers.
+		   	  //case KeyEvent.KEYCODE_ALT_LEFT:     metaState |= ALT_MASK; break;
+		   	  //case KeyEvent.KEYCODE_ALT_RIGHT:    metaState |= ALT_MASK; break;
+		   	  case 92 /* KEYCODE_PAGE_UP */:      keysym = 0xff55; break;
+		   	  case 93 /* KEYCODE_PAGE_DOWN */:    keysym = 0xff56; break;
+		   	  case 111 /* KEYCODE_ESCAPE */:      keysym = 0xff1b; break;
+		   	  case 112 /* KEYCODE_FORWARD_DEL */: keysym = 0xffff; break;
+		   	  case 113 /* KEYCODE_CTRL_LEFT */:   keysym = 0xffe3; break;
+		   	  case 114 /* KEYCODE_CTRL_RIGHT */:  keysym = 0xffe4; break;
+		   	  case 115 /* KEYCODE_CAPS_LOCK */:   keysym = 0xffe5; break;
+		   	  case 116 /* KEYCODE_SCROLL_LOCK */: keysym = 0xff14; break;
+		   	  case 120 /* KEYCODE_SYSRQ */:       keysym = 0xff61; break;
+		   	  case 121 /* KEYCODE_BREAK */:       keysym = 0xff6b; break;
+		   	  case 122 /* KEYCODE_MOVE_HOME */:   keysym = 0xff50; break;
+		   	  case 123 /* KEYCODE_MOVE_END */:    keysym = 0xff57; break;
+		   	  case 124 /* KEYCODE_INSERT */:      keysym = 0xff63; break;
+		   	  case 131 /* KEYCODE_F1 */:          keysym = 0xffbe; break;
+		   	  case 132 /* KEYCODE_F2 */:          keysym = 0xffbf; break;
+		   	  case 133 /* KEYCODE_F3 */:          keysym = 0xffc0; break;
+		   	  case 134 /* KEYCODE_F4 */:          keysym = 0xffc1; break;
+		   	  case 135 /* KEYCODE_F5 */:          keysym = 0xffc2; break;
+		   	  case 136 /* KEYCODE_F6 */:          keysym = 0xffc3; break;
+		   	  case 137 /* KEYCODE_F7 */:          keysym = 0xffc4; break;
+		   	  case 138 /* KEYCODE_F8 */:          keysym = 0xffc5; break;
+		   	  case 139 /* KEYCODE_F9 */:          keysym = 0xffc6; break;
+		   	  case 140 /* KEYCODE_F10 */:         keysym = 0xffc7; break;
+		   	  case 141 /* KEYCODE_F11 */:         keysym = 0xffc8; break;
+		   	  case 142 /* KEYCODE_F12 */:         keysym = 0xffc9; break;
+		   	  case 143 /* KEYCODE_NUM_LOCK */:    keysym = 0xff7f; break;
 		   	  case 0   /* KEYCODE_UNKNOWN */:
-					// TODO: This should be sending all characters, not just the first one.
-		   		  if (evt.getCharacters() != null)
+					// TODO: Should this be sending all characters instead of just the first one?
+		   		  if (evt.getCharacters() != null) {
 		   			  key = evt.getCharacters().charAt(0);
+		   			  keysym = UnicodeToKeysym.translate(key);
+		   		  }
 	    		  break;
 		      default: 							  
 		    	  // Modifier handling is a bit tricky. Alt and Ctrl should be passed
 		    	  // through to the VNC server so that they get handled there, but strip
 		    	  // them from the character before retrieving the Unicode char from it.
 		    	  // Don't clear Shift, we still want uppercase characters.
-		    	  int vncEventMask = ( 0x7000    /* KeyEvent.META_CTRL_MASK */
-		    			  			 | 0x0032 ); /* KeyEvent.META_ALT_MASK */
+		    	  int vncEventMask = ( 0x7000 );   // KeyEvent.META_CTRL_MASK
+		    	  if ((metaState & ALT_MASK) != 0)
+		    		  vncEventMask |= 0x0032;      // KeyEvent.META_ALT_MASK
 		    	  KeyEvent copy = new KeyEvent(evt.getDownTime(), evt.getEventTime(), evt.getAction(),
-		    	                               evt.getKeyCode(),  evt.getRepeatCount(),
-		    	                               metaState & ~vncEventMask, evt.getDeviceId(), evt.getScanCode());
-	    		  key = copy.getUnicodeChar();
+		    			  						evt.getKeyCode(),  evt.getRepeatCount(),
+		    				  					keyboardMetaState & ~vncEventMask, evt.getDeviceId(), evt.getScanCode());
+		    	  key = copy.getUnicodeChar();
+	    		  keysym = UnicodeToKeysym.translate(key);
 		    	  break;
 		   }
 
-		   if (evt.getAction() == KeyEvent.ACTION_DOWN ||
-				   evt.getAction() == KeyEvent.ACTION_MULTIPLE) {
+		   if (down) {
 			   // Look for standard scan-codes from external keyboards
 			   switch (evt.getScanCode()) {
-			   case SCAN_ESC:               key = 0xff1b; break;
+			   case SCAN_ESC:               keysym = 0xff1b; break;
 			   case SCAN_LEFTCTRL:
 			   case SCAN_RIGHTCTRL:
 				   onScreenMetaState |= CTRL_MASK;
-				   return true;
-			   case SCAN_F1:				key = 0xffbe;				break;
-			   case SCAN_F2:				key = 0xffbf;				break;
-			   case SCAN_F3:				key = 0xffc0;				break;
-			   case SCAN_F4:				key = 0xffc1;				break;
-			   case SCAN_F5:				key = 0xffc2;				break;
-			   case SCAN_F6:				key = 0xffc3;				break;
-			   case SCAN_F7:				key = 0xffc4;				break;
-			   case SCAN_F8:				key = 0xffc5;				break;
-			   case SCAN_F9:				key = 0xffc6;				break;
-			   case SCAN_F10:				key = 0xffc7;				break;
+				   break;
+			   case SCAN_F1:				keysym = 0xffbe;				break;
+			   case SCAN_F2:				keysym = 0xffbf;				break;
+			   case SCAN_F3:				keysym = 0xffc0;				break;
+			   case SCAN_F4:				keysym = 0xffc1;				break;
+			   case SCAN_F5:				keysym = 0xffc2;				break;
+			   case SCAN_F6:				keysym = 0xffc3;				break;
+			   case SCAN_F7:				keysym = 0xffc4;				break;
+			   case SCAN_F8:				keysym = 0xffc5;				break;
+			   case SCAN_F9:				keysym = 0xffc6;				break;
+			   case SCAN_F10:				keysym = 0xffc7;				break;
 			   }
-			   // Handle Alt key down event.
-			   if (keyCode == KeyEvent.KEYCODE_ALT_LEFT || keyCode == KeyEvent.KEYCODE_ALT_RIGHT) {
-				   onScreenMetaState |= ALT_MASK;
-				   return true;
+			   
+			   if (keyCode == KeyEvent.KEYCODE_DPAD_CENTER) {
+				   onScreenMetaState |= CTRL_MASK;
 			   }
 		   }
 
@@ -1209,15 +1403,14 @@ public class VncCanvas extends ImageView {
 			   if (afterMenu)
 			   {
 				   afterMenu = false;
-				   if (!down && key != lastKeyDown)
+				   if (!down && keysym != lastKeyDown)
 					   return true;
 			   }
 			   if (down)
-				   lastKeyDown = key;
-			   // Convert key to an X keysym code.
-			   key = (int)xKeySymConv.ucs2keysym(key);
-			   //Log.d(TAG,"key = " + key + " metastate = " + metaState + " keycode = " + keyCode);
-			   rfb.writeKeyEvent(key, metaState|onScreenMetaState, down);
+				   lastKeyDown = keysym;
+
+			   //Log.e(TAG,"action down? = " + down + " key = " + key + " keysym = " + keysym + " onscreen metastate = " + onScreenMetaState + " keyboard metastate = " + keyboardMetaState + " RFB metastate = " + metaState + " keycode = " + keyCode + " unicode = " + evt.getUnicodeChar());
+			   rfbconn.writeKeyEvent(keysym, (onScreenMetaState|metaState), down);
 		   } catch (Exception e) {
 			   e.printStackTrace();
 		   }
@@ -1240,24 +1433,12 @@ public class VncCanvas extends ImageView {
 	{
 		if (meta.isMouseClick())
 		{
-			try {
-				rfb.writePointerEvent(mouseX, mouseY, meta.getMetaFlags()|onScreenMetaState, meta.getMouseButtons());
-				rfb.writePointerEvent(mouseX, mouseY, meta.getMetaFlags()|onScreenMetaState, 0);
-			}
-			catch (IOException ioe)
-			{
-				ioe.printStackTrace();
-			}
+			rfbconn.writePointerEvent(mouseX, mouseY, meta.getMetaFlags()|onScreenMetaState, meta.getMouseButtons());
+			rfbconn.writePointerEvent(mouseX, mouseY, meta.getMetaFlags()|onScreenMetaState, 0);
 		}
 		else {
-			try {
-				rfb.writeKeyEvent(meta.getKeySym(), meta.getMetaFlags()|onScreenMetaState, true);
-				rfb.writeKeyEvent(meta.getKeySym(), meta.getMetaFlags()|onScreenMetaState, false);
-			}
-			catch (IOException ioe)
-			{
-				ioe.printStackTrace();
-			}
+			rfbconn.writeKeyEvent(meta.getKeySym(), meta.getMetaFlags()|onScreenMetaState, true);
+			rfbconn.writeKeyEvent(meta.getKeySym(), meta.getMetaFlags()|onScreenMetaState, false);
 		}
 	}
 	
@@ -2276,4 +2457,25 @@ public class VncCanvas extends ImageView {
 			offset += (bitmapData.bitmapwidth - w);
 		}
 	}
+	
+	/**
+	 * Converts a given sequence of bytes to a human-readable colon-separated Hex format. 
+	 * @param bytes
+	 * @return
+	 */
+    public String toHexString(byte[] bytes) {
+        char[] hexArray = {'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
+        char[] hexChars = new char[bytes.length * 3];
+        int v, j;
+        for ( j = 0; j < bytes.length - 1; j++ ) {
+            v = bytes[j] & 0xFF;
+            hexChars[j*3] = hexArray[v/16];
+            hexChars[j*3 + 1] = hexArray[v%16];
+            hexChars[j*3 + 2] = ":".charAt(0);
+        }
+        v = bytes[j] & 0xFF;
+        hexChars[j*3] = hexArray[v/16];
+        hexChars[j*3 + 1] = hexArray[v%16];
+        return new String(hexChars);
+    }
 }

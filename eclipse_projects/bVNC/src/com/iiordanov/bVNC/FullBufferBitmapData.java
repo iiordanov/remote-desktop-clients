@@ -18,24 +18,29 @@ import android.widget.ImageView;
  *
  */
 class FullBufferBitmapData extends AbstractBitmapData {
-
 	int xoffset;
 	int yoffset;
 	int dataWidth;
 	int dataHeight;
+
 	
 	/**
 	 * @author Michael A. MacDonald
 	 *
 	 */
 	class Drawable extends AbstractBitmapDrawable {
-
+		private final static String TAG = "Drawable";
+		int drawWidth;
+		int drawHeight; 
+		int xo, yo;
+		Paint paint;
+		
 		/**
 		 * @param data
 		 */
 		public Drawable(AbstractBitmapData data) {
 			super(data);
-			// TODO Auto-generated constructor stub
+			paint = new Paint ();
 		}
 
 		/* (non-Javadoc)
@@ -44,8 +49,8 @@ class FullBufferBitmapData extends AbstractBitmapData {
 		@Override
 		public void draw(Canvas canvas) {
 			// If we are currently (re)allocating bitmapPixels, do not attempt to draw.
-			if (data.bitmapPixels == null)
-				return;
+			//if (data.bitmapPixels == null)
+			//	return;
 /*			
 			if (vncCanvas.getScaleType() == ImageView.ScaleType.FIT_CENTER)
 			{
@@ -54,9 +59,6 @@ class FullBufferBitmapData extends AbstractBitmapData {
 			else
 			{
 */				
-				//float scale = vncCanvas.getScale();
-				int xo, yo;
-				
 				if (xoffset < 0)
 					xo = 0;
 				else if (xoffset >= data.framebufferwidth)
@@ -70,18 +72,24 @@ class FullBufferBitmapData extends AbstractBitmapData {
 					return;
 				else
 					yo = yoffset;
-				
 				/*
 				if (scale == 1 || scale <= 0)
 				{
 				*/
-					int drawWidth = vncCanvas.getVisibleWidth();
-					if (drawWidth + xo >= data.framebufferwidth)
-						drawWidth = data.framebufferwidth - xo - 1;
-					int drawHeight = vncCanvas.getVisibleHeight();
-					if (drawHeight + yo >= data.framebufferheight)
+					drawWidth = vncCanvas.getVisibleWidth();
+					if (xo + drawWidth  >= data.framebufferwidth)
+						drawWidth  = data.framebufferwidth  - xo - 1;
+					drawHeight = vncCanvas.getVisibleHeight();
+					if (yo + drawHeight >= data.framebufferheight)
 						drawHeight = data.framebufferheight - yo - 1;
-					canvas.drawBitmap(data.bitmapPixels, offset(xo, yo), data.framebufferwidth, xo, yo, drawWidth, drawHeight, false, null);
+					
+					try {
+						canvas.drawBitmap(data.bitmapPixels, offset(xo, yo), data.framebufferwidth, 
+											(float)xo, (float)yo, drawWidth, drawHeight, false, paint);
+					} catch (Exception e) {
+						Log.e (TAG, "Failed to draw bitmap: xo, yo/drawW, drawH: " + xo + ", " + yo + "/"
+									+ drawWidth + ", " + drawHeight);
+					}
 				/*
 				}
 				else
@@ -118,10 +126,10 @@ class FullBufferBitmapData extends AbstractBitmapData {
 	 * @param p
 	 * @param c
 	 */
-	public FullBufferBitmapData(RfbProto p, VncCanvas c, int capacity) {
+	public FullBufferBitmapData(RfbConnectable p, VncCanvas c, int capacity) {
 		super(p, c);
-		framebufferwidth=rfb.framebufferWidth;
-		framebufferheight=rfb.framebufferHeight;
+		framebufferwidth=rfb.framebufferWidth();
+		framebufferheight=rfb.framebufferHeight();
 		bitmapwidth=framebufferwidth;
 		bitmapheight=framebufferheight;
 		dataWidth=framebufferwidth;
@@ -134,7 +142,7 @@ class FullBufferBitmapData extends AbstractBitmapData {
 	 * @see com.iiordanov.bVNC.AbstractBitmapData#copyRect(android.graphics.Rect, android.graphics.Rect, android.graphics.Paint)
 	 */
 	@Override
-	void copyRect(Rect src, Rect dest) {
+	public void copyRect(Rect src, Rect dest) {
 		int srcOffset, dstOffset;
 		int dstH = dest.height();
 		int dstW = dest.width();
@@ -158,7 +166,7 @@ class FullBufferBitmapData extends AbstractBitmapData {
 			dstY += deltaY;
 		}
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see com.iiordanov.bVNC.AbstractBitmapData#createDrawable()
 	 */
@@ -197,7 +205,7 @@ class FullBufferBitmapData extends AbstractBitmapData {
 	 * @see com.iiordanov.bVNC.AbstractBitmapData#offset(int, int)
 	 */
 	@Override
-	int offset(int x, int y) {
+	public int offset(int x, int y) {
 		return x + y * framebufferwidth;
 	}
 
@@ -214,9 +222,9 @@ class FullBufferBitmapData extends AbstractBitmapData {
 	 * @see com.iiordanov.bVNC.AbstractBitmapData#frameBufferSizeChanged(RfbProto)
 	 */
 	@Override
-	void frameBufferSizeChanged () {
-		framebufferwidth=rfb.framebufferWidth;
-		framebufferheight=rfb.framebufferHeight;
+	public void frameBufferSizeChanged () {
+		framebufferwidth=rfb.framebufferWidth();
+		framebufferheight=rfb.framebufferHeight();
 		bitmapwidth=framebufferwidth;
 		bitmapheight=framebufferheight;
 		android.util.Log.i("FBBM", "bitmapsize changed = ("+bitmapwidth+","+bitmapheight+")");
@@ -242,7 +250,7 @@ class FullBufferBitmapData extends AbstractBitmapData {
 	 * @see com.iiordanov.bVNC.AbstractBitmapData#updateBitmap(int, int, int, int)
 	 */
 	@Override
-	void updateBitmap(int x, int y, int w, int h) {
+	public void updateBitmap(int x, int y, int w, int h) {
 		// Don't need to do anything here
 
 	}
@@ -262,7 +270,7 @@ class FullBufferBitmapData extends AbstractBitmapData {
 	 */
 	@Override
 	void writeFullUpdateRequest(boolean incremental) throws IOException {
-		rfb.writeFramebufferUpdateRequest(0, 0, framebufferwidth, framebufferheight, incremental);
+		rfb.requestUpdate(incremental);
 	}
 
 }

@@ -33,9 +33,11 @@ abstract class AbstractGestureInputHandler extends GestureDetector.SimpleOnGestu
 	float yPreviousFocus;
 	
 	// These variables record whether there was a two-finger swipe performed up or down.
-	boolean inSwiping          = false;
-	boolean twoFingerSwipeUp   = false;
-	boolean twoFingerSwipeDown = false;
+	boolean inSwiping           = false;
+	boolean twoFingerSwipeUp    = false;
+	boolean twoFingerSwipeDown  = false;
+	boolean twoFingerSwipeLeft  = false;
+	boolean twoFingerSwipeRight = false;
 	
 	// These variables indicate whether the dpad should be used as arrow keys
 	// and whether it should be rotated.
@@ -93,7 +95,9 @@ abstract class AbstractGestureInputHandler extends GestureDetector.SimpleOnGestu
 			// Start swiping mode only after we've moved away from the initial focal point some distance.
 			if (!inSwiping) {
 				if ( (yCurrentFocus < (yInitialFocus - baseSwipeDist)) ||
-			         (yCurrentFocus > (yInitialFocus + baseSwipeDist)) ) {
+			         (yCurrentFocus > (yInitialFocus + baseSwipeDist)) ||
+			         (xCurrentFocus < (xInitialFocus - baseSwipeDist)) ||
+			         (xCurrentFocus > (xInitialFocus + baseSwipeDist)) ) {
 					inSwiping      = true;
 					xPreviousFocus = xInitialFocus;
 					yPreviousFocus = yInitialFocus;
@@ -102,19 +106,27 @@ abstract class AbstractGestureInputHandler extends GestureDetector.SimpleOnGestu
 			
 			// If in swiping mode, indicate a swipe at regular intervals.
 			if (inSwiping) {
+				twoFingerSwipeUp    = false;					
+				twoFingerSwipeDown  = false;
+				twoFingerSwipeLeft  = false;					
+				twoFingerSwipeRight = false;
 				if        (yCurrentFocus < (yPreviousFocus - baseSwipeDist)) {
-					twoFingerSwipeUp   = false;					
-					twoFingerSwipeDown = true;
+					twoFingerSwipeDown   = true;
 					xPreviousFocus = xCurrentFocus;
 					yPreviousFocus = yCurrentFocus;
 				} else if (yCurrentFocus > (yPreviousFocus + baseSwipeDist)) {
-					twoFingerSwipeUp   = true;
-					twoFingerSwipeDown = false;
+					twoFingerSwipeUp     = true;
+					xPreviousFocus = xCurrentFocus;
+					yPreviousFocus = yCurrentFocus;
+				} else if (xCurrentFocus < (xPreviousFocus - baseSwipeDist)) {
+					twoFingerSwipeRight  = true;
+					xPreviousFocus = xCurrentFocus;
+					yPreviousFocus = yCurrentFocus;
+				} else if (xCurrentFocus > (xPreviousFocus + baseSwipeDist)) {
+					twoFingerSwipeLeft   = true;
 					xPreviousFocus = xCurrentFocus;
 					yPreviousFocus = yCurrentFocus;
 				} else {
-					twoFingerSwipeUp   = false;					
-					twoFingerSwipeDown = false;
 					consumed           = false;
 				}
 				// The faster we swipe, the faster we traverse the screen, and hence, the 
@@ -156,8 +168,10 @@ abstract class AbstractGestureInputHandler extends GestureDetector.SimpleOnGestu
 		scalingJustFinished = false;
 		// Cancel any swipes that may have been registered last time.
 		inSwiping           = false;
-		twoFingerSwipeUp    = false;
+		twoFingerSwipeUp    = false;					
 		twoFingerSwipeDown  = false;
+		twoFingerSwipeLeft  = false;					
+		twoFingerSwipeRight = false;
 		//Log.i(TAG,"scale begin ("+xInitialFocus+","+yInitialFocus+")");
 		return true;
 	}

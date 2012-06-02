@@ -46,6 +46,7 @@ import android.graphics.PointF;
 import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Looper;
 import android.os.SystemClock;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -289,6 +290,12 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 	        			vncCanvas.processPointerEvent(e, false);
 	        		} else if (twoFingerSwipeDown) {
 	        			vncCanvas.processPointerEvent(e, false, false, false, true, 1);
+	        			vncCanvas.processPointerEvent(e, false);
+	        		} else if (twoFingerSwipeLeft)   {
+	        			vncCanvas.processPointerEvent(e, false, false, false, true, 2);
+	        			vncCanvas.processPointerEvent(e, false);
+	        		} else if (twoFingerSwipeRight) {
+	        			vncCanvas.processPointerEvent(e, false, false, false, true, 3);
 	        			vncCanvas.processPointerEvent(e, false);
 	        		}
 	        		numEvents++;
@@ -638,6 +645,12 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 	        		} else if (twoFingerSwipeDown) {
 	        			vncCanvas.processPointerEvent(e, false, false, false, true, 1);
 	        			vncCanvas.processPointerEvent(e, false);
+	        		} else if (twoFingerSwipeLeft)   {
+	        			vncCanvas.processPointerEvent(e, false, false, false, true, 2);
+	        			vncCanvas.processPointerEvent(e, false);
+	        		} else if (twoFingerSwipeRight) {
+	        			vncCanvas.processPointerEvent(e, false, false, false, true, 3);
+	        			vncCanvas.processPointerEvent(e, false);
 	        		}
 	        		numEvents++;
 	        	}
@@ -778,7 +791,6 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 
 	ZoomControls zoomer;
 	Panner panner;
-	Timer clipboardMonitorTimer;
 	SSHConnection sshConnection;
 	
 
@@ -800,31 +812,27 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 			} else {
 				// Show a dialog with the key signature.
 				DialogInterface.OnClickListener signatureNo = new DialogInterface.OnClickListener() {
-					
 		            @Override
 		            public void onClick(DialogInterface dialog, int which) {
 		                // We were told to not continue, so stop the activity
 		                finish();    
-		            }
-	
+		            }	
 		        };
 		        DialogInterface.OnClickListener signatureYes = new DialogInterface.OnClickListener() {
-	
 		            @Override
 		            public void onClick(DialogInterface dialog, int which) {
 		    			// We were told to go ahead with the connection.
 		    			connection.setSshHostKey(sshConnection.getServerHostKey());
 		    			connection.save(database.getWritableDatabase());
 		    			sshConnection.disconnect();
+		    			sshConnection = null;
 		            	continueConnecting();
 		            }
-	
 		        };
 		        
 				Utils.showYesNoPrompt(this, "Continue connecting to " + connection.getSshServer() + "?", 
 									"The key fingerprint is: " + sshConnection.getHostKeySignature(),
 									signatureYes, signatureNo);
-
 			}
 		} else {
 			// There is no need to initialize the HostKey, so continue connecting.
@@ -848,7 +856,7 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 		Uri data = i.getData();
 		if ((data != null) && (data.getScheme().equals("vnc"))) {
 			
-			// TODO: Can we also handle VNC over SSH connections with a new URI format?
+			// TODO: Can we also handle VNC over SSH/SSL connections with a new URI format?
 			
 			String host = data.getHost();
 			// This should not happen according to Uri contract, but bug introduced in Froyo (2.2)
@@ -940,7 +948,7 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 		vncCanvas = (VncCanvas) findViewById(R.id.vnc_canvas);
 		zoomer = (ZoomControls) findViewById(R.id.zoomer);
 
-		vncCanvas.initializeVncCanvas(connection, new Runnable() {
+		vncCanvas.initializeVncCanvas(connection, database, new Runnable() {
 			public void run() {
 				setModes();
 			}
@@ -1032,16 +1040,13 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 		panner = new Panner(this, vncCanvas.handler);
 
 		inputHandler = getInputHandlerById(R.id.itemInputTouchPanZoomMouse);
-		
-		clipboardMonitorTimer = new Timer ();
-		clipboardMonitorTimer.schedule(new ClipboardMonitor(this, vncCanvas), 0, 500);
 	}
-	
+
 	/*
 	 * TODO: REMOVE THIS AS SOON AS POSSIBLE.
-	 * onPause: This is an ugly hack for the Playbook which hides the keyboard upon unlock. This causes the visible
-	 * height to remain less, as if the soft keyboard is still up. This hack must go away as soon
-	 * as the Playbook doesn't need it anymore.
+	 * onPause: This is an ugly hack for the Playbook, because the Playbook hides the keyboard upon unlock.
+	 * This causes the visible height to remain less, as if the soft keyboard is still up. This hack must go 
+	 * away as soon as the Playbook doesn't need it anymore.
 	 */
 	@Override
 	protected void onPause(){
@@ -1412,6 +1417,13 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 				vncCanvas.onDestroy();
 			}
 			database.close();
+			vncCanvas = null;
+			connection = null;
+			database = null;
+			zoomer = null;
+			panner = null;
+			inputHandler = null;
+			System.gc();
 		}
 	}
 

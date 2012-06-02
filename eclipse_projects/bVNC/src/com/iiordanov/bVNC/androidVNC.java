@@ -129,12 +129,9 @@ public class androidVNC extends Activity {
 			public void onItemSelected(AdapterView<?> ad, View view, int itemIndex, long id) {
 
 				// TODO: Make position values not hard-coded numbers but derived positions based on ID's.
-				// This didn't quite work:
-				// connectionType.getPositionForView(findViewById(R.string.connection_type_ultravnc)
-
 				selectedConnType = itemIndex;
-			
-				if (selectedConnType == 0) {
+				if (selectedConnType == 0 ||
+					selectedConnType == 3) {
 					sshCredentials.setVisibility(View.GONE);
 					sshCredentialsCaption.setVisibility(View.GONE);
 					sshServerEntry.setVisibility(View.GONE);
@@ -162,7 +159,20 @@ public class androidVNC extends Activity {
 					sshServerEntryCaption.setVisibility(View.GONE);
 					textUsernameCaption.setVisibility(View.VISIBLE);
 					textUsername.setVisibility(View.VISIBLE);
+					textUsername.setHint(R.string.username_hint);
 					repeaterEntry.setVisibility(View.VISIBLE);
+				} else if (selectedConnType == 4) {
+					sshCredentials.setVisibility(View.GONE);
+					sshCredentialsCaption.setVisibility(View.GONE);
+					sshServerEntry.setVisibility(View.GONE);
+					ipText.setHint(R.string.address_caption_hint);
+					sshServerEntryCaption.setVisibility(View.GONE);
+					textUsernameCaption.setVisibility(View.VISIBLE);
+					textUsername.setVisibility(View.VISIBLE);
+					textUsername.setHint(R.string.username_hint_vencrypt);
+					repeaterEntry.setVisibility(View.GONE);
+					if (passwordText.getText().toString().equals(""))
+						checkboxKeepPassword.setChecked(false);
 				}
 			}
 			@Override

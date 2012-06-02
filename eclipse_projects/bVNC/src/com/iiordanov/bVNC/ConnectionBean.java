@@ -70,7 +70,7 @@ class ConnectionBean extends AbstractConnectionBean implements Comparable<Connec
 		return get_Id()== 0;
 	}
 	
-	void save(SQLiteDatabase database) {
+	synchronized void save(SQLiteDatabase database) {
 		ContentValues values=Gen_getValues();
 		values.remove(GEN_FIELD__ID);
 		// Never save the SSH password.

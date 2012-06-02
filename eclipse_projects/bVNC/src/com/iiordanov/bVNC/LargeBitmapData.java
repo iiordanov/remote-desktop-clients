@@ -87,7 +87,7 @@ class LargeBitmapData extends AbstractBitmapData {
 	 * @param displayHeight
 	 * @param capacity Max process heap size in bytes
 	 */
-	LargeBitmapData(RfbProto p, VncCanvas c, int displayWidth, int displayHeight, int capacity)
+	LargeBitmapData(RfbConnectable p, VncCanvas c, int displayWidth, int displayHeight, int capacity)
 	{
 		super(p,c);
 		double scaleMultiplier = Math.sqrt((double)(capacity * 1024 * 1024) / (double)(CAPACITY_MULTIPLIER * framebufferwidth * framebufferheight));
@@ -130,7 +130,7 @@ class LargeBitmapData extends AbstractBitmapData {
 	 * @see com.iiordanov.bVNC.AbstractBitmapData#copyRect(android.graphics.Rect, android.graphics.Rect, android.graphics.Paint)
 	 */
 	@Override
-	void copyRect(Rect src, Rect dest) {
+	public void copyRect(Rect src, Rect dest) {
 		int srcOffset, dstOffset;
 		int dstH = dest.height();
 		int dstW = dest.width();
@@ -171,7 +171,7 @@ class LargeBitmapData extends AbstractBitmapData {
 	 * @see com.iiordanov.bVNC.AbstractBitmapData#offset(int, int)
 	 */
 	@Override
-	int offset(int x, int y) {
+	public int offset(int x, int y) {
 		return (y - yoffset) * bitmapwidth + x - xoffset;
 	}
 
@@ -222,7 +222,7 @@ class LargeBitmapData extends AbstractBitmapData {
 	 * @see com.iiordanov.bVNC.AbstractBitmapData#updateBitmap(int, int, int, int)
 	 */
 	@Override
-	void updateBitmap(int x, int y, int w, int h) {
+	public void updateBitmap(int x, int y, int w, int h) {
 		mbitmap.setPixels(bitmapPixels, offset(x,y), bitmapwidth, x-xoffset, y-yoffset, w, h);
 	}
 
@@ -263,7 +263,7 @@ class LargeBitmapData extends AbstractBitmapData {
 			invalidList.add(r);
 			rectPool.release(entry);
 		}
-		rfb.writeFramebufferUpdateRequest(xoffset, yoffset, bitmapwidth, bitmapheight, incremental);
+		rfb.requestUpdate(incremental);
 	}
 
 	/* (non-Javadoc)
@@ -343,12 +343,12 @@ class LargeBitmapData extends AbstractBitmapData {
 			Rect invalidRect = invalidList.get(i);
 			try
 			{
-				rfb.writeFramebufferUpdateRequest(invalidRect.left, invalidRect.top, invalidRect.right-invalidRect.left, invalidRect.bottom-invalidRect.top, false);
+				rfb.requestUpdate(false);
 				pendingList.add(invalidRect);
 			}
 			catch (IOException ioe)
 			{
-				//TODO Log this
+			//TODO Log this
 			}
 		}
 		waitingForInput=true;
@@ -359,13 +359,13 @@ class LargeBitmapData extends AbstractBitmapData {
 	 * @see com.iiordanov.bVNC.AbstractBitmapData#frameBufferSizeChanged(RfbProto)
 	 */
 	@Override
-	void frameBufferSizeChanged () {
+	public void frameBufferSizeChanged () {
 		xoffset = 0;
 		yoffset = 0;
 		scrolledToX = 0;
 		scrolledToY = 0;
-		framebufferwidth = rfb.framebufferWidth;
-		framebufferheight = rfb.framebufferHeight;
+		framebufferwidth  = rfb.framebufferWidth();
+		framebufferheight = rfb.framebufferHeight();
 		double scaleMultiplier = Math.sqrt((double)(capacity * 1024 * 1024) /
 								(double)(CAPACITY_MULTIPLIER * framebufferwidth * framebufferheight));
 		if (scaleMultiplier > 1)

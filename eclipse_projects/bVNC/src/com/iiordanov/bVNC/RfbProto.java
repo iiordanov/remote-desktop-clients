@@ -41,7 +41,7 @@ import com.iiordanov.bVNC.DH;
  * and input events as defined in the RFB protocol.
  * 
  */
-class RfbProto {
+class RfbProto implements RfbConnectable {
 
 	final static String TAG = "RfbProto";
 	
@@ -58,11 +58,25 @@ class RfbProto {
 
   // Security types
   final static int
-    SecTypeInvalid = 0,
-    SecTypeNone    = 1,
-    SecTypeVncAuth = 2,
-    SecTypeTight   = 16,
+    SecTypeInvalid  = 0,
+    SecTypeNone     = 1,
+    SecTypeVncAuth  = 2,
+    SecTypeTight    = 16,
+    SecTypeTLS      = 18,
+    SecTypeVeNCrypt = 19,
     SecTypeUltra34 = 0xfffffffa;
+  
+  /* VeNCrypt subtypes */
+  public static final int secTypePlain     = 256;
+  public static final int secTypeTLSNone   = 257;
+  public static final int secTypeTLSVnc    = 258;
+  public static final int secTypeTLSPlain  = 259;
+  public static final int secTypeX509None  = 260;
+  public static final int secTypeX509Vnc   = 261;
+  public static final int secTypeX509Plain = 262;
+  public static final int secTypeIdent     = 265;
+  public static final int secTypeTLSIdent  = 266;
+  public static final int secTypeX509Ident = 267;
 
   // Supported tunneling types
   final static int
@@ -234,25 +248,7 @@ class RfbProto {
     host = h;
     port = p;
 
-    /*
-    if (viewer.socketFactory == null) {
-      sock = new Socket(host, port);
-    } else {
-      try {
-	Class factoryClass = Class.forName(viewer.socketFactory);
-	SocketFactory factory = (SocketFactory)factoryClass.newInstance();
-	//- if (viewer.inAnApplet)
-	//-   sock = factory.createSocket(host, port, viewer);
-	//- else
-	  sock = factory.createSocket(host, port, viewer.mainArgs);
-    } 
-    catch(Exception e) {
-	e.printStackTrace();
-	throw new IOException(e.getMessage());
-      }
-    } */
-    //+
-    sock = new Socket(host, port);
+   	sock = new Socket(host, port);
     sock.setTcpNoDelay(true);
     is = new DataInputStream(new BufferedInputStream(sock.getInputStream(), 8192));
     os = sock.getOutputStream();
@@ -338,9 +334,9 @@ class RfbProto {
   // Negotiate the authentication scheme.
   //
 
-  int negotiateSecurity(int bitPref) throws Exception {
+  int negotiateSecurity(int bitPref, boolean anontls) throws Exception {
     return (clientMinor >= 7) ?
-      selectSecurityType(bitPref) : readSecurityType(bitPref);
+      selectSecurityType(bitPref, anontls) : readSecurityType(bitPref);
   }
 
   //
@@ -370,43 +366,94 @@ class RfbProto {
   // Select security type from the server's list (protocol versions 3.7/3.8).
   //
 
-  int selectSecurityType(int bitPref) throws Exception {
-    int secType = SecTypeInvalid;
+  int selectSecurityType(int bitPref, boolean anontls) throws Exception {
+	    int secType = SecTypeInvalid;
 
-    // Read the list of security types.
-    int nSecTypes = is.readUnsignedByte();
-    if (nSecTypes == 0) {
-      readConnFailedReason();
-      return SecTypeInvalid;	// should never be executed
-    }
-    byte[] secTypes = new byte[nSecTypes];
-    readFully(secTypes);
+	    // Read the list of security types.
+	    int nSecTypes = is.readUnsignedByte();
+	    if (nSecTypes == 0) {
+	      readConnFailedReason();
+	      return SecTypeInvalid;	// should never be executed
+	    }
+	    byte[] secTypes = new byte[nSecTypes];
+	    readFully(secTypes);
 
-    // Find out if the server supports TightVNC protocol extensions
-    for (int i = 0; i < nSecTypes; i++) {
-      if (secTypes[i] == SecTypeTight) {
-	protocolTightVNC = true;
-	os.write(SecTypeTight);
-	return SecTypeTight;
-      }
-    }
+	    Log.d(TAG, "There are: " +nSecTypes +" security types.");
+	    
+	    // Find out if the server supports TightVNC protocol extensions
+	    for (int i = 0; i < nSecTypes; i++) {
+	      Log.d(TAG, "Detected security type: " + secTypes[i]);
 
-    // Find first supported security type.
-    for (int i = 0; i < nSecTypes; i++) {
-      if (secTypes[i] == SecTypeNone || secTypes[i] == SecTypeVncAuth) {
-	secType = secTypes[i];
-	break;
-      }
-    }
+	      if (secTypes[i] == SecTypeTight) {
+		    protocolTightVNC = true;
+		    os.write(SecTypeTight);
+		    return SecTypeTight;
+	      }
+	    }
 
-    if (secType == SecTypeInvalid) {
-      throw new Exception("Server did not offer supported security type");
-    } else {
-      os.write(secType);
-    }
+	    // Find first supported security type.
+	    for (int i = 0; i < nSecTypes; i++) {
+	      if (anontls) {
+	    	  if (secTypes[i] == SecTypeTLS) {
+	    		  secType = secTypes[i];
+	    		  break;
+	    	  }
+	      } else {
+	    	  if (secTypes[i] == SecTypeNone || secTypes[i] == SecTypeVncAuth) {
+	    		  secType = secTypes[i];
+	    	  	  break;
+	    	  }  	   	
+	      }
+	    }
 
-    return secType;
+	    if (secType == SecTypeInvalid) {
+	      throw new Exception("Server did not offer supported security type");
+	    } else {
+	      os.write(secType);
+	    }
+
+	    return secType;
   }
+
+  int selectVeNCryptSecurityType() throws Exception {
+	    int secType = SecTypeInvalid;
+
+	    // Read the list of security types.
+	    int nSecTypes = is.readUnsignedByte();
+	    if (nSecTypes == 0) {
+	      readConnFailedReason();
+	      return SecTypeInvalid;	// should never be executed
+	    }
+	    byte[] secTypes = new byte[nSecTypes];
+	    readFully(secTypes);
+
+	    Log.d(TAG, "There are: " +nSecTypes +" security types.");
+
+	    // Find first supported security type.
+	    for (int i = 0; i < nSecTypes; i++) {
+	      if (secTypes[i] == secTypeX509Plain ||
+	          secTypes[i] == secTypeX509Vnc   ||
+	          secTypes[i] == secTypeX509Ident ||
+	    	  secTypes[i] == secTypeX509None  ||
+	    	  secTypes[i] == secTypeTLSPlain  ||
+	    	  secTypes[i] == secTypeTLSVnc    ||
+	    	  secTypes[i] == secTypeTLSIdent  ||
+	    	  secTypes[i] == secTypeTLSNone   ||
+	    	  secTypes[i] == secTypeIdent     ||
+	    	  secTypes[i] == secTypePlain ) {
+		    secType = secTypes[i];
+		    break;
+	      }
+	    }
+
+	    if (secType == SecTypeInvalid) {
+	      throw new Exception("Server did not offer supported security type");
+	    } else {
+	      os.write(secType);
+	    }
+
+	    return secType;
+	  }
 
   //
   // Perform "no authentication".
@@ -579,6 +626,22 @@ class RfbProto {
 		     SigEncodingNewFBSize, "Framebuffer size change");
   }
 
+  // Perform TLS handshake (AnonTLS)
+  void performTLSHandshake () throws Exception {
+   	// Try using SSL
+   	SSLSocketToMe ssl;
+   	try {
+   		ssl = new SSLSocketToMe(host, port);
+		sock = ssl.connectSock(sock);
+	    sock.setTcpNoDelay(true);
+	    is = new DataInputStream(new BufferedInputStream(sock.getInputStream(), 8192));
+	    os = sock.getOutputStream();
+   	} catch (Exception e) {
+   		e.printStackTrace();
+   		throw new IOException(e.getMessage());
+   	}
+  }
+  
   //
   // Setup tunneling (TightVNC protocol extensions)
   //
@@ -953,11 +1016,9 @@ class RfbProto {
   // Write a SetPixelFormat message
   //
 
-  synchronized void writeSetPixelFormat(int bitsPerPixel, int depth, boolean bigEndian,
-			   boolean trueColour,
-			   int redMax, int greenMax, int blueMax,
+  public synchronized void writeSetPixelFormat(int bitsPerPixel, int depth, boolean bigEndian,
+			   boolean trueColour, int redMax, int greenMax, int blueMax,
 			   int redShift, int greenShift, int blueShift, boolean fGreyScale) // sf@2005)
-       throws IOException
   {
     byte[] b = new byte[20];
 
@@ -977,7 +1038,12 @@ class RfbProto {
     b[16] = (byte) blueShift;
     b[17] = (byte) (fGreyScale ? 1 : 0); // sf@2005
 
-    os.write(b);
+    try {
+		os.write(b);
+	} catch (IOException e) {
+		Log.e(TAG, "Could not write setPixelFormat message to VNC server.");
+		e.printStackTrace();
+	}
   }
 
 
@@ -1037,8 +1103,8 @@ class RfbProto {
   // Write a ClientCutText message
   //
 
-  synchronized void writeClientCutText(String text) throws IOException {
-    byte[] b = new byte[8 + text.length()];
+  synchronized void writeClientCutText(String text, int length) throws IOException {
+    byte[] b = new byte[8 + length];
 
     b[0] = (byte) ClientCutText;
     b[4] = (byte) ((text.length() >> 24) & 0xff);
@@ -1046,7 +1112,7 @@ class RfbProto {
     b[6] = (byte) ((text.length() >> 8) & 0xff);
     b[7] = (byte) (text.length() & 0xff);
 
-    System.arraycopy(text.getBytes(), 0, b, 8, text.length());
+    System.arraycopy(text.getBytes(), 0, b, 8, length);
 
     os.write(b);
   }
@@ -1073,7 +1139,7 @@ class RfbProto {
    * @param pointerMask
    * @throws IOException
    */
-  synchronized void writePointerEvent( int x, int y, int modifiers, int pointerMask) throws IOException
+  public synchronized void writePointerEvent( int x, int y, int modifiers, int pointerMask)
   {
 	    eventBufLen = 0;
 	    writeModifierKeyEvents(modifiers);
@@ -1093,7 +1159,12 @@ class RfbProto {
 	      writeModifierKeyEvents(0);
 	    }
 
-	    os.write(eventBuf, 0, eventBufLen);	  
+	    try {
+			os.write(eventBuf, 0, eventBufLen);
+		} catch (IOException e) {
+			Log.e (TAG, "Failed to write pointer event to VNC server.");
+			e.printStackTrace();
+		}	  
   }
 
   void writeCtrlAltDel() throws IOException {
@@ -1124,18 +1195,25 @@ class RfbProto {
   // around it to set the correct modifier state.  Also we need to translate
   // from the Java key values to the X keysym values used by the RFB protocol.
   //
-  synchronized void writeKeyEvent(int keySym, int metaState, boolean down) throws IOException {
+  public synchronized void writeKeyEvent(int keySym, int metaState, boolean down) {
     eventBufLen = 0;
+    
     if (down)
     	writeModifierKeyEvents(metaState);
-    if (keySym != 0)
+    if (keySym > 0)
     	writeKeyEvent(keySym, down);
 
     // Always release all modifiers after an "up" event
-    if (!down)
-      writeModifierKeyEvents(0);
+    if (!down) {
+    	writeModifierKeyEvents(0);
+    }
 
-    os.write(eventBuf, 0, eventBufLen);
+    try {
+		os.write(eventBuf, 0, eventBufLen);
+	} catch (IOException e) {
+		Log.e(TAG, "Failed to write key event to VNC server.");
+		e.printStackTrace();
+	}
   }
   
   
@@ -1214,6 +1292,7 @@ class RfbProto {
   }
 
   public void readFully(byte b[], int off, int len) throws IOException {
+	  // TODO: Try reenabling timing and set color according to bandwidth
 	/*
     long before = 0;
     timing = false; // for test
@@ -1308,4 +1387,45 @@ class RfbProto {
 		writeInt(outgoing.length); // int message length
 		os.write(outgoing); // message
 	}
+	
+	// The following methods are implementations of the RfbConnectable interface
+	@Override
+	public int framebufferWidth () {
+		return framebufferWidth;
+	}
+
+	@Override
+	public int framebufferHeight () {
+		return framebufferHeight;
+	}
+
+	@Override
+	public String desktopName () {
+		return desktopName;
+	}
+
+	@Override
+	public void requestUpdate (boolean incremental) throws IOException {
+		writeFramebufferUpdateRequest(0, 0, framebufferWidth, framebufferHeight, incremental);
+	}
+
+	@Override
+	public void writeClientCutText(String text) {
+		try {
+			writeClientCutText(text, text.length());
+		} catch (IOException e) {
+			Log.e(TAG, "Could not write text to VNC server clipboard.");
+			e.printStackTrace();
+		}
+	}
+
+	@Override
+	public boolean isInNormalProtocol() {
+		return this.inNormalProtocol;
+	}
+
+	// TODO: Implement this method to do protocol processing.
+	@Override
+	public void processProtocol () {}
+
 }

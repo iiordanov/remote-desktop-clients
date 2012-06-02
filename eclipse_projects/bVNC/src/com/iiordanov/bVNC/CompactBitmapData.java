@@ -32,19 +32,19 @@ class CompactBitmapData extends AbstractBitmapData {
 		}
 	}
 	
-	CompactBitmapData(RfbProto rfb, VncCanvas c)
+	CompactBitmapData(RfbConnectable rfb, VncCanvas c)
 	{
 		super(rfb,c);
 		bitmapwidth=framebufferwidth;
 		bitmapheight=framebufferheight;
-		mbitmap = Bitmap.createBitmap(rfb.framebufferWidth, rfb.framebufferHeight, Bitmap.Config.RGB_565);
+		mbitmap = Bitmap.createBitmap(rfb.framebufferWidth(), rfb.framebufferHeight(), Bitmap.Config.RGB_565);
 		memGraphics = new Canvas(mbitmap);
-		bitmapPixels = new int[rfb.framebufferWidth * rfb.framebufferHeight];
+		bitmapPixels = new int[rfb.framebufferWidth() * rfb.framebufferHeight()];
 	}
 
 	@Override
 	void writeFullUpdateRequest(boolean incremental) throws IOException {
-		rfb.writeFramebufferUpdateRequest(0, 0, framebufferwidth, framebufferheight, incremental);
+		rfb.requestUpdate(incremental);
 	}
 
 	@Override
@@ -53,7 +53,7 @@ class CompactBitmapData extends AbstractBitmapData {
 	}
 
 	@Override
-	int offset(int x, int y) {
+	public int offset(int x, int y) {
 		return y * bitmapwidth + x;
 	}
 
@@ -69,7 +69,7 @@ class CompactBitmapData extends AbstractBitmapData {
 	 * @see com.iiordanov.bVNC.AbstractBitmapData#updateBitmap(int, int, int, int)
 	 */
 	@Override
-	void updateBitmap(int x, int y, int w, int h) {
+	public void updateBitmap(int x, int y, int w, int h) {
 		mbitmap.setPixels(bitmapPixels, offset(x,y), bitmapwidth, x, y, w, h);
 	}
 
@@ -77,7 +77,7 @@ class CompactBitmapData extends AbstractBitmapData {
 	 * @see com.iiordanov.bVNC.AbstractBitmapData#copyRect(android.graphics.Rect, android.graphics.Rect, android.graphics.Paint)
 	 */
 	@Override
-	void copyRect(Rect src, Rect dest) {
+	public void copyRect(Rect src, Rect dest) {
 		memGraphics.drawBitmap(mbitmap, src, dest, null);
 	}
 
@@ -101,9 +101,9 @@ class CompactBitmapData extends AbstractBitmapData {
 	 * @see com.iiordanov.bVNC.AbstractBitmapData#frameBufferSizeChanged(RfbProto)
 	 */
 	@Override
-	void frameBufferSizeChanged () {
-		framebufferwidth=rfb.framebufferWidth;
-		framebufferheight=rfb.framebufferHeight;
+	public void frameBufferSizeChanged () {
+		framebufferwidth=rfb.framebufferWidth();
+		framebufferheight=rfb.framebufferHeight();
 		bitmapwidth=framebufferwidth;
 		bitmapheight=framebufferheight;
 		android.util.Log.i("CBM", "bitmapsize changed = ("+bitmapwidth+","+bitmapheight+")");

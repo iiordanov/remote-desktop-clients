@@ -26,6 +26,7 @@ import java.net.*;
 import java.io.*;
 import javax.net.ssl.*;
 
+import android.app.Activity;
 import android.util.Base64;
 
 import java.util.*;
@@ -34,6 +35,7 @@ import java.security.*;
 import java.security.cert.*;
 import java.security.spec.*;
 import java.security.cert.Certificate;
+import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateFactory;
 import android.util.Base64;
 import android.util.Log;
@@ -79,7 +81,6 @@ public class SSLSocketToMe {
 	boolean user_wants_to_see_cert = true;
 
 	// TODO: quick hack to port SSL patch
-	  boolean disableSSL = false;
 	  boolean GET = false;
 	  String CONNECT = null;
 	  String urlPrefix = null;
@@ -113,6 +114,10 @@ public class SSLSocketToMe {
 		return bytes;
 	}
 
+	SSLSocketToMe(String h, int p, Socket sock) throws Exception {
+		
+	}
+	
 	SSLSocketToMe(String h, int p) throws Exception {
 		host = h;
 		port = p;
@@ -515,7 +520,7 @@ public class SSLSocketToMe {
 		}
 	}
 
-	public Socket connectSock() throws IOException {
+	public Socket connectSock(Socket preexistingSocket) throws Exception {
 
 		/*
 		 * first try a https connection to detect a proxy, and
@@ -542,16 +547,38 @@ public class SSLSocketToMe {
 				throw new Exception("forcing CONNECT");
 			}
 
-			int timeout = 6;
-			if (timeout > 0) {
+			if (preexistingSocket != null) {
+		      try {
+		        socket = (SSLSocket)factory.createSocket(preexistingSocket, host, port, true);
+		        socket.setTcpNoDelay(true);
+		      } catch (java.io.IOException e) { 
+		        throw new Exception(e.toString());
+		      }
+	          String[] supported;
+	          ArrayList<String> enabled = new ArrayList<String>();
+	          supported = socket.getSupportedCipherSuites();
+	          for (int i = 0; i < supported.length; i++) {
+	          	//Log.d("SUPPORTED CIPHER", supported[i]);
+	            if (supported[i].matches("TLS_DH_anon.*"))
+	  	          enabled.add(supported[i]);
+	          }
+
+	          if (enabled.size() == 0)
+	          	throw new Exception("Your device lacks support for ciphers necessary for this encryption mode " +
+	          						"(Anonymous Diffie-Hellman ciphers). " +
+	          						"This is a known issue with devices running Android 2.2.x and older. You can " +
+	          						"work around this by using VeNCrypt with x509 certificates instead.");
+	          
+	          socket.setEnabledCipherSuites(enabled.toArray(new String[0]));
+	          socket.setEnabledProtocols(socket.getSupportedProtocols());
+			} else {
+				int timeout = 6;
 				socket = (SSLSocket) factory.createSocket();
 				InetSocketAddress inetaddr = new InetSocketAddress(host, port);
 				dbg("Using timeout of " + timeout + " secs to: " + host + ":" + port);
+		        socket.setTcpNoDelay(true);
 				socket.connect(inetaddr, timeout * 1000);
-			} else {
-				socket = (SSLSocket) factory.createSocket(host, port);
 			}
-
 		} catch (Exception esock) {
 			dbg("esock: " + esock.getMessage());
 			if (proxy_in_use || this.CONNECT != null) {
@@ -566,7 +593,8 @@ public class SSLSocketToMe {
 				} catch (Exception e) {
 					dbg("err proxy_socket: " + e.getMessage());
 				}
-			}
+			} else
+				throw new Exception (esock);
 		}
 
 		try {
@@ -577,7 +605,11 @@ public class SSLSocketToMe {
 			//BrowserCertsDialog bcd;
 
 			SSLSession sess = socket.getSession();
-			currentTrustedCerts = sess.getPeerCertificates();
+			try {
+				currentTrustedCerts = sess.getPeerCertificates();
+			} catch (Exception e) {
+				currentTrustedCerts = null;
+			}
 
 			if (this.trustAllVncCerts) {
 				dbg("this.trustAllVncCerts-1");

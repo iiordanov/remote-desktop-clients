@@ -23,10 +23,12 @@ public class ClipboardMonitor extends TimerTask {
 		vncCanvas = vc;
 		clipboard = (ClipboardManager)context.getSystemService(Context.CLIPBOARD_SERVICE);
 		knownClipboardContents = getClipboardContents ();
+		if (knownClipboardContents == null)
+			knownClipboardContents = new String("");
 	}
 	
 	/*
-	 * Grab the currrent clipboard contents.
+	 * Grab the current clipboard contents.
 	 */
 	private String getClipboardContents () {
 		if (clipboard != null && clipboard.getText() != null)
@@ -44,18 +46,17 @@ public class ClipboardMonitor extends TimerTask {
 		String currentClipboardContents = getClipboardContents ();
 		//Log.d(TAG, "Current clipboard contents: " + currentClipboardContents);
 		//Log.d(TAG, "Previously known clipboard contents: " + knownClipboardContents);
-		
-		if (currentClipboardContents != null &&
-			currentClipboardContents.compareTo(knownClipboardContents) != 0){
-			try {
-				if (vncCanvas.rfb != null && vncCanvas.rfb.inNormalProtocol)
-					vncCanvas.rfb.writeClientCutText(currentClipboardContents);
-					knownClipboardContents = new String(currentClipboardContents);
-					//Log.d(TAG, "Wrote: " + knownClipboardContents + " to remote clipboard.");
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}			
+		if (!vncCanvas.serverJustCutText && currentClipboardContents != null &&
+			!currentClipboardContents.equals(knownClipboardContents)) {
+			if (vncCanvas.rfbconn != null && vncCanvas.rfbconn.isInNormalProtocol()) {
+				vncCanvas.rfbconn.writeClientCutText(currentClipboardContents);
+				knownClipboardContents = new String(currentClipboardContents);
+				//Log.d(TAG, "Wrote: " + knownClipboardContents + " to remote clipboard.");
+			}
+		} else if (vncCanvas.serverJustCutText) {
+			knownClipboardContents = new String(currentClipboardContents);
+			vncCanvas.serverJustCutText = false;
+			//Log.d(TAG, "Set knownClipboardContents to equal what server just sent over.");
 		}
 	}
 }

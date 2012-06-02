@@ -22,12 +22,16 @@
 <string name="connection_caption">Connection</string>
 <string name="connection_type_caption">Conn. Type</string>
 <string name="connection_type_vnc">VNC</string>
-<string name="connection_type_vnc_over_ssh">VNC over SSH</string>
+<string name="connection_type_vnc_over_ssh">Secure VNC over SSH</string>
 <string name="connection_type_ultravnc">UltraVNC</string>
+<string name="connection_type_vnc_over_ssl">Secure VNC over AnonTLS</string>
+<string name="connection_type_vnc_over_vencrypt">Secure VNC over VeNCrypt</string>
 <string-array name="connection_type">
     <item>@string/connection_type_vnc</item>
     <item>@string/connection_type_vnc_over_ssh</item>
     <item>@string/connection_type_ultravnc</item>
+    <item>@string/connection_type_vnc_over_ssl</item>
+    <item>@string/connection_type_vnc_over_vencrypt</item>
 </string-array>
 <string name="control_check">Ctrl</string>
 <string name="copy_list_button">Copy List</string>
@@ -35,7 +39,7 @@
 <string name="delete_connection">Delete Connection</string>
 <string name="delete_key">Delete Selected Key</string>
 <string name="delete_key_list">Delete Key List</string>
-<string name="dpad_as_arrows">Use D-Pad/Trackpad for arrows rather than mouse control</string>
+<string name="dpad_as_arrows">Use D-Pad/Trackpad directions/clicks for arrows/CTRL instead of controlling mouse</string>
 <string name="disconnect">Disconnect</string>
 <string name="export_settings">Export</string>
 <string name="export_settings_path">Export to file</string>
@@ -182,5 +186,6 @@ If you are looking for a quick performance boost, try setting the Color mode to 
 <string name="special_keys">Send Keys</string>
 <string name="username_caption">VNC User</string>
 <string name="username_hint">UltraVNC MS Logon Username</string>
+<string name="username_hint_vencrypt">VNC Username</string>
 <string name="username_hint_ssh">SSH Username</string>
 </resources>
