@@ -71,14 +71,18 @@ class CompactBitmapData extends AbstractBitmapData {
 	@Override
 	public void updateBitmap(int x, int y, int w, int h) {
 		mbitmap.setPixels(bitmapPixels, offset(x,y), bitmapwidth, x, y, w, h);
+		int right  = x+w;
+		int bottom = y+h;
+		dirtyRect.union(x, y, right, bottom);
 	}
-
+	
 	/* (non-Javadoc)
 	 * @see com.iiordanov.bVNC.AbstractBitmapData#copyRect(android.graphics.Rect, android.graphics.Rect, android.graphics.Paint)
 	 */
 	@Override
 	public void copyRect(Rect src, Rect dest) {
 		memGraphics.drawBitmap(mbitmap, src, dest, null);
+		updateBitmap(dest.left, dest.top, dest.width(), dest.height());
 	}
 
 	/* (non-Javadoc)

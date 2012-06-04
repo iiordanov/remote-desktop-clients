@@ -33,6 +33,8 @@ abstract public class AbstractBitmapData {
 	boolean waitingForInput;
 	VncCanvas vncCanvas;
 	private AbstractBitmapDrawable drawable;
+	volatile protected Rect dirtyRect;
+	//protected ArrayList<Rect> drawRects = new ArrayList<Rect>();
 
 	AbstractBitmapData(RfbConnectable p, VncCanvas c)
 	{
@@ -41,6 +43,7 @@ abstract public class AbstractBitmapData {
 		framebufferwidth=rfb.framebufferWidth();
 		framebufferheight=rfb.framebufferHeight();
 		drawable = createDrawable();
+		dirtyRect = new Rect(0,0,0,0);
 	}
 	
 	synchronized void doneWaiting()
@@ -102,6 +105,19 @@ abstract public class AbstractBitmapData {
 	public abstract void updateBitmap( int x, int y, int w, int h);
 	
 	/**
+	 * Returns a boolean indicating whether dirtyRect is an empty rectangle. Can be used to decide
+	 * whether to invalidate the ImageView or to leave it alone.
+	 */
+	public boolean isDirtyEmpty () {
+		if (dirtyRect.isEmpty())
+			return true;
+		else {
+			dirtyRect.set(0, 0, 0, 0);
+			return false;
+		}
+	}
+	
+	/**
 	 * Create drawable appropriate for this data
 	 * @return drawable
 	 */
@@ -141,6 +157,7 @@ abstract public class AbstractBitmapData {
 				for (int rx = x; rx < x + w; rx++)
 					bitmapPixels[ry * bitmapwidth + rx] = pix;
 		}
+		updateBitmap(x, y, w, h);
 	}
 
 	public void imageRect(int x, int y, int w, int h, int[] pix) {
@@ -148,6 +165,7 @@ abstract public class AbstractBitmapData {
 			for (int j = 0; j < h; j++)
 				System.arraycopy(pix, (w * j), bitmapPixels, bitmapwidth * (y + j) + x, w);
 		}
+		updateBitmap(x, y, w, h);
 	}
 	
 	/**

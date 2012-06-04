@@ -58,7 +58,7 @@ class FullBufferBitmapData extends AbstractBitmapData {
 			}
 			else
 			{
-*/				
+*/
 				if (xoffset < 0)
 					xo = 0;
 				else if (xoffset >= data.framebufferwidth)
@@ -165,6 +165,7 @@ class FullBufferBitmapData extends AbstractBitmapData {
 			System.arraycopy(bitmapPixels, srcOffset, bitmapPixels, dstOffset, dstW);
 			dstY += deltaY;
 		}
+		updateBitmap(dest.left, dest.top, dstW, dstH);
 	}
 
 	/* (non-Javadoc)
@@ -251,8 +252,9 @@ class FullBufferBitmapData extends AbstractBitmapData {
 	 */
 	@Override
 	public void updateBitmap(int x, int y, int w, int h) {
-		// Don't need to do anything here
-
+		int right  = x+w;
+		int bottom = y+h;
+		dirtyRect.union(x, y, right, bottom);
 	}
 
 	/* (non-Javadoc)

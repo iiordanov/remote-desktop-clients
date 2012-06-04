@@ -957,6 +957,7 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 		
 		vncCanvas.setOnKeyListener(this);
 		vncCanvas.setFocusableInTouchMode(true);
+		vncCanvas.setDrawingCacheEnabled(false);
 		
 		// This code detects when the soft keyboard is up and sets an appropriate visibleHeight in vncCanvas.
 		// When the keyboard is gone, it resets visibleHeight and pans zero distance to prevent us from being
@@ -1420,7 +1421,7 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 			vncCanvas = null;
 			connection = null;
 			database = null;
-			zoomer = null;
+			//zoomer = null;
 			panner = null;
 			inputHandler = null;
 			System.gc();

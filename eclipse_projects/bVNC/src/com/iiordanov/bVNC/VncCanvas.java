@@ -1003,7 +1003,8 @@ public class VncCanvas extends ImageView {
 	 */
 	private Runnable reDraw = new Runnable() {
 		public void run() {
-			VncCanvas.this.invalidate();
+			if (!bitmapData.isDirtyEmpty())
+				VncCanvas.this.invalidate();
 		}
 	};
 	
@@ -1012,8 +1013,8 @@ public class VncCanvas extends ImageView {
 	 * inserted at the front of the queue.
 	 */
 	public void reDraw() {
-		handler.removeCallbacks(reDraw);
-		handler.postAtFrontOfQueue(reDraw);
+		//handler.removeCallbacks(reDraw);
+		handler.post(reDraw);
 	}
 	
 	// Toggles on-screen Ctrl mask. Returns true if result is Ctrl enabled, false otherwise.
