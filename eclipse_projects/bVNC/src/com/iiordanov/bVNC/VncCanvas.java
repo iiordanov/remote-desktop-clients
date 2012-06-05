@@ -171,13 +171,18 @@ public class VncCanvas extends ImageView {
 
 					// Generate a sha1 signature of the certificate.
 				    MessageDigest sha1;
+				    MessageDigest md5;
 					try {
 						sha1 = MessageDigest.getInstance("SHA1");
+						md5 = MessageDigest.getInstance("MD5");
 			    	    //android.util.Log.e("  Subject ", cert.getSubjectDN().toString());
 			    	    //android.util.Log.e("   Issuer  ", cert.getIssuerDN().toString());
 			    	    sha1.update(cert.getEncoded());
-		    			Utils.showYesNoPrompt(getContext(), "Continue connecting to host?", 
-		    									toHexString(sha1.digest()), signatureYes, signatureNo);
+		    			Utils.showYesNoPrompt(getContext(), "Continue connecting to " + connection.getAddress () + "?",
+		    									"The x509 certificate signatures are:\nSHA1:  " + toHexString(sha1.digest()) +
+		    									"\nMD5:  " + toHexString(md5.digest()) + 
+		    									"\nYou can compare these signatures to the server's signatures and ensure they are identical.",
+		    									signatureYes, signatureNo);
 					} catch (NoSuchAlgorithmException e2) {
 						Log.e(TAG, "Could not generate SHA1 signature of certificate. No SHA1 algorithm found.");
 						e2.printStackTrace();
@@ -191,7 +196,8 @@ public class VncCanvas extends ImageView {
 					// Compare saved with obtained certificate and quit if they don't match.
 	        		try {
 						if (!connection.getSshHostKey().equals(Base64.encodeToString(cert.getEncoded(), Base64.DEFAULT))) {
-							Utils.showFatalErrorMessage(getContext(), "Saved certificate does not match server certificate!");
+							Utils.showFatalErrorMessage(getContext(), "ERROR: The saved x509 certificate does not match the current server certificate! " +
+									"This could be a man-in-the-middle attack. If you are aware of the key change, delete and recreate the connection.");
 						} else {
 							// TODO: In case we need to display information about the certificate, we can reconstruct it.
 							//CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
@@ -502,6 +508,10 @@ public class VncCanvas extends ImageView {
 		else
 			useFull = (connection.getForceFull() == BitmapImplHint.FULL);
 
+		// TODO: This is a hack due to current incompatibility between LBM and CConn.
+		if (connection.getConnectionType() >= 4)
+			useFull = true;
+		
 		if (!useFull)
 			bitmapData=new LargeBitmapData(rfbconn, this, dx, dy, capacity);
 		else
@@ -550,8 +560,9 @@ public class VncCanvas extends ImageView {
 		try {
 			bitmapData.frameBufferSizeChanged ();
 		} catch (Throwable e) {
-			// If we've run out of memory, try using an LBM.
-			if (e instanceof OutOfMemoryError) {
+			// If we've run out of memory, try using an LBM
+			// TODO: but not if we are using CConn. 
+			if (e instanceof OutOfMemoryError && !(connection.getConnectionType() >= 4)) {
 				useFull = false;
 				bitmapData = new LargeBitmapData(rfbconn, this, getWidth(), getHeight(), capacity);
 			}

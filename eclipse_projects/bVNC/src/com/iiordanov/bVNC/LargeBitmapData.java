@@ -266,7 +266,7 @@ class LargeBitmapData extends AbstractBitmapData {
 			invalidList.add(r);
 			rectPool.release(entry);
 		}
-		rfb.requestUpdate(incremental);
+		rfb.writeFramebufferUpdateRequest(xoffset, yoffset, bitmapwidth, bitmapheight, incremental);
 	}
 
 	/* (non-Javadoc)
@@ -344,15 +344,8 @@ class LargeBitmapData extends AbstractBitmapData {
 		size = invalidList.getSize();
 		for (int i=0; i<size; i++) {
 			Rect invalidRect = invalidList.get(i);
-			try
-			{
-				rfb.requestUpdate(false);
-				pendingList.add(invalidRect);
-			}
-			catch (IOException ioe)
-			{
-			//TODO Log this
-			}
+			rfb.writeFramebufferUpdateRequest(invalidRect.left, invalidRect.top, invalidRect.right-invalidRect.left, invalidRect.bottom-invalidRect.top, false);
+			pendingList.add(invalidRect);
 		}
 		waitingForInput=true;
 		//android.util.Log.i("LBM", "pending "+pendingList.toString() + "invalid "+invalidList.toString());
@@ -388,4 +381,45 @@ class LargeBitmapData extends AbstractBitmapData {
 		bitmapRect = new Rect(0, 0, bitmapwidth, bitmapheight);
 		defaultPaint = new Paint();
 	}
+
+/*
+	public void fillRect(int x, int y, int w, int h, int pix) {
+		try {
+		if (!validDraw(x, y, w, h))
+			return;
+		} catch (Exception e) {
+			Log.e("LBM", "There was a problem verifying whether draw is valid.");
+			return;
+		}
+
+		int offset;
+		for (int ry = y; ry < y + h; ry++)
+			for (int rx = x; rx < x + w; rx++) {
+				offset = offset(rx,ry);
+				if (offset < bitmapPixels.length)
+					bitmapPixels[offset] = pix;
+				else
+					return;
+			}
+		updateBitmap(x, y, w, h);
+	}
+
+	public void imageRect(int x, int y, int w, int h, int[] pix) {
+		try {
+		if (!validDraw(x, y, w, h))
+			return;
+		} catch (Exception e) {
+			Log.e("LBM", "There was a problem verifying whether draw is valid.");
+			return;
+		}
+
+		for (int j = 0; j < h; j++) {
+			if (bitmapwidth * (y + j) + x + w < bitmapPixels.length)
+				System.arraycopy(pix, (w * j), bitmapPixels, bitmapwidth * (y + j) + x, w);
+			else
+				return;
+		}
+		updateBitmap(x, y, w, h);
+	}
+*/
 }

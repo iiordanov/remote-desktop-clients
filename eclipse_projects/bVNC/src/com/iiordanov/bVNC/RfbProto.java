@@ -993,10 +993,8 @@ class RfbProto implements RfbConnectable {
   //
 
   byte[] framebufferUpdateRequest = new byte[10];
-  synchronized void writeFramebufferUpdateRequest(int x, int y, int w, int h,
-				     boolean incremental)
-       throws IOException
-  {
+  public synchronized void writeFramebufferUpdateRequest(int x, int y, int w, int h,
+				     boolean incremental) {
     framebufferUpdateRequest[0] = (byte) FramebufferUpdateRequest;
     framebufferUpdateRequest[1] = (byte) (incremental ? 1 : 0);
     framebufferUpdateRequest[2] = (byte) ((x >> 8) & 0xff);
@@ -1008,7 +1006,12 @@ class RfbProto implements RfbConnectable {
     framebufferUpdateRequest[8] = (byte) ((h >> 8) & 0xff);
     framebufferUpdateRequest[9] = (byte) (h & 0xff);
 
-    os.write(framebufferUpdateRequest);
+    try {
+		os.write(framebufferUpdateRequest);
+	} catch (IOException e) {
+		Log.e(TAG, "Could not write framebuffer update request.");
+		e.printStackTrace();
+	}
   }
 
 

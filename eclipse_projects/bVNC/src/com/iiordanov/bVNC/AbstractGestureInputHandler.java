@@ -133,8 +133,10 @@ abstract class AbstractGestureInputHandler extends GestureDetector.SimpleOnGestu
 				// smaller the time-delta between consumed events. We take the reciprocal
 				// obtain swipeSpeed. If it goes to zero, we set it to at least one.
 				long elapsedTime = detector.getTimeDelta();
+				if (elapsedTime < 10) elapsedTime = 10;
+				
 				swipeSpeed = baseSwipeTime/elapsedTime;
-				if (swipeSpeed == 0) swipeSpeed = 1;
+				if (swipeSpeed == 0)  swipeSpeed = 1;
 				//if (consumed)        Log.d(TAG,"Current swipe speed: " + swipeSpeed);
 			}
 		}
