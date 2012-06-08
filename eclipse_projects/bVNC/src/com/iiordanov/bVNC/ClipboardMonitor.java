@@ -53,7 +53,7 @@ public class ClipboardMonitor extends TimerTask {
 				knownClipboardContents = new String(currentClipboardContents);
 				//Log.d(TAG, "Wrote: " + knownClipboardContents + " to remote clipboard.");
 			}
-		} else if (vncCanvas.serverJustCutText) {
+		} else if (vncCanvas.serverJustCutText && currentClipboardContents != null) {
 			knownClipboardContents = new String(currentClipboardContents);
 			vncCanvas.serverJustCutText = false;
 			//Log.d(TAG, "Set knownClipboardContents to equal what server just sent over.");

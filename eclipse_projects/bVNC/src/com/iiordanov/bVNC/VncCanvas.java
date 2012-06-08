@@ -181,7 +181,7 @@ public class VncCanvas extends ImageView {
 		    			Utils.showYesNoPrompt(getContext(), "Continue connecting to " + connection.getAddress () + "?",
 		    									"The x509 certificate signatures are:\nSHA1:  " + toHexString(sha1.digest()) +
 		    									"\nMD5:  " + toHexString(md5.digest()) + 
-		    									"\nYou can compare these signatures to the server's signatures and ensure they are identical.",
+		    									"\nYou can ensure they are identical to the known signatures of the server certificate to prevent a man-in-the-middle attack.",
 		    									signatureYes, signatureNo);
 					} catch (NoSuchAlgorithmException e2) {
 						Log.e(TAG, "Could not generate SHA1 signature of certificate. No SHA1 algorithm found.");
@@ -775,12 +775,13 @@ public class VncCanvas extends ImageView {
 	public void onDestroy() {
 		Log.v(TAG, "Cleaning up resources");
 		if ( bitmapData!=null) bitmapData.dispose();
-		bitmapData = null;
+		handler.removeCallbacks(reDraw);
 		clipboardMonitorTimer.cancel();
 		clipboardMonitorTimer = null;
 		clipboardMonitor = null;
 		rfb = null;
 		cc = null;
+		bitmapData = null;
 	}
 	
 	/**
@@ -1262,9 +1263,11 @@ public class VncCanvas extends ImageView {
 		 */
 		@Override
 		public void run() {
-			rfb.writePointerEvent(mouseX, mouseY, 0, scrollButton);
-			rfb.writePointerEvent(mouseX, mouseY, 0, 0);				
-			handler.postDelayed(this, delay);
+			if (rfbconn != null && rfbconn.isInNormalProtocol()) {
+				rfbconn.writePointerEvent(mouseX, mouseY, 0, scrollButton);
+				rfbconn.writePointerEvent(mouseX, mouseY, 0, 0);				
+				handler.postDelayed(this, delay);
+			}
 		}		
 	}
 

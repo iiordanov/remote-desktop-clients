@@ -93,8 +93,8 @@ public class androidVNC extends Activity {
 
 	@Override
 	public void onCreate(Bundle icicle) {
-
 		super.onCreate(icicle);
+		System.gc();
 		setContentView(R.layout.main);
 
 		ipText = (EditText) findViewById(R.id.textIP);
@@ -250,6 +250,7 @@ public class androidVNC extends Activity {
 	
 	protected void onDestroy() {
 		database.close();
+		System.gc();
 		super.onDestroy();
 	}
 	
@@ -484,11 +485,13 @@ public class androidVNC extends Activity {
 	
 	protected void onStart() {
 		super.onStart();
+		System.gc();
 		arriveOnPage();
 	}
 
 	protected void onResume() {
 		super.onStart();
+		System.gc();
 		arriveOnPage();
 	}
 

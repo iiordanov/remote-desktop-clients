@@ -53,17 +53,44 @@
 <string name="input_mode_help">Input Mode Help</string>
 <string name="info">Info</string>
 <string name="intro_text">
-bVNC now supports tunneling VNC over SSH for enterprise-level security. It also supports UltraVNC with Windows Logon.
-Sessions are automatically saved. Once connected, you can choose between Zoomable, Fit to Screen,
-and One to One scaling, as well as between Touch Mouse and Simulated Touchpad input modes. Use the Menu to: 
-delete connections on the main screen, change the Scaling or Input Mode when connected, or get Help.
-In addition, you can toggle Ctrl/Alt, use the arrow keys, and send arbitrary text and key combinations.
-Input Mode Help (how to control the remote mouse) is available at Menu->More->Input Mode Help.
+"Current list of bVNC features:
 &lt;br&gt;
-* WARNING: Beware that using a hardware Trackpad/ball triggers a bug in Android which prevents bVNC from
+- Plain VNC, Secure VNC over SSH, AnonTLS, and VeNCrypt, and UltraVNC Windows Logon with optional Repeater.
+&lt;br&gt;
+- All standard VNC encodings, including Tight, ZRLE, and CopyRect.
+&lt;br&gt;
+- Automatic Session saving.
+&lt;br&gt;
+- Zoomable, Fit to Screen, and One to One scaling modes.
+&lt;br&gt;
+- Touch Mouse and Simulated Touchpad input modes.
+&lt;br&gt;
+- Multi-touch control over remote mouse (Tap to Left-click, two-finger tap to right-click, three-finger-tap to middle click).
+&lt;br&gt;
+- Up/Down, and Left/Right Scroll-wheel support with two finger drag.
+&lt;br&gt;
+- Togging Ctrl/Alt from Menu when connected.
+&lt;br&gt;
+- Sending Text and arbitrary Key combinations when connected.
+&lt;br&gt;
+- Help with creating connections (\"Menu->Connection Help\") in connection screen.
+&lt;br&gt;
+- Help with input modes (\"Menu->More->Input Mode Help\") when connected.
+&lt;br&gt;
+- Using an available trackpad as Arrows instead of moving the mouse, and trackpad click as Ctrl.
+&lt;br&gt;
+- Switching to portrait mode during connections, rotating D-pad/trackpad for BT keyboards.
+&lt;br&gt;
+- Multi-language support, as long as the VNC server has the necessary language layout enabled.
+&lt;br&gt;
+&lt;br&gt;
+Known issues:
+&lt;br&gt;
+- Using a hardware Trackpad/ball triggers a bug in Android which prevents bVNC from
 resizing the visible screen when the soft-keyboard is up (and it starts to cover part of the screen). Using
-a software D-pad, or soft-keyboard arrow keys causes no problems. Note that bVNC now has the option to
-use D-pad or Trackpad/ball to send arrow keys instead of moving the mouse pointer.
+a software D-pad, or soft-keyboard arrow keys causes no problems.
+&lt;br&gt;
+- Secure VNC over VeNCrypt mode supports only 24-bit color."
 </string>
 <string name="intro_title">bVNC, a secure VNC client with an intuitive UI</string>
 <string name="intro_version_text"></string>
@@ -95,7 +122,7 @@ All Input Modes:
  - Right-click: Tap-hold and tap with a second finger (anywhere else on screen).
  - Middle-click: Tap-hold and tap with two more fingers (anywhere else on screen).
  - Mouse-drag: Tap-hold-long and swipe.
- - Scroll-wheel: Two-finger swipe up/down. Swipe quickly (flick) to scroll really quickly.
+ - Scroll-wheel: Two-finger swipe up/down and left/right. Swipe quickly (flick) to scroll really quickly.
  - Zoom in/out: When in Zoomable scaling, you can pinch-zoom to control scaling.
  - ESC key: Use the \"Back\" functionality of your device (e.g. diagonal swipe from bottom or back arrow symbol).
  - Ctrl/Alt key: Menu, and then toggle Ctrl/Alt with corresponding key. Don't forget to toggle off when done!
@@ -118,6 +145,13 @@ All Input Modes:
 "When you first start bVNC, you will see a connection configuration page. Here you can set up a new VNC connection, or choose a preexisting one. The page is divided into two sections. The top section contains a drop-down list of the connection configurations you've created previously. The first time your run bVNC, you will only be able to make a new connection. Next to the list is a Connect button. The Connect button will start the VNC client with the currently selected configuration. Below that is where you configure your connection.
 
 If you are looking for a quick performance boost, try setting the Color mode to a lower value. Also, try removing any desktop background image on the VNC server. Finally, ensure your device has good network connectivity and avoid covering its antenna and reducing the signal strength.
+
+ - Conn. Type: Here you choose the VNC connection type. Available connection types are:
+   - Plain VNC, which is  supported by all VNC servers but lacks encryption and is vulnerable to brute-force attacks due to an 8-character password limitation.
+   - Secure VNC over SSH, which connects over an encrypted SSH tunnel. You need an SSHD service running as well as a VNC server. As long as the VNC server does not accept connections directly from the Internet, this connection type suffers no known vulnerabilities, as long as you verify the server certificate signature when first connecting.
+   - UltraVNC, which gives you Windows Logon and UltraVNC Repeater options. Using Windows Logon does not suffer from the 8-character password limitation, but this mode offers no encryption, so your session is vulnerable to sniffing.
+   - Secure VNC over AnonTLS, which is regular VNC over a stunnel-equivalent connection. You either need to run stunnel, or use a VNC server like Vino which supports AnonTLS out of the box. This mode gives you session encryption, but suffers from the 8-character password limitation and does not prevent man-in-the-middle attacks.
+   - Secure VNC over VeNCrypt, which uses x509 certificates as well as session encryption, and depending on the server configuration can use user/password credentials with no 8-character limitation. This mode prevents man-in-the-middle attacks. as well as providing session privacy. Servers like x11vnc and TigerVNC support this mode and are as secure as VNC over SSH. 
 
  - Nickname: Each configuration you create can have a nickname to easily identify it on the list.
  

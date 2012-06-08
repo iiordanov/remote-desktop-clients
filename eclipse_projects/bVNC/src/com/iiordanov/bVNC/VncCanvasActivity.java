@@ -832,7 +832,7 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 		        
 				Utils.showYesNoPrompt(this, "Continue connecting to " + connection.getSshServer() + "?", 
 									"The host key fingerprint is: " + sshConnection.getHostKeySignature() + 
-									".\nYou can compare this fingerprint to the server's fingerprint and ensure they are identical.",
+									".\nYou can ensure it is identical to the known fingerprint of the server certificate to prevent a man-in-the-middle attack.",
 									signatureYes, signatureNo);
 			}
 		} else {
