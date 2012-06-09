@@ -335,6 +335,7 @@ public class androidVNC extends Activity {
 				public void onClick(DialogInterface dialog, int i)
 				{
 					selected.Gen_delete(database.getWritableDatabase());
+	    			database.close();
 					arriveOnPage();
 				}
 			}, null);
@@ -601,6 +602,7 @@ public class androidVNC extends Activity {
 		finally
 		{
 			db.endTransaction();
+			db.close();
 		}
 	}
 	

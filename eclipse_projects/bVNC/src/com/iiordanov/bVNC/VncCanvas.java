@@ -141,7 +141,7 @@ public class VncCanvas extends ImageView {
 	    	            @Override
 	    	            public void onClick(DialogInterface dialog, int which) {
 	    	                // We were told not to continue, so stop the activity
-			            	VncCanvas.this.rfbconn.close();
+	    	            	closeConnection();
 	    	            	((Activity) getContext()).finish();
 	    	            }
 	    	        };
@@ -153,14 +153,14 @@ public class VncCanvas extends ImageView {
 	    	            	try {
 	    	            		certificate = Base64.encodeToString(cert.getEncoded(), Base64.DEFAULT);
 							} catch (CertificateEncodingException e) {
-								Log.e(TAG, "Certificate encoding could not be generated.");
 								e.printStackTrace();
-				            	((Activity) getContext()).finish();
+								showFatalMessageAndQuit("Certificate encoding could not be generated.");
 							}
 							connection.setSshHostKey(certificate);
 			    			connection.save(database.getWritableDatabase());
+			    			database.close();
 			    			// Indicate the certificate was accepted.
-	    	            	VncCanvas.this.certificateAccepted = true;
+	    	            	certificateAccepted = true;
 	    	            }
 	    	        };
 
@@ -170,48 +170,41 @@ public class VncCanvas extends ImageView {
 					try {
 						sha1 = MessageDigest.getInstance("SHA1");
 						md5 = MessageDigest.getInstance("MD5");
-			    	    //android.util.Log.e("  Subject ", cert.getSubjectDN().toString());
-			    	    //android.util.Log.e("   Issuer  ", cert.getIssuerDN().toString());
 			    	    sha1.update(cert.getEncoded());
 		    			Utils.showYesNoPrompt(getContext(), "Continue connecting to " + connection.getAddress () + "?",
-		    									"The x509 certificate signatures are:\nSHA1:  " + toHexString(sha1.digest()) +
-		    									"\nMD5:  " + toHexString(md5.digest()) + 
+		    									"The x509 certificate signatures are:"   +
+		    									"\nSHA1:  " + toHexString(sha1.digest()) +
+		    									"\nMD5:  "  + toHexString(md5.digest())  + 
 		    									"\nYou can ensure they are identical to the known signatures of the server certificate to prevent a man-in-the-middle attack.",
 		    									signatureYes, signatureNo);
 					} catch (NoSuchAlgorithmException e2) {
-						Log.e(TAG, "Could not generate SHA1 signature of certificate. No SHA1 algorithm found.");
 						e2.printStackTrace();
-		            	((Activity) getContext()).finish();
+						showFatalMessageAndQuit("Could not generate SHA1 or MD5 signature of certificate. No SHA1/MD5 algorithm found.");
 					} catch (CertificateEncodingException e) {
-						Log.e(TAG, "Certificate encoding could not be generated.");
 						e.printStackTrace();
-		            	((Activity) getContext()).finish();
+						showFatalMessageAndQuit("Certificate encoding could not be generated.");
 					}
 	        	} else {
 					// Compare saved with obtained certificate and quit if they don't match.
 	        		try {
 						if (!connection.getSshHostKey().equals(Base64.encodeToString(cert.getEncoded(), Base64.DEFAULT))) {
-							Utils.showFatalErrorMessage(getContext(), "ERROR: The saved x509 certificate does not match the current server certificate! " +
+							showFatalMessageAndQuit("ERROR: The saved x509 certificate does not match the current server certificate! " +
 									"This could be a man-in-the-middle attack. If you are aware of the key change, delete and recreate the connection.");
 						} else {
 							// TODO: In case we need to display information about the certificate, we can reconstruct it.
 							//CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
 							//ByteArrayInputStream in = new ByteArrayInputStream(Base64.decode(connection.getSshHostKey(), Base64.DEFAULT));
 							//X509Certificate c = (X509Certificate)certFactory.generateCertificate(in);
-
+				    	    //android.util.Log.e("  Subject ", c.getSubjectDN().toString());
+				    	    //android.util.Log.e("   Issuer  ", c.getIssuerDN().toString());
 							// The certificate matches, so we proceed.
-	    	            	VncCanvas.this.certificateAccepted = true;
+	    	            	certificateAccepted = true;
 						}
 					} catch (CertificateEncodingException e) {
-						Log.e(TAG, "Certificate encoding could not be generated.");
 						e.printStackTrace();
-		            	((Activity) getContext()).finish();
-					//} catch (CertificateException e) {
-					//	Log.e(TAG, "Could not generate x509 certificate from saved data.");
-					//	e.printStackTrace();
-		            //	((Activity) getContext()).finish();
+						showFatalMessageAndQuit("Certificate encoding could not be generated.");
 					}
-				}
+	        	}
 	            break;
 	        }
 	    }

@@ -825,6 +825,7 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 		    			// We were told to go ahead with the connection.
 		    			connection.setSshHostKey(sshConnection.getServerHostKey());
 		    			connection.save(database.getWritableDatabase());
+		    			database.close();
 		    			sshConnection.disconnect();
 		    			sshConnection = null;
 		            	continueConnecting();
@@ -890,6 +891,7 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 					{
 						bean.setConnectionId(connection.get_Id());
 						bean.Gen_update(database.getWritableDatabase());
+		    			database.close();
 					}
 				}
 			} else {
@@ -904,6 +906,7 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 			        connection.setPassword(path.get(1));
 			    }
 			    connection.save(database.getWritableDatabase());
+    			database.close();
 			}
 		} else {
 		
@@ -1321,12 +1324,14 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 				vncCanvas.panToMouse();
 			}
 			connection.save(database.getWritableDatabase());
+			database.close();
 			return true;
 		case R.id.itemFollowPan:
 			boolean newFollowPan = !connection.getFollowPan();
 			item.setChecked(newFollowPan);
 			connection.setFollowPan(newFollowPan);
 			connection.save(database.getWritableDatabase());
+			database.close();
 			return true;
  */
 		case R.id.itemArrowLeft:
@@ -1381,6 +1386,7 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 				item.setChecked(true);
 				showPanningState();
 				connection.save(database.getWritableDatabase());
+    			database.close();
 				return true;
 			}
 		}
@@ -1534,6 +1540,7 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 				vncCanvas.setColorModel(cm);
 				connection.setColorModel(cm.nameString());
 				connection.save(database.getWritableDatabase());
+    			database.close();
 				Toast.makeText(VncCanvasActivity.this,
 						"Updating Color Model to " + cm.toString(),
 						Toast.LENGTH_SHORT).show();
@@ -1722,6 +1729,7 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 				inputHandler = getInputHandlerById(R.id.itemInputTouchPanZoomMouse);
 				connection.setInputMode(inputHandler.getName());
 				connection.save(database.getWritableDatabase());
+    			database.close();
 				updateInputMenu();
 				showPanningState();
 				return true;
@@ -1971,6 +1979,7 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 				showPanningState();
 				connection.setInputMode(inputHandler.getName());
 				connection.save(database.getWritableDatabase());
+    			database.close();
 				updateInputMenu();
 				return true;
 			}
