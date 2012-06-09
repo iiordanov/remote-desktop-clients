@@ -16,4 +16,5 @@ public interface RfbConnectable {
 			   boolean trueColour, int redMax, int greenMax, int blueMax,
 			   int redShift, int greenShift, int blueShift, boolean fGreyScale);
 	void writeFramebufferUpdateRequest(int x, int y, int w, int h,	boolean b);
+	void close();
 }

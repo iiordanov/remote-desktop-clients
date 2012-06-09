@@ -815,6 +815,7 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 		            @Override
 		            public void onClick(DialogInterface dialog, int which) {
 		                // We were told to not continue, so stop the activity
+		            	sshConnection.disconnect();
 		                finish();    
 		            }	
 		        };

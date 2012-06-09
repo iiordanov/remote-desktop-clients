@@ -89,6 +89,7 @@ class FullBufferBitmapData extends AbstractBitmapData {
 					} catch (Exception e) {
 						Log.e (TAG, "Failed to draw bitmap: xo, yo/drawW, drawH: " + xo + ", " + yo + "/"
 									+ drawWidth + ", " + drawHeight);
+						// TODO: Rarely drawWidth and drawHeight are zero here (don't know why), and nothing can be drawn anymore.
 					}
 				/*
 				}

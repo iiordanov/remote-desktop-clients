@@ -259,7 +259,7 @@ class RfbProto implements RfbConnectable {
   }
  
 
-  synchronized void close() {
+  public synchronized void close() {
     try {
       sock.close();
       closed = true;

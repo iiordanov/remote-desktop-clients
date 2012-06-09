@@ -29,16 +29,12 @@
 
 package com.iiordanov.bVNC;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.net.ServerSocket;
 import java.net.Socket;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateEncodingException;
-import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
-import java.security.cert.CertificateFactory;
 import java.util.Timer;
 import java.util.zip.Inflater;
 
@@ -66,7 +62,6 @@ import android.graphics.Bitmap;
 
 import com.iiordanov.android.bc.BCFactory;
 
-import com.iiordanov.tigervnc.rdr.EndOfStream;
 import com.iiordanov.tigervnc.rfb.UnicodeToKeysym;
 import com.iiordanov.tigervnc.vncviewer.CConn;
 
@@ -89,7 +84,6 @@ public class VncCanvas extends ImageView {
 
 	// Runtime control flags
 	private boolean maintainConnection = true;
-	private boolean showDesktopInfo = true;
 	private boolean repaintsEnabled = true;
 
 	private final static int SCAN_ESC = 1;
@@ -147,6 +141,7 @@ public class VncCanvas extends ImageView {
 	    	            @Override
 	    	            public void onClick(DialogInterface dialog, int which) {
 	    	                // We were told not to continue, so stop the activity
+			            	VncCanvas.this.rfbconn.close();
 	    	            	((Activity) getContext()).finish();
 	    	            }
 	    	        };
@@ -211,10 +206,10 @@ public class VncCanvas extends ImageView {
 						Log.e(TAG, "Certificate encoding could not be generated.");
 						e.printStackTrace();
 		            	((Activity) getContext()).finish();
-					} catch (CertificateException e) {
-						Log.e(TAG, "Could not generate x509 certificate from saved data.");
-						e.printStackTrace();
-		            	((Activity) getContext()).finish();
+					//} catch (CertificateException e) {
+					//	Log.e(TAG, "Could not generate x509 certificate from saved data.");
+					//	e.printStackTrace();
+		            //	((Activity) getContext()).finish();
 					}
 				}
 	            break;
@@ -260,10 +255,7 @@ public class VncCanvas extends ImageView {
 	private MouseScrollRunnable scrollRunnable;
 	
 	private Paint handleRREPaint;
-	
-	// Used to convert unicode characters to X keysym values.
-	private XKeySymCoverter xKeySymConv;
-	
+
 	// Used to set the contents of the clipboard.
 	ClipboardManager clipboard;
 	Timer clipboardMonitorTimer;
@@ -309,7 +301,6 @@ public class VncCanvas extends ImageView {
 		uncompDataBuf = new byte[RfbProto.TightMinToCompress*3];
 		zlibData = new byte[4096];
 		inflBuf = new byte[8192];
-		xKeySymConv = new XKeySymCoverter();
 		clipboard = (ClipboardManager)getContext().getSystemService(Context.CLIPBOARD_SERVICE);
 		bitmapopts = new BitmapFactory.Options();
 		bitmapopts.inPurgeable = true;
@@ -571,7 +562,6 @@ public class VncCanvas extends ImageView {
 		handler.post(setModes);
 		handler.post(desktopInfo);		
 		bitmapData.syncScroll();
-		showDesktopInfo = true;
 	}
 	
 	public void processNormalProtocolSecure (final Context context, final ProgressDialog pd, final Runnable setModes) throws Exception {
@@ -1439,6 +1429,11 @@ public class VncCanvas extends ImageView {
 		// Tell the server to release any meta keys.
 		onScreenMetaState = 0;
 		processLocalKeyEvent(0, new KeyEvent(KeyEvent.ACTION_UP, 0));
+
+		// Close the rfb connection.
+		if (rfbconn != null)
+			rfbconn.close();
+
 		// TODO: Switch from hard-coded numeric position to something better (at least an enumeration).
 		if (connection.getConnectionType() == 1)
 			sshConnection.disconnect();
