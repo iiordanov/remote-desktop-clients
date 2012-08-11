@@ -71,9 +71,6 @@ class CompactBitmapData extends AbstractBitmapData {
 	@Override
 	public void updateBitmap(int x, int y, int w, int h) {
 		mbitmap.setPixels(bitmapPixels, offset(x,y), bitmapwidth, x, y, w, h);
-		int right  = x+w;
-		int bottom = y+h;
-		dirtyRect.union(x, y, right, bottom);
 	}
 	
 	/* (non-Javadoc)

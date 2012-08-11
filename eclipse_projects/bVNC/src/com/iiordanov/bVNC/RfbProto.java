@@ -249,6 +249,8 @@ class RfbProto implements RfbConnectable {
     port = p;
 
    	sock = new Socket(host, port);
+   	// Set the TCP socket read timeout to infinity.
+   	sock.setSoTimeout(0);
     sock.setTcpNoDelay(true);
     is = new DataInputStream(new BufferedInputStream(sock.getInputStream(), 8192));
     os = sock.getOutputStream();

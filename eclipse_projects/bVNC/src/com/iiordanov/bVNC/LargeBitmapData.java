@@ -224,9 +224,6 @@ class LargeBitmapData extends AbstractBitmapData {
 	@Override
 	public void updateBitmap(int x, int y, int w, int h) {
 		mbitmap.setPixels(bitmapPixels, offset(x,y), bitmapwidth, x-xoffset, y-yoffset, w, h);
-		int right  = x+w;
-		int bottom = y+h;
-		dirtyRect.union(x, y, right, bottom);
 	}
 
 	/* (non-Javadoc)

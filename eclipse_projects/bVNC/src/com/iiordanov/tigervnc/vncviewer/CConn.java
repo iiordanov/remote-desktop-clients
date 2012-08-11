@@ -127,6 +127,7 @@ public class CConn extends CConnection
     sameMachine = (sock.getLocalSocketAddress() == sock.getRemoteSocketAddress());
     try {
       sock.setTcpNoDelay(true);
+      sock.setSoTimeout(0);
       setServerName(serverHost);
       jis = new JavaInStream(sock.getInputStream());
       jos = new JavaOutStream(sock.getOutputStream());
@@ -263,6 +264,7 @@ public class CConn extends CConnection
       setServerPort(port);
       sock = new java.net.Socket(host, port);
       sock.setTcpNoDelay(true);
+      sock.setSoTimeout(0);
       setSocket(sock);
       vlog.info("Redirected to "+host+":"+port);
       setStreams(new JavaInStream(sock.getInputStream()),
@@ -373,18 +375,18 @@ public class CConn extends CConnection
 
   public void fillRect(Rect r, int p) {
 	  viewer.bitmapData.fillRect(r.tl.x, r.tl.y, r.width(), r.height(), p);
-	  viewer.reDraw();
+	  viewer.reDraw(r.tl.x, r.tl.y, r.width(), r.height());
   }
 
   public void imageRect(Rect r, int[] p) {
 		  viewer.bitmapData.imageRect(r.tl.x, r.tl.y, r.width(), r.height(), p);
-		  viewer.reDraw();
+		  viewer.reDraw(r.tl.x, r.tl.y, r.width(), r.height());
   }
 
   public void copyRect(Rect r, int sx, int sy) {
 		  viewer.bitmapData.copyRect(new android.graphics.Rect(sx, sy, sx+r.width(), sy+r.height()),
     				 new android.graphics.Rect(r.tl.x, r.tl.y, r.br.x, r.br.y));
-		  viewer.reDraw();
+		  viewer.reDraw(r.tl.x, r.tl.y, r.width(), r.height());
   }
 
   public PixelFormat getPreferredPF() {

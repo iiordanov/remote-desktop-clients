@@ -8,10 +8,10 @@ import java.io.IOException;
 import java.util.Arrays;
 
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.util.Log;
-import android.widget.ImageView;
 
 /**
  * @author Michael A. MacDonald
@@ -34,6 +34,7 @@ class FullBufferBitmapData extends AbstractBitmapData {
 		int drawHeight; 
 		int xo, yo;
 		Paint paint;
+		Rect toDraw;
 		
 		/**
 		 * @param data
@@ -59,37 +60,45 @@ class FullBufferBitmapData extends AbstractBitmapData {
 			else
 			{
 */
-				if (xoffset < 0)
-					xo = 0;
-				else if (xoffset >= data.framebufferwidth)
-					return;
-				else
-					xo = xoffset;
+			toDraw = canvas.getClipBounds();				
+			// To avoid artifacts, we need to enlarge the box by one pixel in all directions.
+			toDraw.set(toDraw.left-1, toDraw.top-1, toDraw.right+1, toDraw.bottom+1);
+			drawWidth  = toDraw.width();
+			drawHeight = toDraw.height();
 
-				if (yoffset < 0)
-					yo = 0;
-				else if (yoffset >= data.framebufferheight)
+				if (toDraw.left < 0)
+					xo = 0;
+				else if (toDraw.left >= data.framebufferwidth)
 					return;
 				else
-					yo = yoffset;
+					xo = toDraw.left;
+
+				if (toDraw.top < 0)
+					yo = 0;
+				else if (toDraw.top >= data.framebufferheight)
+					return;
+				else
+					yo = toDraw.top;
 				/*
 				if (scale == 1 || scale <= 0)
 				{
 				*/
-					drawWidth = vncCanvas.getVisibleWidth();
 					if (xo + drawWidth  >= data.framebufferwidth)
 						drawWidth  = data.framebufferwidth  - xo - 1;
-					drawHeight = vncCanvas.getVisibleHeight();
 					if (yo + drawHeight >= data.framebufferheight)
 						drawHeight = data.framebufferheight - yo - 1;
 					
 					try {
 						canvas.drawBitmap(data.bitmapPixels, offset(xo, yo), data.framebufferwidth, 
-											(float)xo, (float)yo, drawWidth, drawHeight, false, paint);
+											xo, yo, drawWidth, drawHeight, false, null);
+
 					} catch (Exception e) {
 						Log.e (TAG, "Failed to draw bitmap: xo, yo/drawW, drawH: " + xo + ", " + yo + "/"
 									+ drawWidth + ", " + drawHeight);
-						// TODO: Rarely drawWidth and drawHeight are zero here (don't know why), and nothing can be drawn anymore.
+						// In case we couldn't draw for some reason, try putting up text.
+						paint.setColor(Color.WHITE);
+						canvas.drawText("There was a problem painting the remote bitmap on the screen. " +
+										"Please disconnect and reconnect to the VNC server.", xo+50, yo+50, paint);
 					}
 				/*
 				}
@@ -166,7 +175,6 @@ class FullBufferBitmapData extends AbstractBitmapData {
 			System.arraycopy(bitmapPixels, srcOffset, bitmapPixels, dstOffset, dstW);
 			dstY += deltaY;
 		}
-		updateBitmap(dest.left, dest.top, dstW, dstH);
 	}
 
 	/* (non-Javadoc)
@@ -245,7 +253,6 @@ class FullBufferBitmapData extends AbstractBitmapData {
 	@Override
 	void syncScroll() {
 		// Don't need to do anything here
-
 	}
 
 	/* (non-Javadoc)
@@ -253,9 +260,7 @@ class FullBufferBitmapData extends AbstractBitmapData {
 	 */
 	@Override
 	public void updateBitmap(int x, int y, int w, int h) {
-		int right  = x+w;
-		int bottom = y+h;
-		dirtyRect.union(x, y, right, bottom);
+		// Don't need to do anything here
 	}
 
 	/* (non-Javadoc)

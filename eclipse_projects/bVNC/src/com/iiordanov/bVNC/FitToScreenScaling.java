@@ -4,30 +4,38 @@
  */
 package com.iiordanov.bVNC;
 
-import android.util.Log;
+import android.graphics.Matrix;
 import android.widget.ImageView.ScaleType;
 
 /**
  * @author Michael A. MacDonald
  */
 class FitToScreenScaling extends AbstractScaling {
-
+	
+	static final String TAG = "FitToScreenScaling";
+	
+	private Matrix matrix;
+	int canvasXOffset;
+	int canvasYOffset;
 	float scaling;
-
+	float minimumScale;
+	
 	/**
 	 * @param id
 	 * @param scaleType
 	 */
-	FitToScreenScaling() {
+	public FitToScreenScaling() {
 		super(R.id.itemFitToScreen, ScaleType.FIT_CENTER);
+		matrix = new Matrix();
+		scaling = 0;
 	}
 
 	/* (non-Javadoc)
-	 * @see com.iiordanov.bVNC.AbstractScaling#getScale()
+	 * @see com.iiordanov.bVNC.AbstractScaling#getDefaultHandlerId()
 	 */
 	@Override
-	float getScale() {
-		return scaling;
+	int getDefaultHandlerId() {
+		return R.id.itemInputTouchPanZoomMouse;
 	}
 
 	/* (non-Javadoc)
@@ -35,7 +43,7 @@ class FitToScreenScaling extends AbstractScaling {
 	 */
 	@Override
 	boolean isAbleToPan() {
-		return false;
+		return true;
 	}
 
 	/* (non-Javadoc)
@@ -44,55 +52,49 @@ class FitToScreenScaling extends AbstractScaling {
 	@Override
 	boolean isValidInputMode(int mode) {
 		return true;
-//		return mode == R.id.itemInputTouchpad;
 	}
-
+	
+	/**
+	 * Call after scaling and matrix have been changed to resolve scrolling
+	 * @param activity
+	 */
+	private void resolveZoom(VncCanvasActivity activity)
+	{
+		activity.vncCanvas.scrollToAbsolute();
+		activity.vncCanvas.pan(0,0);
+	}
+	
 	/* (non-Javadoc)
-	 * @see com.iiordanov.bVNC.AbstractScaling#getDefaultHandlerId()
+	 * @see com.iiordanov.bVNC.AbstractScaling#getScale()
 	 */
 	@Override
-	int getDefaultHandlerId() {
-		return R.id.itemInputTouchpad;
+	float getScale() {
+		return scaling;
+	}
+
+	private void resetMatrix()
+	{
+		matrix.reset();
+		matrix.preTranslate(canvasXOffset, canvasYOffset);
 	}
 
 	/* (non-Javadoc)
-	 * @see com.iiordanov.bVNC.AbstractScaling#setCanvasScaleType(com.iiordanov.bVNC.VncCanvas)
+	 * @see com.iiordanov.bVNC.AbstractScaling#setScaleTypeForActivity(com.iiordanov.bVNC.VncCanvasActivity)
 	 */
 	@Override
 	void setScaleTypeForActivity(VncCanvasActivity activity) {
 		super.setScaleTypeForActivity(activity);
-
-		float factor = 1.f;
-		activity.vncCanvas.absoluteXPosition = 0;
-		activity.vncCanvas.absoluteYPosition = 0;
-		activity.vncCanvas.scrollTo(0, 0);
-		
-		float screenWidth  = activity.vncCanvas.getWidth();
-		float screenHeight = activity.vncCanvas.getHeight();
-		float fbWidth  = activity.vncCanvas.bitmapData.framebufferwidth;
-		float fbHeight = activity.vncCanvas.bitmapData.framebufferheight;
-		
-		float ratioScreen = screenWidth/screenHeight;
-		float ratioFrameBuffer = fbWidth/fbHeight;
-		
-		// Compute the correct absoluteXPosition and absoluteYPosition values depending on the
-		// height/width ratio of the device's screen vs. the framebuffer's ratio.
-		if (ratioScreen > ratioFrameBuffer) {
-			if (fbWidth <= screenWidth)
-				factor = ratioScreen;
-				
-			activity.vncCanvas.absoluteXPosition = -(int)(((screenWidth - screenHeight*fbWidth/fbHeight))/factor);
-			scaling = screenHeight/fbHeight;
-			
-		} else if (ratioScreen <= ratioFrameBuffer) {
-			if (fbHeight <= screenHeight)
-				factor = ratioScreen;
-			
-			activity.vncCanvas.absoluteYPosition = -(int)(((screenHeight - screenWidth*fbHeight/fbWidth))/factor);
-			scaling = screenWidth/fbWidth;
-		}
-		
-		//Log.i("", "X position: " + activity.vncCanvas.absoluteXPosition
-		//	    + " Y position: " + activity.vncCanvas.absoluteYPosition + " Scaling: " + scaling);
+		minimumScale = activity.vncCanvas.bitmapData.getMinimumScale();
+		canvasXOffset = -activity.vncCanvas.getCenteredXOffset();
+		canvasYOffset = -activity.vncCanvas.getCenteredYOffset();
+		activity.vncCanvas.computeShiftFromFullToView ();
+		scaling = minimumScale;
+		activity.zoomer.setIsZoomOutEnabled(false);
+		activity.zoomer.setIsZoomInEnabled(false);
+		resetMatrix();
+		matrix.postScale(scaling, scaling);
+		activity.vncCanvas.setImageMatrix(matrix);
+		resolveZoom(activity);
+		activity.vncCanvas.pan(0, 0);
 	}
 }

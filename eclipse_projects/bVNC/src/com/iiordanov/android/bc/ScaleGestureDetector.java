@@ -170,13 +170,19 @@ class ScaleGestureDetector implements IBCScaleGestureDetector {
                     final float bottomSlop = mBottomSlopEdge;
                     final float x0 = event.getRawX();
                     final float y0 = event.getRawY();
-                    final float x1 = getRawX(event, 1);
-                    final float y1 = getRawY(event, 1);
 
                     boolean p0sloppy = x0 < edgeSlop || y0 < edgeSlop
                     || x0 > rightSlop || y0 > bottomSlop;
-                    boolean p1sloppy = x1 < edgeSlop || y1 < edgeSlop
-                    || x1 > rightSlop || y1 > bottomSlop;
+
+                    boolean p1sloppy;
+                    if (event.getPointerCount() > 1) {
+                        final float x1 = getRawX(event, 1);
+                        final float y1 = getRawY(event, 1);
+                        p1sloppy = x1 < edgeSlop || y1 < edgeSlop
+                                || x1 > rightSlop || y1 > bottomSlop;
+                    } else {
+                        p1sloppy = false;
+                    }
 
                     if(p0sloppy && p1sloppy) {
                         mFocusX = -1;
@@ -282,27 +288,44 @@ class ScaleGestureDetector implements IBCScaleGestureDetector {
 
         final float px0 = prev.getX(0);
         final float py0 = prev.getY(0);
-        final float px1 = prev.getX(1);
-        final float py1 = prev.getY(1);
         final float cx0 = curr.getX(0);
         final float cy0 = curr.getY(0);
-        final float cx1 = curr.getX(1);
-        final float cy1 = curr.getY(1);
 
-        final float pvx = px1 - px0;
-        final float pvy = py1 - py0;
-        final float cvx = cx1 - cx0;
-        final float cvy = cy1 - cy0;
-        mPrevFingerDiffX = pvx;
-        mPrevFingerDiffY = pvy;
-        mCurrFingerDiffX = cvx;
-        mCurrFingerDiffY = cvy;
+        float prevpress = 0;
+        if (prev.getPointerCount() > 1) {
+            final float px1 = prev.getX(1);
+            final float py1 = prev.getY(1);        	
+            final float pvx = px1 - px0;
+            final float pvy = py1 - py0;
+            mPrevFingerDiffX = pvx;
+            mPrevFingerDiffY = pvy;
+            prevpress = prev.getPressure(1);
+        } else {
+            mPrevFingerDiffX = 0;
+            mPrevFingerDiffY = 0;
+        }
+        
+        float cvx = 0;
+        float cvy = 0;
+        float currpress = 0;
+        if (curr.getPointerCount() > 1) {
+            final float cx1 = curr.getX(1);
+            final float cy1 = curr.getY(1);        	
+            cvx = cx1 - cx0;
+            cvy = cy1 - cy0;
+            mCurrFingerDiffX = cvx;
+            mCurrFingerDiffY = cvy;
+            currpress = curr.getPressure(1);
+        } else {
+            mCurrFingerDiffX = 0;
+            mCurrFingerDiffY = 0;
+        }
 
         mFocusX = cx0 + cvx * 0.5f;
         mFocusY = cy0 + cvy * 0.5f;
         mTimeDelta = curr.getEventTime() - prev.getEventTime();
-        mCurrPressure = curr.getPressure(0) + curr.getPressure(1);
-        mPrevPressure = prev.getPressure(0) + prev.getPressure(1);
+        mCurrPressure = curr.getPressure(0) + currpress;
+        mPrevPressure = prev.getPressure(0) + prevpress;
     }
 
     private void reset() {

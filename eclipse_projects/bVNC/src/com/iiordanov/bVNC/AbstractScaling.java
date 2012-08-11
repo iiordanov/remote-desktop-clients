@@ -92,13 +92,17 @@ abstract class AbstractScaling {
 	{
 		activity.zoomer.hide();
 		activity.vncCanvas.scaling = this;
-		activity.vncCanvas.setScaleType(scaleType);
+		// This is a bit of a hack because Scaletype.FIT_CENTER is now obsolete, since fit-to-screen scaling is now
+		// essentially zoom-scaling with minimumScale and zoom disabled. However, we still use
+		// it to identify Fit-to-screen scale mode. Instead of setting scaleType here, we hard-code MATRIX.
+		activity.vncCanvas.setScaleType(ImageView.ScaleType.MATRIX);
 		activity.getConnection().setScaleMode(scaleType);
 		if (activity.inputHandler == null || ! isValidInputMode(activity.getModeIdFromHandler(activity.inputHandler))) {
 			activity.inputHandler=activity.getInputHandlerById(getDefaultHandlerId());
 			activity.getConnection().setInputMode(activity.inputHandler.getName());
 		}
 		activity.getConnection().Gen_update(activity.database.getWritableDatabase());
+		activity.database.close();
 		activity.updateInputMenu();
 	}
 	

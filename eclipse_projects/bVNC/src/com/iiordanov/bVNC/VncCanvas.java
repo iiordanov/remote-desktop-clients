@@ -262,18 +262,26 @@ public class VncCanvas extends ImageView {
 	// to confirm the authenticity of a certificate is displayed.
 	public boolean certificateAccepted = false;
 	
-	/**
+	/*
 	 * Position of the top left portion of the <i>visible</i> part of the screen, in
 	 * full-frame coordinates
 	 */
 	int absoluteXPosition = 0, absoluteYPosition = 0;
+	
+	/*
+	 * How much to shift coordinates over when converting from full to view coordinates.
+	 */
+	float shiftX = 0, shiftY = 0;
 
-	/**
+	/*
 	 * This variable holds the height of the visible rectangle of the screen. It is used to keep track
 	 * of how much of the screen is hidden by the soft keyboard if any.
 	 */
 	int visibleHeight = -1;
-	
+	int displayWidth = 0;
+	int displayHeight = 0;
+
+
 	/**
 	 * Constructor used by the inflation apparatus
 	 * @param context
@@ -333,13 +341,15 @@ public class VncCanvas extends ImageView {
 		pd.setCanceledOnTouchOutside(false);
 
 		final Display display = pd.getWindow().getWindowManager().getDefaultDisplay();
+		displayWidth  = display.getWidth();
+		displayHeight = display.getHeight();
 		Thread t = new Thread() {
 			public void run() {
 			    try {
 			    	if (connection.getConnectionType() < 4) {
 			    		connectAndAuthenticate(connection.getUserName(),connection.getPassword());
 			    		rfbconn = rfb;
-			    		doProtocolInitialisation(display.getWidth(), display.getHeight());
+			    		doProtocolInitialisation(displayWidth, displayHeight);
 			    		handler.post(new Runnable() {
 			    			public void run() {
 			    				pd.setMessage("Downloading first frame.\nPlease wait...");
@@ -349,7 +359,7 @@ public class VncCanvas extends ImageView {
 			    	} else {
 			    		cc = new CConn(VncCanvas.this, sock, null, false, connection);
 			    		rfbconn = cc;
-			    		initializeBitmap(rfbconn, display.getWidth(), display.getHeight());
+			    		initializeBitmap(rfbconn, displayWidth, displayHeight);
 			    		processNormalProtocolSecure(getContext(), pd, setModes);
 			    	}
 				} catch (Throwable e) {
@@ -739,6 +749,14 @@ public class VncCanvas extends ImageView {
 	}
 
 	/**
+	 * Computes the X and Y offset for converting coordinates from full-frame coordinates to view coordinates.
+	 */
+	void computeShiftFromFullToView () {
+		shiftX = (bitmapData.framebufferwidth - getWidth()) / 2;
+		shiftY = (bitmapData.framebufferheight - getHeight()) / 2;
+	}
+
+	/**
 	 * Apply scroll offset and scaling to convert touch-space coordinates to the corresponding
 	 * point on the full frame.
 	 * @param e MotionEvent with the original, touch space coordinates.  This event is altered in place.
@@ -758,7 +776,7 @@ public class VncCanvas extends ImageView {
 	public void onDestroy() {
 		Log.v(TAG, "Cleaning up resources");
 		if ( bitmapData!=null) bitmapData.dispose();
-		handler.removeCallbacks(reDraw);
+		handler.removeCallbacksAndMessages(null);
 		clipboardMonitorTimer.cancel();
 		clipboardMonitorTimer = null;
 		clipboardMonitor = null;
@@ -968,10 +986,10 @@ public class VncCanvas extends ImageView {
 		if ( ! valid)
 			return;
 
-		bitmapData.updateBitmap( x, y, w, h);
+		bitmapData.updateBitmap(x, y, w, h);
 
 		if (paint)
-			reDraw();
+			reDraw(x, y, w, h);
 	}
 
 	/**
@@ -992,24 +1010,18 @@ public class VncCanvas extends ImageView {
 			showConnectionInfo();
 		}
 	};
-	
+
 	/**
 	 * This runnable causes a redraw of the bitmapData to happen.
 	 */
-	private Runnable reDraw = new Runnable() {
-		public void run() {
-			if (!bitmapData.isDirtyEmpty())
-				VncCanvas.this.invalidate();
-		}
-	};
-	
-	/**
-	 * This callback causes all pending redraws to be dropped and a new one to be
-	 * inserted at the front of the queue.
-	 */
-	public void reDraw() {
-		//handler.removeCallbacks(reDraw);
-		handler.post(reDraw);
+	public void reDraw(int x, int y, int w, int h) {
+		float scale = getScale();
+		float shiftedX = x-shiftX;
+		float shiftedY = y-shiftY;
+		// Make the box slightly larger to avoid artifacts due to truncation errors.
+		postInvalidate((int)((shiftedX-1)*scale),   (int)((shiftedY-1)*scale),
+						(int)((shiftedX+w+1)*scale), (int)((shiftedY+h+1)*scale));
+		
 	}
 	
 	// Toggles on-screen Ctrl mask. Returns true if result is Ctrl enabled, false otherwise.
@@ -1476,13 +1488,11 @@ public class VncCanvas extends ImageView {
 	}
 	
 	public int getCenteredXOffset() {
-		int xoffset = (bitmapData.framebufferwidth - getWidth()) / 2;
-		return xoffset;
+		return (bitmapData.framebufferwidth - getWidth()) / 2;
 	}
 
 	public int getCenteredYOffset() {
-		int yoffset = (bitmapData.framebufferheight - getHeight()) / 2;
-		return yoffset;
+		return (bitmapData.framebufferheight - getHeight()) / 2;
 	}
 
 	/**
@@ -1496,11 +1506,12 @@ public class VncCanvas extends ImageView {
 
 		if (preferredEncoding == -1) {
 			preferredEncoding = RfbProto.EncodingTight;
-		} else {
-			// Auto encoder selection is not enabled.
-			if (autoSelectOnly)
-				return;
 		}
+		//else {
+			// Auto encoder selection is not enabled.
+		//	if (autoSelectOnly)
+		//		return;
+		//}
 
 		int[] encodings = new int[20];
 		int nEncodings = 0;
@@ -1588,7 +1599,7 @@ public class VncCanvas extends ImageView {
 
 		bitmapData.copyRect(new Rect(leftSrc, topSrc, rightSrc, bottomSrc), new Rect(leftDest, topDest, rightDest, bottomDest));
 
-		reDraw();
+		reDraw(x, y, w, h);
 	}
 	
 	byte[] bg_buf = new byte[4];
@@ -1638,7 +1649,7 @@ public class VncCanvas extends ImageView {
 			bitmapData.drawRect(sx, sy, sw, sh, handleRREPaint);
 		}
 
-		reDraw();
+		reDraw(x, y, w, h);
 	}
 
 	//
@@ -1687,7 +1698,7 @@ public class VncCanvas extends ImageView {
 			bitmapData.drawRect(sx, sy, sw, sh, handleRREPaint);
 		}
 
-		reDraw();
+		reDraw(x, y, w, h);
 	}
 
 	//
@@ -1716,7 +1727,7 @@ public class VncCanvas extends ImageView {
 			}
 
 			// Finished with a row of tiles, now let's show it.
-			reDraw();
+			reDraw(x, y, w, h);
 		}
 	}
 
@@ -1898,7 +1909,7 @@ public class VncCanvas extends ImageView {
 
 		zrleInStream.reset();
 
-		reDraw();
+		reDraw(x, y, w, h);
 	}
 
 	//
@@ -1960,7 +1971,7 @@ public class VncCanvas extends ImageView {
 			return;
 		bitmapData.updateBitmap(x, y, w, h);
 
-		reDraw();
+		reDraw(x, y, w, h);
 	}
 
 	private int readPixel(InStream is) throws Exception {
@@ -2152,7 +2163,7 @@ public class VncCanvas extends ImageView {
 			}
 			if (valid) {
 				bitmapData.drawRect(x, y, w, h, handleTightRectPaint);
-				reDraw();
+				reDraw(x, y, w, h);
 			}
 			return;
 		}
@@ -2172,10 +2183,10 @@ public class VncCanvas extends ImageView {
 
 			// Copy decoded data into bitmapData and recycle bitmap.
 			tightBitmap.getPixels(pixels, bitmapData.offset(x, y), bitmapData.bitmapwidth, 0, 0, w, h);
-			bitmapData.updateBitmap(x, y, w, h);
 			tightBitmap.recycle();
 			
-			reDraw();
+			bitmapData.updateBitmap(x, y, w, h);		
+			reDraw(x, y, w, h);
 			return;
 		}
 
@@ -2366,8 +2377,9 @@ public class VncCanvas extends ImageView {
 		}
 		if (!valid)
 			return;
+		
 		bitmapData.updateBitmap(x, y, w, h);
-		reDraw();
+		reDraw(x, y, w, h);
 	}
 	  
 	//

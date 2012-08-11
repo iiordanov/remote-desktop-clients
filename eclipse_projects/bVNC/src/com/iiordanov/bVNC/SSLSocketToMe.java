@@ -551,6 +551,7 @@ public class SSLSocketToMe {
 		      try {
 		        socket = (SSLSocket)factory.createSocket(preexistingSocket, host, port, true);
 		        socket.setTcpNoDelay(true);
+		        socket.setSoTimeout(0);
 		      } catch (java.io.IOException e) { 
 		        throw new Exception(e.toString());
 		      }
@@ -572,7 +573,7 @@ public class SSLSocketToMe {
 	          socket.setEnabledCipherSuites(enabled.toArray(new String[0]));
 	          socket.setEnabledProtocols(socket.getSupportedProtocols());
 			} else {
-				int timeout = 6;
+				int timeout = 0;
 				socket = (SSLSocket) factory.createSocket();
 				InetSocketAddress inetaddr = new InetSocketAddress(host, port);
 				dbg("Using timeout of " + timeout + " secs to: " + host + ":" + port);
