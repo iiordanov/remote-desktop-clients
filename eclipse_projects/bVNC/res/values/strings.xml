@@ -39,7 +39,7 @@
 <string name="delete_connection">Delete Connection</string>
 <string name="delete_key">Delete Selected Key</string>
 <string name="delete_key_list">Delete Key List</string>
-<string name="dpad_as_arrows">Use D-Pad/Trackpad directions/clicks for arrows/CTRL instead of controlling mouse</string>
+<string name="dpad_as_arrows">Use D-Pad directions for arrows and D-Pad click for Ctrl instead of moving mouse.</string>
 <string name="disconnect">Disconnect</string>
 <string name="export_settings">Export</string>
 <string name="export_settings_path">Export to file</string>

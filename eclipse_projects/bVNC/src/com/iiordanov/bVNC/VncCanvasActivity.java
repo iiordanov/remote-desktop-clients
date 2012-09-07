@@ -953,12 +953,18 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 		vncCanvas = (VncCanvas) findViewById(R.id.vnc_canvas);
 		zoomer = (ZoomControls) findViewById(R.id.zoomer);
 
+		// Indicate whether this device's doesn't have a hardware keyboard or hardware keyboard is hidden.
+		Configuration config = getResources().getConfiguration();
+		//vncCanvas.kbd_qwerty = config.keyboard == Configuration.KEYBOARD_QWERTY;
+		//vncCanvas.kbd_hidden = config.hardKeyboardHidden == Configuration.HARDKEYBOARDHIDDEN_YES;
+		//Log.e("QWERTY KEYBD:", vncCanvas.kbd_qwerty?"yes":"no");
+		//Log.e("HIDDEN KEYBD:", vncCanvas.kbd_hidden?"yes":"no");
+		
 		vncCanvas.initializeVncCanvas(connection, database, new Runnable() {
 			public void run() {
 				setModes();
 			}
 		});
-
 		
 		vncCanvas.setOnKeyListener(this);
 		vncCanvas.setFocusableInTouchMode(true);
@@ -1130,6 +1136,13 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 
 	@Override
 	public void onConfigurationChanged(Configuration newConfig) {
+		// Indicate whether this device's doesn't have a hardware keyboard or hardware keyboard is hidden.
+		Configuration config = getResources().getConfiguration();
+		//vncCanvas.kbd_qwerty = config.keyboard == Configuration.KEYBOARD_QWERTY;
+		//vncCanvas.kbd_hidden = config.hardKeyboardHidden == Configuration.HARDKEYBOARDHIDDEN_YES;
+		//Log.e("QWERTY KEYBD:", vncCanvas.kbd_qwerty?"yes":"no");
+		//Log.e("HIDDEN KEYBD:", vncCanvas.kbd_hidden?"yes":"no");
+		
 		// ignore orientation/keyboard change
 		super.onConfigurationChanged(newConfig);
 	}

@@ -1271,14 +1271,15 @@ public class VncCanvas extends ImageView {
 			boolean down = (evt.getAction() == KeyEvent.ACTION_DOWN) ||
 						   (evt.getAction() == KeyEvent.ACTION_MULTIPLE);
 			
-			int metaState = 0;
+			int metaState = 0, numchars = 1;
 			int keyboardMetaState = evt.getMetaState();
 
 			// If the keyboardMetaState contains any hint of CTRL, add CTRL_MASK to metaState
 			if ((keyboardMetaState & 0x7000)!=0)
 				metaState |= CTRL_MASK;
-			// If the keyboardMetaState contains left ALT, add ALT_MASK to metaState
-			if ((keyboardMetaState & (KeyEvent.META_ALT_LEFT_ON|KeyEvent.META_ALT_RIGHT_ON|0x00030000))!=0)
+			// If the keyboardMetaState contains left ALT, add ALT_MASK to metaState.
+		    // Leaving KeyEvent.KEYCODE_ALT_LEFT for symbol input on hardware keyboards.
+			if ((keyboardMetaState & (KeyEvent.META_ALT_RIGHT_ON|0x00030000))!=0)
 				metaState |= ALT_MASK;
 			
 			if (keyCode == KeyEvent.KEYCODE_MENU)
@@ -1316,9 +1317,11 @@ public class VncCanvas extends ImageView {
 				   onScreenMetaState &= ~CTRL_MASK;
 				   break;
 			   }
-			   
-			   if (keyCode == KeyEvent.KEYCODE_DPAD_CENTER) {
-				   onScreenMetaState &= ~CTRL_MASK;
+
+			   switch(keyCode) {
+			      case KeyEvent.KEYCODE_DPAD_CENTER:  onScreenMetaState &= ~CTRL_MASK; break;
+			      // Leaving KeyEvent.KEYCODE_ALT_LEFT for symbol input on hardware keyboards.
+			   	  case KeyEvent.KEYCODE_ALT_RIGHT:    onScreenMetaState &= ~ALT_MASK; break;
 			   }
 		   }
 	   
@@ -1331,10 +1334,6 @@ public class VncCanvas extends ImageView {
 		      case KeyEvent.KEYCODE_DEL: 		  keysym = 0xff08; break;
 		      case KeyEvent.KEYCODE_ENTER:        keysym = 0xff0d; break;
 		   	  case KeyEvent.KEYCODE_TAB:          keysym = 0xff09; break;
-		   	  // These keycodes do not work with hackerskeyboard, as it sends it before sending
-		   	  // SHIFT and some of the numbers.
-		   	  //case KeyEvent.KEYCODE_ALT_LEFT:     metaState |= ALT_MASK; break;
-		   	  //case KeyEvent.KEYCODE_ALT_RIGHT:    metaState |= ALT_MASK; break;
 		   	  case 92 /* KEYCODE_PAGE_UP */:      keysym = 0xff55; break;
 		   	  case 93 /* KEYCODE_PAGE_DOWN */:    keysym = 0xff56; break;
 		   	  case 111 /* KEYCODE_ESCAPE */:      keysym = 0xff1b; break;
@@ -1362,10 +1361,10 @@ public class VncCanvas extends ImageView {
 		   	  case 142 /* KEYCODE_F12 */:         keysym = 0xffc9; break;
 		   	  case 143 /* KEYCODE_NUM_LOCK */:    keysym = 0xff7f; break;
 		   	  case 0   /* KEYCODE_UNKNOWN */:
-					// TODO: Should this be sending all characters instead of just the first one?
 		   		  if (evt.getCharacters() != null) {
 		   			  key = evt.getCharacters().charAt(0);
 		   			  keysym = UnicodeToKeysym.translate(key);
+		   			  numchars = evt.getCharacters().length();
 		   		  }
 	    		  break;
 		      default: 							  
@@ -1404,8 +1403,10 @@ public class VncCanvas extends ImageView {
 			   case SCAN_F10:				keysym = 0xffc7;				break;
 			   }
 			   
-			   if (keyCode == KeyEvent.KEYCODE_DPAD_CENTER) {
-				   onScreenMetaState |= CTRL_MASK;
+			   switch(keyCode) {
+			      case KeyEvent.KEYCODE_DPAD_CENTER:  onScreenMetaState |= CTRL_MASK; break;
+			      // Leaving KeyEvent.KEYCODE_ALT_LEFT for symbol input on hardware keyboards.
+			   	  case KeyEvent.KEYCODE_ALT_RIGHT:    onScreenMetaState |= ALT_MASK; break;
 			   }
 		   }
 
@@ -1419,8 +1420,16 @@ public class VncCanvas extends ImageView {
 			   if (down)
 				   lastKeyDown = keysym;
 
-			   //Log.e(TAG,"action down? = " + down + " key = " + key + " keysym = " + keysym + " onscreen metastate = " + onScreenMetaState + " keyboard metastate = " + keyboardMetaState + " RFB metastate = " + metaState + " keycode = " + keyCode + " unicode = " + evt.getUnicodeChar());
-			   rfbconn.writeKeyEvent(keysym, (onScreenMetaState|metaState), down);
+			   if (numchars == 1) {
+			       //Log.e(TAG,"action down? = " + down + " key = " + key + " keysym = " + keysym + " onscreen metastate = " + onScreenMetaState + " keyboard metastate = " + keyboardMetaState + " RFB metastate = " + metaState + " keycode = " + keyCode + " unicode = " + evt.getUnicodeChar());
+				   rfbconn.writeKeyEvent(keysym, (onScreenMetaState|metaState), down);
+			   } else if (numchars > 1) {
+				   for (int i = 0; i < numchars; i++) {
+					   key = evt.getCharacters().charAt(i);
+					   keysym = UnicodeToKeysym.translate(key);
+					   rfbconn.writeKeyEvent(keysym, (onScreenMetaState|metaState), down);
+				   }
+			   }
 		   } catch (Exception e) {
 			   e.printStackTrace();
 		   }
