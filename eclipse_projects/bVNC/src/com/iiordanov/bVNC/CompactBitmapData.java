@@ -43,12 +43,12 @@ class CompactBitmapData extends AbstractBitmapData {
 	}
 
 	@Override
-	void writeFullUpdateRequest(boolean incremental) throws IOException {
-		rfb.requestUpdate(incremental);
+	public void writeFullUpdateRequest(boolean incremental) throws IOException {
+		rfb.writeFramebufferUpdateRequest(0, 0, bitmapwidth, bitmapheight, incremental);
 	}
 
 	@Override
-	boolean validDraw(int x, int y, int w, int h) {
+	public boolean validDraw(int x, int y, int w, int h) {
 		return true;
 	}
 

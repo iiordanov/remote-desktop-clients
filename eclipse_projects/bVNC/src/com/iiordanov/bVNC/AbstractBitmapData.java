@@ -33,7 +33,7 @@ abstract public class AbstractBitmapData {
 	boolean waitingForInput;
 	VncCanvas vncCanvas;
 	private AbstractBitmapDrawable drawable;
-	private Paint paint;
+	protected Paint paint;
 
 	AbstractBitmapData(RfbConnectable p, VncCanvas c)
 	{
@@ -73,7 +73,7 @@ abstract public class AbstractBitmapData {
 	 * Send a request through the protocol to get the data for the currently held bitmap
 	 * @param incremental True if we want incremental update; false for full update
 	 */
-	abstract void writeFullUpdateRequest( boolean incremental) throws IOException;
+	public abstract void writeFullUpdateRequest( boolean incremental) throws IOException;
 	
 	/**
 	 * Determine if a rectangle in full-frame coordinates can be drawn in the existing buffer
@@ -83,7 +83,7 @@ abstract public class AbstractBitmapData {
 	 * @param h height (pixels)
 	 * @return True if entire rectangle fits into current screen buffer, false otherwise
 	 */
-	abstract boolean validDraw( int x, int y, int w, int h);
+	public abstract boolean validDraw( int x, int y, int w, int h);
 	
 	/**
 	 * Return an offset in the bitmapPixels array of a point in full-frame coordinates
@@ -139,22 +139,23 @@ abstract public class AbstractBitmapData {
 	public abstract void copyRect( Rect src, Rect dest );
 
 	public void fillRect(int x, int y, int w, int h, int pix) {
-		if (validDraw(x, y, w, h)) {
-			paint.setColor(pix);
-			drawRect(x, y, w, h, paint);
-		}
+		paint.setColor(pix);
+		drawRect(x, y, w, h, paint);
 	}
 
 	public void imageRect(int x, int y, int w, int h, int[] pix) {
-		if (validDraw(x, y, w, h)) {
-			for (int j = 0; j < h; j++)
+		for (int j = 0; j < h; j++) {
+			try {
 				System.arraycopy(pix, (w * j), bitmapPixels, offset(x, y+j), w);
 				//System.arraycopy(pix, (w * j), bitmapPixels, bitmapwidth * (y + j) + x, w);
+			} catch (ArrayIndexOutOfBoundsException e) {
+				// An index is out of bounds for some reason, but we try to continue.
+			}
 
-			updateBitmap(x, y, w, h);
 		}
+		updateBitmap(x, y, w, h);
 	}
-	
+
 	/**
 	 * Draw a rectangle in the bitmap with coordinates given in full frame
 	 * @param x Top left x

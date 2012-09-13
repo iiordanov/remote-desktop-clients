@@ -327,7 +327,7 @@ public class TightDecoder extends Decoder {
     for (y = 0; y < rectHeight; y++) {
       /* First pixel in a row */
       for (c = 0; c < 3; c++) {
-        pix[c] = (byte)(netbuf[y*rectWidth*3+c] + prevRow[c]);
+        bpix[c] = (byte)(netbuf[y*rectWidth*3+c] + prevRow[c]);
         thisRow[c] = bpix[c];
       }
       serverpf.bufferFromRGB(buf, y*stride, bpix, 0, 1);
@@ -335,13 +335,13 @@ public class TightDecoder extends Decoder {
       /* Remaining pixels of a row */
       for (x = 1; x < rectWidth; x++) {
         for (c = 0; c < 3; c++) {
-          est[c] = (int)(prevRow[x*3+c] + pix[c] - prevRow[(x-1)*3+c]);
+          est[c] = (int)(prevRow[x*3+c] + bpix[c] - prevRow[(x-1)*3+c]);
           if (est[c] > 0xFF) {
             est[c] = 0xFF;
           } else if (est[c] < 0) {
             est[c] = 0;
           }
-          pix[c] = (byte)(netbuf[(y*rectWidth+x)*3+c] + est[c]);
+          bpix[c] = (byte)(netbuf[(y*rectWidth+x)*3+c] + est[c]);
           thisRow[x*3+c] = bpix[c];
         }
         serverpf.bufferFromRGB(buf, y*stride+x, bpix, 0, 1);
@@ -364,18 +364,18 @@ public class TightDecoder extends Decoder {
     for (y = 0; y < rectHeight; y++) {
       /* First pixel in a row */
       // FIXME
-      //serverpf.rgbFromBuffer(pix, 0, netbuf, y*rectWidth, 1, cm);
+      //serverpf.rgbFromBuffer(bpix, 0, netbuf, y*rectWidth, 1, cm);
       for (c = 0; c < 3; c++)
-        pix[c] += prevRow[c];
+        bpix[c] += prevRow[c];
 
-      System.arraycopy(pix, 0, thisRow, 0, pix.length);
+      System.arraycopy(bpix, 0, thisRow, 0, bpix.length);
 
       serverpf.bufferFromRGB(buf, y*stride, bpix, 0, 1);
       
       /* Remaining pixels of a row */
       for (x = 1; x < rectWidth; x++) {
         for (c = 0; c < 3; c++) {
-          est[c] = (int)(prevRow[x*3+c] + pix[c] - prevRow[(x-1)*3+c]);
+          est[c] = (int)(prevRow[x*3+c] + bpix[c] - prevRow[(x-1)*3+c]);
           if (est[c] > 0xff) {
             est[c] = 0xff;
           } else if (est[c] < 0) {
@@ -384,11 +384,11 @@ public class TightDecoder extends Decoder {
         }
 
         // FIXME
-        //serverpf.rgbFromBuffer(pix, 0, netbuf, y*rectWidth+x, 1, cm);
+        //serverpf.rgbFromBuffer(bpix, 0, netbuf, y*rectWidth+x, 1, cm);
         for (c = 0; c < 3; c++)
-          pix[c] += est[c];
+          bpix[c] += est[c];
 
-        System.arraycopy(pix, 0, thisRow, x*3, pix.length);
+        System.arraycopy(bpix, 0, thisRow, x*3, bpix.length);
 
         serverpf.bufferFromRGB(buf, y*stride+x, bpix, 0, 1);
       }

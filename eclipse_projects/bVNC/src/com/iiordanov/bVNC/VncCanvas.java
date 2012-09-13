@@ -127,11 +127,13 @@ public class VncCanvas extends ImageView {
 	private int capacity;
 	public AbstractBitmapData bitmapData;
 	boolean useFull = false;
+
+	// Handler for the dialog that displays the x509 key signatures to the user.
 	public Handler handler = new Handler() {
 	    @Override
 	    public void handleMessage(Message msg) {
 	        switch (msg.what) {
-	        // TODO: Change this numeric message.what to something more sane.
+	        // TODO: Change this numeric message to something more sane.
 	        case 1:
 	        	final X509Certificate cert = (X509Certificate)msg.obj;
 
@@ -343,7 +345,7 @@ public class VncCanvas extends ImageView {
 		final Display display = pd.getWindow().getWindowManager().getDefaultDisplay();
 		displayWidth  = display.getWidth();
 		displayHeight = display.getHeight();
-		Thread t = new Thread() {
+		Thread t = new Thread () {
 			public void run() {
 			    try {
 			    	if (connection.getConnectionType() < 4) {
@@ -501,15 +503,14 @@ public class VncCanvas extends ImageView {
 		}
 		else
 			useFull = (connection.getForceFull() == BitmapImplHint.FULL);
-
-		// TODO: This is a hack due to current incompatibility between LBM and CConn.
-		if (connection.getConnectionType() >= 4)
-			useFull = true;
 		
-		if (!useFull)
+		if (!useFull) {
 			bitmapData=new LargeBitmapData(rfbconn, this, dx, dy, capacity);
-		else
+			android.util.Log.i(TAG, "Using LargeBitmapData.");
+		} else {
 			bitmapData=new FullBufferBitmapData(rfbconn, this, capacity);
+			android.util.Log.i(TAG, "Using FullBufferBitmapData.");
+		}
 
 		mouseX=rfbconn.framebufferWidth()/2;
 		mouseY=rfbconn.framebufferHeight()/2;
@@ -554,9 +555,8 @@ public class VncCanvas extends ImageView {
 		try {
 			bitmapData.frameBufferSizeChanged ();
 		} catch (Throwable e) {
-			// If we've run out of memory, try using an LBM
-			// TODO: but not if we are using CConn. 
-			if (e instanceof OutOfMemoryError && !(connection.getConnectionType() >= 4)) {
+			// If we've run out of memory, try using an LBMD
+			if (e instanceof OutOfMemoryError) {
 				useFull = false;
 				bitmapData = new LargeBitmapData(rfbconn, this, getWidth(), getHeight(), capacity);
 			}

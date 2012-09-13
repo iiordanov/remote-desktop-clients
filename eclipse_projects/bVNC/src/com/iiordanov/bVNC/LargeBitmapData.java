@@ -223,24 +223,26 @@ class LargeBitmapData extends AbstractBitmapData {
 	 */
 	@Override
 	public void updateBitmap(int x, int y, int w, int h) {
-		mbitmap.setPixels(bitmapPixels, offset(x,y), bitmapwidth, x-xoffset, y-yoffset, w, h);
+		try {
+			mbitmap.setPixels(bitmapPixels, offset(x,y), bitmapwidth, x-xoffset, y-yoffset, w, h);
+		} catch (IllegalArgumentException e) {
+			// Do not draw if the coordinates are out of bounds.
+		}
 	}
 
 	/* (non-Javadoc)
 	 * @see com.iiordanov.bVNC.AbstractBitmapData#validDraw(int, int, int, int)
 	 */
 	@Override
-	synchronized boolean validDraw(int x, int y, int w, int h) {
-		//android.util.Log.i("LBM", "Validate Drawing "+x+" "+y+" "+w+" "+h+" "+xoffset+" "+yoffset+" "+(x-xoffset>=0 && x-xoffset+w<=bitmapwidth && y-yoffset>=0 && y-yoffset+h<=bitmapheight));
+	public synchronized boolean validDraw(int x, int y, int w, int h) {
 		boolean result = x-xoffset>=0 && x-xoffset+w<=bitmapwidth && y-yoffset>=0 && y-yoffset+h<=bitmapheight;
+		//android.util.Log.e("LBM", "Validate Drawing x:"+x+" y:"+y+" w:"+w+" h:"+h+" xoff:"+xoffset+" yoff:"+yoffset+" "+(x-xoffset>=0 && x-xoffset+w<=bitmapwidth && y-yoffset>=0 && y-yoffset+h<=bitmapheight));
 		ObjectPool.Entry<Rect> entry = rectPool.reserve();
 		Rect r = entry.get();
 		r.set(x, y, x+w, y+h);
 		pendingList.subtract(r);
-		if ( ! result)
-		{
+		if (!result)
 			invalidList.add(r);
-		}
 		else
 			invalidList.subtract(r);
 		rectPool.release(entry);
@@ -251,7 +253,7 @@ class LargeBitmapData extends AbstractBitmapData {
 	 * @see com.iiordanov.bVNC.AbstractBitmapData#writeFullUpdateRequest(boolean)
 	 */
 	@Override
-	synchronized void writeFullUpdateRequest(boolean incremental) throws IOException {
+	public synchronized void writeFullUpdateRequest(boolean incremental) throws IOException {
 		if (! incremental) {
 			ObjectPool.Entry<Rect> entry = rectPool.reserve();
 			Rect r = entry.get();
@@ -378,45 +380,4 @@ class LargeBitmapData extends AbstractBitmapData {
 		bitmapRect = new Rect(0, 0, bitmapwidth, bitmapheight);
 		defaultPaint = new Paint();
 	}
-
-/*
-	public void fillRect(int x, int y, int w, int h, int pix) {
-		try {
-		if (!validDraw(x, y, w, h))
-			return;
-		} catch (Exception e) {
-			Log.e("LBM", "There was a problem verifying whether draw is valid.");
-			return;
-		}
-
-		int offset;
-		for (int ry = y; ry < y + h; ry++)
-			for (int rx = x; rx < x + w; rx++) {
-				offset = offset(rx,ry);
-				if (offset < bitmapPixels.length)
-					bitmapPixels[offset] = pix;
-				else
-					return;
-			}
-		updateBitmap(x, y, w, h);
-	}
-
-	public void imageRect(int x, int y, int w, int h, int[] pix) {
-		try {
-		if (!validDraw(x, y, w, h))
-			return;
-		} catch (Exception e) {
-			Log.e("LBM", "There was a problem verifying whether draw is valid.");
-			return;
-		}
-
-		for (int j = 0; j < h; j++) {
-			if (bitmapwidth * (y + j) + x + w < bitmapPixels.length)
-				System.arraycopy(pix, (w * j), bitmapPixels, bitmapwidth * (y + j) + x, w);
-			else
-				return;
-		}
-		updateBitmap(x, y, w, h);
-	}
-*/
 }

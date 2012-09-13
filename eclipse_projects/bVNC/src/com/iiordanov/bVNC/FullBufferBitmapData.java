@@ -267,7 +267,7 @@ class FullBufferBitmapData extends AbstractBitmapData {
 	 * @see com.iiordanov.bVNC.AbstractBitmapData#validDraw(int, int, int, int)
 	 */
 	@Override
-	boolean validDraw(int x, int y, int w, int h) {
+	public boolean validDraw(int x, int y, int w, int h) {
 	    if (x + w > bitmapwidth || y + h > bitmapheight)
 	    	return false;
 	    return true;
@@ -277,8 +277,8 @@ class FullBufferBitmapData extends AbstractBitmapData {
 	 * @see com.iiordanov.bVNC.AbstractBitmapData#writeFullUpdateRequest(boolean)
 	 */
 	@Override
-	void writeFullUpdateRequest(boolean incremental) throws IOException {
-		rfb.requestUpdate(incremental);
+	public void writeFullUpdateRequest(boolean incremental) throws IOException {
+		rfb.writeFramebufferUpdateRequest(0, 0, bitmapwidth, bitmapheight, incremental);
 	}
 
 }

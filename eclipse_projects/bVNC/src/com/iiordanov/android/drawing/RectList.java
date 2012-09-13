@@ -34,6 +34,9 @@ public class RectList {
 		PARTIAL
 	}
 	
+	// Limit for level of recursion to avoid stack overflow.
+	static final int MAXLEVELS = 20;
+	
 	static final int LEFT = 1;
 	static final int TOP_LEFT = 2;
 	static final int TOP = 4;
@@ -369,6 +372,10 @@ public class RectList {
 
 	private void recursiveAdd(ObjectPool.Entry<Rect> toAdd, int level)
 	{
+		// Limit the level of recursion to avoid stack overflow.
+		if (level >= MAXLEVELS)
+			return;
+		
 		if (level>=list.size())
 		{
 			list.add(toAdd);
@@ -421,7 +428,11 @@ public class RectList {
 		ObjectPool.Entry<Rect> entry = pool.reserve();
 		Rect r = entry.get();
 		r.set(toAdd);
-		recursiveAdd(entry,0);
+		try {
+			recursiveAdd(entry,0);
+		} catch (java.lang.StackOverflowError e) {
+			// Don't add the rectangle if the stack overflowed (if the user is scrolling around too much).
+		}
 	}
 	
 	/**
@@ -450,7 +461,11 @@ public class RectList {
 		size = newList.size();
 		for (int i=0; i<size; i++)
 		{
-			recursiveAdd(newList.get(i),0);
+			try {
+				recursiveAdd(newList.get(i),0);
+			} catch (java.lang.StackOverflowError e) {
+				// Don't add the rectangle if the stack overflowed (if the user is scrolling around too much).
+			}
 		}
 		listRectsPool.release(listEntry);
 	}
@@ -526,7 +541,11 @@ public class RectList {
 		size = newList.size();
 		for (int i=0; i<size; i++)
 		{
-			recursiveAdd(newList.get(i),0);
+			try {
+				recursiveAdd(newList.get(i),0);
+			} catch (java.lang.StackOverflowError e) {
+				// Don't add the rectangle if the stack overflowed (if the user is scrolling around too much).
+			}
 		}
 		listRectsPool.release(listEntry);
 	}

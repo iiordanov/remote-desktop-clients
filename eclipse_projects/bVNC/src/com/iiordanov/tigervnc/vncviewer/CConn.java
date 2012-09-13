@@ -374,19 +374,25 @@ public class CConn extends CConnection
   }
 
   public void fillRect(Rect r, int p) {
-	  viewer.bitmapData.fillRect(r.tl.x, r.tl.y, r.width(), r.height(), p);
-	  viewer.reDraw(r.tl.x, r.tl.y, r.width(), r.height());
+	  if (viewer.bitmapData.validDraw(r.tl.x, r.tl.y, r.width(), r.height())) {
+		  viewer.bitmapData.fillRect(r.tl.x, r.tl.y, r.width(), r.height(), p);
+		  viewer.reDraw(r.tl.x, r.tl.y, r.width(), r.height());
+	  }
   }
 
   public void imageRect(Rect r, int[] p) {
+	  if (viewer.bitmapData.validDraw(r.tl.x, r.tl.y, r.width(), r.height())) {
 		  viewer.bitmapData.imageRect(r.tl.x, r.tl.y, r.width(), r.height(), p);
 		  viewer.reDraw(r.tl.x, r.tl.y, r.width(), r.height());
+	  }
   }
 
   public void copyRect(Rect r, int sx, int sy) {
+	  if (viewer.bitmapData.validDraw(r.tl.x, r.tl.y, r.width(), r.height())) {
 		  viewer.bitmapData.copyRect(new android.graphics.Rect(sx, sy, sx+r.width(), sy+r.height()),
     				 new android.graphics.Rect(r.tl.x, r.tl.y, r.br.x, r.br.y));
 		  viewer.reDraw(r.tl.x, r.tl.y, r.width(), r.height());
+	  }
   }
 
   public PixelFormat getPreferredPF() {
@@ -510,10 +516,12 @@ public class CConn extends CConnection
     }
     
     checkEncodings();
-    synchronized (this) {
-      writer().writeFramebufferUpdateRequest(new Rect(0,0,cp.width,cp.height),
-                                             !formatChange);
-    }
+    	try {
+			viewer.bitmapData.writeFullUpdateRequest(!formatChange);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
     formatChange = false;
   }
 
@@ -539,9 +547,12 @@ public class CConn extends CConnection
 
 
   public void refresh() {
-    synchronized (this) {
-      writer().writeFramebufferUpdateRequest(new Rect(0,0,cp.width,cp.height), false);
-    }
+    	try {
+			viewer.bitmapData.writeFullUpdateRequest(false);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
     pendingUpdate = true;
   }
 
@@ -858,8 +869,10 @@ public class CConn extends CConnection
   }
 
   @Override
-  public synchronized void writeFramebufferUpdateRequest(int x, int y, int w, int h, boolean b) {
-	  writer().writeFramebufferUpdateRequest(new Rect(x,y,w,h), b); 	
+  public synchronized void writeFramebufferUpdateRequest(int x, int y, int w, int h, boolean incremental) {
+	  synchronized (this) {
+		  writer().writeFramebufferUpdateRequest(new Rect(x, y, x+w, y+h), incremental);
+	  }
   }
   
   public void writeSetPixelFormat(int bitsPerPixel, int depth, boolean bigEndian,
@@ -869,7 +882,8 @@ public class CConn extends CConnection
 	/*
 	fullColour = false;
 	formatChange = true;
-	encodingChange = true;
+	//encodingChange = false;
+	lowColourLevel = 2;
 	this.requestNewUpdate();
 	*/
 
