@@ -100,6 +100,24 @@ public class TightDecoder extends Decoder {
     est = new int[3];
   }
 
+/*
+  public void readRectNew(Rect r, CMsgHandler handler) 
+  {
+		if (r.tl.x + r.width() > vncCanvas.bitmapData.bmWidth())
+			r.setXYWH(r.tl.x, r.tl.y, vncCanvas.bitmapData.bmWidth() - r.tl.x, r.height());
+
+		if (r.tl.y + r.height() > vncCanvas.bitmapData.bmHeight())
+			r.setXYWH(r.tl.x, r.tl.y, r.width(), vncCanvas.bitmapData.bmHeight() - r.tl.y);
+	
+	try {
+		vncCanvas.handleTightRect(r.tl.x, r.tl.y, r.width(), r.height(), reader);
+	} catch (java.lang.Exception e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
+  }
+*/
+
   public void readRect(Rect r, CMsgHandler handler) 
   {
     InStream is = reader.getInStream();

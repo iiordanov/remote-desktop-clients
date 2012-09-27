@@ -200,11 +200,19 @@ abstract public class AbstractBitmapData {
 		bitmapPixels = null;
 	}
 	
-	public int width () {
+	public int fbWidth () {
 		return framebufferwidth;
 	}
 
-	public int height () {
+	public int fbHeight () {
 		return framebufferheight;
+	}
+	
+	public int bmWidth () {
+		return bitmapwidth;
+	}
+
+	public int bmHeight () {
+		return bitmapheight;
 	}
 }

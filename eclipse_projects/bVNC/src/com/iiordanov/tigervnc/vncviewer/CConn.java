@@ -411,7 +411,7 @@ public class CConn extends CConnection
       return;
     if (viewer.bitmapData == null)
       return;
-    if ((viewer.bitmapData.width() == cp.width) && (viewer.bitmapData.height() == cp.height))
+    if ((viewer.bitmapData.fbWidth() == cp.width) && (viewer.bitmapData.fbHeight() == cp.height))
       return;
     
     viewer.updateFBSize();

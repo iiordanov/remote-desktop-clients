@@ -54,6 +54,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.OnGenericMotionListener;
 import android.view.ViewGroup;
 import android.view.View.OnKeyListener;
 import android.view.ViewTreeObserver.OnGlobalLayoutListener;
@@ -237,17 +238,107 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 			e.setLocation(x, y);
 		}
 
-		/*
+		/**
+		 * Handles actions performed by a mouse.
+		 * @param e touch or generic motion event
+		 * @return
+		 */
+		private boolean handleMouseActions (MotionEvent e) {
+	        final int action     = e.getActionMasked();
+			final int bstate     = e.getButtonState();
+
+			switch (action) {
+			// If a mouse button was pressed.
+			case MotionEvent.ACTION_DOWN:
+				switch (bstate) {
+				case MotionEvent.BUTTON_PRIMARY:
+					vncCanvas.changeTouchCoordinatesToFullFrame(e);
+					return vncCanvas.processPointerEvent(e, true);
+				case MotionEvent.BUTTON_SECONDARY:
+					vncCanvas.changeTouchCoordinatesToFullFrame(e);
+		        	return vncCanvas.processPointerEvent(e, true, true, false);		
+				case MotionEvent.BUTTON_TERTIARY:
+					vncCanvas.changeTouchCoordinatesToFullFrame(e);
+		        	return vncCanvas.processPointerEvent(e, true, false, true);
+				}
+				break;
+			// If a mouse button was released.
+			case MotionEvent.ACTION_UP:
+				switch (bstate) {
+				case MotionEvent.BUTTON_PRIMARY:
+				case MotionEvent.BUTTON_SECONDARY:
+				case MotionEvent.BUTTON_TERTIARY:
+					vncCanvas.changeTouchCoordinatesToFullFrame(e);
+					return vncCanvas.processPointerEvent(e, false);
+				}
+				break;
+			// If the mouse was moved between button down and button up.
+			case MotionEvent.ACTION_MOVE:
+				switch (bstate) {
+				case MotionEvent.BUTTON_PRIMARY:
+					vncCanvas.changeTouchCoordinatesToFullFrame(e);
+					return vncCanvas.processPointerEvent(e, true);
+				case MotionEvent.BUTTON_SECONDARY:
+					vncCanvas.changeTouchCoordinatesToFullFrame(e);
+		        	return vncCanvas.processPointerEvent(e, true, true, false);		
+				case MotionEvent.BUTTON_TERTIARY:
+					vncCanvas.changeTouchCoordinatesToFullFrame(e);
+		        	return vncCanvas.processPointerEvent(e, true, false, true);
+				}
+			// If the mouse wheel was scrolled.
+			case MotionEvent.ACTION_SCROLL:
+				float vscroll = e.getAxisValue(MotionEvent.AXIS_VSCROLL);
+				float hscroll = e.getAxisValue(MotionEvent.AXIS_HSCROLL);
+				int swipeSpeed = 0, direction = 0;
+				if (vscroll < 0) {
+					swipeSpeed = (int)(-1*vscroll);
+					direction = 1;
+				} else if (vscroll > 0) {
+					swipeSpeed = (int)vscroll;
+					direction = 0;
+				} else if (hscroll < 0) {
+					swipeSpeed = (int)(-1*hscroll);
+					direction = 3;
+				} else if (hscroll > 0) {
+					swipeSpeed = (int)hscroll;
+					direction = 2;				
+				} else
+					return false;
+					
+				vncCanvas.changeTouchCoordinatesToFullFrame(e);   	
+	        	int numEvents = 0;
+	        	while (numEvents < swipeSpeed) {
+	        		vncCanvas.processPointerEvent(e, false, false, false, true, direction);
+	        		vncCanvas.processPointerEvent(e, false);
+	        		numEvents++;
+	        	}
+				break;
+			// If the mouse was moved.
+			case MotionEvent.ACTION_HOVER_MOVE:
+				vncCanvas.changeTouchCoordinatesToFullFrame(e);
+				return vncCanvas.processPointerEvent(e, false, false, false);
+			}
+			return false;
+		}
+
+
+		 /*
 		 * (non-Javadoc)
 		 * 
 		 * @see com.iiordanov.bVNC.AbstractGestureInputHandler#onTouchEvent(android.view.MotionEvent)
 		 */
 		@Override
 		public boolean onTouchEvent(MotionEvent e) {
-			final int pointerCnt   = e.getPointerCount();
-	        final int action       = e.getActionMasked();
-	        final int index        = e.getActionIndex();
-	        final int pointerID    = e.getPointerId(index);
+			final int pointerCnt = e.getPointerCount();
+	        final int action     = e.getActionMasked();
+	        final int index      = e.getActionIndex();
+	        final int pointerID  = e.getPointerId(index);
+
+	        if (android.os.Build.VERSION.SDK_INT >= 14) {
+		        // Handle actions performed by a (e.g. USB or bluetooth) mouse.
+		        if (handleMouseActions (e))
+		        	return true;
+	        }
 	        
 	        // We have put down first pointer on the screen, so we can reset the state of all click-state variables.
 	        if (pointerID == 0 && action == MotionEvent.ACTION_DOWN) {
@@ -594,7 +685,91 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 			//Log.i(TAG, "Setting pointer location in remoteMouseSetCoordinates");
 			e.setLocation(x, y);
 		}
-		
+
+		/**
+		 * Handles actions performed by a mouse.
+		 * @param e touch or generic motion event
+		 * @return
+		 */
+		private boolean handleMouseActions (MotionEvent e) {
+	        final int action     = e.getActionMasked();
+			final int bstate     = e.getButtonState();
+
+			switch (action) {
+			// If a mouse button was pressed.
+			case MotionEvent.ACTION_DOWN:
+				switch (bstate) {
+				case MotionEvent.BUTTON_PRIMARY:
+					vncCanvas.changeTouchCoordinatesToFullFrame(e);
+					return vncCanvas.processPointerEvent(e, true);
+				case MotionEvent.BUTTON_SECONDARY:
+					vncCanvas.changeTouchCoordinatesToFullFrame(e);
+		        	return vncCanvas.processPointerEvent(e, true, true, false);		
+				case MotionEvent.BUTTON_TERTIARY:
+					vncCanvas.changeTouchCoordinatesToFullFrame(e);
+		        	return vncCanvas.processPointerEvent(e, true, false, true);
+				}
+				break;
+			// If a mouse button was released.
+			case MotionEvent.ACTION_UP:
+				switch (bstate) {
+				case MotionEvent.BUTTON_PRIMARY:
+				case MotionEvent.BUTTON_SECONDARY:
+				case MotionEvent.BUTTON_TERTIARY:
+					vncCanvas.changeTouchCoordinatesToFullFrame(e);
+					return vncCanvas.processPointerEvent(e, false);
+				}
+				break;
+			// If the mouse was moved between button down and button up.
+			case MotionEvent.ACTION_MOVE:
+				switch (bstate) {
+				case MotionEvent.BUTTON_PRIMARY:
+					vncCanvas.changeTouchCoordinatesToFullFrame(e);
+					return vncCanvas.processPointerEvent(e, true);
+				case MotionEvent.BUTTON_SECONDARY:
+					vncCanvas.changeTouchCoordinatesToFullFrame(e);
+		        	return vncCanvas.processPointerEvent(e, true, true, false);		
+				case MotionEvent.BUTTON_TERTIARY:
+					vncCanvas.changeTouchCoordinatesToFullFrame(e);
+		        	return vncCanvas.processPointerEvent(e, true, false, true);
+				}
+			// If the mouse wheel was scrolled.
+			case MotionEvent.ACTION_SCROLL:
+				float vscroll = e.getAxisValue(MotionEvent.AXIS_VSCROLL);
+				float hscroll = e.getAxisValue(MotionEvent.AXIS_HSCROLL);
+				int swipeSpeed = 0, direction = 0;
+				if (vscroll < 0) {
+					swipeSpeed = (int)(-1*vscroll);
+					direction = 1;
+				} else if (vscroll > 0) {
+					swipeSpeed = (int)vscroll;
+					direction = 0;
+				} else if (hscroll < 0) {
+					swipeSpeed = (int)(-1*hscroll);
+					direction = 3;
+				} else if (hscroll > 0) {
+					swipeSpeed = (int)hscroll;
+					direction = 2;				
+				} else
+					return false;
+					
+				vncCanvas.changeTouchCoordinatesToFullFrame(e);   	
+	        	int numEvents = 0;
+	        	while (numEvents < swipeSpeed) {
+	        		vncCanvas.processPointerEvent(e, false, false, false, true, direction);
+	        		vncCanvas.processPointerEvent(e, false);
+	        		numEvents++;
+	        	}
+				break;
+			// If the mouse was moved.
+			case MotionEvent.ACTION_HOVER_MOVE:
+				vncCanvas.changeTouchCoordinatesToFullFrame(e);
+				return vncCanvas.processPointerEvent(e, false, false, false);
+			}
+			return false;
+		}
+
+
 		/*
 		 * (non-Javadoc)
 		 * 
@@ -606,6 +781,12 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 	        final int action       = e.getActionMasked();
 	        final int index        = e.getActionIndex();
 	        final int pointerID    = e.getPointerId(index);
+
+	        if (android.os.Build.VERSION.SDK_INT >= 14) {
+		        // Handle actions performed by a (e.g. USB or bluetooth) mouse.
+		        if (handleMouseActions (e))
+		        	return true;
+	        }
 
 	        // We have put down first pointer on the screen, so we can reset the state of all click-state variables.
 	        if (pointerID == 0 && action == MotionEvent.ACTION_DOWN) {
@@ -1519,8 +1700,15 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 		return inputHandler.onTrackballEvent(event);
 	}
 
+	// Send touch events or mouse events like button clicks to be handled.
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
+		return inputHandler.onTouchEvent(event);
+	}
+
+	// Send e.g. mouse events like hover and scroll to be handled.
+	@Override
+	public boolean onGenericMotionEvent(MotionEvent event) {
 		return inputHandler.onTouchEvent(event);
 	}
 
