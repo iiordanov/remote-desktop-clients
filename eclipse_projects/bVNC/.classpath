@@ -6,7 +6,7 @@
 	<classpathentry kind="con" path="com.android.ide.eclipse.adt.LIBRARIES"/>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="gen"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/com.iiordanov.pubkeygenerator.GeneratePubkeyActivity"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/ZoomerWithKeys"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/PubkeyGenerator"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>

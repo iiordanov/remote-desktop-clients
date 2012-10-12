@@ -3,7 +3,7 @@
 	<name>bVNC</name>
 	<comment></comment>
 	<projects>
-		<project>com.iiordanov.pubkeygenerator.GeneratePubkeyActivity</project>
+		<project>PubkeyGenerator</project>
 		<project>ZoomerWithKeys</project>
 	</projects>
 	<buildSpec>

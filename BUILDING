@@ -12,3 +12,6 @@
    "Required projects on the build path" (right-click on the bVNC
    project -> Properties -> Java Build Path -> Projects). If they
    are not, add them.
+
+5. Ensure that ZoomerWithKeys and PubkeyGenerator are referenced
+   in Properties -> Project References (put checkmarks on projects).
