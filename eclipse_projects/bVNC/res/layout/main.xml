@@ -90,7 +90,7 @@
 								android:text="22" android:hint="@string/port_ssh_hint" android:layout_width="wrap_content" 
 								android:layout_height="wrap_content" android:singleLine="true" android:layout_weight="0"
 								android:textAppearance="?android:attr/textAppearanceMedium" android:nextFocusDown="@+id/sshUser"/>
-						</LinearLayout>					
+						</LinearLayout>
 				</TableRow>
 				<TableRow>
 				    	<TextView android:id="@+id/sshCredentialsCaption" android:text="@string/password_caption_ssh" android:paddingRight="10dip" 
@@ -113,6 +113,26 @@
 								android:layout_width="fill_parent" android:layout_height="wrap_content"
 								android:singleLine="true" android:layout_weight="1" android:textAppearance="?android:attr/textAppearanceMedium"
 								android:hint="@string/password_hint_ssh" android:nextFocusDown="@+id/textIP"/>
+						</LinearLayout>					
+				</TableRow>
+				<TableRow>
+   				    	<TextView android:id="@+id/captionUseSshPubkey" android:paddingRight="10dip" 
+				    	          android:gravity="right|center_vertical" android:textAppearance="?android:attr/textAppearanceLarge"
+				    	          android:visibility="gone"/>
+				    	<LinearLayout
+				    	    android:id="@+id/layoutUseSshPubkey"
+							android:layout_width="fill_parent"
+							android:layout_height="wrap_content"
+							android:orientation="horizontal"
+							android:layout_weight="1"
+							android:visibility="gone">
+						<Button	android:id="@+id/buttonGeneratePubkey" android:text="@string/ssh_pubkey_button"
+							android:textAppearance="?android:attr/textAppearanceMedium" android:enabled="true"
+							android:layout_width="wrap_content"	android:layout_height="wrap_content"/>
+						<CheckBox android:id="@+id/checkboxUseSshPubkey"
+							android:layout_width="wrap_content" android:layout_height="wrap_content"
+							android:text="@string/ssh_use_pubkey" android:layout_weight="0" android:checked="false"
+							android:textAppearance="?android:attr/textAppearanceMedium" android:singleLine="true"/>
 						</LinearLayout>					
 				</TableRow>
 				<TableRow>

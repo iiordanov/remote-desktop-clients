@@ -73,13 +73,8 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 	
 	private static boolean secondPointerWasDown = false;
 	private static boolean thirdPointerWasDown = false;
-	
-	// TODO: This boolean indicates whether the user has used a trackpad in this activity at all.
-	// If so, we cannot resize the visible size of the screen anymore due to something that seems
-	// like a horrible bug in Android. Once the trackpad is used, Android starts doing adjustPan
-	// on the activity even though it doesn't do so to begin with. 
-	private boolean trackPadWasUsed = false;
-	
+
+
 	/**
 	 * @author Michael A. MacDonald
 	 */
@@ -996,7 +991,7 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 		            @Override
 		            public void onClick(DialogInterface dialog, int which) {
 		                // We were told to not continue, so stop the activity
-		            	sshConnection.disconnect();
+		            	sshConnection.terminateSSHTunnel();
 		                finish();    
 		            }	
 		        };
@@ -1007,7 +1002,7 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 		    			connection.setSshHostKey(sshConnection.getServerHostKey());
 		    			connection.save(database.getWritableDatabase());
 		    			database.close();
-		    			sshConnection.disconnect();
+		    			sshConnection.terminateSSHTunnel();
 		    			sshConnection = null;
 		            	continueConnecting();
 		            }
@@ -1168,7 +1163,7 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
                     // (when r.bottom holds the width of the screen rather than the height due to a rotation)
                     // we make sure r.top is zero (i.e. there is no notification bar and we are in full-screen mode)
                     // It's a bit of a hack.
-                    if (!trackPadWasUsed && r.top == 0) {
+                    if (r.top == 0) {
                     	if (vncCanvas.bitmapData != null) {
                         	vncCanvas.setVisibleHeight(r.bottom);
                     		vncCanvas.pan(0,0);
@@ -1318,7 +1313,7 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 	@Override
 	public void onConfigurationChanged(Configuration newConfig) {
 		// Indicate whether this device's doesn't have a hardware keyboard or hardware keyboard is hidden.
-		Configuration config = getResources().getConfiguration();
+		//Configuration config = getResources().getConfiguration();
 		//vncCanvas.kbd_qwerty = config.keyboard == Configuration.KEYBOARD_QWERTY;
 		//vncCanvas.kbd_hidden = config.hardKeyboardHidden == Configuration.HARDKEYBOARDHIDDEN_YES;
 		//Log.e("QWERTY KEYBD:", vncCanvas.kbd_qwerty?"yes":"no");
@@ -1678,13 +1673,6 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 	 */
 	@Override
 	public boolean onTrackballEvent(MotionEvent event) {
-
-		// TODO: Remove this nasty hack as soon as Android is not buggy anymore and doesn't start
-		// adjust-panning on soft-keyboard showing up after the trackball/pad has been used a while.
-		// Here we tell it to stop controlling the visibleHeight (done elsewhere) so that we don't
-		// start panning as well as reducing the visible height (which results in a big black bar on-screen).
-		trackPadWasUsed = true;
-		
 		// If we are using the Dpad as arrow keys, don't send the event to the inputHandler.
 		if (connection.getUseDpadAsArrows())
 			return false;

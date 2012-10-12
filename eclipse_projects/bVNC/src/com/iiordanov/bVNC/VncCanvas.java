@@ -1451,7 +1451,7 @@ public class VncCanvas extends ImageView {
 
 		// TODO: Switch from hard-coded numeric position to something better (at least an enumeration).
 		if (connection.getConnectionType() == 1)
-			sshConnection.disconnect();
+			sshConnection.terminateSSHTunnel();
 	}
 	
 	void sendMetaKey(MetaKeyBean meta)

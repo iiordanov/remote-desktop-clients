@@ -19,12 +19,10 @@ public class ClipboardMonitor extends TimerTask {
 	VncCanvas vncCanvas;
 	
 	public ClipboardMonitor (Context c, VncCanvas vc) {
-		context = c;
+		context   = c;
 		vncCanvas = vc;
 		clipboard = (ClipboardManager)context.getSystemService(Context.CLIPBOARD_SERVICE);
-		knownClipboardContents = getClipboardContents ();
-		if (knownClipboardContents == null)
-			knownClipboardContents = new String("");
+		knownClipboardContents = new String("");
 	}
 	
 	/*

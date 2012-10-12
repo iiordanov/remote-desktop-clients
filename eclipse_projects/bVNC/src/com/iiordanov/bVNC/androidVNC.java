@@ -43,14 +43,17 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.util.Log;
 import com.iiordanov.bVNC.Utils;
+import com.iiordanov.pubkeygenerator.GeneratePubkeyActivity;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -61,6 +64,7 @@ public class androidVNC extends Activity {
 	private int selectedConnType;
 	private TextView sshCredentialsCaption;
 	private LinearLayout sshCredentials;
+	private LinearLayout layoutUseSshPubkey;
 	private TextView sshServerEntryCaption;
 	private LinearLayout sshServerEntry;
 	private EditText sshServer;
@@ -74,6 +78,7 @@ public class androidVNC extends Activity {
 	private EditText passwordText;
 	private Button goButton;
 	private Button repeaterButton;
+	private Button buttonGeneratePubkey;
 	private LinearLayout repeaterEntry;
 	private TextView repeaterText;
 	private RadioGroup groupForceFullScreen;
@@ -84,11 +89,13 @@ public class androidVNC extends Activity {
 	private EditText textNickname;
 	private EditText textUsername;
 	private TextView textUsernameCaption;
+	private TextView captionUseSshPubkey;
 	private CheckBox checkboxKeepPassword;
 	private CheckBox checkboxUseDpadAsArrows;
 	private CheckBox checkboxRotateDpad;
 	private CheckBox checkboxUsePortrait;
 	private CheckBox checkboxLocalCursor;
+	private CheckBox checkboxUseSshPubkey;
 	private boolean repeaterTextSet;
 
 	@Override
@@ -96,7 +103,6 @@ public class androidVNC extends Activity {
 		super.onCreate(icicle);
 		System.gc();
 		setContentView(R.layout.main);
-
 		ipText = (EditText) findViewById(R.id.textIP);
 		sshServer = (EditText) findViewById(R.id.sshServer);
 		sshPort = (EditText) findViewById(R.id.sshPort);
@@ -104,6 +110,8 @@ public class androidVNC extends Activity {
 		sshPassword = (EditText) findViewById(R.id.sshPassword);
 		sshCredentials = (LinearLayout) findViewById(R.id.sshCredentials);
 		sshCredentialsCaption = (TextView) findViewById(R.id.sshCredentialsCaption);
+		layoutUseSshPubkey = (LinearLayout) findViewById(R.id.layoutUseSshPubkey);
+		captionUseSshPubkey = (TextView) findViewById(R.id.captionUseSshPubkey);
 		sshServerEntry = (LinearLayout) findViewById(R.id.sshServerEntry);
 		sshServerEntryCaption = (TextView) findViewById(R.id.sshServerEntryCaption);
 		portText = (EditText) findViewById(R.id.textPORT);
@@ -121,7 +129,31 @@ public class androidVNC extends Activity {
 				showDialog(R.layout.repeater_dialog);
 			}
 		});
-	
+
+		// Here we say what happens when the Pubkey Checkbox is checked/unchecked.
+		checkboxUseSshPubkey = (CheckBox) findViewById(R.id.checkboxUseSshPubkey);
+		checkboxUseSshPubkey.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+			@Override
+			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+				selected.setUseSshPubKey(isChecked);
+				if (isChecked) {
+					sshPassword.setHint(R.string.ssh_passphrase_hint);
+				} else {
+					sshPassword.setHint(R.string.password_hint_ssh);
+				}
+				sshPassword.setText("");
+			}
+		});
+		// Here we say what happens when the Pubkey Generate button is pressed.
+		buttonGeneratePubkey = (Button) findViewById(R.id.buttonGeneratePubkey);
+		buttonGeneratePubkey.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View view) {
+				generatePubkey ();
+			}
+		});
+		
+		
 		// Define what happens when somebody selects different VNC connection types.
 		connectionType = (Spinner) findViewById(R.id.connectionType);
 		connectionType.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -134,6 +166,8 @@ public class androidVNC extends Activity {
 					selectedConnType == 3) {
 					sshCredentials.setVisibility(View.GONE);
 					sshCredentialsCaption.setVisibility(View.GONE);
+					captionUseSshPubkey.setVisibility(View.GONE);
+					layoutUseSshPubkey.setVisibility(View.GONE);
 					sshServerEntry.setVisibility(View.GONE);
 					ipText.setHint(R.string.address_caption_hint);
 					sshServerEntryCaption.setVisibility(View.GONE);
@@ -143,10 +177,18 @@ public class androidVNC extends Activity {
 				} else if (selectedConnType == 1) {
 					sshCredentials.setVisibility(View.VISIBLE);
 					sshCredentialsCaption.setVisibility(View.VISIBLE);
+					captionUseSshPubkey.setVisibility(View.VISIBLE);
+					layoutUseSshPubkey.setVisibility(View.VISIBLE);
 					sshServerEntry.setVisibility(View.VISIBLE);
 					if (ipText.getText().toString().equals(""))
 						ipText.setText("localhost");
 					ipText.setHint(R.string.address_caption_hint_tunneled);
+					if (checkboxUseSshPubkey.isChecked()) {
+						sshPassword.setHint(R.string.ssh_passphrase_hint);
+					} else {
+						sshPassword.setHint(R.string.password_hint_ssh);
+					}
+					sshPassword.setText("");
 					sshServerEntryCaption.setVisibility(View.VISIBLE);
 					textUsername.setVisibility(View.GONE);
 					textUsernameCaption.setVisibility(View.GONE);
@@ -154,6 +196,8 @@ public class androidVNC extends Activity {
 				} else if (selectedConnType == 2) {
 					sshCredentials.setVisibility(View.GONE);
 					sshCredentialsCaption.setVisibility(View.GONE);
+					captionUseSshPubkey.setVisibility(View.GONE);
+					layoutUseSshPubkey.setVisibility(View.GONE);
 					sshServerEntry.setVisibility(View.GONE);
 					ipText.setHint(R.string.address_caption_hint);
 					sshServerEntryCaption.setVisibility(View.GONE);
@@ -164,6 +208,8 @@ public class androidVNC extends Activity {
 				} else if (selectedConnType == 4) {
 					sshCredentials.setVisibility(View.GONE);
 					sshCredentialsCaption.setVisibility(View.GONE);
+					captionUseSshPubkey.setVisibility(View.GONE);
+					layoutUseSshPubkey.setVisibility(View.GONE);
 					sshServerEntry.setVisibility(View.GONE);
 					ipText.setHint(R.string.address_caption_hint);
 					sshServerEntryCaption.setVisibility(View.GONE);
@@ -271,7 +317,7 @@ public class androidVNC extends Activity {
 	
 	/*
 	 * Creates the main screen help dialog.
-	 * TODO: I need a high resolution device device to develop and test this on.
+	 * TODO: On Android 4.x the dialog does not fill the width of the screen - why?
 	 */
 	private Dialog createMainScreenHelpDialog() {
 		Dialog d = new AlertDialog.Builder(this)
@@ -352,15 +398,20 @@ public class androidVNC extends Activity {
 	}
 
 	private void updateViewFromSelected() {
-		if (selected==null)
+		if (selected == null)
 			return;
 		selectedConnType = selected.getConnectionType();
 		connectionType.setSelection(selectedConnType);
 		sshServer.setText(selected.getSshServer());
 		sshPort.setText(Integer.toString(selected.getSshPort()));
 		sshUser.setText(selected.getSshUser());
-		sshPassword.setText(selected.getSshPassword());
-		updateSshPubKeyInfo(selected.getUseSshPubKey(), selected.getSshPubKey());
+		
+		checkboxUseSshPubkey.setChecked(selected.getUseSshPubKey());
+		if (checkboxUseSshPubkey.isChecked()) {
+			sshPassword.setHint(R.string.ssh_passphrase_hint);
+		} else {
+			sshPassword.setHint(R.string.password_hint_ssh);
+		}
 
 		// TODO: Switch away from using hard-coded numeric value for connection type.
 		if (selectedConnType == 1 && selected.getAddress().equals(""))
@@ -411,59 +462,32 @@ public class androidVNC extends Activity {
 			repeaterTextSet = false;
 		}
 	}
-	
-	/**
-	 * Called when changing view to match selected connection or from
-	 * SSH PubKey dialog to update the PubKey information shown.
-	 * @param sshPubKey If null or empty, show text for not using sshPubKey
-	 */
-	void updateSshPubKeyInfo(boolean useSshPubKey, String newSshPubKey)
-	{
-		if (useSshPubKey)
-		{
-			sshPubKey.setText(newSshPubKey);
-			useSshPubKey = true;
-		}
-		else
-		{
-			//TODO: When I am done implementing the interface for SSH pubkeys, I can re-enable this.
-			//sshPubKey.setText("");
-			useSshPubKey = false;
-		}
-	}
-	
-	
+
+
 	private void updateSelectedFromView() {
-		if (selected==null) {
+		if (selected == null) {
 			return;
 		}
 		selected.setConnectionType(selectedConnType);
 		selected.setAddress(ipText.getText().toString());
-		try
-		{
+		try	{
 			selected.setPort(Integer.parseInt(portText.getText().toString()));
 			selected.setSshPort(Integer.parseInt(sshPort.getText().toString()));
 		}
-		catch (NumberFormatException nfe)
-		{
-			
-		}
+		catch (NumberFormatException nfe) {}
+		
 		selected.setNickname(textNickname.getText().toString());
 		selected.setSshServer(sshServer.getText().toString());
 		selected.setSshUser(sshUser.getText().toString());
-		selected.setSshPassword(sshPassword.getText().toString());
+
+		// TODO: Decide whether to allow saving of password after displaying WARNING.
 		selected.setKeepSshPassword(false);
-		if (sshPubkeyTextSet)
-		{
-			selected.setSshPubKey(repeaterText.getText().toString());
-			selected.setUseSshPubKey(true);
-		}
-		else
-		{
-			selected.setUseSshPubKey(false);
-			selected.setSshPubKey("");
-			selected.setSshPassPhrase("");
-		}
+		
+		// If we are using a Pubkey, then the ssh password box is used
+		// for the key pass-phrase instead.
+		selected.setUseSshPubKey(checkboxUseSshPubkey.isChecked());
+		selected.setSshPassPhrase(sshPassword.getText().toString());
+		selected.setSshPassword(sshPassword.getText().toString());
 		selected.setUserName(textUsername.getText().toString());
 		selected.setForceFull(groupForceFullScreen.getCheckedRadioButtonId()==R.id.radioForceFullScreenAuto ? BitmapImplHint.AUTO : (groupForceFullScreen.getCheckedRadioButtonId()==R.id.radioForceFullScreenOn ? BitmapImplHint.FULL : BitmapImplHint.TILE));
 		selected.setPassword(passwordText.getText().toString());
@@ -473,13 +497,10 @@ public class androidVNC extends Activity {
 		selected.setUsePortrait(checkboxUsePortrait.isChecked());
 		selected.setUseLocalCursor(checkboxLocalCursor.isChecked());
 		selected.setColorModel(((COLORMODEL)colorSpinner.getSelectedItem()).nameString());
-		if (repeaterTextSet)
-		{
+		if (repeaterTextSet) {
 			selected.setRepeaterId(repeaterText.getText().toString());
 			selected.setUseRepeater(true);
-		}
-		else
-		{
+		} else {
 			selected.setUseRepeater(false);
 		}
 	}
@@ -606,11 +627,49 @@ public class androidVNC extends Activity {
 		}
 	}
 	
-	private void vnc() {
+	/**
+	 * Starts the activity which makes a VNC connection and displays the remote desktop.
+	 */
+	private void vnc () {
 		updateSelectedFromView();
 		saveAndWriteRecent();
 		Intent intent = new Intent(this, VncCanvasActivity.class);
 		intent.putExtra(VncConstants.CONNECTION,selected.Gen_getValues());
 		startActivity(intent);
+	}
+	
+	/**
+	 * Starts the activity which manages keys.
+	 */
+	private void generatePubkey () {
+		updateSelectedFromView();
+		saveAndWriteRecent();
+		Intent intent = new Intent(this, GeneratePubkeyActivity.class);
+		intent.putExtra("PrivateKey",selected.getSshPrivKey());
+		// TODO: define some value that I can use instead of number.
+		startActivityForResult(intent, 1);
+	}
+	
+	/**
+	 * This function is used to retrieve data returned by activities started with startActivityForResult.
+	 */
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+		switch(requestCode) {
+		case (1):
+			if (resultCode == Activity.RESULT_OK) {
+				Bundle b = data.getExtras();
+				String privateKey = (String)b.get("PrivateKey");
+				if (!privateKey.equals(selected.getSshPrivKey()) && !privateKey.isEmpty())
+					Toast.makeText(getBaseContext(), "New key generated successfully. Tap 'Generate or Export' " +
+							"to share, copy to clipboard, or export the public key now.", Toast.LENGTH_LONG).show();
+				selected.setSshPrivKey(privateKey);
+				selected.setSshPubKey((String)b.get("PublicKey"));
+				saveAndWriteRecent();
+			} else
+				Log.i (TAG, "The user cancelled PubKey generation.");
+			break;
+		}
 	}
 }

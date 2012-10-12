@@ -1,6 +1,14 @@
-I. Install sqlitegen plugin into Eclipse from:
+1. Install sqlitegen plugin into Eclipse from:
 
-  http://code.google.com/p/sqlitegen/
+    http://code.google.com/p/sqlitegen/
 
-II. Add bVNC and ZoomerWithKeys to Eclipse as Android projects.
+2. Add bVNC, ZoomerWithKeys, PubkeyGenerator, and ssh2 from the 
+    eclipse_projects/ directory to Eclipse as Android projects
 
+3. Either:
+   a) Add the ZoomerWithKeys, PubkeyGenerator, and ssh2 projects
+   as Library References to bVNC (right-click on the bVNC project
+   -> Properties -> Android -> Library), or
+   b) take the jar files from each of the the projects generated
+   in their bin/ directories and add them to the libs/ directory
+   of bVNC.

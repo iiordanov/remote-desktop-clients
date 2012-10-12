@@ -108,6 +108,7 @@ class ScaleGestureDetector implements IBCScaleGestureDetector {
     public boolean onTouchEvent(MotionEvent event) {
         final int action = event.getAction();
         boolean handled = true;
+        boolean secondpointer = event.getPointerCount() > 1;
 
         if (!mGestureInProgress) {
             switch (action & MotionEvent.ACTION_MASK) {
@@ -136,19 +137,22 @@ class ScaleGestureDetector implements IBCScaleGestureDetector {
                 final float bottomSlop = mBottomSlopEdge;
                 final float x0 = event.getRawX();
                 final float y0 = event.getRawY();
-                final float x1 = getRawX(event, 1);
-                final float y1 = getRawY(event, 1);
+                boolean p1sloppy = false;
+                if (secondpointer) {
+                	final float x1 = getRawX(event, 1);
+                	final float y1 = getRawY(event, 1);
+                    p1sloppy = x1 < edgeSlop || y1 < edgeSlop
+                            || x1 > rightSlop || y1 > bottomSlop;
+                }
 
                 boolean p0sloppy = x0 < edgeSlop || y0 < edgeSlop
                         || x0 > rightSlop || y0 > bottomSlop;
-                boolean p1sloppy = x1 < edgeSlop || y1 < edgeSlop
-                        || x1 > rightSlop || y1 > bottomSlop;
 
                 if (p0sloppy && p1sloppy) {
                     mFocusX = -1;
                     mFocusY = -1;
                     mSloppyGesture = true;
-                } else if (p0sloppy) {
+                } else if (p0sloppy && secondpointer) {
                     mFocusX = event.getX(1);
                     mFocusY = event.getY(1);
                     mSloppyGesture = true;
@@ -174,20 +178,18 @@ class ScaleGestureDetector implements IBCScaleGestureDetector {
                     boolean p0sloppy = x0 < edgeSlop || y0 < edgeSlop
                     || x0 > rightSlop || y0 > bottomSlop;
 
-                    boolean p1sloppy;
-                    if (event.getPointerCount() > 1) {
+                    boolean p1sloppy = false;
+                    if (secondpointer) {
                         final float x1 = getRawX(event, 1);
                         final float y1 = getRawY(event, 1);
                         p1sloppy = x1 < edgeSlop || y1 < edgeSlop
                                 || x1 > rightSlop || y1 > bottomSlop;
-                    } else {
-                        p1sloppy = false;
                     }
 
                     if(p0sloppy && p1sloppy) {
                         mFocusX = -1;
                         mFocusY = -1;
-                    } else if (p0sloppy) {
+                    } else if (p0sloppy && secondpointer) {
                         mFocusX = event.getX(1);
                         mFocusY = event.getY(1);
                     } else if (p1sloppy) {
@@ -205,8 +207,10 @@ class ScaleGestureDetector implements IBCScaleGestureDetector {
                     // Set focus point to the remaining finger
                     int id = (((action & MotionEvent.ACTION_POINTER_ID_MASK)
                             >> MotionEvent.ACTION_POINTER_ID_SHIFT) == 0) ? 1 : 0;
-                    mFocusX = event.getX(id);
-                    mFocusY = event.getY(id);
+                    if (id == 0 || secondpointer) {
+                    	mFocusX = event.getX(id);
+                    	mFocusY = event.getY(id);
+                    }
                 }
                 break;
             }
@@ -220,8 +224,10 @@ class ScaleGestureDetector implements IBCScaleGestureDetector {
                     // Set focus point to the remaining finger
                     int id = (((action & MotionEvent.ACTION_POINTER_ID_MASK)
                             >> MotionEvent.ACTION_POINTER_ID_SHIFT) == 0) ? 1 : 0;
-                    mFocusX = event.getX(id);
-                    mFocusY = event.getY(id);
+                    if (id == 0 || secondpointer) {
+                    	mFocusX = event.getX(id);
+                    	mFocusY = event.getY(id);
+                    }
 
                     if (!mSloppyGesture) {
                         mListener.onScaleEnd(this);
@@ -275,6 +281,8 @@ class ScaleGestureDetector implements IBCScaleGestureDetector {
     }
 
     private void setContext(MotionEvent curr) {
+        boolean secondpointer = curr.getPointerCount() > 1;
+
         if (mCurrEvent != null) {
             mCurrEvent.recycle();
         }
@@ -292,7 +300,7 @@ class ScaleGestureDetector implements IBCScaleGestureDetector {
         final float cy0 = curr.getY(0);
 
         float prevpress = 0;
-        if (prev.getPointerCount() > 1) {
+        if (secondpointer) {
             final float px1 = prev.getX(1);
             final float py1 = prev.getY(1);        	
             final float pvx = px1 - px0;
@@ -308,7 +316,7 @@ class ScaleGestureDetector implements IBCScaleGestureDetector {
         float cvx = 0;
         float cvy = 0;
         float currpress = 0;
-        if (curr.getPointerCount() > 1) {
+        if (secondpointer) {
             final float cx1 = curr.getX(1);
             final float cy1 = curr.getY(1);        	
             cvx = cx1 - cx0;
