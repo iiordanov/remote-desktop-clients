@@ -33,50 +33,35 @@
 		android:layout_width="fill_parent">
 
 	    <Button
-			android:layout_width="fill_parent"
-			android:layout_height="wrap_content"
-			android:id="@+id/share"
-			android:text="@string/pubkey_share"
-			android:enabled="false" />
-	    <Button
-			android:layout_width="fill_parent"
-			android:layout_height="wrap_content"
-			android:id="@+id/copy"
-			android:text="@string/pubkey_copy"
-			android:enabled="false" />
+		    android:id="@+id/generate"
+		    android:layout_width="fill_parent"
+		    android:layout_height="wrap_content"
+		    android:enabled="true"
+		    android:text="@string/pubkey_generate" />
 
-	    <TextView
-			android:text="@string/prompt_file_will_be_saved"
+		<Button
+		    android:id="@+id/decrypt"
+		    android:layout_width="fill_parent"
+		    android:layout_height="wrap_content"
+		    android:enabled="false"
+		    android:text="@string/pubkey_decrypt" />	
+		<TextView
+			android:text="@string/prompt_password_can_be_blank"
 			android:gravity="left"
 			android:layout_height="wrap_content"
 			android:layout_width="wrap_content" />
-	    <TableRow>
-			<TextView
-				android:paddingRight="10dip"
-				android:gravity="left"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:textAppearance="?android:attr/textAppearanceMedium"
-				android:text="@string/prompt_file_name" />
-
-			<EditText
-				android:id="@+id/file_name"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:inputType="text"
-				android:singleLine="true"
-				android:layout_weight="1" />
-		</TableRow>
-	    <Button
-			android:layout_width="fill_parent"
+		<EditText
+			android:id="@+id/password"
+			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:id="@+id/save"
-			android:text="@string/pubkey_save"
-			android:enabled="false" />
-
+			android:password="true"
+			android:inputType="textPassword"
+			android:singleLine="true"
+			android:layout_weight="1"
+			android:hint="@string/prompt_passphrase" />
 		<TableRow>
 			<TextView
-				android:text="@string/prompt_type2"
+				android:text="@string/prompt_type"
 				android:paddingRight="10dip"
 				android:textAppearance="?android:attr/textAppearanceMedium"
 				android:gravity="left"
@@ -106,7 +91,7 @@
 
 		<TableRow>
 			<TextView
-				android:text="@string/prompt_bits2"
+				android:text="@string/prompt_bits"
 				android:paddingRight="10dip"
 				android:textAppearance="?android:attr/textAppearanceMedium"
 				android:gravity="left" />
@@ -128,44 +113,36 @@
 			android:max="3328"
 			android:progress="1280" />
 
-		<TextView
-			android:text="@string/prompt_password_can_be_blank2"
-			android:gravity="left"
-			android:layout_height="wrap_content"
-			android:layout_width="wrap_content" />
-
-		<TableRow>
-			<TextView
-				android:paddingRight="10dip"
-				android:gravity="left"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:textAppearance="?android:attr/textAppearanceMedium"
-				android:text="@string/prompt_passphrase" />
-
-			<EditText
-				android:id="@+id/password1"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:password="true"
-				android:inputType="textPassword"
-				android:singleLine="true"
-				android:layout_weight="1" />
-		</TableRow>
-
-
 		<Button
 			android:layout_width="fill_parent"
 			android:layout_height="wrap_content"
-			android:id="@+id/decrypt"
-			android:text="@string/pubkey_decrypt"
+			android:id="@+id/share"
+			android:text="@string/pubkey_share"
 			android:enabled="false" />
-
 		<Button
 			android:layout_width="fill_parent"
 			android:layout_height="wrap_content"
-			android:id="@+id/generate"
-			android:text="@string/pubkey_generate2"
-			android:enabled="true" />
+			android:id="@+id/copy"
+			android:text="@string/pubkey_copy"
+			android:enabled="false" />
+	    <Button
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content"
+			android:id="@+id/save"
+			android:text="@string/pubkey_save"
+			android:enabled="false" />
+		<TextView
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:gravity="left"
+	        android:text="@string/prompt_file_will_be_saved" />
+		<EditText
+			android:id="@+id/file_name"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:inputType="text"
+			android:singleLine="true"
+			android:layout_weight="1"
+			android:hint="@string/prompt_file_name" />
 	</TableLayout>
 </ScrollView>

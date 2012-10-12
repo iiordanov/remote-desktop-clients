@@ -58,7 +58,6 @@ import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.text.ClipboardManager;
 
-
 public class GeneratePubkeyActivity extends Activity implements OnEntropyGatheredListener {
 	public final static String TAG = "GeneratePubkeyActivity";
 
@@ -116,7 +115,7 @@ public class GeneratePubkeyActivity extends Activity implements OnEntropyGathere
 		bitsSlider = (SeekBar) findViewById(R.id.bits_slider);
 
 		file_name = (EditText) findViewById(R.id.file_name);
-		password1 = (EditText) findViewById(R.id.password1);
+		password1 = (EditText) findViewById(R.id.password);
 
 		generate = (Button) findViewById(R.id.generate);
 		share    = (Button) findViewById(R.id.share);

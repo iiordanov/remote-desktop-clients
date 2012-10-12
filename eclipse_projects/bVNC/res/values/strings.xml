@@ -167,7 +167,7 @@ If you are looking for a quick performance boost, try setting the Color mode to 
  
  - SSH Auth.: Available only in VNC over SSH mode, these settings are:
    (a) the username and password of the account on the SSH server. The password will be filled in on this page if you haven't quit bVNC since you last entered it.
-   (b) a button to Generate or Export public/private keys, and a checkbox indicating whether to use a key rather than password to authenticate. If you use the Copy to Clipboard button after generating a key-pair, you should be able to paste the public key once connected to the VNC server (the clipboard is synchronized to the server).
+   (b) a button to Generate/Export public/private keys, and a checkbox indicating whether to use a key rather than password to authenticate. If you use the Copy to Clipboard button after generating a key-pair, you should be able to paste the public key once connected to the VNC server (the clipboard is synchronized to the server).
 
  - VNC Server/Port: This is where you enter the host name or IP address and port of the computer running the VNC server that you wish to contact. In VNC over SSH mode, this address is as seen from the SSH Server. If the SSH Server and VNC server are the same computer, you can use localhost. VNC servers typically listen starting at port 5900 (the first VNC screen, screen :0).
 
@@ -228,8 +228,8 @@ If you are looking for a quick performance boost, try setting the Color mode to 
 <string name="showkbd_label">Keyboard</string>
 <string name="snap_one_to_one">Snapped to 1:1 zoom</string>
 <string name="special_keys">Send Keys</string>
-<string name="ssh_use_pubkey">Use SSH Key</string>
-<string name="ssh_pubkey_button">Generate or Export Key</string>
+<string name="ssh_use_pubkey">Use Key</string>
+<string name="ssh_pubkey_button">Generate/Export Key</string>
 <string name="ssh_passphrase_hint">SSH Passphrase</string>
 <string name="username_caption">VNC User</string>
 <string name="username_hint">UltraVNC MS Logon Username</string>

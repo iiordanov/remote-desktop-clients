@@ -5,7 +5,7 @@
     <string name="menu_settings">Settings</string>
     <string name="title_activity_pubkey_generator">PubkeyGeneratorActivity</string>
 	<string name="prompt_file_name">"File Name"</string>
-	<string name="prompt_file_will_be_saved">"NOTE: File will be saved in Download/ directory of SD card."</string>
+	<string name="prompt_file_will_be_saved">"File will be saved in your Download directory."</string>
 		<string name="prompt_nickname">"Nickname"</string>
 		<!-- An example string that could be used as a nickname for a pubkey. -->
 	<string name="prompt_nickname_hint_pubkey">"My work key"</string>
@@ -18,10 +18,10 @@
 	<!-- Added after a "Password:" prompt to indicate user needs to confirm entry. -->
 	<string name="prompt_again">"(again)"</string>
 	<!-- Label for the user to select port forward type. -->
-	<string name="prompt_type2">"Type"</string>
-	<string name="prompt_password_can_be_blank2">"NOTE: passphrase can be blank"</string>
+	<string name="prompt_type">"Type"</string>
+	<string name="prompt_password_can_be_blank">"Passphrase can be blank but generates non-encrypted keys"</string>
 	<!-- Prompt for the size of the private key in bits. -->
-	<string name="prompt_bits2">"Bits"</string>
+	<string name="prompt_bits">"Bits"</string>
 
 	<!-- Prompt for the password to unlock a certain pubkey. -->
 	<string name="prompt_pubkey_password">"Password for key '%1$s'"</string>
@@ -36,11 +36,11 @@
 	<string name="pubkey_private_export_success">Private key saved as %1$s</string>
 	<string name="pubkey_private_export_problem">Error exporting private key</string>
 	<string name="pubkey_generated">"Successfully Generated key pair."</string>
-	<string name="pubkey_generate2">"Generate New Key"</string>
+	<string name="pubkey_generate">"Generate New Key"</string>
 	<string name="pubkey_copy">"Copy to Clipboard"</string>
 	<string name="pubkey_save">"Save Public Key to File"</string>
 	<string name="pubkey_share">"Share Public Key"</string>
-	<string name="pubkey_decrypt">"Decrypt Key With Passphrase"</string>
+	<string name="pubkey_decrypt">"Decrypt Current Key"</string>
 	<string name="pubkey_import">"Import"</string>
 	<string name="pubkey_delete">"Delete key"</string>
 	<!-- Dialog title when user must move finger randomly over an area to gather entropy (collect random bits) -->
