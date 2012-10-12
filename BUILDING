@@ -4,6 +4,9 @@
 2. Add bVNC, ZoomerWithKeys and PubkeyGenerator from the 
     eclipse_projects/ directory to Eclipse as existing Android projects.
 
+3. Ensure ZoomerWithKeys and PubkeyGenerator projects are called
+   exactly as written here by right-clicking on them->Refactor->Rename
+
 3. Add the ZoomerWithKeys and PubkeyGenerator as Library References
    to bVNC (right-click on the bVNC project
    -> Properties -> Android -> Library). If they are not, add them.
