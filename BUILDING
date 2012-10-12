@@ -5,10 +5,12 @@
 2. Add bVNC, ZoomerWithKeys, PubkeyGenerator, and ssh2 from the 
     eclipse_projects/ directory to Eclipse as Android projects
 
-3. Either:
-   a) Add the ZoomerWithKeys, PubkeyGenerator, and ssh2 projects
+3. Add the ZoomerWithKeys, PubkeyGenerator, and ssh2 projects
    as Library References to bVNC (right-click on the bVNC project
-   -> Properties -> Android -> Library), or
-   b) take the jar files from each of the the projects generated
-   in their bin/ directories and add them to the libs/ directory
-   of bVNC.
+   -> Properties -> Android -> Library).
+
+4. Add the ssh2 project as a Library Reference to PubkeyGenerator.
+
+   Alternatively, you may take the jar file built in ssh2's bin/
+   directory and add it to the libs/ directory of bVNC and
+   PubkeyGenerator rather than adding it as a reference.

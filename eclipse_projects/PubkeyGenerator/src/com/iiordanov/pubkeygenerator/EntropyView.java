@@ -33,7 +33,7 @@ import android.view.View;
 
 public class EntropyView extends View {
 	private static final int SHA1_MAX_BYTES = 20;
-	private static final int MILLIS_BETWEEN_INPUTS = 2;
+	private static final int MILLIS_BETWEEN_INPUTS = 5;
 
 	private Paint mPaint;
 	private FontMetrics mFontMetrics;
@@ -117,7 +117,7 @@ public class EntropyView extends View {
 				|| lastY == event.getY())
 			return true;
 
-		// Only get entropy every 200 milliseconds to ensure the user has moved around.
+		// Only get entropy every MILLIS_BETWEEN_INPUTS milliseconds to ensure the user has moved around.
 		long now = System.currentTimeMillis();
 		if ((now - mLastTime) < MILLIS_BETWEEN_INPUTS)
 				return true;
