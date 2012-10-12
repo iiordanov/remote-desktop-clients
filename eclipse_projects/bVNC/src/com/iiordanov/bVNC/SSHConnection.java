@@ -216,6 +216,12 @@ public class SSHConnection implements InteractiveCallback {
 	 * @throws Exception 
 	 */
 	private void decryptAndRecoverKey () throws Exception {
+		
+		// Detect an empty key (not generated).
+		if (sshPrivKey.isEmpty())
+			throw new Exception ("SSH key-pair not generated yet! Please generate one and put (its public part) " +
+					"in authorized_keys on the SSH server.");
+
 		// Detect passphrase entered when key unencrypted and report error.
 		if (!passphrase.isEmpty() &&
 			!PubkeyUtils.isEncrypted(sshPrivKey))

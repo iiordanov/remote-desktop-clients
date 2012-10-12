@@ -17,6 +17,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.MenuItem.OnMenuItemClickListener;
 import android.widget.Button;
+import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView;
 
 /**
@@ -69,6 +70,7 @@ class IntroTextDialog extends Dialog {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.intro_dialog);
+		getWindow().setLayout(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT);
 		StringBuilder sb = new StringBuilder(getContext().getResources().getString(R.string.intro_title));
 		//sb.append(" ");
 		//sb.append(packageInfo.versionName);

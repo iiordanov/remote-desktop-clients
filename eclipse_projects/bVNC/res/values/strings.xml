@@ -130,10 +130,10 @@ All Input Modes:
  - Right-click: Tap-hold and tap with a second finger (anywhere else on screen).
  - Middle-click: Tap-hold and tap with two more fingers (anywhere else on screen).
  - Mouse-drag: Tap-hold-long and swipe.
- - Scroll-wheel: Two-finger swipe up/down and left/right. Swipe quickly (flick) to scroll really quickly.
- - Zoom in/out: When in Zoomable scaling, you can pinch-zoom to control scaling.
- - ESC key: Use the \"Back\" functionality of your device (e.g. diagonal swipe from bottom or back arrow symbol).
- - Ctrl/Alt key: Menu, and then toggle Ctrl/Alt with corresponding key. Don't forget to toggle off when done!
+ - Scroll-wheel: Two-finger drag up/down and left/right. Quick drag scrolls faster.
+ - Zoom in/out: In Zoomable scaling, pinch-zoom to control scaling.
+ - ESC key: Use the \"Back\" button or gesture for your device.
+ - Ctrl/Alt key: Menu->Ctrl/Alt buttons. Don't forget to toggle off when done!
  - Key combos: Menu->More->Send Keys.
  - Send text: Either type on the on-screen keyboard, or use Menu->More->Send Text."
 </string>
@@ -155,17 +155,19 @@ All Input Modes:
 If you are looking for a quick performance boost, try setting the Color mode to a lower value. Also, try removing any desktop background image on the VNC server. Finally, ensure your device has good network connectivity and avoid covering its antenna and reducing the signal strength.
 
  - Conn. Type: Here you choose the VNC connection type. Available connection types are:
-   - Plain VNC, which is  supported by all VNC servers but lacks encryption and is vulnerable to brute-force attacks due to an 8-character password limitation.
-   - Secure VNC over SSH, which connects over an encrypted SSH tunnel. You need an SSHD service running as well as a VNC server. As long as the VNC server does not accept connections directly from the Internet, this connection type suffers no known vulnerabilities, as long as you verify the server certificate signature when first connecting.
-   - UltraVNC, which gives you Windows Logon and UltraVNC Repeater options. Using Windows Logon does not suffer from the 8-character password limitation, but this mode offers no encryption, so your session is vulnerable to sniffing.
-   - Secure VNC over AnonTLS, which is regular VNC over a stunnel-equivalent connection. You either need to run stunnel, or use a VNC server like Vino which supports AnonTLS out of the box. This mode gives you session encryption, but suffers from the 8-character password limitation and does not prevent man-in-the-middle attacks.
-   - Secure VNC over VeNCrypt, which uses x509 certificates as well as session encryption, and depending on the server configuration can use user/password credentials with no 8-character limitation. This mode prevents man-in-the-middle attacks. as well as providing session privacy. Servers like x11vnc and TigerVNC support this mode and are as secure as VNC over SSH. 
+   (a) Plain VNC, which is  supported by all VNC servers but lacks encryption and is vulnerable to brute-force attacks due to an 8-character password limitation.
+   (b) Secure VNC over SSH, which connects over an encrypted SSH tunnel. You need an SSHD service running as well as a VNC server. As long as the VNC server does not accept connections directly from the Internet, this connection type suffers no known vulnerabilities, as long as you verify the server certificate signature when first connecting.
+   (c) UltraVNC, which gives you Windows Logon and UltraVNC Repeater options. Using Windows Logon does not suffer from the 8-character password limitation, but this mode offers no encryption, so your session is vulnerable to sniffing.
+   (d) Secure VNC over AnonTLS, which is regular VNC over a stunnel-equivalent connection. You either need to run stunnel, or use a VNC server like Vino which supports AnonTLS out of the box. This mode gives you session encryption, but suffers from the 8-character password limitation and does not prevent man-in-the-middle attacks.
+   (e) Secure VNC over VeNCrypt, which uses x509 certificates as well as session encryption, and depending on the server configuration can use user/password credentials with no 8-character limitation. This mode prevents man-in-the-middle attacks. as well as providing session privacy. Servers like x11vnc and TigerVNC support this mode and are as secure as VNC over SSH. 
 
- - Nickname: Each configuration you create can have a nickname to easily identify it on the list.
+ - Nickname: Each connection you create can have a nickname to easily identify it on the list.
  
  - SSH Server/Port: Available in VNC over SSH mode, this is the address and port of the SSH server that the connection will be tunnelled through. By default SSH listens on port 22.
  
- - SSH Auth.: Available in VNC over SSH mode, these are the username and password of the account on the SSH server. The password will be filled in on this page if you haven't quit bVNC since you last entered it.
+ - SSH Auth.: Available only in VNC over SSH mode, these settings are:
+   (a) the username and password of the account on the SSH server. The password will be filled in on this page if you haven't quit bVNC since you last entered it.
+   (b) a button to Generate or Export public/private keys, and a checkbox indicating whether to use a key rather than password to authenticate. If you use the Copy to Clipboard button after generating a key-pair, you should be able to paste the public key once connected to the VNC server (the clipboard is synchronized to the server).
 
  - VNC Server/Port: This is where you enter the host name or IP address and port of the computer running the VNC server that you wish to contact. In VNC over SSH mode, this address is as seen from the SSH Server. If the SSH Server and VNC server are the same computer, you can use localhost. VNC servers typically listen starting at port 5900 (the first VNC screen, screen :0).
 
@@ -226,7 +228,7 @@ If you are looking for a quick performance boost, try setting the Color mode to 
 <string name="showkbd_label">Keyboard</string>
 <string name="snap_one_to_one">Snapped to 1:1 zoom</string>
 <string name="special_keys">Send Keys</string>
-<string name="ssh_use_pubkey">Use Pubkey</string>
+<string name="ssh_use_pubkey">Use SSH Key</string>
 <string name="ssh_pubkey_button">Generate or Export Key</string>
 <string name="ssh_passphrase_hint">SSH Passphrase</string>
 <string name="username_caption">VNC User</string>

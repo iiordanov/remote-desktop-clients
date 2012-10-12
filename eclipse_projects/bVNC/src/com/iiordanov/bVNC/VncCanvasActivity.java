@@ -1283,19 +1283,34 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 		case R.layout.entertext:
 			return new EnterTextDialog(this);
 		case R.id.itemHelpInputMode:
-			return new AlertDialog.Builder(this)
-			.setMessage(R.string.input_mode_help_text)
-			.setPositiveButton(R.string.close,
-					new DialogInterface.OnClickListener() {
-						public void onClick(DialogInterface dialog,
-								int whichButton) {
-							// We don't have to do anything.
-						}
-					}).create();
+			return createHelpDialog ();
 		}
 		
 		// Default to meta key dialog
 		return new MetaKeyDialog(this);
+	}
+
+	/**
+	 * Creates the help dialog for this activity.
+	 */
+	private Dialog createHelpDialog() {
+	    AlertDialog.Builder adb = new AlertDialog.Builder(this)
+	    		.setMessage(R.string.input_mode_help_text)
+	    		.setPositiveButton(R.string.close,
+	    				new DialogInterface.OnClickListener() {
+	    					public void onClick(DialogInterface dialog,
+	    							int whichButton) {
+	    						// We don't have to do anything.
+	    					}
+	    				});
+	    Dialog d = adb.setView(new ListView (this)).create();
+	    WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
+	    lp.copyFrom(d.getWindow().getAttributes());
+	    lp.width = WindowManager.LayoutParams.FILL_PARENT;
+	    lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
+	    d.show();
+	    d.getWindow().setAttributes(lp);
+	    return d;
 	}
 
 	/*

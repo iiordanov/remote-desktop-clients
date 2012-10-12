@@ -37,7 +37,6 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.WindowManager.LayoutParams;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -46,6 +45,7 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -309,35 +309,33 @@ public class androidVNC extends Activity {
 		case R.layout.importexport:
 			return new ImportExportDialog(this);
 		case R.id.itemMainScreenHelp:
-			return createMainScreenHelpDialog();
+			return createHelpDialog();
 		default:
 			return new RepeaterDialog(this);
 		}
 	}
 	
-	/*
-	 * Creates the main screen help dialog.
-	 * TODO: On Android 4.x the dialog does not fill the width of the screen - why?
+	/**
+	 * Creates the help dialog for this activity.
 	 */
-	private Dialog createMainScreenHelpDialog() {
-		Dialog d = new AlertDialog.Builder(this)
-		.setMessage(R.string.main_screen_help_text)
-		.setPositiveButton(R.string.close,
-				new DialogInterface.OnClickListener() {
-					public void onClick(DialogInterface dialog,
-							int whichButton) {
-						// We don't have to do anything.
-					}
-				}).create();
-
-		WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
+	private Dialog createHelpDialog() {
+	    AlertDialog.Builder adb = new AlertDialog.Builder(this)
+	    		.setMessage(R.string.main_screen_help_text)
+	    		.setPositiveButton(R.string.close,
+	    				new DialogInterface.OnClickListener() {
+	    					public void onClick(DialogInterface dialog,
+	    							int whichButton) {
+	    						// We don't have to do anything.
+	    					}
+	    				});
+	    Dialog d = adb.setView(new ListView (this)).create();
+	    WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
 	    lp.copyFrom(d.getWindow().getAttributes());
 	    lp.width = WindowManager.LayoutParams.FILL_PARENT;
-	    lp.height = WindowManager.LayoutParams.FILL_PARENT;
-	    
-		//d.getWindow().setLayout(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT);
+	    lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
+	    d.show();
 	    d.getWindow().setAttributes(lp);
-		return d;
+	    return d;
 	}
 
 	/* (non-Javadoc)
@@ -662,13 +660,13 @@ public class androidVNC extends Activity {
 				Bundle b = data.getExtras();
 				String privateKey = (String)b.get("PrivateKey");
 				if (!privateKey.equals(selected.getSshPrivKey()) && !privateKey.isEmpty())
-					Toast.makeText(getBaseContext(), "New key generated successfully. Tap 'Generate or Export' " +
+					Toast.makeText(getBaseContext(), "New key-pair generated successfully. Tap 'Generate or Export' " +
 							"to share, copy to clipboard, or export the public key now.", Toast.LENGTH_LONG).show();
 				selected.setSshPrivKey(privateKey);
 				selected.setSshPubKey((String)b.get("PublicKey"));
 				saveAndWriteRecent();
 			} else
-				Log.i (TAG, "The user cancelled PubKey generation.");
+				Log.i (TAG, "The user cancelled SSH key generation.");
 			break;
 		}
 	}
