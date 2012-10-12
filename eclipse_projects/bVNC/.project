@@ -3,6 +3,8 @@
 	<name>bVNC</name>
 	<comment></comment>
 	<projects>
+		<project>com.iiordanov.pubkeygenerator.GeneratePubkeyActivity</project>
+		<project>ZoomerWithKeys</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
@@ -48,11 +50,4 @@
 		<nature>net.rim.ajde.BlackBerryAndroidNature</nature>
 		<nature>com.antlersoft.sqlitegen.SQLiteGenNature</nature>
 	</natures>
-	<linkedResources>
-		<link>
-			<name>ZoomerWithKeys_src</name>
-			<type>2</type>
-			<locationURI>_android_ZoomerWithKeys_c16677da/src</locationURI>
-		</link>
-	</linkedResources>
 </projectDescription>
