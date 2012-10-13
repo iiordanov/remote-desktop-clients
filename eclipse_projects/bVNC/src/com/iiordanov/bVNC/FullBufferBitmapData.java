@@ -49,71 +49,44 @@ class FullBufferBitmapData extends AbstractBitmapData {
 		 */
 		@Override
 		public void draw(Canvas canvas) {
-			// If we are currently (re)allocating bitmapPixels, do not attempt to draw.
-			//if (data.bitmapPixels == null)
-			//	return;
-/*			
-			if (vncCanvas.getScaleType() == ImageView.ScaleType.FIT_CENTER)
-			{
-				canvas.drawBitmap(data.bitmapPixels, 0, data.framebufferwidth, xoffset, yoffset, framebufferwidth, framebufferheight, false, null);				
-			}
-			else
-			{
-*/
 			toDraw = canvas.getClipBounds();				
 			// To avoid artifacts, we need to enlarge the box by one pixel in all directions.
 			toDraw.set(toDraw.left-1, toDraw.top-1, toDraw.right+1, toDraw.bottom+1);
 			drawWidth  = toDraw.width();
 			drawHeight = toDraw.height();
 
-				if (toDraw.left < 0)
-					xo = 0;
-				else if (toDraw.left >= data.framebufferwidth)
-					return;
-				else
-					xo = toDraw.left;
+			if (toDraw.left < 0)
+				xo = 0;
+			else if (toDraw.left >= data.framebufferwidth)
+				return;
+			else
+				xo = toDraw.left;
 
-				if (toDraw.top < 0)
-					yo = 0;
-				else if (toDraw.top >= data.framebufferheight)
-					return;
-				else
-					yo = toDraw.top;
-				/*
-				if (scale == 1 || scale <= 0)
-				{
-				*/
-					if (xo + drawWidth  >= data.framebufferwidth)
-						drawWidth  = data.framebufferwidth  - xo - 1;
-					if (yo + drawHeight >= data.framebufferheight)
-						drawHeight = data.framebufferheight - yo - 1;
-					
-					try {
-						canvas.drawBitmap(data.bitmapPixels, offset(xo, yo), data.framebufferwidth, 
-											xo, yo, drawWidth, drawHeight, false, null);
+			if (toDraw.top < 0)
+				yo = 0;
+			else if (toDraw.top >= data.framebufferheight)
+				return;
+			else
+				yo = toDraw.top;
 
-					} catch (Exception e) {
-						Log.e (TAG, "Failed to draw bitmap: xo, yo/drawW, drawH: " + xo + ", " + yo + "/"
-									+ drawWidth + ", " + drawHeight);
-						// In case we couldn't draw for some reason, try putting up text.
-						paint.setColor(Color.WHITE);
-						canvas.drawText("There was a problem painting the remote bitmap on the screen. " +
-										"Please disconnect and reconnect to the VNC server.", xo+50, yo+50, paint);
-					}
-				/*
-				}
-				else
-				{
-					int scalewidth = (int)(vncCanvas.getVisibleWidth() / scale + 1);
-					if (scalewidth + xo > data.framebufferwidth)
-						scalewidth = data.framebufferwidth - xo;
-					int scaleheight = (int)(vncCanvas.getVisibleHeight() / scale + 1);
-					if (scaleheight + yo > data.framebufferheight)
-						scaleheight = data.framebufferheight - yo;
-					canvas.drawBitmap(data.bitmapPixels, offset(xo, yo), data.framebufferwidth, xo, yo, scalewidth, scaleheight, false, null);				
-				}
-				*/
-//			}
+			if (xo + drawWidth  >= data.framebufferwidth)
+				drawWidth  = data.framebufferwidth  - xo - 1;
+			if (yo + drawHeight >= data.framebufferheight)
+				drawHeight = data.framebufferheight - yo - 1;
+
+			try {
+				canvas.drawBitmap(data.bitmapPixels, offset(xo, yo), data.framebufferwidth, 
+						xo, yo, drawWidth, drawHeight, false, null);
+
+			} catch (Exception e) {
+				Log.e (TAG, "Failed to draw bitmap: xo, yo/drawW, drawH: " + xo + ", " + yo + "/"
+						+ drawWidth + ", " + drawHeight);
+				// In case we couldn't draw for some reason, try putting up text.
+				paint.setColor(Color.WHITE);
+				canvas.drawText("There was a problem painting the remote bitmap on the screen. " +
+						"Please disconnect and reconnect to the VNC server.", xo+50, yo+50, paint);
+			}
+
 			setCursorRectAndDrawIfNecessary(canvas);
 		}
 	}
