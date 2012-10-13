@@ -1,4 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+xmlns:android="http://schemas.android.com/apk/res/android"
+android:layout_width="fill_parent"
+android:layout_height="fill_parent">
+
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="fill_parent"
 	android:layout_height="fill_parent"
@@ -66,7 +71,7 @@
 				</TableRow>
 				<TableRow>
 					<TextView android:text="@string/nickname_caption" android:paddingRight="10dip" android:gravity="right|center_vertical"
-							  android:textAppearance="?android:attr/textAppearanceMedium" />
+							  android:textAppearance="?android:attr/textAppearanceMedium"/>
 					<EditText android:id="@+id/textNickname" android:layout_width="fill_parent" android:layout_height="wrap_content"
 					    	  android:singleLine="true" android:layout_weight="1" android:textAppearance="?android:attr/textAppearanceMedium"
 					    	  android:hint="@string/nickname_caption_hint"/>
@@ -85,11 +90,13 @@
 							>
 							<EditText android:id="@+id/sshServer" android:layout_width="fill_parent" android:layout_height="wrap_content"
 								android:singleLine="true" android:layout_weight="1" android:textAppearance="?android:attr/textAppearanceMedium"
-								android:hint="@string/address_caption_ssh_hint" android:nextFocusDown="@+id/sshPort"/>
+								android:hint="@string/address_caption_ssh_hint" android:nextFocusDown="@+id/sshPort"
+								android:inputType="textNoSuggestions|textVisiblePassword"/>
 							<EditText android:id="@+id/sshPort"
 								android:text="22" android:hint="@string/port_ssh_hint" android:layout_width="wrap_content" 
 								android:layout_height="wrap_content" android:singleLine="true" android:layout_weight="0"
-								android:textAppearance="?android:attr/textAppearanceMedium" android:nextFocusDown="@+id/sshUser"/>
+								android:textAppearance="?android:attr/textAppearanceMedium" android:nextFocusDown="@+id/sshUser"
+								android:inputType="textNoSuggestions|textVisiblePassword"/>
 						</LinearLayout>
 				</TableRow>
 				<TableRow>
@@ -107,13 +114,15 @@
 							<EditText android:id="@+id/sshUser"
 								android:layout_width="fill_parent" android:layout_height="wrap_content"
 								android:singleLine="true" android:layout_weight="1" android:textAppearance="?android:attr/textAppearanceMedium"
-								android:hint="@string/username_hint_ssh" android:nextFocusDown="@+id/sshPassword"/>
+								android:hint="@string/username_hint_ssh" android:nextFocusDown="@+id/sshPassword"
+								android:inputType="textNoSuggestions|textVisiblePassword"/>
 							<EditText android:id="@+id/sshPassword"
 							    android:password="true"
 								android:layout_width="fill_parent" android:layout_height="wrap_content"
 								android:singleLine="true" android:layout_weight="1" android:textAppearance="?android:attr/textAppearanceMedium"
-								android:hint="@string/password_hint_ssh" android:nextFocusDown="@+id/textIP"/>
-						</LinearLayout>					
+								android:hint="@string/password_hint_ssh" android:nextFocusDown="@+id/textIP"
+								android:inputType="textNoSuggestions"/>
+						</LinearLayout>
 				</TableRow>
 				<TableRow>
    				    	<TextView android:id="@+id/captionUseSshPubkey" android:paddingRight="10dip" 
@@ -145,12 +154,14 @@
 							android:layout_weight="1"
 							>
 					<EditText android:id="@+id/textIP" android:layout_width="fill_parent" android:layout_height="wrap_content"
-					          android:singleLine="true" android:layout_weight="1" android:textAppearance="?android:attr/textAppearanceMedium"
-					          android:hint="@string/address_caption_hint" android:nextFocusDown="@+id/textPORT"/>
+							android:singleLine="true" android:layout_weight="1" android:textAppearance="?android:attr/textAppearanceMedium"
+							android:hint="@string/address_caption_hint" android:nextFocusDown="@+id/textPORT"
+							android:inputType="textNoSuggestions|textVisiblePassword"/>
 					<EditText android:id="@+id/textPORT"
 						android:text="5900" android:hint="@string/port_hint"
 						android:layout_width="wrap_content" android:layout_height="wrap_content" android:singleLine="true"
-						android:layout_weight="0" android:textAppearance="?android:attr/textAppearanceMedium"/>
+						android:layout_weight="0" android:textAppearance="?android:attr/textAppearanceMedium"
+						android:inputType="textNoSuggestions|textVisiblePassword"/>
 					</LinearLayout>
 				</TableRow>
 				<TableRow>
@@ -159,7 +170,8 @@
 					    	  android:visibility="visible" />
 					<EditText android:id="@+id/textUsername" android:layout_width="fill_parent" 
 							  android:hint="@string/username_hint" android:layout_height="wrap_content"
-							  android:singleLine="true" android:layout_weight="1" android:textAppearance="?android:attr/textAppearanceMedium"/>
+							  android:singleLine="true" android:layout_weight="1" android:textAppearance="?android:attr/textAppearanceMedium"
+							  android:inputType="textNoSuggestions|textVisiblePassword"/>
 				</TableRow>
 				<TableRow>
 					<TextView android:text="@string/password_caption" android:paddingRight="10dip" android:gravity="right|center_vertical" android:textAppearance="?android:attr/textAppearanceMedium" />
@@ -173,7 +185,8 @@
 							android:password="true"
 							android:layout_width="fill_parent" android:layout_height="wrap_content" android:singleLine="true" 
 							android:layout_weight="1" android:textAppearance="?android:attr/textAppearanceMedium"
-							android:hint="@string/password_caption_hint" android:nextFocusDown="@+id/checkboxKeepPassword"/>
+							android:hint="@string/password_caption_hint" android:nextFocusDown="@+id/checkboxKeepPassword"
+							android:inputType="textNoSuggestions"/>
 						<CheckBox android:id="@+id/checkboxKeepPassword"
 							android:layout_width="wrap_content" android:layout_height="wrap_content"
 							android:text="@string/keep_password_button"	android:layout_weight="0"
@@ -198,7 +211,7 @@
 					/>
 				</TableRow>
 			</TableLayout>
-			
+
 			<CheckBox
 				android:id="@+id/checkboxUseDpadAsArrows"
 			    android:text="@string/dpad_as_arrows"
@@ -304,3 +317,4 @@
 		</LinearLayout>
 	</ScrollView>
 </LinearLayout>
+</ScrollView>

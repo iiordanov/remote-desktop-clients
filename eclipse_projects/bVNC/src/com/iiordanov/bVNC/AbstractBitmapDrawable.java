@@ -44,18 +44,42 @@ public class AbstractBitmapDrawable extends DrawableContainer {
 		if(data.vncCanvas.connection.getUseLocalCursor())
 		{
 			setCursorRect(data.vncCanvas.mouseX, data.vncCanvas.mouseY);
-			clipRect.set(cursorRect);
-			if (canvas.clipRect(cursorRect))
+			Rect toClip = new Rect (cursorRect.left, cursorRect.top,
+					cursorRect.left+4*cursorRect.width(), cursorRect.top+5*cursorRect.height());
+			clipRect.set(toClip);
+			if (canvas.clipRect(toClip))
 			{
 				drawCursor(canvas);
 			}
 		}
 	}
 	
+	/**
+	 * Draws an easily visible local pointer made of increasingly larger rectangles.
+	 * @param canvas
+	 */
 	void drawCursor(Canvas canvas)
 	{
-		canvas.drawRect(cursorRect,_whitePaint);
-		canvas.drawRect((float)cursorRect.left + 1, (float)cursorRect.top + 1, (float)cursorRect.right - 1, (float)cursorRect.bottom - 1, _blackPaint);
+		int x = cursorRect.left;
+		int y = cursorRect.top;
+		int h = cursorRect.height();
+		int w = cursorRect.width();
+		Rect one   = new Rect (x, y+h, x+2*w, y+2*h);
+		Rect two   = new Rect (x, y+2*h, x+3*w, y+3*h);
+		Rect three = new Rect (x, y+3*h, x+4*w, y+5*h);
+		
+		canvas.drawRect(cursorRect,_blackPaint);
+		canvas.drawRect(one, _blackPaint);
+		canvas.drawRect(two, _blackPaint);
+		canvas.drawRect(three, _blackPaint);
+		canvas.drawRect((float)cursorRect.left + 1, (float)cursorRect.top + 1,
+						(float)cursorRect.right - 1, (float)cursorRect.bottom+1, _whitePaint);
+		canvas.drawRect((float)one.left + 1, (float)one.top + 1,
+						(float)one.right - 1, (float)one.bottom+1, _whitePaint);
+		canvas.drawRect((float)two.left + 1, (float)two.top + 1,
+						(float)two.right - 1, (float)two.bottom+1, _whitePaint);
+		canvas.drawRect((float)three.left + 1, (float)three.top + 1,
+						(float)three.right - 1, (float)three.bottom - 1, _whitePaint);
 	}
 	
 	void setCursorRect(int mouseX, int mouseY)

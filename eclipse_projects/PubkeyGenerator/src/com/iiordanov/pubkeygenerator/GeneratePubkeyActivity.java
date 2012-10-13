@@ -49,6 +49,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnFocusChangeListener;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RadioGroup;
@@ -213,18 +214,21 @@ public class GeneratePubkeyActivity extends Activity implements OnEntropyGathere
 
 		generate.setOnClickListener(new OnClickListener() {
 			public void onClick(View view) {
+				hideSoftKeyboard(view);
 				GeneratePubkeyActivity.this.startEntropyGather();
 			}
 		});
 
 		decrypt.setOnClickListener(new OnClickListener() {
 			public void onClick(View view) {
+				hideSoftKeyboard(view);
 				decryptAndRecoverKey();
 			}
 		});
 
 		share.setOnClickListener(new OnClickListener() {
 			public void onClick(View view) {
+				hideSoftKeyboard(view);
 				// This is an UGLY HACK for Blackberry devices which do not transmit the "+" character.
 				// Remove as soon as the bug is fixed.
 				String s = android.os.Build.MODEL;
@@ -243,6 +247,7 @@ public class GeneratePubkeyActivity extends Activity implements OnEntropyGathere
 		
 		copy.setOnClickListener(new OnClickListener() {
 			public void onClick(View view) {
+				hideSoftKeyboard(view);
 				cm.setText(publicKeySSHFormat);
 				Toast.makeText(getBaseContext(), "Copied public key in OpenSSH format to clipboard.",
 						Toast.LENGTH_SHORT).show();				
@@ -251,6 +256,8 @@ public class GeneratePubkeyActivity extends Activity implements OnEntropyGathere
 		
 		save.setOnClickListener(new OnClickListener() {
 			public void onClick(View view) {
+				hideSoftKeyboard(view);
+				
 				String fname = file_name.getText().toString();
 				if (fname.isEmpty()) {
 					Toast.makeText(getBaseContext(), "Please enter file name.",
@@ -282,6 +289,15 @@ public class GeneratePubkeyActivity extends Activity implements OnEntropyGathere
 			}
 		});
 }
+	
+	/**
+	 * Hides the soft keyboard.
+	 */
+	public void hideSoftKeyboard (View view) {
+		InputMethodManager imm = (InputMethodManager)getSystemService(
+			      Context.INPUT_METHOD_SERVICE);
+			imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+	}
 	
 	/**
 	 * Decrypts and recovers the key pair, as well as generating public key in OpenSSH format.

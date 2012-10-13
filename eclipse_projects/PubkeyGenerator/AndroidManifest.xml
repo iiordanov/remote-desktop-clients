@@ -12,6 +12,7 @@
         android:theme="@style/AppTheme" >
         <activity
             android:name=".GeneratePubkeyActivity"
+            android:screenOrientation="landscape"
             android:windowSoftInputMode="stateHidden|adjustResize"
             android:label="@string/title_activity_pubkey_generator" >
             <intent-filter>
