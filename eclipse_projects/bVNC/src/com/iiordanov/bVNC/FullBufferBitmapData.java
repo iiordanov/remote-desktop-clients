@@ -114,17 +114,7 @@ class FullBufferBitmapData extends AbstractBitmapData {
 				}
 				*/
 //			}
-			if(data.vncCanvas.connection.getUseLocalCursor())
-			{
-				setCursorRect(data.vncCanvas.mouseX, data.vncCanvas.mouseY);
-				Rect toClip = new Rect (cursorRect.left, cursorRect.top,
-						cursorRect.left+4*cursorRect.width(), cursorRect.top+5*cursorRect.height());
-				clipRect.set(toClip);
-				if (canvas.clipRect(toClip))
-				{
-					drawCursor(canvas);
-				}
-			}
+			setCursorRectAndDrawIfNecessary(canvas);
 		}
 	}
 
