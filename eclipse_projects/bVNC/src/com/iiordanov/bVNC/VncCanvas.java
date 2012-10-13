@@ -307,8 +307,9 @@ public class VncCanvas extends ImageView {
 		clipboard = (ClipboardManager)getContext().getSystemService(Context.CLIPBOARD_SERVICE);
 		bitmapopts = new BitmapFactory.Options();
 		bitmapopts.inPurgeable = true;
+		bitmapopts.inInputShareable = true;
 		bitmapopts.inDither = false;
-		bitmapopts.inTempStorage = new byte[16384];
+		bitmapopts.inTempStorage = new byte[65536];
 	}
 
 	/**
@@ -2193,6 +2194,7 @@ public class VncCanvas extends ImageView {
 
 			// Copy decoded data into bitmapData and recycle bitmap.
 			tightBitmap.getPixels(pixels, bitmapData.offset(x, y), bitmapData.bitmapwidth, 0, 0, w, h);
+			// To avoid running out of memory, recycle bitmap immediately.
 			tightBitmap.recycle();
 			
 			bitmapData.updateBitmap(x, y, w, h);		

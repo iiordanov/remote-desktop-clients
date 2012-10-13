@@ -62,8 +62,9 @@ public class TightDecoder extends Decoder {
   public TightDecoder(CMsgReader reader_, VncCanvas c) {
     bitmapopts = new BitmapFactory.Options();
     bitmapopts.inPurgeable = true;
+    bitmapopts.inInputShareable = true;
     bitmapopts.inDither = false;
-    bitmapopts.inTempStorage = new byte[16384];
+    bitmapopts.inTempStorage = new byte[65536];
     reader = reader_; 
     zis = new ZlibInStream[4];
     for (int i = 0; i < 4; i++)
@@ -83,8 +84,9 @@ public class TightDecoder extends Decoder {
   public TightDecoder(CMsgReader reader_) {
     bitmapopts = new BitmapFactory.Options();
     bitmapopts.inPurgeable = true;
+    bitmapopts.inInputShareable = true;
     bitmapopts.inDither = false;
-    bitmapopts.inTempStorage = new byte[16384];
+    bitmapopts.inTempStorage = new byte[65536];
     reader = reader_; 
     zis = new ZlibInStream[4];
     for (int i = 0; i < 4; i++)
@@ -327,6 +329,7 @@ public class TightDecoder extends Decoder {
 
     // Copy decoded data into buf and recycle bitmap.
 	tightBitmap.getPixels(buf, 0, w, 0, 0, w, h);
+	// To avoid running out of memory, recycle bitmap immediately.
 	tightBitmap.recycle();
    
     handler.imageRect(r, buf);

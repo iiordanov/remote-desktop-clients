@@ -150,6 +150,7 @@ abstract public class AbstractBitmapData {
 				//System.arraycopy(pix, (w * j), bitmapPixels, bitmapwidth * (y + j) + x, w);
 			} catch (ArrayIndexOutOfBoundsException e) {
 				// An index is out of bounds for some reason, but we try to continue.
+				e.printStackTrace();
 			}
 
 		}
