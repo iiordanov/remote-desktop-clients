@@ -280,12 +280,21 @@ public class VncCanvas extends ImageView {
 	 * of how much of the screen is hidden by the soft keyboard if any.
 	 */
 	int visibleHeight = -1;
+
+	/*
+	 * These variables contain the width and height of the display in pixels
+	 */
 	int displayWidth = 0;
 	int displayHeight = 0;
 
+	/*
+	 * Variable used for BB10 hacks.
+	 */
+	boolean bb10 = false;
 
 	/**
 	 * Constructor used by the inflation apparatus
+	 * 
 	 * @param context
 	 */
 	public VncCanvas(final Context context, AttributeSet attrs)
@@ -306,10 +315,16 @@ public class VncCanvas extends ImageView {
 		inflBuf = new byte[8192];
 		clipboard = (ClipboardManager)getContext().getSystemService(Context.CLIPBOARD_SERVICE);
 		bitmapopts = new BitmapFactory.Options();
-		bitmapopts.inPurgeable = true;
+		bitmapopts.inPurgeable = false;
 		bitmapopts.inInputShareable = true;
 		bitmapopts.inDither = false;
-		bitmapopts.inTempStorage = new byte[65536];
+		bitmapopts.inTempStorage = new byte[32768];
+
+		String s = android.os.Build.MODEL;
+		if (s.contains("BlackBerry 10")) {
+			Log.i(TAG, "Found a: " + s + " device.");
+			bb10 = true;
+		}
 	}
 
 	/**
@@ -752,7 +767,7 @@ public class VncCanvas extends ImageView {
 	/**
 	 * Computes the X and Y offset for converting coordinates from full-frame coordinates to view coordinates.
 	 */
-	void computeShiftFromFullToView () {
+	public void computeShiftFromFullToView () {
 		shiftX = (bitmapData.framebufferwidth - getWidth()) / 2;
 		shiftY = (bitmapData.framebufferheight - getHeight()) / 2;
 	}
@@ -788,6 +803,7 @@ public class VncCanvas extends ImageView {
 	
 	/**
 	 * Warp the mouse to x, y in the RFB coordinates
+	 * 
 	 * @param x
 	 * @param y
 	 */
@@ -1246,6 +1262,7 @@ public class VncCanvas extends ImageView {
 	
 	/**
 	 * Moves the scroll while the volume key is held down
+	 * 
 	 * @author Michael A. MacDonald
 	 */
 	class MouseScrollRunnable implements Runnable
@@ -1424,6 +1441,12 @@ public class VncCanvas extends ImageView {
 			   if (numchars == 1) {
 			       //Log.e(TAG,"action down? = " + down + " key = " + key + " keysym = " + keysym + " onscreen metastate = " + onScreenMetaState + " keyboard metastate = " + keyboardMetaState + " RFB metastate = " + metaState + " keycode = " + keyCode + " unicode = " + evt.getUnicodeChar());
 				   rfbconn.writeKeyEvent(keysym, (onScreenMetaState|metaState), down);
+
+				   // UGLY HACK for BB10 devices which never send the up-event
+				   // for backspace... so we send it instead. Remove as soon as possible!
+				   if (bb10 && keyCode == KeyEvent.KEYCODE_DEL)
+					   rfbconn.writeKeyEvent(keysym, (onScreenMetaState | metaState), false);
+
 			   } else if (numchars > 1) {
 				   for (int i = 0; i < numchars; i++) {
 					   key = evt.getCharacters().charAt(i);
@@ -1615,6 +1638,7 @@ public class VncCanvas extends ImageView {
 	
 	byte[] bg_buf = new byte[4];
 	byte[] rre_buf = new byte[128];
+
 	//
 	// Handle an RRE-encoded rectangle.
 	//
@@ -1928,6 +1952,7 @@ public class VncCanvas extends ImageView {
 	//
 
 	byte[] handleZlibRectBuffer = new byte[128];
+
 	private void handleZlibRect(int x, int y, int w, int h) throws Exception {
 		boolean valid = bitmapData.validDraw(x, y, w, h);
 		int nBytes = rfb.is.readInt();
@@ -1999,6 +2024,7 @@ public class VncCanvas extends ImageView {
 	}
 
 	byte[] readPixelsBuffer = new byte[128];
+
 	private void readPixels(InStream is, int[] dst, int count) throws Exception {
 		if (bytesPerPixel == 1) {
 		  if (count > readPixelsBuffer.length) {

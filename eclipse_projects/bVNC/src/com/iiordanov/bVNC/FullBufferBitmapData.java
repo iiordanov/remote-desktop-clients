@@ -34,7 +34,6 @@ class FullBufferBitmapData extends AbstractBitmapData {
 		int drawHeight; 
 		int xo, yo;
 		Paint paint;
-		Rect toDraw;
 		
 		/**
 		 * @param data
@@ -49,7 +48,19 @@ class FullBufferBitmapData extends AbstractBitmapData {
 		 */
 		@Override
 		public void draw(Canvas canvas) {
-			toDraw = canvas.getClipBounds();				
+			drawBitmapWithinClip (canvas, 0, 0, null);
+			setCursorRectAndDrawIfNecessary(canvas, 0, 0);
+		}
+		
+		/**
+		 * Draws the bitmap within the specified rectangle or the clip if toDraw is null.
+		 * @param canvas
+		 */
+		public void drawBitmapWithinClip (Canvas canvas, int xoff, int yoff, Rect toDraw) {
+			// If we haven't been given a rectangle to draw, draw the whole clip.
+			if (toDraw == null)
+				toDraw = canvas.getClipBounds();
+			
 			// To avoid artifacts, we need to enlarge the box by one pixel in all directions.
 			toDraw.set(toDraw.left-1, toDraw.top-1, toDraw.right+1, toDraw.bottom+1);
 			drawWidth  = toDraw.width();
@@ -86,8 +97,6 @@ class FullBufferBitmapData extends AbstractBitmapData {
 				canvas.drawText("There was a problem painting the remote bitmap on the screen. " +
 						"Please disconnect and reconnect to the VNC server.", xo+50, yo+50, paint);
 			}
-
-			setCursorRectAndDrawIfNecessary(canvas);
 		}
 	}
 

@@ -232,9 +232,10 @@ public class GeneratePubkeyActivity extends Activity implements OnEntropyGathere
 				// This is an UGLY HACK for Blackberry devices which do not transmit the "+" character.
 				// Remove as soon as the bug is fixed.
 				String s = android.os.Build.MODEL;
-				if (s.contains("BlackBerry Runtime for Android Apps")) {
+				if (s.contains("BlackBerry")) {
 					Toast.makeText(getBaseContext(), "ERROR: Blackberry devices have problems sharing public keys. " +
-							"The '+' character is not transmitted. Please use other methods to share the public key.",
+							"The '+' character is not transmitted. Please save as a file and attach in an email, or " +
+							"copy to clipboard and paste when connected to the server with a password.",
 							Toast.LENGTH_LONG).show();
 					return;
 				}

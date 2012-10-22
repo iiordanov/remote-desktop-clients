@@ -46,6 +46,7 @@ import android.graphics.PointF;
 import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
 import android.util.Log;
@@ -62,6 +63,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
@@ -70,10 +72,6 @@ import android.content.Context;
 
 
 public class VncCanvasActivity extends Activity implements OnKeyListener {
-	
-	private static boolean secondPointerWasDown = false;
-	private static boolean thirdPointerWasDown = false;
-
 
 	/**
 	 * @author Michael A. MacDonald
@@ -192,13 +190,14 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 		public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,
 				float velocityY) {
 
-			// onFling called while onScale gesture is in effect. We ignore the event and pretend it was
+			// onFling called while scaling/swiping gesture is in effect. We ignore the event and pretend it was
 			// consumed. This prevents the mouse pointer from flailing around while we are scaling.
 			// Also, if one releases one finger slightly earlier than the other when scaling, it causes Android 
-			// to stick a spiteful onFling with a MASSIVE delta here. 
+			// to stick a spiteful onScroll with a MASSIVE delta here. 
 			// This would cause the mouse pointer to jump to another place suddenly.
 			// Hence, we ignore onScroll after scaling until we lift all pointers up.
-			if (inScaling||scalingJustFinished)
+			boolean twoFingers = (e1.getPointerCount() > 1 || e2.getPointerCount() > 1);
+			if (twoFingers||inSwiping||inScaling||scalingJustFinished)
 				return true;
 			
 			showZoomer(false);
@@ -461,13 +460,14 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 		public boolean onScroll(MotionEvent e1, MotionEvent e2,
 				float distanceX, float distanceY) {
 
-			// onScroll called while onScale gesture is in effect. We ignore the event and pretend it was
+			// onScroll called while scaling/swiping gesture is in effect. We ignore the event and pretend it was
 			// consumed. This prevents the mouse pointer from flailing around while we are scaling.
 			// Also, if one releases one finger slightly earlier than the other when scaling, it causes Android 
 			// to stick a spiteful onScroll with a MASSIVE delta here. 
 			// This would cause the mouse pointer to jump to another place suddenly.
 			// Hence, we ignore onScroll after scaling until we lift all pointers up.
-			if (inScaling||scalingJustFinished)
+			boolean twoFingers = (e1.getPointerCount() > 1 || e2.getPointerCount() > 1);
+			if (twoFingers||inSwiping||inScaling||scalingJustFinished)
 				return true;
 			
 			showZoomer(false);
@@ -636,13 +636,14 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 		public boolean onScroll(MotionEvent e1, MotionEvent e2,
 				float distanceX, float distanceY) {
 
-			// onScroll called while onScale gesture is in effect. We ignore the event and pretend it was
+			// onScroll called while scaling/swiping gesture is in effect. We ignore the event and pretend it was
 			// consumed. This prevents the mouse pointer from flailing around while we are scaling.
 			// Also, if one releases one finger slightly earlier than the other when scaling, it causes Android 
 			// to stick a spiteful onScroll with a MASSIVE delta here. 
 			// This would cause the mouse pointer to jump to another place suddenly.
 			// Hence, we ignore onScroll after scaling until we lift all pointers up.
-			if (inScaling||scalingJustFinished)
+			boolean twoFingers = (e1.getPointerCount() > 1 || e2.getPointerCount() > 1);
+			if (twoFingers||inSwiping||inScaling||scalingJustFinished)
 				return true;
 
 			showZoomer(true);
@@ -968,7 +969,10 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 	ZoomControls zoomer;
 	Panner panner;
 	SSHConnection sshConnection;
-	
+	Handler handler;
+	private boolean secondPointerWasDown = false;
+	private boolean thirdPointerWasDown = false;
+
 
 	/**
 	 * Function used to initialize an empty SSH HostKey for a new VNC over SSH connection.
@@ -1021,8 +1025,10 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 		
 	@Override
 	public void onCreate(Bundle icicle) {
-
 		super.onCreate(icicle);
+
+		handler = new Handler ();
+		
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
 							 WindowManager.LayoutParams.FLAG_FULLSCREEN);
@@ -1109,10 +1115,7 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 			    connection.setAddress(host.substring(0, host.indexOf(':')));
 	  	    }
 		}
-		
-		if (connection.getUsePortrait())
-			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-		
+
 		// TODO: Switch away from numeric representation of VNC connection type.
 		if (connection.getConnectionType() == 1) {
 			initializeSshHostKey();
@@ -1246,7 +1249,7 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 
 	/*
 	 * TODO: REMOVE THIS AS SOON AS POSSIBLE.
-	 * onPause: This is an ugly hack for the Playbook which hides the keyboard upon unlock. This causes the visible
+	 * onResume: This is an ugly hack for the Playbook which hides the keyboard upon unlock. This causes the visible
 	 * height to remain less, as if the soft keyboard is still up. This hack must go away as soon
 	 * as the Playbook doesn't need it anymore.
 	 */
@@ -1325,17 +1328,44 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 			((ConnectionSettable) dialog).setConnection(connection);
 	}
 
+	/**
+	 * This runnable fixes things up after a rotation.
+	 */
+	private Runnable rotationCorrector = new Runnable() {
+		public void run() {
+			correctAfterRotation ();
+		}
+	};
+
+	/**
+	 * This function is called by the rotationCorrector runnable
+	 * to fix things up after a rotation.
+	 */
+	private void correctAfterRotation () {
+		float oldScale = vncCanvas.scaling.getScale();
+		int x = vncCanvas.absoluteXPosition;
+		int y = vncCanvas.absoluteYPosition;
+		vncCanvas.scaling.setScaleTypeForActivity(VncCanvasActivity.this);
+		float newScale = vncCanvas.scaling.getScale();
+		vncCanvas.scaling.adjust(this, oldScale/newScale, 0, 0);
+		vncCanvas.absoluteXPosition = x;
+		vncCanvas.absoluteYPosition = y;
+		vncCanvas.scrollToAbsolute();
+	}
+
+
 	@Override
 	public void onConfigurationChanged(Configuration newConfig) {
-		// Indicate whether this device's doesn't have a hardware keyboard or hardware keyboard is hidden.
-		//Configuration config = getResources().getConfiguration();
-		//vncCanvas.kbd_qwerty = config.keyboard == Configuration.KEYBOARD_QWERTY;
-		//vncCanvas.kbd_hidden = config.hardKeyboardHidden == Configuration.HARDKEYBOARDHIDDEN_YES;
-		//Log.e("QWERTY KEYBD:", vncCanvas.kbd_qwerty?"yes":"no");
-		//Log.e("HIDDEN KEYBD:", vncCanvas.kbd_hidden?"yes":"no");
-		
-		// ignore orientation/keyboard change
 		super.onConfigurationChanged(newConfig);
+		
+		// Ignore orientation changes until we are in normal protocol.
+		if (vncCanvas.rfbconn != null &&
+			vncCanvas.rfbconn.isInNormalProtocol()) {
+			// Correct a few times just in case. There is no visual effect.
+			handler.postDelayed(rotationCorrector, 300);
+			handler.postDelayed(rotationCorrector, 600);
+			handler.postDelayed(rotationCorrector, 1200);
+		}
 	}
 
 	@Override

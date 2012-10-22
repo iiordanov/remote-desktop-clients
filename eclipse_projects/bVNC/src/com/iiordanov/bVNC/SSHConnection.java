@@ -21,7 +21,10 @@
 
 package com.iiordanov.bVNC;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.security.PublicKey;
@@ -62,6 +65,12 @@ public class SSHConnection implements InteractiveCallback {
 	private int targetPort;
 	private boolean usePubKey;
 	private String sshPrivKey;
+	private boolean useSshRemoteCommand;
+	private int     sshRemoteCommandOS;
+	private int     sshRemoteCommandTimeout;
+	private String  sshRemoteCommand;
+	private BufferedInputStream remoteStdout;
+	private BufferedOutputStream remoteStdin;
 
 	public SSHConnection(ConnectionBean conn) {
 		host = conn.getSshServer();
@@ -74,6 +83,9 @@ public class SSHConnection implements InteractiveCallback {
 		targetAddress = conn.getAddress();
 		usePubKey = conn.getUseSshPubKey();
 		sshPrivKey = conn.getSshPrivKey();
+		useSshRemoteCommand = conn.getUseSshRemoteCommand();
+		sshRemoteCommandOS = conn.getSshRemoteCommandOS();
+		sshRemoteCommand = conn.getSshRemoteCommand();
 		connection = new Connection(host, sshPort);
 	}
 	
@@ -118,6 +130,22 @@ public class SSHConnection implements InteractiveCallback {
 						"authorized_keys file on the remote side.");
 		}
 
+		// Run a remote command if commanded to.
+		if (useSshRemoteCommand) {
+			execRemoteCommand();
+			//if (VncConstants.isCommandAutoXSudo(sshRemoteCommandOS))
+			//	sendSudoPassword();
+			
+			if (VncConstants.isCommandAnyAutoX(sshRemoteCommandOS)) {
+				int port = parseRemoteStdoutForPort();
+				if (port > 0)
+					targetPort = port;
+				else
+					throw new Exception ("Could not obtain remote VNC port from x11vnc. Please ensure x11vnc is installed " +
+							"and operational.");
+			}
+		}
+		
 		// At this point we know we are authenticated.
 		localForwardedPort = createPortForward(targetPort, targetAddress, targetPort);
 		// If we got back a negative number, port forwarding failed.
@@ -126,9 +154,7 @@ public class SSHConnection implements InteractiveCallback {
 					"Please ensure your SSH server is configured to allow port forwarding and try again.");
 		}
 				
-		// TODO: This is a proof of concept for remote command execution.
-		//if (!sshConnection.execRemoteCommand("/usr/bin/x11vnc -N -forever -auth guess -localhost -display :0 1>/dev/null 2>/dev/null", 5000))
-		//	throw new Exception("Could not execute remote command.");
+
 		return localForwardedPort;
 	}
 
@@ -260,17 +286,82 @@ public class SSHConnection implements InteractiveCallback {
 		return -1;
 	}
 	
-	private boolean execRemoteCommand (String cmd, long sleepTime){
+	private void execRemoteCommand () throws Exception {
+		Log.i (TAG, "Executing remote command.");
+
 		try {
 			session = connection.openSession();
-			session.execCommand(cmd);
-			Thread.sleep(sleepTime);
+			session.execCommand(sshRemoteCommand);
+			remoteStdout = new BufferedInputStream(session.getStdout());
+			remoteStdin  = new BufferedOutputStream(session.getStdin());
+			Thread.sleep(sshRemoteCommandTimeout);
 		} catch (Exception e) {
 			e.printStackTrace();
-			return false;
+			throw new Exception ("Could not execute remote command.");
+		}
+	}
+	
+	// TODO: This doesn't work at the moment.
+	private void sendSudoPassword () throws Exception {
+		Log.i (TAG, "Sending sudo password.");
+
+		try {
+			remoteStdin.write(new String (password + '\n').getBytes());
+		} catch (IOException e) {
+			e.printStackTrace();
+			throw new Exception ("Could not send sudo password.");
+		}
+	}
+
+	
+	private int parseRemoteStdoutForPort () {
+
+		Log.i (TAG, "Parsing remote stdout for PORT=");
+		boolean foundP = false, foundPO = false, foundPOR = false,
+				foundPORT = false, foundPORTEQ = false;
+		int port = -1;
+
+		try {
+			// Look for PORT=
+			int data = remoteStdout.read();
+			while (data != -1) {
+				if      (data == 'P')
+					foundP = true;
+				else if (data == 'O' && foundP)
+					foundPO = true;
+				else if (data == 'R' && foundPO)
+					foundPOR = true;
+				else if (data == 'T' && foundPOR)
+					foundPORT = true;
+				else if (data == '=' && foundPORT)
+					foundPORTEQ = true;
+				else {
+					foundP = false;
+					foundPO = false;
+					foundPOR = false;
+					foundPORT = false;
+					foundPORTEQ = false;
+				}
+				if (foundPORTEQ)
+					break;
+				else
+					data = remoteStdout.read();
+			}
+
+			// Read in 5 bytes after PORT=
+			byte[] buffer = new byte[5];
+			remoteStdout.read(buffer);
+			// Get rid of any whitespace (e.g. if the port is less than 5 digits).
+			buffer = new String(buffer).replaceAll("\\s","").getBytes();
+			port = Integer.parseInt(new String(buffer));
+		} catch (IOException e) {
+			Log.e (TAG, "Failed to read from remote stdout, or parse integer.");
+			e.printStackTrace();
+			port = -1;
 		}
 
-		return true;
+		Log.i (TAG, "Found PORT=, set to: " + port);
+		return port;
 	}
 
 	@Override

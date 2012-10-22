@@ -40,24 +40,43 @@ public class AbstractBitmapDrawable extends DrawableContainer {
 	}
 	
 	void draw(Canvas canvas, int xoff, int yoff) {
+		drawBitmapWithinClip (canvas, xoff, yoff, null);
+		setCursorRectAndDrawIfNecessary(canvas, xoff, yoff);
+	}
+	
+	/**
+	 * Draws the bitmap within the current clip.
+	 * @param canvas
+	 */
+	public void drawBitmapWithinClip (Canvas canvas, int xoff, int yoff, Rect toDraw) {
 		canvas.drawBitmap(data.mbitmap, xoff, yoff, _defaultPaint);
-		setCursorRectAndDrawIfNecessary(canvas);
 	}
 	
 	/**
 	 * Sets the local cursor Rect, the clip which contains it, and draws it if necessary.
 	 * @param canvas
 	 */
-	void setCursorRectAndDrawIfNecessary (Canvas canvas) {
+	void setCursorRectAndDrawIfNecessary (Canvas canvas, int xoff, int yoff) {
+		int l = cursorRect.left;
+		int t = cursorRect.top;
+		int h = cursorRect.height();
+		int w = cursorRect.width();
+		int r = cursorRect.left + 4*w + 1;
+		int b = cursorRect.top  + 4*h + 1;
+		int N = 4;
+
 		if(data.vncCanvas.connection.getUseLocalCursor()) {
 			setCursorRect(data.vncCanvas.mouseX, data.vncCanvas.mouseY);
-			// Make the clip fit the entire "arrow"
-			Rect toClip = new Rect (cursorRect.left-2, cursorRect.top-2,
-					cursorRect.right + 4*cursorRect.width()+2, cursorRect.bottom + 6*cursorRect.height()+2);
-			clipRect.set(toClip);
-			if (canvas.clipRect(toClip)) {
-				drawCursor(canvas);
-			}
+			drawCursor(canvas);
+			// Now clean up around the cursor by drawing the bitmap just outside of it.
+			Rect cleantop = new Rect (l, t - N*h, r, t);
+			drawBitmapWithinClip (canvas, xoff, yoff, cleantop);
+			Rect cleanbottom = new Rect (l, b, r, b+N*h);
+			drawBitmapWithinClip (canvas, xoff, yoff, cleanbottom);
+			Rect cleanleft = new Rect (l - N*w, t - N*h, l, b + N*h);
+			drawBitmapWithinClip (canvas, xoff, yoff, cleanleft);
+			Rect cleanright = new Rect (r, t - N*h, r + N*w, b + N*h);
+			drawBitmapWithinClip (canvas, xoff, yoff, cleanright);
 		}
 	}
 	
@@ -74,7 +93,7 @@ public class AbstractBitmapDrawable extends DrawableContainer {
 		Rect zero  = new Rect (cursorRect);
 		Rect one   = new Rect (x, y+h, x+2*w, y+2*h);
 		Rect two   = new Rect (x, y+2*h, x+3*w, y+3*h);
-		Rect three = new Rect (x, y+3*h, x+4*w, y+5*h);
+		Rect three = new Rect (x, y+3*h, x+4*w, y+4*h);
 		
 		// Draw black rectangles
 		canvas.drawRect(zero,  _blackPaint);
@@ -83,10 +102,10 @@ public class AbstractBitmapDrawable extends DrawableContainer {
 		canvas.drawRect(three, _blackPaint);
 		
 		// Modify Rects for drawing the white rectangles
-		zero.set  (zero.left + 1,  zero.top + 1,  zero.right - 1,  zero.bottom + 1);
-		one.set   (one.left + 1,   one.top + 1,   one.right - 1,   one.bottom + 1);
-		two.set   (two.left + 1,   two.top + 1,   two.right - 1,   two.bottom + 1);
-		three.set (three.left + 1, three.top + 1, three.right - 1, three.bottom - 1);
+		zero.set  (zero.left + 2,  zero.top + 2,  zero.right - 1,  zero.bottom + 1);
+		one.set   (one.left + 2,   one.top + 1,   one.right - 1,   one.bottom + 1);
+		two.set   (two.left + 2,   two.top + 1,   two.right - 1,   two.bottom + 1);
+		three.set (three.left + 2, three.top + 1, three.right - 1, three.bottom - 1);
 		
 		// Draw white rectangles
 		canvas.drawRect(zero,  _whitePaint);
@@ -95,10 +114,11 @@ public class AbstractBitmapDrawable extends DrawableContainer {
 		canvas.drawRect(three, _whitePaint);	
 
 		// Draw the "stem" of the "arrow"
-		Rect four  = new Rect ((int)(x+1.5*w), (int)(y+4.75*h), (int)(x+3.5*w), (int)(y+5.75*h));
-		canvas.drawRect(four, _blackPaint);
-		four.set (four.left + 1, four.top, four.right - 1, four.bottom - 1);
-		canvas.drawRect(four, _whitePaint);
+		// TODO: Disabled for now as it makes cleaning up very complicated.
+		//Rect four  = new Rect ((int)(x+1.5*w), (int)(y+4.75*h), (int)(x+3.5*w), (int)(y+6*h));
+		//canvas.drawRect(four, _blackPaint);
+		//four.set (four.left + 1, four.top, four.right - 1, four.bottom - 1);
+		//canvas.drawRect(four, _whitePaint);
 	}
 	
 	void setCursorRect(int mouseX, int mouseY) {

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.iiordanov.bVNC" android:installLocation="auto" android:versionCode="289" android:versionName="v2.8.9">
+    package="com.iiordanov.bVNC" android:installLocation="auto" android:versionCode="291" android:versionName="v2.9.1">
 
     <uses-sdk android:minSdkVersion="8" android:targetSdkVersion="8"></uses-sdk>
     <uses-permission android:name="android.permission.INTERNET"></uses-permission>
@@ -8,7 +8,7 @@
     <supports-screens android:anyDensity="true"/>
 		
     <application android:icon="@drawable/icon" android:label="bVNC" android:debuggable="false">
- 		<activity android:label="@string/app_name" android:name="bVNC" android:screenOrientation="landscape"
+ 		<activity android:label="@string/app_name" android:name="bVNC" android:screenOrientation="fullSensor"
                   android:configChanges="orientation|keyboardHidden"
                   android:windowSoftInputMode="stateHidden|adjustResize">
 			<intent-filter>
@@ -16,7 +16,7 @@
 				<category android:name="android.intent.category.LAUNCHER"></category>
 			</intent-filter>
 		</activity>
-		<activity android:screenOrientation="landscape" android:configChanges="orientation|keyboardHidden"
+		<activity android:screenOrientation="fullSensor" android:configChanges="orientation|keyboardHidden"
 		          android:name="VncCanvasActivity"      android:windowSoftInputMode="stateHidden|adjustResize">
 			<intent-filter>
 				<action android:name="android.intent.action.VIEW"></action>
@@ -37,6 +37,6 @@
 		<activity android:name="com.iiordanov.pubkeygenerator.GeneratePubkeyActivity"
 		    	  android:configChanges="keyboardHidden|orientation"
 		    	  android:windowSoftInputMode="stateHidden|adjustResize"
-		    	  android:screenOrientation="landscape" />
+		    	  android:screenOrientation="fullSensor" />
 	</application>
 </manifest> 

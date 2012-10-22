@@ -32,8 +32,10 @@ import android.app.Dialog;
 import android.app.ActivityManager.MemoryInfo;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -62,23 +64,23 @@ public class androidVNC extends Activity {
 	private final static String TAG = "androidVNC";
 	private Spinner connectionType;
 	private int selectedConnType;
-	private TextView sshCredentialsCaption;
+	private TextView sshCaption;
 	private LinearLayout sshCredentials;
 	private LinearLayout layoutUseSshPubkey;
+	private LinearLayout layoutUseX11Vnc;
 	private TextView sshServerEntryCaption;
 	private LinearLayout sshServerEntry;
 	private EditText sshServer;
 	private EditText sshPort;
 	private EditText sshUser;
 	private EditText sshPassword;
-	private TextView sshPubKey;
-	private boolean sshPubkeyTextSet = false;
 	private EditText ipText;
 	private EditText portText;
 	private EditText passwordText;
 	private Button goButton;
 	private Button repeaterButton;
 	private Button buttonGeneratePubkey;
+	private Button buttonCustomizeX11Vnc;
 	private LinearLayout repeaterEntry;
 	private TextView repeaterText;
 	private RadioGroup groupForceFullScreen;
@@ -90,12 +92,13 @@ public class androidVNC extends Activity {
 	private EditText textUsername;
 	private TextView textUsernameCaption;
 	private TextView captionUseSshPubkey;
+	private TextView autoXStatus;
 	private CheckBox checkboxKeepPassword;
 	private CheckBox checkboxUseDpadAsArrows;
 	private CheckBox checkboxRotateDpad;
-	private CheckBox checkboxUsePortrait;
 	private CheckBox checkboxLocalCursor;
 	private CheckBox checkboxUseSshPubkey;
+	private CheckBox checkboxUseX11Vnc;
 	private boolean repeaterTextSet;
 
 	@Override
@@ -109,17 +112,16 @@ public class androidVNC extends Activity {
 		sshUser = (EditText) findViewById(R.id.sshUser);
 		sshPassword = (EditText) findViewById(R.id.sshPassword);
 		sshCredentials = (LinearLayout) findViewById(R.id.sshCredentials);
-		sshCredentialsCaption = (TextView) findViewById(R.id.sshCredentialsCaption);
+		sshCaption = (TextView) findViewById(R.id.sshCaption);
 		layoutUseSshPubkey = (LinearLayout) findViewById(R.id.layoutUseSshPubkey);
-		captionUseSshPubkey = (TextView) findViewById(R.id.captionUseSshPubkey);
+		layoutUseX11Vnc = (LinearLayout) findViewById(R.id.layoutUseX11Vnc);
 		sshServerEntry = (LinearLayout) findViewById(R.id.sshServerEntry);
-		sshServerEntryCaption = (TextView) findViewById(R.id.sshServerEntryCaption);
 		portText = (EditText) findViewById(R.id.textPORT);
 		passwordText = (EditText) findViewById(R.id.textPASSWORD);
 		textNickname = (EditText) findViewById(R.id.textNickname);
 		textUsername = (EditText) findViewById(R.id.textUsername);
-		textUsernameCaption = (TextView) findViewById(R.id.textUsernameCaption);
-
+		autoXStatus = (TextView) findViewById(R.id.autoXStatus);
+		
 		// Define what happens when the Repeater button is pressed.
 		repeaterButton = (Button) findViewById(R.id.buttonRepeater);
 		repeaterEntry = (LinearLayout) findViewById(R.id.repeaterEntry);
@@ -144,6 +146,7 @@ public class androidVNC extends Activity {
 				sshPassword.setText("");
 			}
 		});
+		
 		// Here we say what happens when the Pubkey Generate button is pressed.
 		buttonGeneratePubkey = (Button) findViewById(R.id.buttonGeneratePubkey);
 		buttonGeneratePubkey.setOnClickListener(new View.OnClickListener() {
@@ -152,7 +155,16 @@ public class androidVNC extends Activity {
 				generatePubkey ();
 			}
 		});
-		
+
+		// Define what happens when somebody clicks on the customize auto X session dialog.
+		buttonCustomizeX11Vnc = (Button) findViewById(R.id.buttonCustomizeX11Vnc);
+		buttonCustomizeX11Vnc.setOnClickListener(new View.OnClickListener() {	
+			@Override
+			public void onClick(View v) {
+				androidVNC.this.updateSelectedFromView();
+				showDialog(R.layout.auto_x_customize);
+			}
+		});
 		
 		// Define what happens when somebody selects different VNC connection types.
 		connectionType = (Spinner) findViewById(R.id.connectionType);
@@ -164,70 +176,37 @@ public class androidVNC extends Activity {
 				selectedConnType = itemIndex;
 				if (selectedConnType == 0 ||
 					selectedConnType == 3) {
-					sshCredentials.setVisibility(View.GONE);
-					sshCredentialsCaption.setVisibility(View.GONE);
-					captionUseSshPubkey.setVisibility(View.GONE);
-					layoutUseSshPubkey.setVisibility(View.GONE);
-					sshServerEntry.setVisibility(View.GONE);
+					setVisibilityOfSshWidgets (View.GONE);
+					setVisibilityOfUltraVncWidgets (View.GONE);
 					ipText.setHint(R.string.address_caption_hint);
-					sshServerEntryCaption.setVisibility(View.GONE);
-					textUsername.setVisibility(View.GONE);
-					textUsernameCaption.setVisibility(View.GONE);
-					repeaterEntry.setVisibility(View.GONE);
 				} else if (selectedConnType == 1) {
-					sshCredentials.setVisibility(View.VISIBLE);
-					sshCredentialsCaption.setVisibility(View.VISIBLE);
-					captionUseSshPubkey.setVisibility(View.VISIBLE);
-					layoutUseSshPubkey.setVisibility(View.VISIBLE);
-					sshServerEntry.setVisibility(View.VISIBLE);
+					setVisibilityOfSshWidgets (View.VISIBLE);
+					setVisibilityOfUltraVncWidgets (View.GONE);
 					if (ipText.getText().toString().equals(""))
 						ipText.setText("localhost");
-					ipText.setHint(R.string.address_caption_hint_tunneled);
-					if (checkboxUseSshPubkey.isChecked()) {
+					if (checkboxUseSshPubkey.isChecked())
 						sshPassword.setHint(R.string.ssh_passphrase_hint);
-					} else {
+					else
 						sshPassword.setHint(R.string.password_hint_ssh);
-					}
-					sshPassword.setText("");
-					sshServerEntryCaption.setVisibility(View.VISIBLE);
-					textUsername.setVisibility(View.GONE);
-					textUsernameCaption.setVisibility(View.GONE);
-					repeaterEntry.setVisibility(View.GONE);
+					ipText.setHint(R.string.address_caption_hint_tunneled);
 				} else if (selectedConnType == 2) {
-					sshCredentials.setVisibility(View.GONE);
-					sshCredentialsCaption.setVisibility(View.GONE);
-					captionUseSshPubkey.setVisibility(View.GONE);
-					layoutUseSshPubkey.setVisibility(View.GONE);
-					sshServerEntry.setVisibility(View.GONE);
+					setVisibilityOfSshWidgets (View.GONE);
+					setVisibilityOfUltraVncWidgets (View.VISIBLE);
 					ipText.setHint(R.string.address_caption_hint);
-					sshServerEntryCaption.setVisibility(View.GONE);
-					textUsernameCaption.setVisibility(View.VISIBLE);
-					textUsername.setVisibility(View.VISIBLE);
 					textUsername.setHint(R.string.username_hint);
-					repeaterEntry.setVisibility(View.VISIBLE);
 				} else if (selectedConnType == 4) {
-					sshCredentials.setVisibility(View.GONE);
-					sshCredentialsCaption.setVisibility(View.GONE);
-					captionUseSshPubkey.setVisibility(View.GONE);
-					layoutUseSshPubkey.setVisibility(View.GONE);
-					sshServerEntry.setVisibility(View.GONE);
-					ipText.setHint(R.string.address_caption_hint);
-					sshServerEntryCaption.setVisibility(View.GONE);
-					textUsernameCaption.setVisibility(View.VISIBLE);
+					setVisibilityOfSshWidgets (View.GONE);
 					textUsername.setVisibility(View.VISIBLE);
-					textUsername.setHint(R.string.username_hint_vencrypt);
 					repeaterEntry.setVisibility(View.GONE);
 					if (passwordText.getText().toString().equals(""))
 						checkboxKeepPassword.setChecked(false);
+					ipText.setHint(R.string.address_caption_hint);
+					textUsername.setHint(R.string.username_hint_vencrypt);
 				}
 			}
+
 			@Override
 			public void onNothingSelected(AdapterView<?> ad) {
-				sshCredentials.setVisibility(View.GONE);
-				sshCredentialsCaption.setVisibility(View.GONE);
-				sshServerEntry.setVisibility(View.GONE);
-				sshServerEntryCaption.setVisibility(View.GONE);
-				textUsername.setVisibility(View.GONE);
 			}
 		});
 
@@ -248,7 +227,6 @@ public class androidVNC extends Activity {
 		checkboxKeepPassword = (CheckBox)findViewById(R.id.checkboxKeepPassword);
 		checkboxUseDpadAsArrows = (CheckBox)findViewById(R.id.checkboxUseDpadAsArrows);
 		checkboxRotateDpad = (CheckBox)findViewById(R.id.checkboxRotateDpad);
-		checkboxUsePortrait = (CheckBox)findViewById(R.id.checkboxUsePortrait);
 		checkboxLocalCursor = (CheckBox)findViewById(R.id.checkboxUseLocalCursor);
 		colorSpinner.setAdapter(colorSpinnerAdapter);
 		colorSpinner.setSelection(0);
@@ -294,6 +272,25 @@ public class androidVNC extends Activity {
 		database = new VncDatabase(this);
 	}
 	
+	/**
+	 * Makes the ssh-related widgets visible/invisible.
+	 */
+	private void setVisibilityOfSshWidgets (int visibility) {
+		sshCredentials.setVisibility(visibility);
+		sshCaption.setVisibility(visibility);
+		layoutUseSshPubkey.setVisibility(visibility);
+		layoutUseX11Vnc.setVisibility(visibility);
+		sshServerEntry.setVisibility(visibility);
+	}
+	
+	/**
+	 * Makes the uvnc-related widgets visible/invisible.
+	 */
+	private void setVisibilityOfUltraVncWidgets (int visibility) {
+		textUsername.setVisibility(visibility);
+		repeaterEntry.setVisibility(visibility);
+	}
+	
 	protected void onDestroy() {
 		database.close();
 		System.gc();
@@ -310,9 +307,12 @@ public class androidVNC extends Activity {
 			return new ImportExportDialog(this);
 		case R.id.itemMainScreenHelp:
 			return createHelpDialog();
-		default:
+		case R.layout.repeater_dialog:
 			return new RepeaterDialog(this);
+		case R.layout.auto_x_customize:
+			return new AutoXCustomizeDialog(this);
 		}
+		return null;
 	}
 	
 	/**
@@ -417,16 +417,33 @@ public class androidVNC extends Activity {
 		else
 			ipText.setText(selected.getAddress());
 
+		// If we are doing automatic X session discovery, then disable
+		// vnc address, vnc port, and vnc password, and vice-versa
+		if (selectedConnType == 1 && selected.getUseSshRemoteCommand() &&
+		    VncConstants.isCommandAnyAutoX(selected.getSshRemoteCommandOS())) {
+			ipText.setVisibility(View.GONE);
+			portText.setVisibility(View.GONE);
+			passwordText.setVisibility(View.GONE);
+			checkboxKeepPassword.setVisibility(View.GONE);
+			autoXStatus.setText(R.string.auto_x_enabled);
+		} else {
+			ipText.setVisibility(View.VISIBLE);
+			portText.setVisibility(View.VISIBLE);
+			passwordText.setVisibility(View.VISIBLE);
+			checkboxKeepPassword.setVisibility(View.VISIBLE);
+			autoXStatus.setText(R.string.auto_x_disabled);
+		}
+
 		portText.setText(Integer.toString(selected.getPort()));
 		
 		if (selected.getKeepPassword() || selected.getPassword().length()>0) {
 			passwordText.setText(selected.getPassword());
 		}
-		groupForceFullScreen.check(selected.getForceFull()==BitmapImplHint.AUTO ? R.id.radioForceFullScreenAuto : (selected.getForceFull() == BitmapImplHint.FULL ? R.id.radioForceFullScreenOn : R.id.radioForceFullScreenOff));
+		groupForceFullScreen.check(selected.getForceFull()==BitmapImplHint.AUTO ?
+							R.id.radioForceFullScreenAuto : R.id.radioForceFullScreenOn);
 		checkboxKeepPassword.setChecked(selected.getKeepPassword());
 		checkboxUseDpadAsArrows.setChecked(selected.getUseDpadAsArrows());
 		checkboxRotateDpad.setChecked(selected.getRotateDpad());
-		checkboxUsePortrait.setChecked(selected.getUsePortrait());
 		checkboxLocalCursor.setChecked(selected.getUseLocalCursor());
 		textNickname.setText(selected.getNickname());
 		textUsername.setText(selected.getUserName());
@@ -461,7 +478,76 @@ public class androidVNC extends Activity {
 		}
 	}
 
+	/**
+	 * Called from Auto X Session dialog to update the Auto X config
+	 * options.
+	 * @param xserver - which X server to use for created session (or just find)
+	 * @param command - contains the command to use if custom, null otherwise
+	 */
+	public void updateAutoXInfo (int commandIndex, String command, boolean enabled) {
+		Log.i (TAG, "Received cmdIdx: " + commandIndex + ", command: "
+				+ command + ", enabled: " + Boolean.toString(enabled));
+		selected.setUseSshRemoteCommand(enabled);
+		selected.setSshRemoteCommandOS(commandIndex);
+		selected.setSshRemoteCommand(command);
+		updateViewFromSelected();
+	}
+	
+	/**
+	 * Called from Auto X Session dialog to get current type of remote command.
+	 */
+	public int getCurrentRemoteCommandType () {
+		return selected.getSshRemoteCommandOS();
+	}
+	
+	/**
+	 * Called from Auto X Session dialog to get current command.
+	 */
+	public String getCurrentRemoteCommand () {
+		return selected.getSshRemoteCommand();
+	}
 
+	/**
+	 * Called from Auto X Session dialog find out if remote command execution is anabled.
+	 */
+	public boolean isRemoteCommandEnabled () {
+		return selected.getUseSshRemoteCommand();
+	}
+
+	/**
+	 * Returns the visible height of the view, or if the OS believes
+	 * more than 20% is obscured (e.g. if soft-keyboard is up).
+	 * @return
+	 */
+	public int getHeight () {
+		View v    = getWindow().getDecorView().findViewById(android.R.id.content);
+		Display d = getWindowManager().getDefaultDisplay();
+		int bottom = v.getBottom();
+		int height = d.getHeight();
+		// If the height is 20% more than the bottom, the soft-kbd is probably up.
+		if (height > 1.2*bottom)
+			return height;
+		else
+			return bottom;
+	}
+	
+	/**
+	 * Returns the visible width of the view or display width if the OS believes
+	 * more than 20% is obscured.
+	 * @return
+	 */
+	public int getWidth () {
+		View v    = getWindow().getDecorView().findViewById(android.R.id.content);
+		Display d = getWindowManager().getDefaultDisplay();
+		int right = v.getRight();
+		int width = d.getWidth();
+		// If width is 20% more than right, then take width just in case.
+		if (width > 1.2*right)
+			return width;
+		else
+			return right;
+	}
+	
 	private void updateSelectedFromView() {
 		if (selected == null) {
 			return;
@@ -481,7 +567,7 @@ public class androidVNC extends Activity {
 		// TODO: Decide whether to allow saving of password after displaying WARNING.
 		selected.setKeepSshPassword(false);
 		
-		// If we are using a Pubkey, then the ssh password box is used
+		// If we are using an SSH key, then the ssh password box is used
 		// for the key pass-phrase instead.
 		selected.setUseSshPubKey(checkboxUseSshPubkey.isChecked());
 		selected.setSshPassPhrase(sshPassword.getText().toString());
@@ -492,7 +578,6 @@ public class androidVNC extends Activity {
 		selected.setKeepPassword(checkboxKeepPassword.isChecked());
 		selected.setUseDpadAsArrows(checkboxUseDpadAsArrows.isChecked());
 		selected.setRotateDpad(checkboxRotateDpad.isChecked());
-		selected.setUsePortrait(checkboxUsePortrait.isChecked());
 		selected.setUseLocalCursor(checkboxLocalCursor.isChecked());
 		selected.setColorModel(((COLORMODEL)colorSpinner.getSelectedItem()).nameString());
 		if (repeaterTextSet) {
@@ -624,7 +709,7 @@ public class androidVNC extends Activity {
 			db.close();
 		}
 	}
-	
+
 	/**
 	 * Starts the activity which makes a VNC connection and displays the remote desktop.
 	 */

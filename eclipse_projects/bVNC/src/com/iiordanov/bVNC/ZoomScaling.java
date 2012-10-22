@@ -194,14 +194,13 @@ class ZoomScaling extends AbstractScaling {
 	@Override
 	void setScaleTypeForActivity(VncCanvasActivity activity) {
 		super.setScaleTypeForActivity(activity);
-		minimumScale = activity.vncCanvas.bitmapData.getMinimumScale();
-		scaling = 1.f;
 		canvasXOffset = -activity.vncCanvas.getCenteredXOffset();
 		canvasYOffset = -activity.vncCanvas.getCenteredYOffset();
 		activity.vncCanvas.computeShiftFromFullToView ();
+		minimumScale = activity.vncCanvas.bitmapData.getMinimumScale();
+		scaling = 1.f;
 		resetMatrix();
 		activity.vncCanvas.setImageMatrix(matrix);
-		// Reset the pan position to (0,0)
 		resolveZoom(activity);
 	}
 
