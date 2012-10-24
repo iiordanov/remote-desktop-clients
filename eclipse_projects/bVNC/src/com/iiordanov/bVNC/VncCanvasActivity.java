@@ -196,7 +196,9 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 			// to stick a spiteful onScroll with a MASSIVE delta here. 
 			// This would cause the mouse pointer to jump to another place suddenly.
 			// Hence, we ignore onScroll after scaling until we lift all pointers up.
-			boolean twoFingers = (e1.getPointerCount() > 1 || e2.getPointerCount() > 1);
+			boolean twoFingers = false;
+			if (e1 != null && e2 != null)
+				twoFingers = (e1.getPointerCount() > 1 || e2.getPointerCount() > 1);
 			if (twoFingers||inSwiping||inScaling||scalingJustFinished)
 				return true;
 			
@@ -466,7 +468,9 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 			// to stick a spiteful onScroll with a MASSIVE delta here. 
 			// This would cause the mouse pointer to jump to another place suddenly.
 			// Hence, we ignore onScroll after scaling until we lift all pointers up.
-			boolean twoFingers = (e1.getPointerCount() > 1 || e2.getPointerCount() > 1);
+			boolean twoFingers = false;
+			if (e1 != null && e2 != null)
+				twoFingers = (e1.getPointerCount() > 1 || e2.getPointerCount() > 1);
 			if (twoFingers||inSwiping||inScaling||scalingJustFinished)
 				return true;
 			
@@ -642,7 +646,9 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 			// to stick a spiteful onScroll with a MASSIVE delta here. 
 			// This would cause the mouse pointer to jump to another place suddenly.
 			// Hence, we ignore onScroll after scaling until we lift all pointers up.
-			boolean twoFingers = (e1.getPointerCount() > 1 || e2.getPointerCount() > 1);
+			boolean twoFingers = false;
+			if (e1 != null && e2 != null)
+				twoFingers = (e1.getPointerCount() > 1 || e2.getPointerCount() > 1);
 			if (twoFingers||inSwiping||inScaling||scalingJustFinished)
 				return true;
 

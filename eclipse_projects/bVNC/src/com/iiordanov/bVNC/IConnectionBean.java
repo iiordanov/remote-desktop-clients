@@ -39,6 +39,18 @@ interface IConnectionBean {
 	@FieldAccessor
 	int getSshRemoteCommandOS();
 	@FieldAccessor
+	int getSshRemoteCommandType();
+	@FieldAccessor
+	int getAutoXResType();
+	@FieldAccessor
+	int getAutoXWidth();
+	@FieldAccessor
+	int getAutoXHeight();
+	@FieldAccessor
+	String getAutoXSessionProg();
+	@FieldAccessor
+	int getAutoXSessionType();
+	@FieldAccessor
 	String getSshRemoteCommand();
 	@FieldAccessor
 	int getSshRemoteCommandTimeout();

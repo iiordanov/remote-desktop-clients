@@ -14,18 +14,16 @@ import android.util.Log;
  *
  */
 class VncDatabase extends SQLiteOpenHelper {
-	static final int DBV_0_2_X = 9;
-	static final int DBV_0_2_4 = 10;
-	static final int DBV_0_4_7 = 11;
 	static final int DBV_0_5_0 = 12;
 	static final int DBV_1_2_0 = 20;
 	static final int DBV_1_5_0 = 22;
+	static final int DBV_1_6_0 = 291;
 	
 	public final static String TAG = VncDatabase.class.toString();
 	
 	VncDatabase(Context context)
 	{
-		super(context, "VncDatabase", null, DBV_1_5_0);
+		super(context, "VncDatabase", null, DBV_1_6_0);
 	}
 
 	/* (non-Javadoc)
@@ -110,6 +108,30 @@ class VncDatabase extends SQLiteOpenHelper {
 					+AbstractConnectionBean.GEN_FIELD_USEPORTRAIT + " BOOLEAN DEFAULT FALSE");
 			
 			oldVersion = DBV_1_5_0;
+		}
+		
+		if (oldVersion == DBV_1_5_0) {
+			Log.i(TAG,"Doing upgrade from 22 to 291");
+
+			db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
+					+AbstractConnectionBean.GEN_FIELD_SSHREMOTECOMMANDTYPE + " INTEGER");
+
+			db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
+					+AbstractConnectionBean.GEN_FIELD_AUTOXRESTYPE + " INTEGER");
+
+			db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
+					+AbstractConnectionBean.GEN_FIELD_AUTOXWIDTH + " INTEGER");
+
+			db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
+					+AbstractConnectionBean.GEN_FIELD_AUTOXHEIGHT + " INTEGER");
+
+			db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
+					+AbstractConnectionBean.GEN_FIELD_AUTOXSESSIONTYPE + " INTEGER");
+
+			db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
+					+AbstractConnectionBean.GEN_FIELD_AUTOXSESSIONPROG + " TEXT");
+
+			oldVersion = DBV_1_6_0;
 		}
 	}
 }

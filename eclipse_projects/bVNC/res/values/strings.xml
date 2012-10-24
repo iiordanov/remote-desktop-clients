@@ -15,6 +15,8 @@
 <string name="auto_x_caption">bVNC can automatically discover existing and create new X sessions on UNIX systems (like NX). You need x11vnc to find, and Xvfb, Xvnc, or Xdummy to create sessions.</string>
 <string name="auto_x_cancel">Cancel</string>
 <string name="auto_x_confirm">Confirm</string>
+<string name="auto_x_descript_geom">Remote Desktop Resolution (WxH)</string>
+<string name="auto_x_descript_session">Remote Session Type</string>
 <string name="auto_x_disabled">Disabled</string>
 <string name="auto_x_disabled_selection">AutoX Disabled</string>
 <string name="auto_x_delete_dmrc">PLEASE find a link to instructions in the description of bVNC, and enable the following on your own risk.</string>
@@ -22,9 +24,38 @@
 <string name="auto_x_enabled">Enabled</string>
 <string name="auto_x_find">Only Find, Don\'t Create</string>
 <string name="auto_x_find_login">Find X Login (needs sudo)</string>
+<string-array name="auto_x_geometry">
+    <item>@string/auto_x_geom_native</item>
+    <item>@string/auto_x_geom_custom</item>
+</string-array>
+<string name="auto_x_geom_native">Native</string>
+<string name="auto_x_geom_custom">Custom</string>
 <string name="auto_x_title">Configure AutoX</string>
 <string name="auto_x_set_geometry">bVNC can set a variable to the native resolution of your device. See the instructions for how to make use of it server-side.</string>
 <string name="auto_x_set_geometry_checkbox">Set AUTOX_GEOMETRY to native device resolution.</string>
+<string-array name="auto_x_session">
+    <item>@string/auto_x_session_auto</item>
+    <item>@string/auto_x_session_custom</item>
+    <item>@string/auto_x_session_kde</item>
+    <item>@string/auto_x_session_unity</item>
+    <item>@string/auto_x_session_unity_2d</item>
+    <item>@string/auto_x_session_xfce</item>
+    <item>@string/auto_x_session_gnome</item>
+    <item>@string/auto_x_session_gnome_cl</item>
+    <item>@string/auto_x_session_trinity</item>
+    <item>@string/auto_x_session_mate</item>
+</string-array>
+<string name="auto_x_session_auto">Auto</string>
+<string name="auto_x_session_custom">Custom</string>
+<string name="auto_x_session_kde">KDE</string>
+<string name="auto_x_session_unity">Unity</string>
+<string name="auto_x_session_unity_2d">Unity2D</string>
+<string name="auto_x_session_xfce">Xfce</string>
+<string name="auto_x_session_gnome">GNOME</string>
+<string name="auto_x_session_gnome_cl">GNOME Classic</string>
+<string name="auto_x_session_trinity">Trinity</string>
+<string name="auto_x_session_mate">MATE</string>
+
 <string-array name="auto_x_type">
     <!-- If adding selections, they need to be in sync with values
     declared in VncConstants for conversion bet. selection and commands

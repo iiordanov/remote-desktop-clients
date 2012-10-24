@@ -51,15 +51,68 @@ public class VncConstants {
 	
 	public final static int COMMAND_CUSTOM        = 1000;
 
-	public final static String COMMAND_AUTO_X_CREATE_XVFB_STRING   = "PORT= x11vnc -timeout 60 -create -localhost -nopw";
-	public final static String COMMAND_AUTO_X_CREATE_XVNC_STRING   = "PORT= x11vnc -timeout 60 -create -localhost -nopw -xvnc";
-	public final static String COMMAND_AUTO_X_CREATE_XDUMMY_STRING = "PORT= x11vnc -timeout 60 -create -localhost -nopw -xdummy";
-	public final static String COMMAND_AUTO_X_FIND_STRING          = "PORT= x11vnc -timeout 60 -find   -localhost -nopw";
-	public final static String COMMAND_AUTO_X_SUDO_FIND_STRING     = "PORT= sudo x11vnc -timeout 60 -find -localhost -env FD_XDM=1 -nopw";
+	public final static String COMMAND_AUTO_X_CREATE_XVFB_STRING   = "PORT= x11vnc -wait_ui 1 -defer 10 -wait 10 -ncache 0 -timeout 30 -create -localhost -nopw ";
+	public final static String COMMAND_AUTO_X_CREATE_XVNC_STRING   = "PORT= x11vnc -wait_ui 1 -defer 10 -wait 10 -ncache 0 -timeout 30 -create -localhost -nopw -xvnc ";
+	public final static String COMMAND_AUTO_X_CREATE_XDUMMY_STRING = "PORT= x11vnc -wait_ui 1 -defer 10 -wait 10 -ncache 0 -timeout 30 -create -localhost -nopw -xdummy ";
+	public final static String COMMAND_AUTO_X_FIND_STRING          = "PORT= x11vnc -wait_ui 1 -defer 10 -wait 10 -ncache 0 -timeout 30 -find   -localhost -nopw ";
+	public final static String COMMAND_AUTO_X_SUDO_FIND_STRING     = "PORT= sudo x11vnc -wait_ui 1 -defer 10 -wait 10 -ncache 0 -timeout 30 -find -localhost -env FD_XDM=1 -nopw ";
 
 	public final static String MV_DMRC_AWAY = "[ -O ${HOME}/.dmrc ] && mv ${HOME}/.dmrc ${HOME}/.dmrc.$$ ; ";
 	public final static String MV_DMRC_BACK = " ; [ -O ${HOME}/.dmrc.$$ ] && mv ${HOME}/.dmrc.$$ ${HOME}/.dmrc";
 
+	public final static int AUTOX_GEOM_SELECT_NATIVE = 0;
+	public final static int AUTOX_GEOM_SELECT_CUSTOM = 1;
+	
+	public final static int AUTOX_SESS_PROG_SELECT_AUTO    = 0;
+	public final static int AUTOX_SESS_PROG_SELECT_CUSTOM  = 1;
+	public final static int AUTOX_SESS_PROG_SELECT_KDE     = 2;
+	public final static int AUTOX_SESS_PROG_SELECT_UNITY   = 3;
+	public final static int AUTOX_SESS_PROG_SELECT_UNITY2D = 4;
+	public final static int AUTOX_SESS_PROG_SELECT_XFCE    = 5;
+	public final static int AUTOX_SESS_PROG_SELECT_GNOME   = 6;
+	public final static int AUTOX_SESS_PROG_SELECT_GNOMECL = 7;
+	public final static int AUTOX_SESS_PROG_SELECT_TRINITY = 8;
+	public final static int AUTOX_SESS_PROG_SELECT_MATE    = 9;
+	
+	public final static String AUTOX_SESS_PROG_AUTO    = "/etc/X11/Xsession";
+	public final static String AUTOX_SESS_PROG_KDE     = "/usr/bin/startkde";
+	public final static String AUTOX_SESS_PROG_UNITY   = "/usr/bin/gnome-session --session=ubuntu";
+	public final static String AUTOX_SESS_PROG_UNITY2D = "/usr/bin/gnome-session --session=ubuntu-2d";
+	public final static String AUTOX_SESS_PROG_XFCE    = "/usr/bin/xfce4-session";
+	public final static String AUTOX_SESS_PROG_GNOME   = "/usr/bin/gnome-session --session=gnome";
+	public final static String AUTOX_SESS_PROG_GNOMECL = "/usr/bin/gnome-session --session=gnome-classic";
+	public final static String AUTOX_SESS_PROG_TRINITY = "/usr/bin/starttde";
+	public final static String AUTOX_SESS_PROG_MATE    = "/usr/bin/mate-session";
+	
+	/**
+	 * Returns a string matching a session selection index
+	 * @param index - index to convert
+	 * @return string matching prog.
+	 */
+	public static String getSessionProgString (int index) {
+		switch (index) {
+		case AUTOX_SESS_PROG_SELECT_AUTO:
+			return AUTOX_SESS_PROG_AUTO;
+		case AUTOX_SESS_PROG_SELECT_KDE:
+			return AUTOX_SESS_PROG_KDE;
+		case AUTOX_SESS_PROG_SELECT_UNITY:
+			return AUTOX_SESS_PROG_UNITY;
+		case AUTOX_SESS_PROG_SELECT_UNITY2D:
+			return AUTOX_SESS_PROG_UNITY2D;
+		case AUTOX_SESS_PROG_SELECT_XFCE:
+			return AUTOX_SESS_PROG_XFCE;
+		case AUTOX_SESS_PROG_SELECT_GNOME:
+			return AUTOX_SESS_PROG_GNOME;
+		case AUTOX_SESS_PROG_SELECT_GNOMECL:
+			return AUTOX_SESS_PROG_GNOMECL;
+		case AUTOX_SESS_PROG_SELECT_TRINITY:
+			return AUTOX_SESS_PROG_TRINITY;
+		case AUTOX_SESS_PROG_SELECT_MATE:
+			return AUTOX_SESS_PROG_MATE;
+		}
+		return "";
+	}
+	
 	public static boolean isCommandAutoX (int command) {
 		return (command > COMMAND_AUTO_X_START && command < COMMAND_AUTO_X_END);
 	}
@@ -105,33 +158,34 @@ public class VncConstants {
 	/**
 	 * Returns a string matching a command index.
 	 * @param command - command to convert
+	 * @param opts - options to add to command
 	 * @return string matching command.
 	 */
-	public static String getCommandString (int command, String vars) {
+	public static String getCommandString (int command, String opts) {
 		switch (command) {
 		case COMMAND_AUTO_X_CREATE_XVFB:
-			return vars + COMMAND_AUTO_X_CREATE_XVFB_STRING;
+			return COMMAND_AUTO_X_CREATE_XVFB_STRING + opts;
 
 		case COMMAND_AUTO_X_CREATE_XVNC:
-			return vars + COMMAND_AUTO_X_CREATE_XVNC_STRING;
+			return COMMAND_AUTO_X_CREATE_XVNC_STRING + opts;
 			
 		case COMMAND_AUTO_X_CREATE_XDUMMY:
-			return vars + COMMAND_AUTO_X_CREATE_XDUMMY_STRING;
+			return COMMAND_AUTO_X_CREATE_XDUMMY_STRING + opts;
 			
 		case COMMAND_AUTO_X_CREATE_XVFB_MV_DMRC:
-			return MV_DMRC_AWAY + vars + COMMAND_AUTO_X_CREATE_XVFB_STRING + MV_DMRC_BACK;
+			return MV_DMRC_AWAY + COMMAND_AUTO_X_CREATE_XVFB_STRING + opts + MV_DMRC_BACK;
 
 		case COMMAND_AUTO_X_CREATE_XVNC_MV_DMRC:
-			return MV_DMRC_AWAY + vars + COMMAND_AUTO_X_CREATE_XVNC_STRING + MV_DMRC_BACK;
+			return MV_DMRC_AWAY + COMMAND_AUTO_X_CREATE_XVNC_STRING + opts + MV_DMRC_BACK;
 
 		case COMMAND_AUTO_X_CREATE_XDUMMY_MV_DMRC:
-			return MV_DMRC_AWAY + vars + COMMAND_AUTO_X_CREATE_XDUMMY_STRING + MV_DMRC_BACK;
+			return MV_DMRC_AWAY + COMMAND_AUTO_X_CREATE_XDUMMY_STRING + opts + MV_DMRC_BACK;
 
 		case COMMAND_AUTO_X_FIND:
-			return vars + COMMAND_AUTO_X_FIND_STRING;
+			return COMMAND_AUTO_X_FIND_STRING + opts;
 
 		case COMMAND_AUTO_X_SUDO_FIND:
-			return vars + COMMAND_AUTO_X_SUDO_FIND_STRING;
+			return COMMAND_AUTO_X_SUDO_FIND_STRING + opts;
 		}
 		return "";
 	}

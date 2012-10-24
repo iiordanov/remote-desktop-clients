@@ -395,7 +395,7 @@ public class androidVNC extends Activity {
 		return true;
 	}
 
-	private void updateViewFromSelected() {
+	protected void updateViewFromSelected() {
 		if (selected == null)
 			return;
 		selectedConnType = selected.getConnectionType();
@@ -420,7 +420,7 @@ public class androidVNC extends Activity {
 		// If we are doing automatic X session discovery, then disable
 		// vnc address, vnc port, and vnc password, and vice-versa
 		if (selectedConnType == 1 && selected.getUseSshRemoteCommand() &&
-		    VncConstants.isCommandAnyAutoX(selected.getSshRemoteCommandOS())) {
+		    VncConstants.isCommandAnyAutoX(selected.getSshRemoteCommandType())) {
 			ipText.setVisibility(View.GONE);
 			portText.setVisibility(View.GONE);
 			passwordText.setVisibility(View.GONE);
@@ -458,7 +458,7 @@ public class androidVNC extends Activity {
 		}
 		updateRepeaterInfo(selected.getUseRepeater(), selected.getRepeaterId());
 	}
-	
+
 	/**
 	 * Called when changing view to match selected connection or from
 	 * Repeater dialog to update the repeater information shown.
@@ -479,39 +479,10 @@ public class androidVNC extends Activity {
 	}
 
 	/**
-	 * Called from Auto X Session dialog to update the Auto X config
-	 * options.
-	 * @param xserver - which X server to use for created session (or just find)
-	 * @param command - contains the command to use if custom, null otherwise
+	 * Returns the current ConnectionBean.
 	 */
-	public void updateAutoXInfo (int commandIndex, String command, boolean enabled) {
-		Log.i (TAG, "Received cmdIdx: " + commandIndex + ", command: "
-				+ command + ", enabled: " + Boolean.toString(enabled));
-		selected.setUseSshRemoteCommand(enabled);
-		selected.setSshRemoteCommandOS(commandIndex);
-		selected.setSshRemoteCommand(command);
-		updateViewFromSelected();
-	}
-	
-	/**
-	 * Called from Auto X Session dialog to get current type of remote command.
-	 */
-	public int getCurrentRemoteCommandType () {
-		return selected.getSshRemoteCommandOS();
-	}
-	
-	/**
-	 * Called from Auto X Session dialog to get current command.
-	 */
-	public String getCurrentRemoteCommand () {
-		return selected.getSshRemoteCommand();
-	}
-
-	/**
-	 * Called from Auto X Session dialog find out if remote command execution is anabled.
-	 */
-	public boolean isRemoteCommandEnabled () {
-		return selected.getUseSshRemoteCommand();
+	public ConnectionBean getCurrentConnection () {
+		return selected;
 	}
 
 	/**
@@ -547,7 +518,7 @@ public class androidVNC extends Activity {
 		else
 			return right;
 	}
-	
+
 	private void updateSelectedFromView() {
 		if (selected == null) {
 			return;
@@ -682,7 +653,7 @@ public class androidVNC extends Activity {
 			vnc();
 	}
 	
-	private void saveAndWriteRecent()
+	protected void saveAndWriteRecent()
 	{
 		SQLiteDatabase db = database.getWritableDatabase();
 		db.beginTransaction();

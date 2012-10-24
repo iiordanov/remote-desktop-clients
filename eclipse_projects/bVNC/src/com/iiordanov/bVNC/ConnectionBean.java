@@ -48,8 +48,14 @@ class ConnectionBean extends AbstractConnectionBean implements Comparable<Connec
 		setUseSshPubKey(false);
 		setSshHostKey("");
 		setSshRemoteCommandOS(0);
+		setSshRemoteCommandType(0);
 		setSshRemoteCommand("");
 		setSshRemoteCommandTimeout(5);
+		setAutoXWidth(0);
+		setAutoXResType(0);
+		setAutoXHeight(0);
+		setAutoXSessionProg("");
+		setAutoXSessionType(0);
 		setUseSshRemoteCommand(false);
 		setUserName("");
 		setPort(5900);

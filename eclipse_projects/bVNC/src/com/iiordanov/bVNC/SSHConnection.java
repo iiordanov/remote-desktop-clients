@@ -66,7 +66,7 @@ public class SSHConnection implements InteractiveCallback {
 	private boolean usePubKey;
 	private String sshPrivKey;
 	private boolean useSshRemoteCommand;
-	private int     sshRemoteCommandOS;
+	private int     sshRemoteCommandType;
 	private int     sshRemoteCommandTimeout;
 	private String  sshRemoteCommand;
 	private BufferedInputStream remoteStdout;
@@ -84,7 +84,7 @@ public class SSHConnection implements InteractiveCallback {
 		usePubKey = conn.getUseSshPubKey();
 		sshPrivKey = conn.getSshPrivKey();
 		useSshRemoteCommand = conn.getUseSshRemoteCommand();
-		sshRemoteCommandOS = conn.getSshRemoteCommandOS();
+		sshRemoteCommandType = conn.getSshRemoteCommandType();
 		sshRemoteCommand = conn.getSshRemoteCommand();
 		connection = new Connection(host, sshPort);
 	}
@@ -133,10 +133,10 @@ public class SSHConnection implements InteractiveCallback {
 		// Run a remote command if commanded to.
 		if (useSshRemoteCommand) {
 			execRemoteCommand();
-			//if (VncConstants.isCommandAutoXSudo(sshRemoteCommandOS))
+			//if (VncConstants.isCommandAutoXSudo(sshRemoteCommandType))
 			//	sendSudoPassword();
 			
-			if (VncConstants.isCommandAnyAutoX(sshRemoteCommandOS)) {
+			if (VncConstants.isCommandAnyAutoX(sshRemoteCommandType)) {
 				int port = parseRemoteStdoutForPort();
 				if (port > 0)
 					targetPort = port;
