@@ -14,6 +14,7 @@ public class VncConstants {
 	public final static int AUTOX_SELECT_SUDO_FIND = 5;
 	
 	public final static int COMMAND_DISABLED      = 0;
+
 	public final static int COMMAND_LINUX_START   = 100;
 	public final static int COMMAND_LINUX_X11VNC  = 101;
 	public final static int COMMAND_LINUX_STDVNC  = 102;
@@ -31,31 +32,27 @@ public class VncConstants {
 	public final static int COMMAND_MACOSX_STDVNC = 301;
 	public final static int COMMAND_MACOSX_END    = 399;
 
-	public final static int COMMAND_AUTO_X_START         = 400;
-	public final static int COMMAND_AUTO_X_CREATE_XVFB   = 401;
-	public final static int COMMAND_AUTO_X_CREATE_XVNC   = 402;
-	public final static int COMMAND_AUTO_X_CREATE_XDUMMY = 403;
-	public final static int COMMAND_AUTO_X_FIND          = 404;
-	public final static int COMMAND_AUTO_X_CUSTOM        = 406;
-	public final static int COMMAND_AUTO_X_END           = 499;
-
-	public final static int COMMAND_AUTO_X_START_MV_DMRC         = 500;
-	public final static int COMMAND_AUTO_X_CREATE_XVFB_MV_DMRC   = 501;
-	public final static int COMMAND_AUTO_X_CREATE_XVNC_MV_DMRC   = 502;
-	public final static int COMMAND_AUTO_X_CREATE_XDUMMY_MV_DMRC = 503;
-	public final static int COMMAND_AUTO_X_END_MV_DMRC           = 599;
-
-	public final static int COMMAND_AUTO_X_SUDO_START            = 600;
-	public final static int COMMAND_AUTO_X_SUDO_FIND             = 605;
-	public final static int COMMAND_AUTO_X_SUDO_END              = 699;
-	
 	public final static int COMMAND_CUSTOM        = 1000;
 
-	public final static String COMMAND_AUTO_X_CREATE_XVFB_STRING   = "PORT= x11vnc -wait_ui 1 -defer 10 -wait 10 -ncache 0 -timeout 30 -create -localhost -nopw ";
-	public final static String COMMAND_AUTO_X_CREATE_XVNC_STRING   = "PORT= x11vnc -wait_ui 1 -defer 10 -wait 10 -ncache 0 -timeout 30 -create -localhost -nopw -xvnc ";
-	public final static String COMMAND_AUTO_X_CREATE_XDUMMY_STRING = "PORT= x11vnc -wait_ui 1 -defer 10 -wait 10 -ncache 0 -timeout 30 -create -localhost -nopw -xdummy ";
-	public final static String COMMAND_AUTO_X_FIND_STRING          = "PORT= x11vnc -wait_ui 1 -defer 10 -wait 10 -ncache 0 -timeout 30 -find   -localhost -nopw ";
-	public final static String COMMAND_AUTO_X_SUDO_FIND_STRING     = "PORT= sudo x11vnc -wait_ui 1 -defer 10 -wait 10 -ncache 0 -timeout 30 -find -localhost -env FD_XDM=1 -nopw ";
+	public final static int COMMAND_AUTO_X_DISABLED      = 0;
+	public final static int COMMAND_AUTO_X_CREATE_XVFB   = 1;
+	public final static int COMMAND_AUTO_X_CREATE_XVNC   = 2;
+	public final static int COMMAND_AUTO_X_CREATE_XDUMMY = 3;
+	public final static int COMMAND_AUTO_X_FIND          = 4;
+	public final static int COMMAND_AUTO_X_SUDO_FIND     = 5;
+	public final static int COMMAND_AUTO_X_CUSTOM        = 6;
+	
+	public final static String COMMAND_AUTO_X_CREATE_XVFB_STRING   = "PORT= x11vnc -wait_ui 1 -defer 10 -wait 10 -ncache 0 -timeout 10 -create -localhost -nopw ";
+	public final static String COMMAND_AUTO_X_CREATE_XVNC_STRING   = "PORT= x11vnc -wait_ui 1 -defer 10 -wait 10 -ncache 0 -timeout 10 -create -localhost -nopw -xvnc ";
+	public final static String COMMAND_AUTO_X_CREATE_XDUMMY_STRING = "PORT= x11vnc -wait_ui 1 -defer 10 -wait 10 -ncache 0 -timeout 10 -create -localhost -nopw -xdummy ";
+	public final static String COMMAND_AUTO_X_FIND_STRING          = "PORT= x11vnc -wait_ui 1 -defer 10 -wait 10 -ncache 0 -timeout 10 -find   -localhost -nopw ";
+	public final static String COMMAND_AUTO_X_SUDO_FIND_STRING     = "PORT= sudo x11vnc -passwdfile -wait_ui 1 -defer 10 -wait 10 -ncache 0 -timeout 10 -find -localhost -env FD_XDM=1 -nopw ";
+
+	public final static String AUTO_X_USERPW             = "-unixpw $USER";
+	public final static String AUTO_X_PASSWDFILE         = "-passwdfile rm:";
+	public final static String AUTO_X_PWFILEBASENAME     = ".x11vnc_temp_pwd_";
+	public final static String AUTO_X_CREATE_PASSWDFILE  = "umask 0077 && cat > ";
+	public final static String AUTO_X_SYNC               = " ; sync";
 
 	public final static String MV_DMRC_AWAY = "[ -O ${HOME}/.dmrc ] && mv ${HOME}/.dmrc ${HOME}/.dmrc.$$ ; ";
 	public final static String MV_DMRC_BACK = " ; [ -O ${HOME}/.dmrc.$$ ] && mv ${HOME}/.dmrc.$$ ${HOME}/.dmrc";
@@ -112,48 +109,7 @@ public class VncConstants {
 		}
 		return "";
 	}
-	
-	public static boolean isCommandAutoX (int command) {
-		return (command > COMMAND_AUTO_X_START && command < COMMAND_AUTO_X_END);
-	}
-	
-	public static boolean isCommandAutoXMvDmrc (int command) {
-		return (command > COMMAND_AUTO_X_START_MV_DMRC && command < COMMAND_AUTO_X_END_MV_DMRC);
-	}
 
-	public static boolean isCommandAutoXSudo (int command) {
-		return (command > COMMAND_AUTO_X_SUDO_START && command < COMMAND_AUTO_X_SUDO_END);
-	}
-
-	public static boolean isCommandAnyAutoX (int command) {
-		return isCommandAutoX (command) ||
-				isCommandAutoXMvDmrc (command) ||
-				 isCommandAutoXSudo (command);
-	}
-	
-	/**
-	 * Converts an auto_x command index to the equivalent auto_x_..._mv_dmrc index
-	 * if it isn't already such an index. Otherwise returns it unaltered.
-	 */
-	public static int convertAutoXToMvDmrc (int command) {
-		if (!isCommandAutoXMvDmrc (command) &&
-			 isCommandAutoX (command))
-			command += COMMAND_AUTO_X_START_MV_DMRC - COMMAND_AUTO_X_START;
-			
-		return command;
-	}
-
-	/**
-	 * Converts an auto_x_..._mv_dmrc command index to the equivalent auto_x index
-	 * if it isn't already such an index. Otherwise returns it unaltered.
-	 */
-	public static int convertAutoXToNotMvDmrc (int command) {
-		if (!isCommandAutoX (command) &&
-			 isCommandAutoXMvDmrc (command))
-			command -= COMMAND_AUTO_X_START_MV_DMRC - COMMAND_AUTO_X_START;
-			
-		return command;
-	}
 
 	/**
 	 * Returns a string matching a command index.
@@ -168,18 +124,9 @@ public class VncConstants {
 
 		case COMMAND_AUTO_X_CREATE_XVNC:
 			return COMMAND_AUTO_X_CREATE_XVNC_STRING + opts;
-			
+
 		case COMMAND_AUTO_X_CREATE_XDUMMY:
 			return COMMAND_AUTO_X_CREATE_XDUMMY_STRING + opts;
-			
-		case COMMAND_AUTO_X_CREATE_XVFB_MV_DMRC:
-			return MV_DMRC_AWAY + COMMAND_AUTO_X_CREATE_XVFB_STRING + opts + MV_DMRC_BACK;
-
-		case COMMAND_AUTO_X_CREATE_XVNC_MV_DMRC:
-			return MV_DMRC_AWAY + COMMAND_AUTO_X_CREATE_XVNC_STRING + opts + MV_DMRC_BACK;
-
-		case COMMAND_AUTO_X_CREATE_XDUMMY_MV_DMRC:
-			return MV_DMRC_AWAY + COMMAND_AUTO_X_CREATE_XDUMMY_STRING + opts + MV_DMRC_BACK;
 
 		case COMMAND_AUTO_X_FIND:
 			return COMMAND_AUTO_X_FIND_STRING + opts;

@@ -39,6 +39,7 @@ import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewConfiguration;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -419,8 +420,7 @@ public class androidVNC extends Activity {
 
 		// If we are doing automatic X session discovery, then disable
 		// vnc address, vnc port, and vnc password, and vice-versa
-		if (selectedConnType == 1 && selected.getUseSshRemoteCommand() &&
-		    VncConstants.isCommandAnyAutoX(selected.getSshRemoteCommandType())) {
+		if (selectedConnType == 1 && selected.getAutoXEnabled()) {
 			ipText.setVisibility(View.GONE);
 			portText.setVisibility(View.GONE);
 			passwordText.setVisibility(View.GONE);
@@ -486,37 +486,42 @@ public class androidVNC extends Activity {
 	}
 
 	/**
-	 * Returns the visible height of the view, or if the OS believes
-	 * more than 20% is obscured (e.g. if soft-keyboard is up).
-	 * @return
+	 * Returns the display height, or if the device has software
+	 * buttons, the 'bottom' of the view (in order to take into account the
+	 * software buttons.
+	 * @return the height in pixels.
 	 */
 	public int getHeight () {
 		View v    = getWindow().getDecorView().findViewById(android.R.id.content);
 		Display d = getWindowManager().getDefaultDisplay();
 		int bottom = v.getBottom();
 		int height = d.getHeight();
-		// If the height is 20% more than the bottom, the soft-kbd is probably up.
-		if (height > 1.2*bottom)
-			return height;
-		else
-			return bottom;
+		
+        if (android.os.Build.VERSION.SDK_INT >= 14) {
+        	android.view.ViewConfiguration vc = ViewConfiguration.get(this);
+        	if (vc.hasPermanentMenuKey())
+        		return bottom;
+        }
+		return height;
 	}
 	
 	/**
-	 * Returns the visible width of the view or display width if the OS believes
-	 * more than 20% is obscured.
-	 * @return
+	 * Returns the display width, or if the device has software
+	 * buttons, the 'right' of the view (in order to take into account the
+	 * software buttons.
+	 * @return the width in pixels.
 	 */
 	public int getWidth () {
 		View v    = getWindow().getDecorView().findViewById(android.R.id.content);
 		Display d = getWindowManager().getDefaultDisplay();
 		int right = v.getRight();
 		int width = d.getWidth();
-		// If width is 20% more than right, then take width just in case.
-		if (width > 1.2*right)
-			return width;
-		else
-			return right;
+        if (android.os.Build.VERSION.SDK_INT >= 14) {
+        	android.view.ViewConfiguration vc = ViewConfiguration.get(this);
+        	if (vc.hasPermanentMenuKey())
+        		return right;
+        }
+		return width;
 	}
 
 	private void updateSelectedFromView() {

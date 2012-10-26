@@ -793,12 +793,13 @@ public class VncCanvas extends ImageView {
 		Log.v(TAG, "Cleaning up resources");
 		if ( bitmapData!=null) bitmapData.dispose();
 		handler.removeCallbacksAndMessages(null);
-		clipboardMonitorTimer.cancel();
-		clipboardMonitorTimer = null;
-		clipboardMonitor = null;
 		rfb = null;
 		cc = null;
 		bitmapData = null;
+		clipboardMonitorTimer.cancel();
+		clipboardMonitorTimer.purge();
+		clipboardMonitorTimer = null;
+		clipboardMonitor = null;
 	}
 	
 	/**
@@ -1095,7 +1096,7 @@ public class VncCanvas extends ImageView {
 			else 
 				msg += ", " + colorModel.toString();
 		}
-		Toast.makeText(getContext(), msg, Toast.LENGTH_LONG).show();
+		Toast.makeText(getContext(), msg, Toast.LENGTH_SHORT).show();
 	}
 
 	private String getEncoding() {
@@ -1248,9 +1249,9 @@ public class VncCanvas extends ImageView {
 		    mouseX = x;
 		    mouseY = y;
 		    if ( mouseX < 0) mouseX=0;
-		    else if ( mouseX >= bitmapData.bmWidth()) mouseX = bitmapData.bmWidth() - 1;
+		    else if ( mouseX >= bitmapData.fbWidth())  mouseX = bitmapData.fbWidth() - 1;
 		    if ( mouseY < 0) mouseY=0;
-		    else if ( mouseY >= bitmapData.bmHeight()) mouseY = bitmapData.bmHeight() - 1;
+		    else if ( mouseY >= bitmapData.fbHeight()) mouseY = bitmapData.fbHeight() - 1;
 		    bitmapData.invalidateMousePosition();
 
     		rfbconn.writePointerEvent(mouseX, mouseY, modifiers|onScreenMetaState, pointerMask);

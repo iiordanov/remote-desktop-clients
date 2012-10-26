@@ -17,7 +17,6 @@
  * USA.
  */
 
-//TODO: Document functions.
 
 package com.iiordanov.bVNC;
 
@@ -39,9 +38,14 @@ import com.iiordanov.pubkeygenerator.PubkeyUtils;
 import android.util.Base64;
 import android.util.Log;
 
-
+/**
+ * @author Iordan K Iordanov
+ *
+ */
 public class SSHConnection implements InteractiveCallback {
 	private final static String TAG = "SSHConnection";
+	private final static int MAXTRIES = 3;
+	
 	private Connection connection;
 	private final int numPortTries = 1000;
 	private ConnectionInfo connectionInfo;
@@ -58,6 +62,7 @@ public class SSHConnection implements InteractiveCallback {
 	private String host;
 	private String user;
 	private String password;
+	private String vncpassword;
 	private String passphrase;
 	private String savedServerHostKey;
 	private String targetAddress;
@@ -71,12 +76,18 @@ public class SSHConnection implements InteractiveCallback {
 	private String  sshRemoteCommand;
 	private BufferedInputStream remoteStdout;
 	private BufferedOutputStream remoteStdin;
+	private boolean autoXEnabled;
+	private int     autoXType;
+	private String  autoXCommand;
+	private boolean autoXUnixpw;
+	private String  autoXRandFileNm;
 
 	public SSHConnection(ConnectionBean conn) {
 		host = conn.getSshServer();
 		sshPort = conn.getSshPort();
 		user = conn.getSshUser();
 		password = conn.getSshPassword();
+		vncpassword = conn.getPassword();
 		passphrase = conn.getSshPassPhrase();
 		savedServerHostKey = conn.getSshHostKey();
 		targetPort = conn.getPort();
@@ -86,14 +97,23 @@ public class SSHConnection implements InteractiveCallback {
 		useSshRemoteCommand = conn.getUseSshRemoteCommand();
 		sshRemoteCommandType = conn.getSshRemoteCommandType();
 		sshRemoteCommand = conn.getSshRemoteCommand();
+		autoXEnabled = conn.getAutoXEnabled();
+		autoXType = conn.getAutoXType();
+		autoXCommand = conn.getAutoXCommand();
+		autoXUnixpw = conn.getAutoXUnixpw();
 		connection = new Connection(host, sshPort);
+		autoXRandFileNm = conn.getAutoXRandFileNm();
 	}
 	
 	String getServerHostKey() {
 		return serverHostKey;
 	}
 	
-	
+	/**
+	 * Initializes the SSH Tunnel
+	 * @return
+	 * @throws Exception
+	 */
 	public int initializeSSHTunnel () throws Exception {
 		int localForwardedPort;
 
@@ -131,21 +151,30 @@ public class SSHConnection implements InteractiveCallback {
 		}
 
 		// Run a remote command if commanded to.
-		if (useSshRemoteCommand) {
-			execRemoteCommand();
-			//if (VncConstants.isCommandAutoXSudo(sshRemoteCommandType))
-			//	sendSudoPassword();
-			
-			if (VncConstants.isCommandAnyAutoX(sshRemoteCommandType)) {
-				int port = parseRemoteStdoutForPort();
-				if (port > 0)
-					targetPort = port;
-				else
-					throw new Exception ("Could not obtain remote VNC port from x11vnc. Please ensure x11vnc is installed " +
-							"and operational.");
+		if (autoXEnabled) {
+			// If we're not using unix credentials, protect access with a temporary password file.
+			targetPort = -1;
+			int tries = 0;
+			while (targetPort < 0 && tries < MAXTRIES) {
+				if (!autoXUnixpw) {
+					writeStringToRemoteCommand(vncpassword, VncConstants.AUTO_X_CREATE_PASSWDFILE+
+															VncConstants.AUTO_X_PWFILEBASENAME+autoXRandFileNm+
+															VncConstants.AUTO_X_SYNC);
+				}
+				// Execute AutoX command.
+				execRemoteCommand(autoXCommand, 0);
+				targetPort = parseRemoteStdoutForPort();
+				if (targetPort < 0) {
+					session.close();
+					tries++;
+				}
 			}
+
+			if (targetPort < 0)
+				throw new Exception ("Could not obtain remote VNC port from x11vnc. Please ensure x11vnc " +
+						             "is installed. To be sure, try running x11vnc by hand on the command-line.");
 		}
-		
+
 		// At this point we know we are authenticated.
 		localForwardedPort = createPortForward(targetPort, targetAddress, targetPort);
 		// If we got back a negative number, port forwarding failed.
@@ -153,7 +182,6 @@ public class SSHConnection implements InteractiveCallback {
 			throw new Exception("Could not set up the port forwarding for tunneling VNC traffic over SSH." +
 					"Please ensure your SSH server is configured to allow port forwarding and try again.");
 		}
-				
 
 		return localForwardedPort;
 	}
@@ -167,9 +195,9 @@ public class SSHConnection implements InteractiveCallback {
 			
 		try {
 			connection.setTCPNoDelay(true);
-			
+
 			connectionInfo = connection.connect();
-			
+
 			// Store a base64 encoded string representing the HostKey
 			serverHostKey = Base64.encodeToString(connectionInfo.serverHostKey, Base64.DEFAULT);
 
@@ -177,7 +205,6 @@ public class SSHConnection implements InteractiveCallback {
 			passwordAuth            = connection.isAuthMethodAvailable(user, "password");
 			pubKeyAuth              = connection.isAuthMethodAvailable(user, "publickey");
 			keyboardInteractiveAuth = connection.isAuthMethodAvailable(user, "keyboard-interactive");
-			
 			return true;
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -207,10 +234,16 @@ public class SSHConnection implements InteractiveCallback {
 				savedServerHostKey.equals(new String(Base64.decode(serverHostKey, Base64.DEFAULT)));
 	}
 
+	/**
+	 * Returns whether the server can authenticate with a password.
+	 */
 	private boolean canAuthWithPass () {
 		return passwordAuth || keyboardInteractiveAuth;
 	}
 
+	/**
+	 * Returns whether the server can authenticate with a key.
+	 */
 	private boolean canAuthWithPubKey () {
 		return pubKeyAuth;
 	}
@@ -285,20 +318,38 @@ public class SSHConnection implements InteractiveCallback {
 		}
 		return -1;
 	}
-	
-	private void execRemoteCommand () throws Exception {
-		Log.i (TAG, "Executing remote command.");
+
+	/**
+	 * Executes a remote command, and waits a certain amount of time.
+	 * @param command - the command to execute.
+	 * @param secTimeout - amount of time in seconds to wait afterward.
+	 * @throws Exception
+	 */
+	private void execRemoteCommand (String command, int secTimeout) throws Exception {
+		Log.i (TAG, "Executing remote command: " + command);
 
 		try {
 			session = connection.openSession();
-			session.execCommand(sshRemoteCommand);
+			session.execCommand(command);
 			remoteStdout = new BufferedInputStream(session.getStdout());
 			remoteStdin  = new BufferedOutputStream(session.getStdin());
-			Thread.sleep(sshRemoteCommandTimeout);
+			Thread.sleep(secTimeout*1000);
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new Exception ("Could not execute remote command.");
 		}
+	}
+	
+	/**
+	 * Writes the specified string to a stdin of a remote command.
+	 * @throws Exception
+	 */
+	private void writeStringToRemoteCommand (String s, String cmd) throws Exception {
+		execRemoteCommand(cmd, 0);
+		remoteStdin.write(s.getBytes());
+		remoteStdin.flush();
+		remoteStdin.close();
+		session.close();
 	}
 	
 	// TODO: This doesn't work at the moment.
@@ -313,7 +364,10 @@ public class SSHConnection implements InteractiveCallback {
 		}
 	}
 
-	
+	// TODO: Improve this function - it is rather "wordy".
+	/**
+	 * Parses the remote stdout for PORT=
+	 */
 	private int parseRemoteStdoutForPort () {
 
 		Log.i (TAG, "Parsing remote stdout for PORT=");
@@ -348,22 +402,34 @@ public class SSHConnection implements InteractiveCallback {
 					data = remoteStdout.read();
 			}
 
-			// Read in 5 bytes after PORT=
-			byte[] buffer = new byte[5];
-			remoteStdout.read(buffer);
-			// Get rid of any whitespace (e.g. if the port is less than 5 digits).
-			buffer = new String(buffer).replaceAll("\\s","").getBytes();
-			port = Integer.parseInt(new String(buffer));
+			if (foundPORTEQ) {
+				// Read in 5 bytes after PORT=
+				byte[] buffer = new byte[5];
+				remoteStdout.read(buffer);
+				// Get rid of any whitespace (e.g. if the port is less than 5 digits).
+				buffer = new String(buffer).replaceAll("\\s","").getBytes();
+				port = Integer.parseInt(new String(buffer));
+				Log.i (TAG, "Found PORT=, set to: " + port);
+			} else {
+				Log.e (TAG, "Failed to find PORT= in remote stdout.");
+				port = -1;
+			}
 		} catch (IOException e) {
-			Log.e (TAG, "Failed to read from remote stdout, or parse integer.");
+			Log.e (TAG, "Failed to read from remote stdout.");
+			e.printStackTrace();
+			port = -1;
+		} catch (NumberFormatException e) {
+			Log.e (TAG, "Failed to parse integer.");
 			e.printStackTrace();
 			port = -1;
 		}
 
-		Log.i (TAG, "Found PORT=, set to: " + port);
 		return port;
 	}
 
+	/**
+	 * Used for keyboard-interactive authentication.
+	 */
 	@Override
 	public String[] replyToChallenge(String name, String instruction,
 									int numPrompts, String[] prompt,

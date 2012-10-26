@@ -41,6 +41,12 @@ interface IConnectionBean {
 	@FieldAccessor
 	int getSshRemoteCommandType();
 	@FieldAccessor
+	int getAutoXType();
+	@FieldAccessor
+	String getAutoXCommand();
+	@FieldAccessor
+	boolean getAutoXEnabled();
+	@FieldAccessor
 	int getAutoXResType();
 	@FieldAccessor
 	int getAutoXWidth();
@@ -50,6 +56,10 @@ interface IConnectionBean {
 	String getAutoXSessionProg();
 	@FieldAccessor
 	int getAutoXSessionType();
+	@FieldAccessor
+	boolean getAutoXUnixpw();
+	@FieldAccessor
+	String getAutoXRandFileNm();
 	@FieldAccessor
 	String getSshRemoteCommand();
 	@FieldAccessor

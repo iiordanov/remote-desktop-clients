@@ -51,11 +51,16 @@ class ConnectionBean extends AbstractConnectionBean implements Comparable<Connec
 		setSshRemoteCommandType(0);
 		setSshRemoteCommand("");
 		setSshRemoteCommandTimeout(5);
-		setAutoXWidth(0);
+		setAutoXType(0);
+		setAutoXCommand("");
+		setAutoXEnabled(false);
 		setAutoXResType(0);
+		setAutoXWidth(0);
 		setAutoXHeight(0);
 		setAutoXSessionProg("");
 		setAutoXSessionType(0);
+		setAutoXUnixpw(false);
+		setAutoXRandFileNm("");
 		setUseSshRemoteCommand(false);
 		setUserName("");
 		setPort(5900);

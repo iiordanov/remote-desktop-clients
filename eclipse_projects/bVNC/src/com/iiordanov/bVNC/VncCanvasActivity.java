@@ -197,11 +197,14 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 			// This would cause the mouse pointer to jump to another place suddenly.
 			// Hence, we ignore onScroll after scaling until we lift all pointers up.
 			boolean twoFingers = false;
-			if (e1 != null && e2 != null)
-				twoFingers = (e1.getPointerCount() > 1 || e2.getPointerCount() > 1);
+			if (e1 != null)
+				twoFingers = (e1.getPointerCount() > 1);
+			if (e2 != null)
+				twoFingers = twoFingers || (e2.getPointerCount() > 1);
+
 			if (twoFingers||inSwiping||inScaling||scalingJustFinished)
 				return true;
-			
+
 			showZoomer(false);
 			panner.start(-(velocityX / FLING_FACTOR),
 					-(velocityY / FLING_FACTOR), new Panner.VelocityUpdater() {
@@ -219,7 +222,6 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 							p.y *= scale;
 							return (Math.abs(p.x) > 0.5 || Math.abs(p.y) > 0.5);
 						}
-
 					});
 			return true;
 		}
@@ -469,11 +471,14 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 			// This would cause the mouse pointer to jump to another place suddenly.
 			// Hence, we ignore onScroll after scaling until we lift all pointers up.
 			boolean twoFingers = false;
-			if (e1 != null && e2 != null)
-				twoFingers = (e1.getPointerCount() > 1 || e2.getPointerCount() > 1);
+			if (e1 != null)
+				twoFingers = (e1.getPointerCount() > 1);
+			if (e2 != null)
+				twoFingers = twoFingers || (e2.getPointerCount() > 1);
+
 			if (twoFingers||inSwiping||inScaling||scalingJustFinished)
 				return true;
-			
+
 			showZoomer(false);
 			return vncCanvas.pan((int) distanceX, (int) distanceY);
 		}
@@ -647,8 +652,11 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 			// This would cause the mouse pointer to jump to another place suddenly.
 			// Hence, we ignore onScroll after scaling until we lift all pointers up.
 			boolean twoFingers = false;
-			if (e1 != null && e2 != null)
-				twoFingers = (e1.getPointerCount() > 1 || e2.getPointerCount() > 1);
+			if (e1 != null)
+				twoFingers = (e1.getPointerCount() > 1);
+			if (e2 != null)
+				twoFingers = twoFingers || (e2.getPointerCount() > 1);
+
 			if (twoFingers||inSwiping||inScaling||scalingJustFinished)
 				return true;
 
@@ -659,15 +667,15 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 			float deltaY = -distanceY *vncCanvas.getScale();
 			deltaX = fineCtrlScale(deltaX);
 			deltaY = fineCtrlScale(deltaY);
-			
+
 			// Compute the absolute new mouse position on the remote site.
 			float newRemoteX = vncCanvas.mouseX + deltaX;
 			float newRemoteY = vncCanvas.mouseY + deltaY;
-			
+
 			if (dragMode) {
 				if (e2.getAction() == MotionEvent.ACTION_UP)
 					dragMode = false;
-				
+
 				dragX = e2.getX();
 				dragY = e2.getY();
 				e2.setLocation(newRemoteX, newRemoteY);
@@ -1354,9 +1362,12 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 		vncCanvas.scaling.setScaleTypeForActivity(VncCanvasActivity.this);
 		float newScale = vncCanvas.scaling.getScale();
 		vncCanvas.scaling.adjust(this, oldScale/newScale, 0, 0);
-		vncCanvas.absoluteXPosition = x;
-		vncCanvas.absoluteYPosition = y;
-		vncCanvas.scrollToAbsolute();
+		newScale = vncCanvas.scaling.getScale();
+		if (newScale <= oldScale) {
+			vncCanvas.absoluteXPosition = x;
+			vncCanvas.absoluteYPosition = y;
+			vncCanvas.scrollToAbsolute();
+		}
 	}
 
 
@@ -1669,6 +1680,7 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 			vncCanvas = null;
 			connection = null;
 			database = null;
+			// TODO Why is the zoomer not nulled?
 			//zoomer = null;
 			panner = null;
 			inputHandler = null;

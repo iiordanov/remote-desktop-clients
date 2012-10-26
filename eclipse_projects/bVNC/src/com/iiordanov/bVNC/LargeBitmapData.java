@@ -119,11 +119,21 @@ class LargeBitmapData extends AbstractBitmapData {
 		this.displayWidth = displayWidth;
 		this.displayHeight = displayHeight;
 	}
-	
+
 	@Override
 	AbstractBitmapDrawable createDrawable()
 	{
 		return new LargeBitmapDrawable();
+	}
+
+	/**
+	 * 
+	 * @return The smallest scale supported by the implementation; the scale at which
+	 * the bitmap would be smaller than the screen
+	 */
+	float getMinimumScale()
+	{
+		return Math.max((float)vncCanvas.getWidth()/bitmapwidth, (float)vncCanvas.getHeight()/bitmapheight);
 	}
 
 	/* (non-Javadoc)
