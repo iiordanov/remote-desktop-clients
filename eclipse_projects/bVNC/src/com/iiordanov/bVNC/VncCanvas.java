@@ -1440,12 +1440,12 @@ public class VncCanvas extends ImageView {
 				   lastKeyDown = keysym;
 
 			   if (numchars == 1) {
-			       //Log.e(TAG,"action down? = " + down + " key = " + key + " keysym = " + keysym + " onscreen metastate = " + onScreenMetaState + " keyboard metastate = " + keyboardMetaState + " RFB metastate = " + metaState + " keycode = " + keyCode + " unicode = " + evt.getUnicodeChar());
+			       Log.e(TAG,"action down? = " + down + " key = " + key + " keysym = " + keysym + " onscreen metastate = " + onScreenMetaState + " keyboard metastate = " + keyboardMetaState + " RFB metastate = " + metaState + " keycode = " + keyCode + " unicode = " + evt.getUnicodeChar());
 				   rfbconn.writeKeyEvent(keysym, (onScreenMetaState|metaState), down);
 
 				   // UGLY HACK for BB10 devices which never send the up-event
-				   // for backspace... so we send it instead. Remove as soon as possible!
-				   if (bb10 && keyCode == KeyEvent.KEYCODE_DEL)
+				   // for backspace and enter... so we send it instead. Remove as soon as possible!
+				   if (bb10 && (keyCode == KeyEvent.KEYCODE_DEL || keyCode == KeyEvent.KEYCODE_ENTER))
 					   rfbconn.writeKeyEvent(keysym, (onScreenMetaState | metaState), false);
 
 			   } else if (numchars > 1) {

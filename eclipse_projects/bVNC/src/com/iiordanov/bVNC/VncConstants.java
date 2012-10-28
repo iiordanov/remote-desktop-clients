@@ -42,11 +42,11 @@ public class VncConstants {
 	public final static int COMMAND_AUTO_X_SUDO_FIND     = 5;
 	public final static int COMMAND_AUTO_X_CUSTOM        = 6;
 	
-	public final static String COMMAND_AUTO_X_CREATE_XVFB_STRING   = "PORT= x11vnc -wait_ui 1 -defer 10 -wait 10 -ncache 0 -timeout 10 -create -localhost -nopw ";
-	public final static String COMMAND_AUTO_X_CREATE_XVNC_STRING   = "PORT= x11vnc -wait_ui 1 -defer 10 -wait 10 -ncache 0 -timeout 10 -create -localhost -nopw -xvnc ";
-	public final static String COMMAND_AUTO_X_CREATE_XDUMMY_STRING = "PORT= x11vnc -wait_ui 1 -defer 10 -wait 10 -ncache 0 -timeout 10 -create -localhost -nopw -xdummy ";
-	public final static String COMMAND_AUTO_X_FIND_STRING          = "PORT= x11vnc -wait_ui 1 -defer 10 -wait 10 -ncache 0 -timeout 10 -find   -localhost -nopw ";
-	public final static String COMMAND_AUTO_X_SUDO_FIND_STRING     = "PORT= sudo x11vnc -passwdfile -wait_ui 1 -defer 10 -wait 10 -ncache 0 -timeout 10 -find -localhost -env FD_XDM=1 -nopw ";
+	public final static String COMMAND_AUTO_X_CREATE_XVFB_STRING   = "PORT= x11vnc -nopw -wait_ui 2 -defer 15 -wait 15 -ncache 0 -timeout 10 -create -localhost ";
+	public final static String COMMAND_AUTO_X_CREATE_XVNC_STRING   = "PORT= x11vnc -nopw -wait_ui 2 -defer 15 -wait 15 -ncache 0 -timeout 10 -create -localhost -xvnc ";
+	public final static String COMMAND_AUTO_X_CREATE_XDUMMY_STRING = "PORT= x11vnc -nopw -wait_ui 2 -defer 15 -wait 15 -ncache 0 -timeout 10 -create -localhost -xdummy ";
+	public final static String COMMAND_AUTO_X_FIND_STRING          = "PORT= x11vnc -nopw -wait_ui 2 -defer 15 -wait 15 -ncache 0 -timeout 10 -find   -localhost ";
+	public final static String COMMAND_AUTO_X_SUDO_FIND_STRING     = "PORT= sudo -S x11vnc -nopw -wait_ui 2 -defer 15 -wait 15 -ncache 0 -timeout 10 -find -localhost -env FD_XDM=1 ";
 
 	public final static String AUTO_X_USERPW             = "-unixpw $USER";
 	public final static String AUTO_X_PASSWDFILE         = "-passwdfile rm:";

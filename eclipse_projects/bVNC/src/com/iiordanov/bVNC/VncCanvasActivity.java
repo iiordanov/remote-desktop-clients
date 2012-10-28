@@ -1175,7 +1175,6 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 
                     rootView.getWindowVisibleDisplayFrame(r);
 
-                    //Log.d(TAG, "t.top, r.bottom: " + +r.top + ", " + r.bottom);
                     // To avoid setting the visible height to a wrong value after an screen unlock event
                     // (when r.bottom holds the width of the screen rather than the height due to a rotation)
                     // we make sure r.top is zero (i.e. there is no notification bar and we are in full-screen mode)

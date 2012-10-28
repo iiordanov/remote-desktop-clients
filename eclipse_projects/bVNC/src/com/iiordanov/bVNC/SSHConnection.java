@@ -162,7 +162,13 @@ public class SSHConnection implements InteractiveCallback {
 															VncConstants.AUTO_X_SYNC);
 				}
 				// Execute AutoX command.
-				execRemoteCommand(autoXCommand, 0);
+				execRemoteCommand(autoXCommand, 1);
+				
+				// If we are looking for the greeter, we give the password to sudo's stdin.
+				if (autoXType == VncConstants.AUTOX_SELECT_SUDO_FIND)
+					writeStringToStdin (password+"\n");
+				
+				// Try to find PORT=
 				targetPort = parseRemoteStdoutForPort();
 				if (targetPort < 0) {
 					session.close();
@@ -345,11 +351,22 @@ public class SSHConnection implements InteractiveCallback {
 	 * @throws Exception
 	 */
 	private void writeStringToRemoteCommand (String s, String cmd) throws Exception {
+		Log.i(TAG, "Writing string to stdin of remote command: " + cmd);
 		execRemoteCommand(cmd, 0);
 		remoteStdin.write(s.getBytes());
 		remoteStdin.flush();
 		remoteStdin.close();
 		session.close();
+	}
+	
+	/**
+	 * Writes the specified string to a stdin of open session.
+	 * @throws Exception
+	 */
+	private void writeStringToStdin (String s) throws Exception {
+		Log.i(TAG, "Writing string to remote stdin.");
+		remoteStdin.write(s.getBytes());
+		remoteStdin.flush();
 	}
 	
 	// TODO: This doesn't work at the moment.
