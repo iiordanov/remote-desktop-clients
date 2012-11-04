@@ -42,13 +42,13 @@ public class VncConstants {
 	public final static int COMMAND_AUTO_X_SUDO_FIND     = 5;
 	public final static int COMMAND_AUTO_X_CUSTOM        = 6;
 	
-	public final static String COMMAND_AUTO_X_CREATE_XVFB_STRING   = "PORT= x11vnc -nopw -wait_ui 2 -defer 15 -wait 15 -ncache 0 -timeout 10 -create -localhost ";
-	public final static String COMMAND_AUTO_X_CREATE_XVNC_STRING   = "PORT= x11vnc -nopw -wait_ui 2 -defer 15 -wait 15 -ncache 0 -timeout 10 -create -localhost -xvnc ";
-	public final static String COMMAND_AUTO_X_CREATE_XDUMMY_STRING = "PORT= x11vnc -nopw -wait_ui 2 -defer 15 -wait 15 -ncache 0 -timeout 10 -create -localhost -xdummy ";
-	public final static String COMMAND_AUTO_X_FIND_STRING          = "PORT= x11vnc -nopw -wait_ui 2 -defer 15 -wait 15 -ncache 0 -timeout 10 -find   -localhost ";
-	public final static String COMMAND_AUTO_X_SUDO_FIND_STRING     = "PORT= sudo -S x11vnc -nopw -wait_ui 2 -defer 15 -wait 15 -ncache 0 -timeout 10 -find -localhost -env FD_XDM=1 ";
+	public final static String COMMAND_AUTO_X_CREATE_XVFB_STRING   = "sh -c \"PORT= x11vnc -norc -nopw -wait_ui 2 -defer 15 -wait 15 -ncache 0 -timeout 10 -create -localhost ";
+	public final static String COMMAND_AUTO_X_CREATE_XVNC_STRING   = "sh -c \"PORT= x11vnc -norc -nopw -wait_ui 2 -defer 15 -wait 15 -ncache 0 -timeout 10 -create -localhost -xvnc ";
+	public final static String COMMAND_AUTO_X_CREATE_XDUMMY_STRING = "sh -c \"PORT= x11vnc -norc -nopw -wait_ui 2 -defer 15 -wait 15 -ncache 0 -timeout 10 -create -localhost -xdummy ";
+	public final static String COMMAND_AUTO_X_FIND_STRING          = "sh -c \"PORT= x11vnc -norc -nopw -wait_ui 2 -defer 15 -wait 15 -ncache 0 -timeout 10 -find   -localhost ";
+	public final static String COMMAND_AUTO_X_SUDO_FIND_STRING     = "sh -c \"PORT= sudo -S x11vnc -norc -nopw -wait_ui 2 -defer 15 -wait 15 -ncache 0 -timeout 10 -find -localhost -env FD_XDM=1 ";
 
-	public final static String AUTO_X_USERPW             = "-unixpw $USER";
+	public final static String AUTO_X_USERPW             = "-unixpw $USER \"";
 	public final static String AUTO_X_PASSWDFILE         = "-passwdfile rm:";
 	public final static String AUTO_X_PWFILEBASENAME     = ".x11vnc_temp_pwd_";
 	public final static String AUTO_X_CREATE_PASSWDFILE  = "umask 0077 && cat > ";

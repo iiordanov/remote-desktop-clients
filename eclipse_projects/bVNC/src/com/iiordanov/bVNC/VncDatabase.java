@@ -18,12 +18,14 @@ class VncDatabase extends SQLiteOpenHelper {
 	static final int DBV_1_2_0 = 20;
 	static final int DBV_1_5_0 = 22;
 	static final int DBV_1_6_0 = 291;
+	static final int DBV_1_7_0 = 292;
+	static final int DBV_1_8_0 = 293;
 	
 	public final static String TAG = VncDatabase.class.toString();
 	
 	VncDatabase(Context context)
 	{
-		super(context, "VncDatabase", null, DBV_1_6_0);
+		super(context, "VncDatabase", null, DBV_1_8_0);
 	}
 
 	/* (non-Javadoc)
@@ -147,6 +149,24 @@ class VncDatabase extends SQLiteOpenHelper {
 					+AbstractConnectionBean.GEN_FIELD_AUTOXUNIXPW + " BOOLEAN DEFAULT FALSE");
 
 			oldVersion = DBV_1_6_0;
+		}
+
+		if (oldVersion == DBV_1_6_0) {
+			Log.i(TAG,"Doing upgrade from 291 to 292");
+			
+			db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
+					+AbstractConnectionBean.GEN_FIELD_AUTOXUNIXAUTH + " BOOLEAN DEFAULT FALSE");
+
+			oldVersion = DBV_1_7_0;
+		}
+
+		if (oldVersion == DBV_1_7_0) {
+			Log.i(TAG,"Doing upgrade from 292 to 293");
+
+			db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
+					+AbstractConnectionBean.GEN_FIELD_EXTRAKEYSTOGGLETYPE + " INTEGER");
+
+			oldVersion = DBV_1_8_0;
 		}
 	}
 }

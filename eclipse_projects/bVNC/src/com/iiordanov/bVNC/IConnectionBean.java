@@ -59,6 +59,8 @@ interface IConnectionBean {
 	@FieldAccessor
 	boolean getAutoXUnixpw();
 	@FieldAccessor
+	boolean getAutoXUnixAuth();
+	@FieldAccessor
 	String getAutoXRandFileNm();
 	@FieldAccessor
 	String getSshRemoteCommand();
@@ -76,6 +78,8 @@ interface IConnectionBean {
 	String getPassword();
 	@FieldAccessor
 	String getColorModel();
+	@FieldAccessor
+	int getExtraKeysToggleType();
 	/**
 	 * Records bitmap data implementation selection.  0 for auto, 1 for force full bitmap, 2 for force tiled
 	 * <p>

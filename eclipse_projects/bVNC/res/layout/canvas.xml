@@ -20,4 +20,91 @@
     android:layout_gravity="center|right"
     android:padding="20sp"
 />
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/layoutKeys"
+	android:layout_width="fill_parent"
+	android:layout_height="wrap_content"
+	android:orientation="horizontal"
+	android:layout_gravity="bottom|center"
+	android:visibility="gone"
+	android:paddingBottom="2dip"
+	>
+	<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	    android:id="@+id/layoutMetaKeys"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_alignParentLeft="true"
+		android:layout_alignParentBottom="true"
+		android:orientation="vertical"
+		android:padding="0sp"
+		>
+		<ImageButton android:id="@+id/keyTab"
+	        android:background="@drawable/taboff"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_gravity="top|left"
+	        />
+		<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+		    android:id="@+id/layoutCtrlAltKeys"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:orientation="horizontal"
+			android:padding="0sp"
+			>
+			<ImageButton android:id="@+id/keyCtrl"
+		        android:background="@drawable/ctrloff"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        />
+			<ImageButton android:id="@+id/keyAlt"
+		        android:background="@drawable/altoff"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        />
+		</LinearLayout>
+	</LinearLayout>
+			
+	<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	    android:id="@+id/layoutArrowKeys"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_alignParentRight="true"
+		android:layout_alignParentBottom="true"
+		android:orientation="vertical"
+		android:padding="0sp"
+		>
+		<ImageButton android:id="@+id/keyUpArrow"
+	        android:background="@drawable/upoff"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_gravity="top|center"
+	        />
+		<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+		    android:id="@+id/layoutArrowKeys"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_alignParentRight="true"
+		    android:layout_gravity="bottom|center"
+			android:padding="0sp"
+			>
+			<ImageButton android:id="@+id/keyLeftArrow"
+		        android:background="@drawable/leftoff"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        />
+			<ImageButton android:id="@+id/keyDownArrow"
+		        android:background="@drawable/downoff"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        />
+			<ImageButton android:id="@+id/keyRightArrow"
+		        android:background="@drawable/rightoff"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        />
+		</LinearLayout>
+	</LinearLayout>
+</RelativeLayout>
+
 </FrameLayout>

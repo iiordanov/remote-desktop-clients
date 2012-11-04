@@ -60,6 +60,7 @@ class ConnectionBean extends AbstractConnectionBean implements Comparable<Connec
 		setAutoXSessionProg("");
 		setAutoXSessionType(0);
 		setAutoXUnixpw(false);
+		setAutoXUnixAuth(false);
 		setAutoXRandFileNm("");
 		setUseSshRemoteCommand(false);
 		setUserName("");
@@ -72,6 +73,7 @@ class ConnectionBean extends AbstractConnectionBean implements Comparable<Connec
 		setUsePortrait(false);
 		setUseLocalCursor(false);
 		setRepeaterId("");
+		setExtraKeysToggleType(1);
 		setMetaListId(1);
 		c = context;
 	}

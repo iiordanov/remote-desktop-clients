@@ -66,7 +66,8 @@
 <string name="auto_x_xdummy">Find or Create with Xdummy</string>
 <string name="auto_x_xvfb">Find or Create with Xvfb</string>
 <string name="auto_x_xvnc">Find or Create with Xvnc</string>
-<string name="auto_x_unixpw">Demand UNIX credentials for added security. User must be able to run /bin/su. On some systems connecting to a newly created session sometimes fails. A subsequent reconnect works.</string>
+<string name="auto_x_unixpw">Use UNIX credentials instead of the built in security mechanism. User must be able to run /bin/su.</string>
+<string name="auto_x_unix_auth">Authenticate using supplied SSH Username/Password automatically (to the black login screen).</string>
 <string name="button_send_text">Send Text</string>
 <string name="button_send_without_saving">Send Text/Don\'t Save It</string>
 <string name="center_mouse">Mouse @</string>
@@ -100,6 +101,8 @@
 <string name="export_settings_path">Export to file</string>
 <string name="enter_text_title">Enter Text to Send</string>
 <string name="enter_text">Send Text</string>
+<string name="extra_keys_enable">Enable Extra Keys</string>
+<string name="extra_keys_disable">Disable Extra Keys</string>
 <string name="fit_to_screen">Fit to Screen</string>
 <string name="import_export_settings">Import/Export Settings</string>
 <string name="import_settings">Import</string>
