@@ -18,9 +18,13 @@
 package com.iiordanov.pubkeygenerator;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.nio.MappedByteBuffer;
+import java.nio.channels.FileChannel;
+import java.nio.charset.Charset;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.PrivateKey;
@@ -75,6 +79,7 @@ public class GeneratePubkeyActivity extends Activity implements OnEntropyGathere
 	private SeekBar bitsSlider;
 	private EditText bitsText;
 	private Button generate;
+	private Button importKey;
 	private Button share;
 	private Button decrypt;
 	private Button copy;
@@ -118,12 +123,13 @@ public class GeneratePubkeyActivity extends Activity implements OnEntropyGathere
 		file_name = (EditText) findViewById(R.id.file_name);
 		password1 = (EditText) findViewById(R.id.password);
 
-		generate = (Button) findViewById(R.id.generate);
-		share    = (Button) findViewById(R.id.share);
+		generate  = (Button) findViewById(R.id.generate);
+		share     = (Button) findViewById(R.id.share);
 		decrypt   = (Button) findViewById(R.id.decrypt);
-		copy     = (Button) findViewById(R.id.copy);
-		save     = (Button) findViewById(R.id.save);
-	
+		copy      = (Button) findViewById(R.id.copy);
+		save      = (Button) findViewById(R.id.save);
+		importKey = (Button) findViewById(R.id.importKey);
+		
 		inflater = LayoutInflater.from(this);
 
 		password1.addTextChangedListener(textChecker);
@@ -289,6 +295,40 @@ public class GeneratePubkeyActivity extends Activity implements OnEntropyGathere
 						Toast.LENGTH_LONG).show();
 			}
 		});
+		
+		importKey.setOnClickListener(new OnClickListener() {
+			public void onClick(View view) {
+				hideSoftKeyboard(view);
+				
+				String fname = file_name.getText().toString();
+				if (fname.isEmpty()) {
+					Toast.makeText(getBaseContext(), "Please enter file name (at the bottom). Key must be in PEM format, " +
+													 "passphrase encrypted keys are not supported.", Toast.LENGTH_LONG).show();
+					return;
+				}
+				
+				File dir = Environment.getExternalStoragePublicDirectory (Environment.DIRECTORY_DOWNLOADS);
+				fname = dir.getAbsolutePath() + "/" + fname;
+				try {
+					KeyPair pair = PubkeyUtils.importPEM(readFile(fname));
+					converToBase64AndSendIntent (pair);
+				} catch (IOException e) {
+					e.printStackTrace();
+					Log.e (TAG, "Failed to read key from file: " + fname);
+					Toast.makeText(getBaseContext(), "Failed to read file: " + fname + ". Please ensure it is present " +
+													 "in Download directory.", Toast.LENGTH_LONG).show();
+					return;
+				} catch (Exception e) {
+					e.printStackTrace();
+					Log.e (TAG, "Failed to decode key.");
+					Toast.makeText(getBaseContext(), "Failed to decode key. Please ensure it is in PEM format and " +
+													 "unencrypted.", Toast.LENGTH_LONG).show();
+					return;
+				}
+				Toast.makeText(getBaseContext(), "Successfully imported SSH key from file.", Toast.LENGTH_LONG).show();
+				finish();
+			}
+		});
 }
 	
 	/**
@@ -403,36 +443,14 @@ public class GeneratePubkeyActivity extends Activity implements OnEntropyGathere
 	final private Runnable mKeyGen = new Runnable() {
 		public void run() {
 			try {
-				boolean encrypted = false;
-
 				SecureRandom random = SecureRandom.getInstance("SHA1PRNG");
-
 				random.setSeed(entropy);
 
 				KeyPairGenerator keyPairGen = KeyPairGenerator.getInstance(keyType);
-
 				keyPairGen.initialize(bits, random);
 
 				KeyPair pair = keyPairGen.generateKeyPair();
-				PrivateKey priv = pair.getPrivate();
-				PublicKey pub = pair.getPublic();
-
-				String secret = password1.getText().toString();
-				if (secret.length() > 0)
-					encrypted = true;
-
-				Log.d(TAG, "private: " + PubkeyUtils.formatKey(priv));
-				Log.d(TAG, "public: " + PubkeyUtils.formatKey(pub));
-
-				sshPrivKey = Base64.encodeToString(PubkeyUtils.getEncodedPrivate(priv, secret), Base64.DEFAULT);
-				sshPubKey  = Base64.encodeToString(PubkeyUtils.getEncodedPublic(pub), Base64.DEFAULT);
-
-				// Send the generated data back to the calling activity.
-				Intent databackIntent = new Intent();
-				databackIntent.putExtra("PrivateKey", sshPrivKey);
-				databackIntent.putExtra("PublicKey", sshPubKey);
-
-				setResult(Activity.RESULT_OK, databackIntent);
+				converToBase64AndSendIntent (pair);
 
 			} catch (Exception e) {
 				Log.e(TAG, "Could not generate key pair");
@@ -466,5 +484,41 @@ public class GeneratePubkeyActivity extends Activity implements OnEntropyGathere
 		}
 
 		return numSetBits;
+	}
+	
+	private static String readFile(String path) throws IOException {
+		FileInputStream stream = new FileInputStream(new File(path));
+		try {
+			FileChannel fc = stream.getChannel();
+			MappedByteBuffer bb = fc.map(FileChannel.MapMode.READ_ONLY, 0, fc.size());
+			/* Instead of using default, pass in a decoder. */
+			return Charset.defaultCharset().decode(bb).toString();
+		}
+		finally {
+			stream.close();
+		}
+	}
+	
+	/**
+	 * Sets the sshPrivKey and sshPubKey private variables from provided KeyPair.
+	 * @param pair
+	 * @throws Exception
+	 */
+	private void converToBase64AndSendIntent (KeyPair pair) throws Exception {
+		PrivateKey priv = pair.getPrivate();
+		PublicKey pub = pair.getPublic();
+
+		String secret = password1.getText().toString();
+		Log.d(TAG, "private: " + PubkeyUtils.formatKey(priv));
+		Log.d(TAG, "public: " + PubkeyUtils.formatKey(pub));
+		sshPrivKey = Base64.encodeToString(PubkeyUtils.getEncodedPrivate(priv, secret), Base64.DEFAULT);
+		sshPubKey  = Base64.encodeToString(PubkeyUtils.getEncodedPublic(pub), Base64.DEFAULT);
+
+		// Send the generated data back to the calling activity.
+		Intent databackIntent = new Intent();
+		databackIntent.putExtra("PrivateKey", sshPrivKey);
+		databackIntent.putExtra("PublicKey", sshPubKey);
+
+		setResult(Activity.RESULT_OK, databackIntent);
 	}
 }

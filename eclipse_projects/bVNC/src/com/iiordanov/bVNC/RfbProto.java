@@ -1257,7 +1257,7 @@ class RfbProto implements RfbConnectable {
       writeKeyEvent(0xffe7, (newModifiers & VncCanvas.META_MASK) != 0);
 
     if ((newModifiers & VncCanvas.ALT_MASK) != (oldModifiers & VncCanvas.ALT_MASK))
-      writeKeyEvent(0xffe9, (newModifiers & VncCanvas.ALT_MASK) != 0);
+      writeKeyEvent(0xffea, (newModifiers & VncCanvas.ALT_MASK) != 0);
 
     oldModifiers = newModifiers;
   }

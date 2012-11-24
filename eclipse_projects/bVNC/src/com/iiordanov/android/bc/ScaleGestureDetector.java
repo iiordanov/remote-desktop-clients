@@ -155,15 +155,15 @@ class ScaleGestureDetector implements IBCScaleGestureDetector {
     						if (p0sloppy && p1sloppy) {
     							mFocusX = -1;
     							mFocusY = -1;
-    							mSloppyGesture = true;
+    							//mSloppyGesture = true;
     						} else if (p0sloppy && secondpointer) {
     							mFocusX = event.getX(1);
     							mFocusY = event.getY(1);
-    							mSloppyGesture = true;
+    							//mSloppyGesture = true;
     						} else if (p1sloppy) {
     							mFocusX = event.getX(0);
     							mFocusY = event.getY(0);
-    							mSloppyGesture = true;
+    							//mSloppyGesture = true;
     						} else {
     							mGestureInProgress = mListener.onScaleBegin(this);
     						}

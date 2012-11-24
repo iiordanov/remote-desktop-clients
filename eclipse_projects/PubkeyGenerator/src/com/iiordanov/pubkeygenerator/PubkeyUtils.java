@@ -59,6 +59,7 @@ import javax.crypto.spec.SecretKeySpec;
 import android.util.Log;
 
 import com.trilead.ssh2.crypto.Base64;
+import com.trilead.ssh2.crypto.PEMDecoder;
 import com.trilead.ssh2.signature.DSASHA1Verify;
 import com.trilead.ssh2.signature.RSASHA1Verify;
 
@@ -426,5 +427,26 @@ public class PubkeyUtils {
 			}
 		}
 		return data;
+	}
+	
+	public static KeyPair importPEM (String pem) {
+        byte [] encoded   = null;
+		KeyPair recovered = null;
+
+		// Get rid of any header and footer.
+        String privKeyPEM = pem.replace("-----BEGIN RSA PRIVATE KEY-----\n", "");
+        privKeyPEM = privKeyPEM.replace("-----END RSA PRIVATE KEY-----", "");
+        privKeyPEM = privKeyPEM.replace("-----BEGIN DSA PRIVATE KEY-----\n", "");
+        privKeyPEM = privKeyPEM.replace("-----END DSA PRIVATE KEY-----", "");
+
+        try {
+       		encoded = android.util.Base64.decode(privKeyPEM, android.util.Base64.DEFAULT);      	
+        	recovered = recoverKeyPair(encoded);
+		} catch (Exception e) {
+			Log.e (TAG, "Could not recover keypair from PEM string.");
+			e.printStackTrace();
+			return null;
+		}
+		return recovered;
 	}
 }

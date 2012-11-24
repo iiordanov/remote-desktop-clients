@@ -7,6 +7,7 @@ package com.iiordanov.bVNC;
 import java.io.IOException;
 import java.util.Arrays;
 
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -48,8 +49,7 @@ class FullBufferBitmapData extends AbstractBitmapData {
 		 */
 		@Override
 		public void draw(Canvas canvas) {
-			drawBitmapWithinClip (canvas, 0, 0, null);
-			setCursorRectAndDrawIfNecessary(canvas, 0, 0);
+			draw(canvas, 0, 0);
 		}
 		
 		/**
@@ -94,7 +94,7 @@ class FullBufferBitmapData extends AbstractBitmapData {
 						+ drawWidth + ", " + drawHeight);
 				// In case we couldn't draw for some reason, try putting up text.
 				paint.setColor(Color.WHITE);
-				canvas.drawText("There was a problem painting the remote bitmap on the screen. " +
+				canvas.drawText("There was a problem drawing the remote desktop on the screen. " +
 						"Please disconnect and reconnect to the VNC server.", xo+50, yo+50, paint);
 			}
 		}
@@ -146,7 +146,12 @@ class FullBufferBitmapData extends AbstractBitmapData {
 		for (int y = startSrcY; y != endSrcY; y += deltaY) {
 			srcOffset = offset(src.left, y);
 			dstOffset = offset(dest.left, dstY);
-			System.arraycopy(bitmapPixels, srcOffset, bitmapPixels, dstOffset, dstW);
+			try {
+				System.arraycopy(bitmapPixels, srcOffset, bitmapPixels, dstOffset, dstW);
+			} catch (Exception e) {
+				// There was an index out of bounds exception, but we continue copying what we can. 
+				e.printStackTrace();
+			}
 			dstY += deltaY;
 		}
 	}

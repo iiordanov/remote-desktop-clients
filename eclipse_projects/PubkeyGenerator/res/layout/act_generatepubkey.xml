@@ -38,7 +38,12 @@
 		    android:layout_height="wrap_content"
 		    android:enabled="true"
 		    android:text="@string/pubkey_generate" />
-
+		<Button
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content"
+			android:id="@+id/importKey"
+			android:text="@string/pubkey_import"
+			android:enabled="true" />
 		<Button
 		    android:id="@+id/decrypt"
 		    android:layout_width="fill_parent"

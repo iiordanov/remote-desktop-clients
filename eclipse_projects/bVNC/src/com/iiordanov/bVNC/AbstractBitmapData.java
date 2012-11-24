@@ -44,21 +44,42 @@ abstract public class AbstractBitmapData {
 		drawable = createDrawable();
 		paint = new Paint();
 	}
-	
+
 	synchronized void doneWaiting()
 	{
 		waitingForInput=false;
 	}
-	
+
 	final void invalidateMousePosition()
 	{
-		if (vncCanvas.connection.getUseLocalCursor())
-		{
-			drawable.setCursorRect(vncCanvas.mouseX,vncCanvas.mouseY);
-			vncCanvas.invalidate(drawable.cursorRect);
-		}
+		moveCursorRect(vncCanvas.mouseX,vncCanvas.mouseY);
+		vncCanvas.reDraw(drawable.cursorRect);
 	}
-	
+
+	void setCursorRect(int x, int y, int w, int h, int hX, int hY) {
+		drawable.setCursorRect(x, y, w, h, hX, hY);
+	}
+
+	void moveCursorRect(int x, int y) {
+		drawable.moveCursorRect(x, y);
+	}
+
+	void setSoftCursor (int[] newSoftCursorPixels) {
+		drawable.setSoftCursor (newSoftCursorPixels);
+	}
+
+	Rect getCursorRect () {
+		return drawable.cursorRect;
+	}
+
+	Rect getPreCursorRect () {
+		return drawable.preCursorRect;
+	}
+
+	boolean isNullSoftCursor () {
+		return (drawable.softCursor == null);
+	}
+
 	/**
 	 * 
 	 * @return The smallest scale supported by the implementation; the scale at which
@@ -68,13 +89,13 @@ abstract public class AbstractBitmapData {
 	{
 		return Math.min((float)vncCanvas.getWidth()/bitmapwidth, (float)vncCanvas.getHeight()/bitmapheight);
 	}
-	
+
 	/**
 	 * Send a request through the protocol to get the data for the currently held bitmap
 	 * @param incremental True if we want incremental update; false for full update
 	 */
 	public abstract void writeFullUpdateRequest( boolean incremental) throws IOException;
-	
+
 	/**
 	 * Determine if a rectangle in full-frame coordinates can be drawn in the existing buffer
 	 * @param x Top left x
@@ -84,7 +105,7 @@ abstract public class AbstractBitmapData {
 	 * @return True if entire rectangle fits into current screen buffer, false otherwise
 	 */
 	public abstract boolean validDraw( int x, int y, int w, int h);
-	
+
 	/**
 	 * Return an offset in the bitmapPixels array of a point in full-frame coordinates
 	 * @param x
@@ -92,7 +113,7 @@ abstract public class AbstractBitmapData {
 	 * @return Offset in bitmapPixels array of color data for that point
 	 */
 	public abstract int offset( int x, int y);
-	
+
 	/**
 	 * Update pixels in the bitmap with data from the bitmapPixels array, positioned
 	 * in full-frame coordinates
@@ -109,8 +130,8 @@ abstract public class AbstractBitmapData {
 	 * @return drawable
 	 */
 	abstract AbstractBitmapDrawable createDrawable();
-	
-	
+
+
 	/**
 	 * Sets the canvas's drawable
 	 * @param v ImageView displaying bitmap data
@@ -119,8 +140,8 @@ abstract public class AbstractBitmapData {
 	{
 		v.setImageDrawable(drawable);
 	}
-	
-	
+
+
 	/**
 	 * Call in UI thread; tell ImageView we've changed
 	 * @param v ImageView displaying bitmap data
@@ -129,7 +150,7 @@ abstract public class AbstractBitmapData {
 	{
 		v.invalidate();
 	}
-	
+
 	/**
 	 * Copy a rectangle from one part of the bitmap to another
 	 * @param src Rectangle in full-frame coordinates to be copied

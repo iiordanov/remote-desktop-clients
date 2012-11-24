@@ -28,7 +28,7 @@ class LargeBitmapData extends AbstractBitmapData {
 	 * Multiply this times total number of pixels to get estimate of process size with all buffers plus
 	 * safety factor
 	 */
-	static final int CAPACITY_MULTIPLIER = 21;
+	static final int CAPACITY_MULTIPLIER = 18;
 	
 	int xoffset;
 	int yoffset;
@@ -144,6 +144,7 @@ class LargeBitmapData extends AbstractBitmapData {
 		int srcOffset, dstOffset;
 		int dstH = dest.height();
 		int dstW = dest.width();
+		int xo, yo;
 		
 		int startSrcY, endSrcY, dstY, deltaY;
 		if (src.top > dest.top) {
@@ -160,8 +161,18 @@ class LargeBitmapData extends AbstractBitmapData {
 		for (int y = startSrcY; y != endSrcY; y += deltaY) {
 			srcOffset = offset(src.left, y);
 			dstOffset = offset(dest.left, dstY);
-			mbitmap.getPixels(bitmapPixels, srcOffset, bitmapwidth, src.left-xoffset, y-yoffset, dstW, 1);
-			System.arraycopy(bitmapPixels, srcOffset, bitmapPixels, dstOffset, dstW);
+			xo = src.left-xoffset;
+			if (xo < 0) xo = 0;
+			yo = y-yoffset;
+			if (yo < 0) yo = 0;
+			if (src.left + dstW > bitmapwidth) dstW = bitmapwidth - src.left;
+			try {
+				mbitmap.getPixels(bitmapPixels, srcOffset, bitmapwidth, xo, yo, dstW, 1);
+				System.arraycopy(bitmapPixels, srcOffset, bitmapPixels, dstOffset, dstW);
+			} catch (Exception e) {
+				// There was an index out of bounds exception, but we continue copying what we can. 
+				e.printStackTrace();
+			}
 			dstY += deltaY;
 		}
 		updateBitmap(dest.left, dest.top, dstW, dstH);
@@ -233,10 +244,18 @@ class LargeBitmapData extends AbstractBitmapData {
 	 */
 	@Override
 	public void updateBitmap(int x, int y, int w, int h) {
+		int xo = x-xoffset;
+		if (xo < 0) xo = 0;
+		int yo = y-yoffset;
+		if (yo < 0) yo = 0;
+		if (x + w > bitmapwidth)  w = bitmapwidth - x;
+		if (y + h > bitmapheight) h = bitmapheight - y;
+		
 		try {
-			mbitmap.setPixels(bitmapPixels, offset(x,y), bitmapwidth, x-xoffset, y-yoffset, w, h);
+			mbitmap.setPixels(bitmapPixels, offset(x,y), bitmapwidth, xo, yo, w, h);
 		} catch (IllegalArgumentException e) {
-			// Do not draw if the coordinates are out of bounds.
+			// Do not update the bitmap if the coordinates are out of bounds.
+			e.printStackTrace();
 		}
 	}
 

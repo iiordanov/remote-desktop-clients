@@ -78,6 +78,9 @@ public class VncCanvas extends ImageView {
 	// Available to activity
 	int mouseX, mouseY;
 	
+	// Variable indicating that we are currently scrolling in simulated touchpad mode.
+	boolean inScrolling = false;
+	
 	// Connection parameters
 	ConnectionBean connection;
 	VncDatabase database;
@@ -217,8 +220,8 @@ public class VncCanvas extends ImageView {
 	private int preferredEncoding = -1;
 
 	// Unimplemented VNC encoding parameters
-	private boolean requestCursorUpdates = false;
-	private boolean ignoreCursorUpdates = true;
+	private boolean requestCursorUpdates = true;
+	private boolean ignoreCursorUpdates = false;
 
 	// Tight encoding parameters
 	private int compressLevel = 9;
@@ -378,6 +381,8 @@ public class VncCanvas extends ImageView {
 			    			}
 			    		});
 			    		sendUnixAuth ();
+			    		if (connection.getUseLocalCursor())
+			    			initializeSoftCursor();
 			    		processNormalProtocol(getContext(), pd, setModes);
 			    	} else {
 			    		cc = new CConn(VncCanvas.this, sock, null, false, connection);
@@ -576,7 +581,7 @@ public class VncCanvas extends ImageView {
 		return (colorModel != null) && colorModel.equals(cm);
 	}
 	
-	private void mouseFollowPan()
+	public void mouseFollowPan()
 	{
 		if (connection.getFollowPan() && scaling.isAbleToPan())
 		{
@@ -679,20 +684,14 @@ public class VncCanvas extends ImageView {
 							break;
 						}
 
-						if (rfb.updateRectEncoding == RfbProto.EncodingXCursor || rfb.updateRectEncoding == RfbProto.EncodingRichCursor) {
-							// - handleCursorShapeUpdate(rfb.updateRectEncoding,
-							// rx,
-							// ry, rw, rh);
-							//Log.v(TAG, "rfb.EncodingCursor");
+						if (rfb.updateRectEncoding == RfbProto.EncodingXCursor ||
+							rfb.updateRectEncoding == RfbProto.EncodingRichCursor) {
+							handleCursorShapeUpdate(rfb.updateRectEncoding, rx, ry, rw, rh);
 							continue;
-
 						}
 
 						if (rfb.updateRectEncoding == RfbProto.EncodingPointerPos) {
-							// This never actually happens
-							mouseX=rx;
-							mouseY=ry;
-							//Log.v(TAG, "rfb.EncodingPointerPos");
+							softCursorMove(rx, ry);
 							continue;
 						}
 
@@ -878,8 +877,20 @@ public class VncCanvas extends ImageView {
 	 */
 	void panToMouse()
 	{
-		if (! connection.getFollowMouse())
-			return;
+		boolean panX = true;
+		boolean panY = true;
+		
+		//if (! connection.getFollowMouse())
+		//	return;
+
+		// Don't pan in a certain direction if dimension scaled is already less 
+		// than the dimension of the visible part of the screen.
+		if (bitmapData.bmWidth() <= getVisibleWidth()) {
+			panX = false;
+		}
+		if (bitmapData.bmHeight() <= getVisibleHeight()) {
+			panY = false;
+		}
 		
 		// We only pan if the current scaling is able to pan.
 		if (scaling != null && ! scaling.isAbleToPan())
@@ -892,46 +903,48 @@ public class VncCanvas extends ImageView {
 		int h = getVisibleHeight();
 		int iw = getImageWidth();
 		int ih = getImageHeight();
+		int wthresh = w/10;
+		int hthresh = h/10;
 		
 		int newX = absoluteXPosition;
 		int newY = absoluteYPosition;
-		
-		if (x - newX >= w - 5)
+
+		if (x - absoluteXPosition >= w - wthresh)
 		{
-			newX = x - w + 5;
+			newX = x - (w - wthresh);
 			if (newX + w > iw)
 				newX = iw - w;
 		}
-		else if (x < newX + 5)
+		else if (x < absoluteXPosition + wthresh)
 		{
-			newX = x - 5;
+			newX = x - wthresh;
 			if (newX < 0)
 				newX = 0;
 		}
-		if ( newX != absoluteXPosition ) {
+		if ( panX && newX != absoluteXPosition ) {
 			absoluteXPosition = newX;
 			panned = true;
 		}
-		if (y - newY >= h - 5)
+		if (y - absoluteYPosition >= h - hthresh)
 		{
-			newY = y - h + 5;
+			newY = y - (h - hthresh);
 			if (newY + h > ih)
 				newY = ih - h;
 		}
-		else if (y < newY + 5)
+		else if (y < absoluteYPosition + hthresh)
 		{
-			newY = y - 5;
+			newY = y - hthresh;
 			if (newY < 0)
 				newY = 0;
 		}
-		if ( newY != absoluteYPosition ) {
+		if ( panY && newY != absoluteYPosition ) {
 			absoluteYPosition = newY;
 			panned = true;
 		}
 		if (panned)
 		{
 			scrollToAbsolute();
-		}		
+		}
 	}
 	
 	/**
@@ -1056,8 +1069,9 @@ public class VncCanvas extends ImageView {
 	};
 
 	/**
-	 * This runnable causes a redraw of the bitmapData to happen.
+	 * Causes a redraw of the bitmapData to happen at the indicated coordinates.
 	 */
+	public void reDraw(Rect r) { reDraw (r.left, r.top, r.width(), r.height()); }
 	public void reDraw(int x, int y, int w, int h) {
 		float scale = getScale();
 		float shiftedX = x-shiftX;
@@ -1332,12 +1346,16 @@ public class VncCanvas extends ImageView {
 			int metaState = 0, numchars = 1;
 			int keyboardMetaState = evt.getMetaState();
 
+		    // Add shift to metaState if necessary.
+			if ((keyboardMetaState & KeyEvent.META_SHIFT_MASK) != 0)
+				metaState |= SHIFT_MASK;
+			
 			// If the keyboardMetaState contains any hint of CTRL, add CTRL_MASK to metaState
 			if ((keyboardMetaState & 0x7000)!=0)
 				metaState |= CTRL_MASK;
 			// If the keyboardMetaState contains left ALT, add ALT_MASK to metaState.
 		    // Leaving KeyEvent.KEYCODE_ALT_LEFT for symbol input on hardware keyboards.
-			if ((keyboardMetaState & (KeyEvent.META_ALT_RIGHT_ON|0x00030000))!=0)
+			if ((keyboardMetaState & (KeyEvent.META_ALT_RIGHT_ON|0x00030000)) !=0 )
 				metaState |= ALT_MASK;
 			
 			if (keyCode == KeyEvent.KEYCODE_MENU)
@@ -1610,12 +1628,12 @@ public class VncCanvas extends ImageView {
 		if (jpegQuality >= 0 && jpegQuality <= 9)
 			encodings[nEncodings++] = RfbProto.EncodingQualityLevel0 + jpegQuality;
 
-		if (requestCursorUpdates) {
+		if (requestCursorUpdates && !connection.getUseLocalCursor()) {
 			encodings[nEncodings++] = RfbProto.EncodingXCursor;
 			encodings[nEncodings++] = RfbProto.EncodingRichCursor;
-			if (!ignoreCursorUpdates)
-				encodings[nEncodings++] = RfbProto.EncodingPointerPos;
 		}
+		if (!ignoreCursorUpdates)
+			encodings[nEncodings++] = RfbProto.EncodingPointerPos;
 
 		encodings[nEncodings++] = RfbProto.EncodingLastRect;
 		encodings[nEncodings++] = RfbProto.EncodingNewFBSize;
@@ -2545,5 +2563,190 @@ public class VncCanvas extends ImageView {
         hexChars[j*3] = hexArray[v/16];
         hexChars[j*3 + 1] = hexArray[v%16];
         return new String(hexChars);
+    }
+    
+    //////////////////////////////////////////////////////////////////
+    //
+    // Handle cursor shape updates (XCursor and RichCursor encodings).
+    //
+    // TODO: In AbstractBitmapDrawable.setCursorRectAndDrawIfNecessary,
+    //       draw this cursor instead of local cursor if pixels != null && pixels.length != 0
+
+    /**
+     * Handles cursor shape update (XCursor and RichCursor encodings).
+     */
+    synchronized void
+    handleCursorShapeUpdate(int encodingType, int hotX, int hotY, int w, int h) throws IOException {
+
+    	if (w * h == 0)
+    		return;
+
+    	// Ignore cursor shape data if requested by user.
+    	if (ignoreCursorUpdates) {
+    		int bytesPerRow = (w + 7) / 8;
+    		int bytesMaskData = bytesPerRow * h;
+
+    		if (encodingType == RfbProto.EncodingXCursor) {
+    			rfb.is.skipBytes(6 + bytesMaskData * 2);
+    		} else {
+    			// RfbProto.EncodingRichCursor
+    			rfb.is.skipBytes(w * h * bytesPerPixel + bytesMaskData);
+    		}
+    		return;
+    	}
+
+    	// Set cursor rectangle.
+    	bitmapData.setCursorRect(mouseX, mouseY, w, h, hotX, hotY);
+
+    	// Decode cursor pixel data, and set pixel data into bitmap drawable.
+    	bitmapData.setSoftCursor (decodeCursorShape(encodingType, w, h));
+
+    	// Show the cursor.
+    	reDraw(bitmapData.getPreCursorRect());
+    	reDraw(bitmapData.getCursorRect());
+    }
+
+    /**
+     * Decode cursor pixel data and return it in an int array.
+     * @param encodingType
+     * @param width
+     * @param height
+     * @return
+     * @throws IOException
+     */
+    synchronized int[] decodeCursorShape(int encodingType, int width, int height) throws IOException {
+
+    	int bytesPerRow = (width + 7) / 8;
+    	int bytesMaskData = bytesPerRow * height;
+
+    	int[] softCursorPixels = new int[width * height];
+
+    	if (encodingType == RfbProto.EncodingXCursor) {
+
+    		// Read foreground and background colors of the cursor.
+    		byte[] rgb = new byte[6];
+    		rfb.readFully(rgb);
+    		int[] colors = { (0xFF000000 | (rgb[3] & 0xFF) << 16 |
+    				(rgb[4] & 0xFF) << 8 | (rgb[5] & 0xFF)),
+    				(0xFF000000 | (rgb[0] & 0xFF) << 16 |
+    						(rgb[1] & 0xFF) << 8 | (rgb[2] & 0xFF)) };
+
+    		// Read pixel and mask data.
+    		byte[] pixBuf = new byte[bytesMaskData];
+    		rfb.readFully(pixBuf);
+    		byte[] maskBuf = new byte[bytesMaskData];
+    		rfb.readFully(maskBuf);
+
+    		// Decode pixel data into softCursorPixels[].
+    		byte pixByte, maskByte;
+    		int x, y, n, result;
+    		int i = 0;
+    		for (y = 0; y < height; y++) {
+    			for (x = 0; x < width / 8; x++) {
+    				pixByte = pixBuf[y * bytesPerRow + x];
+    				maskByte = maskBuf[y * bytesPerRow + x];
+    				for (n = 7; n >= 0; n--) {
+    					if ((maskByte >> n & 1) != 0) {
+    						result = colors[pixByte >> n & 1];
+    					} else {
+    						result = 0;	// Transparent pixel
+    					}
+    					softCursorPixels[i++] = result;
+    				}
+    			}
+    			for (n = 7; n >= 8 - width % 8; n--) {
+    				if ((maskBuf[y * bytesPerRow + x] >> n & 1) != 0) {
+    					result = colors[pixBuf[y * bytesPerRow + x] >> n & 1];
+    				} else {
+    					result = 0;		// Transparent pixel
+    				}
+    				softCursorPixels[i++] = result;
+    			}
+    		}
+
+    	} else {
+    		// encodingType == rfb.EncodingRichCursor
+
+    		// Read pixel and mask data.
+    		byte[] pixBuf = new byte[width * height * bytesPerPixel];
+    		rfb.readFully(pixBuf);
+    		byte[] maskBuf = new byte[bytesMaskData];
+    		rfb.readFully(maskBuf);
+
+    		// Decode pixel data into softCursorPixels[].
+    		byte pixByte, maskByte;
+    		int x, y, n, result;
+    		int i = 0;
+    		for (y = 0; y < height; y++) {
+    			for (x = 0; x < width / 8; x++) {
+    				maskByte = maskBuf[y * bytesPerRow + x];
+    				for (n = 7; n >= 0; n--) {
+    					if ((maskByte >> n & 1) != 0) {
+    						if (bytesPerPixel == 1) {
+    							result =  colorPalette[0xFF & pixBuf[i]];
+    						} else {
+    							result = 0xFF000000 |
+    									(pixBuf[i * 4 + 2] & 0xFF) << 16 |
+    									(pixBuf[i * 4 + 1] & 0xFF) << 8 |
+    									(pixBuf[i * 4] & 0xFF);
+    						}
+    					} else {
+    						result = 0;	// Transparent pixel
+    					}
+    					softCursorPixels[i++] = result;
+    				}
+    			}
+    			for (n = 7; n >= 8 - width % 8; n--) {
+    				if ((maskBuf[y * bytesPerRow + x] >> n & 1) != 0) {
+    					if (bytesPerPixel == 1) {
+    						result = colorPalette[0xFF & pixBuf[i]];
+    					} else {
+    						result = 0xFF000000 |
+    								(pixBuf[i * 4 + 2] & 0xFF) << 16 |
+    								(pixBuf[i * 4 + 1] & 0xFF) << 8 |
+    								(pixBuf[i * 4] & 0xFF);
+    					}
+    				} else {
+    					result = 0;		// Transparent pixel
+    				}
+    				softCursorPixels[i++] = result;
+    			}
+    		}
+
+    	}
+
+    	return softCursorPixels;
+    }
+    
+    //
+    // softCursorMove(). Moves soft cursor into a particular location.
+    //
+
+    synchronized void softCursorMove(int x, int y) {
+    	if (bitmapData.isNullSoftCursor ()) {
+    		initializeSoftCursor ();
+    	}
+    	
+    	if (!inScrolling) {
+	    	mouseX = x;
+	    	mouseY = y;
+	    	// Move the cursor.
+	    	bitmapData.moveCursorRect(x, y);
+	    	// Show the cursor.
+	    	reDraw(bitmapData.getPreCursorRect());
+	    	reDraw(bitmapData.getCursorRect());
+    	}
+    }
+    
+    void initializeSoftCursor () {
+		Bitmap bm = BitmapFactory.decodeResource(getResources(), R.drawable.cursor);
+		int w = bm.getWidth();
+		int h = bm.getHeight();
+		int [] tempPixels = new int[w*h];
+		bm.getPixels(tempPixels, 0, w, 0, 0, w, h);
+    	// Set cursor rectangle as well.
+    	bitmapData.setCursorRect(mouseX, mouseY, w, h, 0, 0);
+    	// Set softCursor to whatever the resource is.
+		bitmapData.setSoftCursor (tempPixels);
     }
 }

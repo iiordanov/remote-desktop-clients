@@ -43,7 +43,7 @@ class FitToScreenScaling extends AbstractScaling {
 	 */
 	@Override
 	boolean isAbleToPan() {
-		return true;
+		return false;
 	}
 
 	/* (non-Javadoc)
@@ -84,6 +84,8 @@ class FitToScreenScaling extends AbstractScaling {
 	@Override
 	void setScaleTypeForActivity(VncCanvasActivity activity) {
 		super.setScaleTypeForActivity(activity);
+		activity.vncCanvas.absoluteXPosition = 0;
+		activity.vncCanvas.absoluteYPosition = 0;
 		canvasXOffset = -activity.vncCanvas.getCenteredXOffset();
 		canvasYOffset = -activity.vncCanvas.getCenteredYOffset();
 		activity.vncCanvas.computeShiftFromFullToView ();

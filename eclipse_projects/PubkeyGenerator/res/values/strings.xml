@@ -4,8 +4,8 @@
     <string name="hello_world">Hello world!</string>
     <string name="menu_settings">Settings</string>
     <string name="title_activity_pubkey_generator">PubkeyGeneratorActivity</string>
-	<string name="prompt_file_name">"File Name"</string>
-	<string name="prompt_file_will_be_saved">"File will be saved in your Download directory."</string>
+	<string name="prompt_file_name">"Filename in Download directory"</string>
+	<string name="prompt_file_will_be_saved">"File will be saved to or read from Download directory."</string>
 		<string name="prompt_nickname">"Nickname"</string>
 		<!-- An example string that could be used as a nickname for a pubkey. -->
 	<string name="prompt_nickname_hint_pubkey">"My work key"</string>

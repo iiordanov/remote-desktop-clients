@@ -688,11 +688,12 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 				dragX = e2.getX();
 				dragY = e2.getY();
 				e2.setLocation(newRemoteX, newRemoteY);
-				return vncCanvas.processPointerEvent(e2, true);
+				vncCanvas.processPointerEvent(e2, true);
 			} else {
 				e2.setLocation(newRemoteX, newRemoteY);
 				vncCanvas.processPointerEvent(e2, false);
 			}
+			vncCanvas.inScrolling = true;
 			return true;
 		}
 
@@ -815,7 +816,8 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 	        	thirdPointerWasDown = false;
 	        	// Cancel any effect of scaling having "just finished" (e.g. ignoring scrolling).
 				scalingJustFinished = false;
-	        }
+	        } else if (pointerID == 0 && action == MotionEvent.ACTION_UP)
+	        	vncCanvas.inScrolling = false;
 
         	// Here we only prepare for the second click, which we perform on ACTION_POINTER_UP for pointerID==1.
 	        if (pointerID == 1 && action == MotionEvent.ACTION_POINTER_DOWN) {
@@ -1203,9 +1205,9 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
                     }
                     
                     // Enable/show the zoomer if the keyboard is gone, and disable/hide otherwise.
-                    // We detect the keyboard if more than 20% of the screen is covered.
+                    // We detect the keyboard if more than 19% of the screen is covered.
                     int offset = 0;
-                    if (r.bottom > rootView.getHeight()*0.80) {
+                    if (r.bottom > rootView.getHeight()*0.81) {
                     	offset = rootView.getHeight() - r.bottom;
                         // Shift the meta keys and arrows to proper location.
                 		if (layoutKeys  != null)
@@ -1293,7 +1295,7 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 					return vncCanvas.processLocalKeyEvent(key, new KeyEvent(e.getAction(), key));
 				} else if (e.getAction() == MotionEvent.ACTION_UP) {
 					keyTab.setImageResource(R.drawable.taboff);
-					resetOnScreenKeys ();
+					resetOnScreenKeys (0);
 					return vncCanvas.processLocalKeyEvent(key, new KeyEvent(e.getAction(), key));
 				}
 				return false;
@@ -1369,7 +1371,7 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 					return vncCanvas.processLocalKeyEvent(key, new KeyEvent(e.getAction(), key));	
 				} else if (e.getAction() == MotionEvent.ACTION_UP) {
 					keyUp.setImageResource(R.drawable.upoff);
-					resetOnScreenKeys ();
+					resetOnScreenKeys (0);
 					return vncCanvas.processLocalKeyEvent(key, new KeyEvent(e.getAction(), key));
 				}
 				return false;
@@ -1387,7 +1389,7 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 					return vncCanvas.processLocalKeyEvent(key, new KeyEvent(e.getAction(), key));	
 				} else if (e.getAction() == MotionEvent.ACTION_UP) {
 					keyDown.setImageResource(R.drawable.downoff);
-					resetOnScreenKeys ();
+					resetOnScreenKeys (0);
 					return vncCanvas.processLocalKeyEvent(key, new KeyEvent(e.getAction(), key));
 				}
 				return false;
@@ -1405,7 +1407,7 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 					return vncCanvas.processLocalKeyEvent(key, new KeyEvent(e.getAction(), key));	
 				} else if (e.getAction() == MotionEvent.ACTION_UP) {
 					keyLeft.setImageResource(R.drawable.leftoff);
-					resetOnScreenKeys ();
+					resetOnScreenKeys (0);
 					return vncCanvas.processLocalKeyEvent(key, new KeyEvent(e.getAction(), key));
 				}
 				return false;
@@ -1423,7 +1425,7 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 					return vncCanvas.processLocalKeyEvent(key, new KeyEvent(e.getAction(), key));	
 				} else if (e.getAction() == MotionEvent.ACTION_UP) {
 					keyRight.setImageResource(R.drawable.rightoff);
-					resetOnScreenKeys ();
+					resetOnScreenKeys (0);
 					return vncCanvas.processLocalKeyEvent(key, new KeyEvent(e.getAction(), key));	
 				}
 				return false;
@@ -1434,7 +1436,12 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 	/**
 	 * Resets the state and image of the on-screen keys.
 	 */
-	private void resetOnScreenKeys () {
+	private void resetOnScreenKeys (int keyCode) {
+		// Do not reset on-screen keys if keycode is SHIFT.
+		switch (keyCode) {
+		case KeyEvent.KEYCODE_SHIFT_LEFT:
+		case KeyEvent.KEYCODE_SHIFT_RIGHT: return;
+		}
 		if (!keyCtrlToggled) {
 			keyCtrl.setImageResource(R.drawable.ctrloff);
 			vncCanvas.onScreenCtrlOff();
@@ -1877,8 +1884,14 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 			if (input != null) {
 				inputHandler = input;
 				connection.setInputMode(input.getName());
-				if (input.getName().equals(TOUCHPAD_MODE))
+				if (input.getName().equals(TOUCHPAD_MODE)) {
 					connection.setFollowMouse(true);
+					connection.setFollowPan(true);
+				} else {
+					connection.setFollowMouse(false);
+					connection.setFollowPan(false);
+				}
+
 				item.setChecked(true);
 				showPanningState();
 				connection.save(database.getWritableDatabase());
@@ -1951,7 +1964,7 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 		} else if (evt.getAction() == KeyEvent.ACTION_UP){
 			consumed = inputHandler.onKeyUp(keyCode, evt);
 		}
-		resetOnScreenKeys ();
+		resetOnScreenKeys (keyCode);
 		return consumed;
 	}
 	
