@@ -1,0 +1,377 @@
+/**
+ * 
+ */
+package com.iiordanov.bVNC;
+
+import com.iiordanov.util.RandomString;
+
+import android.app.Activity;
+import android.app.ActivityManager;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.app.ActivityManager.MemoryInfo;
+import android.content.Context;
+import android.content.Intent;
+import android.graphics.drawable.ColorDrawable;
+import android.net.Uri;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.Display;
+import android.view.View;
+import android.view.WindowManager;
+import android.widget.AdapterView;
+import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.LinearLayout.LayoutParams;
+import android.widget.Spinner;
+import android.widget.CompoundButton.OnCheckedChangeListener;
+import android.widget.TextView;
+import android.widget.ToggleButton;
+
+
+/**
+ * @author Iordan K Iordanov
+ *
+ */
+public class AutoXCustomizeDialog extends AlertDialog {
+	private bVNC mainConfigDialog;
+	private ConnectionBean selected;
+	private int commandIndex;
+	private String command;
+	private Spinner spinnerAutoXType;
+	private Button autoXConfirm;
+	private Button autoXCancel;
+	private String geometry = "";
+	private String sessionProg = "";
+	private String pw = "";
+	private ToggleButton toggleAutoXAdvanced;
+	private LinearLayout layoutAdvancedSettings;
+	private Spinner spinnerAutoXGeometry;
+	private EditText autoXWidth;
+	private EditText autoXHeight;
+	private Spinner spinnerAutoXSession;
+	private EditText autoXSessionProg;
+	private int nativeWidth;
+	private int nativeHeight;
+	private CheckBox checkboxAutoXUnixpw;
+	private CheckBox checkboxAutoXUnixAuth;
+	private RandomString rnd;
+	private Button buttonAutoXHelp;
+
+	/**
+	 * @param context
+	 */
+	public AutoXCustomizeDialog(Context context) {
+		super(context);
+		setOwnerActivity((Activity)context);
+		mainConfigDialog = (bVNC)context;
+		selected = mainConfigDialog.getCurrentConnection();
+		rnd = new RandomString();
+	}
+
+	private static final Intent docIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://iiordanov.blogspot.ca/2012/10/looking-for-nx-client-for-android-try.html")); 
+	
+	public static void showDocumentation(Context c) {
+		c.startActivity(docIntent);
+	}
+	
+	/* Don't do anything if back is pressed.
+	 * 
+	 * (non-Javadoc)
+	 * @see android.app.Dialog#onBackPressed()
+	 */
+	@Override
+	public void onBackPressed () {
+		dismiss();
+	}
+
+	/* This function needs to be overloaded because the dialog does not get
+	 * destroyed and recreated every time the button on the main screen is
+	 * pressed, and so the widgets' state wasn't set correctly. This makes 
+	 * sure the widgets' state is set when the dialog gets displayed.
+	 * (non-Javadoc)
+	 * @see android.app.Dialog#onAttachedToWindow()
+	 */
+	@Override
+	public void onAttachedToWindow() {
+		setWidgetStateAppropriately ();
+	}
+
+	private void setWidgetStateAppropriately () {
+
+		selected = mainConfigDialog.getCurrentConnection();
+		commandIndex = selected.getAutoXType();
+		// Set current selection to the one corresponding to saved setting.
+		spinnerAutoXType.setSelection(commandIndex);
+		// Set the widgets controlling the remote resolution.
+		setRemoteWidthAndHeight ();
+		// Set the widgets controlling the remote session program.
+		setSessionProg ();
+		// Sets the password option.
+		setPwOption ();
+		// Sets the state of the auto unixpw authentication checkbox.
+		checkboxAutoXUnixAuth.setChecked(selected.getAutoXUnixAuth());
+		// Set the toggle state of the advanced button.
+		setAdvancedToggleState ();
+	}
+	
+	/**
+	 * Sets the state of the advanced button.
+	 */
+	private void setAdvancedToggleState () {
+		boolean adv = ( (commandIndex != VncConstants.COMMAND_AUTO_X_DISABLED) &&
+						( (selected.getAutoXResType() != VncConstants.AUTOX_GEOM_SELECT_NATIVE) ||
+						  (selected.getAutoXSessionType() != VncConstants.AUTOX_SESS_PROG_SELECT_AUTO) ||
+						   selected.getAutoXUnixpw() || selected.getAutoXUnixAuth() ) );
+		toggleAutoXAdvanced.setChecked(adv);
+	}
+
+	/**
+	 * Make sure commandIndex and command match the state of the checkbox which
+	 * specifies whether .dmrc should be moved away.
+	 */
+	private void setCommandIndexAndCommand () {
+		if (commandIndex != VncConstants.COMMAND_AUTO_X_DISABLED)
+			command = VncConstants.getCommandString(commandIndex, geometry + sessionProg + pw);
+		else
+			command = new String ("");
+	}
+
+	/**
+	 * Enables and disables the EditText boxes for width and height of remote desktop.
+	 */
+	private void setRemoteWidthAndHeight () {
+		
+		nativeWidth  = Math.max(mainConfigDialog.getWidth(), mainConfigDialog.getHeight());
+		nativeHeight = Math.min(mainConfigDialog.getWidth(), mainConfigDialog.getHeight());
+		
+		if (selected.getAutoXResType() == VncConstants.AUTOX_GEOM_SELECT_NATIVE) {
+			autoXWidth.setEnabled(false);
+			autoXHeight.setEnabled(false);
+			autoXWidth.setText(Integer.toString(nativeWidth));
+			autoXHeight.setText(Integer.toString(nativeHeight));
+			selected.setAutoXWidth(nativeWidth);			
+			selected.setAutoXHeight(nativeHeight);
+		} else {
+			autoXWidth.setEnabled(true);
+			autoXHeight.setEnabled(true);
+			autoXWidth.setText(Integer.toString(selected.getAutoXWidth()));
+			autoXHeight.setText(Integer.toString(selected.getAutoXHeight()));
+		}
+
+		geometry = new String(" -env FD_GEOM="+selected.getAutoXWidth()+"x"+selected.getAutoXHeight());
+	}
+
+	/**
+	 * Sets the sessionProg variable according to selection.
+	 */
+	private void setSessionProg () {
+		
+		spinnerAutoXSession.setSelection(selected.getAutoXSessionType());
+		
+		if (selected.getAutoXSessionType() != VncConstants.AUTOX_SESS_PROG_SELECT_CUSTOM) {
+			autoXSessionProg.setEnabled(false);
+			autoXSessionProg.setText(VncConstants.getSessionProgString(selected.getAutoXSessionType()));
+			sessionProg = new String(" -env FD_PROG=\""
+					+ VncConstants.getSessionProgString(selected.getAutoXSessionType()) + "\" ");
+		} else {
+			autoXSessionProg.setEnabled(true);
+			autoXSessionProg.setText(selected.getAutoXSessionProg().toString());
+			sessionProg = new String(" -env FD_PROG=\""+autoXSessionProg.getText().toString() + "\" ");
+		}
+	}
+
+	/**
+	 * Sets the UNIXsessionProg variable according to selection.
+	 */
+	private void setPwOption () {
+		checkboxAutoXUnixpw.setChecked(selected.getAutoXUnixpw());
+		if (selected.getAutoXUnixpw()) {
+			pw = VncConstants.AUTO_X_USERPW;
+		} else {
+			// Generate, save, and use random file extension.
+			selected.setAutoXRandFileNm(rnd.randomLowerCaseString(20));
+			pw = VncConstants.AUTO_X_PASSWDFILE+VncConstants.AUTO_X_PWFILEBASENAME+selected.getAutoXRandFileNm()+" \"";
+		}
+	}
+	
+	/* (non-Javadoc)
+	 * @see android.app.Dialog#onCreate(android.os.Bundle)
+	 */
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+
+		setContentView(R.layout.auto_x_customize);
+		getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE|
+							   WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM);
+		WindowManager.LayoutParams lp = getWindow().getAttributes();
+		lp.dimAmount = 1.0f;
+		lp.width     = LayoutParams.FILL_PARENT;
+		lp.height    = LayoutParams.WRAP_CONTENT;
+		getWindow().setAttributes(lp);
+
+		// Define the spinner which allows one to choose the X-server type
+		spinnerAutoXType = (Spinner) findViewById(R.id.spinnerAutoXType);
+		spinnerAutoXType.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+			@Override
+			public void onItemSelected(AdapterView<?> ad, View view, int itemIndex, long id) {
+				// Set our preferred commandIndex, and command accordingly.
+				commandIndex = itemIndex;
+				setCommandIndexAndCommand ();
+				// Set the toggle state of the advanced button.
+				setAdvancedToggleState ();
+			}
+
+			@Override
+			public void onNothingSelected(AdapterView<?> arg0) {			
+			}
+		});
+		
+		// Set up the help button.
+		buttonAutoXHelp = (Button) findViewById(R.id.buttonAutoXHelp);
+		buttonAutoXHelp.setOnClickListener(new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				showDocumentation(AutoXCustomizeDialog.this.mainConfigDialog);
+			}
+		});
+		
+		// The advanced settings button.
+		toggleAutoXAdvanced = (ToggleButton) findViewById(R.id.toggleAutoXAdvanced);
+		layoutAdvancedSettings = (LinearLayout) findViewById(R.id.layoutAdvancedSettings);
+		toggleAutoXAdvanced.setOnCheckedChangeListener(new OnCheckedChangeListener () {
+
+			@Override
+			public void onCheckedChanged(CompoundButton arg0, boolean checked) {
+				if (checked)
+					layoutAdvancedSettings.setVisibility(View.VISIBLE);
+				else
+					layoutAdvancedSettings.setVisibility(View.GONE);
+			}
+			
+		});
+
+		// The geometry type and dimensions boxes.
+		spinnerAutoXGeometry = (Spinner) findViewById(R.id.spinnerAutoXGeometry);
+		autoXWidth = (EditText) findViewById(R.id.autoXWidth);
+		autoXHeight = (EditText) findViewById(R.id.autoXHeight);		
+		spinnerAutoXGeometry.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener () {
+
+			@Override
+			public void onItemSelected(AdapterView<?> arg0, View view, int itemIndex, long id) {
+				selected.setAutoXResType(itemIndex);
+				setRemoteWidthAndHeight ();
+			}
+
+			@Override
+			public void onNothingSelected(AdapterView<?> arg0) {
+			}
+			
+		});
+		
+		// Define the type of session to start.
+		spinnerAutoXSession = (Spinner) findViewById(R.id.spinnerAutoXSession);
+		autoXSessionProg = (EditText) findViewById(R.id.autoXSessionProg);
+		spinnerAutoXSession.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener () {
+
+			@Override
+			public void onItemSelected(AdapterView<?> arg0, View view, int itemIndex, long id) {
+				selected.setAutoXSessionType(itemIndex);
+				setSessionProg ();
+			}
+
+			@Override
+			public void onNothingSelected(AdapterView<?> arg0) {
+			}
+		});
+
+		// Define the unixpw checkbox.
+		checkboxAutoXUnixpw = (CheckBox) findViewById(R.id.checkboxAutoXUnixpw);
+		checkboxAutoXUnixpw.setOnCheckedChangeListener(new OnCheckedChangeListener () {
+
+			@Override
+			public void onCheckedChanged(CompoundButton arg0, boolean checked) {
+				selected.setAutoXUnixpw(checked);
+				setPwOption ();
+			}			
+		});
+
+		// Define the auto unix authentication checkbox.
+		checkboxAutoXUnixAuth = (CheckBox) findViewById(R.id.checkboxAutoXUnixAuth);
+		checkboxAutoXUnixAuth.setOnCheckedChangeListener(new OnCheckedChangeListener () {
+
+			@Override
+			public void onCheckedChanged(CompoundButton arg0, boolean checked) {
+				selected.setAutoXUnixAuth(checked);
+			}			
+		});
+		
+		
+		// Define Confirm button
+		autoXConfirm = (Button)findViewById(R.id.autoXConfirm);
+		autoXConfirm.setOnClickListener(new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				updateAutoXInfo();
+				dismiss();
+			}
+		});
+		
+		// Define Cancel button
+		autoXCancel  = (Button)findViewById(R.id.autoXCancel);
+		autoXCancel.setOnClickListener(new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				// If the user cancels, exit without changes.
+				dismiss();
+			}
+		});
+		
+		// Set the widgets' state appropriately.
+		setWidgetStateAppropriately ();
+	}
+	
+	/**
+	 * Called from Auto X Session dialog to update the Auto X config options.
+	 * @param xserver - which X server to use for created session (or just find)
+	 * @param command - contains the command to use if custom, null otherwise
+	 */
+	public void updateAutoXInfo () {
+		// Save any user modified resolution.
+		selected.setAutoXResType(spinnerAutoXGeometry.getSelectedItemPosition());
+		try {
+			selected.setAutoXWidth(Integer.parseInt(autoXWidth.getText().toString()));			
+			selected.setAutoXHeight(Integer.parseInt(autoXHeight.getText().toString()));
+		} catch (NumberFormatException e) {
+			e.printStackTrace();
+		}
+
+		// Save any remote session command the user set.
+		selected.setAutoXSessionType(spinnerAutoXSession.getSelectedItemPosition());
+		selected.setAutoXSessionProg(autoXSessionProg.getText().toString());
+		
+		// Ensure the values of command and commandIndex match the widgets.
+		setRemoteWidthAndHeight ();
+		setSessionProg();
+		setCommandIndexAndCommand ();
+		
+		selected.setAutoXEnabled(commandIndex != VncConstants.COMMAND_AUTO_X_DISABLED);
+		selected.setAutoXType(commandIndex);
+		selected.setAutoXCommand(command);
+		selected.setAutoXUnixpw(checkboxAutoXUnixpw.isChecked());
+		selected.setAutoXUnixAuth(checkboxAutoXUnixAuth.isChecked());
+		// Set a random VNC password (for the built-in security mechanism).
+		selected.setPassword(rnd.randomString(8));
+
+		// Update and save.
+		mainConfigDialog.updateViewFromSelected();
+		mainConfigDialog.saveAndWriteRecent();
+	}
+}

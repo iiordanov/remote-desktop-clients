@@ -879,23 +879,18 @@ public class VncCanvas extends ImageView {
 	{
 		boolean panX = true;
 		boolean panY = true;
-		
-		//if (! connection.getFollowMouse())
-		//	return;
 
 		// Don't pan in a certain direction if dimension scaled is already less 
 		// than the dimension of the visible part of the screen.
-		if (bitmapData.bmWidth() <= getVisibleWidth()) {
+		if (bitmapData.bmWidth() <= getVisibleWidth())
 			panX = false;
-		}
-		if (bitmapData.bmHeight() <= getVisibleHeight()) {
+		if (bitmapData.bmHeight() <= getVisibleHeight())
 			panY = false;
-		}
-		
+
 		// We only pan if the current scaling is able to pan.
 		if (scaling != null && ! scaling.isAbleToPan())
 			return;
-			
+
 		int x = mouseX;
 		int y = mouseY;
 		boolean panned = false;
@@ -903,9 +898,9 @@ public class VncCanvas extends ImageView {
 		int h = getVisibleHeight();
 		int iw = getImageWidth();
 		int ih = getImageHeight();
-		int wthresh = w/10;
-		int hthresh = h/10;
-		
+		int wthresh = 30;
+		int hthresh = 30;
+
 		int newX = absoluteXPosition;
 		int newY = absoluteYPosition;
 
