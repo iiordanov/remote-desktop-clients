@@ -655,6 +655,10 @@ public class VncCanvas extends ImageView {
 			handler.post(drawableSetter);
 			handler.post(setModes);
 			handler.post(desktopInfo);
+			
+			// Hide progress dialog
+			if (pd.isShowing())
+				pd.dismiss();
 			//
 			// main dispatch loop
 			//
@@ -673,29 +677,21 @@ public class VncCanvas extends ImageView {
 						int rx = rfb.updateRectX, ry = rfb.updateRectY;
 						int rw = rfb.updateRectW, rh = rfb.updateRectH;
 
-						if (rfb.updateRectEncoding == RfbProto.EncodingLastRect) {
+						if (rfb.updateRectEncoding == RfbProto.EncodingPointerPos) {
+							softCursorMove(rx, ry);
+							continue;
+						} else if (rfb.updateRectEncoding == RfbProto.EncodingLastRect) {
 							//Log.v(TAG, "rfb.EncodingLastRect");
 							break;
-						}
-
-						if (rfb.updateRectEncoding == RfbProto.EncodingNewFBSize) {
+						} else if (rfb.updateRectEncoding == RfbProto.EncodingXCursor ||
+								   rfb.updateRectEncoding == RfbProto.EncodingRichCursor) {
+							handleCursorShapeUpdate(rfb.updateRectEncoding, rx, ry, rw, rh);
+							continue;
+						}  else if (rfb.updateRectEncoding == RfbProto.EncodingNewFBSize) {
 							rfb.setFramebufferSize(rw, rh);
 							updateFBSize();
 							break;
 						}
-
-						if (rfb.updateRectEncoding == RfbProto.EncodingXCursor ||
-							rfb.updateRectEncoding == RfbProto.EncodingRichCursor) {
-							handleCursorShapeUpdate(rfb.updateRectEncoding, rx, ry, rw, rh);
-							continue;
-						}
-
-						if (rfb.updateRectEncoding == RfbProto.EncodingPointerPos) {
-							softCursorMove(rx, ry);
-							continue;
-						}
-
-						rfb.startTiming();
 
 						switch (rfb.updateRectEncoding) {
 						case RfbProto.EncodingTight:
@@ -725,24 +721,16 @@ public class VncCanvas extends ImageView {
 						default:
 							Log.e(TAG, "Unknown RFB rectangle encoding " + rfb.updateRectEncoding + " (0x" + Integer.toHexString(rfb.updateRectEncoding) + ")");
 						}
-
-						rfb.stopTiming();
-
-						// Hide progress dialog
-						if (pd.isShowing())
-							pd.dismiss();
 					}
-
-					boolean fullUpdateNeeded = false;
 
 					if (pendingColorModel != null) {
 						setPixelFormat();
-						fullUpdateNeeded = true;
+						setEncodings(true);
+						bitmapData.writeFullUpdateRequest(false);
+					} else {
+						setEncodings(true);
+						bitmapData.writeFullUpdateRequest(true);
 					}
-
-					setEncodings(true);
-					bitmapData.writeFullUpdateRequest(!fullUpdateNeeded);
-
 					break;
 
 				case RfbProto.SetColourMapEntries:
@@ -1072,9 +1060,8 @@ public class VncCanvas extends ImageView {
 		float shiftedX = x-shiftX;
 		float shiftedY = y-shiftY;
 		// Make the box slightly larger to avoid artifacts due to truncation errors.
-		postInvalidate((int)((shiftedX-1)*scale),   (int)((shiftedY-1)*scale),
+		postInvalidate ((int)((shiftedX-1)*scale),   (int)((shiftedY-1)*scale),
 						(int)((shiftedX+w+1)*scale), (int)((shiftedY+h+1)*scale));
-		
 	}
 	
 	/**

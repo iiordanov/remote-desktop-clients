@@ -48,10 +48,8 @@ public class AbstractBitmapDrawable extends DrawableContainer {
 	void draw(Canvas canvas, int xoff, int yoff) {
 		// If the redrawn area encompasses the rectangle where the cursor was previously,
 		// we consider the region cleaned and zero out the rectangle.
-		synchronized (preCursorRect) {
-			if (canvas.getClipBounds().contains(preCursorRect))
-				preCursorRect.setEmpty();
-		}
+		if (canvas.getClipBounds().contains(preCursorRect))
+			preCursorRect.setEmpty();
 
 		drawBitmapWithinClip (canvas, xoff, yoff, null);
 
@@ -75,9 +73,7 @@ public class AbstractBitmapDrawable extends DrawableContainer {
 		cursorRect.right  = cursorRect.left + w;
 		cursorRect.top    = y-hotY;
 		cursorRect.bottom = cursorRect.top + h;
-		synchronized (preCursorRect) {
-			preCursorRect.union(cursorRect);
-		}
+		preCursorRect.union(cursorRect);
 	}
 	
 	void moveCursorRect(int x, int y) {

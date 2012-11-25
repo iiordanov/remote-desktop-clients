@@ -35,6 +35,7 @@ class FullBufferBitmapData extends AbstractBitmapData {
 		int drawHeight; 
 		int xo, yo;
 		Paint paint;
+		Rect toDraw;
 		
 		/**
 		 * @param data
@@ -49,17 +50,12 @@ class FullBufferBitmapData extends AbstractBitmapData {
 		 */
 		@Override
 		public void draw(Canvas canvas) {
-			draw(canvas, 0, 0);
-		}
-		
-		/**
-		 * Draws the bitmap within the specified rectangle or the clip if toDraw is null.
-		 * @param canvas
-		 */
-		public void drawBitmapWithinClip (Canvas canvas, int xoff, int yoff, Rect toDraw) {
-			// If we haven't been given a rectangle to draw, draw the whole clip.
-			if (toDraw == null)
-				toDraw = canvas.getClipBounds();
+			// If the redrawn area encompasses the rectangle where the cursor was previously,
+			// we consider the region cleaned and zero out the rectangle.
+			if (canvas.getClipBounds().contains(preCursorRect))
+				preCursorRect.setEmpty();
+
+			toDraw = canvas.getClipBounds();
 			
 			// To avoid artifacts, we need to enlarge the box by one pixel in all directions.
 			toDraw.set(toDraw.left-1, toDraw.top-1, toDraw.right+1, toDraw.bottom+1);
@@ -81,13 +77,13 @@ class FullBufferBitmapData extends AbstractBitmapData {
 				yo = toDraw.top;
 
 			if (xo + drawWidth  >= data.framebufferwidth)
-				drawWidth  = data.framebufferwidth  - xo - 1;
+				drawWidth  = data.framebufferwidth  - xo;
 			if (yo + drawHeight >= data.framebufferheight)
-				drawHeight = data.framebufferheight - yo - 1;
+				drawHeight = data.framebufferheight - yo;
 
 			try {
 				canvas.drawBitmap(data.bitmapPixels, offset(xo, yo), data.framebufferwidth, 
-						xo, yo, drawWidth, drawHeight, false, null);
+									xo, yo, drawWidth, drawHeight, false, null);
 
 			} catch (Exception e) {
 				Log.e (TAG, "Failed to draw bitmap: xo, yo/drawW, drawH: " + xo + ", " + yo + "/"
@@ -96,6 +92,10 @@ class FullBufferBitmapData extends AbstractBitmapData {
 				paint.setColor(Color.WHITE);
 				canvas.drawText("There was a problem drawing the remote desktop on the screen. " +
 						"Please disconnect and reconnect to the VNC server.", xo+50, yo+50, paint);
+			}
+
+			if (softCursor != null) {
+				canvas.drawBitmap(softCursor, cursorRect.left, cursorRect.top, null);
 			}
 		}
 	}
