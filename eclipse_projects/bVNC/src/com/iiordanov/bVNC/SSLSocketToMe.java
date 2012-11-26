@@ -551,7 +551,6 @@ public class SSLSocketToMe {
 		      try {
 		        socket = (SSLSocket)factory.createSocket(preexistingSocket, host, port, true);
 		        socket.setTcpNoDelay(true);
-		        socket.setSoTimeout(0);
 		      } catch (java.io.IOException e) { 
 		        throw new Exception(e.toString());
 		      }
@@ -762,7 +761,7 @@ public class SSLSocketToMe {
 			if (false) {
 				String rep = "";
 				DataInputStream is = new DataInputStream(
-				    new BufferedInputStream(socket.getInputStream(), 16384));
+				    new BufferedInputStream(socket.getInputStream(), 8192));
 				while (true) {
 					rep += readline(is);
 					if (rep.indexOf("\r\n\r\n") >= 0) {
@@ -998,7 +997,7 @@ public class SSLSocketToMe {
 		try {
 			psock = new Socket(h, p);
 			proxy_is = new DataInputStream(new BufferedInputStream(
-			    psock.getInputStream(), 16384));
+			    psock.getInputStream(), 8192));
 			proxy_os = psock.getOutputStream();
 		} catch(Exception e) {
 			dbg("psocket prob: " + e.getMessage());

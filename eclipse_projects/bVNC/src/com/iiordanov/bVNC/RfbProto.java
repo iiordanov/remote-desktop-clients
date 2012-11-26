@@ -201,7 +201,7 @@ class RfbProto implements RfbConnectable {
 
   // This will be set to true on the first framebuffer update
   // containing Zlib-, ZRLE- or Tight-encoded data.
-  boolean wereZlibUpdates = false;
+  //boolean wereZlibUpdates = false;
 
   // This will be set to false if the startSession() was called after
   // we have received at least one Zlib-, ZRLE- or Tight-encoded
@@ -219,7 +219,7 @@ class RfbProto implements RfbConnectable {
   // This allows us to write initial framebuffer update with zero
   // timestamp, to let the player show initial desktop before
   // playback.
-  int numUpdatesInSession;
+  //int numUpdatesInSession;
 
   // Measuring network throughput.
   boolean timing;
@@ -240,18 +240,14 @@ class RfbProto implements RfbConnectable {
   //
   // Constructor. Make TCP connection to RFB server.
   //
-
-  
-  //-RfbProto(String h, int p, VncViewer v) throws IOException {
   RfbProto(String h, int p) throws IOException{
-  	//- viewer = v;
     host = h;
     port = p;
 
    	sock = new Socket(host, port);
-   	// Set the TCP socket read timeout to infinity.
-   	sock.setSoTimeout(0);
     sock.setTcpNoDelay(true);
+    // After much testing, 8192 does seem like the best compromize between
+    // responsiveness and throughput.
     is = new DataInputStream(new BufferedInputStream(sock.getInputStream(), 8192));
     os = sock.getOutputStream();
 
@@ -828,7 +824,7 @@ class RfbProto implements RfbConnectable {
   //
 
   int readServerMessageType() throws IOException {
-    int msgType = is.readUnsignedByte();
+    return is.readUnsignedByte();
 
     // If the session is being recorded:
     /*-
@@ -840,8 +836,6 @@ class RfbProto implements RfbConnectable {
       }
     }
 	*/
-
-    return msgType;
   }
 
 
@@ -862,9 +856,9 @@ class RfbProto implements RfbConnectable {
       rec.writeByte(0);
       rec.writeShortBE(updateNRects);
     }
-	*/
 	
-    numUpdatesInSession++;
+	
+    numUpdatesInSession++;*/
   }
 
   // Read a FramebufferUpdate rectangle header
@@ -878,13 +872,13 @@ class RfbProto implements RfbConnectable {
     updateRectH = is.readUnsignedShort();
     updateRectEncoding = is.readInt();
 
+    /*
     if (updateRectEncoding == EncodingZlib ||
         updateRectEncoding == EncodingZRLE ||
         updateRectEncoding == EncodingTight)
     	wereZlibUpdates = true;
 
     // If the session is being recorded:
-    /*-
     if (rec != null) {
       if (numUpdatesInSession > 1)
 	rec.flush();		// Flush the output on each rectangle.

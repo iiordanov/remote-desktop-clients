@@ -201,6 +201,7 @@ public class SSHConnection implements InteractiveCallback {
 			
 		try {
 			connection.setTCPNoDelay(true);
+			connection.setCompression(false);
 
 			connectionInfo = connection.connect();
 

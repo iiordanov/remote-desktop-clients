@@ -663,6 +663,7 @@ public class VncCanvas extends ImageView {
 			// main dispatch loop
 			//
 			while (maintainConnection) {
+				boolean exitforloop = false;
 				bitmapData.syncScroll();
 				// Read message type from the server.
 				int msgType = rfb.readServerMessageType();
@@ -677,31 +678,40 @@ public class VncCanvas extends ImageView {
 						int rx = rfb.updateRectX, ry = rfb.updateRectY;
 						int rw = rfb.updateRectW, rh = rfb.updateRectH;
 
-						if (rfb.updateRectEncoding == RfbProto.EncodingPointerPos) {
-							softCursorMove(rx, ry);
-							continue;
-						} else if (rfb.updateRectEncoding == RfbProto.EncodingLastRect) {
+						/*
+						if (rfb.updateRectEncoding == RfbProto.EncodingLastRect) {
 							//Log.v(TAG, "rfb.EncodingLastRect");
 							break;
-						} else if (rfb.updateRectEncoding == RfbProto.EncodingXCursor ||
-								   rfb.updateRectEncoding == RfbProto.EncodingRichCursor) {
-							handleCursorShapeUpdate(rfb.updateRectEncoding, rx, ry, rw, rh);
-							continue;
 						}  else if (rfb.updateRectEncoding == RfbProto.EncodingNewFBSize) {
 							rfb.setFramebufferSize(rw, rh);
 							updateFBSize();
 							break;
-						}
+						}*/
 
 						switch (rfb.updateRectEncoding) {
 						case RfbProto.EncodingTight:
 							handleTightRect(rx, ry, rw, rh);
 							break;
-						case RfbProto.EncodingRaw:
-							handleRawRect(rx, ry, rw, rh);
+						case RfbProto.EncodingPointerPos:
+							softCursorMove(rx, ry);
+							break;
+						case RfbProto.EncodingXCursor:
+						case RfbProto.EncodingRichCursor:
+							handleCursorShapeUpdate(rfb.updateRectEncoding, rx, ry, rw, rh);
+							break;
+						case RfbProto.EncodingLastRect:
+							exitforloop = true;
 							break;
 						case RfbProto.EncodingCopyRect:
 							handleCopyRect(rx, ry, rw, rh);
+							break;
+						case RfbProto.EncodingNewFBSize:
+							rfb.setFramebufferSize(rw, rh);
+							updateFBSize();
+							exitforloop = true;
+							break;
+						case RfbProto.EncodingRaw:
+							handleRawRect(rx, ry, rw, rh);
 							break;
 						case RfbProto.EncodingRRE:
 							handleRRERect(rx, ry, rw, rh);
@@ -720,6 +730,11 @@ public class VncCanvas extends ImageView {
 							break;
 						default:
 							Log.e(TAG, "Unknown RFB rectangle encoding " + rfb.updateRectEncoding + " (0x" + Integer.toHexString(rfb.updateRectEncoding) + ")");
+						}
+						
+						if (exitforloop) {
+							exitforloop = false;
+							break;
 						}
 					}
 
