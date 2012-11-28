@@ -19,9 +19,9 @@ import android.util.Log;
  */
 public class AbstractBitmapDrawable extends DrawableContainer {
 	Rect cursorRect;
-	volatile Rect preCursorRect;
 	int hotX, hotY;
-	Bitmap softCursor = null;
+	Bitmap softCursor;
+	boolean softCursorInit;
 	Rect clipRect;
 	
 	AbstractBitmapData data;
@@ -41,31 +41,16 @@ public class AbstractBitmapDrawable extends DrawableContainer {
 	AbstractBitmapDrawable(AbstractBitmapData data)	{
 		this.data = data;
 		cursorRect = new Rect();
-		preCursorRect = new Rect();
 		clipRect = new Rect();
+		softCursor = Bitmap.createBitmap(10, 10, Bitmap.Config.ARGB_8888);
+		softCursorInit = false;
 	}
 	
 	void draw(Canvas canvas, int xoff, int yoff) {
-		// If the redrawn area encompasses the rectangle where the cursor was previously,
-		// we consider the region cleaned and zero out the rectangle.
-		if (canvas.getClipBounds().contains(preCursorRect))
-			preCursorRect.setEmpty();
-
-		drawBitmapWithinClip (canvas, xoff, yoff, null);
-
-		if (softCursor != null) {
-			canvas.drawBitmap(softCursor, cursorRect.left, cursorRect.top, null);
-		}
-	}
-	
-	/**
-	 * Draws the bitmap within the current clip.
-	 * @param canvas
-	 */
-	public void drawBitmapWithinClip (Canvas canvas, int xoff, int yoff, Rect toDraw) {
 		canvas.drawBitmap(data.mbitmap, xoff, yoff, _defaultPaint);
+		canvas.drawBitmap(softCursor, cursorRect.left, cursorRect.top, null);
 	}
-	
+
 	void setCursorRect(int x, int y, int w, int h, int hX, int hY) {
 		hotX = hX;
 		hotY = hY;
@@ -73,7 +58,6 @@ public class AbstractBitmapDrawable extends DrawableContainer {
 		cursorRect.right  = cursorRect.left + w;
 		cursorRect.top    = y-hotY;
 		cursorRect.bottom = cursorRect.top + h;
-		preCursorRect.union(cursorRect);
 	}
 	
 	void moveCursorRect(int x, int y) {
@@ -82,6 +66,7 @@ public class AbstractBitmapDrawable extends DrawableContainer {
 
 	void setSoftCursor (int[] newSoftCursorPixels) {
 		softCursor = Bitmap.createBitmap(newSoftCursorPixels, cursorRect.width(), cursorRect.height(), Bitmap.Config.ARGB_8888);
+		softCursorInit = true;
 	}
 	
 	/* (non-Javadoc)

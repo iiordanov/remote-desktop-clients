@@ -32,6 +32,8 @@ import java.io.*;
 import java.net.Socket;
 //- import java.util.zip.*;
 import android.util.Log;
+import android.widget.Toast;
+
 import com.iiordanov.bVNC.DH;
 
 /**
@@ -237,6 +239,19 @@ class RfbProto implements RfbConnectable {
   // If true, informs that the RFB socket was closed.
   private boolean closed;
 
+  // The main processing loop continues while this is set to true;
+  private boolean maintainConnection = true;
+
+	// VNC Encoding parameters
+
+  // Tight encoding parameters
+	private int compressLevel = 9;
+	private int jpegQuality = 6;
+
+	// Used to determine if encoding update is necessary
+	private int[] encodingsSaved = null;
+	private int nEncodingsSaved = 0;
+  
   //
   // Constructor. Make TCP connection to RFB server.
   //
@@ -257,7 +272,7 @@ class RfbProto implements RfbConnectable {
   }
  
 
-  public synchronized void close() {
+  public synchronized void closeSocket() {
     try {
       sock.close();
       closed = true;
@@ -274,6 +289,11 @@ class RfbProto implements RfbConnectable {
     }
   }
 
+  public void close() {
+	  maintainConnection = false;
+  }
+
+  
   synchronized boolean closed() {
     return closed;
   }
@@ -1404,7 +1424,7 @@ class RfbProto implements RfbConnectable {
 	}
 
 	@Override
-	public void requestUpdate (boolean incremental) throws IOException {
+	public void requestUpdate (boolean incremental) {
 		writeFramebufferUpdateRequest(0, 0, framebufferWidth, framebufferHeight, incremental);
 	}
 
@@ -1423,8 +1443,203 @@ class RfbProto implements RfbConnectable {
 		return this.inNormalProtocol;
 	}
 
-	// TODO: Implement this method to do protocol processing.
-	@Override
-	public void processProtocol () {}
+	public String getEncoding() {
+		/*
+		switch (preferredEncoding) {
+		case RfbProto.EncodingRaw:
+			return "RAW";
+		case RfbProto.EncodingTight:
+			return "TIGHT";
+		case RfbProto.EncodingCoRRE:
+			return "CoRRE";
+		case RfbProto.EncodingHextile:
+			return "HEXTILE";
+		case RfbProto.EncodingRRE:
+			return "RRE";
+		case RfbProto.EncodingZlib:
+			return "ZLIB";
+		case RfbProto.EncodingZRLE:
+			return "ZRLE";
+		}
+		return "";
+		*/
+		return "TIGHT";
+	}
+
+	private void setEncodings(boolean useLocalCursor) {
+		if (!inNormalProtocol)
+			return;
+
+		int[] encodings = new int[20];
+		int nEncodings = 0;
+
+		encodings[nEncodings++] = RfbProto.EncodingTight;
+		encodings[nEncodings++] = RfbProto.EncodingZRLE;
+		encodings[nEncodings++] = RfbProto.EncodingHextile;
+		encodings[nEncodings++] = RfbProto.EncodingZlib;
+		encodings[nEncodings++] = RfbProto.EncodingCoRRE;
+		encodings[nEncodings++] = RfbProto.EncodingRRE;
+		encodings[nEncodings++] = RfbProto.EncodingCopyRect;
+
+		encodings[nEncodings++] = RfbProto.EncodingCompressLevel0 + compressLevel;
+		encodings[nEncodings++] = RfbProto.EncodingQualityLevel0 + jpegQuality;
+
+		if (!useLocalCursor) {
+			encodings[nEncodings++] = RfbProto.EncodingXCursor;
+			encodings[nEncodings++] = RfbProto.EncodingRichCursor;
+		}
+
+		encodings[nEncodings++] = RfbProto.EncodingPointerPos;
+		encodings[nEncodings++] = RfbProto.EncodingLastRect;
+		encodings[nEncodings++] = RfbProto.EncodingNewFBSize;
+
+		boolean encodingsWereChanged = false;
+		if (nEncodings != nEncodingsSaved) {
+			encodingsWereChanged = true;
+		} else {
+			for (int i = 0; i < nEncodings; i++) {
+				if (encodings[i] != encodingsSaved[i]) {
+					encodingsWereChanged = true;
+					break;
+				}
+			}
+		}
+
+		if (encodingsWereChanged) {
+			try {
+				writeSetEncodings(encodings, nEncodings);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			encodingsSaved = encodings;
+			nEncodingsSaved = nEncodings;
+		}
+	}
+	
+
+	public void processProtocol (VncCanvas vncCanvas, boolean useLocalCursor) throws Exception {
+		boolean exitforloop = false;
+		int msgType = 0;
+
+		try {
+			setEncodings(useLocalCursor);
+			vncCanvas.writeFullUpdateRequest(false);
+
+			//
+			// main dispatch loop
+			//
+			while (maintainConnection) {
+				exitforloop = false;
+				if (!vncCanvas.useFull) {
+					vncCanvas.syncScroll();
+					// Read message type from the server.
+					msgType = readServerMessageType();
+					vncCanvas.doneWaiting();
+				} else
+					msgType = readServerMessageType();
+
+				// Process the message depending on its type.
+				switch (msgType) {
+				case RfbProto.FramebufferUpdate:
+					readFramebufferUpdate();
+
+					for (int i = 0; i < updateNRects; i++) {
+						readFramebufferUpdateRectHdr();
+
+						switch (updateRectEncoding) {
+						case RfbProto.EncodingTight:
+							vncCanvas.handleTightRect(updateRectX, updateRectY, updateRectW, updateRectH);
+							break;
+						case RfbProto.EncodingPointerPos:
+							vncCanvas.softCursorMove(updateRectX, updateRectY);
+							break;
+						case RfbProto.EncodingXCursor:
+						case RfbProto.EncodingRichCursor:
+							vncCanvas.handleCursorShapeUpdate(updateRectEncoding, updateRectX, updateRectY,
+															  updateRectW, updateRectH);
+							break;
+						case RfbProto.EncodingLastRect:
+							exitforloop = true;
+							break;
+						case RfbProto.EncodingCopyRect:
+							vncCanvas.handleCopyRect(updateRectX, updateRectY, updateRectW, updateRectH);
+							break;
+						case RfbProto.EncodingNewFBSize:
+							setFramebufferSize(updateRectW, updateRectH);
+							vncCanvas.updateFBSize();
+							exitforloop = true;
+							break;
+						case RfbProto.EncodingRaw:
+							vncCanvas.handleRawRect(updateRectX, updateRectY, updateRectW, updateRectH);
+							break;
+						case RfbProto.EncodingRRE:
+							vncCanvas.handleRRERect(updateRectX, updateRectY, updateRectW, updateRectH);
+							break;
+						case RfbProto.EncodingCoRRE:
+							vncCanvas.handleCoRRERect(updateRectX, updateRectY, updateRectW, updateRectH);
+							break;
+						case RfbProto.EncodingHextile:
+							vncCanvas.handleHextileRect(updateRectX, updateRectY, updateRectW, updateRectH);
+							break;
+						case RfbProto.EncodingZRLE:
+							vncCanvas.handleZRLERect(updateRectX, updateRectY, updateRectW, updateRectH);
+							break;
+						case RfbProto.EncodingZlib:
+							vncCanvas.handleZlibRect(updateRectX, updateRectY, updateRectW, updateRectH);
+							break;
+						default:
+							Log.e(TAG, "Unknown RFB rectangle encoding " + updateRectEncoding +
+										" (0x" + Integer.toHexString(updateRectEncoding) + ")");
+						}
+						
+						if (exitforloop) {
+							exitforloop = false;
+							break;
+						}
+					}
+
+					if (vncCanvas.pendingColorModel != null) {
+						vncCanvas.setPixelFormat();
+						//setEncodings(useLocalCursor);
+						vncCanvas.writeFullUpdateRequest(false);
+					} else {
+						//setEncodings(useLocalCursor);
+						vncCanvas.writeFullUpdateRequest(true);
+					}
+					break;
+
+				case RfbProto.SetColourMapEntries:
+					throw new Exception("Can't handle SetColourMapEntries message");
+
+				case RfbProto.Bell:
+					vncCanvas.showBeep ();
+					break;
+
+				case RfbProto.ServerCutText:
+					vncCanvas.serverJustCutText = true;
+					vncCanvas.setClipboardText(readServerCutText());
+					break;
+
+				case RfbProto.TextChat:
+					// UltraVNC extension
+					String msg = readTextChatMsg();
+					if (msg != null && msg.length() > 0) {
+						// TODO implement chat interface
+					}
+					break;
+
+				default:
+					throw new Exception("Unknown RFB message type " + msgType);
+				}
+			}
+		} catch (Exception e) {
+			closeSocket();
+			throw e;
+		} finally {
+			closeSocket();
+			Log.v(TAG, "Closing VNC Connection");
+		}
+		closeSocket();
+	}
 
 }

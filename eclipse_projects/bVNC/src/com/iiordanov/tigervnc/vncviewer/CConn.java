@@ -516,12 +516,7 @@ public class CConn extends CConnection
     }
     
     checkEncodings();
-    	try {
-			viewer.bitmapData.writeFullUpdateRequest(!formatChange);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+	viewer.writeFullUpdateRequest(!formatChange);
     formatChange = false;
   }
 
@@ -547,12 +542,7 @@ public class CConn extends CConnection
 
 
   public void refresh() {
-    	try {
-			viewer.bitmapData.writeFullUpdateRequest(false);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+	viewer.writeFullUpdateRequest(false);
     pendingUpdate = true;
   }
 
@@ -832,6 +822,24 @@ public class CConn extends CConnection
       writer().writeSetEncodings(currentEncoding, true);
       encodingChange = false;
     }
+  }
+
+  public String getEncoding () {
+		switch (currentEncoding) {
+		case Encodings.encodingRaw:
+			return "RAW";
+		case Encodings.encodingTight:
+			return "TIGHT";
+		case Encodings.encodingCoRRE:
+			return "CoRRE";
+		case Encodings.encodingHextile:
+			return "HEXTILE";
+		case Encodings.encodingRRE:
+			return "RRE";
+		case Encodings.encodingZRLE:
+			return "ZRLE";
+		}
+		return "";
   }
 
   // The following methods are implementations of the RfbConnectable interface

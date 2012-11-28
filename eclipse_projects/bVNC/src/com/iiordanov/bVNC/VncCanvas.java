@@ -86,10 +86,6 @@ public class VncCanvas extends ImageView {
 	VncDatabase database;
 	private SSHConnection sshConnection;
 
-	// Runtime control flags
-	private boolean maintainConnection = true;
-	private boolean repaintsEnabled = true;
-
 	private final static int SCAN_ESC = 1;
 	private final static int SCAN_LEFTCTRL = 29;
 	private final static int SCAN_RIGHTCTRL = 97;
@@ -116,9 +112,9 @@ public class VncCanvas extends ImageView {
 	boolean afterMenu;
 
 	// Color Model settings
-	private COLORMODEL pendingColorModel = COLORMODEL.C24bit;
+	COLORMODEL pendingColorModel = COLORMODEL.C24bit;
 	private COLORMODEL colorModel = null;
-	private int bytesPerPixel = 0;
+	int bytesPerPixel = 0;
 	private int[] colorPalette = null;
 
 	// VNC protocol connection
@@ -126,6 +122,7 @@ public class VncCanvas extends ImageView {
 	public RfbProto rfb = null;
 	Socket sock = null;
 	public CConn cc = null;
+	boolean maintainConnection = true;
 
 	// Internal bitmap data
 	private int capacity;
@@ -215,21 +212,6 @@ public class VncCanvas extends ImageView {
 	        }
 	    }
 	};
-
-	// VNC Encoding parameters
-	private int preferredEncoding = -1;
-
-	// Unimplemented VNC encoding parameters
-	private boolean requestCursorUpdates = true;
-	private boolean ignoreCursorUpdates = false;
-
-	// Tight encoding parameters
-	private int compressLevel = 9;
-	private int jpegQuality = 6;
-
-	// Used to determine if encoding update is necessary
-	private int[] encodingsSaved = new int[20];
-	private int nEncodingsSaved = 0;
 
 	// Tight encoder's data.
 	Inflater[] tightInflaters;
@@ -387,7 +369,7 @@ public class VncCanvas extends ImageView {
 			    	} else {
 			    		cc = new CConn(VncCanvas.this, sock, null, false, connection);
 			    		rfbconn = cc;
-			    		initializeBitmap(rfbconn, displayWidth, displayHeight);
+			    		initializeBitmap(displayWidth, displayHeight);
 			    		processNormalProtocolSecure(getContext(), pd, setModes);
 			    	}
 				} catch (Throwable e) {
@@ -398,18 +380,18 @@ public class VncCanvas extends ImageView {
 						// before we fatal error finish
 						if (pd.isShowing())
 							pd.dismiss();
-						
+	
 						if (e instanceof OutOfMemoryError) {
 							System.gc();
 							showFatalMessageAndQuit("A fatal error has occurred. The device appears to be out of free memory. " +
-									                "Try reconnecting, and if that fails, try killing and restarting the application. " +
-									                "As a last resort, you may try restarting your device.");
+									"Try reconnecting, and if that fails, try killing and restarting the application. " +
+									"As a last resort, you may try restarting your device.");
 						} else {
 							String error = "Connection failed!";
 							if (e.getMessage() != null) {
 								if (e.getMessage().indexOf("authentication") > -1 ||
-									e.getMessage().indexOf("Unknown security result") > -1 ||
-									e.getMessage().indexOf("password check failed") > -1) {
+										e.getMessage().indexOf("Unknown security result") > -1 ||
+										e.getMessage().indexOf("password check failed") > -1) {
 									error = "VNC authentication failed! Check VNC password (and user if applicable).";
 								}
 								error = error + "<br>" + e.getLocalizedMessage();
@@ -534,11 +516,11 @@ public class VncCanvas extends ImageView {
 		rfb.writeClientInit();
 		rfb.readServerInit();
 
-		initializeBitmap (rfb, dx, dy);
+		initializeBitmap (dx, dy);
 		setPixelFormat();
 	}
 
-	void initializeBitmap (RfbConnectable rfbconn, int dx, int dy) throws IOException {
+	void initializeBitmap (int dx, int dy) throws IOException {
 		Log.i(TAG, "Desktop name is " + rfbconn.desktopName());
 		Log.i(TAG, "Desktop size is " + rfbconn.framebufferWidth() + " x " + rfbconn.framebufferHeight());
 
@@ -555,7 +537,8 @@ public class VncCanvas extends ImageView {
 			bitmapData=new LargeBitmapData(rfbconn, this, dx, dy, capacity);
 			android.util.Log.i(TAG, "Using LargeBitmapData.");
 		} else {
-			bitmapData=new FullBufferBitmapData(rfbconn, this, capacity);
+			//bitmapData=new FullBufferBitmapData(rfbconn, this, capacity);
+			bitmapData=new CompactBitmapData(rfbconn, this);
 			android.util.Log.i(TAG, "Using FullBufferBitmapData.");
 		}
 
@@ -563,7 +546,7 @@ public class VncCanvas extends ImageView {
 		mouseY=rfbconn.framebufferHeight()/2;
 	}
 
-	private void setPixelFormat() throws IOException {
+	void setPixelFormat() throws IOException {
 		pendingColorModel.setPixelFormat(rfbconn);
 		bytesPerPixel = pendingColorModel.bpp();
 		colorPalette = pendingColorModel.palette();
@@ -583,7 +566,7 @@ public class VncCanvas extends ImageView {
 	
 	public void mouseFollowPan()
 	{
-		if (connection.getFollowPan() && scaling.isAbleToPan())
+		if (connection.getFollowPan() && scaling != null && scaling.isAbleToPan())
 		{
 			int scrollx = absoluteXPosition;
 			int scrolly = absoluteYPosition;
@@ -645,141 +628,42 @@ public class VncCanvas extends ImageView {
 			cc.close();
 		}
 	}
+
+	public void showBeep () {
+		handler.post( new Runnable() {
+			public void run() { Toast.makeText( getContext(), "VNC Beep", Toast.LENGTH_SHORT); }
+		});
+	}
+
+	public void doneWaiting () {
+		bitmapData.doneWaiting();
+	}
 	
+	public void syncScroll () {
+		bitmapData.syncScroll();
+	}
+
+	public void writeFramebufferUpdateRequest (int x, int y, int w, int h, boolean incremental) throws IOException {
+		bitmapData.prepareFullUpdateRequest(incremental);
+		rfbconn.writeFramebufferUpdateRequest(x, y, w, h, incremental);
+	}
+	
+	public void writeFullUpdateRequest (boolean incremental) {
+		bitmapData.prepareFullUpdateRequest(incremental);
+		rfbconn.writeFramebufferUpdateRequest(bitmapData.getXoffset(), bitmapData.getYoffset(),
+											  bitmapData.bmWidth(),    bitmapData.bmHeight(), incremental);
+	}
 	
 	public void processNormalProtocol(final Context context, ProgressDialog pd, final Runnable setModes) throws Exception {
-		try {
-			setEncodings(true);
-			bitmapData.writeFullUpdateRequest(false);
+		handler.post(drawableSetter);
+		handler.post(setModes);
+		handler.post(desktopInfo);
 
-			handler.post(drawableSetter);
-			handler.post(setModes);
-			handler.post(desktopInfo);
-			
-			// Hide progress dialog
-			if (pd.isShowing())
-				pd.dismiss();
-			//
-			// main dispatch loop
-			//
-			while (maintainConnection) {
-				boolean exitforloop = false;
-				bitmapData.syncScroll();
-				// Read message type from the server.
-				int msgType = rfb.readServerMessageType();
-				bitmapData.doneWaiting();
-				// Process the message depending on its type.
-				switch (msgType) {
-				case RfbProto.FramebufferUpdate:
-					rfb.readFramebufferUpdate();
+		// Hide progress dialog
+		if (pd.isShowing())
+			pd.dismiss();
 
-					for (int i = 0; i < rfb.updateNRects; i++) {
-						rfb.readFramebufferUpdateRectHdr();
-						int rx = rfb.updateRectX, ry = rfb.updateRectY;
-						int rw = rfb.updateRectW, rh = rfb.updateRectH;
-
-						/*
-						if (rfb.updateRectEncoding == RfbProto.EncodingLastRect) {
-							//Log.v(TAG, "rfb.EncodingLastRect");
-							break;
-						}  else if (rfb.updateRectEncoding == RfbProto.EncodingNewFBSize) {
-							rfb.setFramebufferSize(rw, rh);
-							updateFBSize();
-							break;
-						}*/
-
-						switch (rfb.updateRectEncoding) {
-						case RfbProto.EncodingTight:
-							handleTightRect(rx, ry, rw, rh);
-							break;
-						case RfbProto.EncodingPointerPos:
-							softCursorMove(rx, ry);
-							break;
-						case RfbProto.EncodingXCursor:
-						case RfbProto.EncodingRichCursor:
-							handleCursorShapeUpdate(rfb.updateRectEncoding, rx, ry, rw, rh);
-							break;
-						case RfbProto.EncodingLastRect:
-							exitforloop = true;
-							break;
-						case RfbProto.EncodingCopyRect:
-							handleCopyRect(rx, ry, rw, rh);
-							break;
-						case RfbProto.EncodingNewFBSize:
-							rfb.setFramebufferSize(rw, rh);
-							updateFBSize();
-							exitforloop = true;
-							break;
-						case RfbProto.EncodingRaw:
-							handleRawRect(rx, ry, rw, rh);
-							break;
-						case RfbProto.EncodingRRE:
-							handleRRERect(rx, ry, rw, rh);
-							break;
-						case RfbProto.EncodingCoRRE:
-							handleCoRRERect(rx, ry, rw, rh);
-							break;
-						case RfbProto.EncodingHextile:
-							handleHextileRect(rx, ry, rw, rh);
-							break;
-						case RfbProto.EncodingZRLE:
-							handleZRLERect(rx, ry, rw, rh);
-							break;
-						case RfbProto.EncodingZlib:
-							handleZlibRect(rx, ry, rw, rh);
-							break;
-						default:
-							Log.e(TAG, "Unknown RFB rectangle encoding " + rfb.updateRectEncoding + " (0x" + Integer.toHexString(rfb.updateRectEncoding) + ")");
-						}
-						
-						if (exitforloop) {
-							exitforloop = false;
-							break;
-						}
-					}
-
-					if (pendingColorModel != null) {
-						setPixelFormat();
-						setEncodings(true);
-						bitmapData.writeFullUpdateRequest(false);
-					} else {
-						setEncodings(true);
-						bitmapData.writeFullUpdateRequest(true);
-					}
-					break;
-
-				case RfbProto.SetColourMapEntries:
-					throw new Exception("Can't handle SetColourMapEntries message");
-
-				case RfbProto.Bell:
-					handler.post( new Runnable() {
-						public void run() { Toast.makeText( context, "VNC Beep", Toast.LENGTH_SHORT); }
-					});
-					break;
-
-				case RfbProto.ServerCutText:
-					serverJustCutText = true;
-					setClipboardText(rfb.readServerCutText());
-					break;
-
-				case RfbProto.TextChat:
-					// UltraVNC extension
-					String msg = rfb.readTextChatMsg();
-					if (msg != null && msg.length() > 0) {
-						// TODO implement chat interface
-					}
-					break;
-
-				default:
-					throw new Exception("Unknown RFB message type " + msgType);
-				}
-			}
-		} catch (Exception e) {
-			throw e;
-		} finally {
-			Log.v(TAG, "Closing VNC Connection");
-			rfb.close();
-		}
+		rfb.processProtocol(this, connection.getUseLocalCursor());
 	}
 	
 	/**
@@ -821,8 +705,6 @@ public class VncCanvas extends ImageView {
 		Log.v(TAG, "Cleaning up resources");
 		if ( bitmapData!=null) bitmapData.dispose();
 		handler.removeCallbacksAndMessages(null);
-		rfb = null;
-		cc = null;
 		bitmapData = null;
 		clipboardMonitorTimer.cancel();
 		clipboardMonitorTimer.purge();
@@ -994,59 +876,6 @@ public class VncCanvas extends ImageView {
 		mouseFollowPan();
 	}
 
-	void handleRawRect(int x, int y, int w, int h) throws IOException {
-		handleRawRect(x, y, w, h, true);
-	}
-
-	byte[] handleRawRectBuffer = new byte[128];
-	void handleRawRect(int x, int y, int w, int h, boolean paint) throws IOException {
-		boolean valid=bitmapData.validDraw(x, y, w, h);
-		int[] pixels=bitmapData.bitmapPixels;
-		if (bytesPerPixel == 1) {
-			// 1 byte per pixel. Use palette lookup table.
-		  if (w > handleRawRectBuffer.length) {
-			  handleRawRectBuffer = new byte[w];
-		  }
-			int i, offset;
-			for (int dy = y; dy < y + h; dy++) {
-				rfb.readFully(handleRawRectBuffer, 0, w);
-				if ( ! valid)
-					continue;
-				offset = bitmapData.offset(x, dy);
-				for (i = 0; i < w; i++) {
-					pixels[offset + i] = colorPalette[0xFF & handleRawRectBuffer[i]];
-				}
-			}
-		} else {
-			// 4 bytes per pixel (argb) 24-bit color
-		  
-			final int l = w * 4;
-			if (l>handleRawRectBuffer.length) {
-				handleRawRectBuffer = new byte[l];
-			}
-			int i, offset;
-			for (int dy = y; dy < y + h; dy++) {
-				rfb.readFully(handleRawRectBuffer, 0, l);
-				if ( ! valid)
-					continue;
-				offset = bitmapData.offset(x, dy);
-				for (i = 0; i < w; i++) {
-				  final int idx = i*4;
-					pixels[offset + i] = // 0xFF << 24 |
-					(handleRawRectBuffer[idx + 2] & 0xff) << 16 | (handleRawRectBuffer[idx + 1] & 0xff) << 8 | (handleRawRectBuffer[idx] & 0xff);
-				}
-			}
-		}
-		
-		if ( ! valid)
-			return;
-
-		bitmapData.updateBitmap(x, y, w, h);
-
-		if (paint)
-			reDraw(x, y, w, h);
-	}
-
 	/**
 	 * This runnable sets the drawable (contained in bitmapData) for the VncCanvas (ImageView).
 	 */
@@ -1138,36 +967,18 @@ public class VncCanvas extends ImageView {
 		} else
 			msg = rfbconn.desktopName();
 		msg += "\n" + rfbconn.framebufferWidth() + "x" + rfbconn.framebufferHeight();
-		String enc = getEncoding();
+		String enc = rfbconn.getEncoding();
 		// Encoding might not be set when we display this message
 		if (colorModel != null) {
 			if (enc != null && !enc.equals(""))
-				msg += ", " + getEncoding() + " encoding, " + colorModel.toString();
+				msg += ", " + rfbconn.getEncoding() + " encoding, " + colorModel.toString();
 			else 
 				msg += ", " + colorModel.toString();
 		}
 		Toast.makeText(getContext(), msg, Toast.LENGTH_SHORT).show();
 	}
 
-	private String getEncoding() {
-		switch (preferredEncoding) {
-		case RfbProto.EncodingRaw:
-			return "RAW";
-		case RfbProto.EncodingTight:
-			return "TIGHT";
-		case RfbProto.EncodingCoRRE:
-			return "CoRRE";
-		case RfbProto.EncodingHextile:
-			return "HEXTILE";
-		case RfbProto.EncodingRRE:
-			return "RRE";
-		case RfbProto.EncodingZlib:
-			return "ZLIB";
-		case RfbProto.EncodingZRLE:
-			return "ZRLE";
-		}
-		return "";
-	}
+
 
     // Useful shortcuts for modifier masks.
 
@@ -1525,12 +1336,17 @@ public class VncCanvas extends ImageView {
 		processLocalKeyEvent(0, new KeyEvent(KeyEvent.ACTION_UP, 0));
 
 		// Close the rfb connection.
-		if (rfbconn != null)
+		if (rfbconn != null) {
 			rfbconn.close();
-
-		// TODO: Switch from hard-coded numeric position to something better (at least an enumeration).
-		if (connection.getConnectionType() == 1)
+			rfbconn = null;
+			rfb = null;
+			cc = null;
+		}
+		// Close the SSH tunnel.
+		if (sshConnection != null) {
 			sshConnection.terminateSSHTunnel();
+			sshConnection = null;
+		}
 	}
 	
 	void sendMetaKey(MetaKeyBean meta)
@@ -1584,85 +1400,66 @@ public class VncCanvas extends ImageView {
 		return (bitmapData.framebufferheight - getHeight()) / 2;
 	}
 
-	/**
-	 * Additional Encodings
-	 * 
-	 */
 
-	private void setEncodings(boolean autoSelectOnly) {
-		if (rfb == null || !rfb.inNormalProtocol)
-			return;
+	void handleRawRect(int x, int y, int w, int h) throws IOException {
+		handleRawRect(x, y, w, h, true);
+	}
 
-		if (preferredEncoding == -1) {
-			preferredEncoding = RfbProto.EncodingTight;
-		}
-		//else {
-			// Auto encoder selection is not enabled.
-		//	if (autoSelectOnly)
-		//		return;
-		//}
-
-		int[] encodings = new int[20];
-		int nEncodings = 0;
-
-		encodings[nEncodings++] = preferredEncoding;
-		encodings[nEncodings++] = RfbProto.EncodingCopyRect;
-		if (preferredEncoding != RfbProto.EncodingTight)
-			encodings[nEncodings++] = RfbProto.EncodingTight;
-		if (preferredEncoding != RfbProto.EncodingZRLE)
-			encodings[nEncodings++] = RfbProto.EncodingZRLE;
-		if (preferredEncoding != RfbProto.EncodingHextile)
-			encodings[nEncodings++] = RfbProto.EncodingHextile;
-		if (preferredEncoding != RfbProto.EncodingZlib)
-			encodings[nEncodings++] = RfbProto.EncodingZlib;
-		if (preferredEncoding != RfbProto.EncodingCoRRE)
-			encodings[nEncodings++] = RfbProto.EncodingCoRRE;
-		if (preferredEncoding != RfbProto.EncodingRRE)
-			encodings[nEncodings++] = RfbProto.EncodingRRE;
-		
-		if (compressLevel >= 0 && compressLevel <= 9)
-			encodings[nEncodings++] = RfbProto.EncodingCompressLevel0 + compressLevel;
-		if (jpegQuality >= 0 && jpegQuality <= 9)
-			encodings[nEncodings++] = RfbProto.EncodingQualityLevel0 + jpegQuality;
-
-		if (requestCursorUpdates && !connection.getUseLocalCursor()) {
-			encodings[nEncodings++] = RfbProto.EncodingXCursor;
-			encodings[nEncodings++] = RfbProto.EncodingRichCursor;
-		}
-		if (!ignoreCursorUpdates)
-			encodings[nEncodings++] = RfbProto.EncodingPointerPos;
-
-		encodings[nEncodings++] = RfbProto.EncodingLastRect;
-		encodings[nEncodings++] = RfbProto.EncodingNewFBSize;
-
-		boolean encodingsWereChanged = false;
-		if (nEncodings != nEncodingsSaved) {
-			encodingsWereChanged = true;
+	
+	byte[] handleRawRectBuffer = new byte[128];
+	void handleRawRect(int x, int y, int w, int h, boolean paint) throws IOException {
+		boolean valid=bitmapData.validDraw(x, y, w, h);
+		int[] pixels=bitmapData.bitmapPixels;
+		if (bytesPerPixel == 1) {
+			// 1 byte per pixel. Use palette lookup table.
+		  if (w > handleRawRectBuffer.length) {
+			  handleRawRectBuffer = new byte[w];
+		  }
+			int i, offset;
+			for (int dy = y; dy < y + h; dy++) {
+				rfb.readFully(handleRawRectBuffer, 0, w);
+				if ( ! valid)
+					continue;
+				offset = bitmapData.offset(x, dy);
+				for (i = 0; i < w; i++) {
+					pixels[offset + i] = colorPalette[0xFF & handleRawRectBuffer[i]];
+				}
+			}
 		} else {
-			for (int i = 0; i < nEncodings; i++) {
-				if (encodings[i] != encodingsSaved[i]) {
-					encodingsWereChanged = true;
-					break;
+			// 4 bytes per pixel (argb) 24-bit color
+		  
+			final int l = w * 4;
+			if (l>handleRawRectBuffer.length) {
+				handleRawRectBuffer = new byte[l];
+			}
+			int i, offset;
+			for (int dy = y; dy < y + h; dy++) {
+				rfb.readFully(handleRawRectBuffer, 0, l);
+				if ( ! valid)
+					continue;
+				offset = bitmapData.offset(x, dy);
+				for (i = 0; i < w; i++) {
+				  final int idx = i*4;
+					pixels[offset + i] = // 0xFF << 24 |
+					(handleRawRectBuffer[idx + 2] & 0xff) << 16 | (handleRawRectBuffer[idx + 1] & 0xff) << 8 | (handleRawRectBuffer[idx] & 0xff);
 				}
 			}
 		}
+		
+		if ( ! valid)
+			return;
 
-		if (encodingsWereChanged) {
-			try {
-				rfb.writeSetEncodings(encodings, nEncodings);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-			encodingsSaved = encodings;
-			nEncodingsSaved = nEncodings;
-		}
+		bitmapData.updateBitmap(x, y, w, h);
+
+		if (paint)
+			reDraw(x, y, w, h);
 	}
-
+	
 	//
 	// Handle a CopyRect rectangle.
 	//
 
-	private void handleCopyRect(int x, int y, int w, int h) throws IOException {
+	void handleCopyRect(int x, int y, int w, int h) throws IOException {
 
 		// Read the source coordinates.
 		rfb.readCopyRect();
@@ -1697,7 +1494,7 @@ public class VncCanvas extends ImageView {
 	//
 	// Handle an RRE-encoded rectangle.
 	//
-	private void handleRRERect(int x, int y, int w, int h) throws IOException {
+	void handleRRERect(int x, int y, int w, int h) throws IOException {
 		boolean valid=bitmapData.validDraw(x, y, w, h);
 		int nSubrects = rfb.is.readInt();
 
@@ -1746,7 +1543,7 @@ public class VncCanvas extends ImageView {
 	// Handle a CoRRE-encoded rectangle.
 	//
 
-	private void handleCoRRERect(int x, int y, int w, int h) throws IOException {
+	void handleCoRRERect(int x, int y, int w, int h) throws IOException {
 		boolean valid=bitmapData.validDraw(x, y, w, h);
 		int nSubrects = rfb.is.readInt();
 
@@ -1798,7 +1595,7 @@ public class VncCanvas extends ImageView {
 	// These colors should be kept between handleHextileSubrect() calls.
 	private int hextile_bg, hextile_fg;
 
-	private void handleHextileRect(int x, int y, int w, int h) throws IOException {
+	void handleHextileRect(int x, int y, int w, int h) throws IOException {
 
 		hextile_bg = Color.BLACK;
 		hextile_fg = Color.BLACK;
@@ -1936,7 +1733,7 @@ public class VncCanvas extends ImageView {
 
   Paint handleZRLERectPaint = new Paint();
   int[] handleZRLERectPalette = new int[128];
-	private void handleZRLERect(int x, int y, int w, int h) throws Exception {
+	void handleZRLERect(int x, int y, int w, int h) throws Exception {
 
 		if (zrleInStream == null)
 			zrleInStream = new ZlibInStream();
@@ -2008,7 +1805,7 @@ public class VncCanvas extends ImageView {
 
 	byte[] handleZlibRectBuffer = new byte[128];
 
-	private void handleZlibRect(int x, int y, int w, int h) throws Exception {
+	void handleZlibRect(int x, int y, int w, int h) throws Exception {
 		boolean valid = bitmapData.validDraw(x, y, w, h);
 		int nBytes = rfb.is.readInt();
 
@@ -2579,7 +2376,7 @@ public class VncCanvas extends ImageView {
     		return;
 
     	// Ignore cursor shape data if requested by user.
-    	if (ignoreCursorUpdates) {
+    	/*if (ignoreCursorUpdates) {
     		int bytesPerRow = (w + 7) / 8;
     		int bytesMaskData = bytesPerRow * h;
 
@@ -2590,7 +2387,7 @@ public class VncCanvas extends ImageView {
     			rfb.is.skipBytes(w * h * bytesPerPixel + bytesMaskData);
     		}
     		return;
-    	}
+    	}*/
 
     	// Set cursor rectangle.
     	bitmapData.setCursorRect(mouseX, mouseY, w, h, hotX, hotY);
@@ -2599,7 +2396,6 @@ public class VncCanvas extends ImageView {
     	bitmapData.setSoftCursor (decodeCursorShape(encodingType, w, h));
 
     	// Show the cursor.
-    	reDraw(bitmapData.getPreCursorRect());
     	reDraw(bitmapData.getCursorRect());
     }
 
@@ -2720,18 +2516,19 @@ public class VncCanvas extends ImageView {
     //
 
     synchronized void softCursorMove(int x, int y) {
-    	if (bitmapData.isNullSoftCursor ()) {
-    		initializeSoftCursor ();
+    	if (bitmapData.isNotInitSoftCursor()) {
+    		initializeSoftCursor();
     	}
     	
     	if (!inScrolling) {
 	    	mouseX = x;
 	    	mouseY = y;
+	    	Rect prevCursorRect = new Rect(bitmapData.getCursorRect());
 	    	// Move the cursor.
 	    	bitmapData.moveCursorRect(x, y);
 	    	// Show the cursor.
-	    	reDraw(bitmapData.getPreCursorRect());
-	    	reDraw(bitmapData.getCursorRect());
+	    	prevCursorRect.union(bitmapData.getCursorRect());
+	    	reDraw(prevCursorRect);
     	}
     }
     

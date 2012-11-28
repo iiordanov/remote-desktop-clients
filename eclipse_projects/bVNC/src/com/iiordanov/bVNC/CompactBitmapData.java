@@ -4,8 +4,6 @@
  */
 package com.iiordanov.bVNC;
 
-import java.io.IOException;
-
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
@@ -23,12 +21,14 @@ class CompactBitmapData extends AbstractBitmapData {
 		{
 			super(CompactBitmapData.this);
 		}
+
 		/* (non-Javadoc)
 		 * @see android.graphics.drawable.DrawableContainer#draw(android.graphics.Canvas)
 		 */
 		@Override
 		public void draw(Canvas canvas) {
-			draw(canvas, 0, 0);
+			canvas.drawBitmap(data.mbitmap, 0, 0, _defaultPaint);
+			canvas.drawBitmap(softCursor, cursorRect.left, cursorRect.top, null);
 		}
 	}
 	
@@ -37,14 +37,9 @@ class CompactBitmapData extends AbstractBitmapData {
 		super(rfb,c);
 		bitmapwidth=framebufferwidth;
 		bitmapheight=framebufferheight;
-		mbitmap = Bitmap.createBitmap(rfb.framebufferWidth(), rfb.framebufferHeight(), Bitmap.Config.RGB_565);
+		mbitmap = Bitmap.createBitmap(bitmapwidth, bitmapheight, Bitmap.Config.RGB_565);
 		memGraphics = new Canvas(mbitmap);
-		bitmapPixels = new int[rfb.framebufferWidth() * rfb.framebufferHeight()];
-	}
-
-	@Override
-	public void writeFullUpdateRequest(boolean incremental) throws IOException {
-		rfb.writeFramebufferUpdateRequest(0, 0, bitmapwidth, bitmapheight, incremental);
+		bitmapPixels = new int[bitmapwidth * bitmapheight];
 	}
 
 	@Override
@@ -78,8 +73,34 @@ class CompactBitmapData extends AbstractBitmapData {
 	 */
 	@Override
 	public void copyRect(Rect src, Rect dest) {
-		memGraphics.drawBitmap(mbitmap, src, dest, null);
-		updateBitmap(dest.left, dest.top, dest.width(), dest.height());
+		int srcOffset, dstOffset;
+		int dstH = dest.height();
+		int dstW = dest.width();
+		int startSrcY, endSrcY, dstY, deltaY;
+		if (src.top > dest.top) {
+			startSrcY = src.top;
+			endSrcY = src.top + dstH;
+			dstY = dest.top;
+			deltaY = +1;
+		} else {
+			startSrcY = src.top + dstH - 1;
+			endSrcY = src.top - 1;
+			dstY = dest.top + dstH - 1;
+			deltaY = -1;
+		}
+		for (int y = startSrcY; y != endSrcY; y += deltaY) {
+			srcOffset = offset(src.left, y);
+			dstOffset = offset(dest.left, dstY);
+			try {
+				mbitmap.getPixels(bitmapPixels, srcOffset, bitmapwidth, src.left-xoffset, y-yoffset, dstW, 1);
+				System.arraycopy(bitmapPixels, srcOffset, bitmapPixels, dstOffset, dstW);
+			} catch (Exception e) {
+				// There was an index out of bounds exception, but we continue copying what we can. 
+				e.printStackTrace();
+			}
+			dstY += deltaY;
+		}
+		updateBitmap(dest.left, dest.top, dstW, dstH);
 	}
 
 	/* (non-Javadoc)
@@ -105,12 +126,16 @@ class CompactBitmapData extends AbstractBitmapData {
 	public void frameBufferSizeChanged () {
 		framebufferwidth=rfb.framebufferWidth();
 		framebufferheight=rfb.framebufferHeight();
-		bitmapwidth=framebufferwidth;
-		bitmapheight=framebufferheight;
 		android.util.Log.i("CBM", "bitmapsize changed = ("+bitmapwidth+","+bitmapheight+")");
-		bitmapPixels = null;
-		System.gc();
-		bitmapPixels = new int[framebufferwidth * framebufferheight];
+		if ( bitmapwidth < framebufferwidth || bitmapheight < framebufferheight ) {
+			bitmapPixels = null;
+			System.gc();
+			bitmapwidth  = framebufferwidth;
+			bitmapheight = framebufferheight;
+			bitmapPixels = new int[bitmapwidth * bitmapheight];
+			mbitmap = Bitmap.createBitmap(bitmapwidth, bitmapheight, Bitmap.Config.RGB_565);
+			memGraphics = new Canvas(mbitmap);
+		}
 	}
 	
 	/* (non-Javadoc)

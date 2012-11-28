@@ -4,15 +4,12 @@
  */
 package com.iiordanov.bVNC;
 
-import java.io.IOException;
-
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.widget.ImageView;
 import android.util.Log;
-
 
 /**
  * Abstract interface between the VncCanvas and the bitmap and pixel data buffers that actually contain
@@ -34,6 +31,8 @@ abstract public class AbstractBitmapData {
 	VncCanvas vncCanvas;
 	private AbstractBitmapDrawable drawable;
 	protected Paint paint;
+	int xoffset = 0;
+	int yoffset = 0;
 
 	AbstractBitmapData(RfbConnectable p, VncCanvas c)
 	{
@@ -72,12 +71,8 @@ abstract public class AbstractBitmapData {
 		return drawable.cursorRect;
 	}
 
-	Rect getPreCursorRect () {
-		return drawable.preCursorRect;
-	}
-
-	boolean isNullSoftCursor () {
-		return (drawable.softCursor == null);
+	boolean isNotInitSoftCursor () {
+		return (drawable.softCursorInit == false);
 	}
 
 	/**
@@ -94,7 +89,7 @@ abstract public class AbstractBitmapData {
 	 * Send a request through the protocol to get the data for the currently held bitmap
 	 * @param incremental True if we want incremental update; false for full update
 	 */
-	public abstract void writeFullUpdateRequest( boolean incremental) throws IOException;
+	public void prepareFullUpdateRequest( boolean incremental) {};
 
 	/**
 	 * Determine if a rectangle in full-frame coordinates can be drawn in the existing buffer
@@ -236,5 +231,13 @@ abstract public class AbstractBitmapData {
 
 	public int bmHeight () {
 		return bitmapheight;
+	}
+	
+	public int getXoffset () {
+		return xoffset;
+	}
+
+	public int getYoffset () {
+		return yoffset;
 	}
 }

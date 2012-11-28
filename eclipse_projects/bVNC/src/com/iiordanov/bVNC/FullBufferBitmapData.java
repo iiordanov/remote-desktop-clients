@@ -4,10 +4,8 @@
  */
 package com.iiordanov.bVNC;
 
-import java.io.IOException;
 import java.util.Arrays;
 
-import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -50,11 +48,6 @@ class FullBufferBitmapData extends AbstractBitmapData {
 		 */
 		@Override
 		public void draw(Canvas canvas) {
-			// If the redrawn area encompasses the rectangle where the cursor was previously,
-			// we consider the region cleaned and zero out the rectangle.
-			if (canvas.getClipBounds().contains(preCursorRect))
-				preCursorRect.setEmpty();
-
 			toDraw = canvas.getClipBounds();
 			
 			// To avoid artifacts, we need to enlarge the box by one pixel in all directions.
@@ -94,9 +87,7 @@ class FullBufferBitmapData extends AbstractBitmapData {
 						"Please disconnect and reconnect to the VNC server.", xo+50, yo+50, paint);
 			}
 
-			if (softCursor != null) {
-				canvas.drawBitmap(softCursor, cursorRect.left, cursorRect.top, null);
-			}
+			canvas.drawBitmap(softCursor, cursorRect.left, cursorRect.top, null);
 		}
 	}
 
@@ -251,13 +242,4 @@ class FullBufferBitmapData extends AbstractBitmapData {
 	    	return false;
 	    return true;
 	}
-
-	/* (non-Javadoc)
-	 * @see com.iiordanov.bVNC.AbstractBitmapData#writeFullUpdateRequest(boolean)
-	 */
-	@Override
-	public void writeFullUpdateRequest(boolean incremental) throws IOException {
-		rfb.writeFramebufferUpdateRequest(0, 0, bitmapwidth, bitmapheight, incremental);
-	}
-
 }

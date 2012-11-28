@@ -1929,23 +1929,18 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
-		// TODO: If we don't close the connection and destroy everything meta keys remain
-		// pressed when the application gets paused and onDestroy gets called as a consequence.
-		//if (isFinishing()) {
-			if (vncCanvas != null) {
-				vncCanvas.closeConnection();
-				vncCanvas.onDestroy();
-			}
-			database.close();
-			vncCanvas = null;
-			connection = null;
-			database = null;
-			// TODO Why is the zoomer not nulled?
-			//zoomer = null;
-			panner = null;
-			inputHandler = null;
-			System.gc();
-		//}
+		if (vncCanvas != null) {
+			vncCanvas.closeConnection();
+			vncCanvas.onDestroy();
+		}
+		database.close();
+		vncCanvas = null;
+		connection = null;
+		database = null;
+		zoomer = null;
+		panner = null;
+		inputHandler = null;
+		System.gc();
 	}
 
 	@Override

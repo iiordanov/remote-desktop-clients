@@ -4,8 +4,6 @@
  */
 package com.iiordanov.bVNC;
 
-import java.io.IOException;
-
 import com.iiordanov.android.drawing.OverlappingCopy;
 import com.iiordanov.android.drawing.RectList;
 import com.iiordanov.util.ObjectPool;
@@ -29,9 +27,7 @@ class LargeBitmapData extends AbstractBitmapData {
 	 * safety factor
 	 */
 	static final int CAPACITY_MULTIPLIER = 18;
-	
-	int xoffset;
-	int yoffset;
+
 	int scrolledToX;
 	int scrolledToY;
 	private Rect bitmapRect;
@@ -279,10 +275,10 @@ class LargeBitmapData extends AbstractBitmapData {
 	}
 
 	/* (non-Javadoc)
-	 * @see com.iiordanov.bVNC.AbstractBitmapData#writeFullUpdateRequest(boolean)
+	 * @see com.iiordanov.bVNC.AbstractBitmapData#prepareFullUpdateRequest(boolean)
 	 */
 	@Override
-	public synchronized void writeFullUpdateRequest(boolean incremental) throws IOException {
+	public synchronized void prepareFullUpdateRequest(boolean incremental) {
 		if (! incremental) {
 			ObjectPool.Entry<Rect> entry = rectPool.reserve();
 			Rect r = entry.get();
@@ -294,7 +290,6 @@ class LargeBitmapData extends AbstractBitmapData {
 			invalidList.add(r);
 			rectPool.release(entry);
 		}
-		rfb.writeFramebufferUpdateRequest(xoffset, yoffset, bitmapwidth, bitmapheight, incremental);
 	}
 
 	/* (non-Javadoc)
@@ -353,16 +348,8 @@ class LargeBitmapData extends AbstractBitmapData {
 			}
 			if (! didOverlapping)
 			{
-				try
-				{
-					//android.util.Log.i("LBM","update req "+xoffset+" "+yoffset);
-					mbitmap.eraseColor(Color.GREEN);
-					writeFullUpdateRequest(false);
-				}
-				catch ( IOException ioe)
-				{
-					// TODO log this
-				}
+				mbitmap.eraseColor(Color.GREEN);
+				vncCanvas.writeFullUpdateRequest(false);
 			}
 		}
 		int size = pendingList.getSize();
