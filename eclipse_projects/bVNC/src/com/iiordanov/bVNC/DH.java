@@ -1,4 +1,3 @@
-package com.iiordanov.bVNC;
 // CRYPTO LIBRARY FOR EXCHANGING KEYS
 // USING THE DIFFIE-HELLMAN KEY EXCHANGE PROTOCOL
 
@@ -20,6 +19,8 @@ package com.iiordanov.bVNC;
 // Enjoy.
 
 // Adopted to ms-logon for ultravnc and ported to Java by marscha, 2006.
+
+package com.iiordanov.bVNC;
 
 //import java.lang.Math;
 

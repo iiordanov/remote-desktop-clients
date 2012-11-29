@@ -1,7 +1,5 @@
-/* 
+/** 
  * Copyright (C) 2012 Iordan Iordanov
- * 
- * No previous copyright attribution was present, but I am guessing:
  * Copyright (C) 20?? Michael A. MacDonald
  * 
  * This is free software; you can redistribute it and/or modify

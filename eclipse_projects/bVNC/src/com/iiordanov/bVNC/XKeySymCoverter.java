@@ -1,4 +1,5 @@
-/* This module converts keysym values into the corresponding ISO 10646
+/**
+ * This module converts keysym values into the corresponding ISO 10646
  * (UCS, Unicode) values and back.
  * 
  * Modified from the public domain program keysym2ucs.c, and Mark Doffman's

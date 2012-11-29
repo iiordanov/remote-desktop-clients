@@ -1,3 +1,23 @@
+/**
+ * Copyright (C) 2012 Iordan Iordanov
+ * Copyright (C) 2010 Michael A. MacDonald
+ * 
+ * This is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ * 
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this software; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307,
+ * USA.
+ */
+
 package com.iiordanov.bVNC;
 
 import android.app.Activity;
@@ -72,4 +92,25 @@ public class Utils {
 		builder.setIcon(icon);
 		builder.show();
 	}
+	
+	/**
+	 * Converts a given sequence of bytes to a human-readable colon-separated Hex format. 
+	 * @param bytes
+	 * @return
+	 */
+    public static String toHexString(byte[] bytes) {
+        char[] hexArray = {'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
+        char[] hexChars = new char[bytes.length * 3];
+        int v, j;
+        for ( j = 0; j < bytes.length - 1; j++ ) {
+            v = bytes[j] & 0xFF;
+            hexChars[j*3] = hexArray[v/16];
+            hexChars[j*3 + 1] = hexArray[v%16];
+            hexChars[j*3 + 2] = ":".charAt(0);
+        }
+        v = bytes[j] & 0xFF;
+        hexChars[j*3] = hexArray[v/16];
+        hexChars[j*3 + 1] = hexArray[v%16];
+        return new String(hexChars);
+    }
 }

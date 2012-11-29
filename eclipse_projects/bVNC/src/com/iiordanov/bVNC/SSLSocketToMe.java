@@ -1,6 +1,7 @@
-/*
+/**
  * SSLSocketToMe.java: add SSL encryption to Java VNC viewer.
  *
+ * Copyright (C) 2012 Iordan Iordanov
  * Copyright (c) 2006 Karl J. Runge <runge@karlrunge.com>
  * All rights reserved.
  *

@@ -1,4 +1,4 @@
-/* 
+/** 
  * Copyright (C) 2012 Iordan Iordanov
  * Copyright (C) 2010 Michael A. MacDonald
  * 

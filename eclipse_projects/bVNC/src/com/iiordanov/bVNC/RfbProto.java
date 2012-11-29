@@ -1,28 +1,25 @@
-//
-//  Copyright (C) 2001-2004 HorizonLive.com, Inc.  All Rights Reserved.
-//  Copyright (C) 2001-2006 Constantin Kaplinsky.  All Rights Reserved.
-//  Copyright (C) 2000 Tridia Corporation.  All Rights Reserved.
-//  Copyright (C) 1999 AT&T Laboratories Cambridge.  All Rights Reserved.
-//
-//  This is free software; you can redistribute it and/or modify
-//  it under the terms of the GNU General Public License as published by
-//  the Free Software Foundation; either version 2 of the License, or
-//  (at your option) any later version.
-//
-//  This software is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//  GNU General Public License for more details.
-//
-//  You should have received a copy of the GNU General Public License
-//  along with this software; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307,
-//  USA.
-//
-
-//
-// RfbProto.java
-//
+/**
+ * Copyright (C) 2012 Iordan Iordanov
+ * Copyright (C) 2001-2004 HorizonLive.com, Inc.  All Rights Reserved.
+ * Copyright (C) 2001-2006 Constantin Kaplinsky.  All Rights Reserved.
+ * Copyright (C) 2000 Tridia Corporation.  All Rights Reserved.
+ * Copyright (C) 1999 AT&T Laboratories Cambridge.  All Rights Reserved.
+ * 
+ * This is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ * 
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this software; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307,
+ * USA.
+ */
 
 package com.iiordanov.bVNC;
 
@@ -252,10 +249,13 @@ class RfbProto implements RfbConnectable {
 	private int[] encodingsSaved = null;
 	private int nEncodingsSaved = 0;
   
+	// Handle for decoder object
+	Decoder decoder;
+	
   //
   // Constructor. Make TCP connection to RFB server.
   //
-  RfbProto(String h, int p) throws IOException{
+  RfbProto(Decoder d, String h, int p) throws IOException{
     host = h;
     port = p;
 
@@ -266,9 +266,12 @@ class RfbProto implements RfbConnectable {
     is = new DataInputStream(new BufferedInputStream(sock.getInputStream(), 8192));
     os = sock.getOutputStream();
 
+    decoder = d;
+
     timing = false;
     timeWaitedIn100us = 5;
     timedKbits = 0;
+    
   }
  
 
@@ -1548,21 +1551,21 @@ class RfbProto implements RfbConnectable {
 
 						switch (updateRectEncoding) {
 						case RfbProto.EncodingTight:
-							vncCanvas.handleTightRect(updateRectX, updateRectY, updateRectW, updateRectH);
+							decoder.handleTightRect(this, updateRectX, updateRectY, updateRectW, updateRectH);
 							break;
 						case RfbProto.EncodingPointerPos:
 							vncCanvas.softCursorMove(updateRectX, updateRectY);
 							break;
 						case RfbProto.EncodingXCursor:
 						case RfbProto.EncodingRichCursor:
-							vncCanvas.handleCursorShapeUpdate(updateRectEncoding, updateRectX, updateRectY,
+							decoder.handleCursorShapeUpdate(this, updateRectEncoding, updateRectX, updateRectY,
 															  updateRectW, updateRectH);
 							break;
 						case RfbProto.EncodingLastRect:
 							exitforloop = true;
 							break;
 						case RfbProto.EncodingCopyRect:
-							vncCanvas.handleCopyRect(updateRectX, updateRectY, updateRectW, updateRectH);
+							decoder.handleCopyRect(this, updateRectX, updateRectY, updateRectW, updateRectH);
 							break;
 						case RfbProto.EncodingNewFBSize:
 							setFramebufferSize(updateRectW, updateRectH);
@@ -1570,22 +1573,22 @@ class RfbProto implements RfbConnectable {
 							exitforloop = true;
 							break;
 						case RfbProto.EncodingRaw:
-							vncCanvas.handleRawRect(updateRectX, updateRectY, updateRectW, updateRectH);
+							decoder.handleRawRect(this, updateRectX, updateRectY, updateRectW, updateRectH);
 							break;
 						case RfbProto.EncodingRRE:
-							vncCanvas.handleRRERect(updateRectX, updateRectY, updateRectW, updateRectH);
+							decoder.handleRRERect(this, updateRectX, updateRectY, updateRectW, updateRectH);
 							break;
 						case RfbProto.EncodingCoRRE:
-							vncCanvas.handleCoRRERect(updateRectX, updateRectY, updateRectW, updateRectH);
+							decoder.handleCoRRERect(this, updateRectX, updateRectY, updateRectW, updateRectH);
 							break;
 						case RfbProto.EncodingHextile:
-							vncCanvas.handleHextileRect(updateRectX, updateRectY, updateRectW, updateRectH);
+							decoder.handleHextileRect(this, updateRectX, updateRectY, updateRectW, updateRectH);
 							break;
 						case RfbProto.EncodingZRLE:
-							vncCanvas.handleZRLERect(updateRectX, updateRectY, updateRectW, updateRectH);
+							decoder.handleZRLERect(this, updateRectX, updateRectY, updateRectW, updateRectH);
 							break;
 						case RfbProto.EncodingZlib:
-							vncCanvas.handleZlibRect(updateRectX, updateRectY, updateRectW, updateRectH);
+							decoder.handleZlibRect(this, updateRectX, updateRectY, updateRectW, updateRectH);
 							break;
 						default:
 							Log.e(TAG, "Unknown RFB rectangle encoding " + updateRectEncoding +
@@ -1598,8 +1601,8 @@ class RfbProto implements RfbConnectable {
 						}
 					}
 
-					if (vncCanvas.pendingColorModel != null) {
-						vncCanvas.setPixelFormat();
+					if (decoder.isChangedColorModel()) {
+						decoder.setPixelFormat(this);
 						//setEncodings(useLocalCursor);
 						vncCanvas.writeFullUpdateRequest(false);
 					} else {
