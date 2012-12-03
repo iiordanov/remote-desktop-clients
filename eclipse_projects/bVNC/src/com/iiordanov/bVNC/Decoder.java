@@ -28,6 +28,8 @@ package com.iiordanov.bVNC;
 import java.io.IOException;
 import java.util.zip.Inflater;
 
+import com.iiordanov.bVNC.input.RemotePointer;
+
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -1051,6 +1053,10 @@ public class Decoder {
     synchronized void
     handleCursorShapeUpdate(RfbProto rfb, int encodingType, int hotX, int hotY, int w, int h) throws IOException {
 
+    	RemotePointer p = vncCanvas.getPointer();
+    	int x = p.getX();
+    	int y = p.getY();
+    	
     	if (w * h == 0)
     		return;
 
@@ -1069,7 +1075,7 @@ public class Decoder {
     	}*/
 
     	// Set cursor rectangle.
-    	bitmapData.setCursorRect(vncCanvas.mouseX, vncCanvas.mouseY, w, h, hotX, hotY);
+    	bitmapData.setCursorRect(x, y, w, h, hotX, hotY);
 
     	// Decode cursor pixel data, and set pixel data into bitmap drawable.
     	bitmapData.setSoftCursor (decodeCursorShape(rfb, encodingType, w, h));

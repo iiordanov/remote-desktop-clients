@@ -65,12 +65,6 @@ abstract public class AbstractBitmapData {
 		waitingForInput=false;
 	}
 
-	final void invalidateMousePosition()
-	{
-		moveCursorRect(vncCanvas.mouseX,vncCanvas.mouseY);
-		vncCanvas.reDraw(drawable.cursorRect);
-	}
-
 	void setCursorRect(int x, int y, int w, int h, int hX, int hY) {
 		drawable.setCursorRect(x, y, w, h, hX, hY);
 	}

@@ -26,6 +26,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Map.Entry;
 
+import com.iiordanov.bVNC.input.RemoteKeyboard;
+
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
@@ -221,9 +223,9 @@ class MetaKeyDialog extends Dialog implements ConnectionSettable {
 		
 		setListSpinner();
 		
-		_checkShift.setOnCheckedChangeListener(new MetaCheckListener(VncCanvas.SHIFT_MASK));
-		_checkAlt.setOnCheckedChangeListener(new MetaCheckListener(VncCanvas.ALT_MASK));
-		_checkCtrl.setOnCheckedChangeListener(new MetaCheckListener(VncCanvas.CTRL_MASK));
+		_checkShift.setOnCheckedChangeListener(new MetaCheckListener(RemoteKeyboard.SHIFT_MASK));
+		_checkAlt.setOnCheckedChangeListener(new MetaCheckListener(RemoteKeyboard.ALT_MASK));
+		_checkCtrl.setOnCheckedChangeListener(new MetaCheckListener(RemoteKeyboard.CTRL_MASK));
 		
 		_spinnerLists.setOnItemSelectedListener(new OnItemSelectedListener() {
 
@@ -428,11 +430,11 @@ class MetaKeyDialog extends Dialog implements ConnectionSettable {
 			{
 				if (0 != (flags & KeyEvent.META_SHIFT_ON))
 				{
-					currentFlags |= VncCanvas.SHIFT_MASK;
+					currentFlags |= RemoteKeyboard.SHIFT_MASK;
 				}
 				if (0 != (flags & KeyEvent.META_ALT_ON))
 				{
-					currentFlags |= VncCanvas.ALT_MASK;
+					currentFlags |= RemoteKeyboard.ALT_MASK;
 				}
 				_currentKeyBean.setKeyBase(base);
 			}
@@ -441,15 +443,15 @@ class MetaKeyDialog extends Dialog implements ConnectionSettable {
 				// Toggle flags according to meta keys
 				if (0 != (flags & KeyEvent.META_SHIFT_ON))
 				{
-					currentFlags ^= VncCanvas.SHIFT_MASK;
+					currentFlags ^= RemoteKeyboard.SHIFT_MASK;
 				}
 				if (0 != (flags & KeyEvent.META_ALT_ON))
 				{
-					currentFlags ^= VncCanvas.ALT_MASK;
+					currentFlags ^= RemoteKeyboard.ALT_MASK;
 				}
 				if (keyCode == KeyEvent.KEYCODE_SEARCH)
 				{
-					currentFlags ^= VncCanvas.CTRL_MASK;
+					currentFlags ^= RemoteKeyboard.CTRL_MASK;
 				}
 			}
 			_currentKeyBean.setMetaFlags(currentFlags);
@@ -504,7 +506,7 @@ class MetaKeyDialog extends Dialog implements ConnectionSettable {
 			_spinnerKeysInList.setSelection(index);
 		}
 		_connection.Gen_update(db);
-		_canvasActivity.vncCanvas.sendMetaKey(_currentKeyBean);
+		_canvasActivity.vncCanvas.getKeyboard().sendMetaKey(_currentKeyBean);
 	}
 	
 	void setMetaKeyList()
@@ -563,9 +565,9 @@ class MetaKeyDialog extends Dialog implements ConnectionSettable {
 	private void updateDialogForCurrentKey()
 	{
 		int flags = _currentKeyBean.getMetaFlags();
-		_checkAlt.setChecked(0 != (flags & VncCanvas.ALT_MASK));
-		_checkShift.setChecked(0 != (flags & VncCanvas.SHIFT_MASK));
-		_checkCtrl.setChecked(0 != (flags & VncCanvas.CTRL_MASK));
+		_checkAlt.setChecked(0 != (flags & RemoteKeyboard.ALT_MASK));
+		_checkShift.setChecked(0 != (flags & RemoteKeyboard.SHIFT_MASK));
+		_checkCtrl.setChecked(0 != (flags & RemoteKeyboard.CTRL_MASK));
 		MetaKeyBase base = null;
 		if (_currentKeyBean.isMouseClick())
 		{

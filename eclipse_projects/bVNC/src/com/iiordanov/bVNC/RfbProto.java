@@ -32,6 +32,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.iiordanov.bVNC.DH;
+import com.iiordanov.bVNC.input.RemoteKeyboard;
 
 /**
  * Access the RFB protocol through a socket.
@@ -301,6 +302,64 @@ class RfbProto implements RfbConnectable {
     return closed;
   }
 
+  public void initializeAndAuthenticate(String us, String pw, boolean useRepeater, String repeaterID, boolean anonTLS) throws Exception {
+		
+		// <RepeaterMagic>
+		if (useRepeater && repeaterID != null && repeaterID.length()>0) {
+			Log.i(TAG, "Negotiating repeater/proxy connection");
+			byte[] protocolMsg = new byte[12];
+			is.read(protocolMsg);
+			byte[] buffer = new byte[250];
+			System.arraycopy(repeaterID.getBytes(), 0, buffer, 0, repeaterID.length());
+			os.write(buffer);
+		}
+		// </RepeaterMagic>
+
+		readVersionMsg();
+		Log.i(TAG, "RFB server supports protocol version " + serverMajor + "." + serverMinor);
+
+		writeVersionMsg();
+		Log.i(TAG, "Using RFB protocol version " + clientMajor + "." + clientMinor);
+
+		int bitPref=0;
+		if(us.length()>0)
+		  bitPref|=1;
+		Log.d("debug","bitPref="+bitPref);
+		int secType = negotiateSecurity(bitPref, anonTLS);
+		int authType;
+		if (secType == RfbProto.SecTypeTight) {
+			initCapabilities();
+			setupTunneling();
+			authType = negotiateAuthenticationTight();
+		} else if (secType == RfbProto.SecTypeUltra34) {
+			prepareDH();
+			authType = RfbProto.AuthUltra;
+		} else if (secType == RfbProto.SecTypeTLS) {
+			performTLSHandshake ();
+			authType = negotiateSecurity(bitPref, false);
+		//} else if (secType == RfbProto.SecTypeVeNCrypt) {
+		//	rfb.performTLSHandshake ();
+		//	authType = rfb.selectVeNCryptSecurityType();
+		} else {
+			authType = secType;
+		}
+
+		switch (authType) {
+		case RfbProto.AuthNone:
+			Log.i(TAG, "No authentication needed");
+			authenticateNone();
+			break;
+		case RfbProto.AuthVNC:
+			Log.i(TAG, "VNC authentication needed");
+			authenticateVNC(pw);
+			break;
+		case RfbProto.AuthUltra:
+			authenticateDH(us,pw);
+			break;
+		default:
+			throw new Exception("Unknown authentication scheme " + authType);
+		}
+  }
   //
   // Read server's protocol version message
   //
@@ -563,7 +622,7 @@ class RfbProto implements RfbConnectable {
 	os.write(DH.longToBytes(pub));
   }
   
-  void authenticateDH(String us,String pw) throws Exception
+  void authenticateDH(String us, String pw) throws Exception
   {
 	long key = dh.createEncryptionKey(dh_resp);
 	
@@ -1191,7 +1250,7 @@ class RfbProto implements RfbConnectable {
 
   void writeCtrlAltDel() throws IOException {
 	  final int DELETE = 0xffff;
-	  final int CTRLALT = VncCanvas.CTRL_MASK | VncCanvas.ALT_MASK;
+	  final int CTRLALT = RemoteKeyboard.CTRL_MASK | RemoteKeyboard.ALT_MASK;
 	  try {
 		  // Press
 		  eventBufLen = 0;
@@ -1264,17 +1323,17 @@ class RfbProto implements RfbConnectable {
   int oldModifiers = 0;
 
   void writeModifierKeyEvents(int newModifiers) {
-    if ((newModifiers & VncCanvas.CTRL_MASK) != (oldModifiers & VncCanvas.CTRL_MASK))
-      writeKeyEvent(0xffe3, (newModifiers & VncCanvas.CTRL_MASK) != 0);
+    if ((newModifiers & RemoteKeyboard.CTRL_MASK) != (oldModifiers & RemoteKeyboard.CTRL_MASK))
+      writeKeyEvent(0xffe3, (newModifiers & RemoteKeyboard.CTRL_MASK) != 0);
 
-    if ((newModifiers & VncCanvas.SHIFT_MASK) != (oldModifiers & VncCanvas.SHIFT_MASK))
-      writeKeyEvent(0xffe1, (newModifiers & VncCanvas.SHIFT_MASK) != 0);
+    if ((newModifiers & RemoteKeyboard.SHIFT_MASK) != (oldModifiers & RemoteKeyboard.SHIFT_MASK))
+      writeKeyEvent(0xffe1, (newModifiers & RemoteKeyboard.SHIFT_MASK) != 0);
 
-    if ((newModifiers & VncCanvas.META_MASK) != (oldModifiers & VncCanvas.META_MASK))
-      writeKeyEvent(0xffe7, (newModifiers & VncCanvas.META_MASK) != 0);
+    if ((newModifiers & RemoteKeyboard.META_MASK) != (oldModifiers & RemoteKeyboard.META_MASK))
+      writeKeyEvent(0xffe7, (newModifiers & RemoteKeyboard.META_MASK) != 0);
 
-    if ((newModifiers & VncCanvas.ALT_MASK) != (oldModifiers & VncCanvas.ALT_MASK))
-      writeKeyEvent(0xffe9, (newModifiers & VncCanvas.ALT_MASK) != 0);
+    if ((newModifiers & RemoteKeyboard.ALT_MASK) != (oldModifiers & RemoteKeyboard.ALT_MASK))
+      writeKeyEvent(0xffe9, (newModifiers & RemoteKeyboard.ALT_MASK) != 0);
 
     oldModifiers = newModifiers;
   }

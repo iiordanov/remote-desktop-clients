@@ -53,12 +53,15 @@ import android.util.Log;
 import android.view.Display;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
+import android.view.ViewConfiguration;
 import android.widget.ImageView;
 import android.widget.Toast;
 import android.graphics.BitmapFactory;
 import android.graphics.Bitmap;
 
 import com.iiordanov.android.bc.BCFactory;
+import com.iiordanov.bVNC.input.RemotePointer;
+import com.iiordanov.bVNC.input.RemoteKeyboard;
 
 import com.iiordanov.tigervnc.rfb.UnicodeToKeysym;
 import com.iiordanov.tigervnc.vncviewer.CConn;
@@ -66,15 +69,9 @@ import com.iiordanov.tigervnc.vncviewer.CConn;
 public class VncCanvas extends ImageView {
 	private final static String TAG = "VncCanvas";
 	private final static boolean LOCAL_LOGV = true;
-	
-	// Variable holding the state of the Menu toggle buttons for meta keys (Ctrl, Alt...)
-	private static int onScreenMetaState = 0;
-	
+
 	AbstractScaling scaling;
-	
-	// Available to activity
-	int mouseX, mouseY;
-	
+
 	// Variable indicating that we are currently scrolling in simulated touchpad mode.
 	boolean inScrolling = false;
 	
@@ -82,31 +79,6 @@ public class VncCanvas extends ImageView {
 	ConnectionBean connection;
 	VncDatabase database;
 	private SSHConnection sshConnection;
-
-	private final static int SCAN_ESC = 1;
-	private final static int SCAN_LEFTCTRL = 29;
-	private final static int SCAN_RIGHTCTRL = 97;
-	private final static int SCAN_F1 = 59;
-	private final static int SCAN_F2 = 60;
-	private final static int SCAN_F3 = 61;
-	private final static int SCAN_F4 = 62;
-	private final static int SCAN_F5 = 63;
-	private final static int SCAN_F6 = 64;
-	private final static int SCAN_F7 = 65;
-	private final static int SCAN_F8 = 66;
-	private final static int SCAN_F9 = 67;
-	private final static int SCAN_F10 = 68;
-	//private final static int SCAN_HOME = 102;
-	//private final static int SCAN_END = 107;
-	
-	/**
-	 * Use camera button as meta key for right mouse button
-	 */
-	boolean cameraButtonDown = false;
-	
-	// Keep track when a seeming key press was the result of a menu shortcut
-	int lastKeyDown;
-	boolean afterMenu;
 
 	// VNC protocol connection
 	public RfbConnectable rfbconn = null;
@@ -117,6 +89,10 @@ public class VncCanvas extends ImageView {
 	
 	// RFB Decoder
 	Decoder decoder = null;
+	
+	// The remote pointer and keyboard
+	RemotePointer pointer;
+	RemoteKeyboard keyboard;
 
 	// Internal bitmap data
 	private int capacity;
@@ -213,8 +189,6 @@ public class VncCanvas extends ImageView {
 	ClipboardMonitor clipboardMonitor;
 	public boolean serverJustCutText = false;
 	
-	private MouseScrollRunnable scrollRunnable;
-
 	private Runnable setModes;
 	
 	// This variable indicates whether or not the user has accepted an untrusted
@@ -255,8 +229,7 @@ public class VncCanvas extends ImageView {
 	 * 
 	 * @param context
 	 */
-	public VncCanvas(final Context context, AttributeSet attrs)
-	{
+	public VncCanvas(final Context context, AttributeSet attrs) {
 		super(context, attrs);
 
 		clipboard = (ClipboardManager)getContext().getSystemService(Context.CLIPBOARD_SERVICE);
@@ -308,6 +281,8 @@ public class VncCanvas extends ImageView {
 			    	if (connection.getConnectionType() < 4) {
 			    		connectAndAuthenticate(connection.getUserName(),connection.getPassword());
 			    		rfbconn = rfb;
+			    		pointer = new RemotePointer (rfbconn, VncCanvas.this, handler);
+			    		keyboard = new RemoteKeyboard (rfbconn, VncCanvas.this, handler);
 			    		doProtocolInitialisation(displayWidth, displayHeight);
 			    		handler.post(new Runnable() {
 			    			public void run() {
@@ -321,6 +296,8 @@ public class VncCanvas extends ImageView {
 			    	} else {
 			    		cc = new CConn(VncCanvas.this, sock, null, false, connection);
 			    		rfbconn = cc;
+			    		pointer = new RemotePointer (rfbconn, VncCanvas.this, handler);
+			    		keyboard = new RemoteKeyboard (rfbconn, VncCanvas.this, handler);
 			    		initializeBitmap(displayWidth, displayHeight);
 			    		processNormalProtocolSecure(getContext(), pd, setModes);
 			    	}
@@ -369,16 +346,16 @@ public class VncCanvas extends ImageView {
 		// If the type of connection is ssh-tunneled and we are told to send the unix credentials, then do so.
 		// Do not send the up event if this is a bb10 device, since the up-event hack in processLocalKeyEvent takes care of that...
 		if (connection.getConnectionType() == 1 && connection.getAutoXUnixAuth()) {
-			VncCanvas.this.processLocalKeyEvent(KeyEvent.KEYCODE_UNKNOWN, new KeyEvent(SystemClock.uptimeMillis(),
+			keyboard.processLocalKeyEvent(KeyEvent.KEYCODE_UNKNOWN, new KeyEvent(SystemClock.uptimeMillis(),
 					connection.getSshUser(), 0, 0));
-			VncCanvas.this.processLocalKeyEvent(KeyEvent.KEYCODE_ENTER, new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_ENTER));
+			keyboard.processLocalKeyEvent(KeyEvent.KEYCODE_ENTER, new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_ENTER));
 			if (!bb10)
-				VncCanvas.this.processLocalKeyEvent(KeyEvent.KEYCODE_ENTER, new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_ENTER));
-			VncCanvas.this.processLocalKeyEvent(KeyEvent.KEYCODE_UNKNOWN, new KeyEvent(SystemClock.uptimeMillis(),
+				keyboard.processLocalKeyEvent(KeyEvent.KEYCODE_ENTER, new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_ENTER));
+			keyboard.processLocalKeyEvent(KeyEvent.KEYCODE_UNKNOWN, new KeyEvent(SystemClock.uptimeMillis(),
 					connection.getSshPassword(), 0, 0));
-			VncCanvas.this.processLocalKeyEvent(KeyEvent.KEYCODE_ENTER, new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_ENTER));
+			keyboard.processLocalKeyEvent(KeyEvent.KEYCODE_ENTER, new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_ENTER));
 			if (!bb10)
-				VncCanvas.this.processLocalKeyEvent(KeyEvent.KEYCODE_ENTER, new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_ENTER));
+				keyboard.processLocalKeyEvent(KeyEvent.KEYCODE_ENTER, new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_ENTER));
 		}
 	}
 	
@@ -391,78 +368,45 @@ public class VncCanvas extends ImageView {
 		});
 	}
 
-	// TODO: Move part of this over to RfbProto so there is no rfb.is + os crap.
-	void connectAndAuthenticate(String us,String pw) throws Exception {
-		Log.i(TAG, "Connecting to " + connection.getAddress() + ", port " + connection.getPort() + "...");
-		// TODO: Switch from hard-coded numeric position to something better (at least an enumeration).
-		boolean anontls = (connection.getConnectionType() == 3);
-
+	/** 
+	 * Initializes SSH Tunnel and returns local forwarded port, or
+	 * if SSH connection not needed, returns saved plain VNC port.
+	 * @return
+	 * @throws Exception
+	 */
+	int getVNCPort() throws Exception {
 		if (connection.getConnectionType() == 1) {
-			int localForwardedPort;
 			sshConnection = new SSHConnection(connection);
-			localForwardedPort = sshConnection.initializeSSHTunnel ();
-			rfb = new RfbProto(decoder, "localhost", localForwardedPort);
-		} else {
-			rfb = new RfbProto(decoder, connection.getAddress(), connection.getPort());
-		}
-
-		if (LOCAL_LOGV) Log.v(TAG, "Connected to server");
+			return sshConnection.initializeSSHTunnel ();
+		} else
+			return connection.getPort();
+	}
 	
-		// <RepeaterMagic>
-		if (connection.getUseRepeater() && connection.getRepeaterId() != null && connection.getRepeaterId().length()>0) {
-			Log.i(TAG, "Negotiating repeater/proxy connection");
-			byte[] protocolMsg = new byte[12];
-			rfb.is.read(protocolMsg);
-			byte[] buffer = new byte[250];
-			System.arraycopy(connection.getRepeaterId().getBytes(), 0, buffer, 0, connection.getRepeaterId().length());
-			rfb.os.write(buffer);
-		}
-		// </RepeaterMagic>
+	/** 
+	 * Returns localhost if using SSH tunnel or saved VNC address.
+	 * @return
+	 * @throws Exception
+	 */
+	String getVNCAddress() throws Exception {
+		if (connection.getConnectionType() == 1) {
+			sshConnection = new SSHConnection(connection);
+			return new String("localhost");
+		} else
+			return connection.getAddress();
+	}
+	
+	void connectAndAuthenticate(String us, String pw) throws Exception {
+		Log.i(TAG, "Connecting to " + connection.getAddress() + ", port " + connection.getPort() + "...");
 
-		rfb.readVersionMsg();
-		Log.i(TAG, "RFB server supports protocol version " + rfb.serverMajor + "." + rfb.serverMinor);
+		String address = getVNCAddress();
+		int vncPort    = getVNCPort();
+		rfb = new RfbProto(decoder, address, vncPort);
 
-		rfb.writeVersionMsg();
-		Log.i(TAG, "Using RFB protocol version " + rfb.clientMajor + "." + rfb.clientMinor);
-
-		int bitPref=0;
-		if(connection.getUserName().length()>0)
-		  bitPref|=1;
-		Log.d("debug","bitPref="+bitPref);
-		int secType = rfb.negotiateSecurity(bitPref, anontls);
-		int authType;
-		if (secType == RfbProto.SecTypeTight) {
-			rfb.initCapabilities();
-			rfb.setupTunneling();
-			authType = rfb.negotiateAuthenticationTight();
-		} else if (secType == RfbProto.SecTypeUltra34) {
-			rfb.prepareDH();
-			authType = RfbProto.AuthUltra;
-		} else if (secType == RfbProto.SecTypeTLS) {
-			rfb.performTLSHandshake ();
-			authType = rfb.negotiateSecurity(bitPref, false);
-		//} else if (secType == RfbProto.SecTypeVeNCrypt) {
-		//	rfb.performTLSHandshake ();
-		//	authType = rfb.selectVeNCryptSecurityType();
-		} else {
-			authType = secType;
-		}
-
-		switch (authType) {
-		case RfbProto.AuthNone:
-			Log.i(TAG, "No authentication needed");
-			rfb.authenticateNone();
-			break;
-		case RfbProto.AuthVNC:
-			Log.i(TAG, "VNC authentication needed");
-			rfb.authenticateVNC(pw);
-			break;
-		case RfbProto.AuthUltra:
-			rfb.authenticateDH(us,pw);
-			break;
-		default:
-			throw new Exception("Unknown authentication scheme " + authType);
-		}
+		Log.v(TAG, "Connected to server");
+		
+		// TODO: Switch from hard-coded numeric position to something better (at least an enumeration).
+		boolean anonTLS = (connection.getConnectionType() == 3);
+		rfb.initializeAndAuthenticate(us, pw, connection.getUseRepeater(), connection.getRepeaterId(), anonTLS);
 	}
 
 	void doProtocolInitialisation(int dx, int dy) throws IOException {
@@ -490,15 +434,14 @@ public class VncCanvas extends ImageView {
 			bitmapData=new LargeBitmapData(rfbconn, this, dx, dy, capacity);
 			android.util.Log.i(TAG, "Using LargeBitmapData.");
 		} else {
-			//bitmapData=new FullBufferBitmapData(rfbconn, this, capacity);
-			bitmapData=new CompactBitmapData(rfbconn, this);
-			android.util.Log.i(TAG, "Using FullBufferBitmapData.");
+	        if (android.os.Build.VERSION.SDK_INT == 17)
+				bitmapData=new FullBufferBitmapData(rfbconn, this, capacity);
+	        else
+	        	bitmapData=new CompactBitmapData(rfbconn, this);
+			android.util.Log.i(TAG, "Using CompactBufferBitmapData.");
 		}
 		
 		decoder.setBitmapData(bitmapData);
-
-		mouseX=rfbconn.framebufferWidth()/2;
-		mouseY=rfbconn.framebufferHeight()/2;
 	}
 
 	public boolean isColorModel(COLORMODEL cm) {
@@ -509,21 +452,8 @@ public class VncCanvas extends ImageView {
 		decoder.setColorModel(cm);
 	}
 	
-	public void mouseFollowPan()
-	{
-		if (connection.getFollowPan() && scaling != null && scaling.isAbleToPan())
-		{
-			int scrollx = absoluteXPosition;
-			int scrolly = absoluteYPosition;
-			int width = getVisibleWidth();
-			int height = getVisibleHeight();
-			//Log.i(TAG,"scrollx " + scrollx + " scrolly " + scrolly + " mouseX " + mouseX +" Y " + mouseY + " w " + width + " h " + height);
-			if (mouseX < scrollx || mouseX >= scrollx + width || mouseY < scrolly || mouseY >= scrolly + height)
-			{
-				//Log.i(TAG,"warp to " + scrollx+width/2 + "," + scrolly + height/2);
-				warpMouse(scrollx + width/2, scrolly + height / 2);
-			}
-		}
+	public boolean getMouseFollowPan() {
+		return connection.getFollowPan();
 	}
 
 	public void updateFBSize () {
@@ -627,23 +557,6 @@ public class VncCanvas extends ImageView {
 		shiftY = (bitmapData.fbHeight() - getHeight()) / 2;
 	}
 
-	/**
-	 * Apply scroll offset and scaling to convert touch-space coordinates to the corresponding
-	 * point on the full frame.
-	 * @param e MotionEvent with the original, touch space coordinates.  This event is altered in place.
-	 * @return e -- The same event passed in, with the coordinates mapped
-	 */
-	MotionEvent changeTouchCoordinatesToFullFrame(MotionEvent e)
-	{
-		//Log.v(TAG, String.format("tap at %f,%f", e.getX(), e.getY()));
-		float scale = getScale();
-		
-		// Adjust coordinates for Android notification bar.
-		e.offsetLocation(0, -1f * getTop());
-		e.setLocation(absoluteXPosition + e.getX() / scale, absoluteYPosition + e.getY() / scale);
-		return e;
-	}
-
 	public void onDestroy() {
 		Log.v(TAG, "Cleaning up resources");
 		if ( bitmapData!=null) bitmapData.dispose();
@@ -653,21 +566,6 @@ public class VncCanvas extends ImageView {
 		clipboardMonitorTimer.purge();
 		clipboardMonitorTimer = null;
 		clipboardMonitor = null;
-	}
-	
-	/**
-	 * Warp the mouse to x, y in the RFB coordinates
-	 * 
-	 * @param x
-	 * @param y
-	 */
-	void warpMouse(int x, int y)
-	{
-		bitmapData.invalidateMousePosition();
-		mouseX=x;
-		mouseY=y;
-		bitmapData.invalidateMousePosition();
-		rfbconn.writePointerEvent(x, y, 0, MOUSE_BUTTON_NONE);
 	}
 
 	/*
@@ -700,10 +598,18 @@ public class VncCanvas extends ImageView {
 				 (int)((absoluteYPosition + ((float)getHeight() - getImageHeight()) / 2 ) * scale));
 	}
 
+	public int getAbsoluteX () {
+		return absoluteXPosition;
+	}
+
+	public int getAbsoluteY () {
+		return absoluteYPosition;
+	}
+	
 	/**
 	 * Make sure mouse is visible on displayable part of screen
 	 */
-	void panToMouse()
+	public void panToMouse()
 	{
 		boolean panX = true;
 		boolean panY = true;
@@ -719,8 +625,8 @@ public class VncCanvas extends ImageView {
 		if (scaling != null && ! scaling.isAbleToPan())
 			return;
 
-		int x = mouseX;
-		int y = mouseY;
+		int x = pointer.getX();
+		int y = pointer.getY();
 		boolean panned = false;
 		int w = getVisibleWidth();
 		int h = getVisibleHeight();
@@ -816,7 +722,7 @@ public class VncCanvas extends ImageView {
 	protected void onScrollChanged(int l, int t, int oldl, int oldt) {
 		super.onScrollChanged(l, t, oldl, oldt);
 		bitmapData.scrollChanged(absoluteXPosition, absoluteYPosition);
-		mouseFollowPan();
+		pointer.mouseFollowPan();
 	}
 
 	/**
@@ -850,53 +756,6 @@ public class VncCanvas extends ImageView {
 		postInvalidate ((int)((shiftedX-1)*scale),   (int)((shiftedY-1)*scale),
 						(int)((shiftedX+w+1)*scale), (int)((shiftedY+h+1)*scale));
 	}
-	
-	/**
-	 * Toggles on-screen Ctrl mask. Returns true if result is Ctrl enabled, false otherwise.
-	 * @return true if on false otherwise.
-	 */
-	public boolean onScreenCtrlToggle()	{
-		// If we find Ctrl on, turn it off. Otherwise, turn it on.
-		if (onScreenMetaState == (onScreenMetaState | CTRL_MASK)) {
-			onScreenMetaState = onScreenMetaState & ~CTRL_MASK;
-			return false;
-		}
-		else {
-			onScreenMetaState = onScreenMetaState | CTRL_MASK;
-			return true;
-		}
-	}
-	
-	/**
-	 * Turns off on-screen Ctrl.
-	 */
-	public void onScreenCtrlOff()	{
-		onScreenMetaState = onScreenMetaState & ~CTRL_MASK;
-	}
-	
-	/**
-	 * Toggles on-screen Ctrl mask.  Returns true if result is Alt enabled, false otherwise.
-	 * @return true if on false otherwise.
-	 */
-	public boolean onScreenAltToggle() {
-		// If we find Alt on, turn it off. Otherwise, trurn it on.
-		if (onScreenMetaState == (onScreenMetaState | ALT_MASK)) {
-			onScreenMetaState = onScreenMetaState & ~ALT_MASK;
-			return false;
-		}
-		else {
-			onScreenMetaState = onScreenMetaState | ALT_MASK;
-			return true;
-		}
-	}
-
-	/**
-	 * Turns off on-screen Alt.
-	 */
-	public void onScreenAltOff()	{
-		onScreenMetaState = onScreenMetaState & ~ALT_MASK;
-	}
-
 
 	public void showConnectionInfo() {
 		String msg = null;
@@ -921,178 +780,19 @@ public class VncCanvas extends ImageView {
 		Toast.makeText(getContext(), msg, Toast.LENGTH_SHORT).show();
 	}
 
-
-
-    // Useful shortcuts for modifier masks.
-
-    public final static int CTRL_MASK  = KeyEvent.META_SYM_ON;
-    public final static int SHIFT_MASK = KeyEvent.META_SHIFT_ON;
-    public final static int ALT_MASK   = KeyEvent.META_ALT_ON;
-    public final static int META_MASK  = 0;
-    
-	private static final int MOUSE_BUTTON_NONE = 0;
-	static final int MOUSE_BUTTON_LEFT = 1;
-	static final int MOUSE_BUTTON_MIDDLE = 2;
-	static final int MOUSE_BUTTON_RIGHT = 4;
-	static final int MOUSE_BUTTON_SCROLL_UP = 8;
-	static final int MOUSE_BUTTON_SCROLL_DOWN = 16;
-	static final int MOUSE_BUTTON_SCROLL_LEFT = 32;
-	static final int MOUSE_BUTTON_SCROLL_RIGHT = 64;
-	
 	/**
-	 * Current state of "mouse" buttons
-	 * Alt meta means use second mouse button
-	 * 0 = none
-	 * 1 = default button
-	 * 2 = second button
+	 * Invalidates (to redraw) the location of the remote pointer.
 	 */
-	private int pointerMask = MOUSE_BUTTON_NONE;
-	
-	/**
-	 * Convert a motion event to a format suitable for sending over the wire
-	 * @param evt motion event; x and y must already have been converted from screen coordinates
-	 * to remote frame buffer coordinates.  cameraButton flag is interpreted as second mouse
-	 * button
-	 * @param downEvent True if "mouse button" (touch or trackball button) is down when this happens
-	 * @return true if event was actually sent
-	 */
-	public boolean processPointerEvent(MotionEvent evt, boolean downEvent)
-	{
-		return processPointerEvent(evt, downEvent, cameraButtonDown);
-	}
-
-	/**
-	 *  Overloaded processPointerEvent method which supports mouse scroll button.
-	 * @param evt motion event; x and y must already have been converted from screen coordinates
-	 * to remote frame buffer coordinates.
-	 * @param downEvent True if "mouse button" (touch or trackball button) is down when this happens
-	 * @param useRightButton If true, event is interpreted as happening with right mouse button
-	 * @param useMiddleButton If true, event is interpreted as click happening with middle mouse button
-	 * @param useScrollButton If true, event is interpreted as click happening with mouse scroll button
-	 * @param direction Indicates the direction of the scroll event: 0 for up, 1 for down, 2 for left, 3 for right.
-	 * @return true if event was actually sent
-	 */
-	public boolean processPointerEvent(MotionEvent evt, boolean downEvent, 
-                                       boolean useRightButton, boolean useMiddleButton, boolean useScrollButton, int direction) {
-		return processPointerEvent((int)evt.getX(),(int)evt.getY(), evt.getActionMasked(), 
-									evt.getMetaState(), downEvent, useRightButton, useMiddleButton, useScrollButton, direction);
+	public void invalidateMousePosition() {
+		bitmapData.moveCursorRect(pointer.mouseX, pointer.mouseY);
+		reDraw(bitmapData.getCursorRect());
 	}
 	
 	/**
-	 *  Overloaded processPointerEvent method which supports middle mouse button.
-	 * @param evt motion event; x and y must already have been converted from screen coordinates
-	 * to remote frame buffer coordinates.
-	 * @param downEvent True if "mouse button" (touch or trackball button) is down when this happens
-	 * @param useRightButton If true, event is interpreted as happening with right mouse button
-	 * @param useMiddleButton If true, event is interpreted as click happening with middle mouse button
-	 * @return true if event was actually sent
+	 * Moves soft cursor into a particular location.
+	 * @param x
+	 * @param y
 	 */
-	public boolean processPointerEvent(MotionEvent evt, boolean downEvent, 
-                                       boolean useRightButton, boolean useMiddleButton) {
-		return processPointerEvent((int)evt.getX(),(int)evt.getY(), evt.getActionMasked(), 
-									evt.getMetaState(), downEvent, useRightButton, useMiddleButton, false, -1);
-	}
-
-	/**
-	 * Convert a motion event to a format suitable for sending over the wire
-	 * @param evt motion event; x and y must already have been converted from screen coordinates
-	 * to remote frame buffer coordinates.
-	 * @param downEvent True if "mouse button" (touch or trackball button) is down when this happens
-	 * @param useRightButton If true, event is interpreted as happening with right mouse button
-	 * @return true if event was actually sent
-	 */
-	public boolean processPointerEvent(MotionEvent evt, boolean downEvent, boolean useRightButton) {
-		return processPointerEvent((int)evt.getX(),(int)evt.getY(), evt.getAction(), 
-									evt.getMetaState(), downEvent, useRightButton, false, false, -1);
-	}
-
-	/**
-	 *  Overloaded processPointerEvent method which supports right mouse button.
-	 * @param evt motion event; x and y must already have been converted from screen coordinates
-	 * to remote frame buffer coordinates.
-	 * @param downEvent True if "mouse button" (touch or trackball button) is down when this happens
-	 * @param useRightButton If true, event is interpreted as happening with right mouse button
-	 * @return true if event was actually sent
-	 */
-	boolean processPointerEvent(int x, int y, int action, int modifiers, boolean mouseIsDown, boolean useRightButton) {
-		return processPointerEvent(x, y, action, modifiers, mouseIsDown, useRightButton, false, false, -1);
-	}
-	
-	boolean processPointerEvent(int x, int y, int action, int modifiers, 
-			                    boolean mouseIsDown, boolean useRightButton, boolean useMiddleButton, boolean useScrollButton, int direction) {
-		
-		// If none of the conditions below are satisfied, clear the pointer mask.
-		pointerMask = 0;
-		
-		if (rfbconn != null) {
-			if (mouseIsDown && useRightButton) {
-		    	//Log.i(TAG,"Right mouse button mask set");
-		        pointerMask = MOUSE_BUTTON_RIGHT;
-			} else if (mouseIsDown && useMiddleButton) {
-			    //Log.i(TAG,"Middle mouse button mask set");
-			    pointerMask = MOUSE_BUTTON_MIDDLE;
-			} else if (mouseIsDown && (action == MotionEvent.ACTION_DOWN || action == MotionEvent.ACTION_MOVE)) {
-			    //Log.i(TAG,"Left mouse button mask set");
-		        pointerMask = MOUSE_BUTTON_LEFT;
-			} else if (!mouseIsDown && useScrollButton) {
-				//Log.d(TAG, "Sending a Mouse Scroll event: " + direction);
-				if      ( direction == 0 )
-					pointerMask = MOUSE_BUTTON_SCROLL_UP;
-				else if ( direction == 1 )
-					pointerMask = MOUSE_BUTTON_SCROLL_DOWN;
-				if      ( direction == 2 )
-					pointerMask = MOUSE_BUTTON_SCROLL_LEFT;
-				else if ( direction == 3 )
-					pointerMask = MOUSE_BUTTON_SCROLL_RIGHT;
-		    } else {
-			    //Log.i(TAG,"Mouse button mask cleared");
-		    	pointerMask = 0;
-		    }
-						
-		    bitmapData.invalidateMousePosition();
-		    mouseX = x;
-		    mouseY = y;
-		    if ( mouseX < 0) mouseX=0;
-		    else if ( mouseX >= bitmapData.fbWidth())  mouseX = bitmapData.fbWidth() - 1;
-		    if ( mouseY < 0) mouseY=0;
-		    else if ( mouseY >= bitmapData.fbHeight()) mouseY = bitmapData.fbHeight() - 1;
-		    bitmapData.invalidateMousePosition();
-
-    		rfbconn.writePointerEvent(mouseX, mouseY, modifiers|onScreenMetaState, pointerMask);
-		    panToMouse();
-			return true;
-		}
-		return false;		
-	}
-	
-	/**
-	 * Moves the scroll while the volume key is held down
-	 * 
-	 * @author Michael A. MacDonald
-	 */
-	class MouseScrollRunnable implements Runnable
-	{
-		int delay = 100;
-		
-		int scrollButton = 0;
-		
-		/* (non-Javadoc)
-		 * @see java.lang.Runnable#run()
-		 */
-		@Override
-		public void run() {
-			if (rfbconn != null && rfbconn.isInNormalProtocol()) {
-				rfbconn.writePointerEvent(mouseX, mouseY, 0, scrollButton);
-				rfbconn.writePointerEvent(mouseX, mouseY, 0, 0);				
-				handler.postDelayed(this, delay);
-			}
-		}		
-	}
-
-	
-    //
-    // softCursorMove(). Moves soft cursor into a particular location.
-    //
 
     synchronized void softCursorMove(int x, int y) {
     	if (bitmapData.isNotInitSoftCursor()) {
@@ -1100,8 +800,8 @@ public class VncCanvas extends ImageView {
     	}
     	
     	if (!inScrolling) {
-    		mouseX = x;
-    		mouseY = y;
+    		pointer.mouseX = x;
+    		pointer.mouseY = y;
 	    	Rect prevCursorRect = new Rect(bitmapData.getCursorRect());
 	    	// Move the cursor.
 	    	bitmapData.moveCursorRect(x, y);
@@ -1118,200 +818,16 @@ public class VncCanvas extends ImageView {
 		int [] tempPixels = new int[w*h];
 		bm.getPixels(tempPixels, 0, w, 0, 0, w, h);
     	// Set cursor rectangle as well.
-    	bitmapData.setCursorRect(mouseX, mouseY, w, h, 0, 0);
+    	bitmapData.setCursorRect(pointer.mouseX, pointer.mouseY, w, h, 0, 0);
     	// Set softCursor to whatever the resource is.
 		bitmapData.setSoftCursor (tempPixels);
     }
 
-
-	public boolean processLocalKeyEvent(int keyCode, KeyEvent evt) {
-		if (rfbconn != null && rfbconn.isInNormalProtocol()) {
-			boolean down = (evt.getAction() == KeyEvent.ACTION_DOWN) ||
-						   (evt.getAction() == KeyEvent.ACTION_MULTIPLE);
-			
-			int metaState = 0, numchars = 1;
-			int keyboardMetaState = evt.getMetaState();
-
-		    // Add shift to metaState if necessary.
-			if ((keyboardMetaState & KeyEvent.META_SHIFT_MASK) != 0)
-				metaState |= SHIFT_MASK;
-			
-			// If the keyboardMetaState contains any hint of CTRL, add CTRL_MASK to metaState
-			if ((keyboardMetaState & 0x7000)!=0)
-				metaState |= CTRL_MASK;
-			// If the keyboardMetaState contains left ALT, add ALT_MASK to metaState.
-		    // Leaving KeyEvent.KEYCODE_ALT_LEFT for symbol input on hardware keyboards.
-			if ((keyboardMetaState & (KeyEvent.META_ALT_RIGHT_ON|0x00030000)) !=0 )
-				metaState |= ALT_MASK;
-			
-			if (keyCode == KeyEvent.KEYCODE_MENU)
-				return true; 			              // Ignore menu key
-			if (keyCode == KeyEvent.KEYCODE_CAMERA) {
-				cameraButtonDown = down;
-				pointerMask = MOUSE_BUTTON_RIGHT;
-				rfbconn.writePointerEvent(mouseX, mouseY, metaState|onScreenMetaState, pointerMask);
-				return true;
-			} else if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN || keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
-				int mouseChange = keyCode == KeyEvent.KEYCODE_VOLUME_DOWN ? MOUSE_BUTTON_SCROLL_DOWN : MOUSE_BUTTON_SCROLL_UP;
-				if (evt.getAction() == KeyEvent.ACTION_DOWN) {
-					// If not auto-repeat
-					if (scrollRunnable.scrollButton != mouseChange) {
-						pointerMask |= mouseChange;
-						scrollRunnable.scrollButton = mouseChange;
-						handler.postDelayed(scrollRunnable,200);
-					}
-				} else {
-					handler.removeCallbacks(scrollRunnable);
-					scrollRunnable.scrollButton = 0;
-					pointerMask &= ~mouseChange;
-				}
-				rfbconn.writePointerEvent(mouseX, mouseY, metaState|onScreenMetaState, pointerMask);
-				return true;
-			}
-
-		   int key = 0, keysym = 0;
-		   
-		   if (!down) {
-			   switch (evt.getScanCode()) {
-			   case SCAN_ESC:               key = 0xff1b; break;
-			   case SCAN_LEFTCTRL:
-			   case SCAN_RIGHTCTRL:
-				   onScreenMetaState &= ~CTRL_MASK;
-				   break;
-			   }
-
-			   switch(keyCode) {
-			      case KeyEvent.KEYCODE_DPAD_CENTER:  onScreenMetaState &= ~CTRL_MASK; break;
-			      // Leaving KeyEvent.KEYCODE_ALT_LEFT for symbol input on hardware keyboards.
-			   	  case KeyEvent.KEYCODE_ALT_RIGHT:    onScreenMetaState &= ~ALT_MASK; break;
-			   }
-		   }
-	   
-		   switch(keyCode) {
-		   	  case KeyEvent.KEYCODE_BACK:         keysym = 0xff1b; break;
-		      case KeyEvent.KEYCODE_DPAD_LEFT:    keysym = 0xff51; break;
-		   	  case KeyEvent.KEYCODE_DPAD_UP:      keysym = 0xff52; break;
-		   	  case KeyEvent.KEYCODE_DPAD_RIGHT:   keysym = 0xff53; break;
-		   	  case KeyEvent.KEYCODE_DPAD_DOWN:    keysym = 0xff54; break;
-		      case KeyEvent.KEYCODE_DEL: 		  keysym = 0xff08; break;
-		      case KeyEvent.KEYCODE_ENTER:        keysym = 0xff0d; break;
-		   	  case KeyEvent.KEYCODE_TAB:          keysym = 0xff09; break;
-		   	  case 92 /* KEYCODE_PAGE_UP */:      keysym = 0xff55; break;
-		   	  case 93 /* KEYCODE_PAGE_DOWN */:    keysym = 0xff56; break;
-		   	  case 111 /* KEYCODE_ESCAPE */:      keysym = 0xff1b; break;
-		   	  case 112 /* KEYCODE_FORWARD_DEL */: keysym = 0xffff; break;
-		   	  case 113 /* KEYCODE_CTRL_LEFT */:   keysym = 0xffe3; break;
-		   	  case 114 /* KEYCODE_CTRL_RIGHT */:  keysym = 0xffe4; break;
-		   	  case 115 /* KEYCODE_CAPS_LOCK */:   keysym = 0xffe5; break;
-		   	  case 116 /* KEYCODE_SCROLL_LOCK */: keysym = 0xff14; break;
-		   	  case 120 /* KEYCODE_SYSRQ */:       keysym = 0xff61; break;
-		   	  case 121 /* KEYCODE_BREAK */:       keysym = 0xff6b; break;
-		   	  case 122 /* KEYCODE_MOVE_HOME */:   keysym = 0xff50; break;
-		   	  case 123 /* KEYCODE_MOVE_END */:    keysym = 0xff57; break;
-		   	  case 124 /* KEYCODE_INSERT */:      keysym = 0xff63; break;
-		   	  case 131 /* KEYCODE_F1 */:          keysym = 0xffbe; break;
-		   	  case 132 /* KEYCODE_F2 */:          keysym = 0xffbf; break;
-		   	  case 133 /* KEYCODE_F3 */:          keysym = 0xffc0; break;
-		   	  case 134 /* KEYCODE_F4 */:          keysym = 0xffc1; break;
-		   	  case 135 /* KEYCODE_F5 */:          keysym = 0xffc2; break;
-		   	  case 136 /* KEYCODE_F6 */:          keysym = 0xffc3; break;
-		   	  case 137 /* KEYCODE_F7 */:          keysym = 0xffc4; break;
-		   	  case 138 /* KEYCODE_F8 */:          keysym = 0xffc5; break;
-		   	  case 139 /* KEYCODE_F9 */:          keysym = 0xffc6; break;
-		   	  case 140 /* KEYCODE_F10 */:         keysym = 0xffc7; break;
-		   	  case 141 /* KEYCODE_F11 */:         keysym = 0xffc8; break;
-		   	  case 142 /* KEYCODE_F12 */:         keysym = 0xffc9; break;
-		   	  case 143 /* KEYCODE_NUM_LOCK */:    keysym = 0xff7f; break;
-		   	  case 0   /* KEYCODE_UNKNOWN */:
-		   		  if (evt.getCharacters() != null) {
-		   			  key = evt.getCharacters().charAt(0);
-		   			  keysym = UnicodeToKeysym.translate(key);
-		   			  numchars = evt.getCharacters().length();
-		   		  }
-	    		  break;
-		      default: 							  
-		    	  // Modifier handling is a bit tricky. Alt and Ctrl should be passed
-		    	  // through to the VNC server so that they get handled there, but strip
-		    	  // them from the character before retrieving the Unicode char from it.
-		    	  // Don't clear Shift, we still want uppercase characters.
-		    	  int vncEventMask = ( 0x7000 );   // KeyEvent.META_CTRL_MASK
-		    	  if ((metaState & ALT_MASK) != 0)
-		    		  vncEventMask |= 0x0032;      // KeyEvent.META_ALT_MASK
-		    	  KeyEvent copy = new KeyEvent(evt.getDownTime(), evt.getEventTime(), evt.getAction(),
-		    			  						evt.getKeyCode(),  evt.getRepeatCount(),
-		    				  					keyboardMetaState & ~vncEventMask, evt.getDeviceId(), evt.getScanCode());
-		    	  key = copy.getUnicodeChar();
-	    		  keysym = UnicodeToKeysym.translate(key);
-		    	  break;
-		   }
-
-		   if (down) {
-			   // Look for standard scan-codes from external keyboards
-			   switch (evt.getScanCode()) {
-			   case SCAN_ESC:               keysym = 0xff1b; break;
-			   case SCAN_LEFTCTRL:
-			   case SCAN_RIGHTCTRL:
-				   onScreenMetaState |= CTRL_MASK;
-				   break;
-			   case SCAN_F1:				keysym = 0xffbe;				break;
-			   case SCAN_F2:				keysym = 0xffbf;				break;
-			   case SCAN_F3:				keysym = 0xffc0;				break;
-			   case SCAN_F4:				keysym = 0xffc1;				break;
-			   case SCAN_F5:				keysym = 0xffc2;				break;
-			   case SCAN_F6:				keysym = 0xffc3;				break;
-			   case SCAN_F7:				keysym = 0xffc4;				break;
-			   case SCAN_F8:				keysym = 0xffc5;				break;
-			   case SCAN_F9:				keysym = 0xffc6;				break;
-			   case SCAN_F10:				keysym = 0xffc7;				break;
-			   }
-			   
-			   switch(keyCode) {
-			      case KeyEvent.KEYCODE_DPAD_CENTER:  onScreenMetaState |= CTRL_MASK; break;
-			      // Leaving KeyEvent.KEYCODE_ALT_LEFT for symbol input on hardware keyboards.
-			   	  case KeyEvent.KEYCODE_ALT_RIGHT:    onScreenMetaState |= ALT_MASK; break;
-			   }
-		   }
-
-		   try {
-			   if (afterMenu)
-			   {
-				   afterMenu = false;
-				   if (!down && keysym != lastKeyDown)
-					   return true;
-			   }
-			   if (down)
-				   lastKeyDown = keysym;
-
-			   if (numchars == 1) {
-			       //Log.e(TAG,"action down? = " + down + " key = " + key + " keysym = " + keysym + " onscreen metastate = " + onScreenMetaState + " keyboard metastate = " + keyboardMetaState + " RFB metastate = " + metaState + " keycode = " + keyCode + " unicode = " + evt.getUnicodeChar());
-				   rfbconn.writeKeyEvent(keysym, (onScreenMetaState|metaState), down);
-
-				   // UGLY HACK for BB10 devices which never send the up-event
-				   // for backspace and enter... so we send it instead. Remove as soon as possible!
-				   if (bb10 && (keyCode == KeyEvent.KEYCODE_DEL || keyCode == KeyEvent.KEYCODE_ENTER))
-					   rfbconn.writeKeyEvent(keysym, (onScreenMetaState | metaState), false);
-
-			   } else if (numchars > 1) {
-				   for (int i = 0; i < numchars; i++) {
-					   key = evt.getCharacters().charAt(i);
-					   //Log.e(TAG,"action down? = " + down + " key = " + key + " keysym = " + keysym + " onscreen metastate = " + onScreenMetaState + " keyboard metastate = " + keyboardMetaState + " RFB metastate = " + metaState + " keycode = " + keyCode + " unicode = " + evt.getUnicodeChar());
-					   keysym = UnicodeToKeysym.translate(key);
-					   rfbconn.writeKeyEvent(keysym, (onScreenMetaState|metaState), down);
-				   }
-			   }
-		   } catch (Exception e) {
-			   e.printStackTrace();
-		   }
-		   return true;
-		}
-		return false;
-	}
-
 	public void closeConnection() {
 		maintainConnection = false;
 		// Tell the server to release any meta keys.
-		onScreenMetaState = 0;
-		processLocalKeyEvent(0, new KeyEvent(KeyEvent.ACTION_UP, 0));
+		keyboard.clearMetaState();
+		keyboard.processLocalKeyEvent(0, new KeyEvent(KeyEvent.ACTION_UP, 0));
 
 		// Close the rfb connection.
 		if (rfbconn != null) {
@@ -1327,17 +843,12 @@ public class VncCanvas extends ImageView {
 		}
 	}
 	
-	void sendMetaKey(MetaKeyBean meta)
-	{
-		if (meta.isMouseClick())
-		{
-			rfbconn.writePointerEvent(mouseX, mouseY, meta.getMetaFlags()|onScreenMetaState, meta.getMouseButtons());
-			rfbconn.writePointerEvent(mouseX, mouseY, meta.getMetaFlags()|onScreenMetaState, 0);
-		}
-		else {
-			rfbconn.writeKeyEvent(meta.getKeySym(), meta.getMetaFlags()|onScreenMetaState, true);
-			rfbconn.writeKeyEvent(meta.getKeySym(), meta.getMetaFlags()|onScreenMetaState, false);
-		}
+	public RemotePointer getPointer() {
+		return pointer;
+	}
+
+	public RemoteKeyboard getKeyboard() {
+		return keyboard;
 	}
 	
 	float getScale()

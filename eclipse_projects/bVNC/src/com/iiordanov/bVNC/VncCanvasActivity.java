@@ -31,6 +31,7 @@ import java.util.Timer;
 import com.iiordanov.android.bc.BCFactory;
 
 import com.iiordanov.android.zoomer.ZoomControls;
+import com.iiordanov.bVNC.input.RemoteKeyboard;
 
 import android.app.Activity;
 import android.app.Dialog;
@@ -81,891 +82,6 @@ import android.content.Context;
 
 
 public class VncCanvasActivity extends Activity implements OnKeyListener {
-
-	/**
-	 * @author Michael A. MacDonald
-	 */
-	class ZoomInputHandler extends AbstractGestureInputHandler {
-
-		/**
-		 * In drag mode (entered with long press) you process mouse events
-		 * without sending them through the gesture detector
-		 */
-		private boolean dragMode = false;
-		
-		/**
-		 * In right-drag mode (entered when a right-click occurs) you process mouse events
-		 * without sending them through the gesture detector, and only send the location of
-		 * the pointer to the remote machine.
-		 */
-		private boolean rightDragMode = false;
-
-		/**
-		 * These variables hold the coordinates of the last double-tap down event.
-		 */
-		float doubleTapX, doubleTapY;
-		
-		/**
-		 * Key handler delegate that handles DPad-based mouse motion
-		 */
-		private DPadMouseKeyHandler keyHandler;
-		
-		/**
-		 * @param c
-		 */
-		ZoomInputHandler() {
-			super(VncCanvasActivity.this);
-			keyHandler = new DPadMouseKeyHandler(VncCanvasActivity.this,vncCanvas.handler,
-												 useDpadAsArrows,rotateDpad);
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see com.iiordanov.bVNC.AbstractInputHandler#getHandlerDescription()
-		 */
-		@Override
-		public CharSequence getHandlerDescription() {
-			return getResources().getString(
-					R.string.input_mode_touch_pan_zoom_mouse);
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see com.iiordanov.bVNC.AbstractInputHandler#getName()
-		 */
-		@Override
-		public String getName() {
-			return TOUCH_ZOOM_MODE;
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see com.iiordanov.bVNC.VncCanvasActivity.ZoomInputHandler#onKeyDown(int,
-		 *      android.view.KeyEvent)
-		 */
-		@Override
-		public boolean onKeyDown(int keyCode, KeyEvent evt) {
-			return keyHandler.onKeyDown(keyCode, evt);
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see com.iiordanov.bVNC.VncCanvasActivity.ZoomInputHandler#onKeyUp(int,
-		 *      android.view.KeyEvent)
-		 */
-		@Override
-		public boolean onKeyUp(int keyCode, KeyEvent evt) {
-			return keyHandler.onKeyUp(keyCode, evt);
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see com.iiordanov.bVNC.AbstractInputHandler#onTrackballEvent(android.view.MotionEvent)
-		 */
-		@Override
-		public boolean onTrackballEvent(MotionEvent evt) {
-			return trackballMouse(evt);
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see android.view.GestureDetector.SimpleOnGestureListener#onDown(android.view.MotionEvent)
-		 */
-		@Override
-		public boolean onDown(MotionEvent e) {
-			panner.stop();
-			return true;
-		}
-
-		/**
-		 * Divide stated fling velocity by this amount to get initial velocity
-		 * per pan interval
-		 */
-		static final float FLING_FACTOR = 8;
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see android.view.GestureDetector.SimpleOnGestureListener#onFling(android.view.MotionEvent,
-		 *      android.view.MotionEvent, float, float)
-		 */
-		@Override
-		public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,
-				float velocityY) {
-
-			// onFling called while scaling/swiping gesture is in effect. We ignore the event and pretend it was
-			// consumed. This prevents the mouse pointer from flailing around while we are scaling.
-			// Also, if one releases one finger slightly earlier than the other when scaling, it causes Android 
-			// to stick a spiteful onScroll with a MASSIVE delta here. 
-			// This would cause the mouse pointer to jump to another place suddenly.
-			// Hence, we ignore onScroll after scaling until we lift all pointers up.
-			boolean twoFingers = false;
-			if (e1 != null)
-				twoFingers = (e1.getPointerCount() > 1);
-			if (e2 != null)
-				twoFingers = twoFingers || (e2.getPointerCount() > 1);
-
-			if (twoFingers||inSwiping||inScaling||scalingJustFinished)
-				return true;
-
-			showZoomer(false);
-			panner.start(-(velocityX / FLING_FACTOR),
-					-(velocityY / FLING_FACTOR), new Panner.VelocityUpdater() {
-
-						/*
-						 * (non-Javadoc)
-						 * 
-						 * @see com.iiordanov.bVNC.Panner.VelocityUpdater#updateVelocity(android.graphics.Point,
-						 *      long)
-						 */
-						@Override
-						public boolean updateVelocity(PointF p, long interval) {
-							double scale = Math.pow(0.8, interval / 50.0);
-							p.x *= scale;
-							p.y *= scale;
-							return (Math.abs(p.x) > 0.5 || Math.abs(p.y) > 0.5);
-						}
-					});
-			return true;
-		}
-
-
-		/**
-		 * Modify the event so that the mouse goes where we specify.
-		 * @param e
-		 */
-		private void remoteMouseSetCoordinates(MotionEvent e, float x, float y) {
-			//Log.i(TAG, "Setting pointer location in remoteMouseSetCoordinates");
-			e.setLocation(x, y);
-		}
-
-		/**
-		 * Handles actions performed by a mouse.
-		 * @param e touch or generic motion event
-		 * @return
-		 */
-		private boolean handleMouseActions (MotionEvent e) {
-	        final int action     = e.getActionMasked();
-			final int bstate     = e.getButtonState();
-
-			switch (action) {
-			// If a mouse button was pressed.
-			case MotionEvent.ACTION_DOWN:
-				switch (bstate) {
-				case MotionEvent.BUTTON_PRIMARY:
-					vncCanvas.changeTouchCoordinatesToFullFrame(e);
-					return vncCanvas.processPointerEvent(e, true);
-				case MotionEvent.BUTTON_SECONDARY:
-					vncCanvas.changeTouchCoordinatesToFullFrame(e);
-		        	return vncCanvas.processPointerEvent(e, true, true, false);		
-				case MotionEvent.BUTTON_TERTIARY:
-					vncCanvas.changeTouchCoordinatesToFullFrame(e);
-		        	return vncCanvas.processPointerEvent(e, true, false, true);
-				}
-				break;
-			// If a mouse button was released.
-			case MotionEvent.ACTION_UP:
-				switch (bstate) {
-				case MotionEvent.BUTTON_PRIMARY:
-				case MotionEvent.BUTTON_SECONDARY:
-				case MotionEvent.BUTTON_TERTIARY:
-					vncCanvas.changeTouchCoordinatesToFullFrame(e);
-					return vncCanvas.processPointerEvent(e, false);
-				}
-				break;
-			// If the mouse was moved between button down and button up.
-			case MotionEvent.ACTION_MOVE:
-				switch (bstate) {
-				case MotionEvent.BUTTON_PRIMARY:
-					vncCanvas.changeTouchCoordinatesToFullFrame(e);
-					return vncCanvas.processPointerEvent(e, true);
-				case MotionEvent.BUTTON_SECONDARY:
-					vncCanvas.changeTouchCoordinatesToFullFrame(e);
-		        	return vncCanvas.processPointerEvent(e, true, true, false);		
-				case MotionEvent.BUTTON_TERTIARY:
-					vncCanvas.changeTouchCoordinatesToFullFrame(e);
-		        	return vncCanvas.processPointerEvent(e, true, false, true);
-				}
-			// If the mouse wheel was scrolled.
-			case MotionEvent.ACTION_SCROLL:
-				float vscroll = e.getAxisValue(MotionEvent.AXIS_VSCROLL);
-				float hscroll = e.getAxisValue(MotionEvent.AXIS_HSCROLL);
-				int swipeSpeed = 0, direction = 0;
-				if (vscroll < 0) {
-					swipeSpeed = (int)(-1*vscroll);
-					direction = 1;
-				} else if (vscroll > 0) {
-					swipeSpeed = (int)vscroll;
-					direction = 0;
-				} else if (hscroll < 0) {
-					swipeSpeed = (int)(-1*hscroll);
-					direction = 3;
-				} else if (hscroll > 0) {
-					swipeSpeed = (int)hscroll;
-					direction = 2;				
-				} else
-					return false;
-					
-				vncCanvas.changeTouchCoordinatesToFullFrame(e);   	
-	        	int numEvents = 0;
-	        	while (numEvents < swipeSpeed) {
-	        		vncCanvas.processPointerEvent(e, false, false, false, true, direction);
-	        		vncCanvas.processPointerEvent(e, false);
-	        		numEvents++;
-	        	}
-				break;
-			// If the mouse was moved.
-			case MotionEvent.ACTION_HOVER_MOVE:
-				vncCanvas.changeTouchCoordinatesToFullFrame(e);
-				return vncCanvas.processPointerEvent(e, false, false, false);
-			}
-			return false;
-		}
-
-
-		 /*
-		 * (non-Javadoc)
-		 * 
-		 * @see com.iiordanov.bVNC.AbstractGestureInputHandler#onTouchEvent(android.view.MotionEvent)
-		 */
-		@Override
-		public boolean onTouchEvent(MotionEvent e) {
-			final int pointerCnt = e.getPointerCount();
-	        final int action     = e.getActionMasked();
-	        final int index      = e.getActionIndex();
-	        final int pointerID  = e.getPointerId(index);
-
-	        if (android.os.Build.VERSION.SDK_INT >= 14) {
-		        // Handle actions performed by a (e.g. USB or bluetooth) mouse.
-		        if (handleMouseActions (e))
-		        	return true;
-	        }
-	        
-	        // We have put down first pointer on the screen, so we can reset the state of all click-state variables.
-	        if (pointerID == 0 && action == MotionEvent.ACTION_DOWN) {
-	        	// Permit sending mouse-down event on long-tap again.
-	        	secondPointerWasDown = false;
-	        	// Permit right-clicking again.
-	        	thirdPointerWasDown = false;
-	        	// Cancel right-drag mode.
-	        	rightDragMode = false;
-	        	// Cancel any effect of scaling having "just finished" (e.g. ignoring scrolling).
-				scalingJustFinished = false;
-	        }
-
-        	// Here we only prepare for the second click, which we perform on ACTION_POINTER_UP for pointerID==1.
-	        if (pointerID == 1 && action == MotionEvent.ACTION_POINTER_DOWN) {
-	        	// If drag mode is on then stop it and indicate button was released.
-	        	if (dragMode) {
-					dragMode = false;
-					vncCanvas.changeTouchCoordinatesToFullFrame(e);
-					vncCanvas.processPointerEvent(e, false, false, false);       		
-	        	}
-	        	// Permit sending mouse-down event on long-tap again.
-	        	secondPointerWasDown = true;
-	        	// Permit right-clicking again.
-	        	thirdPointerWasDown = false;
-	        }
-	        
-	        // Send scroll up/down events if swiping is happening.
-	        if (inSwiping) {
-	        	// Save the coordinates and restore them afterward.
-	        	float x = e.getX();
-	        	float y = e.getY();
-	        	// Set the coordinates to where the swipe began (i.e. where scaling started).
-        		remoteMouseSetCoordinates(e, xInitialFocus, yInitialFocus);
-	        	vncCanvas.changeTouchCoordinatesToFullFrame(e);
-	        	int numEvents = 0;
-	        	while (numEvents < swipeSpeed) {
-	        		if        (twoFingerSwipeUp)   {
-	        			vncCanvas.processPointerEvent(e, false, false, false, true, 0);
-	        			vncCanvas.processPointerEvent(e, false);
-	        		} else if (twoFingerSwipeDown) {
-	        			vncCanvas.processPointerEvent(e, false, false, false, true, 1);
-	        			vncCanvas.processPointerEvent(e, false);
-	        		} else if (twoFingerSwipeLeft)   {
-	        			vncCanvas.processPointerEvent(e, false, false, false, true, 2);
-	        			vncCanvas.processPointerEvent(e, false);
-	        		} else if (twoFingerSwipeRight) {
-	        			vncCanvas.processPointerEvent(e, false, false, false, true, 3);
-	        			vncCanvas.processPointerEvent(e, false);
-	        		}
-	        		numEvents++;
-	        	}
-	        	// Restore the coordinates so that onScale doesn't get all muddled up.
-	        	remoteMouseSetCoordinates(e, x, y);
-        		return super.onTouchEvent(e);
-
-        	// If user taps with a second finger while first finger is down, then we treat this as
-	        // a right mouse click, but we only effect the click when the second pointer goes up.
-	        // If the user taps with a second and third finger while the first 
-	        // finger is down, we treat it as a middle mouse click. We ignore the lifting of the
-	        // second index when the third index has gone down (using the thirdPointerWasDown variable)
-	        // to prevent inadvertent right-clicks when a middle click has been performed.
-	        } else if (!inScaling && !thirdPointerWasDown && pointerID == 1 && action == MotionEvent.ACTION_POINTER_UP) {
-	        	// Enter right-drag mode so we can move the pointer to an entry in the context menu
-	        	// without clicking.
-	        	rightDragMode = true;
-	        	vncCanvas.changeTouchCoordinatesToFullFrame(e);
-	        	vncCanvas.processPointerEvent(e, true, true, false);
-				SystemClock.sleep(50);
-	        	// Offset the pointer by one pixel to prevent accidental click and disappearing context menu.
-	        	remoteMouseSetCoordinates(e, vncCanvas.mouseX - 1.f, vncCanvas.mouseY);
-	        	vncCanvas.processPointerEvent(e, false, true, false);
-	        	// Put the pointer where it was before the 1px offset.
-	        	remoteMouseSetCoordinates(e, vncCanvas.mouseX + 1.f, vncCanvas.mouseY);
-				// Pass this event on to the parent class in order to end scaling as it was certainly
-				// started when the second pointer went down.
-				return super.onTouchEvent(e);
-	        } else if (!inScaling && pointerID == 2 && action == MotionEvent.ACTION_POINTER_DOWN ) {
-	        	// This boolean prevents the right-click from firing simultaneously as a middle button click.
-	        	thirdPointerWasDown = true;
-	        	vncCanvas.changeTouchCoordinatesToFullFrame(e);
-	        	vncCanvas.processPointerEvent(e, true, false, true);
-				SystemClock.sleep(50);
-				return vncCanvas.processPointerEvent(e, false, false, true);
-	        } else if (pointerCnt == 1 && pointerID == 0 && rightDragMode) {
-				vncCanvas.changeTouchCoordinatesToFullFrame(e);
-				return vncCanvas.processPointerEvent(e, false, false, false);
-	        } else if (pointerCnt == 1 && pointerID == 0 && dragMode) {
-				vncCanvas.changeTouchCoordinatesToFullFrame(e);
-				if (action == MotionEvent.ACTION_UP) {
-					dragMode = false;
-					return vncCanvas.processPointerEvent(e, false, false, false);
-				}
-				return vncCanvas.processPointerEvent(e, true, false, false);
-			} else
-				return super.onTouchEvent(e);
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see android.view.GestureDetector.SimpleOnGestureListener#onLongPress(android.view.MotionEvent)
-		 */
-		@Override
-		public void onLongPress(MotionEvent e) {
-			
-			// If we've performed a right/middle-click and the gesture is not over yet, do not start drag mode.
-			if (secondPointerWasDown || thirdPointerWasDown)
-				return;
-			
-			showZoomer(true);
-			BCFactory.getInstance().getBCHaptic().performLongPressHaptic(vncCanvas);
-			dragMode = true;
-			
-			vncCanvas.processPointerEvent(vncCanvas.changeTouchCoordinatesToFullFrame(e), true);
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see android.view.GestureDetector.SimpleOnGestureListener#onScroll(android.view.MotionEvent,
-		 *      android.view.MotionEvent, float, float)
-		 */
-		@Override
-		public boolean onScroll(MotionEvent e1, MotionEvent e2,
-				float distanceX, float distanceY) {
-
-			// onScroll called while scaling/swiping gesture is in effect. We ignore the event and pretend it was
-			// consumed. This prevents the mouse pointer from flailing around while we are scaling.
-			// Also, if one releases one finger slightly earlier than the other when scaling, it causes Android 
-			// to stick a spiteful onScroll with a MASSIVE delta here. 
-			// This would cause the mouse pointer to jump to another place suddenly.
-			// Hence, we ignore onScroll after scaling until we lift all pointers up.
-			boolean twoFingers = false;
-			if (e1 != null)
-				twoFingers = (e1.getPointerCount() > 1);
-			if (e2 != null)
-				twoFingers = twoFingers || (e2.getPointerCount() > 1);
-
-			if (twoFingers||inSwiping||inScaling||scalingJustFinished)
-				return true;
-
-			showZoomer(false);
-			return vncCanvas.pan((int) distanceX, (int) distanceY);
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see android.view.GestureDetector.SimpleOnGestureListener#onSingleTapConfirmed(android.view.MotionEvent)
-		 */
-		@Override
-		public boolean onSingleTapConfirmed(MotionEvent e) {
-			showZoomer(true);
-			vncCanvas.changeTouchCoordinatesToFullFrame(e);
-			vncCanvas.processPointerEvent(e, true);
-			SystemClock.sleep(50);
-			return vncCanvas.processPointerEvent(e, false);
-		}
-		
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see android.view.GestureDetector.SimpleOnGestureListener#onDoubleTap(android.view.MotionEvent)
-		 */
-		@Override
-		public boolean onDoubleTap (MotionEvent e) {
-			vncCanvas.changeTouchCoordinatesToFullFrame(e);
-			vncCanvas.processPointerEvent(e, true);
-			SystemClock.sleep(50);
-			vncCanvas.processPointerEvent(e, false);
-			SystemClock.sleep(50);
-			vncCanvas.processPointerEvent(e, true);
-			SystemClock.sleep(50);
-			return vncCanvas.processPointerEvent(e, false);
-		}
-	}
-
-	public class TouchpadInputHandler extends AbstractGestureInputHandler {
-		/**
-		 * In drag mode (entered with long press) you process mouse events
-		 * without sending them through the gesture detector
-		 */
-		private boolean dragMode;
-		
-		float dragX, dragY;
-		
-		/**
-		 * Key handler delegate that handles DPad-based mouse motion
-		 */
-		private DPadMouseKeyHandler keyHandler;
-
-		TouchpadInputHandler() {
-			super(VncCanvasActivity.this);
-			keyHandler = new DPadMouseKeyHandler(VncCanvasActivity.this,vncCanvas.handler,
-					 							 useDpadAsArrows,rotateDpad);
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see com.iiordanov.bVNC.AbstractInputHandler#getHandlerDescription()
-		 */
-		@Override
-		public CharSequence getHandlerDescription() {
-			return getResources().getString(
-					R.string.input_mode_touchpad);
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see com.iiordanov.bVNC.AbstractInputHandler#getName()
-		 */
-		@Override
-		public String getName() {
-			return TOUCHPAD_MODE;
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see com.iiordanov.bVNC.VncCanvasActivity.ZoomInputHandler#onKeyDown(int,
-		 *      android.view.KeyEvent)
-		 */
-		@Override
-		public boolean onKeyDown(int keyCode, KeyEvent evt) {
-			return keyHandler.onKeyDown(keyCode, evt);
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see com.iiordanov.bVNC.VncCanvasActivity.ZoomInputHandler#onKeyUp(int,
-		 *      android.view.KeyEvent)
-		 */
-		@Override
-		public boolean onKeyUp(int keyCode, KeyEvent evt) {
-			return keyHandler.onKeyUp(keyCode, evt);
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see com.iiordanov.bVNC.AbstractInputHandler#onTrackballEvent(android.view.MotionEvent)
-		 */
-		@Override
-		public boolean onTrackballEvent(MotionEvent evt) {
-			return trackballMouse(evt);
-		}
-
-		/**
-		 * scale down delta when it is small. This will allow finer control
-		 * when user is making a small movement on touch screen.
-		 * Scale up delta when delta is big. This allows fast mouse movement when
-		 * user is flinging.
-		 * @param deltaX
-		 * @return
-		 */
-		private float fineCtrlScale(float delta) {
-			float sign = (delta>0) ? 1 : -1;
-			delta = Math.abs(delta);
-			if (delta>=1 && delta <=3) {
-				delta = 1;
-			}else if (delta <= 10) {
-				delta *= 0.34;
-			} else if (delta <= 30 ) {
-				delta *= delta/30;
-			} else if (delta <= 90) {
-				delta *=  (delta/30);
-			} else {
-				delta *= 3.0;
-			}
-			return sign * delta;
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see android.view.GestureDetector.SimpleOnGestureListener#onLongPress(android.view.MotionEvent)
-		 */
-		@Override
-		public void onLongPress(MotionEvent e) {
-			
-			// If we've performed a right/middle-click and the gesture is not over yet, do not start drag mode.
-			if (thirdPointerWasDown || secondPointerWasDown)
-				return;
-			
-			showZoomer(true);
-			BCFactory.getInstance().getBCHaptic().performLongPressHaptic(vncCanvas);			
-			dragMode = true;
-			dragX = e.getX();
-			dragY = e.getY();
-			
-			remoteMouseStayPut(e);
-			vncCanvas.processPointerEvent(e, true);
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see android.view.GestureDetector.SimpleOnGestureListener#onScroll(android.view.MotionEvent,
-		 *      android.view.MotionEvent, float, float)
-		 */
-		@Override
-		public boolean onScroll(MotionEvent e1, MotionEvent e2,
-				float distanceX, float distanceY) {
-
-			// onScroll called while scaling/swiping gesture is in effect. We ignore the event and pretend it was
-			// consumed. This prevents the mouse pointer from flailing around while we are scaling.
-			// Also, if one releases one finger slightly earlier than the other when scaling, it causes Android 
-			// to stick a spiteful onScroll with a MASSIVE delta here. 
-			// This would cause the mouse pointer to jump to another place suddenly.
-			// Hence, we ignore onScroll after scaling until we lift all pointers up.
-			boolean twoFingers = false;
-			if (e1 != null)
-				twoFingers = (e1.getPointerCount() > 1);
-			if (e2 != null)
-				twoFingers = twoFingers || (e2.getPointerCount() > 1);
-
-			if (twoFingers||inSwiping||inScaling||scalingJustFinished)
-				return true;
-
-			showZoomer(true);
-
-			// Compute the relative movement offset on the remote screen.
-			float deltaX = -distanceX *vncCanvas.getScale();
-			float deltaY = -distanceY *vncCanvas.getScale();
-			deltaX = fineCtrlScale(deltaX);
-			deltaY = fineCtrlScale(deltaY);
-
-			// Compute the absolute new mouse position on the remote site.
-			float newRemoteX = vncCanvas.mouseX + deltaX;
-			float newRemoteY = vncCanvas.mouseY + deltaY;
-
-			if (dragMode) {
-				if (e2.getAction() == MotionEvent.ACTION_UP)
-					dragMode = false;
-
-				dragX = e2.getX();
-				dragY = e2.getY();
-				e2.setLocation(newRemoteX, newRemoteY);
-				vncCanvas.processPointerEvent(e2, true);
-			} else {
-				e2.setLocation(newRemoteX, newRemoteY);
-				vncCanvas.processPointerEvent(e2, false);
-			}
-			vncCanvas.inScrolling = true;
-			return true;
-		}
-
-		/**
-		 * Modify the event so that the mouse goes where we specify.
-		 * @param e
-		 */
-		private void remoteMouseSetCoordinates(MotionEvent e, float x, float y) {
-			//Log.i(TAG, "Setting pointer location in remoteMouseSetCoordinates");
-			e.setLocation(x, y);
-		}
-
-		/**
-		 * Handles actions performed by a mouse.
-		 * @param e touch or generic motion event
-		 * @return
-		 */
-		private boolean handleMouseActions (MotionEvent e) {
-	        final int action     = e.getActionMasked();
-			final int bstate     = e.getButtonState();
-
-			switch (action) {
-			// If a mouse button was pressed.
-			case MotionEvent.ACTION_DOWN:
-				switch (bstate) {
-				case MotionEvent.BUTTON_PRIMARY:
-					vncCanvas.changeTouchCoordinatesToFullFrame(e);
-					return vncCanvas.processPointerEvent(e, true);
-				case MotionEvent.BUTTON_SECONDARY:
-					vncCanvas.changeTouchCoordinatesToFullFrame(e);
-		        	return vncCanvas.processPointerEvent(e, true, true, false);		
-				case MotionEvent.BUTTON_TERTIARY:
-					vncCanvas.changeTouchCoordinatesToFullFrame(e);
-		        	return vncCanvas.processPointerEvent(e, true, false, true);
-				}
-				break;
-			// If a mouse button was released.
-			case MotionEvent.ACTION_UP:
-				switch (bstate) {
-				case MotionEvent.BUTTON_PRIMARY:
-				case MotionEvent.BUTTON_SECONDARY:
-				case MotionEvent.BUTTON_TERTIARY:
-					vncCanvas.changeTouchCoordinatesToFullFrame(e);
-					return vncCanvas.processPointerEvent(e, false);
-				}
-				break;
-			// If the mouse was moved between button down and button up.
-			case MotionEvent.ACTION_MOVE:
-				switch (bstate) {
-				case MotionEvent.BUTTON_PRIMARY:
-					vncCanvas.changeTouchCoordinatesToFullFrame(e);
-					return vncCanvas.processPointerEvent(e, true);
-				case MotionEvent.BUTTON_SECONDARY:
-					vncCanvas.changeTouchCoordinatesToFullFrame(e);
-		        	return vncCanvas.processPointerEvent(e, true, true, false);		
-				case MotionEvent.BUTTON_TERTIARY:
-					vncCanvas.changeTouchCoordinatesToFullFrame(e);
-		        	return vncCanvas.processPointerEvent(e, true, false, true);
-				}
-			// If the mouse wheel was scrolled.
-			case MotionEvent.ACTION_SCROLL:
-				float vscroll = e.getAxisValue(MotionEvent.AXIS_VSCROLL);
-				float hscroll = e.getAxisValue(MotionEvent.AXIS_HSCROLL);
-				int swipeSpeed = 0, direction = 0;
-				if (vscroll < 0) {
-					swipeSpeed = (int)(-1*vscroll);
-					direction = 1;
-				} else if (vscroll > 0) {
-					swipeSpeed = (int)vscroll;
-					direction = 0;
-				} else if (hscroll < 0) {
-					swipeSpeed = (int)(-1*hscroll);
-					direction = 3;
-				} else if (hscroll > 0) {
-					swipeSpeed = (int)hscroll;
-					direction = 2;				
-				} else
-					return false;
-					
-				vncCanvas.changeTouchCoordinatesToFullFrame(e);   	
-	        	int numEvents = 0;
-	        	while (numEvents < swipeSpeed) {
-	        		vncCanvas.processPointerEvent(e, false, false, false, true, direction);
-	        		vncCanvas.processPointerEvent(e, false);
-	        		numEvents++;
-	        	}
-				break;
-			// If the mouse was moved.
-			case MotionEvent.ACTION_HOVER_MOVE:
-				vncCanvas.changeTouchCoordinatesToFullFrame(e);
-				return vncCanvas.processPointerEvent(e, false, false, false);
-			}
-			return false;
-		}
-
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see com.iiordanov.bVNC.AbstractGestureInputHandler#onTouchEvent(android.view.MotionEvent)
-		 */
-		@Override
-		public boolean onTouchEvent(MotionEvent e) {
-			final int pointerCnt   = e.getPointerCount();
-	        final int action       = e.getActionMasked();
-	        final int index        = e.getActionIndex();
-	        final int pointerID    = e.getPointerId(index);
-
-	        if (android.os.Build.VERSION.SDK_INT >= 14) {
-		        // Handle actions performed by a (e.g. USB or bluetooth) mouse.
-		        if (handleMouseActions (e))
-		        	return true;
-	        }
-
-	        // We have put down first pointer on the screen, so we can reset the state of all click-state variables.
-	        if (pointerID == 0 && action == MotionEvent.ACTION_DOWN) {
-	        	// Permit sending mouse-down event on long-tap again.
-	        	secondPointerWasDown = false;
-	        	// Permit right-clicking again.
-	        	thirdPointerWasDown = false;
-	        	// Cancel any effect of scaling having "just finished" (e.g. ignoring scrolling).
-				scalingJustFinished = false;
-	        } else if (pointerID == 0 && action == MotionEvent.ACTION_UP)
-	        	vncCanvas.inScrolling = false;
-
-        	// Here we only prepare for the second click, which we perform on ACTION_POINTER_UP for pointerID==1.
-	        if (pointerID == 1 && action == MotionEvent.ACTION_POINTER_DOWN) {
-	        	// If drag mode is on then stop it and indicate button was released.
-	        	if (dragMode) {
-					dragMode = false;
-		        	remoteMouseStayPut(e);
-					vncCanvas.processPointerEvent(e, false, false, false);       		
-	        	}
-	        	// Permit sending mouse-down event on long-tap again.
-	        	secondPointerWasDown = true;
-	        	// Permit right-clicking again.
-	        	thirdPointerWasDown = false;
-	        }
-
-	        // Send scroll up/down events if swiping is happening.
-	        if (inSwiping) {
-	        	// Save the coordinates and restore them afterward.
-	        	float x = e.getX();
-	        	float y = e.getY();
-	        	remoteMouseStayPut(e);
-	        	int numEvents = 0;
-	        	while (numEvents < swipeSpeed) {
-	        		if        (twoFingerSwipeUp)   {
-	        			vncCanvas.processPointerEvent(e, false, false, false, true, 0);
-	        			vncCanvas.processPointerEvent(e, false);
-	        		} else if (twoFingerSwipeDown) {
-	        			vncCanvas.processPointerEvent(e, false, false, false, true, 1);
-	        			vncCanvas.processPointerEvent(e, false);
-	        		} else if (twoFingerSwipeLeft)   {
-	        			vncCanvas.processPointerEvent(e, false, false, false, true, 2);
-	        			vncCanvas.processPointerEvent(e, false);
-	        		} else if (twoFingerSwipeRight) {
-	        			vncCanvas.processPointerEvent(e, false, false, false, true, 3);
-	        			vncCanvas.processPointerEvent(e, false);
-	        		}
-	        		numEvents++;
-	        	}
-	        	// Restore the coordinates so that onScale doesn't get all muddled up.
-        		remoteMouseSetCoordinates(e, x, y);
-        		return super.onTouchEvent(e);
-
-        	// If user taps with a second finger while first finger is down, then we treat this as
-	        // a right mouse click, but we only effect the click when the second pointer goes up.
-	        // If the user taps with a second and third finger while the first 
-	        // finger is down, we treat it as a middle mouse click. We ignore the lifting of the
-	        // second index when the third index has gone down (using the thirdPointerWasDown variable)
-	        // to prevent inadvertent right-clicks when a middle click has been performed.
-	        } else if (!inScaling && !thirdPointerWasDown && pointerID == 1 && action == MotionEvent.ACTION_POINTER_UP) {     	
-	        	remoteMouseStayPut(e);
-	        	// We offset the click down and up by one pixel to workaround for Firefox (and any other application)
-	        	// where if the two events are in the same spot the context menu may disappear.
-	        	vncCanvas.processPointerEvent(e, true, true, false);
-				SystemClock.sleep(50);
-	        	// Offset the pointer by one pixel to prevent accidental click and disappearing context menu.
-	        	remoteMouseSetCoordinates(e, vncCanvas.mouseX - 1.f, vncCanvas.mouseY);
-	        	vncCanvas.processPointerEvent(e, false, true, false);
-	        	// Put the pointer where it was before the 1px offset.
-	        	remoteMouseSetCoordinates(e, vncCanvas.mouseX + 1.f, vncCanvas.mouseY);
-	        	vncCanvas.mouseX = vncCanvas.mouseX + 1;
-				// Pass this event on to the parent class in order to end scaling as it was certainly
-				// started when the second pointer went down.
-				return super.onTouchEvent(e);
-	        } else if (!inScaling && pointerID == 2 && action == MotionEvent.ACTION_POINTER_DOWN) {
-	        	// This boolean prevents the right-click from firing simultaneously as a middle button click.
-	        	thirdPointerWasDown = true;
-	        	remoteMouseStayPut(e);
-	        	vncCanvas.processPointerEvent(e, true, false, true);
-				SystemClock.sleep(50);
-				return vncCanvas.processPointerEvent(e, false, false, true);			
-			} else if (pointerCnt == 1 && pointerID == 0 && dragMode) {	
-
-	        	// Compute the relative movement offset on the remote screen.
-				float deltaX = (e.getX() - dragX) *vncCanvas.getScale();
-				float deltaY = (e.getY() - dragY) *vncCanvas.getScale();
-				dragX = e.getX();
-				dragY = e.getY();
-				deltaX = fineCtrlScale(deltaX);
-				deltaY = fineCtrlScale(deltaY);
-	
-				// Compute the absolute new mouse position on the remote site.
-				float newRemoteX = vncCanvas.mouseX + deltaX;
-				float newRemoteY = vncCanvas.mouseY + deltaY;
-				
-				e.setLocation(newRemoteX, newRemoteY);
-
-				if (action == MotionEvent.ACTION_UP) {
-					dragMode = false;
-					return vncCanvas.processPointerEvent(e, false, false, false);
-				}
-				return vncCanvas.processPointerEvent(e, true, false, false);
-			} else
-				return super.onTouchEvent(e);
-		}		
-		
-		/**
-		 * Modify the event so that it does not move the mouse on the
-		 * remote server.
-		 * @param e
-		 */
-		private void remoteMouseStayPut(MotionEvent e) {
-			//Log.i(TAG, "Setting pointer location in remoteMouseStayPut");
-			e.setLocation(vncCanvas.mouseX, vncCanvas.mouseY);	
-		}
-		
-		/*
-		 * (non-Javadoc)
-		 * confirmed single tap: do a single mouse click on remote without moving the mouse.
-		 * @see android.view.GestureDetector.SimpleOnGestureListener#onSingleTapConfirmed(android.view.MotionEvent)
-		 */
-		@Override
-		public boolean onSingleTapConfirmed(MotionEvent e) {
-			showZoomer(true);
-			remoteMouseStayPut(e);
-			vncCanvas.processPointerEvent(e, true);
-			SystemClock.sleep(50);
-			return vncCanvas.processPointerEvent(e, false);
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * double tap: do two  left mouse right mouse clicks on remote without moving the mouse.
-		 * @see android.view.GestureDetector.SimpleOnGestureListener#onDoubleTap(android.view.MotionEvent)
-		 */
-		@Override
-		public boolean onDoubleTap(MotionEvent e) {
-			remoteMouseStayPut(e);
-			vncCanvas.processPointerEvent(e, true);
-			SystemClock.sleep(50);
-			vncCanvas.processPointerEvent(e, false);
-			SystemClock.sleep(50);
-			vncCanvas.processPointerEvent(e, true);
-			SystemClock.sleep(50);
-			return vncCanvas.processPointerEvent(e, false);
-		}
-		
-		
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see android.view.GestureDetector.SimpleOnGestureListener#onDown(android.view.MotionEvent)
-		 */
-		@Override
-		public boolean onDown(MotionEvent e) {
-			panner.stop();
-			return true;
-		}
-	}
 	
 	private final static String TAG = "VncCanvasActivity";
 
@@ -979,7 +95,6 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 	private MenuItem[] scalingModeMenuItems;
 	private AbstractInputHandler inputModeHandlers[];
 	private ConnectionBean connection;
-	private boolean trackballButtonDown;
 /*	private static final int inputModeIds[] = { R.id.itemInputFitToScreen,
 		R.id.itemInputTouchpad,
 		R.id.itemInputMouse, R.id.itemInputPan,
@@ -1281,6 +396,7 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 	 * Initializes the on-screen keys for meta keys and arrow keys.
 	 */
 	private void initializeOnScreenKeys () {
+		
 		layoutKeys = (RelativeLayout) findViewById(R.id.layoutKeys);
 
 		// Define action of tab key and meta keys.
@@ -1288,15 +404,16 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 		keyTab.setOnTouchListener(new OnTouchListener () {
 			@Override
 			public boolean onTouch(View arg0, MotionEvent e) {
+				RemoteKeyboard k = vncCanvas.getKeyboard();
 				int key = KeyEvent.KEYCODE_TAB;
 				if (e.getAction() == MotionEvent.ACTION_DOWN) {
 					BCFactory.getInstance().getBCHaptic().performLongPressHaptic(vncCanvas);
 					keyTab.setImageResource(R.drawable.tabon);
-					return vncCanvas.processLocalKeyEvent(key, new KeyEvent(e.getAction(), key));
+					return k.processLocalKeyEvent(key, new KeyEvent(e.getAction(), key));
 				} else if (e.getAction() == MotionEvent.ACTION_UP) {
 					keyTab.setImageResource(R.drawable.taboff);
 					resetOnScreenKeys (0);
-					return vncCanvas.processLocalKeyEvent(key, new KeyEvent(e.getAction(), key));
+					return k.processLocalKeyEvent(key, new KeyEvent(e.getAction(), key));
 				}
 				return false;
 			}
@@ -1306,7 +423,7 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 		keyCtrl.setOnClickListener(new OnClickListener () {
 			@Override
 			public void onClick(View arg0) {
-				boolean on = vncCanvas.onScreenCtrlToggle();
+				boolean on = vncCanvas.getKeyboard().onScreenCtrlToggle();
 				keyCtrlToggled = false;
 				if (on)
 					keyCtrl.setImageResource(R.drawable.ctrlon);
@@ -1319,7 +436,7 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 			@Override
 			public boolean onLongClick(View arg0) {
 				BCFactory.getInstance().getBCHaptic().performLongPressHaptic(vncCanvas);
-				boolean on = vncCanvas.onScreenCtrlToggle();
+				boolean on = vncCanvas.getKeyboard().onScreenCtrlToggle();
 				keyCtrlToggled = true;
 				if (on)
 					keyCtrl.setImageResource(R.drawable.ctrlon);
@@ -1333,7 +450,7 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 		keyAlt.setOnClickListener(new OnClickListener () {
 			@Override
 			public void onClick(View arg0) {
-				boolean on = vncCanvas.onScreenAltToggle();
+				boolean on = vncCanvas.getKeyboard().onScreenAltToggle();
 				keyAltToggled = false;
 				if (on)
 					keyAlt.setImageResource(R.drawable.alton);
@@ -1346,7 +463,7 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 			@Override
 			public boolean onLongClick(View arg0) {
 				BCFactory.getInstance().getBCHaptic().performLongPressHaptic(vncCanvas);
-				boolean on = vncCanvas.onScreenAltToggle();
+				boolean on = vncCanvas.getKeyboard().onScreenAltToggle();
 				keyAltToggled = true;
 				if (on)
 					keyAlt.setImageResource(R.drawable.alton);
@@ -1364,15 +481,16 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 		keyUp.setOnTouchListener(new OnTouchListener () {
 			@Override
 			public boolean onTouch(View arg0, MotionEvent e) {
+				RemoteKeyboard k = vncCanvas.getKeyboard();
 				int key = KeyEvent.KEYCODE_DPAD_UP;
 				if (e.getAction() == MotionEvent.ACTION_DOWN) {
 					BCFactory.getInstance().getBCHaptic().performLongPressHaptic(vncCanvas);
 					keyUp.setImageResource(R.drawable.upon);
-					return vncCanvas.processLocalKeyEvent(key, new KeyEvent(e.getAction(), key));	
+					return k.processLocalKeyEvent(key, new KeyEvent(e.getAction(), key));	
 				} else if (e.getAction() == MotionEvent.ACTION_UP) {
 					keyUp.setImageResource(R.drawable.upoff);
 					resetOnScreenKeys (0);
-					return vncCanvas.processLocalKeyEvent(key, new KeyEvent(e.getAction(), key));
+					return k.processLocalKeyEvent(key, new KeyEvent(e.getAction(), key));
 				}
 				return false;
 			}
@@ -1382,15 +500,16 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 		keyDown.setOnTouchListener(new OnTouchListener () {
 			@Override
 			public boolean onTouch(View arg0, MotionEvent e) {
+				RemoteKeyboard k = vncCanvas.getKeyboard();
 				int key = KeyEvent.KEYCODE_DPAD_DOWN;
 				if (e.getAction() == MotionEvent.ACTION_DOWN) {
 					BCFactory.getInstance().getBCHaptic().performLongPressHaptic(vncCanvas);
 					keyDown.setImageResource(R.drawable.downon);
-					return vncCanvas.processLocalKeyEvent(key, new KeyEvent(e.getAction(), key));	
+					return k.processLocalKeyEvent(key, new KeyEvent(e.getAction(), key));	
 				} else if (e.getAction() == MotionEvent.ACTION_UP) {
 					keyDown.setImageResource(R.drawable.downoff);
 					resetOnScreenKeys (0);
-					return vncCanvas.processLocalKeyEvent(key, new KeyEvent(e.getAction(), key));
+					return k.processLocalKeyEvent(key, new KeyEvent(e.getAction(), key));
 				}
 				return false;
 			}
@@ -1400,15 +519,16 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 		keyLeft.setOnTouchListener(new OnTouchListener () {
 			@Override
 			public boolean onTouch(View arg0, MotionEvent e) {
+				RemoteKeyboard k = vncCanvas.getKeyboard();
 				int key = KeyEvent.KEYCODE_DPAD_LEFT;
 				if (e.getAction() == MotionEvent.ACTION_DOWN) {
 					BCFactory.getInstance().getBCHaptic().performLongPressHaptic(vncCanvas);
 					keyLeft.setImageResource(R.drawable.lefton);
-					return vncCanvas.processLocalKeyEvent(key, new KeyEvent(e.getAction(), key));	
+					return k.processLocalKeyEvent(key, new KeyEvent(e.getAction(), key));	
 				} else if (e.getAction() == MotionEvent.ACTION_UP) {
 					keyLeft.setImageResource(R.drawable.leftoff);
 					resetOnScreenKeys (0);
-					return vncCanvas.processLocalKeyEvent(key, new KeyEvent(e.getAction(), key));
+					return k.processLocalKeyEvent(key, new KeyEvent(e.getAction(), key));
 				}
 				return false;
 			}
@@ -1418,15 +538,16 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 		keyRight.setOnTouchListener(new OnTouchListener () {
 			@Override
 			public boolean onTouch(View arg0, MotionEvent e) {
+				RemoteKeyboard k = vncCanvas.getKeyboard();
 				int key = KeyEvent.KEYCODE_DPAD_RIGHT;
 				if (e.getAction() == MotionEvent.ACTION_DOWN) {
 					BCFactory.getInstance().getBCHaptic().performLongPressHaptic(vncCanvas);
 					keyRight.setImageResource(R.drawable.righton);
-					return vncCanvas.processLocalKeyEvent(key, new KeyEvent(e.getAction(), key));	
+					return k.processLocalKeyEvent(key, new KeyEvent(e.getAction(), key));	
 				} else if (e.getAction() == MotionEvent.ACTION_UP) {
 					keyRight.setImageResource(R.drawable.rightoff);
 					resetOnScreenKeys (0);
-					return vncCanvas.processLocalKeyEvent(key, new KeyEvent(e.getAction(), key));	
+					return k.processLocalKeyEvent(key, new KeyEvent(e.getAction(), key));	
 				}
 				return false;
 			}
@@ -1444,11 +565,11 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 		}
 		if (!keyCtrlToggled) {
 			keyCtrl.setImageResource(R.drawable.ctrloff);
-			vncCanvas.onScreenCtrlOff();
+			vncCanvas.getKeyboard().onScreenCtrlOff();
 		}
 		if (!keyAltToggled) {
 			keyAlt.setImageResource(R.drawable.altoff);
-			vncCanvas.onScreenAltOff();
+			vncCanvas.getKeyboard().onScreenAltOff();
 		}
 	}
 
@@ -1466,21 +587,10 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 			hardKeyboardExtended = true;
 
 		if ( connection.getExtraKeysToggleType() == 1 && 
-    		 (hardKeyboardExtended || visibility == View.VISIBLE) ) {
+    		 (hardKeyboardExtended || visibility == View.VISIBLE) )
     		layoutKeys.setVisibility(View.VISIBLE);
-            if (android.os.Build.VERSION.SDK_INT >= 11)
-            	layoutKeys.setAlpha(0.66f);
-            // Doing alpha with an animation is too slow for older devices.
-            //AlphaAnimation anim = new AlphaAnimation(0.66f, 0.66f);
-            //anim.setDuration(0);
-            //anim.setFillAfter(true);
-            //layoutKeys.startAnimation(anim);
-    	} else {
-            //AlphaAnimation anim = new AlphaAnimation(0, 0);
-            //anim.setDuration(0);
-            //layoutKeys.startAnimation(anim);
+    	else
             layoutKeys.setVisibility(View.GONE);
-    	}
 	}
 	
 	/*
@@ -1507,8 +617,6 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 	protected void onResume(){
 		super.onResume();
 		Log.i(TAG, "onResume called.");
-		// TODO: Write a full bitmap update if freeze problems on resume not resolved.
-		//vncCanvas.bitmapData.writeFullUpdateRequest(false);
 		if (vncCanvas != null)
 			vncCanvas.postInvalidateDelayed(600);
 	}
@@ -1518,12 +626,12 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 	 * color mode (already done) scaling, input mode
 	 */
 	void setModes() {
-		AbstractInputHandler handler = getInputHandlerByName(connection
-				.getInputMode());
-		AbstractScaling.getByScaleType(connection.getScaleMode())
-				.setScaleTypeForActivity(this);
-		this.inputHandler = handler;
-		showPanningState();
+		if (connection != null) {
+			AbstractInputHandler handler = getInputHandlerByName(connection.getInputMode());
+			AbstractScaling.getByScaleType(connection.getScaleMode()).setScaleTypeForActivity(this);
+			this.inputHandler = handler;
+			showPanningState();
+		}
 	}
 
 	ConnectionBean getConnection() {
@@ -1752,10 +860,10 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 						break;
  */					
 					case R.id.itemInputTouchPanZoomMouse:
-						inputModeHandlers[i] = new ZoomInputHandler();
+						inputModeHandlers[i] = new TouchMouseSwipePanInputHandler(this, vncCanvas);
 						break;
 					case R.id.itemInputTouchpad:
-						inputModeHandlers[i] = new TouchpadInputHandler();
+						inputModeHandlers[i] = new SimulatedTouchpadInputHandler(this, vncCanvas);
 						break;
 					}
 				}
@@ -1790,7 +898,7 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		vncCanvas.afterMenu = true;
+		vncCanvas.getKeyboard().setAfterMenu(true);
 		switch (item.getItemId()) {
 		case R.id.itemInfo:
 			vncCanvas.showConnectionInfo();
@@ -1810,10 +918,8 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 			showPanningState();
 			return true;
 		case R.id.itemCenterMouse:
-			vncCanvas.warpMouse(vncCanvas.absoluteXPosition
-					+ vncCanvas.getVisibleWidth() / 2,
-					vncCanvas.absoluteYPosition + vncCanvas.getVisibleHeight()
-							/ 2);
+			vncCanvas.getPointer().warpMouse(vncCanvas.absoluteXPosition + vncCanvas.getVisibleWidth()  / 2,
+											 vncCanvas.absoluteYPosition + vncCanvas.getVisibleHeight() / 2);
 			return true;
 		case R.id.itemDisconnect:
 			vncCanvas.closeConnection();
@@ -1823,7 +929,7 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 			showDialog(R.layout.entertext);
 			return true;
 		case R.id.itemCtrlAltDel:
-			vncCanvas.sendMetaKey(MetaKeyBean.keyCtrlAltDel);
+			vncCanvas.getKeyboard().sendMetaKey(MetaKeyBean.keyCtrlAltDel);
 			return true;
 /*		case R.id.itemFollowMouse:
 			boolean newFollow = !connection.getFollowMouse();
@@ -1884,7 +990,7 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 			if (input != null) {
 				inputHandler = input;
 				connection.setInputMode(input.getName());
-				if (input.getName().equals(TOUCHPAD_MODE)) {
+				if (input.getName().equals(SimulatedTouchpadInputHandler.TOUCHPAD_MODE)) {
 					connection.setFollowMouse(true);
 					connection.setFollowPan(true);
 				} else {
@@ -1923,7 +1029,7 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 			}
 		}
 		if (lastSentKey != null)
-			vncCanvas.sendMetaKey(lastSentKey);
+			vncCanvas.getKeyboard().sendMetaKey(lastSentKey);
 	}
 
 	@Override
@@ -1994,15 +1100,6 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 		// If we are using the Dpad as arrow keys, don't send the event to the inputHandler.
 		if (connection.getUseDpadAsArrows())
 			return false;
-
-		switch (event.getAction()) {
-			case MotionEvent.ACTION_DOWN:
-				trackballButtonDown = true;
-				break;
-			case MotionEvent.ACTION_UP:
-				trackballButtonDown = false;
-				break;
-		}
 		return inputHandler.onTrackballEvent(event);
 	}
 
@@ -2071,13 +1168,13 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 	}
 
 	boolean defaultKeyDownHandler(int keyCode, KeyEvent evt) {
-		if (vncCanvas.processLocalKeyEvent(keyCode, evt))
+		if (vncCanvas.getKeyboard().processLocalKeyEvent(keyCode, evt))
 			return true;
 		return super.onKeyDown(keyCode, evt);
 	}
 
 	boolean defaultKeyUpHandler(int keyCode, KeyEvent evt) {
-		if (vncCanvas.processLocalKeyEvent(keyCode, evt))
+		if (vncCanvas.getKeyboard().processLocalKeyEvent(keyCode, evt))
 			return true;
 		return super.onKeyUp(keyCode, evt);
 	}
@@ -2100,25 +1197,6 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 		return true;
 	}
 
-	private static int convertTrackballDelta(double delta) {
-		return (int) Math.pow(Math.abs(delta) * 6.01, 2.5)
-				* (delta < 0.0 ? -1 : 1);
-	}
-
-	boolean trackballMouse(MotionEvent evt) {
-		
-		int dx = convertTrackballDelta(evt.getX());
-		int dy = convertTrackballDelta(evt.getY());
-
-		evt.offsetLocation(vncCanvas.mouseX + dx - evt.getX(), vncCanvas.mouseY
-				+ dy - evt.getY());
-
-		if (vncCanvas.processPointerEvent(evt, trackballButtonDown)) {
-			return true;
-		}
-		return VncCanvasActivity.super.onTouchEvent(evt);
-	}
-
 	// Returns whether we are using D-pad/Trackball to send arrow key events.
 	boolean getUseDpadAsArrows() {
 		return connection.getUseDpadAsArrows();
@@ -2133,7 +1211,11 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 	static final long ZOOM_HIDE_DELAY_MS = 2500;
 	HideZoomRunnable hideZoomInstance = new HideZoomRunnable();
 
-	private void showZoomer(boolean force) {
+	public void stopPanner() {
+		panner.stop ();
+	}
+	
+	public void showZoomer(boolean force) {
 		if (force || zoomer.getVisibility() != View.VISIBLE) {
 			zoomer.show();
 			hideZoomAfterMs = SystemClock.uptimeMillis() + ZOOM_HIDE_DELAY_MS;
@@ -2148,526 +1230,5 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 				zoomer.hide();
 			}
 		}
-
-	}
-
-	/**
-	 * Touches and dpad (trackball) pan the screen
-	 * 
-	 * @author Michael A. MacDonald
-	 * 
-	 */
-	class PanMode implements AbstractInputHandler {
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see com.iiordanov.bVNC.AbstractInputHandler#onKeyDown(int,
-		 *      android.view.KeyEvent)
-		 */
-		@Override
-		public boolean onKeyDown(int keyCode, KeyEvent evt) {
-			// DPAD KeyDown events are move MotionEvents in Panning Mode
-			final int dPos = 100;
-			boolean result = false;
-			switch (keyCode) {
-			case KeyEvent.KEYCODE_DPAD_CENTER:
-				result = true;
-				break;
-			case KeyEvent.KEYCODE_DPAD_LEFT:
-				onTouchEvent(MotionEvent
-						.obtain(1, System.currentTimeMillis(),
-								MotionEvent.ACTION_MOVE, panTouchX + dPos,
-								panTouchY, 0));
-				result = true;
-				break;
-			case KeyEvent.KEYCODE_DPAD_RIGHT:
-				onTouchEvent(MotionEvent
-						.obtain(1, System.currentTimeMillis(),
-								MotionEvent.ACTION_MOVE, panTouchX - dPos,
-								panTouchY, 0));
-				result = true;
-				break;
-			case KeyEvent.KEYCODE_DPAD_UP:
-				onTouchEvent(MotionEvent
-						.obtain(1, System.currentTimeMillis(),
-								MotionEvent.ACTION_MOVE, panTouchX, panTouchY
-										+ dPos, 0));
-				result = true;
-				break;
-			case KeyEvent.KEYCODE_DPAD_DOWN:
-				onTouchEvent(MotionEvent
-						.obtain(1, System.currentTimeMillis(),
-								MotionEvent.ACTION_MOVE, panTouchX, panTouchY
-										- dPos, 0));
-				result = true;
-				break;
-			default:
-				result = defaultKeyDownHandler(keyCode, evt);
-				break;
-			}
-			return result;
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see com.iiordanov.bVNC.AbstractInputHandler#onKeyUp(int,
-		 *      android.view.KeyEvent)
-		 */
-		@Override
-		public boolean onKeyUp(int keyCode, KeyEvent evt) {
-			// TODO: Review this.
-			// Ignore KeyUp events for DPAD keys in Panning Mode; trackball
-			// button switches to mouse mode
-			switch (keyCode) {
-			case KeyEvent.KEYCODE_DPAD_CENTER:
-				inputHandler = getInputHandlerById(R.id.itemInputTouchPanZoomMouse);
-				connection.setInputMode(inputHandler.getName());
-				connection.save(database.getWritableDatabase());
-    			database.close();
-				updateInputMenu();
-				showPanningState();
-				return true;
-			case KeyEvent.KEYCODE_DPAD_LEFT:
-				return true;
-			case KeyEvent.KEYCODE_DPAD_RIGHT:
-				return true;
-			case KeyEvent.KEYCODE_DPAD_UP:
-				return true;
-			case KeyEvent.KEYCODE_DPAD_DOWN:
-				return true;
-			}
-			return defaultKeyUpHandler(keyCode, evt);
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see com.iiordanov.bVNC.AbstractInputHandler#onTouchEvent(android.view.MotionEvent)
-		 */
-		@Override
-		public boolean onTouchEvent(MotionEvent event) {
-			return touchPan(event);
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see com.iiordanov.bVNC.AbstractInputHandler#onTrackballEvent(android.view.MotionEvent)
-		 */
-		@Override
-		public boolean onTrackballEvent(MotionEvent evt) {
-			return false;
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see com.iiordanov.bVNC.AbstractInputHandler#handlerDescription()
-		 */
-		@Override
-		public CharSequence getHandlerDescription() {
-			return getResources().getText(R.string.input_mode_panning);
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see com.iiordanov.bVNC.AbstractInputHandler#getName()
-		 */
-		@Override
-		public String getName() {
-			return "PAN_MODE";
-		}
-
-	}
-
-	/**
-	 * The touchscreen pans the screen; the trackball moves and clicks the
-	 * mouse.
-	 * 
-	 * @author Michael A. MacDonald
-	 * 
-	 */
-	public class TouchPanTrackballMouse implements AbstractInputHandler {
-		private DPadMouseKeyHandler keyHandler = new DPadMouseKeyHandler(VncCanvasActivity.this, vncCanvas.handler,
-				 														 false, false);
-		
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see com.iiordanov.bVNC.AbstractInputHandler#onKeyDown(int,
-		 *      android.view.KeyEvent)
-		 */
-		@Override
-		public boolean onKeyDown(int keyCode, KeyEvent evt) {
-			return keyHandler.onKeyDown(keyCode, evt);
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see com.iiordanov.bVNC.AbstractInputHandler#onKeyUp(int,
-		 *      android.view.KeyEvent)
-		 */
-		@Override
-		public boolean onKeyUp(int keyCode, KeyEvent evt) {
-			return keyHandler.onKeyUp(keyCode, evt);
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see com.iiordanov.bVNC.AbstractInputHandler#onTouchEvent(android.view.MotionEvent)
-		 */
-		@Override
-		public boolean onTouchEvent(MotionEvent evt) {
-			return touchPan(evt);
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see com.iiordanov.bVNC.AbstractInputHandler#onTrackballEvent(android.view.MotionEvent)
-		 */
-		@Override
-		public boolean onTrackballEvent(MotionEvent evt) {
-			return trackballMouse(evt);
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see com.iiordanov.bVNC.AbstractInputHandler#handlerDescription()
-		 */
-		@Override
-		public CharSequence getHandlerDescription() {
-			return getResources().getText(
-					R.string.input_mode_touchpad_pan_trackball_mouse);
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see com.iiordanov.bVNC.AbstractInputHandler#getName()
-		 */
-		@Override
-		public String getName() {
-			return "TOUCH_PAN_TRACKBALL_MOUSE";
-		}
-
-	}
-
-	static final String FIT_SCREEN_NAME = "FIT_SCREEN";
-	/** Internal name for default input mode with Zoom scaling */
-	static final String TOUCH_ZOOM_MODE = "TOUCH_ZOOM_MODE";
-	
-	static final String TOUCHPAD_MODE = "TOUCHPAD_MODE";
-
-	/**
-	 * In fit-to-screen mode, no panning. Trackball and touchscreen work as
-	 * mouse.
-	 * 
-	 * @author Michael A. MacDonald
-	 * 
-	 */
-	public class FitToScreenMode implements AbstractInputHandler {
-		private DPadMouseKeyHandler keyHandler = new DPadMouseKeyHandler(VncCanvasActivity.this, vncCanvas.handler,
-																		 false, false);
-		
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see com.iiordanov.bVNC.AbstractInputHandler#onKeyDown(int,
-		 *      android.view.KeyEvent)
-		 */
-		@Override
-		public boolean onKeyDown(int keyCode, KeyEvent evt) {
-			return keyHandler.onKeyDown(keyCode, evt);
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see com.iiordanov.bVNC.AbstractInputHandler#onKeyUp(int,
-		 *      android.view.KeyEvent)
-		 */
-		@Override
-		public boolean onKeyUp(int keyCode, KeyEvent evt) {
-			return keyHandler.onKeyUp(keyCode, evt);
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see com.iiordanov.bVNC.AbstractInputHandler#onTouchEvent(android.view.MotionEvent)
-		 */
-		@Override
-		public boolean onTouchEvent(MotionEvent evt) {
-			return false;
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see com.iiordanov.bVNC.AbstractInputHandler#onTrackballEvent(android.view.MotionEvent)
-		 */
-		@Override
-		public boolean onTrackballEvent(MotionEvent evt) {
-			return trackballMouse(evt);
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see com.iiordanov.bVNC.AbstractInputHandler#handlerDescription()
-		 */
-		@Override
-		public CharSequence getHandlerDescription() {
-			return getResources().getText(R.string.input_mode_fit_to_screen);
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see com.iiordanov.bVNC.AbstractInputHandler#getName()
-		 */
-		@Override
-		public String getName() {
-			return FIT_SCREEN_NAME;
-		}
-
-	}
-
-	/**
-	 * Touch screen controls, clicks the mouse.
-	 * 
-	 * @author Michael A. MacDonald
-	 * 
-	 */
-	class MouseMode implements AbstractInputHandler {
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see com.iiordanov.bVNC.AbstractInputHandler#onKeyDown(int,
-		 *      android.view.KeyEvent)
-		 */
-		@Override
-		public boolean onKeyDown(int keyCode, KeyEvent evt) {
-			if (keyCode == KeyEvent.KEYCODE_DPAD_CENTER)
-				return true;
-			return defaultKeyDownHandler(keyCode, evt);
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see com.iiordanov.bVNC.AbstractInputHandler#onKeyUp(int,
-		 *      android.view.KeyEvent)
-		 */
-		@Override
-		public boolean onKeyUp(int keyCode, KeyEvent evt) {
-			// TODO: Review this.
-			if (keyCode == KeyEvent.KEYCODE_DPAD_CENTER) {
-				inputHandler = getInputHandlerById(R.id.itemInputTouchPanZoomMouse);
-				showPanningState();
-				connection.setInputMode(inputHandler.getName());
-				connection.save(database.getWritableDatabase());
-    			database.close();
-				updateInputMenu();
-				return true;
-			}
-			return defaultKeyUpHandler(keyCode, evt);
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see com.iiordanov.bVNC.AbstractInputHandler#onTouchEvent(android.view.MotionEvent)
-		 */
-		@Override
-		public boolean onTouchEvent(MotionEvent event) {
-			// Mouse Pointer Control Mode
-			// Pointer event is absolute coordinates.
-
-			vncCanvas.changeTouchCoordinatesToFullFrame(event);
-			if (vncCanvas.processPointerEvent(event, true))
-				return true;
-			return VncCanvasActivity.super.onTouchEvent(event);
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see com.iiordanov.bVNC.AbstractInputHandler#onTrackballEvent(android.view.MotionEvent)
-		 */
-		@Override
-		public boolean onTrackballEvent(MotionEvent evt) {
-			return false;
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see com.iiordanov.bVNC.AbstractInputHandler#handlerDescription()
-		 */
-		@Override
-		public CharSequence getHandlerDescription() {
-			return getResources().getText(R.string.input_mode_mouse);
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see com.iiordanov.bVNC.AbstractInputHandler#getName()
-		 */
-		@Override
-		public String getName() {
-			return "MOUSE";
-		}
-
-	}
-
-	/**
-	 * Touch screen controls, clicks the mouse. DPad pans the screen
-	 * 
-	 * @author Michael A. MacDonald
-	 * 
-	 */
-	class DPadPanTouchMouseMode implements AbstractInputHandler {
-
-		private boolean isPanning;
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see com.iiordanov.bVNC.AbstractInputHandler#onKeyDown(int,
-		 *      android.view.KeyEvent)
-		 */
-		@Override
-		public boolean onKeyDown(int keyCode, KeyEvent evt) {
-			int xv = 0;
-			int yv = 0;
-			boolean result = true;
-			switch (keyCode) {
-			case KeyEvent.KEYCODE_DPAD_LEFT:
-				xv = -1;
-				break;
-			case KeyEvent.KEYCODE_DPAD_RIGHT:
-				xv = 1;
-				break;
-			case KeyEvent.KEYCODE_DPAD_UP:
-				yv = -1;
-				break;
-			case KeyEvent.KEYCODE_DPAD_DOWN:
-				yv = 1;
-				break;
-			default:
-				result = defaultKeyDownHandler(keyCode, evt);
-				break;
-			}
-			if ((xv != 0 || yv != 0) && !isPanning) {
-				final int x = xv;
-				final int y = yv;
-				isPanning = true;
-				panner.start(x, y, new Panner.VelocityUpdater() {
-
-					/*
-					 * (non-Javadoc)
-					 * 
-					 * @see com.iiordanov.bVNC.Panner.VelocityUpdater#updateVelocity(android.graphics.Point,
-					 *      long)
-					 */
-					@Override
-					public boolean updateVelocity(PointF p, long interval) {
-						double scale = (2.0 * (double) interval / 50.0);
-						if (Math.abs(p.x) < 500)
-							p.x += (int) (scale * x);
-						if (Math.abs(p.y) < 500)
-							p.y += (int) (scale * y);
-						return true;
-					}
-
-				});
-				vncCanvas.pan(x, y);
-			}
-			return result;
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see com.iiordanov.bVNC.AbstractInputHandler#onKeyUp(int,
-		 *      android.view.KeyEvent)
-		 */
-		@Override
-		public boolean onKeyUp(int keyCode, KeyEvent evt) {
-			boolean result = false;
-
-			switch (keyCode) {
-			case KeyEvent.KEYCODE_DPAD_LEFT:
-			case KeyEvent.KEYCODE_DPAD_RIGHT:
-			case KeyEvent.KEYCODE_DPAD_UP:
-			case KeyEvent.KEYCODE_DPAD_DOWN:
-				panner.stop();
-				isPanning = false;
-				result = true;
-				break;
-			default:
-				result = defaultKeyUpHandler(keyCode, evt);
-				break;
-			}
-			return result;
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see com.iiordanov.bVNC.AbstractInputHandler#onTouchEvent(android.view.MotionEvent)
-		 */
-		@Override
-		public boolean onTouchEvent(MotionEvent event) {
-			// Mouse Pointer Control Mode
-			// Pointer event is absolute coordinates.
-
-			vncCanvas.changeTouchCoordinatesToFullFrame(event);
-			if (vncCanvas.processPointerEvent(event, true))
-				return true;
-			return VncCanvasActivity.super.onTouchEvent(event);
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see com.iiordanov.bVNC.AbstractInputHandler#onTrackballEvent(android.view.MotionEvent)
-		 */
-		@Override
-		public boolean onTrackballEvent(MotionEvent evt) {
-			return false;
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see com.iiordanov.bVNC.AbstractInputHandler#handlerDescription()
-		 */
-		@Override
-		public CharSequence getHandlerDescription() {
-			return getResources().getText(
-					R.string.input_mode_dpad_pan_touchpad_mouse);
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see com.iiordanov.bVNC.AbstractInputHandler#getName()
-		 */
-		@Override
-		public String getName() {
-			return "DPAD_PAN_TOUCH_MOUSE";
-		}
-
 	}
 }

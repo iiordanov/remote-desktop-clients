@@ -188,7 +188,7 @@ class ZoomScaling extends AbstractScaling {
 		// Only if we have actually scaled do we pan and potentially set mouse position.
 		if (oldScale != newScale) {
 			activity.vncCanvas.pan((int)(newXPan - xPan), (int)(newYPan - yPan));
-			activity.vncCanvas.mouseFollowPan();
+			activity.vncCanvas.getPointer().mouseFollowPan();
 		}
 	}	
 	

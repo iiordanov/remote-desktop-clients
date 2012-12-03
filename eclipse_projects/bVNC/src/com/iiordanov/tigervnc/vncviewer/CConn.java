@@ -48,6 +48,7 @@ import com.iiordanov.bVNC.AbstractConnectionBean;
 import com.iiordanov.bVNC.VncCanvas;
 import com.iiordanov.bVNC.AbstractBitmapData;
 import com.iiordanov.bVNC.RfbConnectable;
+import com.iiordanov.bVNC.input.RemoteKeyboard;
 import com.iiordanov.tigervnc.rdr.*;
 import com.iiordanov.tigervnc.rfb.*;
 import com.iiordanov.tigervnc.rfb.Exception;
@@ -797,17 +798,17 @@ public class CConn extends CConnection
   
   // TODO: Get this ported.
   synchronized void writeModifiers(int newModifiers) {
-	  if ((newModifiers & VncCanvas.CTRL_MASK) != (oldModifiers & VncCanvas.CTRL_MASK))
-		  writeKeyEvent(0xffe3, (newModifiers & VncCanvas.CTRL_MASK) != 0);
+	  if ((newModifiers & RemoteKeyboard.CTRL_MASK) != (oldModifiers & RemoteKeyboard.CTRL_MASK))
+		  writeKeyEvent(0xffe3, (newModifiers & RemoteKeyboard.CTRL_MASK) != 0);
 
-	  if ((newModifiers & VncCanvas.SHIFT_MASK) != (oldModifiers & VncCanvas.SHIFT_MASK))
-		  writeKeyEvent(0xffe1, (newModifiers & VncCanvas.SHIFT_MASK) != 0);
+	  if ((newModifiers & RemoteKeyboard.SHIFT_MASK) != (oldModifiers & RemoteKeyboard.SHIFT_MASK))
+		  writeKeyEvent(0xffe1, (newModifiers & RemoteKeyboard.SHIFT_MASK) != 0);
 
-	  if ((newModifiers & VncCanvas.META_MASK) != (oldModifiers & VncCanvas.META_MASK))
-		  writeKeyEvent(0xffe7, (newModifiers & VncCanvas.META_MASK) != 0);
+	  if ((newModifiers & RemoteKeyboard.META_MASK) != (oldModifiers & RemoteKeyboard.META_MASK))
+		  writeKeyEvent(0xffe7, (newModifiers & RemoteKeyboard.META_MASK) != 0);
 
-	  if ((newModifiers & VncCanvas.ALT_MASK) != (oldModifiers & VncCanvas.ALT_MASK))
-		  writeKeyEvent(0xffe9, (newModifiers & VncCanvas.ALT_MASK) != 0);
+	  if ((newModifiers & RemoteKeyboard.ALT_MASK) != (oldModifiers & RemoteKeyboard.ALT_MASK))
+		  writeKeyEvent(0xffe9, (newModifiers & RemoteKeyboard.ALT_MASK) != 0);
 	  oldModifiers = newModifiers;
   }
 

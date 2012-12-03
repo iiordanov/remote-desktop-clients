@@ -24,6 +24,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import com.antlersoft.android.dbimpl.NewInstance;
+import com.iiordanov.bVNC.input.RemoteKeyboard;
+import com.iiordanov.bVNC.input.RemotePointer;
 
 import android.view.KeyEvent;
 
@@ -31,7 +33,7 @@ import android.view.KeyEvent;
  * @author Michael A. MacDonald
  *
  */
-class MetaKeyBean extends AbstractMetaKeyBean implements Comparable<MetaKeyBean> {
+public class MetaKeyBean extends AbstractMetaKeyBean implements Comparable<MetaKeyBean> {
 	static final ArrayList<MetaKeyBase> allKeys;
 	static final String[] allKeysNames;
 	static final HashMap<Integer,MetaKeyBase> keysByKeyCode;
@@ -55,11 +57,11 @@ class MetaKeyBean extends AbstractMetaKeyBean implements Comparable<MetaKeyBean>
 		allKeys.add(new MetaKeyBase("Kana_Shift", 0xff2e));
 		allKeys.add(new MetaKeyBase("Right_Alt", 0xffea));
 		
-		allKeys.add(new MetaKeyBase(VncCanvas.MOUSE_BUTTON_LEFT,"Mouse Left"));
-		allKeys.add(new MetaKeyBase(VncCanvas.MOUSE_BUTTON_MIDDLE,"Mouse Middle"));
-		allKeys.add(new MetaKeyBase(VncCanvas.MOUSE_BUTTON_RIGHT,"Mouse Right"));
-		allKeys.add(new MetaKeyBase(VncCanvas.MOUSE_BUTTON_SCROLL_DOWN, "Mouse Scroll Down"));
-		allKeys.add(new MetaKeyBase(VncCanvas.MOUSE_BUTTON_SCROLL_UP, "Mouse Scroll Up"));
+		allKeys.add(new MetaKeyBase(RemotePointer.MOUSE_BUTTON_LEFT, "Mouse Left"));
+		allKeys.add(new MetaKeyBase(RemotePointer.MOUSE_BUTTON_MIDDLE, "Mouse Middle"));
+		allKeys.add(new MetaKeyBase(RemotePointer.MOUSE_BUTTON_RIGHT, "Mouse Right"));
+		allKeys.add(new MetaKeyBase(RemotePointer.MOUSE_BUTTON_SCROLL_DOWN, "Mouse Scroll Down"));
+		allKeys.add(new MetaKeyBase(RemotePointer.MOUSE_BUTTON_SCROLL_UP, "Mouse Scroll Up"));
 		
 		allKeys.add(new MetaKeyBase("Home", 0xFF50));
 		allKeys.add(new MetaKeyBase("Arrow Left", 0xFF51));
@@ -130,7 +132,7 @@ class MetaKeyBean extends AbstractMetaKeyBean implements Comparable<MetaKeyBean>
 					return new MetaKeyBean();
 				}
 			};
-		keyCtrlAltDel = new MetaKeyBean(0,VncCanvas.CTRL_MASK|VncCanvas.ALT_MASK,keysByKeyCode.get(KeyEvent.KEYCODE_DEL));
+		keyCtrlAltDel = new MetaKeyBean(0,RemoteKeyboard.CTRL_MASK|RemoteKeyboard.ALT_MASK,keysByKeyCode.get(KeyEvent.KEYCODE_DEL));
 		keyArrowLeft = new MetaKeyBean(0,0,keysByKeySym.get(0xFF51));
 		keyArrowUp = new MetaKeyBean(0,0,keysByKeySym.get(0xFF52));
 		keyArrowRight = new MetaKeyBean(0,0,keysByKeySym.get(0xFF53));
@@ -175,17 +177,17 @@ class MetaKeyBean extends AbstractMetaKeyBean implements Comparable<MetaKeyBean>
 				{
 					StringBuilder sb=new StringBuilder();
 					int meta=getMetaFlags();
-					if (0 != (meta & VncCanvas.SHIFT_MASK))
+					if (0 != (meta & RemoteKeyboard.SHIFT_MASK))
 					{
 						sb.append("Shift");
 					}
-					if (0 != (meta & VncCanvas.CTRL_MASK))
+					if (0 != (meta & RemoteKeyboard.CTRL_MASK))
 					{
 						if (sb.length()>0)
 							sb.append('-');
 						sb.append("Ctrl");
 					}
-					if (0 != (meta & VncCanvas.ALT_MASK))
+					if (0 != (meta & RemoteKeyboard.ALT_MASK))
 					{
 						if (sb.length()>0)
 							sb.append('-');

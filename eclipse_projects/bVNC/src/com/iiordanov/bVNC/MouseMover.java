@@ -20,6 +20,8 @@
 
 package com.iiordanov.bVNC;
 
+import com.iiordanov.bVNC.input.RemotePointer;
+
 import android.os.Handler;
 import android.os.SystemClock;
 import android.view.MotionEvent;
@@ -45,21 +47,19 @@ class MouseMover extends Panner {
 		lastSent += interval;
 		double scale = (double)interval / 50.0;
 		VncCanvas canvas = activity.vncCanvas;
+		RemotePointer p = canvas.getPointer();
+		
 		//Log.v(TAG, String.format("panning %f %d %d", scale, (int)((double)velocity.x * scale), (int)((double)velocity.y * scale)));
-		if ( canvas.processPointerEvent((int)(canvas.mouseX + ((double)velocity.x * scale)), (int)(canvas.mouseY + ((double)velocity.y * scale)), MotionEvent.ACTION_MOVE, 0, false, false))
-		{
-			if (updater.updateVelocity(velocity, interval))
-			{
+		if ( p.processPointerEvent((int)(p.getX() + ((double)velocity.x * scale)),
+												(int)(p.getY() + ((double)velocity.y * scale)),
+												MotionEvent.ACTION_MOVE, 0, false, false)) {
+			if (updater.updateVelocity(velocity, interval)) {
 				handler.postDelayed(this, 50);
-			}
-			else
-			{
+			} else {
 				//Log.v(TAG, "Updater requests stop");
 				stop();
 			}
-		}
-		else
-		{
+		} else {
 			//Log.v(TAG, "Panning failed");
 			stop();
 		}

@@ -36,7 +36,16 @@ import com.iiordanov.android.bc.OnScaleGestureListener;
 abstract class AbstractGestureInputHandler extends GestureDetector.SimpleOnGestureListener implements AbstractInputHandler, OnScaleGestureListener {
 	protected GestureDetector gestures;
 	protected IBCScaleGestureDetector scaleGestures;
-	private VncCanvasActivity activity;
+	/**
+	 * Handles to the VncCanvas view and VncCanvasActivity activity.
+	 */
+	protected VncCanvas vncCanvas;
+	protected VncCanvasActivity activity;
+	
+	/**
+	 * Key handler delegate that handles DPad-based mouse motion
+	 */
+	protected DPadMouseKeyHandler keyHandler;
 	
 	// This is the initial "focal point" of the gesture (between the two fingers).
 	float xInitialFocus;
@@ -59,6 +68,7 @@ abstract class AbstractGestureInputHandler extends GestureDetector.SimpleOnGestu
 	// and whether it should be rotated.
 	boolean useDpadAsArrows    = false;
 	boolean rotateDpad         = false;
+	boolean trackballButtonDown;
 	
 	// The variable which indicates how many scroll events to send per swipe event.
 	long    swipeSpeed = 1;
@@ -75,14 +85,16 @@ abstract class AbstractGestureInputHandler extends GestureDetector.SimpleOnGestu
 	
 	private static final String TAG = "AbstractGestureInputHandler";
 	
-	AbstractGestureInputHandler(VncCanvasActivity c)
+	AbstractGestureInputHandler(VncCanvasActivity c, VncCanvas v)
 	{
 		activity = c;
+		vncCanvas = v;
 		gestures=BCFactory.getInstance().getBCGestureDetector().createGestureDetector(c, this);
 		gestures.setOnDoubleTapListener(this);
 		scaleGestures=BCFactory.getInstance().getScaleGestureDetector(c, this);
 		useDpadAsArrows = activity.getUseDpadAsArrows();
 		rotateDpad      = activity.getRotateDpad();
+		keyHandler = new DPadMouseKeyHandler(activity, vncCanvas.handler, useDpadAsArrows, rotateDpad);
 	}
 
 	
@@ -203,5 +215,50 @@ abstract class AbstractGestureInputHandler extends GestureDetector.SimpleOnGestu
 		inScaling = false;
 		inSwiping = false;
 		scalingJustFinished = true;
+	}
+	
+	private static int convertTrackballDelta(double delta) {
+		return (int) Math.pow(Math.abs(delta) * 6.01, 2.5)
+				* (delta < 0.0 ? -1 : 1);
+	}
+
+	boolean trackballMouse(MotionEvent evt) {
+		
+		int dx = convertTrackballDelta(evt.getX());
+		int dy = convertTrackballDelta(evt.getY());
+
+		switch (evt.getAction()) {
+			case MotionEvent.ACTION_DOWN:
+				trackballButtonDown = true;
+				break;
+			case MotionEvent.ACTION_UP:
+				trackballButtonDown = false;
+				break;
+		}
+		
+		evt.offsetLocation(vncCanvas.pointer.mouseX + dx - evt.getX(),
+							vncCanvas.pointer.mouseY + dy - evt.getY());
+
+		if (vncCanvas.pointer.processPointerEvent(evt, trackballButtonDown))
+			return true;
+		
+		return activity.onTouchEvent(evt);
+	}
+	
+	/**
+	 * Apply scroll offset and scaling to convert touch-space coordinates to the corresponding
+	 * point on the full frame.
+	 * @param e MotionEvent with the original, touch space coordinates.  This event is altered in place.
+	 * @return e -- The same event passed in, with the coordinates mapped
+	 */
+	MotionEvent changeTouchCoordinatesToFullFrame(MotionEvent e)
+	{
+		//Log.v(TAG, String.format("tap at %f,%f", e.getX(), e.getY()));
+		float scale = vncCanvas.getScale();
+		
+		// Adjust coordinates for Android notification bar.
+		e.offsetLocation(0, -1f * vncCanvas.getTop());
+		e.setLocation(vncCanvas.getAbsoluteX() + e.getX() / scale, vncCanvas.getAbsoluteY() + e.getY() / scale);
+		return e;
 	}
 }
