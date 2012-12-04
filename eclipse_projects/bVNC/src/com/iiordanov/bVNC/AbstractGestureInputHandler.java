@@ -92,15 +92,16 @@ abstract class AbstractGestureInputHandler extends GestureDetector.SimpleOnGestu
 	 * In drag and rightDrag mode (entered with long press) you process mouse events
 	 * without sending them through the gesture detector
 	 */
-	protected boolean dragMode;
-	protected boolean rightDragMode = false;
+	protected boolean dragMode       = false;
+	protected boolean rightDragMode  = false;
+	protected boolean middleDragMode = false;
 	protected float   dragX, dragY;
 
 	/**
 	 * These variables keep track of which pointers have seen ACTION_DOWN events.
 	 */
 	protected boolean secondPointerWasDown = false;
-	protected boolean thirdPointerWasDown = false;
+	protected boolean thirdPointerWasDown  = false;
 
 	private static final String TAG = "AbstractGestureInputHandler";
 	
@@ -279,6 +280,17 @@ abstract class AbstractGestureInputHandler extends GestureDetector.SimpleOnGestu
 		e.offsetLocation(0, -1f * vncCanvas.getTop());
 		e.setLocation(vncCanvas.getAbsoluteX() + e.getX() / scale, vncCanvas.getAbsoluteY() + e.getY() / scale);
 		return e;
+	}
+	
+	protected boolean endDragModesAndScrolling () {
+    	vncCanvas.inScrolling = false;
+    	if (dragMode || rightDragMode || middleDragMode) {
+    		dragMode              = false;
+			rightDragMode         = false;
+			middleDragMode        = false;
+			return true;
+    	} else
+    		return false;
 	}
 	
 	/**

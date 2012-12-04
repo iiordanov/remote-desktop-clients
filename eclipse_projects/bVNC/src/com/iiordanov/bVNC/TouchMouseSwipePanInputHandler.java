@@ -155,7 +155,7 @@ class TouchMouseSwipePanInputHandler extends AbstractGestureInputHandler {
         RemotePointer p = vncCanvas.getPointer();
 
         if (android.os.Build.VERSION.SDK_INT >= 14) {
-	        // Handle actions performed by a (e.g. USB or bluetooth) mouse.
+	        // Handle and consume actions performed by a (e.g. USB or bluetooth) mouse.
 	        if (handleMouseActions (e))
 	        	return true;
         }
@@ -166,27 +166,27 @@ class TouchMouseSwipePanInputHandler extends AbstractGestureInputHandler {
         	secondPointerWasDown = false;
         	// Permit right-clicking again.
         	thirdPointerWasDown = false;
-        	// Cancel right-drag mode.
-        	rightDragMode = false;
         	// Cancel any effect of scaling having "just finished" (e.g. ignoring scrolling).
 			scalingJustFinished = false;
 			dragX = e.getX();
 			dragY = e.getY();
-        } else if (pointerID == 0 && action == MotionEvent.ACTION_UP)
-        	vncCanvas.inScrolling = false;
+        	// Cancel drag modes and scrolling.
+        	endDragModesAndScrolling();
+        } else if (pointerID == 0 && action == MotionEvent.ACTION_UP) {
+			// If any drag modes were going on, end them and send a mouse up event.
+			if (endDragModesAndScrolling()) {
+				changeTouchCoordinatesToFullFrame(e);
+				return p.processPointerEvent(e, false, false, false);
+			}
+        }
 
     	// Here we only prepare for the second click, which we perform on ACTION_POINTER_UP for pointerID==1.
         if (pointerID == 1 && action == MotionEvent.ACTION_POINTER_DOWN) {
-        	// If drag mode is on then stop it and indicate button was released.
-        	if (dragMode) {
-				dragMode = false;
-				changeTouchCoordinatesToFullFrame(e);
-				p.processPointerEvent(e, false, false, false);       		
-        	}
+			endDragModesAndScrolling();
         	// Permit sending mouse-down event on long-tap again.
         	secondPointerWasDown = true;
         	// Permit right-clicking again.
-        	thirdPointerWasDown = false;
+        	thirdPointerWasDown  = false;
         }
         
         // Send scroll up/down events if swiping is happening.
@@ -216,7 +216,6 @@ class TouchMouseSwipePanInputHandler extends AbstractGestureInputHandler {
         	}
         	// Restore the coordinates so that onScale doesn't get all muddled up.
         	setEventCoordinates(e, x, y);
-    		return super.onTouchEvent(e);
 
     	// If user taps with a second finger while first finger is down, then we treat this as
         // a right mouse click, but we only effect the click when the second pointer goes up.
@@ -230,34 +229,28 @@ class TouchMouseSwipePanInputHandler extends AbstractGestureInputHandler {
         	rightDragMode = true;
         	changeTouchCoordinatesToFullFrame(e);
         	p.processPointerEvent(e, true, true, false);
-			SystemClock.sleep(50);
-        	// Offset the pointer by one pixel to prevent accidental click and disappearing context menu.
-			setEventCoordinates(e, p.getX() - 1, p.getY());
-        	p.processPointerEvent(e, false, true, false);
-        	// Put the pointer where it was before the 1px offset.
-        	p.setX(p.getX() + 1);
-			// Pass this event on to the parent class in order to end scaling as it was certainly
-			// started when the second pointer went down.
-			return super.onTouchEvent(e);
+			// Now the event must be passed on to the parent class in order to 
+        	// end scaling as it was certainly started when the second pointer went down.
+
         } else if (!inScaling && pointerID == 2 && action == MotionEvent.ACTION_POINTER_DOWN) {
         	// This boolean prevents the right-click from firing simultaneously as a middle button click.
         	thirdPointerWasDown = true;
+        	middleDragMode      = true;
         	changeTouchCoordinatesToFullFrame(e);
         	p.processPointerEvent(e, true, false, true);
-			SystemClock.sleep(50);
-			return p.processPointerEvent(e, false, false, true);
-        } else if (pointerCnt == 1 && pointerID == 0 && rightDragMode) {
-			changeTouchCoordinatesToFullFrame(e);
-			return p.processPointerEvent(e, false, false, false);
+
         } else if (pointerCnt == 1 && pointerID == 0 && dragMode) {
 			changeTouchCoordinatesToFullFrame(e);
-			if (action == MotionEvent.ACTION_UP) {
-				dragMode = false;
-				return p.processPointerEvent(e, false, false, false);
-			}
 			return p.processPointerEvent(e, true, false, false);
-		} else
-			return super.onTouchEvent(e);
+        } else if (pointerCnt == 1 && pointerID == 0 && rightDragMode) {
+			changeTouchCoordinatesToFullFrame(e);
+			return p.processPointerEvent(e, true, true, false);
+        } else if (pointerCnt == 1 && pointerID == 0 && middleDragMode) {
+			changeTouchCoordinatesToFullFrame(e);
+			return p.processPointerEvent(e, true, false, true);
+		}
+
+        return super.onTouchEvent(e);
 	}
 
 	/*
