@@ -54,9 +54,17 @@ public class RemotePointer {
 	public int getX() {
 		return mouseX;
 	}
-	
+
 	public int getY() {
 		return mouseY;
+	}
+
+	public void setX(int newX) {
+		mouseX = newX;
+	}
+
+	public void setY(int newY) {
+		mouseY = newY;
 	}
 
 	/**

@@ -13,30 +13,9 @@ import com.iiordanov.bVNC.input.RemotePointer;
  * @author Michael A. MacDonald
  */
 class TouchMouseSwipePanInputHandler extends AbstractGestureInputHandler {
-	
-	/**
-	 * In drag mode (entered with long press) you process mouse events
-	 * without sending them through the gesture detector
-	 */
-	private boolean dragMode = false;
-	
-	/**
-	 * In right-drag mode (entered when a right-click occurs) you process mouse events
-	 * without sending them through the gesture detector, and only send the location of
-	 * the pointer to the remote machine.
-	 */
-	private boolean rightDragMode = false;
-
-	/**
-	 * These variables hold the coordinates of the last double-tap down event.
-	 */
-	float doubleTapX, doubleTapY;
-	
-	private boolean secondPointerWasDown = false;
-	private boolean thirdPointerWasDown = false;
-	
+	static final String TAG = "SimulatedTouchpadInputHandler";
 	static final String TOUCH_ZOOM_MODE = "TOUCH_ZOOM_MODE";
-	
+
 	/**
 	 * @param c
 	 */
@@ -162,101 +141,7 @@ class TouchMouseSwipePanInputHandler extends AbstractGestureInputHandler {
 		return true;
 	}
 
-
-	/**
-	 * Modify the event so that the mouse goes where we specify.
-	 * @param e
-	 */
-	private void remoteMouseSetCoordinates(MotionEvent e, float x, float y) {
-		//Log.i(TAG, "Setting pointer location in remoteMouseSetCoordinates");
-		e.setLocation(x, y);
-	}
-
-	/**
-	 * Handles actions performed by a mouse.
-	 * @param e touch or generic motion event
-	 * @return
-	 */
-	private boolean handleMouseActions (MotionEvent e) {
-        final int action     = e.getActionMasked();
-		final int bstate     = e.getButtonState();
-
-		switch (action) {
-		// If a mouse button was pressed.
-		case MotionEvent.ACTION_DOWN:
-			switch (bstate) {
-			case MotionEvent.BUTTON_PRIMARY:
-				changeTouchCoordinatesToFullFrame(e);
-				return vncCanvas.getPointer().processPointerEvent(e, true);
-			case MotionEvent.BUTTON_SECONDARY:
-				changeTouchCoordinatesToFullFrame(e);
-	        	return vncCanvas.getPointer().processPointerEvent(e, true, true, false);		
-			case MotionEvent.BUTTON_TERTIARY:
-				changeTouchCoordinatesToFullFrame(e);
-	        	return vncCanvas.getPointer().processPointerEvent(e, true, false, true);
-			}
-			break;
-		// If a mouse button was released.
-		case MotionEvent.ACTION_UP:
-			switch (bstate) {
-			case MotionEvent.BUTTON_PRIMARY:
-			case MotionEvent.BUTTON_SECONDARY:
-			case MotionEvent.BUTTON_TERTIARY:
-				changeTouchCoordinatesToFullFrame(e);
-				return vncCanvas.getPointer().processPointerEvent(e, false);
-			}
-			break;
-		// If the mouse was moved between button down and button up.
-		case MotionEvent.ACTION_MOVE:
-			switch (bstate) {
-			case MotionEvent.BUTTON_PRIMARY:
-				changeTouchCoordinatesToFullFrame(e);
-				return vncCanvas.getPointer().processPointerEvent(e, true);
-			case MotionEvent.BUTTON_SECONDARY:
-				changeTouchCoordinatesToFullFrame(e);
-	        	return vncCanvas.getPointer().processPointerEvent(e, true, true, false);		
-			case MotionEvent.BUTTON_TERTIARY:
-				changeTouchCoordinatesToFullFrame(e);
-	        	return vncCanvas.getPointer().processPointerEvent(e, true, false, true);
-			}
-		// If the mouse wheel was scrolled.
-		case MotionEvent.ACTION_SCROLL:
-			float vscroll = e.getAxisValue(MotionEvent.AXIS_VSCROLL);
-			float hscroll = e.getAxisValue(MotionEvent.AXIS_HSCROLL);
-			int swipeSpeed = 0, direction = 0;
-			if (vscroll < 0) {
-				swipeSpeed = (int)(-1*vscroll);
-				direction = 1;
-			} else if (vscroll > 0) {
-				swipeSpeed = (int)vscroll;
-				direction = 0;
-			} else if (hscroll < 0) {
-				swipeSpeed = (int)(-1*hscroll);
-				direction = 3;
-			} else if (hscroll > 0) {
-				swipeSpeed = (int)hscroll;
-				direction = 2;				
-			} else
-				return false;
-				
-			changeTouchCoordinatesToFullFrame(e);   	
-        	int numEvents = 0;
-        	while (numEvents < swipeSpeed) {
-        		vncCanvas.getPointer().processPointerEvent(e, false, false, false, true, direction);
-        		vncCanvas.getPointer().processPointerEvent(e, false);
-        		numEvents++;
-        	}
-			break;
-		// If the mouse was moved.
-		case MotionEvent.ACTION_HOVER_MOVE:
-			changeTouchCoordinatesToFullFrame(e);
-			return vncCanvas.getPointer().processPointerEvent(e, false, false, false);
-		}
-		return false;
-	}
-
-
-	 /*
+	/*
 	 * (non-Javadoc)
 	 * 
 	 * @see com.iiordanov.bVNC.AbstractGestureInputHandler#onTouchEvent(android.view.MotionEvent)
@@ -267,13 +152,14 @@ class TouchMouseSwipePanInputHandler extends AbstractGestureInputHandler {
         final int action     = e.getActionMasked();
         final int index      = e.getActionIndex();
         final int pointerID  = e.getPointerId(index);
+        RemotePointer p = vncCanvas.getPointer();
 
         if (android.os.Build.VERSION.SDK_INT >= 14) {
 	        // Handle actions performed by a (e.g. USB or bluetooth) mouse.
 	        if (handleMouseActions (e))
 	        	return true;
         }
-        
+
         // We have put down first pointer on the screen, so we can reset the state of all click-state variables.
         if (pointerID == 0 && action == MotionEvent.ACTION_DOWN) {
         	// Permit sending mouse-down event on long-tap again.
@@ -284,7 +170,10 @@ class TouchMouseSwipePanInputHandler extends AbstractGestureInputHandler {
         	rightDragMode = false;
         	// Cancel any effect of scaling having "just finished" (e.g. ignoring scrolling).
 			scalingJustFinished = false;
-        }
+			dragX = e.getX();
+			dragY = e.getY();
+        } else if (pointerID == 0 && action == MotionEvent.ACTION_UP)
+        	vncCanvas.inScrolling = false;
 
     	// Here we only prepare for the second click, which we perform on ACTION_POINTER_UP for pointerID==1.
         if (pointerID == 1 && action == MotionEvent.ACTION_POINTER_DOWN) {
@@ -292,7 +181,7 @@ class TouchMouseSwipePanInputHandler extends AbstractGestureInputHandler {
         	if (dragMode) {
 				dragMode = false;
 				changeTouchCoordinatesToFullFrame(e);
-				vncCanvas.getPointer().processPointerEvent(e, false, false, false);       		
+				p.processPointerEvent(e, false, false, false);       		
         	}
         	// Permit sending mouse-down event on long-tap again.
         	secondPointerWasDown = true;
@@ -306,27 +195,27 @@ class TouchMouseSwipePanInputHandler extends AbstractGestureInputHandler {
         	float x = e.getX();
         	float y = e.getY();
         	// Set the coordinates to where the swipe began (i.e. where scaling started).
-    		remoteMouseSetCoordinates(e, xInitialFocus, yInitialFocus);
+        	setEventCoordinates(e, xInitialFocus, yInitialFocus);
         	changeTouchCoordinatesToFullFrame(e);
         	int numEvents = 0;
         	while (numEvents < swipeSpeed) {
         		if        (twoFingerSwipeUp)   {
-        			vncCanvas.getPointer().processPointerEvent(e, false, false, false, true, 0);
-        			vncCanvas.getPointer().processPointerEvent(e, false);
+        			p.processPointerEvent(e, false, false, false, true, 0);
+        			p.processPointerEvent(e, false);
         		} else if (twoFingerSwipeDown) {
-        			vncCanvas.getPointer().processPointerEvent(e, false, false, false, true, 1);
-        			vncCanvas.getPointer().processPointerEvent(e, false);
+        			p.processPointerEvent(e, false, false, false, true, 1);
+        			p.processPointerEvent(e, false);
         		} else if (twoFingerSwipeLeft)   {
-        			vncCanvas.getPointer().processPointerEvent(e, false, false, false, true, 2);
-        			vncCanvas.getPointer().processPointerEvent(e, false);
+        			p.processPointerEvent(e, false, false, false, true, 2);
+        			p.processPointerEvent(e, false);
         		} else if (twoFingerSwipeRight) {
-        			vncCanvas.getPointer().processPointerEvent(e, false, false, false, true, 3);
-        			vncCanvas.getPointer().processPointerEvent(e, false);
+        			p.processPointerEvent(e, false, false, false, true, 3);
+        			p.processPointerEvent(e, false);
         		}
         		numEvents++;
         	}
         	// Restore the coordinates so that onScale doesn't get all muddled up.
-        	remoteMouseSetCoordinates(e, x, y);
+        	setEventCoordinates(e, x, y);
     		return super.onTouchEvent(e);
 
     	// If user taps with a second finger while first finger is down, then we treat this as
@@ -340,33 +229,33 @@ class TouchMouseSwipePanInputHandler extends AbstractGestureInputHandler {
         	// without clicking.
         	rightDragMode = true;
         	changeTouchCoordinatesToFullFrame(e);
-        	vncCanvas.getPointer().processPointerEvent(e, true, true, false);
+        	p.processPointerEvent(e, true, true, false);
 			SystemClock.sleep(50);
         	// Offset the pointer by one pixel to prevent accidental click and disappearing context menu.
-        	remoteMouseSetCoordinates(e, vncCanvas.getPointer().mouseX - 1.f, vncCanvas.getPointer().mouseY);
-        	vncCanvas.getPointer().processPointerEvent(e, false, true, false);
+			setEventCoordinates(e, p.getX() - 1, p.getY());
+        	p.processPointerEvent(e, false, true, false);
         	// Put the pointer where it was before the 1px offset.
-        	remoteMouseSetCoordinates(e, vncCanvas.getPointer().mouseX + 1.f, vncCanvas.getPointer().mouseY);
+        	p.setX(p.getX() + 1);
 			// Pass this event on to the parent class in order to end scaling as it was certainly
 			// started when the second pointer went down.
 			return super.onTouchEvent(e);
-        } else if (!inScaling && pointerID == 2 && action == MotionEvent.ACTION_POINTER_DOWN ) {
+        } else if (!inScaling && pointerID == 2 && action == MotionEvent.ACTION_POINTER_DOWN) {
         	// This boolean prevents the right-click from firing simultaneously as a middle button click.
         	thirdPointerWasDown = true;
         	changeTouchCoordinatesToFullFrame(e);
-        	vncCanvas.getPointer().processPointerEvent(e, true, false, true);
+        	p.processPointerEvent(e, true, false, true);
 			SystemClock.sleep(50);
-			return vncCanvas.getPointer().processPointerEvent(e, false, false, true);
+			return p.processPointerEvent(e, false, false, true);
         } else if (pointerCnt == 1 && pointerID == 0 && rightDragMode) {
 			changeTouchCoordinatesToFullFrame(e);
-			return vncCanvas.getPointer().processPointerEvent(e, false, false, false);
+			return p.processPointerEvent(e, false, false, false);
         } else if (pointerCnt == 1 && pointerID == 0 && dragMode) {
 			changeTouchCoordinatesToFullFrame(e);
 			if (action == MotionEvent.ACTION_UP) {
 				dragMode = false;
-				return vncCanvas.getPointer().processPointerEvent(e, false, false, false);
+				return p.processPointerEvent(e, false, false, false);
 			}
-			return vncCanvas.getPointer().processPointerEvent(e, true, false, false);
+			return p.processPointerEvent(e, true, false, false);
 		} else
 			return super.onTouchEvent(e);
 	}
@@ -378,7 +267,8 @@ class TouchMouseSwipePanInputHandler extends AbstractGestureInputHandler {
 	 */
 	@Override
 	public void onLongPress(MotionEvent e) {
-		
+        RemotePointer p = vncCanvas.getPointer();
+
 		// If we've performed a right/middle-click and the gesture is not over yet, do not start drag mode.
 		if (secondPointerWasDown || thirdPointerWasDown)
 			return;
@@ -387,7 +277,7 @@ class TouchMouseSwipePanInputHandler extends AbstractGestureInputHandler {
 		BCFactory.getInstance().getBCHaptic().performLongPressHaptic(vncCanvas);
 		dragMode = true;
 		
-		vncCanvas.getPointer().processPointerEvent(changeTouchCoordinatesToFullFrame(e), true);
+		p.processPointerEvent(changeTouchCoordinatesToFullFrame(e), true);
 	}
 
 	/*
@@ -426,11 +316,13 @@ class TouchMouseSwipePanInputHandler extends AbstractGestureInputHandler {
 	 */
 	@Override
 	public boolean onSingleTapConfirmed(MotionEvent e) {
+        RemotePointer p = vncCanvas.getPointer();
+
 		activity.showZoomer(true);
 		changeTouchCoordinatesToFullFrame(e);
-		vncCanvas.getPointer().processPointerEvent(e, true);
+		p.processPointerEvent(e, true);
 		SystemClock.sleep(50);
-		return vncCanvas.getPointer().processPointerEvent(e, false);
+		return p.processPointerEvent(e, false);
 	}
 	
 	/*
@@ -440,14 +332,16 @@ class TouchMouseSwipePanInputHandler extends AbstractGestureInputHandler {
 	 */
 	@Override
 	public boolean onDoubleTap (MotionEvent e) {
+        RemotePointer p = vncCanvas.getPointer();
+
 		changeTouchCoordinatesToFullFrame(e);
-		vncCanvas.getPointer().processPointerEvent(e, true);
+		p.processPointerEvent(e, true);
 		SystemClock.sleep(50);
-		vncCanvas.getPointer().processPointerEvent(e, false);
+		p.processPointerEvent(e, false);
 		SystemClock.sleep(50);
-		vncCanvas.getPointer().processPointerEvent(e, true);
+		p.processPointerEvent(e, true);
 		SystemClock.sleep(50);
-		return vncCanvas.getPointer().processPointerEvent(e, false);
+		return p.processPointerEvent(e, false);
 	}
 }
 

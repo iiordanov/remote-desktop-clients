@@ -20,6 +20,7 @@
 
 package com.iiordanov.bVNC;
 
+import android.os.SystemClock;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
@@ -27,6 +28,7 @@ import android.view.MotionEvent;
 import com.iiordanov.android.bc.BCFactory;
 import com.iiordanov.android.bc.IBCScaleGestureDetector;
 import com.iiordanov.android.bc.OnScaleGestureListener;
+import com.iiordanov.bVNC.input.RemotePointer;
 
 /**
  * An AbstractInputHandler that uses GestureDetector to detect standard gestures in touch events
@@ -83,6 +85,23 @@ abstract class AbstractGestureInputHandler extends GestureDetector.SimpleOnGestu
 	// The minimum distance a scale event has to traverse the FIRST time before scaling starts.
 	final double  minScaleFactor = 0.1;
 	
+	// What action was previously performed by a mouse or stylus.
+	int prevMouseOrStylusAction = 0;
+	
+	/**
+	 * In drag and rightDrag mode (entered with long press) you process mouse events
+	 * without sending them through the gesture detector
+	 */
+	protected boolean dragMode;
+	protected boolean rightDragMode = false;
+	protected float   dragX, dragY;
+
+	/**
+	 * These variables keep track of which pointers have seen ACTION_DOWN events.
+	 */
+	protected boolean secondPointerWasDown = false;
+	protected boolean thirdPointerWasDown = false;
+
 	private static final String TAG = "AbstractGestureInputHandler";
 	
 	AbstractGestureInputHandler(VncCanvasActivity c, VncCanvas v)
@@ -260,5 +279,126 @@ abstract class AbstractGestureInputHandler extends GestureDetector.SimpleOnGestu
 		e.offsetLocation(0, -1f * vncCanvas.getTop());
 		e.setLocation(vncCanvas.getAbsoluteX() + e.getX() / scale, vncCanvas.getAbsoluteY() + e.getY() / scale);
 		return e;
+	}
+	
+	/**
+	 * Handles actions performed by a mouse.
+	 * @param e touch or generic motion event
+	 * @return
+	 */
+	protected boolean handleMouseActions (MotionEvent e) {
+        final int action     = e.getActionMasked();
+		final int bstate     = e.getButtonState();
+        RemotePointer p = vncCanvas.getPointer();
+
+		switch (action) {
+		// If a mouse button was pressed.
+		case MotionEvent.ACTION_DOWN:
+			switch (bstate) {
+			case MotionEvent.BUTTON_PRIMARY:
+				changeTouchCoordinatesToFullFrame(e);
+				return p.processPointerEvent(e, true);
+			case MotionEvent.BUTTON_SECONDARY:
+				changeTouchCoordinatesToFullFrame(e);
+	        	return p.processPointerEvent(e, true, true, false);		
+			case MotionEvent.BUTTON_TERTIARY:
+				changeTouchCoordinatesToFullFrame(e);
+	        	return p.processPointerEvent(e, true, false, true);
+			}
+			break;
+		// If a mouse button was released.
+		case MotionEvent.ACTION_UP:
+			switch (bstate) {
+			case MotionEvent.BUTTON_PRIMARY:
+			case MotionEvent.BUTTON_SECONDARY:
+			case MotionEvent.BUTTON_TERTIARY:
+				changeTouchCoordinatesToFullFrame(e);
+				return p.processPointerEvent(e, false);
+			}
+			break;
+		// If the mouse was moved between button down and button up.
+		case MotionEvent.ACTION_MOVE:
+			switch (bstate) {
+			case MotionEvent.BUTTON_PRIMARY:
+				changeTouchCoordinatesToFullFrame(e);
+				return p.processPointerEvent(e, true);
+			case MotionEvent.BUTTON_SECONDARY:
+				changeTouchCoordinatesToFullFrame(e);
+	        	return p.processPointerEvent(e, true, true, false);		
+			case MotionEvent.BUTTON_TERTIARY:
+				changeTouchCoordinatesToFullFrame(e);
+	        	return p.processPointerEvent(e, true, false, true);
+			}
+		// If the mouse wheel was scrolled.
+		case MotionEvent.ACTION_SCROLL:
+			float vscroll = e.getAxisValue(MotionEvent.AXIS_VSCROLL);
+			float hscroll = e.getAxisValue(MotionEvent.AXIS_HSCROLL);
+			int swipeSpeed = 0, direction = 0;
+			if (vscroll < 0) {
+				swipeSpeed = (int)(-1*vscroll);
+				direction = 1;
+			} else if (vscroll > 0) {
+				swipeSpeed = (int)vscroll;
+				direction = 0;
+			} else if (hscroll < 0) {
+				swipeSpeed = (int)(-1*hscroll);
+				direction = 3;
+			} else if (hscroll > 0) {
+				swipeSpeed = (int)hscroll;
+				direction = 2;				
+			} else
+				return false;
+				
+			changeTouchCoordinatesToFullFrame(e);   	
+        	int numEvents = 0;
+        	while (numEvents < swipeSpeed) {
+        		p.processPointerEvent(e, false, false, false, true, direction);
+        		p.processPointerEvent(e, false);
+        		numEvents++;
+        	}
+			break;
+		// If the mouse was moved.
+		case MotionEvent.ACTION_HOVER_MOVE:
+			changeTouchCoordinatesToFullFrame(e);
+			return p.processPointerEvent(e, false, false, false);
+		// If a stylus enters hover right after exiting hover, then a stylus tap was
+		// performed with its button depressed. We trigger a right-click.
+		case MotionEvent.ACTION_HOVER_ENTER:
+			if (prevMouseOrStylusAction == MotionEvent.ACTION_HOVER_EXIT) {
+	        	changeTouchCoordinatesToFullFrame(e);
+	        	p.processPointerEvent(e, true, true, false);
+				SystemClock.sleep(50);
+	        	// Offset the pointer by one pixel to prevent accidental click and disappearing context menu.
+	        	setEventCoordinates(e, p.getX() - 1, p.getY());
+	        	p.processPointerEvent(e, false, true, false);
+	        	// Put the pointer where it was before the 1px offset.
+	        	p.setX(p.getX() + 1);
+			}
+			break;
+		}
+		
+		prevMouseOrStylusAction = action;
+		return false;
+	}
+	
+	
+	/**
+	 * Modify the event so that the mouse goes where we specify.
+	 * @param e event to be modified.
+	 * @param x new x coordinate.
+	 * @param y new y coordinate.
+	 */
+	protected void setEventCoordinates(MotionEvent e, int x, int y) {
+		e.setLocation((float)x, (float)y);
+	}
+	
+	/**
+	 * Modify the event so that the mouse goes where we specify.
+	 * @param e event to be modified.
+	 * @param x new x coordinate.
+	 * @param y new y coordinate.
+	 */
+	protected void setEventCoordinates(MotionEvent e, float x, float y) {
+		e.setLocation(x, y);
 	}
 }

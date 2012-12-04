@@ -23,6 +23,7 @@ import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.InetSocketAddress;
 import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.security.PublicKey;
@@ -316,7 +317,8 @@ public class SSHConnection implements InteractiveCallback {
 		int portsTried = 0;
 		while (portsTried < numPortTries) {
 			try {
-				connection.createLocalPortForwarder(localPortStart + portsTried, remoteHost, remotePort);
+				connection.createLocalPortForwarder(new InetSocketAddress("localhost", localPortStart + portsTried),
+													remoteHost, remotePort);
 				return localPortStart + portsTried;
 			} catch (IOException e) {
 				portsTried++;
