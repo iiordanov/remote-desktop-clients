@@ -35,9 +35,13 @@ import com.iiordanov.bVNC.input.RemotePointer;
  * 
  * @author Michael A. MacDonald
  */
-abstract class AbstractGestureInputHandler extends GestureDetector.SimpleOnGestureListener implements AbstractInputHandler, OnScaleGestureListener {
+abstract class AbstractGestureInputHandler extends GestureDetector.SimpleOnGestureListener 
+										   implements AbstractInputHandler, OnScaleGestureListener {
+	private static final String TAG = "AbstractGestureInputHandler";
+
 	protected GestureDetector gestures;
 	protected IBCScaleGestureDetector scaleGestures;
+
 	/**
 	 * Handles to the VncCanvas view and VncCanvasActivity activity.
 	 */
@@ -102,8 +106,6 @@ abstract class AbstractGestureInputHandler extends GestureDetector.SimpleOnGestu
 	 */
 	protected boolean secondPointerWasDown = false;
 	protected boolean thirdPointerWasDown  = false;
-
-	private static final String TAG = "AbstractGestureInputHandler";
 	
 	AbstractGestureInputHandler(VncCanvasActivity c, VncCanvas v)
 	{
@@ -117,11 +119,272 @@ abstract class AbstractGestureInputHandler extends GestureDetector.SimpleOnGestu
 		keyHandler = new DPadMouseKeyHandler(activity, vncCanvas.handler, useDpadAsArrows, rotateDpad);
 	}
 
-	
+	/**
+	 * Function to get appropriate X coordinate from motion event for this input handler.
+	 * @return the appropriate X coordinate.
+	 */
+	abstract protected int getX (MotionEvent e);
+
+	/**
+	 * Function to get appropriate Y coordinate from motion event for this input handler.
+	 * @return the appropriate Y coordinate.
+	 */
+	abstract protected int getY (MotionEvent e);
+
+	/**
+	 * Handles actions performed by a mouse.
+	 * @param e touch or generic motion event
+	 * @return
+	 */
+	protected boolean handleMouseActions (MotionEvent e) {
+        final int action = e.getActionMasked();
+        final int meta   = e.getMetaState();
+		final int bstate = e.getButtonState();
+        RemotePointer p  = vncCanvas.getPointer();
+
+		switch (action) {
+		// If a mouse button was pressed or mouse was moved.
+		case MotionEvent.ACTION_DOWN:
+		case MotionEvent.ACTION_MOVE:
+			switch (bstate) {
+			case MotionEvent.BUTTON_PRIMARY:
+				return p.processPointerEvent(getX(e), getY(e), action, meta, true, false, false, false, 0);
+			case MotionEvent.BUTTON_SECONDARY:
+				return p.processPointerEvent(getX(e), getY(e), action, meta, true, true, false, false, 0);
+			case MotionEvent.BUTTON_TERTIARY:
+				return p.processPointerEvent(getX(e), getY(e), action, meta, true, false, true, false, 0);
+			}
+			break;
+		// If a mouse button was released.
+		case MotionEvent.ACTION_UP:
+			switch (bstate) {
+			case MotionEvent.BUTTON_PRIMARY:
+			case MotionEvent.BUTTON_SECONDARY:
+			case MotionEvent.BUTTON_TERTIARY:
+				return p.processPointerEvent(getX(e), getY(e), action, meta, false, false, false, false, 0);
+			}
+			break;
+		// If the mouse wheel was scrolled.
+		case MotionEvent.ACTION_SCROLL:
+			float vscroll = e.getAxisValue(MotionEvent.AXIS_VSCROLL);
+			float hscroll = e.getAxisValue(MotionEvent.AXIS_HSCROLL);
+			int swipeSpeed = 0, direction = 0;
+			if (vscroll < 0) {
+				swipeSpeed = (int)(-1*vscroll);
+				direction = 1;
+			} else if (vscroll > 0) {
+				swipeSpeed = (int)vscroll;
+				direction = 0;
+			} else if (hscroll < 0) {
+				swipeSpeed = (int)(-1*hscroll);
+				direction = 3;
+			} else if (hscroll > 0) {
+				swipeSpeed = (int)hscroll;
+				direction = 2;				
+			} else
+				return false;
+				
+        	int numEvents = 0;
+        	while (numEvents < swipeSpeed) {
+				p.processPointerEvent(getX(e), getY(e), action, meta, false, false, false, true, direction);
+				p.processPointerEvent(getX(e), getY(e), action, meta, false, false, false, false, 0);
+        		numEvents++;
+        	}
+			break;
+		// If the mouse was moved.
+		case MotionEvent.ACTION_HOVER_MOVE:
+			return p.processPointerEvent(getX(e), getY(e), action, meta, false, false, false, false, 0);
+		// If a stylus enters hover right after exiting hover, then a stylus tap was
+		// performed with its button depressed. We trigger a right-click.
+		case MotionEvent.ACTION_HOVER_ENTER:
+			if (prevMouseOrStylusAction == MotionEvent.ACTION_HOVER_EXIT) {
+				p.processPointerEvent(getX(e), getY(e), action, meta, true, true, false, false, 0);
+				SystemClock.sleep(50);
+				p.processPointerEvent(getX(e), getY(e), action, meta, false, false, false, false, 0);
+			}
+			break;
+		}
+		
+		prevMouseOrStylusAction = action;
+		return false;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see android.view.GestureDetector.SimpleOnGestureListener#onSingleTapConfirmed(android.view.MotionEvent)
+	 */
 	@Override
-	public boolean onTouchEvent(MotionEvent evt) {
-		scaleGestures.onTouchEvent(evt);
-		return gestures.onTouchEvent(evt);
+	public boolean onSingleTapConfirmed(MotionEvent e) {
+        RemotePointer p  = vncCanvas.getPointer();
+        final int action = e.getActionMasked();
+        final int meta   = e.getMetaState();
+		activity.showZoomer(true);
+		p.processPointerEvent(getX(e), getY(e), action, meta, true, false, false, false, 0);
+		SystemClock.sleep(50);
+		return p.processPointerEvent(getX(e), getY(e), action, meta, false, false, false, false, 0);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see android.view.GestureDetector.SimpleOnGestureListener#onDoubleTap(android.view.MotionEvent)
+	 */
+	@Override
+	public boolean onDoubleTap (MotionEvent e) {
+        RemotePointer p  = vncCanvas.getPointer();
+        final int action = e.getActionMasked();
+        final int meta   = e.getMetaState();
+        
+		p.processPointerEvent(getX(e), getY(e), action, meta, true, false, false, false, 0);
+		SystemClock.sleep(50);
+		p.processPointerEvent(getX(e), getY(e), action, meta, false, false, false, false, 0);
+		SystemClock.sleep(50);
+		p.processPointerEvent(getX(e), getY(e), action, meta, true, false, false, false, 0);
+		SystemClock.sleep(50);
+		return p.processPointerEvent(getX(e), getY(e), action, meta, false, false, false, false, 0);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see android.view.GestureDetector.SimpleOnGestureListener#onLongPress(android.view.MotionEvent)
+	 */
+	@Override
+	public void onLongPress(MotionEvent e) {
+        RemotePointer p = vncCanvas.getPointer();
+
+		// If we've performed a right/middle-click and the gesture is not over yet, do not start drag mode.
+		if (secondPointerWasDown || thirdPointerWasDown)
+			return;
+		
+		BCFactory.getInstance().getBCHaptic().performLongPressHaptic(vncCanvas);
+		dragMode = true;
+		p.processPointerEvent(getX(e), getY(e), e.getActionMasked(), e.getMetaState(), true, false, false, false, 0);
+	}
+
+	private boolean endDragModesAndScrolling () {
+    	vncCanvas.inScrolling = false;
+    	if (dragMode || rightDragMode || middleDragMode) {
+    		dragMode              = false;
+			rightDragMode         = false;
+			middleDragMode        = false;
+			return true;
+    	} else
+    		return false;
+	}
+
+	/**
+	 * Modify the event so that the mouse goes where we specify.
+	 * @param e event to be modified.
+	 * @param x new x coordinate.
+	 * @param y new y coordinate.
+	 */
+	private void setEventCoordinates(MotionEvent e, float x, float y) {
+		e.setLocation(x, y);
+	}
+
+	@Override
+	public boolean onTouchEvent(MotionEvent e) {
+		final int pointerCnt = e.getPointerCount();
+        final int action     = e.getActionMasked();
+        final int index      = e.getActionIndex();
+        final int pointerID  = e.getPointerId(index);
+        final int meta       = e.getMetaState();
+        RemotePointer p = vncCanvas.getPointer();
+
+        if (android.os.Build.VERSION.SDK_INT >= 14) {
+	        // Handle and consume actions performed by a (e.g. USB or bluetooth) mouse.
+	        if (handleMouseActions (e))
+	        	return true;
+        }
+
+        // We have put down first pointer on the screen, so we can reset the state of all click-state variables.
+        if (pointerID == 0 && action == MotionEvent.ACTION_DOWN) {
+        	// Permit sending mouse-down event on long-tap again.
+        	secondPointerWasDown = false;
+        	// Permit right-clicking again.
+        	thirdPointerWasDown = false;
+        	// Cancel any effect of scaling having "just finished" (e.g. ignoring scrolling).
+			scalingJustFinished = false;
+			dragX = e.getX();
+			dragY = e.getY();
+        	// Cancel drag modes and scrolling.
+        	endDragModesAndScrolling();
+    		vncCanvas.inScrolling = true;
+        } else if (pointerID == 0 && action == MotionEvent.ACTION_UP) {
+			// If any drag modes were going on, end them and send a mouse up event.
+			if (endDragModesAndScrolling()) {
+				return p.processPointerEvent(getX(e), getY(e), action, meta, false, false, false, false, 0);
+			}
+        }
+
+    	// Here we only prepare for the second click, which we perform on ACTION_POINTER_UP for pointerID==1.
+        if (pointerID == 1 && action == MotionEvent.ACTION_POINTER_DOWN) {
+			endDragModesAndScrolling();
+        	// Permit sending mouse-down event on long-tap again.
+        	secondPointerWasDown = true;
+        	// Permit right-clicking again.
+        	thirdPointerWasDown  = false;
+        }
+        
+        // Send scroll up/down events if swiping is happening.
+        if (inSwiping) {
+        	// Save the coordinates and restore them afterward.
+        	float x = e.getX();
+        	float y = e.getY();
+        	// Set the coordinates to where the swipe began (i.e. where scaling started).
+        	setEventCoordinates(e, xInitialFocus, yInitialFocus);
+        	int numEvents = 0;
+        	while (numEvents < swipeSpeed) {
+        		if        (twoFingerSwipeUp)   {
+        			p.processPointerEvent(getX(e), getY(e), action, meta, false, false, false, true, 0);
+        			p.processPointerEvent(getX(e), getY(e), action, meta, false, false, false, false, 0);
+        		} else if (twoFingerSwipeDown) {
+        			p.processPointerEvent(getX(e), getY(e), action, meta, false, false, false, true, 1);
+        			p.processPointerEvent(getX(e), getY(e), action, meta, false, false, false, false, 0);
+        		} else if (twoFingerSwipeLeft)   {
+        			p.processPointerEvent(getX(e), getY(e), action, meta, false, false, false, true, 2);
+        			p.processPointerEvent(getX(e), getY(e), action, meta, false, false, false, false, 0);
+        		} else if (twoFingerSwipeRight) {
+        			p.processPointerEvent(getX(e), getY(e), action, meta, false, false, false, true, 3);
+        			p.processPointerEvent(getX(e), getY(e), action, meta, false, false, false, false, 0);
+        		}
+        		numEvents++;
+        	}
+        	// Restore the coordinates so that onScale doesn't get all muddled up.
+        	setEventCoordinates(e, x, y);
+
+    	// If user taps with a second finger while first finger is down, then we treat this as
+        // a right mouse click, but we only effect the click when the second pointer goes up.
+        // If the user taps with a second and third finger while the first 
+        // finger is down, we treat it as a middle mouse click. We ignore the lifting of the
+        // second index when the third index has gone down (using the thirdPointerWasDown variable)
+        // to prevent inadvertent right-clicks when a middle click has been performed.
+        } else if (!inScaling && !thirdPointerWasDown && pointerID == 1 && action == MotionEvent.ACTION_POINTER_UP) {
+			p.processPointerEvent(getX(e), getY(e), action, meta, true, true, false, false, 0);
+        	// Enter right-drag mode.
+        	rightDragMode = true;
+        	// Now the event must be passed on to the parent class in order to 
+        	// end scaling as it was certainly started when the second pointer went down.
+
+        } else if (!inScaling && pointerID == 2 && action == MotionEvent.ACTION_POINTER_DOWN) {
+        	// This boolean prevents the right-click from firing simultaneously as a middle button click.
+        	thirdPointerWasDown = true;
+			p.processPointerEvent(getX(e), getY(e), action, meta, true, false, true, false, 0);
+			// Enter middle-drag mode.
+        	middleDragMode      = true;
+
+        } else if (pointerCnt == 1 && pointerID == 0 && dragMode) {
+			return p.processPointerEvent(getX(e), getY(e), action, meta, true, false, false, false, 0);
+        } else if (pointerCnt == 1 && pointerID == 0 && rightDragMode) {
+			return p.processPointerEvent(getX(e), getY(e), action, meta, true, true, false, false, 0);
+        } else if (pointerCnt == 1 && pointerID == 0 && middleDragMode) {
+			return p.processPointerEvent(getX(e), getY(e), action, meta, true, false, true, false, 0);
+		}
+
+		scaleGestures.onTouchEvent(e);
+		return gestures.onTouchEvent(e);
 	}
 
 	/* (non-Javadoc)
@@ -263,154 +526,5 @@ abstract class AbstractGestureInputHandler extends GestureDetector.SimpleOnGestu
 			return true;
 		
 		return activity.onTouchEvent(evt);
-	}
-	
-	/**
-	 * Apply scroll offset and scaling to convert touch-space coordinates to the corresponding
-	 * point on the full frame.
-	 * @param e MotionEvent with the original, touch space coordinates.  This event is altered in place.
-	 * @return e -- The same event passed in, with the coordinates mapped
-	 */
-	MotionEvent changeTouchCoordinatesToFullFrame(MotionEvent e)
-	{
-		//Log.v(TAG, String.format("tap at %f,%f", e.getX(), e.getY()));
-		float scale = vncCanvas.getScale();
-		
-		// Adjust coordinates for Android notification bar.
-		e.offsetLocation(0, -1f * vncCanvas.getTop());
-		e.setLocation(vncCanvas.getAbsoluteX() + e.getX() / scale, vncCanvas.getAbsoluteY() + e.getY() / scale);
-		return e;
-	}
-	
-	protected boolean endDragModesAndScrolling () {
-    	vncCanvas.inScrolling = false;
-    	if (dragMode || rightDragMode || middleDragMode) {
-    		dragMode              = false;
-			rightDragMode         = false;
-			middleDragMode        = false;
-			return true;
-    	} else
-    		return false;
-	}
-	
-	/**
-	 * Handles actions performed by a mouse.
-	 * @param e touch or generic motion event
-	 * @return
-	 */
-	protected boolean handleMouseActions (MotionEvent e) {
-        final int action     = e.getActionMasked();
-		final int bstate     = e.getButtonState();
-        RemotePointer p = vncCanvas.getPointer();
-
-		switch (action) {
-		// If a mouse button was pressed.
-		case MotionEvent.ACTION_DOWN:
-			switch (bstate) {
-			case MotionEvent.BUTTON_PRIMARY:
-				changeTouchCoordinatesToFullFrame(e);
-				return p.processPointerEvent(e, true);
-			case MotionEvent.BUTTON_SECONDARY:
-				changeTouchCoordinatesToFullFrame(e);
-	        	return p.processPointerEvent(e, true, true, false);		
-			case MotionEvent.BUTTON_TERTIARY:
-				changeTouchCoordinatesToFullFrame(e);
-	        	return p.processPointerEvent(e, true, false, true);
-			}
-			break;
-		// If a mouse button was released.
-		case MotionEvent.ACTION_UP:
-			switch (bstate) {
-			case MotionEvent.BUTTON_PRIMARY:
-			case MotionEvent.BUTTON_SECONDARY:
-			case MotionEvent.BUTTON_TERTIARY:
-				changeTouchCoordinatesToFullFrame(e);
-				return p.processPointerEvent(e, false);
-			}
-			break;
-		// If the mouse was moved between button down and button up.
-		case MotionEvent.ACTION_MOVE:
-			switch (bstate) {
-			case MotionEvent.BUTTON_PRIMARY:
-				changeTouchCoordinatesToFullFrame(e);
-				return p.processPointerEvent(e, true);
-			case MotionEvent.BUTTON_SECONDARY:
-				changeTouchCoordinatesToFullFrame(e);
-	        	return p.processPointerEvent(e, true, true, false);		
-			case MotionEvent.BUTTON_TERTIARY:
-				changeTouchCoordinatesToFullFrame(e);
-	        	return p.processPointerEvent(e, true, false, true);
-			}
-		// If the mouse wheel was scrolled.
-		case MotionEvent.ACTION_SCROLL:
-			float vscroll = e.getAxisValue(MotionEvent.AXIS_VSCROLL);
-			float hscroll = e.getAxisValue(MotionEvent.AXIS_HSCROLL);
-			int swipeSpeed = 0, direction = 0;
-			if (vscroll < 0) {
-				swipeSpeed = (int)(-1*vscroll);
-				direction = 1;
-			} else if (vscroll > 0) {
-				swipeSpeed = (int)vscroll;
-				direction = 0;
-			} else if (hscroll < 0) {
-				swipeSpeed = (int)(-1*hscroll);
-				direction = 3;
-			} else if (hscroll > 0) {
-				swipeSpeed = (int)hscroll;
-				direction = 2;				
-			} else
-				return false;
-				
-			changeTouchCoordinatesToFullFrame(e);   	
-        	int numEvents = 0;
-        	while (numEvents < swipeSpeed) {
-        		p.processPointerEvent(e, false, false, false, true, direction);
-        		p.processPointerEvent(e, false);
-        		numEvents++;
-        	}
-			break;
-		// If the mouse was moved.
-		case MotionEvent.ACTION_HOVER_MOVE:
-			changeTouchCoordinatesToFullFrame(e);
-			return p.processPointerEvent(e, false, false, false);
-		// If a stylus enters hover right after exiting hover, then a stylus tap was
-		// performed with its button depressed. We trigger a right-click.
-		case MotionEvent.ACTION_HOVER_ENTER:
-			if (prevMouseOrStylusAction == MotionEvent.ACTION_HOVER_EXIT) {
-	        	changeTouchCoordinatesToFullFrame(e);
-	        	p.processPointerEvent(e, true, true, false);
-				SystemClock.sleep(50);
-	        	// Offset the pointer by one pixel to prevent accidental click and disappearing context menu.
-	        	setEventCoordinates(e, p.getX() - 1, p.getY());
-	        	p.processPointerEvent(e, false, true, false);
-	        	// Put the pointer where it was before the 1px offset.
-	        	p.setX(p.getX() + 1);
-			}
-			break;
-		}
-		
-		prevMouseOrStylusAction = action;
-		return false;
-	}
-	
-	
-	/**
-	 * Modify the event so that the mouse goes where we specify.
-	 * @param e event to be modified.
-	 * @param x new x coordinate.
-	 * @param y new y coordinate.
-	 */
-	protected void setEventCoordinates(MotionEvent e, int x, int y) {
-		e.setLocation((float)x, (float)y);
-	}
-	
-	/**
-	 * Modify the event so that the mouse goes where we specify.
-	 * @param e event to be modified.
-	 * @param x new x coordinate.
-	 * @param y new y coordinate.
-	 */
-	protected void setEventCoordinates(MotionEvent e, float x, float y) {
-		e.setLocation(x, y);
 	}
 }

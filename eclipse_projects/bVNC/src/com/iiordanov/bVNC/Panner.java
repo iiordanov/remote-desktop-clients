@@ -36,6 +36,7 @@ class Panner implements Runnable {
 	PointF velocity;
 	long lastSent;
 	VelocityUpdater updater;
+	final int freq = 10;
 	
 	private static final String TAG = "PANNER";
 	
@@ -88,7 +89,7 @@ class Panner implements Runnable {
 		//Log.v(TAG, String.format("pan start %f %f", velocity.x, velocity.y));
 		lastSent = SystemClock.uptimeMillis();
 		
-		handler.postDelayed(this, 50);
+		handler.postDelayed(this, freq);
 	}
 	
 	/* (non-Javadoc)
@@ -104,7 +105,7 @@ class Panner implements Runnable {
 		{
 			if (updater.updateVelocity(velocity, interval))
 			{
-				handler.postDelayed(this, 50);
+				handler.postDelayed(this, freq);
 			}
 			else
 			{

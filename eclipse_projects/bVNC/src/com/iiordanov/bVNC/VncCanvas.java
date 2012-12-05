@@ -591,8 +591,7 @@ public class VncCanvas extends ImageView {
 	/**
 	 * Change to Canvas's scroll position to match the absoluteXPosition
 	 */
-	void scrollToAbsolute()
-	{
+	void scrollToAbsolute()	{
 		float scale = getScale();
 		scrollTo((int)((absoluteXPosition + ((float)getWidth()  - getImageWidth())  / 2 ) * scale),
 				 (int)((absoluteYPosition + ((float)getHeight() - getImageHeight()) / 2 ) * scale));
@@ -609,8 +608,7 @@ public class VncCanvas extends ImageView {
 	/**
 	 * Make sure mouse is visible on displayable part of screen
 	 */
-	public void panToMouse()
-	{
+	public void panToMouse() {
 		boolean panX = true;
 		boolean panY = true;
 
@@ -851,8 +849,7 @@ public class VncCanvas extends ImageView {
 		return keyboard;
 	}
 	
-	float getScale()
-	{
+	float getScale() {
 		if (scaling == null)
 			return 1;
 		return scaling.getScale();
@@ -862,7 +859,7 @@ public class VncCanvas extends ImageView {
 		return (int)((double)getWidth() / getScale() + 0.5);
 	}
 
-	public void setVisibleHeight(int newHeight){
+	public void setVisibleHeight(int newHeight) {
 		visibleHeight = newHeight;
 	}
 	
