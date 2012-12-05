@@ -96,6 +96,7 @@ abstract class AbstractGestureInputHandler extends GestureDetector.SimpleOnGestu
 	 * In drag and rightDrag mode (entered with long press) you process mouse events
 	 * without sending them through the gesture detector
 	 */
+	protected boolean panMode        = false;
 	protected boolean dragMode       = false;
 	protected boolean rightDragMode  = false;
 	protected boolean middleDragMode = false;
@@ -123,13 +124,19 @@ abstract class AbstractGestureInputHandler extends GestureDetector.SimpleOnGestu
 	 * Function to get appropriate X coordinate from motion event for this input handler.
 	 * @return the appropriate X coordinate.
 	 */
-	abstract protected int getX (MotionEvent e);
+	protected int getX (MotionEvent e) {
+		float scale = vncCanvas.getScale();
+		return (int)(vncCanvas.getAbsoluteX() + e.getX() / scale);
+	}
 
 	/**
 	 * Function to get appropriate Y coordinate from motion event for this input handler.
 	 * @return the appropriate Y coordinate.
 	 */
-	abstract protected int getY (MotionEvent e);
+	protected int getY (MotionEvent e) {
+		float scale = vncCanvas.getScale();
+		return (int)(vncCanvas.getAbsoluteY() + (e.getY() - 1.f * vncCanvas.getTop()) / scale);
+	}
 
 	/**
 	 * Handles actions performed by a mouse.
@@ -142,7 +149,7 @@ abstract class AbstractGestureInputHandler extends GestureDetector.SimpleOnGestu
 		final int bstate = e.getButtonState();
         RemotePointer p  = vncCanvas.getPointer();
 		float scale = vncCanvas.getScale();
-		int x = (int)(vncCanvas.getAbsoluteX() + e.getX() / scale);
+		int x = (int)(vncCanvas.getAbsoluteX() +  e.getX()                             / scale);
 		int y = (int)(vncCanvas.getAbsoluteY() + (e.getY() - 1.f * vncCanvas.getTop()) / scale);
 
 		switch (action) {
@@ -199,7 +206,7 @@ abstract class AbstractGestureInputHandler extends GestureDetector.SimpleOnGestu
 			return p.processPointerEvent(x, y, action, meta, false, false, false, false, 0);
 		// If a stylus enters hover right after exiting hover, then a stylus tap was
 		// performed with its button depressed. We trigger a right-click.
-		case MotionEvent.ACTION_HOVER_ENTER:
+		/*case MotionEvent.ACTION_HOVER_ENTER:
 			int toolType = e.getToolType(0);
 			if (toolType == MotionEvent.TOOL_TYPE_STYLUS &&
 				prevMouseOrStylusAction == MotionEvent.ACTION_HOVER_EXIT) {
@@ -207,7 +214,7 @@ abstract class AbstractGestureInputHandler extends GestureDetector.SimpleOnGestu
 				SystemClock.sleep(50);
 				p.processPointerEvent(x, y, action, meta, false, false, false, false, 0);
 			}
-			break;
+			break;*/
 		}
 		
 		prevMouseOrStylusAction = action;
@@ -268,12 +275,13 @@ abstract class AbstractGestureInputHandler extends GestureDetector.SimpleOnGestu
 		p.processPointerEvent(getX(e), getY(e), e.getActionMasked(), e.getMetaState(), true, false, false, false, 0);
 	}
 
-	private boolean endDragModesAndScrolling () {
+	protected boolean endDragModesAndScrolling () {
     	vncCanvas.inScrolling = false;
+		panMode               = false;
     	if (dragMode || rightDragMode || middleDragMode) {
-    		dragMode              = false;
-			rightDragMode         = false;
-			middleDragMode        = false;
+    		dragMode          = false;
+			rightDragMode     = false;
+			middleDragMode    = false;
 			return true;
     	} else
     		return false;
@@ -334,7 +342,13 @@ abstract class AbstractGestureInputHandler extends GestureDetector.SimpleOnGestu
         }
         
         // Send scroll up/down events if swiping is happening.
-        if (inSwiping) {
+        if (panMode) {
+        	float scale = vncCanvas.getScale();
+    		vncCanvas.pan(-(int)((e.getX() - dragX)*scale), -(int)((e.getY() - dragY)*scale));
+			dragX = e.getX();
+			dragY = e.getY();
+			return true;
+        } else if (inSwiping) {
         	// Save the coordinates and restore them afterward.
         	float x = e.getX();
         	float y = e.getY();

@@ -26,13 +26,28 @@ package com.iiordanov.bVNC;
 public class VncConstants {
 	public static final String CONNECTION = "com.iiordanov.bVNC.CONNECTION";
 
+	public static final int CONN_TYPE_PLAIN        = 0;
+	public static final int CONN_TYPE_SSH          = 1;
+	public static final int CONN_TYPE_ULTRAVNC     = 2;
+	public static final int CONN_TYPE_ANONTLS      = 3;
+	public static final int CONN_TYPE_VENCRYPT     = 4;
+
+	public static final int DIALOG_X509_CERT       = 1;
+	public static final int DIALOG_SSH_CERT        = 2;
+
+	public static final int EXTRA_KEYS_OFF         = 0;
+	public static final int EXTRA_KEYS_ON          = 1;
+	public static final int EXTRA_KEYS_TIMEOUT     = 2;
+	
+	public static final int ACTIVITY_GEN_KEY       = 1;
+
 	public final static int AUTOX_SELECT_DISABLED  = 0;
 	public final static int AUTOX_SELECT_XVFB      = 1;
 	public final static int AUTOX_SELECT_XVNC      = 2;
 	public final static int AUTOX_SELECT_XDUMMY    = 3;
 	public final static int AUTOX_SELECT_FIND      = 4;
 	public final static int AUTOX_SELECT_SUDO_FIND = 5;
-	
+
 	public final static int COMMAND_DISABLED      = 0;
 
 	public final static int COMMAND_LINUX_START   = 100;
@@ -61,7 +76,7 @@ public class VncConstants {
 	public final static int COMMAND_AUTO_X_FIND          = 4;
 	public final static int COMMAND_AUTO_X_SUDO_FIND     = 5;
 	public final static int COMMAND_AUTO_X_CUSTOM        = 6;
-	
+
 	public final static String COMMAND_AUTO_X_CREATE_XVFB_STRING   = "sh -c \"PORT= x11vnc -norc -nopw -wait_ui 2 -defer 15 -wait 15 -ncache 0 -timeout 10 -create -localhost ";
 	public final static String COMMAND_AUTO_X_CREATE_XVNC_STRING   = "sh -c \"PORT= x11vnc -norc -nopw -wait_ui 2 -defer 15 -wait 15 -ncache 0 -timeout 10 -create -localhost -xvnc ";
 	public final static String COMMAND_AUTO_X_CREATE_XDUMMY_STRING = "sh -c \"PORT= x11vnc -norc -nopw -wait_ui 2 -defer 15 -wait 15 -ncache 0 -timeout 10 -create -localhost -xdummy ";
@@ -79,7 +94,7 @@ public class VncConstants {
 
 	public final static int AUTOX_GEOM_SELECT_NATIVE = 0;
 	public final static int AUTOX_GEOM_SELECT_CUSTOM = 1;
-	
+
 	public final static int AUTOX_SESS_PROG_SELECT_AUTO    = 0;
 	public final static int AUTOX_SESS_PROG_SELECT_CUSTOM  = 1;
 	public final static int AUTOX_SESS_PROG_SELECT_KDE     = 2;
@@ -90,7 +105,7 @@ public class VncConstants {
 	public final static int AUTOX_SESS_PROG_SELECT_GNOMECL = 7;
 	public final static int AUTOX_SESS_PROG_SELECT_TRINITY = 8;
 	public final static int AUTOX_SESS_PROG_SELECT_MATE    = 9;
-	
+
 	public final static String AUTOX_SESS_PROG_AUTO    = "/etc/X11/Xsession";
 	public final static String AUTOX_SESS_PROG_KDE     = "/usr/bin/startkde";
 	public final static String AUTOX_SESS_PROG_UNITY   = "/usr/bin/gnome-session --session=ubuntu";
@@ -100,7 +115,7 @@ public class VncConstants {
 	public final static String AUTOX_SESS_PROG_GNOMECL = "/usr/bin/gnome-session --session=gnome-classic";
 	public final static String AUTOX_SESS_PROG_TRINITY = "/usr/bin/starttde";
 	public final static String AUTOX_SESS_PROG_MATE    = "/usr/bin/mate-session";
-	
+
 	/**
 	 * Returns a string matching a session selection index
 	 * @param index - index to convert
@@ -129,7 +144,6 @@ public class VncConstants {
 		}
 		return "";
 	}
-
 
 	/**
 	 * Returns a string matching a command index.

@@ -31,11 +31,6 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.util.Log;
 
-
-/**
- * @author Michael A. MacDonald
- *
- */
 class LargeBitmapData extends AbstractBitmapData {
 	
 	/**

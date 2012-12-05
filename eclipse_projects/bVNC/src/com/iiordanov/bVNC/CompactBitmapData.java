@@ -25,12 +25,13 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
 
-/**
- * @author Michael A. MacDonald
- *
- */
 class CompactBitmapData extends AbstractBitmapData {
-
+	/**
+	 * Multiply this times total number of pixels to get estimate of process size with all buffers plus
+	 * safety factor
+	 */
+	static final int CAPACITY_MULTIPLIER = 6;
+	
 	class CompactBitmapDrawable extends AbstractBitmapDrawable
 	{
 		CompactBitmapDrawable()

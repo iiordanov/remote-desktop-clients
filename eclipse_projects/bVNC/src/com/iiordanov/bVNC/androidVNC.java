@@ -171,14 +171,13 @@ public class androidVNC extends Activity {
 			@Override
 			public void onItemSelected(AdapterView<?> ad, View view, int itemIndex, long id) {
 
-				// TODO: Make position values not hard-coded numbers but derived positions based on ID's.
 				selectedConnType = itemIndex;
-				if (selectedConnType == 0 ||
-					selectedConnType == 3) {
+				if (selectedConnType == VncConstants.CONN_TYPE_PLAIN ||
+					selectedConnType == VncConstants.CONN_TYPE_ANONTLS) {
 					setVisibilityOfSshWidgets (View.GONE);
 					setVisibilityOfUltraVncWidgets (View.GONE);
 					ipText.setHint(R.string.address_caption_hint);
-				} else if (selectedConnType == 1) {
+				} else if (selectedConnType == VncConstants.CONN_TYPE_SSH) {
 					setVisibilityOfSshWidgets (View.VISIBLE);
 					setVisibilityOfUltraVncWidgets (View.GONE);
 					if (ipText.getText().toString().equals(""))
@@ -188,12 +187,12 @@ public class androidVNC extends Activity {
 					else
 						sshPassword.setHint(R.string.password_hint_ssh);
 					ipText.setHint(R.string.address_caption_hint_tunneled);
-				} else if (selectedConnType == 2) {
+				} else if (selectedConnType == VncConstants.CONN_TYPE_ULTRAVNC) {
 					setVisibilityOfSshWidgets (View.GONE);
 					setVisibilityOfUltraVncWidgets (View.VISIBLE);
 					ipText.setHint(R.string.address_caption_hint);
 					textUsername.setHint(R.string.username_hint);
-				} else if (selectedConnType == 4) {
+				} else if (selectedConnType == VncConstants.CONN_TYPE_VENCRYPT) {
 					setVisibilityOfSshWidgets (View.GONE);
 					textUsername.setVisibility(View.VISIBLE);
 					repeaterEntry.setVisibility(View.GONE);
@@ -410,8 +409,7 @@ public class androidVNC extends Activity {
 			sshPassword.setHint(R.string.password_hint_ssh);
 		}
 
-		// TODO: Switch away from using hard-coded numeric value for connection type.
-		if (selectedConnType == 1 && selected.getAddress().equals(""))
+		if (selectedConnType == VncConstants.CONN_TYPE_SSH && selected.getAddress().equals(""))
 			ipText.setText("localhost");
 		else
 			ipText.setText(selected.getAddress());
@@ -538,7 +536,6 @@ public class androidVNC extends Activity {
 		selected.setSshServer(sshServer.getText().toString());
 		selected.setSshUser(sshUser.getText().toString());
 
-		// TODO: Decide whether to allow saving of password after displaying WARNING.
 		selected.setKeepSshPassword(false);
 		
 		// If we are using an SSH key, then the ssh password box is used
@@ -628,8 +625,7 @@ public class androidVNC extends Activity {
 
 		// We need VNC server or SSH server to be filled out to save. Otherwise, we keep adding empty
 		// connections when onStop gets called.
-		// TODO: Switch away from numeric values for connection type.
-		if (selected.getConnectionType() == 1 && selected.getSshServer().equals("") ||
+		if (selected.getConnectionType() == VncConstants.CONN_TYPE_SSH && selected.getSshServer().equals("") ||
 			selected.getAddress().equals(""))
 			return;
 		
@@ -703,8 +699,7 @@ public class androidVNC extends Activity {
 		saveAndWriteRecent();
 		Intent intent = new Intent(this, GeneratePubkeyActivity.class);
 		intent.putExtra("PrivateKey",selected.getSshPrivKey());
-		// TODO: define some value that I can use instead of number.
-		startActivityForResult(intent, 1);
+		startActivityForResult(intent, VncConstants.ACTIVITY_GEN_KEY);
 	}
 	
 	/**
@@ -714,7 +709,7 @@ public class androidVNC extends Activity {
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
 		switch(requestCode) {
-		case (1):
+		case (VncConstants.ACTIVITY_GEN_KEY):
 			if (resultCode == Activity.RESULT_OK) {
 				Bundle b = data.getExtras();
 				String privateKey = (String)b.get("PrivateKey");

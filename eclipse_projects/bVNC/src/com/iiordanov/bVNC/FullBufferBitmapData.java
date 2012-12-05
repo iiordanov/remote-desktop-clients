@@ -28,21 +28,12 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.util.Log;
 
-/**
- * @author Michael A. MacDonald
- *
- */
 class FullBufferBitmapData extends AbstractBitmapData {
 	int xoffset;
 	int yoffset;
 	int dataWidth;
 	int dataHeight;
 
-	
-	/**
-	 * @author Michael A. MacDonald
-	 *
-	 */
 	class Drawable extends AbstractBitmapDrawable {
 		private final static String TAG = "Drawable";
 		int drawWidth;

@@ -256,7 +256,7 @@ class RfbProto implements RfbConnectable {
   //
   // Constructor. Make TCP connection to RFB server.
   //
-  RfbProto(Decoder d, String h, int p) throws IOException{
+  RfbProto(Decoder d, String h, int p) throws Exception {
     host = h;
     port = p;
 

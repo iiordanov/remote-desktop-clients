@@ -102,7 +102,8 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 		R.id.itemInputDPadPanTouchMouse, R.id.itemInputTouchPanZoomMouse };
  */
 	private static final int inputModeIds[] = { R.id.itemInputTouchpad,
-		                                        R.id.itemInputTouchPanZoomMouse };
+		                                        R.id.itemInputTouchPanZoomMouse,
+		                                        R.id.itemInputDragPanZoomMouse };
 	private static final int scalingModeIds[] = { R.id.itemZoomable, R.id.itemFitToScreen,
 												  R.id.itemOneToOne};
 
@@ -267,8 +268,7 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 	  	    }
 		}
 
-		// TODO: Switch away from numeric representation of VNC connection type.
-		if (connection.getConnectionType() == 1) {
+		if (connection.getConnectionType() == VncConstants.CONN_TYPE_SSH) {
 			initializeSshHostKey();
 		} else
 			continueConnecting();
@@ -586,7 +586,7 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 		if (config.hardKeyboardHidden == Configuration.HARDKEYBOARDHIDDEN_NO)
 			hardKeyboardExtended = true;
 
-		if ( connection.getExtraKeysToggleType() == 1 && 
+		if ( connection.getExtraKeysToggleType() == VncConstants.EXTRA_KEYS_ON && 
     		 (hardKeyboardExtended || visibility == View.VISIBLE) )
     		layoutKeys.setVisibility(View.VISIBLE);
     	else
@@ -780,7 +780,7 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 		updateScalingMenu();
 		
 		// Set the text of the Extra Keys menu item appropriately.
-		if (connection.getExtraKeysToggleType() == 1)
+		if (connection.getExtraKeysToggleType() == VncConstants.EXTRA_KEYS_ON)
 			menu.findItem(R.id.itemExtraKeys).setTitle(R.string.extra_keys_disable);
 		else
 			menu.findItem(R.id.itemExtraKeys).setTitle(R.string.extra_keys_enable);
@@ -861,6 +861,9 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
  */					
 					case R.id.itemInputTouchPanZoomMouse:
 						inputModeHandlers[i] = new TouchMouseSwipePanInputHandler(this, vncCanvas);
+						break;
+					case R.id.itemInputDragPanZoomMouse:
+						inputModeHandlers[i] = new TouchMouseDragPanInputHandler(this, vncCanvas);
 						break;
 					case R.id.itemInputTouchpad:
 						inputModeHandlers[i] = new SimulatedTouchpadInputHandler(this, vncCanvas);
@@ -970,8 +973,8 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 		//	Utils.showDocumentation(this);
 		//	return true;
 		case R.id.itemExtraKeys:
-			if (connection.getExtraKeysToggleType() == 1) {
-				connection.setExtraKeysToggleType(0);
+			if (connection.getExtraKeysToggleType() == VncConstants.EXTRA_KEYS_ON) {
+				connection.setExtraKeysToggleType(VncConstants.EXTRA_KEYS_OFF);
 				item.setTitle(R.string.extra_keys_enable);
 				setExtraKeysVisibility(View.GONE);
 			} else {

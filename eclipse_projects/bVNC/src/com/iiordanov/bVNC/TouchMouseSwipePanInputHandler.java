@@ -9,9 +9,6 @@ import android.view.View;
 import com.iiordanov.android.bc.BCFactory;
 import com.iiordanov.bVNC.input.RemotePointer;
 
-/**
- * @author Michael A. MacDonald
- */
 class TouchMouseSwipePanInputHandler extends AbstractGestureInputHandler {
 	static final String TAG = "SimulatedTouchpadInputHandler";
 	static final String TOUCH_ZOOM_MODE = "TOUCH_ZOOM_MODE";
@@ -27,8 +24,6 @@ class TouchMouseSwipePanInputHandler extends AbstractGestureInputHandler {
 	 */
 	TouchMouseSwipePanInputHandler(VncCanvasActivity va, VncCanvas v) {
 		super(va, v);
-		activity = va;
-		vncCanvas = v;
 	}
 
 	/*
@@ -165,18 +160,9 @@ class TouchMouseSwipePanInputHandler extends AbstractGestureInputHandler {
 		if (twoFingers||inSwiping||inScaling||scalingJustFinished)
 			return true;
 
+		float scale = vncCanvas.getScale();
 		activity.showZoomer(false);
-		return vncCanvas.pan((int) distanceX, (int) distanceY);
-	}
-
-	protected int getX (MotionEvent e) {
-		float scale = vncCanvas.getScale();
-		return (int)(vncCanvas.getAbsoluteX() + e.getX() / scale);
-	}
-	
-	protected int getY (MotionEvent e) {
-		float scale = vncCanvas.getScale();
-		return (int)(vncCanvas.getAbsoluteY() + (e.getY() - 1.f * vncCanvas.getTop()) / scale);
+		return vncCanvas.pan((int)(distanceX*scale), (int)(distanceY*scale));
 	}
 }
 

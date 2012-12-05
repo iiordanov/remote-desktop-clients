@@ -104,8 +104,7 @@ public class VncCanvas extends ImageView {
 	    @Override
 	    public void handleMessage(Message msg) {
 	        switch (msg.what) {
-	        // TODO: Change this numeric message to something more sane.
-	        case 1:
+	        case VncConstants.DIALOG_X509_CERT:
 	        	final X509Certificate cert = (X509Certificate)msg.obj;
 
 	        	if (connection.getSshHostKey().equals("")) {
@@ -164,7 +163,7 @@ public class VncCanvas extends ImageView {
 							showFatalMessageAndQuit("ERROR: The saved x509 certificate does not match the current server certificate! " +
 									"This could be a man-in-the-middle attack. If you are aware of the key change, delete and recreate the connection.");
 						} else {
-							// TODO: In case we need to display information about the certificate, we can reconstruct it.
+							// In case we need to display information about the certificate, we can reconstruct it like this:
 							//CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
 							//ByteArrayInputStream in = new ByteArrayInputStream(Base64.decode(connection.getSshHostKey(), Base64.DEFAULT));
 							//X509Certificate c = (X509Certificate)certFactory.generateCertificate(in);
@@ -345,7 +344,7 @@ public class VncCanvas extends ImageView {
 	void sendUnixAuth () {
 		// If the type of connection is ssh-tunneled and we are told to send the unix credentials, then do so.
 		// Do not send the up event if this is a bb10 device, since the up-event hack in processLocalKeyEvent takes care of that...
-		if (connection.getConnectionType() == 1 && connection.getAutoXUnixAuth()) {
+		if (connection.getConnectionType() == VncConstants.CONN_TYPE_SSH && connection.getAutoXUnixAuth()) {
 			keyboard.processLocalKeyEvent(KeyEvent.KEYCODE_UNKNOWN, new KeyEvent(SystemClock.uptimeMillis(),
 					connection.getSshUser(), 0, 0));
 			keyboard.processLocalKeyEvent(KeyEvent.KEYCODE_ENTER, new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_ENTER));
@@ -375,7 +374,7 @@ public class VncCanvas extends ImageView {
 	 * @throws Exception
 	 */
 	int getVNCPort() throws Exception {
-		if (connection.getConnectionType() == 1) {
+		if (connection.getConnectionType() == VncConstants.CONN_TYPE_SSH) {
 			sshConnection = new SSHConnection(connection);
 			return sshConnection.initializeSSHTunnel ();
 		} else
@@ -388,7 +387,7 @@ public class VncCanvas extends ImageView {
 	 * @throws Exception
 	 */
 	String getVNCAddress() throws Exception {
-		if (connection.getConnectionType() == 1) {
+		if (connection.getConnectionType() == VncConstants.CONN_TYPE_SSH) {
 			sshConnection = new SSHConnection(connection);
 			return new String("localhost");
 		} else
@@ -396,17 +395,17 @@ public class VncCanvas extends ImageView {
 	}
 	
 	void connectAndAuthenticate(String us, String pw) throws Exception {
-		Log.i(TAG, "Connecting to " + connection.getAddress() + ", port " + connection.getPort() + "...");
-
+		Log.i(TAG, "Connecting to: " + connection.getAddress() + ", port: " + connection.getPort());
 		String address = getVNCAddress();
 		int vncPort    = getVNCPort();
-		rfb = new RfbProto(decoder, address, vncPort);
-
-		Log.v(TAG, "Connected to server");
-		
-		// TODO: Switch from hard-coded numeric position to something better (at least an enumeration).
-		boolean anonTLS = (connection.getConnectionType() == 3);
-		rfb.initializeAndAuthenticate(us, pw, connection.getUseRepeater(), connection.getRepeaterId(), anonTLS);
+		boolean anonTLS = (connection.getConnectionType() == VncConstants.CONN_TYPE_ANONTLS);
+	    try {
+			rfb = new RfbProto(decoder, address, vncPort);
+			Log.v(TAG, "Connected to server");
+			rfb.initializeAndAuthenticate(us, pw, connection.getUseRepeater(), connection.getRepeaterId(), anonTLS);
+	    } catch (Exception e) {
+	    	throw new Exception ("Connection to VNC server: " + address + " at port: " + vncPort + " failed.");
+	    }
 	}
 
 	void doProtocolInitialisation(int dx, int dy) throws IOException {
@@ -424,7 +423,8 @@ public class VncCanvas extends ImageView {
 		capacity = BCFactory.getInstance().getBCActivityManager().getMemoryClass(Utils.getActivityManager(getContext()));
 		if (connection.getForceFull() == BitmapImplHint.AUTO)
 		{
-			if (rfbconn.framebufferWidth()* rfbconn.framebufferHeight() * FullBufferBitmapData.CAPACITY_MULTIPLIER <= capacity * 1024 * 1024)
+			if (rfbconn.framebufferWidth() * rfbconn.framebufferHeight() * CompactBitmapData.CAPACITY_MULTIPLIER
+				<= capacity * 1024 * 1024)
 				useFull = true;
 		}
 		else
@@ -434,9 +434,9 @@ public class VncCanvas extends ImageView {
 			bitmapData=new LargeBitmapData(rfbconn, this, dx, dy, capacity);
 			android.util.Log.i(TAG, "Using LargeBitmapData.");
 		} else {
-	        if (android.os.Build.VERSION.SDK_INT == 17)
-				bitmapData=new FullBufferBitmapData(rfbconn, this, capacity);
-	        else
+	        //if (android.os.Build.VERSION.SDK_INT == 17)
+			//	bitmapData=new FullBufferBitmapData(rfbconn, this, capacity);
+	        //else
 	        	bitmapData=new CompactBitmapData(rfbconn, this);
 			android.util.Log.i(TAG, "Using CompactBufferBitmapData.");
 		}
@@ -566,6 +566,8 @@ public class VncCanvas extends ImageView {
 		clipboardMonitorTimer.purge();
 		clipboardMonitorTimer = null;
 		clipboardMonitor = null;
+		keyboard = null;
+		pointer  = null;
 	}
 
 	/*
@@ -823,10 +825,12 @@ public class VncCanvas extends ImageView {
 
 	public void closeConnection() {
 		maintainConnection = false;
-		// Tell the server to release any meta keys.
-		keyboard.clearMetaState();
-		keyboard.processLocalKeyEvent(0, new KeyEvent(KeyEvent.ACTION_UP, 0));
-
+		
+		if (keyboard != null) {
+			// Tell the server to release any meta keys.
+			keyboard.clearMetaState();
+			keyboard.processLocalKeyEvent(0, new KeyEvent(KeyEvent.ACTION_UP, 0));
+		}
 		// Close the rfb connection.
 		if (rfbconn != null) {
 			rfbconn.close();

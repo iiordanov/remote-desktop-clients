@@ -16,8 +16,6 @@ public class SimulatedTouchpadInputHandler extends AbstractGestureInputHandler {
 	 */
 	SimulatedTouchpadInputHandler(VncCanvasActivity va, VncCanvas v) {
 		super(va, v);
-		activity = va;
-		vncCanvas = v;
 	}
 
 	/*
