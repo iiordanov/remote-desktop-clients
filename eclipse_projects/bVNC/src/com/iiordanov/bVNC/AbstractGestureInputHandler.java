@@ -141,6 +141,9 @@ abstract class AbstractGestureInputHandler extends GestureDetector.SimpleOnGestu
         final int meta   = e.getMetaState();
 		final int bstate = e.getButtonState();
         RemotePointer p  = vncCanvas.getPointer();
+		float scale = vncCanvas.getScale();
+		int x = (int)(vncCanvas.getAbsoluteX() + e.getX() / scale);
+		int y = (int)(vncCanvas.getAbsoluteY() + (e.getY() - 1.f * vncCanvas.getTop()) / scale);
 
 		switch (action) {
 		// If a mouse button was pressed or mouse was moved.
@@ -148,11 +151,11 @@ abstract class AbstractGestureInputHandler extends GestureDetector.SimpleOnGestu
 		case MotionEvent.ACTION_MOVE:
 			switch (bstate) {
 			case MotionEvent.BUTTON_PRIMARY:
-				return p.processPointerEvent(getX(e), getY(e), action, meta, true, false, false, false, 0);
+				return p.processPointerEvent(x, y, action, meta, true, false, false, false, 0);
 			case MotionEvent.BUTTON_SECONDARY:
-				return p.processPointerEvent(getX(e), getY(e), action, meta, true, true, false, false, 0);
+				return p.processPointerEvent(x, y, action, meta, true, true, false, false, 0);
 			case MotionEvent.BUTTON_TERTIARY:
-				return p.processPointerEvent(getX(e), getY(e), action, meta, true, false, true, false, 0);
+				return p.processPointerEvent(x, y, action, meta, true, false, true, false, 0);
 			}
 			break;
 		// If a mouse button was released.
@@ -161,7 +164,7 @@ abstract class AbstractGestureInputHandler extends GestureDetector.SimpleOnGestu
 			case MotionEvent.BUTTON_PRIMARY:
 			case MotionEvent.BUTTON_SECONDARY:
 			case MotionEvent.BUTTON_TERTIARY:
-				return p.processPointerEvent(getX(e), getY(e), action, meta, false, false, false, false, 0);
+				return p.processPointerEvent(x, y, action, meta, false, false, false, false, 0);
 			}
 			break;
 		// If the mouse wheel was scrolled.
@@ -186,21 +189,23 @@ abstract class AbstractGestureInputHandler extends GestureDetector.SimpleOnGestu
 				
         	int numEvents = 0;
         	while (numEvents < swipeSpeed) {
-				p.processPointerEvent(getX(e), getY(e), action, meta, false, false, false, true, direction);
-				p.processPointerEvent(getX(e), getY(e), action, meta, false, false, false, false, 0);
+				p.processPointerEvent(x, y, action, meta, false, false, false, true, direction);
+				p.processPointerEvent(x, y, action, meta, false, false, false, false, 0);
         		numEvents++;
         	}
 			break;
 		// If the mouse was moved.
 		case MotionEvent.ACTION_HOVER_MOVE:
-			return p.processPointerEvent(getX(e), getY(e), action, meta, false, false, false, false, 0);
+			return p.processPointerEvent(x, y, action, meta, false, false, false, false, 0);
 		// If a stylus enters hover right after exiting hover, then a stylus tap was
 		// performed with its button depressed. We trigger a right-click.
 		case MotionEvent.ACTION_HOVER_ENTER:
-			if (prevMouseOrStylusAction == MotionEvent.ACTION_HOVER_EXIT) {
-				p.processPointerEvent(getX(e), getY(e), action, meta, true, true, false, false, 0);
+			int toolType = e.getToolType(0);
+			if (toolType == MotionEvent.TOOL_TYPE_STYLUS &&
+				prevMouseOrStylusAction == MotionEvent.ACTION_HOVER_EXIT) {
+				p.processPointerEvent(x, y, action, meta, true, true, false, false, 0);
 				SystemClock.sleep(50);
-				p.processPointerEvent(getX(e), getY(e), action, meta, false, false, false, false, 0);
+				p.processPointerEvent(x, y, action, meta, false, false, false, false, 0);
 			}
 			break;
 		}
