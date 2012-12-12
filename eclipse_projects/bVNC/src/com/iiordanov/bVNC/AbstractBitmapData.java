@@ -45,44 +45,52 @@ abstract public class AbstractBitmapData {
 	Canvas memGraphics;
 	boolean waitingForInput;
 	VncCanvas vncCanvas;
-	private AbstractBitmapDrawable drawable;
+	protected AbstractBitmapDrawable drawable;
 	protected Paint paint;
 	int xoffset = 0;
 	int yoffset = 0;
 
 	AbstractBitmapData(RfbConnectable p, VncCanvas c)
 	{
-		rfb=p;
+		rfb = p;
 		vncCanvas = c;
-		framebufferwidth=rfb.framebufferWidth();
-		framebufferheight=rfb.framebufferHeight();
+		framebufferwidth  = rfb.framebufferWidth();
+		framebufferheight = rfb.framebufferHeight();
 		drawable = createDrawable();
 		paint = new Paint();
 	}
 
-	synchronized void doneWaiting()
-	{
-		waitingForInput=false;
+	synchronized void doneWaiting() {
+		waitingForInput = false;
 	}
 
 	void setCursorRect(int x, int y, int w, int h, int hX, int hY) {
-		drawable.setCursorRect(x, y, w, h, hX, hY);
+		if (drawable != null)
+			drawable.setCursorRect(x, y, w, h, hX, hY);
 	}
 
 	void moveCursorRect(int x, int y) {
-		drawable.moveCursorRect(x, y);
+		if (drawable != null)
+			drawable.moveCursorRect(x, y);
 	}
 
 	void setSoftCursor (int[] newSoftCursorPixels) {
-		drawable.setSoftCursor (newSoftCursorPixels);
+		if (drawable != null)
+			drawable.setSoftCursor (newSoftCursorPixels);
 	}
 
 	Rect getCursorRect () {
-		return drawable.cursorRect;
+		if (drawable != null)
+			return drawable.cursorRect;
+		else // Return an empty new rectangle if drawable is null.
+			return new Rect();
 	}
 
 	boolean isNotInitSoftCursor () {
-		return (drawable.softCursorInit == false);
+		if (drawable != null)
+			return (drawable.softCursorInit == false);
+		else
+			return false;
 	}
 
 	/**
@@ -162,7 +170,7 @@ abstract public class AbstractBitmapData {
 	 * @param dest Destination rectangle in full-frame coordinates
 	 * @param paint Paint specifier
 	 */
-	public abstract void copyRect( Rect src, Rect dest );
+	public abstract void copyRect(int sx, int sy, int dx, int dy, int w, int h);
 
 	public void fillRect(int x, int y, int w, int h, int pix) {
 		paint.setColor(pix);
@@ -219,12 +227,18 @@ abstract public class AbstractBitmapData {
 	/**
 	 * Release resources
 	 */
-	void dispose()
-	{
-		if ( mbitmap!=null )
+	void dispose() {
+		if (drawable != null)
+			drawable.dispose();
+		drawable = null;
+
+		if (mbitmap != null)
 			mbitmap.recycle();
-		memGraphics = null;
+		mbitmap      = null;
+
+		memGraphics  = null;
 		bitmapPixels = null;
+		paint = null;
 	}
 	
 	public int fbWidth () {

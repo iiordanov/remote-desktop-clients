@@ -375,24 +375,29 @@ public class CConn extends CConnection
   }
 
   public void fillRect(Rect r, int p) {
-	  if (viewer.bitmapData.validDraw(r.tl.x, r.tl.y, r.width(), r.height())) {
-		  viewer.bitmapData.fillRect(r.tl.x, r.tl.y, r.width(), r.height(), p);
-		  viewer.reDraw(r.tl.x, r.tl.y, r.width(), r.height());
+	  int w = r.width();
+	  int h = r.height();
+	  if (viewer.bitmapData.validDraw(r.tl.x, r.tl.y, w, h)) {
+		  viewer.bitmapData.fillRect(r.tl.x, r.tl.y, w, h, p);
+		  viewer.reDraw(r.tl.x, r.tl.y, w, h);
 	  }
   }
 
   public void imageRect(Rect r, int[] p) {
-	  if (viewer.bitmapData.validDraw(r.tl.x, r.tl.y, r.width(), r.height())) {
-		  viewer.bitmapData.imageRect(r.tl.x, r.tl.y, r.width(), r.height(), p);
-		  viewer.reDraw(r.tl.x, r.tl.y, r.width(), r.height());
+	  int w = r.width();
+	  int h = r.height();
+	  if (viewer.bitmapData.validDraw(r.tl.x, r.tl.y, w, h)) {
+		  viewer.bitmapData.imageRect(r.tl.x, r.tl.y, w, h, p);
+		  viewer.reDraw(r.tl.x, r.tl.y, w, h);
 	  }
   }
 
   public void copyRect(Rect r, int sx, int sy) {
-	  if (viewer.bitmapData.validDraw(r.tl.x, r.tl.y, r.width(), r.height())) {
-		  viewer.bitmapData.copyRect(new android.graphics.Rect(sx, sy, sx+r.width(), sy+r.height()),
-    				 new android.graphics.Rect(r.tl.x, r.tl.y, r.br.x, r.br.y));
-		  viewer.reDraw(r.tl.x, r.tl.y, r.width(), r.height());
+	  int w = r.width();
+	  int h = r.height();
+	  if (viewer.bitmapData.validDraw(r.tl.x, r.tl.y, w, h)) {
+		  viewer.bitmapData.copyRect(sx, sy, r.tl.x, r.tl.y, w, h);
+		  viewer.reDraw(r.tl.x, r.tl.y, w, h);
 	  }
   }
 

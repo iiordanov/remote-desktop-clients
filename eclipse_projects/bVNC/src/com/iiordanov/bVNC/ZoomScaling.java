@@ -175,8 +175,7 @@ class ZoomScaling extends AbstractScaling {
 			newScale = 1.f;
 			// Only if oldScale is outside the snap region, do we inform the user.
 			if (oldScale < 0.90f || oldScale > 1.10f)
-				Toast.makeText(activity.vncCanvas.getContext(),
-                               R.string.snap_one_to_one, Toast.LENGTH_SHORT).show();
+				activity.vncCanvas.displayShortToastMessage(R.string.snap_one_to_one);
 		}
 		
 		resetMatrix();
@@ -215,7 +214,7 @@ class ZoomScaling extends AbstractScaling {
 		canvasXOffset = -activity.vncCanvas.getCenteredXOffset();
 		canvasYOffset = -activity.vncCanvas.getCenteredYOffset();
 		activity.vncCanvas.computeShiftFromFullToView ();
-		minimumScale = activity.vncCanvas.bitmapData.getMinimumScale();
+		minimumScale = activity.vncCanvas.getMinimumScale();
 		scaling = 1.f;
 		resetMatrix();
 		activity.vncCanvas.setImageMatrix(matrix);

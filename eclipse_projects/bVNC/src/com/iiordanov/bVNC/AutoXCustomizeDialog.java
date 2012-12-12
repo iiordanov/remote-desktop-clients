@@ -164,6 +164,7 @@ public class AutoXCustomizeDialog extends AlertDialog {
 		nativeWidth  = Math.max(mainConfigDialog.getWidth(), mainConfigDialog.getHeight());
 		nativeHeight = Math.min(mainConfigDialog.getWidth(), mainConfigDialog.getHeight());
 		
+		spinnerAutoXGeometry.setSelection(selected.getAutoXResType());		
 		if (selected.getAutoXResType() == VncConstants.AUTOX_GEOM_SELECT_NATIVE) {
 			autoXWidth.setEnabled(false);
 			autoXHeight.setEnabled(false);

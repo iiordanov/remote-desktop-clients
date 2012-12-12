@@ -25,7 +25,7 @@ public class SimulatedTouchpadInputHandler extends AbstractGestureInputHandler {
 	 */
 	@Override
 	public CharSequence getHandlerDescription() {
-		return vncCanvas.getResources().getString(R.string.input_mode_touchpad);
+		return vncCanvas.getResources().getString(R.string.input_mode_touchpad_description);
 	}
 
 	/*

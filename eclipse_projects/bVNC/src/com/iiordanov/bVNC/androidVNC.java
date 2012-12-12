@@ -640,16 +640,9 @@ public class androidVNC extends Activity {
 	private void canvasStart() {
 		if (selected == null) return;
 		MemoryInfo info = Utils.getMemoryInfo(this);
-		if (info.lowMemory) {
-			// Low Memory situation.  Prompt.
-			Utils.showYesNoPrompt(this, "Continue?", "Android reports low system memory.\nContinue with VNC connection?", new DialogInterface.OnClickListener() {
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					vnc();
-				}
-			}, null);
-		} else
-			vnc();
+		if (info.lowMemory)
+			System.gc();
+		vnc();
 	}
 	
 	protected void saveAndWriteRecent()

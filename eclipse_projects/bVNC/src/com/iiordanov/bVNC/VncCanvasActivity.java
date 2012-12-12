@@ -27,6 +27,7 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
+import java.util.TimerTask;
 
 import com.iiordanov.android.bc.BCFactory;
 
@@ -129,6 +130,7 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 	/**
 	 * Function used to initialize an empty SSH HostKey for a new VNC over SSH connection.
 	 */
+	// TODO: This functionality should go into the handler like displaying 509 certificates.
 	private void initializeSshHostKey() {
 		// If the SSH HostKey is empty, then we need to grab the HostKey from the server and save it.
 		if (connection.getSshHostKey().equals("")) {
@@ -626,12 +628,12 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 	 * color mode (already done) scaling, input mode
 	 */
 	void setModes() {
-		if (connection != null) {
-			AbstractInputHandler handler = getInputHandlerByName(connection.getInputMode());
-			AbstractScaling.getByScaleType(connection.getScaleMode()).setScaleTypeForActivity(this);
-			this.inputHandler = handler;
-			showPanningState();
-		}
+		if (connection == null)
+			return;
+		AbstractInputHandler handler = getInputHandlerByName(connection.getInputMode());
+		AbstractScaling.getByScaleType(connection.getScaleMode()).setScaleTypeForActivity(this);
+		this.inputHandler = handler;
+		showPanningState(false);
 	}
 
 	ConnectionBean getConnection() {
@@ -789,6 +791,17 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 				connection.getFollowMouse());
 		menu.findItem(R.id.itemFollowPan).setChecked(connection.getFollowPan());
  */
+/* TODO: This is how one detects long-presses on menu items. However, getActionView is not available in Android 2.3...
+		menu.findItem(R.id.itemExtraKeys).getActionView().setOnLongClickListener(new OnLongClickListener () {
+
+			@Override
+			public boolean onLongClick(View arg0) {
+				Toast.makeText(arg0.getContext(), "Long Press Detected.", Toast.LENGTH_LONG).show();
+				return false;
+			}
+			
+		});
+*/
 		return true;
 	}
 
@@ -821,8 +834,7 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 			return;
 		}
 		for (MenuItem item : inputModeMenuItems) {
-			item.setEnabled(vncCanvas.scaling
-					.isValidInputMode(item.getItemId()));
+			item.setEnabled(vncCanvas.scaling.isValidInputMode(item.getItemId()));
 			if (getInputHandlerById(item.getItemId()) == inputHandler)
 				item.setChecked(true);
 		}
@@ -876,6 +888,13 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 		return null;
 	}
 
+	void clearInputHandlers() {
+		for (int i = 0; i < inputModeIds.length; ++i) {
+			inputModeHandlers[i] = null;
+		}
+		inputModeHandlers = null;
+	}
+	
 	AbstractInputHandler getInputHandlerByName(String name) {
 		AbstractInputHandler result = null;
 		for (int id : inputModeIds) {
@@ -918,7 +937,7 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 		case R.id.itemFitToScreen:
 			AbstractScaling.getById(item.getItemId()).setScaleTypeForActivity(this);
 			item.setChecked(true);
-			showPanningState();
+			showPanningState(false);
 			return true;
 		case R.id.itemCenterMouse:
 			vncCanvas.getPointer().warpMouse(vncCanvas.absoluteXPosition + vncCanvas.getVisibleWidth()  / 2,
@@ -1002,7 +1021,7 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 				}
 
 				item.setChecked(true);
-				showPanningState();
+				showPanningState(true);
 				connection.save(database.getWritableDatabase());
     			database.close();
 				return true;
@@ -1038,16 +1057,16 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
-		if (vncCanvas != null) {
+		if (vncCanvas != null)
 			vncCanvas.closeConnection();
-			vncCanvas.onDestroy();
-		}
-		database.close();
+		if (database != null)
+			database.close();
 		vncCanvas = null;
 		connection = null;
 		database = null;
 		zoomer = null;
 		panner = null;
+		clearInputHandlers();
 		inputHandler = null;
 		System.gc();
 	}
@@ -1062,7 +1081,12 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 				return super.onKeyDown(keyCode, evt);
 			else
 				return super.onKeyUp(keyCode, evt);
-		} else if (evt.getAction() == KeyEvent.ACTION_DOWN ||
+		}
+		
+		if (!vncCanvas.isConnected())
+			return false;
+
+		if (evt.getAction() == KeyEvent.ACTION_DOWN ||
 				   evt.getAction() == KeyEvent.ACTION_MULTIPLE) {
 			consumed = inputHandler.onKeyDown(keyCode, evt);
 		} else if (evt.getAction() == KeyEvent.ACTION_UP){
@@ -1071,26 +1095,23 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 		resetOnScreenKeys (keyCode);
 		return consumed;
 	}
-	
-/*	@Override
-	public boolean onKeyDown(int keyCode, KeyEvent evt) {
-		if (keyCode == KeyEvent.KEYCODE_MENU)
-			return super.onKeyDown(keyCode, evt);
 
-		return inputHandler.onKeyDown(keyCode, evt);
-	}
-
-	@Override
-	public boolean onKeyUp(int keyCode, KeyEvent evt) {
-		if (keyCode == KeyEvent.KEYCODE_MENU)
-			return super.onKeyUp(keyCode, evt);
-
-		return inputHandler.onKeyUp(keyCode, evt);
-	}*/
-
-	public void showPanningState() {
-		Toast.makeText(this, inputHandler.getHandlerDescription(),
-				Toast.LENGTH_SHORT).show();
+	public void showPanningState(boolean showLonger) {
+		if (showLonger) {
+			final Toast t = Toast.makeText(this, inputHandler.getHandlerDescription(), Toast.LENGTH_LONG);
+			TimerTask tt = new TimerTask () {
+				@Override
+				public void run() {
+					t.show();
+					try { Thread.sleep(2000); } catch (InterruptedException e) { }
+					t.show();
+				}};
+			new Timer ().schedule(tt, 2000);
+			t.show();
+		} else {
+			Toast t = Toast.makeText(this, inputHandler.getHandlerDescription(), Toast.LENGTH_SHORT);
+			t.show();
+		}
 	}
 
 	/*
@@ -1103,18 +1124,24 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 		// If we are using the Dpad as arrow keys, don't send the event to the inputHandler.
 		if (connection.getUseDpadAsArrows())
 			return false;
+		if (!vncCanvas.isConnected())
+			return false;
 		return inputHandler.onTrackballEvent(event);
 	}
 
 	// Send touch events or mouse events like button clicks to be handled.
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
+		if (!vncCanvas.isConnected())
+			return false;
 		return inputHandler.onTouchEvent(event);
 	}
 
 	// Send e.g. mouse events like hover and scroll to be handled.
 	@Override
 	public boolean onGenericMotionEvent(MotionEvent event) {
+		if (!vncCanvas.isConnected())
+			return false;
 		return inputHandler.onTouchEvent(event);
 	}
 
@@ -1137,17 +1164,14 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 		list.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
 		list.setItemChecked(currentSelection, true);
 		list.setOnItemClickListener(new OnItemClickListener() {
-			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
-					long arg3) {
+			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
 				dialog.dismiss();
 				COLORMODEL cm = COLORMODEL.values()[arg2];
 				vncCanvas.setColorModel(cm);
 				connection.setColorModel(cm.nameString());
 				connection.save(database.getWritableDatabase());
     			database.close();
-				Toast.makeText(VncCanvasActivity.this,
-						"Updating Color Model to " + cm.toString(),
-						Toast.LENGTH_SHORT).show();
+				Toast.makeText(VncCanvasActivity.this, "Updating Color Model to " + cm.toString(), Toast.LENGTH_SHORT).show();
 			}
 		});
 		dialog.setContentView(list);
@@ -1222,8 +1246,7 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 		if (force || zoomer.getVisibility() != View.VISIBLE) {
 			zoomer.show();
 			hideZoomAfterMs = SystemClock.uptimeMillis() + ZOOM_HIDE_DELAY_MS;
-			vncCanvas.handler
-					.postAtTime(hideZoomInstance, hideZoomAfterMs + 10);
+			vncCanvas.handler.postAtTime(hideZoomInstance, hideZoomAfterMs + 10);
 		}
 	}
 

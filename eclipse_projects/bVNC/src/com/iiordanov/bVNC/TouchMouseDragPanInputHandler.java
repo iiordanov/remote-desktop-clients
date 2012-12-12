@@ -9,9 +9,9 @@ import android.view.View;
 import com.iiordanov.android.bc.BCFactory;
 import com.iiordanov.bVNC.input.RemotePointer;
 
-class TouchMouseSwipePanInputHandler extends AbstractGestureInputHandler {
+class TouchMouseDragPanInputHandler extends AbstractGestureInputHandler {
 	static final String TAG = "SimulatedTouchpadInputHandler";
-	static final String TOUCH_ZOOM_MODE = "TOUCH_ZOOM_MODE";
+	static final String TOUCH_ZOOM_MODE_DRAG_PAN = "TOUCH_ZOOM_MODE_DRAG_PAN";
 
 	/**
 	 * Divide stated fling velocity by this amount to get initial velocity
@@ -22,7 +22,7 @@ class TouchMouseSwipePanInputHandler extends AbstractGestureInputHandler {
 	/**
 	 * @param c
 	 */
-	TouchMouseSwipePanInputHandler(VncCanvasActivity va, VncCanvas v) {
+	TouchMouseDragPanInputHandler(VncCanvasActivity va, VncCanvas v) {
 		super(va, v);
 	}
 
@@ -33,7 +33,7 @@ class TouchMouseSwipePanInputHandler extends AbstractGestureInputHandler {
 	 */
 	@Override
 	public CharSequence getHandlerDescription() {
-		return vncCanvas.getResources().getString(R.string.input_mode_touch_pan_description);
+		return vncCanvas.getResources().getString(R.string.input_mode_drag_pan_description);
 	}
 
 	/*
@@ -43,7 +43,7 @@ class TouchMouseSwipePanInputHandler extends AbstractGestureInputHandler {
 	 */
 	@Override
 	public String getName() {
-		return TOUCH_ZOOM_MODE;
+		return TOUCH_ZOOM_MODE_DRAG_PAN;
 	}
 
 	/*
@@ -77,64 +77,25 @@ class TouchMouseSwipePanInputHandler extends AbstractGestureInputHandler {
 	public boolean onTrackballEvent(MotionEvent evt) {
 		return trackballMouse(evt);
 	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see android.view.GestureDetector.SimpleOnGestureListener#onLongPress(android.view.MotionEvent)
+	 */
+	@Override
+	public void onLongPress(MotionEvent e) {
+
+		// If we've performed a right/middle-click and the gesture is not over yet, do not start drag mode.
+		if (secondPointerWasDown || thirdPointerWasDown)
+			return;
+		
+		BCFactory.getInstance().getBCHaptic().performLongPressHaptic(vncCanvas);
+		vncCanvas.displayShortToastMessage("Panning");
+		endDragModesAndScrolling();
+		panMode = true;
+	}
 	
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see android.view.GestureDetector.SimpleOnGestureListener#onDown(android.view.MotionEvent)
-	 */
-	@Override
-	public boolean onDown(MotionEvent e) {
-		activity.stopPanner();
-		return true;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see android.view.GestureDetector.SimpleOnGestureListener#onFling(android.view.MotionEvent,
-	 *      android.view.MotionEvent, float, float)
-	 */
-	@Override
-	public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,	float velocityY) {
-
-		// TODO: Workaround for Android 4.2.
-		boolean twoFingers = false;
-		if (e1 != null)
-			twoFingers = (e1.getPointerCount() > 1);
-		if (e2 != null)
-			twoFingers = twoFingers || (e2.getPointerCount() > 1);
-
-		// onFling called while scaling/swiping gesture is in effect. We ignore the event and pretend it was
-		// consumed. This prevents the mouse pointer from flailing around while we are scaling.
-		// Also, if one releases one finger slightly earlier than the other when scaling, it causes Android 
-		// to stick a spiteful onScroll with a MASSIVE delta here. 
-		// This would cause the mouse pointer to jump to another place suddenly.
-		// Hence, we ignore onScroll after scaling until we lift all pointers up.
-		if (twoFingers||inSwiping||inScaling||scalingJustFinished)
-			return true;
-
-		activity.showZoomer(false);
-		activity.panner.start(-(velocityX / FLING_FACTOR),
-				-(velocityY / FLING_FACTOR), new Panner.VelocityUpdater() {
-
-			/*
-			 * (non-Javadoc)
-			 * 
-			 * @see com.iiordanov.bVNC.Panner.VelocityUpdater#updateVelocity(android.graphics.Point,
-			 *      long)
-			 */
-			@Override
-			public boolean updateVelocity(PointF p, long interval) {
-				double scale = Math.pow(0.8, interval / 50.0);
-				p.x *= scale;
-				p.y *= scale;
-				return (Math.abs(p.x) > 0.5 || Math.abs(p.y) > 0.5);
-			}
-		});
-		return true;
-	}
-
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -144,6 +105,7 @@ class TouchMouseSwipePanInputHandler extends AbstractGestureInputHandler {
 	@Override
 	public boolean onScroll(MotionEvent e1, MotionEvent e2,
 			float distanceX, float distanceY) {
+        RemotePointer p = vncCanvas.getPointer();
 
 		// onScroll called while scaling/swiping gesture is in effect. We ignore the event and pretend it was
 		// consumed. This prevents the mouse pointer from flailing around while we are scaling.
@@ -160,9 +122,15 @@ class TouchMouseSwipePanInputHandler extends AbstractGestureInputHandler {
 		if (twoFingers||inSwiping||inScaling||scalingJustFinished)
 			return true;
 
-		float scale = vncCanvas.getScale();
 		activity.showZoomer(false);
-		return vncCanvas.pan((int)(distanceX*scale), (int)(distanceY*scale));
+		
+		if (!dragMode) {
+			dragMode = true;
+			p.processPointerEvent(getX(e1), getY(e1), e1.getActionMasked(), e1.getMetaState(), true, false, false, false, 0);
+		} else {
+			p.processPointerEvent(getX(e2), getY(e2), e2.getActionMasked(), e2.getMetaState(), true, false, false, false, 0);		
+		}
+		return true;
 	}
 }
 

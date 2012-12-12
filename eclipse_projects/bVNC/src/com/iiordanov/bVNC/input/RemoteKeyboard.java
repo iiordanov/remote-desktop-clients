@@ -36,8 +36,10 @@ public class RemoteKeyboard {
 	private Handler handler;
 	private RfbConnectable rfb;
 
-	// Variable holding the state of the Menu toggle buttons for meta keys (Ctrl, Alt...)
+	// Variable holding the state of the on-screen buttons for meta keys (Ctrl, Alt...)
 	private int onScreenMetaState = 0;
+	// Variable holding the state of any pressed hardware meta keys (Ctrl, Alt...)
+	private int hardwareMetaState = 0;
 	
 	/**
 	 * Use camera button as meta key for right mouse button
@@ -73,7 +75,6 @@ public class RemoteKeyboard {
 						   (evt.getAction() == KeyEvent.ACTION_MULTIPLE);
 			
 			int metaState = 0, numchars = 1;
-			int pointerMask = 0;
 			int keyboardMetaState = evt.getMetaState();
 
 		    // Add shift to metaState if necessary.
@@ -90,30 +91,9 @@ public class RemoteKeyboard {
 			
 			if (keyCode == KeyEvent.KEYCODE_MENU)
 				return true; 			              // Ignore menu key
-			if (keyCode == KeyEvent.KEYCODE_CAMERA) {
-				cameraButtonDown = down;
-				pointerMask = RemotePointer.MOUSE_BUTTON_RIGHT;
-				rfb.writePointerEvent(pointer.getX(), pointer.getY(), metaState|onScreenMetaState, pointerMask);
-				return true;
-			} else if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN || keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
-				int mouseChange = keyCode == KeyEvent.KEYCODE_VOLUME_DOWN ? RemotePointer.MOUSE_BUTTON_SCROLL_DOWN : RemotePointer.MOUSE_BUTTON_SCROLL_UP;
 
-				// TODO: This should be done from within RemotePointer.
-				if (evt.getAction() == KeyEvent.ACTION_DOWN) {
-					// If not auto-repeat
-					if (pointer.scrollRunnable.scrollButton != mouseChange) {
-						pointerMask |= mouseChange;
-						pointer.scrollRunnable.scrollButton = mouseChange;
-						handler.postDelayed(pointer.scrollRunnable,200);
-					}
-				} else {
-					handler.removeCallbacks(pointer.scrollRunnable);
-					pointer.scrollRunnable.scrollButton = 0;
-					pointerMask &= ~mouseChange;
-				}
-				rfb.writePointerEvent(pointer.getX(), pointer.getY(), metaState|onScreenMetaState, pointerMask);
+			if (pointer.handleHardwareButtons(keyCode, evt, metaState|onScreenMetaState|hardwareMetaState))
 				return true;
-			}
 
 		   int key = 0, keysym = 0;
 		   
@@ -122,14 +102,24 @@ public class RemoteKeyboard {
 			   case SCAN_ESC:               key = 0xff1b; break;
 			   case SCAN_LEFTCTRL:
 			   case SCAN_RIGHTCTRL:
-				   onScreenMetaState &= ~CTRL_MASK;
+				   hardwareMetaState &= ~CTRL_MASK;
 				   break;
+			   case SCAN_F1:				keysym = 0xffbe;				break;
+			   case SCAN_F2:				keysym = 0xffbf;				break;
+			   case SCAN_F3:				keysym = 0xffc0;				break;
+			   case SCAN_F4:				keysym = 0xffc1;				break;
+			   case SCAN_F5:				keysym = 0xffc2;				break;
+			   case SCAN_F6:				keysym = 0xffc3;				break;
+			   case SCAN_F7:				keysym = 0xffc4;				break;
+			   case SCAN_F8:				keysym = 0xffc5;				break;
+			   case SCAN_F9:				keysym = 0xffc6;				break;
+			   case SCAN_F10:				keysym = 0xffc7;				break;
 			   }
 
 			   switch(keyCode) {
-			      case KeyEvent.KEYCODE_DPAD_CENTER:  onScreenMetaState &= ~CTRL_MASK; break;
+			      case KeyEvent.KEYCODE_DPAD_CENTER:  hardwareMetaState &= ~CTRL_MASK; break;
 			      // Leaving KeyEvent.KEYCODE_ALT_LEFT for symbol input on hardware keyboards.
-			   	  case KeyEvent.KEYCODE_ALT_RIGHT:    onScreenMetaState &= ~ALT_MASK; break;
+			   	  case KeyEvent.KEYCODE_ALT_RIGHT:    hardwareMetaState &= ~ALT_MASK; break;
 			   }
 		   }
 	   
@@ -197,7 +187,7 @@ public class RemoteKeyboard {
 			   case SCAN_ESC:               keysym = 0xff1b; break;
 			   case SCAN_LEFTCTRL:
 			   case SCAN_RIGHTCTRL:
-				   onScreenMetaState |= CTRL_MASK;
+				   hardwareMetaState |= CTRL_MASK;
 				   break;
 			   case SCAN_F1:				keysym = 0xffbe;				break;
 			   case SCAN_F2:				keysym = 0xffbf;				break;
@@ -212,15 +202,14 @@ public class RemoteKeyboard {
 			   }
 			   
 			   switch(keyCode) {
-			      case KeyEvent.KEYCODE_DPAD_CENTER:  onScreenMetaState |= CTRL_MASK; break;
+			      case KeyEvent.KEYCODE_DPAD_CENTER:  hardwareMetaState |= CTRL_MASK; break;
 			      // Leaving KeyEvent.KEYCODE_ALT_LEFT for symbol input on hardware keyboards.
-			   	  case KeyEvent.KEYCODE_ALT_RIGHT:    onScreenMetaState |= ALT_MASK; break;
+			   	  case KeyEvent.KEYCODE_ALT_RIGHT:    hardwareMetaState |= ALT_MASK; break;
 			   }
 		   }
 
 		   try {
-			   if (afterMenu)
-			   {
+			   if (afterMenu) {
 				   afterMenu = false;
 				   if (!down && keysym != lastKeyDown)
 					   return true;
@@ -230,19 +219,20 @@ public class RemoteKeyboard {
 
 			   if (numchars == 1) {
 			       //Log.e(TAG,"action down? = " + down + " key = " + key + " keysym = " + keysym + " onscreen metastate = " + onScreenMetaState + " keyboard metastate = " + keyboardMetaState + " RFB metastate = " + metaState + " keycode = " + keyCode + " unicode = " + evt.getUnicodeChar());
-				   rfb.writeKeyEvent(keysym, (onScreenMetaState|metaState), down);
+				   rfb.writeKeyEvent(keysym, (onScreenMetaState|hardwareMetaState|metaState), down);
 
-				   // UGLY HACK for BB10 devices which never send the up-event
-				   // for backspace and enter... so we send it instead. Remove as soon as possible!
-				   if (bb10 && (keyCode == KeyEvent.KEYCODE_DEL || keyCode == KeyEvent.KEYCODE_ENTER))
-					   rfb.writeKeyEvent(keysym, (onScreenMetaState | metaState), false);
+				   // TODO: UGLY HACK for BB10 devices which never send the up-event
+				   // for space, backspace and enter... so we send it instead. Remove as soon as possible!
+				   if (bb10 && (keyCode == KeyEvent.KEYCODE_SPACE || keyCode == KeyEvent.KEYCODE_DEL ||
+						   		keyCode == KeyEvent.KEYCODE_ENTER))
+					   rfb.writeKeyEvent(keysym, (onScreenMetaState|hardwareMetaState|metaState), false);
 
 			   } else if (numchars > 1) {
 				   for (int i = 0; i < numchars; i++) {
 					   key = evt.getCharacters().charAt(i);
 					   //Log.e(TAG,"action down? = " + down + " key = " + key + " keysym = " + keysym + " onscreen metastate = " + onScreenMetaState + " keyboard metastate = " + keyboardMetaState + " RFB metastate = " + metaState + " keycode = " + keyCode + " unicode = " + evt.getUnicodeChar());
 					   keysym = UnicodeToKeysym.translate(key);
-					   rfb.writeKeyEvent(keysym, (onScreenMetaState|metaState), down);
+					   rfb.writeKeyEvent(keysym, (onScreenMetaState|hardwareMetaState|metaState), down);
 				   }
 			   }
 		   } catch (Exception e) {
@@ -260,12 +250,12 @@ public class RemoteKeyboard {
 		
 		if (meta.isMouseClick())
 		{
-			rfb.writePointerEvent(x, y, meta.getMetaFlags()|onScreenMetaState, meta.getMouseButtons());
-			rfb.writePointerEvent(x, y, meta.getMetaFlags()|onScreenMetaState, 0);
+			rfb.writePointerEvent(x, y, meta.getMetaFlags()|onScreenMetaState|hardwareMetaState, meta.getMouseButtons());
+			rfb.writePointerEvent(x, y, meta.getMetaFlags()|onScreenMetaState|hardwareMetaState, 0);
 		}
 		else {
-			rfb.writeKeyEvent(meta.getKeySym(), meta.getMetaFlags()|onScreenMetaState, true);
-			rfb.writeKeyEvent(meta.getKeySym(), meta.getMetaFlags()|onScreenMetaState, false);
+			rfb.writeKeyEvent(meta.getKeySym(), meta.getMetaFlags()|onScreenMetaState|hardwareMetaState, true);
+			rfb.writeKeyEvent(meta.getKeySym(), meta.getMetaFlags()|onScreenMetaState|hardwareMetaState, false);
 		}
 	}
 	

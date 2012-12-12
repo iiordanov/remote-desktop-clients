@@ -37,7 +37,8 @@ class LargeBitmapData extends AbstractBitmapData {
 	 * Multiply this times total number of pixels to get estimate of process size with all buffers plus
 	 * safety factor
 	 */
-	static final int CAPACITY_MULTIPLIER = 18;
+	static int CAPACITY_MULTIPLIER = 18;
+	double scaleMultiplier = 0;
 
 	int scrolledToX;
 	int scrolledToY;
@@ -64,10 +65,8 @@ class LargeBitmapData extends AbstractBitmapData {
 		}		
 	};
 	
-	class LargeBitmapDrawable extends AbstractBitmapDrawable
-	{
-		LargeBitmapDrawable()
-		{
+	class LargeBitmapDrawable extends AbstractBitmapDrawable {
+		LargeBitmapDrawable() {
 			super(LargeBitmapData.this);
 		}
 		/* (non-Javadoc)
@@ -77,8 +76,7 @@ class LargeBitmapData extends AbstractBitmapData {
 		public void draw(Canvas canvas) {
 			//android.util.Log.i("LBM", "Drawing "+xoffset+" "+yoffset);
 			int xoff, yoff;
-			synchronized ( LargeBitmapData.this )
-			{
+			synchronized ( LargeBitmapData.this ) {
 				xoff=xoffset;
 				yoff=yoffset;
 			}
@@ -94,42 +92,16 @@ class LargeBitmapData extends AbstractBitmapData {
 	 * @param displayHeight
 	 * @param capacity Max process heap size in bytes
 	 */
-	LargeBitmapData(RfbConnectable p, VncCanvas c, int displayWidth, int displayHeight, int capacity)
-	{
+	LargeBitmapData(RfbConnectable p, VncCanvas c, int displayWidth, int displayHeight, int capacity) {
 		super(p,c);
-		double scaleMultiplier = Math.sqrt((double)(capacity * 1024 * 1024) / (double)(CAPACITY_MULTIPLIER * framebufferwidth * framebufferheight));
-		if (scaleMultiplier > 1)
-			scaleMultiplier = 1;
-		bitmapwidth=(int)((double)framebufferwidth * scaleMultiplier);
-		if (bitmapwidth < displayWidth)
-			bitmapwidth = displayWidth;
-		bitmapheight=(int)((double)framebufferheight * scaleMultiplier);
-		if (bitmapheight < displayHeight)
-			bitmapheight = displayHeight;
-		android.util.Log.i("LBM", "bitmapsize = ("+bitmapwidth+","+bitmapheight+")");
-		mbitmap = null;
-		memGraphics = null;
-		bitmapPixels = null;
-		invalidList = null;
-		pendingList = null;
-		bitmapRect = null;
-		defaultPaint = null;
-		System.gc();
-		mbitmap = Bitmap.createBitmap(bitmapwidth, bitmapheight, Bitmap.Config.RGB_565);
-		memGraphics = new Canvas(mbitmap);
-		bitmapPixels = new int[bitmapwidth * bitmapheight];
-		invalidList = new RectList(rectPool);
-		pendingList = new RectList(rectPool);
-		bitmapRect = new Rect(0,0,bitmapwidth,bitmapheight);
-		defaultPaint = new Paint();
 		this.capacity = capacity;
 		this.displayWidth = displayWidth;
 		this.displayHeight = displayHeight;
+		initializeLargeBitmapData();
 	}
 
 	@Override
-	AbstractBitmapDrawable createDrawable()
-	{
+	AbstractBitmapDrawable createDrawable()	{
 		return new LargeBitmapDrawable();
 	}
 
@@ -138,8 +110,7 @@ class LargeBitmapData extends AbstractBitmapData {
 	 * @return The smallest scale supported by the implementation; the scale at which
 	 * the bitmap would be smaller than the screen
 	 */
-	float getMinimumScale()
-	{
+	float getMinimumScale()	{
 		return Math.max((float)vncCanvas.getWidth()/bitmapwidth, (float)vncCanvas.getHeight()/bitmapheight);
 	}
 
@@ -147,32 +118,32 @@ class LargeBitmapData extends AbstractBitmapData {
 	 * @see com.iiordanov.bVNC.AbstractBitmapData#copyRect(android.graphics.Rect, android.graphics.Rect, android.graphics.Paint)
 	 */
 	@Override
-	public void copyRect(Rect src, Rect dest) {
+	public void copyRect(int sx, int sy, int dx, int dy, int w, int h) {
 		int srcOffset, dstOffset;
-		int dstH = dest.height();
-		int dstW = dest.width();
+		int dstH = h;
+		int dstW = w;
 		int xo, yo;
 		
 		int startSrcY, endSrcY, dstY, deltaY;
-		if (src.top > dest.top) {
-			startSrcY = src.top;
-			endSrcY = src.top + dstH;
-			dstY = dest.top;
+		if (sy > dy) {
+			startSrcY = sy;
+			endSrcY = sy + dstH;
+			dstY = dy;
 			deltaY = +1;
 		} else {
-			startSrcY = src.top + dstH - 1;
-			endSrcY = src.top - 1;
-			dstY = dest.top + dstH - 1;
+			startSrcY = sy + dstH - 1;
+			endSrcY = sy - 1;
+			dstY = dy + dstH - 1;
 			deltaY = -1;
 		}
 		for (int y = startSrcY; y != endSrcY; y += deltaY) {
-			srcOffset = offset(src.left, y);
-			dstOffset = offset(dest.left, dstY);
-			xo = src.left-xoffset;
+			srcOffset = offset(sx, y);
+			dstOffset = offset(dx, dstY);
+			xo = sx-xoffset;
 			if (xo < 0) xo = 0;
 			yo = y-yoffset;
 			if (yo < 0) yo = 0;
-			if (src.left + dstW > bitmapwidth) dstW = bitmapwidth - src.left;
+			if (sx + dstW > bitmapwidth) dstW = bitmapwidth - sx;
 			try {
 				mbitmap.getPixels(bitmapPixels, srcOffset, bitmapwidth, xo, yo, dstW, 1);
 				System.arraycopy(bitmapPixels, srcOffset, bitmapPixels, dstOffset, dstW);
@@ -182,7 +153,7 @@ class LargeBitmapData extends AbstractBitmapData {
 			}
 			dstY += deltaY;
 		}
-		updateBitmap(dest.left, dest.top, dstW, dstH);
+		updateBitmap(dx, dy, dstW, dstH);
 	}
 	
 	/* (non-Javadoc)
@@ -213,32 +184,27 @@ class LargeBitmapData extends AbstractBitmapData {
 		int newScrolledToY = scrolledToY;
 		int visibleWidth = vncCanvas.getVisibleWidth();
 		int visibleHeight = vncCanvas.getVisibleHeight();
-		if (newx - xoffset < 0)
-		{
+		if (newx - xoffset < 0) {
 			newScrolledToX = newx + visibleWidth / 2 - bitmapwidth / 2;
 			if (newScrolledToX < 0)
 				newScrolledToX = 0;
-		}
-		else if (newx - xoffset + visibleWidth > bitmapwidth)
-		{
+		} else if (newx - xoffset + visibleWidth > bitmapwidth) {
 			newScrolledToX = newx + visibleWidth / 2 - bitmapwidth / 2;
 			if (newScrolledToX + bitmapwidth > framebufferwidth)
 				newScrolledToX = framebufferwidth - bitmapwidth;
 		}
-		if (newy - yoffset < 0 )
-		{
+		
+		if (newy - yoffset < 0 ) {
 			newScrolledToY = newy + visibleHeight / 2 - bitmapheight / 2;
 			if (newScrolledToY < 0)
 				newScrolledToY = 0;
-		}
-		else if (newy - yoffset + visibleHeight > bitmapheight)
-		{
+		} else if (newy - yoffset + visibleHeight > bitmapheight) {
 			newScrolledToY = newy + visibleHeight / 2 - bitmapheight / 2;
 			if (newScrolledToY + bitmapheight > framebufferheight)
 				newScrolledToY = framebufferheight - bitmapheight;
 		}
-		if (newScrolledToX != scrolledToX || newScrolledToY != scrolledToY)
-		{
+		
+		if (newScrolledToX != scrolledToX || newScrolledToY != scrolledToY) {
 			scrolledToX = newScrolledToX;
 			scrolledToY = newScrolledToY;
 			if ( waitingForInput)
@@ -255,8 +221,8 @@ class LargeBitmapData extends AbstractBitmapData {
 		if (xo < 0) xo = 0;
 		int yo = y-yoffset;
 		if (yo < 0) yo = 0;
-		if (x + w > bitmapwidth)  w = bitmapwidth - x;
-		if (y + h > bitmapheight) h = bitmapheight - y;
+		if (x + w > xoffset + bitmapwidth)  w = xoffset + bitmapwidth  - x;
+		if (y + h > yoffset + bitmapheight) h = yoffset + bitmapheight - y;
 		
 		try {
 			mbitmap.setPixels(bitmapPixels, offset(x,y), bitmapwidth, xo, yo, w, h);
@@ -388,23 +354,65 @@ class LargeBitmapData extends AbstractBitmapData {
 		scrolledToY = 0;
 		framebufferwidth  = rfb.framebufferWidth();
 		framebufferheight = rfb.framebufferHeight();
-		double scaleMultiplier = Math.sqrt((double)(capacity * 1024 * 1024) /
-								(double)(CAPACITY_MULTIPLIER * framebufferwidth * framebufferheight));
+		initializeLargeBitmapData();
+	}
+	
+	/**
+	 * This function initializes the LBM, increasing the CAPACITY_MULTIPLIER until it doesn't run out of memory while
+	 * initializing.
+	 */
+	void initializeLargeBitmapData() {
+		boolean tryAgain = true;
+		while (CAPACITY_MULTIPLIER <= 30) {
+			try {
+				allocateObjects();
+				// If we got to this point without throwing an out of memory exception, we break out of the loop.
+				tryAgain = false;
+				break;
+			} catch (Throwable e) {
+				// We ran out of memory, so try adjusting CAPACITY_MULTIPLIER
+				CAPACITY_MULTIPLIER = CAPACITY_MULTIPLIER + 10;
+				// Try to free up some memory.
+				System.gc();
+				// Wait a second for the system to recover.
+				try { Thread.sleep(500); } catch (InterruptedException e1) { }
+			}
+		}
+		if (tryAgain) {
+			// Try forcing scaleMultiplier to be 1
+			CAPACITY_MULTIPLIER = 1000;
+			allocateObjects();
+		}
+	}
+	
+	void allocateObjects () {
+		dispose();
+		invalidList  = null;
+		pendingList  = null;
+		bitmapRect   = null;
+		defaultPaint = null;
+		// Try to free up some memory.
+		System.gc();
+		scaleMultiplier = Math.sqrt((double)(capacity * 1024 * 1024) /
+									(double)(CAPACITY_MULTIPLIER * framebufferwidth * framebufferheight));
 		if (scaleMultiplier > 1)
 			scaleMultiplier = 1;
 		bitmapwidth=(int)((double)framebufferwidth * scaleMultiplier);
-		if (bitmapwidth < displayWidth)
-			bitmapwidth = displayWidth;
+		if (bitmapwidth < displayWidth*1.2)
+			bitmapwidth  = (int)(displayWidth*1.2);
 		bitmapheight=(int)((double)framebufferheight * scaleMultiplier);
-		if (bitmapheight < displayHeight)
-			bitmapheight = displayHeight;
-		android.util.Log.i("LBM", "bitmapsize changed = ("+bitmapwidth+","+bitmapheight+")");
-		mbitmap = Bitmap.createBitmap(bitmapwidth, bitmapheight, Bitmap.Config.RGB_565);
-		memGraphics = new Canvas(mbitmap);
+		if (bitmapheight < displayHeight*1.2)
+			bitmapheight = (int)(displayHeight*1.2);
+		android.util.Log.i("LBM", "bitmapsize = ("+bitmapwidth+","+bitmapheight+")");
+		mbitmap      = Bitmap.createBitmap(bitmapwidth, bitmapheight, Bitmap.Config.RGB_565);
+		memGraphics  = new Canvas(mbitmap);
 		bitmapPixels = new int[bitmapwidth * bitmapheight];
-		invalidList = new RectList(rectPool);
-		pendingList = new RectList(rectPool);
-		bitmapRect = new Rect(0, 0, bitmapwidth, bitmapheight);
+		invalidList  = new RectList(rectPool);
+		pendingList  = new RectList(rectPool);
+		bitmapRect   = new Rect(0, 0, bitmapwidth, bitmapheight);
 		defaultPaint = new Paint();
+		drawable     = createDrawable();
+		paint        = new Paint();
+		drawable.startDrawing();
 	}
 }

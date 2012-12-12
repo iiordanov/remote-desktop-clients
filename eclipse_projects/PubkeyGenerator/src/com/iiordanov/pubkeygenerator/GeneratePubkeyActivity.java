@@ -1,5 +1,6 @@
 /*
  * ConnectBot: simple, powerful, open-source SSH client for Android
+ * Copyright 2012 Iordan Iordanov
  * Copyright 2007 Kenny Root, Jeffrey Sharkey
  *
  * Licensed under the Apache License, Version 2.0 (the "License");

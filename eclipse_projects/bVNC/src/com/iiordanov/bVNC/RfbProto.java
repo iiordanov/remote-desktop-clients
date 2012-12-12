@@ -277,6 +277,7 @@ class RfbProto implements RfbConnectable {
  
 
   public synchronized void closeSocket() {
+	  inNormalProtocol = false;
     try {
       sock.close();
       closed = true;
@@ -294,7 +295,9 @@ class RfbProto implements RfbConnectable {
   }
 
   public void close() {
+	  inNormalProtocol = false;
 	  maintainConnection = false;
+	  closeSocket();
   }
 
   
@@ -1674,7 +1677,7 @@ class RfbProto implements RfbConnectable {
 					throw new Exception("Can't handle SetColourMapEntries message");
 
 				case RfbProto.Bell:
-					vncCanvas.showBeep ();
+					vncCanvas.displayShortToastMessage("VNC Beep");
 					break;
 
 				case RfbProto.ServerCutText:

@@ -26,6 +26,7 @@
 package com.iiordanov.bVNC;
 
 import java.io.IOException;
+import java.util.zip.DataFormatException;
 import java.util.zip.Inflater;
 
 import com.iiordanov.bVNC.input.RemotePointer;
@@ -59,7 +60,6 @@ public class Decoder {
 	private byte[] inflBuf             = new byte[8192];
 	private BitmapFactory.Options bitmapopts = new BitmapFactory.Options();
 	private boolean valid, useGradient;
-	private int[] pixels;
 	private int c, dx, dy, offset, boffset, idx, stream_id, comp_ctl, numColors, rowSize, dataSize, jpegDataLen;
 
 	// ZRLE decoder's data.
@@ -180,37 +180,18 @@ public class Decoder {
 		if (paint)
 			vncCanvas.reDraw(x, y, w, h);
 	}
-	
+
 	//
 	// Handle a CopyRect rectangle.
 	//
-
 	void handleCopyRect(RfbProto rfb, int x, int y, int w, int h) throws IOException {
-
 		// Read the source coordinates.
 		rfb.readCopyRect();
 		
-		if ( ! bitmapData.validDraw(x, y, w, h))
+		if (!bitmapData.validDraw(x, y, w, h))
 			return;
-		
-		// Source Coordinates
-		int leftSrc = rfb.copyRectSrcX;
-		int topSrc = rfb.copyRectSrcY;
-		int rightSrc = leftSrc + w;
-		int bottomSrc = topSrc + h;
 
-		// Change
-		int dx = x - rfb.copyRectSrcX;
-		int dy = y - rfb.copyRectSrcY;
-
-		// Destination Coordinates
-		int leftDest = leftSrc + dx;
-		int topDest = topSrc + dy;
-		int rightDest = rightSrc + dx;
-		int bottomDest = bottomSrc + dy;
-
-		bitmapData.copyRect(new Rect(leftSrc, topSrc, rightSrc, bottomSrc), new Rect(leftDest, topDest, rightDest, bottomDest));
-
+		bitmapData.copyRect(rfb.copyRectSrcX, rfb.copyRectSrcY, x, y, w, h);
 		vncCanvas.reDraw(x, y, w, h);
 	}
 
@@ -731,8 +712,8 @@ public class Decoder {
 	//
 	void handleTightRect(RfbProto rfb, int x, int y, int w, int h) throws Exception {
 		
+		int[] pixels = bitmapData.bitmapPixels;
 		valid = bitmapData.validDraw(x, y, w, h);
-		pixels = bitmapData.bitmapPixels;
 		comp_ctl = rfb.is.readUnsignedByte();
 		
 		rowSize = w;
@@ -889,9 +870,7 @@ public class Decoder {
 				zlibData = new byte[zlibDataLen*2];
 			}
 			rfb.readFully(zlibData, 0, zlibDataLen);
-			if (!valid)
-				return;
-			
+
 			stream_id = comp_ctl & 0x03;
 			if (tightInflaters[stream_id] == null) {
 				tightInflaters[stream_id] = new Inflater();
@@ -904,7 +883,14 @@ public class Decoder {
 				inflBuf = new byte[dataSize*2];
 			}
 
-			myInflater.inflate(inflBuf, 0, dataSize);
+			try {
+				myInflater.inflate(inflBuf, 0, dataSize);
+			} catch (DataFormatException e) {
+				e.printStackTrace();
+			}
+
+			if (!valid)
+				return;
 
 			if (numColors != 0) {
 				// Indexed colors.
@@ -1081,7 +1067,8 @@ public class Decoder {
     	bitmapData.setSoftCursor (decodeCursorShape(rfb, encodingType, w, h));
 
     	// Show the cursor.
-    	vncCanvas.reDraw(bitmapData.getCursorRect());
+		Rect r = bitmapData.getCursorRect();
+		vncCanvas.reDraw(r.left, r.top, r.width(), r.height());
     }
 
     /**

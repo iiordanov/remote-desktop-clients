@@ -173,6 +173,9 @@ public class SSHConnection implements InteractiveCallback {
 				if (targetPort < 0) {
 					session.close();
 					tries++;
+					// Wait a little for x11vnc to recover.
+					if (tries < MAXTRIES)
+						try { Thread.sleep(tries*3500); } catch (InterruptedException e1) { }
 				}
 			}
 

@@ -29,6 +29,12 @@ import android.graphics.Rect;
 import android.util.Log;
 
 class FullBufferBitmapData extends AbstractBitmapData {
+	/**
+	 * Multiply this times total number of pixels to get estimate of process size with all buffers plus
+	 * safety factor
+	 */
+	static final int CAPACITY_MULTIPLIER = 6;
+	
 	int xoffset;
 	int yoffset;
 	int dataWidth;
@@ -39,8 +45,6 @@ class FullBufferBitmapData extends AbstractBitmapData {
 		int drawWidth;
 		int drawHeight; 
 		int xo, yo;
-		Paint paint;
-		Rect toDraw;
 		
 		/**
 		 * @param data
@@ -82,8 +86,9 @@ class FullBufferBitmapData extends AbstractBitmapData {
 				drawHeight = data.framebufferheight - yo;
 
 			try {
-				canvas.drawBitmap(data.bitmapPixels, offset(xo, yo), data.framebufferwidth, 
-									xo, yo, drawWidth, drawHeight, false, null);
+				if (data.bitmapPixels != null)
+					canvas.drawBitmap(data.bitmapPixels, offset(xo, yo), data.framebufferwidth, 
+									  xo, yo, drawWidth, drawHeight, false, null);
 
 			} catch (Exception e) {
 				Log.e (TAG, "Failed to draw bitmap: xo, yo/drawW, drawH: " + xo + ", " + yo + "/"
@@ -94,16 +99,11 @@ class FullBufferBitmapData extends AbstractBitmapData {
 						"Please disconnect and reconnect to the VNC server.", xo+50, yo+50, paint);
 			}
 
-			canvas.drawBitmap(softCursor, cursorRect.left, cursorRect.top, null);
+			if (softCursor != null)
+				canvas.drawBitmap(softCursor, cursorRect.left, cursorRect.top, null);
 		}
 	}
 
-	/**
-	 * Multiply this times total number of pixels to get estimate of process size with all buffers plus
-	 * safety factor
-	 */
-	static final int CAPACITY_MULTIPLIER = 6;
-	
 	/**
 	 * @param p
 	 * @param c
@@ -118,32 +118,33 @@ class FullBufferBitmapData extends AbstractBitmapData {
 		dataHeight=framebufferheight;
 		android.util.Log.i("FBBM", "bitmapsize = ("+bitmapwidth+","+bitmapheight+")");
 		bitmapPixels = new int[framebufferwidth * framebufferheight];
+		drawable.startDrawing();
 	}
 
 	/* (non-Javadoc)
 	 * @see com.iiordanov.bVNC.AbstractBitmapData#copyRect(android.graphics.Rect, android.graphics.Rect, android.graphics.Paint)
 	 */
 	@Override
-	public void copyRect(Rect src, Rect dest) {
+	public void copyRect(int sx, int sy, int dx, int dy, int w, int h) {
 		int srcOffset, dstOffset;
-		int dstH = dest.height();
-		int dstW = dest.width();
+		int dstH = h;
+		int dstW = w;
 		
 		int startSrcY, endSrcY, dstY, deltaY;
-		if (src.top > dest.top) {
-			startSrcY = src.top;
-			endSrcY = src.top + dstH;
-			dstY = dest.top;
+		if (sy > dy) {
+			startSrcY = sy;
+			endSrcY = sy + dstH;
+			dstY = dy;
 			deltaY = +1;
 		} else {
-			startSrcY = src.top + dstH - 1;
-			endSrcY = src.top - 1;
-			dstY = dest.top + dstH - 1;
+			startSrcY = sy + dstH - 1;
+			endSrcY = sy - 1;
+			dstY = dy + dstH - 1;
 			deltaY = -1;
 		}
 		for (int y = startSrcY; y != endSrcY; y += deltaY) {
-			srcOffset = offset(src.left, y);
-			dstOffset = offset(dest.left, dstY);
+			srcOffset = offset(sx, y);
+			dstOffset = offset(dx, dstY);
 			try {
 				System.arraycopy(bitmapPixels, srcOffset, bitmapPixels, dstOffset, dstW);
 			} catch (Exception e) {
@@ -210,17 +211,21 @@ class FullBufferBitmapData extends AbstractBitmapData {
 	 */
 	@Override
 	public void frameBufferSizeChanged () {
-		framebufferwidth=rfb.framebufferWidth();
-		framebufferheight=rfb.framebufferHeight();
-		bitmapwidth=framebufferwidth;
-		bitmapheight=framebufferheight;
+		framebufferwidth  = rfb.framebufferWidth();
+		framebufferheight = rfb.framebufferHeight();
+		bitmapwidth       = framebufferwidth;
+		bitmapheight      = framebufferheight;
 		android.util.Log.i("FBBM", "bitmapsize changed = ("+bitmapwidth+","+bitmapheight+")");
 		if ( dataWidth < framebufferwidth || dataHeight < framebufferheight ) {
-			bitmapPixels = null;
+			dispose();
+			// Try to free up some memory.
 			System.gc();
-			dataWidth  = framebufferwidth;
-			dataHeight = framebufferheight;
+			dataWidth    = framebufferwidth;
+			dataHeight   = framebufferheight;
 			bitmapPixels = new int[framebufferwidth * framebufferheight];
+			drawable     = createDrawable();
+			paint        = new Paint();
+			drawable.startDrawing();
 		}
 	}
 	

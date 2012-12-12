@@ -1,6 +1,7 @@
 package com.iiordanov.bVNC.input;
 
 import android.os.Handler;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 
 import com.iiordanov.bVNC.RfbConnectable;
@@ -49,6 +50,7 @@ public class RemotePointer {
 		mouseY=rfb.framebufferHeight()/2;
 		vncCanvas = v;
 		handler = h;
+		scrollRunnable = new MouseScrollRunnable();
 	}
 
 	public int getX() {
@@ -122,6 +124,35 @@ public class RemotePointer {
 		}		
 	}
 
+	boolean handleHardwareButtons(int keyCode, KeyEvent evt, int combinedMetastate) {
+		int pointerMask = 0;
+		boolean down = (evt.getAction() == KeyEvent.ACTION_DOWN) ||
+				   (evt.getAction() == KeyEvent.ACTION_MULTIPLE);
+
+		int mouseChange = keyCode == KeyEvent.KEYCODE_VOLUME_DOWN ? RemotePointer.MOUSE_BUTTON_SCROLL_DOWN : RemotePointer.MOUSE_BUTTON_SCROLL_UP;
+		if (keyCode == KeyEvent.KEYCODE_CAMERA) {
+			cameraButtonDown = down;
+			pointerMask = RemotePointer.MOUSE_BUTTON_RIGHT;
+			rfb.writePointerEvent(getX(), getY(), combinedMetastate, pointerMask);
+			return true;
+		} else if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN || keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
+			if (evt.getAction() == KeyEvent.ACTION_DOWN) {
+				// If not auto-repeat
+				if (scrollRunnable.scrollButton != mouseChange) {
+					pointerMask |= mouseChange;
+					scrollRunnable.scrollButton = mouseChange;
+					handler.postDelayed(scrollRunnable,200);
+				}
+			} else {
+				handler.removeCallbacks(scrollRunnable);
+				scrollRunnable.scrollButton = 0;
+				pointerMask &= ~mouseChange;
+			}
+			rfb.writePointerEvent(getX(), getY(), combinedMetastate, pointerMask);
+			return true;
+		}
+		return false;
+	}
 	
 	
 	/**

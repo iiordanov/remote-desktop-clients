@@ -40,6 +40,7 @@ import android.util.Log;
 import com.iiordanov.bVNC.Utils;
 import com.iiordanov.bVNC.VncCanvas;
 import com.iiordanov.bVNC.VncCanvasActivity;
+import com.iiordanov.bVNC.VncConstants;
 import com.iiordanov.bVNC.bVNC;
 import com.iiordanov.tigervnc.rdr.*;
 import org.apache.commons.*;
@@ -242,8 +243,7 @@ public class CSecurityTLS extends CSecurity {
     		// Send a message containing the certificate to our handler.
     		Message m = new Message();
     		m.setTarget(vncCanvas.handler);
-    		// TODO: Think of how to best replace this numeric value with something sane.
-    		m.what = 1;
+    		m.what = VncConstants.DIALOG_X509_CERT;
     		m.obj = chain[0];
     		vncCanvas.handler.sendMessage(m);
 

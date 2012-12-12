@@ -13,20 +13,20 @@ public class RandomString
 	public String randomString(final int length, int maxValue) {
 		StringBuilder sb = new StringBuilder();
 		for(int i = 0; i < length; i++) {
-			char c = (char)(r.nextInt((int)(Character.MAX_VALUE)));
+			char c = (char)(r.nextInt(maxValue)+32);
 			sb.append(c);
 		}
 		return sb.toString();
 	}
 
 	public String randomString(final int length) {
-		return randomString(length, Character.MAX_VALUE);
+		return randomString(length, 95);
 	}
 
 	public String randomLowerCaseString(final int length) {
 		StringBuilder sb = new StringBuilder();
 		for(int i = 0; i < length; i++) {
-			char c = (char)(r.nextInt((int)(25)) + 97); // Get only a-z
+			char c = (char)(r.nextInt(25) + 97); // Get only a-z
 			sb.append(c);
 		}
 		return sb.toString();

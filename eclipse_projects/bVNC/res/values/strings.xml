@@ -126,7 +126,7 @@
 &lt;br&gt;
 - Zoomable, Fit to Screen, and One to One scaling modes.
 &lt;br&gt;
-- Multi-touch control over remote mouse in Touch Mouse and Simulated Touchpad input modes.
+- Multi-touch control over remote mouse in Direct and Simulated Touchpad input modes.
 &lt;br&gt;
 - Multi-touch mouse clicks: tap to Left-click, two-finger tap to right-click, three-finger-tap to middle click.
 &lt;br&gt;
@@ -164,11 +164,17 @@ Known issues:
 <string name="input_mode_help_text">
 "In any Input Mode, tap the keyboard icon to get the on-screen keyboard. On some devices you can swipe up diagonally from the bottom left corner (Playbook).
 
-Use Touch Mouse and Swipe Pan Mode for more intuitive touch-screen control. Use Simulated Touchpad Mode for finer control over the mouse.
+Use the Direct input modes for more intuitive touch-screen control. Use Simulated Touchpad Mode for finer control over the mouse.
 
-Touch Mouse and Swipe Pan Mode:
+Direct, Swipe Pan Mode:
  - Control the mouse directly through touch.
  - Swipe to pan around.
+ - Tapping makes the mouse click where you tapped.
+ - Scroll events are sent between the two fingers where a two-finger swipe started.
+
+Direct, Hold Pan Mode:
+ - Control the mouse directly through touch.
+ - Long-tap to start pan mode.
  - Tapping makes the mouse click where you tapped.
  - Scroll events are sent between the two fingers where a two-finger swipe started.
  
@@ -194,9 +200,13 @@ All Input Modes:
 </string>
 <string name="input_mode_mouse">Mouse Pointer Control</string>
 <string name="input_mode_panning">Desktop Panning Mode</string>
-<string name="input_mode_touch_pan_zoom_mouse">Touch Mouse, Swipe Pan</string>
-<string name="input_mode_drag_pan_zoom_mouse">Touch Mouse, Long Tap Pan</string>
+<string name="input_mode_touch_pan_zoom_mouse">Direct, Swipe Pan</string>
+<string name="input_mode_touch_pan_description">Direct, Swipe Pan: Swipe to pan around. Tap with one finger wherever you want to left-click, two fingers to right-click, and three fingers to middle-click. Swipe with two fingers to scroll. Long tap to drag and drop.</string>
+<string name="input_mode_drag_pan_zoom_mouse">Direct, Hold Pan</string>
+<string name="input_mode_drag_pan_description">Direct, Hold Pan: Swipe to drag and drop. Tap with one finger wherever you want to left-click, two fingers to right-click, and three fingers to middle-click. Swipe with two fingers to scroll. Long tap to start panning.</string>
 <string name="input_mode_touchpad">Simulated Touchpad</string><string name="keep_password_button">Keep</string>
+<string name="input_mode_touchpad_description">Simulated Touchpad: Swipe to move pointer. Tap anywhere with one finger to left-click, two fingers to right-click, and three fingers to middle-click. Swipe with two fingers to scroll. Long tap to drag and drop.</string>
+<string name="keep_password_button">Keep</string>
 <string name="intro_dont_show">Don\'t show again</string>
 <string name="keys_caption">Keys</string>
 <string name="list_caption">List</string>

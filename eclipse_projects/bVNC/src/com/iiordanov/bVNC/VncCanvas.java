@@ -40,6 +40,7 @@ import java.util.Timer;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.app.ActivityManager.MemoryInfo;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Rect;
@@ -52,8 +53,6 @@ import android.util.Base64;
 import android.util.Log;
 import android.view.Display;
 import android.view.KeyEvent;
-import android.view.MotionEvent;
-import android.view.ViewConfiguration;
 import android.widget.ImageView;
 import android.widget.Toast;
 import android.graphics.BitmapFactory;
@@ -63,12 +62,10 @@ import com.iiordanov.android.bc.BCFactory;
 import com.iiordanov.bVNC.input.RemotePointer;
 import com.iiordanov.bVNC.input.RemoteKeyboard;
 
-import com.iiordanov.tigervnc.rfb.UnicodeToKeysym;
 import com.iiordanov.tigervnc.vncviewer.CConn;
 
 public class VncCanvas extends ImageView {
 	private final static String TAG = "VncCanvas";
-	private final static boolean LOCAL_LOGV = true;
 
 	AbstractScaling scaling;
 
@@ -98,6 +95,7 @@ public class VncCanvas extends ImageView {
 	private int capacity;
 	public AbstractBitmapData bitmapData;
 	boolean useFull = false;
+	boolean compact = false;
 
 	// Handler for the dialog that displays the x509 key signatures to the user.
 	public Handler handler = new Handler() {
@@ -311,8 +309,8 @@ public class VncCanvas extends ImageView {
 	
 						if (e instanceof OutOfMemoryError) {
 							System.gc();
-							showFatalMessageAndQuit("A fatal error has occurred. The device appears to be out of free memory. " +
-									"Try reconnecting, and if that fails, try killing and restarting the application. " +
+							showFatalMessageAndQuit("Unable to allocate sufficient memory to draw remote screen. " +
+									"To fix this, it's best to restart the application. " +
 									"As a last resort, you may try restarting your device.");
 						} else {
 							String error = "Connection failed!";
@@ -419,26 +417,44 @@ public class VncCanvas extends ImageView {
 	void initializeBitmap (int dx, int dy) throws IOException {
 		Log.i(TAG, "Desktop name is " + rfbconn.desktopName());
 		Log.i(TAG, "Desktop size is " + rfbconn.framebufferWidth() + " x " + rfbconn.framebufferHeight());
-
+		int fbsize = rfbconn.framebufferWidth() * rfbconn.framebufferHeight();
 		capacity = BCFactory.getInstance().getBCActivityManager().getMemoryClass(Utils.getActivityManager(getContext()));
-		if (connection.getForceFull() == BitmapImplHint.AUTO)
-		{
-			if (rfbconn.framebufferWidth() * rfbconn.framebufferHeight() * CompactBitmapData.CAPACITY_MULTIPLIER
-				<= capacity * 1024 * 1024)
-				useFull = true;
-		}
-		else
-			useFull = (connection.getForceFull() == BitmapImplHint.FULL);
 		
+		if (connection.getForceFull() == BitmapImplHint.AUTO) {
+			if (fbsize * CompactBitmapData.CAPACITY_MULTIPLIER <= capacity*1024*1024) {
+				useFull = true;
+				compact = true;
+			} else if (fbsize * FullBufferBitmapData.CAPACITY_MULTIPLIER <= capacity*1024*1024) {
+				useFull = true;
+			} else {
+				useFull = false;
+			}
+		} else
+			useFull = (connection.getForceFull() == BitmapImplHint.FULL);
+
 		if (!useFull) {
 			bitmapData=new LargeBitmapData(rfbconn, this, dx, dy, capacity);
 			android.util.Log.i(TAG, "Using LargeBitmapData.");
 		} else {
-	        //if (android.os.Build.VERSION.SDK_INT == 17)
-			//	bitmapData=new FullBufferBitmapData(rfbconn, this, capacity);
-	        //else
-	        	bitmapData=new CompactBitmapData(rfbconn, this);
-			android.util.Log.i(TAG, "Using CompactBufferBitmapData.");
+			try {
+				// TODO: Remove this if Android 4.2 receives a fix which causes it to stop drawing
+				// the bitmap in CompactBitmapData when under load (say playing a video over VNC).
+		        if (!compact || android.os.Build.VERSION.SDK_INT == 17) {
+					bitmapData=new FullBufferBitmapData(rfbconn, this, capacity);
+		        	android.util.Log.i(TAG, "Using FullBufferBitmapData.");
+		        } else {
+		        	bitmapData=new CompactBitmapData(rfbconn, this);
+		        	android.util.Log.i(TAG, "Using CompactBufferBitmapData.");
+		        }
+			} catch (Throwable e) { // If despite our efforts we fail to allocate memory, use LBBM.
+				if (bitmapData != null)
+					bitmapData.dispose();
+				bitmapData = null;
+				System.gc();
+				useFull = false;
+				bitmapData=new LargeBitmapData(rfbconn, this, dx, dy, capacity);
+				android.util.Log.i(TAG, "Using LargeBitmapData.");
+			}
 		}
 		
 		decoder.setBitmapData(bitmapData);
@@ -460,10 +476,35 @@ public class VncCanvas extends ImageView {
 		try {
 			bitmapData.frameBufferSizeChanged ();
 		} catch (Throwable e) {
-			// If we've run out of memory, try using an LBMD
+			boolean useLBBM = false;
+			
+			// If we've run out of memory, try using another bitmapdata type.
 			if (e instanceof OutOfMemoryError) {
-				useFull = false;
-				bitmapData = new LargeBitmapData(rfbconn, this, getWidth(), getHeight(), capacity);
+				if (bitmapData != null)
+					bitmapData.dispose();
+				bitmapData = null;
+				System.gc();
+
+				// If we were using CompactBitmapData, try FullBufferBitmapData.
+				if (compact == true) {
+					compact = false;
+					try {
+						bitmapData = new FullBufferBitmapData(rfbconn, this, capacity);
+					} catch (Throwable e2) {
+						useLBBM = true;
+					}
+				} else
+					useLBBM = true;
+
+				// Failing FullBufferBitmapData or if we weren't using CompactBitmapData, try LBBM.
+				if (useLBBM) {
+					if (bitmapData != null)
+						bitmapData.dispose();
+					bitmapData = null;
+					System.gc();
+					useFull = false;
+					bitmapData = new LargeBitmapData(rfbconn, this, getWidth(), getHeight(), capacity);
+				}
 				decoder.setBitmapData(bitmapData);
 			}
 		}
@@ -501,11 +542,15 @@ public class VncCanvas extends ImageView {
 			cc.close();
 		}
 	}
+	
+	public void displayShortToastMessage (final CharSequence message) {
+		screenMessage = message;
+		handler.post(showMessage);
+	}
 
-	public void showBeep () {
-		handler.post( new Runnable() {
-			public void run() { Toast.makeText( getContext(), "VNC Beep", Toast.LENGTH_SHORT); }
-		});
+	public void displayShortToastMessage (final int messageID) {
+		screenMessage = getResources().getText(messageID);
+		handler.post(showMessage);
 	}
 
 	public void doneWaiting () {
@@ -553,21 +598,68 @@ public class VncCanvas extends ImageView {
 	 * Computes the X and Y offset for converting coordinates from full-frame coordinates to view coordinates.
 	 */
 	public void computeShiftFromFullToView () {
-		shiftX = (bitmapData.fbWidth()  - getWidth())  / 2;
-		shiftY = (bitmapData.fbHeight() - getHeight()) / 2;
+		shiftX = (rfbconn.framebufferWidth()  - getWidth())  / 2;
+		shiftY = (rfbconn.framebufferHeight() - getHeight()) / 2;
+	}
+	
+	public void closeConnection() {
+		maintainConnection = false;
+		
+		if (keyboard != null) {
+			// Tell the server to release any meta keys.
+			keyboard.clearMetaState();
+			keyboard.processLocalKeyEvent(0, new KeyEvent(KeyEvent.ACTION_UP, 0));
+			keyboard = null;
+		}
+		// Close the rfb connection.
+		if (rfbconn != null)
+			rfbconn.close();
+		
+		rfbconn = null;
+		rfb = null;
+		cc = null;
+		sock = null;
+		
+		// Close the SSH tunnel.
+		if (sshConnection != null) {
+			sshConnection.terminateSSHTunnel();
+			sshConnection = null;
+		}
+		onDestroy();
 	}
 
 	public void onDestroy() {
 		Log.v(TAG, "Cleaning up resources");
-		if ( bitmapData!=null) bitmapData.dispose();
-		handler.removeCallbacksAndMessages(null);
-		bitmapData = null;
-		clipboardMonitorTimer.cancel();
-		clipboardMonitorTimer.purge();
-		clipboardMonitorTimer = null;
+		
+		removeCallbacksAndMessages();
+		if (clipboardMonitorTimer != null) {
+			clipboardMonitorTimer.cancel();
+			clipboardMonitorTimer.purge();
+			clipboardMonitorTimer = null;
+		}
 		clipboardMonitor = null;
-		keyboard = null;
-		pointer  = null;
+		clipboard        = null;
+		keyboard         = null;
+		pointer          = null;
+		setModes         = null;
+		decoder          = null;
+		database         = null;
+		connection       = null;
+		scaling          = null;
+		drawableSetter   = null;
+		screenMessage    = null;
+		desktopInfo      = null;
+
+		if (bitmapData != null)
+			bitmapData.dispose();
+		bitmapData       = null;
+		System.gc();
+	}
+
+	public void removeCallbacksAndMessages() {
+		if (handler != null) {
+			handler.removeCallbacksAndMessages(null);
+		}
 	}
 
 	/*
@@ -611,14 +703,17 @@ public class VncCanvas extends ImageView {
 	 * Make sure mouse is visible on displayable part of screen
 	 */
 	public void panToMouse() {
+		if (rfbconn == null)
+			return;
+
 		boolean panX = true;
 		boolean panY = true;
 
 		// Don't pan in a certain direction if dimension scaled is already less 
 		// than the dimension of the visible part of the screen.
-		if (bitmapData.bmWidth() <= getVisibleWidth())
+		if (rfbconn.framebufferWidth()  <= getVisibleWidth())
 			panX = false;
-		if (bitmapData.bmHeight() <= getVisibleHeight())
+		if (rfbconn.framebufferHeight() <= getVisibleHeight())
 			panY = false;
 
 		// We only pan if the current scaling is able to pan.
@@ -638,14 +733,11 @@ public class VncCanvas extends ImageView {
 		int newX = absoluteXPosition;
 		int newY = absoluteYPosition;
 
-		if (x - absoluteXPosition >= w - wthresh)
-		{
+		if (x - absoluteXPosition >= w - wthresh) {
 			newX = x - (w - wthresh);
 			if (newX + w > iw)
 				newX = iw - w;
-		}
-		else if (x < absoluteXPosition + wthresh)
-		{
+		} else if (x < absoluteXPosition + wthresh) {
 			newX = x - wthresh;
 			if (newX < 0)
 				newX = 0;
@@ -654,14 +746,12 @@ public class VncCanvas extends ImageView {
 			absoluteXPosition = newX;
 			panned = true;
 		}
-		if (y - absoluteYPosition >= h - hthresh)
-		{
+
+		if (y - absoluteYPosition >= h - hthresh) {
 			newY = y - (h - hthresh);
 			if (newY + h > ih)
 				newY = ih - h;
-		}
-		else if (y < absoluteYPosition + hthresh)
-		{
+		} else if (y < absoluteYPosition + hthresh) {
 			newY = y - hthresh;
 			if (newY < 0)
 				newY = 0;
@@ -670,8 +760,8 @@ public class VncCanvas extends ImageView {
 			absoluteYPosition = newY;
 			panned = true;
 		}
-		if (panned)
-		{
+
+		if (panned) {
 			scrollToAbsolute();
 		}
 	}
@@ -707,8 +797,7 @@ public class VncCanvas extends ImageView {
 
 		absoluteXPosition += sX;
 		absoluteYPosition += sY;
-		if (sX != 0.0 || sY != 0.0)
-		{
+		if (sX != 0.0 || sY != 0.0) {
 			scrollToAbsolute();
 			return true;
 		}
@@ -721,8 +810,10 @@ public class VncCanvas extends ImageView {
 	@Override
 	protected void onScrollChanged(int l, int t, int oldl, int oldt) {
 		super.onScrollChanged(l, t, oldl, oldt);
-		bitmapData.scrollChanged(absoluteXPosition, absoluteYPosition);
-		pointer.mouseFollowPan();
+		if (bitmapData != null) {
+			bitmapData.scrollChanged(absoluteXPosition, absoluteYPosition);
+			pointer.mouseFollowPan();
+		}
 	}
 
 	/**
@@ -736,6 +827,14 @@ public class VncCanvas extends ImageView {
 	};
 
 	/**
+	 * This runnable displays a message on the screen.
+	 */
+	CharSequence screenMessage;
+	private Runnable showMessage = new Runnable() {
+			public void run() { Toast.makeText( getContext(), screenMessage, Toast.LENGTH_SHORT).show(); }
+	};
+	
+	/**
 	 * This runnable causes a toast with information about the current connection to be shown.
 	 */
 	private Runnable desktopInfo = new Runnable() {
@@ -747,7 +846,6 @@ public class VncCanvas extends ImageView {
 	/**
 	 * Causes a redraw of the bitmapData to happen at the indicated coordinates.
 	 */
-	public void reDraw(Rect r) { reDraw (r.left, r.top, r.width(), r.height()); }
 	public void reDraw(int x, int y, int w, int h) {
 		float scale = getScale();
 		float shiftedX = x-shiftX;
@@ -758,6 +856,9 @@ public class VncCanvas extends ImageView {
 	}
 
 	public void showConnectionInfo() {
+		if (rfbconn == null)
+			return;
+		
 		String msg = null;
 		int idx = rfbconn.desktopName().indexOf("(");
 		if (idx > 0) {
@@ -784,8 +885,11 @@ public class VncCanvas extends ImageView {
 	 * Invalidates (to redraw) the location of the remote pointer.
 	 */
 	public void invalidateMousePosition() {
-		bitmapData.moveCursorRect(pointer.mouseX, pointer.mouseY);
-		reDraw(bitmapData.getCursorRect());
+		if (bitmapData != null) {
+			bitmapData.moveCursorRect(pointer.mouseX, pointer.mouseY);
+			Rect r = bitmapData.getCursorRect();
+			reDraw(r.left, r.top, r.width(), r.height());
+		}
 	}
 	
 	/**
@@ -802,12 +906,13 @@ public class VncCanvas extends ImageView {
     	if (!inScrolling) {
     		pointer.mouseX = x;
     		pointer.mouseY = y;
-	    	Rect prevCursorRect = new Rect(bitmapData.getCursorRect());
+	    	Rect pCRect = new Rect(bitmapData.getCursorRect());
 	    	// Move the cursor.
 	    	bitmapData.moveCursorRect(x, y);
 	    	// Show the cursor.
-	    	prevCursorRect.union(bitmapData.getCursorRect());
-	    	reDraw(prevCursorRect);
+			Rect r = bitmapData.getCursorRect();
+			reDraw(r.left, r.top, r.width(), r.height());
+	    	reDraw(pCRect.left, pCRect.top, pCRect.width(), pCRect.height());
     	}
     }
     
@@ -821,29 +926,8 @@ public class VncCanvas extends ImageView {
     	bitmapData.setCursorRect(pointer.mouseX, pointer.mouseY, w, h, 0, 0);
     	// Set softCursor to whatever the resource is.
 		bitmapData.setSoftCursor (tempPixels);
+		bm.recycle();
     }
-
-	public void closeConnection() {
-		maintainConnection = false;
-		
-		if (keyboard != null) {
-			// Tell the server to release any meta keys.
-			keyboard.clearMetaState();
-			keyboard.processLocalKeyEvent(0, new KeyEvent(KeyEvent.ACTION_UP, 0));
-		}
-		// Close the rfb connection.
-		if (rfbconn != null) {
-			rfbconn.close();
-			rfbconn = null;
-			rfb = null;
-			cc = null;
-		}
-		// Close the SSH tunnel.
-		if (sshConnection != null) {
-			sshConnection.terminateSSHTunnel();
-			sshConnection = null;
-		}
-	}
 	
 	public RemotePointer getPointer() {
 		return pointer;
@@ -875,18 +959,29 @@ public class VncCanvas extends ImageView {
 	}
 
 	public int getImageWidth() {
-		return bitmapData.framebufferwidth;
+		return rfbconn.framebufferWidth();
 	}
 
 	public int getImageHeight() {
-		return bitmapData.framebufferheight;
+		return rfbconn.framebufferHeight();
 	}
 	
 	public int getCenteredXOffset() {
-		return (bitmapData.framebufferwidth - getWidth()) / 2;
+		return (rfbconn.framebufferWidth() - getWidth()) / 2;
 	}
 
 	public int getCenteredYOffset() {
-		return (bitmapData.framebufferheight - getHeight()) / 2;
+		return (rfbconn.framebufferHeight() - getHeight()) / 2;
+	}
+	
+	public float getMinimumScale() {
+		if (bitmapData != null) {
+			return bitmapData.getMinimumScale();
+		} else
+			return 1.f;
+	}
+	
+	public boolean isConnected() {
+		return (rfbconn != null);
 	}
 }
