@@ -217,9 +217,10 @@ public class VncCanvas extends ImageView {
 	int displayHeight = 0;
 
 	/*
-	 * Variable used for BB10 hacks.
+	 * Variables used for BB and BB10 hacks.
 	 */
 	boolean bb10 = false;
+	boolean bb   = false;
 
 	/**
 	 * Constructor used by the inflation apparatus
@@ -234,6 +235,8 @@ public class VncCanvas extends ImageView {
 		String s = android.os.Build.MODEL;
 		if (s.contains("BlackBerry 10"))
 			bb10 = true;
+		if (s.contains("BlackBerry"))
+			bb   = true;
 
 		decoder = new Decoder (this);
 	}

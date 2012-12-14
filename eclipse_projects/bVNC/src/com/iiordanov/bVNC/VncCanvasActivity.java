@@ -582,21 +582,29 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 	 * Sets the visibility of the extra keys appropriately.
 	 */
 	private void setExtraKeysVisibility (int visibility, boolean softKbdUp) {
-		if (layoutKeys == null)
+		Configuration config = getResources().getConfiguration();
+		//Log.e(TAG, "Hardware kbd hidden: " + Integer.toString(config.hardKeyboardHidden));
+		//Log.e(TAG, "Any keyboard hidden: " + Integer.toString(config.keyboardHidden));
+		//Log.e(TAG, "Keyboard type: " + Integer.toString(config.keyboard));
+
+		if (layoutKeys == null || vncCanvas == null)
 			return;
 
 		boolean keyboardAvailable = softKbdUp;
-		Configuration config = getResources().getConfiguration();
 		if (config.hardKeyboardHidden == Configuration.HARDKEYBOARDHIDDEN_NO)
 			keyboardAvailable = true;
 
-		if (keyboardAvailable && connection.getExtraKeysToggleType() == VncConstants.EXTRA_KEYS_ON) {
+		// TODO: Nasty hack to work around bb10 not setting the state of the hardware keyboard appropriately.
+		// REMOVE AS SOON AS POSSIBLE! Also, the check if vncCanvas is null above is not necessary otherwise.
+		if ((vncCanvas.bb || keyboardAvailable) && connection.getExtraKeysToggleType() == VncConstants.EXTRA_KEYS_ON) {
+			//Log.e (TAG, "VISIBLE");
 			layoutKeys.setVisibility(View.VISIBLE);
 			return;
 		}
 		
 		if (visibility == View.GONE) {
 			layoutKeys.setVisibility(View.GONE);
+			//Log.e (TAG, "GONE");
 		}
 	}
 	
