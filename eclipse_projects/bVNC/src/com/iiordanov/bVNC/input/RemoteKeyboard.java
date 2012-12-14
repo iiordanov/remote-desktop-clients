@@ -1,6 +1,7 @@
 package com.iiordanov.bVNC.input;
 
 import android.os.Handler;
+import android.util.Log;
 import android.view.KeyEvent;
 
 import com.iiordanov.bVNC.MetaKeyBean;
@@ -9,6 +10,7 @@ import com.iiordanov.bVNC.VncCanvas;
 import com.iiordanov.tigervnc.rfb.UnicodeToKeysym;
 
 public class RemoteKeyboard {
+	private final static String TAG = "RemoteKeyboard";
 	
 	private final static int SCAN_ESC = 1;
 	private final static int SCAN_LEFTCTRL = 29;

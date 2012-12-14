@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.iiordanov.bVNC" android:installLocation="auto" android:versionCode="296" android:versionName="v2.9.6">
+    package="com.iiordanov.bVNC" android:installLocation="auto" android:versionCode="297" android:versionName="v2.9.7">
 
     <uses-sdk android:minSdkVersion="8" android:targetSdkVersion="8"></uses-sdk>
     <uses-permission android:name="android.permission.INTERNET"></uses-permission>
@@ -16,7 +16,7 @@
 				<category android:name="android.intent.category.LAUNCHER"></category>
 			</intent-filter>
 		</activity>
-		<activity android:screenOrientation="fullSensor" android:configChanges="orientation|keyboardHidden"
+		<activity android:screenOrientation="fullSensor" android:configChanges="orientation|keyboardHidden|keyboard"
 		          android:name="VncCanvasActivity"      android:windowSoftInputMode="stateHidden|adjustResize">
 			<intent-filter>
 				<action android:name="android.intent.action.VIEW"></action>

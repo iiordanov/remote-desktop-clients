@@ -301,7 +301,8 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 		// This code detects when the soft keyboard is up and sets an appropriate visibleHeight in vncCanvas.
 		// When the keyboard is gone, it resets visibleHeight and pans zero distance to prevent us from being
 		// below the desktop image (if we scrolled all the way down when the keyboard was up).
-		// TODO: Move this into a separate function.
+		// TODO: Move this into a separate thread, and post the visibility changes to the handler.
+		//       to avoid occupying the UI thread with this.
         final View rootView = ((ViewGroup)findViewById(android.R.id.content)).getChildAt(0);
         rootView.getViewTreeObserver().addOnGlobalLayoutListener(new OnGlobalLayoutListener() {
             @Override
@@ -326,21 +327,22 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
                     int offset = 0;
                     if (r.bottom > rootView.getHeight()*0.81) {
                     	offset = rootView.getHeight() - r.bottom;
-                        // Shift the meta keys and arrows to proper location.
-                		if (layoutKeys  != null)
+                        // Soft Kbd gone, shift the meta keys and arrows down.
+                		if (layoutKeys != null) {
                 			layoutKeys.offsetTopAndBottom(offset);
-                		setExtraKeysVisibility(View.GONE);
-                		zoomer.enable();
+	                		setExtraKeysVisibility(View.GONE, false);
+                		}
+	                	zoomer.enable();
                     } else {
                     	offset = r.bottom - rootView.getHeight();
-                        // Shift the meta keys and arrows to proper location.
-                		if (layoutKeys  != null)
+                        //  Soft Kbd up, shift the meta keys and arrows up.
+                		if (layoutKeys != null) {
                 			layoutKeys.offsetTopAndBottom(offset);
-                    	setExtraKeysVisibility(View.VISIBLE);
+	                    	setExtraKeysVisibility(View.VISIBLE, true);
+                		}
                     	zoomer.hide();
                     	zoomer.disable();
                     }
-
              }
         });
 
@@ -579,20 +581,23 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 	/**
 	 * Sets the visibility of the extra keys appropriately.
 	 */
-	private void setExtraKeysVisibility (int visibility) {
+	private void setExtraKeysVisibility (int visibility, boolean softKbdUp) {
 		if (layoutKeys == null)
 			return;
-		
-		Configuration config = getResources().getConfiguration();
-		boolean hardKeyboardExtended = false;
-		if (config.hardKeyboardHidden == Configuration.HARDKEYBOARDHIDDEN_NO)
-			hardKeyboardExtended = true;
 
-		if ( connection.getExtraKeysToggleType() == VncConstants.EXTRA_KEYS_ON && 
-    		 (hardKeyboardExtended || visibility == View.VISIBLE) )
-    		layoutKeys.setVisibility(View.VISIBLE);
-    	else
-            layoutKeys.setVisibility(View.GONE);
+		boolean keyboardAvailable = softKbdUp;
+		Configuration config = getResources().getConfiguration();
+		if (config.hardKeyboardHidden == Configuration.HARDKEYBOARDHIDDEN_NO)
+			keyboardAvailable = true;
+
+		if (keyboardAvailable && connection.getExtraKeysToggleType() == VncConstants.EXTRA_KEYS_ON) {
+			layoutKeys.setVisibility(View.VISIBLE);
+			return;
+		}
+		
+		if (visibility == View.GONE) {
+			layoutKeys.setVisibility(View.GONE);
+		}
 	}
 	
 	/*
@@ -726,7 +731,7 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 	public void onConfigurationChanged(Configuration newConfig) {
 		super.onConfigurationChanged(newConfig);
 
-		setExtraKeysVisibility(View.GONE);
+		setExtraKeysVisibility(View.GONE, false);
 		
 		// Ignore orientation changes until we are in normal protocol.
 		if (vncCanvas.rfbconn != null &&
@@ -995,11 +1000,11 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 			if (connection.getExtraKeysToggleType() == VncConstants.EXTRA_KEYS_ON) {
 				connection.setExtraKeysToggleType(VncConstants.EXTRA_KEYS_OFF);
 				item.setTitle(R.string.extra_keys_enable);
-				setExtraKeysVisibility(View.GONE);
+				setExtraKeysVisibility(View.GONE, false);
 			} else {
 				connection.setExtraKeysToggleType(1);
 				item.setTitle(R.string.extra_keys_disable);
-				setExtraKeysVisibility(View.VISIBLE);
+				setExtraKeysVisibility(View.VISIBLE, false);
 			}
 			connection.save(database.getWritableDatabase());
 			database.close();
