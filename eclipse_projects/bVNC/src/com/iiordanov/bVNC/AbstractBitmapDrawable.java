@@ -40,7 +40,6 @@ public class AbstractBitmapDrawable extends DrawableContainer {
 	Bitmap softCursor;
 	boolean softCursorInit;
 	Rect clipRect;
-	Paint paint;
 	Rect toDraw;
 	boolean drawing = false;
 	
@@ -52,6 +51,7 @@ public class AbstractBitmapDrawable extends DrawableContainer {
 	
 	static {
 		_defaultPaint = new Paint();
+		_defaultPaint.setFilterBitmap(true);
 		_whitePaint = new Paint();
 		_whitePaint.setColor(0xffffffff);
 		_blackPaint = new Paint();
@@ -64,15 +64,15 @@ public class AbstractBitmapDrawable extends DrawableContainer {
 		clipRect = new Rect();
 		// Try to free up some memory.
 		System.gc();
-		softCursor = Bitmap.createBitmap(10, 10, Bitmap.Config.ARGB_8888);
+		softCursor = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888);
 		softCursorInit = false;
 	}
 	
 	void draw(Canvas canvas, int xoff, int yoff) {
-		if (data.mbitmap != null)
+		try {
 			canvas.drawBitmap(data.mbitmap, xoff, yoff, _defaultPaint);
-		if (softCursor != null)
 			canvas.drawBitmap(softCursor, cursorRect.left, cursorRect.top, null);
+		} catch (Throwable e) { }
 	}
 
 	void setCursorRect(int x, int y, int w, int h, int hX, int hY) {
@@ -90,6 +90,8 @@ public class AbstractBitmapDrawable extends DrawableContainer {
 
 	void setSoftCursor (int[] newSoftCursorPixels) {
 		softCursor.recycle();
+		// Try to free up some memory.
+		System.gc();
 		softCursor = Bitmap.createBitmap(newSoftCursorPixels, cursorRect.width(), cursorRect.height(), Bitmap.Config.ARGB_8888);
 		softCursorInit = true;
 	}
@@ -133,7 +135,6 @@ public class AbstractBitmapDrawable extends DrawableContainer {
 		softCursor = null;
 		cursorRect = null;
 		clipRect = null;
-		paint = null;
 		toDraw = null;
 	}
 	

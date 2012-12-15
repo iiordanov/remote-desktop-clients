@@ -43,10 +43,10 @@ class CompactBitmapData extends AbstractBitmapData {
 		 */
 		@Override
 		public void draw(Canvas canvas) {
-			if (data.mbitmap != null)
+			try {
 				canvas.drawBitmap(data.mbitmap, 0, 0, _defaultPaint);
-			if (softCursor != null)
 				canvas.drawBitmap(softCursor, cursorRect.left, cursorRect.top, null);
+			} catch (Throwable e) { }
 		}
 	}
 	
@@ -160,7 +160,6 @@ class CompactBitmapData extends AbstractBitmapData {
 			mbitmap      = Bitmap.createBitmap(bitmapwidth, bitmapheight, Bitmap.Config.RGB_565);
 			memGraphics  = new Canvas(mbitmap);
 			drawable     = createDrawable();
-			paint        = new Paint();
 			drawable.startDrawing();
 		}
 	}

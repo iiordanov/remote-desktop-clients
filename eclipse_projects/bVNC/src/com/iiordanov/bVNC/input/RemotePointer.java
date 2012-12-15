@@ -21,10 +21,6 @@ public class RemotePointer {
 	
 	/**
 	 * Current state of "mouse" buttons
-	 * Alt meta means use second mouse button
-	 * 0 = none
-	 * 1 = default button
-	 * 2 = second button
 	 */
 	private int pointerMask = MOUSE_BUTTON_NONE;
 
@@ -125,7 +121,6 @@ public class RemotePointer {
 	}
 
 	boolean handleHardwareButtons(int keyCode, KeyEvent evt, int combinedMetastate) {
-		int pointerMask = 0;
 		boolean down = (evt.getAction() == KeyEvent.ACTION_DOWN) ||
 				   (evt.getAction() == KeyEvent.ACTION_MULTIPLE);
 
@@ -141,7 +136,7 @@ public class RemotePointer {
 				if (scrollRunnable.scrollButton != mouseChange) {
 					pointerMask |= mouseChange;
 					scrollRunnable.scrollButton = mouseChange;
-					handler.postDelayed(scrollRunnable,200);
+					handler.postDelayed(scrollRunnable, 200);
 				}
 			} else {
 				handler.removeCallbacks(scrollRunnable);
@@ -225,13 +220,10 @@ public class RemotePointer {
 		return processPointerEvent(x, y, action, modifiers, mouseIsDown, useRightButton, false, false, -1);
 	}
 	
-	public boolean processPointerEvent(int x, int y, int action, int modifiers, 
-			                    boolean mouseIsDown, boolean useRightButton, boolean useMiddleButton, boolean useScrollButton, int direction) {
+	public boolean processPointerEvent(int x, int y, int action, int modifiers, boolean mouseIsDown, boolean useRightButton,
+										boolean useMiddleButton, boolean useScrollButton, int direction) {
 		
-		// If none of the conditions below are satisfied, clear the pointer mask.
-		pointerMask = 0;
-		
-		if (rfb != null) {
+		if (rfb != null && rfb.isInNormalProtocol()) {
 			if (mouseIsDown && useRightButton) {
 		    	//Log.i(TAG,"Right mouse button mask set");
 		        pointerMask = MOUSE_BUTTON_RIGHT;
@@ -253,6 +245,7 @@ public class RemotePointer {
 					pointerMask = MOUSE_BUTTON_SCROLL_RIGHT;
 		    } else {
 			    //Log.i(TAG,"Mouse button mask cleared");
+				// If none of the conditions are satisfied, clear the pointer mask.
 		    	pointerMask = 0;
 		    }
 						

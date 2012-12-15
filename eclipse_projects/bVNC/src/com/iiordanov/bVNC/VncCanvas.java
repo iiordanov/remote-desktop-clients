@@ -334,8 +334,10 @@ public class VncCanvas extends ImageView {
 		t.start();
 
 		clipboardMonitor = new ClipboardMonitor(getContext(), this);
-		clipboardMonitorTimer = new Timer ();
-		clipboardMonitorTimer.schedule(clipboardMonitor, 0, 500);
+		if (clipboardMonitor != null) {
+			clipboardMonitorTimer = new Timer ();
+			clipboardMonitorTimer.schedule(clipboardMonitor, 0, 500);
+		}
 	}
 	
 	/**
@@ -612,16 +614,15 @@ public class VncCanvas extends ImageView {
 			// Tell the server to release any meta keys.
 			keyboard.clearMetaState();
 			keyboard.processLocalKeyEvent(0, new KeyEvent(KeyEvent.ACTION_UP, 0));
-			keyboard = null;
 		}
 		// Close the rfb connection.
 		if (rfbconn != null)
 			rfbconn.close();
 		
-		rfbconn = null;
-		rfb = null;
-		cc = null;
-		sock = null;
+		//rfbconn = null;
+		//rfb = null;
+		//cc = null;
+		//sock = null;
 		
 		// Close the SSH tunnel.
 		if (sshConnection != null) {
@@ -642,8 +643,6 @@ public class VncCanvas extends ImageView {
 		}
 		clipboardMonitor = null;
 		clipboard        = null;
-		keyboard         = null;
-		pointer          = null;
 		setModes         = null;
 		decoder          = null;
 		database         = null;

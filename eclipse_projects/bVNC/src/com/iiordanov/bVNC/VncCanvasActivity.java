@@ -126,6 +126,8 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 	ImageButton    keyLeft;
 	ImageButton    keyRight;
 	boolean        hardKeyboardExtended;
+    int            prevBottomOffset = 0;
+
 
 	/**
 	 * Function used to initialize an empty SSH HostKey for a new VNC over SSH connection.
@@ -325,24 +327,32 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
                     // Enable/show the zoomer if the keyboard is gone, and disable/hide otherwise.
                     // We detect the keyboard if more than 19% of the screen is covered.
                     int offset = 0;
-                    if (r.bottom > rootView.getHeight()*0.81) {
-                    	offset = rootView.getHeight() - r.bottom;
+                    int rootViewHeight = rootView.getHeight();
+					if (r.bottom > rootViewHeight*0.81) {
+                    	offset = rootViewHeight - r.bottom;
                         // Soft Kbd gone, shift the meta keys and arrows down.
                 		if (layoutKeys != null) {
                 			layoutKeys.offsetTopAndBottom(offset);
-	                		setExtraKeysVisibility(View.GONE, false);
+                			if (prevBottomOffset != offset) { 
+		                		setExtraKeysVisibility(View.GONE, false);
+		                		vncCanvas.invalidate();
+		                		zoomer.enable();
+                			}
                 		}
-	                	zoomer.enable();
                     } else {
-                    	offset = r.bottom - rootView.getHeight();
+                    	offset = r.bottom - rootViewHeight;
                         //  Soft Kbd up, shift the meta keys and arrows up.
                 		if (layoutKeys != null) {
                 			layoutKeys.offsetTopAndBottom(offset);
-	                    	setExtraKeysVisibility(View.VISIBLE, true);
+                			if (prevBottomOffset != offset) { 
+		                    	setExtraKeysVisibility(View.VISIBLE, true);
+		                		vncCanvas.invalidate();
+		                    	zoomer.hide();
+		                    	zoomer.disable();
+                			}
                 		}
-                    	zoomer.hide();
-                    	zoomer.disable();
                     }
+                    prevBottomOffset = offset;
              }
         });
 
@@ -597,7 +607,8 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 		// TODO: Nasty hack to work around bb10 not setting the state of the hardware keyboard appropriately.
 		// REMOVE AS SOON AS POSSIBLE! Also, the check if vncCanvas is null above is not necessary otherwise.
 		if ((vncCanvas.bb || keyboardAvailable) && connection.getExtraKeysToggleType() == VncConstants.EXTRA_KEYS_ON) {
-			//Log.e (TAG, "VISIBLE");
+			Log.e (TAG, "VISIBLE");
+			//layoutKeys.setVisibility(View.GONE);
 			layoutKeys.setVisibility(View.VISIBLE);
 			return;
 		}
@@ -720,6 +731,9 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 	 * to fix things up after a rotation.
 	 */
 	private void correctAfterRotation () {
+		if (vncCanvas == null || vncCanvas.scaling == null || vncCanvas.rfbconn == null)
+			return;
+		
 		float oldScale = vncCanvas.scaling.getScale();
 		int x = vncCanvas.absoluteXPosition;
 		int y = vncCanvas.absoluteYPosition;
@@ -741,14 +755,10 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 
 		setExtraKeysVisibility(View.GONE, false);
 		
-		// Ignore orientation changes until we are in normal protocol.
-		if (vncCanvas.rfbconn != null &&
-			vncCanvas.rfbconn.isInNormalProtocol()) {
-			// Correct a few times just in case. There is no visual effect.
-			handler.postDelayed(rotationCorrector, 300);
-			handler.postDelayed(rotationCorrector, 600);
-			handler.postDelayed(rotationCorrector, 1200);
-		}
+		// Correct a few times just in case. There is no visual effect.
+		handler.postDelayed(rotationCorrector, 300);
+		handler.postDelayed(rotationCorrector, 600);
+		handler.postDelayed(rotationCorrector, 1200);
 	}
 
 	@Override
@@ -1075,7 +1085,7 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 		if (database != null)
 			database.close();
 		vncCanvas = null;
-		connection = null;
+		//connection = null;
 		database = null;
 		zoomer = null;
 		panner = null;

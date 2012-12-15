@@ -51,7 +51,6 @@ class FullBufferBitmapData extends AbstractBitmapData {
 		 */
 		public Drawable(AbstractBitmapData data) {
 			super(data);
-			paint = new Paint ();
 		}
 
 		/* (non-Javadoc)
@@ -88,15 +87,14 @@ class FullBufferBitmapData extends AbstractBitmapData {
 			try {
 				if (data.bitmapPixels != null)
 					canvas.drawBitmap(data.bitmapPixels, offset(xo, yo), data.framebufferwidth, 
-									  xo, yo, drawWidth, drawHeight, false, null);
+									  xo, yo, drawWidth, drawHeight, false, _defaultPaint);
 
 			} catch (Exception e) {
 				Log.e (TAG, "Failed to draw bitmap: xo, yo/drawW, drawH: " + xo + ", " + yo + "/"
 						+ drawWidth + ", " + drawHeight);
 				// In case we couldn't draw for some reason, try putting up text.
-				paint.setColor(Color.WHITE);
 				canvas.drawText("There was a problem drawing the remote desktop on the screen. " +
-						"Please disconnect and reconnect to the VNC server.", xo+50, yo+50, paint);
+						"Please disconnect and reconnect to the VNC server.", xo+50, yo+50, _whitePaint);
 			}
 
 			if (softCursor != null)
@@ -224,7 +222,6 @@ class FullBufferBitmapData extends AbstractBitmapData {
 			dataHeight   = framebufferheight;
 			bitmapPixels = new int[framebufferwidth * framebufferheight];
 			drawable     = createDrawable();
-			paint        = new Paint();
 			drawable.startDrawing();
 		}
 	}

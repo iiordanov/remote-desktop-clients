@@ -412,7 +412,6 @@ class LargeBitmapData extends AbstractBitmapData {
 		bitmapRect   = new Rect(0, 0, bitmapwidth, bitmapheight);
 		defaultPaint = new Paint();
 		drawable     = createDrawable();
-		paint        = new Paint();
 		drawable.startDrawing();
 	}
 }
