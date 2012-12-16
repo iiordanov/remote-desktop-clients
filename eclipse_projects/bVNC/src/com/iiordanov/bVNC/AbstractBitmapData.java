@@ -49,6 +49,8 @@ abstract public class AbstractBitmapData {
 	private Paint paint;
 	int xoffset = 0;
 	int yoffset = 0;
+	Rect s;
+	Rect d;
 
 	AbstractBitmapData(RfbConnectable p, VncCanvas c)
 	{
@@ -58,6 +60,8 @@ abstract public class AbstractBitmapData {
 		framebufferheight = rfb.framebufferHeight();
 		drawable = createDrawable();
 		paint = new Paint();
+		s = new Rect();
+		d = new Rect();
 	}
 
 	synchronized void doneWaiting() {
@@ -86,7 +90,7 @@ abstract public class AbstractBitmapData {
 			return new Rect();
 	}
 
-	boolean isNotInitSoftCursor () {
+	boolean isNotInitSoftCursor() {
 		if (drawable != null)
 			return (drawable.softCursorInit == false);
 		else
@@ -107,7 +111,7 @@ abstract public class AbstractBitmapData {
 	 * Send a request through the protocol to get the data for the currently held bitmap
 	 * @param incremental True if we want incremental update; false for full update
 	 */
-	public void prepareFullUpdateRequest( boolean incremental) {};
+	public void prepareFullUpdateRequest(boolean incremental) {};
 
 	/**
 	 * Determine if a rectangle in full-frame coordinates can be drawn in the existing buffer
@@ -117,7 +121,7 @@ abstract public class AbstractBitmapData {
 	 * @param h height (pixels)
 	 * @return True if entire rectangle fits into current screen buffer, false otherwise
 	 */
-	public abstract boolean validDraw( int x, int y, int w, int h);
+	public abstract boolean validDraw(int x, int y, int w, int h);
 
 	/**
 	 * Return an offset in the bitmapPixels array of a point in full-frame coordinates
@@ -125,7 +129,7 @@ abstract public class AbstractBitmapData {
 	 * @param y
 	 * @return Offset in bitmapPixels array of color data for that point
 	 */
-	public abstract int offset( int x, int y);
+	public abstract int offset(int x, int y);
 
 	/**
 	 * Update pixels in the bitmap with data from the bitmapPixels array, positioned
@@ -135,8 +139,18 @@ abstract public class AbstractBitmapData {
 	 * @param w width (pixels)
 	 * @param h height (pixels)
 	 */
-	public abstract void updateBitmap( int x, int y, int w, int h);
+	public abstract void updateBitmap(int x, int y, int w, int h);
 
+	/**
+	 * Update pixels in the bitmap with data from the given bitmap, positioned
+	 * in full-frame coordinates
+	 * @param b The bitmap to copy from.
+	 * @param x Top left x
+	 * @param y Top left y
+	 * @param w width (pixels)
+	 * @param h height (pixels)
+	 */
+	public abstract void updateBitmap(Bitmap b, int x, int y, int w, int h);
 
 	/**
 	 * Create drawable appropriate for this data

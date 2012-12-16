@@ -22,6 +22,8 @@
 
 package com.iiordanov.tigervnc.rfb;
 
+import android.graphics.Bitmap;
+
 abstract public class CMsgHandler {
 
   public CMsgHandler() {
@@ -80,6 +82,7 @@ abstract public class CMsgHandler {
 
   public void fillRect(Rect r, int pix) {}
   public void imageRect(Rect r, int[] pixels) {}
+  public void imageRect(Rect r, Bitmap b) {}
   public void copyRect(Rect r, int srcX, int srcY) {}
 
   abstract public PixelFormat getPreferredPF();

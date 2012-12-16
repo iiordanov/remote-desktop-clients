@@ -22,6 +22,7 @@ package com.iiordanov.bVNC;
 
 import java.util.Arrays;
 
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -85,20 +86,10 @@ class FullBufferBitmapData extends AbstractBitmapData {
 				drawHeight = data.framebufferheight - yo;
 
 			try {
-				if (data.bitmapPixels != null)
-					canvas.drawBitmap(data.bitmapPixels, offset(xo, yo), data.framebufferwidth, 
+				canvas.drawBitmap(data.bitmapPixels, offset(xo, yo), data.framebufferwidth, 
 									  xo, yo, drawWidth, drawHeight, false, _defaultPaint);
-
-			} catch (Exception e) {
-				Log.e (TAG, "Failed to draw bitmap: xo, yo/drawW, drawH: " + xo + ", " + yo + "/"
-						+ drawWidth + ", " + drawHeight);
-				// In case we couldn't draw for some reason, try putting up text.
-				canvas.drawText("There was a problem drawing the remote desktop on the screen. " +
-						"Please disconnect and reconnect to the VNC server.", xo+50, yo+50, _whitePaint);
-			}
-
-			if (softCursor != null)
 				canvas.drawBitmap(softCursor, cursorRect.left, cursorRect.top, null);
+			} catch (Throwable e) { }
 		}
 	}
 
@@ -240,6 +231,14 @@ class FullBufferBitmapData extends AbstractBitmapData {
 	@Override
 	public void updateBitmap(int x, int y, int w, int h) {
 		// Don't need to do anything here
+	}
+	
+	/* (non-Javadoc)
+	 * @see com.iiordanov.bVNC.AbstractBitmapData#updateBitmap(Bitmap, int, int, int, int)
+	 */
+	@Override
+	public void updateBitmap(Bitmap b, int x, int y, int w, int h) {
+		b.getPixels(bitmapPixels, offset(x, y), bitmapwidth, 0, 0, w, h);
 	}
 
 	/* (non-Javadoc)

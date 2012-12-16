@@ -731,21 +731,22 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 	 * to fix things up after a rotation.
 	 */
 	private void correctAfterRotation () {
-		if (vncCanvas == null || vncCanvas.scaling == null || vncCanvas.rfbconn == null)
-			return;
-		
-		float oldScale = vncCanvas.scaling.getScale();
-		int x = vncCanvas.absoluteXPosition;
-		int y = vncCanvas.absoluteYPosition;
-		vncCanvas.scaling.setScaleTypeForActivity(VncCanvasActivity.this);
-		float newScale = vncCanvas.scaling.getScale();
-		vncCanvas.scaling.adjust(this, oldScale/newScale, 0, 0);
-		newScale = vncCanvas.scaling.getScale();
-		if (newScale <= oldScale) {
-			vncCanvas.absoluteXPosition = x;
-			vncCanvas.absoluteYPosition = y;
-			vncCanvas.scrollToAbsolute();
-		}
+		// Its quite common to see NullPointerExceptions here when this function is called
+		// at the point of disconnection. Hence, we catch and ignore the error.
+		try {
+			float oldScale = vncCanvas.scaling.getScale();
+			int x = vncCanvas.absoluteXPosition;
+			int y = vncCanvas.absoluteYPosition;
+			vncCanvas.scaling.setScaleTypeForActivity(VncCanvasActivity.this);
+			float newScale = vncCanvas.scaling.getScale();
+			vncCanvas.scaling.adjust(this, oldScale/newScale, 0, 0);
+			newScale = vncCanvas.scaling.getScale();
+			if (newScale <= oldScale) {
+				vncCanvas.absoluteXPosition = x;
+				vncCanvas.absoluteYPosition = y;
+				vncCanvas.scrollToAbsolute();
+			}
+		} catch (NullPointerException e) { }
 	}
 
 

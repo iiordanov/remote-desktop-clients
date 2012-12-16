@@ -61,10 +61,11 @@ public class TightDecoder extends Decoder {
 
   public TightDecoder(CMsgReader reader_, VncCanvas c) {
     bitmapopts = new BitmapFactory.Options();
-    bitmapopts.inPurgeable = false;
-    bitmapopts.inInputShareable = true;
-    bitmapopts.inDither = false;
-    bitmapopts.inTempStorage = new byte[32768];
+    bitmapopts.inPurgeable      = false;
+	bitmapopts.inDither         = false;
+	bitmapopts.inTempStorage    = new byte[32768];
+	bitmapopts.inPreferredConfig= Bitmap.Config.RGB_565;
+	bitmapopts.inScaled         = false;
     reader = reader_; 
     zis = new ZlibInStream[4];
     for (int i = 0; i < 4; i++)
@@ -304,8 +305,6 @@ public class TightDecoder extends Decoder {
   {
     // Read length
     int compressedLen = is.readCompactLength();
-    //if (compressedLen <= 0)
-    //  vlog.info("Incorrect data received from the server.");
 
     // Allocate netbuf and read in data
     if (compressedLen > netbuf.length)
@@ -314,25 +313,18 @@ public class TightDecoder extends Decoder {
 
 	// Decode JPEG data
 	Bitmap tightBitmap = BitmapFactory.decodeByteArray(netbuf, 0, compressedLen, bitmapopts);
-  
-    int w = r.width();
-    int h = r.height();
-/*
-    int x = r.tl.x;
-    int y = r.tl.y;
-    tightBitmap.getPixels(vncCanvas.bitmapData.bitmapPixels, vncCanvas.bitmapData.offset(x, y), vncCanvas.bitmapData.bitmapwidth, 0, 0, w, h);
-    vncCanvas.bitmapData.updateBitmap(x, y, w, h);
-    vncCanvas.reDraw();
-	tightBitmap.recycle();
-*/
-	int[] buf = reader.getImageBuf(w*h);
 
-    // Copy decoded data into buf and recycle bitmap.
+/*  int w = r.width();
+    int h = r.height();
+	int[] buf = reader.getImageBuf(w*h);
+    // Copy decoded data into buf.
 	tightBitmap.getPixels(buf, 0, w, 0, 0, w, h);
+    handler.imageRect(r, buf);
+ */
+    handler.imageRect(r, tightBitmap);
+
 	// To avoid running out of memory, recycle bitmap immediately.
 	tightBitmap.recycle();
-   
-    handler.imageRect(r, buf);
   }
 
   final private void FilterGradient24(byte[] netbuf, int[] buf, int stride, 

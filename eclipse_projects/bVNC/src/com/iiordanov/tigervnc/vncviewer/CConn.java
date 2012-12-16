@@ -40,6 +40,7 @@ import java.util.jar.Manifest;
 import java.net.URL;
 import java.util.*;
 
+import android.graphics.Bitmap;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
@@ -392,6 +393,15 @@ public class CConn extends CConnection
 	  }
   }
 
+  public void imageRect(Rect r, Bitmap b) {
+	  int w = r.width();
+	  int h = r.height();
+	  if (viewer.bitmapData.validDraw(r.tl.x, r.tl.y, w, h)) {
+		  viewer.bitmapData.updateBitmap(b, r.tl.x, r.tl.y, w, h);
+		  viewer.reDraw(r.tl.x, r.tl.y, w, h);
+	  }
+  }
+  
   public void copyRect(Rect r, int sx, int sy) {
 	  int w = r.width();
 	  int h = r.height();

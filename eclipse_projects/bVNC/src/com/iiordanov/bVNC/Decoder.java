@@ -97,9 +97,10 @@ public class Decoder {
 		handleRREPaint.setStyle(Style.FILL);
 		handleTightRectPaint.setStyle(Style.FILL);
 		bitmapopts.inPurgeable      = false;
-		bitmapopts.inInputShareable = true;
 		bitmapopts.inDither         = false;
 		bitmapopts.inTempStorage    = new byte[32768];
+		bitmapopts.inPreferredConfig= Bitmap.Config.RGB_565;
+		bitmapopts.inScaled         = false;
 		vncCanvas = v;
 	}
 	
@@ -765,8 +766,8 @@ public class Decoder {
 			Bitmap tightBitmap = BitmapFactory.decodeByteArray(inflBuf, 0, jpegDataLen, bitmapopts);
 
 			// Copy decoded data into bitmapData and recycle bitmap.
-			tightBitmap.getPixels(pixels, bitmapData.offset(x, y), bitmapData.bitmapwidth, 0, 0, w, h);
-			bitmapData.updateBitmap(x, y, w, h);		
+			//tightBitmap.getPixels(pixels, bitmapData.offset(x, y), bitmapData.bitmapwidth, 0, 0, w, h);
+			bitmapData.updateBitmap(tightBitmap, x, y, w, h);		
 			vncCanvas.reDraw(x, y, w, h);
 			// To avoid running out of memory, recycle bitmap immediately.
 			tightBitmap.recycle();

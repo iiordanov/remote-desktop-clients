@@ -231,6 +231,18 @@ class LargeBitmapData extends AbstractBitmapData {
 			e.printStackTrace();
 		}
 	}
+	
+	/* (non-Javadoc)
+	 * @see com.iiordanov.bVNC.AbstractBitmapData#updateBitmap(Bitmap, int, int, int, int)
+	 */
+	@Override
+	public void updateBitmap(Bitmap b, int x, int y, int w, int h) {
+		int xoff = x - xoffset;
+		int yoff = y - yoffset;
+		s.set(0, 0, w, h);
+		d.set(xoff, yoff, xoff+w, yoff+h);
+		memGraphics.drawBitmap(b, s, d, null);
+	}
 
 	/* (non-Javadoc)
 	 * @see com.iiordanov.bVNC.AbstractBitmapData#validDraw(int, int, int, int)
