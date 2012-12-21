@@ -69,7 +69,7 @@ public class AbstractBitmapDrawable extends DrawableContainer {
 	void draw(Canvas canvas, int xoff, int yoff) {
 		try {
 			canvas.drawBitmap(data.mbitmap, xoff, yoff, _defaultPaint);
-			canvas.drawBitmap(softCursor, cursorRect.left, cursorRect.top, null);
+			canvas.drawBitmap(softCursor, cursorRect.left, cursorRect.top, _defaultPaint);
 		} catch (Throwable e) { }
 	}
 
