@@ -130,6 +130,7 @@ class TouchMouseDragPanInputHandler extends AbstractGestureInputHandler {
 		} else {
 			p.processPointerEvent(getX(e2), getY(e2), e2.getActionMasked(), e2.getMetaState(), true, false, false, false, 0);		
 		}
+    	vncCanvas.panToMouse();
 		return true;
 	}
 }

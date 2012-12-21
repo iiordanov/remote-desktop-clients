@@ -33,12 +33,12 @@
 			</arguments>
 		</buildCommand>
 		<buildCommand>
-			<name>net.rim.ajde.internal.verifier</name>
+			<name>com.antlersoft.sqlitegen.SQLiteGenBuilder</name>
 			<arguments>
 			</arguments>
 		</buildCommand>
 		<buildCommand>
-			<name>com.antlersoft.sqlitegen.SQLiteGenBuilder</name>
+			<name>net.rim.ajde.internal.verifier</name>
 			<arguments>
 			</arguments>
 		</buildCommand>
@@ -47,7 +47,7 @@
 		<nature>com.android.ide.eclipse.adt.AndroidNature</nature>
 		<nature>org.eclipse.jdt.core.javanature</nature>
 		<nature>com.antlersoft.bbq_eclipse.BBQNature</nature>
-		<nature>net.rim.ajde.BlackBerryAndroidNature</nature>
 		<nature>com.antlersoft.sqlitegen.SQLiteGenNature</nature>
+		<nature>net.rim.ajde.BlackBerryAndroidNature</nature>
 	</natures>
 </projectDescription>

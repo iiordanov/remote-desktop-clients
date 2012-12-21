@@ -40,7 +40,6 @@ import android.view.MotionEvent;
 class DPadMouseKeyHandler {
 	private MouseMover mouseMover;
 	private boolean mouseDown;
-	private VncCanvasActivity activity;
 	private VncCanvas canvas;
 	private boolean isMoving;
 	private boolean useDpadAsArrows = false;
@@ -50,7 +49,6 @@ class DPadMouseKeyHandler {
 
 	DPadMouseKeyHandler(VncCanvasActivity activity, Handler handler, boolean arrows, boolean rotate)
 	{
-		this.activity = activity;
 		canvas = activity.vncCanvas;
 		mouseMover = new MouseMover(activity, handler);
 		useDpadAsArrows = arrows;
@@ -85,7 +83,7 @@ class DPadMouseKeyHandler {
 
 		// If we are supposed to use the Dpad as arrows, pass the event to the default handler.
 		if (useDpadAsArrows) {
-			return activity.defaultKeyDownHandler(keyCode, evt);
+			return keyboard.processLocalKeyEvent(keyCode, evt);
 			// Otherwise, control the mouse.
 		} else {
 			switch (keyCode) {
@@ -109,7 +107,7 @@ class DPadMouseKeyHandler {
 				}
 				break;
 			default:
-				result = activity.defaultKeyDownHandler(keyCode, evt);
+				result = keyboard.processLocalKeyEvent(keyCode, evt);
 				break;
 			}
 		}
@@ -150,7 +148,7 @@ class DPadMouseKeyHandler {
 
 		// Pass the event on if we are not controlling the mouse.
 		if (useDpadAsArrows)
-			return activity.defaultKeyUpHandler(keyCode, evt);
+			return keyboard.processLocalKeyEvent(keyCode, evt);
 
 		boolean result = false;
 
@@ -173,7 +171,7 @@ class DPadMouseKeyHandler {
 			}
 			break;
 		default:
-			result = activity.defaultKeyUpHandler(keyCode, evt);
+			result = keyboard.processLocalKeyEvent(keyCode, evt);
 			break;
 		}
 		return result;

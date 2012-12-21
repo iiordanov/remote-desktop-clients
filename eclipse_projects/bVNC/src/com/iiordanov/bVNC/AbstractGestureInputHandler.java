@@ -158,10 +158,13 @@ abstract class AbstractGestureInputHandler extends GestureDetector.SimpleOnGestu
 		case MotionEvent.ACTION_MOVE:
 			switch (bstate) {
 			case MotionEvent.BUTTON_PRIMARY:
+		    	vncCanvas.panToMouse();
 				return p.processPointerEvent(x, y, action, meta, true, false, false, false, 0);
 			case MotionEvent.BUTTON_SECONDARY:
+		    	vncCanvas.panToMouse();
 				return p.processPointerEvent(x, y, action, meta, true, true, false, false, 0);
 			case MotionEvent.BUTTON_TERTIARY:
+		    	vncCanvas.panToMouse();
 				return p.processPointerEvent(x, y, action, meta, true, false, true, false, 0);
 			}
 			break;
@@ -171,6 +174,7 @@ abstract class AbstractGestureInputHandler extends GestureDetector.SimpleOnGestu
 			case MotionEvent.BUTTON_PRIMARY:
 			case MotionEvent.BUTTON_SECONDARY:
 			case MotionEvent.BUTTON_TERTIARY:
+		    	vncCanvas.panToMouse();
 				return p.processPointerEvent(x, y, action, meta, false, false, false, false, 0);
 			}
 			break;
@@ -203,6 +207,7 @@ abstract class AbstractGestureInputHandler extends GestureDetector.SimpleOnGestu
 			break;
 		// If the mouse was moved.
 		case MotionEvent.ACTION_HOVER_MOVE:
+	    	vncCanvas.panToMouse();
 			return p.processPointerEvent(x, y, action, meta, false, false, false, false, 0);
 		// If a stylus enters hover right after exiting hover, then a stylus tap was
 		// performed with its button depressed. We trigger a right-click.
@@ -234,7 +239,9 @@ abstract class AbstractGestureInputHandler extends GestureDetector.SimpleOnGestu
 		activity.showZoomer(true);
 		p.processPointerEvent(getX(e), getY(e), action, meta, true, false, false, false, 0);
 		SystemClock.sleep(50);
-		return p.processPointerEvent(getX(e), getY(e), action, meta, false, false, false, false, 0);
+		p.processPointerEvent(getX(e), getY(e), action, meta, false, false, false, false, 0);
+    	vncCanvas.panToMouse();
+    	return true;
 	}
 
 	/*
@@ -254,7 +261,9 @@ abstract class AbstractGestureInputHandler extends GestureDetector.SimpleOnGestu
 		SystemClock.sleep(50);
 		p.processPointerEvent(getX(e), getY(e), action, meta, true, false, false, false, 0);
 		SystemClock.sleep(50);
-		return p.processPointerEvent(getX(e), getY(e), action, meta, false, false, false, false, 0);
+		p.processPointerEvent(getX(e), getY(e), action, meta, false, false, false, false, 0);
+    	vncCanvas.panToMouse();
+    	return true;
 	}
 
 	/*
@@ -312,6 +321,12 @@ abstract class AbstractGestureInputHandler extends GestureDetector.SimpleOnGestu
 	        	return true;
         }
 
+        if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_POINTER_UP) {
+ 			// Turn filtering back on and invalidate to make things pretty.
+     		vncCanvas.bitmapData.drawable._defaultPaint.setFilterBitmap(true);
+     		vncCanvas.invalidate();
+        }
+
         // We have put down first pointer on the screen, so we can reset the state of all click-state variables.
         if (pointerID == 0 && action == MotionEvent.ACTION_DOWN) {
         	// Permit sending mouse-down event on long-tap again.
@@ -325,6 +340,8 @@ abstract class AbstractGestureInputHandler extends GestureDetector.SimpleOnGestu
         	// Cancel drag modes and scrolling.
         	endDragModesAndScrolling();
     		vncCanvas.inScrolling = true;
+    		// If we are manipulating the desktop, turn off bitmap filtering for faster response.
+    		vncCanvas.bitmapData.drawable._defaultPaint.setFilterBitmap(false);
         } else if (pointerID == 0 && action == MotionEvent.ACTION_UP) {
 			// If any drag modes were going on, end them and send a mouse up event.
 			if (endDragModesAndScrolling()) {
@@ -395,10 +412,13 @@ abstract class AbstractGestureInputHandler extends GestureDetector.SimpleOnGestu
         	middleDragMode      = true;
 
         } else if (pointerCnt == 1 && pointerID == 0 && dragMode) {
+        	vncCanvas.panToMouse();
 			return p.processPointerEvent(getX(e), getY(e), action, meta, true, false, false, false, 0);
         } else if (pointerCnt == 1 && pointerID == 0 && rightDragMode) {
+        	vncCanvas.panToMouse();
 			return p.processPointerEvent(getX(e), getY(e), action, meta, true, true, false, false, 0);
         } else if (pointerCnt == 1 && pointerID == 0 && middleDragMode) {
+        	vncCanvas.panToMouse();
 			return p.processPointerEvent(getX(e), getY(e), action, meta, true, false, true, false, 0);
 		}
 

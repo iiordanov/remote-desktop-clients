@@ -599,14 +599,6 @@ public class VncCanvas extends ImageView {
 		}
 	}
 
-	/**
-	 * Computes the X and Y offset for converting coordinates from full-frame coordinates to view coordinates.
-	 */
-	public void computeShiftFromFullToView () {
-		shiftX = (rfbconn.framebufferWidth()  - getWidth())  / 2;
-		shiftY = (rfbconn.framebufferHeight() - getHeight()) / 2;
-	}
-	
 	public void closeConnection() {
 		maintainConnection = false;
 		
@@ -683,14 +675,22 @@ public class VncCanvas extends ImageView {
 	 * @param offset
 	 * @return
 	 */
-	
+
+	/**
+	 * Computes the X and Y offset for converting coordinates from full-frame coordinates to view coordinates.
+	 */
+	public void computeShiftFromFullToView () {
+		shiftX = (rfbconn.framebufferWidth()  - getWidth())  / 2;
+		shiftY = (rfbconn.framebufferHeight() - getHeight()) / 2;
+	}
+
 	/**
 	 * Change to Canvas's scroll position to match the absoluteXPosition
 	 */
 	void scrollToAbsolute()	{
 		float scale = getScale();
-		scrollTo((int)((absoluteXPosition + ((float)getWidth()  - getImageWidth())  / 2 ) * scale),
-				 (int)((absoluteYPosition + ((float)getHeight() - getImageHeight()) / 2 ) * scale));
+		scrollTo((int)((absoluteXPosition - shiftX) * scale),
+				 (int)((absoluteYPosition - shiftY) * scale));
 	}
 
 	public int getAbsoluteX () {
@@ -764,6 +764,7 @@ public class VncCanvas extends ImageView {
 		}
 
 		if (panned) {
+			//scrollBy(newX - absoluteXPosition, newY - absoluteYPosition);
 			scrollToAbsolute();
 		}
 	}
@@ -800,6 +801,7 @@ public class VncCanvas extends ImageView {
 		absoluteXPosition += sX;
 		absoluteYPosition += sY;
 		if (sX != 0.0 || sY != 0.0) {
+			//scrollBy((int)sX, (int)sY);
 			scrollToAbsolute();
 			return true;
 		}
@@ -981,9 +983,5 @@ public class VncCanvas extends ImageView {
 			return bitmapData.getMinimumScale();
 		} else
 			return 1.f;
-	}
-	
-	public boolean isConnected() {
-		return (rfbconn != null);
 	}
 }

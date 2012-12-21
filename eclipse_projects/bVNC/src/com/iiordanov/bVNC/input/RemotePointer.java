@@ -258,8 +258,7 @@ public class RemotePointer {
 		    else if ( mouseY >= rfb.framebufferHeight()) mouseY = rfb.framebufferHeight() - 1;
 		    vncCanvas.invalidateMousePosition();
 
-    		rfb.writePointerEvent(mouseX, mouseY, modifiers|vncCanvas.getKeyboard().getMetaState(), pointerMask);
-		    vncCanvas.panToMouse();
+		    rfb.writePointerEvent(mouseX, mouseY, modifiers|vncCanvas.getKeyboard().getMetaState(), pointerMask);
 			return true;
 		}
 		return false;		

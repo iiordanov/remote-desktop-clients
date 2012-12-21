@@ -77,8 +77,7 @@ public class SimulatedTouchpadInputHandler extends AbstractGestureInputHandler {
 	 *      android.view.MotionEvent, float, float)
 	 */
 	@Override
-	public boolean onScroll(MotionEvent e1, MotionEvent e2,
-			float distanceX, float distanceY) {
+	public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
         RemotePointer p = vncCanvas.getPointer();
         final int action = e2.getActionMasked();
         final int meta   = e2.getMetaState();
@@ -104,7 +103,9 @@ public class SimulatedTouchpadInputHandler extends AbstractGestureInputHandler {
 		// Compute the absolute new mouse position on the remote site.
 		int newRemoteX = (int) (p.getX() + getDelta(-distanceX));
 		int newRemoteY = (int) (p.getY() + getDelta(-distanceY));
-		return p.processPointerEvent(newRemoteX, newRemoteY, action, meta, false, false, false, false, 0);
+		p.processPointerEvent(newRemoteX, newRemoteY, action, meta, false, false, false, false, 0);
+    	vncCanvas.panToMouse();
+    	return true;
 	}
 
 	/*

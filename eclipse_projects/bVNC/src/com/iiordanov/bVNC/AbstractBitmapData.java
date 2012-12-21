@@ -102,8 +102,7 @@ abstract public class AbstractBitmapData {
 	 * @return The smallest scale supported by the implementation; the scale at which
 	 * the bitmap would be smaller than the screen
 	 */
-	float getMinimumScale()
-	{
+	float getMinimumScale() {
 		return Math.min((float)vncCanvas.getWidth()/bitmapwidth, (float)vncCanvas.getHeight()/bitmapheight);
 	}
 

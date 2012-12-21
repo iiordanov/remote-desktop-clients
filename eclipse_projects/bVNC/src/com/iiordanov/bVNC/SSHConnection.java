@@ -206,7 +206,8 @@ public class SSHConnection implements InteractiveCallback {
 			connection.setTCPNoDelay(true);
 			connection.setCompression(false);
 
-			connectionInfo = connection.connect();
+			// TODO: Try using the provided KeyVerifier instead of verifying keys myself.
+			connectionInfo = connection.connect(null, 6000, 24000);
 
 			// Store a base64 encoded string representing the HostKey
 			serverHostKey = Base64.encodeToString(connectionInfo.serverHostKey, Base64.DEFAULT);

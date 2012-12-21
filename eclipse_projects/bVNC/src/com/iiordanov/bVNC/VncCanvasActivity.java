@@ -40,27 +40,20 @@ import android.app.AlertDialog;
 import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.DialogInterface.OnDismissListener;
-import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.database.Cursor;
-import android.graphics.PointF;
 import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Looper;
 import android.os.SystemClock;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewConfiguration;
 import android.view.View.OnClickListener;
-import android.view.View.OnGenericMotionListener;
 import android.view.View.OnLongClickListener;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
@@ -71,13 +64,10 @@ import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
-import android.view.animation.AlphaAnimation;
 import android.view.inputmethod.InputMethodManager;
 import android.content.Context;
 
@@ -292,7 +282,7 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 	
 		vncCanvas.initializeVncCanvas(connection, database, new Runnable() {
 			public void run() {
-				setModes();
+				try { setModes(); } catch (NullPointerException e) { }
 			}
 		});
 		
@@ -597,9 +587,6 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 		//Log.e(TAG, "Any keyboard hidden: " + Integer.toString(config.keyboardHidden));
 		//Log.e(TAG, "Keyboard type: " + Integer.toString(config.keyboard));
 
-		if (layoutKeys == null || vncCanvas == null)
-			return;
-
 		boolean keyboardAvailable = softKbdUp;
 		if (config.hardKeyboardHidden == Configuration.HARDKEYBOARDHIDDEN_NO)
 			keyboardAvailable = true;
@@ -607,15 +594,12 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 		// TODO: Nasty hack to work around bb10 not setting the state of the hardware keyboard appropriately.
 		// REMOVE AS SOON AS POSSIBLE! Also, the check if vncCanvas is null above is not necessary otherwise.
 		if ((vncCanvas.bb || keyboardAvailable) && connection.getExtraKeysToggleType() == VncConstants.EXTRA_KEYS_ON) {
-			Log.e (TAG, "VISIBLE");
-			//layoutKeys.setVisibility(View.GONE);
 			layoutKeys.setVisibility(View.VISIBLE);
 			return;
 		}
 		
 		if (visibility == View.GONE) {
 			layoutKeys.setVisibility(View.GONE);
-			//Log.e (TAG, "GONE");
 		}
 	}
 	
@@ -628,9 +612,10 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 	@Override
 	protected void onPause(){
 		super.onPause();
-		InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-		if (vncCanvas != null)
+		try {
+			InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
 			imm.hideSoftInputFromWindow(vncCanvas.getWindowToken(), 0);
+		} catch (NullPointerException e) { }
 	}
 
 	/*
@@ -643,8 +628,9 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 	protected void onResume(){
 		super.onResume();
 		Log.i(TAG, "onResume called.");
-		if (vncCanvas != null)
+		try {
 			vncCanvas.postInvalidateDelayed(600);
+		} catch (NullPointerException e) { }
 	}
 	
 	/**
@@ -652,8 +638,6 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 	 * color mode (already done) scaling, input mode
 	 */
 	void setModes() {
-		if (connection == null)
-			return;
 		AbstractInputHandler handler = getInputHandlerByName(connection.getInputMode());
 		AbstractScaling.getByScaleType(connection.getScaleMode()).setScaleTypeForActivity(this);
 		this.inputHandler = handler;
@@ -722,7 +706,7 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 	 */
 	private Runnable rotationCorrector = new Runnable() {
 		public void run() {
-			correctAfterRotation ();
+			try { correctAfterRotation (); } catch (NullPointerException e) { }
 		}
 	};
 
@@ -733,41 +717,41 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 	private void correctAfterRotation () {
 		// Its quite common to see NullPointerExceptions here when this function is called
 		// at the point of disconnection. Hence, we catch and ignore the error.
-		try {
-			float oldScale = vncCanvas.scaling.getScale();
-			int x = vncCanvas.absoluteXPosition;
-			int y = vncCanvas.absoluteYPosition;
-			vncCanvas.scaling.setScaleTypeForActivity(VncCanvasActivity.this);
-			float newScale = vncCanvas.scaling.getScale();
-			vncCanvas.scaling.adjust(this, oldScale/newScale, 0, 0);
-			newScale = vncCanvas.scaling.getScale();
-			if (newScale <= oldScale) {
-				vncCanvas.absoluteXPosition = x;
-				vncCanvas.absoluteYPosition = y;
-				vncCanvas.scrollToAbsolute();
-			}
-		} catch (NullPointerException e) { }
+		float oldScale = vncCanvas.scaling.getScale();
+		int x = vncCanvas.absoluteXPosition;
+		int y = vncCanvas.absoluteYPosition;
+		vncCanvas.scaling.setScaleTypeForActivity(VncCanvasActivity.this);
+		float newScale = vncCanvas.scaling.getScale();
+		vncCanvas.scaling.adjust(this, oldScale/newScale, 0, 0);
+		newScale = vncCanvas.scaling.getScale();
+		if (newScale <= oldScale) {
+			vncCanvas.absoluteXPosition = x;
+			vncCanvas.absoluteYPosition = y;
+			vncCanvas.scrollToAbsolute();
+		}
 	}
 
 
 	@Override
 	public void onConfigurationChanged(Configuration newConfig) {
 		super.onConfigurationChanged(newConfig);
-
-		setExtraKeysVisibility(View.GONE, false);
 		
-		// Correct a few times just in case. There is no visual effect.
-		handler.postDelayed(rotationCorrector, 300);
-		handler.postDelayed(rotationCorrector, 600);
-		handler.postDelayed(rotationCorrector, 1200);
+		try {
+			setExtraKeysVisibility(View.GONE, false);
+			
+			// Correct a few times just in case. There is no visual effect.
+			handler.postDelayed(rotationCorrector, 300);
+			handler.postDelayed(rotationCorrector, 600);
+			handler.postDelayed(rotationCorrector, 1200);
+		} catch (NullPointerException e) { }
 	}
 
 	@Override
 	protected void onStart() {
 		super.onStart();
-		Log.i(TAG, "onStart called.");
-		if (vncCanvas != null)
+		try {
 			vncCanvas.postInvalidateDelayed(800);
+		} catch (NullPointerException e) { }
 	}
 
 	@Override
@@ -778,54 +762,55 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 	@Override
 	protected void onRestart() {
 		super.onRestart();
-		Log.i(TAG, "onRestart called.");
-		if (vncCanvas != null)
+		try {
 			vncCanvas.postInvalidateDelayed(1000);
+		} catch (NullPointerException e) { }
 	}
 
 	/** {@inheritDoc} */
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		getMenuInflater().inflate(R.menu.vnccanvasactivitymenu, menu);
+		try {
+			getMenuInflater().inflate(R.menu.vnccanvasactivitymenu, menu);
 
-		if (vncCanvas.scaling != null)
 			menu.findItem(vncCanvas.scaling.getId()).setChecked(true);
-
-		Menu inputMenu = menu.findItem(R.id.itemInputMode).getSubMenu();
-		inputModeMenuItems = new MenuItem[inputModeIds.length];
-		for (int i = 0; i < inputModeIds.length; i++) {
-			inputModeMenuItems[i] = inputMenu.findItem(inputModeIds[i]);
-		}
-		updateInputMenu();
-		
-		Menu scalingMenu = menu.findItem(R.id.itemScaling).getSubMenu();
-		scalingModeMenuItems = new MenuItem[scalingModeIds.length];
-		for (int i = 0; i < scalingModeIds.length; i++) {
-			scalingModeMenuItems[i] = scalingMenu.findItem(scalingModeIds[i]);
-		}
-		updateScalingMenu();
-		
-		// Set the text of the Extra Keys menu item appropriately.
-		if (connection.getExtraKeysToggleType() == VncConstants.EXTRA_KEYS_ON)
-			menu.findItem(R.id.itemExtraKeys).setTitle(R.string.extra_keys_disable);
-		else
-			menu.findItem(R.id.itemExtraKeys).setTitle(R.string.extra_keys_enable);
-		
-/*		menu.findItem(R.id.itemFollowMouse).setChecked(
-				connection.getFollowMouse());
-		menu.findItem(R.id.itemFollowPan).setChecked(connection.getFollowPan());
- */
-/* TODO: This is how one detects long-presses on menu items. However, getActionView is not available in Android 2.3...
-		menu.findItem(R.id.itemExtraKeys).getActionView().setOnLongClickListener(new OnLongClickListener () {
-
-			@Override
-			public boolean onLongClick(View arg0) {
-				Toast.makeText(arg0.getContext(), "Long Press Detected.", Toast.LENGTH_LONG).show();
-				return false;
+	
+			Menu inputMenu = menu.findItem(R.id.itemInputMode).getSubMenu();
+			inputModeMenuItems = new MenuItem[inputModeIds.length];
+			for (int i = 0; i < inputModeIds.length; i++) {
+				inputModeMenuItems[i] = inputMenu.findItem(inputModeIds[i]);
 			}
+			updateInputMenu();
 			
-		});
-*/
+			Menu scalingMenu = menu.findItem(R.id.itemScaling).getSubMenu();
+			scalingModeMenuItems = new MenuItem[scalingModeIds.length];
+			for (int i = 0; i < scalingModeIds.length; i++) {
+				scalingModeMenuItems[i] = scalingMenu.findItem(scalingModeIds[i]);
+			}
+			updateScalingMenu();
+			
+			// Set the text of the Extra Keys menu item appropriately.
+			if (connection.getExtraKeysToggleType() == VncConstants.EXTRA_KEYS_ON)
+				menu.findItem(R.id.itemExtraKeys).setTitle(R.string.extra_keys_disable);
+			else
+				menu.findItem(R.id.itemExtraKeys).setTitle(R.string.extra_keys_enable);
+			
+	/*		menu.findItem(R.id.itemFollowMouse).setChecked(
+					connection.getFollowMouse());
+			menu.findItem(R.id.itemFollowPan).setChecked(connection.getFollowPan());
+	 */
+	/* TODO: This is how one detects long-presses on menu items. However, getActionView is not available in Android 2.3...
+			menu.findItem(R.id.itemExtraKeys).getActionView().setOnLongClickListener(new OnLongClickListener () {
+	
+				@Override
+				public boolean onLongClick(View arg0) {
+					Toast.makeText(arg0.getContext(), "Long Press Detected.", Toast.LENGTH_LONG).show();
+					return false;
+				}
+				
+			});
+	*/
+		} catch (NullPointerException e) { }
 		return true;
 	}
 
@@ -833,35 +818,33 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 	 * Change the scaling mode sub-menu to reflect available scaling modes.
 	 */
 	void updateScalingMenu() {
-		if (scalingModeMenuItems == null) {
-			return;
-		}
-		for (MenuItem item : scalingModeMenuItems) {
-			// If the entire framebuffer is NOT contained in the bitmap, fit-to-screen is meaningless.
-			if (item.getItemId() == R.id.itemFitToScreen) {
-				if ( vncCanvas != null && vncCanvas.bitmapData != null &&
-					 (vncCanvas.bitmapData.bitmapheight != vncCanvas.bitmapData.framebufferheight ||
-					  vncCanvas.bitmapData.bitmapwidth  != vncCanvas.bitmapData.framebufferwidth) )
-					item.setEnabled(false);
-				else
+		try {
+			for (MenuItem item : scalingModeMenuItems) {
+				// If the entire framebuffer is NOT contained in the bitmap, fit-to-screen is meaningless.
+				if (item.getItemId() == R.id.itemFitToScreen) {
+					if ( vncCanvas != null && vncCanvas.bitmapData != null &&
+						 (vncCanvas.bitmapData.bitmapheight != vncCanvas.bitmapData.framebufferheight ||
+						  vncCanvas.bitmapData.bitmapwidth  != vncCanvas.bitmapData.framebufferwidth) )
+						item.setEnabled(false);
+					else
+						item.setEnabled(true);
+				} else
 					item.setEnabled(true);
-			} else
-				item.setEnabled(true);
-		}
+			}
+		} catch (NullPointerException e) { }
 	}	
 	
 	/**
 	 * Change the input mode sub-menu to reflect change in scaling
 	 */
 	void updateInputMenu() {
-		if (inputModeMenuItems == null || vncCanvas.scaling == null) {
-			return;
-		}
-		for (MenuItem item : inputModeMenuItems) {
-			item.setEnabled(vncCanvas.scaling.isValidInputMode(item.getItemId()));
-			if (getInputHandlerById(item.getItemId()) == inputHandler)
-				item.setChecked(true);
-		}
+		try {
+			for (MenuItem item : inputModeMenuItems) {
+				item.setEnabled(vncCanvas.scaling.isValidInputMode(item.getItemId()));
+				if (getInputHandlerById(item.getItemId()) == inputHandler)
+					item.setChecked(true);
+			}
+		} catch (NullPointerException e) { }
 	}
 
 	/**
@@ -913,6 +896,9 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 	}
 
 	void clearInputHandlers() {
+		if (inputModeHandlers == null)
+			return;
+
 		for (int i = 0; i < inputModeIds.length; ++i) {
 			inputModeHandlers[i] = null;
 		}
@@ -1086,7 +1072,7 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 		if (database != null)
 			database.close();
 		vncCanvas = null;
-		//connection = null;
+		connection = null;
 		database = null;
 		zoomer = null;
 		panner = null;
@@ -1099,24 +1085,23 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 	public boolean onKey(View v, int keyCode, KeyEvent evt) {
 
 		boolean consumed = false;
-		
+
 		if (keyCode == KeyEvent.KEYCODE_MENU) {
 			if (evt.getAction() == KeyEvent.ACTION_DOWN)
 				return super.onKeyDown(keyCode, evt);
 			else
 				return super.onKeyUp(keyCode, evt);
 		}
-		
-		if (!vncCanvas.isConnected())
-			return false;
 
-		if (evt.getAction() == KeyEvent.ACTION_DOWN ||
-				   evt.getAction() == KeyEvent.ACTION_MULTIPLE) {
-			consumed = inputHandler.onKeyDown(keyCode, evt);
-		} else if (evt.getAction() == KeyEvent.ACTION_UP){
-			consumed = inputHandler.onKeyUp(keyCode, evt);
-		}
-		resetOnScreenKeys (keyCode);
+		try {
+			if (evt.getAction() == KeyEvent.ACTION_DOWN || evt.getAction() == KeyEvent.ACTION_MULTIPLE) {
+				consumed = inputHandler.onKeyDown(keyCode, evt);
+			} else if (evt.getAction() == KeyEvent.ACTION_UP){
+				consumed = inputHandler.onKeyUp(keyCode, evt);
+			}
+			resetOnScreenKeys (keyCode);
+		} catch (NullPointerException e) { }
+
 		return consumed;
 	}
 
@@ -1145,28 +1130,31 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 	 */
 	@Override
 	public boolean onTrackballEvent(MotionEvent event) {
-		// If we are using the Dpad as arrow keys, don't send the event to the inputHandler.
-		if (connection.getUseDpadAsArrows())
-			return false;
-		if (!vncCanvas.isConnected())
-			return false;
-		return inputHandler.onTrackballEvent(event);
+		try {
+			// If we are using the Dpad as arrow keys, don't send the event to the inputHandler.
+			if (connection.getUseDpadAsArrows())
+				return false;
+			return inputHandler.onTrackballEvent(event);
+		} catch (NullPointerException e) { }
+		return false;
 	}
 
 	// Send touch events or mouse events like button clicks to be handled.
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
-		if (!vncCanvas.isConnected())
-			return false;
-		return inputHandler.onTouchEvent(event);
+		try {
+			return inputHandler.onTouchEvent(event);
+		} catch (NullPointerException e) { }
+		return false;
 	}
 
 	// Send e.g. mouse events like hover and scroll to be handled.
 	@Override
 	public boolean onGenericMotionEvent(MotionEvent event) {
-		if (!vncCanvas.isConnected())
-			return false;
-		return inputHandler.onTouchEvent(event);
+		try {
+			return inputHandler.onTouchEvent(event);
+		} catch (NullPointerException e) { }
+		return false;
 	}
 
 	private void selectColorModel() {
@@ -1200,52 +1188,6 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 		});
 		dialog.setContentView(list);
 		dialog.show();
-	}
-
-	float panTouchX, panTouchY;
-
-	/**
-	 * Pan based on touch motions
-	 * 
-	 * @param event
-	 */
-	private boolean pan(MotionEvent event) {
-		float curX = event.getX();
-		float curY = event.getY();
-		int dX = (int) (panTouchX - curX);
-		int dY = (int) (panTouchY - curY);
-
-		return vncCanvas.pan(dX, dY);
-	}
-
-	boolean defaultKeyDownHandler(int keyCode, KeyEvent evt) {
-		if (vncCanvas.getKeyboard().processLocalKeyEvent(keyCode, evt))
-			return true;
-		return super.onKeyDown(keyCode, evt);
-	}
-
-	boolean defaultKeyUpHandler(int keyCode, KeyEvent evt) {
-		if (vncCanvas.getKeyboard().processLocalKeyEvent(keyCode, evt))
-			return true;
-		return super.onKeyUp(keyCode, evt);
-	}
-
-	boolean touchPan(MotionEvent event) {
-		switch (event.getAction()) {
-		case MotionEvent.ACTION_DOWN:
-			panTouchX = event.getX();
-			panTouchY = event.getY();
-			break;
-		case MotionEvent.ACTION_MOVE:
-			pan(event);
-			panTouchX = event.getX();
-			panTouchY = event.getY();
-			break;
-		case MotionEvent.ACTION_UP:
-			pan(event);
-			break;
-		}
-		return true;
 	}
 
 	// Returns whether we are using D-pad/Trackball to send arrow key events.
