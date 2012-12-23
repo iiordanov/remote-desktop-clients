@@ -76,8 +76,10 @@ abstract class AbstractGestureInputHandler extends GestureDetector.SimpleOnGestu
 	boolean rotateDpad         = false;
 	boolean trackballButtonDown;
 	
-	// The variable which indicates how many scroll events to send per swipe event.
-	long    swipeSpeed = 1;
+	// The variables which indicates how many scroll events to send per swipe 
+	// event and the maximum number to send at one time.
+	long      swipeSpeed    = 1;
+	final int maxSwipeSpeed = 20;
 	// If swipe events are registered once every baseSwipeTime miliseconds, then
 	// swipeSpeed will be one. If more often, swipe-speed goes up, if less, down.
 	final long    baseSwipeTime = 600;
@@ -209,17 +211,6 @@ abstract class AbstractGestureInputHandler extends GestureDetector.SimpleOnGestu
 		case MotionEvent.ACTION_HOVER_MOVE:
 	    	vncCanvas.panToMouse();
 			return p.processPointerEvent(x, y, action, meta, false, false, false, false, 0);
-		// If a stylus enters hover right after exiting hover, then a stylus tap was
-		// performed with its button depressed. We trigger a right-click.
-		/*case MotionEvent.ACTION_HOVER_ENTER:
-			int toolType = e.getToolType(0);
-			if (toolType == MotionEvent.TOOL_TYPE_STYLUS &&
-				prevMouseOrStylusAction == MotionEvent.ACTION_HOVER_EXIT) {
-				p.processPointerEvent(x, y, action, meta, true, true, false, false, 0);
-				SystemClock.sleep(50);
-				p.processPointerEvent(x, y, action, meta, false, false, false, false, 0);
-			}
-			break;*/
 		}
 		
 		prevMouseOrStylusAction = action;
@@ -308,7 +299,6 @@ abstract class AbstractGestureInputHandler extends GestureDetector.SimpleOnGestu
 
 	@Override
 	public boolean onTouchEvent(MotionEvent e) {
-		final int pointerCnt = e.getPointerCount();
         final int action     = e.getActionMasked();
         final int index      = e.getActionIndex();
         final int pointerID  = e.getPointerId(index);
@@ -321,107 +311,125 @@ abstract class AbstractGestureInputHandler extends GestureDetector.SimpleOnGestu
 	        	return true;
         }
 
-        if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_POINTER_UP) {
+        if (action == MotionEvent.ACTION_UP) {
  			// Turn filtering back on and invalidate to make things pretty.
      		vncCanvas.bitmapData.drawable._defaultPaint.setFilterBitmap(true);
      		vncCanvas.invalidate();
         }
 
-        // We have put down first pointer on the screen, so we can reset the state of all click-state variables.
-        if (pointerID == 0 && action == MotionEvent.ACTION_DOWN) {
-        	// Permit sending mouse-down event on long-tap again.
-        	secondPointerWasDown = false;
-        	// Permit right-clicking again.
-        	thirdPointerWasDown = false;
-        	// Cancel any effect of scaling having "just finished" (e.g. ignoring scrolling).
-			scalingJustFinished = false;
-			dragX = e.getX();
-			dragY = e.getY();
-        	// Cancel drag modes and scrolling.
-        	endDragModesAndScrolling();
-    		vncCanvas.inScrolling = true;
-    		// If we are manipulating the desktop, turn off bitmap filtering for faster response.
-    		vncCanvas.bitmapData.drawable._defaultPaint.setFilterBitmap(false);
-        } else if (pointerID == 0 && action == MotionEvent.ACTION_UP) {
-			// If any drag modes were going on, end them and send a mouse up event.
-			if (endDragModesAndScrolling()) {
-				return p.processPointerEvent(getX(e), getY(e), action, meta, false, false, false, false, 0);
-			}
-        }
+        switch (pointerID) {
 
-    	// Here we only prepare for the second click, which we perform on ACTION_POINTER_UP for pointerID==1.
-        if (pointerID == 1 && action == MotionEvent.ACTION_POINTER_DOWN) {
-			endDragModesAndScrolling();
-        	// Permit sending mouse-down event on long-tap again.
-        	secondPointerWasDown = true;
-        	// Permit right-clicking again.
-        	thirdPointerWasDown  = false;
+        case 0:
+        	switch (action) {
+        	case MotionEvent.ACTION_DOWN:
+                // We have put down first pointer on the screen, so we can reset the state of all click-state variables.
+            	// Permit sending mouse-down event on long-tap again.
+            	secondPointerWasDown = false;
+            	// Permit right-clicking again.
+            	thirdPointerWasDown = false;
+            	// Cancel any effect of scaling having "just finished" (e.g. ignoring scrolling).
+    			scalingJustFinished = false;
+            	// Cancel drag modes and scrolling.
+            	endDragModesAndScrolling();
+        		vncCanvas.inScrolling = true;
+        		// If we are manipulating the desktop, turn off bitmap filtering for faster response.
+        		vncCanvas.bitmapData.drawable._defaultPaint.setFilterBitmap(false);
+    			dragX = e.getX();
+    			dragY = e.getY();
+    			break;
+        	case MotionEvent.ACTION_UP:
+    			// If any drag modes were going on, end them and send a mouse up event.
+    			if (endDragModesAndScrolling())
+    				return p.processPointerEvent(getX(e), getY(e), action, meta, false, false, false, false, 0);
+    			break;
+        	case MotionEvent.ACTION_MOVE:
+                // Send scroll up/down events if swiping is happening.
+                if (panMode) {
+                	float scale = vncCanvas.getScale();
+            		vncCanvas.pan(-(int)((e.getX() - dragX)*scale), -(int)((e.getY() - dragY)*scale));
+        			dragX = e.getX();
+        			dragY = e.getY();
+        			return true;
+                } else if (dragMode) {
+                	vncCanvas.panToMouse();
+        			return p.processPointerEvent(getX(e), getY(e), action, meta, true, false, false, false, 0);
+                } else if (rightDragMode) {
+                	vncCanvas.panToMouse();
+        			return p.processPointerEvent(getX(e), getY(e), action, meta, true, true, false, false, 0);
+                } else if (middleDragMode) {
+                	vncCanvas.panToMouse();
+        			return p.processPointerEvent(getX(e), getY(e), action, meta, true, false, true, false, 0);
+        		} else if (inSwiping) {
+                	// Save the coordinates and restore them afterward.
+                	float x = e.getX();
+                	float y = e.getY();
+                	// Set the coordinates to where the swipe began (i.e. where scaling started).
+                	setEventCoordinates(e, xInitialFocus, yInitialFocus);
+                	int numEvents = 0;
+                	while (numEvents < swipeSpeed && numEvents < maxSwipeSpeed) {
+                		if        (twoFingerSwipeUp)   {
+                			p.processPointerEvent(getX(e), getY(e), action, meta, false, false, false, true, 0);
+                			p.processPointerEvent(getX(e), getY(e), action, meta, false, false, false, false, 0);
+                		} else if (twoFingerSwipeDown) {
+                			p.processPointerEvent(getX(e), getY(e), action, meta, false, false, false, true, 1);
+                			p.processPointerEvent(getX(e), getY(e), action, meta, false, false, false, false, 0);
+                		} else if (twoFingerSwipeLeft)   {
+                			p.processPointerEvent(getX(e), getY(e), action, meta, false, false, false, true, 2);
+                			p.processPointerEvent(getX(e), getY(e), action, meta, false, false, false, false, 0);
+                		} else if (twoFingerSwipeRight) {
+                			p.processPointerEvent(getX(e), getY(e), action, meta, false, false, false, true, 3);
+                			p.processPointerEvent(getX(e), getY(e), action, meta, false, false, false, false, 0);
+                		}
+                		numEvents++;
+                	}
+                	// Restore the coordinates so that onScale doesn't get all muddled up.
+                	setEventCoordinates(e, x, y);
+                }
+        	}
+        	break;
+
+        case 1:
+        	switch (action) {
+        	case MotionEvent.ACTION_POINTER_DOWN:
+            	// Here we only prepare for the second click, which we perform on ACTION_POINTER_UP for pointerID==1.
+    			endDragModesAndScrolling();
+            	// Permit sending mouse-down event on long-tap again.
+            	secondPointerWasDown = true;
+            	// Permit right-clicking again.
+            	thirdPointerWasDown  = false;
+        		break;
+        	case MotionEvent.ACTION_POINTER_UP:
+        		if (!inSwiping && !inScaling && !thirdPointerWasDown) {
+        	    	// If user taps with a second finger while first finger is down, then we treat this as
+        	        // a right mouse click, but we only effect the click when the second pointer goes up.
+        	        // If the user taps with a second and third finger while the first 
+        	        // finger is down, we treat it as a middle mouse click. We ignore the lifting of the
+        	        // second index when the third index has gone down (using the thirdPointerWasDown variable)
+        	        // to prevent inadvertent right-clicks when a middle click has been performed.
+	    			p.processPointerEvent(getX(e), getY(e), action, meta, true, true, false, false, 0);
+	            	// Enter right-drag mode.
+	            	rightDragMode = true;
+	            	// Now the event must be passed on to the parent class in order to 
+	            	// end scaling as it was certainly started when the second pointer went down.
+        		}
+        		break;
+        	}
+        	break;
+
+        case 2:
+        	switch (action) {
+        	case MotionEvent.ACTION_POINTER_DOWN:
+        		if (!inScaling) {
+                	// This boolean prevents the right-click from firing simultaneously as a middle button click.
+                	thirdPointerWasDown = true;
+        			p.processPointerEvent(getX(e), getY(e), action, meta, true, false, true, false, 0);
+        			// Enter middle-drag mode.
+                	middleDragMode      = true;
+        		}
+        	}
+        	break;
         }
         
-        // Send scroll up/down events if swiping is happening.
-        if (panMode) {
-        	float scale = vncCanvas.getScale();
-    		vncCanvas.pan(-(int)((e.getX() - dragX)*scale), -(int)((e.getY() - dragY)*scale));
-			dragX = e.getX();
-			dragY = e.getY();
-			return true;
-        } else if (inSwiping) {
-        	// Save the coordinates and restore them afterward.
-        	float x = e.getX();
-        	float y = e.getY();
-        	// Set the coordinates to where the swipe began (i.e. where scaling started).
-        	setEventCoordinates(e, xInitialFocus, yInitialFocus);
-        	int numEvents = 0;
-        	while (numEvents < swipeSpeed) {
-        		if        (twoFingerSwipeUp)   {
-        			p.processPointerEvent(getX(e), getY(e), action, meta, false, false, false, true, 0);
-        			p.processPointerEvent(getX(e), getY(e), action, meta, false, false, false, false, 0);
-        		} else if (twoFingerSwipeDown) {
-        			p.processPointerEvent(getX(e), getY(e), action, meta, false, false, false, true, 1);
-        			p.processPointerEvent(getX(e), getY(e), action, meta, false, false, false, false, 0);
-        		} else if (twoFingerSwipeLeft)   {
-        			p.processPointerEvent(getX(e), getY(e), action, meta, false, false, false, true, 2);
-        			p.processPointerEvent(getX(e), getY(e), action, meta, false, false, false, false, 0);
-        		} else if (twoFingerSwipeRight) {
-        			p.processPointerEvent(getX(e), getY(e), action, meta, false, false, false, true, 3);
-        			p.processPointerEvent(getX(e), getY(e), action, meta, false, false, false, false, 0);
-        		}
-        		numEvents++;
-        	}
-        	// Restore the coordinates so that onScale doesn't get all muddled up.
-        	setEventCoordinates(e, x, y);
-
-    	// If user taps with a second finger while first finger is down, then we treat this as
-        // a right mouse click, but we only effect the click when the second pointer goes up.
-        // If the user taps with a second and third finger while the first 
-        // finger is down, we treat it as a middle mouse click. We ignore the lifting of the
-        // second index when the third index has gone down (using the thirdPointerWasDown variable)
-        // to prevent inadvertent right-clicks when a middle click has been performed.
-        } else if (!inScaling && !thirdPointerWasDown && pointerID == 1 && action == MotionEvent.ACTION_POINTER_UP) {
-			p.processPointerEvent(getX(e), getY(e), action, meta, true, true, false, false, 0);
-        	// Enter right-drag mode.
-        	rightDragMode = true;
-        	// Now the event must be passed on to the parent class in order to 
-        	// end scaling as it was certainly started when the second pointer went down.
-
-        } else if (!inScaling && pointerID == 2 && action == MotionEvent.ACTION_POINTER_DOWN) {
-        	// This boolean prevents the right-click from firing simultaneously as a middle button click.
-        	thirdPointerWasDown = true;
-			p.processPointerEvent(getX(e), getY(e), action, meta, true, false, true, false, 0);
-			// Enter middle-drag mode.
-        	middleDragMode      = true;
-
-        } else if (pointerCnt == 1 && pointerID == 0 && dragMode) {
-        	vncCanvas.panToMouse();
-			return p.processPointerEvent(getX(e), getY(e), action, meta, true, false, false, false, 0);
-        } else if (pointerCnt == 1 && pointerID == 0 && rightDragMode) {
-        	vncCanvas.panToMouse();
-			return p.processPointerEvent(getX(e), getY(e), action, meta, true, true, false, false, 0);
-        } else if (pointerCnt == 1 && pointerID == 0 && middleDragMode) {
-        	vncCanvas.panToMouse();
-			return p.processPointerEvent(getX(e), getY(e), action, meta, true, false, true, false, 0);
-		}
-
 		scaleGestures.onTouchEvent(e);
 		return gestures.onTouchEvent(e);
 	}
@@ -540,8 +548,7 @@ abstract class AbstractGestureInputHandler extends GestureDetector.SimpleOnGestu
 	}
 	
 	private static int convertTrackballDelta(double delta) {
-		return (int) Math.pow(Math.abs(delta) * 6.01, 2.5)
-				* (delta < 0.0 ? -1 : 1);
+		return (int) Math.pow(Math.abs(delta) * 6.01, 2.5) * (delta < 0.0 ? -1 : 1);
 	}
 
 	boolean trackballMouse(MotionEvent evt) {

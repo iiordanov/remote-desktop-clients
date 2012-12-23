@@ -50,12 +50,12 @@ interface AbstractInputHandler {
 	/* (non-Javadoc)
 	 * @see android.app.Activity#onTrackballEvent(android.view.MotionEvent)
 	 */
-	boolean onTrackballEvent( MotionEvent evt);
+	boolean onTrackballEvent(MotionEvent evt);
 	/* (non-Javadoc)
-	 * @see android.app.Activity#onTrackballEvent(android.view.MotionEvent)
+	 * @see android.app.Activity#onTouchEvent(android.view.MotionEvent)
 	 */
-	boolean onTouchEvent( MotionEvent evt);
-	
+	boolean onTouchEvent(MotionEvent evt);
+
 	/**
 	 * Return a user-friendly description for this mode; it will be displayed in a toaster
 	 * when changing modes.
