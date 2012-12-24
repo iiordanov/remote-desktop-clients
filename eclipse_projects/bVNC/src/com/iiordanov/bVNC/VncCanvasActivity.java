@@ -43,6 +43,7 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.graphics.Rect;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -94,7 +95,8 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
  */
 	private static final int inputModeIds[] = { R.id.itemInputTouchpad,
 		                                        R.id.itemInputTouchPanZoomMouse,
-		                                        R.id.itemInputDragPanZoomMouse };
+		                                        R.id.itemInputDragPanZoomMouse,
+		                                        R.id.itemInputSingleHanded };
 	private static final int scalingModeIds[] = { R.id.itemZoomable, R.id.itemFitToScreen,
 												  R.id.itemOneToOne};
 
@@ -102,10 +104,9 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 	Panner panner;
 	SSHConnection sshConnection;
 	Handler handler;
-	private boolean secondPointerWasDown = false;
-	private boolean thirdPointerWasDown = false;
 
 	RelativeLayout layoutKeys;
+	ImageButton    keyStow;
 	ImageButton    keyCtrl;
 	boolean        keyCtrlToggled;
 	ImageButton    keyAlt;
@@ -116,6 +117,7 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 	ImageButton    keyLeft;
 	ImageButton    keyRight;
 	boolean        hardKeyboardExtended;
+	boolean        extraKeysHidden = false;
     int            prevBottomOffset = 0;
 
 
@@ -323,6 +325,7 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
                         // Soft Kbd gone, shift the meta keys and arrows down.
                 		if (layoutKeys != null) {
                 			layoutKeys.offsetTopAndBottom(offset);
+                			keyStow.offsetTopAndBottom(offset);
                 			if (prevBottomOffset != offset) { 
 		                		setExtraKeysVisibility(View.GONE, false);
 		                		vncCanvas.invalidate();
@@ -334,6 +337,7 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
                         //  Soft Kbd up, shift the meta keys and arrows up.
                 		if (layoutKeys != null) {
                 			layoutKeys.offsetTopAndBottom(offset);
+                			keyStow.offsetTopAndBottom(offset);
                 			if (prevBottomOffset != offset) { 
 		                    	setExtraKeysVisibility(View.VISIBLE, true);
 		                		vncCanvas.invalidate();
@@ -342,6 +346,7 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
                 			}
                 		}
                     }
+					setKeyStowDrawableAndVisibility();
                     prevBottomOffset = offset;
              }
         });
@@ -396,12 +401,44 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 		inputHandler = getInputHandlerById(R.id.itemInputTouchPanZoomMouse);
 	}
 
+	
+	private void setKeyStowDrawableAndVisibility() {
+		Drawable replacer = null;
+		if (layoutKeys.getVisibility() == View.GONE)
+			replacer = getResources().getDrawable(R.drawable.showkeys);
+		else
+			replacer = getResources().getDrawable(R.drawable.hidekeys);
+		keyStow.setBackgroundDrawable(replacer);
+
+		if (connection.getExtraKeysToggleType() == VncConstants.EXTRA_KEYS_OFF)
+			keyStow.setVisibility(View.GONE);
+		else
+			keyStow.setVisibility(View.VISIBLE);
+	}
+	
 	/**
 	 * Initializes the on-screen keys for meta keys and arrow keys.
 	 */
 	private void initializeOnScreenKeys () {
 		
 		layoutKeys = (RelativeLayout) findViewById(R.id.layoutKeys);
+
+		keyStow = (ImageButton)    findViewById(R.id.keyStow);
+		setKeyStowDrawableAndVisibility();
+		keyStow.setOnClickListener(new OnClickListener () {
+			@Override
+			public void onClick(View arg0) {
+				if (layoutKeys.getVisibility() == View.VISIBLE) {
+					extraKeysHidden = true;
+					setExtraKeysVisibility(View.GONE, false);
+				} else {
+					extraKeysHidden = false;
+					setExtraKeysVisibility(View.VISIBLE, true);
+				}
+    			layoutKeys.offsetTopAndBottom(prevBottomOffset);
+    			setKeyStowDrawableAndVisibility();
+			}
+		});
 
 		// Define action of tab key and meta keys.
 		keyTab = (ImageButton) findViewById(R.id.keyTab);
@@ -581,25 +618,26 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 	/**
 	 * Sets the visibility of the extra keys appropriately.
 	 */
-	private void setExtraKeysVisibility (int visibility, boolean softKbdUp) {
+	private void setExtraKeysVisibility (int visibility, boolean forceVisible) {
 		Configuration config = getResources().getConfiguration();
 		//Log.e(TAG, "Hardware kbd hidden: " + Integer.toString(config.hardKeyboardHidden));
 		//Log.e(TAG, "Any keyboard hidden: " + Integer.toString(config.keyboardHidden));
 		//Log.e(TAG, "Keyboard type: " + Integer.toString(config.keyboard));
 
-		boolean keyboardAvailable = softKbdUp;
+		boolean makeVisible = forceVisible;
 		if (config.hardKeyboardHidden == Configuration.HARDKEYBOARDHIDDEN_NO)
-			keyboardAvailable = true;
+			makeVisible = true;
 
-		// TODO: Nasty hack to work around bb10 not setting the state of the hardware keyboard appropriately.
-		// REMOVE AS SOON AS POSSIBLE! Also, the check if vncCanvas is null above is not necessary otherwise.
-		if ((vncCanvas.bb || keyboardAvailable) && connection.getExtraKeysToggleType() == VncConstants.EXTRA_KEYS_ON) {
+		if (!extraKeysHidden && makeVisible && 
+			connection.getExtraKeysToggleType() == VncConstants.EXTRA_KEYS_ON) {
 			layoutKeys.setVisibility(View.VISIBLE);
+			layoutKeys.invalidate();
 			return;
 		}
 		
 		if (visibility == View.GONE) {
 			layoutKeys.setVisibility(View.GONE);
+			layoutKeys.invalidate();
 		}
 	}
 	
@@ -887,6 +925,10 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 					case R.id.itemInputTouchpad:
 						inputModeHandlers[i] = new SimulatedTouchpadInputHandler(this, vncCanvas);
 						break;
+					case R.id.itemInputSingleHanded:
+						inputModeHandlers[i] = new SingleHandedInputHandler(this, vncCanvas);
+						break;
+
 					}
 				}
 				return inputModeHandlers[i];
@@ -1007,10 +1049,12 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 				item.setTitle(R.string.extra_keys_enable);
 				setExtraKeysVisibility(View.GONE, false);
 			} else {
-				connection.setExtraKeysToggleType(1);
+				connection.setExtraKeysToggleType(VncConstants.EXTRA_KEYS_ON);
 				item.setTitle(R.string.extra_keys_disable);
 				setExtraKeysVisibility(View.VISIBLE, false);
+				extraKeysHidden = false;
 			}
+			setKeyStowDrawableAndVisibility();
 			connection.save(database.getWritableDatabase());
 			database.close();
 			return true;

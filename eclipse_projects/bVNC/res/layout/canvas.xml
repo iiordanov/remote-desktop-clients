@@ -18,8 +18,81 @@
     android:layout_height="wrap_content"
     android:id="@+id/zoomer"
     android:layout_gravity="center|right"
-    android:padding="20sp"
+    android:padding="10sp"
 />
+
+<ImageButton android:id="@+id/keyStow"
+	android:background="@drawable/showkeys"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_gravity="bottom|center"
+    android:visibility="gone"
+    android:padding="10sp"
+    />
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/singleHandOpts"
+	android:layout_width="wrap_content"
+	android:layout_height="wrap_content"
+	android:layout_gravity="center"
+	android:visibility="gone"
+	android:paddingBottom="2dip"
+	>
+	<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+	    android:layout_gravity="center"
+   		android:orientation="vertical"
+		android:padding="0sp"
+		>
+		<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+		    android:layout_gravity="top|center"
+	   		android:orientation="horizontal"
+			android:padding="0sp"
+			>
+			<ImageButton android:id="@+id/singleDrag"
+		        android:background="@drawable/single_left"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        />
+			<ImageButton android:id="@+id/singleMiddle"
+		        android:background="@drawable/single_middle"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        />
+			<ImageButton android:id="@+id/singleRight"
+		        android:background="@drawable/single_right"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        />
+		</LinearLayout>
+		<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+		    android:layout_gravity="bottom|center"
+	   		android:orientation="horizontal"
+			android:padding="0sp"
+			>
+			<ImageButton android:id="@+id/singleScroll"
+		        android:background="@drawable/single_scroll"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        />
+			<ImageButton android:id="@+id/singleZoom"
+		        android:background="@drawable/single_zoom"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        />
+			<ImageButton android:id="@+id/singleCancel"
+		        android:background="@drawable/single_cancel"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        />
+		</LinearLayout>
+	</LinearLayout>
+</RelativeLayout>
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/layoutKeys"

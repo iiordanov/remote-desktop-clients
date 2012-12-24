@@ -204,7 +204,9 @@ All Input Modes:
 <string name="input_mode_touch_pan_description">Direct, Swipe Pan: Swipe to pan around. Tap with one finger wherever you want to left-click, two fingers to right-click, and three fingers to middle-click. Swipe with two fingers to scroll. Long tap to drag and drop.</string>
 <string name="input_mode_drag_pan_zoom_mouse">Direct, Hold Pan</string>
 <string name="input_mode_drag_pan_description">Direct, Hold Pan: Swipe to drag and drop. Tap with one finger wherever you want to left-click, two fingers to right-click, and three fingers to middle-click. Swipe with two fingers to scroll. Long tap to start panning.</string>
-<string name="input_mode_touchpad">Simulated Touchpad</string><string name="keep_password_button">Keep</string>
+<string name="input_mode_single_handed">Single Handed</string>
+<string name="input_mode_single_handed_description">Single Handed: Swipe to pan around. Tap with one finger wherever you want to left-click. Long tap to choose left/right/middle drag/scroll/zoom mode. Usual multi-touch controls also work.</string>
+<string name="input_mode_touchpad">Simulated Touchpad</string>
 <string name="input_mode_touchpad_description">Simulated Touchpad: Swipe to move pointer. Tap anywhere with one finger to left-click, two fingers to right-click, and three fingers to middle-click. Swipe with two fingers to scroll. Long tap to drag and drop.</string>
 <string name="keep_password_button">Keep</string>
 <string name="intro_dont_show">Don\'t show again</string>

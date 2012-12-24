@@ -95,14 +95,17 @@ abstract class AbstractGestureInputHandler extends GestureDetector.SimpleOnGestu
 	int prevMouseOrStylusAction = 0;
 	
 	/**
-	 * In drag and rightDrag mode (entered with long press) you process mouse events
-	 * without sending them through the gesture detector
+	 * In the drag modes, we process mouse events without sending them through
+	 * the gesture detector.
 	 */
 	protected boolean panMode        = false;
 	protected boolean dragMode       = false;
 	protected boolean rightDragMode  = false;
 	protected boolean middleDragMode = false;
 	protected float   dragX, dragY;
+	protected boolean singleHandedGesture = false;
+	protected boolean singleHandedJustEnded = false;
+
 
 	/**
 	 * These variables keep track of which pointers have seen ACTION_DOWN events.
@@ -278,6 +281,8 @@ abstract class AbstractGestureInputHandler extends GestureDetector.SimpleOnGestu
 	protected boolean endDragModesAndScrolling () {
     	vncCanvas.inScrolling = false;
 		panMode               = false;
+		inScaling             = false;
+		inSwiping             = false;
     	if (dragMode || rightDragMode || middleDragMode) {
     		dragMode          = false;
 			rightDragMode     = false;
@@ -322,6 +327,7 @@ abstract class AbstractGestureInputHandler extends GestureDetector.SimpleOnGestu
         case 0:
         	switch (action) {
         	case MotionEvent.ACTION_DOWN:
+        		singleHandedJustEnded = false;
                 // We have put down first pointer on the screen, so we can reset the state of all click-state variables.
             	// Permit sending mouse-down event on long-tap again.
             	secondPointerWasDown = false;
@@ -330,7 +336,8 @@ abstract class AbstractGestureInputHandler extends GestureDetector.SimpleOnGestu
             	// Cancel any effect of scaling having "just finished" (e.g. ignoring scrolling).
     			scalingJustFinished = false;
             	// Cancel drag modes and scrolling.
-            	endDragModesAndScrolling();
+        		if (!singleHandedGesture) 
+	            	endDragModesAndScrolling();
         		vncCanvas.inScrolling = true;
         		// If we are manipulating the desktop, turn off bitmap filtering for faster response.
         		vncCanvas.bitmapData.drawable._defaultPaint.setFilterBitmap(false);
@@ -338,6 +345,8 @@ abstract class AbstractGestureInputHandler extends GestureDetector.SimpleOnGestu
     			dragY = e.getY();
     			break;
         	case MotionEvent.ACTION_UP:
+        		singleHandedGesture = false;
+        		singleHandedJustEnded = true;
     			// If any drag modes were going on, end them and send a mouse up event.
     			if (endDragModesAndScrolling())
     				return p.processPointerEvent(getX(e), getY(e), action, meta, false, false, false, false, 0);

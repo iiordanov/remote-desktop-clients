@@ -10,7 +10,7 @@ import com.iiordanov.android.bc.BCFactory;
 import com.iiordanov.bVNC.input.RemotePointer;
 
 class TouchMouseSwipePanInputHandler extends AbstractGestureInputHandler {
-	static final String TAG = "SimulatedTouchpadInputHandler";
+	static final String TAG = "TouchMouseSwipePanInputHandler";
 	static final String TOUCH_ZOOM_MODE = "TOUCH_ZOOM_MODE";
 
 	/**
@@ -142,8 +142,7 @@ class TouchMouseSwipePanInputHandler extends AbstractGestureInputHandler {
 	 *      android.view.MotionEvent, float, float)
 	 */
 	@Override
-	public boolean onScroll(MotionEvent e1, MotionEvent e2,
-			float distanceX, float distanceY) {
+	public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
 
 		// onScroll called while scaling/swiping gesture is in effect. We ignore the event and pretend it was
 		// consumed. This prevents the mouse pointer from flailing around while we are scaling.

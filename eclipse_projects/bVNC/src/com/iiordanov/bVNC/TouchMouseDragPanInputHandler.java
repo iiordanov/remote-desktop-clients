@@ -10,7 +10,7 @@ import com.iiordanov.android.bc.BCFactory;
 import com.iiordanov.bVNC.input.RemotePointer;
 
 class TouchMouseDragPanInputHandler extends AbstractGestureInputHandler {
-	static final String TAG = "SimulatedTouchpadInputHandler";
+	static final String TAG = "TouchMouseDragPanInputHandler";
 	static final String TOUCH_ZOOM_MODE_DRAG_PAN = "TOUCH_ZOOM_MODE_DRAG_PAN";
 
 	/**
