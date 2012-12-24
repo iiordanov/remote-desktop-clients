@@ -23,6 +23,7 @@ class SingleHandedInputHandler extends TouchMouseSwipePanInputHandler {
 	private ImageButton scrollButton;
 	private ImageButton zoomButton;
 	private ImageButton cancelButton;
+	int accumulatedScroll;
 
 	private int eventStartX, eventStartY, eventAction, eventMeta;
 
@@ -109,6 +110,7 @@ class SingleHandedInputHandler extends TouchMouseSwipePanInputHandler {
 		singleHandOpts.setVisibility(View.GONE);
 		endDragModesAndScrolling ();
 		singleHandedGesture = true;
+		accumulatedScroll = 0;
 	}
 
 	/*
@@ -200,22 +202,23 @@ class SingleHandedInputHandler extends TouchMouseSwipePanInputHandler {
 					twoFingerSwipeDown  = true;
 				else
 					twoFingerSwipeUp    = true;
+				swipeSpeed = (absY+accumulatedScroll)/15;
+				accumulatedScroll += absY;
 			} else {
 				// Scrolling side to side.
 				if (distanceX > 0)
 					twoFingerSwipeRight = true;
 				else
 					twoFingerSwipeLeft  = true;
+				swipeSpeed = (absX+accumulatedScroll)/15;
+				accumulatedScroll += absY;
 			}
-			swipeSpeed = Math.max(absX, absY)/4;
-			if (swipeSpeed < 1) swipeSpeed = 1;
+			if (swipeSpeed < 1) {
+				swipeSpeed = 0;
+			} else
+				accumulatedScroll = 0;
 		} else if (inScaling) {
-			float scaleFactor = 0;
-			if (distanceY > 0)
-				scaleFactor = 1.15f;
-			else
-				scaleFactor = 0.85f;
-				
+			float scaleFactor = 1.0f + distanceY*0.01f;				
 			if (activity.vncCanvas != null && activity.vncCanvas.scaling != null)
 				activity.vncCanvas.scaling.adjust(activity, scaleFactor, xInitialFocus, yInitialFocus);
 		}
