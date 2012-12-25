@@ -550,11 +550,13 @@ public class VncCanvas extends ImageView {
 	
 	public void displayShortToastMessage (final CharSequence message) {
 		screenMessage = message;
+		handler.removeCallbacks(showMessage);
 		handler.post(showMessage);
 	}
 
 	public void displayShortToastMessage (final int messageID) {
 		screenMessage = getResources().getText(messageID);
+		handler.removeCallbacks(showMessage);
 		handler.post(showMessage);
 	}
 

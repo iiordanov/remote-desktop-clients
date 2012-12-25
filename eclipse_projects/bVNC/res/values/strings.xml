@@ -297,13 +297,14 @@ If you are looking for a quick performance boost, try setting the Color mode to 
 <string name="shift_check">Shift</string>
 <string name="shortcut_label">VNC Connection</string>
 <string name="showkbd_label">Keyboard</string>
+<string name="single_cancel">Single-handed mode cancelled</string>
 <string name="single_choose">Choose single-handed mode or cancel</string>
 <string name="single_left">Left-drag mode - swipe to drag/select, lift finger to stop</string>
 <string name="single_middle">Middle-drag mode - swipe to drag/select, lift finger to stop</string>
 <string name="single_right">Right-drag mode - swipe to drag/select, lift finger to stop</string>
 <string name="single_scroll">Scroll mode - swipe up/down to scroll, lift finger to stop</string>
+<string name="single_reposition">Mouse pointer repositioned for single-handed mode</string>
 <string name="single_zoom">Zoom mode - swipe up/down to zoom in/out, lift finger to stop</string>
-<string name="single_cancel">Single-handed mode cancelled</string>
 <string name="snap_one_to_one">Snapped to 1:1 zoom</string>
 <string name="special_keys">Send Keys</string>
 <string name="ssh_passphrase_hint">Passphrase</string>

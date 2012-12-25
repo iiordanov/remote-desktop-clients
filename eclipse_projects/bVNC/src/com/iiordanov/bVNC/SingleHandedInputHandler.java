@@ -1,16 +1,11 @@
 package com.iiordanov.bVNC;
 
-import android.graphics.PointF;
-import android.os.SystemClock;
-import android.util.Log;
-import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 
-import com.iiordanov.android.bc.BCFactory;
 import com.iiordanov.bVNC.input.RemotePointer;
 
 class SingleHandedInputHandler extends TouchMouseSwipePanInputHandler {
@@ -151,6 +146,16 @@ class SingleHandedInputHandler extends TouchMouseSwipePanInputHandler {
 		if (singleHandedGesture || singleHandedJustEnded)
 			return;
 	
+		boolean buttonsVisible = (singleHandOpts.getVisibility() == View.VISIBLE);
+		initializeSingleHandedMode(e);
+
+		if (buttonsVisible)
+			vncCanvas.displayShortToastMessage(R.string.single_reposition);
+		else
+			vncCanvas.displayShortToastMessage(R.string.single_choose);
+	}
+
+	private void initializeSingleHandedMode(MotionEvent e) {
 		eventStartX   = getX(e);
 		eventStartY   = getY(e);
 		xInitialFocus = e.getX();
@@ -162,10 +167,8 @@ class SingleHandedInputHandler extends TouchMouseSwipePanInputHandler {
 		// Move pointer to where we're performing gesture.
         RemotePointer p = vncCanvas.getPointer();
 		p.processPointerEvent(eventStartX, eventStartY, eventAction, eventMeta, false, false, false, false, 0);
-		
-		vncCanvas.displayShortToastMessage(R.string.single_choose);
 	}
-	
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -173,15 +176,17 @@ class SingleHandedInputHandler extends TouchMouseSwipePanInputHandler {
 	 */
 	@Override
 	public boolean onSingleTapConfirmed(MotionEvent e) {
-		android.util.Log.e(TAG, "Single tap.");
-		// If the single-handed gesture buttons are visible, get rid of them.
-		if (singleHandOpts.getVisibility() == View.VISIBLE) {
-			vncCanvas.displayShortToastMessage(R.string.single_choose);
+		boolean buttonsVisible = (singleHandOpts.getVisibility() == View.VISIBLE);
+		
+		// If the single-handed gesture buttons are visible, reposition pointer.
+		if (buttonsVisible) {
+			initializeSingleHandedMode(e);
+			vncCanvas.displayShortToastMessage(R.string.single_reposition);
 			return true;
 		} else
 			return super.onSingleTapConfirmed(e);
 	}
-	
+
 	/*
 	 * (non-Javadoc)
 	 * 
