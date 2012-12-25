@@ -128,11 +128,13 @@
 &lt;br&gt;
 - Multi-touch control over remote mouse in Direct and Simulated Touchpad input modes.
 &lt;br&gt;
+- Full single-handed control over remote mouse in Single-Handed input mode.
+&lt;br&gt;
 - Multi-touch mouse clicks: tap to Left-click, two-finger tap to right-click, three-finger-tap to middle click.
 &lt;br&gt;
 - Multi-touch scrolling: two finger drag Up/Down, and Left/Right to scroll.
 &lt;br&gt;
-- Togging Ctrl/Alt from Menu when connected.
+- On-screen meta and arrow keys which can be completely disabled from menu or stowed with on-screen button.
 &lt;br&gt;
 - Sending Text and arbitrary Key combinations when connected.
 &lt;br&gt;
@@ -177,13 +179,18 @@ Direct, Hold Pan Mode:
  - Long-tap to start pan mode.
  - Tapping makes the mouse click where you tapped.
  - Scroll events are sent between the two fingers where a two-finger swipe started.
- 
+
 Simulated Touchpad Mode:
  - Use your screen like a touchpad.
  - Swipe to move the mouse pointer around.
  - Move mouse beyond edge of screen to pan.
  - Tapping makes the mouse click where the pointer is.
  - Scroll events are sent where the mouse pointer is located.
+
+Single Handed Mode:
+ - Same as Direct, Swipe Pan Mode, except long-tap opens menu with choice of modes.
+ - After choosing mode, swiping finger on screen performs selected gesture.
+ - Lifting finger completes the gesture.
 
 All Input Modes:
  - Left-click: Tap once.
@@ -290,6 +297,13 @@ If you are looking for a quick performance boost, try setting the Color mode to 
 <string name="shift_check">Shift</string>
 <string name="shortcut_label">VNC Connection</string>
 <string name="showkbd_label">Keyboard</string>
+<string name="single_choose">Choose single-handed mode or cancel</string>
+<string name="single_left">Left-drag mode - swipe to drag/select, lift finger to stop</string>
+<string name="single_middle">Middle-drag mode - swipe to drag/select, lift finger to stop</string>
+<string name="single_right">Right-drag mode - swipe to drag/select, lift finger to stop</string>
+<string name="single_scroll">Scroll mode - swipe up/down to scroll, lift finger to stop</string>
+<string name="single_zoom">Zoom mode - swipe up/down to zoom in/out, lift finger to stop</string>
+<string name="single_cancel">Single-handed mode cancelled</string>
 <string name="snap_one_to_one">Snapped to 1:1 zoom</string>
 <string name="special_keys">Send Keys</string>
 <string name="ssh_passphrase_hint">Passphrase</string>
