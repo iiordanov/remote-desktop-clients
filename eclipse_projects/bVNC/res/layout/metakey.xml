@@ -10,6 +10,7 @@
 		android:layout_height="wrap_content"
 		android:orientation="horizontal"
 		>
+
 		<CheckBox android:id="@+id/checkboxShift"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
@@ -31,6 +32,15 @@
 			android:layout_weight="0"
 			android:textAppearance="?android:attr/textAppearanceMedium"
 		/>
+
+		<CheckBox
+		    android:id="@+id/checkboxWin"
+		    android:layout_width="wrap_content"
+		    android:layout_height="wrap_content"
+		    android:layout_weight="0"
+		    android:text="@string/win_check"
+		    android:textAppearance="?android:attr/textAppearanceMedium" />
+
 		<Spinner android:id="@+id/spinnerKeySelect"
 			android:layout_width="fill_parent"
 			android:layout_height="wrap_content"

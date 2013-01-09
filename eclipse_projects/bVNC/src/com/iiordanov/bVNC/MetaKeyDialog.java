@@ -59,6 +59,7 @@ class MetaKeyDialog extends Dialog implements ConnectionSettable {
 	CheckBox _checkShift;
 	CheckBox _checkCtrl;
 	CheckBox _checkAlt;
+	CheckBox _checkWin;
 	TextView _textKeyDesc;
 	EditText _textListName;
 	Spinner _spinnerKeySelect;
@@ -207,6 +208,7 @@ class MetaKeyDialog extends Dialog implements ConnectionSettable {
 		_checkShift = (CheckBox)findViewById(R.id.checkboxShift);
 		_checkCtrl = (CheckBox)findViewById(R.id.checkboxCtrl);
 		_checkAlt = (CheckBox)findViewById(R.id.checkboxAlt);
+		_checkWin = (CheckBox)findViewById(R.id.checkboxWin);
 		_textKeyDesc = (TextView)findViewById(R.id.textKeyDesc);
 		_textListName = (EditText)findViewById(R.id.textListName);
 		_spinnerKeySelect = (Spinner)findViewById(R.id.spinnerKeySelect);
@@ -226,6 +228,7 @@ class MetaKeyDialog extends Dialog implements ConnectionSettable {
 		_checkShift.setOnCheckedChangeListener(new MetaCheckListener(RemoteKeyboard.SHIFT_MASK));
 		_checkAlt.setOnCheckedChangeListener(new MetaCheckListener(RemoteKeyboard.ALT_MASK));
 		_checkCtrl.setOnCheckedChangeListener(new MetaCheckListener(RemoteKeyboard.CTRL_MASK));
+		_checkWin.setOnCheckedChangeListener(new MetaCheckListener(RemoteKeyboard.WIN_MASK));
 		
 		_spinnerLists.setOnItemSelectedListener(new OnItemSelectedListener() {
 
@@ -568,6 +571,7 @@ class MetaKeyDialog extends Dialog implements ConnectionSettable {
 		_checkAlt.setChecked(0 != (flags & RemoteKeyboard.ALT_MASK));
 		_checkShift.setChecked(0 != (flags & RemoteKeyboard.SHIFT_MASK));
 		_checkCtrl.setChecked(0 != (flags & RemoteKeyboard.CTRL_MASK));
+		_checkWin.setChecked(0 != (flags & RemoteKeyboard.WIN_MASK));
 		MetaKeyBase base = null;
 		if (_currentKeyBean.isMouseClick())
 		{

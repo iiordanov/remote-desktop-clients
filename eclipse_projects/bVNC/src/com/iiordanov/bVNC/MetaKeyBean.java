@@ -56,7 +56,15 @@ public class MetaKeyBean extends AbstractMetaKeyBean implements Comparable<MetaK
 		allKeys.add(new MetaKeyBase("Hangul_Hanja", 0xff34));
 		allKeys.add(new MetaKeyBase("Kana_Shift", 0xff2e));
 		allKeys.add(new MetaKeyBase("Right_Alt", 0xffea));
-		
+                
+		allKeys.add(new MetaKeyBase("Left_Alt", 0xffe9));
+		allKeys.add(new MetaKeyBase("Left_Control", 0xffe3));
+		allKeys.add(new MetaKeyBase("Right_Control", 0xffe4));
+		allKeys.add(new MetaKeyBase("Left_Shift", 0xffe1));
+		allKeys.add(new MetaKeyBase("Right_Shift", 0xffe2));
+		allKeys.add(new MetaKeyBase("Left_Super", 0xffeb));
+		allKeys.add(new MetaKeyBase("Right_Super", 0xffec));
+                
 		allKeys.add(new MetaKeyBase(RemotePointer.MOUSE_BUTTON_LEFT, "Mouse Left"));
 		allKeys.add(new MetaKeyBase(RemotePointer.MOUSE_BUTTON_MIDDLE, "Mouse Middle"));
 		allKeys.add(new MetaKeyBase(RemotePointer.MOUSE_BUTTON_RIGHT, "Mouse Right"));
@@ -192,6 +200,12 @@ public class MetaKeyBean extends AbstractMetaKeyBean implements Comparable<MetaK
 						if (sb.length()>0)
 							sb.append('-');
 						sb.append("Alt");
+					}
+					if (0 != (meta & RemoteKeyboard.WIN_MASK))
+					{
+						if (sb.length()>0)
+							sb.append('-');
+						sb.append("Win");
 					}
 					if (sb.length()>0)
 						sb.append(' ');
