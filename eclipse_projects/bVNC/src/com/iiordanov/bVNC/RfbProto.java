@@ -1337,6 +1337,9 @@ class RfbProto implements RfbConnectable {
 
     if ((newModifiers & RemoteKeyboard.ALT_MASK) != (oldModifiers & RemoteKeyboard.ALT_MASK))
       writeKeyEvent(0xffe9, (newModifiers & RemoteKeyboard.ALT_MASK) != 0);
+    
+    if ((newModifiers & RemoteKeyboard.WIN_MASK) != (oldModifiers & RemoteKeyboard.WIN_MASK))
+        writeKeyEvent(0xffeb, (newModifiers & RemoteKeyboard.WIN_MASK) != 0);
 
     oldModifiers = newModifiers;
   }
