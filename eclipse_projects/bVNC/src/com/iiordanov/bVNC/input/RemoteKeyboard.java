@@ -32,8 +32,8 @@ public class RemoteKeyboard {
     public final static int CTRL_MASK  = KeyEvent.META_SYM_ON;
     public final static int SHIFT_MASK = KeyEvent.META_SHIFT_ON;
     public final static int ALT_MASK   = KeyEvent.META_ALT_ON;
+    public final static int SUPER_MASK = 8;
     public final static int META_MASK  = 0;
-    public final static int WIN_MASK   = 8;
 	
 	private VncCanvas vncCanvas;
 	private Handler handler;
