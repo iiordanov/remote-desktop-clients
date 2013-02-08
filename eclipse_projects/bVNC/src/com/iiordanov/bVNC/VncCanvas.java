@@ -407,7 +407,8 @@ public class VncCanvas extends ImageView {
 			Log.v(TAG, "Connected to server");
 			rfb.initializeAndAuthenticate(us, pw, connection.getUseRepeater(), connection.getRepeaterId(), anonTLS);
 	    } catch (Exception e) {
-	    	throw new Exception ("Connection to VNC server: " + address + " at port: " + vncPort + " failed.");
+	    	throw new Exception ("Connection to VNC server: " + address + " at port: " + vncPort + " failed.\n" + "Reason: " +
+	    						 e.getLocalizedMessage());
 	    }
 	}
 
