@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.iiordanov.bVNC" android:installLocation="auto" android:versionCode="303" android:versionName="v3.0.3">
+    package="com.iiordanov.bVNC" android:installLocation="auto" android:versionCode="304" android:versionName="v3.0.4">
 
     <uses-sdk android:minSdkVersion="8" android:targetSdkVersion="8"></uses-sdk>
     <uses-permission android:name="android.permission.INTERNET"></uses-permission>
@@ -14,6 +14,7 @@
 			<intent-filter>
 				<action android:name="android.intent.action.MAIN"></action>
 				<category android:name="android.intent.category.LAUNCHER"></category>
+				<category android:name="android.intent.category.MULTIWINDOW_LAUNCHER"></category>
 			</intent-filter>
 		</activity>
 		<activity android:screenOrientation="fullSensor" android:configChanges="orientation|keyboardHidden|keyboard"
@@ -38,5 +39,11 @@
 		    	  android:configChanges="keyboardHidden|orientation"
 		    	  android:windowSoftInputMode="stateHidden|adjustResize"
 		    	  android:screenOrientation="fullSensor" />
+		<uses-library required="false" name="com.sec.android.app.multiwindow"> </uses-library>
+		<meta-data android:name="com.sec.android.support.multiwindow" android:value="true" />
+		<meta-data android:name="com.sec.android.multiwindow.DEFAULT_SIZE_W" android:resource="@dimen/app_defaultsize_w" />
+		<meta-data android:name="com.sec.android.multiwindow.DEFAULT_SIZE_H" android:resource="@dimen/app_defaultsize_h" />
+		<meta-data android:name="com.sec.android.multiwindow.MINIMUM_SIZE_W" android:resource="@dimen/app_minimumsize_w" />
+		<meta-data android:name="com.sec.android.multiwindow.MINIMUM_SIZE_H" android:resource="@dimen/app_minimumsize_h" />
 	</application>
 </manifest> 
