@@ -1,3 +1,4 @@
+
 package com.trilead.ssh2.sftp;
 
 /**
@@ -7,12 +8,13 @@ package com.trilead.ssh2.sftp;
  * "<i>The 'permissions' field contains a bit mask specifying file permissions.
  * These permissions correspond to the st_mode field of the stat structure
  * defined by POSIX [IEEE.1003-1.1996].</i>"
- * 
+ *
  * @author Christian Plattner, plattner@trilead.com
  * @version $Id: AttribPermissions.java,v 1.1 2007/10/15 12:49:55 cplattne Exp $
- * 
+ *
  */
-public class AttribPermissions {
+public class AttribPermissions
+{
 	/* Octal values! */
 
 	public static final int S_IRUSR = 0400;

@@ -8,32 +8,38 @@ import java.math.BigInteger;
  * @author Christian Plattner, plattner@trilead.com
  * @version $Id: DSAPublicKey.java,v 1.1 2007/10/15 12:49:57 cplattne Exp $
  */
-public class DSAPublicKey {
+public class DSAPublicKey
+{
 	private BigInteger p;
 	private BigInteger q;
 	private BigInteger g;
 	private BigInteger y;
 
-	public DSAPublicKey(BigInteger p, BigInteger q, BigInteger g, BigInteger y) {
+	public DSAPublicKey(BigInteger p, BigInteger q, BigInteger g, BigInteger y)
+	{
 		this.p = p;
 		this.q = q;
 		this.g = g;
 		this.y = y;
 	}
 
-	public BigInteger getG() {
-		return g;
-	}
-
-	public BigInteger getP() {
+	public BigInteger getP()
+	{
 		return p;
 	}
 
-	public BigInteger getQ() {
+	public BigInteger getQ()
+	{
 		return q;
 	}
 
-	public BigInteger getY() {
+	public BigInteger getG()
+	{
+		return g;
+	}
+
+	public BigInteger getY()
+	{
 		return y;
 	}
 }

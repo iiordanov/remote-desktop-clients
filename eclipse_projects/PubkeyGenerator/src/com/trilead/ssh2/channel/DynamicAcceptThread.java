@@ -36,17 +36,19 @@ import net.sourceforge.jsocks.Socks5Message;
 import net.sourceforge.jsocks.SocksException;
 import net.sourceforge.jsocks.server.ServerAuthenticator;
 import net.sourceforge.jsocks.server.ServerAuthenticatorNone;
-import android.util.Log;
 
 /**
  * DynamicAcceptThread.
- * 
+ *
  * @author Kenny Root
  * @version $Id$
  */
 public class DynamicAcceptThread extends Thread implements IChannelWorkerThread {
+	private ChannelManager cm;
+	private ServerSocket ss;
+
 	class DynamicAcceptRunnable implements Runnable {
-		private static final int idleTimeout = 60000; // 3 minutes
+		private static final int idleTimeout	= 180000; //3 minutes
 
 		private ServerAuthenticator auth;
 		private Socket sock;
@@ -61,85 +63,31 @@ public class DynamicAcceptThread extends Thread implements IChannelWorkerThread 
 			setName("DynamicAcceptRunnable");
 		}
 
-		private void handleRequest(ProxyMessage msg) throws IOException {
-			if (!auth.checkRequest(msg))
-				throw new SocksException(Proxy.SOCKS_FAILURE);
-
-			switch (msg.command) {
-			case Proxy.SOCKS_CMD_CONNECT:
-				onConnect(msg);
-				break;
-			default:
-				throw new SocksException(Proxy.SOCKS_CMD_NOT_SUPPORTED);
-			}
-		}
-
-		private void onConnect(ProxyMessage msg) throws IOException {
-			ProxyMessage response = null;
-			Channel cn = null;
-			StreamForwarder r2l = null;
-			StreamForwarder l2r = null;
-
-			if (msg instanceof Socks5Message) {
-				response = new Socks5Message(Proxy.SOCKS_SUCCESS,
-						(InetAddress) null, 0);
-			} else {
-				response = new Socks4Message(Socks4Message.REPLY_OK,
-						(InetAddress) null, 0);
-			}
-			response.write(out);
-
-			String destHost = msg.host;
-			if (msg.ip != null)
-				destHost = msg.ip.getHostAddress();
-
+		public void run() {
 			try {
-				/*
-				 * This may fail, e.g., if the remote port is closed (in
-				 * optimistic terms: not open yet)
-				 */
+				startSession();
+			} catch (IOException ioe) {
+				int error_code = Proxy.SOCKS_FAILURE;
 
-				cn = cm.openDirectTCPIPChannel(destHost, msg.port, "127.0.0.1",
-						0);
+				if (ioe instanceof SocksException)
+					error_code = ((SocksException) ioe).errCode;
+				else if (ioe instanceof NoRouteToHostException)
+					error_code = Proxy.SOCKS_HOST_UNREACHABLE;
+				else if (ioe instanceof ConnectException)
+					error_code = Proxy.SOCKS_CONNECTION_REFUSED;
+				else if (ioe instanceof InterruptedIOException)
+					error_code = Proxy.SOCKS_TTL_EXPIRE;
 
-			} catch (IOException e) {
-				/*
-				 * Simply close the local socket and wait for the next incoming
-				 * connection
-				 */
-
-				try {
-					sock.close();
-				} catch (IOException ignore) {
+				if (error_code > Proxy.SOCKS_ADDR_NOT_SUPPORTED
+						|| error_code < 0) {
+					error_code = Proxy.SOCKS_FAILURE;
 				}
 
-				return;
+				sendErrorMessage(error_code);
+			} finally {
+				if (auth != null)
+					auth.endSession();
 			}
-
-			try {
-				r2l = new StreamForwarder(cn, null, null, cn.stdoutStream, out,
-						"RemoteToLocal");
-				l2r = new StreamForwarder(cn, r2l, sock, in, cn.stdinStream,
-						"LocalToRemote");
-			} catch (IOException e) {
-				try {
-					/*
-					 * This message is only visible during debugging, since we
-					 * discard the channel immediatelly
-					 */
-					cn.cm.closeChannel(cn,
-							"Weird error during creation of StreamForwarder ("
-									+ e.getMessage() + ")", true);
-				} catch (IOException ignore) {
-				}
-
-				return;
-			}
-
-			r2l.setDaemon(true);
-			l2r.setDaemon(true);
-			r2l.start();
-			l2r.start();
 		}
 
 		private ProxyMessage readMsg(InputStream in) throws IOException {
@@ -164,38 +112,6 @@ public class DynamicAcceptThread extends Thread implements IChannelWorkerThread 
 			return msg;
 		}
 
-		@Override
-		public void run() {
-			try {
-				startSession();
-			} catch (IOException ioe) {
-				int error_code = Proxy.SOCKS_FAILURE;
-
-				if (ioe instanceof SocksException)
-					error_code = ((SocksException) ioe).errCode;
-				else if (ioe instanceof NoRouteToHostException)
-					error_code = Proxy.SOCKS_HOST_UNREACHABLE;
-				else if (ioe instanceof ConnectException)
-					error_code = Proxy.SOCKS_CONNECTION_REFUSED;
-				else if (ioe instanceof InterruptedIOException)
-					error_code = Proxy.SOCKS_TTL_EXPIRE;
-
-				if (error_code > Proxy.SOCKS_ADDR_NOT_SUPPORTED
-						|| error_code < 0) {
-					error_code = Proxy.SOCKS_FAILURE;
-				}
-
-				sendErrorMessage(error_code);
-			} catch (Error e) {
-				// Force to GC here
-				System.gc();
-			} finally {
-				if (auth != null)
-					auth.endSession();
-				thread_num--;
-			}
-		}
-
 		private void sendErrorMessage(int error_code) {
 			ProxyMessage err_msg;
 			if (msg instanceof Socks4Message)
@@ -205,6 +121,19 @@ public class DynamicAcceptThread extends Thread implements IChannelWorkerThread 
 			try {
 				err_msg.write(out);
 			} catch (IOException ioe) {
+			}
+		}
+
+		private void handleRequest(ProxyMessage msg) throws IOException {
+			if (!auth.checkRequest(msg))
+				throw new SocksException(Proxy.SOCKS_FAILURE);
+
+			switch (msg.command) {
+			case Proxy.SOCKS_CMD_CONNECT:
+				onConnect(msg);
+				break;
+			default:
+				throw new SocksException(Proxy.SOCKS_CMD_NOT_SUPPORTED);
 			}
 		}
 
@@ -231,19 +160,70 @@ public class DynamicAcceptThread extends Thread implements IChannelWorkerThread 
 			msg = readMsg(in);
 			handleRequest(msg);
 		}
-	}
-	private volatile int thread_num = 0;
-	private ChannelManager cm;
-	private final static int MAX_THREAD_COUNT = 2;
 
-	private ServerSocket ss;
+		private void onConnect(ProxyMessage msg) throws IOException {
+			ProxyMessage response = null;
+			Channel cn = null;
+			StreamForwarder r2l = null;
+			StreamForwarder l2r = null;
 
-	public DynamicAcceptThread(ChannelManager cm, InetSocketAddress localAddress)
-			throws IOException {
-		this.cm = cm;
+			if (msg instanceof Socks5Message) {
+				response = new Socks5Message(Proxy.SOCKS_SUCCESS, (InetAddress)null, 0);
+			} else {
+				response = new Socks4Message(Socks4Message.REPLY_OK, (InetAddress)null, 0);
+			}
+			response.write(out);
 
-		ss = new ServerSocket();
-		ss.bind(localAddress);
+			String destHost = msg.host;
+			if (msg.ip != null)
+				destHost = msg.ip.getHostAddress();
+
+			try {
+				/*
+				 * This may fail, e.g., if the remote port is closed (in
+				 * optimistic terms: not open yet)
+				 */
+
+				cn = cm.openDirectTCPIPChannel(destHost, msg.port,
+						"127.0.0.1", 0);
+
+			} catch (IOException e) {
+				/*
+				 * Simply close the local socket and wait for the next incoming
+				 * connection
+				 */
+
+				try {
+					sock.close();
+				} catch (IOException ignore) {
+				}
+
+				return;
+			}
+
+			try {
+				r2l = new StreamForwarder(cn, null, sock, cn.stdoutStream, out, "RemoteToLocal");
+				l2r = new StreamForwarder(cn, r2l, sock, in, cn.stdinStream, "LocalToRemote");
+			} catch (IOException e) {
+				try {
+					/*
+					 * This message is only visible during debugging, since we
+					 * discard the channel immediatelly
+					 */
+					cn.cm.closeChannel(cn,
+							"Weird error during creation of StreamForwarder ("
+									+ e.getMessage() + ")", true);
+				} catch (IOException ignore) {
+				}
+
+				return;
+			}
+
+			r2l.setDaemon(true);
+			l2r.setDaemon(true);
+			r2l.start();
+			l2r.start();
+		}
 	}
 
 	public DynamicAcceptThread(ChannelManager cm, int local_port)
@@ -253,6 +233,14 @@ public class DynamicAcceptThread extends Thread implements IChannelWorkerThread 
 		setName("DynamicAcceptThread");
 
 		ss = new ServerSocket(local_port);
+	}
+
+	public DynamicAcceptThread(ChannelManager cm, InetSocketAddress localAddress)
+			throws IOException {
+		this.cm = cm;
+
+		ss = new ServerSocket();
+		ss.bind(localAddress);
 	}
 
 	@Override
@@ -274,32 +262,18 @@ public class DynamicAcceptThread extends Thread implements IChannelWorkerThread 
 				return;
 			}
 
-			DynamicAcceptRunnable dar = new DynamicAcceptRunnable(
-					new ServerAuthenticatorNone(), sock);
+			DynamicAcceptRunnable dar = new DynamicAcceptRunnable(new ServerAuthenticatorNone(), sock);
 			Thread t = new Thread(dar);
 			t.setDaemon(true);
 			t.start();
-			
-			thread_num++;
-			while (thread_num > MAX_THREAD_COUNT) {
-				Log.d("SOCKSProxy", "Max thread number exceeded");
-				System.gc();
-				try {
-					Thread.sleep(2000);
-				} catch (InterruptedException ignore) {
-					// Nothing
-				}
-			}
-
 		}
 	}
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.trilead.ssh2.channel.IChannelWorkerThread#stopWorking()
 	 */
-	@Override
 	public void stopWorking() {
 		try {
 			/* This will lead to an IOException in the ss.accept() call */

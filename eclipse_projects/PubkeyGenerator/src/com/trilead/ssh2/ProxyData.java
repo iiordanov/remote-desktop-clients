@@ -1,3 +1,4 @@
+
 package com.trilead.ssh2;
 
 /**
@@ -9,5 +10,6 @@ package com.trilead.ssh2;
  * @version $Id: ProxyData.java,v 1.1 2007/10/15 12:49:56 cplattne Exp $
  */
 
-public abstract interface ProxyData {
+public abstract interface ProxyData
+{
 }

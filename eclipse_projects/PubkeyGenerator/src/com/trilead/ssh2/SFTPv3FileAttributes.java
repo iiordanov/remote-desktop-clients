@@ -1,3 +1,4 @@
+
 package com.trilead.ssh2;
 
 /**
@@ -5,11 +6,11 @@ package com.trilead.ssh2;
  * about a file on the server. Not all fields may/must be present.
  * 
  * @author Christian Plattner, plattner@trilead.com
- * @version $Id: SFTPv3FileAttributes.java,v 1.2 2008/04/01 12:38:09 cplattne
- *          Exp $
+ * @version $Id: SFTPv3FileAttributes.java,v 1.2 2008/04/01 12:38:09 cplattne Exp $
  */
 
-public class SFTPv3FileAttributes {
+public class SFTPv3FileAttributes
+{
 	/**
 	 * The SIZE attribute. <code>NULL</code> if not present.
 	 */
@@ -30,9 +31,7 @@ public class SFTPv3FileAttributes {
 	 * <p>
 	 * Here is a list:
 	 * <p>
-	 * 
-	 * <pre>
-	 * Note: these numbers are all OCTAL.
+	 * <pre>Note: these numbers are all OCTAL.
 	 *  
 	 *  S_IFMT     0170000   bitmask for the file type bitfields
 	 *  S_IFSOCK   0140000   socket
@@ -75,12 +74,55 @@ public class SFTPv3FileAttributes {
 	public Long mtime = null;
 
 	/**
-	 * Turn the POSIX permissions into a 7 digit octal representation. Note: the
-	 * returned value is first masked with <code>0177777</code>.
+	 * Checks if this entry is a directory.
+	 * 
+	 * @return Returns true if permissions are available and they indicate
+	 *         that this entry represents a directory.
+	 */
+	public boolean isDirectory()
+	{
+		if (permissions == null)
+			return false;
+		
+		return ((permissions.intValue() & 0040000) != 0);
+	}
+	
+	/**
+	 * Checks if this entry is a regular file.
+	 * 
+	 * @return Returns true if permissions are available and they indicate
+	 *         that this entry represents a regular file.
+	 */
+	public boolean isRegularFile()
+	{
+		if (permissions == null)
+			return false;
+		
+		return ((permissions.intValue() & 0100000) != 0);
+	}
+	
+	/**
+	 * Checks if this entry is a a symlink.
+	 * 
+	 * @return Returns true if permissions are available and they indicate
+	 *         that this entry represents a symlink.
+	 */
+	public boolean isSymlink()
+	{
+		if (permissions == null)
+			return false;
+		
+		return ((permissions.intValue() & 0120000) != 0);
+	}
+	
+	/**
+	 * Turn the POSIX permissions into a 7 digit octal representation.
+	 * Note: the returned value is first masked with <code>0177777</code>.
 	 * 
 	 * @return <code>NULL</code> if permissions are not available.
 	 */
-	public String getOctalPermissions() {
+	public String getOctalPermissions()
+	{
 		if (permissions == null)
 			return null;
 
@@ -90,7 +132,8 @@ public class SFTPv3FileAttributes {
 
 		int leadingZeros = 7 - res.length();
 
-		while (leadingZeros > 0) {
+		while (leadingZeros > 0)
+		{
 			sb.append('0');
 			leadingZeros--;
 		}
@@ -98,44 +141,5 @@ public class SFTPv3FileAttributes {
 		sb.append(res);
 
 		return sb.toString();
-	}
-
-	/**
-	 * Checks if this entry is a directory.
-	 * 
-	 * @return Returns true if permissions are available and they indicate that
-	 *         this entry represents a directory.
-	 */
-	public boolean isDirectory() {
-		if (permissions == null)
-			return false;
-
-		return ((permissions.intValue() & 0040000) != 0);
-	}
-
-	/**
-	 * Checks if this entry is a regular file.
-	 * 
-	 * @return Returns true if permissions are available and they indicate that
-	 *         this entry represents a regular file.
-	 */
-	public boolean isRegularFile() {
-		if (permissions == null)
-			return false;
-
-		return ((permissions.intValue() & 0100000) != 0);
-	}
-
-	/**
-	 * Checks if this entry is a a symlink.
-	 * 
-	 * @return Returns true if permissions are available and they indicate that
-	 *         this entry represents a symlink.
-	 */
-	public boolean isSymlink() {
-		if (permissions == null)
-			return false;
-
-		return ((permissions.intValue() & 0120000) != 0);
 	}
 }

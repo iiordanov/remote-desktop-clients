@@ -1,10 +1,13 @@
+
 package com.trilead.ssh2.packets;
 
 import java.io.IOException;
 import java.security.SecureRandom;
 
+import com.trilead.ssh2.compression.CompressionFactory;
 import com.trilead.ssh2.crypto.CryptoWishList;
 import com.trilead.ssh2.transport.KexParameters;
+
 
 /**
  * PacketKexInit.
@@ -12,12 +15,33 @@ import com.trilead.ssh2.transport.KexParameters;
  * @author Christian Plattner, plattner@trilead.com
  * @version $Id: PacketKexInit.java,v 1.1 2007/10/15 12:49:55 cplattne Exp $
  */
-public class PacketKexInit {
+public class PacketKexInit
+{
 	byte[] payload;
 
 	KexParameters kp = new KexParameters();
 
-	public PacketKexInit(byte payload[], int off, int len) throws IOException {
+	public PacketKexInit(CryptoWishList cwl, SecureRandom rnd)
+	{
+		kp.cookie = new byte[16];
+		rnd.nextBytes(kp.cookie);
+
+		kp.kex_algorithms = cwl.kexAlgorithms;
+		kp.server_host_key_algorithms = cwl.serverHostKeyAlgorithms;
+		kp.encryption_algorithms_client_to_server = cwl.c2s_enc_algos;
+		kp.encryption_algorithms_server_to_client = cwl.s2c_enc_algos;
+		kp.mac_algorithms_client_to_server = cwl.c2s_mac_algos;
+		kp.mac_algorithms_server_to_client = cwl.s2c_mac_algos;
+		kp.compression_algorithms_client_to_server = cwl.c2s_comp_algos;
+		kp.compression_algorithms_server_to_client = cwl.s2c_comp_algos;
+		kp.languages_client_to_server = new String[] {};
+		kp.languages_server_to_client = new String[] {};
+		kp.first_kex_packet_follows = false;
+		kp.reserved_field1 = 0;
+	}
+
+	public PacketKexInit(byte payload[], int off, int len) throws IOException
+	{
 		this.payload = new byte[len];
 		System.arraycopy(payload, off, this.payload, 0, len);
 
@@ -26,8 +50,7 @@ public class PacketKexInit {
 		int packet_type = tr.readByte();
 
 		if (packet_type != Packets.SSH_MSG_KEXINIT)
-			throw new IOException("This is not a KexInitPacket! ("
-					+ packet_type + ")");
+			throw new IOException("This is not a KexInitPacket! (" + packet_type + ")");
 
 		kp.cookie = tr.readBytes(16);
 		kp.kex_algorithms = tr.readNameList();
@@ -47,70 +70,10 @@ public class PacketKexInit {
 			throw new IOException("Padding in KexInitPacket!");
 	}
 
-	public PacketKexInit(CryptoWishList cwl, SecureRandom rnd) {
-		kp.cookie = new byte[16];
-		rnd.nextBytes(kp.cookie);
-
-		kp.kex_algorithms = cwl.kexAlgorithms;
-		kp.server_host_key_algorithms = cwl.serverHostKeyAlgorithms;
-		kp.encryption_algorithms_client_to_server = cwl.c2s_enc_algos;
-		kp.encryption_algorithms_server_to_client = cwl.s2c_enc_algos;
-		kp.mac_algorithms_client_to_server = cwl.c2s_mac_algos;
-		kp.mac_algorithms_server_to_client = cwl.s2c_mac_algos;
-		kp.compression_algorithms_client_to_server = cwl.c2s_comp_algos;
-		kp.compression_algorithms_server_to_client = cwl.s2c_comp_algos;
-		kp.languages_client_to_server = new String[] {};
-		kp.languages_server_to_client = new String[] {};
-		kp.first_kex_packet_follows = false;
-		kp.reserved_field1 = 0;
-	}
-
-	public String[] getCompression_algorithms_client_to_server() {
-		return kp.compression_algorithms_client_to_server;
-	}
-
-	public String[] getCompression_algorithms_server_to_client() {
-		return kp.compression_algorithms_server_to_client;
-	}
-
-	public byte[] getCookie() {
-		return kp.cookie;
-	}
-
-	public String[] getEncryption_algorithms_client_to_server() {
-		return kp.encryption_algorithms_client_to_server;
-	}
-
-	public String[] getEncryption_algorithms_server_to_client() {
-		return kp.encryption_algorithms_server_to_client;
-	}
-
-	public String[] getKex_algorithms() {
-		return kp.kex_algorithms;
-	}
-
-	public KexParameters getKexParameters() {
-		return kp;
-	}
-
-	public String[] getLanguages_client_to_server() {
-		return kp.languages_client_to_server;
-	}
-
-	public String[] getLanguages_server_to_client() {
-		return kp.languages_server_to_client;
-	}
-
-	public String[] getMac_algorithms_client_to_server() {
-		return kp.mac_algorithms_client_to_server;
-	}
-
-	public String[] getMac_algorithms_server_to_client() {
-		return kp.mac_algorithms_server_to_client;
-	}
-
-	public byte[] getPayload() {
-		if (payload == null) {
+	public byte[] getPayload()
+	{
+		if (payload == null)
+		{
 			TypesWriter tw = new TypesWriter();
 			tw.writeByte(Packets.SSH_MSG_KEXINIT);
 			tw.writeBytes(kp.cookie, 0, 16);
@@ -131,15 +94,73 @@ public class PacketKexInit {
 		return payload;
 	}
 
-	public int getReserved_field1() {
+	public KexParameters getKexParameters()
+	{
+		return kp;
+	}
+
+	public String[] getCompression_algorithms_client_to_server()
+	{
+		return kp.compression_algorithms_client_to_server;
+	}
+
+	public String[] getCompression_algorithms_server_to_client()
+	{
+		return kp.compression_algorithms_server_to_client;
+	}
+
+	public byte[] getCookie()
+	{
+		return kp.cookie;
+	}
+
+	public String[] getEncryption_algorithms_client_to_server()
+	{
+		return kp.encryption_algorithms_client_to_server;
+	}
+
+	public String[] getEncryption_algorithms_server_to_client()
+	{
+		return kp.encryption_algorithms_server_to_client;
+	}
+
+	public boolean isFirst_kex_packet_follows()
+	{
+		return kp.first_kex_packet_follows;
+	}
+
+	public String[] getKex_algorithms()
+	{
+		return kp.kex_algorithms;
+	}
+
+	public String[] getLanguages_client_to_server()
+	{
+		return kp.languages_client_to_server;
+	}
+
+	public String[] getLanguages_server_to_client()
+	{
+		return kp.languages_server_to_client;
+	}
+
+	public String[] getMac_algorithms_client_to_server()
+	{
+		return kp.mac_algorithms_client_to_server;
+	}
+
+	public String[] getMac_algorithms_server_to_client()
+	{
+		return kp.mac_algorithms_server_to_client;
+	}
+
+	public int getReserved_field1()
+	{
 		return kp.reserved_field1;
 	}
 
-	public String[] getServer_host_key_algorithms() {
+	public String[] getServer_host_key_algorithms()
+	{
 		return kp.server_host_key_algorithms;
-	}
-
-	public boolean isFirst_kex_packet_follows() {
-		return kp.first_kex_packet_follows;
 	}
 }

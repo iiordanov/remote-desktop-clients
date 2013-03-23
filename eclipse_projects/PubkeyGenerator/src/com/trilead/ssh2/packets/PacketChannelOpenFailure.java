@@ -6,10 +6,10 @@ import java.io.IOException;
  * PacketChannelOpenFailure.
  * 
  * @author Christian Plattner, plattner@trilead.com
- * @version $Id: PacketChannelOpenFailure.java,v 1.1 2007/10/15 12:49:55
- *          cplattne Exp $
+ * @version $Id: PacketChannelOpenFailure.java,v 1.1 2007/10/15 12:49:55 cplattne Exp $
  */
-public class PacketChannelOpenFailure {
+public class PacketChannelOpenFailure
+{
 	byte[] payload;
 
 	public int recipientChannelID;
@@ -17,8 +17,17 @@ public class PacketChannelOpenFailure {
 	public String description;
 	public String languageTag;
 
-	public PacketChannelOpenFailure(byte payload[], int off, int len)
-			throws IOException {
+	public PacketChannelOpenFailure(int recipientChannelID, int reasonCode, String description,
+			String languageTag)
+	{
+		this.recipientChannelID = recipientChannelID;
+		this.reasonCode = reasonCode;
+		this.description = description;
+		this.languageTag = languageTag;
+	}
+
+	public PacketChannelOpenFailure(byte payload[], int off, int len) throws IOException
+	{
 		this.payload = new byte[len];
 		System.arraycopy(payload, off, this.payload, 0, len);
 
@@ -35,22 +44,15 @@ public class PacketChannelOpenFailure {
 		reasonCode = tr.readUINT32();
 		description = tr.readString();
 		languageTag = tr.readString();
-
+		
 		if (tr.remain() != 0)
-			throw new IOException(
-					"Padding in SSH_MSG_CHANNEL_OPEN_FAILURE packet!");
+			throw new IOException("Padding in SSH_MSG_CHANNEL_OPEN_FAILURE packet!");
 	}
 
-	public PacketChannelOpenFailure(int recipientChannelID, int reasonCode,
-			String description, String languageTag) {
-		this.recipientChannelID = recipientChannelID;
-		this.reasonCode = reasonCode;
-		this.description = description;
-		this.languageTag = languageTag;
-	}
-
-	public byte[] getPayload() {
-		if (payload == null) {
+	public byte[] getPayload()
+	{
+		if (payload == null)
+		{
 			TypesWriter tw = new TypesWriter();
 			tw.writeByte(Packets.SSH_MSG_CHANNEL_OPEN_FAILURE);
 			tw.writeUINT32(recipientChannelID);

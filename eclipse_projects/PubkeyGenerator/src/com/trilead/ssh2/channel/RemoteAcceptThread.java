@@ -1,3 +1,4 @@
+
 package com.trilead.ssh2.channel;
 
 import java.io.IOException;
@@ -5,16 +6,16 @@ import java.net.Socket;
 
 import com.trilead.ssh2.log.Logger;
 
+
 /**
  * RemoteAcceptThread.
  * 
  * @author Christian Plattner, plattner@trilead.com
- * @version $Id: RemoteAcceptThread.java,v 1.1 2007/10/15 12:49:56 cplattne Exp
- *          $
+ * @version $Id: RemoteAcceptThread.java,v 1.1 2007/10/15 12:49:56 cplattne Exp $
  */
-public class RemoteAcceptThread extends Thread {
-	private static final Logger log = Logger
-			.getLogger(RemoteAcceptThread.class);
+public class RemoteAcceptThread extends Thread
+{
+	private static final Logger log = Logger.getLogger(RemoteAcceptThread.class);
 
 	Channel c;
 
@@ -27,9 +28,9 @@ public class RemoteAcceptThread extends Thread {
 
 	Socket s;
 
-	public RemoteAcceptThread(Channel c, String remoteConnectedAddress,
-			int remoteConnectedPort, String remoteOriginatorAddress,
-			int remoteOriginatorPort, String targetAddress, int targetPort) {
+	public RemoteAcceptThread(Channel c, String remoteConnectedAddress, int remoteConnectedPort,
+			String remoteOriginatorAddress, int remoteOriginatorPort, String targetAddress, int targetPort)
+	{
 		this.c = c;
 		this.remoteConnectedAddress = remoteConnectedAddress;
 		this.remoteConnectedPort = remoteConnectedPort;
@@ -39,36 +40,37 @@ public class RemoteAcceptThread extends Thread {
 		this.targetPort = targetPort;
 
 		if (log.isEnabled())
-			log.log(20, "RemoteAcceptThread: " + remoteConnectedAddress + "/"
-					+ remoteConnectedPort + ", R: " + remoteOriginatorAddress
-					+ "/" + remoteOriginatorPort);
+			log.log(20, "RemoteAcceptThread: " + remoteConnectedAddress + "/" + remoteConnectedPort + ", R: "
+					+ remoteOriginatorAddress + "/" + remoteOriginatorPort);
 	}
 
-	@Override
-	public void run() {
-		try {
+	public void run()
+	{
+		try
+		{
 			c.cm.sendOpenConfirmation(c);
 
 			s = new Socket(targetAddress, targetPort);
 
-			StreamForwarder r2l = new StreamForwarder(c, null, null,
-					c.getStdoutStream(), s.getOutputStream(), "RemoteToLocal");
-			StreamForwarder l2r = new StreamForwarder(c, null, null,
-					s.getInputStream(), c.getStdinStream(), "LocalToRemote");
+			StreamForwarder r2l = new StreamForwarder(c, null, s, c.getStdoutStream(), s.getOutputStream(),
+					"RemoteToLocal");
+			StreamForwarder l2r = new StreamForwarder(c, null, null, s.getInputStream(), c.getStdinStream(),
+					"LocalToRemote");
 
-			/*
-			 * No need to start two threads, one can be executed in the current
-			 * thread
-			 */
-
+			/* No need to start two threads, one can be executed in the current thread */
+			
 			r2l.setDaemon(true);
 			r2l.start();
 			l2r.run();
 
-			while (r2l.isAlive()) {
-				try {
+			while (r2l.isAlive())
+			{
+				try
+				{
 					r2l.join();
-				} catch (InterruptedException e) {
+				}
+				catch (InterruptedException e)
+				{
 				}
 			}
 
@@ -76,19 +78,25 @@ public class RemoteAcceptThread extends Thread {
 
 			c.cm.closeChannel(c, "EOF on both streams reached.", true);
 			s.close();
-		} catch (IOException e) {
+		}
+		catch (IOException e)
+		{
 			log.log(50, "IOException in proxy code: " + e.getMessage());
 
-			try {
-				c.cm.closeChannel(c,
-						"IOException in proxy code (" + e.getMessage() + ")",
-						true);
-			} catch (IOException e1) {
+			try
+			{
+				c.cm.closeChannel(c, "IOException in proxy code (" + e.getMessage() + ")", true);
 			}
-			try {
+			catch (IOException e1)
+			{
+			}
+			try
+			{
 				if (s != null)
 					s.close();
-			} catch (IOException e1) {
+			}
+			catch (IOException e1)
+			{
 			}
 		}
 	}

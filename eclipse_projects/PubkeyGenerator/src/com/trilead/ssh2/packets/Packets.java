@@ -1,3 +1,4 @@
+
 package com.trilead.ssh2.packets;
 
 /**
@@ -6,7 +7,8 @@ package com.trilead.ssh2.packets;
  * @author Christian Plattner, plattner@trilead.com
  * @version $Id: Packets.java,v 1.1 2007/10/15 12:49:55 cplattne Exp $
  */
-public class Packets {
+public class Packets
+{
 	public static final int SSH_MSG_DISCONNECT = 1;
 	public static final int SSH_MSG_IGNORE = 2;
 	public static final int SSH_MSG_UNIMPLEMENTED = 3;
@@ -74,7 +76,8 @@ public class Packets {
 
 	private static final String[] reverseNames = new String[101];
 
-	static {
+	static
+	{
 		reverseNames[1] = "SSH_MSG_DISCONNECT";
 		reverseNames[2] = "SSH_MSG_IGNORE";
 		reverseNames[3] = "SSH_MSG_UNIMPLEMENTED";
@@ -116,30 +119,31 @@ public class Packets {
 		reverseNames[100] = "SSH_MSG_CHANNEL_FAILURE";
 	}
 
-	public static final String getMessageName(int type) {
+	public static final String getMessageName(int type)
+	{
 		String res = null;
 
-		if ((type >= 0) && (type < reverseNames.length)) {
+		if ((type >= 0) && (type < reverseNames.length))
+		{
 			res = reverseNames[type];
 		}
 
 		return (res == null) ? ("UNKNOWN MSG " + type) : res;
 	}
 
-	// public static final void debug(String tag, byte[] msg)
-	// {
-	// System.err.println(tag + " Type: " + msg[0] + ", LEN: " + msg.length);
+	//	public static final void debug(String tag, byte[] msg)
+	//	{
+	//		System.err.println(tag + " Type: " + msg[0] + ", LEN: " + msg.length);
 	//
-	// for (int i = 0; i < msg.length; i++)
-	// {
-	// if (((msg[i] >= 'a') && (msg[i] <= 'z')) || ((msg[i] >= 'A') && (msg[i]
-	// <= 'Z'))
-	// || ((msg[i] >= '0') && (msg[i] <= '9')) || (msg[i] == ' '))
-	// System.err.print((char) msg[i]);
-	// else
-	// System.err.print(".");
-	// }
-	// System.err.println();
-	// System.err.flush();
-	// }
+	//		for (int i = 0; i < msg.length; i++)
+	//		{
+	//			if (((msg[i] >= 'a') && (msg[i] <= 'z')) || ((msg[i] >= 'A') && (msg[i] <= 'Z'))
+	//					|| ((msg[i] >= '0') && (msg[i] <= '9')) || (msg[i] == ' '))
+	//				System.err.print((char) msg[i]);
+	//			else
+	//				System.err.print(".");
+	//		}
+	//		System.err.println();
+	//		System.err.flush();
+	//	}
 }

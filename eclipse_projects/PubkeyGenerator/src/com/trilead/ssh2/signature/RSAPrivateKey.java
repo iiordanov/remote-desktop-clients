@@ -8,30 +8,36 @@ import java.math.BigInteger;
  * @author Christian Plattner, plattner@trilead.com
  * @version $Id: RSAPrivateKey.java,v 1.1 2007/10/15 12:49:57 cplattne Exp $
  */
-public class RSAPrivateKey {
+public class RSAPrivateKey
+{
 	private BigInteger d;
 	private BigInteger e;
 	private BigInteger n;
 
-	public RSAPrivateKey(BigInteger d, BigInteger e, BigInteger n) {
+	public RSAPrivateKey(BigInteger d, BigInteger e, BigInteger n)
+	{
 		this.d = d;
 		this.e = e;
 		this.n = n;
 	}
 
-	public BigInteger getD() {
+	public BigInteger getD()
+	{
 		return d;
 	}
-
-	public BigInteger getE() {
+	
+	public BigInteger getE()
+	{
 		return e;
 	}
 
-	public BigInteger getN() {
+	public BigInteger getN()
+	{
 		return n;
 	}
-
-	public RSAPublicKey getPublicKey() {
+	
+	public RSAPublicKey getPublicKey()
+	{
 		return new RSAPublicKey(e, n);
 	}
 }

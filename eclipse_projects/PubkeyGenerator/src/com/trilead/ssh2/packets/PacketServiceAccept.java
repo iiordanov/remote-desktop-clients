@@ -1,3 +1,4 @@
+
 package com.trilead.ssh2.packets;
 
 import java.io.IOException;
@@ -6,16 +7,21 @@ import java.io.IOException;
  * PacketServiceAccept.
  * 
  * @author Christian Plattner, plattner@trilead.com
- * @version $Id: PacketServiceAccept.java,v 1.2 2008/04/01 12:38:09 cplattne Exp
- *          $
+ * @version $Id: PacketServiceAccept.java,v 1.2 2008/04/01 12:38:09 cplattne Exp $
  */
-public class PacketServiceAccept {
+public class PacketServiceAccept
+{
 	byte[] payload;
 
 	String serviceName;
 
-	public PacketServiceAccept(byte payload[], int off, int len)
-			throws IOException {
+	public PacketServiceAccept(String serviceName)
+	{
+		this.serviceName = serviceName;
+	}
+
+	public PacketServiceAccept(byte payload[], int off, int len) throws IOException
+	{
 		this.payload = new byte[len];
 		System.arraycopy(payload, off, this.payload, 0, len);
 
@@ -24,17 +30,16 @@ public class PacketServiceAccept {
 		int packet_type = tr.readByte();
 
 		if (packet_type != Packets.SSH_MSG_SERVICE_ACCEPT)
-			throw new IOException("This is not a SSH_MSG_SERVICE_ACCEPT! ("
-					+ packet_type + ")");
+			throw new IOException("This is not a SSH_MSG_SERVICE_ACCEPT! (" + packet_type + ")");
 
-		/*
-		 * Be clever in case the server is not. Some servers seem to violate
-		 * RFC4253
-		 */
+		/* Be clever in case the server is not. Some servers seem to violate RFC4253 */
 
-		if (tr.remain() > 0) {
+		if (tr.remain() > 0)
+		{
 			serviceName = tr.readString();
-		} else {
+		}
+		else
+		{
 			serviceName = "";
 		}
 
@@ -42,12 +47,10 @@ public class PacketServiceAccept {
 			throw new IOException("Padding in SSH_MSG_SERVICE_ACCEPT packet!");
 	}
 
-	public PacketServiceAccept(String serviceName) {
-		this.serviceName = serviceName;
-	}
-
-	public byte[] getPayload() {
-		if (payload == null) {
+	public byte[] getPayload()
+	{
+		if (payload == null)
+		{
 			TypesWriter tw = new TypesWriter();
 			tw.writeByte(Packets.SSH_MSG_SERVICE_ACCEPT);
 			tw.writeString(serviceName);

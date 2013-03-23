@@ -1,14 +1,16 @@
+
 package com.trilead.ssh2.sftp;
 
 /**
- * 
+ *
  * SFTP Paket Types
- * 
+ *
  * @author Christian Plattner, plattner@trilead.com
  * @version $Id: Packet.java,v 1.1 2007/10/15 12:49:55 cplattne Exp $
- * 
+ *
  */
-public class Packet {
+public class Packet
+{
 	public static final int SSH_FXP_INIT = 1;
 	public static final int SSH_FXP_VERSION = 2;
 	public static final int SSH_FXP_OPEN = 3;
@@ -29,13 +31,13 @@ public class Packet {
 	public static final int SSH_FXP_RENAME = 18;
 	public static final int SSH_FXP_READLINK = 19;
 	public static final int SSH_FXP_SYMLINK = 20;
-
+	
 	public static final int SSH_FXP_STATUS = 101;
 	public static final int SSH_FXP_HANDLE = 102;
 	public static final int SSH_FXP_DATA = 103;
 	public static final int SSH_FXP_NAME = 104;
 	public static final int SSH_FXP_ATTRS = 105;
-
+	
 	public static final int SSH_FXP_EXTENDED = 200;
 	public static final int SSH_FXP_EXTENDED_REPLY = 201;
 }

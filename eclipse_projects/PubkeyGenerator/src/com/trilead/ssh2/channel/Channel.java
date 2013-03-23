@@ -1,3 +1,4 @@
+
 package com.trilead.ssh2.channel;
 
 /**
@@ -6,11 +7,11 @@ package com.trilead.ssh2.channel;
  * @author Christian Plattner, plattner@trilead.com
  * @version $Id: Channel.java,v 1.1 2007/10/15 12:49:56 cplattne Exp $
  */
-public class Channel {
+public class Channel
+{
 	/*
 	 * OK. Here is an important part of the JVM Specification:
-	 * (http://java.sun.com
-	 * /docs/books/vmspec/2nd-edition/html/Threads.doc.html#22214)
+	 * (http://java.sun.com/docs/books/vmspec/2nd-edition/html/Threads.doc.html#22214)
 	 * 
 	 * Any association between locks and variables is purely conventional.
 	 * Locking any lock conceptually flushes all variables from a thread's
@@ -32,6 +33,7 @@ public class Channel {
 	 * 
 	 * ====> Always keep that in mind when modifying the Channel/ChannelManger
 	 * code.
+	 * 
 	 */
 
 	static final int STATE_OPENING = 1;
@@ -56,10 +58,8 @@ public class Channel {
 	// The code makes sure that the two fields are written out when the state is
 	// changing to STATE_OPEN.
 	// Therefore, if you know that the Channel is in state STATE_OPEN, then you
-	// can read these two fields without synchronizing on the Channel. However,
-	// make
-	// sure that you get the latest values (e.g., flush caches by synchronizing
-	// on any
+	// can read these two fields without synchronizing on the Channel. However, make
+	// sure that you get the latest values (e.g., flush caches by synchronizing on any
 	// object). However, to be on the safe side, you can lock the channel.
 
 	int localID = -1;
@@ -92,8 +92,8 @@ public class Channel {
 	boolean closeMessageSent = false;
 
 	/*
-	 * Stop memory fragmentation by allocating this often used buffer. May only
-	 * be used while holding the channelSendLock
+	 * Stop memory fragmentation by allocating this often used buffer.
+	 * May only be used while holding the channelSendLock
 	 */
 
 	final byte[] msgWindowAdjust = new byte[9];
@@ -105,15 +105,14 @@ public class Channel {
 
 	boolean closeMessageRecv = false;
 
-	/*
-	 * This is a stupid implementation. At the moment we can only wait for one
-	 * pending request per channel.
+	/* This is a stupid implementation. At the moment we can only wait
+	 * for one pending request per channel.
 	 */
 	int successCounter = 0;
 	int failedCounter = 0;
 
 	int localWindow = 0; /* locally, we use a small window, < 2^31 */
-	long remoteWindow = 0; /* long for readable 2^32 - 1 window support */
+	long remoteWindow = 0; /* long for readable  2^32 - 1 window support */
 
 	int localMaxPacketSize = -1;
 	int remoteMaxPacketSize = -1;
@@ -144,7 +143,8 @@ public class Channel {
 	private final Object reasonClosedLock = new Object();
 	private String reasonClosed = null;
 
-	public Channel(ChannelManager cm) {
+	public Channel(ChannelManager cm)
+	{
 		this.cm = cm;
 
 		this.localWindow = CHANNEL_BUFFER_SIZE;
@@ -157,38 +157,49 @@ public class Channel {
 
 	/* Methods to allow access from classes outside of this package */
 
-	public String getExitSignal() {
-		synchronized (this) {
+	public ChannelInputStream getStderrStream()
+	{
+		return stderrStream;
+	}
+
+	public ChannelOutputStream getStdinStream()
+	{
+		return stdinStream;
+	}
+
+	public ChannelInputStream getStdoutStream()
+	{
+		return stdoutStream;
+	}
+
+	public String getExitSignal()
+	{
+		synchronized (this)
+		{
 			return exit_signal;
 		}
 	}
 
-	public Integer getExitStatus() {
-		synchronized (this) {
+	public Integer getExitStatus()
+	{
+		synchronized (this)
+		{
 			return exit_status;
 		}
 	}
 
-	public String getReasonClosed() {
-		synchronized (reasonClosedLock) {
+	public String getReasonClosed()
+	{
+		synchronized (reasonClosedLock)
+		{
 			return reasonClosed;
 		}
 	}
 
-	public ChannelInputStream getStderrStream() {
-		return stderrStream;
-	}
-
-	public ChannelOutputStream getStdinStream() {
-		return stdinStream;
-	}
-
-	public ChannelInputStream getStdoutStream() {
-		return stdoutStream;
-	}
-
-	public void setReasonClosed(String reasonClosed) {
-		synchronized (reasonClosedLock) {
+	public void setReasonClosed(String reasonClosed)
+	{
+		synchronized (reasonClosedLock)
+		{
 			if (this.reasonClosed == null)
 				this.reasonClosed = reasonClosed;
 		}

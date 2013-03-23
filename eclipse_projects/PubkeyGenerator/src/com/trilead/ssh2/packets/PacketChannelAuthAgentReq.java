@@ -2,21 +2,25 @@ package com.trilead.ssh2.packets;
 
 /**
  * PacketGlobalAuthAgent.
- * 
+ *
  * @author Kenny Root, kenny@the-b.org
  * @version $Id$
  */
-public class PacketChannelAuthAgentReq {
+public class PacketChannelAuthAgentReq
+{
 	byte[] payload;
 
 	public int recipientChannelID;
 
-	public PacketChannelAuthAgentReq(int recipientChannelID) {
+	public PacketChannelAuthAgentReq(int recipientChannelID)
+	{
 		this.recipientChannelID = recipientChannelID;
 	}
 
-	public byte[] getPayload() {
-		if (payload == null) {
+	public byte[] getPayload()
+	{
+		if (payload == null)
+		{
 			TypesWriter tw = new TypesWriter();
 			tw.writeByte(Packets.SSH_MSG_CHANNEL_REQUEST);
 			tw.writeUINT32(recipientChannelID);

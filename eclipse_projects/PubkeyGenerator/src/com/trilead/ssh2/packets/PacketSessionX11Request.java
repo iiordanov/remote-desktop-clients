@@ -1,13 +1,14 @@
+
 package com.trilead.ssh2.packets;
 
 /**
  * PacketSessionX11Request.
  * 
  * @author Christian Plattner, plattner@trilead.com
- * @version $Id: PacketSessionX11Request.java,v 1.1 2007/10/15 12:49:55 cplattne
- *          Exp $
+ * @version $Id: PacketSessionX11Request.java,v 1.1 2007/10/15 12:49:55 cplattne Exp $
  */
-public class PacketSessionX11Request {
+public class PacketSessionX11Request
+{
 	byte[] payload;
 
 	public int recipientChannelID;
@@ -18,9 +19,9 @@ public class PacketSessionX11Request {
 	String x11AuthenticationCookie;
 	int x11ScreenNumber;
 
-	public PacketSessionX11Request(int recipientChannelID, boolean wantReply,
-			boolean singleConnection, String x11AuthenticationProtocol,
-			String x11AuthenticationCookie, int x11ScreenNumber) {
+	public PacketSessionX11Request(int recipientChannelID, boolean wantReply, boolean singleConnection,
+			String x11AuthenticationProtocol, String x11AuthenticationCookie, int x11ScreenNumber)
+	{
 		this.recipientChannelID = recipientChannelID;
 		this.wantReply = wantReply;
 
@@ -30,8 +31,10 @@ public class PacketSessionX11Request {
 		this.x11ScreenNumber = x11ScreenNumber;
 	}
 
-	public byte[] getPayload() {
-		if (payload == null) {
+	public byte[] getPayload()
+	{
+		if (payload == null)
+		{
 			TypesWriter tw = new TypesWriter();
 			tw.writeByte(Packets.SSH_MSG_CHANNEL_REQUEST);
 			tw.writeUINT32(recipientChannelID);

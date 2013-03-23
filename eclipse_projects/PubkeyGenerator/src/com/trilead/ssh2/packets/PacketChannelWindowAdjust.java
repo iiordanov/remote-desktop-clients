@@ -6,17 +6,23 @@ import java.io.IOException;
  * PacketChannelWindowAdjust.
  * 
  * @author Christian Plattner, plattner@trilead.com
- * @version $Id: PacketChannelWindowAdjust.java,v 1.1 2007/10/15 12:49:55
- *          cplattne Exp $
+ * @version $Id: PacketChannelWindowAdjust.java,v 1.1 2007/10/15 12:49:55 cplattne Exp $
  */
-public class PacketChannelWindowAdjust {
+public class PacketChannelWindowAdjust
+{
 	byte[] payload;
 
 	public int recipientChannelID;
 	public int windowChange;
 
-	public PacketChannelWindowAdjust(byte payload[], int off, int len)
-			throws IOException {
+	public PacketChannelWindowAdjust(int recipientChannelID, int windowChange)
+	{
+		this.recipientChannelID = recipientChannelID;
+		this.windowChange = windowChange;
+	}
+
+	public PacketChannelWindowAdjust(byte payload[], int off, int len) throws IOException
+	{
 		this.payload = new byte[len];
 		System.arraycopy(payload, off, this.payload, 0, len);
 
@@ -31,19 +37,15 @@ public class PacketChannelWindowAdjust {
 
 		recipientChannelID = tr.readUINT32();
 		windowChange = tr.readUINT32();
-
+		
 		if (tr.remain() != 0)
-			throw new IOException(
-					"Padding in SSH_MSG_CHANNEL_WINDOW_ADJUST packet!");
+			throw new IOException("Padding in SSH_MSG_CHANNEL_WINDOW_ADJUST packet!");
 	}
 
-	public PacketChannelWindowAdjust(int recipientChannelID, int windowChange) {
-		this.recipientChannelID = recipientChannelID;
-		this.windowChange = windowChange;
-	}
-
-	public byte[] getPayload() {
-		if (payload == null) {
+	public byte[] getPayload()
+	{
+		if (payload == null)
+		{
 			TypesWriter tw = new TypesWriter();
 			tw.writeByte(Packets.SSH_MSG_CHANNEL_WINDOW_ADJUST);
 			tw.writeUINT32(recipientChannelID);

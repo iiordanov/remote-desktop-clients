@@ -1,23 +1,24 @@
 package com.trilead.ssh2.packets;
 
 import java.io.IOException;
+
 import java.math.BigInteger;
 
 /**
  * PacketKexDhGexGroup.
  * 
  * @author Christian Plattner, plattner@trilead.com
- * @version $Id: PacketKexDhGexGroup.java,v 1.1 2007/10/15 12:49:55 cplattne Exp
- *          $
+ * @version $Id: PacketKexDhGexGroup.java,v 1.1 2007/10/15 12:49:55 cplattne Exp $
  */
-public class PacketKexDhGexGroup {
+public class PacketKexDhGexGroup
+{
 	byte[] payload;
 
 	BigInteger p;
 	BigInteger g;
 
-	public PacketKexDhGexGroup(byte payload[], int off, int len)
-			throws IOException {
+	public PacketKexDhGexGroup(byte payload[], int off, int len) throws IOException
+	{
 		this.payload = new byte[len];
 		System.arraycopy(payload, off, this.payload, 0, len);
 
@@ -37,11 +38,13 @@ public class PacketKexDhGexGroup {
 			throw new IOException("PADDING IN SSH_MSG_KEX_DH_GEX_GROUP!");
 	}
 
-	public BigInteger getG() {
+	public BigInteger getG()
+	{
 		return g;
 	}
 
-	public BigInteger getP() {
+	public BigInteger getP()
+	{
 		return p;
 	}
 }

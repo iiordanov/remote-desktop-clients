@@ -1,3 +1,4 @@
+
 package com.trilead.ssh2.crypto.digest;
 
 /**
@@ -29,105 +30,67 @@ package com.trilead.ssh2.crypto.digest;
  * 
  * These notices must be retained in any copies of any part of this
  * documentation and/or software.
+ * 
  */
 
-public final class MD5 implements Digest {
-	private static final void encode(byte[] dst, int dstoff, int word) {
+public final class MD5 implements Digest
+{
+	private int state0, state1, state2, state3;
+	private long count;
+	private final byte[] block = new byte[64];
+	private final int x[] = new int[16];
+
+	private static final byte[] padding = new byte[] { (byte) 128, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+			0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+			0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+
+	public MD5()
+	{
+		reset();
+	}
+
+	private static final int FF(int a, int b, int c, int d, int x, int s, int ac)
+	{
+		a += ((b & c) | ((~b) & d)) + x + ac;
+		return ((a << s) | (a >>> (32 - s))) + b;
+	}
+
+	private static final int GG(int a, int b, int c, int d, int x, int s, int ac)
+	{
+		a += ((b & d) | (c & (~d))) + x + ac;
+		return ((a << s) | (a >>> (32 - s))) + b;
+	}
+
+	private static final int HH(int a, int b, int c, int d, int x, int s, int ac)
+	{
+		a += (b ^ c ^ d) + x + ac;
+		return ((a << s) | (a >>> (32 - s))) + b;
+	}
+
+	private static final int II(int a, int b, int c, int d, int x, int s, int ac)
+	{
+		a += (c ^ (b | (~d))) + x + ac;
+		return ((a << s) | (a >>> (32 - s))) + b;
+	}
+
+	private static final void encode(byte[] dst, int dstoff, int word)
+	{
 		dst[dstoff] = (byte) (word);
 		dst[dstoff + 1] = (byte) (word >> 8);
 		dst[dstoff + 2] = (byte) (word >> 16);
 		dst[dstoff + 3] = (byte) (word >> 24);
 	}
-	private static final int II(int a, int b, int c, int d, int x, int s, int ac) {
-		a += (c ^ (b | (~d))) + x + ac;
-		return ((a << s) | (a >>> (32 - s))) + b;
-	}
-	private int state0, state1, state2, state3;
-	private long count;
 
-	private final byte[] block = new byte[64];
-
-	private final int x[] = new int[16];
-
-	private static final byte[] padding = new byte[] { (byte) 128, 0, 0, 0, 0,
-			0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-			0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-			0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-
-	private static final int FF(int a, int b, int c, int d, int x, int s, int ac) {
-		a += ((b & c) | ((~b) & d)) + x + ac;
-		return ((a << s) | (a >>> (32 - s))) + b;
-	}
-
-	private static final int GG(int a, int b, int c, int d, int x, int s, int ac) {
-		a += ((b & d) | (c & (~d))) + x + ac;
-		return ((a << s) | (a >>> (32 - s))) + b;
-	}
-
-	private static final int HH(int a, int b, int c, int d, int x, int s, int ac) {
-		a += (b ^ c ^ d) + x + ac;
-		return ((a << s) | (a >>> (32 - s))) + b;
-	}
-
-	public MD5() {
-		reset();
-	}
-
-	@Override
-	public final void digest(byte[] dst) {
-		digest(dst, 0);
-	}
-
-	@Override
-	public final void digest(byte[] dst, int pos) {
-		byte[] bits = new byte[8];
-
-		encode(bits, 0, (int) (count << 3));
-		encode(bits, 4, (int) (count >> 29));
-
-		int idx = (int) count & 0x3f;
-		int padLen = (idx < 56) ? (56 - idx) : (120 - idx);
-
-		update(padding, 0, padLen);
-		update(bits, 0, 8);
-
-		encode(dst, pos, state0);
-		encode(dst, pos + 4, state1);
-		encode(dst, pos + 8, state2);
-		encode(dst, pos + 12, state3);
-
-		reset();
-	}
-
-	@Override
-	public final int getDigestLength() {
-		return 16;
-	}
-
-	@Override
-	public final void reset() {
-		count = 0;
-
-		state0 = 0x67452301;
-		state1 = 0xefcdab89;
-		state2 = 0x98badcfe;
-		state3 = 0x10325476;
-
-		/* Clear traces in memory... */
-
-		for (int i = 0; i < 16; i++)
-			x[i] = 0;
-	}
-
-	private final void transform(byte[] src, int pos) {
+	private final void transform(byte[] src, int pos)
+	{
 		int a = state0;
 		int b = state1;
 		int c = state2;
 		int d = state3;
 
-		for (int i = 0; i < 16; i++, pos += 4) {
-			x[i] = (src[pos] & 0xff) | ((src[pos + 1] & 0xff) << 8)
-					| ((src[pos + 2] & 0xff) << 16)
+		for (int i = 0; i < 16; i++, pos += 4)
+		{
+			x[i] = (src[pos] & 0xff) | ((src[pos + 1] & 0xff) << 8) | ((src[pos + 2] & 0xff) << 16)
 					| ((src[pos + 3] & 0xff) << 24);
 		}
 
@@ -210,8 +173,23 @@ public final class MD5 implements Digest {
 		state3 += d;
 	}
 
-	@Override
-	public final void update(byte b) {
+	public final void reset()
+	{
+		count = 0;
+
+		state0 = 0x67452301;
+		state1 = 0xefcdab89;
+		state2 = 0x98badcfe;
+		state3 = 0x10325476;
+
+		/* Clear traces in memory... */
+
+		for (int i = 0; i < 16; i++)
+			x[i] = 0;
+	}
+
+	public final void update(byte b)
+	{
 		final int space = 64 - ((int) (count & 0x3f));
 
 		count++;
@@ -222,26 +200,26 @@ public final class MD5 implements Digest {
 			transform(block, 0);
 	}
 
-	@Override
-	public final void update(byte[] b) {
-		update(b, 0, b.length);
-	}
-
-	@Override
-	public final void update(byte[] buff, int pos, int len) {
+	public final void update(byte[] buff, int pos, int len)
+	{
 		int space = 64 - ((int) (count & 0x3f));
 
 		count += len;
 
-		while (len > 0) {
-			if (len < space) {
+		while (len > 0)
+		{
+			if (len < space)
+			{
 				System.arraycopy(buff, pos, block, 64 - space, len);
 				break;
 			}
 
-			if (space == 64) {
+			if (space == 64)
+			{
 				transform(buff, pos);
-			} else {
+			}
+			else
+			{
 				System.arraycopy(buff, pos, block, 64 - space, space);
 				transform(block, 0);
 			}
@@ -250,5 +228,41 @@ public final class MD5 implements Digest {
 			len -= space;
 			space = 64;
 		}
+	}
+
+	public final void update(byte[] b)
+	{
+		update(b, 0, b.length);
+	}
+
+	public final void digest(byte[] dst, int pos)
+	{
+		byte[] bits = new byte[8];
+
+		encode(bits, 0, (int) (count << 3));
+		encode(bits, 4, (int) (count >> 29));
+
+		int idx = (int) count & 0x3f;
+		int padLen = (idx < 56) ? (56 - idx) : (120 - idx);
+
+		update(padding, 0, padLen);
+		update(bits, 0, 8);
+
+		encode(dst, pos, state0);
+		encode(dst, pos + 4, state1);
+		encode(dst, pos + 8, state2);
+		encode(dst, pos + 12, state3);
+
+		reset();
+	}
+
+	public final void digest(byte[] dst)
+	{
+		digest(dst, 0);
+	}
+
+	public final int getDigestLength()
+	{
+		return 16;
 	}
 }

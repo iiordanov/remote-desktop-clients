@@ -8,7 +8,8 @@ import java.math.BigInteger;
  * @author Christian Plattner, plattner@trilead.com
  * @version $Id: DSAPrivateKey.java,v 1.1 2007/10/15 12:49:57 cplattne Exp $
  */
-public class DSAPrivateKey {
+public class DSAPrivateKey
+{
 	private BigInteger p;
 	private BigInteger q;
 	private BigInteger g;
@@ -16,7 +17,8 @@ public class DSAPrivateKey {
 	private BigInteger y;
 
 	public DSAPrivateKey(BigInteger p, BigInteger q, BigInteger g,
-			BigInteger y, BigInteger x) {
+			BigInteger y, BigInteger x)
+	{
 		this.p = p;
 		this.q = q;
 		this.g = g;
@@ -24,27 +26,33 @@ public class DSAPrivateKey {
 		this.x = x;
 	}
 
-	public BigInteger getG() {
-		return g;
-	}
-
-	public BigInteger getP() {
+	public BigInteger getP()
+	{
 		return p;
 	}
 
-	public DSAPublicKey getPublicKey() {
-		return new DSAPublicKey(p, q, g, y);
-	}
-
-	public BigInteger getQ() {
+	public BigInteger getQ()
+	{
 		return q;
 	}
-
-	public BigInteger getX() {
-		return x;
+	
+	public BigInteger getG()
+	{
+		return g;
 	}
 
-	public BigInteger getY() {
+	public BigInteger getY()
+	{
 		return y;
+	}
+	
+	public BigInteger getX()
+	{
+		return x;
+	}
+	
+	public DSAPublicKey getPublicKey()
+	{
+		return new DSAPublicKey(p, q, g, y);
 	}
 }

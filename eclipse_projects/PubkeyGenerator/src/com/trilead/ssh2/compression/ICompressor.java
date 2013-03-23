@@ -19,14 +19,14 @@ package com.trilead.ssh2.compression;
 
 /**
  * @author Kenny Root
- * 
+ *
  */
 public interface ICompressor {
-	boolean canCompressPreauth();
+	int getBufferSize();
 
 	int compress(byte[] buf, int start, int len, byte[] output);
 
-	int getBufferSize();
-
 	byte[] uncompress(byte[] buf, int start, int[] len);
+
+	boolean canCompressPreauth();
 }

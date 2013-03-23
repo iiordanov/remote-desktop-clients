@@ -1,13 +1,14 @@
 package com.trilead.ssh2.packets;
 
+
 /**
  * PacketOpenDirectTCPIPChannel.
  * 
  * @author Christian Plattner, plattner@trilead.com
- * @version $Id: PacketOpenDirectTCPIPChannel.java,v 1.1 2007/10/15 12:49:55
- *          cplattne Exp $
+ * @version $Id: PacketOpenDirectTCPIPChannel.java,v 1.1 2007/10/15 12:49:55 cplattne Exp $
  */
-public class PacketOpenDirectTCPIPChannel {
+public class PacketOpenDirectTCPIPChannel
+{
 	byte[] payload;
 
 	int channelID;
@@ -19,9 +20,10 @@ public class PacketOpenDirectTCPIPChannel {
 	String originator_IP_address;
 	int originator_port;
 
-	public PacketOpenDirectTCPIPChannel(int channelID, int initialWindowSize,
-			int maxPacketSize, String host_to_connect, int port_to_connect,
-			String originator_IP_address, int originator_port) {
+	public PacketOpenDirectTCPIPChannel(int channelID, int initialWindowSize, int maxPacketSize,
+			String host_to_connect, int port_to_connect, String originator_IP_address,
+			int originator_port)
+	{
 		this.channelID = channelID;
 		this.initialWindowSize = initialWindowSize;
 		this.maxPacketSize = maxPacketSize;
@@ -31,8 +33,10 @@ public class PacketOpenDirectTCPIPChannel {
 		this.originator_port = originator_port;
 	}
 
-	public byte[] getPayload() {
-		if (payload == null) {
+	public byte[] getPayload()
+	{
+		if (payload == null)
+		{
 			TypesWriter tw = new TypesWriter();
 
 			tw.writeByte(Packets.SSH_MSG_CHANNEL_OPEN);

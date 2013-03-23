@@ -1,3 +1,4 @@
+
 package com.trilead.ssh2.crypto.dh;
 
 import java.io.UnsupportedEncodingException;
@@ -7,13 +8,15 @@ import java.security.SecureRandom;
 import com.trilead.ssh2.crypto.digest.HashForSSH2Types;
 import com.trilead.ssh2.log.Logger;
 
+
 /**
  * DhExchange.
  * 
  * @author Christian Plattner, plattner@trilead.com
  * @version $Id: DhExchange.java,v 1.2 2008/04/01 12:38:09 cplattne Exp $
  */
-public class DhExchange {
+public class DhExchange
+{
 	private static final Logger log = Logger.getLogger(DhExchange.class);
 
 	/* Given by the standard */
@@ -36,7 +39,8 @@ public class DhExchange {
 
 	BigInteger k;
 
-	static {
+	static
+	{
 		final String p1_string = "17976931348623159077083915679378745319786029604875"
 				+ "60117064444236841971802161585193689478337958649255415021805654859805036464"
 				+ "40548199239100050792877003355816639229553136239076508735759914822574862575"
@@ -57,57 +61,12 @@ public class DhExchange {
 		g = new BigInteger("2");
 	}
 
-	public DhExchange() {
+	public DhExchange()
+	{
 	}
 
-	public byte[] calculateH(byte[] clientversion, byte[] serverversion,
-			byte[] clientKexPayload, byte[] serverKexPayload, byte[] hostKey)
-			throws UnsupportedEncodingException {
-		HashForSSH2Types hash = new HashForSSH2Types("SHA1");
-
-		if (log.isEnabled()) {
-			log.log(90, "Client: '" + new String(clientversion, "ISO-8859-1")
-					+ "'");
-			log.log(90, "Server: '" + new String(serverversion, "ISO-8859-1")
-					+ "'");
-		}
-
-		hash.updateByteString(clientversion);
-		hash.updateByteString(serverversion);
-		hash.updateByteString(clientKexPayload);
-		hash.updateByteString(serverKexPayload);
-		hash.updateByteString(hostKey);
-		hash.updateBigInt(e);
-		hash.updateBigInt(f);
-		hash.updateBigInt(k);
-
-		return hash.getDigest();
-	}
-
-	/**
-	 * @return Returns the e.
-	 * @throws IllegalStateException
-	 */
-	public BigInteger getE() {
-		if (e == null)
-			throw new IllegalStateException("DhDsaExchange not initialized!");
-
-		return e;
-	}
-
-	/**
-	 * @return Returns the shared secret k.
-	 * @throws IllegalStateException
-	 */
-	public BigInteger getK() {
-		if (k == null)
-			throw new IllegalStateException(
-					"Shared secret not yet known, need f first!");
-
-		return k;
-	}
-
-	public void init(int group, SecureRandom rnd) {
+	public void init(int group, SecureRandom rnd)
+	{
 		k = null;
 
 		if (group == 1)
@@ -123,9 +82,34 @@ public class DhExchange {
 	}
 
 	/**
+	 * @return Returns the e.
+	 * @throws IllegalStateException
+	 */
+	public BigInteger getE()
+	{
+		if (e == null)
+			throw new IllegalStateException("DhDsaExchange not initialized!");
+
+		return e;
+	}
+
+	/**
+	 * @return Returns the shared secret k.
+	 * @throws IllegalStateException
+	 */
+	public BigInteger getK()
+	{
+		if (k == null)
+			throw new IllegalStateException("Shared secret not yet known, need f first!");
+
+		return k;
+	}
+
+	/**
 	 * @param f
 	 */
-	public void setF(BigInteger f) {
+	public void setF(BigInteger f)
+	{
 		if (e == null)
 			throw new IllegalStateException("DhDsaExchange not initialized!");
 
@@ -136,5 +120,28 @@ public class DhExchange {
 
 		this.f = f;
 		this.k = f.modPow(x, p);
+	}
+
+	public byte[] calculateH(byte[] clientversion, byte[] serverversion, byte[] clientKexPayload,
+			byte[] serverKexPayload, byte[] hostKey) throws UnsupportedEncodingException
+	{
+		HashForSSH2Types hash = new HashForSSH2Types("SHA1");
+
+		if (log.isEnabled())
+		{
+			log.log(90, "Client: '" + new String(clientversion, "ISO-8859-1") + "'");
+			log.log(90, "Server: '" + new String(serverversion, "ISO-8859-1") + "'");
+		}
+
+		hash.updateByteString(clientversion);
+		hash.updateByteString(serverversion);
+		hash.updateByteString(clientKexPayload);
+		hash.updateByteString(serverKexPayload);
+		hash.updateByteString(hostKey);
+		hash.updateBigInt(e);
+		hash.updateBigInt(f);
+		hash.updateBigInt(k);
+
+		return hash.getDigest();
 	}
 }

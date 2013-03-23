@@ -1,4 +1,6 @@
+
 package com.trilead.ssh2.crypto;
+
 
 import java.math.BigInteger;
 
@@ -10,9 +12,18 @@ import com.trilead.ssh2.crypto.digest.HashForSSH2Types;
  * @author Christian Plattner, plattner@trilead.com
  * @version $Id: KeyMaterial.java,v 1.1 2007/10/15 12:49:56 cplattne Exp $
  */
-public class KeyMaterial {
-	private static byte[] calculateKey(HashForSSH2Types sh, BigInteger K,
-			byte[] H, byte type, byte[] SessionID, int keyLength) {
+public class KeyMaterial
+{
+	public byte[] initial_iv_client_to_server;
+	public byte[] initial_iv_server_to_client;
+	public byte[] enc_key_client_to_server;
+	public byte[] enc_key_server_to_client;
+	public byte[] integrity_key_client_to_server;
+	public byte[] integrity_key_server_to_client;
+
+	private static byte[] calculateKey(HashForSSH2Types sh, BigInteger K, byte[] H, byte type, byte[] SessionID,
+			int keyLength)
+	{
 		byte[] res = new byte[keyLength];
 
 		int dglen = sh.getDigestLength();
@@ -36,7 +47,8 @@ public class KeyMaterial {
 		keyLength -= produced;
 		off += produced;
 
-		for (int i = 1; i < numRounds; i++) {
+		for (int i = 1; i < numRounds; i++)
+		{
 			sh.updateBigInt(K);
 			sh.updateBytes(H);
 
@@ -53,40 +65,27 @@ public class KeyMaterial {
 
 		return res;
 	}
-	public static KeyMaterial create(String hashType, byte[] H, BigInteger K,
-			byte[] SessionID, int keyLengthCS, int blockSizeCS,
-			int macLengthCS, int keyLengthSC, int blockSizeSC, int macLengthSC)
-			throws IllegalArgumentException {
+
+	public static KeyMaterial create(String hashType, byte[] H, BigInteger K, byte[] SessionID, int keyLengthCS,
+			int blockSizeCS, int macLengthCS, int keyLengthSC, int blockSizeSC, int macLengthSC)
+			throws IllegalArgumentException
+	{
 		KeyMaterial km = new KeyMaterial();
 
 		HashForSSH2Types sh = new HashForSSH2Types(hashType);
 
-		km.initial_iv_client_to_server = calculateKey(sh, K, H, (byte) 'A',
-				SessionID, blockSizeCS);
+		km.initial_iv_client_to_server = calculateKey(sh, K, H, (byte) 'A', SessionID, blockSizeCS);
 
-		km.initial_iv_server_to_client = calculateKey(sh, K, H, (byte) 'B',
-				SessionID, blockSizeSC);
+		km.initial_iv_server_to_client = calculateKey(sh, K, H, (byte) 'B', SessionID, blockSizeSC);
 
-		km.enc_key_client_to_server = calculateKey(sh, K, H, (byte) 'C',
-				SessionID, keyLengthCS);
+		km.enc_key_client_to_server = calculateKey(sh, K, H, (byte) 'C', SessionID, keyLengthCS);
 
-		km.enc_key_server_to_client = calculateKey(sh, K, H, (byte) 'D',
-				SessionID, keyLengthSC);
+		km.enc_key_server_to_client = calculateKey(sh, K, H, (byte) 'D', SessionID, keyLengthSC);
 
-		km.integrity_key_client_to_server = calculateKey(sh, K, H, (byte) 'E',
-				SessionID, macLengthCS);
+		km.integrity_key_client_to_server = calculateKey(sh, K, H, (byte) 'E', SessionID, macLengthCS);
 
-		km.integrity_key_server_to_client = calculateKey(sh, K, H, (byte) 'F',
-				SessionID, macLengthSC);
+		km.integrity_key_server_to_client = calculateKey(sh, K, H, (byte) 'F', SessionID, macLengthSC);
 
 		return km;
 	}
-	public byte[] initial_iv_client_to_server;
-	public byte[] initial_iv_server_to_client;
-	public byte[] enc_key_client_to_server;
-	public byte[] enc_key_server_to_client;
-
-	public byte[] integrity_key_client_to_server;
-
-	public byte[] integrity_key_server_to_client;
 }

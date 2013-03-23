@@ -1,21 +1,28 @@
+
 package com.trilead.ssh2;
 
 import java.io.IOException;
 
 import com.trilead.ssh2.sftp.ErrorCodes;
 
+
 /**
- * Used in combination with the SFTPv3Client. This exception wraps error
- * messages sent by the SFTP server.
+ * Used in combination with the SFTPv3Client. This exception wraps
+ * error messages sent by the SFTP server.
  * 
  * @author Christian Plattner, plattner@trilead.com
  * @version $Id: SFTPException.java,v 1.1 2007/10/15 12:49:56 cplattne Exp $
  */
 
-public class SFTPException extends IOException {
+public class SFTPException extends IOException
+{
 	private static final long serialVersionUID = 578654644222421811L;
 
-	private static String constructMessage(String s, int errorCode) {
+	private final String sftpErrorMessage;
+	private final int sftpErrorCode;
+
+	private static String constructMessage(String s, int errorCode)
+	{
 		String[] detail = ErrorCodes.getDescription(errorCode);
 
 		if (detail == null)
@@ -23,14 +30,23 @@ public class SFTPException extends IOException {
 
 		return s + " (" + detail[0] + ": " + detail[1] + ")";
 	}
-	private final String sftpErrorMessage;
 
-	private final int sftpErrorCode;
-
-	SFTPException(String msg, int errorCode) {
+	SFTPException(String msg, int errorCode)
+	{
 		super(constructMessage(msg, errorCode));
 		sftpErrorMessage = msg;
 		sftpErrorCode = errorCode;
+	}
+
+	/**
+	 * Get the error message sent by the server. Often, this
+	 * message does not help a lot (e.g., "failure").
+	 * 
+	 * @return the plain string as sent by the server.
+	 */
+	public String getServerErrorMessage()
+	{
+		return sftpErrorMessage;
 	}
 
 	/**
@@ -38,7 +54,8 @@ public class SFTPException extends IOException {
 	 * 
 	 * @return an error code as defined in the SFTP specs.
 	 */
-	public int getServerErrorCode() {
+	public int getServerErrorCode()
+	{
 		return sftpErrorCode;
 	}
 
@@ -47,7 +64,8 @@ public class SFTPException extends IOException {
 	 * 
 	 * @return e.g., "SSH_FX_INVALID_FILENAME".
 	 */
-	public String getServerErrorCodeSymbol() {
+	public String getServerErrorCodeSymbol()
+	{
 		String[] detail = ErrorCodes.getDescription(sftpErrorCode);
 
 		if (detail == null)
@@ -61,22 +79,13 @@ public class SFTPException extends IOException {
 	 * 
 	 * @return e.g., "The filename is not valid."
 	 */
-	public String getServerErrorCodeVerbose() {
+	public String getServerErrorCodeVerbose()
+	{
 		String[] detail = ErrorCodes.getDescription(sftpErrorCode);
 
 		if (detail == null)
 			return "The error code " + sftpErrorCode + " is unknown.";
 
 		return detail[1];
-	}
-
-	/**
-	 * Get the error message sent by the server. Often, this message does not
-	 * help a lot (e.g., "failure").
-	 * 
-	 * @return the plain string as sent by the server.
-	 */
-	public String getServerErrorMessage() {
-		return sftpErrorMessage;
 	}
 }

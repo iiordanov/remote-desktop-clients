@@ -1,3 +1,4 @@
+
 package com.trilead.ssh2;
 
 /**
@@ -6,7 +7,8 @@ package com.trilead.ssh2;
  * @author Christian Plattner, plattner@trilead.com
  * @version $Id: ConnectionInfo.java,v 1.1 2007/10/15 12:49:56 cplattne Exp $
  */
-public class ConnectionInfo {
+public class ConnectionInfo
+{
 	/**
 	 * The used key exchange (KEX) algorithm in the latest key exchange.
 	 */

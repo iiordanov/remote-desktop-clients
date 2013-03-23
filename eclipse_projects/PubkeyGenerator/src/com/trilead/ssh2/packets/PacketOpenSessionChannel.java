@@ -6,18 +6,26 @@ import java.io.IOException;
  * PacketOpenSessionChannel.
  * 
  * @author Christian Plattner, plattner@trilead.com
- * @version $Id: PacketOpenSessionChannel.java,v 1.1 2007/10/15 12:49:55
- *          cplattne Exp $
+ * @version $Id: PacketOpenSessionChannel.java,v 1.1 2007/10/15 12:49:55 cplattne Exp $
  */
-public class PacketOpenSessionChannel {
+public class PacketOpenSessionChannel
+{
 	byte[] payload;
 
 	int channelID;
 	int initialWindowSize;
 	int maxPacketSize;
 
-	public PacketOpenSessionChannel(byte payload[], int off, int len)
-			throws IOException {
+	public PacketOpenSessionChannel(int channelID, int initialWindowSize,
+			int maxPacketSize)
+	{
+		this.channelID = channelID;
+		this.initialWindowSize = initialWindowSize;
+		this.maxPacketSize = maxPacketSize;
+	}
+
+	public PacketOpenSessionChannel(byte payload[], int off, int len) throws IOException
+	{
 		this.payload = new byte[len];
 		System.arraycopy(payload, off, this.payload, 0, len);
 
@@ -37,15 +45,10 @@ public class PacketOpenSessionChannel {
 			throw new IOException("Padding in SSH_MSG_CHANNEL_OPEN packet!");
 	}
 
-	public PacketOpenSessionChannel(int channelID, int initialWindowSize,
-			int maxPacketSize) {
-		this.channelID = channelID;
-		this.initialWindowSize = initialWindowSize;
-		this.maxPacketSize = maxPacketSize;
-	}
-
-	public byte[] getPayload() {
-		if (payload == null) {
+	public byte[] getPayload()
+	{
+		if (payload == null)
+		{
 			TypesWriter tw = new TypesWriter();
 			tw.writeByte(Packets.SSH_MSG_CHANNEL_OPEN);
 			tw.writeString("session");

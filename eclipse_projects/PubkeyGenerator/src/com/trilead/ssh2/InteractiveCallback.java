@@ -1,18 +1,19 @@
+
 package com.trilead.ssh2;
 
 /**
- * An <code>InteractiveCallback</code> is used to respond to challenges sent by
- * the server if authentication mode "keyboard-interactive" is selected.
+ * An <code>InteractiveCallback</code> is used to respond to challenges sent
+ * by the server if authentication mode "keyboard-interactive" is selected.
  * 
- * @see Connection#authenticateWithKeyboardInteractive(String, String[],
- *      InteractiveCallback)
+ * @see Connection#authenticateWithKeyboardInteractive(String,
+ *      String[], InteractiveCallback)
  * 
  * @author Christian Plattner, plattner@trilead.com
- * @version $Id: InteractiveCallback.java,v 1.1 2007/10/15 12:49:56 cplattne Exp
- *          $
+ * @version $Id: InteractiveCallback.java,v 1.1 2007/10/15 12:49:56 cplattne Exp $
  */
 
-public interface InteractiveCallback {
+public interface InteractiveCallback
+{
 	/**
 	 * This callback interface is used during a "keyboard-interactive"
 	 * authentication. Every time the server sends a set of challenges (however,
@@ -30,8 +31,8 @@ public interface InteractiveCallback {
 	 * Please refer to draft-ietf-secsh-auth-kbdinteract-XX.txt for the details.
 	 * <p>
 	 * Note: clients SHOULD use control character filtering as discussed in
-	 * RFC4251 to avoid attacks by including terminal control characters in the
-	 * fields to be displayed.
+	 * RFC4251 to avoid attacks by including
+	 * terminal control characters in the fields to be displayed.
 	 * 
 	 * @param name
 	 *            the name String sent by the server.
@@ -49,6 +50,6 @@ public interface InteractiveCallback {
 	 * @return an array of reponses - the array size must match the parameter
 	 *         <code>numPrompts</code>.
 	 */
-	public String[] replyToChallenge(String name, String instruction,
-			int numPrompts, String[] prompt, boolean[] echo) throws Exception;
+	public String[] replyToChallenge(String name, String instruction, int numPrompts, String[] prompt, boolean[] echo)
+			throws Exception;
 }

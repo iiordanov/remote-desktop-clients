@@ -8,20 +8,24 @@ import java.math.BigInteger;
  * @author Christian Plattner, plattner@trilead.com
  * @version $Id: DSASignature.java,v 1.1 2007/10/15 12:49:57 cplattne Exp $
  */
-public class DSASignature {
+public class DSASignature
+{
 	private BigInteger r;
 	private BigInteger s;
 
-	public DSASignature(BigInteger r, BigInteger s) {
+	public DSASignature(BigInteger r, BigInteger s)
+	{
 		this.r = r;
 		this.s = s;
 	}
 
-	public BigInteger getR() {
+	public BigInteger getR()
+	{
 		return r;
 	}
 
-	public BigInteger getS() {
+	public BigInteger getS()
+	{
 		return s;
 	}
 }
