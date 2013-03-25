@@ -53,19 +53,18 @@ public class XmlBuilder {
 			sb.append(String.format("<%s>%s</%s>", field,
 					binary ? new String(Base64.encode(input.getBytes())) : input, field));
 		} else if (data instanceof Integer) {
-			sb.append(String.format("<%s>%d</%s>", field, data, field));
+			sb.append(String.format("<%s>%d</%s>", field, (Integer) data, field));
 		} else if (data instanceof Long) {
-			sb.append(String.format("<%s>%d</%s>", field, data, field));
+			sb.append(String.format("<%s>%d</%s>", field, (Long) data, field));
 		} else if (data instanceof byte[]) {
 			sb.append(String.format("<%s>%s</%s>", field, new String(Base64.encode((byte[]) data)), field));
 		} else if (data instanceof Boolean) {
-			sb.append(String.format("<%s>%s</%s>", field, data, field));
+			sb.append(String.format("<%s>%s</%s>", field, (Boolean) data, field));
 		}
 
 		return this;
 	}
 
-	@Override
 	public String toString() {
 		return sb.toString();
 	}

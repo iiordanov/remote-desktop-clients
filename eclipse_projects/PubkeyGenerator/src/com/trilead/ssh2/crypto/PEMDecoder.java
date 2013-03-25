@@ -5,7 +5,21 @@ import java.io.BufferedReader;
 import java.io.CharArrayReader;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.security.KeyFactory;
+import java.security.KeyPair;
+import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.security.interfaces.RSAPrivateCrtKey;
+import java.security.spec.DSAPrivateKeySpec;
+import java.security.spec.DSAPublicKeySpec;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.PKCS8EncodedKeySpec;
+import java.security.spec.RSAPrivateKeySpec;
+import java.security.spec.RSAPublicKeySpec;
 
+import com.iiordanov.pubkeygenerator.PubkeyDatabase;
+import com.iiordanov.pubkeygenerator.PubkeyUtils;
 import com.trilead.ssh2.crypto.cipher.AES;
 import com.trilead.ssh2.crypto.cipher.BlockCipher;
 import com.trilead.ssh2.crypto.cipher.CBCMode;
@@ -221,7 +235,7 @@ public class PEMDecoder
 		return ps;
 	}
 
-	private static final void decryptPEM(PEMStructure ps, byte[] pw) throws IOException
+	public static final void decryptPEM(PEMStructure ps, byte[] pw) throws IOException
 	{
 		if (ps.dekInfo == null)
 			throw new IOException("Broken PEM, no mode and salt given, but encryption enabled");
@@ -369,6 +383,99 @@ public class PEMDecoder
 			BigInteger d = dr.readInt();
 
 			return new RSAPrivateKey(d, e, n);
+		}
+
+		throw new IOException("PEM problem: it is of unknown type");
+	}
+
+	
+	public static KeyPair decodeToKeyPair(char[] pem, String password) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException
+	{
+		PEMStructure ps = parsePEM(pem);
+
+		if (isPEMEncrypted(ps))
+		{
+			if (password == null)
+				throw new IOException("PEM is encrypted, but no password was specified");
+
+			decryptPEM(ps, password.getBytes("ISO-8859-1"));
+		}
+
+		if (ps.pemType == PEM_DSA_PRIVATE_KEY)
+		{
+			SimpleDERReader dr = new SimpleDERReader(ps.data);
+
+			byte[] seq = dr.readSequenceAsByteArray();
+
+			if (dr.available() != 0)
+				throw new IOException("Padding in DSA PRIVATE KEY DER stream.");
+
+			dr.resetInput(seq);
+
+			BigInteger version = dr.readInt();
+
+			if (version.compareTo(BigInteger.ZERO) != 0)
+				throw new IOException("Wrong version (" + version + ") in DSA PRIVATE KEY DER stream.");
+
+			BigInteger p = dr.readInt();
+			BigInteger q = dr.readInt();
+			BigInteger g = dr.readInt();
+			BigInteger y = dr.readInt();
+			BigInteger x = dr.readInt();
+
+			if (dr.available() != 0)
+				throw new IOException("Padding in DSA PRIVATE KEY DER stream.");
+
+			DSAPrivateKeySpec privSpec = new DSAPrivateKeySpec(x, p, q, g);
+			DSAPublicKeySpec  pubSpec  = new DSAPublicKeySpec(y, p, q, g);
+			KeyFactory kf   = KeyFactory.getInstance(PubkeyDatabase.KEY_TYPE_DSA);
+			PrivateKey priv = kf.generatePrivate(privSpec);
+			PublicKey  pub  = kf.generatePublic(pubSpec);
+			return new KeyPair(pub, priv);
+		}
+
+		if (ps.pemType == PEM_RSA_PRIVATE_KEY)
+		{
+			PrivateKey priv = null;
+			PublicKey pub   = null;
+	        /* DOESN'T WORK FOR SOME REASON!				
+            byte[] key = ps.data;
+            KeyFactory kf = KeyFactory.getInstance("RSA");
+            PKCS8EncodedKeySpec keysp = new PKCS8EncodedKeySpec ( key );
+            priv = kf.generatePrivate (keysp);
+
+            RSAPrivateCrtKey privk = (RSAPrivateCrtKey)priv;
+            RSAPublicKeySpec publicKeySpec = new java.security.spec.RSAPublicKeySpec(privk.getPublicExponent(), privk.getModulus());
+            KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+            pub = keyFactory.generatePublic(publicKeySpec);
+            */
+			
+            /* DOESN'T WORK FOR SOME REASON!		
+			SimpleDERReader dr = new SimpleDERReader(ps.data);
+
+			byte[] seq = dr.readSequenceAsByteArray();
+
+			if (dr.available() != 0)
+				throw new IOException("Padding in RSA PRIVATE KEY DER stream.");
+
+			dr.resetInput(seq);
+
+			BigInteger version = dr.readInt();
+
+			if ((version.compareTo(BigInteger.ZERO) != 0) && (version.compareTo(BigInteger.ONE) != 0))
+				throw new IOException("Wrong version (" + version + ") in RSA PRIVATE KEY DER stream.");
+
+			BigInteger n = dr.readInt();
+			BigInteger e = dr.readInt();
+			BigInteger d = dr.readInt();
+
+			RSAPrivateKeySpec privSpec = new RSAPrivateKeySpec(n, d);
+			RSAPublicKeySpec  pubSpec  = new RSAPublicKeySpec(n, e);
+			KeyFactory kf   = KeyFactory.getInstance(PubkeyDatabase.KEY_TYPE_RSA);
+			priv = kf.generatePrivate(privSpec);
+			pub  = kf.generatePublic(pubSpec);
+			*/
+			return new KeyPair(pub, priv);
 		}
 
 		throw new IOException("PEM problem: it is of unknown type");

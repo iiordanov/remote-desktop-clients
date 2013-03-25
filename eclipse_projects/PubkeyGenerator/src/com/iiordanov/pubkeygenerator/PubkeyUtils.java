@@ -60,6 +60,7 @@ import android.util.Log;
 
 import com.trilead.ssh2.crypto.Base64;
 import com.trilead.ssh2.crypto.PEMDecoder;
+import com.trilead.ssh2.crypto.PEMStructure;
 import com.trilead.ssh2.signature.DSASHA1Verify;
 import com.trilead.ssh2.signature.RSASHA1Verify;
 
@@ -176,21 +177,21 @@ public class PubkeyUtils {
 					.getPublicExponent());
 
 			pub = kf.generatePublic(pubKeySpec);
-		} catch (Exception e) {
-			kf = KeyFactory.getInstance(PubkeyDatabase.KEY_TYPE_DSA);
-			priv = kf.generatePrivate(privKeySpec);
+        } catch (ClassCastException e) {
+            kf = KeyFactory.getInstance(PubkeyDatabase.KEY_TYPE_DSA);
+            priv = kf.generatePrivate(privKeySpec);
 
-			DSAParams params = ((DSAPrivateKey) priv).getParams();
+            DSAParams params = ((DSAPrivateKey) priv).getParams();
 
-			// Calculate public key Y
-			BigInteger y = params.getG().modPow(((DSAPrivateKey) priv).getX(),
-					params.getP());
+            // Calculate public key Y
+            BigInteger y = params.getG().modPow(((DSAPrivateKey) priv).getX(),
+                            params.getP());
 
-			pubKeySpec = new DSAPublicKeySpec(y, params.getP(), params.getQ(),
-					params.getG());
+            pubKeySpec = new DSAPublicKeySpec(y, params.getP(), params.getQ(),
+                            params.getG());
 
-			pub = kf.generatePublic(pubKeySpec);
-		}
+            pub = kf.generatePublic(pubKeySpec);
+        }
 
 		return new KeyPair(pub, priv);
 	}
@@ -220,7 +221,7 @@ public class PubkeyUtils {
 		if (sshPrivKey == null) {
 			Log.e (TAG, "SSH private key is null.");
 			return null;	
-		} else if (sshPrivKey.isEmpty()) {
+		} else if (sshPrivKey.length() == 0) {
 			Log.i (TAG, "SSH private key is empty, not recovering");
 			return null;
 		}
@@ -228,7 +229,7 @@ public class PubkeyUtils {
 			passphrase = new String ("");
 
 		try {
-			if (!passphrase.isEmpty()) {
+			if (passphrase.length() != 0) {
 				Log.i(TAG, "Passphrase not empty, trying to decrypt key.");
 				// Try decrypting key with passphrase entered by user.
 				byte [] decrypted = PubkeyUtils.decrypt(android.util.Base64.decode(sshPrivKey,
@@ -345,9 +346,8 @@ public class PubkeyUtils {
 			random.nextBytes(salt);
 
 			PBEParameterSpec defParams = new PBEParameterSpec(salt, 1);
+			AlgorithmParameters params = AlgorithmParameters.getInstance(key.getAlgorithm());
 
-			AlgorithmParameters params;
-			params = AlgorithmParameters.getInstance(key.getAlgorithm());
 			params.init(defParams);
 
 			PBEKeySpec pbeSpec = new PBEKeySpec(secret.toCharArray());
@@ -429,6 +429,7 @@ public class PubkeyUtils {
 		return data;
 	}
 	
+	// Deprecated method that handles only non-encrypted keys.
 	public static KeyPair importPEM (String pem) {
         byte [] encoded   = null;
 		KeyPair recovered = null;
@@ -438,6 +439,8 @@ public class PubkeyUtils {
         privKeyPEM = privKeyPEM.replace("-----END RSA PRIVATE KEY-----", "");
         privKeyPEM = privKeyPEM.replace("-----BEGIN DSA PRIVATE KEY-----\n", "");
         privKeyPEM = privKeyPEM.replace("-----END DSA PRIVATE KEY-----", "");
+        privKeyPEM = privKeyPEM.replace("-----BEGIN PRIVATE KEY-----\n", "");
+        privKeyPEM = privKeyPEM.replace("-----END PRIVATE KEY-----", "");
 
         try {
        		encoded = android.util.Base64.decode(privKeyPEM, android.util.Base64.DEFAULT);      	
@@ -449,4 +452,72 @@ public class PubkeyUtils {
 		}
 		return recovered;
 	}
+	
+	public static KeyPair importPkcs8 (String pem) throws Exception {
+        byte [] encoded   = null;
+		KeyPair recovered = null;
+
+		// Get rid of any header and footer.
+        String privKeyPEM = pem.replace(PKCS8_START + "\n", "");
+        privKeyPEM = privKeyPEM.replace(PKCS8_END,          "");
+
+        try {
+       		encoded = android.util.Base64.decode(privKeyPEM, android.util.Base64.DEFAULT);      	
+           	recovered = recoverKeyPair(encoded);
+		} catch (Exception e) {
+			Log.e (TAG, "Could not recover keypair from PKCS8 string.");
+			e.printStackTrace();
+		}
+		return recovered;
+	}
+	
+	// New method that uses additional PEMDecoder functionality
+    public static KeyPair importPem (String pem, String passphrase) throws Exception {
+    	PEMStructure ps = null;
+		KeyPair recovered = null;
+
+    	try {
+    		ps = PEMDecoder.parsePEM(pem.toCharArray());
+    	} catch (Exception e) {
+			Log.e (TAG, "Key not in PEM format or corrupt.");
+			e.printStackTrace();
+			return recovered;
+    	}
+
+		if (PEMDecoder.isPEMEncrypted(ps)) {
+			try {
+				PEMDecoder.decryptPEM(ps, passphrase.getBytes("ISO-8859-1"));
+			} catch (Exception e) {
+				throw new Exception("Failed to decrypt PEM. It is encrypted, but wrong passphrase was specified. " +
+									"Please specify correct passphrase in the appropriate field, and import again.");
+			}
+		}
+		
+        try {
+        	recovered = recoverKeyPair(ps.data);
+        } catch (Exception e) {
+			Log.e (TAG, "Could not recover key-pair from PEM string.");
+			e.printStackTrace();
+		}
+		return recovered;
+    }
+
+    // This function first tries to import keys in PEM format and failing that, tries passphrase-less PKCS8 format.
+    public static KeyPair tryImportingPemAndPkcs8 (String pem, String passphrase) throws Exception {
+    	KeyPair pair = null;
+   		// Try to import as PEM
+    	pair = importPem (pem, passphrase);
+   		// If PEM import failed, try to import as PKCS#8
+   		if (pair == null) {
+   			pair = importPkcs8 (pem);
+   		}
+   		// If both failed, throw an exception to alert the user to the failure.
+   		if (pair == null) {
+   			throw new Exception("Failed to recover key-pair from file. Supported formats are " +
+   								"encrypted/unencrypted RSA key in PEM format or unencrypted RSA/DSA " +
+   								"key in PKCS8 format. Keys generated with 'ssh-keygen -t rsa' are known to work.");
+   		}
+    	return pair;
+    }
+    
 }

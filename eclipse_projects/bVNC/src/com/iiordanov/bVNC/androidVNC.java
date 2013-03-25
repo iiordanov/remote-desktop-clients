@@ -706,7 +706,7 @@ public class androidVNC extends Activity {
 			if (resultCode == Activity.RESULT_OK) {
 				Bundle b = data.getExtras();
 				String privateKey = (String)b.get("PrivateKey");
-				if (!privateKey.equals(selected.getSshPrivKey()) && !privateKey.isEmpty())
+				if (!privateKey.equals(selected.getSshPrivKey()) && privateKey.length() != 0)
 					Toast.makeText(getBaseContext(), "New key generated/imported successfully. Tap 'Generate/Export Key' " +
 							" button to share, copy to clipboard, or export the public key now.", Toast.LENGTH_LONG).show();
 				selected.setSshPrivKey(privateKey);

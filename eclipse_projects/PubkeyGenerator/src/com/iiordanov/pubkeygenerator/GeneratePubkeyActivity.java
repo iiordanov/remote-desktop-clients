@@ -267,7 +267,7 @@ public class GeneratePubkeyActivity extends Activity implements OnEntropyGathere
 				hideSoftKeyboard(view);
 				
 				String fname = file_name.getText().toString();
-				if (fname.isEmpty()) {
+				if (fname.length() == 0) {
 					Toast.makeText(getBaseContext(), "Please enter file name.",
 							Toast.LENGTH_SHORT).show();
 					return;
@@ -302,28 +302,34 @@ public class GeneratePubkeyActivity extends Activity implements OnEntropyGathere
 				hideSoftKeyboard(view);
 				
 				String fname = file_name.getText().toString();
-				if (fname.isEmpty()) {
-					Toast.makeText(getBaseContext(), "Please enter file name (at the bottom). Key must be in PEM format, " +
-													 "passphrase encrypted keys are not supported.", Toast.LENGTH_LONG).show();
+				if (fname.length() == 0) {
+					Toast.makeText(getBaseContext(), "Please enter file name (at the bottom) to import PEM formatted " +
+													 "encrypted/unencrypted RSA keys, PKCS#8 unencrypted DSA keys. " +
+													 "Keys generated with 'ssh-keygen -t rsa' are known to work.", Toast.LENGTH_LONG).show();
 					return;
 				}
 				
 				File dir = Environment.getExternalStoragePublicDirectory (Environment.DIRECTORY_DOWNLOADS);
 				fname = dir.getAbsolutePath() + "/" + fname;
+				String data = "";
 				try {
-					KeyPair pair = PubkeyUtils.importPEM(readFile(fname));
-					converToBase64AndSendIntent (pair);
+					data = readFile(fname);
 				} catch (IOException e) {
 					e.printStackTrace();
 					Log.e (TAG, "Failed to read key from file: " + fname);
 					Toast.makeText(getBaseContext(), "Failed to read file: " + fname + ". Please ensure it is present " +
 													 "in Download directory.", Toast.LENGTH_LONG).show();
 					return;
+				}
+				
+				try {
+					passphrase = password1.getText().toString();
+					KeyPair pair = PubkeyUtils.tryImportingPemAndPkcs8(data, passphrase);
+					converToBase64AndSendIntent (pair);
 				} catch (Exception e) {
 					e.printStackTrace();
 					Log.e (TAG, "Failed to decode key.");
-					Toast.makeText(getBaseContext(), "Failed to decode key. Please ensure it is in PEM format and " +
-													 "unencrypted.", Toast.LENGTH_LONG).show();
+					Toast.makeText(getBaseContext(), e.getLocalizedMessage(), Toast.LENGTH_LONG).show();
 					return;
 				}
 				Toast.makeText(getBaseContext(), "Successfully imported SSH key from file.", Toast.LENGTH_LONG).show();
@@ -368,8 +374,7 @@ public class GeneratePubkeyActivity extends Activity implements OnEntropyGathere
 			Toast.makeText(getBaseContext(), "Successfully decrypted key.", Toast.LENGTH_LONG).show();
 		} else {
 			Toast.makeText(getBaseContext(),
-					"Could not decrypt key. Please enter correct passphrase and tap the " +
-					"'Decrypt Key With Passphrase' button.",
+					"Could not decrypt key. Please enter correct passphrase and try decrypting again.",
 					Toast.LENGTH_LONG).show();
 		}
 		checkEntries();
@@ -389,7 +394,7 @@ public class GeneratePubkeyActivity extends Activity implements OnEntropyGathere
 			share.setEnabled(false);
 			copy.setEnabled(false);
 			save.setEnabled(false);
-			if (!sshPrivKey.isEmpty())
+			if (sshPrivKey.length() != 0)
 				decrypt.setEnabled(true);		
 		}
 	}
