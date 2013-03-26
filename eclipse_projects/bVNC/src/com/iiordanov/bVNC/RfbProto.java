@@ -251,7 +251,10 @@ class RfbProto implements RfbConnectable {
 	private int nEncodingsSaved = 0;
   
 	// Handle for decoder object
-	Decoder decoder;
+	private Decoder decoder;
+	
+	// Suggests to the server whether the desktop should be shared or not
+	private int shareDesktop = 1;
 	
   //
   // Constructor. Make TCP connection to RFB server.
@@ -800,7 +803,7 @@ class RfbProto implements RfbConnectable {
     }
     viewer.options.disableShareDesktop();
     */
-	  os.write(0);
+	  os.write(shareDesktop);
   }
 
 

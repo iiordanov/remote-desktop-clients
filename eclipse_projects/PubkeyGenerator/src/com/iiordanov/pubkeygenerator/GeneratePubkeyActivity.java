@@ -138,7 +138,7 @@ public class GeneratePubkeyActivity extends Activity implements OnEntropyGathere
 		// Get the private key and passphrase from calling activity if added.
 		sshPrivKey = getIntent().getStringExtra("PrivateKey");
 		passphrase = password1.getText().toString();
-		if (sshPrivKey != null && sshPrivKey != "") {
+		if (sshPrivKey != null && sshPrivKey.length() != 0) {
 			decryptAndRecoverKey ();
 		} else {
 			Toast.makeText(getBaseContext(), "Key not generated yet. Set parameters and tap 'Generate New Key'.",
