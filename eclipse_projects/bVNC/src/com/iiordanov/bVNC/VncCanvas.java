@@ -43,6 +43,8 @@ import android.app.ProgressDialog;
 import android.app.ActivityManager.MemoryInfo;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.res.Configuration;
 import android.graphics.Rect;
 import android.os.Handler;
 import android.os.Message;
@@ -58,13 +60,22 @@ import android.widget.Toast;
 import android.graphics.BitmapFactory;
 import android.graphics.Bitmap;
 
+import com.freerdp.freerdpcore.application.GlobalApp;
+import com.freerdp.freerdpcore.application.SessionState;
+import com.freerdp.freerdpcore.domain.BookmarkBase;
+import com.freerdp.freerdpcore.domain.ManualBookmark;
+import com.freerdp.freerdpcore.services.LibFreeRDP;
 import com.iiordanov.android.bc.BCFactory;
-import com.iiordanov.bVNC.input.RemotePointer;
+import com.iiordanov.bVNC.input.RemoteRdpKeyboard;
+import com.iiordanov.bVNC.input.RemoteVncKeyboard;
+import com.iiordanov.bVNC.input.RemoteVncPointer;
 import com.iiordanov.bVNC.input.RemoteKeyboard;
+import com.iiordanov.bVNC.input.RemoteRdpPointer;
+import com.iiordanov.bVNC.input.RemotePointer;
 
 import com.iiordanov.tigervnc.vncviewer.CConn;
 
-public class VncCanvas extends ImageView {
+public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, LibFreeRDP.EventListener {
 	private final static String TAG = "VncCanvas";
 
 	AbstractScaling scaling;
@@ -96,6 +107,10 @@ public class VncCanvas extends ImageView {
 	public AbstractBitmapData bitmapData;
 	boolean useFull = false;
 	boolean compact = false;
+	
+	// Keeps track of libFreeRDP instance. 
+	GlobalApp freeRdpApp = null;
+	SessionState session = null;
 
 	// Handler for the dialog that displays the x509 key signatures to the user.
 	public Handler handler = new Handler() {
@@ -278,11 +293,58 @@ public class VncCanvas extends ImageView {
 		Thread t = new Thread () {
 			public void run() {
 			    try {
-			    	if (connection.getConnectionType() < 4) {
+					// TODO: Stop using the UltraVNC connection type as a test-bed!
+			    	if (connection.getConnectionType() == 2) {
+			    		
+			    		// This is necessary because it initializes a synchronizedMap referenced later.
+			    		freeRdpApp = new GlobalApp();
+
+			    		// TODO: Create a temp bookmark from connection.
+						BookmarkBase bookmark = new ManualBookmark();
+						bookmark.<ManualBookmark>get().setLabel(connection.getNickname());
+						bookmark.<ManualBookmark>get().setHostname(connection.getAddress());
+						bookmark.<ManualBookmark>get().setPort(connection.getPort());
+						bookmark.<ManualBookmark>get().setUsername(connection.getUserName());
+						bookmark.<ManualBookmark>get().setPassword(connection.getPassword());
+						
+						// Create a session based on this bookmark
+						session = GlobalApp.createSession(bookmark);
+						
+						// Set a writable data directory
+						LibFreeRDP.setDataDirectory(session.getInstance(), getContext().getFilesDir().toString());
+						
+						BookmarkBase.ScreenSettings screenSettings = session.getBookmark().getActiveScreenSettings();
+						if (screenSettings.isAutomatic()) {
+							int remoteWidth  = 0;
+							int remoteHeight = 0;
+							
+							if (displayWidth > displayHeight) {
+								remoteWidth  = displayWidth;
+								remoteHeight = displayHeight;								
+							} else {
+								remoteWidth  = displayHeight;
+								remoteHeight = displayWidth;																
+							}
+
+							screenSettings.setWidth(remoteWidth);
+							screenSettings.setHeight(remoteHeight);				
+						}
+						
+						rfbconn = new RdpCommunicator (session);
+			    		pointer = new RemoteRdpPointer (rfbconn, VncCanvas.this, handler);
+			    		keyboard = new RemoteRdpKeyboard (rfbconn, VncCanvas.this, handler);
+						
+						session.setUIEventListener(VncCanvas.this);
+			    		LibFreeRDP.setEventListener(VncCanvas.this);
+
+			    		session.connect();
+						pd.dismiss();	    		
+			    	} else if (connection.getConnectionType() < 4) {
+
 			    		connectAndAuthenticate(connection.getUserName(),connection.getPassword());
 			    		rfbconn = rfb;
-			    		pointer = new RemotePointer (rfbconn, VncCanvas.this, handler);
-			    		keyboard = new RemoteKeyboard (rfbconn, VncCanvas.this, handler);
+			    		pointer = new RemoteVncPointer (rfbconn, VncCanvas.this, handler);
+			    		keyboard = new RemoteVncKeyboard (rfbconn, VncCanvas.this, handler);
 			    		doProtocolInitialisation(displayWidth, displayHeight);
 			    		handler.post(new Runnable() {
 			    			public void run() {
@@ -296,8 +358,8 @@ public class VncCanvas extends ImageView {
 			    	} else {
 			    		cc = new CConn(VncCanvas.this, sock, null, false, connection);
 			    		rfbconn = cc;
-			    		pointer = new RemotePointer (rfbconn, VncCanvas.this, handler);
-			    		keyboard = new RemoteKeyboard (rfbconn, VncCanvas.this, handler);
+			    		pointer = new RemoteVncPointer (rfbconn, VncCanvas.this, handler);
+			    		keyboard = new RemoteVncKeyboard (rfbconn, VncCanvas.this, handler);
 			    		initializeBitmap(displayWidth, displayHeight);
 			    		processNormalProtocolSecure(getContext(), pd, setModes);
 			    	}
@@ -893,7 +955,7 @@ public class VncCanvas extends ImageView {
 	 */
 	public void invalidateMousePosition() {
 		if (bitmapData != null) {
-			bitmapData.moveCursorRect(pointer.mouseX, pointer.mouseY);
+			bitmapData.moveCursorRect(pointer.getX(), pointer.getY());
 			Rect r = bitmapData.getCursorRect();
 			reDraw(r.left, r.top, r.width(), r.height());
 		}
@@ -911,8 +973,8 @@ public class VncCanvas extends ImageView {
     	}
     	
     	if (!inScrolling) {
-    		pointer.mouseX = x;
-    		pointer.mouseY = y;
+    		pointer.setX(x);
+    		pointer.setY(y);
 	    	Rect pCRect = new Rect(bitmapData.getCursorRect());
 	    	// Move the cursor.
 	    	bitmapData.moveCursorRect(x, y);
@@ -930,7 +992,7 @@ public class VncCanvas extends ImageView {
 		int [] tempPixels = new int[w*h];
 		bm.getPixels(tempPixels, 0, w, 0, 0, w, h);
     	// Set cursor rectangle as well.
-    	bitmapData.setCursorRect(pointer.mouseX, pointer.mouseY, w, h, 0, 0);
+    	bitmapData.setCursorRect(pointer.getX(), pointer.getY(), w, h, 0, 0);
     	// Set softCursor to whatever the resource is.
 		bitmapData.setSoftCursor (tempPixels);
 		bm.recycle();
@@ -986,5 +1048,118 @@ public class VncCanvas extends ImageView {
 			return bitmapData.getMinimumScale();
 		} else
 			return 1.f;
+	}
+	
+	/********************************************************************************
+	 *  Implementation of LibFreeRDP.EventListener
+	 */
+	// helper to send FreeRDP notifications
+	public void sendRDPNotification(int type, int param)
+	{
+		final String EVENT_TYPE = "EVENT_TYPE";
+		final String EVENT_PARAM = "EVENT_PARAM";
+		final String EVENT_STATUS = "EVENT_STATUS";
+		final String EVENT_ERROR = "EVENT_ERROR";
+
+		//final String ACTION_EVENT_FREERDP = "com.freerdp.freerdp.event.freerdp";
+		final String ACTION_EVENT_FREERDP = "com.iiordanov.bVNC.event.freerdp";
+		
+		// send broadcast
+		Intent intent = new Intent(ACTION_EVENT_FREERDP);
+		intent.putExtra(EVENT_TYPE, type);
+		intent.putExtra(EVENT_PARAM, param);
+		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		getContext().sendBroadcast(intent);		
+	}
+	
+	public static final int FREERDP_EVENT_CONNECTION_SUCCESS = 1;
+	public static final int FREERDP_EVENT_CONNECTION_FAILURE = 2;
+	public static final int FREERDP_EVENT_DISCONNECTED = 3;
+
+	@Override
+	public void OnConnectionSuccess(int instance)
+	{
+		Log.v(TAG, "OnConnectionSuccess");
+		//sendRDPNotification(FREERDP_EVENT_CONNECTION_SUCCESS, instance);
+	}
+
+	@Override
+	public void OnConnectionFailure(int instance)
+	{
+		Log.v(TAG, "OnConnectionFailure");
+
+		// free session
+		// TODO: Causes segfault in libfreerdp-android. Needs to be fixed.
+		//GlobalApp.freeSession(instance);
+		//sendRDPNotification(FREERDP_EVENT_CONNECTION_FAILURE, instance);
+	}
+
+	@Override
+	public void OnDisconnecting(int instance)
+	{
+		Log.v(TAG, "OnDisconnecting");		
+
+		// send disconnect notification
+		//sendRDPNotification(FREERDP_EVENT_DISCONNECTED, instance);
+	}
+	
+	@Override
+	public void OnDisconnected(int instance)
+	{
+		Log.v(TAG, "OnDisconnected");
+		// TODO: Causes segfault in libfreerdp-android. Needs to be fixed.
+		//GlobalApp.freeSession(instance);
+	}	
+
+	/********************************************************************************
+	 *  Implementation of LibFreeRDP.UIEventListener
+	 */
+	@Override
+	public void OnSettingsChanged(int width, int height, int bpp) {
+		android.util.Log.e(TAG, "onSettingsChanged called.");
+    	bitmapData = new CompactBitmapData(rfbconn, this);
+    	android.util.Log.i(TAG, "Using CompactBufferBitmapData.");
+
+		// TODO: Pointer is not visible with xrdp for some reason, test with windows.
+		initializeSoftCursor();
+    	
+    	// Set the drawable for the canvas, now that we have it (re)initialized.
+    	handler.post(drawableSetter);
+		handler.post(setModes);
+		handler.post(desktopInfo);
+	}
+
+	@Override
+	public boolean OnAuthenticate(StringBuilder username, StringBuilder domain,
+			StringBuilder password) {
+		android.util.Log.e(TAG, "onAuthenticate called.");
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean OnVerifiyCertificate(String subject, String issuer,
+			String fingerprint) {
+		android.util.Log.e(TAG, "OnVerifiyCertificate called.");
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public void OnGraphicsUpdate(int x, int y, int width, int height) {
+		//android.util.Log.e(TAG, "OnGraphicsUpdate called: " + x +", " + y + " + " + width + "x" + height );
+
+		LibFreeRDP.updateGraphics(session.getInstance(), bitmapData.mbitmap, x, y, width, height);
+
+		//this.postInvalidate(x, y, x+width, y+height);
+		this.postInvalidate();
+	}
+
+	@Override
+	public void OnGraphicsResize(int width, int height, int bpp) {
+		android.util.Log.e(TAG, "OnGraphicsResize called.");
+
+    	bitmapData = new CompactBitmapData(rfbconn, this);
+    	android.util.Log.i(TAG, "Using CompactBufferBitmapData.");
 	}
 }
