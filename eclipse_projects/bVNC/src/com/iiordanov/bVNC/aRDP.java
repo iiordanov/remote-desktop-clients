@@ -116,11 +116,7 @@ public class aRDP extends Activity {
 			@Override
 			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 				selected.setUseSshPubKey(isChecked);
-				if (isChecked) {
-					sshPassword.setHint(R.string.ssh_passphrase_hint);
-				} else {
-					sshPassword.setHint(R.string.password_hint_ssh);
-				}
+				setSshPasswordHint (isChecked);
 				sshPassword.setText("");
 			}
 		});
@@ -143,18 +139,11 @@ public class aRDP extends Activity {
 				selectedConnType = itemIndex;
 				if (selectedConnType == VncConstants.CONN_TYPE_PLAIN) {
 					setVisibilityOfSshWidgets (View.GONE);
-					textUsername.setVisibility(View.VISIBLE);
-					//textUsername.setHint(R.string.username_hint);
-					ipText.setHint(R.string.address_caption_hint);
 				} else if (selectedConnType == VncConstants.CONN_TYPE_SSH) {
 					setVisibilityOfSshWidgets (View.VISIBLE);
 					if (ipText.getText().toString().equals(""))
 						ipText.setText("localhost");
-					if (checkboxUseSshPubkey.isChecked())
-						sshPassword.setHint(R.string.ssh_passphrase_hint);
-					else
-						sshPassword.setHint(R.string.password_hint_ssh);
-					ipText.setHint(R.string.address_caption_hint_tunneled);
+					setSshPasswordHint (checkboxUseSshPubkey.isChecked());
 				}
 			}
 
@@ -217,6 +206,17 @@ public class aRDP extends Activity {
 		sshCaption.setVisibility(visibility);
 		layoutUseSshPubkey.setVisibility(visibility);
 		sshServerEntry.setVisibility(visibility);
+	}
+
+	/**
+	 * Sets the ssh password/passphrase hint appropriately.
+	 */
+	private void setSshPasswordHint (boolean isPassphrase) {
+		if (isPassphrase) {
+			sshPassword.setHint(R.string.ssh_passphrase_hint);
+		} else {
+			sshPassword.setHint(R.string.password_hint_ssh);
+		}
 	}
 
 	protected void onDestroy() {
@@ -329,11 +329,7 @@ public class aRDP extends Activity {
 		sshUser.setText(selected.getSshUser());
 		
 		checkboxUseSshPubkey.setChecked(selected.getUseSshPubKey());
-		if (checkboxUseSshPubkey.isChecked()) {
-			sshPassword.setHint(R.string.ssh_passphrase_hint);
-		} else {
-			sshPassword.setHint(R.string.password_hint_ssh);
-		}
+		setSshPasswordHint (checkboxUseSshPubkey.isChecked());
 
 		if (selectedConnType == VncConstants.CONN_TYPE_SSH && selected.getAddress().equals(""))
 			ipText.setText("localhost");

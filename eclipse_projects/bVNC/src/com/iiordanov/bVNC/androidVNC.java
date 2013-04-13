@@ -138,11 +138,7 @@ public class androidVNC extends Activity {
 			@Override
 			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 				selected.setUseSshPubKey(isChecked);
-				if (isChecked) {
-					sshPassword.setHint(R.string.ssh_passphrase_hint);
-				} else {
-					sshPassword.setHint(R.string.password_hint_ssh);
-				}
+				setSshPasswordHint (isChecked);
 				sshPassword.setText("");
 			}
 		});
@@ -183,10 +179,7 @@ public class androidVNC extends Activity {
 					setVisibilityOfUltraVncWidgets (View.GONE);
 					if (ipText.getText().toString().equals(""))
 						ipText.setText("localhost");
-					if (checkboxUseSshPubkey.isChecked())
-						sshPassword.setHint(R.string.ssh_passphrase_hint);
-					else
-						sshPassword.setHint(R.string.password_hint_ssh);
+					setSshPasswordHint (checkboxUseSshPubkey.isChecked());
 					ipText.setHint(R.string.address_caption_hint_tunneled);
 				} else if (selectedConnType == VncConstants.CONN_TYPE_ULTRAVNC) {
 					setVisibilityOfSshWidgets (View.GONE);
@@ -282,7 +275,18 @@ public class androidVNC extends Activity {
 		layoutUseX11Vnc.setVisibility(visibility);
 		sshServerEntry.setVisibility(visibility);
 	}
-	
+
+	/**
+	 * Sets the ssh password/passphrase hint appropriately.
+	 */
+	private void setSshPasswordHint (boolean isPassphrase) {
+		if (isPassphrase) {
+			sshPassword.setHint(R.string.ssh_passphrase_hint);
+		} else {
+			sshPassword.setHint(R.string.password_hint_ssh);
+		}
+	}
+
 	/**
 	 * Makes the uvnc-related widgets visible/invisible.
 	 */
@@ -405,11 +409,7 @@ public class androidVNC extends Activity {
 		sshUser.setText(selected.getSshUser());
 		
 		checkboxUseSshPubkey.setChecked(selected.getUseSshPubKey());
-		if (checkboxUseSshPubkey.isChecked()) {
-			sshPassword.setHint(R.string.ssh_passphrase_hint);
-		} else {
-			sshPassword.setHint(R.string.password_hint_ssh);
-		}
+		setSshPasswordHint (checkboxUseSshPubkey.isChecked());
 
 		if (selectedConnType == VncConstants.CONN_TYPE_SSH && selected.getAddress().equals(""))
 			ipText.setText("localhost");

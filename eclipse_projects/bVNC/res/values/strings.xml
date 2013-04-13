@@ -91,10 +91,6 @@
     <item>@string/connection_type_vnc_over_ssl</item>
     <item>@string/connection_type_vnc_over_vencrypt</item>
 </string-array>
-<string-array name="rdp_connection_type">
-    <item>@string/connection_type_rdp</item>
-    <item>@string/connection_type_rdp_over_ssh</item>
-</string-array>
 <string name="control_check">Ctrl</string>
 <string name="copy_list_button">Copy List</string>
 <string name="ctrl_alt_del">Ctrl-Alt-Del</string>
@@ -287,6 +283,13 @@ If you are looking for a quick performance boost, try setting the Color mode to 
 <string name="port_hint">Port</string>
 <string name="port_ssh_hint">Port</string>
 <string name="portrait_mode">Switch to portrait mode when connected</string>
+<string name="rdp_address_caption_hint">RDP Server</string>
+<string-array name="rdp_connection_type">
+    <item>@string/connection_type_rdp</item>
+    <item>@string/connection_type_rdp_over_ssh</item>
+</string-array>
+<string name="rdp_password_caption_hint">RDP Password</string>
+<string name="rdp_username_hint">RDP Username</string>
 <string name="repeater_button">UltraVNC Repeater</string>
 <string name="repeater_caption">Enter the repeater address &lt;b&gt;only if&lt;/b&gt; you are using an&lt;br&gt;&lt;i&gt;UltraVNC&lt;/i&gt;-type repeater</string>
 <string name="repeater_clear">Don\'t Use</string>
