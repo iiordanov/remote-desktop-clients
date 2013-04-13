@@ -43,8 +43,7 @@ import android.app.ProgressDialog;
 import android.app.ActivityManager.MemoryInfo;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.res.Configuration;
+import android.content.pm.PackageManager;
 import android.graphics.Rect;
 import android.os.Handler;
 import android.os.Message;
@@ -465,7 +464,7 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 		int vncPort    = getVNCPort();
 		boolean anonTLS = (connection.getConnectionType() == VncConstants.CONN_TYPE_ANONTLS);
 	    try {
-			rfb = new RfbProto(decoder, address, vncPort);
+			rfb = new RfbProto(decoder, address, vncPort, connection.getPrefEncoding());
 			Log.v(TAG, "Connected to server");
 			rfb.initializeAndAuthenticate(us, pw, connection.getUseRepeater(), connection.getRepeaterId(), anonTLS);
 	    } catch (Exception e) {

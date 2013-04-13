@@ -255,13 +255,17 @@ class RfbProto implements RfbConnectable {
 	
 	// Suggests to the server whether the desktop should be shared or not
 	private int shareDesktop = 1;
+
+	// Suggests to the server a preferred encoding
+	private int preferredEncoding = EncodingTight;
 	
   //
   // Constructor. Make TCP connection to RFB server.
   //
-  RfbProto(Decoder d, String h, int p) throws Exception {
+  RfbProto(Decoder d, String h, int p, int prefEnc) throws Exception {
     host = h;
     port = p;
+    preferredEncoding = prefEnc;
 
    	sock = new Socket(host, port);
     sock.setTcpNoDelay(true);
@@ -275,7 +279,6 @@ class RfbProto implements RfbConnectable {
     timing = false;
     timeWaitedIn100us = 5;
     timedKbits = 0;
-    
   }
  
 
@@ -1515,7 +1518,6 @@ class RfbProto implements RfbConnectable {
 	}
 
 	public String getEncoding() {
-		/*
 		switch (preferredEncoding) {
 		case RfbProto.EncodingRaw:
 			return "RAW";
@@ -1533,8 +1535,6 @@ class RfbProto implements RfbConnectable {
 			return "ZRLE";
 		}
 		return "";
-		*/
-		return "TIGHT";
 	}
 
 	private void setEncodings(boolean useLocalCursor) {
@@ -1544,12 +1544,14 @@ class RfbProto implements RfbConnectable {
 		int[] encodings = new int[20];
 		int nEncodings = 0;
 
+		encodings[nEncodings++] = preferredEncoding;
 		encodings[nEncodings++] = RfbProto.EncodingTight;
 		encodings[nEncodings++] = RfbProto.EncodingZRLE;
 		encodings[nEncodings++] = RfbProto.EncodingHextile;
 		encodings[nEncodings++] = RfbProto.EncodingZlib;
 		encodings[nEncodings++] = RfbProto.EncodingCoRRE;
 		encodings[nEncodings++] = RfbProto.EncodingRRE;
+
 		encodings[nEncodings++] = RfbProto.EncodingCopyRect;
 
 		encodings[nEncodings++] = RfbProto.EncodingCompressLevel0 + compressLevel;
