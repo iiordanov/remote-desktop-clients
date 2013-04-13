@@ -82,6 +82,7 @@ class ConnectionBean extends AbstractConnectionBean implements Comparable<Connec
 		setUserName("");
 		setPort(5900);
 		setColorModel(COLORMODEL.C24bit.nameString());
+		setPrefEncoding(RfbProto.EncodingTight);
 		setScaleMode(ScaleType.MATRIX);
 		setInputMode(TouchMouseSwipePanInputHandler.TOUCH_ZOOM_MODE);
 		setUseDpadAsArrows(false);

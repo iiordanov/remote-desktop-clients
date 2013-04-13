@@ -67,7 +67,6 @@ public class androidVNC extends Activity {
 	private LinearLayout sshCredentials;
 	private LinearLayout layoutUseSshPubkey;
 	private LinearLayout layoutUseX11Vnc;
-	private TextView sshServerEntryCaption;
 	private LinearLayout sshServerEntry;
 	private EditText sshServer;
 	private EditText sshPort;
@@ -89,21 +88,23 @@ public class androidVNC extends Activity {
 	private ConnectionBean selected;
 	private EditText textNickname;
 	private EditText textUsername;
-	private TextView textUsernameCaption;
-	private TextView captionUseSshPubkey;
 	private TextView autoXStatus;
 	private CheckBox checkboxKeepPassword;
 	private CheckBox checkboxUseDpadAsArrows;
 	private CheckBox checkboxRotateDpad;
 	private CheckBox checkboxLocalCursor;
 	private CheckBox checkboxUseSshPubkey;
-	private CheckBox checkboxUseX11Vnc;
+	private CheckBox checkboxPreferHextile;
 	private boolean repeaterTextSet;
+	private boolean isFree;
 
 	@Override
 	public void onCreate(Bundle icicle) {
 		super.onCreate(icicle);
 		System.gc();
+
+		isFree = this.getPackageName().contains("free");
+
 		setContentView(R.layout.main);
 		ipText = (EditText) findViewById(R.id.textIP);
 		sshServer = (EditText) findViewById(R.id.sshServer);
@@ -226,6 +227,7 @@ public class androidVNC extends Activity {
 		checkboxUseDpadAsArrows = (CheckBox)findViewById(R.id.checkboxUseDpadAsArrows);
 		checkboxRotateDpad = (CheckBox)findViewById(R.id.checkboxRotateDpad);
 		checkboxLocalCursor = (CheckBox)findViewById(R.id.checkboxUseLocalCursor);
+		checkboxPreferHextile = (CheckBox)findViewById(R.id.checkboxPreferHextile);
 		colorSpinner.setAdapter(colorSpinnerAdapter);
 		colorSpinner.setSelection(0);
 		spinnerConnection = (Spinner)findViewById(R.id.spinnerConnection);
@@ -441,6 +443,7 @@ public class androidVNC extends Activity {
 		checkboxUseDpadAsArrows.setChecked(selected.getUseDpadAsArrows());
 		checkboxRotateDpad.setChecked(selected.getRotateDpad());
 		checkboxLocalCursor.setChecked(selected.getUseLocalCursor());
+		checkboxPreferHextile.setChecked(selected.getPrefEncoding() == RfbProto.EncodingHextile);
 		textNickname.setText(selected.getNickname());
 		textUsername.setText(selected.getUserName());
 		COLORMODEL cm = COLORMODEL.valueOf(selected.getColorModel());
@@ -550,6 +553,11 @@ public class androidVNC extends Activity {
 		selected.setUseDpadAsArrows(checkboxUseDpadAsArrows.isChecked());
 		selected.setRotateDpad(checkboxRotateDpad.isChecked());
 		selected.setUseLocalCursor(checkboxLocalCursor.isChecked());
+		if (checkboxPreferHextile.isChecked())
+			selected.setPrefEncoding(RfbProto.EncodingHextile);
+		else
+			selected.setPrefEncoding(RfbProto.EncodingTight);
+
 		selected.setColorModel(((COLORMODEL)colorSpinner.getSelectedItem()).nameString());
 		if (repeaterTextSet) {
 			selected.setRepeaterId(repeaterText.getText().toString());
@@ -613,7 +621,7 @@ public class androidVNC extends Activity {
 		spinnerConnection.setSelection(connectionIndex,false);
 		selected=connections.get(connectionIndex);
 		updateViewFromSelected();
-		IntroTextDialog.showIntroTextIfNecessary(this, database);
+		IntroTextDialog.showIntroTextIfNecessary(this, database, false);
 	}
 	
 	protected void onStop() {

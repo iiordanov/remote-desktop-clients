@@ -47,7 +47,7 @@ class IntroTextDialog extends Dialog {
 	
 	static IntroTextDialog dialog;
 	
-	static void showIntroTextIfNecessary(Activity context, VncDatabase database)
+	static void showIntroTextIfNecessary(Activity context, VncDatabase database, boolean force)
 	{
 		PackageInfo pi;
 		try
@@ -59,7 +59,7 @@ class IntroTextDialog extends Dialog {
 			return;
 		}
 		MostRecentBean mr = androidVNC.getMostRecent(database.getReadableDatabase());
-		if (mr == null || mr.getShowSplashVersion() != pi.versionCode)
+		if (force || mr == null || mr.getShowSplashVersion() != pi.versionCode)
 		{
 			if (dialog == null)
 			{
