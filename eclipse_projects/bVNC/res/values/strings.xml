@@ -79,6 +79,8 @@
 <string name="connection_type_caption">Conn. Type</string>
 <string name="connection_type_vnc">Basic VNC</string>
 <string name="connection_type_vnc_over_ssh">Secure VNC over SSH</string>
+<string name="connection_type_rdp">RDP</string>
+<string name="connection_type_rdp_over_ssh">RDP over SSH</string>
 <string name="connection_type_ultravnc">UltraVNC</string>
 <string name="connection_type_vnc_over_ssl">Secure VNC over AnonTLS</string>
 <string name="connection_type_vnc_over_vencrypt">Secure VNC over VeNCrypt</string>
@@ -88,6 +90,10 @@
     <item>@string/connection_type_ultravnc</item>
     <item>@string/connection_type_vnc_over_ssl</item>
     <item>@string/connection_type_vnc_over_vencrypt</item>
+</string-array>
+<string-array name="rdp_connection_type">
+    <item>@string/connection_type_rdp</item>
+    <item>@string/connection_type_rdp_over_ssh</item>
 </string-array>
 <string name="control_check">Ctrl</string>
 <string name="copy_list_button">Copy List</string>

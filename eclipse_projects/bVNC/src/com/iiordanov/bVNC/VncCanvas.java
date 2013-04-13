@@ -1052,63 +1052,35 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 	/********************************************************************************
 	 *  Implementation of LibFreeRDP.EventListener
 	 */
-	// helper to send FreeRDP notifications
-	public void sendRDPNotification(int type, int param)
-	{
-		final String EVENT_TYPE = "EVENT_TYPE";
-		final String EVENT_PARAM = "EVENT_PARAM";
-		final String EVENT_STATUS = "EVENT_STATUS";
-		final String EVENT_ERROR = "EVENT_ERROR";
-
-		//final String ACTION_EVENT_FREERDP = "com.freerdp.freerdp.event.freerdp";
-		final String ACTION_EVENT_FREERDP = "com.iiordanov.bVNC.event.freerdp";
-		
-		// send broadcast
-		Intent intent = new Intent(ACTION_EVENT_FREERDP);
-		intent.putExtra(EVENT_TYPE, type);
-		intent.putExtra(EVENT_PARAM, param);
-		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-		getContext().sendBroadcast(intent);		
-	}
-	
 	public static final int FREERDP_EVENT_CONNECTION_SUCCESS = 1;
 	public static final int FREERDP_EVENT_CONNECTION_FAILURE = 2;
 	public static final int FREERDP_EVENT_DISCONNECTED = 3;
 
 	@Override
-	public void OnConnectionSuccess(int instance)
-	{
+	public void OnConnectionSuccess(int instance) {
 		Log.v(TAG, "OnConnectionSuccess");
-		//sendRDPNotification(FREERDP_EVENT_CONNECTION_SUCCESS, instance);
 	}
 
 	@Override
-	public void OnConnectionFailure(int instance)
-	{
+	public void OnConnectionFailure(int instance) {
 		Log.v(TAG, "OnConnectionFailure");
 
 		// free session
 		// TODO: Causes segfault in libfreerdp-android. Needs to be fixed.
 		//GlobalApp.freeSession(instance);
-		//sendRDPNotification(FREERDP_EVENT_CONNECTION_FAILURE, instance);
 	}
 
 	@Override
-	public void OnDisconnecting(int instance)
-	{
+	public void OnDisconnecting(int instance) {
 		Log.v(TAG, "OnDisconnecting");		
-
-		// send disconnect notification
-		//sendRDPNotification(FREERDP_EVENT_DISCONNECTED, instance);
 	}
 	
 	@Override
-	public void OnDisconnected(int instance)
-	{
+	public void OnDisconnected(int instance) {
 		Log.v(TAG, "OnDisconnected");
 		// TODO: Causes segfault in libfreerdp-android. Needs to be fixed.
 		//GlobalApp.freeSession(instance);
-	}	
+	}
 
 	/********************************************************************************
 	 *  Implementation of LibFreeRDP.UIEventListener

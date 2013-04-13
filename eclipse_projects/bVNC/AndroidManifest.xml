@@ -28,7 +28,18 @@
                 <data android:scheme="vnc" />
             </intent-filter>
 		</activity>
-       <activity android:name=".ConnectionListActivity" android:label="@string/shortcut_label"
+		<activity android:screenOrientation="fullSensor" android:configChanges="orientation|keyboardHidden|keyboard"
+				  android:name="RdpCanvasActivity"      android:windowSoftInputMode="stateHidden|adjustResize">
+			<intent-filter>
+				<action android:name="android.intent.action.VIEW"></action>
+			</intent-filter>
+				<intent-filter>
+				<action android:name="android.intent.action.VIEW" />
+				<category android:name="android.intent.category.DEFAULT" />
+				<data android:scheme="rdp" />
+			</intent-filter>
+		</activity>
+		<activity android:name=".ConnectionListActivity" android:label="@string/shortcut_label"
                  android:windowSoftInputMode="stateHidden|adjustResize">
         	<intent-filter>
         		<action android:name="android.intent.action.CREATE_SHORTCUT" />

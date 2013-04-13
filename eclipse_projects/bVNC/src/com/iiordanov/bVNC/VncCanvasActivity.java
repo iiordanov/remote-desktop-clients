@@ -174,7 +174,10 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 	@Override
 	public void onCreate(Bundle icicle) {
 		super.onCreate(icicle);
-
+		initialize();
+	}
+	
+	void initialize () {
 		handler = new Handler ();
 		
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
