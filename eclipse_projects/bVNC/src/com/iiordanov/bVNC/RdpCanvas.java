@@ -465,7 +465,7 @@ public class RdpCanvas extends VncCanvas implements LibFreeRDP.UIEventListener, 
 		int vncPort    = getVNCPort();
 		boolean anonTLS = (connection.getConnectionType() == VncConstants.CONN_TYPE_ANONTLS);
 	    try {
-			rfb = new RfbProto(decoder, address, vncPort);
+			rfb = new RfbProto(decoder, address, vncPort, 0);
 			Log.v(TAG, "Connected to server");
 			rfb.initializeAndAuthenticate(us, pw, connection.getUseRepeater(), connection.getRepeaterId(), anonTLS);
 	    } catch (Exception e) {

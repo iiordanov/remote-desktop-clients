@@ -235,6 +235,11 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 	 */
 	boolean bb10 = false;
 	boolean bb   = false;
+	
+	/*
+	 * This flag indicates whether this is the RDP 'version' or not.
+	 */
+	boolean isRDP = false;
 
 	/**
 	 * Constructor used by the inflation apparatus
@@ -253,6 +258,8 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 			bb   = true;
 
 		decoder = new Decoder (this);
+		
+		isRDP = getContext().getPackageName().contains("RDP");
 	}
 
 	/**
@@ -292,9 +299,10 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 		Thread t = new Thread () {
 			public void run() {
 			    try {
-					// TODO: Stop using the UltraVNC connection type as a test-bed!
-			    	if (connection.getConnectionType() == 2) {
+			    	if (isRDP) {
 			    		
+			    		int rdpPort = getVNCPort();
+
 			    		// This is necessary because it initializes a synchronizedMap referenced later.
 			    		freeRdpApp = new GlobalApp();
 
@@ -302,7 +310,7 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 						BookmarkBase bookmark = new ManualBookmark();
 						bookmark.<ManualBookmark>get().setLabel(connection.getNickname());
 						bookmark.<ManualBookmark>get().setHostname(connection.getAddress());
-						bookmark.<ManualBookmark>get().setPort(connection.getPort());
+						bookmark.<ManualBookmark>get().setPort(rdpPort);
 						bookmark.<ManualBookmark>get().setUsername(connection.getUserName());
 						bookmark.<ManualBookmark>get().setPassword(connection.getPassword());
 						
@@ -337,7 +345,7 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 			    		LibFreeRDP.setEventListener(VncCanvas.this);
 
 			    		session.connect();
-						pd.dismiss();	    		
+						pd.dismiss();		
 			    	} else if (connection.getConnectionType() < 4) {
 
 			    		connectAndAuthenticate(connection.getUserName(),connection.getPassword());

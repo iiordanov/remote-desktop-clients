@@ -1,60 +1,60 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.iiordanov.bVNC" android:installLocation="auto" android:versionCode="308" android:versionName="v3.0.8">
+          package="com.iiordanov.bVNC" android:installLocation="auto"
+          android:versionCode="308" android:versionName="v3.0.8">
 
     <uses-sdk android:minSdkVersion="8" android:targetSdkVersion="8"></uses-sdk>
     <uses-permission android:name="android.permission.INTERNET"></uses-permission>
-	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"></uses-permission>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"></uses-permission>
     <supports-screens android:anyDensity="true"/>
 		
     <application android:icon="@drawable/icon" android:label="bVNC" android:debuggable="false">
- 		<activity android:label="@string/app_name" android:name="bVNC" android:screenOrientation="fullSensor"
-                  android:configChanges="orientation|keyboardHidden"
-                  android:windowSoftInputMode="stateHidden|adjustResize">
-			<intent-filter>
-				<action android:name="android.intent.action.MAIN"></action>
-				<category android:name="android.intent.category.LAUNCHER"></category>
-				<category android:name="android.intent.category.MULTIWINDOW_LAUNCHER"></category>
-			</intent-filter>
-		</activity>
-		<activity android:screenOrientation="fullSensor" android:configChanges="orientation|keyboardHidden|keyboard"
-		          android:name="VncCanvasActivity"      android:windowSoftInputMode="stateHidden|adjustResize">
-			<intent-filter>
-				<action android:name="android.intent.action.VIEW"></action>
-			</intent-filter>
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <data android:scheme="vnc" />
-            </intent-filter>
-		</activity>
-		<activity android:screenOrientation="fullSensor" android:configChanges="orientation|keyboardHidden|keyboard"
-				  android:name="RdpCanvasActivity"      android:windowSoftInputMode="stateHidden|adjustResize">
-			<intent-filter>
-				<action android:name="android.intent.action.VIEW"></action>
-			</intent-filter>
-				<intent-filter>
-				<action android:name="android.intent.action.VIEW" />
-				<category android:name="android.intent.category.DEFAULT" />
-				<data android:scheme="rdp" />
-			</intent-filter>
-		</activity>
-		<activity android:name=".ConnectionListActivity" android:label="@string/shortcut_label"
-                 android:windowSoftInputMode="stateHidden|adjustResize">
-        	<intent-filter>
-        		<action android:name="android.intent.action.CREATE_SHORTCUT" />
-        		<category android:name="android.intent.category.DEFAULT" />
-        	</intent-filter>
-        </activity>
+                <activity android:label="@string/app_name"
+                          android:name="bVNC"
+                          android:screenOrientation="fullSensor"
+                          android:configChanges="orientation|keyboardHidden"
+                          android:windowSoftInputMode="stateHidden|adjustResize">
+                        <intent-filter>
+                                <action android:name="android.intent.action.MAIN"></action>
+                                <category android:name="android.intent.category.LAUNCHER"></category>
+                                <category android:name="android.intent.category.MULTIWINDOW_LAUNCHER"></category>
+                        </intent-filter>
+                </activity>
+                <activity android:screenOrientation="fullSensor"
+                          android:configChanges="orientation|keyboardHidden|keyboard"
+		                  android:name="VncCanvasActivity"
+		                  android:windowSoftInputMode="stateHidden|adjustResize">
+                       <intent-filter>
+                                <action android:name="android.intent.action.VIEW"></action>
+                       </intent-filter>
+                       <intent-filter>
+                                <action android:name="android.intent.action.VIEW" />
+                                <category android:name="android.intent.category.DEFAULT" />
+                                <data android:scheme="vnc" />
+                       </intent-filter>
+                </activity>
+                <activity android:name=".ConnectionListActivity"
+                          android:label="@string/shortcut_label"
+                          android:windowSoftInputMode="stateHidden|adjustResize">
+                       <intent-filter>
+                                <action android:name="android.intent.action.CREATE_SHORTCUT" />
+                                <category android:name="android.intent.category.DEFAULT" />
+                       </intent-filter>
+                </activity>
 		<activity android:name="com.iiordanov.pubkeygenerator.GeneratePubkeyActivity"
-		    	  android:configChanges="keyboardHidden|orientation"
-		    	  android:windowSoftInputMode="stateHidden|adjustResize"
-		    	  android:screenOrientation="fullSensor" />
-		<uses-library required="false" name="com.sec.android.app.multiwindow"> </uses-library>
-		<meta-data android:name="com.sec.android.support.multiwindow" android:value="true" />
-		<meta-data android:name="com.sec.android.multiwindow.DEFAULT_SIZE_W" android:resource="@dimen/app_defaultsize_w" />
-		<meta-data android:name="com.sec.android.multiwindow.DEFAULT_SIZE_H" android:resource="@dimen/app_defaultsize_h" />
-		<meta-data android:name="com.sec.android.multiwindow.MINIMUM_SIZE_W" android:resource="@dimen/app_minimumsize_w" />
-		<meta-data android:name="com.sec.android.multiwindow.MINIMUM_SIZE_H" android:resource="@dimen/app_minimumsize_h" />
-	</application>
+                  android:configChanges="keyboardHidden|orientation"
+                  android:windowSoftInputMode="stateHidden|adjustResize"
+                  android:screenOrientation="fullSensor" />
+                <uses-library required="false" name="com.sec.android.app.multiwindow"> </uses-library>
+                <meta-data android:name="com.sec.android.support.multiwindow"
+                           android:value="true" />
+                <meta-data android:name="com.sec.android.multiwindow.DEFAULT_SIZE_W"
+                           android:resource="@dimen/app_defaultsize_w" />
+                <meta-data android:name="com.sec.android.multiwindow.DEFAULT_SIZE_H"
+                           android:resource="@dimen/app_defaultsize_h" />
+                <meta-data android:name="com.sec.android.multiwindow.MINIMUM_SIZE_W"
+                           android:resource="@dimen/app_minimumsize_w" />
+                <meta-data android:name="com.sec.android.multiwindow.MINIMUM_SIZE_H"
+                           android:resource="@dimen/app_minimumsize_h" />
+    </application>
 </manifest> 

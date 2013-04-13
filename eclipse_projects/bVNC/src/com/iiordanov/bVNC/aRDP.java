@@ -517,7 +517,7 @@ public class aRDP extends Activity {
 		spinnerConnection.setSelection(connectionIndex,false);
 		selected=connections.get(connectionIndex);
 		updateViewFromSelected();
-		IntroTextDialog.showIntroTextIfNecessary(this, database);
+		IntroTextDialog.showIntroTextIfNecessary(this, database, false);
 	}
 	
 	protected void onStop() {
@@ -583,7 +583,7 @@ public class aRDP extends Activity {
 	private void vnc () {
 		updateSelectedFromView();
 		saveAndWriteRecent();
-		Intent intent = new Intent(this, RdpCanvasActivity.class);
+		Intent intent = new Intent(this, VncCanvasActivity.class);
 		intent.putExtra(VncConstants.CONNECTION,selected.Gen_getValues());
 		startActivity(intent);
 	}
