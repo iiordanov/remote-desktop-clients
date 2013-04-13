@@ -300,7 +300,7 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 			public void run() {
 			    try {
 			    	if (isRDP) {
-			    		
+			    		String address = getVNCAddress();
 			    		int rdpPort = getVNCPort();
 
 			    		// This is necessary because it initializes a synchronizedMap referenced later.
@@ -309,7 +309,7 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 			    		// TODO: Create a temp bookmark from connection.
 						BookmarkBase bookmark = new ManualBookmark();
 						bookmark.<ManualBookmark>get().setLabel(connection.getNickname());
-						bookmark.<ManualBookmark>get().setHostname(connection.getAddress());
+						bookmark.<ManualBookmark>get().setHostname(address);
 						bookmark.<ManualBookmark>get().setPort(rdpPort);
 						bookmark.<ManualBookmark>get().setUsername(connection.getUserName());
 						bookmark.<ManualBookmark>get().setPassword(connection.getPassword());
@@ -1072,11 +1072,12 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 	@Override
 	public void OnConnectionFailure(int instance) {
 		Log.v(TAG, "OnConnectionFailure");
-
 		// free session
 		// TODO: Causes segfault in libfreerdp-android. Needs to be fixed.
 		//GlobalApp.freeSession(instance);
-	}
+    	closeConnection();
+    	((Activity) getContext()).finish();
+    }
 
 	@Override
 	public void OnDisconnecting(int instance) {
@@ -1088,6 +1089,8 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 		Log.v(TAG, "OnDisconnected");
 		// TODO: Causes segfault in libfreerdp-android. Needs to be fixed.
 		//GlobalApp.freeSession(instance);
+    	closeConnection();
+    	((Activity) getContext()).finish();
 	}
 
 	/********************************************************************************
