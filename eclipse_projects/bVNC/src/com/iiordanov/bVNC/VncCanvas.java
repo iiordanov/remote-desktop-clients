@@ -1115,16 +1115,16 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 	public boolean OnAuthenticate(StringBuilder username, StringBuilder domain,
 			StringBuilder password) {
 		android.util.Log.e(TAG, "onAuthenticate called.");
-		// TODO Auto-generated method stub
-		return false;
+		// TODO: IMPLEMENT THIS METHOD!
+		return true;
 	}
 
 	@Override
 	public boolean OnVerifiyCertificate(String subject, String issuer,
 			String fingerprint) {
 		android.util.Log.e(TAG, "OnVerifiyCertificate called.");
-		// TODO Auto-generated method stub
-		return false;
+		// TODO: IMPLEMENT ASKING FOR CERTIFICATE ACCEPTANCE!!!
+		return true;
 	}
 
 	@Override
