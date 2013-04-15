@@ -117,82 +117,92 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 	    public void handleMessage(Message msg) {
 	        switch (msg.what) {
 	        case VncConstants.DIALOG_X509_CERT:
-	        	final X509Certificate cert = (X509Certificate)msg.obj;
-
-	        	if (connection.getSshHostKey().equals("")) {
-	    			// Show a dialog with the key signature for approval.
-	    			DialogInterface.OnClickListener signatureNo = new DialogInterface.OnClickListener() {
-	    	            @Override
-	    	            public void onClick(DialogInterface dialog, int which) {
-	    	                // We were told not to continue, so stop the activity
-	    	            	closeConnection();
-	    	            	((Activity) getContext()).finish();
-	    	            }
-	    	        };
-	    	        DialogInterface.OnClickListener signatureYes = new DialogInterface.OnClickListener() {
-	    	            @Override
-	    	            public void onClick(DialogInterface dialog, int which) {
-	    	    			// We were told to go ahead with the connection, so save the key into the database.
-	    	            	String certificate = null;
-	    	            	try {
-	    	            		certificate = Base64.encodeToString(cert.getEncoded(), Base64.DEFAULT);
-							} catch (CertificateEncodingException e) {
-								e.printStackTrace();
-								showFatalMessageAndQuit("Certificate encoding could not be generated.");
-							}
-							connection.setSshHostKey(certificate);
-			    			connection.save(database.getWritableDatabase());
-			    			database.close();
-			    			// Indicate the certificate was accepted.
-	    	            	certificateAccepted = true;
-	    	            }
-	    	        };
-
-					// Generate a sha1 signature of the certificate.
-				    MessageDigest sha1;
-				    MessageDigest md5;
-					try {
-						sha1 = MessageDigest.getInstance("SHA1");
-						md5 = MessageDigest.getInstance("MD5");
-			    	    sha1.update(cert.getEncoded());
-		    			Utils.showYesNoPrompt(getContext(), "Continue connecting to " + connection.getAddress () + "?",
-		    									"The x509 certificate signatures are:"   +
-		    									"\nSHA1:  " + Utils.toHexString(sha1.digest()) +
-		    									"\nMD5:  "  + Utils.toHexString(md5.digest())  + 
-		    									"\nYou can ensure they are identical to the known signatures of the server certificate to prevent a man-in-the-middle attack.",
-		    									signatureYes, signatureNo);
-					} catch (NoSuchAlgorithmException e2) {
-						e2.printStackTrace();
-						showFatalMessageAndQuit("Could not generate SHA1 or MD5 signature of certificate. No SHA1/MD5 algorithm found.");
-					} catch (CertificateEncodingException e) {
-						e.printStackTrace();
-						showFatalMessageAndQuit("Certificate encoding could not be generated.");
-					}
-	        	} else {
-					// Compare saved with obtained certificate and quit if they don't match.
-	        		try {
-						if (!connection.getSshHostKey().equals(Base64.encodeToString(cert.getEncoded(), Base64.DEFAULT))) {
-							showFatalMessageAndQuit("ERROR: The saved x509 certificate does not match the current server certificate! " +
-									"This could be a man-in-the-middle attack. If you are aware of the key change, delete and recreate the connection.");
-						} else {
-							// In case we need to display information about the certificate, we can reconstruct it like this:
-							//CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
-							//ByteArrayInputStream in = new ByteArrayInputStream(Base64.decode(connection.getSshHostKey(), Base64.DEFAULT));
-							//X509Certificate c = (X509Certificate)certFactory.generateCertificate(in);
-				    	    //android.util.Log.e("  Subject ", c.getSubjectDN().toString());
-				    	    //android.util.Log.e("   Issuer  ", c.getIssuerDN().toString());
-							// The certificate matches, so we proceed.
-	    	            	certificateAccepted = true;
-						}
-					} catch (CertificateEncodingException e) {
-						e.printStackTrace();
-						showFatalMessageAndQuit("Certificate encoding could not be generated.");
-					}
-	        	}
+	        	validateX509Cert ((X509Certificate)msg.obj);
 	            break;
 	        }
 	    }
 	};
+
+	/**
+	 * If there is a saved cert, checks the one given against it. Otherwise, presents the
+	 * given cert's signature to the user for approval.
+	 * @param cert the given cert.
+	 */
+	private void validateX509Cert (final X509Certificate cert) {
+
+		// If there has been no key approved by the user previously, ask for approval, else
+		// check the saved key against the one we are presented with.
+    	if (connection.getSshHostKey().equals("")) {
+			// Show a dialog with the key signature for approval.
+			DialogInterface.OnClickListener signatureNo = new DialogInterface.OnClickListener() {
+	            @Override
+	            public void onClick(DialogInterface dialog, int which) {
+	                // We were told not to continue, so stop the activity
+	            	closeConnection();
+	            	((Activity) getContext()).finish();
+	            }
+	        };
+	        DialogInterface.OnClickListener signatureYes = new DialogInterface.OnClickListener() {
+	            @Override
+	            public void onClick(DialogInterface dialog, int which) {
+	    			// We were told to go ahead with the connection, so save the key into the database.
+	            	String certificate = null;
+	            	try {
+	            		certificate = Base64.encodeToString(cert.getEncoded(), Base64.DEFAULT);
+					} catch (CertificateEncodingException e) {
+						e.printStackTrace();
+						showFatalMessageAndQuit("Certificate encoding could not be generated.");
+					}
+					connection.setSshHostKey(certificate);
+	    			connection.save(database.getWritableDatabase());
+	    			database.close();
+	    			// Indicate the certificate was accepted.
+	            	certificateAccepted = true;
+	            }
+	        };
+
+			// Generate a sha1 signature of the certificate.
+		    MessageDigest sha1;
+		    MessageDigest md5;
+			try {
+				sha1 = MessageDigest.getInstance("SHA1");
+				md5 = MessageDigest.getInstance("MD5");
+	    	    sha1.update(cert.getEncoded());
+    			Utils.showYesNoPrompt(getContext(), "Continue connecting to " + connection.getAddress () + "?",
+    									"The x509 certificate signatures are:"   +
+    									"\nSHA1:  " + Utils.toHexString(sha1.digest()) +
+    									"\nMD5:  "  + Utils.toHexString(md5.digest())  + 
+    									"\nYou can ensure they are identical to the known signatures of the server certificate to prevent a man-in-the-middle attack.",
+    									signatureYes, signatureNo);
+			} catch (NoSuchAlgorithmException e2) {
+				e2.printStackTrace();
+				showFatalMessageAndQuit("Could not generate SHA1 or MD5 signature of certificate. No SHA1/MD5 algorithm found.");
+			} catch (CertificateEncodingException e) {
+				e.printStackTrace();
+				showFatalMessageAndQuit("Certificate encoding could not be generated.");
+			}
+    	} else {
+    		// Compare saved with obtained certificate and quit if they don't match.
+    		try {
+				if (!connection.getSshHostKey().equals(Base64.encodeToString(cert.getEncoded(), Base64.DEFAULT))) {
+					showFatalMessageAndQuit("ERROR: The saved x509 certificate does not match the current server certificate! " +
+							"This could be a man-in-the-middle attack. If you are aware of the key change, delete and recreate the connection.");
+				} else {
+					// In case we need to display information about the certificate, we can reconstruct it like this:
+					//CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
+					//ByteArrayInputStream in = new ByteArrayInputStream(Base64.decode(connection.getSshHostKey(), Base64.DEFAULT));
+					//X509Certificate c = (X509Certificate)certFactory.generateCertificate(in);
+		    	    //android.util.Log.e("  Subject ", c.getSubjectDN().toString());
+		    	    //android.util.Log.e("   Issuer  ", c.getIssuerDN().toString());
+					// The certificate matches, so we proceed.
+	            	certificateAccepted = true;
+				}
+			} catch (CertificateEncodingException e) {
+				e.printStackTrace();
+				showFatalMessageAndQuit("Certificate encoding could not be generated.");
+			}
+    	}
+	}
 
 	// Used to set the contents of the clipboard.
 	ClipboardManager clipboard;
@@ -1112,19 +1122,63 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 	}
 
 	@Override
-	public boolean OnAuthenticate(StringBuilder username, StringBuilder domain,
-			StringBuilder password) {
+	public boolean OnAuthenticate(StringBuilder username, StringBuilder domain, StringBuilder password) {
 		android.util.Log.e(TAG, "onAuthenticate called.");
-		// TODO: IMPLEMENT THIS METHOD!
-		return true;
+		showFatalMessageAndQuit ("RDP Authentication failed! Please check the RDP username and password and try again.");
+		return false;
 	}
 
 	@Override
-	public boolean OnVerifiyCertificate(String subject, String issuer,
-			String fingerprint) {
+	public boolean OnVerifiyCertificate(String subject, String issuer, final String fingerprint) {
 		android.util.Log.e(TAG, "OnVerifiyCertificate called.");
-		// TODO: IMPLEMENT ASKING FOR CERTIFICATE ACCEPTANCE!!!
-		return true;
+		
+		// If there has been no key approved by the user previously, ask for approval, else
+		// check the saved key against the one we are presented with.
+    	if (connection.getSshHostKey().equals("")) {
+			// Show a dialog with the key signature for approval.
+			DialogInterface.OnClickListener signatureNo = new DialogInterface.OnClickListener() {
+	            @Override
+	            public void onClick(DialogInterface dialog, int which) {
+	                // We were told not to continue, so stop the activity
+	            	closeConnection();
+	            	((Activity) getContext()).finish();
+	            }
+	        };
+	        DialogInterface.OnClickListener signatureYes = new DialogInterface.OnClickListener() {
+	            @Override
+	            public void onClick(DialogInterface dialog, int which) {
+	    			// We were told to go ahead with the connection, so save the key into the database.
+					connection.setSshHostKey(fingerprint);
+	    			connection.save(database.getWritableDatabase());
+	    			database.close();
+	    			// Indicate the certificate was accepted.
+	            	certificateAccepted = true;
+	            }
+	        };
+			Utils.showYesNoPrompt(getContext(), "Continue connecting to " + connection.getAddress () + "?",
+					"The RDP certificate subject, issuer, and fingerprint are:"   +
+					"\nSubject:      " + subject +
+					"\nIssuer:       " + issuer +
+					"\nFingerprint:  " + fingerprint + 
+					"\nYou can ensure they are identical to the known parameters of the server certificate to " +
+					"prevent a man-in-the-middle attack.",
+					signatureYes, signatureNo);
+    	} else {
+    		// Compare saved with obtained certificate and quit if they don't match.
+			if (!connection.getSshHostKey().equals(fingerprint)) {
+				showFatalMessageAndQuit("ERROR: The saved RDP certificate does not match the current server certificate! " +
+										"This could be a man-in-the-middle attack. If you are aware of the key change, " +
+										"delete and recreate the connection.");
+			} else {
+				certificateAccepted = true;
+			}
+    	}
+		// Block while user decides whether to accept certificate or not. The activity ends if the user taps "No", so
+    	// we block 'indefinitely' here.
+		while (!certificateAccepted) {
+			try {Thread.sleep(100);} catch (InterruptedException e1) {}
+		}
+		return certificateAccepted;
 	}
 
 	@Override
@@ -1133,8 +1187,8 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 
 		LibFreeRDP.updateGraphics(session.getInstance(), bitmapData.mbitmap, x, y, width, height);
 
-		//this.postInvalidate(x, y, x+width, y+height);
-		this.postInvalidate();
+		this.postInvalidate(x, y, x+width, y+height);
+		//this.postInvalidate();
 	}
 
 	@Override
