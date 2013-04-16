@@ -89,10 +89,12 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 	private SSHConnection sshConnection;
 
 	// VNC protocol connection
-	public RfbConnectable rfbconn = null;
-	public RfbProto rfb = null;
-	Socket sock = null;
-	public CConn cc = null;
+	public RfbConnectable rfbconn   = null;
+	private RfbProto rfb            = null;
+	private CConn cc                = null;
+	private RdpCommunicator rdpcomm = null;
+	private Socket sock             = null;
+
 	boolean maintainConnection = true;
 	
 	// RFB Decoder
@@ -390,7 +392,8 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 							screenSettings.setHeight(remoteHeight);				
 						}
 						
-						rfbconn = new RdpCommunicator (session);
+						rdpcomm = new RdpCommunicator (session);
+						rfbconn = (RdpCommunicator) rdpcomm;
 			    		pointer = new RemoteRdpPointer (rfbconn, VncCanvas.this, handler);
 			    		keyboard = new RemoteRdpKeyboard (rfbconn, VncCanvas.this, handler);
 						
@@ -755,7 +758,8 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 		removeCallbacksAndMessages();
 		if (clipboardMonitorTimer != null) {
 			clipboardMonitorTimer.cancel();
-			clipboardMonitorTimer.purge();
+			// Occasionally causes a NullPointerException
+			//clipboardMonitorTimer.purge();
 			clipboardMonitorTimer = null;
 		}
 		clipboardMonitor = null;
@@ -1119,31 +1123,42 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 
 	@Override
 	public void OnConnectionSuccess(int instance) {
+		rdpcomm.setIsInNormalProtocol(true);
 		Log.v(TAG, "OnConnectionSuccess");
 	}
 
 	@Override
 	public void OnConnectionFailure(int instance) {
+		rdpcomm.setIsInNormalProtocol(false);
 		Log.v(TAG, "OnConnectionFailure");
 		// free session
 		// TODO: Causes segfault in libfreerdp-android. Needs to be fixed.
 		//GlobalApp.freeSession(instance);
-    	closeConnection();
-    	((Activity) getContext()).finish();
+		showFatalMessageAndQuit ("RDP Connection failed! Please ensure RDP Server setting is correct, " +
+								 "the RDP server is turned on, RDP is enabled, and that the server " +
+								 "is on the same network as this device.");
     }
 
 	@Override
 	public void OnDisconnecting(int instance) {
-		Log.v(TAG, "OnDisconnecting");		
+		rdpcomm.setIsInNormalProtocol(false);
+		Log.v(TAG, "OnDisconnecting");
+		// Only display an error message if we were trying to maintain the connection (not disconnecting).
+		if (maintainConnection) {
+			showFatalMessageAndQuit ("RDP Connection failed! Either network connectivity was interrupted, " +
+									 "the RDP server was turned off or disabled, or your session was taken over.");
+		} else {
+	    	closeConnection();
+	    	((Activity) getContext()).finish();
+		}
 	}
 	
 	@Override
 	public void OnDisconnected(int instance) {
+		rdpcomm.setIsInNormalProtocol(false);
 		Log.v(TAG, "OnDisconnected");
 		// TODO: Causes segfault in libfreerdp-android. Needs to be fixed.
 		//GlobalApp.freeSession(instance);
-    	closeConnection();
-    	((Activity) getContext()).finish();
 	}
 
 	/********************************************************************************

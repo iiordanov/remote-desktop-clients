@@ -27,11 +27,17 @@ public class RdpCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyPro
 	
 	SessionState session;
 	int metaState = 0;
-	
+
+	boolean isInNormalProtocol = false;
+
 	RdpCommunicator (SessionState session) {
 		this.session = session;
 	}
 
+	public void setIsInNormalProtocol (boolean state) {
+		isInNormalProtocol = state;
+	}
+	
 	@Override
 	public int framebufferWidth() {
 		return session.getBookmark().getActiveScreenSettings().getWidth();
@@ -59,13 +65,11 @@ public class RdpCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyPro
 
 	@Override
 	public boolean isInNormalProtocol() {
-		// TODO: Is there a way to determine this for LibFreeRDP?
-		return true;
+		return isInNormalProtocol;
 	}
 
 	@Override
 	public String getEncoding() {
-		// NOT USED for RDP.
 		return "RDP";
 	}
 
