@@ -80,6 +80,7 @@ class ConnectionBean extends AbstractConnectionBean implements Comparable<Connec
 		setAutoXRandFileNm("");
 		setUseSshRemoteCommand(false);
 		setUserName("");
+		setRdpDomain("");
 		setPort(5900);
 		setColorModel(COLORMODEL.C24bit.nameString());
 		setPrefEncoding(RfbProto.EncodingTight);

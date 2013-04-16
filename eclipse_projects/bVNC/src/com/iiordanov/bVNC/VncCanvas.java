@@ -364,6 +364,7 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 						bookmark.<ManualBookmark>get().setHostname(address);
 						bookmark.<ManualBookmark>get().setPort(rdpPort);
 						bookmark.<ManualBookmark>get().setUsername(connection.getUserName());
+						bookmark.<ManualBookmark>get().setDomain(connection.getRdpDomain());
 						bookmark.<ManualBookmark>get().setPassword(connection.getPassword());
 						
 						// Create a session based on this bookmark

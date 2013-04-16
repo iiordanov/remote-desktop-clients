@@ -66,7 +66,6 @@ public class aRDP extends Activity {
 	private TextView sshCaption;
 	private LinearLayout sshCredentials;
 	private LinearLayout layoutUseSshPubkey;
-	private TextView sshServerEntryCaption;
 	private LinearLayout sshServerEntry;
 	private EditText sshServer;
 	private EditText sshPort;
@@ -83,8 +82,7 @@ public class aRDP extends Activity {
 	private ConnectionBean selected;
 	private EditText textNickname;
 	private EditText textUsername;
-	private TextView textUsernameCaption;
-	private TextView captionUseSshPubkey;
+	private EditText rdpDomain;
 	private CheckBox checkboxKeepPassword;
 	private CheckBox checkboxUseDpadAsArrows;
 	private CheckBox checkboxRotateDpad;
@@ -109,6 +107,7 @@ public class aRDP extends Activity {
 		passwordText = (EditText) findViewById(R.id.textPASSWORD);
 		textNickname = (EditText) findViewById(R.id.textNickname);
 		textUsername = (EditText) findViewById(R.id.textUsername);
+		rdpDomain = (EditText) findViewById(R.id.rdpDomain);
 
 		// Here we say what happens when the Pubkey Checkbox is checked/unchecked.
 		checkboxUseSshPubkey = (CheckBox) findViewById(R.id.checkboxUseSshPubkey);
@@ -362,6 +361,7 @@ public class aRDP extends Activity {
 		checkboxLocalCursor.setChecked(selected.getUseLocalCursor());
 		textNickname.setText(selected.getNickname());
 		textUsername.setText(selected.getUserName());
+		rdpDomain.setText(selected.getRdpDomain());
 
 		/* TODO: Reinstate color spinner but for RDP settings.
 		colorSpinner = (Spinner)findViewById(R.id.colorformat);
@@ -450,6 +450,7 @@ public class aRDP extends Activity {
 		selected.setSshPassPhrase(sshPassword.getText().toString());
 		selected.setSshPassword(sshPassword.getText().toString());
 		selected.setUserName(textUsername.getText().toString());
+		selected.setRdpDomain(rdpDomain.getText().toString());
 		selected.setPassword(passwordText.getText().toString());
 		selected.setKeepPassword(checkboxKeepPassword.isChecked());
 		selected.setUseDpadAsArrows(checkboxUseDpadAsArrows.isChecked());

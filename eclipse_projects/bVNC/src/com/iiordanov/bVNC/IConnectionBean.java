@@ -136,6 +136,8 @@ interface IConnectionBean {
 	@FieldAccessor
 	String getUserName();
 	@FieldAccessor
+	String getRdpDomain();
+	@FieldAccessor
 	String getSecureConnectionType();
 	@FieldAccessor(DefaultValue="true")
 	boolean getShowZoomButtons();

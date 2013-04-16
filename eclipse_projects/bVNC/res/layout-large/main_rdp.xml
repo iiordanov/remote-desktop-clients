@@ -145,6 +145,12 @@ android:layout_height="fill_parent">
 				android:inputType="textNoSuggestions|textVisiblePassword"/>
 		</TableRow>
 		<TableRow>
+			<EditText android:id="@+id/rdpDomain" android:layout_width="fill_parent" 
+				android:hint="@string/rdp_domain_hint" android:layout_height="wrap_content"
+				android:singleLine="true" android:layout_weight="1" android:textAppearance="?android:attr/textAppearanceLarge"
+				android:inputType="textNoSuggestions|textVisiblePassword"/>
+		</TableRow>
+		<TableRow>
 			<LinearLayout
 				android:layout_width="fill_parent"
 				android:layout_height="wrap_content"
@@ -154,7 +160,7 @@ android:layout_height="fill_parent">
 					android:password="true"
 					android:layout_width="fill_parent" android:layout_height="wrap_content" android:singleLine="true" 
 					android:layout_weight="1" android:textAppearance="?android:attr/textAppearanceLarge"
-					android:hint="@string/rdp_password_caption_hint"
+					android:hint="@string/rdp_password_hint"
 					android:inputType="textNoSuggestions"/>
 				<CheckBox android:id="@+id/checkboxKeepPassword"
 					android:layout_width="wrap_content" android:layout_height="wrap_content"
