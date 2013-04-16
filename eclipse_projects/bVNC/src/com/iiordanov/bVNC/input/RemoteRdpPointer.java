@@ -88,7 +88,8 @@ public class RemoteRdpPointer implements RemotePointer {
 		mouseY=y;
 		vncCanvas.invalidateMousePosition();
 		//android.util.Log.i(TAG, "warp mouse to " + x + "," + y);
-		rfb.writePointerEvent(x, y, 0, MOUSE_BUTTON_NONE);
+		//processPointerEvent(getX(), getY(), MotionEvent.ACTION_MOVE, 0, false, false, false, false, 0);
+		rfb.writePointerEvent(x, y, 0, MOUSE_BUTTON_MOVE);
 	}
 	
 	public void mouseFollowPan()
@@ -122,9 +123,10 @@ public class RemoteRdpPointer implements RemotePointer {
 		 */
 		@Override
 		public void run() {
-			if (rfb != null && rfb.isInNormalProtocol()) {
-				rfb.writePointerEvent(mouseX, mouseY, 0, scrollButton);
-				rfb.writePointerEvent(mouseX, mouseY, 0, 0);				
+			if (rfb != null && rfb.isInNormalProtocol()) {	
+				rfb.writePointerEvent(mouseX, mouseY, 0, scrollButton|PTRFLAGS_DOWN);
+				try {Thread.sleep(2);} catch (InterruptedException e) {}
+				rfb.writePointerEvent(mouseX, mouseY, 0, scrollButton);				
 				handler.postDelayed(this, delay);
 			}
 		}		
@@ -132,27 +134,41 @@ public class RemoteRdpPointer implements RemotePointer {
 
 	public boolean handleHardwareButtons(int keyCode, KeyEvent evt, int combinedMetastate) {
 		boolean down = (evt.getAction() == KeyEvent.ACTION_DOWN) ||
-				   (evt.getAction() == KeyEvent.ACTION_MULTIPLE);
+						(evt.getAction() == KeyEvent.ACTION_MULTIPLE);
+		if (down)
+			pointerMask = PTRFLAGS_DOWN;
+		else
+			pointerMask = 0;
 
-		int mouseChange = keyCode == KeyEvent.KEYCODE_VOLUME_DOWN ? RemoteRdpPointer.MOUSE_BUTTON_SCROLL_DOWN : RemoteRdpPointer.MOUSE_BUTTON_SCROLL_UP;
+		int mouseChange = 0;
+		int direction = 0;
+		if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
+			mouseChange = RemoteRdpPointer.MOUSE_BUTTON_SCROLL_DOWN;
+			direction = 1;
+		} else {
+			mouseChange = RemoteRdpPointer.MOUSE_BUTTON_SCROLL_UP;
+			direction = 0;
+		}
+		
 		if (keyCode == KeyEvent.KEYCODE_CAMERA) {
 			cameraButtonDown = down;
-			pointerMask = RemoteRdpPointer.MOUSE_BUTTON_RIGHT;
+			pointerMask |= RemoteRdpPointer.MOUSE_BUTTON_RIGHT;
+			//processPointerEvent(getX(), getY(), evt.getAction(), combinedMetastate, down, true, false, false, direction);
 			rfb.writePointerEvent(getX(), getY(), combinedMetastate, pointerMask);
 			return true;
 		} else if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN || keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
-			if (evt.getAction() == KeyEvent.ACTION_DOWN) {
+			pointerMask |= mouseChange;
+			if (down) {
 				// If not auto-repeat
 				if (scrollRunnable.scrollButton != mouseChange) {
-					pointerMask |= mouseChange;
 					scrollRunnable.scrollButton = mouseChange;
 					handler.postDelayed(scrollRunnable, 200);
 				}
 			} else {
 				handler.removeCallbacks(scrollRunnable);
 				scrollRunnable.scrollButton = 0;
-				pointerMask &= ~mouseChange;
 			}
+			//processPointerEvent(getX(), getY(), evt.getAction(), combinedMetastate, down, false, false, true, direction);
 			rfb.writePointerEvent(getX(), getY(), combinedMetastate, pointerMask);
 			return true;
 		}

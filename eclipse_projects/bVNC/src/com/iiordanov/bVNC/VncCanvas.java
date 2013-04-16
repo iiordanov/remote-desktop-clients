@@ -461,7 +461,9 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 		clipboardMonitor = new ClipboardMonitor(getContext(), this);
 		if (clipboardMonitor != null) {
 			clipboardMonitorTimer = new Timer ();
-			clipboardMonitorTimer.schedule(clipboardMonitor, 0, 500);
+			if (clipboardMonitorTimer != null) {
+				clipboardMonitorTimer.schedule(clipboardMonitor, 0, 500);
+			}
 		}
 	}
 	
