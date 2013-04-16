@@ -45,6 +45,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.graphics.Rect;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.SystemClock;
@@ -111,13 +112,18 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 	GlobalApp freeRdpApp = null;
 	SessionState session = null;
 
-	// Handler for the dialog that displays the x509 key signatures to the user.
+	// Handler for the dialog that displays the x509/RDP key signatures to the user.
+	// TODO: Also handle the SSH certificate validation here.
 	public Handler handler = new Handler() {
 	    @Override
 	    public void handleMessage(Message msg) {
 	        switch (msg.what) {
 	        case VncConstants.DIALOG_X509_CERT:
 	        	validateX509Cert ((X509Certificate)msg.obj);
+	            break;
+	        case VncConstants.DIALOG_RDP_CERT:
+	        	Bundle s = (Bundle)msg.obj;
+	        	validateRdpCert (s.getString("subject"), s.getString("issuer"), s.getString("fingerprint"));
 	            break;
 	        }
 	    }
@@ -202,6 +208,42 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 				showFatalMessageAndQuit("Certificate encoding could not be generated.");
 			}
     	}
+	}
+	
+	/**
+	 * Permits the user to validate an RDP certificate.
+	 * @param subject
+	 * @param issuer
+	 * @param fingerprint
+	 */
+	private void validateRdpCert (String subject, String issuer, final String fingerprint) {
+		// Since LibFreeRDP handles saving accepted certificates, if we ever get here, we must
+		// present the user with a query whether to accept the certificate or not.
+
+		// Show a dialog with the key signature for approval.
+		DialogInterface.OnClickListener signatureNo = new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				// We were told not to continue, so stop the activity
+				closeConnection();
+				((Activity) getContext()).finish();
+			}
+		};
+		DialogInterface.OnClickListener signatureYes = new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				// Indicate the certificate was accepted.
+				certificateAccepted = true;
+			}
+		};
+		Utils.showYesNoPrompt(getContext(), "Continue connecting to " + connection.getAddress () + "?",
+				"The RDP certificate subject, issuer, and fingerprint are:"   +
+						"\nSubject:      " + subject +
+						"\nIssuer:       " + issuer +
+						"\nFingerprint:  " + fingerprint + 
+						"\nYou can ensure they are identical to the known parameters of the server certificate to " +
+						"prevent a man-in-the-middle attack.",
+						signatureYes, signatureNo);
 	}
 
 	// Used to set the contents of the clipboard.
@@ -1129,56 +1171,26 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 	}
 
 	@Override
-	public boolean OnVerifiyCertificate(String subject, String issuer, final String fingerprint) {
+	public boolean OnVerifiyCertificate(String subject, String issuer, String fingerprint) {
 		android.util.Log.e(TAG, "OnVerifiyCertificate called.");
 		
-		// If there has been no key approved by the user previously, ask for approval, else
-		// check the saved key against the one we are presented with.
-    	if (connection.getSshHostKey().equals("")) {
-			// Show a dialog with the key signature for approval.
-			DialogInterface.OnClickListener signatureNo = new DialogInterface.OnClickListener() {
-	            @Override
-	            public void onClick(DialogInterface dialog, int which) {
-	                // We were told not to continue, so stop the activity
-	            	closeConnection();
-	            	((Activity) getContext()).finish();
-	            }
-	        };
-	        DialogInterface.OnClickListener signatureYes = new DialogInterface.OnClickListener() {
-	            @Override
-	            public void onClick(DialogInterface dialog, int which) {
-	    			// We were told to go ahead with the connection, so save the key into the database.
-					connection.setSshHostKey(fingerprint);
-	    			connection.save(database.getWritableDatabase());
-	    			database.close();
-	    			// Indicate the certificate was accepted.
-	            	certificateAccepted = true;
-	            }
-	        };
-			Utils.showYesNoPrompt(getContext(), "Continue connecting to " + connection.getAddress () + "?",
-					"The RDP certificate subject, issuer, and fingerprint are:"   +
-					"\nSubject:      " + subject +
-					"\nIssuer:       " + issuer +
-					"\nFingerprint:  " + fingerprint + 
-					"\nYou can ensure they are identical to the known parameters of the server certificate to " +
-					"prevent a man-in-the-middle attack.",
-					signatureYes, signatureNo);
-    	} else {
-    		// Compare saved with obtained certificate and quit if they don't match.
-			if (!connection.getSshHostKey().equals(fingerprint)) {
-				showFatalMessageAndQuit("ERROR: The saved RDP certificate does not match the current server certificate! " +
-										"This could be a man-in-the-middle attack. If you are aware of the key change, " +
-										"delete and recreate the connection.");
-			} else {
-				certificateAccepted = true;
-			}
-    	}
+		// Send a message containing the certificate to our handler.
+		Message m = new Message();
+		m.setTarget(handler);
+		m.what = VncConstants.DIALOG_RDP_CERT;
+		Bundle strings = new Bundle();
+		strings.putString("subject", subject);
+		strings.putString("issuer", issuer);
+		strings.putString("fingerprint", fingerprint);
+		m.obj = strings;
+		handler.sendMessage(m);
+		
 		// Block while user decides whether to accept certificate or not. The activity ends if the user taps "No", so
     	// we block 'indefinitely' here.
 		while (!certificateAccepted) {
-			try {Thread.sleep(100);} catch (InterruptedException e1) {}
+			try {Thread.sleep(100);} catch (InterruptedException e1) { return false; }
 		}
-		return certificateAccepted;
+		return true;
 	}
 
 	@Override
@@ -1187,8 +1199,8 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 
 		LibFreeRDP.updateGraphics(session.getInstance(), bitmapData.mbitmap, x, y, width, height);
 
-		this.postInvalidate(x, y, x+width, y+height);
-		//this.postInvalidate();
+		reDraw(x, y, x+width, y+height);
+		//postInvalidate();
 	}
 
 	@Override

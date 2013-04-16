@@ -345,7 +345,9 @@ public class RdpKeyboardMapper
 		keymapAndroid[KeyEvent.KEYCODE_GRAVE] = VK_OEM_3;	
 		keymapAndroid[KeyEvent.KEYCODE_LEFT_BRACKET] = VK_OEM_4;		
 		keymapAndroid[KeyEvent.KEYCODE_RIGHT_BRACKET] = VK_OEM_6;		
-		
+
+		keymapAndroid[KeyEvent.KEYCODE_BACK] = VK_ESCAPE;
+
 //		keymapAndroid[KeyEvent.KEYCODE_ALT_LEFT] = VK_LMENU;
 //		keymapAndroid[KeyEvent.KEYCODE_ALT_RIGHT] = VK_RMENU;
 		

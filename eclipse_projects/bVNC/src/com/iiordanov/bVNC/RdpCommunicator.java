@@ -23,6 +23,7 @@ public class RdpCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyPro
 	final static int VK_RSHIFT = 0xA1;
 	final static int VK_LWIN = 0x5B;
 	final static int VK_RWIN = 0x5C;
+	final static int VK_EXT_KEY = 0x00000100;
 	
 	SessionState session;
 	int metaState = 0;
@@ -112,7 +113,7 @@ public class RdpCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyPro
 		}
 		if ((metaState & RemoteKeyboard.SUPER_MASK) != 0) {
 			android.util.Log.e("RdpCommunicator", "Sending SUPER " + down);
-			LibFreeRDP.sendKeyEvent(session.getInstance(), VK_LWIN, down);
+			LibFreeRDP.sendKeyEvent(session.getInstance(), VK_LWIN | VK_EXT_KEY, down);
 		}
 		if ((metaState & RemoteKeyboard.SHIFT_MASK) != 0) {
 			android.util.Log.e("RdpCommunicator", "Sending SHIFT " + down);

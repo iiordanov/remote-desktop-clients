@@ -108,16 +108,18 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 	RelativeLayout layoutKeys;
 	ImageButton    keyStow;
 	ImageButton    keyCtrl;
-	boolean        keyCtrlToggled;
+	boolean       keyCtrlToggled;
+	ImageButton    keySuper;
+	boolean       keySuperToggled;
 	ImageButton    keyAlt;
-	boolean        keyAltToggled;
+	boolean       keyAltToggled;
 	ImageButton    keyTab;
 	ImageButton    keyUp;
 	ImageButton    keyDown;
 	ImageButton    keyLeft;
 	ImageButton    keyRight;
-	boolean        hardKeyboardExtended;
-	boolean        extraKeysHidden = false;
+	boolean       hardKeyboardExtended;
+	boolean       extraKeysHidden = false;
     int            prevBottomOffset = 0;
 
 
@@ -490,6 +492,33 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 			}
 		});
 
+		keySuper = (ImageButton) findViewById(R.id.keySuper);
+		keySuper.setOnClickListener(new OnClickListener () {
+			@Override
+			public void onClick(View arg0) {
+				boolean on = vncCanvas.getKeyboard().onScreenSuperToggle();
+				keySuperToggled = false;
+				if (on)
+					keySuper.setImageResource(R.drawable.superon);
+				else
+					keySuper.setImageResource(R.drawable.superoff);
+			}
+		});
+
+		keySuper.setOnLongClickListener(new OnLongClickListener () {
+			@Override
+			public boolean onLongClick(View arg0) {
+				BCFactory.getInstance().getBCHaptic().performLongPressHaptic(vncCanvas);
+				boolean on = vncCanvas.getKeyboard().onScreenSuperToggle();
+				keySuperToggled = true;
+				if (on)
+					keySuper.setImageResource(R.drawable.superon);
+				else
+					keySuper.setImageResource(R.drawable.superoff);
+				return true;
+			}
+		});
+
 		keyAlt = (ImageButton) findViewById(R.id.keyAlt);
 		keyAlt.setOnClickListener(new OnClickListener () {
 			@Override
@@ -614,6 +643,10 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 		if (!keyAltToggled) {
 			keyAlt.setImageResource(R.drawable.altoff);
 			vncCanvas.getKeyboard().onScreenAltOff();
+		}
+		if (!keySuperToggled) {
+			keySuper.setImageResource(R.drawable.superoff);
+			vncCanvas.getKeyboard().onScreenSuperOff();
 		}
 	}
 

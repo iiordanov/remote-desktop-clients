@@ -277,7 +277,7 @@ If you are looking for a quick performance boost, try setting the Color mode to 
 <string name="password_caption">VNC Auth.</string>
 <string name="password_caption_hint">VNC Password</string>
 <string name="password_caption_ssh">SSH Auth.</string>
-<string name="password_hint_ssh">Password</string>
+<string name="password_hint_ssh">SSH Password</string>
 <string name="port_caption">VNC Port</string>
 <string name="port_caption_ssh">SSH Port</string>
 <string name="port_hint">Port</string>
@@ -324,6 +324,6 @@ If you are looking for a quick performance boost, try setting the Color mode to 
 <string name="username_caption">VNC User</string>
 <string name="username_hint">UltraVNC MS Logon Username</string>
 <string name="username_hint_vencrypt">VNC Username</string>
-<string name="username_hint_ssh">Username</string>
+<string name="username_hint_ssh">SSH Username</string>
 <string name="super_check">Super</string>
 </resources>

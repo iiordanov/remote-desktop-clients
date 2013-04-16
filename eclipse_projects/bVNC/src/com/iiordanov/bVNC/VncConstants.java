@@ -34,6 +34,7 @@ public class VncConstants {
 
 	public static final int DIALOG_X509_CERT       = 1;
 	public static final int DIALOG_SSH_CERT        = 2;
+	public static final int DIALOG_RDP_CERT        = 3;
 
 	public static final int EXTRA_KEYS_OFF         = 0;
 	public static final int EXTRA_KEYS_ON          = 1;
