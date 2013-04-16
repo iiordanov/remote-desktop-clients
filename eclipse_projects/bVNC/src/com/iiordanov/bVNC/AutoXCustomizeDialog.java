@@ -88,7 +88,7 @@ public class AutoXCustomizeDialog extends AlertDialog {
 		rnd = new RandomString();
 	}
 
-	private static final Intent docIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://iiordanov.blogspot.ca/2012/10/looking-for-nx-client-for-android-try.html")); 
+	private static final Intent docIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://iiordanov.blogspot.ca/2012/10/looking-for-nx-client-for-android-or.html")); 
 	
 	public static void showDocumentation(Context c) {
 		c.startActivity(docIntent);
