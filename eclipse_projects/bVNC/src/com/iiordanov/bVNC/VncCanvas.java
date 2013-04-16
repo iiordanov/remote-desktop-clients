@@ -393,7 +393,7 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 						}
 						
 						rdpcomm = new RdpCommunicator (session);
-						rfbconn = (RdpCommunicator) rdpcomm;
+						rfbconn = rdpcomm;
 			    		pointer = new RemoteRdpPointer (rfbconn, VncCanvas.this, handler);
 			    		keyboard = new RemoteRdpKeyboard (rfbconn, VncCanvas.this, handler);
 						
@@ -1147,9 +1147,6 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 		if (maintainConnection) {
 			showFatalMessageAndQuit ("RDP Connection failed! Either network connectivity was interrupted, " +
 									 "the RDP server was turned off or disabled, or your session was taken over.");
-		} else {
-	    	closeConnection();
-	    	((Activity) getContext()).finish();
 		}
 	}
 	
