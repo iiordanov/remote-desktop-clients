@@ -91,6 +91,13 @@ public class aRDP extends Activity {
 	private EditText rdpHeight;
 	private CheckBox checkboxKeepPassword;
 	private CheckBox checkboxUseDpadAsArrows;
+	private CheckBox checkboxRemoteFx;
+	private CheckBox checkboxDesktopBackground;
+	private CheckBox checkboxFontSmoothing;
+	private CheckBox checkboxDesktopComposition;
+	private CheckBox checkboxWindowContents;
+	private CheckBox checkboxMenuAnimation;
+	private CheckBox checkboxVisualStyles;
 	private CheckBox checkboxRotateDpad;
 	private CheckBox checkboxLocalCursor;
 	private CheckBox checkboxUseSshPubkey;
@@ -228,6 +235,14 @@ public class aRDP extends Activity {
 			}
 		});
 
+		checkboxRemoteFx = (CheckBox)findViewById(R.id.checkboxRemoteFx);
+		checkboxDesktopBackground = (CheckBox)findViewById(R.id.checkboxDesktopBackground);
+		checkboxFontSmoothing = (CheckBox)findViewById(R.id.checkboxFontSmoothing);
+		checkboxDesktopComposition = (CheckBox)findViewById(R.id.checkboxDesktopComposition);
+		checkboxWindowContents = (CheckBox)findViewById(R.id.checkboxWindowContents);
+		checkboxMenuAnimation = (CheckBox)findViewById(R.id.checkboxMenuAnimation);
+		checkboxVisualStyles = (CheckBox)findViewById(R.id.checkboxVisualStyles);
+		
 		database = new VncDatabase(this);
 	}
 	
@@ -413,6 +428,13 @@ public class aRDP extends Activity {
 		rdpWidth.setText(Integer.toString(selected.getRdpWidth()));
 		rdpHeight.setText(Integer.toString(selected.getRdpHeight()));
 		setRemoteWidthAndHeight ();
+		checkboxRemoteFx.setChecked(selected.getRemoteFx());
+		checkboxDesktopBackground.setChecked(selected.getDesktopBackground());
+		checkboxFontSmoothing.setChecked(selected.getFontSmoothing());
+		checkboxDesktopComposition.setChecked(selected.getDesktopComposition());
+		checkboxWindowContents.setChecked(selected.getWindowContents());
+		checkboxMenuAnimation.setChecked(selected.getMenuAnimation());
+		checkboxVisualStyles.setChecked(selected.getVisualStyles());
 
 		/* TODO: Reinstate color spinner but for RDP settings.
 		colorSpinner = (Spinner)findViewById(R.id.colorformat);
@@ -506,7 +528,13 @@ public class aRDP extends Activity {
 			selected.setRdpWidth(Integer.parseInt(rdpWidth.getText().toString()));
 			selected.setRdpHeight(Integer.parseInt(rdpHeight.getText().toString()));
 		} catch (NumberFormatException nfe) {}
-
+		selected.setRemoteFx(checkboxRemoteFx.isChecked());
+		selected.setDesktopBackground(checkboxDesktopBackground.isChecked());
+		selected.setFontSmoothing(checkboxFontSmoothing.isChecked());
+		selected.setDesktopComposition(checkboxDesktopComposition.isChecked());
+		selected.setWindowContents(checkboxWindowContents.isChecked());
+		selected.setMenuAnimation(checkboxMenuAnimation.isChecked());
+		selected.setVisualStyles(checkboxVisualStyles.isChecked());
 		selected.setPassword(passwordText.getText().toString());
 		selected.setKeepPassword(checkboxKeepPassword.isChecked());
 		selected.setUseDpadAsArrows(checkboxUseDpadAsArrows.isChecked());

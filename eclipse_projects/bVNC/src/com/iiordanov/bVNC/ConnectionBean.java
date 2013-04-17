@@ -96,6 +96,13 @@ class ConnectionBean extends AbstractConnectionBean implements Comparable<Connec
 		setRdpResType(0);
 		setRdpWidth(0);
 		setRdpHeight(0);
+		setRemoteFx(false);
+		setDesktopBackground(false);
+		setFontSmoothing(false);
+		setDesktopComposition(false);
+		setWindowContents(false);
+		setMenuAnimation(false);
+		setVisualStyles(false);
 		c = context;
 	}
 	

@@ -241,6 +241,60 @@ android:layout_height="fill_parent">
 		        android:textAppearance="?android:attr/textAppearanceLarge" />
 		</LinearLayout>
 		<CheckBox
+			android:id="@+id/checkboxRemoteFx"
+		    android:text="@string/rdp_adv_remotefx"
+		    android:textAppearance="?android:attr/textAppearanceLarge"
+		    android:layout_width="wrap_content"
+		    android:gravity="left|center_vertical"
+		    android:layout_height="wrap_content"/>
+		<CheckBox
+			android:id="@+id/checkboxDesktopBackground"
+		    android:text="@string/rdp_adv_desktop_background"
+		    android:textAppearance="?android:attr/textAppearanceLarge"
+		    android:layout_width="wrap_content"
+		    android:gravity="left|center_vertical"
+		    android:layout_height="wrap_content"/>
+		<CheckBox
+			android:id="@+id/checkboxFontSmoothing"
+		    android:text="@string/rdp_adv_font_smoothing"
+		    android:textAppearance="?android:attr/textAppearanceLarge"
+		    android:layout_width="wrap_content"
+		    android:gravity="left|center_vertical"
+		    android:layout_height="wrap_content"/>
+		<CheckBox
+			android:id="@+id/checkboxDesktopComposition"
+		    android:text="@string/rdp_adv_desktop_composition"
+		    android:textAppearance="?android:attr/textAppearanceLarge"
+		    android:layout_width="wrap_content"
+		    android:gravity="left|center_vertical"
+		    android:layout_height="wrap_content"/>
+		<CheckBox
+			android:id="@+id/checkboxWindowContents"
+		    android:text="@string/rdp_adv_window_contents"
+		    android:textAppearance="?android:attr/textAppearanceLarge"
+		    android:layout_width="wrap_content"
+		    android:gravity="left|center_vertical"
+		    android:layout_height="wrap_content"/>
+		<CheckBox
+			android:id="@+id/checkboxMenuAnimation"
+		    android:text="@string/rdp_adv_menu_animation"
+		    android:textAppearance="?android:attr/textAppearanceLarge"
+		    android:layout_width="wrap_content"
+		    android:gravity="left|center_vertical"
+		    android:layout_height="wrap_content"/>
+		<CheckBox
+			android:id="@+id/checkboxVisualStyles"
+		    android:text="@string/rdp_adv_visual_styles"
+		    android:textAppearance="?android:attr/textAppearanceLarge"
+		    android:layout_width="wrap_content"
+		    android:gravity="left|center_vertical"
+		    android:layout_height="wrap_content"/>
+	   <TextView
+	  	    android:layout_width="wrap_content"
+	  	    android:layout_height="wrap_content"
+	  	    android:text="Local Device Tweaks"
+	  	    android:textAppearance="?android:attr/textAppearanceLarge"/>
+		<CheckBox
 			android:id="@+id/checkboxUseDpadAsArrows"
 		    android:text="@string/dpad_as_arrows"
 		    android:textAppearance="?android:attr/textAppearanceLarge"

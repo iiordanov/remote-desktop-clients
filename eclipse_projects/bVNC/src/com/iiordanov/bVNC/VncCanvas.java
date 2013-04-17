@@ -355,12 +355,15 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 			    try {
 			    	if (isRDP) {
 			    		// TODO: Refactor code.
+
+			    		// Get the address and port (based on whether an SSH tunnel is being established or not).
 			    		String address = getVNCAddress();
 			    		int rdpPort = getVNCPort();
 
 			    		// This is necessary because it initializes a synchronizedMap referenced later.
 			    		freeRdpApp = new GlobalApp();
 
+			    		// Create a manual bookmark and populate it from settings.
 						BookmarkBase bookmark = new ManualBookmark();
 						bookmark.<ManualBookmark>get().setLabel(connection.getNickname());
 						bookmark.<ManualBookmark>get().setHostname(address);
@@ -368,13 +371,14 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 						bookmark.<ManualBookmark>get().setUsername(connection.getUserName());
 						bookmark.<ManualBookmark>get().setDomain(connection.getRdpDomain());
 						bookmark.<ManualBookmark>get().setPassword(connection.getPassword());
-						
-						// Create a session based on this bookmark
+
+						// Create a session based on the bookmark
 						session = GlobalApp.createSession(bookmark);
-						
+
 						// Set a writable data directory
 						LibFreeRDP.setDataDirectory(session.getInstance(), getContext().getFilesDir().toString());
 						
+						// Set screen settings.
 						BookmarkBase.ScreenSettings screenSettings = session.getBookmark().getActiveScreenSettings();
 						int remoteWidth  = 0;
 						int remoteHeight = 0;
@@ -395,8 +399,18 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 							remoteHeight = reqHeight;
 						}
 						screenSettings.setWidth(remoteWidth);
-						screenSettings.setHeight(remoteHeight);				
-						
+						screenSettings.setHeight(remoteHeight);
+
+						// Set performance flags.
+						BookmarkBase.PerformanceFlags performanceFlags = session.getBookmark().getPerformanceFlags();
+						performanceFlags.setRemoteFX(connection.getRemoteFx());
+						performanceFlags.setWallpaper(connection.getDesktopBackground());
+						performanceFlags.setFontSmoothing(connection.getFontSmoothing());
+						performanceFlags.setDesktopComposition(connection.getDesktopComposition());
+						performanceFlags.setFullWindowDrag(connection.getWindowContents());
+						performanceFlags.setMenuAnimations(connection.getMenuAnimation());
+						performanceFlags.setTheming(connection.getVisualStyles());
+
 						rdpcomm = new RdpCommunicator (session);
 						rfbconn = rdpcomm;
 			    		pointer = new RemoteRdpPointer (rfbconn, VncCanvas.this, handler);
@@ -406,7 +420,7 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 			    		LibFreeRDP.setEventListener(VncCanvas.this);
 
 			    		session.connect();
-						pd.dismiss();		
+						pd.dismiss();
 			    	} else if (connection.getConnectionType() < 4) {
 
 			    		connectAndAuthenticate(connection.getUserName(),connection.getPassword());

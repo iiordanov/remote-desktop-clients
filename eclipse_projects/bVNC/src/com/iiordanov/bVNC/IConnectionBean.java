@@ -149,4 +149,18 @@ interface IConnectionBean {
 	int getRdpWidth();
 	@FieldAccessor
 	int getRdpHeight();
+	@FieldAccessor
+	boolean getRemoteFx();
+	@FieldAccessor
+	boolean getDesktopBackground();
+	@FieldAccessor
+	boolean getFontSmoothing();
+	@FieldAccessor
+	boolean getDesktopComposition();
+	@FieldAccessor
+	boolean getWindowContents();
+	@FieldAccessor
+	boolean getMenuAnimation();
+	@FieldAccessor
+	boolean getVisualStyles();
 }
