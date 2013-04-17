@@ -1171,7 +1171,13 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 	@Override
 	public void OnSettingsChanged(int width, int height, int bpp) {
 		android.util.Log.e(TAG, "onSettingsChanged called.");
-    	bitmapData = new CompactBitmapData(rfbconn, this);
+		try {
+			bitmapData = new CompactBitmapData(rfbconn, this);
+		} catch (Throwable e) {
+			showFatalMessageAndQuit ("Your device is out of memory! Restart the app and failing that, restart your device. " +
+									 "If neither helps, try setting a smaller remote desktop size in the advanced settings.");
+			return;
+		}
     	android.util.Log.i(TAG, "Using CompactBufferBitmapData.");
 
 		// TODO: Pointer is not visible with xrdp for some reason, test with windows.
@@ -1216,8 +1222,8 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 	@Override
 	public void OnGraphicsUpdate(int x, int y, int width, int height) {
 		//android.util.Log.e(TAG, "OnGraphicsUpdate called: " + x +", " + y + " + " + width + "x" + height );
-
-		LibFreeRDP.updateGraphics(session.getInstance(), bitmapData.mbitmap, x, y, width, height);
+		if (bitmapData != null)
+			LibFreeRDP.updateGraphics(session.getInstance(), bitmapData.mbitmap, x, y, width, height);
 
 		reDraw(x, y, x+width, y+height);
 		//postInvalidate();
@@ -1226,8 +1232,13 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 	@Override
 	public void OnGraphicsResize(int width, int height, int bpp) {
 		android.util.Log.e(TAG, "OnGraphicsResize called.");
-
-    	bitmapData = new CompactBitmapData(rfbconn, this);
-    	android.util.Log.i(TAG, "Using CompactBufferBitmapData.");
+		try {
+			bitmapData = new CompactBitmapData(rfbconn, this);
+		} catch (Throwable e) {
+			showFatalMessageAndQuit ("Your device is out of memory! Restart the app and failing that, restart your device. " +
+									 "If neither helps, try setting a smaller remote desktop size in the advanced settings.");
+			return;
+		}
+		android.util.Log.i(TAG, "Using CompactBufferBitmapData.");
 	}
 }
