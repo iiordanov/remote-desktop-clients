@@ -212,7 +212,7 @@ android:layout_height="fill_parent">
 	    android:layout_height="wrap_content"/>
 	<CheckBox
 		android:id="@+id/checkboxPreferHextile"
-	    android:text="Use Hextile encoding (for local, chroot connections)"
+	    android:text="Use Hextile encoding (for chroot connections)"
 	    android:textAppearance="?android:attr/textAppearanceMedium"
 	    android:layout_width="wrap_content"
 	    android:gravity="left|center_vertical"

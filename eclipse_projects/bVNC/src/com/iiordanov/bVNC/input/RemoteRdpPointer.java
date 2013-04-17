@@ -141,13 +141,13 @@ public class RemoteRdpPointer implements RemotePointer {
 			pointerMask = 0;
 
 		int mouseChange = 0;
-		int direction = 0;
+		//int direction = 0;
 		if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
 			mouseChange = RemoteRdpPointer.MOUSE_BUTTON_SCROLL_DOWN;
-			direction = 1;
+			//direction = 1;
 		} else {
 			mouseChange = RemoteRdpPointer.MOUSE_BUTTON_SCROLL_UP;
-			direction = 0;
+			//direction = 0;
 		}
 		
 		if (keyCode == KeyEvent.KEYCODE_CAMERA) {
@@ -252,13 +252,19 @@ public class RemoteRdpPointer implements RemotePointer {
 		if (rfb != null && rfb.isInNormalProtocol()) {
 			if (useRightButton) {
 				//android.util.Log.e("", "Mouse button right");
-		        pointerMask = MOUSE_BUTTON_RIGHT;
+				if (prevPointerMask == MOUSE_BUTTON_RIGHT)
+					pointerMask = MOUSE_BUTTON_MOVE;
+				else
+					pointerMask = MOUSE_BUTTON_RIGHT;
 			} else if (useMiddleButton) {
 				//android.util.Log.e("", "Mouse button middle");
-			    pointerMask = MOUSE_BUTTON_MIDDLE;
+				if (prevPointerMask == MOUSE_BUTTON_MIDDLE)
+					pointerMask = MOUSE_BUTTON_MOVE;
+				else
+					pointerMask = MOUSE_BUTTON_MIDDLE;
 			} else if (action == MotionEvent.ACTION_DOWN) {
 				//android.util.Log.e("", "Mouse button left");
-			    pointerMask = MOUSE_BUTTON_LEFT;
+				pointerMask = MOUSE_BUTTON_LEFT;
 			} else if (useScrollButton) {
 				if        ( direction == 0 ) {
 					//android.util.Log.e("", "Scrolling up");
@@ -281,26 +287,33 @@ public class RemoteRdpPointer implements RemotePointer {
 				//android.util.Log.e("", "Mouse moving");
 				pointerMask = MOUSE_BUTTON_MOVE;
 			} else {
-				// If none of the conditions are satisfied, clear the pointer mask???
 				//android.util.Log.e("", "Setting previous mouse action with mouse not down.");
+				// If none of the conditions are satisfied, then set the pointer mask to
+				// the previous mask so we can unpress any pressed buttons.
 		        pointerMask = prevPointerMask;
 		    }
 			
 			// Save the previous pointer mask other than action_move, so we can
 			// send it with the pointer flag "not down" to clear the action.
-			if (action != MotionEvent.ACTION_MOVE)
+			if (pointerMask != MOUSE_BUTTON_MOVE) {
+				// If this is a new mouse down event, release previous button pressed to avoid confusing the remote OS.
+				if (prevPointerMask != 0 && prevPointerMask != pointerMask) {
+					rfb.writePointerEvent(mouseX, mouseY, modifiers|vncCanvas.getKeyboard().getMetaState(), prevPointerMask);
+				}
 				prevPointerMask = pointerMask;
-			
-			if (mouseIsDown && pointerMask != MOUSE_BUTTON_MOVE) {
-				//android.util.Log.e("", "Mouse pointer is down");
-				pointerMask = pointerMask | PTRFLAGS_DOWN;
 			}
+			
+			if (mouseIsDown /*&& pointerMask != MOUSE_BUTTON_MOVE*/) {
+				android.util.Log.e("", "Mouse pointer is down");
+				pointerMask = pointerMask | PTRFLAGS_DOWN;
+			} //else
+				//android.util.Log.e("", "Mouse pointer is up");
 						
 			vncCanvas.invalidateMousePosition();
 		    mouseX = x;
 		    mouseY = y;
 		    if ( mouseX < 0) mouseX=0;
-		    else if ( mouseX >= rfb.framebufferWidth())  mouseX = rfb.framebufferWidth() - 1;
+		    else if ( mouseX >= rfb.framebufferWidth())  mouseX = rfb.framebufferWidth()  - 1;
 		    if ( mouseY < 0) mouseY=0;
 		    else if ( mouseY >= rfb.framebufferHeight()) mouseY = rfb.framebufferHeight() - 1;
 		    vncCanvas.invalidateMousePosition();
