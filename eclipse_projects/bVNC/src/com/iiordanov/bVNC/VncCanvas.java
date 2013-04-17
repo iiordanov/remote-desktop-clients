@@ -354,13 +354,13 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 			public void run() {
 			    try {
 			    	if (isRDP) {
+			    		// TODO: Refactor code.
 			    		String address = getVNCAddress();
 			    		int rdpPort = getVNCPort();
 
 			    		// This is necessary because it initializes a synchronizedMap referenced later.
 			    		freeRdpApp = new GlobalApp();
 
-			    		// TODO: Create a temp bookmark from connection.
 						BookmarkBase bookmark = new ManualBookmark();
 						bookmark.<ManualBookmark>get().setLabel(connection.getNickname());
 						bookmark.<ManualBookmark>get().setHostname(address);
@@ -376,10 +376,13 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 						LibFreeRDP.setDataDirectory(session.getInstance(), getContext().getFilesDir().toString());
 						
 						BookmarkBase.ScreenSettings screenSettings = session.getBookmark().getActiveScreenSettings();
-						if (screenSettings.isAutomatic()) {
-							int remoteWidth  = 0;
-							int remoteHeight = 0;
-							
+						int remoteWidth  = 0;
+						int remoteHeight = 0;
+						int reqWidth  = connection.getRdpWidth();
+						int reqHeight = connection.getRdpHeight();
+						// Set to native res if instructed to, or if height or width are too small.
+						if (connection.getRdpResType() == VncConstants.RDP_GEOM_SELECT_NATIVE ||
+							reqWidth < 2 || reqHeight < 2) {
 							if (displayWidth > displayHeight) {
 								remoteWidth  = displayWidth;
 								remoteHeight = displayHeight;								
@@ -387,10 +390,12 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 								remoteWidth  = displayHeight;
 								remoteHeight = displayWidth;																
 							}
-
-							screenSettings.setWidth(remoteWidth);
-							screenSettings.setHeight(remoteHeight);				
+						} else {
+							remoteWidth  = reqWidth;
+							remoteHeight = reqHeight;
 						}
+						screenSettings.setWidth(remoteWidth);
+						screenSettings.setHeight(remoteHeight);				
 						
 						rdpcomm = new RdpCommunicator (session);
 						rfbconn = rdpcomm;

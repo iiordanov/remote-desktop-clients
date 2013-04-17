@@ -15,7 +15,7 @@
 <string name="auto_x_caption">EXPERIMENTAL: bVNC can automatically discover existing and create new X sessions on UNIX systems (like NX). You need x11vnc to find, and Xvfb, Xvnc, or Xdummy to create sessions.</string>
 <string name="auto_x_cancel">Cancel</string>
 <string name="auto_x_confirm">Confirm</string>
-<string name="auto_x_descript_geom">Remote Desktop Resolution (WxH)</string>
+<string name="auto_x_descript_geom">Remote Desktop Size (WxH)</string>
 <string name="auto_x_descript_session">Remote Session Type</string>
 <string name="auto_x_disabled">Disabled</string>
 <string name="auto_x_disabled_selection">AutoX Disabled</string>
@@ -288,7 +288,14 @@ If you are looking for a quick performance boost, try setting the Color mode to 
     <item>@string/connection_type_rdp</item>
     <item>@string/connection_type_rdp_over_ssh</item>
 </string-array>
+<string name="rdp_descript_geom">Remote Desktop Size (WxH)</string>
 <string name="rdp_domain_hint">RDP Domain</string>
+<string-array name="rdp_geometry">
+    <item>@string/rdp_geom_native</item>
+    <item>@string/rdp_geom_custom</item>
+</string-array>
+<string name="rdp_geom_native">Native</string>
+<string name="rdp_geom_custom">Custom</string>
 <string name="rdp_password_hint">RDP Password</string>
 <string name="rdp_username_hint">RDP Username</string>
 <string name="repeater_button">UltraVNC Repeater</string>

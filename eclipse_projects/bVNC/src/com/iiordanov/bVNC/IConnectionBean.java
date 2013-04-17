@@ -143,4 +143,10 @@ interface IConnectionBean {
 	boolean getShowZoomButtons();
 	@FieldAccessor(Name="DOUBLE_TAP_ACTION")
 	String getDoubleTapActionAsString();
+	@FieldAccessor
+	int getRdpResType();
+	@FieldAccessor
+	int getRdpWidth();
+	@FieldAccessor
+	int getRdpHeight();
 }

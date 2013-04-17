@@ -162,6 +162,12 @@ class VncDatabase extends SQLiteOpenHelper {
 			Log.i(TAG,"Doing upgrade from 308 to 309");
 			db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
 					+AbstractConnectionBean.GEN_FIELD_RDPDOMAIN + " TEXT");
+			db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
+					+AbstractConnectionBean.GEN_FIELD_RDPRESTYPE + " INTEGER");
+			db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
+					+AbstractConnectionBean.GEN_FIELD_RDPWIDTH + " INTEGER");
+			db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
+					+AbstractConnectionBean.GEN_FIELD_RDPHEIGHT + " INTEGER");
 			oldVersion = DBV_2_0_0;
 		}
 	}

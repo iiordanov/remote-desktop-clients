@@ -51,6 +51,7 @@ import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.util.Log;
 import com.iiordanov.bVNC.Utils;
@@ -67,6 +68,7 @@ public class aRDP extends Activity {
 	private LinearLayout sshCredentials;
 	private LinearLayout layoutUseSshPubkey;
 	private LinearLayout sshServerEntry;
+	private LinearLayout layoutAdvancedSettings;
 	private EditText sshServer;
 	private EditText sshPort;
 	private EditText sshUser;
@@ -76,13 +78,17 @@ public class aRDP extends Activity {
 	private EditText passwordText;
 	private Button goButton;
 	private Button buttonGeneratePubkey;
+	private ToggleButton toggleAdvancedSettings;
 	//private Spinner colorSpinner;
 	private Spinner spinnerConnection;
+	private Spinner spinnerRdpGeometry;
 	private VncDatabase database;
 	private ConnectionBean selected;
 	private EditText textNickname;
 	private EditText textUsername;
 	private EditText rdpDomain;
+	private EditText rdpWidth;
+	private EditText rdpHeight;
 	private CheckBox checkboxKeepPassword;
 	private CheckBox checkboxUseDpadAsArrows;
 	private CheckBox checkboxRotateDpad;
@@ -194,6 +200,34 @@ public class aRDP extends Activity {
 			}
 		});
 		
+		// The advanced settings button.
+		toggleAdvancedSettings = (ToggleButton) findViewById(R.id.toggleAdvancedSettings);
+		layoutAdvancedSettings = (LinearLayout) findViewById(R.id.layoutAdvancedSettings);
+		toggleAdvancedSettings.setOnCheckedChangeListener(new OnCheckedChangeListener () {
+			@Override
+			public void onCheckedChanged(CompoundButton arg0, boolean checked) {
+				if (checked)
+					layoutAdvancedSettings.setVisibility(View.VISIBLE);
+				else
+					layoutAdvancedSettings.setVisibility(View.GONE);
+			}
+		});
+		
+		// The geometry type and dimensions boxes.
+		spinnerRdpGeometry = (Spinner) findViewById(R.id.spinnerRdpGeometry);
+		rdpWidth = (EditText) findViewById(R.id.rdpWidth);
+		rdpHeight = (EditText) findViewById(R.id.rdpHeight);		
+		spinnerRdpGeometry.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener () {
+			@Override
+			public void onItemSelected(AdapterView<?> arg0, View view, int itemIndex, long id) {
+				selected.setRdpResType(itemIndex);
+				setRemoteWidthAndHeight ();
+			}
+			@Override
+			public void onNothingSelected(AdapterView<?> arg0) {
+			}
+		});
+
 		database = new VncDatabase(this);
 	}
 	
@@ -207,6 +241,19 @@ public class aRDP extends Activity {
 		sshServerEntry.setVisibility(visibility);
 	}
 
+	/**
+	 * Enables and disables the EditText boxes for width and height of remote desktop.
+	 */
+	private void setRemoteWidthAndHeight () {
+		if (selected.getRdpResType() == VncConstants.RDP_GEOM_SELECT_NATIVE) {
+			rdpWidth.setEnabled(false);
+			rdpHeight.setEnabled(false);
+		} else {
+			rdpWidth.setEnabled(true);
+			rdpHeight.setEnabled(true);
+		}
+	}
+	
 	/**
 	 * Sets the ssh password/passphrase hint appropriately.
 	 */
@@ -362,6 +409,10 @@ public class aRDP extends Activity {
 		textNickname.setText(selected.getNickname());
 		textUsername.setText(selected.getUserName());
 		rdpDomain.setText(selected.getRdpDomain());
+		spinnerRdpGeometry.setSelection(selected.getRdpResType());
+		rdpWidth.setText(Integer.toString(selected.getRdpWidth()));
+		rdpHeight.setText(Integer.toString(selected.getRdpHeight()));
+		setRemoteWidthAndHeight ();
 
 		/* TODO: Reinstate color spinner but for RDP settings.
 		colorSpinner = (Spinner)findViewById(R.id.colorformat);
@@ -435,8 +486,7 @@ public class aRDP extends Activity {
 		try	{
 			selected.setPort(Integer.parseInt(portText.getText().toString()));
 			selected.setSshPort(Integer.parseInt(sshPort.getText().toString()));
-		}
-		catch (NumberFormatException nfe) {}
+		} catch (NumberFormatException nfe) {}
 		
 		selected.setNickname(textNickname.getText().toString());
 		selected.setSshServer(sshServer.getText().toString());
@@ -451,6 +501,12 @@ public class aRDP extends Activity {
 		selected.setSshPassword(sshPassword.getText().toString());
 		selected.setUserName(textUsername.getText().toString());
 		selected.setRdpDomain(rdpDomain.getText().toString());
+		selected.setRdpResType(spinnerRdpGeometry.getSelectedItemPosition());
+		try	{
+			selected.setRdpWidth(Integer.parseInt(rdpWidth.getText().toString()));
+			selected.setRdpHeight(Integer.parseInt(rdpHeight.getText().toString()));
+		} catch (NumberFormatException nfe) {}
+
 		selected.setPassword(passwordText.getText().toString());
 		selected.setKeepPassword(checkboxKeepPassword.isChecked());
 		selected.setUseDpadAsArrows(checkboxUseDpadAsArrows.isChecked());

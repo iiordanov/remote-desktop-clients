@@ -93,6 +93,9 @@ class ConnectionBean extends AbstractConnectionBean implements Comparable<Connec
 		setRepeaterId("");
 		setExtraKeysToggleType(1);
 		setMetaListId(1);
+		setRdpResType(0);
+		setRdpWidth(0);
+		setRdpHeight(0);
 		c = context;
 	}
 	
