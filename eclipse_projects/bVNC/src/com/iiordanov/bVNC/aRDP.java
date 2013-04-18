@@ -260,7 +260,7 @@ public class aRDP extends Activity {
 	 * Enables and disables the EditText boxes for width and height of remote desktop.
 	 */
 	private void setRemoteWidthAndHeight () {
-		if (selected.getRdpResType() == VncConstants.RDP_GEOM_SELECT_NATIVE) {
+		if (selected.getRdpResType() != VncConstants.RDP_GEOM_SELECT_CUSTOM) {
 			rdpWidth.setEnabled(false);
 			rdpHeight.setEnabled(false);
 		} else {

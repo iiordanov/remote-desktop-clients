@@ -169,6 +169,8 @@ class VncDatabase extends SQLiteOpenHelper {
 			db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
 					+AbstractConnectionBean.GEN_FIELD_RDPHEIGHT + " INTEGER");
 			db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
+					+AbstractConnectionBean.GEN_FIELD_RDPCOLOR + " INTEGER");
+			db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
 					+AbstractConnectionBean.GEN_FIELD_REMOTEFX + " BOOLEAN DEFAULT FALSE");
 			db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
 					+AbstractConnectionBean.GEN_FIELD_DESKTOPBACKGROUND + " BOOLEAN DEFAULT FALSE");

@@ -96,8 +96,9 @@ public class VncConstants {
 	public final static int AUTOX_GEOM_SELECT_NATIVE = 0;
 	public final static int AUTOX_GEOM_SELECT_CUSTOM = 1;
 
-	public final static int RDP_GEOM_SELECT_NATIVE = 0;
-	public final static int RDP_GEOM_SELECT_CUSTOM = 1;
+	public final static int RDP_GEOM_SELECT_NATIVE_LANDSCAPE = 0;
+	public final static int RDP_GEOM_SELECT_NATIVE_PORTRAIT  = 1;
+	public final static int RDP_GEOM_SELECT_CUSTOM           = 2;
 
 	public final static int AUTOX_SESS_PROG_SELECT_AUTO    = 0;
 	public final static int AUTOX_SESS_PROG_SELECT_CUSTOM  = 1;

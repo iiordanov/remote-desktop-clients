@@ -150,6 +150,8 @@ interface IConnectionBean {
 	@FieldAccessor
 	int getRdpHeight();
 	@FieldAccessor
+	int getRdpColor();
+	@FieldAccessor
 	boolean getRemoteFx();
 	@FieldAccessor
 	boolean getDesktopBackground();

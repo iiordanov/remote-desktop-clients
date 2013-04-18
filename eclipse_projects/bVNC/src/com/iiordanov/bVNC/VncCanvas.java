@@ -378,25 +378,22 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 						// Set a writable data directory
 						LibFreeRDP.setDataDirectory(session.getInstance(), getContext().getFilesDir().toString());
 						
-						// Set screen settings.
+						// Set screen settings to native res if instructed to, or if height or width are too small.
 						BookmarkBase.ScreenSettings screenSettings = session.getBookmark().getActiveScreenSettings();
 						int remoteWidth  = 0;
 						int remoteHeight = 0;
 						int reqWidth  = connection.getRdpWidth();
 						int reqHeight = connection.getRdpHeight();
-						// Set to native res if instructed to, or if height or width are too small.
-						if (connection.getRdpResType() == VncConstants.RDP_GEOM_SELECT_NATIVE ||
-							reqWidth < 2 || reqHeight < 2) {
-							if (displayWidth > displayHeight) {
-								remoteWidth  = displayWidth;
-								remoteHeight = displayHeight;								
-							} else {
-								remoteWidth  = displayHeight;
-								remoteHeight = displayWidth;																
-							}
-						} else {
+						if (connection.getRdpResType() == VncConstants.RDP_GEOM_SELECT_CUSTOM &&
+							reqWidth >= 2 && reqHeight >= 2) {
 							remoteWidth  = reqWidth;
 							remoteHeight = reqHeight;
+						} else if (connection.getRdpResType() == VncConstants.RDP_GEOM_SELECT_NATIVE_PORTRAIT) {
+							remoteWidth  = Math.min(displayWidth, displayHeight);
+							remoteHeight = Math.max(displayWidth, displayHeight);						
+						} else {
+							remoteWidth  = Math.max(displayWidth, displayHeight);
+							remoteHeight = Math.min(displayWidth, displayHeight);
 						}
 						screenSettings.setWidth(remoteWidth);
 						screenSettings.setHeight(remoteHeight);
