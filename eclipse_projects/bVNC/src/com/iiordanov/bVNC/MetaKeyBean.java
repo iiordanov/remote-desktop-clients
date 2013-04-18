@@ -39,7 +39,7 @@ public class MetaKeyBean extends AbstractMetaKeyBean implements Comparable<MetaK
 	static final HashMap<Integer,MetaKeyBase> keysByKeyCode;
 	static final HashMap<Integer,MetaKeyBase> keysByMouseButton;
 	static final HashMap<Integer,MetaKeyBase> keysByKeySym;
-	static final MetaKeyBean keyCtrlAltDel;
+	public static final MetaKeyBean keyCtrlAltDel;
 	static final MetaKeyBean keyArrowLeft;
 	static final MetaKeyBean keyArrowRight;
 	static final MetaKeyBean keyArrowUp;

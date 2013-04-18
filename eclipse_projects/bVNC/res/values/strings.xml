@@ -161,12 +161,12 @@ Known issues:
 &lt;br&gt;
 - Secure VNC over VeNCrypt mode supports only 24-bit color."
 </string>
-<string name="intro_title">bVNC, a secure VNC client with an intuitive UI</string>
+<string name="intro_title">bVNC: Intuitive, secure VNC client</string>
 <string name="intro_version_text"></string>
 <string name="input_mode">Input Mode</string>
 <string name="input_mode_fit_to_screen">No Pan; Trackball Mouse</string>
 <string name="input_mode_help_text">
-"In any Input Mode, tap the keyboard icon to get the on-screen keyboard. On some devices you can swipe up diagonally from the bottom left corner (Playbook).
+"In any Input Mode, tap the keyboard icon to get the on-screen keyboard. Also, your device may have its own gesture which bring up the keyboard.
 
 Use the Direct input modes for more intuitive touch-screen control. Use Simulated Touchpad Mode for finer control over the mouse.
 
@@ -305,6 +305,89 @@ If you are looking for a quick performance boost, try setting the Color mode to 
 <string name="rdp_geom_native_landscape">Native Landscape</string>
 <string name="rdp_geom_native_portrait">Native Portrait</string>
 <string name="rdp_geom_custom">Custom</string>
+<string name="rdp_intro_text">
+"Thank you for supporting aRDP and open-source software in general! For help with using aRDP, see the Help items in the Menu, and the description of the app in the market.
+&lt;br&gt;
+&lt;br&gt;
+Current list of aRDP features includes:
+&lt;br&gt;
+- Plain RDP, RDP tunneled over SSH.
+&lt;br&gt;
+- Free rotation support. Use Operating System to limit rotation if needed.
+&lt;br&gt;
+- Setting of remote resolution, native resolution in landscape and portrait modes.
+&lt;br&gt;
+- SSH Public/Private key-pair generation and export.
+&lt;br&gt;
+- Automatic Session saving.
+&lt;br&gt;
+- Zoomable, Fit to Screen, and One to One scaling modes.
+&lt;br&gt;
+- Multi-touch control over remote mouse in Direct and Simulated Touchpad input modes.
+&lt;br&gt;
+- Full single-handed control over remote mouse in Single-Handed input mode.
+&lt;br&gt;
+- Multi-touch mouse clicks: tap to Left-click, two-finger tap to right-click, three-finger-tap to middle click.
+&lt;br&gt;
+- Multi-touch scrolling: two finger drag Up/Down, and Left/Right to scroll.
+&lt;br&gt;
+- On-screen meta and arrow keys which can be completely disabled from menu or stowed with on-screen button.
+&lt;br&gt;
+- Sending Text and arbitrary Key combinations when connected.
+&lt;br&gt;
+- Help with creating connections (\"Menu->Connection Help\") in connection screen.
+&lt;br&gt;
+- Help with input modes (\"Menu->More->Input Mode Help\") when connected.
+&lt;br&gt;
+- Using an available trackpad as Arrows instead of moving the mouse, and trackpad click as Ctrl, rotating D-pad/trackpad for BT keyboards.
+&lt;br&gt;
+- Multi-language support, as long as the VNC server has the necessary language layout enabled.
+&lt;br&gt;
+- Seamless remote machine resolution changes
+&lt;br&gt;
+- Full mouse support on Android 4.0+ devices, including right and middle click and scroll wheel.
+&lt;br&gt;
+&lt;br&gt;
+Planned features of aRDP include:
+&lt;br&gt;
+- A choice of color modes
+&lt;br&gt;
+- Copy/Paste integration
+&lt;br&gt;
+- Exporting settings
+&lt;br&gt;
+- Sound
+&lt;br&gt;
+&lt;br&gt;
+Known issues:
+</string>
+<string name="rdp_intro_title">aRDP: Intuitive, secure RDP client</string>
+<string name="rdp_main_screen_help_text">
+"When you first start aRDP, you will see a connection configuration page. Here you can set up a new RDP connection, or choose a preexisting one. The page is divided into two sections. The top section contains a drop-down list of the connection configurations you've created previously. The first time your run aRDP, you will only be able to make a new connection. Next to the list is a Connect button. The Connect button will start the RDP client with the currently selected configuration. Below that is where you configure your connection.
+
+ - Connection Type: Here you choose the RDP connection type. Available connection types are:
+   (a) RDP, which connects directly to a computer over the RDP protocol.
+   (b) RDP over SSH, which first tunnels your connection through a computer running an SSH server.
+
+ - Title: Each connection you create can have a nickname to easily identify it on the list.
+ 
+ - SSH Tunnel Settings: Available in RDP over SSH mode.
+   (a) SSH Server/Port: The address and port of the SSH server that the connection will be tunnelled through. By default SSH listens on port 22.
+   (b) Username/Password: The username and password of the account on the SSH server. The password will be filled in on this page if you haven't quit bVNC since you last entered it.
+   (c) Manage Key/Use Key: A button to manage public/private keys, and a checkbox indicating whether to use a key rather than password to authenticate. If you use the Copy to Clipboard button after generating a key-pair, you should be able to paste the public key once connected to the VNC server (the clipboard is synchronized to the server).
+
+ - RDP Connection Settings:
+   (a) RDP Server/Port: This is where you enter the host name or IP address and port of the computer running the RDP server that you wish to contact. In RDP over SSH mode, this address is as seen from the SSH Server. If the SSH Server and RDP server are the same physical computer, you can use localhost. RDP servers typically listen on port 3389.
+   (b) RDP User: This is where you enter your Windows/UNIX account user name.
+   (c) RDP Domain: Enter the domain your account belongs to.
+   (d) RDP Password: This si where you enter your Windows/UNIX account password. Secure storage is not used for passwords (they are in a database), and the password will be stored only if you check the "Keep" box. The password will be filled in on this page if you haven't quit aRDP since you last entered it.
+
+ - Advanced settings: In this section you'll find a ways to customize the resolution of the desktop, and various RDP performance tweaks
+ 
+ - Local Device Tweaks: These adjust the behavior of aRDP on your device.
+   (a) Use D-Pad for arrows: If you prefer, you can use the D-Pad of your Bluetooth keyboard or arrows on your on-screen keyboard to send arrows to the RDP server.
+   (b) Rotate D-Pad: Phones paired with a Bluetooth keyboard may need the keyboard's D-pad to be rotated anti-clockwise to send correct directions to the server.
+   (c) Local mouse pointer: If the pointer is invisible, select this to force it to be drawn by aRDP.</string>
 <string name="rdp_password_hint">RDP Password</string>
 <string name="rdp_username_hint">RDP Username</string>
 <string name="repeater_button">UltraVNC Repeater</string>

@@ -305,7 +305,7 @@ public class aRDP extends Activity {
 	 */
 	private Dialog createHelpDialog() {
 	    AlertDialog.Builder adb = new AlertDialog.Builder(this)
-	    		.setMessage(R.string.main_screen_help_text)
+	    		.setMessage(R.string.rdp_main_screen_help_text)
 	    		.setPositiveButton(R.string.close,
 	    				new DialogInterface.OnClickListener() {
 	    					public void onClick(DialogInterface dialog,

@@ -131,16 +131,26 @@ public class RemoteRdpKeyboard extends RemoteKeyboard {
 
 			//rfb.writePointerEvent(x, y, meta.getMetaFlags()|onScreenMetaState|hardwareMetaState, button);
 			//rfb.writePointerEvent(x, y, meta.getMetaFlags()|onScreenMetaState|hardwareMetaState, 0);
+		} else if (meta.equals(MetaKeyBean.keyCtrlAltDel)) {
+			int savedMetaState = onScreenMetaState|hardwareMetaState;
+			// Update the metastate in RdpCommunicator
+			rfb.writeKeyEvent(0, RemoteKeyboard.CTRL_MASK|RemoteKeyboard.ALT_MASK, false);
+			keyboardMapper.processAndroidKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, 112));
+			keyboardMapper.processAndroidKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, 112));
+			rfb.writeKeyEvent(0, savedMetaState, false);
 		} else {
 			char[] s = new char[1];
 			s[0] = (char)XKeySymCoverter.keysym2ucs(meta.getKeySym());
 			KeyCharacterMap kmap = KeyCharacterMap.load(deviceID);
 			KeyEvent events[] = kmap.getEvents(s);
-
-			if (events != null){
+			
+			if (events != null) {
+				android.util.Log.e(TAG, "Sending event: " + events[0].toString());
 				rfb.writeKeyEvent(0, meta.getMetaFlags(), true);
 				keyboardMapper.processAndroidKeyEvent(events[0]);
-			}
+			} //else
+				//android.util.Log.e(TAG, "Events were null.");
+
 		}
 	}
 }
