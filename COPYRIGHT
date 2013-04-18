@@ -1,8 +1,9 @@
-I.   bVNC VNC client:
+I. bVNC VNC client:
 
   Copyright (C) 2012 Iordan Iordanov, iiordanov at gmail dot com
 
-II.  bVNC uses code from android-vnc-viewer, TightVNC, and antlersoft.
+II. bVNC uses code from android-vnc-viewer, TightVNC, TigerVNC,
+    antlersoft, and FreeRDP.
 
   android-vnc-viewer:
     http://code.google.com/p/android-vnc-viewer/
@@ -10,8 +11,14 @@ II.  bVNC uses code from android-vnc-viewer, TightVNC, and antlersoft.
   TightVNC:
     http://www.tightvnc.com/
 
+  TigerVNC:
+    http://tigervnc.org/
+
   antlersoft:
     http://cgibin.starpower.net/mmacdonald31/freesoftwarenews.html
+
+  FreeRDP:
+    http://www.freerdp.com/
 
 III. android-vnc-viewer VNC client:
 
@@ -30,7 +37,6 @@ Other portions of android-vnc-viewer are:
   Copyright (C) 1996 Widget Workshop, Inc.  See the source file for details.
   Copyright (C) 1996 Widget Workshop, Inc. All Rights Reserved.
   Copyright (C) 1996 by Jef Poskanzer <jef@acme.com>.  All rights reserved.
-
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
