@@ -5,6 +5,7 @@
 
     <uses-sdk android:minSdkVersion="8" android:targetSdkVersion="8"></uses-sdk>
     <uses-permission android:name="android.permission.INTERNET"></uses-permission>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"></uses-permission>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"></uses-permission>
     <supports-screens android:anyDensity="true"/>
 		
@@ -56,5 +57,7 @@
                            android:resource="@dimen/app_minimumsize_w" />
                 <meta-data android:name="com.sec.android.multiwindow.MINIMUM_SIZE_H"
                            android:resource="@dimen/app_minimumsize_h" />
+        <activity android:name="com.google.ads.AdActivity"
+                  android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize"/>
     </application>
 </manifest> 

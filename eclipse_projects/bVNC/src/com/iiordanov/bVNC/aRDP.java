@@ -59,6 +59,7 @@ import com.iiordanov.pubkeygenerator.GeneratePubkeyActivity;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import com.google.ads.*;
 
 public class aRDP extends Activity {
 	private final static String TAG = "aRDP";
@@ -101,12 +102,26 @@ public class aRDP extends Activity {
 	private CheckBox checkboxRotateDpad;
 	private CheckBox checkboxLocalCursor;
 	private CheckBox checkboxUseSshPubkey;
+	private boolean isFree;
+	private AdView adView;	
 
 	@Override
 	public void onCreate(Bundle icicle) {
 		super.onCreate(icicle);
 		System.gc();
 		setContentView(R.layout.main_rdp);
+		
+		isFree = this.getPackageName().contains("free");
+		if (isFree) {
+		    // Create the adView
+		    adView = new AdView(this, AdSize.BANNER, "a151744a8b1f640");
+		    LinearLayout layout = (LinearLayout)findViewById(R.id.mainLayout);
+		    // Add the adView to it
+		    layout.addView(adView, 0);
+		    // Initiate a generic request to load it with an ad
+		    adView.loadAd(new AdRequest());
+		}
+		
 		ipText = (EditText) findViewById(R.id.textIP);
 		sshServer = (EditText) findViewById(R.id.sshServer);
 		sshPort = (EditText) findViewById(R.id.sshPort);
@@ -242,7 +257,7 @@ public class aRDP extends Activity {
 		checkboxWindowContents = (CheckBox)findViewById(R.id.checkboxWindowContents);
 		checkboxMenuAnimation = (CheckBox)findViewById(R.id.checkboxMenuAnimation);
 		checkboxVisualStyles = (CheckBox)findViewById(R.id.checkboxVisualStyles);
-		
+
 		database = new VncDatabase(this);
 	}
 	

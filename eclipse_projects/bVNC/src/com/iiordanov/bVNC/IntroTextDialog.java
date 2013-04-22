@@ -88,10 +88,9 @@ class IntroTextDialog extends Dialog {
 		setContentView(R.layout.intro_dialog);
 		getWindow().setLayout(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT);
 		StringBuilder sb = new StringBuilder(getContext().getResources().getString(R.string.intro_title));
-		//sb.append(" ");
-		//sb.append(packageInfo.versionName);
 		setTitle(sb);
 		sb.delete(0, sb.length());
+		sb.append(getContext().getResources().getString(R.string.intro_header));
 		sb.append(getContext().getResources().getString(R.string.intro_text));
 		sb.append("\n");
 		sb.append(getContext().getResources().getString(R.string.intro_version_text));
