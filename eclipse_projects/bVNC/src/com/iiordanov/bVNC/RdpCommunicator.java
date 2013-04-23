@@ -108,19 +108,19 @@ public class RdpCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyPro
 	
 	private void sendModifierKeys (boolean down) {
 		if ((metaState & RemoteKeyboard.CTRL_MASK) != 0) {
-			android.util.Log.e("RdpCommunicator", "Sending CTRL " + down);
+			//android.util.Log.e("RdpCommunicator", "Sending CTRL " + down);
 			LibFreeRDP.sendKeyEvent(session.getInstance(), VK_LCONTROL, down);
 		}
 		if ((metaState & RemoteKeyboard.ALT_MASK) != 0) {
-			android.util.Log.e("RdpCommunicator", "Sending ALT " + down);
+			//android.util.Log.e("RdpCommunicator", "Sending ALT " + down);
 			LibFreeRDP.sendKeyEvent(session.getInstance(), VK_LMENU, down);
 		}
 		if ((metaState & RemoteKeyboard.SUPER_MASK) != 0) {
-			android.util.Log.e("RdpCommunicator", "Sending SUPER " + down);
+			//android.util.Log.e("RdpCommunicator", "Sending SUPER " + down);
 			LibFreeRDP.sendKeyEvent(session.getInstance(), VK_LWIN | VK_EXT_KEY, down);
 		}
 		if ((metaState & RemoteKeyboard.SHIFT_MASK) != 0) {
-			android.util.Log.e("RdpCommunicator", "Sending SHIFT " + down);
+			//android.util.Log.e("RdpCommunicator", "Sending SHIFT " + down);
 			LibFreeRDP.sendKeyEvent(session.getInstance(), VK_LSHIFT, down);
 		}
 	}
@@ -131,7 +131,7 @@ public class RdpCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyPro
 	public void processVirtualKey(int virtualKeyCode, boolean down) {
 		if (down)
 			sendModifierKeys(true);
-		android.util.Log.e("RdpCommunicator", "Sending VK key: " + virtualKeyCode + ". Is it down: " + down);
+		//android.util.Log.e("RdpCommunicator", "Sending VK key: " + virtualKeyCode + ". Is it down: " + down);
 		LibFreeRDP.sendKeyEvent(session.getInstance(), virtualKeyCode, down);
 		if (!down)
 			sendModifierKeys(false);
@@ -139,7 +139,7 @@ public class RdpCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyPro
 
 	@Override
 	public void processUnicodeKey(int unicodeKey) {
-		android.util.Log.e("RdpCommunicator", "Sending unicode: " + unicodeKey);
+		//android.util.Log.e("RdpCommunicator", "Sending unicode: " + unicodeKey);
 		sendModifierKeys(true);
 		LibFreeRDP.sendUnicodeKeyEvent(session.getInstance(), unicodeKey);
 		sendModifierKeys(false);

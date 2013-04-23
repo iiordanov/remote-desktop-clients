@@ -304,7 +304,7 @@ public class RemoteRdpPointer implements RemotePointer {
 			}
 			
 			if (mouseIsDown /*&& pointerMask != MOUSE_BUTTON_MOVE*/) {
-				android.util.Log.e("", "Mouse pointer is down");
+				//android.util.Log.e("", "Mouse pointer is down");
 				pointerMask = pointerMask | PTRFLAGS_DOWN;
 			} else {
 				//android.util.Log.e("", "Mouse pointer is up");

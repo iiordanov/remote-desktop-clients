@@ -85,7 +85,7 @@ public class RemoteRdpKeyboard extends RemoteKeyboard {
 				}
 			}
 
-			android.util.Log.e("RemoteRdpKeyboard", "Sending: " + evt.toString());
+			//android.util.Log.e("RemoteRdpKeyboard", "Sending: " + evt.toString());
 			// Update the metaState in RdpCommunicator with writeKeyEvent.
 			rfb.writeKeyEvent(keyCode, onScreenMetaState|hardwareMetaState|metaState, down);
 			// Send the key to be processed through the KeyboardMapper.
@@ -101,7 +101,7 @@ public class RemoteRdpKeyboard extends RemoteKeyboard {
 		int y = pointer.getY();
 		
 		if (meta.isMouseClick()) {
-			android.util.Log.e("RemoteRdpKeyboard", "is a mouse click");
+			//android.util.Log.e("RemoteRdpKeyboard", "is a mouse click");
 			int button = meta.getMouseButtons();
 			switch (button) {
 			case RemoteVncPointer.MOUSE_BUTTON_LEFT:
@@ -145,7 +145,7 @@ public class RemoteRdpKeyboard extends RemoteKeyboard {
 			KeyEvent events[] = kmap.getEvents(s);
 			
 			if (events != null) {
-				android.util.Log.e(TAG, "Sending event: " + events[0].toString());
+				//android.util.Log.e(TAG, "Sending event: " + events[0].toString());
 				rfb.writeKeyEvent(0, meta.getMetaFlags(), true);
 				keyboardMapper.processAndroidKeyEvent(events[0]);
 			} //else

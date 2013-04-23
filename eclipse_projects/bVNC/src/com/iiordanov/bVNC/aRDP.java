@@ -118,8 +118,6 @@ public class aRDP extends Activity {
 		    LinearLayout layout = (LinearLayout)findViewById(R.id.mainLayout);
 		    // Add the adView to it
 		    layout.addView(adView, 0);
-		    // Initiate a generic request to load it with an ad
-		    adView.loadAd(new AdRequest());
 		}
 		
 		ipText = (EditText) findViewById(R.id.textIP);
@@ -568,6 +566,10 @@ public class aRDP extends Activity {
 	protected void onResume() {
 		super.onStart();
 		System.gc();
+		if (isFree) {
+			// Initiate a generic request to load it with an ad
+		    adView.loadAd(new AdRequest());
+		}
 		arriveOnPage();
 	}
 
