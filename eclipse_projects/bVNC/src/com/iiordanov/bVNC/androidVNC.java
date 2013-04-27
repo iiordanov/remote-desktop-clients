@@ -568,13 +568,15 @@ public class androidVNC extends Activity {
 	}
 	
 	protected void onStart() {
+		Log.e(TAG, "onStart called");
 		super.onStart();
 		System.gc();
 		arriveOnPage();
 	}
 
 	protected void onResume() {
-		super.onStart();
+		Log.e(TAG, "onResume called");
+		super.onResume();
 		System.gc();
 		arriveOnPage();
 	}

@@ -5,6 +5,8 @@
 <string name="address_caption_hint_tunneled">VNC Server</string>
 <string name="address_caption_ssh">SSH Server</string>
 <string name="address_caption_ssh_hint">SSH Server</string>
+<string name="ad_no_ads">No ads this time</string>
+<string name="ad_show_ads">Show the ads</string>
 <string name="alt_check">Alt</string>
 <string name="app_name">bVNC</string>
 <string name="arrow_down">Down Arrow</string>
@@ -111,6 +113,8 @@
 <string name="import_settings_file_url">Import from file or URL</string>
 <string name="input_mode_help">Input Mode Help</string>
 <string name="info">Info</string>
+<string name="intro_close">Close</string>
+<string name="intro_dont_show">Don\'t show again</string>
 <string name="intro_header"></string>
 <string name="intro_text">
 "Current list of bVNC features:
@@ -219,7 +223,6 @@ All Input Modes:
 <string name="input_mode_touchpad">Simulated Touchpad</string>
 <string name="input_mode_touchpad_description">Simulated Touchpad: Swipe to move pointer. Tap anywhere with one finger to left-click, two fingers to right-click, and three fingers to middle-click. Swipe with two fingers to scroll. Long tap to drag and drop.</string>
 <string name="keep_password_button">Keep</string>
-<string name="intro_dont_show">Don\'t show again</string>
 <string name="keys_caption">Keys</string>
 <string name="list_caption">List</string>
 <string name="list_name_caption">List Name</string>

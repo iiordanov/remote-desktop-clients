@@ -20,7 +20,7 @@ android:layout_height="fill_parent">
 			android:textAppearance="?android:attr/textAppearanceLarge"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:textSize="22sp"/>
+			android:textSize="35sp"/>
 		<Spinner 
 			android:id="@+id/spinnerConnection"
 			android:layout_width="fill_parent"

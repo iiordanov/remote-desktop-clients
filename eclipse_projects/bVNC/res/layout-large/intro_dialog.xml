@@ -43,7 +43,7 @@
 		    android:id="@+id/buttonCloseIntro"
 		    android:layout_width="wrap_content"
 		    android:layout_height="wrap_content"
-		    android:text="@string/close"
+		    android:text="@string/intro_close"
 		    android:textAppearance="?android:attr/textAppearanceLarge"
 		    />
       	</LinearLayout>

@@ -45,27 +45,20 @@ class IntroTextDialog extends Dialog {
 	private PackageInfo packageInfo;
 	private VncDatabase database;
 	
-	static IntroTextDialog dialog;
+	static IntroTextDialog dialog = null;
 	
-	static void showIntroTextIfNecessary(Activity context, VncDatabase database, boolean force)
-	{
+	static void showIntroTextIfNecessary(Activity context, VncDatabase database, boolean force) {
 		PackageInfo pi;
-		try
-		{
+		try {
 			pi = context.getPackageManager().getPackageInfo("com.iiordanov.bVNC", 0);
 		}
-		catch (PackageManager.NameNotFoundException nnfe)
-		{
+		catch (PackageManager.NameNotFoundException nnfe) {
 			return;
 		}
 		MostRecentBean mr = androidVNC.getMostRecent(database.getReadableDatabase());
-		if (force || mr == null || mr.getShowSplashVersion() != pi.versionCode)
-		{
-			if (dialog == null)
-			{
-				dialog = new IntroTextDialog(context, pi, database);
-				dialog.show();
-			}
+		if (dialog == null && (force || mr == null || mr.getShowSplashVersion() != pi.versionCode)) {
+			dialog = new IntroTextDialog(context, pi, database);
+			dialog.show();
 		}
 	}
 	
@@ -104,7 +97,7 @@ class IntroTextDialog extends Dialog {
 			 */
 			@Override
 			public void onClick(View v) {
-				dismiss();
+				showAgain(true);
 			}
 			
 		});
@@ -115,7 +108,7 @@ class IntroTextDialog extends Dialog {
 			 */
 			@Override
 			public void onClick(View v) {
-				dontShowAgain();
+				showAgain(false);
 			}
 			
 		});
@@ -145,7 +138,7 @@ class IntroTextDialog extends Dialog {
 
 			@Override
 			public boolean onMenuItemClick(MenuItem item) {
-				dismiss();
+				showAgain(true);
 				return true;
 			}
 		});
@@ -153,22 +146,25 @@ class IntroTextDialog extends Dialog {
 
 			@Override
 			public boolean onMenuItemClick(MenuItem item) {
-				dontShowAgain();
+				showAgain(false);
 				return true;
 			}
 		});
 		return true;
 	}
-
-	private void dontShowAgain()
-	{
+	
+	private void showAgain(boolean show) {
 		SQLiteDatabase db = database.getWritableDatabase();
 		MostRecentBean mostRecent = androidVNC.getMostRecent(db);
-		if (mostRecent != null)
-		{
-			mostRecent.setShowSplashVersion(packageInfo.versionCode);
+		if (mostRecent != null) {
+			int value = -1;
+			if (!show) {
+				value = packageInfo.versionCode;
+			}
+			mostRecent.setShowSplashVersion(value);
 			mostRecent.Gen_update(db);
 		}
 		dismiss();
+		dialog = null;
 	}
 }
