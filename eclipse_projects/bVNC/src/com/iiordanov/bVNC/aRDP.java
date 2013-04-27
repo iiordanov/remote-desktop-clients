@@ -31,8 +31,10 @@ import android.app.ActivityManager.MemoryInfo;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -53,6 +55,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
+import android.widget.LinearLayout.LayoutParams;
 import android.util.Log;
 import com.iiordanov.bVNC.Utils;
 import com.iiordanov.pubkeygenerator.GeneratePubkeyActivity;
@@ -112,13 +115,6 @@ public class aRDP extends Activity {
 		setContentView(R.layout.main_rdp);
 		
 		isFree = this.getPackageName().contains("free");
-		if (isFree) {
-		    // Create the adView
-		    adView = new AdView(this, AdSize.BANNER, "a151744a8b1f640");
-		    LinearLayout layout = (LinearLayout)findViewById(R.id.mainLayout);
-		    // Add the adView to it
-		    layout.addView(adView, 0);
-		}
 		
 		ipText = (EditText) findViewById(R.id.textIP);
 		sshServer = (EditText) findViewById(R.id.sshServer);
@@ -566,11 +562,21 @@ public class aRDP extends Activity {
 	protected void onResume() {
 		super.onStart();
 		System.gc();
-		if (isFree) {
-			// Initiate a generic request to load it with an ad
-		    adView.loadAd(new AdRequest());
-		}
 		arriveOnPage();
+	}
+	
+	@Override
+	public void onWindowFocusChanged (boolean visible) {
+		if (visible && isFree)
+			displayAd ();
+	}
+	
+	@Override
+	public void onConfigurationChanged(Configuration newConfig) {
+		Log.e(TAG, "onConfigurationChanged called");
+		super.onConfigurationChanged(newConfig);
+		if (isFree)
+			displayAd ();
 	}
 
 	/**
@@ -616,6 +622,26 @@ public class aRDP extends Activity {
 		selected=connections.get(connectionIndex);
 		updateViewFromSelected();
 		IntroTextDialog.showIntroTextIfNecessary(this, database, false);
+	}
+	
+	private void displayAd () {
+	    LinearLayout layout = (LinearLayout)findViewById(R.id.mainLayout);
+		if (adView != null)
+			layout.removeViewInLayout(adView);
+			
+	    // Create the adView
+	    adView = new AdView(this, AdSize.SMART_BANNER, "a151744a8b1f640");
+		WindowManager.LayoutParams lp = getWindow().getAttributes();
+		lp.width     = LayoutParams.FILL_PARENT;
+		lp.height    = LayoutParams.FILL_PARENT;
+	    adView.setLayoutParams(lp);
+		    
+	    // Add the adView to the layout
+	    layout.addView(adView, 0);
+
+	    // Initiate a generic request to load it with an ad
+		AdRequest adRequest = new AdRequest();
+	    adView.loadAd(adRequest);
 	}
 	
 	protected void onStop() {

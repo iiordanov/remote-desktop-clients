@@ -8,23 +8,27 @@ android:layout_height="fill_parent">
     android:id="@+id/mainLayout"
 	android:layout_width="fill_parent"
 	android:layout_height="wrap_content"
-	android:padding="5dip"
+	android:padding="0dip"
 	android:orientation="vertical">
    	<LinearLayout
 		android:layout_width="fill_parent"
 		android:layout_height="wrap_content"
 		android:orientation="horizontal">
+		<Spinner 
+			android:id="@+id/spinnerConnection"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_weight="1"
+			android:singleLine="true"/>
 		<Button 
 			android:id="@+id/buttonGO" 
 			android:text="@string/connect_button"
-			android:textAppearance="?android:attr/textAppearanceLarge"
+			android:textAppearance="?android:attr/textAppearanceMedium"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:textSize="35sp"/>
-		<Spinner 
-			android:id="@+id/spinnerConnection"
-			android:layout_width="fill_parent"
-			android:layout_height="wrap_content"/>
+			android:layout_weight="0"
+			android:textSize="35sp"
+			android:singleLine="true"/>
 	</LinearLayout>	
 	<TableLayout 
 		android:layout_width="fill_parent"
@@ -178,7 +182,7 @@ android:layout_height="fill_parent">
 		</TableRow> -->
 	</TableLayout>
 
-	<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	<LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:padding="5dip"
@@ -195,7 +199,7 @@ android:layout_height="fill_parent">
 	        android:textAppearance="?android:attr/textAppearanceLarge" />
     </LinearLayout>
 
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    <LinearLayout
         android:id="@+id/layoutAdvancedSettings"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
@@ -210,7 +214,7 @@ android:layout_height="fill_parent">
 	  	    android:text="@string/rdp_descript_geom"
 	  	    android:textAppearance="?android:attr/textAppearanceLarge"/>
 	    
-		<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+		<LinearLayout
 	        android:layout_width="fill_parent"
 	        android:layout_height="wrap_content"
 	        android:orientation="horizontal">

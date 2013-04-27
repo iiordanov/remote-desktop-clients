@@ -165,6 +165,5 @@ class IntroTextDialog extends Dialog {
 			mostRecent.Gen_update(db);
 		}
 		dismiss();
-		dialog = null;
 	}
 }

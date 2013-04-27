@@ -5,8 +5,19 @@
 <string name="address_caption_hint_tunneled">VNC Server</string>
 <string name="address_caption_ssh">SSH Server</string>
 <string name="address_caption_ssh_hint">SSH Server</string>
+<string name="ad_donate_text">Tap here to donate and get the ad-free version!</string>
 <string name="ad_no_ads">No ads this time</string>
 <string name="ad_show_ads">Show the ads</string>
+<string name="ad_text">Due bVNC\'s increasing demands on the author\'s time, the free
+    version now displays ads. The author very highly appreciates your viewing
+    and taking an interest in advertisement content as a way to support bVNC and all
+    related projects like aRDP. 
+&lt;br&gt;
+&lt;br&gt;    
+    Since there were no ads in bVNC originally, you still have the option to disable
+    the ads for this run of the program. If you accept showing the advertisements, this
+    dialog will not be displayed anymore. Wipe your settings to get it back.</string>
+<string name="ad_title">Advertisement Preferences</string>
 <string name="alt_check">Alt</string>
 <string name="app_name">bVNC</string>
 <string name="arrow_down">Down Arrow</string>

@@ -31,8 +31,10 @@ import android.app.ActivityManager.MemoryInfo;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -52,7 +54,12 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.CompoundButton.OnCheckedChangeListener;
+import android.widget.LinearLayout.LayoutParams;
 import android.util.Log;
+
+import com.google.ads.AdRequest;
+import com.google.ads.AdSize;
+import com.google.ads.AdView;
 import com.iiordanov.bVNC.Utils;
 import com.iiordanov.pubkeygenerator.GeneratePubkeyActivity;
 
@@ -95,8 +102,11 @@ public class androidVNC extends Activity {
 	private CheckBox checkboxLocalCursor;
 	private CheckBox checkboxUseSshPubkey;
 	private CheckBox checkboxPreferHextile;
+	private AdView adView = null;	
 	private boolean repeaterTextSet;
 	private boolean isFree;
+	private boolean startingOrHasPaused = true;
+	private boolean isConnecting = false;
 
 	@Override
 	public void onCreate(Bundle icicle) {
@@ -580,6 +590,21 @@ public class androidVNC extends Activity {
 		System.gc();
 		arriveOnPage();
 	}
+	
+	@Override
+	public void onWindowFocusChanged (boolean visible) {
+		if (visible && isFree)
+			displayAdsOrShowDialog(false);
+	}
+	
+	@Override
+	public void onConfigurationChanged(Configuration newConfig) {
+		Log.e(TAG, "onConfigurationChanged called");
+		super.onConfigurationChanged(newConfig);
+		// We do not want to display the ad dialog on rotation change, so we force it off.
+		if (isFree)
+			displayAdsOrShowDialog(true);
+	}
 
 	/**
 	 * Return the object representing the app global state in the database, or null
@@ -626,7 +651,38 @@ public class androidVNC extends Activity {
 		IntroTextDialog.showIntroTextIfNecessary(this, database, false);
 	}
 	
+	private void displayAdsOrShowDialog (boolean forceNoDialog) {
+		boolean showAds = PreferenceManager.getDefaultSharedPreferences(this).getBoolean("showAds", false);
+		if (!showAds && !forceNoDialog) {
+			AdPreferenceDialog.showDialogIfNecessary(this, startingOrHasPaused);
+			startingOrHasPaused = false;
+			// Reload setting in case it has changed.
+			showAds = PreferenceManager.getDefaultSharedPreferences(this).getBoolean("showAds", false);
+		}
+		if (showAds) {
+		    LinearLayout layout = (LinearLayout)findViewById(R.id.mainLayout);
+			if (adView != null)
+				layout.removeViewInLayout(adView);
+			
+		    // Create the adView
+		    adView = new AdView(this, AdSize.SMART_BANNER, "a1517c1341bd2d8");
+			WindowManager.LayoutParams lp = getWindow().getAttributes();
+			lp.width     = LayoutParams.FILL_PARENT;
+			lp.height    = LayoutParams.FILL_PARENT;
+		    adView.setLayoutParams(lp);
+		    
+		    // Add the adView to the layout
+		    layout.addView(adView, 0);
+
+		    // Initiate a generic request to load it with an ad
+			AdRequest adRequest = new AdRequest();
+			//adRequest.addTestDevice("255443C58D5D1959D075281106206D06");
+		    adView.loadAd(adRequest);
+		}
+	}
+	
 	protected void onStop() {
+		Log.e(TAG, "onStop called");
 		super.onStop();
 		if ( selected == null ) {
 			return;
@@ -641,9 +697,18 @@ public class androidVNC extends Activity {
 		
 		saveAndWriteRecent();
 	}
+
+	protected void onPause() {
+		Log.e(TAG, "onPause called");
+		super.onPause();
+		if (!isConnecting) {
+			startingOrHasPaused = true;
+		} else {
+			isConnecting = false;
+		}
+	}
 	
-	VncDatabase getDatabaseHelper()
-	{
+	VncDatabase getDatabaseHelper() {
 		return database;
 	}
 	
@@ -687,6 +752,7 @@ public class androidVNC extends Activity {
 	 * Starts the activity which makes a VNC connection and displays the remote desktop.
 	 */
 	private void vnc () {
+		isConnecting = true;
 		updateSelectedFromView();
 		saveAndWriteRecent();
 		Intent intent = new Intent(this, VncCanvasActivity.class);

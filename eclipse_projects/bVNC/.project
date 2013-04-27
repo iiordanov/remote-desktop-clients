@@ -38,17 +38,11 @@
 			<arguments>
 			</arguments>
 		</buildCommand>
-		<buildCommand>
-			<name>net.rim.ajde.internal.verifier</name>
-			<arguments>
-			</arguments>
-		</buildCommand>
 	</buildSpec>
 	<natures>
 		<nature>com.android.ide.eclipse.adt.AndroidNature</nature>
 		<nature>org.eclipse.jdt.core.javanature</nature>
 		<nature>com.antlersoft.bbq_eclipse.BBQNature</nature>
 		<nature>com.antlersoft.sqlitegen.SQLiteGenNature</nature>
-		<nature>net.rim.ajde.BlackBerryAndroidNature</nature>
 	</natures>
 </projectDescription>
