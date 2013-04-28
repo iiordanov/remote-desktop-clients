@@ -67,6 +67,8 @@ class AdPreferenceDialog extends Dialog {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
+		this.setCancelable(false);
+		
 		setContentView(R.layout.intro_dialog);
 		getWindow().setLayout(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT);
 		
