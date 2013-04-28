@@ -211,8 +211,7 @@ public class aRDP extends Activity {
 				if (ipText.getText().length() != 0 && portText.getText().length() != 0)
 					canvasStart();
 				else
-					Toast.makeText(view.getContext(), "VNC Server or port empty. Cannot connect!",
-									Toast.LENGTH_LONG).show();
+					Toast.makeText(view.getContext(), R.string.rdp_server_empty, Toast.LENGTH_LONG).show();
 			}
 		});
 		

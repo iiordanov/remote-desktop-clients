@@ -53,6 +53,7 @@ import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.LinearLayout.LayoutParams;
 import android.util.Log;
@@ -75,6 +76,7 @@ public class androidVNC extends Activity {
 	private LinearLayout layoutUseSshPubkey;
 	private LinearLayout layoutUseX11Vnc;
 	private LinearLayout sshServerEntry;
+	private LinearLayout layoutAdvancedSettings;
 	private EditText sshServer;
 	private EditText sshPort;
 	private EditText sshUser;
@@ -86,6 +88,7 @@ public class androidVNC extends Activity {
 	private Button repeaterButton;
 	private Button buttonGeneratePubkey;
 	private Button buttonCustomizeX11Vnc;
+	private ToggleButton toggleAdvancedSettings;
 	private LinearLayout repeaterEntry;
 	private TextView repeaterText;
 	private RadioGroup groupForceFullScreen;
@@ -213,7 +216,20 @@ public class androidVNC extends Activity {
 		});
 
 		goButton = (Button) findViewById(R.id.buttonGO);
-
+		
+		// The advanced settings button.
+		toggleAdvancedSettings = (ToggleButton) findViewById(R.id.toggleAdvancedSettings);
+		layoutAdvancedSettings = (LinearLayout) findViewById(R.id.layoutAdvancedSettings);
+		toggleAdvancedSettings.setOnCheckedChangeListener(new OnCheckedChangeListener () {
+			@Override
+			public void onCheckedChanged(CompoundButton arg0, boolean checked) {
+				if (checked)
+					layoutAdvancedSettings.setVisibility(View.VISIBLE);
+				else
+					layoutAdvancedSettings.setVisibility(View.GONE);
+			}
+		});
+		
 		// Define what happens when the Import/Export button is pressed.
 		((Button)findViewById(R.id.buttonImportExport)).setOnClickListener(new View.OnClickListener() {
 			@Override
@@ -267,8 +283,7 @@ public class androidVNC extends Activity {
 				if (ipText.getText().length() != 0 && portText.getText().length() != 0)
 					canvasStart();
 				else
-					Toast.makeText(view.getContext(), "VNC Server or port empty. Cannot connect!",
-									Toast.LENGTH_LONG).show();
+					Toast.makeText(view.getContext(), R.string.vnc_server_empty, Toast.LENGTH_LONG).show();
 			}
 		});
 		

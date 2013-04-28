@@ -409,6 +409,7 @@ Known issues:
    (b) Rotate D-Pad: Phones paired with a Bluetooth keyboard may need the keyboard's D-pad to be rotated anti-clockwise to send correct directions to the server.
    (c) Local mouse pointer: If the pointer is invisible, select this to force it to be drawn by aRDP.</string>
 <string name="rdp_password_hint">RDP Password</string>
+<string name="rdp_server_empty">RDP Server or port empty. Cannot connect!</string>
 <string name="rdp_username_hint">RDP Username</string>
 <string name="repeater_button">UltraVNC Repeater</string>
 <string name="repeater_caption">Enter the repeater address &lt;b&gt;only if&lt;/b&gt; you are using an&lt;br&gt;&lt;i&gt;UltraVNC&lt;/i&gt;-type repeater</string>
@@ -445,5 +446,6 @@ Known issues:
 <string name="username_hint">UltraVNC MS Logon Username</string>
 <string name="username_hint_vencrypt">VNC Username</string>
 <string name="username_hint_ssh">SSH Username</string>
+<string name="vnc_server_empty">VNC Server or port empty. Cannot connect!</string>
 <string name="super_check">Super</string>
 </resources>
