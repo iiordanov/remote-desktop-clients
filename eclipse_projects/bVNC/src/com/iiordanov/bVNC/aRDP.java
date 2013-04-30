@@ -57,24 +57,20 @@ import android.widget.ToggleButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.LinearLayout.LayoutParams;
 import android.util.Log;
-
-import com.google.ads.AdRequest;
-import com.google.ads.AdSize;
-import com.google.ads.AdView;
 import com.iiordanov.bVNC.Utils;
 import com.iiordanov.pubkeygenerator.GeneratePubkeyActivity;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import com.google.ads.*;
 
-public class androidVNC extends Activity {
-	private final static String TAG = "androidVNC";
+public class aRDP extends Activity {
+	private final static String TAG = "aRDP";
 	private Spinner connectionType;
 	private int selectedConnType;
 	private TextView sshCaption;
 	private LinearLayout sshCredentials;
 	private LinearLayout layoutUseSshPubkey;
-	private LinearLayout layoutUseX11Vnc;
 	private LinearLayout sshServerEntry;
 	private LinearLayout layoutAdvancedSettings;
 	private EditText sshServer;
@@ -85,40 +81,41 @@ public class androidVNC extends Activity {
 	private EditText portText;
 	private EditText passwordText;
 	private Button goButton;
-	private Button repeaterButton;
 	private Button buttonGeneratePubkey;
-	private Button buttonCustomizeX11Vnc;
 	private ToggleButton toggleAdvancedSettings;
-	private LinearLayout repeaterEntry;
-	private TextView repeaterText;
-	private RadioGroup groupForceFullScreen;
-	private Spinner colorSpinner;
+	//private Spinner colorSpinner;
 	private Spinner spinnerConnection;
+	private Spinner spinnerRdpGeometry;
 	private VncDatabase database;
 	private ConnectionBean selected;
 	private EditText textNickname;
 	private EditText textUsername;
-	private TextView autoXStatus;
+	private EditText rdpDomain;
+	private EditText rdpWidth;
+	private EditText rdpHeight;
 	private CheckBox checkboxKeepPassword;
 	private CheckBox checkboxUseDpadAsArrows;
+	private CheckBox checkboxRemoteFx;
+	private CheckBox checkboxDesktopBackground;
+	private CheckBox checkboxFontSmoothing;
+	private CheckBox checkboxDesktopComposition;
+	private CheckBox checkboxWindowContents;
+	private CheckBox checkboxMenuAnimation;
+	private CheckBox checkboxVisualStyles;
 	private CheckBox checkboxRotateDpad;
 	private CheckBox checkboxLocalCursor;
 	private CheckBox checkboxUseSshPubkey;
-	private CheckBox checkboxPreferHextile;
-	private AdView adView = null;	
-	private boolean repeaterTextSet;
 	private boolean isFree;
-	private boolean startingOrHasPaused = true;
-	private boolean isConnecting = false;
+	private AdView adView;	
 
 	@Override
 	public void onCreate(Bundle icicle) {
 		super.onCreate(icicle);
 		System.gc();
-
+		setContentView(R.layout.main_rdp);
+		
 		isFree = this.getPackageName().contains("free");
-
-		setContentView(R.layout.main);
+		
 		ipText = (EditText) findViewById(R.id.textIP);
 		sshServer = (EditText) findViewById(R.id.sshServer);
 		sshPort = (EditText) findViewById(R.id.sshPort);
@@ -127,23 +124,12 @@ public class androidVNC extends Activity {
 		sshCredentials = (LinearLayout) findViewById(R.id.sshCredentials);
 		sshCaption = (TextView) findViewById(R.id.sshCaption);
 		layoutUseSshPubkey = (LinearLayout) findViewById(R.id.layoutUseSshPubkey);
-		layoutUseX11Vnc = (LinearLayout) findViewById(R.id.layoutUseX11Vnc);
 		sshServerEntry = (LinearLayout) findViewById(R.id.sshServerEntry);
 		portText = (EditText) findViewById(R.id.textPORT);
 		passwordText = (EditText) findViewById(R.id.textPASSWORD);
 		textNickname = (EditText) findViewById(R.id.textNickname);
 		textUsername = (EditText) findViewById(R.id.textUsername);
-		autoXStatus = (TextView) findViewById(R.id.autoXStatus);
-		
-		// Define what happens when the Repeater button is pressed.
-		repeaterButton = (Button) findViewById(R.id.buttonRepeater);
-		repeaterEntry = (LinearLayout) findViewById(R.id.repeaterEntry);
-		repeaterButton.setOnClickListener(new View.OnClickListener() {	
-			@Override
-			public void onClick(View v) {
-				showDialog(R.layout.repeater_dialog);
-			}
-		});
+		rdpDomain = (EditText) findViewById(R.id.rdpDomain);
 
 		// Here we say what happens when the Pubkey Checkbox is checked/unchecked.
 		checkboxUseSshPubkey = (CheckBox) findViewById(R.id.checkboxUseSshPubkey);
@@ -164,16 +150,6 @@ public class androidVNC extends Activity {
 				generatePubkey ();
 			}
 		});
-
-		// Define what happens when somebody clicks on the customize auto X session dialog.
-		buttonCustomizeX11Vnc = (Button) findViewById(R.id.buttonCustomizeX11Vnc);
-		buttonCustomizeX11Vnc.setOnClickListener(new View.OnClickListener() {	
-			@Override
-			public void onClick(View v) {
-				androidVNC.this.updateSelectedFromView();
-				showDialog(R.layout.auto_x_customize);
-			}
-		});
 		
 		// Define what happens when somebody selects different VNC connection types.
 		connectionType = (Spinner) findViewById(R.id.connectionType);
@@ -182,31 +158,13 @@ public class androidVNC extends Activity {
 			public void onItemSelected(AdapterView<?> ad, View view, int itemIndex, long id) {
 
 				selectedConnType = itemIndex;
-				if (selectedConnType == VncConstants.CONN_TYPE_PLAIN ||
-					selectedConnType == VncConstants.CONN_TYPE_ANONTLS) {
+				if (selectedConnType == VncConstants.CONN_TYPE_PLAIN) {
 					setVisibilityOfSshWidgets (View.GONE);
-					setVisibilityOfUltraVncWidgets (View.GONE);
-					ipText.setHint(R.string.address_caption_hint);
 				} else if (selectedConnType == VncConstants.CONN_TYPE_SSH) {
 					setVisibilityOfSshWidgets (View.VISIBLE);
-					setVisibilityOfUltraVncWidgets (View.GONE);
 					if (ipText.getText().toString().equals(""))
 						ipText.setText("localhost");
 					setSshPasswordHint (checkboxUseSshPubkey.isChecked());
-					ipText.setHint(R.string.address_caption_hint_tunneled);
-				} else if (selectedConnType == VncConstants.CONN_TYPE_ULTRAVNC) {
-					setVisibilityOfSshWidgets (View.GONE);
-					setVisibilityOfUltraVncWidgets (View.VISIBLE);
-					ipText.setHint(R.string.address_caption_hint);
-					textUsername.setHint(R.string.username_hint);
-				} else if (selectedConnType == VncConstants.CONN_TYPE_VENCRYPT) {
-					setVisibilityOfSshWidgets (View.GONE);
-					textUsername.setVisibility(View.VISIBLE);
-					repeaterEntry.setVisibility(View.GONE);
-					if (passwordText.getText().toString().equals(""))
-						checkboxKeepPassword.setChecked(false);
-					ipText.setHint(R.string.address_caption_hint);
-					textUsername.setHint(R.string.username_hint_vencrypt);
 				}
 			}
 
@@ -216,39 +174,10 @@ public class androidVNC extends Activity {
 		});
 
 		goButton = (Button) findViewById(R.id.buttonGO);
-		
-		// The advanced settings button.
-		toggleAdvancedSettings = (ToggleButton) findViewById(R.id.toggleAdvancedSettings);
-		layoutAdvancedSettings = (LinearLayout) findViewById(R.id.layoutAdvancedSettings);
-		toggleAdvancedSettings.setOnCheckedChangeListener(new OnCheckedChangeListener () {
-			@Override
-			public void onCheckedChanged(CompoundButton arg0, boolean checked) {
-				if (checked)
-					layoutAdvancedSettings.setVisibility(View.VISIBLE);
-				else
-					layoutAdvancedSettings.setVisibility(View.GONE);
-			}
-		});
-		
-		// Define what happens when the Import/Export button is pressed.
-		((Button)findViewById(R.id.buttonImportExport)).setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				showDialog(R.layout.importexport);
-			}
-		});
-		
-		colorSpinner = (Spinner)findViewById(R.id.colorformat);
-		COLORMODEL[] models=COLORMODEL.values();
-		ArrayAdapter<COLORMODEL> colorSpinnerAdapter = new ArrayAdapter<COLORMODEL>(this, R.layout.connection_list_entry, models);
-		groupForceFullScreen = (RadioGroup)findViewById(R.id.groupForceFullScreen);
 		checkboxKeepPassword = (CheckBox)findViewById(R.id.checkboxKeepPassword);
 		checkboxUseDpadAsArrows = (CheckBox)findViewById(R.id.checkboxUseDpadAsArrows);
 		checkboxRotateDpad = (CheckBox)findViewById(R.id.checkboxRotateDpad);
 		checkboxLocalCursor = (CheckBox)findViewById(R.id.checkboxUseLocalCursor);
-		checkboxPreferHextile = (CheckBox)findViewById(R.id.checkboxPreferHextile);
-		colorSpinner.setAdapter(colorSpinnerAdapter);
-		colorSpinner.setSelection(0);
 		spinnerConnection = (Spinner)findViewById(R.id.spinnerConnection);
 		spinnerConnection.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
 			@Override
@@ -276,17 +205,52 @@ public class androidVNC extends Activity {
 			}
 			
 		});
-		repeaterText = (TextView)findViewById(R.id.textRepeaterId);
 		goButton.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View view) {
 				if (ipText.getText().length() != 0 && portText.getText().length() != 0)
 					canvasStart();
 				else
-					Toast.makeText(view.getContext(), R.string.vnc_server_empty, Toast.LENGTH_LONG).show();
+					Toast.makeText(view.getContext(), R.string.rdp_server_empty, Toast.LENGTH_LONG).show();
 			}
 		});
 		
+		// The advanced settings button.
+		toggleAdvancedSettings = (ToggleButton) findViewById(R.id.toggleAdvancedSettings);
+		layoutAdvancedSettings = (LinearLayout) findViewById(R.id.layoutAdvancedSettings);
+		toggleAdvancedSettings.setOnCheckedChangeListener(new OnCheckedChangeListener () {
+			@Override
+			public void onCheckedChanged(CompoundButton arg0, boolean checked) {
+				if (checked)
+					layoutAdvancedSettings.setVisibility(View.VISIBLE);
+				else
+					layoutAdvancedSettings.setVisibility(View.GONE);
+			}
+		});
+		
+		// The geometry type and dimensions boxes.
+		spinnerRdpGeometry = (Spinner) findViewById(R.id.spinnerRdpGeometry);
+		rdpWidth = (EditText) findViewById(R.id.rdpWidth);
+		rdpHeight = (EditText) findViewById(R.id.rdpHeight);		
+		spinnerRdpGeometry.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener () {
+			@Override
+			public void onItemSelected(AdapterView<?> arg0, View view, int itemIndex, long id) {
+				selected.setRdpResType(itemIndex);
+				setRemoteWidthAndHeight ();
+			}
+			@Override
+			public void onNothingSelected(AdapterView<?> arg0) {
+			}
+		});
+
+		checkboxRemoteFx = (CheckBox)findViewById(R.id.checkboxRemoteFx);
+		checkboxDesktopBackground = (CheckBox)findViewById(R.id.checkboxDesktopBackground);
+		checkboxFontSmoothing = (CheckBox)findViewById(R.id.checkboxFontSmoothing);
+		checkboxDesktopComposition = (CheckBox)findViewById(R.id.checkboxDesktopComposition);
+		checkboxWindowContents = (CheckBox)findViewById(R.id.checkboxWindowContents);
+		checkboxMenuAnimation = (CheckBox)findViewById(R.id.checkboxMenuAnimation);
+		checkboxVisualStyles = (CheckBox)findViewById(R.id.checkboxVisualStyles);
+
 		database = new VncDatabase(this);
 	}
 	
@@ -297,10 +261,22 @@ public class androidVNC extends Activity {
 		sshCredentials.setVisibility(visibility);
 		sshCaption.setVisibility(visibility);
 		layoutUseSshPubkey.setVisibility(visibility);
-		layoutUseX11Vnc.setVisibility(visibility);
 		sshServerEntry.setVisibility(visibility);
 	}
 
+	/**
+	 * Enables and disables the EditText boxes for width and height of remote desktop.
+	 */
+	private void setRemoteWidthAndHeight () {
+		if (selected.getRdpResType() != VncConstants.RDP_GEOM_SELECT_CUSTOM) {
+			rdpWidth.setEnabled(false);
+			rdpHeight.setEnabled(false);
+		} else {
+			rdpWidth.setEnabled(true);
+			rdpHeight.setEnabled(true);
+		}
+	}
+	
 	/**
 	 * Sets the ssh password/passphrase hint appropriately.
 	 */
@@ -312,14 +288,6 @@ public class androidVNC extends Activity {
 		}
 	}
 
-	/**
-	 * Makes the uvnc-related widgets visible/invisible.
-	 */
-	private void setVisibilityOfUltraVncWidgets (int visibility) {
-		textUsername.setVisibility(visibility);
-		repeaterEntry.setVisibility(visibility);
-	}
-	
 	protected void onDestroy() {
 		database.close();
 		System.gc();
@@ -332,12 +300,8 @@ public class androidVNC extends Activity {
 	@Override
 	protected Dialog onCreateDialog(int id) {
 		switch (id) {
-		case R.layout.importexport:
-			return new ImportExportDialog(this);
 		case R.id.itemMainScreenHelp:
 			return createHelpDialog();
-		case R.layout.repeater_dialog:
-			return new RepeaterDialog(this);
 		case R.layout.auto_x_customize:
 			return new AutoXCustomizeDialog(this);
 		}
@@ -349,7 +313,7 @@ public class androidVNC extends Activity {
 	 */
 	private Dialog createHelpDialog() {
 	    AlertDialog.Builder adb = new AlertDialog.Builder(this)
-	    		.setMessage(R.string.main_screen_help_text)
+	    		.setMessage(R.string.rdp_main_screen_help_text)
 	    		.setPositiveButton(R.string.close,
 	    				new DialogInterface.OnClickListener() {
 	    					public void onClick(DialogInterface dialog,
@@ -448,13 +412,11 @@ public class androidVNC extends Activity {
 			portText.setVisibility(View.GONE);
 			passwordText.setVisibility(View.GONE);
 			checkboxKeepPassword.setVisibility(View.GONE);
-			autoXStatus.setText(R.string.auto_x_enabled);
 		} else {
 			ipText.setVisibility(View.VISIBLE);
 			portText.setVisibility(View.VISIBLE);
 			passwordText.setVisibility(View.VISIBLE);
 			checkboxKeepPassword.setVisibility(View.VISIBLE);
-			autoXStatus.setText(R.string.auto_x_disabled);
 		}
 
 		portText.setText(Integer.toString(selected.getPort()));
@@ -462,15 +424,32 @@ public class androidVNC extends Activity {
 		if (selected.getKeepPassword() || selected.getPassword().length()>0) {
 			passwordText.setText(selected.getPassword());
 		}
-		groupForceFullScreen.check(selected.getForceFull()==BitmapImplHint.AUTO ?
-							R.id.radioForceFullScreenAuto : R.id.radioForceFullScreenOn);
+
 		checkboxKeepPassword.setChecked(selected.getKeepPassword());
 		checkboxUseDpadAsArrows.setChecked(selected.getUseDpadAsArrows());
 		checkboxRotateDpad.setChecked(selected.getRotateDpad());
 		checkboxLocalCursor.setChecked(selected.getUseLocalCursor());
-		checkboxPreferHextile.setChecked(selected.getPrefEncoding() == RfbProto.EncodingHextile);
 		textNickname.setText(selected.getNickname());
 		textUsername.setText(selected.getUserName());
+		rdpDomain.setText(selected.getRdpDomain());
+		spinnerRdpGeometry.setSelection(selected.getRdpResType());
+		rdpWidth.setText(Integer.toString(selected.getRdpWidth()));
+		rdpHeight.setText(Integer.toString(selected.getRdpHeight()));
+		setRemoteWidthAndHeight ();
+		checkboxRemoteFx.setChecked(selected.getRemoteFx());
+		checkboxDesktopBackground.setChecked(selected.getDesktopBackground());
+		checkboxFontSmoothing.setChecked(selected.getFontSmoothing());
+		checkboxDesktopComposition.setChecked(selected.getDesktopComposition());
+		checkboxWindowContents.setChecked(selected.getWindowContents());
+		checkboxMenuAnimation.setChecked(selected.getMenuAnimation());
+		checkboxVisualStyles.setChecked(selected.getVisualStyles());
+
+		/* TODO: Reinstate color spinner but for RDP settings.
+		colorSpinner = (Spinner)findViewById(R.id.colorformat);
+		COLORMODEL[] models=COLORMODEL.values();
+		ArrayAdapter<COLORMODEL> colorSpinnerAdapter = new ArrayAdapter<COLORMODEL>(this, R.layout.connection_list_entry, models);
+		colorSpinner.setAdapter(colorSpinnerAdapter);
+		colorSpinner.setSelection(0);
 		COLORMODEL cm = COLORMODEL.valueOf(selected.getColorModel());
 		COLORMODEL[] colors=COLORMODEL.values();
 		for (int i=0; i<colors.length; ++i)
@@ -479,27 +458,7 @@ public class androidVNC extends Activity {
 				colorSpinner.setSelection(i);
 				break;
 			}
-		}
-		updateRepeaterInfo(selected.getUseRepeater(), selected.getRepeaterId());
-	}
-
-	/**
-	 * Called when changing view to match selected connection or from
-	 * Repeater dialog to update the repeater information shown.
-	 * @param repeaterId If null or empty, show text for not using repeater
-	 */
-	void updateRepeaterInfo(boolean useRepeater, String repeaterId)
-	{
-		if (useRepeater)
-		{
-			repeaterText.setText(repeaterId);
-			repeaterTextSet = true;
-		}
-		else
-		{
-			repeaterText.setText(getText(R.string.repeater_empty_text));
-			repeaterTextSet = false;
-		}
+		}*/
 	}
 
 	/**
@@ -557,8 +516,7 @@ public class androidVNC extends Activity {
 		try	{
 			selected.setPort(Integer.parseInt(portText.getText().toString()));
 			selected.setSshPort(Integer.parseInt(sshPort.getText().toString()));
-		}
-		catch (NumberFormatException nfe) {}
+		} catch (NumberFormatException nfe) {}
 		
 		selected.setNickname(textNickname.getText().toString());
 		selected.setSshServer(sshServer.getText().toString());
@@ -572,36 +530,36 @@ public class androidVNC extends Activity {
 		selected.setSshPassPhrase(sshPassword.getText().toString());
 		selected.setSshPassword(sshPassword.getText().toString());
 		selected.setUserName(textUsername.getText().toString());
-		selected.setForceFull(groupForceFullScreen.getCheckedRadioButtonId()==R.id.radioForceFullScreenAuto ? BitmapImplHint.AUTO : (groupForceFullScreen.getCheckedRadioButtonId()==R.id.radioForceFullScreenOn ? BitmapImplHint.FULL : BitmapImplHint.TILE));
+		selected.setRdpDomain(rdpDomain.getText().toString());
+		selected.setRdpResType(spinnerRdpGeometry.getSelectedItemPosition());
+		try	{
+			selected.setRdpWidth(Integer.parseInt(rdpWidth.getText().toString()));
+			selected.setRdpHeight(Integer.parseInt(rdpHeight.getText().toString()));
+		} catch (NumberFormatException nfe) {}
+		selected.setRemoteFx(checkboxRemoteFx.isChecked());
+		selected.setDesktopBackground(checkboxDesktopBackground.isChecked());
+		selected.setFontSmoothing(checkboxFontSmoothing.isChecked());
+		selected.setDesktopComposition(checkboxDesktopComposition.isChecked());
+		selected.setWindowContents(checkboxWindowContents.isChecked());
+		selected.setMenuAnimation(checkboxMenuAnimation.isChecked());
+		selected.setVisualStyles(checkboxVisualStyles.isChecked());
 		selected.setPassword(passwordText.getText().toString());
 		selected.setKeepPassword(checkboxKeepPassword.isChecked());
 		selected.setUseDpadAsArrows(checkboxUseDpadAsArrows.isChecked());
 		selected.setRotateDpad(checkboxRotateDpad.isChecked());
 		selected.setUseLocalCursor(checkboxLocalCursor.isChecked());
-		if (checkboxPreferHextile.isChecked())
-			selected.setPrefEncoding(RfbProto.EncodingHextile);
-		else
-			selected.setPrefEncoding(RfbProto.EncodingTight);
-
-		selected.setColorModel(((COLORMODEL)colorSpinner.getSelectedItem()).nameString());
-		if (repeaterTextSet) {
-			selected.setRepeaterId(repeaterText.getText().toString());
-			selected.setUseRepeater(true);
-		} else {
-			selected.setUseRepeater(false);
-		}
+		// TODO: Reinstate Color model spinner but for RDP settings.
+		//selected.setColorModel(((COLORMODEL)colorSpinner.getSelectedItem()).nameString());
 	}
 	
 	protected void onStart() {
-		Log.e(TAG, "onStart called");
 		super.onStart();
 		System.gc();
 		arriveOnPage();
 	}
 
 	protected void onResume() {
-		Log.e(TAG, "onResume called");
-		super.onResume();
+		super.onStart();
 		System.gc();
 		arriveOnPage();
 	}
@@ -609,16 +567,15 @@ public class androidVNC extends Activity {
 	@Override
 	public void onWindowFocusChanged (boolean visible) {
 		if (visible && isFree)
-			displayAdsOrShowDialog(false);
+			displayAd ();
 	}
 	
 	@Override
 	public void onConfigurationChanged(Configuration newConfig) {
 		Log.e(TAG, "onConfigurationChanged called");
 		super.onConfigurationChanged(newConfig);
-		// We do not want to display the ad dialog on rotation change, so we force it off.
 		if (isFree)
-			displayAdsOrShowDialog(true);
+			displayAd ();
 	}
 
 	/**
@@ -666,38 +623,27 @@ public class androidVNC extends Activity {
 		IntroTextDialog.showIntroTextIfNecessary(this, database, false);
 	}
 	
-	private void displayAdsOrShowDialog (boolean forceNoDialog) {
-		boolean showAds = PreferenceManager.getDefaultSharedPreferences(this).getBoolean("showAds", false);
-		if (!showAds && !forceNoDialog) {
-			AdPreferenceDialog.showDialogIfNecessary(this, startingOrHasPaused);
-			startingOrHasPaused = false;
-			// Reload setting in case it has changed.
-			showAds = PreferenceManager.getDefaultSharedPreferences(this).getBoolean("showAds", false);
-		}
-		if (showAds) {
-		    LinearLayout layout = (LinearLayout)findViewById(R.id.mainLayout);
-			if (adView != null)
-				layout.removeViewInLayout(adView);
+	private void displayAd () {
+	    LinearLayout layout = (LinearLayout)findViewById(R.id.mainLayout);
+		if (adView != null)
+			layout.removeViewInLayout(adView);
 			
-		    // Create the adView
-		    adView = new AdView(this, AdSize.SMART_BANNER, "a1517c1341bd2d8");
-			WindowManager.LayoutParams lp = getWindow().getAttributes();
-			lp.width     = LayoutParams.FILL_PARENT;
-			lp.height    = LayoutParams.FILL_PARENT;
-		    adView.setLayoutParams(lp);
+	    // Create the adView
+	    adView = new AdView(this, AdSize.SMART_BANNER, "a151744a8b1f640");
+		WindowManager.LayoutParams lp = getWindow().getAttributes();
+		lp.width     = LayoutParams.FILL_PARENT;
+		lp.height    = LayoutParams.FILL_PARENT;
+	    adView.setLayoutParams(lp);
 		    
-		    // Add the adView to the layout
-		    layout.addView(adView, 0);
+	    // Add the adView to the layout
+	    layout.addView(adView, 0);
 
-		    // Initiate a generic request to load it with an ad
-			AdRequest adRequest = new AdRequest();
-			//adRequest.addTestDevice("255443C58D5D1959D075281106206D06");
-		    adView.loadAd(adRequest);
-		}
+	    // Initiate a generic request to load it with an ad
+		AdRequest adRequest = new AdRequest();
+	    adView.loadAd(adRequest);
 	}
 	
 	protected void onStop() {
-		Log.e(TAG, "onStop called");
 		super.onStop();
 		if ( selected == null ) {
 			return;
@@ -712,18 +658,9 @@ public class androidVNC extends Activity {
 		
 		saveAndWriteRecent();
 	}
-
-	protected void onPause() {
-		Log.e(TAG, "onPause called");
-		super.onPause();
-		if (!isConnecting) {
-			startingOrHasPaused = true;
-		} else {
-			isConnecting = false;
-		}
-	}
 	
-	VncDatabase getDatabaseHelper() {
+	VncDatabase getDatabaseHelper()
+	{
 		return database;
 	}
 	
@@ -767,7 +704,6 @@ public class androidVNC extends Activity {
 	 * Starts the activity which makes a VNC connection and displays the remote desktop.
 	 */
 	private void vnc () {
-		isConnecting = true;
 		updateSelectedFromView();
 		saveAndWriteRecent();
 		Intent intent = new Intent(this, VncCanvasActivity.class);

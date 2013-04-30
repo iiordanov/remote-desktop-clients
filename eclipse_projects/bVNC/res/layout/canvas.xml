@@ -130,6 +130,11 @@
 		        android:layout_width="wrap_content"
 		        android:layout_height="wrap_content"
 		        />
+			<ImageButton android:id="@+id/keySuper"
+		        android:background="@drawable/superoff"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        />
 			<ImageButton android:id="@+id/keyAlt"
 		        android:background="@drawable/altoff"
 		        android:layout_width="wrap_content"

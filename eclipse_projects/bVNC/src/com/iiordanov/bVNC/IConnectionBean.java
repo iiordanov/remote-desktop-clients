@@ -136,9 +136,33 @@ interface IConnectionBean {
 	@FieldAccessor
 	String getUserName();
 	@FieldAccessor
+	String getRdpDomain();
+	@FieldAccessor
 	String getSecureConnectionType();
 	@FieldAccessor(DefaultValue="true")
 	boolean getShowZoomButtons();
 	@FieldAccessor(Name="DOUBLE_TAP_ACTION")
 	String getDoubleTapActionAsString();
+	@FieldAccessor
+	int getRdpResType();
+	@FieldAccessor
+	int getRdpWidth();
+	@FieldAccessor
+	int getRdpHeight();
+	@FieldAccessor
+	int getRdpColor();
+	@FieldAccessor
+	boolean getRemoteFx();
+	@FieldAccessor
+	boolean getDesktopBackground();
+	@FieldAccessor
+	boolean getFontSmoothing();
+	@FieldAccessor
+	boolean getDesktopComposition();
+	@FieldAccessor
+	boolean getWindowContents();
+	@FieldAccessor
+	boolean getMenuAnimation();
+	@FieldAccessor
+	boolean getVisualStyles();
 }

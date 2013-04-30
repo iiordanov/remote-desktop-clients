@@ -8,5 +8,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/ZoomerWithKeys"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/PubkeyGenerator"/>
 	<classpathentry kind="src" path="gen"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/FreeRDPCore"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>

@@ -1,0 +1,156 @@
+package com.iiordanov.bVNC.input;
+
+import android.os.Handler;
+import android.view.KeyCharacterMap;
+import android.view.KeyEvent;
+import android.view.MotionEvent;
+
+import com.iiordanov.bVNC.MetaKeyBean;
+import com.iiordanov.bVNC.RdpCommunicator;
+import com.iiordanov.bVNC.RfbConnectable;
+import com.iiordanov.bVNC.VncCanvas;
+import com.iiordanov.bVNC.XKeySymCoverter;
+
+public class RemoteRdpKeyboard extends RemoteKeyboard {
+	private final static String TAG = "RemoteRdpKeyboard";
+	
+	// Used to convert keysym to keycode
+	int deviceID = 0;
+	
+	public RemoteRdpKeyboard (RfbConnectable r, VncCanvas v, Handler h) {
+		rfb = r;
+		vncCanvas = v;
+		handler = h;
+		context = v.getContext();
+		
+		keyboardMapper = new RdpKeyboardMapper();
+		keyboardMapper.init(context);
+		keyboardMapper.reset((RdpCommunicator)r);
+	}
+
+	public boolean processLocalKeyEvent(int keyCode, KeyEvent evt) {
+		deviceID = evt.getDeviceId();
+
+		if (rfb != null && rfb.isInNormalProtocol()) {
+			RemotePointer pointer = vncCanvas.getPointer();
+			boolean down = (evt.getAction() == KeyEvent.ACTION_DOWN) ||
+						   (evt.getAction() == KeyEvent.ACTION_MULTIPLE);
+			
+			int metaState = 0, numchars = 1;
+			int keyboardMetaState = evt.getMetaState();
+
+		    // Add shift to metaState if necessary.
+			// TODO: not interpreting SHIFT for now to avoid sending too many SHIFTs when sending SHIFT+'/' for '?'.
+			//if ((keyboardMetaState & KeyEvent.META_SHIFT_MASK) != 0)
+			//	metaState |= SHIFT_MASK;
+			
+			// If the keyboardMetaState contains any hint of CTRL, add CTRL_MASK to metaState
+			if ((keyboardMetaState & 0x7000)!=0)
+				metaState |= CTRL_MASK;
+			// If the keyboardMetaState contains left ALT, add ALT_MASK to metaState.
+		    // Leaving KeyEvent.KEYCODE_ALT_LEFT for symbol input on hardware keyboards.
+			if ((keyboardMetaState & (KeyEvent.META_ALT_RIGHT_ON|0x00030000)) !=0 )
+				metaState |= ALT_MASK;
+			
+			if (keyCode == KeyEvent.KEYCODE_MENU)
+				return true; 			              // Ignore menu key
+
+			if (pointer.handleHardwareButtons(keyCode, evt, metaState|onScreenMetaState|hardwareMetaState))
+				return true;
+
+			if (!down) {
+				switch (evt.getScanCode()) {
+				case SCAN_LEFTCTRL:
+				case SCAN_RIGHTCTRL:
+					hardwareMetaState &= ~CTRL_MASK;
+					break;
+				}
+				switch(keyCode) {
+				case KeyEvent.KEYCODE_DPAD_CENTER:  hardwareMetaState &= ~CTRL_MASK; break;
+				// Leaving KeyEvent.KEYCODE_ALT_LEFT for symbol input on hardware keyboards.
+				case KeyEvent.KEYCODE_ALT_RIGHT:    hardwareMetaState &= ~ALT_MASK; break;
+				}
+			} else {
+				// Look for standard scan-codes from external keyboards
+				switch (evt.getScanCode()) {
+				case SCAN_LEFTCTRL:
+				case SCAN_RIGHTCTRL:
+					hardwareMetaState |= CTRL_MASK;
+					break;
+				}  
+				switch(keyCode) {
+				case KeyEvent.KEYCODE_DPAD_CENTER:  hardwareMetaState |= CTRL_MASK; break;
+				// Leaving KeyEvent.KEYCODE_ALT_LEFT for symbol input on hardware keyboards.
+				case KeyEvent.KEYCODE_ALT_RIGHT:    hardwareMetaState |= ALT_MASK; break;
+				}
+			}
+
+			//android.util.Log.e("RemoteRdpKeyboard", "Sending: " + evt.toString());
+			// Update the metaState in RdpCommunicator with writeKeyEvent.
+			rfb.writeKeyEvent(keyCode, onScreenMetaState|hardwareMetaState|metaState, down);
+			// Send the key to be processed through the KeyboardMapper.
+			return keyboardMapper.processAndroidKeyEvent(evt);
+		} else {
+			return false;
+		}
+	}
+
+	public void sendMetaKey(MetaKeyBean meta) {
+		RemotePointer pointer = vncCanvas.getPointer();
+		int x = pointer.getX();
+		int y = pointer.getY();
+		
+		if (meta.isMouseClick()) {
+			//android.util.Log.e("RemoteRdpKeyboard", "is a mouse click");
+			int button = meta.getMouseButtons();
+			switch (button) {
+			case RemoteVncPointer.MOUSE_BUTTON_LEFT:
+				pointer.processPointerEvent(x, y, MotionEvent.ACTION_DOWN, meta.getMetaFlags()|onScreenMetaState|hardwareMetaState,
+						true, false, false, false, 0);
+				break;
+			case RemoteVncPointer.MOUSE_BUTTON_RIGHT:
+				pointer.processPointerEvent(x, y, MotionEvent.ACTION_DOWN, meta.getMetaFlags()|onScreenMetaState|hardwareMetaState,
+						true, true, false, false, 0);
+				break;
+			case RemoteVncPointer.MOUSE_BUTTON_MIDDLE:
+				pointer.processPointerEvent(x, y, MotionEvent.ACTION_DOWN, meta.getMetaFlags()|onScreenMetaState|hardwareMetaState,
+						true, false, true, false, 0);
+				break;
+			case RemoteVncPointer.MOUSE_BUTTON_SCROLL_UP:
+				pointer.processPointerEvent(x, y, MotionEvent.ACTION_MOVE, meta.getMetaFlags()|onScreenMetaState|hardwareMetaState,
+						true, false, false, true, 0);
+				break;
+			case RemoteVncPointer.MOUSE_BUTTON_SCROLL_DOWN:
+				pointer.processPointerEvent(x, y, MotionEvent.ACTION_MOVE, meta.getMetaFlags()|onScreenMetaState|hardwareMetaState,
+						true, false, false, true, 1);
+				break;
+			}
+			try { Thread.sleep(50); } catch (InterruptedException e) {}
+			pointer.processPointerEvent(x, y, MotionEvent.ACTION_UP, meta.getMetaFlags()|onScreenMetaState|hardwareMetaState,
+					false, false, false, false, 0);
+
+			//rfb.writePointerEvent(x, y, meta.getMetaFlags()|onScreenMetaState|hardwareMetaState, button);
+			//rfb.writePointerEvent(x, y, meta.getMetaFlags()|onScreenMetaState|hardwareMetaState, 0);
+		} else if (meta.equals(MetaKeyBean.keyCtrlAltDel)) {
+			int savedMetaState = onScreenMetaState|hardwareMetaState;
+			// Update the metastate in RdpCommunicator
+			rfb.writeKeyEvent(0, RemoteKeyboard.CTRL_MASK|RemoteKeyboard.ALT_MASK, false);
+			keyboardMapper.processAndroidKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, 112));
+			keyboardMapper.processAndroidKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, 112));
+			rfb.writeKeyEvent(0, savedMetaState, false);
+		} else {
+			char[] s = new char[1];
+			s[0] = (char)XKeySymCoverter.keysym2ucs(meta.getKeySym());
+			KeyCharacterMap kmap = KeyCharacterMap.load(deviceID);
+			KeyEvent events[] = kmap.getEvents(s);
+			
+			if (events != null) {
+				//android.util.Log.e(TAG, "Sending event: " + events[0].toString());
+				rfb.writeKeyEvent(0, meta.getMetaFlags(), true);
+				keyboardMapper.processAndroidKeyEvent(events[0]);
+			} //else
+				//android.util.Log.e(TAG, "Events were null.");
+
+		}
+	}
+}

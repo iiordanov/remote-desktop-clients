@@ -34,6 +34,7 @@ public class VncConstants {
 
 	public static final int DIALOG_X509_CERT       = 1;
 	public static final int DIALOG_SSH_CERT        = 2;
+	public static final int DIALOG_RDP_CERT        = 3;
 
 	public static final int EXTRA_KEYS_OFF         = 0;
 	public static final int EXTRA_KEYS_ON          = 1;
@@ -94,6 +95,10 @@ public class VncConstants {
 
 	public final static int AUTOX_GEOM_SELECT_NATIVE = 0;
 	public final static int AUTOX_GEOM_SELECT_CUSTOM = 1;
+
+	public final static int RDP_GEOM_SELECT_NATIVE_LANDSCAPE = 0;
+	public final static int RDP_GEOM_SELECT_NATIVE_PORTRAIT  = 1;
+	public final static int RDP_GEOM_SELECT_CUSTOM           = 2;
 
 	public final static int AUTOX_SESS_PROG_SELECT_AUTO    = 0;
 	public final static int AUTOX_SESS_PROG_SELECT_CUSTOM  = 1;

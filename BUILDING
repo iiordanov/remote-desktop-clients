@@ -1,20 +1,37 @@
 1. Install sqlitegen plugin into Eclipse from:
-    http://code.google.com/p/sqlitegen/
+      http://code.google.com/p/sqlitegen/
 
-2. Add bVNC, ZoomerWithKeys and PubkeyGenerator from the 
-    eclipse_projects/ directory to Eclipse as existing Android projects.
+   NOTE: I found that with Eclipse 4.0 this tool no longer works.
+         A fix or workaround is badly needed.
 
-3. Ensure ZoomerWithKeys and PubkeyGenerator projects are called
-   exactly as written here by right-clicking on them->Refactor->Rename
+2. Clone the FreeRDP project in the parent directory of where you
+   cloned bVNC project:
+   git clone git://github.com/FreeRDP/FreeRDP.git
 
-3. Add the ZoomerWithKeys and PubkeyGenerator as Library References
-   to bVNC (right-click on the bVNC project
-   -> Properties -> Android -> Library). If they are not, add them.
+   You should now have bVNC and FreeRDP side by side in the same
+   directory.
 
-4. Ensure that ZoomerWithKeys and PubkeyGenerator are specified as
-   "Required projects on the build path" (right-click on the bVNC
-   project -> Properties -> Java Build Path -> Projects). If they
-   are not, add them.
+   Add bVNC, ZoomerWithKeys and PubkeyGenerator from the
+   bVNC/eclipse_projects/ directory to Eclipse as existing Android
+   projects.
+  
+   Add FreeRDPCore from the FreeRDP/client/Android/ directory
+   to Eclipse as an Existing Android Project.
 
-5. Ensure that ZoomerWithKeys and PubkeyGenerator are referenced
-   in Properties -> Project References (put checkmarks on projects).
+3. Ensure ZoomerWithKeys, PubkeyGenerator, and FreeRDPCore projects
+   are called exactly as written here by right-clicking 
+   on each of them, then selecting Refactor->Rename
+
+3. Add the ZoomerWithKeys, PubkeyGenerator, and FreeRDPCore projects
+   as Library References to bVNC (right-click on the bVNC project
+   and select Properties -> Android -> Library). If they are not,
+   add them.
+
+4. Ensure that ZoomerWithKeys, PubkeyGenerator, and FreeRDPCore 
+   are specified as "Required projects on the build path" (right-
+   click on the bVNC project, and select Properties -> Java Build
+   Path -> Projects). If they are not, add them.
+
+5. Ensure that ZoomerWithKeys, PubkeyGenerator, and FreeRDPCore
+   are referenced in Properties -> Project References (put
+   checkmarks on projects).

@@ -25,7 +25,7 @@ import java.util.HashMap;
 
 import com.antlersoft.android.dbimpl.NewInstance;
 import com.iiordanov.bVNC.input.RemoteKeyboard;
-import com.iiordanov.bVNC.input.RemotePointer;
+import com.iiordanov.bVNC.input.RemoteVncPointer;
 
 import android.view.KeyEvent;
 
@@ -39,7 +39,7 @@ public class MetaKeyBean extends AbstractMetaKeyBean implements Comparable<MetaK
 	static final HashMap<Integer,MetaKeyBase> keysByKeyCode;
 	static final HashMap<Integer,MetaKeyBase> keysByMouseButton;
 	static final HashMap<Integer,MetaKeyBase> keysByKeySym;
-	static final MetaKeyBean keyCtrlAltDel;
+	public static final MetaKeyBean keyCtrlAltDel;
 	static final MetaKeyBean keyArrowLeft;
 	static final MetaKeyBean keyArrowRight;
 	static final MetaKeyBean keyArrowUp;
@@ -64,11 +64,11 @@ public class MetaKeyBean extends AbstractMetaKeyBean implements Comparable<MetaK
 		allKeys.add(new MetaKeyBase("Left_Super", 0xffeb));
 		allKeys.add(new MetaKeyBase("Right_Super", 0xffec));
 
-		allKeys.add(new MetaKeyBase(RemotePointer.MOUSE_BUTTON_LEFT, "Mouse Left"));
-		allKeys.add(new MetaKeyBase(RemotePointer.MOUSE_BUTTON_MIDDLE, "Mouse Middle"));
-		allKeys.add(new MetaKeyBase(RemotePointer.MOUSE_BUTTON_RIGHT, "Mouse Right"));
-		allKeys.add(new MetaKeyBase(RemotePointer.MOUSE_BUTTON_SCROLL_DOWN, "Mouse Scroll Down"));
-		allKeys.add(new MetaKeyBase(RemotePointer.MOUSE_BUTTON_SCROLL_UP, "Mouse Scroll Up"));
+		allKeys.add(new MetaKeyBase(RemoteVncPointer.MOUSE_BUTTON_LEFT, "Mouse Left"));
+		allKeys.add(new MetaKeyBase(RemoteVncPointer.MOUSE_BUTTON_MIDDLE, "Mouse Middle"));
+		allKeys.add(new MetaKeyBase(RemoteVncPointer.MOUSE_BUTTON_RIGHT, "Mouse Right"));
+		allKeys.add(new MetaKeyBase(RemoteVncPointer.MOUSE_BUTTON_SCROLL_DOWN, "Mouse Scroll Down"));
+		allKeys.add(new MetaKeyBase(RemoteVncPointer.MOUSE_BUTTON_SCROLL_UP, "Mouse Scroll Up"));
 		
 		allKeys.add(new MetaKeyBase("Home", 0xFF50));
 		allKeys.add(new MetaKeyBase("Arrow Left", 0xFF51));

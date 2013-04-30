@@ -4,26 +4,31 @@ xmlns:android="http://schemas.android.com/apk/res/android"
 android:layout_width="fill_parent"
 android:layout_height="fill_parent">
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+	android:id="@+id/mainLayout"
 	android:layout_width="fill_parent"
 	android:layout_height="wrap_content"
-	android:padding="5dip"
+	android:padding="0dip"
 	android:orientation="vertical">
    	<LinearLayout
 		android:layout_width="fill_parent"
 		android:layout_height="wrap_content"
 		android:orientation="horizontal">
+		<Spinner 
+			android:id="@+id/spinnerConnection"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_weight="1"
+			android:singleLine="true"/>
 		<Button 
 			android:id="@+id/buttonGO" 
 			android:text="@string/connect_button"
-			android:textAppearance="?android:attr/textAppearanceLarge"
+			android:textAppearance="?android:attr/textAppearanceMedium"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:textSize="35sp"/>
-		<Spinner 
-			android:id="@+id/spinnerConnection"
-			android:layout_width="fill_parent"
-			android:layout_height="wrap_content"/>
+			android:layout_weight="0"
+			android:textSize="35sp"
+			android:singleLine="true"/>
 	</LinearLayout>	
 	<TableLayout 
 		android:layout_width="fill_parent"
@@ -180,61 +185,85 @@ android:layout_height="fill_parent">
 					android:textAppearance="?android:attr/textAppearanceLarge" android:singleLine="true"/>
 			</LinearLayout>
 		</TableRow>
-		<TableRow>
-			<Spinner 
-			    android:id="@+id/colorformat" 
-			    android:layout_width="fill_parent"
-				android:layout_height="wrap_content"
-				android:layout_weight="1"/>
-		</TableRow>
 	</TableLayout>
-			
-	<CheckBox
-		android:id="@+id/checkboxUseDpadAsArrows"
-	    android:text="@string/dpad_as_arrows"
-	    android:textAppearance="?android:attr/textAppearanceLarge"
-	    android:layout_width="wrap_content"
-	    android:gravity="left|center_vertical"
-	    android:layout_height="wrap_content"/>
-	<CheckBox
-		android:id="@+id/checkboxRotateDpad"
-	    android:text="@string/rotate_dpad"
-	    android:textAppearance="?android:attr/textAppearanceLarge"
-	    android:layout_width="wrap_content"
-	    android:gravity="left|center_vertical"
-	    android:layout_height="wrap_content"/>
-	<CheckBox
-		android:id="@+id/checkboxUseLocalCursor"
-	    android:text="@string/local_mouse_check"
-	    android:textAppearance="?android:attr/textAppearanceLarge"
-	    android:layout_width="wrap_content"
-	    android:gravity="left|center_vertical"
-	    android:layout_height="wrap_content"/>
-	<CheckBox
-		android:id="@+id/checkboxPreferHextile"
-	    android:text="Use Hextile encoding (for chroot connections)"
-	    android:textAppearance="?android:attr/textAppearanceLarge"
-	    android:layout_width="wrap_content"
-	    android:gravity="left|center_vertical"
-	    android:layout_height="wrap_content"/>
-	<RadioGroup
-		android:id="@+id/groupForceFullScreen"
-		android:orientation="horizontal"
-		android:layout_width="fill_parent"
-		android:layout_height="wrap_content">
-		<RadioButton
-			android:id="@+id/radioForceFullScreenAuto"
-		    android:text="@string/auto"
+	
+	<LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:padding="5dip"
+        android:orientation="horizontal">
+	    <ToggleButton
+	        android:id="@+id/toggleAdvancedSettings"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	    	android:textAppearance="?android:attr/textAppearanceMedium"/>
+	    <TextView
+            android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:text="Tap Button to Show/Hide Advanced Settings"
+	        android:textAppearance="?android:attr/textAppearanceLarge" />
+    </LinearLayout>
+	
+    <LinearLayout
+        android:id="@+id/layoutAdvancedSettings"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:padding="5dip"
+        android:orientation="vertical">
+		<Spinner 
+		    android:id="@+id/colorformat" 
+		    android:layout_width="fill_parent"
+			android:layout_height="wrap_content"
+			android:layout_weight="1"/>
+        <CheckBox
+			android:id="@+id/checkboxUseDpadAsArrows"
+		    android:text="@string/dpad_as_arrows"
 		    android:textAppearance="?android:attr/textAppearanceLarge"
 		    android:layout_width="wrap_content"
+		    android:gravity="left|center_vertical"
 		    android:layout_height="wrap_content"/>
-		<RadioButton
-			android:id="@+id/radioForceFullScreenOn"
-		    android:text="@string/force"
+		<CheckBox
+			android:id="@+id/checkboxRotateDpad"
+		    android:text="@string/rotate_dpad"
 		    android:textAppearance="?android:attr/textAppearanceLarge"
 		    android:layout_width="wrap_content"
+		    android:gravity="left|center_vertical"
 		    android:layout_height="wrap_content"/>
-	</RadioGroup>
+		<CheckBox
+			android:id="@+id/checkboxUseLocalCursor"
+		    android:text="@string/local_mouse_check"
+		    android:textAppearance="?android:attr/textAppearanceLarge"
+		    android:layout_width="wrap_content"
+		    android:gravity="left|center_vertical"
+		    android:layout_height="wrap_content"/>
+		<CheckBox
+			android:id="@+id/checkboxPreferHextile"
+		    android:text="Use Hextile encoding (for chroot connections)"
+		    android:textAppearance="?android:attr/textAppearanceLarge"
+		    android:layout_width="wrap_content"
+		    android:gravity="left|center_vertical"
+		    android:layout_height="wrap_content"/>
+		<RadioGroup
+			android:id="@+id/groupForceFullScreen"
+			android:orientation="horizontal"
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content">
+			<RadioButton
+				android:id="@+id/radioForceFullScreenAuto"
+			    android:text="@string/auto"
+			    android:textAppearance="?android:attr/textAppearanceLarge"
+			    android:layout_width="wrap_content"
+			    android:layout_height="wrap_content"/>
+			<RadioButton
+				android:id="@+id/radioForceFullScreenOn"
+			    android:text="@string/force"
+			    android:textAppearance="?android:attr/textAppearanceLarge"
+			    android:layout_width="wrap_content"
+			    android:layout_height="wrap_content"/>
+		</RadioGroup>
+	</LinearLayout>
+	
 	<LinearLayout android:id="@+id/repeaterEntry"
 	    android:orientation="horizontal"
 		android:layout_width="fill_parent"

@@ -161,7 +161,7 @@ public class PubkeyUtils {
 		return kf.generatePublic(pubKeySpec);
 	}
 
-	public static KeyPair recoverKeyPair(byte[] encoded) throws NoSuchAlgorithmException, InvalidKeySpecException {
+	public static KeyPair recoverKeyPair(byte[] encoded) throws NoSuchAlgorithmException, InvalidKeySpecException, NoSuchProviderException {
 		KeySpec privKeySpec = new PKCS8EncodedKeySpec(encoded);
 		KeySpec pubKeySpec;
 
@@ -169,7 +169,7 @@ public class PubkeyUtils {
 		PublicKey pub;
 		KeyFactory kf;
 		try {
-			kf = KeyFactory.getInstance(PubkeyDatabase.KEY_TYPE_RSA);
+			kf = KeyFactory.getInstance(PubkeyDatabase.KEY_TYPE_RSA, "BC");
 			priv = kf.generatePrivate(privKeySpec);
 
 			pubKeySpec = new RSAPublicKeySpec(((RSAPrivateCrtKey) priv)
@@ -178,7 +178,7 @@ public class PubkeyUtils {
 
 			pub = kf.generatePublic(pubKeySpec);
         } catch (ClassCastException e) {
-            kf = KeyFactory.getInstance(PubkeyDatabase.KEY_TYPE_DSA);
+            kf = KeyFactory.getInstance(PubkeyDatabase.KEY_TYPE_DSA, "BC");
             priv = kf.generatePrivate(privKeySpec);
 
             DSAParams params = ((DSAPrivateKey) priv).getParams();

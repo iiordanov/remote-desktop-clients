@@ -5,6 +5,19 @@
 <string name="address_caption_hint_tunneled">VNC Server</string>
 <string name="address_caption_ssh">SSH Server</string>
 <string name="address_caption_ssh_hint">SSH Server</string>
+<string name="ad_donate_text">Tap here to donate and get the ad-free version!</string>
+<string name="ad_no_ads">No ads this time</string>
+<string name="ad_show_ads">Show the ads</string>
+<string name="ad_text">Due bVNC\'s increasing demands on the author\'s time, the free
+    version now displays ads. The author very highly appreciates your viewing
+    and taking an interest in advertisement content as a way to support bVNC and all
+    related projects like aRDP. 
+&lt;br&gt;
+&lt;br&gt;    
+    Since there were no ads in bVNC originally, you still have the option to disable
+    the ads for this run of the program. If you accept showing the advertisements, this
+    dialog will not be displayed anymore. Wipe your settings to get it back.</string>
+<string name="ad_title">Advertisement Preferences</string>
 <string name="alt_check">Alt</string>
 <string name="app_name">bVNC</string>
 <string name="arrow_down">Down Arrow</string>
@@ -15,7 +28,7 @@
 <string name="auto_x_caption">EXPERIMENTAL: bVNC can automatically discover existing and create new X sessions on UNIX systems (like NX). You need x11vnc to find, and Xvfb, Xvnc, or Xdummy to create sessions.</string>
 <string name="auto_x_cancel">Cancel</string>
 <string name="auto_x_confirm">Confirm</string>
-<string name="auto_x_descript_geom">Remote Desktop Resolution (WxH)</string>
+<string name="auto_x_descript_geom">Remote Desktop Size (WxH)</string>
 <string name="auto_x_descript_session">Remote Session Type</string>
 <string name="auto_x_disabled">Disabled</string>
 <string name="auto_x_disabled_selection">AutoX Disabled</string>
@@ -79,6 +92,8 @@
 <string name="connection_type_caption">Conn. Type</string>
 <string name="connection_type_vnc">Basic VNC</string>
 <string name="connection_type_vnc_over_ssh">Secure VNC over SSH</string>
+<string name="connection_type_rdp">RDP</string>
+<string name="connection_type_rdp_over_ssh">RDP over SSH</string>
 <string name="connection_type_ultravnc">UltraVNC</string>
 <string name="connection_type_vnc_over_ssl">Secure VNC over AnonTLS</string>
 <string name="connection_type_vnc_over_vencrypt">Secure VNC over VeNCrypt</string>
@@ -109,6 +124,9 @@
 <string name="import_settings_file_url">Import from file or URL</string>
 <string name="input_mode_help">Input Mode Help</string>
 <string name="info">Info</string>
+<string name="intro_close">Close</string>
+<string name="intro_dont_show">Don\'t show again</string>
+<string name="intro_header"></string>
 <string name="intro_text">
 "Current list of bVNC features:
 &lt;br&gt;
@@ -159,12 +177,12 @@ Known issues:
 &lt;br&gt;
 - Secure VNC over VeNCrypt mode supports only 24-bit color."
 </string>
-<string name="intro_title">bVNC, a secure VNC client with an intuitive UI</string>
+<string name="intro_title">bVNC: Intuitive, secure VNC client</string>
 <string name="intro_version_text"></string>
 <string name="input_mode">Input Mode</string>
 <string name="input_mode_fit_to_screen">No Pan; Trackball Mouse</string>
 <string name="input_mode_help_text">
-"In any Input Mode, tap the keyboard icon to get the on-screen keyboard. On some devices you can swipe up diagonally from the bottom left corner (Playbook).
+"In any Input Mode, tap the keyboard icon to get the on-screen keyboard. Also, your device may have its own gesture which bring up the keyboard.
 
 Use the Direct input modes for more intuitive touch-screen control. Use Simulated Touchpad Mode for finer control over the mouse.
 
@@ -216,7 +234,6 @@ All Input Modes:
 <string name="input_mode_touchpad">Simulated Touchpad</string>
 <string name="input_mode_touchpad_description">Simulated Touchpad: Swipe to move pointer. Tap anywhere with one finger to left-click, two fingers to right-click, and three fingers to middle-click. Swipe with two fingers to scroll. Long tap to drag and drop.</string>
 <string name="keep_password_button">Keep</string>
-<string name="intro_dont_show">Don\'t show again</string>
 <string name="keys_caption">Keys</string>
 <string name="list_caption">List</string>
 <string name="list_name_caption">List Name</string>
@@ -275,12 +292,125 @@ If you are looking for a quick performance boost, try setting the Color mode to 
 <string name="password_caption">VNC Auth.</string>
 <string name="password_caption_hint">VNC Password</string>
 <string name="password_caption_ssh">SSH Auth.</string>
-<string name="password_hint_ssh">Password</string>
+<string name="password_hint_ssh">SSH Password</string>
 <string name="port_caption">VNC Port</string>
 <string name="port_caption_ssh">SSH Port</string>
 <string name="port_hint">Port</string>
 <string name="port_ssh_hint">Port</string>
 <string name="portrait_mode">Switch to portrait mode when connected</string>
+<string name="rdp_address_caption_hint">RDP Server</string>
+<string name="rdp_adv_remotefx">Enable RemoteFX</string>
+<string name="rdp_adv_desktop_background">Show desktop background</string>
+<string name="rdp_adv_font_smoothing">Perform font smoothing</string>
+<string name="rdp_adv_desktop_composition">Enable Desktop Composition</string>
+<string name="rdp_adv_window_contents">Show window contents while dragging</string>
+<string name="rdp_adv_menu_animation">Show Menu Animations</string>
+<string name="rdp_adv_visual_styles">Enable Visual Styles</string>
+<string-array name="rdp_connection_type">
+    <item>@string/connection_type_rdp</item>
+    <item>@string/connection_type_rdp_over_ssh</item>
+</string-array>
+<string name="rdp_descript_geom">Remote Desktop Size (WxH)</string>
+<string name="rdp_domain_hint">RDP Domain</string>
+<string-array name="rdp_geometry">
+    <item>@string/rdp_geom_native_landscape</item>
+    <item>@string/rdp_geom_native_portrait</item>
+    <item>@string/rdp_geom_custom</item>
+</string-array>
+<string name="rdp_free_intro_header">This is an advertisement-supported, free version of aRDP. You can 
+upgrade to aRDP Pro to support this open-source project and avoid the ads! Look for aRDP Pro in Google Play.
+&lt;br&gt;
+&lt;br&gt;    
+</string>
+<string name="rdp_geom_native_landscape">Native Landscape</string>
+<string name="rdp_geom_native_portrait">Native Portrait</string>
+<string name="rdp_geom_custom">Custom</string>
+<string name="rdp_intro_text">
+"Thank you for supporting aRDP and open-source software in general! For help with using aRDP, see the Help items in the Menu, and the description of the app in the market.
+&lt;br&gt;
+&lt;br&gt;
+Current list of aRDP features includes:
+&lt;br&gt;
+- Plain RDP, RDP tunneled over SSH.
+&lt;br&gt;
+- Free rotation support. Use Operating System to limit rotation if needed.
+&lt;br&gt;
+- Setting of remote resolution, native resolution in landscape and portrait modes.
+&lt;br&gt;
+- SSH Public/Private key-pair generation and export.
+&lt;br&gt;
+- Automatic Session saving.
+&lt;br&gt;
+- Zoomable, Fit to Screen, and One to One scaling modes.
+&lt;br&gt;
+- Multi-touch control over remote mouse in Direct and Simulated Touchpad input modes.
+&lt;br&gt;
+- Full single-handed control over remote mouse in Single-Handed input mode.
+&lt;br&gt;
+- Multi-touch mouse clicks: tap to Left-click, two-finger tap to right-click, three-finger-tap to middle click.
+&lt;br&gt;
+- Multi-touch scrolling: two finger drag Up/Down, and Left/Right to scroll.
+&lt;br&gt;
+- On-screen meta and arrow keys which can be completely disabled from menu or stowed with on-screen button.
+&lt;br&gt;
+- Sending Text and arbitrary Key combinations when connected.
+&lt;br&gt;
+- Help with creating connections (\"Menu->Connection Help\") in connection screen.
+&lt;br&gt;
+- Help with input modes (\"Menu->More->Input Mode Help\") when connected.
+&lt;br&gt;
+- Using an available trackpad as Arrows instead of moving the mouse, and trackpad click as Ctrl, rotating D-pad/trackpad for BT keyboards.
+&lt;br&gt;
+- Multi-language support, as long as the VNC server has the necessary language layout enabled.
+&lt;br&gt;
+- Seamless remote machine resolution changes
+&lt;br&gt;
+- Full mouse support on Android 4.0+ devices, including right and middle click and scroll wheel.
+&lt;br&gt;
+&lt;br&gt;
+Planned features of aRDP include:
+&lt;br&gt;
+- A choice of color modes
+&lt;br&gt;
+- Copy/Paste integration
+&lt;br&gt;
+- Exporting settings
+&lt;br&gt;
+- Sound
+&lt;br&gt;
+&lt;br&gt;
+Known issues:
+</string>
+<string name="rdp_intro_title">aRDP: Intuitive, secure RDP client</string>
+<string name="rdp_main_screen_help_text">
+"When you first start aRDP, you will see a connection configuration page. Here you can set up a new RDP connection, or choose a preexisting one. The page is divided into two sections. The top section contains a drop-down list of the connection configurations you've created previously. The first time your run aRDP, you will only be able to make a new connection. Next to the list is a Connect button. The Connect button will start the RDP client with the currently selected configuration. Below that is where you configure your connection.
+
+ - Connection Type: Here you choose the RDP connection type. Available connection types are:
+   (a) RDP, which connects directly to a computer over the RDP protocol.
+   (b) RDP over SSH, which first tunnels your connection through a computer running an SSH server.
+
+ - Title: Each connection you create can have a nickname to easily identify it on the list.
+ 
+ - SSH Tunnel Settings: Available in RDP over SSH mode.
+   (a) SSH Server/Port: The address and port of the SSH server that the connection will be tunnelled through. By default SSH listens on port 22.
+   (b) Username/Password: The username and password of the account on the SSH server. The password will be filled in on this page if you haven't quit bVNC since you last entered it.
+   (c) Manage Key/Use Key: A button to manage public/private keys, and a checkbox indicating whether to use a key rather than password to authenticate. If you use the Copy to Clipboard button after generating a key-pair, you should be able to paste the public key once connected to the VNC server (the clipboard is synchronized to the server).
+
+ - RDP Connection Settings:
+   (a) RDP Server/Port: This is where you enter the host name or IP address and port of the computer running the RDP server that you wish to contact. In RDP over SSH mode, this address is as seen from the SSH Server. If the SSH Server and RDP server are the same physical computer, you can use localhost. RDP servers typically listen on port 3389.
+   (b) RDP User: This is where you enter your Windows/UNIX account user name.
+   (c) RDP Domain: Enter the domain your account belongs to.
+   (d) RDP Password: This si where you enter your Windows/UNIX account password. Secure storage is not used for passwords (they are in a database), and the password will be stored only if you check the "Keep" box. The password will be filled in on this page if you haven't quit aRDP since you last entered it.
+
+ - Advanced settings: In this section you'll find a ways to customize the resolution of the desktop, and various RDP performance tweaks
+ 
+ - Local Device Tweaks: These adjust the behavior of aRDP on your device.
+   (a) Use D-Pad for arrows: If you prefer, you can use the D-Pad of your Bluetooth keyboard or arrows on your on-screen keyboard to send arrows to the RDP server.
+   (b) Rotate D-Pad: Phones paired with a Bluetooth keyboard may need the keyboard's D-pad to be rotated anti-clockwise to send correct directions to the server.
+   (c) Local mouse pointer: If the pointer is invisible, select this to force it to be drawn by aRDP.</string>
+<string name="rdp_password_hint">RDP Password</string>
+<string name="rdp_server_empty">RDP Server or port empty. Cannot connect!</string>
+<string name="rdp_username_hint">RDP Username</string>
 <string name="repeater_button">UltraVNC Repeater</string>
 <string name="repeater_caption">Enter the repeater address &lt;b&gt;only if&lt;/b&gt; you are using an&lt;br&gt;&lt;i&gt;UltraVNC&lt;/i&gt;-type repeater</string>
 <string name="repeater_clear">Don\'t Use</string>
@@ -315,6 +445,7 @@ If you are looking for a quick performance boost, try setting the Color mode to 
 <string name="username_caption">VNC User</string>
 <string name="username_hint">UltraVNC MS Logon Username</string>
 <string name="username_hint_vencrypt">VNC Username</string>
-<string name="username_hint_ssh">Username</string>
+<string name="username_hint_ssh">SSH Username</string>
+<string name="vnc_server_empty">VNC Server or port empty. Cannot connect!</string>
 <string name="super_check">Super</string>
 </resources>

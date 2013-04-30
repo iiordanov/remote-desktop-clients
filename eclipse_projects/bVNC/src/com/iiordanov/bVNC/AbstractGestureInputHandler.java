@@ -574,8 +574,8 @@ abstract class AbstractGestureInputHandler extends GestureDetector.SimpleOnGestu
 				break;
 		}
 		
-		evt.offsetLocation(vncCanvas.pointer.mouseX + dx - evt.getX(),
-							vncCanvas.pointer.mouseY + dy - evt.getY());
+		evt.offsetLocation(vncCanvas.pointer.getX() + dx - evt.getX(),
+							vncCanvas.pointer.getY() + dy - evt.getY());
 
 		if (vncCanvas.pointer.processPointerEvent(evt, trackballButtonDown))
 			return true;

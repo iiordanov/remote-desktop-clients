@@ -45,6 +45,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.graphics.Rect;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.SystemClock;
@@ -59,13 +60,22 @@ import android.widget.Toast;
 import android.graphics.BitmapFactory;
 import android.graphics.Bitmap;
 
+import com.freerdp.freerdpcore.application.GlobalApp;
+import com.freerdp.freerdpcore.application.SessionState;
+import com.freerdp.freerdpcore.domain.BookmarkBase;
+import com.freerdp.freerdpcore.domain.ManualBookmark;
+import com.freerdp.freerdpcore.services.LibFreeRDP;
 import com.iiordanov.android.bc.BCFactory;
-import com.iiordanov.bVNC.input.RemotePointer;
+import com.iiordanov.bVNC.input.RemoteRdpKeyboard;
+import com.iiordanov.bVNC.input.RemoteVncKeyboard;
+import com.iiordanov.bVNC.input.RemoteVncPointer;
 import com.iiordanov.bVNC.input.RemoteKeyboard;
+import com.iiordanov.bVNC.input.RemoteRdpPointer;
+import com.iiordanov.bVNC.input.RemotePointer;
 
 import com.iiordanov.tigervnc.vncviewer.CConn;
 
-public class VncCanvas extends ImageView {
+public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, LibFreeRDP.EventListener {
 	private final static String TAG = "VncCanvas";
 
 	AbstractScaling scaling;
@@ -79,10 +89,12 @@ public class VncCanvas extends ImageView {
 	private SSHConnection sshConnection;
 
 	// VNC protocol connection
-	public RfbConnectable rfbconn = null;
-	public RfbProto rfb = null;
-	Socket sock = null;
-	public CConn cc = null;
+	public RfbConnectable rfbconn   = null;
+	private RfbProto rfb            = null;
+	private CConn cc                = null;
+	private RdpCommunicator rdpcomm = null;
+	private Socket sock             = null;
+
 	boolean maintainConnection = true;
 	
 	// RFB Decoder
@@ -97,89 +109,144 @@ public class VncCanvas extends ImageView {
 	public AbstractBitmapData bitmapData;
 	boolean useFull = false;
 	boolean compact = false;
+	
+	// Keeps track of libFreeRDP instance. 
+	GlobalApp freeRdpApp = null;
+	SessionState session = null;
 
-	// Handler for the dialog that displays the x509 key signatures to the user.
+	// Handler for the dialog that displays the x509/RDP key signatures to the user.
+	// TODO: Also handle the SSH certificate validation here.
 	public Handler handler = new Handler() {
 	    @Override
 	    public void handleMessage(Message msg) {
 	        switch (msg.what) {
 	        case VncConstants.DIALOG_X509_CERT:
-	        	final X509Certificate cert = (X509Certificate)msg.obj;
-
-	        	if (connection.getSshHostKey().equals("")) {
-	    			// Show a dialog with the key signature for approval.
-	    			DialogInterface.OnClickListener signatureNo = new DialogInterface.OnClickListener() {
-	    	            @Override
-	    	            public void onClick(DialogInterface dialog, int which) {
-	    	                // We were told not to continue, so stop the activity
-	    	            	closeConnection();
-	    	            	((Activity) getContext()).finish();
-	    	            }
-	    	        };
-	    	        DialogInterface.OnClickListener signatureYes = new DialogInterface.OnClickListener() {
-	    	            @Override
-	    	            public void onClick(DialogInterface dialog, int which) {
-	    	    			// We were told to go ahead with the connection, so save the key into the database.
-	    	            	String certificate = null;
-	    	            	try {
-	    	            		certificate = Base64.encodeToString(cert.getEncoded(), Base64.DEFAULT);
-							} catch (CertificateEncodingException e) {
-								e.printStackTrace();
-								showFatalMessageAndQuit("Certificate encoding could not be generated.");
-							}
-							connection.setSshHostKey(certificate);
-			    			connection.save(database.getWritableDatabase());
-			    			database.close();
-			    			// Indicate the certificate was accepted.
-	    	            	certificateAccepted = true;
-	    	            }
-	    	        };
-
-					// Generate a sha1 signature of the certificate.
-				    MessageDigest sha1;
-				    MessageDigest md5;
-					try {
-						sha1 = MessageDigest.getInstance("SHA1");
-						md5 = MessageDigest.getInstance("MD5");
-			    	    sha1.update(cert.getEncoded());
-		    			Utils.showYesNoPrompt(getContext(), "Continue connecting to " + connection.getAddress () + "?",
-		    									"The x509 certificate signatures are:"   +
-		    									"\nSHA1:  " + Utils.toHexString(sha1.digest()) +
-		    									"\nMD5:  "  + Utils.toHexString(md5.digest())  + 
-		    									"\nYou can ensure they are identical to the known signatures of the server certificate to prevent a man-in-the-middle attack.",
-		    									signatureYes, signatureNo);
-					} catch (NoSuchAlgorithmException e2) {
-						e2.printStackTrace();
-						showFatalMessageAndQuit("Could not generate SHA1 or MD5 signature of certificate. No SHA1/MD5 algorithm found.");
-					} catch (CertificateEncodingException e) {
-						e.printStackTrace();
-						showFatalMessageAndQuit("Certificate encoding could not be generated.");
-					}
-	        	} else {
-					// Compare saved with obtained certificate and quit if they don't match.
-	        		try {
-						if (!connection.getSshHostKey().equals(Base64.encodeToString(cert.getEncoded(), Base64.DEFAULT))) {
-							showFatalMessageAndQuit("ERROR: The saved x509 certificate does not match the current server certificate! " +
-									"This could be a man-in-the-middle attack. If you are aware of the key change, delete and recreate the connection.");
-						} else {
-							// In case we need to display information about the certificate, we can reconstruct it like this:
-							//CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
-							//ByteArrayInputStream in = new ByteArrayInputStream(Base64.decode(connection.getSshHostKey(), Base64.DEFAULT));
-							//X509Certificate c = (X509Certificate)certFactory.generateCertificate(in);
-				    	    //android.util.Log.e("  Subject ", c.getSubjectDN().toString());
-				    	    //android.util.Log.e("   Issuer  ", c.getIssuerDN().toString());
-							// The certificate matches, so we proceed.
-	    	            	certificateAccepted = true;
-						}
-					} catch (CertificateEncodingException e) {
-						e.printStackTrace();
-						showFatalMessageAndQuit("Certificate encoding could not be generated.");
-					}
-	        	}
+	        	validateX509Cert ((X509Certificate)msg.obj);
+	            break;
+	        case VncConstants.DIALOG_RDP_CERT:
+	        	Bundle s = (Bundle)msg.obj;
+	        	validateRdpCert (s.getString("subject"), s.getString("issuer"), s.getString("fingerprint"));
 	            break;
 	        }
 	    }
 	};
+
+	/**
+	 * If there is a saved cert, checks the one given against it. Otherwise, presents the
+	 * given cert's signature to the user for approval.
+	 * @param cert the given cert.
+	 */
+	private void validateX509Cert (final X509Certificate cert) {
+
+		// If there has been no key approved by the user previously, ask for approval, else
+		// check the saved key against the one we are presented with.
+    	if (connection.getSshHostKey().equals("")) {
+			// Show a dialog with the key signature for approval.
+			DialogInterface.OnClickListener signatureNo = new DialogInterface.OnClickListener() {
+	            @Override
+	            public void onClick(DialogInterface dialog, int which) {
+	                // We were told not to continue, so stop the activity
+	            	closeConnection();
+	            	((Activity) getContext()).finish();
+	            }
+	        };
+	        DialogInterface.OnClickListener signatureYes = new DialogInterface.OnClickListener() {
+	            @Override
+	            public void onClick(DialogInterface dialog, int which) {
+	    			// We were told to go ahead with the connection, so save the key into the database.
+	            	String certificate = null;
+	            	try {
+	            		certificate = Base64.encodeToString(cert.getEncoded(), Base64.DEFAULT);
+					} catch (CertificateEncodingException e) {
+						e.printStackTrace();
+						showFatalMessageAndQuit("Certificate encoding could not be generated.");
+					}
+					connection.setSshHostKey(certificate);
+	    			connection.save(database.getWritableDatabase());
+	    			database.close();
+	    			// Indicate the certificate was accepted.
+	            	certificateAccepted = true;
+	            }
+	        };
+
+			// Generate a sha1 signature of the certificate.
+		    MessageDigest sha1;
+		    MessageDigest md5;
+			try {
+				sha1 = MessageDigest.getInstance("SHA1");
+				md5 = MessageDigest.getInstance("MD5");
+	    	    sha1.update(cert.getEncoded());
+    			Utils.showYesNoPrompt(getContext(), "Continue connecting to " + connection.getAddress () + "?",
+    									"The x509 certificate signatures are:"   +
+    									"\nSHA1:  " + Utils.toHexString(sha1.digest()) +
+    									"\nMD5:  "  + Utils.toHexString(md5.digest())  + 
+    									"\nYou can ensure they are identical to the known signatures of the server certificate to prevent a man-in-the-middle attack.",
+    									signatureYes, signatureNo);
+			} catch (NoSuchAlgorithmException e2) {
+				e2.printStackTrace();
+				showFatalMessageAndQuit("Could not generate SHA1 or MD5 signature of certificate. No SHA1/MD5 algorithm found.");
+			} catch (CertificateEncodingException e) {
+				e.printStackTrace();
+				showFatalMessageAndQuit("Certificate encoding could not be generated.");
+			}
+    	} else {
+    		// Compare saved with obtained certificate and quit if they don't match.
+    		try {
+				if (!connection.getSshHostKey().equals(Base64.encodeToString(cert.getEncoded(), Base64.DEFAULT))) {
+					showFatalMessageAndQuit("ERROR: The saved x509 certificate does not match the current server certificate! " +
+							"This could be a man-in-the-middle attack. If you are aware of the key change, delete and recreate the connection.");
+				} else {
+					// In case we need to display information about the certificate, we can reconstruct it like this:
+					//CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
+					//ByteArrayInputStream in = new ByteArrayInputStream(Base64.decode(connection.getSshHostKey(), Base64.DEFAULT));
+					//X509Certificate c = (X509Certificate)certFactory.generateCertificate(in);
+		    	    //android.util.Log.e("  Subject ", c.getSubjectDN().toString());
+		    	    //android.util.Log.e("   Issuer  ", c.getIssuerDN().toString());
+					// The certificate matches, so we proceed.
+	            	certificateAccepted = true;
+				}
+			} catch (CertificateEncodingException e) {
+				e.printStackTrace();
+				showFatalMessageAndQuit("Certificate encoding could not be generated.");
+			}
+    	}
+	}
+	
+	/**
+	 * Permits the user to validate an RDP certificate.
+	 * @param subject
+	 * @param issuer
+	 * @param fingerprint
+	 */
+	private void validateRdpCert (String subject, String issuer, final String fingerprint) {
+		// Since LibFreeRDP handles saving accepted certificates, if we ever get here, we must
+		// present the user with a query whether to accept the certificate or not.
+
+		// Show a dialog with the key signature for approval.
+		DialogInterface.OnClickListener signatureNo = new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				// We were told not to continue, so stop the activity
+				closeConnection();
+				((Activity) getContext()).finish();
+			}
+		};
+		DialogInterface.OnClickListener signatureYes = new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				// Indicate the certificate was accepted.
+				certificateAccepted = true;
+			}
+		};
+		Utils.showYesNoPrompt(getContext(), "Continue connecting to " + connection.getAddress () + "?",
+				"The RDP certificate subject, issuer, and fingerprint are:"   +
+						"\nSubject:      " + subject +
+						"\nIssuer:       " + issuer +
+						"\nFingerprint:  " + fingerprint + 
+						"\nYou can ensure they are identical to the known parameters of the server certificate to " +
+						"prevent a man-in-the-middle attack.",
+						signatureYes, signatureNo);
+	}
 
 	// Used to set the contents of the clipboard.
 	ClipboardManager clipboard;
@@ -222,6 +289,11 @@ public class VncCanvas extends ImageView {
 	 */
 	boolean bb10 = false;
 	boolean bb   = false;
+	
+	/*
+	 * This flag indicates whether this is the RDP 'version' or not.
+	 */
+	boolean isRDP = false;
 
 	/**
 	 * Constructor used by the inflation apparatus
@@ -240,6 +312,8 @@ public class VncCanvas extends ImageView {
 			bb   = true;
 
 		decoder = new Decoder (this);
+		
+		isRDP = getContext().getPackageName().contains("RDP");
 	}
 
 	/**
@@ -279,11 +353,77 @@ public class VncCanvas extends ImageView {
 		Thread t = new Thread () {
 			public void run() {
 			    try {
-			    	if (connection.getConnectionType() < 4) {
+			    	if (isRDP) {
+			    		// TODO: Refactor code.
+
+			    		// Get the address and port (based on whether an SSH tunnel is being established or not).
+			    		String address = getVNCAddress();
+			    		int rdpPort = getVNCPort();
+
+			    		// This is necessary because it initializes a synchronizedMap referenced later.
+			    		freeRdpApp = new GlobalApp();
+
+			    		// Create a manual bookmark and populate it from settings.
+						BookmarkBase bookmark = new ManualBookmark();
+						bookmark.<ManualBookmark>get().setLabel(connection.getNickname());
+						bookmark.<ManualBookmark>get().setHostname(address);
+						bookmark.<ManualBookmark>get().setPort(rdpPort);
+						bookmark.<ManualBookmark>get().setUsername(connection.getUserName());
+						bookmark.<ManualBookmark>get().setDomain(connection.getRdpDomain());
+						bookmark.<ManualBookmark>get().setPassword(connection.getPassword());
+
+						// Create a session based on the bookmark
+						session = GlobalApp.createSession(bookmark);
+
+						// Set a writable data directory
+						LibFreeRDP.setDataDirectory(session.getInstance(), getContext().getFilesDir().toString());
+						
+						// Set screen settings to native res if instructed to, or if height or width are too small.
+						BookmarkBase.ScreenSettings screenSettings = session.getBookmark().getActiveScreenSettings();
+						int remoteWidth  = 0;
+						int remoteHeight = 0;
+						int reqWidth  = connection.getRdpWidth();
+						int reqHeight = connection.getRdpHeight();
+						if (connection.getRdpResType() == VncConstants.RDP_GEOM_SELECT_CUSTOM &&
+							reqWidth >= 2 && reqHeight >= 2) {
+							remoteWidth  = reqWidth;
+							remoteHeight = reqHeight;
+						} else if (connection.getRdpResType() == VncConstants.RDP_GEOM_SELECT_NATIVE_PORTRAIT) {
+							remoteWidth  = Math.min(displayWidth, displayHeight);
+							remoteHeight = Math.max(displayWidth, displayHeight);						
+						} else {
+							remoteWidth  = Math.max(displayWidth, displayHeight);
+							remoteHeight = Math.min(displayWidth, displayHeight);
+						}
+						screenSettings.setWidth(remoteWidth);
+						screenSettings.setHeight(remoteHeight);
+
+						// Set performance flags.
+						BookmarkBase.PerformanceFlags performanceFlags = session.getBookmark().getPerformanceFlags();
+						performanceFlags.setRemoteFX(connection.getRemoteFx());
+						performanceFlags.setWallpaper(connection.getDesktopBackground());
+						performanceFlags.setFontSmoothing(connection.getFontSmoothing());
+						performanceFlags.setDesktopComposition(connection.getDesktopComposition());
+						performanceFlags.setFullWindowDrag(connection.getWindowContents());
+						performanceFlags.setMenuAnimations(connection.getMenuAnimation());
+						performanceFlags.setTheming(connection.getVisualStyles());
+
+						rdpcomm = new RdpCommunicator (session);
+						rfbconn = rdpcomm;
+			    		pointer = new RemoteRdpPointer (rfbconn, VncCanvas.this, handler);
+			    		keyboard = new RemoteRdpKeyboard (rfbconn, VncCanvas.this, handler);
+						
+						session.setUIEventListener(VncCanvas.this);
+			    		LibFreeRDP.setEventListener(VncCanvas.this);
+
+			    		session.connect();
+						pd.dismiss();
+			    	} else if (connection.getConnectionType() < 4) {
+
 			    		connectAndAuthenticate(connection.getUserName(),connection.getPassword());
 			    		rfbconn = rfb;
-			    		pointer = new RemotePointer (rfbconn, VncCanvas.this, handler);
-			    		keyboard = new RemoteKeyboard (rfbconn, VncCanvas.this, handler);
+			    		pointer = new RemoteVncPointer (rfbconn, VncCanvas.this, handler);
+			    		keyboard = new RemoteVncKeyboard (rfbconn, VncCanvas.this, handler);
 			    		doProtocolInitialisation(displayWidth, displayHeight);
 			    		handler.post(new Runnable() {
 			    			public void run() {
@@ -297,8 +437,8 @@ public class VncCanvas extends ImageView {
 			    	} else {
 			    		cc = new CConn(VncCanvas.this, sock, null, false, connection);
 			    		rfbconn = cc;
-			    		pointer = new RemotePointer (rfbconn, VncCanvas.this, handler);
-			    		keyboard = new RemoteKeyboard (rfbconn, VncCanvas.this, handler);
+			    		pointer = new RemoteVncPointer (rfbconn, VncCanvas.this, handler);
+			    		keyboard = new RemoteVncKeyboard (rfbconn, VncCanvas.this, handler);
 			    		initializeBitmap(displayWidth, displayHeight);
 			    		processNormalProtocolSecure(getContext(), pd, setModes);
 			    	}
@@ -337,7 +477,9 @@ public class VncCanvas extends ImageView {
 		clipboardMonitor = new ClipboardMonitor(getContext(), this);
 		if (clipboardMonitor != null) {
 			clipboardMonitorTimer = new Timer ();
-			clipboardMonitorTimer.schedule(clipboardMonitor, 0, 500);
+			if (clipboardMonitorTimer != null) {
+				clipboardMonitorTimer.schedule(clipboardMonitor, 0, 500);
+			}
 		}
 	}
 	
@@ -634,7 +776,8 @@ public class VncCanvas extends ImageView {
 		removeCallbacksAndMessages();
 		if (clipboardMonitorTimer != null) {
 			clipboardMonitorTimer.cancel();
-			clipboardMonitorTimer.purge();
+			// Occasionally causes a NullPointerException
+			//clipboardMonitorTimer.purge();
 			clipboardMonitorTimer = null;
 		}
 		clipboardMonitor = null;
@@ -894,7 +1037,7 @@ public class VncCanvas extends ImageView {
 	 */
 	public void invalidateMousePosition() {
 		if (bitmapData != null) {
-			bitmapData.moveCursorRect(pointer.mouseX, pointer.mouseY);
+			bitmapData.moveCursorRect(pointer.getX(), pointer.getY());
 			Rect r = bitmapData.getCursorRect();
 			reDraw(r.left, r.top, r.width(), r.height());
 		}
@@ -912,8 +1055,8 @@ public class VncCanvas extends ImageView {
     	}
     	
     	if (!inScrolling) {
-    		pointer.mouseX = x;
-    		pointer.mouseY = y;
+    		pointer.setX(x);
+    		pointer.setY(y);
 	    	Rect pCRect = new Rect(bitmapData.getCursorRect());
 	    	// Move the cursor.
 	    	bitmapData.moveCursorRect(x, y);
@@ -931,7 +1074,7 @@ public class VncCanvas extends ImageView {
 		int [] tempPixels = new int[w*h];
 		bm.getPixels(tempPixels, 0, w, 0, 0, w, h);
     	// Set cursor rectangle as well.
-    	bitmapData.setCursorRect(pointer.mouseX, pointer.mouseY, w, h, 0, 0);
+    	bitmapData.setCursorRect(pointer.getX(), pointer.getY(), w, h, 0, 0);
     	// Set softCursor to whatever the resource is.
 		bitmapData.setSoftCursor (tempPixels);
 		bm.recycle();
@@ -987,5 +1130,126 @@ public class VncCanvas extends ImageView {
 			return bitmapData.getMinimumScale();
 		} else
 			return 1.f;
+	}
+	
+	/********************************************************************************
+	 *  Implementation of LibFreeRDP.EventListener
+	 */
+	public static final int FREERDP_EVENT_CONNECTION_SUCCESS = 1;
+	public static final int FREERDP_EVENT_CONNECTION_FAILURE = 2;
+	public static final int FREERDP_EVENT_DISCONNECTED = 3;
+
+	@Override
+	public void OnConnectionSuccess(int instance) {
+		rdpcomm.setIsInNormalProtocol(true);
+		Log.v(TAG, "OnConnectionSuccess");
+	}
+
+	@Override
+	public void OnConnectionFailure(int instance) {
+		rdpcomm.setIsInNormalProtocol(false);
+		Log.v(TAG, "OnConnectionFailure");
+		// free session
+		// TODO: Causes segfault in libfreerdp-android. Needs to be fixed.
+		//GlobalApp.freeSession(instance);
+		showFatalMessageAndQuit ("RDP Connection failed! Please ensure RDP Server setting is correct, " +
+								 "the RDP server is turned on, RDP is enabled, and that the server " +
+								 "is on the same network as this device.");
+    }
+
+	@Override
+	public void OnDisconnecting(int instance) {
+		rdpcomm.setIsInNormalProtocol(false);
+		Log.v(TAG, "OnDisconnecting");
+		// Only display an error message if we were trying to maintain the connection (not disconnecting).
+		if (maintainConnection) {
+			showFatalMessageAndQuit ("RDP Connection failed! Either network connectivity was interrupted, " +
+									 "the RDP server was turned off or disabled, or your session was taken over.");
+		}
+	}
+	
+	@Override
+	public void OnDisconnected(int instance) {
+		rdpcomm.setIsInNormalProtocol(false);
+		Log.v(TAG, "OnDisconnected");
+		// TODO: Causes segfault in libfreerdp-android. Needs to be fixed.
+		//GlobalApp.freeSession(instance);
+	}
+
+	/********************************************************************************
+	 *  Implementation of LibFreeRDP.UIEventListener
+	 */
+	@Override
+	public void OnSettingsChanged(int width, int height, int bpp) {
+		android.util.Log.e(TAG, "onSettingsChanged called.");
+		try {
+			bitmapData = new CompactBitmapData(rfbconn, this);
+		} catch (Throwable e) {
+			showFatalMessageAndQuit ("Your device is out of memory! Restart the app and failing that, restart your device. " +
+									 "If neither helps, try setting a smaller remote desktop size in the advanced settings.");
+			return;
+		}
+    	android.util.Log.i(TAG, "Using CompactBufferBitmapData.");
+
+		// TODO: Pointer is not visible with xrdp for some reason, test with windows.
+		initializeSoftCursor();
+    	
+    	// Set the drawable for the canvas, now that we have it (re)initialized.
+    	handler.post(drawableSetter);
+		handler.post(setModes);
+		handler.post(desktopInfo);
+	}
+
+	@Override
+	public boolean OnAuthenticate(StringBuilder username, StringBuilder domain, StringBuilder password) {
+		android.util.Log.e(TAG, "onAuthenticate called.");
+		showFatalMessageAndQuit ("RDP Authentication failed! Please check the RDP username and password and try again.");
+		return false;
+	}
+
+	@Override
+	public boolean OnVerifiyCertificate(String subject, String issuer, String fingerprint) {
+		android.util.Log.e(TAG, "OnVerifiyCertificate called.");
+		
+		// Send a message containing the certificate to our handler.
+		Message m = new Message();
+		m.setTarget(handler);
+		m.what = VncConstants.DIALOG_RDP_CERT;
+		Bundle strings = new Bundle();
+		strings.putString("subject", subject);
+		strings.putString("issuer", issuer);
+		strings.putString("fingerprint", fingerprint);
+		m.obj = strings;
+		handler.sendMessage(m);
+		
+		// Block while user decides whether to accept certificate or not. The activity ends if the user taps "No", so
+    	// we block 'indefinitely' here.
+		while (!certificateAccepted) {
+			try {Thread.sleep(100);} catch (InterruptedException e1) { return false; }
+		}
+		return true;
+	}
+
+	@Override
+	public void OnGraphicsUpdate(int x, int y, int width, int height) {
+		//android.util.Log.e(TAG, "OnGraphicsUpdate called: " + x +", " + y + " + " + width + "x" + height );
+		if (bitmapData != null)
+			LibFreeRDP.updateGraphics(session.getInstance(), bitmapData.mbitmap, x, y, width, height);
+
+		reDraw(x, y, x+width, y+height);
+		//postInvalidate();
+	}
+
+	@Override
+	public void OnGraphicsResize(int width, int height, int bpp) {
+		android.util.Log.e(TAG, "OnGraphicsResize called.");
+		try {
+			bitmapData = new CompactBitmapData(rfbconn, this);
+		} catch (Throwable e) {
+			showFatalMessageAndQuit ("Your device is out of memory! Restart the app and failing that, restart your device. " +
+									 "If neither helps, try setting a smaller remote desktop size in the advanced settings.");
+			return;
+		}
+		android.util.Log.i(TAG, "Using CompactBufferBitmapData.");
 	}
 }

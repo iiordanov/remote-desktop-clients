@@ -41,8 +41,7 @@ import android.util.Log;
 public class XKeySymCoverter {
 	private final static String TAG = "XKeySymCoverter";
 
-
-	int [][] keysymtab = {
+	public static int [][] keysymtab = {
 			{ 0x01a1, 0x0104 }, /*                     Aogonek Ą LATIN CAPITAL LETTER A WITH OGONEK */
 			{ 0x01a2, 0x02d8 }, /*                       breve ˘ BREVE */
 			{ 0x01a3, 0x0141 }, /*                     Lstroke Ł LATIN CAPITAL LETTER L WITH STROKE */
@@ -818,7 +817,7 @@ public class XKeySymCoverter {
 			{ 0x20ac, 0x20ac }, /*                    EuroSign € EURO SIGN */
 	};
 	
-	int[][] keysymtabbyucs = {
+	public static int[][] keysymtabbyucs = {
 			  { 0x0ba3, 0x003c }, /*                   leftcaret < LESS-THAN SIGN */
 			  { 0x0ba6, 0x003e }, /*                  rightcaret > GREATER-THAN SIGN */
 			  { 0x0bc6, 0x005f }, /*                    underbar _ LOW LINE */
@@ -1576,7 +1575,7 @@ public class XKeySymCoverter {
 			 };
 
 
-	long ucs2keysym (long ucs)
+	public static long ucs2keysym (long ucs)
 	{
 		int min = 0;
 		int max = keysymtabbyucs.length - 1;
@@ -1603,7 +1602,7 @@ public class XKeySymCoverter {
 		return ucs;
 	}
 
-	long keysym2ucs(long keysym)
+	public static long keysym2ucs(long keysym)
 	{
 		int min = 0;
 		int max = keysymtab.length - 1;

@@ -80,6 +80,7 @@ class ConnectionBean extends AbstractConnectionBean implements Comparable<Connec
 		setAutoXRandFileNm("");
 		setUseSshRemoteCommand(false);
 		setUserName("");
+		setRdpDomain("");
 		setPort(5900);
 		setColorModel(COLORMODEL.C24bit.nameString());
 		setPrefEncoding(RfbProto.EncodingTight);
@@ -92,6 +93,17 @@ class ConnectionBean extends AbstractConnectionBean implements Comparable<Connec
 		setRepeaterId("");
 		setExtraKeysToggleType(1);
 		setMetaListId(1);
+		setRdpResType(0);
+		setRdpWidth(0);
+		setRdpHeight(0);
+		setRdpColor(0);
+		setRemoteFx(false);
+		setDesktopBackground(false);
+		setFontSmoothing(false);
+		setDesktopComposition(false);
+		setWindowContents(false);
+		setMenuAnimation(false);
+		setVisualStyles(false);
 		c = context;
 	}
 	
