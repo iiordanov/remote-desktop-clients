@@ -237,11 +237,7 @@ class LargeBitmapData extends AbstractBitmapData {
 	 */
 	@Override
 	public void updateBitmap(Bitmap b, int x, int y, int w, int h) {
-		int xoff = x - xoffset;
-		int yoff = y - yoffset;
-		s.set(0, 0, w, h);
-		d.set(xoff, yoff, xoff+w, yoff+h);
-		memGraphics.drawBitmap(b, s, d, null);
+		memGraphics.drawBitmap(b, x - xoffset, y - yoffset, null);
 	}
 
 	/* (non-Javadoc)

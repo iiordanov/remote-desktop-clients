@@ -95,9 +95,7 @@ class CompactBitmapData extends AbstractBitmapData {
 	 */
 	@Override
 	public void updateBitmap(Bitmap b, int x, int y, int w, int h) {
-		s.set(0, 0, w, h);
-		d.set(x, y, x+w, y+h);
-		memGraphics.drawBitmap(b, s, d, null);
+		memGraphics.drawBitmap(b, x, y, null);
 	}
 
 	/* (non-Javadoc)
