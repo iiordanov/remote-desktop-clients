@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<string name="app_name">androidSpice</string>
+	<string name="info">Please input the ip,port,and password of the
+		virtual machine which would like to be connected</string>
+	<string name="ip">ip</string>
+	<string name="port">port</string>
+	<string name="password">password</string>
+	<string name="connect">connect</string>
+	<string name="input">input</string>
+	<string name="exit">exit</string>
+	<string name="error_null_ip">Please int the ip</string>
+	<string name="error_null_port">Please input the port</string>
+	<string name="error_null_password">Please input the password</string>
+	<string name="error_connect_failed">Connect failed.</string>
+	<string name="error_invalid_password">Invalid password.</string>
+	<string name="error_invalid_ip_port">Invalid ip or port.</string>
+	<string name="error">Error</string>
+	<string name="tip">Info</string>
+	<string name="disconnected_by_unkown_error">Disconnected by unkown error.</string>
+	<string name="disconnected">Connection is disconnected.</string>
+	<string name="zoom_in">zoom in</string>
+	<string name="zomm_out">zoom out</string>
+</resources>

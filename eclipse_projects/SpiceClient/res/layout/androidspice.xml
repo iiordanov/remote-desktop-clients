@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    >
+    <TableLayout android:layout_height="wrap_content" android:layout_width="fill_parent" android:id="@+id/tableLayout1">
+        <TextView android:layout_height="wrap_content"
+	android:layout_width="wrap_content" android:text="@string/info" android:id="@+id/infoLab"></TextView>
+        <TableRow android:id="@+id/tableRow1" android:layout_width="wrap_content" android:layout_height="wrap_content">
+            <TextView android:layout_height="wrap_content" android:layout_width="wrap_content" android:text="@string/ip" android:id="@+id/ipLab"></TextView>
+            <EditText android:layout_weight="1" android:layout_height="wrap_content" android:layout_width="wrap_content" android:id="@+id/ipText"></EditText>
+        </TableRow>
+        <TableRow android:id="@+id/tableRow2" android:layout_width="wrap_content" android:layout_height="wrap_content">
+            <TextView android:layout_height="wrap_content" android:layout_width="wrap_content" android:text="@string/port" android:id="@+id/portLab"></TextView>
+            <EditText android:layout_weight="1" android:layout_height="wrap_content" android:layout_width="wrap_content" android:id="@+id/portText"></EditText>
+        </TableRow>
+        <TableRow android:layout_weight="0.0" android:id="@+id/tableRow3" android:layout_width="wrap_content" android:layout_height="wrap_content">
+            <TextView android:layout_height="wrap_content" android:layout_width="wrap_content" android:text="@string/password"  android:id="@+id/passwordLab"></TextView>
+            <EditText android:layout_weight="1" android:layout_height="wrap_content" android:layout_width="wrap_content" android:id="@+id/passwordText" android:password="true"></EditText>
+        </TableRow>
+        <Button android:layout_gravity="right" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/connect" android:id="@+id/connectBtn"></Button>
+    </TableLayout>
+    <TextView android:id="@+id/resultText" android:layout_height="wrap_content" android:layout_width="wrap_content"></TextView>
+</LinearLayout>

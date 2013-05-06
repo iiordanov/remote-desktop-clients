@@ -1,0 +1,62 @@
+//map android keyboroard into spicekeyboard
+static const guint16 keymap_android[] = {
+    [0x7] = 0xb,        /* 11 via 11 (KEY_0) */
+    [0x8] = 0x2,        /* 2 via 2 (KEY_1) */
+    [0x9] = 0x3,        /* 3 via 3 (KEY_2) */
+    [0xa] = 0x4,        /* 4 via 4 (KEY_3) */
+    [0xb] = 0x5,        /* 5 via 5 (KEY_4) */
+    [0xc] = 0x6,        /* 6 via 6 (KEY_5) */
+    [0xd] = 0x7,        /* 7 via 7 (KEY_6) */
+    [0xe] = 0x8,        /* 8 via 8 (KEY_7) */
+    [0xf] = 0x9,        /* 9 via 9 (KEY_8) */
+    [0x10] = 0xa,        /* 10 via 10 (KEY_9) */
+    [0x1d] = 0x1e,       /* 30 via 30 (KEY_A) */
+    [0x1e] = 0x30,       /* 48 via 48 (KEY_B) */
+    [0x1f] = 0x2e,       /* 46 via 46 (KEY_C) */
+    [0x20] = 0x20,       /* 32 via 32 (KEY_D) */
+    [0x21] = 0x12,       /* 18 via 18 (KEY_E) */
+    [0x22] = 0x21,       /* 33 via 33 (KEY_F) */
+    [0x23] = 0x22,       /* 34 via 34 (KEY_G) */
+    [0x24] = 0x23,       /* 35 via 35 (KEY_H) */
+    [0x25] = 0x17,       /* 23 via 23 (KEY_I) */
+    [0x26] = 0x24,       /* 36 via 36 (KEY_J) */
+    [0x27] = 0x25,       /* 37 via 37 (KEY_K) */
+    [0x28] = 0x26,       /* 38 via 38 (KEY_L) */
+    [0x29] = 0x32,       /* 50 via 50 (KEY_M) */
+    [0x2a] = 0x31,       /* 49 via 49 (KEY_N) */
+    [0x2b] = 0x18,       /* 24 via 24 (KEY_O) */
+    [0x2c] = 0x19,       /* 25 via 25 (KEY_P) */
+    [0x2d] = 0x10,       /* 16 via 16 (KEY_Q) */
+    [0x2e] = 0x13,       /* 19 via 19 (KEY_R) */
+    [0x2f] = 0x1f,       /* 31 via 31 (KEY_S) */
+    [0x30] = 0x14,       /* 20 via 20 (KEY_T) */
+    [0x31] = 0x16,       /* 22 via 22 (KEY_U) */
+    [0x32] = 0x2f,       /* 47 via 47 (KEY_V) */
+    [0x33] = 0x11,       /* 17 via 17 (KEY_W) */
+    [0x34] = 0x2d,       /* 45 via 45 (KEY_X) */
+    [0x35] = 0x15,       /* 21 via 21 (KEY_Y) */
+    [0x36] = 0x2c,       /* 44 via 44 (KEY_Z) */
+
+    [0x1b] = 0x1,        /* 1 via 1 (KEY_ESC) */
+    [0x45] = 0xc,        /* 12 via 12 (KEY_MINUS) */
+    [0x46] = 0xd,        /* 13 via 13 (KEY_EQUAL) */
+    [0x43] = 0xe,        /* 14 via 14 (KEY_BACKSPACE) */
+    [0x47] = 0x1a,       /* 26 via 26 (KEY_LEFTBRACE) */
+    [0x48] = 0x1b,       /* 27 via 27 (KEY_RIGHTBRACE) */
+    [0x42] = 0x1c,        /* 28 via 28 (KEY_ENTER) */
+    [0x3b] = 0x2a,       /* 42 via 42 (KEY_LEFTSHIFT) */
+    [0x49] = 0x2b,       /* 43 via 43 (KEY_BACKSLASH) */
+    [0x3e] = 0x39,       /* 57 via 57 (KEY_SPACE) */
+    [0x4a] = 0x27,       /* 39 via 39 (KEY_SEMICOLON) */
+    [0x37] = 0x33,       /* 51 via 51 (KEY_COMMA) */
+    [0x38] = 0x34,       /* 52 via 52 (KEY_DOT) */
+    [0x4c] = 0x35,       /* 53 via 53 (KEY_SLASH) */
+    [0x4b] = 0x28,       /* 40 via 40 (KEY_QUOTE) */
+
+    //queer keys
+    [0x11] = 0x6d,       /* 109 via 109 (KEY_STAR) */
+    [0x12] = 0x68,       /* 104 via 104 (KEY_SHARP) */
+    [0x4d] = 0x67,       /* 103 via 103 (KEY_AT) */
+    [0x51] = 0x71,       /* 113 via 113 (KEY_PLUS) */
+    [0x60] = 0x35,       /* 181 via 181 (KEY_QUEST) */
+};

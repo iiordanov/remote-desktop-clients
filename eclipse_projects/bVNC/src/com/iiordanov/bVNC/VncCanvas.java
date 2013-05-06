@@ -69,6 +69,7 @@ import com.freerdp.freerdpcore.services.LibFreeRDP;
 import com.iiordanov.android.bc.BCFactory;
 import com.iiordanov.bVNC.input.RemoteRdpKeyboard;
 import com.iiordanov.bVNC.input.RemoteSpiceKeyboard;
+import com.iiordanov.bVNC.input.RemoteSpicePointer;
 import com.iiordanov.bVNC.input.RemoteVncKeyboard;
 import com.iiordanov.bVNC.input.RemoteVncPointer;
 import com.iiordanov.bVNC.input.RemoteKeyboard;
@@ -341,7 +342,7 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 			    	Rect newSize = (Rect) msg.obj;
 
 			    	rfbconn = new SpiceCommunicator (frameReceiver, newSize.width(), newSize.height());
-		    		pointer = new RemoteVncPointer (rfbconn, VncCanvas.this, handler);
+		    		pointer = new RemoteSpicePointer (rfbconn, VncCanvas.this, handler);
 		    		keyboard = new RemoteSpiceKeyboard (rfbconn, VncCanvas.this, handler);
 		    		try {
 		    			bitmapData = new CompactBitmapData(rfbconn, VncCanvas.this);

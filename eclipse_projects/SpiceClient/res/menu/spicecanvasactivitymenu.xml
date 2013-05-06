@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:title="@string/input" android:id="@+id/input"></item>
+    <item android:id="@+id/exit" android:title="@string/exit"></item>
+    <item android:id="@+id/zoomin" android:title="@string/zoom_in"></item>
+    <item android:id="@+id/zoomout" android:title="@string/zomm_out"></item>
+</menu>

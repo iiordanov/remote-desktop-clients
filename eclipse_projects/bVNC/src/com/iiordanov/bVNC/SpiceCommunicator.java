@@ -2,6 +2,7 @@ package com.iiordanov.bVNC;
 
 import com.keqisoft.android.spice.datagram.DGType;
 import com.keqisoft.android.spice.datagram.KeyDG;
+import com.keqisoft.android.spice.datagram.MouseDG;
 import com.keqisoft.android.spice.socket.FrameReceiver;
 import com.keqisoft.android.spice.socket.InputSender;
 
@@ -64,8 +65,7 @@ public class SpiceCommunicator implements RfbConnectable {
 
 	@Override
 	public void writePointerEvent(int x, int y, int metaState, int pointerMask) {
-		// TODO Auto-generated method stub
-
+		inputSender.sendMouse(new MouseDG(pointerMask, x, y));
 	}
 
 	@Override

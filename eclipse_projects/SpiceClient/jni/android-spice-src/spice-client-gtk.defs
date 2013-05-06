@@ -1,0 +1,651 @@
+;; -*- scheme -*-
+; object definitions ...
+(define-object Audio
+  (in-module "Spice")
+  (parent "GObject")
+  (c-name "SpiceAudio")
+  (gtype-id "SPICE_TYPE_AUDIO")
+)
+
+(define-object Channel
+  (in-module "Spice")
+  (parent "GObject")
+  (c-name "SpiceChannel")
+  (gtype-id "SPICE_TYPE_CHANNEL")
+)
+
+(define-object CursorChannel
+  (in-module "Spice")
+  (parent "SpiceChannel")
+  (c-name "SpiceCursorChannel")
+  (gtype-id "SPICE_TYPE_CURSOR_CHANNEL")
+)
+
+(define-object Display
+  (in-module "Spice")
+  (parent "GtkDrawingArea")
+  (c-name "SpiceDisplay")
+  (gtype-id "SPICE_TYPE_DISPLAY")
+)
+
+(define-object DisplayChannel
+  (in-module "Spice")
+  (parent "SpiceChannel")
+  (c-name "SpiceDisplayChannel")
+  (gtype-id "SPICE_TYPE_DISPLAY_CHANNEL")
+)
+
+(define-object InputsChannel
+  (in-module "Spice")
+  (parent "SpiceChannel")
+  (c-name "SpiceInputsChannel")
+  (gtype-id "SPICE_TYPE_INPUTS_CHANNEL")
+)
+
+(define-object MainChannel
+  (in-module "Spice")
+  (parent "SpiceChannel")
+  (c-name "SpiceMainChannel")
+  (gtype-id "SPICE_TYPE_MAIN_CHANNEL")
+)
+
+(define-object PlaybackChannel
+  (in-module "Spice")
+  (parent "SpiceChannel")
+  (c-name "SpicePlaybackChannel")
+  (gtype-id "SPICE_TYPE_PLAYBACK_CHANNEL")
+)
+
+(define-object RecordChannel
+  (in-module "Spice")
+  (parent "SpiceChannel")
+  (c-name "SpiceRecordChannel")
+  (gtype-id "SPICE_TYPE_RECORD_CHANNEL")
+)
+
+(define-object Session
+  (in-module "Spice")
+  (parent "GObject")
+  (c-name "SpiceSession")
+  (gtype-id "SPICE_TYPE_SESSION")
+)
+
+(define-object SmartcardChannel
+  (in-module "Spice")
+  (parent "SpiceChannel")
+  (c-name "SpiceSmartcardChannel")
+  (gtype-id "SPICE_TYPE_SMARTCARD_CHANNEL")
+)
+
+;; Enumerations and flags ...
+
+(define-enum DisplayKeyEvent
+  (in-module "Spice")
+  (c-name "SpiceDisplayKeyEvent")
+  (gtype-id "SPICE_TYPE_DISPLAY_KEY_EVENT")
+  (values
+    '("press" "SPICE_DISPLAY_KEY_EVENT_PRESS")
+    '("release" "SPICE_DISPLAY_KEY_EVENT_RELEASE")
+    '("click" "SPICE_DISPLAY_KEY_EVENT_CLICK")
+  )
+)
+
+(define-flags SessionVerify
+  (in-module "Spice")
+  (c-name "SpiceSessionVerify")
+  (gtype-id "SPICE_TYPE_SESSION_VERIFY")
+  (values
+    '("pubkey" "SPICE_SESSION_VERIFY_PUBKEY")
+    '("hostname" "SPICE_SESSION_VERIFY_HOSTNAME")
+    '("subject" "SPICE_SESSION_VERIFY_SUBJECT")
+  )
+)
+
+(define-enum SessionMigration
+  (in-module "Spice")
+  (c-name "SpiceSessionMigration")
+  (gtype-id "SPICE_TYPE_SESSION_MIGRATION")
+  (values
+    '("none" "SPICE_SESSION_MIGRATION_NONE")
+    '("switching" "SPICE_SESSION_MIGRATION_SWITCHING")
+    '("migrating" "SPICE_SESSION_MIGRATION_MIGRATING")
+  )
+)
+
+(define-enum ChannelEvent
+  (in-module "Spice")
+  (c-name "SpiceChannelEvent")
+  (gtype-id "SPICE_TYPE_CHANNEL_EVENT")
+  (values
+    '("none" "SPICE_CHANNEL_NONE")
+    '("opened" "SPICE_CHANNEL_OPENED")
+    '("switching" "SPICE_CHANNEL_SWITCHING")
+    '("closed" "SPICE_CHANNEL_CLOSED")
+    '("error-connect" "SPICE_CHANNEL_ERROR_CONNECT")
+    '("error-tls" "SPICE_CHANNEL_ERROR_TLS")
+    '("error-link" "SPICE_CHANNEL_ERROR_LINK")
+    '("error-auth" "SPICE_CHANNEL_ERROR_AUTH")
+    '("error-io" "SPICE_CHANNEL_ERROR_IO")
+  )
+)
+
+(define-flags InputsLock
+  (in-module "Spice")
+  (c-name "SpiceInputsLock")
+  (gtype-id "SPICE_TYPE_INPUTS_LOCK")
+  (values
+    '("scroll-lock" "SPICE_INPUTS_SCROLL_LOCK")
+    '("num-lock" "SPICE_INPUTS_NUM_LOCK")
+    '("caps-lock" "SPICE_INPUTS_CAPS_LOCK")
+  )
+)
+
+
+;; From spice-widget.h
+
+(define-function spice_display_get_type
+  (c-name "spice_display_get_type")
+  (return-type "GType")
+)
+
+(define-function spice_display_new
+  (c-name "spice_display_new")
+  (is-constructor-of "SpiceDisplay")
+  (return-type "SpiceDisplay*")
+  (parameters
+    '("SpiceSession*" "session")
+    '("int" "id")
+  )
+)
+
+(define-method mouse_ungrab
+  (of-object "SpiceDisplay")
+  (c-name "spice_display_mouse_ungrab")
+  (return-type "none")
+)
+
+(define-method copy_to_guest
+  (of-object "SpiceDisplay")
+  (c-name "spice_display_copy_to_guest")
+  (return-type "none")
+)
+
+(define-method paste_from_guest
+  (of-object "SpiceDisplay")
+  (c-name "spice_display_paste_from_guest")
+  (return-type "none")
+)
+
+(define-method set_grab_keys
+  (of-object "SpiceDisplay")
+  (c-name "spice_display_set_grab_keys")
+  (return-type "none")
+  (parameters
+    '("SpiceGrabSequence*" "seq")
+  )
+)
+
+(define-method get_grab_keys
+  (of-object "SpiceDisplay")
+  (c-name "spice_display_get_grab_keys")
+  (return-type "SpiceGrabSequence*")
+)
+
+(define-method send_keys
+  (of-object "SpiceDisplay")
+  (c-name "spice_display_send_keys")
+  (return-type "none")
+  (parameters
+    '("const-guint*" "keyvals")
+    '("int" "nkeyvals")
+    '("SpiceDisplayKeyEvent" "kind")
+  )
+)
+
+(define-method get_pixbuf
+  (of-object "SpiceDisplay")
+  (c-name "spice_display_get_pixbuf")
+  (return-type "GdkPixbuf*")
+)
+
+
+
+;; From spice-widget-enums.h
+
+(define-function spice_display_key_event_get_type
+  (c-name "spice_display_key_event_get_type")
+  (return-type "GType")
+)
+
+
+
+;; From spice-grabsequence.h
+
+(define-function spice_grab_sequence_get_type
+  (c-name "spice_grab_sequence_get_type")
+  (return-type "GType")
+)
+
+(define-function spice_grab_sequence_new
+  (c-name "spice_grab_sequence_new")
+  (is-constructor-of "SpiceGrabSequence")
+  (return-type "SpiceGrabSequence*")
+  (parameters
+    '("guint" "nkeysyms")
+    '("guint*" "keysyms")
+  )
+)
+
+(define-function spice_grab_sequence_new_from_string
+  (c-name "spice_grab_sequence_new_from_string")
+  (return-type "SpiceGrabSequence*")
+  (parameters
+    '("const-gchar*" "str")
+  )
+)
+
+(define-method copy
+  (of-object "SpiceGrabSequence")
+  (c-name "spice_grab_sequence_copy")
+  (return-type "SpiceGrabSequence*")
+)
+
+(define-method free
+  (of-object "SpiceGrabSequence")
+  (c-name "spice_grab_sequence_free")
+  (return-type "none")
+)
+
+(define-method as_string
+  (of-object "SpiceGrabSequence")
+  (c-name "spice_grab_sequence_as_string")
+  (return-type "gchar*")
+)
+
+
+
+;; From spice-audio.h
+
+(define-function spice_audio_get_type
+  (c-name "spice_audio_get_type")
+  (return-type "GType")
+)
+
+(define-function spice_audio_new
+  (c-name "spice_audio_new")
+  (is-constructor-of "SpiceAudio")
+  (return-type "SpiceAudio*")
+  (parameters
+    '("SpiceSession*" "session")
+    '("GMainContext*" "context")
+    '("const-char*" "name")
+  )
+)
+
+
+
+;; From spice-client.h
+
+(define-function spice_client_error_quark
+  (c-name "spice_client_error_quark")
+  (return-type "GQuark")
+)
+
+
+
+;; From spice-types.h
+
+
+
+;; From spice-session.h
+
+(define-function spice_session_get_type
+  (c-name "spice_session_get_type")
+  (return-type "GType")
+)
+
+(define-function spice_session_new
+  (c-name "spice_session_new")
+  (is-constructor-of "SpiceSession")
+  (return-type "SpiceSession*")
+)
+
+(define-method connect
+  (of-object "SpiceSession")
+  (c-name "spice_session_connect")
+  (return-type "gboolean")
+)
+
+(define-method open_fd
+  (of-object "SpiceSession")
+  (c-name "spice_session_open_fd")
+  (return-type "gboolean")
+  (parameters
+    '("int" "fd")
+  )
+)
+
+(define-method disconnect
+  (of-object "SpiceSession")
+  (c-name "spice_session_disconnect")
+  (return-type "none")
+)
+
+(define-method get_channels
+  (of-object "SpiceSession")
+  (c-name "spice_session_get_channels")
+  (return-type "GList*")
+)
+
+
+
+;; From spice-channel.h
+
+(define-function spice_channel_get_type
+  (c-name "spice_channel_get_type")
+  (return-type "GType")
+)
+
+(define-function spice_channel_new
+  (c-name "spice_channel_new")
+  (is-constructor-of "SpiceChannel")
+  (return-type "SpiceChannel*")
+  (parameters
+    '("SpiceSession*" "s")
+    '("int" "type")
+    '("int" "id")
+  )
+)
+
+(define-method destroy
+  (of-object "SpiceChannel")
+  (c-name "spice_channel_destroy")
+  (return-type "none")
+)
+
+(define-method connect
+  (of-object "SpiceChannel")
+  (c-name "spice_channel_connect")
+  (return-type "gboolean")
+)
+
+(define-method open_fd
+  (of-object "SpiceChannel")
+  (c-name "spice_channel_open_fd")
+  (return-type "gboolean")
+  (parameters
+    '("int" "fd")
+  )
+)
+
+(define-method disconnect
+  (of-object "SpiceChannel")
+  (c-name "spice_channel_disconnect")
+  (return-type "none")
+  (parameters
+    '("SpiceChannelEvent" "reason")
+  )
+)
+
+(define-method test_capability
+  (of-object "SpiceChannel")
+  (c-name "spice_channel_test_capability")
+  (return-type "gboolean")
+  (parameters
+    '("guint32" "cap")
+  )
+)
+
+(define-method test_common_capability
+  (of-object "SpiceChannel")
+  (c-name "spice_channel_test_common_capability")
+  (return-type "gboolean")
+  (parameters
+    '("guint32" "cap")
+  )
+)
+
+(define-method set_capability
+  (of-object "SpiceChannel")
+  (c-name "spice_channel_set_capability")
+  (return-type "none")
+  (parameters
+    '("guint32" "cap")
+  )
+)
+
+(define-function spice_channel_type_to_string
+  (c-name "spice_channel_type_to_string")
+  (return-type "const-gchar*")
+  (parameters
+    '("gint" "type")
+  )
+)
+
+
+
+;; From spice-glib-enums.h
+
+(define-function spice_channel_event_get_type
+  (c-name "spice_channel_event_get_type")
+  (return-type "GType")
+)
+
+(define-function spice_inputs_lock_get_type
+  (c-name "spice_inputs_lock_get_type")
+  (return-type "GType")
+)
+
+(define-function spice_session_verify_get_type
+  (c-name "spice_session_verify_get_type")
+  (return-type "GType")
+)
+
+(define-function spice_session_migration_get_type
+  (c-name "spice_session_migration_get_type")
+  (return-type "GType")
+)
+
+
+
+;; From spice-util.h
+
+(define-function spice_util_set_debug
+  (c-name "spice_util_set_debug")
+  (return-type "none")
+  (parameters
+    '("gboolean" "enabled")
+  )
+)
+
+(define-function spice_util_get_debug
+  (c-name "spice_util_get_debug")
+  (return-type "gboolean")
+)
+
+(define-function spice_util_get_version_string
+  (c-name "spice_util_get_version_string")
+  (return-type "const-gchar*")
+)
+
+
+
+;; From spice-option.h
+
+(define-function spice_get_option_group
+  (c-name "spice_get_option_group")
+  (return-type "GOptionGroup*")
+)
+
+(define-function spice_set_session_option
+  (c-name "spice_set_session_option")
+  (return-type "none")
+  (parameters
+    '("SpiceSession*" "session")
+  )
+)
+
+
+
+;; From channel-cursor.h
+
+(define-function spice_cursor_channel_get_type
+  (c-name "spice_cursor_channel_get_type")
+  (return-type "GType")
+)
+
+
+
+;; From channel-display.h
+
+(define-function spice_display_channel_get_type
+  (c-name "spice_display_channel_get_type")
+  (return-type "GType")
+)
+
+
+
+;; From channel-inputs.h
+
+(define-function spice_inputs_channel_get_type
+  (c-name "spice_inputs_channel_get_type")
+  (return-type "GType")
+)
+
+
+
+;; From channel-main.h
+
+(define-function spice_main_channel_get_type
+  (c-name "spice_main_channel_get_type")
+  (return-type "GType")
+)
+
+(define-function spice_main_set_display_enabled
+  (c-name "spice_main_set_display_enabled")
+  (return-type "none")
+  (parameters
+    '("SpiceMainChannel*" "channel")
+    '("int" "id")
+    '("gboolean" "enabled")
+  )
+)
+
+(define-function spice_main_send_monitor_config
+  (c-name "spice_main_send_monitor_config")
+  (return-type "gboolean")
+  (parameters
+    '("SpiceMainChannel*" "channel")
+  )
+)
+
+(define-function spice_main_clipboard_notify
+  (c-name "spice_main_clipboard_notify")
+  (return-type "none")
+  (parameters
+    '("SpiceMainChannel*" "channel")
+    '("guint32" "type")
+    '("const-guchar*" "data")
+    '("size_t" "size")
+  )
+)
+
+(define-function spice_main_clipboard_request
+  (c-name "spice_main_clipboard_request")
+  (return-type "none")
+  (parameters
+    '("SpiceMainChannel*" "channel")
+    '("guint32" "type")
+  )
+)
+
+(define-function spice_main_clipboard_selection_grab
+  (c-name "spice_main_clipboard_selection_grab")
+  (return-type "none")
+  (parameters
+    '("SpiceMainChannel*" "channel")
+    '("guint" "selection")
+    '("guint32*" "types")
+    '("int" "ntypes")
+  )
+)
+
+(define-function spice_main_clipboard_selection_release
+  (c-name "spice_main_clipboard_selection_release")
+  (return-type "none")
+  (parameters
+    '("SpiceMainChannel*" "channel")
+    '("guint" "selection")
+  )
+)
+
+(define-function spice_main_clipboard_selection_notify
+  (c-name "spice_main_clipboard_selection_notify")
+  (return-type "none")
+  (parameters
+    '("SpiceMainChannel*" "channel")
+    '("guint" "selection")
+    '("guint32" "type")
+    '("const-guchar*" "data")
+    '("size_t" "size")
+  )
+)
+
+(define-function spice_main_clipboard_selection_request
+  (c-name "spice_main_clipboard_selection_request")
+  (return-type "none")
+  (parameters
+    '("SpiceMainChannel*" "channel")
+    '("guint" "selection")
+    '("guint32" "type")
+  )
+)
+
+
+
+;; From channel-playback.h
+
+(define-function spice_playback_channel_get_type
+  (c-name "spice_playback_channel_get_type")
+  (return-type "GType")
+)
+
+(define-method set_delay
+  (of-object "SpicePlaybackChannel")
+  (c-name "spice_playback_channel_set_delay")
+  (return-type "none")
+  (parameters
+    '("guint32" "delay_ms")
+  )
+)
+
+
+
+;; From channel-record.h
+
+(define-function spice_record_channel_get_type
+  (c-name "spice_record_channel_get_type")
+  (return-type "GType")
+)
+
+(define-function spice_record_send_data
+  (c-name "spice_record_send_data")
+  (return-type "none")
+  (parameters
+    '("SpiceRecordChannel*" "channel")
+    '("gpointer" "data")
+    '("gsize" "bytes")
+    '("guint32" "time")
+  )
+)
+
+
+
+;; From channel-smartcard.h
+
+(define-function spice_smartcard_channel_get_type
+  (c-name "spice_smartcard_channel_get_type")
+  (return-type "GType")
+)
+
+

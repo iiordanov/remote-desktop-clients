@@ -1,0 +1,4 @@
+#ndk-build
+ant debug
+adb uninstall com.keqisoft.android.spice
+adb install bin/AndroidSpice-debug.apk
