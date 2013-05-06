@@ -1,17 +1,23 @@
 package com.iiordanov.bVNC;
 
+import com.keqisoft.android.spice.datagram.DGType;
+import com.keqisoft.android.spice.datagram.KeyDG;
 import com.keqisoft.android.spice.socket.FrameReceiver;
+import com.keqisoft.android.spice.socket.InputSender;
 
 public class SpiceCommunicator implements RfbConnectable {
 
 	private int width = 0;
 	private int height = 0;
 	private FrameReceiver frameReceiver = null;
+    InputSender inputSender;
+
 	
 	public SpiceCommunicator (FrameReceiver f, int w, int h) {
 		width = w;
 		height = h;
 		frameReceiver = f;
+		inputSender = new InputSender();
 	}
 	
 	@Override
@@ -64,8 +70,10 @@ public class SpiceCommunicator implements RfbConnectable {
 
 	@Override
 	public void writeKeyEvent(int key, int metaState, boolean down) {
-		// TODO Auto-generated method stub
-
+		if (down)
+			inputSender.sendKey(new KeyDG(DGType.ANDROID_KEY_PRESS, key));
+		else
+			inputSender.sendKey(new KeyDG(DGType.ANDROID_KEY_RELEASE, key));
 	}
 
 	@Override
@@ -86,6 +94,7 @@ public class SpiceCommunicator implements RfbConnectable {
 
 	@Override
 	public void close() {
+		inputSender.stop();
 		frameReceiver.stop();
 	}
 

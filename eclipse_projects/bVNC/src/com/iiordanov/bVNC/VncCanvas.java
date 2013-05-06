@@ -327,16 +327,15 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
     }
 
     boolean spiceUpdateReceived = false;
-    InputSender inputSender;
     FrameReceiver frameReceiver;
-    Handler handler2 = new Handler() {
+    Handler spiceHandler = new Handler() {
 		@Override
 	    public void handleMessage(Message msg) {
 	    	Context c = VncCanvas.this.getContext();
 
 			switch (msg.what) {
 				case SpiceCanvas.NEW_CANVAS_SIZE:
-			    	//android.util.Log.e(TAG, "NEW_CANVAS_SIZE");
+			    	android.util.Log.e(TAG, "NEW_CANVAS_SIZE");
 
 			    	Rect newSize = (Rect) msg.obj;
 
@@ -357,24 +356,22 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 		        	handler.post(drawableSetter);
 		    		handler.post(setModes);
 		    		handler.post(desktopInfo);
-		    		VncCanvas.this.frameReceiver.setBitmap(bitmapData.mbitmap);
+		    		frameReceiver.setBitmap(bitmapData.mbitmap);
 
 		    		spiceUpdateReceived = true;
 			    case SpiceCanvas.UPDATE_CANVAS:
-			    	//android.util.Log.e(TAG, "UPDATE_CANVAS");
+			    	android.util.Log.e(TAG, "UPDATE_CANVAS");
 			    	Rect dirty = (Rect) msg.obj;
 			    	VncCanvas.this.reDraw(dirty.left, dirty.top, dirty.width(), dirty.height());
 			    	break;
 			    case Connector.CONNECT_UNKOWN_ERROR:
 			    	android.util.Log.e(TAG, "CONNECT_UNKNOWN_ERROR");
-			    	inputSender.stop();
-			    	frameReceiver.stop();
+			    	rfbconn.close();
 			    	Utils.showFatalErrorMessage(c, "Connection interrupted.");
 			    	break;
 			    case Connector.CONNECT_SUCCESS:
 			    	android.util.Log.e(TAG, "CONNECT_SUCCESS");
-			    	inputSender.stop();
-			    	frameReceiver.stop();
+			    	rfbconn.close();
 			    	break;
 			    default:
 			    	android.util.Log.e(TAG, "Unhandled message in handler2");
@@ -430,12 +427,11 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 			    		
 			    		startSpice(address, Integer.toString(port), connection.getPassword());
 			    		
-			    		inputSender = new InputSender();
-			    	    frameReceiver = new FrameReceiver ();
-			    	    Connector.getInstance().setHandler(handler2);
-			    	    frameReceiver.startRecieveFrame();
+			    	    Connector.getInstance().setHandler(spiceHandler);
 
-			    		try { Thread.sleep(5000); } catch (InterruptedException e) {}
+			    	    frameReceiver = new FrameReceiver ();
+			    	    frameReceiver.startRecieveFrame();
+			    		try { Thread.sleep(4000); } catch (InterruptedException e) {}
 			    		if (!spiceUpdateReceived) {
 			    			throw new Exception ("Unable to connect, please check SPICE server address, port, and password.");
 			    		}
