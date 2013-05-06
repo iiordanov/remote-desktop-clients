@@ -39,6 +39,7 @@ import java.security.cert.X509Certificate;
 import java.util.Timer;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.app.ActivityManager.MemoryInfo;
 import android.content.Context;
@@ -74,6 +75,11 @@ import com.iiordanov.bVNC.input.RemoteRdpPointer;
 import com.iiordanov.bVNC.input.RemotePointer;
 
 import com.iiordanov.tigervnc.vncviewer.CConn;
+import com.keqisoft.android.spice.SpiceCanvas;
+import com.keqisoft.android.spice.SpiceCanvasActivity;
+import com.keqisoft.android.spice.socket.Connector;
+import com.keqisoft.android.spice.socket.FrameReceiver;
+import com.keqisoft.android.spice.socket.InputSender;
 
 public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, LibFreeRDP.EventListener {
 	private final static String TAG = "VncCanvas";
@@ -316,6 +322,69 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 		isRDP = getContext().getPackageName().contains("RDP");
 	}
 
+    private void startSpice(String ip, String port, String password) throws Exception {
+    	Connector.getInstance().connect(ip, port, password);
+    }
+
+    boolean spiceUpdateReceived = false;
+    InputSender inputSender;
+    FrameReceiver frameReceiver;
+    Handler handler2 = new Handler() {
+		@Override
+	    public void handleMessage(Message msg) {
+	    	Context c = VncCanvas.this.getContext();
+
+			switch (msg.what) {
+				case SpiceCanvas.NEW_CANVAS_SIZE:
+			    	//android.util.Log.e(TAG, "NEW_CANVAS_SIZE");
+
+			    	Rect newSize = (Rect) msg.obj;
+
+			    	rfbconn = new SpiceCommunicator (frameReceiver, newSize.width(), newSize.height());
+		    		pointer = new RemoteVncPointer (rfbconn, VncCanvas.this, handler);
+		    		keyboard = new RemoteVncKeyboard (rfbconn, VncCanvas.this, handler);
+		    		try {
+		    			bitmapData = new CompactBitmapData(rfbconn, VncCanvas.this);
+		    		} catch (Throwable e) {
+		    			showFatalMessageAndQuit ("Your device is out of memory! Restart the app and failing that, restart your device. " +
+		    									 "If neither helps, try setting a smaller remote desktop size in the advanced settings.");
+		    		}
+		        	android.util.Log.i(TAG, "Using CompactBufferBitmapData.");
+
+		    		initializeSoftCursor();
+		        	
+		        	// Set the drawable for the canvas.
+		        	handler.post(drawableSetter);
+		    		handler.post(setModes);
+		    		handler.post(desktopInfo);
+		    		VncCanvas.this.frameReceiver.setBitmap(bitmapData.mbitmap);
+
+		    		spiceUpdateReceived = true;
+			    case SpiceCanvas.UPDATE_CANVAS:
+			    	//android.util.Log.e(TAG, "UPDATE_CANVAS");
+			    	Rect dirty = (Rect) msg.obj;
+			    	VncCanvas.this.reDraw(dirty.left, dirty.top, dirty.width(), dirty.height());
+			    	break;
+			    case Connector.CONNECT_UNKOWN_ERROR:
+			    	android.util.Log.e(TAG, "CONNECT_UNKNOWN_ERROR");
+			    	inputSender.stop();
+			    	frameReceiver.stop();
+			    	Utils.showFatalErrorMessage(c, "Connection interrupted.");
+			    	break;
+			    case Connector.CONNECT_SUCCESS:
+			    	android.util.Log.e(TAG, "CONNECT_SUCCESS");
+			    	inputSender.stop();
+			    	frameReceiver.stop();
+			    	break;
+			    default:
+			    	android.util.Log.e(TAG, "Unhandled message in handler2");
+			    	Utils.showFatalErrorMessage(c, "Unhandled message in handler2");
+
+			}
+			super.handleMessage(msg);
+	    }
+    };
+    
 	/**
 	 * Create a view showing a VNC connection
 	 * @param context Containing context (activity)
@@ -353,7 +422,26 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 		Thread t = new Thread () {
 			public void run() {
 			    try {
-			    	if (isRDP) {
+			    	boolean isSpice = true;
+			    	if (isSpice) {
+			    		// Get the address and port (based on whether an SSH tunnel is being established or not).
+			    		String address = getVNCAddress();
+			    		int port = getVNCPort();
+			    		
+			    		startSpice(address, Integer.toString(port), connection.getPassword());
+			    		
+			    		inputSender = new InputSender();
+			    	    frameReceiver = new FrameReceiver ();
+			    	    Connector.getInstance().setHandler(handler2);
+			    	    frameReceiver.startRecieveFrame();
+
+			    		try { Thread.sleep(5000); } catch (InterruptedException e) {}
+			    		if (!spiceUpdateReceived) {
+			    			throw new Exception ("Unable to connect, please check SPICE server address, port, and password.");
+			    		}
+			    	    
+			    	    pd.dismiss();
+			    	} else if (isRDP) {
 			    		// TODO: Refactor code.
 
 			    		// Get the address and port (based on whether an SSH tunnel is being established or not).
