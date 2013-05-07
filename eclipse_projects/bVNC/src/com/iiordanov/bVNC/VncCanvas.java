@@ -358,8 +358,10 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 		    		handler.post(setModes);
 		    		handler.post(desktopInfo);
 		    		frameReceiver.setBitmap(bitmapData.mbitmap);
-
 		    		spiceUpdateReceived = true;
+	    			synchronized(frameReceiver) {
+	    				frameReceiver.notifyAll();
+	    			}
 			    case SpiceCanvas.UPDATE_CANVAS:
 			    	android.util.Log.e(TAG, "UPDATE_CANVAS");
 			    	Rect dirty = (Rect) msg.obj;
@@ -432,7 +434,13 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 
 			    	    frameReceiver = new FrameReceiver ();
 			    	    frameReceiver.startRecieveFrame();
-			    		try { Thread.sleep(7000); } catch (InterruptedException e) {}
+			    	    
+			    		try {
+			    			synchronized(frameReceiver) {
+			    				frameReceiver.wait(60000);
+			    			}
+			    		} catch (InterruptedException e) {}
+
 			    		if (!spiceUpdateReceived) {
 			    			throw new Exception ("Unable to connect, please check SPICE server address, port, and password.");
 			    		}
