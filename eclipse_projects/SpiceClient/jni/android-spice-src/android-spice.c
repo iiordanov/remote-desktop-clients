@@ -240,48 +240,48 @@ gboolean key_event(AndroidEventKey* key)
 
     return true;
 }
-/*
-   static int button_mask_to_spice(int gdk)
-   {
 
-   int spice = 0;
+static int update_mask (int button, gboolean down) {
+	static int mask;
+	int update = 0;
+	if (button == SPICE_MOUSE_BUTTON_LEFT)
+		update = SPICE_MOUSE_BUTTON_MASK_LEFT;
+	else if (button == SPICE_MOUSE_BUTTON_MIDDLE)
+		update = SPICE_MOUSE_BUTTON_MASK_MIDDLE;
+	else if (button == SPICE_MOUSE_BUTTON_RIGHT)
+		update = SPICE_MOUSE_BUTTON_MASK_RIGHT;
+	if (down) {
+		mask |= update;
+	} else {
+		mask &= ~update;
+	}
+	return mask;
+}
 
-   if (gdk & ANDROID_BUTTON1_MASK)
-   spice |= SPICE_MOUSE_BUTTON_MASK_LEFT;
-   if (gdk & ANDROID_BUTTON2_MASK)
-   spice |= SPICE_MOUSE_BUTTON_MASK_MIDDLE;
-   if (gdk & ANDROID_BUTTON3_MASK)
-   spice |= SPICE_MOUSE_BUTTON_MASK_RIGHT;
-   return spice;
-   }
-   */
 gboolean button_event(AndroidEventButton *button)
 {
     SpiceDisplay* display = android_display;
     spice_display *d = SPICE_DISPLAY_GET_PRIVATE(display);
-    SPICE_DEBUG("%s:x:%d,y:%d", 
-	    button->type == ANDROID_BUTTON_PRESS?"Button press":"Button release",button->x,button->y);
+    SPICE_DEBUG("%d:x:%d,y:%d", button->type, button->x, button->y);
+    //char buf[40];
 
-    if (!d->inputs)
-	return true;
+    if (!d->inputs || (button->x >= 0 && button->x < d->width && button->y >= 0 && button->y < d->height)) {
+		gboolean down = (button->type & PTRFLAGS_DOWN) != 0;
+		int mouseButton = button->type &~ PTRFLAGS_DOWN;
+		int newMask = update_mask (mouseButton, down);
+	    //snprintf (buf, 40, "Pointer event:%d at x:%d, y:%d", mouseButton, button->x, button->y);
+	    //__android_log_write(6, "android-spice", buf);
+    	spice_inputs_position(d->inputs, button->x, button->y, d->channel_id, newMask);
 
-    //the motion (x,y) shall be saned by Java
-    switch (button->type) {
-	case ANDROID_BUTTON_PRESS:
-	    if (button->x >= 0 && button->x < d->width && button->y >= 0 && button->y < d->height) {
-		spice_inputs_position(d->inputs, button->x, button->y, 0, 0);
-		spice_inputs_button_press(d->inputs,SPICE_MOUSE_BUTTON_LEFT, 0);
-	    }
-	    break;
-	case ANDROID_BUTTON_RELEASE:
-	    //usleep(50000);
-	    if (button->x >= 0 && button->x < d->width && button->y >= 0 && button->y < d->height) {
-		spice_inputs_position(d->inputs, button->x, button->y, 0, 1);
-		spice_inputs_button_release(d->inputs, SPICE_MOUSE_BUTTON_LEFT, 1);
-	    }
-	    break;
-	default:
-	    break;
+		if (button->type != SPICE_MOUSE_BUTTON_INVALID) {
+			if (down) {
+			    //__android_log_write(6, "android-spice", "Button press");
+				spice_inputs_button_press(d->inputs, mouseButton, newMask);
+			} else {
+			    //__android_log_write(6, "android-spice", "Button release");
+				spice_inputs_button_release(d->inputs, mouseButton, newMask);
+			}
+		}
     }
     return true;
 }

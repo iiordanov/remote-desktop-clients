@@ -68,60 +68,56 @@ void android_send_task(int task)
     while(android_task);  
     SPICE_DEBUG("send task done:%d\n",task);
 }
-int msg_recv_handle(int sockfd,char* buf)
+
+int msg_recv_handle(int sockfd, char* buf)
 {
-    int n,type;
-    n = read(sockfd,buf,4);
-    if(n==4)
-    {
-	getval(&type,buf,INT);
-	SPICE_DEBUG("Got event:%d\n",type);
-	switch(type)
-	{
-	    case ANDROID_OVER:
-		{
-		    android_send_task(ANDROID_TASK_OVER);
-		    g_main_loop_quit(android_mainloop);
-		    exit(1);
-		    return 1;
-		}
+	int n,type;
+	n = read(sockfd,buf,4);
+	if(n==4) {
+		getval(&type,buf,INT);
+		SPICE_DEBUG("Got event:%d\n",type);
+		switch(type) {
+		case ANDROID_OVER:
+			android_send_task(ANDROID_TASK_OVER);
+			g_main_loop_quit(android_mainloop);
+			exit(1);
+			return 1;
 		break;
-	    case ANDROID_KEY_PRESS:
-	    case ANDROID_KEY_RELEASE:
-		n = read(sockfd,buf,4);
-		if(n==4)
-		{
-		    AndroidEventKey* key =(AndroidEventKey*)malloc(8);
-		    key->type = type;
-		    getval(&key->hardware_keycode,buf,INT);
-		    key_event(key);
-		    free(key);
+		case ANDROID_KEY_PRESS:
+		case ANDROID_KEY_RELEASE:
+			n = read(sockfd,buf,4);
+			if(n == 4) {
+				AndroidEventKey* key =(AndroidEventKey*)malloc(8);
+				key->type = type;
+				getval(&key->hardware_keycode,buf,INT);
+				key_event(key);
+				free(key);
+			}
+			else
+				error("msg_recv error!\n");
+			break;
+		case ANDROID_POINTER_EVENT:
+			n = 0;
+			while (n < 12) {
+				n += read(sockfd, buf+n, 12-n);
+			}
+			if(n == 12) {
+				AndroidEventButton* button = (AndroidEventButton*)malloc(12);
+				getval(&button->type, buf,   INT);
+				getval(&button->x,    buf+4, INT);
+				getval(&button->y,    buf+8, INT);
+				button_event(button);
+				free(button);
+			}
+			else {
+				error("msg_recv error!\n");
+			}
+			break;
 		}
-		else
-		    error("msg_recv error!\n");
-		break;
-	    case ANDROID_BUTTON_PRESS:
-	    case ANDROID_BUTTON_RELEASE:
-		n = read(sockfd,buf,8);
-		if(n==4)
-		    n += read(sockfd,buf+4,8);
-		if(n==8)
-		{
-		    AndroidEventButton* button =(AndroidEventButton*)malloc(12);
-		    button->type = type;
-		    getval(&button->x,buf,INT);
-		    getval(&button->y,buf+4,INT);
-		    button_event(button);
-		    free(button);
-		}
-		else
-		    error("msg_recv error!\n");
-		break;
 	}
-    }
-    else
-	error("msg_recv error!\n");
-    return 0;
+	else
+		error("msg_recv error!\n");
+	return 0;
 }
 int write_data(int sockfd,uint8_t* buf,int size,int type)
 {
@@ -206,7 +202,7 @@ int android_spice_input()
     int sockfd, newsockfd, servlen;
     socklen_t clilen;
     struct sockaddr_un  cli_addr, serv_addr;
-    char buf[16];
+    char buf[20];
 
     if ((sockfd = socket(AF_UNIX,SOCK_STREAM,0)) < 0)
 	error("creating socket");

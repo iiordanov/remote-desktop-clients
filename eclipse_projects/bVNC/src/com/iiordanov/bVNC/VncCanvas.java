@@ -78,7 +78,6 @@ import com.iiordanov.bVNC.input.RemotePointer;
 
 import com.iiordanov.tigervnc.vncviewer.CConn;
 import com.keqisoft.android.spice.SpiceCanvas;
-import com.keqisoft.android.spice.SpiceCanvasActivity;
 import com.keqisoft.android.spice.socket.Connector;
 import com.keqisoft.android.spice.socket.FrameReceiver;
 import com.keqisoft.android.spice.socket.InputSender;
@@ -433,7 +432,7 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 
 			    	    frameReceiver = new FrameReceiver ();
 			    	    frameReceiver.startRecieveFrame();
-			    		try { Thread.sleep(4000); } catch (InterruptedException e) {}
+			    		try { Thread.sleep(7000); } catch (InterruptedException e) {}
 			    		if (!spiceUpdateReceived) {
 			    			throw new Exception ("Unable to connect, please check SPICE server address, port, and password.");
 			    		}

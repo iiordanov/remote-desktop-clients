@@ -44,6 +44,7 @@ public class InputSender {
 		try {
 			DataOutputStream out = sockHandler.getOut();
 			out.writeInt(mouseDg.getDgType());
+			out.writeInt(mouseDg.getButton());
 			out.writeInt(mouseDg.getX());
 			out.writeInt(mouseDg.getY());
 		} catch (IOException e) {

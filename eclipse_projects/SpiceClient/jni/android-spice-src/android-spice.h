@@ -71,10 +71,12 @@ typedef enum
     ANDROID_OVER = 0,
     ANDROID_KEY_PRESS = 1,
     ANDROID_KEY_RELEASE = 2,
-    ANDROID_BUTTON_PRESS = 3,
-    ANDROID_BUTTON_RELEASE = 4,
-    ANDROID_SHOW = 5,
+    ANDROID_POINTER_EVENT = 3,
+    ANDROID_SHOW = 5
 } AndroidEventType;
+
+#define PTRFLAGS_DOWN 0x8000
+
 struct _AndroidEventKey
 {
   AndroidEventType type;

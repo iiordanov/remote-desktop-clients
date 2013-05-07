@@ -205,7 +205,7 @@ abstract class AbstractGestureInputHandler extends GestureDetector.SimpleOnGestu
 				
         	int numEvents = 0;
         	while (numEvents < swipeSpeed) {
-				p.processPointerEvent(x, y, action, meta, false, false, false, true, direction);
+				p.processPointerEvent(x, y, action, meta, true, false, false, true, direction);
 				p.processPointerEvent(x, y, action, meta, false, false, false, false, 0);
         		numEvents++;
         	}
@@ -377,16 +377,16 @@ abstract class AbstractGestureInputHandler extends GestureDetector.SimpleOnGestu
                 	int numEvents = 0;
                 	while (numEvents < swipeSpeed && numEvents < maxSwipeSpeed) {
                 		if        (twoFingerSwipeUp)   {
-                			p.processPointerEvent(getX(e), getY(e), action, meta, false, false, false, true, 0);
+                			p.processPointerEvent(getX(e), getY(e), action, meta, true, false, false, true, 0);
                 			p.processPointerEvent(getX(e), getY(e), action, meta, false, false, false, false, 0);
                 		} else if (twoFingerSwipeDown) {
-                			p.processPointerEvent(getX(e), getY(e), action, meta, false, false, false, true, 1);
+                			p.processPointerEvent(getX(e), getY(e), action, meta, true, false, false, true, 1);
                 			p.processPointerEvent(getX(e), getY(e), action, meta, false, false, false, false, 0);
                 		} else if (twoFingerSwipeLeft)   {
-                			p.processPointerEvent(getX(e), getY(e), action, meta, false, false, false, true, 2);
+                			p.processPointerEvent(getX(e), getY(e), action, meta, true, false, false, true, 2);
                 			p.processPointerEvent(getX(e), getY(e), action, meta, false, false, false, false, 0);
                 		} else if (twoFingerSwipeRight) {
-                			p.processPointerEvent(getX(e), getY(e), action, meta, false, false, false, true, 3);
+                			p.processPointerEvent(getX(e), getY(e), action, meta, true, false, false, true, 3);
                 			p.processPointerEvent(getX(e), getY(e), action, meta, false, false, false, false, 0);
                 		}
                 		numEvents++;

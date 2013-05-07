@@ -30,7 +30,7 @@ public class SocketHandler {
 	 */
 	public boolean connect() {
 		try {
-			Log.v("keqisoft","Try to connec unix socket " + filePath);
+			Log.v("keqisoft","Try to connect to unix socket " + filePath);
 			socket = new LocalSocket();
 			socket.connect(new LocalSocketAddress(filePath,Namespace.FILESYSTEM));
 			Log.v("keqisoft","Unix socket " + filePath + " connected ...");
