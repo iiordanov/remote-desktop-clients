@@ -262,6 +262,11 @@ gboolean button_event(AndroidEventButton *button)
 {
     SpiceDisplay* display = android_display;
     spice_display *d = SPICE_DISPLAY_GET_PRIVATE(display);
+    /* TODO: Figure out why these values are not taking hold:
+    d->mouse_grab_enabled = FALSE;
+    d->mouse_grab_active = FALSE;
+    d->mouse_mode = SPICE_MOUSE_MODE_CLIENT;
+    */
     SPICE_DEBUG("%d:x:%d,y:%d", button->type, button->x, button->y);
     //char buf[40];
 
@@ -273,12 +278,14 @@ gboolean button_event(AndroidEventButton *button)
 	    //__android_log_write(6, "android-spice", buf);
     	spice_inputs_position(d->inputs, button->x, button->y, d->channel_id, newMask);
 
-		if (button->type != SPICE_MOUSE_BUTTON_INVALID) {
+		if (mouseButton != SPICE_MOUSE_BUTTON_INVALID) {
 			if (down) {
 			    //__android_log_write(6, "android-spice", "Button press");
 				spice_inputs_button_press(d->inputs, mouseButton, newMask);
 			} else {
 			    //__android_log_write(6, "android-spice", "Button release");
+			    // This sleep is an ugly hack to prevent stuck buttons after a drag/drop gesture.
+			    usleep(50000);
 				spice_inputs_button_release(d->inputs, mouseButton, newMask);
 			}
 		}
