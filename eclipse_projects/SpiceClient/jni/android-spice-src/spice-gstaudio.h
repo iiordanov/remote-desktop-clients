@@ -24,31 +24,31 @@
 G_BEGIN_DECLS
 
 #define SPICE_TYPE_GSTAUDIO            (spice_gstaudio_get_type())
-#define SPICE_GSTAUDIO(obj)            (G_TYPE_CHECK_INSTANCE_CAST((obj), SPICE_TYPE_GSTAUDIO, SpiceGstAudio))
-#define SPICE_GSTAUDIO_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST((klass), SPICE_TYPE_GSTAUDIO, SpiceGstAudioClass))
+#define SPICE_GSTAUDIO(obj)            (G_TYPE_CHECK_INSTANCE_CAST((obj), SPICE_TYPE_GSTAUDIO, SpiceGstaudio))
+#define SPICE_GSTAUDIO_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST((klass), SPICE_TYPE_GSTAUDIO, SpiceGstaudioClass))
 #define SPICE_IS_GSTAUDIO(obj)         (G_TYPE_CHECK_INSTANCE_TYPE((obj), SPICE_TYPE_GSTAUDIO))
 #define SPICE_IS_GSTAUDIO_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE((klass), SPICE_TYPE_GSTAUDIO))
-#define SPICE_GSTAUDIO_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS((obj), SPICE_TYPE_GSTAUDIO, SpiceGstAudioClass))
+#define SPICE_GSTAUDIO_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS((obj), SPICE_TYPE_GSTAUDIO, SpiceGstaudioClass))
 
 
-typedef struct _SpiceGstAudio SpiceGstAudio;
-typedef struct _SpiceGstAudioClass SpiceGstAudioClass;
-typedef struct spice_gstaudio spice_gstaudio;
+typedef struct _SpiceGstaudio SpiceGstaudio;
+typedef struct _SpiceGstaudioClass SpiceGstaudioClass;
+typedef struct _SpiceGstaudioPrivate SpiceGstaudioPrivate;
 
-struct _SpiceGstAudio {
+struct _SpiceGstaudio {
     SpiceAudio parent;
-    spice_gstaudio *priv;
+    SpiceGstaudioPrivate *priv;
     /* Do not add fields to this struct */
 };
 
-struct _SpiceGstAudioClass {
+struct _SpiceGstaudioClass {
     SpiceAudioClass parent_class;
     /* Do not add fields to this struct */
 };
 
 GType spice_gstaudio_get_type(void);
 
-SpiceGstAudio *spice_gstaudio_new(SpiceSession *session,
+SpiceGstaudio *spice_gstaudio_new(SpiceSession *session,
                                   GMainContext *context, const char *name);
 
 G_END_DECLS

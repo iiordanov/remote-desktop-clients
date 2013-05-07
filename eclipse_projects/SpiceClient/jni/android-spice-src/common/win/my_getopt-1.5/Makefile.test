@@ -1,11 +1,11 @@
 all: copy
 
 # Compiler options
-#CCOPTS = -g -O3 -Wall -Werror
+#CCOPTS = -g -O3 -Wall 
 CCOPTS =
 
 # Compiler
-CC = gcc -Wall -Werror
+CC = gcc -Wall 
 #CC = cc
 
 # Linker

@@ -221,6 +221,8 @@ SpiceAudio *spice_audio_new(SpiceSession *session, GMainContext *context,
 #ifdef WITH_GSTAUDIO
     self = SPICE_AUDIO(spice_gstaudio_new(session, context, name));
 #endif
+    if (!self)
+        return NULL;
 
     spice_g_signal_connect_object(session, "notify::enable-audio", G_CALLBACK(session_enable_audio), self, 0);
     spice_g_signal_connect_object(session, "channel-new", G_CALLBACK(channel_new), self, 0);

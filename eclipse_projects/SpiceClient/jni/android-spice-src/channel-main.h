@@ -83,6 +83,8 @@ void spice_main_clipboard_selection_release(SpiceMainChannel *channel, guint sel
 void spice_main_clipboard_selection_notify(SpiceMainChannel *channel, guint selection, guint32 type, const guchar *data, size_t size);
 void spice_main_clipboard_selection_request(SpiceMainChannel *channel, guint selection, guint32 type);
 
+gboolean spice_main_agent_test_capability(SpiceMainChannel *channel, guint32 cap);
+
 G_END_DECLS
 
 #endif /* __SPICE_CLIENT_MAIN_CHANNEL_H__ */

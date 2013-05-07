@@ -20,10 +20,13 @@
 #include "spice-common.h"
 #include "spice-marshal.h"
 
+#include "spice-util-priv.h"
 #include "spice-channel-priv.h"
 #include "spice-session-priv.h"
 
 #include <spice/vd_agent.h>
+
+#include "common/messages.h"
 
 /**
  * SECTION:channel-main
@@ -161,6 +164,7 @@ static void spice_main_channel_init(SpiceMainChannel *channel)
     c->agent_msg_queue = g_queue_new();
 
     spice_channel_set_capability(SPICE_CHANNEL(channel), SPICE_MAIN_CAP_SEMI_SEAMLESS_MIGRATE);
+    spice_channel_set_capability(SPICE_CHANNEL(channel), SPICE_MAIN_CAP_NAME_AND_UUID);
 }
 
 static void spice_main_get_property(GObject    *object,
@@ -736,6 +740,7 @@ static void do_emit_main_context(GObject *object, int signum, gpointer params)
 
 /* ------------------------------------------------------------------ */
 
+
 static void agent_free_msg_queue(SpiceMainChannel *channel)
 {
     SpiceMainChannelPrivate *c = channel->priv;
@@ -1128,6 +1133,7 @@ static void main_handle_init(SpiceChannel *channel, SpiceMsgIn *in)
                    init->current_mouse_mode);
 
     spice_session_set_mm_time(session, init->multi_media_time);
+    spice_session_set_caches_hints(session, init->ram_hint, init->display_channels_hint);
 
     c->agent_tokens = init->agent_tokens;
     if (init->agent_connected)
@@ -1138,6 +1144,38 @@ static void main_handle_init(SpiceChannel *channel, SpiceMsgIn *in)
 
     out = spice_msg_out_new(SPICE_CHANNEL(channel), SPICE_MSGC_MAIN_ATTACH_CHANNELS);
     spice_msg_out_send_internal(out);
+}
+
+typedef struct SpiceMsgMainName {
+    uint32_t name_len;
+    uint8_t name[0];
+} SpiceMsgMainName;
+
+/* coroutine context */
+static void main_handle_name(SpiceChannel *channel, SpiceMsgIn *in)
+{
+    SpiceMsgMainName *name = spice_msg_in_parsed(in);
+    SpiceSession *session = spice_channel_get_session(channel);
+
+    SPICE_DEBUG("server name: %s", name->name);
+    spice_session_set_name(session, (const gchar *)name->name);
+}
+
+typedef struct SpiceMsgMainUuid {
+    uint8_t uuid[16];
+} SpiceMsgMainUuid;
+
+/* coroutine context */
+static void main_handle_uuid(SpiceChannel *channel, SpiceMsgIn *in)
+{
+    SpiceMsgMainUuid *uuid = spice_msg_in_parsed(in);
+    SpiceSession *session = spice_channel_get_session(channel);
+    gchar *uuid_str = spice_uuid_to_string(uuid->uuid);
+
+    SPICE_DEBUG("server uuid: %s", uuid_str);
+    spice_session_set_uuid(session, uuid->uuid);
+
+    g_free(uuid_str);
 }
 
 /* coroutine context */
@@ -1667,6 +1705,8 @@ static void main_handle_migrate_cancel(SpiceChannel *channel,
 
 static const spice_msg_handler main_handlers[] = {
     [ SPICE_MSG_MAIN_INIT ]                = main_handle_init,
+    [ SPICE_MSG_MAIN_NAME ]                = main_handle_name,
+    [ SPICE_MSG_MAIN_UUID ]                = main_handle_uuid,
     [ SPICE_MSG_MAIN_CHANNELS_LIST ]       = main_handle_channels_list,
     [ SPICE_MSG_MAIN_MOUSE_MODE ]          = main_handle_mouse_mode,
     [ SPICE_MSG_MAIN_MULTI_MEDIA_TIME ]    = main_handle_mm_time,
@@ -1712,6 +1752,27 @@ static gboolean timer_set_display(gpointer data)
     spice_channel_wakeup(channel, FALSE);
 
     return false;
+}
+
+/**
+ * spice_main_agent_test_capability:
+ * @channel:
+ * @cap: an agent capability identifier
+ *
+ * Test capability of a remote agent.
+ *
+ * Returns: %TRUE if @cap (channel kind capability) is available.
+ **/
+gboolean spice_main_agent_test_capability(SpiceMainChannel *channel, guint32 cap)
+{
+    g_return_val_if_fail(SPICE_IS_MAIN_CHANNEL(channel), FALSE);
+
+    SpiceMainChannelPrivate *c = channel->priv;
+
+    if (!c->agent_caps_received)
+        return FALSE;
+
+    return VD_AGENT_HAS_CAPABILITY(c->agent_caps, sizeof(c->agent_caps), cap);
 }
 
 /**

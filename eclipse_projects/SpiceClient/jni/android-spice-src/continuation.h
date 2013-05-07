@@ -23,6 +23,7 @@
 
 #include <stddef.h>
 #include <ucontext.h>
+#include <setjmp.h>
 
 struct continuation
 {
@@ -35,6 +36,7 @@ struct continuation
 	ucontext_t uc;
 	ucontext_t last;
 	int exited;
+	jmp_buf jmp;
 };
 
 int cc_init(struct continuation *cc);

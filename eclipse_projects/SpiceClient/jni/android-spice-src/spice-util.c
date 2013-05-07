@@ -20,6 +20,7 @@
 # include "config.h"
 #endif
 #include <glib-object.h>
+#include "spice-util-priv.h"
 #include "spice-util.h"
 
 /**
@@ -74,6 +75,16 @@ gboolean spice_strv_contains(const GStrv strv, const gchar *str)
             return TRUE;
 
     return FALSE;
+}
+
+G_GNUC_INTERNAL
+gchar* spice_uuid_to_string(const guint8 uuid[16])
+{
+    return g_strdup_printf(UUID_FMT, uuid[0], uuid[1],
+                           uuid[2], uuid[3], uuid[4], uuid[5],
+                           uuid[6], uuid[7], uuid[8], uuid[9],
+                           uuid[10], uuid[11], uuid[12], uuid[13],
+                           uuid[14], uuid[15]);
 }
 
 typedef struct {
@@ -163,9 +174,32 @@ closure_invalidated_cb (gpointer ctx_,
   */
 gulong spice_g_signal_connect_object (gpointer instance,
                                       const gchar *detailed_signal,
-//                                      void c_handler,
-                                      gpointer gobject)
-//                                      void connect_flags)
+                                      GCallback c_handler,
+                                      gpointer gobject,
+                                      GConnectFlags connect_flags)
 {
-    return 0;
+    GObject *instance_obj = G_OBJECT (instance);
+    WeakHandlerCtx *ctx = whc_new (instance_obj, gobject);
+
+    g_return_val_if_fail (G_TYPE_CHECK_INSTANCE (instance), 0);
+    g_return_val_if_fail (detailed_signal != NULL, 0);
+    g_return_val_if_fail (c_handler != NULL, 0);
+    g_return_val_if_fail (G_IS_OBJECT (gobject), 0);
+    g_return_val_if_fail (
+                          (connect_flags & ~(G_CONNECT_AFTER|G_CONNECT_SWAPPED)) == 0, 0);
+
+    if (connect_flags & G_CONNECT_SWAPPED)
+        ctx->closure = g_cclosure_new_object_swap (c_handler, gobject);
+    else
+        ctx->closure = g_cclosure_new_object (c_handler, gobject);
+
+    ctx->handler_id = g_signal_connect_closure (instance, detailed_signal,
+                                                ctx->closure, (connect_flags & G_CONNECT_AFTER) ? TRUE : FALSE);
+
+    g_object_weak_ref (instance_obj, instance_destroyed_cb, ctx);
+    g_object_weak_ref (gobject, observer_destroyed_cb, ctx);
+    g_closure_add_invalidate_notifier (ctx->closure, ctx,
+                                       closure_invalidated_cb);
+
+    return ctx->handler_id;
 }

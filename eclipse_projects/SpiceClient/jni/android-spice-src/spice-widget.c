@@ -25,6 +25,10 @@
 #include <X11/XKBlib.h>
 #include <gdk/gdkx.h>
 #endif
+#ifdef GDK_WINDOWING_X11
+#include <X11/Xlib.h>
+#include <gdk/gdkx.h>
+#endif
 #ifdef WIN32
 #include <windows.h>
 #include <gdk/gdkwin32.h>
@@ -32,21 +36,32 @@
 
 #include "spice-widget.h"
 #include "spice-widget-priv.h"
+#include "spice-gtk-session-priv.h"
 #include "vncdisplaykeymap.h"
+
+#include "glib-compat.h"
 
 /* Some compatibility defines to let us build on both Gtk2 and Gtk3 */
 #if GTK_CHECK_VERSION (2, 91, 0)
 
 static inline void gdk_drawable_get_size(GdkWindow *w, gint *ww, gint *wh)
 {
-       *ww = gdk_window_get_width(w);
-       *wh = gdk_window_get_height(w);
+    *ww = gdk_window_get_width(w);
+    *wh = gdk_window_get_height(w);
 }
 
 #define GtkObject GtkWidget
 #define GtkObjectClass GtkWidgetClass
 #define GTK_OBJECT_CLASS(c) GTK_WIDGET_CLASS(c)
 
+#endif
+
+#if !GTK_CHECK_VERSION(2, 20, 0)
+static gboolean gtk_widget_get_realized(GtkWidget *widget)
+{
+    g_return_val_if_fail (GTK_IS_WIDGET (widget), FALSE);
+    return GTK_WIDGET_REALIZED(widget);
+}
 #endif
 
 /**
@@ -68,11 +83,6 @@ static inline void gdk_drawable_get_size(GdkWindow *w, gint *ww, gint *wh)
  * ungrabbed with spice_display_mouse_ungrab(), and by setting a key
  * combination with spice_display_set_grab_keys().
  *
- * Client and guest clipboards will be shared automatically if
- * #SpiceDisplay:auto-clipboard is set to #TRUE. Alternatively, you
- * can send clipboard data from client to guest with
- * spice_display_copy_to_guest().
-
  * Finally, spice_display_get_pixbuf() will take a screenshot of the
  * current display and return an #GdkPixbuf (that you can then easily
  * save to disk).
@@ -83,11 +93,15 @@ G_DEFINE_TYPE(SpiceDisplay, spice_display, GTK_TYPE_DRAWING_AREA)
 /* Properties */
 enum {
     PROP_0,
+    PROP_SESSION,
+    PROP_CHANNEL_ID,
     PROP_KEYBOARD_GRAB,
     PROP_MOUSE_GRAB,
     PROP_RESIZE_GUEST,
     PROP_AUTO_CLIPBOARD,
     PROP_SCALING,
+    PROP_DISABLE_INPUTS,
+    PROP_ZOOM_LEVEL
 };
 
 /* Signals */
@@ -104,19 +118,20 @@ static guint signals[SPICE_DISPLAY_LAST_SIGNAL];
 static HWND focus_window = NULL;
 #endif
 
+static void update_keyboard_grab(SpiceDisplay *display);
 static void try_keyboard_grab(SpiceDisplay *display);
 static void try_keyboard_ungrab(SpiceDisplay *display);
-static void try_mouse_grab(GtkWidget *widget);
-static void try_mouse_ungrab(GtkWidget *widget);
-static void recalc_geometry(GtkWidget *widget, gboolean set_display);
-static void clipboard_owner_change(GtkClipboard *clipboard,
-                                   GdkEventOwnerChange *event, gpointer user_data);
+static void update_mouse_grab(SpiceDisplay *display);
+static void try_mouse_grab(SpiceDisplay *display);
+static void try_mouse_ungrab(SpiceDisplay *display);
+static void recalc_geometry(GtkWidget *widget);
 static void disconnect_main(SpiceDisplay *display);
 static void disconnect_cursor(SpiceDisplay *display);
 static void disconnect_display(SpiceDisplay *display);
 static void channel_new(SpiceSession *s, SpiceChannel *channel, gpointer data);
 static void channel_destroy(SpiceSession *s, SpiceChannel *channel, gpointer data);
 static void sync_keyboard_lock_modifiers(SpiceDisplay *display);
+static void cursor_invalidate(SpiceDisplay *display);
 
 /* ---------------------------------------------------------------- */
 
@@ -127,8 +142,15 @@ static void spice_display_get_property(GObject    *object,
 {
     SpiceDisplay *display = SPICE_DISPLAY(object);
     SpiceDisplayPrivate *d = SPICE_DISPLAY_GET_PRIVATE(display);
+    gboolean boolean;
 
     switch (prop_id) {
+    case PROP_SESSION:
+        g_value_set_object(value, d->session);
+        break;
+    case PROP_CHANNEL_ID:
+        g_value_set_int(value, d->channel_id);
+        break;
     case PROP_KEYBOARD_GRAB:
         g_value_set_boolean(value, d->keyboard_grab_enable);
         break;
@@ -139,15 +161,52 @@ static void spice_display_get_property(GObject    *object,
         g_value_set_boolean(value, d->resize_guest_enable);
         break;
     case PROP_AUTO_CLIPBOARD:
-        g_value_set_boolean(value, d->auto_clipboard_enable);
+        g_object_get(d->gtk_session, "auto-clipboard", &boolean, NULL);
+        g_value_set_boolean(value, boolean);
         break;
     case PROP_SCALING:
         g_value_set_boolean(value, d->allow_scaling);
 	break;
+    case PROP_DISABLE_INPUTS:
+        g_value_set_boolean(value, d->disable_inputs);
+	break;
+    case PROP_ZOOM_LEVEL:
+        g_value_set_int(value, d->zoom_level);
+        break;
     default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
         break;
     }
+}
+
+static void scaling_updated(SpiceDisplay *display)
+{
+    SpiceDisplayPrivate *d = SPICE_DISPLAY_GET_PRIVATE(display);
+    GdkWindow *window = gtk_widget_get_window(GTK_WIDGET(display));
+
+    recalc_geometry(GTK_WIDGET(display));
+    if (d->ximage && window) { /* if not yet shown */
+        int ww, wh;
+        gdk_drawable_get_size(gtk_widget_get_window(GTK_WIDGET(display)), &ww, &wh);
+        gtk_widget_queue_draw_area(GTK_WIDGET(display), 0, 0, ww, wh);
+    }
+}
+
+static void update_size_request(SpiceDisplay *display)
+{
+    SpiceDisplayPrivate *d = SPICE_DISPLAY_GET_PRIVATE(display);
+    gint reqwidth, reqheight;
+
+    if (d->resize_guest_enable) {
+        reqwidth = 640;
+        reqheight = 480;
+    } else {
+        reqwidth = d->width;
+        reqheight = d->height;
+    }
+
+    gtk_widget_set_size_request(GTK_WIDGET(display), reqwidth, reqheight);
+    recalc_geometry(GTK_WIDGET(display));
 }
 
 static void spice_display_set_property(GObject      *object,
@@ -159,46 +218,68 @@ static void spice_display_set_property(GObject      *object,
     SpiceDisplayPrivate *d = SPICE_DISPLAY_GET_PRIVATE(display);
 
     switch (prop_id) {
+    case PROP_SESSION:
+        d->session = g_object_ref(g_value_get_object(value));
+        d->gtk_session = spice_gtk_session_get(d->session);
+        break;
+    case PROP_CHANNEL_ID:
+        d->channel_id = g_value_get_int(value);
+        break;
     case PROP_KEYBOARD_GRAB:
         d->keyboard_grab_enable = g_value_get_boolean(value);
-        if (d->keyboard_grab_enable) {
-            try_keyboard_grab(display);
-        } else {
-            try_keyboard_ungrab(display);
-        }
+        update_keyboard_grab(display);
         break;
     case PROP_MOUSE_GRAB:
         d->mouse_grab_enable = g_value_get_boolean(value);
-        if (!d->mouse_grab_enable) {
-            try_mouse_ungrab(GTK_WIDGET(display));
-        }
+        update_mouse_grab(display);
         break;
     case PROP_RESIZE_GUEST:
         d->resize_guest_enable = g_value_get_boolean(value);
-        if (d->resize_guest_enable) {
-            gtk_widget_set_size_request(GTK_WIDGET(display), 640, 480);
-            recalc_geometry(GTK_WIDGET(display), TRUE);
-        } else {
-            gtk_widget_set_size_request(GTK_WIDGET(display),
-                                        d->width, d->height);
-        }
+        update_size_request(display);
         break;
     case PROP_SCALING:
         d->allow_scaling = g_value_get_boolean(value);
-        if (d->ximage &&
-            gtk_widget_get_window(GTK_WIDGET(display))) { /* if not yet shown */
-            int ww, wh;
-            gdk_drawable_get_size(gtk_widget_get_window(GTK_WIDGET(display)), &ww, &wh);
-            gtk_widget_queue_draw_area(GTK_WIDGET(display), 0, 0, ww, wh);
-        }
+        scaling_updated(display);
         break;
     case PROP_AUTO_CLIPBOARD:
-        d->auto_clipboard_enable = g_value_get_boolean(value);
+        g_object_set(d->gtk_session, "auto-clipboard",
+                     g_value_get_boolean(value), NULL);
+        break;
+    case PROP_DISABLE_INPUTS:
+        d->disable_inputs = g_value_get_boolean(value);
+        gtk_widget_set_can_focus(GTK_WIDGET(display), !d->disable_inputs);
+        update_keyboard_grab(display);
+        update_mouse_grab(display);
+        break;
+    case PROP_ZOOM_LEVEL:
+        d->zoom_level = g_value_get_int(value);
+        scaling_updated(display);
         break;
     default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
         break;
     }
+}
+
+static void gtk_session_property_changed(GObject    *gobject,
+                                         GParamSpec *pspec,
+                                         gpointer    user_data)
+{
+    SpiceDisplay *display = user_data;
+
+    g_object_notify(G_OBJECT(display), g_param_spec_get_name(pspec));
+}
+
+static void session_inhibit_keyboard_grab_changed(GObject    *gobject,
+                                                  GParamSpec *pspec,
+                                                  gpointer    user_data)
+{
+    SpiceDisplay *display = user_data;
+    SpiceDisplayPrivate *d = SPICE_DISPLAY_GET_PRIVATE(display);
+
+    g_object_get(d->session, "inhibit-keyboard-grab",
+                 &d->keyboard_grab_inhibit, NULL);
+    update_keyboard_grab(display);
 }
 
 static void spice_display_dispose(GObject *obj)
@@ -212,17 +293,6 @@ static void spice_display_dispose(GObject *obj)
     disconnect_display(display);
     disconnect_cursor(display);
 
-    if (d->clipboard) {
-        g_signal_handlers_disconnect_by_func(d->clipboard, G_CALLBACK(clipboard_owner_change),
-                                             display);
-        d->clipboard = NULL;
-    }
-
-    if (d->clipboard_primary) {
-        g_signal_handlers_disconnect_by_func(d->clipboard_primary, G_CALLBACK(clipboard_owner_change),
-                                             display);
-        d->clipboard_primary = NULL;
-    }
     if (d->session) {
         g_signal_handlers_disconnect_by_func(d->session, G_CALLBACK(channel_new),
                                              display);
@@ -230,14 +300,16 @@ static void spice_display_dispose(GObject *obj)
                                              display);
         g_object_unref(d->session);
         d->session = NULL;
+        d->gtk_session = NULL;
     }
+
+    G_OBJECT_CLASS(spice_display_parent_class)->dispose(obj);
 }
 
 static void spice_display_finalize(GObject *obj)
 {
     SpiceDisplay *display = SPICE_DISPLAY(obj);
     SpiceDisplayPrivate *d = SPICE_DISPLAY_GET_PRIVATE(display);
-    int i;
 
     SPICE_DEBUG("Finalize spice display");
 
@@ -248,12 +320,30 @@ static void spice_display_finalize(GObject *obj)
     g_free(d->activeseq);
     d->activeseq = NULL;
 
-    for (i = 0; i < CLIPBOARD_LAST; ++i) {
-        g_free(d->clip_targets[i]);
-        d->clip_targets[i] = NULL;
+    if (d->show_cursor) {
+        gdk_cursor_unref(d->show_cursor);
+        d->show_cursor = NULL;
+    }
+
+    if (d->mouse_cursor) {
+        gdk_cursor_unref(d->mouse_cursor);
+        d->mouse_cursor = NULL;
+    }
+
+    if (d->mouse_pixbuf) {
+        g_object_unref(d->mouse_pixbuf);
+        d->mouse_pixbuf = NULL;
     }
 
     G_OBJECT_CLASS(spice_display_parent_class)->finalize(obj);
+}
+
+static GdkCursor* get_blank_cursor(void)
+{
+    if (g_getenv("SPICE_DEBUG_CURSOR"))
+        return gdk_cursor_new(GDK_DOT);
+
+    return gdk_cursor_new(GDK_BLANK_CURSOR);
 }
 
 static void spice_display_init(SpiceDisplay *display)
@@ -262,7 +352,6 @@ static void spice_display_init(SpiceDisplay *display)
     SpiceDisplayPrivate *d;
 
     d = display->priv = SPICE_DISPLAY_GET_PRIVATE(display);
-    memset(d, 0, sizeof(*d));
 
     gtk_widget_add_events(widget,
                           GDK_STRUCTURE_MASK |
@@ -280,20 +369,53 @@ static void spice_display_init(SpiceDisplay *display)
     d->grabseq = spice_grab_sequence_new_from_string("Control_L+Alt_L");
     d->activeseq = g_new0(gboolean, d->grabseq->nkeysyms);
 
-    d->clipboard = gtk_clipboard_get(GDK_SELECTION_CLIPBOARD);
-    g_signal_connect(G_OBJECT(d->clipboard), "owner-change",
-                     G_CALLBACK(clipboard_owner_change), display);
-    d->clipboard_primary = gtk_clipboard_get(GDK_SELECTION_PRIMARY);
-    g_signal_connect(G_OBJECT(d->clipboard_primary), "owner-change",
-                     G_CALLBACK(clipboard_owner_change), display);
-
-    if (g_getenv("SPICE_DEBUG_CURSOR"))
-        d->mouse_cursor = gdk_cursor_new(GDK_DOT);
-    else
-        d->mouse_cursor = gdk_cursor_new(GDK_BLANK_CURSOR);
+    d->mouse_cursor = get_blank_cursor();
     d->have_mitshm = true;
 }
 
+static GObject *
+spice_display_constructor(GType                  gtype,
+                          guint                  n_properties,
+                          GObjectConstructParam *properties)
+{
+    GObject *obj;
+    SpiceDisplay *display;
+    SpiceDisplayPrivate *d;
+    GList *list;
+    GList *it;
+
+    {
+        /* Always chain up to the parent constructor */
+        GObjectClass *parent_class;
+        parent_class = G_OBJECT_CLASS(spice_display_parent_class);
+        obj = parent_class->constructor(gtype, n_properties, properties);
+    }
+
+    display = SPICE_DISPLAY(obj);
+    d = SPICE_DISPLAY_GET_PRIVATE(display);
+
+    if (!d->session)
+        g_error("SpiceDisplay constructed without a session");
+
+    g_signal_connect(d->session, "channel-new",
+                     G_CALLBACK(channel_new), display);
+    g_signal_connect(d->session, "channel-destroy",
+                     G_CALLBACK(channel_destroy), display);
+    list = spice_session_get_channels(d->session);
+    for (it = g_list_first(list); it != NULL; it = g_list_next(it)) {
+        channel_new(d->session, it->data, (gpointer*)display);
+    }
+    g_list_free(list);
+
+    spice_g_signal_connect_object(d->gtk_session, "notify::auto-clipboard",
+                                  G_CALLBACK(gtk_session_property_changed), display, 0);
+
+    g_signal_connect(d->session, "notify::inhibit-keyboard-grab",
+                     G_CALLBACK(session_inhibit_keyboard_grab_changed),
+                     display);
+
+    return obj;
+}
 
 /**
  * spice_display_set_grab_keys:
@@ -368,13 +490,18 @@ static void try_keyboard_grab(SpiceDisplay *display)
 {
     GtkWidget *widget = GTK_WIDGET(display);
     SpiceDisplayPrivate *d = SPICE_DISPLAY_GET_PRIVATE(display);
-    time_t now;
     GdkGrabStatus status;
 
-    if (d->keyboard_grab_active)
+    if (g_getenv("SPICE_NOGRAB"))
+        return;
+    if (d->disable_inputs)
         return;
 
+    if (d->keyboard_grab_inhibit)
+        return;
     if (!d->keyboard_grab_enable)
+        return;
+    if (d->keyboard_grab_active)
         return;
     if (!d->keyboard_have_focus)
         return;
@@ -382,29 +509,15 @@ static void try_keyboard_grab(SpiceDisplay *display)
         return;
 
     g_return_if_fail(gtk_widget_is_focus(widget));
-    g_return_if_fail(gtk_widget_has_focus(widget));
-
-    /*
-     * focus / keyboard grab behavior is funky sometime
-     * when going fullscreen (with KDE and GNOME-shell):
-     * focus-in-event -> grab -> focus-out-event -> ungrab -> repeat
-     * I have no idea why the grab triggers focus-out :-(
-     */
-    now = time(NULL);
-    if (d->keyboard_grab_time != now) {
-        d->keyboard_grab_time = now;
-        d->keyboard_grab_count = 0;
-    }
-    if (d->keyboard_grab_count++ > 32) {
-        g_critical("32 grabs last second -> emergency exit");
-        return;
-    }
 
     SPICE_DEBUG("grab keyboard");
+    gtk_widget_grab_focus(widget);
 
 #ifdef WIN32
-    d->keyboard_hook = SetWindowsHookEx(WH_KEYBOARD_LL, keyboard_hook_cb,
-                                        GetModuleHandle(NULL), 0);
+    if (d->keyboard_hook == NULL)
+        d->keyboard_hook = SetWindowsHookEx(WH_KEYBOARD_LL, keyboard_hook_cb,
+                                            GetModuleHandle(NULL), 0);
+    g_warn_if_fail(d->keyboard_hook != NULL);
 #endif
     status = gdk_keyboard_grab(gtk_widget_get_window(widget), FALSE,
                                GDK_CURRENT_TIME);
@@ -417,7 +530,6 @@ static void try_keyboard_grab(SpiceDisplay *display)
     }
 }
 
-
 static void try_keyboard_ungrab(SpiceDisplay *display)
 {
     SpiceDisplayPrivate *d = SPICE_DISPLAY_GET_PRIVATE(display);
@@ -429,11 +541,25 @@ static void try_keyboard_ungrab(SpiceDisplay *display)
     SPICE_DEBUG("ungrab keyboard");
     gdk_keyboard_ungrab(GDK_CURRENT_TIME);
 #ifdef WIN32
-    UnhookWindowsHookEx(d->keyboard_hook);
-    d->keyboard_hook = 0;
+    if (d->keyboard_hook != NULL) {
+        UnhookWindowsHookEx(d->keyboard_hook);
+        d->keyboard_hook = NULL;
+    }
 #endif
     d->keyboard_grab_active = false;
     g_signal_emit(widget, signals[SPICE_DISPLAY_KEYBOARD_GRAB], 0, false);
+}
+
+static void update_keyboard_grab(SpiceDisplay *display)
+{
+    SpiceDisplayPrivate *d = SPICE_DISPLAY_GET_PRIVATE(display);
+
+    if (d->keyboard_grab_enable &&
+        !d->keyboard_grab_inhibit &&
+        !d->disable_inputs)
+        try_keyboard_grab(display);
+    else
+        try_keyboard_ungrab(display);
 }
 
 static GdkGrabStatus do_pointer_grab(SpiceDisplay *display)
@@ -441,6 +567,7 @@ static GdkGrabStatus do_pointer_grab(SpiceDisplay *display)
     SpiceDisplayPrivate *d = SPICE_DISPLAY_GET_PRIVATE(display);
     GdkWindow *window = GDK_WINDOW(gtk_widget_get_window(GTK_WIDGET(display)));
     GdkGrabStatus status;
+    GdkCursor *blank = get_blank_cursor();
 
     if (!gtk_widget_get_realized(GTK_WIDGET(display)))
         return GDK_GRAB_BROKEN;
@@ -461,7 +588,8 @@ static GdkGrabStatus do_pointer_grab(SpiceDisplay *display)
                      GDK_BUTTON_RELEASE_MASK |
                      GDK_BUTTON_MOTION_MASK |
                      GDK_SCROLL_MASK,
-                     NULL, d->mouse_cursor,
+                     NULL,
+                     blank,
                      GDK_CURRENT_TIME);
     if (status != GDK_GRAB_SUCCESS) {
         d->mouse_grab_active = false;
@@ -470,7 +598,36 @@ static GdkGrabStatus do_pointer_grab(SpiceDisplay *display)
         d->mouse_grab_active = true;
         g_signal_emit(display, signals[SPICE_DISPLAY_MOUSE_GRAB], 0, true);
     }
+#ifdef WIN32
+    {
+        RECT client_rect;
+        POINT origin;
 
+        origin.x = origin.y = 0;
+        ClientToScreen(focus_window, &origin);
+        GetClientRect(focus_window, &client_rect);
+        OffsetRect(&client_rect, origin.x, origin.y);
+        ClipCursor(&client_rect);
+    }
+#endif
+    gtk_grab_add(GTK_WIDGET(display));
+
+#ifdef GDK_WINDOWING_X11
+    if (status == GDK_GRAB_SUCCESS) {
+        int accel_numerator;
+        int accel_denominator;
+        int threshold;
+        GdkWindow *w = GDK_WINDOW(gtk_widget_get_window(GTK_WIDGET(display)));
+        Display *x_display = GDK_WINDOW_XDISPLAY(w);
+
+        XGetPointerControl(x_display, &accel_numerator, &accel_denominator,
+                           &threshold);
+        XChangePointerControl(x_display, False, False, accel_numerator,
+                              accel_denominator, threshold);
+    }
+#endif
+
+    gdk_cursor_unref(blank);
     return status;
 }
 
@@ -484,15 +641,12 @@ static void update_mouse_pointer(SpiceDisplay *display)
 
     switch (d->mouse_mode) {
     case SPICE_MOUSE_MODE_CLIENT:
-        gdk_window_set_cursor(window, d->mouse_cursor);
+        if (gdk_window_get_cursor(window) != d->mouse_cursor)
+            gdk_window_set_cursor(window, d->mouse_cursor);
         break;
     case SPICE_MOUSE_MODE_SERVER:
-        if (!d->mouse_grab_active) {
+        if (gdk_window_get_cursor(window) != NULL)
             gdk_window_set_cursor(window, NULL);
-        } else {
-            gdk_window_set_cursor(window, d->mouse_cursor);
-            try_mouse_grab(GTK_WIDGET(display));
-        }
         break;
     default:
         g_warn_if_reached();
@@ -500,10 +654,19 @@ static void update_mouse_pointer(SpiceDisplay *display)
     }
 }
 
-static void try_mouse_grab(GtkWidget *widget)
+static void try_mouse_grab(SpiceDisplay *display)
 {
-    SpiceDisplay *display = SPICE_DISPLAY(widget);
     SpiceDisplayPrivate *d = SPICE_DISPLAY_GET_PRIVATE(display);
+
+    if (g_getenv("SPICE_NOGRAB"))
+        return;
+    if (d->disable_inputs)
+        return;
+
+    if (!d->mouse_have_pointer)
+        return;
+    if (!d->keyboard_have_focus)
+        return;
 
     if (!d->mouse_grab_enable)
         return;
@@ -519,57 +682,72 @@ static void try_mouse_grab(GtkWidget *widget)
     d->mouse_last_y = -1;
 }
 
-static void mouse_check_edges(GtkWidget *widget, GdkEventMotion *motion)
+static void mouse_wrap(SpiceDisplay *display, GdkEventMotion *motion)
 {
-    SpiceDisplay *display = SPICE_DISPLAY(widget);
     SpiceDisplayPrivate *d = SPICE_DISPLAY_GET_PRIVATE(display);
-    GdkScreen *screen = gtk_widget_get_screen(widget);
-    int x = (int)motion->x_root;
-    int y = (int)motion->y_root;
+    GdkScreen *screen = gtk_widget_get_screen(GTK_WIDGET(display));
 
-    if (d->mouse_guest_x != -1 && d->mouse_guest_y != -1) {
-        SPICE_DEBUG("skip mouse_check_edges");
-        return;
-    }
+    gint xr = gdk_screen_get_width(screen) / 2;
+    gint yr = gdk_screen_get_height(screen) / 2;
 
-    /* from gtk-vnc:
-     * In relative mode check to see if client pointer hit one of the
-     * screen edges, and if so move it back by 200 pixels. This is
-     * important because the pointer in the server doesn't correspond
-     * 1-for-1, and so may still be only half way across the
-     * screen. Without this warp, the server pointer would thus appear
-     * to hit an invisible wall */
-    if (motion->x <= 0) x += 200;
-    if (motion->y <= 0) y += 200;
-    if (motion->x >= (gdk_screen_get_width(screen) - 1)) x -= 200;
-    if (motion->y >= (gdk_screen_get_height(screen) - 1)) y -= 200;
+    if (xr != (gint)motion->x_root || yr != (gint)motion->y_root) {
+        /* FIXME: we try our best to ignore that next pointer move event.. */
+        gdk_display_sync(gdk_screen_get_display(screen));
 
-    if (x != (int)motion->x_root || y != (int)motion->y_root) {
-        gdk_display_warp_pointer(gtk_widget_get_display(widget),
-                                 screen, x, y);
+        gdk_display_warp_pointer(gtk_widget_get_display(GTK_WIDGET(display)),
+                                 screen, xr, yr);
         d->mouse_last_x = -1;
         d->mouse_last_y = -1;
     }
 }
 
-static void try_mouse_ungrab(GtkWidget *widget)
+static void try_mouse_ungrab(SpiceDisplay *display)
 {
-    SpiceDisplay *display = SPICE_DISPLAY(widget);
     SpiceDisplayPrivate *d = SPICE_DISPLAY_GET_PRIVATE(display);
 
     if (!d->mouse_grab_active)
         return;
 
     gdk_pointer_ungrab(GDK_CURRENT_TIME);
+    gtk_grab_remove(GTK_WIDGET(display));
+#ifdef WIN32
+    ClipCursor(NULL);
+#endif
+#ifdef GDK_WINDOWING_X11
+    {
+        int accel_numerator;
+        int accel_denominator;
+        int threshold;
+        GdkWindow *w = GDK_WINDOW(gtk_widget_get_window(GTK_WIDGET(display)));
+        Display *x_display = GDK_WINDOW_XDISPLAY(w);
+
+        XGetPointerControl(x_display, &accel_numerator, &accel_denominator,
+                           &threshold);
+        XChangePointerControl(x_display, True, True, accel_numerator,
+                              accel_denominator, threshold);
+    }
+#endif
+
     d->mouse_grab_active = false;
-    update_mouse_pointer(display);
-    g_signal_emit(widget, signals[SPICE_DISPLAY_MOUSE_GRAB], 0, false);
+
+    g_signal_emit(display, signals[SPICE_DISPLAY_MOUSE_GRAB], 0, false);
 }
 
-static void recalc_geometry(GtkWidget *widget, gboolean set_display)
+static void update_mouse_grab(SpiceDisplay *display)
+{
+    SpiceDisplayPrivate *d = SPICE_DISPLAY_GET_PRIVATE(display);
+
+    if (d->mouse_grab_enable && !d->disable_inputs)
+        try_mouse_grab(display);
+    else
+        try_mouse_ungrab(display);
+}
+
+static void recalc_geometry(GtkWidget *widget)
 {
     SpiceDisplay *display = SPICE_DISPLAY(widget);
     SpiceDisplayPrivate *d = SPICE_DISPLAY_GET_PRIVATE(display);
+    gdouble zoom = 1.0;
 
     d->mx = 0;
     d->my = 0;
@@ -578,15 +756,15 @@ static void recalc_geometry(GtkWidget *widget, gboolean set_display)
             d->mx = (d->ww - d->width) / 2;
         if (d->wh > d->height)
             d->my = (d->wh - d->height) / 2;
-    }
+    } else
+        zoom = (gdouble)d->zoom_level / 100;
 
-    SPICE_DEBUG("monitors: id %d, guest %dx%d, window %dx%d, offset +%d+%d",
-                d->channel_id, d->width, d->height, d->ww, d->wh, d->mx, d->my);
+    SPICE_DEBUG("monitors: id %d, guest %dx%d, window %dx%d, zoom %g, offset +%d+%d",
+                d->channel_id, d->width, d->height, d->ww, d->wh, zoom, d->mx, d->my);
 
-    if (d->resize_guest_enable && set_display) {
+    if (d->resize_guest_enable)
         spice_main_set_display(d->main, d->channel_id,
-                               0, 0, d->ww, d->wh);
-    }
+                               0, 0, d->ww / zoom, d->wh / zoom);
 }
 
 /* ---------------------------------------------------------------- */
@@ -656,6 +834,7 @@ static gboolean draw_event(GtkWidget *widget, cairo_t *cr)
 {
     SpiceDisplay *display = SPICE_DISPLAY(widget);
     SpiceDisplayPrivate *d = SPICE_DISPLAY_GET_PRIVATE(display);
+    g_return_val_if_fail(d != NULL, false);
 
     if (d->mark == 0 || d->data == NULL)
         return false;
@@ -665,6 +844,7 @@ static gboolean draw_event(GtkWidget *widget, cairo_t *cr)
     }
 
     spicex_draw_event(display, cr);
+    update_mouse_pointer(display);
 
     return true;
 }
@@ -673,6 +853,7 @@ static gboolean expose_event(GtkWidget *widget, GdkEventExpose *expose)
 {
     SpiceDisplay *display = SPICE_DISPLAY(widget);
     SpiceDisplayPrivate *d = SPICE_DISPLAY_GET_PRIVATE(display);
+    g_return_val_if_fail(d != NULL, false);
 
     if (d->mark == 0 || d->data == NULL)
         return false;
@@ -682,6 +863,8 @@ static gboolean expose_event(GtkWidget *widget, GdkEventExpose *expose)
     }
 
     spicex_expose_event(display, expose);
+    update_mouse_pointer(display);
+
     return true;
 }
 #endif
@@ -694,6 +877,9 @@ static void send_key(SpiceDisplay *display, int scancode, int down)
     uint32_t i, b, m;
 
     if (!d->inputs)
+        return;
+
+    if (d->disable_inputs)
         return;
 
     i = scancode / 32;
@@ -766,6 +952,19 @@ static gboolean key_event(GtkWidget *widget, GdkEventKey *key)
             __FUNCTION__, key->type == GDK_KEY_PRESS ? "press" : "release",
             key->hardware_keycode, key->state, key->group);
 
+    if (check_for_grab_key(display, key->type, key->keyval)) {
+        g_signal_emit(widget, signals[SPICE_DISPLAY_GRAB_KEY_PRESSED], 0);
+
+        if (d->mouse_mode == SPICE_MOUSE_MODE_SERVER) {
+            if (d->mouse_grab_active)
+                try_mouse_ungrab(display);
+            else
+                try_mouse_grab(display);
+        }
+
+        return true;
+    }
+
     if (!d->inputs)
         return true;
 
@@ -781,17 +980,6 @@ static gboolean key_event(GtkWidget *widget, GdkEventKey *key)
     default:
         break;
     }
-
-    if (check_for_grab_key(display, key->type, key->keyval)) {
-        g_signal_emit(widget, signals[SPICE_DISPLAY_GRAB_KEY_PRESSED], 0);
-        if (d->mouse_grab_active)
-            try_mouse_ungrab(widget);
-        else
-            /* TODO: gtk-vnc has a weird condition here
-               if (!d->grab_keyboard || !d->absolute) */
-            try_mouse_grab(widget);
-    }
-
 
     return true;
 }
@@ -851,8 +1039,13 @@ static gboolean leave_event(GtkWidget *widget, GdkEventCrossing *crossing G_GNUC
     SpiceDisplayPrivate *d = SPICE_DISPLAY_GET_PRIVATE(display);
 
     SPICE_DEBUG("%s", __FUNCTION__);
+
+    if (d->mouse_grab_active)
+        return true;
+
     d->mouse_have_pointer = false;
     try_keyboard_ungrab(display);
+
     return true;
 }
 
@@ -862,12 +1055,22 @@ static gboolean focus_in_event(GtkWidget *widget, GdkEventFocus *focus G_GNUC_UN
     SpiceDisplayPrivate *d = SPICE_DISPLAY_GET_PRIVATE(display);
 
     SPICE_DEBUG("%s", __FUNCTION__);
+
+    /*
+     * Ignore focus in when we already have the focus
+     * (this happens when doing an ungrab from the leave_event callback).
+     */
+    if (d->keyboard_have_focus)
+        return true;
+
     release_keys(display);
     sync_keyboard_lock_modifiers(display);
     d->keyboard_have_focus = true;
     try_keyboard_grab(display);
+    spice_gtk_session_update_keyboard_focus(d->gtk_session,
+                                            d->keyboard_have_focus);
 #ifdef WIN32
-    focus_window = (HWND)gdk_win32_drawable_get_handle(GDK_DRAWABLE(widget->window));
+    focus_window = GDK_WINDOW_HWND(gtk_widget_get_window(widget));
     g_return_val_if_fail(focus_window != NULL, true);
 #endif
     return true;
@@ -879,7 +1082,18 @@ static gboolean focus_out_event(GtkWidget *widget, GdkEventFocus *focus G_GNUC_U
     SpiceDisplayPrivate *d = SPICE_DISPLAY_GET_PRIVATE(display);
 
     SPICE_DEBUG("%s", __FUNCTION__);
+
+    /*
+     * Ignore focus out after a keyboard grab
+     * (this happens when doing the grab from the enter_event callback).
+     */
+    if (d->keyboard_grab_active)
+        return true;
+
+    release_keys(display);
     d->keyboard_have_focus = false;
+    spice_gtk_session_update_keyboard_focus(d->gtk_session,
+                                            d->keyboard_have_focus);
     return true;
 }
 
@@ -920,6 +1134,8 @@ static gboolean motion_event(GtkWidget *widget, GdkEventMotion *motion)
 
     if (!d->inputs)
         return true;
+    if (d->disable_inputs)
+        return true;
 
     gdk_drawable_get_size(gtk_widget_get_window(widget), &ww, &wh);
     if (spicex_is_scaled(display)) {
@@ -949,18 +1165,15 @@ static gboolean motion_event(GtkWidget *widget, GdkEventMotion *motion)
         break;
     case SPICE_MOUSE_MODE_SERVER:
         if (d->mouse_grab_active) {
-            if (d->mouse_last_x != -1 &&
-                d->mouse_last_y != -1) {
-                gint dx = motion->x - d->mouse_last_x;
-                gint dy = motion->y - d->mouse_last_y;
+            gint dx = d->mouse_last_x != -1 ? motion->x - d->mouse_last_x : 0;
+            gint dy = d->mouse_last_y != -1 ? motion->y - d->mouse_last_y : 0;
 
-                spice_inputs_motion(d->inputs, dx, dy,
-                                    button_mask_gdk_to_spice(motion->state));
-            }
+            spice_inputs_motion(d->inputs, dx, dy,
+                                button_mask_gdk_to_spice(motion->state));
 
             d->mouse_last_x = motion->x;
             d->mouse_last_y = motion->y;
-            mouse_check_edges(widget, motion);
+            mouse_wrap(display, motion);
         }
         break;
     default:
@@ -979,6 +1192,8 @@ static gboolean scroll_event(GtkWidget *widget, GdkEventScroll *scroll)
     SPICE_DEBUG("%s", __FUNCTION__);
 
     if (!d->inputs)
+        return true;
+    if (d->disable_inputs)
         return true;
 
     if (scroll->direction == GDK_SCROLL_UP)
@@ -1006,7 +1221,11 @@ static gboolean button_event(GtkWidget *widget, GdkEventButton *button)
             button->type == GDK_BUTTON_PRESS ? "press" : "release",
             button->button, button->state);
 
-    if (!spicex_is_scaled(display)) {
+    if (d->disable_inputs)
+        return true;
+
+    if (!spicex_is_scaled(display)
+        && d->mouse_mode == SPICE_MOUSE_MODE_CLIENT) {
         gint x, y;
 
         /* rule out clicks in outside region */
@@ -1018,12 +1237,24 @@ static gboolean button_event(GtkWidget *widget, GdkEventButton *button)
     }
 
     gtk_widget_grab_focus(widget);
-    if (d->mouse_mode == SPICE_MOUSE_MODE_SERVER)
-        try_mouse_grab(widget);
-    else /* allow to drag and drop between windows/displays:
-            FIXME: should be multiple widget grab, but how?
-            or should now the position of the other widgets?..
-         */
+    if (d->mouse_mode == SPICE_MOUSE_MODE_SERVER) {
+        if (!d->mouse_grab_active) {
+            try_mouse_grab(display);
+            return true;
+        }
+    } else
+        /* allow to drag and drop between windows/displays:
+
+           By default, X (and other window system) do a pointer grab
+           when you press a button, so that the release event is
+           received by the same window regardless of where the pointer
+           is. Here, we change that behaviour, so that you can press
+           and release in two differents displays. This is only
+           supported in client mouse mode.
+
+           FIXME: should be multiple widget grab, but how?
+           or should know the position of the other widgets?
+        */
         gdk_pointer_ungrab(GDK_CURRENT_TIME);
 
     if (!d->inputs)
@@ -1054,177 +1285,9 @@ static gboolean configure_event(GtkWidget *widget, GdkEventConfigure *conf)
     if (conf->width != d->ww  || conf->height != d->wh) {
         d->ww = conf->width;
         d->wh = conf->height;
-        recalc_geometry(widget, TRUE);
+        recalc_geometry(widget);
     }
     return true;
-}
-
-/* ---------------------------------------------------------------- */
-
-static GtkClipboard* get_clipboard_from_selection(SpiceDisplayPrivate *d, guint selection)
-{
-    if (selection == VD_AGENT_CLIPBOARD_SELECTION_CLIPBOARD) {
-        return d->clipboard;
-    } else if (selection == VD_AGENT_CLIPBOARD_SELECTION_PRIMARY) {
-        return d->clipboard_primary;
-    } else {
-        g_warning("Unhandled clipboard selection: %d", selection);
-        return NULL;
-    }
-}
-
-static gint get_selection_from_clipboard(SpiceDisplayPrivate *d, GtkClipboard* cb)
-{
-    if (cb == d->clipboard) {
-        return VD_AGENT_CLIPBOARD_SELECTION_CLIPBOARD;
-    } else if (cb == d->clipboard_primary) {
-        return VD_AGENT_CLIPBOARD_SELECTION_PRIMARY;
-    } else {
-        g_warning("Unhandled clipboard");
-        return -1;
-    }
-}
-
-static const struct {
-    const char  *xatom;
-    uint32_t    vdagent;
-    uint32_t    flags;
-} atom2agent[] = {
-    {
-        .vdagent = VD_AGENT_CLIPBOARD_UTF8_TEXT,
-        .xatom   = "UTF8_STRING",
-    },{
-        .vdagent = VD_AGENT_CLIPBOARD_UTF8_TEXT,
-        .xatom   = "text/plain;charset=utf-8"
-    },{
-        .vdagent = VD_AGENT_CLIPBOARD_UTF8_TEXT,
-        .xatom   = "STRING"
-    },{
-        .vdagent = VD_AGENT_CLIPBOARD_UTF8_TEXT,
-        .xatom   = "TEXT"
-    },{
-        .vdagent = VD_AGENT_CLIPBOARD_UTF8_TEXT,
-        .xatom   = "text/plain"
-    },{
-        .vdagent = VD_AGENT_CLIPBOARD_IMAGE_PNG,
-        .xatom   = "image/png"
-    },{
-        .vdagent = VD_AGENT_CLIPBOARD_IMAGE_BMP,
-        .xatom   = "image/bmp"
-    },{
-        .vdagent = VD_AGENT_CLIPBOARD_IMAGE_BMP,
-        .xatom   = "image/x-bmp"
-    },{
-        .vdagent = VD_AGENT_CLIPBOARD_IMAGE_BMP,
-        .xatom   = "image/x-MS-bmp"
-    },{
-        .vdagent = VD_AGENT_CLIPBOARD_IMAGE_BMP,
-        .xatom   = "image/x-win-bitmap"
-    },{
-        .vdagent = VD_AGENT_CLIPBOARD_IMAGE_TIFF,
-        .xatom   = "image/tiff"
-    },{
-        .vdagent = VD_AGENT_CLIPBOARD_IMAGE_JPG,
-        .xatom   = "image/jpeg"
-    }
-};
-
-static void clipboard_get_targets(GtkClipboard *clipboard,
-                                  GdkAtom *atoms,
-                                  gint n_atoms,
-                                  gpointer data)
-{
-    SpiceDisplay *display = data;
-    SpiceDisplayPrivate *d = SPICE_DISPLAY_GET_PRIVATE(display);
-    guint32 types[SPICE_N_ELEMENTS(atom2agent)];
-    char *name;
-    int a, m, t;
-    int selection;
-
-    selection = get_selection_from_clipboard(d, clipboard);
-    g_return_if_fail(selection != -1);
-
-    SPICE_DEBUG("%s:", __FUNCTION__);
-    if (spice_util_get_debug()) {
-        for (a = 0; a < n_atoms; a++) {
-            name = gdk_atom_name(atoms[a]);
-            SPICE_DEBUG(" \"%s\"", name);
-            g_free(name);
-        }
-    }
-
-    memset(types, 0, sizeof(types));
-    for (a = 0; a < n_atoms; a++) {
-        name = gdk_atom_name(atoms[a]);
-        for (m = 0; m < SPICE_N_ELEMENTS(atom2agent); m++) {
-            if (strcasecmp(name, atom2agent[m].xatom) != 0) {
-                continue;
-            }
-            /* found match */
-            for (t = 0; t < SPICE_N_ELEMENTS(atom2agent); t++) {
-                if (types[t] == atom2agent[m].vdagent) {
-                    /* type already in list */
-                    break;
-                }
-                if (types[t] == 0) {
-                    /* add type to empty slot */
-                    types[t] = atom2agent[m].vdagent;
-                    break;
-                }
-            }
-            break;
-        }
-        g_free(name);
-    }
-    for (t = 0; t < SPICE_N_ELEMENTS(atom2agent); t++) {
-        if (types[t] == 0) {
-            break;
-        }
-    }
-    if (!d->clip_grabbed[selection] && t > 0) {
-        d->clip_grabbed[selection] = TRUE;
-        spice_main_clipboard_selection_grab(d->main,
-            get_selection_from_clipboard(d, clipboard), types, t);
-        /* Sending a grab causes the agent to do an impicit release */
-        d->nclip_targets[selection] = 0;
-    }
-}
-
-static void clipboard_owner_change(GtkClipboard        *clipboard,
-                                   GdkEventOwnerChange *event,
-                                   gpointer            data)
-{
-    SpiceDisplay *display = data;
-    SpiceDisplayPrivate *d = SPICE_DISPLAY_GET_PRIVATE(display);
-    int selection;
-
-    selection = get_selection_from_clipboard(d, clipboard);
-    g_return_if_fail(selection != -1);
-
-    if (d->main == NULL)
-        return;
-
-    if (d->clip_grabbed[selection]) {
-        d->clip_grabbed[selection] = FALSE;
-        spice_main_clipboard_selection_release(d->main,
-            get_selection_from_clipboard(d, clipboard));
-    }
-
-    switch (event->reason) {
-    case GDK_OWNER_CHANGE_NEW_OWNER:
-        if (d->clipboard_selfgrab_pending[selection]) {
-            d->clipboard_selfgrab_pending[selection] = FALSE;
-            break;
-        }
-        d->clipboard_by_guest[selection] = FALSE;
-        d->clip_hasdata[selection] = TRUE;
-        if (d->auto_clipboard_enable)
-            gtk_clipboard_request_targets(clipboard, clipboard_get_targets, data);
-        break;
-    default:
-        d->clip_hasdata[selection] = FALSE;
-        break;
-    }
 }
 
 /* ---------------------------------------------------------------- */
@@ -1251,10 +1314,41 @@ static void spice_display_class_init(SpiceDisplayClass *klass)
     gtkwidget_class->configure_event = configure_event;
     gtkwidget_class->scroll_event = scroll_event;
 
+    gobject_class->constructor = spice_display_constructor;
     gobject_class->dispose = spice_display_dispose;
     gobject_class->finalize = spice_display_finalize;
     gobject_class->get_property = spice_display_get_property;
     gobject_class->set_property = spice_display_set_property;
+
+    /**
+     * SpiceDisplay:session:
+     *
+     * #SpiceSession for this #SpiceDisplay
+     *
+     **/
+    g_object_class_install_property
+        (gobject_class, PROP_SESSION,
+         g_param_spec_object("session",
+                             "Session",
+                             "SpiceSession",
+                             SPICE_TYPE_SESSION,
+                             G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE |
+                             G_PARAM_STATIC_STRINGS));
+
+    /**
+     * SpiceDisplay:channel-id:
+     *
+     * channel-id for this #SpiceDisplay
+     *
+     **/
+    g_object_class_install_property
+        (gobject_class, PROP_CHANNEL_ID,
+         g_param_spec_int("channel-id",
+                          "Channel ID",
+                          "Channel ID for this display",
+                          0, 255, 0,
+                          G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE |
+                          G_PARAM_STATIC_STRINGS));
 
     g_object_class_install_property
         (gobject_class, PROP_KEYBOARD_GRAB,
@@ -1287,6 +1381,14 @@ static void spice_display_class_init(SpiceDisplayClass *klass)
                               G_PARAM_CONSTRUCT |
                               G_PARAM_STATIC_STRINGS));
 
+    /**
+     * SpiceDisplay:auto-clipboard:
+     *
+     * When this is true the clipboard gets automatically shared between host
+     * and guest.
+     *
+     * Deprecated: 0.8: Use SpiceGtkSession:auto-clipboard property instead
+     **/
     g_object_class_install_property
         (gobject_class, PROP_AUTO_CLIPBOARD,
          g_param_spec_boolean("auto-clipboard",
@@ -1295,8 +1397,8 @@ static void spice_display_class_init(SpiceDisplayClass *klass)
                               "host and guest.",
                               TRUE,
                               G_PARAM_READWRITE |
-                              G_PARAM_CONSTRUCT |
-                              G_PARAM_STATIC_STRINGS));
+                              G_PARAM_STATIC_STRINGS |
+                              G_PARAM_DEPRECATED));
 
     g_object_class_install_property
         (gobject_class, PROP_SCALING,
@@ -1306,6 +1408,42 @@ static void spice_display_class_init(SpiceDisplayClass *klass)
                               G_PARAM_READWRITE |
                               G_PARAM_CONSTRUCT |
                               G_PARAM_STATIC_STRINGS));
+
+    /**
+     * SpiceDisplay:disable-inputs:
+     *
+     * Disable all keyboard & mouse inputs.
+     *
+     * Since: 0.8
+     **/
+    g_object_class_install_property
+        (gobject_class, PROP_DISABLE_INPUTS,
+         g_param_spec_boolean("disable-inputs", "Disable inputs",
+                              "Whether inputs should be disabled",
+                              FALSE,
+                              G_PARAM_READWRITE |
+                              G_PARAM_CONSTRUCT |
+                              G_PARAM_STATIC_STRINGS));
+
+
+    /**
+     * SpiceDisplay:zoom-level:
+     *
+     * Zoom level in percentage, from 10 to 400. Default to 100.
+     * (this option is only supported with cairo backend when scaling
+     * is enabled)
+     *
+     * Since: 0.10
+     **/
+    g_object_class_install_property
+        (gobject_class, PROP_ZOOM_LEVEL,
+         g_param_spec_int("zoom-level", "Zoom Level",
+                          "Zoom Level",
+                          10, 400, 100,
+                          G_PARAM_READWRITE |
+                          G_PARAM_CONSTRUCT |
+                          G_PARAM_STATIC_STRINGS));
+
     /**
      * SpiceDisplay::mouse-grab:
      * @display: the #SpiceDisplay that emitted the signal
@@ -1363,7 +1501,7 @@ static void spice_display_class_init(SpiceDisplayClass *klass)
 
 /* ---------------------------------------------------------------- */
 
-static void mouse_update(SpiceChannel *channel, gpointer data)
+static void update_mouse_mode(SpiceChannel *channel, gpointer data)
 {
     SpiceDisplay *display = data;
     SpiceDisplayPrivate *d = SPICE_DISPLAY_GET_PRIVATE(display);
@@ -1371,12 +1509,19 @@ static void mouse_update(SpiceChannel *channel, gpointer data)
     g_object_get(channel, "mouse-mode", &d->mouse_mode, NULL);
     SPICE_DEBUG("mouse mode %d", d->mouse_mode);
 
-    d->mouse_guest_x = -1;
-    d->mouse_guest_y = -1;
-    if (d->mouse_mode == SPICE_MOUSE_MODE_CLIENT) {
-        try_mouse_ungrab(GTK_WIDGET(display));
+    switch (d->mouse_mode) {
+    case SPICE_MOUSE_MODE_CLIENT:
+        try_mouse_ungrab(display);
+        break;
+    case SPICE_MOUSE_MODE_SERVER:
+        try_mouse_grab(display);
+        break;
+    default:
+        g_warn_if_reached();
     }
+
     update_mouse_pointer(display);
+    cursor_invalidate(display);
 }
 
 static void primary_create(SpiceChannel *channel, gint format,
@@ -1385,7 +1530,6 @@ static void primary_create(SpiceChannel *channel, gint format,
 {
     SpiceDisplay *display = data;
     SpiceDisplayPrivate *d = SPICE_DISPLAY_GET_PRIVATE(display);
-    gboolean set_display = FALSE;
 
     d->format = format;
     d->stride = stride;
@@ -1393,14 +1537,9 @@ static void primary_create(SpiceChannel *channel, gint format,
     d->data_origin = d->data = imgdata;
 
     if (d->width != width || d->height != height) {
-        if (d->width != 0 && d->height != 0)
-            set_display = TRUE;
         d->width  = width;
         d->height = height;
-        recalc_geometry(GTK_WIDGET(display), set_display);
-        if (!d->resize_guest_enable) {
-            gtk_widget_set_size_request(GTK_WIDGET(display), width, height);
-        }
+        update_size_request(display);
     }
 }
 
@@ -1439,6 +1578,7 @@ static void mark(SpiceChannel *channel, gint mark, gpointer data)
 {
     SpiceDisplay *display = data;
     SpiceDisplayPrivate *d = SPICE_DISPLAY_GET_PRIVATE(display);
+    g_return_if_fail(d != NULL);
 
     SPICE_DEBUG("widget mark: %d, channel %d", mark, d->channel_id);
     d->mark = mark;
@@ -1455,31 +1595,39 @@ static void cursor_set(SpiceCursorChannel *channel,
     SpiceDisplay *display = data;
     SpiceDisplayPrivate *d = SPICE_DISPLAY_GET_PRIVATE(display);
 
+    cursor_invalidate(display);
+
+    if (d->show_cursor) {
+        gdk_cursor_unref(d->show_cursor);
+        d->show_cursor = NULL;
+    }
+
     if (d->mouse_cursor) {
         gdk_cursor_unref(d->mouse_cursor);
         d->mouse_cursor = NULL;
     }
 
+    if (d->mouse_pixbuf) {
+        g_object_unref(d->mouse_pixbuf);
+        d->mouse_pixbuf = NULL;
+    }
+
     if (rgba != NULL) {
-        GdkPixbuf *pixbuf;
-        GdkDisplay *gtkdpy;
-
-        gtkdpy = gtk_widget_get_display(GTK_WIDGET(display));
-
-        pixbuf = gdk_pixbuf_new_from_data(rgba,
-                                          GDK_COLORSPACE_RGB,
-                                          TRUE, 8,
-                                          width,
-                                          height,
-                                          width * 4,
-                                          NULL, NULL);
+        d->mouse_pixbuf = gdk_pixbuf_new_from_data(g_memdup(rgba, width * height * 4),
+                                                   GDK_COLORSPACE_RGB,
+                                                   TRUE, 8,
+                                                   width,
+                                                   height,
+                                                   width * 4,
+                                                   (GdkPixbufDestroyNotify)g_free, NULL);
+        d->mouse_hotspot.x = hot_x;
+        d->mouse_hotspot.y = hot_y;
 
         /* gdk_cursor_new_from_pixbuf() will copy pixbuf data on
            x11/win32/macos. No worries if rgba pointer is freed
            after. */
-        d->mouse_cursor = gdk_cursor_new_from_pixbuf(gtkdpy, pixbuf,
-                                                     hot_x, hot_y);
-        g_object_unref(pixbuf);
+        d->mouse_cursor = gdk_cursor_new_from_pixbuf(gtk_widget_get_display(GTK_WIDGET(display)),
+                                                     d->mouse_pixbuf, hot_x, hot_y);
     }
 
     update_mouse_pointer(display);
@@ -1494,42 +1642,59 @@ static void cursor_hide(SpiceCursorChannel *channel, gpointer data)
         return;
 
     d->show_cursor = d->mouse_cursor;
-    d->mouse_cursor = gdk_cursor_new(GDK_BLANK_CURSOR);
+    d->mouse_cursor = get_blank_cursor();
     update_mouse_pointer(display);
+}
+
+G_GNUC_INTERNAL
+void spice_display_get_scaling(SpiceDisplay *display, double *sx, double *sy)
+{
+    SpiceDisplayPrivate *d = display->priv;
+    int fbw = d->width, fbh = d->height;
+    int ww, wh;
+
+    if (!spicex_is_scaled(display) || !gtk_widget_get_window(GTK_WIDGET(display))) {
+        *sx = 1.0;
+        *sy = 1.0;
+        return;
+    }
+
+    gdk_drawable_get_size(gtk_widget_get_window(GTK_WIDGET(display)), &ww, &wh);
+
+    *sx = (double)ww / (double)fbw;
+    *sy = (double)wh / (double)fbh;
+}
+
+static void cursor_invalidate(SpiceDisplay *display)
+{
+    SpiceDisplayPrivate *d = display->priv;
+    double sx, sy;
+
+    if (d->mouse_pixbuf == NULL)
+        return;
+
+    spice_display_get_scaling(display, &sx, &sy);
+
+    gtk_widget_queue_draw_area(GTK_WIDGET(display),
+                               (d->mouse_guest_x + d->mx - d->mouse_hotspot.x) * sx,
+                               (d->mouse_guest_y + d->my - d->mouse_hotspot.y) * sy,
+                               gdk_pixbuf_get_width(d->mouse_pixbuf) * sx,
+                               gdk_pixbuf_get_height(d->mouse_pixbuf) * sy);
 }
 
 static void cursor_move(SpiceCursorChannel *channel, gint x, gint y, gpointer data)
 {
     SpiceDisplay *display = data;
-    SpiceDisplayPrivate *d = SPICE_DISPLAY_GET_PRIVATE(display);
-    GdkScreen *screen = gtk_widget_get_screen(GTK_WIDGET(display));
-    int wx, wy;
+    SpiceDisplayPrivate *d = display->priv;
 
-    SPICE_DEBUG("%s: +%d+%d", __FUNCTION__, x, y);
+    cursor_invalidate(display);
 
-    d->mouse_last_x = x;
-    d->mouse_last_y = y;
     d->mouse_guest_x = x;
     d->mouse_guest_y = y;
 
-    if (spicex_is_scaled(display) && gtk_widget_get_realized(GTK_WIDGET(display))) {
-        gint ww, wh;
+    cursor_invalidate(display);
 
-        gdk_drawable_get_size(gtk_widget_get_window(GTK_WIDGET(display)), &ww, &wh);
-        x = x * ((double)ww / (double)(d->width));
-        y = y * ((double)wh / (double)(d->height));
-    } else {
-        /* black borders offset */
-        x += d->mx;
-        y += d->my;
-    }
-
-    if (d->mouse_grab_active && gtk_widget_get_realized(GTK_WIDGET(display))) {
-        gdk_window_get_origin(GDK_WINDOW(gtk_widget_get_window(GTK_WIDGET(display))), &wx, &wy);
-        gdk_display_warp_pointer(gtk_widget_get_display(GTK_WIDGET(display)), screen, x + wx, y + wy);
-    }
-
-    /* FIXME: apparently we have to restore cursor when "cursor_move" ?? */
+    /* apparently we have to restore cursor when "cursor_move" */
     if (d->show_cursor != NULL) {
         gdk_cursor_unref(d->mouse_cursor);
         d->mouse_cursor = d->show_cursor;
@@ -1555,18 +1720,12 @@ static void cursor_reset(SpiceCursorChannel *channel, gpointer data)
 static void disconnect_main(SpiceDisplay *display)
 {
     SpiceDisplayPrivate *d = SPICE_DISPLAY_GET_PRIVATE(display);
-    gint i;
 
     if (d->main == NULL)
         return;
-    g_signal_handlers_disconnect_by_func(d->main, G_CALLBACK(mouse_update),
+    g_signal_handlers_disconnect_by_func(d->main, G_CALLBACK(update_mouse_mode),
                                          display);
     d->main = NULL;
-    for (i = 0; i < CLIPBOARD_LAST; ++i) {
-        d->clipboard_by_guest[i] = FALSE;
-        d->clip_grabbed[i] = FALSE;
-        d->nclip_targets[i] = 0;
-    }
 }
 
 static void disconnect_display(SpiceDisplay *display)
@@ -1601,219 +1760,6 @@ static void disconnect_cursor(SpiceDisplay *display)
     d->cursor = NULL;
 }
 
-typedef struct
-{
-    GMainLoop *loop;
-    SpiceDisplay *display;
-    GtkSelectionData *selection_data;
-    guint info;
-    gulong timeout_handler;
-    guint selection;
-} RunInfo;
-
-static void clipboard_got_from_guest(SpiceMainChannel *main, guint selection,
-                                     guint type, guchar *data, guint size,
-                                     gpointer userdata)
-{
-    RunInfo *ri = userdata;
-
-    g_return_if_fail(selection == ri->selection);
-
-    SPICE_DEBUG("clipboard got data");
-
-    gtk_selection_data_set(ri->selection_data,
-        gdk_atom_intern_static_string(atom2agent[ri->info].xatom),
-        8, data, size);
-
-    if (g_main_loop_is_running (ri->loop))
-        g_main_loop_quit (ri->loop);
-}
-
-static gboolean clipboard_timeout(gpointer data)
-{
-    RunInfo *ri = data;
-
-    g_warning("clipboard get timed out");
-    if (g_main_loop_is_running (ri->loop))
-        g_main_loop_quit (ri->loop);
-
-    ri->timeout_handler = 0;
-    return FALSE;
-}
-
-static void clipboard_get(GtkClipboard *clipboard, GtkSelectionData *selection_data,
-                          guint info, gpointer display)
-{
-    RunInfo ri = { NULL, };
-    SpiceDisplayPrivate *d = SPICE_DISPLAY_GET_PRIVATE(display);
-    gulong clipboard_handler;
-
-    SPICE_DEBUG("clipboard get");
-
-    g_return_if_fail(info < SPICE_N_ELEMENTS(atom2agent));
-    g_return_if_fail(get_selection_from_clipboard(d, clipboard) != -1);
-
-    ri.display = display;
-    ri.selection_data = selection_data;
-    ri.info = info;
-    ri.loop = g_main_loop_new(NULL, FALSE);
-    ri.selection = get_selection_from_clipboard(d, clipboard);
-
-    clipboard_handler = g_signal_connect(d->main, "main-clipboard-selection",
-                                         G_CALLBACK(clipboard_got_from_guest), &ri);
-    ri.timeout_handler = g_timeout_add_seconds(7, clipboard_timeout, &ri);
-    spice_main_clipboard_selection_request(d->main, ri.selection, atom2agent[info].vdagent);
-
-    /* apparently, this is needed to avoid dead-lock, from
-       gtk_dialog_run */
-    GDK_THREADS_LEAVE();
-    g_main_loop_run(ri.loop);
-    GDK_THREADS_ENTER();
-
-    g_main_loop_unref(ri.loop);
-    ri.loop = NULL;
-    g_signal_handler_disconnect(d->main, clipboard_handler);
-    if (ri.timeout_handler != 0)
-        g_source_remove(ri.timeout_handler);
-}
-
-static void clipboard_clear(GtkClipboard *clipboard, gpointer display)
-{
-    SPICE_DEBUG("clipboard_clear");
-    /* We watch for clipboard ownership changes and act on those, so we
-       don't need to do anything here */
-}
-
-static gboolean clipboard_grab(SpiceMainChannel *main, guint selection,
-                               guint32* types, guint32 ntypes, gpointer display)
-{
-    int m, n, i;
-    SpiceDisplayPrivate *d = SPICE_DISPLAY_GET_PRIVATE(display);
-    GtkTargetEntry targets[SPICE_N_ELEMENTS(atom2agent)];
-    gboolean target_selected[SPICE_N_ELEMENTS(atom2agent)] = { FALSE, };
-    gboolean found;
-    GtkClipboard* cb;
-
-    cb = get_clipboard_from_selection(d, selection);
-    g_return_val_if_fail(cb != NULL, FALSE);
-
-    i = 0;
-    for (n = 0; n < ntypes; ++n) {
-        found = FALSE;
-        for (m = 0; m < SPICE_N_ELEMENTS(atom2agent); m++) {
-            if (atom2agent[m].vdagent == types[n] && !target_selected[m]) {
-                found = TRUE;
-                g_return_val_if_fail(i < SPICE_N_ELEMENTS(atom2agent), FALSE);
-                targets[i].target = (gchar*)atom2agent[m].xatom;
-                targets[i].flags = 0;
-                targets[i].info = m;
-                target_selected[m] = TRUE;
-                i += 1;
-            }
-        }
-        if (!found) {
-            g_warning("clipboard: couldn't find a matching type for: %d", types[n]);
-        }
-    }
-
-    g_free(d->clip_targets[selection]);
-    d->nclip_targets[selection] = i;
-    d->clip_targets[selection] = g_memdup(targets, sizeof(GtkTargetEntry) * i);
-    /* Receiving a grab implies we've released our own grab */
-    d->clip_grabbed[selection] = FALSE;
-
-    if (!d->auto_clipboard_enable || d->nclip_targets[selection] == 0)
-        goto skip_grab_clipboard;
-
-    if (!gtk_clipboard_set_with_data(cb, targets, i,
-                                     clipboard_get, clipboard_clear, display)) {
-        g_warning("clipboard grab failed");
-        return FALSE;
-    }
-    d->clipboard_selfgrab_pending[selection] = TRUE;
-    d->clipboard_by_guest[selection] = TRUE;
-    d->clip_hasdata[selection] = FALSE;
-
-skip_grab_clipboard:
-    return TRUE;
-}
-
-static void clipboard_received_cb(GtkClipboard *clipboard,
-                                  GtkSelectionData *selection_data,
-                                  gpointer display)
-{
-    SpiceDisplayPrivate *d = SPICE_DISPLAY_GET_PRIVATE(display);
-    gint len = 0, m;
-    guint32 type = VD_AGENT_CLIPBOARD_NONE;
-    gchar* name;
-    GdkAtom atom;
-
-    g_return_if_fail(get_selection_from_clipboard(d, clipboard) != -1);
-
-    len = gtk_selection_data_get_length(selection_data);
-    if (len == -1) {
-        SPICE_DEBUG("empty clipboard");
-        len = 0;
-    } else if (len == 0) {
-        SPICE_DEBUG("TODO: what should be done here?");
-    } else {
-        atom = gtk_selection_data_get_data_type(selection_data);
-        name = gdk_atom_name(atom);
-        for (m = 0; m < SPICE_N_ELEMENTS(atom2agent); m++) {
-            if (strcasecmp(name, atom2agent[m].xatom) == 0) {
-                break;
-            }
-        }
-
-        if (m >= SPICE_N_ELEMENTS(atom2agent)) {
-            g_warning("clipboard_received for unsupported type: %s", name);
-        } else {
-            type = atom2agent[m].vdagent;
-        }
-
-        g_free(name);
-    }
-
-    spice_main_clipboard_selection_notify(d->main, get_selection_from_clipboard(d, clipboard),
-        type, gtk_selection_data_get_data(selection_data), len);
-}
-
-static gboolean clipboard_request(SpiceMainChannel *main, guint selection,
-                                  guint type, gpointer display)
-{
-    SpiceDisplayPrivate *d = SPICE_DISPLAY_GET_PRIVATE(display);
-    int m;
-    GdkAtom atom;
-
-    for (m = 0; m < SPICE_N_ELEMENTS(atom2agent); m++) {
-        if (atom2agent[m].vdagent == type)
-            break;
-    }
-
-    g_return_val_if_fail(m < SPICE_N_ELEMENTS(atom2agent), FALSE);
-
-    atom = gdk_atom_intern_static_string(atom2agent[m].xatom);
-    gtk_clipboard_request_contents(get_clipboard_from_selection(d, selection), atom,
-                                   clipboard_received_cb, display);
-
-    return TRUE;
-}
-
-static void clipboard_release(SpiceMainChannel *main, guint selection, gpointer data)
-{
-    SpiceDisplayPrivate *d = SPICE_DISPLAY_GET_PRIVATE(data);
-    GtkClipboard* clipboard = get_clipboard_from_selection(d, selection);
-    if (!clipboard)
-        return;
-
-    d->nclip_targets[selection] = 0;
-
-    if (!d->clipboard_by_guest[selection])
-        return;
-    gtk_clipboard_clear(clipboard);
-    d->clipboard_by_guest[selection] = FALSE;
-}
-
 static void channel_new(SpiceSession *s, SpiceChannel *channel, gpointer data)
 {
     SpiceDisplay *display = data;
@@ -1824,16 +1770,8 @@ static void channel_new(SpiceSession *s, SpiceChannel *channel, gpointer data)
     if (SPICE_IS_MAIN_CHANNEL(channel)) {
         d->main = SPICE_MAIN_CHANNEL(channel);
         g_signal_connect(channel, "main-mouse-update",
-                         G_CALLBACK(mouse_update), display);
-        mouse_update(channel, display);
-        if (id != d->channel_id)
-            return;
-        g_signal_connect(channel, "main-clipboard-selection-grab",
-                         G_CALLBACK(clipboard_grab), display);
-        g_signal_connect(channel, "main-clipboard-selection-request",
-                         G_CALLBACK(clipboard_request), display);
-        g_signal_connect(channel, "main-clipboard-selection-release",
-                         G_CALLBACK(clipboard_release), display);
+                         G_CALLBACK(update_mouse_mode), display);
+        update_mouse_mode(channel, display);
         return;
     }
 
@@ -1939,27 +1877,8 @@ static void channel_destroy(SpiceSession *s, SpiceChannel *channel, gpointer dat
  **/
 SpiceDisplay *spice_display_new(SpiceSession *session, int id)
 {
-    SpiceDisplay *display;
-    SpiceDisplayPrivate *d;
-    GList *list;
-    GList *it;
-
-    display = g_object_new(SPICE_TYPE_DISPLAY, NULL);
-    d = SPICE_DISPLAY_GET_PRIVATE(display);
-    d->session = g_object_ref(session);
-    d->channel_id = id;
-
-    g_signal_connect(session, "channel-new",
-                     G_CALLBACK(channel_new), display);
-    g_signal_connect(session, "channel-destroy",
-                     G_CALLBACK(channel_destroy), display);
-    list = spice_session_get_channels(session);
-    for (it = g_list_first(list); it != NULL; it = g_list_next(it)) {
-        channel_new(session, it->data, (gpointer*)display);
-    }
-    g_list_free(list);
-
-    return display;
+    return g_object_new(SPICE_TYPE_DISPLAY, "session", session,
+                        "channel-id", id, NULL);
 }
 
 /**
@@ -1970,7 +1889,7 @@ SpiceDisplay *spice_display_new(SpiceSession *session, int id)
  **/
 void spice_display_mouse_ungrab(SpiceDisplay *display)
 {
-    try_mouse_ungrab(GTK_WIDGET(display));
+    try_mouse_ungrab(display);
 }
 
 /**
@@ -1978,36 +1897,35 @@ void spice_display_mouse_ungrab(SpiceDisplay *display)
  * @display:
  *
  * Copy client-side clipboard to guest clipboard.
+ *
+ * Deprecated: 0.8: Use spice_gtk_session_copy_to_guest() instead
  **/
+G_GNUC_DEPRECATED_FOR(spice_gtk_session_copy_to_guest)
 void spice_display_copy_to_guest(SpiceDisplay *display)
 {
     SpiceDisplayPrivate *d = SPICE_DISPLAY_GET_PRIVATE(display);
-    int selection = VD_AGENT_CLIPBOARD_SELECTION_CLIPBOARD;
 
-    if (d->clip_hasdata[selection] && !d->clip_grabbed[selection]) {
-        gtk_clipboard_request_targets(d->clipboard, clipboard_get_targets, display);
-    }
+    g_return_if_fail(d->gtk_session != NULL);
+
+    spice_gtk_session_copy_to_guest(d->gtk_session);
 }
 
+/**
+ * spice_display_paste_from_guest:
+ * @display:
+ *
+ * Copy guest clipboard to client-side clipboard.
+ *
+ * Deprecated: 0.8: Use spice_gtk_session_paste_from_guest() instead
+ **/
+G_GNUC_DEPRECATED_FOR(spice_gtk_session_paste_from_guest)
 void spice_display_paste_from_guest(SpiceDisplay *display)
 {
     SpiceDisplayPrivate *d = SPICE_DISPLAY_GET_PRIVATE(display);
-    int selection = VD_AGENT_CLIPBOARD_SELECTION_CLIPBOARD;
 
-    if (d->nclip_targets[selection] == 0) {
-        g_warning("Guest clipboard is not available.");
-        return;
-    }
+    g_return_if_fail(d->gtk_session != NULL);
 
-    if (!gtk_clipboard_set_with_data(d->clipboard,
-                                     d->clip_targets[selection], d->nclip_targets[selection],
-                                     clipboard_get, clipboard_clear, display)) {
-        g_warning("Clipboard grab failed");
-        return;
-    }
-    d->clipboard_selfgrab_pending[selection] = TRUE;
-    d->clipboard_by_guest[selection] = TRUE;
-    d->clip_hasdata[selection] = FALSE;
+    spice_gtk_session_paste_from_guest(d->gtk_session);
 }
 
 /**
@@ -2031,6 +1949,10 @@ GdkPixbuf *spice_display_get_pixbuf(SpiceDisplay *display)
     data = g_malloc(d->width * d->height * 3);
     src = d->data;
     dest = data;
+
+    if (src == NULL || dest == NULL)
+        return NULL;
+
     for (y = 0; y < d->height; ++y) {
         for (x = 0; x < d->width; ++x) {
           dest[0] = src[x * 4 + 2];
@@ -2073,6 +1995,9 @@ static void sync_keyboard_lock_modifiers(SpiceDisplay *display)
     SpiceDisplayPrivate *d = SPICE_DISPLAY_GET_PRIVATE(display);
     guint32 modifiers;
     GdkWindow *w;
+
+    if (d->disable_inputs)
+        return;
 
     w = gtk_widget_get_parent_window(GTK_WIDGET(display));
     if (w == NULL) /* it can happen if the display is not yet shown */

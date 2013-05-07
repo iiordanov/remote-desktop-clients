@@ -1,5 +1,3 @@
-SUBDIRS = win
-
 NULL =
 
 COMMON_SRCS =				\

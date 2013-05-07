@@ -31,28 +31,6 @@
 #define read_uint64(ptr) ((uint64_t)SPICE_BYTESWAP64(*((uint64_t *)(ptr)))
 #define write_uint64(ptr, val) *(uint64_t *)(ptr) = SPICE_BYTESWAP64((uint64_t)val)
 #else
-/*
- * dirty and gory hacks for android-arm to avoid SIGBUS 
- * 				--shohyanglim@gmail.com
- */
-#ifdef ANDROID 
-    static inline int8_t read_int8(uint8_t* ptr) { int8_t val;memcpy(&val,ptr,sizeof(int8_t));return val;}
-    static inline uint8_t read_uint8(uint8_t* ptr) { uint8_t val;memcpy(&val,ptr,sizeof(uint8_t));return val;}
-    static inline int16_t read_int16(uint8_t* ptr) { int16_t val;memcpy(&val,ptr,sizeof(int16_t));return val;}
-    static inline uint16_t read_uint16(uint8_t* ptr) { uint16_t val;memcpy(&val,ptr,sizeof(uint16_t));return val;}
-    static inline int32_t read_int32(uint8_t* ptr) { int32_t val;memcpy(&val,ptr,sizeof(int32_t));return val;}
-    static inline uint32_t read_uint32(uint8_t* ptr) { uint32_t val;memcpy(&val,ptr,sizeof(uint32_t));return val;}
-    static inline int64_t read_int64(uint8_t* ptr) { int64_t val;memcpy(&val,ptr,sizeof(int64_t));return val;}
-    static inline uint64_t read_uint64(uint8_t* ptr) { uint64_t val;memcpy(&val,ptr,sizeof(uint64_t));return val;}
-#define write_int8(ptr,v)  {int8_t val=v;memcpy(ptr,&val,sizeof(int8_t)); }
-#define write_uint8(ptr,v) {uint8_t val=v;memcpy(ptr,&val,sizeof(uint8_t));}
-#define write_int16(ptr,v) {int16_t val=v;memcpy(ptr,&val,sizeof(int16_t));}
-#define write_uint16(ptr,v){uint16_t val=v;memcpy(ptr,&val,sizeof(uint16_t));}
-#define write_int32(ptr,v) {int32_t val=v;memcpy(ptr,&val,sizeof(int32_t));}
-#define write_uint32(ptr,v){uint32_t val=v;memcpy(ptr,&val,sizeof(uint32_t));}
-#define write_int64(ptr,v) {int64_t val=v;memcpy(ptr,&val,sizeof(int64_t));}
-#define write_uint64(ptr,v){uint64_t val=v;memcpy(ptr,&val,sizeof(uint64_t));}
-#else
 #define read_int8(ptr) (*((int8_t *)(ptr)))
 #define write_int8(ptr, val) (*((int8_t *)(ptr))) = val
 #define read_uint8(ptr) (*((uint8_t *)(ptr)))
@@ -69,7 +47,6 @@
 #define write_int64(ptr, val) (*((int64_t *)(ptr))) = val
 #define read_uint64(ptr) (*((uint64_t *)(ptr)))
 #define write_uint64(ptr, val) (*((uint64_t *)(ptr))) = val
-#endif
 #endif
 
 static int8_t SPICE_GNUC_UNUSED consume_int8(uint8_t **ptr)
@@ -154,7 +131,8 @@ static uint8_t * parse_msg_migrate(uint8_t *message_start, uint8_t *message_end,
     SPICE_GNUC_UNUSED uint8_t *pos;
     uint8_t *start = message_start;
     uint8_t *data = NULL;
-    size_t mem_size, nw_size;
+    size_t nw_size;
+    size_t mem_size;
     uint8_t *in, *end;
     SpiceMsgMigrate *out;
 
@@ -201,19 +179,17 @@ static uint8_t * parse_SpiceMsgData(uint8_t *message_start, uint8_t *message_end
     SPICE_GNUC_UNUSED uint8_t *pos;
     uint8_t *start = message_start;
     uint8_t *data = NULL;
-    size_t mem_size, nw_size;
-    size_t data__nw_size, data__mem_size;
+    size_t nw_size;
+    size_t data__nw_size;
     uint32_t data__nelements;
 
     { /* data */
         data__nelements = message_end - (start + 0);
 
         data__nw_size = data__nelements;
-        data__mem_size = sizeof(uint8_t) * data__nelements;
     }
 
     nw_size = 0 + data__nw_size;
-    mem_size = sizeof(SpiceMsgData) + data__mem_size;
 
     /* Check if message fits in reported side */
     if (start + nw_size > message_end) {
@@ -233,7 +209,8 @@ static uint8_t * parse_msg_set_ack(uint8_t *message_start, uint8_t *message_end,
     SPICE_GNUC_UNUSED uint8_t *pos;
     uint8_t *start = message_start;
     uint8_t *data = NULL;
-    size_t mem_size, nw_size;
+    size_t nw_size;
+    size_t mem_size;
     uint8_t *in, *end;
     SpiceMsgSetAck *out;
 
@@ -277,7 +254,8 @@ static uint8_t * parse_msg_ping(uint8_t *message_start, uint8_t *message_end, in
     SPICE_GNUC_UNUSED uint8_t *pos;
     uint8_t *start = message_start;
     uint8_t *data = NULL;
-    size_t mem_size, nw_size;
+    size_t nw_size;
+    size_t mem_size;
     uint8_t *in, *end;
     size_t data__nw_size;
     uint32_t data__nelements;
@@ -333,7 +311,8 @@ static uint8_t * parse_msg_wait_for_channels(uint8_t *message_start, uint8_t *me
     SPICE_GNUC_UNUSED uint8_t *pos;
     uint8_t *start = message_start;
     uint8_t *data = NULL;
-    size_t mem_size, nw_size;
+    size_t nw_size;
+    size_t mem_size;
     uint8_t *in, *end;
     size_t wait_list__nw_size, wait_list__mem_size;
     uint32_t wait_list__nelements;
@@ -401,7 +380,8 @@ static uint8_t * parse_msg_disconnecting(uint8_t *message_start, uint8_t *messag
     SPICE_GNUC_UNUSED uint8_t *pos;
     uint8_t *start = message_start;
     uint8_t *data = NULL;
-    size_t mem_size, nw_size;
+    size_t nw_size;
+    size_t mem_size;
     uint8_t *in, *end;
     SpiceMsgDisconnect *out;
 
@@ -445,7 +425,8 @@ static uint8_t * parse_msg_notify(uint8_t *message_start, uint8_t *message_end, 
     SPICE_GNUC_UNUSED uint8_t *pos;
     uint8_t *start = message_start;
     uint8_t *data = NULL;
-    size_t mem_size, nw_size;
+    size_t nw_size;
+    size_t mem_size;
     uint8_t *in, *end;
     size_t message__nw_size, message__mem_size;
     uint32_t message__nelements;
@@ -522,15 +503,16 @@ static uint8_t * parse_msg_main_migrate_begin(uint8_t *message_start, uint8_t *m
     SPICE_GNUC_UNUSED uint8_t *pos;
     uint8_t *start = message_start;
     uint8_t *data = NULL;
-    size_t mem_size, nw_size;
+    size_t nw_size;
+    size_t mem_size;
     uint8_t *in, *end;
     SPICE_GNUC_UNUSED intptr_t ptr_size;
     uint32_t n_ptr=0;
     PointerInfo ptr_info[2];
     size_t host_data__extra_size;
     uint32_t host_data__array__nelements;
-    size_t pub_key_data__extra_size;
-    uint32_t pub_key_data__array__nelements;
+    size_t cert_subject_data__extra_size;
+    uint32_t cert_subject_data__array__nelements;
     SpiceMsgMainMigrationBegin *out;
     uint32_t i;
 
@@ -565,39 +547,36 @@ static uint8_t * parse_msg_main_migrate_begin(uint8_t *message_start, uint8_t *m
         host_data__extra_size = host_data__array__mem_size + /* for alignment */ 3;
     }
 
-    { /* pub_key_data */
-        uint32_t pub_key_data__value;
-        uint32_t pub_key_data__array__nw_size;
-        uint32_t pub_key_data__array__mem_size;
-        uint32_t pub_key_size__value;
-        pos = (start + 18);
+    { /* cert_subject_data */
+        uint32_t cert_subject_data__value;
+        uint32_t cert_subject_data__array__nw_size;
+        uint32_t cert_subject_data__array__mem_size;
+        uint32_t cert_subject_size__value;
+        pos = (start + 16);
         if (SPICE_UNLIKELY(pos + 4 > message_end)) {
             goto error;
         }
-        pub_key_data__value = read_uint32(pos);
-        if (SPICE_UNLIKELY(pub_key_data__value == 0)) {
+        cert_subject_data__value = read_uint32(pos);
+        if (SPICE_UNLIKELY(message_start + cert_subject_data__value >= message_end)) {
             goto error;
         }
-        if (SPICE_UNLIKELY(message_start + pub_key_data__value >= message_end)) {
-            goto error;
-        }
-        pos = start + 14;
+        pos = start + 12;
         if (SPICE_UNLIKELY(pos + 4 > message_end)) {
             goto error;
         }
-        pub_key_size__value = read_uint32(pos);
-        pub_key_data__array__nelements = pub_key_size__value;
+        cert_subject_size__value = read_uint32(pos);
+        cert_subject_data__array__nelements = cert_subject_size__value;
 
-        pub_key_data__array__nw_size = pub_key_data__array__nelements;
-        pub_key_data__array__mem_size = sizeof(uint8_t) * pub_key_data__array__nelements;
-        if (SPICE_UNLIKELY(message_start + pub_key_data__value + pub_key_data__array__nw_size > message_end)) {
+        cert_subject_data__array__nw_size = cert_subject_data__array__nelements;
+        cert_subject_data__array__mem_size = sizeof(uint8_t) * cert_subject_data__array__nelements;
+        if (SPICE_UNLIKELY(message_start + cert_subject_data__value + cert_subject_data__array__nw_size > message_end)) {
             goto error;
         }
-        pub_key_data__extra_size = pub_key_data__array__mem_size + /* for alignment */ 3;
+        cert_subject_data__extra_size = cert_subject_data__array__mem_size + /* for alignment */ 3;
     }
 
-    nw_size = 22;
-    mem_size = sizeof(SpiceMsgMainMigrationBegin) + host_data__extra_size + pub_key_data__extra_size;
+    nw_size = 20;
+    mem_size = sizeof(SpiceMsgMainMigrationBegin) + host_data__extra_size + cert_subject_data__extra_size;
 
     /* Check if message fits in reported side */
     if (start + nw_size > message_end) {
@@ -622,12 +601,11 @@ static uint8_t * parse_msg_main_migrate_begin(uint8_t *message_start, uint8_t *m
     ptr_info[n_ptr].dest = (void **)&out->host_data;
     ptr_info[n_ptr].nelements = host_data__array__nelements;
     n_ptr++;
-    out->pub_key_type = consume_uint16(&in);
-    out->pub_key_size = consume_uint32(&in);
+    out->cert_subject_size = consume_uint32(&in);
     ptr_info[n_ptr].offset = consume_uint32(&in);
     ptr_info[n_ptr].parse = parse_array_uint8;
-    ptr_info[n_ptr].dest = (void **)&out->pub_key_data;
-    ptr_info[n_ptr].nelements = pub_key_data__array__nelements;
+    ptr_info[n_ptr].dest = (void **)&out->cert_subject_data;
+    ptr_info[n_ptr].nelements = cert_subject_data__array__nelements;
     n_ptr++;
 
     assert(in <= message_end);
@@ -664,9 +642,9 @@ static uint8_t * parse_SpiceMsgEmpty(uint8_t *message_start, uint8_t *message_en
     SPICE_GNUC_UNUSED uint8_t *pos;
     uint8_t *start = message_start;
     uint8_t *data = NULL;
-    size_t mem_size, nw_size;
+    size_t nw_size;
+    size_t mem_size;
     uint8_t *in, *end;
-    SpiceMsgEmpty *out;
 
     nw_size = 0;
     mem_size = sizeof(SpiceMsgEmpty);
@@ -683,8 +661,6 @@ static uint8_t * parse_SpiceMsgEmpty(uint8_t *message_start, uint8_t *message_en
     }
     end = data + sizeof(SpiceMsgEmpty);
     in = start;
-
-    out = (SpiceMsgEmpty *)data;
 
 
     assert(in <= message_end);
@@ -706,7 +682,8 @@ static uint8_t * parse_msg_main_init(uint8_t *message_start, uint8_t *message_en
     SPICE_GNUC_UNUSED uint8_t *pos;
     uint8_t *start = message_start;
     uint8_t *data = NULL;
-    size_t mem_size, nw_size;
+    size_t nw_size;
+    size_t mem_size;
     uint8_t *in, *end;
     SpiceMsgMainInit *out;
 
@@ -756,7 +733,8 @@ static uint8_t * parse_msg_main_channels_list(uint8_t *message_start, uint8_t *m
     SPICE_GNUC_UNUSED uint8_t *pos;
     uint8_t *start = message_start;
     uint8_t *data = NULL;
-    size_t mem_size, nw_size;
+    size_t nw_size;
+    size_t mem_size;
     uint8_t *in, *end;
     size_t channels__nw_size, channels__mem_size;
     uint32_t channels__nelements;
@@ -823,7 +801,8 @@ static uint8_t * parse_msg_main_mouse_mode(uint8_t *message_start, uint8_t *mess
     SPICE_GNUC_UNUSED uint8_t *pos;
     uint8_t *start = message_start;
     uint8_t *data = NULL;
-    size_t mem_size, nw_size;
+    size_t nw_size;
+    size_t mem_size;
     uint8_t *in, *end;
     SpiceMsgMainMouseMode *out;
 
@@ -867,7 +846,8 @@ static uint8_t * parse_msg_main_multi_media_time(uint8_t *message_start, uint8_t
     SPICE_GNUC_UNUSED uint8_t *pos;
     uint8_t *start = message_start;
     uint8_t *data = NULL;
-    size_t mem_size, nw_size;
+    size_t nw_size;
+    size_t mem_size;
     uint8_t *in, *end;
     SpiceMsgMainMultiMediaTime *out;
 
@@ -910,7 +890,8 @@ static uint8_t * parse_msg_main_agent_disconnected(uint8_t *message_start, uint8
     SPICE_GNUC_UNUSED uint8_t *pos;
     uint8_t *start = message_start;
     uint8_t *data = NULL;
-    size_t mem_size, nw_size;
+    size_t nw_size;
+    size_t mem_size;
     uint8_t *in, *end;
     SpiceMsgMainAgentDisconnect *out;
 
@@ -953,7 +934,8 @@ static uint8_t * parse_msg_main_agent_token(uint8_t *message_start, uint8_t *mes
     SPICE_GNUC_UNUSED uint8_t *pos;
     uint8_t *start = message_start;
     uint8_t *data = NULL;
-    size_t mem_size, nw_size;
+    size_t nw_size;
+    size_t mem_size;
     uint8_t *in, *end;
     SpiceMsgMainAgentTokens *out;
 
@@ -996,7 +978,8 @@ static uint8_t * parse_msg_main_migrate_switch_host(uint8_t *message_start, uint
     SPICE_GNUC_UNUSED uint8_t *pos;
     uint8_t *start = message_start;
     uint8_t *data = NULL;
-    size_t mem_size, nw_size;
+    size_t nw_size;
+    size_t mem_size;
     uint8_t *in, *end;
     SPICE_GNUC_UNUSED intptr_t ptr_size;
     uint32_t n_ptr=0;
@@ -1137,7 +1120,7 @@ static uint8_t * parse_MainChannel_msg(uint8_t *message_start, uint8_t *message_
         parse_msg_disconnecting,
         parse_msg_notify
     };
-    static parse_msg_func_t funcs2[11] =  {
+    static parse_msg_func_t funcs2[12] =  {
         parse_msg_main_migrate_begin,
         parse_SpiceMsgEmpty,
         parse_msg_main_init,
@@ -1148,11 +1131,12 @@ static uint8_t * parse_MainChannel_msg(uint8_t *message_start, uint8_t *message_
         parse_msg_main_agent_disconnected,
         parse_SpiceMsgData,
         parse_msg_main_agent_token,
-        parse_msg_main_migrate_switch_host
+        parse_msg_main_migrate_switch_host,
+        parse_SpiceMsgEmpty
     };
     if (message_type >= 1 && message_type < 8) {
         return funcs1[message_type-1](message_start, message_end, minor, size_out, free_message);
-    } else if (message_type >= 101 && message_type < 112) {
+    } else if (message_type >= 101 && message_type < 113) {
         return funcs2[message_type-101](message_start, message_end, minor, size_out, free_message);
     }
     return NULL;
@@ -1165,7 +1149,8 @@ static uint8_t * parse_msg_display_mode(uint8_t *message_start, uint8_t *message
     SPICE_GNUC_UNUSED uint8_t *pos;
     uint8_t *start = message_start;
     uint8_t *data = NULL;
-    size_t mem_size, nw_size;
+    size_t nw_size;
+    size_t mem_size;
     uint8_t *in, *end;
     SpiceMsgDisplayMode *out;
 
@@ -1236,7 +1221,8 @@ static uint8_t * parse_msg_display_copy_bits(uint8_t *message_start, uint8_t *me
     SPICE_GNUC_UNUSED uint8_t *pos;
     uint8_t *start = message_start;
     uint8_t *data = NULL;
-    size_t mem_size, nw_size;
+    size_t nw_size;
+    size_t mem_size;
     uint8_t *in, *end;
     SPICE_GNUC_UNUSED intptr_t ptr_size;
     uint32_t n_ptr=0;
@@ -1372,7 +1358,8 @@ static uint8_t * parse_msg_display_inval_list(uint8_t *message_start, uint8_t *m
     SPICE_GNUC_UNUSED uint8_t *pos;
     uint8_t *start = message_start;
     uint8_t *data = NULL;
-    size_t mem_size, nw_size;
+    size_t nw_size;
+    size_t mem_size;
     uint8_t *in, *end;
     size_t resources__nw_size, resources__mem_size;
     uint32_t resources__nelements;
@@ -1439,7 +1426,8 @@ static uint8_t * parse_msg_display_inval_all_pixmaps(uint8_t *message_start, uin
     SPICE_GNUC_UNUSED uint8_t *pos;
     uint8_t *start = message_start;
     uint8_t *data = NULL;
-    size_t mem_size, nw_size;
+    size_t nw_size;
+    size_t mem_size;
     uint8_t *in, *end;
     size_t wait_list__nw_size, wait_list__mem_size;
     uint32_t wait_list__nelements;
@@ -1507,7 +1495,8 @@ static uint8_t * parse_msg_display_inval_palette(uint8_t *message_start, uint8_t
     SPICE_GNUC_UNUSED uint8_t *pos;
     uint8_t *start = message_start;
     uint8_t *data = NULL;
-    size_t mem_size, nw_size;
+    size_t nw_size;
+    size_t mem_size;
     uint8_t *in, *end;
     SpiceMsgDisplayInvalOne *out;
 
@@ -1550,7 +1539,8 @@ static uint8_t * parse_msg_display_stream_create(uint8_t *message_start, uint8_t
     SPICE_GNUC_UNUSED uint8_t *pos;
     uint8_t *start = message_start;
     uint8_t *data = NULL;
-    size_t mem_size, nw_size;
+    size_t nw_size;
+    size_t mem_size;
     uint8_t *in, *end;
     SPICE_GNUC_UNUSED intptr_t ptr_size;
     uint32_t n_ptr=0;
@@ -1681,7 +1671,8 @@ static uint8_t * parse_msg_display_stream_data(uint8_t *message_start, uint8_t *
     SPICE_GNUC_UNUSED uint8_t *pos;
     uint8_t *start = message_start;
     uint8_t *data = NULL;
-    size_t mem_size, nw_size;
+    size_t nw_size;
+    size_t mem_size;
     uint8_t *in, *end;
     size_t data__nw_size, data__mem_size;
     uint32_t data__nelements;
@@ -1744,7 +1735,8 @@ static uint8_t * parse_msg_display_stream_clip(uint8_t *message_start, uint8_t *
     SPICE_GNUC_UNUSED uint8_t *pos;
     uint8_t *start = message_start;
     uint8_t *data = NULL;
-    size_t mem_size, nw_size;
+    size_t nw_size;
+    size_t mem_size;
     uint8_t *in, *end;
     SPICE_GNUC_UNUSED intptr_t ptr_size;
     uint32_t n_ptr=0;
@@ -1861,7 +1853,8 @@ static uint8_t * parse_msg_display_stream_destroy(uint8_t *message_start, uint8_
     SPICE_GNUC_UNUSED uint8_t *pos;
     uint8_t *start = message_start;
     uint8_t *data = NULL;
-    size_t mem_size, nw_size;
+    size_t nw_size;
+    size_t mem_size;
     uint8_t *in, *end;
     SpiceMsgDisplayStreamDestroy *out;
 
@@ -2391,7 +2384,8 @@ static uint8_t * parse_msg_display_draw_fill(uint8_t *message_start, uint8_t *me
     SPICE_GNUC_UNUSED uint8_t *pos;
     uint8_t *start = message_start;
     uint8_t *data = NULL;
-    size_t mem_size, nw_size;
+    size_t nw_size;
+    size_t mem_size;
     uint8_t *in, *end;
     SPICE_GNUC_UNUSED intptr_t ptr_size;
     uint32_t n_ptr=0;
@@ -2627,7 +2621,8 @@ static uint8_t * parse_msg_display_draw_opaque(uint8_t *message_start, uint8_t *
     SPICE_GNUC_UNUSED uint8_t *pos;
     uint8_t *start = message_start;
     uint8_t *data = NULL;
-    size_t mem_size, nw_size;
+    size_t nw_size;
+    size_t mem_size;
     uint8_t *in, *end;
     SPICE_GNUC_UNUSED intptr_t ptr_size;
     uint32_t n_ptr=0;
@@ -2889,7 +2884,8 @@ static uint8_t * parse_msg_display_draw_copy(uint8_t *message_start, uint8_t *me
     SPICE_GNUC_UNUSED uint8_t *pos;
     uint8_t *start = message_start;
     uint8_t *data = NULL;
-    size_t mem_size, nw_size;
+    size_t nw_size;
+    size_t mem_size;
     uint8_t *in, *end;
     SPICE_GNUC_UNUSED intptr_t ptr_size;
     uint32_t n_ptr=0;
@@ -3088,7 +3084,8 @@ static uint8_t * parse_msg_display_draw_blend(uint8_t *message_start, uint8_t *m
     SPICE_GNUC_UNUSED uint8_t *pos;
     uint8_t *start = message_start;
     uint8_t *data = NULL;
-    size_t mem_size, nw_size;
+    size_t nw_size;
+    size_t mem_size;
     uint8_t *in, *end;
     SPICE_GNUC_UNUSED intptr_t ptr_size;
     uint32_t n_ptr=0;
@@ -3287,7 +3284,8 @@ static uint8_t * parse_msg_display_draw_blackness(uint8_t *message_start, uint8_
     SPICE_GNUC_UNUSED uint8_t *pos;
     uint8_t *start = message_start;
     uint8_t *data = NULL;
-    size_t mem_size, nw_size;
+    size_t nw_size;
+    size_t mem_size;
     uint8_t *in, *end;
     SPICE_GNUC_UNUSED intptr_t ptr_size;
     uint32_t n_ptr=0;
@@ -3459,7 +3457,8 @@ static uint8_t * parse_msg_display_draw_whiteness(uint8_t *message_start, uint8_
     SPICE_GNUC_UNUSED uint8_t *pos;
     uint8_t *start = message_start;
     uint8_t *data = NULL;
-    size_t mem_size, nw_size;
+    size_t nw_size;
+    size_t mem_size;
     uint8_t *in, *end;
     SPICE_GNUC_UNUSED intptr_t ptr_size;
     uint32_t n_ptr=0;
@@ -3631,7 +3630,8 @@ static uint8_t * parse_msg_display_draw_invers(uint8_t *message_start, uint8_t *
     SPICE_GNUC_UNUSED uint8_t *pos;
     uint8_t *start = message_start;
     uint8_t *data = NULL;
-    size_t mem_size, nw_size;
+    size_t nw_size;
+    size_t mem_size;
     uint8_t *in, *end;
     SPICE_GNUC_UNUSED intptr_t ptr_size;
     uint32_t n_ptr=0;
@@ -3803,7 +3803,8 @@ static uint8_t * parse_msg_display_draw_rop3(uint8_t *message_start, uint8_t *me
     SPICE_GNUC_UNUSED uint8_t *pos;
     uint8_t *start = message_start;
     uint8_t *data = NULL;
-    size_t mem_size, nw_size;
+    size_t nw_size;
+    size_t mem_size;
     uint8_t *in, *end;
     SPICE_GNUC_UNUSED intptr_t ptr_size;
     uint32_t n_ptr=0;
@@ -4191,7 +4192,8 @@ static uint8_t * parse_msg_display_draw_stroke(uint8_t *message_start, uint8_t *
     SPICE_GNUC_UNUSED uint8_t *pos;
     uint8_t *start = message_start;
     uint8_t *data = NULL;
-    size_t mem_size, nw_size;
+    size_t nw_size;
+    size_t mem_size;
     uint8_t *in, *end;
     SPICE_GNUC_UNUSED intptr_t ptr_size;
     uint32_t n_ptr=0;
@@ -4787,7 +4789,8 @@ static uint8_t * parse_msg_display_draw_text(uint8_t *message_start, uint8_t *me
     SPICE_GNUC_UNUSED uint8_t *pos;
     uint8_t *start = message_start;
     uint8_t *data = NULL;
-    size_t mem_size, nw_size;
+    size_t nw_size;
+    size_t mem_size;
     uint8_t *in, *end;
     SPICE_GNUC_UNUSED intptr_t ptr_size;
     uint32_t n_ptr=0;
@@ -5082,7 +5085,8 @@ static uint8_t * parse_msg_display_draw_transparent(uint8_t *message_start, uint
     SPICE_GNUC_UNUSED uint8_t *pos;
     uint8_t *start = message_start;
     uint8_t *data = NULL;
-    size_t mem_size, nw_size;
+    size_t nw_size;
+    size_t mem_size;
     uint8_t *in, *end;
     SPICE_GNUC_UNUSED intptr_t ptr_size;
     uint32_t n_ptr=0;
@@ -5249,7 +5253,8 @@ static uint8_t * parse_msg_display_draw_alpha_blend(uint8_t *message_start, uint
     SPICE_GNUC_UNUSED uint8_t *pos;
     uint8_t *start = message_start;
     uint8_t *data = NULL;
-    size_t mem_size, nw_size;
+    size_t nw_size;
+    size_t mem_size;
     uint8_t *in, *end;
     SPICE_GNUC_UNUSED intptr_t ptr_size;
     uint32_t n_ptr=0;
@@ -5416,7 +5421,8 @@ static uint8_t * parse_msg_display_surface_create(uint8_t *message_start, uint8_
     SPICE_GNUC_UNUSED uint8_t *pos;
     uint8_t *start = message_start;
     uint8_t *data = NULL;
-    size_t mem_size, nw_size;
+    size_t nw_size;
+    size_t mem_size;
     uint8_t *in, *end;
     SpiceMsgSurfaceCreate *out;
 
@@ -5463,7 +5469,8 @@ static uint8_t * parse_msg_display_surface_destroy(uint8_t *message_start, uint8
     SPICE_GNUC_UNUSED uint8_t *pos;
     uint8_t *start = message_start;
     uint8_t *data = NULL;
-    size_t mem_size, nw_size;
+    size_t nw_size;
+    size_t mem_size;
     uint8_t *in, *end;
     SpiceMsgSurfaceDestroy *out;
 
@@ -5564,7 +5571,8 @@ static uint8_t * parse_msg_inputs_init(uint8_t *message_start, uint8_t *message_
     SPICE_GNUC_UNUSED uint8_t *pos;
     uint8_t *start = message_start;
     uint8_t *data = NULL;
-    size_t mem_size, nw_size;
+    size_t nw_size;
+    size_t mem_size;
     uint8_t *in, *end;
     SpiceMsgInputsInit *out;
 
@@ -5607,7 +5615,8 @@ static uint8_t * parse_msg_inputs_key_modifiers(uint8_t *message_start, uint8_t 
     SPICE_GNUC_UNUSED uint8_t *pos;
     uint8_t *start = message_start;
     uint8_t *data = NULL;
-    size_t mem_size, nw_size;
+    size_t nw_size;
+    size_t mem_size;
     uint8_t *in, *end;
     SpiceMsgInputsKeyModifiers *out;
 
@@ -5680,7 +5689,8 @@ static uint8_t * parse_msg_cursor_init(uint8_t *message_start, uint8_t *message_
     SPICE_GNUC_UNUSED uint8_t *pos;
     uint8_t *start = message_start;
     uint8_t *data = NULL;
-    size_t mem_size, nw_size;
+    size_t nw_size;
+    size_t mem_size;
     uint8_t *in, *end;
     size_t cursor__nw_size;
     SpiceMsgCursorInit *out;
@@ -5777,7 +5787,8 @@ static uint8_t * parse_msg_cursor_set(uint8_t *message_start, uint8_t *message_e
     SPICE_GNUC_UNUSED uint8_t *pos;
     uint8_t *start = message_start;
     uint8_t *data = NULL;
-    size_t mem_size, nw_size;
+    size_t nw_size;
+    size_t mem_size;
     uint8_t *in, *end;
     size_t cursor__nw_size;
     SpiceMsgCursorSet *out;
@@ -5872,7 +5883,8 @@ static uint8_t * parse_msg_cursor_move(uint8_t *message_start, uint8_t *message_
     SPICE_GNUC_UNUSED uint8_t *pos;
     uint8_t *start = message_start;
     uint8_t *data = NULL;
-    size_t mem_size, nw_size;
+    size_t nw_size;
+    size_t mem_size;
     uint8_t *in, *end;
     SpiceMsgCursorMove *out;
 
@@ -5918,7 +5930,8 @@ static uint8_t * parse_msg_cursor_trail(uint8_t *message_start, uint8_t *message
     SPICE_GNUC_UNUSED uint8_t *pos;
     uint8_t *start = message_start;
     uint8_t *data = NULL;
-    size_t mem_size, nw_size;
+    size_t nw_size;
+    size_t mem_size;
     uint8_t *in, *end;
     SpiceMsgCursorTrail *out;
 
@@ -5962,7 +5975,8 @@ static uint8_t * parse_msg_cursor_inval_one(uint8_t *message_start, uint8_t *mes
     SPICE_GNUC_UNUSED uint8_t *pos;
     uint8_t *start = message_start;
     uint8_t *data = NULL;
-    size_t mem_size, nw_size;
+    size_t nw_size;
+    size_t mem_size;
     uint8_t *in, *end;
     SpiceMsgDisplayInvalOne *out;
 
@@ -6036,7 +6050,8 @@ static uint8_t * parse_msg_playback_data(uint8_t *message_start, uint8_t *messag
     SPICE_GNUC_UNUSED uint8_t *pos;
     uint8_t *start = message_start;
     uint8_t *data = NULL;
-    size_t mem_size, nw_size;
+    size_t nw_size;
+    size_t mem_size;
     uint8_t *in, *end;
     size_t data__nw_size;
     uint32_t data__nelements;
@@ -6091,7 +6106,8 @@ static uint8_t * parse_msg_playback_mode(uint8_t *message_start, uint8_t *messag
     SPICE_GNUC_UNUSED uint8_t *pos;
     uint8_t *start = message_start;
     uint8_t *data = NULL;
-    size_t mem_size, nw_size;
+    size_t nw_size;
+    size_t mem_size;
     uint8_t *in, *end;
     size_t data__nw_size;
     uint32_t data__nelements;
@@ -6147,7 +6163,8 @@ static uint8_t * parse_msg_playback_start(uint8_t *message_start, uint8_t *messa
     SPICE_GNUC_UNUSED uint8_t *pos;
     uint8_t *start = message_start;
     uint8_t *data = NULL;
-    size_t mem_size, nw_size;
+    size_t nw_size;
+    size_t mem_size;
     uint8_t *in, *end;
     SpiceMsgPlaybackStart *out;
 
@@ -6188,6 +6205,114 @@ static uint8_t * parse_msg_playback_start(uint8_t *message_start, uint8_t *messa
     return NULL;
 }
 
+static uint8_t * parse_SpiceMsgAudioVolume(uint8_t *message_start, uint8_t *message_end, int minor, size_t *size, message_destructor_t *free_message)
+{
+    SPICE_GNUC_UNUSED uint8_t *pos;
+    uint8_t *start = message_start;
+    uint8_t *data = NULL;
+    size_t nw_size;
+    size_t mem_size;
+    uint8_t *in, *end;
+    size_t volume__nw_size, volume__mem_size;
+    uint32_t volume__nelements;
+    SpiceMsgAudioVolume *out;
+    uint32_t i;
+
+    { /* volume */
+        uint8_t nchannels__value;
+        pos = start + 0;
+        if (SPICE_UNLIKELY(pos + 1 > message_end)) {
+            goto error;
+        }
+        nchannels__value = read_uint8(pos);
+        volume__nelements = nchannels__value;
+
+        volume__nw_size = (2) * volume__nelements;
+        volume__mem_size = sizeof(uint16_t) * volume__nelements;
+    }
+
+    nw_size = 1 + volume__nw_size;
+    mem_size = sizeof(SpiceMsgAudioVolume) + volume__mem_size;
+
+    /* Check if message fits in reported side */
+    if (start + nw_size > message_end) {
+        return NULL;
+    }
+
+    /* Validated extents and calculated size */
+    data = (uint8_t *)malloc(mem_size);
+    if (SPICE_UNLIKELY(data == NULL)) {
+        goto error;
+    }
+    end = data + sizeof(SpiceMsgAudioVolume);
+    in = start;
+
+    out = (SpiceMsgAudioVolume *)data;
+
+    out->nchannels = consume_uint8(&in);
+    for (i = 0; i < volume__nelements; i++) {
+        out->volume[i] = consume_uint16(&in);
+        end += sizeof(uint16_t);
+    }
+
+    assert(in <= message_end);
+    assert(end <= data + mem_size);
+
+    *size = end - data;
+    *free_message = (message_destructor_t) free;
+    return data;
+
+   error:
+    if (data != NULL) {
+        free(data);
+    }
+    return NULL;
+}
+
+static uint8_t * parse_SpiceMsgAudioMute(uint8_t *message_start, uint8_t *message_end, int minor, size_t *size, message_destructor_t *free_message)
+{
+    SPICE_GNUC_UNUSED uint8_t *pos;
+    uint8_t *start = message_start;
+    uint8_t *data = NULL;
+    size_t nw_size;
+    size_t mem_size;
+    uint8_t *in, *end;
+    SpiceMsgAudioMute *out;
+
+    nw_size = 1;
+    mem_size = sizeof(SpiceMsgAudioMute);
+
+    /* Check if message fits in reported side */
+    if (start + nw_size > message_end) {
+        return NULL;
+    }
+
+    /* Validated extents and calculated size */
+    data = (uint8_t *)malloc(mem_size);
+    if (SPICE_UNLIKELY(data == NULL)) {
+        goto error;
+    }
+    end = data + sizeof(SpiceMsgAudioMute);
+    in = start;
+
+    out = (SpiceMsgAudioMute *)data;
+
+    out->mute = consume_uint8(&in);
+
+    assert(in <= message_end);
+    assert(end <= data + mem_size);
+
+    *size = end - data;
+    *free_message = (message_destructor_t) free;
+    return data;
+
+   error:
+    if (data != NULL) {
+        free(data);
+    }
+    return NULL;
+}
+
 static uint8_t * parse_PlaybackChannel_msg(uint8_t *message_start, uint8_t *message_end, uint16_t message_type, int minor, size_t *size_out, message_destructor_t *free_message)
 {
     static parse_msg_func_t funcs1[7] =  {
@@ -6199,15 +6324,17 @@ static uint8_t * parse_PlaybackChannel_msg(uint8_t *message_start, uint8_t *mess
         parse_msg_disconnecting,
         parse_msg_notify
     };
-    static parse_msg_func_t funcs2[4] =  {
+    static parse_msg_func_t funcs2[6] =  {
         parse_msg_playback_data,
         parse_msg_playback_mode,
         parse_msg_playback_start,
-        parse_SpiceMsgEmpty
+        parse_SpiceMsgEmpty,
+        parse_SpiceMsgAudioVolume,
+        parse_SpiceMsgAudioMute
     };
     if (message_type >= 1 && message_type < 8) {
         return funcs1[message_type-1](message_start, message_end, minor, size_out, free_message);
-    } else if (message_type >= 101 && message_type < 105) {
+    } else if (message_type >= 101 && message_type < 107) {
         return funcs2[message_type-101](message_start, message_end, minor, size_out, free_message);
     }
     return NULL;
@@ -6220,7 +6347,8 @@ static uint8_t * parse_msg_record_start(uint8_t *message_start, uint8_t *message
     SPICE_GNUC_UNUSED uint8_t *pos;
     uint8_t *start = message_start;
     uint8_t *data = NULL;
-    size_t mem_size, nw_size;
+    size_t nw_size;
+    size_t mem_size;
     uint8_t *in, *end;
     SpiceMsgRecordStart *out;
 
@@ -6271,13 +6399,15 @@ static uint8_t * parse_RecordChannel_msg(uint8_t *message_start, uint8_t *messag
         parse_msg_disconnecting,
         parse_msg_notify
     };
-    static parse_msg_func_t funcs2[2] =  {
+    static parse_msg_func_t funcs2[4] =  {
         parse_msg_record_start,
-        parse_SpiceMsgEmpty
+        parse_SpiceMsgEmpty,
+        parse_SpiceMsgAudioVolume,
+        parse_SpiceMsgAudioMute
     };
     if (message_type >= 1 && message_type < 8) {
         return funcs1[message_type-1](message_start, message_end, minor, size_out, free_message);
-    } else if (message_type >= 101 && message_type < 103) {
+    } else if (message_type >= 101 && message_type < 105) {
         return funcs2[message_type-101](message_start, message_end, minor, size_out, free_message);
     }
     return NULL;
@@ -6290,7 +6420,8 @@ static uint8_t * parse_msg_tunnel_init(uint8_t *message_start, uint8_t *message_
     SPICE_GNUC_UNUSED uint8_t *pos;
     uint8_t *start = message_start;
     uint8_t *data = NULL;
-    size_t mem_size, nw_size;
+    size_t nw_size;
+    size_t mem_size;
     uint8_t *in, *end;
     SpiceMsgTunnelInit *out;
 
@@ -6334,7 +6465,8 @@ static uint8_t * parse_msg_tunnel_service_ip_map(uint8_t *message_start, uint8_t
     SPICE_GNUC_UNUSED uint8_t *pos;
     uint8_t *start = message_start;
     uint8_t *data = NULL;
-    size_t mem_size, nw_size;
+    size_t nw_size;
+    size_t mem_size;
     uint8_t *in, *end;
     size_t virtual_ip__nw_size;
     SpiceMsgTunnelServiceIpMap *out;
@@ -6411,7 +6543,8 @@ static uint8_t * parse_msg_tunnel_socket_open(uint8_t *message_start, uint8_t *m
     SPICE_GNUC_UNUSED uint8_t *pos;
     uint8_t *start = message_start;
     uint8_t *data = NULL;
-    size_t mem_size, nw_size;
+    size_t nw_size;
+    size_t mem_size;
     uint8_t *in, *end;
     SpiceMsgTunnelSocketOpen *out;
 
@@ -6456,7 +6589,8 @@ static uint8_t * parse_msg_tunnel_socket_fin(uint8_t *message_start, uint8_t *me
     SPICE_GNUC_UNUSED uint8_t *pos;
     uint8_t *start = message_start;
     uint8_t *data = NULL;
-    size_t mem_size, nw_size;
+    size_t nw_size;
+    size_t mem_size;
     uint8_t *in, *end;
     SpiceMsgTunnelSocketFin *out;
 
@@ -6499,7 +6633,8 @@ static uint8_t * parse_msg_tunnel_socket_close(uint8_t *message_start, uint8_t *
     SPICE_GNUC_UNUSED uint8_t *pos;
     uint8_t *start = message_start;
     uint8_t *data = NULL;
-    size_t mem_size, nw_size;
+    size_t nw_size;
+    size_t mem_size;
     uint8_t *in, *end;
     SpiceMsgTunnelSocketClose *out;
 
@@ -6542,7 +6677,8 @@ static uint8_t * parse_msg_tunnel_socket_data(uint8_t *message_start, uint8_t *m
     SPICE_GNUC_UNUSED uint8_t *pos;
     uint8_t *start = message_start;
     uint8_t *data = NULL;
-    size_t mem_size, nw_size;
+    size_t nw_size;
+    size_t mem_size;
     uint8_t *in, *end;
     size_t data__nw_size, data__mem_size;
     uint32_t data__nelements;
@@ -6597,7 +6733,8 @@ static uint8_t * parse_msg_tunnel_socket_closed_ack(uint8_t *message_start, uint
     SPICE_GNUC_UNUSED uint8_t *pos;
     uint8_t *start = message_start;
     uint8_t *data = NULL;
-    size_t mem_size, nw_size;
+    size_t nw_size;
+    size_t mem_size;
     uint8_t *in, *end;
     SpiceMsgTunnelSocketClosedAck *out;
 
@@ -6640,7 +6777,8 @@ static uint8_t * parse_msg_tunnel_socket_token(uint8_t *message_start, uint8_t *
     SPICE_GNUC_UNUSED uint8_t *pos;
     uint8_t *start = message_start;
     uint8_t *data = NULL;
-    size_t mem_size, nw_size;
+    size_t nw_size;
+    size_t mem_size;
     uint8_t *in, *end;
     SpiceMsgTunnelSocketTokens *out;
 
@@ -6708,19 +6846,133 @@ static uint8_t * parse_TunnelChannel_msg(uint8_t *message_start, uint8_t *messag
     return NULL;
 }
 
+
+#ifdef USE_SMARTCARD
+
+static uint8_t * parse_msg_smartcard_msg(uint8_t *message_start, uint8_t *message_end, int minor, size_t *size, message_destructor_t *free_message)
+{
+    SPICE_GNUC_UNUSED uint8_t *pos;
+    uint8_t *start = message_start;
+    uint8_t *data = NULL;
+    size_t nw_size;
+    size_t mem_size;
+    uint8_t *in, *end;
+    size_t data__nw_size, data__mem_size;
+    uint32_t data__nelements;
+    SpiceMsgSmartcard *out;
+
+    { /* data */
+        data__nelements = message_end - (start + 12);
+
+        data__nw_size = data__nelements;
+        data__mem_size = sizeof(uint8_t) * data__nelements;
+    }
+
+    nw_size = 12 + data__nw_size;
+    mem_size = sizeof(SpiceMsgSmartcard) + data__mem_size;
+
+    /* Check if message fits in reported side */
+    if (start + nw_size > message_end) {
+        return NULL;
+    }
+
+    /* Validated extents and calculated size */
+    data = (uint8_t *)malloc(mem_size);
+    if (SPICE_UNLIKELY(data == NULL)) {
+        goto error;
+    }
+    end = data + sizeof(SpiceMsgSmartcard);
+    in = start;
+
+    out = (SpiceMsgSmartcard *)data;
+
+    out->type = consume_uint32(&in);
+    out->reader_id = consume_uint32(&in);
+    out->length = consume_uint32(&in);
+    memcpy(out->data, in, data__nelements);
+    in += data__nelements;
+    end += data__nelements;
+
+    assert(in <= message_end);
+    assert(end <= data + mem_size);
+
+    *size = end - data;
+    *free_message = (message_destructor_t) free;
+    return data;
+
+   error:
+    if (data != NULL) {
+        free(data);
+    }
+    return NULL;
+}
+
+static uint8_t * parse_SmartcardChannel_msg(uint8_t *message_start, uint8_t *message_end, uint16_t message_type, int minor, size_t *size_out, message_destructor_t *free_message)
+{
+    static parse_msg_func_t funcs1[7] =  {
+        parse_msg_migrate,
+        parse_SpiceMsgData,
+        parse_msg_set_ack,
+        parse_msg_ping,
+        parse_msg_wait_for_channels,
+        parse_msg_disconnecting,
+        parse_msg_notify
+    };
+    static parse_msg_func_t funcs2[1] =  {
+        parse_msg_smartcard_msg
+    };
+    if (message_type >= 1 && message_type < 8) {
+        return funcs1[message_type-1](message_start, message_end, minor, size_out, free_message);
+    } else if (message_type >= 101 && message_type < 102) {
+        return funcs2[message_type-101](message_start, message_end, minor, size_out, free_message);
+    }
+    return NULL;
+}
+#endif /* USE_SMARTCARD */
+
+
+
+static uint8_t * parse_UsbredirChannel_msg(uint8_t *message_start, uint8_t *message_end, uint16_t message_type, int minor, size_t *size_out, message_destructor_t *free_message)
+{
+    static parse_msg_func_t funcs1[7] =  {
+        parse_msg_migrate,
+        parse_SpiceMsgData,
+        parse_msg_set_ack,
+        parse_msg_ping,
+        parse_msg_wait_for_channels,
+        parse_msg_disconnecting,
+        parse_msg_notify
+    };
+    static parse_msg_func_t funcs2[1] =  {
+        parse_SpiceMsgData
+    };
+    if (message_type >= 1 && message_type < 8) {
+        return funcs1[message_type-1](message_start, message_end, minor, size_out, free_message);
+    } else if (message_type >= 101 && message_type < 102) {
+        return funcs2[message_type-101](message_start, message_end, minor, size_out, free_message);
+    }
+    return NULL;
+}
+
 spice_parse_channel_func_t spice_get_server_channel_parser(uint32_t channel, unsigned int *max_message_type)
 {
-    static struct {spice_parse_channel_func_t func; unsigned int max_messages; } channels[8] =  {
-        { NULL, 0},
-        { parse_MainChannel_msg, 111},
+    static struct {spice_parse_channel_func_t func; unsigned int max_messages; } channels[10] =  {
+        { NULL, 0 },
+        { parse_MainChannel_msg, 112},
         { parse_DisplayChannel_msg, 315},
         { parse_InputsChannel_msg, 111},
         { parse_CursorChannel_msg, 108},
-        { parse_PlaybackChannel_msg, 104},
-        { parse_RecordChannel_msg, 102},
-        { parse_TunnelChannel_msg, 108}
+        { parse_PlaybackChannel_msg, 106},
+        { parse_RecordChannel_msg, 104},
+        { parse_TunnelChannel_msg, 108},
+#ifdef USE_SMARTCARD
+        { parse_SmartcardChannel_msg, 101},
+#else /* USE_SMARTCARD */
+        { NULL, 0 },
+#endif /* USE_SMARTCARD */
+        { parse_UsbredirChannel_msg, 101}
     };
-    if (channel < 8) {
+    if (channel < 10) {
         if (max_message_type != NULL) {
             *max_message_type = channels[channel].max_messages;
         }

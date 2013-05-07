@@ -258,15 +258,27 @@ static int update_mask (int button, gboolean down) {
 	return mask;
 }
 
+/* Signals */
+enum {
+    SPICE_DISPLAY_MOUSE_GRAB,
+    SPICE_DISPLAY_KEYBOARD_GRAB,
+    SPICE_DISPLAY_GRAB_KEY_PRESSED,
+    SPICE_DISPLAY_LAST_SIGNAL,
+};
+
+static guint signals[SPICE_DISPLAY_LAST_SIGNAL];
+
 gboolean button_event(AndroidEventButton *button)
 {
     SpiceDisplay* display = android_display;
     spice_display *d = SPICE_DISPLAY_GET_PRIVATE(display);
-    /* TODO: Figure out why these values are not taking hold:
-    d->mouse_grab_enabled = FALSE;
+    //Figure out why these values are not taking hold:
+    /*
+    d->mouse_grab_enable = FALSE;
     d->mouse_grab_active = FALSE;
     d->mouse_mode = SPICE_MOUSE_MODE_CLIENT;
-    */
+    g_signal_emit(display, signals[SPICE_DISPLAY_MOUSE_GRAB], 0, false);*/
+
     SPICE_DEBUG("%d:x:%d,y:%d", button->type, button->x, button->y);
     //char buf[40];
 

@@ -45,6 +45,8 @@
 #include "usb-device-manager.h"
 #include "spice-audio.h"
 
+G_BEGIN_DECLS
+
 #define SPICE_CLIENT_ERROR spice_client_error_quark()
 
 /**
@@ -56,8 +58,12 @@
 typedef enum
 {
     SPICE_CLIENT_ERROR_FAILED,
+    SPICE_CLIENT_USB_DEVICE_REJECTED,
+    SPICE_CLIENT_USB_DEVICE_LOST,
 } SpiceClientError;
 
 GQuark spice_client_error_quark(void);
+
+G_END_DECLS
 
 #endif /* __SPICE_CLIENT_CLIENT_H__ */

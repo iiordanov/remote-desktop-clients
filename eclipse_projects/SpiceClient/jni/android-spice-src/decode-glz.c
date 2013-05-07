@@ -142,8 +142,6 @@ static gboolean wait_for_image(gpointer data)
     struct glz_image *image = wait->window->images[slot];
     gboolean ready = image && image->hdr.id == wait->id;
 
-    SPICE_DEBUG("image with slot %d: %s", slot, ready ? "yes" : "no");
-
     return ready;
 }
 

@@ -173,10 +173,10 @@ void notified (GObject    *gobject, GParamSpec *pspec,
       gchar** p = (gchar **)g_value_get_boxed (&value);
       g_message ("notify::%s == ", pspec->name);
       while (*p)
-        g_message (*p++);
-    } else if (pspec->value_type == G_TYPE_OBJECT) {
+        g_message ("%s", *p++);
+    } else if (G_TYPE_IS_OBJECT(pspec->value_type)) {
       GObject *o = g_value_get_object (&value);
-      g_message ("notify::%s == %s", G_OBJECT_TYPE_NAME (o));
+      g_message ("notify::%s == %s", pspec->name, o ? G_OBJECT_TYPE_NAME (o) : "null");
     } else {
       g_value_transform (&value, &strvalue);
       g_message ("notify::%s  = %s", pspec->name, g_value_get_string (&strvalue));
@@ -184,6 +184,19 @@ void notified (GObject    *gobject, GParamSpec *pspec,
 
     g_value_unset (&value);
     g_value_unset (&strvalue);
+}
+
+void connect_signals (gpointer obj)
+{
+    guint i, n_ids = 0;
+    guint *ids = NULL;
+    GType type = G_OBJECT_TYPE (obj);
+
+    ids = g_signal_list_ids (type, &n_ids);
+    for (i = 0; i < n_ids; i++) {
+        const gchar *name = g_signal_name (ids[i]);
+        g_signal_connect (obj, name, G_CALLBACK (signaled), (gpointer)name);
+    }
 }
 
 int main (int argc, char *argv[])
@@ -199,9 +212,7 @@ int main (int argc, char *argv[])
     ctrl = spice_ctrl_controller_new ();
     loop = g_main_loop_new (NULL, FALSE);
     g_signal_connect (ctrl, "notify", G_CALLBACK (notified), NULL);
-    g_signal_connect (ctrl, "show", G_CALLBACK (signaled), "show");
-    g_signal_connect (ctrl, "hide", G_CALLBACK (signaled), "hide");
-    g_signal_connect (ctrl, "do_connect", G_CALLBACK (signaled), "do_connect");
+    connect_signals (ctrl);
 
 #ifdef WIN32
     snprintf (pipe_name, PIPE_NAME_MAX_LEN, PIPE_NAME, spicec_pid);

@@ -39,6 +39,7 @@ public class Controller: Object {
 	public string[] secure_channels { private set; get; }
 	public string[] disable_channels { private set; get; }
 	public SpiceCtrl.Menu? menu  { private set; get; }
+	public bool enable_smartcard { private set; get; }
 
 	public signal void do_connect ();
 	public signal void show ();
@@ -76,9 +77,9 @@ public class Controller: Object {
 	private int nclients;
 	List<IOStream> clients;
 
-	private bool handle_message (SpiceProtocol.Controller.Msg msg) {
-		var v = (SpiceProtocol.Controller.MsgValue*)(&msg);
-		var d = (SpiceProtocol.Controller.MsgData*)(&msg);
+	private bool handle_message (SpiceProtocol.Controller.Msg* msg) {
+		var v = (SpiceProtocol.Controller.MsgValue*)(msg);
+		var d = (SpiceProtocol.Controller.MsgData*)(msg);
 		unowned string str = (string)(&d.data);
 
 		switch (msg.id) {
@@ -118,6 +119,9 @@ public class Controller: Object {
 			break;
 		case SpiceProtocol.Controller.MsgId.SET_TITLE:
 			title = str;
+			break;
+		case SpiceProtocol.Controller.MsgId.ENABLE_SMARTCARD:
+			enable_smartcard = (bool)v.value;
 			break;
 
 		case SpiceProtocol.Controller.MsgId.CREATE_MENU:
@@ -209,7 +213,7 @@ public class Controller: Object {
 					break;
 			}
 
-			handle_message (*msg);
+			handle_message (msg);
 		}
 
 		if (excl)
@@ -221,26 +225,8 @@ public class Controller: Object {
 
 	public async void listen (string? addr = null) throws GLib.Error, SpiceCtrl.Error
 	{
-		if (addr == null)
-#if WIN32
-			addr = (string*)"\\\\.\\pipe\\SpiceController-%lu".printf (GetCurrentProcessId ());
-#else
-			if (Environment.get_variable ("SPICE_XPI_SOCKET") != null)
-				addr = (string*)"%s".printf (Environment.get_variable ("SPICE_XPI_SOCKET")); // FIXME vala...
-#endif
-		if (addr == null)
-			throw new SpiceCtrl.Error.VALUE ("Missing SPICE_XPI_SOCKET");
-		FileUtils.unlink (addr);
+		var listener = ControllerListener.new_listener (addr);
 
-#if WIN32
-		var listener = new NamedPipeListener ();
-		var np = new NamedPipe (addr);
-		listener.add_named_pipe (np);
-#else
-		var listener = new SocketListener ();
-		listener.add_address (new UnixSocketAddress (addr),
-							  SocketType.STREAM, SocketProtocol.DEFAULT, null, null);
-#endif
 		for (;;) {
 			var c = yield listener.accept_async ();
 			nclients += 1;

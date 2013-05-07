@@ -39,7 +39,7 @@ spice_named_pipe_listener_dispose (GObject *object)
   SpiceNamedPipeListener *listener = SPICE_NAMED_PIPE_LISTENER (object);
   SpiceNamedPipe *p;
 
-  while (p = g_queue_pop_head (&listener->priv->namedpipes))
+  while ((p = g_queue_pop_head (&listener->priv->namedpipes)) != NULL)
     g_object_unref (p);
 
   g_return_if_fail (g_queue_get_length (&listener->priv->namedpipes) == 0);
@@ -239,7 +239,6 @@ spice_named_pipe_listener_accept_finish (SpiceNamedPipeListener *listener,
   GSimpleAsyncResult *simple;
   ConnectData *c;
   SpiceNamedPipeConnection *connection;
-  gboolean success;
 
   g_return_val_if_fail (SPICE_IS_NAMED_PIPE_LISTENER (listener), NULL);
   g_return_val_if_fail (G_IS_SIMPLE_ASYNC_RESULT (result), NULL);

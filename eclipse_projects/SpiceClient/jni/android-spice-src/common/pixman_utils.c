@@ -254,19 +254,19 @@ void spice_pixman_fill_rect(pixman_image_t *dest,
         byte_line += stride;
         w = byte_width;
 
-        while (w >= 1 && ((unsigned long)d & 1)) {
+        while (w >= 1 && ((uintptr_t)d & 1)) {
             *(uint8_t *)d = (value & 0xff);
             w--;
             d++;
         }
 
-        while (w >= 2 && ((unsigned long)d & 3)) {
+        while (w >= 2 && ((uintptr_t)d & 3)) {
             *(uint16_t *)d = value;
             w -= 2;
             d += 2;
         }
 
-        while (w >= 4 && ((unsigned long)d & 7)) {
+        while (w >= 4 && ((uintptr_t)d & 7)) {
             *(uint32_t *)d = value;
 
             w -= 4;

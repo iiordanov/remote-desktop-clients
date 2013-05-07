@@ -28,6 +28,12 @@ public class MenuItem: Object {
 	public string accel;
 	public SpiceProtocol.Controller.MenuFlags flags;
 
+	public MenuItem (int id, string text, SpiceProtocol.Controller.MenuFlags flags) {
+		this.id = id;
+		this.text = text;
+		this.flags = flags;
+	}
+
 	public MenuItem.from_string (string str) throws SpiceCtrl.Error {
 		var params = str.split (SpiceProtocol.Controller.MENU_PARAM_DELIMITER);
 		if (warn_if (params.length != 5))
