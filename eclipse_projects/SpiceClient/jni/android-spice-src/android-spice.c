@@ -25,6 +25,7 @@
 #include "android-spice.h"
 #include "android-spice-priv.h"
 #include "androidkeymap.c"
+#include "win32keymap.h"
 
 G_DEFINE_TYPE(SpiceDisplay, spice_display, SPICE_TYPE_CHANNEL);
 static SpiceDisplay* android_display;
@@ -108,6 +109,8 @@ static void spice_display_init(SpiceDisplay *display)
     d = display->priv = SPICE_DISPLAY_GET_PRIVATE(display);
     memset(d, 0, sizeof(*d));
     d->have_mitshm = true;
+    d->mouse_last_x = -1;
+    d->mouse_last_y = -1;
 }
 
 
@@ -199,6 +202,15 @@ static void send_key(SpiceDisplay *display, int scancode, int down)
     }
 }
 
+int win32key2spice (int keycode)
+{
+	int newKeyCode = keymap_win322xtkbd[keycode];
+	char buf[60];
+    snprintf (buf, 60, "Converted win32 key: %d to linux key: %d", keycode, newKeyCode);
+	__android_log_write(6, "android-spice", buf);
+    return newKeyCode;
+}
+
 int androidkey2spice(int keycode)
 {
     return keymap_android[keycode];
@@ -214,26 +226,15 @@ gboolean key_event(AndroidEventKey* key)
     if (!d->inputs)
 	return true;
 
-    scancode = androidkey2spice(key->hardware_keycode);
+    scancode = win32key2spice(key->hardware_keycode);
     //scancode = key->hardware_keycode;
     switch (key->type) {
 	case ANDROID_KEY_PRESS:
-	    if(scancode>100){//along with KEY_SHIFT
-		send_key(display, 42, 1);
-		send_key(display, scancode-100, 1);
-	    } else{
-		send_key(display, scancode, 1);
-	    }
+        send_key(display, scancode, 1);
 	    break;
 	case ANDROID_KEY_RELEASE:
-	    if(scancode>100){//along with KEY_SHIFT
-		send_key(display, 42, 0);
-		send_key(display, scancode-100, 0);
-	    } else{
 		send_key(display, scancode, 0);
-	    }
 	    break;
-
 	default:
 	    break;
     }
@@ -258,37 +259,42 @@ static int update_mask (int button, gboolean down) {
 	return mask;
 }
 
-/* Signals */
-enum {
-    SPICE_DISPLAY_MOUSE_GRAB,
-    SPICE_DISPLAY_KEYBOARD_GRAB,
-    SPICE_DISPLAY_GRAB_KEY_PRESSED,
-    SPICE_DISPLAY_LAST_SIGNAL,
-};
-
-static guint signals[SPICE_DISPLAY_LAST_SIGNAL];
-
 gboolean button_event(AndroidEventButton *button)
 {
     SpiceDisplay* display = android_display;
     spice_display *d = SPICE_DISPLAY_GET_PRIVATE(display);
-    //Figure out why these values are not taking hold:
-    /*
-    d->mouse_grab_enable = FALSE;
-    d->mouse_grab_active = FALSE;
-    d->mouse_mode = SPICE_MOUSE_MODE_CLIENT;
-    g_signal_emit(display, signals[SPICE_DISPLAY_MOUSE_GRAB], 0, false);*/
 
     SPICE_DEBUG("%d:x:%d,y:%d", button->type, button->x, button->y);
     //char buf[40];
 
     if (!d->inputs || (button->x >= 0 && button->x < d->width && button->y >= 0 && button->y < d->height)) {
+
 		gboolean down = (button->type & PTRFLAGS_DOWN) != 0;
 		int mouseButton = button->type &~ PTRFLAGS_DOWN;
 		int newMask = update_mask (mouseButton, down);
 	    //snprintf (buf, 40, "Pointer event:%d at x:%d, y:%d", mouseButton, button->x, button->y);
 	    //__android_log_write(6, "android-spice", buf);
-    	spice_inputs_position(d->inputs, button->x, button->y, d->channel_id, newMask);
+
+		spice_inputs_position(d->inputs, button->x, button->y, d->channel_id, newMask);
+/*		// TODO: Figure out why this code isn't working.
+		gint dx;
+		gint dy;
+	    switch (d->mouse_mode) {
+	    case SPICE_MOUSE_MODE_CLIENT:
+			spice_inputs_position(d->inputs, button->x, button->y, d->channel_id, newMask);
+	        break;
+	    case SPICE_MOUSE_MODE_SERVER:
+	        dx = d->mouse_last_x != -1 ? button->x - d->mouse_last_x : 0;
+	        dy = d->mouse_last_y != -1 ? button->y - d->mouse_last_y : 0;
+	        spice_inputs_motion(d->inputs, dx, dy, newMask);
+	        d->mouse_last_x = button->x;
+	        d->mouse_last_y = button->y;
+	        break;
+	    default:
+	        g_warn_if_reached();
+	        break;
+	    }
+*/
 
 		if (mouseButton != SPICE_MOUSE_BUTTON_INVALID) {
 			if (down) {
@@ -414,24 +420,24 @@ static void channel_new(SpiceSession *s, SpiceChannel *channel, gpointer data)
 
     g_object_get(channel, "channel-id", &id, NULL);
     if (SPICE_IS_MAIN_CHANNEL(channel)) {
-	d->main = SPICE_MAIN_CHANNEL(channel);
-	return;
+		d->main = SPICE_MAIN_CHANNEL(channel);
+		return;
     }
 
     if (SPICE_IS_DISPLAY_CHANNEL(channel)) {
-	if (id != d->channel_id)
-	    return;
-	d->display = channel;
-	g_signal_connect(channel, "display-primary-create",
-		G_CALLBACK(primary_create), display);
-	g_signal_connect(channel, "display-primary-destroy",
-		G_CALLBACK(primary_destroy), display);
-	g_signal_connect(channel, "display-invalidate",
-		G_CALLBACK(invalidate), display);
-	g_signal_connect(channel, "display-mark",
-		G_CALLBACK(mark), display);
-	spice_channel_connect(channel);
-	return;
+		if (id != d->channel_id)
+			return;
+		d->display = channel;
+		g_signal_connect(channel, "display-primary-create",
+			G_CALLBACK(primary_create), display);
+		g_signal_connect(channel, "display-primary-destroy",
+			G_CALLBACK(primary_destroy), display);
+		g_signal_connect(channel, "display-invalidate",
+			G_CALLBACK(invalidate), display);
+		g_signal_connect(channel, "display-mark",
+			G_CALLBACK(mark), display);
+		spice_channel_connect(channel);
+		return;
     }
 
     //if (SPICE_IS_CURSOR_CHANNEL(channel)) {

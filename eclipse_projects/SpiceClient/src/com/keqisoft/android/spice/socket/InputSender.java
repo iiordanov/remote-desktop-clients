@@ -23,11 +23,7 @@ public class InputSender {
 		try {
 			DataOutputStream out = sockHandler.getOut();
 			out.writeInt(keyDg.getDgType());
-		    //why the damned "?"has the same keycode as ">."!!!!
-			if(keyDg.getKeycode()==56)
-			    out.writeInt(96);
-			else
-			    out.writeInt(keyDg.getKeycode());
+		    out.writeInt(keyDg.getKeycode());
 		} catch (IOException e) {
 			e.printStackTrace();
 			sockHandler.close();

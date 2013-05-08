@@ -359,11 +359,12 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 		    		handler.post(desktopInfo);
 		    		frameReceiver.setBitmap(bitmapData.mbitmap);
 		    		spiceUpdateReceived = true;
+		    		rfbconn.setIsInNormalProtocol(true);
 	    			synchronized(frameReceiver) {
 	    				frameReceiver.notifyAll();
 	    			}
 			    case SpiceCanvas.UPDATE_CANVAS:
-			    	android.util.Log.e(TAG, "UPDATE_CANVAS");
+			    	//android.util.Log.e(TAG, "UPDATE_CANVAS");
 			    	Rect dirty = (Rect) msg.obj;
 			    	VncCanvas.this.reDraw(dirty.left, dirty.top, dirty.width(), dirty.height());
 			    	break;

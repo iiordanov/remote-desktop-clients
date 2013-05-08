@@ -888,6 +888,14 @@ public class CConn extends CConnection
   }
 
   @Override
+  public void setIsInNormalProtocol(boolean state) {
+	  if (state)
+		  setState (RFBSTATE_NORMAL);
+	  else
+		  setState (RFBSTATE_INVALID);
+  }
+  
+  @Override
   public boolean isInNormalProtocol() {
   	return (state() == RFBSTATE_NORMAL);
   }
