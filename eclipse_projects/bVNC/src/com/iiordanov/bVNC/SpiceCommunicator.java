@@ -20,7 +20,6 @@ public class SpiceCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyP
 	final static int VK_LWIN = 0x5B;
 	final static int VK_RWIN = 0x5C;
 	final static int VK_EXT_KEY = 0x00000100;
-	//final static int [][] keymap_win322linux = { { 64,  }, { 33, 55 } };
 
 	int metaState = 0;
 	

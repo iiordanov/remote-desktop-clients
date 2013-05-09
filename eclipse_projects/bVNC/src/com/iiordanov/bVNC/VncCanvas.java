@@ -429,7 +429,6 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 		Thread t = new Thread () {
 			public void run() {
 			    try {
-			    	isSpice = true;
 			    	if (isSpice) {
 			    		// Get the address and port (based on whether an SSH tunnel is being established or not).
 			    		String address = getVNCAddress();
@@ -444,7 +443,7 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 			    	    
 			    		try {
 			    			synchronized(frameReceiver) {
-			    				frameReceiver.wait(60000);
+			    				frameReceiver.wait(20000);
 			    			}
 			    		} catch (InterruptedException e) {}
 
