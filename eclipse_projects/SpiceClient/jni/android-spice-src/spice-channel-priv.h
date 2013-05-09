@@ -102,7 +102,7 @@ struct _SpiceChannelPrivate {
     GQueue                      xmit_queue;
     gboolean                    xmit_queue_blocked;
     GStaticMutex                xmit_queue_lock;
-    guint                       xmit_queue_wakeup_id;
+    GThread                     *main_thread;
 
     char                        name[16];
     enum spice_channel_state    state;
@@ -157,7 +157,6 @@ void spice_channel_up(SpiceChannel *channel);
 void spice_channel_wakeup(SpiceChannel *channel, gboolean cancel);
 
 SpiceSession* spice_channel_get_session(SpiceChannel *channel);
-enum spice_channel_state spice_channel_get_state(SpiceChannel *channel);
 
 /* coroutine context */
 typedef void (*handler_msg_in)(SpiceChannel *channel, SpiceMsgIn *msg, gpointer data);

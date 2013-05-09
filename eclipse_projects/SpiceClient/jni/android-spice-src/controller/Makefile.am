@@ -1,11 +1,6 @@
 NULL =
 
-AM_CPPFLAGS =					\
-	-DG_LOG_DOMAIN=\"GSpiceController\"	\
-	$(GIO_CFLAGS)				\
-	$(PROTOCOL_CFLAGS)			\
-	$(NULL)
-
+AM_CPPFLAGS = $(GIO_CFLAGS) $(PROTOCOL_CFLAGS)
 # http://www.gnu.org/software/libtool/manual/html_node/Updating-version-info.html
 AM_LDFLAGS =					\
 	-no-undefined				\
@@ -19,22 +14,23 @@ AM_VALAFLAGS =							\
 	-C -g							\
 	$(NULL)
 
+if OS_WIN32
+AM_VALAFLAGS += --pkg gio-windows-2.0 -D WIN32
+else
+AM_VALAFLAGS += --pkg gio-unix-2.0
+endif
+
 lib_LTLIBRARIES = libspice-controller.la
-noinst_PROGRAMS = test-controller spice-controller-dump
+noinst_PROGRAMS = test-controller
 
 BUILT_SOURCES = controller.vala.stamp
 
 libspice_controller_la_VALASOURCES =		\
 	menu.vala				\
 	controller.vala				\
-	foreign-menu.vala			\
 	$(NULL)
 libspice_controller_la_SOURCES =		\
 	custom.h				\
-	spice-controller-listener.c		\
-	spice-controller-listener.h		\
-	spice-foreign-menu-listener.c		\
-	spice-foreign-menu-listener.h		\
 	$(libspice_controller_la_VALASOURCES:.vala=.c) \
 	$(NULL)
 
@@ -60,23 +56,9 @@ libspice_controllerinclude_HEADERS =		\
 test_controller_SOURCES = test.c
 test_controller_LDADD = libspice-controller.la
 
-spice_controller_dump_SOURCES = dump.c
-spice_controller_dump_LDADD = libspice-controller.la
-
 controller.vala.stamp: $(libspice_controller_la_VALASOURCES) custom.vapi
-	@if test -z "$(VALAC)"; then \
-		echo "" ; \
-		echo "  *** Error: missing valac!" ; \
-		echo "  *** You must run autogen.sh or configure --enable-vala" ; \
-		echo "" ; \
-		exit 1 ; \
-	fi
 	$(VALA_V)$(VALAC) $(VALAFLAGS) $(AM_VALAFLAGS) $(libspice_controller_la_VALASOURCES) -H spice-controller.h
 	@touch $@
-
-spice-controller.h: controller.vala.stamp
-menu.c: controller.vala.stamp
-controller.c: controller.vala.stamp
 
 EXTRA_DIST =					\
 	$(libspice_controller_la_VALASOURCES)	\

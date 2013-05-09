@@ -21,7 +21,6 @@
 #include "spice-channel-priv.h"
 #include "spice-session-priv.h"
 #include "spice-marshal.h"
-#include "bio-gsocket.h"
 
 #include <openssl/rsa.h>
 #include <openssl/evp.h>
@@ -111,6 +110,7 @@ static void spice_channel_init(SpiceChannel *channel)
     spice_channel_set_common_capability(channel, SPICE_COMMON_CAP_MINI_HEADER);
     g_queue_init(&c->xmit_queue);
     g_static_mutex_init(&c->xmit_queue_lock);
+    c->main_thread = g_thread_self();
 }
 
 static void spice_channel_constructed(GObject *gobject)
@@ -649,61 +649,32 @@ void spice_msg_out_unref(SpiceMsgOut *out)
 static gboolean spice_channel_idle_wakeup(gpointer user_data)
 {
     SpiceChannel *channel = SPICE_CHANNEL(user_data);
-    SpiceChannelPrivate *c = channel->priv;
-
-    /*
-     * Note:
-     *
-     * - This must be done before the wakeup as that may eventually
-     *   call channel_reset() which checks this.
-     * - The lock calls are really necessary, this fixes the following race:
-     *   1) usb-event-thread calls spice_msg_out_send()
-     *   2) spice_msg_out_send calls g_timeout_add_full(...)
-     *   3) we run, set xmit_queue_wakeup_id to 0
-     *   4) spice_msg_out_send stores the result of g_timeout_add_full() in
-     *      xmit_queue_wakeup_id, overwriting the 0 we just stored
-     *   5) xmit_queue_wakeup_id now says there is a wakeup pending which is
-     *      false
-     */
-    g_static_mutex_lock(&c->xmit_queue_lock);
-    c->xmit_queue_wakeup_id = 0;
-    g_static_mutex_unlock(&c->xmit_queue_lock);
 
     spice_channel_wakeup(channel, FALSE);
+    g_object_unref(channel);
 
     return FALSE;
 }
 
-/* any context (system/co-routine/usb-event-thread) */
+/* system context */
 G_GNUC_INTERNAL
 void spice_msg_out_send(SpiceMsgOut *out)
 {
-    gboolean was_empty;
-
     g_return_if_fail(out != NULL);
     g_return_if_fail(out->channel != NULL);
 
     g_static_mutex_lock(&out->channel->priv->xmit_queue_lock);
-    if (out->channel->priv->xmit_queue_blocked) {
-        g_warning("message queue is blocked, dropping message");
-        goto end;
-    }
-
-    was_empty = g_queue_is_empty(&out->channel->priv->xmit_queue);
-    g_queue_push_tail(&out->channel->priv->xmit_queue, out);
-
-    /* One wakeup is enough to empty the entire queue -> only do a wakeup
-       if the queue was empty, and there isn't one pending already. */
-    if (was_empty && !out->channel->priv->xmit_queue_wakeup_id) {
-        out->channel->priv->xmit_queue_wakeup_id =
-            /* Use g_timeout_add_full so that can specify the priority */
-            g_timeout_add_full(G_PRIORITY_HIGH, 0,
-                               spice_channel_idle_wakeup,
-                               out->channel, NULL);
-    }
-
-end:
+    if (!out->channel->priv->xmit_queue_blocked)
+        g_queue_push_tail(&out->channel->priv->xmit_queue, out);
     g_static_mutex_unlock(&out->channel->priv->xmit_queue_lock);
+
+    /* TODO: we currently flush/wakeup immediately all buffered messages */
+    if (g_thread_self() != out->channel->priv->main_thread)
+        /* We use g_timeout_add_full so that can specify the priority */
+        g_timeout_add_full(G_PRIORITY_HIGH, 0, spice_channel_idle_wakeup,
+                           g_object_ref(out->channel), NULL);
+    else
+        spice_channel_wakeup(out->channel, FALSE);
 }
 
 /* coroutine context */
@@ -1061,14 +1032,14 @@ static void spice_channel_recv_auth(SpiceChannel *channel)
 
     rc = spice_channel_read(channel, &link_res, sizeof(link_res));
     if (rc != sizeof(link_res)) {
-        SPICE_DEBUG("incomplete auth reply (%d/%" G_GSIZE_FORMAT ")",
-                    rc, sizeof(link_res));
+        g_critical("incomplete auth reply (%d/%" G_GSIZE_FORMAT ")",
+                   rc, sizeof(link_res));
         emit_main_context(channel, SPICE_CHANNEL_EVENT, SPICE_CHANNEL_ERROR_LINK);
         return;
     }
 
     if (link_res != SPICE_LINK_ERR_OK) {
-        SPICE_DEBUG("link result: reply %d", link_res);
+        g_critical("link result: reply %d", link_res);
         emit_main_context(channel, SPICE_CHANNEL_EVENT, SPICE_CHANNEL_ERROR_AUTH);
         return;
     }
@@ -1437,7 +1408,7 @@ restart:
     /* Need to gather some credentials from the client */
     if (err == SASL_INTERACT) {
         if (!spice_channel_gather_sasl_credentials(channel, interact)) {
-            SPICE_DEBUG("Failed to collect auth credentials");
+            g_critical("Failed to collect auth credentials");
             goto error;
         }
         goto restart;
@@ -1518,7 +1489,7 @@ restart:
         if (err == SASL_INTERACT) {
             if (!spice_channel_gather_sasl_credentials(channel,
                                                        interact)) {
-                SPICE_DEBUG("%s", "Failed to collect auth credentials");
+                g_critical("%s", "Failed to collect auth credentials");
                 goto error;
             }
             goto restep;
@@ -1618,7 +1589,8 @@ complete:
 error:
     if (saslconn)
         sasl_dispose(&saslconn);
-    emit_main_context(channel, SPICE_CHANNEL_EVENT, SPICE_CHANNEL_ERROR_AUTH);
+    if (!c->has_error)
+        emit_main_context(channel, SPICE_CHANNEL_EVENT, SPICE_CHANNEL_ERROR_AUTH);
     c->has_error = TRUE; /* force disconnect */
     return FALSE;
 }
@@ -1716,6 +1688,7 @@ error:
 }
 
 /* system context */
+/* TODO: we currently flush/wakeup immediately all buffered messages */
 G_GNUC_INTERNAL
 void spice_channel_wakeup(SpiceChannel *channel, gboolean cancel)
 {
@@ -2095,13 +2068,12 @@ static void *spice_channel_coroutine(void *data)
             goto cleanup;
         }
 
-        if (!(c->sock = g_socket_new_from_fd(c->fd, NULL))) {
-                SPICE_DEBUG("Failed to open socket from fd %d", c->fd);
-                return FALSE;
-        }
+	if (!(c->sock = g_socket_new_from_fd(c->fd, NULL))) {
+		SPICE_DEBUG("Failed to open socket from fd %d", c->fd);
+		return FALSE;
+	}
 
-        g_socket_set_blocking(c->sock, FALSE);
-        g_socket_set_keepalive(c->sock, TRUE);
+	g_socket_set_blocking(c->sock, FALSE);
         goto connected;
     }
 
@@ -2162,10 +2134,12 @@ reconnect:
             g_critical("SSL_new failed");
             goto cleanup;
         }
+        rc = SSL_set_fd(c->ssl, g_socket_get_fd(c->sock));
+        if (rc <= 0) {
+            g_critical("SSL_set_fd failed");
+            goto cleanup;
+        }
 
-
-        BIO *bio = bio_new_gsocket(c->sock);
-        SSL_set_bio(c->ssl, bio, bio);
 
         {
             guint8 *pubkey;
@@ -2197,7 +2171,7 @@ ssl_reconnect:
 connected:
     rc = setsockopt(g_socket_get_fd(c->sock), IPPROTO_TCP, TCP_NODELAY,
                     (const char*)&delay_val, sizeof(delay_val));
-    if (rc != 0 && errno != ENOTSUP) {
+    if (rc != 0) {
         g_warning("%s: could not set sockopt TCP_NODELAY: %s", c->name,
                   strerror(errno));
     }
@@ -2306,13 +2280,9 @@ gboolean spice_channel_connect(SpiceChannel *channel)
 /**
  * spice_channel_open_fd:
  * @channel:
- * @fd: a file descriptor (socket) or -1.
- * request mechanism
+ * @fd: a file descriptor (socket)
  *
  * Connect the channel using @fd socket.
- *
- * If @fd is -1, a valid fd will be requested later via the
- * SpiceChannel::open-fd signal.
  *
  * Returns: %TRUE on success.
  **/
@@ -2321,7 +2291,7 @@ gboolean spice_channel_open_fd(SpiceChannel *channel, int fd)
     SpiceChannelPrivate *c = SPICE_CHANNEL_GET_PRIVATE(channel);
 
     g_return_val_if_fail(c != NULL, FALSE);
-    g_return_val_if_fail(fd >= -1, FALSE);
+    g_return_val_if_fail(fd >= 0, FALSE);
 
     c->fd = fd;
 
@@ -2374,10 +2344,6 @@ static void channel_reset(SpiceChannel *channel, gboolean migrating)
     c->xmit_queue_blocked = TRUE; /* Disallow queuing new messages */
     g_queue_foreach(&c->xmit_queue, (GFunc)spice_msg_out_unref, NULL);
     g_queue_clear(&c->xmit_queue);
-    if (c->xmit_queue_wakeup_id) {
-        g_source_remove(c->xmit_queue_wakeup_id);
-        c->xmit_queue_wakeup_id = 0;
-    }
     g_static_mutex_unlock(&c->xmit_queue_lock);
 
     g_array_set_size(c->remote_common_caps, 0);
@@ -2557,15 +2523,6 @@ SpiceSession* spice_channel_get_session(SpiceChannel *channel)
 }
 
 G_GNUC_INTERNAL
-enum spice_channel_state spice_channel_get_state(SpiceChannel *channel)
-{
-    g_return_val_if_fail(SPICE_IS_CHANNEL(channel),
-                         SPICE_CHANNEL_STATE_UNCONNECTED);
-
-    return channel->priv->state;
-}
-
-G_GNUC_INTERNAL
 void spice_channel_swap(SpiceChannel *channel, SpiceChannel *swap)
 {
     SpiceChannelPrivate *c = SPICE_CHANNEL_GET_PRIVATE(channel);
@@ -2577,32 +2534,49 @@ void spice_channel_swap(SpiceChannel *channel, SpiceChannel *swap)
     g_return_if_fail(s->session != NULL);
     g_return_if_fail(s->sock != NULL);
 
-#define SWAP(Field) ({                          \
-    typeof (c->Field) Field = c->Field;         \
-    c->Field = s->Field;                        \
-    s->Field = Field;                           \
-})
+    {
+        GSocket *sock = c->sock;
+        SSL_CTX *ctx = c->ctx;
+        SSL *ssl = c->ssl;
+        SpiceOpenSSLVerify *sslverify = c->sslverify;
+        uint64_t in_serial = c->in_serial;
+        uint64_t out_serial = c->out_serial;
+        gboolean use_mini_header = c->use_mini_header;
 
-    /* TODO: split channel in 2 objects: a controller and a swappable
-       state object */
-    SWAP(sock);
-    SWAP(ctx);
-    SWAP(ssl);
-    SWAP(sslverify);
-    SWAP(in_serial);
-    SWAP(out_serial);
-    SWAP(use_mini_header);
-    SWAP(xmit_queue);
-    SWAP(xmit_queue_blocked);
-    SWAP(caps);
-    SWAP(common_caps);
-    SWAP(remote_caps);
-    SWAP(remote_common_caps);
+        c->sock = s->sock;
+        c->ctx = s->ctx;
+        c->ssl = s->ssl;
+        c->sslverify = s->sslverify;
+        c->in_serial = s->in_serial;
+        c->out_serial = s->out_serial;
+        c->use_mini_header = s->use_mini_header;
+
+        s->sock = sock;
+        s->ctx = ctx;
+        s->ssl = ssl;
+        s->sslverify = sslverify;
+        s->in_serial = in_serial;
+        s->out_serial = out_serial;
+        s->use_mini_header = use_mini_header;
+    }
+
 #if HAVE_SASL
-    SWAP(sasl_conn);
-    SWAP(sasl_decoded);
-    SWAP(sasl_decoded_length);
-    SWAP(sasl_decoded_offset);
+    {
+        sasl_conn_t *sasl_conn = c->sasl_conn;
+        const char *sasl_decoded = c->sasl_decoded;
+        unsigned int sasl_decoded_length = c->sasl_decoded_length;
+        unsigned int sasl_decoded_offset = c->sasl_decoded_offset;
+
+        c->sasl_conn = s->sasl_conn;
+        c->sasl_decoded = s->sasl_decoded;
+        c->sasl_decoded_length = s->sasl_decoded_length;
+        c->sasl_decoded_offset = s->sasl_decoded_offset;
+
+        s->sasl_conn = sasl_conn;
+        s->sasl_decoded = sasl_decoded;
+        s->sasl_decoded_length = sasl_decoded_length;
+        s->sasl_decoded_offset = sasl_decoded_offset;
+    }
 #endif
 }
 

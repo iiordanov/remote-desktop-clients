@@ -27,10 +27,6 @@
 
 G_BEGIN_DECLS
 
-#define IMAGES_CACHE_SIZE_DEFAULT (1024 * 1024 * 80)
-#define MIN_GLZ_WINDOW_SIZE_DEFAULT (1024 * 1024 * 12)
-#define MAX_GLZ_WINDOW_SIZE_DEFAULT MIN((LZ_MAX_WINDOW_SIZE * 4), 1024 * 1024 * 64)
-
 struct _SpiceSessionPrivate {
     char              *host;
     char              *port;
@@ -88,12 +84,6 @@ struct _SpiceSessionPrivate {
     display_cache     images;
     display_cache     palettes;
     SpiceGlzDecoderWindow *glz_window;
-    int               images_cache_size;
-    int               glz_window_size;
-    uint32_t          pci_ram_size;
-    uint32_t          display_channels_count;
-    guint8            uuid[16];
-    gchar             *name;
 
     /* associated objects */
     SpiceAudio        *audio_manager;
@@ -130,9 +120,6 @@ const gchar* spice_session_get_cert_subject(SpiceSession *session);
 const gchar* spice_session_get_ciphers(SpiceSession *session);
 const gchar* spice_session_get_ca_file(SpiceSession *session);
 
-void spice_session_set_caches_hints(SpiceSession *session,
-                                    uint32_t pci_ram_size,
-                                    uint32_t display_channels_count);
 void spice_session_get_caches(SpiceSession *session,
                               display_cache **images,
                               display_cache **palettes,
@@ -142,8 +129,6 @@ void spice_session_images_clear(SpiceSession *session);
 void spice_session_migrate_end(SpiceSession *session);
 gboolean spice_session_migrate_after_main_init(SpiceSession *session);
 SpiceChannel* spice_session_lookup_channel(SpiceSession *session, gint id, gint type);
-void spice_session_set_uuid(SpiceSession *session, guint8 uuid[16]);
-void spice_session_set_name(SpiceSession *session, const gchar *name);
 
 G_END_DECLS
 

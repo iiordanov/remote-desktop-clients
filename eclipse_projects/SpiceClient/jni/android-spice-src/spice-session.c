@@ -101,10 +101,6 @@ enum {
     PROP_DISABLE_EFFECTS,
     PROP_COLOR_DEPTH,
     PROP_READ_ONLY,
-    PROP_CACHE_SIZE,
-    PROP_GLZ_WINDOW_SIZE,
-    PROP_UUID,
-    PROP_NAME,
 };
 
 /* signals */
@@ -411,18 +407,6 @@ static void spice_session_get_property(GObject    *gobject,
         break;
     case PROP_READ_ONLY:
         g_value_set_boolean(value, s->read_only);
-        break;
-    case PROP_CACHE_SIZE:
-        g_value_set_int(value, s->images_cache_size);
-        break;
-    case PROP_GLZ_WINDOW_SIZE:
-        g_value_set_int(value, s->glz_window_size);
-        break;
-    case PROP_NAME:
-        g_value_set_string(value, s->name);
-	break;
-    case PROP_UUID:
-        g_value_set_pointer(value, s->uuid);
 	break;
     default:
 	G_OBJECT_WARN_INVALID_PROPERTY_ID(gobject, prop_id, pspec);
@@ -523,12 +507,6 @@ static void spice_session_set_property(GObject      *gobject,
     case PROP_READ_ONLY:
         s->read_only = g_value_get_boolean(value);
         g_object_notify(gobject, "read-only");
-        break;
-    case PROP_CACHE_SIZE:
-        s->images_cache_size = g_value_get_int(value);
-        break;
-    case PROP_GLZ_WINDOW_SIZE:
-        s->glz_window_size = g_value_get_int(value);
         break;
     default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID(gobject, prop_id, pspec);
@@ -935,69 +913,6 @@ static void spice_session_class_init(SpiceSessionClass *klass)
                               G_PARAM_CONSTRUCT |
                               G_PARAM_STATIC_STRINGS));
 
-    /**
-     * SpiceSession:cache-size:
-     *
-     * Images cache size. If 0, don't set.
-     *
-     * Since: 0.9
-     **/
-    g_object_class_install_property
-        (gobject_class, PROP_CACHE_SIZE,
-         g_param_spec_int("cache-size",
-                          "Cache size",
-                          "Images cache size (bytes)",
-                          0, G_MAXINT, 0,
-                          G_PARAM_READWRITE |
-                          G_PARAM_STATIC_STRINGS));
-
-    /**
-     * SpiceSession:glz-window-size:
-     *
-     * Glz window size. If 0, don't set.
-     *
-     * Since: 0.9
-     **/
-    g_object_class_install_property
-        (gobject_class, PROP_GLZ_WINDOW_SIZE,
-         g_param_spec_int("glz-window-size",
-                          "Glz window size",
-                          "Glz window size (bytes)",
-                          0, LZ_MAX_WINDOW_SIZE * 4, 0,
-                          G_PARAM_READWRITE |
-                          G_PARAM_STATIC_STRINGS));
-
-    /**
-     * SpiceSession:name:
-     *
-     * Spice server name.
-     *
-     * Since: 0.11
-     **/
-    g_object_class_install_property
-        (gobject_class, PROP_NAME,
-         g_param_spec_string("name",
-                             "Name",
-                             "Spice server name",
-                             NULL,
-                             G_PARAM_READABLE |
-                             G_PARAM_STATIC_STRINGS));
-
-    /**
-     * SpiceSession:uuid:
-     *
-     * Spice server uuid.
-     *
-     * Since: 0.11
-     **/
-    g_object_class_install_property
-        (gobject_class, PROP_UUID,
-         g_param_spec_pointer("uuid",
-                              "UUID",
-                              "Spice server uuid",
-                              G_PARAM_READABLE |
-                              G_PARAM_STATIC_STRINGS));
-
     g_type_class_add_private(klass, sizeof(SpiceSessionPrivate));
 }
 
@@ -1083,14 +998,11 @@ gboolean spice_session_connect(SpiceSession *session)
 /**
  * spice_session_open_fd:
  * @session:
- * @fd: a file descriptor (socket) or -1
+ * @fd: a file descriptor
  *
  * Open the session using the provided @fd socket file
  * descriptor. This is useful if you create the fd yourself, for
  * example to setup a SSH tunnel.
- *
- * If @fd is -1, a valid fd will be requested later via the
- * SpiceChannel::open-fd signal.
  *
  * Returns:
  **/
@@ -1099,17 +1011,14 @@ gboolean spice_session_open_fd(SpiceSession *session, int fd)
     SpiceSessionPrivate *s = SPICE_SESSION_GET_PRIVATE(session);
 
     g_return_val_if_fail(s != NULL, FALSE);
-    g_return_val_if_fail(fd >= -1, FALSE);
+    g_return_val_if_fail(fd >= 0, FALSE);
 
     spice_session_disconnect(session);
-    s->disconnecting = FALSE;
 
     s->client_provided_sockets = TRUE;
 
     g_warn_if_fail(s->cmain == NULL);
     s->cmain = spice_channel_new(session, SPICE_CHANNEL_MAIN, 0);
-
-    glz_decoder_window_clear(s->glz_window);
     return spice_channel_open_fd(s->cmain, fd);
 }
 
@@ -1387,11 +1296,6 @@ void spice_session_disconnect(SpiceSession *session)
     }
 
     s->connection_id = 0;
-
-    g_free(s->name);
-    s->name = NULL;
-    memset(s->uuid, 0, sizeof(s->uuid));
-
     /* we leave disconnecting = TRUE, so that spice_channel_destroy()
        is not called multiple times on channels that are in pending
        destroy state. */
@@ -1469,8 +1373,6 @@ static GSocket *channel_connect_socket(SpiceChannel *channel,
         return NULL;
 
     g_socket_set_blocking(sock, FALSE);
-    g_socket_set_keepalive(sock, TRUE);
-
     if (!g_socket_connect(sock, sockaddr, NULL, error)) {
         if (*error && (*error)->code == G_IO_ERROR_PENDING) {
             g_clear_error(error);
@@ -1761,51 +1663,4 @@ void spice_session_get_caches(SpiceSession *session,
         *palettes = &s->palettes;
     if (glz_window)
         *glz_window = s->glz_window;
-}
-
-G_GNUC_INTERNAL
-void spice_session_set_caches_hints(SpiceSession *session,
-                                    uint32_t pci_ram_size,
-                                    uint32_t display_channels_count)
-{
-    SpiceSessionPrivate *s = SPICE_SESSION_GET_PRIVATE(session);
-
-    g_return_if_fail(s != NULL);
-
-    s->pci_ram_size = pci_ram_size;
-    s->display_channels_count = display_channels_count;
-
-    /* TODO: when setting cache and window size, we should consider the client's
-     *       available memory and the number of display channels */
-    if (s->images_cache_size == 0) {
-        s->images_cache_size = IMAGES_CACHE_SIZE_DEFAULT;
-    }
-
-    if (s->glz_window_size == 0) {
-        s->glz_window_size = MIN(MAX_GLZ_WINDOW_SIZE_DEFAULT, pci_ram_size / 2);
-        s->glz_window_size = MAX(MIN_GLZ_WINDOW_SIZE_DEFAULT, s->glz_window_size);
-    }
-}
-
-G_GNUC_INTERNAL
-void spice_session_set_uuid(SpiceSession *session, guint8 uuid[16])
-{
-    SpiceSessionPrivate *s = SPICE_SESSION_GET_PRIVATE(session);
-
-    g_return_if_fail(s != NULL);
-    memcpy(s->uuid, uuid, sizeof(s->uuid));
-
-    g_object_notify(G_OBJECT(session), "uuid");
-}
-
-G_GNUC_INTERNAL
-void spice_session_set_name(SpiceSession *session, const gchar *name)
-{
-    SpiceSessionPrivate *s = SPICE_SESSION_GET_PRIVATE(session);
-
-    g_return_if_fail(s != NULL);
-    g_free(s->name);
-    s->name = g_strdup(name);
-
-    g_object_notify(G_OBJECT(session), "name");
 }

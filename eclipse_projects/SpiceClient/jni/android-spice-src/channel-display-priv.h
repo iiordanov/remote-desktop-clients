@@ -36,6 +36,8 @@
 
 G_BEGIN_DECLS
 
+#define DISPLAY_PIXMAP_CACHE (1024 * 1024 * 32)
+#define GLZ_WINDOW_SIZE      (1024 * 1024 * 16)
 
 typedef struct display_surface {
     RingItem                    link;

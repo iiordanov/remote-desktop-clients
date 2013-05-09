@@ -769,21 +769,13 @@ static void emit_invalidate(SpiceChannel *channel, SpiceRect *bbox)
 static void spice_display_channel_up(SpiceChannel *channel)
 {
     SpiceMsgOut *out;
-    SpiceSession *s = spice_channel_get_session(channel);
-    SpiceMsgcDisplayInit init;
-    int cache_size;
-    int glz_window_size;
+    SpiceMsgcDisplayInit init = {
+        .pixmap_cache_id            = 1,
+        .pixmap_cache_size          = DISPLAY_PIXMAP_CACHE,
+        .glz_dictionary_id          = 1,
+        .glz_dictionary_window_size = GLZ_WINDOW_SIZE,
+    };
 
-    g_object_get(s,
-                 "cache-size", &cache_size,
-                 "glz-window-size", &glz_window_size,
-                 NULL);
-    SPICE_DEBUG("%s: cache_size %d, glz_window_size %d (bytes)", __FUNCTION__,
-                cache_size, glz_window_size);
-    init.pixmap_cache_id = 1;
-    init.glz_dictionary_id = 1;
-    init.pixmap_cache_size = cache_size / 4; /* pixels */
-    init.glz_dictionary_window_size = glz_window_size / 4; /* pixels */
     out = spice_msg_out_new(channel, SPICE_MSGC_DISPLAY_INIT);
     out->marshallers->msgc_display_init(out->marshaller, &init);
     spice_msg_out_send_internal(out);

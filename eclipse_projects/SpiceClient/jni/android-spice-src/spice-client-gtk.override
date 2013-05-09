@@ -4,16 +4,13 @@ headers
 #include "pygobject.h"
 #include "spice-common.h"
 #include "spice-widget.h"
-#include "spice-gtk-session.h"
 #include "spice-audio.h"
-#include "usb-device-widget.h"
 %%
 modulename spice_client_gtk
 %%
 import gobject.GObject as PyGObject_Type
 import gtk.DrawingArea as PyGtkDrawingArea_Type
 import gtk.Widget as PyGtkWidget_Type
-import gtk.VBox as PyGtkVBox_Type
 %%
 ignore-glob
   *_get_type

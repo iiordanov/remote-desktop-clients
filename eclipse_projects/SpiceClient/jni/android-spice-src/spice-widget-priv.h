@@ -36,19 +36,21 @@ G_BEGIN_DECLS
 
 #include "spice-widget.h"
 #include "spice-common.h"
-#include "spice-gtk-session.h"
+#include <spice/vd_agent.h>
 
 #define SPICE_DISPLAY_GET_PRIVATE(obj)                                  \
     (G_TYPE_INSTANCE_GET_PRIVATE((obj), SPICE_TYPE_DISPLAY, SpiceDisplayPrivate))
+
+#define CLIPBOARD_LAST (VD_AGENT_CLIPBOARD_SELECTION_SECONDARY + 1)
 
 struct _SpiceDisplayPrivate {
     gint                    channel_id;
 
     /* options */
     bool                    keyboard_grab_enable;
-    gboolean                keyboard_grab_inhibit;
     bool                    mouse_grab_enable;
     bool                    resize_guest_enable;
+    bool                    auto_clipboard_enable;
 
     /* state */
     enum SpiceSurfaceFmt    format;
@@ -62,7 +64,6 @@ struct _SpiceDisplayPrivate {
     bool                    convert;
     bool                    have_mitshm;
     gboolean                allow_scaling;
-    gboolean                disable_inputs;
 
     /* TODO: make a display object instead? */
 #ifdef WITH_X11
@@ -75,8 +76,16 @@ struct _SpiceDisplayPrivate {
     cairo_surface_t         *ximage;
 #endif
 
+    GtkClipboard            *clipboard;
+    GtkClipboard            *clipboard_primary;
+    GtkTargetEntry          *clip_targets[CLIPBOARD_LAST];
+    guint                   nclip_targets[CLIPBOARD_LAST];
+    bool                    clip_hasdata[CLIPBOARD_LAST];
+    bool                    clip_grabbed[CLIPBOARD_LAST];
+    gboolean                clipboard_by_guest[CLIPBOARD_LAST];
+    gboolean                clipboard_selfgrab_pending[CLIPBOARD_LAST];
+
     SpiceSession            *session;
-    SpiceGtkSession         *gtk_session;
     SpiceMainChannel        *main;
     SpiceChannel            *display;
     SpiceCursorChannel      *cursor;
@@ -87,8 +96,6 @@ struct _SpiceDisplayPrivate {
     int                     mouse_grab_active;
     bool                    mouse_have_pointer;
     GdkCursor               *mouse_cursor;
-    GdkPixbuf               *mouse_pixbuf;
-    GdkPoint                mouse_hotspot;
     GdkCursor               *show_cursor;
     int                     mouse_last_x;
     int                     mouse_last_y;
@@ -97,6 +104,8 @@ struct _SpiceDisplayPrivate {
 
     bool                    keyboard_grab_active;
     bool                    keyboard_have_focus;
+    int                     keyboard_grab_count;
+    time_t                  keyboard_grab_time;
 
     const guint16 const     *keycode_map;
     size_t                  keycode_maplen;
@@ -107,7 +116,6 @@ struct _SpiceDisplayPrivate {
 #ifdef WIN32
     HHOOK                   keyboard_hook;
 #endif
-    gint                    zoom_level;
 };
 
 int      spicex_image_create                 (SpiceDisplay *display);
@@ -119,7 +127,6 @@ void     spicex_draw_event                   (SpiceDisplay *display, cairo_t *cr
 void     spicex_expose_event                 (SpiceDisplay *display, GdkEventExpose *ev);
 #endif
 gboolean spicex_is_scaled                    (SpiceDisplay *display);
-void     spice_display_get_scaling           (SpiceDisplay *display, double *sx, double *sy);
 
 G_END_DECLS
 

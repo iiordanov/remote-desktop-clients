@@ -18,7 +18,7 @@
 #ifndef SPICE_UTIL_H
 #define SPICE_UTIL_H
 
-#include <glib-object.h>
+#include <glib.h>
 
 G_BEGIN_DECLS
 
@@ -27,9 +27,9 @@ gboolean spice_util_get_debug(void);
 const gchar *spice_util_get_version_string(void);
 gulong spice_g_signal_connect_object(gpointer instance,
                                      const gchar *detailed_signal,
-                                     GCallback c_handler,
-                                     gpointer gobject,
-                                     GConnectFlags connect_flags);
+//                                     void c_handler,
+                                     gpointer gobject);
+//                                     void connect_flags);
 
 #define SPICE_DEBUG(fmt, ...)                                   \
     do {                                                        \

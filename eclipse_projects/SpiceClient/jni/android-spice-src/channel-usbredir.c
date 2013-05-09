@@ -1,6 +1,6 @@
 /* -*- Mode: C; c-basic-offset: 4; indent-tabs-mode: nil -*- */
 /*
-   Copyright 2010-2012 Red Hat, Inc.
+   Copyright 2010-2011 Red Hat, Inc.
 
    Red Hat Authors:
    Hans de Goede <hdegoede@redhat.com>
@@ -22,14 +22,12 @@
 #include "config.h"
 
 #ifdef USE_USBREDIR
-#include <glib/gi18n.h>
 #include <usbredirhost.h>
 #if USE_POLKIT
 #include "usb-acl-helper.h"
 #endif
 #include "channel-usbredir-priv.h"
 #include "usb-device-manager-priv.h"
-#include "usbutil.h"
 #endif
 
 #include "spice-client.h"
@@ -60,11 +58,13 @@ enum SpiceUsbredirChannelState {
 #if USE_POLKIT
     STATE_WAITING_FOR_ACL_HELPER,
 #endif
+    STATE_CONNECTING,
     STATE_CONNECTED,
     STATE_DISCONNECTING,
 };
 
 struct _SpiceUsbredirChannelPrivate {
+    libusb_context *context;
     libusb_device *device;
     struct usbredirhost *host;
     /* To catch usbredirhost error messages and report them as a GError */
@@ -82,7 +82,6 @@ struct _SpiceUsbredirChannelPrivate {
 static void spice_usbredir_handle_msg(SpiceChannel *channel, SpiceMsgIn *msg);
 static void spice_usbredir_channel_up(SpiceChannel *channel);
 static void spice_usbredir_channel_dispose(GObject *obj);
-static void spice_usbredir_channel_finalize(GObject *obj);
 static void usbredir_handle_msg(SpiceChannel *channel, SpiceMsgIn *in);
 
 static void usbredir_log(void *user_data, int level, const char *msg);
@@ -121,10 +120,9 @@ static void spice_usbredir_channel_class_init(SpiceUsbredirChannelClass *klass)
     GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
     SpiceChannelClass *channel_class = SPICE_CHANNEL_CLASS(klass);
 
-    gobject_class->dispose       = spice_usbredir_channel_dispose;
-    gobject_class->finalize      = spice_usbredir_channel_finalize;
-    channel_class->handle_msg    = spice_usbredir_handle_msg;
-    channel_class->channel_up    = spice_usbredir_channel_up;
+    gobject_class->dispose      = spice_usbredir_channel_dispose;
+    channel_class->handle_msg   = spice_usbredir_handle_msg;
+    channel_class->channel_up   = spice_usbredir_channel_up;
     channel_class->channel_reset = spice_usbredir_channel_reset;
 
     g_type_class_add_private(klass, sizeof(SpiceUsbredirChannelPrivate));
@@ -136,7 +134,7 @@ static void spice_usbredir_channel_dispose(GObject *obj)
 {
     SpiceUsbredirChannel *channel = SPICE_USBREDIR_CHANNEL(obj);
 
-    spice_usbredir_channel_disconnect_device(channel);
+    spice_usbredir_channel_disconnect(channel);
 
     /* Chain up to the parent class */
     if (G_OBJECT_CLASS(spice_usbredir_channel_parent_class)->dispose)
@@ -144,11 +142,11 @@ static void spice_usbredir_channel_dispose(GObject *obj)
 }
 
 /*
- * Note we don't unref our device / acl_helper / result references in our
- * finalize. The reason for this is that depending on our state at dispose
- * time they are either:
+ * Note we don't have a finalize to unref our : device / context / acl_helper /
+ * result references. The reason for this is that depending on our state they
+ * are either:
  * 1) Already unreferenced
- * 2) Will be unreferenced by the disconnect_device call from dispose
+ * 2) Will be unreferenced by the disconnect call from dispose
  * 3) Will be unreferenced by spice_usbredir_channel_open_acl_cb
  *
  * Now the last one may seem like an issue, since what will happen if
@@ -163,17 +161,6 @@ static void spice_usbredir_channel_dispose(GObject *obj)
  * spice_usbredir_channel_open_acl_cb has run, all references we hold have
  * been released even in the 3th scenario.
  */
-static void spice_usbredir_channel_finalize(GObject *obj)
-{
-    SpiceUsbredirChannel *channel = SPICE_USBREDIR_CHANNEL(obj);
-
-    if (channel->priv->host)
-        usbredirhost_close(channel->priv->host);
-
-    /* Chain up to the parent class */
-    if (G_OBJECT_CLASS(spice_usbredir_channel_parent_class)->finalize)
-        G_OBJECT_CLASS(spice_usbredir_channel_parent_class)->finalize(obj);
-}
 
 static const spice_msg_handler usbredir_handlers[] = {
     [ SPICE_MSG_SPICEVMC_DATA ] = usbredir_handle_msg,
@@ -182,37 +169,12 @@ static const spice_msg_handler usbredir_handlers[] = {
 /* ------------------------------------------------------------------ */
 /* private api                                                        */
 
-G_GNUC_INTERNAL
-void spice_usbredir_channel_set_context(SpiceUsbredirChannel *channel,
-                                        libusb_context       *context)
-{
-    SpiceUsbredirChannelPrivate *priv = channel->priv;
-
-    g_return_if_fail(priv->host == NULL);
-
-    priv->host = usbredirhost_open_full(
-                                   context, NULL,
-                                   usbredir_log,
-                                   usbredir_read_callback,
-                                   usbredir_write_callback,
-                                   usbredir_write_flush_callback,
-                                   usbredir_alloc_lock,
-                                   usbredir_lock_lock,
-                                   usbredir_unlock_lock,
-                                   usbredir_free_lock,
-                                   channel, PACKAGE_STRING,
-                                   spice_util_get_debug() ? usbredirparser_debug : usbredirparser_warning,
-                                   usbredirhost_fl_write_cb_owns_buffer);
-    if (!priv->host)
-        g_error("Out of memory allocating usbredirhost");
-}
-
 static gboolean spice_usbredir_channel_open_device(
     SpiceUsbredirChannel *channel, GError **err)
 {
     SpiceUsbredirChannelPrivate *priv = channel->priv;
     libusb_device_handle *handle = NULL;
-    int rc, status;
+    int rc;
 
     g_return_val_if_fail(priv->state == STATE_DISCONNECTED
 #if USE_POLKIT
@@ -224,14 +186,26 @@ static gboolean spice_usbredir_channel_open_device(
     if (rc != 0) {
         g_set_error(err, SPICE_CLIENT_ERROR, SPICE_CLIENT_ERROR_FAILED,
                     "Could not open usb device: %s [%i]",
-                    spice_usbutil_libusb_strerror(rc), rc);
+                    spice_usb_device_manager_libusb_strerror(rc), rc);
         return FALSE;
     }
 
     priv->catch_error = err;
-    status = usbredirhost_set_device(priv->host, handle);
+    priv->host = usbredirhost_open_full(
+                                   priv->context,
+                                   handle, usbredir_log,
+                                   usbredir_read_callback,
+                                   usbredir_write_callback,
+                                   usbredir_write_flush_callback,
+                                   usbredir_alloc_lock,
+                                   usbredir_lock_lock,
+                                   usbredir_unlock_lock,
+                                   usbredir_free_lock,
+                                   channel, PACKAGE_STRING,
+                                   spice_util_get_debug() ? usbredirparser_debug : usbredirparser_warning,
+                                   usbredirhost_fl_write_cb_owns_buffer);
     priv->catch_error = NULL;
-    if (status != usb_redir_success) {
+    if (!priv->host) {
         g_return_val_if_fail(err == NULL || *err != NULL, FALSE);
         return FALSE;
     }
@@ -240,11 +214,13 @@ static gboolean spice_usbredir_channel_open_device(
             spice_usb_device_manager_get(
                 spice_channel_get_session(SPICE_CHANNEL(channel)), NULL),
             err)) {
-        usbredirhost_set_device(priv->host, NULL);
+        usbredirhost_close(priv->host);
+        priv->host = NULL;
         return FALSE;
     }
 
-    priv->state = STATE_CONNECTED;
+    spice_channel_connect(SPICE_CHANNEL(channel));
+    priv->state = STATE_CONNECTING;
 
     return TRUE;
 }
@@ -273,8 +249,9 @@ static void spice_usbredir_channel_open_acl_cb(
     if (err) {
         g_simple_async_result_take_error(priv->result, err);
         libusb_unref_device(priv->device);
-        priv->device = NULL;
-        priv->state  = STATE_DISCONNECTED;
+        priv->device  = NULL;
+        priv->context = NULL;
+        priv->state = STATE_DISCONNECTED;
     }
 
     spice_usb_acl_helper_close_acl(priv->acl_helper);
@@ -288,8 +265,8 @@ static void spice_usbredir_channel_open_acl_cb(
 #endif
 
 G_GNUC_INTERNAL
-void spice_usbredir_channel_connect_device_async(
-                                          SpiceUsbredirChannel *channel,
+void spice_usbredir_channel_connect_async(SpiceUsbredirChannel *channel,
+                                          libusb_context       *context,
                                           libusb_device        *device,
                                           GCancellable         *cancellable,
                                           GAsyncReadyCallback   callback,
@@ -299,19 +276,13 @@ void spice_usbredir_channel_connect_device_async(
     GSimpleAsyncResult *result;
 
     g_return_if_fail(SPICE_IS_USBREDIR_CHANNEL(channel));
+    g_return_if_fail(context != NULL);
     g_return_if_fail(device != NULL);
 
     SPICE_DEBUG("connecting usb channel %p", channel);
 
     result = g_simple_async_result_new(G_OBJECT(channel), callback, user_data,
-                                 spice_usbredir_channel_connect_device_async);
-
-    if (!priv->host) {
-        g_simple_async_result_set_error(result,
-                            SPICE_CLIENT_ERROR, SPICE_CLIENT_ERROR_FAILED,
-                            "Error libusb context not set");
-        goto done;
-    }
+                                       spice_usbredir_channel_connect_async);
 
     if (priv->state != STATE_DISCONNECTED) {
         g_simple_async_result_set_error(result,
@@ -320,10 +291,11 @@ void spice_usbredir_channel_connect_device_async(
         goto done;
     }
 
-    priv->device = libusb_ref_device(device);
+    priv->context = context;
+    priv->device  = libusb_ref_device(device);
 #if USE_POLKIT
     priv->result = result;
-    priv->state  = STATE_WAITING_FOR_ACL_HELPER;
+    priv->state = STATE_WAITING_FOR_ACL_HELPER;
     priv->acl_helper = spice_usb_acl_helper_new();
     g_object_set(spice_channel_get_session(SPICE_CHANNEL(channel)),
                  "inhibit-keyboard-grab", TRUE, NULL);
@@ -339,7 +311,8 @@ void spice_usbredir_channel_connect_device_async(
     if (!spice_usbredir_channel_open_device(channel, &err)) {
         g_simple_async_result_take_error(result, err);
         libusb_unref_device(priv->device);
-        priv->device = NULL;
+        priv->device  = NULL;
+        priv->context = NULL;
     }
 #endif
 
@@ -349,15 +322,14 @@ done:
 }
 
 G_GNUC_INTERNAL
-gboolean spice_usbredir_channel_connect_device_finish(
-                                               SpiceUsbredirChannel *channel,
+gboolean spice_usbredir_channel_connect_finish(SpiceUsbredirChannel *channel,
                                                GAsyncResult         *res,
                                                GError              **err)
 {
     GSimpleAsyncResult *result = G_SIMPLE_ASYNC_RESULT(res);
 
     g_return_val_if_fail(g_simple_async_result_is_valid(res, G_OBJECT(channel),
-                                 spice_usbredir_channel_connect_device_async),
+                                     spice_usbredir_channel_connect_async),
                          FALSE);
 
     if (g_simple_async_result_propagate_error(result, err))
@@ -367,11 +339,11 @@ gboolean spice_usbredir_channel_connect_device_finish(
 }
 
 G_GNUC_INTERNAL
-void spice_usbredir_channel_disconnect_device(SpiceUsbredirChannel *channel)
+void spice_usbredir_channel_disconnect(SpiceUsbredirChannel *channel)
 {
     SpiceUsbredirChannelPrivate *priv = channel->priv;
 
-    SPICE_DEBUG("disconnecting device from usb channel %p", channel);
+    SPICE_DEBUG("disconnecting usb channel %p", channel);
 
     switch (priv->state) {
     case STATE_DISCONNECTED:
@@ -384,21 +356,24 @@ void spice_usbredir_channel_disconnect_device(SpiceUsbredirChannel *channel)
         spice_usb_acl_helper_close_acl(priv->acl_helper);
         break;
 #endif
+    case STATE_CONNECTING:
     case STATE_CONNECTED:
+        spice_channel_disconnect(SPICE_CHANNEL(channel), SPICE_CHANNEL_NONE);
         /*
          * This sets the usb event thread run condition to FALSE, therefor
-         * it must be done before usbredirhost_set_device NULL, as
-         * usbredirhost_set_device NULL will interrupt the
-         * libusb_handle_events call in the thread.
+         * it must be done before usbredirhost_close, as usbredirhost_close
+         * will interrupt the libusb_handle_events call in the thread.
          */
         spice_usb_device_manager_stop_event_listening(
             spice_usb_device_manager_get(
                 spice_channel_get_session(SPICE_CHANNEL(channel)), NULL));
-        /* This also closes the libusb handle we passed from open_device */
-        usbredirhost_set_device(priv->host, NULL);
+        /* This also closes the libusb handle we passed to its _open */
+        usbredirhost_close(priv->host);
+        priv->host = NULL;
         libusb_unref_device(priv->device);
-        priv->device = NULL;
-        priv->state  = STATE_DISCONNECTED;
+        priv->device  = NULL;
+        priv->context = NULL;
+        priv->state = STATE_DISCONNECTED;
         break;
     }
 }
@@ -409,22 +384,6 @@ libusb_device *spice_usbredir_channel_get_device(SpiceUsbredirChannel *channel)
     return channel->priv->device;
 }
 
-G_GNUC_INTERNAL
-void spice_usbredir_channel_get_guest_filter(
-                          SpiceUsbredirChannel               *channel,
-                          const struct usbredirfilter_rule  **rules_ret,
-                          int                                *rules_count_ret)
-{
-    SpiceUsbredirChannelPrivate *priv = channel->priv;
-
-    g_return_if_fail(priv->host != NULL);
-
-    usbredirhost_get_guest_filter(priv->host, rules_ret, rules_count_ret);
-}
-
-/* ------------------------------------------------------------------ */
-/* callbacks (any context)                                            */
-
 /* Note that this function must be re-entrant safe, as it can get called
    from both the main thread as well as from the usb event handling thread */
 static void usbredir_write_flush_callback(void *user_data)
@@ -432,12 +391,14 @@ static void usbredir_write_flush_callback(void *user_data)
     SpiceUsbredirChannel *channel = SPICE_USBREDIR_CHANNEL(user_data);
     SpiceUsbredirChannelPrivate *priv = channel->priv;
 
-    if (spice_channel_get_state(SPICE_CHANNEL(channel)) !=
-            SPICE_CHANNEL_STATE_READY)
+    if (priv->state != STATE_CONNECTED)
         return;
 
     usbredirhost_write_guest_data(priv->host);
 }
+
+/* ------------------------------------------------------------------ */
+/* callbacks (any context)                                            */
 
 static void usbredir_log(void *user_data, int level, const char *msg)
 {
@@ -527,42 +488,6 @@ static void usbredir_free_lock(void *user_data) {
 }
 
 /* --------------------------------------------------------------------- */
-
-/* Events to be handled in main context */
-enum {
-    DEVICE_ERROR,
-};
-
-struct DEVICE_ERROR {
-    libusb_device *device;
-    GError *error;
-};
-
-/* main context */
-static void do_emit_main_context(GObject *object, int event, gpointer params)
-{
-    SpiceUsbredirChannel *channel = SPICE_USBREDIR_CHANNEL(object);
-    SpiceUsbredirChannelPrivate *priv = channel->priv;
-
-    switch (event) {
-    case DEVICE_ERROR: {
-        struct DEVICE_ERROR *p = params;
-        /* Check that the device has not changed before we manage to run */
-        if (p->device == priv->device) {
-            spice_usbredir_channel_disconnect_device(channel);
-            spice_usb_device_manager_device_error(
-                spice_usb_device_manager_get(
-                    spice_channel_get_session(SPICE_CHANNEL(channel)), NULL),
-                (SpiceUsbDevice *)p->device, p->error);
-        }
-        break;
-    }
-    default:
-        g_warn_if_reached();
-    }
-}
-
-/* --------------------------------------------------------------------- */
 /* coroutine context                                                     */
 static void spice_usbredir_handle_msg(SpiceChannel *c, SpiceMsgIn *msg)
 {
@@ -586,6 +511,9 @@ static void spice_usbredir_channel_up(SpiceChannel *c)
     SpiceUsbredirChannel *channel = SPICE_USBREDIR_CHANNEL(c);
     SpiceUsbredirChannelPrivate *priv = channel->priv;
 
+    g_return_if_fail(priv->state == STATE_CONNECTING);
+
+    priv->state = STATE_CONNECTED;
     /* Flush any pending writes */
     usbredirhost_write_guest_data(priv->host);
 }
@@ -594,7 +522,7 @@ static void usbredir_handle_msg(SpiceChannel *c, SpiceMsgIn *in)
 {
     SpiceUsbredirChannel *channel = SPICE_USBREDIR_CHANNEL(c);
     SpiceUsbredirChannelPrivate *priv = channel->priv;
-    int r, size;
+    int size;
     uint8_t *buf;
 
     g_return_if_fail(priv->host != NULL);
@@ -606,45 +534,7 @@ static void usbredir_handle_msg(SpiceChannel *c, SpiceMsgIn *in)
     priv->read_buf = buf;
     priv->read_buf_size = size;
 
-    r = usbredirhost_read_guest_data(priv->host);
-    if (r != 0) {
-        libusb_device *device = priv->device;
-        gchar *desc;
-        GError *err;
-
-        g_return_if_fail(device != NULL);
-
-        desc = spice_usb_device_get_description((SpiceUsbDevice *)device,
-                                                NULL);
-        switch (r) {
-        case usbredirhost_read_parse_error:
-            err = g_error_new(SPICE_CLIENT_ERROR, SPICE_CLIENT_ERROR_FAILED,
-                              _("usbredir protocol parse error for %s"), desc);
-            break;
-        case usbredirhost_read_device_rejected:
-            err = g_error_new(SPICE_CLIENT_ERROR,
-                              SPICE_CLIENT_USB_DEVICE_REJECTED,
-                              _("%s rejected by host"), desc);
-            break;
-        case usbredirhost_read_device_lost:
-            err = g_error_new(SPICE_CLIENT_ERROR,
-                              SPICE_CLIENT_USB_DEVICE_LOST,
-                              _("%s disconnected (fatal IO error)"), desc);
-            break;
-        default:
-            err = g_error_new(SPICE_CLIENT_ERROR, SPICE_CLIENT_ERROR_FAILED,
-                              _("Unknown error (%d) for %s"), r, desc);
-        }
-        g_free(desc);
-
-        SPICE_DEBUG("%s", err->message);
-
-        g_boxed_copy(spice_usb_device_get_type(), device);
-        emit_main_context(channel, DEVICE_ERROR, device, err);
-        g_boxed_free(spice_usb_device_get_type(), device);
-
-        g_error_free(err);
-    }
+    usbredirhost_read_guest_data(priv->host);
 }
 
 #endif /* USE_USBREDIR */

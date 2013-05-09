@@ -1,6 +1,6 @@
 /* -*- Mode: C; c-basic-offset: 4; indent-tabs-mode: nil -*- */
 /*
-   Copyright (C) 2011, 2012 Red Hat, Inc.
+   Copyright (C) 2011 Red Hat, Inc.
 
    Red Hat Authors:
    Hans de Goede <hdegoede@redhat.com>
@@ -27,12 +27,17 @@
 #include "glib-compat.h"
 
 #ifdef USE_USBREDIR
+#ifdef __linux__
+#include <stdio.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#endif
 #include <errno.h>
 #include <libusb.h>
 #include <gudev/gudev.h>
 #include "channel-usbredir-priv.h"
 #include "usbredirhost.h"
-#include "usbutil.h"
 #endif
 
 #include "spice-session-priv.h"
@@ -85,7 +90,6 @@ enum
     DEVICE_ADDED,
     DEVICE_REMOVED,
     AUTO_CONNECT_FAILED,
-    DEVICE_ERROR,
     LAST_SIGNAL,
 };
 
@@ -187,7 +191,7 @@ static gboolean spice_usb_device_manager_initable_init(GInitable  *initable,
 #ifdef USE_USBREDIR
     rc = libusb_init(&priv->context);
     if (rc < 0) {
-        const char *desc = spice_usbutil_libusb_strerror(rc);
+        const char *desc = spice_usb_device_manager_libusb_strerror(rc);
         g_warning("Error initializing USB support: %s [%i]", desc, rc);
         g_set_error(err, SPICE_CLIENT_ERROR, SPICE_CLIENT_ERROR_FAILED,
                     "Error initializing USB support: %s [%i]", desc, rc);
@@ -212,7 +216,7 @@ static gboolean spice_usb_device_manager_initable_init(GInitable  *initable,
     return TRUE;
 #else
     g_set_error_literal(err, SPICE_CLIENT_ERROR, SPICE_CLIENT_ERROR_FAILED,
-                        _("USB redirection support not compiled in"));
+                        "USB redirection support not compiled in");
     return FALSE;
 #endif
 }
@@ -434,28 +438,6 @@ static void spice_usb_device_manager_class_init(SpiceUsbDeviceManagerClass *klas
                      SPICE_TYPE_USB_DEVICE,
                      G_TYPE_ERROR);
 
-    /**
-     * SpiceUsbDeviceManager::device-error:
-     * @manager: #SpiceUsbDeviceManager that emitted the signal
-     * @device:  #SpiceUsbDevice boxed object corresponding to the device which has an error
-     * @error:   #GError describing the error
-     *
-     * The #SpiceUsbDeviceManager::device-error signal is emitted whenever an
-     * error happens which causes a device to no longer be available to the
-     * guest.
-     **/
-    signals[DEVICE_ERROR] =
-        g_signal_new("device-error",
-                     G_OBJECT_CLASS_TYPE(gobject_class),
-                     G_SIGNAL_RUN_FIRST,
-                     G_STRUCT_OFFSET(SpiceUsbDeviceManagerClass, device_error),
-                     NULL, NULL,
-                     g_cclosure_user_marshal_VOID__BOXED_BOXED,
-                     G_TYPE_NONE,
-                     2,
-                     SPICE_TYPE_USB_DEVICE,
-                     G_TYPE_ERROR);
-
     g_type_class_add_private(klass, sizeof(SpiceUsbDeviceManagerPrivate));
 }
 
@@ -479,6 +461,68 @@ static gboolean spice_usb_device_manager_get_udev_bus_n_address(
 
     return *bus && *address;
 }
+
+const char *spice_usb_device_manager_libusb_strerror(enum libusb_error error_code)
+{
+    switch (error_code) {
+    case LIBUSB_SUCCESS:
+        return "Success";
+    case LIBUSB_ERROR_IO:
+        return "Input/output error";
+    case LIBUSB_ERROR_INVALID_PARAM:
+        return "Invalid parameter";
+    case LIBUSB_ERROR_ACCESS:
+        return "Access denied (insufficient permissions)";
+    case LIBUSB_ERROR_NO_DEVICE:
+        return "No such device (it may have been disconnected)";
+    case LIBUSB_ERROR_NOT_FOUND:
+        return "Entity not found";
+    case LIBUSB_ERROR_BUSY:
+        return "Resource busy";
+    case LIBUSB_ERROR_TIMEOUT:
+        return "Operation timed out";
+    case LIBUSB_ERROR_OVERFLOW:
+        return "Overflow";
+    case LIBUSB_ERROR_PIPE:
+        return "Pipe error";
+    case LIBUSB_ERROR_INTERRUPTED:
+        return "System call interrupted (perhaps due to signal)";
+    case LIBUSB_ERROR_NO_MEM:
+        return "Insufficient memory";
+    case LIBUSB_ERROR_NOT_SUPPORTED:
+        return "Operation not supported or unimplemented on this platform";
+    case LIBUSB_ERROR_OTHER:
+        return "Other error";
+    }
+    return "Unknown error";
+}
+
+#ifdef __linux__
+/* <Sigh> libusb does not allow getting the manufacturer and product strings
+   without opening the device, so grab them directly from sysfs */
+static gchar *spice_usb_device_manager_get_sysfs_attribute(
+    int bus, int address, const char *attribute)
+{
+    struct stat stat_buf;
+    char filename[256];
+    gchar *contents;
+
+    snprintf(filename, sizeof(filename), "/dev/bus/usb/%03d/%03d",
+             bus, address);
+    if (stat(filename, &stat_buf) != 0)
+        return NULL;
+
+    snprintf(filename, sizeof(filename), "/sys/dev/char/%d:%d/%s",
+             major(stat_buf.st_rdev), minor(stat_buf.st_rdev), attribute);
+    if (!g_file_get_contents(filename, &contents, NULL, NULL))
+        return NULL;
+
+    /* Remove the newline at the end */
+    contents[strlen(contents) - 1] = '\0';
+
+    return contents;
+}
+#endif
 #endif
 
 /* ------------------------------------------------------------------ */
@@ -489,14 +533,8 @@ static void channel_new(SpiceSession *session, SpiceChannel *channel,
 {
     SpiceUsbDeviceManager *self = user_data;
 
-    if (SPICE_IS_USBREDIR_CHANNEL(channel)) {
-#ifdef USE_USBREDIR
-        spice_usbredir_channel_set_context(SPICE_USBREDIR_CHANNEL(channel),
-                                           self->priv->context);
-        spice_channel_connect(channel);
-#endif
+    if (SPICE_IS_USBREDIR_CHANNEL(channel))
         g_ptr_array_add(self->priv->channels, channel);
-    }
 }
 
 static void channel_destroy(SpiceSession *session, SpiceChannel *channel,
@@ -578,17 +616,10 @@ static void spice_usb_device_manager_add_dev(SpiceUsbDeviceManager  *self,
     g_ptr_array_add(priv->devices, device);
 
     if (priv->auto_connect) {
-        gboolean can_redirect, auto_ok;
-
-        can_redirect = spice_usb_device_manager_can_redirect_device(
-                                        self, (SpiceUsbDevice *)device, NULL);
-
-        auto_ok = usbredirhost_check_device_filter(
-                            priv->auto_conn_filter_rules,
-                            priv->auto_conn_filter_rules_count,
-                            device, 0) == 0;
-
-        if (can_redirect && auto_ok)
+        if (usbredirhost_check_device_filter(
+                priv->auto_conn_filter_rules,
+                priv->auto_conn_filter_rules_count,
+                device, 0) == 0)
             spice_usb_device_manager_connect_device_async(self,
                                    (SpiceUsbDevice *)device, NULL,
                                    spice_usb_device_manager_auto_connect_cb,
@@ -648,7 +679,7 @@ static void spice_usb_device_manager_channel_connect_cb(
     GSimpleAsyncResult *result = G_SIMPLE_ASYNC_RESULT(user_data);
     GError *err = NULL;
 
-    spice_usbredir_channel_connect_device_finish(channel, channel_res, &err);
+    spice_usbredir_channel_connect_finish(channel, channel_res, &err);
     if (err) {
         g_simple_async_result_take_error(result, err);
     }
@@ -668,7 +699,7 @@ static gpointer spice_usb_device_manager_usb_ev_thread(gpointer user_data)
     while (priv->event_thread_run) {
         rc = libusb_handle_events(priv->context);
         if (rc) {
-            const char *desc = spice_usbutil_libusb_strerror(rc);
+            const char *desc = spice_usb_device_manager_libusb_strerror(rc);
             g_warning("Error handling USB events: %s [%i]", desc, rc);
         }
     }
@@ -711,12 +742,6 @@ void spice_usb_device_manager_stop_event_listening(
     priv->event_listeners--;
     if (priv->event_listeners == 0)
         priv->event_thread_run = FALSE;
-}
-
-void spice_usb_device_manager_device_error(
-    SpiceUsbDeviceManager *self, SpiceUsbDevice *device, GError *err)
-{
-    g_signal_emit(self, signals[DEVICE_ERROR], 0, device, err);
 }
 #endif
 
@@ -857,7 +882,8 @@ void spice_usb_device_manager_connect_device_async(SpiceUsbDeviceManager *self,
         if (spice_usbredir_channel_get_device(channel))
             continue; /* Skip already used channels */
 
-        spice_usbredir_channel_connect_device_async(channel,
+        spice_usbredir_channel_connect_async(channel,
+                                 priv->context,
                                  (libusb_device *)device,
                                  cancellable,
                                  spice_usb_device_manager_channel_connect_cb,
@@ -868,7 +894,7 @@ void spice_usb_device_manager_connect_device_async(SpiceUsbDeviceManager *self,
 
     g_simple_async_result_set_error(result,
                             SPICE_CLIENT_ERROR, SPICE_CLIENT_ERROR_FAILED,
-                            _("No free USB channel"));
+                            "No free USB channel");
 #ifdef USE_USBREDIR
 done:
 #endif
@@ -911,75 +937,7 @@ void spice_usb_device_manager_disconnect_device(SpiceUsbDeviceManager *self,
 
     channel = spice_usb_device_manager_get_channel_for_dev(self, device);
     if (channel)
-        spice_usbredir_channel_disconnect_device(channel);
-#endif
-}
-
-gboolean
-spice_usb_device_manager_can_redirect_device(SpiceUsbDeviceManager  *self,
-                                             SpiceUsbDevice         *device,
-                                             GError                **err)
-{
-#ifdef USE_USBREDIR
-    const struct usbredirfilter_rule *guest_filter_rules = NULL;
-    SpiceUsbDeviceManagerPrivate *priv = self->priv;
-    int i, guest_filter_rules_count;
-    gboolean enabled;
-
-    g_return_val_if_fail(SPICE_IS_USB_DEVICE_MANAGER(self), FALSE);
-    g_return_val_if_fail(device != NULL, FALSE);
-    g_return_val_if_fail(err == NULL || *err == NULL, FALSE);
-
-    g_object_get(G_OBJECT(priv->session), "enable-usbredir", &enabled, NULL);
-    if (!enabled) {
-        g_set_error_literal(err, SPICE_CLIENT_ERROR, SPICE_CLIENT_ERROR_FAILED,
-                            _("USB redirection is disabled"));
-        return FALSE;
-    }
-
-    if (!priv->channels->len) {
-        g_set_error_literal(err, SPICE_CLIENT_ERROR, SPICE_CLIENT_ERROR_FAILED,
-                            _("The connected VM is not configured for USB redirection"));
-        return FALSE;
-    }
-
-    /* Skip the other checks for already connected devices */
-    if (spice_usb_device_manager_is_device_connected(self, device))
-        return TRUE;
-
-    /* We assume all channels have the same filter, so we just take the
-       filter from the first channel */
-    spice_usbredir_channel_get_guest_filter(
-        g_ptr_array_index(priv->channels, 0),
-        &guest_filter_rules, &guest_filter_rules_count);
-
-    if (guest_filter_rules &&
-            usbredirhost_check_device_filter(
-                            guest_filter_rules, guest_filter_rules_count,
-                            (libusb_device *)device, 0) != 0) {
-        g_set_error_literal(err, SPICE_CLIENT_ERROR, SPICE_CLIENT_ERROR_FAILED,
-                            _("Some USB devices are blocked by host policy"));
-        return FALSE;
-    }
-
-    /* Check if there are free channels */
-    for (i = 0; i < priv->channels->len; i++) {
-        SpiceUsbredirChannel *channel = g_ptr_array_index(priv->channels, i);
-
-        if (!spice_usbredir_channel_get_device(channel))
-            break;
-    }
-    if (i == priv->channels->len) {
-        g_set_error_literal(err, SPICE_CLIENT_ERROR, SPICE_CLIENT_ERROR_FAILED,
-                            _("There are no free USB channels"));
-        return FALSE;
-    }
-
-    return TRUE;
-#else
-    g_set_error_literal(err, SPICE_CLIENT_ERROR, SPICE_CLIENT_ERROR_FAILED,
-                        _("USB redirection support not compiled in"));
-    return FALSE;
+        spice_usbredir_channel_disconnect(channel);
 #endif
 }
 
@@ -1016,16 +974,21 @@ gchar *spice_usb_device_get_description(SpiceUsbDevice *_device, const gchar *fo
     bus     = libusb_get_bus_number(device);
     address = libusb_get_device_address(device);
 
-    if (libusb_get_device_descriptor(device, &desc) == LIBUSB_SUCCESS) {
-        spice_usb_util_get_device_strings(bus, address,
-                                          desc.idVendor, desc.idProduct,
-                                          &manufacturer, &product);
+#if __linux__
+    manufacturer = spice_usb_device_manager_get_sysfs_attribute(bus, address,
+                                                              "manufacturer");
+    product = spice_usb_device_manager_get_sysfs_attribute(bus, address,
+                                                           "product");
+#endif
+    if (!manufacturer)
+        manufacturer = g_strdup(_("USB"));
+    if (!product)
+        product = g_strdup(_("Device"));
+
+    if (libusb_get_device_descriptor(device, &desc) == LIBUSB_SUCCESS)
         descriptor = g_strdup_printf("[%04x:%04x]", desc.idVendor, desc.idProduct);
-    } else {
-        spice_usb_util_get_device_strings(bus, address, -1, -1,
-                                          &manufacturer, &product);
+    else
         descriptor = g_strdup("");
-    }
 
     if (!format)
         format = _("%s %s %s at %d-%d");

@@ -1,6 +1,6 @@
 /* -*- Mode: C; c-basic-offset: 4; indent-tabs-mode: nil -*- */
 /*
-   Copyright (C) 2011, 2012 Red Hat, Inc.
+   Copyright (C) 2011 Red Hat, Inc.
 
    Red Hat Authors:
    Hans de Goede <hdegoede@redhat.com>
@@ -76,14 +76,12 @@ struct _SpiceUsbDeviceManagerClass
                             SpiceUsbDevice *device);
     void (*auto_connect_failed) (SpiceUsbDeviceManager *manager,
                                  SpiceUsbDevice *device, GError *error);
-    void (*device_error) (SpiceUsbDeviceManager *manager,
-                          SpiceUsbDevice *device, GError *error);
     /*< private >*/
     /*
      * If adding fields to this struct, remove corresponding
      * amount of padding to avoid changing overall struct size
      */
-    gchar _spice_reserved[SPICE_RESERVED_PADDING - sizeof(void*)];
+    gchar _spice_reserved[SPICE_RESERVED_PADDING];
 };
 
 GType spice_usb_device_get_type(void);
@@ -109,11 +107,6 @@ gboolean spice_usb_device_manager_connect_device_finish(
 
 void spice_usb_device_manager_disconnect_device(SpiceUsbDeviceManager *manager,
                                                 SpiceUsbDevice *device);
-
-gboolean
-spice_usb_device_manager_can_redirect_device(SpiceUsbDeviceManager  *self,
-                                             SpiceUsbDevice         *device,
-                                             GError                **err);
 
 G_END_DECLS
 

@@ -25,6 +25,9 @@ static void spice_marshall_msgc_ack_sync(SpiceMarshaller *m, SpiceMsgcAckSync *m
 static void spice_marshall_SpiceMsgEmpty(SpiceMarshaller *m, SpiceMsgEmpty *msg)
 {
     SPICE_GNUC_UNUSED SpiceMarshaller *m2;
+    SpiceMsgEmpty *src;
+    src = (SpiceMsgEmpty *)msg;
+
 }
 
 static void spice_marshall_msgc_pong(SpiceMarshaller *m, SpiceMsgPing *msg)
@@ -40,6 +43,10 @@ static void spice_marshall_msgc_pong(SpiceMarshaller *m, SpiceMsgPing *msg)
 static void spice_marshall_SpiceMsgData(SpiceMarshaller *m, SpiceMsgData *msg)
 {
     SPICE_GNUC_UNUSED SpiceMarshaller *m2;
+    SpiceMsgData *src;
+    src = (SpiceMsgData *)msg;
+
+    /* Remaining data must be appended manually */
 }
 
 static void spice_marshall_msgc_disconnecting(SpiceMarshaller *m, SpiceMsgDisconnect *msg)
