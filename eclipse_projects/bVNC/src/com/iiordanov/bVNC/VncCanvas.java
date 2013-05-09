@@ -300,7 +300,12 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 	/*
 	 * This flag indicates whether this is the RDP 'version' or not.
 	 */
-	boolean isRDP = false;
+	boolean isRdp = false;
+
+	/*
+	 * This flag indicates whether this is the SPICE 'version' or not.
+	 */
+	boolean isSpice = false;
 
 	/**
 	 * Constructor used by the inflation apparatus
@@ -320,7 +325,8 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 
 		decoder = new Decoder (this);
 		
-		isRDP = getContext().getPackageName().contains("RDP");
+		isRdp   = getContext().getPackageName().contains("RDP");
+		isSpice = getContext().getPackageName().contains("SPICE");
 	}
 
     private void startSpice(String ip, String port, String password) throws Exception {
@@ -423,7 +429,7 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 		Thread t = new Thread () {
 			public void run() {
 			    try {
-			    	boolean isSpice = true;
+			    	isSpice = true;
 			    	if (isSpice) {
 			    		// Get the address and port (based on whether an SSH tunnel is being established or not).
 			    		String address = getVNCAddress();
@@ -447,7 +453,7 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 			    		}
 			    	    
 			    	    pd.dismiss();
-			    	} else if (isRDP) {
+			    	} else if (isRdp) {
 			    		// TODO: Refactor code.
 
 			    		// Get the address and port (based on whether an SSH tunnel is being established or not).
