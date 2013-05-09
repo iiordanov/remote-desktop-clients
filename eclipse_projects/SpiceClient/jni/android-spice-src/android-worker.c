@@ -208,7 +208,7 @@ int android_spice_input()
 	error("creating socket");
     memset((char *) &serv_addr,0, sizeof(serv_addr));
     serv_addr.sun_family = AF_UNIX;
-    char* sock = "/data/data/com.iiordanov.bVNC/aspice-input-socket.socket";
+    char* sock = "/data/data/com.iiordanov.aSPICE/aspice-input-socket.socket";
     remove(sock);
     strcpy(serv_addr.sun_path, sock);
     servlen=strlen(serv_addr.sun_path) + 
@@ -241,7 +241,7 @@ int android_spice_output()
 	error("creating socket");
     memset((char *) &serv_addr,0, sizeof(serv_addr));
     serv_addr.sun_family = AF_UNIX;
-    char* sock = "/data/data/com.iiordanov.bVNC/aspice-output-socket.socket";
+    char* sock = "/data/data/com.iiordanov.aSPICE/aspice-output-socket.socket";
     remove(sock);
     strcpy(serv_addr.sun_path, sock);
     servlen=strlen(serv_addr.sun_path) + 

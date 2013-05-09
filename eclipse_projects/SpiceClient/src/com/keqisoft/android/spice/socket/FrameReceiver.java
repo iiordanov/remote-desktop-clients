@@ -18,7 +18,7 @@ public class FrameReceiver {
 	private Bitmap bitmap = null;
 	private Canvas canvas = null;
 	private SocketHandler sockHandler = new SocketHandler(
-			"/data/data/com.iiordanov.bVNC/aspice-output-socket.socket");
+			"/data/data/com.iiordanov.aSPICE/aspice-output-socket.socket");
 	private boolean keepReceive = true;
 	private boolean paused      = false;
 	private FrameRecieveT frameReciveT = null;

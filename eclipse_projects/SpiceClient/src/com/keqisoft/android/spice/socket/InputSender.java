@@ -11,7 +11,7 @@ import com.keqisoft.android.spice.datagram.MouseDG;
 
 public class InputSender {
 	private SocketHandler sockHandler = new SocketHandler(
-			"/data/data/com.iiordanov.bVNC/aspice-input-socket.socket");
+			"/data/data/com.iiordanov.aSPICE/aspice-input-socket.socket");
 
 	public void sendKey(KeyDG keyDg) {
 		if (!sockHandler.isConnected()) {
