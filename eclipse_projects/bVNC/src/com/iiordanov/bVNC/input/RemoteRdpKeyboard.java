@@ -13,10 +13,7 @@ import com.iiordanov.bVNC.XKeySymCoverter;
 
 public class RemoteRdpKeyboard extends RemoteKeyboard {
 	private final static String TAG = "RemoteRdpKeyboard";
-	
-	// Used to convert keysym to keycode
-	int deviceID = 0;
-	
+		
 	public RemoteRdpKeyboard (RfbConnectable r, VncCanvas v, Handler h) {
 		rfb = r;
 		vncCanvas = v;
@@ -29,8 +26,6 @@ public class RemoteRdpKeyboard extends RemoteKeyboard {
 	}
 
 	public boolean processLocalKeyEvent(int keyCode, KeyEvent evt) {
-		deviceID = evt.getDeviceId();
-
 		if (rfb != null && rfb.isInNormalProtocol()) {
 			RemotePointer pointer = vncCanvas.getPointer();
 			boolean down = (evt.getAction() == KeyEvent.ACTION_DOWN) ||
@@ -141,7 +136,7 @@ public class RemoteRdpKeyboard extends RemoteKeyboard {
 		} else {
 			char[] s = new char[1];
 			s[0] = (char)XKeySymCoverter.keysym2ucs(meta.getKeySym());
-			KeyCharacterMap kmap = KeyCharacterMap.load(deviceID);
+			KeyCharacterMap kmap = KeyCharacterMap.load(KeyCharacterMap.FULL);
 			KeyEvent events[] = kmap.getEvents(s);
 			
 			if (events != null) {
@@ -150,7 +145,6 @@ public class RemoteRdpKeyboard extends RemoteKeyboard {
 				keyboardMapper.processAndroidKeyEvent(events[0]);
 			} //else
 				//android.util.Log.e(TAG, "Events were null.");
-
 		}
 	}
 }

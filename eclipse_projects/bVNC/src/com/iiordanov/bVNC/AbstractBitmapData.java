@@ -49,8 +49,6 @@ abstract public class AbstractBitmapData {
 	private Paint paint;
 	int xoffset = 0;
 	int yoffset = 0;
-	Rect s;
-	Rect d;
 
 	AbstractBitmapData(RfbConnectable p, VncCanvas c)
 	{
@@ -60,8 +58,6 @@ abstract public class AbstractBitmapData {
 		framebufferheight = rfb.framebufferHeight();
 		drawable = createDrawable();
 		paint = new Paint();
-		s = new Rect();
-		d = new Rect();
 	}
 
 	synchronized void doneWaiting() {

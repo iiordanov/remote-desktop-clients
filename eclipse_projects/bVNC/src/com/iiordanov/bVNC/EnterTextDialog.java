@@ -24,12 +24,16 @@ import java.io.IOException;
 
 import java.util.ArrayList;
 
+import com.iiordanov.bVNC.input.RemoteKeyboard;
+
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.os.SystemClock;
+import android.view.KeyCharacterMap;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
@@ -88,25 +92,22 @@ class EnterTextDialog extends Dialog {
 		return s;
 	}
 	
-	private void sendText(String s)
-	{
-		RfbConnectable rfbconn = _canvasActivity.vncCanvas.rfbconn;
-		int l = s.length();
-		for (int i = 0; i<l; i++)
-		{
+	private void sendText(String s) {
+		RemoteKeyboard k = _canvasActivity.vncCanvas.keyboard;
+		for (int i = 0; i < s.length(); i++) {
+			KeyEvent event = null;
 			char c = s.charAt(i);
-			int meta = 0;
-			int keysym = c;
-			if (Character.isISOControl(c))
-			{
-				if (c=='\n')
-					keysym = MetaKeyBean.keysByKeyCode.get(KeyEvent.KEYCODE_ENTER).keySym;
-				else
-					continue;
+			if (Character.isISOControl(c)) {
+				if (c == '\n') {
+					int keyCode = KeyEvent.KEYCODE_ENTER;
+					k.processLocalKeyEvent(keyCode, new KeyEvent(KeyEvent.ACTION_DOWN, keyCode));
+					k.processLocalKeyEvent(keyCode, new KeyEvent(KeyEvent.ACTION_UP, keyCode));
+				}
+			} else {
+				event = new KeyEvent(SystemClock.uptimeMillis(), s.substring(i, i+1), KeyCharacterMap.FULL, 0);
+				k.processLocalKeyEvent(event.getKeyCode(), event);
 			}
-			rfbconn.writeKeyEvent(keysym, meta, true);
-			rfbconn.writeKeyEvent(keysym, meta, false);
-		}		
+		}
 	}
 
 	/* (non-Javadoc)
