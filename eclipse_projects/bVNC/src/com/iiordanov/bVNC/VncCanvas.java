@@ -338,7 +338,7 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 				closeConnection();
 				handler.post(new Runnable() {
 					public void run() {
-						Utils.showFatalErrorMessage(getContext(), "VNC connection aborted!");
+						Utils.showFatalErrorMessage(getContext(), "Connection aborted!");
 					}
 				});
 			}
