@@ -255,13 +255,9 @@ public class RemoteSpicePointer implements RemotePointer {
 				if        ( direction == 0 ) {
 					//android.util.Log.e("", "Scrolling up");
 					pointerMask = SPICE_MOUSE_BUTTON_UP;
-					// TODO: Remove this sleep when the scroller is implemented.
-        			try { Thread.sleep(2); } catch (InterruptedException e1) {}
 				} else if ( direction == 1 ) {
 					//android.util.Log.e("", "Scrolling down");
 					pointerMask = SPICE_MOUSE_BUTTON_DOWN;
-					// TODO: Remove this sleep when the scroller is implemented.
-        			try { Thread.sleep(2); } catch (InterruptedException e1) {}
 				}
 		    } else if (action == MotionEvent.ACTION_MOVE) {
 				//android.util.Log.e("", "Mouse moving");
