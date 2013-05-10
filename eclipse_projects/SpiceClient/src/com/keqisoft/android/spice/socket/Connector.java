@@ -54,8 +54,8 @@ public class Connector {
 	}
 	
 	public void disconnect() {
-		runThread.stop();
-		runThread.destroy();
+		DisconnectT disconnectThread = new DisconnectT();
+		disconnectThread.start();
 	}
 
 	class ConnectT extends Thread {
@@ -68,13 +68,23 @@ public class Connector {
 		public void run() {
 			long t1 = System.currentTimeMillis();
 			rs = AndroidSpicec(cmd);
-			Log.v("keqisoft", "Connect rs = " + rs + ",cost = " + (System.currentTimeMillis() - t1));
+			android.util.Log.e("Connector", "Returning from AndroidSpicec.");
+			Log.v("Connector", "Connect rs = " + rs + ",cost = " + (System.currentTimeMillis() - t1));
 
 			if (handler != null) {
 				Message message = new Message();
 				message.what = rs;
 				handler.sendMessage(message);
 			}
+		}
+	}
+	
+	class DisconnectT extends Thread {
+		public DisconnectT() {
+		}
+
+		public void run() {
+			AndroidSpicecDisconnect();
 		}
 	}
 }

@@ -53,8 +53,8 @@ void getval(void* dest,void* src,int type)
 }
 void error(const char *msg)
 {
-//    SPICE_DEBUG(msg);
-    exit(0);
+//  SPICE_DEBUG(msg);
+    return 1;
 }
 void android_send_task(int task)
 {
@@ -80,8 +80,7 @@ int msg_recv_handle(int sockfd, char* buf)
 		case ANDROID_OVER:
 			android_send_task(ANDROID_TASK_OVER);
 			g_main_loop_quit(android_mainloop);
-			exit(1);
-			return 1;
+			return 0;
 		break;
 		case ANDROID_KEY_PRESS:
 		case ANDROID_KEY_RELEASE:
@@ -221,7 +220,7 @@ int android_spice_input()
     newsockfd = accept( sockfd,(struct sockaddr *)&cli_addr,&clilen);
     if (newsockfd < 0) 
 	error("accepting");
-    while(1)
+    while(maintainConnection)
     {
 	if(msg_recv_handle(newsockfd,buf))
 	    break;
@@ -254,8 +253,7 @@ int android_spice_output()
     newsockfd = accept( sockfd,(struct sockaddr *)&cli_addr,&clilen);
     if (newsockfd < 0) 
 	error("accepting");
-    int over = 0;  
-    while(!over)  
+    while(maintainConnection)
     {  
 	pthread_mutex_lock(&android_mutex);  
 	android_task_ready = 1;  
@@ -263,11 +261,11 @@ int android_spice_output()
 	SPICE_DEBUG("got task:%d\n",android_task);
 	if(android_task == ANDROID_TASK_SHOW) {
 	    if(msg_send_handle(newsockfd)) {
-		over = 1;
+	    	maintainConnection = false;
 	    }
 	    android_task = ANDROID_TASK_IDLE;  
 	} else if(android_task == ANDROID_TASK_OVER) {
-	    over =1;
+		maintainConnection = false;
 	    android_task = ANDROID_TASK_IDLE;  
 	}
 	pthread_mutex_unlock(&android_mutex);  

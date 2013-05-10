@@ -26,6 +26,12 @@
 
 G_BEGIN_DECLS
 
+#ifdef SPICY_C
+	gboolean maintainConnection = TRUE;
+#else
+	extern gboolean maintainConnection;
+#endif
+
 #define SPICE_TYPE_DISPLAY            (spice_display_get_type())
 #define SPICE_DISPLAY(obj)            (G_TYPE_CHECK_INSTANCE_CAST((obj), SPICE_TYPE_DISPLAY, SpiceDisplay))
 #define SPICE_DISPLAY_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST((klass), SPICE_TYPE_DISPLAY, SpiceDisplayClass))

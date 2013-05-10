@@ -21,13 +21,13 @@
 #include <glib/gi18n.h>
 
 #include <sys/stat.h>
+#define SPICY_C
 #include "android-spice.h"
 #include "jpeg_encoder.h"
 #include "spice-common.h"
 #include "spice-audio.h"
 #include "spice-cmdline.h"
 #include <jni.h>
-
 
 enum {
     STATE_SCROLL_LOCK,
@@ -325,10 +325,15 @@ spice_connection *conn;
 
 #ifndef C_ANDROID
 jint Java_com_keqisoft_android_spice_socket_Connector_AndroidSpicecDisconnect() {
-	connection_disconnect(conn);
+	if (maintainConnection) {
+		__android_log_write(6, "spicy", "Signaling an end to execution.");
+		maintainConnection = FALSE;
+		//connection_disconnect(conn);
+		//g_main_loop_quit (mainloop);
+	}
+	return 0;
 }
 #endif
-
 
 #undef C_ANDROID
 //#define C_ANDROID
@@ -366,7 +371,7 @@ jint Java_com_keqisoft_android_spice_socket_Connector_AndroidSpicec(JNIEnv *env,
     g_option_context_add_group(context, spice_cmdline_get_option_group());
     if (!g_option_context_parse (context, &argc, &argv, &error)) {
 	g_print (_("option parsing failed: %s\n"), error->message);
-	exit (1);
+	return 1;
     }
 
     g_type_init();
@@ -397,15 +402,12 @@ jint Java_com_keqisoft_android_spice_socket_Connector_AndroidSpicec(JNIEnv *env,
 			jpeg_encoder_destroy(android_jpeg_encoder);
 			SPICE_DEBUG("stop I/O threads");
 		}
-	    while(--argc)
-		free(argv[argc]);
-	    free(argv);
-#ifndef C_ANDROID
-	    (*env)->ReleaseStringUTFChars(env ,str, NULL);
-#endif
 	    SPICE_DEBUG("libspicec.so over.");
+	    __android_log_write(6, "spicy", "Quitting.");
+
 	    return 0;
     } else {
+	    __android_log_write(6, "spicy", "There was an error connecting.");
     	return 1;
     }
 }
