@@ -1,6 +1,7 @@
 package com.iiordanov.bVNC.input;
 
 import android.os.Handler;
+import android.os.SystemClock;
 import android.view.KeyCharacterMap;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
@@ -19,9 +20,6 @@ import com.iiordanov.bVNC.input.RdpKeyboardMapper;
 public class RemoteSpiceKeyboard extends RemoteKeyboard {
 	private final static String TAG = "RemoteSpiceKeyboard";
 	
-	// Used to convert keysym to keycode
-	int deviceID = 0;
-	
 	public RemoteSpiceKeyboard (RfbConnectable r, VncCanvas v, Handler h) {
 		rfb = r;
 		vncCanvas = v;
@@ -34,8 +32,6 @@ public class RemoteSpiceKeyboard extends RemoteKeyboard {
 	}
 
 	public boolean processLocalKeyEvent(int keyCode, KeyEvent evt) {
-		deviceID = evt.getDeviceId();
-
 		if (rfb != null && rfb.isInNormalProtocol()) {
 			RemotePointer pointer = vncCanvas.getPointer();
 			boolean down = (evt.getAction() == KeyEvent.ACTION_DOWN) ||
@@ -46,8 +42,8 @@ public class RemoteSpiceKeyboard extends RemoteKeyboard {
 
 		    // Add shift to metaState if necessary.
 			// TODO: not interpreting SHIFT for now to avoid sending too many SHIFTs when sending SHIFT+'/' for '?'.
-			//if ((keyboardMetaState & KeyEvent.META_SHIFT_MASK) != 0)
-			//	metaState |= SHIFT_MASK;
+			if ((keyboardMetaState & KeyEvent.META_SHIFT_MASK) != 0)
+				metaState |= SHIFT_MASK;
 			
 			// If the keyboardMetaState contains any hint of CTRL, add CTRL_MASK to metaState
 			if ((keyboardMetaState & 0x7000)!=0)
@@ -56,6 +52,9 @@ public class RemoteSpiceKeyboard extends RemoteKeyboard {
 		    // Leaving KeyEvent.KEYCODE_ALT_LEFT for symbol input on hardware keyboards.
 			if ((keyboardMetaState & (KeyEvent.META_ALT_RIGHT_ON|0x00030000)) !=0 )
 				metaState |= ALT_MASK;
+			
+			if ((keyboardMetaState & RemoteKeyboard.SUPER_MASK) !=0 )
+				metaState |= SUPER_MASK;
 			
 			if (keyCode == KeyEvent.KEYCODE_MENU)
 				return true; 			              // Ignore menu key
@@ -90,11 +89,22 @@ public class RemoteSpiceKeyboard extends RemoteKeyboard {
 				}
 			}
 
-			//android.util.Log.e("RemoteRdpKeyboard", "Sending: " + evt.toString());
-			// Update the metaState in RdpCommunicator with writeKeyEvent.
-			rfb.writeKeyEvent(keyCode, onScreenMetaState|hardwareMetaState|metaState, down);
-			// Send the key to be processed through the KeyboardMapper.
-			return keyboardMapper.processAndroidKeyEvent(evt);
+			// Update the meta-state with writeKeyEvent.
+			rfb.writeKeyEvent(keyCode, (onScreenMetaState|hardwareMetaState|metaState), down);
+
+			if (keyCode == 0 /*KEYCODE_UNKNOWN*/) {
+				String s = evt.getCharacters();
+				if (s != null) {
+					for (int i = 0; i < s.length(); i++) {
+						//android.util.Log.e(TAG, "Sending unicode: " + s.charAt(i));
+						sendUnicode (s.charAt(i), (onScreenMetaState|hardwareMetaState|metaState));
+					}
+				}
+				return true;
+			} else {
+				// Send the key to be processed through the KeyboardMapper.
+				return keyboardMapper.processAndroidKeyEvent(evt);
+			}
 		} else {
 			return false;
 		}
@@ -137,25 +147,15 @@ public class RemoteSpiceKeyboard extends RemoteKeyboard {
 			//rfb.writePointerEvent(x, y, meta.getMetaFlags()|onScreenMetaState|hardwareMetaState, button);
 			//rfb.writePointerEvent(x, y, meta.getMetaFlags()|onScreenMetaState|hardwareMetaState, 0);
 		} else if (meta.equals(MetaKeyBean.keyCtrlAltDel)) {
+			// TODO: I should not need to treat this specially anymore.
 			int savedMetaState = onScreenMetaState|hardwareMetaState;
-			// Update the metastate in RdpCommunicator
+			// Update the metastate
 			rfb.writeKeyEvent(0, RemoteKeyboard.CTRL_MASK|RemoteKeyboard.ALT_MASK, false);
 			keyboardMapper.processAndroidKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, 112));
 			keyboardMapper.processAndroidKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, 112));
 			rfb.writeKeyEvent(0, savedMetaState, false);
 		} else {
-			char[] s = new char[1];
-			s[0] = (char)XKeySymCoverter.keysym2ucs(meta.getKeySym());
-			KeyCharacterMap kmap = KeyCharacterMap.load(deviceID);
-			KeyEvent events[] = kmap.getEvents(s);
-			
-			if (events != null) {
-				//android.util.Log.e(TAG, "Sending event: " + events[0].toString());
-				rfb.writeKeyEvent(0, meta.getMetaFlags(), true);
-				keyboardMapper.processAndroidKeyEvent(events[0]);
-			} //else
-				//android.util.Log.e(TAG, "Events were null.");
-
+			sendKeySym (meta.getKeySym(), meta.getMetaFlags());
 		}
 	}
 }
