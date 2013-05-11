@@ -90,10 +90,12 @@
 <string name="connect_button">Connect</string>
 <string name="connection_caption">Connection</string>
 <string name="connection_type_caption">Conn. Type</string>
-<string name="connection_type_vnc">Basic VNC</string>
-<string name="connection_type_vnc_over_ssh">Secure VNC over SSH</string>
 <string name="connection_type_rdp">RDP</string>
 <string name="connection_type_rdp_over_ssh">RDP over SSH</string>
+<string name="connection_type_spice">RDP</string>
+<string name="connection_type_spice_over_ssh">RDP over SSH</string>
+<string name="connection_type_vnc">Basic VNC</string>
+<string name="connection_type_vnc_over_ssh">Secure VNC over SSH</string>
 <string name="connection_type_ultravnc">UltraVNC</string>
 <string name="connection_type_vnc_over_ssl">Secure VNC over AnonTLS</string>
 <string name="connection_type_vnc_over_vencrypt">Secure VNC over VeNCrypt</string>
@@ -437,6 +439,97 @@ Known issues:
 <string name="single_zoom">Zoom mode - swipe up/down to zoom in/out, lift finger to stop</string>
 <string name="snap_one_to_one">Snapped to 1:1 zoom</string>
 <string name="special_keys">Send Keys</string>
+<string name="spice_address_caption_hint">SPICE Server</string>
+<string-array name="spice_connection_type">
+    <item>@string/connection_type_spice</item>
+    <item>@string/connection_type_spice_over_ssh</item>
+</string-array>
+<string name="spice_free_intro_header">This is an advertisement-supported, free version of aSPICE. You can 
+upgrade to aSPICE Pro to support this open-source project and avoid the ads! Look for aSPICE Pro in Google Play.
+&lt;br&gt;
+&lt;br&gt;    
+</string>
+<string name="rdp_intro_text">
+"Thank you for supporting aSPICE and open-source software in general! For help with using aSPICE, see the Help items in the Menu, and the description of the app in the market.
+&lt;br&gt;
+&lt;br&gt;
+Current list of aSPICE features includes:
+&lt;br&gt;
+- Plain SPICE, SPICE tunneled over SSH.
+&lt;br&gt;
+- Free rotation support. Use Operating System to limit rotation if needed.
+&lt;br&gt;
+- SSH Public/Private key-pair generation and export.
+&lt;br&gt;
+- Automatic Session saving.
+&lt;br&gt;
+- Zoomable, Fit to Screen, and One to One scaling modes.
+&lt;br&gt;
+- Multi-touch control over remote mouse in Direct and Simulated Touchpad input modes.
+&lt;br&gt;
+- Full single-handed control over remote mouse in Single-Handed input mode.
+&lt;br&gt;
+- Multi-touch mouse clicks: tap to Left-click, two-finger tap to right-click, three-finger-tap to middle click.
+&lt;br&gt;
+- Multi-touch scrolling: two finger drag Up/Down, and Left/Right to scroll.
+&lt;br&gt;
+- On-screen meta and arrow keys which can be completely disabled from menu or stowed with on-screen button.
+&lt;br&gt;
+- Sending Text and arbitrary Key combinations when connected.
+&lt;br&gt;
+- Help with creating connections (\"Menu->Connection Help\") in connection screen.
+&lt;br&gt;
+- Help with input modes (\"Menu->More->Input Mode Help\") when connected.
+&lt;br&gt;
+- Using an available trackpad as Arrows instead of moving the mouse, and trackpad click as Ctrl, rotating D-pad/trackpad for BT keyboards.
+&lt;br&gt;
+- Multi-language support, as long as the VNC server has the necessary language layout enabled.
+&lt;br&gt;
+- Seamless remote machine resolution changes
+&lt;br&gt;
+- Full mouse support on Android 4.0+ devices, including right and middle click and scroll wheel.
+&lt;br&gt;
+&lt;br&gt;
+Planned features:
+&lt;br&gt;
+- Copy/Paste integration
+&lt;br&gt;
+- Sound
+&lt;br&gt;
+- Performance improvements
+&lt;br&gt;
+Known issues:
+&lt;br&gt;
+- Send text does not send some symbols.
+&lt;br&gt;
+</string>
+<string name="spice_intro_title">aSPICE: Intuitive, secure SPICE client</string>
+<string name="spice_main_screen_help_text">
+"When you first start aSPICE, you will see a connection configuration page. Here you can set up a new SPICE connection, or choose a preexisting one. The page is divided into two sections. The top section contains a drop-down list of the connection configurations you've created previously. The first time your run aSPICE, you will only be able to make a new connection. Next to the list is a Connect button. The Connect button will start the SPICE client with the currently selected configuration. Below that is where you configure your connection.
+
+ - Connection Type: Here you choose the SPICE connection type. Available connection types are:
+   (a) SPICE, which connects directly to a computer over the SPICE protocol.
+   (b) SPICE over SSH, which first tunnels your connection through a computer running an SSH server.
+
+ - Title: Each connection you create can have a nickname to easily identify it on the list.
+ 
+ - SSH Tunnel Settings: Available in SPICE over SSH mode.
+   (a) SSH Server/Port: The address and port of the SSH server that the connection will be tunnelled through. By default SSH listens on port 22.
+   (b) Username/Password: The username and password of the account on the SSH server. The password will be filled in on this page if you haven't quit bVNC since you last entered it.
+   (c) Manage Key/Use Key: A button to manage public/private keys, and a checkbox indicating whether to use a key rather than password to authenticate. If you use the Copy to Clipboard button after generating a key-pair, you should be able to paste the public key once connected to the VNC server (the clipboard is synchronized to the server).
+
+ - SPICE Connection Settings:
+   (a) SPICE Server/Port: This is where you enter the host name or IP address and port of the computer running the SPICE server that you wish to contact. In SPICE over SSH mode, this address is as seen from the SSH Server. If the SSH Server and SPICE server are the same physical computer, you can use localhost. SPICE servers typically listen on port 5900 and up.
+   (d) SPICE Password: This si where you enter the password set to protect your SPICE session. Secure storage is not used for passwords (they are in a database), and the password will be stored only if you check the "Keep" box. The password will be filled in on this page if you haven't quit aSPICE since you last entered it.
+
+ - Advanced settings: In this section you'll find any local device or SPICE performance tweaks
+ - Local Device Tweaks: These adjust the behavior of aSPICE on your device.
+   (a) Use D-Pad for arrows: If you prefer, you can use the D-Pad of your Bluetooth keyboard or arrows on your on-screen keyboard to send arrows to the SPICE server.
+   (b) Rotate D-Pad: Phones paired with a Bluetooth keyboard may need the keyboard's D-pad to be rotated anti-clockwise to send correct directions to the server.
+   (c) Local mouse pointer: If the pointer is invisible, select this to force it to be drawn by aSPICE.</string>
+<string name="spice_password_hint">SPICE Password</string>
+<string name="spice_server_empty">SPICE Server or port empty. Cannot connect!</string>
+<string name="spice_username_hint">SPICE Username</string>
 <string name="ssh_passphrase_hint">Passphrase</string>
 <string name="ssh_pubkey_button">Manage Key</string>
 <string name="ssh_use_pubkey">Use Key</string>
