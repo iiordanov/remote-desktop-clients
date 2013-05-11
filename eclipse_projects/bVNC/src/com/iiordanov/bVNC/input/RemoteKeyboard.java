@@ -2,10 +2,13 @@ package com.iiordanov.bVNC.input;
 
 import android.content.Context;
 import android.os.Handler;
+import android.os.SystemClock;
+import android.view.KeyCharacterMap;
 import android.view.KeyEvent;
 import com.iiordanov.bVNC.MetaKeyBean;
 import com.iiordanov.bVNC.RfbConnectable;
 import com.iiordanov.bVNC.VncCanvas;
+import com.iiordanov.bVNC.XKeySymCoverter;
 
 public abstract class RemoteKeyboard {
 	public final static int SCAN_ESC = 1;
@@ -134,5 +137,77 @@ public abstract class RemoteKeyboard {
 	
 	public void clearMetaState () {
 		onScreenMetaState = 0;
+	}
+	
+	public void sendText(String s) {
+		for (int i = 0; i < s.length(); i++) {
+			KeyEvent event = null;
+			char c = s.charAt(i);
+			if (Character.isISOControl(c)) {
+				if (c == '\n') {
+					int keyCode = KeyEvent.KEYCODE_ENTER;
+					processLocalKeyEvent(keyCode, new KeyEvent(KeyEvent.ACTION_DOWN, keyCode));
+					try { Thread.sleep(10); } catch (InterruptedException e) { }
+					processLocalKeyEvent(keyCode, new KeyEvent(KeyEvent.ACTION_UP, keyCode));
+				}
+			} else {
+				event = new KeyEvent(SystemClock.uptimeMillis(), s.substring(i, i+1), KeyCharacterMap.FULL, 0);
+				processLocalKeyEvent(event.getKeyCode(), event);
+				try { Thread.sleep(10); } catch (InterruptedException e) { }
+			}
+		}
+	}
+	
+	public void sendKeySym (int keysym, int metaState) {
+		char c = (char)XKeySymCoverter.keysym2ucs(keysym);
+		sendUnicode(c, metaState);
+	}
+	
+	public void sendUnicode (char unicodeChar, int metaState) {
+		KeyCharacterMap kmap = KeyCharacterMap.load(KeyCharacterMap.FULL);
+		char[] s = new char[1];
+		char[] lowerCaseChar = new char[1];
+		s[0] = unicodeChar;
+		lowerCaseChar[0] = Character.toLowerCase(unicodeChar);
+		KeyEvent[] events = kmap.getEvents(s);
+		KeyEvent[] lowerCaseEvts = kmap.getEvents(lowerCaseChar);
+
+		if (events == null) {
+			// TODO: Try lower case and convert some symbols.
+		} else {
+			KeyEvent evt = events[0];
+			KeyEvent lowerCaseEvt = lowerCaseEvts[0];
+			if (evt.getKeyCode() == KeyEvent.KEYCODE_SHIFT_LEFT || evt.getKeyCode() == KeyEvent.KEYCODE_SHIFT_RIGHT)
+				metaState |= RemoteKeyboard.SHIFT_MASK;
+			int androidMeta = convertMyMetaToAndroidMeta(metaState);
+			KeyEvent down = new KeyEvent(SystemClock.uptimeMillis(), SystemClock.uptimeMillis(), KeyEvent.ACTION_DOWN,
+					lowerCaseEvt.getKeyCode(), evt.getRepeatCount(), androidMeta, evt.getDeviceId(), evt.getScanCode());
+			android.util.Log.e("RemoteKeyboard", "Sending: " + down.toString());
+			processLocalKeyEvent(down.getKeyCode(), down);
+			try { Thread.sleep(20); } catch (InterruptedException e) { }
+			KeyEvent up = new KeyEvent(SystemClock.uptimeMillis(), SystemClock.uptimeMillis(), KeyEvent.ACTION_UP,
+					lowerCaseEvt.getKeyCode(), evt.getRepeatCount(), 0, evt.getDeviceId(), evt.getScanCode());
+			android.util.Log.e("RemoteKeyboard", "Sending: " + up.toString());
+			processLocalKeyEvent(up.getKeyCode(), up);		
+		}
+	}
+	
+	public int convertMyMetaToAndroidMeta (int metaState) {
+		int result = 0;
+		if ((metaState & RemoteKeyboard.CTRL_MASK) != 0) {
+			result |= 0x7000;
+		}
+		if ((metaState & RemoteKeyboard.ALT_MASK) != 0) {
+			android.util.Log.e("", "adding alt mask");
+			result |= KeyEvent.META_ALT_RIGHT_ON;
+		}
+		if ((metaState & RemoteKeyboard.SUPER_MASK) != 0) {
+			android.util.Log.e("", "adding alt mask");
+			result |= RemoteKeyboard.SUPER_MASK;
+		}
+		if ((metaState & RemoteKeyboard.SHIFT_MASK) != 0) {
+			result |= KeyEvent.META_SHIFT_ON;
+		}
+		return result;
 	}
 }

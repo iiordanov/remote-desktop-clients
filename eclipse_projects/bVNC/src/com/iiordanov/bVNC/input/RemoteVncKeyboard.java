@@ -42,6 +42,9 @@ public class RemoteVncKeyboard extends RemoteKeyboard {
 			if ((keyboardMetaState & (KeyEvent.META_ALT_RIGHT_ON|0x00030000)) !=0 )
 				metaState |= ALT_MASK;
 			
+			if ((keyboardMetaState & RemoteKeyboard.SUPER_MASK) !=0 )
+				metaState |= SUPER_MASK;
+			
 			if (keyCode == KeyEvent.KEYCODE_MENU)
 				return true; 			              // Ignore menu key
 
