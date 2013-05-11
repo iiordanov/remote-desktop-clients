@@ -144,12 +144,6 @@ android:layout_height="fill_parent">
 			</LinearLayout>
 		</TableRow>
 		<TableRow>
-			<EditText android:id="@+id/textUsername" android:layout_width="fill_parent" 
-				android:hint="@string/spice_username_hint" android:layout_height="wrap_content"
-				android:singleLine="true" android:layout_weight="1" android:textAppearance="?android:attr/textAppearanceLarge"
-				android:inputType="textNoSuggestions|textVisiblePassword"/>
-		</TableRow>
-		<TableRow>
 			<LinearLayout
 				android:layout_width="fill_parent"
 				android:layout_height="wrap_content"
@@ -167,13 +161,6 @@ android:layout_height="fill_parent">
 					android:textAppearance="?android:attr/textAppearanceLarge" android:singleLine="true"/>
 			</LinearLayout>
 		</TableRow>
-		<!-- <TableRow>
-			<Spinner 
-			    android:id="@+id/colorformat" 
-			    android:layout_width="fill_parent"
-				android:layout_height="wrap_content"
-				android:layout_weight="1"/>
-		</TableRow> -->
 	</TableLayout>
 	
 	<LinearLayout

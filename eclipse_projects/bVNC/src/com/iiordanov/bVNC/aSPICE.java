@@ -77,28 +77,26 @@ public class aSPICE extends Activity implements MainConfiguration {
 	private Button goButton;
 	private Button buttonGeneratePubkey;
 	private ToggleButton toggleAdvancedSettings;
-	//private Spinner colorSpinner;
 	private Spinner spinnerConnection;
 	private VncDatabase database;
 	private ConnectionBean selected;
 	private EditText textNickname;
-	private EditText textUsername;
 	private CheckBox checkboxKeepPassword;
 	private CheckBox checkboxUseDpadAsArrows;
 	private CheckBox checkboxRotateDpad;
 	private CheckBox checkboxLocalCursor;
 	private CheckBox checkboxUseSshPubkey;
 	private boolean isFree;
-	private AdView adView;	
+	private AdView adView;
 
 	@Override
 	public void onCreate(Bundle icicle) {
 		super.onCreate(icicle);
 		System.gc();
 		setContentView(R.layout.main_spice);
-		
+
 		isFree = this.getPackageName().contains("free");
-		
+
 		ipText = (EditText) findViewById(R.id.textIP);
 		sshServer = (EditText) findViewById(R.id.sshServer);
 		sshPort = (EditText) findViewById(R.id.sshPort);
@@ -111,145 +109,167 @@ public class aSPICE extends Activity implements MainConfiguration {
 		portText = (EditText) findViewById(R.id.textPORT);
 		passwordText = (EditText) findViewById(R.id.textPASSWORD);
 		textNickname = (EditText) findViewById(R.id.textNickname);
-		textUsername = (EditText) findViewById(R.id.textUsername);
 
-		// Here we say what happens when the Pubkey Checkbox is checked/unchecked.
+		// Here we say what happens when the Pubkey Checkbox is
+		// checked/unchecked.
 		checkboxUseSshPubkey = (CheckBox) findViewById(R.id.checkboxUseSshPubkey);
-		checkboxUseSshPubkey.setOnCheckedChangeListener(new OnCheckedChangeListener() {
-			@Override
-			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-				selected.setUseSshPubKey(isChecked);
-				setSshPasswordHint (isChecked);
-				sshPassword.setText("");
-			}
-		});
-		
+		checkboxUseSshPubkey
+				.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+					@Override
+					public void onCheckedChanged(CompoundButton buttonView,
+							boolean isChecked) {
+						selected.setUseSshPubKey(isChecked);
+						setSshPasswordHint(isChecked);
+						sshPassword.setText("");
+					}
+				});
+
 		// Here we say what happens when the Pubkey Generate button is pressed.
 		buttonGeneratePubkey = (Button) findViewById(R.id.buttonGeneratePubkey);
 		buttonGeneratePubkey.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View view) {
-				generatePubkey ();
+				generatePubkey();
 			}
 		});
-		
-		// Define what happens when somebody selects different VNC connection types.
+
+		// Define what happens when somebody selects different VNC connection
+		// types.
 		connectionType = (Spinner) findViewById(R.id.connectionType);
-		connectionType.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-			@Override
-			public void onItemSelected(AdapterView<?> ad, View view, int itemIndex, long id) {
+		connectionType
+				.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+					@Override
+					public void onItemSelected(AdapterView<?> ad, View view,
+							int itemIndex, long id) {
 
-				selectedConnType = itemIndex;
-				if (selectedConnType == VncConstants.CONN_TYPE_PLAIN) {
-					setVisibilityOfSshWidgets (View.GONE);
-				} else if (selectedConnType == VncConstants.CONN_TYPE_SSH) {
-					setVisibilityOfSshWidgets (View.VISIBLE);
-					if (ipText.getText().toString().equals(""))
-						ipText.setText("localhost");
-					setSshPasswordHint (checkboxUseSshPubkey.isChecked());
-				}
-			}
+						selectedConnType = itemIndex;
+						if (selectedConnType == VncConstants.CONN_TYPE_PLAIN) {
+							setVisibilityOfSshWidgets(View.GONE);
+						} else if (selectedConnType == VncConstants.CONN_TYPE_SSH) {
+							setVisibilityOfSshWidgets(View.VISIBLE);
+							if (ipText.getText().toString().equals(""))
+								ipText.setText("localhost");
+							setSshPasswordHint(checkboxUseSshPubkey.isChecked());
+						}
+					}
 
-			@Override
-			public void onNothingSelected(AdapterView<?> ad) {
-			}
-		});
+					@Override
+					public void onNothingSelected(AdapterView<?> ad) {
+					}
+				});
 
 		goButton = (Button) findViewById(R.id.buttonGO);
-		checkboxKeepPassword = (CheckBox)findViewById(R.id.checkboxKeepPassword);
-		checkboxUseDpadAsArrows = (CheckBox)findViewById(R.id.checkboxUseDpadAsArrows);
-		checkboxRotateDpad = (CheckBox)findViewById(R.id.checkboxRotateDpad);
-		checkboxLocalCursor = (CheckBox)findViewById(R.id.checkboxUseLocalCursor);
-		spinnerConnection = (Spinner)findViewById(R.id.spinnerConnection);
-		spinnerConnection.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-			@Override
-			public void onItemSelected(AdapterView<?> ad, View view, int itemIndex, long id) {
-				selected = (ConnectionBean)ad.getSelectedItem();
-				updateViewFromSelected();
-			}
-			@Override
-			public void onNothingSelected(AdapterView<?> ad) {
-				selected = null;
-			}
-		});
-		spinnerConnection.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+		checkboxKeepPassword = (CheckBox) findViewById(R.id.checkboxKeepPassword);
+		checkboxUseDpadAsArrows = (CheckBox) findViewById(R.id.checkboxUseDpadAsArrows);
+		checkboxRotateDpad = (CheckBox) findViewById(R.id.checkboxRotateDpad);
+		checkboxLocalCursor = (CheckBox) findViewById(R.id.checkboxUseLocalCursor);
+		spinnerConnection = (Spinner) findViewById(R.id.spinnerConnection);
+		spinnerConnection
+				.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+					@Override
+					public void onItemSelected(AdapterView<?> ad, View view,
+							int itemIndex, long id) {
+						selected = (ConnectionBean) ad.getSelectedItem();
+						updateViewFromSelected();
+					}
 
-			/* (non-Javadoc)
-			 * @see android.widget.AdapterView.OnItemLongClickListener#onItemLongClick(android.widget.AdapterView, android.view.View, int, long)
-			 */
-			@Override
-			public boolean onItemLongClick(AdapterView<?> arg0, View arg1,
-					int arg2, long arg3) {
-				spinnerConnection.setSelection(arg2);
-				selected = (ConnectionBean)spinnerConnection.getItemAtPosition(arg2);
-				canvasStart();
-				return true;
-			}
-			
-		});
+					@Override
+					public void onNothingSelected(AdapterView<?> ad) {
+						selected = null;
+					}
+				});
+		spinnerConnection
+				.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+
+					/*
+					 * (non-Javadoc)
+					 * 
+					 * @see android.widget.AdapterView.OnItemLongClickListener#
+					 * onItemLongClick(android.widget.AdapterView,
+					 * android.view.View, int, long)
+					 */
+					@Override
+					public boolean onItemLongClick(AdapterView<?> arg0,
+							View arg1, int arg2, long arg3) {
+						spinnerConnection.setSelection(arg2);
+						selected = (ConnectionBean) spinnerConnection
+								.getItemAtPosition(arg2);
+						canvasStart();
+						return true;
+					}
+
+				});
 		goButton.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View view) {
-				if (ipText.getText().length() != 0 && portText.getText().length() != 0)
+				if (ipText.getText().length() != 0
+						&& portText.getText().length() != 0)
 					canvasStart();
 				else
-					Toast.makeText(view.getContext(), R.string.spice_server_empty, Toast.LENGTH_LONG).show();
+					Toast.makeText(view.getContext(),
+							R.string.spice_server_empty, Toast.LENGTH_LONG)
+							.show();
 			}
 		});
-		
+
 		// The advanced settings button.
 		toggleAdvancedSettings = (ToggleButton) findViewById(R.id.toggleAdvancedSettings);
 		layoutAdvancedSettings = (LinearLayout) findViewById(R.id.layoutAdvancedSettings);
-		toggleAdvancedSettings.setOnCheckedChangeListener(new OnCheckedChangeListener () {
-			@Override
-			public void onCheckedChanged(CompoundButton arg0, boolean checked) {
-				if (checked)
-					layoutAdvancedSettings.setVisibility(View.VISIBLE);
-				else
-					layoutAdvancedSettings.setVisibility(View.GONE);
-			}
-		});
-		
+		toggleAdvancedSettings
+				.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+					@Override
+					public void onCheckedChanged(CompoundButton arg0,
+							boolean checked) {
+						if (checked)
+							layoutAdvancedSettings.setVisibility(View.VISIBLE);
+						else
+							layoutAdvancedSettings.setVisibility(View.GONE);
+					}
+				});
+
 		database = new VncDatabase(this);
-		
+
 		// Define what happens when the Import/Export button is pressed.
-		((Button)findViewById(R.id.buttonImportExport)).setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				android.util.Log.e(TAG, "import/export!!");
-				showDialog(R.layout.importexport);
-			}
-		});
+		((Button) findViewById(R.id.buttonImportExport))
+				.setOnClickListener(new View.OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						android.util.Log.e(TAG, "import/export!!");
+						showDialog(R.layout.importexport);
+					}
+				});
 	}
-	
+
 	/**
 	 * Makes the ssh-related widgets visible/invisible.
 	 */
-	private void setVisibilityOfSshWidgets (int visibility) {
+	private void setVisibilityOfSshWidgets(int visibility) {
 		sshCredentials.setVisibility(visibility);
 		sshCaption.setVisibility(visibility);
 		layoutUseSshPubkey.setVisibility(visibility);
 		sshServerEntry.setVisibility(visibility);
 	}
-	
+
 	/**
 	 * Sets the ssh password/passphrase hint appropriately.
 	 */
-	private void setSshPasswordHint (boolean isPassphrase) {
+	private void setSshPasswordHint(boolean isPassphrase) {
 		if (isPassphrase) {
 			sshPassword.setHint(R.string.ssh_passphrase_hint);
 		} else {
 			sshPassword.setHint(R.string.password_hint_ssh);
 		}
 	}
-	
+
 	protected void onDestroy() {
 		database.close();
 		System.gc();
 		super.onDestroy();
 	}
-	
-	/* (non-Javadoc)
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see android.app.Activity#onCreateDialog(int)
 	 */
 	@Override
@@ -262,83 +282,90 @@ public class aSPICE extends Activity implements MainConfiguration {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Creates the help dialog for this activity.
 	 */
 	private Dialog createHelpDialog() {
-	    AlertDialog.Builder adb = new AlertDialog.Builder(this)
-	    		.setMessage(R.string.rdp_main_screen_help_text)
-	    		.setPositiveButton(R.string.close,
-	    				new DialogInterface.OnClickListener() {
-	    					public void onClick(DialogInterface dialog,
-	    							int whichButton) {
-	    						// We don't have to do anything.
-	    					}
-	    				});
-	    Dialog d = adb.setView(new ListView (this)).create();
-	    WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
-	    lp.copyFrom(d.getWindow().getAttributes());
-	    lp.width = WindowManager.LayoutParams.FILL_PARENT;
-	    lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
-	    d.show();
-	    d.getWindow().setAttributes(lp);
-	    return d;
+		AlertDialog.Builder adb = new AlertDialog.Builder(this).setMessage(
+				R.string.spice_main_screen_help_text).setPositiveButton(
+				R.string.close, new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int whichButton) {
+						// We don't have to do anything.
+					}
+				});
+		Dialog d = adb.setView(new ListView(this)).create();
+		WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
+		lp.copyFrom(d.getWindow().getAttributes());
+		lp.width = WindowManager.LayoutParams.FILL_PARENT;
+		lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
+		d.show();
+		d.getWindow().setAttributes(lp);
+		return d;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see android.app.Activity#onCreateOptionsMenu(android.view.Menu)
 	 */
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		getMenuInflater().inflate(R.menu.androidvncmenu,menu);
+		getMenuInflater().inflate(R.menu.androidvncmenu, menu);
 		return true;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see android.app.Activity#onMenuOpened(int, android.view.Menu)
 	 */
 	@Override
 	public boolean onMenuOpened(int featureId, Menu menu) {
-		menu.findItem(R.id.itemDeleteConnection).setEnabled(selected!=null && ! selected.isNew());
-		menu.findItem(R.id.itemSaveAsCopy).setEnabled(selected!=null && ! selected.isNew());
+		menu.findItem(R.id.itemDeleteConnection).setEnabled(
+				selected != null && !selected.isNew());
+		menu.findItem(R.id.itemSaveAsCopy).setEnabled(
+				selected != null && !selected.isNew());
 		return true;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see android.app.Activity#onOptionsItemSelected(android.view.MenuItem)
 	 */
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId())
-		{
-		case R.id.itemSaveAsCopy :
-			if (selected.getNickname().equals(textNickname.getText().toString()))
-				textNickname.setText("Copy of "+selected.getNickname());
+		switch (item.getItemId()) {
+		case R.id.itemSaveAsCopy:
+			if (selected.getNickname()
+					.equals(textNickname.getText().toString()))
+				textNickname.setText("Copy of " + selected.getNickname());
 			updateSelectedFromView();
 			selected.set_Id(0);
 			saveAndWriteRecent();
 			arriveOnPage();
 			break;
-		case R.id.itemDeleteConnection :
-			Utils.showYesNoPrompt(this, "Delete?", "Delete " + selected.getNickname() + "?",
+		case R.id.itemDeleteConnection:
+			Utils.showYesNoPrompt(this, "Delete?",
+					"Delete " + selected.getNickname() + "?",
 					new DialogInterface.OnClickListener() {
-				@Override
-				public void onClick(DialogInterface dialog, int i)
-				{
-					selected.Gen_delete(database.getWritableDatabase());
-	    			database.close();
-					arriveOnPage();
-				}
-			}, null);
+						@Override
+						public void onClick(DialogInterface dialog, int i) {
+							selected.Gen_delete(database.getWritableDatabase());
+							database.close();
+							arriveOnPage();
+						}
+					}, null);
 			break;
 		case R.id.itemMainScreenHelp:
 			showDialog(R.id.itemMainScreenHelp);
 			break;
-		// Disabling Manual/Wiki Menu item as the original does not correspond to this project anymore.
-		//case R.id.itemOpenDoc :
-		//	Utils.showDocumentation(this);
-		//	break;
+		// Disabling Manual/Wiki Menu item as the original does not correspond
+		// to this project anymore.
+		// case R.id.itemOpenDoc :
+		// Utils.showDocumentation(this);
+		// break;
 		}
 		return true;
 	}
@@ -351,11 +378,12 @@ public class aSPICE extends Activity implements MainConfiguration {
 		sshServer.setText(selected.getSshServer());
 		sshPort.setText(Integer.toString(selected.getSshPort()));
 		sshUser.setText(selected.getSshUser());
-		
-		checkboxUseSshPubkey.setChecked(selected.getUseSshPubKey());
-		setSshPasswordHint (checkboxUseSshPubkey.isChecked());
 
-		if (selectedConnType == VncConstants.CONN_TYPE_SSH && selected.getAddress().equals(""))
+		checkboxUseSshPubkey.setChecked(selected.getUseSshPubKey());
+		setSshPasswordHint(checkboxUseSshPubkey.isChecked());
+
+		if (selectedConnType == VncConstants.CONN_TYPE_SSH
+				&& selected.getAddress().equals(""))
 			ipText.setText("localhost");
 		else
 			ipText.setText(selected.getAddress());
@@ -375,8 +403,8 @@ public class aSPICE extends Activity implements MainConfiguration {
 		}
 
 		portText.setText(Integer.toString(selected.getPort()));
-		
-		if (selected.getKeepPassword() || selected.getPassword().length()>0) {
+
+		if (selected.getKeepPassword() || selected.getPassword().length() > 0) {
 			passwordText.setText(selected.getPassword());
 		}
 
@@ -385,52 +413,51 @@ public class aSPICE extends Activity implements MainConfiguration {
 		checkboxRotateDpad.setChecked(selected.getRotateDpad());
 		checkboxLocalCursor.setChecked(selected.getUseLocalCursor());
 		textNickname.setText(selected.getNickname());
-		textUsername.setText(selected.getUserName());
 	}
 
 	/**
 	 * Returns the current ConnectionBean.
 	 */
-	public ConnectionBean getCurrentConnection () {
+	public ConnectionBean getCurrentConnection() {
 		return selected;
 	}
 
 	/**
-	 * Returns the display height, or if the device has software
-	 * buttons, the 'bottom' of the view (in order to take into account the
-	 * software buttons.
+	 * Returns the display height, or if the device has software buttons, the
+	 * 'bottom' of the view (in order to take into account the software buttons.
+	 * 
 	 * @return the height in pixels.
 	 */
-	public int getHeight () {
-		View v    = getWindow().getDecorView().findViewById(android.R.id.content);
+	public int getHeight() {
+		View v = getWindow().getDecorView().findViewById(android.R.id.content);
 		Display d = getWindowManager().getDefaultDisplay();
 		int bottom = v.getBottom();
 		int height = d.getHeight();
-		
-        if (android.os.Build.VERSION.SDK_INT >= 14) {
-        	android.view.ViewConfiguration vc = ViewConfiguration.get(this);
-        	if (vc.hasPermanentMenuKey())
-        		return bottom;
-        }
+
+		if (android.os.Build.VERSION.SDK_INT >= 14) {
+			android.view.ViewConfiguration vc = ViewConfiguration.get(this);
+			if (vc.hasPermanentMenuKey())
+				return bottom;
+		}
 		return height;
 	}
-	
+
 	/**
-	 * Returns the display width, or if the device has software
-	 * buttons, the 'right' of the view (in order to take into account the
-	 * software buttons.
+	 * Returns the display width, or if the device has software buttons, the
+	 * 'right' of the view (in order to take into account the software buttons.
+	 * 
 	 * @return the width in pixels.
 	 */
-	public int getWidth () {
-		View v    = getWindow().getDecorView().findViewById(android.R.id.content);
+	public int getWidth() {
+		View v = getWindow().getDecorView().findViewById(android.R.id.content);
 		Display d = getWindowManager().getDefaultDisplay();
 		int right = v.getRight();
 		int width = d.getWidth();
-        if (android.os.Build.VERSION.SDK_INT >= 14) {
-        	android.view.ViewConfiguration vc = ViewConfiguration.get(this);
-        	if (vc.hasPermanentMenuKey())
-        		return right;
-        }
+		if (android.os.Build.VERSION.SDK_INT >= 14) {
+			android.view.ViewConfiguration vc = ViewConfiguration.get(this);
+			if (vc.hasPermanentMenuKey())
+				return right;
+		}
 		return width;
 	}
 
@@ -440,30 +467,30 @@ public class aSPICE extends Activity implements MainConfiguration {
 		}
 		selected.setConnectionType(selectedConnType);
 		selected.setAddress(ipText.getText().toString());
-		try	{
+		try {
 			selected.setPort(Integer.parseInt(portText.getText().toString()));
 			selected.setSshPort(Integer.parseInt(sshPort.getText().toString()));
-		} catch (NumberFormatException nfe) {}
-		
+		} catch (NumberFormatException nfe) {
+		}
+
 		selected.setNickname(textNickname.getText().toString());
 		selected.setSshServer(sshServer.getText().toString());
 		selected.setSshUser(sshUser.getText().toString());
 
 		selected.setKeepSshPassword(false);
-		
+
 		// If we are using an SSH key, then the ssh password box is used
 		// for the key pass-phrase instead.
 		selected.setUseSshPubKey(checkboxUseSshPubkey.isChecked());
 		selected.setSshPassPhrase(sshPassword.getText().toString());
 		selected.setSshPassword(sshPassword.getText().toString());
-		selected.setUserName(textUsername.getText().toString());
 		selected.setPassword(passwordText.getText().toString());
 		selected.setKeepPassword(checkboxKeepPassword.isChecked());
 		selected.setUseDpadAsArrows(checkboxUseDpadAsArrows.isChecked());
 		selected.setRotateDpad(checkboxRotateDpad.isChecked());
 		selected.setUseLocalCursor(checkboxLocalCursor.isChecked());
 	}
-	
+
 	protected void onStart() {
 		super.onStart();
 		System.gc();
@@ -475,184 +502,188 @@ public class aSPICE extends Activity implements MainConfiguration {
 		System.gc();
 		arriveOnPage();
 	}
-	
+
 	@Override
-	public void onWindowFocusChanged (boolean visible) {
+	public void onWindowFocusChanged(boolean visible) {
 		if (visible && isFree)
-			displayAd ();
+			displayAd();
 	}
-	
+
 	@Override
 	public void onConfigurationChanged(Configuration newConfig) {
 		Log.e(TAG, "onConfigurationChanged called");
 		super.onConfigurationChanged(newConfig);
 		if (isFree)
-			displayAd ();
+			displayAd();
 	}
 
 	/**
-	 * Return the object representing the app global state in the database, or null
-	 * if the object hasn't been set up yet
-	 * @param db App's database -- only needs to be readable
-	 * @return Object representing the single persistent instance of MostRecentBean, which
-	 * is the app's global state
+	 * Return the object representing the app global state in the database, or
+	 * null if the object hasn't been set up yet
+	 * 
+	 * @param db
+	 *            App's database -- only needs to be readable
+	 * @return Object representing the single persistent instance of
+	 *         MostRecentBean, which is the app's global state
 	 */
-	static MostRecentBean getMostRecent(SQLiteDatabase db)
-	{
+	static MostRecentBean getMostRecent(SQLiteDatabase db) {
 		ArrayList<MostRecentBean> recents = new ArrayList<MostRecentBean>(1);
-		MostRecentBean.getAll(db, MostRecentBean.GEN_TABLE_NAME, recents, MostRecentBean.GEN_NEW);
+		MostRecentBean.getAll(db, MostRecentBean.GEN_TABLE_NAME, recents,
+				MostRecentBean.GEN_NEW);
 		if (recents.size() == 0)
 			return null;
 		return recents.get(0);
 	}
-	
+
 	public void arriveOnPage() {
-		ArrayList<ConnectionBean> connections=new ArrayList<ConnectionBean>();
-		ConnectionBean.getAll(database.getReadableDatabase(), ConnectionBean.GEN_TABLE_NAME, connections, ConnectionBean.newInstance);
+		ArrayList<ConnectionBean> connections = new ArrayList<ConnectionBean>();
+		ConnectionBean.getAll(database.getReadableDatabase(),
+				ConnectionBean.GEN_TABLE_NAME, connections,
+				ConnectionBean.newInstance);
 		Collections.sort(connections);
 		connections.add(0, new ConnectionBean(this));
-		int connectionIndex=0;
-		if ( connections.size()>1)
-		{
-			MostRecentBean mostRecent = getMostRecent(database.getReadableDatabase());
-			if (mostRecent != null)
-			{
-				for ( int i=1; i<connections.size(); ++i)
-				{
-					if (connections.get(i).get_Id() == mostRecent.getConnectionId())
-					{
-						connectionIndex=i;
+		int connectionIndex = 0;
+		if (connections.size() > 1) {
+			MostRecentBean mostRecent = getMostRecent(database
+					.getReadableDatabase());
+			if (mostRecent != null) {
+				for (int i = 1; i < connections.size(); ++i) {
+					if (connections.get(i).get_Id() == mostRecent
+							.getConnectionId()) {
+						connectionIndex = i;
 						break;
 					}
 				}
 			}
 		}
-		spinnerConnection.setAdapter(new ArrayAdapter<ConnectionBean>(this, R.layout.connection_list_entry,
-				connections.toArray(new ConnectionBean[connections.size()])));
-		spinnerConnection.setSelection(connectionIndex,false);
-		selected=connections.get(connectionIndex);
+		spinnerConnection.setAdapter(new ArrayAdapter<ConnectionBean>(this,
+				R.layout.connection_list_entry, connections
+						.toArray(new ConnectionBean[connections.size()])));
+		spinnerConnection.setSelection(connectionIndex, false);
+		selected = connections.get(connectionIndex);
 		updateViewFromSelected();
 		IntroTextDialog.showIntroTextIfNecessary(this, database, false);
 	}
-	
-	private void displayAd () {
-	    LinearLayout layout = (LinearLayout)findViewById(R.id.mainLayout);
+
+	private void displayAd() {
+		LinearLayout layout = (LinearLayout) findViewById(R.id.mainLayout);
 		if (adView != null)
 			layout.removeViewInLayout(adView);
-			
-	    // Create the adView
-	    adView = new AdView(this, AdSize.SMART_BANNER, "a151744a8b1f640");
-		WindowManager.LayoutParams lp = getWindow().getAttributes();
-		lp.width     = LayoutParams.FILL_PARENT;
-		lp.height    = LayoutParams.FILL_PARENT;
-	    adView.setLayoutParams(lp);
-		    
-	    // Add the adView to the layout
-	    layout.addView(adView, 0);
 
-	    // Initiate a generic request to load it with an ad
+		// Create the adView
+		adView = new AdView(this, AdSize.SMART_BANNER, "a151744a8b1f640");
+		WindowManager.LayoutParams lp = getWindow().getAttributes();
+		lp.width = LayoutParams.FILL_PARENT;
+		lp.height = LayoutParams.FILL_PARENT;
+		adView.setLayoutParams(lp);
+
+		// Add the adView to the layout
+		layout.addView(adView, 0);
+
+		// Initiate a generic request to load it with an ad
 		AdRequest adRequest = new AdRequest();
-	    adView.loadAd(adRequest);
+		adView.loadAd(adRequest);
 	}
-	
+
 	protected void onStop() {
 		super.onStop();
-		if ( selected == null ) {
+		if (selected == null) {
 			return;
 		}
 		updateSelectedFromView();
 
-		// We need VNC server or SSH server to be filled out to save. Otherwise, we keep adding empty
+		// We need VNC server or SSH server to be filled out to save. Otherwise,
+		// we keep adding empty
 		// connections when onStop gets called.
-		if (selected.getConnectionType() == VncConstants.CONN_TYPE_SSH && selected.getSshServer().equals("") ||
-			selected.getAddress().equals(""))
+		if (selected.getConnectionType() == VncConstants.CONN_TYPE_SSH
+				&& selected.getSshServer().equals("")
+				|| selected.getAddress().equals(""))
 			return;
-		
+
 		saveAndWriteRecent();
 	}
-	
-	public VncDatabase getDatabaseHelper()
-	{
+
+	public VncDatabase getDatabaseHelper() {
 		return database;
 	}
-	
+
 	private void canvasStart() {
-		if (selected == null) return;
+		if (selected == null)
+			return;
 		MemoryInfo info = Utils.getMemoryInfo(this);
 		if (info.lowMemory)
 			System.gc();
 		vnc();
 	}
-	
-	protected void saveAndWriteRecent()
-	{
+
+	protected void saveAndWriteRecent() {
 		SQLiteDatabase db = database.getWritableDatabase();
 		db.beginTransaction();
-		try
-		{
+		try {
 			selected.save(db);
 			MostRecentBean mostRecent = getMostRecent(db);
-			if (mostRecent == null)
-			{
+			if (mostRecent == null) {
 				mostRecent = new MostRecentBean();
 				mostRecent.setConnectionId(selected.get_Id());
 				mostRecent.Gen_insert(db);
-			}
-			else
-			{
+			} else {
 				mostRecent.setConnectionId(selected.get_Id());
 				mostRecent.Gen_update(db);
 			}
 			db.setTransactionSuccessful();
-		}
-		finally
-		{
+		} finally {
 			db.endTransaction();
 			db.close();
 		}
 	}
 
 	/**
-	 * Starts the activity which makes a VNC connection and displays the remote desktop.
+	 * Starts the activity which makes a VNC connection and displays the remote
+	 * desktop.
 	 */
-	private void vnc () {
+	private void vnc() {
 		updateSelectedFromView();
 		saveAndWriteRecent();
 		Intent intent = new Intent(this, VncCanvasActivity.class);
-		intent.putExtra(VncConstants.CONNECTION,selected.Gen_getValues());
+		intent.putExtra(VncConstants.CONNECTION, selected.Gen_getValues());
 		startActivity(intent);
 	}
-	
+
 	/**
 	 * Starts the activity which manages keys.
 	 */
-	private void generatePubkey () {
+	private void generatePubkey() {
 		updateSelectedFromView();
 		saveAndWriteRecent();
 		Intent intent = new Intent(this, GeneratePubkeyActivity.class);
-		intent.putExtra("PrivateKey",selected.getSshPrivKey());
+		intent.putExtra("PrivateKey", selected.getSshPrivKey());
 		startActivityForResult(intent, VncConstants.ACTIVITY_GEN_KEY);
 	}
-	
+
 	/**
-	 * This function is used to retrieve data returned by activities started with startActivityForResult.
+	 * This function is used to retrieve data returned by activities started
+	 * with startActivityForResult.
 	 */
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
-		switch(requestCode) {
+		switch (requestCode) {
 		case (VncConstants.ACTIVITY_GEN_KEY):
 			if (resultCode == Activity.RESULT_OK) {
 				Bundle b = data.getExtras();
-				String privateKey = (String)b.get("PrivateKey");
-				if (!privateKey.equals(selected.getSshPrivKey()) && privateKey.length() != 0)
-					Toast.makeText(getBaseContext(), "New key generated/imported successfully. Tap 'Generate/Export Key' " +
-							" button to share, copy to clipboard, or export the public key now.", Toast.LENGTH_LONG).show();
+				String privateKey = (String) b.get("PrivateKey");
+				if (!privateKey.equals(selected.getSshPrivKey())
+						&& privateKey.length() != 0)
+					Toast.makeText(
+							getBaseContext(),
+							"New key generated/imported successfully. Tap 'Generate/Export Key' "
+									+ " button to share, copy to clipboard, or export the public key now.",
+							Toast.LENGTH_LONG).show();
 				selected.setSshPrivKey(privateKey);
-				selected.setSshPubKey((String)b.get("PublicKey"));
+				selected.setSshPubKey((String) b.get("PublicKey"));
 				saveAndWriteRecent();
 			} else
-				Log.i (TAG, "The user cancelled SSH key generation.");
+				Log.i(TAG, "The user cancelled SSH key generation.");
 			break;
 		}
 	}
