@@ -67,7 +67,7 @@ import com.iiordanov.pubkeygenerator.GeneratePubkeyActivity;
 import java.util.ArrayList;
 import java.util.Collections;
 
-public class androidVNC extends Activity {
+public class androidVNC extends Activity implements MainConfiguration {
 	private final static String TAG = "androidVNC";
 	private Spinner connectionType;
 	private int selectedConnType;
@@ -637,7 +637,7 @@ public class androidVNC extends Activity {
 		return recents.get(0);
 	}
 	
-	void arriveOnPage() {
+	public void arriveOnPage() {
 		ArrayList<ConnectionBean> connections=new ArrayList<ConnectionBean>();
 		ConnectionBean.getAll(database.getReadableDatabase(), ConnectionBean.GEN_TABLE_NAME, connections, ConnectionBean.newInstance);
 		Collections.sort(connections);
@@ -723,7 +723,7 @@ public class androidVNC extends Activity {
 		}
 	}
 	
-	VncDatabase getDatabaseHelper() {
+	public VncDatabase getDatabaseHelper() {
 		return database;
 	}
 	

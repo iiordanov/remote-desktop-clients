@@ -44,7 +44,7 @@
   		android:layout_width="fill_parent"
   		android:layout_height="wrap_content"
   		android:layout_weight="1"
-  		android:textAppearance="?android:attr/textAppearanceSmall"
+  		android:textAppearance="?android:attr/textAppearanceMedium"
   		android:singleLine="true"
   		/>
   	<Button
