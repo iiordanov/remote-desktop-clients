@@ -94,20 +94,7 @@ class EnterTextDialog extends Dialog {
 	
 	private void sendText(String s) {
 		RemoteKeyboard k = _canvasActivity.vncCanvas.keyboard;
-		for (int i = 0; i < s.length(); i++) {
-			KeyEvent event = null;
-			char c = s.charAt(i);
-			if (Character.isISOControl(c)) {
-				if (c == '\n') {
-					int keyCode = KeyEvent.KEYCODE_ENTER;
-					k.processLocalKeyEvent(keyCode, new KeyEvent(KeyEvent.ACTION_DOWN, keyCode));
-					k.processLocalKeyEvent(keyCode, new KeyEvent(KeyEvent.ACTION_UP, keyCode));
-				}
-			} else {
-				event = new KeyEvent(SystemClock.uptimeMillis(), s.substring(i, i+1), KeyCharacterMap.FULL, 0);
-				k.processLocalKeyEvent(event.getKeyCode(), event);
-			}
-		}
+		k.sendText(s);
 	}
 
 	/* (non-Javadoc)
