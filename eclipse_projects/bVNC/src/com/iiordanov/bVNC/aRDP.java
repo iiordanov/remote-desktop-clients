@@ -64,7 +64,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import com.google.ads.*;
 
-public class aRDP extends Activity {
+public class aRDP extends Activity implements MainConfiguration {
 	private final static String TAG = "aRDP";
 	private Spinner connectionType;
 	private int selectedConnType;
@@ -252,6 +252,15 @@ public class aRDP extends Activity {
 		checkboxVisualStyles = (CheckBox)findViewById(R.id.checkboxVisualStyles);
 
 		database = new VncDatabase(this);
+		
+		// Define what happens when the Import/Export button is pressed.
+		((Button)findViewById(R.id.buttonImportExport)).setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				android.util.Log.e(TAG, "import/export!!");
+				showDialog(R.layout.importexport);
+			}
+		});
 	}
 	
 	/**
@@ -300,10 +309,10 @@ public class aRDP extends Activity {
 	@Override
 	protected Dialog onCreateDialog(int id) {
 		switch (id) {
+		case R.layout.importexport:
+			return new ImportExportDialog(this);
 		case R.id.itemMainScreenHelp:
 			return createHelpDialog();
-		case R.layout.auto_x_customize:
-			return new AutoXCustomizeDialog(this);
 		}
 		return null;
 	}
@@ -594,7 +603,7 @@ public class aRDP extends Activity {
 		return recents.get(0);
 	}
 	
-	void arriveOnPage() {
+	public void arriveOnPage() {
 		ArrayList<ConnectionBean> connections=new ArrayList<ConnectionBean>();
 		ConnectionBean.getAll(database.getReadableDatabase(), ConnectionBean.GEN_TABLE_NAME, connections, ConnectionBean.newInstance);
 		Collections.sort(connections);
@@ -659,7 +668,7 @@ public class aRDP extends Activity {
 		saveAndWriteRecent();
 	}
 	
-	VncDatabase getDatabaseHelper()
+	public VncDatabase getDatabaseHelper()
 	{
 		return database;
 	}

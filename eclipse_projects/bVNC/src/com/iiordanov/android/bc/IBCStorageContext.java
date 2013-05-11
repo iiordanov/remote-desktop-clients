@@ -1,4 +1,5 @@
 /**
+ * Copyright (c) 2013 Iordan Iordanov
  * Copyright (c) 2010 Michael A. MacDonald
  */
 package com.iiordanov.android.bc;
@@ -6,6 +7,8 @@ package com.iiordanov.android.bc;
 import android.content.Context;
 
 import java.io.File;
+
+import com.iiordanov.bVNC.MainConfiguration;
 
 /**
  * Provides a way to access the directory on external storage as returned by
@@ -22,5 +25,5 @@ public interface IBCStorageContext {
 	 * @return File representing abstract path of storage directory; refer to android.os.Environment to
 	 * see if the path is actually accessible
 	 */
-	public File getExternalStorageDir(Context context, String type);
+	public File getExternalStorageDir(MainConfiguration context, String type);
 }

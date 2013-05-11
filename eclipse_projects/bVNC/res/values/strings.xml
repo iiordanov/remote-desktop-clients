@@ -113,7 +113,7 @@
 <string name="dpad_as_arrows">Use D-Pad for arrows and D-Pad click for Ctrl.</string>
 <string name="disconnect">Disconnect</string>
 <string name="export_settings">Export</string>
-<string name="export_settings_path">Export to file</string>
+<string name="export_settings_path"></string>
 <string name="enter_text_title">Enter Text to Send</string>
 <string name="enter_text">Send Text</string>
 <string name="extra_keys_enable">Enable Extra Keys</string>
@@ -121,7 +121,7 @@
 <string name="fit_to_screen">Fit to Screen</string>
 <string name="import_export_settings">Import/Export Settings</string>
 <string name="import_settings">Import</string>
-<string name="import_settings_file_url">Import from file or URL</string>
+<string name="import_settings_file_url"></string>
 <string name="input_mode_help">Input Mode Help</string>
 <string name="info">Info</string>
 <string name="intro_close">Close</string>

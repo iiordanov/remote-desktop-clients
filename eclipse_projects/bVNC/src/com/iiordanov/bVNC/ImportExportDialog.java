@@ -22,6 +22,7 @@ package com.iiordanov.bVNC;
 
 import android.app.Activity;
 import android.app.Dialog;
+import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -52,7 +53,7 @@ import org.xml.sax.SAXException;
  */
 class ImportExportDialog extends Dialog {
 
-	private androidVNC _configurationDialog;
+	private MainConfiguration _configurationDialog;
 	private EditText _textLoadUrl;
 	private EditText _textSaveUrl;
 	
@@ -60,8 +61,8 @@ class ImportExportDialog extends Dialog {
 	/**
 	 * @param context
 	 */
-	public ImportExportDialog(androidVNC context) {
-		super(context);
+	public ImportExportDialog(MainConfiguration context) {
+		super((Context)context);
 		setOwnerActivity((Activity)context);
 		_configurationDialog = context;
 	}
@@ -82,14 +83,10 @@ class ImportExportDialog extends Dialog {
 		if (f == null)
 			return;
 		
-		f = new File(f, "vnc_settings.xml");
-		
-		_textSaveUrl.setText(f.getAbsolutePath());
-		try {
-			_textLoadUrl.setText(f.toURL().toString());
-		} catch (MalformedURLException e) {
-			// Do nothing; default value not set
-		}
+		f = new File(f, "settings.xml");
+		String path = "/sdcard/" + f.getName();
+		_textSaveUrl.setText(path);
+		_textLoadUrl.setText(path);
 		
 		Button export = (Button)findViewById(R.id.buttonExport);
 		export.setOnClickListener(new View.OnClickListener() {
@@ -119,7 +116,11 @@ class ImportExportDialog extends Dialog {
 			public void onClick(View v) {
 				try
 				{
-					URL url = new URL(_textLoadUrl.getText().toString());
+					String urlString = _textLoadUrl.getText().toString();
+					if (!urlString.startsWith("file:")) {
+						urlString = "file:" + urlString;
+					}
+					URL url = new URL(urlString);
 					URLConnection connection = url.openConnection();
 					connection.connect();
 					Reader reader = new InputStreamReader(connection.getInputStream());
