@@ -2,7 +2,6 @@ static const guint16 keymap_win322xtkbd[] = {
   [0x8] = 0xe,         /* 8 (VK_BACK) => 14 via 14 (KEY_BACKSPACE) */
   [0x9] = 0xf,         /* 9 (VK_TAB) => 15 via 15 (KEY_TAB) */
   [0xd] = 0x1c,        /* 13 (VK_RETURN) => 28 via 28 (KEY_ENTER) */
-  [0x10] = 0x2a,       /* 16 (VK_LSHIFT) => 42 via 42 (KEY_LEFTSHIFT) */
   [0x11] = 0x1d,       /* 17 (VK_CONTROL) => 29 via 29 (KEY_LEFTCTRL) */
   [0x12] = 0x38,       /* 18 (VK_MENU) => 56 via 56 (KEY_LEFTALT) */
   [0x13] = 0x146,      /* 19 (VK_PAUSE) => 326 via 119 (KEY_PAUSE) */
@@ -14,10 +13,13 @@ static const guint16 keymap_win322xtkbd[] = {
   [0x22] = 0x151,      /* 34 (VK_NEXT) => 337 via 109 (KEY_PAGEDOWN) */
   [0x23] = 0x14f,      /* 35 (VK_END) => 335 via 107 (KEY_END) */
   [0x24] = 0x147,      /* 36 (VK_HOME) => 327 via 102 (KEY_HOME) */
+  [0x25] = 0x14b,      /* 37 (VK_LEFT) => 331 via 105 (KEY_LEFT) */
+  [0x26] = 0x148,      /* 38 (VK_UP) => 328 via 103 (KEY_UP) */
+  [0x27] = 0x14d,      /* 39 (VK_RIGHT) => 333 via 106 (KEY_RIGHT) */
+  [0x28] = 0x150,      /* 40 (VK_DOWN) => 336 via 108 (KEY_DOWN) */
   [0x2a] = 0x139,      /* 42 (VK_PRINT) => 313 via 210 (KEY_PRINT) */
   [0x2c] = 0x54,       /* 44 (VK_SNAPSHOT ???) => 84 via 99 (KEY_SYSRQ) */
   [0x2d] = 0x152,      /* 45 (VK_INSERT) => 338 via 110 (KEY_INSERT) */
-  [0x2e] = 0x153,      /* 46 (VK_DELETE) => 339 via 111 (KEY_DELETE) */
   [0x2f] = 0x175,      /* 47 (VK_HELP) => 373 via 138 (KEY_HELP) */
   [0x30] = 0xb,        /* 48 (VK_0) => 11 via 11 (KEY_0) */
   [0x31] = 0x2,        /* 49 (VK_1) => 2 via 2 (KEY_1) */
@@ -131,11 +133,7 @@ static const guint16 keymap_win322xtkbd[] = {
   [0xdb] = 0x1a,       /* 219 (VK_OEM_4) => 26 via 26 (KEY_LEFTBRACE) */
   [0xdc] = 0x2b,       /* 220 (VK_OEM_5) => 43 via 43 (KEY_BACKSLASH) */
   [0xdd] = 0x1b,       /* 221 (VK_OEM_6) => 27 via 27 (KEY_RIGHTBRACE) */
-  [0xde] = 0x28,       /* 222 (VK_OEM_7) => 40 via 40 (KEY_APOSTROPHE) */
   [0xe1] = 0x56,       /* 225 (VK_OEM_102) => 86 via 86 (KEY_102ND) */
   [0xfa] = 0x133,      /* 250 (VK_PLAY) => 307 via 207 (KEY_PLAY) */
-  [0x125] = 0x14b,     /* 293 (VK_LEFT) => 331 via 105 (KEY_LEFT) */
-  [0x126] = 0x148,     /* 294 (VK_UP) => 328 via 103 (KEY_UP) */
-  [0x127] = 0x14d,     /* 295 (VK_RIGHT) => 333 via 106 (KEY_RIGHT) */
-  [0x128] = 0x150,     /* 296 (VK_DOWN) => 336 via 108 (KEY_DOWN) */
+  [0x12e] = 0x153,     /* 302 (VK_DELETE) => 339 via 111 (KEY_DELETE) */
 };
