@@ -325,13 +325,15 @@ spice_connection *conn;
 
 #ifndef C_ANDROID
 jint Java_com_keqisoft_android_spice_socket_Connector_AndroidSpicecDisconnect() {
+	exit (0);
+	/*
 	if (maintainConnection) {
 		__android_log_write(6, "spicy", "Signaling an end to execution.");
 		maintainConnection = FALSE;
 		//connection_disconnect(conn);
 		//g_main_loop_quit (mainloop);
 	}
-	return 0;
+	return 0;*/
 }
 #endif
 
