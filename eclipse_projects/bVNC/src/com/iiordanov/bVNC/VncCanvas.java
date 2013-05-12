@@ -445,7 +445,7 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 			    	    
 			    		try {
 			    			synchronized(frameReceiver) {
-			    				frameReceiver.wait(25000);
+			    				frameReceiver.wait(32000);
 			    			}
 			    		} catch (InterruptedException e) {}
 
