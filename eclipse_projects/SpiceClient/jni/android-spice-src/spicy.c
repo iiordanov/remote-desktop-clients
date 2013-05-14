@@ -16,7 +16,7 @@
    License along with this library; if not, see <http://www.gnu.org/licenses/>.
 */
 #ifdef HAVE_CONFIG_H
-# include "config.h"
+#include "config.h"
 #endif
 #include <glib/gi18n.h>
 
@@ -324,7 +324,7 @@ void cmd_parse(char* cmd,char** argv,int* argc)
 spice_connection *conn;
 
 #ifndef C_ANDROID
-jint Java_com_keqisoft_android_spice_socket_Connector_AndroidSpicecDisconnect() {
+void Java_com_keqisoft_android_spice_socket_Connector_AndroidSpicecDisconnect(JNIEnv * env, jobject  obj) {
 	exit (0);
 	/*
 	if (maintainConnection) {
@@ -392,14 +392,12 @@ jint Java_com_keqisoft_android_spice_socket_Connector_AndroidSpicec(JNIEnv *env,
 		{
 			SPICE_DEBUG("start I/O threads");
 			//start the android workers threads
-			iret1 = pthread_create( &android_input, NULL, (void*)android_spice_input, NULL);
 			iret2 = pthread_create( &android_output, NULL, (void*)android_spice_output, NULL);
 			//create jpeg_encoder for the jpg images to JAVA
 			android_jpeg_encoder = jpeg_encoder_create();
 
 			g_main_loop_run(mainloop);
 
-			pthread_join(android_input, NULL);
 			pthread_join(android_output, NULL);
 			jpeg_encoder_destroy(android_jpeg_encoder);
 			SPICE_DEBUG("stop I/O threads");

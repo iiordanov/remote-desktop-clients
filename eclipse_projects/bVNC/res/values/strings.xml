@@ -92,8 +92,8 @@
 <string name="connection_type_caption">Conn. Type</string>
 <string name="connection_type_rdp">RDP</string>
 <string name="connection_type_rdp_over_ssh">RDP over SSH</string>
-<string name="connection_type_spice">RDP</string>
-<string name="connection_type_spice_over_ssh">RDP over SSH</string>
+<string name="connection_type_spice">SPICE</string>
+<string name="connection_type_spice_over_ssh">SPICE over SSH</string>
 <string name="connection_type_vnc">Basic VNC</string>
 <string name="connection_type_vnc_over_ssh">Secure VNC over SSH</string>
 <string name="connection_type_ultravnc">UltraVNC</string>
@@ -449,7 +449,7 @@ upgrade to aSPICE Pro to support this open-source project and avoid the ads! Loo
 &lt;br&gt;
 &lt;br&gt;    
 </string>
-<string name="rdp_intro_text">
+<string name="spice_intro_text">
 "Thank you for supporting aSPICE and open-source software in general! For help with using aSPICE, see the Help items in the Menu, and the description of the app in the market.
 &lt;br&gt;
 &lt;br&gt;

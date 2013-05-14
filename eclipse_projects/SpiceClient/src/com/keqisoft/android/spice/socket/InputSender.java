@@ -30,6 +30,16 @@ public class InputSender {
 		}
 	}
 
+	public void sendKey(int keyDown, int virtualKeyCode) {
+		Connector.getInstance().sendKeyEvent(keyDown, virtualKeyCode);
+	}
+
+	
+	public void sendMouse(int x, int y, int metaState, int type) {
+		Connector.getInstance().sendMouseEvent(x, y, metaState, type);
+	}
+
+	
 	public void sendMouse(MouseDG mouseDg) {
 		if (!sockHandler.isConnected()) {
 			if (!sockHandler.connect()) {

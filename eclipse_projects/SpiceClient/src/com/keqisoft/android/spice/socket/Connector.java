@@ -12,7 +12,10 @@ public class Connector {
 		System.loadLibrary("spicec");// load libspicec.so
 	}
 	public native int AndroidSpicec(String cmd);
-	public native int AndroidSpicecDisconnect();
+	public native void AndroidSpicecDisconnect();
+	public native void AndroidButtonEvent(int x, int y, int metaState, int type);
+	public native void AndroidKeyEvent(int keyDown, int virtualKeyCode);
+
 
 	// 单例
 	private static Connector connector = new Connector();
@@ -45,11 +48,6 @@ public class Connector {
 		buf.append(" -w ").append(password);
 		runThread = new ConnectT(buf.toString());
 		runThread.start();
-		// 连接如果成功，ConnectT线程会一直阻塞。如果连接失败了，线程里的方法会迅速返回，最多等待3秒后取结果
-//		try {
-//			Thread.sleep(5000);
-//		} catch (InterruptedException e) {
-//		}
 		return rs;
 	}
 	
@@ -86,5 +84,13 @@ public class Connector {
 		public void run() {
 			AndroidSpicecDisconnect();
 		}
+	}
+	
+	public void sendMouseEvent (int x, int y, int metaState, int type) {
+		AndroidButtonEvent(x, y, metaState, type);
+	}
+
+	public void sendKeyEvent (int keyDown, int virtualKeyCode) {
+		AndroidKeyEvent(keyDown, virtualKeyCode);
 	}
 }

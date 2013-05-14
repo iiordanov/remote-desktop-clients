@@ -35,7 +35,6 @@ extern volatile int android_task_ready;
 extern volatile int android_task;
 volatile AndroidShow android_show_display;
 gboolean key_event(AndroidEventKey* key);
-gboolean button_event(AndroidEventButton *button);
 
 void getval(void* dest,void* src,int type)
 {
@@ -51,11 +50,12 @@ void getval(void* dest,void* src,int type)
 	    break;
     }
 }
+
 void error(const char *msg)
 {
 //  SPICE_DEBUG(msg);
-    return 1;
 }
+
 void android_send_task(int task)
 {
     while(!android_task_ready);  
@@ -69,55 +69,6 @@ void android_send_task(int task)
     SPICE_DEBUG("send task done:%d\n",task);
 }
 
-int msg_recv_handle(int sockfd, char* buf)
-{
-	int n,type;
-	n = read(sockfd,buf,4);
-	if(n==4) {
-		getval(&type,buf,INT);
-		SPICE_DEBUG("Got event:%d\n",type);
-		switch(type) {
-		case ANDROID_OVER:
-			android_send_task(ANDROID_TASK_OVER);
-			g_main_loop_quit(android_mainloop);
-			return 0;
-		break;
-		case ANDROID_KEY_PRESS:
-		case ANDROID_KEY_RELEASE:
-			n = read(sockfd,buf,4);
-			if(n == 4) {
-				AndroidEventKey* key =(AndroidEventKey*)malloc(8);
-				key->type = type;
-				getval(&key->hardware_keycode,buf,INT);
-				key_event(key);
-				free(key);
-			}
-			else
-				error("msg_recv error!\n");
-			break;
-		case ANDROID_POINTER_EVENT:
-			n = 0;
-			while (n < 12) {
-				n += read(sockfd, buf+n, 12-n);
-			}
-			if(n == 12) {
-				AndroidEventButton* button = (AndroidEventButton*)malloc(12);
-				getval(&button->type, buf,   INT);
-				getval(&button->x,    buf+4, INT);
-				getval(&button->y,    buf+8, INT);
-				button_event(button);
-				free(button);
-			}
-			else {
-				error("msg_recv error!\n");
-			}
-			break;
-		}
-	}
-	else
-		error("msg_recv error!\n");
-	return 0;
-}
 int write_data(int sockfd,uint8_t* buf,int size,int type)
 {
     int i;
@@ -130,11 +81,12 @@ int write_data(int sockfd,uint8_t* buf,int size,int type)
 	    {
 		for(i=3;i>=0;i--)
 		    num+=write(sockfd,buf+steps+i,1);
-		steps+=4;
+			steps+=4;
 	    }
     }
     return num;
 }
+
 int msg_send_handle(int sockfd)
 {
     int n;
@@ -196,40 +148,7 @@ void android_show(spice_display* d,gint x,gint y,gint w,gint h)
 	    android_show_display.size);
     android_send_task(ANDROID_TASK_SHOW);
 }
-int android_spice_input()
-{
-    int sockfd, newsockfd, servlen;
-    socklen_t clilen;
-    struct sockaddr_un  cli_addr, serv_addr;
-    char buf[20];
 
-    if ((sockfd = socket(AF_UNIX,SOCK_STREAM,0)) < 0)
-	error("creating socket");
-    memset((char *) &serv_addr,0, sizeof(serv_addr));
-    serv_addr.sun_family = AF_UNIX;
-    char* sock = "/data/data/com.iiordanov.aSPICE/aspice-input-socket.socket";
-    remove(sock);
-    strcpy(serv_addr.sun_path, sock);
-    servlen=strlen(serv_addr.sun_path) + 
-	sizeof(serv_addr.sun_family);
-    if(bind(sockfd,(struct sockaddr *)&serv_addr,servlen)<0)
-	error("binding socket"); 
-
-    listen(sockfd,5);
-    clilen = sizeof(cli_addr);
-    newsockfd = accept( sockfd,(struct sockaddr *)&cli_addr,&clilen);
-    if (newsockfd < 0) 
-	error("accepting");
-    while(maintainConnection)
-    {
-	if(msg_recv_handle(newsockfd,buf))
-	    break;
-    }
-    close(newsockfd);
-    close(sockfd);
-    SPICE_DEBUG("android input over\n");
-    return 0;
-}
 int android_spice_output()
 {
     int sockfd, newsockfd, servlen;

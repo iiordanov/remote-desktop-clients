@@ -30,7 +30,7 @@ public class SpiceCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyP
     
 	boolean isInNormalProtocol = false;
 	
-	
+
 	public SpiceCommunicator (FrameReceiver f, int w, int h) {
 		width = w;
 		height = h;
@@ -86,7 +86,7 @@ public class SpiceCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyP
 
 	@Override
 	public void writePointerEvent(int x, int y, int metaState, int pointerMask) {
-		inputSender.sendMouse(new MouseDG(pointerMask, x, y));
+		inputSender.sendMouse(x, y, metaState, pointerMask);
 	}
 
 	private void sendModifierKeys (int keyDown) {		
@@ -152,9 +152,8 @@ public class SpiceCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyP
 		if (down)
 			sendModifierKeys (keyDown);
 		
-		android.util.Log.e("SpiceCommunicator", "Sending VK key: " + virtualKeyCode + ". Is it down: " + down);
-		// TODO: Figure out whether we really need to remove the VK_EXT_KEY flag.
-		inputSender.sendKey(new KeyDG(keyDown, virtualKeyCode));
+		//android.util.Log.e("SpiceCommunicator", "Sending VK key: " + virtualKeyCode + ". Is it down: " + down);
+		inputSender.sendKey(keyDown, virtualKeyCode);
 		
 		if (!down)
 			sendModifierKeys (keyDown);

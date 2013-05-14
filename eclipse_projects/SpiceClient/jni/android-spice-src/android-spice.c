@@ -26,6 +26,8 @@
 #include "android-spice-priv.h"
 #include "androidkeymap.c"
 #include "win32keymap.h"
+#include <jni.h>
+
 
 G_DEFINE_TYPE(SpiceDisplay, spice_display, SPICE_TYPE_CHANNEL);
 static SpiceDisplay* android_display;
@@ -207,7 +209,7 @@ int win32key2spice (int keycode)
 	int newKeyCode = keymap_win322xtkbd[keycode];
 	char buf[60];
     snprintf (buf, 60, "Converted win32 key: %d to linux key: %d", keycode, newKeyCode);
-	__android_log_write(6, "android-spice", buf);
+	//__android_log_write(6, "android-spice", buf);
     return newKeyCode;
 }
 
@@ -215,20 +217,21 @@ int androidkey2spice(int keycode)
 {
     return keymap_android[keycode];
 }
-gboolean key_event(AndroidEventKey* key)
-{
+
+JNIEXPORT void JNICALL
+Java_com_keqisoft_android_spice_socket_Connector_AndroidKeyEvent(JNIEnv * env, jobject  obj, jint type, jint hardware_keycode) {
     SpiceDisplay* display = android_display;
     spice_display* d = SPICE_DISPLAY_GET_PRIVATE(display);
     int scancode;
 
-    SPICE_DEBUG("%s %s: keycode: %d", __FUNCTION__, "Key",key->hardware_keycode);
+    SPICE_DEBUG("%s %s: keycode: %d", __FUNCTION__, "Key", hardware_keycode);
 
     if (!d->inputs)
-	return true;
+    	return;
 
-    scancode = win32key2spice(key->hardware_keycode);
-    //scancode = key->hardware_keycode;
-    switch (key->type) {
+    scancode = win32key2spice(hardware_keycode);
+    //scancode = hardware_keycode;
+    switch (type) {
 	case ANDROID_KEY_PRESS:
         send_key(display, scancode, 1);
 	    break;
@@ -238,8 +241,6 @@ gboolean key_event(AndroidEventKey* key)
 	default:
 	    break;
     }
-
-    return true;
 }
 
 static int update_mask (int button, gboolean down) {
@@ -259,23 +260,22 @@ static int update_mask (int button, gboolean down) {
 	return mask;
 }
 
-gboolean button_event(AndroidEventButton *button)
-{
+
+JNIEXPORT void JNICALL
+Java_com_keqisoft_android_spice_socket_Connector_AndroidButtonEvent(JNIEnv * env, jobject  obj, jint x, jint y, jint metaState, jint type) {
     SpiceDisplay* display = android_display;
     spice_display *d = SPICE_DISPLAY_GET_PRIVATE(display);
+    //char buf[60];
+    //snprintf (buf, 60, "Pointer event: %d at x: %d, y: %d", type, x, y);
+    //__android_log_write(6, "android-spice", buf);
 
-    SPICE_DEBUG("%d:x:%d,y:%d", button->type, button->x, button->y);
-    //char buf[40];
+    if (!d->inputs || (x >= 0 && x < d->width && y >= 0 && y < d->height)) {
 
-    if (!d->inputs || (button->x >= 0 && button->x < d->width && button->y >= 0 && button->y < d->height)) {
-
-		gboolean down = (button->type & PTRFLAGS_DOWN) != 0;
-		int mouseButton = button->type &~ PTRFLAGS_DOWN;
+		gboolean down = (type & PTRFLAGS_DOWN) != 0;
+		int mouseButton = type &~ PTRFLAGS_DOWN;
 		int newMask = update_mask (mouseButton, down);
-	    //snprintf (buf, 40, "Pointer event:%d at x:%d, y:%d", mouseButton, button->x, button->y);
-	    //__android_log_write(6, "android-spice", buf);
 
-		spice_inputs_position(d->inputs, button->x, button->y, d->channel_id, newMask);
+		spice_inputs_position(d->inputs, x, y, d->channel_id, newMask);
 /*		// TODO: Figure out why this code isn't working.
 		gint dx;
 		gint dy;
@@ -308,8 +308,8 @@ gboolean button_event(AndroidEventButton *button)
 			}
 		}
     }
-    return true;
 }
+
 
 void show_event(spice_display* d,gint x,gint y,gint w, gint h)
 {
