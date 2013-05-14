@@ -9,18 +9,16 @@ public class Connector {
 	private ConnectT runThread = null;
 	
 	static {
-		System.loadLibrary("spicec");// load libspicec.so
+		System.loadLibrary("spicec");
 	}
 	public native int AndroidSpicec(String cmd);
 	public native void AndroidSpicecDisconnect();
 	public native void AndroidButtonEvent(int x, int y, int metaState, int type);
 	public native void AndroidKeyEvent(int keyDown, int virtualKeyCode);
 
-
-	// 单例
 	private static Connector connector = new Connector();
-	private Connector() {
-	}
+	private Connector() { }
+	
 	public static Connector getInstance() {
 		return connector;
 	}
