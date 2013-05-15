@@ -41,7 +41,9 @@ public class Utils {
 		builder.setCancelable(false);
 		builder.setPositiveButton("Yes", onYesListener);
 		builder.setNegativeButton("No", onNoListener);
-		builder.show();
+		if (!(((Activity) _context).isFinishing())) {
+			builder.show();
+		}
 	}
 	
 	private static final Intent docIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://code.google.com/p/android-vnc-viewer/wiki/Documentation")); 
@@ -90,7 +92,9 @@ public class Utils {
 		builder.setCancelable(false);
 		builder.setPositiveButton("Acknowledged", ackHandler);
 		builder.setIcon(icon);
-		builder.show();
+		if (!(((Activity) _context).isFinishing())) {
+			builder.show();
+		}
 	}
 	
 	/**
