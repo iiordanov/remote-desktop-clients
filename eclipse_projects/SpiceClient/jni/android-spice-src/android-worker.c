@@ -111,7 +111,7 @@ error:
 int raw2jpg(uint8_t* data, int width,int height )
 {
     if(android_jpeg_encoder)
-	return jpeg_encode(android_jpeg_encoder,75,width,height,data,width*4,&android_show_display.data);
+	return jpeg_encode(android_jpeg_encoder,60,width,height,data,width*4,&android_show_display.data);
     else
     {
 	SPICE_DEBUG("no android_jpeg_encoder found!");

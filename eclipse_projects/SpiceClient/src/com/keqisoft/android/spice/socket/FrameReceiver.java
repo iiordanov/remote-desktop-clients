@@ -105,18 +105,4 @@ public class FrameReceiver {
 			}
 		}
 	}
-
-	private Canvas cvs = null;
-	private Bitmap bmpOverlay = null;
-	private Bitmap combine(Bitmap bmp, int y) {
-		if (bmpOverlay == null) {
-			bmpOverlay = Bitmap.createBitmap(bmp.getWidth(), bmp.getHeight(), bmp.getConfig());
-			cvs = new Canvas(bmpOverlay);
-			cvs.drawBitmap(bmp, 0, 0, null);
-			return bmp;
-		}
-		cvs.drawBitmap(bmpOverlay, 0, 0, null);
-		cvs.drawBitmap(bmp, 0, y, null);
-		return bmpOverlay;
-	}
 }
