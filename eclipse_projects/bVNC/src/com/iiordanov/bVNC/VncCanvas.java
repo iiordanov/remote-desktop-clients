@@ -334,38 +334,7 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
     }
 
     boolean spiceUpdateReceived = false;
-    Handler spiceHandler = new Handler() {
-		@Override
-	    public void handleMessage(Message msg) {
-	    	Context c = VncCanvas.this.getContext();
 
-			switch (msg.what) {
-				case SpiceCanvas.NEW_CANVAS_SIZE:
-			    	android.util.Log.e(TAG, "Message: NEW_CANVAS_SIZE");
-	    			break;
-			    case SpiceCanvas.UPDATE_CANVAS:
-			    	//android.util.Log.e(TAG, "Message: UPDATE_CANVAS");
-			    	Rect dirty = (Rect) msg.obj;
-			    	VncCanvas.this.reDraw(dirty.left, dirty.top, dirty.width(), dirty.height());
-			    	break;
-			    case Connector.CONNECT_UNKOWN_ERROR:
-			    	android.util.Log.e(TAG, "Message: CONNECT_UNKNOWN_ERROR");
-			    	rfbconn.close();
-			    	Utils.showFatalErrorMessage(c, "Connection interrupted.");
-			    	break;
-			    case Connector.CONNECT_SUCCESS:
-			    	android.util.Log.e(TAG, "Message: CONNECT_SUCCESS");
-			    	rfbconn.close();
-			    	break;
-			    default:
-			    	android.util.Log.e(TAG, "Unhandled message in handler2");
-			    	Utils.showFatalErrorMessage(c, "Unhandled message in handler2");
-
-			}
-			super.handleMessage(msg);
-	    }
-    };
-    
 	/**
 	 * Create a view showing a VNC connection
 	 * @param context Containing context (activity)
@@ -410,11 +379,9 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 			    		String address = getVNCAddress();
 			    		int port = getVNCPort();
 			    		
+			    	    Connector.getInstance().setUIEventListener(VncCanvas.this);
 			    		startSpice(address, Integer.toString(port), connection.getPassword());
 			    		
-			    	    Connector.getInstance().setHandler(spiceHandler);
-			    	    Connector.getInstance().setUIEventListener(VncCanvas.this);
-			    	    
 			    		try {
 			    			synchronized(Connector.getInstance()) {
 			    				Connector.getInstance().wait(32000);

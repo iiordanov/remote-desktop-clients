@@ -39,7 +39,7 @@ public class FrameReceiver {
 			Message message = new Message();
 			message.what = SpiceCanvas.UPDATE_CANVAS;
 			message.obj = currRect;
-			Connector.getInstance().getHandler().sendMessage(message);
+			//Connector.getInstance().getHandler().sendMessage(message);
 			paused = false;
 		}
 	}
@@ -94,7 +94,7 @@ public class FrameReceiver {
 				//android.util.Log.e("", "RECEIVED: x: " + x + " y: " +y+ " w: " +w+ " h: " +h + " size: " + size);
 
 				message.obj = currRect;
-				Connector.getInstance().getHandler().sendMessage(message);
+				//Connector.getInstance().getHandler().sendMessage(message);
 			} catch (IOException e) {
 				sockHandler.close();
 			}
