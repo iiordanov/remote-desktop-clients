@@ -342,45 +342,20 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 
 			switch (msg.what) {
 				case SpiceCanvas.NEW_CANVAS_SIZE:
-			    	android.util.Log.e(TAG, "NEW_CANVAS_SIZE");
-
-			    	Rect newSize = (Rect) msg.obj;
-
-			    	rfbconn = new SpiceCommunicator (frameReceiver, newSize.width(), newSize.height());
-		    		pointer = new RemoteSpicePointer (rfbconn, VncCanvas.this, handler);
-		    		keyboard = new RemoteSpiceKeyboard (rfbconn, VncCanvas.this, handler);
-		    		try {
-		    			bitmapData = new CompactBitmapData(rfbconn, VncCanvas.this);
-		    		} catch (Throwable e) {
-		    			showFatalMessageAndQuit ("Your device is out of memory! Restart the app and failing that, restart your device. " +
-		    									 "If neither helps, try setting a smaller remote desktop size in the advanced settings.");
-		    		}
-		        	android.util.Log.i(TAG, "Using CompactBufferBitmapData.");
-
-		    		initializeSoftCursor();
-		        	
-		        	// Set the drawable for the canvas.
-		        	handler.post(drawableSetter);
-		    		handler.post(setModes);
-		    		handler.post(desktopInfo);
-		    		frameReceiver.setBitmap(bitmapData.mbitmap);
-		    		spiceUpdateReceived = true;
-		    		rfbconn.setIsInNormalProtocol(true);
-	    			synchronized(frameReceiver) {
-	    				frameReceiver.notifyAll();
-	    			}
+			    	android.util.Log.e(TAG, "Message: NEW_CANVAS_SIZE");
+	    			break;
 			    case SpiceCanvas.UPDATE_CANVAS:
-			    	//android.util.Log.e(TAG, "UPDATE_CANVAS");
+			    	//android.util.Log.e(TAG, "Message: UPDATE_CANVAS");
 			    	Rect dirty = (Rect) msg.obj;
 			    	VncCanvas.this.reDraw(dirty.left, dirty.top, dirty.width(), dirty.height());
 			    	break;
 			    case Connector.CONNECT_UNKOWN_ERROR:
-			    	android.util.Log.e(TAG, "CONNECT_UNKNOWN_ERROR");
+			    	android.util.Log.e(TAG, "Message: CONNECT_UNKNOWN_ERROR");
 			    	rfbconn.close();
 			    	Utils.showFatalErrorMessage(c, "Connection interrupted.");
 			    	break;
 			    case Connector.CONNECT_SUCCESS:
-			    	android.util.Log.e(TAG, "CONNECT_SUCCESS");
+			    	android.util.Log.e(TAG, "Message: CONNECT_SUCCESS");
 			    	rfbconn.close();
 			    	break;
 			    default:
@@ -439,6 +414,7 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 			    		startSpice(address, Integer.toString(port), connection.getPassword());
 			    		
 			    	    Connector.getInstance().setHandler(spiceHandler);
+			    	    Connector.getInstance().setUIEventListener(VncCanvas.this);
 
 			    	    frameReceiver = new FrameReceiver ();
 			    	    frameReceiver.startRecieveFrame();
@@ -1283,6 +1259,14 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 	@Override
 	public void OnSettingsChanged(int width, int height, int bpp) {
 		android.util.Log.e(TAG, "onSettingsChanged called.");
+		
+		// If this is aSPICE, we need to initialize the communicator and remote keyboard and mouse now.
+		if (isSpice) {
+	    	rfbconn = new SpiceCommunicator (frameReceiver, width, height);
+    		pointer = new RemoteSpicePointer (rfbconn, this, handler);
+    		keyboard = new RemoteSpiceKeyboard (rfbconn, this, handler);
+		}
+		
 		try {
 			bitmapData = new CompactBitmapData(rfbconn, this);
 		} catch (Throwable e) {
@@ -1299,6 +1283,23 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
     	handler.post(drawableSetter);
 		handler.post(setModes);
 		handler.post(desktopInfo);
+		
+		// If this is aSPICE, set the new bitmap in the native layer.
+		if (isSpice) {
+    		initializeSoftCursor();
+        	
+        	// Set the drawable for the canvas.
+        	handler.post(drawableSetter);
+    		handler.post(setModes);
+    		handler.post(desktopInfo);
+    		frameReceiver.setBitmap(bitmapData.mbitmap);
+    		spiceUpdateReceived = true;
+    		rfbconn.setIsInNormalProtocol(true);
+			synchronized(frameReceiver) {
+				frameReceiver.notifyAll();
+			}
+			Connector.getInstance().AndroidSetBitmap(bitmapData.mbitmap);
+		}
 	}
 
 	@Override
@@ -1334,10 +1335,11 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 	@Override
 	public void OnGraphicsUpdate(int x, int y, int width, int height) {
 		//android.util.Log.e(TAG, "OnGraphicsUpdate called: " + x +", " + y + " + " + width + "x" + height );
-		if (bitmapData != null)
+		if (isRdp && bitmapData != null)
 			LibFreeRDP.updateGraphics(session.getInstance(), bitmapData.mbitmap, x, y, width, height);
 
-		reDraw(x, y, x+width, y+height);
+		reDraw(x, y, width, height);
+		//reDraw(x, y, x+width, y+height);
 		//postInvalidate();
 	}
 

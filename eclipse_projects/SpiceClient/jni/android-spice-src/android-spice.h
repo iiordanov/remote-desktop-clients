@@ -23,13 +23,27 @@
 //#include "spice-widget-enums.h"
 #include "spice-util.h"
 #include "pthread.h"
+#include <jni.h>
+#include <android/bitmap.h>
 
 G_BEGIN_DECLS
 
 #ifdef SPICY_C
 	gboolean maintainConnection = TRUE;
+	JNIEnv* jni_env;
+	jobject jni_obj;
+	jclass  jni_connector_class;
+
+	gint    jw = 0, jh = 0;
+	jobject jbitmap = NULL;
 #else
 	extern gboolean maintainConnection;
+	extern JNIEnv* jni_env;
+	extern 	jobject jni_obj;
+	extern jclass  jni_connector_class;
+
+	extern gint    jw, jh;
+	extern jobject jbitmap;
 #endif
 
 #define SPICE_TYPE_DISPLAY            (spice_display_get_type())

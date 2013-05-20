@@ -23,7 +23,8 @@ LOCAL_SRC_FILES := channel-record.c channel-playback.c channel-cursor.c jpeg_enc
 
 LOCAL_LDLIBS 	+= $(libspicec_link_objs) \
 		   -L$(CROSS_DIR)/lib \
-		   -llog -ldl -lstdc++ -lz -lc 
+		   -ljnigraphics \
+		   -llog -ldl -lstdc++ -lz -lc
 
 LOCAL_CPPFLAGS 	+= -DG_LOG_DOMAIN=\"GSpice\" \
 		   -DSW_CANVAS_CACHE \

@@ -27,6 +27,7 @@
 #include "androidkeymap.c"
 #include "win32keymap.h"
 #include <jni.h>
+#include <android/bitmap.h>
 
 
 G_DEFINE_TYPE(SpiceDisplay, spice_display, SPICE_TYPE_CHANNEL);
@@ -38,6 +39,73 @@ static void disconnect_main(SpiceDisplay *display);
 static void disconnect_display(SpiceDisplay *display);
 static void channel_new(SpiceSession *s, SpiceChannel *channel, gpointer data);
 static void channel_destroy(SpiceSession *s, SpiceChannel *channel, gpointer data);
+
+typedef unsigned char UINT8;
+
+void copy_pixel_buffer(UINT8* dstBuf, UINT8* srcBuf, int x, int y, int width, int height, int wBuf, int hBuf, int bpp)
+{
+	//char buf[100];
+    //snprintf (buf, 100, "Drawing x: %d, y: %d, w: %d, h: %d, wBuf: %d, hBuf: %d, bpp: %d", x, y, width, height, wBuf, hBuf, bpp);
+	//__android_log_write(6, "android-spice", buf);
+
+	int i, j;
+	int length;
+	int scanline;
+	UINT8 *dstp, *srcp;
+
+	length = width * bpp;
+	scanline = wBuf * bpp;
+
+	srcp = (UINT8*) &srcBuf[(scanline * y) + (x * bpp)];
+	dstp = (UINT8*) &dstBuf[(scanline * y) + (x * bpp)];
+
+	if (bpp == 4) {
+		for (i = 0; i < height; i++) {
+			for (j = 0; j < width * 4; j += 4) {
+				// ARGB <-> ABGR
+				dstp[j + 0] = srcp[j + 2];
+				dstp[j + 1] = srcp[j + 1];
+				dstp[j + 2] = srcp[j + 0];
+				dstp[j + 3] = 0xFF;
+			}
+			srcp += scanline;
+			dstp += scanline;
+		}
+	} else {
+		for (i = 0; i < height; i++)
+		{
+			memcpy(dstp, srcp, length);
+			srcp += scanline;
+			dstp += scanline;
+		}
+	}
+}
+
+gboolean update_bitmap (JNIEnv *env, jobject bitmap, void *source, gint x, gint y, gint width, gint height, gint sourceWidth, gint sourceHeight) {
+	int ret;
+	void* pixels;
+	AndroidBitmapInfo info;
+
+	if ((ret = AndroidBitmap_getInfo(env, bitmap, &info)) < 0) {
+		__android_log_write(6, "android-spice", "AndroidBitmap_getInfo() failed!");
+		//DEBUG_ANDROID("AndroidBitmap_getInfo() failed ! error=%d", ret);
+		return FALSE;
+	}
+
+	if ((ret = AndroidBitmap_lockPixels(env, bitmap, &pixels)) < 0) {
+		__android_log_write(6, "android-spice", "AndroidBitmap_lockPixels() failed!");
+		//DEBUG_ANDROID("AndroidBitmap_lockPixels() failed ! error=%d", ret);
+		return FALSE;
+	}
+	//__android_log_write(6, "android-spice", "Copying new data into pixels.");
+	copy_pixel_buffer(pixels, source, x, y, width, height, sourceWidth, sourceHeight, 4);
+
+	AndroidBitmap_unlockPixels(env, bitmap);
+
+	return TRUE;
+}
+
+
 
 /* ---------------------------------------------------------------- */
 /*
@@ -132,8 +200,7 @@ static void spice_display_init(SpiceDisplay *display)
 
 #define CONVERT_0555_TO_8888(s) (CONVERT_0555_TO_0888(s) | 0xff000000)
 
-static gboolean do_color_convert(SpiceDisplay *display,
-	gint x, gint y, gint w, gint h)
+static gboolean do_color_convert(SpiceDisplay *display, gint x, gint y, gint w, gint h)
 {
     spice_display *d = SPICE_DISPLAY_GET_PRIVATE(display);
     int i, j, maxy, maxx, miny, minx;
@@ -207,14 +274,13 @@ static void send_key(SpiceDisplay *display, int scancode, int down)
 int win32key2spice (int keycode)
 {
 	int newKeyCode = keymap_win322xtkbd[keycode];
-	char buf[60];
-    snprintf (buf, 60, "Converted win32 key: %d to linux key: %d", keycode, newKeyCode);
+	//char buf[60];
+    //snprintf (buf, 60, "Converted win32 key: %d to linux key: %d", keycode, newKeyCode);
 	//__android_log_write(6, "android-spice", buf);
     return newKeyCode;
 }
 
-int androidkey2spice(int keycode)
-{
+int androidkey2spice(int keycode) {
     return keymap_android[keycode];
 }
 
@@ -363,15 +429,47 @@ static void primary_destroy(SpiceChannel *channel, gpointer data)
     d->data_origin = 0;
 }
 
-static void invalidate(SpiceChannel *channel,
-	gint x, gint y, gint w, gint h, gpointer data)
-{
+JNIEXPORT void JNICALL
+Java_com_keqisoft_android_spice_socket_Connector_AndroidSetBitmap(JNIEnv * env, jobject obj, jobject bitmap) {
+	__android_log_write(6, "android-spice", "Setting new jbitmap from Java.");
+	jbitmap = bitmap;
+}
+
+static void invalidate(SpiceChannel *channel, gint x, gint y, gint w, gint h, gpointer data) {
+	// If the Java bitmap is null or too small, we create a new one with a callback into Java.
+	if (jbitmap == NULL || x + w > jw || y + h > jh) {
+		jmethodID methodId = NULL;
+		if (jni_connector_class) {
+			methodId = (*jni_env)->GetStaticMethodID (jni_env, jni_connector_class, "OnSettingsChanged", "(IIII)V");
+		} else {
+			__android_log_write(6, "android-spice", "ERROR: Class ID is NULL.");
+		}
+
+		if (methodId) {
+			(*jni_env)->CallStaticVoidMethod(jni_env, jni_connector_class, methodId, 0, x + w, y + h, 0);
+		} else {
+			__android_log_write(6, "android-spice", "ERROR: Method ID is NULL.");
+		}
+		jw = x + w;
+		jh = y + h;
+	}
+
     SpiceDisplay *display = data;
     if (!do_color_convert(display, x, y, w, h))
-	return;
+    	return;
 
     spice_display *d = SPICE_DISPLAY_GET_PRIVATE(display);
-    show_event(d, x, y, w, h);
+
+    // Draw the new data into the Java bitmap object.
+    update_bitmap(jni_env, jbitmap, d->data, x, y, w, h, d->width, d->height);
+
+    // Tell the UI that it needs to redraw the bitmap.
+	if (jbitmap != NULL) {
+		jmethodID methodId = (*jni_env)->GetStaticMethodID (jni_env, jni_connector_class, "OnGraphicsUpdate", "(IIIII)V");
+		(*jni_env)->CallStaticVoidMethod(jni_env, jni_connector_class, methodId, 0, x, y, w, h);
+	}
+
+    //show_event(d, x, y, w, h);
     //fprintf(stderr,"%s:%s:%d:%p\n\t%d:%d:%d:%d\n",__FILE__,
     //__FUNCTION__,__LINE__,(char*)data,w,h,x,y);
     //write_ppm_32(d->data);

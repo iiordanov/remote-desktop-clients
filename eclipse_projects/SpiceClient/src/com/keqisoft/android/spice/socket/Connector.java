@@ -1,5 +1,8 @@
 package com.keqisoft.android.spice.socket;
 
+import com.freerdp.freerdpcore.services.LibFreeRDP.UIEventListener;
+
+import android.graphics.Bitmap;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
@@ -15,6 +18,7 @@ public class Connector {
 	public native void AndroidSpicecDisconnect();
 	public native void AndroidButtonEvent(int x, int y, int metaState, int type);
 	public native void AndroidKeyEvent(int keyDown, int virtualKeyCode);
+	public native void AndroidSetBitmap(Bitmap newBitmap);
 
 	private static Connector connector = new Connector();
 	private Connector() { }
@@ -28,11 +32,16 @@ public class Connector {
 	public static final int CONNECT_PASSWORD_ERROR = 2;
 	public static final int CONNECT_UNKOWN_ERROR = 3;
 
+	private static UIEventListener uiEventListener = null;
 	private Handler handler = null;
 	private int rs = CONNECT_SUCCESS;
 
 	public void setHandler(Handler handler) {
 		this.handler = handler;
+	}
+	
+	public void setUIEventListener(UIEventListener ui) {
+		uiEventListener = ui;
 	}
 
 	public Handler getHandler() {
@@ -91,4 +100,36 @@ public class Connector {
 	public void sendKeyEvent (int keyDown, int virtualKeyCode) {
 		AndroidKeyEvent(keyDown, virtualKeyCode);
 	}
+	
+	
+	/* Callbacks from jni */
+	private static void OnSettingsChanged(int inst, int width, int height, int bpp) {
+		if (uiEventListener != null)
+			uiEventListener.OnSettingsChanged(width, height, bpp);
+	}
+
+	private static boolean OnAuthenticate(int inst, StringBuilder username, StringBuilder domain, StringBuilder password) {
+		if (uiEventListener != null)
+			return uiEventListener.OnAuthenticate(username, domain, password);
+		return false;
+	}
+
+	private static boolean OnVerifyCertificate(int inst, String subject, String issuer, String fingerprint) {
+		if (uiEventListener != null)
+			return uiEventListener.OnVerifiyCertificate(subject, issuer, fingerprint);
+		return false;
+	}
+
+	private static void OnGraphicsUpdate(int inst, int x, int y, int width, int height) {
+		if (uiEventListener != null)
+			uiEventListener.OnGraphicsUpdate(x, y, width, height);
+	}
+
+	private static void OnGraphicsResize(int inst, int width, int height, int bpp) {
+		android.util.Log.e("Connector", "onGraphicsResize, width: " + width + " height: " + height);
+		if (uiEventListener != null)
+			uiEventListener.OnGraphicsResize(width, height, bpp);
+	}
+	
+	
 }

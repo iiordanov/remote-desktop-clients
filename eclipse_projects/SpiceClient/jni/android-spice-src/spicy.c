@@ -342,7 +342,7 @@ void Java_com_keqisoft_android_spice_socket_Connector_AndroidSpicecDisconnect(JN
 #ifdef C_ANDROID
 int spice_main(char* cmd)
 #else
-jint Java_com_keqisoft_android_spice_socket_Connector_AndroidSpicec(JNIEnv *env, jobject obj,jstring str)
+jint Java_com_keqisoft_android_spice_socket_Connector_AndroidSpicec(JNIEnv *env, jobject obj, jstring str)
 #endif
 {
     SPICE_DEBUG("libspicec started");
@@ -352,6 +352,10 @@ jint Java_com_keqisoft_android_spice_socket_Connector_AndroidSpicec(JNIEnv *env,
     memset(cmd, 0, sizeof(cmd));
     strcpy(cmd ,(char*)(*env)->GetStringUTFChars(env,str, &b));
 #endif
+
+    jni_env = env;
+    jni_obj = obj;
+	jni_connector_class = (*jni_env)->FindClass (jni_env, "com/keqisoft/android/spice/socket/Connector");
 
     SPICE_DEBUG("Got cmd:%s",cmd);
     char** argv = (char**)malloc(12*sizeof(char*));

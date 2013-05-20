@@ -34,12 +34,14 @@ public class FrameReceiver {
 	public void setBitmap (Bitmap bitmap) {
 		this.bitmap = bitmap;
 		canvas = new Canvas(this.bitmap);
-		canvas.drawBitmap(currBitmap, null, currRect, null);
-		Message message = new Message();
-		message.what = SpiceCanvas.UPDATE_CANVAS;
-		message.obj = currRect;
-		Connector.getInstance().getHandler().sendMessage(message);
-		paused = false;
+		if (currBitmap != null && currRect != null) {
+			canvas.drawBitmap(currBitmap, null, currRect, null);
+			Message message = new Message();
+			message.what = SpiceCanvas.UPDATE_CANVAS;
+			message.obj = currRect;
+			Connector.getInstance().getHandler().sendMessage(message);
+			paused = false;
+		}
 	}
 	
 	public void startRecieveFrame() {
@@ -86,7 +88,7 @@ public class FrameReceiver {
 					paused = true;
 					message.what = SpiceCanvas.NEW_CANVAS_SIZE;
 				} else {
-					canvas.drawBitmap(currBitmap, null, currRect, null);
+					//canvas.drawBitmap(currBitmap, null, currRect, null);
 					message.what = SpiceCanvas.UPDATE_CANVAS;
 				}
 				//android.util.Log.e("", "RECEIVED: x: " + x + " y: " +y+ " w: " +w+ " h: " +h + " size: " + size);
