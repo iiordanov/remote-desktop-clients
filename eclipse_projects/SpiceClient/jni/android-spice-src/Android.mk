@@ -30,16 +30,18 @@ LOCAL_CPPFLAGS 	+= -DG_LOG_DOMAIN=\"GSpice\" \
 		   -DSW_CANVAS_CACHE \
 		   -DSPICE_GTK_LOCALEDIR=\"/usr/local/share/locale\" \
 		   -DHAVE_CONFIG_H -UHAVE_SYS_SHM_H -DSW_CANVAS_CACHE  \
-		   -D_REENTRANT \
+		   -D_REENTRANT
 
 LOCAL_C_INCLUDES += $(CROSS_DIR)/include/spice-1 \
 		    $(CROSS_DIR)/include/pixman-1 \
 		    $(CROSS_DIR)/include \
-		    $(CROSS_DIR)/include/glib-2.0 \
+ 		    $(CROSS_DIR)/include/glib-2.0 \
 		    $(CROSS_DIR)/lib/glib-2.0/include
 
 LOCAL_CFLAGS 	:= $(LOCAL_CPPFLAGS) \
     -std=gnu99 -Wall -Wno-sign-compare -Wno-deprecated-declarations -Wl,--no-undefined \
-    -fPIC -DPIC 
+    -fPIC -DPIC -O3 -funroll-loops #-ffast-math
+
+LOCAL_ARM_MODE := arm
 
 include $(BUILD_SHARED_LIBRARY)
