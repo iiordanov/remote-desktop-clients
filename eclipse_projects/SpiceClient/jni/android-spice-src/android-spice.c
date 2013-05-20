@@ -32,7 +32,6 @@
 
 G_DEFINE_TYPE(SpiceDisplay, spice_display, SPICE_TYPE_CHANNEL);
 static SpiceDisplay* android_display;
-void android_show(spice_display* d,gint x,gint y,gint w,gint h);
 int android_drop_show;
 
 static void disconnect_main(SpiceDisplay *display);
@@ -376,16 +375,6 @@ Java_com_keqisoft_android_spice_socket_Connector_AndroidButtonEvent(JNIEnv * env
     }
 }
 
-
-void show_event(spice_display* d,gint x,gint y,gint w, gint h)
-{
-    //drop some tiny but annoying updating caused by QXL to 
-    //low the data flow for android.
-    if(!(android_drop_show&(w*h < d->width)))
-	android_show(d, x, y, w, h);
-    android_drop_show = (w*h < d->width);
-}
-
 /* ---------------------------------------------------------------- */
 
 
@@ -468,11 +457,6 @@ static void invalidate(SpiceChannel *channel, gint x, gint y, gint w, gint h, gp
 		jmethodID methodId = (*jni_env)->GetStaticMethodID (jni_env, jni_connector_class, "OnGraphicsUpdate", "(IIIII)V");
 		(*jni_env)->CallStaticVoidMethod(jni_env, jni_connector_class, methodId, 0, x, y, w, h);
 	}
-
-    //show_event(d, x, y, w, h);
-    //fprintf(stderr,"%s:%s:%d:%p\n\t%d:%d:%d:%d\n",__FILE__,
-    //__FUNCTION__,__LINE__,(char*)data,w,h,x,y);
-    //write_ppm_32(d->data);
 }
 
 static void mark(SpiceChannel *channel, gint mark, gpointer data)
@@ -480,7 +464,6 @@ static void mark(SpiceChannel *channel, gint mark, gpointer data)
     SpiceDisplay *display = data;
     spice_display *d = SPICE_DISPLAY_GET_PRIVATE(display);
     d->mark = mark;
-    //show_event(d, x, y, w, h);
 }
 
 

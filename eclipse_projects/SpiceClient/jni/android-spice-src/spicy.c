@@ -388,27 +388,11 @@ jint Java_com_keqisoft_android_spice_socket_Connector_AndroidSpicec(JNIEnv *env,
     gboolean result = connection_connect(conn);
 
     if (result == TRUE) {
-		pthread_t android_input, android_output;
-		int  iret1, iret2;
 		android_mainloop = mainloop;
-
-		if (connections > 0)
-		{
-			SPICE_DEBUG("start I/O threads");
-			//start the android workers threads
-			iret2 = pthread_create( &android_output, NULL, (void*)android_spice_output, NULL);
-			//create jpeg_encoder for the jpg images to JAVA
-			android_jpeg_encoder = jpeg_encoder_create();
-
+		if (connections > 0) {
 			g_main_loop_run(mainloop);
-
-			pthread_join(android_output, NULL);
-			jpeg_encoder_destroy(android_jpeg_encoder);
-			SPICE_DEBUG("stop I/O threads");
 		}
-	    SPICE_DEBUG("libspicec.so over.");
 	    __android_log_write(6, "spicy", "Quitting.");
-
 	    return 0;
     } else {
 	    __android_log_write(6, "spicy", "There was an error connecting.");

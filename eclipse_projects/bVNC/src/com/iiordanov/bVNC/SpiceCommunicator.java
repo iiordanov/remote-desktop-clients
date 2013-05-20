@@ -25,16 +25,14 @@ public class SpiceCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyP
 	
 	private int width = 0;
 	private int height = 0;
-	private FrameReceiver frameReceiver = null;
     InputSender inputSender;
     
 	boolean isInNormalProtocol = false;
 	
 
-	public SpiceCommunicator (FrameReceiver f, int w, int h) {
+	public SpiceCommunicator (int w, int h) {
 		width = w;
 		height = h;
-		frameReceiver = f;
 		inputSender = new InputSender();
 	}
 	
@@ -136,7 +134,6 @@ public class SpiceCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyP
 	@Override
 	public void close() {
 		inputSender.stop();
-		frameReceiver.stop();
 	}
 	
 	// ****************************************************************************

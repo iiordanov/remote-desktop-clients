@@ -334,7 +334,6 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
     }
 
     boolean spiceUpdateReceived = false;
-    FrameReceiver frameReceiver;
     Handler spiceHandler = new Handler() {
 		@Override
 	    public void handleMessage(Message msg) {
@@ -415,13 +414,10 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 			    		
 			    	    Connector.getInstance().setHandler(spiceHandler);
 			    	    Connector.getInstance().setUIEventListener(VncCanvas.this);
-
-			    	    frameReceiver = new FrameReceiver ();
-			    	    frameReceiver.startRecieveFrame();
 			    	    
 			    		try {
-			    			synchronized(frameReceiver) {
-			    				frameReceiver.wait(32000);
+			    			synchronized(Connector.getInstance()) {
+			    				Connector.getInstance().wait(32000);
 			    			}
 			    		} catch (InterruptedException e) {}
 
@@ -1262,7 +1258,7 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 		
 		// If this is aSPICE, we need to initialize the communicator and remote keyboard and mouse now.
 		if (isSpice) {
-	    	rfbconn = new SpiceCommunicator (frameReceiver, width, height);
+	    	rfbconn = new SpiceCommunicator (width, height);
     		pointer = new RemoteSpicePointer (rfbconn, this, handler);
     		keyboard = new RemoteSpiceKeyboard (rfbconn, this, handler);
 		}
@@ -1292,11 +1288,10 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
         	handler.post(drawableSetter);
     		handler.post(setModes);
     		handler.post(desktopInfo);
-    		frameReceiver.setBitmap(bitmapData.mbitmap);
     		spiceUpdateReceived = true;
     		rfbconn.setIsInNormalProtocol(true);
-			synchronized(frameReceiver) {
-				frameReceiver.notifyAll();
+			synchronized(Connector.getInstance()) {
+				Connector.getInstance().notifyAll();
 			}
 			Connector.getInstance().AndroidSetBitmap(bitmapData.mbitmap);
 		}
