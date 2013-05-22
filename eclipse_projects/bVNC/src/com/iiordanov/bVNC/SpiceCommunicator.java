@@ -3,6 +3,7 @@ package com.iiordanov.bVNC;
 import com.freerdp.freerdpcore.services.LibFreeRDP;
 import com.iiordanov.bVNC.input.RdpKeyboardMapper;
 import com.iiordanov.bVNC.input.RemoteKeyboard;
+import com.iiordanov.bVNC.input.RemoteSpicePointer;
 import com.keqisoft.android.spice.datagram.DGType;
 import com.keqisoft.android.spice.datagram.KeyDG;
 import com.keqisoft.android.spice.datagram.MouseDG;
@@ -85,7 +86,12 @@ public class SpiceCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyP
 
 	@Override
 	public void writePointerEvent(int x, int y, int metaState, int pointerMask) {
+		this.metaState = metaState; 
+		if ((pointerMask & RemoteSpicePointer.PTRFLAGS_DOWN) != 0)
+			sendModifierKeys(DGType.ANDROID_KEY_PRESS);
 		inputSender.sendMouse(x, y, metaState, pointerMask);
+		if ((pointerMask & RemoteSpicePointer.PTRFLAGS_DOWN) == 0)
+			sendModifierKeys(DGType.ANDROID_KEY_RELEASE);
 	}
 
 	private void sendModifierKeys (int keyDown) {		

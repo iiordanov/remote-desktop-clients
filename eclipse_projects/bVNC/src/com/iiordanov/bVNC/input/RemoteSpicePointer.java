@@ -17,7 +17,7 @@ public class RemoteSpicePointer implements RemotePointer {
 	public static final int SPICE_MOUSE_BUTTON_UP     = 4;
 	public static final int SPICE_MOUSE_BUTTON_DOWN   = 5;
 
-	private final static int PTRFLAGS_DOWN           = 0x8000;
+	public static final int PTRFLAGS_DOWN             = 0x8000;
 	
 	private int prevPointerMask = 0;
 	
@@ -295,7 +295,7 @@ public class RemoteSpicePointer implements RemotePointer {
 		    if ( mouseY < 0) mouseY=0;
 		    else if ( mouseY >= rfb.framebufferHeight()) mouseY = rfb.framebufferHeight() - 1;
 		    vncCanvas.invalidateMousePosition();
-
+		    
 		    rfb.writePointerEvent(mouseX, mouseY, modifiers|vncCanvas.getKeyboard().getMetaState(), pointerMask);
 			return true;
 		}
