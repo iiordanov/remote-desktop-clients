@@ -97,7 +97,7 @@ static void destroy_spice_window(spice_window *win)
     SPICE_DEBUG("destroy window (#%d)", win->id);
     //gtk_widget_destroy(win->toplevel);
     free(win);
-    exit(0);
+    //exit(0);
 }
 
 /* ------------------------------------------------------------------ */
@@ -262,7 +262,7 @@ static gboolean connection_connect(spice_connection *conn)
 static void connection_disconnect(spice_connection *conn)
 {
     if (conn->disconnecting)
-	return;
+    	return;
     conn->disconnecting = true;
     spice_session_disconnect(conn->session);
 }
@@ -275,7 +275,7 @@ static void connection_destroy(spice_connection *conn)
     connections--;
     SPICE_DEBUG("%s (%d)", __FUNCTION__, connections);
     if (connections > 0) {
-	return;
+    	return;
     }
 
     g_main_loop_quit(mainloop);
@@ -325,7 +325,12 @@ spice_connection *conn;
 
 #ifndef C_ANDROID
 void Java_com_keqisoft_android_spice_socket_Connector_AndroidSpicecDisconnect(JNIEnv * env, jobject  obj) {
-	exit (0);
+	maintainConnection = FALSE;
+    if (g_main_loop_is_running (mainloop))
+        g_main_loop_quit (mainloop);
+	//jni_env = NULL;
+	//jbitmap = NULL;
+	//exit (0);
 	/*
 	if (maintainConnection) {
 		__android_log_write(6, "spicy", "Signaling an end to execution.");
@@ -353,9 +358,17 @@ jint Java_com_keqisoft_android_spice_socket_Connector_AndroidSpicec(JNIEnv *env,
     strcpy(cmd ,(char*)(*env)->GetStringUTFChars(env,str, &b));
 #endif
 
-    jni_env = env;
-    jni_obj = obj;
-	jni_connector_class = (*jni_env)->FindClass (jni_env, "com/keqisoft/android/spice/socket/Connector");
+    jint rs = (*env)->GetJavaVM(env, &jvm);
+    if (rs != JNI_OK) {
+    	__android_log_write(6, "spicy", "ERROR: Could not obtain jvm reference.");
+    	return 255;
+    }
+
+    jclass local_class  = (*env)->FindClass (env, "com/keqisoft/android/spice/socket/Connector");
+	jni_connector_class = (jclass)((*env)->NewGlobalRef(env, local_class));
+
+	jni_settings_changed = (*env)->GetStaticMethodID (env, jni_connector_class, "OnSettingsChanged", "(IIII)V");
+	jni_graphics_update  = (*env)->GetStaticMethodID (env, jni_connector_class, "OnGraphicsUpdate", "(IIIII)V");
 
     SPICE_DEBUG("Got cmd:%s",cmd);
     char** argv = (char**)malloc(12*sizeof(char*));
@@ -375,27 +388,52 @@ jint Java_com_keqisoft_android_spice_socket_Connector_AndroidSpicec(JNIEnv *env,
     /* parse opts */
     context = g_option_context_new(_("- spice client application"));
     g_option_context_add_group(context, spice_cmdline_get_option_group());
+
+    int result = 0;
+    maintainConnection = TRUE;
+
     if (!g_option_context_parse (context, &argc, &argv, &error)) {
-	g_print (_("option parsing failed: %s\n"), error->message);
-	return 1;
-    }
-
-    g_type_init();
-    mainloop = g_main_loop_new(NULL, false);
-
-    conn = connection_new();
-    spice_cmdline_session_setup(conn->session);
-    gboolean result = connection_connect(conn);
-
-    if (result == TRUE) {
-		android_mainloop = mainloop;
-		if (connections > 0) {
-			g_main_loop_run(mainloop);
-		}
-	    __android_log_write(6, "spicy", "Quitting.");
-	    return 0;
+    	g_print (_("option parsing failed: %s\n"), error->message);
+		result = 1;
     } else {
-	    __android_log_write(6, "spicy", "There was an error connecting.");
-    	return 1;
+		g_type_init();
+		mainloop = g_main_loop_new(NULL, false);
+
+		conn = connection_new();
+		spice_cmdline_session_setup(conn->session);
+		gboolean result = connection_connect(conn);
+
+		if (result == TRUE) {
+			android_mainloop = mainloop;
+
+			if (connections > 0) {
+				g_main_loop_run(mainloop);
+				__android_log_write(6, "spicy", "Exiting main loop.");
+				// unref causes segfault...
+				//g_main_loop_unref(mainloop);
+			} else {
+				__android_log_write(6, "spicy", "Wrong hostname, port, or password.");
+				result = 2;
+			}
+		} else {
+			__android_log_write(6, "spicy", "There was an error connecting.");
+			result = 1;
+		}
     }
+
+	maintainConnection   = TRUE;
+	jvm                  = NULL;
+	jni_connector_class  = NULL;
+	jni_settings_changed = NULL;
+	jni_graphics_update  = NULL;
+	jbitmap              = NULL;
+
+	jw = 0;
+	jh = 0;
+
+    /*
+    (*jni_env)->DeleteLocalRef( jni_env, jni_connector_class );
+	*/
+
+    return result;
 }

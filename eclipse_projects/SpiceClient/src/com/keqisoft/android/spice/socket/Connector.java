@@ -1,5 +1,7 @@
 package com.keqisoft.android.spice.socket;
 
+import java.lang.Thread.UncaughtExceptionHandler;
+
 import com.freerdp.freerdpcore.services.LibFreeRDP.UIEventListener;
 
 import android.graphics.Bitmap;
@@ -21,6 +23,16 @@ public class Connector {
 	public native void AndroidSetBitmap(Bitmap newBitmap);
 
 	private static Connector connector = new Connector();
+	
+	UncaughtExceptionHandler exceptionHandler = new UncaughtExceptionHandler() {
+        @Override
+        public void uncaughtException(Thread t, Throwable e) {
+            synchronized (this) {
+                System.err.println("Uncaught exception in thread '" + t.getName() + "': " + e.getMessage());
+            }
+        }
+    };
+	
 	private Connector() { }
 	
 	public static Connector getInstance() {
@@ -45,6 +57,7 @@ public class Connector {
 		buf.append(" -p ").append(port);
 		buf.append(" -w ").append(password);
 		runThread = new ConnectT(buf.toString());
+	    runThread.setUncaughtExceptionHandler(exceptionHandler);
 		runThread.start();
 		return rs;
 	}

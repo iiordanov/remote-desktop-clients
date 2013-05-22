@@ -29,21 +29,21 @@
 G_BEGIN_DECLS
 
 #ifdef SPICY_C
-	gboolean maintainConnection = TRUE;
-	JNIEnv* jni_env;
-	jobject jni_obj;
-	jclass  jni_connector_class;
-
+	gboolean  maintainConnection   = TRUE;
+	JavaVM*   jvm                  = NULL;
+	jclass    jni_connector_class  = NULL;
+	jmethodID jni_settings_changed = NULL;
+	jmethodID jni_graphics_update  = NULL;
+	jobject jbitmap                = NULL;
 	gint    jw = 0, jh = 0;
-	jobject jbitmap = NULL;
 #else
-	extern gboolean maintainConnection;
-	extern JNIEnv* jni_env;
-	extern 	jobject jni_obj;
-	extern jclass  jni_connector_class;
-
-	extern gint    jw, jh;
+	extern gboolean  maintainConnection;
+	extern JavaVM*   jvm;
+	extern jclass    jni_connector_class;
+	extern jmethodID jni_settings_changed;
+	extern jmethodID jni_graphics_update;
 	extern jobject jbitmap;
+	extern gint    jw, jh;
 #endif
 
 #define SPICE_TYPE_DISPLAY            (spice_display_get_type())

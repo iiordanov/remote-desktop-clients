@@ -46,7 +46,6 @@ void copy_pixel_buffer(UINT8* dstBuf, UINT8* srcBuf, int x, int y, int width, in
 	//char buf[100];
     //snprintf (buf, 100, "Drawing x: %d, y: %d, w: %d, h: %d, wBuf: %d, hBuf: %d, bpp: %d", x, y, width, height, wBuf, hBuf, bpp);
 	//__android_log_write(6, "android-spice", buf);
-
 	int i, j;
 	int length;
 	int scanline;
@@ -71,8 +70,7 @@ void copy_pixel_buffer(UINT8* dstBuf, UINT8* srcBuf, int x, int y, int width, in
 			dstp += scanline;
 		}
 	} else {
-		for (i = 0; i < height; i++)
-		{
+		for (i = 0; i < height; i++) {
 			memcpy(dstp, srcp, length);
 			srcp += scanline;
 			dstp += scanline;
@@ -80,16 +78,16 @@ void copy_pixel_buffer(UINT8* dstBuf, UINT8* srcBuf, int x, int y, int width, in
 	}
 }
 
-gboolean update_bitmap (JNIEnv *env, jobject bitmap, void *source, gint x, gint y, gint width, gint height, gint sourceWidth, gint sourceHeight) {
+gboolean update_bitmap (JNIEnv* env, jobject* bitmap, void *source, gint x, gint y, gint width, gint height, gint sourceWidth, gint sourceHeight) {
 	int ret;
 	void* pixels;
-	AndroidBitmapInfo info;
 
-	if ((ret = AndroidBitmap_getInfo(env, bitmap, &info)) < 0) {
-		__android_log_write(6, "android-spice", "AndroidBitmap_getInfo() failed!");
-		//DEBUG_ANDROID("AndroidBitmap_getInfo() failed ! error=%d", ret);
-		return FALSE;
-	}
+	//AndroidBitmapInfo info;
+	//if ((ret = AndroidBitmap_getInfo(env, bitmap, &info)) < 0) {
+	//	__android_log_write(6, "android-spice", "AndroidBitmap_getInfo() failed!");
+	//	//DEBUG_ANDROID("AndroidBitmap_getInfo() failed ! error=%d", ret);
+	//	return FALSE;
+	//}
 
 	if ((ret = AndroidBitmap_lockPixels(env, bitmap, &pixels)) < 0) {
 		__android_log_write(6, "android-spice", "AndroidBitmap_lockPixels() failed!");
@@ -378,10 +376,9 @@ Java_com_keqisoft_android_spice_socket_Connector_AndroidButtonEvent(JNIEnv * env
 /* ---------------------------------------------------------------- */
 
 
-static void primary_create(SpiceChannel *channel, gint format,
-	gint width, gint height, gint stride,
-	gint shmid, gpointer imgdata, gpointer data)
-{
+static void primary_create(SpiceChannel *channel, gint format, gint width, gint height, gint stride, gint shmid, gpointer imgdata, gpointer data) {
+	__android_log_write(6, "android-spice", "primary_create");
+
     //fprintf(stderr,"%s:%s:%d:%p\n",__FILE__,__FUNCTION__,__LINE__,(char*)data);
     SpiceDisplay *display = data;
     spice_display *d = SPICE_DISPLAY_GET_PRIVATE(display);
@@ -401,6 +398,44 @@ static void primary_create(SpiceChannel *channel, gint format,
 	if (!d->resize_guest_enable) {
 	}
     }
+
+    JNIEnv* env;
+    bool attached = false;
+    int rs2 = 0;
+    int rs1 = (*jvm)->GetEnv(jvm, (void**)&env, JNI_VERSION_1_6);
+    switch (rs1) {
+    case JNI_OK:
+    	break;
+    case JNI_EDETACHED:
+    	rs2 = (*jvm)->AttachCurrentThread(jvm, &env, NULL);
+    	if (rs2 != JNI_OK) {
+    		__android_log_write(6, "android-spice", "ERROR: Could not attach current thread to jvm.");
+    		return;
+    	}
+    	attached = true;
+    	break;
+    }
+
+	// Ask for a new bitmap from the UI.
+	(*env)->CallStaticVoidMethod(env, jni_connector_class, jni_settings_changed, 0, width, height, 0);
+
+    if (attached) {
+    	(*jvm)->DetachCurrentThread(jvm);
+    }
+
+    /*
+    JNIEnv* env = NULL;
+   	jint rs = (*jvm)->AttachCurrentThread(jvm, &env, NULL);
+    if (rs != JNI_OK) {
+    	__android_log_write(6, "android-spice", "ERROR: Could not attach current thread to jvm.");
+    	return;
+    }
+
+	// Ask for a new bitmap from the UI.
+	(*env)->CallStaticVoidMethod(env, jni_connector_class, jni_settings_changed, 0, width, height, 0);
+	*/
+	jw = width;
+	jh = height;
 }
 
 static void primary_destroy(SpiceChannel *channel, gpointer data)
@@ -419,28 +454,15 @@ static void primary_destroy(SpiceChannel *channel, gpointer data)
 }
 
 JNIEXPORT void JNICALL
-Java_com_keqisoft_android_spice_socket_Connector_AndroidSetBitmap(JNIEnv * env, jobject obj, jobject bitmap) {
+Java_com_keqisoft_android_spice_socket_Connector_AndroidSetBitmap(JNIEnv* env, jobject obj, jobject bitmap) {
 	__android_log_write(6, "android-spice", "Setting new jbitmap from Java.");
 	jbitmap = bitmap;
 }
 
 static void invalidate(SpiceChannel *channel, gint x, gint y, gint w, gint h, gpointer data) {
-	// If the Java bitmap is null or too small, we create a new one with a callback into Java.
-	if (jbitmap == NULL || x + w > jw || y + h > jh) {
-		jmethodID methodId = NULL;
-		if (jni_connector_class) {
-			methodId = (*jni_env)->GetStaticMethodID (jni_env, jni_connector_class, "OnSettingsChanged", "(IIII)V");
-		} else {
-			__android_log_write(6, "android-spice", "ERROR: Class ID is NULL.");
-		}
-
-		if (methodId) {
-			(*jni_env)->CallStaticVoidMethod(jni_env, jni_connector_class, methodId, 0, x + w, y + h, 0);
-		} else {
-			__android_log_write(6, "android-spice", "ERROR: Method ID is NULL.");
-		}
-		jw = x + w;
-		jh = y + h;
+	if (maintainConnection == FALSE || jbitmap == NULL || x + w > jw || y + h > jh) {
+		__android_log_write(6, "android-spice", "Not drawing.");
+		return;
 	}
 
     SpiceDisplay *display = data;
@@ -449,18 +471,51 @@ static void invalidate(SpiceChannel *channel, gint x, gint y, gint w, gint h, gp
 
     spice_display *d = SPICE_DISPLAY_GET_PRIVATE(display);
 
+    JNIEnv* env;
+    bool attached = false;
+    int rs2 = 0;
+    int rs1 = (*jvm)->GetEnv(jvm, (void**)&env, JNI_VERSION_1_6);
+    switch (rs1) {
+    case JNI_OK:
+    	break;
+    case JNI_EDETACHED:
+    	rs2 = (*jvm)->AttachCurrentThread(jvm, &env, NULL);
+    	if (rs2 != JNI_OK) {
+    		__android_log_write(6, "android-spice", "ERROR: Could not attach current thread to jvm.");
+    		return;
+    	}
+    	attached = true;
+    	break;
+    }
+
     // Draw the new data into the Java bitmap object.
-    update_bitmap(jni_env, jbitmap, d->data, x, y, w, h, d->width, d->height);
+    update_bitmap(env, jbitmap, d->data, x, y, w, h, d->width, d->height);
 
     // Tell the UI that it needs to redraw the bitmap.
-	if (jbitmap != NULL) {
-		jmethodID methodId = (*jni_env)->GetStaticMethodID (jni_env, jni_connector_class, "OnGraphicsUpdate", "(IIIII)V");
-		(*jni_env)->CallStaticVoidMethod(jni_env, jni_connector_class, methodId, 0, x, y, w, h);
-	}
+	(*env)->CallStaticVoidMethod(env, jni_connector_class, jni_graphics_update, 0, x, y, w, h);
+
+    if (attached) {
+    	(*jvm)->DetachCurrentThread(jvm);
+    }
+
+    /*
+    JNIEnv* env = NULL;
+   	jint rs = (*jvm)->AttachCurrentThread(jvm, &env, NULL);
+    if (rs != JNI_OK) {
+    	__android_log_write(6, "android-spice", "ERROR: Could not attach current thread to jvm.");
+    	return;
+    }
+
+    // Draw the new data into the Java bitmap object.
+    update_bitmap(env, jbitmap, d->data, x, y, w, h, d->width, d->height);
+
+    // Tell the UI that it needs to redraw the bitmap.
+	(*env)->CallStaticVoidMethod(env, jni_connector_class, jni_graphics_update, 0, x, y, w, h);
+	*/
 }
 
-static void mark(SpiceChannel *channel, gint mark, gpointer data)
-{
+static void mark(SpiceChannel *channel, gint mark, gpointer data) {
+	//__android_log_write(6, "android-spice", "mark");
     SpiceDisplay *display = data;
     spice_display *d = SPICE_DISPLAY_GET_PRIVATE(display);
     d->mark = mark;

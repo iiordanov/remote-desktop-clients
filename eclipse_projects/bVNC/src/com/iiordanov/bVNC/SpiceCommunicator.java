@@ -6,6 +6,7 @@ import com.iiordanov.bVNC.input.RemoteKeyboard;
 import com.keqisoft.android.spice.datagram.DGType;
 import com.keqisoft.android.spice.datagram.KeyDG;
 import com.keqisoft.android.spice.datagram.MouseDG;
+import com.keqisoft.android.spice.socket.Connector;
 import com.keqisoft.android.spice.socket.FrameReceiver;
 import com.keqisoft.android.spice.socket.InputSender;
 
@@ -134,6 +135,7 @@ public class SpiceCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyP
 	@Override
 	public void close() {
 		inputSender.stop();
+		Connector.getInstance().disconnect();
 	}
 	
 	// ****************************************************************************

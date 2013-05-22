@@ -831,6 +831,10 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 		screenMessage    = null;
 		desktopInfo      = null;
 
+		if (isSpice) {
+			// Give a bit of time for the SPICE backend to clean up before disposing of bitmap.
+			try {Thread.sleep(2000);} catch (InterruptedException e) {}
+		}
 		if (bitmapData != null)
 			bitmapData.dispose();
 		bitmapData       = null;
@@ -1249,12 +1253,6 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 		
 		// If this is aSPICE, set the new bitmap in the native layer.
 		if (isSpice) {
-    		initializeSoftCursor();
-        	
-        	// Set the drawable for the canvas.
-        	handler.post(drawableSetter);
-    		handler.post(setModes);
-    		handler.post(desktopInfo);
     		spiceUpdateReceived = true;
     		rfbconn.setIsInNormalProtocol(true);
 			synchronized(Connector.getInstance()) {
@@ -1296,7 +1294,7 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 
 	@Override
 	public void OnGraphicsUpdate(int x, int y, int width, int height) {
-		//android.util.Log.e(TAG, "OnGraphicsUpdate called: " + x +", " + y + " + " + width + "x" + height );
+		android.util.Log.e(TAG, "OnGraphicsUpdate called: " + x +", " + y + " + " + width + "x" + height );
 		if (isRdp && bitmapData != null)
 			LibFreeRDP.updateGraphics(session.getInstance(), bitmapData.mbitmap, x, y, width, height);
 

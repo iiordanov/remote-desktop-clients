@@ -40,8 +40,8 @@ LOCAL_C_INCLUDES += $(CROSS_DIR)/include/spice-1 \
 
 LOCAL_CFLAGS 	:= $(LOCAL_CPPFLAGS) \
     -std=gnu99 -Wall -Wno-sign-compare -Wno-deprecated-declarations -Wl,--no-undefined \
-    -fPIC -DPIC -O3 -funroll-loops #-ffast-math
+    -fPIC -DPIC #-O3 -funroll-loops #-ffast-math
 
-LOCAL_ARM_MODE := arm
+#LOCAL_ARM_MODE := arm
 
 include $(BUILD_SHARED_LIBRARY)
