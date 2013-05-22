@@ -134,6 +134,11 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 	        	Bundle s = (Bundle)msg.obj;
 	        	validateRdpCert (s.getString("subject"), s.getString("issuer"), s.getString("fingerprint"));
 	            break;
+	        case VncConstants.SPICE_NOTIFICATION:
+				synchronized(Connector.getInstance()) {
+					Connector.getInstance().notifyAll();
+				}
+	        	break;
 	        }
 	    }
 	};
@@ -380,6 +385,7 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 			    		int port = getVNCPort();
 			    		
 			    	    Connector.getInstance().setUIEventListener(VncCanvas.this);
+			    	    Connector.getInstance().setHandler(handler);
 			    		startSpice(address, Integer.toString(port), connection.getPassword());
 			    		
 			    		try {
@@ -1255,9 +1261,7 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 		if (isSpice) {
     		spiceUpdateReceived = true;
     		rfbconn.setIsInNormalProtocol(true);
-			synchronized(Connector.getInstance()) {
-				Connector.getInstance().notifyAll();
-			}
+    		handler.sendEmptyMessage(VncConstants.SPICE_NOTIFICATION);
 			Connector.getInstance().AndroidSetBitmap(bitmapData.mbitmap);
 		}
 	}
@@ -1294,7 +1298,7 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 
 	@Override
 	public void OnGraphicsUpdate(int x, int y, int width, int height) {
-		android.util.Log.e(TAG, "OnGraphicsUpdate called: " + x +", " + y + " + " + width + "x" + height );
+		//android.util.Log.e(TAG, "OnGraphicsUpdate called: " + x +", " + y + " + " + width + "x" + height );
 		if (isRdp && bitmapData != null)
 			LibFreeRDP.updateGraphics(session.getInstance(), bitmapData.mbitmap, x, y, width, height);
 

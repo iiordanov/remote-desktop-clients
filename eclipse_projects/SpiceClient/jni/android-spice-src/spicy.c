@@ -102,8 +102,7 @@ static void destroy_spice_window(spice_window *win)
 
 /* ------------------------------------------------------------------ */
 
-static void main_channel_event(SpiceChannel *channel, SpiceChannelEvent event,
-	gpointer data)
+static void main_channel_event(SpiceChannel *channel, SpiceChannelEvent event, gpointer data)
 {
     spice_connection *conn = data;
     char password[64];
@@ -326,8 +325,12 @@ spice_connection *conn;
 #ifndef C_ANDROID
 void Java_com_keqisoft_android_spice_socket_Connector_AndroidSpicecDisconnect(JNIEnv * env, jobject  obj) {
 	maintainConnection = FALSE;
+	// TODO: For some reason, connection_disconnect does not work properly.
+	// Not calling it may leave a connection running.
+	//connection_disconnect(conn);
     if (g_main_loop_is_running (mainloop))
         g_main_loop_quit (mainloop);
+
 	//jni_env = NULL;
 	//jbitmap = NULL;
 	//exit (0);
@@ -421,19 +424,17 @@ jint Java_com_keqisoft_android_spice_socket_Connector_AndroidSpicec(JNIEnv *env,
 		}
     }
 
-	maintainConnection   = TRUE;
-	jvm                  = NULL;
-	jni_connector_class  = NULL;
-	jni_settings_changed = NULL;
-	jni_graphics_update  = NULL;
-	jbitmap              = NULL;
+	if (jbitmap != NULL) { // We successfully connected at some point.
+		jvm                  = NULL;
+		jni_connector_class  = NULL;
+		jni_settings_changed = NULL;
+		jni_graphics_update  = NULL;
+		jbitmap              = NULL;
 
-	jw = 0;
-	jh = 0;
-
-    /*
-    (*jni_env)->DeleteLocalRef( jni_env, jni_connector_class );
-	*/
-
-    return result;
+		jw = 0;
+		jh = 0;
+		exit (0);
+	} else {
+		return result;
+	}
 }

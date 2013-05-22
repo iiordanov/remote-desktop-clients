@@ -45,10 +45,19 @@ public class Connector {
 	public static final int CONNECT_UNKOWN_ERROR = 3;
 
 	private static UIEventListener uiEventListener = null;
+	private Handler handler = null;
 	private int rs = CONNECT_SUCCESS;
+
+	public void setHandler(Handler handler) {
+		this.handler = handler;
+	}
 	
 	public void setUIEventListener(UIEventListener ui) {
 		uiEventListener = ui;
+	}
+
+	public Handler getHandler() {
+		return handler;
 	}
 
 	public int connect(String ip, String port, String password) {
@@ -79,6 +88,10 @@ public class Connector {
 			rs = AndroidSpicec(cmd);
 			android.util.Log.e("Connector", "Returning from AndroidSpicec.");
 			Log.v("Connector", "Connect rs = " + rs + ",cost = " + (System.currentTimeMillis() - t1));
+
+			if (handler != null) {
+				handler.sendEmptyMessage(4); /* VncConstants.SPICE_NOTIFICATION */
+			}
 		}
 	}
 	
