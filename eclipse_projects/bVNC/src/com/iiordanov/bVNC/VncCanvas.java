@@ -498,7 +498,7 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 							pd.dismiss();
 	
 						if (e instanceof OutOfMemoryError) {
-							System.gc();
+							disposeDrawable ();
 							showFatalMessageAndQuit("Unable to allocate sufficient memory to draw remote screen. " +
 									"To fix this, it's best to restart the application. " +
 									"As a last resort, you may try restarting your device.");
@@ -632,7 +632,7 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 			android.util.Log.i(TAG, "Using LargeBitmapData.");
 		} else {
 			try {
-				// TODO: Remove this if Android 4.2 receives a fix which causes it to stop drawing
+				// TODO: Remove this if Android 4.2 receives a fix for a bug which causes it to stop drawing
 				// the bitmap in CompactBitmapData when under load (say playing a video over VNC).
 		        if (!compact || android.os.Build.VERSION.SDK_INT == 17) {
 					bitmapData=new FullBufferBitmapData(rfbconn, this, capacity);
@@ -642,10 +642,8 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 		        	android.util.Log.i(TAG, "Using CompactBufferBitmapData.");
 		        }
 			} catch (Throwable e) { // If despite our efforts we fail to allocate memory, use LBBM.
-				if (bitmapData != null)
-					bitmapData.dispose();
-				bitmapData = null;
-				System.gc();
+				disposeDrawable ();
+
 				useFull = false;
 				bitmapData=new LargeBitmapData(rfbconn, this, dx, dy, capacity);
 				android.util.Log.i(TAG, "Using LargeBitmapData.");
@@ -667,6 +665,13 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 		return connection.getFollowPan();
 	}
 
+	private void disposeDrawable () {
+		if (bitmapData != null)
+			bitmapData.dispose();
+		bitmapData = null;
+		System.gc();
+	}
+	
 	public void updateFBSize () {
 		try {
 			bitmapData.frameBufferSizeChanged ();
@@ -675,10 +680,7 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 			
 			// If we've run out of memory, try using another bitmapdata type.
 			if (e instanceof OutOfMemoryError) {
-				if (bitmapData != null)
-					bitmapData.dispose();
-				bitmapData = null;
-				System.gc();
+				disposeDrawable ();
 
 				// If we were using CompactBitmapData, try FullBufferBitmapData.
 				if (compact == true) {
@@ -693,10 +695,8 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 
 				// Failing FullBufferBitmapData or if we weren't using CompactBitmapData, try LBBM.
 				if (useLBBM) {
-					if (bitmapData != null)
-						bitmapData.dispose();
-					bitmapData = null;
-					System.gc();
+					disposeDrawable ();
+
 					useFull = false;
 					bitmapData = new LargeBitmapData(rfbconn, this, getWidth(), getHeight(), capacity);
 				}
@@ -841,10 +841,8 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 			// Give a bit of time for the SPICE backend to clean up before disposing of bitmap.
 			try {Thread.sleep(2000);} catch (InterruptedException e) {}
 		}
-		if (bitmapData != null)
-			bitmapData.dispose();
-		bitmapData       = null;
-		System.gc();
+		disposeDrawable ();
+
 	}
 
 	public void removeCallbacksAndMessages() {
@@ -1240,7 +1238,10 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
     		keyboard = new RemoteSpiceKeyboard (rfbconn, this, handler);
 		}
 		
+		disposeDrawable ();
 		try {
+			// TODO: Use frameBufferSizeChanged instead.
+			// First we need to be able to set the rfbconnectable's width/height though.
 			bitmapData = new CompactBitmapData(rfbconn, this);
 		} catch (Throwable e) {
 			showFatalMessageAndQuit ("Your device is out of memory! Restart the app and failing that, restart your device. " +
@@ -1310,7 +1311,10 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 	@Override
 	public void OnGraphicsResize(int width, int height, int bpp) {
 		android.util.Log.e(TAG, "OnGraphicsResize called.");
+		disposeDrawable ();	
 		try {
+			// TODO: Use frameBufferSizeChanged instead.
+			// First we need to be able to set the rfbconnectable's width/height though.
 			bitmapData = new CompactBitmapData(rfbconn, this);
 		} catch (Throwable e) {
 			showFatalMessageAndQuit ("Your device is out of memory! Restart the app and failing that, restart your device. " +
