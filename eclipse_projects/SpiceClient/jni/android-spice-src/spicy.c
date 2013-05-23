@@ -396,45 +396,37 @@ jint Java_com_keqisoft_android_spice_socket_Connector_AndroidSpicec(JNIEnv *env,
     maintainConnection = TRUE;
 
     if (!g_option_context_parse (context, &argc, &argv, &error)) {
-    	g_print (_("option parsing failed: %s\n"), error->message);
-		result = 1;
-    } else {
-		g_type_init();
-		mainloop = g_main_loop_new(NULL, false);
-
-		conn = connection_new();
-		spice_cmdline_session_setup(conn->session);
-		gboolean result = connection_connect(conn);
-
-		if (result == TRUE) {
-			android_mainloop = mainloop;
-
-			if (connections > 0) {
-				g_main_loop_run(mainloop);
-				__android_log_write(6, "spicy", "Exiting main loop.");
-				// unref causes segfault...
-				//g_main_loop_unref(mainloop);
-			} else {
-				__android_log_write(6, "spicy", "Wrong hostname, port, or password.");
-				result = 2;
-			}
-		} else {
-			__android_log_write(6, "spicy", "There was an error connecting.");
-			result = 1;
-		}
+        g_print (_("option parsing failed: %s\n"), error->message);
+        return 255;
     }
 
-	if (jbitmap != NULL) { // We successfully connected at some point.
-		jvm                  = NULL;
-		jni_connector_class  = NULL;
-		jni_settings_changed = NULL;
-		jni_graphics_update  = NULL;
-		jbitmap              = NULL;
+    g_type_init();
+    mainloop = g_main_loop_new(NULL, false);
 
-		jw = 0;
-		jh = 0;
-		exit (0);
-	} else {
-		return result;
-	}
+    conn = connection_new();
+    //spice_set_session_option(conn->session);
+    spice_cmdline_session_setup(conn->session);
+    connection_connect(conn);
+
+    if (connections > 0) {
+        g_main_loop_run(mainloop);
+
+    connection_disconnect(conn);
+
+    // unref was causing segfaults at one point.
+    //g_main_loop_unref(mainloop);
+	__android_log_write(6, "spicy", "Exiting main loop.");
+    } else {
+        __android_log_write(6, "spicy", "Wrong hostname, port, or password.");
+        result = 2;
+    }
+
+	jvm                  = NULL;
+	jni_connector_class  = NULL;
+	jni_settings_changed = NULL;
+	jni_graphics_update  = NULL;
+	jbitmap              = NULL;
+	jw = 0;
+	jh = 0;
+	return result;
 }
