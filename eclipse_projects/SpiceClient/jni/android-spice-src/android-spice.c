@@ -34,10 +34,12 @@ G_DEFINE_TYPE(SpiceDisplay, spice_display, SPICE_TYPE_CHANNEL);
 static SpiceDisplay* android_display;
 int android_drop_show;
 
-static void disconnect_main(SpiceDisplay *display);
-static void disconnect_display(SpiceDisplay *display);
-static void channel_new(SpiceSession *s, SpiceChannel *channel, gpointer data);
-static void channel_destroy(SpiceSession *s, SpiceChannel *channel, gpointer data);
+
+JNIEXPORT void JNICALL
+Java_com_keqisoft_android_spice_socket_Connector_AndroidSetBitmap(JNIEnv* env, jobject obj, jobject bitmap) {
+	__android_log_write(6, "android-spice", "Setting new jbitmap from Java.");
+	jbitmap = bitmap;
+}
 
 typedef unsigned char UINT8;
 
@@ -102,65 +104,57 @@ gboolean update_bitmap (JNIEnv* env, jobject* bitmap, void *source, gint x, gint
 	return TRUE;
 }
 
-
+static void disconnect_main(SpiceDisplay *display);
+static void disconnect_display(SpiceDisplay *display);
+static void channel_new(SpiceSession *s, SpiceChannel *channel, gpointer data);
+static void channel_destroy(SpiceSession *s, SpiceChannel *channel, gpointer data);
 
 /* ---------------------------------------------------------------- */
-/*
-static int d_width,d_height;
-static int write_ppm_32(void* d_data)
-{
-    FILE* fp;
-    uint8_t *p;
-    int n;
-    char* outf ="ahoo.ppm";
 
-    fp = fopen(outf,"w");
-    if (NULL == fp) {
-	fprintf(stderr, "snappy: can't open %s\n", outf);
-	return -1;
-    }
-    fprintf(fp, "P6\n%d %d\n255\n",
-            d_width, d_height);
-    n = d_width * d_height;
-    p = d_data;
-    while (n > 0) {
-        fputc(p[2], fp);
-        fputc(p[1], fp);
-        fputc(p[0], fp);
-        p += 4;
-        n--;
-    }
-    fclose(fp);
-    return 0;
-}
-*/
 
-/*
-static void spice_display_destroy(GtkObject *obj)
+static void spice_display_dispose(GObject *obj)
 {
     SpiceDisplay *display = SPICE_DISPLAY(obj);
     spice_display *d = SPICE_DISPLAY_GET_PRIVATE(display);
 
-    g_signal_handlers_disconnect_by_func(d->session, G_CALLBACK(channel_new),
-                                         display);
-    g_signal_handlers_disconnect_by_func(d->session, G_CALLBACK(channel_destroy),
-                                         display);
+    SPICE_DEBUG("spice display dispose");
 
     disconnect_main(display);
     disconnect_display(display);
-    (spice_display_parent_class)->destroy(obj);
+    //disconnect_cursor(display);
+
+    //if (d->clipboard) {
+    //    g_signal_handlers_disconnect_by_func(d->clipboard, G_CALLBACK(clipboard_owner_change),
+    //                                         display);
+    //    d->clipboard = NULL;
+    //}
+
+    //if (d->clipboard_primary) {
+    //    g_signal_handlers_disconnect_by_func(d->clipboard_primary, G_CALLBACK(clipboard_owner_change),
+    //                                         display);
+    //    d->clipboard_primary = NULL;
+    //}
+    if (d->session) {
+        g_signal_handlers_disconnect_by_func(d->session, G_CALLBACK(channel_new),
+                                             display);
+        g_signal_handlers_disconnect_by_func(d->session, G_CALLBACK(channel_destroy),
+                                             display);
+        g_object_unref(d->session);
+        d->session = NULL;
+    }
 }
 
 static void spice_display_finalize(GObject *obj)
 {
     SpiceDisplay *display = SPICE_DISPLAY(obj);
     spice_display *d = SPICE_DISPLAY_GET_PRIVATE(display);
+    int i;
 
-    SPICE_DEBUG("Finalize SpiceDisplay");
+    SPICE_DEBUG("Finalize spice display");
 
     G_OBJECT_CLASS(spice_display_parent_class)->finalize(obj);
 }
-*/
+
 
 static void spice_display_class_init(SpiceDisplayClass *klass)
 {
@@ -197,7 +191,8 @@ static void spice_display_init(SpiceDisplay *display)
 
 #define CONVERT_0555_TO_8888(s) (CONVERT_0555_TO_0888(s) | 0xff000000)
 
-static gboolean do_color_convert(SpiceDisplay *display, gint x, gint y, gint w, gint h)
+static gboolean do_color_convert(SpiceDisplay *display,
+                                 gint x, gint y, gint w, gint h)
 {
     spice_display *d = SPICE_DISPLAY_GET_PRIVATE(display);
     int i, j, maxy, maxx, miny, minx;
@@ -205,10 +200,10 @@ static gboolean do_color_convert(SpiceDisplay *display, gint x, gint y, gint w, 
     guint16 *src = d->data_origin;
 
     if (!d->convert)
-	return true;
+        return true;
 
     g_return_val_if_fail(d->format == SPICE_SURFACE_FMT_16_555 ||
-	    d->format == SPICE_SURFACE_FMT_16_565, false);
+                         d->format == SPICE_SURFACE_FMT_16_565, false);
 
     miny = MAX(y, 0);
     minx = MAX(x, 0);
@@ -219,23 +214,23 @@ static gboolean do_color_convert(SpiceDisplay *display, gint x, gint y, gint w, 
     src += (d->stride / 2) * miny;
 
     if (d->format == SPICE_SURFACE_FMT_16_555) {
-	for (j = miny; j < maxy; j++) {
-	    for (i = minx; i < maxx; i++) {
-		dest[i] = CONVERT_0555_TO_0888(src[i]);
-	    }
+        for (j = miny; j < maxy; j++) {
+            for (i = minx; i < maxx; i++) {
+                dest[i] = CONVERT_0555_TO_0888(src[i]);
+            }
 
-	    dest += d->stride / 4;
-	    src += d->stride / 2;
-	}
+            dest += d->stride / 4;
+            src += d->stride / 2;
+        }
     } else if (d->format == SPICE_SURFACE_FMT_16_565) {
-	for (j = miny; j < maxy; j++) {
-	    for (i = minx; i < maxx; i++) {
-		dest[i] = CONVERT_0565_TO_0888(src[i]);
-	    }
+        for (j = miny; j < maxy; j++) {
+            for (i = minx; i < maxx; i++) {
+                dest[i] = CONVERT_0565_TO_0888(src[i]);
+            }
 
-	    dest += d->stride / 4;
-	    src += d->stride / 2;
-	}
+            dest += d->stride / 4;
+            src += d->stride / 2;
+        }
     }
 
     return true;
@@ -249,7 +244,7 @@ static void send_key(SpiceDisplay *display, int scancode, int down)
     uint32_t i, b, m;
 
     if (!d->inputs)
-	return;
+        return;
 
     i = scancode / 32;
     b = scancode % 32;
@@ -257,14 +252,14 @@ static void send_key(SpiceDisplay *display, int scancode, int down)
     g_return_if_fail(i < SPICE_N_ELEMENTS(d->key_state));
 
     if (down) {
-	spice_inputs_key_press(d->inputs, scancode);
-	d->key_state[i] |= m;
+        spice_inputs_key_press(d->inputs, scancode);
+        d->key_state[i] |= m;
     } else {
-	if (!(d->key_state[i] & m)) {
-	    return;
-	}
-	spice_inputs_key_release(d->inputs, scancode);
-	d->key_state[i] &= ~m;
+        if (!(d->key_state[i] & m)) {
+            return;
+        }
+        spice_inputs_key_release(d->inputs, scancode);
+        d->key_state[i] &= ~m;
     }
 }
 
@@ -453,21 +448,18 @@ static void primary_destroy(SpiceChannel *channel, gpointer data)
     d->data_origin = 0;
 }
 
-JNIEXPORT void JNICALL
-Java_com_keqisoft_android_spice_socket_Connector_AndroidSetBitmap(JNIEnv* env, jobject obj, jobject bitmap) {
-	__android_log_write(6, "android-spice", "Setting new jbitmap from Java.");
-	jbitmap = bitmap;
-}
+static void invalidate(SpiceChannel *channel,
+                       gint x, gint y, gint w, gint h, gpointer data)
+{
+    SpiceDisplay *display = data;
 
-static void invalidate(SpiceChannel *channel, gint x, gint y, gint w, gint h, gpointer data) {
 	if (maintainConnection == FALSE || jbitmap == NULL || x + w > jw || y + h > jh) {
 		__android_log_write(6, "android-spice", "Not drawing.");
 		return;
 	}
 
-    SpiceDisplay *display = data;
     if (!do_color_convert(display, x, y, w, h))
-    	return;
+        return;
 
     spice_display *d = SPICE_DISPLAY_GET_PRIVATE(display);
 
@@ -525,12 +517,18 @@ static void mark(SpiceChannel *channel, gint mark, gpointer data) {
 static void disconnect_main(SpiceDisplay *display)
 {
     spice_display *d = SPICE_DISPLAY_GET_PRIVATE(display);
+    //gint i;
 
     if (d->main == NULL)
-	return;
+        return;
     //g_signal_handlers_disconnect_by_func(d->main, G_CALLBACK(mouse_update),
-    //display);
+    //                                     display);
     d->main = NULL;
+    //for (i = 0; i < CLIPBOARD_LAST; ++i) {
+    //    d->clipboard_by_guest[i] = FALSE;
+    //    d->clip_grabbed[i] = FALSE;
+    //    d->nclip_targets[i] = 0;
+    //}
 }
 
 static void disconnect_display(SpiceDisplay *display)
@@ -538,13 +536,13 @@ static void disconnect_display(SpiceDisplay *display)
     spice_display *d = SPICE_DISPLAY_GET_PRIVATE(display);
 
     if (d->display == NULL)
-	return;
+        return;
     g_signal_handlers_disconnect_by_func(d->display, G_CALLBACK(primary_create),
-	    display);
+                                         display);
     g_signal_handlers_disconnect_by_func(d->display, G_CALLBACK(primary_destroy),
-	    display);
+                                         display);
     g_signal_handlers_disconnect_by_func(d->display, G_CALLBACK(invalidate),
-	    display);
+                                         display);
     d->display = NULL;
 }
 
@@ -556,34 +554,58 @@ static void channel_new(SpiceSession *s, SpiceChannel *channel, gpointer data)
 
     g_object_get(channel, "channel-id", &id, NULL);
     if (SPICE_IS_MAIN_CHANNEL(channel)) {
-		d->main = SPICE_MAIN_CHANNEL(channel);
-		return;
+        d->main = SPICE_MAIN_CHANNEL(channel);
+        //g_signal_connect(channel, "main-mouse-update",
+        //                 G_CALLBACK(mouse_update), display);
+        //mouse_update(channel, display);
+        //if (id != d->channel_id)
+        //    return;
+        //g_signal_connect(channel, "main-clipboard-selection-grab",
+        //                 G_CALLBACK(clipboard_grab), display);
+        //g_signal_connect(channel, "main-clipboard-selection-request",
+        //                 G_CALLBACK(clipboard_request), display);
+        //g_signal_connect(channel, "main-clipboard-selection-release",
+        //                 G_CALLBACK(clipboard_release), display);
+        return;
     }
 
     if (SPICE_IS_DISPLAY_CHANNEL(channel)) {
-		if (id != d->channel_id)
-			return;
-		d->display = channel;
-		g_signal_connect(channel, "display-primary-create",
-			G_CALLBACK(primary_create), display);
-		g_signal_connect(channel, "display-primary-destroy",
-			G_CALLBACK(primary_destroy), display);
-		g_signal_connect(channel, "display-invalidate",
-			G_CALLBACK(invalidate), display);
-		g_signal_connect(channel, "display-mark",
-			G_CALLBACK(mark), display);
-		spice_channel_connect(channel);
-		return;
+        if (id != d->channel_id)
+            return;
+        d->display = channel;
+        g_signal_connect(channel, "display-primary-create",
+                         G_CALLBACK(primary_create), display);
+        g_signal_connect(channel, "display-primary-destroy",
+                         G_CALLBACK(primary_destroy), display);
+        g_signal_connect(channel, "display-invalidate",
+                         G_CALLBACK(invalidate), display);
+        g_signal_connect(channel, "display-mark",
+                         G_CALLBACK(mark), display);
+        spice_channel_connect(channel);
+        return;
     }
 
     //if (SPICE_IS_CURSOR_CHANNEL(channel)) {
-    //return;
+    //    if (id != d->channel_id)
+    //        return;
+    //    d->cursor = SPICE_CURSOR_CHANNEL(channel);
+    //    g_signal_connect(channel, "cursor-set",
+    //                     G_CALLBACK(cursor_set), display);
+    //    g_signal_connect(channel, "cursor-move",
+    //                     G_CALLBACK(cursor_move), display);
+    //    g_signal_connect(channel, "cursor-hide",
+    //                     G_CALLBACK(cursor_hide), display);
+    //    g_signal_connect(channel, "cursor-reset",
+    //                     G_CALLBACK(cursor_reset), display);
+    //    spice_channel_connect(channel);
+    //    return;
     //}
 
     if (SPICE_IS_INPUTS_CHANNEL(channel)) {
-	d->inputs = SPICE_INPUTS_CHANNEL(channel);
-	spice_channel_connect(channel);
-	return;
+        d->inputs = SPICE_INPUTS_CHANNEL(channel);
+        spice_channel_connect(channel);
+        //sync_keyboard_lock_modifiers(display);
+        return;
     }
 
     return;
@@ -599,28 +621,35 @@ static void channel_destroy(SpiceSession *s, SpiceChannel *channel, gpointer dat
     SPICE_DEBUG("channel_destroy %d", id);
 
     if (SPICE_IS_MAIN_CHANNEL(channel)) {
-	disconnect_main(display);
-	return;
+        disconnect_main(display);
+        return;
     }
 
     if (SPICE_IS_DISPLAY_CHANNEL(channel)) {
-	if (id != d->channel_id)
-	    return;
-	disconnect_display(display);
-	return;
+        if (id != d->channel_id)
+            return;
+        disconnect_display(display);
+        return;
     }
 
     //if (SPICE_IS_CURSOR_CHANNEL(channel)) {
-    //if (id != d->channel_id)
-    //return;
-    //disconnect_cursor(display);
-    //return;
+    //    if (id != d->channel_id)
+    //        return;
+    //    disconnect_cursor(display);
+    //    return;
     //}
 
     if (SPICE_IS_INPUTS_CHANNEL(channel)) {
-	d->inputs = NULL;
-	return;
+        d->inputs = NULL;
+        return;
     }
+
+//#ifdef USE_SMARTCARD
+//    if (SPICE_IS_SMARTCARD_CHANNEL(channel)) {
+//        d->smartcard = NULL;
+//        return;
+//    }
+//#endif
 
     return;
 }
@@ -637,20 +666,21 @@ SpiceDisplay *spice_display_new(SpiceSession *session, int id)
     SpiceDisplay *display;
     spice_display *d;
     GList *list;
+    GList *it;
 
     display = g_object_new(SPICE_TYPE_DISPLAY, NULL);
     d = SPICE_DISPLAY_GET_PRIVATE(display);
-    d->session = session;
+    d->session = g_object_ref(session);
     d->channel_id = id;
     SPICE_DEBUG("channel_id:%d",d->channel_id);
 
     g_signal_connect(session, "channel-new",
-	    G_CALLBACK(channel_new), display);
+                     G_CALLBACK(channel_new), display);
     g_signal_connect(session, "channel-destroy",
-	    G_CALLBACK(channel_destroy), display);
+                     G_CALLBACK(channel_destroy), display);
     list = spice_session_get_channels(session);
-    for (list = g_list_first(list); list != NULL; list = g_list_next(list)) {
-	channel_new(session, list->data, (gpointer*)display);
+    for (it = g_list_first(list); it != NULL; it = g_list_next(it)) {
+        channel_new(session, it->data, (gpointer*)display);
     }
     g_list_free(list);
 

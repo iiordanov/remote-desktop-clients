@@ -26,17 +26,27 @@ G_BEGIN_DECLS
 
 #include "spice-widget.h"
 #include "spice-common.h"
+#include <spice/vd_agent.h>
 
 #define SPICE_DISPLAY_GET_PRIVATE(obj)                                  \
     (G_TYPE_INSTANCE_GET_PRIVATE((obj), SPICE_TYPE_DISPLAY, spice_display))
 
-struct spice_display {
+typedef int cairo_surface_t;
+typedef int GtkClipboard;
+typedef int GtkTargetEntry;
+typedef int GdkCursor;
+typedef int SpiceGrabSequence;
+
+#define CLIPBOARD_LAST (VD_AGENT_CLIPBOARD_SELECTION_SECONDARY + 1)
+
+struct _SpiceDisplayPrivate {
     gint                    channel_id;
 
     /* options */
     bool                    keyboard_grab_enable;
     bool                    mouse_grab_enable;
     bool                    resize_guest_enable;
+    bool                    auto_clipboard_enable;
 
     /* state */
     enum SpiceSurfaceFmt    format;
@@ -51,15 +61,38 @@ struct spice_display {
     bool                    have_mitshm;
     gboolean                allow_scaling;
 
+    /* TODO: make a display object instead? */
+#ifdef WITH_X11
+    Display                 *dpy;
+    XVisualInfo             *vi;
+    XImage                  *ximage;
+    XShmSegmentInfo         *shminfo;
+    GC                      gc;
+#else
+    cairo_surface_t         *ximage;
+#endif
+
+    GtkClipboard            *clipboard;
+    GtkClipboard            *clipboard_primary;
+    GtkTargetEntry          *clip_targets[CLIPBOARD_LAST];
+    guint                   nclip_targets[CLIPBOARD_LAST];
+    bool                    clip_hasdata[CLIPBOARD_LAST];
+    bool                    clip_grabbed[CLIPBOARD_LAST];
+    gboolean                clipboard_by_guest[CLIPBOARD_LAST];
+    gboolean                clipboard_selfgrab_pending[CLIPBOARD_LAST];
+
     SpiceSession            *session;
     SpiceMainChannel        *main;
     SpiceChannel            *display;
     SpiceCursorChannel      *cursor;
     SpiceInputsChannel      *inputs;
+    SpiceSmartcardChannel   *smartcard;
 
     enum SpiceMouseMode     mouse_mode;
     int                     mouse_grab_active;
     bool                    mouse_have_pointer;
+    GdkCursor               *mouse_cursor;
+    GdkCursor               *show_cursor;
     int                     mouse_last_x;
     int                     mouse_last_y;
     int                     mouse_guest_x;
@@ -73,8 +106,12 @@ struct spice_display {
     const guint16 const     *keycode_map;
     size_t                  keycode_maplen;
     uint32_t                key_state[512 / 32];
+    SpiceGrabSequence         *grabseq; /* the configured key sequence */
     gboolean                *activeseq; /* the currently pressed keys */
     gint                    mark;
+#ifdef WIN32
+    HHOOK                   keyboard_hook;
+#endif
 };
 
 int      spicex_image_create                 (SpiceDisplay *display);

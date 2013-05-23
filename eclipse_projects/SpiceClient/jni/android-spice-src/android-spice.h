@@ -56,7 +56,7 @@ G_BEGIN_DECLS
 
 typedef struct _SpiceDisplay SpiceDisplay;
 typedef struct _SpiceDisplayClass SpiceDisplayClass;
-typedef struct spice_display spice_display;
+typedef struct _SpiceDisplayPrivate spice_display;
 
 struct _SpiceDisplay {
     SpiceChannel parent;
@@ -97,60 +97,6 @@ typedef enum
 
 #define PTRFLAGS_DOWN 0x8000
 
-struct _AndroidEventKey
-{
-  AndroidEventType type;
-  guint hardware_keycode;
-};
-typedef struct _AndroidEventKey AndroidEventKey;
-
-struct _AndroidEventButton
-{
-  AndroidEventType type;
-  guint x;
-  guint y;
-};
-typedef struct _AndroidEventButton AndroidEventButton;
-
-struct _AndroidShow
-{
-  AndroidEventType type;
-  guint width;
-  guint height;
-  guint x;
-  guint y;
-  guint size;
-  uint8_t* data;
-};
-typedef struct _AndroidShow AndroidShow;
-
-struct _AndroidMsg
-{
-    AndroidEventType type;
-    uint8_t* data;
-};
-typedef struct _AndroidMsg AndroidMsg;
-
-enum
-{
-    ANDROID_TASK_IDLE = 0,
-    ANDROID_TASK_SHOW = 1,
-    ANDROID_TASK_OVER = 2,
-};
-enum
-{
-    ANDROID_BUTTON1_MASK  = 1 << 8,
-    ANDROID_BUTTON2_MASK  = 1 << 9,
-    ANDROID_BUTTON3_MASK  = 1 << 10,
-};
-enum
-{
-    INT=1,
-    UINT_8=2,
-};
-
-int android_spice_input();
-int android_spice_output();
 
 GType	        spice_display_get_type(void);
 
