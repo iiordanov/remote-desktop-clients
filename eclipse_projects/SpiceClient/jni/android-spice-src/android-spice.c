@@ -39,6 +39,9 @@ JNIEXPORT void JNICALL
 Java_com_keqisoft_android_spice_socket_Connector_AndroidSetBitmap(JNIEnv* env, jobject obj, jobject bitmap) {
 	__android_log_write(6, "android-spice", "Setting new jbitmap from Java.");
 	jbitmap = bitmap;
+
+	// TODO: Can I lock all the pixels and make every 4th uint8 0xFF now and avoid doing so when
+	// copying the pixels? It should give me a 25% performance boost when copying the pixels.
 }
 
 typedef unsigned char UINT8;
@@ -266,9 +269,11 @@ static void send_key(SpiceDisplay *display, int scancode, int down)
 int win32key2spice (int keycode)
 {
 	int newKeyCode = keymap_win322xtkbd[keycode];
-	//char buf[60];
-    //snprintf (buf, 60, "Converted win32 key: %d to linux key: %d", keycode, newKeyCode);
-	//__android_log_write(6, "android-spice", buf);
+	/*
+	char buf[100];
+    snprintf (buf, 100, "Converted win32 key: %d to linux key: %d", keycode, newKeyCode);
+	__android_log_write(6, "android-spice", buf);
+	*/
     return newKeyCode;
 }
 

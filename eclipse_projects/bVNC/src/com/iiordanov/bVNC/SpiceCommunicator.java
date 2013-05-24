@@ -89,19 +89,19 @@ public class SpiceCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyP
 
 	private void sendModifierKeys (boolean keyDown) {		
 		if ((metaState & RemoteKeyboard.CTRL_MASK) != 0) {
-			android.util.Log.e("SpiceCommunicator", "Sending CTRL: " + VK_LCONTROL);
+			//android.util.Log.e("SpiceCommunicator", "Sending CTRL: " + VK_LCONTROL);
 			Connector.getInstance().sendKeyEvent(keyDown, VK_LCONTROL);
 		}
 		if ((metaState & RemoteKeyboard.ALT_MASK) != 0) {
-			android.util.Log.e("SpiceCommunicator", "Sending ALT: " + VK_LMENU);
+			//android.util.Log.e("SpiceCommunicator", "Sending ALT: " + VK_LMENU);
 			Connector.getInstance().sendKeyEvent(keyDown, VK_LMENU);
 		}
 		if ((metaState & RemoteKeyboard.SUPER_MASK) != 0) {
-			android.util.Log.e("SpiceCommunicator", "Sending SUPER: " + VK_LWIN);
+			//android.util.Log.e("SpiceCommunicator", "Sending SUPER: " + VK_LWIN);
 			Connector.getInstance().sendKeyEvent(keyDown, VK_LWIN);
 		}
 		if ((metaState & RemoteKeyboard.SHIFT_MASK) != 0) {
-			android.util.Log.e("SpiceCommunicator", "Sending SHIFT: " + VK_LSHIFT);
+			//android.util.Log.e("SpiceCommunicator", "Sending SHIFT: " + VK_LSHIFT);
 			Connector.getInstance().sendKeyEvent(keyDown, VK_LSHIFT);
 		}
 	}
