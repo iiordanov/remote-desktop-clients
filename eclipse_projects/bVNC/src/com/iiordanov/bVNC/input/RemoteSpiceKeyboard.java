@@ -12,8 +12,6 @@ import com.iiordanov.bVNC.RfbConnectable;
 import com.iiordanov.bVNC.VncCanvas;
 import com.iiordanov.bVNC.XKeySymCoverter;
 import com.iiordanov.tigervnc.rfb.UnicodeToKeysym;
-import com.keqisoft.android.spice.datagram.DGType;
-import com.keqisoft.android.spice.datagram.KeyDG;
 import com.iiordanov.bVNC.input.RdpKeyboardMapper;
 
 

@@ -277,7 +277,7 @@ int androidkey2spice(int keycode) {
 }
 
 JNIEXPORT void JNICALL
-Java_com_keqisoft_android_spice_socket_Connector_AndroidKeyEvent(JNIEnv * env, jobject  obj, jint type, jint hardware_keycode) {
+Java_com_keqisoft_android_spice_socket_Connector_AndroidKeyEvent(JNIEnv * env, jobject  obj, jboolean down, jint hardware_keycode) {
     SpiceDisplay* display = android_display;
     spice_display* d = SPICE_DISPLAY_GET_PRIVATE(display);
     int scancode;
@@ -289,15 +289,10 @@ Java_com_keqisoft_android_spice_socket_Connector_AndroidKeyEvent(JNIEnv * env, j
 
     scancode = win32key2spice(hardware_keycode);
     //scancode = hardware_keycode;
-    switch (type) {
-	case ANDROID_KEY_PRESS:
+    if (down) {
         send_key(display, scancode, 1);
-	    break;
-	case ANDROID_KEY_RELEASE:
+    } else {
 		send_key(display, scancode, 0);
-	    break;
-	default:
-	    break;
     }
 }
 

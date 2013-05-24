@@ -4,12 +4,7 @@ import com.freerdp.freerdpcore.services.LibFreeRDP;
 import com.iiordanov.bVNC.input.RdpKeyboardMapper;
 import com.iiordanov.bVNC.input.RemoteKeyboard;
 import com.iiordanov.bVNC.input.RemoteSpicePointer;
-import com.keqisoft.android.spice.datagram.DGType;
-import com.keqisoft.android.spice.datagram.KeyDG;
-import com.keqisoft.android.spice.datagram.MouseDG;
 import com.keqisoft.android.spice.socket.Connector;
-import com.keqisoft.android.spice.socket.FrameReceiver;
-import com.keqisoft.android.spice.socket.InputSender;
 
 public class SpiceCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyProcessingListener {
 	final static int VK_CONTROL = 0x11;
@@ -27,7 +22,6 @@ public class SpiceCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyP
 	
 	private int width = 0;
 	private int height = 0;
-    InputSender inputSender;
     
 	boolean isInNormalProtocol = false;
 	
@@ -35,7 +29,6 @@ public class SpiceCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyP
 	public SpiceCommunicator (int w, int h) {
 		width = w;
 		height = h;
-		inputSender = new InputSender();
 	}
 	
 	@Override
@@ -88,28 +81,28 @@ public class SpiceCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyP
 	public void writePointerEvent(int x, int y, int metaState, int pointerMask) {
 		this.metaState = metaState; 
 		if ((pointerMask & RemoteSpicePointer.PTRFLAGS_DOWN) != 0)
-			sendModifierKeys(DGType.ANDROID_KEY_PRESS);
-		inputSender.sendMouse(x, y, metaState, pointerMask);
+			sendModifierKeys(true);
+		Connector.getInstance().sendMouseEvent(x, y, metaState, pointerMask);
 		if ((pointerMask & RemoteSpicePointer.PTRFLAGS_DOWN) == 0)
-			sendModifierKeys(DGType.ANDROID_KEY_RELEASE);
+			sendModifierKeys(false);
 	}
 
-	private void sendModifierKeys (int keyDown) {		
+	private void sendModifierKeys (boolean keyDown) {		
 		if ((metaState & RemoteKeyboard.CTRL_MASK) != 0) {
 			android.util.Log.e("SpiceCommunicator", "Sending CTRL: " + VK_LCONTROL);
-			inputSender.sendKey(keyDown, VK_LCONTROL);
+			Connector.getInstance().sendKeyEvent(keyDown, VK_LCONTROL);
 		}
 		if ((metaState & RemoteKeyboard.ALT_MASK) != 0) {
 			android.util.Log.e("SpiceCommunicator", "Sending ALT: " + VK_LMENU);
-			inputSender.sendKey(keyDown, VK_LMENU);
+			Connector.getInstance().sendKeyEvent(keyDown, VK_LMENU);
 		}
 		if ((metaState & RemoteKeyboard.SUPER_MASK) != 0) {
 			android.util.Log.e("SpiceCommunicator", "Sending SUPER: " + VK_LWIN);
-			inputSender.sendKey(keyDown, VK_LWIN);
+			Connector.getInstance().sendKeyEvent(keyDown, VK_LWIN);
 		}
 		if ((metaState & RemoteKeyboard.SHIFT_MASK) != 0) {
 			android.util.Log.e("SpiceCommunicator", "Sending SHIFT: " + VK_LSHIFT);
-			inputSender.sendKey(keyDown, VK_LSHIFT);
+			Connector.getInstance().sendKeyEvent(keyDown, VK_LSHIFT);
 		}
 	}
 	
@@ -140,28 +133,22 @@ public class SpiceCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyP
 
 	@Override
 	public void close() {
-		inputSender.stop();
 		Connector.getInstance().disconnect();
 	}
 	
 	// ****************************************************************************
 	// KeyboardMapper.KeyProcessingListener implementation
 	@Override
-	public void processVirtualKey(int virtualKeyCode, boolean down) {
-		int keyDown = 0;
-		if (down)
-			keyDown = DGType.ANDROID_KEY_PRESS;
-		else
-			keyDown = DGType.ANDROID_KEY_RELEASE;
+	public void processVirtualKey(int virtualKeyCode, boolean keyDown) {
 
-		if (down)
-			sendModifierKeys (keyDown);
+		if (keyDown)
+			sendModifierKeys (true);
 		
 		//android.util.Log.e("SpiceCommunicator", "Sending VK key: " + virtualKeyCode + ". Is it down: " + down);
-		inputSender.sendKey(keyDown, virtualKeyCode);
+		Connector.getInstance().sendKeyEvent(keyDown, virtualKeyCode);
 		
-		if (!down)
-			sendModifierKeys (keyDown);
+		if (!keyDown)
+			sendModifierKeys (false);
 		
 	}
 

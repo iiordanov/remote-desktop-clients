@@ -18,8 +18,8 @@ public class Connector {
 	}
 	public native int AndroidSpicec(String cmd);
 	public native void AndroidSpicecDisconnect();
-	public native void AndroidButtonEvent(int x, int y, int metaState, int type);
-	public native void AndroidKeyEvent(int keyDown, int virtualKeyCode);
+	public native void AndroidButtonEvent(int x, int y, int metaState, int pointerMask);
+	public native void AndroidKeyEvent(boolean keyDown, int virtualKeyCode);
 	public native void AndroidSetBitmap(Bitmap newBitmap);
 
 	private static Connector connector = new Connector();
@@ -104,11 +104,11 @@ public class Connector {
 		}
 	}
 	
-	public void sendMouseEvent (int x, int y, int metaState, int type) {
-		AndroidButtonEvent(x, y, metaState, type);
+	public void sendMouseEvent (int x, int y, int metaState, int pointerMask) {
+		AndroidButtonEvent(x, y, metaState, pointerMask);
 	}
 
-	public void sendKeyEvent (int keyDown, int virtualKeyCode) {
+	public void sendKeyEvent (boolean keyDown, int virtualKeyCode) {
 		AndroidKeyEvent(keyDown, virtualKeyCode);
 	}
 	

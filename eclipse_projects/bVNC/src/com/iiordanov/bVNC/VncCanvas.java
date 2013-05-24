@@ -77,10 +77,7 @@ import com.iiordanov.bVNC.input.RemoteRdpPointer;
 import com.iiordanov.bVNC.input.RemotePointer;
 
 import com.iiordanov.tigervnc.vncviewer.CConn;
-import com.keqisoft.android.spice.SpiceCanvas;
 import com.keqisoft.android.spice.socket.Connector;
-import com.keqisoft.android.spice.socket.FrameReceiver;
-import com.keqisoft.android.spice.socket.InputSender;
 
 public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, LibFreeRDP.EventListener {
 	private final static String TAG = "VncCanvas";
