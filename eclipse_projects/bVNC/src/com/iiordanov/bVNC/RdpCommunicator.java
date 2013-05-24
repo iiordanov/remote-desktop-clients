@@ -12,6 +12,7 @@ import com.freerdp.freerdpcore.services.LibFreeRDP;
 import com.freerdp.freerdpcore.utils.Mouse;
 import com.iiordanov.bVNC.input.RemoteKeyboard;
 import com.iiordanov.bVNC.input.RdpKeyboardMapper;
+import com.iiordanov.bVNC.input.RemoteRdpPointer;
 
 public class RdpCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyProcessingListener {
 	final static int VK_CONTROL = 0x11;
@@ -76,7 +77,12 @@ public class RdpCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyPro
 
 	@Override
 	public void writePointerEvent(int x, int y, int metaState, int pointerMask) {
+		this.metaState = metaState;
+		if ((pointerMask & RemoteRdpPointer.PTRFLAGS_DOWN) != 0)
+			sendModifierKeys(true);
     	LibFreeRDP.sendCursorEvent(session.getInstance(), x, y, pointerMask);
+		if ((pointerMask & RemoteRdpPointer.PTRFLAGS_DOWN) == 0)
+			sendModifierKeys(false);
 	}
 
 	@Override

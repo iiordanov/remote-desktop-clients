@@ -12,7 +12,7 @@ public class RemoteRdpPointer implements RemotePointer {
 
 	private final static int PTRFLAGS_WHEEL          = 0x0200;
 	private final static int PTRFLAGS_WHEEL_NEGATIVE = 0x0100;
-	private final static int PTRFLAGS_DOWN           = 0x8000;
+	public  final static int PTRFLAGS_DOWN           = 0x8000;
 	
 	private final static int MOUSE_BUTTON_NONE       = 0x0000;
 	private final static int MOUSE_BUTTON_MOVE       = 0x0800;
