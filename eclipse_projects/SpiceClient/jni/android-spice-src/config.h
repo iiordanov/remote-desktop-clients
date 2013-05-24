@@ -4,26 +4,19 @@
 /* Define if building universal (internal helper macro) */
 /* #undef AC_APPLE_UNIVERSAL_BUILD */
 
-/* Define to 1 if translation of program messages to the user's native
-   language is requested. */
+/* always defined to indicate that i18n is enabled */
 #define ENABLE_NLS 1
 
-/* Define to the gettext package name. */
-#define GETTEXT_PACKAGE PACKAGE_TARNAME
+/* GETTEXT package name */
+#define GETTEXT_PACKAGE "spice-gtk"
 
 /* Define to 1 if you have the <arpa/inet.h> header file. */
 #define HAVE_ARPA_INET_H 1
 
-/* Define to 1 if you have the MacOS X function CFLocaleCopyCurrent in the
-   CoreFoundation framework. */
-/* #undef HAVE_CFLOCALECOPYCURRENT */
+/* Define to 1 if you have the `bind_textdomain_codeset' function. */
+#define HAVE_BIND_TEXTDOMAIN_CODESET 1
 
-/* Define to 1 if you have the MacOS X function CFPreferencesCopyAppValue in
-   the CoreFoundation framework. */
-/* #undef HAVE_CFPREFERENCESCOPYAPPVALUE */
-
-/* Define if the GNU dcgettext() function is already present or preinstalled.
-   */
+/* Define to 1 if you have the `dcgettext' function. */
 #define HAVE_DCGETTEXT 1
 
 /* Define to 1 if you have the <dlfcn.h> header file. */
@@ -32,17 +25,32 @@
 /* Define if the GNU gettext() function is already present or preinstalled. */
 #define HAVE_GETTEXT 1
 
-/* Define if you have the iconv() function and it works. */
-/* #undef HAVE_ICONV */
-
 /* Define to 1 if you have the <inttypes.h> header file. */
 #define HAVE_INTTYPES_H 1
+
+/* Define if your <locale.h> file defines LC_MESSAGES. */
+#define HAVE_LC_MESSAGES 1
+
+/* Define to 1 if you have the <locale.h> header file. */
+#define HAVE_LOCALE_H 1
 
 /* Define to 1 if you have the <memory.h> header file. */
 #define HAVE_MEMORY_H 1
 
 /* Define to 1 if you have the <netinet/in.h> header file. */
 #define HAVE_NETINET_IN_H 1
+
+/* Define if you have a polkit with polkit_authority_get_sync() */
+#define HAVE_POLKIT_AUTHORITY_GET_SYNC 1
+
+/* Have Quartz? */
+/* #undef HAVE_QUARTZ */
+
+/* Have xrandr? */
+#define HAVE_RANDR 1
+
+/* whether Cyrus SASL is available for authentication */
+#define HAVE_SASL 1
 
 /* Define to 1 if you have the <stdint.h> header file. */
 #define HAVE_STDINT_H 1
@@ -74,6 +82,12 @@
 /* Define to 1 if you have the <unistd.h> header file. */
 #define HAVE_UNISTD_H 1
 
+/* Have Win32? */
+/* #undef HAVE_WINDOWS */
+
+/* Have x11? */
+#define HAVE_X11 1
+
 /* Define to 1 if you have the <X11/XKBlib.h> header file. */
 #define HAVE_X11_XKBLIB_H 1
 
@@ -94,7 +108,7 @@
 #define PACKAGE_NAME "spice-gtk"
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "spice-gtk 0.5"
+#define PACKAGE_STRING "spice-gtk 0.9"
 
 /* Define to the one symbol short name of this package. */
 #define PACKAGE_TARNAME "spice-gtk"
@@ -103,26 +117,37 @@
 #define PACKAGE_URL ""
 
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "0.5"
+#define PACKAGE_VERSION "0.9"
 
 /* Define to 1 if you have the ANSI C header files. */
 #define STDC_HEADERS 1
 
-/* Version number of package */
-#define VERSION "0.5"
+/* Define if supporting polkit */
+#define USE_POLKIT 1
 
-/* Define to the value your compiler uses to support the warn-unused-result
-   attribute */
-#define WARN_UNUSED_RESULT 
+/* Define if supporting smartcard proxying */
+#define USE_SMARTCARD 1
+
+/* Define if supporting usbredir proxying */
+#define USE_USBREDIR 1
+
+/* Version number of package */
+#define VERSION "0.9"
 
 /* Have GStreamer? */
 /* #undef WITH_GSTAUDIO */
+
+/* Whether to use gthread coroutine impl */
+#define WITH_GTHREAD 0
 
 /* Have pulseaudio? */
 #define WITH_PULSE 1
 
 /* Whether to use ucontext coroutine impl */
-#define WITH_UCONTEXT 0
+#define WITH_UCONTEXT 1
+
+/* Whether to use fiber coroutine impl */
+#define WITH_WINFIBER 0
 
 /* Use X11 backend? */
 /* #undef WITH_X11 */

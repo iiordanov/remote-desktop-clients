@@ -547,6 +547,11 @@ void spice_pixman_blit(pixman_image_t *dest,
     uint8_t *src_line;
     int byte_width;
 
+    if (!src) {
+        fprintf(stderr, "missing src!");
+        return;
+    }
+
     bits = pixman_image_get_data(dest);
     stride = pixman_image_get_stride(dest);
     depth = spice_pixman_image_get_bpp(dest);

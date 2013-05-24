@@ -25,6 +25,7 @@
 #include <openssl/ssl.h>
 #include <gio/gio.h>
 
+#undef HAVE_SASL
 #if HAVE_SASL
 #include <sasl/sasl.h>
 #endif
@@ -81,6 +82,7 @@ struct _SpiceChannelPrivate {
     SpiceOpenSSLVerify          *sslverify;
     GSocket                     *sock;
 
+#undef HAVE_SASL
 #if HAVE_SASL
     sasl_conn_t                 *sasl_conn;
     const char                  *sasl_decoded;
@@ -102,7 +104,7 @@ struct _SpiceChannelPrivate {
     GQueue                      xmit_queue;
     gboolean                    xmit_queue_blocked;
     GStaticMutex                xmit_queue_lock;
-    GThread                     *main_thread;
+    guint                       xmit_queue_wakeup_id;
 
     char                        name[16];
     enum spice_channel_state    state;

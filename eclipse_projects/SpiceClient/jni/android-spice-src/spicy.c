@@ -23,7 +23,6 @@
 #include <sys/stat.h>
 #define SPICY_C
 #include "android-spice.h"
-#include "jpeg_encoder.h"
 #include "spice-common.h"
 #include "spice-audio.h"
 #include "spice-cmdline.h"

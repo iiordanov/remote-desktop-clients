@@ -110,7 +110,6 @@ static void spice_channel_init(SpiceChannel *channel)
     spice_channel_set_common_capability(channel, SPICE_COMMON_CAP_MINI_HEADER);
     g_queue_init(&c->xmit_queue);
     g_static_mutex_init(&c->xmit_queue_lock);
-    c->main_thread = g_thread_self();
 }
 
 static void spice_channel_constructed(GObject *gobject)
@@ -649,14 +648,32 @@ void spice_msg_out_unref(SpiceMsgOut *out)
 static gboolean spice_channel_idle_wakeup(gpointer user_data)
 {
     SpiceChannel *channel = SPICE_CHANNEL(user_data);
+    SpiceChannelPrivate *c = channel->priv;
+
+    /*
+     * Note:
+     *
+     * - This must be done before the wakeup as that may eventually
+     *   call channel_reset() which checks this.
+     * - The lock calls are really necessary, this fixes the following race:
+     *   1) usb-event-thread calls spice_msg_out_send()
+     *   2) spice_msg_out_send calls g_timeout_add_full(...)
+     *   3) we run, set xmit_queue_wakeup_id to 0
+     *   4) spice_msg_out_send stores the result of g_timeout_add_full() in
+     *      xmit_queue_wakeup_id, overwriting the 0 we just stored
+     *   5) xmit_queue_wakeup_id now says there is a wakeup pending which is
+     *      false
+     */
+    g_static_mutex_lock(&c->xmit_queue_lock);
+    c->xmit_queue_wakeup_id = 0;
+    g_static_mutex_unlock(&c->xmit_queue_lock);
 
     spice_channel_wakeup(channel, FALSE);
-    g_object_unref(channel);
 
     return FALSE;
 }
 
-/* system context */
+/* any context (system/co-routine/usb-event-thread) */
 G_GNUC_INTERNAL
 void spice_msg_out_send(SpiceMsgOut *out)
 {
@@ -664,17 +681,23 @@ void spice_msg_out_send(SpiceMsgOut *out)
     g_return_if_fail(out->channel != NULL);
 
     g_static_mutex_lock(&out->channel->priv->xmit_queue_lock);
-    if (!out->channel->priv->xmit_queue_blocked)
-        g_queue_push_tail(&out->channel->priv->xmit_queue, out);
-    g_static_mutex_unlock(&out->channel->priv->xmit_queue_lock);
+    if (!out->channel->priv->xmit_queue_blocked) {
+        gboolean was_empty;
 
-    /* TODO: we currently flush/wakeup immediately all buffered messages */
-    if (g_thread_self() != out->channel->priv->main_thread)
-        /* We use g_timeout_add_full so that can specify the priority */
-        g_timeout_add_full(G_PRIORITY_HIGH, 0, spice_channel_idle_wakeup,
-                           g_object_ref(out->channel), NULL);
-    else
-        spice_channel_wakeup(out->channel, FALSE);
+        was_empty = g_queue_is_empty(&out->channel->priv->xmit_queue);
+        g_queue_push_tail(&out->channel->priv->xmit_queue, out);
+
+        /* One wakeup is enough to empty the entire queue -> only do a wakeup
+           if the queue was empty, and there isn't one pending already. */
+        if (was_empty && !out->channel->priv->xmit_queue_wakeup_id) {
+            out->channel->priv->xmit_queue_wakeup_id =
+                /* Use g_timeout_add_full so that can specify the priority */
+                g_timeout_add_full(G_PRIORITY_HIGH, 0,
+                                   spice_channel_idle_wakeup,
+                                   out->channel, NULL);
+        }
+    }
+    g_static_mutex_unlock(&out->channel->priv->xmit_queue_lock);
 }
 
 /* coroutine context */
@@ -1688,7 +1711,6 @@ error:
 }
 
 /* system context */
-/* TODO: we currently flush/wakeup immediately all buffered messages */
 G_GNUC_INTERNAL
 void spice_channel_wakeup(SpiceChannel *channel, gboolean cancel)
 {
@@ -1894,6 +1916,7 @@ SpiceChannel *spice_channel_new(SpiceSession *s, int type, int id)
         break;
     }
 #endif
+#undef USE_USBREDIR
 #ifdef USE_USBREDIR
     case SPICE_CHANNEL_USBREDIR: {
         gboolean enabled;
@@ -2344,6 +2367,10 @@ static void channel_reset(SpiceChannel *channel, gboolean migrating)
     c->xmit_queue_blocked = TRUE; /* Disallow queuing new messages */
     g_queue_foreach(&c->xmit_queue, (GFunc)spice_msg_out_unref, NULL);
     g_queue_clear(&c->xmit_queue);
+    if (c->xmit_queue_wakeup_id) {
+        g_source_remove(c->xmit_queue_wakeup_id);
+        c->xmit_queue_wakeup_id = 0;
+    }
     g_static_mutex_unlock(&c->xmit_queue_lock);
 
     g_array_set_size(c->remote_common_caps, 0);

@@ -386,23 +386,58 @@ static const struct {
     }
 };
 
+typedef struct _WeakRef {
+    GObject *object;
+} WeakRef;
+
+static void weak_notify_cb(WeakRef *weakref, GObject *object)
+{
+    weakref->object = NULL;
+}
+
+static WeakRef* weak_ref(GObject *object)
+{
+    WeakRef *weakref = g_new(WeakRef, 1);
+
+    g_object_weak_ref(object, (GWeakNotify)weak_notify_cb, weakref);
+    weakref->object = object;
+
+    return weakref;
+}
+
+static void weak_unref(WeakRef* weakref)
+{
+    if (weakref->object)
+        g_object_weak_unref(weakref->object, (GWeakNotify)weak_notify_cb, weakref);
+
+    g_free(weakref);
+}
+
 static void clipboard_get_targets(GtkClipboard *clipboard,
                                   GdkAtom *atoms,
                                   gint n_atoms,
                                   gpointer user_data)
 {
-    g_return_if_fail(SPICE_IS_GTK_SESSION(user_data));
+    WeakRef *weakref = user_data;
+    SpiceGtkSession *self = (SpiceGtkSession*)weakref->object;
+    weak_unref(weakref);
 
-    SpiceGtkSession *self = user_data;
+    if (self == NULL)
+        return;
+
+    g_return_if_fail(SPICE_IS_GTK_SESSION(self));
+
     SpiceGtkSessionPrivate *s = self->priv;
     guint32 types[SPICE_N_ELEMENTS(atom2agent)];
     char *name;
     int a, m, t;
     int selection;
 
+    if (s->main == NULL)
+        return;
+
     selection = get_selection_from_clipboard(s, clipboard);
     g_return_if_fail(selection != -1);
-    g_return_if_fail(s->main != NULL);
 
     SPICE_DEBUG("%s:", __FUNCTION__);
     if (spice_util_get_debug()) {
@@ -480,7 +515,7 @@ static void clipboard_owner_change(GtkClipboard        *clipboard,
         s->clip_hasdata[selection] = TRUE;
         if (s->auto_clipboard_enable && !read_only(self))
             gtk_clipboard_request_targets(clipboard, clipboard_get_targets,
-                                          self);
+                                          weak_ref(G_OBJECT(self)));
         break;
     default:
         s->clip_hasdata[selection] = FALSE;
@@ -643,9 +678,15 @@ static void clipboard_received_cb(GtkClipboard *clipboard,
                                   GtkSelectionData *selection_data,
                                   gpointer user_data)
 {
-    g_return_if_fail(SPICE_IS_GTK_SESSION(user_data));
+    WeakRef *weakref = user_data;
+    SpiceGtkSession *self = (SpiceGtkSession*)weakref->object;
+    weak_unref(weakref);
 
-    SpiceGtkSession *self = user_data;
+    if (self == NULL)
+        return;
+
+    g_return_if_fail(SPICE_IS_GTK_SESSION(self));
+
     SpiceGtkSessionPrivate *s = self->priv;
     gint len = 0, m;
     guint32 type = VD_AGENT_CLIPBOARD_NONE;
@@ -709,7 +750,8 @@ static gboolean clipboard_request(SpiceMainChannel *main, guint selection,
     g_return_val_if_fail(m < SPICE_N_ELEMENTS(atom2agent), FALSE);
 
     atom = gdk_atom_intern_static_string(atom2agent[m].xatom);
-    gtk_clipboard_request_contents(cb, atom, clipboard_received_cb, self);
+    gtk_clipboard_request_contents(cb, atom, clipboard_received_cb,
+                                   weak_ref(G_OBJECT(self)));
 
     return TRUE;
 }
@@ -743,6 +785,7 @@ static void channel_new(SpiceSession *session, SpiceChannel *channel,
     SpiceGtkSessionPrivate *s = self->priv;
 
     if (SPICE_IS_MAIN_CHANNEL(channel)) {
+        SPICE_DEBUG("Changing main channel from %p to %p", s->main, channel);
         s->main = SPICE_MAIN_CHANNEL(channel);
         g_signal_connect(channel, "main-clipboard-selection-grab",
                          G_CALLBACK(clipboard_grab), self);
@@ -762,7 +805,7 @@ static void channel_destroy(SpiceSession *session, SpiceChannel *channel,
     SpiceGtkSessionPrivate *s = self->priv;
     guint i;
 
-    if (SPICE_IS_MAIN_CHANNEL(channel)) {
+    if (SPICE_IS_MAIN_CHANNEL(channel) && SPICE_MAIN_CHANNEL(channel) == s->main) {
         s->main = NULL;
         for (i = 0; i < CLIPBOARD_LAST; ++i) {
             if (s->clipboard_by_guest[i]) {
@@ -859,7 +902,7 @@ void spice_gtk_session_copy_to_guest(SpiceGtkSession *self)
 
     if (s->clip_hasdata[selection] && !s->clip_grabbed[selection]) {
         gtk_clipboard_request_targets(s->clipboard, clipboard_get_targets,
-                                      self);
+                                      weak_ref(G_OBJECT(self)));
     }
 }
 

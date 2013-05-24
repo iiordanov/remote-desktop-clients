@@ -36,6 +36,8 @@ static char *usbredir_filter = NULL;
 static gboolean smartcard = FALSE;
 static gboolean disable_audio = FALSE;
 static gboolean disable_usbredir = FALSE;
+static gint cache_size = 0;
+static gint glz_window_size = 0;
 
 static void option_version(void)
 {
@@ -79,6 +81,10 @@ GOptionGroup* spice_get_option_group(void)
           N_("Disable USB redirection support"), NULL },
         { "spice-usbredir-filter", '\0', 0, G_OPTION_ARG_STRING, &usbredir_filter,
           N_("Filter for excluding USB devices from auto redirection"), N_("<filter-string>") },
+        { "spice-cache-size", '\0', 0, G_OPTION_ARG_INT, &cache_size,
+          N_("Image cache size"), N_("<bytes>") },
+        { "spice-glz-window-size", '\0', 0, G_OPTION_ARG_INT, &glz_window_size,
+          N_("Glz compression history size"), N_("<bytes>") },
 
         { "spice-debug", '\0', G_OPTION_FLAG_NO_ARG, G_OPTION_ARG_CALLBACK, option_debug,
           N_("Enable Spice-GTK debugging"), NULL },
@@ -146,4 +152,8 @@ void spice_set_session_option(SpiceSession *session)
         g_object_set(session, "enable-usbredir", FALSE, NULL);
     if (disable_audio)
         g_object_set(session, "enable-audio", FALSE, NULL);
+    if (cache_size)
+        g_object_set(session, "cache-size", cache_size, NULL);
+    if (glz_window_size)
+        g_object_set(session, "glz_window_size", glz_window_size, NULL);
 }

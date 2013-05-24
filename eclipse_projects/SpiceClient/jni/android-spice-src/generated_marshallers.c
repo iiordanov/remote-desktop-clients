@@ -25,9 +25,6 @@ static void spice_marshall_msgc_ack_sync(SpiceMarshaller *m, SpiceMsgcAckSync *m
 static void spice_marshall_SpiceMsgEmpty(SpiceMarshaller *m, SpiceMsgEmpty *msg)
 {
     SPICE_GNUC_UNUSED SpiceMarshaller *m2;
-    SpiceMsgEmpty *src;
-    src = (SpiceMsgEmpty *)msg;
-
 }
 
 static void spice_marshall_msgc_pong(SpiceMarshaller *m, SpiceMsgPing *msg)
@@ -43,10 +40,6 @@ static void spice_marshall_msgc_pong(SpiceMarshaller *m, SpiceMsgPing *msg)
 static void spice_marshall_SpiceMsgData(SpiceMarshaller *m, SpiceMsgData *msg)
 {
     SPICE_GNUC_UNUSED SpiceMarshaller *m2;
-    SpiceMsgData *src;
-    src = (SpiceMsgData *)msg;
-
-    /* Remaining data must be appended manually */
 }
 
 static void spice_marshall_msgc_disconnecting(SpiceMarshaller *m, SpiceMsgDisconnect *msg)
@@ -207,7 +200,7 @@ static void spice_marshall_msgc_record_start_mark(SpiceMarshaller *m, SpiceMsgcR
     spice_marshaller_add_uint32(m, src->time);
 }
 
-SPICE_GNUC_UNUSED static void spice_marshall_array_uint8(SpiceMarshaller *m, uint8_t *ptr, int count)
+SPICE_GNUC_UNUSED static void spice_marshall_array_uint8(SpiceMarshaller *m, uint8_t *ptr, unsigned count)
 {
     SPICE_GNUC_UNUSED SpiceMarshaller *m2;
     uint32_t i;
@@ -320,6 +313,59 @@ static void spice_marshall_msgc_tunnel_socket_token(SpiceMarshaller *m, SpiceMsg
     spice_marshaller_add_uint32(m, src->num_tokens);
 }
 
+#ifdef USE_SMARTCARD
+static void spice_marshall_msgc_smartcard_msg(SpiceMarshaller *m, SpiceMsgcSmartcard *msg, SpiceMarshaller **reader_name_out)
+{
+    SPICE_GNUC_UNUSED SpiceMarshaller *m2;
+    SpiceMsgcSmartcard *src;
+    *reader_name_out = NULL;
+    src = (SpiceMsgcSmartcard *)msg;
+
+    /* header */ {
+        spice_marshaller_add_uint32(m, src->header.type);
+        spice_marshaller_add_uint32(m, src->header.reader_id);
+        spice_marshaller_add_uint32(m, src->header.length);
+    }
+    if (src->header.type == VSC_ReaderAdd) {
+        /* Don't marshall @nomarshal reader_name */
+    } else if (src->header.type == VSC_ATR || src->header.type == VSC_APDU) {
+        /* Remaining data must be appended manually */
+    } else if (src->header.type == VSC_Error) {
+        spice_marshaller_add_uint32(m, src->error.code);
+    }
+}
+
+static void spice_marshall_msgc_smartcard_header(SpiceMarshaller *m, VSCMsgHeader *msg)
+{
+    SPICE_GNUC_UNUSED SpiceMarshaller *m2;
+    VSCMsgHeader *src;
+    src = (VSCMsgHeader *)msg;
+
+    spice_marshaller_add_uint32(m, src->type);
+    spice_marshaller_add_uint32(m, src->reader_id);
+    spice_marshaller_add_uint32(m, src->length);
+}
+
+static void spice_marshall_msgc_smartcard_error(SpiceMarshaller *m, VSCMsgError *msg)
+{
+    SPICE_GNUC_UNUSED SpiceMarshaller *m2;
+    VSCMsgError *src;
+    src = (VSCMsgError *)msg;
+
+    spice_marshaller_add_uint32(m, src->code);
+}
+
+static void spice_marshall_msgc_smartcard_atr(SpiceMarshaller *m, VSCMsgATR *msg)
+{
+    SPICE_GNUC_UNUSED SpiceMarshaller *m2;
+}
+
+static void spice_marshall_msgc_smartcard_reader_add(SpiceMarshaller *m, VSCMsgReaderAdd *msg)
+{
+    SPICE_GNUC_UNUSED SpiceMarshaller *m2;
+}
+
+#endif /* USE_SMARTCARD */
 SpiceMessageMarshallers * spice_message_marshallers_get(void)
 {
     static SpiceMessageMarshallers marshallers = {NULL};
@@ -344,6 +390,21 @@ SpiceMessageMarshallers * spice_message_marshallers_get(void)
     marshallers.msgc_record_data = spice_marshall_msgc_record_data;
     marshallers.msgc_record_mode = spice_marshall_msgc_record_mode;
     marshallers.msgc_record_start_mark = spice_marshall_msgc_record_start_mark;
+#ifdef USE_SMARTCARD
+    marshallers.msgc_smartcard_atr = spice_marshall_msgc_smartcard_atr;
+#endif /* USE_SMARTCARD */
+#ifdef USE_SMARTCARD
+    marshallers.msgc_smartcard_error = spice_marshall_msgc_smartcard_error;
+#endif /* USE_SMARTCARD */
+#ifdef USE_SMARTCARD
+    marshallers.msgc_smartcard_header = spice_marshall_msgc_smartcard_header;
+#endif /* USE_SMARTCARD */
+#ifdef USE_SMARTCARD
+    marshallers.msgc_smartcard_msg = spice_marshall_msgc_smartcard_msg;
+#endif /* USE_SMARTCARD */
+#ifdef USE_SMARTCARD
+    marshallers.msgc_smartcard_reader_add = spice_marshall_msgc_smartcard_reader_add;
+#endif /* USE_SMARTCARD */
     marshallers.msgc_tunnel_service_add = spice_marshall_msgc_tunnel_service_add;
     marshallers.msgc_tunnel_service_remove = spice_marshall_msgc_tunnel_service_remove;
     marshallers.msgc_tunnel_socket_closed = spice_marshall_msgc_tunnel_socket_closed;

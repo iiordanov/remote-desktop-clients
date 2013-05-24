@@ -347,7 +347,7 @@ uint8_t *spice_marshaller_add_ref_full(SpiceMarshaller *m, uint8_t *data, size_t
     return data;
 }
 
-uint8_t *spice_marshaller_add(SpiceMarshaller *m, uint8_t *data, size_t size)
+uint8_t *spice_marshaller_add(SpiceMarshaller *m, const uint8_t *data, size_t size)
 {
     uint8_t *ptr;
 

@@ -985,6 +985,19 @@ gchar *spice_usb_device_get_description(SpiceUsbDevice *_device, const gchar *fo
     if (!product)
         product = g_strdup(_("Device"));
 
+    /* Some devices have unwanted whitespace in their strings */
+    g_strstrip(manufacturer);
+    g_strstrip(product);
+
+    /* Some devices repeat the manufacturer at the beginning of product */
+    if (g_str_has_prefix(product, manufacturer) &&
+            strlen(product) > strlen(manufacturer)) {
+        gchar *tmp = g_strdup(product + strlen(manufacturer));
+        g_free(product);
+        product = tmp;
+        g_strstrip(product);
+    }
+
     if (libusb_get_device_descriptor(device, &desc) == LIBUSB_SUCCESS)
         descriptor = g_strdup_printf("[%04x:%04x]", desc.idVendor, desc.idProduct);
     else

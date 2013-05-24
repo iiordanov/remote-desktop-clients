@@ -452,7 +452,7 @@ static void spice_main_channel_class_init(SpiceMainChannelClass *klass)
                      G_SIGNAL_RUN_LAST | G_SIGNAL_DEPRECATED,
                      0,
                      NULL, NULL,
-                     g_cclosure_marshal_VOID__POINTER,
+                     g_cclosure_user_marshal_VOID__UINT_POINTER_UINT,
                      G_TYPE_NONE,
                      3,
                      G_TYPE_UINT, G_TYPE_POINTER, G_TYPE_UINT);
@@ -469,7 +469,7 @@ static void spice_main_channel_class_init(SpiceMainChannelClass *klass)
                      G_SIGNAL_RUN_LAST,
                      0,
                      NULL, NULL,
-                     g_cclosure_marshal_VOID__POINTER,
+                     g_cclosure_user_marshal_VOID__UINT_UINT_POINTER_UINT,
                      G_TYPE_NONE,
                      4,
                      G_TYPE_UINT, G_TYPE_UINT, G_TYPE_POINTER, G_TYPE_UINT);
@@ -491,7 +491,7 @@ static void spice_main_channel_class_init(SpiceMainChannelClass *klass)
                      G_SIGNAL_RUN_LAST | G_SIGNAL_DEPRECATED,
                      0,
                      NULL, NULL,
-                     g_cclosure_marshal_BOOLEAN__FLAGS,
+                     g_cclosure_user_marshal_BOOLEAN__POINTER_UINT,
                      G_TYPE_BOOLEAN,
                      2,
                      G_TYPE_POINTER, G_TYPE_UINT);
@@ -513,7 +513,7 @@ static void spice_main_channel_class_init(SpiceMainChannelClass *klass)
                      G_SIGNAL_RUN_LAST,
                      0,
                      NULL, NULL,
-                     g_cclosure_marshal_BOOLEAN__FLAGS,
+                     g_cclosure_user_marshal_BOOLEAN__UINT_POINTER_UINT,
                      G_TYPE_BOOLEAN,
                      3,
                      G_TYPE_UINT, G_TYPE_POINTER, G_TYPE_UINT);
@@ -534,7 +534,7 @@ static void spice_main_channel_class_init(SpiceMainChannelClass *klass)
                      G_SIGNAL_RUN_LAST | G_SIGNAL_DEPRECATED,
                      0,
                      NULL, NULL,
-                     g_cclosure_marshal_BOOLEAN__FLAGS,
+                     g_cclosure_user_marshal_BOOLEAN__UINT,
                      G_TYPE_BOOLEAN,
                      1,
                      G_TYPE_UINT);
@@ -555,7 +555,7 @@ static void spice_main_channel_class_init(SpiceMainChannelClass *klass)
                      G_SIGNAL_RUN_LAST,
                      0,
                      NULL, NULL,
-                     g_cclosure_marshal_BOOLEAN__FLAGS,
+                     g_cclosure_user_marshal_BOOLEAN__UINT_UINT,
                      G_TYPE_BOOLEAN,
                      2,
                      G_TYPE_UINT, G_TYPE_UINT);
@@ -1128,6 +1128,7 @@ static void main_handle_init(SpiceChannel *channel, SpiceMsgIn *in)
                    init->current_mouse_mode);
 
     spice_session_set_mm_time(session, init->multi_media_time);
+    spice_session_set_caches_hints(session, init->ram_hint, init->display_channels_hint);
 
     c->agent_tokens = init->agent_tokens;
     if (init->agent_connected)

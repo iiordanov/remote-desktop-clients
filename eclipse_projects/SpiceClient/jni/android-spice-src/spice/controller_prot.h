@@ -82,6 +82,8 @@ enum {
     CONTROLLER_ENABLE_USB_AUTOSHARE,
     CONTROLLER_USB_FILTER,
 
+    CONTROLLER_PROXY,
+
     //spice client -> external app
     CONTROLLER_MENU_ITEM_CLICK = 1001,
 };

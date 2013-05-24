@@ -26,6 +26,10 @@
 #include <openssl/x509.h>
 #include <openssl/ssl.h>
 #include <openssl/err.h>
+#ifdef X509_NAME
+/* wincrypt.h has already a different define... */
+#undef X509_NAME
+#endif
 #include <openssl/x509v3.h>
 
 typedef enum {

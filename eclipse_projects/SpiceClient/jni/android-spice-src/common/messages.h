@@ -36,6 +36,7 @@
 #endif
 
 #include <spice/protocol.h>
+#undef USE_SMARTCARD
 #ifdef USE_SMARTCARD
 #include <vscard_common.h>
 #endif
@@ -516,6 +517,7 @@ typedef struct SpiceMsgcTunnelSocketTokens {
     uint32_t num_tokens;
 } SpiceMsgcTunnelSocketTokens;
 
+#undef USE_SMARTCARD
 #ifdef USE_SMARTCARD
 typedef struct SpiceMsgSmartcard {
     VSCMsgType type;

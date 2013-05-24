@@ -69,10 +69,42 @@ enum {
     VD_AGENT_CLIPBOARD_GRAB,
     VD_AGENT_CLIPBOARD_REQUEST,
     VD_AGENT_CLIPBOARD_RELEASE,
+    VD_AGENT_FILE_XFER_START,
+    VD_AGENT_FILE_XFER_STATUS,
+    VD_AGENT_FILE_XFER_DATA,
+    VD_AGENT_CLIENT_DISCONNECTED,
     VD_AGENT_END_MESSAGE,
 };
 
+enum {
+    VD_AGENT_FILE_XFER_STATUS_CAN_SEND_DATA,
+    VD_AGENT_FILE_XFER_STATUS_CANCELLED,
+    VD_AGENT_FILE_XFER_STATUS_ERROR,
+    VD_AGENT_FILE_XFER_STATUS_SUCCESS,
+};
+
+typedef struct SPICE_ATTR_PACKED VDAgentFileXferStatusMessage {
+   uint32_t id;
+   uint32_t result;
+} VDAgentFileXferStatusMessage;
+
+typedef struct SPICE_ATTR_PACKED VDAgentFileXferStartMessage {
+   uint32_t id;
+   uint8_t data[0];
+} VDAgentFileXferStartMessage;
+
+typedef struct SPICE_ATTR_PACKED VDAgentFileXferDataMessage {
+   uint32_t id;
+   uint64_t size;
+   uint8_t data[0];
+} VDAgentFileXferDataMessage;
+
 typedef struct SPICE_ATTR_PACKED VDAgentMonConfig {
+    /*
+     * Note a width and height of 0 can be used to indicate a disabled
+     * monitor, this may only be used with agents with the
+     * VD_AGENT_CAP_SPARSE_MONITORS_CONFIG capability.
+     */
     uint32_t height;
     uint32_t width;
     uint32_t depth;
@@ -174,6 +206,7 @@ enum {
     VD_AGENT_CAP_DISPLAY_CONFIG,
     VD_AGENT_CAP_CLIPBOARD_BY_DEMAND,
     VD_AGENT_CAP_CLIPBOARD_SELECTION,
+    VD_AGENT_CAP_SPARSE_MONITORS_CONFIG,
     VD_AGENT_END_CAP,
 };
 

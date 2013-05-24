@@ -19,6 +19,10 @@
 #ifndef _H_MARSHALLERS
 #define _H_MARSHALLERS
 
+#ifdef HAVE_CONFIG_H
+# include "config.h"
+#endif
+
 #include <spice/protocol.h>
 #include <marshaller.h>
 #include <messages.h>
@@ -26,6 +30,8 @@
 typedef struct {
     void (*msg_SpiceMsgEmpty)(SpiceMarshaller *m, SpiceMsgEmpty *msg);
     void (*msg_SpiceMsgData)(SpiceMarshaller *m, SpiceMsgData *msg);
+    void (*msg_SpiceMsgAudioVolume)(SpiceMarshaller *m, SpiceMsgAudioVolume *msg);
+    void (*msg_SpiceMsgAudioMute)(SpiceMarshaller *m, SpiceMsgAudioMute *msg);
     void (*msgc_ack_sync)(SpiceMarshaller *m, SpiceMsgcAckSync *msg);
     void (*msgc_pong)(SpiceMarshaller *m, SpiceMsgPing *msg);
     void (*msgc_disconnecting)(SpiceMarshaller *m, SpiceMsgDisconnect *msg);
@@ -53,6 +59,14 @@ typedef struct {
     void (*msgc_tunnel_socket_closed_ack)(SpiceMarshaller *m, SpiceMsgcTunnelSocketClosedAck *msg);
     void (*msgc_tunnel_socket_data)(SpiceMarshaller *m, SpiceMsgcTunnelSocketData *msg);
     void (*msgc_tunnel_socket_token)(SpiceMarshaller *m, SpiceMsgcTunnelSocketTokens *msg);
+#undef USE_SMARTCARD
+#ifdef USE_SMARTCARD
+    void (*msgc_smartcard_atr)(SpiceMarshaller *m, VSCMsgATR *msg);
+    void (*msgc_smartcard_error)(SpiceMarshaller *m, VSCMsgError *msg);
+    void (*msgc_smartcard_header)(SpiceMarshaller *m, VSCMsgHeader *msg);
+    void (*msgc_smartcard_msg)(SpiceMarshaller *m, SpiceMsgcSmartcard *msg, SpiceMarshaller **reader_name_out);
+    void (*msgc_smartcard_reader_add)(SpiceMarshaller *m, VSCMsgReaderAdd *msg);
+#endif
 } SpiceMessageMarshallers;
 
 SpiceMessageMarshallers *spice_message_marshallers_get(void);

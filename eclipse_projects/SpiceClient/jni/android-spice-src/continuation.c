@@ -17,6 +17,7 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
  */
+#undef _FORTIFY_SOURCE
 
 #include <config.h>
 
@@ -40,6 +41,11 @@ static void continuation_trampoline(int i0, int i1)
 	arg.i[1] = i1;
 	cc = arg.p;
 
+	if (_setjmp(cc->jmp) == 0) {
+		ucontext_t tmp;
+		swapcontext(&tmp, &cc->last);
+	}
+
 	cc->entry(cc);
 }
 
@@ -56,6 +62,7 @@ int cc_init(struct continuation *cc)
 	cc->uc.uc_stack.ss_flags = 0;
 
 	makecontext(&cc->uc, (void *)continuation_trampoline, 2, arg.i[0], arg.i[1]);
+	swapcontext(&cc->last, &cc->uc);
 
 	return 0;
 }
@@ -74,11 +81,14 @@ int cc_swap(struct continuation *from, struct continuation *to)
 	if (getcontext(&to->last) == -1)
 		return -1;
 	else if (to->exited == 0)
-		to->exited = 1;
-	else if (to->exited == 1)
-		return 1;
+		to->exited = 1; // so when coroutine finishes
+        else if (to->exited == 1)
+                return 1; // it ends up here
 
-	return swapcontext(&from->uc, &to->uc);
+	if (_setjmp(from->jmp) == 0)
+		_longjmp(to->jmp, 1);
+
+	return 0;
 }
 /*
  * Local variables:

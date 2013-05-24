@@ -33,7 +33,7 @@ void spice_marshaller_reset(SpiceMarshaller *m);
 void spice_marshaller_destroy(SpiceMarshaller *m);
 uint8_t *spice_marshaller_reserve_space(SpiceMarshaller *m, size_t size);
 void spice_marshaller_unreserve_space(SpiceMarshaller *m, size_t size);
-uint8_t *spice_marshaller_add(SpiceMarshaller *m, uint8_t *data, size_t size);
+uint8_t *spice_marshaller_add(SpiceMarshaller *m, const uint8_t *data, size_t size);
 uint8_t *spice_marshaller_add_ref(SpiceMarshaller *m, uint8_t *data, size_t size);
 uint8_t *spice_marshaller_add_ref_full(SpiceMarshaller *m, uint8_t *data, size_t size,
                                        spice_marshaller_item_free_func free_data, void *opaque);

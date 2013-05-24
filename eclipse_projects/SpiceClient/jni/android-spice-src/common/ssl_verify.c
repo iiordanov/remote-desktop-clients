@@ -25,6 +25,7 @@
 #include <arpa/inet.h>
 #endif
 #include <ctype.h>
+#include <string.h>
 
 #ifndef SPICE_DEBUG
 # define SPICE_DEBUG(format, ...)
