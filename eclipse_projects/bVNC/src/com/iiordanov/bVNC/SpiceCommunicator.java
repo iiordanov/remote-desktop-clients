@@ -1,12 +1,26 @@
 package com.iiordanov.bVNC;
 
-import com.freerdp.freerdpcore.services.LibFreeRDP;
+import android.graphics.Bitmap;
+import android.os.Handler;
+
+import com.freerdp.freerdpcore.services.LibFreeRDP.UIEventListener;
 import com.iiordanov.bVNC.input.RdpKeyboardMapper;
 import com.iiordanov.bVNC.input.RemoteKeyboard;
 import com.iiordanov.bVNC.input.RemoteSpicePointer;
-import com.keqisoft.android.spice.socket.Connector;
 
 public class SpiceCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyProcessingListener {
+	private final static String TAG = "SpiceCommunicator";
+
+	public native int  SpiceClientConnect (String ip, String port, String password);
+	public native void SpiceClientDisconnect ();
+	public native void SpiceButtonEvent (int x, int y, int metaState, int pointerMask);
+	public native void SpiceKeyEvent (boolean keyDown, int virtualKeyCode);
+	public native void SpiceSetBitmap (Bitmap newBitmap);
+	
+	static {
+		System.loadLibrary("spicec");
+	}
+	
 	final static int VK_CONTROL = 0x11;
 	final static int VK_LCONTROL = 0xA2;
 	final static int VK_RCONTROL = 0xA3;
@@ -25,24 +39,110 @@ public class SpiceCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyP
     
 	boolean isInNormalProtocol = false;
 	
+	private SpiceThread spicehread = null;
 
-	public SpiceCommunicator (int w, int h) {
-		width = w;
-		height = h;
+	public SpiceCommunicator () { }
+
+	private static UIEventListener uiEventListener = null;
+	private Handler handler = null;
+
+	public void setHandler(Handler handler) {
+		this.handler = handler;
+	}
+	
+	public void setUIEventListener(UIEventListener ui) {
+		uiEventListener = ui;
+	}
+
+	public Handler getHandler() {
+		return handler;
+	}
+
+	public void connect(String ip, String port, String password) {
+		spicehread = new SpiceThread(ip, port, password);
+		spicehread.start();
+	}
+	
+	public void disconnect() {
+		SpiceClientDisconnect();
+		try {spicehread.join(3000);} catch (InterruptedException e) {}
+	}
+
+	class SpiceThread extends Thread {
+		private String ip, port, password;
+
+		public SpiceThread(String ip, String port, String password) {
+			this.ip = ip;
+			this.port = port;
+			this.password = password;
+		}
+
+		public void run() {
+			SpiceClientConnect (ip, port, password);
+			android.util.Log.e(TAG, "SpiceClientConnect returned.");
+
+			if (handler != null) {
+				handler.sendEmptyMessage(VncConstants.SPICE_NOTIFICATION);
+			}
+		}
+	}
+	
+	public void sendMouseEvent (int x, int y, int metaState, int pointerMask) {
+		SpiceButtonEvent(x, y, metaState, pointerMask);
+	}
+
+	public void sendKeyEvent (boolean keyDown, int virtualKeyCode) {
+		SpiceKeyEvent(keyDown, virtualKeyCode);
+	}
+	
+	
+	/* Callbacks from jni */
+	private static void OnSettingsChanged(int inst, int width, int height, int bpp) {
+		if (uiEventListener != null)
+			uiEventListener.OnSettingsChanged(width, height, bpp);
+	}
+
+	private static boolean OnAuthenticate(int inst, StringBuilder username, StringBuilder domain, StringBuilder password) {
+		if (uiEventListener != null)
+			return uiEventListener.OnAuthenticate(username, domain, password);
+		return false;
+	}
+
+	private static boolean OnVerifyCertificate(int inst, String subject, String issuer, String fingerprint) {
+		if (uiEventListener != null)
+			return uiEventListener.OnVerifiyCertificate(subject, issuer, fingerprint);
+		return false;
+	}
+
+	private static void OnGraphicsUpdate(int inst, int x, int y, int width, int height) {
+		if (uiEventListener != null)
+			uiEventListener.OnGraphicsUpdate(x, y, width, height);
+	}
+
+	private static void OnGraphicsResize(int inst, int width, int height, int bpp) {
+		android.util.Log.e("Connector", "onGraphicsResize, width: " + width + " height: " + height);
+		if (uiEventListener != null)
+			uiEventListener.OnGraphicsResize(width, height, bpp);
 	}
 	
 	@Override
 	public int framebufferWidth() {
-		// TODO Auto-generated method stub
 		return width;
 	}
 
 	@Override
 	public int framebufferHeight() {
-		// TODO Auto-generated method stub
 		return height;
 	}
 
+	public void setFramebufferWidth(int w) {
+		width = w;
+	}
+
+	public void setFramebufferHeight(int h) {
+		height = h;
+	}
+	
 	@Override
 	public String desktopName() {
 		// TODO Auto-generated method stub
@@ -82,7 +182,7 @@ public class SpiceCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyP
 		this.metaState = metaState; 
 		if ((pointerMask & RemoteSpicePointer.PTRFLAGS_DOWN) != 0)
 			sendModifierKeys(true);
-		Connector.getInstance().sendMouseEvent(x, y, metaState, pointerMask);
+		sendMouseEvent(x, y, metaState, pointerMask);
 		if ((pointerMask & RemoteSpicePointer.PTRFLAGS_DOWN) == 0)
 			sendModifierKeys(false);
 	}
@@ -90,19 +190,19 @@ public class SpiceCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyP
 	private void sendModifierKeys (boolean keyDown) {		
 		if ((metaState & RemoteKeyboard.CTRL_MASK) != 0) {
 			//android.util.Log.e("SpiceCommunicator", "Sending CTRL: " + VK_LCONTROL);
-			Connector.getInstance().sendKeyEvent(keyDown, VK_LCONTROL);
+			sendKeyEvent(keyDown, VK_LCONTROL);
 		}
 		if ((metaState & RemoteKeyboard.ALT_MASK) != 0) {
 			//android.util.Log.e("SpiceCommunicator", "Sending ALT: " + VK_LMENU);
-			Connector.getInstance().sendKeyEvent(keyDown, VK_LMENU);
+			sendKeyEvent(keyDown, VK_LMENU);
 		}
 		if ((metaState & RemoteKeyboard.SUPER_MASK) != 0) {
 			//android.util.Log.e("SpiceCommunicator", "Sending SUPER: " + VK_LWIN);
-			Connector.getInstance().sendKeyEvent(keyDown, VK_LWIN);
+			sendKeyEvent(keyDown, VK_LWIN);
 		}
 		if ((metaState & RemoteKeyboard.SHIFT_MASK) != 0) {
 			//android.util.Log.e("SpiceCommunicator", "Sending SHIFT: " + VK_LSHIFT);
-			Connector.getInstance().sendKeyEvent(keyDown, VK_LSHIFT);
+			sendKeyEvent(keyDown, VK_LSHIFT);
 		}
 	}
 	
@@ -133,7 +233,7 @@ public class SpiceCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyP
 
 	@Override
 	public void close() {
-		Connector.getInstance().disconnect();
+		disconnect();
 	}
 	
 	// ****************************************************************************
@@ -145,7 +245,7 @@ public class SpiceCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyP
 			sendModifierKeys (true);
 		
 		//android.util.Log.e("SpiceCommunicator", "Sending VK key: " + virtualKeyCode + ". Is it down: " + down);
-		Connector.getInstance().sendKeyEvent(keyDown, virtualKeyCode);
+		sendKeyEvent(keyDown, virtualKeyCode);
 		
 		if (!keyDown)
 			sendModifierKeys (false);

@@ -38,7 +38,7 @@ static void channel_destroy(SpiceSession *s, SpiceChannel *channel, gpointer dat
 /* ---------------------------------------------------------------- */
 
 JNIEXPORT void JNICALL
-Java_com_keqisoft_android_spice_socket_Connector_AndroidSetBitmap(JNIEnv* env, jobject obj, jobject bitmap) {
+Java_com_iiordanov_aSPICE_SpiceCommunicator_SpiceSetBitmap(JNIEnv* env, jobject obj, jobject bitmap) {
 	__android_log_write(6, "android-spice", "Setting new jbitmap from Java.");
 	jbitmap = bitmap;
 
@@ -255,7 +255,7 @@ int win32key2spice (int keycode)
 }
 
 JNIEXPORT void JNICALL
-Java_com_keqisoft_android_spice_socket_Connector_AndroidKeyEvent(JNIEnv * env, jobject  obj, jboolean down, jint hardware_keycode) {
+Java_com_iiordanov_aSPICE_SpiceCommunicator_SpiceKeyEvent(JNIEnv * env, jobject  obj, jboolean down, jint hardware_keycode) {
     SpiceDisplay* display = global_display;
     spice_display* d = SPICE_DISPLAY_GET_PRIVATE(display);
     int scancode;
@@ -292,7 +292,7 @@ static int update_mask (int button, gboolean down) {
 }
 
 JNIEXPORT void JNICALL
-Java_com_keqisoft_android_spice_socket_Connector_AndroidButtonEvent(JNIEnv * env, jobject  obj, jint x, jint y, jint metaState, jint type) {
+Java_com_iiordanov_aSPICE_SpiceCommunicator_SpiceButtonEvent(JNIEnv * env, jobject  obj, jint x, jint y, jint metaState, jint type) {
     SpiceDisplay* display = global_display;
     spice_display *d = SPICE_DISPLAY_GET_PRIVATE(display);
     //char buf[60];

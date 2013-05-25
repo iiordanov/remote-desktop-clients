@@ -77,7 +77,6 @@ import com.iiordanov.bVNC.input.RemoteRdpPointer;
 import com.iiordanov.bVNC.input.RemotePointer;
 
 import com.iiordanov.tigervnc.vncviewer.CConn;
-import com.keqisoft.android.spice.socket.Connector;
 
 public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, LibFreeRDP.EventListener {
 	private final static String TAG = "VncCanvas";
@@ -97,6 +96,7 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 	private RfbProto rfb            = null;
 	private CConn cc                = null;
 	private RdpCommunicator rdpcomm = null;
+	private SpiceCommunicator spicecomm = null;
 	private Socket sock             = null;
 
 	boolean maintainConnection = true;
@@ -132,8 +132,8 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 	        	validateRdpCert (s.getString("subject"), s.getString("issuer"), s.getString("fingerprint"));
 	            break;
 	        case VncConstants.SPICE_NOTIFICATION:
-				synchronized(Connector.getInstance()) {
-					Connector.getInstance().notifyAll();
+				synchronized(spicecomm) {
+					spicecomm.notifyAll();
 				}
 	        	break;
 	        }
@@ -332,7 +332,7 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 	}
 
     private void startSpice(String ip, String port, String password) throws Exception {
-    	Connector.getInstance().connect(ip, port, password);
+    	spicecomm.connect(ip, port, password);
     }
 
     boolean spiceUpdateReceived = false;
@@ -381,13 +381,15 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 			    		String address = getVNCAddress();
 			    		int port = getVNCPort();
 			    		
-			    	    Connector.getInstance().setUIEventListener(VncCanvas.this);
-			    	    Connector.getInstance().setHandler(handler);
+				    	spicecomm = new SpiceCommunicator ();
+				    	rfbconn = spicecomm;
+			    		spicecomm.setUIEventListener(VncCanvas.this);
+			    		spicecomm.setHandler(handler);
 			    		startSpice(address, Integer.toString(port), connection.getPassword());
 			    		
 			    		try {
-			    			synchronized(Connector.getInstance()) {
-			    				Connector.getInstance().wait(32000);
+			    			synchronized(spicecomm) {
+			    				spicecomm.wait(32000);
 			    			}
 			    		} catch (InterruptedException e) {}
 
@@ -1224,7 +1226,8 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 		
 		// If this is aSPICE, we need to initialize the communicator and remote keyboard and mouse now.
 		if (isSpice) {
-	    	rfbconn = new SpiceCommunicator (width, height);
+	    	spicecomm.setFramebufferWidth(width);
+	    	spicecomm.setFramebufferHeight(height);
     		pointer = new RemoteSpicePointer (rfbconn, this, handler);
     		keyboard = new RemoteSpiceKeyboard (rfbconn, this, handler);
 		}
@@ -1254,7 +1257,7 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
     		spiceUpdateReceived = true;
     		rfbconn.setIsInNormalProtocol(true);
     		handler.sendEmptyMessage(VncConstants.SPICE_NOTIFICATION);
-			Connector.getInstance().AndroidSetBitmap(bitmapData.mbitmap);
+    		spicecomm.SpiceSetBitmap(bitmapData.mbitmap);
 		}
 	}
 

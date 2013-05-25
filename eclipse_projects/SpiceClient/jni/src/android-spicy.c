@@ -314,14 +314,14 @@ static void connection_destroy(spice_connection *conn)
 
 /* ------------------------------------------------------------------ */
 
-void Java_com_keqisoft_android_spice_socket_Connector_AndroidSpicecDisconnect(JNIEnv * env, jobject  obj) {
+void Java_com_iiordanov_aSPICE_SpiceCommunicator_SpiceClientDisconnect (JNIEnv * env, jobject  obj) {
 	maintainConnection = FALSE;
 
 	if (g_main_loop_is_running (mainloop))
         g_main_loop_quit (mainloop);
 }
 
-jint Java_com_keqisoft_android_spice_socket_Connector_AndroidSpicec(JNIEnv *env, jobject obj, jstring h, jstring p, jstring pw)
+jint Java_com_iiordanov_aSPICE_SpiceCommunicator_SpiceClientConnect (JNIEnv *env, jobject obj, jstring h, jstring p, jstring pw)
 {
     int result = 0;
     maintainConnection = TRUE;
@@ -334,7 +334,7 @@ jint Java_com_keqisoft_android_spice_socket_Connector_AndroidSpicec(JNIEnv *env,
     }
 
     // Find the jclass reference and get a Global reference for it for use in other threads.
-    jclass local_class  = (*env)->FindClass (env, "com/keqisoft/android/spice/socket/Connector");
+    jclass local_class  = (*env)->FindClass (env, "com/iiordanov/aSPICE/SpiceCommunicator");
 	jni_connector_class = (jclass)((*env)->NewGlobalRef(env, local_class));
 
 	// Get global method IDs for callback methods.
