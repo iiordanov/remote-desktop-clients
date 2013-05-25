@@ -1,5 +1,6 @@
 /* -*- Mode: C; c-basic-offset: 4; indent-tabs-mode: nil -*- */
 /*
+   Copyright (C) 2013 Iordan Iordanov
    Copyright (C) 2010 Red Hat, Inc.
 
    This library is free software; you can redistribute it and/or

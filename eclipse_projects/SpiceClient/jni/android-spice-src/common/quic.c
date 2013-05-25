@@ -462,8 +462,10 @@ static void __read_io_word(Encoder *encoder)
 {
     more_io_words(encoder);
 /*
- * FIXME: This will cause SIGBUS on some ARM,some maybe avoided by '-O0'
- * while some cannot.Hence comes the stupid way.Is there any cute way?
+ * Thanks to shohyanglim@gmail.com for saving me time and discovering these
+ * hacks to avoid SIGBUS on some ARM processors.
+ *
+ * TODO: Find out whether something better can be done to avoid the SIGBUS.
  */
 #ifdef ANDROID
     memcpy(&encoder->io_next_word, encoder->io_now++,sizeof(uint32_t));

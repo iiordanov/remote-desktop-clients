@@ -1,7 +1,7 @@
 /* -*- Mode: C; c-basic-offset: 4; indent-tabs-mode: nil -*- */
 /*
-   Copyright (C) 2011  Keqisoft,Co,Ltd,Shanghai,China
-   Copyright (C) 2011  Shuxiang Lin (shohyanglim@gmail.com)
+   Copyright (C) 2013 Iordan Iordanov
+   Copyright (C) 2010 Red Hat, Inc.
 
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public
@@ -86,26 +86,14 @@ void copy_pixel_buffer(uchar* dstBuf, uchar* srcBuf, int x, int y, int width, in
 }
 
 gboolean update_bitmap (JNIEnv* env, jobject* bitmap, void *source, gint x, gint y, gint width, gint height, gint sourceWidth, gint sourceHeight) {
-	int ret;
 	void* pixels;
-
-	//AndroidBitmapInfo info;
-	//if ((ret = AndroidBitmap_getInfo(env, bitmap, &info)) < 0) {
-	//	__android_log_write(6, "android-spice", "AndroidBitmap_getInfo() failed!");
-	//	//DEBUG_ANDROID("AndroidBitmap_getInfo() failed ! error=%d", ret);
-	//	return FALSE;
-	//}
-
-	if ((ret = AndroidBitmap_lockPixels(env, bitmap, &pixels)) < 0) {
+	if (AndroidBitmap_lockPixels(env, bitmap, &pixels) < 0) {
 		__android_log_write(6, "android-spice", "AndroidBitmap_lockPixels() failed!");
-		//DEBUG_ANDROID("AndroidBitmap_lockPixels() failed ! error=%d", ret);
 		return FALSE;
 	}
 	//__android_log_write(6, "android-spice", "Copying new data into pixels.");
 	copy_pixel_buffer(pixels, source, x, y, width, height, sourceWidth, sourceHeight, 4);
-
 	AndroidBitmap_unlockPixels(env, bitmap);
-
 	return TRUE;
 }
 

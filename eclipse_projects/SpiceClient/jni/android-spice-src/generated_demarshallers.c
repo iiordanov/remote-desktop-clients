@@ -32,8 +32,10 @@
 #define write_uint64(ptr, val) *(uint64_t *)(ptr) = SPICE_BYTESWAP64((uint64_t)val)
 #else
 /*
- * dirty and gory hacks for android-arm to avoid SIGBUS 
- * 				--shohyanglim@gmail.com
+ * Thanks to shohyanglim@gmail.com for saving me time and discovering these
+ * hacks to avoid SIGBUS on some ARM processors.
+ *
+ * TODO: Find out whether something better can be done to avoid the SIGBUS.
  */
 #ifdef ANDROID 
     static inline int8_t read_int8(uint8_t* ptr) { int8_t val;memcpy(&val,ptr,sizeof(int8_t));return val;}
