@@ -144,7 +144,7 @@ static void spice_display_class_init(SpiceDisplayClass *klass)
 
 static void spice_display_init(SpiceDisplay *display)
 {
-    android_display = display;
+    global_display = display;
     spice_display *d;
 
     d = display->priv = SPICE_DISPLAY_GET_PRIVATE(display);
@@ -256,7 +256,7 @@ int win32key2spice (int keycode)
 
 JNIEXPORT void JNICALL
 Java_com_keqisoft_android_spice_socket_Connector_AndroidKeyEvent(JNIEnv * env, jobject  obj, jboolean down, jint hardware_keycode) {
-    SpiceDisplay* display = android_display;
+    SpiceDisplay* display = global_display;
     spice_display* d = SPICE_DISPLAY_GET_PRIVATE(display);
     int scancode;
 
@@ -293,7 +293,7 @@ static int update_mask (int button, gboolean down) {
 
 JNIEXPORT void JNICALL
 Java_com_keqisoft_android_spice_socket_Connector_AndroidButtonEvent(JNIEnv * env, jobject  obj, jint x, jint y, jint metaState, jint type) {
-    SpiceDisplay* display = android_display;
+    SpiceDisplay* display = global_display;
     spice_display *d = SPICE_DISPLAY_GET_PRIVATE(display);
     //char buf[60];
     //snprintf (buf, 60, "Pointer event: %d at x: %d, y: %d", type, x, y);
