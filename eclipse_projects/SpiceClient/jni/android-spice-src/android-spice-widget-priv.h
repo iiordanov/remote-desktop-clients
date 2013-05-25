@@ -35,7 +35,6 @@ typedef int cairo_surface_t;
 typedef int GtkClipboard;
 typedef int GtkTargetEntry;
 typedef int GdkCursor;
-typedef int SpiceGrabSequence;
 
 #define CLIPBOARD_LAST (VD_AGENT_CLIPBOARD_SELECTION_SECONDARY + 1)
 

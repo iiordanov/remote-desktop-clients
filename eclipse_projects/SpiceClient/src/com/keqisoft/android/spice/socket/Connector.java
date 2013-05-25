@@ -10,28 +10,20 @@ import android.os.Message;
 import android.util.Log;
 
 public class Connector {
+
+	public native int AndroidSpicec(String ip, String port, String password);
+	public native void AndroidSpicecDisconnect();
+	public native void AndroidButtonEvent(int x, int y, int metaState, int pointerMask);
+	public native void AndroidKeyEvent(boolean keyDown, int virtualKeyCode);
+	public native void AndroidSetBitmap(Bitmap newBitmap);
 	
 	private ConnectT runThread = null;
 	
 	static {
 		System.loadLibrary("spicec");
 	}
-	public native int AndroidSpicec(String ip, String port, String password);
-	public native void AndroidSpicecDisconnect();
-	public native void AndroidButtonEvent(int x, int y, int metaState, int pointerMask);
-	public native void AndroidKeyEvent(boolean keyDown, int virtualKeyCode);
-	public native void AndroidSetBitmap(Bitmap newBitmap);
 
 	private static Connector connector = new Connector();
-	
-	UncaughtExceptionHandler exceptionHandler = new UncaughtExceptionHandler() {
-        @Override
-        public void uncaughtException(Thread t, Throwable e) {
-            synchronized (this) {
-                System.err.println("Uncaught exception in thread '" + t.getName() + "': " + e.getMessage());
-            }
-        }
-    };
 	
 	private Connector() { }
 	
@@ -39,14 +31,8 @@ public class Connector {
 		return connector;
 	}
 
-	public static final int CONNECT_SUCCESS = 0;
-	public static final int CONNECT_IP_PORT_ERROR = 1;
-	public static final int CONNECT_PASSWORD_ERROR = 2;
-	public static final int CONNECT_UNKOWN_ERROR = 3;
-
 	private static UIEventListener uiEventListener = null;
 	private Handler handler = null;
-	private int rs = CONNECT_SUCCESS;
 
 	public void setHandler(Handler handler) {
 		this.handler = handler;
@@ -60,20 +46,17 @@ public class Connector {
 		return handler;
 	}
 
-	public int connect(String ip, String port, String password) {
+	public void connect(String ip, String port, String password) {
 		runThread = new ConnectT(ip, port, password);
-	    runThread.setUncaughtExceptionHandler(exceptionHandler);
 		runThread.start();
-		return rs;
 	}
 	
 	public void disconnect() {
-		DisconnectT disconnectThread = new DisconnectT();
-		disconnectThread.start();
+		AndroidSpicecDisconnect();
+		try {runThread.join(3000);} catch (InterruptedException e) {}
 	}
 
 	class ConnectT extends Thread {
-		private String cmd;
 		private String ip, port, password;
 
 		public ConnectT(String ip, String port, String password) {
@@ -83,23 +66,12 @@ public class Connector {
 		}
 
 		public void run() {
-			long t1 = System.currentTimeMillis();
-			rs = AndroidSpicec(ip, port, password);
+			AndroidSpicec(ip, port, password);
 			android.util.Log.e("Connector", "Returning from AndroidSpicec.");
-			Log.v("Connector", "Connect rs = " + rs + ",cost = " + (System.currentTimeMillis() - t1));
 
 			if (handler != null) {
 				handler.sendEmptyMessage(4); /* VncConstants.SPICE_NOTIFICATION */
 			}
-		}
-	}
-	
-	class DisconnectT extends Thread {
-		public DisconnectT() {
-		}
-
-		public void run() {
-			AndroidSpicecDisconnect();
 		}
 	}
 	

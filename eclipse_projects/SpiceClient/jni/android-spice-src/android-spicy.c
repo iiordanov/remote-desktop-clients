@@ -22,7 +22,7 @@
 
 #include <sys/stat.h>
 #define SPICY_C
-#include "android-spice.h"
+#include "android-spice-widget.h"
 #include "spice-common.h"
 #include "spice-audio.h"
 #include "spice-cmdline.h"
@@ -72,8 +72,8 @@ static void connection_connect(spice_connection *conn);
 static void connection_disconnect(spice_connection *conn);
 static void connection_destroy(spice_connection *conn);
 void spice_session_setup(JNIEnv *env, SpiceSession *session, jstring h, jstring p, jstring pw);
+static void signal_handler(int signal, siginfo_t *info, void *reserved);
 
-/* ------------------------------------------------------------------ */
 
 /* ------------------------------------------------------------------ */
 static spice_window *create_spice_window(spice_connection *conn, int id, SpiceChannel *channel)
@@ -155,6 +155,7 @@ static void main_channel_event(SpiceChannel *channel, SpiceChannelEvent event,
         break;
     }
 }
+
 static void channel_new(SpiceSession *s, SpiceChannel *channel, gpointer data)
 {
     spice_connection *conn = data;
@@ -314,10 +315,8 @@ static void connection_destroy(spice_connection *conn)
 
 void Java_com_keqisoft_android_spice_socket_Connector_AndroidSpicecDisconnect(JNIEnv * env, jobject  obj) {
 	maintainConnection = FALSE;
-	// TODO: For some reason, connection_disconnect does not work properly.
-	// Not calling it may leave a connection running.
-	//connection_disconnect(conn);
-    if (g_main_loop_is_running (mainloop))
+
+	if (g_main_loop_is_running (mainloop))
         g_main_loop_quit (mainloop);
 }
 
@@ -351,13 +350,13 @@ jint Java_com_keqisoft_android_spice_socket_Connector_AndroidSpicec(JNIEnv *env,
 
     spice_connection *conn;
     conn = connection_new();
-    //spice_set_session_option(conn->session);
     spice_session_setup(env, conn->session, h, p, pw);
     connection_connect(conn);
 
     if (connections > 0) {
         g_main_loop_run(mainloop);
         connection_disconnect(conn);
+        g_object_unref(mainloop);
 	    __android_log_write(6, "spicy", "Exiting main loop.");
     } else {
         __android_log_write(6, "spicy", "Wrong hostname, port, or password.");
@@ -386,10 +385,6 @@ void spice_session_setup(JNIEnv *env, SpiceSession *session, jstring h, jstring 
 
     g_return_if_fail(SPICE_IS_SESSION(session));
 
-    __android_log_write(6, "spicy", host);
-    __android_log_write(6, "spicy", port);
-    __android_log_write(6, "spicy", password);
-
     if (host)
         g_object_set(session, "host", host, NULL);
     if (port)
@@ -401,3 +396,21 @@ void spice_session_setup(JNIEnv *env, SpiceSession *session, jstring h, jstring 
         g_object_set(session, "password", password, NULL);
 }
 
+static void signal_handler(int signal, siginfo_t *info, void *reserved)
+{
+	kill(getpid(), SIGKILL);
+}
+
+jint JNI_OnLoad(JavaVM* vm, void* reserved) {
+	struct sigaction handler;
+	memset(&handler, 0, sizeof(handler));
+	handler.sa_sigaction = signal_handler;
+	handler.sa_flags = SA_SIGINFO;
+	sigaction(SIGILL, &handler, NULL);
+	sigaction(SIGABRT, &handler, NULL);
+	sigaction(SIGBUS, &handler, NULL);
+	sigaction(SIGFPE, &handler, NULL);
+	sigaction(SIGSEGV, &handler, NULL);
+	sigaction(SIGSTKFLT, &handler, NULL);
+	return(JNI_VERSION_1_6);
+}

@@ -833,12 +833,7 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 		screenMessage    = null;
 		desktopInfo      = null;
 
-		if (isSpice) {
-			// Give a bit of time for the SPICE backend to clean up before disposing of bitmap.
-			try {Thread.sleep(2000);} catch (InterruptedException e) {}
-		}
 		disposeDrawable ();
-
 	}
 
 	public void removeCallbacksAndMessages() {

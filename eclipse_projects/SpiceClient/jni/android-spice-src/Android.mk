@@ -19,7 +19,15 @@ libspicec_link_objs 	:= $(CROSS_DIR)/lib/libintl.a \
 
 LOCAL_MODULE    := spicec
 
-LOCAL_SRC_FILES := channel-record.c channel-playback.c channel-cursor.c spicy.c spice-cmdline.c android-spice.c coroutine_gthread.c spice-util.c spice-session.c spice-channel.c spice-marshal.c spice-glib-enums.c generated_demarshallers.c generated_demarshallers1.c generated_marshallers.c generated_marshallers1.c gio-coroutine.c channel-base.c channel-main.c channel-display.c channel-display-mjpeg.c channel-inputs.c decode-glz.c decode-jpeg.c decode-zlib.c common/mem.c common/marshaller.c common/canvas_utils.c common/sw_canvas.c common/pixman_utils.c common/lines.c common/rop3.c common/quic.c common/lz.c common/region.c common/ssl_verify.c
+LOCAL_SRC_FILES := channel-record.c channel-playback.c channel-cursor.c android-spicy.c \
+                   spice-cmdline.c android-spice-widget.c coroutine_gthread.c spice-util.c \
+                   spice-session.c spice-channel.c spice-marshal.c spice-glib-enums.c \
+                   generated_demarshallers.c generated_demarshallers1.c generated_marshallers.c \
+                   generated_marshallers1.c gio-coroutine.c channel-base.c channel-main.c \
+                   channel-display.c channel-display-mjpeg.c channel-inputs.c decode-glz.c \
+                   decode-jpeg.c decode-zlib.c common/mem.c common/marshaller.c common/canvas_utils.c \
+                   common/sw_canvas.c common/pixman_utils.c common/lines.c common/rop3.c common/quic.c \
+                   common/lz.c common/region.c common/ssl_verify.c
 
 LOCAL_LDLIBS 	+= $(libspicec_link_objs) \
 		   -L$(CROSS_DIR)/lib \

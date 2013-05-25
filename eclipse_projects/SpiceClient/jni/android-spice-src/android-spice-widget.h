@@ -23,28 +23,11 @@
 //#include "spice-widget-enums.h"
 #include "spice-util.h"
 #include "pthread.h"
+#include "spice-grabsequence.h"
 #include <jni.h>
 #include <android/bitmap.h>
 
 G_BEGIN_DECLS
-
-#ifdef SPICY_C
-	gboolean  maintainConnection   = TRUE;
-	JavaVM*   jvm                  = NULL;
-	jclass    jni_connector_class  = NULL;
-	jmethodID jni_settings_changed = NULL;
-	jmethodID jni_graphics_update  = NULL;
-	jobject jbitmap                = NULL;
-	gint    jw = 0, jh = 0;
-#else
-	extern gboolean  maintainConnection;
-	extern JavaVM*   jvm;
-	extern jclass    jni_connector_class;
-	extern jmethodID jni_settings_changed;
-	extern jmethodID jni_graphics_update;
-	extern jobject jbitmap;
-	extern gint    jw, jh;
-#endif
 
 #define SPICE_TYPE_DISPLAY            (spice_display_get_type())
 #define SPICE_DISPLAY(obj)            (G_TYPE_CHECK_INSTANCE_CAST((obj), SPICE_TYPE_DISPLAY, SpiceDisplay))
@@ -53,10 +36,31 @@ G_BEGIN_DECLS
 #define SPICE_IS_DISPLAY_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE((klass), SPICE_TYPE_DISPLAY))
 #define SPICE_DISPLAY_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS((obj), SPICE_TYPE_DISPLAY, SpiceDisplayClass))
 
-
 typedef struct _SpiceDisplay SpiceDisplay;
 typedef struct _SpiceDisplayClass SpiceDisplayClass;
 typedef struct _SpiceDisplayPrivate spice_display;
+
+#define PTRFLAGS_DOWN 0x8000
+
+#ifdef SPICY_C
+	SpiceDisplay* android_display  = NULL;
+	gboolean  maintainConnection   = TRUE;
+	JavaVM*   jvm                  = NULL;
+	jclass    jni_connector_class  = NULL;
+	jmethodID jni_settings_changed = NULL;
+	jmethodID jni_graphics_update  = NULL;
+	jobject jbitmap                = NULL;
+	gint    jw = 0, jh = 0;
+#else
+	extern SpiceDisplay* android_display;
+	extern gboolean  maintainConnection;
+	extern JavaVM*   jvm;
+	extern jclass    jni_connector_class;
+	extern jmethodID jni_settings_changed;
+	extern jmethodID jni_graphics_update;
+	extern jobject jbitmap;
+	extern gint    jw, jh;
+#endif
 
 struct _SpiceDisplay {
     SpiceChannel parent;
@@ -85,18 +89,6 @@ typedef enum
 	SPICE_DISPLAY_KEY_EVENT_RELEASE = 2,
 	SPICE_DISPLAY_KEY_EVENT_CLICK = 3,
 } SpiceDisplayKeyEvent;
-
-typedef enum 
-{
-    ANDROID_OVER = 0,
-    ANDROID_KEY_PRESS = 1,
-    ANDROID_KEY_RELEASE = 2,
-    ANDROID_POINTER_EVENT = 3,
-    ANDROID_SHOW = 5
-} AndroidEventType;
-
-#define PTRFLAGS_DOWN 0x8000
-
 
 GType	        spice_display_get_type(void);
 

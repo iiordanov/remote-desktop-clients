@@ -22,18 +22,20 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
-#include "android-spice.h"
-#include "android-spice-priv.h"
-#include "androidkeymap.c"
+#include "android-spice-widget.h"
+#include "android-spice-widget-priv.h"
 #include "win32keymap.h"
 #include <jni.h>
 #include <android/bitmap.h>
 
-
 G_DEFINE_TYPE(SpiceDisplay, spice_display, SPICE_TYPE_CHANNEL);
-static SpiceDisplay* android_display;
-int android_drop_show;
 
+static void disconnect_main(SpiceDisplay *display);
+static void disconnect_display(SpiceDisplay *display);
+static void channel_new(SpiceSession *s, SpiceChannel *channel, gpointer data);
+static void channel_destroy(SpiceSession *s, SpiceChannel *channel, gpointer data);
+
+/* ---------------------------------------------------------------- */
 
 JNIEXPORT void JNICALL
 Java_com_keqisoft_android_spice_socket_Connector_AndroidSetBitmap(JNIEnv* env, jobject obj, jobject bitmap) {
@@ -44,9 +46,9 @@ Java_com_keqisoft_android_spice_socket_Connector_AndroidSetBitmap(JNIEnv* env, j
 	// copying the pixels? It should give me a 25% performance boost when copying the pixels.
 }
 
-typedef unsigned char UINT8;
+typedef unsigned char uchar;
 
-void copy_pixel_buffer(UINT8* dstBuf, UINT8* srcBuf, int x, int y, int width, int height, int wBuf, int hBuf, int bpp)
+void copy_pixel_buffer(uchar* dstBuf, uchar* srcBuf, int x, int y, int width, int height, int wBuf, int hBuf, int bpp)
 {
 	//char buf[100];
     //snprintf (buf, 100, "Drawing x: %d, y: %d, w: %d, h: %d, wBuf: %d, hBuf: %d, bpp: %d", x, y, width, height, wBuf, hBuf, bpp);
@@ -54,13 +56,13 @@ void copy_pixel_buffer(UINT8* dstBuf, UINT8* srcBuf, int x, int y, int width, in
 	int i, j;
 	int length;
 	int scanline;
-	UINT8 *dstp, *srcp;
+	uchar *dstp, *srcp;
 
 	length = width * bpp;
 	scanline = wBuf * bpp;
 
-	srcp = (UINT8*) &srcBuf[(scanline * y) + (x * bpp)];
-	dstp = (UINT8*) &dstBuf[(scanline * y) + (x * bpp)];
+	srcp = (uchar*) &srcBuf[(scanline * y) + (x * bpp)];
+	dstp = (uchar*) &dstBuf[(scanline * y) + (x * bpp)];
 
 	if (bpp == 4) {
 		for (i = 0; i < height; i++) {
@@ -107,14 +109,6 @@ gboolean update_bitmap (JNIEnv* env, jobject* bitmap, void *source, gint x, gint
 	return TRUE;
 }
 
-static void disconnect_main(SpiceDisplay *display);
-static void disconnect_display(SpiceDisplay *display);
-static void channel_new(SpiceSession *s, SpiceChannel *channel, gpointer data);
-static void channel_destroy(SpiceSession *s, SpiceChannel *channel, gpointer data);
-
-/* ---------------------------------------------------------------- */
-
-
 static void spice_display_dispose(GObject *obj)
 {
     SpiceDisplay *display = SPICE_DISPLAY(obj);
@@ -149,12 +143,7 @@ static void spice_display_dispose(GObject *obj)
 
 static void spice_display_finalize(GObject *obj)
 {
-    SpiceDisplay *display = SPICE_DISPLAY(obj);
-    spice_display *d = SPICE_DISPLAY_GET_PRIVATE(display);
-    int i;
-
     SPICE_DEBUG("Finalize spice display");
-
     G_OBJECT_CLASS(spice_display_parent_class)->finalize(obj);
 }
 
@@ -277,10 +266,6 @@ int win32key2spice (int keycode)
     return newKeyCode;
 }
 
-int androidkey2spice(int keycode) {
-    return keymap_android[keycode];
-}
-
 JNIEXPORT void JNICALL
 Java_com_keqisoft_android_spice_socket_Connector_AndroidKeyEvent(JNIEnv * env, jobject  obj, jboolean down, jint hardware_keycode) {
     SpiceDisplay* display = android_display;
@@ -317,7 +302,6 @@ static int update_mask (int button, gboolean down) {
 	}
 	return mask;
 }
-
 
 JNIEXPORT void JNICALL
 Java_com_keqisoft_android_spice_socket_Connector_AndroidButtonEvent(JNIEnv * env, jobject  obj, jint x, jint y, jint metaState, jint type) {
@@ -377,7 +361,6 @@ static void primary_create(SpiceChannel *channel, gint format, gint width, gint 
     //fprintf(stderr,"%s:%s:%d:%p\n",__FILE__,__FUNCTION__,__LINE__,(char*)data);
     SpiceDisplay *display = data;
     spice_display *d = SPICE_DISPLAY_GET_PRIVATE(display);
-    gboolean set_display = FALSE;
 
     d->format = format;
     d->stride = stride;
@@ -386,12 +369,8 @@ static void primary_create(SpiceChannel *channel, gint format, gint width, gint 
 
     SPICE_DEBUG("%s:%s:%d:%p\n\t%d:%d\n",__FILE__, __FUNCTION__,__LINE__,(char*)d->data,width,height);
     if (d->width != width || d->height != height) {
-	if (d->width != 0 && d->height != 0)
-	    set_display = TRUE;
-	d->width  = width;
-	d->height = height;
-	if (!d->resize_guest_enable) {
-	}
+        d->width  = width;
+        d->height = height;
     }
 
     JNIEnv* env;
@@ -418,17 +397,6 @@ static void primary_create(SpiceChannel *channel, gint format, gint width, gint 
     	(*jvm)->DetachCurrentThread(jvm);
     }
 
-    /*
-    JNIEnv* env = NULL;
-   	jint rs = (*jvm)->AttachCurrentThread(jvm, &env, NULL);
-    if (rs != JNI_OK) {
-    	__android_log_write(6, "android-spice", "ERROR: Could not attach current thread to jvm.");
-    	return;
-    }
-
-	// Ask for a new bitmap from the UI.
-	(*env)->CallStaticVoidMethod(env, jni_connector_class, jni_settings_changed, 0, width, height, 0);
-	*/
 	jw = width;
 	jh = height;
 }
@@ -489,21 +457,6 @@ static void invalidate(SpiceChannel *channel,
     if (attached) {
     	(*jvm)->DetachCurrentThread(jvm);
     }
-
-    /*
-    JNIEnv* env = NULL;
-   	jint rs = (*jvm)->AttachCurrentThread(jvm, &env, NULL);
-    if (rs != JNI_OK) {
-    	__android_log_write(6, "android-spice", "ERROR: Could not attach current thread to jvm.");
-    	return;
-    }
-
-    // Draw the new data into the Java bitmap object.
-    update_bitmap(env, jbitmap, d->data, x, y, w, h, d->width, d->height);
-
-    // Tell the UI that it needs to redraw the bitmap.
-	(*env)->CallStaticVoidMethod(env, jni_connector_class, jni_graphics_update, 0, x, y, w, h);
-	*/
 }
 
 static void mark(SpiceChannel *channel, gint mark, gpointer data) {
@@ -512,7 +465,6 @@ static void mark(SpiceChannel *channel, gint mark, gpointer data) {
     spice_display *d = SPICE_DISPLAY_GET_PRIVATE(display);
     d->mark = mark;
 }
-
 
 static void disconnect_main(SpiceDisplay *display)
 {
