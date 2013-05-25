@@ -71,6 +71,7 @@ static spice_connection *connection_new(void);
 static void connection_connect(spice_connection *conn);
 static void connection_disconnect(spice_connection *conn);
 static void connection_destroy(spice_connection *conn);
+void spice_session_setup(JNIEnv *env, SpiceSession *session, jstring h, jstring p, jstring pw);
 
 /* ------------------------------------------------------------------ */
 
@@ -79,10 +80,7 @@ static spice_window *create_spice_window(spice_connection *conn, int id, SpiceCh
 {
     struct spice_window *win;
 
-    win = malloc(sizeof(*win));
-    if (NULL == win)
-	return NULL;
-    memset(win,0,sizeof(*win));
+    win = g_new0(struct spice_window, 1);
     win->id = id;
     win->conn = conn;
     win->display_channel = channel;
@@ -101,36 +99,13 @@ static void destroy_spice_window(spice_window *win)
 }
 
 /* ------------------------------------------------------------------ */
-/*
-static void recent_add(SpiceSession *session)
-{
-    GtkRecentManager *recent;
-    GtkRecentData meta = {
-        .mime_type    = "application/x-spice",
-        .app_name     = "spicy",
-        .app_exec     = "spicy --uri=%u",
-    };
-    char *uri;
 
-    g_object_get(session, "uri", &uri, NULL);
-    SPICE_DEBUG("%s: %s", __FUNCTION__, uri);
-
-    g_return_if_fail(g_str_has_prefix(uri, "spice://"));
-
-    recent = gtk_recent_manager_get_default();
-    meta.display_name = uri + 8;
-    if (!gtk_recent_manager_add_full(recent, uri, &meta))
-        g_warning("Recent item couldn't be added successfully");
-
-    g_free(uri);
-}
-*/
 static void main_channel_event(SpiceChannel *channel, SpiceChannelEvent event,
                                gpointer data)
 {
     spice_connection *conn = data;
     char password[64];
-    int rc;
+    int rc = 0;
 
     switch (event) {
     case SPICE_CHANNEL_OPENED:
@@ -299,7 +274,7 @@ static spice_connection *connection_new(void)
     //manager = spice_usb_device_manager_get(conn->session, NULL);
     //if (manager) {
     //    g_signal_connect(manager, "auto-connect-failed",
-    //                     G_CALLBACK(auto_connect_failed), NULL);
+    //                     G_CALLBACK(usb_connect_failed), NULL);
     //}
 
     connections++;
@@ -337,45 +312,6 @@ static void connection_destroy(spice_connection *conn)
 
 /* ------------------------------------------------------------------ */
 
-void cmd_parse(char* cmd,char** argv,int* argc)
-{
-    char* ch;
-    char* loc;
-    int i = 0;
-    int len = 0;
-    loc = ch = cmd;
-    bool need_parse = false;
-
-    while(*ch!='\0') {
-	if(*ch!=' '&&*ch!='\t') {
-	    if(!need_parse) {
-		need_parse = true;
-		loc = ch;
-	    }
-	    ch++;
-	} else {
-	    if(need_parse) {
-		need_parse = false;
-		len = ch-loc;
-		argv[i] = (char*)malloc(len+1);
-		memcpy(argv[i],loc,len);
-		argv[i][len] = '\0';
-		i++;
-	    }
-	    ch++;
-	}
-    }
-    if(need_parse) {
-	need_parse = false;
-	len = ch-loc;
-	argv[i] = (char*)malloc(len+1);
-	memcpy(argv[i],loc,len);
-	argv[i][len] = '\0';
-	i++;
-    }
-    *argc = i;
-}
-
 void Java_com_keqisoft_android_spice_socket_Connector_AndroidSpicecDisconnect(JNIEnv * env, jobject  obj) {
 	maintainConnection = FALSE;
 	// TODO: For some reason, connection_disconnect does not work properly.
@@ -385,70 +321,44 @@ void Java_com_keqisoft_android_spice_socket_Connector_AndroidSpicecDisconnect(JN
         g_main_loop_quit (mainloop);
 }
 
-jint Java_com_keqisoft_android_spice_socket_Connector_AndroidSpicec(JNIEnv *env, jobject obj, jstring str)
+jint Java_com_keqisoft_android_spice_socket_Connector_AndroidSpicec(JNIEnv *env, jobject obj, jstring h, jstring p, jstring pw)
 {
-    SPICE_DEBUG("libspicec started");
-    jboolean  b  = true;
-    char cmd[128];
-    memset(cmd, 0, sizeof(cmd));
-    strcpy(cmd ,(char*)(*env)->GetStringUTFChars(env,str, &b));
+    int result = 0;
+    maintainConnection = TRUE;
 
+	// Get a reference to the JVM to get JNIEnv from in (other) threads.
     jint rs = (*env)->GetJavaVM(env, &jvm);
     if (rs != JNI_OK) {
     	__android_log_write(6, "spicy", "ERROR: Could not obtain jvm reference.");
     	return 255;
     }
 
+    // Find the jclass reference and get a Global reference for it for use in other threads.
     jclass local_class  = (*env)->FindClass (env, "com/keqisoft/android/spice/socket/Connector");
 	jni_connector_class = (jclass)((*env)->NewGlobalRef(env, local_class));
 
+	// Get global method IDs for callback methods.
 	jni_settings_changed = (*env)->GetStaticMethodID (env, jni_connector_class, "OnSettingsChanged", "(IIII)V");
 	jni_graphics_update  = (*env)->GetStaticMethodID (env, jni_connector_class, "OnGraphicsUpdate", "(IIIII)V");
-
-    SPICE_DEBUG("Got cmd:%s",cmd);
-    char** argv = (char**)malloc(12*sizeof(char*));
-    int argc;
-    cmd_parse(cmd,argv,&argc);
-    int dex;
-    for(dex=0;dex<argc;dex++)
-	SPICE_DEBUG("got item:size:%s:%d",argv[dex],strlen(argv[dex]));
-
-    GError *error = NULL;
-    GOptionContext *context;
-    spice_connection *conn;
 
     g_thread_init(NULL);
     bindtextdomain(GETTEXT_PACKAGE, SPICE_GTK_LOCALEDIR);
     bind_textdomain_codeset(GETTEXT_PACKAGE, "UTF-8");
     textdomain(GETTEXT_PACKAGE);
-    /* parse opts */
-    context = g_option_context_new(_("- spice client application"));
-    g_option_context_add_group(context, spice_cmdline_get_option_group());
-
-    int result = 0;
-    maintainConnection = TRUE;
-
-    if (!g_option_context_parse (context, &argc, &argv, &error)) {
-        g_print (_("option parsing failed: %s\n"), error->message);
-        return 255;
-    }
 
     g_type_init();
     mainloop = g_main_loop_new(NULL, false);
 
+    spice_connection *conn;
     conn = connection_new();
     //spice_set_session_option(conn->session);
-    spice_cmdline_session_setup(conn->session);
+    spice_session_setup(env, conn->session, h, p, pw);
     connection_connect(conn);
 
     if (connections > 0) {
         g_main_loop_run(mainloop);
-
-    connection_disconnect(conn);
-
-    // unref was causing segfaults at one point.
-    //g_main_loop_unref(mainloop);
-	__android_log_write(6, "spicy", "Exiting main loop.");
+        connection_disconnect(conn);
+	    __android_log_write(6, "spicy", "Exiting main loop.");
     } else {
         __android_log_write(6, "spicy", "Wrong hostname, port, or password.");
         result = 2;
@@ -463,3 +373,31 @@ jint Java_com_keqisoft_android_spice_socket_Connector_AndroidSpicec(JNIEnv *env,
 	jh = 0;
 	return result;
 }
+
+void spice_session_setup(JNIEnv *env, SpiceSession *session, jstring h, jstring p, jstring pw)
+{
+	const char *host = NULL;
+	const char *port = NULL;
+	const char *tls_port = NULL;
+	const char *password = NULL;
+	host = (*env)->GetStringUTFChars(env, h, NULL);
+	port = (*env)->GetStringUTFChars(env, p, NULL);
+	password = (*env)->GetStringUTFChars(env, pw, NULL);
+
+    g_return_if_fail(SPICE_IS_SESSION(session));
+
+    __android_log_write(6, "spicy", host);
+    __android_log_write(6, "spicy", port);
+    __android_log_write(6, "spicy", password);
+
+    if (host)
+        g_object_set(session, "host", host, NULL);
+    if (port)
+        g_object_set(session, "port", port, NULL);
+    // TODO: Add TLS support.
+    if (tls_port)
+        g_object_set(session, "tls-port", tls_port, NULL);
+    if (password)
+        g_object_set(session, "password", password, NULL);
+}
+

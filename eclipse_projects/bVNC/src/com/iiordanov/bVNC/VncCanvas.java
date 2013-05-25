@@ -577,8 +577,7 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 	 */
 	String getVNCAddress() throws Exception {
 		if (connection.getConnectionType() == VncConstants.CONN_TYPE_SSH) {
-			sshConnection = new SSHConnection(connection);
-			return new String("localhost");
+			return new String("127.0.0.1");
 		} else
 			return connection.getAddress();
 	}

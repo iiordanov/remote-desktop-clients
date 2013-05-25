@@ -16,7 +16,7 @@ public class Connector {
 	static {
 		System.loadLibrary("spicec");
 	}
-	public native int AndroidSpicec(String cmd);
+	public native int AndroidSpicec(String ip, String port, String password);
 	public native void AndroidSpicecDisconnect();
 	public native void AndroidButtonEvent(int x, int y, int metaState, int pointerMask);
 	public native void AndroidKeyEvent(boolean keyDown, int virtualKeyCode);
@@ -61,11 +61,7 @@ public class Connector {
 	}
 
 	public int connect(String ip, String port, String password) {
-		StringBuffer buf = new StringBuffer();
-		buf.append("spicy -h ").append(ip);
-		buf.append(" -p ").append(port);
-		buf.append(" -w ").append(password);
-		runThread = new ConnectT(buf.toString());
+		runThread = new ConnectT(ip, port, password);
 	    runThread.setUncaughtExceptionHandler(exceptionHandler);
 		runThread.start();
 		return rs;
@@ -78,14 +74,17 @@ public class Connector {
 
 	class ConnectT extends Thread {
 		private String cmd;
+		private String ip, port, password;
 
-		public ConnectT(String cmd) {
-			this.cmd = cmd;
+		public ConnectT(String ip, String port, String password) {
+			this.ip = ip;
+			this.port = port;
+			this.password = password;
 		}
 
 		public void run() {
 			long t1 = System.currentTimeMillis();
-			rs = AndroidSpicec(cmd);
+			rs = AndroidSpicec(ip, port, password);
 			android.util.Log.e("Connector", "Returning from AndroidSpicec.");
 			Log.v("Connector", "Connect rs = " + rs + ",cost = " + (System.currentTimeMillis() - t1));
 
