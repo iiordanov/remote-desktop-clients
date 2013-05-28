@@ -383,6 +383,8 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 			    		
 				    	spicecomm = new SpiceCommunicator ();
 				    	rfbconn = spicecomm;
+			    		pointer = new RemoteSpicePointer (rfbconn, VncCanvas.this, handler);
+			    		keyboard = new RemoteSpiceKeyboard (rfbconn, VncCanvas.this, handler);
 			    		spicecomm.setUIEventListener(VncCanvas.this);
 			    		spicecomm.setHandler(handler);
 			    		startSpice(address, Integer.toString(port), connection.getPassword());
@@ -1228,8 +1230,6 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 		if (isSpice) {
 	    	spicecomm.setFramebufferWidth(width);
 	    	spicecomm.setFramebufferHeight(height);
-    		pointer = new RemoteSpicePointer (rfbconn, this, handler);
-    		keyboard = new RemoteSpiceKeyboard (rfbconn, this, handler);
 		}
 		
 		disposeDrawable ();
@@ -1294,12 +1294,16 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 	@Override
 	public void OnGraphicsUpdate(int x, int y, int width, int height) {
 		//android.util.Log.e(TAG, "OnGraphicsUpdate called: " + x +", " + y + " + " + width + "x" + height );
-		if (isRdp && bitmapData != null)
-			LibFreeRDP.updateGraphics(session.getInstance(), bitmapData.mbitmap, x, y, width, height);
 
+		if (bitmapData == null || bitmapData.mbitmap.isRecycled()) {
+			// TODO: Attempting to avoid the loss of bitmap problem in newer android versions.
+			OnSettingsChanged (width, height, 8);
+		}
+			
+		if (isRdp)
+			LibFreeRDP.updateGraphics(session.getInstance(), bitmapData.mbitmap, x, y, width, height);
+		
 		reDraw(x, y, width, height);
-		//reDraw(x, y, x+width, y+height);
-		//postInvalidate();
 	}
 
 	@Override
