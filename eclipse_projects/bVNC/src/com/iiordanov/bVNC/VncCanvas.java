@@ -131,10 +131,17 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 	        	Bundle s = (Bundle)msg.obj;
 	        	validateRdpCert (s.getString("subject"), s.getString("issuer"), s.getString("fingerprint"));
 	            break;
-	        case VncConstants.SPICE_NOTIFICATION:
+	        case VncConstants.SPICE_CONNECT_SUCCESS:
 				synchronized(spicecomm) {
 					spicecomm.notifyAll();
 				}
+	        	break;
+	        case VncConstants.SPICE_CONNECT_FAILURE:
+	    		if (!spiceUpdateReceived) {
+	    			showFatalMessageAndQuit("Unable to connect, please check SPICE server address, port, and password.");
+	    		} else {
+	    			showFatalMessageAndQuit("SPICE connection interrupted.");
+	    		} 
 	        	break;
 	        }
 	    }
@@ -396,7 +403,7 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 			    		} catch (InterruptedException e) {}
 
 			    		if (!spiceUpdateReceived) {
-			    			throw new Exception ("Unable to connect, please check SPICE server address, port, and password.");
+							handler.sendEmptyMessage(VncConstants.SPICE_CONNECT_FAILURE);
 			    		}
 			    	    
 			    	    pd.dismiss();
@@ -1255,8 +1262,8 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 		if (isSpice) {
     		spiceUpdateReceived = true;
     		rfbconn.setIsInNormalProtocol(true);
-    		handler.sendEmptyMessage(VncConstants.SPICE_NOTIFICATION);
     		spicecomm.SpiceSetBitmap(bitmapData.mbitmap);
+    		handler.sendEmptyMessage(VncConstants.SPICE_CONNECT_SUCCESS);
 		}
 	}
 

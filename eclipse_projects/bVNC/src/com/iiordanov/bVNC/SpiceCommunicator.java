@@ -81,8 +81,10 @@ public class SpiceCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyP
 			SpiceClientConnect (ip, port, password);
 			android.util.Log.e(TAG, "SpiceClientConnect returned.");
 
+			// If we've exited SpiceClientConnect, the connection is certainly
+			// interrupted or was never established.
 			if (handler != null) {
-				handler.sendEmptyMessage(VncConstants.SPICE_NOTIFICATION);
+				handler.sendEmptyMessage(VncConstants.SPICE_CONNECT_FAILURE);
 			}
 		}
 	}
