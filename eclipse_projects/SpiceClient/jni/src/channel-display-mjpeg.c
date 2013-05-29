@@ -24,10 +24,10 @@
 static void mjpeg_src_init(struct jpeg_decompress_struct *cinfo)
 {
     display_stream *st = SPICE_CONTAINEROF(cinfo->src, display_stream, mjpeg_src);
-    SpiceMsgDisplayStreamData *data = spice_msg_in_parsed(st->msg_data);
+    uint8_t *data;
 
-    cinfo->src->next_input_byte = data->data;
-    cinfo->src->bytes_in_buffer = data->data_size;
+    cinfo->src->bytes_in_buffer = stream_get_current_frame(st, &data);
+    cinfo->src->next_input_byte = data;
 }
 
 static boolean mjpeg_src_fill(struct jpeg_decompress_struct *cinfo)
@@ -64,12 +64,13 @@ void stream_mjpeg_init(display_stream *st)
 G_GNUC_INTERNAL
 void stream_mjpeg_data(display_stream *st)
 {
-    SpiceMsgDisplayStreamCreate *info = spice_msg_in_parsed(st->msg_create);
-    int width = info->stream_width;
-    int height = info->stream_height;
+    gboolean back_compat = st->channel->priv->peer_hdr.major_version == 1;
+    int width;
+    int height;
     uint8_t *dest;
     uint8_t *lines[4];
 
+    stream_get_dimensions(st, &width, &height);
     dest = malloc(width * height * 4);
 
     if (st->out_frame) {
@@ -80,7 +81,10 @@ void stream_mjpeg_data(display_stream *st)
     jpeg_read_header(&st->mjpeg_cinfo, 1);
 #ifdef JCS_EXTENSIONS
     // requires jpeg-turbo
-    st->mjpeg_cinfo.out_color_space = JCS_EXT_BGRX;
+    if (back_compat)
+        st->mjpeg_cinfo.out_color_space = JCS_EXT_RGBX;
+    else
+        st->mjpeg_cinfo.out_color_space = JCS_EXT_BGRX;
 #else
 #warning "You should consider building with libjpeg-turbo"
     st->mjpeg_cinfo.out_color_space = JCS_RGB;
@@ -121,11 +125,20 @@ void stream_mjpeg_data(display_stream *st)
             uint8_t *s = lines[0];
             uint32_t *d = (uint32_t *)s;
 
-            for (unsigned int j = lines_read * width; j > 0; ) {
-                j -= 1; // reverse order, bad for cache?
-                d[j] = s[j * 3 + 0] << 16 |
-                    s[j * 3 + 1] << 8 |
-                    s[j * 3 + 2];
+            if (back_compat) {
+                for (unsigned int j = lines_read * width; j > 0; ) {
+                    j -= 1; // reverse order, bad for cache?
+                    d[j] = s[j * 3 + 0] |
+                        s[j * 3 + 1] << 8 |
+                        s[j * 3 + 2] << 16;
+                }
+            } else {
+                for (unsigned int j = lines_read * width; j > 0; ) {
+                    j -= 1; // reverse order, bad for cache?
+                    d[j] = s[j * 3 + 0] << 16 |
+                        s[j * 3 + 1] << 8 |
+                        s[j * 3 + 2];
+                }
             }
         }
 #endif

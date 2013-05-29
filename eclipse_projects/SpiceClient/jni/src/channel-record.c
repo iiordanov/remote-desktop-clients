@@ -89,12 +89,18 @@ static void channel_up(SpiceChannel *channel);
 
 /* ------------------------------------------------------------------ */
 
+static void spice_record_channel_reset_capabilities(SpiceChannel *channel)
+{
+    if (!g_getenv("SPICE_DISABLE_CELT"))
+        spice_channel_set_capability(SPICE_CHANNEL(channel), SPICE_RECORD_CAP_CELT_0_5_1);
+    spice_channel_set_capability(SPICE_CHANNEL(channel), SPICE_RECORD_CAP_VOLUME);
+}
+
 static void spice_record_channel_init(SpiceRecordChannel *channel)
 {
     channel->priv = SPICE_RECORD_CHANNEL_GET_PRIVATE(channel);
 
-    spice_channel_set_capability(SPICE_CHANNEL(channel), SPICE_RECORD_CAP_CELT_0_5_1);
-    spice_channel_set_capability(SPICE_CHANNEL(channel), SPICE_RECORD_CAP_VOLUME);
+    spice_record_channel_reset_capabilities(SPICE_CHANNEL(channel));
 }
 
 static void spice_record_channel_finalize(GObject *obj)
@@ -194,6 +200,7 @@ static void spice_record_channel_class_init(SpiceRecordChannelClass *klass)
     channel_class->handle_msg   = spice_record_handle_msg;
     channel_class->channel_up   = channel_up;
     channel_class->channel_reset = channel_reset;
+    channel_class->channel_reset_capabilities = spice_record_channel_reset_capabilities;
 
     g_object_class_install_property
         (gobject_class, PROP_NCHANNELS,
@@ -317,7 +324,8 @@ static void channel_up(SpiceChannel *channel)
     SpiceRecordChannelPrivate *rc;
 
     rc = SPICE_RECORD_CHANNEL(channel)->priv;
-    if (spice_channel_test_capability(channel, SPICE_RECORD_CAP_CELT_0_5_1)) {
+    if (!g_getenv("SPICE_DISABLE_CELT") &&
+        spice_channel_test_capability(channel, SPICE_RECORD_CAP_CELT_0_5_1)) {
         rc->mode = SPICE_AUDIO_DATA_MODE_CELT_0_5_1;
     } else {
         rc->mode = SPICE_AUDIO_DATA_MODE_RAW;
@@ -375,7 +383,8 @@ void spice_record_send_data(SpiceRecordChannel *channel, gpointer data,
     p.time = time;
 
     while (bytes > 0) {
-        gsize n, frame_size;
+        gsize n;
+        int frame_size;
         SpiceMsgOut *msg;
         uint8_t *frame;
 
@@ -434,8 +443,8 @@ static void record_handle_start(SpiceChannel *channel, SpiceMsgIn *in)
     SpiceRecordChannelPrivate *c = SPICE_RECORD_CHANNEL(channel)->priv;
     SpiceMsgRecordStart *start = spice_msg_in_parsed(in);
 
-    SPICE_DEBUG("%s: fmt %d channels %d freq %d", __FUNCTION__,
-            start->format, start->channels, start->frequency);
+    CHANNEL_DEBUG(channel, "%s: fmt %d channels %d freq %d", __FUNCTION__,
+                  start->format, start->channels, start->frequency);
 
     c->frame_bytes = FRAME_SIZE * 16 * start->channels / 8;
 
@@ -489,6 +498,11 @@ static void record_handle_set_volume(SpiceChannel *channel, SpiceMsgIn *in)
 {
     SpiceRecordChannelPrivate *c = SPICE_RECORD_CHANNEL(channel)->priv;
     SpiceMsgAudioVolume *vol = spice_msg_in_parsed(in);
+
+    if (vol->nchannels == 0) {
+        g_warning("spice-server send audio-volume-msg with 0 channels");
+        return;
+    }
 
     g_free(c->volume);
     c->nchannels = vol->nchannels;

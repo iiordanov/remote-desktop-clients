@@ -122,6 +122,10 @@ G_GNUC_INTERNAL
 int spicex_image_create(SpiceDisplay *display)
 {
     SpiceDisplayPrivate   *d = SPICE_DISPLAY_GET_PRIVATE(display);
+
+    if (d->ximage != NULL)
+        return 0;
+
     GdkDrawable     *window = gtk_widget_get_window(GTK_WIDGET(display));
     GdkDisplay      *gtkdpy = gdk_drawable_get_display(window);
     void            *old_handler = NULL;
@@ -219,33 +223,36 @@ void spicex_expose_event(SpiceDisplay *display, GdkEventExpose *expose)
 {
     GdkDrawable *window = gtk_widget_get_window(GTK_WIDGET(display));
     SpiceDisplayPrivate *d = SPICE_DISPLAY_GET_PRIVATE(display);
+    int x, y, w, h;
 
-    if (expose->area.x >= d->mx &&
-        expose->area.y >= d->my &&
-        expose->area.x + expose->area.width  <= d->mx + d->width &&
-        expose->area.y + expose->area.height <= d->my + d->height) {
+    spice_display_get_scaling(display, NULL, &x, &y, &w, &h);
+
+    if (expose->area.x >= x &&
+        expose->area.y >= y &&
+        expose->area.x + expose->area.width  <= x + w &&
+        expose->area.y + expose->area.height <= y + h) {
         /* area is completely inside the guest screen -- blit it */
         if (d->have_mitshm && d->shminfo) {
             XShmPutImage(d->dpy, gdk_x11_drawable_get_xid(window),
                          d->gc, d->ximage,
-                         expose->area.x - d->mx, expose->area.y - d->my,
-                         expose->area.x,         expose->area.y,
+                         d->area.x + expose->area.x - x, d->area.y + expose->area.y - y,
+                         expose->area.x, expose->area.y,
                          expose->area.width, expose->area.height,
                          true);
         } else {
             XPutImage(d->dpy, gdk_x11_drawable_get_xid(window),
                       d->gc, d->ximage,
-                      expose->area.x - d->mx, expose->area.y - d->my,
-                      expose->area.x,         expose->area.y,
+                      d->area.x + expose->area.x - x, d->area.y + expose->area.y - y,
+                      expose->area.x, expose->area.y,
                       expose->area.width, expose->area.height);
         }
     } else {
         /* complete window update */
-        if (d->ww > d->width || d->wh > d->height) {
-            int x1 = d->mx;
-            int x2 = d->mx + d->width;
-            int y1 = d->my;
-            int y2 = d->my + d->height;
+        if (d->ww > d->area.width || d->wh > d->area.height) {
+            int x1 = x;
+            int x2 = x + w;
+            int y1 = y;
+            int y2 = y + h;
             XFillRectangle(d->dpy, gdk_x11_drawable_get_xid(window),
                            d->gc, 0, 0, x1, d->wh);
             XFillRectangle(d->dpy, gdk_x11_drawable_get_xid(window),
@@ -258,24 +265,14 @@ void spicex_expose_event(SpiceDisplay *display, GdkEventExpose *expose)
         if (d->have_mitshm && d->shminfo) {
             XShmPutImage(d->dpy, gdk_x11_drawable_get_xid(window),
                          d->gc, d->ximage,
-                         0, 0, d->mx, d->my, d->width, d->height,
+                         d->area.x, d->area.y, x, y, w, h,
                          true);
         } else {
             XPutImage(d->dpy, gdk_x11_drawable_get_xid(window),
                       d->gc, d->ximage,
-                      0, 0, d->mx, d->my, d->width, d->height);
+                      d->area.x, d->area.y, x, y, w, h);
         }
     }
-}
-
-G_GNUC_INTERNAL
-void spicex_image_invalidate (SpiceDisplay *display,
-                              gint *x, gint *y, gint *w, gint *h)
-{
-    SpiceDisplayPrivate *d = SPICE_DISPLAY_GET_PRIVATE(display);
-    /* Offset the Spice region to produce expose region */
-    *x += d->mx;
-    *y += d->my;
 }
 
 G_GNUC_INTERNAL

@@ -25,23 +25,24 @@
 #include <openssl/ssl.h>
 #include <gio/gio.h>
 
-#undef HAVE_SASL
 #if HAVE_SASL
 #include <sasl/sasl.h>
 #endif
 
+#include "spice-util-priv.h"
 #include "coroutine.h"
 #include "gio-coroutine.h"
 
-/* common/ */
-#include "marshallers.h"
-#include "demarshallers.h"
-
-#include "ssl_verify.h"
+#include "common/client_marshallers.h"
+#include "common/client_demarshallers.h"
+#include "common/ssl_verify.h"
 
 G_BEGIN_DECLS
 
 #define MAX_SPICE_DATA_HEADER_SIZE sizeof(SpiceDataHeader)
+
+#define CHANNEL_DEBUG(channel, fmt, ...) \
+    SPICE_DEBUG("%s: " fmt, SPICE_CHANNEL(channel)->priv->name, ## __VA_ARGS__)
 
 struct _SpiceMsgOut {
     int                   refcount;
@@ -67,12 +68,10 @@ struct _SpiceMsgIn {
 enum spice_channel_state {
     SPICE_CHANNEL_STATE_UNCONNECTED = 0,
     SPICE_CHANNEL_STATE_CONNECTING,
-    SPICE_CHANNEL_STATE_LINK_HDR,
-    SPICE_CHANNEL_STATE_LINK_MSG,
-    SPICE_CHANNEL_STATE_AUTH,
     SPICE_CHANNEL_STATE_READY,
     SPICE_CHANNEL_STATE_SWITCHING,
     SPICE_CHANNEL_STATE_MIGRATING,
+    SPICE_CHANNEL_STATE_MIGRATION_HANDSHAKE,
 };
 
 struct _SpiceChannelPrivate {
@@ -81,8 +80,8 @@ struct _SpiceChannelPrivate {
     SSL                         *ssl;
     SpiceOpenSSLVerify          *sslverify;
     GSocket                     *sock;
+    GSocketConnection           *conn;
 
-#undef HAVE_SASL
 #if HAVE_SASL
     sasl_conn_t                 *sasl_conn;
     const char                  *sasl_decoded;
@@ -103,7 +102,7 @@ struct _SpiceChannelPrivate {
 
     GQueue                      xmit_queue;
     gboolean                    xmit_queue_blocked;
-    GStaticMutex                xmit_queue_lock;
+    STATIC_MUTEX                xmit_queue_lock;
     guint                       xmit_queue_wakeup_id;
 
     char                        name[16];
@@ -133,6 +132,7 @@ struct _SpiceChannelPrivate {
 
     gsize                       total_read_bytes;
     uint64_t                    last_message_serial;
+    GSList                      *flushing;
 };
 
 SpiceMsgIn *spice_msg_in_new(SpiceChannel *channel);
@@ -159,6 +159,7 @@ void spice_channel_up(SpiceChannel *channel);
 void spice_channel_wakeup(SpiceChannel *channel, gboolean cancel);
 
 SpiceSession* spice_channel_get_session(SpiceChannel *channel);
+enum spice_channel_state spice_channel_get_state(SpiceChannel *channel);
 
 /* coroutine context */
 typedef void (*handler_msg_in)(SpiceChannel *channel, SpiceMsgIn *msg, gpointer data);
@@ -175,11 +176,15 @@ void spice_channel_handle_migrate(SpiceChannel *channel, SpiceMsgIn *in);
 
 gint spice_channel_get_channel_id(SpiceChannel *channel);
 gint spice_channel_get_channel_type(SpiceChannel *channel);
-void spice_channel_swap(SpiceChannel *channel, SpiceChannel *swap);
-void spice_channel_set_common_capability(SpiceChannel *channel, guint32 cap);
+void spice_channel_swap(SpiceChannel *channel, SpiceChannel *swap, gboolean swap_msgs);
 gboolean spice_channel_get_read_only(SpiceChannel *channel);
-
 void spice_channel_reset(SpiceChannel *channel, gboolean migrating);
+
+void spice_caps_set(GArray *caps, guint32 cap, const gchar *desc);
+#define spice_channel_set_common_capability(channel, cap)               \
+    spice_caps_set(SPICE_CHANNEL(channel)->priv->common_caps, cap, #cap)
+#define spice_channel_set_capability(channel, cap)                      \
+    spice_caps_set(SPICE_CHANNEL(channel)->priv->caps, cap, #cap)
 
 /* coroutine context */
 #define emit_main_context(object, event, args...)                       \

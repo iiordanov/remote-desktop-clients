@@ -22,28 +22,39 @@
 #include <stdlib.h>
 #include <spice/macros.h>
 
-/* alloca definition from glib/galloca.h */
-#ifdef  __GNUC__
-/* GCC does the right thing */
-# undef alloca
-# define alloca(size)   __builtin_alloca (size)
-#elif defined (GLIB_HAVE_ALLOCA_H)
-/* a native and working alloca.h is there */
+#ifdef HAVE_CONFIG_H
+# include <config.h>
+#endif
+
+SPICE_BEGIN_DECLS
+
+#ifdef STDC_HEADERS
+# include <stdlib.h>
+# include <stddef.h>
+#else
+# ifdef HAVE_STDLIB_H
+#  include <stdlib.h>
+# endif
+#endif
+#ifdef HAVE_ALLOCA_H
 # include <alloca.h>
-#else /* !__GNUC__ && !GLIB_HAVE_ALLOCA_H */
-# if defined(_MSC_VER) || defined(__DMC__)
-#  include <malloc.h>
-#  define alloca _alloca
-# else /* !_MSC_VER && !__DMC__ */
-#  ifdef _AIX
-#   pragma alloca
-#  else /* !_AIX */
-#   ifndef alloca /* predefined by HP cc +Olibcalls */
-char *alloca ();
-#   endif /* !alloca */
-#  endif /* !_AIX */
-# endif /* !_MSC_VER && !__DMC__ */
-#endif /* !__GNUC__ && !GLIB_HAVE_ALLOCA_H */
+#elif defined __GNUC__
+#if !defined alloca
+# define alloca __builtin_alloca
+#endif
+#elif defined _AIX
+# define alloca __alloca
+#elif defined _MSC_VER
+# include <malloc.h>
+# define alloca _alloca
+#else
+# ifndef HAVE_ALLOCA
+#  ifdef  __cplusplus
+extern "C"
+#  endif
+void *alloca (size_t);
+# endif
+#endif
 
 typedef struct SpiceChunk {
     uint8_t *data;
@@ -61,6 +72,13 @@ typedef struct SpiceChunks {
     uint32_t     flags;
     SpiceChunk   chunk[0];
 } SpiceChunks;
+
+typedef struct SpiceBuffer
+{
+    size_t capacity;
+    size_t offset;
+    uint8_t *buffer;
+} SpiceBuffer;
 
 char *spice_strdup(const char *str) SPICE_GNUC_MALLOC;
 char *spice_strndup(const char *str, size_t n_bytes) SPICE_GNUC_MALLOC;
@@ -125,5 +143,17 @@ size_t spice_strnlen(const char *str, size_t max_len);
 #define spice_new(struct_type, n_structs) _SPICE_NEW(struct_type, n_structs, malloc)
 #define spice_new0(struct_type, n_structs) _SPICE_NEW(struct_type, n_structs, malloc0)
 #define spice_renew(struct_type, mem, n_structs) _SPICE_RENEW(struct_type, mem, n_structs, realloc)
+
+/* Buffer management */
+void spice_buffer_reserve(SpiceBuffer *buffer, size_t len);
+int spice_buffer_empty(SpiceBuffer *buffer);
+uint8_t *spice_buffer_end(SpiceBuffer *buffer);
+void spice_buffer_reset(SpiceBuffer *buffer);
+void spice_buffer_free(SpiceBuffer *buffer);
+void spice_buffer_append(SpiceBuffer *buffer, const void *data, size_t len);
+size_t spice_buffer_copy(SpiceBuffer *buffer, void *dest, size_t len);
+size_t spice_buffer_remove(SpiceBuffer *buffer, size_t len);
+
+SPICE_END_DECLS
 
 #endif

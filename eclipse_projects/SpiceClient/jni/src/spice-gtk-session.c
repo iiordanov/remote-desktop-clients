@@ -18,6 +18,7 @@
 
 #include <gtk/gtk.h>
 #include <spice/vd_agent.h>
+#include "desktop-integration.h"
 #include "spice-common.h"
 #include "spice-gtk-session.h"
 #include "spice-gtk-session-priv.h"
@@ -37,10 +38,9 @@ struct _SpiceGtkSessionPrivate {
     gboolean                clip_hasdata[CLIPBOARD_LAST];
     gboolean                clip_grabbed[CLIPBOARD_LAST];
     gboolean                clipboard_by_guest[CLIPBOARD_LAST];
-    gboolean                clipboard_selfgrab_pending[CLIPBOARD_LAST];
     /* auto-usbredir related */
     gboolean                auto_usbredir_enable;
-    gboolean                keyboard_focus;
+    int                     auto_usbredir_reqs;
 };
 
 /**
@@ -234,10 +234,32 @@ static void spice_gtk_session_set_property(GObject      *gobject,
     case PROP_AUTO_CLIPBOARD:
         s->auto_clipboard_enable = g_value_get_boolean(value);
         break;
-    case PROP_AUTO_USBREDIR:
+    case PROP_AUTO_USBREDIR: {
+        SpiceDesktopIntegration *desktop_int;
+        gboolean orig_value = s->auto_usbredir_enable;
+
         s->auto_usbredir_enable = g_value_get_boolean(value);
-        spice_gtk_session_update_keyboard_focus(self, s->keyboard_focus);
+        if (s->auto_usbredir_enable == orig_value)
+            break;
+
+        if (s->auto_usbredir_reqs) {
+            SpiceUsbDeviceManager *manager =
+                spice_usb_device_manager_get(s->session, NULL);
+
+            if (!manager)
+                break;
+
+            g_object_set(manager, "auto-connect", s->auto_usbredir_enable,
+                         NULL);
+
+            desktop_int = spice_desktop_integration_get(s->session);
+            if (s->auto_usbredir_enable)
+                spice_desktop_integration_inhibit_automount(desktop_int);
+            else
+                spice_desktop_integration_uninhibit_automount(desktop_int);
+        }
         break;
+    }
     default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID(gobject, prop_id, pspec);
         break;
@@ -478,7 +500,9 @@ static void clipboard_get_targets(GtkClipboard *clipboard,
     }
     if (!s->clip_grabbed[selection] && t > 0) {
         s->clip_grabbed[selection] = TRUE;
-        spice_main_clipboard_selection_grab(s->main, selection, types, t);
+
+        if (spice_main_agent_test_capability(s->main, VD_AGENT_CAP_CLIPBOARD_BY_DEMAND))
+            spice_main_clipboard_selection_grab(s->main, selection, types, t);
         /* Sending a grab causes the agent to do an impicit release */
         s->nclip_targets[selection] = 0;
     }
@@ -502,15 +526,15 @@ static void clipboard_owner_change(GtkClipboard        *clipboard,
 
     if (s->clip_grabbed[selection]) {
         s->clip_grabbed[selection] = FALSE;
-        spice_main_clipboard_selection_release(s->main, selection);
+        if (spice_main_agent_test_capability(s->main, VD_AGENT_CAP_CLIPBOARD_BY_DEMAND))
+            spice_main_clipboard_selection_release(s->main, selection);
     }
 
     switch (event->reason) {
     case GDK_OWNER_CHANGE_NEW_OWNER:
-        if (s->clipboard_selfgrab_pending[selection]) {
-            s->clipboard_selfgrab_pending[selection] = FALSE;
+        if (gtk_clipboard_get_owner(clipboard) == G_OBJECT(self))
             break;
-        }
+
         s->clipboard_by_guest[selection] = FALSE;
         s->clip_hasdata[selection] = TRUE;
         if (s->auto_clipboard_enable && !read_only(self))
@@ -528,7 +552,6 @@ typedef struct
     GMainLoop *loop;
     GtkSelectionData *selection_data;
     guint info;
-    gulong timeout_handler;
     guint selection;
 } RunInfo;
 
@@ -550,16 +573,12 @@ static void clipboard_got_from_guest(SpiceMainChannel *main, guint selection,
         g_main_loop_quit (ri->loop);
 }
 
-static gboolean clipboard_timeout(gpointer user_data)
+static void clipboard_agent_connected(RunInfo *ri)
 {
-    RunInfo *ri = user_data;
+    g_warning("agent status changed, cancel clipboard request");
 
-    g_warning("clipboard get timed out");
-    if (g_main_loop_is_running (ri->loop))
-        g_main_loop_quit (ri->loop);
-
-    ri->timeout_handler = 0;
-    return FALSE;
+    if (g_main_loop_is_running(ri->loop))
+        g_main_loop_quit(ri->loop);
 }
 
 static void clipboard_get(GtkClipboard *clipboard,
@@ -572,6 +591,7 @@ static void clipboard_get(GtkClipboard *clipboard,
     SpiceGtkSession *self = user_data;
     SpiceGtkSessionPrivate *s = self->priv;
     gulong clipboard_handler;
+    gulong agent_handler;
     int selection;
 
     SPICE_DEBUG("clipboard get");
@@ -589,21 +609,23 @@ static void clipboard_get(GtkClipboard *clipboard,
     clipboard_handler = g_signal_connect(s->main, "main-clipboard-selection",
                                          G_CALLBACK(clipboard_got_from_guest),
                                          &ri);
-    ri.timeout_handler = g_timeout_add_seconds(7, clipboard_timeout, &ri);
+    agent_handler = g_signal_connect(s->main, "notify::agent-connected",
+                                     G_CALLBACK(clipboard_agent_connected),
+                                     &ri);
+
     spice_main_clipboard_selection_request(s->main, selection,
                                            atom2agent[info].vdagent);
 
     /* apparently, this is needed to avoid dead-lock, from
        gtk_dialog_run */
-    GDK_THREADS_LEAVE();
+    gdk_threads_leave();
     g_main_loop_run(ri.loop);
-    GDK_THREADS_ENTER();
+    gdk_threads_enter();
 
     g_main_loop_unref(ri.loop);
     ri.loop = NULL;
     g_signal_handler_disconnect(s->main, clipboard_handler);
-    if (ri.timeout_handler != 0)
-        g_source_remove(ri.timeout_handler);
+    g_signal_handler_disconnect(s->main, agent_handler);
 }
 
 static void clipboard_clear(GtkClipboard *clipboard, gpointer user_data)
@@ -661,12 +683,11 @@ static gboolean clipboard_grab(SpiceMainChannel *main, guint selection,
         s->nclip_targets[selection] == 0)
         goto skip_grab_clipboard;
 
-    if (!gtk_clipboard_set_with_data(cb, targets, i, clipboard_get,
-                                     clipboard_clear, self)) {
+    if (!gtk_clipboard_set_with_owner(cb, targets, i,
+                                      clipboard_get, clipboard_clear, G_OBJECT(self))) {
         g_warning("clipboard grab failed");
         return FALSE;
     }
-    s->clipboard_selfgrab_pending[selection] = TRUE;
     s->clipboard_by_guest[selection] = TRUE;
     s->clip_hasdata[selection] = FALSE;
 
@@ -828,24 +849,40 @@ static gboolean read_only(SpiceGtkSession *self)
 /* ---------------------------------------------------------------- */
 /* private functions (usbredir related)                             */
 G_GNUC_INTERNAL
-void spice_gtk_session_update_keyboard_focus(SpiceGtkSession *self,
+void spice_gtk_session_request_auto_usbredir(SpiceGtkSession *self,
                                              gboolean state)
 {
     g_return_if_fail(SPICE_IS_GTK_SESSION(self));
 
     SpiceGtkSessionPrivate *s = self->priv;
+    SpiceDesktopIntegration *desktop_int;
     SpiceUsbDeviceManager *manager;
-    gboolean auto_connect = FALSE;
 
-    s->keyboard_focus = state;
+    if (state) {
+        s->auto_usbredir_reqs++;
+        if (s->auto_usbredir_reqs != 1)
+            return;
+    } else {
+        g_return_if_fail(s->auto_usbredir_reqs > 0);
+        s->auto_usbredir_reqs--;
+        if (s->auto_usbredir_reqs != 0)
+            return;
+    }
 
-    if (s->auto_usbredir_enable && s->keyboard_focus)
-        auto_connect = TRUE;
+    if (!s->auto_usbredir_enable)
+        return;
 
     manager = spice_usb_device_manager_get(s->session, NULL);
-    if (manager) {
-        g_object_set(manager, "auto-connect", auto_connect, NULL);
-    }
+    if (!manager)
+        return;
+
+    g_object_set(manager, "auto-connect", state, NULL);
+
+    desktop_int = spice_desktop_integration_get(s->session);
+    if (state)
+        spice_desktop_integration_inhibit_automount(desktop_int);
+    else
+        spice_desktop_integration_uninhibit_automount(desktop_int);
 }
 
 /* ------------------------------------------------------------------ */
@@ -927,14 +964,11 @@ void spice_gtk_session_paste_from_guest(SpiceGtkSession *self)
         return;
     }
 
-    if (!gtk_clipboard_set_with_data(s->clipboard,
-                                     s->clip_targets[selection],
-                                     s->nclip_targets[selection],
-                                     clipboard_get, clipboard_clear, self)) {
+    if (!gtk_clipboard_set_with_owner(s->clipboard, s->clip_targets[selection], s->nclip_targets[selection],
+                                      clipboard_get, clipboard_clear, G_OBJECT(self))) {
         g_warning("Clipboard grab failed");
         return;
     }
-    s->clipboard_selfgrab_pending[selection] = TRUE;
     s->clipboard_by_guest[selection] = TRUE;
     s->clip_hasdata[selection] = FALSE;
 }

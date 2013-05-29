@@ -20,7 +20,9 @@
 
 #include <glib.h>
 #include <gio/gio.h>
+#include "desktop-integration.h"
 #include "spice-session.h"
+#include "spice-proxy.h"
 #include "spice-gtk-session.h"
 #include "spice-channel-cache.h"
 #include "decode.h"
@@ -39,9 +41,11 @@ struct _SpiceSessionPrivate {
     char              *ca_file;
     char              *ciphers;
     GByteArray        *pubkey;
+    GByteArray        *ca;
     char              *cert_subject;
     guint             verify;
     gboolean          read_only;
+    SpiceProxy        *proxy;
 
     /* whether to enable audio */
     gboolean          audio;
@@ -81,9 +85,11 @@ struct _SpiceSessionPrivate {
     SpiceSession      *migration;
     GList             *migration_left;
     SpiceSessionMigration migration_state;
+    gboolean          full_migration; /* seamless migration indicator */
     gboolean          disconnecting;
     gboolean          migrate_wait_init;
     guint             after_main_init;
+    gboolean          migration_copy;
 
     display_cache     images;
     display_cache     palettes;
@@ -92,10 +98,12 @@ struct _SpiceSessionPrivate {
     int               glz_window_size;
     uint32_t          pci_ram_size;
     uint32_t          display_channels_count;
-
+    guint8            uuid[16];
+    gchar             *name;
 
     /* associated objects */
     SpiceAudio        *audio_manager;
+    SpiceDesktopIntegration *desktop_integration;
     SpiceGtkSession   *gtk_session;
     SpiceUsbDeviceManager *usb_manager;
 };
@@ -106,8 +114,8 @@ void spice_session_set_connection_id(SpiceSession *session, int id);
 int spice_session_get_connection_id(SpiceSession *session);
 gboolean spice_session_get_client_provided_socket(SpiceSession *session);
 
-GSocket* spice_session_channel_open_host(SpiceSession *session, SpiceChannel *channel,
-                                         gboolean use_tls);
+GSocketConnection* spice_session_channel_open_host(SpiceSession *session, SpiceChannel *channel,
+                                                   gboolean use_tls);
 void spice_session_channel_new(SpiceSession *session, SpiceChannel *channel);
 void spice_session_channel_destroy(SpiceSession *session, SpiceChannel *channel);
 void spice_session_channel_migrate(SpiceSession *session, SpiceChannel *channel);
@@ -116,7 +124,9 @@ void spice_session_set_mm_time(SpiceSession *session, guint32 time);
 guint32 spice_session_get_mm_time(SpiceSession *session);
 
 void spice_session_switching_disconnect(SpiceSession *session);
-void spice_session_set_migration(SpiceSession *session, SpiceSession *migration);
+void spice_session_set_migration(SpiceSession *session,
+                                 SpiceSession *migration,
+                                 gboolean full_migration);
 void spice_session_abort_migration(SpiceSession *session);
 void spice_session_set_migration_state(SpiceSession *session, SpiceSessionMigration state);
 
@@ -128,6 +138,7 @@ const gchar* spice_session_get_host(SpiceSession *session);
 const gchar* spice_session_get_cert_subject(SpiceSession *session);
 const gchar* spice_session_get_ciphers(SpiceSession *session);
 const gchar* spice_session_get_ca_file(SpiceSession *session);
+void spice_session_get_ca(SpiceSession *session, guint8 **ca, guint *size);
 
 void spice_session_set_caches_hints(SpiceSession *session,
                                     uint32_t pci_ram_size,
@@ -141,6 +152,8 @@ void spice_session_images_clear(SpiceSession *session);
 void spice_session_migrate_end(SpiceSession *session);
 gboolean spice_session_migrate_after_main_init(SpiceSession *session);
 SpiceChannel* spice_session_lookup_channel(SpiceSession *session, gint id, gint type);
+void spice_session_set_uuid(SpiceSession *session, guint8 uuid[16]);
+void spice_session_set_name(SpiceSession *session, const gchar *name);
 
 G_END_DECLS
 

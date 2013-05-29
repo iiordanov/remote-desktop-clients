@@ -83,12 +83,18 @@ static void spice_playback_handle_msg(SpiceChannel *channel, SpiceMsgIn *msg);
 
 /* ------------------------------------------------------------------ */
 
+static void spice_playback_channel_reset_capabilities(SpiceChannel *channel)
+{
+    if (!g_getenv("SPICE_DISABLE_CELT"))
+        spice_channel_set_capability(SPICE_CHANNEL(channel), SPICE_PLAYBACK_CAP_CELT_0_5_1);
+    spice_channel_set_capability(SPICE_CHANNEL(channel), SPICE_PLAYBACK_CAP_VOLUME);
+}
+
 static void spice_playback_channel_init(SpicePlaybackChannel *channel)
 {
     channel->priv = SPICE_PLAYBACK_CHANNEL_GET_PRIVATE(channel);
 
-    spice_channel_set_capability(SPICE_CHANNEL(channel), SPICE_PLAYBACK_CAP_CELT_0_5_1);
-    spice_channel_set_capability(SPICE_CHANNEL(channel), SPICE_PLAYBACK_CAP_VOLUME);
+    spice_playback_channel_reset_capabilities(SPICE_CHANNEL(channel));
 }
 
 static void spice_playback_channel_finalize(GObject *obj)
@@ -183,6 +189,7 @@ static void spice_playback_channel_class_init(SpicePlaybackChannelClass *klass)
 
     channel_class->handle_msg   = spice_playback_handle_msg;
     channel_class->channel_reset = spice_playback_channel_reset;
+    channel_class->channel_reset_capabilities = spice_playback_channel_reset_capabilities;
 
     g_object_class_install_property
         (gobject_class, PROP_NCHANNELS,
@@ -338,8 +345,8 @@ static void playback_handle_data(SpiceChannel *channel, SpiceMsgIn *in)
     SpiceMsgPlaybackPacket *packet = spice_msg_in_parsed(in);
 
 #ifdef DEBUG
-    SPICE_DEBUG("%s: time %d data %p size %d", __FUNCTION__,
-            packet->time, packet->data, packet->data_size);
+    CHANNEL_DEBUG(channel, "%s: time %d data %p size %d", __FUNCTION__,
+                  packet->time, packet->data, packet->data_size);
 #endif
 
     if (c->last_time > packet->time)
@@ -383,8 +390,8 @@ static void playback_handle_mode(SpiceChannel *channel, SpiceMsgIn *in)
     SpicePlaybackChannelPrivate *c = SPICE_PLAYBACK_CHANNEL(channel)->priv;
     SpiceMsgPlaybackMode *mode = spice_msg_in_parsed(in);
 
-    SPICE_DEBUG("%s: time %d mode %d data %p size %d", __FUNCTION__,
-            mode->time, mode->mode, mode->data, mode->data_size);
+    CHANNEL_DEBUG(channel, "%s: time %d mode %d data %p size %d", __FUNCTION__,
+                  mode->time, mode->mode, mode->data, mode->data_size);
 
     c->mode = mode->mode;
     switch (c->mode) {
@@ -404,8 +411,8 @@ static void playback_handle_start(SpiceChannel *channel, SpiceMsgIn *in)
     SpiceMsgPlaybackStart *start = spice_msg_in_parsed(in);
     int celt_mode_err;
 
-    SPICE_DEBUG("%s: fmt %d channels %d freq %d time %d", __FUNCTION__,
-            start->format, start->channels, start->frequency, start->time);
+    CHANNEL_DEBUG(channel, "%s: fmt %d channels %d freq %d time %d", __FUNCTION__,
+                  start->format, start->channels, start->frequency, start->time);
 
     c->frame_count = 0;
     c->last_time = start->time;
@@ -451,6 +458,11 @@ static void playback_handle_set_volume(SpiceChannel *channel, SpiceMsgIn *in)
 {
     SpicePlaybackChannelPrivate *c = SPICE_PLAYBACK_CHANNEL(channel)->priv;
     SpiceMsgAudioVolume *vol = spice_msg_in_parsed(in);
+
+    if (vol->nchannels == 0) {
+        g_warning("spice-server send audio-volume-msg with 0 channels");
+        return;
+    }
 
     g_free(c->volume);
     c->nchannels = vol->nchannels;
@@ -502,7 +514,7 @@ void spice_playback_channel_set_delay(SpicePlaybackChannel *channel, guint32 del
 
     g_return_if_fail(SPICE_IS_PLAYBACK_CHANNEL(channel));
 
-    SPICE_DEBUG("playback set_delay %d ms", delay_ms);
+    CHANNEL_DEBUG(channel, "playback set_delay %u ms", delay_ms);
 
     c = channel->priv;
     spice_session_set_mm_time(spice_channel_get_session(SPICE_CHANNEL(channel)),

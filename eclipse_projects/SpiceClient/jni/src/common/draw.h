@@ -31,15 +31,17 @@
 #ifndef _H_SPICE_DRAW
 #define _H_SPICE_DRAW
 
+#include <spice/macros.h>
 #include <spice/types.h>
 #include <spice/enums.h>
 #include "mem.h"
 
-#define SPICE_GET_ADDRESS(addr) ((void *)(unsigned long)(addr))
-#define SPICE_SET_ADDRESS(addr, val) ((addr) = (unsigned long)(val))
+SPICE_BEGIN_DECLS
+
+#define SPICE_GET_ADDRESS(addr) ((void *)(uintptr_t)(addr))
+#define SPICE_SET_ADDRESS(addr, val) ((addr) = (uintptr_t)(val))
 
 typedef int32_t SPICE_FIXED28_4;
-typedef uint64_t SPICE_ADDRESS;
 
 typedef struct SpicePointFix {
     SPICE_FIXED28_4 x;
@@ -80,7 +82,7 @@ typedef struct SpiceClipRects {
 } SpiceClipRects;
 
 typedef struct SpiceClip {
-    uint32_t type;
+    uint8_t type;
     SpiceClipRects *rects;
 } SpiceClip;
 
@@ -221,6 +223,26 @@ typedef struct SpiceRop3 {
     SpiceQMask mask;
 } SpiceRop3;
 
+/* Given in 16.16 fixed point */
+typedef struct SpiceTransform {
+    uint32_t t00;
+    uint32_t t01;
+    uint32_t t02;
+    uint32_t t10;
+    uint32_t t11;
+    uint32_t t12;
+} SpiceTransform;
+
+typedef struct SpiceComposite {
+    uint32_t flags;
+    SpiceImage *src_bitmap;
+    SpiceImage *mask_bitmap;
+    SpiceTransform src_transform;
+    SpiceTransform mask_transform;
+    SpicePoint16 src_origin;
+    SpicePoint16 mask_origin;
+} SpiceComposite;
+
 typedef struct SpiceBlackness {
     SpiceQMask mask;
 } SpiceBlackness, SpiceInvers, SpiceWhiteness;
@@ -270,5 +292,7 @@ typedef struct SpiceCursorHeader {
     uint16_t hot_spot_x;
     uint16_t hot_spot_y;
 } SpiceCursorHeader;
+
+SPICE_END_DECLS
 
 #endif /* _H_SPICE_DRAW */

@@ -38,7 +38,6 @@ typedef struct _SpiceUsbredirChannelPrivate SpiceUsbredirChannelPrivate;
 
 /**
  * SpiceUsbredirChannel:
- * @parent: Parent instance.
  *
  * The #SpiceUsbredirChannel struct is opaque and should not be accessed directly.
  */

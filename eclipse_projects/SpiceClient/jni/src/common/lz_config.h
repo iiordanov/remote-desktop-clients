@@ -25,24 +25,15 @@
 #include <spice/macros.h>
 
 #ifdef __GNUC__
-
 #include <string.h>
-
-#define INLINE inline
-
 #else
-
 #ifdef QXLDD
 #include <windef.h>
 #include "os_dep.h"
-#define INLINE _inline
-
 #else
 #include <stddef.h>
 #include <string.h>
-
-#define INLINE inline
 #endif  // QXLDD
-
 #endif  //__GNUC__
+
 #endif  //__LZ_CONFIG_H

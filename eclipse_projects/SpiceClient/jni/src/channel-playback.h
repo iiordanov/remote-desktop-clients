@@ -35,7 +35,6 @@ typedef struct _SpicePlaybackChannelPrivate SpicePlaybackChannelPrivate;
 
 /**
  * SpicePlaybackChannel:
- * @parent: Parent instance.
  *
  * The #SpicePlaybackChannel struct is opaque and should not be accessed directly.
  */
@@ -66,11 +65,7 @@ struct _SpicePlaybackChannelClass {
     void (*playback_stop)(SpicePlaybackChannel *channel);
 
     /*< private >*/
-    /*
-     * If adding fields to this struct, remove corresponding
-     * amount of padding to avoid changing overall struct size
-     */
-    gchar _spice_reserved[SPICE_RESERVED_PADDING];
+    /* Do not add fields to this struct */
 };
 
 GType           spice_playback_channel_get_type(void);

@@ -19,6 +19,7 @@
 #ifndef _H_CANVAS_BASE
 #define _H_CANVAS_BASE
 
+#include <spice/macros.h>
 
 #include "pixman_utils.h"
 #include "lz.h"
@@ -27,6 +28,8 @@
 #ifdef WIN32
 #include <windows.h>
 #endif
+
+SPICE_BEGIN_DECLS
 
 typedef void (*spice_destroy_fn_t)(void *data);
 
@@ -62,7 +65,7 @@ struct _SpiceImageCache {
 
 typedef struct {
  SpiceCanvas *(*get)(SpiceImageSurfaces *surfaces,
-	             uint32_t surface_id);
+                     uint32_t surface_id);
 } SpiceImageSurfacesOps;
 
 struct _SpiceImageSurfaces {
@@ -130,6 +133,7 @@ typedef struct {
     void (*draw_text)(SpiceCanvas *canvas, SpiceRect *bbox, SpiceClip *clip, SpiceText *text);
     void (*draw_stroke)(SpiceCanvas *canvas, SpiceRect *bbox, SpiceClip *clip, SpiceStroke *stroke);
     void (*draw_rop3)(SpiceCanvas *canvas, SpiceRect *bbox, SpiceClip *clip, SpiceRop3 *rop3);
+    void (*draw_composite)(SpiceCanvas *canvas, SpiceRect *bbox, SpiceClip *clip, SpiceComposite *composite);
     void (*draw_blend)(SpiceCanvas *canvas, SpiceRect *bbox, SpiceClip *clip, SpiceBlend *blend);
     void (*draw_blackness)(SpiceCanvas *canvas, SpiceRect *bbox, SpiceClip *clip, SpiceBlackness *blackness);
     void (*draw_whiteness)(SpiceCanvas *canvas, SpiceRect *bbox, SpiceClip *clip, SpiceWhiteness *whiteness);
@@ -170,10 +174,10 @@ typedef struct {
                              pixman_image_t *tile,
                              int offset_x, int offset_y);
     void (*fill_tiled_rects_from_surface)(SpiceCanvas *canvas,
-					  pixman_box32_t *rects,
-					  int n_rects,
-					  SpiceCanvas *tile,
-					  int offset_x, int offset_y);
+                                          pixman_box32_t *rects,
+                                          int n_rects,
+                                          SpiceCanvas *tile,
+                                          int offset_x, int offset_y);
     void (*fill_tiled_rects_rop)(SpiceCanvas *canvas,
                                  pixman_box32_t *rects,
                                  int n_rects,
@@ -181,29 +185,29 @@ typedef struct {
                                  int offset_x, int offset_y,
                                  SpiceROP rop);
     void (*fill_tiled_rects_rop_from_surface)(SpiceCanvas *canvas,
-					      pixman_box32_t *rects,
-					      int n_rects,
-					      SpiceCanvas *tile,
-					      int offset_x, int offset_y,
-					      SpiceROP rop);
+                                              pixman_box32_t *rects,
+                                              int n_rects,
+                                              SpiceCanvas *tile,
+                                              int offset_x, int offset_y,
+                                              SpiceROP rop);
     void (*blit_image)(SpiceCanvas *canvas,
                        pixman_region32_t *region,
                        pixman_image_t *src_image,
                        int offset_x, int offset_y);
     void (*blit_image_from_surface)(SpiceCanvas *canvas,
-				    pixman_region32_t *region,
-				    SpiceCanvas *src_image,
-				    int offset_x, int offset_y);
+                                    pixman_region32_t *region,
+                                    SpiceCanvas *src_image,
+                                    int offset_x, int offset_y);
     void (*blit_image_rop)(SpiceCanvas *canvas,
                            pixman_region32_t *region,
                            pixman_image_t *src_image,
                            int offset_x, int offset_y,
                            SpiceROP rop);
     void (*blit_image_rop_from_surface)(SpiceCanvas *canvas,
-					pixman_region32_t *region,
-					SpiceCanvas *src_image,
-					int offset_x, int offset_y,
-					SpiceROP rop);
+                                        pixman_region32_t *region,
+                                        SpiceCanvas *src_image,
+                                        int offset_x, int offset_y,
+                                        SpiceROP rop);
     void (*scale_image)(SpiceCanvas *canvas,
                         pixman_region32_t *region,
                         pixman_image_t *src_image,
@@ -213,13 +217,13 @@ typedef struct {
                         int dest_width, int dest_height,
                         int scale_mode);
     void (*scale_image_from_surface)(SpiceCanvas *canvas,
-				     pixman_region32_t *region,
-				     SpiceCanvas *src_image,
-				     int src_x, int src_y,
-				     int src_width, int src_height,
-				     int dest_x, int dest_y,
-				     int dest_width, int dest_height,
-				     int scale_mode);
+                                     pixman_region32_t *region,
+                                     SpiceCanvas *src_image,
+                                     int src_x, int src_y,
+                                     int src_width, int src_height,
+                                     int dest_x, int dest_y,
+                                     int dest_width, int dest_height,
+                                     int scale_mode);
     void (*scale_image_rop)(SpiceCanvas *canvas,
                             pixman_region32_t *region,
                             pixman_image_t *src_image,
@@ -229,13 +233,13 @@ typedef struct {
                             int dest_width, int dest_height,
                             int scale_mode, SpiceROP rop);
     void (*scale_image_rop_from_surface)(SpiceCanvas *canvas,
-					 pixman_region32_t *region,
-					 SpiceCanvas *src_image,
-					 int src_x, int src_y,
-					 int src_width, int src_height,
-					 int dest_x, int dest_y,
-					 int dest_width, int dest_height,
-					 int scale_mode, SpiceROP rop);
+                                         pixman_region32_t *region,
+                                         SpiceCanvas *src_image,
+                                         int src_x, int src_y,
+                                         int src_width, int src_height,
+                                         int dest_x, int dest_y,
+                                         int dest_width, int dest_height,
+                                         int scale_mode, SpiceROP rop);
     void (*blend_image)(SpiceCanvas *canvas,
                         pixman_region32_t *region,
                         int dest_has_alpha,
@@ -245,14 +249,14 @@ typedef struct {
                         int width, int height,
                         int overall_alpha);
     void (*blend_image_from_surface)(SpiceCanvas *canvas,
-				     pixman_region32_t *region,
+                                     pixman_region32_t *region,
                                      int dest_has_alpha,
-				     SpiceCanvas *src_image,
+                                     SpiceCanvas *src_image,
                                      int src_has_alpha,
-				     int src_x, int src_y,
-				     int dest_x, int dest_y,
-				     int width, int height,
-				     int overall_alpha);
+                                     int src_x, int src_y,
+                                     int dest_x, int dest_y,
+                                     int width, int height,
+                                     int overall_alpha);
     void (*blend_scale_image)(SpiceCanvas *canvas,
                               pixman_region32_t *region,
                               int dest_has_alpha,
@@ -264,26 +268,26 @@ typedef struct {
                               int scale_mode,
                               int overall_alpha);
     void (*blend_scale_image_from_surface)(SpiceCanvas *canvas,
-					   pixman_region32_t *region,
+                                           pixman_region32_t *region,
                                            int dest_has_alpha,
-					   SpiceCanvas *src_image,
+                                           SpiceCanvas *src_image,
                                            int src_has_alpha,
-					   int src_x, int src_y,
-					   int src_width, int src_height,
-					   int dest_x, int dest_y,
-					   int dest_width, int dest_height,
-					   int scale_mode,
-					   int overall_alpha);
+                                           int src_x, int src_y,
+                                           int src_width, int src_height,
+                                           int dest_x, int dest_y,
+                                           int dest_width, int dest_height,
+                                           int scale_mode,
+                                           int overall_alpha);
     void (*colorkey_image)(SpiceCanvas *canvas,
                            pixman_region32_t *region,
                            pixman_image_t *src_image,
                            int offset_x, int offset_y,
                            uint32_t transparent_color);
     void (*colorkey_image_from_surface)(SpiceCanvas *canvas,
-					pixman_region32_t *region,
-					SpiceCanvas *src_image,
-					int offset_x, int offset_y,
-					uint32_t transparent_color);
+                                        pixman_region32_t *region,
+                                        SpiceCanvas *src_image,
+                                        int offset_x, int offset_y,
+                                        uint32_t transparent_color);
     void (*colorkey_scale_image)(SpiceCanvas *canvas,
                                  pixman_region32_t *region,
                                  pixman_image_t *src_image,
@@ -293,17 +297,17 @@ typedef struct {
                                  int dest_width, int dest_height,
                                  uint32_t transparent_color);
     void (*colorkey_scale_image_from_surface)(SpiceCanvas *canvas,
-					      pixman_region32_t *region,
-					      SpiceCanvas *src_image,
-					      int src_x, int src_y,
-					      int src_width, int src_height,
-					      int dest_x, int dest_y,
-					      int dest_width, int dest_height,
-					      uint32_t transparent_color);
+                                              pixman_region32_t *region,
+                                              SpiceCanvas *src_image,
+                                              int src_x, int src_y,
+                                              int src_width, int src_height,
+                                              int dest_x, int dest_y,
+                                              int dest_width, int dest_height,
+                                              uint32_t transparent_color);
     void (*copy_region)(SpiceCanvas *canvas,
                         pixman_region32_t *dest_region,
                         int dx, int dy);
-    pixman_image_t *(*get_image)(SpiceCanvas *canvas);
+    pixman_image_t *(*get_image)(SpiceCanvas *canvas, int force_opaque);
 } SpiceCanvasOps;
 
 void spice_canvas_set_usr_data(SpiceCanvas *canvas, void *data, spice_destroy_fn_t destroy_fn);
@@ -312,5 +316,7 @@ void *spice_canvas_get_usr_data(SpiceCanvas *canvas);
 struct _SpiceCanvas {
   SpiceCanvasOps *ops;
 };
+
+SPICE_END_DECLS
 
 #endif

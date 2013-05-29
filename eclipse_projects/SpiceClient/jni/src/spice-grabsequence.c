@@ -42,11 +42,13 @@ GType spice_grab_sequence_get_type(void)
 
 /**
  * spice_grab_sequence_new:
- * @nkeysyms: GDK_ key values
- * @keysyms: number of key values in @nkeysyms
+ * @nkeysyms: length of @keysyms
+ * @keysyms: (array length=nkeysyms): the keysym values
  *
- * Returns: a new #SpiceGrabSequence.
- **/
+ * Creates a new grab sequence from a list of keysym values
+ *
+ * Returns: (transfer full): a new grab sequence object
+ */
 SpiceGrabSequence *spice_grab_sequence_new(guint nkeysyms, guint *keysyms)
 {
 	SpiceGrabSequence *sequence;
@@ -131,7 +133,7 @@ void spice_grab_sequence_free(SpiceGrabSequence *sequence)
  * spice_grab_sequence_as_string:
  * @sequence:
  *
- * Returns: a newly allocated string representing the key sequence
+ * Returns: (transfer full): a newly allocated string representing the key sequence
  **/
 gchar *spice_grab_sequence_as_string(SpiceGrabSequence *sequence)
 {

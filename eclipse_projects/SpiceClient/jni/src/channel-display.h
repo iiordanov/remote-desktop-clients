@@ -33,9 +33,29 @@ typedef struct _SpiceDisplayChannel SpiceDisplayChannel;
 typedef struct _SpiceDisplayChannelClass SpiceDisplayChannelClass;
 typedef struct _SpiceDisplayChannelPrivate SpiceDisplayChannelPrivate;
 
+typedef struct _SpiceDisplayMonitorConfig SpiceDisplayMonitorConfig;
+struct _SpiceDisplayMonitorConfig {
+    guint id;
+    guint surface_id;
+    guint x;
+    guint y;
+    guint width;
+    guint height;
+};
+
+typedef struct _SpiceDisplayPrimary SpiceDisplayPrimary;
+struct _SpiceDisplayPrimary {
+    enum SpiceSurfaceFmt format;
+    gint width;
+    gint height;
+    gint stride;
+    gint shmid;
+    guint8 *data;
+    gboolean marked;
+};
+
 /**
  * SpiceDisplayChannel:
- * @parent: Parent instance.
  *
  * The #SpiceDisplayChannel struct is opaque and should not be accessed directly.
  */
@@ -71,10 +91,11 @@ struct _SpiceDisplayChannelClass {
                          gboolean mark);
 
     /*< private >*/
-    /* Do not add fields to this struct */
 };
 
 GType	        spice_display_channel_get_type(void);
+gboolean        spice_display_get_primary(SpiceChannel *channel, guint32 surface_id,
+                                          SpiceDisplayPrimary *primary);
 
 G_END_DECLS
 

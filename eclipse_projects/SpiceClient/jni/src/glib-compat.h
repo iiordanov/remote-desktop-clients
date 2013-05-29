@@ -67,14 +67,12 @@ type_name##_get_type (void) \
 #define G_TYPE_ERROR (spice_error_get_type ())
 GType spice_error_get_type (void) G_GNUC_CONST;
 
-#if    __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 5)
-#define G_GNUC_DEPRECATED_FOR(f)                        \
-  __attribute__((deprecated("Use " #f " instead")))
-#else
-#define G_GNUC_DEPRECATED_FOR(f)        G_GNUC_DEPRECATED
-#endif /* __GNUC__ */
-
 #define G_PARAM_DEPRECATED  (1 << 31)
+
+void      g_key_file_set_uint64             (GKeyFile             *key_file,
+					     const gchar          *group_name,
+					     const gchar          *key,
+					     guint64               value);
 #endif /* glib 2.26 */
 
 #if !GLIB_CHECK_VERSION(2,28,0)
@@ -95,6 +93,11 @@ GType spice_error_get_type (void) G_GNUC_CONST;
 void
 g_simple_async_result_take_error(GSimpleAsyncResult *simple,
                                  GError             *error);
+
+void
+g_slist_free_full(GSList         *list,
+                  GDestroyNotify free_func);
+
 #endif /* glib 2.28 */
 
 #if !GLIB_CHECK_VERSION(2,30,0)
@@ -104,6 +107,26 @@ GType spice_main_context_get_type (void) G_GNUC_CONST;
 
 #if !GLIB_CHECK_VERSION(2,32,0)
 # define G_SIGNAL_DEPRECATED (1 << 9)
+#endif
+
+#ifndef g_clear_pointer
+#define g_clear_pointer(pp, destroy) \
+  G_STMT_START {                                                               \
+    G_STATIC_ASSERT (sizeof *(pp) == sizeof (gpointer));                       \
+    /* Only one access, please */                                              \
+    gpointer *_pp = (gpointer *) (pp);                                         \
+    gpointer _p;                                                               \
+    /* This assignment is needed to avoid a gcc warning */                     \
+    GDestroyNotify _destroy = (GDestroyNotify) (destroy);                      \
+                                                                               \
+    (void) (0 ? (gpointer) *(pp) : 0);                                         \
+    do                                                                         \
+      _p = g_atomic_pointer_get (_pp);                                         \
+    while G_UNLIKELY (!g_atomic_pointer_compare_and_exchange (_pp, _p, NULL)); \
+                                                                               \
+    if (_p)                                                                    \
+      _destroy (_p);                                                           \
+  } G_STMT_END
 #endif
 
 #endif /* GLIB_COMPAT_H */

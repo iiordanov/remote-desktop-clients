@@ -337,12 +337,14 @@ static display_cursor *set_cursor(SpiceChannel *channel, SpiceCursor *scursor)
     guint8 *rgba;
     guint8 val;
 
-    SPICE_DEBUG("%s: type %d, %" PRIx64 ", %dx%d, flags %d, size %d",
-            __FUNCTION__, hdr->type, hdr->unique, hdr->width, hdr->height,
-            scursor->flags, scursor->data_size);
+    CHANNEL_DEBUG(channel, "%s: flags %d, size %d", __FUNCTION__,
+                  scursor->flags, scursor->data_size);
 
     if (scursor->flags & SPICE_CURSOR_FLAGS_NONE)
         return NULL;
+
+    CHANNEL_DEBUG(channel, "%s: type %d, %" PRIx64 ", %dx%d", __FUNCTION__,
+                  hdr->type, hdr->unique, hdr->width, hdr->height);
 
     if (scursor->flags & SPICE_CURSOR_FLAGS_FROM_CACHE) {
         item = cache_find(&c->cursors, hdr->unique);
@@ -485,7 +487,7 @@ static void cursor_handle_reset(SpiceChannel *channel, SpiceMsgIn *in)
 {
     SpiceCursorChannelPrivate *c = SPICE_CURSOR_CHANNEL(channel)->priv;
 
-    SPICE_DEBUG("%s, init_done: %d", __FUNCTION__, c->init_done);
+    CHANNEL_DEBUG(channel, "%s, init_done: %d", __FUNCTION__, c->init_done);
 
     delete_cursor_all(channel);
     emit_main_context(channel, SPICE_CURSOR_RESET);

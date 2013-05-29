@@ -7,6 +7,12 @@
 /* always defined to indicate that i18n is enabled */
 #define ENABLE_NLS 1
 
+/* Enable compile-time and run-time bounds-checking, and some warnings. */
+     #if defined __OPTIMIZE__ && __OPTIMIZE__
+     # define _FORTIFY_SOURCE 2
+     #endif
+    
+
 /* GETTEXT package name */
 #define GETTEXT_PACKAGE "spice-gtk"
 
@@ -15,6 +21,9 @@
 
 /* Define to 1 if you have the `bind_textdomain_codeset' function. */
 #define HAVE_BIND_TEXTDOMAIN_CODESET 1
+
+/* Define to 1 if you have the `clearenv' function. */
+#define HAVE_CLEARENV 1
 
 /* Define to 1 if you have the `dcgettext' function. */
 #define HAVE_DCGETTEXT 1
@@ -43,14 +52,18 @@
 /* Define if you have a polkit with polkit_authority_get_sync() */
 #define HAVE_POLKIT_AUTHORITY_GET_SYNC 1
 
+/* Define if you have a polkit with
+   polkit_authorization_result_get_dismissed() */
+#define HAVE_POLKIT_AUTHORIZATION_RESULT_GET_DISMISSED 1
+
 /* Have Quartz? */
 /* #undef HAVE_QUARTZ */
 
 /* Have xrandr? */
-#define HAVE_RANDR 1
+#undef HAVE_RANDR
 
 /* whether Cyrus SASL is available for authentication */
-#define HAVE_SASL 1
+#undef HAVE_SASL
 
 /* Define to 1 if you have the <stdint.h> header file. */
 #define HAVE_STDINT_H 1
@@ -68,7 +81,7 @@
 #define HAVE_SYS_IPC_H 1
 
 /* Define to 1 if you have the <sys/shm.h> header file. */
-#define HAVE_SYS_SHM_H 1
+#undef HAVE_SYS_SHM_H
 
 /* Define to 1 if you have the <sys/socket.h> header file. */
 #define HAVE_SYS_SOCKET_H 1
@@ -79,6 +92,9 @@
 /* Define to 1 if you have the <sys/types.h> header file. */
 #define HAVE_SYS_TYPES_H 1
 
+/* Define to 1 if you have the <termios.h> header file. */
+#define HAVE_TERMIOS_H 1
+
 /* Define to 1 if you have the <unistd.h> header file. */
 #define HAVE_UNISTD_H 1
 
@@ -86,10 +102,10 @@
 /* #undef HAVE_WINDOWS */
 
 /* Have x11? */
-#define HAVE_X11 1
+#undef HAVE_X11
 
 /* Define to 1 if you have the <X11/XKBlib.h> header file. */
-#define HAVE_X11_XKBLIB_H 1
+#undef HAVE_X11_XKBLIB_H
 
 /* Define to the sub-directory in which libtool stores uninstalled libraries.
    */
@@ -108,7 +124,7 @@
 #define PACKAGE_NAME "spice-gtk"
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "spice-gtk 0.9"
+#define PACKAGE_STRING "spice-gtk 0.18"
 
 /* Define to the one symbol short name of this package. */
 #define PACKAGE_TARNAME "spice-gtk"
@@ -117,37 +133,46 @@
 #define PACKAGE_URL ""
 
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "0.9"
+#define PACKAGE_VERSION "0.18"
 
 /* Define to 1 if you have the ANSI C header files. */
 #define STDC_HEADERS 1
 
+/* Define if supporting dbus */
+/* #undef USE_DBUS */
+
+/* Define if supporting gudev */
+#undef USE_GUDEV
+
 /* Define if supporting polkit */
-#define USE_POLKIT 1
+#undef USE_POLKIT
 
 /* Define if supporting smartcard proxying */
-#define USE_SMARTCARD 1
+#undef USE_SMARTCARD
 
 /* Define if supporting usbredir proxying */
-#define USE_USBREDIR 1
+#undef USE_USBREDIR
 
 /* Version number of package */
-#define VERSION "0.9"
+#define VERSION "0.18"
 
 /* Have GStreamer? */
 /* #undef WITH_GSTAUDIO */
 
 /* Whether to use gthread coroutine impl */
-#define WITH_GTHREAD 0
+#undef WITH_GTHREAD
 
 /* Have pulseaudio? */
-#define WITH_PULSE 1
+#undef WITH_PULSE
 
 /* Whether to use ucontext coroutine impl */
-#define WITH_UCONTEXT 1
+#undef WITH_UCONTEXT
+
+/* Define if compiling with usb.ids support */
+#undef WITH_USBIDS
 
 /* Whether to use fiber coroutine impl */
-#define WITH_WINFIBER 0
+#undef WITH_WINFIBER
 
 /* Use X11 backend? */
 /* #undef WITH_X11 */

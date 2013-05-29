@@ -20,6 +20,7 @@
 
 G_BEGIN_DECLS
 
+#include <gio/gio.h>
 #include "spice-types.h"
 #include "spice-glib-enums.h"
 #include "spice-util.h"
@@ -36,7 +37,6 @@ typedef struct _SpiceMsgOut SpiceMsgOut;
 
 /**
  * SpiceChannelEvent:
- *
  * @SPICE_CHANNEL_NONE: no event, or ignored event
  * @SPICE_CHANNEL_OPENED: connection is authentified and ready
  * @SPICE_CHANNEL_CLOSED: connection is closed normally (sent if channel was ready)
@@ -72,6 +72,11 @@ struct _SpiceChannelClass
 {
     GObjectClass parent_class;
 
+    /*< public >*/
+    /* signals, main context */
+    void (*channel_event)(SpiceChannel *channel, SpiceChannelEvent event);
+    void (*open_fd)(SpiceChannel *channel, int with_tls);
+
     /*< private >*/
     /* virtual methods, coroutine context */
     void (*handle_msg)(SpiceChannel *channel, SpiceMsgIn *msg);
@@ -79,21 +84,21 @@ struct _SpiceChannelClass
     void (*iterate_write)(SpiceChannel *channel);
     void (*iterate_read)(SpiceChannel *channel);
 
-    /*< public >*/
-    /* signals, main context */
-    void (*channel_event)(SpiceChannel *channel, SpiceChannelEvent event);
-    void (*open_fd)(SpiceChannel *channel, int with_tls);
-
     /*< private >*/
     /* virtual method, any context */
     void (*channel_disconnect)(SpiceChannel *channel);
-
     void (*channel_reset)(SpiceChannel *channel, gboolean migrating);
+    void (*channel_reset_capabilities)(SpiceChannel *channel);
+
+    /*< private >*/
+    /* virtual methods, coroutine context */
+    void (*channel_send_migration_handshake)(SpiceChannel *channel);
+
     /*
      * If adding fields to this struct, remove corresponding
      * amount of padding to avoid changing overall struct size
      */
-    gchar _spice_reserved[SPICE_RESERVED_PADDING - 5 * sizeof(void*)];
+    gchar _spice_reserved[SPICE_RESERVED_PADDING - sizeof(void *)];
 };
 
 GType spice_channel_get_type(void);
@@ -107,7 +112,12 @@ gboolean spice_channel_open_fd(SpiceChannel *channel, int fd);
 void spice_channel_disconnect(SpiceChannel *channel, SpiceChannelEvent reason);
 gboolean spice_channel_test_capability(SpiceChannel *channel, guint32 cap);
 gboolean spice_channel_test_common_capability(SpiceChannel *channel, guint32 cap);
+void spice_channel_flush_async(SpiceChannel *channel, GCancellable *cancellable, GAsyncReadyCallback callback, gpointer user_data);
+gboolean spice_channel_flush_finish(SpiceChannel *channel, GAsyncResult *result, GError **error);
+#ifndef SPICE_DISABLE_DEPRECATED
+SPICE_DEPRECATED
 void spice_channel_set_capability(SpiceChannel *channel, guint32 cap);
+#endif
 
 const gchar* spice_channel_type_to_string(gint type);
 

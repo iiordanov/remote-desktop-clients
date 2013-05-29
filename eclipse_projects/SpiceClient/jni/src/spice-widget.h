@@ -70,15 +70,22 @@ typedef enum
 
 GType	        spice_display_get_type(void);
 
-SpiceDisplay* spice_display_new(SpiceSession *session, int id);
+SpiceDisplay* spice_display_new(SpiceSession *session, int channel_id);
+SpiceDisplay* spice_display_new_with_monitor(SpiceSession *session, gint channel_id, gint monitor_id);
+
 void spice_display_mouse_ungrab(SpiceDisplay *display);
-void spice_display_copy_to_guest(SpiceDisplay *display);
-void spice_display_paste_from_guest(SpiceDisplay *display);
 void spice_display_set_grab_keys(SpiceDisplay *display, SpiceGrabSequence *seq);
 SpiceGrabSequence *spice_display_get_grab_keys(SpiceDisplay *display);
 void spice_display_send_keys(SpiceDisplay *display, const guint *keyvals,
                              int nkeyvals, SpiceDisplayKeyEvent kind);
 GdkPixbuf *spice_display_get_pixbuf(SpiceDisplay *display);
+
+#ifndef SPICE_DISABLE_DEPRECATED
+SPICE_DEPRECATED_FOR(spice_gtk_session_copy_to_guest)
+void spice_display_copy_to_guest(SpiceDisplay *display);
+SPICE_DEPRECATED_FOR(spice_gtk_session_paste_from_guest)
+void spice_display_paste_from_guest(SpiceDisplay *display);
+#endif
 
 G_END_DECLS
 

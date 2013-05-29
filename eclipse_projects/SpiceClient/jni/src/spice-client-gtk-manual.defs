@@ -104,3 +104,14 @@
     '("failed" "SPICE_CLIENT_ERROR_FAILED")
   )
 )
+
+(define-function spice_audio_new
+  (c-name "spice_audio_new")
+  (is-constructor-of "SpiceAudio")
+  (return-type "SpiceAudio*")
+  (parameters
+    '("SpiceSession*" "session")
+    '("GMainContext*" "context")
+    '("const-char*" "name")
+  )
+)

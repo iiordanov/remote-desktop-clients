@@ -22,7 +22,7 @@
 #define _CONTINUATION_H_
 
 #include <stddef.h>
-//#include <sys/ucontext.h>
+#include <ucontext.h>
 #include <setjmp.h>
 
 struct continuation
@@ -33,10 +33,8 @@ struct continuation
 	int (*release)(struct continuation *cc);
 
 	/* private */
-//	ucontext_t uc;
-//	ucontext_t last;
-	int uc;
-	int last;
+	ucontext_t uc;
+	ucontext_t last;
 	int exited;
 	jmp_buf jmp;
 };

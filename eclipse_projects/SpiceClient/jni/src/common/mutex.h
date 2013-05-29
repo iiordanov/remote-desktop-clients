@@ -18,6 +18,11 @@
 
 #ifndef _H_MUTEX
 #define _H_MUTEX
+
+#include <spice/macros.h>
+
+SPICE_BEGIN_DECLS
+
 #ifdef _WIN32
 #include <windows.h>
 typedef CRITICAL_SECTION mutex_t;
@@ -31,5 +36,7 @@ typedef pthread_mutex_t mutex_t;
 #define MUTEX_LOCK(mutex) pthread_mutex_lock(&mutex)
 #define MUTEX_UNLOCK(mutex) pthread_mutex_unlock(&mutex)
 #endif
+
+SPICE_END_DECLS
 
 #endif // _H_MUTEX

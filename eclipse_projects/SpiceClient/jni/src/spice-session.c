@@ -17,18 +17,18 @@
 */
 #include <gio/gio.h>
 #include <glib.h>
+
+#include "common/ring.h"
+
 #include "spice-client.h"
 #include "spice-common.h"
 #include "spice-channel-priv.h"
 #include "spice-util-priv.h"
-
 #include "spice-session-priv.h"
-
-/* spice/common */
-#include "ring.h"
-
 #include "gio-coroutine.h"
 #include "glib-compat.h"
+#include "wocky-http-proxy.h"
+#include "spice-proxy.h"
 
 struct channel {
     SpiceChannel      *channel;
@@ -103,6 +103,10 @@ enum {
     PROP_READ_ONLY,
     PROP_CACHE_SIZE,
     PROP_GLZ_WINDOW_SIZE,
+    PROP_UUID,
+    PROP_NAME,
+    PROP_CA,
+    PROP_PROXY
 };
 
 /* signals */
@@ -115,17 +119,63 @@ enum {
 static guint signals[SPICE_SESSION_LAST_SIGNAL];
 
 
+static void update_proxy(SpiceSession *self, const gchar *str)
+{
+    SpiceSessionPrivate *s = self->priv;
+    SpiceProxy *proxy = NULL;
+    GError *error = NULL;
+
+    if (str == NULL)
+        str = g_getenv("SPICE_PROXY");
+    if (str == NULL || *str == 0) {
+        g_clear_object(&s->proxy);
+        return;
+    }
+
+    proxy = spice_proxy_new();
+    if (!spice_proxy_parse(proxy, str, &error))
+        g_clear_object(&proxy);
+    if (error) {
+        g_warning("%s", error->message);
+        g_clear_error(&error);
+    }
+
+    if (proxy != NULL) {
+        g_clear_object(&s->proxy);
+        s->proxy = proxy;
+    }
+}
+
 static void spice_session_init(SpiceSession *session)
 {
     SpiceSessionPrivate *s;
+    gchar *channels;
 
     SPICE_DEBUG("New session (compiled from package " PACKAGE_STRING ")");
     s = session->priv = SPICE_SESSION_GET_PRIVATE(session);
+
+    channels = g_strjoin(", ",
+                         spice_channel_type_to_string(SPICE_CHANNEL_MAIN),
+                         spice_channel_type_to_string(SPICE_CHANNEL_DISPLAY),
+                         spice_channel_type_to_string(SPICE_CHANNEL_INPUTS),
+                         spice_channel_type_to_string(SPICE_CHANNEL_CURSOR),
+                         spice_channel_type_to_string(SPICE_CHANNEL_PLAYBACK),
+                         spice_channel_type_to_string(SPICE_CHANNEL_RECORD),
+#ifdef USE_SMARTCARD
+                         spice_channel_type_to_string(SPICE_CHANNEL_SMARTCARD),
+#endif
+#ifdef USE_USBREDIR
+                         spice_channel_type_to_string(SPICE_CHANNEL_USBREDIR),
+#endif
+                         NULL);
+    SPICE_DEBUG("Supported channels: %s", channels);
+    g_free(channels);
 
     ring_init(&s->channels);
     cache_init(&s->images, "image");
     cache_init(&s->palettes, "palette");
     s->glz_window = glz_decoder_window_new();
+    update_proxy(session, NULL);
 }
 
 static void
@@ -155,8 +205,10 @@ spice_session_dispose(GObject *gobject)
     }
 
     g_clear_object(&s->audio_manager);
+    g_clear_object(&s->desktop_integration);
     g_clear_object(&s->gtk_session);
     g_clear_object(&s->usb_manager);
+    g_clear_object(&s->proxy);
 
     /* Chain up to the parent class */
     if (G_OBJECT_CLASS(spice_session_parent_class)->dispose)
@@ -214,13 +266,17 @@ spice_session_finalize(GObject *gobject)
     spice_session_images_clear(session);
     glz_decoder_window_destroy(s->glz_window);
 
-    if (s->pubkey)
-        g_byte_array_unref(s->pubkey);
+    g_clear_pointer(&s->pubkey, g_byte_array_unref);
+    g_clear_pointer(&s->ca, g_byte_array_unref);
 
     /* Chain up to the parent class */
     if (G_OBJECT_CLASS(spice_session_parent_class)->finalize)
         G_OBJECT_CLASS(spice_session_parent_class)->finalize(gobject);
 }
+
+#define URI_SCHEME_SPICE "spice://"
+#define URI_QUERY_START ";?"
+#define URI_QUERY_SEP   ";&"
 
 static int spice_uri_create(SpiceSession *session, char *dest, int len)
 {
@@ -242,50 +298,87 @@ static int spice_uri_create(SpiceSession *session, char *dest, int len)
 static int spice_uri_parse(SpiceSession *session, const char *original_uri)
 {
     SpiceSessionPrivate *s = SPICE_SESSION_GET_PRIVATE(session);
-    char host[128], key[32], value[128];
-    char *port = NULL, *tls_port = NULL, *uri = NULL, *password = NULL;
-    char **target_key;
-    int punctuation = 0;
-    int len, pos = 0;
+    gchar *host = NULL, *port = NULL, *tls_port = NULL, *uri = NULL, *password = NULL;
+    gchar *path = NULL;
+    gchar *unescaped_path = NULL;
+    gchar *authority = NULL;
+    gchar *query = NULL;
 
     g_return_val_if_fail(original_uri != NULL, -1);
 
-    uri = g_uri_unescape_string(original_uri, NULL);
-    g_return_val_if_fail(uri != NULL, -1);
+    uri = g_strdup(original_uri);
 
-    if (sscanf(uri, "spice://%127[-.0-9a-zA-Z]%n", host, &len) != 1)
+    /* Break up the URI into its various parts, scheme, authority,
+     * path (ignored) and query
+     */
+    if (strncmp(uri, URI_SCHEME_SPICE, strlen(URI_SCHEME_SPICE)) != 0) {
+        g_warning("Expected a URI scheme of '%s' in URI '%s'",
+                  URI_SCHEME_SPICE, uri);
         goto fail;
-    pos += len;
+    }
+    authority = uri + strlen(URI_SCHEME_SPICE);
+    path = strchr(authority, '/');
+    if (path) {
+        path[0] = '\0';
+        path++;
+    }
 
-    if (uri[pos] == '/')
-        pos++;
+    if (path) {
+        size_t prefix = strcspn(path, URI_QUERY_START);
+        query = path + prefix;
+    } else {
+        size_t prefix = strcspn(authority, URI_QUERY_START);
+        query = authority + prefix;
+    }
 
-    for (;;) {
-        if (uri[pos] == '?' || uri[pos] == ';' || uri[pos] == '&') {
-            pos++;
-            punctuation++;
-            continue;
+    if (query && query[0]) {
+        query[0] = '\0';
+        query++;
+    }
+
+    /* Now process the individual parts */
+
+    if (authority[0] == '[') {
+        gchar *tmp = strchr(authority, ']');
+        if (!tmp) {
+            g_warning("Missing closing ']' in authority for URI '%s'", uri);
+            goto fail;
         }
-        if (uri[pos] == 0) {
-            break;
+        tmp[0] = '\0';
+        tmp++;
+        host = g_strdup(authority + 1);
+        if (tmp[0] == ':')
+            port = g_strdup(tmp + 1);
+    } else {
+        gchar *tmp = strchr(authority, ':');
+        if (tmp) {
+            *tmp = '\0';
+            tmp++;
+            port = g_strdup(tmp);
         }
-        if (uri[pos] == ':') {
-            if (punctuation++) {
-                g_warning("colon seen after a previous punctuation (?;&:)");
-                goto fail;
-            }
-            pos++;
-            /* port numbers are 16 bit, fits in five decimal figures. */
-            if (sscanf(uri + pos, "%5[0-9]%n", value, &len) != 1)
-                goto fail;
-            port = g_strdup(value);
-            pos += len;
-            continue;
-        } else {
-            if (sscanf(uri + pos, "%31[-a-zA-Z0-9]=%127[^;&]%n", key, value, &len) != 2)
-                goto fail;
+        host = g_uri_unescape_string(authority, NULL);
+    }
+
+    if (path && !(g_str_equal(path, "") ||
+                  g_str_equal(path, "/"))) {
+        g_warning("Unexpected path data '%s' for URI '%s'", path, uri);
+        /* don't fail, just ignore */
+    }
+    unescaped_path = g_uri_unescape_string(path, NULL);
+
+    while (query && query[0] != '\0') {
+        gchar key[32], value[128];
+        gchar **target_key;
+
+        int len;
+        if (sscanf(query, "%31[-a-zA-Z0-9]=%127[^;&]%n", key, value, &len) != 2) {
+            g_warning("Failed to parse URI query '%s'", query);
+            goto fail;
         }
-        pos += len;
+        query += len;
+        if (*query)
+            query++;
+
         target_key = NULL;
         if (g_str_equal(key, "port")) {
             target_key = &port;
@@ -295,30 +388,31 @@ static int spice_uri_parse(SpiceSession *session, const char *original_uri)
             target_key = &password;
             g_warning("password may be visible in process listings");
         } else {
-            g_warning("unknown key in spice URI parsing: %s", key);
+            g_warning("unknown key in spice URI parsing: '%s'", key);
             goto fail;
         }
         if (target_key) {
             if (*target_key) {
-                g_warning("double set of %s", key);
+                g_warning("Double set of '%s' in URI '%s'", key, uri);
                 goto fail;
             }
-            *target_key = g_strdup(value);
+            *target_key = g_uri_unescape_string(value, NULL);
         }
     }
 
     if (port == NULL && tls_port == NULL) {
-        g_warning("missing port or tls-port in spice URI");
+        g_warning("Missing port or tls-port in spice URI '%s'", uri);
         goto fail;
     }
 
     /* parsed ok -> apply */
     g_free(uri);
+    g_free(unescaped_path);
     g_free(s->host);
     g_free(s->port);
     g_free(s->tls_port);
     g_free(s->password);
-    s->host = g_strdup(host);
+    s->host = host;
     s->port = port;
     s->tls_port = tls_port;
     s->password = password;
@@ -326,6 +420,8 @@ static int spice_uri_parse(SpiceSession *session, const char *original_uri)
 
 fail:
     g_free(uri);
+    g_free(unescaped_path);
+    g_free(host);
     g_free(port);
     g_free(tls_port);
     g_free(password);
@@ -374,6 +470,9 @@ static void spice_session_get_property(GObject    *gobject,
     case PROP_PUBKEY:
         g_value_set_boxed(value, s->pubkey);
 	break;
+    case PROP_CA:
+        g_value_set_boxed(value, s->ca);
+	break;
     case PROP_CERT_SUBJECT:
         g_value_set_string(value, s->cert_subject);
 	break;
@@ -416,6 +515,15 @@ static void spice_session_get_property(GObject    *gobject,
     case PROP_GLZ_WINDOW_SIZE:
         g_value_set_int(value, s->glz_window_size);
         break;
+    case PROP_NAME:
+        g_value_set_string(value, s->name);
+	break;
+    case PROP_UUID:
+        g_value_set_pointer(value, s->uuid);
+	break;
+    case PROP_PROXY:
+        g_value_take_string(value, spice_proxy_to_string(s->proxy));
+	break;
     default:
 	G_OBJECT_WARN_INVALID_PROPERTY_ID(gobject, prop_id, pspec);
 	break;
@@ -468,16 +576,21 @@ static void spice_session_set_property(GObject      *gobject,
         s->client_provided_sockets = g_value_get_boolean(value);
         break;
     case PROP_PUBKEY:
-        g_byte_array_unref(s->pubkey);
-        s->pubkey = g_value_get_boxed(value);
         if (s->pubkey)
-            s->verify = SPICE_SESSION_VERIFY_PUBKEY;
+            g_byte_array_unref(s->pubkey);
+        s->pubkey = g_value_dup_boxed(value);
+        if (s->pubkey)
+            s->verify |= SPICE_SESSION_VERIFY_PUBKEY;
+        else
+            s->verify &= ~SPICE_SESSION_VERIFY_PUBKEY;
 	break;
     case PROP_CERT_SUBJECT:
         g_free(s->cert_subject);
         s->cert_subject = g_value_dup_string(value);
         if (s->cert_subject)
-            s->verify = SPICE_SESSION_VERIFY_SUBJECT;
+            s->verify |= SPICE_SESSION_VERIFY_SUBJECT;
+        else
+            s->verify &= ~SPICE_SESSION_VERIFY_SUBJECT;
         break;
     case PROP_VERIFY:
         s->verify = g_value_get_flags(value);
@@ -522,6 +635,13 @@ static void spice_session_set_property(GObject      *gobject,
     case PROP_GLZ_WINDOW_SIZE:
         s->glz_window_size = g_value_get_int(value);
         break;
+    case PROP_CA:
+        g_clear_pointer(&s->ca, g_byte_array_unref);
+        s->ca = g_value_dup_boxed(value);
+        break;
+    case PROP_PROXY:
+        update_proxy(session, g_value_get_string(value));
+        break;
     default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID(gobject, prop_id, pspec);
         break;
@@ -531,6 +651,10 @@ static void spice_session_set_property(GObject      *gobject,
 static void spice_session_class_init(SpiceSessionClass *klass)
 {
     GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
+
+#if GLIB_CHECK_VERSION(2, 26, 0)
+    _wocky_http_proxy_get_type();
+#endif
 
     gobject_class->dispose      = spice_session_dispose;
     gobject_class->finalize     = spice_session_finalize;
@@ -808,7 +932,7 @@ static void spice_session_class_init(SpiceSessionClass *klass)
      * hardware smartcard reader. If it's set to a NULL-terminated string
      * array containing the names of 3 valid certificates, these will be
      * used to simulate a smartcard in the guest
-     * @see_also: spice_smartcard_manager_insert_card()
+     * See also spice_smartcard_manager_insert_card()
      *
      * Since: 0.7
      **/
@@ -858,7 +982,7 @@ static void spice_session_class_init(SpiceSessionClass *klass)
                           G_PARAM_STATIC_STRINGS));
 
     /**
-     * SpiceSession::inhibit-keyboard-grab
+     * SpiceSession::inhibit-keyboard-grab:
      *
      * This boolean is set by the usbredir channel to indicate to #SpiceDisplay
      * that the keyboard grab should be temporarily released, because it is
@@ -874,6 +998,27 @@ static void spice_session_class_init(SpiceSessionClass *klass)
                         "Request that SpiceDisplays don't grab the keyboard",
                         FALSE,
                         G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+
+    /**
+     * SpiceSession:ca:
+     *
+     * CA certificates in PEM format. The text data can contain
+     * several CA certificates identified by:
+     *
+     *  -----BEGIN CERTIFICATE-----
+     *  ... (CA certificate in base64 encoding) ...
+     *  -----END CERTIFICATE-----
+     *
+     * Since: 0.15
+     **/
+    g_object_class_install_property
+        (gobject_class, PROP_CA,
+         g_param_spec_boxed("ca",
+                            "CA",
+                            "The CA certificates data",
+                            G_TYPE_BYTE_ARRAY,
+                            G_PARAM_READWRITE |
+                            G_PARAM_STATIC_STRINGS));
 
     /**
      * SpiceSession::channel-new:
@@ -932,6 +1077,7 @@ static void spice_session_class_init(SpiceSessionClass *klass)
      *
      * Images cache size. If 0, don't set.
      *
+     * Since: 0.9
      **/
     g_object_class_install_property
         (gobject_class, PROP_CACHE_SIZE,
@@ -947,6 +1093,7 @@ static void spice_session_class_init(SpiceSessionClass *klass)
      *
      * Glz window size. If 0, don't set.
      *
+     * Since: 0.9
      **/
     g_object_class_install_property
         (gobject_class, PROP_GLZ_WINDOW_SIZE,
@@ -956,6 +1103,54 @@ static void spice_session_class_init(SpiceSessionClass *klass)
                           0, LZ_MAX_WINDOW_SIZE * 4, 0,
                           G_PARAM_READWRITE |
                           G_PARAM_STATIC_STRINGS));
+
+    /**
+     * SpiceSession:name:
+     *
+     * Spice server name.
+     *
+     * Since: 0.11
+     **/
+    g_object_class_install_property
+        (gobject_class, PROP_NAME,
+         g_param_spec_string("name",
+                             "Name",
+                             "Spice server name",
+                             NULL,
+                             G_PARAM_READABLE |
+                             G_PARAM_STATIC_STRINGS));
+
+    /**
+     * SpiceSession:uuid:
+     *
+     * Spice server uuid.
+     *
+     * Since: 0.11
+     **/
+    g_object_class_install_property
+        (gobject_class, PROP_UUID,
+         g_param_spec_pointer("uuid",
+                              "UUID",
+                              "Spice server uuid",
+                              G_PARAM_READABLE |
+                              G_PARAM_STATIC_STRINGS));
+
+    /**
+     * SpiceSession:proxy:
+     *
+     * URI to the proxy server to use when doing network connection.
+     * of the form <![CDATA[ [protocol://]<host>[:port] ]]>
+     *
+     * Since: 0.17
+     **/
+    g_object_class_install_property
+        (gobject_class, PROP_PROXY,
+         g_param_spec_string("proxy",
+                             "Proxy",
+                             "The proxy server",
+                             NULL,
+                             G_PARAM_READWRITE |
+                             G_PARAM_STATIC_STRINGS));
 
     g_type_class_add_private(klass, sizeof(SpiceSessionPrivate));
 }
@@ -984,13 +1179,17 @@ SpiceSession *spice_session_new_from_session(SpiceSession *session)
                                                     NULL));
     SpiceSessionPrivate *c = copy->priv, *s = session->priv;
 
-    g_warn_if_fail (c->host == NULL);
-    g_warn_if_fail (c->tls_port == NULL);
-    g_warn_if_fail (c->password == NULL);
-    g_warn_if_fail (c->ca_file == NULL);
-    g_warn_if_fail (c->ciphers == NULL);
-    g_warn_if_fail (c->cert_subject == NULL);
-    g_warn_if_fail (c->pubkey == NULL);
+    g_clear_object(&c->proxy);
+
+    g_warn_if_fail(c->host == NULL);
+    g_warn_if_fail(c->tls_port == NULL);
+    g_warn_if_fail(c->password == NULL);
+    g_warn_if_fail(c->ca_file == NULL);
+    g_warn_if_fail(c->ciphers == NULL);
+    g_warn_if_fail(c->cert_subject == NULL);
+    g_warn_if_fail(c->pubkey == NULL);
+    g_warn_if_fail(c->pubkey == NULL);
+    g_warn_if_fail(c->proxy == NULL);
 
     g_object_get(session,
                  "host", &c->host,
@@ -1003,11 +1202,16 @@ SpiceSession *spice_session_new_from_session(SpiceSession *session)
                  "verify", &c->verify,
                  "smartcard-certificates", &c->smartcard_certificates,
                  "smartcard-db", &c->smartcard_db,
+                 "enable-smartcard", &c->smartcard,
+                 "enable-audio", &c->audio,
+                 "enable-usbredir", &c->usbredir,
                  NULL);
 
     c->client_provided_sockets = s->client_provided_sockets;
     c->protocol = s->protocol;
     c->connection_id = s->connection_id;
+    if (s->proxy)
+        c->proxy = g_object_ref(s->proxy);
 
     return copy;
 }
@@ -1042,11 +1246,14 @@ gboolean spice_session_connect(SpiceSession *session)
 /**
  * spice_session_open_fd:
  * @session:
- * @fd: a file descriptor
+ * @fd: a file descriptor (socket) or -1
  *
  * Open the session using the provided @fd socket file
  * descriptor. This is useful if you create the fd yourself, for
  * example to setup a SSH tunnel.
+ *
+ * If @fd is -1, a valid fd will be requested later via the
+ * SpiceChannel::open-fd signal.
  *
  * Returns:
  **/
@@ -1055,14 +1262,17 @@ gboolean spice_session_open_fd(SpiceSession *session, int fd)
     SpiceSessionPrivate *s = SPICE_SESSION_GET_PRIVATE(session);
 
     g_return_val_if_fail(s != NULL, FALSE);
-    g_return_val_if_fail(fd >= 0, FALSE);
+    g_return_val_if_fail(fd >= -1, FALSE);
 
     spice_session_disconnect(session);
+    s->disconnecting = FALSE;
 
     s->client_provided_sockets = TRUE;
 
     g_warn_if_fail(s->cmain == NULL);
     s->cmain = spice_channel_new(session, SPICE_CHANNEL_MAIN, 0);
+
+    glz_decoder_window_clear(s->glz_window);
     return spice_channel_open_fd(s->cmain, fd);
 }
 
@@ -1076,9 +1286,9 @@ gboolean spice_session_get_client_provided_socket(SpiceSession *session)
 }
 
 G_GNUC_INTERNAL
-void spice_session_switching_disconnect(SpiceSession *session)
+void spice_session_switching_disconnect(SpiceSession *self)
 {
-    SpiceSessionPrivate *s = SPICE_SESSION_GET_PRIVATE(session);
+    SpiceSessionPrivate *s = SPICE_SESSION_GET_PRIVATE(self);
     struct channel *item;
     RingItem *ring, *next;
 
@@ -1095,10 +1305,16 @@ void spice_session_switching_disconnect(SpiceSession *session)
     }
 
     g_warn_if_fail(!ring_is_empty(&s->channels)); /* ring_get_length() == 1 */
+
+    spice_session_palettes_clear(self);
+    spice_session_images_clear(self);
+    glz_decoder_window_clear(s->glz_window);
 }
 
 G_GNUC_INTERNAL
-void spice_session_set_migration(SpiceSession *session, SpiceSession *migration)
+void spice_session_set_migration(SpiceSession *session,
+                                 SpiceSession *migration,
+                                 gboolean full_migration)
 {
     SpiceSessionPrivate *s = SPICE_SESSION_GET_PRIVATE(session);
     SpiceSessionPrivate *m = SPICE_SESSION_GET_PRIVATE(migration);
@@ -1106,6 +1322,7 @@ void spice_session_set_migration(SpiceSession *session, SpiceSession *migration)
 
     g_return_if_fail(s != NULL);
 
+    s->full_migration = full_migration;
     spice_session_set_migration_state(session, SPICE_SESSION_MIGRATION_MIGRATING);
 
     g_warn_if_fail(s->migration == NULL);
@@ -1165,7 +1382,11 @@ void spice_session_abort_migration(SpiceSession *session)
     struct channel *c;
 
     g_return_if_fail(s != NULL);
-    g_return_if_fail(s->migration != NULL);
+
+    if (s->migration == NULL) {
+        SPICE_DEBUG("no migration in progress");
+        return;
+    }
 
     for (ring = ring_get_head(&s->channels);
          ring != NULL; ring = next) {
@@ -1178,7 +1399,8 @@ void spice_session_abort_migration(SpiceSession *session)
         spice_channel_swap(c->channel,
             spice_session_lookup_channel(s->migration,
                                          spice_channel_get_channel_id(c->channel),
-                                         spice_channel_get_channel_type(c->channel)));
+                                         spice_channel_get_channel_type(c->channel)),
+                                         !s->full_migration);
     }
 
     g_list_free(s->migration_left);
@@ -1203,16 +1425,19 @@ void spice_session_channel_migrate(SpiceSession *session, SpiceChannel *channel)
 
     id = spice_channel_get_channel_id(channel);
     type = spice_channel_get_channel_type(channel);
-    SPICE_DEBUG("migrating channel id:%d type:%d", id, type);
+    CHANNEL_DEBUG(channel, "migrating channel id:%d type:%d", id, type);
 
     c = spice_session_lookup_channel(s->migration, id, type);
     g_return_if_fail(c != NULL);
 
-    spice_channel_swap(channel, c);
+    if (!g_queue_is_empty(&c->priv->xmit_queue) && s->full_migration) {
+        CHANNEL_DEBUG(channel, "mig channel xmit queue is not empty. type %s", c->priv->name);
+    }
+    spice_channel_swap(channel, c, !s->full_migration);
     s->migration_left = g_list_remove(s->migration_left, channel);
 
     if (g_list_length(s->migration_left) == 0) {
-        SPICE_DEBUG("all channel migrated");
+        CHANNEL_DEBUG(channel, "all channel migrated");
         spice_session_disconnect(s->migration);
         g_object_unref(s->migration);
         s->migration = NULL;
@@ -1275,15 +1500,17 @@ void spice_session_migrate_end(SpiceSession *self)
         SpiceChannel *channel = l->data;
         l = l->next;
 
+        if (!SPICE_IS_MAIN_CHANNEL(channel)) {
+            /* freeze other channels */
+            channel->priv->state = SPICE_CHANNEL_STATE_MIGRATING;
+        }
+
         /* reset for migration, disconnect */
         spice_channel_reset(channel, TRUE);
 
         if (SPICE_IS_MAIN_CHANNEL(channel)) {
             /* migrate main to target, so we can start talking */
             spice_session_channel_migrate(self, channel);
-        } else {
-            /* freeze other channels */
-            channel->priv->state = SPICE_CHANNEL_STATE_MIGRATING;
         }
     }
 
@@ -1340,6 +1567,11 @@ void spice_session_disconnect(SpiceSession *session)
     }
 
     s->connection_id = 0;
+
+    g_free(s->name);
+    s->name = NULL;
+    memset(s->uuid, 0, sizeof(s->uuid));
+
     /* we leave disconnecting = TRUE, so that spice_channel_destroy()
        is not called multiple times on channels that are in pending
        destroy state. */
@@ -1403,84 +1635,158 @@ gboolean spice_session_has_channel_type(SpiceSession *session, gint type)
 /* ------------------------------------------------------------------ */
 /* private functions                                                  */
 
-static GSocket *channel_connect_socket(SpiceChannel *channel,
-                                       GSocketAddress *sockaddr,
-                                       GError **error)
+typedef struct spice_open_host spice_open_host;
+
+struct spice_open_host {
+    struct coroutine *from;
+    SpiceSession *session;
+    SpiceChannel *channel;
+    SpiceProxy *proxy;
+    int port;
+    GCancellable *cancellable;
+    GError *error;
+    GSocketConnection *connection;
+    GSocketClient *client;
+};
+
+static void socket_client_connect_ready(GObject *source_object, GAsyncResult *result,
+                                        gpointer data)
 {
-    SpiceChannelPrivate *c = channel->priv;
-    GSocket *sock = g_socket_new(g_socket_address_get_family(sockaddr),
-                                 G_SOCKET_TYPE_STREAM,
-                                 G_SOCKET_PROTOCOL_DEFAULT,
-                                 error);
+    GSocketClient *client = G_SOCKET_CLIENT(source_object);
+    spice_open_host *open_host = data;
+    GSocketConnection *connection = NULL;
 
-    if (!sock)
-        return NULL;
+    SPICE_DEBUG("connect ready");
+    connection = g_socket_client_connect_finish(client, result, &open_host->error);
+    if (connection == NULL)
+        goto end;
 
-    g_socket_set_blocking(sock, FALSE);
-    if (!g_socket_connect(sock, sockaddr, NULL, error)) {
-        if (*error && (*error)->code == G_IO_ERROR_PENDING) {
-            g_clear_error(error);
-            SPICE_DEBUG("Socket pending");
-            g_coroutine_socket_wait(&c->coroutine, sock, G_IO_OUT | G_IO_ERR | G_IO_HUP);
+    open_host->connection = connection;
 
-            if (!g_socket_check_connect_result(sock, error)) {
-                SPICE_DEBUG("Failed to connect %s", (*error)->message);
-                g_object_unref(sock);
-                return NULL;
-            }
-        } else {
-            SPICE_DEBUG("Socket error: %s", *error ? (*error)->message : "unknown");
-            g_object_unref(sock);
-            return NULL;
-        }
+end:
+    coroutine_yieldto(open_host->from, NULL);
+}
+
+/* main context */
+static void open_host_connectable_connect(spice_open_host *open_host, GSocketConnectable *connectable)
+{
+    SPICE_DEBUG("connecting %p...", open_host);
+
+    g_socket_client_connect_async(open_host->client, connectable,
+                                  open_host->cancellable,
+                                  socket_client_connect_ready, open_host);
+}
+
+#if GLIB_CHECK_VERSION(2,26,0)
+/* main context */
+static void proxy_lookup_ready(GObject *source_object, GAsyncResult *result,
+                               gpointer data)
+{
+    spice_open_host *open_host = data;
+    SpiceSessionPrivate *s = SPICE_SESSION_GET_PRIVATE(open_host->session);
+    GList *addresses = NULL, *it;
+    GSocketAddress *address;
+
+    SPICE_DEBUG("proxy lookup ready");
+    addresses = g_resolver_lookup_by_name_finish(G_RESOLVER(source_object),
+                                                 result, &open_host->error);
+    if (addresses == NULL || open_host->error) {
+        coroutine_yieldto(open_host->from, NULL);
+        return;
     }
 
-    SPICE_DEBUG("Finally connected");
+    for (it = addresses; it != NULL; it = it->next) {
+        address = g_proxy_address_new(G_INET_ADDRESS(it->data),
+                                      spice_proxy_get_port(open_host->proxy), "http",
+                                      s->host, open_host->port, NULL, NULL);
+        if (address != NULL)
+            break;
+    }
 
-    return sock;
+    open_host_connectable_connect(open_host, G_SOCKET_CONNECTABLE(address));
+    g_resolver_free_addresses(addresses);
+}
+#endif
+
+/* main context */
+static gboolean open_host_idle_cb(gpointer data)
+{
+    spice_open_host *open_host = data;
+    SpiceSessionPrivate *s = SPICE_SESSION_GET_PRIVATE(open_host->session);
+
+    g_return_val_if_fail(open_host != NULL, FALSE);
+    g_return_val_if_fail(open_host->connection == NULL, FALSE);
+
+#if GLIB_CHECK_VERSION(2,26,0)
+    open_host->proxy = s->proxy;
+    if (open_host->error != NULL) {
+        coroutine_yieldto(open_host->from, NULL);
+        return FALSE;
+    }
+
+    if (open_host->proxy)
+        g_resolver_lookup_by_name_async(g_resolver_get_default(),
+                                        spice_proxy_get_hostname(open_host->proxy),
+                                        open_host->cancellable,
+                                        proxy_lookup_ready, open_host);
+    else
+#endif
+        open_host_connectable_connect(open_host,
+                                      g_network_address_new(s->host, open_host->port));
+
+    SPICE_DEBUG("open host %s:%d", s->host, open_host->port);
+    if (open_host->proxy != NULL) {
+        gchar *str = spice_proxy_to_string(open_host->proxy);
+        SPICE_DEBUG("(with proxy %s)", str);
+        g_free(str);
+    }
+
+    return FALSE;
 }
 
 /* coroutine context */
 G_GNUC_INTERNAL
-GSocket* spice_session_channel_open_host(SpiceSession *session, SpiceChannel *channel,
-                                         gboolean use_tls)
+GSocketConnection* spice_session_channel_open_host(SpiceSession *session, SpiceChannel *channel,
+                                                   gboolean use_tls)
 {
     SpiceSessionPrivate *s = SPICE_SESSION_GET_PRIVATE(session);
-    GSocketConnectable *addr;
-    GSocketAddressEnumerator *enumerator;
-    GSocketAddress *sockaddr;
-    GError *conn_error = NULL;
-    GSocket *sock = NULL;
-    int port;
+    spice_open_host open_host = { 0, };
+    gchar *port, *endptr;
 
-    if ((use_tls && !s->tls_port) || (!use_tls && !s->port))
+    // FIXME: make open_host() cancellable
+    open_host.from = coroutine_self();
+    open_host.session = session;
+    open_host.channel = channel;
+    port = use_tls ? s->tls_port : s->port;
+    if (port == NULL)
         return NULL;
 
-    port = atoi(use_tls ? s->tls_port : s->port);
-
-    SPICE_DEBUG("Resolving host %s %d", s->host, port);
-
-    addr = g_network_address_new(s->host, port);
-
-    enumerator = g_socket_connectable_enumerate (addr);
-    g_object_unref (addr);
-
-    /* Try each sockaddr until we succeed. Record the first
-     * connection error, but not any further ones (since they'll probably
-     * be basically the same as the first).
-     */
-    while (!sock &&
-           (sockaddr = g_socket_address_enumerator_next(enumerator, NULL, &conn_error))) {
-        SPICE_DEBUG("Trying one socket");
-        g_clear_error(&conn_error);
-        sock = channel_connect_socket(channel, sockaddr, &conn_error);
-        if (conn_error != NULL)
-            SPICE_DEBUG("%s", conn_error->message);
-        g_object_unref(sockaddr);
+    open_host.port = strtol(port, &endptr, 10);
+    if (*port == '\0' || *endptr != '\0' ||
+        open_host.port <= 0 || open_host.port > G_MAXUINT16) {
+        g_warning("Invalid port value %s", port);
+        return NULL;
     }
-    g_object_unref(enumerator);
-    g_clear_error(&conn_error);
-    return sock;
+
+    open_host.client = g_socket_client_new();
+
+    guint id = g_idle_add(open_host_idle_cb, &open_host);
+    /* switch to main loop and wait for connection */
+    coroutine_yield(NULL);
+    g_source_remove (id);
+
+    if (open_host.error != NULL) {
+        g_warning("%s", open_host.error->message);
+        g_clear_error(&open_host.error);
+    } else if (open_host.connection != NULL) {
+        GSocket *socket;
+        socket = g_socket_connection_get_socket(open_host.connection);
+        g_socket_set_blocking(socket, FALSE);
+        g_socket_set_keepalive(socket, TRUE);
+    }
+
+    g_clear_object(&open_host.client);
+    return open_host.connection;
 }
 
 
@@ -1507,6 +1813,9 @@ void spice_session_channel_new(SpiceSession *session, SpiceChannel *channel)
                      NULL);
         if (s->color_depth != 0)
             g_object_set(channel, "color-depth", s->color_depth, NULL);
+
+        CHANNEL_DEBUG(channel, "new main channel, switching");
+        s->cmain = channel;
     }
 
     g_signal_emit(session, signals[SPICE_SESSION_CHANNEL_NEW], 0, channel);
@@ -1517,7 +1826,7 @@ void spice_session_channel_destroy(SpiceSession *session, SpiceChannel *channel)
 {
     SpiceSessionPrivate *s = SPICE_SESSION_GET_PRIVATE(session);
     struct channel *item = NULL;
-    RingItem *ring, *next;
+    RingItem *ring;
 
     g_return_if_fail(s != NULL);
     g_return_if_fail(channel != NULL);
@@ -1526,22 +1835,23 @@ void spice_session_channel_destroy(SpiceSession *session, SpiceChannel *channel)
         s->migration_left = g_list_remove(s->migration_left, channel);
 
     for (ring = ring_get_head(&s->channels); ring != NULL;
-         ring = next) {
-        next = ring_next(&s->channels, ring);
+         ring = ring_next(&s->channels, ring)) {
         item = SPICE_CONTAINEROF(ring, struct channel, link);
-        if (item->channel == s->cmain) {
-            SPICE_DEBUG("the session lost the main channel");
-            s->cmain = NULL;
-        }
-        if (item->channel == channel) {
-            ring_remove(&item->link);
-            free(item);
-            g_signal_emit(session, signals[SPICE_SESSION_CHANNEL_DESTROY], 0, channel);
-            return;
-        }
+        if (item->channel == channel)
+            break;
     }
 
-    g_warn_if_reached();
+    g_return_if_fail(ring != NULL);
+
+    if (channel == s->cmain) {
+        CHANNEL_DEBUG(channel, "the session lost the main channel");
+        s->cmain = NULL;
+    }
+
+    ring_remove(&item->link);
+    free(item);
+
+    g_signal_emit(session, signals[SPICE_SESSION_CHANNEL_DESTROY], 0, channel);
 }
 
 G_GNUC_INTERNAL
@@ -1625,6 +1935,19 @@ void spice_session_get_pubkey(SpiceSession *session, guint8 **pubkey, guint *siz
 
     *pubkey = s->pubkey ? s->pubkey->data : NULL;
     *size = s->pubkey ? s->pubkey->len : 0;
+}
+
+G_GNUC_INTERNAL
+void spice_session_get_ca(SpiceSession *session, guint8 **ca, guint *size)
+{
+    SpiceSessionPrivate *s = SPICE_SESSION_GET_PRIVATE(session);
+
+    g_return_if_fail(s != NULL);
+    g_return_if_fail(ca != NULL);
+    g_return_if_fail(size != NULL);
+
+    *ca = s->ca ? s->ca->data : NULL;
+    *size = s->ca ? s->ca->len : 0;
 }
 
 G_GNUC_INTERNAL
@@ -1731,4 +2054,27 @@ void spice_session_set_caches_hints(SpiceSession *session,
         s->glz_window_size = MIN(MAX_GLZ_WINDOW_SIZE_DEFAULT, pci_ram_size / 2);
         s->glz_window_size = MAX(MIN_GLZ_WINDOW_SIZE_DEFAULT, s->glz_window_size);
     }
+}
+
+G_GNUC_INTERNAL
+void spice_session_set_uuid(SpiceSession *session, guint8 uuid[16])
+{
+    SpiceSessionPrivate *s = SPICE_SESSION_GET_PRIVATE(session);
+
+    g_return_if_fail(s != NULL);
+    memcpy(s->uuid, uuid, sizeof(s->uuid));
+
+    g_object_notify(G_OBJECT(session), "uuid");
+}
+
+G_GNUC_INTERNAL
+void spice_session_set_name(SpiceSession *session, const gchar *name)
+{
+    SpiceSessionPrivate *s = SPICE_SESSION_GET_PRIVATE(session);
+
+    g_return_if_fail(s != NULL);
+    g_free(s->name);
+    s->name = g_strdup(name);
+
+    g_object_notify(G_OBJECT(session), "name");
 }

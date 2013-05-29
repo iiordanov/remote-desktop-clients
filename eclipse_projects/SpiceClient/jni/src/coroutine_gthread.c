@@ -24,8 +24,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <glib.h>
-
 static GCond *run_cond;
 static GMutex *run_lock;
 static struct coroutine *current;

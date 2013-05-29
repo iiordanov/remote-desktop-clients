@@ -15,29 +15,18 @@
    You should have received a copy of the GNU Lesser General Public
    License along with this library; if not, see <http://www.gnu.org/licenses/>.
 */
-
+#ifdef HAVE_CONFIG_H
 #include <config.h>
+#endif
+
 #include "pixman_utils.h"
+#include "spice_common.h"
 #include <spice/macros.h>
 
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
 #include "mem.h"
-
-#ifndef ASSERT
-#define ASSERT(x) if (!(x)) {                               \
-    printf("%s: ASSERT %s failed\n", __FUNCTION__, #x);     \
-    abort();                                                \
-}
-#endif
-
-#ifndef PANIC
-#define PANIC(str) {                                \
-    printf("%s: panic: %s", __FUNCTION__, str);     \
-    abort();                                        \
-}
-#endif
 
 #define SOLID_RASTER_OP(_name, _size, _type, _equation)  \
 static void                                        \
@@ -217,12 +206,12 @@ void spice_pixman_fill_rect(pixman_image_t *dest,
     depth = spice_pixman_image_get_bpp(dest);
     /* stride is in bytes, depth in bits */
 
-    ASSERT(x >= 0);
-    ASSERT(y >= 0);
-    ASSERT(width > 0);
-    ASSERT(height > 0);
-    ASSERT(x + width <= pixman_image_get_width(dest));
-    ASSERT(y + height <= pixman_image_get_height(dest));
+    spice_assert(x >= 0);
+    spice_assert(y >= 0);
+    spice_assert(width > 0);
+    spice_assert(height > 0);
+    spice_assert(x + width <= pixman_image_get_width(dest));
+    spice_assert(y + height <= pixman_image_get_height(dest));
 
     if (pixman_fill(bits,
                     stride / 4,
@@ -242,7 +231,7 @@ void spice_pixman_fill_rect(pixman_image_t *dest,
         byte_width = 2 * width;
         value = (value & 0xffff) * 0x00010001;
     } else {
-        ASSERT (depth == 32)
+        spice_assert (depth == 32);
         byte_line = ((uint8_t *)bits) + stride * y + x * 4;
         byte_width = 4 * width;
     }
@@ -254,19 +243,19 @@ void spice_pixman_fill_rect(pixman_image_t *dest,
         byte_line += stride;
         w = byte_width;
 
-        while (w >= 1 && ((unsigned long)d & 1)) {
+        while (w >= 1 && ((uintptr_t)d & 1)) {
             *(uint8_t *)d = (value & 0xff);
             w--;
             d++;
         }
 
-        while (w >= 2 && ((unsigned long)d & 3)) {
+        while (w >= 2 && ((uintptr_t)d & 3)) {
             *(uint16_t *)d = value;
             w -= 2;
             d += 2;
         }
 
-        while (w >= 4 && ((unsigned long)d & 7)) {
+        while (w >= 4 && ((uintptr_t)d & 7)) {
             *(uint32_t *)d = value;
 
             w -= 4;
@@ -309,13 +298,13 @@ void spice_pixman_fill_rect_rop(pixman_image_t *dest,
     depth = spice_pixman_image_get_bpp(dest);
     /* stride is in bytes, depth in bits */
 
-    ASSERT(x >= 0);
-    ASSERT(y >= 0);
-    ASSERT(width > 0);
-    ASSERT(height > 0);
-    ASSERT(x + width <= pixman_image_get_width(dest));
-    ASSERT(y + height <= pixman_image_get_height(dest));
-    ASSERT(rop >= 0 && rop < 16);
+    spice_assert(x >= 0);
+    spice_assert(y >= 0);
+    spice_assert(width > 0);
+    spice_assert(height > 0);
+    spice_assert(x + width <= pixman_image_get_width(dest));
+    spice_assert(y + height <= pixman_image_get_height(dest));
+    spice_assert(rop < 16);
 
     if (depth == 8) {
         solid_rop_8_func_t rop_func = solid_rops_8[rop];
@@ -369,13 +358,13 @@ void spice_pixman_tile_rect(pixman_image_t *dest,
     tile_width = pixman_image_get_width(tile);
     tile_height = pixman_image_get_height(tile);
 
-    ASSERT(x >= 0);
-    ASSERT(y >= 0);
-    ASSERT(width > 0);
-    ASSERT(height > 0);
-    ASSERT(x + width <= pixman_image_get_width(dest));
-    ASSERT(y + height <= pixman_image_get_height(dest));
-    ASSERT(depth == spice_pixman_image_get_bpp(tile));
+    spice_assert(x >= 0);
+    spice_assert(y >= 0);
+    spice_assert(width > 0);
+    spice_assert(height > 0);
+    spice_assert(x + width <= pixman_image_get_width(dest));
+    spice_assert(y + height <= pixman_image_get_height(dest));
+    spice_assert(depth == spice_pixman_image_get_bpp(tile));
 
     tile_start_x = (x - offset_x) % tile_width;
     if (tile_start_x < 0) {
@@ -417,7 +406,7 @@ void spice_pixman_tile_rect(pixman_image_t *dest,
             }
         }
     }  else {
-        ASSERT (depth == 32);
+        spice_assert (depth == 32);
 
         byte_line = ((uint8_t *)bits) + stride * y + x * 4;
         tile_line = ((uint8_t *)tile_bits) + tile_stride * tile_start_y + tile_start_x * 4;
@@ -460,14 +449,14 @@ void spice_pixman_tile_rect_rop(pixman_image_t *dest,
     tile_width = pixman_image_get_width(tile);
     tile_height = pixman_image_get_height(tile);
 
-    ASSERT(x >= 0);
-    ASSERT(y >= 0);
-    ASSERT(width > 0);
-    ASSERT(height > 0);
-    ASSERT(x + width <= pixman_image_get_width(dest));
-    ASSERT(y + height <= pixman_image_get_height(dest));
-    ASSERT(rop >= 0 && rop < 16);
-    ASSERT(depth == spice_pixman_image_get_bpp(tile));
+    spice_assert(x >= 0);
+    spice_assert(y >= 0);
+    spice_assert(width > 0);
+    spice_assert(height > 0);
+    spice_assert(x + width <= pixman_image_get_width(dest));
+    spice_assert(y + height <= pixman_image_get_height(dest));
+    spice_assert(rop < 16);
+    spice_assert(depth == spice_pixman_image_get_bpp(tile));
 
     tile_start_x = (x - offset_x) % tile_width;
     if (tile_start_x < 0) {
@@ -515,7 +504,7 @@ void spice_pixman_tile_rect_rop(pixman_image_t *dest,
     }  else {
         tiled_rop_32_func_t rop_func = tiled_rops_32[rop];
 
-        ASSERT (depth == 32);
+        spice_assert (depth == 32);
 
         byte_line = ((uint8_t *)bits) + stride * y + x * 4;
         tile_line = ((uint8_t *)tile_bits) + tile_stride * tile_start_y + tile_start_x * 4;
@@ -585,17 +574,17 @@ void spice_pixman_blit(pixman_image_t *dest,
         return;
     }
 
-    ASSERT(src_x >= 0);
-    ASSERT(src_y >= 0);
-    ASSERT(dest_x >= 0);
-    ASSERT(dest_y >= 0);
-    ASSERT(width > 0);
-    ASSERT(height > 0);
-    ASSERT(dest_x + width <= pixman_image_get_width(dest));
-    ASSERT(dest_y + height <= pixman_image_get_height(dest));
-    ASSERT(src_x + width <= pixman_image_get_width(src));
-    ASSERT(src_y + height <= pixman_image_get_height(src));
-    ASSERT(depth == src_depth);
+    spice_assert(src_x >= 0);
+    spice_assert(src_y >= 0);
+    spice_assert(dest_x >= 0);
+    spice_assert(dest_y >= 0);
+    spice_assert(width > 0);
+    spice_assert(height > 0);
+    spice_assert(dest_x + width <= pixman_image_get_width(dest));
+    spice_assert(dest_y + height <= pixman_image_get_height(dest));
+    spice_assert(src_x + width <= pixman_image_get_width(src));
+    spice_assert(src_y + height <= pixman_image_get_height(src));
+    spice_assert(depth == src_depth);
 
     if (pixman_blt(src_bits,
                    bits,
@@ -617,7 +606,7 @@ void spice_pixman_blit(pixman_image_t *dest,
         byte_width = width * 2;
         src_line = ((uint8_t *)src_bits) + src_stride * src_y + src_x * 2;
     }  else {
-        ASSERT (depth == 32);
+        spice_assert (depth == 32);
         byte_line = ((uint8_t *)bits) + stride * dest_y + dest_x * 4;
         byte_width = width * 4;
         src_line = ((uint8_t *)src_bits) + src_stride * src_y + src_x * 4;
@@ -676,17 +665,17 @@ void spice_pixman_blit_rop (pixman_image_t *dest,
         return;
     }
 
-    ASSERT(src_x >= 0);
-    ASSERT(src_y >= 0);
-    ASSERT(dest_x >= 0);
-    ASSERT(dest_y >= 0);
-    ASSERT(width > 0);
-    ASSERT(height > 0);
-    ASSERT(dest_x + width <= pixman_image_get_width(dest));
-    ASSERT(dest_y + height <= pixman_image_get_height(dest));
-    ASSERT(src_x + width <= pixman_image_get_width(src));
-    ASSERT(src_y + height <= pixman_image_get_height(src));
-    ASSERT(depth == src_depth);
+    spice_assert(src_x >= 0);
+    spice_assert(src_y >= 0);
+    spice_assert(dest_x >= 0);
+    spice_assert(dest_y >= 0);
+    spice_assert(width > 0);
+    spice_assert(height > 0);
+    spice_assert(dest_x + width <= pixman_image_get_width(dest));
+    spice_assert(dest_y + height <= pixman_image_get_height(dest));
+    spice_assert(src_x + width <= pixman_image_get_width(src));
+    spice_assert(src_y + height <= pixman_image_get_height(src));
+    spice_assert(depth == src_depth);
 
     if (depth == 8) {
         copy_rop_8_func_t rop_func = copy_rops_8[rop];
@@ -713,7 +702,7 @@ void spice_pixman_blit_rop (pixman_image_t *dest,
     }  else {
         copy_rop_32_func_t rop_func = copy_rops_32[rop];
 
-        ASSERT (depth == 32);
+        spice_assert (depth == 32);
         byte_line = ((uint8_t *)bits) + stride * dest_y + dest_x * 4;
         src_line = ((uint8_t *)src_bits) + src_stride * src_y + src_x * 4;
 
@@ -772,17 +761,17 @@ void spice_pixman_blit_colorkey (pixman_image_t *dest,
         return;
     }
 
-    ASSERT(src_x >= 0);
-    ASSERT(src_y >= 0);
-    ASSERT(dest_x >= 0);
-    ASSERT(dest_y >= 0);
-    ASSERT(width > 0);
-    ASSERT(height > 0);
-    ASSERT(dest_x + width <= pixman_image_get_width(dest));
-    ASSERT(dest_y + height <= pixman_image_get_height(dest));
-    ASSERT(src_x + width <= pixman_image_get_width(src));
-    ASSERT(src_y + height <= pixman_image_get_height(src));
-    ASSERT(depth == spice_pixman_image_get_bpp(src));
+    spice_assert(src_x >= 0);
+    spice_assert(src_y >= 0);
+    spice_assert(dest_x >= 0);
+    spice_assert(dest_y >= 0);
+    spice_assert(width > 0);
+    spice_assert(height > 0);
+    spice_assert(dest_x + width <= pixman_image_get_width(dest));
+    spice_assert(dest_y + height <= pixman_image_get_height(dest));
+    spice_assert(src_x + width <= pixman_image_get_width(src));
+    spice_assert(src_y + height <= pixman_image_get_height(src));
+    spice_assert(depth == spice_pixman_image_get_bpp(src));
 
     if (depth == 8) {
         byte_line = ((uint8_t *)bits) + stride * dest_y + dest_x;
@@ -790,9 +779,7 @@ void spice_pixman_blit_colorkey (pixman_image_t *dest,
 
         while (height--) {
             uint8_t *d = (uint8_t *)byte_line;
-            uint8_t *s = (uint8_t *)byte_line;
-
-            s = (uint8_t *)src_line;
+            uint8_t *s = (uint8_t *)src_line;
             for (x = 0; x < width; x++) {
                 uint8_t val = *s;
                 if (val != (uint8_t)transparent_color) {
@@ -810,9 +797,8 @@ void spice_pixman_blit_colorkey (pixman_image_t *dest,
 
         while (height--) {
             uint16_t *d = (uint16_t *)byte_line;
-            uint16_t *s = (uint16_t *)byte_line;
+            uint16_t *s = (uint16_t *)src_line;
 
-            s = (uint16_t *)src_line;
             for (x = 0; x < width; x++) {
                 uint16_t val = *s;
                 if (val != (uint16_t)transparent_color) {
@@ -825,16 +811,15 @@ void spice_pixman_blit_colorkey (pixman_image_t *dest,
             src_line += src_stride;
         }
     }  else {
-        ASSERT (depth == 32);
+        spice_assert (depth == 32);
         byte_line = ((uint8_t *)bits) + stride * dest_y + dest_x * 4;
         src_line = ((uint8_t *)src_bits) + src_stride * src_y + src_x * 4;
 
         while (height--) {
             uint32_t *d = (uint32_t *)byte_line;
-            uint32_t *s = (uint32_t *)byte_line;
+            uint32_t *s = (uint32_t *)src_line;
 
             transparent_color &= 0xffffff;
-            s = (uint32_t *)src_line;
             for (x = 0; x < width; x++) {
                 uint32_t val = *s;
                 if ((0xffffff & val) != transparent_color) {
@@ -945,10 +930,10 @@ pixman_format_code_t spice_surface_format_to_pixman(uint32_t surface_format)
         return PIXMAN_a8r8g8b8;
     default:
         printf("Unknown surface format %d\n", surface_format);
-        abort();
+        spice_abort();
         break;
     }
-	return (pixman_format_code_t)0; /* Not reached */
+        return (pixman_format_code_t)0; /* Not reached */
 }
 
 /* Returns the "spice native" pixman version of a specific bitmap format.
@@ -978,10 +963,13 @@ pixman_format_code_t spice_bitmap_format_to_pixman(int bitmap_format,
     case SPICE_BITMAP_FMT_RGBA:
         return PIXMAN_a8r8g8b8;
 
+    case SPICE_BITMAP_FMT_8BIT_A:
+        return PIXMAN_a8;
+
     case SPICE_BITMAP_FMT_INVALID:
     default:
         printf("Unknown bitmap format %d\n", bitmap_format);
-        abort();
+        spice_abort();
         return PIXMAN_a8r8g8b8;
     }
 }
@@ -1057,7 +1045,7 @@ pixman_image_t *spice_bitmap_try_as_pixman(int src_format,
 #define UINT32_FROM_LE(x) (x)
 #endif
 
-static inline uint32_t rgb_16_555_to_32(uint16_t color)
+static INLINE uint32_t rgb_16_555_to_32(uint16_t color)
 {
     uint32_t ret;
 
@@ -1068,7 +1056,7 @@ static inline uint32_t rgb_16_555_to_32(uint16_t color)
     return ret;
 }
 
-static inline uint16_t rgb_32_to_16_555(uint32_t color)
+static INLINE uint16_t rgb_32_to_16_555(uint32_t color)
 {
     return
         (((color) >> 3) & 0x001f) |
@@ -1096,6 +1084,15 @@ static void bitmap_32_to_32(uint8_t* dest, int dest_stride,
         memcpy(dest, src, width * 4);
     }
 #endif
+}
+
+static void bitmap_8_to_8(uint8_t* dest, int dest_stride,
+                          uint8_t* src, int src_stride,
+                          int width, uint8_t* end)
+{
+    for (; src != end; src += src_stride, dest += dest_stride) {
+        memcpy(dest, src, width);
+    }
 }
 
 static void bitmap_24_to_32(uint8_t* dest, int dest_stride,
@@ -1151,7 +1148,7 @@ static void bitmap_8_32_to_32(uint8_t *dest, int dest_stride,
 #endif
 
     if (!palette) {
-        PANIC("No palette");
+        spice_error("No palette");
         return;
     }
 
@@ -1197,7 +1194,7 @@ static void bitmap_8_16_to_16_555(uint8_t *dest, int dest_stride,
 #endif
 
     if (!palette) {
-        PANIC("No palette");
+        spice_error("No palette");
         return;
     }
 
@@ -1243,7 +1240,7 @@ static void bitmap_4be_32_to_32(uint8_t* dest, int dest_stride,
 #endif
 
     if (!palette) {
-        PANIC("No palette");
+        spice_error("No palette");
         return;
     }
 
@@ -1293,7 +1290,7 @@ static void bitmap_4be_16_to_16_555(uint8_t* dest, int dest_stride,
 #endif
 
     if (!palette) {
-        PANIC("No palette");
+        spice_error("No palette");
         return;
     }
 
@@ -1330,7 +1327,7 @@ static void bitmap_4be_16_to_16_555(uint8_t* dest, int dest_stride,
     }
 }
 
-static inline int test_bit_be(void* addr, int bit)
+static INLINE int test_bit_be(void* addr, int bit)
 {
     return !!(((uint8_t*)addr)[bit >> 3] & (0x80 >> (bit & 0x07)));
 }
@@ -1343,7 +1340,7 @@ static void bitmap_1be_32_to_32(uint8_t* dest, int dest_stride,
     uint32_t fore_color;
     uint32_t back_color;
 
-    ASSERT(palette != NULL);
+    spice_assert(palette != NULL);
 
     if (!palette) {
         return;
@@ -1375,7 +1372,7 @@ static void bitmap_1be_16_to_16_555(uint8_t* dest, int dest_stride,
     uint16_t fore_color;
     uint16_t back_color;
 
-    ASSERT(palette != NULL);
+    spice_assert(palette != NULL);
 
     if (!palette) {
         return;
@@ -1481,7 +1478,7 @@ pixman_image_t *spice_bitmap_to_pixman(pixman_image_t *dest_image,
     dest = (uint8_t *)pixman_image_get_data(dest_image);
     dest_stride = pixman_image_get_stride(dest_image);
     if (!(flags & SPICE_BITMAP_FLAGS_TOP_DOWN)) {
-        ASSERT(height > 0);
+        spice_assert(height > 0);
         dest += dest_stride * (height - 1);
         dest_stride = -dest_stride;
     }
@@ -1491,6 +1488,9 @@ pixman_image_t *spice_bitmap_to_pixman(pixman_image_t *dest_image,
     case SPICE_BITMAP_FMT_32BIT:
     case SPICE_BITMAP_FMT_RGBA:
         bitmap_32_to_32(dest, dest_stride, src, src_stride, width, end);
+        break;
+    case SPICE_BITMAP_FMT_8BIT_A:
+        bitmap_8_to_8(dest, dest_stride, src, src_stride, width, end);
         break;
     case SPICE_BITMAP_FMT_24BIT:
         bitmap_24_to_32(dest, dest_stride, src, src_stride, width, end);
@@ -1505,7 +1505,7 @@ pixman_image_t *spice_bitmap_to_pixman(pixman_image_t *dest_image,
         } else if (palette_surface_format == SPICE_SURFACE_FMT_16_555) {
             bitmap_8_16_to_16_555(dest, dest_stride, src, src_stride, width, end, palette);
         } else {
-            PANIC("Unsupported palette format");
+            spice_error("Unsupported palette format");
         }
         break;
     case SPICE_BITMAP_FMT_4BIT_BE:
@@ -1515,7 +1515,7 @@ pixman_image_t *spice_bitmap_to_pixman(pixman_image_t *dest_image,
         } else if (palette_surface_format == SPICE_SURFACE_FMT_16_555) {
             bitmap_4be_16_to_16_555(dest, dest_stride, src, src_stride, width, end, palette);
         } else {
-            PANIC("Unsupported palette format");
+            spice_error("Unsupported palette format");
         }
         break;
     case SPICE_BITMAP_FMT_1BIT_BE:
@@ -1525,11 +1525,11 @@ pixman_image_t *spice_bitmap_to_pixman(pixman_image_t *dest_image,
         } else if (palette_surface_format == SPICE_SURFACE_FMT_16_555) {
             bitmap_1be_16_to_16_555(dest, dest_stride, src, src_stride, width, end, palette);
         } else {
-            PANIC("Unsupported palette format");
+            spice_error("Unsupported palette format");
         }
         break;
     default:
-        PANIC("Unsupported bitmap format");
+        spice_error("Unsupported bitmap format");
         break;
     }
 

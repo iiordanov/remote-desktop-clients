@@ -37,16 +37,23 @@ int spicex_image_create(SpiceDisplay *display)
 {
     SpiceDisplayPrivate *d = SPICE_DISPLAY_GET_PRIVATE(display);
 
+    if (d->ximage != NULL)
+        return 0;
+
     if (d->format == SPICE_SURFACE_FMT_16_555 ||
         d->format == SPICE_SURFACE_FMT_16_565) {
         d->convert = TRUE;
-        d->data = g_malloc0(d->height * d->stride); /* pixels are 32 bits */
+        d->data = g_malloc0(d->area.width * d->area.height * 4);
+
+        d->ximage = cairo_image_surface_create_for_data
+            (d->data, CAIRO_FORMAT_RGB24, d->area.width, d->area.height, d->area.width * 4);
+
     } else {
         d->convert = FALSE;
-    }
 
-    d->ximage = cairo_image_surface_create_for_data
-        (d->data, CAIRO_FORMAT_RGB24, d->width, d->height, d->stride);
+        d->ximage = cairo_image_surface_create_for_data
+            (d->data, CAIRO_FORMAT_RGB24, d->width, d->height, d->stride);
+    }
 
     return 0;
 }
@@ -57,58 +64,84 @@ void spicex_image_destroy(SpiceDisplay *display)
     SpiceDisplayPrivate *d = SPICE_DISPLAY_GET_PRIVATE(display);
 
     if (d->ximage) {
-        cairo_surface_finish(d->ximage);
+        cairo_surface_destroy(d->ximage);
         d->ximage = NULL;
     }
     if (d->convert && d->data) {
         g_free(d->data);
         d->data = NULL;
     }
+    d->convert = FALSE;
 }
+
+#if !GTK_CHECK_VERSION (3, 0, 0)
+#define cairo_rectangle_int_t GdkRectangle
+#define cairo_region_t GdkRegion
+#define cairo_region_create_rectangle gdk_region_rectangle
+#define cairo_region_subtract_rectangle(_dest,_rect) { GdkRegion *_region = gdk_region_rectangle (_rect); gdk_region_subtract (_dest, _region); gdk_region_destroy (_region); }
+#define cairo_region_destroy gdk_region_destroy
+#endif
 
 G_GNUC_INTERNAL
 void spicex_draw_event(SpiceDisplay *display, cairo_t *cr)
 {
     SpiceDisplayPrivate *d = SPICE_DISPLAY_GET_PRIVATE(display);
-    int fbw = d->width, fbh = d->height;
+    cairo_rectangle_int_t rect;
+    cairo_region_t *region;
+    double s;
+    int x, y;
     int ww, wh;
+    int w, h;
+
+    spice_display_get_scaling(display, &s, &x, &y, &w, &h);
 
     gdk_drawable_get_size(gtk_widget_get_window(GTK_WIDGET(display)), &ww, &wh);
 
-    /* If we don't have a pixmap, or we're not scaling, then
-       we need to fill with background color */
-    if (!d->ximage ||
-        !d->allow_scaling) {
-        cairo_rectangle(cr, 0, 0, ww, wh);
-        /* Optionally cut out the inner area where the pixmap
-           will be drawn. This avoids 'flashing' since we're
-           not double-buffering. Note we're using the undocumented
-           behaviour of drawing the rectangle from right to left
-           to cut out the whole */
-        if (d->ximage)
-            cairo_rectangle(cr, d->mx + fbw, d->my,
-                            -1 * fbw, fbh);
-        cairo_fill(cr);
+    /* We need to paint the bg color around the image */
+    rect.x = 0;
+    rect.y = 0;
+    rect.width = ww;
+    rect.height = wh;
+    region = cairo_region_create_rectangle(&rect);
+
+    /* Optionally cut out the inner area where the pixmap
+       will be drawn. This avoids 'flashing' since we're
+       not double-buffering. */
+    if (d->ximage) {
+        rect.x = x;
+        rect.y = y;
+        rect.width = w;
+        rect.height = h;
+        cairo_region_subtract_rectangle(region, &rect);
     }
+
+    gdk_cairo_region (cr, region);
+    cairo_region_destroy (region);
+
+    /* Need to set a real solid color, because the default is usually
+       transparent these days, and non-double buffered windows can't
+       render transparently */
+    cairo_set_source_rgb (cr, 0, 0, 0);
+    cairo_fill(cr);
 
     /* Draw the display */
     if (d->ximage) {
-        if (d->allow_scaling) {
-            double sx, sy;
-            spice_display_get_scaling(display, &sx, &sy);
-            cairo_scale(cr, sx, sy);
-            cairo_set_source_surface(cr, d->ximage, 0, 0);
-        } else {
-            cairo_set_source_surface(cr, d->ximage, d->mx, d->my);
-        }
-        cairo_paint(cr);
+        cairo_translate(cr, x, y);
+        cairo_rectangle(cr, 0, 0, w, h);
+        cairo_scale(cr, s, s);
+        if (!d->convert)
+            cairo_translate(cr, -d->area.x, -d->area.y);
+        cairo_set_source_surface(cr, d->ximage, 0, 0);
+        cairo_fill(cr);
 
-        if (d->mouse_mode == SPICE_MOUSE_MODE_SERVER) {
+        if (d->mouse_mode == SPICE_MOUSE_MODE_SERVER &&
+            d->mouse_guest_x != -1 && d->mouse_guest_y != -1 &&
+            !d->show_cursor) {
             GdkPixbuf *image = d->mouse_pixbuf;
             if (image != NULL) {
                 gdk_cairo_set_source_pixbuf(cr, image,
-                                            d->mx + d->mouse_guest_x - d->mouse_hotspot.x,
-                                            d->my + d->mouse_guest_y - d->mouse_hotspot.y);
+                                            d->mouse_guest_x - d->mouse_hotspot.x,
+                                            d->mouse_guest_y - d->mouse_hotspot.y);
                 cairo_paint(cr);
             }
         }
@@ -134,43 +167,6 @@ void spicex_expose_event(SpiceDisplay *display, GdkEventExpose *expose)
     cairo_destroy(cr);
 }
 #endif
-
-G_GNUC_INTERNAL
-void spicex_image_invalidate(SpiceDisplay *display,
-                             gint *x, gint *y, gint *w, gint *h)
-{
-    SpiceDisplayPrivate *d = SPICE_DISPLAY_GET_PRIVATE(display);
-    int ww, wh;
-
-    gdk_drawable_get_size(gtk_widget_get_window(GTK_WIDGET(display)), &ww, &wh);
-
-    if (d->allow_scaling) {
-        double sx, sy;
-
-        /* Scale the exposed region */
-        sx = (double)ww / (double)d->width;
-        sy = (double)wh / (double)d->height;
-
-        *x *= sx;
-        *y *= sy;
-        *w *= sx;
-        *h *= sy;
-
-        /* FIXME: same hack as gtk-vnc */
-        /* Without this, we get horizontal & vertical line artifacts
-         * when drawing. This "fix" is somewhat dubious though. The
-         * true mistake & fix almost certainly lies elsewhere.
-         */
-        *x -= 2;
-        *y -= 2;
-        *w += 4;
-        *h += 4;
-    } else {
-        /* Offset the Spice region to produce expose region */
-        *x += d->mx;
-        *y += d->my;
-    }
-}
 
 G_GNUC_INTERNAL
 gboolean spicex_is_scaled(SpiceDisplay *display)

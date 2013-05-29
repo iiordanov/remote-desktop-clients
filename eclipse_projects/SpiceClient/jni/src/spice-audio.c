@@ -67,7 +67,7 @@ enum {
 static void spice_audio_finalize(GObject *gobject)
 {
     SpiceAudio *self = SPICE_AUDIO(gobject);
-    SpiceAudioPrivate *priv = SPICE_AUDIO_GET_PRIVATE(self);
+    SpiceAudioPrivate *priv = self->priv;
 
     if (priv->main_context) {
         g_main_context_unref(priv->main_context);
@@ -84,7 +84,7 @@ static void spice_audio_get_property(GObject *gobject,
                                      GParamSpec *pspec)
 {
     SpiceAudio *self = SPICE_AUDIO(gobject);
-    SpiceAudioPrivate *priv = SPICE_AUDIO_GET_PRIVATE(self);
+    SpiceAudioPrivate *priv = self->priv;
 
     switch (prop_id) {
     case PROP_SESSION:
@@ -105,7 +105,7 @@ static void spice_audio_set_property(GObject *gobject,
                                      GParamSpec *pspec)
 {
     SpiceAudio *self = SPICE_AUDIO(gobject);
-    SpiceAudioPrivate *priv = SPICE_AUDIO_GET_PRIVATE(self);
+    SpiceAudioPrivate *priv = self->priv;
 
     switch (prop_id) {
     case PROP_SESSION:
@@ -152,9 +152,9 @@ static void spice_audio_class_init(SpiceAudioClass *klass)
     g_type_class_add_private(klass, sizeof(SpiceAudioPrivate));
 }
 
-static void spice_audio_init(SpiceAudio *self G_GNUC_UNUSED)
+static void spice_audio_init(SpiceAudio *self)
 {
-    /* FIXME: self->priv = SPICE_AUDIO_GET_PRIVATE(audio) when ABI break */
+    self->priv = SPICE_AUDIO_GET_PRIVATE(self);
 }
 
 static void connect_channel(SpiceAudio *self, SpiceChannel *channel)
@@ -204,7 +204,6 @@ static void session_enable_audio(GObject *gobject, GParamSpec *pspec,
  * Returns: a new #SpiceAudio instance or %NULL if no backend or failed.
  * Deprecated: 0.8: Use spice_audio_get() instead
  **/
-G_GNUC_DEPRECATED_FOR(spice_audio_get)
 SpiceAudio *spice_audio_new(SpiceSession *session, GMainContext *context,
                             const char *name)
 {

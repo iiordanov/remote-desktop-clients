@@ -17,6 +17,8 @@
 */
 #include <glib.h>
 
+#include "spice-client.h"
+
 GQuark spice_client_error_quark(void)
 {
     return g_quark_from_static_string("spice-client-error-quark");

@@ -6,17 +6,22 @@
 #ifndef __LZ_H
 #define __LZ_H
 
+#include <spice/macros.h>
+
 #include "lz_common.h"
 #include "lz_config.h"
 #include "draw.h"
+#include "macros.h"
+
+SPICE_BEGIN_DECLS
 
 typedef void *LzContext;
 
 typedef struct LzUsrContext LzUsrContext;
 struct LzUsrContext {
-    void (*error)(LzUsrContext *usr, const char *fmt, ...);
-    void (*warn)(LzUsrContext *usr, const char *fmt, ...);
-    void (*info)(LzUsrContext *usr, const char *fmt, ...);
+    SPICE_ATTR_PRINTF(2, 3) void (*error)(LzUsrContext *usr, const char *fmt, ...);
+    SPICE_ATTR_PRINTF(2, 3) void (*warn)(LzUsrContext *usr, const char *fmt, ...);
+    SPICE_ATTR_PRINTF(2, 3) void (*info)(LzUsrContext *usr, const char *fmt, ...);
     void    *(*malloc)(LzUsrContext *usr, int size);
     void (*free)(LzUsrContext *usr, void *ptr);
     int (*more_space)(LzUsrContext *usr, uint8_t **io_ptr);     // get the next chunk of the
@@ -71,5 +76,6 @@ LzContext *lz_create(LzUsrContext *usr);
 
 void lz_destroy(LzContext *lz);
 
+SPICE_END_DECLS
 
 #endif  // __LZ_H

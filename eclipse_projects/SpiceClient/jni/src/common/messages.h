@@ -32,19 +32,19 @@
 #define _H_MESSAGES
 
 #ifdef HAVE_CONFIG_H
-# include "config.h"
+#include "config.h"
 #endif
 
 #include <spice/protocol.h>
-#undef USE_SMARTCARD
+#include <spice/macros.h>
+
 #ifdef USE_SMARTCARD
 #include <vscard_common.h>
 #endif
+
 #include "draw.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+SPICE_BEGIN_DECLS
 
 typedef struct SpiceMsgData {
     uint32_t data_size;
@@ -52,6 +52,7 @@ typedef struct SpiceMsgData {
 } SpiceMsgData;
 
 typedef struct SpiceMsgEmpty {
+    uint8_t padding;
 } SpiceMsgEmpty;
 
 typedef struct SpiceMsgInputsInit {
@@ -66,7 +67,7 @@ typedef struct SpiceMsgMainMultiMediaTime {
     uint32_t time;
 } SpiceMsgMainMultiMediaTime;
 
-typedef struct SpiceMsgMainMigrationBegin {
+typedef struct SpiceMigrationDstInfo {
     uint16_t port;
     uint16_t sport;
     uint32_t host_size;
@@ -76,7 +77,20 @@ typedef struct SpiceMsgMainMigrationBegin {
     uint8_t *pub_key_data;
     uint32_t cert_subject_size;
     uint8_t *cert_subject_data;
+} SpiceMigrationDstInfo;
+
+typedef struct SpiceMsgMainMigrationBegin {
+    SpiceMigrationDstInfo dst_info;
 } SpiceMsgMainMigrationBegin;
+
+typedef struct SpiceMsgMainMigrateBeginSeamless {
+    SpiceMigrationDstInfo dst_info;
+    uint32_t src_mig_version;
+} SpiceMsgMainMigrateBeginSeamless;
+
+typedef struct SpiceMsgcMainMigrateDstDoSeamless {
+    uint32_t src_version;
+} SpiceMsgcMainMigrateDstDoSeamless;
 
 typedef struct SpiceMsgMainMigrationSwitchHost {
     uint16_t port;
@@ -157,6 +171,15 @@ typedef struct SpiceMsgChannels {
     SpiceChannelId channels[0];
 } SpiceMsgChannels;
 
+typedef struct SpiceMsgMainName {
+    uint32_t name_len;
+    uint8_t name[0];
+} SpiceMsgMainName;
+
+typedef struct SpiceMsgMainUuid {
+    uint8_t uuid[16];
+} SpiceMsgMainUuid;
+
 typedef struct SpiceMsgMainMouseMode {
     uint32_t supported_modes;
     uint32_t current_mode;
@@ -178,6 +201,8 @@ typedef struct SpiceMsgMainAgentDisconnect {
 typedef struct SpiceMsgMainAgentTokens {
     uint32_t num_tokens;
 } SpiceMsgMainAgentTokens, SpiceMsgcMainAgentTokens, SpiceMsgcMainAgentStart;
+
+typedef struct SpiceMsgMainAgentTokens SpiceMsgMainAgentConnectedTokens;
 
 typedef struct SpiceMsgcClientInfo {
     uint64_t cache_size;
@@ -243,6 +268,11 @@ typedef struct SpiceMsgDisplayDrawAlphaBlend {
     SpiceAlphaBlend data;
 } SpiceMsgDisplayDrawAlphaBlend;
 
+typedef struct SpiceMsgDisplayDrawComposite {
+    SpiceMsgDisplayBase base;
+    SpiceComposite data;
+} SpiceMsgDisplayDrawComposite;
+
 typedef struct SpiceMsgDisplayCopyBits {
     SpiceMsgDisplayBase base;
     SpicePoint src_pos;
@@ -298,12 +328,25 @@ typedef struct SpiceMsgDisplayStreamCreate {
     SpiceClip clip;
 } SpiceMsgDisplayStreamCreate;
 
-typedef struct SpiceMsgDisplayStreamData {
+typedef struct SpiceStreamDataHeader {
     uint32_t id;
     uint32_t multi_media_time;
+} SpiceStreamDataHeader;
+
+typedef struct SpiceMsgDisplayStreamData {
+    SpiceStreamDataHeader base;
     uint32_t data_size;
     uint8_t data[0];
 } SpiceMsgDisplayStreamData;
+
+typedef struct SpiceMsgDisplayStreamDataSized {
+    SpiceStreamDataHeader base;
+    uint32_t width;
+    uint32_t height;
+    SpiceRect dest;
+    uint32_t data_size;
+    uint8_t data[0];
+} SpiceMsgDisplayStreamDataSized;
 
 typedef struct SpiceMsgDisplayStreamClip {
     uint32_t id;
@@ -517,7 +560,6 @@ typedef struct SpiceMsgcTunnelSocketTokens {
     uint32_t num_tokens;
 } SpiceMsgcTunnelSocketTokens;
 
-#undef USE_SMARTCARD
 #ifdef USE_SMARTCARD
 typedef struct SpiceMsgSmartcard {
     VSCMsgType type;
@@ -536,8 +578,36 @@ typedef struct SpiceMsgcSmartcard {
 } SpiceMsgcSmartcard;
 #endif
 
-#ifdef __cplusplus
-}
-#endif
+typedef struct SpiceMsgDisplayHead {
+    uint32_t id;
+    uint32_t surface_id;
+    uint32_t width;
+    uint32_t height;
+    uint32_t x;
+    uint32_t y;
+    uint32_t flags;
+} SpiceHead;
+
+typedef struct SpiceMsgDisplayMonitorsConfig {
+    uint16_t count;
+    uint16_t max_allowed;
+    SpiceHead heads[0];
+} SpiceMsgDisplayMonitorsConfig;
+
+typedef struct SpiceMsgPortInit {
+    uint32_t name_size;
+    uint8_t *name;
+    uint8_t opened;
+} SpiceMsgPortInit;
+
+typedef struct SpiceMsgPortEvent {
+    uint8_t event;
+} SpiceMsgPortEvent;
+
+typedef struct SpiceMsgcPortEvent {
+    uint8_t event;
+} SpiceMsgcPortEvent;
+
+SPICE_END_DECLS
 
 #endif /* _H_SPICE_PROTOCOL */

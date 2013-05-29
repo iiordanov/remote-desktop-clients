@@ -16,10 +16,13 @@
    License along with this library; if not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef __SSL_VERIFY_H
-#define __SSL_VERIFY_H
+#ifndef SSL_VERIFY_H
+#define SSL_VERIFY_H
 
-#include "ring.h"
+#if defined(WIN32) && !defined(__MINGW32__)
+#include <windows.h>
+#include <wincrypt.h>
+#endif
 
 #include <openssl/rsa.h>
 #include <openssl/evp.h>
@@ -31,6 +34,10 @@
 #undef X509_NAME
 #endif
 #include <openssl/x509v3.h>
+
+#include <spice/macros.h>
+
+SPICE_BEGIN_DECLS
 
 typedef enum {
   SPICE_SSL_VERIFY_OP_NONE     = 0,
@@ -56,4 +63,6 @@ SpiceOpenSSLVerify* spice_openssl_verify_new(SSL *ssl, SPICE_SSL_VERIFY_OP verif
                                              const char *subject);
 void spice_openssl_verify_free(SpiceOpenSSLVerify* verify);
 
-#endif
+SPICE_END_DECLS
+
+#endif // SSL_VERIFY_H

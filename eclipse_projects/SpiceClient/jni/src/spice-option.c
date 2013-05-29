@@ -32,26 +32,90 @@ static char *ca_file = NULL;
 static char *host_subject = NULL;
 static char *smartcard_db = NULL;
 static char *smartcard_certificates = NULL;
-static char *usbredir_filter = NULL;
+static char *usbredir_auto_redirect_filter = NULL;
+static char *usbredir_redirect_on_connect = NULL;
 static gboolean smartcard = FALSE;
 static gboolean disable_audio = FALSE;
 static gboolean disable_usbredir = FALSE;
 static gint cache_size = 0;
 static gint glz_window_size = 0;
 
+G_GNUC_NORETURN
 static void option_version(void)
 {
     g_print(PACKAGE_STRING "\n");
     exit(0);
 }
 
-static void option_debug(void)
+static gboolean option_debug(void)
 {
     spice_util_set_debug(TRUE);
+    return TRUE;
 }
 
+static gboolean parse_color_depth(const gchar *option_name, const gchar *value,
+                                  gpointer data, GError **error)
+{
+    unsigned long parsed_depth;
+    char *end;
+
+    if (option_name == NULL) {
+        g_set_error(error, G_OPTION_ERROR, G_OPTION_ERROR_FAILED, _("missing color depth, must be 16 or 32"));
+        return FALSE;
+    }
+
+    parsed_depth = strtoul(value, &end, 0);
+    if (*end != '\0')
+        goto error;
+
+    if ((parsed_depth != 16) && (parsed_depth != 32))
+        goto error;
+
+    color_depth = parsed_depth;
+
+    return TRUE;
+
+error:
+    g_set_error(error, G_OPTION_ERROR, G_OPTION_ERROR_FAILED, _("invalid color depth (%s), must be 16 or 32"), value);
+    return FALSE;
+}
+
+static gboolean parse_disable_effects(const gchar *option_name, const gchar *value,
+                                      gpointer data, GError **error)
+{
+
+    if ((g_strcmp0(value, "wallpaper") != 0)
+        && (g_strcmp0(value, "font-smooth") != 0)
+        && (g_strcmp0(value, "animation") != 0)
+        && (g_strcmp0(value, "all") != 0)) {
+        /* Translators: do not translate 'wallpaper', 'font-smooth',
+         * 'animation', 'all' as the user must use these values with the
+         * --spice-disable-effects command line option
+         */
+        g_set_error(error, G_OPTION_ERROR, G_OPTION_ERROR_FAILED,
+                    _("invalid effect name (%s), must be 'wallpaper', 'font-smooth', 'animation' or 'all'"), value);
+        return FALSE;
+    }
+
+    disable_effects = g_strdup(value);
+
+    return TRUE;
+}
+
+static gboolean parse_usbredir_filter(const gchar *option_name,
+                                      const gchar *value,
+                                      gpointer data, GError **error)
+
+{
+    g_warning("--spice-usbredir-filter is deprecated, please use --spice-usbredir-auto-redirect-filter instead");
+    g_free(usbredir_auto_redirect_filter);
+    usbredir_auto_redirect_filter = g_strdup(value);
+    return TRUE;
+}
+
+
 /**
- * spice_get_option_group:
+ * spice_get_option_group: (skip)
  *
  * Returns: (transfer full): a #GOptionGroup for the commandline
  * arguments specific to Spice.  You have to call
@@ -61,9 +125,9 @@ static void option_debug(void)
 GOptionGroup* spice_get_option_group(void)
 {
     const GOptionEntry entries[] = {
-        { "spice-disable-effects", '\0', 0, G_OPTION_ARG_STRING, &disable_effects,
+        { "spice-disable-effects", '\0', 0, G_OPTION_ARG_CALLBACK, parse_disable_effects,
           N_("Disable guest display effects"), N_("<wallpaper,font-smooth,animation,all>") },
-        { "spice-color-depth", '\0', 0, G_OPTION_ARG_INT, &color_depth,
+        { "spice-color-depth", '\0', 0, G_OPTION_ARG_CALLBACK, parse_color_depth,
           N_("Guest display color depth"), N_("<16,32>") },
         { "spice-ca-file", '\0', 0, G_OPTION_ARG_FILENAME, &ca_file,
           N_("Truststore file for secure connections"), N_("<file>") },
@@ -79,8 +143,13 @@ GOptionGroup* spice_get_option_group(void)
           N_("Path to the local certificate database to use for software smartcard certificates"), N_("<certificate-db>") },
         { "spice-disable-usbredir", '\0', 0, G_OPTION_ARG_NONE, &disable_usbredir,
           N_("Disable USB redirection support"), NULL },
-        { "spice-usbredir-filter", '\0', 0, G_OPTION_ARG_STRING, &usbredir_filter,
-          N_("Filter for excluding USB devices from auto redirection"), N_("<filter-string>") },
+        /* Backward compats version of spice-usbredir-auto-redirect-filter */
+        { "spice-usbredir-filter", '\0', G_OPTION_FLAG_HIDDEN, G_OPTION_ARG_CALLBACK, parse_usbredir_filter,
+          NULL, NULL },
+        { "spice-usbredir-auto-redirect-filter", '\0', 0, G_OPTION_ARG_STRING, &usbredir_auto_redirect_filter,
+          N_("Filter selecting USB devices to be auto-redirected when plugged in"), N_("<filter-string>") },
+        { "spice-usbredir-redirect-on-connect", '\0', 0, G_OPTION_ARG_STRING, &usbredir_redirect_on_connect,
+          N_("Filter selecting USB devices to redirect on connect"), N_("<filter-string>") },
         { "spice-cache-size", '\0', 0, G_OPTION_ARG_INT, &cache_size,
           N_("Image cache size"), N_("<bytes>") },
         { "spice-glz-window-size", '\0', 0, G_OPTION_ARG_INT, &glz_window_size,
@@ -143,10 +212,17 @@ void spice_set_session_option(SpiceSession *session)
         if (smartcard_db)
             g_object_set(session, "smartcard-db", smartcard_db, NULL);
     }
-    if (usbredir_filter) {
+    if (usbredir_auto_redirect_filter) {
         SpiceUsbDeviceManager *m = spice_usb_device_manager_get(session, NULL);
         if (m)
-            g_object_set(m, "auto-connect-filter", usbredir_filter, NULL);
+            g_object_set(m, "auto-connect-filter",
+                         usbredir_auto_redirect_filter, NULL);
+    }
+    if (usbredir_redirect_on_connect) {
+        SpiceUsbDeviceManager *m = spice_usb_device_manager_get(session, NULL);
+        if (m)
+            g_object_set(m, "redirect-on-connect",
+                         usbredir_redirect_on_connect, NULL);
     }
     if (disable_usbredir)
         g_object_set(session, "enable-usbredir", FALSE, NULL);
@@ -155,5 +231,5 @@ void spice_set_session_option(SpiceSession *session)
     if (cache_size)
         g_object_set(session, "cache-size", cache_size, NULL);
     if (glz_window_size)
-        g_object_set(session, "glz_window_size", glz_window_size, NULL);
+        g_object_set(session, "glz-window-size", glz_window_size, NULL);
 }

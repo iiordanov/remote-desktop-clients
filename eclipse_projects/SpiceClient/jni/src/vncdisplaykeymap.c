@@ -159,7 +159,7 @@ const guint16 const *vnc_display_keymap_gdk2xtkbd_table(size_t *maplen)
 				if (!keycodes)
 					g_warning("could not lookup keycode name");
 			}
-			XkbFreeClientMap(desc, XkbGBN_AllComponentsMask, True);
+			XkbFreeKeyboard(desc, XkbGBN_AllComponentsMask, True);
 		}
 
 		if (check_for_xwin(dpy)) {
@@ -197,7 +197,7 @@ const guint16 const *vnc_display_keymap_gdk2xtkbd_table(size_t *maplen)
 #ifdef GDK_WINDOWING_WIN32
 	if (GDK_IS_WIN32_DISPLAY(dpy)) {
 		VNC_DEBUG("Using Win32 virtual keycode mapping");
-		*maplen = sizeof(keymap_win322xtkbd);
+		*maplen = G_N_ELEMENTS(keymap_win322xtkbd);
 		return keymap_win322xtkbd;
 	}
 #endif
@@ -205,7 +205,7 @@ const guint16 const *vnc_display_keymap_gdk2xtkbd_table(size_t *maplen)
 #ifdef GDK_WINDOWING_QUARTZ
 	if (GDK_IS_QUARTZ_DISPLAY(dpy)) {
 		VNC_DEBUG("Using OS-X virtual keycode mapping");
-		*maplen = sizeof(keymap_osx2xtkbd);
+		*maplen = G_N_ELEMENTS(keymap_osx2xtkbd);
 		return keymap_osx2xtkbd;
 	}
 #endif

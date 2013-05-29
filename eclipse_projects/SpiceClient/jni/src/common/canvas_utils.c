@@ -15,10 +15,12 @@
    You should have received a copy of the GNU Lesser General Public
    License along with this library; if not, see <http://www.gnu.org/licenses/>.
 */
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
 
+#include "spice_common.h"
 #include "canvas_utils.h"
-
-#include <spice/macros.h>
 
 #ifdef __GNUC__
 #include <stdlib.h>
@@ -28,21 +30,6 @@
 
 #ifdef WIN32
 static int gdi_handlers = 0;
-#endif
-
-#ifndef ASSERT
-#define ASSERT(x) if (!(x)) {                               \
-    printf("%s: ASSERT %s failed\n", __FUNCTION__, #x);     \
-    abort();                                                \
-}
-#endif
-
-
-#ifndef CANVAS_ERROR
-#define CANVAS_ERROR(format, ...) {                             \
-    printf("%s: " format "\n", __FUNCTION__, ## __VA_ARGS__);   \
-    abort();                                                    \
-}
 #endif
 
 static void release_data(pixman_image_t *image, void *release_data)
@@ -56,9 +43,7 @@ static void release_data(pixman_image_t *image, void *release_data)
         gdi_handlers--;
     }
 #endif
-    if (data->data) {
-        free(data->data);
-    }
+    free(data->data);
 
     free(data);
 }
@@ -72,7 +57,7 @@ pixman_image_add_data(pixman_image_t *image)
     if (data == NULL) {
         data = (PixmanData *)calloc(1, sizeof(PixmanData));
         if (data == NULL) {
-            CANVAS_ERROR("out of memory");
+            spice_error("out of memory");
         }
         pixman_image_set_destroy_function(image,
                                           release_data,
@@ -92,20 +77,24 @@ spice_pixman_image_set_format(pixman_image_t *image,
     data->format = format;
 }
 
-pixman_format_code_t
-spice_pixman_image_get_format(pixman_image_t *image)
+
+int spice_pixman_image_get_format(pixman_image_t *image, pixman_format_code_t *format)
 {
     PixmanData *data;
 
-    data = (PixmanData *)pixman_image_get_destroy_data(image);
-    if (data != NULL &&
-        data->format != 0)
-        return data->format;
+    spice_return_val_if_fail(format != NULL, 0);
 
-    CANVAS_ERROR("Unknown pixman image type");
+    data = (PixmanData *)pixman_image_get_destroy_data(image);
+    if (data != NULL && data->format != 0) {
+        *format = data->format;
+        return 1;
+    }
+
+    spice_warn_if_reached();
+    return 0;
 }
 
-static inline pixman_image_t *__surface_create_stride(pixman_format_code_t format, int width, int height,
+static INLINE pixman_image_t *__surface_create_stride(pixman_format_code_t format, int width, int height,
                                                       int stride)
 {
     uint8_t *data;
@@ -124,7 +113,7 @@ static inline pixman_image_t *__surface_create_stride(pixman_format_code_t forma
 
     if (surface == NULL) {
         free(data);
-        CANVAS_ERROR("create surface failed, out of memory");
+        spice_error("create surface failed, out of memory");
     }
 
     pixman_data = pixman_image_add_data(surface);
@@ -189,20 +178,21 @@ pixman_image_t * surface_create(pixman_format_code_t format, int width, int heig
             nstride = SPICE_ALIGN(width, 32) / 8;
             break;
         default:
-            CANVAS_ERROR("invalid format");
+            spice_error("invalid format");
+            return NULL;
         }
 
         bitmap_info.inf.bmiHeader.biCompression = BI_RGB;
 
         mutex = CreateMutex(NULL, 0, NULL);
         if (!mutex) {
-            CANVAS_ERROR("Unable to CreateMutex");
+            spice_error("Unable to CreateMutex");
         }
 
         bitmap = CreateDIBSection(dc, &bitmap_info.inf, 0, (VOID **)&data, NULL, 0);
         if (!bitmap) {
             CloseHandle(mutex);
-            CANVAS_ERROR("Unable to CreateDIBSection");
+            spice_error("Unable to CreateDIBSection");
         }
 
         if (top_down) {
@@ -216,7 +206,7 @@ pixman_image_t * surface_create(pixman_format_code_t format, int width, int heig
         if (surface == NULL) {
             CloseHandle(mutex);
             DeleteObject(bitmap);
-            CANVAS_ERROR("create surface failed, out of memory");
+            spice_error("create surface failed, out of memory");
         }
         pixman_data = pixman_image_add_data(surface);
         pixman_data->format = format;
@@ -253,7 +243,7 @@ pixman_image_t * surface_create(pixman_format_code_t format, int width, int heig
             stride = SPICE_ALIGN(width, 32) / 8;
             break;
         default:
-            CANVAS_ERROR("invalid format");
+            spice_error("invalid format");
         }
         stride = -stride;
         return __surface_create_stride(format, width, height, stride);
@@ -292,6 +282,9 @@ pixman_image_t *alloc_lz_image_surface(LzDecodeUsrData *canvas_data,
 
     stride = (gross_pixels / height) * (PIXMAN_FORMAT_BPP (pixman_format) / 8);
 
+    /* pixman requires strides to be 4-byte aligned */
+    stride = SPICE_ALIGN(stride, 4);
+    
     if (!top_down) {
         stride = -stride;
     }
@@ -304,4 +297,3 @@ pixman_image_t *alloc_lz_image_surface(LzDecodeUsrData *canvas_data,
     canvas_data->out_surface = surface;
     return surface;
 }
-

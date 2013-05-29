@@ -94,8 +94,6 @@ static guint signals[SPICE_SMARTCARD_MANAGER_LAST_SIGNAL];
 
 #ifdef USE_SMARTCARD
 typedef gboolean (*SmartcardSourceFunc)(VEvent *event, gpointer user_data);
-static guint smartcard_monitor_add(SmartcardSourceFunc callback,
-                                   gpointer user_data);
 static gboolean smartcard_monitor_dispatch(VEvent *event, gpointer user_data);
 #endif
 
@@ -107,10 +105,6 @@ static void spice_smartcard_manager_init(SpiceSmartcardManager *smartcard_manage
 
     priv = SPICE_SMARTCARD_MANAGER_GET_PRIVATE(smartcard_manager);
     smartcard_manager->priv = priv;
-#ifdef USE_SMARTCARD
-    priv->monitor_id = smartcard_monitor_add(smartcard_monitor_dispatch,
-                                             smartcard_manager);
-#endif
 }
 
 static void spice_smartcard_manager_dispose(GObject *gobject)
@@ -241,7 +235,7 @@ static SpiceSmartcardManager *spice_smartcard_manager_new(void)
 /* public api                                                         */
 
 /**
- * spice_smartcard_manager_get
+ * spice_smartcard_manager_get:
  *
  * #SpiceSmartcardManager is a singleton, use this function to get a pointer
  * to it. A new SpiceSmartcardManager instance will be created the first
@@ -394,10 +388,22 @@ static guint smartcard_monitor_add(SmartcardSourceFunc callback,
     return id;
 }
 
+static void
+spice_smartcard_manager_update_monitor(void)
+{
+    SpiceSmartcardManager *self = spice_smartcard_manager_get();
+    SpiceSmartcardManagerPrivate *priv = self->priv;
+
+    if (priv->monitor_id != 0)
+        return;
+
+    priv->monitor_id = smartcard_monitor_add(smartcard_monitor_dispatch, self);
+}
+
 #define SPICE_SOFTWARE_READER_NAME "Spice Software Smartcard"
 
 /**
- * spice_smartcard_reader_is_software
+ * spice_smartcard_reader_is_software:
  * @reader: a #SpiceSmartcardReader
  *
  * Tests if @reader is a software (emulated) smartcard reader.
@@ -512,23 +518,25 @@ gboolean spice_smartcard_manager_init_finish(SpiceSession *session,
                                              GAsyncResult *result,
                                              GError **err)
 {
+    GSimpleAsyncResult *simple;
+
     g_return_val_if_fail(SPICE_IS_SESSION(session), FALSE);
-    g_return_val_if_fail(G_IS_ASYNC_RESULT(result), FALSE);
+    g_return_val_if_fail(G_IS_SIMPLE_ASYNC_RESULT(result), FALSE);
 
     SPICE_DEBUG("smartcard_manager_finish");
 
-    if (G_IS_SIMPLE_ASYNC_RESULT(result)) {
-        GSimpleAsyncResult *simple = G_SIMPLE_ASYNC_RESULT(result);
-        g_warn_if_fail(g_simple_async_result_get_source_tag(simple) == spice_smartcard_manager_init);
-        if (g_simple_async_result_propagate_error(simple, err))
-            return FALSE;
-    }
+    simple = G_SIMPLE_ASYNC_RESULT(result);
+    g_return_val_if_fail(g_simple_async_result_get_source_tag(simple) == spice_smartcard_manager_init, FALSE);
+    if (g_simple_async_result_propagate_error(simple, err))
+        return FALSE;
+
+    spice_smartcard_manager_update_monitor();
 
     return TRUE;
 }
 
 /**
- * spice_smartcard_manager_insert_card
+ * spice_smartcard_manager_insert_card:
  * @manager: a #SpiceSmartcardManager
  *
  * Simulates the insertion of a smartcard in the guest. Valid certificates
@@ -552,7 +560,7 @@ gboolean spice_smartcard_manager_insert_card(SpiceSmartcardManager *manager)
 }
 
 /**
- * spice_smartcard_manager_remove_card
+ * spice_smartcard_manager_remove_card:
  * @manager: a #SpiceSmartcardManager
  *
  * Simulates the removal of a smartcard in the guest. At the moment, only

@@ -26,20 +26,19 @@
 #endif
 #include <jpeglib.h>
 
-/* spice/common */
-#include "canvas_base.h"
-#include "canvas_utils.h"
-#include "sw_canvas.h"
-#include "ring.h"
-#include "quic.h"
-#include "rop3.h"
+#include "common/canvas_base.h"
+#include "common/canvas_utils.h"
+#include "common/sw_canvas.h"
+#include "common/ring.h"
+#include "common/quic.h"
+#include "common/rop3.h"
 
 G_BEGIN_DECLS
 
 
 typedef struct display_surface {
     RingItem                    link;
-    int                         surface_id;
+    guint32                     surface_id;
     bool                        primary;
     enum SpiceSurfaceFmt        format;
     int                         width, height, stride, size;
@@ -73,6 +72,9 @@ typedef struct display_stream {
     guint                       timeout;
     SpiceChannel                *channel;
 } display_stream;
+
+void stream_get_dimensions(display_stream *st, int *width, int *height);
+uint32_t stream_get_current_frame(display_stream *st, uint8_t **data);
 
 /* channel-display-mjpeg.c */
 void stream_mjpeg_init(display_stream *st);

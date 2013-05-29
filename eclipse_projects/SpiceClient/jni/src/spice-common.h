@@ -27,10 +27,9 @@
 #include <errno.h>
 #include <inttypes.h>
 
-/* spice/common */
-#include "mem.h"
-#include "messages.h"
-#include "marshaller.h"
+#include "common/mem.h"
+#include "common/messages.h"
+#include "common/marshaller.h"
 
 #include "spice-util.h"
 

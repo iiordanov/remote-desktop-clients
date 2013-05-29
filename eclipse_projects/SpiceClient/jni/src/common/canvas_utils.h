@@ -24,9 +24,12 @@
 #endif
 
 #include <spice/types.h>
+#include <spice/macros.h>
 
 #include "pixman_utils.h"
 #include "lz.h"
+
+SPICE_BEGIN_DECLS
 
 typedef struct PixmanData {
 #ifdef WIN32
@@ -39,7 +42,7 @@ typedef struct PixmanData {
 
 void spice_pixman_image_set_format(pixman_image_t *image,
                                    pixman_format_code_t format);
-pixman_format_code_t spice_pixman_image_get_format(pixman_image_t *image);
+int spice_pixman_image_get_format(pixman_image_t *image, pixman_format_code_t *format);
 
 
 #ifdef WIN32
@@ -69,4 +72,7 @@ typedef struct LzDecodeUsrData {
 pixman_image_t *alloc_lz_image_surface(LzDecodeUsrData *canvas_data,
                                        pixman_format_code_t pixman_format, int width,
                                        int height, int gross_pixels, int top_down);
+
+SPICE_END_DECLS
+
 #endif

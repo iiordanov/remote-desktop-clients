@@ -43,6 +43,7 @@ G_BEGIN_DECLS
 
 struct _SpiceDisplayPrivate {
     gint                    channel_id;
+    gint                    monitor_id;
 
     /* options */
     bool                    keyboard_grab_enable;
@@ -51,17 +52,22 @@ struct _SpiceDisplayPrivate {
     bool                    resize_guest_enable;
 
     /* state */
+    gboolean                ready;
+    gboolean                monitor_ready;
     enum SpiceSurfaceFmt    format;
     gint                    width, height, stride;
     gint                    shmid;
     gpointer                data_origin; /* the original display image data */
     gpointer                data; /* converted if necessary to 32 bits */
 
+    GdkRectangle            area;
+    /* window border */
     gint                    ww, wh, mx, my;
 
     bool                    convert;
     bool                    have_mitshm;
     gboolean                allow_scaling;
+    gboolean                only_downscale;
     gboolean                disable_inputs;
 
     /* TODO: make a display object instead? */
@@ -101,24 +107,34 @@ struct _SpiceDisplayPrivate {
     const guint16 const     *keycode_map;
     size_t                  keycode_maplen;
     uint32_t                key_state[512 / 32];
+    int                     key_delayed_scancode;
+    guint                   key_delayed_id;
     SpiceGrabSequence         *grabseq; /* the configured key sequence */
     gboolean                *activeseq; /* the currently pressed keys */
     gint                    mark;
 #ifdef WIN32
     HHOOK                   keyboard_hook;
+    int                     win_mouse[3];
+    int                     win_mouse_speed;
+#endif
+    guint                   keypress_delay;
+    gint                    zoom_level;
+#ifdef GDK_WINDOWING_X11
+    int                     x11_accel_numerator;
+    int                     x11_accel_denominator;
+    int                     x11_threshold;
 #endif
 };
 
 int      spicex_image_create                 (SpiceDisplay *display);
 void     spicex_image_destroy                (SpiceDisplay *display);
-void     spicex_image_invalidate             (SpiceDisplay *display, gint *x, gint *y, gint *w, gint *h);
 #if GTK_CHECK_VERSION (2, 91, 0)
 void     spicex_draw_event                   (SpiceDisplay *display, cairo_t *cr);
 #else
 void     spicex_expose_event                 (SpiceDisplay *display, GdkEventExpose *ev);
 #endif
 gboolean spicex_is_scaled                    (SpiceDisplay *display);
-void     spice_display_get_scaling           (SpiceDisplay *display, double *sx, double *sy);
+void     spice_display_get_scaling           (SpiceDisplay *display, double *s, int *x, int *y, int *w, int *h);
 
 G_END_DECLS
 

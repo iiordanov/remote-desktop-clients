@@ -34,7 +34,6 @@ G_BEGIN_DECLS
 
 /**
  * SpiceSessionVerify:
- *
  * @SPICE_SESSION_VERIFY_PUBKEY: verify certificate public key matching
  * @SPICE_SESSION_VERIFY_HOSTNAME: verify certificate hostname matching
  * @SPICE_SESSION_VERIFY_SUBJECT: verify certificate subject matching
@@ -49,7 +48,6 @@ typedef enum {
 
 /**
  * SpiceSessionMigration:
- *
  * @SPICE_SESSION_MIGRATION_NONE: no migration going on
  * @SPICE_SESSION_MIGRATION_SWITCHING: the session is switching host (destroy and reconnect)
  * @SPICE_SESSION_MIGRATION_MIGRATING: the session is migrating seamlessly (reconnect)

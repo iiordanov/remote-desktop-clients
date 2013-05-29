@@ -19,10 +19,13 @@
 #ifndef _H_RECT
 #define _H_RECT
 
-#include "draw.h"
 #include <spice/macros.h>
+#include "draw.h"
+#include "log.h"
 
-static inline void rect_sect(SpiceRect* r, const SpiceRect* bounds)
+SPICE_BEGIN_DECLS
+
+static INLINE void rect_sect(SpiceRect* r, const SpiceRect* bounds)
 {
     r->left = MAX(r->left, bounds->left);
     r->right = MIN(r->right, bounds->right);
@@ -33,7 +36,7 @@ static inline void rect_sect(SpiceRect* r, const SpiceRect* bounds)
     r->bottom = MAX(r->top, r->bottom);
 }
 
-static inline void rect_offset(SpiceRect* r, int dx, int dy)
+static INLINE void rect_offset(SpiceRect* r, int dx, int dy)
 {
     r->left += dx;
     r->right += dx;
@@ -41,24 +44,24 @@ static inline void rect_offset(SpiceRect* r, int dx, int dy)
     r->bottom += dy;
 }
 
-static inline int rect_is_empty(const SpiceRect* r)
+static INLINE int rect_is_empty(const SpiceRect* r)
 {
     return r->top == r->bottom || r->left == r->right;
 }
 
-static inline int rect_intersects(const SpiceRect* r1, const SpiceRect* r2)
+static INLINE int rect_intersects(const SpiceRect* r1, const SpiceRect* r2)
 {
     return r1->left < r2->right && r1->right > r2->left &&
            r1->top < r2->bottom && r1->bottom > r2->top;
 }
 
-static inline int rect_is_equal(const SpiceRect *r1, const SpiceRect *r2)
+static INLINE int rect_is_equal(const SpiceRect *r1, const SpiceRect *r2)
 {
     return r1->top == r2->top && r1->left == r2->left &&
            r1->bottom == r2->bottom && r1->right == r2->right;
 }
 
-static inline void rect_union(SpiceRect *dest, const SpiceRect *r)
+static INLINE void rect_union(SpiceRect *dest, const SpiceRect *r)
 {
     dest->top = MIN(dest->top, r->top);
     dest->left = MIN(dest->left, r->left);
@@ -66,11 +69,29 @@ static inline void rect_union(SpiceRect *dest, const SpiceRect *r)
     dest->right = MAX(dest->right, r->right);
 }
 
-static inline int rect_is_same_size(const SpiceRect *r1, const SpiceRect *r2)
+static INLINE int rect_is_same_size(const SpiceRect *r1, const SpiceRect *r2)
 {
     return r1->right - r1->left == r2->right - r2->left &&
            r1->bottom - r1->top == r2->bottom - r2->top;
 }
+
+static INLINE int rect_contains(const SpiceRect *big, const SpiceRect *small)
+{
+    return big->left <= small->left && big->right >= small->right &&
+           big->top <= small->top && big->bottom >= small->bottom;
+}
+
+static INLINE int rect_get_area(const SpiceRect *r)
+{
+    return (r->right - r->left) * (r->bottom - r->top);
+}
+
+static INLINE void rect_debug(const SpiceRect *r)
+{
+    spice_debug("(%d, %d) (%d, %d)", r->left, r->top, r->right, r->bottom);
+}
+
+SPICE_END_DECLS
 
 #ifdef __cplusplus
 
@@ -109,7 +130,21 @@ static inline int rect_is_same_size(const SpiceRect& r1, const SpiceRect& r2)
     return rect_is_same_size(&r1, &r2);
 }
 
-#endif
+static inline int rect_contains(const SpiceRect& big, const SpiceRect& small)
+{
+    return rect_contains(&big, &small);
+}
+
+static inline int rect_get_area(const SpiceRect& r)
+{
+    return rect_get_area(&r);
+}
+
+static inline void rect_debug(const SpiceRect &r)
+{
+    rect_debug(&r);
+}
+
+#endif /* __cplusplus */
 
 #endif
-

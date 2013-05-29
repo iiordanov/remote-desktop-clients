@@ -20,8 +20,12 @@
 #define _H_REGION
 
 #include <stdint.h>
+#include <spice/macros.h>
+
 #include "draw.h"
-#include <pixman_utils.h>
+#include "pixman_utils.h"
+
+SPICE_BEGIN_DECLS
 
 typedef pixman_region32_t QRegion;
 
@@ -37,6 +41,7 @@ void region_destroy(QRegion *rgn);
 void region_clone(QRegion *dest, const QRegion *src);
 SpiceRect *region_dup_rects(const QRegion *rgn, uint32_t *num_rects);
 void region_ret_rects(const QRegion *rgn, SpiceRect *rects, uint32_t num_rects);
+void region_extents(const QRegion *rgn, SpiceRect *r);
 
 int region_test(const QRegion *rgn, const QRegion *other_rgn, int query);
 int region_is_valid(const QRegion *rgn);
@@ -57,7 +62,9 @@ void region_remove(QRegion *rgn, const SpiceRect *r);
 
 void region_offset(QRegion *rgn, int32_t dx, int32_t dy);
 
+
 void region_dump(const QRegion *rgn, const char *prefix);
 
-#endif
+SPICE_END_DECLS
 
+#endif

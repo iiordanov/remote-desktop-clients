@@ -45,7 +45,9 @@ ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS
 SOFTWARE.
 
 ******************************************************************/
-
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
 
 #include <stdio.h>
 #include <spice/macros.h>
@@ -82,8 +84,7 @@ typedef struct lineGC *GCPtr;
 #define miWideDash spice_canvas_wide_dash_line
 #define miWideLine spice_canvas_wide_line
 
-static int inline
-ICEIL (double x)
+static INLINE int ICEIL (double x)
 {
     int _cTmp = (int)x;
     return ((x == _cTmp) || (x < 0.0)) ? _cTmp : _cTmp + 1;
@@ -508,17 +509,15 @@ miSubtractSpans (SpanGroup * spanGroup, Spans * sub)
                                 int *newwid;
 
 #define EXTRA 8
-                                newPt =
-                                    (DDXPointPtr) xrealloc (spans->points,
-                                                            (spans->count +
-                                                             EXTRA) * sizeof (DDXPointRec));
+                                newPt = xrealloc (spans->points,
+                                                  (spans->count +
+                                                   EXTRA) * sizeof (DDXPointRec));
                                 if (!newPt)
                                     break;
                                 spansPt = newPt + (spansPt - spans->points);
                                 spans->points = newPt;
-                                newwid =
-                                    (int *) xrealloc (spans->widths,
-                                                      (spans->count + EXTRA) * sizeof (int));
+                                newwid = xrealloc (spans->widths,
+                                                   (spans->count + EXTRA) * sizeof (int));
                                 if (!newwid)
                                     break;
                                 spansWid = newwid + (spansWid - spans->widths);
@@ -555,7 +554,7 @@ miAppendSpans (SpanGroup * spanGroup, SpanGroup * otherGroup, Spans * spans)
     if (spansCount > 0) {
         if (spanGroup->size == spanGroup->count) {
             spanGroup->size = (spanGroup->size + 8) * 2;
-            spanGroup->group = (Spans *)
+            spanGroup->group =
                 xrealloc (spanGroup->group, sizeof (Spans) * spanGroup->size);
         }
 
@@ -579,8 +578,7 @@ miAppendSpans (SpanGroup * spanGroup, SpanGroup * otherGroup, Spans * spans)
 static void
 miFreeSpanGroup (SpanGroup * spanGroup)
 {
-    if (spanGroup->group != NULL)
-        xfree (spanGroup->group);
+    xfree (spanGroup->group);
 }
 
 static void
@@ -775,10 +773,8 @@ miFillUniqueSpanGroup (GCPtr pGC, SpanGroup * spanGroup, Boolean foreground)
         ysizes = (int *)xalloc (ylength * sizeof (int));
 
         if (!yspans || !ysizes) {
-            if (yspans)
-                xfree (yspans);
-            if (ysizes)
-                xfree (ysizes);
+            xfree (yspans);
+            xfree (ysizes);
             miDisposeSpanGroup (spanGroup);
             return;
         }
@@ -805,10 +801,10 @@ miFillUniqueSpanGroup (GCPtr pGC, SpanGroup * spanGroup, Boolean foreground)
                         DDXPointPtr newpoints;
                         int *newwidths;
                         ysizes[index] = (ysizes[index] + 8) * 2;
-                        newpoints = (DDXPointPtr) xrealloc (newspans->points,
-                                                            ysizes[index] * sizeof (DDXPointRec));
-                        newwidths = (int *) xrealloc (newspans->widths,
-                                                      ysizes[index] * sizeof (int));
+                        newpoints = xrealloc (newspans->points,
+                                              ysizes[index] * sizeof (DDXPointRec));
+                        newwidths = xrealloc (newspans->widths,
+                                              ysizes[index] * sizeof (int));
                         if (!newpoints || !newwidths) {
                             int i;
 
@@ -848,10 +844,8 @@ miFillUniqueSpanGroup (GCPtr pGC, SpanGroup * spanGroup, Boolean foreground)
             }
             xfree (yspans);
             xfree (ysizes);
-            if (points)
-                xfree (points);
-            if (widths)
-                xfree (widths);
+            xfree (points);
+            xfree (widths);
             return;
         }
         count = 0;
@@ -1511,7 +1505,7 @@ miZeroLine (GCPtr pGC, int mode,        /* Origin or Previous */
     pspanInit = (DDXPointRec *)xalloc (list_len * sizeof (DDXPointRec));
     pwidthInit = (int *)xalloc (list_len * sizeof (int));
     if (!pspanInit || !pwidthInit)
-        return;
+        goto out;
 
     Nspans = 0;
     new_span = TRUE;
@@ -1685,6 +1679,7 @@ miZeroLine (GCPtr pGC, int mode,        /* Origin or Previous */
     if (Nspans > 0)
         (*pGC->ops->FillSpans) (pGC, Nspans, pspanInit, pwidthInit, FALSE, TRUE);
 
+out:
     xfree (pwidthInit);
     xfree (pspanInit);
 }

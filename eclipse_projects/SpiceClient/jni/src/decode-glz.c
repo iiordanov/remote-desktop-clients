@@ -25,8 +25,7 @@
 #include "spice-util.h"
 #include "decode.h"
 
-/* spice/common */
-#include "canvas_utils.h"
+#include "common/canvas_utils.h"
 
 struct glz_image_hdr {
     uint64_t                id;
@@ -141,8 +140,6 @@ static gboolean wait_for_image(gpointer data)
     int slot = wait->id % wait->window->nimages;
     struct glz_image *image = wait->window->images[slot];
     gboolean ready = image && image->hdr.id == wait->id;
-
-    SPICE_DEBUG("image with slot %d: %s", slot, ready ? "yes" : "no");
 
     return ready;
 }

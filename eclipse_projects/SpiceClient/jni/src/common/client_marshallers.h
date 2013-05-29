@@ -24,8 +24,11 @@
 #endif
 
 #include <spice/protocol.h>
-#include <marshaller.h>
-#include <messages.h>
+
+#include "marshaller.h"
+#include "messages.h"
+
+SPICE_BEGIN_DECLS
 
 typedef struct {
     void (*msg_SpiceMsgEmpty)(SpiceMarshaller *m, SpiceMsgEmpty *msg);
@@ -39,6 +42,7 @@ typedef struct {
     void (*msgc_main_mouse_mode_request)(SpiceMarshaller *m, SpiceMsgcMainMouseModeRequest *msg);
     void (*msgc_main_agent_start)(SpiceMarshaller *m, SpiceMsgcMainAgentStart *msg);
     void (*msgc_main_agent_token)(SpiceMarshaller *m, SpiceMsgcMainAgentTokens *msg);
+    void (*msgc_main_migrate_dst_do_seamless)(SpiceMarshaller *m, SpiceMsgcMainMigrateDstDoSeamless *msg);
     void (*msgc_display_init)(SpiceMarshaller *m, SpiceMsgcDisplayInit *msg);
     void (*msgc_inputs_key_down)(SpiceMarshaller *m, SpiceMsgcKeyDown *msg);
     void (*msgc_inputs_key_up)(SpiceMarshaller *m, SpiceMsgcKeyUp *msg);
@@ -59,17 +63,19 @@ typedef struct {
     void (*msgc_tunnel_socket_closed_ack)(SpiceMarshaller *m, SpiceMsgcTunnelSocketClosedAck *msg);
     void (*msgc_tunnel_socket_data)(SpiceMarshaller *m, SpiceMsgcTunnelSocketData *msg);
     void (*msgc_tunnel_socket_token)(SpiceMarshaller *m, SpiceMsgcTunnelSocketTokens *msg);
-#undef USE_SMARTCARD
 #ifdef USE_SMARTCARD
     void (*msgc_smartcard_atr)(SpiceMarshaller *m, VSCMsgATR *msg);
     void (*msgc_smartcard_error)(SpiceMarshaller *m, VSCMsgError *msg);
     void (*msgc_smartcard_header)(SpiceMarshaller *m, VSCMsgHeader *msg);
-    void (*msgc_smartcard_msg)(SpiceMarshaller *m, SpiceMsgcSmartcard *msg, SpiceMarshaller **reader_name_out);
+    void (*msgc_smartcard_data)(SpiceMarshaller *m, SpiceMsgcSmartcard *msg, SpiceMarshaller **reader_name_out);
     void (*msgc_smartcard_reader_add)(SpiceMarshaller *m, VSCMsgReaderAdd *msg);
 #endif
+    void (*msgc_port_event)(SpiceMarshaller *m, SpiceMsgcPortEvent *msg);
 } SpiceMessageMarshallers;
 
 SpiceMessageMarshallers *spice_message_marshallers_get(void);
 SpiceMessageMarshallers *spice_message_marshallers_get1(void);
+
+SPICE_END_DECLS
 
 #endif

@@ -1,7 +1,7 @@
 /* -*- Mode: C; c-basic-offset: 4; indent-tabs-mode: nil -*- */
 /*
 
- Copyright 2009 Red Hat, Inc. and/or its affiliates.
+ Copyright (C) 2009 Red Hat, Inc. and/or its affiliates.
 
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public
@@ -59,6 +59,10 @@
     COPY_COMP_PIXEL(encoder, out) - copies pixel from the compressed buffer to the decompressed
                                     buffer. Increases out.
 */
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #if !defined(LZ_RGB_ALPHA)
 #define COPY_PIXEL(p, out) (*out++ = p)
 #define COPY_REF_PIXEL(ref, out) (*out++ = *ref++)
@@ -149,6 +153,22 @@
 #endif // TO_RGB32
 #endif
 
+#ifdef LZ_A8
+#ifndef TO_RGB32
+#define OUT_PIXEL one_byte_pixel_t
+#define FNAME(name) lz_a8_##name
+#define COPY_COMP_PIXEL(encoder, out) {out->a = decode(encoder); out++;}
+#else // TO_RGB32
+#define OUT_PIXEL rgb32_pixel_t
+#define FNAME(name) lz_a8_to_rgb32_##name
+#define COPY_COMP_PIXEL(encoder, out) {                     \
+        (out)->b = (out)->g = (out)->r = 0;                 \
+        (out)->pad = decode(encoder);                       \
+        (out)++;                                            \
+    }
+#endif
+#endif
+
 #ifdef LZ_RGB16
 #ifndef TO_RGB32
 #define OUT_PIXEL rgb16_pixel_t
@@ -166,7 +186,7 @@
     out->b =  (out->b << 3) | ((out->b >> 2) & 0x07);                  \
     out->pad = 0;                                                      \
     out++;                                                             \
-}                                                        
+}
 #endif
 #endif
 
@@ -233,7 +253,7 @@ static size_t FNAME(decompress)(Encoder *encoder, OUT_PIXEL *out_buf, int size)
                 }
             }
 
-#if defined(LZ_PLT) || defined(LZ_RGB_ALPHA)
+#if defined(LZ_PLT) || defined(LZ_RGB_ALPHA) || defined(LZ_A8)
             len += 3; // length is biased by 2 + 1 (fixing bias)
 #elif defined(LZ_RGB16)
             len += 2; // length is biased by 1 + 1 (fixing bias)
@@ -250,9 +270,9 @@ static size_t FNAME(decompress)(Encoder *encoder, OUT_PIXEL *out_buf, int size)
 #endif
             ref -= ofs;
 
-            ASSERT(encoder->usr, op + len <= op_limit);
-            ASSERT(encoder->usr, ref + len <= op_limit);
-            ASSERT(encoder->usr, ref >= out_buf);
+            spice_assert(op + len <= op_limit);
+            spice_assert(ref + len <= op_limit);
+            spice_assert(ref >= out_buf);
 
             // TODO: optimize by not calling loop at least 3 times when not PLT_TO_RGB32 (len is
             //       always >=3). in PLT_TO_RGB32 len >= 3*number_of_pixels_per_byte
@@ -266,29 +286,29 @@ static size_t FNAME(decompress)(Encoder *encoder, OUT_PIXEL *out_buf, int size)
                 OUT_PIXEL b = *ref;
                 for (; len; --len) {
                     COPY_PIXEL(b, op);
-                    ASSERT(encoder->usr, op <= op_limit);
+                    spice_assert(op <= op_limit);
                 }
             } else {
                 for (; len; --len) {
                     COPY_REF_PIXEL(ref, op);
-                    ASSERT(encoder->usr, op <= op_limit);
+                    spice_assert(op <= op_limit);
                 }
             }
         } else { // copy
             ctrl++; // copy count is biased by 1
 #if defined(TO_RGB32) && (defined(PLT4_BE) || defined(PLT4_LE) || defined(PLT1_BE) || \
                                                                                    defined(PLT1_LE))
-            ASSERT(encoder->usr, op + CAST_PLT_DISTANCE(ctrl) <= op_limit);
+            spice_assert(op + CAST_PLT_DISTANCE(ctrl) <= op_limit);
 #else
-            ASSERT(encoder->usr, op + ctrl <= op_limit);
+            spice_assert(op + ctrl <= op_limit);
 #endif
             COPY_COMP_PIXEL(encoder, op);
 
-            ASSERT(encoder->usr, op <= op_limit);
+            spice_assert(op <= op_limit);
 
             for (--ctrl; ctrl; ctrl--) {
                 COPY_COMP_PIXEL(encoder, op);
-                ASSERT(encoder->usr, op <= op_limit);
+                spice_assert(op <= op_limit);
             }
         }
 
@@ -311,6 +331,7 @@ static size_t FNAME(decompress)(Encoder *encoder, OUT_PIXEL *out_buf, int size)
 #undef LZ_RGB16
 #undef LZ_RGB24
 #undef LZ_RGB32
+#undef LZ_A8
 #undef LZ_RGB_ALPHA
 #undef TO_RGB32
 #undef OUT_PIXEL
@@ -320,4 +341,3 @@ static size_t FNAME(decompress)(Encoder *encoder, OUT_PIXEL *out_buf, int size)
 #undef COPY_COMP_PIXEL
 #undef COPY_PLT_ENTRY
 #undef CAST_PLT_DISTANCE
-

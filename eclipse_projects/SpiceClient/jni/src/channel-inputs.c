@@ -69,6 +69,7 @@ static guint signals[SPICE_INPUTS_LAST_SIGNAL];
 
 static void spice_inputs_handle_msg(SpiceChannel *channel, SpiceMsgIn *msg);
 static void spice_inputs_channel_up(SpiceChannel *channel);
+static void spice_inputs_channel_reset(SpiceChannel *channel, gboolean migrating);
 
 /* ------------------------------------------------------------------ */
 
@@ -109,6 +110,7 @@ static void spice_inputs_channel_class_init(SpiceInputsChannelClass *klass)
     gobject_class->get_property = spice_inputs_get_property;
     channel_class->handle_msg   = spice_inputs_handle_msg;
     channel_class->channel_up   = spice_inputs_channel_up;
+    channel_class->channel_reset = spice_inputs_channel_reset;
 
     g_object_class_install_property
         (gobject_class, PROP_KEY_MODIFIERS,
@@ -195,7 +197,7 @@ static SpiceMsgOut* mouse_position(SpiceInputsChannel *channel)
     if (c->dpy == -1)
         return NULL;
 
-    /* SPICE_DEBUG("%s: +%d+%d", __FUNCTION__, c->x, c->y); */
+    /* CHANNEL_DEBUG(channel, "%s: +%d+%d", __FUNCTION__, c->x, c->y); */
     position.buttons_state = c->bs;
     position.x             = c->x;
     position.y             = c->y;
@@ -364,7 +366,7 @@ void spice_inputs_position(SpiceInputsChannel *channel, gint x, gint y,
     if (c->motion_count < SPICE_INPUT_MOTION_ACK_BUNCH * 2) {
         send_position(channel);
     } else {
-        SPICE_DEBUG("over SPICE_INPUT_MOTION_ACK_BUNCH * 2, dropping");
+        CHANNEL_DEBUG(channel, "over SPICE_INPUT_MOTION_ACK_BUNCH * 2, dropping");
     }
 }
 
@@ -481,15 +483,8 @@ void spice_inputs_key_press(SpiceInputsChannel *channel, guint scancode)
     if (spice_channel_get_read_only(SPICE_CHANNEL(channel)))
         return;
 
-    SPICE_DEBUG("%s: scancode %d", __FUNCTION__, scancode);
-    if (scancode < 0x100) {
-        down.code = scancode;
-    } else {
-        down.code = 0xe0 | ((scancode - 0x100) << 8);
-    }
-
-    msg = spice_msg_out_new(SPICE_CHANNEL(channel),
-                            SPICE_MSGC_INPUTS_KEY_DOWN);
+    down.code = spice_make_scancode(scancode, FALSE);
+    msg = spice_msg_out_new(SPICE_CHANNEL(channel), SPICE_MSGC_INPUTS_KEY_DOWN);
     msg->marshallers->msgc_inputs_key_down(msg->marshaller, &down);
     spice_msg_out_send(msg);
 }
@@ -513,17 +508,58 @@ void spice_inputs_key_release(SpiceInputsChannel *channel, guint scancode)
     if (spice_channel_get_read_only(SPICE_CHANNEL(channel)))
         return;
 
-    SPICE_DEBUG("%s: scancode %d", __FUNCTION__, scancode);
-    if (scancode < 0x100) {
-        up.code = scancode | 0x80;
-    } else {
-        up.code = 0x80e0 | ((scancode - 0x100) << 8);
-    }
-
-    msg = spice_msg_out_new(SPICE_CHANNEL(channel),
-                            SPICE_MSGC_INPUTS_KEY_UP);
+    up.code = spice_make_scancode(scancode, TRUE);
+    msg = spice_msg_out_new(SPICE_CHANNEL(channel), SPICE_MSGC_INPUTS_KEY_UP);
     msg->marshallers->msgc_inputs_key_up(msg->marshaller, &up);
     spice_msg_out_send(msg);
+}
+
+/**
+ * spice_inputs_key_press_and_release:
+ * @channel:
+ * @scancode: a PC AT key scancode
+ *
+ * Press and release a key event atomically (in the same message).
+ *
+ * Since: 0.13
+ **/
+void spice_inputs_key_press_and_release(SpiceInputsChannel *input_channel, guint scancode)
+{
+    SpiceChannel *channel = SPICE_CHANNEL(input_channel);
+
+    g_return_if_fail(channel != NULL);
+    g_return_if_fail(channel->priv->state != SPICE_CHANNEL_STATE_UNCONNECTED);
+
+    if (channel->priv->state != SPICE_CHANNEL_STATE_READY)
+        return;
+    if (spice_channel_get_read_only(channel))
+        return;
+
+    if (spice_channel_test_capability(channel, SPICE_INPUTS_CAP_KEY_SCANCODE)) {
+        SpiceMsgOut *msg;
+        guint16 code;
+        guint8 *buf;
+
+        msg = spice_msg_out_new(channel, SPICE_MSGC_INPUTS_KEY_SCANCODE);
+        if (scancode < 0x100) {
+            buf = (guint8*)spice_marshaller_reserve_space(msg->marshaller, 2);
+            buf[0] = spice_make_scancode(scancode, FALSE);
+            buf[1] = spice_make_scancode(scancode, TRUE);
+        } else {
+            buf = (guint8*)spice_marshaller_reserve_space(msg->marshaller, 4);
+            code = spice_make_scancode(scancode, FALSE);
+            buf[0] = code & 0xff;
+            buf[1] = code >> 8;
+            code = spice_make_scancode(scancode, TRUE);
+            buf[2] = code & 0xff;
+            buf[3] = code >> 8;
+        }
+        spice_msg_out_send(msg);
+    } else {
+        CHANNEL_DEBUG(channel, "The server doesn't support atomic press and release");
+        spice_inputs_key_press(input_channel, scancode);
+        spice_inputs_key_release(input_channel, scancode);
+    }
 }
 
 /* main or coroutine context */
@@ -582,4 +618,12 @@ static void spice_inputs_channel_up(SpiceChannel *channel)
 
     msg = set_key_locks(SPICE_INPUTS_CHANNEL(channel), c->locks);
     spice_msg_out_send_internal(msg);
+}
+
+static void spice_inputs_channel_reset(SpiceChannel *channel, gboolean migrating)
+{
+    SpiceInputsChannelPrivate *c = SPICE_INPUTS_CHANNEL(channel)->priv;
+    c->motion_count = 0;
+
+    SPICE_CHANNEL_CLASS(spice_inputs_channel_parent_class)->channel_reset(channel, migrating);
 }

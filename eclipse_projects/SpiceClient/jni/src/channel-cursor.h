@@ -35,7 +35,6 @@ typedef struct _SpiceCursorChannelPrivate SpiceCursorChannelPrivate;
 
 /**
  * SpiceCursorChannel:
- * @parent: Parent instance.
  *
  * The #SpiceCursorChannel struct is opaque and should not be accessed directly.
  */

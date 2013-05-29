@@ -19,8 +19,12 @@
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
+#include <stdlib.h>
+#include <string.h>
 #include <glib-object.h>
+#include "spice-util-priv.h"
 #include "spice-util.h"
+#include "spice-util-priv.h"
 
 /**
  * SECTION:spice-util
@@ -43,6 +47,18 @@ static gboolean debugFlag = FALSE;
  **/
 void spice_util_set_debug(gboolean enabled)
 {
+#if GLIB_CHECK_VERSION(2, 31, 0)
+    if (enabled) {
+        const gchar *doms = g_getenv("G_MESSAGES_DEBUG");
+        if (!doms) {
+            g_setenv("G_MESSAGES_DEBUG", G_LOG_DOMAIN, 1);
+        } else if (!strstr(doms, G_LOG_DOMAIN)) {
+            gchar *newdoms = g_strdup_printf("%s %s", doms, G_LOG_DOMAIN);
+            g_setenv("G_MESSAGES_DEBUG", newdoms, 1);
+            g_free(newdoms);
+        }
+    }
+#endif
     debugFlag = enabled;
 }
 
@@ -74,6 +90,16 @@ gboolean spice_strv_contains(const GStrv strv, const gchar *str)
             return TRUE;
 
     return FALSE;
+}
+
+G_GNUC_INTERNAL
+gchar* spice_uuid_to_string(const guint8 uuid[16])
+{
+    return g_strdup_printf(UUID_FMT, uuid[0], uuid[1],
+                           uuid[2], uuid[3], uuid[4], uuid[5],
+                           uuid[6], uuid[7], uuid[8], uuid[9],
+                           uuid[10], uuid[11], uuid[12], uuid[13],
+                           uuid[14], uuid[15]);
 }
 
 typedef struct {
@@ -191,4 +217,31 @@ gulong spice_g_signal_connect_object (gpointer instance,
                                        closure_invalidated_cb);
 
     return ctx->handler_id;
+}
+
+G_GNUC_INTERNAL
+const gchar* spice_yes_no(gboolean value)
+{
+    return value ? "yes" : "no";
+}
+
+G_GNUC_INTERNAL
+guint16 spice_make_scancode(guint scancode, gboolean release)
+{
+    SPICE_DEBUG("%s: %s scancode %d",
+                __FUNCTION__, release ? "release" : "", scancode);
+
+    if (release) {
+        if (scancode < 0x100)
+            return scancode | 0x80;
+        else
+            return 0x80e0 | ((scancode - 0x100) << 8);
+    } else {
+        if (scancode < 0x100)
+            return scancode;
+        else
+            return 0xe0 | ((scancode - 0x100) << 8);
+    }
+
+    g_return_val_if_reached(0);
 }

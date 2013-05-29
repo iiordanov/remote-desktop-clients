@@ -20,11 +20,14 @@
 #define _H__CANVAS
 
 #include <stdint.h>
+#include <spice/macros.h>
 
 #include "draw.h"
 #include "pixman_utils.h"
 #include "canvas_base.h"
 #include "region.h"
+
+SPICE_BEGIN_DECLS
 
 SpiceCanvas *canvas_create(int width, int height, uint32_t format
 #ifdef SW_CANVAS_CACHE
@@ -33,7 +36,7 @@ SpiceCanvas *canvas_create(int width, int height, uint32_t format
 #elif defined(SW_CANVAS_IMAGE_CACHE)
                            , SpiceImageCache *bits_cache
 #endif
-			   , SpiceImageSurfaces *surfaces
+                           , SpiceImageSurfaces *surfaces
                            , SpiceGlzDecoder *glz_decoder
                            , SpiceJpegDecoder *jpeg_decoder
                            , SpiceZlibDecoder *zlib_decoder
@@ -46,13 +49,15 @@ SpiceCanvas *canvas_create_for_data(int width, int height, uint32_t format, uint
 #elif defined(SW_CANVAS_IMAGE_CACHE)
                            , SpiceImageCache *bits_cache
 #endif
-			   , SpiceImageSurfaces *surfaces
+                           , SpiceImageSurfaces *surfaces
                            , SpiceGlzDecoder *glz_decoder
                            , SpiceJpegDecoder *jpeg_decoder
                            , SpiceZlibDecoder *zlib_decoder
                            );
 
 
-void sw_canvas_init();
+void sw_canvas_init(void);
+
+SPICE_END_DECLS
 
 #endif

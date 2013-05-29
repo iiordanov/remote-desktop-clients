@@ -27,6 +27,7 @@
 #include "spice-channel-priv.h"
 #include "smartcard-manager.h"
 #include "smartcard-manager-priv.h"
+#include "spice-session-priv.h"
 
 /**
  * SECTION:channel-smartcard
@@ -120,26 +121,40 @@ static void spice_smartcard_channel_init(SpiceSmartcardChannel *channel)
     priv->message_queue = g_queue_new();
 
 #ifdef USE_SMARTCARD
-    SpiceSmartcardManager *manager;
-
-    manager = spice_smartcard_manager_get();
-
     priv->pending_card_insertions =
         g_hash_table_new_full(g_direct_hash, g_direct_equal,
                               (GDestroyNotify)vreader_free, NULL);
     priv->pending_reader_removals =
          g_hash_table_new_full(g_direct_hash, g_direct_equal,
                                (GDestroyNotify)vreader_free, NULL);
-
-    g_signal_connect(G_OBJECT(manager), "reader-added",
-                     (GCallback)reader_added_cb, channel);
-    g_signal_connect(G_OBJECT(manager), "reader-removed",
-                     (GCallback)reader_removed_cb, channel);
-    g_signal_connect(G_OBJECT(manager), "card-inserted",
-                     (GCallback)card_inserted_cb, channel);
-    g_signal_connect(G_OBJECT(manager), "card-removed",
-                     (GCallback)card_removed_cb, channel);
 #endif
+}
+
+static void spice_smartcard_channel_constructed(GObject *object)
+{
+    SpiceSession *s = spice_channel_get_session(SPICE_CHANNEL(object));
+
+    g_return_if_fail(s != NULL);
+
+#ifdef USE_SMARTCARD
+    if (!s->priv->migration_copy) {
+        SpiceSmartcardChannel *channel = SPICE_SMARTCARD_CHANNEL(object);
+        SpiceSmartcardManager *manager = spice_smartcard_manager_get();
+
+        g_signal_connect(G_OBJECT(manager), "reader-added",
+                         (GCallback)reader_added_cb, channel);
+        g_signal_connect(G_OBJECT(manager), "reader-removed",
+                         (GCallback)reader_removed_cb, channel);
+        g_signal_connect(G_OBJECT(manager), "card-inserted",
+                         (GCallback)card_inserted_cb, channel);
+        g_signal_connect(G_OBJECT(manager), "card-removed",
+                         (GCallback)card_removed_cb, channel);
+    }
+#endif
+
+    if (G_OBJECT_CLASS(spice_smartcard_channel_parent_class)->constructed)
+        G_OBJECT_CLASS(spice_smartcard_channel_parent_class)->constructed(object);
+
 }
 
 static void spice_smartcard_channel_finalize(GObject *obj)
@@ -200,6 +215,8 @@ static void spice_smartcard_channel_class_init(SpiceSmartcardChannelClass *klass
     SpiceChannelClass *channel_class = SPICE_CHANNEL_CLASS(klass);
 
     gobject_class->finalize     = spice_smartcard_channel_finalize;
+    gobject_class->constructed  = spice_smartcard_channel_constructed;
+
     channel_class->handle_msg   = spice_smartcard_handle_msg;
     channel_class->channel_up   = spice_smartcard_channel_up;
     channel_class->channel_reset = spice_smartcard_channel_reset;
@@ -310,8 +327,8 @@ static void smartcard_message_send(SpiceSmartcardChannel *channel,
     if (spice_channel_get_read_only(SPICE_CHANNEL(channel)))
         return;
 
-    SPICE_DEBUG("smartcard: send message %d, %s",
-                msg_type, queue ? "queued" : "now");
+    CHANNEL_DEBUG(channel, "send message %d, %s",
+                  msg_type, queue ? "queued" : "now");
     if (!queue) {
         spice_msg_out_send(msg_out);
         return;
@@ -448,29 +465,27 @@ static void spice_smartcard_channel_up_cb(GObject *source_object,
                                           gpointer user_data)
 {
     SpiceChannel *channel = SPICE_CHANNEL(user_data);
-    GError *error = NULL;
 
     g_return_if_fail(channel != NULL);
     g_return_if_fail(SPICE_IS_SESSION(source_object));
 
-    spice_smartcard_manager_init_finish(SPICE_SESSION(source_object),
-                                        res, &error);
-    if (error)
-        g_warning("%s", error->message);
-    g_clear_error(&error);
+    if (!spice_channel_get_session(SPICE_CHANNEL(channel))->priv->migration_copy) {
+        GError *error = NULL;
+
+        spice_smartcard_manager_init_finish(SPICE_SESSION(source_object),
+                                            res, &error);
+        if (error)
+            g_warning("%s", error->message);
+        g_clear_error(&error);
+    }
 }
 
 static void spice_smartcard_channel_up(SpiceChannel *channel)
 {
-    SpiceSession *session;
-    GCancellable *cancellable = g_cancellable_new();
-
-    g_object_get(channel, "spice-session", &session, NULL);
-    spice_smartcard_manager_init_async(session,
-                                       cancellable,
+    spice_smartcard_manager_init_async(spice_channel_get_session(channel),
+                                       g_cancellable_new(),
                                        spice_smartcard_channel_up_cb,
                                        channel);
-    g_object_unref(session);
 }
 
 static void handle_smartcard_msg(SpiceChannel *channel, SpiceMsgIn *in)
@@ -481,11 +496,11 @@ static void handle_smartcard_msg(SpiceChannel *channel, SpiceMsgIn *in)
     VReader *reader;
 
     priv = SPICE_SMARTCARD_CHANNEL_GET_PRIVATE(channel);
-    SPICE_DEBUG("smartcard: handle msg %d", msg->type);
+    CHANNEL_DEBUG(channel, "handle msg %d", msg->type);
     switch (msg->type) {
         case VSC_Error:
             g_return_if_fail(priv->in_flight_message != NULL);
-            SPICE_DEBUG("smartcard: in flight %d", priv->in_flight_message->message_type);
+            CHANNEL_DEBUG(channel, "in flight %d", priv->in_flight_message->message_type);
             switch (priv->in_flight_message->message_type) {
                 case VSC_ReaderAdd:
                     g_return_if_fail(priv->pending_reader_additions != NULL);

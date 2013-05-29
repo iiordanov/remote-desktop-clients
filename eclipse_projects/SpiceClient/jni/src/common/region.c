@@ -15,6 +15,9 @@
    You should have received a copy of the GNU Lesser General Public
    License along with this library; if not, see <http://www.gnu.org/licenses/>.
 */
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
 
 #include <stdio.h>
 #include <string.h>
@@ -24,11 +27,6 @@
 #include "region.h"
 #include "rect.h"
 #include "mem.h"
-
-#define ASSERT(x) if (!(x)) {                               \
-    printf("%s: ASSERT %s failed\n", __FUNCTION__, #x);     \
-    abort();                                                \
-}
 
 /*  true iff two Boxes overlap */
 #define EXTENTCHECK(r1, r2)        \
@@ -388,6 +386,17 @@ void region_ret_rects(const QRegion *rgn, SpiceRect *rects, uint32_t num_rects)
     }
 }
 
+void region_extents(const QRegion *rgn, SpiceRect *r)
+{
+    pixman_box32_t *extents;
+
+    extents = pixman_region32_extents((pixman_region32_t *)rgn);
+
+    r->left = extents->x1;
+    r->top = extents->y1;
+    r->right = extents->x2;
+    r->bottom = extents->y2;
+}
 
 int region_is_equal(const QRegion *rgn1, const QRegion *rgn2)
 {
@@ -411,7 +420,7 @@ int region_bounds_intersects(const QRegion *rgn1, const QRegion *rgn2)
     pixman_box32_t *extents1, *extents2;
 
     extents1 = pixman_region32_extents((pixman_region32_t *)rgn1);
-    extents2 = pixman_region32_extents((pixman_region32_t *)rgn1);
+    extents2 = pixman_region32_extents((pixman_region32_t *)rgn2);
 
     return EXTENTCHECK(extents1, extents2);
 }
@@ -563,7 +572,7 @@ static void rect_set(SpiceRect *r, int32_t top, int32_t left, int32_t bottom, in
     r->left = left;
     r->bottom = bottom;
     r->right = right;
-    ASSERT(rect_is_valid(r));
+    spice_assert(rect_is_valid(r));
 }
 
 static void random_region(QRegion *reg)
@@ -890,4 +899,3 @@ int main(void)
 }
 
 #endif
-

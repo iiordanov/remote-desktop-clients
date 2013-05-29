@@ -15,17 +15,22 @@
    You should have received a copy of the GNU Lesser General Public
    License along with this library; if not, see <http://www.gnu.org/licenses/>.
 */
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
 
+#include "spice_common.h"
 #include "mem.h"
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 
 #ifndef MALLOC_ERROR
-#define MALLOC_ERROR(format, ...) {                             \
-    printf(format "\n", ## __VA_ARGS__);   \
-    abort();                                                    \
-}
+#define MALLOC_ERROR(format, ...) SPICE_STMT_START {    \
+    spice_error(format, ## __VA_ARGS__);                \
+    abort();                                            \
+} SPICE_STMT_END
 #endif
 
 size_t spice_strnlen(const char *str, size_t max_len)
@@ -91,8 +96,7 @@ void *spice_malloc(size_t n_bytes)
             return mem;
         }
 
-        MALLOC_ERROR("spice_malloc: panic: unable to allocate %lu bytes\n",
-                     (unsigned long)n_bytes);
+        MALLOC_ERROR("unable to allocate %lu bytes", (unsigned long)n_bytes);
     }
     return NULL;
 }
@@ -108,8 +112,7 @@ void *spice_malloc0(size_t n_bytes)
             return mem;
         }
 
-        MALLOC_ERROR("spice_malloc0: panic: unable to allocate %lu bytes\n",
-                     (unsigned long)n_bytes);
+        MALLOC_ERROR("unable to allocate %lu bytes", (unsigned long)n_bytes);
     }
     return NULL;
 }
@@ -123,13 +126,10 @@ void *spice_realloc(void *mem, size_t n_bytes)
             return mem;
         }
 
-        MALLOC_ERROR("spice_realloc: panic: unable to allocate %lu bytes\n",
-                     (unsigned long)n_bytes);
+        MALLOC_ERROR("unable to allocate %lu bytes", (unsigned long)n_bytes);
     }
 
-    if (mem) {
-        free(mem);
-    }
+    free(mem);
 
     return NULL;
 }
@@ -139,7 +139,7 @@ void *spice_realloc(void *mem, size_t n_bytes)
 void *spice_malloc_n(size_t n_blocks, size_t n_block_bytes)
 {
     if (SIZE_OVERFLOWS (n_blocks, n_block_bytes)) {
-        MALLOC_ERROR("spice_malloc_n: overflow allocating %lu*%lu bytes",
+        MALLOC_ERROR("overflow allocating %lu*%lu bytes",
                      (unsigned long)n_blocks, (unsigned long)n_block_bytes);
     }
 
@@ -178,7 +178,7 @@ void *spice_realloc_n(void *mem, size_t n_blocks, size_t n_block_bytes)
     if (SIZE_OVERFLOWS (n_blocks, n_block_bytes)) {
         MALLOC_ERROR("spice_realloc_n: overflow allocating %lu*%lu bytes",
                      (unsigned long)n_blocks, (unsigned long)n_block_bytes);
-  }
+    }
 
     return spice_realloc(mem, n_blocks * n_block_bytes);
 }
@@ -240,4 +240,57 @@ void spice_chunks_linearize(SpiceChunks *chunks)
         chunks->chunk[0].data = data;
         chunks->chunk[0].len = chunks->data_size;
     }
+}
+
+void spice_buffer_reserve(SpiceBuffer *buffer, size_t len)
+{
+    if ((buffer->capacity - buffer->offset) < len) {
+        buffer->capacity += (len + 1024);
+        buffer->buffer = (uint8_t*)spice_realloc(buffer->buffer, buffer->capacity);
+    }
+}
+
+int spice_buffer_empty(SpiceBuffer *buffer)
+{
+    return buffer->offset == 0;
+}
+
+uint8_t *spice_buffer_end(SpiceBuffer *buffer)
+{
+    return buffer->buffer + buffer->offset;
+}
+
+void spice_buffer_reset(SpiceBuffer *buffer)
+{
+    buffer->offset = 0;
+}
+
+void spice_buffer_free(SpiceBuffer *buffer)
+{
+    free(buffer->buffer);
+    buffer->offset = 0;
+    buffer->capacity = 0;
+    buffer->buffer = NULL;
+}
+
+void spice_buffer_append(SpiceBuffer *buffer, const void *data, size_t len)
+{
+    spice_buffer_reserve(buffer, len);
+    memcpy(buffer->buffer + buffer->offset, data, len);
+    buffer->offset += len;
+}
+
+size_t spice_buffer_copy(SpiceBuffer *buffer, void *dest, size_t len)
+{
+    len = MIN(buffer->offset, len);
+    memcpy(dest, buffer->buffer, len);
+    return len;
+}
+
+size_t spice_buffer_remove(SpiceBuffer *buffer, size_t len)
+{
+    len = MIN(buffer->offset, len);
+    memmove(buffer->buffer, buffer->buffer + len, buffer->offset - len);
+    buffer->offset -= len;
+    return len;
 }

@@ -35,7 +35,6 @@ typedef struct _SpiceSmartcardChannelPrivate SpiceSmartcardChannelPrivate;
 
 /**
  * SpiceSmartcardChannel:
- * @parent: Parent instance.
  *
  * The #SpiceSmartcardChannel struct is opaque and should not be accessed directly.
  */

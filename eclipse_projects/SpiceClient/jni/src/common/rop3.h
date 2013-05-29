@@ -20,15 +20,20 @@
 #define _H_ROP3
 
 #include <stdint.h>
+#include <spice/macros.h>
 
 #include "draw.h"
 #include "pixman_utils.h"
+
+SPICE_BEGIN_DECLS
 
 void do_rop3_with_pattern(uint8_t rop3, pixman_image_t *d, pixman_image_t *s, SpicePoint *src_pos,
                           pixman_image_t *p, SpicePoint *pat_pos);
 void do_rop3_with_color(uint8_t rop3, pixman_image_t *d, pixman_image_t *s, SpicePoint *src_pos,
                         uint32_t rgb);
 
-void rop3_init();
-#endif
+void rop3_init(void);
 
+SPICE_END_DECLS
+
+#endif

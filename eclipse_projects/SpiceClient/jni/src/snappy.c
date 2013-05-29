@@ -25,7 +25,7 @@
 #include "spice-cmdline.h"
 
 /* config */
-static char *outf      = "snappy.ppm";
+static const char *outf      = "snappy.ppm";
 static gboolean version = FALSE;
 
 /* state */

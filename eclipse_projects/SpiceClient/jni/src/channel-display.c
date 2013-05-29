@@ -19,7 +19,10 @@
 #include "config.h"
 #endif
 
-#undef HAVE_SYS_SHM_H
+#ifdef HAVE_SYS_TYPES_H
+#include <sys/types.h>
+#endif
+
 #ifdef HAVE_SYS_SHM_H
 #include <sys/shm.h>
 #endif
@@ -28,6 +31,7 @@
 #include <sys/ipc.h>
 #endif
 
+#include "glib-compat.h"
 #include "spice-client.h"
 #include "spice-common.h"
 
@@ -59,6 +63,8 @@
 #define SPICE_DISPLAY_CHANNEL_GET_PRIVATE(obj)                                  \
     (G_TYPE_INSTANCE_GET_PRIVATE((obj), SPICE_TYPE_DISPLAY_CHANNEL, SpiceDisplayChannelPrivate))
 
+#define MONITORS_MAX 256
+
 struct _SpiceDisplayChannelPrivate {
     Ring                        surfaces;
     display_cache               *images;
@@ -71,10 +77,11 @@ struct _SpiceDisplayChannelPrivate {
     int                         nstreams;
     gboolean                    mark;
     guint                       mark_false_event_id;
+    GArray                      *monitors;
+    guint                       monitors_max;
 #ifdef WIN32
     HDC dc;
 #endif
-    gboolean                    migrate_wait_primary;
 };
 
 G_DEFINE_TYPE(SpiceDisplayChannel, spice_display_channel, SPICE_TYPE_CHANNEL)
@@ -84,6 +91,8 @@ enum {
     PROP_0,
     PROP_WIDTH,
     PROP_HEIGHT,
+    PROP_MONITORS,
+    PROP_MONITORS_MAX
 };
 
 enum {
@@ -98,14 +107,14 @@ enum {
 static guint signals[SPICE_DISPLAY_LAST_SIGNAL];
 
 static void spice_display_handle_msg(SpiceChannel *channel, SpiceMsgIn *msg);
-static void spice_display_channel_init(SpiceDisplayChannel *channel);
 static void spice_display_channel_up(SpiceChannel *channel);
 
-static void clear_surfaces(SpiceChannel *channel);
+static void clear_surfaces(SpiceChannel *channel, gboolean keep_primary);
 static void clear_streams(SpiceChannel *channel);
-static display_surface *find_surface(SpiceDisplayChannelPrivate *c, int surface_id);
+static display_surface *find_surface(SpiceDisplayChannelPrivate *c, guint32 surface_id);
 static gboolean display_stream_render(display_stream *st);
 static void spice_display_channel_reset(SpiceChannel *channel, gboolean migrating);
+static void spice_display_channel_reset_capabilities(SpiceChannel *channel);
 static void destroy_canvas(display_surface *surface);
 
 /* ------------------------------------------------------------------ */
@@ -127,9 +136,8 @@ static void spice_display_channel_finalize(GObject *object)
 {
     SpiceDisplayChannelPrivate *c = SPICE_DISPLAY_CHANNEL(object)->priv;
 
-    c->migrate_wait_primary = FALSE;
-
-    clear_surfaces(SPICE_CHANNEL(object));
+    g_clear_pointer(&c->monitors, g_array_unref);
+    clear_surfaces(SPICE_CHANNEL(object), FALSE);
     clear_streams(SPICE_CHANNEL(object));
 
     if (G_OBJECT_CLASS(spice_display_channel_parent_class)->finalize)
@@ -147,6 +155,8 @@ static void spice_display_channel_constructed(GObject *object)
     g_return_if_fail(c->glz_window != NULL);
     g_return_if_fail(c->images != NULL);
     g_return_if_fail(c->palettes != NULL);
+
+    c->monitors = g_array_new(FALSE, TRUE, sizeof(SpiceDisplayMonitorConfig));
 
     if (G_OBJECT_CLASS(spice_display_channel_parent_class)->constructed)
         G_OBJECT_CLASS(spice_display_channel_parent_class)->constructed(object);
@@ -171,6 +181,14 @@ static void spice_display_get_property(GObject    *object,
         g_value_set_uint(value, surface ? surface->height : 0);
         break;
     }
+    case PROP_MONITORS: {
+        g_value_set_boxed(value, c->monitors);
+        break;
+    }
+    case PROP_MONITORS_MAX: {
+        g_value_set_uint(value, c->monitors_max);
+        break;
+    }
     default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
         break;
@@ -192,13 +210,9 @@ static void spice_display_set_property(GObject      *object,
 /* main or coroutine context */
 static void spice_display_channel_reset(SpiceChannel *channel, gboolean migrating)
 {
-    SpiceDisplayChannelPrivate *c = SPICE_DISPLAY_CHANNEL(channel)->priv;
-
     /* palettes, images, and glz_window are cleared in the session */
-
-    c->migrate_wait_primary = migrating;
     clear_streams(channel);
-    clear_surfaces(channel);
+    clear_surfaces(channel, TRUE);
 
     SPICE_CHANNEL_CLASS(spice_display_channel_parent_class)->channel_reset(channel, migrating);
 }
@@ -217,6 +231,7 @@ static void spice_display_channel_class_init(SpiceDisplayChannelClass *klass)
     channel_class->handle_msg   = spice_display_handle_msg;
     channel_class->channel_up   = spice_display_channel_up;
     channel_class->channel_reset = spice_display_channel_reset;
+    channel_class->channel_reset_capabilities = spice_display_channel_reset_capabilities;
 
     g_object_class_install_property
         (gobject_class, PROP_HEIGHT,
@@ -233,6 +248,40 @@ static void spice_display_channel_class_init(SpiceDisplayChannelClass *klass)
                            "Display width",
                            "The primary surface width",
                            0, G_MAXUINT, 0,
+                           G_PARAM_READABLE |
+                           G_PARAM_STATIC_STRINGS));
+
+    /**
+     * SpiceDisplayChannel:monitors:
+     *
+     * Current monitors configuration.
+     *
+     * Since: 0.13
+     */
+    g_object_class_install_property
+        (gobject_class, PROP_MONITORS,
+         g_param_spec_boxed("monitors",
+                            "Display monitors",
+                            "The monitors configuration",
+                            G_TYPE_ARRAY,
+                            G_PARAM_READABLE |
+                            G_PARAM_STATIC_STRINGS));
+
+    /**
+     * SpiceDisplayChannel:monitors-max:
+     *
+     * The maximum number of monitors the server or guest supports.
+     * May change during client lifetime, for instance guest may
+     * reboot or dynamically adjust this.
+     *
+     * Since: 0.13
+     */
+    g_object_class_install_property
+        (gobject_class, PROP_MONITORS_MAX,
+         g_param_spec_uint("monitors-max",
+                           "Max display monitors",
+                           "The current maximum number of monitors",
+                           1, MONITORS_MAX, 1,
                            G_PARAM_READABLE |
                            G_PARAM_STATIC_STRINGS));
 
@@ -331,6 +380,43 @@ static void spice_display_channel_class_init(SpiceDisplayChannelClass *klass)
     sw_canvas_init();
     quic_init();
     rop3_init();
+}
+
+/**
+ * spice_display_get_primary:
+ * @channel:
+ * @surface_id:
+ * @primary:
+ *
+ * Retrieve primary display surface @surface_id.
+ *
+ * Returns: %TRUE if the primary surface was found and its details
+ * collected in @primary.
+ */
+gboolean spice_display_get_primary(SpiceChannel *channel, guint32 surface_id,
+                                   SpiceDisplayPrimary *primary)
+{
+    g_return_val_if_fail(SPICE_IS_DISPLAY_CHANNEL(channel), FALSE);
+    g_return_val_if_fail(primary != NULL, FALSE);
+
+    SpiceDisplayChannelPrivate *c = SPICE_DISPLAY_CHANNEL(channel)->priv;
+    display_surface *surface = find_surface(c, surface_id);
+
+    if (surface == NULL)
+        return FALSE;
+
+    g_return_val_if_fail(surface->primary, FALSE);
+
+    primary->format = surface->format;
+    primary->width = surface->width;
+    primary->height = surface->height;
+    primary->stride = surface->stride;
+    primary->shmid = surface->shmid;
+    primary->data = surface->data;
+    primary->marked = c->mark;
+    CHANNEL_DEBUG(channel, "get primary %p", primary->data);
+
+    return TRUE;
 }
 
 /* signal trampoline---------------------------------------------------------- */
@@ -551,8 +637,8 @@ static pixman_image_t* image_get_lossless(SpiceImageCache *cache, uint64_t id)
 }
 #endif
 
-SpiceCanvas *surfaces_get(SpiceImageSurfaces *surfaces,
-                          uint32_t surface_id)
+static SpiceCanvas *surfaces_get(SpiceImageSurfaces *surfaces,
+                                 uint32_t surface_id)
 {
     SpiceDisplayChannelPrivate *c =
         SPICE_CONTAINEROF(surfaces, SpiceDisplayChannelPrivate, image_surfaces);
@@ -595,6 +681,14 @@ static HDC create_compatible_dc(void)
 }
 #endif
 
+static void spice_display_channel_reset_capabilities(SpiceChannel *channel)
+{
+    spice_channel_set_capability(SPICE_CHANNEL(channel), SPICE_DISPLAY_CAP_SIZED_STREAM);
+    spice_channel_set_capability(SPICE_CHANNEL(channel), SPICE_DISPLAY_CAP_MONITORS_CONFIG);
+    spice_channel_set_capability(SPICE_CHANNEL(channel), SPICE_DISPLAY_CAP_COMPOSITE);
+    spice_channel_set_capability(SPICE_CHANNEL(channel), SPICE_DISPLAY_CAP_A8_SURFACE);
+}
+
 static void spice_display_channel_init(SpiceDisplayChannel *channel)
 {
     SpiceDisplayChannelPrivate *c;
@@ -608,6 +702,8 @@ static void spice_display_channel_init(SpiceDisplayChannel *channel)
 #if defined(WIN32)
     c->dc = create_compatible_dc();
 #endif
+    c->monitors_max = 1;
+    spice_display_channel_reset_capabilities(SPICE_CHANNEL(channel));
 }
 
 /* ------------------------------------------------------------------ */
@@ -620,11 +716,9 @@ static int create_canvas(SpiceChannel *channel, display_surface *surface)
         display_surface *primary = find_surface(c, 0);
 
         if (primary) {
-            if (c->migrate_wait_primary &&
-                primary->width == surface->width &&
+            if (primary->width == surface->width &&
                 primary->height == surface->height) {
-                c->migrate_wait_primary = FALSE;
-                SPICE_DEBUG("Reusing existing primary surface");
+                CHANNEL_DEBUG(channel, "Reusing existing primary surface");
                 return 0;
             }
 
@@ -634,10 +728,7 @@ static int create_canvas(SpiceChannel *channel, display_surface *surface)
             free(primary);
         }
 
-        SPICE_DEBUG("display: create primary canvas");
-        c->migrate_wait_primary = FALSE;
-
-#undef HAVE_SYS_SHM_H
+        CHANNEL_DEBUG(channel, "Create primary canvas");
 #ifdef HAVE_SYS_SHM_H
         surface->shmid = shmget(IPC_PRIVATE, surface->size, IPC_CREAT | 0777);
         if (surface->shmid >= 0) {
@@ -686,10 +777,21 @@ static int create_canvas(SpiceChannel *channel, display_surface *surface)
     g_return_val_if_fail(surface->canvas != NULL, 0);
     ring_add(&c->surfaces, &surface->link);
 
-    if (surface->primary)
+    if (surface->primary) {
         emit_main_context(channel, SPICE_DISPLAY_PRIMARY_CREATE,
                           surface->format, surface->width, surface->height,
                           surface->stride, surface->shmid, surface->data);
+
+        if (!spice_channel_test_capability(channel, SPICE_DISPLAY_CAP_MONITORS_CONFIG)) {
+            g_array_set_size(c->monitors, 1);
+            SpiceDisplayMonitorConfig *config = &g_array_index(c->monitors, SpiceDisplayMonitorConfig, 0);
+            config->x = config->y = 0;
+            config->width = surface->width;
+            config->height = surface->height;
+            g_object_notify_main_context(G_OBJECT(channel), "monitors");
+        }
+    }
+
     return 0;
 }
 
@@ -705,10 +807,10 @@ static void destroy_canvas(display_surface *surface)
     if (surface->shmid == -1) {
         free(surface->data);
     }
-#undef HAVE_SYS_SHM_H
 #ifdef HAVE_SYS_SHM_H
     else {
         shmdt(surface->data);
+        shmctl(surface->shmid, IPC_RMID, 0);
     }
 #endif
     surface->shmid = -1;
@@ -718,7 +820,7 @@ static void destroy_canvas(display_surface *surface)
     surface->canvas = NULL;
 }
 
-static display_surface *find_surface(SpiceDisplayChannelPrivate *c, int surface_id)
+static display_surface *find_surface(SpiceDisplayChannelPrivate *c, guint32 surface_id)
 {
     display_surface *surface;
     RingItem *item;
@@ -733,7 +835,7 @@ static display_surface *find_surface(SpiceDisplayChannelPrivate *c, int surface_
     return NULL;
 }
 
-static void clear_surfaces(SpiceChannel *channel)
+static void clear_surfaces(SpiceChannel *channel, gboolean keep_primary)
 {
     SpiceDisplayChannelPrivate *c = SPICE_DISPLAY_CHANNEL(channel)->priv;
     display_surface *surface;
@@ -743,8 +845,8 @@ static void clear_surfaces(SpiceChannel *channel)
         surface = SPICE_CONTAINEROF(item, display_surface, link);
         item = ring_next(&c->surfaces, item);
 
-        if (c->migrate_wait_primary && surface->primary) {
-            SPICE_DEBUG("Try to keep exisiting primary surface during migration");
+        if (keep_primary && surface->primary) {
+            CHANNEL_DEBUG(channel, "keeping exisiting primary surface, migration or reset");
             continue;
         }
 
@@ -778,8 +880,8 @@ static void spice_display_channel_up(SpiceChannel *channel)
                  "cache-size", &cache_size,
                  "glz-window-size", &glz_window_size,
                  NULL);
-    SPICE_DEBUG("%s: cache_size %d, glz_window_size %d (bytes)", __FUNCTION__,
-                cache_size, glz_window_size);
+    CHANNEL_DEBUG(channel, "%s: cache_size %d, glz_window_size %d (bytes)", __FUNCTION__,
+                  cache_size, glz_window_size);
     init.pixmap_cache_id = 1;
     init.glz_dictionary_id = 1;
     init.pixmap_cache_size = cache_size / 4; /* pixels */
@@ -787,6 +889,11 @@ static void spice_display_channel_up(SpiceChannel *channel)
     out = spice_msg_out_new(channel, SPICE_MSGC_DISPLAY_INIT);
     out->marshallers->msgc_display_init(out->marshaller, &init);
     spice_msg_out_send_internal(out);
+
+    /* if we are not using monitors config, notify of existence of
+       this monitor */
+    if (channel->priv->channel_id != 0)
+        g_object_notify_main_context(G_OBJECT(channel), "monitors");
 }
 
 #define DRAW(type) {                                                    \
@@ -819,12 +926,6 @@ static void display_handle_mode(SpiceChannel *channel, SpiceMsgIn *in)
     surface->size    = surface->height * surface->stride;
     surface->primary = true;
     create_canvas(channel, surface);
-#undef HAVE_SYS_SHM_H
-#ifdef HAVE_SYS_SHM_H
-    if (surface->shmid != -1) {
-        shmctl(surface->shmid, IPC_RMID, 0);
-    }
-#endif
 }
 
 /* coroutine context */
@@ -833,7 +934,7 @@ static void display_handle_mark(SpiceChannel *channel, SpiceMsgIn *in)
     SpiceDisplayChannelPrivate *c = SPICE_DISPLAY_CHANNEL(channel)->priv;
     display_surface *surface = find_surface(c, 0);
 
-    SPICE_DEBUG("%s", __FUNCTION__);
+    CHANNEL_DEBUG(channel, "%s", __FUNCTION__);
     g_return_if_fail(surface != NULL);
 #ifdef EXTRA_CHECKS
     g_warn_if_fail(c->mark == FALSE);
@@ -849,7 +950,7 @@ static void display_handle_reset(SpiceChannel *channel, SpiceMsgIn *in)
     SpiceDisplayChannelPrivate *c = SPICE_DISPLAY_CHANNEL(channel)->priv;
     display_surface *surface = find_surface(c, 0);
 
-    SPICE_DEBUG("%s: TODO detach_from_screen", __FUNCTION__);
+    CHANNEL_DEBUG(channel, "%s: TODO detach_from_screen", __FUNCTION__);
 
     if (surface != NULL)
         surface->canvas->ops->clear(surface->canvas);
@@ -945,7 +1046,7 @@ static void display_handle_stream_create(SpiceChannel *channel, SpiceMsgIn *in)
     SpiceMsgDisplayStreamCreate *op = spice_msg_in_parsed(in);
     display_stream *st;
 
-    SPICE_DEBUG("%s: id %d", __FUNCTION__, op->id);
+    CHANNEL_DEBUG(channel, "%s: id %d", __FUNCTION__, op->id);
 
     if (op->id >= c->nstreams) {
         int n = c->nstreams;
@@ -984,7 +1085,7 @@ static void display_handle_stream_create(SpiceChannel *channel, SpiceMsgIn *in)
 static gboolean display_stream_schedule(display_stream *st)
 {
     guint32 time, d;
-    SpiceMsgDisplayStreamData *op;
+    SpiceStreamDataHeader *op;
     SpiceMsgIn *in;
 
     if (st->timeout)
@@ -1011,6 +1112,72 @@ static gboolean display_stream_schedule(display_stream *st)
     return FALSE;
 }
 
+static SpiceRect *stream_get_dest(display_stream *st)
+{
+    if (st->msg_data == NULL ||
+        spice_msg_in_type(st->msg_data) != SPICE_MSG_DISPLAY_STREAM_DATA_SIZED) {
+        SpiceMsgDisplayStreamCreate *info = spice_msg_in_parsed(st->msg_create);
+
+        return &info->dest;
+    } else {
+        SpiceMsgDisplayStreamDataSized *op = spice_msg_in_parsed(st->msg_data);
+
+        return &op->dest;
+   }
+
+}
+
+static uint32_t stream_get_flags(display_stream *st)
+{
+    SpiceMsgDisplayStreamCreate *info = spice_msg_in_parsed(st->msg_create);
+
+    return info->flags;
+}
+
+G_GNUC_INTERNAL
+uint32_t stream_get_current_frame(display_stream *st, uint8_t **data)
+{
+    if (st->msg_data == NULL) {
+        *data = NULL;
+        return 0;
+    }
+
+    if (spice_msg_in_type(st->msg_data) == SPICE_MSG_DISPLAY_STREAM_DATA) {
+        SpiceMsgDisplayStreamData *op = spice_msg_in_parsed(st->msg_data);
+
+        *data = op->data;
+        return op->data_size;
+    } else {
+        SpiceMsgDisplayStreamDataSized *op = spice_msg_in_parsed(st->msg_data);
+
+        g_return_val_if_fail(spice_msg_in_type(st->msg_data) ==
+                             SPICE_MSG_DISPLAY_STREAM_DATA_SIZED, 0);
+        *data = op->data;
+        return op->data_size;
+   }
+
+}
+
+G_GNUC_INTERNAL
+void stream_get_dimensions(display_stream *st, int *width, int *height)
+{
+    g_return_if_fail(width != NULL);
+    g_return_if_fail(height != NULL);
+
+    if (st->msg_data == NULL ||
+        spice_msg_in_type(st->msg_data) != SPICE_MSG_DISPLAY_STREAM_DATA_SIZED) {
+        SpiceMsgDisplayStreamCreate *info = spice_msg_in_parsed(st->msg_create);
+
+        *width = info->stream_width;
+        *height = info->stream_height;
+    } else {
+        SpiceMsgDisplayStreamDataSized *op = spice_msg_in_parsed(st->msg_data);
+
+        *width = op->width;
+        *height = op->height;
+   }
+}
+
 /* main context */
 static gboolean display_stream_render(display_stream *st)
 {
@@ -1030,14 +1197,19 @@ static gboolean display_stream_render(display_stream *st)
         }
 
         if (st->out_frame) {
-            SpiceMsgDisplayStreamCreate *info = spice_msg_in_parsed(st->msg_create);
+            int width;
+            int height;
+            SpiceRect *dest;
             uint8_t *data;
             int stride;
 
+            stream_get_dimensions(st, &width, &height);
+            dest = stream_get_dest(st);
+
             data = st->out_frame;
-            stride = info->stream_width * sizeof(uint32_t);
-            if (!(info->flags & SPICE_STREAM_FLAGS_TOP_DOWN)) {
-                data += stride * (info->src_height - 1);
+            stride = width * sizeof(uint32_t);
+            if (!(stream_get_flags(st) & SPICE_STREAM_FLAGS_TOP_DOWN)) {
+                data += stride * (height - 1);
                 stride = -stride;
             }
 
@@ -1046,15 +1218,15 @@ static gboolean display_stream_render(display_stream *st)
 #ifdef WIN32
                 SPICE_DISPLAY_CHANNEL(st->channel)->priv->dc,
 #endif
-                &info->dest, data,
-                info->src_width, info->src_height, stride,
+                dest, data,
+                width, height, stride,
                 st->have_region ? &st->region : NULL);
 
             if (st->surface->primary)
                 g_signal_emit(st->channel, signals[SPICE_DISPLAY_INVALIDATE], 0,
-                    info->dest.left, info->dest.top,
-                    info->dest.right - info->dest.left,
-                    info->dest.bottom - info->dest.top);
+                    dest->left, dest->top,
+                    dest->right - dest->left,
+                    dest->bottom - dest->top);
         }
 
         st->msg_data = NULL;
@@ -1075,11 +1247,20 @@ static gboolean display_stream_render(display_stream *st)
 static void display_handle_stream_data(SpiceChannel *channel, SpiceMsgIn *in)
 {
     SpiceDisplayChannelPrivate *c = SPICE_DISPLAY_CHANNEL(channel)->priv;
-    SpiceMsgDisplayStreamData *op = spice_msg_in_parsed(in);
-    display_stream *st = c->streams[op->id];
+    SpiceStreamDataHeader *op = spice_msg_in_parsed(in);
+    display_stream *st;
     guint32 mmtime;
 
+    g_return_if_fail(c != NULL);
+    g_return_if_fail(c->streams != NULL);
+    g_return_if_fail(c->nstreams > op->id);
+
+    st =  c->streams[op->id];
     mmtime = spice_session_get_mm_time(spice_channel_get_session(channel));
+
+    if (spice_msg_in_type(in) == SPICE_MSG_DISPLAY_STREAM_DATA_SIZED) {
+        CHANNEL_DEBUG(channel, "stream %d contains sized data", op->id);
+    }
 
     if (op->multi_media_time == 0) {
         g_critical("Received frame with invalid 0 timestamp! perhaps wrong graphic driver?");
@@ -1087,8 +1268,8 @@ static void display_handle_stream_data(SpiceChannel *channel, SpiceMsgIn *in)
     }
 
     if (op->multi_media_time < mmtime) {
-        SPICE_DEBUG("stream data too late by %u ms (ts: %u, mmtime: %u), dropin",
-                    mmtime - op->multi_media_time, op->multi_media_time, mmtime);
+        CHANNEL_DEBUG(channel, "stream data too late by %u ms (ts: %u, mmtime: %u), dropin",
+                      mmtime - op->multi_media_time, op->multi_media_time, mmtime);
         return;
     }
 
@@ -1102,7 +1283,13 @@ static void display_handle_stream_clip(SpiceChannel *channel, SpiceMsgIn *in)
 {
     SpiceDisplayChannelPrivate *c = SPICE_DISPLAY_CHANNEL(channel)->priv;
     SpiceMsgDisplayStreamClip *op = spice_msg_in_parsed(in);
-    display_stream *st = c->streams[op->id];
+    display_stream *st;
+
+    g_return_if_fail(c != NULL);
+    g_return_if_fail(c->streams != NULL);
+    g_return_if_fail(c->nstreams > op->id);
+
+    st = c->streams[op->id];
 
     if (st->msg_clip) {
         spice_msg_in_unref(st->msg_clip);
@@ -1125,6 +1312,7 @@ static void destroy_stream(SpiceChannel *channel, int id)
 
     g_return_if_fail(c != NULL);
     g_return_if_fail(c->streams != NULL);
+    g_return_if_fail(c->nstreams > id);
 
     st = c->streams[id];
     if (!st)
@@ -1167,7 +1355,7 @@ static void display_handle_stream_destroy(SpiceChannel *channel, SpiceMsgIn *in)
     SpiceMsgDisplayStreamDestroy *op = spice_msg_in_parsed(in);
 
     g_return_if_fail(op != NULL);
-    SPICE_DEBUG("%s: id %d", __FUNCTION__, op->id);
+    CHANNEL_DEBUG(channel, "%s: id %d", __FUNCTION__, op->id);
     destroy_stream(channel, op->id);
 }
 
@@ -1263,6 +1451,13 @@ static void display_handle_draw_alpha_blend(SpiceChannel *channel, SpiceMsgIn *i
 }
 
 /* coroutine context */
+static void display_handle_draw_composite(SpiceChannel *channel, SpiceMsgIn *in)
+{
+    SpiceMsgDisplayDrawComposite *op = spice_msg_in_parsed(in);
+    DRAW(composite);
+}
+
+/* coroutine context */
 static void display_handle_surface_create(SpiceChannel *channel, SpiceMsgIn *in)
 {
     SpiceDisplayChannelPrivate *c = SPICE_DISPLAY_CHANNEL(channel)->priv;
@@ -1318,7 +1513,7 @@ static void display_handle_surface_destroy(SpiceChannel *channel, SpiceMsgIn *in
     }
     if (surface->primary) {
         int id = spice_channel_get_channel_id(channel);
-        SPICE_DEBUG("%d: FIXME primary destroy, but is display really disabled?", id);
+        CHANNEL_DEBUG(channel, "%d: FIXME primary destroy, but is display really disabled?", id);
         /* this is done with a timeout in spicec as well, it's *ugly* */
         if (id != 0 && c->mark_false_event_id == 0) {
             c->mark_false_event_id = g_timeout_add_seconds(1, display_mark_false, channel);
@@ -1329,6 +1524,50 @@ static void display_handle_surface_destroy(SpiceChannel *channel, SpiceMsgIn *in
     ring_remove(&surface->link);
     destroy_canvas(surface);
     free(surface);
+}
+
+#define CLAMP_CHECK(x, low, high)  (((x) > (high)) ? TRUE : (((x) < (low)) ? TRUE : FALSE))
+
+/* coroutine context */
+static void display_handle_monitors_config(SpiceChannel *channel, SpiceMsgIn *in)
+{
+    SpiceMsgDisplayMonitorsConfig *config = spice_msg_in_parsed(in);
+    SpiceDisplayChannelPrivate *c = SPICE_DISPLAY_CHANNEL(channel)->priv;
+    guint i;
+
+    g_return_if_fail(config != NULL);
+    g_return_if_fail(config->count > 0);
+
+    CHANNEL_DEBUG(channel, "monitors config: n: %d/%d", config->count, config->max_allowed);
+
+    c->monitors_max = config->max_allowed;
+    if (CLAMP_CHECK(c->monitors_max, 1, MONITORS_MAX)) {
+        g_warning("MonitorConfig max_allowed is not within permitted range, clamping");
+        c->monitors_max = CLAMP(c->monitors_max, 1, MONITORS_MAX);
+    }
+
+    if (CLAMP_CHECK(config->count, 1, c->monitors_max)) {
+        g_warning("MonitorConfig count is not within permitted range, clamping");
+        config->count = CLAMP(config->count, 1, c->monitors_max);
+    }
+
+    c->monitors = g_array_set_size(c->monitors, config->count);
+
+    for (i = 0; i < config->count; i++) {
+        SpiceDisplayMonitorConfig *mc = &g_array_index(c->monitors, SpiceDisplayMonitorConfig, i);
+        SpiceHead *head = &config->heads[i];
+        CHANNEL_DEBUG(channel, "monitor id: %u, surface id: %u, +%u+%u-%ux%u",
+                    head->id, head->surface_id,
+                    head->x, head->y, head->width, head->height);
+        mc->id = head->id;
+        mc->surface_id = head->surface_id;
+        mc->x = head->x;
+        mc->y = head->y;
+        mc->width = head->width;
+        mc->height = head->height;
+    }
+
+    g_object_notify_main_context(G_OBJECT(channel), "monitors");
 }
 
 static const spice_msg_handler display_handlers[] = {
@@ -1346,6 +1585,7 @@ static const spice_msg_handler display_handlers[] = {
     [ SPICE_MSG_DISPLAY_STREAM_CLIP ]        = display_handle_stream_clip,
     [ SPICE_MSG_DISPLAY_STREAM_DESTROY ]     = display_handle_stream_destroy,
     [ SPICE_MSG_DISPLAY_STREAM_DESTROY_ALL ] = display_handle_stream_destroy_all,
+    [ SPICE_MSG_DISPLAY_STREAM_DATA_SIZED ]  = display_handle_stream_data,
 
     [ SPICE_MSG_DISPLAY_DRAW_FILL ]          = display_handle_draw_fill,
     [ SPICE_MSG_DISPLAY_DRAW_OPAQUE ]        = display_handle_draw_opaque,
@@ -1359,9 +1599,12 @@ static const spice_msg_handler display_handlers[] = {
     [ SPICE_MSG_DISPLAY_DRAW_TEXT ]          = display_handle_draw_text,
     [ SPICE_MSG_DISPLAY_DRAW_TRANSPARENT ]   = display_handle_draw_transparent,
     [ SPICE_MSG_DISPLAY_DRAW_ALPHA_BLEND ]   = display_handle_draw_alpha_blend,
+    [ SPICE_MSG_DISPLAY_DRAW_COMPOSITE ]     = display_handle_draw_composite,
 
     [ SPICE_MSG_DISPLAY_SURFACE_CREATE ]     = display_handle_surface_create,
     [ SPICE_MSG_DISPLAY_SURFACE_DESTROY ]    = display_handle_surface_destroy,
+
+    [ SPICE_MSG_DISPLAY_MONITORS_CONFIG ]    = display_handle_monitors_config,
 };
 
 /* coroutine context */

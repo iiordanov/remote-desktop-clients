@@ -16,8 +16,13 @@
    License along with this library; if not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include "mem.h"
 #include "ssl_verify.h"
+#include "log.h"
 
 #ifndef WIN32
 #include <sys/socket.h>
@@ -26,10 +31,6 @@
 #endif
 #include <ctype.h>
 #include <string.h>
-
-#ifndef SPICE_DEBUG
-# define SPICE_DEBUG(format, ...)
-#endif
 
 #ifdef WIN32
 static int inet_aton(const char* ip, struct in_addr* in_addr)
@@ -55,36 +56,37 @@ static int verify_pubkey(X509* cert, const char *key, size_t key_size)
         return 0;
 
     if (!cert) {
-        SPICE_DEBUG("warning: no cert!");
+        spice_debug("warning: no cert!");
         return 0;
     }
 
     cert_pubkey = X509_get_pubkey(cert);
     if (!cert_pubkey) {
-        SPICE_DEBUG("warning: reading public key from certificate failed");
+        spice_debug("warning: reading public key from certificate failed");
         goto finish;
     }
 
     bio = BIO_new_mem_buf((void*)key, key_size);
     if (!bio) {
-        SPICE_DEBUG("creating BIO failed");
+        spice_debug("creating BIO failed");
         goto finish;
     }
 
     orig_pubkey = d2i_PUBKEY_bio(bio, NULL);
     if (!orig_pubkey) {
-        SPICE_DEBUG("reading pubkey from bio failed");
+        spice_debug("reading pubkey from bio failed");
         goto finish;
     }
 
     ret = EVP_PKEY_cmp(orig_pubkey, cert_pubkey);
 
-    if (ret == 1)
-        SPICE_DEBUG("public keys match");
-    else if (ret == 0)
-        SPICE_DEBUG("public keys mismatch");
-    else
-        SPICE_DEBUG("public keys types mismatch");
+    if (ret == 1) {
+        spice_debug("public keys match");
+    } else if (ret == 0) {
+        spice_debug("public keys mismatch");
+    } else {
+        spice_debug("public keys types mismatch");
+    }
 
 finish:
     if (bio)
@@ -162,9 +164,12 @@ static int verify_hostname(X509* cert, const char *hostname)
     struct in_addr addr;
     int addr_len = 0;
     int cn_match = 0;
+    X509_NAME* subject;
+
+    spice_return_val_if_fail(hostname != NULL, 0);
 
     if (!cert) {
-        SPICE_DEBUG("warning: no cert!");
+        spice_debug("warning: no cert!");
         return 0;
     }
 
@@ -199,7 +204,7 @@ static int verify_hostname(X509* cert, const char *hostname)
                 if (_gnutls_hostname_compare((char *)ASN1_STRING_data(name->d.dNSName),
                                              ASN1_STRING_length(name->d.dNSName),
                                              hostname)) {
-                    SPICE_DEBUG("alt name match=%s", ASN1_STRING_data(name->d.dNSName));
+                    spice_debug("alt name match=%s", ASN1_STRING_data(name->d.dNSName));
                     GENERAL_NAMES_free(subject_alt_names);
                     return 1;
                 }
@@ -208,7 +213,7 @@ static int verify_hostname(X509* cert, const char *hostname)
                 found_dns_name = 1;
                 if ((addr_len == alt_ip_len)&&
                     !memcmp(ASN1_STRING_data(name->d.iPAddress), &addr, addr_len)) {
-                    SPICE_DEBUG("alt name IP match=%s",
+                    spice_debug("alt name IP match=%s",
                                 inet_ntoa(*((struct in_addr*)ASN1_STRING_data(name->d.dNSName))));
                     GENERAL_NAMES_free(subject_alt_names);
                     return 1;
@@ -219,12 +224,12 @@ static int verify_hostname(X509* cert, const char *hostname)
     }
 
     if (found_dns_name) {
-        SPICE_DEBUG("warning: SubjectAltName mismatch");
+        spice_debug("warning: SubjectAltName mismatch");
         return 0;
     }
 
     /* extracting commonNames */
-    X509_NAME* subject = X509_get_subject_name(cert);
+    subject = X509_get_subject_name(cert);
     if (subject) {
         int pos = -1;
         X509_NAME_ENTRY* cn_entry;
@@ -243,36 +248,39 @@ static int verify_hostname(X509* cert, const char *hostname)
             if (_gnutls_hostname_compare((char*)ASN1_STRING_data(cn_asn1),
                                          ASN1_STRING_length(cn_asn1),
                                          hostname)) {
-                SPICE_DEBUG("common name match=%s", (char*)ASN1_STRING_data(cn_asn1));
+                spice_debug("common name match=%s", (char*)ASN1_STRING_data(cn_asn1));
                 cn_match = 1;
                 break;
             }
         }
     }
 
-    if (!cn_match)
-        SPICE_DEBUG("warning: common name mismatch");
+    if (!cn_match) {
+        spice_debug("warning: common name mismatch");
+    }
 
     return cn_match;
 }
 
-X509_NAME* subject_to_x509_name(const char *subject, int *nentries)
+static X509_NAME* subject_to_x509_name(const char *subject, int *nentries)
 {
     X509_NAME* in_subject;
     const char *p;
     char *key, *val, *k, *v = NULL;
-    int escape;
     enum {
         KEY,
         VALUE
     } state;
+
+    spice_return_val_if_fail(subject != NULL, NULL);
+    spice_return_val_if_fail(nentries != NULL, NULL);
 
     key = (char*)alloca(strlen(subject));
     val = (char*)alloca(strlen(subject));
     in_subject = X509_NAME_new();
 
     if (!in_subject || !key || !val) {
-        SPICE_DEBUG("failed to allocate");
+        spice_debug("failed to allocate");
         return NULL;
     }
 
@@ -281,11 +289,11 @@ X509_NAME* subject_to_x509_name(const char *subject, int *nentries)
     k = key;
     state = KEY;
     for (p = subject;; ++p) {
-        escape = 0;
+        int escape = 0;
         if (*p == '\\') {
             ++p;
             if (*p != '\\' && *p != ',') {
-                SPICE_DEBUG("Invalid character after \\");
+                spice_debug("Invalid character after \\");
                 goto fail;
             }
             escape = 1;
@@ -293,10 +301,14 @@ X509_NAME* subject_to_x509_name(const char *subject, int *nentries)
 
         switch (state) {
         case KEY:
-            if (*p == 0) {
-                if (k == key) /* empty key */
+            if (*p == ' ' && k == key) {
+                continue; /* skip spaces before key */
+            } if (*p == 0) {
+                if (k == key) /* empty key, ending */
                     goto success;
                 goto fail;
+            } else if (*p == ',' && !escape) {
+                goto fail; /* assignment is missing */
             } else if (*p == '=' && !escape) {
                 state = VALUE;
                 *k = 0;
@@ -314,8 +326,8 @@ X509_NAME* subject_to_x509_name(const char *subject, int *nentries)
                 if (!X509_NAME_add_entry_by_txt(in_subject, key,
                                                 MBSTRING_UTF8,
                                                 (const unsigned char*)val,
-                                                strlen(val), -1, 0)) {
-                    SPICE_DEBUG("warning: failed to add entry %s=%s to X509_NAME",
+                                                -1, -1, 0)) {
+                    spice_debug("warning: failed to add entry %s=%s to X509_NAME",
                                 key, val);
                     goto fail;
                 }
@@ -328,6 +340,7 @@ X509_NAME* subject_to_x509_name(const char *subject, int *nentries)
                 k = key;
             } else
                 *v++ = *p;
+            break;
         }
     }
 
@@ -341,89 +354,139 @@ fail:
     return NULL;
 }
 
-int verify_subject(X509* cert, SpiceOpenSSLVerify* verify)
+static int verify_subject(X509* cert, SpiceOpenSSLVerify* verify)
 {
     X509_NAME *cert_subject = NULL;
     int ret;
     int in_entries;
 
     if (!cert) {
-        SPICE_DEBUG("warning: no cert!");
+        spice_debug("warning: no cert!");
         return 0;
     }
 
     cert_subject = X509_get_subject_name(cert);
     if (!cert_subject) {
-        SPICE_DEBUG("warning: reading certificate subject failed");
+        spice_debug("warning: reading certificate subject failed");
         return 0;
     }
 
     if (!verify->in_subject) {
         verify->in_subject = subject_to_x509_name(verify->subject, &in_entries);
         if (!verify->in_subject) {
-            SPICE_DEBUG("warning: no in_subject!");
+            spice_debug("warning: no in_subject!");
             return 0;
         }
     }
 
     /* Note: this check is redundant with the pre-condition in X509_NAME_cmp */
     if (X509_NAME_entry_count(cert_subject) != in_entries) {
-        SPICE_DEBUG("subject mismatch: #entries cert=%d, input=%d",
+        spice_debug("subject mismatch: #entries cert=%d, input=%d",
             X509_NAME_entry_count(cert_subject), in_entries);
         return 0;
     }
 
     ret = X509_NAME_cmp(cert_subject, verify->in_subject);
 
-    if (ret == 0)
-        SPICE_DEBUG("subjects match");
-    else
-        SPICE_DEBUG("subjects mismatch");
+    if (ret == 0) {
+        spice_debug("subjects match");
+    } else {
+        char *p;
+        spice_debug("subjects mismatch");
+
+        p = X509_NAME_oneline(cert_subject, NULL, 0);
+        spice_debug("cert_subject: %s", p);
+        free(p);
+
+        p = X509_NAME_oneline(verify->in_subject, NULL, 0);
+        spice_debug("in_subject:   %s", p);
+        free(p);
+    }
 
     return !ret;
 }
 
 static int openssl_verify(int preverify_ok, X509_STORE_CTX *ctx)
 {
-    int depth;
+    int depth, err;
     SpiceOpenSSLVerify *v;
     SSL *ssl;
     X509* cert;
+    char buf[256];
+    unsigned int failed_verifications;
 
     ssl = (SSL*)X509_STORE_CTX_get_ex_data(ctx, SSL_get_ex_data_X509_STORE_CTX_idx());
     v = (SpiceOpenSSLVerify*)SSL_get_app_data(ssl);
 
+    cert = X509_STORE_CTX_get_current_cert(ctx);
+    X509_NAME_oneline(X509_get_subject_name(cert), buf, 256);
     depth = X509_STORE_CTX_get_error_depth(ctx);
+    err = X509_STORE_CTX_get_error(ctx);
     if (depth > 0) {
         if (!preverify_ok) {
-            SPICE_DEBUG("openssl verify failed at depth=%d", depth);
+            spice_warning("openssl verify:num=%d:%s:depth=%d:%s", err,
+                          X509_verify_cert_error_string(err), depth, buf);
             v->all_preverify_ok = 0;
+
+            /* if certificate verification failed, we can still authorize the server */
+            /* if its public key matches the one we hold in the peer_connect_options. */
+            if (err == X509_V_ERR_SELF_SIGNED_CERT_IN_CHAIN &&
+                v->verifyop & SPICE_SSL_VERIFY_OP_PUBKEY)
+                return 1;
+
+            if (err == X509_V_ERR_SELF_SIGNED_CERT_IN_CHAIN)
+                spice_debug("server certificate not being signed by the provided CA");
+
             return 0;
         } else
             return 1;
     }
 
     /* depth == 0 */
-    cert = X509_STORE_CTX_get_current_cert(ctx);
     if (!cert) {
-        SPICE_DEBUG("failed to get server certificate");
+        spice_debug("failed to get server certificate");
         return 0;
     }
 
-    if (v->verifyop & SPICE_SSL_VERIFY_OP_PUBKEY &&
-        verify_pubkey(cert, v->pubkey, v->pubkey_size))
-        return 1;
+    failed_verifications = 0;
+    if (v->verifyop & SPICE_SSL_VERIFY_OP_PUBKEY) {
+        if (verify_pubkey(cert, v->pubkey, v->pubkey_size))
+            return 1;
+        else
+            failed_verifications |= SPICE_SSL_VERIFY_OP_PUBKEY;
+    }
 
     if (!v->all_preverify_ok || !preverify_ok)
         return 0;
 
-    if (v->verifyop & SPICE_SSL_VERIFY_OP_HOSTNAME &&
-        verify_hostname(cert, v->hostname))
-        return 1;
+    if (v->verifyop & SPICE_SSL_VERIFY_OP_HOSTNAME) {
+       if (verify_hostname(cert, v->hostname))
+           return 1;
+        else
+            failed_verifications |= SPICE_SSL_VERIFY_OP_HOSTNAME;
+    }
 
-    if (v->verifyop & SPICE_SSL_VERIFY_OP_SUBJECT &&
-        verify_subject(cert, v))
-        return 1;
+
+    if (v->verifyop & SPICE_SSL_VERIFY_OP_SUBJECT) {
+        if (verify_subject(cert, v))
+            return 1;
+        else
+            failed_verifications |= SPICE_SSL_VERIFY_OP_SUBJECT;
+    }
+
+    /* If we reach this code, this means all the tests failed, thus
+     * verification failed
+     */
+    if (failed_verifications & SPICE_SSL_VERIFY_OP_PUBKEY)
+        spice_warning("ssl: pubkey verification failed");
+
+    if (failed_verifications & SPICE_SSL_VERIFY_OP_HOSTNAME)
+        spice_warning("ssl: hostname '%s' verification failed", v->hostname);
+
+    if (failed_verifications & SPICE_SSL_VERIFY_OP_SUBJECT)
+        spice_warning("ssl: subject '%s' verification failed", v->subject);
+
+    spice_warning("ssl: verification failed");
 
     return 0;
 }

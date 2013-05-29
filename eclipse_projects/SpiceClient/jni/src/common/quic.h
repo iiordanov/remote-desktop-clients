@@ -19,7 +19,11 @@
 #ifndef __QUIC_H
 #define __QUIC_H
 
+#include <spice/macros.h>
 #include "quic_config.h"
+#include "macros.h"
+
+SPICE_BEGIN_DECLS
 
 typedef enum {
     QUIC_IMAGE_TYPE_INVALID,
@@ -37,9 +41,9 @@ typedef void *QuicContext;
 
 typedef struct QuicUsrContext QuicUsrContext;
 struct QuicUsrContext {
-    void (*error)(QuicUsrContext *usr, const char *fmt, ...);
-    void (*warn)(QuicUsrContext *usr, const char *fmt, ...);
-    void (*info)(QuicUsrContext *usr, const char *fmt, ...);
+    SPICE_ATTR_PRINTF(2, 3) void (*error)(QuicUsrContext *usr, const char *fmt, ...);
+    SPICE_ATTR_PRINTF(2, 3) void (*warn)(QuicUsrContext *usr, const char *fmt, ...);
+    SPICE_ATTR_PRINTF(2, 3) void (*info)(QuicUsrContext *usr, const char *fmt, ...);
     void *(*malloc)(QuicUsrContext *usr, int size);
     void (*free)(QuicUsrContext *usr, void *ptr);
     int (*more_space)(QuicUsrContext *usr, uint32_t **io_ptr, int rows_completed);
@@ -59,7 +63,8 @@ int quic_decode(QuicContext *quic, QuicImageType type, uint8_t *buf, int stride)
 QuicContext *quic_create(QuicUsrContext *usr);
 void quic_destroy(QuicContext *quic);
 
-void quic_init();
+void quic_init(void);
+
+SPICE_END_DECLS
 
 #endif
-
