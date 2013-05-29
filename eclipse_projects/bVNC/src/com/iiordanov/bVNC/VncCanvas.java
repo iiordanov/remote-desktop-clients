@@ -1235,7 +1235,6 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 		disposeDrawable ();
 		try {
 			// TODO: Use frameBufferSizeChanged instead.
-			// First we need to be able to set the rfbconnectable's width/height though.
 			bitmapData = new CompactBitmapData(rfbconn, this);
 		} catch (Throwable e) {
 			showFatalMessageAndQuit ("Your device is out of memory! Restart the app and failing that, restart your device. " +
@@ -1244,7 +1243,7 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 		}
     	android.util.Log.i(TAG, "Using CompactBufferBitmapData.");
 
-		// TODO: Pointer is not visible with xrdp for some reason, test with windows.
+		// TODO: In RDP mode, pointer is not visible, so we use a soft cursor.
 		initializeSoftCursor();
     	
     	// Set the drawable for the canvas, now that we have it (re)initialized.
@@ -1294,12 +1293,6 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 	@Override
 	public void OnGraphicsUpdate(int x, int y, int width, int height) {
 		//android.util.Log.e(TAG, "OnGraphicsUpdate called: " + x +", " + y + " + " + width + "x" + height );
-
-		if (bitmapData == null || bitmapData.mbitmap.isRecycled()) {
-			// TODO: Attempting to avoid the loss of bitmap problem in newer android versions.
-			OnSettingsChanged (width, height, 8);
-		}
-			
 		if (isRdp)
 			LibFreeRDP.updateGraphics(session.getInstance(), bitmapData.mbitmap, x, y, width, height);
 		
@@ -1309,16 +1302,6 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 	@Override
 	public void OnGraphicsResize(int width, int height, int bpp) {
 		android.util.Log.e(TAG, "OnGraphicsResize called.");
-		disposeDrawable ();	
-		try {
-			// TODO: Use frameBufferSizeChanged instead.
-			// First we need to be able to set the rfbconnectable's width/height though.
-			bitmapData = new CompactBitmapData(rfbconn, this);
-		} catch (Throwable e) {
-			showFatalMessageAndQuit ("Your device is out of memory! Restart the app and failing that, restart your device. " +
-									 "If neither helps, try setting a smaller remote desktop size in the advanced settings.");
-			return;
-		}
-		android.util.Log.i(TAG, "Using CompactBufferBitmapData.");
+		OnSettingsChanged(width, height, bpp);
 	}
 }
