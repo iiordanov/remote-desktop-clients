@@ -23,9 +23,10 @@
 
 #include <sys/stat.h>
 #define SPICY_C
+#include "glib-compat.h"
 #include "android-spice-widget.h"
-#include "spice-common.h"
 #include "spice-audio.h"
+#include "spice-common.h"
 #include "spice-cmdline.h"
 #include <jni.h>
 
@@ -42,7 +43,7 @@ typedef struct _SpiceWindow SpiceWindow;
 typedef struct _SpiceWindowClass SpiceWindowClass;
 
 struct _SpiceWindow {
-    //GObject          object;
+    GObject          object;
     spice_connection *conn;
     gint             id;
     gint             monitor_id;
@@ -58,6 +59,10 @@ struct _SpiceWindow {
     bool             enable_mnemonics_save;
 };
 
+struct _SpiceWindowClass
+{
+  GObjectClass parent_class;
+};
 
 G_DEFINE_TYPE (SpiceWindow, spice_window, G_TYPE_OBJECT);
 
@@ -90,6 +95,16 @@ static void signal_handler(int signal, siginfo_t *info, void *reserved);
 
 
 /* ------------------------------------------------------------------ */
+
+static void
+spice_window_class_init (SpiceWindowClass *klass)
+{
+}
+
+static void
+spice_window_init (SpiceWindow *self)
+{
+}
 
 static SpiceWindow *create_spice_window(spice_connection *conn, SpiceChannel *channel, int id)
 {
