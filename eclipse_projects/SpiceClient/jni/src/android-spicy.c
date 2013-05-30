@@ -29,6 +29,8 @@
 #include "spice-cmdline.h"
 #include <jni.h>
 
+typedef struct spice_connection spice_connection;
+
 enum {
     STATE_SCROLL_LOCK,
     STATE_CAPS_LOCK,
@@ -36,12 +38,14 @@ enum {
     STATE_MAX,
 };
 
-typedef struct spice_window spice_window;
-typedef struct spice_connection spice_connection;
+typedef struct _SpiceWindow SpiceWindow;
+typedef struct _SpiceWindowClass SpiceWindowClass;
 
-struct spice_window {
+struct _SpiceWindow {
+    //GObject          object;
     spice_connection *conn;
-    int              id;
+    gint             id;
+    gint             monitor_id;
     SpiceDisplay      *spice;
     bool             fullscreen;
     bool             mouse_grabbed;
@@ -54,12 +58,21 @@ struct spice_window {
     bool             enable_mnemonics_save;
 };
 
+
+G_DEFINE_TYPE (SpiceWindow, spice_window, G_TYPE_OBJECT);
+
+#define CHANNELID_MAX 4
+#define MONITORID_MAX 4
+
+// FIXME: turn this into an object, get rid of fixed wins array, use
+// signals to replace the various callback that iterate over wins array
 struct spice_connection {
     SpiceSession     *session;
-    spice_window     *wins[4];
+    SpiceMainChannel *main;
+    SpiceWindow     *wins[CHANNELID_MAX * MONITORID_MAX];
     SpiceAudio       *audio;
-    char             *mouse_state;
-    char             *agent_state;
+    const char       *mouse_state;
+    const char       *agent_state;
     gboolean         agent_connected;
     int              channels;
     int              disconnecting;
@@ -77,12 +90,14 @@ static void signal_handler(int signal, siginfo_t *info, void *reserved);
 
 
 /* ------------------------------------------------------------------ */
-static spice_window *create_spice_window(spice_connection *conn, int id, SpiceChannel *channel)
-{
-    struct spice_window *win;
 
-    win = g_new0(struct spice_window, 1);
+static SpiceWindow *create_spice_window(spice_connection *conn, SpiceChannel *channel, int id)
+{
+    SpiceWindow *win;
+
+    win = g_new0 (SpiceWindow, 1);
     win->id = id;
+    //win->monitor_id = monitor_id;
     win->conn = conn;
     win->display_channel = channel;
 
@@ -90,13 +105,16 @@ static spice_window *create_spice_window(spice_connection *conn, int id, SpiceCh
     return win;
 }
 
-static void destroy_spice_window(spice_window *win)
+static void destroy_spice_window(SpiceWindow *win)
 {
-    SPICE_DEBUG("destroy window (#%d)", win->id);
+    if (win == NULL)
+        return;
+
+    SPICE_DEBUG("destroy window (#%d:%d)", win->id, win->monitor_id);
     //g_object_unref(win->ag);
     //g_object_unref(win->ui);
     //gtk_widget_destroy(win->toplevel);
-    free(win);
+    g_object_unref(win);
 }
 
 /* ------------------------------------------------------------------ */
@@ -106,7 +124,7 @@ static void main_channel_event(SpiceChannel *channel, SpiceChannelEvent event,
 {
     spice_connection *conn = data;
     char password[64];
-    int rc = 0;
+    int rc = -1;
 
     switch (event) {
     case SPICE_CHANNEL_OPENED:
@@ -168,6 +186,7 @@ static void channel_new(SpiceSession *s, SpiceChannel *channel, gpointer data)
 
     if (SPICE_IS_MAIN_CHANNEL(channel)) {
         SPICE_DEBUG("new main channel");
+        conn->main = SPICE_MAIN_CHANNEL(channel);
         g_signal_connect(channel, "channel-event",
                          G_CALLBACK(main_channel_event), conn);
         //g_signal_connect(channel, "main-mouse-update",
@@ -184,7 +203,7 @@ static void channel_new(SpiceSession *s, SpiceChannel *channel, gpointer data)
         if (conn->wins[id] != NULL)
             return;
         SPICE_DEBUG("new display channel (#%d)", id);
-        conn->wins[id] = create_spice_window(conn, id, channel);
+        conn->wins[id] = create_spice_window(conn, channel, id);
         //g_signal_connect(channel, "display-mark",
         //                 G_CALLBACK(display_mark), conn->wins[id]);
         //update_auto_usbredir_sensitive(conn);
@@ -197,25 +216,34 @@ static void channel_new(SpiceSession *s, SpiceChannel *channel, gpointer data)
     }
 
     //if (SPICE_IS_PLAYBACK_CHANNEL(channel)) {
-    //    if (conn->audio != NULL)
-    //        return;
     //    SPICE_DEBUG("new audio channel");
-    //    conn->audio = spice_audio_new(s, NULL, NULL);
+    //    conn->audio = spice_audio_get(s, NULL);
     //}
 
     //if (SPICE_IS_USBREDIR_CHANNEL(channel)) {
     //    update_auto_usbredir_sensitive(conn);
     //}
+
+    //if (SPICE_IS_PORT_CHANNEL(channel)) {
+    //    g_signal_connect(channel, "notify::port-opened",
+    //                     G_CALLBACK(port_opened), conn);
+    //    g_signal_connect(channel, "port-data",
+    //                     G_CALLBACK(port_data), conn);
+    //    spice_channel_connect(channel);
+    //}
 }
 
 static void channel_destroy(SpiceSession *s, SpiceChannel *channel, gpointer data)
 {
+	__android_log_write(6, "android-spicy", "channel_destroy called");
+
     spice_connection *conn = data;
     int id;
 
     g_object_get(channel, "channel-id", &id, NULL);
     if (SPICE_IS_MAIN_CHANNEL(channel)) {
         SPICE_DEBUG("zap main channel");
+        conn->main = NULL;
     }
 
     if (SPICE_IS_DISPLAY_CHANNEL(channel)) {
@@ -230,18 +258,22 @@ static void channel_destroy(SpiceSession *s, SpiceChannel *channel, gpointer dat
 
     //if (SPICE_IS_PLAYBACK_CHANNEL(channel)) {
     //    SPICE_DEBUG("zap audio channel");
-    //    if (conn->audio != NULL) {
-    //        g_object_unref(conn->audio);
-    //        conn->audio = NULL;
-    //    }
     //}
 
     //if (SPICE_IS_USBREDIR_CHANNEL(channel)) {
     //    update_auto_usbredir_sensitive(conn);
     //}
 
+    //if (SPICE_IS_PORT_CHANNEL(channel)) {
+    //    if (SPICE_PORT_CHANNEL(channel) == stdin_port)
+    //        stdin_port = NULL;
+    //}
+
     conn->channels--;
     if (conn->channels > 0) {
+    	char buf[100];
+        snprintf (buf, 100, "Number of channels: %d", conn->channels);
+    	__android_log_write(6, "android-spice", buf);
         return;
     }
 
@@ -277,6 +309,8 @@ static spice_connection *connection_new(void)
     //if (manager) {
     //    g_signal_connect(manager, "auto-connect-failed",
     //                     G_CALLBACK(usb_connect_failed), NULL);
+    //    g_signal_connect(manager, "device-error",
+    //                     G_CALLBACK(usb_connect_failed), NULL);
     //}
 
     connections++;
@@ -300,6 +334,7 @@ static void connection_disconnect(spice_connection *conn)
 
 static void connection_destroy(spice_connection *conn)
 {
+	__android_log_write(6, "android-spicy", "connection_destroy called");
     g_object_unref(conn->session);
     free(conn);
 
@@ -352,8 +387,10 @@ jint Java_com_iiordanov_aSPICE_SpiceCommunicator_SpiceClientConnect (JNIEnv *env
     spice_connection *conn;
     conn = connection_new();
     spice_session_setup(env, conn->session, h, p, pw);
-    connection_connect(conn);
 
+    //watch_stdin();
+
+    connection_connect(conn);
     if (connections > 0) {
         g_main_loop_run(mainloop);
         connection_disconnect(conn);

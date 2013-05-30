@@ -118,6 +118,9 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 	GlobalApp freeRdpApp = null;
 	SessionState session = null;
 
+	// Progress dialog shown at connection time.
+	ProgressDialog pd;
+	
 	// Handler for the dialog that displays the x509/RDP key signatures to the user.
 	// TODO: Also handle the SSH certificate validation here.
 	public Handler handler = new Handler() {
@@ -137,11 +140,16 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 				}
 	        	break;
 	        case VncConstants.SPICE_CONNECT_FAILURE:
-	    		if (!spiceUpdateReceived) {
-	    			showFatalMessageAndQuit("Unable to connect, please check SPICE server address, port, and password.");
-	    		} else {
-	    			showFatalMessageAndQuit("SPICE connection interrupted.");
-	    		} 
+	        	// If we were intending to maintainConnection, and the connection failed, show an error message.
+	        	if (maintainConnection) {
+	        		if (pd != null && pd.isShowing())
+	        			pd.dismiss();
+		    		if (!spiceUpdateReceived) {
+		    			showFatalMessageAndQuit("Unable to connect, please check SPICE server address, port, and password.");
+		    		} else {
+		    			showFatalMessageAndQuit("SPICE connection interrupted.");
+		    		}
+	        	}
 	        	break;
 	        }
 	    }
@@ -357,10 +365,9 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 		database = db;
 		decoder.setColorModel(COLORMODEL.valueOf(bean.getColorModel()));
 
-		// Startup the RFB thread with a nifty progress dialog
-		final ProgressDialog pd = ProgressDialog.show(getContext(), 
-													  "Connecting...", "Establishing handshake.\nPlease wait...", true,
-													  true, new DialogInterface.OnCancelListener() {
+		// Startup the connection thread with a progress dialog
+		pd = ProgressDialog.show(getContext(), "Connecting...", "Establishing handshake.\nPlease wait...",
+				true, true, new DialogInterface.OnCancelListener() {
 			@Override
 			public void onCancel(DialogInterface dialog) {
 				closeConnection();
@@ -404,9 +411,9 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 
 			    		if (!spiceUpdateReceived) {
 							handler.sendEmptyMessage(VncConstants.SPICE_CONNECT_FAILURE);
+			    		} else {
+			    			pd.dismiss();
 			    		}
-			    	    
-			    	    pd.dismiss();
 			    	} else if (isRdp) {
 			    		// TODO: Refactor code.
 
