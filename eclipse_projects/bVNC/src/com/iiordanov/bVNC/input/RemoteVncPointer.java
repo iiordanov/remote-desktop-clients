@@ -230,10 +230,7 @@ public class RemoteVncPointer implements RemotePointer {
 			} else if (mouseIsDown && useMiddleButton) {
 			    //Log.i(TAG,"Middle mouse button mask set");
 			    pointerMask = MOUSE_BUTTON_MIDDLE;
-			} else if (mouseIsDown && (action == MotionEvent.ACTION_DOWN || action == MotionEvent.ACTION_MOVE)) {
-			    //Log.i(TAG,"Left mouse button mask set");
-		        pointerMask = MOUSE_BUTTON_LEFT;
-			} else if (!mouseIsDown && useScrollButton) {
+			} else if (mouseIsDown && useScrollButton) {
 				//Log.d(TAG, "Sending a Mouse Scroll event: " + direction);
 				if        ( direction == 0 ) {
 					pointerMask = MOUSE_BUTTON_SCROLL_UP;
@@ -244,6 +241,9 @@ public class RemoteVncPointer implements RemotePointer {
 				} else if ( direction == 3 ) {
 					pointerMask = MOUSE_BUTTON_SCROLL_RIGHT;
 				}
+			} else if (mouseIsDown && (action == MotionEvent.ACTION_DOWN || action == MotionEvent.ACTION_MOVE)) {
+			    //Log.i(TAG,"Left mouse button mask set");
+		        pointerMask = MOUSE_BUTTON_LEFT;
 		    } else {
 			    //Log.i(TAG,"Mouse button mask cleared");
 				// If none of the conditions are satisfied, clear the pointer mask.
