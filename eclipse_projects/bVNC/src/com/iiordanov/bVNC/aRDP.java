@@ -645,10 +645,12 @@ public class aRDP extends Activity implements MainConfiguration {
 	    adView.setLayoutParams(lp);
 		    
 	    // Add the adView to the layout
-	    layout.addView(adView, 0);
+	    layout.addView(adView, 2);
 
 	    // Initiate a generic request to load it with an ad
 		AdRequest adRequest = new AdRequest();
+		adRequest.addTestDevice("255443C58D5D1959D075281106206D06");
+		adRequest.addTestDevice("09FDE4DD4719E7977E76123975E26EC4");
 	    adView.loadAd(adRequest);
 	}
 	
