@@ -41,24 +41,18 @@
  *
  * TODO: Find out whether something better can be done to avoid the SIGBUS.
  */
-#ifdef ANDROID
-#define write_int8(ptr,v)  {int8_t val=v;memcpy(ptr,&val,sizeof(int8_t)); }
-#define write_uint8(ptr,v) {uint8_t val=v;memcpy(ptr,&val,sizeof(uint8_t));}
-#define write_int16(ptr,v) {int16_t val=v;memcpy(ptr,&val,sizeof(int16_t));}
-#define write_uint16(ptr,v){uint16_t val=v;memcpy(ptr,&val,sizeof(uint16_t));}
-#define write_int32(ptr,v) {int32_t val=v;memcpy(ptr,&val,sizeof(int32_t));}
-#define write_uint32(ptr,v){uint32_t val=v;memcpy(ptr,&val,sizeof(uint32_t));}
-#define write_int64(ptr,v) {int64_t val=v;memcpy(ptr,&val,sizeof(int64_t));}
-#define write_uint64(ptr,v){uint64_t val=v;memcpy(ptr,&val,sizeof(uint64_t));}
-#else
 #define write_int8(ptr,v) (*((int8_t *)(ptr)) = v)
 #define write_uint8(ptr,v) (*((uint8_t *)(ptr)) = v)
 #define write_int16(ptr,v) (*((int16_t *)(ptr)) = v)
 #define write_uint16(ptr,v) (*((uint16_t *)(ptr)) = v)
 #define write_int32(ptr,v) (*((int32_t *)(ptr)) = v)
 #define write_uint32(ptr,v) (*((uint32_t *)(ptr)) = v)
-#define write_int64(ptr,v) (*((int64_t *)(ptr)) = v)
-#define write_uint64(ptr,v) (*((uint64_t *)(ptr)) = v)
+#ifdef ANDROID
+    #define write_int64(ptr,v) { int64_t val = v; memcpy(ptr, &val, sizeof(int64_t)); }
+    #define write_uint64(ptr,v) { uint64_t val = v; memcpy(ptr, &val, sizeof(uint64_t)); }
+#else
+    #define write_int64(ptr,v) (*((int64_t *)(ptr)) = v)
+    #define write_uint64(ptr,v) (*((uint64_t *)(ptr)) = v)
 #endif
 #endif
 

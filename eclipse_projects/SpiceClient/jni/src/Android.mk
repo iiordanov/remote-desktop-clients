@@ -34,13 +34,14 @@ LOCAL_SRC_FILES := channel-record.c channel-playback.c channel-cursor.c android-
 LOCAL_LDLIBS 	+= $(libspicec_link_objs) \
 		   -L$(CROSS_DIR)/lib \
 		   -ljnigraphics \
-		   -llog -ldl -lstdc++ -lz -lc
+		   -llog -ldl -lstdc++ -lz -lc \
+		   -malign-double -malign-loops
 
 LOCAL_CPPFLAGS 	+= -DG_LOG_DOMAIN=\"GSpice\" \
 		   -DSW_CANVAS_CACHE \
 		   -DSPICE_GTK_LOCALEDIR=\"/usr/local/share/locale\" \
 		   -DHAVE_CONFIG_H -UHAVE_SYS_SHM_H -DSW_CANVAS_CACHE  \
-		   -D_REENTRANT
+		   -D_REENTRANT 
 
 LOCAL_C_INCLUDES += $(LOCAL_PATH)/common \
                     $(CROSS_DIR)/include/spice-1 \

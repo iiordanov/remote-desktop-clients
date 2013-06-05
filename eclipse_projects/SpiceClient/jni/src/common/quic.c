@@ -459,6 +459,7 @@ static void __read_io_word(Encoder *encoder)
  *
  * TODO: Find out whether something better can be done to avoid the SIGBUS.
  */
+#undef ANDROID
 #ifdef ANDROID
     memcpy(&encoder->io_next_word, encoder->io_now++,sizeof(uint32_t));
 #else
@@ -476,6 +477,7 @@ static INLINE void read_io_word(Encoder *encoder)
         return;
     }
     spice_assert(encoder->io_now < encoder->io_end);
+#undef ANDROID
 #ifdef ANDROID
     memcpy(&encoder->io_next_word, encoder->io_now++,sizeof(uint32_t));
 #else
@@ -754,6 +756,7 @@ static INLINE unsigned int decode_run(Encoder *encoder)
 
 static INLINE void init_decode_io(Encoder *encoder)
 {
+#undef ANDROID
 #ifdef ANDROID
     memcpy(&encoder->io_word, encoder->io_now++,sizeof(uint32_t));
     encoder->io_next_word = encoder->io_word;

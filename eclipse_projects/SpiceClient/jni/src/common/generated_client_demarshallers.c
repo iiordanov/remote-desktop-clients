@@ -41,24 +41,6 @@
  *
  * TODO: Find out whether something better can be done to avoid the SIGBUS.
  */
-#ifdef ANDROID 
-    static inline int8_t read_int8(uint8_t* ptr) { int8_t val;memcpy(&val,ptr,sizeof(int8_t));return val;}
-    static inline uint8_t read_uint8(uint8_t* ptr) { uint8_t val;memcpy(&val,ptr,sizeof(uint8_t));return val;}
-    static inline int16_t read_int16(uint8_t* ptr) { int16_t val;memcpy(&val,ptr,sizeof(int16_t));return val;}
-    static inline uint16_t read_uint16(uint8_t* ptr) { uint16_t val;memcpy(&val,ptr,sizeof(uint16_t));return val;}
-    static inline int32_t read_int32(uint8_t* ptr) { int32_t val;memcpy(&val,ptr,sizeof(int32_t));return val;}
-    static inline uint32_t read_uint32(uint8_t* ptr) { uint32_t val;memcpy(&val,ptr,sizeof(uint32_t));return val;}
-    static inline int64_t read_int64(uint8_t* ptr) { int64_t val;memcpy(&val,ptr,sizeof(int64_t));return val;}
-    static inline uint64_t read_uint64(uint8_t* ptr) { uint64_t val;memcpy(&val,ptr,sizeof(uint64_t));return val;}
-#define write_int8(ptr,v)  {int8_t val=v;memcpy(ptr,&val,sizeof(int8_t)); }
-#define write_uint8(ptr,v) {uint8_t val=v;memcpy(ptr,&val,sizeof(uint8_t));}
-#define write_int16(ptr,v) {int16_t val=v;memcpy(ptr,&val,sizeof(int16_t));}
-#define write_uint16(ptr,v){uint16_t val=v;memcpy(ptr,&val,sizeof(uint16_t));}
-#define write_int32(ptr,v) {int32_t val=v;memcpy(ptr,&val,sizeof(int32_t));}
-#define write_uint32(ptr,v){uint32_t val=v;memcpy(ptr,&val,sizeof(uint32_t));}
-#define write_int64(ptr,v) {int64_t val=v;memcpy(ptr,&val,sizeof(int64_t));}
-#define write_uint64(ptr,v){uint64_t val=v;memcpy(ptr,&val,sizeof(uint64_t));}
-#else
 #define read_int8(ptr) (*((int8_t *)(ptr)))
 #define write_int8(ptr, val) (*((int8_t *)(ptr))) = val
 #define read_uint8(ptr) (*((uint8_t *)(ptr)))
@@ -71,10 +53,16 @@
 #define write_int32(ptr, val) (*((int32_t *)(ptr))) = val
 #define read_uint32(ptr) (*((uint32_t *)(ptr)))
 #define write_uint32(ptr, val) (*((uint32_t *)(ptr))) = val
-#define read_int64(ptr) (*((int64_t *)(ptr)))
-#define write_int64(ptr, val) (*((int64_t *)(ptr))) = val
-#define read_uint64(ptr) (*((uint64_t *)(ptr)))
-#define write_uint64(ptr, val) (*((uint64_t *)(ptr))) = val
+#ifdef ANDROID
+    static inline int64_t read_int64(uint8_t* ptr) { int64_t val; memcpy(&val,ptr,sizeof(int64_t)); return val;}
+    #define write_int64(ptr,v) { int64_t val = v; memcpy(ptr, &val, sizeof(int64_t)); }
+    static inline uint64_t read_uint64(uint8_t* ptr) { uint64_t val; memcpy(&val,ptr,sizeof(uint64_t)); return val;}
+    #define write_uint64(ptr,v) { uint64_t val = v; memcpy(ptr, &val, sizeof(uint64_t)); }
+#else
+    #define read_int64(ptr) (*((int64_t *)(ptr)))
+    #define write_int64(ptr, val) (*((int64_t *)(ptr))) = val
+    #define read_uint64(ptr) (*((uint64_t *)(ptr)))
+    #define write_uint64(ptr, val) (*((uint64_t *)(ptr))) = val
 #endif
 #endif
 
