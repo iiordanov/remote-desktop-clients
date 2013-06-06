@@ -55,7 +55,7 @@ public abstract class RemoteKeyboard {
 	
 	// Variable used for BB10 hacks
 	boolean bb10 = false;
-	boolean z10 = false;
+	boolean backspaceWorkaround = false;
 
 
 	public boolean processLocalKeyEvent(int keyCode, KeyEvent evt) { return false; }

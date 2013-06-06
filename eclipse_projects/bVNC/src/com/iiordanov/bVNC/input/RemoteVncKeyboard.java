@@ -19,8 +19,8 @@ public class RemoteVncKeyboard extends RemoteKeyboard {
 		String s = android.os.Build.MODEL;
 		if (s.contains("BlackBerry 10"))
 			bb10 = true;
-		else if (s.contains("Z10"))
-			z10 = true;
+		else if (s.contains("Z10") || s.contains("Q10"))
+			backspaceWorkaround = true;
 	}
 	
 	public boolean processLocalKeyEvent(int keyCode, KeyEvent evt) {
@@ -180,7 +180,7 @@ public class RemoteVncKeyboard extends RemoteKeyboard {
 
 				   // TODO: UGLY HACK for Z10 devices running 10.1 which never send the down-event
 				   // for backspace... so we send it instead. Remove as soon as possible!
-				   if (z10 && keyCode == KeyEvent.KEYCODE_DEL)
+				   if (backspaceWorkaround && keyCode == KeyEvent.KEYCODE_DEL)
 					   rfb.writeKeyEvent(keysym, (onScreenMetaState|hardwareMetaState|metaState), true);
 				   
 				   rfb.writeKeyEvent(keysym, (onScreenMetaState|hardwareMetaState|metaState), down);
