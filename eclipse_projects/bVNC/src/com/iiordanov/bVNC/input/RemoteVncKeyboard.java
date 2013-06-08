@@ -17,9 +17,10 @@ public class RemoteVncKeyboard extends RemoteKeyboard {
 		handler = h;
 		
 		String s = android.os.Build.MODEL;
+		String vers = android.os.Build.ID;
 		if (s.contains("BlackBerry 10"))
 			bb10 = true;
-		else if (s.contains("Z10") || s.contains("Q10"))
+		else if (vers.equals("10.1.0.103"))
 			backspaceWorkaround = true;
 	}
 	
