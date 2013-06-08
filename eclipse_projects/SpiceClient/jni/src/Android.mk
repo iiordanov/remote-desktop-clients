@@ -19,8 +19,8 @@ libspicec_link_objs 	:= $(CROSS_DIR)/lib/libintl.a \
 
 LOCAL_MODULE    := spicec
 
-LOCAL_SRC_FILES := channel-record.c channel-playback.c channel-cursor.c android-spicy.c \
-                   spice-cmdline.c android-spice-widget.c coroutine_gthread.c spice-util.c \
+LOCAL_SRC_FILES := channel-record.c channel-playback.c channel-cursor.c \
+                   spice-cmdline.c coroutine_gthread.c spice-util.c \
                    spice-session.c spice-channel.c spice-marshal.c spice-glib-enums.c \
                    common/generated_client_demarshallers.c common/generated_client_demarshallers1.c \
                    common/generated_client_marshallers.c common/generated_client_marshallers1.c \
@@ -29,7 +29,8 @@ LOCAL_SRC_FILES := channel-record.c channel-playback.c channel-cursor.c android-
                    decode-jpeg.c decode-zlib.c wocky-http-proxy.c channel-port.c spice-client.c \
                    common/mem.c common/marshaller.c common/canvas_utils.c common/backtrace.c \
                    common/sw_canvas.c common/pixman_utils.c common/lines.c common/rop3.c common/quic.c \
-                   common/lz.c common/region.c common/ssl_verify.c common/log.c
+                   common/lz.c common/region.c common/ssl_verify.c common/log.c \
+                   android/android-service.c android/android-spicy.c android/android-spice-widget.c
 
 LOCAL_LDLIBS 	+= $(libspicec_link_objs) \
 		   -L$(CROSS_DIR)/lib \
@@ -52,7 +53,7 @@ LOCAL_C_INCLUDES += $(LOCAL_PATH)/common \
 
 LOCAL_CFLAGS 	:= $(LOCAL_CPPFLAGS) \
     -std=gnu99 -Wall -Wno-sign-compare -Wno-deprecated-declarations -Wl,--no-undefined \
-    -fPIC -DPIC -O3 -funroll-loops -ffast-math
+    -fPIC -DPIC #-O3 -funroll-loops -ffast-math
 
 LOCAL_ARM_MODE := arm
 

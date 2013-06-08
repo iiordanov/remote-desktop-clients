@@ -43,15 +43,17 @@ typedef struct _SpiceDisplayPrivate spice_display;
 
 #define PTRFLAGS_DOWN 0x8000
 
-#ifdef SPICY_C
-	SpiceDisplay* global_display  = NULL;
+#ifdef ANDROID_SERVICE_C
+	SpiceDisplay* global_display   = NULL;
 	gboolean  maintainConnection   = TRUE;
 	JavaVM*   jvm                  = NULL;
 	jclass    jni_connector_class  = NULL;
 	jmethodID jni_settings_changed = NULL;
 	jmethodID jni_graphics_update  = NULL;
 	jobject jbitmap                = NULL;
-	gint    jw = 0, jh = 0;
+	gint                jw = 0, jh = 0;
+	GMainLoop            *mainloop = NULL;
+	int                connections = 0;
 #else
 	extern SpiceDisplay* global_display;
 	extern gboolean  maintainConnection;
@@ -59,8 +61,10 @@ typedef struct _SpiceDisplayPrivate spice_display;
 	extern jclass    jni_connector_class;
 	extern jmethodID jni_settings_changed;
 	extern jmethodID jni_graphics_update;
-	extern jobject jbitmap;
-	extern gint    jw, jh;
+	extern jobject   jbitmap;
+	extern gint      jw, jh;
+	extern GMainLoop *mainloop;
+	extern int       connections;
 #endif
 
 struct _SpiceDisplay {

@@ -28,83 +28,14 @@
 #include "spice-audio.h"
 #include "spice-common.h"
 #include "spice-cmdline.h"
-#include <jni.h>
-
-typedef struct spice_connection spice_connection;
-
-enum {
-    STATE_SCROLL_LOCK,
-    STATE_CAPS_LOCK,
-    STATE_NUM_LOCK,
-    STATE_MAX,
-};
-
-typedef struct _SpiceWindow SpiceWindow;
-typedef struct _SpiceWindowClass SpiceWindowClass;
-
-struct _SpiceWindow {
-    GObject          object;
-    spice_connection *conn;
-    gint             id;
-    gint             monitor_id;
-    SpiceDisplay      *spice;
-    bool             fullscreen;
-    bool             mouse_grabbed;
-    SpiceChannel     *display_channel;
-#ifdef WIN32
-    gint             win_x;
-    gint             win_y;
-#endif
-    bool             enable_accels_save;
-    bool             enable_mnemonics_save;
-};
-
-struct _SpiceWindowClass
-{
-  GObjectClass parent_class;
-};
+#include "android-spicy.h"
 
 G_DEFINE_TYPE (SpiceWindow, spice_window, G_TYPE_OBJECT);
 
-#define CHANNELID_MAX 4
-#define MONITORID_MAX 4
-
-// FIXME: turn this into an object, get rid of fixed wins array, use
-// signals to replace the various callback that iterate over wins array
-struct spice_connection {
-    SpiceSession     *session;
-    SpiceMainChannel *main;
-    SpiceWindow     *wins[CHANNELID_MAX * MONITORID_MAX];
-    SpiceAudio       *audio;
-    const char       *mouse_state;
-    const char       *agent_state;
-    gboolean         agent_connected;
-    int              channels;
-    int              disconnecting;
-};
-
-static GMainLoop     *mainloop = NULL;
-static int           connections = 0;
-
-static spice_connection *connection_new(void);
-static void connection_connect(spice_connection *conn);
-static void connection_disconnect(spice_connection *conn);
 static void connection_destroy(spice_connection *conn);
-void spice_session_setup(JNIEnv *env, SpiceSession *session, jstring h, jstring p, jstring pw);
 static void signal_handler(int signal, siginfo_t *info, void *reserved);
 
-
 /* ------------------------------------------------------------------ */
-
-static void
-spice_window_class_init (SpiceWindowClass *klass)
-{
-}
-
-static void
-spice_window_init (SpiceWindow *self)
-{
-}
 
 static SpiceWindow *create_spice_window(spice_connection *conn, SpiceChannel *channel, int id)
 {
@@ -305,7 +236,7 @@ static void migration_state(GObject *session,
         g_message("migrating session");
 }
 
-static spice_connection *connection_new(void)
+spice_connection *connection_new(void)
 {
     spice_connection *conn;
     //SpiceUsbDeviceManager *manager;
@@ -333,13 +264,13 @@ static spice_connection *connection_new(void)
     return conn;
 }
 
-static void connection_connect(spice_connection *conn)
+void connection_connect(spice_connection *conn)
 {
     conn->disconnecting = false;
     spice_session_connect(conn->session);
 }
 
-static void connection_disconnect(spice_connection *conn)
+void connection_disconnect(spice_connection *conn)
 {
     if (conn->disconnecting)
         return;
@@ -363,107 +294,3 @@ static void connection_destroy(spice_connection *conn)
 }
 
 /* ------------------------------------------------------------------ */
-
-void Java_com_iiordanov_aSPICE_SpiceCommunicator_SpiceClientDisconnect (JNIEnv * env, jobject  obj) {
-	maintainConnection = FALSE;
-
-	if (g_main_loop_is_running (mainloop))
-        g_main_loop_quit (mainloop);
-}
-
-jint Java_com_iiordanov_aSPICE_SpiceCommunicator_SpiceClientConnect (JNIEnv *env, jobject obj, jstring h, jstring p, jstring pw)
-{
-    int result = 0;
-    maintainConnection = TRUE;
-
-	// Get a reference to the JVM to get JNIEnv from in (other) threads.
-    jint rs = (*env)->GetJavaVM(env, &jvm);
-    if (rs != JNI_OK) {
-    	__android_log_write(6, "spicy", "ERROR: Could not obtain jvm reference.");
-    	return 255;
-    }
-
-    // Find the jclass reference and get a Global reference for it for use in other threads.
-    jclass local_class  = (*env)->FindClass (env, "com/iiordanov/aSPICE/SpiceCommunicator");
-	jni_connector_class = (jclass)((*env)->NewGlobalRef(env, local_class));
-
-	// Get global method IDs for callback methods.
-	jni_settings_changed = (*env)->GetStaticMethodID (env, jni_connector_class, "OnSettingsChanged", "(IIII)V");
-	jni_graphics_update  = (*env)->GetStaticMethodID (env, jni_connector_class, "OnGraphicsUpdate", "(IIIII)V");
-
-    g_thread_init(NULL);
-    bindtextdomain(GETTEXT_PACKAGE, SPICE_GTK_LOCALEDIR);
-    bind_textdomain_codeset(GETTEXT_PACKAGE, "UTF-8");
-    textdomain(GETTEXT_PACKAGE);
-
-    g_type_init();
-    mainloop = g_main_loop_new(NULL, false);
-
-    spice_connection *conn;
-    conn = connection_new();
-    spice_session_setup(env, conn->session, h, p, pw);
-
-    //watch_stdin();
-
-    connection_connect(conn);
-    if (connections > 0) {
-        g_main_loop_run(mainloop);
-        connection_disconnect(conn);
-        g_object_unref(mainloop);
-	    __android_log_write(6, "spicy", "Exiting main loop.");
-    } else {
-        __android_log_write(6, "spicy", "Wrong hostname, port, or password.");
-        result = 2;
-    }
-
-	jvm                  = NULL;
-	jni_connector_class  = NULL;
-	jni_settings_changed = NULL;
-	jni_graphics_update  = NULL;
-	jbitmap              = NULL;
-	jw = 0;
-	jh = 0;
-	return result;
-}
-
-void spice_session_setup(JNIEnv *env, SpiceSession *session, jstring h, jstring p, jstring pw)
-{
-	const char *host = NULL;
-	const char *port = NULL;
-	const char *tls_port = NULL;
-	const char *password = NULL;
-	host = (*env)->GetStringUTFChars(env, h, NULL);
-	port = (*env)->GetStringUTFChars(env, p, NULL);
-	password = (*env)->GetStringUTFChars(env, pw, NULL);
-
-    g_return_if_fail(SPICE_IS_SESSION(session));
-
-    if (host)
-        g_object_set(session, "host", host, NULL);
-    if (port)
-        g_object_set(session, "port", port, NULL);
-    // TODO: Add TLS support.
-    if (tls_port)
-        g_object_set(session, "tls-port", tls_port, NULL);
-    if (password)
-        g_object_set(session, "password", password, NULL);
-}
-
-static void signal_handler(int signal, siginfo_t *info, void *reserved)
-{
-	kill(getpid(), SIGKILL);
-}
-
-jint JNI_OnLoad(JavaVM* vm, void* reserved) {
-	struct sigaction handler;
-	memset(&handler, 0, sizeof(handler));
-	handler.sa_sigaction = signal_handler;
-	handler.sa_flags = SA_SIGINFO;
-	sigaction(SIGILL, &handler, NULL);
-	sigaction(SIGABRT, &handler, NULL);
-	sigaction(SIGBUS, &handler, NULL);
-	sigaction(SIGFPE, &handler, NULL);
-	sigaction(SIGSEGV, &handler, NULL);
-	sigaction(SIGSTKFLT, &handler, NULL);
-	return(JNI_VERSION_1_6);
-}
