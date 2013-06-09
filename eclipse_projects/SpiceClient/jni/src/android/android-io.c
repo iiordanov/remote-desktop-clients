@@ -27,7 +27,7 @@
 #include "android-service.h"
 
 
-void copy_pixel_buffer(uchar* dest, uchar* source, int x, int y, int width, int height, int buffwidth, int buffheight, int bpp) {
+void updatePixels (uchar* dest, uchar* source, int x, int y, int width, int height, int buffwidth, int buffheight, int bpp) {
 	//char buf[100];
     //snprintf (buf, 100, "Drawing x: %d, y: %d, w: %d, h: %d, wBuf: %d, hBuf: %d, bpp: %d", x, y, width, height, wBuf, hBuf, bpp);
 	//__android_log_write(6, "android-spice", buf);
@@ -57,14 +57,14 @@ void copy_pixel_buffer(uchar* dest, uchar* source, int x, int y, int width, int 
 }
 
 
-gboolean update_bitmap (JNIEnv* env, jobject* bitmap, void *source, gint x, gint y, gint width, gint height, gint sourceWidth, gint sourceHeight) {
+gboolean updateBitmap (JNIEnv* env, jobject* bitmap, void *source, gint x, gint y, gint width, gint height, gint sourceWidth, gint sourceHeight) {
 	void* pixels;
 	if (AndroidBitmap_lockPixels(env, bitmap, &pixels) < 0) {
 		__android_log_write(6, "android-spice", "AndroidBitmap_lockPixels() failed!");
 		return FALSE;
 	}
 	//__android_log_write(6, "android-spice", "Copying new data into pixels.");
-	copy_pixel_buffer(pixels, source, x, y, width, height, sourceWidth, sourceHeight, 4);
+	updatePixels (pixels, source, x, y, width, height, sourceWidth, sourceHeight, 4);
 	AndroidBitmap_unlockPixels(env, bitmap);
 	return TRUE;
 }
@@ -174,26 +174,25 @@ Java_com_iiordanov_aSPICE_SpiceCommunicator_SpiceButtonEvent(JNIEnv * env, jobje
 		int mouseButton = type &~ PTRFLAGS_DOWN;
 		int newMask = update_mask (mouseButton, down);
 
-		spice_inputs_position(d->inputs, x, y, d->channel_id, newMask);
-/*		// TODO: Figure out why this code isn't working.
 		gint dx;
 		gint dy;
 	    switch (d->mouse_mode) {
 	    case SPICE_MOUSE_MODE_CLIENT:
-			spice_inputs_position(d->inputs, button->x, button->y, d->channel_id, newMask);
+	        //__android_log_write(6, "android-spice", "spice mouse mode client");
+			spice_inputs_position(d->inputs, x, y, d->channel_id, newMask);
 	        break;
 	    case SPICE_MOUSE_MODE_SERVER:
-	        dx = d->mouse_last_x != -1 ? button->x - d->mouse_last_x : 0;
-	        dy = d->mouse_last_y != -1 ? button->y - d->mouse_last_y : 0;
+	        //__android_log_write(6, "android-spice", "spice mouse mode server");
+	        dx = d->mouse_last_x != -1 ? x - d->mouse_last_x : 0;
+	        dy = d->mouse_last_y != -1 ? y - d->mouse_last_y : 0;
 	        spice_inputs_motion(d->inputs, dx, dy, newMask);
-	        d->mouse_last_x = button->x;
-	        d->mouse_last_y = button->y;
+	        d->mouse_last_x = x;
+	        d->mouse_last_y = y;
 	        break;
 	    default:
 	        g_warn_if_reached();
 	        break;
 	    }
-*/
 
 		if (mouseButton != SPICE_MOUSE_BUTTON_INVALID) {
 			if (down) {
@@ -210,14 +209,15 @@ Java_com_iiordanov_aSPICE_SpiceCommunicator_SpiceButtonEvent(JNIEnv * env, jobje
 }
 
 
-/* Callbacks to the UI layer to request invalidation or a new bitmap. */
+/* Callbacks to the UI layer to draw screen updates and invalide of part of the screen,
+ * or to request a new bitmap. */
 
 void uiCallbackInvalidate (SpiceDisplayPrivate *d, gint x, gint y, gint w, gint h) {
     JNIEnv* env;
     bool attached = attachThreadToJvm (&env);
 
     // Draw the new data into the Java bitmap object.
-    update_bitmap(env, jbitmap, d->data, x, y, w, h, d->width, d->height);
+    updateBitmap(env, jbitmap, d->data, x, y, w, h, d->width, d->height);
 
     // Tell the UI that it needs to redraw the bitmap.
 	(*env)->CallStaticVoidMethod(env, jni_connector_class, jni_graphics_update, 0, x, y, w, h);

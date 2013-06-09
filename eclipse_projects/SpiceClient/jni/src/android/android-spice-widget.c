@@ -93,6 +93,31 @@ static void spice_display_init(SpiceDisplay *display)
     d->mouse_last_y = -1;
 }
 
+/* ---------------------------------------------------------------- */
+
+static void update_mouse_mode(SpiceChannel *channel, gpointer data)
+{
+    SpiceDisplay *display = data;
+    SpiceDisplayPrivate *d = SPICE_DISPLAY_GET_PRIVATE(display);
+
+    g_object_get(channel, "mouse-mode", &d->mouse_mode, NULL);
+    SPICE_DEBUG("mouse mode %d", d->mouse_mode);
+
+    switch (d->mouse_mode) {
+    case SPICE_MOUSE_MODE_CLIENT:
+        //try_mouse_ungrab(display);
+        break;
+    case SPICE_MOUSE_MODE_SERVER:
+        //try_mouse_grab(display);
+        d->mouse_guest_x = -1;
+        d->mouse_guest_y = -1;
+        break;
+    default:
+        g_warn_if_reached();
+    }
+
+    //update_mouse_pointer(display);
+}
 
 /* ---------------------------------------------------------------- */
 
@@ -286,17 +311,9 @@ static void channel_new(SpiceSession *s, SpiceChannel *channel, gpointer data)
     g_object_get(channel, "channel-id", &id, NULL);
     if (SPICE_IS_MAIN_CHANNEL(channel)) {
         d->main = SPICE_MAIN_CHANNEL(channel);
-        //g_signal_connect(channel, "main-mouse-update",
-        //                 G_CALLBACK(mouse_update), display);
-        //mouse_update(channel, display);
-        //if (id != d->channel_id)
-        //    return;
-        //g_signal_connect(channel, "main-clipboard-selection-grab",
-        //                 G_CALLBACK(clipboard_grab), display);
-        //g_signal_connect(channel, "main-clipboard-selection-request",
-        //                 G_CALLBACK(clipboard_request), display);
-        //g_signal_connect(channel, "main-clipboard-selection-release",
-        //                 G_CALLBACK(clipboard_release), display);
+        spice_g_signal_connect_object(channel, "main-mouse-update",
+                                      G_CALLBACK(update_mouse_mode), display, 0);
+        update_mouse_mode(channel, display);
         return;
     }
 

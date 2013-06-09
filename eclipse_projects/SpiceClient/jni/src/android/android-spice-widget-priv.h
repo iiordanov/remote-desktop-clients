@@ -25,30 +25,36 @@ G_BEGIN_DECLS
 #include "config.h"
 #endif
 
+#ifdef WITH_X11
+#include <X11/Xlib.h>
+#include <X11/extensions/XShm.h>
+#include <gdk/gdkx.h>
+#endif
+
+#ifdef WIN32
+#include <windows.h>
+#endif
+
 #include "spice-widget.h"
 #include "spice-common.h"
-#include <spice/vd_agent.h>
+#include "spice-gtk-session.h"
 
 #define SPICE_DISPLAY_GET_PRIVATE(obj)                                  \
     (G_TYPE_INSTANCE_GET_PRIVATE((obj), SPICE_TYPE_DISPLAY, SpiceDisplayPrivate))
 
-typedef int cairo_surface_t;
-typedef int GtkClipboard;
-typedef int GtkTargetEntry;
-typedef int GdkCursor;
-
-#define CLIPBOARD_LAST (VD_AGENT_CLIPBOARD_SELECTION_SECONDARY + 1)
-
 struct _SpiceDisplayPrivate {
     gint                    channel_id;
+    gint                    monitor_id;
 
     /* options */
     bool                    keyboard_grab_enable;
+    gboolean                keyboard_grab_inhibit;
     bool                    mouse_grab_enable;
     bool                    resize_guest_enable;
-    bool                    auto_clipboard_enable;
 
     /* state */
+    gboolean                ready;
+    gboolean                monitor_ready;
     enum SpiceSurfaceFmt    format;
     gint                    width, height, stride;
     gint                    shmid;
@@ -60,6 +66,8 @@ struct _SpiceDisplayPrivate {
     bool                    convert;
     bool                    have_mitshm;
     gboolean                allow_scaling;
+    gboolean                only_downscale;
+    gboolean                disable_inputs;
 
     /* TODO: make a display object instead? */
 #ifdef WITH_X11
@@ -68,18 +76,7 @@ struct _SpiceDisplayPrivate {
     XImage                  *ximage;
     XShmSegmentInfo         *shminfo;
     GC                      gc;
-#else
-    cairo_surface_t         *ximage;
 #endif
-
-    GtkClipboard            *clipboard;
-    GtkClipboard            *clipboard_primary;
-    GtkTargetEntry          *clip_targets[CLIPBOARD_LAST];
-    guint                   nclip_targets[CLIPBOARD_LAST];
-    bool                    clip_hasdata[CLIPBOARD_LAST];
-    bool                    clip_grabbed[CLIPBOARD_LAST];
-    gboolean                clipboard_by_guest[CLIPBOARD_LAST];
-    gboolean                clipboard_selfgrab_pending[CLIPBOARD_LAST];
 
     SpiceSession            *session;
     SpiceMainChannel        *main;
@@ -91,8 +88,6 @@ struct _SpiceDisplayPrivate {
     enum SpiceMouseMode     mouse_mode;
     int                     mouse_grab_active;
     bool                    mouse_have_pointer;
-    GdkCursor               *mouse_cursor;
-    GdkCursor               *show_cursor;
     int                     mouse_last_x;
     int                     mouse_last_y;
     int                     mouse_guest_x;
@@ -100,24 +95,28 @@ struct _SpiceDisplayPrivate {
 
     bool                    keyboard_grab_active;
     bool                    keyboard_have_focus;
-    int                     keyboard_grab_count;
-    time_t                  keyboard_grab_time;
 
     const guint16 const     *keycode_map;
     size_t                  keycode_maplen;
     uint32_t                key_state[512 / 32];
+    int                     key_delayed_scancode;
+    guint                   key_delayed_id;
     SpiceGrabSequence         *grabseq; /* the configured key sequence */
     gboolean                *activeseq; /* the currently pressed keys */
     gint                    mark;
 #ifdef WIN32
     HHOOK                   keyboard_hook;
+    int                     win_mouse[3];
+    int                     win_mouse_speed;
+#endif
+    guint                   keypress_delay;
+    gint                    zoom_level;
+#ifdef GDK_WINDOWING_X11
+    int                     x11_accel_numerator;
+    int                     x11_accel_denominator;
+    int                     x11_threshold;
 #endif
 };
-
-int      spicex_image_create                 (SpiceDisplay *display);
-void     spicex_image_destroy                (SpiceDisplay *display);
-void     spicex_image_invalidate             (SpiceDisplay *display, gint *x, gint *y, gint *w, gint *h);
-gboolean spicex_is_scaled                    (SpiceDisplay *display);
 
 G_END_DECLS
 
