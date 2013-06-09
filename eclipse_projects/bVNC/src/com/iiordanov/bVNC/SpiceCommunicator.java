@@ -18,7 +18,7 @@ public class SpiceCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyP
 	public native void SpiceSetBitmap (Bitmap newBitmap);
 	
 	static {
-		System.loadLibrary("spicec");
+		System.loadLibrary("spice");
 	}
 	
 	final static int VK_CONTROL = 0x11;

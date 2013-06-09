@@ -4,7 +4,7 @@ include $(CLEAR_VARS)
 
 CROSS_DIR 	:= /opt/android
 
-libspicec_link_objs 	:= $(CROSS_DIR)/lib/libintl.a \
+spice_objs := $(CROSS_DIR)/lib/libintl.a \
     $(CROSS_DIR)/lib/libgio-2.0.a \
     $(CROSS_DIR)/lib/libgobject-2.0.a  \
     $(CROSS_DIR)/lib/libgthread-2.0.a  \
@@ -17,7 +17,7 @@ libspicec_link_objs 	:= $(CROSS_DIR)/lib/libintl.a \
     $(CROSS_DIR)/lib/libcrypto.a \
     $(CROSS_DIR)/lib/libcelt.a 
 
-LOCAL_MODULE    := spicec
+LOCAL_MODULE    := spice
 
 LOCAL_SRC_FILES := channel-record.c channel-playback.c channel-cursor.c \
                    spice-cmdline.c coroutine_gthread.c spice-util.c \
@@ -33,7 +33,7 @@ LOCAL_SRC_FILES := channel-record.c channel-playback.c channel-cursor.c \
                    android/android-service.c android/android-spicy.c android/android-spice-widget.c \
                    android/android-io.c
 
-LOCAL_LDLIBS 	+= $(libspicec_link_objs) \
+LOCAL_LDLIBS 	+= $(spice_objs) \
 		   -L$(CROSS_DIR)/lib \
 		   -ljnigraphics \
 		   -llog -ldl -lstdc++ -lz -lc \
