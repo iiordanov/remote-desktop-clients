@@ -30,7 +30,8 @@ LOCAL_SRC_FILES := channel-record.c channel-playback.c channel-cursor.c \
                    common/mem.c common/marshaller.c common/canvas_utils.c common/backtrace.c \
                    common/sw_canvas.c common/pixman_utils.c common/lines.c common/rop3.c common/quic.c \
                    common/lz.c common/region.c common/ssl_verify.c common/log.c \
-                   android/android-service.c android/android-spicy.c android/android-spice-widget.c
+                   android/android-service.c android/android-spicy.c android/android-spice-widget.c \
+                   android/android-io.c
 
 LOCAL_LDLIBS 	+= $(libspicec_link_objs) \
 		   -L$(CROSS_DIR)/lib \
@@ -53,7 +54,7 @@ LOCAL_C_INCLUDES += $(LOCAL_PATH)/common \
 
 LOCAL_CFLAGS 	:= $(LOCAL_CPPFLAGS) \
     -std=gnu99 -Wall -Wno-sign-compare -Wno-deprecated-declarations -Wl,--no-undefined \
-    -fPIC -DPIC #-O3 -funroll-loops -ffast-math
+    -fPIC -DPIC -O3 -funroll-loops -ffast-math
 
 LOCAL_ARM_MODE := arm
 

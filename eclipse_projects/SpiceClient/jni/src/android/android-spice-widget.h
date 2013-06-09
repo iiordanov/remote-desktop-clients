@@ -21,12 +21,11 @@
 
 #include "spice-client.h"
 
-//#include "spice-widget-enums.h"
-#include "spice-util.h"
-#include "pthread.h"
+#include <gtk/gtk.h>
 #include "spice-grabsequence.h"
-#include <jni.h>
-#include <android/bitmap.h>
+#include "spice-widget-enums.h"
+#include "spice-util.h"
+#include "spice-gtk-session.h"
 
 G_BEGIN_DECLS
 
@@ -40,32 +39,6 @@ G_BEGIN_DECLS
 typedef struct _SpiceDisplay SpiceDisplay;
 typedef struct _SpiceDisplayClass SpiceDisplayClass;
 typedef struct _SpiceDisplayPrivate spice_display;
-
-#define PTRFLAGS_DOWN 0x8000
-
-#ifdef ANDROID_SERVICE_C
-	SpiceDisplay* global_display   = NULL;
-	gboolean  maintainConnection   = TRUE;
-	JavaVM*   jvm                  = NULL;
-	jclass    jni_connector_class  = NULL;
-	jmethodID jni_settings_changed = NULL;
-	jmethodID jni_graphics_update  = NULL;
-	jobject jbitmap                = NULL;
-	gint                jw = 0, jh = 0;
-	GMainLoop            *mainloop = NULL;
-	int                connections = 0;
-#else
-	extern SpiceDisplay* global_display;
-	extern gboolean  maintainConnection;
-	extern JavaVM*   jvm;
-	extern jclass    jni_connector_class;
-	extern jmethodID jni_settings_changed;
-	extern jmethodID jni_graphics_update;
-	extern jobject   jbitmap;
-	extern gint      jw, jh;
-	extern GMainLoop *mainloop;
-	extern int       connections;
-#endif
 
 struct _SpiceDisplay {
     SpiceChannel parent;
@@ -100,6 +73,7 @@ GType	        spice_display_get_type(void);
 SpiceDisplay* spice_display_new(SpiceSession *session, int id);
 void spice_display_send_keys(SpiceDisplay *display, const guint *keyvals,
 	int nkeyvals, SpiceDisplayKeyEvent kind);
+void send_key(SpiceDisplay *display, int scancode, int down);
 
 G_END_DECLS
 

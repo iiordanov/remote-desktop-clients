@@ -29,11 +29,12 @@
 #include "spice-common.h"
 #include "spice-cmdline.h"
 #include "android-spicy.h"
+#include "android-service.h"
+
 
 G_DEFINE_TYPE (SpiceWindow, spice_window, G_TYPE_OBJECT);
 
 static void connection_destroy(spice_connection *conn);
-static void signal_handler(int signal, siginfo_t *info, void *reserved);
 
 /* ------------------------------------------------------------------ */
 

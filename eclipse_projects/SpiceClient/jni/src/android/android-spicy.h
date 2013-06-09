@@ -25,10 +25,10 @@
 
 #include <sys/stat.h>
 #include "glib-compat.h"
-#include "android-spice-widget.h"
 #include "spice-audio.h"
 #include "spice-common.h"
 #include "spice-cmdline.h"
+#include "android-spice-widget.h"
 
 typedef struct spice_connection spice_connection;
 

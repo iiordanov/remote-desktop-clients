@@ -1,36 +1,71 @@
-/* -*- Mode: C; c-basic-offset: 4; indent-tabs-mode: nil -*- */
-/*
-   Copyright (C) 2013 Iordan Iordanov
+/**
+ * Copyright (C) 2013 Iordan Iordanov
+ *
+ * This is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this software; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307,
+ * USA.
+ */
 
-   This library is free software; you can redistribute it and/or
-   modify it under the terms of the GNU Lesser General Public
-   License as published by the Free Software Foundation; either
-   version 2.1 of the License, or (at your option) any later version.
-
-   This library is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   Lesser General Public License for more details.
-
-   You should have received a copy of the GNU Lesser General Public
-   License along with this library; if not, see <http://www.gnu.org/licenses/>.
-*/
+#include <jni.h>
+#include <android/bitmap.h>
 
 #define ANDROID_SERVICE_C
+#include "android-service.h"
+
 #include "android-spice-widget.h"
 #include "android-spicy.h"
 
-void spice_session_setup(JNIEnv *env, SpiceSession *session, jstring h, jstring p, jstring pw);
+
+void spice_session_setup(JNIEnv *env, SpiceSession *session, jstring h, jstring p, jstring pw) {
+	const char *host = NULL;
+	const char *port = NULL;
+	const char *tls_port = NULL;
+	const char *password = NULL;
+	host = (*env)->GetStringUTFChars(env, h, NULL);
+	port = (*env)->GetStringUTFChars(env, p, NULL);
+	password = (*env)->GetStringUTFChars(env, pw, NULL);
+
+    g_return_if_fail(SPICE_IS_SESSION(session));
+
+    if (host)
+        g_object_set(session, "host", host, NULL);
+    if (port)
+        g_object_set(session, "port", port, NULL);
+    // TODO: Add TLS support.
+    if (tls_port)
+        g_object_set(session, "tls-port", tls_port, NULL);
+    if (password)
+        g_object_set(session, "password", password, NULL);
+}
 
 
-void Java_com_iiordanov_aSPICE_SpiceCommunicator_SpiceClientDisconnect (JNIEnv * env, jobject  obj) {
+static void signal_handler(int signal, siginfo_t *info, void *reserved) {
+	kill(getpid(), SIGKILL);
+}
+
+
+JNIEXPORT void JNICALL
+Java_com_iiordanov_aSPICE_SpiceCommunicator_SpiceClientDisconnect (JNIEnv * env, jobject  obj) {
 	maintainConnection = FALSE;
 
 	if (g_main_loop_is_running (mainloop))
         g_main_loop_quit (mainloop);
 }
 
-jint Java_com_iiordanov_aSPICE_SpiceCommunicator_SpiceClientConnect (JNIEnv *env, jobject obj, jstring h, jstring p, jstring pw)
+
+JNIEXPORT jint JNICALL
+Java_com_iiordanov_aSPICE_SpiceCommunicator_SpiceClientConnect (JNIEnv *env, jobject obj, jstring h, jstring p, jstring pw)
 {
     int result = 0;
     maintainConnection = TRUE;
@@ -80,40 +115,12 @@ jint Java_com_iiordanov_aSPICE_SpiceCommunicator_SpiceClientConnect (JNIEnv *env
 	jni_settings_changed = NULL;
 	jni_graphics_update  = NULL;
 	jbitmap              = NULL;
-	jw = 0;
-	jh = 0;
 	return result;
 }
 
-void spice_session_setup(JNIEnv *env, SpiceSession *session, jstring h, jstring p, jstring pw)
-{
-	const char *host = NULL;
-	const char *port = NULL;
-	const char *tls_port = NULL;
-	const char *password = NULL;
-	host = (*env)->GetStringUTFChars(env, h, NULL);
-	port = (*env)->GetStringUTFChars(env, p, NULL);
-	password = (*env)->GetStringUTFChars(env, pw, NULL);
 
-    g_return_if_fail(SPICE_IS_SESSION(session));
-
-    if (host)
-        g_object_set(session, "host", host, NULL);
-    if (port)
-        g_object_set(session, "port", port, NULL);
-    // TODO: Add TLS support.
-    if (tls_port)
-        g_object_set(session, "tls-port", tls_port, NULL);
-    if (password)
-        g_object_set(session, "password", password, NULL);
-}
-
-static void signal_handler(int signal, siginfo_t *info, void *reserved)
-{
-	kill(getpid(), SIGKILL);
-}
-
-jint JNI_OnLoad(JavaVM* vm, void* reserved) {
+JNIEXPORT jint JNICALL
+JNI_OnLoad(JavaVM* vm, void* reserved) {
 	struct sigaction handler;
 	memset(&handler, 0, sizeof(handler));
 	handler.sa_sigaction = signal_handler;
