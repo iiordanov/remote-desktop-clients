@@ -142,7 +142,7 @@ Java_com_iiordanov_aSPICE_SpiceCommunicator_SpiceSetBitmap(JNIEnv* env, jobject 
 JNIEXPORT void JNICALL
 Java_com_iiordanov_aSPICE_SpiceCommunicator_SpiceKeyEvent(JNIEnv * env, jobject  obj, jboolean down, jint hardware_keycode) {
     SpiceDisplay* display = global_display;
-    spice_display* d = SPICE_DISPLAY_GET_PRIVATE(display);
+    SpiceDisplayPrivate* d = SPICE_DISPLAY_GET_PRIVATE(display);
     int scancode;
 
     SPICE_DEBUG("%s %s: keycode: %d", __FUNCTION__, "Key", hardware_keycode);
@@ -163,7 +163,7 @@ Java_com_iiordanov_aSPICE_SpiceCommunicator_SpiceKeyEvent(JNIEnv * env, jobject 
 JNIEXPORT void JNICALL
 Java_com_iiordanov_aSPICE_SpiceCommunicator_SpiceButtonEvent(JNIEnv * env, jobject  obj, jint x, jint y, jint metaState, jint type) {
     SpiceDisplay* display = global_display;
-    spice_display *d = SPICE_DISPLAY_GET_PRIVATE(display);
+    SpiceDisplayPrivate *d = SPICE_DISPLAY_GET_PRIVATE(display);
     //char buf[60];
     //snprintf (buf, 60, "Pointer event: %d at x: %d, y: %d", type, x, y);
     //__android_log_write(6, "android-spice", buf);
@@ -212,7 +212,7 @@ Java_com_iiordanov_aSPICE_SpiceCommunicator_SpiceButtonEvent(JNIEnv * env, jobje
 
 /* Callbacks to the UI layer to request invalidation or a new bitmap. */
 
-void uiCallbackInvalidate (spice_display *d, gint x, gint y, gint w, gint h) {
+void uiCallbackInvalidate (SpiceDisplayPrivate *d, gint x, gint y, gint w, gint h) {
     JNIEnv* env;
     bool attached = attachThreadToJvm (&env);
 

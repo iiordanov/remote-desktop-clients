@@ -30,7 +30,7 @@ G_BEGIN_DECLS
 #include <spice/vd_agent.h>
 
 #define SPICE_DISPLAY_GET_PRIVATE(obj)                                  \
-    (G_TYPE_INSTANCE_GET_PRIVATE((obj), SPICE_TYPE_DISPLAY, spice_display))
+    (G_TYPE_INSTANCE_GET_PRIVATE((obj), SPICE_TYPE_DISPLAY, SpiceDisplayPrivate))
 
 typedef int cairo_surface_t;
 typedef int GtkClipboard;

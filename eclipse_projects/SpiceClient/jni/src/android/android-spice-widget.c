@@ -39,7 +39,7 @@ static void channel_destroy(SpiceSession *s, SpiceChannel *channel, gpointer dat
 static void spice_display_dispose(GObject *obj)
 {
     SpiceDisplay *display = SPICE_DISPLAY(obj);
-    spice_display *d = SPICE_DISPLAY_GET_PRIVATE(display);
+    SpiceDisplayPrivate *d = SPICE_DISPLAY_GET_PRIVATE(display);
 
     SPICE_DEBUG("spice display dispose");
 
@@ -77,14 +77,14 @@ static void spice_display_finalize(GObject *obj)
 
 static void spice_display_class_init(SpiceDisplayClass *klass)
 {
-    g_type_class_add_private(klass, sizeof(spice_display));
+    g_type_class_add_private(klass, sizeof(SpiceDisplayPrivate));
 }
 
 
 static void spice_display_init(SpiceDisplay *display)
 {
     global_display = display;
-    spice_display *d;
+    SpiceDisplayPrivate *d;
 
     d = display->priv = SPICE_DISPLAY_GET_PRIVATE(display);
     memset(d, 0, sizeof(*d));
@@ -113,7 +113,7 @@ static void spice_display_init(SpiceDisplay *display)
 static gboolean do_color_convert(SpiceDisplay *display,
                                  gint x, gint y, gint w, gint h)
 {
-    spice_display *d = SPICE_DISPLAY_GET_PRIVATE(display);
+	SpiceDisplayPrivate *d = SPICE_DISPLAY_GET_PRIVATE(display);
     int i, j, maxy, maxx, miny, minx;
     guint32 *dest = d->data;
     guint16 *src = d->data_origin;
@@ -159,7 +159,7 @@ static gboolean do_color_convert(SpiceDisplay *display,
 
 void send_key(SpiceDisplay *display, int scancode, int down)
 {
-    spice_display *d = SPICE_DISPLAY_GET_PRIVATE(display);
+	SpiceDisplayPrivate *d = SPICE_DISPLAY_GET_PRIVATE(display);
     uint32_t i, b, m;
 
     if (!d->inputs)
@@ -189,7 +189,7 @@ static void primary_create(SpiceChannel *channel, gint format, gint width, gint 
 
     //fprintf(stderr,"%s:%s:%d:%p\n",__FILE__,__FUNCTION__,__LINE__,(char*)data);
     SpiceDisplay *display = data;
-    spice_display *d = SPICE_DISPLAY_GET_PRIVATE(display);
+    SpiceDisplayPrivate *d = SPICE_DISPLAY_GET_PRIVATE(display);
 
     d->format = format;
     d->stride = stride;
@@ -208,7 +208,7 @@ static void primary_create(SpiceChannel *channel, gint format, gint width, gint 
 static void primary_destroy(SpiceChannel *channel, gpointer data)
 {
     SpiceDisplay *display = SPICE_DISPLAY(data);
-    spice_display *d = SPICE_DISPLAY_GET_PRIVATE(display);
+    SpiceDisplayPrivate *d = SPICE_DISPLAY_GET_PRIVATE(display);
 
     //spicex_image_destroy(display);
     d->format = 0;
@@ -228,7 +228,7 @@ static void invalidate(SpiceChannel *channel,
     if (!do_color_convert(display, x, y, w, h))
         return;
 
-    spice_display *d = SPICE_DISPLAY_GET_PRIVATE(display);
+    SpiceDisplayPrivate *d = SPICE_DISPLAY_GET_PRIVATE(display);
 
 	if (maintainConnection == FALSE || jbitmap == NULL || x + w > d->width || y + h > d->height) {
 		__android_log_write(6, "android-spice", "Not drawing.");
@@ -241,13 +241,13 @@ static void invalidate(SpiceChannel *channel,
 static void mark(SpiceChannel *channel, gint mark, gpointer data) {
 	//__android_log_write(6, "android-spice", "mark");
     SpiceDisplay *display = data;
-    spice_display *d = SPICE_DISPLAY_GET_PRIVATE(display);
+    SpiceDisplayPrivate *d = SPICE_DISPLAY_GET_PRIVATE(display);
     d->mark = mark;
 }
 
 static void disconnect_main(SpiceDisplay *display)
 {
-    spice_display *d = SPICE_DISPLAY_GET_PRIVATE(display);
+	SpiceDisplayPrivate *d = SPICE_DISPLAY_GET_PRIVATE(display);
     //gint i;
 
     if (d->main == NULL)
@@ -264,7 +264,7 @@ static void disconnect_main(SpiceDisplay *display)
 
 static void disconnect_display(SpiceDisplay *display)
 {
-    spice_display *d = SPICE_DISPLAY_GET_PRIVATE(display);
+	SpiceDisplayPrivate *d = SPICE_DISPLAY_GET_PRIVATE(display);
 
     if (d->display == NULL)
         return;
@@ -280,7 +280,7 @@ static void disconnect_display(SpiceDisplay *display)
 static void channel_new(SpiceSession *s, SpiceChannel *channel, gpointer data)
 {
     SpiceDisplay *display = data;
-    spice_display *d = SPICE_DISPLAY_GET_PRIVATE(display);
+    SpiceDisplayPrivate *d = SPICE_DISPLAY_GET_PRIVATE(display);
     int id;
 
     g_object_get(channel, "channel-id", &id, NULL);
@@ -353,7 +353,7 @@ static void channel_new(SpiceSession *s, SpiceChannel *channel, gpointer data)
 static void channel_destroy(SpiceSession *s, SpiceChannel *channel, gpointer data)
 {
     SpiceDisplay *display = data;
-    spice_display *d = SPICE_DISPLAY_GET_PRIVATE(display);
+    SpiceDisplayPrivate *d = SPICE_DISPLAY_GET_PRIVATE(display);
     int id;
 
     g_object_get(channel, "channel-id", &id, NULL);
@@ -403,7 +403,7 @@ static void channel_destroy(SpiceSession *s, SpiceChannel *channel, gpointer dat
 SpiceDisplay *spice_display_new(SpiceSession *session, int id)
 {
     SpiceDisplay *display;
-    spice_display *d;
+    SpiceDisplayPrivate *d;
     GList *list;
     GList *it;
 

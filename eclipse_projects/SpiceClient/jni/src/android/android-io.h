@@ -21,5 +21,5 @@ typedef unsigned char uchar;
 
 void copy_pixel_buffer(uchar* dest, uchar* source, int x, int y, int width, int height, int buffwidth, int buffheight, int bpp);
 
-void uiCallbackInvalidate (spice_display *d, gint x, gint y, gint w, gint h);
+void uiCallbackInvalidate (SpiceDisplayPrivate *d, gint x, gint y, gint w, gint h);
 void uiCallbackSettingsChanged (gint instance, gint width, gint height, gint bpp);

@@ -38,11 +38,11 @@ G_BEGIN_DECLS
 
 typedef struct _SpiceDisplay SpiceDisplay;
 typedef struct _SpiceDisplayClass SpiceDisplayClass;
-typedef struct _SpiceDisplayPrivate spice_display;
+typedef struct _SpiceDisplayPrivate SpiceDisplayPrivate;
 
 struct _SpiceDisplay {
     SpiceChannel parent;
-    spice_display *priv;
+    SpiceDisplayPrivate *priv;
     /* Do not add fields to this struct */
 };
 
