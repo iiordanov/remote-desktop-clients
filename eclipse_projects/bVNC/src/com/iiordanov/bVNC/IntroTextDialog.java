@@ -47,6 +47,8 @@ class IntroTextDialog extends Dialog {
 	
 	static IntroTextDialog dialog = null;
 	
+	private boolean donate = false;
+	
 	static void showIntroTextIfNecessary(Activity context, VncDatabase database, boolean force) {
 		PackageInfo pi;
 		try {
@@ -78,11 +80,22 @@ class IntroTextDialog extends Dialog {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+
+		String pkgName = this.getContext().getPackageName();
+		if (pkgName.contains("free") || ! (pkgName.contains("bVNC")))
+			donate = true;
+				
 		setContentView(R.layout.intro_dialog);
 		getWindow().setLayout(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT);
+
 		StringBuilder sb = new StringBuilder(getContext().getResources().getString(R.string.intro_title));
 		setTitle(sb);
 		sb.delete(0, sb.length());
+		if (donate) {
+			sb.append("<a href=\"market://details?id=com.iiordanov.bVNC\">" + 
+					getContext().getResources().getString(R.string.ad_donate_text) + "</a>");
+			sb.append("<br>");
+		}
 		sb.append(getContext().getResources().getString(R.string.intro_header));
 		sb.append(getContext().getResources().getString(R.string.intro_text));
 		sb.append("\n");
