@@ -1513,6 +1513,11 @@ class RfbProto implements RfbConnectable {
 	}
 
 	@Override
+	public void setIsInNormalProtocol(boolean state) {
+	  	this.inNormalProtocol = state;
+	}
+	
+	@Override
 	public boolean isInNormalProtocol() {
 		return this.inNormalProtocol;
 	}

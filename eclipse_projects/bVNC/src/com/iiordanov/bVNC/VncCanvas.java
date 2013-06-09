@@ -39,6 +39,7 @@ import java.security.cert.X509Certificate;
 import java.util.Timer;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.app.ActivityManager.MemoryInfo;
 import android.content.Context;
@@ -67,6 +68,8 @@ import com.freerdp.freerdpcore.domain.ManualBookmark;
 import com.freerdp.freerdpcore.services.LibFreeRDP;
 import com.iiordanov.android.bc.BCFactory;
 import com.iiordanov.bVNC.input.RemoteRdpKeyboard;
+import com.iiordanov.bVNC.input.RemoteSpiceKeyboard;
+import com.iiordanov.bVNC.input.RemoteSpicePointer;
 import com.iiordanov.bVNC.input.RemoteVncKeyboard;
 import com.iiordanov.bVNC.input.RemoteVncPointer;
 import com.iiordanov.bVNC.input.RemoteKeyboard;
@@ -93,6 +96,7 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 	private RfbProto rfb            = null;
 	private CConn cc                = null;
 	private RdpCommunicator rdpcomm = null;
+	private SpiceCommunicator spicecomm = null;
 	private Socket sock             = null;
 
 	boolean maintainConnection = true;
@@ -114,6 +118,9 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 	GlobalApp freeRdpApp = null;
 	SessionState session = null;
 
+	// Progress dialog shown at connection time.
+	ProgressDialog pd;
+	
 	// Handler for the dialog that displays the x509/RDP key signatures to the user.
 	// TODO: Also handle the SSH certificate validation here.
 	public Handler handler = new Handler() {
@@ -127,6 +134,23 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 	        	Bundle s = (Bundle)msg.obj;
 	        	validateRdpCert (s.getString("subject"), s.getString("issuer"), s.getString("fingerprint"));
 	            break;
+	        case VncConstants.SPICE_CONNECT_SUCCESS:
+				synchronized(spicecomm) {
+					spicecomm.notifyAll();
+				}
+	        	break;
+	        case VncConstants.SPICE_CONNECT_FAILURE:
+	        	// If we were intending to maintainConnection, and the connection failed, show an error message.
+	        	if (maintainConnection) {
+	        		if (pd != null && pd.isShowing())
+	        			pd.dismiss();
+		    		if (!spiceUpdateReceived) {
+		    			showFatalMessageAndQuit("Unable to connect, please check SPICE server address, port, and password.");
+		    		} else {
+		    			showFatalMessageAndQuit("SPICE connection interrupted.");
+		    		}
+	        	}
+	        	break;
 	        }
 	    }
 	};
@@ -293,7 +317,12 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 	/*
 	 * This flag indicates whether this is the RDP 'version' or not.
 	 */
-	boolean isRDP = false;
+	boolean isRdp = false;
+
+	/*
+	 * This flag indicates whether this is the SPICE 'version' or not.
+	 */
+	boolean isSpice = false;
 
 	/**
 	 * Constructor used by the inflation apparatus
@@ -313,8 +342,15 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 
 		decoder = new Decoder (this);
 		
-		isRDP = getContext().getPackageName().contains("RDP");
+		isRdp   = getContext().getPackageName().contains("RDP");
+		isSpice = getContext().getPackageName().contains("SPICE");
 	}
+
+    private void startSpice(String ip, String port, String password) throws Exception {
+    	spicecomm.connect(ip, port, password);
+    }
+
+    boolean spiceUpdateReceived = false;
 
 	/**
 	 * Create a view showing a VNC connection
@@ -329,10 +365,9 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 		database = db;
 		decoder.setColorModel(COLORMODEL.valueOf(bean.getColorModel()));
 
-		// Startup the RFB thread with a nifty progress dialog
-		final ProgressDialog pd = ProgressDialog.show(getContext(), 
-													  "Connecting...", "Establishing handshake.\nPlease wait...", true,
-													  true, new DialogInterface.OnCancelListener() {
+		// Startup the connection thread with a progress dialog
+		pd = ProgressDialog.show(getContext(), "Connecting...", "Establishing handshake.\nPlease wait...",
+				true, true, new DialogInterface.OnCancelListener() {
 			@Override
 			public void onCancel(DialogInterface dialog) {
 				closeConnection();
@@ -353,7 +388,33 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 		Thread t = new Thread () {
 			public void run() {
 			    try {
-			    	if (isRDP) {
+			    	if (isSpice) {
+			    		// TODO: Refactor code.
+			    		
+			    		// Get the address and port (based on whether an SSH tunnel is being established or not).
+			    		String address = getVNCAddress();
+			    		int port = getVNCPort();
+			    		
+				    	spicecomm = new SpiceCommunicator ();
+				    	rfbconn = spicecomm;
+			    		pointer = new RemoteSpicePointer (rfbconn, VncCanvas.this, handler);
+			    		keyboard = new RemoteSpiceKeyboard (rfbconn, VncCanvas.this, handler);
+			    		spicecomm.setUIEventListener(VncCanvas.this);
+			    		spicecomm.setHandler(handler);
+			    		startSpice(address, Integer.toString(port), connection.getPassword());
+			    		
+			    		try {
+			    			synchronized(spicecomm) {
+			    				spicecomm.wait(32000);
+			    			}
+			    		} catch (InterruptedException e) {}
+
+			    		if (!spiceUpdateReceived) {
+							handler.sendEmptyMessage(VncConstants.SPICE_CONNECT_FAILURE);
+			    		} else {
+			    			pd.dismiss();
+			    		}
+			    	} else if (isRdp) {
 			    		// TODO: Refactor code.
 
 			    		// Get the address and port (based on whether an SSH tunnel is being established or not).
@@ -452,7 +513,7 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 							pd.dismiss();
 	
 						if (e instanceof OutOfMemoryError) {
-							System.gc();
+							disposeDrawable ();
 							showFatalMessageAndQuit("Unable to allocate sufficient memory to draw remote screen. " +
 									"To fix this, it's best to restart the application. " +
 									"As a last resort, you may try restarting your device.");
@@ -534,8 +595,7 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 	 */
 	String getVNCAddress() throws Exception {
 		if (connection.getConnectionType() == VncConstants.CONN_TYPE_SSH) {
-			sshConnection = new SSHConnection(connection);
-			return new String("localhost");
+			return new String("127.0.0.1");
 		} else
 			return connection.getAddress();
 	}
@@ -586,7 +646,7 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 			android.util.Log.i(TAG, "Using LargeBitmapData.");
 		} else {
 			try {
-				// TODO: Remove this if Android 4.2 receives a fix which causes it to stop drawing
+				// TODO: Remove this if Android 4.2 receives a fix for a bug which causes it to stop drawing
 				// the bitmap in CompactBitmapData when under load (say playing a video over VNC).
 		        if (!compact || android.os.Build.VERSION.SDK_INT == 17) {
 					bitmapData=new FullBufferBitmapData(rfbconn, this, capacity);
@@ -596,10 +656,8 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 		        	android.util.Log.i(TAG, "Using CompactBufferBitmapData.");
 		        }
 			} catch (Throwable e) { // If despite our efforts we fail to allocate memory, use LBBM.
-				if (bitmapData != null)
-					bitmapData.dispose();
-				bitmapData = null;
-				System.gc();
+				disposeDrawable ();
+
 				useFull = false;
 				bitmapData=new LargeBitmapData(rfbconn, this, dx, dy, capacity);
 				android.util.Log.i(TAG, "Using LargeBitmapData.");
@@ -621,6 +679,13 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 		return connection.getFollowPan();
 	}
 
+	private void disposeDrawable () {
+		if (bitmapData != null)
+			bitmapData.dispose();
+		bitmapData = null;
+		System.gc();
+	}
+	
 	public void updateFBSize () {
 		try {
 			bitmapData.frameBufferSizeChanged ();
@@ -629,10 +694,7 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 			
 			// If we've run out of memory, try using another bitmapdata type.
 			if (e instanceof OutOfMemoryError) {
-				if (bitmapData != null)
-					bitmapData.dispose();
-				bitmapData = null;
-				System.gc();
+				disposeDrawable ();
 
 				// If we were using CompactBitmapData, try FullBufferBitmapData.
 				if (compact == true) {
@@ -647,10 +709,8 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 
 				// Failing FullBufferBitmapData or if we weren't using CompactBitmapData, try LBBM.
 				if (useLBBM) {
-					if (bitmapData != null)
-						bitmapData.dispose();
-					bitmapData = null;
-					System.gc();
+					disposeDrawable ();
+
 					useFull = false;
 					bitmapData = new LargeBitmapData(rfbconn, this, getWidth(), getHeight(), capacity);
 				}
@@ -791,10 +851,7 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 		screenMessage    = null;
 		desktopInfo      = null;
 
-		if (bitmapData != null)
-			bitmapData.dispose();
-		bitmapData       = null;
-		System.gc();
+		disposeDrawable ();
 	}
 
 	public void removeCallbacksAndMessages() {
@@ -1182,7 +1239,16 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 	@Override
 	public void OnSettingsChanged(int width, int height, int bpp) {
 		android.util.Log.e(TAG, "onSettingsChanged called.");
+		
+		// If this is aSPICE, we need to initialize the communicator and remote keyboard and mouse now.
+		if (isSpice) {
+	    	spicecomm.setFramebufferWidth(width);
+	    	spicecomm.setFramebufferHeight(height);
+		}
+		
+		disposeDrawable ();
 		try {
+			// TODO: Use frameBufferSizeChanged instead.
 			bitmapData = new CompactBitmapData(rfbconn, this);
 		} catch (Throwable e) {
 			showFatalMessageAndQuit ("Your device is out of memory! Restart the app and failing that, restart your device. " +
@@ -1191,13 +1257,21 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 		}
     	android.util.Log.i(TAG, "Using CompactBufferBitmapData.");
 
-		// TODO: Pointer is not visible with xrdp for some reason, test with windows.
+		// TODO: In RDP mode, pointer is not visible, so we use a soft cursor.
 		initializeSoftCursor();
     	
     	// Set the drawable for the canvas, now that we have it (re)initialized.
     	handler.post(drawableSetter);
 		handler.post(setModes);
 		handler.post(desktopInfo);
+		
+		// If this is aSPICE, set the new bitmap in the native layer.
+		if (isSpice) {
+    		spiceUpdateReceived = true;
+    		rfbconn.setIsInNormalProtocol(true);
+    		spicecomm.SpiceSetBitmap(bitmapData.mbitmap);
+    		handler.sendEmptyMessage(VncConstants.SPICE_CONNECT_SUCCESS);
+		}
 	}
 
 	@Override
@@ -1233,23 +1307,15 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 	@Override
 	public void OnGraphicsUpdate(int x, int y, int width, int height) {
 		//android.util.Log.e(TAG, "OnGraphicsUpdate called: " + x +", " + y + " + " + width + "x" + height );
-		if (bitmapData != null)
+		if (isRdp)
 			LibFreeRDP.updateGraphics(session.getInstance(), bitmapData.mbitmap, x, y, width, height);
-
-		reDraw(x, y, x+width, y+height);
-		//postInvalidate();
+		
+		reDraw(x, y, width, height);
 	}
 
 	@Override
 	public void OnGraphicsResize(int width, int height, int bpp) {
 		android.util.Log.e(TAG, "OnGraphicsResize called.");
-		try {
-			bitmapData = new CompactBitmapData(rfbconn, this);
-		} catch (Throwable e) {
-			showFatalMessageAndQuit ("Your device is out of memory! Restart the app and failing that, restart your device. " +
-									 "If neither helps, try setting a smaller remote desktop size in the advanced settings.");
-			return;
-		}
-		android.util.Log.i(TAG, "Using CompactBufferBitmapData.");
+		OnSettingsChanged(width, height, bpp);
 	}
 }

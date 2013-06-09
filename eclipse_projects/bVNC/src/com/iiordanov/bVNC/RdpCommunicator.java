@@ -35,6 +35,7 @@ public class RdpCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyPro
 		this.session = session;
 	}
 
+	@Override
 	public void setIsInNormalProtocol (boolean state) {
 		isInNormalProtocol = state;
 	}
@@ -158,11 +159,6 @@ public class RdpCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyPro
 
 	@Override
 	public void modifiersChanged() {
-		updateModifierKeyStates();							
-	}
-
-	// update the state of our modifier keys
-	private void updateModifierKeyStates() {
-		//TODO: See if this is necessary.
+		// This is functionality specific to aFreeRDP.
 	}
 }

@@ -31,6 +31,8 @@ class CompactBitmapData extends AbstractBitmapData {
 	 * safety factor
 	 */
 	static final int CAPACITY_MULTIPLIER = 7;
+	boolean isSpice = false;
+	Bitmap.Config cfg = Bitmap.Config.RGB_565;
 	
 	class CompactBitmapDrawable extends AbstractBitmapDrawable {
 		
@@ -58,7 +60,12 @@ class CompactBitmapData extends AbstractBitmapData {
 		// To please createBitmap, we ensure the size it at least 1x1.
 		if (bitmapwidth  == 0) bitmapwidth  = 1;
 		if (bitmapheight == 0) bitmapheight = 1;
-		mbitmap = Bitmap.createBitmap(bitmapwidth, bitmapheight, Bitmap.Config.RGB_565);
+
+		isSpice = c.getContext().getPackageName().contains("SPICE");
+		if (isSpice)
+			cfg = Bitmap.Config.ARGB_8888;
+		
+		mbitmap = Bitmap.createBitmap(bitmapwidth, bitmapheight, cfg);
 		memGraphics = new Canvas(mbitmap);
 		bitmapPixels = new int[bitmapwidth * bitmapheight];
 		drawable.startDrawing();
@@ -165,7 +172,7 @@ class CompactBitmapData extends AbstractBitmapData {
 			bitmapwidth  = framebufferwidth;
 			bitmapheight = framebufferheight;
 			bitmapPixels = new int[bitmapwidth * bitmapheight];
-			mbitmap      = Bitmap.createBitmap(bitmapwidth, bitmapheight, Bitmap.Config.RGB_565);
+			mbitmap      = Bitmap.createBitmap(bitmapwidth, bitmapheight, cfg);
 			memGraphics  = new Canvas(mbitmap);
 			drawable     = createDrawable();
 			drawable.startDrawing();

@@ -321,7 +321,7 @@ public class SSHConnection implements InteractiveCallback {
 		int portsTried = 0;
 		while (portsTried < numPortTries) {
 			try {
-				connection.createLocalPortForwarder(new InetSocketAddress("localhost", localPortStart + portsTried),
+				connection.createLocalPortForwarder(new InetSocketAddress("127.0.0.1", localPortStart + portsTried),
 													remoteHost, remotePort);
 				return localPortStart + portsTried;
 			} catch (IOException e) {

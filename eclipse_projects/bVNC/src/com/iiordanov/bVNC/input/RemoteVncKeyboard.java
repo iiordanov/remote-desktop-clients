@@ -29,7 +29,7 @@ public class RemoteVncKeyboard extends RemoteKeyboard {
 			RemotePointer pointer = vncCanvas.getPointer();
 			boolean down = (evt.getAction() == KeyEvent.ACTION_DOWN) ||
 						   (evt.getAction() == KeyEvent.ACTION_MULTIPLE);
-			
+			boolean unicode = false;
 			int metaState = 0, numchars = 1;
 			int keyboardMetaState = evt.getMetaState();
 
@@ -122,6 +122,7 @@ public class RemoteVncKeyboard extends RemoteKeyboard {
 		   			  key = evt.getCharacters().charAt(0);
 		   			  keysym = UnicodeToKeysym.translate(key);
 		   			  numchars = evt.getCharacters().length();
+		   			  unicode = true;
 		   		  }
 	    		  break;
 		      default: 							  
@@ -185,7 +186,10 @@ public class RemoteVncKeyboard extends RemoteKeyboard {
 					   rfb.writeKeyEvent(keysym, (onScreenMetaState|hardwareMetaState|metaState), true);
 				   
 				   rfb.writeKeyEvent(keysym, (onScreenMetaState|hardwareMetaState|metaState), down);
-
+				   // If this is a unicode key, the up event will never come, so we artificially insert it.
+				   if (unicode)
+					   rfb.writeKeyEvent(keysym, (onScreenMetaState|hardwareMetaState|metaState), false);
+				   
 				   // TODO: UGLY HACK for BB10 devices which never send the up-event
 				   // for space, backspace and enter... so we send it instead. Remove as soon as possible!
 				   if (bb10 && (keyCode == KeyEvent.KEYCODE_SPACE || keyCode == KeyEvent.KEYCODE_DEL ||
@@ -197,7 +201,8 @@ public class RemoteVncKeyboard extends RemoteKeyboard {
 					   key = evt.getCharacters().charAt(i);
 					   //Log.e(TAG,"action down? = " + down + " key = " + key + " keysym = " + keysym + " onscreen metastate = " + onScreenMetaState + " keyboard metastate = " + keyboardMetaState + " RFB metastate = " + metaState + " keycode = " + keyCode + " unicode = " + evt.getUnicodeChar());
 					   keysym = UnicodeToKeysym.translate(key);
-					   rfb.writeKeyEvent(keysym, (onScreenMetaState|hardwareMetaState|metaState), down);
+					   rfb.writeKeyEvent(keysym, (onScreenMetaState|hardwareMetaState|metaState), true);
+					   rfb.writeKeyEvent(keysym, (onScreenMetaState|hardwareMetaState|metaState), false);
 				   }
 			   }
 		   } catch (Exception e) {

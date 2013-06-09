@@ -27,6 +27,7 @@ public interface RfbConnectable {
 	String desktopName ();
 	void requestUpdate (boolean incremental);
 	void writeClientCutText (String text);
+	public void setIsInNormalProtocol (boolean state);
 	boolean isInNormalProtocol();
 	String getEncoding ();
 	void writePointerEvent(int x, int y, int metaState, int pointerMask);
