@@ -305,7 +305,8 @@ public class RemoteRdpPointer implements RemotePointer {
 				prevPointerMask = pointerMask;
 			}
 			
-			if (mouseIsDown /*&& pointerMask != MOUSE_BUTTON_MOVE*/) {
+			// Xrdp doesn't like it when we add ptrflags_down to scroll events...
+			if (mouseIsDown && !useScrollButton) {
 				//android.util.Log.e(TAG, "Mouse pointer is down");
 				pointerMask = pointerMask | PTRFLAGS_DOWN;
 			} else {

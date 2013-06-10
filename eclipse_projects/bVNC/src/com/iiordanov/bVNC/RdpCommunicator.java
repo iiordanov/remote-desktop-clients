@@ -146,10 +146,35 @@ public class RdpCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyPro
 
 	@Override
 	public void processUnicodeKey(int unicodeKey) {
-		//android.util.Log.e("RdpCommunicator", "Sending unicode: " + unicodeKey);
-		sendModifierKeys(true);
-		LibFreeRDP.sendUnicodeKeyEvent(session.getInstance(), unicodeKey);
-		sendModifierKeys(false);
+		boolean addShift = false;
+		int keyToSend = -1;
+		int tempMeta = 0;
+		
+		// Workarounds for some pesky keys (xrdp needs this for / and ?).
+		if (unicodeKey == 64) {
+			addShift = true;
+			keyToSend = 0x32;
+		} else if (unicodeKey == 47) {
+			keyToSend = 0xBF;
+		} else if (unicodeKey == 63) {
+			addShift = true;			
+			keyToSend = 0xBF;
+		}
+		
+		if (keyToSend != -1) {
+			tempMeta = metaState;
+			if (addShift) {
+				metaState = metaState |  RemoteKeyboard.SHIFT_MASK;
+			}
+			processVirtualKey(keyToSend, true);
+			processVirtualKey(keyToSend, false);
+			metaState = tempMeta;
+		} else {
+			//android.util.Log.e("RdpCommunicator", "Sending unicode: " + unicodeKey);
+			sendModifierKeys(true);
+			LibFreeRDP.sendUnicodeKeyEvent(session.getInstance(), unicodeKey);
+			sendModifierKeys(false);
+		}
 	}
 
 	@Override
