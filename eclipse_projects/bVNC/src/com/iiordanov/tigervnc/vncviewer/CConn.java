@@ -990,4 +990,10 @@ public class CConn extends CConnection
   AbstractConnectionBean connection;
   
   static LogWriter vlog = new LogWriter("CConn");
+
+@Override
+public void requestResolution(int x, int y) {
+	// TODO Auto-generated method stub
+	
+}
 }

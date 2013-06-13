@@ -212,20 +212,15 @@ void send_key(SpiceDisplay *display, int scancode, int down)
 static void primary_create(SpiceChannel *channel, gint format, gint width, gint height, gint stride, gint shmid, gpointer imgdata, gpointer data) {
 	__android_log_write(6, "android-spice", "primary_create");
 
-    //fprintf(stderr,"%s:%s:%d:%p\n",__FILE__,__FUNCTION__,__LINE__,(char*)data);
     SpiceDisplay *display = data;
     SpiceDisplayPrivate *d = SPICE_DISPLAY_GET_PRIVATE(display);
 
     d->format = format;
     d->stride = stride;
-    d->shmid  = shmid;
+    d->shmid = shmid;
+    d->width = width;
+    d->height = height;
     d->data_origin = d->data = imgdata;
-
-    SPICE_DEBUG("%s:%s:%d:%p\n\t%d:%d\n",__FILE__, __FUNCTION__,__LINE__,(char*)d->data,width,height);
-    if (d->width != width || d->height != height) {
-        d->width  = width;
-        d->height = height;
-    }
 
     uiCallbackSettingsChanged (0, width, height, 4);
 }
@@ -304,6 +299,8 @@ static void disconnect_display(SpiceDisplay *display)
 
 static void channel_new(SpiceSession *s, SpiceChannel *channel, gpointer data)
 {
+	__android_log_write(6, "android-spice", "channel_new");
+
     SpiceDisplay *display = data;
     SpiceDisplayPrivate *d = SPICE_DISPLAY_GET_PRIVATE(display);
     int id;
