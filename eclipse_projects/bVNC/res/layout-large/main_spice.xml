@@ -187,6 +187,46 @@ android:layout_height="fill_parent">
         android:visibility="gone"
         android:padding="5dip"
         android:orientation="vertical">
+	    
+        <TextView
+	  	    android:id="@+id/textDescriptGeom"
+	  	    android:layout_width="wrap_content"
+	  	    android:layout_height="wrap_content"
+	  	    android:text="@string/rdp_descript_geom"
+	  	    android:textAppearance="?android:attr/textAppearanceLarge"/>
+	    
+		<LinearLayout
+	        android:layout_width="fill_parent"
+	        android:layout_height="wrap_content"
+	        android:orientation="horizontal">
+		    <Spinner 
+		        android:id="@+id/spinnerRdpGeometry" 
+		        android:layout_width="wrap_content"
+	    	    android:layout_height="wrap_content"
+		        android:layout_weight="0.4"
+			    android:entries="@array/rdp_geometry"
+	    	    android:textAppearance="?android:attr/textAppearanceLarge"/>
+		    <EditText
+		        android:id="@+id/rdpWidth"
+	            android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        android:layout_weight="0.3"
+		        android:singleLine="true"
+		        android:textAppearance="?android:attr/textAppearanceLarge" />
+	  	    <TextView
+	            android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        android:text="x"
+		        android:textAppearance="?android:attr/textAppearanceLarge" />
+		    <EditText
+		        android:id="@+id/rdpHeight"
+	            android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        android:layout_weight="0.3"
+		        android:singleLine="true"
+		        android:textAppearance="?android:attr/textAppearanceLarge" />
+		</LinearLayout>
+        
 	   <TextView
 	  	    android:layout_width="wrap_content"
 	  	    android:layout_height="wrap_content"

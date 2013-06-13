@@ -30,7 +30,7 @@
 void updatePixels (uchar* dest, uchar* source, int x, int y, int width, int height, int buffwidth, int buffheight, int bpp) {
 	//char buf[100];
     //snprintf (buf, 100, "Drawing x: %d, y: %d, w: %d, h: %d, wBuf: %d, hBuf: %d, bpp: %d", x, y, width, height, wBuf, hBuf, bpp);
-	//__android_log_write(6, "android-spice", buf);
+	//__android_log_write(6, "android-io", buf);
 	int plen = width * bpp;
 	int slen = buffwidth * bpp;
 	uchar *sourcepix = (uchar*) &source[(slen * y) + (x * bpp)];
@@ -60,10 +60,10 @@ void updatePixels (uchar* dest, uchar* source, int x, int y, int width, int heig
 gboolean updateBitmap (JNIEnv* env, jobject* bitmap, void *source, gint x, gint y, gint width, gint height, gint sourceWidth, gint sourceHeight) {
 	void* pixels;
 	if (AndroidBitmap_lockPixels(env, bitmap, &pixels) < 0) {
-		__android_log_write(6, "android-spice", "AndroidBitmap_lockPixels() failed!");
+		__android_log_write(6, "android-io", "AndroidBitmap_lockPixels() failed!");
 		return FALSE;
 	}
-	//__android_log_write(6, "android-spice", "Copying new data into pixels.");
+	//__android_log_write(6, "android-io", "Copying new data into pixels.");
 	updatePixels (pixels, source, x, y, width, height, sourceWidth, sourceHeight, 4);
 	AndroidBitmap_unlockPixels(env, bitmap);
 	return TRUE;
@@ -76,7 +76,7 @@ int win32key2spice (int keycode)
 	/*
 	char buf[100];
     snprintf (buf, 100, "Converted win32 key: %d to linux key: %d", keycode, newKeyCode);
-	__android_log_write(6, "android-spice", buf);
+	__android_log_write(6, "android-io", buf);
 	*/
     return newKeyCode;
 }
@@ -91,7 +91,7 @@ inline bool attachThreadToJvm (JNIEnv** env) {
     case JNI_EDETACHED:
     	rs2 = (*jvm)->AttachCurrentThread(jvm, env, NULL);
     	if (rs2 != JNI_OK) {
-    		__android_log_write(6, "android-spice", "ERROR: Could not attach current thread to jvm.");
+    		__android_log_write(6, "android-io", "ERROR: Could not attach current thread to jvm.");
     	} else {
     		attached = true;
     	}
@@ -131,11 +131,42 @@ static int update_mask (int button, gboolean down) {
 
 JNIEXPORT void JNICALL
 Java_com_iiordanov_aSPICE_SpiceCommunicator_SpiceSetBitmap(JNIEnv* env, jobject obj, jobject bitmap) {
-	__android_log_write(6, "android-spice", "Setting new jbitmap from Java.");
+	__android_log_write(6, "android-io", "Setting new jbitmap from Java.");
 	jbitmap = bitmap;
 
 	// TODO: Can I lock all the pixels and make every 4th uint8 0xFF now and avoid doing so when
 	// copying the pixels? It should give me a 25% performance boost when copying the pixels.
+}
+
+
+static gint get_display_id(SpiceDisplay *display)
+{
+    SpiceDisplayPrivate *d = SPICE_DISPLAY_GET_PRIVATE(display);
+
+    /* supported monitor_id only with display channel #0 */
+    if (d->channel_id == 0 && d->monitor_id >= 0)
+        return d->monitor_id;
+
+    g_return_val_if_fail(d->monitor_id <= 0, -1);
+
+    return d->channel_id;
+}
+
+
+JNIEXPORT void JNICALL
+Java_com_iiordanov_aSPICE_SpiceCommunicator_SpiceRequestResolution(JNIEnv* env, jobject obj, jint x, jint y) {
+    SpiceDisplay* display = global_display;
+    SpiceDisplayPrivate *d = SPICE_DISPLAY_GET_PRIVATE(display);
+
+    spice_main_update_display(d->main, get_display_id(display), 0, 0, x, y, TRUE);
+    spice_main_set_display_enabled(d->main, -1, TRUE);
+    // TODO: Sending the monitor config right away may be causing guest OS to shut down.
+	/*
+    if (spice_main_send_monitor_config(d->main)) {
+        __android_log_write(6, "android-io", "Successfully sent monitor config");
+    } else {
+        __android_log_write(6, "android-io", "Failed to send monitor config");
+    }*/
 }
 
 
@@ -166,7 +197,7 @@ Java_com_iiordanov_aSPICE_SpiceCommunicator_SpiceButtonEvent(JNIEnv * env, jobje
     SpiceDisplayPrivate *d = SPICE_DISPLAY_GET_PRIVATE(display);
     //char buf[60];
     //snprintf (buf, 60, "Pointer event: %d at x: %d, y: %d", type, x, y);
-    //__android_log_write(6, "android-spice", buf);
+    //__android_log_write(6, "android-io", buf);
 
     if (!d->inputs || (x >= 0 && x < d->width && y >= 0 && y < d->height)) {
 
@@ -178,11 +209,11 @@ Java_com_iiordanov_aSPICE_SpiceCommunicator_SpiceButtonEvent(JNIEnv * env, jobje
 		gint dy;
 	    switch (d->mouse_mode) {
 	    case SPICE_MOUSE_MODE_CLIENT:
-	        //__android_log_write(6, "android-spice", "spice mouse mode client");
+	        //__android_log_write(6, "android-io", "spice mouse mode client");
 			spice_inputs_position(d->inputs, x, y, d->channel_id, newMask);
 	        break;
 	    case SPICE_MOUSE_MODE_SERVER:
-	        //__android_log_write(6, "android-spice", "spice mouse mode server");
+	        //__android_log_write(6, "android-io", "spice mouse mode server");
 	        dx = d->mouse_last_x != -1 ? x - d->mouse_last_x : 0;
 	        dy = d->mouse_last_y != -1 ? y - d->mouse_last_y : 0;
 	        spice_inputs_motion(d->inputs, dx, dy, newMask);
@@ -196,10 +227,10 @@ Java_com_iiordanov_aSPICE_SpiceCommunicator_SpiceButtonEvent(JNIEnv * env, jobje
 
 		if (mouseButton != SPICE_MOUSE_BUTTON_INVALID) {
 			if (down) {
-			    //__android_log_write(6, "android-spice", "Button press");
+			    //__android_log_write(6, "android-io", "Button press");
 				spice_inputs_button_press(d->inputs, mouseButton, newMask);
 			} else {
-			    //__android_log_write(6, "android-spice", "Button release");
+			    //__android_log_write(6, "android-io", "Button release");
 			    // This sleep is an ugly hack to prevent stuck buttons after a drag/drop gesture.
 			    usleep(50000);
 				spice_inputs_button_release(d->inputs, mouseButton, newMask);

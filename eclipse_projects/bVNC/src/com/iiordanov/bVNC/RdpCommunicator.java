@@ -186,4 +186,10 @@ public class RdpCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyPro
 	public void modifiersChanged() {
 		// This is functionality specific to aFreeRDP.
 	}
+
+	@Override
+	public void requestResolution(int x, int y) {
+		// TODO Auto-generated method stub
+		
+	}
 }

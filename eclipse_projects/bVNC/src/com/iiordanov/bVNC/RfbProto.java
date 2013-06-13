@@ -1720,4 +1720,11 @@ class RfbProto implements RfbConnectable {
 		closeSocket();
 	}
 
+
+	@Override
+	public void requestResolution(int x, int y) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

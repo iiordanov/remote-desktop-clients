@@ -16,6 +16,7 @@ public class SpiceCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyP
 	public native void SpiceButtonEvent (int x, int y, int metaState, int pointerMask);
 	public native void SpiceKeyEvent (boolean keyDown, int virtualKeyCode);
 	public native void SpiceSetBitmap (Bitmap newBitmap);
+	public native void SpiceRequestResolution (int x, int y);
 	
 	static {
 		System.loadLibrary("spice");
@@ -291,5 +292,10 @@ public class SpiceCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyP
 	@Override
 	public void modifiersChanged() {
 		// This is functionality specific to aFreeRDP.
+	}
+	
+	@Override
+	public void requestResolution(int x, int y) {
+		SpiceRequestResolution (x, y);		
 	}
 }

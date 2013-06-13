@@ -441,21 +441,8 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 						
 						// Set screen settings to native res if instructed to, or if height or width are too small.
 						BookmarkBase.ScreenSettings screenSettings = session.getBookmark().getActiveScreenSettings();
-						int remoteWidth  = 0;
-						int remoteHeight = 0;
-						int reqWidth  = connection.getRdpWidth();
-						int reqHeight = connection.getRdpHeight();
-						if (connection.getRdpResType() == VncConstants.RDP_GEOM_SELECT_CUSTOM &&
-							reqWidth >= 2 && reqHeight >= 2) {
-							remoteWidth  = reqWidth;
-							remoteHeight = reqHeight;
-						} else if (connection.getRdpResType() == VncConstants.RDP_GEOM_SELECT_NATIVE_PORTRAIT) {
-							remoteWidth  = Math.min(displayWidth, displayHeight);
-							remoteHeight = Math.max(displayWidth, displayHeight);						
-						} else {
-							remoteWidth  = Math.max(displayWidth, displayHeight);
-							remoteHeight = Math.min(displayWidth, displayHeight);
-						}
+						int remoteWidth  = getRemoteWidth();
+						int remoteHeight = getRemoteHeight();
 						screenSettings.setWidth(remoteWidth);
 						screenSettings.setHeight(remoteHeight);
 
@@ -542,6 +529,42 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 				clipboardMonitorTimer.schedule(clipboardMonitor, 0, 500);
 			}
 		}
+	}
+	
+	/**
+	 * Retreives the requested remote width.
+	 */
+	private int getRemoteWidth () {
+		int remoteWidth = 0;
+		int reqWidth  = connection.getRdpWidth();
+		int reqHeight = connection.getRdpHeight();
+		if (connection.getRdpResType() == VncConstants.RDP_GEOM_SELECT_CUSTOM &&
+			reqWidth >= 2 && reqHeight >= 2) {
+			remoteWidth  = reqWidth;
+		} else if (connection.getRdpResType() == VncConstants.RDP_GEOM_SELECT_NATIVE_PORTRAIT) {
+			remoteWidth  = Math.min(displayWidth, displayHeight);
+		} else {
+			remoteWidth  = Math.max(displayWidth, displayHeight);
+		}
+		return remoteWidth;
+	}
+	
+	/**
+	 * Retreives the requested remote height.
+	 */
+	private int getRemoteHeight () {
+		int remoteHeight = 0;
+		int reqWidth  = connection.getRdpWidth();
+		int reqHeight = connection.getRdpHeight();
+		if (connection.getRdpResType() == VncConstants.RDP_GEOM_SELECT_CUSTOM &&
+			reqWidth >= 2 && reqHeight >= 2) {
+			remoteHeight = reqHeight;
+		} else if (connection.getRdpResType() == VncConstants.RDP_GEOM_SELECT_NATIVE_PORTRAIT) {
+			remoteHeight = Math.max(displayWidth, displayHeight);						
+		} else {
+			remoteHeight = Math.min(displayWidth, displayHeight);
+		}
+		return remoteHeight;
 	}
 	
 	/**
@@ -1238,12 +1261,18 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 	 */
 	@Override
 	public void OnSettingsChanged(int width, int height, int bpp) {
-		android.util.Log.e(TAG, "onSettingsChanged called.");
+		android.util.Log.e(TAG, "onSettingsChanged called, wxh: " + width + "x" + height);
 		
 		// If this is aSPICE, we need to initialize the communicator and remote keyboard and mouse now.
 		if (isSpice) {
-	    	spicecomm.setFramebufferWidth(width);
-	    	spicecomm.setFramebufferHeight(height);
+			spicecomm.setFramebufferWidth(width);
+			spicecomm.setFramebufferHeight(height);
+			int remoteWidth  = getRemoteWidth();
+			int remoteHeight = getRemoteHeight();
+	    	if (width != remoteWidth || height != remoteHeight) {
+	    		android.util.Log.e(TAG, "Requesting new res: " + remoteWidth + "x" + remoteHeight);
+	    		rfbconn.requestResolution(remoteWidth, remoteHeight);
+	    	}
 		}
 		
 		disposeDrawable ();

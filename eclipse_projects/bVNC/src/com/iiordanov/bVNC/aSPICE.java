@@ -78,9 +78,12 @@ public class aSPICE extends Activity implements MainConfiguration {
 	private Button buttonGeneratePubkey;
 	private ToggleButton toggleAdvancedSettings;
 	private Spinner spinnerConnection;
+	private Spinner spinnerGeometry;
 	private VncDatabase database;
 	private ConnectionBean selected;
 	private EditText textNickname;
+	private EditText resWidth;
+	private EditText resHeight;
 	private CheckBox checkboxKeepPassword;
 	private CheckBox checkboxUseDpadAsArrows;
 	private CheckBox checkboxRotateDpad;
@@ -227,6 +230,21 @@ public class aSPICE extends Activity implements MainConfiguration {
 					}
 				});
 
+		// The geometry type and dimensions boxes.
+		spinnerGeometry = (Spinner) findViewById(R.id.spinnerRdpGeometry);
+		resWidth = (EditText) findViewById(R.id.rdpWidth);
+		resHeight = (EditText) findViewById(R.id.rdpHeight);		
+		spinnerGeometry.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener () {
+			@Override
+			public void onItemSelected(AdapterView<?> arg0, View view, int itemIndex, long id) {
+				selected.setRdpResType(itemIndex);
+				setRemoteWidthAndHeight ();
+			}
+			@Override
+			public void onNothingSelected(AdapterView<?> arg0) {
+			}
+		});
+		
 		database = new VncDatabase(this);
 
 		// Define what happens when the Import/Export button is pressed.
@@ -250,6 +268,19 @@ public class aSPICE extends Activity implements MainConfiguration {
 		sshServerEntry.setVisibility(visibility);
 	}
 
+	/**
+	 * Enables and disables the EditText boxes for width and height of remote desktop.
+	 */
+	private void setRemoteWidthAndHeight () {
+		if (selected.getRdpResType() != VncConstants.RDP_GEOM_SELECT_CUSTOM) {
+			resWidth.setEnabled(false);
+			resHeight.setEnabled(false);
+		} else {
+			resWidth.setEnabled(true);
+			resHeight.setEnabled(true);
+		}
+	}
+	
 	/**
 	 * Sets the ssh password/passphrase hint appropriately.
 	 */
@@ -413,6 +444,10 @@ public class aSPICE extends Activity implements MainConfiguration {
 		checkboxRotateDpad.setChecked(selected.getRotateDpad());
 		checkboxLocalCursor.setChecked(selected.getUseLocalCursor());
 		textNickname.setText(selected.getNickname());
+		spinnerGeometry.setSelection(selected.getRdpResType());
+		resWidth.setText(Integer.toString(selected.getRdpWidth()));
+		resHeight.setText(Integer.toString(selected.getRdpHeight()));
+		setRemoteWidthAndHeight ();
 	}
 
 	/**
@@ -484,6 +519,11 @@ public class aSPICE extends Activity implements MainConfiguration {
 		selected.setUseSshPubKey(checkboxUseSshPubkey.isChecked());
 		selected.setSshPassPhrase(sshPassword.getText().toString());
 		selected.setSshPassword(sshPassword.getText().toString());
+		selected.setRdpResType(spinnerGeometry.getSelectedItemPosition());
+		try	{
+			selected.setRdpWidth(Integer.parseInt(resWidth.getText().toString()));
+			selected.setRdpHeight(Integer.parseInt(resHeight.getText().toString()));
+		} catch (NumberFormatException nfe) {}
 		selected.setPassword(passwordText.getText().toString());
 		selected.setKeepPassword(checkboxKeepPassword.isChecked());
 		selected.setUseDpadAsArrows(checkboxUseDpadAsArrows.isChecked());
