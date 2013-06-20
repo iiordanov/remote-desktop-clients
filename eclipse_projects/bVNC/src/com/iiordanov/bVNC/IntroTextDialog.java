@@ -49,7 +49,7 @@ class IntroTextDialog extends Dialog {
 	
 	private boolean donate = false;
 	
-	static void showIntroTextIfNecessary(Activity context, VncDatabase database, boolean force) {
+	static void showIntroTextIfNecessary(Activity context, VncDatabase database, boolean show) {
 		PackageInfo pi;
 		try {
 			pi = context.getPackageManager().getPackageInfo("com.iiordanov.bVNC", 0);
@@ -58,7 +58,8 @@ class IntroTextDialog extends Dialog {
 			return;
 		}
 		MostRecentBean mr = androidVNC.getMostRecent(database.getReadableDatabase());
-		if (dialog == null && (force || mr == null || mr.getShowSplashVersion() != pi.versionCode)) {
+		
+		if (dialog == null && show && (mr == null || mr.getShowSplashVersion() != pi.versionCode)) {
 			dialog = new IntroTextDialog(context, pi, database);
 			dialog.show();
 		}
@@ -114,18 +115,23 @@ class IntroTextDialog extends Dialog {
 			}
 			
 		});
-		((Button)findViewById(R.id.buttonCloseIntroDontShow)).setOnClickListener(new View.OnClickListener() {
-
-			/* (non-Javadoc)
-			 * @see android.view.View.OnClickListener#onClick(android.view.View)
-			 */
-			@Override
-			public void onClick(View v) {
-				showAgain(false);
-			}
 			
-		});
+		Button buttonCloseIntroDontShow = (Button)findViewById(R.id.buttonCloseIntroDontShow);
+		if (donate) {
+			buttonCloseIntroDontShow.setVisibility(View.GONE);
+		} else {
+			buttonCloseIntroDontShow.setOnClickListener(new View.OnClickListener() {
 
+				/* (non-Javadoc)
+				 * @see android.view.View.OnClickListener#onClick(android.view.View)
+				 */
+				@Override
+				public void onClick(View v) {
+					showAgain(false);
+				}
+				
+			});
+		}
 	}
 
 	/* (non-Javadoc)
@@ -178,5 +184,6 @@ class IntroTextDialog extends Dialog {
 			mostRecent.Gen_update(db);
 		}
 		dismiss();
+		dialog = null;
 	}
 }

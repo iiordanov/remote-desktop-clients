@@ -37,24 +37,19 @@ public class RemoteRdpKeyboard extends RemoteKeyboard {
 			int keyboardMetaState = evt.getMetaState();
 
 		    // Add shift to metaState if necessary.
-			// TODO: not interpreting SHIFT for now to avoid sending too many SHIFTs when sending SHIFT+'/' for '?'.
-			if ((keyboardMetaState & KeyEvent.META_SHIFT_MASK) != 0)
+			if ((keyboardMetaState & 0x000000c1) != 0)
 				metaState |= SHIFT_MASK;
 			
 			// If the keyboardMetaState contains any hint of CTRL, add CTRL_MASK to metaState
-			if ((keyboardMetaState & 0x7000)!=0)
+			if ((keyboardMetaState & 0x00007000) !=0)
 				metaState |= CTRL_MASK;
 			// If the keyboardMetaState contains left ALT, add ALT_MASK to metaState.
 		    // Leaving KeyEvent.KEYCODE_ALT_LEFT for symbol input on hardware keyboards.
-			if ((keyboardMetaState & (KeyEvent.META_ALT_RIGHT_ON|0x00030000)) !=0 ) {
-				//android.util.Log.e(TAG, "Detected alt key mask.");
+			if ((keyboardMetaState & KeyEvent.META_ALT_RIGHT_ON) !=0)
 				metaState |= ALT_MASK;
-			}
-
-			if ((keyboardMetaState & RemoteKeyboard.SUPER_MASK) !=0 ) {
-				//android.util.Log.e(TAG, "Detected super key mask.");
+			
+			if ((keyboardMetaState & (RemoteKeyboard.SUPER_MASK|0x00010000)) !=0)
 				metaState |= SUPER_MASK;
-			}
 			
 			if (keyCode == KeyEvent.KEYCODE_MENU)
 				return true; 			              // Ignore menu key

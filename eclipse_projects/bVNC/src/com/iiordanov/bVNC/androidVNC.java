@@ -58,9 +58,6 @@ import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.LinearLayout.LayoutParams;
 import android.util.Log;
 
-import com.google.ads.AdRequest;
-import com.google.ads.AdSize;
-import com.google.ads.AdView;
 import com.iiordanov.bVNC.Utils;
 import com.iiordanov.pubkeygenerator.GeneratePubkeyActivity;
 
@@ -105,7 +102,6 @@ public class androidVNC extends Activity implements MainConfiguration {
 	private CheckBox checkboxLocalCursor;
 	private CheckBox checkboxUseSshPubkey;
 	private CheckBox checkboxPreferHextile;
-	private AdView adView = null;	
 	private boolean repeaterTextSet;
 	private boolean isFree;
 	private boolean startingOrHasPaused = true;
@@ -607,18 +603,12 @@ public class androidVNC extends Activity implements MainConfiguration {
 	}
 	
 	@Override
-	public void onWindowFocusChanged (boolean visible) {
-		if (visible && isFree)
-			displayAdsOrShowDialog(false);
-	}
+	public void onWindowFocusChanged (boolean visible) { }
 	
 	@Override
 	public void onConfigurationChanged(Configuration newConfig) {
 		Log.e(TAG, "onConfigurationChanged called");
 		super.onConfigurationChanged(newConfig);
-		// We do not want to display the ad dialog on rotation change, so we force it off.
-		if (isFree)
-			displayAdsOrShowDialog(true);
 	}
 
 	/**
@@ -663,38 +653,8 @@ public class androidVNC extends Activity implements MainConfiguration {
 		spinnerConnection.setSelection(connectionIndex,false);
 		selected=connections.get(connectionIndex);
 		updateViewFromSelected();
-		IntroTextDialog.showIntroTextIfNecessary(this, database, false);
-	}
-	
-	private void displayAdsOrShowDialog (boolean forceNoDialog) {
-		boolean showAds = PreferenceManager.getDefaultSharedPreferences(this).getBoolean("showAds", false);
-		if (!showAds && !forceNoDialog) {
-			AdPreferenceDialog.showDialogIfNecessary(this, startingOrHasPaused);
-			startingOrHasPaused = false;
-			// Reload setting in case it has changed.
-			showAds = PreferenceManager.getDefaultSharedPreferences(this).getBoolean("showAds", false);
-		}
-		if (showAds) {
-		    LinearLayout layout = (LinearLayout)findViewById(R.id.mainLayout);
-			if (adView != null)
-				layout.removeViewInLayout(adView);
-			
-		    // Create the adView
-		    adView = new AdView(this, AdSize.SMART_BANNER, "a1517c1341bd2d8");
-			WindowManager.LayoutParams lp = getWindow().getAttributes();
-			lp.width     = LayoutParams.FILL_PARENT;
-			lp.height    = LayoutParams.FILL_PARENT;
-		    adView.setLayoutParams(lp);
-		    
-		    // Add the adView to the layout
-		    layout.addView(adView, 2);
-
-		    // Initiate a generic request to load it with an ad
-			AdRequest adRequest = new AdRequest();
-			adRequest.addTestDevice("255443C58D5D1959D075281106206D06");
-			adRequest.addTestDevice("09FDE4DD4719E7977E76123975E26EC4");
-		    adView.loadAd(adRequest);
-		}
+		IntroTextDialog.showIntroTextIfNecessary(this, database, isFree&&startingOrHasPaused);
+		startingOrHasPaused = false;
 	}
 	
 	protected void onStop() {

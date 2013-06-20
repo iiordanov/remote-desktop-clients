@@ -25,6 +25,9 @@ public class RemoteVncKeyboard extends RemoteKeyboard {
 	}
 	
 	public boolean processLocalKeyEvent(int keyCode, KeyEvent evt) {
+		
+		android.util.Log.e(TAG, evt.toString() + " " + keyCode);
+		
 		if (rfb != null && rfb.isInNormalProtocol()) {
 			RemotePointer pointer = vncCanvas.getPointer();
 			boolean down = (evt.getAction() == KeyEvent.ACTION_DOWN) ||
@@ -34,20 +37,20 @@ public class RemoteVncKeyboard extends RemoteKeyboard {
 			int keyboardMetaState = evt.getMetaState();
 
 		    // Add shift to metaState if necessary.
-			if ((keyboardMetaState & KeyEvent.META_SHIFT_MASK) != 0)
+			if ((keyboardMetaState & 0x000000c1) != 0)
 				metaState |= SHIFT_MASK;
 			
 			// If the keyboardMetaState contains any hint of CTRL, add CTRL_MASK to metaState
-			if ((keyboardMetaState & 0x7000)!=0)
+			if ((keyboardMetaState & 0x00007000) !=0)
 				metaState |= CTRL_MASK;
 			// If the keyboardMetaState contains left ALT, add ALT_MASK to metaState.
 		    // Leaving KeyEvent.KEYCODE_ALT_LEFT for symbol input on hardware keyboards.
-			if ((keyboardMetaState & (KeyEvent.META_ALT_RIGHT_ON|0x00030000)) !=0 )
+			if ((keyboardMetaState & KeyEvent.META_ALT_RIGHT_ON) !=0)
 				metaState |= ALT_MASK;
 			
-			if ((keyboardMetaState & RemoteKeyboard.SUPER_MASK) !=0 )
+			if ((keyboardMetaState & (RemoteKeyboard.SUPER_MASK|0x00010000)) !=0)
 				metaState |= SUPER_MASK;
-			
+
 			if (keyCode == KeyEvent.KEYCODE_MENU)
 				return true; 			              // Ignore menu key
 
@@ -99,6 +102,8 @@ public class RemoteVncKeyboard extends RemoteKeyboard {
 		   	  case 114 /* KEYCODE_CTRL_RIGHT */:  keysym = 0xffe4; break;
 		   	  case 115 /* KEYCODE_CAPS_LOCK */:   keysym = 0xffe5; break;
 		   	  case 116 /* KEYCODE_SCROLL_LOCK */: keysym = 0xff14; break;
+		   	  case 117 /* KEYCODE_META_LEFT */:   keysym = 0xffeb; break;
+		   	  case 118 /* KEYCODE_META_RIGHT */:  keysym = 0xffec; break;
 		   	  case 120 /* KEYCODE_SYSRQ */:       keysym = 0xff61; break;
 		   	  case 121 /* KEYCODE_BREAK */:       keysym = 0xff6b; break;
 		   	  case 122 /* KEYCODE_MOVE_HOME */:   keysym = 0xff50; break;
@@ -126,16 +131,18 @@ public class RemoteVncKeyboard extends RemoteKeyboard {
 		   		  }
 	    		  break;
 		      default: 							  
-		    	  // Modifier handling is a bit tricky. Alt and Ctrl should be passed
+		    	  // Modifier handling is a bit tricky. Alt, Ctrl, and Super should be passed
 		    	  // through to the VNC server so that they get handled there, but strip
 		    	  // them from the character before retrieving the Unicode char from it.
 		    	  // Don't clear Shift, we still want uppercase characters.
-		    	  int vncEventMask = ( 0x7000 );   // KeyEvent.META_CTRL_MASK
-		    	  if ((metaState & ALT_MASK) != 0)
-		    		  vncEventMask |= 0x0032;      // KeyEvent.META_ALT_MASK
+		    	  int metaMask = ( 0x00007000 | 0x00070000); // KeyEvent.META_CTRL_MASK | KeyEvent.META_META_MASK
+		    	  // We still want alt-key combinations to give us symbols, so we only strip out KeyEvent.META_ALT_MASK
+		    	  // if we've decided to send out ALT as a separate key modifier over.
+		    	  if ((metaState & ALT_MASK) != 0)              
+		    		  metaMask |= 0x00000032;
 		    	  KeyEvent copy = new KeyEvent(evt.getDownTime(), evt.getEventTime(), evt.getAction(),
 		    			  						evt.getKeyCode(),  evt.getRepeatCount(),
-		    				  					keyboardMetaState & ~vncEventMask, evt.getDeviceId(), evt.getScanCode());
+		    				  					keyboardMetaState & ~metaMask, evt.getDeviceId(), evt.getScanCode());
 		    	  key = copy.getUnicodeChar();
 	    		  keysym = UnicodeToKeysym.translate(key);
 		    	  break;
@@ -178,7 +185,7 @@ public class RemoteVncKeyboard extends RemoteKeyboard {
 				   lastKeyDown = keysym;
 
 			   if (numchars == 1) {
-			       //Log.e(TAG,"action down? = " + down + " key = " + key + " keysym = " + keysym + " onscreen metastate = " + onScreenMetaState + " keyboard metastate = " + keyboardMetaState + " RFB metastate = " + metaState + " keycode = " + keyCode + " unicode = " + evt.getUnicodeChar());
+			       android.util.Log.e(TAG,"action down? = " + down + " key = " + key + " keysym = " + keysym + " onscreen metastate = " + onScreenMetaState + " keyboard metastate = " + keyboardMetaState + " RFB metastate = " + metaState + " keycode = " + keyCode + " unicode = " + evt.getUnicodeChar());
 
 				   // TODO: UGLY HACK for Z10 devices running 10.1 which never send the down-event
 				   // for backspace... so we send it instead. Remove as soon as possible!

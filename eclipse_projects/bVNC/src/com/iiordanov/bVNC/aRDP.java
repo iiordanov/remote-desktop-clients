@@ -62,7 +62,6 @@ import com.iiordanov.pubkeygenerator.GeneratePubkeyActivity;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import com.google.ads.*;
 
 public class aRDP extends Activity implements MainConfiguration {
 	private final static String TAG = "aRDP";
@@ -106,7 +105,6 @@ public class aRDP extends Activity implements MainConfiguration {
 	private CheckBox checkboxLocalCursor;
 	private CheckBox checkboxUseSshPubkey;
 	private boolean isFree;
-	private AdView adView;	
 
 	@Override
 	public void onCreate(Bundle icicle) {
@@ -574,17 +572,12 @@ public class aRDP extends Activity implements MainConfiguration {
 	}
 	
 	@Override
-	public void onWindowFocusChanged (boolean visible) {
-		if (visible && isFree)
-			displayAd ();
-	}
+	public void onWindowFocusChanged (boolean visible) {}
 	
 	@Override
 	public void onConfigurationChanged(Configuration newConfig) {
 		Log.e(TAG, "onConfigurationChanged called");
 		super.onConfigurationChanged(newConfig);
-		if (isFree)
-			displayAd ();
 	}
 
 	/**
@@ -632,28 +625,6 @@ public class aRDP extends Activity implements MainConfiguration {
 		IntroTextDialog.showIntroTextIfNecessary(this, database, false);
 	}
 	
-	private void displayAd () {
-	    LinearLayout layout = (LinearLayout)findViewById(R.id.mainLayout);
-		if (adView != null)
-			layout.removeViewInLayout(adView);
-			
-	    // Create the adView
-	    adView = new AdView(this, AdSize.SMART_BANNER, "a151744a8b1f640");
-		WindowManager.LayoutParams lp = getWindow().getAttributes();
-		lp.width     = LayoutParams.FILL_PARENT;
-		lp.height    = LayoutParams.FILL_PARENT;
-	    adView.setLayoutParams(lp);
-		    
-	    // Add the adView to the layout
-	    layout.addView(adView, 2);
-
-	    // Initiate a generic request to load it with an ad
-		AdRequest adRequest = new AdRequest();
-		adRequest.addTestDevice("255443C58D5D1959D075281106206D06");
-		adRequest.addTestDevice("09FDE4DD4719E7977E76123975E26EC4");
-	    adView.loadAd(adRequest);
-	}
-	
 	protected void onStop() {
 		super.onStop();
 		if ( selected == null ) {
@@ -670,8 +641,7 @@ public class aRDP extends Activity implements MainConfiguration {
 		saveAndWriteRecent();
 	}
 	
-	public VncDatabase getDatabaseHelper()
-	{
+	public VncDatabase getDatabaseHelper()	{
 		return database;
 	}
 	
