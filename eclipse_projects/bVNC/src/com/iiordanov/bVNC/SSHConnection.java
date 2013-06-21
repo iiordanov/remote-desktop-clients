@@ -114,8 +114,7 @@ public class SSHConnection implements InteractiveCallback {
 	 * @return
 	 * @throws Exception
 	 */
-	public int initializeSSHTunnel () throws Exception {
-		int localForwardedPort;
+	public void initializeSSHTunnel () throws Exception {
 
 		// Attempt to connect.
 		if (!connect())
@@ -183,9 +182,18 @@ public class SSHConnection implements InteractiveCallback {
 				throw new Exception ("Could not obtain remote VNC port from x11vnc. Please ensure x11vnc " +
 						             "is installed. To be sure, try running x11vnc by hand on the command-line.");
 		}
+	}
+	
+	/**
+	 * Creates a port forward to the given port and returns the local port forwarded.
+	 * @return the local port forwarded to the given remote port
+	 * @throws Exception
+	 */
+	int createLocalPortForward (int port) throws Exception {
+		int localForwardedPort;
 
 		// At this point we know we are authenticated.
-		localForwardedPort = createPortForward(targetPort, targetAddress, targetPort);
+		localForwardedPort = createPortForward(port, targetAddress, port);
 		// If we got back a negative number, port forwarding failed.
 		if (localForwardedPort < 0) {
 			throw new Exception("Could not set up the port forwarding for tunneling VNC traffic over SSH." +

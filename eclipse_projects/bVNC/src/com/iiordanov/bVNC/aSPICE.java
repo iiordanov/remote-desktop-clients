@@ -19,6 +19,8 @@
 
 package com.iiordanov.bVNC;
 
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -26,6 +28,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ActivityManager.MemoryInfo;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
@@ -70,6 +73,9 @@ public class aSPICE extends Activity implements MainConfiguration {
 	private EditText sshPassword;
 	private EditText ipText;
 	private EditText portText;
+	private EditText caCert;
+	private EditText tlsPort;
+	private EditText certSubject;
 	private EditText passwordText;
 	private Button goButton;
 	private Button buttonGeneratePubkey;
@@ -106,6 +112,9 @@ public class aSPICE extends Activity implements MainConfiguration {
 		layoutUseSshPubkey = (LinearLayout) findViewById(R.id.layoutUseSshPubkey);
 		sshServerEntry = (LinearLayout) findViewById(R.id.sshServerEntry);
 		portText = (EditText) findViewById(R.id.textPORT);
+		caCert = (EditText) findViewById(R.id.caCert);
+		tlsPort = (EditText) findViewById(R.id.tlsPort);
+		certSubject = (EditText) findViewById(R.id.certSubject);
 		passwordText = (EditText) findViewById(R.id.textPASSWORD);
 		textNickname = (EditText) findViewById(R.id.textNickname);
 
@@ -415,21 +424,10 @@ public class aSPICE extends Activity implements MainConfiguration {
 		else
 			ipText.setText(selected.getAddress());
 
-		// If we are doing automatic X session discovery, then disable
-		// vnc address, vnc port, and vnc password, and vice-versa
-		if (selectedConnType == 1 && selected.getAutoXEnabled()) {
-			ipText.setVisibility(View.GONE);
-			portText.setVisibility(View.GONE);
-			passwordText.setVisibility(View.GONE);
-			checkboxKeepPassword.setVisibility(View.GONE);
-		} else {
-			ipText.setVisibility(View.VISIBLE);
-			portText.setVisibility(View.VISIBLE);
-			passwordText.setVisibility(View.VISIBLE);
-			checkboxKeepPassword.setVisibility(View.VISIBLE);
-		}
-
 		portText.setText(Integer.toString(selected.getPort()));
+		caCert.setText(selected.getCaCert());
+		tlsPort.setText(Integer.toString(selected.getTlsPort()));
+		certSubject.setText(selected.getCertSubject());
 
 		if (selected.getKeepPassword() || selected.getPassword().length() > 0) {
 			passwordText.setText(selected.getPassword());
@@ -498,11 +496,29 @@ public class aSPICE extends Activity implements MainConfiguration {
 		}
 		selected.setConnectionType(selectedConnType);
 		selected.setAddress(ipText.getText().toString());
+		String caCertData = caCert.getText().toString();
+		selected.setCaCert(caCertData);
+		try {
+			// If a cert has been set, write out a unique file containing the cert and save the path to that file to give to libspice.
+			if (!caCertData.equals("")) {
+				String filename = this.getFilesDir() + "/ca" + Integer.toString(selected.getCaCert().hashCode()) + ".pem";
+				selected.setCaCertPath(filename);
+				android.util.Log.e(TAG, filename);
+				PrintWriter fout = new PrintWriter(filename);
+				fout.println(selected.getCaCert().toString());
+				fout.close();
+			}
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+		
 		try {
 			selected.setPort(Integer.parseInt(portText.getText().toString()));
 			selected.setSshPort(Integer.parseInt(sshPort.getText().toString()));
+			selected.setTlsPort(Integer.parseInt(tlsPort.getText().toString()));
 		} catch (NumberFormatException nfe) {
 		}
+		selected.setCertSubject(certSubject.getText().toString());
 
 		selected.setNickname(textNickname.getText().toString());
 		selected.setSshServer(sshServer.getText().toString());

@@ -38,11 +38,12 @@ class VncDatabase extends SQLiteOpenHelper {
 	static final int DBV_1_8_0 = 293;
 	static final int DBV_1_9_0 = 308;
 	static final int DBV_2_0_0 = 309;
+	static final int DBV_2_1_0 = 329;
 	
 	public final static String TAG = VncDatabase.class.toString();
 	
 	VncDatabase(Context context) {
-		super(context, "VncDatabase", null, DBV_2_0_0);
+		super(context, "VncDatabase", null, DBV_2_1_0);
 	}
 
 	/* (non-Javadoc)
@@ -185,6 +186,19 @@ class VncDatabase extends SQLiteOpenHelper {
 			db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
 					+AbstractConnectionBean.GEN_FIELD_VISUALSTYLES + " BOOLEAN DEFAULT FALSE");
 			oldVersion = DBV_2_0_0;
+		}
+		
+		if (oldVersion == DBV_2_0_0) {
+			Log.i(TAG,"Doing upgrade from 309 to 329");
+			db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
+					+AbstractConnectionBean.GEN_FIELD_CACERT + " TEXT");
+			db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
+					+AbstractConnectionBean.GEN_FIELD_CACERTPATH + " TEXT");
+			db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
+					+AbstractConnectionBean.GEN_FIELD_TLSPORT + " INTEGER");
+			db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
+					+AbstractConnectionBean.GEN_FIELD_CERTSUBJECT + " TEXT");
+			oldVersion = DBV_2_1_0;
 		}
 	}
 }

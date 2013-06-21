@@ -89,7 +89,7 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 	// Connection parameters
 	ConnectionBean connection;
 	VncDatabase database;
-	private SSHConnection sshConnection;
+	private SSHConnection sshConnection = null;
 
 	// VNC protocol connection
 	public RfbConnectable rfbconn   = null;
@@ -323,6 +323,7 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 	 * This flag indicates whether this is the SPICE 'version' or not.
 	 */
 	boolean isSpice = false;
+    boolean spiceUpdateReceived = false;
 
 	/**
 	 * Constructor used by the inflation apparatus
@@ -345,12 +346,6 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 		isRdp   = getContext().getPackageName().contains("RDP");
 		isSpice = getContext().getPackageName().contains("SPICE");
 	}
-
-    private void startSpice(String ip, String port, String password) throws Exception {
-    	spicecomm.connect(ip, port, password);
-    }
-
-    boolean spiceUpdateReceived = false;
 
 	/**
 	 * Create a view showing a VNC connection
@@ -393,7 +388,8 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 			    		
 			    		// Get the address and port (based on whether an SSH tunnel is being established or not).
 			    		String address = getVNCAddress();
-			    		int port = getVNCPort();
+			    		int port = getPort(connection.getPort());
+			    		int tport = getPort(connection.getTlsPort());
 			    		
 				    	spicecomm = new SpiceCommunicator ();
 				    	rfbconn = spicecomm;
@@ -401,7 +397,8 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 			    		keyboard = new RemoteSpiceKeyboard (rfbconn, VncCanvas.this, handler);
 			    		spicecomm.setUIEventListener(VncCanvas.this);
 			    		spicecomm.setHandler(handler);
-			    		startSpice(address, Integer.toString(port), connection.getPassword());
+			    		spicecomm.connect(address, Integer.toString(port), Integer.toString(tport),
+			    							connection.getPassword(), connection.getCaCertPath(), connection.getCertSubject());
 			    		
 			    		try {
 			    			synchronized(spicecomm) {
@@ -419,7 +416,7 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 
 			    		// Get the address and port (based on whether an SSH tunnel is being established or not).
 			    		String address = getVNCAddress();
-			    		int rdpPort = getVNCPort();
+			    		int rdpPort = getPort(connection.getPort());
 
 			    		// This is necessary because it initializes a synchronizedMap referenced later.
 			    		freeRdpApp = new GlobalApp();
@@ -598,19 +595,22 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 	}
 
 	/** 
-	 * Initializes SSH Tunnel and returns local forwarded port, or
-	 * if SSH connection not needed, returns saved plain VNC port.
+	 * If necessary, initializes an SSH tunnel and returns local forwarded port, or
+	 * if SSH tunneling is not needed, returns the given port.
 	 * @return
 	 * @throws Exception
 	 */
-	int getVNCPort() throws Exception {
+	int getPort(int port) throws Exception {
 		if (connection.getConnectionType() == VncConstants.CONN_TYPE_SSH) {
-			sshConnection = new SSHConnection(connection);
-			return sshConnection.initializeSSHTunnel ();
+			if (sshConnection == null) {
+				sshConnection = new SSHConnection(connection);
+				sshConnection.initializeSSHTunnel ();
+			}
+			return sshConnection.createLocalPortForward(port);
 		} else
-			return connection.getPort();
+			return port;
 	}
-	
+
 	/** 
 	 * Returns localhost if using SSH tunnel or saved VNC address.
 	 * @return
@@ -626,7 +626,7 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 	void connectAndAuthenticate(String us, String pw) throws Exception {
 		Log.i(TAG, "Connecting to: " + connection.getAddress() + ", port: " + connection.getPort());
 		String address = getVNCAddress();
-		int vncPort    = getVNCPort();
+		int vncPort    = getPort(connection.getPort());
 		boolean anonTLS = (connection.getConnectionType() == VncConstants.CONN_TYPE_ANONTLS);
 	    try {
 			rfb = new RfbProto(decoder, address, vncPort, connection.getPrefEncoding());

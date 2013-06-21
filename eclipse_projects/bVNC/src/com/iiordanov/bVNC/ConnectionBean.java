@@ -82,6 +82,10 @@ class ConnectionBean extends AbstractConnectionBean implements Comparable<Connec
 		setUserName("");
 		setRdpDomain("");
 		setPort(5900);
+		setCaCert("");
+		setCaCertPath("");
+		setTlsPort(5901);
+		setCertSubject("");
 		setColorModel(COLORMODEL.C24bit.nameString());
 		setPrefEncoding(RfbProto.EncodingTight);
 		setScaleMode(ScaleType.MATRIX);
