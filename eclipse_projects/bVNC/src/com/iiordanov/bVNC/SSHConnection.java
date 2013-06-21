@@ -111,11 +111,13 @@ public class SSHConnection implements InteractiveCallback {
 	
 	/**
 	 * Initializes the SSH Tunnel
-	 * @return
+	 * @return -1 if the target port was not determined, and the port obtained from x11vnc if it was
+	 *             determined with AutoX.
 	 * @throws Exception
 	 */
-	public void initializeSSHTunnel () throws Exception {
-
+	public int initializeSSHTunnel () throws Exception {
+		int port = -1;
+		
 		// Attempt to connect.
 		if (!connect())
 			throw new Exception("Failed to connect to SSH server. Please check network connection " +
@@ -151,10 +153,9 @@ public class SSHConnection implements InteractiveCallback {
 
 		// Run a remote command if commanded to.
 		if (autoXEnabled) {
-			// If we're not using unix credentials, protect access with a temporary password file.
-			targetPort = -1;
 			int tries = 0;
-			while (targetPort < 0 && tries < MAXTRIES) {
+			while (port < 0 && tries < MAXTRIES) {
+				// If we're not using unix credentials, protect access with a temporary password file.
 				if (!autoXUnixpw) {
 					writeStringToRemoteCommand(vncpassword, VncConstants.AUTO_X_CREATE_PASSWDFILE+
 															VncConstants.AUTO_X_PWFILEBASENAME+autoXRandFileNm+
@@ -168,8 +169,8 @@ public class SSHConnection implements InteractiveCallback {
 					writeStringToStdin (password+"\n");
 				
 				// Try to find PORT=
-				targetPort = parseRemoteStdoutForPort();
-				if (targetPort < 0) {
+				port = parseRemoteStdoutForPort();
+				if (port < 0) {
 					session.close();
 					tries++;
 					// Wait a little for x11vnc to recover.
@@ -178,10 +179,13 @@ public class SSHConnection implements InteractiveCallback {
 				}
 			}
 
-			if (targetPort < 0)
+			if (port < 0) {
 				throw new Exception ("Could not obtain remote VNC port from x11vnc. Please ensure x11vnc " +
 						             "is installed. To be sure, try running x11vnc by hand on the command-line.");
+			}
 		}
+		
+		return port;
 	}
 	
 	/**
@@ -395,45 +399,28 @@ public class SSHConnection implements InteractiveCallback {
 		}
 	}
 
-	// TODO: Improve this function - it is rather "wordy".
 	/**
 	 * Parses the remote stdout for PORT=
 	 */
 	private int parseRemoteStdoutForPort () {
-
 		Log.i (TAG, "Parsing remote stdout for PORT=");
-		boolean foundP = false, foundPO = false, foundPOR = false,
-				foundPORT = false, foundPORTEQ = false;
-		int port = -1;
 
+		String sought = "PORT=";
+		int soughtLength = sought.length();
+		int port = -1;
 		try {
-			// Look for PORT=
-			int data = remoteStdout.read();
-			while (data != -1) {
-				if      (data == 'P')
-					foundP = true;
-				else if (data == 'O' && foundP)
-					foundPO = true;
-				else if (data == 'R' && foundPO)
-					foundPOR = true;
-				else if (data == 'T' && foundPOR)
-					foundPORT = true;
-				else if (data == '=' && foundPORT)
-					foundPORTEQ = true;
-				else {
-					foundP = false;
-					foundPO = false;
-					foundPOR = false;
-					foundPORT = false;
-					foundPORTEQ = false;
+			int data = 0;
+			int i = 0;
+			while (data != -1 && i < soughtLength) {
+				data = remoteStdout.read();
+				if (data == (int)sought.charAt(i)) {
+					i = i + 1;
+				} else {
+					i = 0;
 				}
-				if (foundPORTEQ)
-					break;
-				else
-					data = remoteStdout.read();
 			}
 
-			if (foundPORTEQ) {
+			if (i == soughtLength) {
 				// Read in 5 bytes after PORT=
 				byte[] buffer = new byte[5];
 				remoteStdout.read(buffer);

@@ -387,7 +387,7 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 			    		// TODO: Refactor code.
 			    		
 			    		// Get the address and port (based on whether an SSH tunnel is being established or not).
-			    		String address = getVNCAddress();
+			    		String address = getAddress();
 			    		int port = getPort(connection.getPort());
 			    		int tport = getPort(connection.getTlsPort());
 			    		
@@ -415,7 +415,7 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 			    		// TODO: Refactor code.
 
 			    		// Get the address and port (based on whether an SSH tunnel is being established or not).
-			    		String address = getVNCAddress();
+			    		String address = getAddress();
 			    		int rdpPort = getPort(connection.getPort());
 
 			    		// This is necessary because it initializes a synchronizedMap referenced later.
@@ -601,14 +601,21 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 	 * @throws Exception
 	 */
 	int getPort(int port) throws Exception {
+		int result = 0;
+		
 		if (connection.getConnectionType() == VncConstants.CONN_TYPE_SSH) {
 			if (sshConnection == null) {
 				sshConnection = new SSHConnection(connection);
-				sshConnection.initializeSSHTunnel ();
+				// TODO: Take the AutoX stuff out to a separate function.
+				int newPort = sshConnection.initializeSSHTunnel ();
+				if (newPort > 0)
+					port = newPort;
 			}
-			return sshConnection.createLocalPortForward(port);
-		} else
-			return port;
+			result = sshConnection.createLocalPortForward(port);
+		} else {
+			result = port;
+		}
+		return result;
 	}
 
 	/** 
@@ -616,7 +623,7 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 	 * @return
 	 * @throws Exception
 	 */
-	String getVNCAddress() throws Exception {
+	String getAddress() throws Exception {
 		if (connection.getConnectionType() == VncConstants.CONN_TYPE_SSH) {
 			return new String("127.0.0.1");
 		} else
@@ -625,12 +632,12 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 	
 	void connectAndAuthenticate(String us, String pw) throws Exception {
 		Log.i(TAG, "Connecting to: " + connection.getAddress() + ", port: " + connection.getPort());
-		String address = getVNCAddress();
+		String address = getAddress();
 		int vncPort    = getPort(connection.getPort());
 		boolean anonTLS = (connection.getConnectionType() == VncConstants.CONN_TYPE_ANONTLS);
 	    try {
 			rfb = new RfbProto(decoder, address, vncPort, connection.getPrefEncoding());
-			Log.v(TAG, "Connected to server");
+			Log.v(TAG, "Connected to server: " + address + " at port: " + vncPort);
 			rfb.initializeAndAuthenticate(us, pw, connection.getUseRepeater(), connection.getRepeaterId(), anonTLS);
 	    } catch (Exception e) {
 	    	throw new Exception ("Connection to VNC server: " + address + " at port: " + vncPort + " failed.\n" + "Reason: " +
