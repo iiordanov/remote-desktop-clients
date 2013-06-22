@@ -19,6 +19,7 @@
 
 package com.iiordanov.bVNC;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -56,6 +57,7 @@ import android.widget.ToggleButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.LinearLayout.LayoutParams;
 
+import com.iiordanov.bVNC.dialogs.ImportTlsCaDialog;
 import com.iiordanov.pubkeygenerator.GeneratePubkeyActivity;
 
 public class aSPICE extends Activity implements MainConfiguration {
@@ -73,9 +75,8 @@ public class aSPICE extends Activity implements MainConfiguration {
 	private EditText sshPassword;
 	private EditText ipText;
 	private EditText portText;
-	private EditText caCert;
+	private Button buttonImportCa;
 	private EditText tlsPort;
-	private EditText certSubject;
 	private EditText passwordText;
 	private Button goButton;
 	private Button buttonGeneratePubkey;
@@ -112,12 +113,19 @@ public class aSPICE extends Activity implements MainConfiguration {
 		layoutUseSshPubkey = (LinearLayout) findViewById(R.id.layoutUseSshPubkey);
 		sshServerEntry = (LinearLayout) findViewById(R.id.sshServerEntry);
 		portText = (EditText) findViewById(R.id.textPORT);
-		caCert = (EditText) findViewById(R.id.caCert);
 		tlsPort = (EditText) findViewById(R.id.tlsPort);
-		certSubject = (EditText) findViewById(R.id.certSubject);
 		passwordText = (EditText) findViewById(R.id.textPASSWORD);
 		textNickname = (EditText) findViewById(R.id.textNickname);
 
+		buttonImportCa = (Button) findViewById(R.id.buttonImportCa);
+		buttonImportCa.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View view) {
+				aSPICE.this.updateSelectedFromView();
+				showDialog(R.layout.import_tls_ca_dialog);
+			}
+		});
+		
 		// Here we say what happens when the Pubkey Checkbox is
 		// checked/unchecked.
 		checkboxUseSshPubkey = (CheckBox) findViewById(R.id.checkboxUseSshPubkey);
@@ -315,6 +323,8 @@ public class aSPICE extends Activity implements MainConfiguration {
 			return new ImportExportDialog(this);
 		case R.id.itemMainScreenHelp:
 			return createHelpDialog();
+		case R.layout.import_tls_ca_dialog:
+			return new ImportTlsCaDialog(this);
 		}
 		return null;
 	}
@@ -406,7 +416,7 @@ public class aSPICE extends Activity implements MainConfiguration {
 		return true;
 	}
 
-	protected void updateViewFromSelected() {
+	public void updateViewFromSelected() {
 		if (selected == null)
 			return;
 		selectedConnType = selected.getConnectionType();
@@ -425,9 +435,7 @@ public class aSPICE extends Activity implements MainConfiguration {
 			ipText.setText(selected.getAddress());
 
 		portText.setText(Integer.toString(selected.getPort()));
-		caCert.setText(selected.getCaCert());
 		tlsPort.setText(Integer.toString(selected.getTlsPort()));
-		certSubject.setText(selected.getCertSubject());
 
 		if (selected.getKeepPassword() || selected.getPassword().length() > 0) {
 			passwordText.setText(selected.getPassword());
@@ -442,6 +450,23 @@ public class aSPICE extends Activity implements MainConfiguration {
 		resWidth.setText(Integer.toString(selected.getRdpWidth()));
 		resHeight.setText(Integer.toString(selected.getRdpHeight()));
 		setRemoteWidthAndHeight ();
+		
+		// Write out CA to file if it doesn't exist.
+		String caCertData = selected.getCaCert();
+		try {
+			// If a cert has been set, write out a unique file containing the cert and save the path to that file to give to libspice.
+			String filename = getFilesDir() + "/ca" + Integer.toString(selected.getCaCert().hashCode()) + ".pem";
+			selected.setCaCertPath(filename);
+			File file = new File(filename);
+			if (!file.exists() && !caCertData.equals("")) {
+				android.util.Log.e(TAG, filename);
+				PrintWriter fout = new PrintWriter(filename);
+				fout.println(selected.getCaCert().toString());
+				fout.close();
+			}
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
 	}
 
 	/**
@@ -496,21 +521,6 @@ public class aSPICE extends Activity implements MainConfiguration {
 		}
 		selected.setConnectionType(selectedConnType);
 		selected.setAddress(ipText.getText().toString());
-		String caCertData = caCert.getText().toString();
-		selected.setCaCert(caCertData);
-		try {
-			// If a cert has been set, write out a unique file containing the cert and save the path to that file to give to libspice.
-			if (!caCertData.equals("")) {
-				String filename = this.getFilesDir() + "/ca" + Integer.toString(selected.getCaCert().hashCode()) + ".pem";
-				selected.setCaCertPath(filename);
-				android.util.Log.e(TAG, filename);
-				PrintWriter fout = new PrintWriter(filename);
-				fout.println(selected.getCaCert().toString());
-				fout.close();
-			}
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		}
 		
 		try {
 			selected.setPort(Integer.parseInt(portText.getText().toString()));
@@ -518,8 +528,7 @@ public class aSPICE extends Activity implements MainConfiguration {
 			selected.setTlsPort(Integer.parseInt(tlsPort.getText().toString()));
 		} catch (NumberFormatException nfe) {
 		}
-		selected.setCertSubject(certSubject.getText().toString());
-
+		
 		selected.setNickname(textNickname.getText().toString());
 		selected.setSshServer(sshServer.getText().toString());
 		selected.setSshUser(sshUser.getText().toString());
@@ -643,7 +652,7 @@ public class aSPICE extends Activity implements MainConfiguration {
 		vnc();
 	}
 
-	protected void saveAndWriteRecent() {
+	public void saveAndWriteRecent() {
 		SQLiteDatabase db = database.getWritableDatabase();
 		db.beginTransaction();
 		try {

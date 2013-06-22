@@ -37,7 +37,7 @@ import android.content.Context;
  * @author Michael A. MacDonald
  *
  */
-class ConnectionBean extends AbstractConnectionBean implements Comparable<ConnectionBean> {
+public class ConnectionBean extends AbstractConnectionBean implements Comparable<ConnectionBean> {
 	
 	static Context c = null;
 	

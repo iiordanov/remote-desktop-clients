@@ -149,22 +149,18 @@ android:layout_height="fill_parent">
 				android:layout_height="wrap_content"
 				android:orientation="horizontal"
 				android:layout_weight="1">
-				<EditText android:id="@+id/caCert" android:layout_width="fill_parent" android:layout_height="wrap_content"
-					android:singleLine="true" android:layout_weight="1" android:textAppearance="?android:attr/textAppearanceLarge"
-					android:hint="@string/spice_ca_cert_path_hint" android:nextFocusDown="@+id/tlsPort"
-					android:inputType="textNoSuggestions|textVisiblePassword"/>
+				<Button
+					android:id="@+id/buttonImportCa"
+					android:text="@string/spice_button_import_ca"
+					android:textAppearance="?android:attr/textAppearanceLarge"
+					android:layout_width="wrap_content" android:layout_weight="1"
+					android:layout_height="wrap_content"/>
 				<EditText android:id="@+id/tlsPort"
 					android:hint="@string/spice_tls_port_hint"  android:minWidth="100dip"
 					android:layout_width="wrap_content" android:layout_height="wrap_content" android:singleLine="true"
 					android:layout_weight="0" android:textAppearance="?android:attr/textAppearanceLarge"
-					android:inputType="textNoSuggestions|textVisiblePassword"  android:nextFocusDown="@+id/certSubject"/>
+					android:inputType="textNoSuggestions|textVisiblePassword" android:nextFocusDown="@+id/certSubject" />
 			</LinearLayout>
-		</TableRow>
-		<TableRow>
-				<EditText android:id="@+id/certSubject" android:layout_width="fill_parent" android:layout_height="wrap_content"
-					android:singleLine="true" android:layout_weight="1" android:textAppearance="?android:attr/textAppearanceLarge"
-					android:hint="@string/spice_cert_subject_hint" android:nextFocusDown="@+id/textPASSWORD"
-					android:inputType="textNoSuggestions|textVisiblePassword"/>
 		</TableRow>
 		<TableRow>
 			<LinearLayout
