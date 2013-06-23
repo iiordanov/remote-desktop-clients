@@ -664,13 +664,6 @@ public class androidVNC extends Activity implements MainConfiguration {
 			return;
 		}
 		updateSelectedFromView();
-
-		// We need VNC server or SSH server to be filled out to save. Otherwise, we keep adding empty
-		// connections when onStop gets called.
-		if (selected.getConnectionType() == VncConstants.CONN_TYPE_SSH && selected.getSshServer().equals("") ||
-			selected.getAddress().equals(""))
-			return;
-		
 		saveAndWriteRecent();
 	}
 
@@ -693,11 +686,17 @@ public class androidVNC extends Activity implements MainConfiguration {
 		MemoryInfo info = Utils.getMemoryInfo(this);
 		if (info.lowMemory)
 			System.gc();
-		vnc();
+		start();
 	}
 	
-	protected void saveAndWriteRecent()
-	{
+	protected void saveAndWriteRecent() {
+		// We need server address or SSH server to be filled out to save. Otherwise,
+		// we keep adding empty connections.
+		if (selected.getConnectionType() == VncConstants.CONN_TYPE_SSH
+		    && selected.getSshServer().equals("")
+			|| selected.getAddress().equals(""))
+			return;
+		
 		SQLiteDatabase db = database.getWritableDatabase();
 		db.beginTransaction();
 		try
@@ -727,7 +726,7 @@ public class androidVNC extends Activity implements MainConfiguration {
 	/**
 	 * Starts the activity which makes a VNC connection and displays the remote desktop.
 	 */
-	private void vnc () {
+	private void start () {
 		isConnecting = true;
 		updateSelectedFromView();
 		saveAndWriteRecent();

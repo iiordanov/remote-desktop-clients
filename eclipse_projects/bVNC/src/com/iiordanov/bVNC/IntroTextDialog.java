@@ -172,6 +172,15 @@ class IntroTextDialog extends Dialog {
 		return true;
 	}
 	
+	/* 
+	 * (non-Javadoc)
+	 * @see android.app.Dialog#onBackPressed()
+	 */
+	@Override
+	public void onBackPressed () {
+		showAgain(true);		
+	}
+	
 	private void showAgain(boolean show) {
 		SQLiteDatabase db = database.getWritableDatabase();
 		MostRecentBean mostRecent = androidVNC.getMostRecent(db);

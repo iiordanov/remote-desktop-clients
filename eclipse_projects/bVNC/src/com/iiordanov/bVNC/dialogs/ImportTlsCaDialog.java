@@ -71,8 +71,7 @@ public class ImportTlsCaDialog extends AlertDialog {
 		c.startActivity(docIntent);
 	}
 	
-	/* Don't do anything if back is pressed.
-	 * 
+	/* 
 	 * (non-Javadoc)
 	 * @see android.app.Dialog#onBackPressed()
 	 */

@@ -105,7 +105,9 @@ public class aRDP extends Activity implements MainConfiguration {
 	private CheckBox checkboxLocalCursor;
 	private CheckBox checkboxUseSshPubkey;
 	private boolean isFree;
-
+	private boolean startingOrHasPaused = true;
+	private boolean isConnecting = false;
+	
 	@Override
 	public void onCreate(Bundle icicle) {
 		super.onCreate(icicle);
@@ -622,7 +624,8 @@ public class aRDP extends Activity implements MainConfiguration {
 		spinnerConnection.setSelection(connectionIndex,false);
 		selected=connections.get(connectionIndex);
 		updateViewFromSelected();
-		IntroTextDialog.showIntroTextIfNecessary(this, database, false);
+		IntroTextDialog.showIntroTextIfNecessary(this, database, isFree&&startingOrHasPaused);
+		startingOrHasPaused = false;
 	}
 	
 	protected void onStop() {
@@ -630,15 +633,18 @@ public class aRDP extends Activity implements MainConfiguration {
 		if ( selected == null ) {
 			return;
 		}
-		updateSelectedFromView();
-
-		// We need VNC server or SSH server to be filled out to save. Otherwise, we keep adding empty
-		// connections when onStop gets called.
-		if (selected.getConnectionType() == VncConstants.CONN_TYPE_SSH && selected.getSshServer().equals("") ||
-			selected.getAddress().equals(""))
-			return;
-		
+		updateSelectedFromView();	
 		saveAndWriteRecent();
+	}
+	
+	protected void onPause() {
+		Log.e(TAG, "onPause called");
+		super.onPause();
+		if (!isConnecting) {
+			startingOrHasPaused = true;
+		} else {
+			isConnecting = false;
+		}
 	}
 	
 	public VncDatabase getDatabaseHelper()	{
@@ -650,11 +656,17 @@ public class aRDP extends Activity implements MainConfiguration {
 		MemoryInfo info = Utils.getMemoryInfo(this);
 		if (info.lowMemory)
 			System.gc();
-		vnc();
+		start();
 	}
 	
-	protected void saveAndWriteRecent()
-	{
+	protected void saveAndWriteRecent() {
+		// We need server address or SSH server to be filled out to save. Otherwise,
+		// we keep adding empty connections.
+		if (selected.getConnectionType() == VncConstants.CONN_TYPE_SSH
+		    && selected.getSshServer().equals("")
+			|| selected.getAddress().equals(""))
+			return;
+		
 		SQLiteDatabase db = database.getWritableDatabase();
 		db.beginTransaction();
 		try
@@ -684,7 +696,8 @@ public class aRDP extends Activity implements MainConfiguration {
 	/**
 	 * Starts the activity which makes a VNC connection and displays the remote desktop.
 	 */
-	private void vnc () {
+	private void start () {
+		isConnecting = true;
 		updateSelectedFromView();
 		saveAndWriteRecent();
 		Intent intent = new Intent(this, VncCanvasActivity.class);
