@@ -27,26 +27,36 @@
 #include "android-spicy.h"
 
 
-void spice_session_setup(JNIEnv *env, SpiceSession *session, jstring h, jstring p, jstring pw) {
+void spice_session_setup(JNIEnv *env, SpiceSession *session, jstring h, jstring p, jstring tp, jstring pw, jstring cf, jstring cs) {
 	const char *host = NULL;
 	const char *port = NULL;
 	const char *tls_port = NULL;
 	const char *password = NULL;
+	const char *ca_file = NULL;
+	const char *cert_subj = NULL;
+
 	host = (*env)->GetStringUTFChars(env, h, NULL);
 	port = (*env)->GetStringUTFChars(env, p, NULL);
-	password = (*env)->GetStringUTFChars(env, pw, NULL);
+	tls_port  = (*env)->GetStringUTFChars(env, tp, NULL);
+	password  = (*env)->GetStringUTFChars(env, pw, NULL);
+	ca_file   = (*env)->GetStringUTFChars(env, cf, NULL);
+	cert_subj = (*env)->GetStringUTFChars(env, cs, NULL);
 
     g_return_if_fail(SPICE_IS_SESSION(session));
 
     if (host)
         g_object_set(session, "host", host, NULL);
-    if (port)
-        g_object_set(session, "port", port, NULL);
-    // TODO: Add TLS support.
-    if (tls_port)
+    // If we receive "-1" for a port, we assume the port is not set.
+    if (port && strcmp (port, "-1") != 0)
+       g_object_set(session, "port", port, NULL);
+    if (tls_port && strcmp (tls_port, "-1") != 0)
         g_object_set(session, "tls-port", tls_port, NULL);
     if (password)
         g_object_set(session, "password", password, NULL);
+    if (ca_file)
+        g_object_set(session, "ca-file", ca_file, NULL);
+    if (cert_subj)
+        g_object_set(session, "cert-subject", cert_subj, NULL);
 }
 
 
@@ -65,7 +75,8 @@ Java_com_iiordanov_aSPICE_SpiceCommunicator_SpiceClientDisconnect (JNIEnv * env,
 
 
 JNIEXPORT jint JNICALL
-Java_com_iiordanov_aSPICE_SpiceCommunicator_SpiceClientConnect (JNIEnv *env, jobject obj, jstring h, jstring p, jstring pw)
+Java_com_iiordanov_aSPICE_SpiceCommunicator_SpiceClientConnect (JNIEnv *env, jobject obj, jstring h, jstring p,
+																		jstring tp, jstring pw, jstring cf, jstring cs)
 {
     int result = 0;
     maintainConnection = TRUE;
@@ -95,7 +106,7 @@ Java_com_iiordanov_aSPICE_SpiceCommunicator_SpiceClientConnect (JNIEnv *env, job
 
     spice_connection *conn;
     conn = connection_new();
-    spice_session_setup(env, conn->session, h, p, pw);
+    spice_session_setup(env, conn->session, h, p, tp, pw, cf, cs);
 
     //watch_stdin();
 

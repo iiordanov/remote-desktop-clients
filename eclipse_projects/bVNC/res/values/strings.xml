@@ -440,6 +440,11 @@ Known issues:
 <string name="snap_one_to_one">Snapped to 1:1 zoom</string>
 <string name="special_keys">Send Keys</string>
 <string name="spice_address_caption_hint">SPICE Server</string>
+<string name="spice_button_import_ca">Import CA</string>
+<string name="spice_ca_cert_path_hint">Path to cert authority file</string>
+<string name="spice_ca_file_not_found">File not found. Please enter a valid file name in the text field (e.g. /sdcard/ca-cert.pem).</string>
+<string name="spice_ca_file_error_reading">Error reading CA file. Please ensure it is readable.</string>
+<string name="spice_cert_subject_hint">Certificate Subject</string>
 <string-array name="spice_connection_type">
     <item>@string/connection_type_spice</item>
     <item>@string/connection_type_spice_over_ssh</item>
@@ -529,6 +534,7 @@ Known issues:
    (c) Local mouse pointer: If the pointer is invisible, select this to force it to be drawn by aSPICE.</string>
 <string name="spice_password_hint">SPICE Password</string>
 <string name="spice_server_empty">SPICE Server or port empty. Cannot connect!</string>
+<string name="spice_tls_port_hint">TLS Port</string>
 <string name="spice_username_hint">SPICE Username</string>
 <string name="ssh_passphrase_hint">Passphrase</string>
 <string name="ssh_pubkey_button">Manage Key</string>

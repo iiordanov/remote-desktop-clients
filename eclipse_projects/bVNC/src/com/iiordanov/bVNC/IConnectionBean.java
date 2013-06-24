@@ -92,6 +92,14 @@ interface IConnectionBean {
 	@FieldAccessor
 	int getPort();
 	@FieldAccessor
+	String getCaCert();
+	@FieldAccessor
+	String getCaCertPath();
+	@FieldAccessor
+	int getTlsPort();
+	@FieldAccessor
+	String getCertSubject();
+	@FieldAccessor
 	String getPassword();
 	@FieldAccessor
 	String getColorModel();

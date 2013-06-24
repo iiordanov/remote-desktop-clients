@@ -11,7 +11,7 @@ spice_objs := $(CROSS_DIR)/lib/libintl.a \
     $(CROSS_DIR)/lib/libgmodule-2.0.a \
     $(CROSS_DIR)/lib/libglib-2.0.a  \
     $(CROSS_DIR)/lib/libiconv.a  \
-    $(CROSS_DIR)/lib/libjpeg-6.a   \
+    $(CROSS_DIR)/lib/libjpeg.a   \
     $(CROSS_DIR)/lib/libpixman.a \
     $(CROSS_DIR)/lib/libssl.a \
     $(CROSS_DIR)/lib/libcrypto.a \

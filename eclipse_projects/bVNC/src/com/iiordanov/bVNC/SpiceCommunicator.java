@@ -11,7 +11,7 @@ import com.iiordanov.bVNC.input.RemoteSpicePointer;
 public class SpiceCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyProcessingListener {
 	private final static String TAG = "SpiceCommunicator";
 
-	public native int  SpiceClientConnect (String ip, String port, String password);
+	public native int  SpiceClientConnect (String ip, String port, String tport, String password, String ca_file, String cert_subj);
 	public native void SpiceClientDisconnect ();
 	public native void SpiceButtonEvent (int x, int y, int metaState, int pointerMask);
 	public native void SpiceKeyEvent (boolean keyDown, int virtualKeyCode);
@@ -59,8 +59,9 @@ public class SpiceCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyP
 		return handler;
 	}
 
-	public void connect(String ip, String port, String password) {
-		spicehread = new SpiceThread(ip, port, password);
+	public void connect(String ip, String port, String tport, String password, String cf, String cs) {
+		android.util.Log.e(TAG, ip + ", " + port + ", " + tport + ", " + password + ", " + cf + ", " + cs);
+		spicehread = new SpiceThread(ip, port, tport, password, cf, cs);
 		spicehread.start();
 	}
 	
@@ -70,16 +71,19 @@ public class SpiceCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyP
 	}
 
 	class SpiceThread extends Thread {
-		private String ip, port, password;
+		private String ip, port, tport, password, cf, cs;
 
-		public SpiceThread(String ip, String port, String password) {
+		public SpiceThread(String ip, String port, String tport, String password, String cf, String cs) {
 			this.ip = ip;
 			this.port = port;
+			this.tport = tport;
 			this.password = password;
+			this.cf = cf;
+			this.cs = cs;
 		}
 
 		public void run() {
-			SpiceClientConnect (ip, port, password);
+			SpiceClientConnect (ip, port, tport, password, cf, cs);
 			android.util.Log.e(TAG, "SpiceClientConnect returned.");
 
 			// If we've exited SpiceClientConnect, the connection is certainly
