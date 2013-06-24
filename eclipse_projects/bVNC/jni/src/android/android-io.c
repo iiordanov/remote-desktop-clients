@@ -75,10 +75,10 @@ int win32key2spice (int keycode)
 	int newKeyCode = keymap_win322xtkbd[keycode];
 	/*
 	char buf[100];
-    snprintf (buf, 100, "Converted win32 key: %d to linux key: %d", keycode, newKeyCode);
+	snprintf (buf, 100, "Converted win32 key: %d to linux key: %d", keycode, newKeyCode);
 	__android_log_write(6, "android-io", buf);
 	*/
-    return newKeyCode;
+	return newKeyCode;
 }
 
 inline bool attachThreadToJvm (JNIEnv** env) {
