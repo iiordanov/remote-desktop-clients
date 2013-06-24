@@ -46,9 +46,10 @@ void spice_session_setup(JNIEnv *env, SpiceSession *session, jstring h, jstring 
 
     if (host)
         g_object_set(session, "host", host, NULL);
-    if (port)
-        g_object_set(session, "port", port, NULL);
-    if (tls_port)
+    // If we receive "-1" for a port, we assume the port is not set.
+    if (port && strcmp (port, "-1") != 0)
+       g_object_set(session, "port", port, NULL);
+    if (tls_port && strcmp (tls_port, "-1") != 0)
         g_object_set(session, "tls-port", tls_port, NULL);
     if (password)
         g_object_set(session, "password", password, NULL);

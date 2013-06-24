@@ -388,8 +388,15 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 			    		
 			    		// Get the address and port (based on whether an SSH tunnel is being established or not).
 			    		String address = getAddress();
-			    		int port = getPort(connection.getPort());
-			    		int tport = getPort(connection.getTlsPort());
+			    		// To prevent an SSH tunnel being created when port or TLS port is not set, we only
+			    		// getPort when port/tport are positive.
+			    		int port = connection.getPort();
+			    		if (port > 0)
+			    			port = getPort(port);
+			    		
+			    		int tport = connection.getTlsPort();
+			    		if (tport > 0)
+			    			tport = getPort(tport);
 			    		
 				    	spicecomm = new SpiceCommunicator ();
 				    	rfbconn = spicecomm;

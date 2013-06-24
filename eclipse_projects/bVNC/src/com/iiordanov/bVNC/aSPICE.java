@@ -221,7 +221,7 @@ public class aSPICE extends Activity implements MainConfiguration {
 			@Override
 			public void onClick(View view) {
 				if (ipText.getText().length() != 0
-						&& portText.getText().length() != 0)
+						&& (portText.getText().length() != 0 || tlsPort.getText().length() != 0))
 					canvasStart();
 				else
 					Toast.makeText(view.getContext(),
@@ -436,8 +436,16 @@ public class aSPICE extends Activity implements MainConfiguration {
 		else
 			ipText.setText(selected.getAddress());
 
-		portText.setText(Integer.toString(selected.getPort()));
-		tlsPort.setText(Integer.toString(selected.getTlsPort()));
+		if (selected.getPort() < 0) {
+			portText.setText("");
+		} else {
+			portText.setText(Integer.toString(selected.getPort()));
+		}
+		if (selected.getTlsPort() < 0) {
+			tlsPort.setText("");
+		} else {
+			tlsPort.setText(Integer.toString(selected.getTlsPort()));
+		}
 
 		if (selected.getKeepPassword() || selected.getPassword().length() > 0) {
 			passwordText.setText(selected.getPassword());
@@ -524,10 +532,26 @@ public class aSPICE extends Activity implements MainConfiguration {
 		selected.setConnectionType(selectedConnType);
 		selected.setAddress(ipText.getText().toString());
 		
+		String port = portText.getText().toString();
+		if (!port.equals("")) {
+			try {
+				selected.setPort(Integer.parseInt(portText.getText().toString()));
+			} catch (NumberFormatException nfe) { }
+		} else {
+			selected.setPort(-1);
+		}
+		
+		String tlsport = tlsPort.getText().toString();
+		if (!tlsport.equals("")) {
+			try {
+				selected.setTlsPort(Integer.parseInt(tlsPort.getText().toString()));
+			} catch (NumberFormatException nfe) { }
+		} else {
+			selected.setTlsPort(-1);
+		}
+		
 		try {
-			selected.setPort(Integer.parseInt(portText.getText().toString()));
 			selected.setSshPort(Integer.parseInt(sshPort.getText().toString()));
-			selected.setTlsPort(Integer.parseInt(tlsPort.getText().toString()));
 		} catch (NumberFormatException nfe) {
 		}
 		

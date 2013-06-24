@@ -84,7 +84,7 @@ public class ConnectionBean extends AbstractConnectionBean implements Comparable
 		setPort(5900);
 		setCaCert("");
 		setCaCertPath("");
-		setTlsPort(5901);
+		setTlsPort(-1);
 		setCertSubject("");
 		setColorModel(COLORMODEL.C24bit.nameString());
 		setPrefEncoding(RfbProto.EncodingTight);
