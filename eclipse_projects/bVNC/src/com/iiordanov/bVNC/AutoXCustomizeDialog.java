@@ -379,7 +379,11 @@ public class AutoXCustomizeDialog extends AlertDialog {
 		setSessionProg();
 		setCommandIndexAndCommand ();
 		
-		selected.setAutoXEnabled(commandIndex != VncConstants.COMMAND_AUTO_X_DISABLED);
+		boolean autoXenabled = commandIndex != VncConstants.COMMAND_AUTO_X_DISABLED;
+		selected.setAutoXEnabled(autoXenabled);
+		if (autoXenabled) {
+			selected.setAddress("localhost");
+		}
 		selected.setAutoXType(commandIndex);
 		selected.setAutoXCommand(command);
 		selected.setAutoXUnixpw(checkboxAutoXUnixpw.isChecked());
