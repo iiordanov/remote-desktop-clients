@@ -12,9 +12,7 @@ public class RemoteVncKeyboard extends RemoteKeyboard {
 	private final static String TAG = "RemoteKeyboard";
 	
 	public RemoteVncKeyboard (RfbConnectable r, VncCanvas v, Handler h) {
-		rfb = r;
-		vncCanvas = v;
-		handler = h;
+		super(r, v, h);
 		
 		String s = android.os.Build.MODEL;
 		String vers = android.os.Build.ID;

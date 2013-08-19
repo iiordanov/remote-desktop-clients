@@ -19,9 +19,8 @@ public class RemoteSpiceKeyboard extends RemoteKeyboard {
 	private final static String TAG = "RemoteSpiceKeyboard";
 	
 	public RemoteSpiceKeyboard (RfbConnectable r, VncCanvas v, Handler h) {
-		rfb = r;
-		vncCanvas = v;
-		handler = h;
+		super(r, v, h);
+
 		context = v.getContext();
 		
 		keyboardMapper = new RdpKeyboardMapper();

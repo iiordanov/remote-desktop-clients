@@ -39,6 +39,7 @@ public abstract class RemoteKeyboard {
 	protected RfbConnectable rfb;
 	protected Context context;
 	protected RdpKeyboardMapper keyboardMapper;
+	protected KeyRepeater keyRepeater;
 
 	// Variable holding the state of any pressed hardware meta keys (Ctrl, Alt...)
 	protected int hardwareMetaState = 0;
@@ -57,8 +58,18 @@ public abstract class RemoteKeyboard {
 	boolean bb10 = false;
 	boolean backspaceWorkaround = false;
 
+	RemoteKeyboard (RfbConnectable r, VncCanvas v, Handler h) {
+		rfb = r;
+		vncCanvas = v;
+		handler = h;
+		keyRepeater = new KeyRepeater (this, h);
+	}
 
-	public boolean processLocalKeyEvent(int keyCode, KeyEvent evt) { return false; }
+	public boolean processLocalKeyEvent(int keyCode, KeyEvent event) { return false; }
+
+	public void repeatKeyEvent(int keyCode, KeyEvent event) { keyRepeater.start(keyCode, event); }
+
+	public void stopRepeatingKeyEvent() { keyRepeater.stop(); }
 
 	public void sendMetaKey(MetaKeyBean meta) {}
 	

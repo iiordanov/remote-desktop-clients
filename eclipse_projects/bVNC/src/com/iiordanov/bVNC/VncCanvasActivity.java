@@ -455,11 +455,13 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 				if (e.getAction() == MotionEvent.ACTION_DOWN) {
 					BCFactory.getInstance().getBCHaptic().performLongPressHaptic(vncCanvas);
 					keyTab.setImageResource(R.drawable.tabon);
-					return k.processLocalKeyEvent(key, new KeyEvent(e.getAction(), key));
+					k.repeatKeyEvent(key, new KeyEvent(e.getAction(), key));
+					return true;
 				} else if (e.getAction() == MotionEvent.ACTION_UP) {
 					keyTab.setImageResource(R.drawable.taboff);
 					resetOnScreenKeys (0);
-					return k.processLocalKeyEvent(key, new KeyEvent(e.getAction(), key));
+					k.stopRepeatingKeyEvent();
+					return true;
 				}
 				return false;
 			}
@@ -559,11 +561,13 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 				if (e.getAction() == MotionEvent.ACTION_DOWN) {
 					BCFactory.getInstance().getBCHaptic().performLongPressHaptic(vncCanvas);
 					keyUp.setImageResource(R.drawable.upon);
-					return k.processLocalKeyEvent(key, new KeyEvent(e.getAction(), key));	
+					k.repeatKeyEvent(key, new KeyEvent(e.getAction(), key));
+					return true;
 				} else if (e.getAction() == MotionEvent.ACTION_UP) {
 					keyUp.setImageResource(R.drawable.upoff);
 					resetOnScreenKeys (0);
-					return k.processLocalKeyEvent(key, new KeyEvent(e.getAction(), key));
+					k.stopRepeatingKeyEvent();
+					return true;
 				}
 				return false;
 			}
@@ -578,11 +582,13 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 				if (e.getAction() == MotionEvent.ACTION_DOWN) {
 					BCFactory.getInstance().getBCHaptic().performLongPressHaptic(vncCanvas);
 					keyDown.setImageResource(R.drawable.downon);
-					return k.processLocalKeyEvent(key, new KeyEvent(e.getAction(), key));	
+					k.repeatKeyEvent(key, new KeyEvent(e.getAction(), key));
+					return true;
 				} else if (e.getAction() == MotionEvent.ACTION_UP) {
 					keyDown.setImageResource(R.drawable.downoff);
 					resetOnScreenKeys (0);
-					return k.processLocalKeyEvent(key, new KeyEvent(e.getAction(), key));
+					k.stopRepeatingKeyEvent();
+					return true;
 				}
 				return false;
 			}
@@ -597,11 +603,13 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 				if (e.getAction() == MotionEvent.ACTION_DOWN) {
 					BCFactory.getInstance().getBCHaptic().performLongPressHaptic(vncCanvas);
 					keyLeft.setImageResource(R.drawable.lefton);
-					return k.processLocalKeyEvent(key, new KeyEvent(e.getAction(), key));	
+					k.repeatKeyEvent(key, new KeyEvent(e.getAction(), key));
+					return true;
 				} else if (e.getAction() == MotionEvent.ACTION_UP) {
 					keyLeft.setImageResource(R.drawable.leftoff);
 					resetOnScreenKeys (0);
-					return k.processLocalKeyEvent(key, new KeyEvent(e.getAction(), key));
+					k.stopRepeatingKeyEvent();
+					return true;
 				}
 				return false;
 			}
@@ -616,11 +624,13 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 				if (e.getAction() == MotionEvent.ACTION_DOWN) {
 					BCFactory.getInstance().getBCHaptic().performLongPressHaptic(vncCanvas);
 					keyRight.setImageResource(R.drawable.righton);
-					return k.processLocalKeyEvent(key, new KeyEvent(e.getAction(), key));	
+					k.repeatKeyEvent(key, new KeyEvent(e.getAction(), key));
+					return true;	
 				} else if (e.getAction() == MotionEvent.ACTION_UP) {
 					keyRight.setImageResource(R.drawable.rightoff);
 					resetOnScreenKeys (0);
-					return k.processLocalKeyEvent(key, new KeyEvent(e.getAction(), key));	
+					k.stopRepeatingKeyEvent();
+					return true;
 				}
 				return false;
 			}
