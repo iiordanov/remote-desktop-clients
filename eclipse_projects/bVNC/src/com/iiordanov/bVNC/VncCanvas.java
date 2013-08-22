@@ -53,6 +53,7 @@ import android.os.SystemClock;
 import android.text.ClipboardManager;
 import android.util.AttributeSet;
 import android.util.Base64;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
 import android.view.KeyEvent;
@@ -307,6 +308,7 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 	 */
 	int displayWidth = 0;
 	int displayHeight = 0;
+	float displayDensity = 0;
 
 	/*
 	 * Variables used for BB and BB10 hacks.
@@ -345,6 +347,13 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 		
 		isRdp   = getContext().getPackageName().contains("RDP");
 		isSpice = getContext().getPackageName().contains("SPICE");
+		
+		final Display display = ((Activity)context).getWindow().getWindowManager().getDefaultDisplay();
+		displayWidth  = display.getWidth();
+		displayHeight = display.getHeight();
+		DisplayMetrics metrics = new DisplayMetrics();
+		display.getMetrics(metrics);
+		displayDensity = metrics.density;
 	}
 
 	/**
@@ -377,9 +386,6 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 		// Make this dialog cancellable only upon hitting the Back button and not touching outside.
 		pd.setCanceledOnTouchOutside(false);
 
-		final Display display = pd.getWindow().getWindowManager().getDefaultDisplay();
-		displayWidth  = display.getWidth();
-		displayHeight = display.getHeight();
 		Thread t = new Thread () {
 			public void run() {
 			    try {
@@ -1224,6 +1230,10 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 			return bitmapData.getMinimumScale();
 		} else
 			return 1.f;
+	}
+	
+	public float getDisplayDensity() {
+		return displayDensity;
 	}
 	
 	/********************************************************************************

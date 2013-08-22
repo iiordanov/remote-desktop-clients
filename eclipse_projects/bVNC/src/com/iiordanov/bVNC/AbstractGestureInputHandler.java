@@ -86,6 +86,7 @@ abstract class AbstractGestureInputHandler extends GestureDetector.SimpleOnGestu
 	// This is how far the swipe has to travel before a swipe event is generated.
 	final float   baseSwipeDist = 40.f;
 	
+	boolean inScrolling         = false;
 	boolean inScaling           = false;
 	boolean scalingJustFinished = false;
 	// The minimum distance a scale event has to traverse the FIRST time before scaling starts.
@@ -283,6 +284,7 @@ abstract class AbstractGestureInputHandler extends GestureDetector.SimpleOnGestu
 		panMode               = false;
 		inScaling             = false;
 		inSwiping             = false;
+		inScrolling           = false;
     	if (dragMode || rightDragMode || middleDragMode) {
     		dragMode          = false;
 			rightDragMode     = false;

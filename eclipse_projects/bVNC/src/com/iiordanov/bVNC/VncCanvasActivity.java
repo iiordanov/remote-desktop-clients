@@ -1289,6 +1289,17 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 	boolean getRotateDpad() {
 		return connection.getRotateDpad();
 	}
+	
+	// Returns whether the D-pad should be rotated to accommodate BT keyboards paired with phones.
+	float getSensitivity() {
+		// TODO: Make this a slider config option.
+		return 1.5f;
+	}
+	
+	boolean getAccelerationEnabled() {
+		// TODO: Make this a config option.
+		return true;
+	}
 
 	long hideZoomAfterMs;
 	static final long ZOOM_HIDE_DELAY_MS = 2500;

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="com.iiordanov.bVNC" android:installLocation="auto"
-          android:versionCode="3300" android:versionName="v3.3.0">
+          android:versionCode="3320" android:versionName="v3.3.2">
 
     <uses-sdk android:minSdkVersion="8" android:targetSdkVersion="8"></uses-sdk>
     <uses-permission android:name="android.permission.INTERNET"></uses-permission>
@@ -50,7 +50,7 @@
 		<activity android:name="com.iiordanov.pubkeygenerator.GeneratePubkeyActivity"
                   android:configChanges="keyboardHidden|orientation"
                   android:windowSoftInputMode="stateHidden|adjustResize"
-                  android:screenOrientation="fullSensor" />
+                  android:screenOrientation="unspecified" />
                 <uses-library required="false" name="com.sec.android.app.multiwindow"> </uses-library>
                 <meta-data android:name="com.sec.android.support.multiwindow"
                            android:value="true" />

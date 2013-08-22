@@ -10,12 +10,18 @@ import com.iiordanov.bVNC.input.RemotePointer;
 public class SimulatedTouchpadInputHandler extends AbstractGestureInputHandler {
 	static final String TAG = "SimulatedTouchpadInputHandler";
 	static final String TOUCHPAD_MODE = "TOUCHPAD_MODE";
+	float sensitivity = 0;
+	float displayDensity = 0;
+	boolean acceleration = false;
 
 	/**
 	 * @param c
 	 */
 	SimulatedTouchpadInputHandler(VncCanvasActivity va, VncCanvas v) {
 		super(va, v);
+		acceleration = activity.getAccelerationEnabled();
+		sensitivity = activity.getSensitivity();
+		displayDensity = vncCanvas.getDisplayDensity();
 	}
 
 	/*
@@ -100,6 +106,18 @@ public class SimulatedTouchpadInputHandler extends AbstractGestureInputHandler {
 
 		activity.showZoomer(true);
 
+		// If the gesture has just began, then don't allow a big delta to prevent
+		// pointer jumps at the start of scrolling.
+		if (!inScrolling) {
+			inScrolling = true;
+			distanceX = sign(distanceX);
+			distanceY = sign(distanceY);
+		} else {
+			// Make distanceX/Y display density independent.
+			distanceX = sensitivity * distanceX / displayDensity;
+			distanceY = sensitivity * distanceY / displayDensity;
+		}
+		
 		// Compute the absolute new mouse position on the remote site.
 		int newRemoteX = (int) (p.getX() + getDelta(-distanceX));
 		int newRemoteY = (int) (p.getY() + getDelta(-distanceY));
@@ -150,7 +168,7 @@ public class SimulatedTouchpadInputHandler extends AbstractGestureInputHandler {
 	}
 
 	/**
-	 * scale down delta when it is small. This will allow finer control
+	 * Scale down delta when it is small. This will allow finer control
 	 * when user is making a small movement on touch screen.
 	 * Scale up delta when delta is big. This allows fast mouse movement when
 	 * user is flinging.
@@ -158,17 +176,24 @@ public class SimulatedTouchpadInputHandler extends AbstractGestureInputHandler {
 	 * @return
 	 */
 	private float fineCtrlScale(float delta) {
-		float sign = (delta>0) ? 1 : -1;
+		float sign = sign(delta);
 		delta = Math.abs(delta);
-		if (delta>=1 && delta<=2) {
-			delta = 1;
-		}else if (delta <= 20) {
-			delta *= 0.66;
-		} else if (delta <= 90 ) {
+		if (delta <= 20) {
+			delta *= 0.75;
+		} else if (acceleration && delta <= 90 ) {
 			delta *= delta/30;
-		} else {
+		} else if (acceleration) {
 			delta *= 3.5;
 		}
 		return sign * delta;
+	}
+	
+	/**
+	 * Returns the sign of the given number.
+	 * @param number the given number
+	 * @return -1 for negative and 1 for positive.
+	 */
+	private float sign (float number) {
+		return (number > 0) ? 1 : -1;
 	}
 }
