@@ -113,6 +113,22 @@ static void spice_marshall_msgc_display_init(SpiceMarshaller *m, SpiceMsgcDispla
     spice_marshaller_add_int32(m, src->glz_dictionary_window_size);
 }
 
+static void spice_marshall_msgc_display_stream_report(SpiceMarshaller *m, SpiceMsgcDisplayStreamReport *msg)
+{
+    SPICE_GNUC_UNUSED SpiceMarshaller *m2;
+    SpiceMsgcDisplayStreamReport *src;
+    src = (SpiceMsgcDisplayStreamReport *)msg;
+
+    spice_marshaller_add_uint32(m, src->stream_id);
+    spice_marshaller_add_uint32(m, src->unique_id);
+    spice_marshaller_add_uint32(m, src->start_frame_mm_time);
+    spice_marshaller_add_uint32(m, src->end_frame_mm_time);
+    spice_marshaller_add_uint32(m, src->num_frames);
+    spice_marshaller_add_uint32(m, src->num_drops);
+    spice_marshaller_add_int32(m, src->last_frame_delay);
+    spice_marshaller_add_uint32(m, src->audio_delay);
+}
+
 static void spice_marshall_msgc_inputs_key_down(SpiceMarshaller *m, SpiceMsgcKeyDown *msg)
 {
     SPICE_GNUC_UNUSED SpiceMarshaller *m2;
@@ -397,6 +413,7 @@ SpiceMessageMarshallers * spice_message_marshallers_get(void)
     marshallers.msgc_ack_sync = spice_marshall_msgc_ack_sync;
     marshallers.msgc_disconnecting = spice_marshall_msgc_disconnecting;
     marshallers.msgc_display_init = spice_marshall_msgc_display_init;
+    marshallers.msgc_display_stream_report = spice_marshall_msgc_display_stream_report;
     marshallers.msgc_inputs_key_down = spice_marshall_msgc_inputs_key_down;
     marshallers.msgc_inputs_key_modifiers = spice_marshall_msgc_inputs_key_modifiers;
     marshallers.msgc_inputs_key_up = spice_marshall_msgc_inputs_key_up;

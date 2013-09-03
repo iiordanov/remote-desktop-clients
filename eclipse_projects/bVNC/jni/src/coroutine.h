@@ -55,6 +55,7 @@ struct coroutine
 #endif
 };
 
+#define IN_MAIN_CONTEXT (coroutine_self()->caller == NULL)
 int coroutine_init(struct coroutine *co);
 
 int coroutine_release(struct coroutine *co);

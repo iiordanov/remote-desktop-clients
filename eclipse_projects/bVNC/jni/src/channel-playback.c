@@ -15,7 +15,7 @@
    You should have received a copy of the GNU Lesser General Public
    License along with this library; if not, see <http://www.gnu.org/licenses/>.
 */
-#include <celt/celt.h>
+#include <celt051/celt.h>
 
 #include "spice-client.h"
 #include "spice-common.h"
@@ -55,6 +55,9 @@ struct _SpicePlaybackChannelPrivate {
     guint8                      nchannels;
     guint16                     *volume;
     guint8                      mute;
+    gboolean                    is_active;
+    guint32                     latency;
+    guint32                     min_latency;
 };
 
 G_DEFINE_TYPE(SpicePlaybackChannel, spice_playback_channel, SPICE_TYPE_CHANNEL)
@@ -65,6 +68,7 @@ enum {
     PROP_NCHANNELS,
     PROP_VOLUME,
     PROP_MUTE,
+    PROP_MIN_LATENCY,
 };
 
 /* Signals */
@@ -83,11 +87,14 @@ static void spice_playback_handle_msg(SpiceChannel *channel, SpiceMsgIn *msg);
 
 /* ------------------------------------------------------------------ */
 
+#define SPICE_PLAYBACK_DEFAULT_LATENCY_MS 200
+
 static void spice_playback_channel_reset_capabilities(SpiceChannel *channel)
 {
     if (!g_getenv("SPICE_DISABLE_CELT"))
         spice_channel_set_capability(SPICE_CHANNEL(channel), SPICE_PLAYBACK_CAP_CELT_0_5_1);
     spice_channel_set_capability(SPICE_CHANNEL(channel), SPICE_PLAYBACK_CAP_VOLUME);
+    spice_channel_set_capability(SPICE_CHANNEL(channel), SPICE_PLAYBACK_CAP_LATENCY);
 }
 
 static void spice_playback_channel_init(SpicePlaybackChannel *channel)
@@ -102,12 +109,12 @@ static void spice_playback_channel_finalize(GObject *obj)
     SpicePlaybackChannelPrivate *c = SPICE_PLAYBACK_CHANNEL(obj)->priv;
 
     if (c->celt_decoder) {
-        celt_decoder_destroy(c->celt_decoder);
+        celt051_decoder_destroy(c->celt_decoder);
         c->celt_decoder = NULL;
     }
 
     if (c->celt_mode) {
-        celt_mode_destroy(c->celt_mode);
+        celt051_mode_destroy(c->celt_mode);
         c->celt_mode = NULL;
     }
 
@@ -135,6 +142,9 @@ static void spice_playback_channel_get_property(GObject    *gobject,
         break;
     case PROP_MUTE:
         g_value_set_boolean(value, c->mute);
+        break;
+    case PROP_MIN_LATENCY:
+        g_value_set_uint(value, c->min_latency);
         break;
     default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID(gobject, prop_id, pspec);
@@ -166,12 +176,12 @@ static void spice_playback_channel_reset(SpiceChannel *channel, gboolean migrati
     SpicePlaybackChannelPrivate *c = SPICE_PLAYBACK_CHANNEL(channel)->priv;
 
     if (c->celt_decoder) {
-        celt_decoder_destroy(c->celt_decoder);
+        celt051_decoder_destroy(c->celt_decoder);
         c->celt_decoder = NULL;
     }
 
     if (c->celt_mode) {
-        celt_mode_destroy(c->celt_mode);
+        celt051_mode_destroy(c->celt_mode);
         c->celt_mode = NULL;
     }
 
@@ -216,12 +226,21 @@ static void spice_playback_channel_class_init(SpicePlaybackChannelClass *klass)
                               FALSE,
                               G_PARAM_READWRITE |
                               G_PARAM_STATIC_STRINGS));
+    g_object_class_install_property
+        (gobject_class, PROP_MIN_LATENCY,
+         g_param_spec_uint("min-latency",
+                           "Playback min buffer size (ms)",
+                           "Playback min buffer size (ms)",
+                           0, G_MAXUINT32, SPICE_PLAYBACK_DEFAULT_LATENCY_MS,
+                           G_PARAM_READWRITE |
+                           G_PARAM_STATIC_STRINGS));
     /**
      * SpicePlaybackChannel::playback-start:
      * @channel: the #SpicePlaybackChannel that emitted the signal
      * @format: a #SPICE_AUDIO_FMT
      * @channels: number of channels
      * @rate: audio rate
+     * @latency: minimum playback latency in ms
      *
      * Notify when the playback should start, and provide audio format
      * characteristics.
@@ -297,6 +316,7 @@ struct SPICE_PLAYBACK_START {
     gint format;
     gint channels;
     gint frequency;
+    gint latency;
 };
 
 struct SPICE_PLAYBACK_DATA {
@@ -364,7 +384,7 @@ static void playback_handle_data(SpiceChannel *channel, SpiceMsgIn *in)
 
         g_return_if_fail(c->celt_decoder != NULL);
 
-        if (celt_decode(c->celt_decoder, packet->data,
+        if (celt051_decode(c->celt_decoder, packet->data,
                            packet->data_size, pcm) != CELT_OK) {
             g_warning("celt_decode() error");
             return;
@@ -416,6 +436,8 @@ static void playback_handle_start(SpiceChannel *channel, SpiceMsgIn *in)
 
     c->frame_count = 0;
     c->last_time = start->time;
+    c->is_active = TRUE;
+    c->min_latency = SPICE_PLAYBACK_DEFAULT_LATENCY_MS;
 
     switch (c->mode) {
     case SPICE_AUDIO_DATA_MODE_RAW:
@@ -426,13 +448,13 @@ static void playback_handle_start(SpiceChannel *channel, SpiceMsgIn *in)
         /* TODO: only support one setting now */
         int frame_size = 256;
         if (!c->celt_mode)
-            c->celt_mode = celt_mode_create(start->frequency, start->channels,
+            c->celt_mode = celt051_mode_create(start->frequency, start->channels,
                                                frame_size, &celt_mode_err);
         if (!c->celt_mode)
             g_warning("create celt mode failed %d", celt_mode_err);
 
         if (!c->celt_decoder)
-            c->celt_decoder = celt_decoder_create(c->celt_mode);
+            c->celt_decoder = celt051_decoder_create(c->celt_mode);
 
         if (!c->celt_decoder)
             g_warning("create celt decoder failed");
@@ -450,7 +472,10 @@ static void playback_handle_start(SpiceChannel *channel, SpiceMsgIn *in)
 /* coroutine context */
 static void playback_handle_stop(SpiceChannel *channel, SpiceMsgIn *in)
 {
+    SpicePlaybackChannelPrivate *c = SPICE_PLAYBACK_CHANNEL(channel)->priv;
+
     emit_main_context(channel, SPICE_PLAYBACK_STOP);
+    c->is_active = FALSE;
 }
 
 /* coroutine context */
@@ -481,6 +506,17 @@ static void playback_handle_set_mute(SpiceChannel *channel, SpiceMsgIn *in)
     g_object_notify_main_context(G_OBJECT(channel), "mute");
 }
 
+/* coroutine context */
+static void playback_handle_set_latency(SpiceChannel *channel, SpiceMsgIn *in)
+{
+    SpicePlaybackChannelPrivate *c = SPICE_PLAYBACK_CHANNEL(channel)->priv;
+    SpiceMsgPlaybackLatency *msg = spice_msg_in_parsed(in);
+
+    c->min_latency = msg->latency_ms;
+    SPICE_DEBUG("%s: notify latency update %u", __FUNCTION__, c->min_latency);
+    g_object_notify_main_context(G_OBJECT(channel), "min-latency");
+}
+
 static const spice_msg_handler playback_handlers[] = {
     [ SPICE_MSG_PLAYBACK_DATA ]            = playback_handle_data,
     [ SPICE_MSG_PLAYBACK_MODE ]            = playback_handle_mode,
@@ -488,6 +524,7 @@ static const spice_msg_handler playback_handlers[] = {
     [ SPICE_MSG_PLAYBACK_STOP ]            = playback_handle_stop,
     [ SPICE_MSG_PLAYBACK_VOLUME ]          = playback_handle_set_volume,
     [ SPICE_MSG_PLAYBACK_MUTE ]            = playback_handle_set_mute,
+    [ SPICE_MSG_PLAYBACK_LATENCY ]         = playback_handle_set_latency,
 };
 
 /* coroutine context */
@@ -517,6 +554,33 @@ void spice_playback_channel_set_delay(SpicePlaybackChannel *channel, guint32 del
     CHANNEL_DEBUG(channel, "playback set_delay %u ms", delay_ms);
 
     c = channel->priv;
+    c->latency = delay_ms;
     spice_session_set_mm_time(spice_channel_get_session(SPICE_CHANNEL(channel)),
                               c->last_time - delay_ms);
+}
+
+G_GNUC_INTERNAL
+gboolean spice_playback_channel_is_active(SpicePlaybackChannel *channel)
+{
+    g_return_val_if_fail(SPICE_IS_PLAYBACK_CHANNEL(channel), FALSE);
+    return channel->priv->is_active;
+}
+
+G_GNUC_INTERNAL
+guint32 spice_playback_channel_get_latency(SpicePlaybackChannel *channel)
+{
+    g_return_val_if_fail(SPICE_IS_PLAYBACK_CHANNEL(channel), 0);
+    if (!channel->priv->is_active) {
+        return 0;
+    }
+    return channel->priv->latency;
+}
+
+G_GNUC_INTERNAL
+void spice_playback_channel_sync_latency(SpicePlaybackChannel *channel)
+{
+    g_return_if_fail(SPICE_IS_PLAYBACK_CHANNEL(channel));
+    g_return_if_fail(channel->priv->is_active);
+    SPICE_DEBUG("%s: notify latency update %u", __FUNCTION__, channel->priv->min_latency);
+    g_object_notify_main_context(G_OBJECT(SPICE_CHANNEL(channel)), "min-latency");
 }

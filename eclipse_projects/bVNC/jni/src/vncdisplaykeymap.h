@@ -24,7 +24,8 @@
 
 #include <glib.h>
 
-const guint16 const *vnc_display_keymap_gdk2xtkbd_table(size_t *maplen);
+const guint16 const *vnc_display_keymap_gdk2xtkbd_table(GdkWindow *window,
+                                                        size_t *maplen);
 guint16 vnc_display_keymap_gdk2xtkbd(const guint16 *keycode_map,
                                      size_t keycode_maplen,
                                      guint16 keycode);

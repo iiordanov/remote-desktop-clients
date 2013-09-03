@@ -94,6 +94,8 @@ SpiceUsbDeviceManager *spice_usb_device_manager_get(SpiceSession *session,
                                                     GError **err);
 
 GPtrArray *spice_usb_device_manager_get_devices(SpiceUsbDeviceManager *manager);
+GPtrArray* spice_usb_device_manager_get_devices_with_filter(
+    SpiceUsbDeviceManager *manager, const gchar *filter);
 
 gboolean spice_usb_device_manager_is_device_connected(SpiceUsbDeviceManager *manager,
                                                       SpiceUsbDevice *device);

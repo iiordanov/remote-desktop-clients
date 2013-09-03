@@ -2430,7 +2430,11 @@ miLineArc (GCPtr pGC,
     int xorgi = 0, yorgi = 0;
     Spans spanRec;
     int n;
+    #if 0
     PolyEdgeRec edge1, edge2;
+    #else
+    PolyEdgeRec edge1 = {0}, edge2 = {0};
+    #endif
     int edgey1, edgey2;
     Boolean edgeleft1, edgeleft2;
 

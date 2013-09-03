@@ -15,7 +15,7 @@
    You should have received a copy of the GNU Lesser General Public
    License along with this library; if not, see <http://www.gnu.org/licenses/>.
 */
-#include <celt/celt.h>
+#include <celt051/celt.h>
 
 #include "spice-client.h"
 #include "spice-common.h"
@@ -111,12 +111,12 @@ static void spice_record_channel_finalize(GObject *obj)
     c->last_frame = NULL;
 
     if (c->celt_encoder) {
-        celt_encoder_destroy(c->celt_encoder);
+        celt051_encoder_destroy(c->celt_encoder);
         c->celt_encoder = NULL;
     }
 
     if (c->celt_mode) {
-        celt_mode_destroy(c->celt_mode);
+        celt051_mode_destroy(c->celt_mode);
         c->celt_mode = NULL;
     }
 
@@ -177,12 +177,12 @@ static void channel_reset(SpiceChannel *channel, gboolean migrating)
     c->last_frame = NULL;
 
     if (c->celt_encoder) {
-        celt_encoder_destroy(c->celt_encoder);
+        celt051_encoder_destroy(c->celt_encoder);
         c->celt_encoder = NULL;
     }
 
     if (c->celt_mode) {
-        celt_mode_destroy(c->celt_mode);
+        celt051_mode_destroy(c->celt_mode);
         c->celt_mode = NULL;
     }
 
@@ -413,7 +413,7 @@ void spice_record_send_data(SpiceRecordChannel *channel, gpointer data,
         }
 
         if (rc->mode == SPICE_AUDIO_DATA_MODE_CELT_0_5_1) {
-            frame_size = celt_encode(rc->celt_encoder, (celt_int16_t *)frame, NULL, celt_buf,
+            frame_size = celt051_encode(rc->celt_encoder, (celt_int16_t *)frame, NULL, celt_buf,
                                celt_compressed_frame_bytes);
             if (frame_size < 0) {
                 g_warning("celt encode failed");
@@ -463,13 +463,13 @@ static void record_handle_start(SpiceChannel *channel, SpiceMsgIn *in)
         g_return_if_fail(start->format == SPICE_AUDIO_FMT_S16);
 
         if (!c->celt_mode)
-            c->celt_mode = celt_mode_create(start->frequency, start->channels, FRAME_SIZE,
+            c->celt_mode = celt051_mode_create(start->frequency, start->channels, FRAME_SIZE,
                                                &celt_mode_err);
         if (!c->celt_mode)
             g_warning("Failed to create celt mode");
 
         if (!c->celt_encoder)
-            c->celt_encoder = celt_encoder_create(c->celt_mode);
+            c->celt_encoder = celt051_encoder_create(c->celt_mode);
 
         if (!c->celt_encoder)
             g_warning("Failed to create celt encoder");

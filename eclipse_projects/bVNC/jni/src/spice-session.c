@@ -29,6 +29,7 @@
 #include "glib-compat.h"
 #include "wocky-http-proxy.h"
 #include "spice-proxy.h"
+#include "channel-playback-priv.h"
 
 struct channel {
     SpiceChannel      *channel;
@@ -106,18 +107,34 @@ enum {
     PROP_UUID,
     PROP_NAME,
     PROP_CA,
-    PROP_PROXY
+    PROP_PROXY,
+    PROP_SECURE_CHANNELS
 };
 
 /* signals */
 enum {
     SPICE_SESSION_CHANNEL_NEW,
     SPICE_SESSION_CHANNEL_DESTROY,
+    SPICE_SESSION_MM_TIME_RESET,
     SPICE_SESSION_LAST_SIGNAL,
 };
 
 static guint signals[SPICE_SESSION_LAST_SIGNAL];
 
+struct SPICE_SESSION_MM_TIME_RESET {
+};
+
+/* main context */
+static void do_emit_main_context(GObject *object, int signum, gpointer params)
+{
+    switch (signum) {
+    case SPICE_SESSION_MM_TIME_RESET:
+        g_signal_emit(object, signals[signum], 0);
+        break;
+    default:
+        g_warn_if_reached();
+    }
+}
 
 static void update_proxy(SpiceSession *self, const gchar *str)
 {
@@ -154,20 +171,7 @@ static void spice_session_init(SpiceSession *session)
     SPICE_DEBUG("New session (compiled from package " PACKAGE_STRING ")");
     s = session->priv = SPICE_SESSION_GET_PRIVATE(session);
 
-    channels = g_strjoin(", ",
-                         spice_channel_type_to_string(SPICE_CHANNEL_MAIN),
-                         spice_channel_type_to_string(SPICE_CHANNEL_DISPLAY),
-                         spice_channel_type_to_string(SPICE_CHANNEL_INPUTS),
-                         spice_channel_type_to_string(SPICE_CHANNEL_CURSOR),
-                         spice_channel_type_to_string(SPICE_CHANNEL_PLAYBACK),
-                         spice_channel_type_to_string(SPICE_CHANNEL_RECORD),
-#ifdef USE_SMARTCARD
-                         spice_channel_type_to_string(SPICE_CHANNEL_SMARTCARD),
-#endif
-#ifdef USE_USBREDIR
-                         spice_channel_type_to_string(SPICE_CHANNEL_USBREDIR),
-#endif
-                         NULL);
+    channels = spice_channel_supported_string();
     SPICE_DEBUG("Supported channels: %s", channels);
     g_free(channels);
 
@@ -261,6 +265,7 @@ spice_session_finalize(GObject *gobject)
     g_strfreev(s->smartcard_certificates);
     g_free(s->smartcard_db);
     g_strfreev(s->disable_effects);
+    g_strfreev(s->secure_channels);
 
     spice_session_palettes_clear(session);
     spice_session_images_clear(session);
@@ -500,6 +505,9 @@ static void spice_session_get_property(GObject    *gobject,
     case PROP_DISABLE_EFFECTS:
         g_value_set_boxed(value, s->disable_effects);
         break;
+    case PROP_SECURE_CHANNELS:
+        g_value_set_boxed(value, s->secure_channels);
+        break;
     case PROP_COLOR_DEPTH:
         g_value_set_int(value, s->color_depth);
         break;
@@ -618,6 +626,10 @@ static void spice_session_set_property(GObject      *gobject,
     case PROP_DISABLE_EFFECTS:
         g_strfreev(s->disable_effects);
         s->disable_effects = g_value_dup_boxed(value);
+        break;
+    case PROP_SECURE_CHANNELS:
+        g_strfreev(s->secure_channels);
+        s->secure_channels = g_value_dup_boxed(value);
         break;
     case PROP_COLOR_DEPTH:
         s->color_depth = g_value_get_int(value);
@@ -859,7 +871,7 @@ static void spice_session_class_init(SpiceSessionClass *klass)
     /**
      * SpiceSession:disable-effects:
      *
-     * A comma-separated list of effects to disable. The settings will
+     * A string array of effects to disable. The settings will
      * be applied on new display channels. The following effets can be
      * disabled "wallpaper", "font-smooth", "animation", and "all",
      * which will disable all the effects. If NULL, don't apply changes.
@@ -1021,6 +1033,23 @@ static void spice_session_class_init(SpiceSessionClass *klass)
                             G_PARAM_STATIC_STRINGS));
 
     /**
+     * SpiceSession:secure-channels:
+     *
+     * A string array of channel types to be secured.
+     *
+     * Since: 0.20
+     **/
+    g_object_class_install_property
+        (gobject_class, PROP_SECURE_CHANNELS,
+         g_param_spec_boxed ("secure-channels",
+                             "Secure channels",
+                             "Array of channel type to secure",
+                             G_TYPE_STRV,
+                             G_PARAM_READWRITE |
+                             G_PARAM_STATIC_STRINGS));
+
+
+    /**
      * SpiceSession::channel-new:
      * @session: the session that emitted the signal
      * @channel: the new #SpiceChannel
@@ -1055,6 +1084,23 @@ static void spice_session_class_init(SpiceSessionClass *klass)
                      G_TYPE_NONE,
                      1,
                      SPICE_TYPE_CHANNEL);
+
+    /**
+     * SpiceSession::mm-time-reset:
+     * @session: the session that emitted the signal
+     *
+     * The #SpiceSession::mm-time-reset is emitted when we identify discontinuity in mm-time
+     *
+     * Since 0.20
+     **/
+    signals[SPICE_SESSION_MM_TIME_RESET] =
+        g_signal_new("mm-time-reset",
+                     G_OBJECT_CLASS_TYPE(gobject_class),
+                     G_SIGNAL_RUN_FIRST,
+                     0, NULL, NULL,
+                     g_cclosure_marshal_VOID__VOID,
+                     G_TYPE_NONE,
+                     0);
 
     /**
      * SpiceSession:read-only:
@@ -1647,6 +1693,9 @@ struct spice_open_host {
     GError *error;
     GSocketConnection *connection;
     GSocketClient *client;
+#if !GLIB_CHECK_VERSION(2,26,0)
+    guint timeout_id;
+#endif
 };
 
 static void socket_client_connect_ready(GObject *source_object, GAsyncResult *result,
@@ -1731,8 +1780,13 @@ static gboolean open_host_idle_cb(gpointer data)
                                         proxy_lookup_ready, open_host);
     else
 #endif
-        open_host_connectable_connect(open_host,
-                                      g_network_address_new(s->host, open_host->port));
+    {
+        GSocketConnectable *address;
+
+        address = g_network_address_new(s->host, open_host->port);
+        open_host_connectable_connect(open_host, address);
+        g_object_unref(address);
+    }
 
     SPICE_DEBUG("open host %s:%d", s->host, open_host->port);
     if (open_host->proxy != NULL) {
@@ -1744,12 +1798,27 @@ static gboolean open_host_idle_cb(gpointer data)
     return FALSE;
 }
 
+#define SOCKET_TIMEOUT 10
+
+#if !GLIB_CHECK_VERSION(2,26,0)
+static gboolean connect_timeout(gpointer data)
+{
+    spice_open_host *open_host = data;
+
+    open_host->timeout_id = 0;
+    coroutine_yieldto(open_host->from, NULL);
+
+    return FALSE;
+}
+#endif
+
 /* coroutine context */
 G_GNUC_INTERNAL
 GSocketConnection* spice_session_channel_open_host(SpiceSession *session, SpiceChannel *channel,
-                                                   gboolean use_tls)
+                                                   gboolean *use_tls)
 {
     SpiceSessionPrivate *s = SPICE_SESSION_GET_PRIVATE(session);
+    SpiceChannelPrivate *c = channel->priv;
     spice_open_host open_host = { 0, };
     gchar *port, *endptr;
 
@@ -1757,7 +1826,13 @@ GSocketConnection* spice_session_channel_open_host(SpiceSession *session, SpiceC
     open_host.from = coroutine_self();
     open_host.session = session;
     open_host.channel = channel;
-    port = use_tls ? s->tls_port : s->port;
+
+    const char *name = spice_channel_type_to_string(c->channel_type);
+    if (spice_strv_contains(s->secure_channels, "all") ||
+        spice_strv_contains(s->secure_channels, name))
+        *use_tls = TRUE;
+
+    port = *use_tls ? s->tls_port : s->port;
     if (port == NULL)
         return NULL;
 
@@ -1769,11 +1844,25 @@ GSocketConnection* spice_session_channel_open_host(SpiceSession *session, SpiceC
     }
 
     open_host.client = g_socket_client_new();
+#if GLIB_CHECK_VERSION(2,26,0)
+    g_socket_client_set_timeout(open_host.client, SOCKET_TIMEOUT);
+#else
+    open_host.timeout_id =
+        g_timeout_add_seconds(SOCKET_TIMEOUT, connect_timeout, &open_host);
+#endif
 
     guint id = g_idle_add(open_host_idle_cb, &open_host);
     /* switch to main loop and wait for connection */
     coroutine_yield(NULL);
-    g_source_remove (id);
+    g_source_remove(id);
+
+#if !GLIB_CHECK_VERSION(2,26,0)
+    if (open_host.timeout_id == 0)
+        open_host.error = g_error_new(SPICE_CLIENT_ERROR, SPICE_CLIENT_ERROR_FAILED,
+                                      "connect timed out");
+    else
+        g_source_remove(open_host.timeout_id);
+#endif
 
     if (open_host.error != NULL) {
         g_warning("%s", open_host.error->message);
@@ -1781,6 +1870,9 @@ GSocketConnection* spice_session_channel_open_host(SpiceSession *session, SpiceC
     } else if (open_host.connection != NULL) {
         GSocket *socket;
         socket = g_socket_connection_get_socket(open_host.connection);
+#if GLIB_CHECK_VERSION(2,26,0)
+        g_socket_set_timeout(socket, 0);
+#endif
         g_socket_set_blocking(socket, FALSE);
         g_socket_set_keepalive(socket, TRUE);
     }
@@ -1816,6 +1908,9 @@ void spice_session_channel_new(SpiceSession *session, SpiceChannel *channel)
 
         CHANNEL_DEBUG(channel, "new main channel, switching");
         s->cmain = channel;
+    } else if (SPICE_IS_PLAYBACK_CHANNEL(channel)) {
+        g_warn_if_fail(s->playback_channel == NULL);
+        s->playback_channel = SPICE_PLAYBACK_CHANNEL(channel);
     }
 
     g_signal_emit(session, signals[SPICE_SESSION_CHANNEL_NEW], 0, channel);
@@ -1874,18 +1969,6 @@ int spice_session_get_connection_id(SpiceSession *session)
     return s->connection_id;
 }
 
-#if !GLIB_CHECK_VERSION(2,27,2)
-static guint64 g_get_monotonic_time(void)
-{
-    GTimeVal tv;
-
-    /* TODO: support real monotonic clock? */
-    g_get_current_time(&tv);
-
-    return (((gint64) tv.tv_sec) * 1000000) + tv.tv_usec;
-}
-#endif
-
 G_GNUC_INTERNAL
 guint32 spice_session_get_mm_time(SpiceSession *session)
 {
@@ -1898,16 +1981,28 @@ guint32 spice_session_get_mm_time(SpiceSession *session)
     return s->mm_time + (g_get_monotonic_time() - s->mm_time_at_clock) / 1000;
 }
 
+#define MM_TIME_DIFF_RESET_THRESH 500 // 0.5 sec
+
 G_GNUC_INTERNAL
 void spice_session_set_mm_time(SpiceSession *session, guint32 time)
 {
     SpiceSessionPrivate *s = SPICE_SESSION_GET_PRIVATE(session);
+    guint32 old_time;
 
     g_return_if_fail(s != NULL);
+
+    old_time = spice_session_get_mm_time(session);
 
     s->mm_time = time;
     s->mm_time_at_clock = g_get_monotonic_time();
     SPICE_DEBUG("set mm time: %u", spice_session_get_mm_time(session));
+    #if 0//FIXME:bug
+    if (time > old_time + MM_TIME_DIFF_RESET_THRESH ||
+        time < old_time) {
+        SPICE_DEBUG("%s: mm-time-reset, old %u, new %u", __FUNCTION__, old_time, s->mm_time);
+        emit_main_context(session, SPICE_SESSION_MM_TIME_RESET);
+    }
+    #endif
 }
 
 G_GNUC_INTERNAL
@@ -2077,4 +2172,46 @@ void spice_session_set_name(SpiceSession *session, const gchar *name)
     s->name = g_strdup(name);
 
     g_object_notify(G_OBJECT(session), "name");
+}
+
+G_GNUC_INTERNAL
+void spice_session_sync_playback_latency(SpiceSession *session)
+{
+    SpiceSessionPrivate *s = SPICE_SESSION_GET_PRIVATE(session);
+
+    g_return_if_fail(s != NULL);
+
+    if (s->playback_channel &&
+        spice_playback_channel_is_active(s->playback_channel)) {
+        spice_playback_channel_sync_latency(s->playback_channel);
+    } else {
+        SPICE_DEBUG("%s: not implemented when there isn't audio playback", __FUNCTION__);
+    }
+}
+
+G_GNUC_INTERNAL
+gboolean spice_session_is_playback_active(SpiceSession *session)
+{
+    SpiceSessionPrivate *s = SPICE_SESSION_GET_PRIVATE(session);
+
+    g_return_val_if_fail(s != NULL, FALSE);
+
+    return (s->playback_channel &&
+        spice_playback_channel_is_active(s->playback_channel));
+}
+
+G_GNUC_INTERNAL
+guint32 spice_session_get_playback_latency(SpiceSession *session)
+{
+    SpiceSessionPrivate *s = SPICE_SESSION_GET_PRIVATE(session);
+
+    g_return_val_if_fail(s != NULL, 0);
+
+    if (s->playback_channel &&
+        spice_playback_channel_is_active(s->playback_channel)) {
+        return spice_playback_channel_get_latency(s->playback_channel);
+    } else {
+        SPICE_DEBUG("%s: not implemented when there isn't audio playback", __FUNCTION__);
+        return 0;
+    }
 }

@@ -27,9 +27,12 @@ GType
 spice_channel_event_get_type (void)
 {
   static GType type = 0;
+  static volatile gsize type_volatile = 0;
 
-  if (!type)
+  if (g_once_init_enter(&type_volatile)) {
     type = g_enum_register_static ("SpiceChannelEvent", _spice_channel_event_values);
+    g_once_init_leave(&type_volatile, type);
+  }
 
   return type;
 }
@@ -51,9 +54,12 @@ GType
 spice_inputs_lock_get_type (void)
 {
   static GType type = 0;
+  static volatile gsize type_volatile = 0;
 
-  if (!type)
+  if (g_once_init_enter(&type_volatile)) {
     type = g_flags_register_static ("SpiceInputsLock", _spice_inputs_lock_values);
+    g_once_init_leave(&type_volatile, type);
+  }
 
   return type;
 }
@@ -75,9 +81,12 @@ GType
 spice_session_verify_get_type (void)
 {
   static GType type = 0;
+  static volatile gsize type_volatile = 0;
 
-  if (!type)
+  if (g_once_init_enter(&type_volatile)) {
     type = g_flags_register_static ("SpiceSessionVerify", _spice_session_verify_values);
+    g_once_init_leave(&type_volatile, type);
+  }
 
   return type;
 }
@@ -93,9 +102,12 @@ GType
 spice_session_migration_get_type (void)
 {
   static GType type = 0;
+  static volatile gsize type_volatile = 0;
 
-  if (!type)
+  if (g_once_init_enter(&type_volatile)) {
     type = g_enum_register_static ("SpiceSessionMigration", _spice_session_migration_values);
+    g_once_init_leave(&type_volatile, type);
+  }
 
   return type;
 }

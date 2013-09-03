@@ -59,6 +59,7 @@ import android.widget.LinearLayout.LayoutParams;
 
 import com.iiordanov.bVNC.dialogs.ImportTlsCaDialog;
 import com.iiordanov.pubkeygenerator.GeneratePubkeyActivity;
+import com.gstreamer.GStreamer;
 
 public class aSPICE extends Activity implements MainConfiguration {
 	private final static String TAG = "aSPICE";
@@ -96,10 +97,21 @@ public class aSPICE extends Activity implements MainConfiguration {
 	private boolean isFree;
 	private boolean startingOrHasPaused = true;
 	private boolean isConnecting = false;
+	static {
+		System.loadLibrary("gstreamer_android");
+		System.loadLibrary("spice-android");
+	}
 
 	@Override
 	public void onCreate(Bundle icicle) {
 		super.onCreate(icicle);
+		try {
+            GStreamer.init(this);
+        } catch (Exception e) {
+            Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
+            finish(); 
+            return;
+        }
 		System.gc();
 		setContentView(R.layout.main_spice);
 
