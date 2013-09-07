@@ -214,7 +214,10 @@ abstract class AbstractGestureInputHandler extends GestureDetector.SimpleOnGestu
 		// If the mouse was moved.
 		case MotionEvent.ACTION_HOVER_MOVE:
 	    	vncCanvas.panToMouse();
-			return p.processPointerEvent(x, y, action, meta, false, false, false, false, 0);
+		if(bstate == MotionEvent.BUTTON_SECONDARY)
+	    		return p.processPointerEvent(x, y, action, meta, true, true, false, false, 0); 
+	    	else
+	    		return p.processPointerEvent(x, y, action, meta, false, false, false, false, 0);
 		}
 		
 		prevMouseOrStylusAction = action;
