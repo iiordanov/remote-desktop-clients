@@ -211,10 +211,20 @@ abstract class AbstractGestureInputHandler extends GestureDetector.SimpleOnGestu
         		numEvents++;
         	}
 			break;
-		// If the mouse was moved.
+		// If the mouse was moved OR as reported, some external mice trigger this when a
+		// mouse button is pressed as well, so we check bstate here too.
 		case MotionEvent.ACTION_HOVER_MOVE:
 	    	vncCanvas.panToMouse();
-			return p.processPointerEvent(x, y, action, meta, false, false, false, false, 0);
+			switch (bstate) {
+			case MotionEvent.BUTTON_PRIMARY:
+				return p.processPointerEvent(x, y, action, meta, true, false, false, false, 0);
+			case MotionEvent.BUTTON_SECONDARY:
+				return p.processPointerEvent(x, y, action, meta, true, true, false, false, 0);
+			case MotionEvent.BUTTON_TERTIARY:
+				return p.processPointerEvent(x, y, action, meta, true, false, true, false, 0);
+			default:
+				return p.processPointerEvent(x, y, action, meta, false, false, false, false, 0);				
+			}
 		}
 		
 		prevMouseOrStylusAction = action;
