@@ -163,6 +163,10 @@ public class RemoteSpicePointer implements RemotePointer {
 			//processPointerEvent(getX(), getY(), evt.getAction(), combinedMetastate, down, false, false, true, direction);
 			rfb.writePointerEvent(getX(), getY(), combinedMetastate, pointerMask);
 			return true;
+		} else if (keyCode == KeyEvent.KEYCODE_BACK) {
+			pointerMask |= RemoteRdpPointer.MOUSE_BUTTON_RIGHT;
+			rfb.writePointerEvent(getX(), getY(), combinedMetastate, pointerMask);
+			return true;
 		}
 		return false;
 	}
