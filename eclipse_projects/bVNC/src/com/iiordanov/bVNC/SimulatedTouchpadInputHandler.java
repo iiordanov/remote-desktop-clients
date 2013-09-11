@@ -178,12 +178,12 @@ public class SimulatedTouchpadInputHandler extends AbstractGestureInputHandler {
 	private float fineCtrlScale(float delta) {
 		float sign = sign(delta);
 		delta = Math.abs(delta);
-		if (delta <= 20) {
+		if (delta <= 15) {
 			delta *= 0.75;
-		} else if (acceleration && delta <= 90 ) {
-			delta *= delta/30;
+		} else if (acceleration && delta <= 70 ) {
+			delta *= delta/20;
 		} else if (acceleration) {
-			delta *= 3.5;
+			delta *= 4.5;
 		}
 		return sign * delta;
 	}

@@ -1315,7 +1315,7 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 	// Returns whether the D-pad should be rotated to accommodate BT keyboards paired with phones.
 	float getSensitivity() {
 		// TODO: Make this a slider config option.
-		return 1.5f;
+		return 2.0f;
 	}
 	
 	boolean getAccelerationEnabled() {
