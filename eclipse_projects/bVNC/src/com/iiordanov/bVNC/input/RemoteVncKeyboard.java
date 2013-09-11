@@ -84,7 +84,7 @@ public class RemoteVncKeyboard extends RemoteKeyboard {
 		   }
 	   
 		   switch(keyCode) {
-		   	  case KeyEvent.KEYCODE_BACK:         keysym = 0xff1b; break;
+		   	  //case KeyEvent.KEYCODE_BACK:         keysym = 0xff1b; break;
 		      case KeyEvent.KEYCODE_DPAD_LEFT:    keysym = 0xff51; break;
 		   	  case KeyEvent.KEYCODE_DPAD_UP:      keysym = 0xff52; break;
 		   	  case KeyEvent.KEYCODE_DPAD_RIGHT:   keysym = 0xff53; break;

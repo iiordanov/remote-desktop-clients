@@ -189,7 +189,9 @@ abstract public class AbstractBitmapData {
 	public void imageRect(int x, int y, int w, int h, int[] pix) {
 		for (int j = 0; j < h; j++) {
 			try {
-				System.arraycopy(pix, (w * j), bitmapPixels, offset(x, y+j), w);
+				synchronized (mbitmap) {
+					System.arraycopy(pix, (w * j), bitmapPixels, offset(x, y+j), w);
+				}
 				//System.arraycopy(pix, (w * j), bitmapPixels, bitmapwidth * (y + j) + x, w);
 			} catch (ArrayIndexOutOfBoundsException e) {
 				// An index is out of bounds for some reason, but we try to continue.

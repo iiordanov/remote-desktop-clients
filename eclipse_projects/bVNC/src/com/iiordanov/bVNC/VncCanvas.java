@@ -1360,8 +1360,11 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 	@Override
 	public void OnGraphicsUpdate(int x, int y, int width, int height) {
 		//android.util.Log.e(TAG, "OnGraphicsUpdate called: " + x +", " + y + " + " + width + "x" + height );
-		if (isRdp)
-			LibFreeRDP.updateGraphics(session.getInstance(), bitmapData.mbitmap, x, y, width, height);
+		if (isRdp) {
+			synchronized (bitmapData.mbitmap) {
+				LibFreeRDP.updateGraphics(session.getInstance(), bitmapData.mbitmap, x, y, width, height);
+			}
+		}
 		
 		reDraw(x, y, width, height);
 	}

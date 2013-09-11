@@ -114,6 +114,7 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 	ImageButton    keyAlt;
 	boolean       keyAltToggled;
 	ImageButton    keyTab;
+	ImageButton    keyEsc;
 	ImageButton    keyUp;
 	ImageButton    keyDown;
 	ImageButton    keyLeft;
@@ -459,6 +460,27 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 					return true;
 				} else if (e.getAction() == MotionEvent.ACTION_UP) {
 					keyTab.setImageResource(R.drawable.taboff);
+					resetOnScreenKeys (0);
+					k.stopRepeatingKeyEvent();
+					return true;
+				}
+				return false;
+			}
+		});
+
+		keyEsc = (ImageButton) findViewById(R.id.keyEsc);
+		keyEsc.setOnTouchListener(new OnTouchListener () {
+			@Override
+			public boolean onTouch(View arg0, MotionEvent e) {
+				RemoteKeyboard k = vncCanvas.getKeyboard();
+				int key = 111; /* KEYCODE_ESCAPE */
+				if (e.getAction() == MotionEvent.ACTION_DOWN) {
+					BCFactory.getInstance().getBCHaptic().performLongPressHaptic(vncCanvas);
+					keyEsc.setImageResource(R.drawable.escon);
+					k.repeatKeyEvent(key, new KeyEvent(e.getAction(), key));
+					return true;
+				} else if (e.getAction() == MotionEvent.ACTION_UP) {
+					keyEsc.setImageResource(R.drawable.escoff);
 					resetOnScreenKeys (0);
 					k.stopRepeatingKeyEvent();
 					return true;
@@ -1293,7 +1315,7 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 	// Returns whether the D-pad should be rotated to accommodate BT keyboards paired with phones.
 	float getSensitivity() {
 		// TODO: Make this a slider config option.
-		return 1.5f;
+		return 2.0f;
 	}
 	
 	boolean getAccelerationEnabled() {
