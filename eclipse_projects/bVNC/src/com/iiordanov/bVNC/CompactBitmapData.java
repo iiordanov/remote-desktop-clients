@@ -46,8 +46,10 @@ class CompactBitmapData extends AbstractBitmapData {
 		@Override
 		public void draw(Canvas canvas) {
 			try {
-				canvas.drawBitmap(data.mbitmap, 0, 0, _defaultPaint);
-				canvas.drawBitmap(softCursor, cursorRect.left, cursorRect.top, _defaultPaint);
+				synchronized (mbitmap) {
+					canvas.drawBitmap(data.mbitmap, 0, 0, _defaultPaint);
+					canvas.drawBitmap(softCursor, cursorRect.left, cursorRect.top, _defaultPaint);
+				}
 			} catch (Throwable e) { }
 		}
 	}
@@ -94,7 +96,9 @@ class CompactBitmapData extends AbstractBitmapData {
 	 */
 	@Override
 	public void updateBitmap(int x, int y, int w, int h) {
-		mbitmap.setPixels(bitmapPixels, offset(x,y), bitmapwidth, x, y, w, h);
+		synchronized (mbitmap) {
+			mbitmap.setPixels(bitmapPixels, offset(x,y), bitmapwidth, x, y, w, h);
+		}
 	}
 
 	/* (non-Javadoc)
@@ -102,7 +106,9 @@ class CompactBitmapData extends AbstractBitmapData {
 	 */
 	@Override
 	public void updateBitmap(Bitmap b, int x, int y, int w, int h) {
-		memGraphics.drawBitmap(b, x, y, null);
+		synchronized (mbitmap) {
+			memGraphics.drawBitmap(b, x, y, null);
+		}
 	}
 
 	/* (non-Javadoc)
@@ -130,7 +136,9 @@ class CompactBitmapData extends AbstractBitmapData {
 			srcOffset = offset(sx, y);
 			dstOffset = offset(dx, dstY);
 			try {
-				mbitmap.getPixels(bitmapPixels, srcOffset, bitmapwidth, sx-xoffset, y-yoffset, dstW, 1);
+				synchronized (mbitmap) {
+					mbitmap.getPixels(bitmapPixels, srcOffset, bitmapwidth, sx-xoffset, y-yoffset, dstW, 1);
+				}
 				System.arraycopy(bitmapPixels, srcOffset, bitmapPixels, dstOffset, dstW);
 			} catch (Exception e) {
 				// There was an index out of bounds exception, but we continue copying what we can. 
@@ -146,7 +154,9 @@ class CompactBitmapData extends AbstractBitmapData {
 	 */
 	@Override
 	void drawRect(int x, int y, int w, int h, Paint paint) {
-		memGraphics.drawRect(x, y, x + w, y + h, paint);
+		synchronized (mbitmap) {
+			memGraphics.drawRect(x, y, x + w, y + h, paint);
+		}
 	}
 
 	/* (non-Javadoc)
