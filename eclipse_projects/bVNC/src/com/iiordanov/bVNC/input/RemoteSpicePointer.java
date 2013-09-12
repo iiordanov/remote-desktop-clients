@@ -135,16 +135,16 @@ public class RemoteSpicePointer implements RemotePointer {
 		int mouseChange = 0;
 		//int direction = 0;
 		if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
-			mouseChange = RemoteRdpPointer.MOUSE_BUTTON_SCROLL_DOWN;
+			mouseChange = RemoteSpicePointer.SPICE_MOUSE_BUTTON_DOWN;
 			//direction = 1;
 		} else {
-			mouseChange = RemoteRdpPointer.MOUSE_BUTTON_SCROLL_UP;
+			mouseChange = RemoteSpicePointer.SPICE_MOUSE_BUTTON_UP;
 			//direction = 0;
 		}
 		
 		if (keyCode == KeyEvent.KEYCODE_CAMERA) {
 			cameraButtonDown = down;
-			pointerMask |= RemoteRdpPointer.MOUSE_BUTTON_RIGHT;
+			pointerMask |= RemoteSpicePointer.SPICE_MOUSE_BUTTON_RIGHT;
 			//processPointerEvent(getX(), getY(), evt.getAction(), combinedMetastate, down, true, false, false, direction);
 			rfb.writePointerEvent(getX(), getY(), combinedMetastate, pointerMask);
 			return true;
@@ -164,7 +164,7 @@ public class RemoteSpicePointer implements RemotePointer {
 			rfb.writePointerEvent(getX(), getY(), combinedMetastate, pointerMask);
 			return true;
 		} else if (keyCode == KeyEvent.KEYCODE_BACK) {
-			pointerMask |= RemoteRdpPointer.MOUSE_BUTTON_RIGHT;
+			pointerMask |= RemoteSpicePointer.SPICE_MOUSE_BUTTON_RIGHT;
 			rfb.writePointerEvent(getX(), getY(), combinedMetastate, pointerMask);
 			return true;
 		}

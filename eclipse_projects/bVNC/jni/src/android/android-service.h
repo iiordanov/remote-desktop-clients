@@ -31,7 +31,6 @@
 	jclass    jni_connector_class  = NULL;
 	jmethodID jni_settings_changed = NULL;
 	jmethodID jni_graphics_update  = NULL;
-	jobject jbitmap                = NULL;
 	GMainLoop            *mainloop = NULL;
 	int                connections = 0;
 #else
@@ -41,7 +40,6 @@
 	extern jclass    jni_connector_class;
 	extern jmethodID jni_settings_changed;
 	extern jmethodID jni_graphics_update;
-	extern jobject   jbitmap;
 	extern GMainLoop *mainloop;
 	extern int       connections;
 #endif

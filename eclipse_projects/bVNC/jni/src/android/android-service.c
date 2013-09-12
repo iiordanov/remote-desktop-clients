@@ -125,7 +125,6 @@ Java_com_iiordanov_aSPICE_SpiceCommunicator_SpiceClientConnect (JNIEnv *env, job
 	jni_connector_class  = NULL;
 	jni_settings_changed = NULL;
 	jni_graphics_update  = NULL;
-	jbitmap              = NULL;
 	return result;
 }
 

@@ -56,17 +56,18 @@ void updatePixels (uchar* dest, uchar* source, int x, int y, int width, int heig
 	}
 }
 
-
-gboolean updateBitmap (JNIEnv* env, jobject* bitmap, void *source, gint x, gint y, gint width, gint height, gint sourceWidth, gint sourceHeight) {
+JNIEXPORT void JNICALL
+Java_com_iiordanov_aSPICE_SpiceCommunicator_UpdateBitmap (JNIEnv* env, jobject obj, jobject bitmap, gint x, gint y, gint width, gint height) {
 	void* pixels;
+    SpiceDisplayPrivate *d = SPICE_DISPLAY_GET_PRIVATE(global_display);
+
 	if (AndroidBitmap_lockPixels(env, bitmap, &pixels) < 0) {
 		__android_log_write(6, "android-io", "AndroidBitmap_lockPixels() failed!");
-		return FALSE;
+		return;
 	}
 	//__android_log_write(6, "android-io", "Copying new data into pixels.");
-	updatePixels (pixels, source, x, y, width, height, sourceWidth, sourceHeight, 4);
+	updatePixels (pixels, d->data, x, y, width, height, d->width, d->height, 4);
 	AndroidBitmap_unlockPixels(env, bitmap);
-	return TRUE;
 }
 
 
@@ -128,15 +129,6 @@ static int update_mask (int button, gboolean down) {
 
 
 /* JNI functions related to input (keyboard, mouse), and output (display). */
-
-JNIEXPORT void JNICALL
-Java_com_iiordanov_aSPICE_SpiceCommunicator_SpiceSetBitmap(JNIEnv* env, jobject obj, jobject bitmap) {
-	__android_log_write(6, "android-io", "Setting new jbitmap from Java.");
-	jbitmap = bitmap;
-
-	// TODO: Can I lock all the pixels and make every 4th uint8 0xFF now and avoid doing so when
-	// copying the pixels? It should give me a 25% performance boost when copying the pixels.
-}
 
 
 static gint get_display_id(SpiceDisplay *display)
@@ -240,17 +232,14 @@ Java_com_iiordanov_aSPICE_SpiceCommunicator_SpiceButtonEvent(JNIEnv * env, jobje
 }
 
 
-/* Callbacks to the UI layer to draw screen updates and invalide of part of the screen,
+/* Callbacks to the UI layer to draw screen updates and invalidate part of the screen,
  * or to request a new bitmap. */
 
 void uiCallbackInvalidate (SpiceDisplayPrivate *d, gint x, gint y, gint w, gint h) {
     JNIEnv* env;
     bool attached = attachThreadToJvm (&env);
 
-    // Draw the new data into the Java bitmap object.
-    updateBitmap(env, jbitmap, d->data, x, y, w, h, d->width, d->height);
-
-    // Tell the UI that it needs to redraw the bitmap.
+    // Tell the UI that it needs to send in the bitmap to be updated and to redraw.
 	(*env)->CallStaticVoidMethod(env, jni_connector_class, jni_graphics_update, 0, x, y, w, h);
 
     if (attached) {
