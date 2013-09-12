@@ -691,7 +691,7 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 			try {
 				// TODO: Remove this if Android 4.2 receives a fix for a bug which causes it to stop drawing
 				// the bitmap in CompactBitmapData when under load (say playing a video over VNC).
-		        if (!compact || android.os.Build.VERSION.SDK_INT == 17) {
+		        if (!compact) {
 					bitmapData=new FullBufferBitmapData(rfbconn, this, capacity);
 		        	android.util.Log.i(TAG, "Using FullBufferBitmapData.");
 		        } else {
