@@ -250,7 +250,7 @@ static void invalidate(SpiceChannel *channel,
 
     SpiceDisplayPrivate *d = SPICE_DISPLAY_GET_PRIVATE(display);
 
-	if (maintainConnection == FALSE || jbitmap == NULL || x + w > d->width || y + h > d->height) {
+	if (maintainConnection == FALSE || x + w > d->width || y + h > d->height) {
 		__android_log_write(6, "android-spice", "Not drawing.");
 		return;
 	}

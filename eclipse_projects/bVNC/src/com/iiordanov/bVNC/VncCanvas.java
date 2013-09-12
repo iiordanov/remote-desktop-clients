@@ -1322,7 +1322,6 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 		if (isSpice) {
     		spiceUpdateReceived = true;
     		rfbconn.setIsInNormalProtocol(true);
-    		spicecomm.SpiceSetBitmap(bitmapData.mbitmap);
     		handler.sendEmptyMessage(VncConstants.SPICE_CONNECT_SUCCESS);
 		}
 	}
@@ -1363,6 +1362,10 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 		if (isRdp) {
 			synchronized (bitmapData.mbitmap) {
 				LibFreeRDP.updateGraphics(session.getInstance(), bitmapData.mbitmap, x, y, width, height);
+			}
+		} else {
+			synchronized (bitmapData.mbitmap) {
+				spicecomm.UpdateBitmap(bitmapData.mbitmap, x, y, width, height);
 			}
 		}
 		

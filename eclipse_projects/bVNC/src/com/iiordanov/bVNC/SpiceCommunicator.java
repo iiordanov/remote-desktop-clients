@@ -15,7 +15,7 @@ public class SpiceCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyP
 	public native void SpiceClientDisconnect ();
 	public native void SpiceButtonEvent (int x, int y, int metaState, int pointerMask);
 	public native void SpiceKeyEvent (boolean keyDown, int virtualKeyCode);
-	public native void SpiceSetBitmap (Bitmap newBitmap);
+	public native void UpdateBitmap (Bitmap bitmap, int x, int y, int w, int h);
 	public native void SpiceRequestResolution (int x, int y);
 	
 	static {
