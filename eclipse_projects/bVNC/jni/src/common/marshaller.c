@@ -35,12 +35,6 @@
 #define write_int64(ptr,v) (*((int64_t *)(ptr)) = SPICE_BYTESWAP64((uint64_t)(v)))
 #define write_uint64(ptr,v) (*((uint64_t *)(ptr)) = SPICE_BYTESWAP64((uint64_t)(v)))
 #else
-/*
- * Thanks to shohyanglim@gmail.com for saving me time and discovering these
- * hacks to avoid SIGBUS on some ARM processors.
- *
- * TODO: Find out whether something better can be done to avoid the SIGBUS.
- */
 #define write_int8(ptr,v) (*((int8_t *)(ptr)) = v)
 #define write_uint8(ptr,v) (*((uint8_t *)(ptr)) = v)
 #define write_int16(ptr,v) (*((int16_t *)(ptr)) = v)

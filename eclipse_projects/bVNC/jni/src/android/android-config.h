@@ -50,11 +50,11 @@
 #define HAVE_NETINET_IN_H 1
 
 /* Define if you have a polkit with polkit_authority_get_sync() */
-#define HAVE_POLKIT_AUTHORITY_GET_SYNC 1
+/* #undef HAVE_POLKIT_AUTHORITY_GET_SYNC */
 
 /* Define if you have a polkit with
    polkit_authorization_result_get_dismissed() */
-#define HAVE_POLKIT_AUTHORIZATION_RESULT_GET_DISMISSED 1
+/* #undef HAVE_POLKIT_AUTHORIZATION_RESULT_GET_DISMISSED */
 
 /* Have Quartz? */
 /* #undef HAVE_QUARTZ */
@@ -124,7 +124,7 @@
 #define PACKAGE_NAME "spice-gtk"
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "spice-gtk 0.18"
+#define PACKAGE_STRING "spice-gtk 0.20"
 
 /* Define to the one symbol short name of this package. */
 #define PACKAGE_TARNAME "spice-gtk"
@@ -133,7 +133,7 @@
 #define PACKAGE_URL ""
 
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "0.18"
+#define PACKAGE_VERSION "0.20"
 
 /* Define to 1 if you have the ANSI C header files. */
 #define STDC_HEADERS 1
@@ -145,16 +145,16 @@
 #undef USE_GUDEV
 
 /* Define if supporting polkit */
-#undef USE_POLKIT
+/* #undef USE_POLKIT */
 
 /* Define if supporting smartcard proxying */
-#undef USE_SMARTCARD
+/* #undef USE_SMARTCARD */
 
 /* Define if supporting usbredir proxying */
-#undef USE_USBREDIR
+/* #undef USE_USBREDIR */
 
 /* Version number of package */
-#define VERSION "0.18"
+#define VERSION "0.20"
 
 /* Have GStreamer? */
 /* #undef WITH_GSTAUDIO */

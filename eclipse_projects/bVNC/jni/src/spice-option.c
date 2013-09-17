@@ -24,9 +24,10 @@
 #include <glib/gi18n.h>
 #include "spice-session.h"
 #include "spice-util.h"
+#include "spice-channel-priv.h"
 #include "usb-device-manager.h"
 
-static gchar *disable_effects = NULL;
+static GStrv disable_effects = NULL;
 static gint color_depth = 0;
 static char *ca_file = NULL;
 static char *host_subject = NULL;
@@ -39,6 +40,7 @@ static gboolean disable_audio = FALSE;
 static gboolean disable_usbredir = FALSE;
 static gint cache_size = 0;
 static gint glz_window_size = 0;
+static gchar *secure_channels = NULL;
 
 G_GNUC_NORETURN
 static void option_version(void)
@@ -83,24 +85,58 @@ error:
 static gboolean parse_disable_effects(const gchar *option_name, const gchar *value,
                                       gpointer data, GError **error)
 {
+    GStrv it;
 
-    if ((g_strcmp0(value, "wallpaper") != 0)
-        && (g_strcmp0(value, "font-smooth") != 0)
-        && (g_strcmp0(value, "animation") != 0)
-        && (g_strcmp0(value, "all") != 0)) {
-        /* Translators: do not translate 'wallpaper', 'font-smooth',
-         * 'animation', 'all' as the user must use these values with the
-         * --spice-disable-effects command line option
-         */
-        g_set_error(error, G_OPTION_ERROR, G_OPTION_ERROR_FAILED,
-                    _("invalid effect name (%s), must be 'wallpaper', 'font-smooth', 'animation' or 'all'"), value);
-        return FALSE;
+    disable_effects = g_strsplit(value, ",", -1);
+    for (it = disable_effects; *it != NULL; it++) {
+        if ((g_strcmp0(*it, "wallpaper") != 0)
+             && (g_strcmp0(*it, "font-smooth") != 0)
+             && (g_strcmp0(*it, "animation") != 0)
+             && (g_strcmp0(*it, "all") != 0)) {
+            /* Translators: do not translate 'wallpaper', 'font-smooth',
+             * 'animation', 'all' as the user must use these values with the
+             * --spice-disable-effects command line option
+             */
+            g_set_error(error, G_OPTION_ERROR, G_OPTION_ERROR_FAILED,
+                    _("invalid effect name (%s), must be 'wallpaper', 'font-smooth', 'animation' or 'all'"), *it);
+            g_strfreev(disable_effects);
+            disable_effects = NULL;
+            return FALSE;
+        }
     }
-
-    disable_effects = g_strdup(value);
 
     return TRUE;
 }
+
+static gboolean parse_secure_channels(const gchar *option_name, const gchar *value,
+                                      gpointer data, GError **error)
+{
+    gint i;
+    gchar **channels = g_strsplit(value, ",", -1);
+
+    g_return_val_if_fail(channels != NULL, FALSE);
+
+    for (i = 0; channels[i]; i++) {
+        if (g_strcmp0(channels[i], "all") == 0)
+            continue;
+
+        if (spice_channel_string_to_type(channels[i]) == -1) {
+            gchar *supported = spice_channel_supported_string();
+            g_set_error(error, G_OPTION_ERROR, G_OPTION_ERROR_FAILED,
+                        _("invalid channel name (%s), valid names: all, %s"),
+                        channels[i], supported);
+            g_free(supported);
+            return FALSE;
+        }
+    }
+
+    g_strfreev(channels);
+
+    secure_channels = g_strdup(value);
+
+    return TRUE;
+}
+
 
 static gboolean parse_usbredir_filter(const gchar *option_name,
                                       const gchar *value,
@@ -125,10 +161,12 @@ static gboolean parse_usbredir_filter(const gchar *option_name,
 GOptionGroup* spice_get_option_group(void)
 {
     const GOptionEntry entries[] = {
+        { "spice-secure-channels", '\0', 0, G_OPTION_ARG_CALLBACK, parse_secure_channels,
+          N_("Force the specified channels to be secured"), "<main,display,inputs,...,all>" },
         { "spice-disable-effects", '\0', 0, G_OPTION_ARG_CALLBACK, parse_disable_effects,
-          N_("Disable guest display effects"), N_("<wallpaper,font-smooth,animation,all>") },
+          N_("Disable guest display effects"), "<wallpaper,font-smooth,animation,all>" },
         { "spice-color-depth", '\0', 0, G_OPTION_ARG_CALLBACK, parse_color_depth,
-          N_("Guest display color depth"), N_("<16,32>") },
+          N_("Guest display color depth"), "<16,32>" },
         { "spice-ca-file", '\0', 0, G_OPTION_ARG_FILENAME, &ca_file,
           N_("Truststore file for secure connections"), N_("<file>") },
         { "spice-host-subject", '\0', 0, G_OPTION_ARG_STRING, &host_subject,
@@ -188,12 +226,17 @@ void spice_set_session_option(SpiceSession *session)
     }
 
     if (disable_effects) {
-            GStrv effects;
-            effects = g_strsplit(disable_effects, ",", -1);
-            if (effects)
-                g_object_set(session, "disable-effects", effects, NULL);
-            g_strfreev(effects);
+        g_object_set(session, "disable-effects", disable_effects, NULL);
     }
+
+    if (secure_channels) {
+        GStrv channels;
+        channels = g_strsplit(secure_channels, ",", -1);
+        if (channels)
+            g_object_set(session, "secure-channels", channels, NULL);
+        g_strfreev(channels);
+    }
+
     if (color_depth)
         g_object_set(session, "color-depth", color_depth, NULL);
     if (ca_file)

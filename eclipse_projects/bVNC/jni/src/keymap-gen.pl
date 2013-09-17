@@ -14,6 +14,7 @@ my %namecolumns = (
     linux => 0,
     osx => 2,
     win32 => 10,
+    x11 => 14,
     );
 
 # Base data sources:
@@ -28,7 +29,9 @@ my %namecolumns = (
 #    usb:   USB HID: linux/drivers/hid/usbhid/usbkbd.c              (usb_kbd_keycode)
 #  win32:     Win32: mingw32/winuser.h                              (manually mapped)
 # xwinxt:   XWin XT: xorg-server/hw/xwin/{winkeybd.c,winkeynames.h} (xt + manually transcribed)
-# xkbdxt:   XKBD XT: xf86-input-keyboard/src/at_scancode.c          (xt + manually transcribed)
+# xkbdxt:   XKBD XT: xf86-input-keyboard/src/at_scancode.c
+#(xt + manually transcribed)
+#    x11: X11 keysyms: http://cgit.freedesktop.org/xorg/proto/x11proto/plain/keysymdef.h
 #
 # Derived data sources
 #
@@ -38,7 +41,7 @@ my %namecolumns = (
 #     xorgxwin: Xorg + Cygwin: xwinxt + an offset
 #          rfb:   XT over RFB: xtkbd + special re-encoding of high bit
 
-my @basemaps = qw(linux osx atset1 atset2 atset3 xt xtkbd usb win32 xwinxt xkbdxt);
+my @basemaps = qw(linux osx atset1 atset2 atset3 xt xtkbd usb win32 xwinxt xkbdxt x11);
 my @derivedmaps = qw(xorgevdev xorgkbd xorgxquartz xorgxwin rfb);
 my @maps = (@basemaps, @derivedmaps);
 
@@ -58,6 +61,7 @@ my %mapcolumns = (
     win32 => 11,
     xwinxt => 12,
     xkbdxt => 13,
+    x11 => 15
     );
 
 sub help {

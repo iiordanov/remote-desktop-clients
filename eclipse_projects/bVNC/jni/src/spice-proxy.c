@@ -48,17 +48,28 @@ SpiceProxy* spice_proxy_new(void)
 }
 
 G_GNUC_INTERNAL
-gboolean spice_proxy_parse(SpiceProxy *self, const gchar *uri, GError **error)
+gboolean spice_proxy_parse(SpiceProxy *self, const gchar *proxyuri, GError **error)
 {
+    gchar *dup, *uri;
     gboolean success = FALSE;
+    size_t len;
 
     g_return_val_if_fail(self != NULL, FALSE);
-    g_return_val_if_fail(uri != NULL, FALSE);
+    g_return_val_if_fail(proxyuri != NULL, FALSE);
 
+    uri = dup = g_strdup(proxyuri);
     /* FIXME: use GUri when it is ready... only support http atm */
     /* the code is voluntarily not parsing thoroughly the uri */
     if (g_ascii_strncasecmp("http://", uri, 7) == 0)
         uri += 7;
+
+    /* remove trailing slash */
+    len = strlen(uri);
+    for (; len > 0; len--)
+        if (uri[len-1] == '/')
+            uri[len-1] = '\0';
+        else
+            break;
 
     spice_proxy_set_protocol(self, "http");
     spice_proxy_set_port(self, 3128);
@@ -90,6 +101,7 @@ gboolean spice_proxy_parse(SpiceProxy *self, const gchar *uri, GError **error)
     success = TRUE;
 
 end:
+    g_free(dup);
     g_strfreev(proxyv);
     return success;
 }
