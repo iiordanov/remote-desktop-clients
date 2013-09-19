@@ -26,7 +26,7 @@ LOCAL_SRC_FILES := channel-record.c channel-playback.c channel-cursor.c \
 LOCAL_SRC_FILES += spice-gstaudio.c
 LOCAL_LDLIBS 	+= $(spice_objs) \
 		   -ljnigraphics \
-		   -llog -ldl -lstdc++ -lz -lc \
+		   -llog -ldl -lstdc++ -lz -lc -L$(LOCAL_PATH)/../../libs/armeabi -lgstreamer_android \
 		   -malign-double -malign-loops
 
 LOCAL_CPPFLAGS 	+= -DG_LOG_DOMAIN=\"GSpice\" \
