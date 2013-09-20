@@ -2,6 +2,7 @@ LOCAL_PATH 	:= $(call my-dir)
 
 include $(CLEAR_VARS)
 
+LIB_PATH := $(LOCAL_PATH)/../../libs/armeabi
 
 SPICE_CLIENT_ANDROID_DEPS   := $(LOCAL_PATH)/../libs/deps.mini
 spice_objs := \
@@ -24,10 +25,11 @@ LOCAL_SRC_FILES := channel-record.c channel-playback.c channel-cursor.c \
                    common/lz.c common/region.c common/ssl_verify.c common/log.c
 
 LOCAL_SRC_FILES += spice-gstaudio.c
+
 LOCAL_LDLIBS 	+= $(spice_objs) \
-		   -ljnigraphics \
-		   -llog -ldl -lstdc++ -lz -lc -L$(LOCAL_PATH)/../../libs/armeabi -lgstreamer_android \
-		   -malign-double -malign-loops
+		   -ljnigraphics -llog -ldl -lstdc++ -lz -lc \
+                   -malign-double -malign-loops
+LOCAL_LDLIBS    += -L$(LIB_PATH) -lgstreamer_android
 
 LOCAL_CPPFLAGS 	+= -DG_LOG_DOMAIN=\"GSpice\" \
        -DSW_CANVAS_CACHE \
