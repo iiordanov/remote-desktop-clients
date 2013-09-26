@@ -482,12 +482,18 @@ class RfbProto implements RfbConnectable {
 
 	    // Find first supported security type.
 	    for (int i = 0; i < nSecTypes; i++) {
+	      // If anontls is enforced, then only accept VNC over TLS. Otherwise, accept it and all others.
 	      if (anontls) {
 	    	  if (secTypes[i] == SecTypeTLS) {
 	    		  secType = secTypes[i];
 	    		  break;
 	    	  }
 	      } else {
+	    	  // If anontls is not enforced still accept it.
+	    	  if (secTypes[i] == SecTypeTLS)
+	    		  secType = secTypes[i];
+	    	  
+	    	  // However, override it by the other security modes if they show up as well.
 	    	  if (secTypes[i] == SecTypeNone || secTypes[i] == SecTypeVncAuth) {
 	    		  secType = secTypes[i];
 	    	  	  break;
@@ -496,7 +502,8 @@ class RfbProto implements RfbConnectable {
 	    }
 
 	    if (secType == SecTypeInvalid) {
-	      throw new Exception("Server did not offer supported security type");
+	      throw new Exception("Server did not offer supported security type. " +
+                               "Please ensure you have picked the right item in Connection Type.");
 	    } else {
 	      os.write(secType);
 	    }
@@ -717,7 +724,9 @@ class RfbProto implements RfbConnectable {
 
   // Perform TLS handshake (AnonTLS)
   void performTLSHandshake () throws Exception {
-   	// Try using SSL
+	android.util.Log.i(TAG, "Performing TLS handshake.");
+
+	// Try using SSL
    	SSLSocketToMe ssl;
    	try {
    		ssl = new SSLSocketToMe(host, port);
