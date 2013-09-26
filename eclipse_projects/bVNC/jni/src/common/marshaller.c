@@ -41,6 +41,12 @@
 #define write_uint16(ptr,v) (*((uint16_t *)(ptr)) = v)
 #define write_int32(ptr,v) (*((int32_t *)(ptr)) = v)
 #define write_uint32(ptr,v) (*((uint32_t *)(ptr)) = v)
+/*
+ * Thanks to shohyanglim@gmail.com for saving me time and discovering these
+ * hacks to avoid SIGBUS on some ARM processors.
+ *
+ * TODO: Find out whether something better can be done to avoid the SIGBUS.
+ */
 #ifdef ANDROID
     #define write_int64(ptr,v) { int64_t val = v; memcpy(ptr, &val, sizeof(int64_t)); }
     #define write_uint64(ptr,v) { uint64_t val = v; memcpy(ptr, &val, sizeof(uint64_t)); }
