@@ -4,11 +4,12 @@ include $(CLEAR_VARS)
 
 LIB_PATH := $(LOCAL_PATH)/../../libs/armeabi
 
-SPICE_CLIENT_ANDROID_DEPS   := $(LOCAL_PATH)/../libs/deps.mini
+SPICE_CLIENT_ANDROID_DEPS   := $(LOCAL_PATH)/../libs/deps
+
 spice_objs := \
-    $(SPICE_CLIENT_ANDROID_DEPS)/lib/libssl.a \
-    $(SPICE_CLIENT_ANDROID_DEPS)/lib/libcrypto.a \
-    $(SPICE_CLIENT_ANDROID_DEPS)/lib/libcelt051.a 
+                   $(SPICE_CLIENT_ANDROID_DEPS)/lib/libssl.a \
+                   $(SPICE_CLIENT_ANDROID_DEPS)/lib/libcrypto.a \
+                   $(SPICE_CLIENT_ANDROID_DEPS)/lib/libcelt051.a 
 
 LOCAL_MODULE    := spice
 
@@ -22,40 +23,39 @@ LOCAL_SRC_FILES := channel-record.c channel-playback.c channel-cursor.c \
                    decode-jpeg.c decode-zlib.c wocky-http-proxy.c channel-port.c spice-client.c spice-audio.c \
                    common/mem.c common/marshaller.c common/canvas_utils.c common/backtrace.c \
                    common/sw_canvas.c common/pixman_utils.c common/lines.c common/rop3.c common/quic.c \
-                   common/lz.c common/region.c common/ssl_verify.c common/log.c
-
-LOCAL_SRC_FILES += spice-gstaudio.c
+                   common/lz.c common/region.c common/ssl_verify.c common/log.c spice-gstaudio.c
 
 LOCAL_LDLIBS 	+= $(spice_objs) \
-		   -ljnigraphics -llog -ldl -lstdc++ -lz -lc \
+                   -ljnigraphics -llog -ldl -lstdc++ -lz -lc \
                    -malign-double -malign-loops
 LOCAL_LDLIBS    += -L$(LIB_PATH) -lgstreamer_android
 
 LOCAL_CPPFLAGS 	+= -DG_LOG_DOMAIN=\"GSpice\" \
-       -DSW_CANVAS_CACHE \
-       -DSPICE_GTK_LOCALEDIR=\"/usr/local/share/locale\" \
-       -DHAVE_CONFIG_H -UHAVE_SYS_SHM_H -DSW_CANVAS_CACHE  \
-       -D_REENTRANT -DWITH_GSTAUDIO
+                   -DSW_CANVAS_CACHE \
+                   -DSPICE_GTK_LOCALEDIR=\"/usr/local/share/locale\" \
+                   -DHAVE_CONFIG_H -UHAVE_SYS_SHM_H -DSW_CANVAS_CACHE  \
+                   -D_REENTRANT -DWITH_GSTAUDIO
 
 LOCAL_C_INCLUDES += $(LOCAL_PATH)/common \
-        $(SPICE_CLIENT_ANDROID_DEPS)/include
+                    $(SPICE_CLIENT_ANDROID_DEPS)/include
 
-LOCAL_CFLAGS 	:= $(LOCAL_CPPFLAGS) \
-    -std=gnu99 -Wall -Wno-sign-compare -Wno-deprecated-declarations -Wl,--no-undefined \
-    -fPIC -DPIC -O3 -funroll-loops -ffast-math
+LOCAL_CFLAGS 	:=  $(LOCAL_CPPFLAGS) \
+                   -std=gnu99 -Wall -Wno-sign-compare -Wno-deprecated-declarations -Wl,--no-undefined \
+                   -fPIC -DPIC -O3 -funroll-loops -ffast-math
 
 LOCAL_EXPORT_CFLAGS += $(LOCAL_CFLAGS)
 LOCAL_EXPORT_LDLIBS += $(LOCAL_LDLIBS)
 LOCAL_SHARED_LIBRARIES := gstreamer_android
 LOCAL_ARM_MODE := arm
-
 include $(BUILD_STATIC_LIBRARY)
+
 include $(CLEAR_VARS)
 LOCAL_MODULE    := spice-android
 LOCAL_SRC_FILES := android/android-service.c android/android-spicy.c android/android-spice-widget.c \
                    android/android-io.c
 LOCAL_STATIC_LIBRARIES := spice
 include $(BUILD_SHARED_LIBRARY)
+
 include $(CLEAR_VARS)
 ifndef GSTREAMER_SDK_ROOT
 ifndef GSTREAMER_SDK_ROOT_ANDROID
