@@ -73,6 +73,7 @@ struct _SpiceSessionPrivate {
     gboolean          inhibit_keyboard_grab;
 
     GStrv             disable_effects;
+    GStrv             secure_channels;
     gint              color_depth;
 
     int               connection_id;
@@ -106,6 +107,7 @@ struct _SpiceSessionPrivate {
     SpiceDesktopIntegration *desktop_integration;
     SpiceGtkSession   *gtk_session;
     SpiceUsbDeviceManager *usb_manager;
+    SpicePlaybackChannel *playback_channel;
 };
 
 SpiceSession *spice_session_new_from_session(SpiceSession *session);
@@ -115,7 +117,7 @@ int spice_session_get_connection_id(SpiceSession *session);
 gboolean spice_session_get_client_provided_socket(SpiceSession *session);
 
 GSocketConnection* spice_session_channel_open_host(SpiceSession *session, SpiceChannel *channel,
-                                                   gboolean use_tls);
+                                                   gboolean *use_tls);
 void spice_session_channel_new(SpiceSession *session, SpiceChannel *channel);
 void spice_session_channel_destroy(SpiceSession *session, SpiceChannel *channel);
 void spice_session_channel_migrate(SpiceSession *session, SpiceChannel *channel);
@@ -154,6 +156,9 @@ gboolean spice_session_migrate_after_main_init(SpiceSession *session);
 SpiceChannel* spice_session_lookup_channel(SpiceSession *session, gint id, gint type);
 void spice_session_set_uuid(SpiceSession *session, guint8 uuid[16]);
 void spice_session_set_name(SpiceSession *session, const gchar *name);
+gboolean spice_session_is_playback_active(SpiceSession *session);
+guint32 spice_session_get_playback_latency(SpiceSession *session);
+void spice_session_sync_playback_latency(SpiceSession *session);
 
 G_END_DECLS
 

@@ -96,6 +96,7 @@ struct _SpiceMainChannelPrivate  {
         int                     width;
         int                     height;
         gboolean                enabled;
+        gboolean                enabled_set;
     } display[MAX_DISPLAY];
     gint                        timer_id;
     GQueue                      *agent_msg_queue;
@@ -1325,10 +1326,24 @@ static gboolean timer_set_display(gpointer data)
 {
     SpiceMainChannel *channel = data;
     SpiceMainChannelPrivate *c = channel->priv;
+    SpiceSession *session;
+    gint i;
 
     c->timer_id = 0;
-    if (c->agent_connected)
-        spice_main_send_monitor_config(channel);
+    if (!c->agent_connected)
+        return FALSE;
+
+    session = spice_channel_get_session(SPICE_CHANNEL(channel));
+
+    /* ensure we have an explicit monitor configuration at least for
+       number of display channels */
+    for (i = 0; i < session->priv->display_channels_count; i++)
+        if (!c->display[i].enabled_set) {
+            SPICE_DEBUG("Not sending monitors config, missing monitors");
+            return FALSE;
+        }
+
+    spice_main_send_monitor_config(channel);
 
     return FALSE;
 }
@@ -2606,11 +2621,16 @@ void spice_main_set_display_enabled(SpiceMainChannel *channel, int id, gboolean 
 
     if (id == -1) {
         gint i;
-        for (i = 0; i < G_N_ELEMENTS(c->display); i++)
+        for (i = 0; i < G_N_ELEMENTS(c->display); i++) {
             c->display[i].enabled = enabled;
+            c->display[i].enabled_set = TRUE;
+        }
     } else {
         g_return_if_fail(id < G_N_ELEMENTS(c->display));
+        if (c->display[id].enabled == enabled)
+            return;
         c->display[id].enabled = enabled;
+        c->display[id].enabled_set = TRUE;
     }
 
     update_display_timer(channel, 1);

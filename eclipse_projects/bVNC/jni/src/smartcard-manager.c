@@ -402,21 +402,6 @@ spice_smartcard_manager_update_monitor(void)
 
 #define SPICE_SOFTWARE_READER_NAME "Spice Software Smartcard"
 
-/**
- * spice_smartcard_reader_is_software:
- * @reader: a #SpiceSmartcardReader
- *
- * Tests if @reader is a software (emulated) smartcard reader.
- *
- * Returns: TRUE if @reader is a software (emulated) smartcard reader,
- * FALSE otherwise
- */
-gboolean spice_smartcard_reader_is_software(SpiceSmartcardReader *reader)
-{
-    g_return_val_if_fail(reader != NULL, FALSE);
-    return (strcmp(vreader_get_name((VReader*)reader), SPICE_SOFTWARE_READER_NAME) == 0);
-}
-
 static gboolean smartcard_manager_init(SpiceSession *session,
                                        GCancellable *cancellable,
                                        GError **err)
@@ -536,6 +521,106 @@ gboolean spice_smartcard_manager_init_finish(SpiceSession *session,
 }
 
 /**
+ * spice_smartcard_reader_is_software:
+ * @reader: a #SpiceSmartcardReader
+ *
+ * Tests if @reader is a software (emulated) smartcard reader.
+ *
+ * Returns: TRUE if @reader is a software (emulated) smartcard reader,
+ * FALSE otherwise
+ */
+gboolean spice_smartcard_reader_is_software(SpiceSmartcardReader *reader)
+{
+    g_return_val_if_fail(reader != NULL, FALSE);
+    return (strcmp(vreader_get_name((VReader*)reader), SPICE_SOFTWARE_READER_NAME) == 0);
+}
+
+/**
+ * spice_smartcard_reader_insert_card:
+ * @reader: a #SpiceSmartcardReader
+ *
+ * Simulates insertion of a smartcard in the software smartcard reader
+ * @reader. If @reader is not a software smartcard reader, FALSE will be
+ * returned.
+ *
+ * Returns: TRUE if insertion of a card was successfully simulated, FALSE
+ * otherwise
+ */
+gboolean spice_smartcard_reader_insert_card(SpiceSmartcardReader *reader)
+{
+    VCardEmulError status;
+
+    g_return_val_if_fail(spice_smartcard_reader_is_software(reader), FALSE);
+
+    status = vcard_emul_force_card_insert((VReader *)reader);
+
+    return (status == VCARD_EMUL_OK);
+}
+
+/**
+ * spice_smartcard_reader_remove_card:
+ * @reader: a #SpiceSmartcardReader
+ *
+ * Simulates removal of a smartcard from the software smartcard reader
+ * @reader. If @reader is not a software smartcard reader, FALSE will be
+ * returned.
+ *
+ * Returns: TRUE if removal of a card was successfully simulated, FALSE
+ * otherwise
+ */
+gboolean spice_smartcard_reader_remove_card(SpiceSmartcardReader *reader)
+{
+    VCardEmulError status;
+
+    g_return_val_if_fail(spice_smartcard_reader_is_software(reader), FALSE);
+
+    status = vcard_emul_force_card_remove((VReader *)reader);
+
+    return (status == VCARD_EMUL_OK);
+}
+
+/**
+ * spice_smartcard_manager_get_readers:
+ *
+ * manager: a #SpiceSmartcardManager
+ *
+ * Gets the list of smartcard readers that are currently available, they
+ * can be either software (emulated) readers, or hardware ones.
+ *
+ * Returns: (element-type SpiceSmartcardReader) (transfer full): a newly
+ * allocated list of SpiceSmartcardReader instances, or NULL if none were
+ * found. When no longer needed, the list must be freed after unreferencing
+ * its elements with g_boxed_free()
+ *
+ * Since: 0.20
+ */
+GList *spice_smartcard_manager_get_readers(SpiceSmartcardManager *manager)
+{
+
+    GList *readers = NULL;
+    VReaderList *vreader_list;
+    VReaderListEntry *entry;
+
+    vreader_list = vreader_get_reader_list();
+
+    if (vreader_list == NULL)
+        return NULL;
+
+    for (entry = vreader_list_get_first(vreader_list);
+         entry != NULL;
+         entry = vreader_list_get_next(entry)) {
+        VReader *reader;
+
+        reader = vreader_list_get_reader(entry);
+        g_warn_if_fail(reader != NULL);
+        readers = g_list_prepend(readers, vreader_reference(reader));
+    }
+    vreader_list_delete(vreader_list);
+
+    return g_list_reverse(readers);
+}
+
+/**
  * spice_smartcard_manager_insert_card:
  * @manager: a #SpiceSmartcardManager
  *
@@ -547,16 +632,18 @@ gboolean spice_smartcard_manager_init_finish(SpiceSession *session,
  *
  * Returns: TRUE if smartcard insertion was successfully simulated, FALSE
  * if this failed, or if software smartcard support isn't enabled.
+ *
+ * Since: 0.20
  */
 gboolean spice_smartcard_manager_insert_card(SpiceSmartcardManager *manager)
 {
-    VCardEmulError status;
+    SpiceSmartcardReader *reader;
 
-    g_return_val_if_fail(manager->priv->software_reader != NULL, FALSE);
+    g_return_val_if_fail (manager->priv->software_reader != NULL, FALSE);
 
-    status = vcard_emul_force_card_insert(manager->priv->software_reader);
+    reader = (SpiceSmartcardReader *)manager->priv->software_reader;
 
-    return (status == VCARD_EMUL_OK);
+    return spice_smartcard_reader_insert_card(reader);
 }
 
 /**
@@ -569,16 +656,18 @@ gboolean spice_smartcard_manager_insert_card(SpiceSmartcardManager *manager)
  *
  * Returns: TRUE if smartcard removal was successfully simulated, FALSE
  * if this failed, or if software smartcard support isn't enabled.
+ *
+ * Since: 0.20
  */
 gboolean spice_smartcard_manager_remove_card(SpiceSmartcardManager *manager)
 {
-    VCardEmulError status;
+    SpiceSmartcardReader *reader;
 
-    g_return_val_if_fail(manager->priv->software_reader != NULL, FALSE);
+    g_return_val_if_fail (manager->priv->software_reader != NULL, FALSE);
 
-    status = vcard_emul_force_card_remove(manager->priv->software_reader);
+    reader = (SpiceSmartcardReader *)manager->priv->software_reader;
 
-    return (status == VCARD_EMUL_OK);
+    return spice_smartcard_reader_remove_card(reader);
 }
 #else
 gboolean spice_smartcard_reader_is_software(SpiceSmartcardReader *reader)
@@ -614,4 +703,20 @@ gboolean spice_smartcard_manager_remove_card(SpiceSmartcardManager *manager)
 {
     return FALSE;
 }
+
+gboolean spice_smartcard_reader_insert_card(SpiceSmartcardReader *reader)
+{
+    return FALSE;
+}
+
+gboolean spice_smartcard_reader_remove_card(SpiceSmartcardReader *reader)
+{
+    return FALSE;
+}
+
+GList *spice_smartcard_manager_get_readers(SpiceSmartcardManager *manager)
+{
+    return NULL;
+}
+
 #endif /* USE_SMARTCARD */

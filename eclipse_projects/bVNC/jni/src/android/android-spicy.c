@@ -162,10 +162,10 @@ static void channel_new(SpiceSession *s, SpiceChannel *channel, gpointer data)
         //                 G_CALLBACK(inputs_modifiers), conn);
     }
 
-    //if (SPICE_IS_PLAYBACK_CHANNEL(channel)) {
-    //    SPICE_DEBUG("new audio channel");
-    //    conn->audio = spice_audio_get(s, NULL);
-    //}
+    if (SPICE_IS_PLAYBACK_CHANNEL(channel)) {
+        SPICE_DEBUG("new audio channel");
+        conn->audio = spice_audio_get(s, NULL);
+    }
 
     //if (SPICE_IS_USBREDIR_CHANNEL(channel)) {
     //    update_auto_usbredir_sensitive(conn);
@@ -203,9 +203,9 @@ static void channel_destroy(SpiceSession *s, SpiceChannel *channel, gpointer dat
         conn->wins[id] = NULL;
     }
 
-    //if (SPICE_IS_PLAYBACK_CHANNEL(channel)) {
-    //    SPICE_DEBUG("zap audio channel");
-    //}
+    if (SPICE_IS_PLAYBACK_CHANNEL(channel)) {
+        SPICE_DEBUG("zap audio channel");
+    }
 
     //if (SPICE_IS_USBREDIR_CHANNEL(channel)) {
     //    update_auto_usbredir_sensitive(conn);

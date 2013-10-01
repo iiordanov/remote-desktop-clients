@@ -318,7 +318,11 @@ static void playback_start(SpicePlaybackChannel *channel, gint format, gint chan
         SPICE_DEBUG("audio pipeline: %s", pipeline);
         p->playback.pipe = gst_parse_launch(pipeline, &error);
         if (p->playback.pipe == NULL) {
+            #if 0
             g_warning("Failed to create pipeline: %s", error->message);
+            #else
+            SPICE_DEBUG("Failed to create pipeline: %s", error->message);
+            #endif
             goto lerr;
         }
         p->playback.src = gst_bin_get_by_name(GST_BIN(p->playback.pipe), "appsrc");

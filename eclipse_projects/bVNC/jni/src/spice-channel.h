@@ -120,6 +120,7 @@ void spice_channel_set_capability(SpiceChannel *channel, guint32 cap);
 #endif
 
 const gchar* spice_channel_type_to_string(gint type);
+gint spice_channel_string_to_type(const gchar *str);
 
 G_END_DECLS
 

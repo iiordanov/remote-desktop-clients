@@ -1,12 +1,18 @@
 1. Install sqlitegen plugin into Eclipse from:
       http://code.google.com/p/sqlitegen/
 
+   NOTE: I've been told by a user that he had to "downgrade to"
+         eclipse_site_0.1.16.
+
    NOTE: I found that with Eclipse 4.0 this tool no longer works.
          A fix or workaround is badly needed.
 
 2. Clone the FreeRDP project in the parent directory of where you
    cloned bVNC project:
    git clone git://github.com/FreeRDP/FreeRDP.git
+
+   Check out a commit known to work with bVNC:
+   git checkout dbbb34109824d9a9d8b3f4648183ce364e5aa0fc
 
    You should now have bVNC and FreeRDP side by side in the same
    directory.
@@ -35,3 +41,12 @@
 5. Ensure that ZoomerWithKeys, PubkeyGenerator, and FreeRDPCore
    are referenced in Properties -> Project References (put
    checkmarks on projects).
+
+6. To build aSPICE, you need to:
+   - Install gstreamer-sdk into /opt/gstreamer
+   - cd bVNC/eclipse_projects/bVNC
+   - ndk-build GSTREAMER_SDK_ROOT_ANDROID=/opt/gstreamer -j 4
+   - Change the package name to com.iiordanov.aSPICE in AndroidManifest.xml
+
+Please inform me if (6) needs to be expanded (i.e. if you needed to do
+anything else in addition to the above.

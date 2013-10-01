@@ -357,6 +357,24 @@ typedef struct SpiceMsgDisplayStreamDestroy {
     uint32_t id;
 } SpiceMsgDisplayStreamDestroy;
 
+typedef struct SpiceMsgDisplayStreamActivateReport {
+    uint32_t stream_id;
+    uint32_t unique_id;
+    uint32_t max_window_size;
+    uint32_t timeout_ms;
+} SpiceMsgDisplayStreamActivateReport;
+
+typedef struct SpiceMsgcDisplayStreamReport {
+    uint32_t stream_id;
+    uint32_t unique_id;
+    uint32_t start_frame_mm_time;
+    uint32_t end_frame_mm_time;
+    uint32_t num_frames;
+    uint32_t num_drops;
+    int32_t last_frame_delay;
+    uint32_t audio_delay;
+} SpiceMsgcDisplayStreamReport;
+
 typedef struct SpiceMsgCursorInit {
     SpicePoint16 position;
     uint16_t trail_length;
@@ -450,6 +468,10 @@ typedef struct SpiceMsgPlaybackPacket {
     uint8_t *data;
     uint32_t data_size;
 } SpiceMsgPlaybackPacket, SpiceMsgcRecordPacket;
+
+typedef struct SpiceMsgPlaybackLatency {
+    uint32_t latency_ms;
+} SpiceMsgPlaybackLatency;
 
 typedef struct SpiceMsgRecordStart {
     uint32_t channels;

@@ -1870,21 +1870,22 @@ end:
     spice_msg_in_unref(in);
 }
 
+static const char *to_string[] = {
+    NULL,
+    [ SPICE_CHANNEL_MAIN ] = "main",
+    [ SPICE_CHANNEL_DISPLAY ] = "display",
+    [ SPICE_CHANNEL_INPUTS ] = "inputs",
+    [ SPICE_CHANNEL_CURSOR ] = "cursor",
+    [ SPICE_CHANNEL_PLAYBACK ] = "playback",
+    [ SPICE_CHANNEL_RECORD ] = "record",
+    [ SPICE_CHANNEL_TUNNEL ] = "tunnel",
+    [ SPICE_CHANNEL_SMARTCARD ] = "smartcard",
+    [ SPICE_CHANNEL_USBREDIR ] = "usbredir",
+    [ SPICE_CHANNEL_PORT ] = "port",
+};
+
 const gchar* spice_channel_type_to_string(gint type)
 {
-    static const char *to_string[] = {
-        NULL,
-        [ SPICE_CHANNEL_MAIN ] = "main",
-        [ SPICE_CHANNEL_DISPLAY ] = "display",
-        [ SPICE_CHANNEL_INPUTS ] = "inputs",
-        [ SPICE_CHANNEL_CURSOR ] = "cursor",
-        [ SPICE_CHANNEL_PLAYBACK ] = "playback",
-        [ SPICE_CHANNEL_RECORD ] = "record",
-        [ SPICE_CHANNEL_TUNNEL ] = "tunnel",
-        [ SPICE_CHANNEL_SMARTCARD ] = "smartcard",
-        [ SPICE_CHANNEL_USBREDIR ] = "usbredir",
-        [ SPICE_CHANNEL_PORT ] = "port",
-    };
     const char *str = NULL;
 
     if (type >= 0 && type < G_N_ELEMENTS(to_string)) {
@@ -1893,6 +1894,39 @@ const gchar* spice_channel_type_to_string(gint type)
 
     return str ? str : "unknown channel type";
 }
+
+gint spice_channel_string_to_type(const gchar *str)
+{
+    int i;
+
+    g_return_val_if_fail(str != NULL, -1);
+
+    for (i = 0; i < G_N_ELEMENTS(to_string); i++)
+        if (g_strcmp0(str, to_string[i]) == 0)
+            return i;
+
+    return -1;
+}
+
+G_GNUC_INTERNAL
+gchar *spice_channel_supported_string(void)
+{
+    return g_strjoin(", ",
+                     spice_channel_type_to_string(SPICE_CHANNEL_MAIN),
+                     spice_channel_type_to_string(SPICE_CHANNEL_DISPLAY),
+                     spice_channel_type_to_string(SPICE_CHANNEL_INPUTS),
+                     spice_channel_type_to_string(SPICE_CHANNEL_CURSOR),
+                     spice_channel_type_to_string(SPICE_CHANNEL_PLAYBACK),
+                     spice_channel_type_to_string(SPICE_CHANNEL_RECORD),
+#ifdef USE_SMARTCARD
+                     spice_channel_type_to_string(SPICE_CHANNEL_SMARTCARD),
+#endif
+#ifdef USE_USBREDIR
+                     spice_channel_type_to_string(SPICE_CHANNEL_USBREDIR),
+#endif
+                     NULL);
+}
+
 
 /**
  * spice_channel_new:
@@ -2197,7 +2231,7 @@ static void *spice_channel_coroutine(void *data)
     }
 
 reconnect:
-    c->conn = spice_session_channel_open_host(c->session, channel, c->tls);
+    c->conn = spice_session_channel_open_host(c->session, channel, &c->tls);
     if (c->conn == NULL) {
         if (!c->tls) {
             CHANNEL_DEBUG(channel, "trying with TLS port");
@@ -2312,7 +2346,7 @@ cleanup:
 
     SPICE_CHANNEL_GET_CLASS(channel)->channel_disconnect(channel);
 
-    if (switch_tls) {
+    if (switch_tls && !c->tls) {
         c->tls = true;
         spice_channel_connect(channel);
         g_object_unref(channel);

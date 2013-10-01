@@ -129,4 +129,8 @@ GType spice_main_context_get_type (void) G_GNUC_CONST;
   } G_STMT_END
 #endif
 
+#if !GLIB_CHECK_VERSION(2,27,2)
+guint64 g_get_monotonic_time(void);
+#endif
+
 #endif /* GLIB_COMPAT_H */

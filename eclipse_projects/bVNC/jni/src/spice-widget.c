@@ -46,17 +46,16 @@
 
 /* Some compatibility defines to let us build on both Gtk2 and Gtk3 */
 #if GTK_CHECK_VERSION (2, 91, 0)
-
 static inline void gdk_drawable_get_size(GdkWindow *w, gint *ww, gint *wh)
 {
     *ww = gdk_window_get_width(w);
     *wh = gdk_window_get_height(w);
 }
+#endif
 
-#define GtkObject GtkWidget
-#define GtkObjectClass GtkWidgetClass
-#define GTK_OBJECT_CLASS(c) GTK_WIDGET_CLASS(c)
-
+#if !GTK_CHECK_VERSION (2, 91, 0)
+#define GDK_IS_X11_DISPLAY(D) TRUE
+#define gdk_window_get_display(W) gdk_drawable_get_display(GDK_DRAWABLE(W))
 #endif
 
 #if !GTK_CHECK_VERSION(2, 20, 0)
@@ -137,6 +136,7 @@ static void channel_destroy(SpiceSession *s, SpiceChannel *channel, gpointer dat
 static void sync_keyboard_lock_modifiers(SpiceDisplay *display);
 static void cursor_invalidate(SpiceDisplay *display);
 static void update_area(SpiceDisplay *display, gint x, gint y, gint width, gint height);
+static void release_keys(SpiceDisplay *display);
 
 /* ---------------------------------------------------------------- */
 
@@ -482,6 +482,7 @@ static gboolean grab_broken(SpiceDisplay *self, GdkEventGrabBroken *event,
 
     if (event->keyboard) {
         try_keyboard_ungrab(self);
+        release_keys(self);
     }
 
     /* always release mouse when grab broken, this could be more
@@ -533,6 +534,14 @@ static void drag_data_received_callback(SpiceDisplay *self,
     gtk_drag_finish(drag_context, TRUE, FALSE, time);
 }
 
+static void grab_notify(SpiceDisplay *display, gboolean was_grabbed)
+{
+    SPICE_DEBUG("grab notify %d", was_grabbed);
+
+    if (was_grabbed == FALSE)
+        release_keys(display);
+}
+
 static void spice_display_init(SpiceDisplay *display)
 {
     GtkWidget *widget = GTK_WIDGET(display);
@@ -542,9 +551,12 @@ static void spice_display_init(SpiceDisplay *display)
     d = display->priv = SPICE_DISPLAY_GET_PRIVATE(display);
 
     g_signal_connect(display, "grab-broken-event", G_CALLBACK(grab_broken), NULL);
+    g_signal_connect(display, "grab-notify", G_CALLBACK(grab_notify), NULL);
+
     gtk_drag_dest_set(widget, GTK_DEST_DEFAULT_ALL, &targets, 1, GDK_ACTION_COPY);
     g_signal_connect(display, "drag-data-received",
                      G_CALLBACK(drag_data_received_callback), NULL);
+
     gtk_widget_add_events(widget,
                           GDK_STRUCTURE_MASK |
                           GDK_POINTER_MOTION_MASK |
@@ -562,7 +574,6 @@ static void spice_display_init(SpiceDisplay *display)
 #endif
     gtk_widget_set_can_focus(widget, true);
     gtk_widget_set_has_window(widget, true);
-    d->keycode_map = vnc_display_keymap_gdk2xtkbd_table(&d->keycode_maplen);
     d->grabseq = spice_grab_sequence_new_from_string("Control_L+Alt_L");
     d->activeseq = g_new0(gboolean, d->grabseq->nkeysyms);
 
@@ -648,7 +659,7 @@ void spice_display_set_grab_keys(SpiceDisplay *display, SpiceGrabSequence *seq)
 #ifdef WIN32
 static LRESULT CALLBACK keyboard_hook_cb(int code, WPARAM wparam, LPARAM lparam)
 {
-    if  (win32_window && code == HC_ACTION) {
+    if  (win32_window && code == HC_ACTION && wparam == WM_KEYDOWN) {
         KBDLLHOOKSTRUCT *hooked = (KBDLLHOOKSTRUCT*)lparam;
         DWORD dwmsg = (hooked->flags << 24) | (hooked->scanCode << 16) | 1;
 
@@ -662,10 +673,16 @@ static LRESULT CALLBACK keyboard_hook_cb(int code, WPARAM wparam, LPARAM lparam)
         case VK_NUMLOCK:
         case VK_LSHIFT:
         case VK_RSHIFT:
-        case VK_LCONTROL:
         case VK_RCONTROL:
         case VK_LMENU:
         case VK_RMENU:
+            break;
+        case VK_LCONTROL:
+            /* When pressing AltGr, an extra VK_LCONTROL with a special
+             * scancode with bit 9 set is sent. Let's ignore the extra
+             * VK_LCONTROL, as that will make AltGr misbehave. */
+            if (hooked->scanCode & 0x200)
+                return 1;
             break;
         default:
             SendMessage(win32_window, wparam, hooked->vkCode, dwmsg);
@@ -772,8 +789,13 @@ static void set_mouse_accel(SpiceDisplay *display, gboolean enabled)
 
 #if defined GDK_WINDOWING_X11
     GdkWindow *w = GDK_WINDOW(gtk_widget_get_window(GTK_WIDGET(display)));
-    Display *x_display = GDK_WINDOW_XDISPLAY(w);
 
+    if (!GDK_IS_X11_DISPLAY(gdk_window_get_display(w))) {
+        SPICE_DEBUG("FIXME: gtk backend is not X11");
+        return;
+    }
+
+    Display *x_display = GDK_WINDOW_XDISPLAY(w);
     if (enabled) {
         /* restore mouse acceleration */
         XChangePointerControl(x_display, True, True,
@@ -1300,11 +1322,6 @@ static gboolean key_event(GtkWidget *widget, GdkEventKey *key)
             else
                 try_mouse_grab(display);
         }
-
-        // that's the last key pressed from the grab sequence
-        // let send it to the remote if it's a modifier key
-        if (!key->is_modifier)
-            return true;
     }
 
     if (!d->inputs)
@@ -1699,9 +1716,13 @@ static void update_image(SpiceDisplay *display)
 static void realize(GtkWidget *widget)
 {
     SpiceDisplay *display = SPICE_DISPLAY(widget);
+    SpiceDisplayPrivate *d = display->priv;
 
     GTK_WIDGET_CLASS(spice_display_parent_class)->realize(widget);
 
+    d->keycode_map =
+        vnc_display_keymap_gdk2xtkbd_table(gtk_widget_get_window(widget),
+                                           &d->keycode_maplen);
     update_image(display);
 }
 
@@ -1999,10 +2020,14 @@ static void spice_display_class_init(SpiceDisplayClass *klass)
 
 /* ---------------------------------------------------------------- */
 
+#define SPICE_GDK_BUTTONS_MASK \
+    (GDK_BUTTON1_MASK|GDK_BUTTON2_MASK|GDK_BUTTON3_MASK|GDK_BUTTON4_MASK|GDK_BUTTON5_MASK)
+
 static void update_mouse_mode(SpiceChannel *channel, gpointer data)
 {
     SpiceDisplay *display = data;
     SpiceDisplayPrivate *d = SPICE_DISPLAY_GET_PRIVATE(display);
+    GdkWindow *window = gtk_widget_get_window(GTK_WIDGET(display));
 
     g_object_get(channel, "mouse-mode", &d->mouse_mode, NULL);
     SPICE_DEBUG("mouse mode %d", d->mouse_mode);
@@ -2012,9 +2037,16 @@ static void update_mouse_mode(SpiceChannel *channel, gpointer data)
         try_mouse_ungrab(display);
         break;
     case SPICE_MOUSE_MODE_SERVER:
-        try_mouse_grab(display);
         d->mouse_guest_x = -1;
         d->mouse_guest_y = -1;
+
+        if (window != NULL) {
+            GdkModifierType modifiers;
+            gdk_window_get_pointer(window, NULL, NULL, &modifiers);
+
+            if (modifiers & SPICE_GDK_BUTTONS_MASK)
+                try_mouse_grab(display);
+        }
         break;
     default:
         g_warn_if_reached();
@@ -2577,73 +2609,17 @@ static void sync_keyboard_lock_modifiers(SpiceDisplay *display)
     if (w == NULL) /* it can happen if the display is not yet shown */
         return;
 
+    if (!GDK_IS_X11_DISPLAY(gdk_window_get_display(w))) {
+        SPICE_DEBUG("FIXME: gtk backend is not X11");
+        return;
+    }
+
     x_display = GDK_WINDOW_XDISPLAY(w);
     modifiers = get_keyboard_lock_modifiers(x_display);
     if (d->inputs)
         spice_inputs_set_key_locks(d->inputs, modifiers);
 }
 
-typedef enum SpiceLed {
-    CAPS_LOCK_LED = 1,
-    NUM_LOCK_LED,
-    SCROLL_LOCK_LED,
-} SpiceLed;
-
-static guint get_modifier_mask(Display *x_display, KeySym modifier)
-{
-    int mask = 0;
-    int i;
-
-    XModifierKeymap* map = XGetModifierMapping(x_display);
-    KeyCode keycode = XKeysymToKeycode(x_display, modifier);
-    if (keycode == NoSymbol) {
-        return 0;
-    }
-
-    for (i = 0; i < 8; i++) {
-        if (map->modifiermap[map->max_keypermod * i] == keycode) {
-            mask = 1 << i;
-        }
-    }
-    XFreeModifiermap(map);
-    return mask;
-}
-
-static void set_keyboard_led(Display *x_display, SpiceLed led, int set)
-{
-    guint mask;
-    XKeyboardControl keyboard_control;
-
-    switch (led) {
-    case CAPS_LOCK_LED:
-        if ((mask = get_modifier_mask(x_display, XK_Caps_Lock)) != 0) {
-            XkbLockModifiers(x_display, XkbUseCoreKbd, mask, set ? mask : 0);
-        }
-        return;
-    case NUM_LOCK_LED:
-        if ((mask = get_modifier_mask(x_display, XK_Num_Lock)) != 0) {
-            XkbLockModifiers(x_display, XkbUseCoreKbd, mask, set ? mask : 0);
-        }
-        return;
-    case SCROLL_LOCK_LED:
-        keyboard_control.led_mode = set ? LedModeOn : LedModeOff;
-        keyboard_control.led = led;
-        XChangeKeyboardControl(x_display, KBLed | KBLedMode, &keyboard_control);
-        return;
-    }
-}
-
-G_GNUC_UNUSED
-static void spice_set_keyboard_lock_modifiers(SpiceDisplay *display, uint32_t modifiers)
-{
-    Display *x_display;
-
-    x_display = GDK_WINDOW_XDISPLAY(gtk_widget_get_parent_window(GTK_WIDGET(display)));
-
-    set_keyboard_led(x_display, CAPS_LOCK_LED, !!(modifiers & SPICE_INPUTS_CAPS_LOCK));
-    set_keyboard_led(x_display, NUM_LOCK_LED, !!(modifiers & SPICE_INPUTS_NUM_LOCK));
-    set_keyboard_led(x_display, SCROLL_LOCK_LED, !!(modifiers & SPICE_INPUTS_SCROLL_LOCK));
-}
 #elif defined (WIN32)
 static guint32 get_keyboard_lock_modifiers(void)
 {
