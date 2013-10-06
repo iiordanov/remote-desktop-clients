@@ -56,6 +56,7 @@ public class AutoXCustomizeDialog extends AlertDialog {
 	private bVNC mainConfigDialog;
 	private ConnectionBean selected;
 	private int commandIndex;
+	private int origCommandIndex;
 	private String command;
 	private Spinner spinnerAutoXType;
 	private Button autoXConfirm;
@@ -101,6 +102,7 @@ public class AutoXCustomizeDialog extends AlertDialog {
 	 */
 	@Override
 	public void onBackPressed () {
+		retainAutoXInfo();
 		dismiss();
 	}
 
@@ -120,6 +122,7 @@ public class AutoXCustomizeDialog extends AlertDialog {
 
 		selected = mainConfigDialog.getCurrentConnection();
 		commandIndex = selected.getAutoXType();
+		origCommandIndex = selected.getAutoXType();
 		// Set current selection to the one corresponding to saved setting.
 		spinnerAutoXType.setSelection(commandIndex);
 		// Set the widgets controlling the remote resolution.
@@ -149,7 +152,8 @@ public class AutoXCustomizeDialog extends AlertDialog {
 	 * Make sure commandIndex and command match the state of the checkbox which
 	 * specifies whether .dmrc should be moved away.
 	 */
-	private void setCommandIndexAndCommand () {
+	private void setCommandIndexAndCommand (int itemIndex) {
+		commandIndex = itemIndex;
 		if (commandIndex != VncConstants.COMMAND_AUTO_X_DISABLED)
 			command = VncConstants.getCommandString(commandIndex, geometry + sessionProg + pw);
 		else
@@ -237,8 +241,7 @@ public class AutoXCustomizeDialog extends AlertDialog {
 			@Override
 			public void onItemSelected(AdapterView<?> ad, View view, int itemIndex, long id) {
 				// Set our preferred commandIndex, and command accordingly.
-				commandIndex = itemIndex;
-				setCommandIndexAndCommand ();
+				setCommandIndexAndCommand (itemIndex);
 				// Set the toggle state of the advanced button.
 				setAdvancedToggleState ();
 			}
@@ -346,6 +349,7 @@ public class AutoXCustomizeDialog extends AlertDialog {
 			
 			@Override
 			public void onClick(View v) {
+				retainAutoXInfo();
 				// If the user cancels, exit without changes.
 				dismiss();
 			}
@@ -377,7 +381,7 @@ public class AutoXCustomizeDialog extends AlertDialog {
 		// Ensure the values of command and commandIndex match the widgets.
 		setRemoteWidthAndHeight ();
 		setSessionProg();
-		setCommandIndexAndCommand ();
+		setCommandIndexAndCommand (commandIndex);
 		
 		boolean autoXenabled = commandIndex != VncConstants.COMMAND_AUTO_X_DISABLED;
 		selected.setAutoXEnabled(autoXenabled);
@@ -390,6 +394,16 @@ public class AutoXCustomizeDialog extends AlertDialog {
 		selected.setAutoXUnixAuth(checkboxAutoXUnixAuth.isChecked());
 		// Set a random VNC password (for the built-in security mechanism).
 		selected.setPassword(rnd.randomString(8));
+
+		// Update and save.
+		mainConfigDialog.updateViewFromSelected();
+		mainConfigDialog.saveAndWriteRecent();
+	}
+	
+	public void retainAutoXInfo () {
+		setCommandIndexAndCommand (origCommandIndex);
+		selected.setAutoXType(origCommandIndex);
+		selected.setAutoXCommand(command);
 
 		// Update and save.
 		mainConfigDialog.updateViewFromSelected();
