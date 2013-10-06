@@ -24,6 +24,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.graphics.RectF;
 import android.widget.ImageView;
 import android.util.Log;
 
@@ -79,11 +80,11 @@ abstract public class AbstractBitmapData {
 			drawable.setSoftCursor (newSoftCursorPixels);
 	}
 
-	Rect getCursorRect () {
+	RectF getCursorRect () {
 		if (drawable != null)
 			return drawable.cursorRect;
 		else // Return an empty new rectangle if drawable is null.
-			return new Rect();
+			return new RectF();
 	}
 
 	boolean isNotInitSoftCursor() {

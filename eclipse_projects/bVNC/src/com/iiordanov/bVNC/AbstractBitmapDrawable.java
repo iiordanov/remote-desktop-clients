@@ -35,7 +35,7 @@ import android.util.Log;
  *
  */
 public class AbstractBitmapDrawable extends DrawableContainer {
-	Rect cursorRect;
+	RectF cursorRect;
 	int hotX, hotY;
 	Bitmap softCursor;
 	boolean softCursorInit;
@@ -51,7 +51,7 @@ public class AbstractBitmapDrawable extends DrawableContainer {
 
 	AbstractBitmapDrawable(AbstractBitmapData data)	{
 		this.data = data;
-		cursorRect = new Rect();
+		cursorRect = new RectF();
 		clipRect = new Rect();
 		// Try to free up some memory.
 		System.gc();
@@ -73,7 +73,7 @@ public class AbstractBitmapDrawable extends DrawableContainer {
 		} catch (Throwable e) { }
 	}
 
-	void setCursorRect(int x, int y, int w, int h, int hX, int hY) {
+	void setCursorRect(int x, int y, float w, float h, int hX, int hY) {
 		hotX = hX;
 		hotY = hY;
 		cursorRect.left   = x-hotX;
@@ -88,7 +88,8 @@ public class AbstractBitmapDrawable extends DrawableContainer {
 
 	void setSoftCursor (int[] newSoftCursorPixels) {
 		Bitmap oldSoftCursor = softCursor;
-		softCursor = Bitmap.createBitmap(newSoftCursorPixels, cursorRect.width(), cursorRect.height(), Bitmap.Config.ARGB_8888);
+		softCursor = Bitmap.createBitmap(newSoftCursorPixels, (int)cursorRect.width(),
+                                         (int)cursorRect.height(), Bitmap.Config.ARGB_8888);
 		softCursorInit = true;
 		oldSoftCursor.recycle();
 	}

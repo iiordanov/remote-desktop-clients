@@ -37,6 +37,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.Paint.Style;
+import android.graphics.RectF;
 import android.util.Log;
 
 public class Decoder {
@@ -1068,7 +1069,7 @@ public class Decoder {
     	bitmapData.setSoftCursor (decodeCursorShape(rfb, encodingType, w, h));
 
     	// Show the cursor.
-		Rect r = bitmapData.getCursorRect();
+		RectF r = bitmapData.getCursorRect();
 		vncCanvas.reDraw(r.left, r.top, r.width(), r.height());
     }
 
