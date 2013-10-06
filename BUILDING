@@ -42,11 +42,14 @@
    are referenced in Properties -> Project References (put
    checkmarks on projects).
 
-6. To build aSPICE, you need to:
+6. To build and successfully run aSPICE, you need to:
    - Install gstreamer-sdk into /opt/gstreamer
    - cd bVNC/eclipse_projects/bVNC
    - ndk-build GSTREAMER_SDK_ROOT_ANDROID=/opt/gstreamer -j 4
    - Change the package name to com.iiordanov.aSPICE in AndroidManifest.xml
+   - Replace all instances of aSPICE with bVNC in native code (.c and .h files).
+     This requirement should go away in the future.
+     find eclipse_projects/bVNC/jni/src -name \*.h -o -name \*.c -exec sed -i 's/aSPICE/bVNC/' {} \;
 
 Please inform me if (6) needs to be expanded (i.e. if you needed to do
 anything else in addition to the above.
