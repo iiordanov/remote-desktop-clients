@@ -251,6 +251,13 @@ android:layout_height="fill_parent">
 	  	    android:layout_height="wrap_content"
 	  	    android:text="Local Device Tweaks"
 	  	    android:textAppearance="?android:attr/textAppearanceMedium"/>
+	    <CheckBox
+			android:id="@+id/checkboxEnableSound"
+		    android:text="@string/enable_sound"
+		    android:textAppearance="?android:attr/textAppearanceMedium"
+		    android:layout_width="wrap_content"
+		    android:gravity="left|center_vertical"
+		    android:layout_height="wrap_content"/>
 		<CheckBox
 			android:id="@+id/checkboxUseDpadAsArrows"
 		    android:text="@string/dpad_as_arrows"

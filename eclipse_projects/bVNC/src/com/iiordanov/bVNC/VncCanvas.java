@@ -412,7 +412,8 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 			    		spicecomm.setUIEventListener(VncCanvas.this);
 			    		spicecomm.setHandler(handler);
 			    		spicecomm.connect(address, Integer.toString(port), Integer.toString(tport),
-			    							connection.getPassword(), connection.getCaCertPath(), connection.getCertSubject());
+			    							connection.getPassword(), connection.getCaCertPath(),
+			    							connection.getCertSubject(), connection.getEnableSound());
 			    		
 			    		try {
 			    			synchronized(spicecomm) {

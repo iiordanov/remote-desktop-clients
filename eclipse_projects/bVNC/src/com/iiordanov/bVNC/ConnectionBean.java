@@ -108,6 +108,7 @@ public class ConnectionBean extends AbstractConnectionBean implements Comparable
 		setWindowContents(false);
 		setMenuAnimation(false);
 		setVisualStyles(false);
+		setEnableSound(false);
 		c = context;
 	}
 	
