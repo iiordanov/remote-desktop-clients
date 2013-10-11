@@ -97,6 +97,8 @@ public class aSPICE extends Activity implements MainConfiguration {
 	private boolean isFree;
 	private boolean startingOrHasPaused = true;
 	private boolean isConnecting = false;
+	private CheckBox checkboxEnableSound;
+
 	static {
 		System.loadLibrary("gstreamer_android");
 		System.loadLibrary("spice-android");
@@ -193,9 +195,10 @@ public class aSPICE extends Activity implements MainConfiguration {
 		checkboxUseDpadAsArrows = (CheckBox) findViewById(R.id.checkboxUseDpadAsArrows);
 		checkboxRotateDpad = (CheckBox) findViewById(R.id.checkboxRotateDpad);
 		checkboxLocalCursor = (CheckBox) findViewById(R.id.checkboxUseLocalCursor);
+		checkboxEnableSound = (CheckBox) findViewById(R.id.checkboxEnableSound);
+		
 		spinnerConnection = (Spinner) findViewById(R.id.spinnerConnection);
-		spinnerConnection
-				.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+		spinnerConnection.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
 					@Override
 					public void onItemSelected(AdapterView<?> ad, View view,
 							int itemIndex, long id) {
@@ -208,8 +211,8 @@ public class aSPICE extends Activity implements MainConfiguration {
 						selected = null;
 					}
 				});
-		spinnerConnection
-				.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+		
+		spinnerConnection.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
 
 					/*
 					 * (non-Javadoc)
@@ -229,6 +232,7 @@ public class aSPICE extends Activity implements MainConfiguration {
 					}
 
 				});
+		
 		goButton.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View view) {
@@ -245,8 +249,7 @@ public class aSPICE extends Activity implements MainConfiguration {
 		// The advanced settings button.
 		toggleAdvancedSettings = (ToggleButton) findViewById(R.id.toggleAdvancedSettings);
 		layoutAdvancedSettings = (LinearLayout) findViewById(R.id.layoutAdvancedSettings);
-		toggleAdvancedSettings
-				.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+		toggleAdvancedSettings.setOnCheckedChangeListener(new OnCheckedChangeListener() {
 					@Override
 					public void onCheckedChanged(CompoundButton arg0,
 							boolean checked) {
@@ -467,6 +470,7 @@ public class aSPICE extends Activity implements MainConfiguration {
 		checkboxUseDpadAsArrows.setChecked(selected.getUseDpadAsArrows());
 		checkboxRotateDpad.setChecked(selected.getRotateDpad());
 		checkboxLocalCursor.setChecked(selected.getUseLocalCursor());
+		checkboxEnableSound.setChecked(selected.getEnableSound());
 		textNickname.setText(selected.getNickname());
 		spinnerGeometry.setSelection(selected.getRdpResType());
 		resWidth.setText(Integer.toString(selected.getRdpWidth()));
@@ -588,6 +592,7 @@ public class aSPICE extends Activity implements MainConfiguration {
 		selected.setUseDpadAsArrows(checkboxUseDpadAsArrows.isChecked());
 		selected.setRotateDpad(checkboxRotateDpad.isChecked());
 		selected.setUseLocalCursor(checkboxLocalCursor.isChecked());
+		selected.setEnableSound(checkboxEnableSound.isChecked());
 	}
 
 	protected void onStart() {
@@ -729,6 +734,13 @@ public class aSPICE extends Activity implements MainConfiguration {
 		isConnecting = true;
 		updateSelectedFromView();
 		saveAndWriteRecent();
+		if (selected.getEnableSound()) {
+			try {
+	            GStreamer.init(this);
+	        } catch (Exception e) {
+	            Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
+	        }
+		}
 		Intent intent = new Intent(this, VncCanvasActivity.class);
 		intent.putExtra(VncConstants.CONNECTION, selected.Gen_getValues());
 		startActivity(intent);

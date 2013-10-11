@@ -76,10 +76,11 @@ Java_com_iiordanov_aSPICE_SpiceCommunicator_SpiceClientDisconnect (JNIEnv * env,
 
 JNIEXPORT jint JNICALL
 Java_com_iiordanov_aSPICE_SpiceCommunicator_SpiceClientConnect (JNIEnv *env, jobject obj, jstring h, jstring p,
-																		jstring tp, jstring pw, jstring cf, jstring cs)
+																		jstring tp, jstring pw, jstring cf, jstring cs, jboolean sound)
 {
     int result = 0;
     maintainConnection = TRUE;
+    soundEnabled = sound;
 
 	// Get a reference to the JVM to get JNIEnv from in (other) threads.
     jint rs = (*env)->GetJavaVM(env, &jvm);

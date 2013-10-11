@@ -162,7 +162,7 @@ static void channel_new(SpiceSession *s, SpiceChannel *channel, gpointer data)
         //                 G_CALLBACK(inputs_modifiers), conn);
     }
 
-    if (SPICE_IS_PLAYBACK_CHANNEL(channel)) {
+    if (soundEnabled && SPICE_IS_PLAYBACK_CHANNEL(channel)) {
         SPICE_DEBUG("new audio channel");
         conn->audio = spice_audio_get(s, NULL);
     }

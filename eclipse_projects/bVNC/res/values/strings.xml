@@ -102,6 +102,7 @@
 <string name="delete_key_list">Delete Key List</string>
 <string name="dpad_as_arrows">Use D-Pad for arrows and D-Pad click for Ctrl.</string>
 <string name="disconnect">Disconnect</string>
+<string name="enable_sound">Enable Sound</string>
 <string name="export_settings">Export</string>
 <string name="export_settings_path"></string>
 <string name="enter_text_title">Enter Text to Send</string>

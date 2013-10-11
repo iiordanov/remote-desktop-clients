@@ -173,4 +173,6 @@ interface IConnectionBean {
 	boolean getMenuAnimation();
 	@FieldAccessor
 	boolean getVisualStyles();
+	@FieldAccessor
+	boolean getEnableSound();
 }
