@@ -115,6 +115,8 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 	boolean       keyAltToggled;
 	ImageButton    keyTab;
 	ImageButton    keyEsc;
+	ImageButton    keyShift;
+	boolean       keyShiftToggled;
 	ImageButton    keyUp;
 	ImageButton    keyDown;
 	ImageButton    keyLeft;
@@ -569,7 +571,34 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 				return true;
 			}
 		});
-
+		
+		keyShift = (ImageButton) findViewById(R.id.keyShift);
+		keyShift.setOnClickListener(new OnClickListener () {
+			@Override
+			public void onClick(View arg0) {
+				boolean on = vncCanvas.getKeyboard().onScreenShiftToggle();
+				keyShiftToggled = false;
+				if (on)
+					keyShift.setImageResource(R.drawable.shifton);
+				else
+					keyShift.setImageResource(R.drawable.shiftoff);
+			}
+		});
+		
+		keyShift.setOnLongClickListener(new OnLongClickListener () {
+			@Override
+			public boolean onLongClick(View arg0) {
+				BCFactory.getInstance().getBCHaptic().performLongPressHaptic(vncCanvas);
+				boolean on = vncCanvas.getKeyboard().onScreenShiftToggle();
+				keyShiftToggled = true;
+				if (on)
+					keyShift.setImageResource(R.drawable.shifton);
+				else
+					keyShift.setImageResource(R.drawable.shiftoff);
+				return true;
+			}
+		});
+		
 		// TODO: Evaluate whether I should instead be using:
 		// vncCanvas.sendMetaKey(MetaKeyBean.keyArrowLeft);
 
@@ -679,6 +708,10 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 		if (!keySuperToggled) {
 			keySuper.setImageResource(R.drawable.superoff);
 			vncCanvas.getKeyboard().onScreenSuperOff();
+		}
+		if (!keyShiftToggled) {
+			keyShift.setImageResource(R.drawable.shiftoff);
+			vncCanvas.getKeyboard().onScreenShiftOff();
 		}
 	}
 
