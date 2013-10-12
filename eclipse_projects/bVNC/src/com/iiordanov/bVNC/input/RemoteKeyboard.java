@@ -80,7 +80,7 @@ public abstract class RemoteKeyboard {
 	public boolean onScreenCtrlToggle()	{
 		// If we find Ctrl on, turn it off. Otherwise, turn it on.
 		if (onScreenMetaState == (onScreenMetaState | CTRL_MASK)) {
-			onScreenMetaState = onScreenMetaState & ~CTRL_MASK;
+			onScreenCtrlOff();
 			return false;
 		}
 		else {
@@ -97,13 +97,13 @@ public abstract class RemoteKeyboard {
 	}
 	
 	/**
-	 * Toggles on-screen Ctrl mask.  Returns true if result is Alt enabled, false otherwise.
+	 * Toggles on-screen Alt mask.  Returns true if result is Alt enabled, false otherwise.
 	 * @return true if on false otherwise.
 	 */
 	public boolean onScreenAltToggle() {
 		// If we find Alt on, turn it off. Otherwise, turn it on.
 		if (onScreenMetaState == (onScreenMetaState | ALT_MASK)) {
-			onScreenMetaState = onScreenMetaState & ~ALT_MASK;
+			onScreenAltOff();
 			return false;
 		}
 		else {
@@ -119,10 +119,14 @@ public abstract class RemoteKeyboard {
 		onScreenMetaState = onScreenMetaState & ~ALT_MASK;
 	}
 
+	/**
+	 * Toggles on-screen Super mask.  Returns true if result is Super enabled, false otherwise.
+	 * @return true if on false otherwise.
+	 */
 	public boolean onScreenSuperToggle() {
 		// If we find Super on, turn it off. Otherwise, turn it on.
 		if (onScreenMetaState == (onScreenMetaState | SUPER_MASK)) {
-			onScreenMetaState = onScreenMetaState & ~SUPER_MASK;
+			onScreenSuperOff();
 			return false;
 		}
 		else {
@@ -131,8 +135,34 @@ public abstract class RemoteKeyboard {
 		}
 	}
 	
+	/**
+	 * Turns off on-screen Super.
+	 */
 	public void onScreenSuperOff() {
 		onScreenMetaState = onScreenMetaState & ~SUPER_MASK;		
+	}
+	
+	/**
+	 * Toggles on-screen Shift mask.  Returns true if result is Shift enabled, false otherwise.
+	 * @return true if on false otherwise.
+	 */
+	public boolean onScreenShiftToggle() {
+		// If we find Super on, turn it off. Otherwise, turn it on.
+		if (onScreenMetaState == (onScreenMetaState | SHIFT_MASK)) {
+			onScreenShiftOff();
+			return false;
+		}
+		else {
+			onScreenMetaState = onScreenMetaState | SHIFT_MASK;
+			return true;
+		}
+	}
+
+	/**
+	 * Turns off on-screen Shift.
+	 */
+	public void onScreenShiftOff() {
+		onScreenMetaState = onScreenMetaState & ~SHIFT_MASK;
 	}
 
 	public int getMetaState () {
