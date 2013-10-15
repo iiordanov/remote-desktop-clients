@@ -53,6 +53,9 @@
    - ndk-build GSTREAMER_SDK_ROOT_ANDROID=/opt/gstreamer -j 4
    - Force one boolean variable to be true. You can use the following command:
        find ./ -name \*.java -exec sed -i 's/isSpice = .*;/isSpice = true;/' {} \;
+   - You may have to select the "Android private libraries" entry in
+       Project Properties->Java Build Path->Order and Export
+     if you have it.
 
 Please inform me if (6) needs to be expanded (i.e. if you needed to do
 anything else in addition to the above.
