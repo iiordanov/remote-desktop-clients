@@ -90,7 +90,7 @@ public class ConnectionBean extends AbstractConnectionBean implements Comparable
 		setPrefEncoding(RfbProto.EncodingTight);
 		setScaleMode(ScaleType.MATRIX);
 		setInputMode(TouchMouseSwipePanInputHandler.TOUCH_ZOOM_MODE);
-		setUseDpadAsArrows(false);
+		setUseDpadAsArrows(true);
 		setRotateDpad(false);
 		setUsePortrait(false);
 		setUseLocalCursor(false);
@@ -109,6 +109,7 @@ public class ConnectionBean extends AbstractConnectionBean implements Comparable
 		setMenuAnimation(false);
 		setVisualStyles(false);
 		setEnableSound(false);
+		setViewOnly(false);
 		c = context;
 	}
 	

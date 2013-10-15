@@ -259,10 +259,14 @@ class RfbProto implements RfbConnectable {
 	// Suggests to the server a preferred encoding
 	private int preferredEncoding = EncodingTight;
 	
+	// View Only mode
+	private boolean viewOnly = false;
+	
   //
   // Constructor. Make TCP connection to RFB server.
   //
-  RfbProto(Decoder d, String h, int p, int prefEnc) throws Exception {
+  RfbProto(Decoder d, String h, int p, int prefEnc, boolean viewOnly) throws Exception {
+	this.viewOnly = viewOnly;
     host = h;
     port = p;
     preferredEncoding = prefEnc;
@@ -1203,6 +1207,9 @@ class RfbProto implements RfbConnectable {
   //
 
   synchronized void writeClientCutText(String text, int length) throws IOException {
+    if (viewOnly)
+        return;
+    
     byte[] b = new byte[8 + length];
 
     b[0] = (byte) ClientCutText;
@@ -1238,8 +1245,10 @@ class RfbProto implements RfbConnectable {
    * @param pointerMask
    * @throws IOException
    */
-  public synchronized void writePointerEvent( int x, int y, int modifiers, int pointerMask)
-  {
+  public synchronized void writePointerEvent( int x, int y, int modifiers, int pointerMask) {
+	    if (viewOnly)
+	    	return;
+	    
 	    eventBufLen = 0;
 	    writeModifierKeyEvents(modifiers);
 
@@ -1295,8 +1304,10 @@ class RfbProto implements RfbConnectable {
   // from the Java key values to the X keysym values used by the RFB protocol.
   //
   public synchronized void writeKeyEvent(int keySym, int metaState, boolean down) {
+	if (viewOnly)
+		return;
+	
     eventBufLen = 0;
-    
     if (down)
     	writeModifierKeyEvents(metaState);
     if (keySym > 0)
@@ -1323,6 +1334,9 @@ class RfbProto implements RfbConnectable {
   //
 
   private void writeKeyEvent(int keysym, boolean down) {
+	if (viewOnly)
+		return;
+	
     eventBuf[eventBufLen++] = (byte) KeyboardEvent;
     eventBuf[eventBufLen++] = (byte) (down ? 1 : 0);
     eventBuf[eventBufLen++] = (byte) 0;

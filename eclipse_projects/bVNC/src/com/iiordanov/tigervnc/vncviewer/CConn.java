@@ -66,6 +66,7 @@ public class CConn extends CConnection
                String vncServerName, boolean reverse, AbstractConnectionBean connection)
   {
 	super(viewer_);
+	this.viewOnly = connection.getViewOnly();
     this.connection = connection; 
     serverHost = null; serverPort = 0; sock = sock_;
     currentEncoding = Encodings.encodingTight; lastServerEncoding = -1;
@@ -637,7 +638,7 @@ public class CConn extends CConnection
   
   // writeClientCutText() is called from the clipboard dialog
   synchronized public void writeClientCutText(String str, int len) {
-    if (state() != RFBSTATE_NORMAL) return;
+    if (state() != RFBSTATE_NORMAL || viewOnly) return;
     try {
     	writer().writeClientCutText(str,len);
     } catch (java.lang.Exception e) {
@@ -648,7 +649,7 @@ public class CConn extends CConnection
   }
 
   synchronized public void writeKeyEvent(int keysym, int metaState, boolean down) {
-	    if (state() != RFBSTATE_NORMAL) return;
+	    if (state() != RFBSTATE_NORMAL || viewOnly) return;
 	    writeModifiers(metaState);
 	    writer().writeKeyEvent(keysym, down);
 	    if (!down)
@@ -656,13 +657,13 @@ public class CConn extends CConnection
   }
   
   synchronized public void writeKeyEvent(int keysym, boolean down) {
-    if (state() != RFBSTATE_NORMAL) return;
+    if (state() != RFBSTATE_NORMAL || viewOnly) return;
     writer().writeKeyEvent(keysym, down);
   }
 
   // TODO: Get this ported.
   synchronized public void writeKeyEvent(KeyEvent ev) {
-    if (ev.getAction() != KeyEvent.ACTION_DOWN)
+    if (ev.getAction() != KeyEvent.ACTION_DOWN || viewOnly)
       return;
 
     int keysym = 0;
@@ -736,7 +737,7 @@ public class CConn extends CConnection
 
 
   public void writePointerEvent(int mouseX, int mouseY, int metaState, int pointerMask) {
-	    if (state() != RFBSTATE_NORMAL) return;
+	    if (state() != RFBSTATE_NORMAL || viewOnly) return;
 	    
 	    synchronized (this) {
 	        writeModifiers(metaState);
@@ -750,7 +751,7 @@ public class CConn extends CConnection
   }
   
   public void writePointerEvent(MotionEvent ev) {
-    if (state() != RFBSTATE_NORMAL) return;
+    if (state() != RFBSTATE_NORMAL || viewOnly) return;
     
     switch (ev.getAction()) {
     case MotionEvent.ACTION_DOWN:
@@ -987,6 +988,7 @@ public class CConn extends CConnection
   boolean reverseConnection;
   boolean firstUpdate;
   boolean pendingUpdate;
+  boolean viewOnly;
   AbstractConnectionBean connection;
   
   static LogWriter vlog = new LogWriter("CConn");

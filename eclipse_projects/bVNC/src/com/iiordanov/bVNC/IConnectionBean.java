@@ -175,4 +175,6 @@ interface IConnectionBean {
 	boolean getVisualStyles();
 	@FieldAccessor
 	boolean getEnableSound();
+	@FieldAccessor
+	boolean getViewOnly();
 }

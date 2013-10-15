@@ -216,6 +216,13 @@ android:layout_height="fill_parent">
 		    android:layout_width="fill_parent"
 			android:layout_height="wrap_content"
 			android:layout_weight="1"/>
+		<CheckBox
+			android:id="@+id/checkboxViewOnly"
+		    android:text="@string/view_only"
+		    android:textAppearance="?android:attr/textAppearanceLarge"
+		    android:layout_width="wrap_content"
+		    android:gravity="left|center_vertical"
+		    android:layout_height="wrap_content"/>
         <CheckBox
 			android:id="@+id/checkboxUseDpadAsArrows"
 		    android:text="@string/dpad_as_arrows"
