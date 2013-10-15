@@ -5,7 +5,8 @@
 <string name="address_caption_hint_tunneled">VNC Server</string>
 <string name="address_caption_ssh">SSH Server</string>
 <string name="address_caption_ssh_hint">SSH Server</string>
-<string name="ad_donate_text">Tap here to support the project with a donation and get the pro version!</string>
+<string name="ad_donate_text">Tap here to support the project with a small donation (and get rid of this dialog) by buying the pro version!</string>
+<string name="ad_donate_text2">If you would like to support the project further, tap here to try and/or buy my other programs.</string>
 <string name="alt_check">Alt</string>
 <string name="app_name">bVNC Pro</string>
 <string name="arrow_down">Down Arrow</string>
