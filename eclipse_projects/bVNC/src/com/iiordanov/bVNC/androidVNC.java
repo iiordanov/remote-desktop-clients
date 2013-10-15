@@ -102,6 +102,7 @@ public class androidVNC extends Activity implements MainConfiguration {
 	private CheckBox checkboxLocalCursor;
 	private CheckBox checkboxUseSshPubkey;
 	private CheckBox checkboxPreferHextile;
+	private CheckBox checkboxViewOnly;
 	private boolean repeaterTextSet;
 	private boolean isFree;
 	private boolean startingOrHasPaused = true;
@@ -243,6 +244,7 @@ public class androidVNC extends Activity implements MainConfiguration {
 		checkboxRotateDpad = (CheckBox)findViewById(R.id.checkboxRotateDpad);
 		checkboxLocalCursor = (CheckBox)findViewById(R.id.checkboxUseLocalCursor);
 		checkboxPreferHextile = (CheckBox)findViewById(R.id.checkboxPreferHextile);
+		checkboxViewOnly = (CheckBox)findViewById(R.id.checkboxViewOnly);
 		colorSpinner.setAdapter(colorSpinnerAdapter);
 		colorSpinner.setSelection(0);
 		spinnerConnection = (Spinner)findViewById(R.id.spinnerConnection);
@@ -465,6 +467,7 @@ public class androidVNC extends Activity implements MainConfiguration {
 		checkboxRotateDpad.setChecked(selected.getRotateDpad());
 		checkboxLocalCursor.setChecked(selected.getUseLocalCursor());
 		checkboxPreferHextile.setChecked(selected.getPrefEncoding() == RfbProto.EncodingHextile);
+		checkboxViewOnly.setChecked(selected.getViewOnly());
 		textNickname.setText(selected.getNickname());
 		textUsername.setText(selected.getUserName());
 		COLORMODEL cm = COLORMODEL.valueOf(selected.getColorModel());
@@ -578,6 +581,7 @@ public class androidVNC extends Activity implements MainConfiguration {
 			selected.setPrefEncoding(RfbProto.EncodingHextile);
 		else
 			selected.setPrefEncoding(RfbProto.EncodingTight);
+		selected.setViewOnly(checkboxViewOnly.isChecked());
 
 		selected.setColorModel(((COLORMODEL)colorSpinner.getSelectedItem()).nameString());
 		if (repeaterTextSet) {

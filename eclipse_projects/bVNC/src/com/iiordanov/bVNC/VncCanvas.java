@@ -651,7 +651,8 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 		int vncPort    = getPort(connection.getPort());
 		boolean anonTLS = (connection.getConnectionType() == VncConstants.CONN_TYPE_ANONTLS);
 	    try {
-			rfb = new RfbProto(decoder, address, vncPort, connection.getPrefEncoding());
+			rfb = new RfbProto(decoder, address, vncPort,
+								connection.getPrefEncoding(), connection.getViewOnly());
 			Log.v(TAG, "Connected to server: " + address + " at port: " + vncPort);
 			rfb.initializeAndAuthenticate(us, pw, connection.getUseRepeater(), connection.getRepeaterId(), anonTLS);
 	    } catch (Exception e) {
