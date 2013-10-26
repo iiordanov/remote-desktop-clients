@@ -104,6 +104,33 @@
 <string name="dpad_as_arrows">Use D-Pad for arrows and D-Pad click for Ctrl.</string>
 <string name="disconnect">Disconnect</string>
 <string name="enable_sound">Enable Sound</string>
+<string name="error_no_user_hostname">Please enter at least a user and a hostname or IP address.</string>
+<string name="error_vnc_authentication">VNC authentication failed! Check VNC password (and user if applicable).</string>
+<string name="error_out_of_memory">Unable to allocate sufficient memory to draw remote screen. Try restarting the application, then restart your device. You can also try reducing the size of the remote desktop through the app settings.</string>
+<string name="error_ovirt_unable_to_connect">Unable to connect or authenticate, please check server address, user, password, and cert authority and subject.</string>
+<string name="error_spice_unable_to_connect">Unable to connect or authenticate, please check server address, password, and cert authority and subject.</string>
+<string name="error_rdp_unable_to_connect">Could not connect to RDP server! Please ensure RDP Server setting is correct, the RDP server is turned on, RDP is enabled, and that the server is on the same network as this device.</string>
+<string name="error_rdp_connection_failed">RDP Connection failed! Either network connectivity was interrupted, the RDP server was turned off or disabled, or your session was taken over.</string>
+<string name="error_rdp_authentication_failed">RDP Authentication failed! Please check the RDP username and password and try again.</string>
+<string name="error_ssh_unable_to_connect">Failed to connect to SSH Server. Please check network connectivity, and SSH Server address and port.</string>
+<string name="error_ssh_hostkey_changed">ERROR! The server host key has changed. If this is intentional, please delete and recreate the connection. Otherwise, this may be a man in the middle attack. Not continuing.</string>
+<string name="error_ssh_kbd_auth_method_unavail">The SSH server supports neither \"password\" nor \"keyboard-interactive\" auth methods. Please configure it to allow at least one of the two methods and try again.</string>
+<string name="error_ssh_pubkey_auth_method_unavail">The SSH server does not support the \"publickey\" auth method, and we are trying to use a key-pair to authenticate. Please configure it to allow the publickey authentication and try again.</string>
+<string name="error_ssh_pwd_auth_fail">Failed to authenticate to SSH server with a password. Please check your SSH username, and SSH password.</string>
+<string name="error_ssh_key_auth_fail">Failed to authenticate to SSH server with a key-pair. Please check your SSH username, and ensure your public key is in the authorized_keys file on the remote side.</string>
+<string name="error_ssh_x11vnc_no_port_failure">Could not obtain remote VNC port from x11vnc. Please ensure x11vnc is installed. To be sure, try running x11vnc by hand on the command-line.</string>
+<string name="error_ssh_port_forwarding_failure">Could not set up the port forwarding for tunneling VNC traffic over SSH. Please ensure your SSH server is configured to allow port forwarding and try again.</string>
+<string name="error_ssh_keypair_missing">SSH key-pair not generated yet! Please generate one and put (its public part) in authorized_keys on the SSH server.</string>
+<string name="error_ssh_passphrase_but_keypair_unencrypted">Passphrase provided but key-pair not encrypted. Please delete passphrase.</string>
+<string name="error_ssh_keypair_decryption_failure">Failed to decrypt key-pair. Please ensure you\'ve entered your passphrase correctly in the \'SSH Passphrase\' field on the main screen.</string>
+<string name="error_ssh_could_not_exec_command">Could not execute remote command.</string>
+<string name="error_ssh_could_not_send_sudo_pwd">Could not send sudo password.</string>
+<string name="error_vnc_unable_to_connect">"Connection to VNC server failed with reason: "</string>
+<string name="error_connection_interrupted">Connection interrupted.</string>
+<string name="error_connection_failed">Connection failed.</string>
+<string name="error_x509_could_not_generate_signature">Could not generate SHA1 or MD5 signature of certificate. No SHA1/MD5 algorithm found.</string>
+<string name="error_x509_could_not_generate_encoding">Certificate encoding could not be generated.</string>
+<string name="error_cert_does_not_match">ERROR: The saved x509 certificate does not match the current server certificate! This could be a man-in-the-middle attack. If you are aware of the key change, delete and recreate the connection.</string>
 <string name="export_settings">Export</string>
 <string name="export_settings_path"></string>
 <string name="enter_text_title">Enter Text to Send</string>
@@ -116,6 +143,18 @@
 <string name="import_settings_file_url"></string>
 <string name="input_mode_help">Input Mode Help</string>
 <string name="info">Info</string>
+<string name="info_continue_connecting">"Continue connecting to: "</string>
+<string name="info_cert_signatures">"The certificate information is: "</string>
+<string name="info_ssh_initializing_hostkey">Attempting to initialize SSH HostKey.</string>
+<string name="info_ssh_key_fingerprint">"The host key fingerprint is: "</string>
+<string name="info_ssh_key_fingerprint_identical">\n\nYou can ensure it is identical to the known fingerprint of the server certificate to prevent a man-in-the-middle attack.</string>
+<string name="info_cert_signatures_identical">\n\nYou can ensure the information matches the server certificate to prevent a man-in-the-middle attack.</string>
+<string name="info_progress_dialog_connecting">Connecting...</string>
+<string name="info_progress_dialog_establishing">Establishing handshake.\nPlease wait...</string>
+<string name="info_progress_dialog_downloading">Downloading first frame.\nPlease wait...</string>
+<string name="info_progress_dialog_aborted">Connection aborted!</string>
+<string name="info_update_color_model_to">"Updating Color Model to "</string>
+<string name="info_encoding">" encoding, "</string>
 <string name="intro_close">Close</string>
 <string name="intro_dont_show">Don\'t show again</string>
 <string name="intro_header"></string>
@@ -267,7 +306,7 @@ If you are looking for a quick performance boost, try setting the Color mode to 
 
  - Auto/Fullscreen Bitmap: The VNC client uses a bitmap to represent the remote display. For very large remote displays, especially in fit-to-screen mode, you may experience strange visual artifacts when in fit-to-screen mode, due to per-process memory limitations. If that happens, try checking this option. Keep in mind that checking the option may cause bVNC to quit on connection.
 
- - Repeater: Available in UltraVNC mode, if you use a repeater to connect to your VNC server, enter its address and port separated by a colon in this field."</string>
+ - Repeater: Available only in UltraVNC mode. IMPORTANT: If you have an UltraVNC repeater, enter its address and port outside the \'UltraVNC Repeater\' dialog and enter the address and port of the actual VNC server inside the \'UltraVNC Repeater\' Dialog. Separate VNC server\'s address and port with a colon, e.g. 192.168.0.100:5900."</string>
 <string name="meta_key_title">Send Special Keys</string>
 <string name="mouse_follow_pan">Mouse follows pan</string>
 <string name="new_list_button">New List</string>
@@ -399,9 +438,10 @@ Known issues:
 <string name="rdp_server_empty">RDP Server or port empty. Cannot connect!</string>
 <string name="rdp_username_hint">RDP Username</string>
 <string name="repeater_button">UltraVNC Repeater</string>
-<string name="repeater_caption">Enter the repeater address &lt;b&gt;only if&lt;/b&gt; you are using an&lt;br&gt;&lt;i&gt;UltraVNC&lt;/i&gt;-type repeater</string>
+<string name="repeater_caption">IMPORTANT: If using a UltraVNC repeater, enter its address and port outside this dialog. Here, enter the address and port of the actual VNC server. Separate the VNC server\'s address and port with a colon, e.g. 192.168.0.100:5900.</string>
+<string name="repeater_caption_hint">UltraVNC Repeater</string>
 <string name="repeater_clear">Don\'t Use</string>
-<string name="repeater_dialog_title">Repeater Information</string>
+<string name="repeater_dialog_title">VNC Server Behind Repeater</string>
 <string name="repeater_empty_text">No repeater</string>
 <string name="repeater_save">Use</string>
 <string name="rotate_dpad">Rotate Bluetooth or software D-Pad</string>
@@ -434,11 +474,6 @@ Known issues:
     <item>@string/connection_type_spice</item>
     <item>@string/connection_type_spice_over_ssh</item>
 </string-array>
-<string name="spice_free_intro_header">This is an advertisement-supported, free version of aSPICE. You can 
-upgrade to aSPICE Pro to support this open-source project and avoid the ads! Look for aSPICE Pro in Google Play.
-&lt;br&gt;
-&lt;br&gt;    
-</string>
 <string name="spice_intro_text">
 "Thank you for supporting aSPICE and open-source software in general! For help with using aSPICE, see the Help items in the Menu, and the description of the app in the market.
 &lt;br&gt;

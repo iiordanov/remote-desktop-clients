@@ -147,9 +147,9 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 	        		if (pd != null && pd.isShowing())
 	        			pd.dismiss();
 		    		if (!spiceUpdateReceived) {
-		    			showFatalMessageAndQuit("Unable to connect, please check SPICE server address, port, and password.");
+		    			showFatalMessageAndQuit(getContext().getString(R.string.error_spice_unable_to_connect));
 		    		} else {
-		    			showFatalMessageAndQuit("SPICE connection interrupted.");
+		    			showFatalMessageAndQuit(getContext().getString(R.string.error_connection_interrupted));
 		    		}
 	        	}
 	        	break;
@@ -185,7 +185,7 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 	            		certificate = Base64.encodeToString(cert.getEncoded(), Base64.DEFAULT);
 					} catch (CertificateEncodingException e) {
 						e.printStackTrace();
-						showFatalMessageAndQuit("Certificate encoding could not be generated.");
+						showFatalMessageAndQuit(getContext().getString(R.string.error_x509_could_not_generate_encoding));
 					}
 					connection.setSshHostKey(certificate);
 	    			connection.save(database.getWritableDatabase());
@@ -202,25 +202,24 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 				sha1 = MessageDigest.getInstance("SHA1");
 				md5 = MessageDigest.getInstance("MD5");
 	    	    sha1.update(cert.getEncoded());
-    			Utils.showYesNoPrompt(getContext(), "Continue connecting to " + connection.getAddress () + "?",
-    									"The x509 certificate signatures are:"   +
+    			Utils.showYesNoPrompt(getContext(), getContext().getString(R.string.info_continue_connecting) + connection.getAddress () + "?",
+    								  getContext().getString(R.string.info_cert_signatures)   +
     									"\nSHA1:  " + Utils.toHexString(sha1.digest()) +
     									"\nMD5:  "  + Utils.toHexString(md5.digest())  + 
-    									"\nYou can ensure they are identical to the known signatures of the server certificate to prevent a man-in-the-middle attack.",
+    									getContext().getString(R.string.info_cert_signatures_identical),
     									signatureYes, signatureNo);
 			} catch (NoSuchAlgorithmException e2) {
 				e2.printStackTrace();
-				showFatalMessageAndQuit("Could not generate SHA1 or MD5 signature of certificate. No SHA1/MD5 algorithm found.");
+				showFatalMessageAndQuit(getContext().getString(R.string.error_x509_could_not_generate_signature));
 			} catch (CertificateEncodingException e) {
 				e.printStackTrace();
-				showFatalMessageAndQuit("Certificate encoding could not be generated.");
+				showFatalMessageAndQuit(getContext().getString(R.string.error_x509_could_not_generate_encoding));
 			}
     	} else {
     		// Compare saved with obtained certificate and quit if they don't match.
     		try {
 				if (!connection.getSshHostKey().equals(Base64.encodeToString(cert.getEncoded(), Base64.DEFAULT))) {
-					showFatalMessageAndQuit("ERROR: The saved x509 certificate does not match the current server certificate! " +
-							"This could be a man-in-the-middle attack. If you are aware of the key change, delete and recreate the connection.");
+					showFatalMessageAndQuit(getContext().getString(R.string.error_cert_does_not_match));
 				} else {
 					// In case we need to display information about the certificate, we can reconstruct it like this:
 					//CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
@@ -233,7 +232,7 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 				}
 			} catch (CertificateEncodingException e) {
 				e.printStackTrace();
-				showFatalMessageAndQuit("Certificate encoding could not be generated.");
+				showFatalMessageAndQuit(getContext().getString(R.string.error_x509_could_not_generate_encoding));
 			}
     	}
 	}
@@ -264,13 +263,12 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 				certificateAccepted = true;
 			}
 		};
-		Utils.showYesNoPrompt(getContext(), "Continue connecting to " + connection.getAddress () + "?",
-				"The RDP certificate subject, issuer, and fingerprint are:"   +
+		Utils.showYesNoPrompt(getContext(), getContext().getString(R.string.info_continue_connecting) + connection.getAddress () + "?",
+				getContext().getString(R.string.info_cert_signatures) +
 						"\nSubject:      " + subject +
 						"\nIssuer:       " + issuer +
 						"\nFingerprint:  " + fingerprint + 
-						"\nYou can ensure they are identical to the known parameters of the server certificate to " +
-						"prevent a man-in-the-middle attack.",
+						getContext().getString(R.string.info_cert_signatures_identical),
 						signatureYes, signatureNo);
 	}
 
@@ -371,14 +369,15 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 		decoder.setColorModel(COLORMODEL.valueOf(bean.getColorModel()));
 
 		// Startup the connection thread with a progress dialog
-		pd = ProgressDialog.show(getContext(), "Connecting...", "Establishing handshake.\nPlease wait...",
-				true, true, new DialogInterface.OnCancelListener() {
+		pd = ProgressDialog.show(getContext(), getContext().getString(R.string.info_progress_dialog_connecting),
+												getContext().getString(R.string.info_progress_dialog_establishing),
+												true, true, new DialogInterface.OnCancelListener() {
 			@Override
 			public void onCancel(DialogInterface dialog) {
 				closeConnection();
 				handler.post(new Runnable() {
 					public void run() {
-						Utils.showFatalErrorMessage(getContext(), "Connection aborted!");
+						Utils.showFatalErrorMessage(getContext(), getContext().getString(R.string.info_progress_dialog_aborted));
 					}
 				});
 			}
@@ -487,7 +486,7 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 			    		doProtocolInitialisation(displayWidth, displayHeight);
 			    		handler.post(new Runnable() {
 			    			public void run() {
-			    				pd.setMessage("Downloading first frame.\nPlease wait...");
+			    				pd.setMessage(getContext().getString(R.string.info_progress_dialog_downloading));
 			    			}
 			    		});
 			    		sendUnixAuth ();
@@ -513,16 +512,14 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 	
 						if (e instanceof OutOfMemoryError) {
 							disposeDrawable ();
-							showFatalMessageAndQuit("Unable to allocate sufficient memory to draw remote screen. " +
-									"To fix this, it's best to restart the application. " +
-									"As a last resort, you may try restarting your device.");
+							showFatalMessageAndQuit (getContext().getString(R.string.error_out_of_memory));
 						} else {
-							String error = "Connection failed!";
+							String error = getContext().getString(R.string.error_connection_failed);
 							if (e.getMessage() != null) {
 								if (e.getMessage().indexOf("authentication") > -1 ||
 										e.getMessage().indexOf("Unknown security result") > -1 ||
 										e.getMessage().indexOf("password check failed") > -1) {
-									error = "VNC authentication failed! Check VNC password (and user if applicable).";
+									error = getContext().getString(R.string.error_vnc_authentication);
 								}
 								error = error + "<br>" + e.getLocalizedMessage();
 							}
@@ -620,7 +617,7 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 		
 		if (connection.getConnectionType() == VncConstants.CONN_TYPE_SSH) {
 			if (sshConnection == null) {
-				sshConnection = new SSHConnection(connection);
+				sshConnection = new SSHConnection(connection, getContext());
 				// TODO: Take the AutoX stuff out to a separate function.
 				int newPort = sshConnection.initializeSSHTunnel ();
 				if (newPort > 0)
@@ -656,8 +653,7 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 			Log.v(TAG, "Connected to server: " + address + " at port: " + vncPort);
 			rfb.initializeAndAuthenticate(us, pw, connection.getUseRepeater(), connection.getRepeaterId(), anonTLS);
 	    } catch (Exception e) {
-	    	throw new Exception ("Connection to VNC server: " + address + " at port: " + vncPort + " failed.\n" + "Reason: " +
-	    						 e.getLocalizedMessage());
+	    	throw new Exception (getContext().getString(R.string.error_vnc_unable_to_connect) + e.getLocalizedMessage());
 	    }
 	}
 
@@ -778,7 +774,7 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
     		
     		handler.post(new Runnable() {
     			public void run() {
-    				pd.setMessage("Downloading first frame.\nPlease wait...");
+    				pd.setMessage(getContext().getString(R.string.info_progress_dialog_downloading));
     			}
     		});
     		
@@ -1141,7 +1137,7 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 		// Encoding might not be set when we display this message
 		if (decoder.getColorModel() != null) {
 			if (enc != null && !enc.equals(""))
-				msg += ", " + rfbconn.getEncoding() + " encoding, " + decoder.getColorModel().toString();
+				msg += ", " + rfbconn.getEncoding() + getContext().getString(R.string.info_encoding) + decoder.getColorModel().toString();
 			else 
 				msg += ", " + decoder.getColorModel().toString();
 		}
@@ -1272,9 +1268,7 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 		// free session
 		// TODO: Causes segfault in libfreerdp-android. Needs to be fixed.
 		//GlobalApp.freeSession(instance);
-		showFatalMessageAndQuit ("RDP Connection failed! Please ensure RDP Server setting is correct, " +
-								 "the RDP server is turned on, RDP is enabled, and that the server " +
-								 "is on the same network as this device.");
+		showFatalMessageAndQuit (getContext().getString(R.string.error_rdp_unable_to_connect));
     }
 
 	@Override
@@ -1283,8 +1277,7 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 		Log.v(TAG, "OnDisconnecting");
 		// Only display an error message if we were trying to maintain the connection (not disconnecting).
 		if (maintainConnection) {
-			showFatalMessageAndQuit ("RDP Connection failed! Either network connectivity was interrupted, " +
-									 "the RDP server was turned off or disabled, or your session was taken over.");
+			showFatalMessageAndQuit (getContext().getString(R.string.error_rdp_connection_failed));
 		}
 	}
 	
@@ -1320,8 +1313,7 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 			// TODO: Use frameBufferSizeChanged instead.
 			bitmapData = new CompactBitmapData(rfbconn, this);
 		} catch (Throwable e) {
-			showFatalMessageAndQuit ("Your device is out of memory! Restart the app and failing that, restart your device. " +
-									 "If neither helps, try setting a smaller remote desktop size in the advanced settings.");
+			showFatalMessageAndQuit (getContext().getString(R.string.error_out_of_memory));
 			return;
 		}
     	android.util.Log.i(TAG, "Using CompactBufferBitmapData.");
@@ -1345,7 +1337,7 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 	@Override
 	public boolean OnAuthenticate(StringBuilder username, StringBuilder domain, StringBuilder password) {
 		android.util.Log.e(TAG, "onAuthenticate called.");
-		showFatalMessageAndQuit ("RDP Authentication failed! Please check the RDP username and password and try again.");
+		showFatalMessageAndQuit (getContext().getString(R.string.error_rdp_authentication_failed));
 		return false;
 	}
 

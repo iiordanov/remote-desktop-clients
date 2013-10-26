@@ -489,15 +489,14 @@ public class androidVNC extends Activity implements MainConfiguration {
 	 */
 	void updateRepeaterInfo(boolean useRepeater, String repeaterId)
 	{
-		if (useRepeater)
-		{
+		if (useRepeater) {
 			repeaterText.setText(repeaterId);
 			repeaterTextSet = true;
-		}
-		else
-		{
+			ipText.setHint(R.string.repeater_caption_hint);
+		} else {
 			repeaterText.setText(getText(R.string.repeater_empty_text));
 			repeaterTextSet = false;
+			ipText.setHint(R.string.address_caption_hint);
 		}
 	}
 

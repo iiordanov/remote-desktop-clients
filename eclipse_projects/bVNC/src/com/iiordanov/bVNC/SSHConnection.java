@@ -35,6 +35,7 @@ import com.trilead.ssh2.InteractiveCallback;
 import com.trilead.ssh2.KnownHosts;
 import com.iiordanov.pubkeygenerator.PubkeyUtils;
 
+import android.content.Context;
 import android.util.Base64;
 import android.util.Log;
 
@@ -81,8 +82,9 @@ public class SSHConnection implements InteractiveCallback {
 	private String  autoXCommand;
 	private boolean autoXUnixpw;
 	private String  autoXRandFileNm;
+	private Context context;
 
-	public SSHConnection(ConnectionBean conn) {
+	public SSHConnection(ConnectionBean conn, Context cntxt) {
 		host = conn.getSshServer();
 		sshPort = conn.getSshPort();
 		user = conn.getSshUser();
@@ -103,6 +105,7 @@ public class SSHConnection implements InteractiveCallback {
 		autoXUnixpw = conn.getAutoXUnixpw();
 		connection = new Connection(host, sshPort);
 		autoXRandFileNm = conn.getAutoXRandFileNm();
+		context = cntxt;
 	}
 	
 	String getServerHostKey() {
@@ -120,35 +123,25 @@ public class SSHConnection implements InteractiveCallback {
 		
 		// Attempt to connect.
 		if (!connect())
-			throw new Exception("Failed to connect to SSH server. Please check network connection " +
-								"status, and SSH Server address and port.");
-
+			throw new Exception(context.getString(R.string.error_ssh_unable_to_connect));
+		
 		// Verify host key against saved one.
 		if (!verifyHostKey())
-			throw new Exception("ERROR! The server host key has changed. If this is intentional, " +
-								"please delete and recreate the connection. Otherwise, this may be " +
-								"a man in the middle attack. Not continuing.");
-
+			throw new Exception(context.getString(R.string.error_ssh_hostkey_changed));
+		
 		if (!usePubKey && !canAuthWithPass())
-			throw new Exception("Remote server " + targetAddress + " supports neither \"password\" nor " +
-					"\"keyboard-interactive\" auth methods. Please configure it to allow at least one " +
-					"of the two methods and try again.");
-
+			throw new Exception(context.getString(R.string.error_ssh_kbd_auth_method_unavail));
+		
 		if (usePubKey && !canAuthWithPubKey())
-			throw new Exception("Remote server " + targetAddress + " does not support the \"publickey\" " +
-					"auth method, and we are trying to use a key-pair to authenticate. Please configure it " +
-					"to allow the publickey authentication and try again.");
-
+			throw new Exception(context.getString(R.string.error_ssh_pubkey_auth_method_unavail));
+		
 		// Authenticate and set up port forwarding.
 		if (!usePubKey) {
 			if (!authenticateWithPassword())
-				throw new Exception("Failed to authenticate to SSH server with a password. " +
-						"Please check your SSH username, and SSH password.");
+				throw new Exception(context.getString(R.string.error_ssh_pwd_auth_fail));
 		} else {
 			if (!authenticateWithPubKey())
-				throw new Exception("Failed to authenticate to SSH server with a key-pair. " +
-						"Please check your SSH username, and ensure your public key is in the " +
-						"authorized_keys file on the remote side.");
+				throw new Exception(context.getString(R.string.error_ssh_key_auth_fail));
 		}
 
 		// Run a remote command if commanded to.
@@ -180,8 +173,7 @@ public class SSHConnection implements InteractiveCallback {
 			}
 
 			if (port < 0) {
-				throw new Exception ("Could not obtain remote VNC port from x11vnc. Please ensure x11vnc " +
-						             "is installed. To be sure, try running x11vnc by hand on the command-line.");
+				throw new Exception (context.getString(R.string.error_ssh_x11vnc_no_port_failure));
 			}
 		}
 		
@@ -200,8 +192,7 @@ public class SSHConnection implements InteractiveCallback {
 		localForwardedPort = createPortForward(port, targetAddress, port);
 		// If we got back a negative number, port forwarding failed.
 		if (localForwardedPort < 0) {
-			throw new Exception("Could not set up the port forwarding for tunneling VNC traffic over SSH." +
-					"Please ensure your SSH server is configured to allow port forwarding and try again.");
+			throw new Exception(context.getString(R.string.error_ssh_port_forwarding_failure));
 		}
 
 		return localForwardedPort;
@@ -301,20 +292,18 @@ public class SSHConnection implements InteractiveCallback {
 		
 		// Detect an empty key (not generated).
 		if (sshPrivKey.length() == 0)
-			throw new Exception ("SSH key-pair not generated yet! Please generate one and put (its public part) " +
-					"in authorized_keys on the SSH server.");
-
+			throw new Exception (context.getString(R.string.error_ssh_keypair_missing));
+		
 		// Detect passphrase entered when key unencrypted and report error.
 		if (passphrase.length() != 0 &&
 			!PubkeyUtils.isEncrypted(sshPrivKey))
-				throw new Exception ("Passphrase provided but key-pair not encrypted. Please delete passphrase.");
+				throw new Exception (context.getString(R.string.error_ssh_passphrase_but_keypair_unencrypted));
 		
 		// Try to decrypt and recover keypair, and failing that, report error.
 		kp = PubkeyUtils.decryptAndRecoverKeyPair(sshPrivKey, passphrase);
 		if (kp == null) 
-			throw new Exception ("Failed to decrypt key-pair. Please ensure you've entered your passphrase " +
-					"correctly in the 'SSH Passphrase' field on the main screen.");
-
+			throw new Exception (context.getString(R.string.error_ssh_keypair_decryption_failure));
+		
 		privateKey = kp.getPrivate();
 		publicKey = kp.getPublic();
 	}
@@ -360,7 +349,7 @@ public class SSHConnection implements InteractiveCallback {
 			Thread.sleep(secTimeout*1000);
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw new Exception ("Could not execute remote command.");
+			throw new Exception (context.getString(R.string.error_ssh_could_not_exec_command));
 		}
 	}
 	
@@ -395,7 +384,7 @@ public class SSHConnection implements InteractiveCallback {
 			remoteStdin.write(new String (password + '\n').getBytes());
 		} catch (IOException e) {
 			e.printStackTrace();
-			throw new Exception ("Could not send sudo password.");
+			throw new Exception (context.getString(R.string.error_ssh_could_not_send_sudo_pwd));
 		}
 	}
 

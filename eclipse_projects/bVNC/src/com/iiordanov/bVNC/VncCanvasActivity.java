@@ -133,15 +133,13 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 	private void initializeSshHostKey() {
 		// If the SSH HostKey is empty, then we need to grab the HostKey from the server and save it.
 		if (connection.getSshHostKey().equals("")) {
-			Toast.makeText(this, "Attempting to initialize SSH HostKey.", Toast.LENGTH_SHORT).show();
+			Toast.makeText(this, getString(R.string.info_ssh_initializing_hostkey), Toast.LENGTH_SHORT).show();
 			Log.d(TAG, "Attempting to initialize SSH HostKey.");
 			
-			sshConnection = new SSHConnection(connection);
+			sshConnection = new SSHConnection(connection, this);
 			if (!sshConnection.connect()) {
 				// Failed to connect, so show error message and quit activity.
-				Utils.showFatalErrorMessage(this,
-						"Failed to connect to SSH Server. Please check network connectivity, " +
-						"and SSH Server address and port.");
+				Utils.showFatalErrorMessage(this, getString(R.string.error_ssh_unable_to_connect));
 			} else {
 				// Show a dialog with the key signature.
 				DialogInterface.OnClickListener signatureNo = new DialogInterface.OnClickListener() {
@@ -165,9 +163,9 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 		            }
 		        };
 		        
-				Utils.showYesNoPrompt(this, "Continue connecting to " + connection.getSshServer() + "?", 
-									"The host key fingerprint is: " + sshConnection.getHostKeySignature() + 
-									".\nYou can ensure it is identical to the known fingerprint of the server certificate to prevent a man-in-the-middle attack.",
+				Utils.showYesNoPrompt(this, getString(R.string.info_continue_connecting) + connection.getSshServer() + "?", 
+						getString(R.string.info_ssh_key_fingerprint) + sshConnection.getHostKeySignature() + 
+									getString(R.string.info_ssh_key_fingerprint_identical),
 									signatureYes, signatureNo);
 			}
 		} else {
@@ -1328,7 +1326,7 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 				connection.setColorModel(cm.nameString());
 				connection.save(database.getWritableDatabase());
     			database.close();
-				Toast.makeText(VncCanvasActivity.this, "Updating Color Model to " + cm.toString(), Toast.LENGTH_SHORT).show();
+				Toast.makeText(VncCanvasActivity.this, getString(R.string.info_update_color_model_to) + cm.toString(), Toast.LENGTH_SHORT).show();
 			}
 		});
 		dialog.setContentView(list);
