@@ -65,13 +65,17 @@ public abstract class RemoteKeyboard {
 		keyRepeater = new KeyRepeater (this, h);
 	}
 
-	public boolean processLocalKeyEvent(int keyCode, KeyEvent event) { return false; }
+	public boolean processLocalKeyEvent(int keyCode, KeyEvent evt) {
+		return processLocalKeyEvent (keyCode, evt, 0);
+	}
+	
+	public abstract boolean processLocalKeyEvent(int keyCode, KeyEvent evt, int additionalMetaState);
 
 	public void repeatKeyEvent(int keyCode, KeyEvent event) { keyRepeater.start(keyCode, event); }
 
 	public void stopRepeatingKeyEvent() { keyRepeater.stop(); }
 
-	public void sendMetaKey(MetaKeyBean meta) {}
+	public abstract void sendMetaKey(MetaKeyBean meta);
 	
 	/**
 	 * Toggles on-screen Ctrl mask. Returns true if result is Ctrl enabled, false otherwise.
@@ -205,51 +209,51 @@ public abstract class RemoteKeyboard {
 		sendUnicode(c, metaState);
 	}
 	
-	public void sendUnicode (char unicodeChar, int metaState) {
-		KeyCharacterMap kmap = KeyCharacterMap.load(KeyCharacterMap.FULL);
+	/**
+	 * Tries to convert a unicode character to a KeyEvent and if successful sends with keyEvent().
+	 * @param unicodeChar
+	 * @param metaState
+	 */
+	public void sendUnicode (char unicodeChar, int additionalMetaState) {
+		KeyCharacterMap fullKmap    = KeyCharacterMap.load(KeyCharacterMap.FULL);
+		KeyCharacterMap virtualKmap = KeyCharacterMap.load(KeyCharacterMap.VIRTUAL_KEYBOARD);
 		char[] s = new char[1];
-		char[] lowerCaseChar = new char[1];
 		s[0] = unicodeChar;
-		lowerCaseChar[0] = Character.toLowerCase(unicodeChar);
-		KeyEvent[] events = kmap.getEvents(s);
-		KeyEvent[] lowerCaseEvts = kmap.getEvents(lowerCaseChar);
-
+		
+		KeyEvent[] events = fullKmap.getEvents(s);
+		// Failing with the FULL keymap, try the VIRTUAL_KEYBOARD one.
 		if (events == null) {
-			// TODO: Try lower case and convert some symbols.
+			events = virtualKmap.getEvents(s);
+		}
+		
+		if (events != null) {
+			for (int i = 0; i < events.length; i++) {
+				KeyEvent evt = events[i];
+				processLocalKeyEvent(evt.getKeyCode(), evt, additionalMetaState);
+			}
 		} else {
-			KeyEvent evt = events[0];
-			KeyEvent lowerCaseEvt = lowerCaseEvts[0];
-			if (evt.getKeyCode() == KeyEvent.KEYCODE_SHIFT_LEFT || evt.getKeyCode() == KeyEvent.KEYCODE_SHIFT_RIGHT)
-				metaState |= RemoteKeyboard.SHIFT_MASK;
-			int androidMeta = convertMyMetaToAndroidMeta(metaState);
-			KeyEvent down = new KeyEvent(SystemClock.uptimeMillis(), SystemClock.uptimeMillis(), KeyEvent.ACTION_DOWN,
-					lowerCaseEvt.getKeyCode(), evt.getRepeatCount(), androidMeta, evt.getDeviceId(), evt.getScanCode());
-			android.util.Log.e("RemoteKeyboard", "Sending: " + down.toString());
-			processLocalKeyEvent(down.getKeyCode(), down);
-			try { Thread.sleep(20); } catch (InterruptedException e) { }
-			KeyEvent up = new KeyEvent(SystemClock.uptimeMillis(), SystemClock.uptimeMillis(), KeyEvent.ACTION_UP,
-					lowerCaseEvt.getKeyCode(), evt.getRepeatCount(), 0, evt.getDeviceId(), evt.getScanCode());
-			android.util.Log.e("RemoteKeyboard", "Sending: " + up.toString());
-			processLocalKeyEvent(up.getKeyCode(), up);		
+			android.util.Log.e("RemoteKeyboard", "Could not use any keymap to generate KeyEvent for unicode: " + unicodeChar);
 		}
 	}
 	
-	public int convertMyMetaToAndroidMeta (int metaState) {
-		int result = 0;
-		if ((metaState & RemoteKeyboard.CTRL_MASK) != 0) {
-			result |= 0x7000;
-		}
-		if ((metaState & RemoteKeyboard.ALT_MASK) != 0) {
-			android.util.Log.e("", "adding alt mask");
-			result |= KeyEvent.META_ALT_RIGHT_ON;
-		}
-		if ((metaState & RemoteKeyboard.SUPER_MASK) != 0) {
-			android.util.Log.e("", "adding alt mask");
-			result |= RemoteKeyboard.SUPER_MASK;
-		}
-		if ((metaState & RemoteKeyboard.SHIFT_MASK) != 0) {
-			result |= KeyEvent.META_SHIFT_ON;
-		}
-		return result;
+	/**
+	 * Converts event meta state to our meta state.
+	 * @param event
+	 * @return
+	 */
+	protected int convertEventMetaState (KeyEvent event) {
+		int metaState = 0;
+		int eventMetaState = event.getMetaState();
+	    // Add shift, ctrl, alt, and super to metaState if necessary.
+		// TODO: We leave KeyEvent.KEYCODE_ALT_LEFT for symbol input on hardware keyboards for now.
+		if ((eventMetaState & 0x000000c1 /*KeyEvent.META_SHIFT_MASK*/) != 0)
+			metaState |= SHIFT_MASK;
+		if ((eventMetaState & 0x00007000 /*KeyEvent.META_CTRL_MASK*/) != 0  )
+			metaState |= CTRL_MASK;
+		if ((eventMetaState & KeyEvent.META_ALT_RIGHT_ON) !=0)
+			metaState |= ALT_MASK;
+		if ((eventMetaState & 0x00070000 /*KeyEvent.META_META_MASK*/) != 0)
+			metaState |= SUPER_MASK;
+		return metaState;
 	}
 }

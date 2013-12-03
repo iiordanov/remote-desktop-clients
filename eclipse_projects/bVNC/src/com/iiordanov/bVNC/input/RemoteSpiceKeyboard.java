@@ -27,30 +27,16 @@ public class RemoteSpiceKeyboard extends RemoteKeyboard {
 		keyboardMapper.init(context);
 		keyboardMapper.reset((RdpKeyboardMapper.KeyProcessingListener)r);
 	}
-
-	public boolean processLocalKeyEvent(int keyCode, KeyEvent evt) {
+	
+	public boolean processLocalKeyEvent(int keyCode, KeyEvent evt, int additionalMetaState) {
 		if (rfb != null && rfb.isInNormalProtocol()) {
 			RemotePointer pointer = vncCanvas.getPointer();
 			boolean down = (evt.getAction() == KeyEvent.ACTION_DOWN) ||
 						   (evt.getAction() == KeyEvent.ACTION_MULTIPLE);
 			
-			int metaState = 0, numchars = 1;
+			int numchars = 1;
 			int keyboardMetaState = evt.getMetaState();
-
-		    // Add shift to metaState if necessary.
-			if ((keyboardMetaState & 0x000000c1) != 0)
-				metaState |= SHIFT_MASK;
-			
-			// If the keyboardMetaState contains any hint of CTRL, add CTRL_MASK to metaState
-			if ((keyboardMetaState & 0x00007000) !=0)
-				metaState |= CTRL_MASK;
-			// If the keyboardMetaState contains left ALT, add ALT_MASK to metaState.
-		    // Leaving KeyEvent.KEYCODE_ALT_LEFT for symbol input on hardware keyboards.
-			if ((keyboardMetaState & KeyEvent.META_ALT_RIGHT_ON) !=0)
-				metaState |= ALT_MASK;
-			
-			if ((keyboardMetaState & (RemoteKeyboard.SUPER_MASK|0x00010000)) !=0)
-				metaState |= SUPER_MASK;
+			int metaState = additionalMetaState | convertEventMetaState (evt);
 			
 			if (keyCode == KeyEvent.KEYCODE_MENU)
 				return true; 			              // Ignore menu key
@@ -93,7 +79,7 @@ public class RemoteSpiceKeyboard extends RemoteKeyboard {
 				if (s != null) {
 					for (int i = 0; i < s.length(); i++) {
 						//android.util.Log.e(TAG, "Sending unicode: " + s.charAt(i));
-						sendUnicode (s.charAt(i), (onScreenMetaState|hardwareMetaState|metaState));
+						sendUnicode (s.charAt(i), metaState);
 					}
 				}
 				return true;

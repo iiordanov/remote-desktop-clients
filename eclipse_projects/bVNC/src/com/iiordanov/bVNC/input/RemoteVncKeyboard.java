@@ -13,17 +13,9 @@ public class RemoteVncKeyboard extends RemoteKeyboard {
 	
 	public RemoteVncKeyboard (RfbConnectable r, VncCanvas v, Handler h) {
 		super(r, v, h);
-		
-		String s = android.os.Build.MODEL;
-		String vers = android.os.Build.ID;
-		if (s.contains("BlackBerry 10"))
-			bb10 = true;
-		else if (vers.equals("10.1.0.103"))
-			backspaceWorkaround = true;
 	}
 	
-	public boolean processLocalKeyEvent(int keyCode, KeyEvent evt) {
-		
+	public boolean processLocalKeyEvent(int keyCode, KeyEvent evt, int additionalMetaState) {
 		android.util.Log.e(TAG, evt.toString() + " " + keyCode);
 		
 		if (rfb != null && rfb.isInNormalProtocol()) {
@@ -31,23 +23,9 @@ public class RemoteVncKeyboard extends RemoteKeyboard {
 			boolean down = (evt.getAction() == KeyEvent.ACTION_DOWN) ||
 						   (evt.getAction() == KeyEvent.ACTION_MULTIPLE);
 			boolean unicode = false;
-			int metaState = 0, numchars = 1;
+			int numchars = 1;
 			int keyboardMetaState = evt.getMetaState();
-
-		    // Add shift to metaState if necessary.
-			if ((keyboardMetaState & 0x000000c1) != 0)
-				metaState |= SHIFT_MASK;
-			
-			// If the keyboardMetaState contains any hint of CTRL, add CTRL_MASK to metaState
-			if ((keyboardMetaState & 0x00007000) !=0)
-				metaState |= CTRL_MASK;
-			// If the keyboardMetaState contains left ALT, add ALT_MASK to metaState.
-		    // Leaving KeyEvent.KEYCODE_ALT_LEFT for symbol input on hardware keyboards.
-			if ((keyboardMetaState & KeyEvent.META_ALT_RIGHT_ON) !=0)
-				metaState |= ALT_MASK;
-			
-			if ((keyboardMetaState & (RemoteKeyboard.SUPER_MASK|0x00010000)) !=0)
-				metaState |= SUPER_MASK;
+			int metaState = additionalMetaState | convertEventMetaState (evt);
 
 			if (keyCode == KeyEvent.KEYCODE_MENU)
 				return true; 			              // Ignore menu key
@@ -183,24 +161,11 @@ public class RemoteVncKeyboard extends RemoteKeyboard {
 				   lastKeyDown = keysym;
 
 			   if (numchars == 1) {
-			       android.util.Log.e(TAG,"action down? = " + down + " key = " + key + " keysym = " + keysym + " onscreen metastate = " + onScreenMetaState + " keyboard metastate = " + keyboardMetaState + " RFB metastate = " + metaState + " keycode = " + keyCode + " unicode = " + evt.getUnicodeChar());
-
-				   // TODO: UGLY HACK for Z10 devices running 10.1 which never send the down-event
-				   // for backspace... so we send it instead. Remove as soon as possible!
-				   if (backspaceWorkaround && keyCode == KeyEvent.KEYCODE_DEL)
-					   rfb.writeKeyEvent(keysym, (onScreenMetaState|hardwareMetaState|metaState), true);
-				   
 				   rfb.writeKeyEvent(keysym, (onScreenMetaState|hardwareMetaState|metaState), down);
 				   // If this is a unicode key, the up event will never come, so we artificially insert it.
 				   if (unicode)
 					   rfb.writeKeyEvent(keysym, (onScreenMetaState|hardwareMetaState|metaState), false);
 				   
-				   // TODO: UGLY HACK for BB10 devices which never send the up-event
-				   // for space, backspace and enter... so we send it instead. Remove as soon as possible!
-				   if (bb10 && (keyCode == KeyEvent.KEYCODE_SPACE || keyCode == KeyEvent.KEYCODE_DEL ||
-						   		keyCode == KeyEvent.KEYCODE_ENTER))
-					   rfb.writeKeyEvent(keysym, (onScreenMetaState|hardwareMetaState|metaState), false);
-
 			   } else if (numchars > 1) {
 				   for (int i = 0; i < numchars; i++) {
 					   key = evt.getCharacters().charAt(i);

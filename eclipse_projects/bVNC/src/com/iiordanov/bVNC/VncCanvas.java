@@ -308,12 +308,6 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 	int displayWidth = 0;
 	int displayHeight = 0;
 	float displayDensity = 0;
-
-	/*
-	 * Variables used for BB and BB10 hacks.
-	 */
-	boolean bb10 = false;
-	boolean bb   = false;
 	
 	/*
 	 * This flag indicates whether this is the RDP 'version' or not.
@@ -335,13 +329,7 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 		super(context, attrs);
 
 		clipboard = (ClipboardManager)getContext().getSystemService(Context.CLIPBOARD_SERVICE);
-
-		String s = android.os.Build.MODEL;
-		if (s.contains("BlackBerry 10"))
-			bb10 = true;
-		if (s.contains("BlackBerry"))
-			bb   = true;
-
+		
 		decoder = new Decoder (this);
 		
 		isRdp   = getContext().getPackageName().contains("RDP");
@@ -535,7 +523,9 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 		if (clipboardMonitor != null) {
 			clipboardMonitorTimer = new Timer ();
 			if (clipboardMonitorTimer != null) {
-				clipboardMonitorTimer.schedule(clipboardMonitor, 0, 500);
+				try {
+					clipboardMonitorTimer.schedule(clipboardMonitor, 0, 500);
+				} catch (NullPointerException e){}
 			}
 		}
 	}
@@ -582,18 +572,16 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 	 */
 	void sendUnixAuth () {
 		// If the type of connection is ssh-tunneled and we are told to send the unix credentials, then do so.
-		// Do not send the up event if this is a bb10 device, since the up-event hack in processLocalKeyEvent takes care of that...
 		if (connection.getConnectionType() == VncConstants.CONN_TYPE_SSH && connection.getAutoXUnixAuth()) {
 			keyboard.processLocalKeyEvent(KeyEvent.KEYCODE_UNKNOWN, new KeyEvent(SystemClock.uptimeMillis(),
-					connection.getSshUser(), 0, 0));
+											connection.getSshUser(), 0, 0));
 			keyboard.processLocalKeyEvent(KeyEvent.KEYCODE_ENTER, new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_ENTER));
-			if (!bb10)
-				keyboard.processLocalKeyEvent(KeyEvent.KEYCODE_ENTER, new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_ENTER));
+			keyboard.processLocalKeyEvent(KeyEvent.KEYCODE_ENTER, new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_ENTER));
+			
 			keyboard.processLocalKeyEvent(KeyEvent.KEYCODE_UNKNOWN, new KeyEvent(SystemClock.uptimeMillis(),
-					connection.getSshPassword(), 0, 0));
+											connection.getSshPassword(), 0, 0));
 			keyboard.processLocalKeyEvent(KeyEvent.KEYCODE_ENTER, new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_ENTER));
-			if (!bb10)
-				keyboard.processLocalKeyEvent(KeyEvent.KEYCODE_ENTER, new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_ENTER));
+			keyboard.processLocalKeyEvent(KeyEvent.KEYCODE_ENTER, new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_ENTER));
 		}
 	}
 	
