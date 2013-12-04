@@ -57,7 +57,7 @@ class IntroTextDialog extends Dialog {
 		catch (PackageManager.NameNotFoundException nnfe) {
 			return;
 		}
-		MostRecentBean mr = androidVNC.getMostRecent(database.getReadableDatabase());
+		MostRecentBean mr = bVNC.getMostRecent(database.getReadableDatabase());
 		
 		if (dialog == null && show && (mr == null || mr.getShowSplashVersion() != pi.versionCode)) {
 			dialog = new IntroTextDialog(context, pi, database);
@@ -188,7 +188,7 @@ class IntroTextDialog extends Dialog {
 	
 	private void showAgain(boolean show) {
 		SQLiteDatabase db = database.getWritableDatabase();
-		MostRecentBean mostRecent = androidVNC.getMostRecent(db);
+		MostRecentBean mostRecent = bVNC.getMostRecent(db);
 		if (mostRecent != null) {
 			int value = -1;
 			if (!show) {

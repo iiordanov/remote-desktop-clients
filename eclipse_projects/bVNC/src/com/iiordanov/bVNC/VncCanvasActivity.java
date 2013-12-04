@@ -222,7 +222,7 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 			{
 				if (connection.Gen_read(database.getReadableDatabase(), port))
 				{
-					MostRecentBean bean = androidVNC.getMostRecent(database.getReadableDatabase());
+					MostRecentBean bean = bVNC.getMostRecent(database.getReadableDatabase());
 					if (bean != null)
 					{
 						bean.setConnectionId(connection.get_Id());

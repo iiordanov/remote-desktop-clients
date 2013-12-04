@@ -35,9 +35,9 @@ import android.widget.TextView;
  */
 class RepeaterDialog extends Dialog {
 	private EditText _repeaterId;
-	androidVNC _configurationDialog;
+	bVNC _configurationDialog;
 
-	RepeaterDialog(androidVNC context) {
+	RepeaterDialog(bVNC context) {
 		super(context);
 		setOwnerActivity((Activity)context);
 		_configurationDialog = context;

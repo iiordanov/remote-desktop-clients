@@ -61,6 +61,9 @@ import com.iiordanov.bVNC.dialogs.ImportTlsCaDialog;
 import com.iiordanov.pubkeygenerator.GeneratePubkeyActivity;
 import com.gstreamer.GStreamer;
 
+/**
+ * aSPICE is the Activity for setting up SPICE connections.
+ */
 public class aSPICE extends Activity implements MainConfiguration {
 	private final static String TAG = "aSPICE";
 	private Spinner connectionType;
@@ -190,7 +193,6 @@ public class aSPICE extends Activity implements MainConfiguration {
 					}
 				});
 
-		goButton = (Button) findViewById(R.id.buttonGO);
 		checkboxKeepPassword = (CheckBox) findViewById(R.id.checkboxKeepPassword);
 		checkboxUseDpadAsArrows = (CheckBox) findViewById(R.id.checkboxUseDpadAsArrows);
 		checkboxRotateDpad = (CheckBox) findViewById(R.id.checkboxRotateDpad);
@@ -212,27 +214,7 @@ public class aSPICE extends Activity implements MainConfiguration {
 					}
 				});
 		
-		spinnerConnection.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-
-					/*
-					 * (non-Javadoc)
-					 * 
-					 * @see android.widget.AdapterView.OnItemLongClickListener#
-					 * onItemLongClick(android.widget.AdapterView,
-					 * android.view.View, int, long)
-					 */
-					@Override
-					public boolean onItemLongClick(AdapterView<?> arg0,
-							View arg1, int arg2, long arg3) {
-						spinnerConnection.setSelection(arg2);
-						selected = (ConnectionBean) spinnerConnection
-								.getItemAtPosition(arg2);
-						canvasStart();
-						return true;
-					}
-
-				});
-		
+		goButton = (Button) findViewById(R.id.buttonGO);
 		goButton.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View view) {

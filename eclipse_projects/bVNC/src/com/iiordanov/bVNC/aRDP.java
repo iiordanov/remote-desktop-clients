@@ -1,6 +1,5 @@
 /** 
  * Copyright (C) 2012 Iordan Iordanov
- * Copyright (C) 20?? Michael A. MacDonald
  * 
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,10 +16,6 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307,
  * USA.
  */
-
-//
-// androidVNC is the Activity for setting VNC server IP and port.
-//
 
 package com.iiordanov.bVNC;
 
@@ -63,6 +58,9 @@ import com.iiordanov.pubkeygenerator.GeneratePubkeyActivity;
 import java.util.ArrayList;
 import java.util.Collections;
 
+/**
+ * aRDP is the Activity for setting up RDP connections.
+ */
 public class aRDP extends Activity implements MainConfiguration {
 	private final static String TAG = "aRDP";
 	private Spinner connectionType;
@@ -173,7 +171,6 @@ public class aRDP extends Activity implements MainConfiguration {
 			}
 		});
 
-		goButton = (Button) findViewById(R.id.buttonGO);
 		checkboxKeepPassword = (CheckBox)findViewById(R.id.checkboxKeepPassword);
 		checkboxUseDpadAsArrows = (CheckBox)findViewById(R.id.checkboxUseDpadAsArrows);
 		checkboxRotateDpad = (CheckBox)findViewById(R.id.checkboxRotateDpad);
@@ -190,21 +187,8 @@ public class aRDP extends Activity implements MainConfiguration {
 				selected = null;
 			}
 		});
-		spinnerConnection.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
 
-			/* (non-Javadoc)
-			 * @see android.widget.AdapterView.OnItemLongClickListener#onItemLongClick(android.widget.AdapterView, android.view.View, int, long)
-			 */
-			@Override
-			public boolean onItemLongClick(AdapterView<?> arg0, View arg1,
-					int arg2, long arg3) {
-				spinnerConnection.setSelection(arg2);
-				selected = (ConnectionBean)spinnerConnection.getItemAtPosition(arg2);
-				canvasStart();
-				return true;
-			}
-			
-		});
+		goButton = (Button) findViewById(R.id.buttonGO);
 		goButton.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View view) {
