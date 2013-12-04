@@ -45,7 +45,7 @@ abstract class AbstractGestureInputHandler extends GestureDetector.SimpleOnGestu
 	/**
 	 * Handles to the VncCanvas view and VncCanvasActivity activity.
 	 */
-	protected VncCanvas vncCanvas;
+	protected VncCanvas canvas;
 	protected VncCanvasActivity activity;
 	
 	/**
@@ -117,13 +117,13 @@ abstract class AbstractGestureInputHandler extends GestureDetector.SimpleOnGestu
 	AbstractGestureInputHandler(VncCanvasActivity c, VncCanvas v)
 	{
 		activity = c;
-		vncCanvas = v;
+		canvas = v;
 		gestures=BCFactory.getInstance().getBCGestureDetector().createGestureDetector(c, this);
 		gestures.setOnDoubleTapListener(this);
 		scaleGestures=BCFactory.getInstance().getScaleGestureDetector(c, this);
 		useDpadAsArrows = activity.getUseDpadAsArrows();
 		rotateDpad      = activity.getRotateDpad();
-		keyHandler = new DPadMouseKeyHandler(activity, vncCanvas.handler, useDpadAsArrows, rotateDpad);
+		keyHandler = new DPadMouseKeyHandler(activity, canvas.handler, useDpadAsArrows, rotateDpad);
 	}
 
 	/**
@@ -131,8 +131,8 @@ abstract class AbstractGestureInputHandler extends GestureDetector.SimpleOnGestu
 	 * @return the appropriate X coordinate.
 	 */
 	protected int getX (MotionEvent e) {
-		float scale = vncCanvas.getScale();
-		return (int)(vncCanvas.getAbsoluteX() + e.getX() / scale);
+		float scale = canvas.getScale();
+		return (int)(canvas.getAbsoluteX() + e.getX() / scale);
 	}
 
 	/**
@@ -140,8 +140,8 @@ abstract class AbstractGestureInputHandler extends GestureDetector.SimpleOnGestu
 	 * @return the appropriate Y coordinate.
 	 */
 	protected int getY (MotionEvent e) {
-		float scale = vncCanvas.getScale();
-		return (int)(vncCanvas.getAbsoluteY() + (e.getY() - 1.f * vncCanvas.getTop()) / scale);
+		float scale = canvas.getScale();
+		return (int)(canvas.getAbsoluteY() + (e.getY() - 1.f * canvas.getTop()) / scale);
 	}
 
 	/**
@@ -153,10 +153,10 @@ abstract class AbstractGestureInputHandler extends GestureDetector.SimpleOnGestu
         final int action = e.getActionMasked();
         final int meta   = e.getMetaState();
 		final int bstate = e.getButtonState();
-        RemotePointer p  = vncCanvas.getPointer();
-		float scale = vncCanvas.getScale();
-		int x = (int)(vncCanvas.getAbsoluteX() +  e.getX()                             / scale);
-		int y = (int)(vncCanvas.getAbsoluteY() + (e.getY() - 1.f * vncCanvas.getTop()) / scale);
+        RemotePointer p  = canvas.getPointer();
+		float scale = canvas.getScale();
+		int x = (int)(canvas.getAbsoluteX() +  e.getX()                             / scale);
+		int y = (int)(canvas.getAbsoluteY() + (e.getY() - 1.f * canvas.getTop()) / scale);
 
 		switch (action) {
 		// If a mouse button was pressed or mouse was moved.
@@ -164,13 +164,13 @@ abstract class AbstractGestureInputHandler extends GestureDetector.SimpleOnGestu
 		case MotionEvent.ACTION_MOVE:
 			switch (bstate) {
 			case MotionEvent.BUTTON_PRIMARY:
-		    	vncCanvas.panToMouse();
+		    	canvas.panToMouse();
 				return p.processPointerEvent(x, y, action, meta, true, false, false, false, 0);
 			case MotionEvent.BUTTON_SECONDARY:
-		    	vncCanvas.panToMouse();
+		    	canvas.panToMouse();
 				return p.processPointerEvent(x, y, action, meta, true, true, false, false, 0);
 			case MotionEvent.BUTTON_TERTIARY:
-		    	vncCanvas.panToMouse();
+		    	canvas.panToMouse();
 				return p.processPointerEvent(x, y, action, meta, true, false, true, false, 0);
 			}
 			break;
@@ -180,7 +180,7 @@ abstract class AbstractGestureInputHandler extends GestureDetector.SimpleOnGestu
 			case MotionEvent.BUTTON_PRIMARY:
 			case MotionEvent.BUTTON_SECONDARY:
 			case MotionEvent.BUTTON_TERTIARY:
-		    	vncCanvas.panToMouse();
+		    	canvas.panToMouse();
 				return p.processPointerEvent(x, y, action, meta, false, false, false, false, 0);
 			}
 			break;
@@ -214,7 +214,7 @@ abstract class AbstractGestureInputHandler extends GestureDetector.SimpleOnGestu
 		// If the mouse was moved OR as reported, some external mice trigger this when a
 		// mouse button is pressed as well, so we check bstate here too.
 		case MotionEvent.ACTION_HOVER_MOVE:
-	    	vncCanvas.panToMouse();
+	    	canvas.panToMouse();
 			switch (bstate) {
 			case MotionEvent.BUTTON_PRIMARY:
 				return p.processPointerEvent(x, y, action, meta, true, false, false, false, 0);
@@ -238,14 +238,14 @@ abstract class AbstractGestureInputHandler extends GestureDetector.SimpleOnGestu
 	 */
 	@Override
 	public boolean onSingleTapConfirmed(MotionEvent e) {
-        RemotePointer p  = vncCanvas.getPointer();
+        RemotePointer p  = canvas.getPointer();
         final int action = e.getActionMasked();
         final int meta   = e.getMetaState();
 		activity.showZoomer(true);
 		p.processPointerEvent(getX(e), getY(e), action, meta, true, false, false, false, 0);
 		SystemClock.sleep(50);
 		p.processPointerEvent(getX(e), getY(e), action, meta, false, false, false, false, 0);
-    	vncCanvas.panToMouse();
+    	canvas.panToMouse();
     	return true;
 	}
 
@@ -256,7 +256,7 @@ abstract class AbstractGestureInputHandler extends GestureDetector.SimpleOnGestu
 	 */
 	@Override
 	public boolean onDoubleTap (MotionEvent e) {
-        RemotePointer p  = vncCanvas.getPointer();
+        RemotePointer p  = canvas.getPointer();
         final int action = e.getActionMasked();
         final int meta   = e.getMetaState();
         
@@ -267,7 +267,7 @@ abstract class AbstractGestureInputHandler extends GestureDetector.SimpleOnGestu
 		p.processPointerEvent(getX(e), getY(e), action, meta, true, false, false, false, 0);
 		SystemClock.sleep(50);
 		p.processPointerEvent(getX(e), getY(e), action, meta, false, false, false, false, 0);
-    	vncCanvas.panToMouse();
+    	canvas.panToMouse();
     	return true;
 	}
 
@@ -278,19 +278,19 @@ abstract class AbstractGestureInputHandler extends GestureDetector.SimpleOnGestu
 	 */
 	@Override
 	public void onLongPress(MotionEvent e) {
-        RemotePointer p = vncCanvas.getPointer();
+        RemotePointer p = canvas.getPointer();
 
 		// If we've performed a right/middle-click and the gesture is not over yet, do not start drag mode.
 		if (secondPointerWasDown || thirdPointerWasDown)
 			return;
 		
-		BCFactory.getInstance().getBCHaptic().performLongPressHaptic(vncCanvas);
+		BCFactory.getInstance().getBCHaptic().performLongPressHaptic(canvas);
 		dragMode = true;
 		p.processPointerEvent(getX(e), getY(e), e.getActionMasked(), e.getMetaState(), true, false, false, false, 0);
 	}
 
 	protected boolean endDragModesAndScrolling () {
-    	vncCanvas.inScrolling = false;
+    	canvas.inScrolling = false;
 		panMode               = false;
 		inScaling             = false;
 		inSwiping             = false;
@@ -320,7 +320,7 @@ abstract class AbstractGestureInputHandler extends GestureDetector.SimpleOnGestu
         final int index      = e.getActionIndex();
         final int pointerID  = e.getPointerId(index);
         final int meta       = e.getMetaState();
-        RemotePointer p = vncCanvas.getPointer();
+        RemotePointer p = canvas.getPointer();
 
         if (android.os.Build.VERSION.SDK_INT >= 14) {
 	        // Handle and consume actions performed by a (e.g. USB or bluetooth) mouse.
@@ -330,8 +330,8 @@ abstract class AbstractGestureInputHandler extends GestureDetector.SimpleOnGestu
 
         if (action == MotionEvent.ACTION_UP) {
  			// Turn filtering back on and invalidate to make things pretty.
-     		vncCanvas.bitmapData.drawable._defaultPaint.setFilterBitmap(true);
-     		vncCanvas.invalidate();
+     		canvas.bitmapData.drawable._defaultPaint.setFilterBitmap(true);
+     		canvas.invalidate();
         }
 
         switch (pointerID) {
@@ -350,9 +350,9 @@ abstract class AbstractGestureInputHandler extends GestureDetector.SimpleOnGestu
             	// Cancel drag modes and scrolling.
         		if (!singleHandedGesture) 
 	            	endDragModesAndScrolling();
-        		vncCanvas.inScrolling = true;
+        		canvas.inScrolling = true;
         		// If we are manipulating the desktop, turn off bitmap filtering for faster response.
-        		vncCanvas.bitmapData.drawable._defaultPaint.setFilterBitmap(false);
+        		canvas.bitmapData.drawable._defaultPaint.setFilterBitmap(false);
     			dragX = e.getX();
     			dragY = e.getY();
     			break;
@@ -366,19 +366,19 @@ abstract class AbstractGestureInputHandler extends GestureDetector.SimpleOnGestu
         	case MotionEvent.ACTION_MOVE:
                 // Send scroll up/down events if swiping is happening.
                 if (panMode) {
-                	float scale = vncCanvas.getScale();
-            		vncCanvas.pan(-(int)((e.getX() - dragX)*scale), -(int)((e.getY() - dragY)*scale));
+                	float scale = canvas.getScale();
+            		canvas.pan(-(int)((e.getX() - dragX)*scale), -(int)((e.getY() - dragY)*scale));
         			dragX = e.getX();
         			dragY = e.getY();
         			return true;
                 } else if (dragMode) {
-                	vncCanvas.panToMouse();
+                	canvas.panToMouse();
         			return p.processPointerEvent(getX(e), getY(e), action, meta, true, false, false, false, 0);
                 } else if (rightDragMode) {
-                	vncCanvas.panToMouse();
+                	canvas.panToMouse();
         			return p.processPointerEvent(getX(e), getY(e), action, meta, true, true, false, false, 0);
                 } else if (middleDragMode) {
-                	vncCanvas.panToMouse();
+                	canvas.panToMouse();
         			return p.processPointerEvent(getX(e), getY(e), action, meta, true, false, true, false, 0);
         		} else if (inSwiping) {
                 	// Save the coordinates and restore them afterward.
@@ -526,12 +526,11 @@ abstract class AbstractGestureInputHandler extends GestureDetector.SimpleOnGestu
 				consumed = false;
 			}
 
-			if (consumed)
-			{
+			if (consumed) {
 				inScaling = true;
 				//Log.i(TAG,"Adjust scaling " + detector.getScaleFactor());
-				if (activity.vncCanvas != null && activity.vncCanvas.scaling != null)
-					activity.vncCanvas.scaling.adjust(activity, detector.getScaleFactor(), xCurrentFocus, yCurrentFocus);
+				if (canvas != null && canvas.scaling != null)
+					canvas.scaling.adjust(activity, detector.getScaleFactor(), xCurrentFocus, yCurrentFocus);
 			}
 		}
 		return consumed;
@@ -586,10 +585,10 @@ abstract class AbstractGestureInputHandler extends GestureDetector.SimpleOnGestu
 				break;
 		}
 		
-		evt.offsetLocation(vncCanvas.pointer.getX() + dx - evt.getX(),
-							vncCanvas.pointer.getY() + dy - evt.getY());
+		evt.offsetLocation(canvas.pointer.getX() + dx - evt.getX(),
+							canvas.pointer.getY() + dy - evt.getY());
 
-		if (vncCanvas.pointer.processPointerEvent(evt, trackballButtonDown))
+		if (canvas.pointer.processPointerEvent(evt, trackballButtonDown))
 			return true;
 		
 		return activity.onTouchEvent(evt);

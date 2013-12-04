@@ -18,7 +18,7 @@
  * USA.
  */
 
-package com.iiordanov.bVNC;
+package com.iiordanov.bVNC.dialogs;
 
 import android.app.Activity;
 import android.app.Dialog;
@@ -30,6 +30,9 @@ import android.widget.Button;
 import android.widget.EditText;
 
 import com.iiordanov.android.bc.BCFactory;
+import com.iiordanov.bVNC.MainConfiguration;
+import com.iiordanov.bVNC.R;
+import com.iiordanov.bVNC.Utils;
 import com.antlersoft.android.contentxml.SqliteElement;
 import com.antlersoft.android.contentxml.SqliteElement.ReplaceStrategy;
 
@@ -51,7 +54,7 @@ import org.xml.sax.SAXException;
  * @author Michael A. MacDonald
  *
  */
-class ImportExportDialog extends Dialog {
+public class ImportExportDialog extends Dialog {
 
 	private MainConfiguration _configurationDialog;
 	private EditText _textLoadUrl;

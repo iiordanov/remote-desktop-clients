@@ -73,9 +73,9 @@ class OneToOneScaling extends AbstractScaling {
 	 * Call after scaling and matrix have been changed to resolve scrolling
 	 * @param activity
 	 */
-	private void resolveZoom(VncCanvasActivity activity)
+	private void resolveZoom(VncCanvas canvas)
 	{
-		activity.vncCanvas.scrollToAbsolute();
+		canvas.scrollToAbsolute();
 		//activity.vncCanvas.pan(0,0);
 	}
 	
@@ -99,14 +99,15 @@ class OneToOneScaling extends AbstractScaling {
 	@Override
 	void setScaleTypeForActivity(VncCanvasActivity activity) {
 		super.setScaleTypeForActivity(activity);
-		canvasXOffset = -activity.vncCanvas.getCenteredXOffset();
-		canvasYOffset = -activity.vncCanvas.getCenteredYOffset();
-		activity.vncCanvas.computeShiftFromFullToView ();
+		VncCanvas canvas = activity.getCanvas();
+		canvasXOffset = -canvas.getCenteredXOffset();
+		canvasYOffset = -canvas.getCenteredYOffset();
+		canvas.computeShiftFromFullToView ();
 		scaling = 1;
 		resetMatrix();
 		matrix.postScale(scaling, scaling);
-		activity.vncCanvas.setImageMatrix(matrix);
-		resolveZoom(activity);
+		canvas.setImageMatrix(matrix);
+		resolveZoom(canvas);
 		//activity.vncCanvas.pan(0, 0);
 		activity.zoomer.setIsZoomOutEnabled(false);
 		activity.zoomer.setIsZoomInEnabled(false);

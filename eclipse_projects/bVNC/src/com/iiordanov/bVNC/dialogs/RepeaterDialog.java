@@ -18,7 +18,10 @@
  * USA.
  */
 
-package com.iiordanov.bVNC;
+package com.iiordanov.bVNC.dialogs;
+
+import com.iiordanov.bVNC.R;
+import com.iiordanov.bVNC.bVNC;
 
 import android.app.Activity;
 import android.app.Dialog;
@@ -33,11 +36,11 @@ import android.widget.TextView;
  * @author Michael A. MacDonald
  *
  */
-class RepeaterDialog extends Dialog {
+public class RepeaterDialog extends Dialog {
 	private EditText _repeaterId;
 	bVNC _configurationDialog;
 
-	RepeaterDialog(bVNC context) {
+	public RepeaterDialog(bVNC context) {
 		super(context);
 		setOwnerActivity((Activity)context);
 		_configurationDialog = context;

@@ -18,7 +18,7 @@
  * USA.
  */
 
-package com.iiordanov.bVNC;
+package com.iiordanov.bVNC.dialogs;
 
 import java.text.MessageFormat;
 
@@ -26,6 +26,15 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Map.Entry;
 
+import com.iiordanov.bVNC.ConnectionBean;
+import com.iiordanov.bVNC.ConnectionSettable;
+import com.iiordanov.bVNC.MetaKeyBase;
+import com.iiordanov.bVNC.MetaKeyBean;
+import com.iiordanov.bVNC.MetaList;
+import com.iiordanov.bVNC.R;
+import com.iiordanov.bVNC.Utils;
+import com.iiordanov.bVNC.VncCanvasActivity;
+import com.iiordanov.bVNC.VncDatabase;
 import com.iiordanov.bVNC.input.RemoteKeyboard;
 
 import android.app.Activity;
@@ -56,7 +65,7 @@ import android.widget.TextView;
  * @author Michael A. MacDonald
  *
  */
-class MetaKeyDialog extends Dialog implements ConnectionSettable {
+public class MetaKeyDialog extends Dialog implements ConnectionSettable {
 
 	CheckBox _checkShift;
 	CheckBox _checkCtrl;
@@ -75,7 +84,7 @@ class MetaKeyDialog extends Dialog implements ConnectionSettable {
 	VncCanvasActivity _canvasActivity;
 	MetaKeyBean _currentKeyBean;
 	
-	static final String[] EMPTY_ARGS = new String[0];
+	public static final String[] EMPTY_ARGS = new String[0];
 	
 	ConnectionBean _connection;
 	
@@ -226,7 +235,7 @@ class MetaKeyDialog extends Dialog implements ConnectionSettable {
 		_spinnerKeysInList = (Spinner)findViewById(R.id.spinnerKeysInList);
 		_spinnerLists = (Spinner)findViewById(R.id.spinnerLists);
 		
-		_database = _canvasActivity.database;
+		_database = _canvasActivity.getDatabase();
 		if (_lists == null) {
 			_lists = new ArrayList<MetaList>();
 			MetaList.getAll(_database.getReadableDatabase(), MetaList.GEN_TABLE_NAME, _lists, MetaList.GEN_NEW);
@@ -520,7 +529,7 @@ class MetaKeyDialog extends Dialog implements ConnectionSettable {
 			_spinnerKeysInList.setSelection(index);
 		}
 		_connection.Gen_update(db);
-		_canvasActivity.vncCanvas.getKeyboard().sendMetaKey(_currentKeyBean);
+		_canvasActivity.getCanvas().getKeyboard().sendMetaKey(_currentKeyBean);
 	}
 	
 	void setMetaKeyList()

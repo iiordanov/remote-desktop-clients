@@ -18,12 +18,15 @@
  * USA.
  */
 
-package com.iiordanov.bVNC;
+package com.iiordanov.bVNC.dialogs;
 
 import java.io.IOException;
 
 import java.util.ArrayList;
 
+import com.iiordanov.bVNC.R;
+import com.iiordanov.bVNC.SentTextBean;
+import com.iiordanov.bVNC.VncCanvasActivity;
 import com.iiordanov.bVNC.input.RemoteKeyboard;
 
 import android.app.Activity;
@@ -32,9 +35,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
-import android.os.SystemClock;
-import android.view.KeyCharacterMap;
-import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -44,7 +44,7 @@ import android.widget.ImageButton;
  * @author Michael A. MacDonald
  *
  */
-class EnterTextDialog extends Dialog {
+public class EnterTextDialog extends Dialog {
 	static final int NUMBER_SENT_SAVED = 100;
 	static final int DELETED_ID = -10;
 	
@@ -76,7 +76,7 @@ class EnterTextDialog extends Dialog {
 		{
 			SentTextBean added = new SentTextBean();
 			added.setSentText(s);
-			SQLiteDatabase db = _canvasActivity.database.getWritableDatabase();
+			SQLiteDatabase db = _canvasActivity.getDatabase().getWritableDatabase();
 			added.Gen_insert(db);
 			_history.add(added);
 			for (int i = 0; i < _historyIndex - NUMBER_SENT_SAVED; i++)
@@ -93,7 +93,7 @@ class EnterTextDialog extends Dialog {
 	}
 	
 	private void sendText(String s) {
-		RemoteKeyboard k = _canvasActivity.vncCanvas.keyboard;
+		RemoteKeyboard k = _canvasActivity.getCanvas().getKeyboard();
 		k.sendText(s);
 	}
 
@@ -193,7 +193,7 @@ class EnterTextDialog extends Dialog {
 					if (s.equals(bean.getSentText()))
 					{
 						
-						bean.Gen_delete(_canvasActivity.database.getWritableDatabase());
+						bean.Gen_delete(_canvasActivity.getDatabase().getWritableDatabase());
 						_history.remove(_historyIndex);
 						if (_historyIndex > 0)
 						{
@@ -211,7 +211,7 @@ class EnterTextDialog extends Dialog {
 			}
 			
 		});
-		Cursor readInOrder = _canvasActivity.database.getReadableDatabase().rawQuery(
+		Cursor readInOrder = _canvasActivity.getDatabase().getReadableDatabase().rawQuery(
 				 "select * from " + SentTextBean.GEN_TABLE_NAME + " ORDER BY _id", null);
 		try
 		{

@@ -44,9 +44,9 @@ class SingleHandedInputHandler extends TouchMouseSwipePanInputHandler {
 			public void onClick(View arg0) {
 				startNewSingleHandedGesture();
 				dragMode = true;
-		        RemotePointer p = vncCanvas.getPointer();
+		        RemotePointer p = canvas.getPointer();
 				p.processPointerEvent(eventStartX, eventStartY, eventAction, eventMeta, true, false, false, false, 0);
-				vncCanvas.displayShortToastMessage(R.string.single_left);
+				canvas.displayShortToastMessage(R.string.single_left);
 			}
 		});
 		
@@ -56,9 +56,9 @@ class SingleHandedInputHandler extends TouchMouseSwipePanInputHandler {
 			public void onClick(View arg0) {
 				startNewSingleHandedGesture();
 				rightDragMode = true;
-		        RemotePointer p = vncCanvas.getPointer();
+		        RemotePointer p = canvas.getPointer();
 				p.processPointerEvent(eventStartX, eventStartY, eventAction, eventMeta, true, true, false, false, 0);
-				vncCanvas.displayShortToastMessage(R.string.single_right);
+				canvas.displayShortToastMessage(R.string.single_right);
 			}
 		});
 		
@@ -68,9 +68,9 @@ class SingleHandedInputHandler extends TouchMouseSwipePanInputHandler {
 			public void onClick(View arg0) {
 				startNewSingleHandedGesture();
 				middleDragMode = true;
-		        RemotePointer p = vncCanvas.getPointer();
+		        RemotePointer p = canvas.getPointer();
 				p.processPointerEvent(eventStartX, eventStartY, eventAction, eventMeta, true, false, true, false, 0);
-				vncCanvas.displayShortToastMessage(R.string.single_middle);
+				canvas.displayShortToastMessage(R.string.single_middle);
 			}
 		});
 		
@@ -79,11 +79,11 @@ class SingleHandedInputHandler extends TouchMouseSwipePanInputHandler {
 			@Override
 			public void onClick(View arg0) {
 				startNewSingleHandedGesture();
-				vncCanvas.inScrolling = true;
+				canvas.inScrolling = true;
 				inSwiping = true;
-		        RemotePointer p = vncCanvas.getPointer();
+		        RemotePointer p = canvas.getPointer();
 				p.processPointerEvent(eventStartX, eventStartY, eventAction, eventMeta, false, false, false, false, 0);
-				vncCanvas.displayShortToastMessage(R.string.single_scroll);
+				canvas.displayShortToastMessage(R.string.single_scroll);
 			}
 		});
 		
@@ -93,7 +93,7 @@ class SingleHandedInputHandler extends TouchMouseSwipePanInputHandler {
 			public void onClick(View arg0) {
 				startNewSingleHandedGesture();
 				inScaling = true;
-				vncCanvas.displayShortToastMessage(R.string.single_zoom);
+				canvas.displayShortToastMessage(R.string.single_zoom);
 			}
 		});
 		
@@ -102,7 +102,7 @@ class SingleHandedInputHandler extends TouchMouseSwipePanInputHandler {
 			@Override
 			public void onClick(View arg0) {
 				singleHandOpts.setVisibility(View.GONE);
-				vncCanvas.displayShortToastMessage(R.string.single_cancel);
+				canvas.displayShortToastMessage(R.string.single_cancel);
 			}
 		});
 	}
@@ -121,7 +121,7 @@ class SingleHandedInputHandler extends TouchMouseSwipePanInputHandler {
 	 */
 	@Override
 	public CharSequence getHandlerDescription() {
-		return vncCanvas.getResources().getString(R.string.input_mode_single_handed_description);
+		return canvas.getResources().getString(R.string.input_mode_single_handed_description);
 	}
 
 	/*
@@ -150,9 +150,9 @@ class SingleHandedInputHandler extends TouchMouseSwipePanInputHandler {
 		initializeSingleHandedMode(e);
 
 		if (buttonsVisible)
-			vncCanvas.displayShortToastMessage(R.string.single_reposition);
+			canvas.displayShortToastMessage(R.string.single_reposition);
 		else
-			vncCanvas.displayShortToastMessage(R.string.single_choose);
+			canvas.displayShortToastMessage(R.string.single_choose);
 	}
 
 	private void initializeSingleHandedMode(MotionEvent e) {
@@ -165,7 +165,7 @@ class SingleHandedInputHandler extends TouchMouseSwipePanInputHandler {
 		singleHandOpts.setVisibility(View.VISIBLE);
 		
 		// Move pointer to where we're performing gesture.
-        RemotePointer p = vncCanvas.getPointer();
+        RemotePointer p = canvas.getPointer();
 		p.processPointerEvent(eventStartX, eventStartY, eventAction, eventMeta, false, false, false, false, 0);
 	}
 
@@ -181,7 +181,7 @@ class SingleHandedInputHandler extends TouchMouseSwipePanInputHandler {
 		// If the single-handed gesture buttons are visible, reposition pointer.
 		if (buttonsVisible) {
 			initializeSingleHandedMode(e);
-			vncCanvas.displayShortToastMessage(R.string.single_reposition);
+			canvas.displayShortToastMessage(R.string.single_reposition);
 			return true;
 		} else
 			return super.onSingleTapConfirmed(e);
@@ -232,8 +232,8 @@ class SingleHandedInputHandler extends TouchMouseSwipePanInputHandler {
 				accumulatedScroll = 0;
 		} else if (inScaling) {
 			float scaleFactor = 1.0f + distanceY*0.01f;				
-			if (activity.vncCanvas != null && activity.vncCanvas.scaling != null)
-				activity.vncCanvas.scaling.adjust(activity, scaleFactor, xInitialFocus, yInitialFocus);
+			if (canvas != null && canvas.scaling != null)
+				canvas.scaling.adjust(activity, scaleFactor, xInitialFocus, yInitialFocus);
 		}
 		
 		return true;

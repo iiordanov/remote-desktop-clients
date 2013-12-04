@@ -49,7 +49,7 @@ class DPadMouseKeyHandler {
 
 	DPadMouseKeyHandler(VncCanvasActivity activity, Handler handler, boolean arrows, boolean rotate)
 	{
-		canvas = activity.vncCanvas;
+		canvas = activity.getCanvas();
 		mouseMover = new MouseMover(activity, handler);
 		useDpadAsArrows = arrows;
 		rotateDpad      = rotate;

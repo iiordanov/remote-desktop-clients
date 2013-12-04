@@ -21,7 +21,7 @@ public class SimulatedTouchpadInputHandler extends AbstractGestureInputHandler {
 		super(va, v);
 		acceleration = activity.getAccelerationEnabled();
 		sensitivity = activity.getSensitivity();
-		displayDensity = vncCanvas.getDisplayDensity();
+		displayDensity = canvas.getDisplayDensity();
 	}
 
 	/*
@@ -31,7 +31,7 @@ public class SimulatedTouchpadInputHandler extends AbstractGestureInputHandler {
 	 */
 	@Override
 	public CharSequence getHandlerDescription() {
-		return vncCanvas.getResources().getString(R.string.input_mode_touchpad_description);
+		return canvas.getResources().getString(R.string.input_mode_touchpad_description);
 	}
 
 	/*
@@ -84,7 +84,7 @@ public class SimulatedTouchpadInputHandler extends AbstractGestureInputHandler {
 	 */
 	@Override
 	public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-        RemotePointer p = vncCanvas.getPointer();
+        RemotePointer p = canvas.getPointer();
         final int action = e2.getActionMasked();
         final int meta   = e2.getMetaState();
         
@@ -122,7 +122,7 @@ public class SimulatedTouchpadInputHandler extends AbstractGestureInputHandler {
 		int newRemoteX = (int) (p.getX() + getDelta(-distanceX));
 		int newRemoteY = (int) (p.getY() + getDelta(-distanceY));
 		p.processPointerEvent(newRemoteX, newRemoteY, action, meta, false, false, false, false, 0);
-    	vncCanvas.panToMouse();
+    	canvas.panToMouse();
     	return true;
 	}
 
@@ -138,7 +138,7 @@ public class SimulatedTouchpadInputHandler extends AbstractGestureInputHandler {
 	}
 	
 	protected int getX (MotionEvent e) {
-        RemotePointer p = vncCanvas.getPointer();
+        RemotePointer p = canvas.getPointer();
 		if (dragMode || rightDragMode || middleDragMode) {
 			float distanceX = e.getX() - dragX;
 			dragX = e.getX();
@@ -150,7 +150,7 @@ public class SimulatedTouchpadInputHandler extends AbstractGestureInputHandler {
 	}
 
 	protected int getY (MotionEvent e) {
-        RemotePointer p = vncCanvas.getPointer();
+        RemotePointer p = canvas.getPointer();
 		if (dragMode || rightDragMode || middleDragMode) {
 			float distanceY = e.getY() - dragY;
 			dragY = e.getY();
@@ -163,7 +163,7 @@ public class SimulatedTouchpadInputHandler extends AbstractGestureInputHandler {
 
 	private float getDelta(float distance) {
 		// Compute the relative movement offset on the remote screen.
-		float delta = (float) (distance * Math.cbrt(vncCanvas.getScale()));
+		float delta = (float) (distance * Math.cbrt(canvas.getScale()));
 		return fineCtrlScale(delta);
 	}
 

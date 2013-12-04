@@ -27,11 +27,9 @@ import android.app.Dialog;
 import android.app.ActivityManager.MemoryInfo;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -52,10 +50,13 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
-import android.widget.LinearLayout.LayoutParams;
 import android.util.Log;
 
 import com.iiordanov.bVNC.Utils;
+import com.iiordanov.bVNC.dialogs.AutoXCustomizeDialog;
+import com.iiordanov.bVNC.dialogs.ImportExportDialog;
+import com.iiordanov.bVNC.dialogs.IntroTextDialog;
+import com.iiordanov.bVNC.dialogs.RepeaterDialog;
 import com.iiordanov.pubkeygenerator.GeneratePubkeyActivity;
 
 import java.util.ArrayList;
@@ -410,7 +411,7 @@ public class bVNC extends Activity implements MainConfiguration {
 		return true;
 	}
 
-	protected void updateViewFromSelected() {
+	public void updateViewFromSelected() {
 		if (selected == null)
 			return;
 		selectedConnType = selected.getConnectionType();
@@ -475,7 +476,7 @@ public class bVNC extends Activity implements MainConfiguration {
 	 * Repeater dialog to update the repeater information shown.
 	 * @param repeaterId If null or empty, show text for not using repeater
 	 */
-	void updateRepeaterInfo(boolean useRepeater, String repeaterId)
+	public void updateRepeaterInfo(boolean useRepeater, String repeaterId)
 	{
 		if (useRepeater) {
 			repeaterText.setText(repeaterId);
@@ -609,7 +610,7 @@ public class bVNC extends Activity implements MainConfiguration {
 	 * @return Object representing the single persistent instance of MostRecentBean, which
 	 * is the app's global state
 	 */
-	static MostRecentBean getMostRecent(SQLiteDatabase db)
+	public static MostRecentBean getMostRecent(SQLiteDatabase db)
 	{
 		ArrayList<MostRecentBean> recents = new ArrayList<MostRecentBean>(1);
 		MostRecentBean.getAll(db, MostRecentBean.GEN_TABLE_NAME, recents, MostRecentBean.GEN_NEW);
@@ -680,7 +681,7 @@ public class bVNC extends Activity implements MainConfiguration {
 		start();
 	}
 	
-	protected void saveAndWriteRecent() {
+	public void saveAndWriteRecent() {
 		// We need server address or SSH server to be filled out to save. Otherwise,
 		// we keep adding empty connections.
 		if (selected.getConnectionType() == VncConstants.CONN_TYPE_SSH

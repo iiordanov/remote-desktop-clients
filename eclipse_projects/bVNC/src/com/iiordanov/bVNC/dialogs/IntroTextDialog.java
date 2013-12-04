@@ -18,7 +18,12 @@
  * USA.
  */
 
-package com.iiordanov.bVNC;
+package com.iiordanov.bVNC.dialogs;
+
+import com.iiordanov.bVNC.MostRecentBean;
+import com.iiordanov.bVNC.R;
+import com.iiordanov.bVNC.VncDatabase;
+import com.iiordanov.bVNC.bVNC;
 
 import android.app.Activity;
 import android.app.Dialog;
@@ -40,7 +45,7 @@ import android.widget.TextView;
  * @author Michael A. MacDonald
  *
  */
-class IntroTextDialog extends Dialog {
+public class IntroTextDialog extends Dialog {
 
 	private PackageInfo packageInfo;
 	private VncDatabase database;
@@ -49,7 +54,7 @@ class IntroTextDialog extends Dialog {
 	
 	private boolean donate = false;
 	
-	static void showIntroTextIfNecessary(Activity context, VncDatabase database, boolean show) {
+	public static void showIntroTextIfNecessary(Activity context, VncDatabase database, boolean show) {
 		PackageInfo pi;
 		try {
 			pi = context.getPackageManager().getPackageInfo("com.iiordanov.bVNC", 0);

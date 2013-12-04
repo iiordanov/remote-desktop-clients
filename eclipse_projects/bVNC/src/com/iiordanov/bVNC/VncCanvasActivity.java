@@ -32,6 +32,8 @@ import java.util.TimerTask;
 import com.iiordanov.android.bc.BCFactory;
 
 import com.iiordanov.android.zoomer.ZoomControls;
+import com.iiordanov.bVNC.dialogs.EnterTextDialog;
+import com.iiordanov.bVNC.dialogs.MetaKeyDialog;
 import com.iiordanov.bVNC.input.RemoteKeyboard;
 
 import android.app.Activity;
@@ -79,9 +81,9 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 
 	AbstractInputHandler inputHandler;
 
-	VncCanvas vncCanvas;
+	private VncCanvas canvas;
 
-	VncDatabase database;
+	private VncDatabase database;
 
 	private MenuItem[] inputModeMenuItems;
 	private MenuItem[] scalingModeMenuItems;
@@ -282,21 +284,21 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 		//setFeatureDrawableResource(Window.FEATURE_LEFT_ICON, R.drawable.icon); 
 
 		setContentView(R.layout.canvas);
-		vncCanvas = (VncCanvas) findViewById(R.id.vnc_canvas);
+		canvas = (VncCanvas) findViewById(R.id.vnc_canvas);
 		zoomer = (ZoomControls) findViewById(R.id.zoomer);
 
 		// Initialize and define actions for on-screen keys.
 		initializeOnScreenKeys ();
 	
-		vncCanvas.initializeVncCanvas(connection, database, new Runnable() {
+		canvas.initializeVncCanvas(connection, database, new Runnable() {
 			public void run() {
 				try { setModes(); } catch (NullPointerException e) { }
 			}
 		});
 		
-		vncCanvas.setOnKeyListener(this);
-		vncCanvas.setFocusableInTouchMode(true);
-		vncCanvas.setDrawingCacheEnabled(false);
+		canvas.setOnKeyListener(this);
+		canvas.setFocusableInTouchMode(true);
+		canvas.setDrawingCacheEnabled(false);
 		
 		// This code detects when the soft keyboard is up and sets an appropriate visibleHeight in vncCanvas.
 		// When the keyboard is gone, it resets visibleHeight and pans zero distance to prevent us from being
@@ -316,9 +318,9 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
                     // we make sure r.top is zero (i.e. there is no notification bar and we are in full-screen mode)
                     // It's a bit of a hack.
                     if (r.top == 0) {
-                    	if (vncCanvas.bitmapData != null) {
-                        	vncCanvas.setVisibleHeight(r.bottom);
-                    		vncCanvas.pan(0,0);
+                    	if (canvas.bitmapData != null) {
+                        	canvas.setVisibleHeight(r.bottom);
+                    		canvas.pan(0,0);
                     	}
                     }
                     
@@ -334,7 +336,7 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
                 			keyStow.offsetTopAndBottom(offset);
                 			if (prevBottomOffset != offset) { 
 		                		setExtraKeysVisibility(View.GONE, false);
-		                		vncCanvas.invalidate();
+		                		canvas.invalidate();
 		                		zoomer.enable();
                 			}
                 		}
@@ -346,7 +348,7 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
                 			keyStow.offsetTopAndBottom(offset);
                 			if (prevBottomOffset != offset) { 
 		                    	setExtraKeysVisibility(View.VISIBLE, true);
-		                		vncCanvas.invalidate();
+		                		canvas.invalidate();
 		                    	zoomer.hide();
 		                    	zoomer.disable();
                 			}
@@ -368,7 +370,7 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 			@Override
 			public void onClick(View v) {
 				showZoomer(true);
-				vncCanvas.scaling.zoomIn(VncCanvasActivity.this);
+				canvas.scaling.zoomIn(VncCanvasActivity.this);
 
 			}
 
@@ -383,7 +385,7 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 			@Override
 			public void onClick(View v) {
 				showZoomer(true);
-				vncCanvas.scaling.zoomOut(VncCanvasActivity.this);
+				canvas.scaling.zoomOut(VncCanvasActivity.this);
 
 			}
 
@@ -402,7 +404,7 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 			}
 
 		});
-		panner = new Panner(this, vncCanvas.handler);
+		panner = new Panner(this, canvas.handler);
 
 		inputHandler = getInputHandlerById(R.id.itemInputTouchPanZoomMouse);
 	}
@@ -451,10 +453,10 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 		keyTab.setOnTouchListener(new OnTouchListener () {
 			@Override
 			public boolean onTouch(View arg0, MotionEvent e) {
-				RemoteKeyboard k = vncCanvas.getKeyboard();
+				RemoteKeyboard k = canvas.getKeyboard();
 				int key = KeyEvent.KEYCODE_TAB;
 				if (e.getAction() == MotionEvent.ACTION_DOWN) {
-					BCFactory.getInstance().getBCHaptic().performLongPressHaptic(vncCanvas);
+					BCFactory.getInstance().getBCHaptic().performLongPressHaptic(canvas);
 					keyTab.setImageResource(R.drawable.tabon);
 					k.repeatKeyEvent(key, new KeyEvent(e.getAction(), key));
 					return true;
@@ -472,10 +474,10 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 		keyEsc.setOnTouchListener(new OnTouchListener () {
 			@Override
 			public boolean onTouch(View arg0, MotionEvent e) {
-				RemoteKeyboard k = vncCanvas.getKeyboard();
+				RemoteKeyboard k = canvas.getKeyboard();
 				int key = 111; /* KEYCODE_ESCAPE */
 				if (e.getAction() == MotionEvent.ACTION_DOWN) {
-					BCFactory.getInstance().getBCHaptic().performLongPressHaptic(vncCanvas);
+					BCFactory.getInstance().getBCHaptic().performLongPressHaptic(canvas);
 					keyEsc.setImageResource(R.drawable.escon);
 					k.repeatKeyEvent(key, new KeyEvent(e.getAction(), key));
 					return true;
@@ -493,7 +495,7 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 		keyCtrl.setOnClickListener(new OnClickListener () {
 			@Override
 			public void onClick(View arg0) {
-				boolean on = vncCanvas.getKeyboard().onScreenCtrlToggle();
+				boolean on = canvas.getKeyboard().onScreenCtrlToggle();
 				keyCtrlToggled = false;
 				if (on)
 					keyCtrl.setImageResource(R.drawable.ctrlon);
@@ -505,8 +507,8 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 		keyCtrl.setOnLongClickListener(new OnLongClickListener () {
 			@Override
 			public boolean onLongClick(View arg0) {
-				BCFactory.getInstance().getBCHaptic().performLongPressHaptic(vncCanvas);
-				boolean on = vncCanvas.getKeyboard().onScreenCtrlToggle();
+				BCFactory.getInstance().getBCHaptic().performLongPressHaptic(canvas);
+				boolean on = canvas.getKeyboard().onScreenCtrlToggle();
 				keyCtrlToggled = true;
 				if (on)
 					keyCtrl.setImageResource(R.drawable.ctrlon);
@@ -520,7 +522,7 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 		keySuper.setOnClickListener(new OnClickListener () {
 			@Override
 			public void onClick(View arg0) {
-				boolean on = vncCanvas.getKeyboard().onScreenSuperToggle();
+				boolean on = canvas.getKeyboard().onScreenSuperToggle();
 				keySuperToggled = false;
 				if (on)
 					keySuper.setImageResource(R.drawable.superon);
@@ -532,8 +534,8 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 		keySuper.setOnLongClickListener(new OnLongClickListener () {
 			@Override
 			public boolean onLongClick(View arg0) {
-				BCFactory.getInstance().getBCHaptic().performLongPressHaptic(vncCanvas);
-				boolean on = vncCanvas.getKeyboard().onScreenSuperToggle();
+				BCFactory.getInstance().getBCHaptic().performLongPressHaptic(canvas);
+				boolean on = canvas.getKeyboard().onScreenSuperToggle();
 				keySuperToggled = true;
 				if (on)
 					keySuper.setImageResource(R.drawable.superon);
@@ -547,7 +549,7 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 		keyAlt.setOnClickListener(new OnClickListener () {
 			@Override
 			public void onClick(View arg0) {
-				boolean on = vncCanvas.getKeyboard().onScreenAltToggle();
+				boolean on = canvas.getKeyboard().onScreenAltToggle();
 				keyAltToggled = false;
 				if (on)
 					keyAlt.setImageResource(R.drawable.alton);
@@ -559,8 +561,8 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 		keyAlt.setOnLongClickListener(new OnLongClickListener () {
 			@Override
 			public boolean onLongClick(View arg0) {
-				BCFactory.getInstance().getBCHaptic().performLongPressHaptic(vncCanvas);
-				boolean on = vncCanvas.getKeyboard().onScreenAltToggle();
+				BCFactory.getInstance().getBCHaptic().performLongPressHaptic(canvas);
+				boolean on = canvas.getKeyboard().onScreenAltToggle();
 				keyAltToggled = true;
 				if (on)
 					keyAlt.setImageResource(R.drawable.alton);
@@ -574,7 +576,7 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 		keyShift.setOnClickListener(new OnClickListener () {
 			@Override
 			public void onClick(View arg0) {
-				boolean on = vncCanvas.getKeyboard().onScreenShiftToggle();
+				boolean on = canvas.getKeyboard().onScreenShiftToggle();
 				keyShiftToggled = false;
 				if (on)
 					keyShift.setImageResource(R.drawable.shifton);
@@ -586,8 +588,8 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 		keyShift.setOnLongClickListener(new OnLongClickListener () {
 			@Override
 			public boolean onLongClick(View arg0) {
-				BCFactory.getInstance().getBCHaptic().performLongPressHaptic(vncCanvas);
-				boolean on = vncCanvas.getKeyboard().onScreenShiftToggle();
+				BCFactory.getInstance().getBCHaptic().performLongPressHaptic(canvas);
+				boolean on = canvas.getKeyboard().onScreenShiftToggle();
 				keyShiftToggled = true;
 				if (on)
 					keyShift.setImageResource(R.drawable.shifton);
@@ -605,10 +607,10 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 		keyUp.setOnTouchListener(new OnTouchListener () {
 			@Override
 			public boolean onTouch(View arg0, MotionEvent e) {
-				RemoteKeyboard k = vncCanvas.getKeyboard();
+				RemoteKeyboard k = canvas.getKeyboard();
 				int key = KeyEvent.KEYCODE_DPAD_UP;
 				if (e.getAction() == MotionEvent.ACTION_DOWN) {
-					BCFactory.getInstance().getBCHaptic().performLongPressHaptic(vncCanvas);
+					BCFactory.getInstance().getBCHaptic().performLongPressHaptic(canvas);
 					keyUp.setImageResource(R.drawable.upon);
 					k.repeatKeyEvent(key, new KeyEvent(e.getAction(), key));
 					return true;
@@ -626,10 +628,10 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 		keyDown.setOnTouchListener(new OnTouchListener () {
 			@Override
 			public boolean onTouch(View arg0, MotionEvent e) {
-				RemoteKeyboard k = vncCanvas.getKeyboard();
+				RemoteKeyboard k = canvas.getKeyboard();
 				int key = KeyEvent.KEYCODE_DPAD_DOWN;
 				if (e.getAction() == MotionEvent.ACTION_DOWN) {
-					BCFactory.getInstance().getBCHaptic().performLongPressHaptic(vncCanvas);
+					BCFactory.getInstance().getBCHaptic().performLongPressHaptic(canvas);
 					keyDown.setImageResource(R.drawable.downon);
 					k.repeatKeyEvent(key, new KeyEvent(e.getAction(), key));
 					return true;
@@ -647,10 +649,10 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 		keyLeft.setOnTouchListener(new OnTouchListener () {
 			@Override
 			public boolean onTouch(View arg0, MotionEvent e) {
-				RemoteKeyboard k = vncCanvas.getKeyboard();
+				RemoteKeyboard k = canvas.getKeyboard();
 				int key = KeyEvent.KEYCODE_DPAD_LEFT;
 				if (e.getAction() == MotionEvent.ACTION_DOWN) {
-					BCFactory.getInstance().getBCHaptic().performLongPressHaptic(vncCanvas);
+					BCFactory.getInstance().getBCHaptic().performLongPressHaptic(canvas);
 					keyLeft.setImageResource(R.drawable.lefton);
 					k.repeatKeyEvent(key, new KeyEvent(e.getAction(), key));
 					return true;
@@ -668,10 +670,10 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 		keyRight.setOnTouchListener(new OnTouchListener () {
 			@Override
 			public boolean onTouch(View arg0, MotionEvent e) {
-				RemoteKeyboard k = vncCanvas.getKeyboard();
+				RemoteKeyboard k = canvas.getKeyboard();
 				int key = KeyEvent.KEYCODE_DPAD_RIGHT;
 				if (e.getAction() == MotionEvent.ACTION_DOWN) {
-					BCFactory.getInstance().getBCHaptic().performLongPressHaptic(vncCanvas);
+					BCFactory.getInstance().getBCHaptic().performLongPressHaptic(canvas);
 					keyRight.setImageResource(R.drawable.righton);
 					k.repeatKeyEvent(key, new KeyEvent(e.getAction(), key));
 					return true;	
@@ -697,19 +699,19 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 		}
 		if (!keyCtrlToggled) {
 			keyCtrl.setImageResource(R.drawable.ctrloff);
-			vncCanvas.getKeyboard().onScreenCtrlOff();
+			canvas.getKeyboard().onScreenCtrlOff();
 		}
 		if (!keyAltToggled) {
 			keyAlt.setImageResource(R.drawable.altoff);
-			vncCanvas.getKeyboard().onScreenAltOff();
+			canvas.getKeyboard().onScreenAltOff();
 		}
 		if (!keySuperToggled) {
 			keySuper.setImageResource(R.drawable.superoff);
-			vncCanvas.getKeyboard().onScreenSuperOff();
+			canvas.getKeyboard().onScreenSuperOff();
 		}
 		if (!keyShiftToggled) {
 			keyShift.setImageResource(R.drawable.shiftoff);
-			vncCanvas.getKeyboard().onScreenShiftOff();
+			canvas.getKeyboard().onScreenShiftOff();
 		}
 	}
 
@@ -751,7 +753,7 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 		super.onPause();
 		try {
 			InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-			imm.hideSoftInputFromWindow(vncCanvas.getWindowToken(), 0);
+			imm.hideSoftInputFromWindow(canvas.getWindowToken(), 0);
 		} catch (NullPointerException e) { }
 	}
 
@@ -766,7 +768,7 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 		super.onResume();
 		Log.i(TAG, "onResume called.");
 		try {
-			vncCanvas.postInvalidateDelayed(600);
+			canvas.postInvalidateDelayed(600);
 		} catch (NullPointerException e) { }
 	}
 	
@@ -779,10 +781,6 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 		AbstractScaling.getByScaleType(connection.getScaleMode()).setScaleTypeForActivity(this);
 		this.inputHandler = handler;
 		showPanningState(false);
-	}
-
-	ConnectionBean getConnection() {
-		return connection;
 	}
 
 	/*
@@ -854,17 +852,17 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 	private void correctAfterRotation () {
 		// Its quite common to see NullPointerExceptions here when this function is called
 		// at the point of disconnection. Hence, we catch and ignore the error.
-		float oldScale = vncCanvas.scaling.getScale();
-		int x = vncCanvas.absoluteXPosition;
-		int y = vncCanvas.absoluteYPosition;
-		vncCanvas.scaling.setScaleTypeForActivity(VncCanvasActivity.this);
-		float newScale = vncCanvas.scaling.getScale();
-		vncCanvas.scaling.adjust(this, oldScale/newScale, 0, 0);
-		newScale = vncCanvas.scaling.getScale();
+		float oldScale = canvas.scaling.getScale();
+		int x = canvas.absoluteXPosition;
+		int y = canvas.absoluteYPosition;
+		canvas.scaling.setScaleTypeForActivity(VncCanvasActivity.this);
+		float newScale = canvas.scaling.getScale();
+		canvas.scaling.adjust(this, oldScale/newScale, 0, 0);
+		newScale = canvas.scaling.getScale();
 		if (newScale <= oldScale) {
-			vncCanvas.absoluteXPosition = x;
-			vncCanvas.absoluteYPosition = y;
-			vncCanvas.scrollToAbsolute();
+			canvas.absoluteXPosition = x;
+			canvas.absoluteYPosition = y;
+			canvas.scrollToAbsolute();
 		}
 	}
 
@@ -887,7 +885,7 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 	protected void onStart() {
 		super.onStart();
 		try {
-			vncCanvas.postInvalidateDelayed(800);
+			canvas.postInvalidateDelayed(800);
 		} catch (NullPointerException e) { }
 	}
 
@@ -900,7 +898,7 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 	protected void onRestart() {
 		super.onRestart();
 		try {
-			vncCanvas.postInvalidateDelayed(1000);
+			canvas.postInvalidateDelayed(1000);
 		} catch (NullPointerException e) { }
 	}
 
@@ -910,7 +908,7 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 		try {
 			getMenuInflater().inflate(R.menu.vnccanvasactivitymenu, menu);
 
-			menu.findItem(vncCanvas.scaling.getId()).setChecked(true);
+			menu.findItem(canvas.scaling.getId()).setChecked(true);
 	
 			Menu inputMenu = menu.findItem(R.id.itemInputMode).getSubMenu();
 			inputModeMenuItems = new MenuItem[inputModeIds.length];
@@ -959,9 +957,9 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 			for (MenuItem item : scalingModeMenuItems) {
 				// If the entire framebuffer is NOT contained in the bitmap, fit-to-screen is meaningless.
 				if (item.getItemId() == R.id.itemFitToScreen) {
-					if ( vncCanvas != null && vncCanvas.bitmapData != null &&
-						 (vncCanvas.bitmapData.bitmapheight != vncCanvas.bitmapData.framebufferheight ||
-						  vncCanvas.bitmapData.bitmapwidth  != vncCanvas.bitmapData.framebufferwidth) )
+					if ( canvas != null && canvas.bitmapData != null &&
+						 (canvas.bitmapData.bitmapheight != canvas.bitmapData.framebufferheight ||
+						  canvas.bitmapData.bitmapwidth  != canvas.bitmapData.framebufferwidth) )
 						item.setEnabled(false);
 					else
 						item.setEnabled(true);
@@ -977,7 +975,7 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 	void updateInputMenu() {
 		try {
 			for (MenuItem item : inputModeMenuItems) {
-				item.setEnabled(vncCanvas.scaling.isValidInputMode(item.getItemId()));
+				item.setEnabled(canvas.scaling.isValidInputMode(item.getItemId()));
 				if (getInputHandlerById(item.getItemId()) == inputHandler)
 					item.setChecked(true);
 			}
@@ -1016,16 +1014,16 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 						break;
  */					
 					case R.id.itemInputTouchPanZoomMouse:
-						inputModeHandlers[i] = new TouchMouseSwipePanInputHandler(this, vncCanvas);
+						inputModeHandlers[i] = new TouchMouseSwipePanInputHandler(this, canvas);
 						break;
 					case R.id.itemInputDragPanZoomMouse:
-						inputModeHandlers[i] = new TouchMouseDragPanInputHandler(this, vncCanvas);
+						inputModeHandlers[i] = new TouchMouseDragPanInputHandler(this, canvas);
 						break;
 					case R.id.itemInputTouchpad:
-						inputModeHandlers[i] = new SimulatedTouchpadInputHandler(this, vncCanvas);
+						inputModeHandlers[i] = new SimulatedTouchpadInputHandler(this, canvas);
 						break;
 					case R.id.itemInputSingleHanded:
-						inputModeHandlers[i] = new SingleHandedInputHandler(this, vncCanvas);
+						inputModeHandlers[i] = new SingleHandedInputHandler(this, canvas);
 						break;
 
 					}
@@ -1071,10 +1069,10 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		vncCanvas.getKeyboard().setAfterMenu(true);
+		canvas.getKeyboard().setAfterMenu(true);
 		switch (item.getItemId()) {
 		case R.id.itemInfo:
-			vncCanvas.showConnectionInfo();
+			canvas.showConnectionInfo();
 			return true;
 		case R.id.itemSpecialKeys:
 			showDialog(R.layout.metakey);
@@ -1091,18 +1089,18 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 			showPanningState(false);
 			return true;
 		case R.id.itemCenterMouse:
-			vncCanvas.getPointer().warpMouse(vncCanvas.absoluteXPosition + vncCanvas.getVisibleWidth()  / 2,
-											 vncCanvas.absoluteYPosition + vncCanvas.getVisibleHeight() / 2);
+			canvas.getPointer().warpMouse(canvas.absoluteXPosition + canvas.getVisibleWidth()  / 2,
+											 canvas.absoluteYPosition + canvas.getVisibleHeight() / 2);
 			return true;
 		case R.id.itemDisconnect:
-			vncCanvas.closeConnection();
+			canvas.closeConnection();
 			finish();
 			return true;
 		case R.id.itemEnterText:
 			showDialog(R.layout.entertext);
 			return true;
 		case R.id.itemCtrlAltDel:
-			vncCanvas.getKeyboard().sendMetaKey(MetaKeyBean.keyCtrlAltDel);
+			canvas.getKeyboard().sendMetaKey(MetaKeyBean.keyCtrlAltDel);
 			return true;
 /*		case R.id.itemFollowMouse:
 			boolean newFollow = !connection.getFollowMouse();
@@ -1204,17 +1202,17 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 			}
 		}
 		if (lastSentKey != null)
-			vncCanvas.getKeyboard().sendMetaKey(lastSentKey);
+			canvas.getKeyboard().sendMetaKey(lastSentKey);
 	}
 
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
-		if (vncCanvas != null)
-			vncCanvas.closeConnection();
+		if (canvas != null)
+			canvas.closeConnection();
 		if (database != null)
 			database.close();
-		vncCanvas = null;
+		canvas = null;
 		connection = null;
 		database = null;
 		zoomer = null;
@@ -1307,7 +1305,7 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 		for (int i = 0; i < choices.length; i++) {
 			COLORMODEL cm = COLORMODEL.values()[i];
 			choices[i] = cm.toString();
-			if (vncCanvas.isColorModel(cm))
+			if (canvas.isColorModel(cm))
 				currentSelection = i;
 		}
 
@@ -1322,7 +1320,7 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
 				dialog.dismiss();
 				COLORMODEL cm = COLORMODEL.values()[arg2];
-				vncCanvas.setColorModel(cm);
+				canvas.setColorModel(cm);
 				connection.setColorModel(cm.nameString());
 				connection.save(database.getWritableDatabase());
     			database.close();
@@ -1332,12 +1330,40 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 		dialog.setContentView(list);
 		dialog.show();
 	}
+	
+	long hideZoomAfterMs;
+	static final long ZOOM_HIDE_DELAY_MS = 2500;
+	HideZoomRunnable hideZoomInstance = new HideZoomRunnable();
 
+	public void stopPanner() {
+		panner.stop ();
+	}
+	
+	public void showZoomer(boolean force) {
+		if (force || zoomer.getVisibility() != View.VISIBLE) {
+			zoomer.show();
+			hideZoomAfterMs = SystemClock.uptimeMillis() + ZOOM_HIDE_DELAY_MS;
+			canvas.handler.postAtTime(hideZoomInstance, hideZoomAfterMs + 10);
+		}
+	}
+
+	private class HideZoomRunnable implements Runnable {
+		public void run() {
+			if (SystemClock.uptimeMillis() >= hideZoomAfterMs) {
+				zoomer.hide();
+			}
+		}
+	}
+	
+	public ConnectionBean getConnection() {
+		return connection;
+	}
+	
 	// Returns whether we are using D-pad/Trackball to send arrow key events.
 	boolean getUseDpadAsArrows() {
 		return connection.getUseDpadAsArrows();
 	}
-
+	
 	// Returns whether the D-pad should be rotated to accommodate BT keyboards paired with phones.
 	boolean getRotateDpad() {
 		return connection.getRotateDpad();
@@ -1354,27 +1380,19 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 		return true;
 	}
 
-	long hideZoomAfterMs;
-	static final long ZOOM_HIDE_DELAY_MS = 2500;
-	HideZoomRunnable hideZoomInstance = new HideZoomRunnable();
-
-	public void stopPanner() {
-		panner.stop ();
-	}
-	
-	public void showZoomer(boolean force) {
-		if (force || zoomer.getVisibility() != View.VISIBLE) {
-			zoomer.show();
-			hideZoomAfterMs = SystemClock.uptimeMillis() + ZOOM_HIDE_DELAY_MS;
-			vncCanvas.handler.postAtTime(hideZoomInstance, hideZoomAfterMs + 10);
-		}
+	public VncDatabase getDatabase() {
+		return database;
 	}
 
-	private class HideZoomRunnable implements Runnable {
-		public void run() {
-			if (SystemClock.uptimeMillis() >= hideZoomAfterMs) {
-				zoomer.hide();
-			}
-		}
+	public void setDatabase(VncDatabase database) {
+		this.database = database;
+	}
+
+	public VncCanvas getCanvas() {
+		return canvas;
+	}
+
+	public void setCanvas(VncCanvas vncCanvas) {
+		this.canvas = vncCanvas;
 	}
 }

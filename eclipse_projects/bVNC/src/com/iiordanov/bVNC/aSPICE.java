@@ -57,7 +57,9 @@ import android.widget.ToggleButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.LinearLayout.LayoutParams;
 
+import com.iiordanov.bVNC.dialogs.ImportExportDialog;
 import com.iiordanov.bVNC.dialogs.ImportTlsCaDialog;
+import com.iiordanov.bVNC.dialogs.IntroTextDialog;
 import com.iiordanov.pubkeygenerator.GeneratePubkeyActivity;
 import com.gstreamer.GStreamer;
 

@@ -46,7 +46,7 @@ class MouseMover extends Panner {
 		long interval = SystemClock.uptimeMillis() - lastSent;
 		lastSent += interval;
 		double scale = (double)interval / 50.0;
-		VncCanvas canvas = activity.vncCanvas;
+		VncCanvas canvas = activity.getCanvas();
 		RemotePointer p = canvas.getPointer();
 		
 		//Log.v(TAG, String.format("panning %f %d %d", scale, (int)((double)velocity.x * scale), (int)((double)velocity.y * scale)));

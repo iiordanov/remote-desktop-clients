@@ -76,7 +76,7 @@ class FitToScreenScaling extends AbstractScaling {
 	 */
 	private void resolveZoom(VncCanvasActivity activity)
 	{
-		activity.vncCanvas.scrollToAbsolute();
+		activity.getCanvas().scrollToAbsolute();
 		//activity.vncCanvas.pan(0,0);
 	}
 	
@@ -100,18 +100,19 @@ class FitToScreenScaling extends AbstractScaling {
 	@Override
 	void setScaleTypeForActivity(VncCanvasActivity activity) {
 		super.setScaleTypeForActivity(activity);
-		activity.vncCanvas.absoluteXPosition = 0;
-		activity.vncCanvas.absoluteYPosition = 0;
-		canvasXOffset = -activity.vncCanvas.getCenteredXOffset();
-		canvasYOffset = -activity.vncCanvas.getCenteredYOffset();
-		activity.vncCanvas.computeShiftFromFullToView ();
-		minimumScale = activity.vncCanvas.bitmapData.getMinimumScale();
+		VncCanvas canvas = activity.getCanvas();
+		canvas.absoluteXPosition = 0;
+		canvas.absoluteYPosition = 0;
+		canvasXOffset = -canvas.getCenteredXOffset();
+		canvasYOffset = -canvas.getCenteredYOffset();
+		canvas.computeShiftFromFullToView ();
+		minimumScale = canvas.bitmapData.getMinimumScale();
 		scaling = minimumScale;
 		resetMatrix();
 		matrix.postScale(scaling, scaling);
-		activity.vncCanvas.setImageMatrix(matrix);
+		canvas.setImageMatrix(matrix);
 		resolveZoom(activity);
-		activity.vncCanvas.pan(0, 0);
+		canvas.pan(0, 0);
 		activity.zoomer.setIsZoomOutEnabled(false);
 		activity.zoomer.setIsZoomInEnabled(false);
 	}

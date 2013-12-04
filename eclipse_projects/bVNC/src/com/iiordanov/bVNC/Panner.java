@@ -79,7 +79,7 @@ class Panner implements Runnable {
 	}
 	
 	void start(float xv, float yv, VelocityUpdater update) {
- 		activity.vncCanvas.bitmapData.drawable._defaultPaint.setFilterBitmap(false);
+ 		activity.getCanvas().bitmapData.drawable._defaultPaint.setFilterBitmap(false);
 
  		if (update == null)
 			update = DefaultUpdater.instance;
@@ -100,18 +100,19 @@ class Panner implements Runnable {
 		long interval = SystemClock.uptimeMillis() - lastSent;
 		lastSent += interval;
 		double scale = (double)interval / 50.0;
+		VncCanvas canvas = activity.getCanvas();
 		//Log.v(TAG, String.format("panning %f %d %d", scale, (int)((double)velocity.x * scale), (int)((double)velocity.y * scale)));
-		if ( activity.vncCanvas.pan((int)((double)velocity.x * scale), (int)((double)velocity.y * scale))) {
+		if ( canvas.pan((int)((double)velocity.x * scale), (int)((double)velocity.y * scale))) {
 			if (updater.updateVelocity(velocity, interval)) {
 				handler.postDelayed(this, freq);
 			} else {
-		 		activity.vncCanvas.bitmapData.drawable._defaultPaint.setFilterBitmap(true);
-		 		activity.vncCanvas.invalidate();
+		 		canvas.bitmapData.drawable._defaultPaint.setFilterBitmap(true);
+		 		canvas.invalidate();
 		 		stop();
 			}
 		} else {
-	 		activity.vncCanvas.bitmapData.drawable._defaultPaint.setFilterBitmap(true);
-	 		activity.vncCanvas.invalidate();
+	 		canvas.bitmapData.drawable._defaultPaint.setFilterBitmap(true);
+	 		canvas.invalidate();
 			stop();
 		}
 	}

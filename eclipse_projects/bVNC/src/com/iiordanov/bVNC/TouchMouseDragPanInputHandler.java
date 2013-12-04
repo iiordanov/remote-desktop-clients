@@ -33,7 +33,7 @@ class TouchMouseDragPanInputHandler extends AbstractGestureInputHandler {
 	 */
 	@Override
 	public CharSequence getHandlerDescription() {
-		return vncCanvas.getResources().getString(R.string.input_mode_drag_pan_description);
+		return canvas.getResources().getString(R.string.input_mode_drag_pan_description);
 	}
 
 	/*
@@ -90,8 +90,8 @@ class TouchMouseDragPanInputHandler extends AbstractGestureInputHandler {
 		if (secondPointerWasDown || thirdPointerWasDown)
 			return;
 		
-		BCFactory.getInstance().getBCHaptic().performLongPressHaptic(vncCanvas);
-		vncCanvas.displayShortToastMessage("Panning");
+		BCFactory.getInstance().getBCHaptic().performLongPressHaptic(canvas);
+		canvas.displayShortToastMessage("Panning");
 		endDragModesAndScrolling();
 		panMode = true;
 	}
@@ -105,7 +105,7 @@ class TouchMouseDragPanInputHandler extends AbstractGestureInputHandler {
 	@Override
 	public boolean onScroll(MotionEvent e1, MotionEvent e2,
 			float distanceX, float distanceY) {
-        RemotePointer p = vncCanvas.getPointer();
+        RemotePointer p = canvas.getPointer();
 
 		// onScroll called while scaling/swiping gesture is in effect. We ignore the event and pretend it was
 		// consumed. This prevents the mouse pointer from flailing around while we are scaling.
@@ -130,7 +130,7 @@ class TouchMouseDragPanInputHandler extends AbstractGestureInputHandler {
 		} else {
 			p.processPointerEvent(getX(e2), getY(e2), e2.getActionMasked(), e2.getMetaState(), true, false, false, false, 0);		
 		}
-    	vncCanvas.panToMouse();
+    	canvas.panToMouse();
 		return true;
 	}
 }

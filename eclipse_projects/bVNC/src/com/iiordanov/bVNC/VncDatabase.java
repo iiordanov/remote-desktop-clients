@@ -29,7 +29,7 @@ import android.util.Log;
  * @author Michael A. MacDonald
  *
  */
-class VncDatabase extends SQLiteOpenHelper {
+public class VncDatabase extends SQLiteOpenHelper {
 	static final int DBV_0_5_0 = 12;
 	static final int DBV_1_2_0 = 20;
 	static final int DBV_1_5_0 = 22;

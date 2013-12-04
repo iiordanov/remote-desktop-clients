@@ -34,18 +34,18 @@ import android.view.KeyEvent;
  *
  */
 public class MetaKeyBean extends AbstractMetaKeyBean implements Comparable<MetaKeyBean> {
-	static final ArrayList<MetaKeyBase> allKeys;
-	static final String[] allKeysNames;
-	static final HashMap<Integer,MetaKeyBase> keysByKeyCode;
-	static final HashMap<Integer,MetaKeyBase> keysByMouseButton;
-	static final HashMap<Integer,MetaKeyBase> keysByKeySym;
+	public static final ArrayList<MetaKeyBase> allKeys;
+	public static final String[] allKeysNames;
+	public static final HashMap<Integer,MetaKeyBase> keysByKeyCode;
+	public static final HashMap<Integer,MetaKeyBase> keysByMouseButton;
+	public static final HashMap<Integer,MetaKeyBase> keysByKeySym;
 	public static final MetaKeyBean keyCtrlAltDel;
-	static final MetaKeyBean keyArrowLeft;
-	static final MetaKeyBean keyArrowRight;
-	static final MetaKeyBean keyArrowUp;
-	static final MetaKeyBean keyArrowDown;
+	public static final MetaKeyBean keyArrowLeft;
+	public static final MetaKeyBean keyArrowRight;
+	public static final MetaKeyBean keyArrowUp;
+	public static final MetaKeyBean keyArrowDown;
 	
-	static final NewInstance<MetaKeyBean> NEW;
+	public static final NewInstance<MetaKeyBean> NEW;
 	
 	static {
 		allKeys = new ArrayList<MetaKeyBase>();
@@ -152,7 +152,7 @@ public class MetaKeyBean extends AbstractMetaKeyBean implements Comparable<MetaK
 	{
 	}
 	
-	MetaKeyBean(MetaKeyBean toCopy)
+	public MetaKeyBean(MetaKeyBean toCopy)
 	{
 		_regenDesc = true;
 		if (toCopy.isMouseClick())
@@ -163,7 +163,7 @@ public class MetaKeyBean extends AbstractMetaKeyBean implements Comparable<MetaK
 		setMetaFlags(toCopy.getMetaFlags());
 	}
 	
-	MetaKeyBean(long listId, int metaFlags, MetaKeyBase base)
+	public MetaKeyBean(long listId, int metaFlags, MetaKeyBase base)
 	{
 		setMetaListId(listId);
 		setKeyBase(base);
@@ -268,7 +268,7 @@ public class MetaKeyBean extends AbstractMetaKeyBean implements Comparable<MetaK
 		}
 	}
 	
-	void setKeyBase(MetaKeyBase base)
+	public void setKeyBase(MetaKeyBase base)
 	{
 		if (base.isMouse)
 		{

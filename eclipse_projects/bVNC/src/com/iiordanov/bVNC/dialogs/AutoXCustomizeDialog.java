@@ -17,22 +17,20 @@
  * USA.
  */
 
-package com.iiordanov.bVNC;
+package com.iiordanov.bVNC.dialogs;
 
+import com.iiordanov.bVNC.bVNC;
+import com.iiordanov.bVNC.ConnectionBean;
+import com.iiordanov.bVNC.R;
 import com.iiordanov.util.RandomString;
+import com.iiordanov.bVNC.VncConstants;
 
 import android.app.Activity;
-import android.app.ActivityManager;
 import android.app.AlertDialog;
-import android.app.Dialog;
-import android.app.ActivityManager.MemoryInfo;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.Display;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.AdapterView;
@@ -44,7 +42,6 @@ import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
 import android.widget.Spinner;
 import android.widget.CompoundButton.OnCheckedChangeListener;
-import android.widget.TextView;
 import android.widget.ToggleButton;
 
 

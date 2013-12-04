@@ -33,7 +33,7 @@ class TouchMouseSwipePanInputHandler extends AbstractGestureInputHandler {
 	 */
 	@Override
 	public CharSequence getHandlerDescription() {
-		return vncCanvas.getResources().getString(R.string.input_mode_touch_pan_description);
+		return canvas.getResources().getString(R.string.input_mode_touch_pan_description);
 	}
 
 	/*
@@ -159,9 +159,9 @@ class TouchMouseSwipePanInputHandler extends AbstractGestureInputHandler {
 		if (twoFingers||inSwiping||inScaling||scalingJustFinished)
 			return true;
 
-		float scale = vncCanvas.getScale();
+		float scale = canvas.getScale();
 		activity.showZoomer(false);
-		return vncCanvas.pan((int)(distanceX*scale), (int)(distanceY*scale));
+		return canvas.pan((int)(distanceX*scale), (int)(distanceY*scale));
 	}
 }
 

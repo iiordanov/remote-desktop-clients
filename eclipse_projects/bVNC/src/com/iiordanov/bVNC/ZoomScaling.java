@@ -77,9 +77,9 @@ class ZoomScaling extends AbstractScaling {
 	 * Call after scaling and matrix have been changed to resolve scrolling
 	 * @param activity
 	 */
-	private void resolveZoom(VncCanvasActivity activity)
+	private void resolveZoom(VncCanvas canvas)
 	{
-		activity.vncCanvas.scrollToAbsolute();
+		canvas.scrollToAbsolute();
 		//activity.vncCanvas.pan(0,0);
 	}
 	
@@ -99,8 +99,8 @@ class ZoomScaling extends AbstractScaling {
 		activity.zoomer.setIsZoomOutEnabled(true);
 		matrix.postScale(scaling, scaling);
 		//Log.v(TAG,String.format("before set matrix scrollx = %d scrolly = %d", activity.vncCanvas.getScrollX(), activity.vncCanvas.getScrollY()));
-		activity.vncCanvas.setImageMatrix(matrix);
-		resolveZoom(activity);
+		activity.getCanvas().setImageMatrix(matrix);
+		resolveZoom(activity.getCanvas());
 	}
 
 	/* (non-Javadoc)
@@ -127,9 +127,9 @@ class ZoomScaling extends AbstractScaling {
 		activity.zoomer.setIsZoomInEnabled(true);
 		matrix.postScale(scaling, scaling);
 		//Log.v(TAG,String.format("before set matrix scrollx = %d scrolly = %d", activity.vncCanvas.getScrollX(), activity.vncCanvas.getScrollY()));
-		activity.vncCanvas.setImageMatrix(matrix);
+		activity.getCanvas().setImageMatrix(matrix);
 		//Log.v(TAG,String.format("after set matrix scrollx = %d scrolly = %d", activity.vncCanvas.getScrollX(), activity.vncCanvas.getScrollY()));
-		resolveZoom(activity);
+		resolveZoom(activity.getCanvas());
 	}
 
 	/* (non-Javadoc)
@@ -139,7 +139,6 @@ class ZoomScaling extends AbstractScaling {
 	void adjust(VncCanvasActivity activity, float scaleFactor, float fx, float fy) {
 		
 		float oldScale;
-		
 		float newScale = scaleFactor * scaling;
 		if (scaleFactor < 1)
 		{
@@ -160,11 +159,12 @@ class ZoomScaling extends AbstractScaling {
 			activity.zoomer.setIsZoomOutEnabled(true);
 		}
 		
+		VncCanvas canvas = activity.getCanvas();
 		// ax is the absolute x of the focus
-		int xPan = activity.vncCanvas.absoluteXPosition;
+		int xPan = canvas.absoluteXPosition;
 		float ax = (fx / scaling) + xPan;
 		float newXPan = (scaling * xPan - scaling * ax + newScale * ax)/newScale;
-		int yPan = activity.vncCanvas.absoluteYPosition;
+		int yPan = canvas.absoluteYPosition;
 		float ay = (fy / scaling) + yPan;
 		float newYPan = (scaling * yPan - scaling * ay + newScale * ay)/newScale;
 		
@@ -175,19 +175,19 @@ class ZoomScaling extends AbstractScaling {
 			newScale = 1.f;
 			// Only if oldScale is outside the snap region, do we inform the user.
 			if (oldScale < 0.90f || oldScale > 1.10f)
-				activity.vncCanvas.displayShortToastMessage(R.string.snap_one_to_one);
+				canvas.displayShortToastMessage(R.string.snap_one_to_one);
 		}
 		
 		resetMatrix();
 		scaling = newScale;
 		matrix.postScale(scaling, scaling);
-		activity.vncCanvas.setImageMatrix(matrix);
-		resolveZoom(activity);
+		canvas.setImageMatrix(matrix);
+		resolveZoom(canvas);
 		
 		// Only if we have actually scaled do we pan and potentially set mouse position.
 		if (oldScale != newScale) {
-			activity.vncCanvas.pan((int)(newXPan - xPan), (int)(newYPan - yPan));
-			activity.vncCanvas.getPointer().mouseFollowPan();
+			canvas.pan((int)(newXPan - xPan), (int)(newYPan - yPan));
+			canvas.getPointer().mouseFollowPan();
 		}
 	}	
 	
@@ -211,14 +211,15 @@ class ZoomScaling extends AbstractScaling {
 	@Override
 	void setScaleTypeForActivity(VncCanvasActivity activity) {
 		super.setScaleTypeForActivity(activity);
-		canvasXOffset = -activity.vncCanvas.getCenteredXOffset();
-		canvasYOffset = -activity.vncCanvas.getCenteredYOffset();
-		activity.vncCanvas.computeShiftFromFullToView ();
-		minimumScale = activity.vncCanvas.getMinimumScale();
+		VncCanvas canvas = activity.getCanvas();
+		canvasXOffset = -canvas.getCenteredXOffset();
+		canvasYOffset = -canvas.getCenteredYOffset();
+		canvas.computeShiftFromFullToView ();
+		minimumScale = canvas.getMinimumScale();
 		scaling = 1.f;
 		resetMatrix();
-		activity.vncCanvas.setImageMatrix(matrix);
-		resolveZoom(activity);
+		canvas.setImageMatrix(matrix);
+		resolveZoom(canvas);
 	}
 
 }

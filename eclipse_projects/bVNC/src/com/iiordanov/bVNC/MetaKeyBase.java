@@ -24,7 +24,7 @@ package com.iiordanov.bVNC;
  * @author Michael A. MacDonald
  *
  */
-class MetaKeyBase implements Comparable<MetaKeyBase> {
+public class MetaKeyBase implements Comparable<MetaKeyBase> {
 	int keySym;
 	int mouseButtons;
 	int keyEvent;
