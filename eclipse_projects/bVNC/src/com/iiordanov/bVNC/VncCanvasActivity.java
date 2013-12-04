@@ -360,36 +360,7 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
         });
 
 		zoomer.hide();
-		zoomer.setOnZoomInClickListener(new View.OnClickListener() {
-
-			/*
-			 * (non-Javadoc)
-			 * 
-			 * @see android.view.View.OnClickListener#onClick(android.view.View)
-			 */
-			@Override
-			public void onClick(View v) {
-				showZoomer(true);
-				canvas.scaling.zoomIn(VncCanvasActivity.this);
-
-			}
-
-		});
-		zoomer.setOnZoomOutClickListener(new View.OnClickListener() {
-
-			/*
-			 * (non-Javadoc)
-			 * 
-			 * @see android.view.View.OnClickListener#onClick(android.view.View)
-			 */
-			@Override
-			public void onClick(View v) {
-				showZoomer(true);
-				canvas.scaling.zoomOut(VncCanvasActivity.this);
-
-			}
-
-		});
+		
 		zoomer.setOnZoomKeyboardClickListener(new View.OnClickListener() {
 
 			/*
