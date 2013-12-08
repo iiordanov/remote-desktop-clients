@@ -51,8 +51,8 @@ public class JavaOutStream extends OutStream {
         sentUpTo += ptr - sentUpTo;
         offset += ptr - sentUpTo;
       } catch (java.io.IOException e) {
-    	  e.printStackTrace();
-    	  throw new IOException(e);
+          e.printStackTrace();
+          throw new IOException(e);
       }
     }
     ptr = start;

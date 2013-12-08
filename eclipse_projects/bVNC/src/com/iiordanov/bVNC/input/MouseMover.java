@@ -35,35 +35,35 @@ import android.view.MotionEvent;
  */
 class MouseMover extends Panner {
 
-	public MouseMover(VncCanvasActivity act, Handler hand) {
-		super(act, hand);
-	}
+    public MouseMover(VncCanvasActivity act, Handler hand) {
+        super(act, hand);
+    }
 
-	/* (non-Javadoc)
-	 * @see java.lang.Runnable#run()
-	 */
-	@Override
-	public void run() {
-		long interval = SystemClock.uptimeMillis() - lastSent;
-		lastSent += interval;
-		double scale = (double)interval / 50.0;
-		VncCanvas canvas = activity.getCanvas();
-		RemotePointer p = canvas.getPointer();
-		
-		//Log.v(TAG, String.format("panning %f %d %d", scale, (int)((double)velocity.x * scale), (int)((double)velocity.y * scale)));
-		if ( p.processPointerEvent((int)(p.getX() + ((double)velocity.x * scale)),
-												(int)(p.getY() + ((double)velocity.y * scale)),
-												MotionEvent.ACTION_MOVE, 0, false, false)) {
-			if (updater.updateVelocity(velocity, interval)) {
-				handler.postDelayed(this, 50);
-			} else {
-				//Log.v(TAG, "Updater requests stop");
-				stop();
-			}
-		} else {
-			//Log.v(TAG, "Panning failed");
-			stop();
-		}
-	}
+    /* (non-Javadoc)
+     * @see java.lang.Runnable#run()
+     */
+    @Override
+    public void run() {
+        long interval = SystemClock.uptimeMillis() - lastSent;
+        lastSent += interval;
+        double scale = (double)interval / 50.0;
+        VncCanvas canvas = activity.getCanvas();
+        RemotePointer p = canvas.getPointer();
+        
+        //Log.v(TAG, String.format("panning %f %d %d", scale, (int)((double)velocity.x * scale), (int)((double)velocity.y * scale)));
+        if ( p.processPointerEvent((int)(p.getX() + ((double)velocity.x * scale)),
+                                                (int)(p.getY() + ((double)velocity.y * scale)),
+                                                MotionEvent.ACTION_MOVE, 0, false, false)) {
+            if (updater.updateVelocity(velocity, interval)) {
+                handler.postDelayed(this, 50);
+            } else {
+                //Log.v(TAG, "Updater requests stop");
+                stop();
+            }
+        } else {
+            //Log.v(TAG, "Panning failed");
+            stop();
+        }
+    }
 
 }

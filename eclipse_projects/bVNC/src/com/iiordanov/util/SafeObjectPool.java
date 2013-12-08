@@ -10,20 +10,20 @@ package com.iiordanov.util;
  */
 public abstract class SafeObjectPool<R> extends ObjectPool<R> {
 
-	/* (non-Javadoc)
-	 * @see com.antlersoft.util.ObjectPool#release(com.antlersoft.util.ObjectPool.Entry)
-	 */
-	@Override
-	public synchronized void release(com.iiordanov.util.ObjectPool.Entry<R> entry) {
-		super.release(entry);
-	}
+    /* (non-Javadoc)
+     * @see com.antlersoft.util.ObjectPool#release(com.antlersoft.util.ObjectPool.Entry)
+     */
+    @Override
+    public synchronized void release(com.iiordanov.util.ObjectPool.Entry<R> entry) {
+        super.release(entry);
+    }
 
-	/* (non-Javadoc)
-	 * @see com.antlersoft.util.ObjectPool#reserve()
-	 */
-	@Override
-	public synchronized com.iiordanov.util.ObjectPool.Entry<R> reserve() {
-		return super.reserve();
-	}
+    /* (non-Javadoc)
+     * @see com.antlersoft.util.ObjectPool#reserve()
+     */
+    @Override
+    public synchronized com.iiordanov.util.ObjectPool.Entry<R> reserve() {
+        return super.reserve();
+    }
 
 }

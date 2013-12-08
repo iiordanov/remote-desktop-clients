@@ -56,105 +56,105 @@ import org.xml.sax.SAXException;
  */
 public class ImportExportDialog extends Dialog {
 
-	private MainConfiguration _configurationDialog;
-	private EditText _textLoadUrl;
-	private EditText _textSaveUrl;
-	
-	
-	/**
-	 * @param context
-	 */
-	public ImportExportDialog(MainConfiguration context) {
-		super((Context)context);
-		setOwnerActivity((Activity)context);
-		_configurationDialog = context;
-	}
+    private MainConfiguration _configurationDialog;
+    private EditText _textLoadUrl;
+    private EditText _textSaveUrl;
+    
+    
+    /**
+     * @param context
+     */
+    public ImportExportDialog(MainConfiguration context) {
+        super((Context)context);
+        setOwnerActivity((Activity)context);
+        _configurationDialog = context;
+    }
 
-	/* (non-Javadoc)
-	 * @see android.app.Dialog#onCreate(android.os.Bundle)
-	 */
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		setContentView(R.layout.importexport);
-		setTitle(R.string.import_export_settings);
-		_textLoadUrl = (EditText)findViewById(R.id.textImportUrl);
-		_textSaveUrl = (EditText)findViewById(R.id.textExportPath);
-		
-		File f = BCFactory.getInstance().getStorageContext().getExternalStorageDir(_configurationDialog, null);
-		// Sdcard not mounted; nothing else to do
-		if (f == null)
-			return;
-		
-		f = new File(f, "settings.xml");
-		String path = "/sdcard/" + f.getName();
-		_textSaveUrl.setText(path);
-		_textLoadUrl.setText(path);
-		
-		Button export = (Button)findViewById(R.id.buttonExport);
-		export.setOnClickListener(new View.OnClickListener() {
+    /* (non-Javadoc)
+     * @see android.app.Dialog#onCreate(android.os.Bundle)
+     */
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.importexport);
+        setTitle(R.string.import_export_settings);
+        _textLoadUrl = (EditText)findViewById(R.id.textImportUrl);
+        _textSaveUrl = (EditText)findViewById(R.id.textExportPath);
+        
+        File f = BCFactory.getInstance().getStorageContext().getExternalStorageDir(_configurationDialog, null);
+        // Sdcard not mounted; nothing else to do
+        if (f == null)
+            return;
+        
+        f = new File(f, "settings.xml");
+        String path = "/sdcard/" + f.getName();
+        _textSaveUrl.setText(path);
+        _textLoadUrl.setText(path);
+        
+        Button export = (Button)findViewById(R.id.buttonExport);
+        export.setOnClickListener(new View.OnClickListener() {
 
-			@Override
-			public void onClick(View v) {
-				try {
-					File f = new File(_textSaveUrl.getText().toString());
-					Writer writer = new OutputStreamWriter(new FileOutputStream(f, false));
-					SqliteElement.exportDbAsXmlToStream(_configurationDialog.getDatabaseHelper().getReadableDatabase(), writer);
-					writer.close();
-					dismiss();
-				}
-				catch (IOException ioe)
-				{
-					errorNotify("I/O Exception exporting config", ioe);
-				} catch (SAXException e) {
-					errorNotify("XML Exception exporting config", e);
-				}
-			}
-			
-		});
-		
-		((Button)findViewById(R.id.buttonImport)).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                try {
+                    File f = new File(_textSaveUrl.getText().toString());
+                    Writer writer = new OutputStreamWriter(new FileOutputStream(f, false));
+                    SqliteElement.exportDbAsXmlToStream(_configurationDialog.getDatabaseHelper().getReadableDatabase(), writer);
+                    writer.close();
+                    dismiss();
+                }
+                catch (IOException ioe)
+                {
+                    errorNotify("I/O Exception exporting config", ioe);
+                } catch (SAXException e) {
+                    errorNotify("XML Exception exporting config", e);
+                }
+            }
+            
+        });
+        
+        ((Button)findViewById(R.id.buttonImport)).setOnClickListener(new View.OnClickListener() {
 
-			@Override
-			public void onClick(View v) {
-				try
-				{
-					String urlString = _textLoadUrl.getText().toString();
-					if (!urlString.startsWith("file:")) {
-						urlString = "file:" + urlString;
-					}
-					URL url = new URL(urlString);
-					URLConnection connection = url.openConnection();
-					connection.connect();
-					Reader reader = new InputStreamReader(connection.getInputStream());
-					SqliteElement.importXmlStreamToDb(
-							_configurationDialog.getDatabaseHelper().getWritableDatabase(),
-							reader,
-							ReplaceStrategy.REPLACE_EXISTING);
-					dismiss();
-					_configurationDialog.arriveOnPage();
-				}
-				catch (MalformedURLException mfe)
-				{
-					errorNotify("Improper URL given: " + _textLoadUrl.getText(), mfe);
-				}
-				catch (IOException ioe)
-				{
-					errorNotify("I/O error reading configuration", ioe);
-				}
-				catch (SAXException e)
-				{
-					errorNotify("XML or format error reading configuration", e);
-				}
-			}
-			
-		});
-	}
-	
-	private void errorNotify(String msg, Throwable t)
-	{
-		Log.i("com.iiordanov.bVNC.ImportExportDialog", msg, t);
-		Utils.showErrorMessage(this.getContext(), msg + ":" + t.getMessage());
-	}
+            @Override
+            public void onClick(View v) {
+                try
+                {
+                    String urlString = _textLoadUrl.getText().toString();
+                    if (!urlString.startsWith("file:")) {
+                        urlString = "file:" + urlString;
+                    }
+                    URL url = new URL(urlString);
+                    URLConnection connection = url.openConnection();
+                    connection.connect();
+                    Reader reader = new InputStreamReader(connection.getInputStream());
+                    SqliteElement.importXmlStreamToDb(
+                            _configurationDialog.getDatabaseHelper().getWritableDatabase(),
+                            reader,
+                            ReplaceStrategy.REPLACE_EXISTING);
+                    dismiss();
+                    _configurationDialog.arriveOnPage();
+                }
+                catch (MalformedURLException mfe)
+                {
+                    errorNotify("Improper URL given: " + _textLoadUrl.getText(), mfe);
+                }
+                catch (IOException ioe)
+                {
+                    errorNotify("I/O error reading configuration", ioe);
+                }
+                catch (SAXException e)
+                {
+                    errorNotify("XML or format error reading configuration", e);
+                }
+            }
+            
+        });
+    }
+    
+    private void errorNotify(String msg, Throwable t)
+    {
+        Log.i("com.iiordanov.bVNC.ImportExportDialog", msg, t);
+        Utils.showErrorMessage(this.getContext(), msg + ":" + t.getMessage());
+    }
 
 }

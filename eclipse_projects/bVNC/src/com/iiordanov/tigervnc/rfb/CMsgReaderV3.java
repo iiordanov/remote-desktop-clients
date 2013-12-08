@@ -28,7 +28,7 @@ public class CMsgReaderV3 extends CMsgReader {
     super(handler_, is_, c);
     nUpdateRectsLeft = 0;
   }
-	
+    
   public CMsgReaderV3(CMsgHandler handler_, InStream is_) 
   {
     super(handler_, is_);

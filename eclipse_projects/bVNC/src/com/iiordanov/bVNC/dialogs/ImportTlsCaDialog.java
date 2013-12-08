@@ -47,126 +47,126 @@ import android.widget.LinearLayout.LayoutParams;
  *
  */
 public class ImportTlsCaDialog extends AlertDialog {
-	private aSPICE mainConfigPage;
-	private ConnectionBean selected;
-	private EditText certSubject;
-	private EditText caCertPath;
-	private EditText caCert;
-	private Button importButton;
-	private Button helpButton;
+    private aSPICE mainConfigPage;
+    private ConnectionBean selected;
+    private EditText certSubject;
+    private EditText caCertPath;
+    private EditText caCert;
+    private Button importButton;
+    private Button helpButton;
 
-	/**
-	 * @param context
-	 */
-	public ImportTlsCaDialog(Context context) {
-		super(context);
-		setOwnerActivity((Activity)context);
-		mainConfigPage = (aSPICE)context;
-		selected = mainConfigPage.getCurrentConnection();
-	}
+    /**
+     * @param context
+     */
+    public ImportTlsCaDialog(Context context) {
+        super(context);
+        setOwnerActivity((Activity)context);
+        mainConfigPage = (aSPICE)context;
+        selected = mainConfigPage.getCurrentConnection();
+    }
 
-	private static final Intent docIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://spice-space.org/page/SSLConnection")); 
-	
-	public static void showDocumentation(Context c) {
-		c.startActivity(docIntent);
-	}
-	
-	/* 
-	 * (non-Javadoc)
-	 * @see android.app.Dialog#onBackPressed()
-	 */
-	@Override
-	public void onBackPressed () {
-		selected.setCaCert(caCert.getText().toString());
-		selected.setCertSubject(certSubject.getText().toString());
-		mainConfigPage.updateViewFromSelected();
-		mainConfigPage.saveAndWriteRecent();
-		dismiss();
-	}
+    private static final Intent docIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://spice-space.org/page/SSLConnection")); 
+    
+    public static void showDocumentation(Context c) {
+        c.startActivity(docIntent);
+    }
+    
+    /* 
+     * (non-Javadoc)
+     * @see android.app.Dialog#onBackPressed()
+     */
+    @Override
+    public void onBackPressed () {
+        selected.setCaCert(caCert.getText().toString());
+        selected.setCertSubject(certSubject.getText().toString());
+        mainConfigPage.updateViewFromSelected();
+        mainConfigPage.saveAndWriteRecent();
+        dismiss();
+    }
 
-	/* This function needs to be overloaded because the dialog does not get
-	 * destroyed and recreated every time the button on the main screen is
-	 * pressed, and so the widgets' state wasn't set correctly. This makes 
-	 * sure the widgets' state is set when the dialog gets displayed.
-	 * (non-Javadoc)
-	 * @see android.app.Dialog#onAttachedToWindow()
-	 */
-	@Override
-	public void onAttachedToWindow() {
-		setWidgetStateAppropriately ();
-	}
+    /* This function needs to be overloaded because the dialog does not get
+     * destroyed and recreated every time the button on the main screen is
+     * pressed, and so the widgets' state wasn't set correctly. This makes 
+     * sure the widgets' state is set when the dialog gets displayed.
+     * (non-Javadoc)
+     * @see android.app.Dialog#onAttachedToWindow()
+     */
+    @Override
+    public void onAttachedToWindow() {
+        setWidgetStateAppropriately ();
+    }
 
-	private void setWidgetStateAppropriately () {
-		selected = mainConfigPage.getCurrentConnection();
-		certSubject.setText(selected.getCertSubject());
-		caCert.setText(selected.getCaCert());
-		caCertPath.setText("/sdcard/");
-	}
-	
-	private void importCaCert () {
-		File file = new File (caCertPath.getText().toString());
-		FileReader freader;
-		try {
-			freader = new FileReader(file);
-			BufferedReader reader = new BufferedReader(freader);
-	        StringBuffer buf = new StringBuffer();
-	        String line = null;
-	        do {
-	        	try {
-					line = reader.readLine();
-					if (line != null)
-						buf.append(line + '\n');
-				} catch (IOException e) {
-					Toast.makeText(getContext(), R.string.spice_ca_file_error_reading, Toast.LENGTH_LONG).show();
-				}
-	        } while (line != null);
-	        caCert.setText(buf.toString());
-		} catch (FileNotFoundException e) {
-			Toast.makeText(getContext(), R.string.spice_ca_file_not_found, Toast.LENGTH_LONG).show();
-		}
-	}
-	
-	/* (non-Javadoc)
-	 * @see android.app.Dialog#onCreate(android.os.Bundle)
-	 */
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
+    private void setWidgetStateAppropriately () {
+        selected = mainConfigPage.getCurrentConnection();
+        certSubject.setText(selected.getCertSubject());
+        caCert.setText(selected.getCaCert());
+        caCertPath.setText("/sdcard/");
+    }
+    
+    private void importCaCert () {
+        File file = new File (caCertPath.getText().toString());
+        FileReader freader;
+        try {
+            freader = new FileReader(file);
+            BufferedReader reader = new BufferedReader(freader);
+            StringBuffer buf = new StringBuffer();
+            String line = null;
+            do {
+                try {
+                    line = reader.readLine();
+                    if (line != null)
+                        buf.append(line + '\n');
+                } catch (IOException e) {
+                    Toast.makeText(getContext(), R.string.spice_ca_file_error_reading, Toast.LENGTH_LONG).show();
+                }
+            } while (line != null);
+            caCert.setText(buf.toString());
+        } catch (FileNotFoundException e) {
+            Toast.makeText(getContext(), R.string.spice_ca_file_not_found, Toast.LENGTH_LONG).show();
+        }
+    }
+    
+    /* (non-Javadoc)
+     * @see android.app.Dialog#onCreate(android.os.Bundle)
+     */
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
 
-		setContentView(R.layout.import_tls_ca_dialog);
-		getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE|
-							   WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM);
-		WindowManager.LayoutParams lp = getWindow().getAttributes();
-		lp.dimAmount = 1.0f;
-		lp.width     = LayoutParams.FILL_PARENT;
-		lp.height    = LayoutParams.WRAP_CONTENT;
-		getWindow().setAttributes(lp);
+        setContentView(R.layout.import_tls_ca_dialog);
+        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE|
+                               WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM);
+        WindowManager.LayoutParams lp = getWindow().getAttributes();
+        lp.dimAmount = 1.0f;
+        lp.width     = LayoutParams.FILL_PARENT;
+        lp.height    = LayoutParams.WRAP_CONTENT;
+        getWindow().setAttributes(lp);
 
-		certSubject = (EditText) findViewById(R.id.certSubject);
-		caCert      = (EditText) findViewById(R.id.caCert);
-		caCertPath  = (EditText) findViewById(R.id.caCertPath);
-		
-		// Set up the import button.
-		importButton = (Button) findViewById(R.id.importButton);
-		importButton.setOnClickListener(new View.OnClickListener() {
-			
-			@Override
-			public void onClick(View v) {
-				importCaCert();
-			}
-		});
-		
-		// Set up the help button.
-		helpButton = (Button) findViewById(R.id.helpButton);
-		helpButton.setOnClickListener(new View.OnClickListener() {
-			
-			@Override
-			public void onClick(View v) {
-				showDocumentation(ImportTlsCaDialog.this.mainConfigPage);
-			}
-		});
-		
-		// Set the widgets' state appropriately.
-		setWidgetStateAppropriately ();
-	}
+        certSubject = (EditText) findViewById(R.id.certSubject);
+        caCert      = (EditText) findViewById(R.id.caCert);
+        caCertPath  = (EditText) findViewById(R.id.caCertPath);
+        
+        // Set up the import button.
+        importButton = (Button) findViewById(R.id.importButton);
+        importButton.setOnClickListener(new View.OnClickListener() {
+            
+            @Override
+            public void onClick(View v) {
+                importCaCert();
+            }
+        });
+        
+        // Set up the help button.
+        helpButton = (Button) findViewById(R.id.helpButton);
+        helpButton.setOnClickListener(new View.OnClickListener() {
+            
+            @Override
+            public void onClick(View v) {
+                showDocumentation(ImportTlsCaDialog.this.mainConfigPage);
+            }
+        });
+        
+        // Set the widgets' state appropriately.
+        setWidgetStateAppropriately ();
+    }
 }

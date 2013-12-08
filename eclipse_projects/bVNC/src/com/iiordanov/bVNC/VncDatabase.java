@@ -30,191 +30,191 @@ import android.util.Log;
  *
  */
 public class VncDatabase extends SQLiteOpenHelper {
-	static final int DBV_0_5_0 = 12;
-	static final int DBV_1_2_0 = 20;
-	static final int DBV_1_5_0 = 22;
-	static final int DBV_1_6_0 = 291;
-	static final int DBV_1_7_0 = 292;
-	static final int DBV_1_8_0 = 293;
-	static final int DBV_1_9_0 = 308;
-	static final int DBV_2_0_0 = 309;
-	static final int DBV_2_1_0 = 329;
-	static final int DBV_2_1_1 = 335;
-	static final int DBV_2_1_2 = 336;
-	
-	public final static String TAG = VncDatabase.class.toString();
-	
-	VncDatabase(Context context) {
-		super(context, "VncDatabase", null, DBV_2_1_2);
-	}
+    static final int DBV_0_5_0 = 12;
+    static final int DBV_1_2_0 = 20;
+    static final int DBV_1_5_0 = 22;
+    static final int DBV_1_6_0 = 291;
+    static final int DBV_1_7_0 = 292;
+    static final int DBV_1_8_0 = 293;
+    static final int DBV_1_9_0 = 308;
+    static final int DBV_2_0_0 = 309;
+    static final int DBV_2_1_0 = 329;
+    static final int DBV_2_1_1 = 335;
+    static final int DBV_2_1_2 = 336;
+    
+    public final static String TAG = VncDatabase.class.toString();
+    
+    VncDatabase(Context context) {
+        super(context, "VncDatabase", null, DBV_2_1_2);
+    }
 
-	/* (non-Javadoc)
-	 * @see android.database.sqlite.SQLiteOpenHelper#onCreate(android.database.sqlite.SQLiteDatabase)
-	 */
-	@Override
-	public void onCreate(SQLiteDatabase db) {
-		db.execSQL(AbstractConnectionBean.GEN_CREATE);
-		db.execSQL(MostRecentBean.GEN_CREATE);
-		db.execSQL(MetaList.GEN_CREATE);
-		db.execSQL(AbstractMetaKeyBean.GEN_CREATE);
-		db.execSQL(SentTextBean.GEN_CREATE);
-		
-		db.execSQL("INSERT INTO "+MetaList.GEN_TABLE_NAME+" VALUES ( 1, 'DEFAULT')");
-	}
+    /* (non-Javadoc)
+     * @see android.database.sqlite.SQLiteOpenHelper#onCreate(android.database.sqlite.SQLiteDatabase)
+     */
+    @Override
+    public void onCreate(SQLiteDatabase db) {
+        db.execSQL(AbstractConnectionBean.GEN_CREATE);
+        db.execSQL(MostRecentBean.GEN_CREATE);
+        db.execSQL(MetaList.GEN_CREATE);
+        db.execSQL(AbstractMetaKeyBean.GEN_CREATE);
+        db.execSQL(SentTextBean.GEN_CREATE);
+        
+        db.execSQL("INSERT INTO "+MetaList.GEN_TABLE_NAME+" VALUES ( 1, 'DEFAULT')");
+    }
 
-	/* (non-Javadoc)
-	 * @see android.database.sqlite.SQLiteOpenHelper#onUpgrade(android.database.sqlite.SQLiteDatabase, int, int)
-	 */
-	@Override
-	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-		if (oldVersion == DBV_0_5_0) {
-			Log.i(TAG,"Doing upgrade from 12 to 20");
-			db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
-					+AbstractConnectionBean.GEN_FIELD_CONNECTIONTYPE + " INTEGER");
-			db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
-					+AbstractConnectionBean.GEN_FIELD_SSHSERVER + " TEXT");
-			db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
-					+AbstractConnectionBean.GEN_FIELD_SSHPORT + " INTEGER");
-			db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
-					+AbstractConnectionBean.GEN_FIELD_SSHUSER + " TEXT");
-			db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
-					+AbstractConnectionBean.GEN_FIELD_SSHPASSWORD + " TEXT");
-			db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
-					+AbstractConnectionBean.GEN_FIELD_KEEPSSHPASSWORD + " BOOLEAN DEFAULT FALSE");
-			db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
-					+AbstractConnectionBean.GEN_FIELD_SSHPUBKEY + " TEXT");
-			db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
-					+AbstractConnectionBean.GEN_FIELD_SSHPRIVKEY + " TEXT");
-			db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
-					+AbstractConnectionBean.GEN_FIELD_SSHPASSPHRASE + " TEXT");
-			db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
-					+AbstractConnectionBean.GEN_FIELD_USESSHPUBKEY + " BOOLEAN DEFAULT FALSE");
-			db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
-					+AbstractConnectionBean.GEN_FIELD_SSHHOSTKEY + " TEXT");
-			db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
-					+AbstractConnectionBean.GEN_FIELD_SSHREMOTECOMMANDOS + " INTEGER");
-			db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
-					+AbstractConnectionBean.GEN_FIELD_SSHREMOTECOMMAND + " TEXT");
-			db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
-					+AbstractConnectionBean.GEN_FIELD_SSHREMOTECOMMANDTIMEOUT + " INTEGER");
-			db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
-					+AbstractConnectionBean.GEN_FIELD_USESSHREMOTECOMMAND + " BOOLEAN DEFAULT FALSE");
-			oldVersion = DBV_1_2_0;
-		}
-		
-		if (oldVersion == DBV_1_2_0) {
-			Log.i(TAG,"Doing upgrade from 20 to 22");
-			db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
-					+AbstractConnectionBean.GEN_FIELD_USEDPADASARROWS + " BOOLEAN DEFAULT FALSE");
-			db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
-					+AbstractConnectionBean.GEN_FIELD_ROTATEDPAD + " BOOLEAN DEFAULT FALSE");
-			db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
-					+AbstractConnectionBean.GEN_FIELD_USEPORTRAIT + " BOOLEAN DEFAULT FALSE");
-			oldVersion = DBV_1_5_0;
-		}
-		
-		if (oldVersion == DBV_1_5_0) {
-			Log.i(TAG,"Doing upgrade from 22 to 291");
-			db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
-					+AbstractConnectionBean.GEN_FIELD_SSHREMOTECOMMANDTYPE + " INTEGER");
-			db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
-					+AbstractConnectionBean.GEN_FIELD_AUTOXENABLED + " BOOLEAN DEFAULT FALSE");
-			db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
-					+AbstractConnectionBean.GEN_FIELD_AUTOXTYPE + " INTEGER");
-			db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
-					+AbstractConnectionBean.GEN_FIELD_AUTOXCOMMAND + " TEXT");
-			db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
-					+AbstractConnectionBean.GEN_FIELD_AUTOXRESTYPE + " INTEGER");
-			db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
-					+AbstractConnectionBean.GEN_FIELD_AUTOXWIDTH + " INTEGER");
-			db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
-					+AbstractConnectionBean.GEN_FIELD_AUTOXHEIGHT + " INTEGER");
-			db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
-					+AbstractConnectionBean.GEN_FIELD_AUTOXSESSIONTYPE + " INTEGER");
-			db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
-					+AbstractConnectionBean.GEN_FIELD_AUTOXSESSIONPROG + " TEXT");
-			db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
-					+AbstractConnectionBean.GEN_FIELD_AUTOXRANDFILENM + " TEXT");
-			db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
-					+AbstractConnectionBean.GEN_FIELD_AUTOXUNIXPW + " BOOLEAN DEFAULT FALSE");
-			oldVersion = DBV_1_6_0;
-		}
+    /* (non-Javadoc)
+     * @see android.database.sqlite.SQLiteOpenHelper#onUpgrade(android.database.sqlite.SQLiteDatabase, int, int)
+     */
+    @Override
+    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        if (oldVersion == DBV_0_5_0) {
+            Log.i(TAG,"Doing upgrade from 12 to 20");
+            db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
+                    +AbstractConnectionBean.GEN_FIELD_CONNECTIONTYPE + " INTEGER");
+            db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
+                    +AbstractConnectionBean.GEN_FIELD_SSHSERVER + " TEXT");
+            db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
+                    +AbstractConnectionBean.GEN_FIELD_SSHPORT + " INTEGER");
+            db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
+                    +AbstractConnectionBean.GEN_FIELD_SSHUSER + " TEXT");
+            db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
+                    +AbstractConnectionBean.GEN_FIELD_SSHPASSWORD + " TEXT");
+            db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
+                    +AbstractConnectionBean.GEN_FIELD_KEEPSSHPASSWORD + " BOOLEAN DEFAULT FALSE");
+            db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
+                    +AbstractConnectionBean.GEN_FIELD_SSHPUBKEY + " TEXT");
+            db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
+                    +AbstractConnectionBean.GEN_FIELD_SSHPRIVKEY + " TEXT");
+            db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
+                    +AbstractConnectionBean.GEN_FIELD_SSHPASSPHRASE + " TEXT");
+            db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
+                    +AbstractConnectionBean.GEN_FIELD_USESSHPUBKEY + " BOOLEAN DEFAULT FALSE");
+            db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
+                    +AbstractConnectionBean.GEN_FIELD_SSHHOSTKEY + " TEXT");
+            db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
+                    +AbstractConnectionBean.GEN_FIELD_SSHREMOTECOMMANDOS + " INTEGER");
+            db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
+                    +AbstractConnectionBean.GEN_FIELD_SSHREMOTECOMMAND + " TEXT");
+            db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
+                    +AbstractConnectionBean.GEN_FIELD_SSHREMOTECOMMANDTIMEOUT + " INTEGER");
+            db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
+                    +AbstractConnectionBean.GEN_FIELD_USESSHREMOTECOMMAND + " BOOLEAN DEFAULT FALSE");
+            oldVersion = DBV_1_2_0;
+        }
+        
+        if (oldVersion == DBV_1_2_0) {
+            Log.i(TAG,"Doing upgrade from 20 to 22");
+            db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
+                    +AbstractConnectionBean.GEN_FIELD_USEDPADASARROWS + " BOOLEAN DEFAULT FALSE");
+            db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
+                    +AbstractConnectionBean.GEN_FIELD_ROTATEDPAD + " BOOLEAN DEFAULT FALSE");
+            db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
+                    +AbstractConnectionBean.GEN_FIELD_USEPORTRAIT + " BOOLEAN DEFAULT FALSE");
+            oldVersion = DBV_1_5_0;
+        }
+        
+        if (oldVersion == DBV_1_5_0) {
+            Log.i(TAG,"Doing upgrade from 22 to 291");
+            db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
+                    +AbstractConnectionBean.GEN_FIELD_SSHREMOTECOMMANDTYPE + " INTEGER");
+            db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
+                    +AbstractConnectionBean.GEN_FIELD_AUTOXENABLED + " BOOLEAN DEFAULT FALSE");
+            db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
+                    +AbstractConnectionBean.GEN_FIELD_AUTOXTYPE + " INTEGER");
+            db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
+                    +AbstractConnectionBean.GEN_FIELD_AUTOXCOMMAND + " TEXT");
+            db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
+                    +AbstractConnectionBean.GEN_FIELD_AUTOXRESTYPE + " INTEGER");
+            db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
+                    +AbstractConnectionBean.GEN_FIELD_AUTOXWIDTH + " INTEGER");
+            db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
+                    +AbstractConnectionBean.GEN_FIELD_AUTOXHEIGHT + " INTEGER");
+            db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
+                    +AbstractConnectionBean.GEN_FIELD_AUTOXSESSIONTYPE + " INTEGER");
+            db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
+                    +AbstractConnectionBean.GEN_FIELD_AUTOXSESSIONPROG + " TEXT");
+            db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
+                    +AbstractConnectionBean.GEN_FIELD_AUTOXRANDFILENM + " TEXT");
+            db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
+                    +AbstractConnectionBean.GEN_FIELD_AUTOXUNIXPW + " BOOLEAN DEFAULT FALSE");
+            oldVersion = DBV_1_6_0;
+        }
 
-		if (oldVersion == DBV_1_6_0) {
-			Log.i(TAG,"Doing upgrade from 291 to 292");
-			db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
-					+AbstractConnectionBean.GEN_FIELD_AUTOXUNIXAUTH + " BOOLEAN DEFAULT FALSE");
-			oldVersion = DBV_1_7_0;
-		}
+        if (oldVersion == DBV_1_6_0) {
+            Log.i(TAG,"Doing upgrade from 291 to 292");
+            db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
+                    +AbstractConnectionBean.GEN_FIELD_AUTOXUNIXAUTH + " BOOLEAN DEFAULT FALSE");
+            oldVersion = DBV_1_7_0;
+        }
 
-		if (oldVersion == DBV_1_7_0) {
-			Log.i(TAG,"Doing upgrade from 292 to 293");
-			db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
-					+AbstractConnectionBean.GEN_FIELD_EXTRAKEYSTOGGLETYPE + " INTEGER");
-			oldVersion = DBV_1_8_0;
-		}
+        if (oldVersion == DBV_1_7_0) {
+            Log.i(TAG,"Doing upgrade from 292 to 293");
+            db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
+                    +AbstractConnectionBean.GEN_FIELD_EXTRAKEYSTOGGLETYPE + " INTEGER");
+            oldVersion = DBV_1_8_0;
+        }
 
-		if (oldVersion == DBV_1_8_0) {
-			Log.i(TAG,"Doing upgrade from 293 to 308");
-			db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
-					+AbstractConnectionBean.GEN_FIELD_PREFENCODING + " INTEGER");
-			oldVersion = DBV_1_9_0;
-		}
-		
-		if (oldVersion == DBV_1_9_0) {
-			Log.i(TAG,"Doing upgrade from 308 to 309");
-			db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
-					+AbstractConnectionBean.GEN_FIELD_RDPDOMAIN + " TEXT");
-			db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
-					+AbstractConnectionBean.GEN_FIELD_RDPRESTYPE + " INTEGER");
-			db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
-					+AbstractConnectionBean.GEN_FIELD_RDPWIDTH + " INTEGER");
-			db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
-					+AbstractConnectionBean.GEN_FIELD_RDPHEIGHT + " INTEGER");
-			db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
-					+AbstractConnectionBean.GEN_FIELD_RDPCOLOR + " INTEGER");
-			db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
-					+AbstractConnectionBean.GEN_FIELD_REMOTEFX + " BOOLEAN DEFAULT FALSE");
-			db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
-					+AbstractConnectionBean.GEN_FIELD_DESKTOPBACKGROUND + " BOOLEAN DEFAULT FALSE");
-			db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
-					+AbstractConnectionBean.GEN_FIELD_FONTSMOOTHING + " BOOLEAN DEFAULT FALSE");
-			db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
-					+AbstractConnectionBean.GEN_FIELD_DESKTOPCOMPOSITION + " BOOLEAN DEFAULT FALSE");
-			db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
-					+AbstractConnectionBean.GEN_FIELD_WINDOWCONTENTS + " BOOLEAN DEFAULT FALSE");
-			db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
-					+AbstractConnectionBean.GEN_FIELD_MENUANIMATION + " BOOLEAN DEFAULT FALSE");
-			db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
-					+AbstractConnectionBean.GEN_FIELD_VISUALSTYLES + " BOOLEAN DEFAULT FALSE");
-			oldVersion = DBV_2_0_0;
-		}
-		
-		if (oldVersion == DBV_2_0_0) {
-			Log.i(TAG,"Doing upgrade from 309 to 329");
-			db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
-					+AbstractConnectionBean.GEN_FIELD_CACERT + " TEXT");
-			db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
-					+AbstractConnectionBean.GEN_FIELD_CACERTPATH + " TEXT");
-			db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
-					+AbstractConnectionBean.GEN_FIELD_TLSPORT + " INTEGER");
-			db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
-					+AbstractConnectionBean.GEN_FIELD_CERTSUBJECT + " TEXT");
-			oldVersion = DBV_2_1_0;
-		}
-		
-		if (oldVersion == DBV_2_1_0) {
-			Log.i(TAG,"Doing upgrade from 329 to 335");
-			db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
-					+AbstractConnectionBean.GEN_FIELD_ENABLESOUND + " BOOLEAN DEFAULT FALSE");
-			oldVersion = DBV_2_1_1;
-		}
-		
-		if (oldVersion == DBV_2_1_1) {
-			Log.i(TAG,"Doing upgrade from 335 to 336");
-			db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
-					+AbstractConnectionBean.GEN_FIELD_VIEWONLY + " BOOLEAN DEFAULT FALSE");
-			oldVersion = DBV_2_1_2;
-		}
-	}
+        if (oldVersion == DBV_1_8_0) {
+            Log.i(TAG,"Doing upgrade from 293 to 308");
+            db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
+                    +AbstractConnectionBean.GEN_FIELD_PREFENCODING + " INTEGER");
+            oldVersion = DBV_1_9_0;
+        }
+        
+        if (oldVersion == DBV_1_9_0) {
+            Log.i(TAG,"Doing upgrade from 308 to 309");
+            db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
+                    +AbstractConnectionBean.GEN_FIELD_RDPDOMAIN + " TEXT");
+            db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
+                    +AbstractConnectionBean.GEN_FIELD_RDPRESTYPE + " INTEGER");
+            db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
+                    +AbstractConnectionBean.GEN_FIELD_RDPWIDTH + " INTEGER");
+            db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
+                    +AbstractConnectionBean.GEN_FIELD_RDPHEIGHT + " INTEGER");
+            db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
+                    +AbstractConnectionBean.GEN_FIELD_RDPCOLOR + " INTEGER");
+            db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
+                    +AbstractConnectionBean.GEN_FIELD_REMOTEFX + " BOOLEAN DEFAULT FALSE");
+            db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
+                    +AbstractConnectionBean.GEN_FIELD_DESKTOPBACKGROUND + " BOOLEAN DEFAULT FALSE");
+            db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
+                    +AbstractConnectionBean.GEN_FIELD_FONTSMOOTHING + " BOOLEAN DEFAULT FALSE");
+            db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
+                    +AbstractConnectionBean.GEN_FIELD_DESKTOPCOMPOSITION + " BOOLEAN DEFAULT FALSE");
+            db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
+                    +AbstractConnectionBean.GEN_FIELD_WINDOWCONTENTS + " BOOLEAN DEFAULT FALSE");
+            db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
+                    +AbstractConnectionBean.GEN_FIELD_MENUANIMATION + " BOOLEAN DEFAULT FALSE");
+            db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
+                    +AbstractConnectionBean.GEN_FIELD_VISUALSTYLES + " BOOLEAN DEFAULT FALSE");
+            oldVersion = DBV_2_0_0;
+        }
+        
+        if (oldVersion == DBV_2_0_0) {
+            Log.i(TAG,"Doing upgrade from 309 to 329");
+            db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
+                    +AbstractConnectionBean.GEN_FIELD_CACERT + " TEXT");
+            db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
+                    +AbstractConnectionBean.GEN_FIELD_CACERTPATH + " TEXT");
+            db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
+                    +AbstractConnectionBean.GEN_FIELD_TLSPORT + " INTEGER");
+            db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
+                    +AbstractConnectionBean.GEN_FIELD_CERTSUBJECT + " TEXT");
+            oldVersion = DBV_2_1_0;
+        }
+        
+        if (oldVersion == DBV_2_1_0) {
+            Log.i(TAG,"Doing upgrade from 329 to 335");
+            db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
+                    +AbstractConnectionBean.GEN_FIELD_ENABLESOUND + " BOOLEAN DEFAULT FALSE");
+            oldVersion = DBV_2_1_1;
+        }
+        
+        if (oldVersion == DBV_2_1_1) {
+            Log.i(TAG,"Doing upgrade from 335 to 336");
+            db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
+                    +AbstractConnectionBean.GEN_FIELD_VIEWONLY + " BOOLEAN DEFAULT FALSE");
+            oldVersion = DBV_2_1_2;
+        }
+    }
 }

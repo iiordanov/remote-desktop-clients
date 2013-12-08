@@ -28,9 +28,9 @@ class CapabilityInfo {
   // Public methods
 
   public CapabilityInfo(int code,
-			String vendorSignature,
-			String nameSignature,
-			String description) {
+            String vendorSignature,
+            String nameSignature,
+            String description) {
     this.code = code;
     this.vendorSignature = vendorSignature;
     this.nameSignature = nameSignature;
@@ -39,8 +39,8 @@ class CapabilityInfo {
   }
 
   public CapabilityInfo(int code,
-			byte[] vendorSignature,
-			byte[] nameSignature) {
+            byte[] vendorSignature,
+            byte[] nameSignature) {
     this.code = code;
     this.vendorSignature = new String(vendorSignature);
     this.nameSignature = new String(nameSignature);
@@ -66,8 +66,8 @@ class CapabilityInfo {
 
   public boolean equals(CapabilityInfo other) {
     return (other != null && this.code == other.code &&
-	    this.vendorSignature.equals(other.vendorSignature) &&
-	    this.nameSignature.equals(other.nameSignature));
+        this.vendorSignature.equals(other.vendorSignature) &&
+        this.nameSignature.equals(other.nameSignature));
   }
 
   public boolean enableIfEquals(CapabilityInfo other) {

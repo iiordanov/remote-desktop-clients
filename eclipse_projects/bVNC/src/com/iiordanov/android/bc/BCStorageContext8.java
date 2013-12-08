@@ -16,12 +16,12 @@ import android.content.Context;
  */
 class BCStorageContext8 implements IBCStorageContext {
 
-	/* (non-Javadoc)
-	 * @see com.iiordanov.android.bc.IBCStorageContext#getExternalStorageDir(android.content.Context, java.lang.String)
-	 */
-	@Override
-	public File getExternalStorageDir(MainConfiguration context, String type) {
-		return ((Context)context).getExternalFilesDir(type);
-	}
+    /* (non-Javadoc)
+     * @see com.iiordanov.android.bc.IBCStorageContext#getExternalStorageDir(android.content.Context, java.lang.String)
+     */
+    @Override
+    public File getExternalStorageDir(MainConfiguration context, String type) {
+        return ((Context)context).getExternalFilesDir(type);
+    }
 
 }

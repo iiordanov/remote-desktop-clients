@@ -43,8 +43,8 @@ import com.iiordanov.bVNC.input.RemoteKeyboard;
  */
 class RfbProto implements RfbConnectable {
 
-	final static String TAG = "RfbProto";
-	
+    final static String TAG = "RfbProto";
+    
   final static String
     versionMsg_3_3 = "RFB 003.003\n",
     versionMsg_3_7 = "RFB 003.007\n",
@@ -89,7 +89,7 @@ class RfbProto implements RfbConnectable {
     AuthNone      = 1,
     AuthVNC       = 2,
     AuthUnixLogin = 129,
-    AuthUltra	  = 17;
+    AuthUltra      = 17;
   final static String
     SigAuthNone      = "NOAUTH__",
     SigAuthVNC       = "VNCAUTH_",
@@ -107,7 +107,7 @@ class RfbProto implements RfbConnectable {
     SetColourMapEntries = 1,
     Bell                = 2,
     ServerCutText       = 3,
-    TextChat 			= 11;
+    TextChat             = 11;
 
   // Client-to-server messages
   final static int
@@ -176,9 +176,9 @@ class RfbProto implements RfbConnectable {
 
   // Constants used for UltraVNC chat extension
   final static int
-  	CHAT_OPEN = -1,
-	CHAT_CLOSE = -2,
-	CHAT_FINISHED = -3;
+      CHAT_OPEN = -1,
+    CHAT_CLOSE = -2,
+    CHAT_FINISHED = -3;
 
   String host;
   int port;
@@ -240,38 +240,38 @@ class RfbProto implements RfbConnectable {
   // The main processing loop continues while this is set to true;
   private boolean maintainConnection = true;
 
-	// VNC Encoding parameters
+    // VNC Encoding parameters
 
   // Tight encoding parameters
-	private int compressLevel = 8;
-	private int jpegQuality = 6;
+    private int compressLevel = 8;
+    private int jpegQuality = 6;
 
-	// Used to determine if encoding update is necessary
-	private int[] encodingsSaved = null;
-	private int nEncodingsSaved = 0;
+    // Used to determine if encoding update is necessary
+    private int[] encodingsSaved = null;
+    private int nEncodingsSaved = 0;
   
-	// Handle for decoder object
-	private Decoder decoder;
-	
-	// Suggests to the server whether the desktop should be shared or not
-	private int shareDesktop = 1;
+    // Handle for decoder object
+    private Decoder decoder;
+    
+    // Suggests to the server whether the desktop should be shared or not
+    private int shareDesktop = 1;
 
-	// Suggests to the server a preferred encoding
-	private int preferredEncoding = EncodingTight;
-	
-	// View Only mode
-	private boolean viewOnly = false;
-	
+    // Suggests to the server a preferred encoding
+    private int preferredEncoding = EncodingTight;
+    
+    // View Only mode
+    private boolean viewOnly = false;
+    
   //
   // Constructor. Make TCP connection to RFB server.
   //
   RfbProto(Decoder d, String h, int p, int prefEnc, boolean viewOnly) throws Exception {
-	this.viewOnly = viewOnly;
+    this.viewOnly = viewOnly;
     host = h;
     port = p;
     preferredEncoding = prefEnc;
 
-   	sock = new Socket(host, port);
+       sock = new Socket(host, port);
     sock.setTcpNoDelay(true);
     // After much testing, 8192 does seem like the best compromize between
     // responsiveness and throughput.
@@ -287,7 +287,7 @@ class RfbProto implements RfbConnectable {
  
 
   public synchronized void closeSocket() {
-	  inNormalProtocol = false;
+      inNormalProtocol = false;
     try {
       sock.close();
       closed = true;
@@ -295,9 +295,9 @@ class RfbProto implements RfbConnectable {
       Log.v(TAG, "RFB socket closed");
       /*-
       if (rec != null) {
-	rec.close();
-	rec = null;
-	  
+    rec.close();
+    rec = null;
+      
       } */
     } catch (Exception e) {
       e.printStackTrace();
@@ -305,9 +305,9 @@ class RfbProto implements RfbConnectable {
   }
 
   public void close() {
-	  inNormalProtocol = false;
-	  maintainConnection = false;
-	  closeSocket();
+      inNormalProtocol = false;
+      maintainConnection = false;
+      closeSocket();
   }
 
   
@@ -316,62 +316,62 @@ class RfbProto implements RfbConnectable {
   }
 
   public void initializeAndAuthenticate(String us, String pw, boolean useRepeater, String repeaterID, boolean anonTLS) throws Exception {
-		
-		// <RepeaterMagic>
-		if (useRepeater && repeaterID != null && repeaterID.length()>0) {
-			Log.i(TAG, "Negotiating repeater/proxy connection");
-			byte[] protocolMsg = new byte[12];
-			is.read(protocolMsg);
-			byte[] buffer = new byte[250];
-			System.arraycopy(repeaterID.getBytes(), 0, buffer, 0, repeaterID.length());
-			os.write(buffer);
-		}
-		// </RepeaterMagic>
+        
+        // <RepeaterMagic>
+        if (useRepeater && repeaterID != null && repeaterID.length()>0) {
+            Log.i(TAG, "Negotiating repeater/proxy connection");
+            byte[] protocolMsg = new byte[12];
+            is.read(protocolMsg);
+            byte[] buffer = new byte[250];
+            System.arraycopy(repeaterID.getBytes(), 0, buffer, 0, repeaterID.length());
+            os.write(buffer);
+        }
+        // </RepeaterMagic>
 
-		readVersionMsg();
-		Log.i(TAG, "RFB server supports protocol version " + serverMajor + "." + serverMinor);
+        readVersionMsg();
+        Log.i(TAG, "RFB server supports protocol version " + serverMajor + "." + serverMinor);
 
-		writeVersionMsg();
-		Log.i(TAG, "Using RFB protocol version " + clientMajor + "." + clientMinor);
+        writeVersionMsg();
+        Log.i(TAG, "Using RFB protocol version " + clientMajor + "." + clientMinor);
 
-		int bitPref=0;
-		if(us.length()>0)
-		  bitPref|=1;
-		Log.d("debug","bitPref="+bitPref);
-		int secType = negotiateSecurity(bitPref, anonTLS);
-		int authType;
-		if (secType == RfbProto.SecTypeTight) {
-			initCapabilities();
-			setupTunneling();
-			authType = negotiateAuthenticationTight();
-		} else if (secType == RfbProto.SecTypeUltra34) {
-			prepareDH();
-			authType = RfbProto.AuthUltra;
-		} else if (secType == RfbProto.SecTypeTLS) {
-			performTLSHandshake ();
-			authType = negotiateSecurity(bitPref, false);
-		//} else if (secType == RfbProto.SecTypeVeNCrypt) {
-		//	rfb.performTLSHandshake ();
-		//	authType = rfb.selectVeNCryptSecurityType();
-		} else {
-			authType = secType;
-		}
+        int bitPref=0;
+        if(us.length()>0)
+          bitPref|=1;
+        Log.d("debug","bitPref="+bitPref);
+        int secType = negotiateSecurity(bitPref, anonTLS);
+        int authType;
+        if (secType == RfbProto.SecTypeTight) {
+            initCapabilities();
+            setupTunneling();
+            authType = negotiateAuthenticationTight();
+        } else if (secType == RfbProto.SecTypeUltra34) {
+            prepareDH();
+            authType = RfbProto.AuthUltra;
+        } else if (secType == RfbProto.SecTypeTLS) {
+            performTLSHandshake ();
+            authType = negotiateSecurity(bitPref, false);
+        //} else if (secType == RfbProto.SecTypeVeNCrypt) {
+        //    rfb.performTLSHandshake ();
+        //    authType = rfb.selectVeNCryptSecurityType();
+        } else {
+            authType = secType;
+        }
 
-		switch (authType) {
-		case RfbProto.AuthNone:
-			Log.i(TAG, "No authentication needed");
-			authenticateNone();
-			break;
-		case RfbProto.AuthVNC:
-			Log.i(TAG, "VNC authentication needed");
-			authenticateVNC(pw);
-			break;
-		case RfbProto.AuthUltra:
-			authenticateDH(us,pw);
-			break;
-		default:
-			throw new Exception("Unknown authentication scheme " + authType);
-		}
+        switch (authType) {
+        case RfbProto.AuthNone:
+            Log.i(TAG, "No authentication needed");
+            authenticateNone();
+            break;
+        case RfbProto.AuthVNC:
+            Log.i(TAG, "VNC authentication needed");
+            authenticateVNC(pw);
+            break;
+        case RfbProto.AuthUltra:
+            authenticateDH(us,pw);
+            break;
+        default:
+            throw new Exception("Unknown authentication scheme " + authType);
+        }
   }
   //
   // Read server's protocol version message
@@ -384,14 +384,14 @@ class RfbProto implements RfbConnectable {
     readFully(b);
 
     if ((b[0] != 'R') || (b[1] != 'F') || (b[2] != 'B') || (b[3] != ' ')
-	|| (b[4] < '0') || (b[4] > '9') || (b[5] < '0') || (b[5] > '9')
-	|| (b[6] < '0') || (b[6] > '9') || (b[7] != '.')
-	|| (b[8] < '0') || (b[8] > '9') || (b[9] < '0') || (b[9] > '9')
-	|| (b[10] < '0') || (b[10] > '9') || (b[11] != '\n'))
+    || (b[4] < '0') || (b[4] > '9') || (b[5] < '0') || (b[5] > '9')
+    || (b[6] < '0') || (b[6] > '9') || (b[7] != '.')
+    || (b[8] < '0') || (b[8] > '9') || (b[9] < '0') || (b[9] > '9')
+    || (b[10] < '0') || (b[10] > '9') || (b[11] != '\n'))
     {
       Log.i(TAG,new String(b));
       throw new Exception("Host " + host + " port " + port +
-			  " is not an RFB server");
+              " is not an RFB server");
     }
 
     serverMajor = (b[4] - '0') * 100 + (b[5] - '0') * 10 + (b[6] - '0');
@@ -442,13 +442,13 @@ class RfbProto implements RfbConnectable {
     switch (secType) {
     case SecTypeInvalid:
       readConnFailedReason();
-      return SecTypeInvalid;	// should never be executed
+      return SecTypeInvalid;    // should never be executed
     case SecTypeNone:
     case SecTypeVncAuth:
       return secType;
     case SecTypeUltra34:
       if((bitPref & 1) == 1)
-    	return secType;
+        return secType;
       throw new Exception("Username required.");
     default:
       throw new Exception("Unknown security type from RFB server: " + secType);
@@ -460,100 +460,100 @@ class RfbProto implements RfbConnectable {
   //
 
   int selectSecurityType(int bitPref, boolean anontls) throws Exception {
-	    int secType = SecTypeInvalid;
+        int secType = SecTypeInvalid;
 
-	    // Read the list of security types.
-	    int nSecTypes = is.readUnsignedByte();
-	    if (nSecTypes == 0) {
-	      readConnFailedReason();
-	      return SecTypeInvalid;	// should never be executed
-	    }
-	    byte[] secTypes = new byte[nSecTypes];
-	    readFully(secTypes);
+        // Read the list of security types.
+        int nSecTypes = is.readUnsignedByte();
+        if (nSecTypes == 0) {
+          readConnFailedReason();
+          return SecTypeInvalid;    // should never be executed
+        }
+        byte[] secTypes = new byte[nSecTypes];
+        readFully(secTypes);
 
-	    Log.d(TAG, "There are: " +nSecTypes +" security types.");
-	    
-	    // Find out if the server supports TightVNC protocol extensions
-	    for (int i = 0; i < nSecTypes; i++) {
-	      Log.d(TAG, "Detected security type: " + secTypes[i]);
+        Log.d(TAG, "There are: " +nSecTypes +" security types.");
+        
+        // Find out if the server supports TightVNC protocol extensions
+        for (int i = 0; i < nSecTypes; i++) {
+          Log.d(TAG, "Detected security type: " + secTypes[i]);
 
-	      if (secTypes[i] == SecTypeTight) {
-		    protocolTightVNC = true;
-		    os.write(SecTypeTight);
-		    return SecTypeTight;
-	      }
-	    }
+          if (secTypes[i] == SecTypeTight) {
+            protocolTightVNC = true;
+            os.write(SecTypeTight);
+            return SecTypeTight;
+          }
+        }
 
-	    // Find first supported security type.
-	    for (int i = 0; i < nSecTypes; i++) {
-	      // If anontls is enforced, then only accept VNC over TLS. Otherwise, accept it and all others.
-	      if (anontls) {
-	    	  if (secTypes[i] == SecTypeTLS) {
-	    		  secType = secTypes[i];
-	    		  break;
-	    	  }
-	      } else {
-	    	  // If anontls is not enforced still accept it.
-	    	  if (secTypes[i] == SecTypeTLS)
-	    		  secType = secTypes[i];
-	    	  
-	    	  // However, override it by the other security modes if they show up as well.
-	    	  if (secTypes[i] == SecTypeNone || secTypes[i] == SecTypeVncAuth) {
-	    		  secType = secTypes[i];
-	    	  	  break;
-	    	  }  	   	
-	      }
-	    }
+        // Find first supported security type.
+        for (int i = 0; i < nSecTypes; i++) {
+          // If anontls is enforced, then only accept VNC over TLS. Otherwise, accept it and all others.
+          if (anontls) {
+              if (secTypes[i] == SecTypeTLS) {
+                  secType = secTypes[i];
+                  break;
+              }
+          } else {
+              // If anontls is not enforced still accept it.
+              if (secTypes[i] == SecTypeTLS)
+                  secType = secTypes[i];
+              
+              // However, override it by the other security modes if they show up as well.
+              if (secTypes[i] == SecTypeNone || secTypes[i] == SecTypeVncAuth) {
+                  secType = secTypes[i];
+                    break;
+              }             
+          }
+        }
 
-	    if (secType == SecTypeInvalid) {
-	      throw new Exception("Server did not offer supported security type. " +
+        if (secType == SecTypeInvalid) {
+          throw new Exception("Server did not offer supported security type. " +
                                "Please ensure you have picked the right item in Connection Type.");
-	    } else {
-	      os.write(secType);
-	    }
+        } else {
+          os.write(secType);
+        }
 
-	    return secType;
+        return secType;
   }
 
   int selectVeNCryptSecurityType() throws Exception {
-	    int secType = SecTypeInvalid;
+        int secType = SecTypeInvalid;
 
-	    // Read the list of security types.
-	    int nSecTypes = is.readUnsignedByte();
-	    if (nSecTypes == 0) {
-	      readConnFailedReason();
-	      return SecTypeInvalid;	// should never be executed
-	    }
-	    byte[] secTypes = new byte[nSecTypes];
-	    readFully(secTypes);
+        // Read the list of security types.
+        int nSecTypes = is.readUnsignedByte();
+        if (nSecTypes == 0) {
+          readConnFailedReason();
+          return SecTypeInvalid;    // should never be executed
+        }
+        byte[] secTypes = new byte[nSecTypes];
+        readFully(secTypes);
 
-	    Log.d(TAG, "There are: " +nSecTypes +" security types.");
+        Log.d(TAG, "There are: " +nSecTypes +" security types.");
 
-	    // Find first supported security type.
-	    for (int i = 0; i < nSecTypes; i++) {
-	      if (secTypes[i] == secTypeX509Plain ||
-	          secTypes[i] == secTypeX509Vnc   ||
-	          secTypes[i] == secTypeX509Ident ||
-	    	  secTypes[i] == secTypeX509None  ||
-	    	  secTypes[i] == secTypeTLSPlain  ||
-	    	  secTypes[i] == secTypeTLSVnc    ||
-	    	  secTypes[i] == secTypeTLSIdent  ||
-	    	  secTypes[i] == secTypeTLSNone   ||
-	    	  secTypes[i] == secTypeIdent     ||
-	    	  secTypes[i] == secTypePlain ) {
-		    secType = secTypes[i];
-		    break;
-	      }
-	    }
+        // Find first supported security type.
+        for (int i = 0; i < nSecTypes; i++) {
+          if (secTypes[i] == secTypeX509Plain ||
+              secTypes[i] == secTypeX509Vnc   ||
+              secTypes[i] == secTypeX509Ident ||
+              secTypes[i] == secTypeX509None  ||
+              secTypes[i] == secTypeTLSPlain  ||
+              secTypes[i] == secTypeTLSVnc    ||
+              secTypes[i] == secTypeTLSIdent  ||
+              secTypes[i] == secTypeTLSNone   ||
+              secTypes[i] == secTypeIdent     ||
+              secTypes[i] == secTypePlain ) {
+            secType = secTypes[i];
+            break;
+          }
+        }
 
-	    if (secType == SecTypeInvalid) {
-	      throw new Exception("Server did not offer supported security type");
-	    } else {
-	      os.write(secType);
-	    }
+        if (secType == SecTypeInvalid) {
+          throw new Exception("Server did not offer supported security type");
+        } else {
+          os.write(secType);
+        }
 
-	    return secType;
-	  }
+        return secType;
+      }
 
   //
   // Perform "no authentication".
@@ -573,7 +573,7 @@ class RfbProto implements RfbConnectable {
     readFully(challenge);
 
     if (pw.length() > 8)
-      pw = pw.substring(0, 8);	// Truncate to 8 chars
+      pw = pw.substring(0, 8);    // Truncate to 8 chars
 
     // Truncate password on the first zero byte.
     int firstZero = pw.indexOf(0);
@@ -632,49 +632,49 @@ class RfbProto implements RfbConnectable {
 
   void prepareDH() throws Exception
   {
-	long gen = is.readLong();
-	long mod = is.readLong();
-	dh_resp = is.readLong();
-	
-	dh = new DH(gen,mod);
-	long pub = dh.createInterKey();
-	
-	os.write(DH.longToBytes(pub));
+    long gen = is.readLong();
+    long mod = is.readLong();
+    dh_resp = is.readLong();
+    
+    dh = new DH(gen,mod);
+    long pub = dh.createInterKey();
+    
+    os.write(DH.longToBytes(pub));
   }
   
   void authenticateDH(String us, String pw) throws Exception
   {
-	long key = dh.createEncryptionKey(dh_resp);
-	
-	DesCipher des = new DesCipher(DH.longToBytes(key));
-	
-	byte user[] = new byte[256];
-	byte passwd[] = new byte[64];
-	int i;
-	System.arraycopy(us.getBytes(),0,user,0,us.length());
-	if(us.length() < 256)
-	{
-	  for(i=us.length(); i<256; i++)
-	  {
-		user[i]=0;
-	  }
-	}
-	System.arraycopy(pw.getBytes(),0,passwd,0,pw.length());
-	if(pw.length() < 64)
-	{
-	  for(i=pw.length(); i<64; i++)
-	  {
-		passwd[i]=0;
-	  }
-	}
-	
-	des.encryptText(user,user,DH.longToBytes(key));
-	des.encryptText(passwd,passwd,DH.longToBytes(key));
-	
-	os.write(user);
-	os.write(passwd);
-	
-	readSecurityResult("VNC authentication");
+    long key = dh.createEncryptionKey(dh_resp);
+    
+    DesCipher des = new DesCipher(DH.longToBytes(key));
+    
+    byte user[] = new byte[256];
+    byte passwd[] = new byte[64];
+    int i;
+    System.arraycopy(us.getBytes(),0,user,0,us.length());
+    if(us.length() < 256)
+    {
+      for(i=us.length(); i<256; i++)
+      {
+        user[i]=0;
+      }
+    }
+    System.arraycopy(pw.getBytes(),0,passwd,0,pw.length());
+    if(pw.length() < 64)
+    {
+      for(i=pw.length(); i<64; i++)
+      {
+        passwd[i]=0;
+      }
+    }
+    
+    des.encryptText(user,user,DH.longToBytes(key));
+    des.encryptText(passwd,passwd,DH.longToBytes(key));
+    
+    os.write(user);
+    os.write(passwd);
+    
+    readSecurityResult("VNC authentication");
   }
   //
   // Initialize capability lists (TightVNC protocol extensions).
@@ -689,59 +689,59 @@ class RfbProto implements RfbConnectable {
 
     // Supported authentication methods
     authCaps.add(AuthNone, StandardVendor, SigAuthNone,
-		 "No authentication");
+         "No authentication");
     authCaps.add(AuthVNC, StandardVendor, SigAuthVNC,
-		 "Standard VNC password authentication");
+         "Standard VNC password authentication");
 
     // Supported encoding types
     encodingCaps.add(EncodingCopyRect, StandardVendor,
-		     SigEncodingCopyRect, "Standard CopyRect encoding");
+             SigEncodingCopyRect, "Standard CopyRect encoding");
     encodingCaps.add(EncodingRRE, StandardVendor,
-		     SigEncodingRRE, "Standard RRE encoding");
+             SigEncodingRRE, "Standard RRE encoding");
     encodingCaps.add(EncodingCoRRE, StandardVendor,
-		     SigEncodingCoRRE, "Standard CoRRE encoding");
+             SigEncodingCoRRE, "Standard CoRRE encoding");
     encodingCaps.add(EncodingHextile, StandardVendor,
-		     SigEncodingHextile, "Standard Hextile encoding");
+             SigEncodingHextile, "Standard Hextile encoding");
     encodingCaps.add(EncodingZRLE, StandardVendor,
-		     SigEncodingZRLE, "Standard ZRLE encoding");
+             SigEncodingZRLE, "Standard ZRLE encoding");
     encodingCaps.add(EncodingZlib, TridiaVncVendor,
-		     SigEncodingZlib, "Zlib encoding");
+             SigEncodingZlib, "Zlib encoding");
     encodingCaps.add(EncodingTight, TightVncVendor,
-		     SigEncodingTight, "Tight encoding");
+             SigEncodingTight, "Tight encoding");
 
     // Supported pseudo-encoding types
     encodingCaps.add(EncodingCompressLevel0, TightVncVendor,
-		     SigEncodingCompressLevel0, "Compression level");
+             SigEncodingCompressLevel0, "Compression level");
     encodingCaps.add(EncodingQualityLevel0, TightVncVendor,
-		     SigEncodingQualityLevel0, "JPEG quality level");
+             SigEncodingQualityLevel0, "JPEG quality level");
     encodingCaps.add(EncodingXCursor, TightVncVendor,
-		     SigEncodingXCursor, "X-style cursor shape update");
+             SigEncodingXCursor, "X-style cursor shape update");
     encodingCaps.add(EncodingRichCursor, TightVncVendor,
-		     SigEncodingRichCursor, "Rich-color cursor shape update");
+             SigEncodingRichCursor, "Rich-color cursor shape update");
     encodingCaps.add(EncodingPointerPos, TightVncVendor,
-		     SigEncodingPointerPos, "Pointer position update");
+             SigEncodingPointerPos, "Pointer position update");
     encodingCaps.add(EncodingLastRect, TightVncVendor,
-		     SigEncodingLastRect, "LastRect protocol extension");
+             SigEncodingLastRect, "LastRect protocol extension");
     encodingCaps.add(EncodingNewFBSize, TightVncVendor,
-		     SigEncodingNewFBSize, "Framebuffer size change");
+             SigEncodingNewFBSize, "Framebuffer size change");
   }
 
   // Perform TLS handshake (AnonTLS)
   void performTLSHandshake () throws Exception {
-	android.util.Log.i(TAG, "Performing TLS handshake.");
+    android.util.Log.i(TAG, "Performing TLS handshake.");
 
-	// Try using SSL
-   	SSLSocketToMe ssl;
-   	try {
-   		ssl = new SSLSocketToMe(host, port);
-		sock = ssl.connectSock(sock);
-	    sock.setTcpNoDelay(true);
-	    is = new DataInputStream(new BufferedInputStream(sock.getInputStream(), 8192));
-	    os = sock.getOutputStream();
-   	} catch (Exception e) {
-   		e.printStackTrace();
-   		throw new IOException(e.getMessage());
-   	}
+    // Try using SSL
+       SSLSocketToMe ssl;
+       try {
+           ssl = new SSLSocketToMe(host, port);
+        sock = ssl.connectSock(sock);
+        sock.setTcpNoDelay(true);
+        is = new DataInputStream(new BufferedInputStream(sock.getInputStream(), 8192));
+        os = sock.getOutputStream();
+       } catch (Exception e) {
+           e.printStackTrace();
+           throw new IOException(e.getMessage());
+       }
   }
   
   //
@@ -771,8 +771,8 @@ class RfbProto implements RfbConnectable {
     for (int i = 0; i < authCaps.numEnabled(); i++) {
       int authType = authCaps.getByOrder(i);
       if (authType == AuthNone || authType == AuthVNC) {
-	writeInt(authType);
-	return authType;
+    writeInt(authType);
+    return authType;
       }
     }
     throw new Exception("No suitable authentication scheme found");
@@ -819,7 +819,7 @@ class RfbProto implements RfbConnectable {
     }
     viewer.options.disableShareDesktop();
     */
-	  os.write(shareDesktop);
+      os.write(shareDesktop);
   }
 
 
@@ -879,7 +879,7 @@ class RfbProto implements RfbConnectable {
     rec.writeIntBE(SecTypeNone);
     rec.writeShortBE(framebufferWidth);
     rec.writeShortBE(framebufferHeight);
-    byte[] fbsServerInitMsg =	{
+    byte[] fbsServerInitMsg =    {
       32, 24, 0, 1, 0,
       (byte)0xFF, 0, (byte)0xFF, 0, (byte)0xFF,
       16, 8, 0, 0, 0, 0
@@ -933,13 +933,13 @@ class RfbProto implements RfbConnectable {
     // If the session is being recorded:
     /*-
     if (rec != null) {
-      if (msgType == Bell) {	// Save Bell messages in session files.
-	rec.writeByte(msgType);
-	if (numUpdatesInSession > 0)
-	  rec.flush();
+      if (msgType == Bell) {    // Save Bell messages in session files.
+    rec.writeByte(msgType);
+    if (numUpdatesInSession > 0)
+      rec.flush();
       }
     }
-	*/
+    */
   }
 
 
@@ -960,8 +960,8 @@ class RfbProto implements RfbConnectable {
       rec.writeByte(0);
       rec.writeShortBE(updateNRects);
     }
-	
-	
+    
+    
     numUpdatesInSession++;*/
   }
 
@@ -980,47 +980,47 @@ class RfbProto implements RfbConnectable {
     if (updateRectEncoding == EncodingZlib ||
         updateRectEncoding == EncodingZRLE ||
         updateRectEncoding == EncodingTight)
-    	wereZlibUpdates = true;
+        wereZlibUpdates = true;
 
     // If the session is being recorded:
     if (rec != null) {
       if (numUpdatesInSession > 1)
-	rec.flush();		// Flush the output on each rectangle.
+    rec.flush();        // Flush the output on each rectangle.
       rec.writeShortBE(updateRectX);
       rec.writeShortBE(updateRectY);
       rec.writeShortBE(updateRectW);
       rec.writeShortBE(updateRectH);
       if (updateRectEncoding == EncodingZlib && !recordFromBeginning) {
-	// Here we cannot write Zlib-encoded rectangles because the
-	// decoder won't be able to reproduce zlib stream state.
-	if (!zlibWarningShown) {
-	  System.out.println("Warning: Raw encoding will be used " +
-			     "instead of Zlib in recorded session.");
-	  zlibWarningShown = true;
-	}
-	rec.writeIntBE(EncodingRaw);
+    // Here we cannot write Zlib-encoded rectangles because the
+    // decoder won't be able to reproduce zlib stream state.
+    if (!zlibWarningShown) {
+      System.out.println("Warning: Raw encoding will be used " +
+                 "instead of Zlib in recorded session.");
+      zlibWarningShown = true;
+    }
+    rec.writeIntBE(EncodingRaw);
       } else {
-	rec.writeIntBE(updateRectEncoding);
-	if (updateRectEncoding == EncodingTight && !recordFromBeginning &&
-	    !tightWarningShown) {
-	  System.out.println("Warning: Re-compressing Tight-encoded " +
-			     "updates for session recording.");
-	  tightWarningShown = true;
-	}
+    rec.writeIntBE(updateRectEncoding);
+    if (updateRectEncoding == EncodingTight && !recordFromBeginning &&
+        !tightWarningShown) {
+      System.out.println("Warning: Re-compressing Tight-encoded " +
+                 "updates for session recording.");
+      tightWarningShown = true;
+    }
       }
     }
-	*/
+    */
 
-	/*
+    /*
     if (updateRectEncoding != RfbProto.EncodingPointerPos &&
-    	( updateRectEncoding < 0 || updateRectEncoding > MaxNormalEncoding ))
-    	return;
+        ( updateRectEncoding < 0 || updateRectEncoding > MaxNormalEncoding ))
+        return;
 
     if (updateRectX + updateRectW > framebufferWidth ||
-    	updateRectY + updateRectH > framebufferHeight) {
-    	throw new Exception("Framebuffer update rectangle too large: " +
-    						updateRectW + "x" + updateRectH + " at (" +
-    						updateRectX + "," + updateRectY + ")");
+        updateRectY + updateRectH > framebufferHeight) {
+        throw new Exception("Framebuffer update rectangle too large: " +
+                            updateRectW + "x" + updateRectH + " at (" +
+                            updateRectX + "," + updateRectY + ")");
     }
     */
   }
@@ -1074,16 +1074,16 @@ class RfbProto implements RfbConnectable {
       //byteCount++;
       len |= (portion[1] & 0x7F) << 7;
       if ((portion[1] & 0x80) != 0) {
-	portion[2] = is.readUnsignedByte();
-	//byteCount++;
-	len |= (portion[2] & 0xFF) << 14;
+    portion[2] = is.readUnsignedByte();
+    //byteCount++;
+    len |= (portion[2] & 0xFF) << 14;
       }
     }
     /*-
     if (rec != null && recordFromBeginning)
       for (int i = 0; i < byteCount; i++)
-	rec.writeByte(portion[i]);
-	*/
+    rec.writeByte(portion[i]);
+    */
     return len;
   }
 
@@ -1094,7 +1094,7 @@ class RfbProto implements RfbConnectable {
 
   byte[] framebufferUpdateRequest = new byte[10];
   public synchronized void writeFramebufferUpdateRequest(int x, int y, int w, int h,
-				     boolean incremental) {
+                     boolean incremental) {
     framebufferUpdateRequest[0] = (byte) FramebufferUpdateRequest;
     framebufferUpdateRequest[1] = (byte) (incremental ? 1 : 0);
     framebufferUpdateRequest[2] = (byte) ((x >> 8) & 0xff);
@@ -1107,11 +1107,11 @@ class RfbProto implements RfbConnectable {
     framebufferUpdateRequest[9] = (byte) (h & 0xff);
 
     try {
-		os.write(framebufferUpdateRequest);
-	} catch (IOException e) {
-		Log.e(TAG, "Could not write framebuffer update request.");
-		e.printStackTrace();
-	}
+        os.write(framebufferUpdateRequest);
+    } catch (IOException e) {
+        Log.e(TAG, "Could not write framebuffer update request.");
+        e.printStackTrace();
+    }
   }
 
 
@@ -1120,8 +1120,8 @@ class RfbProto implements RfbConnectable {
   //
 
   public synchronized void writeSetPixelFormat(int bitsPerPixel, int depth, boolean bigEndian,
-			   boolean trueColour, int redMax, int greenMax, int blueMax,
-			   int redShift, int greenShift, int blueShift, boolean fGreyScale) // sf@2005)
+               boolean trueColour, int redMax, int greenMax, int blueMax,
+               int redShift, int greenShift, int blueShift, boolean fGreyScale) // sf@2005)
   {
     byte[] b = new byte[20];
 
@@ -1142,11 +1142,11 @@ class RfbProto implements RfbConnectable {
     b[17] = (byte) (fGreyScale ? 1 : 0); // sf@2005
 
     try {
-		os.write(b);
-	} catch (IOException e) {
-		Log.e(TAG, "Could not write setPixelFormat message to VNC server.");
-		e.printStackTrace();
-	}
+        os.write(b);
+    } catch (IOException e) {
+        Log.e(TAG, "Could not write setPixelFormat message to VNC server.");
+        e.printStackTrace();
+    }
   }
 
 
@@ -1156,7 +1156,7 @@ class RfbProto implements RfbConnectable {
   //
 
   synchronized void writeFixColourMapEntries(int firstColour, int nColours,
-				int[] red, int[] green, int[] blue)
+                int[] red, int[] green, int[] blue)
        throws IOException
   {
     byte[] b = new byte[6 + nColours * 6];
@@ -1246,56 +1246,56 @@ class RfbProto implements RfbConnectable {
    * @throws IOException
    */
   public synchronized void writePointerEvent( int x, int y, int modifiers, int pointerMask) {
-	    if (viewOnly)
-	    	return;
-	    
-	    eventBufLen = 0;
-	    writeModifierKeyEvents(modifiers);
+        if (viewOnly)
+            return;
+        
+        eventBufLen = 0;
+        writeModifierKeyEvents(modifiers);
 
-	    eventBuf[eventBufLen++] = (byte) PointerEvent;
-	    eventBuf[eventBufLen++] = (byte) pointerMask;
-	    eventBuf[eventBufLen++] = (byte) ((x >> 8) & 0xff);
-	    eventBuf[eventBufLen++] = (byte) (x & 0xff);
-	    eventBuf[eventBufLen++] = (byte) ((y >> 8) & 0xff);
-	    eventBuf[eventBufLen++] = (byte) (y & 0xff);
+        eventBuf[eventBufLen++] = (byte) PointerEvent;
+        eventBuf[eventBufLen++] = (byte) pointerMask;
+        eventBuf[eventBufLen++] = (byte) ((x >> 8) & 0xff);
+        eventBuf[eventBufLen++] = (byte) (x & 0xff);
+        eventBuf[eventBufLen++] = (byte) ((y >> 8) & 0xff);
+        eventBuf[eventBufLen++] = (byte) (y & 0xff);
 
-	    //
-	    // Always release all modifiers after an "up" event
-	    //
+        //
+        // Always release all modifiers after an "up" event
+        //
 
-	    if (pointerMask == 0) {
-	      writeModifierKeyEvents(0);
-	    }
+        if (pointerMask == 0) {
+          writeModifierKeyEvents(0);
+        }
 
-	    try {
-			os.write(eventBuf, 0, eventBufLen);
-		} catch (IOException e) {
-			Log.e (TAG, "Failed to write pointer event to VNC server.");
-			e.printStackTrace();
-		}	  
+        try {
+            os.write(eventBuf, 0, eventBufLen);
+        } catch (IOException e) {
+            Log.e (TAG, "Failed to write pointer event to VNC server.");
+            e.printStackTrace();
+        }      
   }
 
   void writeCtrlAltDel() throws IOException {
-	  final int DELETE = 0xffff;
-	  final int CTRLALT = RemoteKeyboard.CTRL_MASK | RemoteKeyboard.ALT_MASK;
-	  try {
-		  // Press
-		  eventBufLen = 0;
-		  writeModifierKeyEvents(CTRLALT);
-		  writeKeyEvent(DELETE, true);
-		  os.write(eventBuf, 0, eventBufLen);
-		  
-		  // Release
-		  eventBufLen = 0;
-		  writeModifierKeyEvents(CTRLALT);
-		  writeKeyEvent(DELETE, false);
-		  
-		  // Reset VNC server modifiers state
-		  writeModifierKeyEvents(0);
-		  os.write(eventBuf, 0, eventBufLen);
-	  } catch (IOException e) {
-		  e.printStackTrace();
-	  }
+      final int DELETE = 0xffff;
+      final int CTRLALT = RemoteKeyboard.CTRL_MASK | RemoteKeyboard.ALT_MASK;
+      try {
+          // Press
+          eventBufLen = 0;
+          writeModifierKeyEvents(CTRLALT);
+          writeKeyEvent(DELETE, true);
+          os.write(eventBuf, 0, eventBufLen);
+          
+          // Release
+          eventBufLen = 0;
+          writeModifierKeyEvents(CTRLALT);
+          writeKeyEvent(DELETE, false);
+          
+          // Reset VNC server modifiers state
+          writeModifierKeyEvents(0);
+          os.write(eventBuf, 0, eventBufLen);
+      } catch (IOException e) {
+          e.printStackTrace();
+      }
   }
     
   //
@@ -1304,26 +1304,26 @@ class RfbProto implements RfbConnectable {
   // from the Java key values to the X keysym values used by the RFB protocol.
   //
   public synchronized void writeKeyEvent(int keySym, int metaState, boolean down) {
-	if (viewOnly)
-		return;
-	
+    if (viewOnly)
+        return;
+    
     eventBufLen = 0;
     if (down)
-    	writeModifierKeyEvents(metaState);
+        writeModifierKeyEvents(metaState);
     if (keySym > 0)
-    	writeKeyEvent(keySym, down);
+        writeKeyEvent(keySym, down);
 
     // Always release all modifiers after an "up" event
     if (!down) {
-    	writeModifierKeyEvents(0);
+        writeModifierKeyEvents(0);
     }
 
     try {
-		os.write(eventBuf, 0, eventBufLen);
-	} catch (IOException e) {
-		Log.e(TAG, "Failed to write key event to VNC server.");
-		e.printStackTrace();
-	}
+        os.write(eventBuf, 0, eventBufLen);
+    } catch (IOException e) {
+        Log.e(TAG, "Failed to write key event to VNC server.");
+        e.printStackTrace();
+    }
   }
   
   
@@ -1334,9 +1334,9 @@ class RfbProto implements RfbConnectable {
   //
 
   private void writeKeyEvent(int keysym, boolean down) {
-	if (viewOnly)
-		return;
-	
+    if (viewOnly)
+        return;
+    
     eventBuf[eventBufLen++] = (byte) KeyboardEvent;
     eventBuf[eventBufLen++] = (byte) (down ? 1 : 0);
     eventBuf[eventBufLen++] = (byte) 0;
@@ -1408,8 +1408,8 @@ class RfbProto implements RfbConnectable {
   }
 
   public void readFully(byte b[], int off, int len) throws IOException {
-	  // TODO: Try reenabling timing and set color according to bandwidth
-	/*
+      // TODO: Try reenabling timing and set color according to bandwidth
+    /*
     long before = 0;
     timing = false; // for test
     
@@ -1437,317 +1437,317 @@ class RfbProto implements RfbConnectable {
   }
 
     synchronized void writeOpenChat() throws Exception {
-		os.write(TextChat); // byte type
-		os.write(0); // byte pad 1
-		os.write(0); // byte pad 2
-		os.write(0); // byte pad 2
-		writeInt(CHAT_OPEN); // int message length
-	}
+        os.write(TextChat); // byte type
+        os.write(0); // byte pad 1
+        os.write(0); // byte pad 2
+        os.write(0); // byte pad 2
+        writeInt(CHAT_OPEN); // int message length
+    }
 
     synchronized void writeCloseChat() throws Exception {
-		os.write(TextChat); // byte type
-		os.write(0); // byte pad 1
-		os.write(0); // byte pad 2
-		os.write(0); // byte pad 2
-		writeInt(CHAT_CLOSE); // int message length
-	}
+        os.write(TextChat); // byte type
+        os.write(0); // byte pad 1
+        os.write(0); // byte pad 2
+        os.write(0); // byte pad 2
+        writeInt(CHAT_CLOSE); // int message length
+    }
 
     synchronized void writeFinishedChat() throws Exception {
-		os.write(TextChat); // byte type
-		os.write(0); // byte pad 1
-		os.write(0); // byte pad 2
-		os.write(0); // byte pad 2
-		writeInt(CHAT_FINISHED); // int message length
-	}
+        os.write(TextChat); // byte type
+        os.write(0); // byte pad 1
+        os.write(0); // byte pad 2
+        os.write(0); // byte pad 2
+        writeInt(CHAT_FINISHED); // int message length
+    }
 
-	String readTextChatMsg() throws Exception {
-		byte[] pad = new byte[3];
-		readFully(pad);
-		int len = is.readInt();
-		if (len == CHAT_OPEN) {
-			// Remote user requests chat
-			///viewer.openChat();
-			// Respond to chat request
-			writeOpenChat();
-			return null;
-		} else if (len == CHAT_CLOSE) {
-			// Remote user ends chat
-			///viewer.closeChat();
-			return null;
-		} else if (len == CHAT_FINISHED) {
-			// Remote user says chat finished.
-			// Not sure why I should care about this state.
-			return null;
-		} else {
-			// Remote user sends message!!
-			if (len > 0) {
-				byte[] msg = new byte[len];
-				readFully(msg);
-				return new String(msg);
-			}
-		}
-		return null;
-	}
+    String readTextChatMsg() throws Exception {
+        byte[] pad = new byte[3];
+        readFully(pad);
+        int len = is.readInt();
+        if (len == CHAT_OPEN) {
+            // Remote user requests chat
+            ///viewer.openChat();
+            // Respond to chat request
+            writeOpenChat();
+            return null;
+        } else if (len == CHAT_CLOSE) {
+            // Remote user ends chat
+            ///viewer.closeChat();
+            return null;
+        } else if (len == CHAT_FINISHED) {
+            // Remote user says chat finished.
+            // Not sure why I should care about this state.
+            return null;
+        } else {
+            // Remote user sends message!!
+            if (len > 0) {
+                byte[] msg = new byte[len];
+                readFully(msg);
+                return new String(msg);
+            }
+        }
+        return null;
+    }
 
-	public synchronized void writeChatMessage(String msg) throws Exception {
-		os.write(TextChat); // byte type
-		os.write(0); // byte pad 1
-		os.write(0); // byte pad 2
-		os.write(0); // byte pad 2
-		byte [] bytes = msg.getBytes("8859_1");
-		byte [] outgoing = bytes;
-		if (bytes.length > 4096) {
-			outgoing = new byte[4096];
-			System.arraycopy(bytes, 0, outgoing, 0, 4096);
-		}
-		writeInt(outgoing.length); // int message length
-		os.write(outgoing); // message
-	}
-	
-	// The following methods are implementations of the RfbConnectable interface
-	@Override
-	public int framebufferWidth () {
-		return framebufferWidth;
-	}
+    public synchronized void writeChatMessage(String msg) throws Exception {
+        os.write(TextChat); // byte type
+        os.write(0); // byte pad 1
+        os.write(0); // byte pad 2
+        os.write(0); // byte pad 2
+        byte [] bytes = msg.getBytes("8859_1");
+        byte [] outgoing = bytes;
+        if (bytes.length > 4096) {
+            outgoing = new byte[4096];
+            System.arraycopy(bytes, 0, outgoing, 0, 4096);
+        }
+        writeInt(outgoing.length); // int message length
+        os.write(outgoing); // message
+    }
+    
+    // The following methods are implementations of the RfbConnectable interface
+    @Override
+    public int framebufferWidth () {
+        return framebufferWidth;
+    }
 
-	@Override
-	public int framebufferHeight () {
-		return framebufferHeight;
-	}
+    @Override
+    public int framebufferHeight () {
+        return framebufferHeight;
+    }
 
-	@Override
-	public String desktopName () {
-		return desktopName;
-	}
+    @Override
+    public String desktopName () {
+        return desktopName;
+    }
 
-	@Override
-	public void requestUpdate (boolean incremental) {
-		writeFramebufferUpdateRequest(0, 0, framebufferWidth, framebufferHeight, incremental);
-	}
+    @Override
+    public void requestUpdate (boolean incremental) {
+        writeFramebufferUpdateRequest(0, 0, framebufferWidth, framebufferHeight, incremental);
+    }
 
-	@Override
-	public void writeClientCutText(String text) {
-		try {
-			writeClientCutText(text, text.length());
-		} catch (IOException e) {
-			Log.e(TAG, "Could not write text to VNC server clipboard.");
-			e.printStackTrace();
-		}
-	}
+    @Override
+    public void writeClientCutText(String text) {
+        try {
+            writeClientCutText(text, text.length());
+        } catch (IOException e) {
+            Log.e(TAG, "Could not write text to VNC server clipboard.");
+            e.printStackTrace();
+        }
+    }
 
-	@Override
-	public void setIsInNormalProtocol(boolean state) {
-	  	this.inNormalProtocol = state;
-	}
-	
-	@Override
-	public boolean isInNormalProtocol() {
-		return this.inNormalProtocol;
-	}
+    @Override
+    public void setIsInNormalProtocol(boolean state) {
+          this.inNormalProtocol = state;
+    }
+    
+    @Override
+    public boolean isInNormalProtocol() {
+        return this.inNormalProtocol;
+    }
 
-	public String getEncoding() {
-		switch (preferredEncoding) {
-		case RfbProto.EncodingRaw:
-			return "RAW";
-		case RfbProto.EncodingTight:
-			return "TIGHT";
-		case RfbProto.EncodingCoRRE:
-			return "CoRRE";
-		case RfbProto.EncodingHextile:
-			return "HEXTILE";
-		case RfbProto.EncodingRRE:
-			return "RRE";
-		case RfbProto.EncodingZlib:
-			return "ZLIB";
-		case RfbProto.EncodingZRLE:
-			return "ZRLE";
-		}
-		return "";
-	}
+    public String getEncoding() {
+        switch (preferredEncoding) {
+        case RfbProto.EncodingRaw:
+            return "RAW";
+        case RfbProto.EncodingTight:
+            return "TIGHT";
+        case RfbProto.EncodingCoRRE:
+            return "CoRRE";
+        case RfbProto.EncodingHextile:
+            return "HEXTILE";
+        case RfbProto.EncodingRRE:
+            return "RRE";
+        case RfbProto.EncodingZlib:
+            return "ZLIB";
+        case RfbProto.EncodingZRLE:
+            return "ZRLE";
+        }
+        return "";
+    }
 
-	private void setEncodings(boolean useLocalCursor) {
-		if (!inNormalProtocol)
-			return;
+    private void setEncodings(boolean useLocalCursor) {
+        if (!inNormalProtocol)
+            return;
 
-		int[] encodings = new int[20];
-		int nEncodings = 0;
+        int[] encodings = new int[20];
+        int nEncodings = 0;
 
-		encodings[nEncodings++] = preferredEncoding;
-		encodings[nEncodings++] = RfbProto.EncodingTight;
-		encodings[nEncodings++] = RfbProto.EncodingZRLE;
-		encodings[nEncodings++] = RfbProto.EncodingHextile;
-		encodings[nEncodings++] = RfbProto.EncodingZlib;
-		encodings[nEncodings++] = RfbProto.EncodingCoRRE;
-		encodings[nEncodings++] = RfbProto.EncodingRRE;
+        encodings[nEncodings++] = preferredEncoding;
+        encodings[nEncodings++] = RfbProto.EncodingTight;
+        encodings[nEncodings++] = RfbProto.EncodingZRLE;
+        encodings[nEncodings++] = RfbProto.EncodingHextile;
+        encodings[nEncodings++] = RfbProto.EncodingZlib;
+        encodings[nEncodings++] = RfbProto.EncodingCoRRE;
+        encodings[nEncodings++] = RfbProto.EncodingRRE;
 
-		encodings[nEncodings++] = RfbProto.EncodingCopyRect;
+        encodings[nEncodings++] = RfbProto.EncodingCopyRect;
 
-		encodings[nEncodings++] = RfbProto.EncodingCompressLevel0 + compressLevel;
-		encodings[nEncodings++] = RfbProto.EncodingQualityLevel0 + jpegQuality;
+        encodings[nEncodings++] = RfbProto.EncodingCompressLevel0 + compressLevel;
+        encodings[nEncodings++] = RfbProto.EncodingQualityLevel0 + jpegQuality;
 
-		if (!useLocalCursor) {
-			encodings[nEncodings++] = RfbProto.EncodingXCursor;
-			encodings[nEncodings++] = RfbProto.EncodingRichCursor;
-		}
+        if (!useLocalCursor) {
+            encodings[nEncodings++] = RfbProto.EncodingXCursor;
+            encodings[nEncodings++] = RfbProto.EncodingRichCursor;
+        }
 
-		encodings[nEncodings++] = RfbProto.EncodingPointerPos;
-		encodings[nEncodings++] = RfbProto.EncodingLastRect;
-		encodings[nEncodings++] = RfbProto.EncodingNewFBSize;
+        encodings[nEncodings++] = RfbProto.EncodingPointerPos;
+        encodings[nEncodings++] = RfbProto.EncodingLastRect;
+        encodings[nEncodings++] = RfbProto.EncodingNewFBSize;
 
-		boolean encodingsWereChanged = false;
-		if (nEncodings != nEncodingsSaved) {
-			encodingsWereChanged = true;
-		} else {
-			for (int i = 0; i < nEncodings; i++) {
-				if (encodings[i] != encodingsSaved[i]) {
-					encodingsWereChanged = true;
-					break;
-				}
-			}
-		}
+        boolean encodingsWereChanged = false;
+        if (nEncodings != nEncodingsSaved) {
+            encodingsWereChanged = true;
+        } else {
+            for (int i = 0; i < nEncodings; i++) {
+                if (encodings[i] != encodingsSaved[i]) {
+                    encodingsWereChanged = true;
+                    break;
+                }
+            }
+        }
 
-		if (encodingsWereChanged) {
-			try {
-				writeSetEncodings(encodings, nEncodings);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-			encodingsSaved = encodings;
-			nEncodingsSaved = nEncodings;
-		}
-	}
-	
+        if (encodingsWereChanged) {
+            try {
+                writeSetEncodings(encodings, nEncodings);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            encodingsSaved = encodings;
+            nEncodingsSaved = nEncodings;
+        }
+    }
+    
 
-	public void processProtocol (VncCanvas vncCanvas, boolean useLocalCursor) throws Exception {
-		boolean exitforloop = false;
-		int msgType = 0;
+    public void processProtocol (VncCanvas vncCanvas, boolean useLocalCursor) throws Exception {
+        boolean exitforloop = false;
+        int msgType = 0;
 
-		try {
-			setEncodings(useLocalCursor);
-			vncCanvas.writeFullUpdateRequest(false);
+        try {
+            setEncodings(useLocalCursor);
+            vncCanvas.writeFullUpdateRequest(false);
 
-			//
-			// main dispatch loop
-			//
-			while (maintainConnection) {
-				exitforloop = false;
-				if (!vncCanvas.useFull) {
-					vncCanvas.syncScroll();
-					// Read message type from the server.
-					msgType = readServerMessageType();
-					vncCanvas.doneWaiting();
-				} else
-					msgType = readServerMessageType();
+            //
+            // main dispatch loop
+            //
+            while (maintainConnection) {
+                exitforloop = false;
+                if (!vncCanvas.useFull) {
+                    vncCanvas.syncScroll();
+                    // Read message type from the server.
+                    msgType = readServerMessageType();
+                    vncCanvas.doneWaiting();
+                } else
+                    msgType = readServerMessageType();
 
-				// Process the message depending on its type.
-				switch (msgType) {
-				case RfbProto.FramebufferUpdate:
-					readFramebufferUpdate();
+                // Process the message depending on its type.
+                switch (msgType) {
+                case RfbProto.FramebufferUpdate:
+                    readFramebufferUpdate();
 
-					for (int i = 0; i < updateNRects; i++) {
-						readFramebufferUpdateRectHdr();
+                    for (int i = 0; i < updateNRects; i++) {
+                        readFramebufferUpdateRectHdr();
 
-						switch (updateRectEncoding) {
-						case RfbProto.EncodingTight:
-							decoder.handleTightRect(this, updateRectX, updateRectY, updateRectW, updateRectH);
-							break;
-						case RfbProto.EncodingPointerPos:
-							vncCanvas.softCursorMove(updateRectX, updateRectY);
-							break;
-						case RfbProto.EncodingXCursor:
-						case RfbProto.EncodingRichCursor:
-							decoder.handleCursorShapeUpdate(this, updateRectEncoding, updateRectX, updateRectY,
-															  updateRectW, updateRectH);
-							break;
-						case RfbProto.EncodingLastRect:
-							exitforloop = true;
-							break;
-						case RfbProto.EncodingCopyRect:
-							decoder.handleCopyRect(this, updateRectX, updateRectY, updateRectW, updateRectH);
-							break;
-						case RfbProto.EncodingNewFBSize:
-							setFramebufferSize(updateRectW, updateRectH);
-							vncCanvas.updateFBSize();
-							exitforloop = true;
-							break;
-						case RfbProto.EncodingRaw:
-							decoder.handleRawRect(this, updateRectX, updateRectY, updateRectW, updateRectH);
-							break;
-						case RfbProto.EncodingRRE:
-							decoder.handleRRERect(this, updateRectX, updateRectY, updateRectW, updateRectH);
-							break;
-						case RfbProto.EncodingCoRRE:
-							decoder.handleCoRRERect(this, updateRectX, updateRectY, updateRectW, updateRectH);
-							break;
-						case RfbProto.EncodingHextile:
-							decoder.handleHextileRect(this, updateRectX, updateRectY, updateRectW, updateRectH);
-							break;
-						case RfbProto.EncodingZRLE:
-							decoder.handleZRLERect(this, updateRectX, updateRectY, updateRectW, updateRectH);
-							break;
-						case RfbProto.EncodingZlib:
-							decoder.handleZlibRect(this, updateRectX, updateRectY, updateRectW, updateRectH);
-							break;
-						default:
-							Log.e(TAG, "Unknown RFB rectangle encoding " + updateRectEncoding +
-										" (0x" + Integer.toHexString(updateRectEncoding) + ")");
-						}
-						
-						if (exitforloop) {
-							exitforloop = false;
-							break;
-						}
-					}
+                        switch (updateRectEncoding) {
+                        case RfbProto.EncodingTight:
+                            decoder.handleTightRect(this, updateRectX, updateRectY, updateRectW, updateRectH);
+                            break;
+                        case RfbProto.EncodingPointerPos:
+                            vncCanvas.softCursorMove(updateRectX, updateRectY);
+                            break;
+                        case RfbProto.EncodingXCursor:
+                        case RfbProto.EncodingRichCursor:
+                            decoder.handleCursorShapeUpdate(this, updateRectEncoding, updateRectX, updateRectY,
+                                                              updateRectW, updateRectH);
+                            break;
+                        case RfbProto.EncodingLastRect:
+                            exitforloop = true;
+                            break;
+                        case RfbProto.EncodingCopyRect:
+                            decoder.handleCopyRect(this, updateRectX, updateRectY, updateRectW, updateRectH);
+                            break;
+                        case RfbProto.EncodingNewFBSize:
+                            setFramebufferSize(updateRectW, updateRectH);
+                            vncCanvas.updateFBSize();
+                            exitforloop = true;
+                            break;
+                        case RfbProto.EncodingRaw:
+                            decoder.handleRawRect(this, updateRectX, updateRectY, updateRectW, updateRectH);
+                            break;
+                        case RfbProto.EncodingRRE:
+                            decoder.handleRRERect(this, updateRectX, updateRectY, updateRectW, updateRectH);
+                            break;
+                        case RfbProto.EncodingCoRRE:
+                            decoder.handleCoRRERect(this, updateRectX, updateRectY, updateRectW, updateRectH);
+                            break;
+                        case RfbProto.EncodingHextile:
+                            decoder.handleHextileRect(this, updateRectX, updateRectY, updateRectW, updateRectH);
+                            break;
+                        case RfbProto.EncodingZRLE:
+                            decoder.handleZRLERect(this, updateRectX, updateRectY, updateRectW, updateRectH);
+                            break;
+                        case RfbProto.EncodingZlib:
+                            decoder.handleZlibRect(this, updateRectX, updateRectY, updateRectW, updateRectH);
+                            break;
+                        default:
+                            Log.e(TAG, "Unknown RFB rectangle encoding " + updateRectEncoding +
+                                        " (0x" + Integer.toHexString(updateRectEncoding) + ")");
+                        }
+                        
+                        if (exitforloop) {
+                            exitforloop = false;
+                            break;
+                        }
+                    }
 
-					if (decoder.isChangedColorModel()) {
-						decoder.setPixelFormat(this);
-						//setEncodings(useLocalCursor);
-						vncCanvas.writeFullUpdateRequest(false);
-					} else {
-						//setEncodings(useLocalCursor);
-						vncCanvas.writeFullUpdateRequest(true);
-					}
-					break;
+                    if (decoder.isChangedColorModel()) {
+                        decoder.setPixelFormat(this);
+                        //setEncodings(useLocalCursor);
+                        vncCanvas.writeFullUpdateRequest(false);
+                    } else {
+                        //setEncodings(useLocalCursor);
+                        vncCanvas.writeFullUpdateRequest(true);
+                    }
+                    break;
 
-				case RfbProto.SetColourMapEntries:
-					throw new Exception("Can't handle SetColourMapEntries message");
+                case RfbProto.SetColourMapEntries:
+                    throw new Exception("Can't handle SetColourMapEntries message");
 
-				case RfbProto.Bell:
-					vncCanvas.displayShortToastMessage("VNC Beep");
-					break;
+                case RfbProto.Bell:
+                    vncCanvas.displayShortToastMessage("VNC Beep");
+                    break;
 
-				case RfbProto.ServerCutText:
-					vncCanvas.serverJustCutText = true;
-					vncCanvas.setClipboardText(readServerCutText());
-					break;
+                case RfbProto.ServerCutText:
+                    vncCanvas.serverJustCutText = true;
+                    vncCanvas.setClipboardText(readServerCutText());
+                    break;
 
-				case RfbProto.TextChat:
-					// UltraVNC extension
-					String msg = readTextChatMsg();
-					if (msg != null && msg.length() > 0) {
-						// TODO implement chat interface
-					}
-					break;
+                case RfbProto.TextChat:
+                    // UltraVNC extension
+                    String msg = readTextChatMsg();
+                    if (msg != null && msg.length() > 0) {
+                        // TODO implement chat interface
+                    }
+                    break;
 
-				default:
-					throw new Exception("Unknown RFB message type " + msgType);
-				}
-			}
-		} catch (Exception e) {
-			closeSocket();
-			throw e;
-		} finally {
-			closeSocket();
-			Log.v(TAG, "Closing VNC Connection");
-		}
-		closeSocket();
-	}
+                default:
+                    throw new Exception("Unknown RFB message type " + msgType);
+                }
+            }
+        } catch (Exception e) {
+            closeSocket();
+            throw e;
+        } finally {
+            closeSocket();
+            Log.v(TAG, "Closing VNC Connection");
+        }
+        closeSocket();
+    }
 
 
-	@Override
-	public void requestResolution(int x, int y) {
-		// TODO Auto-generated method stub
-		
-	}
+    @Override
+    public void requestResolution(int x, int y) {
+        // TODO Auto-generated method stub
+        
+    }
 
 }

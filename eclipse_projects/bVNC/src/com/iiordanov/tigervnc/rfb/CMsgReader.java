@@ -37,7 +37,7 @@ abstract public class CMsgReader {
     decoders = new Decoder[Encodings.encodingMax+1];
     vncCanvas = c;
   }
-	  
+      
   protected CMsgReader(CMsgHandler handler_, InStream is_) 
   {
     handler = handler_;

@@ -33,90 +33,90 @@ import android.util.Log;
  * @author Michael A. MacDonald
  */
 public class Panner implements Runnable {
-	
-	VncCanvasActivity activity;
-	Handler handler;
-	PointF velocity;
-	long lastSent;
-	VelocityUpdater updater;
-	final int freq = 10;
-	
-	private static final String TAG = "PANNER";
-	
-	/**
-	 * Specify how the panning velocity changes over time
-	 * @author Michael A. MacDonald
-	 */
-	interface VelocityUpdater {
-		/**
-		 * Called approximately every 50 ms to update the velocity of panning
-		 * @param p X and Y components to update
-		 * @param interval Milliseconds since last update
-		 * @return False if the panning should stop immediately; true otherwise
-		 */
-		boolean updateVelocity(PointF p, long interval);
-	}
+    
+    VncCanvasActivity activity;
+    Handler handler;
+    PointF velocity;
+    long lastSent;
+    VelocityUpdater updater;
+    final int freq = 10;
+    
+    private static final String TAG = "PANNER";
+    
+    /**
+     * Specify how the panning velocity changes over time
+     * @author Michael A. MacDonald
+     */
+    interface VelocityUpdater {
+        /**
+         * Called approximately every 50 ms to update the velocity of panning
+         * @param p X and Y components to update
+         * @param interval Milliseconds since last update
+         * @return False if the panning should stop immediately; true otherwise
+         */
+        boolean updateVelocity(PointF p, long interval);
+    }
 
-	static class DefaultUpdater implements VelocityUpdater {
-		
-		static DefaultUpdater instance = new DefaultUpdater();
+    static class DefaultUpdater implements VelocityUpdater {
+        
+        static DefaultUpdater instance = new DefaultUpdater();
 
-		/**
-		 * Don't change velocity
-		 */
-		@Override
-		public boolean updateVelocity(PointF p, long interval) {
-			return true;
-		}
-		
-	}
-	
-	public Panner(VncCanvasActivity act, Handler hand) {
-		activity = act;
-		velocity = new PointF();
-		handler = hand;
-	}
-	
-	public void stop() {
-		handler.removeCallbacks(this);
-	}
-	
-	public void start(float xv, float yv, VelocityUpdater update) {
- 		activity.getCanvas().bitmapData.drawable._defaultPaint.setFilterBitmap(false);
+        /**
+         * Don't change velocity
+         */
+        @Override
+        public boolean updateVelocity(PointF p, long interval) {
+            return true;
+        }
+        
+    }
+    
+    public Panner(VncCanvasActivity act, Handler hand) {
+        activity = act;
+        velocity = new PointF();
+        handler = hand;
+    }
+    
+    public void stop() {
+        handler.removeCallbacks(this);
+    }
+    
+    public void start(float xv, float yv, VelocityUpdater update) {
+         activity.getCanvas().bitmapData.drawable._defaultPaint.setFilterBitmap(false);
 
- 		if (update == null)
-			update = DefaultUpdater.instance;
-		updater = update;
-		velocity.x = xv;
-		velocity.y = yv;
-		//Log.v(TAG, String.format("pan start %f %f", velocity.x, velocity.y));
-		lastSent = SystemClock.uptimeMillis();
-		
-		handler.postDelayed(this, freq);
-	}
-	
-	/* (non-Javadoc)
-	 * @see java.lang.Runnable#run()
-	 */
-	@Override
-	public void run() {
-		long interval = SystemClock.uptimeMillis() - lastSent;
-		lastSent += interval;
-		double scale = (double)interval / 50.0;
-		VncCanvas canvas = activity.getCanvas();
-		//Log.v(TAG, String.format("panning %f %d %d", scale, (int)((double)velocity.x * scale), (int)((double)velocity.y * scale)));
-		if ( canvas.pan((int)((double)velocity.x * scale), (int)((double)velocity.y * scale))) {
-			if (updater.updateVelocity(velocity, interval)) {
-				handler.postDelayed(this, freq);
-			} else {
-		 		canvas.bitmapData.drawable._defaultPaint.setFilterBitmap(true);
-		 		canvas.invalidate();
-		 		stop();
-			}
-		} else {
-	 		canvas.bitmapData.drawable._defaultPaint.setFilterBitmap(true);
-	 		canvas.invalidate();
-			stop();
-		}
-	}
+         if (update == null)
+            update = DefaultUpdater.instance;
+        updater = update;
+        velocity.x = xv;
+        velocity.y = yv;
+        //Log.v(TAG, String.format("pan start %f %f", velocity.x, velocity.y));
+        lastSent = SystemClock.uptimeMillis();
+        
+        handler.postDelayed(this, freq);
+    }
+    
+    /* (non-Javadoc)
+     * @see java.lang.Runnable#run()
+     */
+    @Override
+    public void run() {
+        long interval = SystemClock.uptimeMillis() - lastSent;
+        lastSent += interval;
+        double scale = (double)interval / 50.0;
+        VncCanvas canvas = activity.getCanvas();
+        //Log.v(TAG, String.format("panning %f %d %d", scale, (int)((double)velocity.x * scale), (int)((double)velocity.y * scale)));
+        if ( canvas.pan((int)((double)velocity.x * scale), (int)((double)velocity.y * scale))) {
+            if (updater.updateVelocity(velocity, interval)) {
+                handler.postDelayed(this, freq);
+            } else {
+                 canvas.bitmapData.drawable._defaultPaint.setFilterBitmap(true);
+                 canvas.invalidate();
+                 stop();
+            }
+        } else {
+             canvas.bitmapData.drawable._defaultPaint.setFilterBitmap(true);
+             canvas.invalidate();
+            stop();
+        }
+    }
 }

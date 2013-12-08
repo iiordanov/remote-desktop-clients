@@ -109,7 +109,7 @@ public class ZOutputStream extends OutputStream {
       if(err!=JZlib.Z_STREAM_END && err != JZlib.Z_OK)
       throw new ZStreamException((compress?"de":"in")+"flating: "+z.msg);
       if(bufsize-z.avail_out>0){
-	out.write(buf, 0, bufsize-z.avail_out);
+    out.write(buf, 0, bufsize-z.avail_out);
       }
     }
     while(z.avail_in>0 || z.avail_out==0);

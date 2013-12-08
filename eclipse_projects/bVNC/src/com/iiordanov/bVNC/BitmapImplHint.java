@@ -21,7 +21,7 @@
 package com.iiordanov.bVNC;
 
 class BitmapImplHint {
-	static final long AUTO = 0L;
-	static final long FULL = 1L;
-	static final long TILE = 2L;
+    static final long AUTO = 0L;
+    static final long FULL = 1L;
+    static final long TILE = 2L;
 }

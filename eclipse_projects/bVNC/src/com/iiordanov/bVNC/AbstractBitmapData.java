@@ -36,243 +36,243 @@ import android.util.Log;
  *
  */
 abstract public class AbstractBitmapData {
-	int framebufferwidth;
-	int framebufferheight;
-	int bitmapwidth;
-	int bitmapheight;
-	RfbConnectable rfb;
-	Bitmap mbitmap;
-	int bitmapPixels[];
-	Canvas memGraphics;
-	boolean waitingForInput;
-	VncCanvas vncCanvas;
-	public AbstractBitmapDrawable drawable;
-	private Paint paint;
-	int xoffset = 0;
-	int yoffset = 0;
+    int framebufferwidth;
+    int framebufferheight;
+    int bitmapwidth;
+    int bitmapheight;
+    RfbConnectable rfb;
+    Bitmap mbitmap;
+    int bitmapPixels[];
+    Canvas memGraphics;
+    boolean waitingForInput;
+    VncCanvas vncCanvas;
+    public AbstractBitmapDrawable drawable;
+    private Paint paint;
+    int xoffset = 0;
+    int yoffset = 0;
 
-	AbstractBitmapData(RfbConnectable p, VncCanvas c)
-	{
-		rfb = p;
-		vncCanvas = c;
-		framebufferwidth  = rfb.framebufferWidth();
-		framebufferheight = rfb.framebufferHeight();
-		drawable = createDrawable();
-		paint = new Paint();
-	}
+    AbstractBitmapData(RfbConnectable p, VncCanvas c)
+    {
+        rfb = p;
+        vncCanvas = c;
+        framebufferwidth  = rfb.framebufferWidth();
+        framebufferheight = rfb.framebufferHeight();
+        drawable = createDrawable();
+        paint = new Paint();
+    }
 
-	synchronized void doneWaiting() {
-		waitingForInput = false;
-	}
+    synchronized void doneWaiting() {
+        waitingForInput = false;
+    }
 
-	void setCursorRect(int x, int y, int w, int h, int hX, int hY) {
-		if (drawable != null)
-			drawable.setCursorRect(x, y, w, h, hX, hY);
-	}
+    void setCursorRect(int x, int y, int w, int h, int hX, int hY) {
+        if (drawable != null)
+            drawable.setCursorRect(x, y, w, h, hX, hY);
+    }
 
-	void moveCursorRect(int x, int y) {
-		if (drawable != null)
-			drawable.moveCursorRect(x, y);
-	}
+    void moveCursorRect(int x, int y) {
+        if (drawable != null)
+            drawable.moveCursorRect(x, y);
+    }
 
-	void setSoftCursor (int[] newSoftCursorPixels) {
-		if (drawable != null)
-			drawable.setSoftCursor (newSoftCursorPixels);
-	}
+    void setSoftCursor (int[] newSoftCursorPixels) {
+        if (drawable != null)
+            drawable.setSoftCursor (newSoftCursorPixels);
+    }
 
-	RectF getCursorRect () {
-		if (drawable != null)
-			return drawable.cursorRect;
-		else // Return an empty new rectangle if drawable is null.
-			return new RectF();
-	}
+    RectF getCursorRect () {
+        if (drawable != null)
+            return drawable.cursorRect;
+        else // Return an empty new rectangle if drawable is null.
+            return new RectF();
+    }
 
-	boolean isNotInitSoftCursor() {
-		if (drawable != null)
-			return (drawable.softCursorInit == false);
-		else
-			return false;
-	}
+    boolean isNotInitSoftCursor() {
+        if (drawable != null)
+            return (drawable.softCursorInit == false);
+        else
+            return false;
+    }
 
-	/**
-	 * 
-	 * @return The smallest scale supported by the implementation; the scale at which
-	 * the bitmap would be smaller than the screen
-	 */
-	float getMinimumScale() {
-		return Math.min((float)vncCanvas.getWidth()/bitmapwidth, (float)vncCanvas.getHeight()/bitmapheight);
-	}
+    /**
+     * 
+     * @return The smallest scale supported by the implementation; the scale at which
+     * the bitmap would be smaller than the screen
+     */
+    float getMinimumScale() {
+        return Math.min((float)vncCanvas.getWidth()/bitmapwidth, (float)vncCanvas.getHeight()/bitmapheight);
+    }
 
-	/**
-	 * Send a request through the protocol to get the data for the currently held bitmap
-	 * @param incremental True if we want incremental update; false for full update
-	 */
-	public void prepareFullUpdateRequest(boolean incremental) {};
+    /**
+     * Send a request through the protocol to get the data for the currently held bitmap
+     * @param incremental True if we want incremental update; false for full update
+     */
+    public void prepareFullUpdateRequest(boolean incremental) {};
 
-	/**
-	 * Determine if a rectangle in full-frame coordinates can be drawn in the existing buffer
-	 * @param x Top left x
-	 * @param y Top left y
-	 * @param w width (pixels)
-	 * @param h height (pixels)
-	 * @return True if entire rectangle fits into current screen buffer, false otherwise
-	 */
-	public abstract boolean validDraw(int x, int y, int w, int h);
+    /**
+     * Determine if a rectangle in full-frame coordinates can be drawn in the existing buffer
+     * @param x Top left x
+     * @param y Top left y
+     * @param w width (pixels)
+     * @param h height (pixels)
+     * @return True if entire rectangle fits into current screen buffer, false otherwise
+     */
+    public abstract boolean validDraw(int x, int y, int w, int h);
 
-	/**
-	 * Return an offset in the bitmapPixels array of a point in full-frame coordinates
-	 * @param x
-	 * @param y
-	 * @return Offset in bitmapPixels array of color data for that point
-	 */
-	public abstract int offset(int x, int y);
+    /**
+     * Return an offset in the bitmapPixels array of a point in full-frame coordinates
+     * @param x
+     * @param y
+     * @return Offset in bitmapPixels array of color data for that point
+     */
+    public abstract int offset(int x, int y);
 
-	/**
-	 * Update pixels in the bitmap with data from the bitmapPixels array, positioned
-	 * in full-frame coordinates
-	 * @param x Top left x
-	 * @param y Top left y
-	 * @param w width (pixels)
-	 * @param h height (pixels)
-	 */
-	public abstract void updateBitmap(int x, int y, int w, int h);
+    /**
+     * Update pixels in the bitmap with data from the bitmapPixels array, positioned
+     * in full-frame coordinates
+     * @param x Top left x
+     * @param y Top left y
+     * @param w width (pixels)
+     * @param h height (pixels)
+     */
+    public abstract void updateBitmap(int x, int y, int w, int h);
 
-	/**
-	 * Update pixels in the bitmap with data from the given bitmap, positioned
-	 * in full-frame coordinates
-	 * @param b The bitmap to copy from.
-	 * @param x Top left x
-	 * @param y Top left y
-	 * @param w width (pixels)
-	 * @param h height (pixels)
-	 */
-	public abstract void updateBitmap(Bitmap b, int x, int y, int w, int h);
+    /**
+     * Update pixels in the bitmap with data from the given bitmap, positioned
+     * in full-frame coordinates
+     * @param b The bitmap to copy from.
+     * @param x Top left x
+     * @param y Top left y
+     * @param w width (pixels)
+     * @param h height (pixels)
+     */
+    public abstract void updateBitmap(Bitmap b, int x, int y, int w, int h);
 
-	/**
-	 * Create drawable appropriate for this data
-	 * @return drawable
-	 */
-	abstract AbstractBitmapDrawable createDrawable();
-
-
-	/**
-	 * Sets the canvas's drawable
-	 * @param v ImageView displaying bitmap data
-	 */
-	void setImageDrawable(ImageView v)
-	{
-		v.setImageDrawable(drawable);
-	}
+    /**
+     * Create drawable appropriate for this data
+     * @return drawable
+     */
+    abstract AbstractBitmapDrawable createDrawable();
 
 
-	/**
-	 * Call in UI thread; tell ImageView we've changed
-	 * @param v ImageView displaying bitmap data
-	 */
-	void updateView(ImageView v)
-	{
-		v.invalidate();
-	}
+    /**
+     * Sets the canvas's drawable
+     * @param v ImageView displaying bitmap data
+     */
+    void setImageDrawable(ImageView v)
+    {
+        v.setImageDrawable(drawable);
+    }
 
-	/**
-	 * Copy a rectangle from one part of the bitmap to another
-	 * @param src Rectangle in full-frame coordinates to be copied
-	 * @param dest Destination rectangle in full-frame coordinates
-	 * @param paint Paint specifier
-	 */
-	public abstract void copyRect(int sx, int sy, int dx, int dy, int w, int h);
 
-	public void fillRect(int x, int y, int w, int h, int pix) {
-		paint.setColor(pix);
-		drawRect(x, y, w, h, paint);
-	}
+    /**
+     * Call in UI thread; tell ImageView we've changed
+     * @param v ImageView displaying bitmap data
+     */
+    void updateView(ImageView v)
+    {
+        v.invalidate();
+    }
 
-	public void imageRect(int x, int y, int w, int h, int[] pix) {
-		for (int j = 0; j < h; j++) {
-			try {
-				synchronized (mbitmap) {
-					System.arraycopy(pix, (w * j), bitmapPixels, offset(x, y+j), w);
-				}
-				//System.arraycopy(pix, (w * j), bitmapPixels, bitmapwidth * (y + j) + x, w);
-			} catch (ArrayIndexOutOfBoundsException e) {
-				// An index is out of bounds for some reason, but we try to continue.
-				e.printStackTrace();
-			}
+    /**
+     * Copy a rectangle from one part of the bitmap to another
+     * @param src Rectangle in full-frame coordinates to be copied
+     * @param dest Destination rectangle in full-frame coordinates
+     * @param paint Paint specifier
+     */
+    public abstract void copyRect(int sx, int sy, int dx, int dy, int w, int h);
 
-		}
-		updateBitmap(x, y, w, h);
-	}
+    public void fillRect(int x, int y, int w, int h, int pix) {
+        paint.setColor(pix);
+        drawRect(x, y, w, h, paint);
+    }
 
-	/**
-	 * Draw a rectangle in the bitmap with coordinates given in full frame
-	 * @param x Top left x
-	 * @param y Top left y
-	 * @param w width (pixels)
-	 * @param h height (pixels)
-	 * @param paint How to draw
-	 */
-	abstract void drawRect( int x, int y, int w, int h, Paint paint);
-	
-	/**
-	 * Scroll position has changed.
-	 * <p>
-	 * This method is called in the UI thread-- it updates internal status, but does
-	 * not change the bitmap data or send a network request until syncScroll is called
-	 * @param newx Position of left edge of visible part in full-frame coordinates
-	 * @param newy Position of top edge of visible part in full-frame coordinates
-	 */
-	abstract void scrollChanged( int newx, int newy);
+    public void imageRect(int x, int y, int w, int h, int[] pix) {
+        for (int j = 0; j < h; j++) {
+            try {
+                synchronized (mbitmap) {
+                    System.arraycopy(pix, (w * j), bitmapPixels, offset(x, y+j), w);
+                }
+                //System.arraycopy(pix, (w * j), bitmapPixels, bitmapwidth * (y + j) + x, w);
+            } catch (ArrayIndexOutOfBoundsException e) {
+                // An index is out of bounds for some reason, but we try to continue.
+                e.printStackTrace();
+            }
 
-	/**
-	 * Remote framebuffer size has changed.
-	 * <p>
-	 * This method is called when the framebuffer has changed size and reinitializes the
-	 * necessary data structures to support that change.
-	 */
-	public abstract void frameBufferSizeChanged ();
-	
-	/**
-	 * Sync scroll -- called from network thread; copies scroll changes from UI to network state
-	 */
-	abstract void syncScroll();
+        }
+        updateBitmap(x, y, w, h);
+    }
 
-	/**
-	 * Release resources
-	 */
-	void dispose() {
-		if (drawable != null)
-			drawable.dispose();
-		drawable = null;
+    /**
+     * Draw a rectangle in the bitmap with coordinates given in full frame
+     * @param x Top left x
+     * @param y Top left y
+     * @param w width (pixels)
+     * @param h height (pixels)
+     * @param paint How to draw
+     */
+    abstract void drawRect( int x, int y, int w, int h, Paint paint);
+    
+    /**
+     * Scroll position has changed.
+     * <p>
+     * This method is called in the UI thread-- it updates internal status, but does
+     * not change the bitmap data or send a network request until syncScroll is called
+     * @param newx Position of left edge of visible part in full-frame coordinates
+     * @param newy Position of top edge of visible part in full-frame coordinates
+     */
+    abstract void scrollChanged( int newx, int newy);
 
-		if (mbitmap != null)
-			mbitmap.recycle();
-		mbitmap      = null;
+    /**
+     * Remote framebuffer size has changed.
+     * <p>
+     * This method is called when the framebuffer has changed size and reinitializes the
+     * necessary data structures to support that change.
+     */
+    public abstract void frameBufferSizeChanged ();
+    
+    /**
+     * Sync scroll -- called from network thread; copies scroll changes from UI to network state
+     */
+    abstract void syncScroll();
 
-		memGraphics  = null;
-		bitmapPixels = null;
-	}
-	
-	public int fbWidth () {
-		return framebufferwidth;
-	}
+    /**
+     * Release resources
+     */
+    void dispose() {
+        if (drawable != null)
+            drawable.dispose();
+        drawable = null;
 
-	public int fbHeight () {
-		return framebufferheight;
-	}
-	
-	public int bmWidth () {
-		return bitmapwidth;
-	}
+        if (mbitmap != null)
+            mbitmap.recycle();
+        mbitmap      = null;
 
-	public int bmHeight () {
-		return bitmapheight;
-	}
-	
-	public int getXoffset () {
-		return xoffset;
-	}
+        memGraphics  = null;
+        bitmapPixels = null;
+    }
+    
+    public int fbWidth () {
+        return framebufferwidth;
+    }
 
-	public int getYoffset () {
-		return yoffset;
-	}
+    public int fbHeight () {
+        return framebufferheight;
+    }
+    
+    public int bmWidth () {
+        return bitmapwidth;
+    }
+
+    public int bmHeight () {
+        return bitmapheight;
+    }
+    
+    public int getXoffset () {
+        return xoffset;
+    }
+
+    public int getYoffset () {
+        return yoffset;
+    }
 }

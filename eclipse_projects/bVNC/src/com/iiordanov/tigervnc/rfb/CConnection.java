@@ -26,7 +26,7 @@ import com.iiordanov.tigervnc.rdr.*;
 abstract public class CConnection extends CMsgHandler {
 
   public CConnection(VncCanvas v) {
-	viewer = v;
+    viewer = v;
     security = new SecurityClient(viewer);
   }
 
@@ -298,7 +298,7 @@ abstract public class CConnection extends CMsgHandler {
   }
 
   public void continueAfterInit () {
-	  continueAfterInit = true;
+      continueAfterInit = true;
   }
   
   // Other methods

@@ -38,142 +38,142 @@ import android.view.MotionEvent;
  *
  */
 class DPadMouseKeyHandler {
-	private MouseMover mouseMover;
-	private boolean mouseDown;
-	private VncCanvas canvas;
-	private boolean isMoving;
-	private boolean useDpadAsArrows = false;
-	private boolean rotateDpad      = false;
-	RemoteKeyboard keyboard;
-	RemotePointer pointer;
+    private MouseMover mouseMover;
+    private boolean mouseDown;
+    private VncCanvas canvas;
+    private boolean isMoving;
+    private boolean useDpadAsArrows = false;
+    private boolean rotateDpad      = false;
+    RemoteKeyboard keyboard;
+    RemotePointer pointer;
 
-	DPadMouseKeyHandler(VncCanvasActivity activity, Handler handler, boolean arrows, boolean rotate)
-	{
-		canvas = activity.getCanvas();
-		mouseMover = new MouseMover(activity, handler);
-		useDpadAsArrows = arrows;
-		rotateDpad      = rotate;
-	}
+    DPadMouseKeyHandler(VncCanvasActivity activity, Handler handler, boolean arrows, boolean rotate)
+    {
+        canvas = activity.getCanvas();
+        mouseMover = new MouseMover(activity, handler);
+        useDpadAsArrows = arrows;
+        rotateDpad      = rotate;
+    }
 
-	public boolean onKeyDown(int keyCode, KeyEvent evt) {
-		int xv = 0;
-		int yv = 0;
-		boolean result = true;
-		keyboard = canvas.getKeyboard();
-		pointer  = canvas.getPointer();
-		boolean cameraButtonDown = keyboard.getCameraButtonDown();
+    public boolean onKeyDown(int keyCode, KeyEvent evt) {
+        int xv = 0;
+        int yv = 0;
+        boolean result = true;
+        keyboard = canvas.getKeyboard();
+        pointer  = canvas.getPointer();
+        boolean cameraButtonDown = keyboard.getCameraButtonDown();
 
-		// If we are instructed to rotate the Dpad at 90 degrees, reassign KeyCodes.
-		if (rotateDpad) {
-			switch (keyCode) {
-			case KeyEvent.KEYCODE_DPAD_LEFT:
-				keyCode = KeyEvent.KEYCODE_DPAD_UP;
-				break;
-			case KeyEvent.KEYCODE_DPAD_RIGHT:
-				keyCode = KeyEvent.KEYCODE_DPAD_DOWN;
-				break;
-			case KeyEvent.KEYCODE_DPAD_UP:
-				keyCode = KeyEvent.KEYCODE_DPAD_RIGHT;
-				break;
-			case KeyEvent.KEYCODE_DPAD_DOWN:
-				keyCode = KeyEvent.KEYCODE_DPAD_LEFT;
-				break;
-			}
-		}
+        // If we are instructed to rotate the Dpad at 90 degrees, reassign KeyCodes.
+        if (rotateDpad) {
+            switch (keyCode) {
+            case KeyEvent.KEYCODE_DPAD_LEFT:
+                keyCode = KeyEvent.KEYCODE_DPAD_UP;
+                break;
+            case KeyEvent.KEYCODE_DPAD_RIGHT:
+                keyCode = KeyEvent.KEYCODE_DPAD_DOWN;
+                break;
+            case KeyEvent.KEYCODE_DPAD_UP:
+                keyCode = KeyEvent.KEYCODE_DPAD_RIGHT;
+                break;
+            case KeyEvent.KEYCODE_DPAD_DOWN:
+                keyCode = KeyEvent.KEYCODE_DPAD_LEFT;
+                break;
+            }
+        }
 
-		// If we are supposed to use the Dpad as arrows, pass the event to the default handler.
-		if (useDpadAsArrows) {
-			return keyboard.processLocalKeyEvent(keyCode, evt);
-			// Otherwise, control the mouse.
-		} else {
-			switch (keyCode) {
-			case KeyEvent.KEYCODE_DPAD_LEFT:
-				xv = -1;
-				break;
-			case KeyEvent.KEYCODE_DPAD_RIGHT:
-				xv = 1;
-				break;
-			case KeyEvent.KEYCODE_DPAD_UP:
-				yv = -1;
-				break;
-			case KeyEvent.KEYCODE_DPAD_DOWN:
-				yv = 1;
-				break;
-			case KeyEvent.KEYCODE_DPAD_CENTER:
-				if (!mouseDown) {
-					mouseDown = true;
-					result = pointer.processPointerEvent(pointer.getX(), pointer.getY(), MotionEvent.ACTION_DOWN,
-																evt.getMetaState(), mouseDown, cameraButtonDown);
-				}
-				break;
-			default:
-				result = keyboard.processLocalKeyEvent(keyCode, evt);
-				break;
-			}
-		}
-		if ((xv != 0 || yv != 0) && !isMoving) {
-			final int x = xv;
-			final int y = yv;
-			isMoving = true;
-			mouseMover.start(x, y, new Panner.VelocityUpdater() {
+        // If we are supposed to use the Dpad as arrows, pass the event to the default handler.
+        if (useDpadAsArrows) {
+            return keyboard.processLocalKeyEvent(keyCode, evt);
+            // Otherwise, control the mouse.
+        } else {
+            switch (keyCode) {
+            case KeyEvent.KEYCODE_DPAD_LEFT:
+                xv = -1;
+                break;
+            case KeyEvent.KEYCODE_DPAD_RIGHT:
+                xv = 1;
+                break;
+            case KeyEvent.KEYCODE_DPAD_UP:
+                yv = -1;
+                break;
+            case KeyEvent.KEYCODE_DPAD_DOWN:
+                yv = 1;
+                break;
+            case KeyEvent.KEYCODE_DPAD_CENTER:
+                if (!mouseDown) {
+                    mouseDown = true;
+                    result = pointer.processPointerEvent(pointer.getX(), pointer.getY(), MotionEvent.ACTION_DOWN,
+                                                                evt.getMetaState(), mouseDown, cameraButtonDown);
+                }
+                break;
+            default:
+                result = keyboard.processLocalKeyEvent(keyCode, evt);
+                break;
+            }
+        }
+        if ((xv != 0 || yv != 0) && !isMoving) {
+            final int x = xv;
+            final int y = yv;
+            isMoving = true;
+            mouseMover.start(x, y, new Panner.VelocityUpdater() {
 
-				/*
-				 * (non-Javadoc)
-				 * 
-				 * @see com.iiordanov.bVNC.Panner.VelocityUpdater#updateVelocity(android.graphics.Point,
-				 *      long)
-				 */
-				@Override
-				public boolean updateVelocity(PointF p, long interval) {
-					double scale = (1.2 * (double) interval / 50.0);
-					if (Math.abs(p.x) < 500)
-						p.x += (int) (scale * x);
-					if (Math.abs(p.y) < 500)
-						p.y += (int) (scale * y);
-					return true;
-				}
+                /*
+                 * (non-Javadoc)
+                 * 
+                 * @see com.iiordanov.bVNC.Panner.VelocityUpdater#updateVelocity(android.graphics.Point,
+                 *      long)
+                 */
+                @Override
+                public boolean updateVelocity(PointF p, long interval) {
+                    double scale = (1.2 * (double) interval / 50.0);
+                    if (Math.abs(p.x) < 500)
+                        p.x += (int) (scale * x);
+                    if (Math.abs(p.y) < 500)
+                        p.y += (int) (scale * y);
+                    return true;
+                }
 
-			});
-			pointer.processPointerEvent(pointer.getX() + x, pointer.getY() + y, MotionEvent.ACTION_MOVE,
-										evt.getMetaState(), mouseDown, cameraButtonDown);
+            });
+            pointer.processPointerEvent(pointer.getX() + x, pointer.getY() + y, MotionEvent.ACTION_MOVE,
+                                        evt.getMetaState(), mouseDown, cameraButtonDown);
 
-		}
-		return result;
-	}
+        }
+        return result;
+    }
 
-	public boolean onKeyUp(int keyCode, KeyEvent evt) {
+    public boolean onKeyUp(int keyCode, KeyEvent evt) {
 
-		boolean cameraButtonDown = keyboard.getCameraButtonDown();
-		pointer  = canvas.getPointer();
+        boolean cameraButtonDown = keyboard.getCameraButtonDown();
+        pointer  = canvas.getPointer();
 
-		// Pass the event on if we are not controlling the mouse.
-		if (useDpadAsArrows)
-			return keyboard.processLocalKeyEvent(keyCode, evt);
+        // Pass the event on if we are not controlling the mouse.
+        if (useDpadAsArrows)
+            return keyboard.processLocalKeyEvent(keyCode, evt);
 
-		boolean result = false;
+        boolean result = false;
 
-		switch (keyCode) {
-		case KeyEvent.KEYCODE_DPAD_LEFT:
-		case KeyEvent.KEYCODE_DPAD_RIGHT:
-		case KeyEvent.KEYCODE_DPAD_UP:
-		case KeyEvent.KEYCODE_DPAD_DOWN:
-			mouseMover.stop();
-			isMoving = false;
-			result = true;
-			break;
-		case KeyEvent.KEYCODE_DPAD_CENTER:
-			if (mouseDown) {
-				mouseDown = false;
-				result = pointer.processPointerEvent(pointer.getX(), pointer.getY(), MotionEvent.ACTION_UP,
-														evt.getMetaState(), mouseDown, cameraButtonDown);
-			} else {
-				result = true;
-			}
-			break;
-		default:
-			result = keyboard.processLocalKeyEvent(keyCode, evt);
-			break;
-		}
-		return result;
-	}
+        switch (keyCode) {
+        case KeyEvent.KEYCODE_DPAD_LEFT:
+        case KeyEvent.KEYCODE_DPAD_RIGHT:
+        case KeyEvent.KEYCODE_DPAD_UP:
+        case KeyEvent.KEYCODE_DPAD_DOWN:
+            mouseMover.stop();
+            isMoving = false;
+            result = true;
+            break;
+        case KeyEvent.KEYCODE_DPAD_CENTER:
+            if (mouseDown) {
+                mouseDown = false;
+                result = pointer.processPointerEvent(pointer.getX(), pointer.getY(), MotionEvent.ACTION_UP,
+                                                        evt.getMetaState(), mouseDown, cameraButtonDown);
+            } else {
+                result = true;
+            }
+            break;
+        default:
+            result = keyboard.processLocalKeyEvent(keyCode, evt);
+            break;
+        }
+        return result;
+    }
 }

@@ -334,12 +334,12 @@ final class InfTree{
     for (; k <= g; k++){
       a = c[k];
       while (a--!=0){
-	// here i is the Huffman code of length k bits for value *p
-	// make tables up to required level
+    // here i is the Huffman code of length k bits for value *p
+    // make tables up to required level
         while (k > w + l){
           h++;
           w += l;                 // previous table always l bits
-	  // compute minimum size table less than or equal to l bits
+      // compute minimum size table less than or equal to l bits
           z = g - w;
           z = (z > l) ? l : z;        // table size upper limit
           if((f=1<<(j=k-w))>a+1){     // try a k-w bit table
@@ -352,19 +352,19 @@ final class InfTree{
                   break;              // enough codes to use up j bits
                 f -= c[xp];           // else deduct codes from patterns
               }
-	    }
+        }
           }
           z = 1 << j;                 // table entries for j-bit table
 
-	  // allocate new table
+      // allocate new table
           if (hn[0] + z > MANY){       // (note: doesn't matter for fixed)
             return Z_DATA_ERROR;       // overflow of MANY
           }
           u[h] = q = /*hp+*/ hn[0];   // DEBUG
           hn[0] += z;
  
-	  // connect to last table, if there is one
-	  if(h!=0){
+      // connect to last table, if there is one
+      if(h!=0){
             x[h]=i;           // save pattern for backing up
             r[0]=(byte)j;     // bits in this table
             r[1]=(byte)l;     // bits to dump before this table
@@ -374,14 +374,14 @@ final class InfTree{
           }
           else{
             t[0] = q;               // first table is returned result
-	  }
+      }
         }
 
-	// set up table entry in r
+    // set up table entry in r
         r[1] = (byte)(k - w);
         if (p >= n){
           r[0] = 128 + 64;      // out of values--invalid code
-	}
+    }
         else if (v[p] < s){
           r[0] = (byte)(v[p] < 256 ? 0 : 32 + 64);  // 256 is end-of-block
           r[2] = v[p++];          // simple code is just the value
@@ -395,15 +395,15 @@ final class InfTree{
         f=1<<(k-w);
         for (j=i>>>w;j<z;j+=f){
           System.arraycopy(r, 0, hp, (q+j)*3, 3);
-	}
+    }
 
-	// backwards increment the k-bit code i
+    // backwards increment the k-bit code i
         for (j = 1 << (k - 1); (i & j)!=0; j >>>= 1){
           i ^= j;
-	}
+    }
         i ^= j;
 
-	// backup over finished tables
+    // backup over finished tables
         mask = (1 << w) - 1;      // needed on HP, cc -O bug
         while ((i & mask) != x[h]){
           h--;                    // don't need to update q
@@ -491,7 +491,7 @@ final class InfTree{
                                  int[][] tl,//literal/length tree result
                                  int[][] td,//distance tree result 
                                  ZStream z  //for memory allocation
-				 ){
+                 ){
     bl[0]=fixed_bl;
     bd[0]=fixed_bd;
     tl[0]=fixed_tl;

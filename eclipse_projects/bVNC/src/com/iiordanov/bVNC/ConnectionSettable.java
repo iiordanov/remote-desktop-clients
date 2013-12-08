@@ -21,5 +21,5 @@
 package com.iiordanov.bVNC;
 
 public interface ConnectionSettable {
-	void setConnection(ConnectionBean connection);
+    void setConnection(ConnectionBean connection);
 }

@@ -27,93 +27,93 @@ import android.widget.ImageView.ScaleType;
  * @author Michael A. MacDonald
  */
 class FitToScreenScaling extends AbstractScaling {
-	
-	static final String TAG = "FitToScreenScaling";
-	
-	private Matrix matrix;
-	int canvasXOffset;
-	int canvasYOffset;
-	float scaling;
-	float minimumScale;
-	
-	/**
-	 * @param id
-	 * @param scaleType
-	 */
-	public FitToScreenScaling() {
-		super(R.id.itemFitToScreen, ScaleType.FIT_CENTER);
-		matrix = new Matrix();
-		scaling = 0;
-	}
+    
+    static final String TAG = "FitToScreenScaling";
+    
+    private Matrix matrix;
+    int canvasXOffset;
+    int canvasYOffset;
+    float scaling;
+    float minimumScale;
+    
+    /**
+     * @param id
+     * @param scaleType
+     */
+    public FitToScreenScaling() {
+        super(R.id.itemFitToScreen, ScaleType.FIT_CENTER);
+        matrix = new Matrix();
+        scaling = 0;
+    }
 
-	/* (non-Javadoc)
-	 * @see com.iiordanov.bVNC.AbstractScaling#getDefaultHandlerId()
-	 */
-	@Override
-	int getDefaultHandlerId() {
-		return R.id.itemInputTouchPanZoomMouse;
-	}
+    /* (non-Javadoc)
+     * @see com.iiordanov.bVNC.AbstractScaling#getDefaultHandlerId()
+     */
+    @Override
+    int getDefaultHandlerId() {
+        return R.id.itemInputTouchPanZoomMouse;
+    }
 
-	/* (non-Javadoc)
-	 * @see com.iiordanov.bVNC.AbstractScaling#isAbleToPan()
-	 */
-	@Override
-	boolean isAbleToPan() {
-		return false;
-	}
+    /* (non-Javadoc)
+     * @see com.iiordanov.bVNC.AbstractScaling#isAbleToPan()
+     */
+    @Override
+    boolean isAbleToPan() {
+        return false;
+    }
 
-	/* (non-Javadoc)
-	 * @see com.iiordanov.bVNC.AbstractScaling#isValidInputMode(int)
-	 */
-	@Override
-	boolean isValidInputMode(int mode) {
-		return true;
-	}
-	
-	/**
-	 * Call after scaling and matrix have been changed to resolve scrolling
-	 * @param activity
-	 */
-	private void resolveZoom(VncCanvasActivity activity)
-	{
-		activity.getCanvas().scrollToAbsolute();
-		//activity.vncCanvas.pan(0,0);
-	}
-	
-	/* (non-Javadoc)
-	 * @see com.iiordanov.bVNC.AbstractScaling#getScale()
-	 */
-	@Override
-	float getScale() {
-		return scaling;
-	}
+    /* (non-Javadoc)
+     * @see com.iiordanov.bVNC.AbstractScaling#isValidInputMode(int)
+     */
+    @Override
+    boolean isValidInputMode(int mode) {
+        return true;
+    }
+    
+    /**
+     * Call after scaling and matrix have been changed to resolve scrolling
+     * @param activity
+     */
+    private void resolveZoom(VncCanvasActivity activity)
+    {
+        activity.getCanvas().scrollToAbsolute();
+        //activity.vncCanvas.pan(0,0);
+    }
+    
+    /* (non-Javadoc)
+     * @see com.iiordanov.bVNC.AbstractScaling#getScale()
+     */
+    @Override
+    float getScale() {
+        return scaling;
+    }
 
-	private void resetMatrix()
-	{
-		matrix.reset();
-		matrix.preTranslate(canvasXOffset, canvasYOffset);
-	}
+    private void resetMatrix()
+    {
+        matrix.reset();
+        matrix.preTranslate(canvasXOffset, canvasYOffset);
+    }
 
-	/* (non-Javadoc)
-	 * @see com.iiordanov.bVNC.AbstractScaling#setScaleTypeForActivity(com.iiordanov.bVNC.VncCanvasActivity)
-	 */
-	@Override
-	void setScaleTypeForActivity(VncCanvasActivity activity) {
-		super.setScaleTypeForActivity(activity);
-		VncCanvas canvas = activity.getCanvas();
-		canvas.absoluteXPosition = 0;
-		canvas.absoluteYPosition = 0;
-		canvasXOffset = -canvas.getCenteredXOffset();
-		canvasYOffset = -canvas.getCenteredYOffset();
-		canvas.computeShiftFromFullToView ();
-		minimumScale = canvas.bitmapData.getMinimumScale();
-		scaling = minimumScale;
-		resetMatrix();
-		matrix.postScale(scaling, scaling);
-		canvas.setImageMatrix(matrix);
-		resolveZoom(activity);
-		canvas.pan(0, 0);
-		activity.zoomer.setIsZoomOutEnabled(false);
-		activity.zoomer.setIsZoomInEnabled(false);
-	}
+    /* (non-Javadoc)
+     * @see com.iiordanov.bVNC.AbstractScaling#setScaleTypeForActivity(com.iiordanov.bVNC.VncCanvasActivity)
+     */
+    @Override
+    void setScaleTypeForActivity(VncCanvasActivity activity) {
+        super.setScaleTypeForActivity(activity);
+        VncCanvas canvas = activity.getCanvas();
+        canvas.absoluteXPosition = 0;
+        canvas.absoluteYPosition = 0;
+        canvasXOffset = -canvas.getCenteredXOffset();
+        canvasYOffset = -canvas.getCenteredYOffset();
+        canvas.computeShiftFromFullToView ();
+        minimumScale = canvas.bitmapData.getMinimumScale();
+        scaling = minimumScale;
+        resetMatrix();
+        matrix.postScale(scaling, scaling);
+        canvas.setImageMatrix(matrix);
+        resolveZoom(activity);
+        canvas.pan(0, 0);
+        activity.zoomer.setIsZoomOutEnabled(false);
+        activity.zoomer.setIsZoomInEnabled(false);
+    }
 }

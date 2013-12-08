@@ -51,7 +51,7 @@ final class Deflate{
     int max_chain;
     int func;
     Config(int good_length, int max_lazy, 
-	   int nice_length, int max_chain, int func){
+       int nice_length, int max_chain, int func){
       this.good_length=good_length;
       this.max_lazy=max_lazy;
       this.nice_length=nice_length;
@@ -381,15 +381,15 @@ final class Deflate{
   // when the heap property is re-established (each father smaller than its
   // two sons).
   void pqdownheap(short[] tree,  // the tree to restore
-		  int k          // node to move down
-		  ){
+          int k          // node to move down
+          ){
     int v = heap[k];
     int j = k << 1;  // left son of k
     while (j <= heap_len) {
       // Set j to the smallest of the two sons:
       if (j < heap_len &&
-	  smaller(tree, heap[j+1], heap[j], depth)){
-	j++;
+      smaller(tree, heap[j+1], heap[j], depth)){
+    j++;
       }
       // Exit if v is smaller than both sons
       if(smaller(tree, v, heap[j], depth)) break;
@@ -406,14 +406,14 @@ final class Deflate{
     short tn2=tree[n*2];
     short tm2=tree[m*2];
     return (tn2<tm2 ||
-	    (tn2==tm2 && depth[n] <= depth[m]));
+        (tn2==tm2 && depth[n] <= depth[m]));
   }
 
   // Scan a literal or distance tree to determine the frequencies of the codes
   // in the bit length tree.
   void scan_tree (short[] tree,// the tree to be scanned
-		  int max_code // and its largest code of non zero frequency
-		  ){
+          int max_code // and its largest code of non zero frequency
+          ){
     int n;                     // iterates over all tree elements
     int prevlen = -1;          // last emitted length
     int curlen;                // length of current code
@@ -428,30 +428,30 @@ final class Deflate{
     for(n = 0; n <= max_code; n++) {
       curlen = nextlen; nextlen = tree[(n+1)*2+1];
       if(++count < max_count && curlen == nextlen) {
-	continue;
+    continue;
       }
       else if(count < min_count) {
-	bl_tree[curlen*2] += count;
+    bl_tree[curlen*2] += count;
       }
       else if(curlen != 0) {
-	if(curlen != prevlen) bl_tree[curlen*2]++;
-	bl_tree[REP_3_6*2]++;
+    if(curlen != prevlen) bl_tree[curlen*2]++;
+    bl_tree[REP_3_6*2]++;
       }
       else if(count <= 10) {
-	bl_tree[REPZ_3_10*2]++;
+    bl_tree[REPZ_3_10*2]++;
       }
       else{
-	bl_tree[REPZ_11_138*2]++;
+    bl_tree[REPZ_11_138*2]++;
       }
       count = 0; prevlen = curlen;
       if(nextlen == 0) {
-	max_count = 138; min_count = 3;
+    max_count = 138; min_count = 3;
       }
       else if(curlen == nextlen) {
-	max_count = 6; min_count = 3;
+    max_count = 6; min_count = 3;
       }
       else{
-	max_count = 7; min_count = 4;
+    max_count = 7; min_count = 4;
       }
     }
   }
@@ -502,8 +502,8 @@ final class Deflate{
   // Send a literal or distance tree in compressed form, using the codes in
   // bl_tree.
   void send_tree (short[] tree,// the tree to be sent
-		  int max_code // and its largest code of non zero frequency
-		  ){
+          int max_code // and its largest code of non zero frequency
+          ){
     int n;                     // iterates over all tree elements
     int prevlen = -1;          // last emitted length
     int curlen;                // length of current code
@@ -517,35 +517,35 @@ final class Deflate{
     for (n = 0; n <= max_code; n++) {
       curlen = nextlen; nextlen = tree[(n+1)*2+1];
       if(++count < max_count && curlen == nextlen) {
-	continue;
+    continue;
       }
       else if(count < min_count) {
-	do { send_code(curlen, bl_tree); } while (--count != 0);
+    do { send_code(curlen, bl_tree); } while (--count != 0);
       }
       else if(curlen != 0){
-	if(curlen != prevlen){
-	  send_code(curlen, bl_tree); count--;
-	}
-	send_code(REP_3_6, bl_tree); 
-	send_bits(count-3, 2);
+    if(curlen != prevlen){
+      send_code(curlen, bl_tree); count--;
+    }
+    send_code(REP_3_6, bl_tree); 
+    send_bits(count-3, 2);
       }
       else if(count <= 10){
-	send_code(REPZ_3_10, bl_tree); 
-	send_bits(count-3, 3);
+    send_code(REPZ_3_10, bl_tree); 
+    send_bits(count-3, 3);
       }
       else{
-	send_code(REPZ_11_138, bl_tree);
-	send_bits(count-11, 7);
+    send_code(REPZ_11_138, bl_tree);
+    send_bits(count-11, 7);
       }
       count = 0; prevlen = curlen;
       if(nextlen == 0){
-	max_count = 138; min_count = 3;
+    max_count = 138; min_count = 3;
       }
       else if(curlen == nextlen){
-	max_count = 6; min_count = 3;
+    max_count = 6; min_count = 3;
       }
       else{
-	max_count = 7; min_count = 4;
+    max_count = 7; min_count = 4;
       }
     }
   }
@@ -621,8 +621,8 @@ final class Deflate{
   // Save the match info and tally the frequency counts. Return true if
   // the current block must be flushed.
   boolean _tr_tally (int dist, // distance of matched string
-		     int lc // match length-MIN_MATCH or unmatched char (if dist==0)
-		     ){
+             int lc // match length-MIN_MATCH or unmatched char (if dist==0)
+             ){
 
     pending_buf[d_buf+last_lit*2] = (byte)(dist>>>8);
     pending_buf[d_buf+last_lit*2+1] = (byte)dist;
@@ -647,8 +647,8 @@ final class Deflate{
       int in_length = strstart - block_start;
       int dcode;
       for (dcode = 0; dcode < D_CODES; dcode++) {
-	out_length += (int)dyn_dtree[dcode*2] *
-	  (5L+Tree.extra_dbits[dcode]);
+    out_length += (int)dyn_dtree[dcode*2] *
+      (5L+Tree.extra_dbits[dcode]);
       }
       out_length >>>= 3;
       if ((matches < (last_lit/2)) && out_length < in_length/2) return true;
@@ -670,35 +670,35 @@ final class Deflate{
 
     if (last_lit != 0){
       do{
-	dist=((pending_buf[d_buf+lx*2]<<8)&0xff00)|
-	  (pending_buf[d_buf+lx*2+1]&0xff);
-	lc=(pending_buf[l_buf+lx])&0xff; lx++;
+    dist=((pending_buf[d_buf+lx*2]<<8)&0xff00)|
+      (pending_buf[d_buf+lx*2+1]&0xff);
+    lc=(pending_buf[l_buf+lx])&0xff; lx++;
 
-	if(dist == 0){
-	  send_code(lc, ltree); // send a literal byte
-	} 
-	else{
-	  // Here, lc is the match length - MIN_MATCH
-	  code = Tree._length_code[lc];
+    if(dist == 0){
+      send_code(lc, ltree); // send a literal byte
+    } 
+    else{
+      // Here, lc is the match length - MIN_MATCH
+      code = Tree._length_code[lc];
 
-	  send_code(code+LITERALS+1, ltree); // send the length code
-	  extra = Tree.extra_lbits[code];
-	  if(extra != 0){
-	    lc -= Tree.base_length[code];
-	    send_bits(lc, extra);       // send the extra length bits
-	  }
-	  dist--; // dist is now the match distance - 1
-	  code = Tree.d_code(dist);
+      send_code(code+LITERALS+1, ltree); // send the length code
+      extra = Tree.extra_lbits[code];
+      if(extra != 0){
+        lc -= Tree.base_length[code];
+        send_bits(lc, extra);       // send the extra length bits
+      }
+      dist--; // dist is now the match distance - 1
+      code = Tree.d_code(dist);
 
-	  send_code(code, dtree);       // send the distance code
-	  extra = Tree.extra_dbits[code];
-	  if (extra != 0) {
-	    dist -= Tree.base_dist[code];
-	    send_bits(dist, extra);   // send the extra distance bits
-	  }
-	} // literal or match pair ?
+      send_code(code, dtree);       // send the distance code
+      extra = Tree.extra_dbits[code];
+      if (extra != 0) {
+        dist -= Tree.base_dist[code];
+        send_bits(dist, extra);   // send the extra distance bits
+      }
+    } // literal or match pair ?
 
-	// Check that the overlay between pending_buf and d_buf+l_buf is ok:
+    // Check that the overlay between pending_buf and d_buf+l_buf is ok:
       }
       while (lx < last_lit);
     }
@@ -749,9 +749,9 @@ final class Deflate{
   // Copy a stored block, storing first the length and its
   // one's complement if requested.
   void copy_block(int buf,         // the input data
-		  int len,         // its length
-		  boolean header   // true if block header must be written
-		  ){
+          int len,         // its length
+          boolean header   // true if block header must be written
+          ){
     int index=0;
     bi_windup();      // align on byte boundary
     last_eob_len = 8; // enough lookahead for inflate
@@ -770,8 +770,8 @@ final class Deflate{
 
   void flush_block_only(boolean eof){
     _tr_flush_block(block_start>=0 ? block_start : -1,
-		    strstart-block_start,
-		    eof);
+            strstart-block_start,
+            eof);
     block_start=strstart;
     strm.flush_pending();
   }
@@ -798,9 +798,9 @@ final class Deflate{
     while(true){
       // Fill the window as much as possible:
       if(lookahead<=1){
-	fill_window();
-	if(lookahead==0 && flush==Z_NO_FLUSH) return NeedMore;
-	if(lookahead==0) break; // flush the current block
+    fill_window();
+    if(lookahead==0 && flush==Z_NO_FLUSH) return NeedMore;
+    if(lookahead==0) break; // flush the current block
       }
 
       strstart+=lookahead;
@@ -809,20 +809,20 @@ final class Deflate{
       // Emit a stored block if pending_buf will be full:
       max_start=block_start+max_block_size;
       if(strstart==0|| strstart>=max_start) {
-	// strstart == 0 is possible when wraparound on 16-bit machine
-	lookahead = (int)(strstart-max_start);
-	strstart = (int)max_start;
+    // strstart == 0 is possible when wraparound on 16-bit machine
+    lookahead = (int)(strstart-max_start);
+    strstart = (int)max_start;
       
-	flush_block_only(false);
-	if(strm.avail_out==0) return NeedMore;
+    flush_block_only(false);
+    if(strm.avail_out==0) return NeedMore;
 
       }
 
       // Flush if we may have to slide, otherwise block_start may become
       // negative and the data will be gone:
       if(strstart-block_start >= w_size-MIN_LOOKAHEAD) {
-	flush_block_only(false);
-	if(strm.avail_out==0) return NeedMore;
+    flush_block_only(false);
+    if(strm.avail_out==0) return NeedMore;
       }
     }
 
@@ -835,9 +835,9 @@ final class Deflate{
 
   // Send a stored block
   void _tr_stored_block(int buf,        // input block
-			int stored_len, // length of input block
-			boolean eof     // true if this is the last block for a file
-			){
+            int stored_len, // length of input block
+            boolean eof     // true if this is the last block for a file
+            ){
     send_bits((STORED_BLOCK<<1)+(eof?1:0), 3);  // send block type
     copy_block(buf, stored_len, true);          // with header
   }
@@ -845,9 +845,9 @@ final class Deflate{
   // Determine the best encoding for the current block: dynamic trees, static
   // trees or store, and output the encoded block to the zip file.
   void _tr_flush_block(int buf,        // input block, or NULL if too old
-		       int stored_len, // length of input block
-		       boolean eof     // true if this is the last block for a file
-		       ) {
+               int stored_len, // length of input block
+               boolean eof     // true if this is the last block for a file
+               ) {
     int opt_lenb, static_lenb;// opt_len and static_len in bytes
     int max_blindex = 0;      // index of last bit length code of non zero freq
 
@@ -925,46 +925,46 @@ final class Deflate{
 
       // Deal with !@#$% 64K limit:
       if(more==0 && strstart==0 && lookahead==0){
-	more = w_size;
+    more = w_size;
       } 
       else if(more==-1) {
-	// Very unlikely, but possible on 16 bit machine if strstart == 0
-	// and lookahead == 1 (input done one byte at time)
-	more--;
+    // Very unlikely, but possible on 16 bit machine if strstart == 0
+    // and lookahead == 1 (input done one byte at time)
+    more--;
 
-	// If the window is almost full and there is insufficient lookahead,
-	// move the upper half to the lower one to make room in the upper half.
+    // If the window is almost full and there is insufficient lookahead,
+    // move the upper half to the lower one to make room in the upper half.
       }
       else if(strstart >= w_size+ w_size-MIN_LOOKAHEAD) {
-	System.arraycopy(window, w_size, window, 0, w_size);
-	match_start-=w_size;
-	strstart-=w_size; // we now have strstart >= MAX_DIST
-	block_start-=w_size;
+    System.arraycopy(window, w_size, window, 0, w_size);
+    match_start-=w_size;
+    strstart-=w_size; // we now have strstart >= MAX_DIST
+    block_start-=w_size;
 
-	// Slide the hash table (could be avoided with 32 bit values
-	// at the expense of memory usage). We slide even when level == 0
-	// to keep the hash table consistent if we switch back to level > 0
-	// later. (Using level 0 permanently is not an optimal usage of
-	// zlib, so we don't care about this pathological case.)
+    // Slide the hash table (could be avoided with 32 bit values
+    // at the expense of memory usage). We slide even when level == 0
+    // to keep the hash table consistent if we switch back to level > 0
+    // later. (Using level 0 permanently is not an optimal usage of
+    // zlib, so we don't care about this pathological case.)
 
-	n = hash_size;
-	p=n;
-	do {
-	  m = (head[--p]&0xffff);
-	  head[p]=(m>=w_size ? (short)(m-w_size) : 0);
-	}
-	while (--n != 0);
+    n = hash_size;
+    p=n;
+    do {
+      m = (head[--p]&0xffff);
+      head[p]=(m>=w_size ? (short)(m-w_size) : 0);
+    }
+    while (--n != 0);
 
-	n = w_size;
-	p = n;
-	do {
-	  m = (prev[--p]&0xffff);
-	  prev[p] = (m >= w_size ? (short)(m-w_size) : 0);
-	  // If n is not on any hash chain, prev[n] is garbage but
-	  // its value will never be used.
-	}
-	while (--n!=0);
-	more += w_size;
+    n = w_size;
+    p = n;
+    do {
+      m = (prev[--p]&0xffff);
+      prev[p] = (m >= w_size ? (short)(m-w_size) : 0);
+      // If n is not on any hash chain, prev[n] is garbage but
+      // its value will never be used.
+    }
+    while (--n!=0);
+    more += w_size;
       }
 
       if (strm.avail_in == 0) return;
@@ -985,8 +985,8 @@ final class Deflate{
 
       // Initialize the hash value now that we have some input:
       if(lookahead >= MIN_MATCH) {
-	ins_h = window[strstart]&0xff;
-	ins_h=(((ins_h)<<hash_shift)^(window[strstart+1]&0xff))&hash_mask;
+    ins_h = window[strstart]&0xff;
+    ins_h=(((ins_h)<<hash_shift)^(window[strstart+1]&0xff))&hash_mask;
       }
       // If the whole input has less than MIN_MATCH bytes, ins_h is garbage,
       // but this is not important since only literal bytes will be emitted.
@@ -1010,86 +1010,86 @@ final class Deflate{
       // for the next match, plus MIN_MATCH bytes to insert the
       // string following the next match.
       if(lookahead < MIN_LOOKAHEAD){
-	fill_window();
-	if(lookahead < MIN_LOOKAHEAD && flush == Z_NO_FLUSH){
-	  return NeedMore;
-	}
-	if(lookahead == 0) break; // flush the current block
+    fill_window();
+    if(lookahead < MIN_LOOKAHEAD && flush == Z_NO_FLUSH){
+      return NeedMore;
+    }
+    if(lookahead == 0) break; // flush the current block
       }
 
       // Insert the string window[strstart .. strstart+2] in the
       // dictionary, and set hash_head to the head of the hash chain:
       if(lookahead >= MIN_MATCH){
-	ins_h=(((ins_h)<<hash_shift)^(window[(strstart)+(MIN_MATCH-1)]&0xff))&hash_mask;
+    ins_h=(((ins_h)<<hash_shift)^(window[(strstart)+(MIN_MATCH-1)]&0xff))&hash_mask;
 
-//	prev[strstart&w_mask]=hash_head=head[ins_h];
+//    prev[strstart&w_mask]=hash_head=head[ins_h];
         hash_head=(head[ins_h]&0xffff);
-	prev[strstart&w_mask]=head[ins_h];
-	head[ins_h]=(short)strstart;
+    prev[strstart&w_mask]=head[ins_h];
+    head[ins_h]=(short)strstart;
       }
 
       // Find the longest match, discarding those <= prev_length.
       // At this point we have always match_length < MIN_MATCH
 
       if(hash_head!=0L && 
-	 ((strstart-hash_head)&0xffff) <= w_size-MIN_LOOKAHEAD
-	 ){
-	// To simplify the code, we prevent matches with the string
-	// of window index 0 (in particular we have to avoid a match
-	// of the string with itself at the start of the input file).
-	if(strategy != Z_HUFFMAN_ONLY){
-	  match_length=longest_match (hash_head);
-	}
-	// longest_match() sets match_start
+     ((strstart-hash_head)&0xffff) <= w_size-MIN_LOOKAHEAD
+     ){
+    // To simplify the code, we prevent matches with the string
+    // of window index 0 (in particular we have to avoid a match
+    // of the string with itself at the start of the input file).
+    if(strategy != Z_HUFFMAN_ONLY){
+      match_length=longest_match (hash_head);
+    }
+    // longest_match() sets match_start
       }
       if(match_length>=MIN_MATCH){
-	//        check_match(strstart, match_start, match_length);
+    //        check_match(strstart, match_start, match_length);
 
-	bflush=_tr_tally(strstart-match_start, match_length-MIN_MATCH);
+    bflush=_tr_tally(strstart-match_start, match_length-MIN_MATCH);
 
-	lookahead -= match_length;
+    lookahead -= match_length;
 
-	// Insert new strings in the hash table only if the match length
-	// is not too large. This saves time but degrades compression.
-	if(match_length <= max_lazy_match &&
-	   lookahead >= MIN_MATCH) {
-	  match_length--; // string at strstart already in hash table
-	  do{
-	    strstart++;
+    // Insert new strings in the hash table only if the match length
+    // is not too large. This saves time but degrades compression.
+    if(match_length <= max_lazy_match &&
+       lookahead >= MIN_MATCH) {
+      match_length--; // string at strstart already in hash table
+      do{
+        strstart++;
 
-	    ins_h=((ins_h<<hash_shift)^(window[(strstart)+(MIN_MATCH-1)]&0xff))&hash_mask;
-//	    prev[strstart&w_mask]=hash_head=head[ins_h];
-	    hash_head=(head[ins_h]&0xffff);
-	    prev[strstart&w_mask]=head[ins_h];
-	    head[ins_h]=(short)strstart;
+        ins_h=((ins_h<<hash_shift)^(window[(strstart)+(MIN_MATCH-1)]&0xff))&hash_mask;
+//        prev[strstart&w_mask]=hash_head=head[ins_h];
+        hash_head=(head[ins_h]&0xffff);
+        prev[strstart&w_mask]=head[ins_h];
+        head[ins_h]=(short)strstart;
 
-	    // strstart never exceeds WSIZE-MAX_MATCH, so there are
-	    // always MIN_MATCH bytes ahead.
-	  }
-	  while (--match_length != 0);
-	  strstart++; 
-	}
-	else{
-	  strstart += match_length;
-	  match_length = 0;
-	  ins_h = window[strstart]&0xff;
+        // strstart never exceeds WSIZE-MAX_MATCH, so there are
+        // always MIN_MATCH bytes ahead.
+      }
+      while (--match_length != 0);
+      strstart++; 
+    }
+    else{
+      strstart += match_length;
+      match_length = 0;
+      ins_h = window[strstart]&0xff;
 
-	  ins_h=(((ins_h)<<hash_shift)^(window[strstart+1]&0xff))&hash_mask;
-	  // If lookahead < MIN_MATCH, ins_h is garbage, but it does not
-	  // matter since it will be recomputed at next deflate call.
-	}
+      ins_h=(((ins_h)<<hash_shift)^(window[strstart+1]&0xff))&hash_mask;
+      // If lookahead < MIN_MATCH, ins_h is garbage, but it does not
+      // matter since it will be recomputed at next deflate call.
+    }
       }
       else {
-	// No match, output a literal byte
+    // No match, output a literal byte
 
-	bflush=_tr_tally(0, window[strstart]&0xff);
-	lookahead--;
-	strstart++; 
+    bflush=_tr_tally(0, window[strstart]&0xff);
+    lookahead--;
+    strstart++; 
       }
       if (bflush){
 
-	flush_block_only(false);
-	if(strm.avail_out==0) return NeedMore;
+    flush_block_only(false);
+    if(strm.avail_out==0) return NeedMore;
       }
     }
 
@@ -1117,22 +1117,22 @@ final class Deflate{
       // string following the next match.
 
       if (lookahead < MIN_LOOKAHEAD) {
-	fill_window();
-	if(lookahead < MIN_LOOKAHEAD && flush == Z_NO_FLUSH) {
-	  return NeedMore;
-	}
-	if(lookahead == 0) break; // flush the current block
+    fill_window();
+    if(lookahead < MIN_LOOKAHEAD && flush == Z_NO_FLUSH) {
+      return NeedMore;
+    }
+    if(lookahead == 0) break; // flush the current block
       }
 
       // Insert the string window[strstart .. strstart+2] in the
       // dictionary, and set hash_head to the head of the hash chain:
 
       if(lookahead >= MIN_MATCH) {
-	ins_h=(((ins_h)<<hash_shift)^(window[(strstart)+(MIN_MATCH-1)]&0xff)) & hash_mask;
-//	prev[strstart&w_mask]=hash_head=head[ins_h];
-	hash_head=(head[ins_h]&0xffff);
-	prev[strstart&w_mask]=head[ins_h];
-	head[ins_h]=(short)strstart;
+    ins_h=(((ins_h)<<hash_shift)^(window[(strstart)+(MIN_MATCH-1)]&0xff)) & hash_mask;
+//    prev[strstart&w_mask]=hash_head=head[ins_h];
+    hash_head=(head[ins_h]&0xffff);
+    prev[strstart&w_mask]=head[ins_h];
+    head[ins_h]=(short)strstart;
       }
 
       // Find the longest match, discarding those <= prev_length.
@@ -1140,82 +1140,82 @@ final class Deflate{
       match_length = MIN_MATCH-1;
 
       if (hash_head != 0 && prev_length < max_lazy_match &&
-	  ((strstart-hash_head)&0xffff) <= w_size-MIN_LOOKAHEAD
-	  ){
-	// To simplify the code, we prevent matches with the string
-	// of window index 0 (in particular we have to avoid a match
-	// of the string with itself at the start of the input file).
+      ((strstart-hash_head)&0xffff) <= w_size-MIN_LOOKAHEAD
+      ){
+    // To simplify the code, we prevent matches with the string
+    // of window index 0 (in particular we have to avoid a match
+    // of the string with itself at the start of the input file).
 
-	if(strategy != Z_HUFFMAN_ONLY) {
-	  match_length = longest_match(hash_head);
-	}
-	// longest_match() sets match_start
+    if(strategy != Z_HUFFMAN_ONLY) {
+      match_length = longest_match(hash_head);
+    }
+    // longest_match() sets match_start
 
-	if (match_length <= 5 && (strategy == Z_FILTERED ||
-				  (match_length == MIN_MATCH &&
-				   strstart - match_start > 4096))) {
+    if (match_length <= 5 && (strategy == Z_FILTERED ||
+                  (match_length == MIN_MATCH &&
+                   strstart - match_start > 4096))) {
 
-	  // If prev_match is also MIN_MATCH, match_start is garbage
-	  // but we will ignore the current match anyway.
-	  match_length = MIN_MATCH-1;
-	}
+      // If prev_match is also MIN_MATCH, match_start is garbage
+      // but we will ignore the current match anyway.
+      match_length = MIN_MATCH-1;
+    }
       }
 
       // If there was a match at the previous step and the current
       // match is not better, output the previous match:
       if(prev_length >= MIN_MATCH && match_length <= prev_length) {
-	int max_insert = strstart + lookahead - MIN_MATCH;
-	// Do not insert strings in hash table beyond this.
+    int max_insert = strstart + lookahead - MIN_MATCH;
+    // Do not insert strings in hash table beyond this.
 
-	//          check_match(strstart-1, prev_match, prev_length);
+    //          check_match(strstart-1, prev_match, prev_length);
 
-	bflush=_tr_tally(strstart-1-prev_match, prev_length - MIN_MATCH);
+    bflush=_tr_tally(strstart-1-prev_match, prev_length - MIN_MATCH);
 
-	// Insert in hash table all strings up to the end of the match.
-	// strstart-1 and strstart are already inserted. If there is not
-	// enough lookahead, the last two strings are not inserted in
-	// the hash table.
-	lookahead -= prev_length-1;
-	prev_length -= 2;
-	do{
-	  if(++strstart <= max_insert) {
-	    ins_h=(((ins_h)<<hash_shift)^(window[(strstart)+(MIN_MATCH-1)]&0xff))&hash_mask;
-	    //prev[strstart&w_mask]=hash_head=head[ins_h];
-	    hash_head=(head[ins_h]&0xffff);
-	    prev[strstart&w_mask]=head[ins_h];
-	    head[ins_h]=(short)strstart;
-	  }
-	}
-	while(--prev_length != 0);
-	match_available = 0;
-	match_length = MIN_MATCH-1;
-	strstart++;
+    // Insert in hash table all strings up to the end of the match.
+    // strstart-1 and strstart are already inserted. If there is not
+    // enough lookahead, the last two strings are not inserted in
+    // the hash table.
+    lookahead -= prev_length-1;
+    prev_length -= 2;
+    do{
+      if(++strstart <= max_insert) {
+        ins_h=(((ins_h)<<hash_shift)^(window[(strstart)+(MIN_MATCH-1)]&0xff))&hash_mask;
+        //prev[strstart&w_mask]=hash_head=head[ins_h];
+        hash_head=(head[ins_h]&0xffff);
+        prev[strstart&w_mask]=head[ins_h];
+        head[ins_h]=(short)strstart;
+      }
+    }
+    while(--prev_length != 0);
+    match_available = 0;
+    match_length = MIN_MATCH-1;
+    strstart++;
 
-	if (bflush){
-	  flush_block_only(false);
-	  if(strm.avail_out==0) return NeedMore;
-	}
+    if (bflush){
+      flush_block_only(false);
+      if(strm.avail_out==0) return NeedMore;
+    }
       } else if (match_available!=0) {
 
-	// If there was no match at the previous position, output a
-	// single literal. If there was a match but the current match
-	// is longer, truncate the previous match to a single literal.
+    // If there was no match at the previous position, output a
+    // single literal. If there was a match but the current match
+    // is longer, truncate the previous match to a single literal.
 
-	bflush=_tr_tally(0, window[strstart-1]&0xff);
+    bflush=_tr_tally(0, window[strstart-1]&0xff);
 
-	if (bflush) {
-	  flush_block_only(false);
-	}
-	strstart++;
-	lookahead--;
-	if(strm.avail_out == 0) return NeedMore;
+    if (bflush) {
+      flush_block_only(false);
+    }
+    strstart++;
+    lookahead--;
+    if(strm.avail_out == 0) return NeedMore;
       } else {
-	// There is no previous match to compare with, wait for
-	// the next step to decide.
+    // There is no previous match to compare with, wait for
+    // the next step to decide.
 
-	match_available = 1;
-	strstart++;
-	lookahead--;
+    match_available = 1;
+    strstart++;
+    lookahead--;
       }
     }
 
@@ -1270,9 +1270,9 @@ final class Deflate{
       // Skip to next match if the match length cannot increase
       // or if the match length is less than 2:
       if (window[match+best_len]   != scan_end  ||
-	  window[match+best_len-1] != scan_end1 ||
-	  window[match]       != window[scan]     ||
-	  window[++match]     != window[scan+1])      continue;
+      window[match+best_len-1] != scan_end1 ||
+      window[match]       != window[scan]     ||
+      window[++match]     != window[scan+1])      continue;
 
       // The check at best_len-1 can be removed because it will be made
       // again later. (This heuristic is not always a win.)
@@ -1285,28 +1285,28 @@ final class Deflate{
       // the 256th check will be made at strstart+258.
       do {
       } while (window[++scan] == window[++match] &&
-	       window[++scan] == window[++match] &&
-	       window[++scan] == window[++match] &&
-	       window[++scan] == window[++match] &&
-	       window[++scan] == window[++match] &&
-	       window[++scan] == window[++match] &&
-	       window[++scan] == window[++match] &&
-	       window[++scan] == window[++match] &&
-	       scan < strend);
+           window[++scan] == window[++match] &&
+           window[++scan] == window[++match] &&
+           window[++scan] == window[++match] &&
+           window[++scan] == window[++match] &&
+           window[++scan] == window[++match] &&
+           window[++scan] == window[++match] &&
+           window[++scan] == window[++match] &&
+           scan < strend);
 
       len = MAX_MATCH - (int)(strend - scan);
       scan = strend - MAX_MATCH;
 
       if(len>best_len) {
-	match_start = cur_match;
-	best_len = len;
-	if (len >= nice_match) break;
-	scan_end1  = window[scan+best_len-1];
-	scan_end   = window[scan+best_len];
+    match_start = cur_match;
+    best_len = len;
+    if (len >= nice_match) break;
+    scan_end1  = window[scan+best_len-1];
+    scan_end   = window[scan+best_len];
       }
 
     } while ((cur_match = (prev[cur_match & wmask]&0xffff)) > limit
-	     && --chain_length != 0);
+         && --chain_length != 0);
 
     if (best_len <= lookahead) return best_len;
     return lookahead;
@@ -1314,13 +1314,13 @@ final class Deflate{
     
   int deflateInit(ZStream strm, int level, int bits){
     return deflateInit2(strm, level, Z_DEFLATED, bits, DEF_MEM_LEVEL,
-			Z_DEFAULT_STRATEGY);
+            Z_DEFAULT_STRATEGY);
   }
   int deflateInit(ZStream strm, int level){
     return deflateInit(strm, level, MAX_WBITS);
   }
   int deflateInit2(ZStream strm, int level, int method,  int windowBits,
-		   int memLevel, int strategy){
+           int memLevel, int strategy){
     int noheader = 0;
     //    byte[] my_version=ZLIB_VERSION;
 
@@ -1340,8 +1340,8 @@ final class Deflate{
     }
 
     if (memLevel < 1 || memLevel > MAX_MEM_LEVEL || 
-	method != Z_DEFLATED ||
-	windowBits < 9 || windowBits > 15 || level < 0 || level > 9 ||
+    method != Z_DEFLATED ||
+    windowBits < 9 || windowBits > 15 || level < 0 || level > 9 ||
         strategy < 0 || strategy > Z_HUFFMAN_ONLY) {
       return Z_STREAM_ERROR;
     }
@@ -1526,14 +1526,14 @@ final class Deflate{
     if(pending != 0) {
       strm.flush_pending();
       if(strm.avail_out == 0) {
-	//System.out.println("  avail_out==0");
-	// Since avail_out is 0, deflate will be called again with
-	// more output space, but possibly with both pending and
-	// avail_in equal to zero. There won't be anything to do,
-	// but this is not an error situation so make sure we
-	// return OK instead of BUF_ERROR at next call of deflate:
-	last_flush = -1;
-	return Z_OK;
+    //System.out.println("  avail_out==0");
+    // Since avail_out is 0, deflate will be called again with
+    // more output space, but possibly with both pending and
+    // avail_in equal to zero. There won't be anything to do,
+    // but this is not an error situation so make sure we
+    // return OK instead of BUF_ERROR at next call of deflate:
+    last_flush = -1;
+    return Z_OK;
       }
 
       // Make sure there is something to do and avoid duplicate consecutive
@@ -1541,7 +1541,7 @@ final class Deflate{
       // returning Z_STREAM_END instead of Z_BUFF_ERROR.
     }
     else if(strm.avail_in==0 && flush <= old_flush &&
-	    flush != Z_FINISH) {
+        flush != Z_FINISH) {
       strm.msg=z_errmsg[Z_NEED_DICT-(Z_BUF_ERROR)];
       return Z_BUF_ERROR;
     }
@@ -1558,52 +1558,52 @@ final class Deflate{
       int bstate=-1;
       switch(config_table[level].func){
       case STORED: 
-	bstate = deflate_stored(flush);
-	break;
+    bstate = deflate_stored(flush);
+    break;
       case FAST: 
-	bstate = deflate_fast(flush);
-	break;
+    bstate = deflate_fast(flush);
+    break;
       case SLOW: 
-	bstate = deflate_slow(flush);
-	break;
+    bstate = deflate_slow(flush);
+    break;
       default:
       }
 
       if (bstate==FinishStarted || bstate==FinishDone) {
-	status = FINISH_STATE;
+    status = FINISH_STATE;
       }
       if (bstate==NeedMore || bstate==FinishStarted) {
-	if(strm.avail_out == 0) {
-	  last_flush = -1; // avoid BUF_ERROR next call, see above
-	}
-	return Z_OK;
-	// If flush != Z_NO_FLUSH && avail_out == 0, the next call
-	// of deflate should use the same flush parameter to make sure
-	// that the flush is complete. So we don't have to output an
-	// empty block here, this will be done at next call. This also
-	// ensures that for a very small output buffer, we emit at most
-	// one empty block.
+    if(strm.avail_out == 0) {
+      last_flush = -1; // avoid BUF_ERROR next call, see above
+    }
+    return Z_OK;
+    // If flush != Z_NO_FLUSH && avail_out == 0, the next call
+    // of deflate should use the same flush parameter to make sure
+    // that the flush is complete. So we don't have to output an
+    // empty block here, this will be done at next call. This also
+    // ensures that for a very small output buffer, we emit at most
+    // one empty block.
       }
 
       if (bstate==BlockDone) {
-	if(flush == Z_PARTIAL_FLUSH) {
-	  _tr_align();
-	} 
-	else { // FULL_FLUSH or SYNC_FLUSH
-	  _tr_stored_block(0, 0, false);
-	  // For a full flush, this empty block will be recognized
-	  // as a special marker by inflate_sync().
-	  if(flush == Z_FULL_FLUSH) {
-	    //state.head[s.hash_size-1]=0;
-	    for(int i=0; i<hash_size/*-1*/; i++)  // forget history
-	      head[i]=0;
-	  }
-	}
-	strm.flush_pending();
-	if(strm.avail_out == 0) {
-	  last_flush = -1; // avoid BUF_ERROR at next call, see above
-	  return Z_OK;
-	}
+    if(flush == Z_PARTIAL_FLUSH) {
+      _tr_align();
+    } 
+    else { // FULL_FLUSH or SYNC_FLUSH
+      _tr_stored_block(0, 0, false);
+      // For a full flush, this empty block will be recognized
+      // as a special marker by inflate_sync().
+      if(flush == Z_FULL_FLUSH) {
+        //state.head[s.hash_size-1]=0;
+        for(int i=0; i<hash_size/*-1*/; i++)  // forget history
+          head[i]=0;
+      }
+    }
+    strm.flush_pending();
+    if(strm.avail_out == 0) {
+      last_flush = -1; // avoid BUF_ERROR at next call, see above
+      return Z_OK;
+    }
       }
     }
 

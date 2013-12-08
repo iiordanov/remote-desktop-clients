@@ -13,5 +13,5 @@ import android.view.GestureDetector;
  * @author Michael A. MacDonald
  */
 public interface IBCGestureDetector {
-	public GestureDetector createGestureDetector(Context context, GestureDetector.OnGestureListener listener);
+    public GestureDetector createGestureDetector(Context context, GestureDetector.OnGestureListener listener);
 }

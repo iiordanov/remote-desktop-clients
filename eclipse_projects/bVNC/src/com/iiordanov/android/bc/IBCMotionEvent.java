@@ -14,11 +14,11 @@ import android.view.MotionEvent;
  *
  */
 public interface IBCMotionEvent {
-	/**
-	 * Obtain the number of pointers active in the event
-	 * @see android.view.MotionEvent#getPointerCount()
-	 * @param evt
-	 * @return number of pointers
-	 */
-	int getPointerCount(MotionEvent evt);
+    /**
+     * Obtain the number of pointers active in the event
+     * @see android.view.MotionEvent#getPointerCount()
+     * @param evt
+     * @return number of pointers
+     */
+    int getPointerCount(MotionEvent evt);
 }

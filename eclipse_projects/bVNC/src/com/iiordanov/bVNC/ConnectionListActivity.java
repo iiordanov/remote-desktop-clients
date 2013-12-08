@@ -35,8 +35,8 @@ import android.widget.SimpleCursorAdapter;
  *
  */
 public class ConnectionListActivity extends ListActivity {
-	
-	VncDatabase database;
+    
+    VncDatabase database;
 
     @Override
     protected void onCreate(Bundle savedInstanceState){
@@ -47,14 +47,14 @@ public class ConnectionListActivity extends ListActivity {
         // Query for all people contacts using the Contacts.People convenience class.
         // Put a managed wrapper around the retrieved cursor so we don't have to worry about
         // requerying or closing it as the activity changes state.
-        Cursor mCursor = database.getReadableDatabase().query(ConnectionBean.GEN_TABLE_NAME, new String[] {		
-        		ConnectionBean.GEN_FIELD__ID,
-        		ConnectionBean.GEN_FIELD_NICKNAME,
-        		ConnectionBean.GEN_FIELD_USERNAME,
-        		ConnectionBean.GEN_FIELD_ADDRESS,
-        		ConnectionBean.GEN_FIELD_PORT,
-        		ConnectionBean.GEN_FIELD_REPEATERID },
-        		ConnectionBean.GEN_FIELD_KEEPPASSWORD + " <> 0", null, null, null, ConnectionBean.GEN_FIELD_NICKNAME);
+        Cursor mCursor = database.getReadableDatabase().query(ConnectionBean.GEN_TABLE_NAME, new String[] {        
+                ConnectionBean.GEN_FIELD__ID,
+                ConnectionBean.GEN_FIELD_NICKNAME,
+                ConnectionBean.GEN_FIELD_USERNAME,
+                ConnectionBean.GEN_FIELD_ADDRESS,
+                ConnectionBean.GEN_FIELD_PORT,
+                ConnectionBean.GEN_FIELD_REPEATERID },
+                ConnectionBean.GEN_FIELD_KEEPPASSWORD + " <> 0", null, null, null, ConnectionBean.GEN_FIELD_NICKNAME);
         startManagingCursor(mCursor);
 
         // Now create a new list adapter bound to the cursor. 
@@ -64,29 +64,29 @@ public class ConnectionListActivity extends ListActivity {
                 R.layout.connection_list, 
                 mCursor,                                    // Pass in the cursor to bind to.
                 new String[] {
-                		ConnectionBean.GEN_FIELD_NICKNAME,
-                		ConnectionBean.GEN_FIELD_ADDRESS,
-                		ConnectionBean.GEN_FIELD_PORT,
-                		ConnectionBean.GEN_FIELD_REPEATERID }, // Array of cursor columns to bind to.
+                        ConnectionBean.GEN_FIELD_NICKNAME,
+                        ConnectionBean.GEN_FIELD_ADDRESS,
+                        ConnectionBean.GEN_FIELD_PORT,
+                        ConnectionBean.GEN_FIELD_REPEATERID }, // Array of cursor columns to bind to.
                 new int[] {
-                	R.id.list_text_nickname,
-                	R.id.list_text_address,
-                	R.id.list_text_port,
-                	R.id.list_text_repeater
+                    R.id.list_text_nickname,
+                    R.id.list_text_address,
+                    R.id.list_text_port,
+                    R.id.list_text_repeater
                 });                                 // Parallel array of which template objects to bind to those columns.
 
         // Bind to our new adapter.
         setListAdapter(adapter);
     }
 
-	/* (non-Javadoc)
-	 * @see android.app.ListActivity#onListItemClick(android.widget.ListView, android.view.View, int, long)
-	 */
-	@Override
-	protected void onListItemClick(ListView l, View v, int position, long id) {
-		ConnectionBean connection = new ConnectionBean(this);
-		if (connection.Gen_read(database.getReadableDatabase(), id))
-		{
+    /* (non-Javadoc)
+     * @see android.app.ListActivity#onListItemClick(android.widget.ListView, android.view.View, int, long)
+     */
+    @Override
+    protected void onListItemClick(ListView l, View v, int position, long id) {
+        ConnectionBean connection = new ConnectionBean(this);
+        if (connection.Gen_read(database.getReadableDatabase(), id))
+        {
             // create shortcut if requested
             ShortcutIconResource icon = Intent.ShortcutIconResource.fromContext(this, R.drawable.icon);
 
@@ -103,20 +103,20 @@ public class ConnectionListActivity extends ListActivity {
             intent.putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE, icon);
 
             setResult(RESULT_OK, intent);
-		}
-		else
-			setResult(RESULT_CANCELED);
-		
-		finish();
-	}
+        }
+        else
+            setResult(RESULT_CANCELED);
+        
+        finish();
+    }
 
-	/* (non-Javadoc)
-	 * @see android.app.Activity#onDestroy()
-	 */
-	@Override
-	protected void onDestroy() {
-		database.close();
-		super.onDestroy();
-	}
+    /* (non-Javadoc)
+     * @see android.app.Activity#onDestroy()
+     */
+    @Override
+    protected void onDestroy() {
+        database.close();
+        super.onDestroy();
+    }
     
 }

@@ -138,7 +138,7 @@ static void update_mouse_mode(SpiceChannel *channel, gpointer data)
 static gboolean do_color_convert(SpiceDisplay *display,
                                  gint x, gint y, gint w, gint h)
 {
-	SpiceDisplayPrivate *d = SPICE_DISPLAY_GET_PRIVATE(display);
+    SpiceDisplayPrivate *d = SPICE_DISPLAY_GET_PRIVATE(display);
     int i, j, maxy, maxx, miny, minx;
     guint32 *dest = d->data;
     guint16 *src = d->data_origin;
@@ -184,7 +184,7 @@ static gboolean do_color_convert(SpiceDisplay *display,
 
 void send_key(SpiceDisplay *display, int scancode, int down)
 {
-	SpiceDisplayPrivate *d = SPICE_DISPLAY_GET_PRIVATE(display);
+    SpiceDisplayPrivate *d = SPICE_DISPLAY_GET_PRIVATE(display);
     uint32_t i, b, m;
 
     if (!d->inputs)
@@ -210,7 +210,7 @@ void send_key(SpiceDisplay *display, int scancode, int down)
 /* ---------------------------------------------------------------- */
 
 static void primary_create(SpiceChannel *channel, gint format, gint width, gint height, gint stride, gint shmid, gpointer imgdata, gpointer data) {
-	__android_log_write(6, "android-spice", "primary_create");
+    __android_log_write(6, "android-spice", "primary_create");
 
     SpiceDisplay *display = data;
     SpiceDisplayPrivate *d = SPICE_DISPLAY_GET_PRIVATE(display);
@@ -250,16 +250,16 @@ static void invalidate(SpiceChannel *channel,
 
     SpiceDisplayPrivate *d = SPICE_DISPLAY_GET_PRIVATE(display);
 
-	if (maintainConnection == FALSE || x + w > d->width || y + h > d->height) {
-		__android_log_write(6, "android-spice", "Not drawing.");
-		return;
-	}
+    if (maintainConnection == FALSE || x + w > d->width || y + h > d->height) {
+        __android_log_write(6, "android-spice", "Not drawing.");
+        return;
+    }
 
-	uiCallbackInvalidate (d, x, y, w, h);
+    uiCallbackInvalidate (d, x, y, w, h);
 }
 
 static void mark(SpiceChannel *channel, gint mark, gpointer data) {
-	//__android_log_write(6, "android-spice", "mark");
+    //__android_log_write(6, "android-spice", "mark");
     SpiceDisplay *display = data;
     SpiceDisplayPrivate *d = SPICE_DISPLAY_GET_PRIVATE(display);
     d->mark = mark;
@@ -267,7 +267,7 @@ static void mark(SpiceChannel *channel, gint mark, gpointer data) {
 
 static void disconnect_main(SpiceDisplay *display)
 {
-	SpiceDisplayPrivate *d = SPICE_DISPLAY_GET_PRIVATE(display);
+    SpiceDisplayPrivate *d = SPICE_DISPLAY_GET_PRIVATE(display);
     //gint i;
 
     if (d->main == NULL)
@@ -284,7 +284,7 @@ static void disconnect_main(SpiceDisplay *display)
 
 static void disconnect_display(SpiceDisplay *display)
 {
-	SpiceDisplayPrivate *d = SPICE_DISPLAY_GET_PRIVATE(display);
+    SpiceDisplayPrivate *d = SPICE_DISPLAY_GET_PRIVATE(display);
 
     if (d->display == NULL)
         return;
@@ -299,7 +299,7 @@ static void disconnect_display(SpiceDisplay *display)
 
 static void channel_new(SpiceSession *s, SpiceChannel *channel, gpointer data)
 {
-	__android_log_write(6, "android-spice", "channel_new");
+    __android_log_write(6, "android-spice", "channel_new");
 
     SpiceDisplay *display = data;
     SpiceDisplayPrivate *d = SPICE_DISPLAY_GET_PRIVATE(display);
