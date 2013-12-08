@@ -470,7 +470,7 @@ public class RdpKeyboardMapper
                 // recognized correctly. Otherwise we will send the unicode key. At the end we will reset all modifiers
                 // and notifiy our listener.
                 int vkcode = getVirtualKeyCode(event.getKeyCode());
-                android.util.Log.e("KeyMapper", "VK KeyCode is: " + vkcode);
+                //android.util.Log.e("KeyMapper", "VK KeyCode is: " + vkcode);
                 if((vkcode & KEY_FLAG_UNICODE) != 0)
                     listener.processUnicodeKey(vkcode & (~KEY_FLAG_UNICODE));
                 // if we got a valid vkcode send it - except for letters/numbers if a modifier is active
