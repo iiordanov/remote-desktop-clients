@@ -73,7 +73,7 @@ class OneToOneScaling extends AbstractScaling {
      * Call after scaling and matrix have been changed to resolve scrolling
      * @param activity
      */
-    private void resolveZoom(VncCanvas canvas)
+    private void resolveZoom(RemoteCanvas canvas)
     {
         canvas.scrollToAbsolute();
         //activity.vncCanvas.pan(0,0);
@@ -97,9 +97,9 @@ class OneToOneScaling extends AbstractScaling {
      * @see com.iiordanov.bVNC.AbstractScaling#setScaleTypeForActivity(com.iiordanov.bVNC.VncCanvasActivity)
      */
     @Override
-    void setScaleTypeForActivity(VncCanvasActivity activity) {
+    void setScaleTypeForActivity(RemoteCanvasActivity activity) {
         super.setScaleTypeForActivity(activity);
-        VncCanvas canvas = activity.getCanvas();
+        RemoteCanvas canvas = activity.getCanvas();
         canvasXOffset = -canvas.getCenteredXOffset();
         canvasYOffset = -canvas.getCenteredYOffset();
         canvas.computeShiftFromFullToView ();

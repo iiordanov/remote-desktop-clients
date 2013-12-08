@@ -19,12 +19,12 @@
 
 package com.iiordanov.tigervnc.rfb;
 
-import com.iiordanov.bVNC.VncCanvas;
+import com.iiordanov.bVNC.RemoteCanvas;
 import com.iiordanov.tigervnc.vncviewer.CConn;
 
 public class SecurityClient extends Security {
 
-  public SecurityClient(VncCanvas v) { super(secTypes); vncCanvas = v;}
+  public SecurityClient(RemoteCanvas v) { super(secTypes); vncCanvas = v;}
 
   public CSecurity GetCSecurity(int secType)
   {
@@ -83,5 +83,5 @@ public class SecurityClient extends Security {
                         "Specify which security scheme to use (None, VncAuth)",
                         "Ident,TLSIdent,X509Ident,X509Plain,TLSPlain,X509Vnc,TLSVnc,X509None,TLSNone,VncAuth,None");
   
-  VncCanvas vncCanvas;
+  RemoteCanvas vncCanvas;
 }

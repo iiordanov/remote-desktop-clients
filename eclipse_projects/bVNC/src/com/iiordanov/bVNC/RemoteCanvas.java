@@ -80,7 +80,7 @@ import com.iiordanov.bVNC.input.RemotePointer;
 
 import com.iiordanov.tigervnc.vncviewer.CConn;
 
-public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, LibFreeRDP.EventListener {
+public class RemoteCanvas extends ImageView implements LibFreeRDP.UIEventListener, LibFreeRDP.EventListener {
     private final static String TAG = "VncCanvas";
     
     public AbstractScaling scaling;
@@ -90,7 +90,7 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
     
     // Connection parameters
     ConnectionBean connection;
-    VncDatabase database;
+    Database database;
     private SSHConnection sshConnection = null;
     
     // VNC protocol connection
@@ -177,7 +177,7 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
      * 
      * @param context
      */
-    public VncCanvas(final Context context, AttributeSet attrs) {
+    public RemoteCanvas(final Context context, AttributeSet attrs) {
         super(context, attrs);
         
         clipboard = (ClipboardManager)getContext().getSystemService(Context.CLIPBOARD_SERVICE);
@@ -202,7 +202,7 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
      * @param bean Connection settings
      * @param setModes Callback to run on UI thread after connection is set up
      */
-    void initializeCanvas(ConnectionBean bean, VncDatabase db, final Runnable setModes) {
+    void initializeCanvas(ConnectionBean bean, Database db, final Runnable setModes) {
         this.setModes = setModes;
         connection = bean;
         database = db;
@@ -230,12 +230,12 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
             public void run() {
                 try {
                     // Initialize SSH key if necessary
-                    if (connection.getConnectionType() == VncConstants.CONN_TYPE_SSH &&
+                    if (connection.getConnectionType() == Constants.CONN_TYPE_SSH &&
                         connection.getSshHostKey().equals("")) {
-                        handler.sendEmptyMessage(VncConstants.DIALOG_SSH_CERT);
-                        synchronized (VncCanvas.this) {
+                        handler.sendEmptyMessage(Constants.DIALOG_SSH_CERT);
+                        synchronized (RemoteCanvas.this) {
                             try {
-                                VncCanvas.this.wait();
+                                RemoteCanvas.this.wait();
                             } catch (InterruptedException e) {
                                 e.printStackTrace();
                                 ((Activity) getContext()).finish();
@@ -312,9 +312,9 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
         
         spicecomm = new SpiceCommunicator ();
         rfbconn = spicecomm;
-        pointer = new RemoteSpicePointer (rfbconn, VncCanvas.this, handler);
-        keyboard = new RemoteSpiceKeyboard (rfbconn, VncCanvas.this, handler);
-        spicecomm.setUIEventListener(VncCanvas.this);
+        pointer = new RemoteSpicePointer (rfbconn, RemoteCanvas.this, handler);
+        keyboard = new RemoteSpiceKeyboard (rfbconn, RemoteCanvas.this, handler);
+        spicecomm.setUIEventListener(RemoteCanvas.this);
         spicecomm.setHandler(handler);
         spicecomm.connect(address, Integer.toString(port), Integer.toString(tport),
                             connection.getPassword(), connection.getCaCertPath(),
@@ -327,7 +327,7 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
         } catch (InterruptedException e) {}
         
         if (!spiceUpdateReceived) {
-            handler.sendEmptyMessage(VncConstants.SPICE_CONNECT_FAILURE);
+            handler.sendEmptyMessage(Constants.SPICE_CONNECT_FAILURE);
         } else {
             pd.dismiss();
         }
@@ -380,11 +380,11 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
         
         rdpcomm = new RdpCommunicator (session);
         rfbconn = rdpcomm;
-        pointer = new RemoteRdpPointer (rfbconn, VncCanvas.this, handler);
-        keyboard = new RemoteRdpKeyboard (rfbconn, VncCanvas.this, handler);
+        pointer = new RemoteRdpPointer (rfbconn, RemoteCanvas.this, handler);
+        keyboard = new RemoteRdpKeyboard (rfbconn, RemoteCanvas.this, handler);
         
-        session.setUIEventListener(VncCanvas.this);
-        LibFreeRDP.setEventListener(VncCanvas.this);
+        session.setUIEventListener(RemoteCanvas.this);
+        LibFreeRDP.setEventListener(RemoteCanvas.this);
         
         session.connect();
         pd.dismiss();
@@ -400,7 +400,7 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
         
         String address = getAddress();
         int vncPort    = getPort(connection.getPort());
-        boolean anonTLS = (connection.getConnectionType() == VncConstants.CONN_TYPE_ANONTLS);
+        boolean anonTLS = (connection.getConnectionType() == Constants.CONN_TYPE_ANONTLS);
         try {
             rfb = new RfbProto(decoder, address, vncPort,
                                 connection.getPrefEncoding(), connection.getViewOnly());
@@ -412,8 +412,8 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
         }
         
         rfbconn = rfb;
-        pointer = new RemoteVncPointer (rfbconn, VncCanvas.this, handler);
-        keyboard = new RemoteVncKeyboard (rfbconn, VncCanvas.this, handler);
+        pointer = new RemoteVncPointer (rfbconn, RemoteCanvas.this, handler);
+        keyboard = new RemoteVncKeyboard (rfbconn, RemoteCanvas.this, handler);
         
         rfb.writeClientInit();
         rfb.readServerInit();
@@ -448,7 +448,7 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
      */
     void sendUnixAuth () {
         // If the type of connection is ssh-tunneled and we are told to send the unix credentials, then do so.
-        if (connection.getConnectionType() == VncConstants.CONN_TYPE_SSH && connection.getAutoXUnixAuth()) {
+        if (connection.getConnectionType() == Constants.CONN_TYPE_SSH && connection.getAutoXUnixAuth()) {
             keyboard.processLocalKeyEvent(KeyEvent.KEYCODE_UNKNOWN, new KeyEvent(SystemClock.uptimeMillis(),
                                             connection.getSshUser(), 0, 0));
             keyboard.processLocalKeyEvent(KeyEvent.KEYCODE_ENTER, new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_ENTER));
@@ -467,10 +467,10 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
      * @throws Exception
      */
     private void startVencryptConnection() throws Exception {
-        cc = new CConn(VncCanvas.this, sock, null, false, connection);
+        cc = new CConn(RemoteCanvas.this, sock, null, false, connection);
         rfbconn = cc;
-        pointer = new RemoteVncPointer (rfbconn, VncCanvas.this, handler);
-        keyboard = new RemoteVncKeyboard (rfbconn, VncCanvas.this, handler);
+        pointer = new RemoteVncPointer (rfbconn, RemoteCanvas.this, handler);
+        keyboard = new RemoteVncKeyboard (rfbconn, RemoteCanvas.this, handler);
         initializeBitmap(displayWidth, displayHeight);
         
         // Initialize the protocol before we dismiss the progress dialog and request for the right
@@ -502,10 +502,10 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
         int remoteWidth = 0;
         int reqWidth  = connection.getRdpWidth();
         int reqHeight = connection.getRdpHeight();
-        if (connection.getRdpResType() == VncConstants.RDP_GEOM_SELECT_CUSTOM &&
+        if (connection.getRdpResType() == Constants.RDP_GEOM_SELECT_CUSTOM &&
             reqWidth >= 2 && reqHeight >= 2) {
             remoteWidth  = reqWidth;
-        } else if (connection.getRdpResType() == VncConstants.RDP_GEOM_SELECT_NATIVE_PORTRAIT) {
+        } else if (connection.getRdpResType() == Constants.RDP_GEOM_SELECT_NATIVE_PORTRAIT) {
             remoteWidth  = Math.min(displayWidth, displayHeight);
         } else {
             remoteWidth  = Math.max(displayWidth, displayHeight);
@@ -521,10 +521,10 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
         int remoteHeight = 0;
         int reqWidth  = connection.getRdpWidth();
         int reqHeight = connection.getRdpHeight();
-        if (connection.getRdpResType() == VncConstants.RDP_GEOM_SELECT_CUSTOM &&
+        if (connection.getRdpResType() == Constants.RDP_GEOM_SELECT_CUSTOM &&
             reqWidth >= 2 && reqHeight >= 2) {
             remoteHeight = reqHeight;
-        } else if (connection.getRdpResType() == VncConstants.RDP_GEOM_SELECT_NATIVE_PORTRAIT) {
+        } else if (connection.getRdpResType() == Constants.RDP_GEOM_SELECT_NATIVE_PORTRAIT) {
             remoteHeight = Math.max(displayWidth, displayHeight);                        
         } else {
             remoteHeight = Math.min(displayWidth, displayHeight);
@@ -556,7 +556,7 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
     int getPort(int port) throws Exception {
         int result = 0;
         
-        if (connection.getConnectionType() == VncConstants.CONN_TYPE_SSH) {
+        if (connection.getConnectionType() == Constants.CONN_TYPE_SSH) {
             if (sshConnection == null) {
                 sshConnection = new SSHConnection(connection, getContext());
             }
@@ -578,7 +578,7 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
      * @throws Exception
      */
     String getAddress() {
-        if (connection.getConnectionType() == VncConstants.CONN_TYPE_SSH) {
+        if (connection.getConnectionType() == Constants.CONN_TYPE_SSH) {
             return new String("127.0.0.1");
         } else
             return connection.getAddress();
@@ -981,7 +981,7 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
     private Runnable drawableSetter = new Runnable() {
         public void run() {
             if (bitmapData != null)
-                bitmapData.setImageDrawable(VncCanvas.this);
+                bitmapData.setImageDrawable(RemoteCanvas.this);
             }
     };
     
@@ -1270,7 +1270,7 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
         if (isSpice) {
             spiceUpdateReceived = true;
             rfbconn.setIsInNormalProtocol(true);
-            handler.sendEmptyMessage(VncConstants.SPICE_CONNECT_SUCCESS);
+            handler.sendEmptyMessage(Constants.SPICE_CONNECT_SUCCESS);
         }
     }
 
@@ -1288,7 +1288,7 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
         // Send a message containing the certificate to our handler.
         Message m = new Message();
         m.setTarget(handler);
-        m.what = VncConstants.DIALOG_RDP_CERT;
+        m.what = Constants.DIALOG_RDP_CERT;
         Bundle strings = new Bundle();
         strings.putString("subject", subject);
         strings.putString("issuer", issuer);
@@ -1335,22 +1335,22 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
         @Override
         public void handleMessage(Message msg) {
             switch (msg.what) {
-            case VncConstants.DIALOG_X509_CERT:
+            case Constants.DIALOG_X509_CERT:
                 validateX509Cert ((X509Certificate)msg.obj);
                 break;
-            case VncConstants.DIALOG_SSH_CERT:
+            case Constants.DIALOG_SSH_CERT:
                 initializeSshHostKey();
                 break;
-            case VncConstants.DIALOG_RDP_CERT:
+            case Constants.DIALOG_RDP_CERT:
                 Bundle s = (Bundle)msg.obj;
                 validateRdpCert (s.getString("subject"), s.getString("issuer"), s.getString("fingerprint"));
                 break;
-            case VncConstants.SPICE_CONNECT_SUCCESS:
+            case Constants.SPICE_CONNECT_SUCCESS:
                 synchronized(spicecomm) {
                     spicecomm.notifyAll();
                 }
                 break;
-            case VncConstants.SPICE_CONNECT_FAILURE:
+            case Constants.SPICE_CONNECT_FAILURE:
                 // If we were intending to maintainConnection, and the connection failed, show an error message.
                 if (maintainConnection) {
                     if (pd != null && pd.isShowing())
@@ -1516,8 +1516,8 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
                     database.close();
                     sshConnection.terminateSSHTunnel();
                     sshConnection = null;
-                    synchronized (VncCanvas.this) {
-                        VncCanvas.this.notify();
+                    synchronized (RemoteCanvas.this) {
+                        RemoteCanvas.this.notify();
                     }
                 }
             };

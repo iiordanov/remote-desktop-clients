@@ -1618,7 +1618,7 @@ class RfbProto implements RfbConnectable {
     }
     
 
-    public void processProtocol (VncCanvas vncCanvas, boolean useLocalCursor) throws Exception {
+    public void processProtocol (RemoteCanvas vncCanvas, boolean useLocalCursor) throws Exception {
         boolean exitforloop = false;
         int msgType = 0;
 

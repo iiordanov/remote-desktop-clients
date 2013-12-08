@@ -150,15 +150,15 @@ public class SSHConnection implements InteractiveCallback {
             while (port < 0 && tries < MAXTRIES) {
                 // If we're not using unix credentials, protect access with a temporary password file.
                 if (!autoXUnixpw) {
-                    writeStringToRemoteCommand(vncpassword, VncConstants.AUTO_X_CREATE_PASSWDFILE+
-                                                            VncConstants.AUTO_X_PWFILEBASENAME+autoXRandFileNm+
-                                                            VncConstants.AUTO_X_SYNC);
+                    writeStringToRemoteCommand(vncpassword, Constants.AUTO_X_CREATE_PASSWDFILE+
+                                                            Constants.AUTO_X_PWFILEBASENAME+autoXRandFileNm+
+                                                            Constants.AUTO_X_SYNC);
                 }
                 // Execute AutoX command.
                 execRemoteCommand(autoXCommand, 1);
                 
                 // If we are looking for the greeter, we give the password to sudo's stdin.
-                if (autoXType == VncConstants.AUTOX_SELECT_SUDO_FIND)
+                if (autoXType == Constants.AUTOX_SELECT_SUDO_FIND)
                     writeStringToStdin (password+"\n");
                 
                 // Try to find PORT=

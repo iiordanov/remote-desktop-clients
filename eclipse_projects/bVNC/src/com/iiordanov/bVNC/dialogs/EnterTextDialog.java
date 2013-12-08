@@ -26,7 +26,7 @@ import java.util.ArrayList;
 
 import com.iiordanov.bVNC.R;
 import com.iiordanov.bVNC.SentTextBean;
-import com.iiordanov.bVNC.VncCanvasActivity;
+import com.iiordanov.bVNC.RemoteCanvasActivity;
 import com.iiordanov.bVNC.input.RemoteKeyboard;
 
 import android.app.Activity;
@@ -48,7 +48,7 @@ public class EnterTextDialog extends Dialog {
     static final int NUMBER_SENT_SAVED = 100;
     static final int DELETED_ID = -10;
     
-    private VncCanvasActivity _canvasActivity;
+    private RemoteCanvasActivity _canvasActivity;
     
     private EditText _textEnterText;
     
@@ -62,7 +62,7 @@ public class EnterTextDialog extends Dialog {
     public EnterTextDialog(Context context) {
         super(context);
         setOwnerActivity((Activity)context);
-        _canvasActivity = (VncCanvasActivity)context;
+        _canvasActivity = (RemoteCanvasActivity)context;
         _history = new ArrayList<SentTextBean>();
     }
     

@@ -20,8 +20,8 @@
 
 package com.iiordanov.bVNC.input;
 
-import com.iiordanov.bVNC.VncCanvas;
-import com.iiordanov.bVNC.VncCanvasActivity;
+import com.iiordanov.bVNC.RemoteCanvas;
+import com.iiordanov.bVNC.RemoteCanvasActivity;
 
 import android.graphics.PointF;
 import android.os.Handler;
@@ -34,7 +34,7 @@ import android.util.Log;
  */
 public class Panner implements Runnable {
     
-    VncCanvasActivity activity;
+    RemoteCanvasActivity activity;
     Handler handler;
     PointF velocity;
     long lastSent;
@@ -71,7 +71,7 @@ public class Panner implements Runnable {
         
     }
     
-    public Panner(VncCanvasActivity act, Handler hand) {
+    public Panner(RemoteCanvasActivity act, Handler hand) {
         activity = act;
         velocity = new PointF();
         handler = hand;
@@ -103,7 +103,7 @@ public class Panner implements Runnable {
         long interval = SystemClock.uptimeMillis() - lastSent;
         lastSent += interval;
         double scale = (double)interval / 50.0;
-        VncCanvas canvas = activity.getCanvas();
+        RemoteCanvas canvas = activity.getCanvas();
         //Log.v(TAG, String.format("panning %f %d %d", scale, (int)((double)velocity.x * scale), (int)((double)velocity.y * scale)));
         if ( canvas.pan((int)((double)velocity.x * scale), (int)((double)velocity.y * scale))) {
             if (updater.updateVelocity(velocity, interval)) {

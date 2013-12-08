@@ -1,6 +1,6 @@
 package com.iiordanov.bVNC;
 
 public interface MainConfiguration {
-    VncDatabase getDatabaseHelper();
+    Database getDatabaseHelper();
     void arriveOnPage();
 }

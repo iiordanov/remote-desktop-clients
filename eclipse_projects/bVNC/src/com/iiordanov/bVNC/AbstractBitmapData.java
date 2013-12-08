@@ -45,13 +45,13 @@ abstract public class AbstractBitmapData {
     int bitmapPixels[];
     Canvas memGraphics;
     boolean waitingForInput;
-    VncCanvas vncCanvas;
+    RemoteCanvas vncCanvas;
     public AbstractBitmapDrawable drawable;
     private Paint paint;
     int xoffset = 0;
     int yoffset = 0;
 
-    AbstractBitmapData(RfbConnectable p, VncCanvas c)
+    AbstractBitmapData(RfbConnectable p, RemoteCanvas c)
     {
         rfb = p;
         vncCanvas = c;

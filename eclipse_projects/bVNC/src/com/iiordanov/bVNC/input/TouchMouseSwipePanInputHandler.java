@@ -8,8 +8,8 @@ import android.view.View;
 
 import com.iiordanov.android.bc.BCFactory;
 import com.iiordanov.bVNC.R;
-import com.iiordanov.bVNC.VncCanvas;
-import com.iiordanov.bVNC.VncCanvasActivity;
+import com.iiordanov.bVNC.RemoteCanvas;
+import com.iiordanov.bVNC.RemoteCanvasActivity;
 import com.iiordanov.bVNC.R.string;
 
 public class TouchMouseSwipePanInputHandler extends AbstractGestureInputHandler {
@@ -25,7 +25,7 @@ public class TouchMouseSwipePanInputHandler extends AbstractGestureInputHandler 
     /**
      * @param c
      */
-    public TouchMouseSwipePanInputHandler(VncCanvasActivity va, VncCanvas v) {
+    public TouchMouseSwipePanInputHandler(RemoteCanvasActivity va, RemoteCanvas v) {
         super(va, v);
     }
 

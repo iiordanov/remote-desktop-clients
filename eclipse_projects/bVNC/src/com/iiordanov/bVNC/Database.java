@@ -29,7 +29,7 @@ import android.util.Log;
  * @author Michael A. MacDonald
  *
  */
-public class VncDatabase extends SQLiteOpenHelper {
+public class Database extends SQLiteOpenHelper {
     static final int DBV_0_5_0 = 12;
     static final int DBV_1_2_0 = 20;
     static final int DBV_1_5_0 = 22;
@@ -42,9 +42,9 @@ public class VncDatabase extends SQLiteOpenHelper {
     static final int DBV_2_1_1 = 335;
     static final int DBV_2_1_2 = 336;
     
-    public final static String TAG = VncDatabase.class.toString();
+    public final static String TAG = Database.class.toString();
     
-    VncDatabase(Context context) {
+    Database(Context context) {
         super(context, "VncDatabase", null, DBV_2_1_2);
     }
 

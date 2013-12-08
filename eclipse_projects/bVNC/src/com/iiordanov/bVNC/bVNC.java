@@ -92,7 +92,7 @@ public class bVNC extends Activity implements MainConfiguration {
     private RadioGroup groupForceFullScreen;
     private Spinner colorSpinner;
     private Spinner spinnerConnection;
-    private VncDatabase database;
+    private Database database;
     private ConnectionBean selected;
     private EditText textNickname;
     private EditText textUsername;
@@ -180,24 +180,24 @@ public class bVNC extends Activity implements MainConfiguration {
             public void onItemSelected(AdapterView<?> ad, View view, int itemIndex, long id) {
 
                 selectedConnType = itemIndex;
-                if (selectedConnType == VncConstants.CONN_TYPE_PLAIN ||
-                    selectedConnType == VncConstants.CONN_TYPE_ANONTLS) {
+                if (selectedConnType == Constants.CONN_TYPE_PLAIN ||
+                    selectedConnType == Constants.CONN_TYPE_ANONTLS) {
                     setVisibilityOfSshWidgets (View.GONE);
                     setVisibilityOfUltraVncWidgets (View.GONE);
                     ipText.setHint(R.string.address_caption_hint);
-                } else if (selectedConnType == VncConstants.CONN_TYPE_SSH) {
+                } else if (selectedConnType == Constants.CONN_TYPE_SSH) {
                     setVisibilityOfSshWidgets (View.VISIBLE);
                     setVisibilityOfUltraVncWidgets (View.GONE);
                     if (ipText.getText().toString().equals(""))
                         ipText.setText("localhost");
                     setSshPasswordHint (checkboxUseSshPubkey.isChecked());
                     ipText.setHint(R.string.address_caption_hint_tunneled);
-                } else if (selectedConnType == VncConstants.CONN_TYPE_ULTRAVNC) {
+                } else if (selectedConnType == Constants.CONN_TYPE_ULTRAVNC) {
                     setVisibilityOfSshWidgets (View.GONE);
                     setVisibilityOfUltraVncWidgets (View.VISIBLE);
                     ipText.setHint(R.string.address_caption_hint);
                     textUsername.setHint(R.string.username_hint);
-                } else if (selectedConnType == VncConstants.CONN_TYPE_VENCRYPT) {
+                } else if (selectedConnType == Constants.CONN_TYPE_VENCRYPT) {
                     setVisibilityOfSshWidgets (View.GONE);
                     textUsername.setVisibility(View.VISIBLE);
                     repeaterEntry.setVisibility(View.GONE);
@@ -272,7 +272,7 @@ public class bVNC extends Activity implements MainConfiguration {
 
         repeaterText = (TextView)findViewById(R.id.textRepeaterId);
         
-        database = new VncDatabase(this);
+        database = new Database(this);
     }
     
     /**
@@ -423,7 +423,7 @@ public class bVNC extends Activity implements MainConfiguration {
         checkboxUseSshPubkey.setChecked(selected.getUseSshPubKey());
         setSshPasswordHint (checkboxUseSshPubkey.isChecked());
 
-        if (selectedConnType == VncConstants.CONN_TYPE_SSH && selected.getAddress().equals(""))
+        if (selectedConnType == Constants.CONN_TYPE_SSH && selected.getAddress().equals(""))
             ipText.setText("localhost");
         else
             ipText.setText(selected.getAddress());
@@ -669,7 +669,7 @@ public class bVNC extends Activity implements MainConfiguration {
         }
     }
     
-    public VncDatabase getDatabaseHelper() {
+    public Database getDatabaseHelper() {
         return database;
     }
     
@@ -684,7 +684,7 @@ public class bVNC extends Activity implements MainConfiguration {
     public void saveAndWriteRecent() {
         // We need server address or SSH server to be filled out to save. Otherwise,
         // we keep adding empty connections.
-        if (selected.getConnectionType() == VncConstants.CONN_TYPE_SSH
+        if (selected.getConnectionType() == Constants.CONN_TYPE_SSH
             && selected.getSshServer().equals("")
             || selected.getAddress().equals(""))
             return;
@@ -722,8 +722,8 @@ public class bVNC extends Activity implements MainConfiguration {
         isConnecting = true;
         updateSelectedFromView();
         saveAndWriteRecent();
-        Intent intent = new Intent(this, VncCanvasActivity.class);
-        intent.putExtra(VncConstants.CONNECTION,selected.Gen_getValues());
+        Intent intent = new Intent(this, RemoteCanvasActivity.class);
+        intent.putExtra(Constants.CONNECTION,selected.Gen_getValues());
         startActivity(intent);
     }
     
@@ -735,7 +735,7 @@ public class bVNC extends Activity implements MainConfiguration {
         saveAndWriteRecent();
         Intent intent = new Intent(this, GeneratePubkeyActivity.class);
         intent.putExtra("PrivateKey",selected.getSshPrivKey());
-        startActivityForResult(intent, VncConstants.ACTIVITY_GEN_KEY);
+        startActivityForResult(intent, Constants.ACTIVITY_GEN_KEY);
     }
     
     /**
@@ -745,7 +745,7 @@ public class bVNC extends Activity implements MainConfiguration {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         switch(requestCode) {
-        case (VncConstants.ACTIVITY_GEN_KEY):
+        case (Constants.ACTIVITY_GEN_KEY):
             if (resultCode == Activity.RESULT_OK) {
                 Bundle b = data.getExtras();
                 String privateKey = (String)b.get("PrivateKey");

@@ -9,13 +9,13 @@ import android.view.MotionEvent;
 import com.iiordanov.bVNC.MetaKeyBean;
 import com.iiordanov.bVNC.RdpCommunicator;
 import com.iiordanov.bVNC.RfbConnectable;
-import com.iiordanov.bVNC.VncCanvas;
+import com.iiordanov.bVNC.RemoteCanvas;
 import com.iiordanov.tigervnc.rfb.UnicodeToKeysym;
 
 public class RemoteRdpKeyboard extends RemoteKeyboard {
     private final static String TAG = "RemoteRdpKeyboard";
         
-    public RemoteRdpKeyboard (RfbConnectable r, VncCanvas v, Handler h) {
+    public RemoteRdpKeyboard (RfbConnectable r, RemoteCanvas v, Handler h) {
         super(r, v, h);
 
         context = v.getContext();

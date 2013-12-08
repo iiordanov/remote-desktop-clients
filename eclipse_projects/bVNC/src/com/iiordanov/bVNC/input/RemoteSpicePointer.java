@@ -5,7 +5,7 @@ import android.view.KeyEvent;
 import android.view.MotionEvent;
 
 import com.iiordanov.bVNC.RfbConnectable;
-import com.iiordanov.bVNC.VncCanvas;
+import com.iiordanov.bVNC.RemoteCanvas;
 
 public class RemoteSpicePointer implements RemotePointer {
     private static final String TAG = "RemoteSpicePointer";
@@ -26,7 +26,7 @@ public class RemoteSpicePointer implements RemotePointer {
      */
     private int pointerMask = 0;
 
-    private VncCanvas vncCanvas;
+    private RemoteCanvas vncCanvas;
     private Handler handler;
     private RfbConnectable rfb;
     public MouseScrollRunnable scrollRunnable;
@@ -42,7 +42,7 @@ public class RemoteSpicePointer implements RemotePointer {
     public int mouseX, mouseY;
 
 
-    public RemoteSpicePointer (RfbConnectable r, VncCanvas v, Handler h) {
+    public RemoteSpicePointer (RfbConnectable r, RemoteCanvas v, Handler h) {
         rfb = r;
         mouseX=rfb.framebufferWidth()/2;
         mouseY=rfb.framebufferHeight()/2;

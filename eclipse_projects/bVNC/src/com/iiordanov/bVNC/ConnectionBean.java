@@ -27,7 +27,7 @@ import android.widget.ImageView.ScaleType;
 import com.antlersoft.android.db.FieldAccessor;
 import com.antlersoft.android.dbimpl.NewInstance;
 import com.iiordanov.bVNC.COLORMODEL;
-import com.iiordanov.bVNC.VncCanvasActivity;
+import com.iiordanov.bVNC.RemoteCanvasActivity;
 import com.iiordanov.bVNC.input.TouchMouseSwipePanInputHandler;
 
 import java.lang.Comparable;

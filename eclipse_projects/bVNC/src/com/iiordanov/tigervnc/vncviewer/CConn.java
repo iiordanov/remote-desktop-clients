@@ -46,7 +46,7 @@ import android.view.KeyEvent;
 import android.view.MotionEvent;
 
 import com.iiordanov.bVNC.AbstractConnectionBean;
-import com.iiordanov.bVNC.VncCanvas;
+import com.iiordanov.bVNC.RemoteCanvas;
 import com.iiordanov.bVNC.AbstractBitmapData;
 import com.iiordanov.bVNC.RfbConnectable;
 import com.iiordanov.bVNC.input.RemoteKeyboard;
@@ -62,7 +62,7 @@ public class CConn extends CConnection
   ////////////////////////////////////////////////////////////////////
   // The following methods are all called from the RFB thread
 
-  public CConn(VncCanvas viewer_, java.net.Socket sock_, 
+  public CConn(RemoteCanvas viewer_, java.net.Socket sock_, 
                String vncServerName, boolean reverse, AbstractConnectionBean connection)
   {
     super(viewer_);

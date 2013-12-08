@@ -28,8 +28,8 @@ import android.view.MotionEvent;
 import com.iiordanov.android.bc.BCFactory;
 import com.iiordanov.android.bc.IBCScaleGestureDetector;
 import com.iiordanov.android.bc.OnScaleGestureListener;
-import com.iiordanov.bVNC.VncCanvas;
-import com.iiordanov.bVNC.VncCanvasActivity;
+import com.iiordanov.bVNC.RemoteCanvas;
+import com.iiordanov.bVNC.RemoteCanvasActivity;
 
 /**
  * An AbstractInputHandler that uses GestureDetector to detect standard gestures in touch events
@@ -46,8 +46,8 @@ abstract class AbstractGestureInputHandler extends GestureDetector.SimpleOnGestu
     /**
      * Handles to the VncCanvas view and VncCanvasActivity activity.
      */
-    protected VncCanvas canvas;
-    protected VncCanvasActivity activity;
+    protected RemoteCanvas canvas;
+    protected RemoteCanvasActivity activity;
     
     /**
      * Key handler delegate that handles DPad-based mouse motion
@@ -115,7 +115,7 @@ abstract class AbstractGestureInputHandler extends GestureDetector.SimpleOnGestu
     protected boolean secondPointerWasDown = false;
     protected boolean thirdPointerWasDown  = false;
     
-    AbstractGestureInputHandler(VncCanvasActivity c, VncCanvas v)
+    AbstractGestureInputHandler(RemoteCanvasActivity c, RemoteCanvas v)
     {
         activity = c;
         canvas = v;

@@ -36,13 +36,13 @@ import android.widget.SimpleCursorAdapter;
  */
 public class ConnectionListActivity extends ListActivity {
     
-    VncDatabase database;
+    Database database;
 
     @Override
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         
-        database = new VncDatabase(this);
+        database = new Database(this);
 
         // Query for all people contacts using the Contacts.People convenience class.
         // Put a managed wrapper around the retrieved cursor so we don't have to worry about
@@ -92,9 +92,9 @@ public class ConnectionListActivity extends ListActivity {
 
             Intent intent = new Intent();
             
-            Intent launchIntent = new Intent(this,VncCanvasActivity.class);
+            Intent launchIntent = new Intent(this,RemoteCanvasActivity.class);
             Uri.Builder builder = new Uri.Builder();
-            builder.authority(VncConstants.CONNECTION + ":" + connection.get_Id());
+            builder.authority(Constants.CONNECTION + ":" + connection.get_Id());
             builder.scheme("vnc");
             launchIntent.setData(builder.build());
             

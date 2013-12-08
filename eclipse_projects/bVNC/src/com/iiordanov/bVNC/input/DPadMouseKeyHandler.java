@@ -20,8 +20,8 @@
 
 package com.iiordanov.bVNC.input;
 
-import com.iiordanov.bVNC.VncCanvas;
-import com.iiordanov.bVNC.VncCanvasActivity;
+import com.iiordanov.bVNC.RemoteCanvas;
+import com.iiordanov.bVNC.RemoteCanvasActivity;
 
 import android.graphics.PointF;
 import android.os.Handler;
@@ -40,14 +40,14 @@ import android.view.MotionEvent;
 class DPadMouseKeyHandler {
     private MouseMover mouseMover;
     private boolean mouseDown;
-    private VncCanvas canvas;
+    private RemoteCanvas canvas;
     private boolean isMoving;
     private boolean useDpadAsArrows = false;
     private boolean rotateDpad      = false;
     RemoteKeyboard keyboard;
     RemotePointer pointer;
 
-    DPadMouseKeyHandler(VncCanvasActivity activity, Handler handler, boolean arrows, boolean rotate)
+    DPadMouseKeyHandler(RemoteCanvasActivity activity, Handler handler, boolean arrows, boolean rotate)
     {
         canvas = activity.getCanvas();
         mouseMover = new MouseMover(activity, handler);

@@ -22,7 +22,7 @@ package com.iiordanov.bVNC.dialogs;
 
 import com.iiordanov.bVNC.MostRecentBean;
 import com.iiordanov.bVNC.R;
-import com.iiordanov.bVNC.VncDatabase;
+import com.iiordanov.bVNC.Database;
 import com.iiordanov.bVNC.bVNC;
 
 import android.app.Activity;
@@ -48,13 +48,13 @@ import android.widget.TextView;
 public class IntroTextDialog extends Dialog {
 
     private PackageInfo packageInfo;
-    private VncDatabase database;
+    private Database database;
     
     static IntroTextDialog dialog = null;
     
     private boolean donate = false;
     
-    public static void showIntroTextIfNecessary(Activity context, VncDatabase database, boolean show) {
+    public static void showIntroTextIfNecessary(Activity context, Database database, boolean show) {
         PackageInfo pi;
         try {
             pi = context.getPackageManager().getPackageInfo("com.iiordanov.bVNC", 0);
@@ -73,7 +73,7 @@ public class IntroTextDialog extends Dialog {
     /**
      * @param context -- Containing dialog
      */
-    private IntroTextDialog(Activity context, PackageInfo pi, VncDatabase database) {
+    private IntroTextDialog(Activity context, PackageInfo pi, Database database) {
         super(context);
         setOwnerActivity(context);
         packageInfo = pi;

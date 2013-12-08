@@ -77,7 +77,7 @@ class ZoomScaling extends AbstractScaling {
      * Call after scaling and matrix have been changed to resolve scrolling
      * @param activity
      */
-    private void resolveZoom(VncCanvas canvas)
+    private void resolveZoom(RemoteCanvas canvas)
     {
         canvas.scrollToAbsolute();
         //activity.vncCanvas.pan(0,0);
@@ -87,7 +87,7 @@ class ZoomScaling extends AbstractScaling {
      * @see com.iiordanov.bVNC.AbstractScaling#zoomIn(com.iiordanov.bVNC.VncCanvasActivity)
      */
     @Override
-    void zoomIn(VncCanvasActivity activity) {
+    void zoomIn(RemoteCanvasActivity activity) {
         resetMatrix();
         standardizeScaling();
         scaling += 0.25;
@@ -115,7 +115,7 @@ class ZoomScaling extends AbstractScaling {
      * @see com.iiordanov.bVNC.AbstractScaling#zoomOut(com.iiordanov.bVNC.VncCanvasActivity)
      */
     @Override
-    void zoomOut(VncCanvasActivity activity) {
+    void zoomOut(RemoteCanvasActivity activity) {
         resetMatrix();
         standardizeScaling();
         scaling -= 0.25;
@@ -136,7 +136,7 @@ class ZoomScaling extends AbstractScaling {
      * @see com.iiordanov.bVNC.AbstractScaling#adjust(com.iiordanov.bVNC.VncCanvasActivity, float, float, float)
      */
     @Override
-    public void adjust(VncCanvasActivity activity, float scaleFactor, float fx, float fy) {
+    public void adjust(RemoteCanvasActivity activity, float scaleFactor, float fx, float fy) {
         
         float oldScale;
         float newScale = scaleFactor * scaling;
@@ -159,7 +159,7 @@ class ZoomScaling extends AbstractScaling {
             activity.zoomer.setIsZoomOutEnabled(true);
         }
         
-        VncCanvas canvas = activity.getCanvas();
+        RemoteCanvas canvas = activity.getCanvas();
         // ax is the absolute x of the focus
         int xPan = canvas.absoluteXPosition;
         float ax = (fx / scaling) + xPan;
@@ -209,9 +209,9 @@ class ZoomScaling extends AbstractScaling {
      * @see com.iiordanov.bVNC.AbstractScaling#setScaleTypeForActivity(com.iiordanov.bVNC.VncCanvasActivity)
      */
     @Override
-    void setScaleTypeForActivity(VncCanvasActivity activity) {
+    void setScaleTypeForActivity(RemoteCanvasActivity activity) {
         super.setScaleTypeForActivity(activity);
-        VncCanvas canvas = activity.getCanvas();
+        RemoteCanvas canvas = activity.getCanvas();
         canvasXOffset = -canvas.getCenteredXOffset();
         canvasYOffset = -canvas.getCenteredYOffset();
         canvas.computeShiftFromFullToView ();

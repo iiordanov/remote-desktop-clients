@@ -97,7 +97,7 @@ class FullBufferBitmapData extends AbstractBitmapData {
      * @param p
      * @param c
      */
-    public FullBufferBitmapData(RfbConnectable p, VncCanvas c, int capacity) {
+    public FullBufferBitmapData(RfbConnectable p, RemoteCanvas c, int capacity) {
         super(p, c);
         framebufferwidth=rfb.framebufferWidth();
         framebufferheight=rfb.framebufferHeight();

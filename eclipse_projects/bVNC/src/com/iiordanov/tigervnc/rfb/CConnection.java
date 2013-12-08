@@ -20,12 +20,12 @@ package com.iiordanov.tigervnc.rfb;
 
 import java.util.*;
 
-import com.iiordanov.bVNC.VncCanvas;
+import com.iiordanov.bVNC.RemoteCanvas;
 import com.iiordanov.tigervnc.rdr.*;
 
 abstract public class CConnection extends CMsgHandler {
 
-  public CConnection(VncCanvas v) {
+  public CConnection(RemoteCanvas v) {
     viewer = v;
     security = new SecurityClient(viewer);
   }
@@ -338,7 +338,7 @@ abstract public class CConnection extends CMsgHandler {
     throw new AuthFailureException(reason);
   }
 
-  protected VncCanvas viewer;
+  protected RemoteCanvas viewer;
   InStream is = null;
   OutStream os = null;
   CMsgReaderV3 reader_ = null;

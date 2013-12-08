@@ -23,7 +23,7 @@ import com.iiordanov.bVNC.bVNC;
 import com.iiordanov.bVNC.ConnectionBean;
 import com.iiordanov.bVNC.R;
 import com.iiordanov.util.RandomString;
-import com.iiordanov.bVNC.VncConstants;
+import com.iiordanov.bVNC.Constants;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -138,9 +138,9 @@ public class AutoXCustomizeDialog extends AlertDialog {
      * Sets the state of the advanced button.
      */
     private void setAdvancedToggleState () {
-        boolean adv = ( (commandIndex != VncConstants.COMMAND_AUTO_X_DISABLED) &&
-                        ( (selected.getAutoXResType() != VncConstants.AUTOX_GEOM_SELECT_NATIVE) ||
-                          (selected.getAutoXSessionType() != VncConstants.AUTOX_SESS_PROG_SELECT_AUTO) ||
+        boolean adv = ( (commandIndex != Constants.COMMAND_AUTO_X_DISABLED) &&
+                        ( (selected.getAutoXResType() != Constants.AUTOX_GEOM_SELECT_NATIVE) ||
+                          (selected.getAutoXSessionType() != Constants.AUTOX_SESS_PROG_SELECT_AUTO) ||
                            selected.getAutoXUnixpw() || selected.getAutoXUnixAuth() ) );
         toggleAutoXAdvanced.setChecked(adv);
     }
@@ -151,8 +151,8 @@ public class AutoXCustomizeDialog extends AlertDialog {
      */
     private void setCommandIndexAndCommand (int itemIndex) {
         commandIndex = itemIndex;
-        if (commandIndex != VncConstants.COMMAND_AUTO_X_DISABLED)
-            command = VncConstants.getCommandString(commandIndex, geometry + sessionProg + pw);
+        if (commandIndex != Constants.COMMAND_AUTO_X_DISABLED)
+            command = Constants.getCommandString(commandIndex, geometry + sessionProg + pw);
         else
             command = new String ("");
     }
@@ -166,7 +166,7 @@ public class AutoXCustomizeDialog extends AlertDialog {
         nativeHeight = Math.min(mainConfigDialog.getWidth(), mainConfigDialog.getHeight());
         
         spinnerAutoXGeometry.setSelection(selected.getAutoXResType());        
-        if (selected.getAutoXResType() == VncConstants.AUTOX_GEOM_SELECT_NATIVE) {
+        if (selected.getAutoXResType() == Constants.AUTOX_GEOM_SELECT_NATIVE) {
             autoXWidth.setEnabled(false);
             autoXHeight.setEnabled(false);
             autoXWidth.setText(Integer.toString(nativeWidth));
@@ -190,11 +190,11 @@ public class AutoXCustomizeDialog extends AlertDialog {
         
         spinnerAutoXSession.setSelection(selected.getAutoXSessionType());
         
-        if (selected.getAutoXSessionType() != VncConstants.AUTOX_SESS_PROG_SELECT_CUSTOM) {
+        if (selected.getAutoXSessionType() != Constants.AUTOX_SESS_PROG_SELECT_CUSTOM) {
             autoXSessionProg.setEnabled(false);
-            autoXSessionProg.setText(VncConstants.getSessionProgString(selected.getAutoXSessionType()));
+            autoXSessionProg.setText(Constants.getSessionProgString(selected.getAutoXSessionType()));
             sessionProg = new String(" -env FD_PROG=\""
-                    + VncConstants.getSessionProgString(selected.getAutoXSessionType()) + "\" ");
+                    + Constants.getSessionProgString(selected.getAutoXSessionType()) + "\" ");
         } else {
             autoXSessionProg.setEnabled(true);
             autoXSessionProg.setText(selected.getAutoXSessionProg().toString());
@@ -208,11 +208,11 @@ public class AutoXCustomizeDialog extends AlertDialog {
     private void setPwOption () {
         checkboxAutoXUnixpw.setChecked(selected.getAutoXUnixpw());
         if (selected.getAutoXUnixpw()) {
-            pw = VncConstants.AUTO_X_USERPW;
+            pw = Constants.AUTO_X_USERPW;
         } else {
             // Generate, save, and use random file extension.
             selected.setAutoXRandFileNm(rnd.randomLowerCaseString(20));
-            pw = VncConstants.AUTO_X_PASSWDFILE+VncConstants.AUTO_X_PWFILEBASENAME+selected.getAutoXRandFileNm()+" \"";
+            pw = Constants.AUTO_X_PASSWDFILE+Constants.AUTO_X_PWFILEBASENAME+selected.getAutoXRandFileNm()+" \"";
         }
     }
     
@@ -380,7 +380,7 @@ public class AutoXCustomizeDialog extends AlertDialog {
         setSessionProg();
         setCommandIndexAndCommand (commandIndex);
         
-        boolean autoXenabled = commandIndex != VncConstants.COMMAND_AUTO_X_DISABLED;
+        boolean autoXenabled = commandIndex != Constants.COMMAND_AUTO_X_DISABLED;
         selected.setAutoXEnabled(autoXenabled);
         if (autoXenabled) {
             selected.setAddress("localhost");

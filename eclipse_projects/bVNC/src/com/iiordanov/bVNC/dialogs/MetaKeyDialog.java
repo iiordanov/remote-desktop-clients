@@ -33,8 +33,8 @@ import com.iiordanov.bVNC.MetaKeyBean;
 import com.iiordanov.bVNC.MetaList;
 import com.iiordanov.bVNC.R;
 import com.iiordanov.bVNC.Utils;
-import com.iiordanov.bVNC.VncCanvasActivity;
-import com.iiordanov.bVNC.VncDatabase;
+import com.iiordanov.bVNC.RemoteCanvasActivity;
+import com.iiordanov.bVNC.Database;
 import com.iiordanov.bVNC.input.RemoteKeyboard;
 
 import android.app.Activity;
@@ -77,11 +77,11 @@ public class MetaKeyDialog extends Dialog implements ConnectionSettable {
     Spinner _spinnerKeysInList;
     Spinner _spinnerLists;
     
-    VncDatabase _database;
+    Database _database;
     static ArrayList<MetaList> _lists;
     ArrayList<MetaKeyBean> _keysInList;
     long _listId;
-    VncCanvasActivity _canvasActivity;
+    RemoteCanvasActivity _canvasActivity;
     MetaKeyBean _currentKeyBean;
     
     public static final String[] EMPTY_ARGS = new String[0];
@@ -94,7 +94,7 @@ public class MetaKeyDialog extends Dialog implements ConnectionSettable {
     public MetaKeyDialog(Context context) {
         super(context);
         setOwnerActivity((Activity)context);
-        _canvasActivity = (VncCanvasActivity)context;
+        _canvasActivity = (RemoteCanvasActivity)context;
     }
 
     /* (non-Javadoc)

@@ -54,7 +54,7 @@ class CompactBitmapData extends AbstractBitmapData {
         }
     }
     
-    CompactBitmapData(RfbConnectable rfb, VncCanvas c)
+    CompactBitmapData(RfbConnectable rfb, RemoteCanvas c)
     {
         super(rfb,c);
         bitmapwidth=framebufferwidth;

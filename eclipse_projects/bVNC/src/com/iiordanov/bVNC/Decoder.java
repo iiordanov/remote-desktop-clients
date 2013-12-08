@@ -91,10 +91,10 @@ public class Decoder {
     private byte[] backgroundColorBuffer    = new byte[4];
     
     private AbstractBitmapData bitmapData;
-    private VncCanvas vncCanvas;
+    private RemoteCanvas vncCanvas;
 
 
-    public Decoder (VncCanvas v) {
+    public Decoder (RemoteCanvas v) {
         handleRREPaint.setStyle(Style.FILL);
         handleTightRectPaint.setStyle(Style.FILL);
         bitmapopts.inPurgeable      = false;

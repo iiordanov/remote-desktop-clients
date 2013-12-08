@@ -23,7 +23,7 @@ package com.iiordanov.bVNC;
 /**
  * Keys for intent values
  */
-public class VncConstants {
+public class Constants {
     public static final String CONNECTION = "com.iiordanov.bVNC.CONNECTION";
 
     public static final int CONN_TYPE_PLAIN        = 0;

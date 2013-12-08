@@ -7,7 +7,7 @@ import android.view.KeyCharacterMap;
 import android.view.KeyEvent;
 import com.iiordanov.bVNC.MetaKeyBean;
 import com.iiordanov.bVNC.RfbConnectable;
-import com.iiordanov.bVNC.VncCanvas;
+import com.iiordanov.bVNC.RemoteCanvas;
 
 public abstract class RemoteKeyboard {
     public final static int SCAN_ESC = 1;
@@ -33,7 +33,7 @@ public abstract class RemoteKeyboard {
     public final static int SUPER_MASK = 8;
     public final static int META_MASK  = 0;
     
-    protected VncCanvas vncCanvas;
+    protected RemoteCanvas vncCanvas;
     protected Handler handler;
     protected RfbConnectable rfb;
     protected Context context;
@@ -57,7 +57,7 @@ public abstract class RemoteKeyboard {
     boolean bb10 = false;
     boolean backspaceWorkaround = false;
 
-    RemoteKeyboard (RfbConnectable r, VncCanvas v, Handler h) {
+    RemoteKeyboard (RfbConnectable r, RemoteCanvas v, Handler h) {
         rfb = r;
         vncCanvas = v;
         handler = h;

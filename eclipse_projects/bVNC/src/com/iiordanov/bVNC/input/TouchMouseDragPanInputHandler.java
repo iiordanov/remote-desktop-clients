@@ -8,8 +8,8 @@ import android.view.View;
 
 import com.iiordanov.android.bc.BCFactory;
 import com.iiordanov.bVNC.R;
-import com.iiordanov.bVNC.VncCanvas;
-import com.iiordanov.bVNC.VncCanvasActivity;
+import com.iiordanov.bVNC.RemoteCanvas;
+import com.iiordanov.bVNC.RemoteCanvasActivity;
 import com.iiordanov.bVNC.R.string;
 
 public class TouchMouseDragPanInputHandler extends AbstractGestureInputHandler {
@@ -25,7 +25,7 @@ public class TouchMouseDragPanInputHandler extends AbstractGestureInputHandler {
     /**
      * @param c
      */
-    public TouchMouseDragPanInputHandler(VncCanvasActivity va, VncCanvas v) {
+    public TouchMouseDragPanInputHandler(RemoteCanvasActivity va, RemoteCanvas v) {
         super(va, v);
     }
 

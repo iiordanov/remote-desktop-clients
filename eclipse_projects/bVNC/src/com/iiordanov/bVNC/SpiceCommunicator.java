@@ -93,7 +93,7 @@ public class SpiceCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyP
             // If we've exited SpiceClientConnect, the connection is certainly
             // interrupted or was never established.
             if (handler != null) {
-                handler.sendEmptyMessage(VncConstants.SPICE_CONNECT_FAILURE);
+                handler.sendEmptyMessage(Constants.SPICE_CONNECT_FAILURE);
             }
         }
     }

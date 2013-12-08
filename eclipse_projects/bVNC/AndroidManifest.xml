@@ -28,7 +28,7 @@
                 </activity>
                 <activity android:screenOrientation="unspecified"
                           android:configChanges="orientation|keyboardHidden|keyboard"
-		                  android:name="VncCanvasActivity"
+		                  android:name="RemoteCanvasActivity"
 		                  android:windowSoftInputMode="stateHidden|adjustResize">
                        <intent-filter>
                                 <action android:name="android.intent.action.VIEW"></action>

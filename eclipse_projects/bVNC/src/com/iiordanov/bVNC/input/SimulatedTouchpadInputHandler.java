@@ -6,8 +6,8 @@ import android.view.MotionEvent;
 
 import com.iiordanov.android.bc.BCFactory;
 import com.iiordanov.bVNC.R;
-import com.iiordanov.bVNC.VncCanvas;
-import com.iiordanov.bVNC.VncCanvasActivity;
+import com.iiordanov.bVNC.RemoteCanvas;
+import com.iiordanov.bVNC.RemoteCanvasActivity;
 import com.iiordanov.bVNC.R.string;
 
 public class SimulatedTouchpadInputHandler extends AbstractGestureInputHandler {
@@ -20,7 +20,7 @@ public class SimulatedTouchpadInputHandler extends AbstractGestureInputHandler {
     /**
      * @param c
      */
-    public SimulatedTouchpadInputHandler(VncCanvasActivity va, VncCanvas v) {
+    public SimulatedTouchpadInputHandler(RemoteCanvasActivity va, RemoteCanvas v) {
         super(va, v);
         acceleration = activity.getAccelerationEnabled();
         sensitivity = activity.getSensitivity();

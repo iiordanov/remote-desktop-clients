@@ -81,7 +81,7 @@ public class aRDP extends Activity implements MainConfiguration {
     //private Spinner colorSpinner;
     private Spinner spinnerConnection;
     private Spinner spinnerRdpGeometry;
-    private VncDatabase database;
+    private Database database;
     private ConnectionBean selected;
     private EditText textNickname;
     private EditText textUsername;
@@ -154,9 +154,9 @@ public class aRDP extends Activity implements MainConfiguration {
             public void onItemSelected(AdapterView<?> ad, View view, int itemIndex, long id) {
 
                 selectedConnType = itemIndex;
-                if (selectedConnType == VncConstants.CONN_TYPE_PLAIN) {
+                if (selectedConnType == Constants.CONN_TYPE_PLAIN) {
                     setVisibilityOfSshWidgets (View.GONE);
-                } else if (selectedConnType == VncConstants.CONN_TYPE_SSH) {
+                } else if (selectedConnType == Constants.CONN_TYPE_SSH) {
                     setVisibilityOfSshWidgets (View.VISIBLE);
                     if (ipText.getText().toString().equals(""))
                         ipText.setText("localhost");
@@ -233,7 +233,7 @@ public class aRDP extends Activity implements MainConfiguration {
         checkboxMenuAnimation = (CheckBox)findViewById(R.id.checkboxMenuAnimation);
         checkboxVisualStyles = (CheckBox)findViewById(R.id.checkboxVisualStyles);
 
-        database = new VncDatabase(this);
+        database = new Database(this);
         
         // Define what happens when the Import/Export button is pressed.
         ((Button)findViewById(R.id.buttonImportExport)).setOnClickListener(new View.OnClickListener() {
@@ -259,7 +259,7 @@ public class aRDP extends Activity implements MainConfiguration {
      * Enables and disables the EditText boxes for width and height of remote desktop.
      */
     private void setRemoteWidthAndHeight () {
-        if (selected.getRdpResType() != VncConstants.RDP_GEOM_SELECT_CUSTOM) {
+        if (selected.getRdpResType() != Constants.RDP_GEOM_SELECT_CUSTOM) {
             rdpWidth.setEnabled(false);
             rdpHeight.setEnabled(false);
         } else {
@@ -391,7 +391,7 @@ public class aRDP extends Activity implements MainConfiguration {
         checkboxUseSshPubkey.setChecked(selected.getUseSshPubKey());
         setSshPasswordHint (checkboxUseSshPubkey.isChecked());
 
-        if (selectedConnType == VncConstants.CONN_TYPE_SSH && selected.getAddress().equals(""))
+        if (selectedConnType == Constants.CONN_TYPE_SSH && selected.getAddress().equals(""))
             ipText.setText("localhost");
         else
             ipText.setText(selected.getAddress());
@@ -629,7 +629,7 @@ public class aRDP extends Activity implements MainConfiguration {
         }
     }
     
-    public VncDatabase getDatabaseHelper()    {
+    public Database getDatabaseHelper()    {
         return database;
     }
     
@@ -644,7 +644,7 @@ public class aRDP extends Activity implements MainConfiguration {
     protected void saveAndWriteRecent() {
         // We need server address or SSH server to be filled out to save. Otherwise,
         // we keep adding empty connections.
-        if (selected.getConnectionType() == VncConstants.CONN_TYPE_SSH
+        if (selected.getConnectionType() == Constants.CONN_TYPE_SSH
             && selected.getSshServer().equals("")
             || selected.getAddress().equals(""))
             return;
@@ -682,8 +682,8 @@ public class aRDP extends Activity implements MainConfiguration {
         isConnecting = true;
         updateSelectedFromView();
         saveAndWriteRecent();
-        Intent intent = new Intent(this, VncCanvasActivity.class);
-        intent.putExtra(VncConstants.CONNECTION,selected.Gen_getValues());
+        Intent intent = new Intent(this, RemoteCanvasActivity.class);
+        intent.putExtra(Constants.CONNECTION,selected.Gen_getValues());
         startActivity(intent);
     }
     
@@ -695,7 +695,7 @@ public class aRDP extends Activity implements MainConfiguration {
         saveAndWriteRecent();
         Intent intent = new Intent(this, GeneratePubkeyActivity.class);
         intent.putExtra("PrivateKey",selected.getSshPrivKey());
-        startActivityForResult(intent, VncConstants.ACTIVITY_GEN_KEY);
+        startActivityForResult(intent, Constants.ACTIVITY_GEN_KEY);
     }
     
     /**
@@ -705,7 +705,7 @@ public class aRDP extends Activity implements MainConfiguration {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         switch(requestCode) {
-        case (VncConstants.ACTIVITY_GEN_KEY):
+        case (Constants.ACTIVITY_GEN_KEY):
             if (resultCode == Activity.RESULT_OK) {
                 Bundle b = data.getExtras();
                 String privateKey = (String)b.get("PrivateKey");

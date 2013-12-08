@@ -69,8 +69,8 @@ public abstract class AbstractScaling {
      */
     float getScale() { return 1.f; }
 
-    void zoomIn(VncCanvasActivity activity) {}
-    void zoomOut(VncCanvasActivity activity) {}
+    void zoomIn(RemoteCanvasActivity activity) {}
+    void zoomOut(RemoteCanvasActivity activity) {}
     
     static AbstractScaling getByScaleType(ImageView.ScaleType scaleType)
     {
@@ -105,9 +105,9 @@ public abstract class AbstractScaling {
      * Sets the activity's scale type to the scaling
      * @param activity
      */
-    void setScaleTypeForActivity(VncCanvasActivity activity)
+    void setScaleTypeForActivity(RemoteCanvasActivity activity)
     {
-        VncCanvas canvas = activity.getCanvas();
+        RemoteCanvas canvas = activity.getCanvas();
         activity.zoomer.hide();
         canvas.scaling = this;
         // This is a bit of a hack because Scaletype.FIT_CENTER is now obsolete, since fit-to-screen scaling is now
@@ -146,5 +146,5 @@ public abstract class AbstractScaling {
      * @param fx Focus X of center of scale change
      * @param fy Focus Y of center of scale change
      */
-    public void adjust(VncCanvasActivity activity, float scaleFactor, float fx, float fy) { }
+    public void adjust(RemoteCanvasActivity activity, float scaleFactor, float fx, float fy) { }
 }

@@ -23,7 +23,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
 import com.iiordanov.bVNC.AbstractBitmapData;
-import com.iiordanov.bVNC.VncCanvas;
+import com.iiordanov.bVNC.RemoteCanvas;
 import com.iiordanov.tigervnc.rdr.InStream;
 import com.iiordanov.tigervnc.rdr.ZlibInStream;
 import java.util.ArrayList;
@@ -59,7 +59,7 @@ public class TightDecoder extends Decoder {
 
   //final static Toolkit tk = Toolkit.getDefaultToolkit();
 
-  public TightDecoder(CMsgReader reader_, VncCanvas c) {
+  public TightDecoder(CMsgReader reader_, RemoteCanvas c) {
     bitmapopts = new BitmapFactory.Options();
     bitmapopts.inPurgeable      = false;
     bitmapopts.inDither         = false;
@@ -410,7 +410,7 @@ public class TightDecoder extends Decoder {
     }
   }
 
-  VncCanvas vncCanvas;
+  RemoteCanvas vncCanvas;
   private CMsgReader reader;
   private ZlibInStream[] zis;
   private PixelFormat serverpf;

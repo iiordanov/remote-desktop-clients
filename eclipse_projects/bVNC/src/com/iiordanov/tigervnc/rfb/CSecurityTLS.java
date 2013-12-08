@@ -38,9 +38,9 @@ import android.os.Message;
 import android.util.Log;
 
 import com.iiordanov.bVNC.Utils;
-import com.iiordanov.bVNC.VncCanvas;
-import com.iiordanov.bVNC.VncCanvasActivity;
-import com.iiordanov.bVNC.VncConstants;
+import com.iiordanov.bVNC.RemoteCanvas;
+import com.iiordanov.bVNC.RemoteCanvasActivity;
+import com.iiordanov.bVNC.Constants;
 import com.iiordanov.bVNC.bVNC;
 import com.iiordanov.tigervnc.rdr.*;
 import org.apache.commons.*;
@@ -112,7 +112,7 @@ public class CSecurityTLS extends CSecurity {
     }
   }
 
-  public CSecurityTLS(boolean _anon, VncCanvas v) 
+  public CSecurityTLS(boolean _anon, RemoteCanvas v) 
   {
     vncCanvas = v;
     anon = _anon;
@@ -243,7 +243,7 @@ public class CSecurityTLS extends CSecurity {
             // Send a message containing the certificate to our handler.
             Message m = new Message();
             m.setTarget(vncCanvas.handler);
-            m.what = VncConstants.DIALOG_X509_CERT;
+            m.what = Constants.DIALOG_X509_CERT;
             m.obj = chain[0];
             vncCanvas.handler.sendMessage(m);
 
@@ -283,7 +283,7 @@ public class CSecurityTLS extends CSecurity {
   private InStream is;
   private SSLSocket ssl;
   TrustManager[] trustAllCerts;
-  VncCanvas vncCanvas;
+  RemoteCanvas vncCanvas;
 
   static LogWriter vlog = new LogWriter("CSecurityTLS");
 }

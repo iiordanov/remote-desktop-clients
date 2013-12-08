@@ -20,8 +20,8 @@
 
 package com.iiordanov.bVNC.input;
 
-import com.iiordanov.bVNC.VncCanvas;
-import com.iiordanov.bVNC.VncCanvasActivity;
+import com.iiordanov.bVNC.RemoteCanvas;
+import com.iiordanov.bVNC.RemoteCanvasActivity;
 
 import android.os.Handler;
 import android.os.SystemClock;
@@ -35,7 +35,7 @@ import android.view.MotionEvent;
  */
 class MouseMover extends Panner {
 
-    public MouseMover(VncCanvasActivity act, Handler hand) {
+    public MouseMover(RemoteCanvasActivity act, Handler hand) {
         super(act, hand);
     }
 
@@ -47,7 +47,7 @@ class MouseMover extends Panner {
         long interval = SystemClock.uptimeMillis() - lastSent;
         lastSent += interval;
         double scale = (double)interval / 50.0;
-        VncCanvas canvas = activity.getCanvas();
+        RemoteCanvas canvas = activity.getCanvas();
         RemotePointer p = canvas.getPointer();
         
         //Log.v(TAG, String.format("panning %f %d %d", scale, (int)((double)velocity.x * scale), (int)((double)velocity.y * scale)));

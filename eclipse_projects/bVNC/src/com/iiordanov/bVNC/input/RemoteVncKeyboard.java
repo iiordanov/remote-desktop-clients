@@ -5,13 +5,13 @@ import android.view.KeyEvent;
 
 import com.iiordanov.bVNC.MetaKeyBean;
 import com.iiordanov.bVNC.RfbConnectable;
-import com.iiordanov.bVNC.VncCanvas;
+import com.iiordanov.bVNC.RemoteCanvas;
 import com.iiordanov.tigervnc.rfb.UnicodeToKeysym;
 
 public class RemoteVncKeyboard extends RemoteKeyboard {
     private final static String TAG = "RemoteKeyboard";
     
-    public RemoteVncKeyboard (RfbConnectable r, VncCanvas v, Handler h) {
+    public RemoteVncKeyboard (RfbConnectable r, RemoteCanvas v, Handler h) {
         super(r, v, h);
     }
     

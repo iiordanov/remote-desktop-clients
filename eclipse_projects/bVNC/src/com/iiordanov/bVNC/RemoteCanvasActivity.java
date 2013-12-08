@@ -81,15 +81,15 @@ import android.view.inputmethod.InputMethodManager;
 import android.content.Context;
 
 
-public class VncCanvasActivity extends Activity implements OnKeyListener {
+public class RemoteCanvasActivity extends Activity implements OnKeyListener {
     
     private final static String TAG = "VncCanvasActivity";
 
     AbstractInputHandler inputHandler;
 
-    private VncCanvas canvas;
+    private RemoteCanvas canvas;
 
-    private VncDatabase database;
+    private Database database;
 
     private MenuItem[] inputModeMenuItems;
     private MenuItem[] scalingModeMenuItems;
@@ -147,7 +147,7 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                              WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
-        database = new VncDatabase(this);
+        database = new Database(this);
 
         Intent i = getIntent();
         connection = new ConnectionBean(this);
@@ -178,7 +178,7 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
             {
                 port = data.getPort();
             }
-            if (host.equals(VncConstants.CONNECTION))
+            if (host.equals(Constants.CONNECTION))
             {
                 if (connection.Gen_read(database.getReadableDatabase(), port))
                 {
@@ -210,7 +210,7 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 
             if (extras != null) {
                   connection.Gen_populate((ContentValues) extras
-                      .getParcelable(VncConstants.CONNECTION));
+                      .getParcelable(Constants.CONNECTION));
             }
             if (connection.getPort() == 0)
                 connection.setPort(5900);
@@ -237,7 +237,7 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
         //setFeatureDrawableResource(Window.FEATURE_LEFT_ICON, R.drawable.icon); 
 
         setContentView(R.layout.canvas);
-        canvas = (VncCanvas) findViewById(R.id.vnc_canvas);
+        canvas = (RemoteCanvas) findViewById(R.id.vnc_canvas);
         zoomer = (ZoomControls) findViewById(R.id.zoomer);
 
         // Initialize and define actions for on-screen keys.
@@ -342,7 +342,7 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
             replacer = getResources().getDrawable(R.drawable.hidekeys);
         keyStow.setBackgroundDrawable(replacer);
 
-        if (connection.getExtraKeysToggleType() == VncConstants.EXTRA_KEYS_OFF)
+        if (connection.getExtraKeysToggleType() == Constants.EXTRA_KEYS_OFF)
             keyStow.setVisibility(View.GONE);
         else
             keyStow.setVisibility(View.VISIBLE);
@@ -654,7 +654,7 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
             makeVisible = true;
 
         if (!extraKeysHidden && makeVisible && 
-            connection.getExtraKeysToggleType() == VncConstants.EXTRA_KEYS_ON) {
+            connection.getExtraKeysToggleType() == Constants.EXTRA_KEYS_ON) {
             layoutKeys.setVisibility(View.VISIBLE);
             layoutKeys.invalidate();
             return;
@@ -779,7 +779,7 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
         float oldScale = canvas.scaling.getScale();
         int x = canvas.absoluteXPosition;
         int y = canvas.absoluteYPosition;
-        canvas.scaling.setScaleTypeForActivity(VncCanvasActivity.this);
+        canvas.scaling.setScaleTypeForActivity(RemoteCanvasActivity.this);
         float newScale = canvas.scaling.getScale();
         canvas.scaling.adjust(this, oldScale/newScale, 0, 0);
         newScale = canvas.scaling.getScale();
@@ -849,7 +849,7 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
             updateScalingMenu();
             
             // Set the text of the Extra Keys menu item appropriately.
-            if (connection.getExtraKeysToggleType() == VncConstants.EXTRA_KEYS_ON)
+            if (connection.getExtraKeysToggleType() == Constants.EXTRA_KEYS_ON)
                 menu.findItem(R.id.itemExtraKeys).setTitle(R.string.extra_keys_disable);
             else
                 menu.findItem(R.id.itemExtraKeys).setTitle(R.string.extra_keys_enable);
@@ -1065,12 +1065,12 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
         //    Utils.showDocumentation(this);
         //    return true;
         case R.id.itemExtraKeys:
-            if (connection.getExtraKeysToggleType() == VncConstants.EXTRA_KEYS_ON) {
-                connection.setExtraKeysToggleType(VncConstants.EXTRA_KEYS_OFF);
+            if (connection.getExtraKeysToggleType() == Constants.EXTRA_KEYS_ON) {
+                connection.setExtraKeysToggleType(Constants.EXTRA_KEYS_OFF);
                 item.setTitle(R.string.extra_keys_enable);
                 setExtraKeysVisibility(View.GONE, false);
             } else {
-                connection.setExtraKeysToggleType(VncConstants.EXTRA_KEYS_ON);
+                connection.setExtraKeysToggleType(Constants.EXTRA_KEYS_ON);
                 item.setTitle(R.string.extra_keys_disable);
                 setExtraKeysVisibility(View.VISIBLE, false);
                 extraKeysHidden = false;
@@ -1248,7 +1248,7 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
                 connection.setColorModel(cm.nameString());
                 connection.save(database.getWritableDatabase());
                 database.close();
-                Toast.makeText(VncCanvasActivity.this, getString(R.string.info_update_color_model_to) + cm.toString(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(RemoteCanvasActivity.this, getString(R.string.info_update_color_model_to) + cm.toString(), Toast.LENGTH_SHORT).show();
             }
         });
         dialog.setContentView(list);
@@ -1303,19 +1303,19 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
         return true;
     }
 
-    public VncDatabase getDatabase() {
+    public Database getDatabase() {
         return database;
     }
 
-    public void setDatabase(VncDatabase database) {
+    public void setDatabase(Database database) {
         this.database = database;
     }
 
-    public VncCanvas getCanvas() {
+    public RemoteCanvas getCanvas() {
         return canvas;
     }
 
-    public void setCanvas(VncCanvas vncCanvas) {
+    public void setCanvas(RemoteCanvas vncCanvas) {
         this.canvas = vncCanvas;
     }
     

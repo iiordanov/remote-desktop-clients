@@ -92,7 +92,7 @@ class LargeBitmapData extends AbstractBitmapData {
      * @param displayHeight
      * @param capacity Max process heap size in bytes
      */
-    LargeBitmapData(RfbConnectable p, VncCanvas c, int displayWidth, int displayHeight, int capacity) {
+    LargeBitmapData(RfbConnectable p, RemoteCanvas c, int displayWidth, int displayHeight, int capacity) {
         super(p,c);
         this.capacity = capacity;
         this.displayWidth = displayWidth;
