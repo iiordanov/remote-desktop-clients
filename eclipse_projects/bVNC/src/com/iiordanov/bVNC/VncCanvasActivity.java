@@ -280,8 +280,9 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 
 		if (connection.getConnectionType() == VncConstants.CONN_TYPE_SSH) {
 			initializeSshHostKey();
-		} else
+		} else {
 			continueConnecting();
+		}
 	}
 
 	void continueConnecting () {
@@ -296,7 +297,7 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 		// Initialize and define actions for on-screen keys.
 		initializeOnScreenKeys ();
 	
-		canvas.initializeVncCanvas(connection, database, new Runnable() {
+		canvas.initializeCanvas(connection, database, new Runnable() {
 			public void run() {
 				try { setModes(); } catch (NullPointerException e) { }
 			}
