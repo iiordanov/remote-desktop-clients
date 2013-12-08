@@ -46,7 +46,7 @@ abstract public class AbstractBitmapData {
 	Canvas memGraphics;
 	boolean waitingForInput;
 	VncCanvas vncCanvas;
-	protected AbstractBitmapDrawable drawable;
+	public AbstractBitmapDrawable drawable;
 	private Paint paint;
 	int xoffset = 0;
 	int yoffset = 0;

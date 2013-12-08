@@ -18,7 +18,7 @@
  * USA.
  */
 
-package com.iiordanov.bVNC;
+package com.iiordanov.bVNC.input;
 
 import android.os.SystemClock;
 import android.util.Log;
@@ -28,7 +28,8 @@ import android.view.MotionEvent;
 import com.iiordanov.android.bc.BCFactory;
 import com.iiordanov.android.bc.IBCScaleGestureDetector;
 import com.iiordanov.android.bc.OnScaleGestureListener;
-import com.iiordanov.bVNC.input.RemotePointer;
+import com.iiordanov.bVNC.VncCanvas;
+import com.iiordanov.bVNC.VncCanvasActivity;
 
 /**
  * An AbstractInputHandler that uses GestureDetector to detect standard gestures in touch events
@@ -585,10 +586,11 @@ abstract class AbstractGestureInputHandler extends GestureDetector.SimpleOnGestu
 				break;
 		}
 		
-		evt.offsetLocation(canvas.pointer.getX() + dx - evt.getX(),
-							canvas.pointer.getY() + dy - evt.getY());
+		RemotePointer pointer = canvas.getPointer();
+		evt.offsetLocation(pointer.getX() + dx - evt.getX(),
+							pointer.getY() + dy - evt.getY());
 
-		if (canvas.pointer.processPointerEvent(evt, trackballButtonDown))
+		if (pointer.processPointerEvent(evt, trackballButtonDown))
 			return true;
 		
 		return activity.onTouchEvent(evt);

@@ -18,7 +18,10 @@
  * USA.
  */
 
-package com.iiordanov.bVNC;
+package com.iiordanov.bVNC.input;
+
+import com.iiordanov.bVNC.VncCanvas;
+import com.iiordanov.bVNC.VncCanvasActivity;
 
 import android.graphics.PointF;
 import android.os.Handler;
@@ -29,7 +32,7 @@ import android.util.Log;
  * Handles panning the screen continuously over a period of time
  * @author Michael A. MacDonald
  */
-class Panner implements Runnable {
+public class Panner implements Runnable {
 	
 	VncCanvasActivity activity;
 	Handler handler;
@@ -68,17 +71,17 @@ class Panner implements Runnable {
 		
 	}
 	
-	Panner(VncCanvasActivity act, Handler hand) {
+	public Panner(VncCanvasActivity act, Handler hand) {
 		activity = act;
 		velocity = new PointF();
 		handler = hand;
 	}
 	
-	void stop() {
+	public void stop() {
 		handler.removeCallbacks(this);
 	}
 	
-	void start(float xv, float yv, VelocityUpdater update) {
+	public void start(float xv, float yv, VelocityUpdater update) {
  		activity.getCanvas().bitmapData.drawable._defaultPaint.setFilterBitmap(false);
 
  		if (update == null)

@@ -1,4 +1,4 @@
-package com.iiordanov.bVNC;
+package com.iiordanov.bVNC.input;
 
 import android.view.MotionEvent;
 import android.view.View;
@@ -6,9 +6,13 @@ import android.view.View.OnClickListener;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 
-import com.iiordanov.bVNC.input.RemotePointer;
+import com.iiordanov.bVNC.R;
+import com.iiordanov.bVNC.VncCanvas;
+import com.iiordanov.bVNC.VncCanvasActivity;
+import com.iiordanov.bVNC.R.id;
+import com.iiordanov.bVNC.R.string;
 
-class SingleHandedInputHandler extends TouchMouseSwipePanInputHandler {
+public class SingleHandedInputHandler extends TouchMouseSwipePanInputHandler {
 	static final String TAG = "SingleHandedInputHandler";
 	static final String SINGLE_HANDED_MODE = "SINGLE_HANDED_MODE";
 	private RelativeLayout singleHandOpts;
@@ -31,7 +35,7 @@ class SingleHandedInputHandler extends TouchMouseSwipePanInputHandler {
 	/**
 	 * @param c
 	 */
-	SingleHandedInputHandler(VncCanvasActivity va, VncCanvas v) {
+	public SingleHandedInputHandler(VncCanvasActivity va, VncCanvas v) {
 		super(va, v);
 		initializeButtons();
 	}

@@ -1,4 +1,4 @@
-package com.iiordanov.bVNC;
+package com.iiordanov.bVNC.input;
 
 import android.graphics.PointF;
 import android.os.SystemClock;
@@ -7,11 +7,14 @@ import android.view.MotionEvent;
 import android.view.View;
 
 import com.iiordanov.android.bc.BCFactory;
-import com.iiordanov.bVNC.input.RemotePointer;
+import com.iiordanov.bVNC.R;
+import com.iiordanov.bVNC.VncCanvas;
+import com.iiordanov.bVNC.VncCanvasActivity;
+import com.iiordanov.bVNC.R.string;
 
-class TouchMouseSwipePanInputHandler extends AbstractGestureInputHandler {
+public class TouchMouseSwipePanInputHandler extends AbstractGestureInputHandler {
 	static final String TAG = "TouchMouseSwipePanInputHandler";
-	static final String TOUCH_ZOOM_MODE = "TOUCH_ZOOM_MODE";
+	public static final String TOUCH_ZOOM_MODE = "TOUCH_ZOOM_MODE";
 
 	/**
 	 * Divide stated fling velocity by this amount to get initial velocity
@@ -22,7 +25,7 @@ class TouchMouseSwipePanInputHandler extends AbstractGestureInputHandler {
 	/**
 	 * @param c
 	 */
-	TouchMouseSwipePanInputHandler(VncCanvasActivity va, VncCanvas v) {
+	public TouchMouseSwipePanInputHandler(VncCanvasActivity va, VncCanvas v) {
 		super(va, v);
 	}
 
@@ -115,7 +118,7 @@ class TouchMouseSwipePanInputHandler extends AbstractGestureInputHandler {
 			return true;
 
 		activity.showZoomer(false);
-		activity.panner.start(-(velocityX / FLING_FACTOR),
+		activity.getPanner().start(-(velocityX / FLING_FACTOR),
 				-(velocityY / FLING_FACTOR), new Panner.VelocityUpdater() {
 
 			/*

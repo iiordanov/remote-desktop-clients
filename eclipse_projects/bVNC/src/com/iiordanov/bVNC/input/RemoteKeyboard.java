@@ -8,7 +8,6 @@ import android.view.KeyEvent;
 import com.iiordanov.bVNC.MetaKeyBean;
 import com.iiordanov.bVNC.RfbConnectable;
 import com.iiordanov.bVNC.VncCanvas;
-import com.iiordanov.bVNC.XKeySymCoverter;
 
 public abstract class RemoteKeyboard {
 	public final static int SCAN_ESC = 1;

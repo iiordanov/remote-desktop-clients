@@ -136,7 +136,7 @@ class ZoomScaling extends AbstractScaling {
 	 * @see com.iiordanov.bVNC.AbstractScaling#adjust(com.iiordanov.bVNC.VncCanvasActivity, float, float, float)
 	 */
 	@Override
-	void adjust(VncCanvasActivity activity, float scaleFactor, float fx, float fy) {
+	public void adjust(VncCanvasActivity activity, float scaleFactor, float fx, float fy) {
 		
 		float oldScale;
 		float newScale = scaleFactor * scaling;

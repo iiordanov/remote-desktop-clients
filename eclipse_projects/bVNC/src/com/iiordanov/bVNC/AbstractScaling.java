@@ -27,7 +27,7 @@ import android.widget.ImageView;
  * 
  * A scaling mode for the VncCanvas; based on ImageView.ScaleType
  */
-abstract class AbstractScaling {
+public abstract class AbstractScaling {
 	private static final int scaleModeIds[] = { R.id.itemFitToScreen, R.id.itemOneToOne, R.id.itemZoomable };
 	
 	private static AbstractScaling[] scalings;
@@ -146,8 +146,5 @@ abstract class AbstractScaling {
 	 * @param fx Focus X of center of scale change
 	 * @param fy Focus Y of center of scale change
 	 */
-	void adjust(VncCanvasActivity activity, float scaleFactor, float fx, float fy)
-	{
-	
-	}
+	public void adjust(VncCanvasActivity activity, float scaleFactor, float fx, float fy) { }
 }

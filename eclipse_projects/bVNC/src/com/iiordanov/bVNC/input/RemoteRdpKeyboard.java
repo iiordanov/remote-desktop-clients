@@ -10,7 +10,6 @@ import com.iiordanov.bVNC.MetaKeyBean;
 import com.iiordanov.bVNC.RdpCommunicator;
 import com.iiordanov.bVNC.RfbConnectable;
 import com.iiordanov.bVNC.VncCanvas;
-import com.iiordanov.bVNC.XKeySymCoverter;
 import com.iiordanov.tigervnc.rfb.UnicodeToKeysym;
 
 public class RemoteRdpKeyboard extends RemoteKeyboard {

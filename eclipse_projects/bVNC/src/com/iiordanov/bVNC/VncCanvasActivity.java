@@ -34,7 +34,13 @@ import com.iiordanov.android.bc.BCFactory;
 import com.iiordanov.android.zoomer.ZoomControls;
 import com.iiordanov.bVNC.dialogs.EnterTextDialog;
 import com.iiordanov.bVNC.dialogs.MetaKeyDialog;
+import com.iiordanov.bVNC.input.AbstractInputHandler;
+import com.iiordanov.bVNC.input.Panner;
 import com.iiordanov.bVNC.input.RemoteKeyboard;
+import com.iiordanov.bVNC.input.SimulatedTouchpadInputHandler;
+import com.iiordanov.bVNC.input.SingleHandedInputHandler;
+import com.iiordanov.bVNC.input.TouchMouseDragPanInputHandler;
+import com.iiordanov.bVNC.input.TouchMouseSwipePanInputHandler;
 
 import android.app.Activity;
 import android.app.Dialog;
@@ -1331,22 +1337,21 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 	}
 	
 	// Returns whether we are using D-pad/Trackball to send arrow key events.
-	boolean getUseDpadAsArrows() {
+	public boolean getUseDpadAsArrows() {
 		return connection.getUseDpadAsArrows();
 	}
 	
 	// Returns whether the D-pad should be rotated to accommodate BT keyboards paired with phones.
-	boolean getRotateDpad() {
+	public boolean getRotateDpad() {
 		return connection.getRotateDpad();
 	}
 	
-	// Returns whether the D-pad should be rotated to accommodate BT keyboards paired with phones.
-	float getSensitivity() {
+	public float getSensitivity() {
 		// TODO: Make this a slider config option.
 		return 2.0f;
 	}
 	
-	boolean getAccelerationEnabled() {
+	public boolean getAccelerationEnabled() {
 		// TODO: Make this a config option.
 		return true;
 	}
@@ -1365,5 +1370,13 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 
 	public void setCanvas(VncCanvas vncCanvas) {
 		this.canvas = vncCanvas;
+	}
+	
+	public Panner getPanner() {
+		return panner;
+	}
+
+	public void setPanner(Panner panner) {
+		this.panner = panner;
 	}
 }

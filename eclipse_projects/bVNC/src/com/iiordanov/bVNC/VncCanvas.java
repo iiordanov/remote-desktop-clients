@@ -83,10 +83,10 @@ import com.iiordanov.tigervnc.vncviewer.CConn;
 public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, LibFreeRDP.EventListener {
 	private final static String TAG = "VncCanvas";
 
-	AbstractScaling scaling;
+	public AbstractScaling scaling;
 
 	// Variable indicating that we are currently scrolling in simulated touchpad mode.
-	boolean inScrolling = false;
+	public boolean inScrolling = false;
 	
 	// Connection parameters
 	ConnectionBean connection;
@@ -1009,7 +1009,7 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 	 * @param dY
 	 * @return True if the pan changed the view (did not move view out of bounds); false otherwise
 	 */
-	boolean pan(int dX, int dY) {
+	public boolean pan(int dX, int dY) {
 
 		// We only pan if the current scaling is able to pan.
 		if (scaling != null && ! scaling.isAbleToPan())
@@ -1188,7 +1188,7 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 		return keyboard;
 	}
 	
-	float getScale() {
+	public float getScale() {
 		if (scaling == null)
 			return 1;
 		return scaling.getScale();

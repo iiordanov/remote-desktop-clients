@@ -1,4 +1,4 @@
-package com.iiordanov.bVNC;
+package com.iiordanov.bVNC.input;
 
 import android.graphics.PointF;
 import android.os.SystemClock;
@@ -7,9 +7,12 @@ import android.view.MotionEvent;
 import android.view.View;
 
 import com.iiordanov.android.bc.BCFactory;
-import com.iiordanov.bVNC.input.RemotePointer;
+import com.iiordanov.bVNC.R;
+import com.iiordanov.bVNC.VncCanvas;
+import com.iiordanov.bVNC.VncCanvasActivity;
+import com.iiordanov.bVNC.R.string;
 
-class TouchMouseDragPanInputHandler extends AbstractGestureInputHandler {
+public class TouchMouseDragPanInputHandler extends AbstractGestureInputHandler {
 	static final String TAG = "TouchMouseDragPanInputHandler";
 	static final String TOUCH_ZOOM_MODE_DRAG_PAN = "TOUCH_ZOOM_MODE_DRAG_PAN";
 
@@ -22,7 +25,7 @@ class TouchMouseDragPanInputHandler extends AbstractGestureInputHandler {
 	/**
 	 * @param c
 	 */
-	TouchMouseDragPanInputHandler(VncCanvasActivity va, VncCanvas v) {
+	public TouchMouseDragPanInputHandler(VncCanvasActivity va, VncCanvas v) {
 		super(va, v);
 	}
 

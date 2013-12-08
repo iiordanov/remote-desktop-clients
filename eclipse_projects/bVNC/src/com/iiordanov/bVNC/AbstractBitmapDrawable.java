@@ -45,7 +45,7 @@ public class AbstractBitmapDrawable extends DrawableContainer {
 
 	AbstractBitmapData data;
 
-	Paint _defaultPaint;
+	public Paint _defaultPaint;
 	Paint _whitePaint;
 	Paint _blackPaint;
 

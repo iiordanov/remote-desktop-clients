@@ -35,7 +35,7 @@
  * This software is in the public domain. Share and enjoy!
  */
 
-package com.iiordanov.bVNC;
+package com.iiordanov.bVNC.input;
 import android.util.Log;
 
 public class XKeySymCoverter {

@@ -18,7 +18,7 @@
  * USA.
  */
 
-package com.iiordanov.bVNC;
+package com.iiordanov.bVNC.input;
 
 import android.view.KeyEvent;
 import android.view.MotionEvent;
@@ -36,7 +36,7 @@ import android.view.MotionEvent;
  * @author Michael A. MacDonald
  *
  */
-interface AbstractInputHandler {
+public interface AbstractInputHandler {
 	/**
 	 * Note: Menu key code is handled before this is called
 	 * @see android.app.Activity#onKeyDown(int keyCode, KeyEvent evt)
