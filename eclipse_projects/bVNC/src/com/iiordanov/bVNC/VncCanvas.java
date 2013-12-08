@@ -123,155 +123,6 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 	// Progress dialog shown at connection time.
 	ProgressDialog pd;
 	
-	// Handler for the dialog that displays the x509/RDP key signatures to the user.
-	// TODO: Also handle the SSH certificate validation here.
-	public Handler handler = new Handler() {
-		@Override
-		public void handleMessage(Message msg) {
-			switch (msg.what) {
-			case VncConstants.DIALOG_X509_CERT:
-				validateX509Cert ((X509Certificate)msg.obj);
-				break;
-			case VncConstants.DIALOG_RDP_CERT:
-				Bundle s = (Bundle)msg.obj;
-				validateRdpCert (s.getString("subject"), s.getString("issuer"), s.getString("fingerprint"));
-				break;
-			case VncConstants.SPICE_CONNECT_SUCCESS:
-				synchronized(spicecomm) {
-					spicecomm.notifyAll();
-				}
-				break;
-			case VncConstants.SPICE_CONNECT_FAILURE:
-				// If we were intending to maintainConnection, and the connection failed, show an error message.
-				if (maintainConnection) {
-					if (pd != null && pd.isShowing())
-						pd.dismiss();
-					if (!spiceUpdateReceived) {
-						showFatalMessageAndQuit(getContext().getString(R.string.error_spice_unable_to_connect));
-					} else {
-						showFatalMessageAndQuit(getContext().getString(R.string.error_connection_interrupted));
-					}
-				}
-				break;
-			}
-		}
-	};
-	
-	/**
-	 * If there is a saved cert, checks the one given against it. Otherwise, presents the
-	 * given cert's signature to the user for approval.
-	 * @param cert the given cert.
-	 */
-	private void validateX509Cert (final X509Certificate cert) {
-
-		// If there has been no key approved by the user previously, ask for approval, else
-		// check the saved key against the one we are presented with.
-    	if (connection.getSshHostKey().equals("")) {
-			// Show a dialog with the key signature for approval.
-			DialogInterface.OnClickListener signatureNo = new DialogInterface.OnClickListener() {
-	            @Override
-	            public void onClick(DialogInterface dialog, int which) {
-	                // We were told not to continue, so stop the activity
-	            	closeConnection();
-	            	((Activity) getContext()).finish();
-	            }
-	        };
-	        DialogInterface.OnClickListener signatureYes = new DialogInterface.OnClickListener() {
-	            @Override
-	            public void onClick(DialogInterface dialog, int which) {
-	    			// We were told to go ahead with the connection, so save the key into the database.
-	            	String certificate = null;
-	            	try {
-	            		certificate = Base64.encodeToString(cert.getEncoded(), Base64.DEFAULT);
-					} catch (CertificateEncodingException e) {
-						e.printStackTrace();
-						showFatalMessageAndQuit(getContext().getString(R.string.error_x509_could_not_generate_encoding));
-					}
-					connection.setSshHostKey(certificate);
-	    			connection.save(database.getWritableDatabase());
-	    			database.close();
-	    			// Indicate the certificate was accepted.
-	            	certificateAccepted = true;
-	            }
-	        };
-
-			// Generate a sha1 signature of the certificate.
-		    MessageDigest sha1;
-		    MessageDigest md5;
-			try {
-				sha1 = MessageDigest.getInstance("SHA1");
-				md5 = MessageDigest.getInstance("MD5");
-	    	    sha1.update(cert.getEncoded());
-    			Utils.showYesNoPrompt(getContext(), getContext().getString(R.string.info_continue_connecting) + connection.getAddress () + "?",
-    								  getContext().getString(R.string.info_cert_signatures)   +
-    									"\nSHA1:  " + Utils.toHexString(sha1.digest()) +
-    									"\nMD5:  "  + Utils.toHexString(md5.digest())  + 
-    									getContext().getString(R.string.info_cert_signatures_identical),
-    									signatureYes, signatureNo);
-			} catch (NoSuchAlgorithmException e2) {
-				e2.printStackTrace();
-				showFatalMessageAndQuit(getContext().getString(R.string.error_x509_could_not_generate_signature));
-			} catch (CertificateEncodingException e) {
-				e.printStackTrace();
-				showFatalMessageAndQuit(getContext().getString(R.string.error_x509_could_not_generate_encoding));
-			}
-    	} else {
-    		// Compare saved with obtained certificate and quit if they don't match.
-    		try {
-				if (!connection.getSshHostKey().equals(Base64.encodeToString(cert.getEncoded(), Base64.DEFAULT))) {
-					showFatalMessageAndQuit(getContext().getString(R.string.error_cert_does_not_match));
-				} else {
-					// In case we need to display information about the certificate, we can reconstruct it like this:
-					//CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
-					//ByteArrayInputStream in = new ByteArrayInputStream(Base64.decode(connection.getSshHostKey(), Base64.DEFAULT));
-					//X509Certificate c = (X509Certificate)certFactory.generateCertificate(in);
-		    	    //android.util.Log.e("  Subject ", c.getSubjectDN().toString());
-		    	    //android.util.Log.e("   Issuer  ", c.getIssuerDN().toString());
-					// The certificate matches, so we proceed.
-	            	certificateAccepted = true;
-				}
-			} catch (CertificateEncodingException e) {
-				e.printStackTrace();
-				showFatalMessageAndQuit(getContext().getString(R.string.error_x509_could_not_generate_encoding));
-			}
-    	}
-	}
-	
-	/**
-	 * Permits the user to validate an RDP certificate.
-	 * @param subject
-	 * @param issuer
-	 * @param fingerprint
-	 */
-	private void validateRdpCert (String subject, String issuer, final String fingerprint) {
-		// Since LibFreeRDP handles saving accepted certificates, if we ever get here, we must
-		// present the user with a query whether to accept the certificate or not.
-
-		// Show a dialog with the key signature for approval.
-		DialogInterface.OnClickListener signatureNo = new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				// We were told not to continue, so stop the activity
-				closeConnection();
-				((Activity) getContext()).finish();
-			}
-		};
-		DialogInterface.OnClickListener signatureYes = new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				// Indicate the certificate was accepted.
-				certificateAccepted = true;
-			}
-		};
-		Utils.showYesNoPrompt(getContext(), getContext().getString(R.string.info_continue_connecting) + connection.getAddress () + "?",
-				getContext().getString(R.string.info_cert_signatures) +
-						"\nSubject:      " + subject +
-						"\nIssuer:       " + issuer +
-						"\nFingerprint:  " + fingerprint + 
-						getContext().getString(R.string.info_cert_signatures_identical),
-						signatureYes, signatureNo);
-	}
-
 	// Used to set the contents of the clipboard.
 	ClipboardManager clipboard;
 	Timer clipboardMonitorTimer;
@@ -319,7 +170,8 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 	 */
 	boolean isSpice = false;
     boolean spiceUpdateReceived = false;
-
+    
+    
 	/**
 	 * Constructor used by the inflation apparatus
 	 * 
@@ -343,7 +195,7 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 		displayDensity = metrics.density;
 	}
 	
-	
+    
 	/**
 	 * Create a view showing a remote desktop connection
 	 * @param context Containing context (activity)
@@ -377,6 +229,20 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 		Thread t = new Thread () {
 			public void run() {
 			    try {
+			    	// Initialize SSH key if necessary
+					if (connection.getConnectionType() == VncConstants.CONN_TYPE_SSH &&
+					    connection.getSshHostKey().equals("")) {
+					    handler.sendEmptyMessage(VncConstants.DIALOG_SSH_CERT);
+		                synchronized (VncCanvas.this) {
+		                    try {
+		                        VncCanvas.this.wait();
+		                    } catch (InterruptedException e) {
+		                        e.printStackTrace();
+		                        ((Activity) getContext()).finish();
+		                    }
+		                }
+					}
+					
 			    	if (isSpice) {
 			    		startSpiceConnection();
 			    	} else if (isRdp) {
@@ -693,11 +559,11 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 		if (connection.getConnectionType() == VncConstants.CONN_TYPE_SSH) {
 			if (sshConnection == null) {
 				sshConnection = new SSHConnection(connection, getContext());
-				// TODO: Take the AutoX stuff out to a separate function.
-				int newPort = sshConnection.initializeSSHTunnel ();
-				if (newPort > 0)
-					port = newPort;
 			}
+			// TODO: Take the AutoX stuff out to a separate function.
+			int newPort = sshConnection.initializeSSHTunnel ();
+			if (newPort > 0)
+				port = newPort;
 			result = sshConnection.createLocalPortForward(port);
 		} else {
 			result = port;
@@ -1322,13 +1188,10 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 		return absoluteYPosition;
 	}
 	
-	/********************************************************************************
-	*  Implementation of LibFreeRDP.EventListener.  Through the functions implemented
-	*  below, FreeRDP communicates connection state information.
-	*/
-	public static final int FREERDP_EVENT_CONNECTION_SUCCESS = 1;
-	public static final int FREERDP_EVENT_CONNECTION_FAILURE = 2;
-	public static final int FREERDP_EVENT_DISCONNECTED = 3;
+    //////////////////////////////////////////////////////////////////////////////////
+    //  Implementation of LibFreeRDP.EventListener.  Through the functions implemented
+    //  below, FreeRDP communicates connection state information.
+    //////////////////////////////////////////////////////////////////////////////////
 	
 	@Override
 	public void OnConnectionSuccess(int instance) {
@@ -1364,10 +1227,11 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 		//GlobalApp.freeSession(instance);
 	}
 	
-	/********************************************************************************
-	*  Implementation of LibFreeRDP.UIEventListener. Through the functions implemented
-	*  below libspice and FreeRDP communicate remote desktop size and updates.
-	*/
+    //////////////////////////////////////////////////////////////////////////////////
+	//  Implementation of LibFreeRDP.UIEventListener. Through the functions implemented
+	//  below libspice and FreeRDP communicate remote desktop size and updates.
+    //////////////////////////////////////////////////////////////////////////////////
+	
 	@Override
 	public void OnSettingsChanged(int width, int height, int bpp) {
 		android.util.Log.e(TAG, "onSettingsChanged called, wxh: " + width + "x" + height);
@@ -1461,4 +1325,208 @@ public class VncCanvas extends ImageView implements LibFreeRDP.UIEventListener, 
 		android.util.Log.e(TAG, "OnGraphicsResize called.");
 		OnSettingsChanged(width, height, bpp);
 	}
+	
+	
+	/** 
+	 * Handler for the dialogs that display the x509/RDP/SSH key signatures to the user.
+	 * Also shows the dialogs which show various connection failures.
+	 */
+    public Handler handler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+            case VncConstants.DIALOG_X509_CERT:
+                validateX509Cert ((X509Certificate)msg.obj);
+                break;
+            case VncConstants.DIALOG_SSH_CERT:
+                initializeSshHostKey();
+                break;
+            case VncConstants.DIALOG_RDP_CERT:
+                Bundle s = (Bundle)msg.obj;
+                validateRdpCert (s.getString("subject"), s.getString("issuer"), s.getString("fingerprint"));
+                break;
+            case VncConstants.SPICE_CONNECT_SUCCESS:
+                synchronized(spicecomm) {
+                    spicecomm.notifyAll();
+                }
+                break;
+            case VncConstants.SPICE_CONNECT_FAILURE:
+                // If we were intending to maintainConnection, and the connection failed, show an error message.
+                if (maintainConnection) {
+                    if (pd != null && pd.isShowing())
+                        pd.dismiss();
+                    if (!spiceUpdateReceived) {
+                        showFatalMessageAndQuit(getContext().getString(R.string.error_spice_unable_to_connect));
+                    } else {
+                        showFatalMessageAndQuit(getContext().getString(R.string.error_connection_interrupted));
+                    }
+                }
+                break;
+            }
+        }
+    };
+    
+    /**
+     * If there is a saved cert, checks the one given against it. Otherwise, presents the
+     * given cert's signature to the user for approval.
+     * @param cert the given cert.
+     */
+    private void validateX509Cert (final X509Certificate cert) {
+
+        // If there has been no key approved by the user previously, ask for approval, else
+        // check the saved key against the one we are presented with.
+        if (connection.getSshHostKey().equals("")) {
+            // Show a dialog with the key signature for approval.
+            DialogInterface.OnClickListener signatureNo = new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    // We were told not to continue, so stop the activity
+                    closeConnection();
+                    ((Activity) getContext()).finish();
+                }
+            };
+            DialogInterface.OnClickListener signatureYes = new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    // We were told to go ahead with the connection, so save the key into the database.
+                    String certificate = null;
+                    try {
+                        certificate = Base64.encodeToString(cert.getEncoded(), Base64.DEFAULT);
+                    } catch (CertificateEncodingException e) {
+                        e.printStackTrace();
+                        showFatalMessageAndQuit(getContext().getString(R.string.error_x509_could_not_generate_encoding));
+                    }
+                    connection.setSshHostKey(certificate);
+                    connection.save(database.getWritableDatabase());
+                    database.close();
+                    // Indicate the certificate was accepted.
+                    certificateAccepted = true;
+                }
+            };
+
+            // Generate a sha1 signature of the certificate.
+            MessageDigest sha1;
+            MessageDigest md5;
+            try {
+                sha1 = MessageDigest.getInstance("SHA1");
+                md5 = MessageDigest.getInstance("MD5");
+                sha1.update(cert.getEncoded());
+                Utils.showYesNoPrompt(getContext(), getContext().getString(R.string.info_continue_connecting) + connection.getAddress () + "?",
+                                      getContext().getString(R.string.info_cert_signatures)   +
+                                        "\nSHA1:  " + Utils.toHexString(sha1.digest()) +
+                                        "\nMD5:  "  + Utils.toHexString(md5.digest())  + 
+                                        getContext().getString(R.string.info_cert_signatures_identical),
+                                        signatureYes, signatureNo);
+            } catch (NoSuchAlgorithmException e2) {
+                e2.printStackTrace();
+                showFatalMessageAndQuit(getContext().getString(R.string.error_x509_could_not_generate_signature));
+            } catch (CertificateEncodingException e) {
+                e.printStackTrace();
+                showFatalMessageAndQuit(getContext().getString(R.string.error_x509_could_not_generate_encoding));
+            }
+        } else {
+            // Compare saved with obtained certificate and quit if they don't match.
+            try {
+                if (!connection.getSshHostKey().equals(Base64.encodeToString(cert.getEncoded(), Base64.DEFAULT))) {
+                    showFatalMessageAndQuit(getContext().getString(R.string.error_cert_does_not_match));
+                } else {
+                    // In case we need to display information about the certificate, we can reconstruct it like this:
+                    //CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
+                    //ByteArrayInputStream in = new ByteArrayInputStream(Base64.decode(connection.getSshHostKey(), Base64.DEFAULT));
+                    //X509Certificate c = (X509Certificate)certFactory.generateCertificate(in);
+                    //android.util.Log.e("  Subject ", c.getSubjectDN().toString());
+                    //android.util.Log.e("   Issuer  ", c.getIssuerDN().toString());
+                    // The certificate matches, so we proceed.
+                    certificateAccepted = true;
+                }
+            } catch (CertificateEncodingException e) {
+                e.printStackTrace();
+                showFatalMessageAndQuit(getContext().getString(R.string.error_x509_could_not_generate_encoding));
+            }
+        }
+    }
+    
+    
+    /**
+     * Permits the user to validate an RDP certificate.
+     * @param subject
+     * @param issuer
+     * @param fingerprint
+     */
+    private void validateRdpCert (String subject, String issuer, final String fingerprint) {
+        // Since LibFreeRDP handles saving accepted certificates, if we ever get here, we must
+        // present the user with a query whether to accept the certificate or not.
+
+        // Show a dialog with the key signature for approval.
+        DialogInterface.OnClickListener signatureNo = new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                // We were told not to continue, so stop the activity
+                closeConnection();
+                ((Activity) getContext()).finish();
+            }
+        };
+        DialogInterface.OnClickListener signatureYes = new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                // Indicate the certificate was accepted.
+                certificateAccepted = true;
+            }
+        };
+        Utils.showYesNoPrompt(getContext(), getContext().getString(R.string.info_continue_connecting) + connection.getAddress () + "?",
+                getContext().getString(R.string.info_cert_signatures) +
+                        "\nSubject:      " + subject +
+                        "\nIssuer:       " + issuer +
+                        "\nFingerprint:  " + fingerprint + 
+                        getContext().getString(R.string.info_cert_signatures_identical),
+                        signatureYes, signatureNo);
+    }
+    
+    
+    /**
+     * Function used to initialize an empty SSH HostKey for a new VNC over SSH connection.
+     */
+    private void initializeSshHostKey() {
+        // If the SSH HostKey is empty, then we need to grab the HostKey from the server and save it.
+        Log.d(TAG, "Attempting to initialize SSH HostKey.");
+        
+        displayShortToastMessage(getContext().getString(R.string.info_ssh_initializing_hostkey));
+        
+        sshConnection = new SSHConnection(connection, getContext());
+        if (!sshConnection.connect()) {
+            // Failed to connect, so show error message and quit activity.
+            showFatalMessageAndQuit(getContext().getString(R.string.error_ssh_unable_to_connect));
+        } else {
+            // Show a dialog with the key signature.
+            DialogInterface.OnClickListener signatureNo = new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    // We were told to not continue, so stop the activity
+                    sshConnection.terminateSSHTunnel();
+                    pd.dismiss();
+                    ((Activity) getContext()).finish();
+                }   
+            };
+            DialogInterface.OnClickListener signatureYes = new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    // We were told to go ahead with the connection.
+                    connection.setSshHostKey(sshConnection.getServerHostKey());
+                    connection.save(database.getWritableDatabase());
+                    database.close();
+                    sshConnection.terminateSSHTunnel();
+                    sshConnection = null;
+                    synchronized (VncCanvas.this) {
+                        VncCanvas.this.notify();
+                    }
+                }
+            };
+            
+            Utils.showYesNoPrompt(getContext(),
+                    getContext().getString(R.string.info_continue_connecting) + connection.getSshServer() + "?",
+                    getContext().getString(R.string.info_ssh_key_fingerprint) + sshConnection.getHostKeySignature() +
+                    getContext().getString(R.string.info_ssh_key_fingerprint_identical),
+                    signatureYes, signatureNo);
+        }
+    }
 }

@@ -132,60 +132,12 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 	boolean       hardKeyboardExtended;
 	boolean       extraKeysHidden = false;
     int            prevBottomOffset = 0;
-
-
-	/**
-	 * Function used to initialize an empty SSH HostKey for a new VNC over SSH connection.
-	 */
-	// TODO: This functionality should go into the handler like displaying 509 certificates.
-	private void initializeSshHostKey() {
-		// If the SSH HostKey is empty, then we need to grab the HostKey from the server and save it.
-		if (connection.getSshHostKey().equals("")) {
-			Toast.makeText(this, getString(R.string.info_ssh_initializing_hostkey), Toast.LENGTH_SHORT).show();
-			Log.d(TAG, "Attempting to initialize SSH HostKey.");
-			
-			sshConnection = new SSHConnection(connection, this);
-			if (!sshConnection.connect()) {
-				// Failed to connect, so show error message and quit activity.
-				Utils.showFatalErrorMessage(this, getString(R.string.error_ssh_unable_to_connect));
-			} else {
-				// Show a dialog with the key signature.
-				DialogInterface.OnClickListener signatureNo = new DialogInterface.OnClickListener() {
-		            @Override
-		            public void onClick(DialogInterface dialog, int which) {
-		                // We were told to not continue, so stop the activity
-		            	sshConnection.terminateSSHTunnel();
-		                finish();    
-		            }	
-		        };
-		        DialogInterface.OnClickListener signatureYes = new DialogInterface.OnClickListener() {
-		            @Override
-		            public void onClick(DialogInterface dialog, int which) {
-		    			// We were told to go ahead with the connection.
-		    			connection.setSshHostKey(sshConnection.getServerHostKey());
-		    			connection.save(database.getWritableDatabase());
-		    			database.close();
-		    			sshConnection.terminateSSHTunnel();
-		    			sshConnection = null;
-		            	continueConnecting();
-		            }
-		        };
-		        
-				Utils.showYesNoPrompt(this, getString(R.string.info_continue_connecting) + connection.getSshServer() + "?", 
-						getString(R.string.info_ssh_key_fingerprint) + sshConnection.getHostKeySignature() + 
-									getString(R.string.info_ssh_key_fingerprint_identical),
-									signatureYes, signatureNo);
-			}
-		} else {
-			// There is no need to initialize the HostKey, so continue connecting.
-			continueConnecting();
-		}
-	}
-		
+	
 	@Override
 	public void onCreate(Bundle icicle) {
 		super.onCreate(icicle);
 		initialize();
+		continueConnecting();
 	}
 	
 	void initialize () {
@@ -276,12 +228,6 @@ public class VncCanvasActivity extends Activity implements OnKeyListener {
 			    }
 			    connection.setAddress(host.substring(0, host.indexOf(':')));
 	  	    }
-		}
-
-		if (connection.getConnectionType() == VncConstants.CONN_TYPE_SSH) {
-			initializeSshHostKey();
-		} else {
-			continueConnecting();
 		}
 	}
 
