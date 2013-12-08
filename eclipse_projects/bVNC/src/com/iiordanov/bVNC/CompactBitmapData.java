@@ -54,7 +54,7 @@ class CompactBitmapData extends AbstractBitmapData {
         }
     }
     
-    CompactBitmapData(RfbConnectable rfb, RemoteCanvas c)
+    CompactBitmapData(RfbConnectable rfb, RemoteCanvas c, boolean trueColor)
     {
         super(rfb,c);
         bitmapwidth=framebufferwidth;
@@ -63,8 +63,7 @@ class CompactBitmapData extends AbstractBitmapData {
         if (bitmapwidth  == 0) bitmapwidth  = 1;
         if (bitmapheight == 0) bitmapheight = 1;
 
-        isSpice = c.getContext().getPackageName().contains("SPICE");
-        if (isSpice)
+        if (trueColor)
             cfg = Bitmap.Config.ARGB_8888;
         
         mbitmap = Bitmap.createBitmap(bitmapwidth, bitmapheight, cfg);

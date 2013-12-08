@@ -51,12 +51,16 @@ import android.os.Handler;
 import android.os.Message;
 import android.os.SystemClock;
 import android.text.ClipboardManager;
+import android.text.InputType;
 import android.util.AttributeSet;
 import android.util.Base64;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
 import android.view.KeyEvent;
+import android.view.inputmethod.BaseInputConnection;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputConnection;
 import android.widget.ImageView;
 import android.widget.Toast;
 import android.graphics.BitmapFactory;
@@ -620,7 +624,7 @@ public class RemoteCanvas extends ImageView implements LibFreeRDP.UIEventListene
                     bitmapData=new FullBufferBitmapData(rfbconn, this, capacity);
                     android.util.Log.i(TAG, "Using FullBufferBitmapData.");
                 } else {
-                    bitmapData=new CompactBitmapData(rfbconn, this);
+                    bitmapData=new CompactBitmapData(rfbconn, this, isSpice);
                     android.util.Log.i(TAG, "Using CompactBufferBitmapData.");
                 }
             } catch (Throwable e) { // If despite our efforts we fail to allocate memory, use LBBM.
@@ -1072,7 +1076,7 @@ public class RemoteCanvas extends ImageView implements LibFreeRDP.UIEventListene
         }
     }
     
-
+    
     /**
      * Moves soft cursor into a particular location.
      * @param x
@@ -1096,6 +1100,7 @@ public class RemoteCanvas extends ImageView implements LibFreeRDP.UIEventListene
         }
     }
     
+    
     /**
      * Initializes the data structure which holds the remote pointer data.
      */
@@ -1110,6 +1115,24 @@ public class RemoteCanvas extends ImageView implements LibFreeRDP.UIEventListene
         // Set softCursor to whatever the resource is.
         bitmapData.setSoftCursor (tempPixels);
         bm.recycle();
+    }
+    
+    
+    @Override
+    public InputConnection onCreateInputConnection(EditorInfo outAttrs) {
+        android.util.Log.d(TAG, "onCreateInputConnection called");
+        
+        BaseInputConnection bic = new BaseInputConnection(this, false);        
+        outAttrs.actionLabel = null;
+        int version = android.os.Build.VERSION.SDK_INT;
+        // Workaround for IME's that don't support InputType.TYPE_NULL.
+        if (version >= 11) {
+            outAttrs.inputType = InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS;
+            outAttrs.imeOptions |= EditorInfo.IME_FLAG_NO_FULLSCREEN;
+        } else {
+            outAttrs.inputType = InputType.TYPE_NULL;
+        }
+        return bic;
     }
     
     public RemotePointer getPointer() {
@@ -1251,7 +1274,7 @@ public class RemoteCanvas extends ImageView implements LibFreeRDP.UIEventListene
         disposeDrawable ();
         try {
             // TODO: Use frameBufferSizeChanged instead.
-            bitmapData = new CompactBitmapData(rfbconn, this);
+            bitmapData = new CompactBitmapData(rfbconn, this, isSpice);
         } catch (Throwable e) {
             showFatalMessageAndQuit (getContext().getString(R.string.error_out_of_memory));
             return;
