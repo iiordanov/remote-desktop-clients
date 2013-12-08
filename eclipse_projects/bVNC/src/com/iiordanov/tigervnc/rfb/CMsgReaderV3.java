@@ -18,17 +18,17 @@
 
 package com.iiordanov.tigervnc.rfb;
 
-import com.iiordanov.bVNC.VncCanvas;
+import com.iiordanov.bVNC.RemoteCanvas;
 import com.iiordanov.tigervnc.rdr.*;
 
 public class CMsgReaderV3 extends CMsgReader {
 
-  public CMsgReaderV3(CMsgHandler handler_, InStream is_, VncCanvas c) 
+  public CMsgReaderV3(CMsgHandler handler_, InStream is_, RemoteCanvas c) 
   {
     super(handler_, is_, c);
     nUpdateRectsLeft = 0;
   }
-	
+    
   public CMsgReaderV3(CMsgHandler handler_, InStream is_) 
   {
     super(handler_, is_);

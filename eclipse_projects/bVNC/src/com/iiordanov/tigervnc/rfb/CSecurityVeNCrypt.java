@@ -65,20 +65,20 @@ public class CSecurityVeNCrypt extends CSecurity {
 
     if (!haveSentVersion) {
       /* Currently we don't support former VeNCrypt 0.1 */
-	    if (Version >= 0x0002) {
+        if (Version >= 0x0002) {
         majorVersion = 0;
         minorVersion = 2;
-	      os.writeU8(majorVersion);
-	      os.writeU8(minorVersion);
+          os.writeU8(majorVersion);
+          os.writeU8(minorVersion);
         os.flush();
-	    } else {
+        } else {
         /* Send 0.0 to indicate no support */
         majorVersion = 0;
         minorVersion = 0;
         os.writeU8(majorVersion);
         os.writeU8(minorVersion);
         os.flush();
-	      throw new Exception("Server reported an unsupported VeNCrypt version");
+          throw new Exception("Server reported an unsupported VeNCrypt version");
       }
     
       haveSentVersion = true;
@@ -88,7 +88,7 @@ public class CSecurityVeNCrypt extends CSecurity {
     /* Check that the server is OK */
     if (!haveAgreedVersion) {
       if (is.readU8() != 0)
-	      throw new Exception("Server reported it could not support the VeNCrypt version");
+          throw new Exception("Server reported it could not support the VeNCrypt version");
 
       haveAgreedVersion = true;
       return false;
@@ -100,7 +100,7 @@ public class CSecurityVeNCrypt extends CSecurity {
       iAvailableType = 0;
   
       if (nAvailableTypes <= 0)
-	      throw new Exception("The server reported no VeNCrypt sub-types");
+          throw new Exception("The server reported no VeNCrypt sub-types");
 
       availableTypes = new int[nAvailableTypes];
       haveNumberOfTypes = true;
@@ -111,17 +111,17 @@ public class CSecurityVeNCrypt extends CSecurity {
       /* read in the types possible */
       if (!haveListOfTypes) {
         if (is.checkNoWait(4)) {
-	        availableTypes[iAvailableType++] = is.readU32();
-	        haveListOfTypes = (iAvailableType >= nAvailableTypes);
-	        vlog.debug("Server offers security type "+
-		        Security.secTypeName(availableTypes[iAvailableType - 1])+" ("+
-		        availableTypes[iAvailableType - 1]+")");
+            availableTypes[iAvailableType++] = is.readU32();
+            haveListOfTypes = (iAvailableType >= nAvailableTypes);
+            vlog.debug("Server offers security type "+
+                Security.secTypeName(availableTypes[iAvailableType - 1])+" ("+
+                availableTypes[iAvailableType - 1]+")");
 
-	        if (!haveListOfTypes)
-	          return false;
+            if (!haveListOfTypes)
+              return false;
 
         } else
-	        return false;
+            return false;
         }
 
         /* make a choice and send it to the server, meanwhile set up the stack */
@@ -137,22 +137,22 @@ public class CSecurityVeNCrypt extends CSecurity {
           for (i = 0; i < nAvailableTypes; i++) {
             for (j = secTypes.iterator(); j.hasNext(); ) {
               int refType = (Integer)j.next();
-	            if (refType == availableTypes[i]) {
-	              chosenType = refType;
-	              break;
-	            }
-	          }
+                if (refType == availableTypes[i]) {
+                  chosenType = refType;
+                  break;
+                }
+              }
 
-	          if (chosenType != Security.secTypeInvalid)
-	            break;
+              if (chosenType != Security.secTypeInvalid)
+                break;
           }
 
           vlog.debug("Choosing security type "+Security.secTypeName(chosenType)+
-		                 " ("+chosenType+")");
+                         " ("+chosenType+")");
 
           /* Set up the stack according to the chosen type: */
           if (chosenType == Security.secTypeInvalid || chosenType == Security.secTypeVeNCrypt)
-	          throw new AuthFailureException("No valid VeNCrypt sub-type");
+              throw new AuthFailureException("No valid VeNCrypt sub-type");
 
           csecurity = security.GetCSecurity(chosenType);
 

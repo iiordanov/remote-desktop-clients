@@ -90,23 +90,23 @@ public class ZInputStream extends FilterInputStream {
     z.avail_out=len;
     do {
       if((z.avail_in==0)&&(!nomoreinput)) { // if buffer is empty and more input is avaiable, refill it
-	z.next_in_index=0;
-	z.avail_in=in.read(buf, 0, bufsize);//(bufsize<z.avail_out ? bufsize : z.avail_out));
-	if(z.avail_in==-1) {
-	  z.avail_in=0;
-	  nomoreinput=true;
-	}
+    z.next_in_index=0;
+    z.avail_in=in.read(buf, 0, bufsize);//(bufsize<z.avail_out ? bufsize : z.avail_out));
+    if(z.avail_in==-1) {
+      z.avail_in=0;
+      nomoreinput=true;
+    }
       }
       if(compress)
-	err=z.deflate(flush);
+    err=z.deflate(flush);
       else
-	err=z.inflate(flush);
+    err=z.inflate(flush);
       if(nomoreinput&&(err==JZlib.Z_BUF_ERROR))
         return(-1);
       if(err!=JZlib.Z_OK && err!=JZlib.Z_STREAM_END)
-	throw new ZStreamException((compress ? "de" : "in")+"flating: "+z.msg);
+    throw new ZStreamException((compress ? "de" : "in")+"flating: "+z.msg);
       if((nomoreinput||err==JZlib.Z_STREAM_END)&&(z.avail_out==len))
-	return(-1);
+    return(-1);
     } 
     while(z.avail_out==len&&err==JZlib.Z_OK);
     //System.err.print("("+(len-z.avail_out)+")");

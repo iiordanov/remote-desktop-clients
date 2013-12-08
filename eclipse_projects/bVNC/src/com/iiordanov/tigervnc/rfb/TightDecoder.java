@@ -23,7 +23,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
 import com.iiordanov.bVNC.AbstractBitmapData;
-import com.iiordanov.bVNC.VncCanvas;
+import com.iiordanov.bVNC.RemoteCanvas;
 import com.iiordanov.tigervnc.rdr.InStream;
 import com.iiordanov.tigervnc.rdr.ZlibInStream;
 import java.util.ArrayList;
@@ -59,13 +59,13 @@ public class TightDecoder extends Decoder {
 
   //final static Toolkit tk = Toolkit.getDefaultToolkit();
 
-  public TightDecoder(CMsgReader reader_, VncCanvas c) {
+  public TightDecoder(CMsgReader reader_, RemoteCanvas c) {
     bitmapopts = new BitmapFactory.Options();
     bitmapopts.inPurgeable      = false;
-	bitmapopts.inDither         = false;
-	bitmapopts.inTempStorage    = new byte[32768];
-	bitmapopts.inPreferredConfig= Bitmap.Config.RGB_565;
-	bitmapopts.inScaled         = false;
+    bitmapopts.inDither         = false;
+    bitmapopts.inTempStorage    = new byte[32768];
+    bitmapopts.inPreferredConfig= Bitmap.Config.RGB_565;
+    bitmapopts.inScaled         = false;
     reader = reader_; 
     zis = new ZlibInStream[4];
     for (int i = 0; i < 4; i++)
@@ -106,18 +106,18 @@ public class TightDecoder extends Decoder {
 /*
   public void readRectNew(Rect r, CMsgHandler handler) 
   {
-		if (r.tl.x + r.width() > vncCanvas.bitmapData.bmWidth())
-			r.setXYWH(r.tl.x, r.tl.y, vncCanvas.bitmapData.bmWidth() - r.tl.x, r.height());
+        if (r.tl.x + r.width() > vncCanvas.bitmapData.bmWidth())
+            r.setXYWH(r.tl.x, r.tl.y, vncCanvas.bitmapData.bmWidth() - r.tl.x, r.height());
 
-		if (r.tl.y + r.height() > vncCanvas.bitmapData.bmHeight())
-			r.setXYWH(r.tl.x, r.tl.y, r.width(), vncCanvas.bitmapData.bmHeight() - r.tl.y);
-	
-	try {
-		vncCanvas.handleTightRect(r.tl.x, r.tl.y, r.width(), r.height(), reader);
-	} catch (java.lang.Exception e) {
-		// TODO Auto-generated catch block
-		e.printStackTrace();
-	}
+        if (r.tl.y + r.height() > vncCanvas.bitmapData.bmHeight())
+            r.setXYWH(r.tl.x, r.tl.y, r.width(), vncCanvas.bitmapData.bmHeight() - r.tl.y);
+    
+    try {
+        vncCanvas.handleTightRect(r.tl.x, r.tl.y, r.width(), r.height(), reader);
+    } catch (java.lang.Exception e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+    }
   }
 */
 
@@ -219,7 +219,7 @@ public class TightDecoder extends Decoder {
 
     // Allocate netbuf and read in data
     if (dataSize > netbuf.length)
-    	netbuf = new byte[dataSize];
+        netbuf = new byte[dataSize];
     input.readBytes(netbuf, 0, dataSize);
 
     int stride = r.width();
@@ -308,23 +308,23 @@ public class TightDecoder extends Decoder {
 
     // Allocate netbuf and read in data
     if (compressedLen > netbuf.length)
-    	netbuf = new byte[compressedLen];
+        netbuf = new byte[compressedLen];
     is.readBytes(netbuf, 0, compressedLen);
 
-	// Decode JPEG data
-	Bitmap tightBitmap = BitmapFactory.decodeByteArray(netbuf, 0, compressedLen, bitmapopts);
+    // Decode JPEG data
+    Bitmap tightBitmap = BitmapFactory.decodeByteArray(netbuf, 0, compressedLen, bitmapopts);
 
 /*  int w = r.width();
     int h = r.height();
-	int[] buf = reader.getImageBuf(w*h);
+    int[] buf = reader.getImageBuf(w*h);
     // Copy decoded data into buf.
-	tightBitmap.getPixels(buf, 0, w, 0, 0, w, h);
+    tightBitmap.getPixels(buf, 0, w, 0, 0, w, h);
     handler.imageRect(r, buf);
  */
     handler.imageRect(r, tightBitmap);
 
-	// To avoid running out of memory, recycle bitmap immediately.
-	tightBitmap.recycle();
+    // To avoid running out of memory, recycle bitmap immediately.
+    tightBitmap.recycle();
   }
 
   final private void FilterGradient24(byte[] netbuf, int[] buf, int stride, 
@@ -410,7 +410,7 @@ public class TightDecoder extends Decoder {
     }
   }
 
-  VncCanvas vncCanvas;
+  RemoteCanvas vncCanvas;
   private CMsgReader reader;
   private ZlibInStream[] zis;
   private PixelFormat serverpf;

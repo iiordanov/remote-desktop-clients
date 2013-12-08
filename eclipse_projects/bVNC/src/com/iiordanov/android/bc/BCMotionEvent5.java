@@ -11,12 +11,12 @@ import android.view.MotionEvent;
  */
 class BCMotionEvent5 implements IBCMotionEvent {
 
-	/* (non-Javadoc)
-	 * @see com.iiordanov.android.bc.IBCMotionEvent#getPointerCount(android.view.MotionEvent)
-	 */
-	@Override
-	public int getPointerCount(MotionEvent evt) {
-		return evt.getPointerCount();
-	}
+    /* (non-Javadoc)
+     * @see com.iiordanov.android.bc.IBCMotionEvent#getPointerCount(android.view.MotionEvent)
+     */
+    @Override
+    public int getPointerCount(MotionEvent evt) {
+        return evt.getPointerCount();
+    }
 
 }

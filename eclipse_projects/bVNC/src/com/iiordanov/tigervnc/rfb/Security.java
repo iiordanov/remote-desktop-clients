@@ -125,24 +125,24 @@ public class Security {
   public static int secTypeNum(String name) {
     if (name.equalsIgnoreCase("None"))      return secTypeNone;
     if (name.equalsIgnoreCase("VncAuth"))   return secTypeVncAuth;
-    if (name.equalsIgnoreCase("Tight"))	    return secTypeTight;
+    if (name.equalsIgnoreCase("Tight"))        return secTypeTight;
     if (name.equalsIgnoreCase("RA2"))       return secTypeRA2;
-    if (name.equalsIgnoreCase("RA2ne"))	    return secTypeRA2ne;
+    if (name.equalsIgnoreCase("RA2ne"))        return secTypeRA2ne;
     if (name.equalsIgnoreCase("SSPI"))      return secTypeSSPI;
-    if (name.equalsIgnoreCase("SSPIne"))	  return secTypeSSPIne;
-    //if (name.equalsIgnoreCase("ultra"))	    return secTypeUltra;
-    if (name.equalsIgnoreCase("TLS"))	      return secTypeTLS;
+    if (name.equalsIgnoreCase("SSPIne"))      return secTypeSSPIne;
+    //if (name.equalsIgnoreCase("ultra"))        return secTypeUltra;
+    if (name.equalsIgnoreCase("TLS"))          return secTypeTLS;
     if (name.equalsIgnoreCase("VeNCrypt"))  return secTypeVeNCrypt;
 
     /* VeNCrypt subtypes */
-    if (name.equalsIgnoreCase("Plain"))	    return secTypePlain;
-    if (name.equalsIgnoreCase("Ident"))	    return secTypeIdent;
-    if (name.equalsIgnoreCase("TLSNone"))	  return secTypeTLSNone;
-    if (name.equalsIgnoreCase("TLSVnc"))	  return secTypeTLSVnc;
-    if (name.equalsIgnoreCase("TLSPlain"))	return secTypeTLSPlain;
-    if (name.equalsIgnoreCase("TLSIdent"))	return secTypeTLSIdent;
-    if (name.equalsIgnoreCase("X509None"))	return secTypeX509None;
-    if (name.equalsIgnoreCase("X509Vnc"))	  return secTypeX509Vnc;
+    if (name.equalsIgnoreCase("Plain"))        return secTypePlain;
+    if (name.equalsIgnoreCase("Ident"))        return secTypeIdent;
+    if (name.equalsIgnoreCase("TLSNone"))      return secTypeTLSNone;
+    if (name.equalsIgnoreCase("TLSVnc"))      return secTypeTLSVnc;
+    if (name.equalsIgnoreCase("TLSPlain"))    return secTypeTLSPlain;
+    if (name.equalsIgnoreCase("TLSIdent"))    return secTypeTLSIdent;
+    if (name.equalsIgnoreCase("X509None"))    return secTypeX509None;
+    if (name.equalsIgnoreCase("X509Vnc"))      return secTypeX509Vnc;
     if (name.equalsIgnoreCase("X509Plain")) return secTypeX509Plain;
     if (name.equalsIgnoreCase("X509Ident")) return secTypeX509Ident;
 

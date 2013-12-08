@@ -22,7 +22,7 @@ package com.iiordanov.tigervnc.rfb;
 public class CSecurityStack extends CSecurity {
 
   public CSecurityStack(int Type, String Name, CSecurity s0,
-  			       CSecurity s1)
+                     CSecurity s1)
   {
     name = Name;
     type = Type; 

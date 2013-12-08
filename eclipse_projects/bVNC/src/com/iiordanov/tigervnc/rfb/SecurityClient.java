@@ -19,12 +19,12 @@
 
 package com.iiordanov.tigervnc.rfb;
 
-import com.iiordanov.bVNC.VncCanvas;
+import com.iiordanov.bVNC.RemoteCanvas;
 import com.iiordanov.tigervnc.vncviewer.CConn;
 
 public class SecurityClient extends Security {
 
-  public SecurityClient(VncCanvas v) { super(secTypes); vncCanvas = v;}
+  public SecurityClient(RemoteCanvas v) { super(secTypes); vncCanvas = v;}
 
   public CSecurity GetCSecurity(int secType)
   {
@@ -42,28 +42,28 @@ public class SecurityClient extends Security {
     case Security.secTypeIdent: return (new CSecurityIdent());
     case Security.secTypeTLSNone:
       return (new CSecurityStack(secTypeTLSNone, "TLS with no password",
-  			      new CSecurityTLS(true, vncCanvas), null));
+                    new CSecurityTLS(true, vncCanvas), null));
     case Security.secTypeTLSVnc:
       return (new CSecurityStack(secTypeTLSVnc, "TLS with VNCAuth",
-  			      new CSecurityTLS(true, vncCanvas), new CSecurityVncAuth()));
+                    new CSecurityTLS(true, vncCanvas), new CSecurityVncAuth()));
     case Security.secTypeTLSPlain:
       return (new CSecurityStack(secTypeTLSPlain, "TLS with Username/Password",
-  			      new CSecurityTLS(true, vncCanvas), new CSecurityPlain()));
+                    new CSecurityTLS(true, vncCanvas), new CSecurityPlain()));
     case Security.secTypeTLSIdent:
       return (new CSecurityStack(secTypeTLSIdent, "TLS with username only",
-  			      new CSecurityTLS(true, vncCanvas), new CSecurityIdent()));
+                    new CSecurityTLS(true, vncCanvas), new CSecurityIdent()));
     case Security.secTypeX509None:
       return (new CSecurityStack(secTypeX509None, "X509 with no password",
-  			      new CSecurityTLS(false, vncCanvas), null));
+                    new CSecurityTLS(false, vncCanvas), null));
     case Security.secTypeX509Vnc:
       return (new CSecurityStack(secTypeX509Vnc, "X509 with VNCAuth",
-  			      new CSecurityTLS(false, vncCanvas), new CSecurityVncAuth()));
+                    new CSecurityTLS(false, vncCanvas), new CSecurityVncAuth()));
     case Security.secTypeX509Plain:
       return (new CSecurityStack(secTypeX509Plain, "X509 with Username/Password",
-  			      new CSecurityTLS(false, vncCanvas), new CSecurityPlain()));
+                    new CSecurityTLS(false, vncCanvas), new CSecurityPlain()));
     case Security.secTypeX509Ident:
       return (new CSecurityStack(secTypeX509Ident, "X509 with username only",
-  			      new CSecurityTLS(false, vncCanvas), new CSecurityIdent()));
+                    new CSecurityTLS(false, vncCanvas), new CSecurityIdent()));
     default:
       throw new Exception("Security type not supported");
     }
@@ -83,5 +83,5 @@ public class SecurityClient extends Security {
                         "Specify which security scheme to use (None, VncAuth)",
                         "Ident,TLSIdent,X509Ident,X509Plain,TLSPlain,X509Vnc,TLSVnc,X509None,TLSNone,VncAuth,None");
   
-  VncCanvas vncCanvas;
+  RemoteCanvas vncCanvas;
 }

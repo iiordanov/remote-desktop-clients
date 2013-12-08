@@ -31,49 +31,49 @@ import android.util.Log;
  */
 
 public class ClipboardMonitor extends TimerTask {
-	private String TAG = "ClipboardMonitor";
-	private Context context;
-	ClipboardManager clipboard;
-	private String knownClipboardContents;
-	VncCanvas vncCanvas;
-	
-	public ClipboardMonitor (Context c, VncCanvas vc) {
-		context   = c;
-		vncCanvas = vc;
-		clipboard = (ClipboardManager)context.getSystemService(Context.CLIPBOARD_SERVICE);
-		knownClipboardContents = new String("");
-	}
-	
-	/*
-	 * Grab the current clipboard contents.
-	 */
-	private String getClipboardContents () {
-		if (clipboard != null && clipboard.getText() != null)
-			return clipboard.getText().toString();
-		else
-			return null;
-	}
-	
-	/*
-	 * (non-Javadoc)
-	 * @see java.util.TimerTask#run()
-	 */
-	@Override
-	public void run() {
-		String currentClipboardContents = getClipboardContents ();
-		//Log.d(TAG, "Current clipboard contents: " + currentClipboardContents);
-		//Log.d(TAG, "Previously known clipboard contents: " + knownClipboardContents);
-		if (!vncCanvas.serverJustCutText && currentClipboardContents != null &&
-			!currentClipboardContents.equals(knownClipboardContents)) {
-			if (vncCanvas.rfbconn != null && vncCanvas.rfbconn.isInNormalProtocol()) {
-				vncCanvas.rfbconn.writeClientCutText(currentClipboardContents);
-				knownClipboardContents = new String(currentClipboardContents);
-				//Log.d(TAG, "Wrote: " + knownClipboardContents + " to remote clipboard.");
-			}
-		} else if (vncCanvas.serverJustCutText && currentClipboardContents != null) {
-			knownClipboardContents = new String(currentClipboardContents);
-			vncCanvas.serverJustCutText = false;
-			//Log.d(TAG, "Set knownClipboardContents to equal what server just sent over.");
-		}
-	}
+    private String TAG = "ClipboardMonitor";
+    private Context context;
+    ClipboardManager clipboard;
+    private String knownClipboardContents;
+    RemoteCanvas vncCanvas;
+    
+    public ClipboardMonitor (Context c, RemoteCanvas vc) {
+        context   = c;
+        vncCanvas = vc;
+        clipboard = (ClipboardManager)context.getSystemService(Context.CLIPBOARD_SERVICE);
+        knownClipboardContents = new String("");
+    }
+    
+    /*
+     * Grab the current clipboard contents.
+     */
+    private String getClipboardContents () {
+        if (clipboard != null && clipboard.getText() != null)
+            return clipboard.getText().toString();
+        else
+            return null;
+    }
+    
+    /*
+     * (non-Javadoc)
+     * @see java.util.TimerTask#run()
+     */
+    @Override
+    public void run() {
+        String currentClipboardContents = getClipboardContents ();
+        //Log.d(TAG, "Current clipboard contents: " + currentClipboardContents);
+        //Log.d(TAG, "Previously known clipboard contents: " + knownClipboardContents);
+        if (!vncCanvas.serverJustCutText && currentClipboardContents != null &&
+            !currentClipboardContents.equals(knownClipboardContents)) {
+            if (vncCanvas.rfbconn != null && vncCanvas.rfbconn.isInNormalProtocol()) {
+                vncCanvas.rfbconn.writeClientCutText(currentClipboardContents);
+                knownClipboardContents = new String(currentClipboardContents);
+                //Log.d(TAG, "Wrote: " + knownClipboardContents + " to remote clipboard.");
+            }
+        } else if (vncCanvas.serverJustCutText && currentClipboardContents != null) {
+            knownClipboardContents = new String(currentClipboardContents);
+            vncCanvas.serverJustCutText = false;
+            //Log.d(TAG, "Set knownClipboardContents to equal what server just sent over.");
+        }
+    }
 }

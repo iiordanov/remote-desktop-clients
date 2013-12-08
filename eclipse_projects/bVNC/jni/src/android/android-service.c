@@ -28,19 +28,19 @@
 
 
 void spice_session_setup(JNIEnv *env, SpiceSession *session, jstring h, jstring p, jstring tp, jstring pw, jstring cf, jstring cs) {
-	const char *host = NULL;
-	const char *port = NULL;
-	const char *tls_port = NULL;
-	const char *password = NULL;
-	const char *ca_file = NULL;
-	const char *cert_subj = NULL;
+    const char *host = NULL;
+    const char *port = NULL;
+    const char *tls_port = NULL;
+    const char *password = NULL;
+    const char *ca_file = NULL;
+    const char *cert_subj = NULL;
 
-	host = (*env)->GetStringUTFChars(env, h, NULL);
-	port = (*env)->GetStringUTFChars(env, p, NULL);
-	tls_port  = (*env)->GetStringUTFChars(env, tp, NULL);
-	password  = (*env)->GetStringUTFChars(env, pw, NULL);
-	ca_file   = (*env)->GetStringUTFChars(env, cf, NULL);
-	cert_subj = (*env)->GetStringUTFChars(env, cs, NULL);
+    host = (*env)->GetStringUTFChars(env, h, NULL);
+    port = (*env)->GetStringUTFChars(env, p, NULL);
+    tls_port  = (*env)->GetStringUTFChars(env, tp, NULL);
+    password  = (*env)->GetStringUTFChars(env, pw, NULL);
+    ca_file   = (*env)->GetStringUTFChars(env, cf, NULL);
+    cert_subj = (*env)->GetStringUTFChars(env, cs, NULL);
 
     g_return_if_fail(SPICE_IS_SESSION(session));
 
@@ -61,41 +61,41 @@ void spice_session_setup(JNIEnv *env, SpiceSession *session, jstring h, jstring 
 
 
 static void signal_handler(int signal, siginfo_t *info, void *reserved) {
-	kill(getpid(), SIGKILL);
+    kill(getpid(), SIGKILL);
 }
 
 
 JNIEXPORT void JNICALL
 Java_com_iiordanov_aSPICE_SpiceCommunicator_SpiceClientDisconnect (JNIEnv * env, jobject  obj) {
-	maintainConnection = FALSE;
+    maintainConnection = FALSE;
 
-	if (g_main_loop_is_running (mainloop))
+    if (g_main_loop_is_running (mainloop))
         g_main_loop_quit (mainloop);
 }
 
 
 JNIEXPORT jint JNICALL
 Java_com_iiordanov_aSPICE_SpiceCommunicator_SpiceClientConnect (JNIEnv *env, jobject obj, jstring h, jstring p,
-																		jstring tp, jstring pw, jstring cf, jstring cs, jboolean sound)
+                                                                        jstring tp, jstring pw, jstring cf, jstring cs, jboolean sound)
 {
     int result = 0;
     maintainConnection = TRUE;
     soundEnabled = sound;
 
-	// Get a reference to the JVM to get JNIEnv from in (other) threads.
+    // Get a reference to the JVM to get JNIEnv from in (other) threads.
     jint rs = (*env)->GetJavaVM(env, &jvm);
     if (rs != JNI_OK) {
-    	__android_log_write(6, "spicy", "ERROR: Could not obtain jvm reference.");
-    	return 255;
+        __android_log_write(6, "spicy", "ERROR: Could not obtain jvm reference.");
+        return 255;
     }
 
     // Find the jclass reference and get a Global reference for it for use in other threads.
     jclass local_class  = (*env)->FindClass (env, "com/iiordanov/aSPICE/SpiceCommunicator");
-	jni_connector_class = (jclass)((*env)->NewGlobalRef(env, local_class));
+    jni_connector_class = (jclass)((*env)->NewGlobalRef(env, local_class));
 
-	// Get global method IDs for callback methods.
-	jni_settings_changed = (*env)->GetStaticMethodID (env, jni_connector_class, "OnSettingsChanged", "(IIII)V");
-	jni_graphics_update  = (*env)->GetStaticMethodID (env, jni_connector_class, "OnGraphicsUpdate", "(IIIII)V");
+    // Get global method IDs for callback methods.
+    jni_settings_changed = (*env)->GetStaticMethodID (env, jni_connector_class, "OnSettingsChanged", "(IIII)V");
+    jni_graphics_update  = (*env)->GetStaticMethodID (env, jni_connector_class, "OnGraphicsUpdate", "(IIIII)V");
 
     g_thread_init(NULL);
     bindtextdomain(GETTEXT_PACKAGE, SPICE_GTK_LOCALEDIR);
@@ -116,31 +116,31 @@ Java_com_iiordanov_aSPICE_SpiceCommunicator_SpiceClientConnect (JNIEnv *env, job
         g_main_loop_run(mainloop);
         connection_disconnect(conn);
         g_object_unref(mainloop);
-	    __android_log_write(6, "spicy", "Exiting main loop.");
+        __android_log_write(6, "spicy", "Exiting main loop.");
     } else {
         __android_log_write(6, "spicy", "Wrong hostname, port, or password.");
         result = 2;
     }
 
-	jvm                  = NULL;
-	jni_connector_class  = NULL;
-	jni_settings_changed = NULL;
-	jni_graphics_update  = NULL;
-	return result;
+    jvm                  = NULL;
+    jni_connector_class  = NULL;
+    jni_settings_changed = NULL;
+    jni_graphics_update  = NULL;
+    return result;
 }
 
 
 JNIEXPORT jint JNICALL
 JNI_OnLoad(JavaVM* vm, void* reserved) {
-	struct sigaction handler;
-	memset(&handler, 0, sizeof(handler));
-	handler.sa_sigaction = signal_handler;
-	handler.sa_flags = SA_SIGINFO;
-	sigaction(SIGILL, &handler, NULL);
-	sigaction(SIGABRT, &handler, NULL);
-	sigaction(SIGBUS, &handler, NULL);
-	sigaction(SIGFPE, &handler, NULL);
-	sigaction(SIGSEGV, &handler, NULL);
-	sigaction(SIGSTKFLT, &handler, NULL);
-	return(JNI_VERSION_1_6);
+    struct sigaction handler;
+    memset(&handler, 0, sizeof(handler));
+    handler.sa_sigaction = signal_handler;
+    handler.sa_flags = SA_SIGINFO;
+    sigaction(SIGILL, &handler, NULL);
+    sigaction(SIGABRT, &handler, NULL);
+    sigaction(SIGBUS, &handler, NULL);
+    sigaction(SIGFPE, &handler, NULL);
+    sigaction(SIGSEGV, &handler, NULL);
+    sigaction(SIGSTKFLT, &handler, NULL);
+    return(JNI_VERSION_1_6);
 }

@@ -33,87 +33,87 @@ import android.text.Html;
 
 public class Utils {
 
-	public static void showYesNoPrompt(Context _context, String title, String message, OnClickListener onYesListener, OnClickListener onNoListener) {
-		AlertDialog.Builder builder = new AlertDialog.Builder(_context);
-		builder.setTitle(title);
-		builder.setIcon(android.R.drawable.ic_dialog_info);
-		builder.setMessage(message);
-		builder.setCancelable(false);
-		builder.setPositiveButton("Yes", onYesListener);
-		builder.setNegativeButton("No", onNoListener);
-		boolean show = true;
-		if ( _context instanceof Activity ) {
-			Activity activity = (Activity) _context;
-			if (activity.isFinishing()) {
-				show = false;
-			}
-		}
-		if (show)
-			builder.show();
-	}
-	
-	private static final Intent docIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://code.google.com/p/android-vnc-viewer/wiki/Documentation")); 
+    public static void showYesNoPrompt(Context _context, String title, String message, OnClickListener onYesListener, OnClickListener onNoListener) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(_context);
+        builder.setTitle(title);
+        builder.setIcon(android.R.drawable.ic_dialog_info);
+        builder.setMessage(message);
+        builder.setCancelable(false);
+        builder.setPositiveButton("Yes", onYesListener);
+        builder.setNegativeButton("No", onNoListener);
+        boolean show = true;
+        if ( _context instanceof Activity ) {
+            Activity activity = (Activity) _context;
+            if (activity.isFinishing()) {
+                show = false;
+            }
+        }
+        if (show)
+            builder.show();
+    }
+    
+    private static final Intent docIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://code.google.com/p/android-vnc-viewer/wiki/Documentation")); 
 
-	public static ActivityManager getActivityManager(Context context)
-	{
-		ActivityManager result = (ActivityManager)context.getSystemService(Context.ACTIVITY_SERVICE);
-		if (result == null)
-			throw new UnsupportedOperationException("Could not retrieve ActivityManager");
-		return result;
-	}
-	
-	public static MemoryInfo getMemoryInfo(Context _context) {
-		MemoryInfo info = new MemoryInfo();
-		getActivityManager(_context).getMemoryInfo(info);
-		return info;
-	}
-	
-	public static void showDocumentation(Context c) {
-		c.startActivity(docIntent);
-	}
+    public static ActivityManager getActivityManager(Context context)
+    {
+        ActivityManager result = (ActivityManager)context.getSystemService(Context.ACTIVITY_SERVICE);
+        if (result == null)
+            throw new UnsupportedOperationException("Could not retrieve ActivityManager");
+        return result;
+    }
+    
+    public static MemoryInfo getMemoryInfo(Context _context) {
+        MemoryInfo info = new MemoryInfo();
+        getActivityManager(_context).getMemoryInfo(info);
+        return info;
+    }
+    
+    public static void showDocumentation(Context c) {
+        c.startActivity(docIntent);
+    }
 
-	private static int nextNoticeID = 0;
-	public static int nextNoticeID() {
-		nextNoticeID++;
-		return nextNoticeID;
-	}
+    private static int nextNoticeID = 0;
+    public static int nextNoticeID() {
+        nextNoticeID++;
+        return nextNoticeID;
+    }
 
-	public static void showErrorMessage(Context _context, String message) {
-		showMessage(_context, "Error!", message, android.R.drawable.ic_dialog_alert, null);
-	}
+    public static void showErrorMessage(Context _context, String message) {
+        showMessage(_context, "Error!", message, android.R.drawable.ic_dialog_alert, null);
+    }
 
-	public static void showFatalErrorMessage(final Context _context, String message) {
-		showMessage(_context, "Error!", message, android.R.drawable.ic_dialog_alert, new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				((Activity) _context).finish();
-			}
-		});
-	}
-	
-	public static void showMessage(Context _context, String title, String message, int icon, DialogInterface.OnClickListener ackHandler) {
-		AlertDialog.Builder builder = new AlertDialog.Builder(_context);
-		builder.setTitle(title);
-		builder.setMessage(Html.fromHtml(message));
-		builder.setCancelable(false);
-		builder.setPositiveButton("Acknowledged", ackHandler);
-		builder.setIcon(icon);
-		boolean show = true;
-		if ( _context instanceof Activity ) {
-			Activity activity = (Activity) _context;
-			if (activity.isFinishing()) {
-				show = false;
-			}
-		}
-		if (show)
-			builder.show();
-	}
-	
-	/**
-	 * Converts a given sequence of bytes to a human-readable colon-separated Hex format. 
-	 * @param bytes
-	 * @return
-	 */
+    public static void showFatalErrorMessage(final Context _context, String message) {
+        showMessage(_context, "Error!", message, android.R.drawable.ic_dialog_alert, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                ((Activity) _context).finish();
+            }
+        });
+    }
+    
+    public static void showMessage(Context _context, String title, String message, int icon, DialogInterface.OnClickListener ackHandler) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(_context);
+        builder.setTitle(title);
+        builder.setMessage(Html.fromHtml(message));
+        builder.setCancelable(false);
+        builder.setPositiveButton("Acknowledged", ackHandler);
+        builder.setIcon(icon);
+        boolean show = true;
+        if ( _context instanceof Activity ) {
+            Activity activity = (Activity) _context;
+            if (activity.isFinishing()) {
+                show = false;
+            }
+        }
+        if (show)
+            builder.show();
+    }
+    
+    /**
+     * Converts a given sequence of bytes to a human-readable colon-separated Hex format. 
+     * @param bytes
+     * @return
+     */
     public static String toHexString(byte[] bytes) {
         char[] hexArray = {'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
         char[] hexChars = new char[bytes.length * 3];

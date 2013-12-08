@@ -25,23 +25,23 @@
 #define PTRFLAGS_DOWN 0x8000
 
 #ifdef ANDROID_SERVICE_C
-	SpiceDisplay* global_display   = NULL;
-	gboolean  maintainConnection   = TRUE;
-	JavaVM*   jvm                  = NULL;
-	jclass    jni_connector_class  = NULL;
-	jmethodID jni_settings_changed = NULL;
-	jmethodID jni_graphics_update  = NULL;
-	GMainLoop            *mainloop = NULL;
-	int                connections = 0;
-	gboolean soundEnabled          = FALSE;
+    SpiceDisplay* global_display   = NULL;
+    gboolean  maintainConnection   = TRUE;
+    JavaVM*   jvm                  = NULL;
+    jclass    jni_connector_class  = NULL;
+    jmethodID jni_settings_changed = NULL;
+    jmethodID jni_graphics_update  = NULL;
+    GMainLoop            *mainloop = NULL;
+    int                connections = 0;
+    gboolean soundEnabled          = FALSE;
 #else
-	extern SpiceDisplay* global_display;
-	extern gboolean  maintainConnection;
-	extern JavaVM*   jvm;
-	extern jclass    jni_connector_class;
-	extern jmethodID jni_settings_changed;
-	extern jmethodID jni_graphics_update;
-	extern GMainLoop *mainloop;
-	extern int       connections;
-	extern gboolean soundEnabled;
+    extern SpiceDisplay* global_display;
+    extern gboolean  maintainConnection;
+    extern JavaVM*   jvm;
+    extern jclass    jni_connector_class;
+    extern jmethodID jni_settings_changed;
+    extern jmethodID jni_graphics_update;
+    extern GMainLoop *mainloop;
+    extern int       connections;
+    extern gboolean soundEnabled;
 #endif

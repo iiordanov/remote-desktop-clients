@@ -46,7 +46,7 @@ import android.view.KeyEvent;
 import android.view.MotionEvent;
 
 import com.iiordanov.bVNC.AbstractConnectionBean;
-import com.iiordanov.bVNC.VncCanvas;
+import com.iiordanov.bVNC.RemoteCanvas;
 import com.iiordanov.bVNC.AbstractBitmapData;
 import com.iiordanov.bVNC.RfbConnectable;
 import com.iiordanov.bVNC.input.RemoteKeyboard;
@@ -62,11 +62,11 @@ public class CConn extends CConnection
   ////////////////////////////////////////////////////////////////////
   // The following methods are all called from the RFB thread
 
-  public CConn(VncCanvas viewer_, java.net.Socket sock_, 
+  public CConn(RemoteCanvas viewer_, java.net.Socket sock_, 
                String vncServerName, boolean reverse, AbstractConnectionBean connection)
   {
-	super(viewer_);
-	this.viewOnly = connection.getViewOnly();
+    super(viewer_);
+    this.viewOnly = connection.getViewOnly();
     this.connection = connection; 
     serverHost = null; serverPort = 0; sock = sock_;
     currentEncoding = Encodings.encodingTight; lastServerEncoding = -1;
@@ -148,8 +148,8 @@ public class CConn extends CConnection
    * Processes messages from VNC server indefinitely.
    */
   public void processProtocol () {
-	  while (true)
-		  processMsg();
+      while (true)
+          processMsg();
   }
   
   public boolean showMsgBox(int flags, String title, String text)
@@ -358,8 +358,8 @@ public class CConn extends CConnection
 //  }
 
   public void serverCutText(String str, int len) {
-	  viewer.serverJustCutText = true;
-	  viewer.setClipboardText(str);
+      viewer.serverJustCutText = true;
+      viewer.setClipboardText(str);
   }
 
   // We start timing on beginRect and stop timing on endRect, to
@@ -377,39 +377,39 @@ public class CConn extends CConnection
   }
 
   public void fillRect(Rect r, int p) {
-	  int w = r.width();
-	  int h = r.height();
-	  if (viewer.bitmapData.validDraw(r.tl.x, r.tl.y, w, h)) {
-		  viewer.bitmapData.fillRect(r.tl.x, r.tl.y, w, h, p);
-		  viewer.reDraw(r.tl.x, r.tl.y, w, h);
-	  }
+      int w = r.width();
+      int h = r.height();
+      if (viewer.bitmapData.validDraw(r.tl.x, r.tl.y, w, h)) {
+          viewer.bitmapData.fillRect(r.tl.x, r.tl.y, w, h, p);
+          viewer.reDraw(r.tl.x, r.tl.y, w, h);
+      }
   }
 
   public void imageRect(Rect r, int[] p) {
-	  int w = r.width();
-	  int h = r.height();
-	  if (viewer.bitmapData.validDraw(r.tl.x, r.tl.y, w, h)) {
-		  viewer.bitmapData.imageRect(r.tl.x, r.tl.y, w, h, p);
-		  viewer.reDraw(r.tl.x, r.tl.y, w, h);
-	  }
+      int w = r.width();
+      int h = r.height();
+      if (viewer.bitmapData.validDraw(r.tl.x, r.tl.y, w, h)) {
+          viewer.bitmapData.imageRect(r.tl.x, r.tl.y, w, h, p);
+          viewer.reDraw(r.tl.x, r.tl.y, w, h);
+      }
   }
 
   public void imageRect(Rect r, Bitmap b) {
-	  int w = r.width();
-	  int h = r.height();
-	  if (viewer.bitmapData.validDraw(r.tl.x, r.tl.y, w, h)) {
-		  viewer.bitmapData.updateBitmap(b, r.tl.x, r.tl.y, w, h);
-		  viewer.reDraw(r.tl.x, r.tl.y, w, h);
-	  }
+      int w = r.width();
+      int h = r.height();
+      if (viewer.bitmapData.validDraw(r.tl.x, r.tl.y, w, h)) {
+          viewer.bitmapData.updateBitmap(b, r.tl.x, r.tl.y, w, h);
+          viewer.reDraw(r.tl.x, r.tl.y, w, h);
+      }
   }
   
   public void copyRect(Rect r, int sx, int sy) {
-	  int w = r.width();
-	  int h = r.height();
-	  if (viewer.bitmapData.validDraw(r.tl.x, r.tl.y, w, h)) {
-		  viewer.bitmapData.copyRect(sx, sy, r.tl.x, r.tl.y, w, h);
-		  viewer.reDraw(r.tl.x, r.tl.y, w, h);
-	  }
+      int w = r.width();
+      int h = r.height();
+      if (viewer.bitmapData.validDraw(r.tl.x, r.tl.y, w, h)) {
+          viewer.bitmapData.copyRect(sx, sy, r.tl.x, r.tl.y, w, h);
+          viewer.reDraw(r.tl.x, r.tl.y, w, h);
+      }
   }
 
   public PixelFormat getPreferredPF() {
@@ -418,7 +418,7 @@ public class CConn extends CConnection
 
   public void setCursor(int width, int height, Point hotspot,
                         int[] data, byte[] mask) {
-	//TODO: Implement
+    //TODO: Implement
     //viewer.bitmapData.setCursor(width, height, hotspot, data, mask);
   }
 
@@ -498,7 +498,7 @@ public class CConn extends CConnection
     if (newFullColour != fullColour) {
       vlog.info("Throughput "+kbitsPerSecond+
                 " kbit/s - full color is now "+ 
-  	            (newFullColour ? "enabled" : "disabled"));
+                  (newFullColour ? "enabled" : "disabled"));
       fullColour = newFullColour;
       formatChange = true;
     } 
@@ -518,11 +518,11 @@ public class CConn extends CConnection
         cp.setPF(new PixelFormat(32, 24, false, true, 255, 255, 255, 16, 8, 0));
       } else {
         if (lowColourLevel == 0) {
-        	cp.setPF(new PixelFormat(8,3,false,true,1,1,1,2,1,0));
+            cp.setPF(new PixelFormat(8,3,false,true,1,1,1,2,1,0));
         } else if (lowColourLevel == 1) {
-        	cp.setPF(new PixelFormat(8,6,false,true,3,3,3,4,2,0));
+            cp.setPF(new PixelFormat(8,6,false,true,3,3,3,4,2,0));
         } else {
-        	cp.setPF(new PixelFormat(8,8,false,true,7,7,3,0,3,6));
+            cp.setPF(new PixelFormat(8,8,false,true,7,7,3,0,3,6));
         }
       }
       String str = cp.pf().print();
@@ -533,7 +533,7 @@ public class CConn extends CConnection
     }
     
     checkEncodings();
-	viewer.writeFullUpdateRequest(!formatChange);
+    viewer.writeFullUpdateRequest(!formatChange);
     formatChange = false;
   }
 
@@ -559,80 +559,80 @@ public class CConn extends CConnection
 
 
   public void refresh() {
-	viewer.writeFullUpdateRequest(false);
+    viewer.writeFullUpdateRequest(false);
     pendingUpdate = true;
   }
 
   void processSecurityTypes () {
-	    if (state() != RFBSTATE_NORMAL) {
+        if (state() != RFBSTATE_NORMAL) {
 
             /* Process security types which don't use encryption */
-	            //Security.EnableSecType(Security.secTypeNone);
-	            //Security.EnableSecType(Security.secTypeVncAuth);
-	            //Security.EnableSecType(Security.secTypePlain);
-	            //Security.EnableSecType(Security.secTypeIdent);
+                //Security.EnableSecType(Security.secTypeNone);
+                //Security.EnableSecType(Security.secTypeVncAuth);
+                //Security.EnableSecType(Security.secTypePlain);
+                //Security.EnableSecType(Security.secTypeIdent);
 
-	          Security.DisableSecType(Security.secTypeNone);
-	          Security.DisableSecType(Security.secTypeVncAuth);
-	          Security.DisableSecType(Security.secTypePlain);
-	          Security.DisableSecType(Security.secTypeIdent);
+              Security.DisableSecType(Security.secTypeNone);
+              Security.DisableSecType(Security.secTypeVncAuth);
+              Security.DisableSecType(Security.secTypePlain);
+              Security.DisableSecType(Security.secTypeIdent);
 
            /* Process security types which use TLS encryption */
-	            //Security.EnableSecType(Security.secTypeTLS);
-	            Security.EnableSecType(Security.secTypeTLSNone);
-	            Security.EnableSecType(Security.secTypeTLSVnc);
-	            Security.EnableSecType(Security.secTypeTLSPlain);
-	            Security.EnableSecType(Security.secTypeTLSIdent);
+                //Security.EnableSecType(Security.secTypeTLS);
+                Security.EnableSecType(Security.secTypeTLSNone);
+                Security.EnableSecType(Security.secTypeTLSVnc);
+                Security.EnableSecType(Security.secTypeTLSPlain);
+                Security.EnableSecType(Security.secTypeTLSIdent);
 
               Security.DisableSecType(Security.secTypeTLS);
-	          //Security.DisableSecType(Security.secTypeTLSNone);
-	          //Security.DisableSecType(Security.secTypeTLSVnc);
-	          //Security.DisableSecType(Security.secTypeTLSPlain);
-	          //Security.DisableSecType(Security.secTypeTLSIdent);
+              //Security.DisableSecType(Security.secTypeTLSNone);
+              //Security.DisableSecType(Security.secTypeTLSVnc);
+              //Security.DisableSecType(Security.secTypeTLSPlain);
+              //Security.DisableSecType(Security.secTypeTLSIdent);
 
-	        /* Process security types which use X509 encryption */
-	            Security.EnableSecType(Security.secTypeX509None);
-	            Security.EnableSecType(Security.secTypeX509Vnc);
-	            Security.EnableSecType(Security.secTypeX509Plain);
-	            Security.EnableSecType(Security.secTypeX509Ident);
-	          //Security.DisableSecType(Security.secTypeX509None);
-	          //Security.DisableSecType(Security.secTypeX509Vnc);
-	          //Security.DisableSecType(Security.secTypeX509Plain);
-	          //Security.DisableSecType(Security.secTypeX509Ident);
-	    
-	        /* Process *None security types 
-	            Security.EnableSecType(Security.secTypeNone);
-	            Security.EnableSecType(Security.secTypeTLSNone);
-	            Security.EnableSecType(Security.secTypeX509None);
-	          //Security.DisableSecType(Security.secTypeNone);
-	          //Security.DisableSecType(Security.secTypeTLSNone);
-	          //Security.DisableSecType(Security.secTypeX509None);
+            /* Process security types which use X509 encryption */
+                Security.EnableSecType(Security.secTypeX509None);
+                Security.EnableSecType(Security.secTypeX509Vnc);
+                Security.EnableSecType(Security.secTypeX509Plain);
+                Security.EnableSecType(Security.secTypeX509Ident);
+              //Security.DisableSecType(Security.secTypeX509None);
+              //Security.DisableSecType(Security.secTypeX509Vnc);
+              //Security.DisableSecType(Security.secTypeX509Plain);
+              //Security.DisableSecType(Security.secTypeX509Ident);
+        
+            /* Process *None security types 
+                Security.EnableSecType(Security.secTypeNone);
+                Security.EnableSecType(Security.secTypeTLSNone);
+                Security.EnableSecType(Security.secTypeX509None);
+              //Security.DisableSecType(Security.secTypeNone);
+              //Security.DisableSecType(Security.secTypeTLSNone);
+              //Security.DisableSecType(Security.secTypeX509None);
              */
-	        /* Process *Vnc security types
-	            Security.EnableSecType(Security.secTypeVncAuth);
-	            Security.EnableSecType(Security.secTypeTLSVnc);
-	            Security.EnableSecType(Security.secTypeX509Vnc);
-	          //Security.DisableSecType(Security.secTypeVncAuth);
-	          //Security.DisableSecType(Security.secTypeTLSVnc);
-	          //Security.DisableSecType(Security.secTypeX509Vnc);
-	         */
-	        /* Process *Plain security types
-	            Security.EnableSecType(Security.secTypePlain);
-	            Security.EnableSecType(Security.secTypeTLSPlain);
-	            Security.EnableSecType(Security.secTypeX509Plain);
-	          //Security.DisableSecType(Security.secTypePlain);
-	          //Security.DisableSecType(Security.secTypeTLSPlain);
-	          //Security.DisableSecType(Security.secTypeX509Plain);
-	         */
-	        /* Process *Ident security types
-	            Security.EnableSecType(Security.secTypeIdent);
-	            Security.EnableSecType(Security.secTypeTLSIdent);
-	            Security.EnableSecType(Security.secTypeX509Ident);
-	          //Security.DisableSecType(Security.secTypeIdent);
-	          //Security.DisableSecType(Security.secTypeTLSIdent);
-	          //Security.DisableSecType(Security.secTypeX509Ident);
-	         */
-	    }
+            /* Process *Vnc security types
+                Security.EnableSecType(Security.secTypeVncAuth);
+                Security.EnableSecType(Security.secTypeTLSVnc);
+                Security.EnableSecType(Security.secTypeX509Vnc);
+              //Security.DisableSecType(Security.secTypeVncAuth);
+              //Security.DisableSecType(Security.secTypeTLSVnc);
+              //Security.DisableSecType(Security.secTypeX509Vnc);
+             */
+            /* Process *Plain security types
+                Security.EnableSecType(Security.secTypePlain);
+                Security.EnableSecType(Security.secTypeTLSPlain);
+                Security.EnableSecType(Security.secTypeX509Plain);
+              //Security.DisableSecType(Security.secTypePlain);
+              //Security.DisableSecType(Security.secTypeTLSPlain);
+              //Security.DisableSecType(Security.secTypeX509Plain);
+             */
+            /* Process *Ident security types
+                Security.EnableSecType(Security.secTypeIdent);
+                Security.EnableSecType(Security.secTypeTLSIdent);
+                Security.EnableSecType(Security.secTypeX509Ident);
+              //Security.DisableSecType(Security.secTypeIdent);
+              //Security.DisableSecType(Security.secTypeTLSIdent);
+              //Security.DisableSecType(Security.secTypeX509Ident);
+             */
+        }
   }
   
   
@@ -640,20 +640,20 @@ public class CConn extends CConnection
   synchronized public void writeClientCutText(String str, int len) {
     if (state() != RFBSTATE_NORMAL || viewOnly) return;
     try {
-    	writer().writeClientCutText(str,len);
+        writer().writeClientCutText(str,len);
     } catch (java.lang.Exception e) {
-		Log.e(TAG, "Could not write text to VNC server clipboard.");
-		e.printStackTrace();
-	}
+        Log.e(TAG, "Could not write text to VNC server clipboard.");
+        e.printStackTrace();
+    }
 
   }
 
   synchronized public void writeKeyEvent(int keysym, int metaState, boolean down) {
-	    if (state() != RFBSTATE_NORMAL || viewOnly) return;
-	    writeModifiers(metaState);
-	    writer().writeKeyEvent(keysym, down);
-	    if (!down)
-	    	writeModifiers(0);
+        if (state() != RFBSTATE_NORMAL || viewOnly) return;
+        writeModifiers(metaState);
+        writer().writeKeyEvent(keysym, down);
+        if (!down)
+            writeModifiers(0);
   }
   
   synchronized public void writeKeyEvent(int keysym, boolean down) {
@@ -737,17 +737,17 @@ public class CConn extends CConnection
 
 
   public void writePointerEvent(int mouseX, int mouseY, int metaState, int pointerMask) {
-	    if (state() != RFBSTATE_NORMAL || viewOnly) return;
-	    
-	    synchronized (this) {
-	        writeModifiers(metaState);
-	      }
-	    
-	    synchronized (this) {
-	      writer().writePointerEvent(new Point(mouseX,mouseY), pointerMask);
-	    }
+        if (state() != RFBSTATE_NORMAL || viewOnly) return;
+        
+        synchronized (this) {
+            writeModifiers(metaState);
+          }
+        
+        synchronized (this) {
+          writer().writePointerEvent(new Point(mouseX,mouseY), pointerMask);
+        }
 
-	    if (buttonMask == 0) writeModifiers(0);
+        if (buttonMask == 0) writeModifiers(0);
   }
   
   public void writePointerEvent(MotionEvent ev) {
@@ -773,7 +773,7 @@ public class CConn extends CConnection
     /*
     if (cp.width != viewer.bitmapData.width() || 
         cp.height != viewer.bitmapData.height()) {
-    	// TODO: Inspect
+        // TODO: Inspect
       int sx = (int) ((viewer.bitmapData.scaleWidthRatio == 1.00) 
         ? ev.getX() : (int)Math.floor(ev.getX()/viewer.bitmapData.scaleWidthRatio));
       int sy = (int) ((viewer.bitmapData.scaleHeightRatio == 1.00) 
@@ -814,18 +814,18 @@ public class CConn extends CConnection
   
   // TODO: Get this ported.
   synchronized void writeModifiers(int newModifiers) {
-	  if ((newModifiers & RemoteKeyboard.CTRL_MASK) != (oldModifiers & RemoteKeyboard.CTRL_MASK))
-		  writeKeyEvent(0xffe3, (newModifiers & RemoteKeyboard.CTRL_MASK) != 0);
+      if ((newModifiers & RemoteKeyboard.CTRL_MASK) != (oldModifiers & RemoteKeyboard.CTRL_MASK))
+          writeKeyEvent(0xffe3, (newModifiers & RemoteKeyboard.CTRL_MASK) != 0);
 
-	  if ((newModifiers & RemoteKeyboard.SHIFT_MASK) != (oldModifiers & RemoteKeyboard.SHIFT_MASK))
-		  writeKeyEvent(0xffe1, (newModifiers & RemoteKeyboard.SHIFT_MASK) != 0);
+      if ((newModifiers & RemoteKeyboard.SHIFT_MASK) != (oldModifiers & RemoteKeyboard.SHIFT_MASK))
+          writeKeyEvent(0xffe1, (newModifiers & RemoteKeyboard.SHIFT_MASK) != 0);
 
-	  if ((newModifiers & RemoteKeyboard.META_MASK) != (oldModifiers & RemoteKeyboard.META_MASK))
-		  writeKeyEvent(0xffe7, (newModifiers & RemoteKeyboard.META_MASK) != 0);
+      if ((newModifiers & RemoteKeyboard.META_MASK) != (oldModifiers & RemoteKeyboard.META_MASK))
+          writeKeyEvent(0xffe7, (newModifiers & RemoteKeyboard.META_MASK) != 0);
 
-	  if ((newModifiers & RemoteKeyboard.ALT_MASK) != (oldModifiers & RemoteKeyboard.ALT_MASK))
-		  writeKeyEvent(0xffe9, (newModifiers & RemoteKeyboard.ALT_MASK) != 0);
-	  oldModifiers = newModifiers;
+      if ((newModifiers & RemoteKeyboard.ALT_MASK) != (oldModifiers & RemoteKeyboard.ALT_MASK))
+          writeKeyEvent(0xffe9, (newModifiers & RemoteKeyboard.ALT_MASK) != 0);
+      oldModifiers = newModifiers;
   }
 
 
@@ -842,99 +842,99 @@ public class CConn extends CConnection
   }
 
   public String getEncoding () {
-		switch (currentEncoding) {
-		case Encodings.encodingRaw:
-			return "RAW";
-		case Encodings.encodingTight:
-			return "TIGHT";
-		case Encodings.encodingCoRRE:
-			return "CoRRE";
-		case Encodings.encodingHextile:
-			return "HEXTILE";
-		case Encodings.encodingRRE:
-			return "RRE";
-		case Encodings.encodingZRLE:
-			return "ZRLE";
-		}
-		return "";
+        switch (currentEncoding) {
+        case Encodings.encodingRaw:
+            return "RAW";
+        case Encodings.encodingTight:
+            return "TIGHT";
+        case Encodings.encodingCoRRE:
+            return "CoRRE";
+        case Encodings.encodingHextile:
+            return "HEXTILE";
+        case Encodings.encodingRRE:
+            return "RRE";
+        case Encodings.encodingZRLE:
+            return "ZRLE";
+        }
+        return "";
   }
 
   // The following methods are implementations of the RfbConnectable interface
   @Override
   public int framebufferWidth () {
-	  return cp.width;
+      return cp.width;
   }
   
   @Override
   public int framebufferHeight () {
-	  return cp.height;
+      return cp.height;
   }
   
   @Override
   public String desktopName () {
-	  return cp.name();
+      return cp.name();
   }
   
   @Override
   public void requestUpdate (boolean incremental) {
-	  if (incremental)
-		  refresh();
-	  else
-		  requestNewUpdate();
+      if (incremental)
+          refresh();
+      else
+          requestNewUpdate();
   }
 
   @Override
   public void writeClientCutText(String text) {
-	  writeClientCutText(text, text.length());  	
+      writeClientCutText(text, text.length());      
   }
 
   @Override
   public void setIsInNormalProtocol(boolean state) {
-	  if (state)
-		  setState (RFBSTATE_NORMAL);
-	  else
-		  setState (RFBSTATE_INVALID);
+      if (state)
+          setState (RFBSTATE_NORMAL);
+      else
+          setState (RFBSTATE_INVALID);
   }
   
   @Override
   public boolean isInNormalProtocol() {
-  	return (state() == RFBSTATE_NORMAL);
+      return (state() == RFBSTATE_NORMAL);
   }
 
   @Override
   public synchronized void writeFramebufferUpdateRequest(int x, int y, int w, int h, boolean incremental) {
-	  synchronized (this) {
-		  writer().writeFramebufferUpdateRequest(new Rect(x, y, x+w, y+h), incremental);
-	  }
+      synchronized (this) {
+          writer().writeFramebufferUpdateRequest(new Rect(x, y, x+w, y+h), incremental);
+      }
   }
   
   public void writeSetPixelFormat(int bitsPerPixel, int depth, boolean bigEndian,
-		   boolean trueColour, int redMax, int greenMax, int blueMax,
-		   int redShift, int greenShift, int blueShift, boolean fGreyScale) {
-	  // TODO: This is broken for anything less than true color.
-	/*
-	fullColour = false;
-	formatChange = true;
-	//encodingChange = false;
-	lowColourLevel = 2;
-	this.requestNewUpdate();
-	*/
+           boolean trueColour, int redMax, int greenMax, int blueMax,
+           int redShift, int greenShift, int blueShift, boolean fGreyScale) {
+      // TODO: This is broken for anything less than true color.
+    /*
+    fullColour = false;
+    formatChange = true;
+    //encodingChange = false;
+    lowColourLevel = 2;
+    this.requestNewUpdate();
+    */
 
-	/*
-	cp.setPF(new PixelFormat(bitsPerPixel, depth, bigEndian, trueColour, redMax, 
-			greenMax, blueMax, redShift, greenShift, blueShift));
+    /*
+    cp.setPF(new PixelFormat(bitsPerPixel, depth, bigEndian, trueColour, redMax, 
+            greenMax, blueMax, redShift, greenShift, blueShift));
  
-	String str = cp.pf().print();
-	vlog.info("Using pixel format "+str);
-	synchronized (this) {
-		writer().writeSetPixelFormat(cp.pf());
-	}
+    String str = cp.pf().print();
+    vlog.info("Using pixel format "+str);
+    synchronized (this) {
+        writer().writeSetPixelFormat(cp.pf());
+    }
   
-	checkEncodings();
-	synchronized (this) {
-		writer().writeFramebufferUpdateRequest(new Rect(0,0,cp.width,cp.height), false);
-	}
-	*/
+    checkEncodings();
+    synchronized (this) {
+        writer().writeFramebufferUpdateRequest(new Rect(0,0,cp.width,cp.height), false);
+    }
+    */
   }
   
   
@@ -995,7 +995,7 @@ public class CConn extends CConnection
 
 @Override
 public void requestResolution(int x, int y) {
-	// TODO Auto-generated method stub
-	
+    // TODO Auto-generated method stub
+    
 }
 }

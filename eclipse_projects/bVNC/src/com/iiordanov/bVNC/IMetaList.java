@@ -29,8 +29,8 @@ import com.antlersoft.android.db.TableInterface;
  */
 @TableInterface(TableName="META_LIST",ImplementingIsAbstract=false,ImplementingClassName="MetaList")
 public interface IMetaList {
-	@FieldAccessor
-	long get_Id();
-	@FieldAccessor
-	String getName();
+    @FieldAccessor
+    long get_Id();
+    @FieldAccessor
+    String getName();
 }

@@ -10,12 +10,12 @@ import android.app.ActivityManager;
  */
 class BCActivityManagerDefault implements IBCActivityManager {
 
-	/* (non-Javadoc)
-	 * @see com.iiordanov.android.bc.IBCActivityManager#getMemoryClass(android.app.ActivityManager)
-	 */
-	@Override
-	public int getMemoryClass(ActivityManager am) {
-		return 16;
-	}
+    /* (non-Javadoc)
+     * @see com.iiordanov.android.bc.IBCActivityManager#getMemoryClass(android.app.ActivityManager)
+     */
+    @Override
+    public int getMemoryClass(ActivityManager am) {
+        return 16;
+    }
 
 }

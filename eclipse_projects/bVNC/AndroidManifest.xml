@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="com.iiordanov.bVNC" android:installLocation="auto"
-          android:versionCode="3390" android:versionName="v3.3.9">
+          android:versionCode="3400" android:versionName="v3.4.0">
 
     <uses-sdk android:minSdkVersion="8" android:targetSdkVersion="8"></uses-sdk>
     <uses-permission android:name="android.permission.INTERNET"></uses-permission>
@@ -28,7 +28,7 @@
                 </activity>
                 <activity android:screenOrientation="unspecified"
                           android:configChanges="orientation|keyboardHidden|keyboard"
-		                  android:name="VncCanvasActivity"
+		                  android:name="RemoteCanvasActivity"
 		                  android:windowSoftInputMode="stateHidden|adjustResize">
                        <intent-filter>
                                 <action android:name="android.intent.action.VIEW"></action>

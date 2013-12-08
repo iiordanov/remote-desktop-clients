@@ -23,12 +23,12 @@
 
 package com.iiordanov.tigervnc.rfb;
 
-import com.iiordanov.bVNC.VncCanvas;
+import com.iiordanov.bVNC.RemoteCanvas;
 import com.iiordanov.tigervnc.rdr.*;
 
 abstract public class CMsgReader {
 
-  protected CMsgReader(CMsgHandler handler_, InStream is_, VncCanvas c) 
+  protected CMsgReader(CMsgHandler handler_, InStream is_, RemoteCanvas c) 
   {
     handler = handler_;
     is = is_;
@@ -37,7 +37,7 @@ abstract public class CMsgReader {
     decoders = new Decoder[Encodings.encodingMax+1];
     vncCanvas = c;
   }
-	  
+      
   protected CMsgReader(CMsgHandler handler_, InStream is_) 
   {
     handler = handler_;
@@ -172,7 +172,7 @@ abstract public class CMsgReader {
   protected Decoder[] decoders;
   protected int[] imageBuf;
   protected int imageBufSize;
-  protected VncCanvas vncCanvas;
+  protected RemoteCanvas vncCanvas;
 
   static LogWriter vlog = new LogWriter("CMsgReader");
 }

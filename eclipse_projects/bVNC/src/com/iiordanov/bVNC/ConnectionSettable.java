@@ -20,6 +20,6 @@
 
 package com.iiordanov.bVNC;
 
-interface ConnectionSettable {
-	void setConnection(ConnectionBean connection);
+public interface ConnectionSettable {
+    void setConnection(ConnectionBean connection);
 }

@@ -32,8 +32,8 @@ import com.antlersoft.android.db.TableInterface;
  */
 @TableInterface(TableName="SENT_TEXT",ImplementingIsAbstract=false,ImplementingClassName="SentTextBean")
 public interface ISentText {
-	@FieldAccessor
-	long get_Id();
-	@FieldAccessor
-	String getSentText();
+    @FieldAccessor
+    long get_Id();
+    @FieldAccessor
+    String getSentText();
 }

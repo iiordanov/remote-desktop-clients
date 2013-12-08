@@ -12,13 +12,13 @@ import android.view.GestureDetector.OnGestureListener;
  */
 public class BCGestureDetectorDefault implements IBCGestureDetector {
 
-	/* (non-Javadoc)
-	 * @see com.iiordanov.android.bc.IBCGestureDetector#createGestureDetector(android.content.Context, android.view.GestureDetector.OnGestureListener)
-	 */
-	@Override
-	public GestureDetector createGestureDetector(Context context,
-			OnGestureListener listener) {
-		return new GestureDetector(context, listener);
-	}
+    /* (non-Javadoc)
+     * @see com.iiordanov.android.bc.IBCGestureDetector#createGestureDetector(android.content.Context, android.view.GestureDetector.OnGestureListener)
+     */
+    @Override
+    public GestureDetector createGestureDetector(Context context,
+            OnGestureListener listener) {
+        return new GestureDetector(context, listener);
+    }
 
 }

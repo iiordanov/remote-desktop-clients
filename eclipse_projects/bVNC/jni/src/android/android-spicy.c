@@ -182,7 +182,7 @@ static void channel_new(SpiceSession *s, SpiceChannel *channel, gpointer data)
 
 static void channel_destroy(SpiceSession *s, SpiceChannel *channel, gpointer data)
 {
-	__android_log_write(6, "android-spicy", "channel_destroy called");
+    __android_log_write(6, "android-spicy", "channel_destroy called");
 
     spice_connection *conn = data;
     int id;
@@ -218,9 +218,9 @@ static void channel_destroy(SpiceSession *s, SpiceChannel *channel, gpointer dat
 
     conn->channels--;
     if (conn->channels > 0) {
-    	char buf[100];
+        char buf[100];
         snprintf (buf, 100, "Number of channels: %d", conn->channels);
-    	__android_log_write(6, "android-spice", buf);
+        __android_log_write(6, "android-spice", buf);
         return;
     }
 
@@ -281,7 +281,7 @@ void connection_disconnect(spice_connection *conn)
 
 static void connection_destroy(spice_connection *conn)
 {
-	__android_log_write(6, "android-spicy", "connection_destroy called");
+    __android_log_write(6, "android-spicy", "connection_destroy called");
     g_object_unref(conn->session);
     free(conn);
 

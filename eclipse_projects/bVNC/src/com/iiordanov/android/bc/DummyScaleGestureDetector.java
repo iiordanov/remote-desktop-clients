@@ -44,76 +44,76 @@ import android.view.MotionEvent;
  */
 class DummyScaleGestureDetector implements IBCScaleGestureDetector {
 
-	/* (non-Javadoc)
-	 * @see com.iiordanov.android.bc.IBCScaleGestureDetector#getCurrentSpan()
-	 */
-	@Override
-	public float getCurrentSpan() {
-		return 0;
-	}
+    /* (non-Javadoc)
+     * @see com.iiordanov.android.bc.IBCScaleGestureDetector#getCurrentSpan()
+     */
+    @Override
+    public float getCurrentSpan() {
+        return 0;
+    }
 
-	/* (non-Javadoc)
-	 * @see com.iiordanov.android.bc.IBCScaleGestureDetector#getEventTime()
-	 */
-	@Override
-	public long getEventTime() {
-		return 0;
-	}
+    /* (non-Javadoc)
+     * @see com.iiordanov.android.bc.IBCScaleGestureDetector#getEventTime()
+     */
+    @Override
+    public long getEventTime() {
+        return 0;
+    }
 
-	/* (non-Javadoc)
-	 * @see com.iiordanov.android.bc.IBCScaleGestureDetector#getFocusX()
-	 */
-	@Override
-	public float getFocusX() {
-		return 0;
-	}
+    /* (non-Javadoc)
+     * @see com.iiordanov.android.bc.IBCScaleGestureDetector#getFocusX()
+     */
+    @Override
+    public float getFocusX() {
+        return 0;
+    }
 
-	/* (non-Javadoc)
-	 * @see com.iiordanov.android.bc.IBCScaleGestureDetector#getFocusY()
-	 */
-	@Override
-	public float getFocusY() {
-		return 0;
-	}
+    /* (non-Javadoc)
+     * @see com.iiordanov.android.bc.IBCScaleGestureDetector#getFocusY()
+     */
+    @Override
+    public float getFocusY() {
+        return 0;
+    }
 
-	/* (non-Javadoc)
-	 * @see com.iiordanov.android.bc.IBCScaleGestureDetector#getPreviousSpan()
-	 */
-	@Override
-	public float getPreviousSpan() {
-		return 0;
-	}
+    /* (non-Javadoc)
+     * @see com.iiordanov.android.bc.IBCScaleGestureDetector#getPreviousSpan()
+     */
+    @Override
+    public float getPreviousSpan() {
+        return 0;
+    }
 
-	/* (non-Javadoc)
-	 * @see com.iiordanov.android.bc.IBCScaleGestureDetector#getScaleFactor()
-	 */
-	@Override
-	public float getScaleFactor() {
-		return 0;
-	}
+    /* (non-Javadoc)
+     * @see com.iiordanov.android.bc.IBCScaleGestureDetector#getScaleFactor()
+     */
+    @Override
+    public float getScaleFactor() {
+        return 0;
+    }
 
-	/* (non-Javadoc)
-	 * @see com.iiordanov.android.bc.IBCScaleGestureDetector#getTimeDelta()
-	 */
-	@Override
-	public long getTimeDelta() {
-		return 0;
-	}
+    /* (non-Javadoc)
+     * @see com.iiordanov.android.bc.IBCScaleGestureDetector#getTimeDelta()
+     */
+    @Override
+    public long getTimeDelta() {
+        return 0;
+    }
 
-	/* (non-Javadoc)
-	 * @see com.iiordanov.android.bc.IBCScaleGestureDetector#isInProgress()
-	 */
-	@Override
-	public boolean isInProgress() {
-		return false;
-	}
+    /* (non-Javadoc)
+     * @see com.iiordanov.android.bc.IBCScaleGestureDetector#isInProgress()
+     */
+    @Override
+    public boolean isInProgress() {
+        return false;
+    }
 
-	/* (non-Javadoc)
-	 * @see com.iiordanov.android.bc.IBCScaleGestureDetector#onTouchEvent(android.view.MotionEvent)
-	 */
-	@Override
-	public boolean onTouchEvent(MotionEvent event) {
-		return true;
-	}
+    /* (non-Javadoc)
+     * @see com.iiordanov.android.bc.IBCScaleGestureDetector#onTouchEvent(android.view.MotionEvent)
+     */
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        return true;
+    }
 
 }

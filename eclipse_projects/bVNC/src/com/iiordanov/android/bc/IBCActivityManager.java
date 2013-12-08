@@ -9,5 +9,5 @@ import android.app.ActivityManager;
  * @author Michael A. MacDonald
  */
 public interface IBCActivityManager {
-	public int getMemoryClass(ActivityManager am);
+    public int getMemoryClass(ActivityManager am);
 }

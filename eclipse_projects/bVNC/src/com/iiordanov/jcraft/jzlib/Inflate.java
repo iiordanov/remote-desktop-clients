@@ -129,8 +129,8 @@ final class Inflate{
     wbits=w;
 
     z.istate.blocks=new InfBlocks(z, 
-				  z.istate.nowrap!=0 ? null : this,
-				  1<<w);
+                  z.istate.nowrap!=0 ? null : this,
+                  1<<w);
 
     // reset state
     inflateReset(z);

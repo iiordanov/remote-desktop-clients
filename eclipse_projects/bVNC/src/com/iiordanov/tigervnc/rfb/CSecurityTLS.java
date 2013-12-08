@@ -38,9 +38,9 @@ import android.os.Message;
 import android.util.Log;
 
 import com.iiordanov.bVNC.Utils;
-import com.iiordanov.bVNC.VncCanvas;
-import com.iiordanov.bVNC.VncCanvasActivity;
-import com.iiordanov.bVNC.VncConstants;
+import com.iiordanov.bVNC.RemoteCanvas;
+import com.iiordanov.bVNC.RemoteCanvasActivity;
+import com.iiordanov.bVNC.Constants;
 import com.iiordanov.bVNC.bVNC;
 import com.iiordanov.tigervnc.rdr.*;
 import org.apache.commons.*;
@@ -72,8 +72,8 @@ public class CSecurityTLS extends CSecurity {
       sslfactory = ctx.getSocketFactory();
       try {
         ssl = (SSLSocket)sslfactory.createSocket(CConnection.sock,
-						  CConnection.sock.getInetAddress().getHostName(),
-						  CConnection.sock.getPort(), true);
+                          CConnection.sock.getInetAddress().getHostName(),
+                          CConnection.sock.getPort(), true);
         ssl.setTcpNoDelay(true);
       } catch (java.io.IOException e) { 
         throw new Exception(e.toString());
@@ -88,14 +88,14 @@ public class CSecurityTLS extends CSecurity {
         for (int i = 0; i < supported.length; i++) {
           //Log.e("SUPPORTED CIPHERS", supported[i]);
           if (supported[i].matches("TLS_DH_anon.*"))
-	          enabled.add(supported[i]);
+              enabled.add(supported[i]);
         }
 
         if (enabled.size() == 0)
-          	throw new Exception("Your device lacks support for ciphers necessary for this encryption mode " +
-						"(Anonymous Diffie-Hellman ciphers). " +
-						"This is a known issue with devices running Android 2.2.x and older. You can " +
-						"work around this by using VeNCrypt with x509 certificates instead.");
+              throw new Exception("Your device lacks support for ciphers necessary for this encryption mode " +
+                        "(Anonymous Diffie-Hellman ciphers). " +
+                        "This is a known issue with devices running Android 2.2.x and older. You can " +
+                        "work around this by using VeNCrypt with x509 certificates instead.");
 
         ssl.setEnabledCipherSuites(enabled.toArray(new String[0]));
       } else {
@@ -112,9 +112,9 @@ public class CSecurityTLS extends CSecurity {
     }
   }
 
-  public CSecurityTLS(boolean _anon, VncCanvas v) 
+  public CSecurityTLS(boolean _anon, RemoteCanvas v) 
   {
-	vncCanvas = v;
+    vncCanvas = v;
     anon = _anon;
     setDefaults();
     cafile = x509ca.getData(); 
@@ -123,7 +123,7 @@ public class CSecurityTLS extends CSecurity {
 
   public static void setDefaults()
   {
-	// TODO: Perhaps add x509ca and crl fields in database.
+    // TODO: Perhaps add x509ca and crl fields in database.
     String homeDir = null;
     
     if ((homeDir/*=UserPrefs.getHomeDir()*/) == null) {
@@ -168,7 +168,7 @@ public class CSecurityTLS extends CSecurity {
 
     try {
       cc.setStreams(new JavaInStream(ssl.getInputStream()),
-		                new JavaOutStream(ssl.getOutputStream()));
+                        new JavaOutStream(ssl.getOutputStream()));
     } catch (java.io.IOException e) { 
       throw new Exception("Failed to set streams");
     }
@@ -225,46 +225,46 @@ public class CSecurityTLS extends CSecurity {
     public void checkClientTrusted(X509Certificate[] chain, String authType) 
       throws CertificateException
     {
-      	if (tm!=null)
-    		tm.checkClientTrusted(chain, authType);
+          if (tm!=null)
+            tm.checkClientTrusted(chain, authType);
     }
   
     public void checkServerTrusted(X509Certificate[] chain, String authType)
-    	      throws CertificateException
+              throws CertificateException
     {
-    	try {
-    		if (tm!=null)
-    			tm.checkClientTrusted(chain, authType);
-    		else {
-    			throw new CertificateException ("The authenticity of the server's certificate could not be established.");
-    		}
-    	} catch (final java.lang.Exception e) {
+        try {
+            if (tm!=null)
+                tm.checkClientTrusted(chain, authType);
+            else {
+                throw new CertificateException ("The authenticity of the server's certificate could not be established.");
+            }
+        } catch (final java.lang.Exception e) {
 
-    		// Send a message containing the certificate to our handler.
-    		Message m = new Message();
-    		m.setTarget(vncCanvas.handler);
-    		m.what = VncConstants.DIALOG_X509_CERT;
-    		m.obj = chain[0];
-    		vncCanvas.handler.sendMessage(m);
+            // Send a message containing the certificate to our handler.
+            Message m = new Message();
+            m.setTarget(vncCanvas.handler);
+            m.what = Constants.DIALOG_X509_CERT;
+            m.obj = chain[0];
+            vncCanvas.handler.sendMessage(m);
 
-			// Block while user decides whether to accept certificate.
-			while (!vncCanvas.certificateAccepted) {
-    			try {
-					Thread.sleep(100);
-				} catch (InterruptedException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
-    		}
-    	}
+            // Block while user decides whether to accept certificate.
+            while (!vncCanvas.certificateAccepted) {
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e1) {
+                    // TODO Auto-generated catch block
+                    e1.printStackTrace();
+                }
+            }
+        }
     }
 
     public X509Certificate[] getAcceptedIssuers ()
     {
-    	if (tm!=null)
-    		return tm.getAcceptedIssuers();
-    	else
-    		return null;
+        if (tm!=null)
+            return tm.getAcceptedIssuers();
+        else
+            return null;
     }
   }
 
@@ -283,7 +283,7 @@ public class CSecurityTLS extends CSecurity {
   private InStream is;
   private SSLSocket ssl;
   TrustManager[] trustAllCerts;
-  VncCanvas vncCanvas;
+  RemoteCanvas vncCanvas;
 
   static LogWriter vlog = new LogWriter("CSecurityTLS");
 }

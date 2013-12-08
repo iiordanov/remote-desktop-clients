@@ -18,7 +18,7 @@
 
 package com.iiordanov.tigervnc.rfb;
 
-import com.iiordanov.bVNC.VncCanvas;
+import com.iiordanov.bVNC.RemoteCanvas;
 
 abstract public class Decoder {
 
@@ -51,7 +51,7 @@ abstract public class Decoder {
     return null;
   }
   
-  static public Decoder createDecoder(int encoding, CMsgReader reader, VncCanvas c) {
+  static public Decoder createDecoder(int encoding, CMsgReader reader, RemoteCanvas c) {
 /*
     if (encoding <= Encodings.encodingMax && createFns[encoding])
       return (createFns[encoding])(reader);

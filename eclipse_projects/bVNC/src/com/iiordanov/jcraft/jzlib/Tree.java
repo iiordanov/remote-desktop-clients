@@ -215,13 +215,13 @@ final class Tree{
     for (bits = max_length; bits != 0; bits--) {
       n = s.bl_count[bits];
       while (n != 0) {
-	m = s.heap[--h];
-	if (m > max_code) continue;
-	if (tree[m*2+1] != bits) {
-	  s.opt_len += ((long)bits - (long)tree[m*2+1])*(long)tree[m*2];
-	  tree[m*2+1] = (short)bits;
-	}
-	n--;
+    m = s.heap[--h];
+    if (m > max_code) continue;
+    if (tree[m*2+1] != bits) {
+      s.opt_len += ((long)bits - (long)tree[m*2+1])*(long)tree[m*2];
+      tree[m*2+1] = (short)bits;
+    }
+    n--;
       }
     }
   }
@@ -248,11 +248,11 @@ final class Tree{
 
     for(n=0; n<elems; n++) {
       if(tree[n*2] != 0) {
-	s.heap[++s.heap_len] = max_code = n;
-	s.depth[n] = 0;
+    s.heap[++s.heap_len] = max_code = n;
+    s.depth[n] = 0;
       }
       else{
-	tree[n*2+1] = 0;
+    tree[n*2+1] = 0;
       }
     }
 
@@ -318,9 +318,9 @@ final class Tree{
   // OUT assertion: the field code is set for all tree elements of non
   //     zero code length.
   static void gen_codes(short[] tree, // the tree to decorate
-			int max_code, // largest code with non zero frequency
-			short[] bl_count // number of codes at each bit length
-			){
+            int max_code, // largest code with non zero frequency
+            short[] bl_count // number of codes at each bit length
+            ){
     short[] next_code=new short[MAX_BITS+1]; // next code value for each bit length
     short code = 0;            // running code value
     int bits;                  // bit index
@@ -350,8 +350,8 @@ final class Tree{
   // method would use a table)
   // IN assertion: 1 <= len <= 15
   static int bi_reverse(int code, // the value to invert
-			int len   // its bit length
-			){
+            int len   // its bit length
+            ){
     int res = 0;
     do{
       res|=code&1;

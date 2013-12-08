@@ -12,22 +12,22 @@ import android.view.HapticFeedbackConstants;
  */
 class BCHapticDefault implements IBCHaptic {
 
-	/* (non-Javadoc)
-	 * @see com.iiordanov.android.bc.IBCHaptic#performLongPressHaptic(android.view.View)
-	 */
-	@Override
-	public boolean performLongPressHaptic(View v) {
-		return v.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS,HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING|HapticFeedbackConstants.FLAG_IGNORE_VIEW_SETTING
-				);
-	}
+    /* (non-Javadoc)
+     * @see com.iiordanov.android.bc.IBCHaptic#performLongPressHaptic(android.view.View)
+     */
+    @Override
+    public boolean performLongPressHaptic(View v) {
+        return v.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS,HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING|HapticFeedbackConstants.FLAG_IGNORE_VIEW_SETTING
+                );
+    }
 
-	/* (non-Javadoc)
-	 * @see com.iiordanov.android.bc.IBCHaptic#setIsHapticEnabled(android.view.View, boolean)
-	 */
+    /* (non-Javadoc)
+     * @see com.iiordanov.android.bc.IBCHaptic#setIsHapticEnabled(android.view.View, boolean)
+     */
 /*
- * 	@Override
-	public boolean setIsHapticEnabled(View v, boolean enabled) {
-		return v.setHapticFeedbackEnabled(hapticFeedbackEnabled)
-	}
+ *     @Override
+    public boolean setIsHapticEnabled(View v, boolean enabled) {
+        return v.setHapticFeedbackEnabled(hapticFeedbackEnabled)
+    }
 */
 }

@@ -109,167 +109,167 @@ class ScaleGestureDetector implements IBCScaleGestureDetector {
      * @see com.iiordanov.android.bc.IBCScaleGestureDetector#onTouchEvent(android.view.MotionEvent)
      */
     public boolean onTouchEvent(MotionEvent event) {
-    	final int action = event.getAction();
-    	boolean handled = true;
-    	boolean secondpointer = event.getPointerCount() > 1;
+        final int action = event.getAction();
+        boolean handled = true;
+        boolean secondpointer = event.getPointerCount() > 1;
 
-    	try {
-    		if (!mGestureInProgress) {
-    			switch (action & MotionEvent.ACTION_MASK) {
-    			case MotionEvent.ACTION_POINTER_DOWN: {
-    				// We have a new multi-finger gesture
+        try {
+            if (!mGestureInProgress) {
+                switch (action & MotionEvent.ACTION_MASK) {
+                case MotionEvent.ACTION_POINTER_DOWN: {
+                    // We have a new multi-finger gesture
 
-    				// as orientation can change, query the metrics in touch down
-    				DisplayMetrics metrics = mContext.getResources().getDisplayMetrics();
-    				mRightSlopEdge = metrics.widthPixels - mEdgeSlop;
-    				mBottomSlopEdge = metrics.heightPixels - mEdgeSlop;
+                    // as orientation can change, query the metrics in touch down
+                    DisplayMetrics metrics = mContext.getResources().getDisplayMetrics();
+                    mRightSlopEdge = metrics.widthPixels - mEdgeSlop;
+                    mBottomSlopEdge = metrics.heightPixels - mEdgeSlop;
 
-    				// Be paranoid in case we missed an event
-    				reset();
+                    // Be paranoid in case we missed an event
+                    reset();
 
-    				mPrevEvent = MotionEvent.obtain(event);
-    				mTimeDelta = 0;
+                    mPrevEvent = MotionEvent.obtain(event);
+                    mTimeDelta = 0;
 
-    				setContext(event);
+                    setContext(event);
 
-    				// Check if we have a sloppy gesture. If so, delay
-    				// the beginning of the gesture until we're sure that's
-    				// what the user wanted. Sloppy gestures can happen if the
-    				// edge of the user's hand is touching the screen, for example.
-    				final float edgeSlop = mEdgeSlop;
-    				final float rightSlop = mRightSlopEdge;
-    				final float bottomSlop = mBottomSlopEdge;
-    				final float x0 = event.getRawX();
-    				final float y0 = event.getRawY();
-    				boolean p1sloppy = false;
-    				if (secondpointer) {
-    					final float x1 = getRawX(event, 1);
-    					final float y1 = getRawY(event, 1);
-    					p1sloppy = x1 < edgeSlop || y1 < edgeSlop
-    							|| x1 > rightSlop || y1 > bottomSlop;
-    				}
+                    // Check if we have a sloppy gesture. If so, delay
+                    // the beginning of the gesture until we're sure that's
+                    // what the user wanted. Sloppy gestures can happen if the
+                    // edge of the user's hand is touching the screen, for example.
+                    final float edgeSlop = mEdgeSlop;
+                    final float rightSlop = mRightSlopEdge;
+                    final float bottomSlop = mBottomSlopEdge;
+                    final float x0 = event.getRawX();
+                    final float y0 = event.getRawY();
+                    boolean p1sloppy = false;
+                    if (secondpointer) {
+                        final float x1 = getRawX(event, 1);
+                        final float y1 = getRawY(event, 1);
+                        p1sloppy = x1 < edgeSlop || y1 < edgeSlop
+                                || x1 > rightSlop || y1 > bottomSlop;
+                    }
 
-    				boolean p0sloppy = x0 < edgeSlop || y0 < edgeSlop
-    						|| x0 > rightSlop || y0 > bottomSlop;
+                    boolean p0sloppy = x0 < edgeSlop || y0 < edgeSlop
+                            || x0 > rightSlop || y0 > bottomSlop;
 
-    						if (p0sloppy && p1sloppy) {
-    							mFocusX = -1;
-    							mFocusY = -1;
-    							//mSloppyGesture = true;
-    						} else if (p0sloppy && secondpointer) {
-    							mFocusX = event.getX(1);
-    							mFocusY = event.getY(1);
-    							//mSloppyGesture = true;
-    						} else if (p1sloppy) {
-    							mFocusX = event.getX(0);
-    							mFocusY = event.getY(0);
-    							//mSloppyGesture = true;
-    						} else {
-    							mGestureInProgress = mListener.onScaleBegin(this);
-    						}
-    			}
-    			break;
+                            if (p0sloppy && p1sloppy) {
+                                mFocusX = -1;
+                                mFocusY = -1;
+                                //mSloppyGesture = true;
+                            } else if (p0sloppy && secondpointer) {
+                                mFocusX = event.getX(1);
+                                mFocusY = event.getY(1);
+                                //mSloppyGesture = true;
+                            } else if (p1sloppy) {
+                                mFocusX = event.getX(0);
+                                mFocusY = event.getY(0);
+                                //mSloppyGesture = true;
+                            } else {
+                                mGestureInProgress = mListener.onScaleBegin(this);
+                            }
+                }
+                break;
 
-    			case MotionEvent.ACTION_MOVE:
-    				if (mSloppyGesture) {
-    					// Initiate sloppy gestures if we've moved outside of the slop area.
-    					final float edgeSlop = mEdgeSlop;
-    					final float rightSlop = mRightSlopEdge;
-    					final float bottomSlop = mBottomSlopEdge;
-    					final float x0 = event.getRawX();
-    					final float y0 = event.getRawY();
+                case MotionEvent.ACTION_MOVE:
+                    if (mSloppyGesture) {
+                        // Initiate sloppy gestures if we've moved outside of the slop area.
+                        final float edgeSlop = mEdgeSlop;
+                        final float rightSlop = mRightSlopEdge;
+                        final float bottomSlop = mBottomSlopEdge;
+                        final float x0 = event.getRawX();
+                        final float y0 = event.getRawY();
 
-    					boolean p0sloppy = x0 < edgeSlop || y0 < edgeSlop
-    							|| x0 > rightSlop || y0 > bottomSlop;
+                        boolean p0sloppy = x0 < edgeSlop || y0 < edgeSlop
+                                || x0 > rightSlop || y0 > bottomSlop;
 
-    							boolean p1sloppy = false;
-    							if (secondpointer) {
-    								final float x1 = getRawX(event, 1);
-    								final float y1 = getRawY(event, 1);
-    								p1sloppy = x1 < edgeSlop || y1 < edgeSlop
-    										|| x1 > rightSlop || y1 > bottomSlop;
-    							}
+                                boolean p1sloppy = false;
+                                if (secondpointer) {
+                                    final float x1 = getRawX(event, 1);
+                                    final float y1 = getRawY(event, 1);
+                                    p1sloppy = x1 < edgeSlop || y1 < edgeSlop
+                                            || x1 > rightSlop || y1 > bottomSlop;
+                                }
 
-    							if(p0sloppy && p1sloppy) {
-    								mFocusX = -1;
-    								mFocusY = -1;
-    							} else if (p0sloppy && secondpointer) {
-    								mFocusX = event.getX(1);
-    								mFocusY = event.getY(1);
-    							} else if (p1sloppy) {
-    								mFocusX = event.getX(0);
-    								mFocusY = event.getY(0);
-    							} else {
-    								mSloppyGesture = false;
-    								mGestureInProgress = mListener.onScaleBegin(this);
-    							}
-    				}
-    				break;
+                                if(p0sloppy && p1sloppy) {
+                                    mFocusX = -1;
+                                    mFocusY = -1;
+                                } else if (p0sloppy && secondpointer) {
+                                    mFocusX = event.getX(1);
+                                    mFocusY = event.getY(1);
+                                } else if (p1sloppy) {
+                                    mFocusX = event.getX(0);
+                                    mFocusY = event.getY(0);
+                                } else {
+                                    mSloppyGesture = false;
+                                    mGestureInProgress = mListener.onScaleBegin(this);
+                                }
+                    }
+                    break;
 
-    			case MotionEvent.ACTION_POINTER_UP:
-    				if (mSloppyGesture) {
-    					// Set focus point to the remaining finger
-    					int id = (((action & MotionEvent.ACTION_POINTER_ID_MASK)
-    							>> MotionEvent.ACTION_POINTER_ID_SHIFT) == 0) ? 1 : 0;
-    					if (id == 0 || secondpointer) {
-    						mFocusX = event.getX(id);
-    						mFocusY = event.getY(id);
-    					}
-    				}
-    				break;
-    			}
-    		} else {
-    			// Transform gesture in progress - attempt to handle it
-    			switch (action & MotionEvent.ACTION_MASK) {
-    			case MotionEvent.ACTION_POINTER_UP:
-    				// Gesture ended
-    				setContext(event);
+                case MotionEvent.ACTION_POINTER_UP:
+                    if (mSloppyGesture) {
+                        // Set focus point to the remaining finger
+                        int id = (((action & MotionEvent.ACTION_POINTER_ID_MASK)
+                                >> MotionEvent.ACTION_POINTER_ID_SHIFT) == 0) ? 1 : 0;
+                        if (id == 0 || secondpointer) {
+                            mFocusX = event.getX(id);
+                            mFocusY = event.getY(id);
+                        }
+                    }
+                    break;
+                }
+            } else {
+                // Transform gesture in progress - attempt to handle it
+                switch (action & MotionEvent.ACTION_MASK) {
+                case MotionEvent.ACTION_POINTER_UP:
+                    // Gesture ended
+                    setContext(event);
 
-    				// Set focus point to the remaining finger
-    				int id = (((action & MotionEvent.ACTION_POINTER_ID_MASK)
-    						>> MotionEvent.ACTION_POINTER_ID_SHIFT) == 0) ? 1 : 0;
-    				if (id == 0 || secondpointer) {
-    					mFocusX = event.getX(id);
-    					mFocusY = event.getY(id);
-    				}
+                    // Set focus point to the remaining finger
+                    int id = (((action & MotionEvent.ACTION_POINTER_ID_MASK)
+                            >> MotionEvent.ACTION_POINTER_ID_SHIFT) == 0) ? 1 : 0;
+                    if (id == 0 || secondpointer) {
+                        mFocusX = event.getX(id);
+                        mFocusY = event.getY(id);
+                    }
 
-    				if (!mSloppyGesture) {
-    					mListener.onScaleEnd(this);
-    				}
+                    if (!mSloppyGesture) {
+                        mListener.onScaleEnd(this);
+                    }
 
-    				reset();
-    				break;
+                    reset();
+                    break;
 
-    			case MotionEvent.ACTION_CANCEL:
-    				if (!mSloppyGesture) {
-    					mListener.onScaleEnd(this);
-    				}
+                case MotionEvent.ACTION_CANCEL:
+                    if (!mSloppyGesture) {
+                        mListener.onScaleEnd(this);
+                    }
 
-    				reset();
-    				break;
+                    reset();
+                    break;
 
-    			case MotionEvent.ACTION_MOVE:
-    				setContext(event);
+                case MotionEvent.ACTION_MOVE:
+                    setContext(event);
 
-    				// Only accept the event if our relative pressure is within
-    				// a certain limit - this can help filter shaky data as a
-    				// finger is lifted.
-    				if (mCurrPressure / mPrevPressure > PRESSURE_THRESHOLD) {
-    					final boolean updatePrevious = mListener.onScale(this);
+                    // Only accept the event if our relative pressure is within
+                    // a certain limit - this can help filter shaky data as a
+                    // finger is lifted.
+                    if (mCurrPressure / mPrevPressure > PRESSURE_THRESHOLD) {
+                        final boolean updatePrevious = mListener.onScale(this);
 
-    					if (updatePrevious) {
-    						mPrevEvent.recycle();
-    						mPrevEvent = MotionEvent.obtain(event);
-    					}
-    				}
-    				break;
-    			}
-    		}
-    	} catch (Exception e) {
-    		Log.e(TAG, "There was an error in onTouchEvent.");
-    		e.printStackTrace();
-    	}
-    	return handled;
+                        if (updatePrevious) {
+                            mPrevEvent.recycle();
+                            mPrevEvent = MotionEvent.obtain(event);
+                        }
+                    }
+                    break;
+                }
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "There was an error in onTouchEvent.");
+            e.printStackTrace();
+        }
+        return handled;
     }
     
     /**
@@ -310,7 +310,7 @@ class ScaleGestureDetector implements IBCScaleGestureDetector {
         float prevpress = 0;
         if (secondpointer) {
             final float px1 = prev.getX(1);
-            final float py1 = prev.getY(1);        	
+            final float py1 = prev.getY(1);            
             final float pvx = px1 - px0;
             final float pvy = py1 - py0;
             mPrevFingerDiffX = pvx;
@@ -326,7 +326,7 @@ class ScaleGestureDetector implements IBCScaleGestureDetector {
         float currpress = 0;
         if (secondpointer) {
             final float cx1 = curr.getX(1);
-            final float cy1 = curr.getY(1);        	
+            final float cy1 = curr.getY(1);            
             cvx = cx1 - cx0;
             cvy = cy1 - cy0;
             mCurrFingerDiffX = cvx;
@@ -358,29 +358,29 @@ class ScaleGestureDetector implements IBCScaleGestureDetector {
     }
 
     /* (non-Javadoc)
-	 * @see com.iiordanov.android.bc.IBCScaleGestureDetector#isInProgress()
-	 */
+     * @see com.iiordanov.android.bc.IBCScaleGestureDetector#isInProgress()
+     */
     public boolean isInProgress() {
         return mGestureInProgress;
     }
 
     /* (non-Javadoc)
-	 * @see com.iiordanov.android.bc.IBCScaleGestureDetector#getFocusX()
-	 */
+     * @see com.iiordanov.android.bc.IBCScaleGestureDetector#getFocusX()
+     */
     public float getFocusX() {
         return mFocusX;
     }
 
     /* (non-Javadoc)
-	 * @see com.iiordanov.android.bc.IBCScaleGestureDetector#getFocusY()
-	 */
+     * @see com.iiordanov.android.bc.IBCScaleGestureDetector#getFocusY()
+     */
     public float getFocusY() {
         return mFocusY;
     }
 
     /* (non-Javadoc)
-	 * @see com.iiordanov.android.bc.IBCScaleGestureDetector#getCurrentSpan()
-	 */
+     * @see com.iiordanov.android.bc.IBCScaleGestureDetector#getCurrentSpan()
+     */
     public float getCurrentSpan() {
         if (mCurrLen == -1) {
             final float cvx = mCurrFingerDiffX;
@@ -391,8 +391,8 @@ class ScaleGestureDetector implements IBCScaleGestureDetector {
     }
 
     /* (non-Javadoc)
-	 * @see com.iiordanov.android.bc.IBCScaleGestureDetector#getPreviousSpan()
-	 */
+     * @see com.iiordanov.android.bc.IBCScaleGestureDetector#getPreviousSpan()
+     */
     public float getPreviousSpan() {
         if (mPrevLen == -1) {
             final float pvx = mPrevFingerDiffX;
@@ -403,8 +403,8 @@ class ScaleGestureDetector implements IBCScaleGestureDetector {
     }
 
     /* (non-Javadoc)
-	 * @see com.iiordanov.android.bc.IBCScaleGestureDetector#getScaleFactor()
-	 */
+     * @see com.iiordanov.android.bc.IBCScaleGestureDetector#getScaleFactor()
+     */
     public float getScaleFactor() {
         if (mScaleFactor == -1) {
             mScaleFactor = getCurrentSpan() / getPreviousSpan();
@@ -413,15 +413,15 @@ class ScaleGestureDetector implements IBCScaleGestureDetector {
     }
     
     /* (non-Javadoc)
-	 * @see com.iiordanov.android.bc.IBCScaleGestureDetector#getTimeDelta()
-	 */
+     * @see com.iiordanov.android.bc.IBCScaleGestureDetector#getTimeDelta()
+     */
     public long getTimeDelta() {
         return mTimeDelta;
     }
     
     /* (non-Javadoc)
-	 * @see com.iiordanov.android.bc.IBCScaleGestureDetector#getEventTime()
-	 */
+     * @see com.iiordanov.android.bc.IBCScaleGestureDetector#getEventTime()
+     */
     public long getEventTime() {
         return mCurrEvent.getEventTime();
     }
