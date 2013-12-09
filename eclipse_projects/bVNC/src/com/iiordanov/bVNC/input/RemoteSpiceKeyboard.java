@@ -19,7 +19,7 @@ public class RemoteSpiceKeyboard extends RemoteKeyboard {
     
     public RemoteSpiceKeyboard (RfbConnectable r, RemoteCanvas v, Handler h) {
         super(r, v, h);
-
+        
         context = v.getContext();
         
         keyboardMapper = new RdpKeyboardMapper();
@@ -32,9 +32,6 @@ public class RemoteSpiceKeyboard extends RemoteKeyboard {
             RemotePointer pointer = vncCanvas.getPointer();
             boolean down = (evt.getAction() == KeyEvent.ACTION_DOWN) ||
                            (evt.getAction() == KeyEvent.ACTION_MULTIPLE);
-            
-            int numchars = 1;
-            int keyboardMetaState = evt.getMetaState();
             int metaState = additionalMetaState | convertEventMetaState (evt);
             
             if (keyCode == KeyEvent.KEYCODE_MENU)
@@ -42,7 +39,9 @@ public class RemoteSpiceKeyboard extends RemoteKeyboard {
 
             if (pointer.handleHardwareButtons(keyCode, evt, metaState|onScreenMetaState|hardwareMetaState))
                 return true;
-
+            
+            // Detect whether this event is coming from a default hardware keyboard.
+            boolean defaultHardwareKbd = (evt.getDeviceId() == 0);
             if (!down) {
                 switch (evt.getScanCode()) {
                 case SCAN_LEFTCTRL:
@@ -50,23 +49,41 @@ public class RemoteSpiceKeyboard extends RemoteKeyboard {
                     hardwareMetaState &= ~CTRL_MASK;
                     break;
                 }
+                
                 switch(keyCode) {
-                case KeyEvent.KEYCODE_DPAD_CENTER:  hardwareMetaState &= ~CTRL_MASK; break;
-                // Leaving KeyEvent.KEYCODE_ALT_LEFT for symbol input on hardware keyboards.
-                case KeyEvent.KEYCODE_ALT_RIGHT:    hardwareMetaState &= ~ALT_MASK; break;
+                case KeyEvent.KEYCODE_DPAD_CENTER:
+                    hardwareMetaState &= ~CTRL_MASK;
+                    break;
+                case KeyEvent.KEYCODE_ALT_LEFT:
+                    // Leaving KeyEvent.KEYCODE_ALT_LEFT for symbol input on hardware keyboards.
+                    if (!defaultHardwareKbd)
+                        hardwareMetaState &= ~ALT_MASK;
+                    break;
+                case KeyEvent.KEYCODE_ALT_RIGHT:
+                    hardwareMetaState &= ~ALT_MASK;
+                    break;
                 }
             } else {
-                // Look for standard scan-codes from external keyboards
+                // Look for standard scan-codes from hardware keyboards
                 switch (evt.getScanCode()) {
                 case SCAN_LEFTCTRL:
                 case SCAN_RIGHTCTRL:
                     hardwareMetaState |= CTRL_MASK;
                     break;
-                }  
+                }
+                
                 switch(keyCode) {
-                case KeyEvent.KEYCODE_DPAD_CENTER:  hardwareMetaState |= CTRL_MASK; break;
-                // Leaving KeyEvent.KEYCODE_ALT_LEFT for symbol input on hardware keyboards.
-                case KeyEvent.KEYCODE_ALT_RIGHT:    hardwareMetaState |= ALT_MASK; break;
+                case KeyEvent.KEYCODE_DPAD_CENTER:
+                    hardwareMetaState |= CTRL_MASK;
+                    break;
+                case KeyEvent.KEYCODE_ALT_LEFT:
+                    // Leaving KeyEvent.KEYCODE_ALT_LEFT for symbol input on hardware keyboards.
+                    if (!defaultHardwareKbd)
+                        hardwareMetaState |= ALT_MASK;
+                    break;
+                case KeyEvent.KEYCODE_ALT_RIGHT:
+                    hardwareMetaState |= ALT_MASK;
+                    break;
                 }
             }
 
