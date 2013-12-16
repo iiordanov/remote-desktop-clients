@@ -29,7 +29,6 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ActivityManager.MemoryInfo;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
@@ -55,13 +54,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
-import android.widget.LinearLayout.LayoutParams;
 
 import com.iiordanov.bVNC.dialogs.ImportExportDialog;
 import com.iiordanov.bVNC.dialogs.ImportTlsCaDialog;
 import com.iiordanov.bVNC.dialogs.IntroTextDialog;
 import com.iiordanov.pubkeygenerator.GeneratePubkeyActivity;
-import com.gstreamer.GStreamer;
 
 /**
  * aSPICE is the Activity for setting up SPICE connections.
@@ -104,21 +101,9 @@ public class aSPICE extends Activity implements MainConfiguration {
     private boolean isConnecting = false;
     private CheckBox checkboxEnableSound;
 
-    static {
-        System.loadLibrary("gstreamer_android");
-        System.loadLibrary("spice-android");
-    }
-
     @Override
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
-        try {
-            GStreamer.init(this);
-        } catch (Exception e) {
-            Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
-            finish(); 
-            return;
-        }
         System.gc();
         setContentView(R.layout.main_spice);
 
@@ -609,7 +594,7 @@ public class aSPICE extends Activity implements MainConfiguration {
      * @return Object representing the single persistent instance of
      *         MostRecentBean, which is the app's global state
      */
-    static MostRecentBean getMostRecent(SQLiteDatabase db) {
+    public static MostRecentBean getMostRecent(SQLiteDatabase db) {
         ArrayList<MostRecentBean> recents = new ArrayList<MostRecentBean>(1);
         MostRecentBean.getAll(db, MostRecentBean.GEN_TABLE_NAME, recents,
                 MostRecentBean.GEN_NEW);
@@ -718,13 +703,6 @@ public class aSPICE extends Activity implements MainConfiguration {
         isConnecting = true;
         updateSelectedFromView();
         saveAndWriteRecent();
-        if (selected.getEnableSound()) {
-            try {
-                GStreamer.init(this);
-            } catch (Exception e) {
-                Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
-            }
-        }
         Intent intent = new Intent(this, RemoteCanvasActivity.class);
         intent.putExtra(Constants.CONNECTION, selected.Gen_getValues());
         startActivity(intent);

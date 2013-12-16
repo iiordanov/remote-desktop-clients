@@ -39,13 +39,9 @@ import java.security.cert.X509Certificate;
 import java.util.Timer;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.app.ActivityManager.MemoryInfo;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.pm.PackageManager;
-import android.graphics.Rect;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -314,7 +310,7 @@ public class RemoteCanvas extends ImageView implements LibFreeRDP.UIEventListene
         if (tport > 0)
             tport = getPort(tport);
         
-        spicecomm = new SpiceCommunicator ();
+        spicecomm = new SpiceCommunicator (getContext(), this, connection);
         rfbconn = spicecomm;
         pointer = new RemoteSpicePointer (rfbconn, RemoteCanvas.this, handler);
         keyboard = new RemoteSpiceKeyboard (rfbconn, RemoteCanvas.this, handler);

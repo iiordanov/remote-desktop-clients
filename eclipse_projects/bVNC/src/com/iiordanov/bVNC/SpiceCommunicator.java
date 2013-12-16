@@ -1,5 +1,6 @@
 package com.iiordanov.bVNC;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Handler;
 
@@ -7,6 +8,7 @@ import com.freerdp.freerdpcore.services.LibFreeRDP.UIEventListener;
 import com.iiordanov.bVNC.input.RdpKeyboardMapper;
 import com.iiordanov.bVNC.input.RemoteKeyboard;
 import com.iiordanov.bVNC.input.RemoteSpicePointer;
+import com.gstreamer.*;
 
 public class SpiceCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyProcessingListener {
     private final static String TAG = "SpiceCommunicator";
@@ -17,12 +19,11 @@ public class SpiceCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyP
     public native void SpiceKeyEvent (boolean keyDown, int virtualKeyCode);
     public native void UpdateBitmap (Bitmap bitmap, int x, int y, int w, int h);
     public native void SpiceRequestResolution (int x, int y);
-    /*
+    
     static {
         System.loadLibrary("gstreamer_android");
-        System.loadLibrary("spice");
+        System.loadLibrary("spice-android");
     }
-    */
     
     final static int VK_CONTROL = 0x11;
     final static int VK_LCONTROL = 0xA2;
@@ -44,7 +45,16 @@ public class SpiceCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyP
     
     private SpiceThread spicehread = null;
 
-    public SpiceCommunicator () { }
+    public SpiceCommunicator (Context context, RemoteCanvas canvas, ConnectionBean connection) {
+        if (connection.getEnableSound()) {
+            try {
+                GStreamer.init(context);
+            } catch (Exception e) {
+                e.printStackTrace();
+                canvas.displayShortToastMessage(e.getMessage());
+            }
+        }
+    }
 
     private static UIEventListener uiEventListener = null;
     private Handler handler = null;

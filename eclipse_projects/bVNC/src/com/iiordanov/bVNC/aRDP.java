@@ -571,7 +571,7 @@ public class aRDP extends Activity implements MainConfiguration {
      * @return Object representing the single persistent instance of MostRecentBean, which
      * is the app's global state
      */
-    static MostRecentBean getMostRecent(SQLiteDatabase db)
+    public static MostRecentBean getMostRecent(SQLiteDatabase db)
     {
         ArrayList<MostRecentBean> recents = new ArrayList<MostRecentBean>(1);
         MostRecentBean.getAll(db, MostRecentBean.GEN_TABLE_NAME, recents, MostRecentBean.GEN_NEW);

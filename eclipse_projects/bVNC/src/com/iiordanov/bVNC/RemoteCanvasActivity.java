@@ -84,7 +84,7 @@ import android.content.Context;
 public class RemoteCanvasActivity extends Activity implements OnKeyListener {
     
     private final static String TAG = "VncCanvasActivity";
-
+    
     AbstractInputHandler inputHandler;
 
     private RemoteCanvas canvas;
