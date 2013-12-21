@@ -233,14 +233,14 @@ public class RemoteCanvas extends ImageView implements LibFreeRDP.UIEventListene
                     if (connection.getConnectionType() == Constants.CONN_TYPE_SSH &&
                         connection.getSshHostKey().equals("")) {
                         handler.sendEmptyMessage(Constants.DIALOG_SSH_CERT);
+                        
+                        // Block while user decides whether to accept certificate or not.
+                        // The activity ends if the user taps "No", so we block indefinitely here.
                         synchronized (RemoteCanvas.this) {
-                            try {
-                                while (connection.getSshHostKey().equals("")) {
+                            while (connection.getSshHostKey().equals("")) {
+                                try {
                                     RemoteCanvas.this.wait();
-                                }
-                            } catch (InterruptedException e) {
-                                e.printStackTrace();
-                                ((Activity) getContext()).finish();
+                                } catch (InterruptedException e) { e.printStackTrace(); }
                             }
                         }
                     }
@@ -1304,12 +1304,17 @@ public class RemoteCanvas extends ImageView implements LibFreeRDP.UIEventListene
         strings.putString("fingerprint", fingerprint);
         m.obj = strings;
         handler.sendMessage(m);
-        
-        // Block while user decides whether to accept certificate or not. The activity ends if the user taps "No", so
-        // we block 'indefinitely' here.
-        while (!certificateAccepted) {
-            try {Thread.sleep(100);} catch (InterruptedException e1) { return false; }
+
+        // Block while user decides whether to accept certificate or not.
+        // The activity ends if the user taps "No", so we block indefinitely here.
+        synchronized (RemoteCanvas.this) {
+            while (!certificateAccepted) {
+                try {
+                    RemoteCanvas.this.wait();
+                } catch (InterruptedException e) { e.printStackTrace(); }
+            }
         }
+
         return true;
     }
 
@@ -1410,6 +1415,9 @@ public class RemoteCanvas extends ImageView implements LibFreeRDP.UIEventListene
                     database.close();
                     // Indicate the certificate was accepted.
                     certificateAccepted = true;
+                    synchronized (RemoteCanvas.this) {
+                        RemoteCanvas.this.notifyAll();
+                    }
                 }
             };
 
@@ -1445,8 +1453,12 @@ public class RemoteCanvas extends ImageView implements LibFreeRDP.UIEventListene
                     //X509Certificate c = (X509Certificate)certFactory.generateCertificate(in);
                     //android.util.Log.e("  Subject ", c.getSubjectDN().toString());
                     //android.util.Log.e("   Issuer  ", c.getIssuerDN().toString());
+                    
                     // The certificate matches, so we proceed.
                     certificateAccepted = true;
+                    synchronized (RemoteCanvas.this) {
+                        RemoteCanvas.this.notifyAll();
+                    }
                 }
             } catch (CertificateEncodingException e) {
                 e.printStackTrace();
@@ -1480,6 +1492,9 @@ public class RemoteCanvas extends ImageView implements LibFreeRDP.UIEventListene
             public void onClick(DialogInterface dialog, int which) {
                 // Indicate the certificate was accepted.
                 certificateAccepted = true;
+                synchronized (RemoteCanvas.this) {
+                    RemoteCanvas.this.notifyAll();
+                }
             }
         };
         Utils.showYesNoPrompt(getContext(), getContext().getString(R.string.info_continue_connecting) + connection.getAddress () + "?",
