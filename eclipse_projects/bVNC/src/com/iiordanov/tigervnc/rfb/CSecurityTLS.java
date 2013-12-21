@@ -247,13 +247,12 @@ public class CSecurityTLS extends CSecurity {
             m.obj = chain[0];
             vncCanvas.handler.sendMessage(m);
 
-            // Block while user decides whether to accept certificate.
-            while (!vncCanvas.certificateAccepted) {
-                try {
-                    Thread.sleep(100);
-                } catch (InterruptedException e1) {
-                    // TODO Auto-generated catch block
-                    e1.printStackTrace();
+            synchronized (vncCanvas) {
+                // Block indefinitely until x509 cert is matched to a saved one or the user accepts it.
+                while (!vncCanvas.certificateAccepted) {
+                    try {
+                        vncCanvas.wait();
+                    } catch (InterruptedException e1) { e1.printStackTrace(); }
                 }
             }
         }
