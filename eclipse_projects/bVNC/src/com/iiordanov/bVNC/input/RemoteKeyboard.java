@@ -243,13 +243,20 @@ public abstract class RemoteKeyboard {
     protected int convertEventMetaState (KeyEvent event) {
         int metaState = 0;
         int eventMetaState = event.getMetaState();
+        int altMask = KeyEvent.META_ALT_RIGHT_ON;
+        // Detect whether this event is coming from a default hardware keyboard.
+        // We have to leave KeyEvent.KEYCODE_ALT_LEFT for symbol input on a default hardware keyboard.
+        boolean defaultHardwareKbd = (event.getDeviceId() == 0);
+        if (!defaultHardwareKbd) {
+            altMask = KeyEvent.META_ALT_MASK;
+        }
+        
         // Add shift, ctrl, alt, and super to metaState if necessary.
-        // TODO: We leave KeyEvent.KEYCODE_ALT_LEFT for symbol input on hardware keyboards for now.
         if ((eventMetaState & 0x000000c1 /*KeyEvent.META_SHIFT_MASK*/) != 0)
             metaState |= SHIFT_MASK;
-        if ((eventMetaState & 0x00007000 /*KeyEvent.META_CTRL_MASK*/) != 0  )
+        if ((eventMetaState & 0x00007000 /*KeyEvent.META_CTRL_MASK*/) != 0)
             metaState |= CTRL_MASK;
-        if ((eventMetaState & KeyEvent.META_ALT_RIGHT_ON) !=0)
+        if ((eventMetaState & altMask) !=0)
             metaState |= ALT_MASK;
         if ((eventMetaState & 0x00070000 /*KeyEvent.META_META_MASK*/) != 0)
             metaState |= SUPER_MASK;
