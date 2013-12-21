@@ -100,7 +100,7 @@ public class SpiceCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyP
             SpiceClientConnect (ip, port, tport, password, cf, cs, sound);
             android.util.Log.e(TAG, "SpiceClientConnect returned.");
 
-            // If we've exited SpiceClientConnect, the connection is certainly
+            // If we've exited SpiceClientConnect, the connection was
             // interrupted or was never established.
             if (handler != null) {
                 handler.sendEmptyMessage(Constants.SPICE_CONNECT_FAILURE);
@@ -283,6 +283,9 @@ public class SpiceCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyP
         if (unicodeKey == 64) {
             addShift = true;
             keyToSend = 0x32;
+        } else if (unicodeKey == 42) {
+                addShift = true;
+                keyToSend = 0x38;
         } else if (unicodeKey == 47) {
             keyToSend = 0xBF;
         } else if (unicodeKey == 63) {

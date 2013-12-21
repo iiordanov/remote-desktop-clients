@@ -28,6 +28,8 @@ public class RemoteSpiceKeyboard extends RemoteKeyboard {
     }
     
     public boolean processLocalKeyEvent(int keyCode, KeyEvent evt, int additionalMetaState) {
+        //android.util.Log.e(TAG, evt.toString() + " " + keyCode);
+
         if (rfb != null && rfb.isInNormalProtocol()) {
             RemotePointer pointer = vncCanvas.getPointer();
             boolean down = (evt.getAction() == KeyEvent.ACTION_DOWN) ||

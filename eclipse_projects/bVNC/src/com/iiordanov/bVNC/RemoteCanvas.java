@@ -235,7 +235,9 @@ public class RemoteCanvas extends ImageView implements LibFreeRDP.UIEventListene
                         handler.sendEmptyMessage(Constants.DIALOG_SSH_CERT);
                         synchronized (RemoteCanvas.this) {
                             try {
-                                RemoteCanvas.this.wait();
+                                while (connection.getSshHostKey().equals("")) {
+                                    RemoteCanvas.this.wait();
+                                }
                             } catch (InterruptedException e) {
                                 e.printStackTrace();
                                 ((Activity) getContext()).finish();
@@ -319,18 +321,6 @@ public class RemoteCanvas extends ImageView implements LibFreeRDP.UIEventListene
         spicecomm.connect(address, Integer.toString(port), Integer.toString(tport),
                             connection.getPassword(), connection.getCaCertPath(),
                             connection.getCertSubject(), connection.getEnableSound());
-        
-        try {
-            synchronized(spicecomm) {
-                spicecomm.wait(32000);
-            }
-        } catch (InterruptedException e) {}
-        
-        if (!spiceUpdateReceived) {
-            handler.sendEmptyMessage(Constants.SPICE_CONNECT_FAILURE);
-        } else {
-            pd.dismiss();
-        }
     }
     
     
@@ -1365,15 +1355,15 @@ public class RemoteCanvas extends ImageView implements LibFreeRDP.UIEventListene
                 validateRdpCert (s.getString("subject"), s.getString("issuer"), s.getString("fingerprint"));
                 break;
             case Constants.SPICE_CONNECT_SUCCESS:
-                synchronized(spicecomm) {
-                    spicecomm.notifyAll();
+                if (pd != null && pd.isShowing()) {
+                    pd.dismiss();
                 }
                 break;
             case Constants.SPICE_CONNECT_FAILURE:
-                // If we were intending to maintainConnection, and the connection failed, show an error message.
                 if (maintainConnection) {
-                    if (pd != null && pd.isShowing())
+                    if (pd != null && pd.isShowing()) {
                         pd.dismiss();
+                    }
                     if (!spiceUpdateReceived) {
                         showFatalMessageAndQuit(getContext().getString(R.string.error_spice_unable_to_connect));
                     } else {
