@@ -161,6 +161,8 @@ static void stream_uncork(SpicePulse *pulse, struct stream *s)
     SpicePulsePrivate *p = SPICE_PULSE_GET_PRIVATE(pulse);
     pa_operation *o = NULL;
 
+    g_return_if_fail(s->stream);
+
     if (s->cork_op) {
         pa_operation_cancel(s->cork_op);
         pa_operation_unref(s->cork_op);
@@ -671,7 +673,8 @@ static void playback_min_latency_changed(GObject *object, GParamSpec *pspec, gpo
 
     if (p->last_delay < p->target_delay) {
         spice_debug("%s: corking", __FUNCTION__);
-        stream_cork(pulse, &p->playback, FALSE);
+        if (p->playback.stream)
+            stream_cork(pulse, &p->playback, FALSE);
     } else {
         spice_debug("%s: not corking. The current delay satisfies the requirement", __FUNCTION__);
     }

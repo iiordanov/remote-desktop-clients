@@ -252,21 +252,24 @@ void g_object_notify_main_context(GObject *object,
 {
     struct signal_data data;
 
-    g_return_if_fail(coroutine_self()->caller);
+    if (coroutine_self_is_main()) {
+        g_object_notify(object, property_name);
+    } else {
 
-    data.object = object;
-    data.caller = coroutine_self();
-    data.params = (gpointer)property_name;
-    data.notified = FALSE;
+        data.object = object;
+        data.caller = coroutine_self();
+        data.params = (gpointer)property_name;
+        data.notified = FALSE;
 
-    g_idle_add(notify_main_context, &data);
+        g_idle_add(notify_main_context, &data);
 
-    /* This switches to the system coroutine context, lets
-     * the idle function run to dispatch the signal, and
-     * finally returns once complete. ie this is synchronous
-     * from the POV of the coroutine despite there being
-     * an idle function involved
-     */
-    coroutine_yield(NULL);
-    g_warn_if_fail(data.notified);
+        /* This switches to the system coroutine context, lets
+         * the idle function run to dispatch the signal, and
+         * finally returns once complete. ie this is synchronous
+         * from the POV of the coroutine despite there being
+         * an idle function involved
+         */
+        coroutine_yield(NULL);
+        g_warn_if_fail(data.notified);
+    }
 }

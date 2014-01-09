@@ -26,9 +26,12 @@ G_BEGIN_DECLS
 #define UUID_FMT "%02x%02x%02x%02x-%02x%02x-%02x%02x-%02x%02x-%02x%02x%02x%02x%02x%02x"
 
 gboolean spice_strv_contains(const GStrv strv, const gchar *str);
-gchar* spice_uuid_to_string(const guint8 uuid[16]);
 const gchar* spice_yes_no(gboolean value);
 guint16 spice_make_scancode(guint scancode, gboolean release);
+gchar* spice_unix2dos(const gchar *str, gssize len, GError **error);
+gchar* spice_dos2unix(const gchar *str, gssize len, GError **error);
+void spice_mono_edge_highlight(unsigned width, unsigned hight,
+                               const guint8 *and, const guint8 *xor, guint8 *dest);
 
 #if GLIB_CHECK_VERSION(2,32,0)
 #define STATIC_MUTEX            GMutex

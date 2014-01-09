@@ -81,7 +81,7 @@ enum {
 
 static guint signals[SPICE_RECORD_LAST_SIGNAL];
 
-static void spice_record_handle_msg(SpiceChannel *channel, SpiceMsgIn *msg);
+static void channel_set_handlers(SpiceChannelClass *klass);
 static void channel_up(SpiceChannel *channel);
 
 #define FRAME_SIZE 256
@@ -197,7 +197,6 @@ static void spice_record_channel_class_init(SpiceRecordChannelClass *klass)
     gobject_class->finalize     = spice_record_channel_finalize;
     gobject_class->get_property = spice_record_channel_get_property;
     gobject_class->set_property = spice_record_channel_set_property;
-    channel_class->handle_msg   = spice_record_handle_msg;
     channel_class->channel_up   = channel_up;
     channel_class->channel_reset = channel_reset;
     channel_class->channel_reset_capabilities = spice_record_channel_reset_capabilities;
@@ -265,6 +264,7 @@ static void spice_record_channel_class_init(SpiceRecordChannelClass *klass)
                      0);
 
     g_type_class_add_private(klass, sizeof(SpiceRecordChannelPrivate));
+    channel_set_handlers(SPICE_CHANNEL_CLASS(klass));
 }
 
 /* signal trampoline---------------------------------------------------------- */
@@ -521,28 +521,14 @@ static void record_handle_set_mute(SpiceChannel *channel, SpiceMsgIn *in)
     g_object_notify_main_context(G_OBJECT(channel), "mute");
 }
 
-static const spice_msg_handler record_handlers[] = {
-    [ SPICE_MSG_RECORD_START ]             = record_handle_start,
-    [ SPICE_MSG_RECORD_STOP ]              = record_handle_stop,
-    [ SPICE_MSG_RECORD_VOLUME ]            = record_handle_set_volume,
-    [ SPICE_MSG_RECORD_MUTE ]              = record_handle_set_mute,
-};
-
-/* coroutine context */
-static void spice_record_handle_msg(SpiceChannel *channel, SpiceMsgIn *msg)
+static void channel_set_handlers(SpiceChannelClass *klass)
 {
-    int type = spice_msg_in_type(msg);
+    static const spice_msg_handler handlers[] = {
+        [ SPICE_MSG_RECORD_START ]             = record_handle_start,
+        [ SPICE_MSG_RECORD_STOP ]              = record_handle_stop,
+        [ SPICE_MSG_RECORD_VOLUME ]            = record_handle_set_volume,
+        [ SPICE_MSG_RECORD_MUTE ]              = record_handle_set_mute,
+    };
 
-    SpiceChannelClass *parent_class;
-
-    g_return_if_fail(type < SPICE_N_ELEMENTS(record_handlers));
-
-    parent_class = SPICE_CHANNEL_CLASS(spice_record_channel_parent_class);
-
-    if (record_handlers[type] != NULL)
-        record_handlers[type](channel, msg);
-    else if (parent_class->handle_msg)
-        parent_class->handle_msg(channel, msg);
-    else
-        g_return_if_reached();
+    spice_channel_set_handlers(klass, handlers, G_N_ELEMENTS(handlers));
 }

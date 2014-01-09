@@ -101,12 +101,6 @@
 # define SPICE_END_DECLS
 #endif
 
-#ifdef __GNUC__
-#define INLINE inline
-#else
-#define INLINE _inline
-#endif /* __GNUC__ */
-
 #ifndef	FALSE
 #define	FALSE	(0)
 #endif

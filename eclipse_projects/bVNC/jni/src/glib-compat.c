@@ -81,18 +81,11 @@ g_simple_async_result_take_error (GSimpleAsyncResult *simple,
  * Since: 2.28
  **/
 G_GNUC_INTERNAL void
-g_slist_free_full(GSList         *list,
-                  GDestroyNotify free_func)
+g_slist_free_full (GSList         *list,
+		   GDestroyNotify  free_func)
 {
-    GSList *el;
-
-    if (free_func) {
-        for (el = list; el ; el = g_slist_next(el)) {
-            free_func(el);
-        }
-    }
-
-    g_slist_free(list);
+  g_slist_foreach (list, (GFunc) free_func, NULL);
+  g_slist_free (list);
 }
 
 #endif

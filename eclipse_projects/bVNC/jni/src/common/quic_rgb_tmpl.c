@@ -178,11 +178,11 @@
 
 #define UPDATE_MODEL(index)                                                                 \
     update_model(&encoder->rgb_state, find_bucket(channel_r, correlate_row_r[index - 1]),   \
-                correlate_row_r[index], bpc);                                               \
+                correlate_row_r[index]);                                               \
     update_model(&encoder->rgb_state, find_bucket(channel_g, correlate_row_g[index - 1]),   \
-                correlate_row_g[index], bpc);                                               \
+                correlate_row_g[index]);                                               \
     update_model(&encoder->rgb_state, find_bucket(channel_b, correlate_row_b[index - 1]),   \
-                correlate_row_b[index], bpc);
+                correlate_row_b[index]);
 
 
 #ifdef RLE_PRED_1

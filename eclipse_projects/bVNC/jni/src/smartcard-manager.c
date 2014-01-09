@@ -402,19 +402,24 @@ spice_smartcard_manager_update_monitor(void)
 
 #define SPICE_SOFTWARE_READER_NAME "Spice Software Smartcard"
 
-static gboolean smartcard_manager_init(SpiceSession *session,
-                                       GCancellable *cancellable,
-                                       GError **err)
+typedef struct {
+    SpiceSession *session;
+    GCancellable *cancellable;
+    GError *err;
+} SmartcardManagerInitArgs;
+
+static gboolean smartcard_manager_init(SmartcardManagerInitArgs *args)
 {
     gchar *emul_args = NULL;
     VCardEmulOptions *options = NULL;
+    VCardEmulError emul_init_status;
     gchar *dbname = NULL;
     GStrv certificates = NULL;
     gboolean retval = FALSE;
 
     SPICE_DEBUG("smartcard_manager_init");
-    g_return_val_if_fail(SPICE_IS_SESSION(session), FALSE);
-    g_object_get(G_OBJECT(session),
+    g_return_val_if_fail(SPICE_IS_SESSION(args->session), FALSE);
+    g_object_get(G_OBJECT(args->session),
                  "smartcard-db", &dbname,
                  "smartcard-certificates", &certificates,
                  NULL);
@@ -437,21 +442,23 @@ static gboolean smartcard_manager_init(SpiceSession *session,
 
     options = vcard_emul_options(emul_args);
     if (options == NULL) {
-        *err = g_error_new(SPICE_CLIENT_ERROR,
-                           SPICE_CLIENT_ERROR_FAILED,
-                           "vcard_emul_options() failed!");
+        args->err = g_error_new(SPICE_CLIENT_ERROR,
+                                SPICE_CLIENT_ERROR_FAILED,
+                                "vcard_emul_options() failed!");
         goto end;
     }
 
-    if (g_cancellable_set_error_if_cancelled(cancellable, err))
+    if (g_cancellable_set_error_if_cancelled(args->cancellable, &args->err))
         goto end;
 
 init:
     SPICE_DEBUG("vcard_emul_init");
-    if (vcard_emul_init(options) != VCARD_EMUL_OK) {
-        *err = g_error_new(SPICE_CLIENT_ERROR,
-                           SPICE_CLIENT_ERROR_FAILED,
-                           "Failed to initialize smartcard");
+    emul_init_status = vcard_emul_init(options);
+    if ((emul_init_status != VCARD_EMUL_OK)
+            && (emul_init_status != VCARD_EMUL_INIT_ALREADY_INITED)) {
+        args->err = g_error_new(SPICE_CLIENT_ERROR,
+                                SPICE_CLIENT_ERROR_FAILED,
+                                "Failed to initialize smartcard");
         goto end;
     }
 
@@ -469,12 +476,20 @@ static void smartcard_manager_init_helper(GSimpleAsyncResult *res,
                                           GObject *object,
                                           GCancellable *cancellable)
 {
-    SpiceSession *session = SPICE_SESSION(object);
-    GError *err = NULL;
+    static GOnce smartcard_manager_once = G_ONCE_INIT;
+    SmartcardManagerInitArgs args;
 
-    if (!smartcard_manager_init(session, cancellable, &err)) {
-        g_simple_async_result_set_from_error(res, err);
-        g_error_free(err);
+    args.session = SPICE_SESSION(object);
+    args.cancellable = cancellable;
+    args.err = NULL;
+
+
+    g_once(&smartcard_manager_once,
+           (GThreadFunc)smartcard_manager_init,
+           &args);
+    if (args.err != NULL) {
+        g_simple_async_result_set_from_error(res, args.err);
+        g_error_free(args.err);
     }
 }
 

@@ -8,7 +8,7 @@
 #define ENABLE_NLS 1
 
 /* Enable compile-time and run-time bounds-checking, and some warnings. */
-     #if defined __OPTIMIZE__ && __OPTIMIZE__
+     #if !defined _FORTIFY_SOURCE &&  defined __OPTIMIZE__ && __OPTIMIZE__
      # define _FORTIFY_SOURCE 2
      #endif
     
@@ -124,7 +124,7 @@
 #define PACKAGE_NAME "spice-gtk"
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "spice-gtk 0.20"
+#define PACKAGE_STRING "spice-gtk 0.22"
 
 /* Define to the one symbol short name of this package. */
 #define PACKAGE_TARNAME "spice-gtk"
@@ -133,7 +133,7 @@
 #define PACKAGE_URL ""
 
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "0.20"
+#define PACKAGE_VERSION "0.22"
 
 /* Define to 1 if you have the ANSI C header files. */
 #define STDC_HEADERS 1
@@ -142,7 +142,10 @@
 /* #undef USE_DBUS */
 
 /* Define if supporting gudev */
-#undef USE_GUDEV
+/* #undef USE_GUDEV */
+
+/* Define if libusb has hotplug support */
+/* #undef USE_LIBUSB_HOTPLUG */
 
 /* Define if supporting polkit */
 /* #undef USE_POLKIT */
@@ -154,7 +157,7 @@
 /* #undef USE_USBREDIR */
 
 /* Version number of package */
-#define VERSION "0.20"
+#define VERSION "0.22"
 
 /* Have GStreamer? */
 /* #undef WITH_GSTAUDIO */

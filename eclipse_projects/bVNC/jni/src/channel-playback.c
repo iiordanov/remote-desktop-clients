@@ -82,8 +82,7 @@ enum {
 };
 
 static guint signals[SPICE_PLAYBACK_LAST_SIGNAL];
-
-static void spice_playback_handle_msg(SpiceChannel *channel, SpiceMsgIn *msg);
+static void channel_set_handlers(SpiceChannelClass *klass);
 
 /* ------------------------------------------------------------------ */
 
@@ -197,7 +196,6 @@ static void spice_playback_channel_class_init(SpicePlaybackChannelClass *klass)
     gobject_class->get_property = spice_playback_channel_get_property;
     gobject_class->set_property = spice_playback_channel_set_property;
 
-    channel_class->handle_msg   = spice_playback_handle_msg;
     channel_class->channel_reset = spice_playback_channel_reset;
     channel_class->channel_reset_capabilities = spice_playback_channel_reset_capabilities;
 
@@ -308,6 +306,7 @@ static void spice_playback_channel_class_init(SpicePlaybackChannelClass *klass)
                      0);
 
     g_type_class_add_private(klass, sizeof(SpicePlaybackChannelPrivate));
+    channel_set_handlers(SPICE_CHANNEL_CLASS(klass));
 }
 
 /* signal trampoline---------------------------------------------------------- */
@@ -517,32 +516,19 @@ static void playback_handle_set_latency(SpiceChannel *channel, SpiceMsgIn *in)
     g_object_notify_main_context(G_OBJECT(channel), "min-latency");
 }
 
-static const spice_msg_handler playback_handlers[] = {
-    [ SPICE_MSG_PLAYBACK_DATA ]            = playback_handle_data,
-    [ SPICE_MSG_PLAYBACK_MODE ]            = playback_handle_mode,
-    [ SPICE_MSG_PLAYBACK_START ]           = playback_handle_start,
-    [ SPICE_MSG_PLAYBACK_STOP ]            = playback_handle_stop,
-    [ SPICE_MSG_PLAYBACK_VOLUME ]          = playback_handle_set_volume,
-    [ SPICE_MSG_PLAYBACK_MUTE ]            = playback_handle_set_mute,
-    [ SPICE_MSG_PLAYBACK_LATENCY ]         = playback_handle_set_latency,
-};
-
-/* coroutine context */
-static void spice_playback_handle_msg(SpiceChannel *channel, SpiceMsgIn *msg)
+static void channel_set_handlers(SpiceChannelClass *klass)
 {
-    int type = spice_msg_in_type(msg);
-    SpiceChannelClass *parent_class;
+    static const spice_msg_handler handlers[] = {
+        [ SPICE_MSG_PLAYBACK_DATA ]            = playback_handle_data,
+        [ SPICE_MSG_PLAYBACK_MODE ]            = playback_handle_mode,
+        [ SPICE_MSG_PLAYBACK_START ]           = playback_handle_start,
+        [ SPICE_MSG_PLAYBACK_STOP ]            = playback_handle_stop,
+        [ SPICE_MSG_PLAYBACK_VOLUME ]          = playback_handle_set_volume,
+        [ SPICE_MSG_PLAYBACK_MUTE ]            = playback_handle_set_mute,
+        [ SPICE_MSG_PLAYBACK_LATENCY ]         = playback_handle_set_latency,
+    };
 
-    g_return_if_fail(type < SPICE_N_ELEMENTS(playback_handlers));
-
-    parent_class = SPICE_CHANNEL_CLASS(spice_playback_channel_parent_class);
-
-    if (playback_handlers[type] != NULL)
-        playback_handlers[type](channel, msg);
-    else if (parent_class->handle_msg)
-        parent_class->handle_msg(channel, msg);
-    else
-        g_return_if_reached();
+    spice_channel_set_handlers(klass, handlers, G_N_ELEMENTS(handlers));
 }
 
 void spice_playback_channel_set_delay(SpicePlaybackChannel *channel, guint32 delay_ms)

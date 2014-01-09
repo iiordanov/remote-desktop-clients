@@ -195,8 +195,10 @@ static void session_enable_audio(GObject *gobject, GParamSpec *pspec,
 /**
  * spice_audio_new:
  * @session: the #SpiceSession to connect to
- * @context: a #GMainContext to attach to (or %NULL for default).
- * @name: a name for the audio channels (or %NULL for application name).
+ * @context: (allow-none): a #GMainContext to attach to (or %NULL for
+ * default).
+ * @name: (allow-none): a name for the audio channels (or %NULL for
+ * application name).
  *
  * Once instantiated, #SpiceAudio will handle the playback and record
  * channels to stream to your local audio system.

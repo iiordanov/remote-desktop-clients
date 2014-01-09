@@ -19,7 +19,13 @@
  */
 #include <config.h>
 
+/* keep this above system headers, but below config.h */
+#ifdef _FORTIFY_SOURCE
 #undef _FORTIFY_SOURCE
+#endif
+
+#include <errno.h>
+#include <glib.h>
 
 #include "continuation.h"
 
@@ -49,13 +55,12 @@ static void continuation_trampoline(int i0, int i1)
 	cc->entry(cc);
 }
 
-int cc_init(struct continuation *cc)
+void cc_init(struct continuation *cc)
 {
 	volatile union cc_arg arg;
 	arg.p = cc;
 	if (getcontext(&cc->uc) == -1)
-		return -1;
-
+		g_error("getcontext() failed: %s", g_strerror(errno));
 	cc->uc.uc_link = &cc->last;
 	cc->uc.uc_stack.ss_sp = cc->stack;
 	cc->uc.uc_stack.ss_size = cc->stack_size;
@@ -63,8 +68,6 @@ int cc_init(struct continuation *cc)
 
 	makecontext(&cc->uc, (void *)continuation_trampoline, 2, arg.i[0], arg.i[1]);
 	swapcontext(&cc->last, &cc->uc);
-
-	return 0;
 }
 
 int cc_release(struct continuation *cc)

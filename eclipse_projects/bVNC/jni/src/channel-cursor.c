@@ -15,6 +15,7 @@
    You should have received a copy of the GNU Lesser General Public
    License along with this library; if not, see <http://www.gnu.org/licenses/>.
 */
+#include "glib-compat.h"
 #include "spice-client.h"
 #include "spice-common.h"
 
@@ -51,7 +52,7 @@ struct display_cursor {
 };
 
 struct _SpiceCursorChannelPrivate {
-    display_cache               cursors;
+    display_cache               *cursors;
     gboolean                    init_done;
 };
 
@@ -66,10 +67,9 @@ enum {
 
 static guint signals[SPICE_CURSOR_LAST_SIGNAL];
 
-static void spice_cursor_handle_msg(SpiceChannel *channel, SpiceMsgIn *msg);
-static void delete_cursor_all(SpiceChannel *channel);
 static display_cursor * display_cursor_ref(display_cursor *cursor);
 static void display_cursor_unref(display_cursor *cursor);
+static void channel_set_handlers(SpiceChannelClass *klass);
 
 G_DEFINE_TYPE(SpiceCursorChannel, spice_cursor_channel, SPICE_TYPE_CHANNEL)
 
@@ -81,12 +81,14 @@ static void spice_cursor_channel_init(SpiceCursorChannel *channel)
 
     c = channel->priv = SPICE_CURSOR_CHANNEL_GET_PRIVATE(channel);
 
-    cache_init(&c->cursors, "cursor");
+    c->cursors = cache_new((GDestroyNotify)display_cursor_unref);
 }
 
 static void spice_cursor_channel_finalize(GObject *obj)
 {
-    delete_cursor_all(SPICE_CHANNEL(obj));
+    SpiceCursorChannelPrivate *c = SPICE_CURSOR_CHANNEL_GET_PRIVATE(obj);
+
+    g_clear_pointer(&c->cursors, cache_unref);
 
     if (G_OBJECT_CLASS(spice_cursor_channel_parent_class)->finalize)
         G_OBJECT_CLASS(spice_cursor_channel_parent_class)->finalize(obj);
@@ -97,7 +99,7 @@ static void spice_cursor_channel_reset(SpiceChannel *channel, gboolean migrating
 {
     SpiceCursorChannelPrivate *c = SPICE_CURSOR_CHANNEL(channel)->priv;
 
-    delete_cursor_all(channel);
+    cache_clear(c->cursors);
     c->init_done = FALSE;
 
     SPICE_CHANNEL_CLASS(spice_cursor_channel_parent_class)->channel_reset(channel, migrating);
@@ -109,7 +111,6 @@ static void spice_cursor_channel_class_init(SpiceCursorChannelClass *klass)
     SpiceChannelClass *channel_class = SPICE_CHANNEL_CLASS(klass);
 
     gobject_class->finalize     = spice_cursor_channel_finalize;
-    channel_class->handle_msg   = spice_cursor_handle_msg;
     channel_class->channel_reset = spice_cursor_channel_reset;
 
     /**
@@ -194,6 +195,7 @@ static void spice_cursor_channel_class_init(SpiceCursorChannelClass *klass)
                      0);
 
     g_type_class_add_private(klass, sizeof(SpiceCursorChannelPrivate));
+    channel_set_handlers(SPICE_CHANNEL_CLASS(klass));
 }
 
 /* signal trampoline---------------------------------------------------------- */
@@ -244,56 +246,49 @@ static void do_emit_main_context(GObject *object, int signum, gpointer params)
 
 /* ------------------------------------------------------------------ */
 
-static void mono_cursor(display_cursor *cursor, const guint8 *data)
+#ifdef DEBUG_CURSOR
+static void print_cursor(display_cursor *cursor, const guint8 *data)
 {
+    int x, y, bpl;
     const guint8 *xor, *and;
-    guint8 *dest;
-    int bpl, x, y, bit;
 
     bpl = (cursor->hdr.width + 7) / 8;
     and = data;
     xor = and + bpl * cursor->hdr.height;
-    dest  = (uint8_t *)cursor->data;
-    for (y = 0; y < cursor->hdr.height; y++) {
-        bit = 0x80;
-        for (x = 0; x < cursor->hdr.width; x++, dest += 4) {
-            if (and[x/8] & bit) {
-                if (xor[x/8] & bit) {
-                    /* flip -> hmm? */
-                    dest[0] = 0x00;
-                    dest[1] = 0x00;
-                    dest[2] = 0x00;
-                    dest[3] = 0x80;
-                } else {
-                    /* unchanged -> transparent */
-                    dest[0] = 0x00;
-                    dest[1] = 0x00;
-                    dest[2] = 0x00;
-                    dest[3] = 0x00;
-                }
-            } else {
-                if (xor[x/8] & bit) {
-                    /* set -> white */
-                    dest[0] = 0xff;
-                    dest[1] = 0xff;
-                    dest[2] = 0xff;
-                    dest[3] = 0xff;
-                } else {
-                    /* clear -> black */
-                    dest[0] = 0x00;
-                    dest[1] = 0x00;
-                    dest[2] = 0x00;
-                    dest[3] = 0xff;
-                }
-            }
-            bit >>= 1;
-            if (bit == 0) {
-                bit = 0x80;
-            }
+
+    printf("data (%d x %d):\n", cursor->hdr.width, cursor->hdr.height);
+    for (y = 0 ; y < cursor->hdr.height; ++y) {
+        for (x = 0 ; x < cursor->hdr.width / 8; x++) {
+            printf("%02X", and[x]);
         }
         and += bpl;
-        xor += bpl;
+        printf("\n");
     }
+    printf("xor:\n");
+    for (y = 0 ; y < cursor->hdr.height; ++y) {
+        for (x = 0 ; x < cursor->hdr.width / 8; ++x) {
+            printf("%02X", xor[x]);
+        }
+        xor += bpl;
+        printf("\n");
+    }
+}
+#endif
+
+static void mono_cursor(display_cursor *cursor, const guint8 *data)
+{
+    int bpl = (cursor->hdr.width + 7) / 8;
+    const guint8 *xor, *and;
+    guint8 *dest;
+    dest = (uint8_t *)cursor->data;
+
+#ifdef DEBUG_CURSOR
+    print_cursor(cursor, data);
+#endif
+    and = data;
+    xor = and + bpl * cursor->hdr.height;
+    spice_mono_edge_highlight(cursor->hdr.width, cursor->hdr.height,
+                              and, xor, dest);
 }
 
 static guint8 get_pix_mask(const guint8 *data, gint offset, gint pix_index)
@@ -325,11 +320,27 @@ static void display_cursor_unref(display_cursor *cursor)
         g_free(cursor);
 }
 
+static const char *cursor_type_to_string(int type)
+{
+    switch (type) {
+    case SPICE_CURSOR_TYPE_MONO:
+        return "mono";
+    case SPICE_CURSOR_TYPE_ALPHA:
+        return "alpha";
+    case SPICE_CURSOR_TYPE_COLOR32:
+        return "color32";
+    case SPICE_CURSOR_TYPE_COLOR16:
+        return "color16";
+    case SPICE_CURSOR_TYPE_COLOR4:
+        return "color4";
+    }
+    return "unknown";
+}
+
 static display_cursor *set_cursor(SpiceChannel *channel, SpiceCursor *scursor)
 {
     SpiceCursorChannelPrivate *c = SPICE_CURSOR_CHANNEL(channel)->priv;
     SpiceCursorHeader *hdr = &scursor->header;
-    display_cache_item *item;
     display_cursor *cursor;
     size_t size;
     gint i, pix_mask, pix;
@@ -343,13 +354,14 @@ static display_cursor *set_cursor(SpiceChannel *channel, SpiceCursor *scursor)
     if (scursor->flags & SPICE_CURSOR_FLAGS_NONE)
         return NULL;
 
-    CHANNEL_DEBUG(channel, "%s: type %d, %" PRIx64 ", %dx%d", __FUNCTION__,
-                  hdr->type, hdr->unique, hdr->width, hdr->height);
+    CHANNEL_DEBUG(channel, "%s: type %s(%d), %" PRIx64 ", %dx%d", __FUNCTION__,
+                  cursor_type_to_string(hdr->type), hdr->type, hdr->unique,
+                  hdr->width, hdr->height);
 
     if (scursor->flags & SPICE_CURSOR_FLAGS_FROM_CACHE) {
-        item = cache_find(&c->cursors, hdr->unique);
-        g_return_val_if_fail(item != NULL, NULL);
-        return display_cursor_ref(item->ptr);
+        cursor = cache_find(c->cursors, hdr->unique);
+        g_return_val_if_fail(cursor != NULL, NULL);
+        return display_cursor_ref(cursor);
     }
 
     g_return_val_if_fail(scursor->data_size != 0, NULL);
@@ -422,34 +434,10 @@ static display_cursor *set_cursor(SpiceChannel *channel, SpiceCursor *scursor)
 
 cache_add:
     if (cursor && (scursor->flags & SPICE_CURSOR_FLAGS_CACHE_ME)) {
-        display_cursor_ref(cursor);
-        item = cache_add(&c->cursors, hdr->unique);
-        item->ptr = cursor;
+        cache_add(c->cursors, hdr->unique, display_cursor_ref(cursor));
     }
 
     return cursor;
-}
-
-static void delete_cursor_one(SpiceChannel *channel, display_cache_item *item)
-{
-    SpiceCursorChannelPrivate *c = SPICE_CURSOR_CHANNEL(channel)->priv;
-
-    display_cursor_unref((display_cursor*)item->ptr);
-    cache_del(&c->cursors, item);
-}
-
-static void delete_cursor_all(SpiceChannel *channel)
-{
-    SpiceCursorChannelPrivate *c = SPICE_CURSOR_CHANNEL(channel)->priv;
-    display_cache_item *item;
-
-    for (;;) {
-        item = cache_get_lru(&c->cursors);
-        if (item == NULL) {
-            return;
-        }
-        delete_cursor_one(channel, item);
-    }
 }
 
 /* coroutine context */
@@ -471,7 +459,7 @@ static void cursor_handle_init(SpiceChannel *channel, SpiceMsgIn *in)
 
     g_return_if_fail(c->init_done == FALSE);
 
-    delete_cursor_all(channel);
+    cache_clear(c->cursors);
     cursor = set_cursor(channel, &init->cursor);
     c->init_done = TRUE;
     if (cursor)
@@ -489,7 +477,7 @@ static void cursor_handle_reset(SpiceChannel *channel, SpiceMsgIn *in)
 
     CHANNEL_DEBUG(channel, "%s, init_done: %d", __FUNCTION__, c->init_done);
 
-    delete_cursor_all(channel);
+    cache_clear(c->cursors);
     emit_main_context(channel, SPICE_CURSOR_RESET);
     c->init_done = FALSE;
 }
@@ -553,45 +541,32 @@ static void cursor_handle_inval_one(SpiceChannel *channel, SpiceMsgIn *in)
 {
     SpiceCursorChannelPrivate *c = SPICE_CURSOR_CHANNEL(channel)->priv;
     SpiceMsgDisplayInvalOne *zap = spice_msg_in_parsed(in);
-    display_cache_item *item;
 
     g_return_if_fail(c->init_done == TRUE);
 
-    item = cache_find(&c->cursors, zap->id);
-    delete_cursor_one(channel, item);
+    cache_remove(c->cursors, zap->id);
 }
 
 /* coroutine context */
 static void cursor_handle_inval_all(SpiceChannel *channel, SpiceMsgIn *in)
 {
-    delete_cursor_all(channel);
+    SpiceCursorChannelPrivate *c = SPICE_CURSOR_CHANNEL(channel)->priv;
+
+    cache_clear(c->cursors);
 }
 
-static const spice_msg_handler cursor_handlers[] = {
-    [ SPICE_MSG_CURSOR_INIT ]              = cursor_handle_init,
-    [ SPICE_MSG_CURSOR_RESET ]             = cursor_handle_reset,
-    [ SPICE_MSG_CURSOR_SET ]               = cursor_handle_set,
-    [ SPICE_MSG_CURSOR_MOVE ]              = cursor_handle_move,
-    [ SPICE_MSG_CURSOR_HIDE ]              = cursor_handle_hide,
-    [ SPICE_MSG_CURSOR_TRAIL ]             = cursor_handle_trail,
-    [ SPICE_MSG_CURSOR_INVAL_ONE ]         = cursor_handle_inval_one,
-    [ SPICE_MSG_CURSOR_INVAL_ALL ]         = cursor_handle_inval_all,
-};
-
-/* coroutine context */
-static void spice_cursor_handle_msg(SpiceChannel *channel, SpiceMsgIn *msg)
+static void channel_set_handlers(SpiceChannelClass *klass)
 {
-    int type = spice_msg_in_type(msg);
-    SpiceChannelClass *parent_class;
+    static const spice_msg_handler handlers[] = {
+        [ SPICE_MSG_CURSOR_INIT ]              = cursor_handle_init,
+        [ SPICE_MSG_CURSOR_RESET ]             = cursor_handle_reset,
+        [ SPICE_MSG_CURSOR_SET ]               = cursor_handle_set,
+        [ SPICE_MSG_CURSOR_MOVE ]              = cursor_handle_move,
+        [ SPICE_MSG_CURSOR_HIDE ]              = cursor_handle_hide,
+        [ SPICE_MSG_CURSOR_TRAIL ]             = cursor_handle_trail,
+        [ SPICE_MSG_CURSOR_INVAL_ONE ]         = cursor_handle_inval_one,
+        [ SPICE_MSG_CURSOR_INVAL_ALL ]         = cursor_handle_inval_all,
+    };
 
-    g_return_if_fail(type < SPICE_N_ELEMENTS(cursor_handlers));
-
-    parent_class = SPICE_CHANNEL_CLASS(spice_cursor_channel_parent_class);
-
-    if (cursor_handlers[type] != NULL)
-        cursor_handlers[type](channel, msg);
-    else if (parent_class->handle_msg)
-        parent_class->handle_msg(channel, msg);
-    else
-        g_return_if_reached();
+    spice_channel_set_handlers(klass, handlers, G_N_ELEMENTS(handlers));
 }

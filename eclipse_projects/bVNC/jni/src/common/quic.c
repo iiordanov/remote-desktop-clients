@@ -75,6 +75,9 @@ typedef struct QuicFamily {
     unsigned int notGRsuffixlen[MAXNUMCODES];    /* indexed by code number, contains suffix
                                                     length of the not-GR codeword */
 
+    unsigned int golomb_code_len[256][MAXNUMCODES];
+    unsigned int golomb_code[256][MAXNUMCODES];
+
     /* array for translating distribution U to L for depths up to 8 bpp,
     initialized by decorelateinit() */
     BYTE xlatU2L[256];
@@ -360,9 +363,22 @@ static void corelate_init(QuicFamily *family, int bpc)
     }
 }
 
+static void golomb_coding_slow(QuicFamily *family, const BYTE n, const unsigned int l,
+                               unsigned int * const codeword,
+                               unsigned int * const codewordlen)
+{
+    if (n < family->nGRcodewords[l]) {
+        (*codeword) = bitat[l] | (n & bppmask[l]);
+        (*codewordlen) = (n >> l) + l + 1;
+    } else {
+        (*codeword) = n - family->nGRcodewords[l];
+        (*codewordlen) = family->notGRcwlen[l];
+    }
+}
+
 static void family_init(QuicFamily *family, int bpc, int limit)
 {
-    int l;
+    int l, b;
 
     for (l = 0; l < bpc; l++) { /* fill arrays indexed by code number */
         int altprefixlen, altcodewords;
@@ -378,6 +394,13 @@ static void family_init(QuicFamily *family, int bpc, int limit)
         family->notGRcwlen[l] = altprefixlen + ceil_log_2(altcodewords);
         family->notGRprefixmask[l] = bppmask[32 - altprefixlen]; /* needed for decoding only */
         family->notGRsuffixlen[l] = ceil_log_2(altcodewords); /* needed for decoding only */
+
+        for (b = 0; b < 256; b++) {
+            unsigned int code, len;
+            golomb_coding_slow(family, b, l, &code, &len);
+            family->golomb_code[b][l] = code;
+            family->golomb_code_len[b][l] = len;
+        }
     }
 
     decorelate_init(family, bpc);
@@ -405,7 +428,7 @@ static void __write_io_word(Encoder *encoder)
 
 static void (*__write_io_word_ptr)(Encoder *encoder) = __write_io_word;
 
-static INLINE void write_io_word(Encoder *encoder)
+static inline void write_io_word(Encoder *encoder)
 {
     if (encoder->io_now == encoder->io_end) {
         __write_io_word_ptr(encoder); //disable inline optimizations
@@ -414,7 +437,7 @@ static INLINE void write_io_word(Encoder *encoder)
     *(encoder->io_now++) = encoder->io_word;
 }
 
-static INLINE void encode(Encoder *encoder, unsigned int word, unsigned int len)
+static inline void encode(Encoder *encoder, unsigned int word, unsigned int len)
 {
     int delta;
 
@@ -435,13 +458,13 @@ static INLINE void encode(Encoder *encoder, unsigned int word, unsigned int len)
     spice_assert((encoder->io_word & bppmask[encoder->io_available_bits]) == 0);
 }
 
-static INLINE void encode_32(Encoder *encoder, unsigned int word)
+static inline void encode_32(Encoder *encoder, unsigned int word)
 {
     encode(encoder, word >> 16, 16);
     encode(encoder, word & 0x0000ffff, 16);
 }
 
-static INLINE void flush(Encoder *encoder)
+static inline void flush(Encoder *encoder)
 {
     if (encoder->io_available_bits > 0 && encoder->io_available_bits != 32) {
         encode(encoder, 0, encoder->io_available_bits);
@@ -459,7 +482,7 @@ static void __read_io_word(Encoder *encoder)
 static void (*__read_io_word_ptr)(Encoder *encoder) = __read_io_word;
 
 
-static INLINE void read_io_word(Encoder *encoder)
+static inline void read_io_word(Encoder *encoder)
 {
     if (encoder->io_now == encoder->io_end) {
         __read_io_word_ptr(encoder); //disable inline optimizations
@@ -469,7 +492,7 @@ static INLINE void read_io_word(Encoder *encoder)
     encoder->io_next_word = *(encoder->io_now++);
 }
 
-static INLINE void decode_eatbits(Encoder *encoder, int len)
+static inline void decode_eatbits(Encoder *encoder, int len)
 {
     int delta;
 
@@ -489,7 +512,7 @@ static INLINE void decode_eatbits(Encoder *encoder, int len)
     encoder->io_word |= (encoder->io_next_word >> encoder->io_available_bits);
 }
 
-static INLINE void decode_eat32bits(Encoder *encoder)
+static inline void decode_eat32bits(Encoder *encoder)
 {
     decode_eatbits(encoder, 16);
     decode_eatbits(encoder, 16);
@@ -499,7 +522,7 @@ static INLINE void decode_eat32bits(Encoder *encoder)
 
 #ifdef RLE_STAT
 
-static INLINE void encode_ones(Encoder *encoder, unsigned int n)
+static inline void encode_ones(Encoder *encoder, unsigned int n)
 {
     unsigned int count;
 
@@ -695,7 +718,7 @@ static int decode_channel_run(Encoder *encoder, Channel *channel)
 
 #else
 
-static INLINE void encode_run(Encoder *encoder, unsigned int len)
+static inline void encode_run(Encoder *encoder, unsigned int len)
 {
     int odd = len & 1U;
     int msb;
@@ -716,7 +739,7 @@ static INLINE void encode_run(Encoder *encoder, unsigned int len)
     }
 }
 
-static INLINE unsigned int decode_run(Encoder *encoder)
+static inline unsigned int decode_run(Encoder *encoder)
 {
     unsigned int len = 0;
     int count;
@@ -738,7 +761,7 @@ static INLINE unsigned int decode_run(Encoder *encoder)
 #endif
 #endif
 
-static INLINE void init_decode_io(Encoder *encoder)
+static inline void init_decode_io(Encoder *encoder)
 {
     encoder->io_next_word = encoder->io_word = *(encoder->io_now++);
     encoder->io_available_bits = 0;

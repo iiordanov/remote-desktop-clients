@@ -37,7 +37,6 @@ G_BEGIN_DECLS
 
 
 typedef struct display_surface {
-    RingItem                    link;
     guint32                     surface_id;
     bool                        primary;
     enum SpiceSurfaceFmt        format;
@@ -49,6 +48,7 @@ typedef struct display_surface {
     SpiceZlibDecoder            *zlib_decoder;
     SpiceJpegDecoder            *jpeg_decoder;
 } display_surface;
+
 typedef struct drops_sequence_stats {
     uint32_t len;
     uint32_t start_mm_time;

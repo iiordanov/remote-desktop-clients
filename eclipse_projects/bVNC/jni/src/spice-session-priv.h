@@ -92,8 +92,8 @@ struct _SpiceSessionPrivate {
     guint             after_main_init;
     gboolean          migration_copy;
 
-    display_cache     images;
-    display_cache     palettes;
+    display_cache     *images;
+    display_cache     *palettes;
     SpiceGlzDecoderWindow *glz_window;
     int               images_cache_size;
     int               glz_window_size;
@@ -147,7 +147,6 @@ void spice_session_set_caches_hints(SpiceSession *session,
                                     uint32_t display_channels_count);
 void spice_session_get_caches(SpiceSession *session,
                               display_cache **images,
-                              display_cache **palettes,
                               SpiceGlzDecoderWindow **glz_window);
 void spice_session_palettes_clear(SpiceSession *session);
 void spice_session_images_clear(SpiceSession *session);
