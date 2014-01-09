@@ -30,6 +30,7 @@ gulong spice_g_signal_connect_object(gpointer instance,
                                      GCallback c_handler,
                                      gpointer gobject,
                                      GConnectFlags connect_flags);
+gchar* spice_uuid_to_string(const guint8 uuid[16]);
 
 #ifdef ANDROID
 #define SPICE_DEBUG(fmt, ...)                                   \

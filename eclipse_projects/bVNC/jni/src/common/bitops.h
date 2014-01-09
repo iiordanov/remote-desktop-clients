@@ -39,7 +39,7 @@ static inline int spice_bit_find_msb(unsigned int val)
 }
 
 #elif defined(WIN32) && !defined(_WIN64)
-static INLINE int spice_bit_find_msb(uint32_t val)
+static inline int spice_bit_find_msb(uint32_t val)
 {
     uint32_t r;
     __asm {
@@ -54,7 +54,7 @@ found:
 }
 
 #else
-static INLINE int spice_bit_find_msb(unsigned int val)
+static inline int spice_bit_find_msb(unsigned int val)
 {
     signed char index = 31;
 
@@ -74,7 +74,7 @@ static INLINE int spice_bit_find_msb(unsigned int val)
 
 #endif
 
-static INLINE int spice_bit_next_pow2(unsigned int val)
+static inline int spice_bit_next_pow2(unsigned int val)
 {
     if ((val & (val - 1)) == 0) {
         return val;

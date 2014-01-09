@@ -34,26 +34,21 @@
 #define BPC 5
 #endif
 
-
-static unsigned int FNAME(golomb_code_len)(const BYTE n, const unsigned int l)
+static inline unsigned int FNAME(golomb_code)(const BYTE n, const unsigned int l)
 {
-    if (n < VNAME(family).nGRcodewords[l]) {
-        return (n >> l) + 1 + l;
-    } else {
-        return VNAME(family).notGRcwlen[l];
-    }
+    return VNAME(family).golomb_code[n][l];
+}
+
+static inline unsigned int FNAME(golomb_code_len)(const BYTE n, const unsigned int l)
+{
+    return VNAME(family).golomb_code_len[n][l];
 }
 
 static void FNAME(golomb_coding)(const BYTE n, const unsigned int l, unsigned int * const codeword,
                                  unsigned int * const codewordlen)
 {
-    if (n < VNAME(family).nGRcodewords[l]) {
-        (*codeword) = bitat[l] | (n & bppmask[l]);
-        (*codewordlen) = (n >> l) + l + 1;
-    } else {
-        (*codeword) = n - VNAME(family).nGRcodewords[l];
-        (*codewordlen) = VNAME(family).notGRcwlen[l];
-    }
+    *codeword = FNAME(golomb_code)(n, l);
+    *codewordlen = FNAME(golomb_code_len)(n, l);
 }
 
 static unsigned int FNAME(golomb_decoding)(const unsigned int l, const unsigned int bits,
@@ -74,13 +69,14 @@ static unsigned int FNAME(golomb_decoding)(const unsigned int l, const unsigned 
 
 /* update the bucket using just encoded curval */
 static void FNAME(update_model)(CommonState *state, s_bucket * const bucket,
-                                const BYTE curval, unsigned int bpp)
+                                const BYTE curval)
 {
+    spice_static_assert(BPC >= 1);
+    const unsigned int bpp = BPC;
     COUNTER * const pcounters = bucket->pcounters;
     unsigned int i;
     unsigned int bestcode;
     unsigned int bestcodelen;
-    //unsigned int bpp = encoder->bpp;
 
     /* update counters, find minimum */
 

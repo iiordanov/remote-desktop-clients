@@ -302,6 +302,7 @@ static void update_monitor_area(SpiceDisplay *display)
         set_monitor_ready(display, false);
         if (spice_channel_test_capability(d->display, SPICE_DISPLAY_CAP_MONITORS_CONFIG)) {
             SPICE_DEBUG("waiting until MonitorsConfig is received");
+            g_clear_pointer(&monitors, g_array_unref);
             return;
         }
         goto whole;
@@ -642,7 +643,11 @@ spice_display_constructor(GType                  gtype,
  **/
 void spice_display_set_grab_keys(SpiceDisplay *display, SpiceGrabSequence *seq)
 {
-    SpiceDisplayPrivate *d = SPICE_DISPLAY_GET_PRIVATE(display);
+    SpiceDisplayPrivate *d;
+
+    g_return_if_fail(SPICE_IS_DISPLAY(display));
+
+    d = display->priv;
     g_return_if_fail(d != NULL);
 
     if (d->grabseq) {
@@ -659,7 +664,7 @@ void spice_display_set_grab_keys(SpiceDisplay *display, SpiceGrabSequence *seq)
 #ifdef WIN32
 static LRESULT CALLBACK keyboard_hook_cb(int code, WPARAM wparam, LPARAM lparam)
 {
-    if  (win32_window && code == HC_ACTION && wparam == WM_KEYDOWN) {
+    if  (win32_window && code == HC_ACTION && wparam != WM_KEYUP) {
         KBDLLHOOKSTRUCT *hooked = (KBDLLHOOKSTRUCT*)lparam;
         DWORD dwmsg = (hooked->flags << 24) | (hooked->scanCode << 16) | 1;
 
@@ -701,7 +706,11 @@ static LRESULT CALLBACK keyboard_hook_cb(int code, WPARAM wparam, LPARAM lparam)
  **/
 SpiceGrabSequence *spice_display_get_grab_keys(SpiceDisplay *display)
 {
-    SpiceDisplayPrivate *d = SPICE_DISPLAY_GET_PRIVATE(display);
+    SpiceDisplayPrivate *d;
+
+    g_return_val_if_fail(SPICE_IS_DISPLAY(display), NULL);
+
+    d = display->priv;
     g_return_val_if_fail(d != NULL, NULL);
 
     return d->grabseq;
@@ -811,7 +820,7 @@ static void set_mouse_accel(SpiceDisplay *display, gboolean enabled)
 #elif defined GDK_WINDOWING_WIN32
     if (enabled) {
         g_return_if_fail(SystemParametersInfo(SPI_SETMOUSE, 0, &d->win_mouse, 0));
-        g_return_if_fail(SystemParametersInfo(SPI_SETMOUSESPEED, 0, (PVOID)d->win_mouse_speed, 0));
+        g_return_if_fail(SystemParametersInfo(SPI_SETMOUSESPEED, 0, (PVOID)(INT_PTR)d->win_mouse_speed, 0));
     } else {
         int accel[3] = { 0, 0, 0 }; // disabled
         g_return_if_fail(SystemParametersInfo(SPI_GETMOUSE, 0, &d->win_mouse, 0));
@@ -1386,7 +1395,7 @@ void spice_display_send_keys(SpiceDisplay *display, const guint *keyvals,
 {
     int i;
 
-    g_return_if_fail(SPICE_DISPLAY(display) != NULL);
+    g_return_if_fail(SPICE_IS_DISPLAY(display));
     g_return_if_fail(keyvals != NULL);
 
     SPICE_DEBUG("%s", __FUNCTION__);
@@ -2499,6 +2508,8 @@ SpiceDisplay* spice_display_new_with_monitor(SpiceSession *session, gint channel
  **/
 void spice_display_mouse_ungrab(SpiceDisplay *display)
 {
+    g_return_if_fail(SPICE_IS_DISPLAY(display));
+
     try_mouse_ungrab(display);
 }
 
@@ -2512,7 +2523,11 @@ void spice_display_mouse_ungrab(SpiceDisplay *display)
  **/
 void spice_display_copy_to_guest(SpiceDisplay *display)
 {
-    SpiceDisplayPrivate *d = SPICE_DISPLAY_GET_PRIVATE(display);
+    SpiceDisplayPrivate *d;
+
+    g_return_if_fail(SPICE_IS_DISPLAY(display));
+
+    d = display->priv;
 
     g_return_if_fail(d->gtk_session != NULL);
 
@@ -2529,7 +2544,11 @@ void spice_display_copy_to_guest(SpiceDisplay *display)
  **/
 void spice_display_paste_from_guest(SpiceDisplay *display)
 {
-    SpiceDisplayPrivate *d = SPICE_DISPLAY_GET_PRIVATE(display);
+    SpiceDisplayPrivate *d;
+
+    g_return_if_fail(SPICE_IS_DISPLAY(display));
+
+    d = display->priv;
 
     g_return_if_fail(d->gtk_session != NULL);
 
@@ -2546,10 +2565,14 @@ void spice_display_paste_from_guest(SpiceDisplay *display)
  **/
 GdkPixbuf *spice_display_get_pixbuf(SpiceDisplay *display)
 {
-    SpiceDisplayPrivate *d = SPICE_DISPLAY_GET_PRIVATE(display);
+    SpiceDisplayPrivate *d;
     GdkPixbuf *pixbuf;
     int x, y;
     guchar *src, *data, *dest;
+
+    g_return_val_if_fail(SPICE_IS_DISPLAY(display), NULL);
+
+    d = display->priv;
 
     g_return_val_if_fail(d != NULL, NULL);
     /* TODO: ensure d->data has been exposed? */

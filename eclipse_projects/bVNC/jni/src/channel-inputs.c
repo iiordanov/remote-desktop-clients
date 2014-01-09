@@ -67,9 +67,9 @@ enum {
 
 static guint signals[SPICE_INPUTS_LAST_SIGNAL];
 
-static void spice_inputs_handle_msg(SpiceChannel *channel, SpiceMsgIn *msg);
 static void spice_inputs_channel_up(SpiceChannel *channel);
 static void spice_inputs_channel_reset(SpiceChannel *channel, gboolean migrating);
+static void channel_set_handlers(SpiceChannelClass *klass);
 
 /* ------------------------------------------------------------------ */
 
@@ -108,7 +108,6 @@ static void spice_inputs_channel_class_init(SpiceInputsChannelClass *klass)
 
     gobject_class->finalize     = spice_inputs_channel_finalize;
     gobject_class->get_property = spice_inputs_get_property;
-    channel_class->handle_msg   = spice_inputs_handle_msg;
     channel_class->channel_up   = spice_inputs_channel_up;
     channel_class->channel_reset = spice_inputs_channel_reset;
 
@@ -143,6 +142,7 @@ static void spice_inputs_channel_class_init(SpiceInputsChannelClass *klass)
                      0);
 
     g_type_class_add_private(klass, sizeof(SpiceInputsChannelPrivate));
+    channel_set_handlers(SPICE_CHANNEL_CLASS(klass));
 }
 
 /* signal trampoline---------------------------------------------------------- */
@@ -281,28 +281,15 @@ static void inputs_handle_ack(SpiceChannel *channel, SpiceMsgIn *in)
     }
 }
 
-static const spice_msg_handler inputs_handlers[] = {
-    [ SPICE_MSG_INPUTS_INIT ]              = inputs_handle_init,
-    [ SPICE_MSG_INPUTS_KEY_MODIFIERS ]     = inputs_handle_modifiers,
-    [ SPICE_MSG_INPUTS_MOUSE_MOTION_ACK ]  = inputs_handle_ack,
-};
-
-/* coroutine context */
-static void spice_inputs_handle_msg(SpiceChannel *channel, SpiceMsgIn *msg)
+static void channel_set_handlers(SpiceChannelClass *klass)
 {
-    int type = spice_msg_in_type(msg);
-    SpiceChannelClass *parent_class;
+    static const spice_msg_handler handlers[] = {
+        [ SPICE_MSG_INPUTS_INIT ]              = inputs_handle_init,
+        [ SPICE_MSG_INPUTS_KEY_MODIFIERS ]     = inputs_handle_modifiers,
+        [ SPICE_MSG_INPUTS_MOUSE_MOTION_ACK ]  = inputs_handle_ack,
+    };
 
-    g_return_if_fail(type < SPICE_N_ELEMENTS(inputs_handlers));
-
-    parent_class = SPICE_CHANNEL_CLASS(spice_inputs_channel_parent_class);
-
-    if (inputs_handlers[type] != NULL)
-        inputs_handlers[type](channel, msg);
-    else if (parent_class->handle_msg)
-        parent_class->handle_msg(channel, msg);
-    else
-        g_return_if_reached();
+    spice_channel_set_handlers(klass, handlers, G_N_ELEMENTS(handlers));
 }
 
 /**

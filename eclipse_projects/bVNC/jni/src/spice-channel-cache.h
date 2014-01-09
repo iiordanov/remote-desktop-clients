@@ -25,109 +25,80 @@
 G_BEGIN_DECLS
 
 typedef struct display_cache_item {
-    RingItem                    hash_link;
-    RingItem                    lru_link;
-    uint64_t                    id;
-    uint32_t                    refcount;
-    void                        *ptr;
+    guint64                     id;
     gboolean                    lossy;
 } display_cache_item;
 
-typedef struct display_cache {
-    const char                  *name;
-    Ring                        hash[64];
-    Ring                        lru;
-    int                         nitems;
-} display_cache;
+typedef GHashTable display_cache;
 
-static inline void cache_init(display_cache *cache, const char *name)
+static inline display_cache_item* cache_item_new(guint64 id, gboolean lossy)
 {
-    int i;
-
-    cache->name = name;
-    ring_init(&cache->lru);
-    for (i = 0; i < SPICE_N_ELEMENTS(cache->hash); i++) {
-        ring_init(&cache->hash[i]);
-    }
+    display_cache_item *self = g_slice_new(display_cache_item);
+    self->id = id;
+    self->lossy = lossy;
+    return self;
 }
 
-static inline Ring *cache_head(display_cache *cache, uint64_t id)
+static inline void cache_item_free(display_cache_item *self)
 {
-    return &cache->hash[id % SPICE_N_ELEMENTS(cache->hash)];
+    g_slice_free(display_cache_item, self);
 }
 
-static inline void cache_used(display_cache *cache, display_cache_item *item)
+static inline display_cache* cache_new(GDestroyNotify value_destroy)
 {
-    ring_remove(&item->lru_link);
-    ring_add(&cache->lru, &item->lru_link);
+    GHashTable* self;
+
+    self = g_hash_table_new_full(g_int64_hash, g_int64_equal,
+                                 (GDestroyNotify)cache_item_free,
+                                 value_destroy);
+
+    return self;
 }
 
-static inline display_cache_item *cache_get_lru(display_cache *cache)
+static inline gpointer cache_find(display_cache *cache, uint64_t id)
 {
+    return g_hash_table_lookup(cache, &id);
+}
+
+static inline gpointer cache_find_lossy(display_cache *cache, uint64_t id, gboolean *lossy)
+{
+    gpointer value;
     display_cache_item *item;
-    RingItem *ring;
 
-    if (ring_is_empty(&cache->lru))
+    if (!g_hash_table_lookup_extended(cache, &id, (gpointer*)&item, &value))
         return NULL;
-    ring = ring_get_tail(&cache->lru);
-    item = SPICE_CONTAINEROF(ring, display_cache_item, lru_link);
-    return item;
+
+    *lossy = item->lossy;
+
+    return value;
 }
 
-static inline display_cache_item *cache_find(display_cache *cache, uint64_t id)
+static inline void cache_add_lossy(display_cache *cache, uint64_t id,
+                                   gpointer value, gboolean lossy)
 {
-    display_cache_item *item;
-    RingItem *ring;
-    Ring *head;
+    display_cache_item *item = cache_item_new(id, lossy);
 
-    head = cache_head(cache, id);
-    for (ring = ring_get_head(head); ring != NULL; ring = ring_next(head, ring)) {
-        item = SPICE_CONTAINEROF(ring, display_cache_item, hash_link);
-        if (item->id == id) {
-            return item;
-        }
-    }
-
-    SPICE_DEBUG("%s: %s %" PRIx64 " [not found]", __FUNCTION__,
-            cache->name, id);
-    return NULL;
+    g_hash_table_replace(cache, item, value);
 }
 
-static inline display_cache_item *cache_add(display_cache *cache, uint64_t id)
+static inline void cache_add(display_cache *cache, uint64_t id, gpointer value)
 {
-    display_cache_item *item;
-
-    item = spice_new0(display_cache_item, 1);
-    item->id = id;
-    item->refcount = 1;
-    ring_add(cache_head(cache, item->id), &item->hash_link);
-    ring_add(&cache->lru, &item->lru_link);
-    cache->nitems++;
-
-    SPICE_DEBUG("%s: %s %" PRIx64 " (%d)", __FUNCTION__,
-            cache->name, id, cache->nitems);
-    return item;
+    cache_add_lossy(cache, id, value, FALSE);
 }
 
-static inline void cache_del(display_cache *cache, display_cache_item *item)
+static inline gboolean cache_remove(display_cache *cache, uint64_t id)
 {
-    SPICE_DEBUG("%s: %s %" PRIx64, __FUNCTION__,
-            cache->name, item->id);
-    ring_remove(&item->hash_link);
-    ring_remove(&item->lru_link);
-    free(item);
-    cache->nitems--;
+    return g_hash_table_remove(cache, &id);
 }
 
-static inline void cache_ref(display_cache_item *item)
+static inline void cache_clear(display_cache *cache)
 {
-    item->refcount++;
+    g_hash_table_remove_all(cache);
 }
 
-static inline int cache_unref(display_cache_item *item)
+static inline void cache_unref(display_cache *cache)
 {
-    item->refcount--;
-    return item->refcount == 0;
+    g_hash_table_unref(cache);
 }
 
 G_END_DECLS

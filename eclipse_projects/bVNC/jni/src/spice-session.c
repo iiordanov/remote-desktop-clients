@@ -176,8 +176,7 @@ static void spice_session_init(SpiceSession *session)
     g_free(channels);
 
     ring_init(&s->channels);
-    cache_init(&s->images, "image");
-    cache_init(&s->palettes, "palette");
+    s->images = cache_new((GDestroyNotify)pixman_image_unref);
     s->glz_window = glz_decoder_window_new();
     update_proxy(session, NULL);
 }
@@ -219,35 +218,6 @@ spice_session_dispose(GObject *gobject)
         G_OBJECT_CLASS(spice_session_parent_class)->dispose(gobject);
 }
 
-G_GNUC_INTERNAL
-void spice_session_palettes_clear(SpiceSession *session)
-{
-    SpiceSessionPrivate *s = SPICE_SESSION_GET_PRIVATE(session);
-    g_return_if_fail(s != NULL);
-
-    for (;;) {
-        display_cache_item *item = cache_get_lru(&s->palettes);
-        if (item == NULL)
-            break;
-        cache_del(&s->palettes, item);
-    }
-}
-
-G_GNUC_INTERNAL
-void spice_session_images_clear(SpiceSession *session)
-{
-    SpiceSessionPrivate *s = SPICE_SESSION_GET_PRIVATE(session);
-    g_return_if_fail(s != NULL);
-
-    for (;;) {
-        display_cache_item *item = cache_get_lru(&s->images);
-        if (item == NULL)
-            break;
-        pixman_image_unref(item->ptr);
-        cache_del(&s->images, item);
-    }
-}
-
 static void
 spice_session_finalize(GObject *gobject)
 {
@@ -267,8 +237,7 @@ spice_session_finalize(GObject *gobject)
     g_strfreev(s->disable_effects);
     g_strfreev(s->secure_channels);
 
-    spice_session_palettes_clear(session);
-    spice_session_images_clear(session);
+    g_clear_pointer(&s->images, cache_unref);
     glz_decoder_window_destroy(s->glz_window);
 
     g_clear_pointer(&s->pubkey, g_byte_array_unref);
@@ -639,7 +608,7 @@ static void spice_session_set_property(GObject      *gobject,
         break;
     case PROP_READ_ONLY:
         s->read_only = g_value_get_boolean(value);
-        g_object_notify(gobject, "read-only");
+        g_object_notify_main_context(gobject, "read-only");
         break;
     case PROP_CACHE_SIZE:
         s->images_cache_size = g_value_get_int(value);
@@ -1251,6 +1220,7 @@ SpiceSession *spice_session_new_from_session(SpiceSession *session)
                  "enable-smartcard", &c->smartcard,
                  "enable-audio", &c->audio,
                  "enable-usbredir", &c->usbredir,
+                 "ca", &c->ca,
                  NULL);
 
     c->client_provided_sockets = s->client_provided_sockets;
@@ -1331,6 +1301,14 @@ gboolean spice_session_get_client_provided_socket(SpiceSession *session)
     return s->client_provided_sockets;
 }
 
+static void cache_clear_all(SpiceSession *self)
+{
+    SpiceSessionPrivate *s = SPICE_SESSION_GET_PRIVATE(self);
+
+    cache_clear(s->images);
+    glz_decoder_window_clear(s->glz_window);
+}
+
 G_GNUC_INTERNAL
 void spice_session_switching_disconnect(SpiceSession *self)
 {
@@ -1352,9 +1330,7 @@ void spice_session_switching_disconnect(SpiceSession *self)
 
     g_warn_if_fail(!ring_is_empty(&s->channels)); /* ring_get_length() == 1 */
 
-    spice_session_palettes_clear(self);
-    spice_session_images_clear(self);
-    glz_decoder_window_clear(s->glz_window);
+    cache_clear_all(self);
 }
 
 G_GNUC_INTERNAL
@@ -1560,9 +1536,7 @@ void spice_session_migrate_end(SpiceSession *self)
         }
     }
 
-    spice_session_palettes_clear(self);
-    spice_session_images_clear(self);
-    glz_decoder_window_clear(s->glz_window);
+    cache_clear_all(self);
 
     /* send MIGRATE_END to target */
     out = spice_msg_out_new(s->cmain, SPICE_MSGC_MAIN_MIGRATE_END);
@@ -1996,13 +1970,11 @@ void spice_session_set_mm_time(SpiceSession *session, guint32 time)
     s->mm_time = time;
     s->mm_time_at_clock = g_get_monotonic_time();
     SPICE_DEBUG("set mm time: %u", spice_session_get_mm_time(session));
-    #if 0//FIXME:bug
     if (time > old_time + MM_TIME_DIFF_RESET_THRESH ||
         time < old_time) {
         SPICE_DEBUG("%s: mm-time-reset, old %u, new %u", __FUNCTION__, old_time, s->mm_time);
         emit_main_context(session, SPICE_SESSION_MM_TIME_RESET);
     }
-    #endif
 }
 
 G_GNUC_INTERNAL
@@ -2061,7 +2033,7 @@ void spice_session_set_migration_state(SpiceSession *session, SpiceSessionMigrat
 
     g_return_if_fail(s != NULL);
     s->migration_state = state;
-    g_object_notify(G_OBJECT(session), "migration-state");
+    g_object_notify_main_context(G_OBJECT(session), "migration-state");
 }
 
 G_GNUC_INTERNAL
@@ -2112,7 +2084,6 @@ const gchar* spice_session_get_ca_file(SpiceSession *session)
 G_GNUC_INTERNAL
 void spice_session_get_caches(SpiceSession *session,
                               display_cache **images,
-                              display_cache **palettes,
                               SpiceGlzDecoderWindow **glz_window)
 {
     SpiceSessionPrivate *s = SPICE_SESSION_GET_PRIVATE(session);
@@ -2120,9 +2091,7 @@ void spice_session_get_caches(SpiceSession *session,
     g_return_if_fail(s != NULL);
 
     if (images)
-        *images = &s->images;
-    if (palettes)
-        *palettes = &s->palettes;
+        *images = s->images;
     if (glz_window)
         *glz_window = s->glz_window;
 }
@@ -2159,7 +2128,7 @@ void spice_session_set_uuid(SpiceSession *session, guint8 uuid[16])
     g_return_if_fail(s != NULL);
     memcpy(s->uuid, uuid, sizeof(s->uuid));
 
-    g_object_notify(G_OBJECT(session), "uuid");
+    g_object_notify_main_context(G_OBJECT(session), "uuid");
 }
 
 G_GNUC_INTERNAL
@@ -2171,7 +2140,7 @@ void spice_session_set_name(SpiceSession *session, const gchar *name)
     g_free(s->name);
     s->name = g_strdup(name);
 
-    g_object_notify(G_OBJECT(session), "name");
+    g_object_notify_main_context(G_OBJECT(session), "name");
 }
 
 G_GNUC_INTERNAL

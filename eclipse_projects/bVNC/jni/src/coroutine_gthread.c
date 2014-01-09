@@ -74,7 +74,7 @@ static gpointer coroutine_thread(gpointer opaque)
 
 	CO_DEBUG("RUNNABLE");
 	current = co;
-	co->data = co->entry(co->data);
+	co->caller->data = co->entry(co->data);
 	co->exited = 1;
 
 	co->caller->runnable = TRUE;
@@ -86,8 +86,10 @@ static gpointer coroutine_thread(gpointer opaque)
 	return NULL;
 }
 
-int coroutine_init(struct coroutine *co)
+void coroutine_init(struct coroutine *co)
 {
+	GError *err = NULL;
+
 	if (run_cond == NULL)
 		coroutine_system_init();
 
@@ -95,15 +97,13 @@ int coroutine_init(struct coroutine *co)
 	co->thread = g_thread_create_full(coroutine_thread, co, co->stack_size,
 					  FALSE, TRUE,
 					  G_THREAD_PRIORITY_NORMAL,
-					  NULL);
-	if (co->thread == NULL)
-		return -1;
+					  &err);
+	if (err != NULL)
+		g_error("g_thread_create_full() failed: %s", err->message);
 
 	co->exited = 0;
 	co->runnable = FALSE;
 	co->caller = NULL;
-
-	return 0;
 }
 
 int coroutine_release(struct coroutine *co G_GNUC_UNUSED)
@@ -128,6 +128,7 @@ void *coroutine_swap(struct coroutine *from, struct coroutine *to, void *arg)
 		g_cond_wait(run_cond, run_lock);
 	}
 	current = from;
+	to->caller = NULL;
 
 	CO_DEBUG("SWAPPED");
 	return from->data;
@@ -135,15 +136,17 @@ void *coroutine_swap(struct coroutine *from, struct coroutine *to, void *arg)
 
 struct coroutine *coroutine_self(void)
 {
+	if (run_cond == NULL)
+		coroutine_system_init();
+
 	return current;
 }
 
 void *coroutine_yieldto(struct coroutine *to, void *arg)
 {
-	if (to->caller) {
-		fprintf(stderr, "Co-routine is re-entering itself\n");
-		abort();
-	}
+	g_return_val_if_fail(!to->caller, NULL);
+	g_return_val_if_fail(!to->exited, NULL);
+
 	CO_DEBUG("SWAP");
 	return coroutine_swap(coroutine_self(), to, arg);
 }
@@ -161,3 +164,7 @@ void *coroutine_yield(void *arg)
 	return coroutine_swap(coroutine_self(), to, arg);
 }
 
+gboolean coroutine_is_main(struct coroutine *co)
+{
+    return (co == &leader);
+}

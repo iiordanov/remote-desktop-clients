@@ -101,6 +101,9 @@ static void spice_gstaudio_dispose(GObject *obj)
         g_object_unref(p->rchannel);
         p->rchannel = NULL;
     }
+
+    if (G_OBJECT_CLASS(spice_gstaudio_parent_class)->dispose)
+        G_OBJECT_CLASS(spice_gstaudio_parent_class)->dispose(obj);
 }
 
 static void spice_gstaudio_init(SpiceGstaudio *pulse)
@@ -318,11 +321,7 @@ static void playback_start(SpicePlaybackChannel *channel, gint format, gint chan
         SPICE_DEBUG("audio pipeline: %s", pipeline);
         p->playback.pipe = gst_parse_launch(pipeline, &error);
         if (p->playback.pipe == NULL) {
-            #if 0
             g_warning("Failed to create pipeline: %s", error->message);
-            #else
-            SPICE_DEBUG("Failed to create pipeline: %s", error->message);
-            #endif
             goto lerr;
         }
         p->playback.src = gst_bin_get_by_name(GST_BIN(p->playback.pipe), "appsrc");

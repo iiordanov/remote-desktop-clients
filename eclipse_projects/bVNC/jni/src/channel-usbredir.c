@@ -81,7 +81,7 @@ struct _SpiceUsbredirChannelPrivate {
 #endif
 };
 
-static void spice_usbredir_handle_msg(SpiceChannel *channel, SpiceMsgIn *msg);
+static void channel_set_handlers(SpiceChannelClass *klass);
 static void spice_usbredir_channel_up(SpiceChannel *channel);
 static void spice_usbredir_channel_dispose(GObject *obj);
 static void spice_usbredir_channel_finalize(GObject *obj);
@@ -136,11 +136,11 @@ static void spice_usbredir_channel_class_init(SpiceUsbredirChannelClass *klass)
 
     gobject_class->dispose       = spice_usbredir_channel_dispose;
     gobject_class->finalize      = spice_usbredir_channel_finalize;
-    channel_class->handle_msg    = spice_usbredir_handle_msg;
     channel_class->channel_up    = spice_usbredir_channel_up;
     channel_class->channel_reset = spice_usbredir_channel_reset;
 
     g_type_class_add_private(klass, sizeof(SpiceUsbredirChannelPrivate));
+    channel_set_handlers(SPICE_CHANNEL_CLASS(klass));
 #endif
 }
 
@@ -188,9 +188,14 @@ static void spice_usbredir_channel_finalize(GObject *obj)
         G_OBJECT_CLASS(spice_usbredir_channel_parent_class)->finalize(obj);
 }
 
-static const spice_msg_handler usbredir_handlers[] = {
-    [ SPICE_MSG_SPICEVMC_DATA ] = usbredir_handle_msg,
-};
+static void channel_set_handlers(SpiceChannelClass *klass)
+{
+    static const spice_msg_handler handlers[] = {
+        [ SPICE_MSG_SPICEVMC_DATA ] = usbredir_handle_msg,
+    };
+
+    spice_channel_set_handlers(klass, handlers, G_N_ELEMENTS(handlers));
+}
 
 /* ------------------------------------------------------------------ */
 /* private api                                                        */
@@ -608,23 +613,6 @@ static void do_emit_main_context(GObject *object, int event, gpointer params)
 
 /* --------------------------------------------------------------------- */
 /* coroutine context                                                     */
-static void spice_usbredir_handle_msg(SpiceChannel *c, SpiceMsgIn *msg)
-{
-    int type = spice_msg_in_type(msg);
-    SpiceChannelClass *parent_class;
-
-    g_return_if_fail(type < SPICE_N_ELEMENTS(usbredir_handlers));
-
-    parent_class = SPICE_CHANNEL_CLASS(spice_usbredir_channel_parent_class);
-
-    if (usbredir_handlers[type] != NULL)
-        usbredir_handlers[type](c, msg);
-    else if (parent_class->handle_msg)
-        parent_class->handle_msg(c, msg);
-    else
-        g_return_if_reached();
-}
-
 static void spice_usbredir_channel_up(SpiceChannel *c)
 {
     SpiceUsbredirChannel *channel = SPICE_USBREDIR_CHANNEL(c);

@@ -39,7 +39,7 @@ struct continuation
 	jmp_buf jmp;
 };
 
-int cc_init(struct continuation *cc);
+void cc_init(struct continuation *cc);
 
 int cc_release(struct continuation *cc);
 

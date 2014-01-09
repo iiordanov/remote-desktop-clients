@@ -19,13 +19,16 @@
  */
 
 #include <config.h>
+#include <glib.h>
 
 #ifdef HAVE_SYS_TYPES_H
 #include <sys/types.h>
 #endif
 #include <sys/mman.h>
+#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "coroutine.h"
 
 #ifndef MAP_ANONYMOUS
@@ -47,6 +50,8 @@ static int _coroutine_release(struct continuation *cc)
 			return ret;
 	}
 
+	munmap(co->cc.stack, co->cc.stack_size);
+
 	co->caller = NULL;
 
 	return 0;
@@ -58,7 +63,7 @@ static void coroutine_trampoline(struct continuation *cc)
 	co->data = co->entry(co->data);
 }
 
-int coroutine_init(struct coroutine *co)
+void coroutine_init(struct coroutine *co)
 {
 	if (co->stack_size == 0)
 		co->stack_size = 16 << 20;
@@ -69,12 +74,14 @@ int coroutine_init(struct coroutine *co)
 			    MAP_PRIVATE | MAP_ANONYMOUS,
 			    -1, 0);
 	if (co->cc.stack == MAP_FAILED)
-		return -1;
+		g_error("mmap(%" G_GSIZE_FORMAT ") failed: %s",
+			co->stack_size, g_strerror(errno));
+
 	co->cc.entry = coroutine_trampoline;
 	co->cc.release = _coroutine_release;
 	co->exited = 0;
 
-	return cc_init(&co->cc);
+	cc_init(&co->cc);
 }
 
 #if 0
@@ -102,7 +109,7 @@ void *coroutine_swap(struct coroutine *from, struct coroutine *to, void *arg)
 		return from->data;
 	else if (ret == 1) {
 		coroutine_release(to);
-		current = &leader;
+		current = from;
 		to->exited = 1;
 		return to->data;
 	}
@@ -112,10 +119,9 @@ void *coroutine_swap(struct coroutine *from, struct coroutine *to, void *arg)
 
 void *coroutine_yieldto(struct coroutine *to, void *arg)
 {
-	if (to->caller) {
-		fprintf(stderr, "Co-routine is re-entering itself\n");
-		abort();
-	}
+	g_return_val_if_fail(!to->caller, NULL);
+	g_return_val_if_fail(!to->exited, NULL);
+
 	to->caller = coroutine_self();
 	return coroutine_swap(coroutine_self(), to, arg);
 }
@@ -129,6 +135,11 @@ void *coroutine_yield(void *arg)
 	}
 	coroutine_self()->caller = NULL;
 	return coroutine_swap(coroutine_self(), to, arg);
+}
+
+gboolean coroutine_is_main(struct coroutine *co)
+{
+    return (co == &leader);
 }
 /*
  * Local variables:

@@ -19,18 +19,14 @@
 #ifndef __MACROS_H
 #define __MACROS_H
 
-#if    __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 5)
-#define SPICE_ATTR_PRINTF(a,b)                               \
-    __attribute__((format(printf,a,b)))
-#else
-#define SPICE_ATTR_PRINTF(a,b)
-#endif /* __GNUC__ */
-
 #if    __GNUC__ > 2 || (__GNUC__ == 2 && __GNUC_MINOR__ >= 5)
 #define SPICE_ATTR_NORETURN                                  \
     __attribute__((noreturn))
+#define SPICE_ATTR_PRINTF(a,b)                               \
+    __attribute__((format(printf,a,b)))
 #else
 #define SPICE_ATTR_NORETURN
+#define SPICE_ATTR_PRINTF
 #endif /* __GNUC__ */
 
 

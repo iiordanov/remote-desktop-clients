@@ -101,7 +101,7 @@ typedef struct Encoder {
 /****************************************************/
 /* functions for managing the pool of image segments*/
 /****************************************************/
-static INLINE LzImageSegment *lz_alloc_image_seg(Encoder *encoder);
+static inline LzImageSegment *lz_alloc_image_seg(Encoder *encoder);
 static void lz_reset_image_seg(Encoder *encoder);
 static int lz_read_image_segments(Encoder *encoder, uint8_t *first_lines,
                                   unsigned int num_first_lines);
@@ -109,7 +109,7 @@ static int lz_read_image_segments(Encoder *encoder, uint8_t *first_lines,
 
 // return a free image segment if one exists. Make allocation if needed. adds it to the
 // tail of the image segments lists
-static INLINE LzImageSegment *lz_alloc_image_seg(Encoder *encoder)
+static inline LzImageSegment *lz_alloc_image_seg(Encoder *encoder)
 {
     LzImageSegment *ret;
 
@@ -136,7 +136,7 @@ static INLINE LzImageSegment *lz_alloc_image_seg(Encoder *encoder)
 }
 
 // adding seg to the head of free segments (lz_reset_image_seg removes it from used ones)
-static INLINE void __lz_free_image_seg(Encoder *encoder, LzImageSegment *seg)
+static inline void __lz_free_image_seg(Encoder *encoder, LzImageSegment *seg)
 {
     seg->next = encoder->free_image_segs;
     encoder->free_image_segs = seg;
@@ -212,7 +212,7 @@ error_1:
 /**************************************************************************
 * Handling encoding and decoding of a byte
 ***************************************************************************/
-static INLINE int more_io_bytes(Encoder *encoder)
+static inline int more_io_bytes(Encoder *encoder)
 {
     uint8_t *io_ptr;
     int num_io_bytes = encoder->usr->more_space(encoder->usr, &io_ptr);
@@ -222,7 +222,7 @@ static INLINE int more_io_bytes(Encoder *encoder)
     return num_io_bytes;
 }
 
-static INLINE void encode(Encoder *encoder, uint8_t byte)
+static inline void encode(Encoder *encoder, uint8_t byte)
 {
     if (encoder->io_now == encoder->io_end) {
         if (more_io_bytes(encoder) <= 0) {
@@ -235,7 +235,7 @@ static INLINE void encode(Encoder *encoder, uint8_t byte)
     *(encoder->io_now++) = byte;
 }
 
-static INLINE void encode_32(Encoder *encoder, unsigned int word)
+static inline void encode_32(Encoder *encoder, unsigned int word)
 {
     encode(encoder, (uint8_t)(word >> 24));
     encode(encoder, (uint8_t)(word >> 16) & 0x0000ff);
@@ -243,25 +243,25 @@ static INLINE void encode_32(Encoder *encoder, unsigned int word)
     encode(encoder, (uint8_t)(word & 0x0000ff));
 }
 
-static INLINE void encode_copy_count(Encoder *encoder, uint8_t copy_count)
+static inline void encode_copy_count(Encoder *encoder, uint8_t copy_count)
 {
     encode(encoder, copy_count);
     encoder->io_last_copy = encoder->io_now - 1; // io_now cannot be the first byte of the buffer
 }
 
-static INLINE void update_copy_count(Encoder *encoder, uint8_t copy_count)
+static inline void update_copy_count(Encoder *encoder, uint8_t copy_count)
 {
     spice_return_if_fail(encoder->io_last_copy);
     *(encoder->io_last_copy) = copy_count;
 }
 
-static INLINE void encode_level(Encoder *encoder, uint8_t level_code)
+static inline void encode_level(Encoder *encoder, uint8_t level_code)
 {
     *(encoder->io_start) |= level_code;
 }
 
 // decrease the io ptr by 1
-static INLINE void compress_output_prev(Encoder *encoder)
+static inline void compress_output_prev(Encoder *encoder)
 {
     // io_now cannot be the first byte of the buffer
     encoder->io_now--;
@@ -282,7 +282,7 @@ static int encoder_reset(Encoder *encoder, uint8_t *io_ptr, uint8_t *io_ptr_end)
     return TRUE;
 }
 
-static INLINE uint8_t decode(Encoder *encoder)
+static inline uint8_t decode(Encoder *encoder)
 {
     if (encoder->io_now == encoder->io_end) {
         int num_io_bytes = more_io_bytes(encoder);
@@ -295,7 +295,7 @@ static INLINE uint8_t decode(Encoder *encoder)
     return *(encoder->io_now++);
 }
 
-static INLINE uint32_t decode_32(Encoder *encoder)
+static inline uint32_t decode_32(Encoder *encoder)
 {
     uint32_t word = 0;
     word |= decode(encoder);
@@ -308,7 +308,7 @@ static INLINE uint32_t decode_32(Encoder *encoder)
     return word;
 }
 
-static INLINE int is_io_to_decode_end(Encoder *encoder)
+static inline int is_io_to_decode_end(Encoder *encoder)
 {
     if (encoder->io_now != encoder->io_end) {
         return FALSE;

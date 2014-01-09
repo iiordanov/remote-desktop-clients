@@ -76,8 +76,7 @@ enum {
 };
 
 static guint signals[LAST_SIGNAL];
-
-static void spice_port_handle_msg(SpiceChannel *channel, SpiceMsgIn *msg);
+static void channel_set_handlers(SpiceChannelClass *klass);
 
 static void spice_port_channel_init(SpicePortChannel *channel)
 {
@@ -131,7 +130,6 @@ static void spice_port_channel_class_init(SpicePortChannelClass *klass)
 
     gobject_class->finalize     = spice_port_channel_finalize;
     gobject_class->get_property = spice_port_get_property;
-    channel_class->handle_msg   = spice_port_handle_msg;
     channel_class->channel_reset = spice_port_channel_reset;
 
     g_object_class_install_property
@@ -194,6 +192,7 @@ static void spice_port_channel_class_init(SpicePortChannelClass *klass)
                      G_TYPE_INT);
 
     g_type_class_add_private(klass, sizeof(SpicePortChannelPrivate));
+    channel_set_handlers(SPICE_CHANNEL_CLASS(klass));
 }
 
 /* signal trampoline---------------------------------------------------------- */
@@ -401,26 +400,13 @@ void spice_port_event(SpicePortChannel *self, guint8 event)
     spice_msg_out_send(msg);
 }
 
-static const spice_msg_handler port_handlers[] = {
-    [ SPICE_MSG_PORT_INIT ]              = port_handle_init,
-    [ SPICE_MSG_PORT_EVENT ]             = port_handle_event,
-    [ SPICE_MSG_SPICEVMC_DATA ]          = port_handle_msg,
-};
-
-/* coroutine context */
-static void spice_port_handle_msg(SpiceChannel *channel, SpiceMsgIn *msg)
+static void channel_set_handlers(SpiceChannelClass *klass)
 {
-    int type = spice_msg_in_type(msg);
-    SpiceChannelClass *parent_class;
+    static const spice_msg_handler handlers[] = {
+        [ SPICE_MSG_PORT_INIT ]              = port_handle_init,
+        [ SPICE_MSG_PORT_EVENT ]             = port_handle_event,
+        [ SPICE_MSG_SPICEVMC_DATA ]          = port_handle_msg,
+    };
 
-    g_return_if_fail(type < SPICE_N_ELEMENTS(port_handlers));
-
-    parent_class = SPICE_CHANNEL_CLASS(spice_port_channel_parent_class);
-
-    if (port_handlers[type] != NULL)
-        port_handlers[type](channel, msg);
-    else if (parent_class->handle_msg)
-        parent_class->handle_msg(channel, msg);
-    else
-        g_return_if_reached();
+    spice_channel_set_handlers(klass, handlers, G_N_ELEMENTS(handlers));
 }

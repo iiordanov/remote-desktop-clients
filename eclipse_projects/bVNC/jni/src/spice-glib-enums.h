@@ -1,5 +1,5 @@
 
-/* Generated data (by glib-mkenums) */
+
 
 #ifndef SPICE_GLIB_ENUMS_H
 #define SPICE_GLIB_ENUMS_H
@@ -18,5 +18,5 @@ G_END_DECLS
 
 #endif /* SPICE_CHANNEL_ENUMS_H */
 
-/* Generated data ends here */
+
 

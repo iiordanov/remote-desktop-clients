@@ -95,7 +95,7 @@ int main(int argc, char *argv[])
     textdomain(GETTEXT_PACKAGE);
 
     /* parse opts */
-    context = g_option_context_new(_(" - make screen shots"));
+    context = g_option_context_new(NULL);
     g_option_context_set_summary(context, _("A Spice client used for testing and measurements."));
     g_option_context_set_description(context, _("Report bugs to " PACKAGE_BUGREPORT "."));
     g_option_context_set_main_group(context, spice_cmdline_get_option_group());

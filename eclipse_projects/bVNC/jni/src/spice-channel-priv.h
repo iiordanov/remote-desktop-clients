@@ -59,7 +59,7 @@ struct _SpiceMsgIn {
     SpiceChannel          *channel;
     uint8_t               header[MAX_SPICE_DATA_HEADER_SIZE];
     uint8_t               *data;
-    int                   hpos,dpos;
+    int                   dpos;
     uint8_t               *parsed;
     size_t                psize;
     message_destructor_t  pfree;
@@ -113,7 +113,6 @@ struct _SpiceChannelPrivate {
     guint                       channel_watch;
     int                         tls;
 
-    int                         connection_id;
     int                         channel_id;
     int                         channel_type;
     SpiceLinkHeader             link_hdr;
@@ -122,7 +121,6 @@ struct _SpiceChannelPrivate {
     SpiceLinkReply*             peer_msg;
     int                         peer_pos;
 
-    SpiceMsgIn                  *msg_in;
     int                         message_ack_window;
     int                         message_ack_count;
 
@@ -134,6 +132,8 @@ struct _SpiceChannelPrivate {
     gsize                       total_read_bytes;
     uint64_t                    last_message_serial;
     GSList                      *flushing;
+
+    gboolean                    disable_channel_msg;
 };
 
 SpiceMsgIn *spice_msg_in_new(SpiceChannel *channel);
@@ -167,13 +167,9 @@ typedef void (*handler_msg_in)(SpiceChannel *channel, SpiceMsgIn *msg, gpointer 
 void spice_channel_recv_msg(SpiceChannel *channel, handler_msg_in handler, gpointer data);
 
 /* channel-base.c */
-/* coroutine context */
-void spice_channel_handle_set_ack(SpiceChannel *channel, SpiceMsgIn *in);
-void spice_channel_handle_ping(SpiceChannel *channel, SpiceMsgIn *in);
-void spice_channel_handle_notify(SpiceChannel *channel, SpiceMsgIn *in);
-void spice_channel_handle_disconnect(SpiceChannel *channel, SpiceMsgIn *in);
+void spice_channel_set_handlers(SpiceChannelClass *klass,
+                                const spice_msg_handler* handlers, const int n);
 void spice_channel_handle_wait_for_channels(SpiceChannel *channel, SpiceMsgIn *in);
-void spice_channel_handle_migrate(SpiceChannel *channel, SpiceMsgIn *in);
 
 gint spice_channel_get_channel_id(SpiceChannel *channel);
 gint spice_channel_get_channel_type(SpiceChannel *channel);
@@ -190,7 +186,7 @@ void spice_caps_set(GArray *caps, guint32 cap, const gchar *desc);
 /* coroutine context */
 #define emit_main_context(object, event, args...)                                      \
     G_STMT_START {                                                                     \
-        if (IN_MAIN_CONTEXT) {                                                         \
+        if (coroutine_self_is_main()) {                                 \
             do_emit_main_context(G_OBJECT(object), event, &((struct event) { args })); \
         } else {                                                                       \
             g_signal_emit_main_context(G_OBJECT(object), do_emit_main_context,         \

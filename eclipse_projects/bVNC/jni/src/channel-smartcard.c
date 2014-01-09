@@ -95,7 +95,6 @@ enum {
     SPICE_SMARTCARD_LAST_SIGNAL,
 };
 
-static void spice_smartcard_handle_msg(SpiceChannel *channel, SpiceMsgIn *msg);
 static void spice_smartcard_channel_up(SpiceChannel *channel);
 static void handle_smartcard_msg(SpiceChannel *channel, SpiceMsgIn *in);
 static void smartcard_message_free(SpiceSmartcardChannelMessage *message);
@@ -209,6 +208,14 @@ static void spice_smartcard_channel_reset(SpiceChannel *channel, gboolean migrat
     SPICE_CHANNEL_CLASS(spice_smartcard_channel_parent_class)->channel_reset(channel, migrating);
 }
 
+static void channel_set_handlers(SpiceChannelClass *klass)
+{
+    static const spice_msg_handler handlers[] = {
+        [ SPICE_MSG_SMARTCARD_DATA ] = handle_smartcard_msg,
+    };
+    spice_channel_set_handlers(klass, handlers, G_N_ELEMENTS(handlers));
+}
+
 static void spice_smartcard_channel_class_init(SpiceSmartcardChannelClass *klass)
 {
     GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
@@ -217,16 +224,12 @@ static void spice_smartcard_channel_class_init(SpiceSmartcardChannelClass *klass
     gobject_class->finalize     = spice_smartcard_channel_finalize;
     gobject_class->constructed  = spice_smartcard_channel_constructed;
 
-    channel_class->handle_msg   = spice_smartcard_handle_msg;
     channel_class->channel_up   = spice_smartcard_channel_up;
     channel_class->channel_reset = spice_smartcard_channel_reset;
 
     g_type_class_add_private(klass, sizeof(SpiceSmartcardChannelPrivate));
+    channel_set_handlers(SPICE_CHANNEL_CLASS(klass));
 }
-
-static const spice_msg_handler smartcard_handlers[] = {
-    [ SPICE_MSG_SMARTCARD_DATA ]           = handle_smartcard_msg,
-};
 
 /* ------------------------------------------------------------------ */
 /* private api                                                        */
@@ -442,24 +445,6 @@ static void card_removed_cb(SpiceSmartcardManager *manager, VReader *reader,
 }
 #endif /* USE_SMARTCARD */
 
-/* coroutine context */
-static void spice_smartcard_handle_msg(SpiceChannel *channel, SpiceMsgIn *msg)
-{
-    int type = spice_msg_in_type(msg);
-    SpiceChannelClass *parent_class;
-
-    g_return_if_fail(type < SPICE_N_ELEMENTS(smartcard_handlers));
-
-    parent_class = SPICE_CHANNEL_CLASS(spice_smartcard_channel_parent_class);
-
-    if (smartcard_handlers[type] != NULL)
-        smartcard_handlers[type](channel, msg);
-    else if (parent_class->handle_msg)
-        parent_class->handle_msg(channel, msg);
-    else
-        g_return_if_reached();
-}
-
 static void spice_smartcard_channel_up_cb(GObject *source_object,
                                           GAsyncResult *res,
                                           gpointer user_data)
@@ -570,4 +555,3 @@ static void handle_smartcard_msg(SpiceChannel *channel, SpiceMsgIn *in)
     }
 #endif
 }
-

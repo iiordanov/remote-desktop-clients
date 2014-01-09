@@ -94,7 +94,7 @@ int spice_pixman_image_get_format(pixman_image_t *image, pixman_format_code_t *f
     return 0;
 }
 
-static INLINE pixman_image_t *__surface_create_stride(pixman_format_code_t format, int width, int height,
+static inline pixman_image_t *__surface_create_stride(pixman_format_code_t format, int width, int height,
                                                       int stride)
 {
     uint8_t *data;
