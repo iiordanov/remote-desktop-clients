@@ -249,16 +249,14 @@ public class RemoteCanvas extends ImageView implements LibFreeRDP.UIEventListene
                         startSpiceConnection();
                     } else if (isRdp) {
                         startRdpConnection();
-                    } else if (connection.getConnectionType() < 4) {
-                        startVncConnection();
                     } else {
-                        startVencryptConnection();
+                        startVncConnection();
                     }
                 } catch (Throwable e) {
                     if (maintainConnection) {
                         Log.e(TAG, e.toString());
                         e.printStackTrace();
-                        // Ensure we dismiss the progress dialog before we inish
+                        // Ensure we dismiss the progress dialog before we finish
                         if (pd.isShowing())
                             pd.dismiss();
                         
@@ -389,14 +387,14 @@ public class RemoteCanvas extends ImageView implements LibFreeRDP.UIEventListene
         Log.i(TAG, "Connecting to: " + connection.getAddress() + ", port: " + connection.getPort());
         
         String address = getAddress();
-        int vncPort    = getPort(connection.getPort());
-        boolean anonTLS = (connection.getConnectionType() == Constants.CONN_TYPE_ANONTLS);
+        int vncPort = getPort(connection.getPort());
         try {
-            rfb = new RfbProto(decoder, address, vncPort,
+            rfb = new RfbProto(decoder, this, address, vncPort,
                                 connection.getPrefEncoding(), connection.getViewOnly());
             Log.v(TAG, "Connected to server: " + address + " at port: " + vncPort);
             rfb.initializeAndAuthenticate(connection.getUserName(), connection.getPassword(),
-                                            connection.getUseRepeater(), connection.getRepeaterId(), anonTLS);
+                                          connection.getUseRepeater(), connection.getRepeaterId(),
+                                          connection.getConnectionType(), connection.getSshHostKey());
         } catch (Exception e) {
             throw new Exception (getContext().getString(R.string.error_vnc_unable_to_connect) + e.getLocalizedMessage());
         }
@@ -428,7 +426,7 @@ public class RemoteCanvas extends ImageView implements LibFreeRDP.UIEventListene
         if (pd.isShowing())
             pd.dismiss();
         
-        rfb.processProtocol(this, connection.getUseLocalCursor());
+        rfb.processProtocol(connection.getUseLocalCursor());
     }
     
     

@@ -88,8 +88,15 @@ class RfbProto implements RfbConnectable {
   final static int
     AuthNone      = 1,
     AuthVNC       = 2,
+    AuthUltra	  = 17,
     AuthUnixLogin = 129,
-    AuthUltra      = 17;
+    AuthPlain     = 256,
+    AuthTLSNone   = 257,
+    AuthTLSVnc    = 258,
+    AuthTLSPlain  = 259,
+    AuthX509None  = 260,
+    AuthX509Vnc   = 261,
+    AuthX509Plain = 262;
   final static String
     SigAuthNone      = "NOAUTH__",
     SigAuthVNC       = "VNCAUTH_",
@@ -107,7 +114,7 @@ class RfbProto implements RfbConnectable {
     SetColourMapEntries = 1,
     Bell                = 2,
     ServerCutText       = 3,
-    TextChat             = 11;
+    TextChat            = 11;
 
   // Client-to-server messages
   final static int
@@ -176,7 +183,7 @@ class RfbProto implements RfbConnectable {
 
   // Constants used for UltraVNC chat extension
   final static int
-      CHAT_OPEN = -1,
+    CHAT_OPEN = -1,
     CHAT_CLOSE = -2,
     CHAT_FINISHED = -3;
 
@@ -262,16 +269,20 @@ class RfbProto implements RfbConnectable {
     // View Only mode
     private boolean viewOnly = false;
     
+    // The remote canvas
+    RemoteCanvas canvas;
+    
   //
   // Constructor. Make TCP connection to RFB server.
   //
-  RfbProto(Decoder d, String h, int p, int prefEnc, boolean viewOnly) throws Exception {
+  RfbProto(Decoder d, RemoteCanvas canvas, String h, int p, int prefEnc, boolean viewOnly) throws Exception {
     this.viewOnly = viewOnly;
+    this.canvas = canvas;
     host = h;
     port = p;
     preferredEncoding = prefEnc;
 
-       sock = new Socket(host, port);
+    sock = new Socket(host, port);
     sock.setTcpNoDelay(true);
     // After much testing, 8192 does seem like the best compromize between
     // responsiveness and throughput.
@@ -315,7 +326,7 @@ class RfbProto implements RfbConnectable {
     return closed;
   }
 
-  public void initializeAndAuthenticate(String us, String pw, boolean useRepeater, String repeaterID, boolean anonTLS) throws Exception {
+  public void initializeAndAuthenticate(String us, String pw, boolean useRepeater, String repeaterID, int connType, String cert) throws Exception {
         
         // <RepeaterMagic>
         if (useRepeater && repeaterID != null && repeaterID.length()>0) {
@@ -334,45 +345,78 @@ class RfbProto implements RfbConnectable {
         writeVersionMsg();
         Log.i(TAG, "Using RFB protocol version " + clientMajor + "." + clientMinor);
 
-        int bitPref=0;
-        if(us.length()>0)
-          bitPref|=1;
-        Log.d("debug","bitPref="+bitPref);
-        int secType = negotiateSecurity(bitPref, anonTLS);
-        int authType;
-        if (secType == RfbProto.SecTypeTight) {
-            initCapabilities();
-            setupTunneling();
-            authType = negotiateAuthenticationTight();
-        } else if (secType == RfbProto.SecTypeUltra34) {
-            prepareDH();
-            authType = RfbProto.AuthUltra;
+		int bitPref = 0;
+		if(us.length() > 0)
+		  bitPref |= 1;
+		Log.d ("debug","bitPref = " + bitPref);
+		int secType = negotiateSecurity(bitPref, connType);
+		int authType;
+		if (secType == RfbProto.SecTypeTight) {
+			initCapabilities();
+			setupTunneling();
+			authType = negotiateAuthenticationTight();
+        } else if (secType == RfbProto.SecTypeVeNCrypt) {
+            authType = authenticateVeNCrypt();
         } else if (secType == RfbProto.SecTypeTLS) {
-            performTLSHandshake ();
-            authType = negotiateSecurity(bitPref, false);
-        //} else if (secType == RfbProto.SecTypeVeNCrypt) {
-        //    rfb.performTLSHandshake ();
-        //    authType = rfb.selectVeNCryptSecurityType();
-        } else {
-            authType = secType;
-        }
+            authenticateTLS();
+            authType = negotiateSecurity(bitPref, 0);
+		} else if (secType == RfbProto.SecTypeUltra34) {
+			prepareDH();
+			authType = RfbProto.AuthUltra;
+		} else {
+			authType = secType;
+		}
 
-        switch (authType) {
-        case RfbProto.AuthNone:
-            Log.i(TAG, "No authentication needed");
-            authenticateNone();
-            break;
-        case RfbProto.AuthVNC:
-            Log.i(TAG, "VNC authentication needed");
-            authenticateVNC(pw);
-            break;
-        case RfbProto.AuthUltra:
-            authenticateDH(us,pw);
-            break;
-        default:
-            throw new Exception("Unknown authentication scheme " + authType);
-        }
-  }
+		switch (authType) {
+		case RfbProto.AuthNone:
+			Log.i(TAG, "No authentication needed");
+			authenticateNone();
+			break;
+		case RfbProto.AuthPlain:
+			Log.i(TAG, "Plain authentication needed");
+			authenticatePlain(us,pw);
+			break;
+		case RfbProto.AuthVNC:
+			Log.i(TAG, "VNC authentication needed");
+			authenticateVNC(pw);
+			break;
+		case RfbProto.AuthUltra:
+			authenticateDH(us,pw);
+			break;
+		case RfbProto.AuthTLSNone:
+			Log.i(TAG, "No authentication needed");
+			authenticateTLS();
+			authenticateNone();
+			break;
+		case RfbProto.AuthTLSPlain:
+			Log.i(TAG, "Plain authentication needed");
+			authenticateTLS();
+			authenticatePlain(us,pw);
+			break;
+		case RfbProto.AuthTLSVnc:
+			Log.i(TAG, "VNC authentication needed");
+			authenticateTLS();
+			authenticateVNC(pw);
+			break;
+		case RfbProto.AuthX509None:
+			Log.i(TAG, "No authentication needed");
+			authenticateX509(cert);
+			authenticateNone();
+			break;
+		case RfbProto.AuthX509Plain:
+			Log.i(TAG, "Plain authentication needed");
+			authenticateX509(cert);
+			authenticatePlain(us,pw);
+			break;
+		case RfbProto.AuthX509Vnc:
+			Log.i(TAG, "VNC authentication needed");
+			authenticateX509(cert);
+			authenticateVNC(pw);
+			break;
+		default:
+			throw new Exception("Unknown authentication scheme " + authType);
+		}
+	}
   //
   // Read server's protocol version message
   //
@@ -427,9 +471,9 @@ class RfbProto implements RfbConnectable {
   // Negotiate the authentication scheme.
   //
 
-  int negotiateSecurity(int bitPref, boolean anontls) throws Exception {
+  int negotiateSecurity(int bitPref, int connType) throws Exception {
     return (clientMinor >= 7) ?
-      selectSecurityType(bitPref, anontls) : readSecurityType(bitPref);
+      selectSecurityType(bitPref, connType) : readSecurityType(bitPref);
   }
 
   //
@@ -459,8 +503,8 @@ class RfbProto implements RfbConnectable {
   // Select security type from the server's list (protocol versions 3.7/3.8).
   //
 
-  int selectSecurityType(int bitPref, boolean anontls) throws Exception {
-        int secType = SecTypeInvalid;
+  int selectSecurityType(int bitPref, int connType) throws Exception {
+    int secType = SecTypeInvalid;
 
         // Read the list of security types.
         int nSecTypes = is.readUnsignedByte();
@@ -470,13 +514,9 @@ class RfbProto implements RfbConnectable {
         }
         byte[] secTypes = new byte[nSecTypes];
         readFully(secTypes);
-
-        Log.d(TAG, "There are: " +nSecTypes +" security types.");
         
         // Find out if the server supports TightVNC protocol extensions
         for (int i = 0; i < nSecTypes; i++) {
-          Log.d(TAG, "Detected security type: " + secTypes[i]);
-
           if (secTypes[i] == SecTypeTight) {
             protocolTightVNC = true;
             os.write(SecTypeTight);
@@ -486,22 +526,22 @@ class RfbProto implements RfbConnectable {
 
         // Find first supported security type.
         for (int i = 0; i < nSecTypes; i++) {
-          // If anontls is enforced, then only accept VNC over TLS. Otherwise, accept it and all others.
-          if (anontls) {
+          // If AnonTLS or VeNCrypt modes are enforced, then only accept them. Otherwise, accept it and all others.
+          if (connType == Constants.CONN_TYPE_ANONTLS) {
               if (secTypes[i] == SecTypeTLS) {
                   secType = secTypes[i];
                   break;
               }
+          } else if (connType == Constants.CONN_TYPE_VENCRYPT) {
+              if (secTypes[i] == SecTypeVeNCrypt) {
+                  secType = secTypes[i];
+                  break;
+              }
           } else {
-              // If anontls is not enforced still accept it.
-              if (secTypes[i] == SecTypeTLS)
+              if (secTypes[i] == SecTypeNone || secTypes[i] == SecTypeVncAuth || secTypes[i] == SecTypeTLS || secTypes[i] == SecTypeVeNCrypt) {
                   secType = secTypes[i];
-              
-              // However, override it by the other security modes if they show up as well.
-              if (secTypes[i] == SecTypeNone || secTypes[i] == SecTypeVncAuth) {
-                  secType = secTypes[i];
-                    break;
-              }             
+                  break;
+              }
           }
         }
 
@@ -515,45 +555,41 @@ class RfbProto implements RfbConnectable {
         return secType;
   }
 
-  int selectVeNCryptSecurityType() throws Exception {
-        int secType = SecTypeInvalid;
+  int authenticateVeNCrypt() throws Exception {
+	int majorVersion = is.readUnsignedByte();
+	int minorVersion = is.readUnsignedByte();
+	int Version = (majorVersion << 8) | minorVersion;
+	if (Version < 0x0002) {
+	  os.write(0);
+	  os.write(0);
+	  throw new Exception("Server reported an unsupported VeNCrypt version");
+	}
+	os.write(0);
+	os.write(2);
+	if (is.readUnsignedByte() != 0)
+	  throw new Exception("Server reported it could not support the VeNCrypt version");
+	int nSecTypes = is.readUnsignedByte();
+	int[] secTypes = new int[nSecTypes];
+	for(int i = 0; i < nSecTypes; i++)
+	  secTypes[i] = is.readInt();
 
-        // Read the list of security types.
-        int nSecTypes = is.readUnsignedByte();
-        if (nSecTypes == 0) {
-          readConnFailedReason();
-          return SecTypeInvalid;    // should never be executed
-        }
-        byte[] secTypes = new byte[nSecTypes];
-        readFully(secTypes);
+	for(int i = 0; i < nSecTypes; i++)
+	  switch(secTypes[i]) {
+	  case AuthNone:
+	  case AuthVNC:
+	  case AuthPlain:
+	  case AuthTLSNone:
+	  case AuthTLSVnc:
+	  case AuthTLSPlain:
+	  case AuthX509None:
+	  case AuthX509Vnc:
+	  case AuthX509Plain:
+		writeInt(secTypes[i]);
+		return secTypes[i];
+	  }
 
-        Log.d(TAG, "There are: " +nSecTypes +" security types.");
-
-        // Find first supported security type.
-        for (int i = 0; i < nSecTypes; i++) {
-          if (secTypes[i] == secTypeX509Plain ||
-              secTypes[i] == secTypeX509Vnc   ||
-              secTypes[i] == secTypeX509Ident ||
-              secTypes[i] == secTypeX509None  ||
-              secTypes[i] == secTypeTLSPlain  ||
-              secTypes[i] == secTypeTLSVnc    ||
-              secTypes[i] == secTypeTLSIdent  ||
-              secTypes[i] == secTypeTLSNone   ||
-              secTypes[i] == secTypeIdent     ||
-              secTypes[i] == secTypePlain ) {
-            secType = secTypes[i];
-            break;
-          }
-        }
-
-        if (secType == SecTypeInvalid) {
-          throw new Exception("Server did not offer supported security type");
-        } else {
-          os.write(secType);
-        }
-
-        return secType;
-      }
+	throw new Exception("No valid VeNCrypt sub-type");
+  }
 
   //
   // Perform "no authentication".
@@ -591,6 +627,30 @@ class RfbProto implements RfbConnectable {
     os.write(challenge);
 
     readSecurityResult("VNC authentication");
+  }
+
+  void authenticateTLS() throws Exception {
+    TLSTunnel tunnel = new TLSTunnel(sock);
+    tunnel.setup (this);
+  }
+
+  void authenticateX509(String certstr) throws Exception {
+    X509Tunnel tunnel = new X509Tunnel(sock, certstr, canvas);
+    if (readU8() == 0) {
+        throw new Exception("Setup on the server failed");
+    }
+    tunnel.setup (this);
+  }
+
+  void authenticatePlain(String User, String Password) throws Exception {
+    byte[] user = User.getBytes();
+    byte[] password = Password.getBytes();
+    writeInt(user.length);
+    writeInt(password.length);
+    os.write(user);
+    os.write(password);
+
+    readSecurityResult("Plain authentication");
   }
 
   //
@@ -726,24 +786,6 @@ class RfbProto implements RfbConnectable {
              SigEncodingNewFBSize, "Framebuffer size change");
   }
 
-  // Perform TLS handshake (AnonTLS)
-  void performTLSHandshake () throws Exception {
-    android.util.Log.i(TAG, "Performing TLS handshake.");
-
-    // Try using SSL
-       SSLSocketToMe ssl;
-       try {
-           ssl = new SSLSocketToMe(host, port);
-        sock = ssl.connectSock(sock);
-        sock.setTcpNoDelay(true);
-        is = new DataInputStream(new BufferedInputStream(sock.getInputStream(), 8192));
-        os = sock.getOutputStream();
-       } catch (Exception e) {
-           e.printStackTrace();
-           throw new IOException(e.getMessage());
-       }
-  }
-  
   //
   // Setup tunneling (TightVNC protocol extensions)
   //
@@ -1436,6 +1478,27 @@ class RfbProto implements RfbConnectable {
     */
   }
 
+  final int available() throws IOException {
+	    return is.available();
+  }
+
+  final int readU8() throws IOException {
+    return is.readUnsignedByte();
+  }
+
+  final int readU16() throws IOException {
+    return is.readUnsignedShort();
+  }
+
+  final int readU32() throws IOException {
+	return is.readInt();
+  }
+
+  public void setStreams(InputStream is_, OutputStream os_) {
+    is = new DataInputStream(new BufferedInputStream(is_, 8192));
+    os = os_;
+  }
+
     synchronized void writeOpenChat() throws Exception {
         os.write(TextChat); // byte type
         os.write(0); // byte pad 1
@@ -1618,24 +1681,24 @@ class RfbProto implements RfbConnectable {
     }
     
 
-    public void processProtocol (RemoteCanvas vncCanvas, boolean useLocalCursor) throws Exception {
+    public void processProtocol (boolean useLocalCursor) throws Exception {
         boolean exitforloop = false;
         int msgType = 0;
 
         try {
             setEncodings(useLocalCursor);
-            vncCanvas.writeFullUpdateRequest(false);
+            canvas.writeFullUpdateRequest(false);
 
             //
             // main dispatch loop
             //
             while (maintainConnection) {
                 exitforloop = false;
-                if (!vncCanvas.useFull) {
-                    vncCanvas.syncScroll();
+                if (!canvas.useFull) {
+                    canvas.syncScroll();
                     // Read message type from the server.
                     msgType = readServerMessageType();
-                    vncCanvas.doneWaiting();
+                    canvas.doneWaiting();
                 } else
                     msgType = readServerMessageType();
 
@@ -1652,7 +1715,7 @@ class RfbProto implements RfbConnectable {
                             decoder.handleTightRect(this, updateRectX, updateRectY, updateRectW, updateRectH);
                             break;
                         case RfbProto.EncodingPointerPos:
-                            vncCanvas.softCursorMove(updateRectX, updateRectY);
+                            canvas.softCursorMove(updateRectX, updateRectY);
                             break;
                         case RfbProto.EncodingXCursor:
                         case RfbProto.EncodingRichCursor:
@@ -1667,7 +1730,7 @@ class RfbProto implements RfbConnectable {
                             break;
                         case RfbProto.EncodingNewFBSize:
                             setFramebufferSize(updateRectW, updateRectH);
-                            vncCanvas.updateFBSize();
+                            canvas.updateFBSize();
                             exitforloop = true;
                             break;
                         case RfbProto.EncodingRaw:
@@ -1702,10 +1765,10 @@ class RfbProto implements RfbConnectable {
                     if (decoder.isChangedColorModel()) {
                         decoder.setPixelFormat(this);
                         //setEncodings(useLocalCursor);
-                        vncCanvas.writeFullUpdateRequest(false);
+                        canvas.writeFullUpdateRequest(false);
                     } else {
                         //setEncodings(useLocalCursor);
-                        vncCanvas.writeFullUpdateRequest(true);
+                        canvas.writeFullUpdateRequest(true);
                     }
                     break;
 
@@ -1713,12 +1776,12 @@ class RfbProto implements RfbConnectable {
                     throw new Exception("Can't handle SetColourMapEntries message");
 
                 case RfbProto.Bell:
-                    vncCanvas.displayShortToastMessage("VNC Beep");
+                    canvas.displayShortToastMessage("VNC Beep");
                     break;
 
                 case RfbProto.ServerCutText:
-                    vncCanvas.serverJustCutText = true;
-                    vncCanvas.setClipboardText(readServerCutText());
+                    canvas.serverJustCutText = true;
+                    canvas.setClipboardText(readServerCutText());
                     break;
 
                 case RfbProto.TextChat:
