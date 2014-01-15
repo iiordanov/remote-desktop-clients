@@ -1108,14 +1108,15 @@ public class RemoteCanvas extends ImageView implements LibFreeRDP.UIEventListene
         
         BaseInputConnection bic = new BaseInputConnection(this, false);        
         outAttrs.actionLabel = null;
-        int version = android.os.Build.VERSION.SDK_INT;
+        outAttrs.inputType = InputType.TYPE_NULL;
+        /* TODO: If people complain about kbd not working, this is a possible workaround to
+         * test and add an option for.
         // Workaround for IME's that don't support InputType.TYPE_NULL.
+        int version = android.os.Build.VERSION.SDK_INT;
         if (version >= 11) {
             outAttrs.inputType = InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS;
             outAttrs.imeOptions |= EditorInfo.IME_FLAG_NO_FULLSCREEN;
-        } else {
-            outAttrs.inputType = InputType.TYPE_NULL;
-        }
+        }*/
         return bic;
     }
     
