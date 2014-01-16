@@ -42,12 +42,15 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.SystemClock;
 import android.text.ClipboardManager;
+import android.text.Editable;
 import android.text.InputType;
+import android.text.Selection;
 import android.util.AttributeSet;
 import android.util.Base64;
 import android.util.DisplayMetrics;
@@ -1101,18 +1104,42 @@ public class RemoteCanvas extends ImageView implements LibFreeRDP.UIEventListene
         bm.recycle();
     }
     
-    
     @Override
     public InputConnection onCreateInputConnection(EditorInfo outAttrs) {
         android.util.Log.d(TAG, "onCreateInputConnection called");
+        int version = android.os.Build.VERSION.SDK_INT;
+        BaseInputConnection bic = null;
+        if (version >= Build.VERSION_CODES.JELLY_BEAN) {
+            bic = new BaseInputConnection(this, false) {
+                final static String junk_unit = "%%%%%%%%%%";
+                final static int multiple = 1000;
+                Editable e;
+                @Override
+                public Editable getEditable() {
+                    if (e == null) {
+                        int numTotalChars = junk_unit.length()*multiple;
+                        String junk = new String();
+                        for (int i = 0; i < multiple ; i++) {
+                            junk += junk_unit;
+                        }
+                        e = Editable.Factory.getInstance().newEditable(junk);
+                        Selection.setSelection(e, numTotalChars);
+                        if (RemoteCanvas.this.keyboard != null) {
+                            RemoteCanvas.this.keyboard.skippedJunkChars = false;
+                        }
+                    }
+                    return e;
+                }
+            };
+        } else {
+            bic = new BaseInputConnection(this, false);
+        }
         
-        BaseInputConnection bic = new BaseInputConnection(this, false);        
         outAttrs.actionLabel = null;
         outAttrs.inputType = InputType.TYPE_NULL;
         /* TODO: If people complain about kbd not working, this is a possible workaround to
          * test and add an option for.
         // Workaround for IME's that don't support InputType.TYPE_NULL.
-        int version = android.os.Build.VERSION.SDK_INT;
         if (version >= 11) {
             outAttrs.inputType = InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS;
             outAttrs.imeOptions |= EditorInfo.IME_FLAG_NO_FULLSCREEN;

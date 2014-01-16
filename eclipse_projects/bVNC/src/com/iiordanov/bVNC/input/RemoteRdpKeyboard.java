@@ -91,7 +91,9 @@ public class RemoteRdpKeyboard extends RemoteKeyboard {
             if (keyCode == 0 /*KEYCODE_UNKNOWN*/) {
                 String s = evt.getCharacters();
                 if (s != null) {
-                    for (int i = 0; i < s.length(); i++) {
+                    int numchars = s.length();
+                    int i = numJunkCharactersToSkip (numchars, evt);
+                    for (; i < numchars; i++) {
                         KeyEvent event = new KeyEvent(evt.getEventTime(), s.substring(i, i+1), KeyCharacterMap.FULL, 0);
                         keyboardMapper.processAndroidKeyEvent(event);
                     }

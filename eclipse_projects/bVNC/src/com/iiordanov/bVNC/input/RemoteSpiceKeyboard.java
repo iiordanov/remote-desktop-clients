@@ -95,7 +95,9 @@ public class RemoteSpiceKeyboard extends RemoteKeyboard {
             if (keyCode == 0 /*KEYCODE_UNKNOWN*/) {
                 String s = evt.getCharacters();
                 if (s != null) {
-                    for (int i = 0; i < s.length(); i++) {
+                    int numchars = s.length();
+                    int i = numJunkCharactersToSkip (numchars, evt);
+                    for (; i < numchars; i++) {
                         //android.util.Log.e(TAG, "Sending unicode: " + s.charAt(i));
                         sendUnicode (s.charAt(i), metaState);
                     }

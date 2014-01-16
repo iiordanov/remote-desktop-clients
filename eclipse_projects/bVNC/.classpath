@@ -7,7 +7,7 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/ZoomerWithKeys"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/PubkeyGenerator"/>
-	<classpathentry kind="src" path="gen"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/FreeRDPCore"/>
+	<classpathentry kind="src" path="gen"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>

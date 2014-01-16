@@ -77,7 +77,7 @@ public class RemoteVncKeyboard extends RemoteKeyboard {
             case KeyEvent.KEYCODE_DPAD_UP:      keysym = 0xff52; break;
             case KeyEvent.KEYCODE_DPAD_RIGHT:   keysym = 0xff53; break;
             case KeyEvent.KEYCODE_DPAD_DOWN:    keysym = 0xff54; break;
-            case KeyEvent.KEYCODE_DEL:           keysym = 0xff08; break;
+            case KeyEvent.KEYCODE_DEL:          keysym = 0xff08; break;
             case KeyEvent.KEYCODE_ENTER:        keysym = 0xff0d; break;
             case KeyEvent.KEYCODE_TAB:          keysym = 0xff09; break;
             case 92 /* KEYCODE_PAGE_UP */:      keysym = 0xff55; break;
@@ -188,7 +188,8 @@ public class RemoteVncKeyboard extends RemoteKeyboard {
                         rfb.writeKeyEvent(keysym, metaState, false);
 
                 } else if (numchars > 1) {
-                    for (int i = 0; i < numchars; i++) {
+                    int i = numJunkCharactersToSkip (numchars, evt);
+                    for (; i < numchars; i++) {
                         key = evt.getCharacters().charAt(i);
                         keysym = UnicodeToKeysym.translate(key);
                         //android.util.Log.e(TAG, "Sending multiple keys. Key: " + key + " keysym: " + keysym + ", metaState: " + metaState);
