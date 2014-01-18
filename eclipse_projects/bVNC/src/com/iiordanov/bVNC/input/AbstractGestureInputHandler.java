@@ -96,6 +96,12 @@ abstract class AbstractGestureInputHandler extends GestureDetector.SimpleOnGestu
     // What action was previously performed by a mouse or stylus.
     int prevMouseOrStylusAction = 0;
     
+    // What the display density is.
+    float displayDensity = 0;
+    
+    // Indicates that the next onFling will be disregarded.
+    boolean disregardNextOnFling = false;
+    
     /**
      * In the drag modes, we process mouse events without sending them through
      * the gesture detector.
@@ -125,6 +131,7 @@ abstract class AbstractGestureInputHandler extends GestureDetector.SimpleOnGestu
         useDpadAsArrows = activity.getUseDpadAsArrows();
         rotateDpad      = activity.getRotateDpad();
         keyHandler = new DPadMouseKeyHandler(activity, canvas.handler, useDpadAsArrows, rotateDpad);
+        displayDensity = canvas.getDisplayDensity();
     }
 
     /**
@@ -322,6 +329,11 @@ abstract class AbstractGestureInputHandler extends GestureDetector.SimpleOnGestu
         final int pointerID  = e.getPointerId(index);
         final int meta       = e.getMetaState();
         RemotePointer p = canvas.getPointer();
+        
+        if (e.getPressure() > .92) {
+            android.util.Log.i(TAG, "High pressure, will disregard next onFling: " + e.getPressure());
+            disregardNextOnFling = true;
+        }
 
         if (android.os.Build.VERSION.SDK_INT >= 14) {
             // Handle and consume actions performed by a (e.g. USB or bluetooth) mouse.
@@ -330,9 +342,9 @@ abstract class AbstractGestureInputHandler extends GestureDetector.SimpleOnGestu
         }
 
         if (action == MotionEvent.ACTION_UP) {
-             // Turn filtering back on and invalidate to make things pretty.
-             canvas.bitmapData.drawable._defaultPaint.setFilterBitmap(true);
-             canvas.invalidate();
+            // Turn filtering back on and invalidate to make things pretty.
+            canvas.bitmapData.drawable._defaultPaint.setFilterBitmap(true);
+            canvas.invalidate();
         }
 
         switch (pointerID) {
@@ -340,6 +352,7 @@ abstract class AbstractGestureInputHandler extends GestureDetector.SimpleOnGestu
         case 0:
             switch (action) {
             case MotionEvent.ACTION_DOWN:
+                disregardNextOnFling = false;
                 singleHandedJustEnded = false;
                 // We have put down first pointer on the screen, so we can reset the state of all click-state variables.
                 // Permit sending mouse-down event on long-tap again.

@@ -99,7 +99,7 @@ public class TouchMouseSwipePanInputHandler extends AbstractGestureInputHandler 
      *      android.view.MotionEvent, float, float)
      */
     @Override
-    public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,    float velocityY) {
+    public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
 
         // TODO: Workaround for Android 4.2.
         boolean twoFingers = false;
@@ -111,11 +111,12 @@ public class TouchMouseSwipePanInputHandler extends AbstractGestureInputHandler 
         // onFling called while scaling/swiping gesture is in effect. We ignore the event and pretend it was
         // consumed. This prevents the mouse pointer from flailing around while we are scaling.
         // Also, if one releases one finger slightly earlier than the other when scaling, it causes Android 
-        // to stick a spiteful onScroll with a MASSIVE delta here. 
+        // to stick a spiteful onFling with a MASSIVE delta here. 
         // This would cause the mouse pointer to jump to another place suddenly.
-        // Hence, we ignore onScroll after scaling until we lift all pointers up.
-        if (twoFingers||inSwiping||inScaling||scalingJustFinished)
+        // Hence, we ignore onFling after scaling until we lift all pointers up.
+        if (twoFingers||disregardNextOnFling||inSwiping||inScaling||scalingJustFinished) {
             return true;
+        }
 
         activity.showZoomer(false);
         activity.getPanner().start(-(velocityX / FLING_FACTOR),
@@ -164,6 +165,11 @@ public class TouchMouseSwipePanInputHandler extends AbstractGestureInputHandler 
 
         float scale = canvas.getScale();
         activity.showZoomer(false);
+        
+        // Make distanceX/Y display density independent. Also, take into account the finger pressure.
+        float f = e2.getPressure();
+        distanceX = f * distanceX / displayDensity;
+        distanceY = f * distanceY / displayDensity;
         return canvas.pan((int)(distanceX*scale), (int)(distanceY*scale));
     }
 }

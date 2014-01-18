@@ -14,7 +14,6 @@ public class SimulatedTouchpadInputHandler extends AbstractGestureInputHandler {
     static final String TAG = "SimulatedTouchpadInputHandler";
     public static final String TOUCHPAD_MODE = "TOUCHPAD_MODE";
     float sensitivity = 0;
-    float displayDensity = 0;
     boolean acceleration = false;
 
     /**
@@ -24,7 +23,6 @@ public class SimulatedTouchpadInputHandler extends AbstractGestureInputHandler {
         super(va, v);
         acceleration = activity.getAccelerationEnabled();
         sensitivity = activity.getSensitivity();
-        displayDensity = canvas.getDisplayDensity();
     }
 
     /*
@@ -116,9 +114,10 @@ public class SimulatedTouchpadInputHandler extends AbstractGestureInputHandler {
             distanceX = sign(distanceX);
             distanceY = sign(distanceY);
         } else {
-            // Make distanceX/Y display density independent.
-            distanceX = sensitivity * distanceX / displayDensity;
-            distanceY = sensitivity * distanceY / displayDensity;
+            // Make distanceX/Y display density independent. Also, take into account the finger pressure.
+            float f = e2.getPressure() * sensitivity;
+            distanceX = f * distanceX / displayDensity;
+            distanceY = f * distanceY / displayDensity;
         }
         
         // Compute the absolute new mouse position on the remote site.

@@ -106,8 +106,7 @@ public class TouchMouseDragPanInputHandler extends AbstractGestureInputHandler {
      *      android.view.MotionEvent, float, float)
      */
     @Override
-    public boolean onScroll(MotionEvent e1, MotionEvent e2,
-            float distanceX, float distanceY) {
+    public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
         RemotePointer p = canvas.getPointer();
 
         // onScroll called while scaling/swiping gesture is in effect. We ignore the event and pretend it was
@@ -131,7 +130,7 @@ public class TouchMouseDragPanInputHandler extends AbstractGestureInputHandler {
             dragMode = true;
             p.processPointerEvent(getX(e1), getY(e1), e1.getActionMasked(), e1.getMetaState(), true, false, false, false, 0);
         } else {
-            p.processPointerEvent(getX(e2), getY(e2), e2.getActionMasked(), e2.getMetaState(), true, false, false, false, 0);        
+            p.processPointerEvent(getX(e2), getY(e2), e2.getActionMasked(), e2.getMetaState(), true, false, false, false, 0);
         }
         canvas.panToMouse();
         return true;
