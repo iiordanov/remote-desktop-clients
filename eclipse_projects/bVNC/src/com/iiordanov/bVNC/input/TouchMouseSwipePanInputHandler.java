@@ -163,13 +163,29 @@ public class TouchMouseSwipePanInputHandler extends AbstractGestureInputHandler 
         if (twoFingers||inSwiping||inScaling||scalingJustFinished)
             return true;
 
+        if (!inScrolling) {
+            inScrolling = true;
+            distanceX = sign(distanceX);
+            distanceY = sign(distanceY);
+            distXQueue.clear();
+            distYQueue.clear();
+        }
+        
+        distXQueue.add(distanceX);
+        distYQueue.add(distanceY);
+
+        // Only after the first two events have arrived do we start using distanceX and Y
+        // In order to effectively discard the last two events (which are typically unreliable
+        // because of the finger lifting off).
+        if (distXQueue.size() > 2) {
+            distanceX = distXQueue.poll();
+            distanceY = distYQueue.poll();
+        } else {
+            return true;
+        }
+        
         float scale = canvas.getScale();
         activity.showZoomer(false);
-        
-        // Make distanceX/Y display density independent. Also, take into account the finger pressure.
-        float f = e2.getPressure();
-        distanceX = f * distanceX / displayDensity;
-        distanceY = f * distanceY / displayDensity;
         return canvas.pan((int)(distanceX*scale), (int)(distanceY*scale));
     }
 }

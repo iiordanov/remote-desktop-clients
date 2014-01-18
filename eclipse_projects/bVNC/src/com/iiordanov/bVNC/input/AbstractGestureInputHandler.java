@@ -20,6 +20,9 @@
 
 package com.iiordanov.bVNC.input;
 
+import java.util.LinkedList;
+import java.util.Queue;
+
 import android.os.SystemClock;
 import android.util.Log;
 import android.view.GestureDetector;
@@ -102,6 +105,10 @@ abstract class AbstractGestureInputHandler extends GestureDetector.SimpleOnGestu
     // Indicates that the next onFling will be disregarded.
     boolean disregardNextOnFling = false;
     
+    // Queue which holds the last two MotionEvents which triggered onScroll
+    Queue<Float> distXQueue;
+    Queue<Float> distYQueue;
+    
     /**
      * In the drag modes, we process mouse events without sending them through
      * the gesture detector.
@@ -132,6 +139,9 @@ abstract class AbstractGestureInputHandler extends GestureDetector.SimpleOnGestu
         rotateDpad      = activity.getRotateDpad();
         keyHandler = new DPadMouseKeyHandler(activity, canvas.handler, useDpadAsArrows, rotateDpad);
         displayDensity = canvas.getDisplayDensity();
+        
+        distXQueue = new LinkedList<Float>();
+        distYQueue = new LinkedList<Float>();
     }
 
     /**
@@ -163,7 +173,7 @@ abstract class AbstractGestureInputHandler extends GestureDetector.SimpleOnGestu
         final int bstate = e.getButtonState();
         RemotePointer p  = canvas.getPointer();
         float scale = canvas.getScale();
-        int x = (int)(canvas.getAbsoluteX() +  e.getX()                             / scale);
+        int x = (int)(canvas.getAbsoluteX() +  e.getX()                          / scale);
         int y = (int)(canvas.getAbsoluteY() + (e.getY() - 1.f * canvas.getTop()) / scale);
 
         switch (action) {
@@ -330,8 +340,10 @@ abstract class AbstractGestureInputHandler extends GestureDetector.SimpleOnGestu
         final int meta       = e.getMetaState();
         RemotePointer p = canvas.getPointer();
         
-        if (e.getPressure() > .92) {
-            android.util.Log.i(TAG, "High pressure, will disregard next onFling: " + e.getPressure());
+        float f = e.getPressure();
+        if (f > 2.f)
+            f = f / 50.f;
+        if (f > .92f) {
             disregardNextOnFling = true;
         }
 
@@ -607,5 +619,14 @@ abstract class AbstractGestureInputHandler extends GestureDetector.SimpleOnGestu
             return true;
         
         return activity.onTouchEvent(evt);
+    }
+    
+    /**
+     * Returns the sign of the given number.
+     * @param number the given number
+     * @return -1 for negative and 1 for positive.
+     */
+    protected float sign (float number) {
+        return (number > 0) ? 1 : -1;
     }
 }

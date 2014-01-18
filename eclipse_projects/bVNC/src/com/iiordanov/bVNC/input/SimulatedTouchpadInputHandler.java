@@ -113,12 +113,26 @@ public class SimulatedTouchpadInputHandler extends AbstractGestureInputHandler {
             inScrolling = true;
             distanceX = sign(distanceX);
             distanceY = sign(distanceY);
-        } else {
-            // Make distanceX/Y display density independent. Also, take into account the finger pressure.
-            float f = e2.getPressure() * sensitivity;
-            distanceX = f * distanceX / displayDensity;
-            distanceY = f * distanceY / displayDensity;
+            distXQueue.clear();
+            distYQueue.clear();
         }
+        
+        distXQueue.add(distanceX);
+        distYQueue.add(distanceY);
+
+        // Only after the first two events have arrived do we start using distanceX and Y
+        // In order to effectively discard the last two events (which are typically unreliable
+        // because of the finger lifting off).
+        if (distXQueue.size() > 2) {
+            distanceX = distXQueue.poll();
+            distanceY = distYQueue.poll();
+        } else {
+            return true;
+        }
+
+        // Make distanceX/Y display density independent.
+        distanceX = sensitivity * distanceX / displayDensity;
+        distanceY = sensitivity * distanceY / displayDensity;
         
         // Compute the absolute new mouse position on the remote site.
         int newRemoteX = (int) (p.getX() + getDelta(-distanceX));
@@ -188,14 +202,5 @@ public class SimulatedTouchpadInputHandler extends AbstractGestureInputHandler {
             delta *= 4.5;
         }
         return sign * delta;
-    }
-    
-    /**
-     * Returns the sign of the given number.
-     * @param number the given number
-     * @return -1 for negative and 1 for positive.
-     */
-    private float sign (float number) {
-        return (number > 0) ? 1 : -1;
     }
 }
