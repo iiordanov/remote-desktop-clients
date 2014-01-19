@@ -393,7 +393,7 @@ public class RemoteCanvas extends ImageView implements LibFreeRDP.UIEventListene
         int vncPort = getPort(connection.getPort());
         try {
             rfb = new RfbProto(decoder, this, address, vncPort,
-                                connection.getPrefEncoding(), connection.getViewOnly());
+                               connection.getPrefEncoding(), connection.getViewOnly(), connection.getUseLocalCursor());
             Log.v(TAG, "Connected to server: " + address + " at port: " + vncPort);
             rfb.initializeAndAuthenticate(connection.getUserName(), connection.getPassword(),
                                           connection.getUseRepeater(), connection.getRepeaterId(),
@@ -429,7 +429,7 @@ public class RemoteCanvas extends ImageView implements LibFreeRDP.UIEventListene
         if (pd.isShowing())
             pd.dismiss();
         
-        rfb.processProtocol(connection.getUseLocalCursor());
+        rfb.processProtocol();
     }
     
     
