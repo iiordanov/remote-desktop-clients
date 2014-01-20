@@ -62,7 +62,7 @@ public class RdpCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyPro
 
     @Override
     public void writeClientCutText(String text) {
-        // TODO: Needs to be implemented for copy/paste.
+        LibFreeRDP.sendClipboardData(session.getInstance(), text);
     }
 
     @Override

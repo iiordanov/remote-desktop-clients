@@ -1366,7 +1366,12 @@ public class RemoteCanvas extends ImageView implements LibFreeRDP.UIEventListene
         OnSettingsChanged(width, height, bpp);
     }
     
-    
+    @Override
+    public void OnRemoteClipboardChanged(String data) {
+        serverJustCutText = true;
+        setClipboardText(data);
+    }
+
     /** 
      * Handler for the dialogs that display the x509/RDP/SSH key signatures to the user.
      * Also shows the dialogs which show various connection failures.
