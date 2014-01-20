@@ -62,6 +62,10 @@ class RfbProto implements RfbConnectable {
     SecTypeNone     = 1,
     SecTypeVncAuth  = 2,
     SecTypeTight    = 16,
+    SecTypeUltraVnc1 = 17,
+    SecTypeUltraVnc2 = 113,
+    SecTypeUltraVnc3 = 114,
+    SecTypeUltraVnc4 = 115,
     SecTypeTLS      = 18,
     SecTypeVeNCrypt = 19,
     SecTypeUltra34 = 0xfffffffa;
@@ -360,10 +364,10 @@ class RfbProto implements RfbConnectable {
         } else if (secType == RfbProto.SecTypeTLS) {
             authenticateTLS();
             authType = negotiateSecurity(bitPref, 0);
-		} else if (secType == RfbProto.SecTypeUltra34) {
-			prepareDH();
-			authType = RfbProto.AuthUltra;
-		} else {
+        } else if (secType == RfbProto.SecTypeUltra34 ||
+                   secType == RfbProto.SecTypeUltraVnc2) {
+            authType = RfbProto.AuthUltra;
+        } else {
 			authType = secType;
 		}
 
@@ -381,6 +385,7 @@ class RfbProto implements RfbConnectable {
 			authenticateVNC(pw);
 			break;
 		case RfbProto.AuthUltra:
+            prepareDH();
 			authenticateDH(us,pw);
 			break;
 		case RfbProto.AuthTLSNone:
@@ -472,8 +477,11 @@ class RfbProto implements RfbConnectable {
   //
 
   int negotiateSecurity(int bitPref, int connType) throws Exception {
-    return (clientMinor >= 7) ?
-      selectSecurityType(bitPref, connType) : readSecurityType(bitPref);
+      if (clientMinor >= 7) {
+          return selectSecurityType(bitPref, connType);
+      } else {
+          return readSecurityType(bitPref);
+      }
   }
 
   //
@@ -491,6 +499,7 @@ class RfbProto implements RfbConnectable {
     case SecTypeVncAuth:
       return secType;
     case SecTypeUltra34:
+    case SecTypeUltraVnc2:
       if((bitPref & 1) == 1)
         return secType;
       throw new Exception("Username required.");
@@ -504,6 +513,8 @@ class RfbProto implements RfbConnectable {
   //
 
   int selectSecurityType(int bitPref, int connType) throws Exception {
+      android.util.Log.i(TAG, "(Re)Selecting security type.");
+
     int secType = SecTypeInvalid;
 
         // Read the list of security types.
@@ -526,6 +537,8 @@ class RfbProto implements RfbConnectable {
 
         // Find first supported security type.
         for (int i = 0; i < nSecTypes; i++) {
+          android.util.Log.i(TAG, "Received security type: " + secTypes[i]);
+            
           // If AnonTLS or VeNCrypt modes are enforced, then only accept them. Otherwise, accept it and all others.
           if (connType == Constants.CONN_TYPE_ANONTLS) {
               if (secTypes[i] == SecTypeTLS) {
@@ -534,6 +547,11 @@ class RfbProto implements RfbConnectable {
               }
           } else if (connType == Constants.CONN_TYPE_VENCRYPT) {
               if (secTypes[i] == SecTypeVeNCrypt) {
+                  secType = secTypes[i];
+                  break;
+              }
+          } else if (connType == Constants.CONN_TYPE_ULTRAVNC) {
+              if (secTypes[i] == SecTypeUltraVnc2 || secTypes[i] == SecTypeUltra34) {
                   secType = secTypes[i];
                   break;
               }
@@ -570,8 +588,9 @@ class RfbProto implements RfbConnectable {
 	  throw new Exception("Server reported it could not support the VeNCrypt version");
 	int nSecTypes = is.readUnsignedByte();
 	int[] secTypes = new int[nSecTypes];
-	for(int i = 0; i < nSecTypes; i++)
+	for(int i = 0; i < nSecTypes; i++) {
 	  secTypes[i] = is.readInt();
+	}
 
 	for(int i = 0; i < nSecTypes; i++)
 	  switch(secTypes[i]) {
@@ -585,6 +604,10 @@ class RfbProto implements RfbConnectable {
 	  case AuthX509Vnc:
 	  case AuthX509Plain:
 		writeInt(secTypes[i]);
+		Log.i(TAG, "Selecting VeNCrypt subtype: " + secTypes[i]);
+	    if (readU8() == 0) {
+	        throw new Exception("Setup on the server failed");
+	    }
 		return secTypes[i];
 	  }
 
@@ -636,9 +659,6 @@ class RfbProto implements RfbConnectable {
 
   void authenticateX509(String certstr) throws Exception {
     X509Tunnel tunnel = new X509Tunnel(sock, certstr, canvas);
-    if (readU8() == 0) {
-        throw new Exception("Setup on the server failed");
-    }
     tunnel.setup (this);
   }
 
@@ -690,8 +710,7 @@ class RfbProto implements RfbConnectable {
     throw new Exception(reasonString);
   }
 
-  void prepareDH() throws Exception
-  {
+  void prepareDH() throws Exception {
     long gen = is.readLong();
     long mod = is.readLong();
     dh_resp = is.readLong();
