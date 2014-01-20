@@ -358,6 +358,7 @@ public class RemoteCanvas extends ImageView implements LibFreeRDP.UIEventListene
         int remoteHeight = getRemoteHeight();
         screenSettings.setWidth(remoteWidth);
         screenSettings.setHeight(remoteHeight);
+        screenSettings.setColors(16);
         
         // Set performance flags.
         BookmarkBase.PerformanceFlags performanceFlags = session.getBookmark().getPerformanceFlags();
