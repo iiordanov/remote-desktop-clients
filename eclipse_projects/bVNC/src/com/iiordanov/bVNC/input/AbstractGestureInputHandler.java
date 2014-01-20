@@ -82,8 +82,8 @@ abstract class AbstractGestureInputHandler extends GestureDetector.SimpleOnGestu
     
     // The variables which indicates how many scroll events to send per swipe 
     // event and the maximum number to send at one time.
-    long      swipeSpeed    = 1;
-    final int maxSwipeSpeed = 20;
+    long swipeSpeed    = 1;
+    int  maxSwipeSpeed = 20;
     // If swipe events are registered once every baseSwipeTime miliseconds, then
     // swipeSpeed will be one. If more often, swipe-speed goes up, if less, down.
     final long    baseSwipeTime = 600;
@@ -128,7 +128,7 @@ abstract class AbstractGestureInputHandler extends GestureDetector.SimpleOnGestu
     protected boolean secondPointerWasDown = false;
     protected boolean thirdPointerWasDown  = false;
     
-    AbstractGestureInputHandler(RemoteCanvasActivity c, RemoteCanvas v)
+    AbstractGestureInputHandler(RemoteCanvasActivity c, RemoteCanvas v, boolean slowScrolling)
     {
         activity = c;
         canvas = v;
@@ -142,6 +142,10 @@ abstract class AbstractGestureInputHandler extends GestureDetector.SimpleOnGestu
         
         distXQueue = new LinkedList<Float>();
         distYQueue = new LinkedList<Float>();
+        
+        if (slowScrolling) {
+            maxSwipeSpeed = 2;
+        }
     }
 
     /**

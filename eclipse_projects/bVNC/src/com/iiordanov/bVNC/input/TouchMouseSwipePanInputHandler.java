@@ -25,8 +25,8 @@ public class TouchMouseSwipePanInputHandler extends AbstractGestureInputHandler 
     /**
      * @param c
      */
-    public TouchMouseSwipePanInputHandler(RemoteCanvasActivity va, RemoteCanvas v) {
-        super(va, v);
+    public TouchMouseSwipePanInputHandler(RemoteCanvasActivity va, RemoteCanvas v, boolean slowScrolling) {
+        super(va, v, slowScrolling);
     }
 
     /*

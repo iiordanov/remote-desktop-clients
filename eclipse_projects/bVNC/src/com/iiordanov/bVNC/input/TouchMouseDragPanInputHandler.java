@@ -25,8 +25,8 @@ public class TouchMouseDragPanInputHandler extends AbstractGestureInputHandler {
     /**
      * @param c
      */
-    public TouchMouseDragPanInputHandler(RemoteCanvasActivity va, RemoteCanvas v) {
-        super(va, v);
+    public TouchMouseDragPanInputHandler(RemoteCanvasActivity va, RemoteCanvas v, boolean slowScrolling) {
+        super(va, v, slowScrolling);
     }
 
     /*
