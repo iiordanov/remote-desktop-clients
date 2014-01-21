@@ -284,7 +284,7 @@ public abstract class RemoteKeyboard {
             } else {
                 // The user has typed at least one char, so we need to skip just the junk
                 // characters, so skip backward until we hit the first junk character.
-                for (i = numchars - 2; i >= 0 ; i--) {
+                for (i = Math.max(numchars - 2, 0); i > 0 ; i--) {
                     if (evt.getCharacters().charAt(i) == '%') {
                         i = i + 1;
                         break;
