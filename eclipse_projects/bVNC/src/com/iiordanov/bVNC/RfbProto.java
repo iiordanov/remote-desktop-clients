@@ -1727,7 +1727,11 @@ class RfbProto implements RfbConnectable {
         encodings[nEncodings++] = RfbProto.EncodingPointerPos;
         encodings[nEncodings++] = RfbProto.EncodingLastRect;
         encodings[nEncodings++] = RfbProto.EncodingNewFBSize;
-        encodings[nEncodings++] = RfbProto.EncodingClientRedirect;
+        // TODO: Disabling ClientRedirect encoding for now because of
+        // it being reserved for CursorWithAlpha by RealVNC and for
+        // ClientRedirect by IANA. This can be reenabled once the
+        // problem has been resolved.
+        //encodings[nEncodings++] = RfbProto.EncodingClientRedirect;
 
         boolean encodingsWereChanged = false;
         if (nEncodings != nEncodingsSaved) {
