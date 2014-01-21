@@ -140,13 +140,15 @@ class RfbProto implements RfbConnectable {
     EncodingZlib           = 6,
     EncodingTight          = 7,
     EncodingZRLE           = 16,
-    EncodingCompressLevel0 = 0xFFFFFF00,
-    EncodingQualityLevel0  = 0xFFFFFFE0,
-    EncodingXCursor        = 0xFFFFFF10,
-    EncodingRichCursor     = 0xFFFFFF11,
-    EncodingPointerPos     = 0xFFFFFF18,
-    EncodingLastRect       = 0xFFFFFF20,
-    EncodingNewFBSize      = 0xFFFFFF21;
+    EncodingCompressLevel0 = -256,
+    EncodingQualityLevel0  = -32,
+    EncodingXCursor        = -240,
+    EncodingRichCursor     = -239,
+    EncodingPointerPos     = -232,
+    EncodingLastRect       = -224,
+    EncodingNewFBSize      = -223,
+    EncodingClientRedirect = -311;
+  
   final static String
     SigEncodingRaw            = "RAW_____",
     SigEncodingCopyRect       = "COPYRECT",
@@ -276,44 +278,48 @@ class RfbProto implements RfbConnectable {
     // The remote canvas
     RemoteCanvas canvas;
     
+    // Whether to only use a local cursor.
+    private boolean useLocalCursor = false;
+    
   //
   // Constructor. Make TCP connection to RFB server.
   //
-  RfbProto(Decoder d, RemoteCanvas canvas, String h, int p, int prefEnc, boolean viewOnly) throws Exception {
-    this.viewOnly = viewOnly;
-    this.canvas = canvas;
-    host = h;
-    port = p;
-    preferredEncoding = prefEnc;
-
-    sock = new Socket(host, port);
-    sock.setTcpNoDelay(true);
-    // After much testing, 8192 does seem like the best compromize between
-    // responsiveness and throughput.
-    is = new DataInputStream(new BufferedInputStream(sock.getInputStream(), 8192));
-    os = sock.getOutputStream();
-
-    decoder = d;
-
-    timing = false;
-    timeWaitedIn100us = 5;
-    timedKbits = 0;
+  RfbProto(Decoder decoder, RemoteCanvas canvas,
+          String host, int port, int preferredEncoding,
+          boolean viewOnly, boolean useLocalCursor) throws Exception {
+      setParameters(decoder, canvas, host, port, preferredEncoding, viewOnly, useLocalCursor);
   }
- 
 
+  void setParameters(Decoder decoder, RemoteCanvas canvas,
+                      String host, int port, int preferredEncoding,
+                      boolean viewOnly, boolean useLocalCursor) throws Exception {
+      this.decoder = decoder;
+      this.viewOnly = viewOnly;
+      this.canvas = canvas;
+      this.host = host;
+      this.port = port;
+      this.preferredEncoding = preferredEncoding;
+      this.useLocalCursor = useLocalCursor;
+
+      sock = new Socket(host, port);
+      sock.setTcpNoDelay(true);
+      
+      // After much testing, 8192 does seem like the best compromize between
+      // responsiveness and throughput.
+      is = new DataInputStream(new BufferedInputStream(sock.getInputStream(), 8192));
+      os = sock.getOutputStream();
+
+      timing = false;
+      timeWaitedIn100us = 5;
+      timedKbits = 0;
+  }
+  
   public synchronized void closeSocket() {
       inNormalProtocol = false;
     try {
       sock.close();
       closed = true;
-      //- System.out.println("RFB socket closed");
       Log.v(TAG, "RFB socket closed");
-      /*-
-      if (rec != null) {
-    rec.close();
-    rec = null;
-      
-      } */
     } catch (Exception e) {
       e.printStackTrace();
     }
@@ -325,7 +331,6 @@ class RfbProto implements RfbConnectable {
       closeSocket();
   }
 
-  
   synchronized boolean closed() {
     return closed;
   }
@@ -1410,7 +1415,31 @@ class RfbProto implements RfbConnectable {
     eventBuf[eventBufLen++] = (byte) (keysym & 0xff);
   }
   
+  void readClientRedirect(int x, int y, int w, int h) throws Exception {
+    int port = readU16();
+    String host = readString();
+    String x509subject = readString();
 
+    if (x != 0 || y != 0 || w != 0 || h != 0) {
+      android.util.Log.e(TAG, "Ignoring ClientRedirect rect with non-zero position/size");
+    } else {
+      clientRedirect(port, host, x509subject);
+    }
+  }
+  
+  // clientRedirect() migrates the client to another host/port
+  public void clientRedirect(int port, String host, String x509subject) {
+      try {
+          closeSocket();
+          setParameters(decoder, canvas, host, port, preferredEncoding, viewOnly, useLocalCursor);
+          writeClientInit();
+          readServerInit();
+          processProtocol();
+      } catch (Exception e) {
+          e.printStackTrace();
+      }
+  }
+  
   //
   // Write key events to set the correct modifier state.
   //
@@ -1514,7 +1543,28 @@ class RfbProto implements RfbConnectable {
   final int readU32() throws IOException {
 	return is.readInt();
   }
-
+  
+  // maxStringLength protects against allocating a huge buffer.  Set it
+  // higher if you need longer strings.
+  public static int maxStringLength = 65535;
+  
+  // readString() reads a string - a U32 length followed by the data.
+  public final String readString() throws Exception {
+    int len = readU32();
+    if (len > maxStringLength)
+      throw new Exception("Max string length exceeded");
+    
+    byte[] str = new byte[len];
+    readFully(str, 0, len);
+    String utf8string = new String();
+    try {
+      utf8string = new String(str, "UTF8");
+    } catch(java.io.UnsupportedEncodingException e) {
+      e.printStackTrace();
+    }
+    return utf8string;
+  }
+  
   public void setStreams(InputStream is_, OutputStream os_) {
     is = new DataInputStream(new BufferedInputStream(is_, 8192));
     os = os_;
@@ -1649,7 +1699,7 @@ class RfbProto implements RfbConnectable {
         return "";
     }
 
-    private void setEncodings(boolean useLocalCursor) {
+    private void setEncodings() {
         if (!inNormalProtocol)
             return;
 
@@ -1677,6 +1727,7 @@ class RfbProto implements RfbConnectable {
         encodings[nEncodings++] = RfbProto.EncodingPointerPos;
         encodings[nEncodings++] = RfbProto.EncodingLastRect;
         encodings[nEncodings++] = RfbProto.EncodingNewFBSize;
+        encodings[nEncodings++] = RfbProto.EncodingClientRedirect;
 
         boolean encodingsWereChanged = false;
         if (nEncodings != nEncodingsSaved) {
@@ -1702,12 +1753,12 @@ class RfbProto implements RfbConnectable {
     }
     
 
-    public void processProtocol (boolean useLocalCursor) throws Exception {
+    public void processProtocol () throws Exception {
         boolean exitforloop = false;
         int msgType = 0;
 
         try {
-            setEncodings(useLocalCursor);
+            setEncodings();
             canvas.writeFullUpdateRequest(false);
 
             //
@@ -1741,7 +1792,7 @@ class RfbProto implements RfbConnectable {
                         case RfbProto.EncodingXCursor:
                         case RfbProto.EncodingRichCursor:
                             decoder.handleCursorShapeUpdate(this, updateRectEncoding, updateRectX, updateRectY,
-                                                              updateRectW, updateRectH);
+                                                            updateRectW, updateRectH);
                             break;
                         case RfbProto.EncodingLastRect:
                             exitforloop = true;
@@ -1772,6 +1823,9 @@ class RfbProto implements RfbConnectable {
                         case RfbProto.EncodingZlib:
                             decoder.handleZlibRect(this, updateRectX, updateRectY, updateRectW, updateRectH);
                             break;
+                        case RfbProto.EncodingClientRedirect:
+                            readClientRedirect(updateRectX, updateRectY, updateRectW, updateRectH);
+                            break;
                         default:
                             Log.e(TAG, "Unknown RFB rectangle encoding " + updateRectEncoding +
                                         " (0x" + Integer.toHexString(updateRectEncoding) + ")");
@@ -1785,10 +1839,10 @@ class RfbProto implements RfbConnectable {
 
                     if (decoder.isChangedColorModel()) {
                         decoder.setPixelFormat(this);
-                        //setEncodings(useLocalCursor);
+                        //setEncodings();
                         canvas.writeFullUpdateRequest(false);
                     } else {
-                        //setEncodings(useLocalCursor);
+                        //setEncodings();
                         canvas.writeFullUpdateRequest(true);
                     }
                     break;
