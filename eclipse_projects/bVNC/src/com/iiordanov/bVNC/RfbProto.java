@@ -551,12 +551,14 @@ class RfbProto implements RfbConnectable {
                   break;
               }
           } else if (connType == Constants.CONN_TYPE_ULTRAVNC) {
-              if (secTypes[i] == SecTypeUltraVnc2 || secTypes[i] == SecTypeUltra34) {
+              if (secTypes[i] == SecTypeNone || secTypes[i] == SecTypeVncAuth ||
+                  secTypes[i] == SecTypeUltraVnc2 || secTypes[i] == SecTypeUltra34) {
                   secType = secTypes[i];
                   break;
               }
           } else {
-              if (secTypes[i] == SecTypeNone || secTypes[i] == SecTypeVncAuth || secTypes[i] == SecTypeTLS || secTypes[i] == SecTypeVeNCrypt) {
+              if (secTypes[i] == SecTypeNone || secTypes[i] == SecTypeVncAuth ||
+                  secTypes[i] == SecTypeTLS || secTypes[i] == SecTypeVeNCrypt) {
                   secType = secTypes[i];
                   break;
               }
