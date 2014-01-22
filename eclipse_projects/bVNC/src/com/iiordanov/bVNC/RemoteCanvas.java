@@ -498,9 +498,9 @@ public class RemoteCanvas extends ImageView implements LibFreeRDP.UIEventListene
             reqWidth >= 2 && reqHeight >= 2) {
             remoteWidth  = reqWidth;
         } else if (connection.getRdpResType() == Constants.RDP_GEOM_SELECT_NATIVE_PORTRAIT) {
-            remoteWidth  = Math.min(displayWidth, displayHeight);
+            remoteWidth  = Math.min(getWidth(), getHeight());
         } else {
-            remoteWidth  = Math.max(displayWidth, displayHeight);
+            remoteWidth  = Math.max(getWidth(), getHeight());
         }
         return remoteWidth;
     }
@@ -517,9 +517,9 @@ public class RemoteCanvas extends ImageView implements LibFreeRDP.UIEventListene
             reqWidth >= 2 && reqHeight >= 2) {
             remoteHeight = reqHeight;
         } else if (connection.getRdpResType() == Constants.RDP_GEOM_SELECT_NATIVE_PORTRAIT) {
-            remoteHeight = Math.max(displayWidth, displayHeight);                        
+            remoteHeight = Math.max(getWidth(), getHeight());
         } else {
-            remoteHeight = Math.min(displayWidth, displayHeight);
+            remoteHeight = Math.min(getWidth(), getHeight());
         }
         return remoteHeight;
     }
