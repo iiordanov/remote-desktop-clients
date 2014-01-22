@@ -51,7 +51,7 @@
                   android:configChanges="keyboardHidden|orientation"
                   android:windowSoftInputMode="stateHidden|adjustResize"
                   android:screenOrientation="unspecified" />
-                <uses-library required="false" name="com.sec.android.app.multiwindow"> </uses-library>
+                <uses-library android:required="false" name="com.sec.android.app.multiwindow"> </uses-library>
                 <meta-data android:name="com.sec.android.support.multiwindow"
                            android:value="true" />
                 <meta-data android:name="com.sec.android.multiwindow.DEFAULT_SIZE_W"
@@ -62,7 +62,5 @@
                            android:resource="@dimen/app_minimumsize_w" />
                 <meta-data android:name="com.sec.android.multiwindow.MINIMUM_SIZE_H"
                            android:resource="@dimen/app_minimumsize_h" />
-        <activity android:name="com.google.ads.AdActivity"
-                  android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize"/>
     </application>
 </manifest> 
