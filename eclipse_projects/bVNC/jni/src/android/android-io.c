@@ -129,20 +129,7 @@ static int update_mask (int button, gboolean down) {
 
 
 /* JNI functions related to input (keyboard, mouse), and output (display). */
-
-
-static gint get_display_id(SpiceDisplay *display)
-{
-    SpiceDisplayPrivate *d = SPICE_DISPLAY_GET_PRIVATE(display);
-
-    /* supported monitor_id only with display channel #0 */
-    if (d->channel_id == 0 && d->monitor_id >= 0)
-        return d->monitor_id;
-
-    g_return_val_if_fail(d->monitor_id <= 0, -1);
-
-    return d->channel_id;
-}
+/***************************************************************************/
 
 
 JNIEXPORT void JNICALL

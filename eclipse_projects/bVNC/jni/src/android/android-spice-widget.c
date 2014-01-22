@@ -93,6 +93,20 @@ static void spice_display_init(SpiceDisplay *display)
     d->mouse_last_y = -1;
 }
 
+
+gint get_display_id(SpiceDisplay *display)
+{
+    SpiceDisplayPrivate *d = SPICE_DISPLAY_GET_PRIVATE(display);
+
+    /* supported monitor_id only with display channel #0 */
+    if (d->channel_id == 0 && d->monitor_id >= 0)
+        return d->monitor_id;
+
+    g_return_val_if_fail(d->monitor_id <= 0, -1);
+
+    return d->channel_id;
+}
+
 /* ---------------------------------------------------------------- */
 
 static void update_mouse_mode(SpiceChannel *channel, gpointer data)
@@ -208,12 +222,27 @@ void send_key(SpiceDisplay *display, int scancode, int down)
 }
 
 /* ---------------------------------------------------------------- */
+static void disable_secondary_displays(SpiceMainChannel *channel, gpointer data) {
+    __android_log_write(6, "android-spice", "disable_secondary_displays");
+
+    SpiceDisplay *display = data;
+    SpiceDisplayPrivate *d = SPICE_DISPLAY_GET_PRIVATE(display);
+
+    spice_main_set_display_enabled(d->main, -1, FALSE);
+    spice_main_set_display_enabled(d->main, 0, FALSE);
+    spice_main_send_monitor_config(d->main);
+}
 
 static void primary_create(SpiceChannel *channel, gint format, gint width, gint height, gint stride, gint shmid, gpointer imgdata, gpointer data) {
     __android_log_write(6, "android-spice", "primary_create");
 
     SpiceDisplay *display = data;
     SpiceDisplayPrivate *d = SPICE_DISPLAY_GET_PRIVATE(display);
+
+    // TODO: For now, do not do anything about secondary monitors
+    if (get_display_id(display) > 0) {
+        return;
+    }
 
     d->format = format;
     d->stride = stride;
@@ -241,8 +270,7 @@ static void primary_destroy(SpiceChannel *channel, gpointer data)
 }
 
 static void invalidate(SpiceChannel *channel,
-                       gint x, gint y, gint w, gint h, gpointer data)
-{
+                       gint x, gint y, gint w, gint h, gpointer data) {
     SpiceDisplay *display = data;
 
     if (!do_color_convert(display, x, y, w, h))
@@ -311,6 +339,10 @@ static void channel_new(SpiceSession *s, SpiceChannel *channel, gpointer data)
         spice_g_signal_connect_object(channel, "main-mouse-update",
                                       G_CALLBACK(update_mouse_mode), display, 0);
         update_mouse_mode(channel, display);
+        // TODO: For now, connect to this signal with a callback that disables
+        // any secondary displays that crop up.
+        g_signal_connect(channel, "main-agent-update",
+                         G_CALLBACK(disable_secondary_displays), display);
         return;
     }
 
