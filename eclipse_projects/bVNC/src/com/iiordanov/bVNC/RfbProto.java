@@ -581,44 +581,48 @@ class RfbProto implements RfbConnectable {
   }
 
   int authenticateVeNCrypt() throws Exception {
-	int majorVersion = is.readUnsignedByte();
-	int minorVersion = is.readUnsignedByte();
-	int Version = (majorVersion << 8) | minorVersion;
-	if (Version < 0x0002) {
-	  os.write(0);
-	  os.write(0);
-	  throw new Exception("Server reported an unsupported VeNCrypt version");
-	}
-	os.write(0);
-	os.write(2);
-	if (is.readUnsignedByte() != 0)
-	  throw new Exception("Server reported it could not support the VeNCrypt version");
-	int nSecTypes = is.readUnsignedByte();
-	int[] secTypes = new int[nSecTypes];
-	for(int i = 0; i < nSecTypes; i++) {
-	  secTypes[i] = is.readInt();
-	}
+      int majorVersion = is.readUnsignedByte();
+      int minorVersion = is.readUnsignedByte();
+      int Version = (majorVersion << 8) | minorVersion;
+      if (Version < 0x0002) {
+          os.write(0);
+          os.write(0);
+          throw new Exception("Server reported an unsupported VeNCrypt version");
+      }
+      os.write(0);
+      os.write(2);
+      if (is.readUnsignedByte() != 0)
+          throw new Exception("Server reported it could not support the VeNCrypt version");
+      int nSecTypes = is.readUnsignedByte();
+      int[] secTypes = new int[nSecTypes];
+      for(int i = 0; i < nSecTypes; i++) {
+          secTypes[i] = is.readInt();
+      }
 
-	for(int i = 0; i < nSecTypes; i++)
-	  switch(secTypes[i]) {
-	  case AuthNone:
-	  case AuthVNC:
-	  case AuthPlain:
-	  case AuthTLSNone:
-	  case AuthTLSVnc:
-	  case AuthTLSPlain:
-	  case AuthX509None:
-	  case AuthX509Vnc:
-	  case AuthX509Plain:
-		writeInt(secTypes[i]);
-		Log.i(TAG, "Selecting VeNCrypt subtype: " + secTypes[i]);
-	    if (readU8() == 0) {
-	        throw new Exception("Setup on the server failed");
-	    }
-		return secTypes[i];
-	  }
+      for(int i = 0; i < nSecTypes; i++) {
+          switch(secTypes[i]) {
+          case AuthNone:
+          case AuthVNC:
+          case AuthPlain:
+              writeInt(secTypes[i]);
+              Log.i(TAG, "Selecting VeNCrypt subtype: " + secTypes[i]);
+              return secTypes[i];
+          case AuthTLSNone:
+          case AuthTLSVnc:
+          case AuthTLSPlain:
+          case AuthX509None:
+          case AuthX509Vnc:
+          case AuthX509Plain:
+              writeInt(secTypes[i]);
+              Log.i(TAG, "Selecting VeNCrypt subtype: " + secTypes[i]);
+              if (readU8() == 0) {
+                  throw new Exception("VeNCrypt setup on the server failed. Please check your certificate if applicable.");
+              }
+              return secTypes[i];
+          }
+      }
 
-	throw new Exception("No valid VeNCrypt sub-type");
+      throw new Exception("No valid VeNCrypt sub-type");
   }
 
   //
