@@ -1203,7 +1203,7 @@ public class RemoteCanvasActivity extends Activity implements OnKeyListener {
                 return false;
             return inputHandler.onTrackballEvent(event);
         } catch (NullPointerException e) { }
-        return false;
+        return super.onTrackballEvent(event);
     }
 
     // Send touch events or mouse events like button clicks to be handled.
@@ -1212,16 +1212,19 @@ public class RemoteCanvasActivity extends Activity implements OnKeyListener {
         try {
             return inputHandler.onTouchEvent(event);
         } catch (NullPointerException e) { }
-        return false;
+        return super.onTouchEvent(event);
     }
 
     // Send e.g. mouse events like hover and scroll to be handled.
     @Override
     public boolean onGenericMotionEvent(MotionEvent event) {
-        try {
-            return inputHandler.onTouchEvent(event);
-        } catch (NullPointerException e) { }
-        return false;
+        // Ignore TOOL_TYPE_FINGER events which cause pointer jumping trouble for some users.
+        if (event.getToolType(0) != MotionEvent.TOOL_TYPE_FINGER) {
+            try {
+                return inputHandler.onTouchEvent(event);
+            } catch (NullPointerException e) { }
+        }
+        return super.onGenericMotionEvent(event);
     }
 
     private void selectColorModel() {
