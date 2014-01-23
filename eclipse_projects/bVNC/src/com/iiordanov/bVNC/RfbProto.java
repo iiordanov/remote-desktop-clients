@@ -256,7 +256,7 @@ class RfbProto implements RfbConnectable {
     // VNC Encoding parameters
 
   // Tight encoding parameters
-    private int compressLevel = 8;
+    private int compressLevel = 6;
     private int jpegQuality = 6;
 
     // Used to determine if encoding update is necessary
