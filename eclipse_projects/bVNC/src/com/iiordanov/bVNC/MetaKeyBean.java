@@ -83,7 +83,7 @@ public class MetaKeyBean extends AbstractMetaKeyBean implements Comparable<MetaK
         allKeys.add(new MetaKeyBase("Num Lock", 0xFF7F));
         allKeys.add(new MetaKeyBase("Break", 0xFF6b));
         allKeys.add(new MetaKeyBase("Scroll Lock", 0xFF14));
-        allKeys.add(new MetaKeyBase("Print Scrn", 0xFF15));
+        allKeys.add(new MetaKeyBase("Print Scrn/Sys Rq", 0xFF61));
         allKeys.add(new MetaKeyBase("Escape", 0xFF1B));
         allKeys.add(new MetaKeyBase("Enter", 0xFF0D, KeyEvent.KEYCODE_ENTER));
         allKeys.add(new MetaKeyBase("Tab", 0xFF09, KeyEvent.KEYCODE_TAB));
