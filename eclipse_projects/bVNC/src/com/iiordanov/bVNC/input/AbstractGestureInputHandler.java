@@ -199,6 +199,10 @@ abstract class AbstractGestureInputHandler extends GestureDetector.SimpleOnGestu
         // If a mouse button was released.
         case MotionEvent.ACTION_UP:
             switch (bstate) {
+            case 0:
+                if (e.getToolType(0) != MotionEvent.TOOL_TYPE_MOUSE) {
+                    break;
+                }
             case MotionEvent.BUTTON_PRIMARY:
             case MotionEvent.BUTTON_SECONDARY:
             case MotionEvent.BUTTON_TERTIARY:
