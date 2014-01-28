@@ -24,7 +24,7 @@
  */
 
 //
-// VncCanvas is a subclass of android.view.SurfaceView which draws a VNC
+// RemoteCanvas is a subclass of android.view.SurfaceView which draws a VNC
 // desktop on it.
 //
 
@@ -174,6 +174,10 @@ public class RemoteCanvas extends ImageView implements LibFreeRDP.UIEventListene
     boolean isSpice = false;
     boolean spiceUpdateReceived = false;
     
+    /*
+     * Variable used for BB workarounds.
+     */
+    boolean bb = false;
     
     /**
      * Constructor used by the inflation apparatus
@@ -196,6 +200,11 @@ public class RemoteCanvas extends ImageView implements LibFreeRDP.UIEventListene
         DisplayMetrics metrics = new DisplayMetrics();
         display.getMetrics(metrics);
         displayDensity = metrics.density;
+        
+        String s = android.os.Build.MODEL;
+        if (s.contains("BlackBerry")) {
+            bb = true;
+        }
     }
     
     
@@ -1110,7 +1119,7 @@ public class RemoteCanvas extends ImageView implements LibFreeRDP.UIEventListene
         android.util.Log.d(TAG, "onCreateInputConnection called");
         int version = android.os.Build.VERSION.SDK_INT;
         BaseInputConnection bic = null;
-        if (version >= Build.VERSION_CODES.JELLY_BEAN) {
+        if (!bb && version >= Build.VERSION_CODES.JELLY_BEAN) {
             bic = new BaseInputConnection(this, false) {
                 final static String junk_unit = "%%%%%%%%%%";
                 final static int multiple = 1000;

@@ -53,9 +53,8 @@ public abstract class RemoteKeyboard {
     // Variable holding the state of the on-screen buttons for meta keys (Ctrl, Alt...)
     protected int onScreenMetaState = 0;
     
-    // Variable used for BB10 hacks
-    boolean bb10 = false;
-    boolean backspaceWorkaround = false;
+    // Variable used for BB10 workarounds
+    boolean bb = false;
     
     // This variable tells us whether we need to skip junk characters for
     // SDK >= 16 and LatinIME next time a multi-character event comes along.
@@ -66,6 +65,11 @@ public abstract class RemoteKeyboard {
         vncCanvas = v;
         handler = h;
         keyRepeater = new KeyRepeater (this, h);
+        
+        String s = android.os.Build.MODEL;
+        if (s.contains("BlackBerry")) {
+            bb = true;
+        }
     }
 
     public boolean processLocalKeyEvent(int keyCode, KeyEvent evt) {
@@ -251,7 +255,7 @@ public abstract class RemoteKeyboard {
         // Detect whether this event is coming from a default hardware keyboard.
         // We have to leave KeyEvent.KEYCODE_ALT_LEFT for symbol input on a default hardware keyboard.
         boolean defaultHardwareKbd = (event.getDeviceId() == 0);
-        if (!defaultHardwareKbd) {
+        if (!bb && !defaultHardwareKbd) {
             altMask = KeyEvent.META_ALT_MASK;
         }
         
