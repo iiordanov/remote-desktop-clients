@@ -563,6 +563,7 @@
 <string name="username_caption">VNC Имя пользователя</string>
 <string name="username_hint">UltraVNC MS Logon Имя пользователя</string>
 <string name="username_hint_vencrypt">VNC Имя пользователя</string>
+<string name="username_hint_optional">VNC Имя польз. (необязат.)</string>
 <string name="username_hint_ssh">SSH Имя пользователя</string>
 <string name="view_only">Режим просмотра</string>
 <string name="vnc_server_empty">VNC сервер или порт пусты. Соединение невозможно!</string>
