@@ -185,6 +185,7 @@ public class bVNC extends Activity implements MainConfiguration {
                     setVisibilityOfSshWidgets (View.GONE);
                     setVisibilityOfUltraVncWidgets (View.GONE);
                     ipText.setHint(R.string.address_caption_hint);
+                    textUsername.setHint(R.string.username_hint_optional);
                 } else if (selectedConnType == Constants.CONN_TYPE_SSH) {
                     setVisibilityOfSshWidgets (View.VISIBLE);
                     setVisibilityOfUltraVncWidgets (View.GONE);
@@ -192,6 +193,7 @@ public class bVNC extends Activity implements MainConfiguration {
                         ipText.setText("localhost");
                     setSshPasswordHint (checkboxUseSshPubkey.isChecked());
                     ipText.setHint(R.string.address_caption_hint_tunneled);
+                    textUsername.setHint(R.string.username_hint_optional);
                 } else if (selectedConnType == Constants.CONN_TYPE_ULTRAVNC) {
                     setVisibilityOfSshWidgets (View.GONE);
                     setVisibilityOfUltraVncWidgets (View.VISIBLE);
@@ -301,7 +303,6 @@ public class bVNC extends Activity implements MainConfiguration {
      * Makes the uvnc-related widgets visible/invisible.
      */
     private void setVisibilityOfUltraVncWidgets (int visibility) {
-        textUsername.setVisibility(visibility);
         repeaterEntry.setVisibility(visibility);
     }
     

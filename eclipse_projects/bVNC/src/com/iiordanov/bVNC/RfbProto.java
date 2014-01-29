@@ -58,16 +58,17 @@ class RfbProto implements RfbConnectable {
 
   // Security types
   final static int
-    SecTypeInvalid  = 0,
-    SecTypeNone     = 1,
-    SecTypeVncAuth  = 2,
-    SecTypeTight    = 16,
+    SecTypeInvalid   = 0,
+    SecTypeNone      = 1,
+    SecTypeVncAuth   = 2,
+    SecTypeTight     = 16,
     SecTypeUltraVnc1 = 17,
+    SecTypeTLS       = 18,
+    SecTypeVeNCrypt  = 19,
+    SecTypeArd       = 30,
     SecTypeUltraVnc2 = 113,
     SecTypeUltraVnc3 = 114,
     SecTypeUltraVnc4 = 115,
-    SecTypeTLS      = 18,
-    SecTypeVeNCrypt = 19,
     SecTypeUltra34 = 0xfffffffa;
   
   /* VeNCrypt subtypes */
@@ -372,6 +373,13 @@ class RfbProto implements RfbConnectable {
         } else if (secType == RfbProto.SecTypeUltra34 ||
                    secType == RfbProto.SecTypeUltraVnc2) {
             authType = RfbProto.AuthUltra;
+        } else if (secType == RfbProto.SecTypeArd) {
+            RFBSecurityARD ardAuth = new RFBSecurityARD(us, pw);
+            ardAuth.perform(this);
+            if (is.readInt() == 1) {
+                throw new Exception("Error from VNC server: "+ readString());
+            }
+            return;
         } else {
 			authType = secType;
 		}
@@ -563,7 +571,8 @@ class RfbProto implements RfbConnectable {
               }
           } else {
               if (secTypes[i] == SecTypeNone || secTypes[i] == SecTypeVncAuth ||
-                  secTypes[i] == SecTypeTLS || secTypes[i] == SecTypeVeNCrypt) {
+                  secTypes[i] == SecTypeTLS || secTypes[i] == SecTypeVeNCrypt ||
+                  secTypes[i] == SecTypeArd) {
                   secType = secTypes[i];
                   break;
               }
@@ -906,8 +915,10 @@ class RfbProto implements RfbConnectable {
   int redMax, greenMax, blueMax, redShift, greenShift, blueShift;
 
   void readServerInit() throws IOException {
+    android.util.Log.i (TAG, "Reading server init.");
     framebufferWidth = is.readUnsignedShort();
     framebufferHeight = is.readUnsignedShort();
+    android.util.Log.i (TAG, "Read framebuffer size: " + framebufferWidth + "x" + framebufferHeight);
     bitsPerPixel = is.readUnsignedByte();
     depth = is.readUnsignedByte();
     bigEndian = (is.readUnsignedByte() != 0);
