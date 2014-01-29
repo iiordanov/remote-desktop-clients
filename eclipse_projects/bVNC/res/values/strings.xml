@@ -564,6 +564,7 @@ Known issues:
 <string name="username_caption">VNC User</string>
 <string name="username_hint">UltraVNC MS Logon Username</string>
 <string name="username_hint_vencrypt">VNC Username</string>
+<string name="username_hint_optional">VNC Username (optional)</string>
 <string name="username_hint_ssh">SSH Username</string>
 <string name="view_only">View-only mode</string>
 <string name="vnc_server_empty">VNC Server or port empty. Cannot connect!</string>
