@@ -171,7 +171,7 @@ public class RemoteRdpPointer implements RemotePointer {
             //processPointerEvent(getX(), getY(), evt.getAction(), combinedMetastate, down, false, false, true, direction);
             rfb.writePointerEvent(getX(), getY(), combinedMetastate, pointerMask);
             return true;
-        } else if (keyCode == KeyEvent.KEYCODE_BACK) {
+        } else if (keyCode == KeyEvent.KEYCODE_BACK && evt.getScanCode() == 0) {
             pointerMask |= RemoteRdpPointer.MOUSE_BUTTON_RIGHT;
             rfb.writePointerEvent(getX(), getY(), combinedMetastate, pointerMask);
             return true;

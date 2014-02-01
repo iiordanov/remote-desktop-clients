@@ -125,7 +125,8 @@ public class RemoteVncPointer implements RemotePointer {
                    (evt.getAction() == KeyEvent.ACTION_MULTIPLE);
 
         int mouseChange = keyCode == KeyEvent.KEYCODE_VOLUME_DOWN ? RemoteVncPointer.MOUSE_BUTTON_SCROLL_DOWN : RemoteVncPointer.MOUSE_BUTTON_SCROLL_UP;
-        if (keyCode == KeyEvent.KEYCODE_CAMERA || keyCode == KeyEvent.KEYCODE_BACK) {
+        if (keyCode == KeyEvent.KEYCODE_CAMERA ||
+            keyCode == KeyEvent.KEYCODE_BACK && evt.getScanCode() == 0) {
             if (keyCode == KeyEvent.KEYCODE_CAMERA)
                 cameraButtonDown = down;
 
