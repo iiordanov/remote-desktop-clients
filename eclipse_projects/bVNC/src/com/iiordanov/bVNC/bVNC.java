@@ -434,12 +434,14 @@ public class bVNC extends Activity implements MainConfiguration {
         if (selectedConnType == 1 && selected.getAutoXEnabled()) {
             ipText.setVisibility(View.GONE);
             portText.setVisibility(View.GONE);
+            textUsername.setVisibility(View.GONE);
             passwordText.setVisibility(View.GONE);
             checkboxKeepPassword.setVisibility(View.GONE);
             autoXStatus.setText(R.string.auto_x_enabled);
         } else {
             ipText.setVisibility(View.VISIBLE);
             portText.setVisibility(View.VISIBLE);
+            textUsername.setVisibility(View.VISIBLE);
             passwordText.setVisibility(View.VISIBLE);
             checkboxKeepPassword.setVisibility(View.VISIBLE);
             autoXStatus.setText(R.string.auto_x_disabled);
