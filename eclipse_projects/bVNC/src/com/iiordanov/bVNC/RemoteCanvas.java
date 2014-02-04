@@ -363,8 +363,9 @@ public class RemoteCanvas extends ImageView implements LibFreeRDP.UIEventListene
         
         // Set screen settings to native res if instructed to, or if height or width are too small.
         BookmarkBase.ScreenSettings screenSettings = session.getBookmark().getActiveScreenSettings();
-        int remoteWidth  = getRemoteWidth();
-        int remoteHeight = getRemoteHeight();
+        waitUntilInflated();
+        int remoteWidth  = getRemoteWidth(getWidth(), getHeight());
+        int remoteHeight = getRemoteHeight(getWidth(), getHeight());
         screenSettings.setWidth(remoteWidth);
         screenSettings.setHeight(remoteHeight);
         screenSettings.setColors(16);
@@ -499,7 +500,7 @@ public class RemoteCanvas extends ImageView implements LibFreeRDP.UIEventListene
     /**
      * Retreives the requested remote width.
      */
-    private int getRemoteWidth () {
+    private int getRemoteWidth (int viewWidth, int viewHeight) {
         int remoteWidth = 0;
         int reqWidth  = connection.getRdpWidth();
         int reqHeight = connection.getRdpHeight();
@@ -507,9 +508,9 @@ public class RemoteCanvas extends ImageView implements LibFreeRDP.UIEventListene
             reqWidth >= 2 && reqHeight >= 2) {
             remoteWidth  = reqWidth;
         } else if (connection.getRdpResType() == Constants.RDP_GEOM_SELECT_NATIVE_PORTRAIT) {
-            remoteWidth  = Math.min(getWidth(), getHeight());
+            remoteWidth  = Math.min(viewWidth, viewHeight);
         } else {
-            remoteWidth  = Math.max(getWidth(), getHeight());
+            remoteWidth  = Math.max(viewWidth, viewHeight);
         }
         return remoteWidth;
     }
@@ -518,7 +519,7 @@ public class RemoteCanvas extends ImageView implements LibFreeRDP.UIEventListene
     /**
      * Retreives the requested remote height.
      */
-    private int getRemoteHeight () {
+    private int getRemoteHeight (int viewWidth, int viewHeight) {
         int remoteHeight = 0;
         int reqWidth  = connection.getRdpWidth();
         int reqHeight = connection.getRdpHeight();
@@ -526,9 +527,9 @@ public class RemoteCanvas extends ImageView implements LibFreeRDP.UIEventListene
             reqWidth >= 2 && reqHeight >= 2) {
             remoteHeight = reqHeight;
         } else if (connection.getRdpResType() == Constants.RDP_GEOM_SELECT_NATIVE_PORTRAIT) {
-            remoteHeight = Math.max(getWidth(), getHeight());
+            remoteHeight = Math.max(viewWidth, viewHeight);
         } else {
-            remoteHeight = Math.min(getWidth(), getHeight());
+            remoteHeight = Math.min(viewWidth, viewHeight);
         }
         return remoteHeight;
     }
@@ -1233,6 +1234,31 @@ public class RemoteCanvas extends ImageView implements LibFreeRDP.UIEventListene
         return absoluteYPosition;
     }
     
+    /**
+     * Used to wait until getWidth and getHeight return sane values.
+     */
+    private void waitUntilInflated() {
+        synchronized (this) {
+            while (getWidth() == 0 || getHeight() == 0) {
+                try {
+                    this.wait();
+                } catch (InterruptedException e) { e.printStackTrace(); }
+            }
+        }
+    }
+    
+    /**
+     * Used to detect when the view is inflated to a sane size other than 0x0.
+     */
+    @Override
+    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+        if (w > 0 && h > 0) {
+            synchronized (this) {
+                this.notify();
+            }
+        }
+    }
+    
     //////////////////////////////////////////////////////////////////////////////////
     //  Implementation of LibFreeRDP.EventListener.  Through the functions implemented
     //  below, FreeRDP communicates connection state information.
@@ -1285,8 +1311,9 @@ public class RemoteCanvas extends ImageView implements LibFreeRDP.UIEventListene
         if (isSpice) {
             spicecomm.setFramebufferWidth(width);
             spicecomm.setFramebufferHeight(height);
-            int remoteWidth  = getRemoteWidth();
-            int remoteHeight = getRemoteHeight();
+            waitUntilInflated();
+            int remoteWidth  = getRemoteWidth(getWidth(), getHeight());
+            int remoteHeight = getRemoteHeight(getWidth(), getHeight());
             if (width != remoteWidth || height != remoteHeight) {
                 android.util.Log.e(TAG, "Requesting new res: " + remoteWidth + "x" + remoteHeight);
                 rfbconn.requestResolution(remoteWidth, remoteHeight);
