@@ -1,0 +1,16 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/menuExtraKeys"       android:title="@string/extra_keys_disable"/>
+    <item android:id="@+id/menuInputMethod"     android:title="@string/input_methods">
+    	<menu>
+	    	<group android:checkableBehavior="single">
+                <item android:id="@+id/inputMethodDirectSwipePan" android:title="@string/input_method_direct_swipe_pan"/>
+                <item android:id="@+id/inputMethodDirectDragPan"  android:title="@string/input_method_direct_drag_pan"/>
+                <item android:id="@+id/inputMethodTouchpad"       android:title="@string/input_method_touchpad"/>
+                <item android:id="@+id/inputMethodSingleHanded"   android:title="@string/input_method_single_handed"/>
+			</group>
+	    </menu>
+    </item>
+    <item android:id="@+id/menuDisconnect"      android:title="@string/disconnect"/>
+    <item android:id="@+id/menuSendCAD"      android:title="@string/ctrl_alt_del"/>
+    <item android:id="@+id/menuHelpInputMethod" android:title="@string/input_method_help"/>
+</menu>

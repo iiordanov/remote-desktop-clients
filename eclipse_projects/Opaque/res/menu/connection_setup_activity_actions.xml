@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+    <!-- New Connection, should appear as action button -->
+    <item android:id="@+id/actionDeleteConnection"
+          android:icon="@drawable/ic_action_delete"
+          android:title="@string/action_delete_connection"
+          android:showAsAction="ifRoom"
+          android:onClick="deleteConnection" />
+</menu>
