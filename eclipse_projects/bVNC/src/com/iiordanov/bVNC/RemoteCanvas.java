@@ -201,8 +201,9 @@ public class RemoteCanvas extends ImageView implements LibFreeRDP.UIEventListene
         display.getMetrics(metrics);
         displayDensity = metrics.density;
         
-        String s = android.os.Build.MODEL;
-        if (s.contains("BlackBerry")) {
+        if (android.os.Build.MODEL.contains("BlackBerry") ||
+            android.os.Build.BRAND.contains("BlackBerry") || 
+            android.os.Build.MANUFACTURER.contains("BlackBerry")) {
             bb = true;
         }
     }

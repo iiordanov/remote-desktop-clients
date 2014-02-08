@@ -214,8 +214,9 @@ public class RemoteCanvas extends ImageView implements SelectTextElementFragment
 		canvasZoomer = new CanvasZoomer (this);
 		setScaleType(ImageView.ScaleType.MATRIX);
 		
-        String s = android.os.Build.MODEL;
-        if (s.contains("BlackBerry")) {
+        if (android.os.Build.MODEL.contains("BlackBerry") ||
+            android.os.Build.BRAND.contains("BlackBerry") || 
+            android.os.Build.MANUFACTURER.contains("BlackBerry")) {
             bb = true;
         }
 	}

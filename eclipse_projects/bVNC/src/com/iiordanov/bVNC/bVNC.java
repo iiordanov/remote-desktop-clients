@@ -109,9 +109,21 @@ public class bVNC extends Activity implements MainConfiguration {
     private boolean startingOrHasPaused = true;
     private boolean isConnecting = false;
 
+    /*
+     * Variable used for BB workarounds.
+     */
+    boolean bb = false;
+    
     @Override
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
+        
+        if (android.os.Build.MODEL.contains("BlackBerry") ||
+            android.os.Build.BRAND.contains("BlackBerry") || 
+            android.os.Build.MANUFACTURER.contains("BlackBerry")) {
+            bb = true;
+        }
+        
         System.gc();
 
         isFree = this.getPackageName().contains("free");
@@ -510,13 +522,16 @@ public class bVNC extends Activity implements MainConfiguration {
         Display d = getWindowManager().getDefaultDisplay();
         int bottom = v.getBottom();
         int height = d.getHeight();
-        
+        int value = height;
         if (android.os.Build.VERSION.SDK_INT >= 14) {
             android.view.ViewConfiguration vc = ViewConfiguration.get(this);
             if (vc.hasPermanentMenuKey())
-                return bottom;
+                value = bottom;
         }
-        return height;
+        if (bb) {
+            value = bottom;
+        }
+        return value;
     }
     
     /**

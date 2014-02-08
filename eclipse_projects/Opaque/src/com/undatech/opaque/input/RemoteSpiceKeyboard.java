@@ -161,7 +161,7 @@ public class RemoteSpiceKeyboard extends RemoteKeyboard {
                     unicode = event.getUnicodeChar(event.getMetaState()&~KeyEvent.META_ALT_MASK&~KeyEvent.META_CTRL_MASK&~KeyEvent.META_META_MASK);
                     if (unicode != 0) {
                         unicodeMetaState = onScreenMetaState|hardwareMetaState|
-                                       convertEventMetaState(event, event.getMetaState()&~KeyEvent.META_SHIFT_MASK);
+                                           convertEventMetaState(event, event.getMetaState()&~KeyEvent.META_SHIFT_MASK);
                     }
                 } else {
                     // We managed to get a unicode value with ALT potentially enabled, so convert and send that over without sending ALT as meta-state.

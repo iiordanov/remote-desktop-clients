@@ -68,8 +68,9 @@ public abstract class RemoteKeyboard {
 		handler = h;
 		keyRepeater = new KeyRepeater (this, h);
 		
-        String s = android.os.Build.MODEL;
-        if (s.contains("BlackBerry")) {
+        if (android.os.Build.MODEL.contains("BlackBerry") ||
+            android.os.Build.BRAND.contains("BlackBerry") || 
+            android.os.Build.MANUFACTURER.contains("BlackBerry")) {
             bb = true;
         }
 	}
