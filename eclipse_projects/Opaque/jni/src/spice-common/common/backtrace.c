@@ -78,7 +78,6 @@ static int spice_backtrace_gstack(void)
         /* CHILD */
         char parent[16];
 
-        seteuid(0);
         close(STDIN_FILENO);
         close(STDOUT_FILENO);
         dup2(pipefd[1],STDOUT_FILENO);

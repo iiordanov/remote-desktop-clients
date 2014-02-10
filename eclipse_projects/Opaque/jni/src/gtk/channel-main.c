@@ -632,6 +632,10 @@ static void spice_main_channel_class_init(SpiceMainChannelClass *klass)
     /**
      * SpiceMainChannel::main-clipboard-selection:
      * @main: the #SpiceMainChannel that emitted the signal
+     * @selection: a VD_AGENT_CLIPBOARD_SELECTION clipboard
+     * @type: the VD_AGENT_CLIPBOARD data type
+     * @data: clipboard data
+     * @size: size of @data in bytes
      *
      * Since: 0.6
      **/
@@ -671,6 +675,7 @@ static void spice_main_channel_class_init(SpiceMainChannelClass *klass)
     /**
      * SpiceMainChannel::main-clipboard-selection-grab:
      * @main: the #SpiceMainChannel that emitted the signal
+     * @selection: a VD_AGENT_CLIPBOARD_SELECTION clipboard
      * @types: the VD_AGENT_CLIPBOARD data types
      * @ntypes: the number of @types
      *
@@ -715,6 +720,7 @@ static void spice_main_channel_class_init(SpiceMainChannelClass *klass)
     /**
      * SpiceMainChannel::main-clipboard-selection-request:
      * @main: the #SpiceMainChannel that emitted the signal
+     * @selection: a VD_AGENT_CLIPBOARD_SELECTION clipboard
      * @types: the VD_AGENT_CLIPBOARD request type
      *
      * Return value: %TRUE if the request is successful
@@ -756,6 +762,7 @@ static void spice_main_channel_class_init(SpiceMainChannelClass *klass)
     /**
      * SpiceMainChannel::main-clipboard-selection-release:
      * @main: the #SpiceMainChannel that emitted the signal
+     * @selection: a VD_AGENT_CLIPBOARD_SELECTION clipboard
      *
      * Inform when the clipboard is released from the guest, when no
      * clipboard data is available from the guest.

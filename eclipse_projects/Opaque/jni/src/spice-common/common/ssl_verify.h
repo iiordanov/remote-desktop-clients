@@ -54,7 +54,6 @@ typedef struct {
     char                *pubkey;
     size_t              pubkey_size;
     char                *subject;
-    X509_NAME           *in_subject;
 } SpiceOpenSSLVerify;
 
 SpiceOpenSSLVerify* spice_openssl_verify_new(SSL *ssl, SPICE_SSL_VERIFY_OP verifyop,

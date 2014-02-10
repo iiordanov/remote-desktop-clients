@@ -366,6 +366,7 @@ static void spice_display_channel_class_init(SpiceDisplayChannelClass *klass)
     /**
      * SpiceDisplayChannel::display-mark:
      * @display: the #SpiceDisplayChannel that emitted the signal
+     * @mark: %TRUE when the display mark has been received
      *
      * The #SpiceDisplayChannel::display-mark signal is emitted when
      * the %RED_DISPLAY_MARK command is received, and the display

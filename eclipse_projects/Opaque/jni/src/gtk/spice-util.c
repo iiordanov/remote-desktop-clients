@@ -345,7 +345,7 @@ static gchar* spice_convert_newlines(const gchar *str, gssize len,
     output = g_string_sized_new(len * 2 + 1);
 
     for (i = 0; i < len; i += length + nl) {
-        length = get_line(str + i, len - i, from, &nl, error);
+        length = get_line(str + i, len - i, from, &nl, &err);
         if (length < 0)
             break;
 

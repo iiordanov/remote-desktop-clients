@@ -943,8 +943,10 @@ static void find_model_params(Encoder *encoder,
     case 2: /* obsolete */
     case 4: /* obsolete */
         encoder->usr->error(encoder->usr, "findmodelparams(): evol value obsolete!!!\n");
+        break;
     default:
         encoder->usr->error(encoder->usr, "findmodelparams(): evol out of range!!!\n");
+        break;
     }
 
     *nbuckets = 0;
@@ -952,7 +954,7 @@ static void find_model_params(Encoder *encoder,
     bsize = *firstsize;
 
     do { /* other buckets */
-        if (nbuckets) {         /* bucket start */
+        if (*nbuckets) {         /* bucket start */
             bstart = bend + 1;
         } else {
             bstart = 0;

@@ -366,7 +366,7 @@ static display_cursor *set_cursor(SpiceChannel *channel, SpiceCursor *scursor)
 
     g_return_val_if_fail(scursor->data_size != 0, NULL);
 
-    size = 4 * hdr->width * hdr->height;
+    size = 4u * hdr->width * hdr->height;
     cursor = spice_malloc(sizeof(*cursor) + size);
     cursor->hdr = *hdr;
     cursor->default_cursor = FALSE;
@@ -404,7 +404,7 @@ static display_cursor *set_cursor(SpiceChannel *channel, SpiceCursor *scursor)
         }
         break;
     case SPICE_CURSOR_TYPE_COLOR4:
-        size = (SPICE_ALIGN(hdr->width, 2) / 2) * hdr->height;
+        size = ((unsigned int)(SPICE_ALIGN(hdr->width, 2) / 2)) * hdr->height;
         for (i = 0; i < hdr->width * hdr->height; i++) {
             pix_mask = get_pix_mask(data, size + (sizeof(uint32_t) << 4), i);
             int idx = (i & 1) ? (data[i >> 1] & 0x0f) : ((data[i >> 1] & 0xf0) >> 4);

@@ -1825,10 +1825,9 @@ GSocketConnection* spice_session_channel_open_host(SpiceSession *session, SpiceC
         g_timeout_add_seconds(SOCKET_TIMEOUT, connect_timeout, &open_host);
 #endif
 
-    guint id = g_idle_add(open_host_idle_cb, &open_host);
+    g_idle_add(open_host_idle_cb, &open_host);
     /* switch to main loop and wait for connection */
     coroutine_yield(NULL);
-    g_source_remove(id);
 
 #if !GLIB_CHECK_VERSION(2,26,0)
     if (open_host.timeout_id == 0)

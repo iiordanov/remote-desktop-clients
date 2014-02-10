@@ -479,11 +479,9 @@ static void FNAME(compress)(Encoder *encoder)
     LzImageSegment    *cur_seg = encoder->head_image_segs;
     HashEntry        *hslot;
     PIXEL            *ip;
-    PIXEL            *ip_start;
 
     // fetch the first image segment that is not too small
     while (cur_seg && ((((PIXEL *)cur_seg->lines_end) - ((PIXEL *)cur_seg->lines)) < 4)) {
-        ip_start = (PIXEL *)cur_seg->lines;
         // coping the segment
         if (cur_seg->lines != cur_seg->lines_end) {
             ip = (PIXEL *)cur_seg->lines;

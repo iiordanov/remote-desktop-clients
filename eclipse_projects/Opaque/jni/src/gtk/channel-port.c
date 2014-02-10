@@ -249,9 +249,12 @@ static void port_handle_init(SpiceChannel *channel, SpiceMsgIn *in)
     g_return_if_fail(c->name == NULL);
 
     c->name = g_strdup((gchar*)init->name);
-    g_object_notify(G_OBJECT(channel), "port-name");
 
     port_set_opened(self, init->opened);
+    if (init->opened)
+        emit_main_context(channel, SPICE_PORT_EVENT, SPICE_PORT_EVENT_OPENED);
+
+    g_object_notify_main_context(G_OBJECT(channel), "port-name");
 }
 
 /* coroutine context */

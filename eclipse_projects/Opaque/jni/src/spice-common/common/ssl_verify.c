@@ -357,6 +357,7 @@ fail:
 static int verify_subject(X509* cert, SpiceOpenSSLVerify* verify)
 {
     X509_NAME *cert_subject = NULL;
+    X509_NAME* in_subject;
     int ret;
     int in_entries;
 
@@ -371,22 +372,21 @@ static int verify_subject(X509* cert, SpiceOpenSSLVerify* verify)
         return 0;
     }
 
-    if (!verify->in_subject) {
-        verify->in_subject = subject_to_x509_name(verify->subject, &in_entries);
-        if (!verify->in_subject) {
-            spice_debug("warning: no in_subject!");
-            return 0;
-        }
+    in_subject = subject_to_x509_name(verify->subject, &in_entries);
+    if (!in_subject) {
+        spice_debug("warning: no in_subject!");
+        return 0;
     }
 
     /* Note: this check is redundant with the pre-condition in X509_NAME_cmp */
     if (X509_NAME_entry_count(cert_subject) != in_entries) {
         spice_debug("subject mismatch: #entries cert=%d, input=%d",
             X509_NAME_entry_count(cert_subject), in_entries);
+        X509_NAME_free(in_subject);
         return 0;
     }
 
-    ret = X509_NAME_cmp(cert_subject, verify->in_subject);
+    ret = X509_NAME_cmp(cert_subject, in_subject);
 
     if (ret == 0) {
         spice_debug("subjects match");
@@ -398,10 +398,11 @@ static int verify_subject(X509* cert, SpiceOpenSSLVerify* verify)
         spice_debug("cert_subject: %s", p);
         free(p);
 
-        p = X509_NAME_oneline(verify->in_subject, NULL, 0);
+        p = X509_NAME_oneline(in_subject, NULL, 0);
         spice_debug("in_subject:   %s", p);
         free(p);
     }
+    X509_NAME_free(in_subject);
 
     return !ret;
 }
@@ -532,9 +533,6 @@ void spice_openssl_verify_free(SpiceOpenSSLVerify* verify)
     free(verify->pubkey);
     free(verify->subject);
     free(verify->hostname);
-
-    if (verify->in_subject)
-        X509_NAME_free(verify->in_subject);
 
     if (verify->ssl)
         SSL_set_app_data(verify->ssl, NULL);

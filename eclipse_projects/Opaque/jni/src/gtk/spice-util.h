@@ -32,20 +32,11 @@ gulong spice_g_signal_connect_object(gpointer instance,
                                      GConnectFlags connect_flags);
 gchar* spice_uuid_to_string(const guint8 uuid[16]);
 
-#ifdef ANDROID
-#define SPICE_DEBUG(fmt, ...)                                   \
-    do {                                                        \
-        if (G_UNLIKELY(spice_util_get_debug()))                 \
-            __android_log_print(6, "spice-protocol", fmt, ## __VA_ARGS__);          \
-    } while (0)
-
-#else
 #define SPICE_DEBUG(fmt, ...)                                   \
     do {                                                        \
         if (G_UNLIKELY(spice_util_get_debug()))                 \
             g_debug(G_STRLOC " " fmt, ## __VA_ARGS__);          \
     } while (0)
-#endif
 
 #define SPICE_RESERVED_PADDING (10 * sizeof(void*))
 

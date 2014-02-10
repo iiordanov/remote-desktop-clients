@@ -2215,6 +2215,9 @@ static void *spice_channel_coroutine(void *data)
     int rc, delay_val = 1;
     gboolean switch_tls = FALSE;
     gboolean switch_protocol = FALSE;
+    /* When some other SSL/TLS version becomes obsolete, add it to this
+     * variable. */
+    long ssl_options = SSL_OP_NO_SSLv2 | SSL_OP_NO_SSLv3;
 
     CHANNEL_DEBUG(channel, "Started background coroutine %p", &c->coroutine);
 
@@ -2254,12 +2257,14 @@ reconnect:
     c->has_error = FALSE;
 
     if (c->tls) {
-        c->ctx = SSL_CTX_new(TLSv1_method());
+        c->ctx = SSL_CTX_new(SSLv23_method());
         if (c->ctx == NULL) {
             g_critical("SSL_CTX_new failed");
             emit_main_context(channel, SPICE_CHANNEL_EVENT, SPICE_CHANNEL_ERROR_TLS);
             goto cleanup;
         }
+
+        SSL_CTX_set_options(c->ctx, ssl_options);
 
         verify = spice_session_get_verify(c->session);
         if (verify &

@@ -30,6 +30,7 @@ LOCAL_SRC_FILES := gtk/channel-record.c gtk/channel-playback.c gtk/channel-curso
                    spice-common/common/backtrace.c spice-common/common/sw_canvas.c spice-common/common/pixman_utils.c \
                    spice-common/common/lines.c spice-common/common/rop3.c spice-common/common/quic.c spice-common/common/lz.c \
                    spice-common/common/region.c spice-common/common/ssl_verify.c spice-common/common/log.c \
+                   spice-common/common/snd_codec.c \
                    virt-viewer/virt-viewer-file.c virt-viewer/virt-viewer-util.c \
                    android/android-service.c android/android-spicy.c android/android-spice-widget.c \
                    android/android-io.c
