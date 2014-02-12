@@ -53,6 +53,9 @@ public abstract class RemoteKeyboard {
     // Variable holding the state of the on-screen buttons for meta keys (Ctrl, Alt...)
     protected int onScreenMetaState = 0;
     
+    // Variable holding the state of the last metaState resulting from a button press.
+    protected int lastDownMetaState = 0;
+    
     // Variable used for BB10 workarounds
     boolean bb = false;
     
@@ -178,7 +181,7 @@ public abstract class RemoteKeyboard {
     }
 
     public int getMetaState () {
-        return onScreenMetaState;
+        return onScreenMetaState|lastDownMetaState;
     }
     
     public void setAfterMenu(boolean value) {

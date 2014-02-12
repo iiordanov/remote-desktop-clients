@@ -86,7 +86,14 @@ public class RemoteRdpKeyboard extends RemoteKeyboard {
             }
 
             // Update the meta-state with writeKeyEvent.
-            rfb.writeKeyEvent(keyCode, (onScreenMetaState|hardwareMetaState|metaState), down);
+            metaState = onScreenMetaState|hardwareMetaState|metaState;
+            rfb.writeKeyEvent(keyCode, metaState, down);
+            if (down) {
+                lastDownMetaState = metaState;
+            } else {
+                lastDownMetaState = 0;
+            }
+            
 
             if (keyCode == 0 /*KEYCODE_UNKNOWN*/) {
                 String s = evt.getCharacters();

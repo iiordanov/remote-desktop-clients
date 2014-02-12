@@ -156,10 +156,10 @@ public class RemoteSpiceKeyboard extends RemoteKeyboard {
                 // Get unicode character that would result from this event, masking out Ctrl and Super keys.
                 int unicode = event.getUnicodeChar(event.getMetaState()&~KeyEvent.META_CTRL_MASK&~KeyEvent.META_META_MASK);
                 int unicodeMetaState = 0;
-                if (unicode == 0) {
+                if (unicode <= 0) {
                     // Try to get a unicode value without ALT mask and if successful send ALT as meta-state.
                     unicode = event.getUnicodeChar(event.getMetaState()&~KeyEvent.META_ALT_MASK&~KeyEvent.META_CTRL_MASK&~KeyEvent.META_META_MASK);
-                    if (unicode != 0) {
+                    if (unicode > 0) {
                         unicodeMetaState = onScreenMetaState|hardwareMetaState|
                                            convertEventMetaState(event, event.getMetaState()&~KeyEvent.META_SHIFT_MASK);
                     }
@@ -169,7 +169,7 @@ public class RemoteSpiceKeyboard extends RemoteKeyboard {
                                        convertEventMetaState(event, event.getMetaState()&~KeyEvent.META_ALT_MASK&~KeyEvent.META_SHIFT_MASK);
                 }
                 
-                if (unicode != 0) {
+                if (unicode > 0) {
                     android.util.Log.e(TAG, "Got unicode value from event: " + unicode);
                     writeKeyEvent(true, unicode, unicodeMetaState, down, false);
                 } else {
@@ -183,6 +183,12 @@ public class RemoteSpiceKeyboard extends RemoteKeyboard {
 	}
 	
 	private void writeKeyEvent(boolean isUnicode, int code, int metaState, boolean down, boolean sendUpEvents) {
+        if (down) {
+            lastDownMetaState = metaState;
+        } else {
+            lastDownMetaState = 0;
+        }
+        
 	    if (isUnicode) {
 	        code |= UNICODE_MASK;
 	    }
@@ -209,6 +215,7 @@ public class RemoteSpiceKeyboard extends RemoteKeyboard {
                 spicecomm.writeKeyEvent(scode, meta, down);
                 if (sendUpEvents) {
                     spicecomm.writeKeyEvent(scode, meta, false);
+                    lastDownMetaState = 0;
                 }
             }
         } catch (NullPointerException e) {}

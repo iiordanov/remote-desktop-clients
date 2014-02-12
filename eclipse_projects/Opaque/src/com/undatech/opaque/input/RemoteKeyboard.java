@@ -62,6 +62,10 @@ public abstract class RemoteKeyboard {
     // Variable used for BB10 workarounds
     boolean bb = false;
     
+    // Variable holding the state of the last metaState sent over with
+    // a button down event. It is reset to 0 with a button up event.
+    protected int lastDownMetaState = 0;
+    
 	RemoteKeyboard (SpiceCommunicator r, RemoteCanvas v, Handler h) {
 		spicecomm = r;
 		canvas = v;
@@ -228,8 +232,8 @@ public abstract class RemoteKeyboard {
 	 * Getter for the on-screen meta state.
 	 * @return
 	 */
-	public int getOnScreenMetaState () {
-		return onScreenMetaState;
+	public int getMetaState () {
+		return onScreenMetaState|lastDownMetaState;
 	}
 	
 	/**

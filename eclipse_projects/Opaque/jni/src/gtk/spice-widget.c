@@ -1255,7 +1255,10 @@ static void release_keys(SpiceDisplay *display)
             continue;
         }
         for (b = 0; b < 32; b++) {
-            send_key(display, i * 32 + b, SEND_KEY_RELEASE, FALSE);
+            unsigned int scancode = i * 32 + b;
+            if (scancode != 0) {
+                send_key(display, scancode, SEND_KEY_RELEASE, FALSE);
+            }
         }
     }
 }

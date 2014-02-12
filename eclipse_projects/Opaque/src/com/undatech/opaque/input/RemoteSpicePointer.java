@@ -198,7 +198,7 @@ public class RemoteSpicePointer implements RemotePointer {
 	 */
 	private void sendPointerEvent(int x, int y, int metaState, boolean isMoving) {
 		
-		int combinedMetaState = metaState|canvas.getKeyboard().getOnScreenMetaState();
+		int combinedMetaState = metaState|canvas.getKeyboard().getMetaState();
 		
 		// Save the previous pointer mask other than action_move, so we can
 		// send it with the pointer flag "not down" to clear the action.

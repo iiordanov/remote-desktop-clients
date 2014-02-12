@@ -17,7 +17,7 @@ public class RemoteVncKeyboard extends RemoteKeyboard {
     }
 
     public boolean processLocalKeyEvent(int keyCode, KeyEvent evt, int additionalMetaState) {
-        //android.util.Log.e(TAG, evt.toString() + " " + keyCode);
+        android.util.Log.e(TAG, evt.toString() + " " + keyCode);
 
         if (rfb != null && rfb.isInNormalProtocol()) {
             RemotePointer pointer = vncCanvas.getPointer();
@@ -180,6 +180,12 @@ public class RemoteVncKeyboard extends RemoteKeyboard {
                     lastKeyDown = keysym;
 
                 metaState = metaState|onScreenMetaState|hardwareMetaState;
+                if (down) {
+                    lastDownMetaState = metaState;
+                } else {
+                    lastDownMetaState = 0;
+                }
+                
                 if (numchars == 1) {
                     //android.util.Log.e(TAG, "Sending key. Down: " + down + ", key: " + key + ". keysym:" + keysym + ", metaState: " + metaState);
                     rfb.writeKeyEvent(keysym, metaState, down);
@@ -195,6 +201,7 @@ public class RemoteVncKeyboard extends RemoteKeyboard {
                         //android.util.Log.e(TAG, "Sending multiple keys. Key: " + key + " keysym: " + keysym + ", metaState: " + metaState);
                         rfb.writeKeyEvent(keysym, metaState, true);
                         rfb.writeKeyEvent(keysym, metaState, false);
+                        lastDownMetaState = 0;
                     }
                 }
             } catch (Exception e) {
