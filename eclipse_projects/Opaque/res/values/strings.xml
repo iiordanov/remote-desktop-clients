@@ -6,7 +6,7 @@
 <string name="app_name">Opaque</string>
 <string name="app_name_beta">Opaque Beta</string>
 <string name="advanced_settings">Advanced Settings</string>
-<string name="audio">Audio playback</string>
+<string name="audio">Audio</string>
 <string name="auto_rotation">Screen rotation while connected</string>
 <string name="auto_request_new_res">Sync remote to display resolution</string>
 <string name="custom_ca_subject">Optional Cert Subject. Not needed if cert CN matches hostname</string>
