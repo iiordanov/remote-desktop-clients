@@ -43,6 +43,7 @@ public class RemoteSpiceKeyboard extends RemoteKeyboard {
     final static int SCANCODE_CIRCUMFLEX_MASK = 0x40000;
     final static int SCANCODE_DIAERESIS_MASK = 0x80000;
     final static int UNICODE_MASK = 0x100000;
+    final static int UNICODE_META_MASK = KeyEvent.META_CTRL_MASK|KeyEvent.META_META_MASK|KeyEvent.META_CAPS_LOCK_ON;
     
 	public RemoteSpiceKeyboard (Resources resources, SpiceCommunicator r, RemoteCanvas v, Handler h, String layoutMapFile) throws IOException {
 	    super(r, v, h);
@@ -112,21 +113,29 @@ public class RemoteSpiceKeyboard extends RemoteKeyboard {
 	}
 
 	public boolean keyEvent(int keyCode, KeyEvent event, int additionalMetaState) {
-	    
+        android.util.Log.e(TAG, event.toString());
+        int action = event.getAction();
+        boolean down = (action == KeyEvent.ACTION_DOWN);
+        // Combine current event meta state with any meta state passed in.
+        int metaState = additionalMetaState | convertEventMetaState (event, event.getMetaState());
+        
+        /* TODO: Consider whether this is a good idea. At least some scan codes between
+           my bluetooth keyboard and what the VM expects do not match. For example, d-pad does not send arrows.
+        // If the event has a scan code, just send that along!
+        if (event.getScanCode() != 0) {
+            android.util.Log.e(TAG, "Event has a scancode, sending that: " + event.getScanCode());
+            spicecomm.writeKeyEvent(event.getScanCode(), 0, down);
+            return true;
+        }*/
+        
 	    // Drop some meta key events which may be used to produce unicode characters.
-	    if (keyCode == KeyEvent.KEYCODE_ALT_LEFT || keyCode == KeyEvent.KEYCODE_ALT_RIGHT ||
-	        keyCode == KeyEvent.KEYCODE_SHIFT_LEFT || keyCode == KeyEvent.KEYCODE_SHIFT_RIGHT) {
+	    if (down &&
+	        (keyCode == KeyEvent.KEYCODE_ALT_LEFT || keyCode == KeyEvent.KEYCODE_ALT_RIGHT ||
+	         keyCode == KeyEvent.KEYCODE_SHIFT_LEFT || keyCode == KeyEvent.KEYCODE_SHIFT_RIGHT)) {
+            lastDownMetaState = metaState;
 	        return true;
 	    }
 	    
-		android.util.Log.e(TAG, event.toString());
-		
-		int action = event.getAction();
-		boolean down = (action == KeyEvent.ACTION_DOWN);
-		
-		// Combine current event meta state with any meta state passed in.
-		int metaState = additionalMetaState | convertEventMetaState (event, event.getMetaState());
-		
 		// Set the hardware meta state from any special keys pressed.
 		setHardwareMetaState (keyCode, event, down);
 		
@@ -154,27 +163,42 @@ public class RemoteSpiceKeyboard extends RemoteKeyboard {
 				}
 			} else {
                 // Get unicode character that would result from this event, masking out Ctrl and Super keys.
-                int unicode = event.getUnicodeChar(event.getMetaState()&~KeyEvent.META_CTRL_MASK&~KeyEvent.META_META_MASK);
+                int unicode = event.getUnicodeChar(event.getMetaState()&~UNICODE_META_MASK);
+                Integer[] scanCodes = null;
                 int unicodeMetaState = 0;
-                if (unicode <= 0) {
-                    // Try to get a unicode value without ALT mask and if successful send ALT as meta-state.
-                    unicode = event.getUnicodeChar(event.getMetaState()&~KeyEvent.META_ALT_MASK&~KeyEvent.META_CTRL_MASK&~KeyEvent.META_META_MASK);
-                    if (unicode > 0) {
-                        unicodeMetaState = onScreenMetaState|hardwareMetaState|
-                                           convertEventMetaState(event, event.getMetaState()&~KeyEvent.META_SHIFT_MASK);
+                
+                if (unicode > 0) {
+                    // We managed to get a unicode value, if Alt is present in the metaState, check whether scan codes can be determined
+                    // for this unicode character with this keymap
+                    if ((event.getMetaState() & KeyEvent.META_ALT_MASK) != 0) {
+                        scanCodes = table.get(unicode |= UNICODE_MASK);
                     }
-                } else {
-                    // We managed to get a unicode value with ALT potentially enabled, so convert and send that over without sending ALT as meta-state.
+                    
+                    // If scan codes cannot be determined, try to get a unicode value without Alt and send Alt
+                    // as meta-state.
+                    if (scanCodes == null || scanCodes.length == 0) {
+                        unicode = -1;
+                    } else {
+                        // We managed to get a unicode value with ALT potentially enabled, and valid scancodes.
+                        // So convert and send that over without sending ALT as meta-state.
+                        unicodeMetaState = onScreenMetaState|hardwareMetaState|
+                                       convertEventMetaState(event, event.getMetaState()&~KeyEvent.META_SHIFT_MASK&~KeyEvent.META_ALT_MASK);
+                    }
+                }
+                
+                if (unicode <= 0) {
+                    // Try to get a unicode value without ALT mask and if successful do not mask ALT out of the meta-state.
+                    unicode = event.getUnicodeChar(event.getMetaState()&~UNICODE_META_MASK&~KeyEvent.META_ALT_MASK);
                     unicodeMetaState = onScreenMetaState|hardwareMetaState|
-                                       convertEventMetaState(event, event.getMetaState()&~KeyEvent.META_ALT_MASK&~KeyEvent.META_SHIFT_MASK);
+                                       convertEventMetaState(event, event.getMetaState()&~KeyEvent.META_SHIFT_MASK);
                 }
                 
                 if (unicode > 0) {
                     android.util.Log.e(TAG, "Got unicode value from event: " + unicode);
                     writeKeyEvent(true, unicode, unicodeMetaState, down, false);
                 } else {
-                    // We were unable to obtain a unicode, so we have to try converting a keyCode.
-                    android.util.Log.e(TAG, "Could not get unicode value from event. Keycode: " + event.getKeyCode());
+                    // We were unable to obtain a unicode, or the list of scancodes was empty, so we have to try converting a keyCode.
+                    android.util.Log.e(TAG, "Could not get unicode or determine scancodes for event. Keycode: " + event.getKeyCode());
                     writeKeyEvent(false, event.getKeyCode(), metaState, down, false);
                 }
 			}
@@ -215,6 +239,7 @@ public class RemoteSpiceKeyboard extends RemoteKeyboard {
                 spicecomm.writeKeyEvent(scode, meta, down);
                 if (sendUpEvents) {
                     spicecomm.writeKeyEvent(scode, meta, false);
+                    android.util.Log.i(TAG, "UNsetting lastDownMetaState");
                     lastDownMetaState = 0;
                 }
             }
