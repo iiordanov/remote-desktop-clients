@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.undatech.opaque"
-    android:versionCode="121"
-    android:versionName="1.2.1" >
+    android:versionCode="122"
+    android:versionName="1.2.2" >
 
     <uses-sdk
         android:minSdkVersion="9"
@@ -13,6 +13,13 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"></uses-permission>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"></uses-permission>
     
+    <supports-screens
+        android:xlargeScreens="true"
+        android:largeScreens="true"
+        android:normalScreens="true"
+        android:smallScreens="true"
+        android:anyDensity="true"/>
+        
     <application
         android:debuggable="false"
         android:allowBackup="true"
