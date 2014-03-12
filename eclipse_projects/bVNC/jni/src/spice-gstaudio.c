@@ -201,7 +201,7 @@ static void record_start(SpiceRecordChannel *channel, gint format, gint channels
             g_strdup_printf("audio/x-raw-int,channels=%d,rate=%d,signed=(boolean)true,"
                             "width=16,depth=16,endianness=1234", channels, frequency);
         gchar *pipeline =
-            g_strdup_printf("autoaudiosrc name=audiosrc ! queue ! audioconvert ! audioresample ! "
+            g_strdup_printf("openslessrc name=audiosrc ! queue ! audioconvert ! audioresample ! "
                             "appsink caps=\"%s\" name=appsink", audio_caps);
 
         p->record.pipe = gst_parse_launch(pipeline, &error);
