@@ -88,7 +88,7 @@ static void spice_display_init(SpiceDisplay *display)
 
     d = display->priv = SPICE_DISPLAY_GET_PRIVATE(display);
     memset(d, 0, sizeof(*d));
-    d->have_mitshm = true;
+    d->have_mitshm = TRUE;
     d->mouse_last_x = -1;
     d->mouse_last_y = -1;
 }
@@ -158,10 +158,10 @@ static gboolean do_color_convert(SpiceDisplay *display,
     guint16 *src = d->data_origin;
 
     if (!d->convert)
-        return true;
+        return TRUE;
 
     g_return_val_if_fail(d->format == SPICE_SURFACE_FMT_16_555 ||
-                         d->format == SPICE_SURFACE_FMT_16_565, false);
+                         d->format == SPICE_SURFACE_FMT_16_565, FALSE);
 
     miny = MAX(y, 0);
     minx = MAX(x, 0);
@@ -191,7 +191,7 @@ static gboolean do_color_convert(SpiceDisplay *display,
         }
     }
 
-    return true;
+    return TRUE;
 }
 
 /* ---------------------------------------------------------------- */

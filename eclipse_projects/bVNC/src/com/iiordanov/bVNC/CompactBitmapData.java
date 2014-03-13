@@ -67,6 +67,8 @@ class CompactBitmapData extends AbstractBitmapData {
             cfg = Bitmap.Config.ARGB_8888;
         
         mbitmap = Bitmap.createBitmap(bitmapwidth, bitmapheight, cfg);
+        mbitmap.setHasAlpha(false);
+
         memGraphics = new Canvas(mbitmap);
         bitmapPixels = new int[bitmapwidth * bitmapheight];
         drawable.startDrawing();

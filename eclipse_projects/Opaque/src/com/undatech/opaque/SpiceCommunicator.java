@@ -83,9 +83,9 @@ public class SpiceCommunicator {
 	
 	private Thread thread = null;
 
-	public SpiceCommunicator (Context context, RemoteCanvas canvas, ConnectionSettings connection) {
+	public SpiceCommunicator (Context context, RemoteCanvas canvas, boolean isRequestingNewDisplayResolution) {
 		this.canvas = canvas;
-		this.connection = connection;
+		this.isRequestingNewDisplayResolution = isRequestingNewDisplayResolution;
 		myself = this;
         // At the moment it is mandatory to initialize gstreamer because it
         // loads libgiognutls for libsoup to have SSL/TLS support.
@@ -102,9 +102,9 @@ public class SpiceCommunicator {
 	private static SpiceCommunicator myself = null;
 	private RemoteCanvas canvas = null;
 	private CanvasDrawableContainer canvasDrawable = null;
-	private ConnectionSettings connection = null;
 	private Handler handler = null;
 	private ArrayList<String> vmNames = null;
+	private boolean isRequestingNewDisplayResolution = false;
 	
 	public void setHandler(Handler handler) {
 		this.handler = handler;
@@ -340,7 +340,7 @@ public class SpiceCommunicator {
 		if (isInNormalProtocol) {
 			int currentWidth = this.width;
 			int currentHeight = this.height;
-			if (connection.isRequestingNewDisplayResolution()) {
+			if (isRequestingNewDisplayResolution) {
 			    canvas.waitUntilInflated();
 				int desiredWidth  = canvas.getDesiredWidth();
 				int desiredHeight = canvas.getDesiredHeight();
@@ -380,7 +380,7 @@ public class SpiceCommunicator {
 		setIsInNormalProtocol(true);
     	handler.sendEmptyMessage(Constants.SPICE_CONNECT_SUCCESS);
 
-		if (connection.isRequestingNewDisplayResolution()) {
+		if (isRequestingNewDisplayResolution) {
 			requestNewResolutionIfNeeded();
 		}
 	}
