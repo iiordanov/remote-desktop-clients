@@ -180,7 +180,7 @@ Java_com_undatech_opaque_SpiceCommunicator_SpiceButtonEvent(JNIEnv * env, jobjec
 
 void uiCallbackInvalidate (SpiceDisplayPrivate *d, gint x, gint y, gint w, gint h) {
     JNIEnv* env;
-    bool attached = attachThreadToJvm (&env);
+    gboolean attached = attachThreadToJvm (&env);
 
     // Tell the UI that it needs to send in the bitmap to be updated and to redraw.
 	(*env)->CallStaticVoidMethod(env, jni_connector_class, jni_graphics_update, 0, x, y, w, h);
@@ -192,7 +192,7 @@ void uiCallbackInvalidate (SpiceDisplayPrivate *d, gint x, gint y, gint w, gint 
 
 void uiCallbackSettingsChanged (gint instance, gint width, gint height, gint bpp) {
     JNIEnv* env;
-    bool attached = attachThreadToJvm (&env);
+    gboolean attached = attachThreadToJvm (&env);
 
 	// Ask for a new bitmap from the UI.
 	(*env)->CallStaticVoidMethod(env, jni_connector_class, jni_settings_changed, instance, width, height, bpp);

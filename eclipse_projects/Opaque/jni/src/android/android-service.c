@@ -33,7 +33,7 @@
 static gboolean disconnect(gpointer user_data);
 
 inline gboolean attachThreadToJvm(JNIEnv** env) {
-	gboolean attached = false;
+	gboolean attached = FALSE;
     int rs2 = 0;
     int rs1 = (*jvm)->GetEnv(jvm, (void**)env, JNI_VERSION_1_6);
     switch (rs1) {
@@ -44,7 +44,7 @@ inline gboolean attachThreadToJvm(JNIEnv** env) {
     	if (rs2 != JNI_OK) {
     		__android_log_write(6, "android-io", "ERROR: Could not attach current thread to jvm.");
     	} else {
-    		attached = true;
+    		attached = TRUE;
     	}
     	break;
     }
@@ -274,7 +274,7 @@ int connectSession (spice_connection *conn)
     __android_log_write(6, "connectSession", "Starting.");
     g_thread_init(NULL);
     g_type_init();
-    mainloop = g_main_loop_new(NULL, false);
+    mainloop = g_main_loop_new(NULL, FALSE);
 
     connection_connect(conn);
     if (connections > 0) {

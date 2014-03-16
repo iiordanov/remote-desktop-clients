@@ -22,7 +22,7 @@ public class SpiceCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyP
     
     static {
         System.loadLibrary("gstreamer_android");
-        System.loadLibrary("spice-android");
+        System.loadLibrary("spice");
     }
     
     final static int VK_CONTROL = 0x11;
