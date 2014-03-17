@@ -133,12 +133,23 @@ public class RemoteCanvasActivity extends Activity implements OnKeyListener {
     boolean       hardKeyboardExtended;
     boolean       extraKeysHidden = false;
     int            prevBottomOffset = 0;
+    int            yOffset = -1;
     
     @Override
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
         initialize();
         continueConnecting();
+    }
+    
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+    	if (yOffset < 0 && hasFocus) {
+    		Rect dims = new Rect();
+    		getWindow().getDecorView().getWindowVisibleDisplayFrame(dims);
+    		yOffset = dims.bottom - canvas.getBottom();
+    	}
+    	super.onWindowFocusChanged(hasFocus);
     }
     
     void initialize () {
@@ -1334,5 +1345,9 @@ public class RemoteCanvasActivity extends Activity implements OnKeyListener {
 
     public void setPanner(Panner panner) {
         this.panner = panner;
+    }
+    
+    public int getYOffset() {
+    	return yOffset;
     }
 }

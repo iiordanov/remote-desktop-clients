@@ -163,7 +163,7 @@ abstract class AbstractGestureInputHandler extends GestureDetector.SimpleOnGestu
      */
     protected int getY (MotionEvent e) {
         float scale = canvas.getScale();
-        return (int)(canvas.getAbsoluteY() + (e.getY() - 1.f * canvas.getTop()) / scale);
+        return (int)(canvas.getAbsoluteY() + (e.getY() - activity.getYOffset() - 1.f * canvas.getTop()) / scale);
     }
 
     /**
@@ -176,9 +176,8 @@ abstract class AbstractGestureInputHandler extends GestureDetector.SimpleOnGestu
         final int meta   = e.getMetaState();
         final int bstate = e.getButtonState();
         RemotePointer p  = canvas.getPointer();
-        float scale = canvas.getScale();
-        int x = (int)(canvas.getAbsoluteX() +  e.getX()                          / scale);
-        int y = (int)(canvas.getAbsoluteY() + (e.getY() - 1.f * canvas.getTop()) / scale);
+        int x = getX(e);
+        int y = getY(e);
 
         switch (action) {
         // If a mouse button was pressed or mouse was moved.
