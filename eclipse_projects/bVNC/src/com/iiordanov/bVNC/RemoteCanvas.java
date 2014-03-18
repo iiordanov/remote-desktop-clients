@@ -381,6 +381,10 @@ public class RemoteCanvas extends ImageView implements LibFreeRDP.UIEventListene
         performanceFlags.setMenuAnimations(connection.getMenuAnimation());
         performanceFlags.setTheming(connection.getVisualStyles());
         
+        BookmarkBase.AdvancedSettings advancedSettings = session.getBookmark().getAdvancedSettings();
+        advancedSettings.setRedirectSDCard(connection.getRedirectSdCard());
+        advancedSettings.setConsoleMode(connection.getConsoleMode());
+        
         rdpcomm = new RdpCommunicator (session);
         rfbconn = rdpcomm;
         pointer = new RemoteRdpPointer (rfbconn, RemoteCanvas.this, handler);

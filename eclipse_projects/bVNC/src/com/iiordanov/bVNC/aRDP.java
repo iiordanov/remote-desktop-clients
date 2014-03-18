@@ -90,6 +90,8 @@ public class aRDP extends Activity implements MainConfiguration {
     private EditText rdpHeight;
     private CheckBox checkboxKeepPassword;
     private CheckBox checkboxUseDpadAsArrows;
+    private CheckBox checkboxConsoleMode;
+    private CheckBox checkboxRedirectSdCard;
     private CheckBox checkboxRemoteFx;
     private CheckBox checkboxDesktopBackground;
     private CheckBox checkboxFontSmoothing;
@@ -225,6 +227,8 @@ public class aRDP extends Activity implements MainConfiguration {
             }
         });
 
+        checkboxConsoleMode = (CheckBox)findViewById(R.id.checkboxConsoleMode);
+        checkboxRedirectSdCard = (CheckBox)findViewById(R.id.checkboxRedirectSdCard);
         checkboxRemoteFx = (CheckBox)findViewById(R.id.checkboxRemoteFx);
         checkboxDesktopBackground = (CheckBox)findViewById(R.id.checkboxDesktopBackground);
         checkboxFontSmoothing = (CheckBox)findViewById(R.id.checkboxFontSmoothing);
@@ -427,6 +431,8 @@ public class aRDP extends Activity implements MainConfiguration {
         rdpWidth.setText(Integer.toString(selected.getRdpWidth()));
         rdpHeight.setText(Integer.toString(selected.getRdpHeight()));
         setRemoteWidthAndHeight ();
+        checkboxConsoleMode.setChecked(selected.getConsoleMode());
+        checkboxRedirectSdCard.setChecked(selected.getRedirectSdCard());
         checkboxRemoteFx.setChecked(selected.getRemoteFx());
         checkboxDesktopBackground.setChecked(selected.getDesktopBackground());
         checkboxFontSmoothing.setChecked(selected.getFontSmoothing());
@@ -527,6 +533,8 @@ public class aRDP extends Activity implements MainConfiguration {
             selected.setRdpWidth(Integer.parseInt(rdpWidth.getText().toString()));
             selected.setRdpHeight(Integer.parseInt(rdpHeight.getText().toString()));
         } catch (NumberFormatException nfe) {}
+        selected.setConsoleMode(checkboxConsoleMode.isChecked());
+        selected.setRedirectSdCard(checkboxRedirectSdCard.isChecked());
         selected.setRemoteFx(checkboxRemoteFx.isChecked());
         selected.setDesktopBackground(checkboxDesktopBackground.isChecked());
         selected.setFontSmoothing(checkboxFontSmoothing.isChecked());
