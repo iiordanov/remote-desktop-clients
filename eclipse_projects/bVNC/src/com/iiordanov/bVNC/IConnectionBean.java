@@ -174,6 +174,10 @@ interface IConnectionBean {
     @FieldAccessor
     boolean getVisualStyles();
     @FieldAccessor
+    boolean getRedirectSdCard();
+    @FieldAccessor
+    boolean getConsoleMode();
+    @FieldAccessor
     boolean getEnableSound();
     @FieldAccessor
     boolean getViewOnly();
