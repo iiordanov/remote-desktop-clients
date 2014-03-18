@@ -261,7 +261,7 @@ public class RemoteCanvas extends ImageView implements SelectTextElementFragment
             @Override
             public void run() {
                 try {
-                    spicecomm = new SpiceCommunicator (getContext(), RemoteCanvas.this, settings);
+                    spicecomm = new SpiceCommunicator (getContext(), RemoteCanvas.this, settings.isRequestingNewDisplayResolution());
                     pointer = new RemoteSpicePointer (spicecomm, RemoteCanvas.this, handler);
                     keyboard = new RemoteSpiceKeyboard (getResources(), spicecomm, RemoteCanvas.this, handler, settings.getLayoutMap());
                     spicecomm.setHandler(handler);
@@ -294,7 +294,7 @@ public class RemoteCanvas extends ImageView implements SelectTextElementFragment
 			@Override
 			public void run() {
 				try {		
-					spicecomm = new SpiceCommunicator (getContext(), RemoteCanvas.this, settings);
+					spicecomm = new SpiceCommunicator (getContext(), RemoteCanvas.this, settings.isRequestingNewDisplayResolution());
 					pointer = new RemoteSpicePointer (spicecomm, RemoteCanvas.this, handler);
 					keyboard = new RemoteSpiceKeyboard (getResources(), spicecomm, RemoteCanvas.this, handler, settings.getLayoutMap());
 					spicecomm.setHandler(handler);

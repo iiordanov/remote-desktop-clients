@@ -381,8 +381,10 @@ public class bVNC extends Activity implements MainConfiguration {
      */
     @Override
     public boolean onMenuOpened(int featureId, Menu menu) {
-        menu.findItem(R.id.itemDeleteConnection).setEnabled(selected!=null && ! selected.isNew());
-        menu.findItem(R.id.itemSaveAsCopy).setEnabled(selected!=null && ! selected.isNew());
+        if (menu != null) {
+            menu.findItem(R.id.itemDeleteConnection).setEnabled(selected!=null && ! selected.isNew());
+            menu.findItem(R.id.itemSaveAsCopy).setEnabled(selected!=null && ! selected.isNew());
+        }
         return true;
     }
 

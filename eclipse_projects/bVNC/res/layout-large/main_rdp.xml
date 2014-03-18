@@ -195,7 +195,7 @@ android:layout_height="fill_parent">
 	    <TextView
             android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
-	        android:text="Tap Button to Show/Hide Advanced Settings"
+	        android:text="Show Advanced Settings"
 	        android:textAppearance="?android:attr/textAppearanceLarge" />
     </LinearLayout>
 
@@ -245,6 +245,20 @@ android:layout_height="fill_parent">
 		        android:singleLine="true"
 		        android:textAppearance="?android:attr/textAppearanceLarge" />
 		</LinearLayout>
+        <CheckBox
+            android:id="@+id/checkboxConsoleMode"
+            android:text="@string/rdp_adv_console_mode"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:layout_width="wrap_content"
+            android:gravity="left|center_vertical"
+            android:layout_height="wrap_content"/>
+        <CheckBox
+            android:id="@+id/checkboxRedirectSdCard"
+            android:text="@string/rdp_adv_redirect_sdcard"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:layout_width="wrap_content"
+            android:gravity="left|center_vertical"
+            android:layout_height="wrap_content"/>
 		<CheckBox
 			android:id="@+id/checkboxRemoteFx"
 		    android:text="@string/rdp_adv_remotefx"

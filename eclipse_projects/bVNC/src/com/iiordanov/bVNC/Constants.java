@@ -122,6 +122,9 @@ public class Constants {
     public final static String AUTOX_SESS_PROG_GNOMECL = "/usr/bin/gnome-session --session=gnome-classic";
     public final static String AUTOX_SESS_PROG_TRINITY = "/usr/bin/starttde";
     public final static String AUTOX_SESS_PROG_MATE    = "/usr/bin/mate-session";
+    
+    public static final String DEFAULT_LAYOUT_MAP = "English (US)";
+
 
     /**
      * Returns a string matching a session selection index

@@ -1,3 +1,1 @@
-#!/bin/sh
-
-./keymap-gen.pl keymaps.csv win32 xtkbd > win32keymap.h
+../../../../Opaque/jni/src/android/generate-win32-keymap.sh

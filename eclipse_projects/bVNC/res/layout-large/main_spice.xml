@@ -195,7 +195,7 @@ android:layout_height="fill_parent">
 	    <TextView
             android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
-	        android:text="Tap Button to Show/Hide Advanced Settings"
+	        android:text="Show Advanced Settings"
 	        android:textAppearance="?android:attr/textAppearanceLarge" />
     </LinearLayout>
 
