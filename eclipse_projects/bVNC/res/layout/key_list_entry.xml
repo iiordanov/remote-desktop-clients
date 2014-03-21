@@ -6,6 +6,6 @@
   	android:layout_height="fill_parent"
   	android:textAppearance="?android:attr/textAppearanceMedium"
   	android:padding="2sp"
-  	android:textColor="#000"
+  	android:textColor="#999"
   	android:singleLine="true"
   	/>
