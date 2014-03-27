@@ -55,7 +55,6 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.StrictMode;
 import android.os.SystemClock;
 import android.util.Log;
 import android.view.InputDevice;
@@ -143,8 +142,10 @@ public class RemoteCanvasActivity extends Activity implements OnKeyListener {
     }
     
     void initialize () {
-        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-        StrictMode.setThreadPolicy(policy);
+        if (android.os.Build.VERSION.SDK_INT >= 9) {
+            android.os.StrictMode.ThreadPolicy policy = new android.os.StrictMode.ThreadPolicy.Builder().permitAll().build();
+            android.os.StrictMode.setThreadPolicy(policy);
+        }
         
         handler = new Handler ();
         
