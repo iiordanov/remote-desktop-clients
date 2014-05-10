@@ -1479,6 +1479,16 @@ class RfbProto implements RfbConnectable {
     
     if ((newModifiers & RemoteKeyboard.SUPER_MASK) != (oldModifiers & RemoteKeyboard.SUPER_MASK))
         writeKeyEvent(0xffeb, (newModifiers & RemoteKeyboard.SUPER_MASK) != 0);
+    
+    if ((newModifiers & RemoteKeyboard.RCTRL_MASK) != (oldModifiers & RemoteKeyboard.RCTRL_MASK))
+    	  writeKeyEvent(0xffe4, (newModifiers & RemoteKeyboard.RCTRL_MASK) != 0);
+    
+    if ((newModifiers & RemoteKeyboard.RSHIFT_MASK) != (oldModifiers & RemoteKeyboard.RSHIFT_MASK))
+    	  writeKeyEvent(0xffe2, (newModifiers & RemoteKeyboard.RSHIFT_MASK) != 0);
+    
+    if ((newModifiers & RemoteKeyboard.RALT_MASK) != (oldModifiers & RemoteKeyboard.RALT_MASK))
+      writeKeyEvent(this.canvas.connection.getRAltAsIsoLv3Shift() ? 0xfe03 : 0xffea,
+    	            (newModifiers & RemoteKeyboard.RALT_MASK) != 0);
 
     oldModifiers = newModifiers;
   }
