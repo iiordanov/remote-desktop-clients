@@ -6,8 +6,9 @@ import android.view.MotionEvent;
 
 import com.iiordanov.bVNC.RfbConnectable;
 import com.iiordanov.bVNC.RemoteCanvas;
+import com.iiordanov.bVNC.input.RemoteVncPointer.MouseScrollRunnable;
 
-public class RemoteRdpPointer implements RemotePointer {
+public class RemoteRdpPointer extends RemotePointer {
     private static final String TAG = "RemoteRdpPointer";
 
     private final static int PTRFLAGS_WHEEL          = 0x0200;
@@ -26,36 +27,11 @@ public class RemoteRdpPointer implements RemotePointer {
     // TODO: Figure out if possible
     //public static final int MOUSE_BUTTON_SCROLL_LEFT = 32;
     //public static final int MOUSE_BUTTON_SCROLL_RIGHT = 64;
-
-    private int prevPointerMask = 0;
     
-    /**
-     * Current state of "mouse" buttons
-     */
-    private int pointerMask = MOUSE_BUTTON_NONE;
-
-    private RemoteCanvas vncCanvas;
-    private Handler handler;
-    private RfbConnectable rfb;
     public MouseScrollRunnable scrollRunnable;
 
-    /**
-     * Use camera button as meta key for right mouse button
-     */
-    boolean cameraButtonDown = false;
-    
-    /**
-     * Indicates where the mouse pointer is located.
-     */
-    public int mouseX, mouseY;
-
-
     public RemoteRdpPointer (RfbConnectable r, RemoteCanvas v, Handler h) {
-        rfb = r;
-        mouseX=rfb.framebufferWidth()/2;
-        mouseY=rfb.framebufferHeight()/2;
-        vncCanvas = v;
-        handler = h;
+        super(r,v,h);
         scrollRunnable = new MouseScrollRunnable();
     }
 
@@ -171,7 +147,7 @@ public class RemoteRdpPointer implements RemotePointer {
             //processPointerEvent(getX(), getY(), evt.getAction(), combinedMetastate, down, false, false, true, direction);
             rfb.writePointerEvent(getX(), getY(), combinedMetastate, pointerMask);
             return true;
-        } else if (keyCode == KeyEvent.KEYCODE_BACK && evt.getScanCode() == 0) {
+        } else if (keyCode == KeyEvent.KEYCODE_BACK && (evt.getScanCode() == 0 || hasMenuKey)) {
             pointerMask |= RemoteRdpPointer.MOUSE_BUTTON_RIGHT;
             rfb.writePointerEvent(getX(), getY(), combinedMetastate, pointerMask);
             return true;
