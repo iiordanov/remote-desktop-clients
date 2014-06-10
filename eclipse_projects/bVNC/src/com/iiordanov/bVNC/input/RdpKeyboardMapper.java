@@ -230,6 +230,9 @@ public class RdpKeyboardMapper
     // this flag indicates if the key is a toggle key (remains down when pressed and goes up if pressed again)
     private static final int KEY_FLAG_TOGGLE = 0x40000000;
 
+    // Indicates we should add shift to the event.
+    private static final int KEY_FLAG_SHIFT = 0x20000000;
+
     private boolean shiftPressed = false;
     private boolean ctrlPressed = false;
     private boolean altPressed = false;
@@ -336,17 +339,18 @@ public class RdpKeyboardMapper
         keymapAndroid[KeyEvent.KEYCODE_EQUALS] = VK_OEM_EQUALS;
 
         keymapAndroid[KeyEvent.KEYCODE_APOSTROPHE] = VK_OEM_7;
-        // TODO: '?' and '/' do not work right with xrdp.
-        // '?' is sent over as shift + /, and never works.
-        // '/' only works if the statement below is uncommented
-        // but this breaks '?' in Windows.
-        //keymapAndroid[KeyEvent.KEYCODE_SLASH] = VK_DIVIDE | VK_EXT_KEY;
+
         keymapAndroid[KeyEvent.KEYCODE_BACKSLASH] = VK_OEM_5;
         keymapAndroid[KeyEvent.KEYCODE_GRAVE] = VK_OEM_3;    
         keymapAndroid[KeyEvent.KEYCODE_LEFT_BRACKET] = VK_OEM_4;        
         keymapAndroid[KeyEvent.KEYCODE_RIGHT_BRACKET] = VK_OEM_6;        
 
         keymapAndroid[KeyEvent.KEYCODE_BACK] = VK_ESCAPE;
+        
+        keymapAndroid[KeyEvent.KEYCODE_SLASH] = VK_OEM_2;
+        keymapAndroid[KeyEvent.KEYCODE_AT] = VK_KEY_2 | KEY_FLAG_SHIFT;
+        keymapAndroid[KeyEvent.KEYCODE_POUND] = VK_KEY_3 | KEY_FLAG_SHIFT;
+        keymapAndroid[KeyEvent.KEYCODE_STAR] = VK_KEY_8 | KEY_FLAG_SHIFT;
 
 //        keymapAndroid[KeyEvent.KEYCODE_ALT_LEFT] = VK_LMENU;
 //        keymapAndroid[KeyEvent.KEYCODE_ALT_RIGHT] = VK_RMENU;
@@ -471,11 +475,16 @@ public class RdpKeyboardMapper
                 // and notifiy our listener.
                 int vkcode = getVirtualKeyCode(event.getKeyCode());
                 //android.util.Log.e("KeyMapper", "VK KeyCode is: " + vkcode);
-                if((vkcode & KEY_FLAG_UNICODE) != 0)
+                if((vkcode & KEY_FLAG_UNICODE) != 0) {
                     listener.processUnicodeKey(vkcode & (~KEY_FLAG_UNICODE));
+                } else if ((vkcode & KEY_FLAG_SHIFT) != 0){
+                    vkcode = vkcode & ~KEY_FLAG_SHIFT;
+                    listener.processVirtualKey(VK_LSHIFT, true);
+                    listener.processVirtualKey(vkcode, true);
+                    listener.processVirtualKey(vkcode, false);                                        
+                    listener.processVirtualKey(VK_LSHIFT, false);
                 // if we got a valid vkcode send it - except for letters/numbers if a modifier is active
-                else if (vkcode > 0 && (event.getMetaState() & (KeyEvent.META_ALT_ON | KeyEvent.META_SHIFT_ON | KeyEvent.META_SYM_ON)) == 0)
-                {
+                } else if (vkcode > 0 && (event.getMetaState() & (KeyEvent.META_ALT_ON | KeyEvent.META_SHIFT_ON | KeyEvent.META_SYM_ON)) == 0) {
                     listener.processVirtualKey(vkcode, true);
                     listener.processVirtualKey(vkcode, false);
                 }
@@ -510,7 +519,7 @@ public class RdpKeyboardMapper
         }
         return false;
     }
-
+    
     public void processCustomKeyEvent(int keycode) {
         int extCode = getExtendedKeyCode(keycode);
         if(extCode == 0)
