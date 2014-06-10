@@ -6,8 +6,9 @@ import android.view.MotionEvent;
 
 import com.iiordanov.bVNC.RfbConnectable;
 import com.iiordanov.bVNC.RemoteCanvas;
+import com.iiordanov.bVNC.input.RemoteVncPointer.MouseScrollRunnable;
 
-public class RemoteSpicePointer implements RemotePointer {
+public class RemoteSpicePointer extends RemotePointer {
     private static final String TAG = "RemoteSpicePointer";
 
     public static final int SPICE_MOUSE_BUTTON_MOVE   = 0;
@@ -19,35 +20,10 @@ public class RemoteSpicePointer implements RemotePointer {
 
     public static final int PTRFLAGS_DOWN             = 0x8000;
     
-    private int prevPointerMask = 0;
-    
-    /**
-     * Current state of "mouse" buttons
-     */
-    private int pointerMask = 0;
-
-    private RemoteCanvas vncCanvas;
-    private Handler handler;
-    private RfbConnectable rfb;
     public MouseScrollRunnable scrollRunnable;
 
-    /**
-     * Use camera button as meta key for right mouse button
-     */
-    boolean cameraButtonDown = false;
-    
-    /**
-     * Indicates where the mouse pointer is located.
-     */
-    public int mouseX, mouseY;
-
-
     public RemoteSpicePointer (RfbConnectable r, RemoteCanvas v, Handler h) {
-        rfb = r;
-        mouseX=rfb.framebufferWidth()/2;
-        mouseY=rfb.framebufferHeight()/2;
-        vncCanvas = v;
-        handler = h;
+        super(r,v,h);
         scrollRunnable = new MouseScrollRunnable();
     }
 
@@ -163,7 +139,7 @@ public class RemoteSpicePointer implements RemotePointer {
             //processPointerEvent(getX(), getY(), evt.getAction(), combinedMetastate, down, false, false, true, direction);
             rfb.writePointerEvent(getX(), getY(), combinedMetastate, pointerMask);
             return true;
-        } else if (keyCode == KeyEvent.KEYCODE_BACK && evt.getScanCode() == 0) {
+        } else if (keyCode == KeyEvent.KEYCODE_BACK && (evt.getScanCode() == 0 || hasMenuKey)) {
             pointerMask |= RemoteSpicePointer.SPICE_MOUSE_BUTTON_RIGHT;
             rfb.writePointerEvent(getX(), getY(), combinedMetastate, pointerMask);
             return true;

@@ -3,11 +3,12 @@ package com.iiordanov.bVNC.input;
 import android.os.Handler;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
+import android.view.ViewConfiguration;
 
 import com.iiordanov.bVNC.RfbConnectable;
 import com.iiordanov.bVNC.RemoteCanvas;
 
-public class RemoteVncPointer implements RemotePointer {
+public class RemoteVncPointer extends RemotePointer {
     private static final String TAG = "RemotePointer";
     
     public static final int MOUSE_BUTTON_NONE = 0;
@@ -18,34 +19,11 @@ public class RemoteVncPointer implements RemotePointer {
     public static final int MOUSE_BUTTON_SCROLL_DOWN = 16;
     public static final int MOUSE_BUTTON_SCROLL_LEFT = 32;
     public static final int MOUSE_BUTTON_SCROLL_RIGHT = 64;
-    
-    /**
-     * Current state of "mouse" buttons
-     */
-    private int pointerMask = MOUSE_BUTTON_NONE;
 
-    private RemoteCanvas vncCanvas;
-    private Handler handler;
-    private RfbConnectable rfb;
     public MouseScrollRunnable scrollRunnable;
 
-    /**
-     * Use camera button as meta key for right mouse button
-     */
-    boolean cameraButtonDown = false;
-    
-    /**
-     * Indicates where the mouse pointer is located.
-     */
-    public int mouseX, mouseY;
-
-
     public RemoteVncPointer (RfbConnectable r, RemoteCanvas v, Handler h) {
-        rfb = r;
-        mouseX=rfb.framebufferWidth()/2;
-        mouseY=rfb.framebufferHeight()/2;
-        vncCanvas = v;
-        handler = h;
+        super(r,v,h);
         scrollRunnable = new MouseScrollRunnable();
     }
 
@@ -126,7 +104,7 @@ public class RemoteVncPointer implements RemotePointer {
 
         int mouseChange = keyCode == KeyEvent.KEYCODE_VOLUME_DOWN ? RemoteVncPointer.MOUSE_BUTTON_SCROLL_DOWN : RemoteVncPointer.MOUSE_BUTTON_SCROLL_UP;
         if (keyCode == KeyEvent.KEYCODE_CAMERA ||
-            keyCode == KeyEvent.KEYCODE_BACK && evt.getScanCode() == 0) {
+            keyCode == KeyEvent.KEYCODE_BACK && (evt.getScanCode() == 0 || hasMenuKey)) {
             if (keyCode == KeyEvent.KEYCODE_CAMERA)
                 cameraButtonDown = down;
 
