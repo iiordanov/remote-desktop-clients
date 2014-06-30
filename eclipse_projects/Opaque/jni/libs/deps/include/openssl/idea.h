@@ -1,5 +1,5 @@
-/* crypto/ripemd/ripemd.h */
-/* Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
+/* crypto/idea/idea.h */
+/* Copyright (C) 1995-1997 Eric Young (eay@cryptsoft.com)
  * All rights reserved.
  *
  * This package is an SSL implementation written
@@ -56,50 +56,46 @@
  * [including the GNU Public Licence.]
  */
 
-#ifndef HEADER_RIPEMD_H
-#define HEADER_RIPEMD_H
+#ifndef HEADER_IDEA_H
+#define HEADER_IDEA_H
 
-#include <openssl/e_os2.h>
-#include <stddef.h>
+#include <openssl/opensslconf.h> /* IDEA_INT, OPENSSL_NO_IDEA */
+
+#ifdef OPENSSL_NO_IDEA
+#error IDEA is disabled.
+#endif
+
+#define IDEA_ENCRYPT	1
+#define IDEA_DECRYPT	0
+
+#define IDEA_BLOCK	8
+#define IDEA_KEY_LENGTH	16
 
 #ifdef  __cplusplus
 extern "C" {
 #endif
 
-#ifdef OPENSSL_NO_RIPEMD
-#error RIPEMD is disabled.
-#endif
-
-#if defined(__LP32__)
-#define RIPEMD160_LONG unsigned long
-#elif defined(OPENSSL_SYS_CRAY) || defined(__ILP64__)
-#define RIPEMD160_LONG unsigned long
-#define RIPEMD160_LONG_LOG2 3
-#else
-#define RIPEMD160_LONG unsigned int
-#endif
-
-#define RIPEMD160_CBLOCK	64
-#define RIPEMD160_LBLOCK	(RIPEMD160_CBLOCK/4)
-#define RIPEMD160_DIGEST_LENGTH	20
-
-typedef struct RIPEMD160state_st
+typedef struct idea_key_st
 	{
-	RIPEMD160_LONG A,B,C,D,E;
-	RIPEMD160_LONG Nl,Nh;
-	RIPEMD160_LONG data[RIPEMD160_LBLOCK];
-	unsigned int   num;
-	} RIPEMD160_CTX;
+	IDEA_INT data[9][6];
+	} IDEA_KEY_SCHEDULE;
 
+const char *idea_options(void);
+void idea_ecb_encrypt(const unsigned char *in, unsigned char *out,
+	IDEA_KEY_SCHEDULE *ks);
 #ifdef OPENSSL_FIPS
-int private_RIPEMD160_Init(RIPEMD160_CTX *c);
+void private_idea_set_encrypt_key(const unsigned char *key, IDEA_KEY_SCHEDULE *ks);
 #endif
-int RIPEMD160_Init(RIPEMD160_CTX *c);
-int RIPEMD160_Update(RIPEMD160_CTX *c, const void *data, size_t len);
-int RIPEMD160_Final(unsigned char *md, RIPEMD160_CTX *c);
-unsigned char *RIPEMD160(const unsigned char *d, size_t n,
-	unsigned char *md);
-void RIPEMD160_Transform(RIPEMD160_CTX *c, const unsigned char *b);
+void idea_set_encrypt_key(const unsigned char *key, IDEA_KEY_SCHEDULE *ks);
+void idea_set_decrypt_key(IDEA_KEY_SCHEDULE *ek, IDEA_KEY_SCHEDULE *dk);
+void idea_cbc_encrypt(const unsigned char *in, unsigned char *out,
+	long length, IDEA_KEY_SCHEDULE *ks, unsigned char *iv,int enc);
+void idea_cfb64_encrypt(const unsigned char *in, unsigned char *out,
+	long length, IDEA_KEY_SCHEDULE *ks, unsigned char *iv,
+	int *num,int enc);
+void idea_ofb64_encrypt(const unsigned char *in, unsigned char *out,
+	long length, IDEA_KEY_SCHEDULE *ks, unsigned char *iv, int *num);
+void idea_encrypt(unsigned long *in, IDEA_KEY_SCHEDULE *ks);
 #ifdef  __cplusplus
 }
 #endif

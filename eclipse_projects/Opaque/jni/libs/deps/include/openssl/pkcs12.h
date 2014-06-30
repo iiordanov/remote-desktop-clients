@@ -1,5 +1,5 @@
 /* pkcs12.h */
-/* Written by Dr Stephen N Henson (shenson@bigfoot.com) for the OpenSSL
+/* Written by Dr Stephen N Henson (steve@openssl.org) for the OpenSSL
  * project 1999.
  */
 /* ====================================================================
@@ -107,8 +107,6 @@ ASN1_INTEGER *version;
 PKCS12_MAC_DATA *mac;
 PKCS7 *authsafes;
 } PKCS12;
-
-PREDECLARE_STACK_OF(PKCS12_SAFEBAG)
 
 typedef struct {
 ASN1_OBJECT *type;
@@ -232,8 +230,8 @@ int PKCS12_set_mac(PKCS12 *p12, const char *pass, int passlen,
 		   const EVP_MD *md_type);
 int PKCS12_setup_mac(PKCS12 *p12, int iter, unsigned char *salt,
 					 int saltlen, const EVP_MD *md_type);
-unsigned char *asc2uni(const char *asc, int asclen, unsigned char **uni, int *unilen);
-char *uni2asc(unsigned char *uni, int unilen);
+unsigned char *OPENSSL_asc2uni(const char *asc, int asclen, unsigned char **uni, int *unilen);
+char *OPENSSL_uni2asc(unsigned char *uni, int unilen);
 
 DECLARE_ASN1_FUNCTIONS(PKCS12)
 DECLARE_ASN1_FUNCTIONS(PKCS12_MAC_DATA)

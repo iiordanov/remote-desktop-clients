@@ -20,8 +20,8 @@
 <string name="ca_file_error_reading">Error reading CA file. Please ensure it is readable.</string>
 <string name="connection_setup_vm_name">Virtual machine name (optional)</string>
 <string name="connection_setup_host_name">RHEV/oVirt VDI Server</string>
-<string name="connection_setup_user">User</string>
-<string name="connection_setup_password">Password (optional, saved)</string>
+<string name="connection_setup_user">User@Domain</string>
+<string name="connection_setup_password">Password (saved if entered)</string>
 <string name="enter_password">Please enter password</string>
 <string name="manage_custom_ca_title">Manage custom CA</string>
 <string name="save_button">Save</string>
@@ -118,11 +118,11 @@ All Input Method:
 <string name="error_out_of_memory">"Unable to allocate sufficient memory to draw remote screen. Try restarting the application, then restart your device. You can also try reducing the size of the remote desktop through the app settings."</string>
 <string name="error_ovirt_unable_to_connect">Connection failure. Please check server address and network connectivity.</string>
 <string name="error_ovirt_auth_failure">Authentication failure. Please check the provided user and password.</string>
-<string name="error_ovirt_ssl_handshake_failure">SSL handshake failure. There is a problem with the server SSL certificate. If you are using a self-signed certificate, you need to (re)import your certificate authority. You can also turn off strict SSL checking (not recommended).</string>
+<string name="error_ovirt_ssl_handshake_failure">SSL handshake failure. There is a problem with the server SSL certificate. If you are using a self-signed certificate, you need to (re)import your certificate authority.</string>
 <string name="error_connection_interrupted">Connection interrupted.</string>
 <string name="error_vm_lookup_failed">Could not find a virtual machine with the name specified assigned to your user. Please erase the VM name specified to see a list of VMs assigned to the user.</string>
 <string name="error_no_vm_found_for_user">No available Virtual Machines for the given user.</string>
 <string name="error_no_vnc_support_yet">VNC display type not supported yet, but it is an upcoming feature. Thanks for your understanding!</string>
 <string name="error_not_connected_to_network">You do not appear to be connected to the Internet. Cannot continue without being connected!</string>
-<string name="ssl_strict">SSL strict mode (on is recommended)</string>
+<string name="ssl_strict">Require common name to match cert (on recommended)</string>
 </resources>

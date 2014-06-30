@@ -1,4 +1,4 @@
-/* crypto/ripemd/ripemd.h */
+/* crypto/cast/cast.h */
 /* Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
  * All rights reserved.
  *
@@ -56,50 +56,50 @@
  * [including the GNU Public Licence.]
  */
 
-#ifndef HEADER_RIPEMD_H
-#define HEADER_RIPEMD_H
-
-#include <openssl/e_os2.h>
-#include <stddef.h>
+#ifndef HEADER_CAST_H
+#define HEADER_CAST_H
 
 #ifdef  __cplusplus
 extern "C" {
 #endif
 
-#ifdef OPENSSL_NO_RIPEMD
-#error RIPEMD is disabled.
+#include <openssl/opensslconf.h>
+
+#ifdef OPENSSL_NO_CAST
+#error CAST is disabled.
 #endif
 
-#if defined(__LP32__)
-#define RIPEMD160_LONG unsigned long
-#elif defined(OPENSSL_SYS_CRAY) || defined(__ILP64__)
-#define RIPEMD160_LONG unsigned long
-#define RIPEMD160_LONG_LOG2 3
-#else
-#define RIPEMD160_LONG unsigned int
-#endif
+#define CAST_ENCRYPT	1
+#define CAST_DECRYPT	0
 
-#define RIPEMD160_CBLOCK	64
-#define RIPEMD160_LBLOCK	(RIPEMD160_CBLOCK/4)
-#define RIPEMD160_DIGEST_LENGTH	20
+#define CAST_LONG unsigned int
 
-typedef struct RIPEMD160state_st
+#define CAST_BLOCK	8
+#define CAST_KEY_LENGTH	16
+
+typedef struct cast_key_st
 	{
-	RIPEMD160_LONG A,B,C,D,E;
-	RIPEMD160_LONG Nl,Nh;
-	RIPEMD160_LONG data[RIPEMD160_LBLOCK];
-	unsigned int   num;
-	} RIPEMD160_CTX;
+	CAST_LONG data[32];
+	int short_key;	/* Use reduced rounds for short key */
+	} CAST_KEY;
 
-#ifdef OPENSSL_FIPS
-int private_RIPEMD160_Init(RIPEMD160_CTX *c);
+#ifdef OPENSSL_FIPS 
+void private_CAST_set_key(CAST_KEY *key, int len, const unsigned char *data);
 #endif
-int RIPEMD160_Init(RIPEMD160_CTX *c);
-int RIPEMD160_Update(RIPEMD160_CTX *c, const void *data, size_t len);
-int RIPEMD160_Final(unsigned char *md, RIPEMD160_CTX *c);
-unsigned char *RIPEMD160(const unsigned char *d, size_t n,
-	unsigned char *md);
-void RIPEMD160_Transform(RIPEMD160_CTX *c, const unsigned char *b);
+void CAST_set_key(CAST_KEY *key, int len, const unsigned char *data);
+void CAST_ecb_encrypt(const unsigned char *in, unsigned char *out, const CAST_KEY *key,
+		      int enc);
+void CAST_encrypt(CAST_LONG *data, const CAST_KEY *key);
+void CAST_decrypt(CAST_LONG *data, const CAST_KEY *key);
+void CAST_cbc_encrypt(const unsigned char *in, unsigned char *out, long length,
+		      const CAST_KEY *ks, unsigned char *iv, int enc);
+void CAST_cfb64_encrypt(const unsigned char *in, unsigned char *out,
+			long length, const CAST_KEY *schedule, unsigned char *ivec,
+			int *num, int enc);
+void CAST_ofb64_encrypt(const unsigned char *in, unsigned char *out, 
+			long length, const CAST_KEY *schedule, unsigned char *ivec,
+			int *num);
+
 #ifdef  __cplusplus
 }
 #endif

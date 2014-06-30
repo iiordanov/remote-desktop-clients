@@ -1,4 +1,4 @@
-/* crypto/ripemd/ripemd.h */
+/* crypto/mdc2/mdc2.h */
 /* Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
  * All rights reserved.
  *
@@ -56,52 +56,43 @@
  * [including the GNU Public Licence.]
  */
 
-#ifndef HEADER_RIPEMD_H
-#define HEADER_RIPEMD_H
+#ifndef HEADER_MDC2_H
+#define HEADER_MDC2_H
 
-#include <openssl/e_os2.h>
-#include <stddef.h>
+#include <openssl/des.h>
 
 #ifdef  __cplusplus
 extern "C" {
 #endif
 
-#ifdef OPENSSL_NO_RIPEMD
-#error RIPEMD is disabled.
+#ifdef OPENSSL_NO_MDC2
+#error MDC2 is disabled.
 #endif
 
-#if defined(__LP32__)
-#define RIPEMD160_LONG unsigned long
-#elif defined(OPENSSL_SYS_CRAY) || defined(__ILP64__)
-#define RIPEMD160_LONG unsigned long
-#define RIPEMD160_LONG_LOG2 3
-#else
-#define RIPEMD160_LONG unsigned int
-#endif
-
-#define RIPEMD160_CBLOCK	64
-#define RIPEMD160_LBLOCK	(RIPEMD160_CBLOCK/4)
-#define RIPEMD160_DIGEST_LENGTH	20
-
-typedef struct RIPEMD160state_st
+#define MDC2_BLOCK              8
+#define MDC2_DIGEST_LENGTH      16
+ 
+typedef struct mdc2_ctx_st
 	{
-	RIPEMD160_LONG A,B,C,D,E;
-	RIPEMD160_LONG Nl,Nh;
-	RIPEMD160_LONG data[RIPEMD160_LBLOCK];
-	unsigned int   num;
-	} RIPEMD160_CTX;
+	unsigned int num;
+	unsigned char data[MDC2_BLOCK];
+	DES_cblock h,hh;
+	int pad_type; /* either 1 or 2, default 1 */
+	} MDC2_CTX;
+
 
 #ifdef OPENSSL_FIPS
-int private_RIPEMD160_Init(RIPEMD160_CTX *c);
+int private_MDC2_Init(MDC2_CTX *c);
 #endif
-int RIPEMD160_Init(RIPEMD160_CTX *c);
-int RIPEMD160_Update(RIPEMD160_CTX *c, const void *data, size_t len);
-int RIPEMD160_Final(unsigned char *md, RIPEMD160_CTX *c);
-unsigned char *RIPEMD160(const unsigned char *d, size_t n,
+int MDC2_Init(MDC2_CTX *c);
+int MDC2_Update(MDC2_CTX *c, const unsigned char *data, size_t len);
+int MDC2_Final(unsigned char *md, MDC2_CTX *c);
+unsigned char *MDC2(const unsigned char *d, size_t n,
 	unsigned char *md);
-void RIPEMD160_Transform(RIPEMD160_CTX *c, const unsigned char *b);
+
 #ifdef  __cplusplus
 }
 #endif
 
 #endif
+
