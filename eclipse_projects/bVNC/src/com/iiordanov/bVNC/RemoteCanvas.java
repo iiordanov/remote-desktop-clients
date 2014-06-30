@@ -517,6 +517,8 @@ public class RemoteCanvas extends ImageView implements LibFreeRDP.UIEventListene
         } else {
             remoteWidth  = Math.max(viewWidth, viewHeight);
         }
+        // We make the resolution even if it is odd.
+        if (remoteWidth % 2 == 1) remoteWidth--;
         return remoteWidth;
     }
     
@@ -536,6 +538,8 @@ public class RemoteCanvas extends ImageView implements LibFreeRDP.UIEventListene
         } else {
             remoteHeight = Math.min(viewWidth, viewHeight);
         }
+        // We make the resolution even if it is odd.
+        if (remoteHeight % 2 == 1) remoteHeight--;
         return remoteHeight;
     }
     

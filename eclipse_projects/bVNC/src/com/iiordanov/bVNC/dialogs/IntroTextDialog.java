@@ -102,7 +102,7 @@ public class IntroTextDialog extends Dialog {
                     getContext().getResources().getString(R.string.ad_donate_text) + "</a>");
             sb.append("<br>");
             sb.append("<br>");
-            sb.append("<a href=\"market://search?q=undatech\">" + 
+            sb.append("<a href=\"market://search?q=iordan+iordanov&c=apps&price=2\">" + 
                     getContext().getResources().getString(R.string.ad_donate_text2) + "</a>");
             sb.append("<br>");
             sb.append("<br>");
