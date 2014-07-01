@@ -251,6 +251,13 @@ android:layout_height="fill_parent">
 		    android:layout_width="wrap_content"
 		    android:gravity="left|center_vertical"
 		    android:layout_height="wrap_content"/>
+		<CheckBox
+		    android:id="@+id/checkboxRAltAsIsoLv3Shift"
+		    android:text="Use Right Alt as ISO_LEVEL3_SHIFT"
+		    android:textAppearance="?android:attr/textAppearanceLarge"
+		    android:layout_width="wrap_content"
+		    android:gravity="left|center_vertical"
+		    android:layout_height="wrap_content"/>
 		<RadioGroup
 			android:id="@+id/groupForceFullScreen"
 			android:orientation="horizontal"

@@ -30,8 +30,12 @@ public abstract class RemoteKeyboard {
     public final static int CTRL_MASK  = KeyEvent.META_SYM_ON;
     public final static int SHIFT_MASK = KeyEvent.META_SHIFT_ON;
     public final static int ALT_MASK   = KeyEvent.META_ALT_ON;
-    public final static int SUPER_MASK = 8;
+    public final static int SUPER_MASK = 8; /* KeyEvent.META_FUNCTION_ON */
     public final static int META_MASK  = 0;
+    public final static int RCTRL_MASK = 0x4000; /* KeyEvent.META_CTRL_RIGHT_ON from API level 11 upwards */
+    public final static int RSHIFT_MASK = KeyEvent.META_SHIFT_RIGHT_ON; /* 0x80 */
+    public final static int RALT_MASK   = KeyEvent.META_ALT_RIGHT_ON; /* 0x20 */
+    public final static int RSUPER_MASK = 0x40000; /* KeyEvent.META_META_RIGHT_ON from API level 11 upwards */
     
     protected RemoteCanvas vncCanvas;
     protected Handler handler;
@@ -260,18 +264,24 @@ public abstract class RemoteKeyboard {
         // We have to leave KeyEvent.KEYCODE_ALT_LEFT for symbol input on a default hardware keyboard.
         boolean defaultHardwareKbd = (event.getDeviceId() == 0);
         if (!bb && !defaultHardwareKbd) {
-            altMask = KeyEvent.META_ALT_MASK;
+            altMask = KeyEvent.META_ALT_LEFT_ON;
         }
         
         // Add shift, ctrl, alt, and super to metaState if necessary.
-        if ((eventMetaState & 0x000000c1 /*KeyEvent.META_SHIFT_MASK*/) != 0)
+        if ((eventMetaState & 0x00000040 /*KeyEvent.META_SHIFT_LEFT_ON*/) != 0)
             metaState |= SHIFT_MASK;
-        if ((eventMetaState & 0x00007000 /*KeyEvent.META_CTRL_MASK*/) != 0)
+        if ((eventMetaState & 0x00000080 /*KeyEvent.META_SHIFT_RIGHT_ON*/) != 0)
+            metaState |= RSHIFT_MASK;
+        if ((eventMetaState & 0x00002000 /*KeyEvent.META_CTRL_LEFT_ON*/) != 0)
             metaState |= CTRL_MASK;
+        if ((eventMetaState & 0x00004000 /*KeyEvent.META_CTRL_RIGHT_ON*/) != 0)
+            metaState |= RCTRL_MASK;
         if ((eventMetaState & altMask) !=0)
             metaState |= ALT_MASK;
-        if ((eventMetaState & 0x00070000 /*KeyEvent.META_META_MASK*/) != 0)
+        if ((eventMetaState & 0x00020000 /*KeyEvent.META_META_LEFT_ON*/) != 0)
             metaState |= SUPER_MASK;
+        if ((eventMetaState & 0x00040000 /*KeyEvent.META_META_RIGHT_ON*/) != 0)
+            metaState |= RSUPER_MASK;
         return metaState;
     }
     

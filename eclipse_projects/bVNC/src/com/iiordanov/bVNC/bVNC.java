@@ -103,6 +103,7 @@ public class bVNC extends Activity implements MainConfiguration {
     private CheckBox checkboxLocalCursor;
     private CheckBox checkboxUseSshPubkey;
     private CheckBox checkboxPreferHextile;
+    private CheckBox checkboxRAltAsIsoLv3Shift;
     private CheckBox checkboxViewOnly;
     private boolean repeaterTextSet;
     private boolean isFree;
@@ -257,6 +258,7 @@ public class bVNC extends Activity implements MainConfiguration {
         checkboxRotateDpad = (CheckBox)findViewById(R.id.checkboxRotateDpad);
         checkboxLocalCursor = (CheckBox)findViewById(R.id.checkboxUseLocalCursor);
         checkboxPreferHextile = (CheckBox)findViewById(R.id.checkboxPreferHextile);
+        checkboxRAltAsIsoLv3Shift = (CheckBox)findViewById(R.id.checkboxRAltAsIsoLv3Shift);
         checkboxViewOnly = (CheckBox)findViewById(R.id.checkboxViewOnly);
         colorSpinner.setAdapter(colorSpinnerAdapter);
         colorSpinner.setSelection(0);
@@ -473,6 +475,7 @@ public class bVNC extends Activity implements MainConfiguration {
         checkboxRotateDpad.setChecked(selected.getRotateDpad());
         checkboxLocalCursor.setChecked(selected.getUseLocalCursor());
         checkboxPreferHextile.setChecked(selected.getPrefEncoding() == RfbProto.EncodingHextile);
+        checkboxRAltAsIsoLv3Shift.setChecked(selected.getRAltAsIsoLv3Shift());
         checkboxViewOnly.setChecked(selected.getViewOnly());
         textNickname.setText(selected.getNickname());
         textUsername.setText(selected.getUserName());
@@ -590,6 +593,7 @@ public class bVNC extends Activity implements MainConfiguration {
         else
             selected.setPrefEncoding(RfbProto.EncodingTight);
         selected.setViewOnly(checkboxViewOnly.isChecked());
+        selected.setRAltAsIsoLv3Shift(checkboxRAltAsIsoLv3Shift.isChecked());
 
         selected.setColorModel(((COLORMODEL)colorSpinner.getSelectedItem()).nameString());
         if (repeaterTextSet) {

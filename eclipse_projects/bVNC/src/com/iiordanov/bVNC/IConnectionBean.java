@@ -181,4 +181,6 @@ interface IConnectionBean {
     boolean getEnableSound();
     @FieldAccessor
     boolean getViewOnly();
+    @FieldAccessor
+    boolean getRAltAsIsoLv3Shift();
 }
