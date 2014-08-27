@@ -187,7 +187,7 @@ abstract class AbstractGestureInputHandler extends GestureDetector.SimpleOnGestu
             switch (bstate) {
             case MotionEvent.BUTTON_PRIMARY:
                 canvas.panToMouse();
-                return p.processPointerEvent(x, y, action, meta, true, false, false, false, 0);
+                return p.processPointerEvent(x, y, action | bstate << 8, meta, true, false, false, false, 0);
             case MotionEvent.BUTTON_SECONDARY:
                 canvas.panToMouse();
                 return p.processPointerEvent(x, y, action, meta, true, true, false, false, 0);
@@ -232,8 +232,8 @@ abstract class AbstractGestureInputHandler extends GestureDetector.SimpleOnGestu
                 
             int numEvents = 0;
             while (numEvents < swipeSpeed) {
-                p.processPointerEvent(x, y, action, meta, true, false, false, true, direction);
-                p.processPointerEvent(x, y, action, meta, false, false, false, false, 0);
+                p.processPointerEvent(x, y, action | bstate << 8, meta, true, false, false, true, direction);
+                p.processPointerEvent(x, y, action | bstate << 8, meta, false, false, false, false, 0);
                 numEvents++;
             }
             break;

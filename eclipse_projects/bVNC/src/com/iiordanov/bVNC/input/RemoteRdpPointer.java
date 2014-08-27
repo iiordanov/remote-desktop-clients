@@ -229,6 +229,7 @@ public class RemoteRdpPointer extends RemotePointer {
     public boolean processPointerEvent(int x, int y, int action, int modifiers, boolean mouseIsDown, boolean useRightButton,
                                         boolean useMiddleButton, boolean useScrollButton, int direction) {
         
+    	action = action & 0x00FF;
         if (rfb != null && rfb.isInNormalProtocol()) {
             if (useRightButton) {
                 //android.util.Log.e(TAG, "Mouse button right");

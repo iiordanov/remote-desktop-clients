@@ -221,6 +221,9 @@ public class RemoteSpicePointer extends RemotePointer {
     public boolean processPointerEvent(int x, int y, int action, int modifiers, boolean mouseIsDown, boolean useRightButton,
                                         boolean useMiddleButton, boolean useScrollButton, int direction) {
         
+    	int bstat = action >> 8;
+    	action = action & 0x00FF;
+ 
         if (rfb != null && rfb.isInNormalProtocol()) {
             if (useRightButton) {
                 //android.util.Log.e("", "Mouse button right");
@@ -235,13 +238,16 @@ public class RemoteSpicePointer extends RemotePointer {
                 if        ( direction == 0 ) {
                     //android.util.Log.e("", "Scrolling up");
                     pointerMask = SPICE_MOUSE_BUTTON_UP;
+                    pointerMask |= bstat << 8;
                 } else if ( direction == 1 ) {
                     //android.util.Log.e("", "Scrolling down");
                     pointerMask = SPICE_MOUSE_BUTTON_DOWN;
+                    pointerMask |= bstat << 8;
                 }
             } else if (action == MotionEvent.ACTION_MOVE) {
                 //android.util.Log.e("", "Mouse moving");
                 pointerMask = SPICE_MOUSE_BUTTON_MOVE;
+                pointerMask |= bstat << 8;
             } else {
                 //android.util.Log.e("", "Setting previous mouse action with mouse not down.");
                 // If none of the conditions are satisfied, then set the pointer mask to
@@ -251,10 +257,10 @@ public class RemoteSpicePointer extends RemotePointer {
             
             // Save the previous pointer mask other than action_move, so we can
             // send it with the pointer flag "not down" to clear the action.
-            if (pointerMask != SPICE_MOUSE_BUTTON_MOVE) {
+            if ((pointerMask & 0x00FF) != SPICE_MOUSE_BUTTON_MOVE) {
                 // If this is a new mouse down event, release previous button pressed to avoid confusing the remote OS.
                 if (prevPointerMask != 0 && prevPointerMask != pointerMask) {
-                    rfb.writePointerEvent(mouseX, mouseY, modifiers|vncCanvas.getKeyboard().getMetaState(), prevPointerMask & ~PTRFLAGS_DOWN);
+                    //rfb.writePointerEvent(mouseX, mouseY, modifiers|vncCanvas.getKeyboard().getMetaState(), prevPointerMask & ~PTRFLAGS_DOWN);
                 }
                 prevPointerMask = pointerMask;
             }

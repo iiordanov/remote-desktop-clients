@@ -138,7 +138,27 @@ Java_com_iiordanov_aSPICE_SpiceCommunicator_SpiceButtonEvent(JNIEnv * env, jobje
 
 		gboolean down = (type & PTRFLAGS_DOWN) != 0;
 		int mouseButton = type &~ PTRFLAGS_DOWN;
-		int newMask = update_mask (mouseButton, down);
+		int bstat = mouseButton >> 8;
+		mouseButton &= 0x00FF;
+
+        /*
+         * SPICE protocol
+         *     SPICE_MOUSE_BUTTON_MASK_LEFT = (1 << 0),
+         *     SPICE_MOUSE_BUTTON_MASK_MIDDLE = (1 << 1),
+         *     SPICE_MOUSE_BUTTON_MASK_RIGHT = (1 << 2),
+         *
+         * Android MotionEvent
+         *     int BUTTON_PRIMARY   = 1 << 0; // Primary button (left mouse button).
+         *     int BUTTON_SECONDARY = 1 << 1; // Secondary button (right mouse button, stylus first button).
+         *     int BUTTON_TERTIARY  = 1 << 2; // Tertiary button (middle mouse button, stylus second button).
+         */
+		int newMask = 0;
+		if(bstat & 0x01)
+			newMask |= 0x01; // left mouse button
+		if(bstat & 0x02)
+			newMask |= 0x04; // right mouse button
+		if(bstat & 0x04)
+			newMask |= 0x02; // middle mouse button
 
 		gint dx;
 		gint dy;
