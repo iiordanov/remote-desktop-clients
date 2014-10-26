@@ -21,9 +21,12 @@ package com.iiordanov.bVNC;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -31,7 +34,9 @@ import android.app.Dialog;
 import android.app.ActivityManager.MemoryInfo;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.AssetManager;
 import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.util.Log;
@@ -100,6 +105,8 @@ public class aSPICE extends Activity implements MainConfiguration {
     private boolean startingOrHasPaused = true;
     private boolean isConnecting = false;
     private CheckBox checkboxEnableSound;
+    private Spinner layoutMapSpinner = null;
+    private List<String> spinnerArray = null;
 
     @Override
     public void onCreate(Bundle icicle) {
@@ -255,6 +262,20 @@ public class aSPICE extends Activity implements MainConfiguration {
                         showDialog(R.layout.importexport);
                     }
                 });
+        
+        // Load list of items from asset folder and populate
+        try {
+            spinnerArray = listFiles("layouts");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        layoutMapSpinner = (Spinner) findViewById(R.id.layoutMaps);
+        // Create an ArrayAdapter using the string array and a default spinner layout
+        ArrayAdapter<String> adapter =  new ArrayAdapter<String> (this, android.R.layout.simple_spinner_item, spinnerArray);
+        // Specify the layout to use when the list of choices appears
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        // Apply the adapter to the spinner
+        layoutMapSpinner.setAdapter(adapter);
     }
 
     /**
@@ -462,6 +483,12 @@ public class aSPICE extends Activity implements MainConfiguration {
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
+        
+        int selection = spinnerArray.indexOf(selected.getLayoutMap());
+        if (selection < 0) {
+            selection = spinnerArray.indexOf(Constants.DEFAULT_LAYOUT_MAP);
+        }
+        layoutMapSpinner.setSelection(selection);
     }
 
     /**
@@ -562,6 +589,14 @@ public class aSPICE extends Activity implements MainConfiguration {
         selected.setRotateDpad(checkboxRotateDpad.isChecked());
         selected.setUseLocalCursor(checkboxLocalCursor.isChecked());
         selected.setEnableSound(checkboxEnableSound.isChecked());
+        
+        TextView selection = null;
+        if (layoutMapSpinner != null) {
+            selection = (TextView) layoutMapSpinner.getSelectedView();
+        }
+        if (selection != null) {
+            selected.setLayoutMap(selection.getText().toString());
+        }
     }
 
     protected void onStart() {
@@ -745,5 +780,20 @@ public class aSPICE extends Activity implements MainConfiguration {
                 Log.i(TAG, "The user cancelled SSH key generation.");
             break;
         }
+    }
+    
+    private List<String> listFiles(String dirFrom) throws IOException {
+        Resources res = getResources();
+        AssetManager am = res.getAssets();
+        String fileList[] = am.list(dirFrom);
+
+            if (fileList != null)
+            {   
+                for ( int i = 0;i<fileList.length;i++)
+                {
+                    Log.d("",fileList[i]); 
+                }
+            }
+        return (List<String>)Arrays.asList(fileList);
     }
 }

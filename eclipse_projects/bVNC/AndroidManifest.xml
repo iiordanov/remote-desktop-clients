@@ -1,13 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="com.iiordanov.bVNC" android:installLocation="auto"
-          android:versionCode="3660" android:versionName="v3.6.6">
+          android:versionCode="3670" android:versionName="v3.6.7">
 
     <uses-sdk android:minSdkVersion="8" android:targetSdkVersion="10"></uses-sdk>
     <uses-permission android:name="android.permission.INTERNET"></uses-permission>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"></uses-permission>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"></uses-permission>
-
+    <!--RECORD_AUDIO-->
+    <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
+    <uses-feature android:name="android.hardware.microphone" android:required="false"/>
+    
     <supports-screens
         android:xlargeScreens="true"
         android:largeScreens="true"

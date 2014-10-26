@@ -20,7 +20,7 @@ public class RemoteVncKeyboard extends RemoteKeyboard {
         android.util.Log.e(TAG, evt.toString() + " " + keyCode);
 
         if (rfb != null && rfb.isInNormalProtocol()) {
-            RemotePointer pointer = vncCanvas.getPointer();
+            RemotePointer pointer = canvas.getPointer();
             boolean down = (evt.getAction() == KeyEvent.ACTION_DOWN) ||
                     (evt.getAction() == KeyEvent.ACTION_MULTIPLE);
             boolean unicode = false;
@@ -213,7 +213,7 @@ public class RemoteVncKeyboard extends RemoteKeyboard {
     }
 
     public void sendMetaKey(MetaKeyBean meta) {
-        RemotePointer pointer = vncCanvas.getPointer();
+        RemotePointer pointer = canvas.getPointer();
         int x = pointer.getX();
         int y = pointer.getY();
 

@@ -27,7 +27,7 @@ public class RemoteRdpKeyboard extends RemoteKeyboard {
     
     public boolean processLocalKeyEvent(int keyCode, KeyEvent evt, int additionalMetaState) {
         if (rfb != null && rfb.isInNormalProtocol()) {
-            RemotePointer pointer = vncCanvas.getPointer();
+            RemotePointer pointer = canvas.getPointer();
             boolean down = (evt.getAction() == KeyEvent.ACTION_DOWN) ||
                            (evt.getAction() == KeyEvent.ACTION_MULTIPLE);            
             int metaState = additionalMetaState | convertEventMetaState (evt);
@@ -116,7 +116,7 @@ public class RemoteRdpKeyboard extends RemoteKeyboard {
     }
 
     public void sendMetaKey(MetaKeyBean meta) {
-        RemotePointer pointer = vncCanvas.getPointer();
+        RemotePointer pointer = canvas.getPointer();
         int x = pointer.getX();
         int y = pointer.getY();
         

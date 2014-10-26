@@ -180,6 +180,12 @@ android:layout_height="fill_parent">
 					android:textAppearance="?android:attr/textAppearanceLarge" android:singleLine="true"/>
 			</LinearLayout>
 		</TableRow>
+        <TableRow>
+            <Spinner
+                android:id="@+id/layoutMaps"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content" />
+        </TableRow>
 	</TableLayout>
 	
 	<LinearLayout
