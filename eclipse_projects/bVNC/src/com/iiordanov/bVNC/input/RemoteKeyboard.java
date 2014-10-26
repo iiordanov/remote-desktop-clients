@@ -31,9 +31,10 @@ public abstract class RemoteKeyboard {
     public final static int SHIFT_MASK = KeyEvent.META_SHIFT_ON;
     public final static int ALT_MASK   = KeyEvent.META_ALT_ON;
     public final static int SUPER_MASK = 8;
+    public final static int ALTGR_MASK = 16;
     public final static int META_MASK  = 0;
     
-    protected RemoteCanvas vncCanvas;
+    protected RemoteCanvas canvas;
     protected Handler handler;
     protected RfbConnectable rfb;
     protected Context context;
@@ -65,7 +66,7 @@ public abstract class RemoteKeyboard {
 
     RemoteKeyboard (RfbConnectable r, RemoteCanvas v, Handler h) {
         rfb = r;
-        vncCanvas = v;
+        canvas = v;
         handler = h;
         keyRepeater = new KeyRepeater (this, h);
         
@@ -225,7 +226,7 @@ public abstract class RemoteKeyboard {
      * @param unicodeChar
      * @param metaState
      */
-    public void sendUnicode (char unicodeChar, int additionalMetaState) {
+    public boolean sendUnicode (char unicodeChar, int additionalMetaState) {
         KeyCharacterMap fullKmap    = KeyCharacterMap.load(KeyCharacterMap.FULL);
         KeyCharacterMap virtualKmap = KeyCharacterMap.load(KeyCharacterMap.VIRTUAL_KEYBOARD);
         char[] s = new char[1];
@@ -241,10 +242,12 @@ public abstract class RemoteKeyboard {
             for (int i = 0; i < events.length; i++) {
                 KeyEvent evt = events[i];
                 processLocalKeyEvent(evt.getKeyCode(), evt, additionalMetaState);
+                return true;
             }
         } else {
             android.util.Log.e("RemoteKeyboard", "Could not use any keymap to generate KeyEvent for unicode: " + unicodeChar);
         }
+        return false;
     }
     
     /**
@@ -253,8 +256,16 @@ public abstract class RemoteKeyboard {
      * @return
      */
     protected int convertEventMetaState (KeyEvent event) {
+        return convertEventMetaState(event, event.getMetaState());
+    }
+    
+    /**
+     * Converts event meta state to our meta state.
+     * @param event
+     * @return
+     */
+    protected int convertEventMetaState (KeyEvent event, int eventMetaState) {
         int metaState = 0;
-        int eventMetaState = event.getMetaState();
         int altMask = KeyEvent.META_ALT_RIGHT_ON;
         // Detect whether this event is coming from a default hardware keyboard.
         // We have to leave KeyEvent.KEYCODE_ALT_LEFT for symbol input on a default hardware keyboard.
@@ -264,14 +275,18 @@ public abstract class RemoteKeyboard {
         }
         
         // Add shift, ctrl, alt, and super to metaState if necessary.
-        if ((eventMetaState & 0x000000c1 /*KeyEvent.META_SHIFT_MASK*/) != 0)
+        if ((eventMetaState & 0x000000c1 /*KeyEvent.META_SHIFT_MASK*/) != 0) {
             metaState |= SHIFT_MASK;
-        if ((eventMetaState & 0x00007000 /*KeyEvent.META_CTRL_MASK*/) != 0)
+        }
+        if ((eventMetaState & 0x00007000 /*KeyEvent.META_CTRL_MASK*/) != 0) {
             metaState |= CTRL_MASK;
-        if ((eventMetaState & altMask) !=0)
+        }
+        if ((eventMetaState & altMask) !=0) {
             metaState |= ALT_MASK;
-        if ((eventMetaState & 0x00070000 /*KeyEvent.META_META_MASK*/) != 0)
+        }
+        if ((eventMetaState & 0x00070000 /*KeyEvent.META_META_MASK*/) != 0) {
             metaState |= SUPER_MASK;
+        }
         return metaState;
     }
     

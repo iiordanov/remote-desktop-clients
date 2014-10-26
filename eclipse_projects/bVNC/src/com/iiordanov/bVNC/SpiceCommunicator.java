@@ -25,16 +25,14 @@ public class SpiceCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyP
         System.loadLibrary("spice");
     }
     
-    final static int VK_CONTROL = 0x11;
-    final static int VK_LCONTROL = 0xA2;
-    final static int VK_RCONTROL = 0xA3;
-    final static int VK_LMENU = 0xA4;
-    final static int VK_RMENU = 0xA5;
-    final static int VK_LSHIFT = 0xA0;
-    final static int VK_RSHIFT = 0xA1;
-    final static int VK_LWIN = 0x5B;
-    final static int VK_RWIN = 0x5C;
-    final static int VK_EXT_KEY = 0x00000100;
+    final static int LCONTROL = 29;
+    final static int RCONTROL = 285;
+    final static int LALT = 56;
+    final static int RALT = 312;
+    final static int LSHIFT = 42;
+    final static int RSHIFT = 54;
+    final static int LWIN = 347;
+    final static int RWIN = 348;
 
     int metaState = 0;
     
@@ -72,7 +70,7 @@ public class SpiceCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyP
     }
 
     public void connect(String ip, String port, String tport, String password, String cf, String cs, boolean sound) {
-        android.util.Log.e(TAG, ip + ", " + port + ", " + tport + ", " + password + ", " + cf + ", " + cs);
+        //android.util.Log.e(TAG, ip + ", " + port + ", " + tport + ", " + password + ", " + cf + ", " + cs);
         spicehread = new SpiceThread(ip, port, tport, password, cf, cs, sound);
         spicehread.start();
     }
@@ -208,32 +206,43 @@ public class SpiceCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyP
             sendModifierKeys(false);
     }
 
-    private void sendModifierKeys (boolean keyDown) {        
-        if ((metaState & RemoteKeyboard.CTRL_MASK) != 0) {
-            //android.util.Log.e("SpiceCommunicator", "Sending CTRL: " + VK_LCONTROL);
-            sendKeyEvent(keyDown, VK_LCONTROL);
+    private void sendModifierKeys(boolean keyDown) {        
+        if ((this.metaState & RemoteKeyboard.CTRL_MASK) != 0) {
+            android.util.Log.e("SpiceCommunicator", "Sending CTRL: " + LCONTROL + " down: " + keyDown);
+            sendKeyEvent(keyDown, LCONTROL);
         }
-        if ((metaState & RemoteKeyboard.ALT_MASK) != 0) {
-            //android.util.Log.e("SpiceCommunicator", "Sending ALT: " + VK_LMENU);
-            sendKeyEvent(keyDown, VK_LMENU);
+        if ((this.metaState & RemoteKeyboard.ALT_MASK) != 0) {
+            android.util.Log.e("SpiceCommunicator", "Sending ALT: " + LALT + " down: " + keyDown);
+            sendKeyEvent(keyDown, LALT);
         }
-        if ((metaState & RemoteKeyboard.SUPER_MASK) != 0) {
-            //android.util.Log.e("SpiceCommunicator", "Sending SUPER: " + VK_LWIN);
-            sendKeyEvent(keyDown, VK_LWIN);
+        if ((this.metaState & RemoteKeyboard.ALTGR_MASK) != 0) {
+            android.util.Log.e("SpiceCommunicator", "Sending ALTGR: " + RALT + " down: " + keyDown);
+            sendKeyEvent(keyDown, RALT);
         }
-        if ((metaState & RemoteKeyboard.SHIFT_MASK) != 0) {
-            //android.util.Log.e("SpiceCommunicator", "Sending SHIFT: " + VK_LSHIFT);
-            sendKeyEvent(keyDown, VK_LSHIFT);
+        if ((this.metaState & RemoteKeyboard.SUPER_MASK) != 0) {
+            android.util.Log.e("SpiceCommunicator", "Sending SUPER: " + LWIN + " down: " + keyDown);
+            sendKeyEvent(keyDown, LWIN);
+        }
+        if ((this.metaState & RemoteKeyboard.SHIFT_MASK) != 0) {
+            android.util.Log.e("SpiceCommunicator", "Sending SHIFT: " + LSHIFT + " down: " + keyDown);
+            sendKeyEvent(keyDown, LSHIFT);
         }
     }
     
     @Override
-    public void writeKeyEvent(int key, int metaState, boolean down) {
-        // Not used for actually sending keyboard events, but rather to record the current metastate.
-        // The key event is sent to the KeyboardMapper from RemoteSpiceKeyboard, and
-        // when processed through the keyboard mapper, it ends up in one of the KeyProcessingListener
-        // methods defined here.
-        this.metaState = metaState;
+    public void writeKeyEvent(int key, int metaState, boolean keyDown) {
+        if (keyDown) {
+            this.metaState = metaState;
+            sendModifierKeys (true);
+        }
+        
+        android.util.Log.e("SpiceCommunicator", "Sending scanCode: " + key + ". Is it down: " + keyDown);
+        sendKeyEvent(keyDown, key);
+        
+        if (!keyDown) {
+            sendModifierKeys (false);
+            this.metaState = metaState;
+        }
     }
 
     @Override

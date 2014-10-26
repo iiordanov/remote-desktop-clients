@@ -30,7 +30,6 @@ import android.graphics.Bitmap;
 import android.os.Handler;
 
 import com.gstreamer.GStreamer;
-import com.undatech.opaque.input.KeycodeMap;
 import com.undatech.opaque.input.RemoteKeyboard;
 import com.undatech.opaque.input.RemoteSpicePointer;
 
@@ -305,7 +304,6 @@ public class SpiceCommunicator {
 	}
 	
 	public void writeKeyEvent(int key, int metaState, boolean keyDown) {
-		// Just updates the meta state for now.
 		if (keyDown) {
 			remoteMetaState = metaState;
 			sendModifierKeys (true);

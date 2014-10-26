@@ -326,7 +326,7 @@ public class RemoteCanvas extends ImageView implements LibFreeRDP.UIEventListene
         spicecomm = new SpiceCommunicator (getContext(), this, connection);
         rfbconn = spicecomm;
         pointer = new RemoteSpicePointer (rfbconn, RemoteCanvas.this, handler);
-        keyboard = new RemoteSpiceKeyboard (rfbconn, RemoteCanvas.this, handler);
+        keyboard = new RemoteSpiceKeyboard (getResources(), spicecomm, RemoteCanvas.this, handler, connection.getLayoutMap());
         spicecomm.setUIEventListener(RemoteCanvas.this);
         spicecomm.setHandler(handler);
         spicecomm.connect(address, Integer.toString(port), Integer.toString(tport),

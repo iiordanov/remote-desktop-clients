@@ -53,6 +53,8 @@
    - You may have to select the "Android private libraries" entry in
        Project Properties->Java Build Path->Order and Export
      if you have it.
+   - Enable requesting the RECORD_AUDIO permission in AndroidManifest.xml with the following sed command:
+     sed -i 's/<!--RECORD_AUDIO-->/<uses-permission android:name="android.permission.RECORD_AUDIO"><\/uses-permission>/g' AndroidManifest.xml
 
 Please inform me if (6) needs to be expanded (i.e. if you needed to do
 anything else in addition to the above.

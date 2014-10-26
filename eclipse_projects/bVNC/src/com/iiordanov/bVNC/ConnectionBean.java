@@ -113,6 +113,7 @@ public class ConnectionBean extends AbstractConnectionBean implements Comparable
         setRedirectSdCard(false);
         setEnableSound(false);
         setViewOnly(false);
+        setLayoutMap("English (US)");
         c = context;
     }
     

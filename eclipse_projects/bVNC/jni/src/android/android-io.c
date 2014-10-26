@@ -109,19 +109,16 @@ JNIEXPORT void JNICALL
 Java_com_iiordanov_aSPICE_SpiceCommunicator_SpiceKeyEvent(JNIEnv * env, jobject  obj, jboolean down, jint hardware_keycode) {
     SpiceDisplay* display = global_display;
     SpiceDisplayPrivate* d = SPICE_DISPLAY_GET_PRIVATE(display);
-    int scancode;
 
     SPICE_DEBUG("%s %s: keycode: %d", __FUNCTION__, "Key", hardware_keycode);
 
     if (!d->inputs)
-    	return;
+        return;
 
-    scancode = win32key2spice(hardware_keycode);
-    //scancode = hardware_keycode;
     if (down) {
-        send_key(display, scancode, 1);
+        send_key(display, hardware_keycode, 1);
     } else {
-        send_key(display, scancode, 0);
+        send_key(display, hardware_keycode, 0);
     }
 }
 

@@ -46,7 +46,6 @@ public abstract class RemoteKeyboard {
 	protected Handler handler;
 	protected SpiceCommunicator spicecomm;
 	protected Context context;
-	protected KeycodeMap keyMapper;
 	protected KeyRepeater keyRepeater;
 
 	// Variable holding the state of any pressed hardware meta keys

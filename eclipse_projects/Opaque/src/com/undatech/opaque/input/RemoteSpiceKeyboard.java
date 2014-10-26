@@ -33,7 +33,6 @@ import android.view.KeyEvent;
 import com.undatech.opaque.Constants;
 import com.undatech.opaque.RemoteCanvas;
 import com.undatech.opaque.SpiceCommunicator;
-import com.undatech.opaque.input.KeycodeMap;
 
 public class RemoteSpiceKeyboard extends RemoteKeyboard {
 	private final static String TAG = "RemoteSpiceKeyboard";
@@ -48,7 +47,6 @@ public class RemoteSpiceKeyboard extends RemoteKeyboard {
 	public RemoteSpiceKeyboard (Resources resources, SpiceCommunicator r, RemoteCanvas v, Handler h, String layoutMapFile) throws IOException {
 	    super(r, v, h);
 	    context = v.getContext();
-	    keyMapper = new KeycodeMap(context);
 	    this.table = loadKeyMap(resources, "layouts/" + layoutMapFile);
 	}
 
