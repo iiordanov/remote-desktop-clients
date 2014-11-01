@@ -125,8 +125,9 @@ public class ConnectionBean extends AbstractConnectionBean implements Comparable
     public synchronized void save(SQLiteDatabase database) {
         ContentValues values=Gen_getValues();
         values.remove(GEN_FIELD__ID);
-        // Never save the SSH password.
+        // Never save the SSH password and passphrase.
         values.put(GEN_FIELD_SSHPASSWORD, "");
+        values.put(GEN_FIELD_SSHPASSPHRASE, "");
         if ( ! getKeepPassword()) {
             values.put(GEN_FIELD_PASSWORD, "");
         }

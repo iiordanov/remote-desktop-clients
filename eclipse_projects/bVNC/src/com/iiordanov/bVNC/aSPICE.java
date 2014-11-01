@@ -81,6 +81,7 @@ public class aSPICE extends Activity implements MainConfiguration {
     private EditText sshPort;
     private EditText sshUser;
     private EditText sshPassword;
+    private EditText sshPassphrase;
     private EditText ipText;
     private EditText portText;
     private Button buttonImportCa;
@@ -121,6 +122,7 @@ public class aSPICE extends Activity implements MainConfiguration {
         sshPort = (EditText) findViewById(R.id.sshPort);
         sshUser = (EditText) findViewById(R.id.sshUser);
         sshPassword = (EditText) findViewById(R.id.sshPassword);
+        sshPassphrase = (EditText) findViewById(R.id.sshPassphrase);
         sshCredentials = (LinearLayout) findViewById(R.id.sshCredentials);
         sshCaption = (TextView) findViewById(R.id.sshCaption);
         layoutUseSshPubkey = (LinearLayout) findViewById(R.id.layoutUseSshPubkey);
@@ -148,8 +150,6 @@ public class aSPICE extends Activity implements MainConfiguration {
                     public void onCheckedChanged(CompoundButton buttonView,
                             boolean isChecked) {
                         selected.setUseSshPubKey(isChecked);
-                        setSshPasswordHint(isChecked);
-                        sshPassword.setText("");
                     }
                 });
 
@@ -178,7 +178,6 @@ public class aSPICE extends Activity implements MainConfiguration {
                             setVisibilityOfSshWidgets(View.VISIBLE);
                             if (ipText.getText().toString().equals(""))
                                 ipText.setText("localhost");
-                            setSshPasswordHint(checkboxUseSshPubkey.isChecked());
                         }
                     }
 
@@ -298,17 +297,6 @@ public class aSPICE extends Activity implements MainConfiguration {
         } else {
             resWidth.setEnabled(true);
             resHeight.setEnabled(true);
-        }
-    }
-    
-    /**
-     * Sets the ssh password/passphrase hint appropriately.
-     */
-    private void setSshPasswordHint(boolean isPassphrase) {
-        if (isPassphrase) {
-            sshPassword.setHint(R.string.ssh_passphrase_hint);
-        } else {
-            sshPassword.setHint(R.string.password_hint_ssh);
         }
     }
 
@@ -433,7 +421,6 @@ public class aSPICE extends Activity implements MainConfiguration {
         sshUser.setText(selected.getSshUser());
 
         checkboxUseSshPubkey.setChecked(selected.getUseSshPubKey());
-        setSshPasswordHint(checkboxUseSshPubkey.isChecked());
 
         if (selectedConnType == Constants.CONN_TYPE_SSH
                 && selected.getAddress().equals(""))
@@ -576,7 +563,7 @@ public class aSPICE extends Activity implements MainConfiguration {
         // If we are using an SSH key, then the ssh password box is used
         // for the key pass-phrase instead.
         selected.setUseSshPubKey(checkboxUseSshPubkey.isChecked());
-        selected.setSshPassPhrase(sshPassword.getText().toString());
+        selected.setSshPassPhrase(sshPassphrase.getText().toString());
         selected.setSshPassword(sshPassword.getText().toString());
         selected.setRdpResType(spinnerGeometry.getSelectedItemPosition());
         try    {

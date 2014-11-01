@@ -112,8 +112,8 @@
 <string name="error_rdp_connection_failed">Подключение к RDP-серверу не удалось! Либо подключение к сети было прервано, сервер RDP был выключен или запрещен, или ваша сессия была отклонена.</string>
 <string name="error_rdp_authentication_failed">Ошибка проверки пользователя и пароля RDP! Пожалуйста, проверьте имя пользователя и пароль RDP после чего, повторите попытку подключения.</string>
 <string name="error_ssh_unable_to_connect">Не удалось подключиться к SSH серверу. Пожалуйста, проверьте подключение к сети, а так же адрес и порт SSH сервера.</string>
-<string name="error_ssh_hostkey_changed">ОШИБКА! Ключ безопасности сервера был изменен. Если вам известно о изменение ключей, пожалуйста удалите и заново создайте подключение. Если же нет, это может быть атака типа \"Man in the middle\", не продолжайте.</string>
-<string name="error_ssh_kbd_auth_method_unavail">SSH сервер не поддерживает методы авторизации \"Password\" и \"Keyboard-interactive\". Пожалуйста, настройте его так, чтобы по по крайней мере один из двух методов поддерживался, и повторите попытку.</string>
+<string name="error_ssh_hostkey_changed">ОШИБКА! Ключ безопасности сервера был изменен. Если вам известно о изменение ключей, пожалуйста удалите и заново создайте подключение. Если же нет, это может быть атака типа \"Man in the middle\", не продолжайте. Доступные методы: </string>
+<string name="error_ssh_kbd_auth_method_unavail">SSH сервер не поддерживает методы авторизации \"Password\" и \"Keyboard-interactive\" или сначала надо попробовать метод \"publickey\". Пожалуйста, настройте его так, чтобы по по крайней мере один из двух методов поддерживался. Доступные методы: </string>
 <string name="error_ssh_pubkey_auth_method_unavail">SSH сервер не поддерживает метод авторизации \"PublicKey\" и мы пытались использовать пары ключей для авторизации. Пожалуйста настройте разрешение на проверку подлинности PublicKey и повторите попытку.</string>
 <string name="error_ssh_pwd_auth_fail">Не удается пройти проверку подлинности на сервере SSH с помощью пароля. Пожалуйста проверьте указанные имя пользователя и пароль.</string>
 <string name="error_ssh_key_auth_fail">Не удалось пройти проверку подлинности на сервере SSH используя пары ключей. Пожалуйста, проверьте указанные имя пользователя и пароль, а также удостоверьтесь что ваш PublicKey находится в authorized_keys на сервере.</string>
@@ -555,7 +555,7 @@
 <string name="spice_server_empty">SPICE сервер или порт пусты. Соединение невозможно!</string>
 <string name="spice_tls_port_hint">TLS Порт</string>
 <string name="spice_username_hint">SPICE Имя пользователя</string>
-<string name="ssh_passphrase_hint">Ключевая фраза</string>
+<string name="ssh_passphrase_hint">SSH Ключевая фраза</string>
 <string name="ssh_pubkey_button">Управление ключем</string>
 <string name="ssh_use_pubkey">Использовать ключ</string>
 <string name="ssh_use_x11vnc">Авто Desktop</string>

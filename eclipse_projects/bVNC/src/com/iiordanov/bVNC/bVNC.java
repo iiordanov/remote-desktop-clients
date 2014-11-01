@@ -79,6 +79,7 @@ public class bVNC extends Activity implements MainConfiguration {
     private EditText sshPort;
     private EditText sshUser;
     private EditText sshPassword;
+    private EditText sshPassphrase;
     private EditText ipText;
     private EditText portText;
     private EditText passwordText;
@@ -134,6 +135,7 @@ public class bVNC extends Activity implements MainConfiguration {
         sshPort = (EditText) findViewById(R.id.sshPort);
         sshUser = (EditText) findViewById(R.id.sshUser);
         sshPassword = (EditText) findViewById(R.id.sshPassword);
+        sshPassphrase = (EditText) findViewById(R.id.sshPassphrase);
         sshCredentials = (LinearLayout) findViewById(R.id.sshCredentials);
         sshCaption = (TextView) findViewById(R.id.sshCaption);
         layoutUseSshPubkey = (LinearLayout) findViewById(R.id.layoutUseSshPubkey);
@@ -161,8 +163,6 @@ public class bVNC extends Activity implements MainConfiguration {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 selected.setUseSshPubKey(isChecked);
-                setSshPasswordHint (isChecked);
-                sshPassword.setText("");
             }
         });
         
@@ -203,7 +203,6 @@ public class bVNC extends Activity implements MainConfiguration {
                     setVisibilityOfUltraVncWidgets (View.GONE);
                     if (ipText.getText().toString().equals(""))
                         ipText.setText("localhost");
-                    setSshPasswordHint (checkboxUseSshPubkey.isChecked());
                     ipText.setHint(R.string.address_caption_hint_tunneled);
                     textUsername.setHint(R.string.username_hint_optional);
                 } else if (selectedConnType == Constants.CONN_TYPE_ULTRAVNC) {
@@ -298,17 +297,6 @@ public class bVNC extends Activity implements MainConfiguration {
         layoutUseSshPubkey.setVisibility(visibility);
         layoutUseX11Vnc.setVisibility(visibility);
         sshServerEntry.setVisibility(visibility);
-    }
-
-    /**
-     * Sets the ssh password/passphrase hint appropriately.
-     */
-    private void setSshPasswordHint (boolean isPassphrase) {
-        if (isPassphrase) {
-            sshPassword.setHint(R.string.ssh_passphrase_hint);
-        } else {
-            sshPassword.setHint(R.string.password_hint_ssh);
-        }
     }
 
     /**
@@ -436,7 +424,6 @@ public class bVNC extends Activity implements MainConfiguration {
         sshUser.setText(selected.getSshUser());
         
         checkboxUseSshPubkey.setChecked(selected.getUseSshPubKey());
-        setSshPasswordHint (checkboxUseSshPubkey.isChecked());
 
         if (selectedConnType == Constants.CONN_TYPE_SSH && selected.getAddress().equals(""))
             ipText.setText("localhost");
@@ -576,7 +563,7 @@ public class bVNC extends Activity implements MainConfiguration {
         // If we are using an SSH key, then the ssh password box is used
         // for the key pass-phrase instead.
         selected.setUseSshPubKey(checkboxUseSshPubkey.isChecked());
-        selected.setSshPassPhrase(sshPassword.getText().toString());
+        selected.setSshPassPhrase(sshPassphrase.getText().toString());
         selected.setSshPassword(sshPassword.getText().toString());
         selected.setUserName(textUsername.getText().toString());
         selected.setForceFull(groupForceFullScreen.getCheckedRadioButtonId()==R.id.radioForceFullScreenAuto ? BitmapImplHint.AUTO : (groupForceFullScreen.getCheckedRadioButtonId()==R.id.radioForceFullScreenOn ? BitmapImplHint.FULL : BitmapImplHint.TILE));
