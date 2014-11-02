@@ -127,30 +127,43 @@ public class SSHConnection implements InteractiveCallback {
         if (!verifyHostKey())
             throw new Exception(context.getString(R.string.error_ssh_hostkey_changed));
         
-        if (!usePubKey && !canAuthWithPass()) {
-            String authMethods = Arrays.toString(connection.getRemainingAuthMethods(user));
-            throw new Exception(context.getString(R.string.error_ssh_kbd_auth_method_unavail) + " " + authMethods);
-        }
-        
-        if (usePubKey && !canAuthWithPubKey()) {
-            String authMethods = Arrays.toString(connection.getRemainingAuthMethods(user));
-            throw new Exception(context.getString(R.string.error_ssh_pubkey_auth_method_unavail) + " " + authMethods);
-        }
-        
         // Authenticate and set up port forwarding.
         if (!usePubKey) {
+            if (!canAuthWithPass()) {
+                String authMethods = Arrays.toString(connection.getRemainingAuthMethods(user));
+                throw new Exception(context.getString(R.string.error_ssh_kbd_auth_method_unavail) + " " + authMethods);
+            }
             if (!authenticateWithPassword())
                 throw new Exception(context.getString(R.string.error_ssh_pwd_auth_fail));
         } else {
-            if (!authenticateWithPubKey()) {
-                if (!canAuthWithPubKey()) {
-                    // If pubkey authentication is no longer available, we know pubkey authentication succeeded
-                    // but we need further authentication methods.
-                    if (!authenticateWithPassword()) {
+            if (canAuthWithPubKey()) {
+                // Pubkey auth method is allowed so try it.
+                if (!authenticateWithPubKey()) {
+                    if (!canAuthWithPubKey()) {
+                        // If pubkey authentication is now no longer available, we know pubkey
+                        // authentication succeeded but the server wants further authentication.
+                        if (!authenticateWithPassword()) {
+                            throw new Exception(context.getString(R.string.error_ssh_pwd_auth_fail));
+                        }
+                    } else {
+                        throw new Exception(context.getString(R.string.error_ssh_key_auth_fail));
+                    }
+                }
+            } else {
+                // Pubkey authentication is not available, so try password if one was supplied.
+                if (!password.isEmpty() && canAuthWithPass() && !authenticateWithPassword()) {
+                    if (!canAuthWithPass()) {
+                        // If password authentication is now no longer available, we know password
+                        // authentication succeeded but the server wants further authentication.
+                        if (!authenticateWithPubKey()) {
+                            throw new Exception(context.getString(R.string.error_ssh_key_auth_fail));
+                        }
+                    } else {
                         throw new Exception(context.getString(R.string.error_ssh_pwd_auth_fail));
                     }
                 } else {
-                    throw new Exception(context.getString(R.string.error_ssh_key_auth_fail));
+                    String authMethods = Arrays.toString(connection.getRemainingAuthMethods(user));
+                    throw new Exception(context.getString(R.string.error_ssh_pubkey_auth_method_unavail) + " " + authMethods);
                 }
             }
         }
