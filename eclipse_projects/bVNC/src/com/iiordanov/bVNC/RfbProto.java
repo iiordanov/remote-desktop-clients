@@ -23,15 +23,17 @@
 
 package com.iiordanov.bVNC;
 
-import java.io.*;
-//- import java.awt.*;
-//- import java.awt.event.*;
+import java.io.BufferedInputStream;
+import java.io.DataInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.Socket;
-//- import java.util.zip.*;
-import android.util.Log;
-import android.widget.Toast;
 
-import com.iiordanov.bVNC.DH;
+import javax.net.ssl.SSLSocket;
+
+import android.util.Log;
+
 import com.iiordanov.bVNC.input.RemoteKeyboard;
 
 /**
@@ -288,11 +290,18 @@ class RfbProto implements RfbConnectable {
   RfbProto(Decoder decoder, RemoteCanvas canvas,
           String host, int port, int preferredEncoding,
           boolean viewOnly, boolean useLocalCursor) throws Exception {
-      setParameters(decoder, canvas, host, port, preferredEncoding, viewOnly, useLocalCursor);
+      setParameters(decoder, canvas, host, port, null, preferredEncoding, viewOnly, useLocalCursor);
+  }
+  
+  // Consturctor using secure tunnel
+  RfbProto(Decoder decoder, RemoteCanvas canvas,
+		  String host, int port, Socket sock, int preferredEncoding,
+          boolean viewOnly, boolean useLocalCursor) throws Exception {
+      setParameters(decoder, canvas, host, port, sock, preferredEncoding, viewOnly, useLocalCursor);
   }
 
   void setParameters(Decoder decoder, RemoteCanvas canvas,
-                      String host, int port, int preferredEncoding,
+                      String host, int port, Socket sock, int preferredEncoding,
                       boolean viewOnly, boolean useLocalCursor) throws Exception {
       this.decoder = decoder;
       this.viewOnly = viewOnly;
@@ -302,7 +311,8 @@ class RfbProto implements RfbConnectable {
       this.preferredEncoding = preferredEncoding;
       this.useLocalCursor = useLocalCursor;
 
-      sock = new Socket(host, port);
+      if (sock == null)
+    	  sock = new Socket(host, port);
       sock.setTcpNoDelay(true);
       
       // After much testing, 8192 does seem like the best compromize between
@@ -1448,8 +1458,15 @@ class RfbProto implements RfbConnectable {
   // clientRedirect() migrates the client to another host/port
   public void clientRedirect(int port, String host, String x509subject) {
       try {
+          // depending on the intent, we could reestablish a secure tunnel. However this feature doesn't 
+          // seem to be used very often and potentially has other issues (like certificate revalidation).
+    	  if (sock instanceof SSLSocket)
+    	  {
+    		  Log.w(TAG, "Ignoring client redirect of Secure Tunnel.");
+    		  return;
+    	  }
           closeSocket();
-          setParameters(decoder, canvas, host, port, preferredEncoding, viewOnly, useLocalCursor);
+          setParameters(decoder, canvas, host, port, null, preferredEncoding, viewOnly, useLocalCursor);
           writeClientInit();
           readServerInit();
           processProtocol();

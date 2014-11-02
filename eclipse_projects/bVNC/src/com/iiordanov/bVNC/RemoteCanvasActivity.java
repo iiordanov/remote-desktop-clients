@@ -25,27 +25,14 @@ package com.iiordanov.bVNC;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import com.iiordanov.android.bc.BCFactory;
-
-import com.iiordanov.android.zoomer.ZoomControls;
-import com.iiordanov.bVNC.dialogs.EnterTextDialog;
-import com.iiordanov.bVNC.dialogs.MetaKeyDialog;
-import com.iiordanov.bVNC.input.AbstractInputHandler;
-import com.iiordanov.bVNC.input.Panner;
-import com.iiordanov.bVNC.input.RemoteKeyboard;
-import com.iiordanov.bVNC.input.SimulatedTouchpadInputHandler;
-import com.iiordanov.bVNC.input.SingleHandedInputHandler;
-import com.iiordanov.bVNC.input.TouchMouseDragPanInputHandler;
-import com.iiordanov.bVNC.input.TouchMouseSwipePanInputHandler;
-
 import android.app.Activity;
-import android.app.Dialog;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
@@ -64,22 +51,33 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnKeyListener;
 import android.view.View.OnLongClickListener;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
-import android.view.View.OnKeyListener;
 import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.view.Window;
 import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
-import android.widget.AdapterView.OnItemClickListener;
-import android.view.inputmethod.InputMethodManager;
-import android.content.Context;
+
+import com.iiordanov.android.bc.BCFactory;
+import com.iiordanov.android.zoomer.ZoomControls;
+import com.iiordanov.bVNC.dialogs.EnterTextDialog;
+import com.iiordanov.bVNC.dialogs.MetaKeyDialog;
+import com.iiordanov.bVNC.input.AbstractInputHandler;
+import com.iiordanov.bVNC.input.Panner;
+import com.iiordanov.bVNC.input.RemoteKeyboard;
+import com.iiordanov.bVNC.input.SimulatedTouchpadInputHandler;
+import com.iiordanov.bVNC.input.SingleHandedInputHandler;
+import com.iiordanov.bVNC.input.TouchMouseDragPanInputHandler;
+import com.iiordanov.bVNC.input.TouchMouseSwipePanInputHandler;
 
 
 public class RemoteCanvasActivity extends Activity implements OnKeyListener {
@@ -138,7 +136,8 @@ public class RemoteCanvasActivity extends Activity implements OnKeyListener {
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
         initialize();
-        continueConnecting();
+        if (connection.IsReadyForConnection())
+        	continueConnecting();
     }
     
     void initialize () {
@@ -156,62 +155,36 @@ public class RemoteCanvasActivity extends Activity implements OnKeyListener {
         database = new Database(this);
 
         Intent i = getIntent();
-        connection = new ConnectionBean(this);
+        connection = null;
         
         Uri data = i.getData();
-        if ((data != null) && (data.getScheme().equals("vnc"))) {
-            
-            // TODO: Can we also handle VNC over SSH/SSL connections with a new URI format?
-            
-            String host = data.getHost();
-            // This should not happen according to Uri contract, but bug introduced in Froyo (2.2)
-            // has made this parsing of host necessary
-            int index = host.indexOf(':');
-            int port;
-            if (index != -1)
+        if ((data != null) && (data.getScheme().equals("vnc")) || !Utils.isNullOrEmptry(i.getType())) 
+        {
+        	connection = ConnectionBean.createLoadFromUri(data, this);
+            connection.parseFromUri(data);                       
+            if (connection.IsSaved())
+            	bVNC.saveAndWriteRecent(connection, database, true);
+            // we need to save the connection to display the loading screen, so otherwise we should exit
+            if (!connection.IsReadyForConnection())
             {
-                try
-                {
-                    port = Integer.parseInt(host.substring(index + 1));
-                }
-                catch (NumberFormatException nfe)
-                {
-                    port = 0;
-                }
-                host = host.substring(0,index);
+            	if (!connection.IsSaved())
+            	{
+            		Log.i(TAG, "Exiting - Insufficent information to connect and connection was not saved.");
+            		Toast.makeText(this, getString(R.string.error_uri_noinfo_nosave), Toast.LENGTH_LONG).show();;
+            	}
+            	else
+            	{
+            		// launch bVNC activity
+            		Log.i(TAG, "Insufficent information to connect, showing connection dialog.");
+            		Intent bVncIntent = new Intent(this, bVNC.class);
+            		startActivity(bVncIntent);
+            	}
+            	finish();
+            	return;
             }
-            else
-            {
-                port = data.getPort();
-            }
-            if (host.equals(Constants.CONNECTION))
-            {
-                if (connection.Gen_read(database.getReadableDatabase(), port))
-                {
-                    MostRecentBean bean = bVNC.getMostRecent(database.getReadableDatabase());
-                    if (bean != null)
-                    {
-                        bean.setConnectionId(connection.get_Id());
-                        bean.Gen_update(database.getWritableDatabase());
-                        database.close();
-                    }
-                }
-            } else {
-                connection.setAddress(host);
-                connection.setNickname(connection.getAddress());
-                connection.setPort(port);
-                List<String> path = data.getPathSegments();
-                if (path.size() >= 1) {
-                    connection.setColorModel(path.get(0));
-                }
-                if (path.size() >= 2) {
-                    connection.setPassword(path.get(1));
-                }
-                connection.save(database.getWritableDatabase());
-                database.close();
-            }
+            	
         } else {
-        
+        	connection =  new ConnectionBean(this);
             Bundle extras = i.getExtras();
 
             if (extras != null) {
@@ -346,7 +319,7 @@ public class RemoteCanvasActivity extends Activity implements OnKeyListener {
             replacer = getResources().getDrawable(R.drawable.showkeys);
         else
             replacer = getResources().getDrawable(R.drawable.hidekeys);
-        keyStow.setBackgroundDrawable(replacer);
+        keyStow.setBackground(replacer);
 
         if (connection.getExtraKeysToggleType() == Constants.EXTRA_KEYS_OFF)
             keyStow.setVisibility(View.GONE);
@@ -747,7 +720,7 @@ public class RemoteCanvasActivity extends Activity implements OnKeyListener {
         Dialog d = adb.setView(new ListView (this)).create();
         WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
         lp.copyFrom(d.getWindow().getAttributes());
-        lp.width = WindowManager.LayoutParams.FILL_PARENT;
+        lp.width = WindowManager.LayoutParams.MATCH_PARENT;
         lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
         d.show();
         d.getWindow().setAttributes(lp);
@@ -759,7 +732,8 @@ public class RemoteCanvasActivity extends Activity implements OnKeyListener {
      * 
      * @see android.app.Activity#onPrepareDialog(int, android.app.Dialog)
      */
-    @Override
+    @SuppressWarnings("deprecation")
+	@Override
     protected void onPrepareDialog(int id, Dialog dialog) {
         super.onPrepareDialog(id, dialog);
         if (dialog instanceof ConnectionSettable)
@@ -999,7 +973,8 @@ public class RemoteCanvasActivity extends Activity implements OnKeyListener {
         return R.id.itemInputTouchPanZoomMouse;
     }
 
-    @Override
+    @SuppressWarnings("deprecation")
+	@Override
     public boolean onOptionsItemSelected(MenuItem item) {
         canvas.getKeyboard().setAfterMenu(true);
         switch (item.getItemId()) {

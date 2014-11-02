@@ -20,7 +20,8 @@
 
 package com.iiordanov.bVNC;
 
-import com.antlersoft.android.db.*;
+import com.antlersoft.android.db.FieldAccessor;
+import com.antlersoft.android.db.TableInterface;
 
 /**
  * @author Iordan Iordanov
@@ -102,6 +103,10 @@ interface IConnectionBean {
     @FieldAccessor
     String getPassword();
     @FieldAccessor
+    int getIdHashAlgorithm();
+    @FieldAccessor
+    String getIdHash();
+    @FieldAccessor
     String getColorModel();
     @FieldAccessor
     int getPrefEncoding();
@@ -181,6 +186,6 @@ interface IConnectionBean {
     boolean getEnableSound();
     @FieldAccessor
     boolean getViewOnly();
-    @FieldAccessor
+	@FieldAccessor
     String getLayoutMap();
 }
