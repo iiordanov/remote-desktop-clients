@@ -114,8 +114,8 @@
 <string name="error_rdp_authentication_failed">RDP Authentication failed! Please check the RDP username and password and try again.</string>
 <string name="error_ssh_unable_to_connect">Failed to connect to SSH Server. Please check network connectivity, and SSH Server address and port.</string>
 <string name="error_ssh_hostkey_changed">ERROR! The server host key has changed. If this is intentional, please delete and recreate the connection. Otherwise, this may be a man in the middle attack. Not continuing.</string>
-<string name="error_ssh_kbd_auth_method_unavail">The SSH server supports neither \"password\" nor \"keyboard-interactive\" auth methods. Please configure it to allow at least one of the two methods and try again.</string>
-<string name="error_ssh_pubkey_auth_method_unavail">The SSH server does not support the \"publickey\" auth method, and we are trying to use a key-pair to authenticate. Please configure it to allow the publickey authentication and try again.</string>
+<string name="error_ssh_kbd_auth_method_unavail">The SSH server supports neither \"password\" nor \"keyboard-interactive\" auth methods or requires \"publickey\" method first. Please configure it to allow at least one of the two methods, or reconfigure bVNC. Available auth methods: </string>
+<string name="error_ssh_pubkey_auth_method_unavail">The SSH server does not support the \"publickey\" auth method, and we are trying to use a key-pair to authenticate. Please configure it to allow the publickey authentication and try again. Available auth methods: </string>
 <string name="error_ssh_pwd_auth_fail">Failed to authenticate to SSH server with a password. Please check your SSH username, and SSH password.</string>
 <string name="error_ssh_key_auth_fail">Failed to authenticate to SSH server with a key-pair. Please check your SSH username, and ensure your public key is in the authorized_keys file on the remote side.</string>
 <string name="error_ssh_x11vnc_no_port_failure">Could not obtain remote VNC port from x11vnc. Please ensure x11vnc is installed. To be sure, try running x11vnc by hand on the command-line.</string>
@@ -558,7 +558,7 @@ Known issues:
 <string name="spice_server_empty">SPICE Server or port empty. Cannot connect!</string>
 <string name="spice_tls_port_hint">TLS Port</string>
 <string name="spice_username_hint">SPICE Username</string>
-<string name="ssh_passphrase_hint">Passphrase</string>
+<string name="ssh_passphrase_hint">SSH Passphrase</string>
 <string name="ssh_pubkey_button">Manage Key</string>
 <string name="ssh_use_pubkey">Use Key</string>
 <string name="ssh_use_x11vnc">Auto Desktop</string>

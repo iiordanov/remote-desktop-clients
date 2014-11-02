@@ -102,23 +102,33 @@ android:layout_height="fill_parent">
 					android:hint="@string/password_hint_ssh" android:inputType="textNoSuggestions"/>
 			</LinearLayout>
 		</TableRow>
-		<TableRow>
-	    	<LinearLayout
-				android:id="@+id/layoutUseSshPubkey"
-				android:layout_width="fill_parent"
-				android:layout_height="wrap_content"
-				android:orientation="horizontal"
-				android:layout_weight="1"
-				android:visibility="gone">
-				<Button	android:id="@+id/buttonGeneratePubkey" android:text="@string/ssh_pubkey_button"
-					android:textAppearance="?android:attr/textAppearanceMedium" android:enabled="true"
-					android:layout_width="fill_parent"	android:layout_weight=".4" android:layout_height="wrap_content"/>
-				<CheckBox android:id="@+id/checkboxUseSshPubkey"
-					android:layout_width="fill_parent" android:layout_height="wrap_content"
-					android:text="@string/ssh_use_pubkey" android:layout_weight=".6" android:checked="false"
-					android:textAppearance="?android:attr/textAppearanceMedium" android:singleLine="true"/>
-			</LinearLayout>					
-		</TableRow>
+        <TableRow>
+            <LinearLayout
+                android:id="@+id/layoutUseSshPubkey"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_weight="1"
+                android:visibility="gone">
+                <LinearLayout
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+                    <EditText android:id="@+id/sshPassphrase"
+                        android:password="true"
+                        android:layout_width="fill_parent" android:layout_height="wrap_content"
+                        android:singleLine="true" android:layout_weight=".5" android:textAppearance="?android:attr/textAppearanceMedium"
+                        android:hint="@string/ssh_passphrase_hint" android:inputType="textNoSuggestions"/>
+                    <CheckBox android:id="@+id/checkboxUseSshPubkey"
+                        android:layout_width="fill_parent" android:layout_height="wrap_content"
+                        android:text="@string/ssh_use_pubkey" android:layout_weight=".5" android:checked="false"
+                        android:textAppearance="?android:attr/textAppearanceMedium" android:singleLine="true"/>
+                 </LinearLayout>
+                 <Button android:id="@+id/buttonGeneratePubkey" android:text="@string/ssh_pubkey_button"
+                    android:textAppearance="?android:attr/textAppearanceMedium" android:enabled="true"
+                    android:layout_width="fill_parent" android:layout_height="wrap_content"/>
+            </LinearLayout>
+        </TableRow>
 		<TableRow>
 		    <TextView
 				android:text="SPICE Connection Settings"

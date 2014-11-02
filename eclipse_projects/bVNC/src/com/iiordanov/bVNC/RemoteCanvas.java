@@ -279,9 +279,11 @@ public class RemoteCanvas extends ImageView implements LibFreeRDP.UIEventListene
                         } else {
                             String error = getContext().getString(R.string.error_connection_failed);
                             if (e.getMessage() != null) {
-                                if (e.getMessage().indexOf("authentication") > -1 ||
-                                        e.getMessage().indexOf("Unknown security result") > -1 ||
-                                        e.getMessage().indexOf("password check failed") > -1) {
+                                if (e.getMessage().indexOf("SSH") < 0 && 
+                                        ( e.getMessage().indexOf("authentication") > -1 ||
+                                          e.getMessage().indexOf("Unknown security result") > -1 ||
+                                          e.getMessage().indexOf("password check failed") > -1)
+                                        ) {
                                     error = getContext().getString(R.string.error_vnc_authentication);
                                 }
                                 error = error + "<br>" + e.getLocalizedMessage();

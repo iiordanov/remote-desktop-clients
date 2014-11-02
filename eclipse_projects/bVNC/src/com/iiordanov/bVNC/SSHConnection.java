@@ -27,6 +27,7 @@ import java.net.InetSocketAddress;
 import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.util.Arrays;
 
 import com.trilead.ssh2.Connection;
 import com.trilead.ssh2.ConnectionInfo;
@@ -52,9 +53,6 @@ public class SSHConnection implements InteractiveCallback {
     private ConnectionInfo connectionInfo;
     private String serverHostKey;
     private Session session;
-    private boolean passwordAuth = false;
-    private boolean keyboardInteractiveAuth = false;
-    private boolean pubKeyAuth = false;
     private KeyPair    kp;
     private PrivateKey privateKey;
     private PublicKey  publicKey;
@@ -129,19 +127,45 @@ public class SSHConnection implements InteractiveCallback {
         if (!verifyHostKey())
             throw new Exception(context.getString(R.string.error_ssh_hostkey_changed));
         
-        if (!usePubKey && !canAuthWithPass())
-            throw new Exception(context.getString(R.string.error_ssh_kbd_auth_method_unavail));
-        
-        if (usePubKey && !canAuthWithPubKey())
-            throw new Exception(context.getString(R.string.error_ssh_pubkey_auth_method_unavail));
-        
         // Authenticate and set up port forwarding.
         if (!usePubKey) {
+            if (!canAuthWithPass()) {
+                String authMethods = Arrays.toString(connection.getRemainingAuthMethods(user));
+                throw new Exception(context.getString(R.string.error_ssh_kbd_auth_method_unavail) + " " + authMethods);
+            }
             if (!authenticateWithPassword())
                 throw new Exception(context.getString(R.string.error_ssh_pwd_auth_fail));
         } else {
-            if (!authenticateWithPubKey())
-                throw new Exception(context.getString(R.string.error_ssh_key_auth_fail));
+            if (canAuthWithPubKey()) {
+                // Pubkey auth method is allowed so try it.
+                if (!authenticateWithPubKey()) {
+                    if (!canAuthWithPubKey()) {
+                        // If pubkey authentication is now no longer available, we know pubkey
+                        // authentication succeeded but the server wants further authentication.
+                        if (!authenticateWithPassword()) {
+                            throw new Exception(context.getString(R.string.error_ssh_pwd_auth_fail));
+                        }
+                    } else {
+                        throw new Exception(context.getString(R.string.error_ssh_key_auth_fail));
+                    }
+                }
+            } else {
+                // Pubkey authentication is not available, so try password if one was supplied.
+                if (!password.isEmpty() && canAuthWithPass() && !authenticateWithPassword()) {
+                    if (!canAuthWithPass()) {
+                        // If password authentication is now no longer available, we know password
+                        // authentication succeeded but the server wants further authentication.
+                        if (!authenticateWithPubKey()) {
+                            throw new Exception(context.getString(R.string.error_ssh_key_auth_fail));
+                        }
+                    } else {
+                        throw new Exception(context.getString(R.string.error_ssh_pwd_auth_fail));
+                    }
+                } else {
+                    String authMethods = Arrays.toString(connection.getRemainingAuthMethods(user));
+                    throw new Exception(context.getString(R.string.error_ssh_pubkey_auth_method_unavail) + " " + authMethods);
+                }
+            }
         }
 
         // Run a remote command if commanded to.
@@ -216,9 +240,7 @@ public class SSHConnection implements InteractiveCallback {
             serverHostKey = Base64.encodeToString(connectionInfo.serverHostKey, Base64.DEFAULT);
 
             // Get information on supported authentication methods we're interested in.
-            passwordAuth            = connection.isAuthMethodAvailable(user, "password");
-            pubKeyAuth              = connection.isAuthMethodAvailable(user, "publickey");
-            keyboardInteractiveAuth = connection.isAuthMethodAvailable(user, "keyboard-interactive");
+
             return true;
         } catch (IOException e) {
             e.printStackTrace();
@@ -249,16 +271,50 @@ public class SSHConnection implements InteractiveCallback {
     }
 
     /**
-     * Returns whether the server can authenticate with a password.
+     * Returns whether the server can authenticate either with pass or keyboard-interactive methods.
      */
     private boolean canAuthWithPass () {
-        return passwordAuth || keyboardInteractiveAuth;
+        return hasPasswordAuth () || hasKeyboardInteractiveAuth ();
+    }
+    
+    /**
+     * Returns whether the server supports passworde
+     * @return
+     */
+    private boolean hasPasswordAuth () {
+        boolean passwordAuth = false;
+        try {
+            passwordAuth = connection.isAuthMethodAvailable(user, "password");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return passwordAuth;
+    }
+    
+    /**
+     * Returns whether the server supports passworde
+     * @return
+     */
+    private boolean hasKeyboardInteractiveAuth () {
+        boolean keyboardInteractiveAuth = false;
+        try {
+            keyboardInteractiveAuth = connection.isAuthMethodAvailable(user, "keyboard-interactive");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return keyboardInteractiveAuth;
     }
 
     /**
      * Returns whether the server can authenticate with a key.
      */
     private boolean canAuthWithPubKey () {
+        boolean pubKeyAuth = false;
+        try {
+            pubKeyAuth = connection.isAuthMethodAvailable(user, "publickey");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         return pubKeyAuth;
     }
 
@@ -269,13 +325,13 @@ public class SSHConnection implements InteractiveCallback {
         boolean isAuthenticated = false;
 
         try {
-            if (passwordAuth) {
+            if (hasPasswordAuth()) {
                 Log.i(TAG, "Trying SSH password authentication.");
                 isAuthenticated = connection.authenticateWithPassword(user, password);
             }
-            if (!isAuthenticated && keyboardInteractiveAuth) {
+            if (!isAuthenticated && hasKeyboardInteractiveAuth()) {
                 Log.i(TAG, "Trying SSH keyboard-interactive authentication.");
-                isAuthenticated = connection.authenticateWithKeyboardInteractive(user, this);                
+                isAuthenticated = connection.authenticateWithKeyboardInteractive(user, this);
             }
             return isAuthenticated;
         } catch (IOException e) {
