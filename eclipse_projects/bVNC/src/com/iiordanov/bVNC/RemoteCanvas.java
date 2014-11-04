@@ -31,17 +31,20 @@
 package com.iiordanov.bVNC;
 
 import java.io.IOException;
-import java.net.Socket;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
+import java.util.Locale;
 import java.util.Timer;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.RectF;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -62,9 +65,6 @@ import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
 import android.widget.ImageView;
 import android.widget.Toast;
-import android.graphics.BitmapFactory;
-import android.graphics.Bitmap;
-import android.graphics.RectF;
 
 import com.freerdp.freerdpcore.application.GlobalApp;
 import com.freerdp.freerdpcore.application.SessionState;
@@ -72,17 +72,16 @@ import com.freerdp.freerdpcore.domain.BookmarkBase;
 import com.freerdp.freerdpcore.domain.ManualBookmark;
 import com.freerdp.freerdpcore.services.LibFreeRDP;
 import com.iiordanov.android.bc.BCFactory;
+import com.iiordanov.bVNC.input.RemoteKeyboard;
+import com.iiordanov.bVNC.input.RemotePointer;
 import com.iiordanov.bVNC.input.RemoteRdpKeyboard;
+import com.iiordanov.bVNC.input.RemoteRdpPointer;
 import com.iiordanov.bVNC.input.RemoteSpiceKeyboard;
 import com.iiordanov.bVNC.input.RemoteSpicePointer;
 import com.iiordanov.bVNC.input.RemoteVncKeyboard;
 import com.iiordanov.bVNC.input.RemoteVncPointer;
-import com.iiordanov.bVNC.input.RemoteKeyboard;
-import com.iiordanov.bVNC.input.RemoteRdpPointer;
-import com.iiordanov.bVNC.input.RemotePointer;
 
-import com.iiordanov.tigervnc.vncviewer.CConn;
-
+@SuppressWarnings("deprecation")
 public class RemoteCanvas extends ImageView implements LibFreeRDP.UIEventListener, LibFreeRDP.EventListener {
     private final static String TAG = "VncCanvas";
     
@@ -99,10 +98,10 @@ public class RemoteCanvas extends ImageView implements LibFreeRDP.UIEventListene
     // VNC protocol connection
     public RfbConnectable rfbconn   = null;
     private RfbProto rfb            = null;
-    private CConn cc                = null;
+    //private CConn cc                = null;
     private RdpCommunicator rdpcomm = null;
     private SpiceCommunicator spicecomm = null;
-    private Socket sock             = null;
+    //private Socket sock             = null;
     
     boolean maintainConnection = true;
     
@@ -244,7 +243,9 @@ public class RemoteCanvas extends ImageView implements LibFreeRDP.UIEventListene
                 try {
                     // Initialize SSH key if necessary
                     if (connection.getConnectionType() == Constants.CONN_TYPE_SSH &&
-                        connection.getSshHostKey().equals("")) {
+                        connection.getSshHostKey().equals("") && 
+                        Utils.isNullOrEmptry(connection.getIdHash())) 
+                    {
                         handler.sendEmptyMessage(Constants.DIALOG_SSH_CERT);
                         
                         // Block while user decides whether to accept certificate or not.
@@ -409,9 +410,24 @@ public class RemoteCanvas extends ImageView implements LibFreeRDP.UIEventListene
         
         String address = getAddress();
         int vncPort = getPort(connection.getPort());
-        try {
-            rfb = new RfbProto(decoder, this, address, vncPort,
-                               connection.getPrefEncoding(), connection.getViewOnly(), connection.getUseLocalCursor());
+        try 
+        {
+        	// if necessary, initalize secure tunnel
+        	if (connection.getConnectionType() == Constants.CONN_TYPE_STUNNEL)
+        	{
+        		Log.i(TAG, "Creating secure tunnel.");
+        		SecureTunnel tunnel = new SecureTunnel(connection, handler);
+        		tunnel.setup();
+        		if (!tunnel.isIdentified())
+        		{
+        			synchronized(this) { wait(); }
+        		}
+        		rfb = new RfbProto(decoder, this, address, vncPort, tunnel.getSocket(), connection.getPrefEncoding(), connection.getViewOnly(), connection.getUseLocalCursor());
+        	}
+        	else
+        	{
+        		rfb = new RfbProto(decoder, this, address, vncPort, connection.getPrefEncoding(), connection.getViewOnly(), connection.getUseLocalCursor());
+        	}
             Log.v(TAG, "Connected to server: " + address + " at port: " + vncPort);
             rfb.initializeAndAuthenticate(connection.getUserName(), connection.getPassword(),
                                           connection.getUseRepeater(), connection.getRepeaterId(),
@@ -475,7 +491,7 @@ public class RemoteCanvas extends ImageView implements LibFreeRDP.UIEventListene
      * Starts a VeNCrypt connection using the TigerVNC backend.
      * @throws Exception
      */
-    private void startVencryptConnection() throws Exception {
+    /*private void startVencryptConnection() throws Exception {
         cc = new CConn(RemoteCanvas.this, sock, null, false, connection);
         rfbconn = cc;
         pointer = new RemoteVncPointer (rfbconn, RemoteCanvas.this, handler);
@@ -501,7 +517,7 @@ public class RemoteCanvas extends ImageView implements LibFreeRDP.UIEventListene
             pd.dismiss();
         
         cc.processProtocol();
-    }
+    }*/
     
     
     /**
@@ -1438,6 +1454,9 @@ public class RemoteCanvas extends ImageView implements LibFreeRDP.UIEventListene
                 Bundle s = (Bundle)msg.obj;
                 validateRdpCert (s.getString("subject"), s.getString("issuer"), s.getString("fingerprint"));
                 break;
+            case Constants.DIAG_TUNNEL_CERT:
+            	validateTunnelCert((X509Certificate)msg.obj);
+            	break;
             case Constants.SPICE_CONNECT_SUCCESS:
                 if (pd != null && pd.isShowing()) {
                     pd.dismiss();
@@ -1468,38 +1487,87 @@ public class RemoteCanvas extends ImageView implements LibFreeRDP.UIEventListene
 
         // If there has been no key approved by the user previously, ask for approval, else
         // check the saved key against the one we are presented with.
-        if (connection.getSshHostKey().equals("")) {
-            // Show a dialog with the key signature for approval.
-            DialogInterface.OnClickListener signatureNo = new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    // We were told not to continue, so stop the activity
-                    closeConnection();
-                    ((Activity) getContext()).finish();
-                }
-            };
-            DialogInterface.OnClickListener signatureYes = new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    // We were told to go ahead with the connection, so save the key into the database.
-                    String certificate = null;
-                    try {
-                        certificate = Base64.encodeToString(cert.getEncoded(), Base64.DEFAULT);
-                    } catch (CertificateEncodingException e) {
-                        e.printStackTrace();
-                        showFatalMessageAndQuit(getContext().getString(R.string.error_x509_could_not_generate_encoding));
-                    }
-                    connection.setSshHostKey(certificate);
-                    connection.save(database.getWritableDatabase());
-                    database.close();
-                    // Indicate the certificate was accepted.
-                    certificateAccepted = true;
-                    synchronized (RemoteCanvas.this) {
-                        RemoteCanvas.this.notifyAll();
-                    }
-                }
-            };
+    	
+    	// the logic is potentially complicated if we have saved data and URI data which may differ
+    	// try to verify first, otherwise prompt 
+    	// the message could also perhaps be clarified
+    	
+    	// first check URI hash
+    	
+    	String idHash = null;
+    	byte[] certData = null;
+    	boolean isSigEqual = false;
+		try
+		{
+			certData = cert.getEncoded();
+			idHash = SecureTunnel.computeSignatureByAlgorithm(connection.getIdHashAlgorithm(), certData);
+			isSigEqual = SecureTunnel.isSignatureEqual(connection.getIdHashAlgorithm(), connection.getIdHash(), certData);
+		}
+		catch (Exception ex)
+		{
+			ex.printStackTrace();
+            showFatalMessageAndQuit(getContext().getString(R.string.error_x509_could_not_generate_signature));
+            return;
+		}   
+		final String idHashFinal = idHash;
+		
+    	if (isSigEqual)
+    	{
+    		Log.i(TAG, "Certificate validated from URI data.");
+    		certificateAccepted = true;
+    		synchronized (RemoteCanvas.this) 
+    		{
+    			RemoteCanvas.this.notifyAll();
+    		}
+    		return;
+    	}
+    	// check saved cert
+    	if (connection.getSshHostKey().equals(Base64.encodeToString(certData, Base64.DEFAULT))) 
+    	{
+    		Log.i(TAG, "Certificate validated from saved key.");
+    		certificateAccepted = true;
+    		synchronized (RemoteCanvas.this) 
+    		{
+    			RemoteCanvas.this.notifyAll();
+    		}
+    		return;
+    	}
+    	// cert is new or mismatch - could quit if above were set and is a mismatch
+        	
+         
+        // Show a dialog with the key signature for approval.
+             DialogInterface.OnClickListener signatureNo = new DialogInterface.OnClickListener() {
+            	 @Override
+            	 public void onClick(DialogInterface dialog, int which) {
+            		 // We were told not to continue, so stop the activity
+            		 closeConnection();
+            		 ((Activity) getContext()).finish();
+            	 }
+             };
+             DialogInterface.OnClickListener signatureYes = new DialogInterface.OnClickListener() {
+            	 @Override
+            	 public void onClick(DialogInterface dialog, int which) {
+            		 // We were told to go ahead with the connection, so save the key into the database.
+            		 String certificate = null;
+            		 try {
+            			 certificate = Base64.encodeToString(cert.getEncoded(), Base64.DEFAULT);
+            		 } catch (CertificateEncodingException e) {
+            			 e.printStackTrace();
+            			 showFatalMessageAndQuit(getContext().getString(R.string.error_x509_could_not_generate_encoding));
+            		 }
+            		 connection.setIdHash(idHashFinal);
+            		 connection.setSshHostKey(certificate);
+            		 connection.save(database.getWritableDatabase());
+            		 database.close();
+            		 // Indicate the certificate was accepted.
+            		 certificateAccepted = true;
+            		 synchronized (RemoteCanvas.this) {
+            			 RemoteCanvas.this.notifyAll();
+            		 }
+            	 }
+             };
 
+            // we could add sha256 as used by firefox or cert info
             // Generate a sha1 signature of the certificate.
             MessageDigest sha1;
             MessageDigest md5;
@@ -1520,30 +1588,81 @@ public class RemoteCanvas extends ImageView implements LibFreeRDP.UIEventListene
                 e.printStackTrace();
                 showFatalMessageAndQuit(getContext().getString(R.string.error_x509_could_not_generate_encoding));
             }
-        } else {
-            // Compare saved with obtained certificate and quit if they don't match.
-            try {
-                if (!connection.getSshHostKey().equals(Base64.encodeToString(cert.getEncoded(), Base64.DEFAULT))) {
-                    showFatalMessageAndQuit(getContext().getString(R.string.error_cert_does_not_match));
-                } else {
-                    // In case we need to display information about the certificate, we can reconstruct it like this:
-                    //CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
-                    //ByteArrayInputStream in = new ByteArrayInputStream(Base64.decode(connection.getSshHostKey(), Base64.DEFAULT));
-                    //X509Certificate c = (X509Certificate)certFactory.generateCertificate(in);
-                    //android.util.Log.e("  Subject ", c.getSubjectDN().toString());
-                    //android.util.Log.e("   Issuer  ", c.getIssuerDN().toString());
-                    
-                    // The certificate matches, so we proceed.
-                    certificateAccepted = true;
-                    synchronized (RemoteCanvas.this) {
-                        RemoteCanvas.this.notifyAll();
-                    }
-                }
-            } catch (CertificateEncodingException e) {
-                e.printStackTrace();
-                showFatalMessageAndQuit(getContext().getString(R.string.error_x509_could_not_generate_encoding));
-            }
-        }
+    } // validatex590 cert            
+    
+    /**
+     * Permits the user to validate an x509 certificate used in a secure tunnel.
+     * @param cert The certificate.
+     */
+    private void validateTunnelCert(final X509Certificate cert)
+    {
+    	final int hashAlg = connection.getIdHashAlgorithm();
+    
+    	// we know at this point the inital cert does not match or was not supplied
+    	DialogInterface.OnClickListener signatureNo = new DialogInterface.OnClickListener() 
+    	{
+    		@Override
+    		public void onClick(DialogInterface dialog, int which) {
+    			// We were told not to continue, so stop the activity
+    			closeConnection();
+    			((Activity) getContext()).finish();
+    		}
+    	};
+        DialogInterface.OnClickListener signatureYes = new DialogInterface.OnClickListener() 
+        {
+              @Override
+              public void onClick(DialogInterface dialog, int which) 
+              {
+                  // We were told to go ahead with the connection, so save the key into the database.
+            	  // we could save an SSH host key, but we do not use it with this interface
+            	  // we should save the hash 
+                  // hash algorithm will stay the same
+            	  String certIdHash = null;
+            	  try
+            	  {
+            		  byte[] certBytes = cert.getEncoded();
+            		  certIdHash = SecureTunnel.computeSignatureByAlgorithm(hashAlg, certBytes);
+            	  }
+            	  catch (Exception e)
+            	  {
+            		  Log.e(TAG, "Exception computing certificate signature, continuing anyway.");
+            	  }
+                  connection.setIdHash(certIdHash);
+                  connection.save(database.getWritableDatabase());
+                  database.close();
+                  // Indicate the certificate was accepted.
+                  certificateAccepted = true;
+                  synchronized (RemoteCanvas.this) 
+                  {
+                      RemoteCanvas.this.notifyAll();
+                  }
+              }
+        };
+
+        try 
+        {
+        	byte[] certBytes = cert.getEncoded();
+    		String certIdHash = SecureTunnel.computeSignatureByAlgorithm(hashAlg, certBytes);
+    		// should we show algorithm name? or make font smaller
+    		String certInfo = String.format(Locale.US, getContext().getString(R.string.info_cert_tunnel), 
+    				cert.getSubjectX500Principal().getName(),
+    				cert.getIssuerX500Principal().getName(),
+    				cert.getNotBefore(),
+    				cert.getNotAfter(),
+    				certIdHash
+    				);
+    		certInfo = certInfo.replace(",", "\n");
+    		// we want to show a disclaimer of certificate processing  
+            Utils.showYesNoPrompt(getContext(), 
+            		getContext().getString(R.string.info_continue_connecting) + connection.getAddress () + "?",
+            		certInfo,
+                    signatureYes, signatureNo);
+        } 
+        catch (Exception ex) 
+        {
+            ex.printStackTrace();
+            showFatalMessageAndQuit(getContext().getString(R.string.error_x509_could_not_generate_signature));
+        } 
     }
     
     
@@ -1614,6 +1733,7 @@ public class RemoteCanvas extends ImageView implements LibFreeRDP.UIEventListene
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     // We were told to go ahead with the connection.
+                	connection.setIdHash(sshConnection.getIdHash()); // could prompt based on algorithm
                     connection.setSshHostKey(sshConnection.getServerHostKey());
                     connection.save(database.getWritableDatabase());
                     database.close();

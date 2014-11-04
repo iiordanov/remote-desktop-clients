@@ -10,7 +10,7 @@
     <!--RECORD_AUDIO-->
     <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
     <uses-feature android:name="android.hardware.microphone" android:required="false"/>
-    
+
     <supports-screens
         android:xlargeScreens="true"
         android:largeScreens="true"
@@ -18,7 +18,7 @@
         android:smallScreens="true"
         android:anyDensity="true"/>
 		
-    <application android:icon="@drawable/icon" android:label="bVNC" android:debuggable="false" android:theme="@style/AppTheme" >
+    <application android:icon="@drawable/icon" android:allowBackup="true" android:label="bVNC" android:theme="@style/AppTheme" >
                 <activity android:label="@string/app_name"
                           android:name="bVNC"
                           android:screenOrientation="unspecified"
@@ -44,6 +44,11 @@
                                 <category android:name="android.intent.category.DEFAULT" />
                                 <data android:scheme="vnc" />
                        </intent-filter>
+                       <intent-filter>
+                                <action android:name="android.intent.action.VIEW" />
+                                <category android:name="android.intent.category.DEFAULT" />
+                                <data android:mimeType="application/vnd.vnc" />
+                       </intent-filter>
                 </activity>
                 <activity android:name=".ConnectionListActivity"
                           android:label="@string/shortcut_label"
@@ -59,7 +64,7 @@
                   android:windowSoftInputMode="stateHidden|adjustResize"
                   android:screenOrientation="unspecified"
                   android:theme="@android:style/Theme.DeviceDefault"/>
-                <uses-library android:required="false" name="com.sec.android.app.multiwindow"> </uses-library>
+                <uses-library android:required="false" android:name="com.sec.android.app.multiwindow"> </uses-library>
                 <meta-data android:name="com.sec.android.support.multiwindow"
                            android:value="true" />
                 <meta-data android:name="com.sec.android.multiwindow.DEFAULT_SIZE_W"

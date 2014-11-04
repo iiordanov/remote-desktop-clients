@@ -31,12 +31,55 @@ public class Constants {
     public static final int CONN_TYPE_ULTRAVNC     = 2;
     public static final int CONN_TYPE_ANONTLS      = 3;
     public static final int CONN_TYPE_VENCRYPT     = 4;
-
+    public static final int CONN_TYPE_STUNNEL	   = 5; 
+    
+    public static final int SOCKET_CONN_TIMEOUT = 30 * 1000; //30 sec
+    
+    public static final int DEFAULT_SSH_PORT = 22;
+    public static final int DEFAULT_VNC_PORT = 5900;
+    
+    // URI Parameters   
+    public static final String PARAM_CONN_NAME = "ConnectionName";
+    public static final String PARAM_USER = "VncUsername";
+    public static final String PARAM_PWD = "VncPassword";
+    public static final String PARAM_SECTYPE = "SecurityType";
+    public static final String PARAM_SSH_HOST = "SshHost";
+    public static final String PARAM_SSH_PORT = "SshPort";
+    public static final String PARAM_SSH_USER = "SshUser";
+    public static final String PARAM_SSH_PWD = "SshPassword";
+    public static final String PARAM_ID_HASH_ALG = "IdHashAlgorithm";
+    public static final String PARAM_ID_HASH = "IdHash";
+    public static final String PARAM_COLORMODEL = "ColorModel";
+    public static final String PARAM_SAVE_CONN = "SaveConnection";
+    public static final String PARAM_APIKEY = "ApiKey";
+    
+    public static final int SECTYPE_NONE = 1;
+    public static final int SECTYPE_VNC = 2;
+    public static final int SECTYPE_ULTRA = 17;
+    public static final int SECTYPE_TLS = 18;
+    public static final int SECTYPE_VENCRYPT = 19;
+    public static final int SECTYPE_TUNNEL = 23;
+    public static final int SECTYPE_INTEGRATED_SSH = 24;
+    
+    public static final int ID_HASH_MD5 = 1;
+    public static final int ID_HASH_SHA1 = 2;
+    public static final int ID_HASH_SHA256 = 4;
+    
+    public static final int COLORMODEL_BLACK_AND_WHITE = 1;
+    public static final int COLORMODEL_GREYSCALE = 2;
+    public static final int COLORMODEL_8_COLORS = 3;
+    public static final int COLORMODEL_64_COLORS = 4;
+    public static final int COLORMODEL_256_COLORS = 5;
+    public static final int COLORMODEL_16BIT = 6;
+    public static final int COLORMODEL_24BIT = 7;
+    public static final int COLORMODEL_32BIT = 8;
+    
     public static final int DIALOG_X509_CERT       = 1;
     public static final int DIALOG_SSH_CERT        = 2;
     public static final int DIALOG_RDP_CERT        = 3;
     public static final int SPICE_CONNECT_SUCCESS  = 4;
     public static final int SPICE_CONNECT_FAILURE  = 5;
+    public static final int DIAG_TUNNEL_CERT  	   = 6;
 
     public static final int EXTRA_KEYS_OFF         = 0;
     public static final int EXTRA_KEYS_ON          = 1;

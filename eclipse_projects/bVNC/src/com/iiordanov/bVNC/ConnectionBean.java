@@ -20,27 +20,32 @@
 
 package com.iiordanov.bVNC;
 
+import java.util.List;
+import java.util.Locale;
+
 import android.content.ContentValues;
+import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
+import android.util.Log;
 import android.widget.ImageView.ScaleType;
 
-import com.antlersoft.android.db.FieldAccessor;
 import com.antlersoft.android.dbimpl.NewInstance;
-import com.iiordanov.bVNC.COLORMODEL;
-import com.iiordanov.bVNC.RemoteCanvasActivity;
 import com.iiordanov.bVNC.input.TouchMouseSwipePanInputHandler;
-
-import java.lang.Comparable;
-import android.content.Context;
 
 /**
  * @author Iordan Iordanov
  * @author Michael A. MacDonald
+ * @author David Warden
  *
  */
 public class ConnectionBean extends AbstractConnectionBean implements Comparable<ConnectionBean> {
     
+	private static final String TAG = "ConnectionBean";
     static Context c = null;
+    protected boolean m_isReadyForConnection = true; // saved connections are OK
+    protected boolean m_saved = false;
     
     static final NewInstance<ConnectionBean> newInstance=new NewInstance<ConnectionBean>() {
         public ConnectionBean get() { return new ConnectionBean(c); }
@@ -52,10 +57,9 @@ public class ConnectionBean extends AbstractConnectionBean implements Comparable
         setPassword("");
         setKeepPassword(true);
         setNickname("");
-        // TODO: Switch away from using a hard-coded numeric value for the connection type.
-        setConnectionType(0);
+        setConnectionType(Constants.CONN_TYPE_PLAIN);
         setSshServer("");
-        setSshPort(22);
+        setSshPort(Constants.DEFAULT_SSH_PORT);
         setSshUser("");
         setSshPassword("");
         setKeepSshPassword(false);
@@ -82,11 +86,13 @@ public class ConnectionBean extends AbstractConnectionBean implements Comparable
         setUseSshRemoteCommand(false);
         setUserName("");
         setRdpDomain("");
-        setPort(5900);
+        setPort(Constants.DEFAULT_VNC_PORT);
         setCaCert("");
         setCaCertPath("");
         setTlsPort(-1);
         setCertSubject("");
+        setIdHashAlgorithm(Constants.ID_HASH_SHA1);
+        setIdHash("");
         setColorModel(COLORMODEL.C24bit.nameString());
         setPrefEncoding(RfbProto.EncodingTight);
         setScaleMode(ScaleType.MATRIX);
@@ -113,7 +119,7 @@ public class ConnectionBean extends AbstractConnectionBean implements Comparable
         setRedirectSdCard(false);
         setEnableSound(false);
         setViewOnly(false);
-        setLayoutMap("English (US)");
+		setLayoutMap("English (US)");
         c = context;
     }
     
@@ -138,6 +144,15 @@ public class ConnectionBean extends AbstractConnectionBean implements Comparable
         }
     }
     
+    public boolean IsReadyForConnection()
+    {
+    	return m_isReadyForConnection;
+    }
+    public boolean IsSaved()
+    {
+    	return m_saved;
+    }
+    
     ScaleType getScaleMode()
     {
         return ScaleType.valueOf(getScaleModeAsString());
@@ -146,6 +161,276 @@ public class ConnectionBean extends AbstractConnectionBean implements Comparable
     void setScaleMode(ScaleType value)
     {
         setScaleModeAsString(value.toString());
+    }
+    
+    static ConnectionBean createLoadFromUri(Uri dataUri, Context ctx)
+    {    
+    	ConnectionBean connection = new ConnectionBean(ctx);
+    	if (dataUri == null) return connection;
+		Database database = new Database(ctx);
+      	String host = dataUri.getHost();
+        int port = dataUri.getPort();
+    	// legacy custom data uri
+    	if (host != null && host.equals(Constants.CONNECTION))
+        {
+            if (connection.Gen_read(database.getReadableDatabase(), port))
+            {
+                MostRecentBean bean = bVNC.getMostRecent(database.getReadableDatabase());
+                if (bean != null)
+                {
+                    bean.setConnectionId(connection.get_Id());
+                    bean.Gen_update(database.getWritableDatabase());
+                    database.close();
+                }
+            }
+            return connection;
+        }           
+    	// search based on nickname
+    	SQLiteDatabase queryDb = database.getReadableDatabase();
+    	String connectionName = dataUri.getQueryParameter(Constants.PARAM_CONN_NAME);    	   
+    	Cursor nickCursor = null;
+    	if (connectionName != null)
+    		nickCursor = queryDb.query(GEN_TABLE_NAME, new String[] { GEN_FIELD__ID }, GEN_FIELD_NICKNAME  + " = ?", new String[] { connectionName }, null, null, null);
+    	if (nickCursor != null && nickCursor.moveToFirst())
+    	{
+    		// there could be many values, so we will just pick one
+    		Log.i(TAG, String.format(Locale.US, "Loding connection info from nickname: %s", connectionName));
+    		connection.Gen_populate(nickCursor, connection.Gen_columnIndices(nickCursor));
+    		nickCursor.close();
+    		database.close();
+    		return connection;
+    	}
+    	if (nickCursor != null)
+    		nickCursor.close();
+    	
+    	// search based on hostname
+    	Cursor hostCursor = null;
+    	if (host != null)
+    		hostCursor = queryDb.query(GEN_TABLE_NAME, new String[] { GEN_FIELD__ID }, GEN_FIELD_ADDRESS  + " = ?", new String[] { host }, null, null, null);
+    	if (hostCursor != null && hostCursor.moveToFirst())
+    	{
+    		Log.i(TAG, String.format(Locale.US, "Loding connection info from hostname: %s", host));
+    		connection.Gen_populate(hostCursor, connection.Gen_columnIndices(hostCursor));
+    		hostCursor.close();
+    		database.close();
+    		return connection;
+    	}
+    	if (hostCursor != null)
+    		hostCursor.close();
+		database.close();
+    	return connection;
+    }
+    
+    void parseFromUri(Uri dataUri)
+    {
+    	Log.i(TAG, "Parsing VNC URI.");
+    	if (dataUri == null) 
+    	{
+    		m_isReadyForConnection = false;
+    		m_saved = true;
+    		return;
+    	}
+    	String host = dataUri.getHost();    	
+    	if (host != null)
+    	{
+    		setAddress(host);
+    		// by default, the connection name is the host name
+    		String nickName = getNickname();
+    		if (Utils.isNullOrEmptry(nickName))
+    			setNickname(host);
+    		// default to use same host for ssh
+    		if (Utils.isNullOrEmptry(getSshServer()))
+    			setSshServer(host);
+    	}
+    	final int PORT_NONE = -1;
+        int port = dataUri.getPort();
+        if (port != PORT_NONE)
+        {
+        	if (!isValidPort(port))
+        		throw new IllegalArgumentException("The specified VNC port is not valid.");
+        	setPort(port);
+        }
+    	// handle legacy android-vnc-viewer parsing vnc://host:port/colormodel/password            
+        List<String> path = dataUri.getPathSegments();
+        if (path.size() >= 1) 
+        {
+            setColorModel(path.get(0));
+        }
+        if (path.size() >= 2) 
+        {
+            setPassword(path.get(1));
+        }
+    	// query based parameters
+        String connectionName = dataUri.getQueryParameter(Constants.PARAM_CONN_NAME);
+        if (connectionName != null)
+        	setNickname(connectionName);
+    	String username = dataUri.getQueryParameter(Constants.PARAM_USER);
+    	if (username != null)
+    		setUserName(username);
+    	String password = dataUri.getQueryParameter(Constants.PARAM_PWD);
+    	if (password != null) // constructor avoids null values 
+    		setPassword(password);
+    	setKeepPassword(false); // we should not store the password unless it is encrypted
+    	
+    	String securityTypeParam = dataUri.getQueryParameter(Constants.PARAM_SECTYPE);
+    	int secType = 0; //invalid
+    	if (securityTypeParam != null)
+    	{
+    		secType = Integer.parseInt(securityTypeParam); // throw if invalid
+    		switch (secType)
+    		{
+    		case Constants.SECTYPE_NONE:
+    		case Constants.SECTYPE_VNC:
+    			setConnectionType(Constants.CONN_TYPE_PLAIN);
+    			break;
+    		case Constants.SECTYPE_INTEGRATED_SSH:
+    			setConnectionType(Constants.CONN_TYPE_SSH);
+    			break;
+    		case Constants.SECTYPE_ULTRA:
+    			setConnectionType(Constants.CONN_TYPE_ULTRAVNC);
+    			break;
+    		case Constants.SECTYPE_TLS:
+    			setConnectionType(Constants.CONN_TYPE_ANONTLS);
+    			break;
+    		case Constants.SECTYPE_VENCRYPT:
+    			setConnectionType(Constants.CONN_TYPE_VENCRYPT);
+    			break;
+    		case Constants.SECTYPE_TUNNEL:
+    			setConnectionType(Constants.CONN_TYPE_STUNNEL);
+    			break;
+    		default:
+    			throw new IllegalArgumentException("The specified security type is invalid or unsupported.");   
+    		}
+    	}
+    	// ssh parameters
+    	String sshHost = dataUri.getQueryParameter(Constants.PARAM_SSH_HOST);
+    	if (sshHost != null) setSshServer(sshHost);
+    	String sshPortParam = dataUri.getQueryParameter(Constants.PARAM_SSH_PORT);
+    	if (sshPortParam != null)
+    	{
+    		int sshPort = Integer.parseInt(sshPortParam);
+    		if (!isValidPort(sshPort))
+        		throw new IllegalArgumentException("The specified SSH port is not valid.");
+    		setSshPort(sshPort);
+    	}
+    	String sshUser = dataUri.getQueryParameter(Constants.PARAM_SSH_USER);
+    	if (sshUser != null) setSshUser(sshUser);
+    	String sshPassword = dataUri.getQueryParameter(Constants.PARAM_SSH_PWD);
+    	if (sshPassword != null) setSshPassword(sshPassword);
+    	
+    	// security hashes
+       	String idHashAlgParam = dataUri.getQueryParameter(Constants.PARAM_ID_HASH_ALG);
+       	if (idHashAlgParam != null)
+       	{
+       		int idHashAlg = Integer.parseInt(idHashAlgParam); // throw if invalid
+       		switch (idHashAlg)
+       		{
+       		case Constants.ID_HASH_MD5:
+       		case Constants.ID_HASH_SHA1:
+       		case Constants.ID_HASH_SHA256:
+       			setIdHashAlgorithm(idHashAlg);
+       			break;
+       		default:
+    			// we are given a bad parameter
+       			throw new IllegalArgumentException("The specified hash algorithm is invalid or unsupported.");   
+       		}
+       	}
+       	
+    	String idHash = dataUri.getQueryParameter(Constants.PARAM_ID_HASH);
+    	if (idHash != null) setIdHash(idHash);
+    	
+    	// color model
+    	String colorModelParam = dataUri.getQueryParameter(Constants.PARAM_COLORMODEL);
+    	if (colorModelParam != null)
+    	{
+    		int colorModel = Integer.parseInt(colorModelParam); // throw if invalid
+    		switch (colorModel)
+    		{
+    		case Constants.COLORMODEL_BLACK_AND_WHITE:
+    			setColorModel(COLORMODEL.C2.nameString());
+    			break;
+    		case Constants.COLORMODEL_GREYSCALE:
+    			setColorModel(COLORMODEL.C4.nameString());
+    			break;
+    		case Constants.COLORMODEL_8_COLORS:
+    			setColorModel(COLORMODEL.C8.nameString());
+    			break;
+    		case Constants.COLORMODEL_64_COLORS:
+    			setColorModel(COLORMODEL.C64.nameString());
+    			break;
+    		case Constants.COLORMODEL_256_COLORS:
+    			setColorModel(COLORMODEL.C256.nameString());
+    			break;
+    			// use the best currently available model
+    		case Constants.COLORMODEL_16BIT:
+    			setColorModel(COLORMODEL.C24bit.nameString());
+    			break;
+    		case Constants.COLORMODEL_24BIT:
+    			setColorModel(COLORMODEL.C24bit.nameString());
+    			break;
+    		case Constants.COLORMODEL_32BIT:
+    			setColorModel(COLORMODEL.C24bit.nameString());
+    			break;
+    		default:
+    			// we are given a bad parameter
+    			throw new IllegalArgumentException("The specified color model is invalid or unsupported.");    
+    		}
+    	}
+    	String saveConnectionParam = dataUri.getQueryParameter(Constants.PARAM_SAVE_CONN);
+    	boolean saveConnection = true;
+    	if (saveConnectionParam != null)
+    		saveConnection = Boolean.parseBoolean(saveConnectionParam); // throw if invalid
+    	// if we are going to save the connection, we will do so here
+    	// it may make sense to confirm overwriting data but is probably unnecessary
+    	if (saveConnection)
+    	{
+    		Database database = new Database(c);
+    		save(database.getWritableDatabase());
+    		database.close();
+    		m_saved = true;
+    	}
+    	// we do not currently use API keys
+    	
+    	// check if we need to show data-entry screen
+    	// it may be possible to prompt for data later
+    	m_isReadyForConnection = true;
+    	if (Utils.isNullOrEmptry(getAddress()))
+    	{
+    		m_isReadyForConnection = false;
+    		Log.i(TAG, "URI missing remote address.");
+    	}
+    	int connType = getConnectionType();
+    	if (secType == Constants.SECTYPE_VNC || connType == Constants.CONN_TYPE_STUNNEL
+    			|| connType == Constants.CONN_TYPE_SSH)
+    	{
+    		// we can infer a password is required
+    		// while we could have implemented tunnel/ssh without one 
+    		// the user can supply a blank value and the server will not
+    		// request it and it is better to support the common case
+    		if (Utils.isNullOrEmptry(getPassword()))
+    		{
+    			m_isReadyForConnection = false;
+    			Log.i(TAG, "URI missing VNC password.");
+    		}
+    	}
+    	if (connType == Constants.CONN_TYPE_SSH)
+    	{
+    		// the below should not occur
+    		if (Utils.isNullOrEmptry(getSshServer()))
+    			m_isReadyForConnection = false;
+    		// we probably need either a username/password or a key
+    		// however the main screen doesn't validate this
+    	}
+    	// some other types probably require a username/password 
+    	// however main screen doesn't validate this
+    }
+    
+    boolean isValidPort(int port)
+    {
+    	final int PORT_MAX = 65535;
+    	if (port <= 0 || port > PORT_MAX)
+    		return false;
+    	return true;
     }
     
     @Override
@@ -161,8 +446,7 @@ public class ConnectionBean extends AbstractConnectionBean implements Comparable
             result += getNickname()+":";
         
         // If this is an VNC over SSH connection, add the SSH server:port in parentheses
-        // TODO: Switch away from numeric representation of position in list.
-        if (getConnectionType() == 1)
+        if (getConnectionType() == Constants.CONN_TYPE_SSH)
             result += "(" + getSshServer() + ":" + getSshPort() + ")" + ":";
 
         // Add the VNC server and port.

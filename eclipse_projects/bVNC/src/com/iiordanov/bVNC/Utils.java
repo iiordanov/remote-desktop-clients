@@ -22,8 +22,8 @@ package com.iiordanov.bVNC;
 
 import android.app.Activity;
 import android.app.ActivityManager;
-import android.app.AlertDialog;
 import android.app.ActivityManager.MemoryInfo;
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
@@ -107,6 +107,18 @@ public class Utils {
         }
         if (show)
             builder.show();
+    }
+    
+    /**
+     * Determine if a string is null or empty
+     * @param s The string to comapare
+     * @return true iff s is null or empty
+     */
+    public static boolean isNullOrEmptry(String s)
+    {
+    	if (s == null || s.equals(""))
+    		return true;
+    	return false;
     }
     
     /**

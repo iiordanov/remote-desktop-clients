@@ -43,11 +43,12 @@ public class Database extends SQLiteOpenHelper {
     static final int DBV_2_1_2 = 336;
     static final int DBV_2_1_3 = 360;
     static final int DBV_2_1_4 = 367;
-    
+    static final int DBV_2_1_5 = 368;
+		
     public final static String TAG = Database.class.toString();
     
     Database(Context context) {
-        super(context, "VncDatabase", null, DBV_2_1_4);
+        super(context, "VncDatabase", null, DBV_2_1_5);
     }
 
     /* (non-Javadoc)
@@ -227,12 +228,20 @@ public class Database extends SQLiteOpenHelper {
                     +AbstractConnectionBean.GEN_FIELD_REDIRECTSDCARD + " BOOLEAN DEFAULT FALSE");
             oldVersion = DBV_2_1_3;
         }
-        
-        if (oldVersion == DBV_2_1_3) {
+		if (oldVersion == DBV_2_1_3) {
             Log.i(TAG,"Doing upgrade from 336 to 360");
             db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
                     +AbstractConnectionBean.GEN_FIELD_LAYOUTMAP + " TEXT DEFAULT 'English (US)'");
-            oldVersion = DBV_2_1_4;
+            oldVersion = DBV_2_1_4;        
+		}
+        if (oldVersion == DBV_2_1_4)
+        {
+            Log.i(TAG,"Doing upgrade from 367 to 368");
+            db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
+                    +AbstractConnectionBean.GEN_FIELD_IDHASHALGORITHM + " INTEGER");
+            db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
+                    +AbstractConnectionBean.GEN_FIELD_IDHASH + " TEXT");
+        	oldVersion = DBV_2_1_5;
         }
     }
 }
