@@ -164,7 +164,7 @@ public class SecureTunnel implements X509TrustManager
 		{
 			// bVNC logic is to message activity to display dialog if necessary and end the activity if rejected
 			Log.w(TAG, "Remote certificate is new or does not match expected value.");
-			Message msg = Message.obtain(m_messageBus, Constants.DIAG_TUNNEL_CERT, remoteCertificate);
+			Message msg = Message.obtain(m_messageBus, Constants.DIALOG_STUNNEL_CERT, remoteCertificate);
 			m_messageBus.sendMessage(msg);
 		}	
 		else

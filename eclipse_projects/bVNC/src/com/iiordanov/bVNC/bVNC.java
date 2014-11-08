@@ -21,20 +21,16 @@
 
 package com.iiordanov.bVNC;
 
-import java.util.ArrayList;
-import java.util.Collections;
-
 import android.app.Activity;
-import android.app.ActivityManager.MemoryInfo;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.app.ActivityManager.MemoryInfo;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Point;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -46,7 +42,6 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
-import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -55,12 +50,18 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
+import android.util.Log;
 
+import com.iiordanov.bVNC.Utils;
 import com.iiordanov.bVNC.dialogs.AutoXCustomizeDialog;
 import com.iiordanov.bVNC.dialogs.ImportExportDialog;
 import com.iiordanov.bVNC.dialogs.IntroTextDialog;
 import com.iiordanov.bVNC.dialogs.RepeaterDialog;
 import com.iiordanov.pubkeygenerator.GeneratePubkeyActivity;
+
+import java.util.ArrayList;
+import java.util.Collections;
 
 /**
  * bVNC is the Activity for setting up VNC connections.
@@ -151,8 +152,7 @@ public class bVNC extends Activity implements MainConfiguration {
         repeaterButton = (Button) findViewById(R.id.buttonRepeater);
         repeaterEntry = (LinearLayout) findViewById(R.id.repeaterEntry);
         repeaterButton.setOnClickListener(new View.OnClickListener() {    
-            @SuppressWarnings("deprecation")
-			@Override
+            @Override
             public void onClick(View v) {
                 showDialog(R.layout.repeater_dialog);
             }
@@ -179,8 +179,7 @@ public class bVNC extends Activity implements MainConfiguration {
         // Define what happens when somebody clicks on the customize auto X session dialog.
         buttonCustomizeX11Vnc = (Button) findViewById(R.id.buttonCustomizeX11Vnc);
         buttonCustomizeX11Vnc.setOnClickListener(new View.OnClickListener() {    
-            @SuppressWarnings("deprecation")
-			@Override
+            @Override
             public void onClick(View v) {
                 bVNC.this.updateSelectedFromView();
                 showDialog(R.layout.auto_x_customize);
@@ -221,7 +220,7 @@ public class bVNC extends Activity implements MainConfiguration {
                         checkboxKeepPassword.setChecked(false);
                     ipText.setHint(R.string.address_caption_hint);
                     textUsername.setHint(R.string.username_hint_vencrypt);
-                } 
+                }
             }
 
             @Override
@@ -244,8 +243,7 @@ public class bVNC extends Activity implements MainConfiguration {
         
         // Define what happens when the Import/Export button is pressed.
         ((Button)findViewById(R.id.buttonImportExport)).setOnClickListener(new View.OnClickListener() {
-            @SuppressWarnings("deprecation")
-			@Override
+            @Override
             public void onClick(View v) {
                 showDialog(R.layout.importexport);
             }
@@ -383,8 +381,7 @@ public class bVNC extends Activity implements MainConfiguration {
     /* (non-Javadoc)
      * @see android.app.Activity#onOptionsItemSelected(android.view.MenuItem)
      */
-    @SuppressWarnings("deprecation")
-	@Override
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId())
         {

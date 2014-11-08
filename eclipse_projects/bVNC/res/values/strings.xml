@@ -88,14 +88,14 @@
 <string name="connection_type_ultravnc">UltraVNC</string>
 <string name="connection_type_vnc_over_ssl">Secure VNC over AnonTLS</string>
 <string name="connection_type_vnc_over_vencrypt">Secure VNC over VeNCrypt</string>
-<string name="connection_type_vnc_over_tunnel">VNC over Secure Tunnel</string>
+<string name="connection_type_vnc_over_stunnel">Secure VNC over SSL Tunnel</string>
 <string-array name="connection_type">
     <item>@string/connection_type_vnc</item>
     <item>@string/connection_type_vnc_over_ssh</item>
     <item>@string/connection_type_ultravnc</item>
     <item>@string/connection_type_vnc_over_ssl</item>
     <item>@string/connection_type_vnc_over_vencrypt</item>
-    <item>@string/connection_type_vnc_over_tunnel</item>
+    <item>@string/connection_type_vnc_over_stunnel</item>
 </string-array>
 <string name="control_check">Ctrl</string>
 <string name="copy_list_button">Copy List</string>
@@ -158,8 +158,7 @@
 <string name="info_progress_dialog_aborted">Connection aborted!</string>
 <string name="info_update_color_model_to">"Updating Color Model to "</string>
 <string name="info_encoding">" encoding, "</string>
-<string name="info_cert_tunnel">Do you want to connect to the host having the following certificate?\nIssued to:\n%1$s\nIssued by:\n%2$s\nValid from:\n%3$s\nValid until:\n%4$s\nThumbprint: %5$s\nNote: bVNC does not verify certificate authorities or check for certificate revocation.</string>
-
+<string name="info_cert_tunnel">Do you want to connect to the host identified by the following certificate?\nIssued to:\n%1$s\nIssued by:\n%2$s\nValid from:\n%3$s\nValid until:\n%4$s\nThumbprint: %5$s\nNote: bVNC does not verify certificate authorities or check for certificate revocation.</string>
 <string name="intro_close">Close</string>
 <string name="intro_dont_show">Don\'t show again</string>
 <string name="intro_header"></string>

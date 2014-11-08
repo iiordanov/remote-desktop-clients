@@ -87,12 +87,14 @@
 <string name="connection_type_ultravnc">UltraVNC</string>
 <string name="connection_type_vnc_over_ssl">Secure VNC через AnonTLS</string>
 <string name="connection_type_vnc_over_vencrypt">Secure VNC через VeNCrypt</string>
+<string name="connection_type_vnc_over_stunnel">Secure VNC через SSL Tunnel</string>
 <string-array name="connection_type">
     <item>@string/connection_type_vnc</item>
     <item>@string/connection_type_vnc_over_ssh</item>
     <item>@string/connection_type_ultravnc</item>
     <item>@string/connection_type_vnc_over_ssl</item>
     <item>@string/connection_type_vnc_over_vencrypt</item>
+    <item>@string/connection_type_vnc_over_stunnel</item>
 </string-array>
 <string name="control_check">Ctrl</string>
 <string name="copy_list_button">Копировать список</string>
@@ -104,6 +106,7 @@
 <string name="disconnect">Отключить</string>
 <string name="enable_sound">Включить звук</string>
 <string name="error_no_user_hostname">Введите как минимум имя пользователя и имя хоста или его IP-адрес.</string>
+<string name="error_uri_noinfo_nosave">Недостаточная информация, не может подключиться.</string>
 <string name="error_vnc_authentication">Неуспешная VNC авторизация! Проверьте VNC пароль (и имя пользователя, если оно используется).</string>
 <string name="error_out_of_memory">Не удалось выделить достаточное количество памяти, чтобы отобразить удаленный экран. Попробуйте перезапустить приложение или перезагрузить устройство. Вы также можете попробовать уменьшить размер удаленного рабочего стола в настройках приложения</string>
 <string name="error_ovirt_unable_to_connect">Не удалось подключиться или авторизироваться, пожалуйста проверьте адрес сервера, имя пользователя, пароль, сертификат и объект.</string>
@@ -148,12 +151,13 @@
 <string name="info_ssh_key_fingerprint">"Ключ хоста: "</string>
 <string name="info_ssh_key_fingerprint_identical">\n\nВы можете убедиться, что он совпадает с известным отпечатком сертификата сервера для предотвращения атак типа \"Man in the middle\".</string>
 <string name="info_cert_signatures_identical">\n\nВы можете убедиться, что информация соответствует сертификату сервера для предотвращения атак типа \"Man in the middle\".</string>
-<string name="info_progress_dialog_connecting">Подключение...</string>
-<string name="info_progress_dialog_establishing">Установка связи.\nПожалуйста подождите...</string>
-<string name="info_progress_dialog_downloading">Загрузка первого кадра.\nПожалуйста подождите...</string>
+<string name="info_progress_dialog_connecting">Подключение&#8230;</string>
+<string name="info_progress_dialog_establishing">Установка связи.\nПожалуйста подождите&#8230;</string>
+<string name="info_progress_dialog_downloading">Загрузка первого кадра.\nПожалуйста подождите&#8230;</string>
 <string name="info_progress_dialog_aborted">Соединение прервано!</string>
 <string name="info_update_color_model_to">"Изменение цветового режима на "</string>
 <string name="info_encoding">" шифрование, "</string>
+<string name="info_cert_tunnel">Вы хотите подключиться к хосту определены следующим сертификатом?\nIssued to:\n%1$s\nIssued by:\n%2$s\nValid from:\n%3$s\nValid until:\n%4$s\nThumbprint:%5$s\nПримечание: bVNC не проверяет центры сертификации или регистрации аннулирования сертификата.</string>
 <string name="intro_close">Закрыть</string>
 <string name="intro_dont_show">Не показывать снова.</string>
 <string name="intro_header"></string>

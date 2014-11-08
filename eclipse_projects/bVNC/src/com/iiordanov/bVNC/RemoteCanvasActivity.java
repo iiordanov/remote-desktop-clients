@@ -158,22 +158,18 @@ public class RemoteCanvasActivity extends Activity implements OnKeyListener {
         connection = null;
         
         Uri data = i.getData();
-        if ((data != null) && (data.getScheme().equals("vnc")) || !Utils.isNullOrEmptry(i.getType())) 
-        {
+        if ((data != null) && (data.getScheme().equals("vnc")) || !Utils.isNullOrEmptry(i.getType())) {
         	connection = ConnectionBean.createLoadFromUri(data, this);
             connection.parseFromUri(data);                       
-            if (connection.IsSaved())
+            if (connection.IsSaved()) {
             	bVNC.saveAndWriteRecent(connection, database, true);
+            }
             // we need to save the connection to display the loading screen, so otherwise we should exit
-            if (!connection.IsReadyForConnection())
-            {
-            	if (!connection.IsSaved())
-            	{
+            if (!connection.IsReadyForConnection()) {
+            	if (!connection.IsSaved()) {
             		Log.i(TAG, "Exiting - Insufficent information to connect and connection was not saved.");
             		Toast.makeText(this, getString(R.string.error_uri_noinfo_nosave), Toast.LENGTH_LONG).show();;
-            	}
-            	else
-            	{
+            	} else {
             		// launch bVNC activity
             		Log.i(TAG, "Insufficent information to connect, showing connection dialog.");
             		Intent bVncIntent = new Intent(this, bVNC.class);
@@ -184,7 +180,7 @@ public class RemoteCanvasActivity extends Activity implements OnKeyListener {
             }
             	
         } else {
-        	connection =  new ConnectionBean(this);
+        	connection = new ConnectionBean(this);
             Bundle extras = i.getExtras();
 
             if (extras != null) {
@@ -973,8 +969,7 @@ public class RemoteCanvasActivity extends Activity implements OnKeyListener {
         return R.id.itemInputTouchPanZoomMouse;
     }
 
-    @SuppressWarnings("deprecation")
-	@Override
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         canvas.getKeyboard().setAfterMenu(true);
         switch (item.getItemId()) {

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="com.iiordanov.bVNC" android:installLocation="auto"
-          android:versionCode="3680" android:versionName="v3.6.8">
+          android:versionCode="3690" android:versionName="v3.6.9">
 
     <uses-sdk android:minSdkVersion="8" android:targetSdkVersion="10"></uses-sdk>
     <uses-permission android:name="android.permission.INTERNET"></uses-permission>
@@ -18,7 +18,7 @@
         android:smallScreens="true"
         android:anyDensity="true"/>
 		
-    <application android:icon="@drawable/icon" android:allowBackup="true" android:label="bVNC" android:theme="@style/AppTheme" >
+    <application android:icon="@drawable/icon" android:label="bVNC" android:allowBackup="false" android:debuggable="false" android:theme="@style/AppTheme" >
                 <activity android:label="@string/app_name"
                           android:name="bVNC"
                           android:screenOrientation="unspecified"

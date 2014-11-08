@@ -236,7 +236,7 @@ public class Database extends SQLiteOpenHelper {
 		}
         if (oldVersion == DBV_2_1_4)
         {
-            Log.i(TAG,"Doing upgrade from 367 to 368");
+            Log.i(TAG,"Doing upgrade from 367 to 369");
             db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
                     +AbstractConnectionBean.GEN_FIELD_IDHASHALGORITHM + " INTEGER");
             db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "

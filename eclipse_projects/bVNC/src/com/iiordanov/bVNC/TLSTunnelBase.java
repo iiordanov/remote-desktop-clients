@@ -55,19 +55,16 @@ public TLSTunnelBase (Socket sock_) {
 						     sock.getPort(), true);
 
       sslsock.setTcpNoDelay(true);
+      sslsock.setSoTimeout(Constants.SOCKET_CONN_TIMEOUT);
 
       setParam (sslsock);
 
-      // this can hang without a timeout
-      sslsock.setSoTimeout(Constants.SOCKET_CONN_TIMEOUT);
       /* Not neccessary - just ensures that we know what cipher
        * suite we are using for the output of toString()
        */
-      sslsock.startHandshake();
+      sslsock.startHandshake ();
 
       Log.i(TAG, "TLS done");
-      // restore lack of timeout as per legacy code
-      sslsock.setSoTimeout(0);
       
       cc.setStreams (sslsock.getInputStream(), sslsock.getOutputStream());
     }

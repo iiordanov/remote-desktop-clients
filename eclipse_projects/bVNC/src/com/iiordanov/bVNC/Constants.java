@@ -79,7 +79,7 @@ public class Constants {
     public static final int DIALOG_RDP_CERT        = 3;
     public static final int SPICE_CONNECT_SUCCESS  = 4;
     public static final int SPICE_CONNECT_FAILURE  = 5;
-    public static final int DIAG_TUNNEL_CERT  	   = 6;
+    public static final int DIALOG_STUNNEL_CERT    = 6;
 
     public static final int EXTRA_KEYS_OFF         = 0;
     public static final int EXTRA_KEYS_ON          = 1;

@@ -31,6 +31,7 @@
 package com.iiordanov.bVNC;
 
 import java.io.IOException;
+import java.net.Socket;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateEncodingException;
@@ -81,7 +82,8 @@ import com.iiordanov.bVNC.input.RemoteSpicePointer;
 import com.iiordanov.bVNC.input.RemoteVncKeyboard;
 import com.iiordanov.bVNC.input.RemoteVncPointer;
 
-@SuppressWarnings("deprecation")
+import com.iiordanov.tigervnc.vncviewer.CConn;
+
 public class RemoteCanvas extends ImageView implements LibFreeRDP.UIEventListener, LibFreeRDP.EventListener {
     private final static String TAG = "VncCanvas";
     
@@ -98,10 +100,10 @@ public class RemoteCanvas extends ImageView implements LibFreeRDP.UIEventListene
     // VNC protocol connection
     public RfbConnectable rfbconn   = null;
     private RfbProto rfb            = null;
-    //private CConn cc                = null;
+    private CConn cc                = null;
     private RdpCommunicator rdpcomm = null;
     private SpiceCommunicator spicecomm = null;
-    //private Socket sock             = null;
+    private Socket sock             = null;
     
     boolean maintainConnection = true;
     
@@ -410,22 +412,17 @@ public class RemoteCanvas extends ImageView implements LibFreeRDP.UIEventListene
         
         String address = getAddress();
         int vncPort = getPort(connection.getPort());
-        try 
-        {
+        try {
         	// if necessary, initalize secure tunnel
-        	if (connection.getConnectionType() == Constants.CONN_TYPE_STUNNEL)
-        	{
+        	if (connection.getConnectionType() == Constants.CONN_TYPE_STUNNEL) {
         		Log.i(TAG, "Creating secure tunnel.");
         		SecureTunnel tunnel = new SecureTunnel(connection, handler);
         		tunnel.setup();
-        		if (!tunnel.isIdentified())
-        		{
+        		if (!tunnel.isIdentified()) {
         			synchronized(this) { wait(); }
         		}
         		rfb = new RfbProto(decoder, this, address, vncPort, tunnel.getSocket(), connection.getPrefEncoding(), connection.getViewOnly(), connection.getUseLocalCursor());
-        	}
-        	else
-        	{
+        	} else {
         		rfb = new RfbProto(decoder, this, address, vncPort, connection.getPrefEncoding(), connection.getViewOnly(), connection.getUseLocalCursor());
         	}
             Log.v(TAG, "Connected to server: " + address + " at port: " + vncPort);
@@ -491,7 +488,7 @@ public class RemoteCanvas extends ImageView implements LibFreeRDP.UIEventListene
      * Starts a VeNCrypt connection using the TigerVNC backend.
      * @throws Exception
      */
-    /*private void startVencryptConnection() throws Exception {
+    private void startVencryptConnection() throws Exception {
         cc = new CConn(RemoteCanvas.this, sock, null, false, connection);
         rfbconn = cc;
         pointer = new RemoteVncPointer (rfbconn, RemoteCanvas.this, handler);
@@ -517,7 +514,7 @@ public class RemoteCanvas extends ImageView implements LibFreeRDP.UIEventListene
             pd.dismiss();
         
         cc.processProtocol();
-    }*/
+    }
     
     
     /**
@@ -1454,7 +1451,7 @@ public class RemoteCanvas extends ImageView implements LibFreeRDP.UIEventListene
                 Bundle s = (Bundle)msg.obj;
                 validateRdpCert (s.getString("subject"), s.getString("issuer"), s.getString("fingerprint"));
                 break;
-            case Constants.DIAG_TUNNEL_CERT:
+            case Constants.DIALOG_STUNNEL_CERT:
             	validateTunnelCert((X509Certificate)msg.obj);
             	break;
             case Constants.SPICE_CONNECT_SUCCESS:

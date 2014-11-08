@@ -22,23 +22,22 @@ package com.iiordanov.bVNC;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.InetSocketAddress;
 import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.util.Arrays;
 
-import com.trilead.ssh2.Connection;
-import com.trilead.ssh2.ConnectionInfo;
-import com.trilead.ssh2.Session;
-import com.trilead.ssh2.InteractiveCallback;
-import com.trilead.ssh2.KnownHosts;
-import com.iiordanov.pubkeygenerator.PubkeyUtils;
-
 import android.content.Context;
 import android.util.Base64;
 import android.util.Log;
+
+import com.iiordanov.pubkeygenerator.PubkeyUtils;
+import com.trilead.ssh2.Connection;
+import com.trilead.ssh2.ConnectionInfo;
+import com.trilead.ssh2.InteractiveCallback;
+import com.trilead.ssh2.KnownHosts;
+import com.trilead.ssh2.Session;
 
 /**
  * @author Iordan K Iordanov
@@ -53,6 +52,9 @@ public class SSHConnection implements InteractiveCallback {
     private ConnectionInfo connectionInfo;
     private String serverHostKey;
     private Session session;
+    private boolean passwordAuth = false;
+    private boolean keyboardInteractiveAuth = false;
+    private boolean pubKeyAuth = false;
     private KeyPair    kp;
     private PrivateKey privateKey;
     private PublicKey  publicKey;
@@ -64,9 +66,11 @@ public class SSHConnection implements InteractiveCallback {
     private String vncpassword;
     private String passphrase;
     private String savedServerHostKey;
+    private int idHashAlg;
+    private String idHash; // URI alternative to key
+    private String savedIdHash; // alternative to key
     private String targetAddress;
     private int sshPort;
-    private int targetPort;
     private boolean usePubKey;
     private String sshPrivKey;
     private boolean useSshRemoteCommand;
@@ -90,7 +94,8 @@ public class SSHConnection implements InteractiveCallback {
         vncpassword = conn.getPassword();
         passphrase = conn.getSshPassPhrase();
         savedServerHostKey = conn.getSshHostKey();
-        targetPort = conn.getPort();
+        idHashAlg = conn.getIdHashAlgorithm();
+        savedIdHash = conn.getIdHash();
         targetAddress = conn.getAddress();
         usePubKey = conn.getUseSshPubKey();
         sshPrivKey = conn.getSshPrivKey();
@@ -108,6 +113,9 @@ public class SSHConnection implements InteractiveCallback {
     
     String getServerHostKey() {
         return serverHostKey;
+    }
+    String getIdHash() {
+        return idHash;
     }
     
     /**
@@ -264,6 +272,15 @@ public class SSHConnection implements InteractiveCallback {
     }
 
     private boolean verifyHostKey () {
+    	// first check data against URI hash
+    	try {
+    		byte[] rawKey = connectionInfo.serverHostKey;
+    		boolean isValid = SecureTunnel.isSignatureEqual(idHashAlg, savedIdHash, rawKey);
+    		if (isValid) {
+    			Log.i(TAG, "Validated against provided hash.");
+    			return true;
+    		}
+    	} catch (Exception ex) { }
         // Because JSch returns the host key base64 encoded, and trilead ssh returns it not base64 encoded,
         // we compare savedHostKey to serverHostKey both base64 encoded and not.
         return savedServerHostKey.equals(serverHostKey) ||

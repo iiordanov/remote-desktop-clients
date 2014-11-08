@@ -23,7 +23,6 @@ package com.iiordanov.bVNC;
 
 import java.net.Socket;
 import java.util.ArrayList;
-
 import javax.net.ssl.SSLSocket;
 
 import android.util.Log;
@@ -42,8 +41,7 @@ public TLSTunnel (Socket sock_) {
 
     supported = sock.getSupportedCipherSuites ();
 
-    for (int i = 0; i < supported.length; i++) 
-    {
+    for (int i = 0; i < supported.length; i++) {
       if (supported[i].matches (".*DH_anon.*")) {
           enabled.add (supported[i]);
           Log.i(TAG, "Adding cipher: " + supported[i]);

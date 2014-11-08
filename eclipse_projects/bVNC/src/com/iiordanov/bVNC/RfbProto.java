@@ -1458,13 +1458,6 @@ class RfbProto implements RfbConnectable {
   // clientRedirect() migrates the client to another host/port
   public void clientRedirect(int port, String host, String x509subject) {
       try {
-          // depending on the intent, we could reestablish a secure tunnel. However this feature doesn't 
-          // seem to be used very often and potentially has other issues (like certificate revalidation).
-    	  if (sock instanceof SSLSocket)
-    	  {
-    		  Log.w(TAG, "Ignoring client redirect of Secure Tunnel.");
-    		  return;
-    	  }
           closeSocket();
           setParameters(decoder, canvas, host, port, null, preferredEncoding, viewOnly, useLocalCursor);
           writeClientInit();
