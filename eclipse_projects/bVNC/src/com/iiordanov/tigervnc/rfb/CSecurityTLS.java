@@ -249,7 +249,7 @@ public class CSecurityTLS extends CSecurity {
 
             synchronized (vncCanvas) {
                 // Block indefinitely until x509 cert is matched to a saved one or the user accepts it.
-                while (!vncCanvas.certificateAccepted) {
+                while (!vncCanvas.isCertificateAccepted()) {
                     try {
                         vncCanvas.wait();
                     } catch (InterruptedException e1) { e1.printStackTrace(); }

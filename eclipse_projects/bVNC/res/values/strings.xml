@@ -133,7 +133,7 @@
 <string name="error_connection_failed">Connection failed.</string>
 <string name="error_x509_could_not_generate_signature">Could not generate SHA1 or MD5 signature of certificate. No SHA1/MD5 algorithm found.</string>
 <string name="error_x509_could_not_generate_encoding">Certificate encoding could not be generated.</string>
-<string name="error_cert_does_not_match">ERROR: The saved x509 certificate does not match the current server certificate! This could be a man-in-the-middle attack. If you are aware of the key change, delete and recreate the connection.</string>
+<string name="warning_cert_does_not_match">WARNING: The saved x509 certificate or passed in signature does not match the current server certificate! This could be a man-in-the-middle attack. If you are aware of the key change you may proceed. </string>
 <string name="export_settings">Export</string>
 <string name="export_settings_path"></string>
 <string name="enter_text_title">Enter Text to Send</string>
@@ -158,7 +158,7 @@
 <string name="info_progress_dialog_aborted">Connection aborted!</string>
 <string name="info_update_color_model_to">"Updating Color Model to "</string>
 <string name="info_encoding">" encoding, "</string>
-<string name="info_cert_tunnel">Do you want to connect to the host identified by the following certificate?\nIssued to:\n%1$s\nIssued by:\n%2$s\nValid from:\n%3$s\nValid until:\n%4$s\nThumbprint: %5$s\nNote: bVNC does not verify certificate authorities or check for certificate revocation.</string>
+<string name="info_cert_tunnel">Do you want to connect to the host identified by the following certificate?\n\nFingerprint: %1$s\n\nIssued to:\n%2$s\n\nIssued by:\n%3$s\n\nValid from:\n%4$s\n\nValid until:\n%5$s\n\nNote: bVNC does not verify certificate authorities or check for certificate revocation.</string>
 <string name="intro_close">Close</string>
 <string name="intro_dont_show">Don\'t show again</string>
 <string name="intro_header"></string>

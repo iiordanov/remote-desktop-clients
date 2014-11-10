@@ -103,10 +103,6 @@ interface IConnectionBean {
     @FieldAccessor
     String getPassword();
     @FieldAccessor
-    int getIdHashAlgorithm();
-    @FieldAccessor
-    String getIdHash();
-    @FieldAccessor
     String getColorModel();
     @FieldAccessor
     int getPrefEncoding();

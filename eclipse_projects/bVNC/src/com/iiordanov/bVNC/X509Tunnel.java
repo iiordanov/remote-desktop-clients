@@ -114,7 +114,7 @@ public class X509Tunnel extends TLSTunnelBase {
 
               synchronized (canvas) {
                   // Block indefinitely until the x509 cert is accepted.
-                  while (!canvas.certificateAccepted) {
+                  while (!canvas.isCertificateAccepted()) {
                       try {
                           canvas.wait();
                       } catch (InterruptedException e1) { e1.printStackTrace(); }

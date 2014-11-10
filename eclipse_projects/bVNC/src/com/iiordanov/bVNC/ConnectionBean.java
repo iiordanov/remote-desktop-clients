@@ -46,6 +46,8 @@ public class ConnectionBean extends AbstractConnectionBean implements Comparable
     static Context c = null;
     protected boolean m_isReadyForConnection = true; // saved connections are OK
     protected boolean m_saved = false;
+    private int idHashAlgorithm;
+    private String idHash;
     
     static final NewInstance<ConnectionBean> newInstance=new NewInstance<ConnectionBean>() {
         public ConnectionBean get() { return new ConnectionBean(c); }
@@ -91,8 +93,6 @@ public class ConnectionBean extends AbstractConnectionBean implements Comparable
         setCaCertPath("");
         setTlsPort(-1);
         setCertSubject("");
-        setIdHashAlgorithm(Constants.ID_HASH_SHA1);
-        setIdHash("");
         setColorModel(COLORMODEL.C24bit.nameString());
         setPrefEncoding(RfbProto.EncodingTight);
         setScaleMode(ScaleType.MATRIX);
@@ -121,8 +121,28 @@ public class ConnectionBean extends AbstractConnectionBean implements Comparable
         setViewOnly(false);
 		setLayoutMap("English (US)");
         c = context;
+        
+        // These two are not saved in the database since we always save the cert data. 
+        setIdHashAlgorithm(Constants.ID_HASH_SHA1);
+        setIdHash("");
     }
     
+    public int getIdHashAlgorithm() {
+        return idHashAlgorithm;
+    }
+
+    public void setIdHashAlgorithm(int idHashAlgorithm) {
+        this.idHashAlgorithm = idHashAlgorithm;
+    }
+
+    public String getIdHash() {
+        return idHash;
+    }
+
+    public void setIdHash(String idHash) {
+        this.idHash = idHash;
+    }
+
     boolean isNew()
     {
         return get_Id()== 0;
@@ -144,11 +164,11 @@ public class ConnectionBean extends AbstractConnectionBean implements Comparable
         }
     }
     
-    public boolean IsReadyForConnection()
+    public boolean isReadyForConnection()
     {
     	return m_isReadyForConnection;
     }
-    public boolean IsSaved()
+    public boolean isSaved()
     {
     	return m_saved;
     }

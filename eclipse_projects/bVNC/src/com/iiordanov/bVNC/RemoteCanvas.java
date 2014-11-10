@@ -138,7 +138,7 @@ public class RemoteCanvas extends ImageView implements LibFreeRDP.UIEventListene
     // This variable indicates whether or not the user has accepted an untrusted
     // security certificate. Used to control progress while the dialog asking the user
     // to confirm the authenticity of a certificate is displayed.
-    public boolean certificateAccepted = false;
+    private boolean certificateAccepted = false;
     
     /*
      * Position of the top left portion of the <i>visible</i> part of the screen, in
@@ -409,22 +409,14 @@ public class RemoteCanvas extends ImageView implements LibFreeRDP.UIEventListene
      */
     private void startVncConnection() throws Exception {
         Log.i(TAG, "Connecting to: " + connection.getAddress() + ", port: " + connection.getPort());
-        
         String address = getAddress();
         int vncPort = getPort(connection.getPort());
+        boolean sslTunneled = connection.getConnectionType() == Constants.CONN_TYPE_STUNNEL;
+
         try {
-        	// if necessary, initalize secure tunnel
-        	if (connection.getConnectionType() == Constants.CONN_TYPE_STUNNEL) {
-        		Log.i(TAG, "Creating secure tunnel.");
-        		SecureTunnel tunnel = new SecureTunnel(connection, handler);
-        		tunnel.setup();
-        		if (!tunnel.isIdentified()) {
-        			synchronized(this) { wait(); }
-        		}
-        		rfb = new RfbProto(decoder, this, address, vncPort, tunnel.getSocket(), connection.getPrefEncoding(), connection.getViewOnly(), connection.getUseLocalCursor());
-        	} else {
-        		rfb = new RfbProto(decoder, this, address, vncPort, connection.getPrefEncoding(), connection.getViewOnly(), connection.getUseLocalCursor());
-        	}
+            rfb = new RfbProto(decoder, this, address, vncPort, connection.getPrefEncoding(), connection.getViewOnly(),
+                                connection.getUseLocalCursor(), sslTunneled, connection.getIdHashAlgorithm(),
+                                connection.getIdHash(), connection.getSshHostKey());
             Log.v(TAG, "Connected to server: " + address + " at port: " + vncPort);
             rfb.initializeAndAuthenticate(connection.getUserName(), connection.getPassword(),
                                           connection.getUseRepeater(), connection.getRepeaterId(),
@@ -1451,9 +1443,6 @@ public class RemoteCanvas extends ImageView implements LibFreeRDP.UIEventListene
                 Bundle s = (Bundle)msg.obj;
                 validateRdpCert (s.getString("subject"), s.getString("issuer"), s.getString("fingerprint"));
                 break;
-            case Constants.DIALOG_STUNNEL_CERT:
-            	validateTunnelCert((X509Certificate)msg.obj);
-            	break;
             case Constants.SPICE_CONNECT_SUCCESS:
                 if (pd != null && pd.isShowing()) {
                     pd.dismiss();
@@ -1476,192 +1465,127 @@ public class RemoteCanvas extends ImageView implements LibFreeRDP.UIEventListene
     };
     
     /**
-     * If there is a saved cert, checks the one given against it. Otherwise, presents the
+     * If there is a saved cert, checks the one given against it. If a signature was passed in
+     * and no saved cert, then check that signature. Otherwise, presents the
      * given cert's signature to the user for approval.
+     * 
+     * The saved data must always win over any passed-in URI data
+     * 
      * @param cert the given cert.
      */
     private void validateX509Cert (final X509Certificate cert) {
 
-        // If there has been no key approved by the user previously, ask for approval, else
-        // check the saved key against the one we are presented with.
-    	
-    	// the logic is potentially complicated if we have saved data and URI data which may differ
-    	// try to verify first, otherwise prompt 
-    	// the message could also perhaps be clarified
-    	
-    	// first check URI hash
-    	
-    	String idHash = null;
-    	byte[] certData = null;
-    	boolean isSigEqual = false;
-		try
-		{
-			certData = cert.getEncoded();
-			idHash = SecureTunnel.computeSignatureByAlgorithm(connection.getIdHashAlgorithm(), certData);
-			isSigEqual = SecureTunnel.isSignatureEqual(connection.getIdHashAlgorithm(), connection.getIdHash(), certData);
-		}
-		catch (Exception ex)
-		{
-			ex.printStackTrace();
-            showFatalMessageAndQuit(getContext().getString(R.string.error_x509_could_not_generate_signature));
-            return;
-		}   
-		final String idHashFinal = idHash;
-		
-    	if (isSigEqual)
-    	{
-    		Log.i(TAG, "Certificate validated from URI data.");
-    		certificateAccepted = true;
-    		synchronized (RemoteCanvas.this) 
-    		{
-    			RemoteCanvas.this.notifyAll();
-    		}
-    		return;
-    	}
-    	// check saved cert
-    	if (connection.getSshHostKey().equals(Base64.encodeToString(certData, Base64.DEFAULT))) 
-    	{
-    		Log.i(TAG, "Certificate validated from saved key.");
-    		certificateAccepted = true;
-    		synchronized (RemoteCanvas.this) 
-    		{
-    			RemoteCanvas.this.notifyAll();
-    		}
-    		return;
-    	}
-    	// cert is new or mismatch - could quit if above were set and is a mismatch
-        	
-         
-        // Show a dialog with the key signature for approval.
-             DialogInterface.OnClickListener signatureNo = new DialogInterface.OnClickListener() {
-            	 @Override
-            	 public void onClick(DialogInterface dialog, int which) {
-            		 // We were told not to continue, so stop the activity
-            		 closeConnection();
-            		 ((Activity) getContext()).finish();
-            	 }
-             };
-             DialogInterface.OnClickListener signatureYes = new DialogInterface.OnClickListener() {
-            	 @Override
-            	 public void onClick(DialogInterface dialog, int which) {
-            		 // We were told to go ahead with the connection, so save the key into the database.
-            		 String certificate = null;
-            		 try {
-            			 certificate = Base64.encodeToString(cert.getEncoded(), Base64.DEFAULT);
-            		 } catch (CertificateEncodingException e) {
-            			 e.printStackTrace();
-            			 showFatalMessageAndQuit(getContext().getString(R.string.error_x509_could_not_generate_encoding));
-            		 }
-            		 connection.setIdHash(idHashFinal);
-            		 connection.setSshHostKey(certificate);
-            		 connection.save(database.getWritableDatabase());
-            		 database.close();
-            		 // Indicate the certificate was accepted.
-            		 certificateAccepted = true;
-            		 synchronized (RemoteCanvas.this) {
-            			 RemoteCanvas.this.notifyAll();
-            		 }
-            	 }
-             };
+        boolean certMismatch = false;
 
-            // we could add sha256 as used by firefox or cert info
-            // Generate a sha1 signature of the certificate.
-            MessageDigest sha1;
-            MessageDigest md5;
-            try {
-                sha1 = MessageDigest.getInstance("SHA1");
-                md5 = MessageDigest.getInstance("MD5");
-                sha1.update(cert.getEncoded());
-                Utils.showYesNoPrompt(getContext(), getContext().getString(R.string.info_continue_connecting) + connection.getAddress () + "?",
-                                      getContext().getString(R.string.info_cert_signatures)   +
-                                        "\nSHA1:  " + Utils.toHexString(sha1.digest()) +
-                                        "\nMD5:  "  + Utils.toHexString(md5.digest())  + 
-                                        getContext().getString(R.string.info_cert_signatures_identical),
-                                        signatureYes, signatureNo);
-            } catch (NoSuchAlgorithmException e2) {
-                e2.printStackTrace();
-                showFatalMessageAndQuit(getContext().getString(R.string.error_x509_could_not_generate_signature));
-            } catch (CertificateEncodingException e) {
-                e.printStackTrace();
-                showFatalMessageAndQuit(getContext().getString(R.string.error_x509_could_not_generate_encoding));
-            }
-    } // validatex590 cert            
-    
-    /**
-     * Permits the user to validate an x509 certificate used in a secure tunnel.
-     * @param cert The certificate.
-     */
-    private void validateTunnelCert(final X509Certificate cert)
-    {
-    	final int hashAlg = connection.getIdHashAlgorithm();
-    
-    	// we know at this point the inital cert does not match or was not supplied
-    	DialogInterface.OnClickListener signatureNo = new DialogInterface.OnClickListener() 
-    	{
-    		@Override
-    		public void onClick(DialogInterface dialog, int which) {
-    			// We were told not to continue, so stop the activity
-    			closeConnection();
-    			((Activity) getContext()).finish();
-    		}
-    	};
-        DialogInterface.OnClickListener signatureYes = new DialogInterface.OnClickListener() 
-        {
-              @Override
-              public void onClick(DialogInterface dialog, int which) 
-              {
-                  // We were told to go ahead with the connection, so save the key into the database.
-            	  // we could save an SSH host key, but we do not use it with this interface
-            	  // we should save the hash 
-                  // hash algorithm will stay the same
-            	  String certIdHash = null;
-            	  try
-            	  {
-            		  byte[] certBytes = cert.getEncoded();
-            		  certIdHash = SecureTunnel.computeSignatureByAlgorithm(hashAlg, certBytes);
-            	  }
-            	  catch (Exception e)
-            	  {
-            		  Log.e(TAG, "Exception computing certificate signature, continuing anyway.");
-            	  }
-                  connection.setIdHash(certIdHash);
-                  connection.save(database.getWritableDatabase());
-                  database.close();
-                  // Indicate the certificate was accepted.
-                  certificateAccepted = true;
-                  synchronized (RemoteCanvas.this) 
-                  {
-                      RemoteCanvas.this.notifyAll();
-                  }
-              }
-        };
-
-        try 
-        {
-        	byte[] certBytes = cert.getEncoded();
-    		String certIdHash = SecureTunnel.computeSignatureByAlgorithm(hashAlg, certBytes);
-    		// should we show algorithm name? or make font smaller
-    		String certInfo = String.format(Locale.US, getContext().getString(R.string.info_cert_tunnel), 
-    				cert.getSubjectX500Principal().getName(),
-    				cert.getIssuerX500Principal().getName(),
-    				cert.getNotBefore(),
-    				cert.getNotAfter(),
-    				certIdHash
-    				);
-    		certInfo = certInfo.replace(",", "\n");
-    		// we want to show a disclaimer of certificate processing  
-            Utils.showYesNoPrompt(getContext(), 
-            		getContext().getString(R.string.info_continue_connecting) + connection.getAddress () + "?",
-            		certInfo,
-                    signatureYes, signatureNo);
-        } 
-        catch (Exception ex) 
-        {
+        int hashAlg = connection.getIdHashAlgorithm();
+        byte[] certData = null;
+        boolean isSigEqual = false;
+        try {
+            certData = cert.getEncoded();
+            isSigEqual = SecureTunnel.isSignatureEqual(hashAlg, connection.getIdHash(), certData);
+        } catch (Exception ex) {
             ex.printStackTrace();
             showFatalMessageAndQuit(getContext().getString(R.string.error_x509_could_not_generate_signature));
-        } 
+            return;
+        }   
+
+        // If there is no saved cert, then if a signature was provided,
+        // check the signature and save the cert if the signature matches.
+        if (connection.getSshHostKey().equals ("")) {
+            if (!connection.getIdHash().equals("")) {
+                if (isSigEqual) {
+                    Log.i(TAG, "Certificate validated from URI data.");
+                    saveAndAcceptCert (cert);
+                    return;
+                } else {
+                    certMismatch = true;
+                }
+            }
+        // If there is a saved cert, check against it.
+        } else if (connection.getSshHostKey().equals(Base64.encodeToString(certData, Base64.DEFAULT))) {
+            Log.i(TAG, "Certificate validated from saved key.");
+            saveAndAcceptCert (cert);
+            return;
+        } else {
+            certMismatch = true;
+        }
+
+        // Show a dialog with the key signature for approval.
+        DialogInterface.OnClickListener signatureNo = new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                // We were told not to continue, so stop the activity
+                Log.i(TAG, "Certificate rejected by user.");
+                closeConnection();
+                ((Activity) getContext()).finish();
+            }
+        };
+        DialogInterface.OnClickListener signatureYes = new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                Log.i(TAG, "Certificate accepted by user.");
+                saveAndAcceptCert (cert);
+            }
+        };
+
+        // Display dialog to user with cert info and hash.
+        try {
+            // First build the message. If there was a mismatch, prepend a warning about it.
+            String message = "";
+            if (certMismatch) {
+                message = getContext().getString(R.string.warning_cert_does_not_match) + "\n\n";
+            }
+            byte[] certBytes = cert.getEncoded();
+            String certIdHash = SecureTunnel.computeSignatureByAlgorithm(hashAlg, certBytes);
+            String certInfo = 
+                    String.format(Locale.US, getContext().getString(R.string.info_cert_tunnel), 
+                    certIdHash,
+                    cert.getSubjectX500Principal().getName(),
+                    cert.getIssuerX500Principal().getName(),
+                    cert.getNotBefore(),
+                    cert.getNotAfter()
+                    );
+            certInfo = message + certInfo.replace(",", "\n");
+
+            // Actually display the message
+            Utils.showYesNoPrompt(getContext(), 
+                    getContext().getString(R.string.info_continue_connecting) + connection.getAddress () + "?",
+                    certInfo,
+                    signatureYes, signatureNo);
+        } catch (NoSuchAlgorithmException e2) {
+            e2.printStackTrace();
+            showFatalMessageAndQuit(getContext().getString(R.string.error_x509_could_not_generate_signature));
+        } catch (CertificateEncodingException e) {
+            e.printStackTrace();
+            showFatalMessageAndQuit(getContext().getString(R.string.error_x509_could_not_generate_encoding));
+        }
     }
     
+    /**
+     * Saves and accepts a x509 certificate.
+     * @param cert
+     */
+    private void saveAndAcceptCert (X509Certificate cert) {
+        String certificate = null;
+        try {
+            certificate = Base64.encodeToString(cert.getEncoded(), Base64.DEFAULT);
+        } catch (CertificateEncodingException e) {
+            e.printStackTrace();
+            showFatalMessageAndQuit(getContext().getString(R.string.error_x509_could_not_generate_encoding));
+        }
+        connection.setSshHostKey(certificate);
+        connection.save(database.getWritableDatabase());
+        database.close();
+        // Indicate the certificate was accepted.
+        certificateAccepted = true;
+        synchronized (RemoteCanvas.this) {
+            RemoteCanvas.this.notifyAll();
+        }
+    }
+    
+    public boolean isCertificateAccepted() {
+        return certificateAccepted;
+    }
     
     /**
      * Permits the user to validate an RDP certificate.

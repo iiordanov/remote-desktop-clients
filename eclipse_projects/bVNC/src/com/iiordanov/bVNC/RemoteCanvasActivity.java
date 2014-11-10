@@ -136,7 +136,7 @@ public class RemoteCanvasActivity extends Activity implements OnKeyListener {
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
         initialize();
-        if (connection.IsReadyForConnection())
+        if (connection.isReadyForConnection())
         	continueConnecting();
     }
     
@@ -161,12 +161,12 @@ public class RemoteCanvasActivity extends Activity implements OnKeyListener {
         if ((data != null) && (data.getScheme().equals("vnc")) || !Utils.isNullOrEmptry(i.getType())) {
         	connection = ConnectionBean.createLoadFromUri(data, this);
             connection.parseFromUri(data);                       
-            if (connection.IsSaved()) {
+            if (connection.isSaved()) {
             	bVNC.saveAndWriteRecent(connection, database, true);
             }
             // we need to save the connection to display the loading screen, so otherwise we should exit
-            if (!connection.IsReadyForConnection()) {
-            	if (!connection.IsSaved()) {
+            if (!connection.isReadyForConnection()) {
+            	if (!connection.isSaved()) {
             		Log.i(TAG, "Exiting - Insufficent information to connect and connection was not saved.");
             		Toast.makeText(this, getString(R.string.error_uri_noinfo_nosave), Toast.LENGTH_LONG).show();;
             	} else {

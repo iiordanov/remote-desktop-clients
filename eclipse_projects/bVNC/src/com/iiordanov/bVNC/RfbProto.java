@@ -287,19 +287,30 @@ class RfbProto implements RfbConnectable {
   //
   // Constructor. Make TCP connection to RFB server.
   //
-  RfbProto(Decoder decoder, RemoteCanvas canvas,
-          String host, int port, int preferredEncoding,
-          boolean viewOnly, boolean useLocalCursor) throws Exception {
-      setParameters(decoder, canvas, host, port, null, preferredEncoding, viewOnly, useLocalCursor);
-  }
-  
-  // Consturctor using secure tunnel
-  RfbProto(Decoder decoder, RemoteCanvas canvas,
-		  String host, int port, Socket sock, int preferredEncoding,
-          boolean viewOnly, boolean useLocalCursor) throws Exception {
+  RfbProto(Decoder decoder, RemoteCanvas canvas, String host, int port, int preferredEncoding,
+           boolean viewOnly, boolean useLocalCursor, boolean sslTunneled, int hashAlgorithm,
+           String hash, String cert) throws Exception {
+      Socket sock = null;
+      
+      if (sslTunneled) {
+          // If this is a tunneled connection, set up the tunnel and get its socket.
+          Log.i(TAG, "Creating secure tunnel.");
+          SecureTunnel tunnel = new SecureTunnel(host, port, hashAlgorithm, hash, cert, canvas.handler);
+          tunnel.setup();
+          synchronized (canvas) {
+              while (!canvas.isCertificateAccepted()) {
+                  try {
+                      canvas.wait();
+                  } catch (InterruptedException e) { e.printStackTrace(); }
+              }
+          }
+          sock = tunnel.getSocket();
+      }
+      
       setParameters(decoder, canvas, host, port, sock, preferredEncoding, viewOnly, useLocalCursor);
   }
 
+  
   void setParameters(Decoder decoder, RemoteCanvas canvas,
                       String host, int port, Socket sock, int preferredEncoding,
                       boolean viewOnly, boolean useLocalCursor) throws Exception {
@@ -310,15 +321,13 @@ class RfbProto implements RfbConnectable {
       this.port = port;
       this.preferredEncoding = preferredEncoding;
       this.useLocalCursor = useLocalCursor;
-
-      if (sock == null)
-    	  sock = new Socket(host, port);
-      sock.setTcpNoDelay(true);
       
-      // After much testing, 8192 does seem like the best compromize between
-      // responsiveness and throughput.
-      is = new DataInputStream(new BufferedInputStream(sock.getInputStream(), 8192));
-      os = sock.getOutputStream();
+      if (sock == null) {
+          sock = new Socket(host, port);
+          sock.setTcpNoDelay(true);
+      }
+
+      setStreams(sock.getInputStream(), sock.getOutputStream());
 
       timing = false;
       timeWaitedIn100us = 5;
@@ -1594,6 +1603,8 @@ class RfbProto implements RfbConnectable {
   }
   
   public void setStreams(InputStream is_, OutputStream os_) {
+    // After much testing, 8192 does seem like the best compromize between
+    // responsiveness and throughput.
     is = new DataInputStream(new BufferedInputStream(is_, 8192));
     os = os_;
   }

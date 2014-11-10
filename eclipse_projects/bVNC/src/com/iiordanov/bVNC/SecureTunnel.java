@@ -20,6 +20,7 @@ package com.iiordanov.bVNC;
 
 import java.net.Socket;
 import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
@@ -34,6 +35,7 @@ import javax.net.ssl.X509TrustManager;
 
 import android.os.Handler;
 import android.os.Message;
+import android.util.Base64;
 import android.util.Log;
 
 // this is a secure tunnel meant to be established prior to creating the rfb connection
@@ -46,18 +48,21 @@ public class SecureTunnel implements X509TrustManager
 	String m_address;
 	int m_port;
 	int m_idHashAlgorithm;
+	String m_hash;
+	String m_cert;
 	SSLSocket m_sslsock;
 	Handler m_messageBus;
-	boolean m_idMatched = false;
+	boolean m_certMatched = false;
 	
-	public SecureTunnel(ConnectionBean connection, Handler messageBus)
-	{
-		m_connection = connection;
-		m_address = m_connection.getAddress();
-		m_port = m_connection.getPort();
-		m_idHashAlgorithm = m_connection.getIdHashAlgorithm();
-		m_messageBus = messageBus;
-	}
+    public SecureTunnel(String address, int port, int hashAlgorithm, String hash, String cert, Handler messageBus)
+    {
+        m_address = address;
+        m_port = port;
+        m_idHashAlgorithm = hashAlgorithm;
+        m_hash = hash;
+        m_cert = cert;
+        m_messageBus = messageBus;
+    }
 	
 	public void setup() throws Exception
 	{
@@ -91,11 +96,6 @@ public class SecureTunnel implements X509TrustManager
 	
 	   //cc.setStreams (sslsock.getInputStream(), sslsock.getOutputStream());
 	public SSLSocket getSocket() { return m_sslsock; }
-	
-	public boolean isIdentified()
-	{
-		return m_idMatched;
-	}
 	
 	protected void setParam(SSLSocket sock)
 	{
@@ -144,31 +144,12 @@ public class SecureTunnel implements X509TrustManager
 	public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException 
 	{		
 		// check against supplied hash if available
-		if (chain == null || chain.length == 0 || chain[0] == null)
-		{
+		if (chain == null || chain.length == 0 || chain[0] == null) {
 			throw new CertificateException();
 		}
 		X509Certificate remoteCertificate = chain[0];
-		byte[] certBytes = remoteCertificate.getEncoded();
-		m_idMatched = false;
-		try
-		{
-			m_idMatched = isSignatureEqual(m_idHashAlgorithm, m_connection.getIdHash(), certBytes);		
-		}
-		catch (Exception ex)
-		{
-			Log.e(TAG, String.format(Locale.US, "Error attempting to verify certificate hash: %s", ex.getMessage()));
-			throw new CertificateException();
-		}
-		if (!m_idMatched)
-		{
-			// bVNC logic is to message activity to display dialog if necessary and end the activity if rejected
-			Log.w(TAG, "Remote certificate is new or does not match expected value.");
-			Message msg = Message.obtain(m_messageBus, Constants.DIALOG_STUNNEL_CERT, remoteCertificate);
-			m_messageBus.sendMessage(msg);
-		}	
-		else
-			Log.i(TAG, "Remote certificate hash matches expected value.");
+        Message msg = Message.obtain(m_messageBus, Constants.DIALOG_X509_CERT, remoteCertificate);
+        m_messageBus.sendMessage(msg);
 	}
 
 	public X509Certificate[] getAcceptedIssuers() 
@@ -187,7 +168,7 @@ public class SecureTunnel implements X509TrustManager
 		return false;
 	}
 	
-	public static String computeSignatureByAlgorithm(int idHashAlgorithm, byte[] data) throws Exception
+	public static String computeSignatureByAlgorithm(int idHashAlgorithm, byte[] data) throws NoSuchAlgorithmException
 	{
 		MessageDigest digest = null;
 		switch (idHashAlgorithm)

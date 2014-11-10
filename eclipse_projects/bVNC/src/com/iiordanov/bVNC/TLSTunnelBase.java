@@ -59,7 +59,9 @@ public TLSTunnelBase (Socket sock_) {
 
       setParam (sslsock);
 
-      /* Not neccessary - just ensures that we know what cipher
+      sslsock.setSoTimeout(0);
+
+      /* Not necessary - just ensures that we know what cipher
        * suite we are using for the output of toString()
        */
       sslsock.startHandshake ();

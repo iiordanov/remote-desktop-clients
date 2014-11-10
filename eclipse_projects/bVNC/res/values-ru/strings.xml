@@ -106,7 +106,7 @@
 <string name="disconnect">Отключить</string>
 <string name="enable_sound">Включить звук</string>
 <string name="error_no_user_hostname">Введите как минимум имя пользователя и имя хоста или его IP-адрес.</string>
-<string name="error_uri_noinfo_nosave">Недостаточная информация, не может подключиться.</string>
+<string name="error_uri_noinfo_nosave">Недостаточно информации, для подключения.</string>
 <string name="error_vnc_authentication">Неуспешная VNC авторизация! Проверьте VNC пароль (и имя пользователя, если оно используется).</string>
 <string name="error_out_of_memory">Не удалось выделить достаточное количество памяти, чтобы отобразить удаленный экран. Попробуйте перезапустить приложение или перезагрузить устройство. Вы также можете попробовать уменьшить размер удаленного рабочего стола в настройках приложения</string>
 <string name="error_ovirt_unable_to_connect">Не удалось подключиться или авторизироваться, пожалуйста проверьте адрес сервера, имя пользователя, пароль, сертификат и объект.</string>
@@ -132,7 +132,7 @@
 <string name="error_connection_failed">Ошибка подключения</string>
 <string name="error_x509_could_not_generate_signature">Не удалось сгенерировать SHA1 или MD5 подпись сертификата. Алгоритм SHA1/MD5 не найден.</string>
 <string name="error_x509_could_not_generate_encoding">Шифрование сертификата не может быть сгенерированно.</string>
-<string name="error_cert_does_not_match">ОШИБКА! Сохраненный x509 сертификат не соответствует текущему сертификату сервера! Это может быть атака типа \"Man in the middle\". Если вам известно о изменение ключей, пожалуйста, удалите и заново создайте подключение.</string>
+<string name="warning_cert_does_not_match">ПРЕДУПРЕЖДЕНИЕ! Сохраненный x509 сертификат или предоставлена подпись не соответствует текущему сертификату сервера! Это может быть атака типа \"Man in the middle\". Если вам известно о изменение ключей Вы можете продолжить подключения. </string>
 <string name="export_settings">Экспорт</string>
 <string name="export_settings_path"></string>
 <string name="enter_text_title">Введите текст для отправки</string>
@@ -157,7 +157,7 @@
 <string name="info_progress_dialog_aborted">Соединение прервано!</string>
 <string name="info_update_color_model_to">"Изменение цветового режима на "</string>
 <string name="info_encoding">" шифрование, "</string>
-<string name="info_cert_tunnel">Вы хотите подключиться к хосту определены следующим сертификатом?\nIssued to:\n%1$s\nIssued by:\n%2$s\nValid from:\n%3$s\nValid until:\n%4$s\nThumbprint:%5$s\nПримечание: bVNC не проверяет центры сертификации или регистрации аннулирования сертификата.</string>
+<string name="info_cert_tunnel">Вы хотите подключиться к хосту используя следующий сертификат?\n\nFingerprint:%1$s\n\nIssued to:\n%2$s\n\nIssued by:\n%3$s\n\nValid from:\n%4$s\n\nValid until:\n%5$s\n\nПримечание: bVNC не проверяет аннулирование сертификата в центрах сертификации или регистрации. </string>
 <string name="intro_close">Закрыть</string>
 <string name="intro_dont_show">Не показывать снова.</string>
 <string name="intro_header"></string>
