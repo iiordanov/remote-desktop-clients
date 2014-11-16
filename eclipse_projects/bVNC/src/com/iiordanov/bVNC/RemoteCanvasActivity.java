@@ -1310,4 +1310,10 @@ public class RemoteCanvasActivity extends Activity implements OnKeyListener {
     public void setPanner(Panner panner) {
         this.panner = panner;
     }
+    
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        outState.putString("WORKAROUND_FOR_BUG_19917_KEY", "WORKAROUND_FOR_BUG_19917_VALUE");
+        super.onSaveInstanceState(outState);
+    }
 }

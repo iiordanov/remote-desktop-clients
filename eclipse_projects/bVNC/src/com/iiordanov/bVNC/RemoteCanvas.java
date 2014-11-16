@@ -818,8 +818,6 @@ public class RemoteCanvas extends ImageView implements LibFreeRDP.UIEventListene
         clipboard        = null;
         setModes         = null;
         decoder          = null;
-        database         = null;
-        connection       = null;
         scaling          = null;
         drawableSetter   = null;
         screenMessage    = null;
