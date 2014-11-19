@@ -326,7 +326,8 @@ class RfbProto implements RfbConnectable {
           sock = new Socket(host, port);
           sock.setTcpNoDelay(true);
       }
-
+      
+      this.sock = sock;
       setStreams(sock.getInputStream(), sock.getOutputStream());
 
       timing = false;
