@@ -25,6 +25,7 @@ package com.iiordanov.bVNC;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -159,8 +160,13 @@ public class RemoteCanvasActivity extends Activity implements OnKeyListener {
         
         Uri data = i.getData();
         if ((data != null) && (data.getScheme().equals("vnc")) || !Utils.isNullOrEmptry(i.getType())) {
-        	connection = ConnectionBean.createLoadFromUri(data, this);
-            connection.parseFromUri(data);                       
+            connection = ConnectionBean.createLoadFromUri(data, this);
+
+            String host = data.getHost();
+            if (!host.startsWith(Constants.CONNECTION)) {
+                connection.parseFromUri(data);
+            }
+            
             if (connection.isSaved()) {
             	bVNC.saveAndWriteRecent(connection, database, true);
             }
@@ -178,7 +184,6 @@ public class RemoteCanvasActivity extends Activity implements OnKeyListener {
             	finish();
             	return;
             }
-            	
         } else {
         	connection = new ConnectionBean(this);
             Bundle extras = i.getExtras();
