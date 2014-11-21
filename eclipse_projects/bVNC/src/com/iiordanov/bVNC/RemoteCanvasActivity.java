@@ -314,13 +314,20 @@ public class RemoteCanvasActivity extends Activity implements OnKeyListener {
     }
 
     
+    @SuppressWarnings("deprecation")
     private void setKeyStowDrawableAndVisibility() {
         Drawable replacer = null;
         if (layoutKeys.getVisibility() == View.GONE)
             replacer = getResources().getDrawable(R.drawable.showkeys);
         else
             replacer = getResources().getDrawable(R.drawable.hidekeys);
-        keyStow.setBackground(replacer);
+        
+        int sdk = android.os.Build.VERSION.SDK_INT;
+        if(sdk < android.os.Build.VERSION_CODES.JELLY_BEAN) {
+            keyStow.setBackgroundDrawable(replacer);
+        } else {
+            keyStow.setBackground(replacer);
+        }
 
         if (connection.getExtraKeysToggleType() == Constants.EXTRA_KEYS_OFF)
             keyStow.setVisibility(View.GONE);
