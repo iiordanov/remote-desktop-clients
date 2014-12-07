@@ -107,8 +107,8 @@ public class aSPICE extends MainConfiguration {
 
     @Override
     public void onCreate(Bundle icicle) {
+        layoutID = R.layout.main_spice;
         super.onCreate(icicle);
-        setContentView(R.layout.main_spice);
         
         ipText = (EditText) findViewById(R.id.textIP);
         sshServer = (EditText) findViewById(R.id.sshServer);

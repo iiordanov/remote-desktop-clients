@@ -108,8 +108,8 @@ public class bVNC extends MainConfiguration {
     
     @Override
     public void onCreate(Bundle icicle) {
+        layoutID = R.layout.main;
         super.onCreate(icicle);
-        setContentView(R.layout.main);
         
         ipText = (EditText) findViewById(R.id.textIP);
         sshServer = (EditText) findViewById(R.id.sshServer);

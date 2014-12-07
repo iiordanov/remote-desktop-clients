@@ -21,13 +21,16 @@ public abstract class MainConfiguration extends Activity {
     protected Spinner spinnerConnection;
     protected boolean startingOrHasPaused = true;
     protected boolean isFree;
+    protected int layoutID;
     
     protected abstract void updateViewFromSelected();
 
     @Override
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
+        setContentView(layoutID);
         System.gc();
+        
         isFree = this.getPackageName().contains("free");
         spinnerConnection = (Spinner)findViewById(R.id.spinnerConnection);
         spinnerConnection.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
