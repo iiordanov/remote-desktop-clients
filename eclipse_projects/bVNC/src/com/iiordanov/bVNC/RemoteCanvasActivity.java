@@ -168,7 +168,7 @@ public class RemoteCanvasActivity extends Activity implements OnKeyListener {
             }
             
             if (connection.isSaved()) {
-            	bVNC.saveAndWriteRecent(connection, database, true);
+                connection.saveAndWriteRecent(false);
             }
             // we need to save the connection to display the loading screen, so otherwise we should exit
             if (!connection.isReadyForConnection()) {
@@ -192,11 +192,6 @@ public class RemoteCanvasActivity extends Activity implements OnKeyListener {
                   connection.Gen_populate((ContentValues) extras
                       .getParcelable(Constants.CONNECTION));
             }
-            if (connection.getPort() == 0)
-                connection.setPort(5900);
-            
-            if (connection.getSshPort() == 0)
-                connection.setSshPort(22);
 
             // Parse a HOST:PORT entry
             String host = connection.getAddress();
@@ -204,10 +199,15 @@ public class RemoteCanvasActivity extends Activity implements OnKeyListener {
                 String p = host.substring(host.indexOf(':') + 1);
                 try {
                     connection.setPort(Integer.parseInt(p));
-                } catch (Exception e) {
-                }
+                } catch (Exception e) {}
                 connection.setAddress(host.substring(0, host.indexOf(':')));
               }
+            
+            if (connection.getPort() == 0)
+                connection.setPort(Constants.DEFAULT_VNC_PORT);
+            
+            if (connection.getSshPort() == 0)
+                connection.setSshPort(Constants.DEFAULT_SSH_PORT);
         }
     }
 

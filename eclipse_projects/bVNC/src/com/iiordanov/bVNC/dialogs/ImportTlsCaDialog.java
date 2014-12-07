@@ -80,7 +80,7 @@ public class ImportTlsCaDialog extends AlertDialog {
         selected.setCaCert(caCert.getText().toString());
         selected.setCertSubject(certSubject.getText().toString());
         mainConfigPage.updateViewFromSelected();
-        mainConfigPage.saveAndWriteRecent();
+        selected.saveAndWriteRecent(false);
         dismiss();
     }
 

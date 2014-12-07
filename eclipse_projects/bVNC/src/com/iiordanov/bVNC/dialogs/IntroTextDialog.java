@@ -20,6 +20,7 @@
 
 package com.iiordanov.bVNC.dialogs;
 
+import com.iiordanov.bVNC.ConnectionBean;
 import com.iiordanov.bVNC.MostRecentBean;
 import com.iiordanov.bVNC.R;
 import com.iiordanov.bVNC.Database;
@@ -62,7 +63,7 @@ public class IntroTextDialog extends Dialog {
         catch (PackageManager.NameNotFoundException nnfe) {
             return;
         }
-        MostRecentBean mr = bVNC.getMostRecent(database.getReadableDatabase());
+        MostRecentBean mr = ConnectionBean.getMostRecent(database.getReadableDatabase());
         
         if (dialog == null && show && (mr == null || mr.getShowSplashVersion() != pi.versionCode)) {
             dialog = new IntroTextDialog(context, pi, database);
@@ -193,7 +194,7 @@ public class IntroTextDialog extends Dialog {
     
     private void showAgain(boolean show) {
         SQLiteDatabase db = database.getWritableDatabase();
-        MostRecentBean mostRecent = bVNC.getMostRecent(db);
+        MostRecentBean mostRecent = ConnectionBean.getMostRecent(db);
         if (mostRecent != null) {
             int value = -1;
             if (!show) {

@@ -390,7 +390,7 @@ public class bVNC extends Activity implements MainConfiguration {
                 textNickname.setText("Copy of "+selected.getNickname());
             updateSelectedFromView();
             selected.set_Id(0);
-            saveAndWriteRecent();
+            selected.saveAndWriteRecent(false);
             arriveOnPage();
             break;
         case R.id.itemDeleteConnection :
@@ -615,22 +615,6 @@ public class bVNC extends Activity implements MainConfiguration {
         Log.e(TAG, "onConfigurationChanged called");
         super.onConfigurationChanged(newConfig);
     }
-
-    /**
-     * Return the object representing the app global state in the database, or null
-     * if the object hasn't been set up yet
-     * @param db App's database -- only needs to be readable
-     * @return Object representing the single persistent instance of MostRecentBean, which
-     * is the app's global state
-     */
-    public static MostRecentBean getMostRecent(SQLiteDatabase db)
-    {
-        ArrayList<MostRecentBean> recents = new ArrayList<MostRecentBean>(1);
-        MostRecentBean.getAll(db, MostRecentBean.GEN_TABLE_NAME, recents, MostRecentBean.GEN_NEW);
-        if (recents.size() == 0)
-            return null;
-        return recents.get(0);
-    }
     
     public void arriveOnPage() {
         ArrayList<ConnectionBean> connections=new ArrayList<ConnectionBean>();
@@ -640,7 +624,7 @@ public class bVNC extends Activity implements MainConfiguration {
         int connectionIndex=0;
         if ( connections.size()>1)
         {
-            MostRecentBean mostRecent = getMostRecent(database.getReadableDatabase());
+            MostRecentBean mostRecent = ConnectionBean.getMostRecent(database.getReadableDatabase());
             if (mostRecent != null)
             {
                 for ( int i=1; i<connections.size(); ++i)
@@ -656,7 +640,7 @@ public class bVNC extends Activity implements MainConfiguration {
         spinnerConnection.setAdapter(new ArrayAdapter<ConnectionBean>(this, R.layout.connection_list_entry,
                 connections.toArray(new ConnectionBean[connections.size()])));
         spinnerConnection.setSelection(connectionIndex,false);
-        selected=connections.get(connectionIndex);
+        selected = connections.get(connectionIndex);
         updateViewFromSelected();
         IntroTextDialog.showIntroTextIfNecessary(this, database, isFree&&startingOrHasPaused);
         startingOrHasPaused = false;
@@ -669,7 +653,7 @@ public class bVNC extends Activity implements MainConfiguration {
             return;
         }
         updateSelectedFromView();
-        saveAndWriteRecent();
+        selected.saveAndWriteRecent(false);
     }
 
     protected void onPause() {
@@ -694,54 +678,15 @@ public class bVNC extends Activity implements MainConfiguration {
         start();
     }
     
-    public void saveAndWriteRecent() {
-    	saveAndWriteRecent(selected, database, false);
-    }
-    public static void saveAndWriteRecent(ConnectionBean connection, Database database, boolean saveEmpty) {
-        // We need server address or SSH server to be filled out to save. Otherwise,
-        // we keep adding empty connections. 
-    	// However, if there is partial data from a URI, we can present the edit screen. 
-    	// Alternately, perhaps we could process some extra data
-        if ((connection.getConnectionType() == Constants.CONN_TYPE_SSH && connection.getSshServer().equals("")
-            || connection.getAddress().equals(""))
-            && !saveEmpty)
-            return;
-        
-        SQLiteDatabase db = database.getWritableDatabase();
-        db.beginTransaction();
-        try
-        {
-        	connection.save(db);
-            MostRecentBean mostRecent = getMostRecent(db);
-            if (mostRecent == null)
-            {
-                mostRecent = new MostRecentBean();
-                mostRecent.setConnectionId(connection.get_Id());
-                mostRecent.Gen_insert(db);
-            }
-            else
-            {
-                mostRecent.setConnectionId(connection.get_Id());
-                mostRecent.Gen_update(db);
-            }
-            db.setTransactionSuccessful();
-        }
-        finally
-        {
-            db.endTransaction();
-            db.close();
-        }
-    }
-
     /**
      * Starts the activity which makes a VNC connection and displays the remote desktop.
      */
     private void start () {
         isConnecting = true;
         updateSelectedFromView();
-        saveAndWriteRecent();
+        selected.saveAndWriteRecent(false);
         Intent intent = new Intent(this, RemoteCanvasActivity.class);
-        intent.putExtra(Constants.CONNECTION,selected.Gen_getValues());
+        intent.putExtra(Constants.CONNECTION, selected.Gen_getValues());
         startActivity(intent);
     }
     
@@ -750,7 +695,7 @@ public class bVNC extends Activity implements MainConfiguration {
      */
     private void generatePubkey () {
         updateSelectedFromView();
-        saveAndWriteRecent();
+        selected.saveAndWriteRecent(false);
         Intent intent = new Intent(this, GeneratePubkeyActivity.class);
         intent.putExtra("PrivateKey",selected.getSshPrivKey());
         startActivityForResult(intent, Constants.ACTIVITY_GEN_KEY);
@@ -772,7 +717,7 @@ public class bVNC extends Activity implements MainConfiguration {
                             " button to share, copy to clipboard, or export the public key now.", Toast.LENGTH_LONG).show();
                 selected.setSshPrivKey(privateKey);
                 selected.setSshPubKey((String)b.get("PublicKey"));
-                saveAndWriteRecent();
+                selected.saveAndWriteRecent(false);
             } else
                 Log.i (TAG, "The user cancelled SSH key generation.");
             break;

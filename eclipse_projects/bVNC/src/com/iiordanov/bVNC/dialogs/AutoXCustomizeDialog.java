@@ -394,7 +394,7 @@ public class AutoXCustomizeDialog extends AlertDialog {
 
         // Update and save.
         mainConfigDialog.updateViewFromSelected();
-        mainConfigDialog.saveAndWriteRecent();
+        selected.saveAndWriteRecent(false);
     }
     
     public void retainAutoXInfo () {
@@ -404,6 +404,6 @@ public class AutoXCustomizeDialog extends AlertDialog {
 
         // Update and save.
         mainConfigDialog.updateViewFromSelected();
-        mainConfigDialog.saveAndWriteRecent();
+        selected.saveAndWriteRecent(false);
     }
 }

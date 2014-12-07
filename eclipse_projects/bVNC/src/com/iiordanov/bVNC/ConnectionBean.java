@@ -20,6 +20,7 @@
 
 package com.iiordanov.bVNC;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -205,7 +206,7 @@ public class ConnectionBean extends AbstractConnectionBean implements Comparable
             
             if (connection.Gen_read(database.getReadableDatabase(), port))
             {
-                MostRecentBean bean = bVNC.getMostRecent(database.getReadableDatabase());
+                MostRecentBean bean = getMostRecent(database.getReadableDatabase());
                 if (bean != null)
                 {
                     bean.setConnectionId(connection.get_Id());
@@ -218,7 +219,7 @@ public class ConnectionBean extends AbstractConnectionBean implements Comparable
     	
     	// search based on nickname
     	SQLiteDatabase queryDb = database.getReadableDatabase();
-    	String connectionName = dataUri.getQueryParameter(Constants.PARAM_CONN_NAME);    	   
+    	String connectionName = dataUri.getQueryParameter(Constants.PARAM_CONN_NAME);
     	Cursor nickCursor = null;
     	if (connectionName != null)
     		nickCursor = queryDb.query(GEN_TABLE_NAME, new String[] { GEN_FIELD__ID }, GEN_FIELD_NICKNAME  + " = ?", new String[] { connectionName }, null, null, null);
@@ -507,5 +508,53 @@ public class ConnectionBean extends AbstractConnectionBean implements Comparable
             result = getSshPort() - another.getSshPort();
         }
         return result;
+    }
+    
+    /**
+     * Return the object representing the app global state in the database, or null
+     * if the object hasn't been set up yet
+     * @param db App's database -- only needs to be readable
+     * @return Object representing the single persistent instance of MostRecentBean, which
+     * is the app's global state
+     */
+    public static MostRecentBean getMostRecent(SQLiteDatabase db)
+    {
+        ArrayList<MostRecentBean> recents = new ArrayList<MostRecentBean>(1);
+        MostRecentBean.getAll(db, MostRecentBean.GEN_TABLE_NAME, recents, MostRecentBean.GEN_NEW);
+        if (recents.size() == 0)
+            return null;
+        return recents.get(0);
+    }
+    
+    public void saveAndWriteRecent(boolean saveEmpty) {
+        Database database = new Database (c);
+        
+        // We need server address or SSH server to be filled out to save. Otherwise,
+        // we keep adding empty connections. 
+        // However, if there is partial data from a URI, we can present the edit screen. 
+        // Alternately, perhaps we could process some extra data
+        if ((getConnectionType() == Constants.CONN_TYPE_SSH && getSshServer().equals("")
+            || getAddress().equals("")) && !saveEmpty) {
+            return;
+        }
+        
+        SQLiteDatabase db = database.getWritableDatabase();
+        db.beginTransaction();
+        try {
+            save(db);
+            MostRecentBean mostRecent = getMostRecent(db);
+            if (mostRecent == null) {
+                mostRecent = new MostRecentBean();
+                mostRecent.setConnectionId(get_Id());
+                mostRecent.Gen_insert(db);
+            } else {
+                mostRecent.setConnectionId(get_Id());
+                mostRecent.Gen_update(db);
+            }
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
+            db.close();
+        }
     }
 }
