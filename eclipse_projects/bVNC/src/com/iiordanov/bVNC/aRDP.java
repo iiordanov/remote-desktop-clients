@@ -59,7 +59,7 @@ import java.util.Collections;
 /**
  * aRDP is the Activity for setting up RDP connections.
  */
-public class aRDP extends Activity implements MainConfiguration {
+public class aRDP extends MainConfiguration {
     private final static String TAG = "aRDP";
     private Spinner connectionType;
     private int selectedConnType;
@@ -80,10 +80,7 @@ public class aRDP extends Activity implements MainConfiguration {
     private Button buttonGeneratePubkey;
     private ToggleButton toggleAdvancedSettings;
     //private Spinner colorSpinner;
-    private Spinner spinnerConnection;
     private Spinner spinnerRdpGeometry;
-    private Database database;
-    private ConnectionBean selected;
     private EditText textNickname;
     private EditText textUsername;
     private EditText rdpDomain;
@@ -103,8 +100,6 @@ public class aRDP extends Activity implements MainConfiguration {
     private CheckBox checkboxRotateDpad;
     private CheckBox checkboxLocalCursor;
     private CheckBox checkboxUseSshPubkey;
-    private boolean isFree;
-    private boolean startingOrHasPaused = true;
     private boolean isConnecting = false;
     
     @Override
@@ -112,8 +107,6 @@ public class aRDP extends Activity implements MainConfiguration {
         super.onCreate(icicle);
         System.gc();
         setContentView(R.layout.main_rdp);
-        
-        isFree = this.getPackageName().contains("free");
         
         ipText = (EditText) findViewById(R.id.textIP);
         sshServer = (EditText) findViewById(R.id.sshServer);
@@ -174,18 +167,6 @@ public class aRDP extends Activity implements MainConfiguration {
         checkboxUseDpadAsArrows = (CheckBox)findViewById(R.id.checkboxUseDpadAsArrows);
         checkboxRotateDpad = (CheckBox)findViewById(R.id.checkboxRotateDpad);
         checkboxLocalCursor = (CheckBox)findViewById(R.id.checkboxUseLocalCursor);
-        spinnerConnection = (Spinner)findViewById(R.id.spinnerConnection);
-        spinnerConnection.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> ad, View view, int itemIndex, long id) {
-                selected = (ConnectionBean)ad.getSelectedItem();
-                updateViewFromSelected();
-            }
-            @Override
-            public void onNothingSelected(AdapterView<?> ad) {
-                selected = null;
-            }
-        });
 
         goButton = (Button) findViewById(R.id.buttonGO);
         goButton.setOnClickListener(new View.OnClickListener() {
@@ -235,8 +216,6 @@ public class aRDP extends Activity implements MainConfiguration {
         checkboxWindowContents = (CheckBox)findViewById(R.id.checkboxWindowContents);
         checkboxMenuAnimation = (CheckBox)findViewById(R.id.checkboxMenuAnimation);
         checkboxVisualStyles = (CheckBox)findViewById(R.id.checkboxVisualStyles);
-
-        database = new Database(this);
         
         // Define what happens when the Import/Export button is pressed.
         ((Button)findViewById(R.id.buttonImportExport)).setOnClickListener(new View.OnClickListener() {
@@ -446,53 +425,14 @@ public class aRDP extends Activity implements MainConfiguration {
             }
         }*/
     }
-
+    
     /**
      * Returns the current ConnectionBean.
      */
     public ConnectionBean getCurrentConnection () {
         return selected;
     }
-
-    /**
-     * Returns the display height, or if the device has software
-     * buttons, the 'bottom' of the view (in order to take into account the
-     * software buttons.
-     * @return the height in pixels.
-     */
-    public int getHeight () {
-        View v    = getWindow().getDecorView().findViewById(android.R.id.content);
-        Display d = getWindowManager().getDefaultDisplay();
-        int bottom = v.getBottom();
-        int height = d.getHeight();
-        
-        if (android.os.Build.VERSION.SDK_INT >= 14) {
-            android.view.ViewConfiguration vc = ViewConfiguration.get(this);
-            if (vc.hasPermanentMenuKey())
-                return bottom;
-        }
-        return height;
-    }
     
-    /**
-     * Returns the display width, or if the device has software
-     * buttons, the 'right' of the view (in order to take into account the
-     * software buttons.
-     * @return the width in pixels.
-     */
-    public int getWidth () {
-        View v    = getWindow().getDecorView().findViewById(android.R.id.content);
-        Display d = getWindowManager().getDefaultDisplay();
-        int right = v.getRight();
-        int width = d.getWidth();
-        if (android.os.Build.VERSION.SDK_INT >= 14) {
-            android.view.ViewConfiguration vc = ViewConfiguration.get(this);
-            if (vc.hasPermanentMenuKey())
-                return right;
-        }
-        return width;
-    }
-
     private void updateSelectedFromView() {
         if (selected == null) {
             return;
@@ -559,36 +499,6 @@ public class aRDP extends Activity implements MainConfiguration {
     public void onConfigurationChanged(Configuration newConfig) {
         Log.e(TAG, "onConfigurationChanged called");
         super.onConfigurationChanged(newConfig);
-    }
-    
-    public void arriveOnPage() {
-        ArrayList<ConnectionBean> connections=new ArrayList<ConnectionBean>();
-        ConnectionBean.getAll(database.getReadableDatabase(), ConnectionBean.GEN_TABLE_NAME, connections, ConnectionBean.newInstance);
-        Collections.sort(connections);
-        connections.add(0, new ConnectionBean(this));
-        int connectionIndex=0;
-        if ( connections.size()>1)
-        {
-            MostRecentBean mostRecent = ConnectionBean.getMostRecent(database.getReadableDatabase());
-            if (mostRecent != null)
-            {
-                for ( int i=1; i<connections.size(); ++i)
-                {
-                    if (connections.get(i).get_Id() == mostRecent.getConnectionId())
-                    {
-                        connectionIndex=i;
-                        break;
-                    }
-                }
-            }
-        }
-        spinnerConnection.setAdapter(new ArrayAdapter<ConnectionBean>(this, R.layout.connection_list_entry,
-                connections.toArray(new ConnectionBean[connections.size()])));
-        spinnerConnection.setSelection(connectionIndex,false);
-        selected=connections.get(connectionIndex);
-        updateViewFromSelected();
-        IntroTextDialog.showIntroTextIfNecessary(this, database, isFree&&startingOrHasPaused);
-        startingOrHasPaused = false;
     }
     
     protected void onStop() {

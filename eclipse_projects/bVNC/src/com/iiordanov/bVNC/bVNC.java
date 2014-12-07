@@ -66,7 +66,7 @@ import java.util.Collections;
 /**
  * bVNC is the Activity for setting up VNC connections.
  */
-public class bVNC extends Activity implements MainConfiguration {
+public class bVNC extends MainConfiguration {
     private final static String TAG = "androidVNC";
     private Spinner connectionType;
     private int selectedConnType;
@@ -93,9 +93,6 @@ public class bVNC extends Activity implements MainConfiguration {
     private TextView repeaterText;
     private RadioGroup groupForceFullScreen;
     private Spinner colorSpinner;
-    private Spinner spinnerConnection;
-    private Database database;
-    private ConnectionBean selected;
     private EditText textNickname;
     private EditText textUsername;
     private TextView autoXStatus;
@@ -107,30 +104,13 @@ public class bVNC extends Activity implements MainConfiguration {
     private CheckBox checkboxPreferHextile;
     private CheckBox checkboxViewOnly;
     private boolean repeaterTextSet;
-    private boolean isFree;
-    private boolean startingOrHasPaused = true;
     private boolean isConnecting = false;
-
-    /*
-     * Variable used for BB workarounds.
-     */
-    boolean bb = false;
     
     @Override
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
-        
-        if (android.os.Build.MODEL.contains("BlackBerry") ||
-            android.os.Build.BRAND.contains("BlackBerry") || 
-            android.os.Build.MANUFACTURER.contains("BlackBerry")) {
-            bb = true;
-        }
-        
-        System.gc();
-
-        isFree = this.getPackageName().contains("free");
-
         setContentView(R.layout.main);
+        
         ipText = (EditText) findViewById(R.id.textIP);
         sshServer = (EditText) findViewById(R.id.sshServer);
         sshPort = (EditText) findViewById(R.id.sshPort);
@@ -261,18 +241,6 @@ public class bVNC extends Activity implements MainConfiguration {
         checkboxViewOnly = (CheckBox)findViewById(R.id.checkboxViewOnly);
         colorSpinner.setAdapter(colorSpinnerAdapter);
         colorSpinner.setSelection(0);
-        spinnerConnection = (Spinner)findViewById(R.id.spinnerConnection);
-        spinnerConnection.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> ad, View view, int itemIndex, long id) {
-                selected = (ConnectionBean)ad.getSelectedItem();
-                updateViewFromSelected();
-            }
-            @Override
-            public void onNothingSelected(AdapterView<?> ad) {
-                selected = null;
-            }
-        });
 
         goButton = (Button) findViewById(R.id.buttonGO);
         goButton.setOnClickListener(new View.OnClickListener() {
@@ -286,8 +254,6 @@ public class bVNC extends Activity implements MainConfiguration {
         });
 
         repeaterText = (TextView)findViewById(R.id.textRepeaterId);
-        
-        database = new Database(this);
     }
     
     /**
@@ -502,52 +468,6 @@ public class bVNC extends Activity implements MainConfiguration {
         return selected;
     }
 
-    /**
-     * Returns the display height, or if the device has software
-     * buttons, the 'bottom' of the view (in order to take into account the
-     * software buttons.
-     * @return the height in pixels.
-     */
-    public int getHeight () {
-        View v    = getWindow().getDecorView().findViewById(android.R.id.content);
-        Display d = getWindowManager().getDefaultDisplay();
-        int bottom = v.getBottom();
-        Point outSize = new Point();
-        d.getSize(outSize);
-        int height = outSize.y;
-        int value = height;
-        if (android.os.Build.VERSION.SDK_INT >= 14) {
-            android.view.ViewConfiguration vc = ViewConfiguration.get(this);
-            if (vc.hasPermanentMenuKey())
-                value = bottom;
-        }
-        if (bb) {
-            value = bottom;
-        }
-        return value;
-    }
-    
-    /**
-     * Returns the display width, or if the device has software
-     * buttons, the 'right' of the view (in order to take into account the
-     * software buttons.
-     * @return the width in pixels.
-     */
-    public int getWidth () {
-        View v    = getWindow().getDecorView().findViewById(android.R.id.content);
-        Display d = getWindowManager().getDefaultDisplay();
-        int right = v.getRight();
-        Point outSize = new Point();
-        d.getSize(outSize);
-        int width = outSize.x;
-        if (android.os.Build.VERSION.SDK_INT >= 14) {
-            android.view.ViewConfiguration vc = ViewConfiguration.get(this);
-            if (vc.hasPermanentMenuKey())
-                return right;
-        }
-        return width;
-    }
-
     private void updateSelectedFromView() {
         if (selected == null) {
             return;
@@ -616,36 +536,6 @@ public class bVNC extends Activity implements MainConfiguration {
         super.onConfigurationChanged(newConfig);
     }
     
-    public void arriveOnPage() {
-        ArrayList<ConnectionBean> connections=new ArrayList<ConnectionBean>();
-        ConnectionBean.getAll(database.getReadableDatabase(), ConnectionBean.GEN_TABLE_NAME, connections, ConnectionBean.newInstance);
-        Collections.sort(connections);
-        connections.add(0, new ConnectionBean(this));
-        int connectionIndex=0;
-        if ( connections.size()>1)
-        {
-            MostRecentBean mostRecent = ConnectionBean.getMostRecent(database.getReadableDatabase());
-            if (mostRecent != null)
-            {
-                for ( int i=1; i<connections.size(); ++i)
-                {
-                    if (connections.get(i).get_Id() == mostRecent.getConnectionId())
-                    {
-                        connectionIndex=i;
-                        break;
-                    }
-                }
-            }
-        }
-        spinnerConnection.setAdapter(new ArrayAdapter<ConnectionBean>(this, R.layout.connection_list_entry,
-                connections.toArray(new ConnectionBean[connections.size()])));
-        spinnerConnection.setSelection(connectionIndex,false);
-        selected = connections.get(connectionIndex);
-        updateViewFromSelected();
-        IntroTextDialog.showIntroTextIfNecessary(this, database, isFree&&startingOrHasPaused);
-        startingOrHasPaused = false;
-    }
-    
     protected void onStop() {
         Log.e(TAG, "onStop called");
         super.onStop();
@@ -664,10 +554,6 @@ public class bVNC extends Activity implements MainConfiguration {
         } else {
             isConnecting = false;
         }
-    }
-    
-    public Database getDatabaseHelper() {
-        return database;
     }
     
     private void canvasStart() {
