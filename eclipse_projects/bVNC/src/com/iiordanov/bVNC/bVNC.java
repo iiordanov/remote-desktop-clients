@@ -322,66 +322,7 @@ public class bVNC extends MainConfiguration {
         d.getWindow().setAttributes(lp);
         return d;
     }
-
-    /* (non-Javadoc)
-     * @see android.app.Activity#onCreateOptionsMenu(android.view.Menu)
-     */
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.androidvncmenu,menu);
-        return true;
-    }
-
-    /* (non-Javadoc)
-     * @see android.app.Activity#onMenuOpened(int, android.view.Menu)
-     */
-    @Override
-    public boolean onMenuOpened(int featureId, Menu menu) {
-        if (menu != null) {
-            menu.findItem(R.id.itemDeleteConnection).setEnabled(selected!=null && ! selected.isNew());
-            menu.findItem(R.id.itemSaveAsCopy).setEnabled(selected!=null && ! selected.isNew());
-        }
-        return true;
-    }
-
-    /* (non-Javadoc)
-     * @see android.app.Activity#onOptionsItemSelected(android.view.MenuItem)
-     */
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId())
-        {
-        case R.id.itemSaveAsCopy :
-            if (selected.getNickname().equals(textNickname.getText().toString()))
-                textNickname.setText("Copy of "+selected.getNickname());
-            updateSelectedFromView();
-            selected.set_Id(0);
-            selected.saveAndWriteRecent(false);
-            arriveOnPage();
-            break;
-        case R.id.itemDeleteConnection :
-            Utils.showYesNoPrompt(this, "Delete?", "Delete " + selected.getNickname() + "?",
-                    new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int i)
-                {
-                    selected.Gen_delete(database.getWritableDatabase());
-                    database.close();
-                    arriveOnPage();
-                }
-            }, null);
-            break;
-        case R.id.itemMainScreenHelp:
-            showDialog(R.id.itemMainScreenHelp);
-            break;
-        // Disabling Manual/Wiki Menu item as the original does not correspond to this project anymore.
-        //case R.id.itemOpenDoc :
-        //    Utils.showDocumentation(this);
-        //    break;
-        }
-        return true;
-    }
-
+    
     public void updateViewFromSelected() {
         if (selected == null)
             return;
@@ -468,7 +409,7 @@ public class bVNC extends MainConfiguration {
         return selected;
     }
 
-    private void updateSelectedFromView() {
+    protected void updateSelectedFromView() {
         if (selected == null) {
             return;
         }

@@ -1,35 +1,45 @@
 package com.iiordanov.bVNC;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
 
 import com.iiordanov.bVNC.dialogs.IntroTextDialog;
 
 import android.app.Activity;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.view.Display;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.Spinner;
 
 public abstract class MainConfiguration extends Activity {
     protected ConnectionBean selected;
     protected Database database;
     protected Spinner spinnerConnection;
+    protected EditText textNickname;
     protected boolean startingOrHasPaused = true;
     protected boolean isFree;
     protected int layoutID;
     
     protected abstract void updateViewFromSelected();
+    protected abstract void updateSelectedFromView();
 
     @Override
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
         setContentView(layoutID);
         System.gc();
+        
+        textNickname = (EditText) findViewById(R.id.textNickname);
         
         isFree = this.getPackageName().contains("free");
         spinnerConnection = (Spinner)findViewById(R.id.spinnerConnection);
@@ -134,5 +144,65 @@ public abstract class MainConfiguration extends Activity {
                 return right;
         }
         return width;
+    }
+    
+
+    /* (non-Javadoc)
+     * @see android.app.Activity#onCreateOptionsMenu(android.view.Menu)
+     */
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.androidvncmenu,menu);
+        return true;
+    }
+
+    /* (non-Javadoc)
+     * @see android.app.Activity#onMenuOpened(int, android.view.Menu)
+     */
+    @Override
+    public boolean onMenuOpened(int featureId, Menu menu) {
+        if (menu != null) {
+            menu.findItem(R.id.itemDeleteConnection).setEnabled(selected!=null && ! selected.isNew());
+            menu.findItem(R.id.itemSaveAsCopy).setEnabled(selected!=null && ! selected.isNew());
+        }
+        return true;
+    }
+
+    /* (non-Javadoc)
+     * @see android.app.Activity#onOptionsItemSelected(android.view.MenuItem)
+     */
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId())
+        {
+        case R.id.itemSaveAsCopy :
+            if (selected.getNickname().equals(textNickname.getText().toString()))
+                textNickname.setText("Copy of "+selected.getNickname());
+            updateSelectedFromView();
+            selected.set_Id(0);
+            selected.saveAndWriteRecent(false);
+            arriveOnPage();
+            break;
+        case R.id.itemDeleteConnection :
+            Utils.showYesNoPrompt(this, "Delete?", "Delete " + selected.getNickname() + "?",
+                    new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int i)
+                {
+                    selected.Gen_delete(database.getWritableDatabase());
+                    database.close();
+                    arriveOnPage();
+                }
+            }, null);
+            break;
+        case R.id.itemMainScreenHelp:
+            showDialog(R.id.itemMainScreenHelp);
+            break;
+        // Disabling Manual/Wiki Menu item as the original does not correspond to this project anymore.
+        //case R.id.itemOpenDoc :
+        //    Utils.showDocumentation(this);
+        //    break;
+        }
+        return true;
     }
 }
