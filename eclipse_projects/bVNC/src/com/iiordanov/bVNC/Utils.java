@@ -159,8 +159,20 @@ public class Utils {
               menuKeyField.setBoolean(config, false);
             }
           }
-          catch (Exception e) {
-            // presumably, not relevant
-          }
+          catch (Exception e) {}
+    }
+    
+    public static boolean isFree (Context ctx) {
+        return ctx.getPackageName().contains("free");
+    }
+    
+    public static boolean isBlackBerry () {
+        boolean bb = false;
+        if (android.os.Build.MODEL.contains("BlackBerry") ||
+            android.os.Build.BRAND.contains("BlackBerry") || 
+            android.os.Build.MANUFACTURER.contains("BlackBerry")) {
+            bb = true;
+        }
+        return bb;
     }
 }

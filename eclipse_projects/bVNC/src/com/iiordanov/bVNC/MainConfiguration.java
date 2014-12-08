@@ -27,7 +27,6 @@ public abstract class MainConfiguration extends Activity {
     protected Spinner spinnerConnection;
     protected EditText textNickname;
     protected boolean startingOrHasPaused = true;
-    protected boolean isFree;
     protected int layoutID;
     
     protected abstract void updateViewFromSelected();
@@ -42,7 +41,6 @@ public abstract class MainConfiguration extends Activity {
         
         textNickname = (EditText) findViewById(R.id.textNickname);
         
-        isFree = this.getPackageName().contains("free");
         spinnerConnection = (Spinner)findViewById(R.id.spinnerConnection);
         spinnerConnection.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -83,7 +81,7 @@ public abstract class MainConfiguration extends Activity {
         spinnerConnection.setSelection(connectionIndex, false);
         selected = connections.get(connectionIndex);
         updateViewFromSelected();
-        IntroTextDialog.showIntroTextIfNecessary(this, database, isFree&&startingOrHasPaused);
+        IntroTextDialog.showIntroTextIfNecessary(this, database, Utils.isFree(this) && startingOrHasPaused);
         startingOrHasPaused = false;
     }
     
@@ -91,15 +89,6 @@ public abstract class MainConfiguration extends Activity {
         return database;
     }
     
-    public static boolean isBlackBerry () {
-        boolean bb = false;
-        if (android.os.Build.MODEL.contains("BlackBerry") ||
-            android.os.Build.BRAND.contains("BlackBerry") || 
-            android.os.Build.MANUFACTURER.contains("BlackBerry")) {
-            bb = true;
-        }
-        return bb;
-    }
     
     /**
      * Returns the display height, or if the device has software
@@ -120,7 +109,7 @@ public abstract class MainConfiguration extends Activity {
             if (vc.hasPermanentMenuKey())
                 value = bottom;
         }
-        if (isBlackBerry ()) {
+        if (Utils.isBlackBerry ()) {
             value = bottom;
         }
         return value;
