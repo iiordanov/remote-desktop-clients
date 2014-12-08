@@ -36,6 +36,7 @@ public abstract class MainConfiguration extends Activity {
     @Override
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
+        Utils.showMenu(this);
         setContentView(layoutID);
         System.gc();
         

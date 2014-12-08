@@ -20,6 +20,8 @@
 
 package com.iiordanov.bVNC;
 
+import java.lang.reflect.Field;
+
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.AlertDialog;
@@ -30,6 +32,7 @@ import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.net.Uri;
 import android.text.Html;
+import android.view.ViewConfiguration;
 
 public class Utils {
 
@@ -140,5 +143,24 @@ public class Utils {
         hexChars[j*3] = hexArray[v/16];
         hexChars[j*3 + 1] = hexArray[v%16];
         return new String(hexChars);
+    }
+    
+    /**
+     * Forces the appearance of a menu in the given context.
+     * @param ctx
+     */
+    public static void showMenu (Context ctx) {
+        try {
+            ViewConfiguration config = ViewConfiguration.get(ctx);
+            Field menuKeyField = ViewConfiguration.class.getDeclaredField("sHasPermanentMenuKey");
+
+            if (menuKeyField != null) {
+              menuKeyField.setAccessible(true);
+              menuKeyField.setBoolean(config, false);
+            }
+          }
+          catch (Exception e) {
+            // presumably, not relevant
+          }
     }
 }

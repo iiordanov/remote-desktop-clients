@@ -136,6 +136,7 @@ public class RemoteCanvasActivity extends Activity implements OnKeyListener {
     @Override
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
+        Utils.showMenu(this);
         initialize();
         if (connection.isReadyForConnection())
         	continueConnecting();
