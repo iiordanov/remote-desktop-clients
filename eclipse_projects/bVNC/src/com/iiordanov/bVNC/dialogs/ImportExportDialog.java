@@ -37,6 +37,7 @@ import com.antlersoft.android.contentxml.SqliteElement;
 import com.antlersoft.android.contentxml.SqliteElement.ReplaceStrategy;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -97,10 +98,7 @@ public class ImportExportDialog extends Dialog {
             @Override
             public void onClick(View v) {
                 try {
-                    File f = new File(_textSaveUrl.getText().toString());
-                    Writer writer = new OutputStreamWriter(new FileOutputStream(f, false));
-                    SqliteElement.exportDbAsXmlToStream(_configurationDialog.getDatabaseHelper().getReadableDatabase(), writer);
-                    writer.close();
+                    Utils.exportSettingsToXml(_textSaveUrl.getText().toString(), _configurationDialog.getDatabaseHelper().getReadableDatabase());
                     dismiss();
                 }
                 catch (IOException ioe)
@@ -119,24 +117,9 @@ public class ImportExportDialog extends Dialog {
             public void onClick(View v) {
                 try
                 {
-                    String urlString = _textLoadUrl.getText().toString();
-                    if (!urlString.startsWith("file:")) {
-                        urlString = "file:" + urlString;
-                    }
-                    URL url = new URL(urlString);
-                    URLConnection connection = url.openConnection();
-                    connection.connect();
-                    Reader reader = new InputStreamReader(connection.getInputStream());
-                    SqliteElement.importXmlStreamToDb(
-                            _configurationDialog.getDatabaseHelper().getWritableDatabase(),
-                            reader,
-                            ReplaceStrategy.REPLACE_EXISTING);
+                    Utils.importSettingsFromXml(_textLoadUrl.getText().toString(), _configurationDialog.getDatabaseHelper().getWritableDatabase());
                     dismiss();
                     _configurationDialog.arriveOnPage();
-                }
-                catch (MalformedURLException mfe)
-                {
-                    errorNotify("Improper URL given: " + _textLoadUrl.getText(), mfe);
                 }
                 catch (IOException ioe)
                 {

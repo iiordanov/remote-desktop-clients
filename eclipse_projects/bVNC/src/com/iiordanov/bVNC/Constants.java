@@ -167,6 +167,12 @@ public class Constants {
     public final static String AUTOX_SESS_PROG_MATE    = "/usr/bin/mate-session";
     
     public static final String DEFAULT_LAYOUT_MAP = "English (US)";
+    
+    public static final String passwordKey = "MasterPassword";
+    public static final String testpassword  = "password";
+    public static final int numIterations = 10000;
+    public static final int keyLength = 256;
+    public static final int saltLength = 256;
 
 
     /**

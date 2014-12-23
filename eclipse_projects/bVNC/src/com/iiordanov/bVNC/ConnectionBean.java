@@ -20,9 +20,18 @@
 
 package com.iiordanov.bVNC;
 
+import java.io.UnsupportedEncodingException;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -555,6 +564,58 @@ public class ConnectionBean extends AbstractConnectionBean implements Comparable
         } finally {
             db.endTransaction();
             db.close();
+        }
+    }
+    
+    public String getRawPassword() {
+        return super.getPassword();
+    }
+    
+    public String getPassword() {
+        String password = null;
+        try {
+            password = MainConfiguration.passwordManager.decrypt(super.getPassword());
+        } catch (Exception e) {
+            password = super.getPassword();
+        }
+        return password;
+    }
+    
+    public void setPassword(String password) {
+        if (!password.equals("")) {
+            String encrypted = null;
+            try {
+                encrypted = MainConfiguration.passwordManager.encrypt(password);
+            } catch (Exception e) {
+                encrypted = "";
+            }
+            super.setPassword(encrypted);
+        }
+    }
+    
+    public String getRawSshPassword() {
+        return super.getSshPassword();
+    }
+    
+    public String getSshPassword() {
+        String password = null;
+        try {
+            password = MainConfiguration.passwordManager.decrypt(super.getSshPassword());
+        } catch (Exception e) {
+            password = super.getPassword();
+        }
+        return password;
+    }
+    
+    public void setSshPassword(String password) {
+        if (!password.equals("")) {
+            String encrypted = null;
+            try {
+                encrypted = MainConfiguration.passwordManager.encrypt(password);
+            } catch (Exception e) {
+                encrypted = "";
+            }
+            super.setSshPassword(encrypted);
         }
     }
 }

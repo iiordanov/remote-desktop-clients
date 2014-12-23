@@ -1,16 +1,28 @@
 package com.iiordanov.bVNC;
 
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
 import java.util.ArrayList;
 import java.util.Collections;
 
 import com.iiordanov.bVNC.dialogs.IntroTextDialog;
+import com.iiordanov.bVNC.dialogs.GetTextFragment;
 
 import android.app.Activity;
+import android.app.ActivityManager.MemoryInfo;
+import android.support.v4.app.FragmentTransaction;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Point;
+import android.nfc.Tag;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
+import android.util.Log;
 import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -21,13 +33,26 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
 
-public abstract class MainConfiguration extends Activity {
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
+import android.content.res.Configuration;
+
+public abstract class MainConfiguration extends FragmentActivity implements GetTextFragment.OnFragmentDismissedListener {
+    private final static String TAG = "MainConfiguration";
+
+    private String masterPassword = null;
+    private boolean togglingMasterPassword = false;
+    protected static PasswordManager passwordManager = null;
+
     protected ConnectionBean selected;
     protected Database database;
     protected Spinner spinnerConnection;
     protected EditText textNickname;
     protected boolean startingOrHasPaused = true;
     protected int layoutID;
+    GetTextFragment getPassword = null;
+    GetTextFragment getNewPassword = null;
+    private boolean isConnecting = false;
     
     protected abstract void updateViewFromSelected();
     protected abstract void updateSelectedFromView();
@@ -38,6 +63,15 @@ public abstract class MainConfiguration extends Activity {
         Utils.showMenu(this);
         setContentView(layoutID);
         System.gc();
+        
+        if (getPassword == null) {
+            getPassword = GetTextFragment.newInstance(getString(R.string.master_password_verify),
+              this, GetTextFragment.Password, R.string.master_password_verify_message, R.string.master_password_set_error);
+        }
+        if (getNewPassword == null) {
+            getNewPassword = GetTextFragment.newInstance(getString(R.string.master_password_set),
+              this, GetTextFragment.MatchingPasswordTwice, R.string.master_password_set_message, R.string.master_password_set_error);
+        }
         
         textNickname = (EditText) findViewById(R.id.textNickname);
         
@@ -57,7 +91,86 @@ public abstract class MainConfiguration extends Activity {
         database = new Database(this);
     }
     
+    @Override
+    protected void onStart() {
+        Log.i(TAG, "onStart called");
+        super.onStart();
+        System.gc();
+        //arriveOnPage();
+    }
+    
+    @Override
+    protected void onResume() {
+        Log.i(TAG, "onResume called");
+        super.onResume();
+        System.gc();
+        //arriveOnPage();
+    }
+    
+    @Override
+    protected void onResumeFragments() {
+        Log.i(TAG, "onResumeFragments called");
+        super.onResumeFragments();
+        System.gc();
+        if (isMasterPasswordEnabled()) {
+            showGetPasswordFragment();
+        }
+        arriveOnPage();
+    }
+    
+    @Override
+    public void onWindowFocusChanged (boolean visible) { }
+    
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        Log.i(TAG, "onConfigurationChanged called");
+        super.onConfigurationChanged(newConfig);
+    }
+    
+    @Override
+    protected void onStop() {
+        Log.i(TAG, "onStop called");
+        super.onStop();
+        if ( selected == null ) {
+            return;
+        }
+        updateSelectedFromView();
+        selected.saveAndWriteRecent(false);
+    }
+    
+    @Override
+    protected void onPause() {
+        Log.i(TAG, "onPause called");
+        super.onPause();
+        if (!isConnecting) {
+            startingOrHasPaused = true;
+        } else {
+            isConnecting = false;
+        }
+    }
+    
+    protected void canvasStart() {
+        if (selected == null) return;
+        MemoryInfo info = Utils.getMemoryInfo(this);
+        if (info.lowMemory)
+            System.gc();
+        start();
+    }
+    
+    /**
+     * Starts the activity which makes a VNC connection and displays the remote desktop.
+     */
+    private void start () {
+        isConnecting = true;
+        updateSelectedFromView();
+        selected.saveAndWriteRecent(false);
+        Intent intent = new Intent(this, RemoteCanvasActivity.class);
+        intent.putExtra(Constants.CONNECTION, selected.Gen_getValues());
+        startActivity(intent);
+    }
+    
     public void arriveOnPage() {
+        Log.i(TAG, "arriveOnPage called");
         ArrayList<ConnectionBean> connections = new ArrayList<ConnectionBean>();
         ConnectionBean.getAll(database.getReadableDatabase(),
                               ConnectionBean.GEN_TABLE_NAME, connections,
@@ -81,14 +194,13 @@ public abstract class MainConfiguration extends Activity {
         spinnerConnection.setSelection(connectionIndex, false);
         selected = connections.get(connectionIndex);
         updateViewFromSelected();
-        IntroTextDialog.showIntroTextIfNecessary(this, database, Utils.isFree(this) && startingOrHasPaused);
         startingOrHasPaused = false;
+        IntroTextDialog.showIntroTextIfNecessary(this, database, Utils.isFree(this) && startingOrHasPaused);
     }
     
     public Database getDatabaseHelper() {
         return database;
     }
-    
     
     /**
      * Returns the display height, or if the device has software
@@ -152,8 +264,14 @@ public abstract class MainConfiguration extends Activity {
     @Override
     public boolean onMenuOpened(int featureId, Menu menu) {
         if (menu != null) {
-            menu.findItem(R.id.itemDeleteConnection).setEnabled(selected!=null && ! selected.isNew());
-            menu.findItem(R.id.itemSaveAsCopy).setEnabled(selected!=null && ! selected.isNew());
+            menu.findItem(R.id.itemDeleteConnection).setEnabled(selected != null && !selected.isNew());
+            menu.findItem(R.id.itemSaveAsCopy).setEnabled(selected != null && !selected.isNew());
+            MenuItem itemMasterPassword = menu.findItem(R.id.itemMasterPassword);
+            if (isMasterPasswordEnabled()) {
+                itemMasterPassword.setTitle(R.string.master_password_disable);
+            } else {
+                itemMasterPassword.setTitle(R.string.master_password_enable);
+            }
         }
         return true;
     }
@@ -188,11 +306,156 @@ public abstract class MainConfiguration extends Activity {
         case R.id.itemMainScreenHelp:
             showDialog(R.id.itemMainScreenHelp);
             break;
+        case R.id.itemMasterPassword:
+            togglingMasterPassword = true;
+            if (isMasterPasswordEnabled()) {
+                showGetPasswordFragment();
+            } else {
+                showGetNewPasswordFragment();
+            }
+            break;
+            
         // Disabling Manual/Wiki Menu item as the original does not correspond to this project anymore.
         //case R.id.itemOpenDoc :
         //    Utils.showDocumentation(this);
         //    break;
         }
         return true;
+    }
+    
+    private boolean isMasterPasswordEnabled () {
+        SharedPreferences sp = getSharedPreferences("generalSettings", Context.MODE_PRIVATE);
+        return sp.getBoolean("masterPasswordEnabled", false);
+    }
+    
+    private void toggleMasterPasswordEnabled () {
+        SharedPreferences sp = getSharedPreferences("generalSettings", Context.MODE_PRIVATE);
+        boolean state = sp.getBoolean("masterPasswordEnabled", false);
+        Editor editor = sp.edit();
+        editor.putBoolean("masterPasswordEnabled", !state);
+        editor.apply();
+        Log.i(TAG, "Toggled master password state");
+
+    }
+    
+    private void setMasterPasswordHash (String password) throws UnsupportedEncodingException,
+                                                                NoSuchAlgorithmException, InvalidKeySpecException {
+        // Now compute and store the hash of the provided password and saved salt.
+        String salt = PasswordManager.randomBase64EncodedString(Constants.saltLength);
+        String hash = PasswordManager.computeHash(password, PasswordManager.b64Decode(salt));
+        SharedPreferences sp = getSharedPreferences("generalSettings", Context.MODE_PRIVATE);
+        Editor editor = sp.edit();
+        editor.putString("masterPasswordSalt", salt);
+        editor.putString("masterPasswordHash", hash);
+        editor.apply();
+        Log.i(TAG, "Setting master password hash.");
+        //Log.i(TAG, String.format("hash: %s, salt: %s", hash, new String(PasswordManager.b64Decode(salt))));
+    }
+    
+    private boolean checkMasterPassword (String password) {
+        Log.i(TAG, "Checking master password.");
+        boolean result = false;
+        SharedPreferences sp = getSharedPreferences("generalSettings", Context.MODE_PRIVATE);
+        String savedHash = sp.getString("masterPasswordHash", null);
+        byte[] savedSalt = PasswordManager.b64Decode(sp.getString("masterPasswordSalt", null));
+        //String savedSalt = sp.getString("masterPasswordSalt", null);
+        if (savedHash != null && savedSalt != null) {
+            String newHash = null;
+            try {
+                newHash = PasswordManager.computeHash(password, savedSalt);
+                //Log.i(TAG, String.format("savedHash: %s, savedSalt: %s, newHash: %s", savedHash, new String(savedSalt), newHash));
+                if (newHash.equals(savedHash)) {
+                    result = true;
+                }
+            } catch (Exception e) { }
+            
+        }
+        return result;
+    }
+    
+    public void onTextObtained(String obtainedString) {
+        handlePasword(obtainedString);
+    }
+    
+    public void handlePasword(String providedPassword) {
+        if (togglingMasterPassword) {
+            Log.i(TAG, "Asked to toggle master pasword.");
+            // The user has requested the password to be enabled or disabled.
+            togglingMasterPassword = false;
+            if (isMasterPasswordEnabled()) {
+                Log.i(TAG, "Master password is enabled.");
+                // Master password is enabled
+                if (checkMasterPassword(providedPassword)) {
+                    Log.i(TAG, "Entered password correct.");
+                    // Disable it if user input the correct password.
+                    toggleMasterPasswordEnabled();
+                } else {
+                    Log.i(TAG, "Entered password is wrong, quitting.");
+                    // Finish the activity if the password was wrong.
+                    // TODO: Show error before quitting
+                    finish();
+                }
+            } else {
+                Log.i(TAG, "Master password is disabled.");
+                // The password is disabled, so set it in the preferences.
+                // TODO: Figure out logic for obtaining the password twice - throw a different dialog up?
+                masterPassword = providedPassword;
+                passwordManager = new PasswordManager(masterPassword);
+
+                try {
+                    setMasterPasswordHash (masterPassword);
+                    toggleMasterPasswordEnabled();
+                } catch (Exception e) {
+                    // TODO: Throw up a non-fatal error dialog
+                }
+            }
+        } else {
+            // We are just trying to check the password.
+            Log.i(TAG, "Just checking the password.");
+            if (checkMasterPassword(providedPassword)) {
+                Log.i(TAG, "Entered password is correct, proceeding.");
+                masterPassword = providedPassword;
+                passwordManager = new PasswordManager(masterPassword);
+            } else {
+                Log.i(TAG, "Entered password is wrong, quitting.");
+                // Finish the activity if the password was wrong.
+                // TODO: Show error before quitting
+                finish();
+            }
+        }
+        removeGetPasswordFragments();
+    }
+    
+    private void showGetPasswordFragment() {
+        if (!getPassword.isVisible()) {
+            removeGetPasswordFragments();
+            FragmentManager fm = ((FragmentActivity)this).getSupportFragmentManager();
+            getPassword.setCancelable(false);
+            getPassword.show(fm, "getPassword");
+        }
+    }
+    
+    private void showGetNewPasswordFragment() {
+        if (!getNewPassword.isVisible()) {
+            removeGetPasswordFragments();
+            FragmentManager fm = ((FragmentActivity)this).getSupportFragmentManager();
+            getNewPassword.setCancelable(false);
+            getNewPassword.show(fm, "getNewPassword");
+        }
+    }
+    
+    private void removeGetPasswordFragments() {
+        if (getPassword.isAdded()) {
+            FragmentTransaction tx = this.getSupportFragmentManager().beginTransaction();
+            tx.remove(getPassword);
+            tx.commit();
+            getSupportFragmentManager().executePendingTransactions();
+        }
+        if (getNewPassword.isAdded()) {
+            FragmentTransaction tx = this.getSupportFragmentManager().beginTransaction();
+            tx.remove(getNewPassword);
+            tx.commit();
+            getSupportFragmentManager().executePendingTransactions();
+        }
     }
 }

@@ -99,7 +99,6 @@ public class aRDP extends MainConfiguration {
     private CheckBox checkboxRotateDpad;
     private CheckBox checkboxLocalCursor;
     private CheckBox checkboxUseSshPubkey;
-    private boolean isConnecting = false;
     
     @Override
     public void onCreate(Bundle icicle) {
@@ -416,70 +415,6 @@ public class aRDP extends MainConfiguration {
         selected.setUseLocalCursor(checkboxLocalCursor.isChecked());
         // TODO: Reinstate Color model spinner but for RDP settings.
         //selected.setColorModel(((COLORMODEL)colorSpinner.getSelectedItem()).nameString());
-    }
-    
-    protected void onStart() {
-        super.onStart();
-        System.gc();
-        arriveOnPage();
-    }
-
-    protected void onResume() {
-        super.onStart();
-        System.gc();
-        arriveOnPage();
-    }
-    
-    @Override
-    public void onWindowFocusChanged (boolean visible) {}
-    
-    @Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        Log.e(TAG, "onConfigurationChanged called");
-        super.onConfigurationChanged(newConfig);
-    }
-    
-    protected void onStop() {
-        super.onStop();
-        if ( selected == null ) {
-            return;
-        }
-        updateSelectedFromView();    
-        selected.saveAndWriteRecent(false);
-    }
-    
-    protected void onPause() {
-        Log.e(TAG, "onPause called");
-        super.onPause();
-        if (!isConnecting) {
-            startingOrHasPaused = true;
-        } else {
-            isConnecting = false;
-        }
-    }
-    
-    public Database getDatabaseHelper()    {
-        return database;
-    }
-    
-    private void canvasStart() {
-        if (selected == null) return;
-        MemoryInfo info = Utils.getMemoryInfo(this);
-        if (info.lowMemory)
-            System.gc();
-        start();
-    }
-    
-    /**
-     * Starts the activity which makes a RDP connection and displays the remote desktop.
-     */
-    private void start () {
-        isConnecting = true;
-        updateSelectedFromView();
-        selected.saveAndWriteRecent(false);
-        Intent intent = new Intent(this, RemoteCanvasActivity.class);
-        intent.putExtra(Constants.CONNECTION,selected.Gen_getValues());
-        startActivity(intent);
     }
     
     /**

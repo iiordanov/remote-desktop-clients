@@ -190,8 +190,7 @@ public class RemoteCanvasActivity extends Activity implements OnKeyListener {
             Bundle extras = i.getExtras();
 
             if (extras != null) {
-                  connection.Gen_populate((ContentValues) extras
-                      .getParcelable(Constants.CONNECTION));
+                  connection.Gen_populate((ContentValues) extras.getParcelable(Constants.CONNECTION));
             }
 
             // Parse a HOST:PORT entry

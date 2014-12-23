@@ -311,6 +311,15 @@ If you are looking for a quick performance boost, try setting the Color mode to 
  - Auto/Fullscreen Bitmap: The VNC client uses a bitmap to represent the remote display. For very large remote displays, especially in fit-to-screen mode, you may experience strange visual artifacts when in fit-to-screen mode, due to per-process memory limitations. If that happens, try checking this option. Keep in mind that checking the option may cause bVNC to quit on connection.
 
  - Repeater: Available only in UltraVNC mode. IMPORTANT: If you have an UltraVNC repeater, enter its address and port outside the \'UltraVNC Repeater\' dialog and enter the address and port of the actual VNC server inside the \'UltraVNC Repeater\' Dialog. Separate VNC server\'s address and port with a colon, e.g. 192.168.0.100:5900."</string>
+<string name="master_password_disable">Disable Master Password</string>
+<string name="master_password_enable">Enable Master Password</string>
+<string name="master_password_hint_once">Enter Password</string>
+<string name="master_password_hint_twice">Repeat Password</string>
+<string name="master_password_verify">Verify Master Password</string>
+<string name="master_password_verify_message">Please enter correct Master Password to continue.</string>
+<string name="master_password_set">Set Master Password</string>
+<string name="master_password_set_message">Please carefully enter Master Password twice to set it. Please memorize your password. If you make a mistake or forget your password you will lose all your settings!</string>
+<string name="master_password_set_error">ERROR: Passwords must match, please be careful.</string>
 <string name="meta_key_title">Send Special Keys</string>
 <string name="mouse_follow_pan">Mouse follows pan</string>
 <string name="new_list_button">New List</string>
@@ -551,7 +560,7 @@ Known issues:
 
  - SPICE Connection Settings:
    (a) SPICE Server/Port: This is where you enter the host name or IP address and port of the computer running the SPICE server that you wish to contact. In SPICE over SSH mode, this address is as seen from the SSH Server. If the SSH Server and SPICE server are the same physical computer, you can use localhost. SPICE servers typically listen on port 5900 and up.
-   (d) SPICE Password: This si where you enter the password set to protect your SPICE session. Secure storage is not used for passwords (they are in a database), and the password will be stored only if you check the "Keep" box. The password will be filled in on this page if you haven't quit aSPICE since you last entered it.
+   (d) SPICE Password: This is where you enter the password set to protect your SPICE session. Secure storage is not used for passwords (they are in a database), and the password will be stored only if you check the "Keep" box. The password will be filled in on this page if you haven't quit aSPICE since you last entered it.
 
  - Advanced settings: In this section you'll find any local device or SPICE performance tweaks
  - Local Device Tweaks: These adjust the behavior of aSPICE on your device.

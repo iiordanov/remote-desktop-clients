@@ -20,7 +20,21 @@
 
 package com.iiordanov.bVNC;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.Reader;
+import java.io.Writer;
 import java.lang.reflect.Field;
+
+import org.xml.sax.SAXException;
+
+import com.antlersoft.android.contentxml.SqliteElement;
+import com.antlersoft.android.contentxml.SqliteElement.ReplaceStrategy;
 
 import android.app.Activity;
 import android.app.ActivityManager;
@@ -30,6 +44,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.text.Html;
 import android.view.ViewConfiguration;
@@ -174,5 +189,17 @@ public class Utils {
             bb = true;
         }
         return bb;
+    }
+    
+    public static void exportSettingsToXml (String file, SQLiteDatabase db) throws SAXException, IOException {
+        File f = new File(file);
+        Writer writer = new OutputStreamWriter(new FileOutputStream(f, false));
+        SqliteElement.exportDbAsXmlToStream(db, writer);
+        writer.close();
+    }
+    
+    public static void importSettingsFromXml (String file, SQLiteDatabase db) throws SAXException, IOException {
+        Reader reader = new InputStreamReader(new FileInputStream(file));
+        SqliteElement.importXmlStreamToDb(db, reader, ReplaceStrategy.REPLACE_EXISTING);
     }
 }
