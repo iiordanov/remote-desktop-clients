@@ -64,6 +64,7 @@ public class IntroTextDialog extends Dialog {
             return;
         }
         MostRecentBean mr = ConnectionBean.getMostRecent(database.getReadableDatabase());
+        database.close();
         
         if (dialog == null && show && (mr == null || mr.getShowSplashVersion() != pi.versionCode)) {
             dialog = new IntroTextDialog(context, pi, database);
@@ -203,6 +204,7 @@ public class IntroTextDialog extends Dialog {
             mostRecent.setShowSplashVersion(value);
             mostRecent.Gen_update(db);
         }
+        database.close();
         dismiss();
         dialog = null;
     }

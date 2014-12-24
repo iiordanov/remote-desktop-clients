@@ -116,9 +116,8 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
         if (isMasterPasswordEnabled()) {
             showGetPasswordFragment();
         } else {
-            database = new Database(this);
+            arriveOnPage();
         }
-        arriveOnPage();
     }
     
     @Override
@@ -132,8 +131,10 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
     
     @Override
     protected void onStop() {
-        Log.i(TAG, "onStop called");
         super.onStop();
+        Log.i(TAG, "onStop called");
+        if (database != null)
+            database.close();
         if ( selected == null ) {
             return;
         }
@@ -143,8 +144,10 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
     
     @Override
     protected void onPause() {
-        Log.i(TAG, "onPause called");
         super.onPause();
+        Log.i(TAG, "onPause called");
+        if (database != null)
+            database.close();
         if (!isConnecting) {
             startingOrHasPaused = true;
         } else {
@@ -182,20 +185,19 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
     
     public void arriveOnPage() {
         if (database == null) {
-            return;
+            database = new Database(this);
         }
         Log.i(TAG, "arriveOnPage called");
+        SQLiteDatabase db = database.getReadableDatabase();
         ArrayList<ConnectionBean> connections = new ArrayList<ConnectionBean>();
-        ConnectionBean.getAll(database.getReadableDatabase(),
+        ConnectionBean.getAll(db,
                               ConnectionBean.GEN_TABLE_NAME, connections,
                               ConnectionBean.newInstance);
-        database.close();
         Collections.sort(connections);
         connections.add(0, new ConnectionBean(this));
         int connectionIndex = 0;
         if (connections.size() > 1) {
-            MostRecentBean mostRecent = ConnectionBean.getMostRecent(database.getReadableDatabase());
-            database.close();
+            MostRecentBean mostRecent = ConnectionBean.getMostRecent(db);
             if (mostRecent != null) {
                 for (int i = 1; i < connections.size(); ++i) {
                     if (connections.get(i).get_Id() == mostRecent.getConnectionId()) {
@@ -205,6 +207,7 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
                 }
             }
         }
+        database.close();
         spinnerConnection.setAdapter(new ArrayAdapter<ConnectionBean>(this, R.layout.connection_list_entry,
                                      connections.toArray(new ConnectionBean[connections.size()])));
         spinnerConnection.setSelection(connectionIndex, false);
@@ -373,13 +376,15 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
         boolean result = false;
         
         Database testPassword = new Database(this);
+        testPassword.close();
         try {
             testPassword.getReadableDatabase(password);
             result = true;
         } catch (Exception e) {
             result = false;
         }
-        
+        testPassword.close();
+
 /*        SharedPreferences sp = getSharedPreferences("generalSettings", Context.MODE_PRIVATE);
         String savedHash = sp.getString("masterPasswordHash", null);
         byte[] savedSalt = PasswordManager.b64Decode(sp.getString("masterPasswordSalt", null));
@@ -419,8 +424,6 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
                     database.close();
                     
                     Database.setPassword("");
-                    database = new Database(this);
-                    database.close();
                     toggleMasterPasswordState();
                 } else {
                     //deleteTempDatabase();
@@ -459,9 +462,6 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
                 Log.i(TAG, "Entered password is correct, proceeding.");
                 masterPassword = providedPassword;
                 Database.setPassword(masterPassword);
-                database = new Database(this);
-                database.close();
-                passwordManager = new PasswordManager(masterPassword);
             } else {
                 Log.i(TAG, "Entered password is wrong, quitting.");
                 // Finish the activity if the password was wrong.

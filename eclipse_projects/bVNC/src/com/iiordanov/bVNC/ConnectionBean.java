@@ -566,6 +566,9 @@ public class ConnectionBean extends AbstractConnectionBean implements Comparable
             db.endTransaction();
             db.close();
         }
+        if (db.isOpen()) {
+            db.close();
+        }
     }
     
 /*    public String getRawPassword() {
