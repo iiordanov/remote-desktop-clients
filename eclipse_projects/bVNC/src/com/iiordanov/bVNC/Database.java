@@ -20,9 +20,13 @@
 
 package com.iiordanov.bVNC;
 
+import java.io.File;
+
+import javax.crypto.NullCipher;
+
 import android.content.Context;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
+import net.sqlcipher.database.SQLiteDatabase;
+import net.sqlcipher.database.SQLiteOpenHelper;
 import android.util.Log;
 
 /**
@@ -43,29 +47,106 @@ public class Database extends SQLiteOpenHelper {
     static final int DBV_2_1_2 = 336;
     static final int DBV_2_1_3 = 360;
     static final int DBV_2_1_4 = 367;
+    static final int CURRVERS = DBV_2_1_4;
+    private static String dbName = "VncDatabase";
+    private static String password = "";
     
     public final static String TAG = Database.class.toString();
     
     Database(Context context) {
-        super(context, "VncDatabase", null, DBV_2_1_4);
+        super(context, dbName, null, DBV_2_1_4);
+        SQLiteDatabase.loadLibs(context);
     }
 
     /* (non-Javadoc)
-     * @see android.database.sqlite.SQLiteOpenHelper#onCreate(android.database.sqlite.SQLiteDatabase)
+     * @see net.sqlcipher.database.SQLiteOpenHelper#onCreate(net.sqlcipher.database.SQLiteDatabase)
      */
     @Override
     public void onCreate(SQLiteDatabase db) {
+        
         db.execSQL(AbstractConnectionBean.GEN_CREATE);
         db.execSQL(MostRecentBean.GEN_CREATE);
         db.execSQL(MetaList.GEN_CREATE);
         db.execSQL(AbstractMetaKeyBean.GEN_CREATE);
         db.execSQL(SentTextBean.GEN_CREATE);
         
-        db.execSQL("INSERT INTO "+MetaList.GEN_TABLE_NAME+" VALUES ( 1, 'DEFAULT')");
+        db.execSQL("INSERT INTO " + MetaList.GEN_TABLE_NAME + " VALUES ( 1, 'DEFAULT')");
     }
+    
+    public SQLiteDatabase getWritableDatabase() {
+        return getWritableDatabase(Database.password);
+    }
+    
+    public SQLiteDatabase getReadableDatabase() {
+        return getReadableDatabase(Database.password);
+    }
+    
+    public static void setPassword (String newPassword) {
+        Database.password = newPassword;
+    }
+    
+    public String changeDatabasePassword (String newPassword) {
+        // Get writeable database with old password
+        SQLiteDatabase db = getReadableDatabase(Database.password);
+        String pathToDb = db.getPath();
+        boolean swaptemp = false;
 
+        // If the previous key is an empty string, we must encrypt a plaintext DB.
+        if (Database.password.equals("")) {
+            // Change the password
+            Database.password = newPassword;
+            deleteTempDatabase();
+            
+            Log.i(TAG, "Previous database unencrypted, encrypting.");
+            db.rawExecSQL(String.format("ATTACH DATABASE '%s' AS encrypted KEY '%s'", db.getPath()+"-temp", Database.password));
+            db.rawExecSQL("select sqlcipher_export('encrypted')");
+            db.rawExecSQL("DETACH DATABASE encrypted");
+            SQLiteDatabase encryptedDb = SQLiteDatabase.openOrCreateDatabase(db.getPath()+"-temp", Database.password, null);
+            encryptedDb.setVersion(db.getVersion());
+            encryptedDb.close();
+            swaptemp = true;
+            Log.i(TAG, "Done encrypting");
+        // If the previous key is not an empty string, then we must rekey an existing DB.
+        } else if (newPassword.equals("")) {
+            // Change the password
+            Database.password = newPassword;
+            deleteTempDatabase();
+            
+            Log.i(TAG, "Previous database encrypted, decrypting.");
+            db.rawExecSQL(String.format("ATTACH DATABASE '%s' AS plaintext KEY '%s'", db.getPath()+"-temp", Database.password));
+            db.rawExecSQL("select sqlcipher_export('plaintext')");
+            db.rawExecSQL("DETACH DATABASE plaintext");
+            SQLiteDatabase plaintextDb = SQLiteDatabase.openOrCreateDatabase(db.getPath()+"-temp", Database.password, null);
+            plaintextDb.setVersion(db.getVersion());
+            plaintextDb.close();
+            swaptemp = true;
+            Log.i(TAG, "Done decrypting.");
+        } else {
+            // Change the password
+            Log.i(TAG, "Previous database encrypted, rekeying.");
+            db.rawExecSQL(String.format("PRAGMA key = '%s'", Database.password));
+            Database.password = newPassword;
+            // Rekey the database
+            db.rawExecSQL(String.format("PRAGMA rekey = '%s'", Database.password));
+        }
+        db.close();
+        this.close();
+        if (swaptemp == true) {
+            // Rename the database
+            String encryptedDb = pathToDb + "-temp";
+            new File(encryptedDb).renameTo(new File(pathToDb));
+        }
+        return pathToDb;
+    }
+    
+    private void deleteTempDatabase() {
+        String dbPath = this.getReadableDatabase().getPath();
+        String tempDbPath = dbPath + "-temp";
+        new File(tempDbPath).delete();
+    }
+    
     /* (non-Javadoc)
-     * @see android.database.sqlite.SQLiteOpenHelper#onUpgrade(android.database.sqlite.SQLiteDatabase, int, int)
+     * @see net.sqlcipher.database.SQLiteOpenHelper#onUpgrade(net.sqlcipher.database.SQLiteDatabase, int, int)
      */
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
@@ -234,5 +315,9 @@ public class Database extends SQLiteOpenHelper {
                     +AbstractConnectionBean.GEN_FIELD_LAYOUTMAP + " TEXT DEFAULT 'English (US)'");
             oldVersion = DBV_2_1_4;
         }
+    }
+
+    public static String getPassword() {
+        return password;
     }
 }

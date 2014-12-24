@@ -26,7 +26,7 @@ import android.app.ActivityManager.MemoryInfo;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
-import android.database.sqlite.SQLiteDatabase;
+import net.sqlcipher.database.SQLiteDatabase;
 import android.os.Bundle;
 import android.view.Display;
 import android.view.Menu;
@@ -244,12 +244,6 @@ public class aRDP extends MainConfiguration {
             rdpWidth.setEnabled(true);
             rdpHeight.setEnabled(true);
         }
-    }
-
-    protected void onDestroy() {
-        database.close();
-        System.gc();
-        super.onDestroy();
     }
     
     /* (non-Javadoc)

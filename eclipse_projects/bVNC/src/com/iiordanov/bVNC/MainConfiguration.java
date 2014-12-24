@@ -1,5 +1,6 @@
 package com.iiordanov.bVNC;
 
+import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
 import java.security.MessageDigest;
@@ -7,6 +8,8 @@ import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.ArrayList;
 import java.util.Collections;
+
+import net.sqlcipher.database.SQLiteDatabase;
 
 import com.iiordanov.bVNC.dialogs.IntroTextDialog;
 import com.iiordanov.bVNC.dialogs.GetTextFragment;
@@ -40,7 +43,7 @@ import android.content.res.Configuration;
 public abstract class MainConfiguration extends FragmentActivity implements GetTextFragment.OnFragmentDismissedListener {
     private final static String TAG = "MainConfiguration";
 
-    private String masterPassword = null;
+    private String masterPassword = "";
     private boolean togglingMasterPassword = false;
     protected static PasswordManager passwordManager = null;
 
@@ -87,8 +90,6 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
                 selected = null;
             }
         });
-        
-        database = new Database(this);
     }
     
     @Override
@@ -114,6 +115,8 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
         System.gc();
         if (isMasterPasswordEnabled()) {
             showGetPasswordFragment();
+        } else {
+            database = new Database(this);
         }
         arriveOnPage();
     }
@@ -149,6 +152,14 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
         }
     }
     
+    @Override
+    protected void onDestroy() {
+        if (database != null)
+            database.close();
+        System.gc();
+        super.onDestroy();
+    }
+    
     protected void canvasStart() {
         if (selected == null) return;
         MemoryInfo info = Utils.getMemoryInfo(this);
@@ -170,16 +181,21 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
     }
     
     public void arriveOnPage() {
+        if (database == null) {
+            return;
+        }
         Log.i(TAG, "arriveOnPage called");
         ArrayList<ConnectionBean> connections = new ArrayList<ConnectionBean>();
         ConnectionBean.getAll(database.getReadableDatabase(),
                               ConnectionBean.GEN_TABLE_NAME, connections,
                               ConnectionBean.newInstance);
+        database.close();
         Collections.sort(connections);
         connections.add(0, new ConnectionBean(this));
         int connectionIndex = 0;
         if (connections.size() > 1) {
             MostRecentBean mostRecent = ConnectionBean.getMostRecent(database.getReadableDatabase());
+            database.close();
             if (mostRecent != null) {
                 for (int i = 1; i < connections.size(); ++i) {
                     if (connections.get(i).get_Id() == mostRecent.getConnectionId()) {
@@ -328,7 +344,7 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
         return sp.getBoolean("masterPasswordEnabled", false);
     }
     
-    private void toggleMasterPasswordEnabled () {
+    private void toggleMasterPasswordState () {
         SharedPreferences sp = getSharedPreferences("generalSettings", Context.MODE_PRIVATE);
         boolean state = sp.getBoolean("masterPasswordEnabled", false);
         Editor editor = sp.edit();
@@ -355,7 +371,16 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
     private boolean checkMasterPassword (String password) {
         Log.i(TAG, "Checking master password.");
         boolean result = false;
-        SharedPreferences sp = getSharedPreferences("generalSettings", Context.MODE_PRIVATE);
+        
+        Database testPassword = new Database(this);
+        try {
+            testPassword.getReadableDatabase(password);
+            result = true;
+        } catch (Exception e) {
+            result = false;
+        }
+        
+/*        SharedPreferences sp = getSharedPreferences("generalSettings", Context.MODE_PRIVATE);
         String savedHash = sp.getString("masterPasswordHash", null);
         byte[] savedSalt = PasswordManager.b64Decode(sp.getString("masterPasswordSalt", null));
         //String savedSalt = sp.getString("masterPasswordSalt", null);
@@ -369,7 +394,7 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
                 }
             } catch (Exception e) { }
             
-        }
+        }*/
         return result;
     }
     
@@ -386,27 +411,45 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
                 Log.i(TAG, "Master password is enabled.");
                 // Master password is enabled
                 if (checkMasterPassword(providedPassword)) {
-                    Log.i(TAG, "Entered password correct.");
-                    // Disable it if user input the correct password.
-                    toggleMasterPasswordEnabled();
+                    Log.i(TAG, "Entered password correct, disabling password.");
+                    // Disable the password since the user input the correct password.
+                    Database.setPassword(masterPassword);
+                    database = new Database(this);
+                    database.changeDatabasePassword("");
+                    database.close();
+                    
+                    Database.setPassword("");
+                    database = new Database(this);
+                    database.close();
+                    toggleMasterPasswordState();
                 } else {
+                    //deleteTempDatabase();
                     Log.i(TAG, "Entered password is wrong, quitting.");
-                    // Finish the activity if the password was wrong.
-                    // TODO: Show error before quitting
-                    finish();
+                    Utils.showFatalErrorMessage(this, "TODO: Show localized error about wrong password, and QUIT.");
                 }
             } else {
                 Log.i(TAG, "Master password is disabled.");
                 // The password is disabled, so set it in the preferences.
-                // TODO: Figure out logic for obtaining the password twice - throw a different dialog up?
-                masterPassword = providedPassword;
-                passwordManager = new PasswordManager(masterPassword);
-
                 try {
-                    setMasterPasswordHash (masterPassword);
-                    toggleMasterPasswordEnabled();
+                    masterPassword = providedPassword;
+                    Database.setPassword("");
+                    database = new Database(this);
+                    Log.i(TAG, "Changing database password.");
+                    database.changeDatabasePassword(masterPassword);
+                    database.close();
+                    
+                    // Set password, and reopen database.
+                    Database.setPassword(masterPassword);
+                    database = new Database(this);
+                    database.close();
+                    passwordManager = new PasswordManager(masterPassword);
+                    
+                    //setMasterPasswordHash (masterPassword);
+                    toggleMasterPasswordState();
                 } catch (Exception e) {
-                    // TODO: Throw up a non-fatal error dialog
+                    //deleteTempDatabase();
+                    // TODO: Throw up a localized non-fatal error dialog
+                    Utils.showErrorMessage(this, "TODO: Show localized error about enabling master password.");
                 }
             }
         } else {
@@ -415,15 +458,18 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
             if (checkMasterPassword(providedPassword)) {
                 Log.i(TAG, "Entered password is correct, proceeding.");
                 masterPassword = providedPassword;
+                Database.setPassword(masterPassword);
+                database = new Database(this);
+                database.close();
                 passwordManager = new PasswordManager(masterPassword);
             } else {
                 Log.i(TAG, "Entered password is wrong, quitting.");
                 // Finish the activity if the password was wrong.
-                // TODO: Show error before quitting
-                finish();
+                Utils.showFatalErrorMessage(this, "TODO: Show localized error about wrong password, and ASK AGAIN.");
             }
         }
         removeGetPasswordFragments();
+        arriveOnPage();
     }
     
     private void showGetPasswordFragment() {

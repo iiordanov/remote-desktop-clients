@@ -28,7 +28,7 @@ import android.app.ActivityManager.MemoryInfo;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
-import android.database.sqlite.SQLiteDatabase;
+import net.sqlcipher.database.SQLiteDatabase;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.view.Display;
@@ -271,12 +271,6 @@ public class bVNC extends MainConfiguration {
      */
     private void setVisibilityOfUltraVncWidgets (int visibility) {
         repeaterEntry.setVisibility(visibility);
-    }
-    
-    protected void onDestroy() {
-        database.close();
-        System.gc();
-        super.onDestroy();
     }
     
     /* (non-Javadoc)

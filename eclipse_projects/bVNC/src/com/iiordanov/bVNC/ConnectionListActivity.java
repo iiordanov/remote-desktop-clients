@@ -42,8 +42,12 @@ public class ConnectionListActivity extends ListActivity {
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         
-        database = new Database(this);
-
+        try {
+            database = new Database(this);
+        } catch (Exception e) {
+            Utils.showFatalErrorMessage(this, "ERROR, could not open database, could it be its encryped?");
+        }
+        
         // Query for all people contacts using the Contacts.People convenience class.
         // Put a managed wrapper around the retrieved cursor so we don't have to worry about
         // requerying or closing it as the activity changes state.

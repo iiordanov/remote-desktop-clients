@@ -33,7 +33,7 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
+import net.sqlcipher.database.SQLiteDatabase;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;

@@ -37,7 +37,7 @@ import android.content.Intent;
 import android.content.res.AssetManager;
 import android.content.res.Configuration;
 import android.content.res.Resources;
-import android.database.sqlite.SQLiteDatabase;
+import net.sqlcipher.database.SQLiteDatabase;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Display;
@@ -273,13 +273,7 @@ public class aSPICE extends MainConfiguration {
             resHeight.setEnabled(true);
         }
     }
-
-    protected void onDestroy() {
-        database.close();
-        System.gc();
-        super.onDestroy();
-    }
-
+    
     /*
      * (non-Javadoc)
      * 

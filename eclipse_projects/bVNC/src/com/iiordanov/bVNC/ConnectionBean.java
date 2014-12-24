@@ -36,7 +36,7 @@ import javax.crypto.NoSuchPaddingException;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
+import net.sqlcipher.database.SQLiteDatabase;
 import android.net.Uri;
 import android.util.Log;
 import android.widget.ImageView.ScaleType;
@@ -58,6 +58,7 @@ public class ConnectionBean extends AbstractConnectionBean implements Comparable
     protected boolean m_saved = false;
     private int idHashAlgorithm;
     private String idHash;
+    private String masterPassword;
     
     static final NewInstance<ConnectionBean> newInstance=new NewInstance<ConnectionBean>() {
         public ConnectionBean get() { return new ConnectionBean(c); }
@@ -567,7 +568,7 @@ public class ConnectionBean extends AbstractConnectionBean implements Comparable
         }
     }
     
-    public String getRawPassword() {
+/*    public String getRawPassword() {
         return super.getPassword();
     }
     
@@ -617,5 +618,5 @@ public class ConnectionBean extends AbstractConnectionBean implements Comparable
             }
             super.setSshPassword(encrypted);
         }
-    }
+    }*/
 }
