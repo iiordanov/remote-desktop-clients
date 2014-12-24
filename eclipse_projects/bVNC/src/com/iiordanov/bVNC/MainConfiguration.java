@@ -1,9 +1,6 @@
 package com.iiordanov.bVNC;
 
-import java.io.File;
 import java.io.UnsupportedEncodingException;
-import java.lang.reflect.Field;
-import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.ArrayList;
@@ -14,14 +11,12 @@ import net.sqlcipher.database.SQLiteDatabase;
 import com.iiordanov.bVNC.dialogs.IntroTextDialog;
 import com.iiordanov.bVNC.dialogs.GetTextFragment;
 
-import android.app.Activity;
 import android.app.ActivityManager.MemoryInfo;
 import android.support.v4.app.FragmentTransaction;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Point;
-import android.nfc.Tag;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
@@ -115,7 +110,7 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
         super.onResumeFragments();
         System.gc();
         if (isMasterPasswordEnabled()) {
-            showGetPasswordFragment();
+            showGetTextFragment(getPassword);
         } else {
             arriveOnPage();
         }
@@ -326,9 +321,9 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
         case R.id.itemMasterPassword:
             togglingMasterPassword = true;
             if (isMasterPasswordEnabled()) {
-                showGetPasswordFragment();
+                showGetTextFragment(getPassword);
             } else {
-                showGetNewPasswordFragment();
+                showGetTextFragment(getNewPassword);
             }
             break;
             
@@ -422,6 +417,8 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
                     Database.setPassword(providedPassword);
                     database.changeDatabasePassword("");
                     toggleMasterPasswordState();
+                    removeGetPasswordFragments();
+                    arriveOnPage();
                 } else {
                     Log.i(TAG, "Entered password is wrong or dialog cancelled, so quitting.");
                     Utils.showFatalErrorMessage(this, "TODO: Show localized error about wrong password, and QUIT.");
@@ -438,6 +435,8 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
                     // No need to show error message because user cancelled consciously.
                     Log.i(TAG, "Dialog cancelled, not setting master password.");
                 }
+                removeGetPasswordFragments();
+                arriveOnPage();
             }
         } else {
             // We are just trying to check the password.
@@ -448,31 +447,22 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
             } else if (checkMasterPassword(providedPassword)) {
                 Log.i(TAG, "Entered password is correct, so proceeding.");
                 Database.setPassword(providedPassword);
+                removeGetPasswordFragments();
+                arriveOnPage();
             } else {
                 // Finish the activity if the password was wrong.
                 Log.i(TAG, "Entered password is wrong, so quitting.");
                 Utils.showFatalErrorMessage(this, "TODO: Show localized error about wrong password, and ASK AGAIN?");
             }
         }
-        removeGetPasswordFragments();
-        arriveOnPage();
     }
     
-    private void showGetPasswordFragment() {
-        if (!getPassword.isVisible()) {
+    private void showGetTextFragment(GetTextFragment f) {
+        if (!f.isVisible()) {
             removeGetPasswordFragments();
             FragmentManager fm = ((FragmentActivity)this).getSupportFragmentManager();
-            getPassword.setCancelable(false);
-            getPassword.show(fm, "getPassword");
-        }
-    }
-    
-    private void showGetNewPasswordFragment() {
-        if (!getNewPassword.isVisible()) {
-            removeGetPasswordFragments();
-            FragmentManager fm = ((FragmentActivity)this).getSupportFragmentManager();
-            getNewPassword.setCancelable(false);
-            getNewPassword.show(fm, "getNewPassword");
+            f.setCancelable(false);
+            f.show(fm, "");
         }
     }
     
