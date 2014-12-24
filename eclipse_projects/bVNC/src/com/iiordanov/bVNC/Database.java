@@ -108,14 +108,14 @@ public class Database extends SQLiteOpenHelper {
         } else {
             Log.i(TAG, "Previous database encrypted, rekeying.");
             db.rawExecSQL(String.format("PRAGMA key = '%s'", Database.password));
-            Database.password = newPassword;
+            Database.setPassword(newPassword);
             // Rekey the database
             db.rawExecSQL(String.format("PRAGMA rekey = '%s'", Database.password));
         }
         
         if (swaptemp == true) {
             // Write out the database in the new format.
-            Database.password = newPassword;
+            Database.setPassword(newPassword);
             db.rawExecSQL(String.format("ATTACH DATABASE '%s' AS %s KEY '%s'", db.getPath()+"-temp", newFormat, Database.password));
             db.rawExecSQL(String.format("select sqlcipher_export('%s')", newFormat));
             db.rawExecSQL(String.format("DETACH DATABASE '%s'", newFormat));
