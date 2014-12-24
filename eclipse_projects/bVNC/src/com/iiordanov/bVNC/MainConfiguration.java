@@ -401,11 +401,11 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
         return result;
     }
     
-    public void onTextObtained(String obtainedString) {
-        handlePasword(obtainedString);
+    public void onTextObtained(String obtainedString, boolean wasCancelled) {
+        handlePasword(obtainedString, wasCancelled);
     }
     
-    public void handlePasword(String providedPassword) {
+    public void handlePasword(String providedPassword, boolean wasCancelled) {
         if (togglingMasterPassword) {
             Log.i(TAG, "Asked to toggle master pasword.");
             // The user has requested the password to be enabled or disabled.
@@ -413,38 +413,44 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
             if (isMasterPasswordEnabled()) {
                 Log.i(TAG, "Master password is enabled.");
                 // Master password is enabled
-                if (checkMasterPassword(providedPassword)) {
+                if (wasCancelled) {
+                    Log.i(TAG, "Dialog cancelled, so quitting.");
+                    Utils.showFatalErrorMessage(this, "TODO: Show error about password being necessary and QUIT.");
+                } else if (checkMasterPassword(providedPassword)) {
                     Log.i(TAG, "Entered password correct, disabling password.");
                     // Disable the password since the user input the correct password.
                     Database.setPassword(providedPassword);
                     database.changeDatabasePassword("");
                     toggleMasterPasswordState();
                 } else {
-                    Log.i(TAG, "Entered password is wrong, quitting.");
+                    Log.i(TAG, "Entered password is wrong or dialog cancelled, so quitting.");
                     Utils.showFatalErrorMessage(this, "TODO: Show localized error about wrong password, and QUIT.");
                 }
             } else {
                 Log.i(TAG, "Master password is disabled.");
-                // The password is disabled, so set it in the preferences.
-                try {
-                    Log.i(TAG, "Changing database password.");
+                if (!wasCancelled) {
+                    // The password is disabled, so set it in the preferences.
+                    Log.i(TAG, "Setting master password.");
                     Database.setPassword("");
                     database.changeDatabasePassword(providedPassword);
                     toggleMasterPasswordState();
-                } catch (Exception e) {
-                    // TODO: Throw up a localized non-fatal error dialog
-                    Utils.showErrorMessage(this, "TODO: Show localized error that enabling master password failed.");
+                } else {
+                    // No need to show error message because user cancelled consciously.
+                    Log.i(TAG, "Dialog cancelled, not setting master password.");
                 }
             }
         } else {
             // We are just trying to check the password.
             Log.i(TAG, "Just checking the password.");
-            if (checkMasterPassword(providedPassword)) {
-                Log.i(TAG, "Entered password is correct, proceeding.");
+            if (wasCancelled) {
+                Log.i(TAG, "Dialog cancelled, so quitting.");
+                Utils.showFatalErrorMessage(this, "TODO: Show error about password being necessary and QUIT.");
+            } else if (checkMasterPassword(providedPassword)) {
+                Log.i(TAG, "Entered password is correct, so proceeding.");
                 Database.setPassword(providedPassword);
             } else {
-                Log.i(TAG, "Entered password is wrong, quitting.");
                 // Finish the activity if the password was wrong.
+                Log.i(TAG, "Entered password is wrong, so quitting.");
                 Utils.showFatalErrorMessage(this, "TODO: Show localized error about wrong password, and ASK AGAIN?");
             }
         }

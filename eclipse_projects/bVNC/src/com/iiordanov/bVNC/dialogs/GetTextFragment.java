@@ -64,9 +64,10 @@ public class GetTextFragment extends DialogFragment {
     public static final int MatchingPasswordTwice = 3;
 
     public interface OnFragmentDismissedListener {
-        public void onTextObtained(String obtainedString);
+        public void onTextObtained(String obtainedString, boolean dialogCancelled);
     }
-	
+    
+	private boolean wasCancelled = false;
     private TextView message;
     private TextView error;
     private EditText textBox;
@@ -212,14 +213,18 @@ public class GetTextFragment extends DialogFragment {
     @Override
     public void onDismiss (DialogInterface dialog) {
     	android.util.Log.i(TAG, "onDismiss called: Sending data back to Activity");
-    	String result = textBox.getText().toString();    	
+    	String result = textBox.getText().toString();
+    	if (result.isEmpty()) {
+    	    android.util.Log.i(TAG, "Dialog was cancelled, so sending wasCancelled == true back.");
+    	    wasCancelled = true;
+    	}
     	if (textBox != null) {
     	    textBox.setText("");
     	}
     	if (textBox2 != null) {
     	    textBox2.setText("");
     	}
-    	dismissalListener.onTextObtained(result);
+    	dismissalListener.onTextObtained(result, wasCancelled);
     }
 
     @Override
