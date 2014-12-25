@@ -21,7 +21,9 @@
 package com.iiordanov.bVNC;
 
 import android.app.ListActivity;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.Intent.ShortcutIconResource;
 import android.database.Cursor;
 import android.net.Uri;
@@ -43,7 +45,12 @@ public class ConnectionListActivity extends ListActivity {
         super.onCreate(savedInstanceState);
         
         database = new Database(this);
-
+        
+        if (isMasterPasswordEnabled()) {
+            Utils.showFatalErrorMessage(this, getResources().getString(R.string.master_password_error_shortcuts_not_supported));
+            return;
+        }
+        
         // Query for all people contacts using the Contacts.People convenience class.
         // Put a managed wrapper around the retrieved cursor so we don't have to worry about
         // requerying or closing it as the activity changes state.
@@ -115,8 +122,14 @@ public class ConnectionListActivity extends ListActivity {
      */
     @Override
     protected void onDestroy() {
-        database.close();
+        if (database != null) {
+            database.close();
+        }
         super.onDestroy();
     }
     
+    private boolean isMasterPasswordEnabled() {
+        SharedPreferences sp = getSharedPreferences(Constants.generalSettingsTag, Context.MODE_PRIVATE);
+        return sp.getBoolean(Constants.masterPasswordEnabledTag, false);
+    }
 }

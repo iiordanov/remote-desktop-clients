@@ -20,14 +20,23 @@
 
 package com.iiordanov.bVNC;
 
+import java.io.UnsupportedEncodingException;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
+
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
+import net.sqlcipher.database.SQLiteDatabase;
 import android.net.Uri;
 import android.util.Log;
 import android.widget.ImageView.ScaleType;
@@ -49,6 +58,7 @@ public class ConnectionBean extends AbstractConnectionBean implements Comparable
     protected boolean m_saved = false;
     private int idHashAlgorithm;
     private String idHash;
+    private String masterPassword;
     
     static final NewInstance<ConnectionBean> newInstance=new NewInstance<ConnectionBean>() {
         public ConnectionBean get() { return new ConnectionBean(c); }
@@ -554,6 +564,9 @@ public class ConnectionBean extends AbstractConnectionBean implements Comparable
             db.setTransactionSuccessful();
         } finally {
             db.endTransaction();
+            db.close();
+        }
+        if (db.isOpen()) {
             db.close();
         }
     }

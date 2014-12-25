@@ -28,7 +28,7 @@ import android.app.ActivityManager.MemoryInfo;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
-import android.database.sqlite.SQLiteDatabase;
+import net.sqlcipher.database.SQLiteDatabase;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.view.Display;
@@ -104,7 +104,6 @@ public class bVNC extends MainConfiguration {
     private CheckBox checkboxPreferHextile;
     private CheckBox checkboxViewOnly;
     private boolean repeaterTextSet;
-    private boolean isConnecting = false;
     
     @Override
     public void onCreate(Bundle icicle) {
@@ -272,12 +271,6 @@ public class bVNC extends MainConfiguration {
      */
     private void setVisibilityOfUltraVncWidgets (int visibility) {
         repeaterEntry.setVisibility(visibility);
-    }
-    
-    protected void onDestroy() {
-        database.close();
-        System.gc();
-        super.onDestroy();
     }
     
     /* (non-Javadoc)
@@ -452,69 +445,6 @@ public class bVNC extends MainConfiguration {
         } else {
             selected.setUseRepeater(false);
         }
-    }
-    
-    protected void onStart() {
-        Log.e(TAG, "onStart called");
-        super.onStart();
-        System.gc();
-        arriveOnPage();
-    }
-
-    protected void onResume() {
-        Log.e(TAG, "onResume called");
-        super.onResume();
-        System.gc();
-        arriveOnPage();
-    }
-    
-    @Override
-    public void onWindowFocusChanged (boolean visible) { }
-    
-    @Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        Log.e(TAG, "onConfigurationChanged called");
-        super.onConfigurationChanged(newConfig);
-    }
-    
-    protected void onStop() {
-        Log.e(TAG, "onStop called");
-        super.onStop();
-        if ( selected == null ) {
-            return;
-        }
-        updateSelectedFromView();
-        selected.saveAndWriteRecent(false);
-    }
-
-    protected void onPause() {
-        Log.e(TAG, "onPause called");
-        super.onPause();
-        if (!isConnecting) {
-            startingOrHasPaused = true;
-        } else {
-            isConnecting = false;
-        }
-    }
-    
-    private void canvasStart() {
-        if (selected == null) return;
-        MemoryInfo info = Utils.getMemoryInfo(this);
-        if (info.lowMemory)
-            System.gc();
-        start();
-    }
-    
-    /**
-     * Starts the activity which makes a VNC connection and displays the remote desktop.
-     */
-    private void start () {
-        isConnecting = true;
-        updateSelectedFromView();
-        selected.saveAndWriteRecent(false);
-        Intent intent = new Intent(this, RemoteCanvasActivity.class);
-        intent.putExtra(Constants.CONNECTION, selected.Gen_getValues());
-        startActivity(intent);
     }
     
     /**

@@ -4,48 +4,42 @@
   android:layout_width="fill_parent"
   android:layout_height="fill_parent"
   android:padding="0sp"
-  android:orientation="vertical"
-  >
+  android:orientation="vertical">
     <TextView
       android:id="@+id/textIntroText"
-      android:layout_width="fill_parent"
+      android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      android:textAppearance="?android:attr/textAppearanceSmall"
-      android:maxLines="10"
+      android:textAppearance="?android:attr/textAppearanceMedium"
       android:scrollbars = "vertical"
-      />
+      android:gravity="top|center_vertical"
+      android:layout_weight="0.9"/>
 	<LinearLayout
-	  android:layout_width="fill_parent"
+	  android:layout_width="match_parent"
 	  android:layout_height="wrap_content"
 	  android:padding="0sp"
 	  android:orientation="horizontal"
-	  android:gravity="left|center_vertical"
-	  >
+	  android:gravity="bottom|center_vertical">
 	  <Button
 	    android:id="@+id/buttonCloseIntroDontShow"
 	    android:layout_width="wrap_content"
 	    android:layout_height="wrap_content"
 	    android:text="@string/intro_dont_show"
-	    android:textAppearance="?android:attr/textAppearanceSmall"
-	    />
+	    android:textAppearance="?android:attr/textAppearanceMedium"/>
 	  <LinearLayout
 	  	android:layout_width="fill_parent"
-	  	android:layout_height="wrap_content"
-	    >
+	  	android:layout_height="wrap_content">
 		<LinearLayout
 		  android:layout_width="fill_parent"
 		  android:layout_height="wrap_content"
 		  android:padding="0sp"
 		  android:orientation="horizontal"
-		  android:gravity="right|center_vertical"
-		  >
+		  android:gravity="right|center_vertical">
 		  <Button
 		    android:id="@+id/buttonCloseIntro"
 		    android:layout_width="wrap_content"
 		    android:layout_height="wrap_content"
 		    android:text="@string/intro_close"
-		    android:textAppearance="?android:attr/textAppearanceSmall"
-		    />
+		    android:textAppearance="?android:attr/textAppearanceMedium"/>
       	</LinearLayout>
 	  </LinearLayout>
 	</LinearLayout>

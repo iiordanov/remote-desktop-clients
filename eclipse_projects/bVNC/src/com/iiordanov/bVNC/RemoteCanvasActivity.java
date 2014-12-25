@@ -36,6 +36,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.graphics.Rect;
@@ -138,7 +139,7 @@ public class RemoteCanvasActivity extends Activity implements OnKeyListener {
         super.onCreate(icicle);
         Utils.showMenu(this);
         initialize();
-        if (connection.isReadyForConnection())
+        if (connection != null && connection.isReadyForConnection())
         	continueConnecting();
     }
     
@@ -161,8 +162,13 @@ public class RemoteCanvasActivity extends Activity implements OnKeyListener {
         
         Uri data = i.getData();
         if ((data != null) && (data.getScheme().equals("vnc")) || !Utils.isNullOrEmptry(i.getType())) {
+            if (isMasterPasswordEnabled()) {
+                Utils.showFatalErrorMessage(this, getResources().getString(R.string.master_password_error_intents_not_supported));
+                return;
+            }
+            
             connection = ConnectionBean.createLoadFromUri(data, this);
-
+            
             String host = data.getHost();
             if (!host.startsWith(Constants.CONNECTION)) {
                 connection.parseFromUri(data);
@@ -190,8 +196,7 @@ public class RemoteCanvasActivity extends Activity implements OnKeyListener {
             Bundle extras = i.getExtras();
 
             if (extras != null) {
-                  connection.Gen_populate((ContentValues) extras
-                      .getParcelable(Constants.CONNECTION));
+                  connection.Gen_populate((ContentValues) extras.getParcelable(Constants.CONNECTION));
             }
 
             // Parse a HOST:PORT entry
@@ -1328,5 +1333,10 @@ public class RemoteCanvasActivity extends Activity implements OnKeyListener {
     protected void onSaveInstanceState(Bundle outState) {
         outState.putString("WORKAROUND_FOR_BUG_19917_KEY", "WORKAROUND_FOR_BUG_19917_VALUE");
         super.onSaveInstanceState(outState);
+    }
+    
+    private boolean isMasterPasswordEnabled() {
+        SharedPreferences sp = getSharedPreferences(Constants.generalSettingsTag, Context.MODE_PRIVATE);
+        return sp.getBoolean(Constants.masterPasswordEnabledTag, false);
     }
 }

@@ -37,7 +37,7 @@ import android.content.Intent;
 import android.content.res.AssetManager;
 import android.content.res.Configuration;
 import android.content.res.Resources;
-import android.database.sqlite.SQLiteDatabase;
+import net.sqlcipher.database.SQLiteDatabase;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Display;
@@ -99,8 +99,6 @@ public class aSPICE extends MainConfiguration {
     private CheckBox checkboxRotateDpad;
     private CheckBox checkboxLocalCursor;
     private CheckBox checkboxUseSshPubkey;
-    private boolean isFree;
-    private boolean isConnecting = false;
     private CheckBox checkboxEnableSound;
     private Spinner layoutMapSpinner = null;
     private List<String> spinnerArray = null;
@@ -275,13 +273,7 @@ public class aSPICE extends MainConfiguration {
             resHeight.setEnabled(true);
         }
     }
-
-    protected void onDestroy() {
-        database.close();
-        System.gc();
-        super.onDestroy();
-    }
-
+    
     /*
      * (non-Javadoc)
      * 
@@ -456,73 +448,7 @@ public class aSPICE extends MainConfiguration {
             selected.setLayoutMap(selection.getText().toString());
         }
     }
-
-    protected void onStart() {
-        super.onStart();
-        System.gc();
-        arriveOnPage();
-    }
-
-    protected void onResume() {
-        super.onStart();
-        System.gc();
-        arriveOnPage();
-    }
-
-    @Override
-    public void onWindowFocusChanged(boolean visible) {}
-
-    @Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        Log.e(TAG, "onConfigurationChanged called");
-        super.onConfigurationChanged(newConfig);
-    }
     
-    protected void onStop() {
-        super.onStop();
-        if (selected == null) {
-            return;
-        }
-        updateSelectedFromView();
-        selected.saveAndWriteRecent(false);
-    }
-    
-    protected void onPause() {
-        Log.e(TAG, "onPause called");
-        super.onPause();
-        if (!isConnecting) {
-            startingOrHasPaused = true;
-        } else {
-            isConnecting = false;
-        }
-    }
-    
-    public Database getDatabaseHelper() {
-        return database;
-    }
-    
-    private void canvasStart() {
-        if (selected == null)
-            return;
-        MemoryInfo info = Utils.getMemoryInfo(this);
-        if (info.lowMemory)
-            System.gc();
-        start();
-    }
-
-    /**
-     * Starts the activity which makes a SPICE connection and displays the remote
-     * desktop.
-     */
-    private void start () {
-        isConnecting = true;
-        updateSelectedFromView();
-        selected.saveAndWriteRecent(false);
-        Intent intent = new Intent(this, RemoteCanvasActivity.class);
-        intent.putExtra(Constants.CONNECTION, selected.Gen_getValues());
-        startActivity(intent);
-    }
-
     /**
      * Starts the activity which manages keys.
      */
@@ -533,7 +459,7 @@ public class aSPICE extends MainConfiguration {
         intent.putExtra("PrivateKey", selected.getSshPrivKey());
         startActivityForResult(intent, Constants.ACTIVITY_GEN_KEY);
     }
-
+    
     /**
      * This function is used to retrieve data returned by activities started
      * with startActivityForResult.
