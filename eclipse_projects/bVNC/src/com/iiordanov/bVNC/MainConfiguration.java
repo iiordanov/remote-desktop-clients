@@ -354,7 +354,6 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
         editor.putBoolean("masterPasswordEnabled", !state);
         editor.apply();
         Log.i(TAG, "Toggled master password state");
-
     }
     
     private void setMasterPasswordHash (String password) throws UnsupportedEncodingException,
@@ -417,7 +416,7 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
                 // Master password is enabled
                 if (wasCancelled) {
                     Log.i(TAG, "Dialog cancelled, so quitting.");
-                    Utils.showFatalErrorMessage(this, "TODO: Show error about password being necessary and QUIT.");
+                    Utils.showFatalErrorMessage(this, getResources().getString(R.string.master_password_error_password_necessary));
                 } else if (checkMasterPassword(providedPassword)) {
                     Log.i(TAG, "Entered password correct, disabling password.");
                     // Disable the password since the user input the correct password.
@@ -425,13 +424,13 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
                     if (database.changeDatabasePassword("")) {
                         toggleMasterPasswordState();
                     } else {
-                        Utils.showFatalErrorMessage(this, "TODO: Show localized error about unable to DISABLE master password.");
+                        Utils.showErrorMessage(this, getResources().getString(R.string.master_password_error_failed_to_disable));
                     }
                     removeGetPasswordFragments();
                     arriveOnPage();
                 } else {
                     Log.i(TAG, "Entered password is wrong or dialog cancelled, so quitting.");
-                    Utils.showFatalErrorMessage(this, "TODO: Show localized error about wrong password, and QUIT.");
+                    Utils.showFatalErrorMessage(this, getResources().getString(R.string.master_password_error_wrong_password));
                 }
             } else {
                 Log.i(TAG, "Master password is disabled.");
@@ -442,7 +441,7 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
                     if (database.changeDatabasePassword(providedPassword)) {
                         toggleMasterPasswordState();
                     } else {
-                        Utils.showFatalErrorMessage(this, "TODO: Show localized error about unable to ENABLE master password.");
+                        Utils.showErrorMessage(this, getResources().getString(R.string.master_password_error_failed_to_enable));
                     }
                 } else {
                     // No need to show error message because user cancelled consciously.
@@ -456,7 +455,7 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
             Log.i(TAG, "Just checking the password.");
             if (wasCancelled) {
                 Log.i(TAG, "Dialog cancelled, so quitting.");
-                Utils.showFatalErrorMessage(this, "TODO: Show error about password being necessary and QUIT.");
+                Utils.showFatalErrorMessage(this, getResources().getString(R.string.master_password_error_password_necessary));
             } else if (checkMasterPassword(providedPassword)) {
                 Log.i(TAG, "Entered password is correct, so proceeding.");
                 Database.setPassword(providedPassword);
@@ -465,7 +464,7 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
             } else {
                 // Finish the activity if the password was wrong.
                 Log.i(TAG, "Entered password is wrong, so quitting.");
-                Utils.showFatalErrorMessage(this, "TODO: Show localized error about wrong password, and ASK AGAIN?");
+                Utils.showFatalErrorMessage(this, getResources().getString(R.string.master_password_error_wrong_password));
             }
         }
     }
