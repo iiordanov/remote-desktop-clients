@@ -22,7 +22,8 @@ layoutLocation = "/usr/share/qemu/keymaps/"
 targetLocation = "../assets/layouts/"
 layouts = {"en-us" : "English (US)", "en-gb" : "English (UK)", "de" : "German (Germany)", "fr" : "French (France)",
            "es" : "Spanish (Spain, Traditional Sort)", "sv" : "Swedish (Sweden)", "pl" : "Polish (Programmers)",
-           "it" : "Italian (Italy)", "hu" : "Hungarian (Hungary)"}
+           "it" : "Italian (Italy)", "hu" : "Hungarian (Hungary)", "da" : "Danish", "pt" : "Portuguese (Portugal)",
+           "pt-br" : "Portuguese (Brazil)", "de-ch" : "German (Switzerland)", "fr-ch" : "French (Switzerland)" }
 commonKeyCodeFile = "common_keycodes.in"
 nameToUnicodeFile = "name_to_unicode.in"
 
