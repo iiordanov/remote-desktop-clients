@@ -319,7 +319,7 @@ If you are looking for a quick performance boost, try setting the Color mode to 
 <string name="master_password_verify">Verify Master Password</string>
 <string name="master_password_verify_message">Please enter correct Master Password to continue.</string>
 <string name="master_password_set">Set Master Password</string>
-<string name="master_password_set_message">Please enter and memorize a Master Password. The longer your password, the harder it is to crack. If you set your password wrong or forget it, you will lose all your settings! You may want to export your settings now to back them up. Store them safely as exported settings are not encrypted.</string>
+<string name="master_password_set_message">Please enter and memorize a Master Password. The longer your password, the harder it is to crack. If you set your password wrong or forget it, you will lose all your settings! You may want to export your settings now to back them up (from the Menu). Store them safely as exported settings are not encrypted.</string>
 <string name="master_password_set_error">Passwords do not match, please be careful!</string>
 <string name="meta_key_title">Send Special Keys</string>
 <string name="mouse_follow_pan">Mouse follows pan</string>

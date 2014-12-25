@@ -422,8 +422,11 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
                     Log.i(TAG, "Entered password correct, disabling password.");
                     // Disable the password since the user input the correct password.
                     Database.setPassword(providedPassword);
-                    database.changeDatabasePassword("");
-                    toggleMasterPasswordState();
+                    if (database.changeDatabasePassword("")) {
+                        toggleMasterPasswordState();
+                    } else {
+                        Utils.showFatalErrorMessage(this, "TODO: Show localized error about unable to DISABLE master password.");
+                    }
                     removeGetPasswordFragments();
                     arriveOnPage();
                 } else {
@@ -436,8 +439,11 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
                     // The password is disabled, so set it in the preferences.
                     Log.i(TAG, "Setting master password.");
                     Database.setPassword("");
-                    database.changeDatabasePassword(providedPassword);
-                    toggleMasterPasswordState();
+                    if (database.changeDatabasePassword(providedPassword)) {
+                        toggleMasterPasswordState();
+                    } else {
+                        Utils.showFatalErrorMessage(this, "TODO: Show localized error about unable to ENABLE master password.");
+                    }
                 } else {
                     // No need to show error message because user cancelled consciously.
                     Log.i(TAG, "Dialog cancelled, not setting master password.");

@@ -26,6 +26,7 @@ import javax.crypto.NullCipher;
 
 import android.content.Context;
 import net.sqlcipher.database.SQLiteDatabase;
+import net.sqlcipher.database.SQLiteException;
 import net.sqlcipher.database.SQLiteOpenHelper;
 import android.util.Log;
 
@@ -85,25 +86,23 @@ public class Database extends SQLiteOpenHelper {
         Database.password = newPassword;
     }
     
-    public void changeDatabasePassword (String newPassword) {
+    public boolean changeDatabasePassword (String newPassword) {
         // Get readable database with old password
         SQLiteDatabase db = getReadableDatabase(Database.password);
         int version = db.getVersion();
         String pathToDb = db.getPath();
-        deleteTempDatabase(pathToDb);
+        // Delete any temp db that may be in the way.
+        deleteTempDatabase(pathToDb, "-temp");
         String newFormat = null;
-        boolean swaptemp = false;
-
+        
         // If the previous key is an empty string, we must encrypt a plaintext DB.
         if (Database.password.equals("")) {
             Log.i(TAG, "Previous database unencrypted, encrypting.");
             newFormat = "encrypted";
-            swaptemp = true;
         // If the previous key is not an empty string, then we must rekey an existing DB.
         } else if (newPassword.equals("")) {
             Log.i(TAG, "Previous database encrypted, decrypting.");
             newFormat = "plaintext";
-            swaptemp = true;
         // If both the previous and new password are non-empty, we are rekeying the DB.
         } else {
             Log.i(TAG, "Previous database encrypted, rekeying.");
@@ -113,36 +112,60 @@ public class Database extends SQLiteOpenHelper {
             db.rawExecSQL(String.format("PRAGMA rekey = '%s'", Database.password));
         }
         
-        if (swaptemp == true) {
+        if (newFormat != null) {
             // Write out the database in the new format.
-            Database.setPassword(newPassword);
-            db.rawExecSQL(String.format("ATTACH DATABASE '%s' AS %s KEY '%s'", db.getPath()+"-temp", newFormat, Database.password));
+            db.rawExecSQL(String.format("ATTACH DATABASE '%s' AS %s KEY '%s'", db.getPath()+"-temp", newFormat, newPassword));
             db.rawExecSQL(String.format("select sqlcipher_export('%s')", newFormat));
             db.rawExecSQL(String.format("DETACH DATABASE '%s'", newFormat));
             db.close();
             this.close();
-            
             Log.i(TAG, "Done exporting to: " + newFormat);
             
-            // Set version of database
-            SQLiteDatabase tempDb = SQLiteDatabase.openOrCreateDatabase(db.getPath()+"-temp", Database.password, null);
-            tempDb.setVersion(version);
-            tempDb.close();
+            try {
+                // Set version of database
+                SQLiteDatabase tempDb = SQLiteDatabase.openDatabase(db.getPath()+"-temp", newPassword, null, SQLiteDatabase.OPEN_READWRITE);
+                tempDb.setVersion(version);
+                tempDb.close();
+            } catch (Exception e) {
+                // If we could not open the temp database, delete it and return failure.
+                deleteTempDatabase(pathToDb, "-temp");
+                return false;
+            }
             
-            // Move the temp database file over the true database file
-            String tempDbPath = pathToDb + "-temp";
-            new File(tempDbPath).renameTo(new File(pathToDb));
-            tempDb = SQLiteDatabase.openOrCreateDatabase(db.getPath(), Database.password, null);
-            tempDb.getVersion();
-            tempDb.close();
+            try {
+                // Save away the old database
+                moveFile(pathToDb, pathToDb + "-BAK");
+                // Move the temp database file over the old database
+                moveFile(pathToDb + "-temp", pathToDb);
+                
+                // Test-open the new database and read off the version.
+                SQLiteDatabase newDb = SQLiteDatabase.openDatabase(db.getPath(), newPassword, null, SQLiteDatabase.OPEN_READWRITE);
+                newDb.getVersion();
+                newDb.close();
+            } catch (Exception e) {
+                // Having received an exception in testing the DB above, restore the old DB and return failure.
+                moveFile(pathToDb + "-BAK", pathToDb);
+                return false;
+            } finally {
+                // Having succeeded to open the database without an exception, delete the backup of the old DB.
+                deleteTempDatabase(pathToDb, "-BAK");
+                // And set the password to the new password.
+                Database.setPassword(newPassword);
+            }
         } else {
             db.close();
             this.close();
         }
+        
+        return true;
     }
     
-    private void deleteTempDatabase(String pathToDb) {
-        String tempDbPath = pathToDb + "-temp";
+    private void moveFile(String from, String to) {
+        new File(from).renameTo(new File(to));
+    }
+    
+    private void deleteTempDatabase(String pathToDb, String suffix) {
+        String tempDbPath = pathToDb + suffix;
         File temp = new File(tempDbPath);
         if (temp.exists()) {
             temp.delete();
