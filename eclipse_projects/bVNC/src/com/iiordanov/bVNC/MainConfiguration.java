@@ -368,22 +368,6 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
             result = false;
         }
         testPassword.close();
-
-/*        SharedPreferences sp = getSharedPreferences("generalSettings", Context.MODE_PRIVATE);
-        String savedHash = sp.getString("masterPasswordHash", null);
-        byte[] savedSalt = PasswordManager.b64Decode(sp.getString("masterPasswordSalt", null));
-        //String savedSalt = sp.getString("masterPasswordSalt", null);
-        if (savedHash != null && savedSalt != null) {
-            String newHash = null;
-            try {
-                newHash = PasswordManager.computeHash(password, savedSalt);
-                //Log.i(TAG, String.format("savedHash: %s, savedSalt: %s, newHash: %s", savedHash, new String(savedSalt), newHash));
-                if (newHash.equals(savedHash)) {
-                    result = true;
-                }
-            } catch (Exception e) { }
-            
-        }*/
         return result;
     }
     

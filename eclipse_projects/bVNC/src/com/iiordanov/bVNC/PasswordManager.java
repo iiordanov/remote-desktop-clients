@@ -39,6 +39,9 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
 
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.util.Base64;
 import android.util.Log;
 
@@ -141,5 +144,41 @@ public class PasswordManager {
                                                                            InvalidKeySpecException {
         byte[] saltBytes = salt.getBytes();
         return computeHash(password, saltBytes);
-      }
+    }
+    
+    /**
+     * Example of how to set hash:
+    private void setMasterPasswordHash (String password) throws UnsupportedEncodingException,
+                                                                NoSuchAlgorithmException, InvalidKeySpecException {
+        // Now compute and store the hash of the provided password and saved salt.
+        String salt = PasswordManager.randomBase64EncodedString(Constants.saltLength);
+        String hash = PasswordManager.computeHash(password, PasswordManager.b64Decode(salt));
+        SharedPreferences sp = getSharedPreferences("generalSettings", Context.MODE_PRIVATE);
+        Editor editor = sp.edit();
+        editor.putString("masterPasswordSalt", salt);
+        editor.putString("masterPasswordHash", hash);
+        editor.apply();
+        Log.i(TAG, "Setting master password hash.");
+        //Log.i(TAG, String.format("hash: %s, salt: %s", hash, new String(PasswordManager.b64Decode(salt))));
+    }
+     */
+    
+    /**
+     * Example of how to check hash:
+        SharedPreferences sp = getSharedPreferences("generalSettings", Context.MODE_PRIVATE);
+        String savedHash = sp.getString("masterPasswordHash", null);
+        byte[] savedSalt = PasswordManager.b64Decode(sp.getString("masterPasswordSalt", null));
+        //String savedSalt = sp.getString("masterPasswordSalt", null);
+        if (savedHash != null && savedSalt != null) {
+            String newHash = null;
+            try {
+                newHash = PasswordManager.computeHash(password, savedSalt);
+                //Log.i(TAG, String.format("savedHash: %s, savedSalt: %s, newHash: %s", savedHash, new String(savedSalt), newHash));
+                if (newHash.equals(savedHash)) {
+                    result = true;
+                }
+            } catch (Exception e) { }
+            
+        }
+     */
 }
