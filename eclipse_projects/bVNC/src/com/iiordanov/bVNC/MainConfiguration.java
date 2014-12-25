@@ -341,12 +341,12 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
         return true;
     }
     
-    private boolean isMasterPasswordEnabled () {
-        SharedPreferences sp = getSharedPreferences("generalSettings", Context.MODE_PRIVATE);
-        return sp.getBoolean("masterPasswordEnabled", false);
+    private boolean isMasterPasswordEnabled() {
+        SharedPreferences sp = getSharedPreferences(Constants.generalSettingsTag, Context.MODE_PRIVATE);
+        return sp.getBoolean(Constants.masterPasswordEnabledTag, false);
     }
     
-    private void toggleMasterPasswordState () {
+    private void toggleMasterPasswordState() {
         SharedPreferences sp = getSharedPreferences("generalSettings", Context.MODE_PRIVATE);
         boolean state = sp.getBoolean("masterPasswordEnabled", false);
         Editor editor = sp.edit();

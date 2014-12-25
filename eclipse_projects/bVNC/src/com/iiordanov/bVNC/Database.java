@@ -82,6 +82,10 @@ public class Database extends SQLiteOpenHelper {
         return getReadableDatabase(Database.password);
     }
     
+    public static String getPassword() {
+        return password;
+    }
+    
     public static void setPassword (String newPassword) {
         Database.password = newPassword;
     }
@@ -342,9 +346,5 @@ public class Database extends SQLiteOpenHelper {
                     +AbstractConnectionBean.GEN_FIELD_LAYOUTMAP + " TEXT DEFAULT 'English (US)'");
             oldVersion = DBV_2_1_4;
         }
-    }
-
-    public static String getPassword() {
-        return password;
     }
 }

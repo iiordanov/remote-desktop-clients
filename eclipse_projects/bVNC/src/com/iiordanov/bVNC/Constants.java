@@ -173,8 +173,10 @@ public class Constants {
     public static final int numIterations = 10000;
     public static final int keyLength = 256;
     public static final int saltLength = 256;
-
-
+    
+    public static final String generalSettingsTag = "generalSettings";
+    public static final String masterPasswordEnabledTag = "masterPasswordEnabled";
+    
     /**
      * Returns a string matching a session selection index
      * @param index - index to convert

@@ -21,7 +21,9 @@
 package com.iiordanov.bVNC;
 
 import android.app.ListActivity;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.Intent.ShortcutIconResource;
 import android.database.Cursor;
 import android.net.Uri;
@@ -42,10 +44,11 @@ public class ConnectionListActivity extends ListActivity {
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         
-        try {
-            database = new Database(this);
-        } catch (Exception e) {
-            Utils.showFatalErrorMessage(this, "ERROR, could not open database, could it be its encryped?");
+        database = new Database(this);
+        
+        if (isMasterPasswordEnabled()) {
+            Utils.showFatalErrorMessage(this, getResources().getString(R.string.master_password_error_shortcuts_not_supported));
+            return;
         }
         
         // Query for all people contacts using the Contacts.People convenience class.
@@ -119,8 +122,14 @@ public class ConnectionListActivity extends ListActivity {
      */
     @Override
     protected void onDestroy() {
-        database.close();
+        if (database != null) {
+            database.close();
+        }
         super.onDestroy();
     }
     
+    private boolean isMasterPasswordEnabled() {
+        SharedPreferences sp = getSharedPreferences(Constants.generalSettingsTag, Context.MODE_PRIVATE);
+        return sp.getBoolean(Constants.masterPasswordEnabledTag, false);
+    }
 }

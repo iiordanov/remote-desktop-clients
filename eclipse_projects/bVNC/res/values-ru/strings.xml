@@ -317,6 +317,8 @@
 <string name="master_password_error_failed_to_disable">Не удалось отключить Мастер-пароль. Проверьте свободное место на Вашем устройстве и повторите попытку.</string>
 <string name="master_password_error_password_necessary">Мастер-пароль требуется для того, чтобы продолжить.</string>
 <string name="master_password_error_password_not_set">Установка Мастер-пароля была отменена.</string>
+<string name="master_password_error_intents_not_supported">Connection intents are not yet supported when Master Password is enabled.</string>
+<string name="master_password_error_shortcuts_not_supported">Короткие сокращения пока не поддерживаются, когда мастер-пароль включена.</string>
 <string name="master_password_error_wrong_password">Невозможно проверить подлинность с этим Мастер-пароль.</string>
 <string name="master_password_hint_once">Введите Пароль</string>
 <string name="master_password_hint_twice">Повторите Пароль</string>
