@@ -51,9 +51,7 @@ public class GetTextFragment extends DialogFragment {
     private class TextMatcher implements TextWatcher {
         @Override
         public void onTextChanged(CharSequence s, int start, int before, int count) {
-            if (textBox.getText().toString().equals(textBox2.getText().toString())) {
-                error.setVisibility(View.GONE);
-            }
+            error.setVisibility(View.GONE);
         }
         @Override
         public void beforeTextChanged(CharSequence s, int start, int count, int after) {}

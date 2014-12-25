@@ -58,7 +58,7 @@ public class IntroTextDialog extends Dialog {
     public static void showIntroTextIfNecessary(Activity context, Database database, boolean show) {
         PackageInfo pi;
         try {
-            pi = context.getPackageManager().getPackageInfo("com.iiordanov.bVNC", 0);
+            pi = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
         }
         catch (PackageManager.NameNotFoundException nnfe) {
             return;
@@ -88,27 +88,42 @@ public class IntroTextDialog extends Dialog {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        
         String pkgName = this.getContext().getPackageName();
-        if (pkgName.contains("free") || ! (pkgName.contains("bVNC")))
+        if (pkgName.contains("free")) {
             donate = true;
-                
+        }
+        
         setContentView(R.layout.intro_dialog);
-        getWindow().setLayout(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT);
-
+        getWindow().setLayout(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+        
         StringBuilder sb = new StringBuilder(getContext().getResources().getString(R.string.intro_title));
         setTitle(sb);
         sb.delete(0, sb.length());
+        sb.append(getContext().getResources().getString(R.string.ad_donate_text0));
+        sb.append("<br>");
+        sb.append("<br>");
+        
         if (donate) {
-            sb.append("<a href=\"market://details?id=com.iiordanov.bVNC\">" + 
-                    getContext().getResources().getString(R.string.ad_donate_text) + "</a>");
+            sb.append("<a href=\"market://DETAILS?id=com.iiordanov.bVNC\">" +
+                      getContext().getResources().getString(R.string.ad_donate_text1) + "</a>");
             sb.append("<br>");
             sb.append("<br>");
-            sb.append("<a href=\"market://search?q=iordan+iordanov&c=apps&price=2\">" + 
-                    getContext().getResources().getString(R.string.ad_donate_text2) + "</a>");
+            sb.append(getContext().getResources().getString(R.string.ad_donate_text2));
+            sb.append("<br>");
+            sb.append("<br>");
+            sb.append(getContext().getResources().getString(R.string.ad_donate_text3));
+            sb.append(" <a href=\"market://details?id=com.iiordanov.bVNC\">VNC</a>");
+            sb.append(", ");
+            sb.append("<a href=\"market://details?id=com.iiordanov.aRDP\">RDP</a>");
+            sb.append(", ");
+            sb.append("<a href=\"market://details?id=com.iiordanov.aSPICE\">SPICE</a>");
+            sb.append(", ");
+            sb.append("<a href=\"market://details?id=com.undatech.opaque\">oVirt/RHEV</a>");
             sb.append("<br>");
             sb.append("<br>");
         }
+        
         sb.append(getContext().getResources().getString(R.string.intro_header));
         sb.append(getContext().getResources().getString(R.string.intro_text));
         sb.append("\n");

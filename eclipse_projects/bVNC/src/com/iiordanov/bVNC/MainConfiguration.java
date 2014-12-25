@@ -206,8 +206,8 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
         spinnerConnection.setSelection(connectionIndex, false);
         selected = connections.get(connectionIndex);
         updateViewFromSelected();
-        startingOrHasPaused = false;
         IntroTextDialog.showIntroTextIfNecessary(this, database, Utils.isFree(this) && startingOrHasPaused);
+        startingOrHasPaused = false;
     }
     
     public Database getDatabaseHelper() {
@@ -266,7 +266,7 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
      */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.androidvncmenu,menu);
+        getMenuInflater().inflate(R.menu.androidvncmenu, menu);
         return true;
     }
 
@@ -318,12 +318,19 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
         case R.id.itemMainScreenHelp:
             showDialog(R.id.itemMainScreenHelp);
             break;
+        case R.id.itemExportImport:
+            showDialog(R.layout.importexport);
+            break;
         case R.id.itemMasterPassword:
-            togglingMasterPassword = true;
-            if (isMasterPasswordEnabled()) {
-                showGetTextFragment(getPassword);
+            if (Utils.isFree(this)) {
+                IntroTextDialog.showIntroTextIfNecessary(this, database, true);
             } else {
-                showGetTextFragment(getNewPassword);
+                togglingMasterPassword = true;
+                if (isMasterPasswordEnabled()) {
+                    showGetTextFragment(getPassword);
+                } else {
+                    showGetTextFragment(getNewPassword);
+                }
             }
             break;
             

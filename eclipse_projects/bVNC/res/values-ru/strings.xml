@@ -5,8 +5,10 @@
 <string name="address_caption_hint_tunneled">VNC Сервер</string>
 <string name="address_caption_ssh">SSH Сервер</string>
 <string name="address_caption_ssh_hint">SSH Сервер</string>
-<string name="ad_donate_text">Нажмите здесь, чтобы поддержать проект небольшим пожертвованием (и избавиться от этого диалога), купив PRO версию!</string>
-<string name="ad_donate_text2">Если вы хотели бы поддержать проект в дальнейшем, нажмите сюда, чтобы попробовать и/или купить другие мои программы.</string>
+<string name="ad_donate_text0">Pro версия теперь имеет очень нужную функциональность мастер-пароль, который предотвращает несанкционированное использование, а также защищает от кражи информации посредством шифрования все ваши настройки подключения, включая пароли и ключи безопасности. Включите его из главного меню. Если кнопка меню отсутствует, пожалуйста, долгое нажатие на кнопку, которая отображает запущенные приложения, чтобы получить меню.</string>
+<string name="ad_donate_text1">Нажмите здесь, чтобы поддержать проект небольшим пожертвованием, купив PRO версию!</string>
+<string name="ad_donate_text2">Pro-версия позволяет отключить этот диалог и дает вам доступ к дополнительным функциям.</string>
+<string name="ad_donate_text3">Если вы хотели бы поддержать проект дальше, следуйте следующим ссылкам для ссылок на клиентские приложения для:</string>
 <string name="alt_check">Alt</string>
 <string name="arrow_down">Стрелка вниз</string>
 <string name="arrow_left">Стрелка влево</string>
@@ -208,8 +210,7 @@
 &lt;br&gt;
 &lt;br&gt;
 Известные проблемы:
-&lt;br&gt;
-- Режим Безопасного VNC через VeNCrypt поддерживает только 24-bit цветовой режим.."
+&lt;br&gt;"
 </string>
 <string name="intro_title">bVNC: интуитивный, безопасный VNC клиент</string>
 <string name="intro_version_text"></string>
@@ -317,8 +318,8 @@
 <string name="master_password_verify">Проверка Мастер-пароль</string>
 <string name="master_password_verify_message">Пожалуйста, введите правильный пароль, чтобы продолжить.</string>
 <string name="master_password_set">Установка Мастер-пароль</string>
-<string name="master_password_set_message">Пожалуйста, внимательно введите мастер-пароль дважды, чтобы установить его. Пожалуйста, запомните ваш пароль. Если вы сделаете ошибку или забыли пароль, Вы потеряете все свои настройки!</string>
-<string name="master_password_set_error">ОШИБКА: Пароли должны совпадать, пожалуйста, будьте осторожны.</string>
+<string name="master_password_set_message">Пожалуйста, введите и запомните мастер-пароль. Более длинные пароли труднее взломать. Если вы установите пароль неправильно или забыть его, вы потеряете все свои настройки! Вы можете экспортировать настройки теперь их резервные копии. Храните их безопасно, как все экспортированные настройки не шифруются.</string>
+<string name="master_password_set_error">Пароли не совпадают, пожалуйста, будьте осторожны!</string>
 <string name="meta_key_title">Отправить комбинацию клавиш</string>
 <string name="mouse_follow_pan">Мышь следует за маштабированием</string>
 <string name="new_list_button">Новый список</string>

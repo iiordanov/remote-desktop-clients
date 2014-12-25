@@ -5,8 +5,10 @@
 <string name="address_caption_hint_tunneled">VNC Server</string>
 <string name="address_caption_ssh">SSH Server</string>
 <string name="address_caption_ssh_hint">SSH Server</string>
-<string name="ad_donate_text">Tap here to support the project with a small donation (and get rid of this dialog) by buying the pro version!</string>
-<string name="ad_donate_text2">If you would like to support the project further, tap here to try and/or buy my other programs.</string>
+<string name="ad_donate_text0">The Pro version now has a much requested Master Password feature which prevents unauthorized use and also encrypts all connection settings including passwords and SSH keys to guard against theft. Enable it from the main Menu. If the Menu button is missing, please long-tap the running apps button for the Menu.</string>
+<string name="ad_donate_text1">Tap here to support the project with a small donation by buying the Pro version.</string>
+<string name="ad_donate_text2">The Pro version allows you to disable this dialog and gives you access to additional features.</string>
+<string name="ad_donate_text3">If you would like to support the project further, follow the following links for links to client apps for: </string>
 <string name="alt_check">Alt</string>
 <string name="app_name">bVNC Pro</string>
 <string name="arrow_down">Down Arrow</string>
@@ -209,8 +211,7 @@
 &lt;br&gt;
 &lt;br&gt;
 Known issues:
-&lt;br&gt;
-- Secure VNC over VeNCrypt mode supports only 24-bit color."
+&lt;br&gt;"
 </string>
 <string name="intro_title">bVNC: Intuitive, secure VNC client</string>
 <string name="intro_version_text"></string>
@@ -318,8 +319,8 @@ If you are looking for a quick performance boost, try setting the Color mode to 
 <string name="master_password_verify">Verify Master Password</string>
 <string name="master_password_verify_message">Please enter correct Master Password to continue.</string>
 <string name="master_password_set">Set Master Password</string>
-<string name="master_password_set_message">Please carefully enter Master Password twice to set it. Please memorize your password. If you make a mistake or forget your password you will lose all your settings!</string>
-<string name="master_password_set_error">ERROR: Passwords must match, please be careful.</string>
+<string name="master_password_set_message">Please enter and memorize a Master Password. The longer your password, the harder it is to crack. If you set your password wrong or forget it, you will lose all your settings! You may want to export your settings now to back them up. Store them safely as exported settings are not encrypted.</string>
+<string name="master_password_set_error">Passwords do not match, please be careful!</string>
 <string name="meta_key_title">Send Special Keys</string>
 <string name="mouse_follow_pan">Mouse follows pan</string>
 <string name="new_list_button">New List</string>
