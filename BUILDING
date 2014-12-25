@@ -1,8 +1,8 @@
-1. Install sqlitegen plugin v0.1.16 into Eclipse from:
-      http://code.google.com/p/sqlitegen/
+1. Install/update sqlitegen plugin v0.1.19 into Eclipse from:
+   https://github.com/iiordanov/sqlitegen-secure/releases/download/v0.1.19/sqlitegen_eclipse_site_0.1.19.jar
 
-   NOTE: Please note that you may experience issues if you elect to
-   install a newer version of the plugin.
+   NOTE: Using an older version of the plugin may not work because
+   of the switch to the sqlcipher release of sqlite.
 
 2. Clone the FreeRDP project in the parent directory of where you
    cloned bVNC project:
