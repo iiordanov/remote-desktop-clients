@@ -39,7 +39,6 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
     private final static String TAG = "MainConfiguration";
 
     private boolean togglingMasterPassword = false;
-    protected static PasswordManager passwordManager = null;
 
     protected ConnectionBean selected;
     protected Database database;
@@ -356,20 +355,6 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
         Log.i(TAG, "Toggled master password state");
     }
     
-    private void setMasterPasswordHash (String password) throws UnsupportedEncodingException,
-                                                                NoSuchAlgorithmException, InvalidKeySpecException {
-        // Now compute and store the hash of the provided password and saved salt.
-        String salt = PasswordManager.randomBase64EncodedString(Constants.saltLength);
-        String hash = PasswordManager.computeHash(password, PasswordManager.b64Decode(salt));
-        SharedPreferences sp = getSharedPreferences("generalSettings", Context.MODE_PRIVATE);
-        Editor editor = sp.edit();
-        editor.putString("masterPasswordSalt", salt);
-        editor.putString("masterPasswordHash", hash);
-        editor.apply();
-        Log.i(TAG, "Setting master password hash.");
-        //Log.i(TAG, String.format("hash: %s, salt: %s", hash, new String(PasswordManager.b64Decode(salt))));
-    }
-    
     private boolean checkMasterPassword (String password) {
         Log.i(TAG, "Checking master password.");
         boolean result = false;
@@ -446,6 +431,7 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
                 } else {
                     // No need to show error message because user cancelled consciously.
                     Log.i(TAG, "Dialog cancelled, not setting master password.");
+                    Utils.showErrorMessage(this, getResources().getString(R.string.master_password_error_password_not_set));
                 }
                 removeGetPasswordFragments();
                 arriveOnPage();

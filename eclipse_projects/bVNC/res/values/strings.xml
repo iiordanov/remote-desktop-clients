@@ -317,6 +317,7 @@ If you are looking for a quick performance boost, try setting the Color mode to 
 <string name="master_password_error_failed_to_enable">Could not enable master password. Check free space on your device and try again.</string>
 <string name="master_password_error_failed_to_disable">Could not disable master password. Check free space on your device and try again.</string>
 <string name="master_password_error_password_necessary">Master Password is required in order to continue, quitting.</string>
+<string name="master_password_error_password_not_set">Setting Master Password was cancelled.</string>
 <string name="master_password_error_wrong_password">Wrong Master Password entered, quitting.</string>
 <string name="master_password_hint_once">Enter Password</string>
 <string name="master_password_hint_twice">Repeat Password</string>

@@ -316,6 +316,7 @@
 <string name="master_password_error_failed_to_enable">Не удалось включить мастер-пароль. Проверьте свободное место на Вашем устройстве и повторите попытку.</string>
 <string name="master_password_error_failed_to_disable">Не удалось отключить мастер-пароль. Проверьте свободное место на Вашем устройстве и повторите попытку.</string>
 <string name="master_password_error_password_necessary">Мастер-пароль требуется для того, чтобы продолжить.</string>
+<string name="master_password_error_password_not_set">Установка мастер-пароля была отменена.</string>
 <string name="master_password_error_wrong_password">Неправильный мастер-пароль введен.</string>
 <string name="master_password_hint_once">Введите Пароль</string>
 <string name="master_password_hint_twice">Повторите Пароль</string>

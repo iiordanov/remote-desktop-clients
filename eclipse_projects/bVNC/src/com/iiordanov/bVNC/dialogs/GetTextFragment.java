@@ -106,13 +106,13 @@ public class GetTextFragment extends DialogFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     	android.util.Log.i(TAG, "onCreateView called");
+    	wasCancelled = false;
     	
         getDialog().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN|WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
 
     	// Set title for this dialog
     	getDialog().setTitle(title);
     	View v = null;
-    	
         
         switch (dialogType) {
         case Plaintext:
