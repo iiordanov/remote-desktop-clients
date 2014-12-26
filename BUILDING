@@ -41,18 +41,28 @@
 
 6. To build and successfully run aSPICE, you need to:
    - Install gstreamer-sdk into /opt/gstreamer
+
    - Edit AndroidManifest.xml and change android:label="bVNC" and android:name="bVNC"
      to android:label="aSPICE" and android:name="aSPICE" respectively.
+
    - cd bVNC/eclipse_projects/bVNC
+
    - Replace all instances of aSPICE with bVNC in native code (.c and .h files).
      This requirement should go away in the future. You can use the following command:
        find jni/src -name \*.h -o -name \*.c -exec sed -i 's/aSPICE/bVNC/' {} \;
+
    - ndk-build GSTREAMER_SDK_ROOT_ANDROID=/opt/gstreamer -j 4
+
+   - Unfortunately, currently ndk-build destroys other pre-existing libraries in eclipse_projects/bVNC/libs,
+     so after successfully building libspice and libgstreamer, one has to git checkout the files which were deleted.
+
    - Force one boolean variable to be true. You can use the following command:
        find ./ -name \*.java -exec sed -i 's/isSpice = .*;/isSpice = true;/' {} \;
+
    - You may have to select the "Android private libraries" entry in
        Project Properties->Java Build Path->Order and Export
      if you have it.
+
    - Enable requesting the RECORD_AUDIO permission in AndroidManifest.xml with the following sed command:
      sed -i 's/<!--RECORD_AUDIO-->/<uses-permission android:name="android.permission.RECORD_AUDIO"><\/uses-permission>/g' AndroidManifest.xml
 
