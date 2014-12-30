@@ -29,6 +29,7 @@
 #include "android-spice-widget.h"
 #include "android-spicy.h"
 #include "virt-viewer-file.h"
+#include "libusb.h"
 
 static gboolean disconnect(gpointer user_data);
 
@@ -760,4 +761,31 @@ Java_com_undatech_opaque_SpiceCommunicator_FetchVmNames(JNIEnv *env,
 
 error:
     return success;
+}
+
+int openUsbDevice (int vid, int pid) {
+    JNIEnv* env = NULL;
+    gboolean attached = FALSE;
+    attached = attachThreadToJvm (&env);
+
+    jclass class  = (*env)->FindClass (env, "com/undatech/opaque/SpiceCommunicator");
+    jmethodID openUsbDevice = (*env)->GetStaticMethodID (env, class, "openUsbDevice", "(II)I");
+    int fd = (*env)->CallStaticIntMethod(env, class, openUsbDevice, vid, pid);
+
+    if (attached) {
+        detachThreadFromJvm ();
+    }
+    return fd;
+}
+
+int get_usb_device_fd(libusb_device *device) {
+    __android_log_write(6, "channel-usbredir", "Trying to open USB device.");
+    struct libusb_device_descriptor desc;
+    int errcode = libusb_get_device_descriptor(device, &desc);
+    if (errcode < 0) {
+        return -1;
+    }
+    int vid = desc.idVendor;
+    int pid = desc.idProduct;
+    return openUsbDevice(vid, pid);
 }

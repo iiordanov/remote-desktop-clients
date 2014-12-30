@@ -125,4 +125,5 @@ All Input Method:
 <string name="error_no_vnc_support_yet">VNC display type not supported yet, but it is an upcoming feature. Thanks for your understanding!</string>
 <string name="error_not_connected_to_network">You do not appear to be connected to the Internet. Cannot continue without being connected!</string>
 <string name="ssl_strict">Require common name to match cert (on recommended)</string>
+<string name="usb">USB (plug in OTG cable first)</string>
 </resources>

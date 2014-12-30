@@ -13,7 +13,11 @@ spice_objs := \
     $(SPICE_CLIENT_ANDROID_DEPS)/lib/libcelt051.a \
     $(SPICE_CLIENT_ANDROID_DEPS)/lib/libgovirt.a \
     $(SPICE_CLIENT_ANDROID_DEPS)/lib/librest-0.7.a \
-    $(SPICE_CLIENT_ANDROID_DEPS)/lib/libjpeg.a
+    $(SPICE_CLIENT_ANDROID_DEPS)/lib/libjpeg.a \
+    $(SPICE_CLIENT_ANDROID_DEPS)/lib/libusb.a \
+    $(SPICE_CLIENT_ANDROID_DEPS)/lib/libusbredirhost.a \
+    $(SPICE_CLIENT_ANDROID_DEPS)/lib/libusbredirparser.a
+
 
 LOCAL_MODULE    := spice
 
@@ -24,6 +28,7 @@ LOCAL_SRC_FILES := gtk/channel-record.c gtk/channel-playback.c gtk/channel-curso
                    gtk/glib-compat.c gtk/channel-display.c gtk/channel-display-mjpeg.c gtk/channel-inputs.c \
                    gtk/decode-glz.c gtk/decode-jpeg.c gtk/decode-zlib.c gtk/wocky-http-proxy.c gtk/channel-port.c \
                    gtk/spice-client.c gtk/spice-audio.c gtk/spice-gstaudio.c \
+                   gtk/channel-usbredir.c gtk/usb-device-manager.c gtk/usbutil.c \
                    spice-common/common/generated_client_demarshallers.c spice-common/common/generated_client_demarshallers1.c \
                    spice-common/common/generated_client_marshallers.c spice-common/common/generated_client_marshallers1.c \
                    spice-common/common/mem.c spice-common/common/marshaller.c spice-common/common/canvas_utils.c \
@@ -54,6 +59,7 @@ LOCAL_C_INCLUDES += \
                     $(SPICE_CLIENT_ANDROID_DEPS)/include/govirt-1.0 \
                     $(SPICE_CLIENT_ANDROID_DEPS)/include/rest-0.7 \
                     $(SPICE_CLIENT_ANDROID_DEPS)/include/jpeg-turbo \
+                    $(SPICE_CLIENT_ANDROID_DEPS)/include/libusb \
                     $(CROSS_DIR)/include \
                     $(CROSS_DIR)/include/glib-2.0 \
                     $(CROSS_DIR)/include/libxml2 \

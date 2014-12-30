@@ -43,8 +43,10 @@ public class ConnectionSettings implements Serializable {
 	private boolean requestingNewDisplayResolution = true;
 	private boolean audioPlaybackEnabled = false;
 	private boolean usingCustomOvirtCa = false;
-	private boolean sslStrict = true;
-	private String ovirtCaFile = "";
+    private boolean sslStrict = true;
+    private boolean usbEnabled = true;
+
+    private String ovirtCaFile = "";
     private String ovirtCaData = "";
     private String layoutMap = "";
 		
@@ -151,6 +153,14 @@ public class ConnectionSettings implements Serializable {
 	public void setSslStrict(boolean sslStrict) {
 		this.sslStrict = sslStrict;
 	}
+	
+	public boolean isUsbEnabled() {
+	    return usbEnabled;
+	}
+
+	public void setUsbEnabled(boolean usbEnabled) {
+	    this.usbEnabled = usbEnabled;
+	}
 
 	public String getOvirtCaFile() {
 		return ovirtCaFile;
@@ -190,7 +200,8 @@ public class ConnectionSettings implements Serializable {
 		editor.putBoolean("requestingNewDisplayResolution", requestingNewDisplayResolution);
 		editor.putBoolean("audioEnabled", audioPlaybackEnabled);
 		editor.putBoolean("usingCustomCa", usingCustomOvirtCa);
-		editor.putBoolean("sslStrict", sslStrict);
+        editor.putBoolean("sslStrict", sslStrict);
+        editor.putBoolean("usbEnabled", usbEnabled);
 		editor.putString("ovirtCaData", ovirtCaData);
 		editor.putString("layoutMap", layoutMap);
 		editor.apply();
@@ -211,7 +222,8 @@ public class ConnectionSettings implements Serializable {
 		rotationEnabled = sp.getBoolean("rotationEnabled", true);
 		requestingNewDisplayResolution = sp.getBoolean("requestingNewDisplayResolution", true);
 		usingCustomOvirtCa = sp.getBoolean("usingCustomCa", false);
-		sslStrict = sp.getBoolean("sslStrict", true);
+        sslStrict = sp.getBoolean("sslStrict", true);
+        usbEnabled = sp.getBoolean("usbEnabled", true);
         ovirtCaData = sp.getString("ovirtCaData", "").trim();
         layoutMap = sp.getString("layoutMap", Constants.DEFAULT_LAYOUT_MAP).trim();
 		// Make sure the CAs get saved to files if necessary.
@@ -239,7 +251,7 @@ public class ConnectionSettings implements Serializable {
 					fout.println(caCertData);
 					fout.close();
 				} else {
-					android.util.Log.e(TAG, "File already exists: " + fileName);					
+					android.util.Log.e(TAG, "File already exists: " + fileName);
 				}
 			} catch (FileNotFoundException e) {
 				fileName = "";

@@ -35,7 +35,7 @@ public class Constants {
 	public static final int NO_VM_FOUND_FOR_USER   = 9;
     public static final int GET_PASSWORD           = 10;
     public static final int VV_FILE_ERROR          = 11;
-
+    
 	public static final int EXTRA_KEYS_OFF         = 0;
 	public static final int EXTRA_KEYS_ON          = 1;
 	public static final int EXTRA_KEYS_TIMEOUT     = 2;
@@ -47,4 +47,8 @@ public class Constants {
 	public static final int SHORT_VIBRATION        = 50;
 	
 	public static final String DEFAULT_LAYOUT_MAP = "English (US)";
+	
+	public static final String ACTION_USB_PERMISSION = "com.undatech.opaque.USB_PERMISSION";
+    public static final int usbDeviceTimeout = 5000;
+    public static final int usbDevicePermissionTimeout = 15000;
 }

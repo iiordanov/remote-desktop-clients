@@ -88,6 +88,7 @@ struct spice_connection {
 spice_connection *connection_new(void);
 void connection_connect(spice_connection *conn);
 void connection_disconnect(spice_connection *conn);
+static void usb_device_added (SpiceUsbDeviceManager *manager, SpiceUsbDevice *device, gpointer user_data);
 
 /* ------------------------------------------------------------------ */
 

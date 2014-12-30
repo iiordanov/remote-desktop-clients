@@ -37,6 +37,7 @@
 
 #include "spice-channel-priv.h"
 #include "glib-compat.h"
+#include "../android/android-service.h"
 
 /**
  * SECTION:channel-usbredir
@@ -238,9 +239,13 @@ static gboolean spice_usbredir_channel_open_device(
                          || priv->state == STATE_WAITING_FOR_ACL_HELPER
 #endif
                          , FALSE);
-
-    rc = libusb_open(priv->device, &handle);
+    int fd = get_usb_device_fd(priv->device);
+    if (fd <= 0) {
+        return FALSE;
+    }
+    rc = libusb_open_fd(priv->device, &handle, fd);
     if (rc != 0) {
+        __android_log_write(6, "channel-usbredir", "Failed to open USB device.");
         g_set_error(err, SPICE_CLIENT_ERROR, SPICE_CLIENT_ERROR_FAILED,
                     "Could not open usb device: %s [%i]",
                     spice_usbutil_libusb_strerror(rc), rc);

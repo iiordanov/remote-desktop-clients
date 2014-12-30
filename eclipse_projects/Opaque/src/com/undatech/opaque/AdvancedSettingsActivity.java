@@ -45,7 +45,8 @@ public class AdvancedSettingsActivity extends FragmentActivity implements Manage
 	private ToggleButton toggleAudioPlayback;
 	private ToggleButton toggleAutoRotation;
 	private ToggleButton toggleAutoRequestDisplayResolution;
-	private ToggleButton toggleSslStrict;
+    private ToggleButton toggleSslStrict;
+    private ToggleButton toggleUsbEnabled;
 	private ToggleButton toggleUsingCustomOvirtCa;
 	private Button buttonManageOvirtCa;
 	
@@ -59,6 +60,9 @@ public class AdvancedSettingsActivity extends FragmentActivity implements Manage
 		
 		toggleAudioPlayback = (ToggleButton)findViewById(R.id.toggleAudioPlayback);
 		toggleAudioPlayback.setChecked(currentConnection.isAudioPlaybackEnabled());
+		
+		toggleUsbEnabled = (ToggleButton)findViewById(R.id.toggleUsbEnabled);
+		toggleUsbEnabled.setChecked(currentConnection.isUsbEnabled());
 		
 		toggleAutoRotation = (ToggleButton)findViewById(R.id.toggleAutoRotation);
 		toggleAutoRotation.setChecked(currentConnection.isRotationEnabled());
@@ -91,13 +95,22 @@ public class AdvancedSettingsActivity extends FragmentActivity implements Manage
 	}
 	
 	/**
-	 * Automatically linked with android:onClick to the toggleAutoRotation button.
+	 * Automatically linked with android:onClick to the toggleUsbEnabled button.
 	 * @param view
 	 */
-	public void toggleAutoRotation (View view) {
+	public void toggleUsbEnabledSetting (View view) {
 		ToggleButton s = (ToggleButton) view;
-		currentConnection.setRotationEnabled(s.isChecked());	
+		currentConnection.setUsbEnabled(s.isChecked());	
 	}
+	
+	/**
+     * Automatically linked with android:onClick to the toggleAutoRotation button.
+     * @param view
+     */
+    public void toggleAutoRotation (View view) {
+        ToggleButton s = (ToggleButton) view;
+        currentConnection.setRotationEnabled(s.isChecked());    
+    }
 	
 	/**
 	 * Automatically linked with android:onClick to the toggleRotation button.

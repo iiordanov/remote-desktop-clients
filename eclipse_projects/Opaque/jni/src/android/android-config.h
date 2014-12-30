@@ -145,7 +145,7 @@
 /* #undef USE_GUDEV */
 
 /* Define if libusb has hotplug support */
-/* #undef USE_LIBUSB_HOTPLUG */
+#define USE_LIBUSB_HOTPLUG 1
 
 /* Define if supporting polkit */
 /* #undef USE_POLKIT */
@@ -154,7 +154,7 @@
 /* #undef USE_SMARTCARD */
 
 /* Define if supporting usbredir proxying */
-/* #undef USE_USBREDIR */
+#define USE_USBREDIR 1
 
 /* Version number of package */
 #define VERSION "0.22"

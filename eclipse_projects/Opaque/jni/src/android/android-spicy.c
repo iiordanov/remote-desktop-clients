@@ -167,9 +167,18 @@ static void channel_new(SpiceSession *s, SpiceChannel *channel, gpointer data)
         conn->audio = spice_audio_get(s, NULL);
     }
 
-    //if (SPICE_IS_USBREDIR_CHANNEL(channel)) {
-    //    update_auto_usbredir_sensitive(conn);
-    //}
+    if (SPICE_IS_USBREDIR_CHANNEL(channel)) {
+        __android_log_write(6, "android-spice", "Created USB channel, attempting to add devices");
+        SpiceUsbDeviceManager *manager = spice_usb_device_manager_get(s, NULL);
+        GPtrArray *devices = spice_usb_device_manager_get_devices(manager);
+        if (devices) {
+            for (int i = 0; i < devices->len; i++) {
+                __android_log_write(6, "android-spicy", "Devices found, connecting...");
+                usb_device_added(manager, g_ptr_array_index(devices, i), NULL);
+            }
+            g_ptr_array_unref(devices);
+        }
+    }
 
     //if (SPICE_IS_PORT_CHANNEL(channel)) {
     //    g_signal_connect(channel, "notify::port-opened",
@@ -207,9 +216,10 @@ static void channel_destroy(SpiceSession *s, SpiceChannel *channel, gpointer dat
         SPICE_DEBUG("zap audio channel");
     }
 
-    //if (SPICE_IS_USBREDIR_CHANNEL(channel)) {
-    //    update_auto_usbredir_sensitive(conn);
-    //}
+    if (SPICE_IS_USBREDIR_CHANNEL(channel)) {
+        __android_log_write(6, "android-spice", "Destroyed USB channel.");
+        //update_auto_usbredir_sensitive(conn);
+    }
 
     //if (SPICE_IS_PORT_CHANNEL(channel)) {
     //    if (SPICE_PORT_CHANNEL(channel) == stdin_port)
@@ -236,10 +246,28 @@ static void migration_state(GObject *session,
         g_message("migrating session");
 }
 
+static void usb_auto_connect_failed (SpiceUsbDeviceManager *manager, SpiceUsbDevice *device, gpointer user_data) {
+    __android_log_write(6, "android-spicy", "auto-connect-failed");
+}
+
+static void usb_device_error (SpiceUsbDeviceManager *manager, SpiceUsbDevice *device, gpointer user_data) {
+    __android_log_write(6, "android-spicy", "device-error");
+}
+
+static void usb_device_added (SpiceUsbDeviceManager *manager, SpiceUsbDevice *device, gpointer user_data) {
+    __android_log_write(6, "android-spicy", "device-added");
+    spice_usb_device_manager_connect_device_async(manager, device, NULL, NULL, NULL);
+}
+
+static void usb_device_removed (SpiceUsbDeviceManager *manager, SpiceUsbDevice *device, gpointer user_data) {
+    __android_log_write(6, "android-spicy", "device-removed");
+    spice_usb_device_manager_disconnect_device(manager, device);
+}
+
 spice_connection *connection_new(void)
 {
     spice_connection *conn;
-    //SpiceUsbDeviceManager *manager;
+    SpiceUsbDeviceManager *manager;
 
     conn = g_new0(spice_connection, 1);
     conn->session = spice_session_new();
@@ -251,13 +279,17 @@ spice_connection *connection_new(void)
     g_signal_connect(conn->session, "notify::migration-state",
                      G_CALLBACK(migration_state), conn);
 
-    //manager = spice_usb_device_manager_get(conn->session, NULL);
-    //if (manager) {
-    //    g_signal_connect(manager, "auto-connect-failed",
-    //                     G_CALLBACK(usb_connect_failed), NULL);
-    //    g_signal_connect(manager, "device-error",
-    //                     G_CALLBACK(usb_connect_failed), NULL);
-    //}
+    manager = spice_usb_device_manager_get(conn->session, NULL);
+    if (manager) {
+        g_signal_connect(manager, "auto-connect-failed",
+                         G_CALLBACK(usb_auto_connect_failed), NULL);
+        g_signal_connect(manager, "device-error",
+                         G_CALLBACK(usb_device_error), NULL);
+        g_signal_connect(manager, "device-added",
+                         G_CALLBACK(usb_device_added), NULL);
+        g_signal_connect(manager, "device-removed",
+                         G_CALLBACK(usb_device_removed), NULL);
+    }
 
     connections++;
     SPICE_DEBUG("%s (%d)", __FUNCTION__, connections);
