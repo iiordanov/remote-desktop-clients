@@ -20,7 +20,11 @@
 
 package com.undatech.opaque.input;
 
+import android.content.Context;
+import android.content.res.Configuration;
+import android.os.Build;
 import android.os.Handler;
+import android.view.InputDevice;
 import android.view.KeyEvent;
 
 import com.undatech.opaque.RemoteCanvas;
@@ -44,13 +48,12 @@ public class RemoteSpicePointer implements RemotePointer {
 	 * Current state of "mouse" buttons
 	 */
 	private int pointerMask = 0;
-
+	
 	private RemoteCanvas canvas;
+	private Context context;
 	private Handler handler;
 	private SpiceCommunicator spicecomm;
-
-	// Indicates if the camera button is pressed.
-	boolean isCameraButtonPressed = false;
+	
 	
 	/**
 	 * Indicates where the mouse pointer is located.
@@ -60,11 +63,37 @@ public class RemoteSpicePointer implements RemotePointer {
 	public RemoteSpicePointer (SpiceCommunicator spicecomm, RemoteCanvas canvas, Handler handler) {
 		this.spicecomm = spicecomm;
 		this.canvas    = canvas;
+		this.context   = canvas.getContext();
 		this.handler   = handler;
 		pointerX  = canvas.getDesktopWidth() /2;
 		pointerY  = canvas.getDesktopHeight()/2;
 	}
-
+    
+    protected boolean shouldBeRightClick (KeyEvent e) {
+        boolean result = false;
+        int keyCode = e.getKeyCode();
+        
+        // If the camera button is pressed
+        if (keyCode == KeyEvent.KEYCODE_CAMERA) {
+            result = true;
+        // Or the back button is pressed
+        } else if (keyCode == KeyEvent.KEYCODE_BACK) {
+            // Determine SDK
+            boolean preGingerBread = android.os.Build.VERSION.SDK_INT < Build.VERSION_CODES.GINGERBREAD;
+            // Whether the source is a mouse (getSource() is not available pre-Gingerbread)
+            boolean mouseSource = (!preGingerBread && e.getSource() == InputDevice.SOURCE_MOUSE);
+            // Whether the device has a qwerty keyboard
+            boolean noQwertyKbd = (context.getResources().getConfiguration().keyboard != Configuration.KEYBOARD_QWERTY);
+            // Whether the device is pre-Gingerbread or the event came from the "hard buttons"
+            boolean fromVirtualHardKey = preGingerBread || (e.getFlags() & KeyEvent.FLAG_VIRTUAL_HARD_KEY) != 0;
+            if (mouseSource || noQwertyKbd || fromVirtualHardKey) {
+                result = true;
+            }
+        }
+        
+        return result;
+    }
+    
 	public int getX() {
 		return pointerX;
 	}
@@ -111,18 +140,16 @@ public class RemoteSpicePointer implements RemotePointer {
 	/**
 	 * Handles any hardware buttons designated to perform mouse events.
 	 */
-	public boolean hardwareButtonsAsMouseEvents(int keyCode, KeyEvent evt, int combinedMetastate) {
+	public boolean hardwareButtonsAsMouseEvents(int keyCode, KeyEvent e, int combinedMetastate) {
 		boolean used = false;
-		boolean down = (evt.getAction() == KeyEvent.ACTION_DOWN) ||
-						(evt.getAction() == KeyEvent.ACTION_MULTIPLE);
+		boolean down = (e.getAction() == KeyEvent.ACTION_DOWN) ||
+					   (e.getAction() == KeyEvent.ACTION_MULTIPLE);
 		if (down)
 			pointerMask = POINTER_DOWN_MASK;
 		else
 			pointerMask = 0;
 		
-		if (keyCode == KeyEvent.KEYCODE_CAMERA ||
-		    keyCode == KeyEvent.KEYCODE_BACK && evt.getScanCode() == 0) {
-			isCameraButtonPressed = down;
+		if (shouldBeRightClick(e)) {
 			pointerMask |= RemoteSpicePointer.SPICE_MOUSE_BUTTON_RIGHT;
 			spicecomm.sendPointerEvent(getX(), getY(), combinedMetastate, pointerMask);
 			used = true;

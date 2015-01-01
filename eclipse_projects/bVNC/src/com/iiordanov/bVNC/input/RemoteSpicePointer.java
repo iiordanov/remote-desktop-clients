@@ -118,10 +118,8 @@ public class RemoteSpicePointer extends RemotePointer {
             //direction = 0;
         }
         
-        if (keyCode == KeyEvent.KEYCODE_CAMERA) {
-            cameraButtonDown = down;
+        if (shouldBeRightClick (evt)) {
             pointerMask |= RemoteSpicePointer.SPICE_MOUSE_BUTTON_RIGHT;
-            //processPointerEvent(getX(), getY(), evt.getAction(), combinedMetastate, down, true, false, false, direction);
             rfb.writePointerEvent(getX(), getY(), combinedMetastate, pointerMask);
             return true;
         } else if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN || keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
@@ -139,28 +137,11 @@ public class RemoteSpicePointer extends RemotePointer {
             //processPointerEvent(getX(), getY(), evt.getAction(), combinedMetastate, down, false, false, true, direction);
             rfb.writePointerEvent(getX(), getY(), combinedMetastate, pointerMask);
             return true;
-        } else if (keyCode == KeyEvent.KEYCODE_BACK && (evt.getScanCode() == 0 || hasMenuKey)) {
-            pointerMask |= RemoteSpicePointer.SPICE_MOUSE_BUTTON_RIGHT;
-            rfb.writePointerEvent(getX(), getY(), combinedMetastate, pointerMask);
-            return true;
         }
+        
         return false;
     }
     
-    
-    /**
-     * Convert a motion event to a format suitable for sending over the wire
-     * @param evt motion event; x and y must already have been converted from screen coordinates
-     * to remote frame buffer coordinates.  cameraButton flag is interpreted as second mouse
-     * button
-     * @param downEvent True if "mouse button" (touch or trackball button) is down when this happens
-     * @return true if event was actually sent
-     */
-    public boolean processPointerEvent(MotionEvent evt, boolean downEvent)
-    {
-        return processPointerEvent(evt, downEvent, cameraButtonDown);
-    }
-
     /**
      *  Overloaded processPointerEvent method which supports mouse scroll button.
      * @param evt motion event; x and y must already have been converted from screen coordinates

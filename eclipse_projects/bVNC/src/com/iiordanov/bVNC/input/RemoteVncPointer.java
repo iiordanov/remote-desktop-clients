@@ -103,11 +103,7 @@ public class RemoteVncPointer extends RemotePointer {
                    (evt.getAction() == KeyEvent.ACTION_MULTIPLE);
 
         int mouseChange = keyCode == KeyEvent.KEYCODE_VOLUME_DOWN ? RemoteVncPointer.MOUSE_BUTTON_SCROLL_DOWN : RemoteVncPointer.MOUSE_BUTTON_SCROLL_UP;
-        if (keyCode == KeyEvent.KEYCODE_CAMERA ||
-            keyCode == KeyEvent.KEYCODE_BACK && (evt.getScanCode() == 0 || hasMenuKey)) {
-            if (keyCode == KeyEvent.KEYCODE_CAMERA)
-                cameraButtonDown = down;
-
+        if (shouldBeRightClick (evt)) {
             if (down)
                 pointerMask = RemoteVncPointer.MOUSE_BUTTON_RIGHT;
             else
@@ -133,20 +129,6 @@ public class RemoteVncPointer extends RemotePointer {
         return false;
     }
     
-    
-    /**
-     * Convert a motion event to a format suitable for sending over the wire
-     * @param evt motion event; x and y must already have been converted from screen coordinates
-     * to remote frame buffer coordinates.  cameraButton flag is interpreted as second mouse
-     * button
-     * @param downEvent True if "mouse button" (touch or trackball button) is down when this happens
-     * @return true if event was actually sent
-     */
-    public boolean processPointerEvent(MotionEvent evt, boolean downEvent)
-    {
-        return processPointerEvent(evt, downEvent, cameraButtonDown);
-    }
-
     /**
      *  Overloaded processPointerEvent method which supports mouse scroll button.
      * @param evt motion event; x and y must already have been converted from screen coordinates
