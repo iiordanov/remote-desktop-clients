@@ -83,6 +83,8 @@ def loadKeyMap (nameToUnicode, keyMapFile, keyMap):
                 elif s == "addupper":
                     scanCodes.remove(s)
                     addUpper = True
+                elif s == "inhibit":
+                    scanCodes.remove(s)
 
             # If we're supposed to skip this entry, continue to next iteration.
             if skip:
