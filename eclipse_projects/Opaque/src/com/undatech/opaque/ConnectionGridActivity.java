@@ -152,6 +152,18 @@ public class ConnectionGridActivity extends Activity {
 		startActivity(intent);
 	}
 	
+    /**
+     * Automatically linked with android:onClick to the edit default settings action bar item.
+     * @param view
+     */
+    public void editDefaultSettings (MenuItem menuItem) {
+        Intent intent = new Intent(ConnectionGridActivity.this, AdvancedSettingsActivity.class);
+        ConnectionSettings defaultConnection = new ConnectionSettings(Constants.DEFAULT_SETTINGS_FILE);
+        defaultConnection.loadFromSharedPreferences(getApplicationContext());
+        intent.putExtra("com.undatech.opaque.ConnectionSettings", defaultConnection);
+        startActivityForResult(intent, Constants.DEFAULT_SETTINGS);
+    }
+	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 	    MenuInflater inflater = getMenuInflater();
@@ -166,6 +178,9 @@ public class ConnectionGridActivity extends Activity {
 		case R.id.actionNewConnection:
 			addNewConnection (menuItem);
 			break;
+        case R.id.actionEditDefaultSettings:
+            editDefaultSettings (menuItem);
+            break;
 		}
 		return true;
 	}
@@ -209,4 +224,25 @@ public class ConnectionGridActivity extends Activity {
 			android.util.Log.i(TAG, "Current version of CA bundle already exists.");
 		}
 	}
+	
+	   /**
+     * This function is used to retrieve data returned by activities started with startActivityForResult.
+     */
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        android.util.Log.i(TAG, "onActivityResult");
+
+        super.onActivityResult(requestCode, resultCode, data);
+        switch(requestCode) {
+        case (Constants.DEFAULT_SETTINGS):
+            if (resultCode == Activity.RESULT_OK) {
+                Bundle b = data.getExtras();
+                ConnectionSettings defaultSettings = (ConnectionSettings)b.get("com.undatech.opaque.ConnectionSettings");
+                defaultSettings.saveToSharedPreferences(this);
+            } else {
+                android.util.Log.i (TAG, "Error during AdvancedSettingsActivity.");
+            }
+            break;
+        }
+    }
 }

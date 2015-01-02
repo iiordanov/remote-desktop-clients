@@ -332,7 +332,7 @@ public class RemoteCanvasActivity extends FragmentActivity implements OnKeyListe
             
             if (f.exists()) {
                 android.util.Log.d(TAG, "Initializing session from vv file: " + vvFileName);
-                connection = new ConnectionSettings("defaultSettings");
+                connection = new ConnectionSettings(Constants.DEFAULT_SETTINGS_FILE);
                 connection.loadFromSharedPreferences(getApplicationContext());
             } else {
             	vvFileName = null;

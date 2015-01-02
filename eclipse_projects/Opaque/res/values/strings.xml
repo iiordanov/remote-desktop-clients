@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
 <string name="action_new_connection">New Connection</string>
+<string name="action_edit_default_settings">Edit Default Settings</string>
 <string name="action_delete_connection">Delete Connection</string>
 <string name="app_name">Opaque</string>
 <string name="app_name_beta">Opaque Beta</string>

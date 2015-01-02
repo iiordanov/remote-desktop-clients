@@ -138,6 +138,8 @@ public class ConnectionSetupActivity extends Activity {
 		
 		currentConnection = new ConnectionSettings (currentSelectedConnection);
 		if (newConnection) {
+		    // Load advanced settings defaults from the saved default settings
+		    currentConnection.loadAdvancedSettings(this, Constants.DEFAULT_SETTINGS_FILE);
 			// Save the empty connection preferences to override any values of a previously
 			// deleted connection.
 			saveSelectedPreferences(false);

@@ -40,7 +40,8 @@ public class Constants {
 	public static final int EXTRA_KEYS_ON          = 1;
 	public static final int EXTRA_KEYS_TIMEOUT     = 2;
 	
-	public static final int ADVANCED_SETTINGS      = 1;
+    public static final int ADVANCED_SETTINGS      = 1;
+    public static final int DEFAULT_SETTINGS       = 2;
 	
 	public static final String DEFAULT_INPUT_METHOD_ID = InputHandlerDirectSwipePan.ID;
 	
@@ -51,4 +52,6 @@ public class Constants {
 	public static final String ACTION_USB_PERMISSION = "com.undatech.opaque.USB_PERMISSION";
     public static final int usbDeviceTimeout = 5000;
     public static final int usbDevicePermissionTimeout = 15000;
+    
+    public static final String DEFAULT_SETTINGS_FILE = "defaultSettings";
 }

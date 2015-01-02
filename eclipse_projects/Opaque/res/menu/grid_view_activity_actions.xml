@@ -6,4 +6,9 @@
           android:title="@string/action_new_connection"
           android:showAsAction="ifRoom"
           android:onClick="addNewConnection" />
+    <item android:id="@+id/actionEditDefaultSettings"
+          android:icon="@android:drawable/ic_menu_manage"
+          android:title="@string/action_edit_default_settings"
+          android:showAsAction="ifRoom"
+          android:onClick="editDefaultSettings" />
 </menu>
