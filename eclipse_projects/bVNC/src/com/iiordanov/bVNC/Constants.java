@@ -177,6 +177,10 @@ public class Constants {
     public static final String generalSettingsTag = "generalSettings";
     public static final String masterPasswordEnabledTag = "masterPasswordEnabled";
     
+    public static final String ACTION_USB_PERMISSION = "com.iiordanov.aSPICE.USB_PERMISSION";
+    public static final int usbDeviceTimeout = 5000;
+    public static final int usbDevicePermissionTimeout = 15000;
+    
     /**
      * Returns a string matching a session selection index
      * @param index - index to convert

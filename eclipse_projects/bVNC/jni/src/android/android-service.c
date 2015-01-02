@@ -29,6 +29,7 @@
 #include "android-spice-widget.h"
 #include "android-spicy.h"
 #include "virt-viewer-file.h"
+#include "libusb.h"
 
 static gboolean disconnect(gpointer user_data);
 
@@ -151,7 +152,7 @@ spice_session_setup_from_vv(VirtViewerFile *file, SpiceSession *session)
 
 void spice_session_setup(SpiceSession *session, const char *host, const char *port,
                             const char *tls_port, const char *password, const char *ca_file,
-                            GByteArray *ca_cert, const char *cert_subj) {
+                            GByteArray *ca_cert, const char *cert_subj, const char *proxy) {
 
     g_return_if_fail(SPICE_IS_SESSION(session));
 
@@ -170,6 +171,8 @@ void spice_session_setup(SpiceSession *session, const char *host, const char *po
         g_object_set(session, "ca", ca_cert, NULL);
     if (cert_subj)
         g_object_set(session, "cert-subject", cert_subj, NULL);
+    if (proxy)
+        g_object_set(session, "proxy", proxy, NULL);
 }
 
 static void signal_handler(int signal, siginfo_t *info, void *reserved) {
@@ -214,7 +217,7 @@ gboolean getJvmAndMethodReferences (JNIEnv *env) {
 
 JNIEXPORT jint JNICALL
 Java_com_iiordanov_aSPICE_SpiceCommunicator_SpiceClientConnect (JNIEnv *env, jobject obj, jstring h, jstring p,
-                                                                       jstring tp, jstring pw, jstring cf, jstring cs, jboolean sound)
+                                                               jstring tp, jstring pw, jstring cf, jstring cs, jboolean sound)
 {
 	const gchar *host = NULL;
 	const gchar *port = NULL;
@@ -235,7 +238,7 @@ Java_com_iiordanov_aSPICE_SpiceCommunicator_SpiceClientConnect (JNIEnv *env, job
 	ca_file   = (*env)->GetStringUTFChars(env, cf, NULL);
 	cert_subj = (*env)->GetStringUTFChars(env, cs, NULL);
 
-	result = spiceClientConnect (host, port, tls_port, password, ca_file, NULL, cert_subj, sound);
+	result = spiceClientConnect (host, port, tls_port, password, ca_file, NULL, cert_subj, sound, NULL);
 
 	jvm                  = NULL;
 	jni_connector_class  = NULL;
@@ -246,14 +249,14 @@ Java_com_iiordanov_aSPICE_SpiceCommunicator_SpiceClientConnect (JNIEnv *env, job
 
 
 int spiceClientConnect (const gchar *h, const gchar *p, const gchar *tp,
-		                   const gchar *pw, const gchar *cf, GByteArray *cc,
-                           const gchar *cs, const gboolean sound)
+                        const gchar *pw, const gchar *cf, GByteArray *cc,
+                        const gchar *cs, const gboolean sound, const gchar *proxy)
 {
 	spice_connection *conn;
 
     soundEnabled = sound;
     conn = connection_new();
-	spice_session_setup(conn->session, h, p, tp, pw, cf, cc, cs);
+	spice_session_setup(conn->session, h, p, tp, pw, cf, cc, cs, proxy);
 	return connectSession(conn);
 }
 
@@ -477,6 +480,7 @@ int CreateOvirtSession(JNIEnv *env, jobject obj, const gchar *uri, const gchar *
     gchar *ghost = NULL;
     gchar *ticket = NULL;
     gchar *spice_host_subject = NULL;
+    gchar *proxyuri = NULL;
 
     if (!getJvmAndMethodReferences (env)) {
     	success = -1;
@@ -597,6 +601,7 @@ int CreateOvirtSession(JNIEnv *env, jobject obj, const gchar *uri, const gchar *
                  "secure-port", &secure_port,
                  "ticket", &ticket,
                  "host-subject", &spice_host_subject,
+                 "proxy", &proxyuri,
                  NULL);
 
     gport = g_strdup_printf("%d", port);
@@ -622,7 +627,7 @@ int CreateOvirtSession(JNIEnv *env, jobject obj, const gchar *uri, const gchar *
     	g_object_get(G_OBJECT(proxy), "ca-cert", &ca_cert, NULL);
 
     	// We are ready to start the SPICE connection.
-    	success = spiceClientConnect (ghost, gport, gtlsport, ticket, NULL, ca_cert, spice_host_subject, sound);
+    	success = spiceClientConnect (ghost, gport, gtlsport, ticket, NULL, ca_cert, spice_host_subject, sound, proxyuri);
     }
 
 error:
@@ -756,4 +761,31 @@ Java_com_iiordanov_aSPICE_SpiceCommunicator_FetchVmNames(JNIEnv *env,
 
 error:
     return success;
+}
+
+int openUsbDevice (int vid, int pid) {
+    JNIEnv* env = NULL;
+    gboolean attached = FALSE;
+    attached = attachThreadToJvm (&env);
+
+    jclass class  = (*env)->FindClass (env, "com/iiordanov/aSPICE/SpiceCommunicator");
+    jmethodID openUsbDevice = (*env)->GetStaticMethodID (env, class, "openUsbDevice", "(II)I");
+    int fd = (*env)->CallStaticIntMethod(env, class, openUsbDevice, vid, pid);
+
+    if (attached) {
+        detachThreadFromJvm ();
+    }
+    return fd;
+}
+
+int get_usb_device_fd(libusb_device *device) {
+    __android_log_write(6, "channel-usbredir", "Trying to open USB device.");
+    struct libusb_device_descriptor desc;
+    int errcode = libusb_get_device_descriptor(device, &desc);
+    if (errcode < 0) {
+        return -1;
+    }
+    int vid = desc.idVendor;
+    int pid = desc.idProduct;
+    return openUsbDevice(vid, pid);
 }
