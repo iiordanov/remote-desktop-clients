@@ -52,6 +52,7 @@ import android.content.res.Configuration;
 import android.database.Cursor;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
+import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -123,6 +124,7 @@ public class RemoteCanvasActivity extends FragmentActivity implements OnKeyListe
 		// TODO: Implement left-icon
 		//requestWindowFeature(Window.FEATURE_LEFT_ICON);
 		//setFeatureDrawableResource(Window.FEATURE_LEFT_ICON, R.drawable.icon); 
+		setVolumeControlStream(AudioManager.STREAM_MUSIC);
 		
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,

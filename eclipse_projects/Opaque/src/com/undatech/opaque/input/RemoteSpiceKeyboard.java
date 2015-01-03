@@ -111,6 +111,14 @@ public class RemoteSpiceKeyboard extends RemoteKeyboard {
 	}
 
 	public boolean keyEvent(int keyCode, KeyEvent event, int additionalMetaState) {
+	    
+	    // Discard volume_up/down key events so to let them control music volume.
+	    if (keyCode == KeyEvent.KEYCODE_VOLUME_UP ||
+	        keyCode == KeyEvent.KEYCODE_VOLUME_DOWN ||
+	        keyCode == KeyEvent.KEYCODE_VOLUME_MUTE) {
+	        return false;
+	    }
+	    
         android.util.Log.e(TAG, event.toString());
         int action = event.getAction();
         boolean down = (action == KeyEvent.ACTION_DOWN);
