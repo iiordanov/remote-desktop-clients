@@ -5,6 +5,7 @@
 <string name="address_caption_hint_tunneled">VNC Server</string>
 <string name="address_caption_ssh">SSH Server</string>
 <string name="address_caption_ssh_hint">SSH Server</string>
+<string name="ad_donate_text_spice">The Pro version of aSPICE now supports USB redirection! Just attach your OTG cable prior to connecting.</string>
 <string name="ad_donate_text0">The Pro version now has a much requested Master Password feature which prevents unauthorized use and also encrypts all connection settings including passwords and SSH keys to guard against theft. Enable it from the main Menu. If the Menu button is missing, please long-tap the running apps button for the Menu.</string>
 <string name="ad_donate_text1">Tap here to support the project with a small donation by buying the Pro version.</string>
 <string name="ad_donate_text2">The Pro version allows you to disable this dialog and gives you access to additional features.</string>

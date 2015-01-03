@@ -100,6 +100,11 @@ public class IntroTextDialog extends Dialog {
         StringBuilder sb = new StringBuilder(getContext().getResources().getString(R.string.intro_title));
         setTitle(sb);
         sb.delete(0, sb.length());
+        if (pkgName.contains("SPICE")) {
+            sb.append(getContext().getResources().getString(R.string.ad_donate_text_spice));
+            sb.append("<br>");
+            sb.append("<br>");
+        }
         sb.append(getContext().getResources().getString(R.string.ad_donate_text0));
         sb.append("<br>");
         sb.append("<br>");
