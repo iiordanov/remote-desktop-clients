@@ -1162,13 +1162,11 @@ public class RemoteCanvas extends ImageView implements LibFreeRDP.UIEventListene
         
         outAttrs.actionLabel = null;
         outAttrs.inputType = InputType.TYPE_NULL;
-        /* TODO: If people complain about kbd not working, this is a possible workaround to
-         * test and add an option for.
         // Workaround for IME's that don't support InputType.TYPE_NULL.
-        if (version >= 11) {
+        if (version >= 21) {
             outAttrs.inputType = InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS;
             outAttrs.imeOptions |= EditorInfo.IME_FLAG_NO_FULLSCREEN;
-        }*/
+        }
         return bic;
     }
     
