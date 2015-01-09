@@ -1212,11 +1212,15 @@ public class RemoteCanvasActivity extends Activity implements OnKeyListener {
     // Send e.g. mouse events like hover and scroll to be handled.
     @Override
     public boolean onGenericMotionEvent(MotionEvent event) {
-        // Ignore TOOL_TYPE_FINGER events that come from the touchscreen with y == 0.0
-        // which cause pointer jumping trouble for some users.
-        if (! (event.getY() == 0.0f &&
-               event.getSource() == InputDevice.SOURCE_TOUCHSCREEN &&
-               event.getToolType(0) == MotionEvent.TOOL_TYPE_FINGER) ) {
+        // Ignore TOOL_TYPE_FINGER events that come from the touchscreen with HOVER type action
+        // which cause pointer jumping trouble in simulated touchpad for some devices.
+        int a = event.getAction();
+        if (! ( (a == MotionEvent.ACTION_HOVER_ENTER ||
+                 a == MotionEvent.ACTION_HOVER_EXIT  ||
+                 a == MotionEvent.ACTION_HOVER_MOVE) &&
+                event.getSource() == InputDevice.SOURCE_TOUCHSCREEN &&
+                event.getToolType(0) == MotionEvent.TOOL_TYPE_FINGER
+               ) ) {
             try {
                 return inputHandler.onTouchEvent(event);
             } catch (NullPointerException e) { }
