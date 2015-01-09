@@ -129,6 +129,8 @@ public class ConnectionBean extends AbstractConnectionBean implements Comparable
         setConsoleMode(false);
         setRedirectSdCard(false);
         setEnableSound(false);
+        setEnableRecording(false);
+        setRemoteSoundType(Constants.REMOTE_SOUND_ON_DEVICE);
         setViewOnly(false);
 		setLayoutMap("English (US)");
         c = context;

@@ -5,6 +5,7 @@
 <string name="address_caption_hint_tunneled">VNC Сервер</string>
 <string name="address_caption_ssh">SSH Сервер</string>
 <string name="address_caption_ssh_hint">SSH Сервер</string>
+<string name="ad_donate_text_rdp">Pro версия ARDP теперь поддерживает перенаправление звука!</string>
 <string name="ad_donate_text_spice">Pro версия aSPICE теперь поддерживает перенаправление USB! Просто приложите вашу OTG кабель перед подключением.</string>
 <string name="ad_donate_text0">Pro версия теперь имеет очень нужную функциональность мастер-пароль, который предотвращает несанкционированное использование, а также защищает от кражи информации посредством шифрования все ваши настройки подключения, включая пароли и ключи безопасности. Включите его из главного меню. Если кнопка меню отсутствует, пожалуйста, долгое нажатие на кнопку, которая отображает запущенные приложения, чтобы получить меню.</string>
 <string name="ad_donate_text1">Нажмите здесь, чтобы поддержать проект небольшим пожертвованием, купив PRO версию!</string>
@@ -108,13 +109,14 @@
 <string name="dpad_as_arrows">Использовать D-Pad для стрелок и нажатие D-Pad для Ctrl.</string>
 <string name="disconnect">Отключить</string>
 <string name="enable_sound">Включить звук</string>
+<string name="enable_recording">Включить запись</string>
 <string name="error_no_user_hostname">Введите как минимум имя пользователя и имя хоста или его IP-адрес.</string>
 <string name="error_uri_noinfo_nosave">Недостаточно информации, для подключения.</string>
 <string name="error_vnc_authentication">Неуспешная VNC авторизация! Проверьте VNC пароль (и имя пользователя, если оно используется).</string>
 <string name="error_out_of_memory">Не удалось выделить достаточное количество памяти, чтобы отобразить удаленный экран. Попробуйте перезапустить приложение или перезагрузить устройство. Вы также можете попробовать уменьшить размер удаленного рабочего стола в настройках приложения</string>
 <string name="error_ovirt_unable_to_connect">Не удалось подключиться или авторизироваться, пожалуйста проверьте адрес сервера, имя пользователя, пароль, сертификат и объект.</string>
 <string name="error_spice_unable_to_connect">Не удалось подключиться или авторизироваться, пожалуйста проверьте адрес сервера, имя пользователя, пароль, сертификат и объект.</string>
-<string name="error_rdp_unable_to_connect">Не удалось подключиться к RDP-серверу! Пожалуйста, убедитесь что параметры RDP-сервера указаны правильно, сервер к которому вы подключаетесь включен, на нем разрешено подключение через RDP, и что сервер находится в пределах досягаемости сети</string>
+<string name="error_rdp_unable_to_connect">Не удалось подключиться к RDP-серверу или аутентификации не удалось! Пожалуйста, убедитесь что параметры RDP-сервера указаны правильно, что имя пользователя или пароль верны, сервер к которому вы подключаетесь включен, на нем разрешено подключение через RDP, и что сервер находится в пределах досягаемости сети</string>
 <string name="error_rdp_connection_failed">Подключение к RDP-серверу не удалось! Либо подключение к сети было прервано, сервер RDP был выключен или запрещен, или ваша сессия была отклонена.</string>
 <string name="error_rdp_authentication_failed">Ошибка проверки пользователя и пароля RDP! Пожалуйста, проверьте имя пользователя и пароль RDP после чего, повторите попытку подключения.</string>
 <string name="error_ssh_unable_to_connect">Не удалось подключиться к SSH серверу. Пожалуйста, проверьте подключение к сети, а так же адрес и порт SSH сервера.</string>
@@ -458,6 +460,9 @@
 <string name="rdp_password_hint">RDP Пароль</string>
 <string name="rdp_server_empty">RDP сервер или порт пусты. Соединение невозможно!</string>
 <string name="rdp_username_hint">RDP Имя пользователя</string>
+<string name="remote_sound_disabled">Звук отключен</string>
+<string name="remote_sound_on_device">Звук на устройстве</string>
+<string name="remote_sound_on_server">Звук на сервере</string>
 <string name="repeater_button">UltraVNC Ретранслятор</string>
 <string name="repeater_caption">ВАЖНО! При использовании VNC ретранслятора, введите его адрес вне этого диалога. Здесь введите фактический адрес и порт сервера VNC. Разделите адрес и порт VNC сервера с помодью двоеточия, пример: 192.168.0.100:5900.</string>
 <string name="repeater_caption_hint">UltraVNC Ретранслятор</string>

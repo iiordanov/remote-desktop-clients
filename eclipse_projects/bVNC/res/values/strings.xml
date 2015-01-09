@@ -5,6 +5,7 @@
 <string name="address_caption_hint_tunneled">VNC Server</string>
 <string name="address_caption_ssh">SSH Server</string>
 <string name="address_caption_ssh_hint">SSH Server</string>
+<string name="ad_donate_text_rdp">The Pro version of aRDP now supports sound redirection!</string>
 <string name="ad_donate_text_spice">The Pro version of aSPICE now supports USB redirection! Just attach your OTG cable prior to connecting.</string>
 <string name="ad_donate_text0">The Pro version now has a much requested Master Password feature which prevents unauthorized use and also encrypts all connection settings including passwords and SSH keys to guard against theft. Enable it from the main Menu. If the Menu button is missing, please long-tap the running apps button for the Menu.</string>
 <string name="ad_donate_text1">Tap here to support the project with a small donation by buying the Pro version.</string>
@@ -109,13 +110,14 @@
 <string name="dpad_as_arrows">Use D-Pad for arrows and D-Pad click for Ctrl.</string>
 <string name="disconnect">Disconnect</string>
 <string name="enable_sound">Enable Sound</string>
+<string name="enable_recording">Enable Recording</string>
 <string name="error_no_user_hostname">Please enter at least a user and a hostname or IP address.</string>
 <string name="error_uri_noinfo_nosave">Insufficent information specified to connect.</string>
 <string name="error_vnc_authentication">VNC authentication failed! Check VNC password (and user if applicable).</string>
 <string name="error_out_of_memory">Unable to allocate sufficient memory to draw remote screen. Try restarting the application, then restart your device. You can also try reducing the size of the remote desktop through the app settings.</string>
 <string name="error_ovirt_unable_to_connect">Unable to connect or authenticate, please check server address, user, password, and cert authority and subject.</string>
 <string name="error_spice_unable_to_connect">Unable to connect or authenticate, please check server address, password, and cert authority and subject.</string>
-<string name="error_rdp_unable_to_connect">Could not connect to RDP server! Please ensure RDP Server setting is correct, the RDP server is turned on, RDP is enabled, and that the server is on the same network as this device.</string>
+<string name="error_rdp_unable_to_connect">Could not connect to RDP server or authentication failed! Please ensure RDP Server setting and credentials are correct, the server is turned on, RDP is enabled, and that the server is on the same network as this device.</string>
 <string name="error_rdp_connection_failed">RDP Connection failed! Either network connectivity was interrupted, the RDP server was turned off or disabled, or your session was taken over.</string>
 <string name="error_rdp_authentication_failed">RDP Authentication failed! Please check the RDP username and password and try again.</string>
 <string name="error_ssh_unable_to_connect">Failed to connect to SSH Server. Please check network connectivity, and SSH Server address and port.</string>
@@ -461,6 +463,9 @@ Known issues:
 <string name="rdp_password_hint">RDP Password</string>
 <string name="rdp_server_empty">RDP Server or port empty. Cannot connect!</string>
 <string name="rdp_username_hint">RDP Username</string>
+<string name="remote_sound_disabled">Sound Disabled</string>
+<string name="remote_sound_on_device">Sound On Device</string>
+<string name="remote_sound_on_server">Sound On Server</string>
 <string name="repeater_button">UltraVNC Repeater</string>
 <string name="repeater_caption">IMPORTANT: If using a UltraVNC repeater, enter its address and port outside this dialog. Here, enter the address and port of the actual VNC server. Separate the VNC server\'s address and port with a colon, e.g. 192.168.0.100:5900.</string>
 <string name="repeater_caption_hint">UltraVNC Repeater</string>

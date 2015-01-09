@@ -42,6 +42,8 @@ import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -87,6 +89,8 @@ public class aRDP extends MainConfiguration {
     private EditText rdpHeight;
     private CheckBox checkboxKeepPassword;
     private CheckBox checkboxUseDpadAsArrows;
+    private RadioGroup groupRemoteSoundType;
+    private CheckBox checkboxEnableRecording;
     private CheckBox checkboxConsoleMode;
     private CheckBox checkboxRedirectSdCard;
     private CheckBox checkboxRemoteFx;
@@ -203,6 +207,8 @@ public class aRDP extends MainConfiguration {
             }
         });
 
+        groupRemoteSoundType = (RadioGroup)findViewById(R.id.groupRemoteSoundType); 
+        checkboxEnableRecording = (CheckBox)findViewById(R.id.checkboxEnableRecording);
         checkboxConsoleMode = (CheckBox)findViewById(R.id.checkboxConsoleMode);
         checkboxRedirectSdCard = (CheckBox)findViewById(R.id.checkboxRedirectSdCard);
         checkboxRemoteFx = (CheckBox)findViewById(R.id.checkboxRemoteFx);
@@ -330,6 +336,8 @@ public class aRDP extends MainConfiguration {
         rdpWidth.setText(Integer.toString(selected.getRdpWidth()));
         rdpHeight.setText(Integer.toString(selected.getRdpHeight()));
         setRemoteWidthAndHeight ();
+        setRemoteSoundTypeFromSettings(selected.getRemoteSoundType());
+        checkboxEnableRecording.setChecked(selected.getEnableRecording());
         checkboxConsoleMode.setChecked(selected.getConsoleMode());
         checkboxRedirectSdCard.setChecked(selected.getRedirectSdCard());
         checkboxRemoteFx.setChecked(selected.getRemoteFx());
@@ -393,6 +401,8 @@ public class aRDP extends MainConfiguration {
             selected.setRdpWidth(Integer.parseInt(rdpWidth.getText().toString()));
             selected.setRdpHeight(Integer.parseInt(rdpHeight.getText().toString()));
         } catch (NumberFormatException nfe) {}
+        setRemoteSoundTypeFromView(groupRemoteSoundType);
+        selected.setEnableRecording(checkboxEnableRecording.isChecked());
         selected.setConsoleMode(checkboxConsoleMode.isChecked());
         selected.setRedirectSdCard(checkboxRedirectSdCard.isChecked());
         selected.setRemoteFx(checkboxRemoteFx.isChecked());
@@ -409,6 +419,73 @@ public class aRDP extends MainConfiguration {
         selected.setUseLocalCursor(checkboxLocalCursor.isChecked());
         // TODO: Reinstate Color model spinner but for RDP settings.
         //selected.setColorModel(((COLORMODEL)colorSpinner.getSelectedItem()).nameString());
+    }
+
+    /**
+     * Automatically linked with android:onClick in the layout.
+     * @param view
+     */
+    public void toggleEnableRecording (View view) {
+        CheckBox b = (CheckBox) view;
+        if (Utils.isFree(this)) {
+            IntroTextDialog.showIntroTextIfNecessary(this, database, true);
+            b.setChecked(false);
+        }
+        selected.setEnableRecording(b.isChecked());
+    }
+    
+    /**
+     * Automatically linked with android:onClick in the layout.
+     * @param view
+     */
+    public void remoteSoundTypeToggled (View view) {
+        if (Utils.isFree(this)) {
+            IntroTextDialog.showIntroTextIfNecessary(this, database, true);
+        }
+    }
+    
+    /**
+     * Sets the remote sound type in the settings from the specified parameter.
+     * @param view
+     */
+    public void setRemoteSoundTypeFromView (View view) {
+        RadioGroup g = (RadioGroup) view;
+        if (Utils.isFree(this)) {
+            IntroTextDialog.showIntroTextIfNecessary(this, database, true);
+            g.check(R.id.radioRemoteSoundDisabled);
+        }
+        
+        int id = g.getCheckedRadioButtonId();
+        int soundType = Constants.REMOTE_SOUND_DISABLED;
+        switch (id) {
+        case R.id.radioRemoteSoundOnServer:
+            soundType = Constants.REMOTE_SOUND_ON_SERVER;
+            break;
+        case R.id.radioRemoteSoundOnDevice:
+            soundType = Constants.REMOTE_SOUND_ON_DEVICE;
+            break;
+        }
+        selected.setRemoteSoundType(soundType);
+    }
+
+    public void setRemoteSoundTypeFromSettings (int type) {
+        if (Utils.isFree(this)) {
+            type = Constants.REMOTE_SOUND_DISABLED;
+        }
+        
+        int id = 0;
+        switch (type) {
+        case Constants.REMOTE_SOUND_DISABLED:
+            id = R.id.radioRemoteSoundDisabled;
+            break;
+        case Constants.REMOTE_SOUND_ON_DEVICE:
+            id = R.id.radioRemoteSoundOnDevice;
+            break;
+        case Constants.REMOTE_SOUND_ON_SERVER:
+            id = R.id.radioRemoteSoundOnServer;
+            break;
+        }
+        groupRemoteSoundType.check(id);
     }
     
     /**

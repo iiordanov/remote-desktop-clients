@@ -104,6 +104,10 @@ public class IntroTextDialog extends Dialog {
             sb.append(getContext().getResources().getString(R.string.ad_donate_text_spice));
             sb.append("<br>");
             sb.append("<br>");
+        } else if (pkgName.contains("RDP")) {
+            sb.append(getContext().getResources().getString(R.string.ad_donate_text_rdp));
+            sb.append("<br>");
+            sb.append("<br>");
         }
         sb.append(getContext().getResources().getString(R.string.ad_donate_text0));
         sb.append("<br>");

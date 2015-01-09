@@ -85,7 +85,7 @@ import com.iiordanov.bVNC.input.RemoteVncPointer;
 import com.iiordanov.tigervnc.vncviewer.CConn;
 
 public class RemoteCanvas extends ImageView implements LibFreeRDP.UIEventListener, LibFreeRDP.EventListener {
-    private final static String TAG = "VncCanvas";
+    private final static String TAG = "RemoteCanvas";
     
     public AbstractScaling scaling;
     
@@ -378,7 +378,7 @@ public class RemoteCanvas extends ImageView implements LibFreeRDP.UIEventListene
         
         // Set performance flags.
         BookmarkBase.PerformanceFlags performanceFlags = session.getBookmark().getPerformanceFlags();
-        performanceFlags.setRemoteFX(connection.getRemoteFx());
+        performanceFlags.setRemoteFX(false);
         performanceFlags.setWallpaper(connection.getDesktopBackground());
         performanceFlags.setFontSmoothing(connection.getFontSmoothing());
         performanceFlags.setDesktopComposition(connection.getDesktopComposition());
@@ -389,6 +389,8 @@ public class RemoteCanvas extends ImageView implements LibFreeRDP.UIEventListene
         BookmarkBase.AdvancedSettings advancedSettings = session.getBookmark().getAdvancedSettings();
         advancedSettings.setRedirectSDCard(connection.getRedirectSdCard());
         advancedSettings.setConsoleMode(connection.getConsoleMode());
+        advancedSettings.setRedirectSound(connection.getRemoteSoundType());
+        advancedSettings.setRedirectMicrophone(connection.getEnableRecording());
         
         rdpcomm = new RdpCommunicator (session);
         rfbconn = rdpcomm;
@@ -1286,28 +1288,24 @@ public class RemoteCanvas extends ImageView implements LibFreeRDP.UIEventListene
     public void OnConnectionFailure(int instance) {
         rdpcomm.setIsInNormalProtocol(false);
         Log.v(TAG, "OnConnectionFailure");
-        // free session
-        // TODO: Causes segfault in libfreerdp-android. Needs to be fixed.
-        //GlobalApp.freeSession(instance);
-        showFatalMessageAndQuit (getContext().getString(R.string.error_rdp_unable_to_connect));
+        if (maintainConnection)
+            handler.sendEmptyMessage(Constants.RDP_UNABLE_TO_CONNECT);
     }
     
     @Override
     public void OnDisconnecting(int instance) {
         rdpcomm.setIsInNormalProtocol(false);
         Log.v(TAG, "OnDisconnecting");
-        // Only display an error message if we were trying to maintain the connection (not disconnecting).
-        if (maintainConnection) {
-            showFatalMessageAndQuit (getContext().getString(R.string.error_rdp_connection_failed));
-        }
+        if (maintainConnection)
+            handler.sendEmptyMessage(Constants.RDP_CONNECT_FAILURE);
     }
     
     @Override
     public void OnDisconnected(int instance) {
         rdpcomm.setIsInNormalProtocol(false);
         Log.v(TAG, "OnDisconnected");
-        // TODO: Causes segfault in libfreerdp-android. Needs to be fixed.
-        //GlobalApp.freeSession(instance);
+        if (maintainConnection)
+            handler.sendEmptyMessage(Constants.RDP_CONNECT_FAILURE);
     }
     
     //////////////////////////////////////////////////////////////////////////////////
@@ -1361,7 +1359,8 @@ public class RemoteCanvas extends ImageView implements LibFreeRDP.UIEventListene
     @Override
     public boolean OnAuthenticate(StringBuilder username, StringBuilder domain, StringBuilder password) {
         android.util.Log.e(TAG, "onAuthenticate called.");
-        showFatalMessageAndQuit (getContext().getString(R.string.error_rdp_authentication_failed));
+        if (maintainConnection)
+            handler.sendEmptyMessage(Constants.RDP_AUTH_FAILED);
         return false;
     }
 
@@ -1455,6 +1454,15 @@ public class RemoteCanvas extends ImageView implements LibFreeRDP.UIEventListene
                         showFatalMessageAndQuit(getContext().getString(R.string.error_connection_interrupted));
                     }
                 }
+                break;
+            case Constants.RDP_CONNECT_FAILURE:
+                showFatalMessageAndQuit(getContext().getString(R.string.error_rdp_connection_failed));
+                break;
+            case Constants.RDP_UNABLE_TO_CONNECT:
+                showFatalMessageAndQuit(getContext().getString(R.string.error_rdp_unable_to_connect));
+                break;
+            case Constants.RDP_AUTH_FAILED:
+                showFatalMessageAndQuit(getContext().getString(R.string.error_rdp_authentication_failed));
                 break;
             }
         }

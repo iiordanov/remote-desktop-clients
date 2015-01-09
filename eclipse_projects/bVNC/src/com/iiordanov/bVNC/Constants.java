@@ -80,6 +80,9 @@ public class Constants {
     public static final int SPICE_CONNECT_SUCCESS  = 4;
     public static final int SPICE_CONNECT_FAILURE  = 5;
     public static final int DIALOG_STUNNEL_CERT    = 6;
+    public static final int RDP_CONNECT_FAILURE    = 7;
+    public static final int RDP_UNABLE_TO_CONNECT  = 8;
+    public static final int RDP_AUTH_FAILED        = 9;
 
     public static final int EXTRA_KEYS_OFF         = 0;
     public static final int EXTRA_KEYS_ON          = 1;
@@ -180,6 +183,10 @@ public class Constants {
     public static final String ACTION_USB_PERMISSION = "com.iiordanov.aSPICE.USB_PERMISSION";
     public static final int usbDeviceTimeout = 5000;
     public static final int usbDevicePermissionTimeout = 15000;
+    
+    public static final int REMOTE_SOUND_DISABLED = 0;
+    public static final int REMOTE_SOUND_ON_SERVER = 1;
+    public static final int REMOTE_SOUND_ON_DEVICE = 2;
     
     /**
      * Returns a string matching a session selection index

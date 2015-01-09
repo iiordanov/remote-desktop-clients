@@ -181,6 +181,10 @@ interface IConnectionBean {
     @FieldAccessor
     boolean getEnableSound();
     @FieldAccessor
+    boolean getEnableRecording();
+    @FieldAccessor
+    int getRemoteSoundType();
+    @FieldAccessor
     boolean getViewOnly();
 	@FieldAccessor
     String getLayoutMap();
