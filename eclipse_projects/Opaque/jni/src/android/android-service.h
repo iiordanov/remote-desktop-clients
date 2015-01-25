@@ -68,7 +68,7 @@ int SpiceClientConnect(JNIEnv *env, jobject obj, const gchar *h, const gchar *p,
                            const gchar *tp, const gchar *pw, const gchar *cf, GByteArray *cc, const gchar *cs,
                            const gboolean sound, VirtViewerFile *vv_file);
 int CreateOvirtSession(JNIEnv *env, jobject obj, const gchar *uri, const gchar *user, const gchar *password,
-                          const gchar *ovirt_ca_file, const gboolean sound, const gboolean sslStrict);
+                          const gchar *ovirt_ca_file, const gboolean sound, const gboolean sslStrict, const gboolean didPowerOn);
 
 int openUsbDevice (int vid, int pid);
 int get_usb_device_fd(libusb_device *device);
