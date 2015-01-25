@@ -1772,7 +1772,7 @@ static gboolean open_host_idle_cb(gpointer data)
     return FALSE;
 }
 
-#define SOCKET_TIMEOUT 10
+#define SOCKET_TIMEOUT 40
 
 #if !GLIB_CHECK_VERSION(2,26,0)
 static gboolean connect_timeout(gpointer data)
