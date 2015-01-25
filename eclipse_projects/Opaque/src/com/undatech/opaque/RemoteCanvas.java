@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Timer;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -68,21 +69,27 @@ public class RemoteCanvas extends ImageView implements SelectTextElementFragment
 	    	FragmentManager fm;
 	        switch (msg.what) {
             case Constants.VV_FILE_ERROR:
+                stayConnected = false;
                 disconnectAndShowMessage(R.string.vv_file_error, R.string.error_dialog_title);
                 break;
 	        case Constants.NO_VM_FOUND_FOR_USER:
+                stayConnected = false;
 	        	disconnectAndShowMessage(R.string.error_no_vm_found_for_user, R.string.error_dialog_title);
 	        	break;
 	        case Constants.OVIRT_SSL_HANDSHAKE_FAILURE:
+                stayConnected = false;
 	        	disconnectAndShowMessage(R.string.error_ovirt_ssl_handshake_failure, R.string.error_dialog_title);
 	        	break;
 	        case Constants.VM_LOOKUP_FAILED:
+                stayConnected = false;
 	        	disconnectAndShowMessage(R.string.error_vm_lookup_failed, R.string.error_dialog_title);
 	        	break;
 	        case Constants.OVIRT_AUTH_FAILURE:
+	            stayConnected = false;
 		        disconnectAndShowMessage(R.string.error_ovirt_auth_failure, R.string.error_dialog_title);
 		        break;
 	        case Constants.VM_LAUNCHED:
+                stayConnected = false;
 	        	disconnectAndShowMessage(R.string.info_vm_launched_on_stand_by, R.string.info_dialog_title);
 	        	break;
 	        case Constants.LAUNCH_VNC_VIEWER:
@@ -102,6 +109,8 @@ public class RemoteCanvas extends ImageView implements SelectTextElementFragment
 	        	disconnectAndShowMessage(R.string.error_no_vnc_support_yet, R.string.error_dialog_title);
 	        	break;
 	        case Constants.GET_PASSWORD:
+	            progressDialog.dismiss();
+
 	    		fm = ((FragmentActivity)getContext()).getSupportFragmentManager();
 	    		GetTextFragment getPassword = GetTextFragment.newInstance(
 	    												RemoteCanvas.this.getContext().getString(R.string.enter_password),
@@ -111,6 +120,8 @@ public class RemoteCanvas extends ImageView implements SelectTextElementFragment
 	    		getPassword.show(fm, "getPassword");
 	        	break;
 	        case Constants.DIALOG_DISPLAY_VMS:
+	            progressDialog.dismiss();
+
 	    		fm = ((FragmentActivity)getContext()).getSupportFragmentManager();
 	    		SelectTextElementFragment displayVms = SelectTextElementFragment.newInstance(
 	    												RemoteCanvas.this.getContext().getString(R.string.select_vm_title),
@@ -119,14 +130,17 @@ public class RemoteCanvas extends ImageView implements SelectTextElementFragment
 	    		displayVms.show(fm, "selectVm");
 	        	break;
 	        case Constants.SPICE_CONNECT_SUCCESS:
-	        	spiceUpdateReceived = true;
+	            progressDialog.dismiss();
 				synchronized(spicecomm) {
+	                spiceUpdateReceived = true;
 					spicecomm.notifyAll();
 				}
 	        	break;
 	        case Constants.SPICE_CONNECT_FAILURE:
+	            progressDialog.dismiss();
 	        	// If we were intending to maintainConnection, and the connection failed, show an error message.
 	        	if (stayConnected) {
+	                stayConnected = false;
 		    		if (!spiceUpdateReceived) {
 		    			disconnectAndShowMessage(R.string.error_ovirt_unable_to_connect, R.string.error_dialog_title);
 		    		} else {
@@ -134,6 +148,11 @@ public class RemoteCanvas extends ImageView implements SelectTextElementFragment
 		    		}
 	        	}
 	        	break;
+            case Constants.OVIRT_TIMEOUT:
+                stayConnected = false;
+                progressDialog.dismiss();
+                disconnectAndShowMessage(R.string.error_ovirt_timeout, R.string.error_dialog_title);
+                break;
 	        }
 	    }
 	};
@@ -199,6 +218,8 @@ public class RemoteCanvas extends ImageView implements SelectTextElementFragment
      * Variable used for BB workarounds.
      */
     boolean bb = false;
+    
+    ProgressDialog progressDialog = null;
 	
 	
 	public RemoteCanvas(final Context context, AttributeSet attrSet) {
@@ -219,6 +240,9 @@ public class RemoteCanvas extends ImageView implements SelectTextElementFragment
             android.os.Build.MANUFACTURER.contains("BlackBerry")) {
             bb = true;
         }
+        progressDialog = new ProgressDialog(context);
+        progressDialog.setMessage(context.getString(R.string.message_please_wait));
+        progressDialog.setCancelable(false);
 	}
 	
 
@@ -289,11 +313,12 @@ public class RemoteCanvas extends ImageView implements SelectTextElementFragment
         checkNetworkConnectivity();
         initializeClipboardMonitor();
 		this.settings = settings;
+        progressDialog.show();
 
 		Thread cThread = new Thread () {
 			@Override
 			public void run() {
-				try {		
+				try {
 					spicecomm = new SpiceCommunicator (getContext(), RemoteCanvas.this, settings.isRequestingNewDisplayResolution(), settings.isUsbEnabled());
 					pointer = new RemoteSpicePointer (spicecomm, RemoteCanvas.this, handler);
 					keyboard = new RemoteSpiceKeyboard (getResources(), spicecomm, RemoteCanvas.this, handler, settings.getLayoutMap());
@@ -351,13 +376,14 @@ public class RemoteCanvas extends ImageView implements SelectTextElementFragment
 					
 					try {
 						synchronized(spicecomm) {
-							spicecomm.wait(32000);
+                            spicecomm.wait(35000);
 						}
 					} catch (InterruptedException e) {}
-
-					if (!spiceUpdateReceived) {
-						handler.sendEmptyMessage(Constants.SPICE_CONNECT_FAILURE);
-					}
+					
+                    if (!spiceUpdateReceived && stayConnected) {
+                        handler.sendEmptyMessage(Constants.OVIRT_TIMEOUT);
+                    }
+                    
 				} catch (Throwable e) {
 					if (stayConnected) {
 						e.printStackTrace();
@@ -798,6 +824,7 @@ public class RemoteCanvas extends ImageView implements SelectTextElementFragment
 
 	@Override
 	public void onTextSelected(String selectedString) {
+        progressDialog.show();
 		settings.setVmname(selectedString);
 		settings.saveToSharedPreferences(getContext());
 		synchronized (spicecomm) {
@@ -807,6 +834,7 @@ public class RemoteCanvas extends ImageView implements SelectTextElementFragment
 	
 	@Override
 	public void onTextObtained(String obtainedString) {
+        progressDialog.show();
 		settings.setPassword(obtainedString);
 		synchronized (spicecomm) {
 			spicecomm.notify();

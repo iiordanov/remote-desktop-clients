@@ -35,6 +35,7 @@ public class Constants {
 	public static final int NO_VM_FOUND_FOR_USER   = 9;
     public static final int GET_PASSWORD           = 10;
     public static final int VV_FILE_ERROR          = 11;
+    public static final int OVIRT_TIMEOUT          = 12;
     
 	public static final int EXTRA_KEYS_OFF         = 0;
 	public static final int EXTRA_KEYS_ON          = 1;

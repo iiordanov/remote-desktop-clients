@@ -116,7 +116,8 @@ All Input Method:
 <string name="info_vm_launched_on_stand_by">Your VM was found powered off and has been started. Please try again in a couple of minutes. If you try too soon and get a connection failure, try again later.</string>
 <string name="error_no_user_hostname">Please enter at least a user and a hostname or IP address.</string>
 <string name="error_out_of_memory">"Unable to allocate sufficient memory to draw remote screen. Try restarting the application, then restart your device. You can also try reducing the size of the remote desktop through the app settings."</string>
-<string name="error_ovirt_unable_to_connect">Connection failure. Please check server address and network connectivity.</string>
+<string name="error_ovirt_timeout">The connection to your VM timed out. Please check that the address of the node running your VM is correct, that it is accessible from your current network, and that no firewall is blocking the connection.</string>
+<string name="error_ovirt_unable_to_connect">Connection failure. If you do not get a list of Virtual Machines when you leave the Virtual machine name empty, then check your VDI server address and network connectivity to it. Otherwise, check the address of the node which runs your VM and that it is reachable.</string>
 <string name="error_ovirt_auth_failure">Authentication failure. Please check the provided user and password.</string>
 <string name="error_ovirt_ssl_handshake_failure">SSL handshake failure. There is a problem with the server SSL certificate. If you are using a self-signed certificate, you need to (re)import your certificate authority.</string>
 <string name="error_connection_interrupted">Connection interrupted.</string>
@@ -124,6 +125,7 @@ All Input Method:
 <string name="error_no_vm_found_for_user">No available Virtual Machines for the given user.</string>
 <string name="error_no_vnc_support_yet">VNC display type not supported yet, but it is an upcoming feature. Thanks for your understanding!</string>
 <string name="error_not_connected_to_network">You do not appear to be connected to the Internet. Cannot continue without being connected!</string>
+<string name="message_please_wait">Please wait</string>
 <string name="ssl_strict">Require common name to match cert (on recommended)</string>
 <string name="usb">USB (plug in OTG cable first)</string>
 </resources>
