@@ -139,12 +139,6 @@ public class bVNC extends MainConfiguration {
 
         // Here we say what happens when the Pubkey Checkbox is checked/unchecked.
         checkboxUseSshPubkey = (CheckBox) findViewById(R.id.checkboxUseSshPubkey);
-        checkboxUseSshPubkey.setOnCheckedChangeListener(new OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                selected.setUseSshPubKey(isChecked);
-            }
-        });
         
         // Here we say what happens when the Pubkey Generate button is pressed.
         buttonGeneratePubkey = (Button) findViewById(R.id.buttonGeneratePubkey);
