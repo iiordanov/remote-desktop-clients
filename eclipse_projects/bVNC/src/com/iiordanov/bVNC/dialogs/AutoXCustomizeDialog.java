@@ -116,8 +116,10 @@ public class AutoXCustomizeDialog extends AlertDialog {
     }
 
     private void setWidgetStateAppropriately () {
-
         selected = mainConfigDialog.getCurrentConnection();
+        if (selected == null) {
+            dismiss();
+        }
         commandIndex = selected.getAutoXType();
         origCommandIndex = selected.getAutoXType();
         // Set current selection to the one corresponding to saved setting.
