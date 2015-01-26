@@ -135,15 +135,7 @@ public class aSPICE extends MainConfiguration {
         // Here we say what happens when the Pubkey Checkbox is
         // checked/unchecked.
         checkboxUseSshPubkey = (CheckBox) findViewById(R.id.checkboxUseSshPubkey);
-        checkboxUseSshPubkey
-                .setOnCheckedChangeListener(new OnCheckedChangeListener() {
-                    @Override
-                    public void onCheckedChanged(CompoundButton buttonView,
-                            boolean isChecked) {
-                        selected.setUseSshPubKey(isChecked);
-                    }
-                });
-
+        
         // Here we say what happens when the Pubkey Generate button is pressed.
         buttonGeneratePubkey = (Button) findViewById(R.id.buttonGeneratePubkey);
         buttonGeneratePubkey.setOnClickListener(new View.OnClickListener() {
@@ -152,7 +144,7 @@ public class aSPICE extends MainConfiguration {
                 generatePubkey();
             }
         });
-
+        
         // Define what happens when somebody selects different VNC connection
         // types.
         connectionType = (Spinner) findViewById(R.id.connectionType);
@@ -161,7 +153,7 @@ public class aSPICE extends MainConfiguration {
                     @Override
                     public void onItemSelected(AdapterView<?> ad, View view,
                             int itemIndex, long id) {
-
+                        
                         selectedConnType = itemIndex;
                         if (selectedConnType == Constants.CONN_TYPE_PLAIN) {
                             setVisibilityOfSshWidgets(View.GONE);
