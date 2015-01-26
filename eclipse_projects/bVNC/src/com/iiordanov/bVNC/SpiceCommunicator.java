@@ -18,13 +18,12 @@ import android.os.SystemClock;
 import android.util.Log;
 
 import com.freerdp.freerdpcore.services.LibFreeRDP.UIEventListener;
-import com.iiordanov.bVNC.input.RdpKeyboardMapper;
 import com.iiordanov.bVNC.input.RemoteKeyboard;
 import com.iiordanov.bVNC.input.RemoteSpicePointer;
 import com.iiordanov.bVNC.Constants;
 import com.gstreamer.*;
 
-public class SpiceCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyProcessingListener {
+public class SpiceCommunicator implements RfbConnectable {
     private final static String TAG = "SpiceCommunicator";
     
     private HashMap<String, Integer> deviceToFdMap = new HashMap<String, Integer>();
@@ -58,16 +57,8 @@ public class SpiceCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyP
         System.loadLibrary("spice");
     }
     
-    final static int LCONTROL = 29;
-    final static int RCONTROL = 285;
-    final static int LALT = 56;
-    final static int RALT = 312;
-    final static int LSHIFT = 42;
-    final static int RSHIFT = 54;
-    final static int LWIN = 347;
-    final static int RWIN = 348;
-
     int metaState = 0;
+    int remoteMetaState = 0;
     
     private int width = 0;
     private int height = 0;
@@ -150,8 +141,9 @@ public class SpiceCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyP
         SpiceButtonEvent(x, y, metaState, pointerMask);
     }
 
-    public void sendKeyEvent (boolean keyDown, int virtualKeyCode) {
-        SpiceKeyEvent(keyDown, virtualKeyCode);
+    public void sendKeyEvent (boolean keyDown, int scanCode) {
+        android.util.Log.e("SpiceCommunicator", "Sending scanCode: " + scanCode + ". Is it down: " + keyDown);
+        SpiceKeyEvent(keyDown, scanCode);
     }
     
     
@@ -304,32 +296,68 @@ public class SpiceCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyP
     public void writePointerEvent(int x, int y, int metaState, int pointerMask) {
         this.metaState = metaState; 
         if ((pointerMask & RemoteSpicePointer.PTRFLAGS_DOWN) != 0)
-            sendModifierKeys(true);
+            sendModifierKeys(true, 0);
         sendMouseEvent(x, y, metaState, pointerMask);
         if ((pointerMask & RemoteSpicePointer.PTRFLAGS_DOWN) == 0)
-            sendModifierKeys(false);
+            sendModifierKeys(false, 0);
     }
 
-    private void sendModifierKeys(boolean keyDown) {        
-        if ((this.metaState & RemoteKeyboard.CTRL_MASK) != 0) {
-            android.util.Log.e("SpiceCommunicator", "Sending CTRL: " + LCONTROL + " down: " + keyDown);
-            sendKeyEvent(keyDown, LCONTROL);
+    private void sendModifierKeys(boolean keyDown, int key) {
+        // Avoid sending meta keys down multiple times.
+        if ((metaState & RemoteKeyboard.CTRL_MASK) != 0) {
+            if (!keyDown || key != RemoteKeyboard.SCAN_LEFTCTRL && (remoteMetaState & RemoteKeyboard.CTRL_MASK) == 0) {
+                android.util.Log.e("SpiceCommunicator", "Sending CTRL: " + RemoteKeyboard.SCAN_LEFTCTRL + " down: " + keyDown);
+                sendKeyEvent(keyDown, RemoteKeyboard.SCAN_LEFTCTRL);
+            }
+            if (keyDown) {
+                remoteMetaState |= RemoteKeyboard.CTRL_MASK;
+            } else {
+                remoteMetaState &= ~RemoteKeyboard.CTRL_MASK;
+            }
         }
-        if ((this.metaState & RemoteKeyboard.ALT_MASK) != 0) {
-            android.util.Log.e("SpiceCommunicator", "Sending ALT: " + LALT + " down: " + keyDown);
-            sendKeyEvent(keyDown, LALT);
+        if ((metaState & RemoteKeyboard.ALT_MASK) != 0) {
+            if (!keyDown || key != RemoteKeyboard.SCAN_LEFTALT && (remoteMetaState & RemoteKeyboard.ALT_MASK) == 0) {
+                android.util.Log.e("SpiceCommunicator", "Sending ALT: " + RemoteKeyboard.SCAN_LEFTALT + " down: " + keyDown);
+                sendKeyEvent(keyDown, RemoteKeyboard.SCAN_LEFTALT);
+            }
+            if (keyDown) {
+                remoteMetaState |= RemoteKeyboard.ALT_MASK;
+            } else {
+                remoteMetaState &= ~RemoteKeyboard.ALT_MASK;
+            }
         }
-        if ((this.metaState & RemoteKeyboard.ALTGR_MASK) != 0) {
-            android.util.Log.e("SpiceCommunicator", "Sending ALTGR: " + RALT + " down: " + keyDown);
-            sendKeyEvent(keyDown, RALT);
+        if ((metaState & RemoteKeyboard.ALTGR_MASK) != 0) {
+            if (!keyDown || key != RemoteKeyboard.SCAN_RIGHTALT && (remoteMetaState & RemoteKeyboard.ALTGR_MASK) == 0) {
+                android.util.Log.e("SpiceCommunicator", "Sending ALTGR: " + RemoteKeyboard.SCAN_RIGHTALT + " down: " + keyDown);
+                sendKeyEvent(keyDown, RemoteKeyboard.SCAN_RIGHTALT);
+            }
+            if (keyDown) {
+                remoteMetaState |= RemoteKeyboard.ALTGR_MASK;
+            } else {
+                remoteMetaState &= ~RemoteKeyboard.ALTGR_MASK;
+            }
         }
-        if ((this.metaState & RemoteKeyboard.SUPER_MASK) != 0) {
-            android.util.Log.e("SpiceCommunicator", "Sending SUPER: " + LWIN + " down: " + keyDown);
-            sendKeyEvent(keyDown, LWIN);
+        if ((metaState & RemoteKeyboard.SUPER_MASK) != 0) {
+            if (!keyDown || key != RemoteKeyboard.SCAN_LEFTSUPER && (remoteMetaState & RemoteKeyboard.SUPER_MASK) == 0) {
+                android.util.Log.e("SpiceCommunicator", "Sending SUPER: " + RemoteKeyboard.SCAN_LEFTSUPER + " down: " + keyDown);
+                sendKeyEvent(keyDown, RemoteKeyboard.SCAN_LEFTSUPER);
+            }
+            if (keyDown) {
+                remoteMetaState |= RemoteKeyboard.SUPER_MASK;
+            } else {
+                remoteMetaState &= ~RemoteKeyboard.SUPER_MASK;
+            }
         }
-        if ((this.metaState & RemoteKeyboard.SHIFT_MASK) != 0) {
-            android.util.Log.e("SpiceCommunicator", "Sending SHIFT: " + LSHIFT + " down: " + keyDown);
-            sendKeyEvent(keyDown, LSHIFT);
+        if ((metaState & RemoteKeyboard.SHIFT_MASK) != 0) {
+            if (!keyDown || key != RemoteKeyboard.SCAN_LEFTSUPER && (remoteMetaState & RemoteKeyboard.SHIFT_MASK) == 0) {
+                android.util.Log.e("SpiceCommunicator", "Sending SHIFT: " + RemoteKeyboard.SCAN_LEFTSHIFT + " down: " + keyDown);
+                sendKeyEvent(keyDown, RemoteKeyboard.SCAN_LEFTSHIFT);
+            }
+            if (keyDown) {
+                remoteMetaState |= RemoteKeyboard.SHIFT_MASK;
+            } else {
+                remoteMetaState &= ~RemoteKeyboard.SHIFT_MASK;
+            }
         }
     }
     
@@ -337,14 +365,13 @@ public class SpiceCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyP
     public void writeKeyEvent(int key, int metaState, boolean keyDown) {
         if (keyDown) {
             this.metaState = metaState;
-            sendModifierKeys (true);
+            sendModifierKeys (true, key);
         }
         
-        android.util.Log.e("SpiceCommunicator", "Sending scanCode: " + key + ". Is it down: " + keyDown);
         sendKeyEvent(keyDown, key);
         
         if (!keyDown) {
-            sendModifierKeys (false);
+            sendModifierKeys (false, key);
             this.metaState = metaState;
         }
     }
@@ -355,77 +382,18 @@ public class SpiceCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyP
             int blueMax, int redShift, int greenShift, int blueShift,
             boolean fGreyScale) {
         // TODO Auto-generated method stub
-
     }
-
+    
     @Override
     public void writeFramebufferUpdateRequest(int x, int y, int w, int h,
             boolean b) {
         // TODO Auto-generated method stub
-
+        
     }
-
+    
     @Override
     public void close() {
         disconnect();
-    }
-    
-    // ****************************************************************************
-    // KeyboardMapper.KeyProcessingListener implementation
-    @Override
-    public void processVirtualKey(int virtualKeyCode, boolean keyDown) {
-
-        if (keyDown)
-            sendModifierKeys (true);
-        
-        //android.util.Log.e("SpiceCommunicator", "Sending VK key: " + virtualKeyCode + ". Is it down: " + down);
-        sendKeyEvent(keyDown, virtualKeyCode);
-        
-        if (!keyDown)
-            sendModifierKeys (false);
-        
-    }
-
-    @Override
-    public void processUnicodeKey(int unicodeKey) {
-        boolean addShift = false;
-        int keyToSend = -1;
-        int tempMeta = 0;
-        
-        // Workarounds for some pesky keys.
-        if (unicodeKey == 64) {
-            addShift = true;
-            keyToSend = 0x32;
-        } else if (unicodeKey == 42) {
-                addShift = true;
-                keyToSend = 0x38;
-        } else if (unicodeKey == 47) {
-            keyToSend = 0xBF;
-        } else if (unicodeKey == 63) {
-            addShift = true;            
-            keyToSend = 0xBF;
-        }
-        
-        if (keyToSend != -1) {
-            tempMeta = metaState;
-            if (addShift) {
-                metaState = metaState |  RemoteKeyboard.SHIFT_MASK;
-            }
-            processVirtualKey(keyToSend, true);
-            processVirtualKey(keyToSend, false);
-            metaState = tempMeta;
-        } else
-            android.util.Log.e("SpiceCommunicator", "Unsupported unicode key that needs to be mapped: " + unicodeKey);
-    }
-
-    @Override
-    public void switchKeyboard(int keyboardType) {
-        // This is functionality specific to aFreeRDP.
-    }
-
-    @Override
-    public void modifiersChanged() {
-        // This is functionality specific to aFreeRDP.
     }
     
     @Override

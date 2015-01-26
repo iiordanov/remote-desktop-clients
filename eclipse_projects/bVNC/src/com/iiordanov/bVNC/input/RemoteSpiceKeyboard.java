@@ -181,7 +181,7 @@ public class RemoteSpiceKeyboard extends RemoteKeyboard {
                     } else {
                         // We managed to get a unicode value with ALT potentially enabled, and valid scancodes.
                         // So convert and send that over without sending ALT as meta-state.
-                        unicodeMetaState = onScreenMetaState|hardwareMetaState|
+                        unicodeMetaState = additionalMetaState|onScreenMetaState|hardwareMetaState|
                                        convertEventMetaState(event, event.getMetaState()&~KeyEvent.META_SHIFT_MASK&~KeyEvent.META_ALT_MASK);
                     }
                 }
@@ -189,7 +189,7 @@ public class RemoteSpiceKeyboard extends RemoteKeyboard {
                 if (unicode <= 0) {
                     // Try to get a unicode value without ALT mask and if successful do not mask ALT out of the meta-state.
                     unicode = event.getUnicodeChar(event.getMetaState()&~UNICODE_META_MASK&~KeyEvent.META_ALT_MASK);
-                    unicodeMetaState = onScreenMetaState|hardwareMetaState|
+                    unicodeMetaState = additionalMetaState|onScreenMetaState|hardwareMetaState|
                                        convertEventMetaState(event, event.getMetaState()&~KeyEvent.META_SHIFT_MASK);
                 }
                 
@@ -235,7 +235,7 @@ public class RemoteSpiceKeyboard extends RemoteKeyboard {
                     meta |= ALTGR_MASK;
                     scode &= ~SCANCODE_ALTGR_MASK;
                 }
-                android.util.Log.e(TAG, "Will send scanCode: " + scode);
+                android.util.Log.e(TAG, "Will send scanCode: " + scode + " with meta: " + meta);
                 rfb.writeKeyEvent(scode, meta, down);
                 if (sendUpEvents) {
                     rfb.writeKeyEvent(scode, meta, false);
@@ -283,13 +283,8 @@ public class RemoteSpiceKeyboard extends RemoteKeyboard {
             //rfb.writePointerEvent(x, y, meta.getMetaFlags()|onScreenMetaState|hardwareMetaState, button);
             //rfb.writePointerEvent(x, y, meta.getMetaFlags()|onScreenMetaState|hardwareMetaState, 0);
         } else if (meta.equals(MetaKeyBean.keyCtrlAltDel)) {
-            // TODO: I should not need to treat this specially anymore.
-            int savedMetaState = onScreenMetaState|hardwareMetaState;
-            // Update the metastate
-            rfb.writeKeyEvent(0, RemoteKeyboard.CTRL_MASK|RemoteKeyboard.ALT_MASK, false);
-            keyboardMapper.processAndroidKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, 112));
-            keyboardMapper.processAndroidKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, 112));
-            rfb.writeKeyEvent(0, savedMetaState, false);
+            rfb.writeKeyEvent(RemoteKeyboard.SCAN_DELETE, RemoteKeyboard.CTRL_MASK|RemoteKeyboard.ALT_MASK, true);
+            rfb.writeKeyEvent(RemoteKeyboard.SCAN_DELETE, RemoteKeyboard.CTRL_MASK|RemoteKeyboard.ALT_MASK, false);
         } else {
             sendKeySym (meta.getKeySym(), meta.getMetaFlags());
         }

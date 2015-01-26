@@ -12,7 +12,14 @@ import com.iiordanov.bVNC.RemoteCanvas;
 public abstract class RemoteKeyboard {
     public final static int SCAN_ESC = 1;
     public final static int SCAN_LEFTCTRL = 29;
+    public final static int SCAN_LEFTSHIFT = 42;
+    public final static int SCAN_RIGHTSHIFT = 54;
+    public final static int SCAN_LEFTALT = 56;
     public final static int SCAN_RIGHTCTRL = 97;
+    public final static int SCAN_RIGHTALT = 100;
+    public final static int SCAN_DELETE = 111;
+    public final static int SCAN_LEFTSUPER = 125;
+    public final static int SCAN_RIGHTSUPER = 126;
     public final static int SCAN_F1 = 59;
     public final static int SCAN_F2 = 60;
     public final static int SCAN_F3 = 61;
@@ -38,7 +45,6 @@ public abstract class RemoteKeyboard {
     protected Handler handler;
     protected RfbConnectable rfb;
     protected Context context;
-    protected RdpKeyboardMapper keyboardMapper;
     protected KeyRepeater keyRepeater;
 
     // Variable holding the state of any pressed hardware meta keys (Ctrl, Alt...)
@@ -242,6 +248,8 @@ public abstract class RemoteKeyboard {
             for (int i = 0; i < events.length; i++) {
                 KeyEvent evt = events[i];
                 processLocalKeyEvent(evt.getKeyCode(), evt, additionalMetaState);
+                KeyEvent upEvt = new KeyEvent(KeyEvent.ACTION_UP, evt.getKeyCode());
+                processLocalKeyEvent(upEvt.getKeyCode(), upEvt, additionalMetaState);
                 return true;
             }
         } else {
@@ -269,7 +277,7 @@ public abstract class RemoteKeyboard {
         int altMask = KeyEvent.META_ALT_RIGHT_ON;
         // Detect whether this event is coming from a default hardware keyboard.
         // We have to leave KeyEvent.KEYCODE_ALT_LEFT for symbol input on a default hardware keyboard.
-        boolean defaultHardwareKbd = (event.getDeviceId() == 0);
+        boolean defaultHardwareKbd = (event.getScanCode() != 0 && event.getDeviceId() == 0);
         if (!bb && !defaultHardwareKbd) {
             altMask = KeyEvent.META_ALT_MASK;
         }

@@ -454,12 +454,12 @@ Java_com_iiordanov_aSPICE_SpiceCommunicator_CreateOvirtSession(JNIEnv *env,
     password           = (*env)->GetStringUTFChars(env, pass, NULL);
     ovirt_ca_file      = (*env)->GetStringUTFChars(env, sslCaFile, NULL);
 
-    return CreateOvirtSession(env, obj, uri, username, password, ovirt_ca_file, sound, sslStrict);
+    return CreateOvirtSession(env, obj, uri, username, password, ovirt_ca_file, sound, sslStrict, FALSE);
 }
 
 
 int CreateOvirtSession(JNIEnv *env, jobject obj, const gchar *uri, const gchar *user, const gchar *password,
-                          const gchar *ovirt_ca_file, const gboolean sound, const gboolean sslStrict) {
+                          const gchar *ovirt_ca_file, const gboolean sound, const gboolean sslStrict, const gboolean didPowerOn) {
 
     OvirtApi *api = NULL;
     OvirtCollection *vms = NULL;
@@ -553,31 +553,18 @@ int CreateOvirtSession(JNIEnv *env, jobject obj, const gchar *uri, const gchar *
 
     __android_log_write(6, "CreateOvirtSession", "Checking the state of the VM");
     g_object_get(G_OBJECT(vm), "state", &state, NULL);
-    if (state != OVIRT_VM_STATE_UP) {
+    if (state == OVIRT_VM_STATE_DOWN) {
 		ovirt_vm_start(vm, proxy, &error);
-		if (error != NULL) {
+		if (didPowerOn || error != NULL) {
 			__android_log_write(6, "CreateOvirtSession", "Failed to start VM, error:");
 			__android_log_write(6, "CreateOvirtSession", error->message);
 			g_debug("failed to start %s: %s", vm_name, error->message);
 			goto error;
 		}
-
-        // Get a reference to the static void method used to add VM names to SpiceCommunicator.
-		sendMessage (env, 3); /* Constants.VM_LAUNCHED */
+		// Wait a bit and then recursively create a new session setting didPowerOn to TRUE.
+    	sleep (3);
+    	CreateOvirtSession(env, obj, uri, user, password, ovirt_ca_file, sound, sslStrict, TRUE);
     	goto error;
-    	// TODO: The code below does not work because state == OVIRT_VM_STATE_UP even though
-    	// the machine is not accepting connections for a while. Needs a deeper look.
-/*
-    	int tries = 0;
-        while (tries <= 180 && state != OVIRT_VM_STATE_UP) {
-			__android_log_write(6, "CreateOvirtSession", "Waiting for VM to start");
-            sleep (1);
-            vms = ovirt_api_get_vms(api);
-            vm = OVIRT_VM(ovirt_collection_lookup_resource(vms, vm_name));
-            g_object_get(G_OBJECT(vm), "state", &state, NULL);
-            ++tries;
-        }
-*/
     }
 
     if (!ovirt_vm_get_ticket(vm, proxy, &error)) {

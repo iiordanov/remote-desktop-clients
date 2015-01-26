@@ -14,6 +14,7 @@ import com.iiordanov.tigervnc.rfb.UnicodeToKeysym;
 
 public class RemoteRdpKeyboard extends RemoteKeyboard {
     private final static String TAG = "RemoteRdpKeyboard";
+    protected RdpKeyboardMapper keyboardMapper;
         
     public RemoteRdpKeyboard (RfbConnectable r, RemoteCanvas v, Handler h) {
         super(r, v, h);
