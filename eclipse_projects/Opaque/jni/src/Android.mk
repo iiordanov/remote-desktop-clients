@@ -60,6 +60,8 @@ LOCAL_C_INCLUDES += \
                     $(SPICE_CLIENT_ANDROID_DEPS)/include/rest-0.7 \
                     $(SPICE_CLIENT_ANDROID_DEPS)/include/jpeg-turbo \
                     $(SPICE_CLIENT_ANDROID_DEPS)/include/libusb \
+                    $(SPICE_CLIENT_ANDROID_DEPS)/include/usbredirparser \
+                    $(SPICE_CLIENT_ANDROID_DEPS)/include/usbredirhost \
                     $(CROSS_DIR)/include \
                     $(CROSS_DIR)/include/glib-2.0 \
                     $(CROSS_DIR)/include/libxml2 \
