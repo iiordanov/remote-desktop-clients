@@ -52,6 +52,9 @@ public class Constants {
     public static final String PARAM_COLORMODEL = "ColorModel";
     public static final String PARAM_SAVE_CONN = "SaveConnection";
     public static final String PARAM_APIKEY = "ApiKey";
+    public static final String PARAM_VIEW_ONLY = "ViewOnly";
+    public static final String PARAM_SCALE_MODE = "ScaleMode";
+    public static final String PARAM_EXTRAKEYS_TOGGLE = "ExtraKeysToggle";
     
     public static final int SECTYPE_NONE = 1;
     public static final int SECTYPE_VNC = 2;

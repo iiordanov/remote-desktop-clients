@@ -383,6 +383,15 @@ public class ConnectionBean extends AbstractConnectionBean implements Comparable
     	String idHash = dataUri.getQueryParameter(Constants.PARAM_ID_HASH);
     	if (idHash != null) setIdHash(idHash);
     	
+    	String viewOnlyParam = dataUri.getQueryParameter(Constants.PARAM_VIEW_ONLY);
+    	if (viewOnlyParam != null) setViewOnly(Boolean.parseBoolean(viewOnlyParam));
+    	
+    	String scaleModeParam = dataUri.getQueryParameter(Constants.PARAM_SCALE_MODE);
+    	if (scaleModeParam != null) setScaleMode(ScaleType.valueOf(scaleModeParam));
+    	
+    	String extraKeysToggleParam = dataUri.getQueryParameter(Constants.PARAM_EXTRAKEYS_TOGGLE);
+    	if (extraKeysToggleParam != null) setExtraKeysToggleType(Integer.parseInt(extraKeysToggleParam));
+    	
     	// color model
     	String colorModelParam = dataUri.getQueryParameter(Constants.PARAM_COLORMODEL);
     	if (colorModelParam != null)
