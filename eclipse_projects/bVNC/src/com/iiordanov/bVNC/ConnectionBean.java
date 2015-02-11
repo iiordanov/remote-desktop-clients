@@ -265,64 +265,84 @@ public class ConnectionBean extends AbstractConnectionBean implements Comparable
     	return connection;
     }
     
-    void parseFromUri(Uri dataUri)
-    {
+    void parseFromUri(Uri dataUri) {
     	Log.i(TAG, "Parsing VNC URI.");
-    	if (dataUri == null) 
-    	{
+    	if (dataUri == null) {
     		m_isReadyForConnection = false;
     		m_saved = true;
     		return;
     	}
-    	String host = dataUri.getHost();    	
-    	if (host != null)
-    	{
+    	
+    	String host = dataUri.getHost();
+    	if (host != null) {
     		setAddress(host);
+    		
     		// by default, the connection name is the host name
     		String nickName = getNickname();
-    		if (Utils.isNullOrEmptry(nickName))
+    		if (Utils.isNullOrEmptry(nickName)) {
     			setNickname(host);
+    		}
+    		
     		// default to use same host for ssh
-    		if (Utils.isNullOrEmptry(getSshServer()))
-    			setSshServer(host);
+    		if (Utils.isNullOrEmptry(getSshServer())) {
+    		    setSshServer(host);
+    		}
     	}
+    	
     	final int PORT_NONE = -1;
         int port = dataUri.getPort();
-        if (port != PORT_NONE)
-        {
+        if (port != PORT_NONE) {
         	if (!isValidPort(port))
         		throw new IllegalArgumentException("The specified VNC port is not valid.");
         	setPort(port);
         }
+        
     	// handle legacy android-vnc-viewer parsing vnc://host:port/colormodel/password            
         List<String> path = dataUri.getPathSegments();
-        if (path.size() >= 1) 
-        {
+        if (path.size() >= 1) {
             setColorModel(path.get(0));
         }
-        if (path.size() >= 2) 
-        {
+        
+        if (path.size() >= 2) {
             setPassword(path.get(1));
         }
+        
     	// query based parameters
         String connectionName = dataUri.getQueryParameter(Constants.PARAM_CONN_NAME);
-        if (connectionName != null)
+        
+        if (connectionName != null) {
         	setNickname(connectionName);
-    	String username = dataUri.getQueryParameter(Constants.PARAM_USER);
-    	if (username != null)
-    		setUserName(username);
-    	String password = dataUri.getQueryParameter(Constants.PARAM_PWD);
-    	if (password != null) // constructor avoids null values 
-    		setPassword(password);
+        }
+        
+    	ArrayList<String> supportedUserParams = new ArrayList<String>() {{
+    	    add(Constants.PARAM_RDP_USER); add(Constants.PARAM_SPICE_USER); add(Constants.PARAM_VNC_USER);
+    	}};
+    	for (String userParam : supportedUserParams) {
+            String username = dataUri.getQueryParameter(userParam);
+            if (username != null) {
+                setUserName(username);
+                break;
+            }
+        }
+    	
+        ArrayList<String> supportedPwdParams = new ArrayList<String>() {{
+            add(Constants.PARAM_RDP_PWD); add(Constants.PARAM_SPICE_PWD); add(Constants.PARAM_VNC_PWD);
+        }};
+        for (String pwdParam : supportedPwdParams) {
+            String password = dataUri.getQueryParameter(pwdParam);
+            if (password != null) {
+                setPassword(password);
+                break;
+            }
+        }
+        
     	setKeepPassword(false); // we should not store the password unless it is encrypted
     	
     	String securityTypeParam = dataUri.getQueryParameter(Constants.PARAM_SECTYPE);
     	int secType = 0; //invalid
-    	if (securityTypeParam != null)
-    	{
+    	if (securityTypeParam != null) {
     		secType = Integer.parseInt(securityTypeParam); // throw if invalid
-    		switch (secType)
-    		{
+    		switch (secType) {
     		case Constants.SECTYPE_NONE:
     		case Constants.SECTYPE_VNC:
     			setConnectionType(Constants.CONN_TYPE_PLAIN);
@@ -346,29 +366,36 @@ public class ConnectionBean extends AbstractConnectionBean implements Comparable
     			throw new IllegalArgumentException("The specified security type is invalid or unsupported.");   
     		}
     	}
+    	
     	// ssh parameters
     	String sshHost = dataUri.getQueryParameter(Constants.PARAM_SSH_HOST);
-    	if (sshHost != null) setSshServer(sshHost);
+    	if (sshHost != null) {
+    	    setSshServer(sshHost);
+    	}
+    	
     	String sshPortParam = dataUri.getQueryParameter(Constants.PARAM_SSH_PORT);
-    	if (sshPortParam != null)
-    	{
+    	if (sshPortParam != null) {
     		int sshPort = Integer.parseInt(sshPortParam);
     		if (!isValidPort(sshPort))
         		throw new IllegalArgumentException("The specified SSH port is not valid.");
     		setSshPort(sshPort);
     	}
+    	
     	String sshUser = dataUri.getQueryParameter(Constants.PARAM_SSH_USER);
-    	if (sshUser != null) setSshUser(sshUser);
+    	if (sshUser != null) {
+    	    setSshUser(sshUser);
+    	}
+    	
     	String sshPassword = dataUri.getQueryParameter(Constants.PARAM_SSH_PWD);
-    	if (sshPassword != null) setSshPassword(sshPassword);
+    	if (sshPassword != null) {
+    	    setSshPassword(sshPassword);
+    	}
     	
     	// security hashes
        	String idHashAlgParam = dataUri.getQueryParameter(Constants.PARAM_ID_HASH_ALG);
-       	if (idHashAlgParam != null)
-       	{
+       	if (idHashAlgParam != null) {
        		int idHashAlg = Integer.parseInt(idHashAlgParam); // throw if invalid
-       		switch (idHashAlg)
-       		{
+       		switch (idHashAlg) {
        		case Constants.ID_HASH_MD5:
        		case Constants.ID_HASH_SHA1:
        		case Constants.ID_HASH_SHA256:
@@ -381,15 +408,15 @@ public class ConnectionBean extends AbstractConnectionBean implements Comparable
        	}
        	
     	String idHash = dataUri.getQueryParameter(Constants.PARAM_ID_HASH);
-    	if (idHash != null) setIdHash(idHash);
+    	if (idHash != null) {
+    	    setIdHash(idHash);
+    	}
     	
     	// color model
     	String colorModelParam = dataUri.getQueryParameter(Constants.PARAM_COLORMODEL);
-    	if (colorModelParam != null)
-    	{
+    	if (colorModelParam != null) {
     		int colorModel = Integer.parseInt(colorModelParam); // throw if invalid
-    		switch (colorModel)
-    		{
+    		switch (colorModel) {
     		case Constants.COLORMODEL_BLACK_AND_WHITE:
     			setColorModel(COLORMODEL.C2.nameString());
     			break;
@@ -422,43 +449,42 @@ public class ConnectionBean extends AbstractConnectionBean implements Comparable
     	}
     	String saveConnectionParam = dataUri.getQueryParameter(Constants.PARAM_SAVE_CONN);
     	boolean saveConnection = true;
-    	if (saveConnectionParam != null)
+    	if (saveConnectionParam != null) {
     		saveConnection = Boolean.parseBoolean(saveConnectionParam); // throw if invalid
+    	}
+    	
     	// if we are going to save the connection, we will do so here
     	// it may make sense to confirm overwriting data but is probably unnecessary
-    	if (saveConnection)
-    	{
+    	if (saveConnection) {
     		Database database = new Database(c);
     		save(database.getWritableDatabase());
     		database.close();
     		m_saved = true;
     	}
+    	
     	// we do not currently use API keys
     	
     	// check if we need to show data-entry screen
     	// it may be possible to prompt for data later
     	m_isReadyForConnection = true;
-    	if (Utils.isNullOrEmptry(getAddress()))
-    	{
+    	if (Utils.isNullOrEmptry(getAddress())) {
     		m_isReadyForConnection = false;
     		Log.i(TAG, "URI missing remote address.");
     	}
+    	
     	int connType = getConnectionType();
     	if (secType == Constants.SECTYPE_VNC || connType == Constants.CONN_TYPE_STUNNEL
-    			|| connType == Constants.CONN_TYPE_SSH)
-    	{
+    			|| connType == Constants.CONN_TYPE_SSH) {
     		// we can infer a password is required
     		// while we could have implemented tunnel/ssh without one 
     		// the user can supply a blank value and the server will not
     		// request it and it is better to support the common case
-    		if (Utils.isNullOrEmptry(getPassword()))
-    		{
+    		if (Utils.isNullOrEmptry(getPassword())) {
     			m_isReadyForConnection = false;
     			Log.i(TAG, "URI missing VNC password.");
     		}
     	}
-    	if (connType == Constants.CONN_TYPE_SSH)
-    	{
+    	if (connType == Constants.CONN_TYPE_SSH) {
     		// the below should not occur
     		if (Utils.isNullOrEmptry(getSshServer()))
     			m_isReadyForConnection = false;
@@ -469,8 +495,7 @@ public class ConnectionBean extends AbstractConnectionBean implements Comparable
     	// however main screen doesn't validate this
     }
     
-    boolean isValidPort(int port)
-    {
+    boolean isValidPort(int port) {
     	final int PORT_MAX = 65535;
     	if (port <= 0 || port > PORT_MAX)
     		return false;
@@ -479,20 +504,21 @@ public class ConnectionBean extends AbstractConnectionBean implements Comparable
     
     @Override
     public String toString() {
-        if (isNew())
-        {
+        if (isNew()) {
             return c.getString(R.string.new_connection);
         }
         String result = new String("");
         
         // Add the nickname if it has been set.
-        if (!getNickname().equals(""))
+        if (!getNickname().equals("")) {
             result += getNickname()+":";
+        }
         
         // If this is an VNC over SSH connection, add the SSH server:port in parentheses
-        if (getConnectionType() == Constants.CONN_TYPE_SSH)
+        if (getConnectionType() == Constants.CONN_TYPE_SSH) {
             result += "(" + getSshServer() + ":" + getSshPort() + ")" + ":";
-
+        }
+        
         // Add the VNC server and port.
         result += getAddress()+":"+getPort();
         return result;
@@ -529,8 +555,7 @@ public class ConnectionBean extends AbstractConnectionBean implements Comparable
      * @return Object representing the single persistent instance of MostRecentBean, which
      * is the app's global state
      */
-    public static MostRecentBean getMostRecent(SQLiteDatabase db)
-    {
+    public static MostRecentBean getMostRecent(SQLiteDatabase db) {
         ArrayList<MostRecentBean> recents = new ArrayList<MostRecentBean>(1);
         MostRecentBean.getAll(db, MostRecentBean.GEN_TABLE_NAME, recents, MostRecentBean.GEN_NEW);
         if (recents.size() == 0)

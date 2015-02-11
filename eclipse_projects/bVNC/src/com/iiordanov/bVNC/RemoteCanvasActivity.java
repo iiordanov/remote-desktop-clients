@@ -161,7 +161,14 @@ public class RemoteCanvasActivity extends Activity implements OnKeyListener {
         connection = null;
         
         Uri data = i.getData();
-        if ((data != null) && (data.getScheme().equals("vnc")) || !Utils.isNullOrEmptry(i.getType())) {
+        
+        boolean isSupportedScheme = false;
+        if (data != null) {
+            String s = data.getScheme();
+            isSupportedScheme = s.equals("rdp") || s.equals("spice") || s.equals("vnc");
+        }
+        
+        if (isSupportedScheme || !Utils.isNullOrEmptry(i.getType())) {
             if (isMasterPasswordEnabled()) {
                 Utils.showFatalErrorMessage(this, getResources().getString(R.string.master_password_error_intents_not_supported));
                 return;

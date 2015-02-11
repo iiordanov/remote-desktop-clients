@@ -40,8 +40,12 @@ public class Constants {
     
     // URI Parameters   
     public static final String PARAM_CONN_NAME = "ConnectionName";
-    public static final String PARAM_USER = "VncUsername";
-    public static final String PARAM_PWD = "VncPassword";
+    public static final String PARAM_RDP_USER = "RdpUsername";
+    public static final String PARAM_RDP_PWD = "RdpPassword";
+    public static final String PARAM_SPICE_USER = "SpiceUsername";
+    public static final String PARAM_SPICE_PWD = "SpicePassword";
+    public static final String PARAM_VNC_USER = "VncUsername";
+    public static final String PARAM_VNC_PWD = "VncPassword";
     public static final String PARAM_SECTYPE = "SecurityType";
     public static final String PARAM_SSH_HOST = "SshHost";
     public static final String PARAM_SSH_PORT = "SshPort";
