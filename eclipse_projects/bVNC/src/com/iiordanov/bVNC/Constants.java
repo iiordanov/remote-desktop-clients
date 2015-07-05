@@ -49,7 +49,7 @@ public class Constants {
     public static final String PARAM_SECTYPE = "SecurityType";
     public static final String PARAM_SSH_HOST = "SshHost";
     public static final String PARAM_SSH_PORT = "SshPort";
-    public static final String PARAM_SSH_USER = "SshUser";
+    public static final String PARAM_SSH_USER = "SshUsername";
     public static final String PARAM_SSH_PWD = "SshPassword";
     public static final String PARAM_ID_HASH_ALG = "IdHashAlgorithm";
     public static final String PARAM_ID_HASH = "IdHash";
