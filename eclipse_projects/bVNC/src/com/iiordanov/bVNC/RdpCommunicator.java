@@ -101,9 +101,25 @@ public class RdpCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyPro
         // NOT USED for RDP.
     }
     
+    public class DisconnectThread extends Thread {
+        int instance;
+        
+        public DisconnectThread (int i) {
+            this.instance = i;
+        }
+        public void run () {
+            LibFreeRDP.disconnect(instance);
+            LibFreeRDP.freeInstance(instance);
+        }
+    }
+    
     @Override
     public void close() {
-        session = null;
+        setIsInNormalProtocol(false);
+        int instance = session.getInstance();
+        DisconnectThread d = new DisconnectThread(instance);
+        d.start();
+        //session = null;
     }
     
     private void sendModifierKeys (boolean down) {
