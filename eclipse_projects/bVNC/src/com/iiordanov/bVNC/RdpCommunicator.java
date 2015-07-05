@@ -1,15 +1,8 @@
 package com.iiordanov.bVNC;
 
-import java.util.Iterator;
-import java.util.List;
-
-import android.inputmethodservice.Keyboard;
-
-import com.freerdp.freerdpcore.application.GlobalApp;
 import com.freerdp.freerdpcore.application.SessionState;
 import com.freerdp.freerdpcore.domain.ManualBookmark;
 import com.freerdp.freerdpcore.services.LibFreeRDP;
-import com.freerdp.freerdpcore.utils.Mouse;
 import com.iiordanov.bVNC.input.RemoteKeyboard;
 import com.iiordanov.bVNC.input.RdpKeyboardMapper;
 import com.iiordanov.bVNC.input.RemoteRdpPointer;
@@ -107,10 +100,10 @@ public class RdpCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyPro
             boolean b) {
         // NOT USED for RDP.
     }
-
+    
     @Override
     public void close() {
-        LibFreeRDP.disconnect(session.getInstance());
+        session = null;
     }
     
     private void sendModifierKeys (boolean down) {

@@ -1396,8 +1396,10 @@ public class RemoteCanvas extends ImageView implements LibFreeRDP.UIEventListene
     public void OnGraphicsUpdate(int x, int y, int width, int height) {
         //android.util.Log.e(TAG, "OnGraphicsUpdate called: " + x +", " + y + " + " + width + "x" + height );
         if (isRdp) {
-            synchronized (bitmapData.mbitmap) {
-                LibFreeRDP.updateGraphics(session.getInstance(), bitmapData.mbitmap, x, y, width, height);
+            if (bitmapData != null && bitmapData.mbitmap != null && session != null) {
+                synchronized (bitmapData.mbitmap) {
+                    LibFreeRDP.updateGraphics(session.getInstance(), bitmapData.mbitmap, x, y, width, height);
+                }
             }
         } else {
             synchronized (bitmapData.mbitmap) {
