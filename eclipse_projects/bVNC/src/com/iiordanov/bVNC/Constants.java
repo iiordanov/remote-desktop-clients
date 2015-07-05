@@ -56,6 +56,9 @@ public class Constants {
     public static final String PARAM_COLORMODEL = "ColorModel";
     public static final String PARAM_SAVE_CONN = "SaveConnection";
     public static final String PARAM_APIKEY = "ApiKey";
+    public static final String PARAM_TLS_PORT = "TlsPort";
+    public static final String PARAM_CACERT_PATH = "CaCertPath";
+    public static final String PARAM_CERT_SUBJECT = "CertSubject";
     
     public static final int SECTYPE_NONE = 1;
     public static final int SECTYPE_VNC = 2;

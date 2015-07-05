@@ -453,6 +453,27 @@ public class ConnectionBean extends AbstractConnectionBean implements Comparable
     		saveConnection = Boolean.parseBoolean(saveConnectionParam); // throw if invalid
     	}
     	
+    	// Parse a passed-in TLS port number.
+        String tlsPortParam = dataUri.getQueryParameter(Constants.PARAM_TLS_PORT);
+        if (tlsPortParam != null) {
+            int tlsPort = Integer.parseInt(tlsPortParam);
+            if (!isValidPort(tlsPort))
+                throw new IllegalArgumentException("The specified TLS port is not valid.");
+            setTlsPort(tlsPort);
+        }
+        
+        // Parse a CA Cert path parameter
+        String caCertPath = dataUri.getQueryParameter(Constants.PARAM_CACERT_PATH);
+        if (caCertPath != null) {
+            setCaCertPath(caCertPath);
+        }
+        
+        // Parse a Cert subject
+        String certSubject = dataUri.getQueryParameter(Constants.PARAM_CERT_SUBJECT);
+        if (certSubject != null) {
+            setCertSubject(certSubject);
+        }
+    	
     	// if we are going to save the connection, we will do so here
     	// it may make sense to confirm overwriting data but is probably unnecessary
     	if (saveConnection) {
