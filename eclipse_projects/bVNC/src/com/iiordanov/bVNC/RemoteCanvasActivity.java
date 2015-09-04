@@ -308,16 +308,18 @@ public class RemoteCanvasActivity extends Activity implements OnKeyListener {
         zoomer.hide();
         
         zoomer.setOnZoomKeyboardClickListener(new View.OnClickListener() {
-
-            /*
-             * (non-Javadoc)
-             * 
-             * @see android.view.View.OnClickListener#onClick(android.view.View)
-             */
             @Override
             public void onClick(View v) {
                 InputMethodManager inputMgr = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
                 inputMgr.toggleSoftInput(0, 0);
+            }
+
+        });
+        
+        zoomer.setOnShowMenuClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                RemoteCanvasActivity.this.openOptionsMenu();
             }
 
         });

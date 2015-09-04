@@ -29,6 +29,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         />
+    <ImageButton android:id="@+id/showMenu"
+        android:background="@drawable/ic_menu_moreoverflow_normal_holo_light"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        />
     <ZoomButton android:id="@+id/zoomIn" 
         android:background="@drawable/btn_zoom_up"
         android:layout_width="wrap_content"
