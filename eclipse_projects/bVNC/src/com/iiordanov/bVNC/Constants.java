@@ -90,6 +90,9 @@ public class Constants {
     public static final int RDP_CONNECT_FAILURE    = 7;
     public static final int RDP_UNABLE_TO_CONNECT  = 8;
     public static final int RDP_AUTH_FAILED        = 9;
+    public static final int GET_PASSWORD           = 10;
+    public static final int GET_VERIFICATIONCODE   = 11;
+    public static final int PRO_FEATURE            = 99;
 
     public static final int EXTRA_KEYS_OFF         = 0;
     public static final int EXTRA_KEYS_ON          = 1;

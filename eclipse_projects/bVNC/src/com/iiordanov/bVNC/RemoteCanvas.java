@@ -51,6 +51,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.SystemClock;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
 import android.text.ClipboardManager;
 import android.text.Editable;
 import android.text.InputType;
@@ -83,6 +85,7 @@ import com.iiordanov.bVNC.input.RemoteVncKeyboard;
 import com.iiordanov.bVNC.input.RemoteVncPointer;
 
 import com.iiordanov.tigervnc.vncviewer.CConn;
+import com.iiordanov.bVNC.dialogs.GetTextFragment;
 
 public class RemoteCanvas extends ImageView implements LibFreeRDP.UIEventListener, LibFreeRDP.EventListener {
     private final static String TAG = "RemoteCanvas";
@@ -424,7 +427,7 @@ public class RemoteCanvas extends ImageView implements LibFreeRDP.UIEventListene
                                           connection.getUseRepeater(), connection.getRepeaterId(),
                                           connection.getConnectionType(), connection.getSshHostKey());
         } catch (Exception e) {
-            throw new Exception (getContext().getString(R.string.error_vnc_unable_to_connect) + e.getLocalizedMessage());
+            throw new Exception (getContext().getString(R.string.error_vnc_unable_to_connect) + e.getStackTrace().toString() + e.getLocalizedMessage());
         }
         
         rfbconn = rfb;
@@ -578,7 +581,7 @@ public class RemoteCanvas extends ImageView implements LibFreeRDP.UIEventListene
         
         if (connection.getConnectionType() == Constants.CONN_TYPE_SSH) {
             if (sshConnection == null) {
-                sshConnection = new SSHConnection(connection, getContext());
+                sshConnection = new SSHConnection(connection, getContext(), handler);
             }
             // TODO: Take the AutoX stuff out to a separate function.
             int newPort = sshConnection.initializeSSHTunnel ();
@@ -1429,7 +1432,26 @@ public class RemoteCanvas extends ImageView implements LibFreeRDP.UIEventListene
     public Handler handler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
+            FragmentManager fm = null;
+
             switch (msg.what) {
+            case Constants.PRO_FEATURE:
+                if (pd != null && pd.isShowing()) {
+                    pd.dismiss();
+                }
+                showFatalMessageAndQuit(getContext().getString(R.string.pro_feature_mfa));
+                break;
+            case Constants.GET_VERIFICATIONCODE:
+                if (pd != null && pd.isShowing()) {
+                    pd.dismiss();
+                }
+                fm = ((FragmentActivity)getContext()).getSupportFragmentManager();
+                GetTextFragment getPassword = GetTextFragment.newInstance(
+                                                        RemoteCanvas.this.getContext().getString(R.string.verification_code),
+                                                        sshConnection, GetTextFragment.Plaintext, R.string.verification_code_message, R.string.verification_code);
+                getPassword.setCancelable(false);
+                getPassword.show(fm, RemoteCanvas.this.getContext().getString(R.string.verification_code));
+                break;
             case Constants.DIALOG_X509_CERT:
                 validateX509Cert ((X509Certificate)msg.obj);
                 break;
@@ -1641,7 +1663,7 @@ public class RemoteCanvas extends ImageView implements LibFreeRDP.UIEventListene
         
         displayShortToastMessage(getContext().getString(R.string.info_ssh_initializing_hostkey));
         
-        sshConnection = new SSHConnection(connection, getContext());
+        sshConnection = new SSHConnection(connection, getContext(), handler);
         if (!sshConnection.connect()) {
             // Failed to connect, so show error message and quit activity.
             showFatalMessageAndQuit(getContext().getString(R.string.error_ssh_unable_to_connect));

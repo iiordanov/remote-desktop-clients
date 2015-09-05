@@ -27,8 +27,11 @@ import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.util.Arrays;
+import java.util.concurrent.CountDownLatch;
 
 import android.content.Context;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Base64;
 import android.util.Log;
 
@@ -38,12 +41,13 @@ import com.trilead.ssh2.ConnectionInfo;
 import com.trilead.ssh2.InteractiveCallback;
 import com.trilead.ssh2.KnownHosts;
 import com.trilead.ssh2.Session;
+import com.iiordanov.bVNC.dialogs.GetTextFragment;
 
 /**
  * @author Iordan K Iordanov
  *
  */
-public class SSHConnection implements InteractiveCallback {
+public class SSHConnection implements InteractiveCallback, GetTextFragment.OnFragmentDismissedListener {
     private final static String TAG = "SSHConnection";
     private final static int MAXTRIES = 3;
     
@@ -85,8 +89,13 @@ public class SSHConnection implements InteractiveCallback {
     private boolean autoXUnixpw;
     private String  autoXRandFileNm;
     private Context context;
+    private Handler handler;
 
-    public SSHConnection(ConnectionBean conn, Context cntxt) {
+    // Used to communicate the MFA verification code obtained.
+    private String verificationCode;
+    private CountDownLatch vcLatch;
+
+    public SSHConnection(ConnectionBean conn, Context cntxt, Handler handler) {
         host = conn.getSshServer();
         sshPort = conn.getSshPort();
         user = conn.getSshUser();
@@ -109,6 +118,9 @@ public class SSHConnection implements InteractiveCallback {
         connection = new Connection(host, sshPort);
         autoXRandFileNm = conn.getAutoXRandFileNm();
         context = cntxt;
+        vcLatch = new CountDownLatch(1);
+        this.verificationCode = new String();
+        this.handler = handler;
     }
     
     String getServerHostKey() {
@@ -116,6 +128,11 @@ public class SSHConnection implements InteractiveCallback {
     }
     String getIdHash() {
         return idHash;
+    }
+    
+    public void setVerificationCode(String verificationCode) {
+        this.verificationCode = verificationCode;
+        this.vcLatch.countDown();
     }
     
     /**
@@ -342,13 +359,13 @@ public class SSHConnection implements InteractiveCallback {
         boolean isAuthenticated = false;
 
         try {
-            if (hasPasswordAuth()) {
-                Log.i(TAG, "Trying SSH password authentication.");
-                isAuthenticated = connection.authenticateWithPassword(user, password);
-            }
-            if (!isAuthenticated && hasKeyboardInteractiveAuth()) {
+            if (hasKeyboardInteractiveAuth()) {
                 Log.i(TAG, "Trying SSH keyboard-interactive authentication.");
                 isAuthenticated = connection.authenticateWithKeyboardInteractive(user, this);
+            }
+            if (!isAuthenticated && hasPasswordAuth()) {
+                Log.i(TAG, "Trying SSH password authentication.");
+                isAuthenticated = connection.authenticateWithPassword(user, password);
             }
             return isAuthenticated;
         } catch (IOException e) {
@@ -516,8 +533,34 @@ public class SSHConnection implements InteractiveCallback {
                                     boolean[] echo) throws Exception {
         String[] responses = new String[numPrompts];
         for (int x=0; x < numPrompts; x++) {
-            responses[x] = password;
+            if (prompt[0].indexOf("Verification code:") != -1) {
+                Log.e(TAG, prompt[x] + "  Will request verification code from user");
+                if (Utils.isFree(context)) {
+                    handler.sendEmptyMessage(Constants.PRO_FEATURE);
+                    responses[x] = "";
+                } else {
+                    vcLatch = new CountDownLatch(1);
+                    Log.e(TAG, "Requesting verification code from user");
+                    handler.sendEmptyMessage(Constants.GET_VERIFICATIONCODE);
+                    while (true) {
+                        try {
+                            vcLatch.await();
+                            break;
+                        } catch (InterruptedException e) { e.printStackTrace(); }
+                    }
+                    Log.e(TAG, prompt[0] + "  Sending verification code: " + verificationCode);
+                    responses[x] = verificationCode;
+                }
+            } else {
+                Log.e(TAG, prompt[0] + "  Sending password: " + password);
+                responses[x] = password;
+            }
         }
-        return responses;    
+        return responses;
+    }
+    
+    @Override
+    public void onTextObtained(String obtainedString, boolean dialogCancelled) {
+        setVerificationCode(obtainedString);
     }
 }

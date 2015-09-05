@@ -45,6 +45,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
+import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.InputDevice;
 import android.view.KeyEvent;
@@ -82,7 +83,7 @@ import com.iiordanov.bVNC.input.TouchMouseDragPanInputHandler;
 import com.iiordanov.bVNC.input.TouchMouseSwipePanInputHandler;
 
 
-public class RemoteCanvasActivity extends Activity implements OnKeyListener {
+public class RemoteCanvasActivity extends FragmentActivity implements OnKeyListener {
     
     private final static String TAG = "VncCanvasActivity";
     
