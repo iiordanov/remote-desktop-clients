@@ -59,6 +59,9 @@ public class Constants {
     public static final String PARAM_TLS_PORT = "TlsPort";
     public static final String PARAM_CACERT_PATH = "CaCertPath";
     public static final String PARAM_CERT_SUBJECT = "CertSubject";
+    public static final String PARAM_VIEW_ONLY = "ViewOnly";
+    public static final String PARAM_SCALE_MODE = "ScaleMode";
+    public static final String PARAM_EXTRAKEYS_TOGGLE = "ExtraKeysToggle";
     
     public static final int SECTYPE_NONE = 1;
     public static final int SECTYPE_VNC = 2;
