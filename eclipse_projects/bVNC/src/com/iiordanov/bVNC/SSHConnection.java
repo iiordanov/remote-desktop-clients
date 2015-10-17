@@ -552,7 +552,7 @@ public class SSHConnection implements InteractiveCallback, GetTextFragment.OnFra
                     responses[x] = verificationCode;
                 }
             } else {
-                Log.e(TAG, prompt[0] + "  Sending password: " + password);
+                Log.e(TAG, prompt[0] + "  Sending SSH password");
                 responses[x] = password;
             }
         }
