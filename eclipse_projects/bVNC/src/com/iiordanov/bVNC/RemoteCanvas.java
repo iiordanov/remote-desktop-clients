@@ -86,6 +86,7 @@ import com.iiordanov.bVNC.input.RemoteVncPointer;
 
 import com.iiordanov.tigervnc.vncviewer.CConn;
 import com.iiordanov.bVNC.dialogs.GetTextFragment;
+import com.iiordanov.bVNC.exceptions.AnonCipherUnsupportedException;
 
 public class RemoteCanvas extends ImageView implements LibFreeRDP.UIEventListener, LibFreeRDP.EventListener {
     private final static String TAG = "RemoteCanvas";
@@ -426,6 +427,8 @@ public class RemoteCanvas extends ImageView implements LibFreeRDP.UIEventListene
             rfb.initializeAndAuthenticate(connection.getUserName(), connection.getPassword(),
                                           connection.getUseRepeater(), connection.getRepeaterId(),
                                           connection.getConnectionType(), connection.getSshHostKey());
+        } catch (AnonCipherUnsupportedException e) {
+            showFatalMessageAndQuit (getContext().getString(R.string.error_anon_dh_unsupported));
         } catch (Exception e) {
             throw new Exception (getContext().getString(R.string.error_vnc_unable_to_connect) + e.getStackTrace().toString() + e.getLocalizedMessage());
         }

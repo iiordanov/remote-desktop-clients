@@ -591,7 +591,7 @@ class RfbProto implements RfbConnectable {
               }
           } else {
               if (secTypes[i] == SecTypeNone || secTypes[i] == SecTypeVncAuth ||
-                  secTypes[i] == SecTypeTLS || secTypes[i] == SecTypeVeNCrypt) {
+                  secTypes[i] == SecTypeVeNCrypt || secTypes[i] == SecTypeTLS) {
                   secType = secTypes[i];
                   break;
               }

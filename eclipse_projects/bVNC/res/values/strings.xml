@@ -111,6 +111,7 @@
 <string name="disconnect">Disconnect</string>
 <string name="enable_sound">Enable Sound</string>
 <string name="enable_recording">Enable Recording</string>
+<string name="error_anon_dh_unsupported">The VNC Server is trying to use Anonymous Diffie Hellman ciphers which are not supported on your Android device. If using GNOME\'s Vino VNC server, you can disable AnonTLS bt running the following command in a terminal and then restarting: \"gsettings set org.gnome.Vino require-encryption false\". If running x11vnc, you can add the following options: \"-vencrypt nodh:only -ssl\".</string>
 <string name="error_no_user_hostname">Please enter at least a user and a hostname or IP address.</string>
 <string name="error_uri_noinfo_nosave">Insufficent information specified to connect.</string>
 <string name="error_vnc_authentication">VNC authentication failed! Check VNC password (and user if applicable).</string>

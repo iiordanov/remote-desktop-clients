@@ -25,6 +25,8 @@ import java.net.Socket;
 import java.util.ArrayList;
 import javax.net.ssl.SSLSocket;
 
+import com.iiordanov.bVNC.exceptions.AnonCipherUnsupportedException;
+
 import android.util.Log;
 
 public class TLSTunnel extends TLSTunnelBase
@@ -35,7 +37,7 @@ public TLSTunnel (Socket sock_) {
     super (sock_);
   }
 
-  protected void setParam (SSLSocket sock) {
+  protected void setParam (SSLSocket sock) throws AnonCipherUnsupportedException {
     String[]supported;
     ArrayList<String> enabled = new ArrayList<String> ();
 
@@ -46,6 +48,10 @@ public TLSTunnel (Socket sock_) {
           enabled.add (supported[i]);
           Log.i(TAG, "Adding cipher: " + supported[i]);
       }
+    }
+    
+    if (enabled.isEmpty()) {
+        throw new AnonCipherUnsupportedException();
     }
 
     sock.setEnabledCipherSuites ((String[])enabled.toArray (new String[0]));

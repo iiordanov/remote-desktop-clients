@@ -111,6 +111,7 @@
 <string name="disconnect">Отключить</string>
 <string name="enable_sound">Включить звук</string>
 <string name="enable_recording">Включить запись</string>
+<string name="error_anon_dh_unsupported">VNC-сервера пытается использовать анонимные Диффи Хеллмана шифры, которые не поддерживаются на вашем Android устройстве. При использовании Вино VNC-сервер GNOME, вы можете отключить AnonTLS если вы выполните следующую команду в терминале, а затем перезагрузить компьютер: \"gsettings set org.gnome.Vino require-encryption false\". Если вы используете x11vnc, вы можете добавить следующие параметры: \"-vencrypt nodh:only -ssl\".</string>
 <string name="error_no_user_hostname">Введите как минимум имя пользователя и имя хоста (или его IP-адрес).</string>
 <string name="error_uri_noinfo_nosave">Недостаточно информации для подключения.</string>
 <string name="error_vnc_authentication">Авторизация VNC не удалась. Проверьте пароль VNC (и имя пользователя, если оно используется).</string>

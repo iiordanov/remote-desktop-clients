@@ -78,7 +78,7 @@ public TLSTunnelBase (Socket sock_) {
     }
   }
 
-  protected abstract void setParam (SSLSocket sock);
+  protected abstract void setParam (SSLSocket sock) throws Exception;
 
   Socket sock;
 
