@@ -117,10 +117,12 @@
 <string name="error_vnc_authentication">VNC authentication failed! Check VNC password (and user if applicable).</string>
 <string name="error_out_of_memory">Unable to allocate sufficient memory to draw remote screen. Try restarting the application, then restart your device. You can also try reducing the size of the remote desktop through the app settings.</string>
 <string name="error_ovirt_unable_to_connect">Unable to connect or authenticate, please check server address, user, password, and cert authority and subject.</string>
+<string name="error_pick_correct_item">Please ensure you have picked the right item in Connection Type.</string>
 <string name="error_spice_unable_to_connect">Unable to connect or authenticate, please check server address, password, and cert authority and subject.</string>
 <string name="error_rdp_unable_to_connect">Could not connect to RDP server or authentication failed! Please ensure RDP Server setting and credentials are correct, the server is turned on, RDP is enabled, and that the server is on the same network as this device.</string>
 <string name="error_rdp_connection_failed">RDP Connection failed! Either network connectivity was interrupted, the RDP server was turned off or disabled, or your session was taken over.</string>
 <string name="error_rdp_authentication_failed">RDP Authentication failed! Please check the RDP username and password and try again.</string>
+<string name="error_security_type">Server did not offer supported security type.</string>
 <string name="error_ssh_unable_to_connect">Failed to connect to SSH Server. Please check network connectivity, and SSH Server address and port.</string>
 <string name="error_ssh_hostkey_changed">ERROR! The server host key has changed. If this is intentional, please delete and recreate the connection. Otherwise, this may be a man in the middle attack. Not continuing.</string>
 <string name="error_ssh_kbd_auth_method_unavail">The SSH server supports neither \"password\" nor \"keyboard-interactive\" auth methods or requires \"publickey\" method first. Please configure it to allow at least one of the two methods, or reconfigure bVNC. Available auth methods: </string>

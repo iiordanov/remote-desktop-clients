@@ -549,6 +549,8 @@ class RfbProto implements RfbConnectable {
       android.util.Log.i(TAG, "(Re)Selecting security type.");
 
     int secType = SecTypeInvalid;
+    int currentapiVersion = android.os.Build.VERSION.SDK_INT;
+    boolean secTypeTlsAndNewSdk = false;
 
         // Read the list of security types.
         int nSecTypes = is.readUnsignedByte();
@@ -591,20 +593,38 @@ class RfbProto implements RfbConnectable {
               }
           } else {
               if (secTypes[i] == SecTypeNone || secTypes[i] == SecTypeVncAuth ||
-                  secTypes[i] == SecTypeVeNCrypt || secTypes[i] == SecTypeTLS) {
+                  secTypes[i] == SecTypeVeNCrypt) {
                   secType = secTypes[i];
                   break;
               }
+              
+              // Only permit SecTypeTLS if we are running on pre-Marshmallow Android releases
+              // since Anon DH ciphers are deprecated in API >= 23
+              if (currentapiVersion < android.os.Build.VERSION_CODES.M && secTypes[i] == SecTypeTLS) {
+                  secType = secTypes[i];
+                  break;
+              } else if (currentapiVersion >= android.os.Build.VERSION_CODES.M && secTypes[i] == SecTypeTLS) {
+                  secTypeTlsAndNewSdk = true;
+              }
+              
               if ((bitPref & 1) != 0 && secTypes[i] == SecTypeArd) {
                   secType = secTypes[i];
                   break;
               }
           }
         }
-
+        
         if (secType == SecTypeInvalid) {
-          throw new Exception("Server did not offer supported security type. " +
-                               "Please ensure you have picked the right item in Connection Type.");
+            String message;
+            // If the server tried to negotiate SecTypeTLS and this is an SDK >= Marshmallow, report
+            // the appropriate error to the user.
+            if (secTypeTlsAndNewSdk) {
+                message = canvas.getContext().getString(R.string.error_anon_dh_unsupported);
+            } else {
+                message = canvas.getContext().getString(R.string.error_security_type)
+                  + " " + canvas.getContext().getString(R.string.error_pick_correct_item);
+            }
+          throw new Exception(message);
         } else {
           os.write(secType);
         }
