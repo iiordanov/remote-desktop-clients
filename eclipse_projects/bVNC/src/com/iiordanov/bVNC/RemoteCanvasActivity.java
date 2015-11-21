@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.regex.Matcher;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -207,14 +208,15 @@ public class RemoteCanvasActivity extends FragmentActivity implements OnKeyListe
                   connection.Gen_populate((ContentValues) extras.getParcelable(Constants.CONNECTION));
             }
 
-            // Parse a HOST:PORT entry
+            // Parse a HOST:PORT entry but only if not ipv6 address
             String host = connection.getAddress();
-            if (host.indexOf(':') > -1) {
+            if (!Utils.isValidIpv6Address(host) && host.indexOf(':') > -1) {
                 String p = host.substring(host.indexOf(':') + 1);
                 try {
-                    connection.setPort(Integer.parseInt(p));
+                    int parsedPort = Integer.parseInt(p);
+                    connection.setPort(parsedPort);
+                    connection.setAddress(host.substring(0, host.indexOf(':')));
                 } catch (Exception e) {}
-                connection.setAddress(host.substring(0, host.indexOf(':')));
               }
             
             if (connection.getPort() == 0)

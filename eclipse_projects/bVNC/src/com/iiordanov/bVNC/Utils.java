@@ -22,7 +22,6 @@ package com.iiordanov.bVNC;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -30,6 +29,9 @@ import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.Writer;
 import java.lang.reflect.Field;
+import java.net.Inet6Address;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 import org.xml.sax.SAXException;
 
@@ -50,7 +52,6 @@ import android.text.Html;
 import android.view.ViewConfiguration;
 
 public class Utils {
-
     public static void showYesNoPrompt(Context _context, String title, String message, OnClickListener onYesListener, OnClickListener onNoListener) {
         AlertDialog.Builder builder = new AlertDialog.Builder(_context);
         builder.setTitle(title);
@@ -201,5 +202,13 @@ public class Utils {
     public static void importSettingsFromXml (String file, SQLiteDatabase db) throws SAXException, IOException {
         Reader reader = new InputStreamReader(new FileInputStream(file));
         SqliteElement.importXmlStreamToDb(db, reader, ReplaceStrategy.REPLACE_EXISTING);
+    }
+    
+    public static boolean isValidIpv6Address(final String address) {
+        try {
+            return InetAddress.getByName(address) instanceof Inet6Address;
+        } catch (final UnknownHostException ex) {
+            return false;
+        }
     }
 }
