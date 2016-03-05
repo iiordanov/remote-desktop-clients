@@ -23,8 +23,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 
-import org.apache.http.conn.ManagedClientConnection;
-
 import com.undatech.opaque.R;
 
 import android.app.Activity;

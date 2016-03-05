@@ -36,6 +36,8 @@ public class Constants {
     public static final int GET_PASSWORD           = 10;
     public static final int VV_FILE_ERROR          = 11;
     public static final int OVIRT_TIMEOUT          = 12;
+    public static final int VV_OVER_HTTP_FAILURE   = 13;
+    public static final int VV_OVER_HTTPS_FAILURE  = 14;
     
 	public static final int EXTRA_KEYS_OFF         = 0;
 	public static final int EXTRA_KEYS_ON          = 1;
@@ -55,4 +57,8 @@ public class Constants {
     public static final int usbDevicePermissionTimeout = 15000;
     
     public static final String DEFAULT_SETTINGS_FILE = "defaultSettings";
+    
+    public static final int URL_BUFFER_SIZE        = 3000;
+    public static final int VV_GET_FILE_TIMEOUT    = 7000;
+
 }

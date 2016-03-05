@@ -111,6 +111,8 @@ All Input Method:
 
 <string name="close">Close</string>
 
+<string name="error_failed_to_download_vv_http">Failed to download .vv file over HTTP. Perhaps your server is unreachable.</string>
+<string name="error_failed_to_download_vv_https">Failed to download .vv file over HTTPS. Perhaps your server cert is untrusted (self-signed) or your server is unreachable.</string>
 <string name="error_dialog_title">Error</string>
 <string name="info_dialog_title">Info</string>
 <string name="info_vm_launched_on_stand_by">Your VM was found powered off and has been started. Please try again in a couple of minutes. If you try too soon and get a connection failure, try again later.</string>

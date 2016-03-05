@@ -385,9 +385,9 @@ class MyScaleGestureDetector extends ScaleGestureDetector {
      */
     public float getCurrentSpan() {
         if (mCurrLen == -1) {
-            final float cvx = mCurrFingerDiffX;
-            final float cvy = mCurrFingerDiffY;
-            mCurrLen = FloatMath.sqrt(cvx*cvx + cvy*cvy);
+            final double cvx = mCurrFingerDiffX;
+            final double cvy = mCurrFingerDiffY;
+            mCurrLen = (float) Math.sqrt(cvx*cvx + cvy*cvy);
         }
         return mCurrLen;
     }
@@ -400,9 +400,9 @@ class MyScaleGestureDetector extends ScaleGestureDetector {
      */
     public float getPreviousSpan() {
         if (mPrevLen == -1) {
-            final float pvx = mPrevFingerDiffX;
-            final float pvy = mPrevFingerDiffY;
-            mPrevLen = FloatMath.sqrt(pvx*pvx + pvy*pvy);
+            final double pvx = mPrevFingerDiffX;
+            final double pvy = mPrevFingerDiffY;
+            mPrevLen = (float) Math.sqrt(pvx*pvx + pvy*pvy);
         }
         return mPrevLen;
     }

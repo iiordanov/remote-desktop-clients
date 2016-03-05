@@ -21,8 +21,10 @@
 package com.undatech.opaque;
 
 import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -33,7 +35,7 @@ import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import org.apache.http.util.ByteArrayBuffer;
+import org.apache.http.*;
 
 import com.gstreamer.GStreamer;
 import com.iiordanov.android.zoomer.ZoomControls;
@@ -56,6 +58,8 @@ import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.os.SystemClock;
 import android.os.Vibrator;
 import android.provider.MediaStore;
@@ -120,27 +124,56 @@ public class RemoteCanvasActivity extends FragmentActivity implements OnKeyListe
 	@Override
 	public void onCreate(Bundle icicle) {
 		super.onCreate(icicle);
-		
-		// TODO: Implement left-icon
-		//requestWindowFeature(Window.FEATURE_LEFT_ICON);
-		//setFeatureDrawableResource(Window.FEATURE_LEFT_ICON, R.drawable.icon); 
-		setVolumeControlStream(AudioManager.STREAM_MUSIC);
-		
-		requestWindowFeature(Window.FEATURE_NO_TITLE);
-		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-							 WindowManager.LayoutParams.FLAG_FULLSCREEN);
-		
-		handler = new Handler ();
-		setContentView(R.layout.canvas);
-		canvas = (RemoteCanvas) findViewById(R.id.canvas);
-		
+        // TODO: Implement left-icon
+        //requestWindowFeature(Window.FEATURE_LEFT_ICON);
+        //setFeatureDrawableResource(Window.FEATURE_LEFT_ICON, R.drawable.icon); 
+        setVolumeControlStream(AudioManager.STREAM_MUSIC);
+        
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                             WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        
+        handler = new Handler() {
+            @Override
+            public void handleMessage(Message msg) {
+                switch (msg.what) {
+                case Constants.VV_OVER_HTTP_FAILURE:
+                    MessageDialogs.displayMessageAndFinish(RemoteCanvasActivity.this,
+                                                           R.string.error_failed_to_download_vv_http,
+                                                           R.string.error_dialog_title);
+                    break;
+                case Constants.VV_OVER_HTTPS_FAILURE:
+                    MessageDialogs.displayMessageAndFinish(RemoteCanvasActivity.this,
+                                                           R.string.error_failed_to_download_vv_https,
+                                                           R.string.error_dialog_title);
+                    break;
+                }
+            }
+        };
+        
+        setContentView(R.layout.canvas);
+        canvas = (RemoteCanvas) findViewById(R.id.canvas);
+        
+		startConnection();
+	}
+	
+	private void startConnection() {
         Intent i = getIntent();
-        String vvFileName = startSessionFromVvFile(i);
+        String vvFileName = retrieveVvFileFromIntent(i);
         if (vvFileName == null) {
             android.util.Log.d(TAG, "Initializing session from connection settings.");
             connection = (ConnectionSettings)i.getSerializableExtra("com.undatech.opaque.ConnectionSettings");
             canvas.initialize(connection);
         } else {
+            android.util.Log.d(TAG, "Initializing session from vv file: " + vvFileName);
+            File f = new File(vvFileName);
+            if (!f.exists()) {
+                // Quit with an error if the file does not exist.
+                MessageDialogs.displayMessageAndFinish(this, R.string.vv_file_not_found, R.string.error_dialog_title);
+                return;
+            }
+            connection = new ConnectionSettings(Constants.DEFAULT_SETTINGS_FILE);
+            connection.loadFromSharedPreferences(getApplicationContext());
             canvas.initialize(vvFileName, connection);
         }
         
@@ -250,97 +283,97 @@ public class RemoteCanvasActivity extends FragmentActivity implements OnKeyListe
     @Override
     protected void onNewIntent (Intent i) {
         android.util.Log.e(TAG, "onNewIntent called");
-        setIntent(i);
         canvas.disconnectAndCleanUp();
-        startSessionFromVvFile(i);
+        setIntent(i);
+        startConnection();
     }
     
     
     /**
-     * Launches a remote desktop session using a .vv file.
+     * Retrieves a vv file from the intent if possible and returns the path to it.
      * @param i
      * @return the vv file name or NULL if no file was discovered.
      */
-    private String startSessionFromVvFile(Intent i) {
+    private String retrieveVvFileFromIntent(Intent i) {
         final Uri data = i.getData();
         String vvFileName = null;
 
-        android.util.Log.d(TAG, "got intent: " + i.toString());
+        android.util.Log.d(TAG, "Got intent: " + i.toString());
 
         if (data != null) {
-            android.util.Log.d(TAG, "got data: " + data.toString());
-
-            if (data.toString().startsWith("http")) {
+            android.util.Log.d(TAG, "Got data: " + data.toString());
+            final String dataString = data.toString();
+            if (dataString.startsWith("http")) {
                 android.util.Log.d(TAG, "Intent is with http scheme.");
                 final String tempVvFile = getFilesDir() + "/tempfile.vv";
                 vvFileName = tempVvFile;
                 // Spin up a thread to grab the file over the network.
+                boolean errorDownloading = false;
                 Thread t = new Thread () {
                     @Override
                     public void run () {
                         try {
+                            // Download the file and write it out.
                             URL url = new URL (data.toString());
                             File file = new File(tempVvFile);
-        
+                            
                             URLConnection ucon = url.openConnection();
                             InputStream is = ucon.getInputStream();
                             BufferedInputStream bis = new BufferedInputStream(is);
+                            ByteArrayOutputStream buffer = new ByteArrayOutputStream();
                             
-                            ByteArrayBuffer baf = new ByteArrayBuffer(3000);
+                            byte[] data = new byte[Constants.URL_BUFFER_SIZE];
                             int current = 0;
-                            while ((current = bis.read()) != -1) {
-                               baf.append((byte) current);
+                            
+                            while((current = bis.read(data, 0, data.length)) != -1){
+                                buffer.write(data,0,current);
                             }
                             
                             FileOutputStream fos = new FileOutputStream(file);
-                            fos.write(baf.toByteArray());
+                            fos.write(buffer.toByteArray());
                             fos.close();
                             
                             synchronized(RemoteCanvasActivity.this) {
                                 RemoteCanvasActivity.this.notify();
                             }
-                        } catch (Exception e) { }
+                        } catch (IOException e) {
+                            int what = Constants.VV_OVER_HTTP_FAILURE;
+                            if (dataString.startsWith("https")) {
+                                what = Constants.VV_OVER_HTTPS_FAILURE;
+                            }
+                            // Quit with an error we could not download the .vv file.
+                            handler.sendEmptyMessage(what);
+                        }
                     }
                 };
                 t.start();
                 
                 synchronized (this) {
                     try {
-                        this.wait(5000);
+                        this.wait(Constants.VV_GET_FILE_TIMEOUT);
                     } catch (InterruptedException e) {
                     	vvFileName = null;
                         e.printStackTrace();
                     }
                 }
-            } else if (data.toString().startsWith("file")) {
+            } else if (dataString.startsWith("file")) {
                 android.util.Log.d(TAG, "Intent is with file scheme.");
                 vvFileName = data.getPath();
-            } else if (data.toString().startsWith("content")) {
+            } else if (dataString.startsWith("content")) {
                 android.util.Log.d(TAG, "Intent is with content scheme.");
-
-            	String[] projection = {MediaStore.MediaColumns.DATA};
+                
+                String[] projection = {MediaStore.MediaColumns.DATA};
                 ContentResolver resolver = getApplicationContext().getContentResolver();
                 Cursor cursor = resolver.query(data, projection, null, null, null);
                 if (cursor != null) {
                     if (cursor.moveToFirst()) {
-                    	vvFileName = cursor.getString(0);
+                        vvFileName = cursor.getString(0);
                     }
-                	cursor.close();
+                    cursor.close();
                 }
             }
             
-            File f = new File(vvFileName);
-            android.util.Log.d(TAG, "got filename: " + vvFileName);
-            
-            if (f.exists()) {
-                android.util.Log.d(TAG, "Initializing session from vv file: " + vvFileName);
-                connection = new ConnectionSettings(Constants.DEFAULT_SETTINGS_FILE);
-                connection.loadFromSharedPreferences(getApplicationContext());
-            } else {
-            	vvFileName = null;
-                // Quit with an error if the file does not exist.
-                MessageDialogs.displayMessageAndFinish(this, R.string.vv_file_not_found, R.string.error_dialog_title);
-            }
+            android.util.Log.d(TAG, "Got filename: " + vvFileName);
         }
         return vvFileName;
     }
