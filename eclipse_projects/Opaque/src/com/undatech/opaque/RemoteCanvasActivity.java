@@ -177,6 +177,11 @@ public class RemoteCanvasActivity extends FragmentActivity implements OnKeyListe
             canvas.initialize(vvFileName, connection);
         }
         
+        // If we still don't have settings after this, we cannot continue.
+        if (connection == null) {
+            return;
+        }
+        
         canvas.setOnKeyListener(this);
         canvas.setFocusableInTouchMode(true);
         canvas.setDrawingCacheEnabled(false);
@@ -352,7 +357,7 @@ public class RemoteCanvasActivity extends FragmentActivity implements OnKeyListe
                     try {
                         this.wait(Constants.VV_GET_FILE_TIMEOUT);
                     } catch (InterruptedException e) {
-                    	vvFileName = null;
+                        vvFileName = null;
                         e.printStackTrace();
                     }
                 }
@@ -375,6 +380,7 @@ public class RemoteCanvasActivity extends FragmentActivity implements OnKeyListe
             
             android.util.Log.d(TAG, "Got filename: " + vvFileName);
         }
+        
         return vvFileName;
     }
 	
