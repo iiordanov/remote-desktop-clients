@@ -20,6 +20,9 @@
 
 package com.undatech.opaque;
 
+import com.undatech.opaque.proxmox.*;
+import com.undatech.opaque.proxmox.pojo.*;
+
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -35,7 +38,10 @@ import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import javax.security.auth.login.LoginException;
+
 import org.apache.http.*;
+import org.json.JSONException;
 
 import com.gstreamer.GStreamer;
 import com.iiordanov.android.zoomer.ZoomControls;
@@ -163,7 +169,12 @@ public class RemoteCanvasActivity extends FragmentActivity implements OnKeyListe
         if (vvFileName == null) {
             android.util.Log.d(TAG, "Initializing session from connection settings.");
             connection = (ConnectionSettings)i.getSerializableExtra("com.undatech.opaque.ConnectionSettings");
-            canvas.initialize(connection);
+            vvFileName = retrieveVvFileFromPve(connection);
+            // TODO: Refactor this to determine type of connection and connect accordingly.
+            if (vvFileName != null)
+                canvas.initialize(vvFileName, connection);
+            else
+                canvas.initialize(connection);
         } else {
             android.util.Log.d(TAG, "Initializing session from vv file: " + vvFileName);
             File f = new File(vvFileName);
@@ -384,6 +395,56 @@ public class RemoteCanvasActivity extends FragmentActivity implements OnKeyListe
         return vvFileName;
     }
 	
+    /**
+     * Initialize the canvas to show the remote desktop
+     * @return 
+     */
+    String retrieveVvFileFromPve(final ConnectionSettings settings) {
+        android.util.Log.i(TAG, String.format("Trying to connect to PVE host: " + settings.getHostname()));
+        final String tempVvFile = getFilesDir() + "/tempfile.vv";
+        String result = null;
+
+        // TODO: Improve error handling.
+        Thread cThread = new Thread () {
+            @Override
+            public void run() {
+                try {
+                    ProxmoxClient api = new ProxmoxClient(settings.getHostname(), settings.getUser(), "pam", settings.getPassword());
+                    api.startVm("pve", "qemu", Integer.parseInt(settings.getVmname()));
+                    SpiceDisplay spiceData = api.spiceVm("pve", "qemu", Integer.parseInt(settings.getVmname()));
+                    spiceData.outputToFile(tempVvFile, connection.getHostname());
+                    synchronized(tempVvFile) {
+                        tempVvFile.notify();
+                    }
+                } catch (LoginException e) {
+                    android.util.Log.e(TAG, "Failed to login to PVE.");
+                } catch (JSONException e) {
+                    android.util.Log.e(TAG, "Failed to parse json from PVE.");
+                } catch (IOException e) {
+                    android.util.Log.e(TAG, "IO Error communicating with PVE API: " + e.getMessage());
+                    e.printStackTrace();
+                } catch (NumberFormatException e) {
+                    android.util.Log.e(TAG, "Error converting PVE ID to integer.");
+                } catch (HttpException e) {
+                    android.util.Log.e(TAG, "HTTP Error while communicating with PVE API: " + e.getMessage());
+                    e.printStackTrace();
+                }
+            }
+        };
+        cThread.start();
+        
+        synchronized (tempVvFile) {
+            try {
+                tempVvFile.wait(Constants.VV_GET_FILE_TIMEOUT);
+                result = tempVvFile;
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+                return null;
+            }
+        }
+        return result;
+    }
+    
 	
 	private void setKeyStowDrawableAndVisibility() {
 		Drawable replacer = null;
