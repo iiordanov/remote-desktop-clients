@@ -73,8 +73,6 @@ public class ConnectionSetupActivity extends Activity {
 	private String connectionsList = null;
 	private String[] connectionsArray = null;
 	private boolean newConnection = false;
-	private Spinner layoutMapSpinner = null;
-
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -147,26 +145,6 @@ public class ConnectionSetupActivity extends Activity {
 		
 		// Finally, load the preferences for the currentSelectedConnection.
 		loadSelectedPreferences ();
-		
-	    // Load list of items from asset folder and populate this:
-        List<String> spinnerArray = null;
-        try {
-            spinnerArray = listFiles("layouts");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        layoutMapSpinner = (Spinner) findViewById(R.id.layoutMaps);
-        // Create an ArrayAdapter using the string array and a default spinner layout
-        ArrayAdapter<String> adapter =  new ArrayAdapter<String> (this, android.R.layout.simple_spinner_item, spinnerArray);
-        // Specify the layout to use when the list of choices appears
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        // Apply the adapter to the spinner
-        layoutMapSpinner.setAdapter(adapter);
-        int selection = spinnerArray.indexOf(currentConnection.getLayoutMap());
-        if (selection < 0) {
-            selection = spinnerArray.indexOf(Constants.DEFAULT_LAYOUT_MAP);
-        }
-        layoutMapSpinner.setSelection(selection);
 	}
 	
 	/**
@@ -315,13 +293,6 @@ public class ConnectionSetupActivity extends Activity {
 		currentConnection.setHostname(h);
 		currentConnection.setVmname(vmname.getText().toString());
 		currentConnection.setPassword(password.getText().toString());
-		TextView selection = null;
-		if (layoutMapSpinner != null) {
-		    selection = (TextView) layoutMapSpinner.getSelectedView();
-		}
-		if (selection != null) {
-		    currentConnection.setLayoutMap(selection.getText().toString());
-		}
 		currentConnection.saveToSharedPreferences(appContext);
 	}
 	
@@ -366,19 +337,4 @@ public class ConnectionSetupActivity extends Activity {
 		}
 		return true;
 	}
-	
-	private List<String> listFiles(String dirFrom) throws IOException {
-        Resources res = getResources();
-        AssetManager am = res.getAssets();
-        String fileList[] = am.list(dirFrom);
-
-            if (fileList != null)
-            {   
-                for ( int i = 0;i<fileList.length;i++)
-                {
-                    Log.d("",fileList[i]); 
-                }
-            }
-        return (List<String>)Arrays.asList(fileList);
-    }
 }
