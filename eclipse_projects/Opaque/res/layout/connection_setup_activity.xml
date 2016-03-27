@@ -66,11 +66,6 @@
                 android:singleLine="true"
                 android:inputType="textPassword" />
             
-            <Spinner
-                android:id="@+id/layoutMaps"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content" />
-            
             <Button
                 android:id="@+id/advancedSettingsButton"
                 style="?buttonBarButtonStyle"

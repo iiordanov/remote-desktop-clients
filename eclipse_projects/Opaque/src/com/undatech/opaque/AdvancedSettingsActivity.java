@@ -21,19 +21,30 @@ package com.undatech.opaque;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Arrays;
+import java.util.List;
 
 import com.undatech.opaque.R;
 
 import android.app.Activity;
 import android.app.DialogFragment;
 import android.content.Intent;
+import android.content.res.AssetManager;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemSelectedListener;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.ToggleButton;
 
 public class AdvancedSettingsActivity extends FragmentActivity implements ManageCustomCaFragment.OnFragmentDismissedListener {
@@ -47,6 +58,7 @@ public class AdvancedSettingsActivity extends FragmentActivity implements Manage
     private ToggleButton toggleUsbEnabled;
 	private ToggleButton toggleUsingCustomOvirtCa;
 	private Button buttonManageOvirtCa;
+	private Spinner layoutMapSpinner;
 	
 	@Override
 	public void onCreate(Bundle icicle) {
@@ -76,7 +88,27 @@ public class AdvancedSettingsActivity extends FragmentActivity implements Manage
 		
 		buttonManageOvirtCa = (Button)findViewById(R.id.buttonManageOvirtCa);
 		buttonManageOvirtCa.setEnabled(currentConnection.isUsingCustomOvirtCa());
-
+		
+        layoutMapSpinner = (Spinner) findViewById(R.id.layoutMaps);
+        
+        layoutMapSpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view,
+                    int position, long id) {
+                layoutMapSpinner.setSelection(position);
+                TextView selection = null;
+                if (layoutMapSpinner != null) {
+                    selection = (TextView) layoutMapSpinner.getSelectedView();
+                }
+                if (selection != null) {
+                    currentConnection.setLayoutMap(selection.getText().toString());
+                }
+            }
+            
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) { }
+        });
+        
 		// Send the generated data back to the calling activity.
 		Intent databackIntent = new Intent();
 		databackIntent.putExtra("com.undatech.opaque.ConnectionSettings", currentConnection);
@@ -153,6 +185,46 @@ public class AdvancedSettingsActivity extends FragmentActivity implements Manage
 	    newFragment.show(fm, "customCa");
 	}
 
+	private List<String> listFiles(String dirFrom) throws IOException {
+	    Resources res = getResources();
+	    AssetManager am = res.getAssets();
+	    String fileList[] = am.list(dirFrom);
+
+	    if (fileList != null)
+	    {   
+	        for ( int i = 0;i<fileList.length;i++)
+	        {
+	            Log.d("",fileList[i]); 
+	        }
+	    }
+	    return (List<String>)Arrays.asList(fileList);
+	}
+	
+	@Override
+	public void onResume () {
+	    super.onResume();
+	    // Load list of items from asset folder and populate this:
+        List<String> spinnerArray = null;
+        try {
+            spinnerArray = listFiles("layouts");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        
+        // Create an ArrayAdapter using the string array and a default spinner layout
+        ArrayAdapter<String> adapter =  new ArrayAdapter<String> (this, android.R.layout.simple_spinner_item, spinnerArray);
+        // Specify the layout to use when the list of choices appears
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        // Apply the adapter to the spinner
+        layoutMapSpinner.setAdapter(adapter);
+        
+        int selection = spinnerArray.indexOf(currentConnection.getLayoutMap());
+        if (selection < 0) {
+            selection = spinnerArray.indexOf(Constants.DEFAULT_LAYOUT_MAP);
+        }
+        layoutMapSpinner.setSelection(selection);
+	}
+	
 	@Override
 	public void onFragmentDismissed(ConnectionSettings currentConnection) {
 		this.currentConnection = currentConnection;

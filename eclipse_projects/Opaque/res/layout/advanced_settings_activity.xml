@@ -19,7 +19,12 @@
 	            android:background="@color/black_overlay"
 	            android:orientation="horizontal"
 	            tools:ignore="UselessParent" >
-	
+	            
+	            <Spinner
+                android:id="@+id/layoutMaps"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content" />
+	            
 			    <LinearLayout
 			        android:layout_width="fill_parent"
 			        android:layout_height="wrap_content"
