@@ -59,7 +59,7 @@ public class Constants {
     public static final String DEFAULT_SETTINGS_FILE = "defaultSettings";
     
     public static final int URL_BUFFER_SIZE        = 3000;
-    public static final int VV_GET_FILE_TIMEOUT    = 10000;
+    public static final int VV_GET_FILE_TIMEOUT    = 17000;
     
     public static final String PVE_DEFAULT_REALM = "pam";
     public static final String PVE_DEFAULT_NODE = "pve";

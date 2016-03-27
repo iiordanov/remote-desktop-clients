@@ -468,7 +468,7 @@ public class RemoteCanvasActivity extends FragmentActivity implements OnKeyListe
         
         synchronized (tempVvFile) {
             try {
-                tempVvFile.wait();
+                tempVvFile.wait(Constants.VV_GET_FILE_TIMEOUT);
                 result = tempVvFile;
             } catch (InterruptedException e) {
                 e.printStackTrace();
