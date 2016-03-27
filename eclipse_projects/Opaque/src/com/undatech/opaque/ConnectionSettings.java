@@ -34,7 +34,8 @@ public class ConnectionSettings implements Serializable {
 	private static final long serialVersionUID = 1L;
 	
 	private String filename = "";
-	private String hostname = "";
+    private String connectionType = "";
+    private String hostname = "";
 	private String vmname = "";
 	private String user = "";
 	private String password = "";
@@ -57,7 +58,15 @@ public class ConnectionSettings implements Serializable {
 		this.filename = filename;
 	}
 	
-	public String getInputMethod() {
+	public String getConnectionType() {
+        return connectionType;
+    }
+	
+    public void setConnectionType(String connectionType) {
+        this.connectionType = connectionType;
+    }
+    
+    public String getInputMethod() {
 		return inputMethod;
 	}
 	
@@ -190,7 +199,8 @@ public class ConnectionSettings implements Serializable {
 	    android.util.Log.d(TAG, "Saving settings to file: " + filename);
 		SharedPreferences sp = context.getSharedPreferences(filename, Context.MODE_PRIVATE);
 		Editor editor = sp.edit();
-		editor.putString("hostname", hostname);
+        editor.putString("connectionType", connectionType);
+        editor.putString("hostname", hostname);
 		editor.putString("vmname", vmname);
 		editor.putString("user", user);
 		editor.putString("password", password);
@@ -212,7 +222,8 @@ public class ConnectionSettings implements Serializable {
 	public void loadFromSharedPreferences(Context context) {
 	    android.util.Log.d(TAG, "Loading settings from file: " + filename);
 		SharedPreferences sp = context.getSharedPreferences(filename, Context.MODE_PRIVATE);
-		hostname = sp.getString("hostname", "").trim();
+		connectionType = sp.getString("connectionType", "").trim();
+        hostname = sp.getString("hostname", "").trim();
 		vmname = sp.getString("vmname", "").trim();
 		user = sp.getString("user", "").trim();
 		password = sp.getString("password", "");

@@ -15,7 +15,18 @@
             android:background="@color/black_overlay"
             android:orientation="horizontal"
             tools:ignore="UselessParent" >
-
+        <TextView
+            android:id="@+id/textViewConnectionType"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/connection_type_text"/>
+            
+        <Spinner 
+            android:id="@+id/spinnerConnectionType"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:entries="@array/connection_types"/>
+            
             <EditText
                 android:id="@+id/hostname"
                 android:hint="@string/connection_setup_host_name"

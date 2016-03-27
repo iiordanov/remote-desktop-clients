@@ -32,6 +32,7 @@ import java.util.List;
 
 import com.undatech.opaque.R;
 
+import android.R.anim;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -56,6 +57,7 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
 public class ConnectionSetupActivity extends Activity {
 	private static String TAG = "ConnectionSetupActivity";
@@ -74,7 +76,7 @@ public class ConnectionSetupActivity extends Activity {
 	private String[] connectionsArray = null;
 	private boolean newConnection = false;
 	private Spinner layoutMapSpinner = null;
-
+	private Spinner spinnerConnectionType;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -136,6 +138,19 @@ public class ConnectionSetupActivity extends Activity {
 			newConnection = true;
 		}
 		
+	      spinnerConnectionType = (Spinner) findViewById(R.id.spinnerConnectionType);
+	        spinnerConnectionType.setOnItemSelectedListener(new OnItemSelectedListener() {
+	            @Override
+	            public void onItemSelected(AdapterView<?> parent, View view,
+	                    int position, long id) {
+	                android.util.Log.e(TAG, new Integer(position).toString() + ((TextView)view).getText().toString());
+	                // TODO Auto-generated method stub
+	            }
+
+	            @Override
+	            public void onNothingSelected(AdapterView<?> parent) {}
+	        });
+		
 		currentConnection = new ConnectionSettings (currentSelectedConnection);
 		if (newConnection) {
 		    // Load advanced settings defaults from the saved default settings
@@ -144,7 +159,7 @@ public class ConnectionSetupActivity extends Activity {
 			// deleted connection.
 			saveSelectedPreferences(false);
 		}
-		
+
 		// Finally, load the preferences for the currentSelectedConnection.
 		loadSelectedPreferences ();
 		
@@ -290,6 +305,8 @@ public class ConnectionSetupActivity extends Activity {
 	}
 	
 	private void updateViewsFromPreferences () {
+	    List<String> connectionTypes = Arrays.asList(getResources().getStringArray(R.array.connection_types));
+	    spinnerConnectionType.setSelection(connectionTypes.indexOf(currentConnection.getConnectionType()));
 		hostname.setText(currentConnection.getHostname());
 		vmname.setText(currentConnection.getVmname());
 		user.setText(currentConnection.getUser());
@@ -311,6 +328,7 @@ public class ConnectionSetupActivity extends Activity {
 		}
 
 		// Then, save the connection to a separate SharedPreferences file.
+		currentConnection.setConnectionType(spinnerConnectionType.getSelectedItem().toString());
 		currentConnection.setUser(u);
 		currentConnection.setHostname(h);
 		currentConnection.setVmname(vmname.getText().toString());
@@ -348,6 +366,17 @@ public class ConnectionSetupActivity extends Activity {
 		deleteConnection();
 		finish();
 	}
+	
+	
+	/**
+     * Automatically linked with android:onClick to the toggleSslStrict button.
+     * @param view
+     */
+    public void toggleConnectionType (View view) {
+        view.cancelLongPress();
+        //ToggleButton s = (ToggleButton) view;
+        //currentConnection.setSslStrict(s.isChecked());  
+    }
 	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {

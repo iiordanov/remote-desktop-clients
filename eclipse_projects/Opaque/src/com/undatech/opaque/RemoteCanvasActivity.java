@@ -169,12 +169,15 @@ public class RemoteCanvasActivity extends FragmentActivity implements OnKeyListe
         if (vvFileName == null) {
             android.util.Log.d(TAG, "Initializing session from connection settings.");
             connection = (ConnectionSettings)i.getSerializableExtra("com.undatech.opaque.ConnectionSettings");
-            vvFileName = retrieveVvFileFromPve(connection);
-            // TODO: Refactor this to determine type of connection and connect accordingly.
-            if (vvFileName != null)
-                canvas.initialize(vvFileName, connection);
-            else
+            
+            if (connection.getConnectionType().equals(getResources().getString(R.string.connection_type_pve))) {
+                vvFileName = retrieveVvFileFromPve(connection);
+                if (vvFileName != null) {
+                    canvas.initialize(vvFileName, connection);
+                }
+            } else {
                 canvas.initialize(connection);
+            }
         } else {
             android.util.Log.d(TAG, "Initializing session from vv file: " + vvFileName);
             File f = new File(vvFileName);
@@ -409,9 +412,39 @@ public class RemoteCanvasActivity extends FragmentActivity implements OnKeyListe
             @Override
             public void run() {
                 try {
-                    ProxmoxClient api = new ProxmoxClient(settings.getHostname(), settings.getUser(), "pam", settings.getPassword());
-                    api.startVm("pve", "qemu", Integer.parseInt(settings.getVmname()));
-                    SpiceDisplay spiceData = api.spiceVm("pve", "qemu", Integer.parseInt(settings.getVmname()));
+                    String user = settings.getUser();
+                    String realm = Constants.PVE_DEFAULT_REALM;
+                    
+                    // Try to parse credentials.
+                    int indexOfAt = settings.getUser().indexOf('@');
+                    if (indexOfAt != -1) {
+                        realm = user.substring(indexOfAt+1);
+                        user = user.substring(0, indexOfAt);
+                    }
+                    
+                    // Login with provided credentials
+                    ProxmoxClient api = new ProxmoxClient(settings.getHostname(), user, realm, settings.getPassword());
+                    
+                    // Parse out node, virtualization type and VM ID
+                    String node = Constants.PVE_DEFAULT_NODE;
+                    String virt = Constants.PVE_DEFAULT_VIRTUALIZATION;
+                    String vmname = settings.getVmname();
+                    
+                    int indexOfFirstSlash = settings.getVmname().indexOf('/');
+                    if (indexOfFirstSlash != -1) {
+                        // If we find at least one slash, then we need to parse out node for sure.
+                        node = vmname.substring(0, indexOfFirstSlash);
+                        vmname = vmname.substring(indexOfFirstSlash+1);
+                        int indexOfSecondSlash = vmname.indexOf('/');
+                        if (indexOfSecondSlash != -1) {
+                            // If we find a second slash, we need to parse out virtualization type and vmname after node.
+                            virt = vmname.substring(0, indexOfSecondSlash);
+                            vmname = vmname.substring(indexOfSecondSlash+1);
+                        }
+                    }
+
+                    api.startVm(node, virt, Integer.parseInt(vmname));
+                    SpiceDisplay spiceData = api.spiceVm(node, virt, Integer.parseInt(vmname));
                     spiceData.outputToFile(tempVvFile, connection.getHostname());
                     synchronized(tempVvFile) {
                         tempVvFile.notify();
@@ -435,7 +468,7 @@ public class RemoteCanvasActivity extends FragmentActivity implements OnKeyListe
         
         synchronized (tempVvFile) {
             try {
-                tempVvFile.wait(Constants.VV_GET_FILE_TIMEOUT);
+                tempVvFile.wait();
                 result = tempVvFile;
             } catch (InterruptedException e) {
                 e.printStackTrace();

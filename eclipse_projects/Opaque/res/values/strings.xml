@@ -18,6 +18,13 @@
 <string name="ca_spice_manage">Manage SPICE CA</string>
 <string name="ca_file_not_found">File not found. Please enter a valid file name in the text field (e.g. /sdcard/ca.crt).</string>
 <string name="ca_file_error_reading">Error reading CA file. Please ensure it is readable.</string>
+<string name="connection_type_text">Virtualization Environment</string>
+<string name="connection_type_ovirt">oVirt/RHEV</string>
+<string name="connection_type_pve">Proxmox VE</string>
+<string-array name="connection_types">
+    <item>@string/connection_type_ovirt</item>
+    <item>@string/connection_type_pve</item>
+</string-array>
 <string name="connection_setup_vm_name">Virtual machine name (optional)</string>
 <string name="connection_setup_host_name">RHEV/oVirt VDI Server</string>
 <string name="connection_setup_user">User@Domain</string>
