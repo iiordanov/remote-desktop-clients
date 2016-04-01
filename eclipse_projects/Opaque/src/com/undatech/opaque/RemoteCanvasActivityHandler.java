@@ -3,6 +3,7 @@ package com.undatech.opaque;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Message;
+import com.undatech.opaque.R;
 
 public class RemoteCanvasActivityHandler extends Handler {
     private Context context;
