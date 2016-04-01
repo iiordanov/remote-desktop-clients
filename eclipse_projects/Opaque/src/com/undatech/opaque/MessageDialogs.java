@@ -24,6 +24,8 @@ import android.app.Activity;
 import android.app.AlertDialog.Builder;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.os.Bundle;
+import android.os.Message;
 import android.text.Html;
 import android.text.Spanned;
 
@@ -60,6 +62,7 @@ public class MessageDialogs {
 	private static void displayDialog(final Context context,
 										int alertTitleID,
 										int alertID,
+										String appendText,
 										DialogInterface.OnClickListener ok) {
 		boolean show = true;
 		if ( context instanceof Activity ) {
@@ -72,7 +75,11 @@ public class MessageDialogs {
 			Builder builder = new Builder((Activity)context);
 			builder.setCancelable(false);
 			builder.setTitle(alertTitleID);
-			Spanned text = Html.fromHtml(context.getString(alertID));
+			String displayText = context.getString(alertID);
+			if (appendText != null) {
+			    displayText = displayText + " " + appendText;
+			}
+			Spanned text = Html.fromHtml(displayText);
 			builder.setMessage(text);
 			builder.setPositiveButton("OK", ok);
 			builder.show();
@@ -85,7 +92,7 @@ public class MessageDialogs {
 	 * @param info
 	 */
 	public static void displayMessage(final Context context, int infoId, int titleId) {
-		displayDialog(context, titleId, infoId, new DialogInterface.OnClickListener() {
+		displayDialog(context, titleId, infoId, null, new DialogInterface.OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
 				dialog.dismiss();
@@ -99,11 +106,42 @@ public class MessageDialogs {
 	 * @param error
 	 */
 	public static void displayMessageAndFinish(final Context context, int messageId, int titleId) {
-		displayDialog(context, titleId, messageId, new DialogInterface.OnClickListener() {
+		displayDialog(context, titleId, messageId, null, new DialogInterface.OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
 				((Activity)context).finish();
 			}
 		});
 	}
+
+    /**
+     * Displays an error dialog that dismisses the calling activity on pressing OK.
+     * @param context
+     * @param error
+     */
+    public static void displayMessageAndFinish(final Context context, int messageId, int titleId, String appendText) {
+        displayDialog(context, titleId, messageId, appendText, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                ((Activity)context).finish();
+            }
+        });
+    }
+    
+    /**
+     * Convenience function to create a message with a single key and String value pair in it.
+     * @param what
+     * @param key
+     * @param value
+     * @return
+     */
+    public static Message prepareMessageWithString (int what, String key, String value) {
+        Message m = new Message();
+        m.what = what;
+        Bundle d = new Bundle();
+        d.putString(key, value);
+        m.setData(d);
+        return m;
+    }
+
 }

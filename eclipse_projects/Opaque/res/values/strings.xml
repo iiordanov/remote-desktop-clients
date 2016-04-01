@@ -136,8 +136,8 @@ All Input Method:
 <string name="error_pve_failed_to_authenticate">Failed to authenticate to Proxmox Virtual Environment. Please make sure you enter your username in user@realm format and that you password is correct.</string>
 <string name="error_pve_failed_to_parse_json">Failed to parse response from Proxmox Virtual Environment.</string>
 <string name="error_pve_vmid_not_numeric">VM ID not numeric. Please make sure it is an integer.</string>
-<string name="error_pve_api_unexpected_code">Unexpected response from Proxmox Virtual Environment.</string>
-<string name="error_pve_io_error">Connection to Proxmox Virtual Environment failed.</string>
+<string name="error_pve_api_unexpected_code">Unexpected response from Proxmox Virtual Environment: </string>
+<string name="error_pve_api_io_error">Connection to Proxmox Virtual Environment failed: </string>
 <string name="error_pve_null_data">Proxmox Virtual Environment returned null data.</string>
 <string name="error_pve_timeout_communicating">Timeout communicating with Proxmox Virtual Environment.</string>
 <string name="error_vm_lookup_failed">Could not find a virtual machine with the name specified assigned to your user. Please erase the VM name specified to see a list of VMs assigned to the user.</string>

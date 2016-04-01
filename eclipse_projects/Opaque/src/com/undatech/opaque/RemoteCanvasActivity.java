@@ -446,9 +446,6 @@ public class RemoteCanvasActivity extends FragmentActivity implements OnKeyListe
                     SpiceDisplay spiceData = api.spiceVm(node, virt, Integer.parseInt(vmname));
                     if (spiceData != null) {
                         spiceData.outputToFile(tempVvFile, connection.getHostname());
-                        synchronized(tempVvFile) {
-                            tempVvFile.notify();
-                        }
                     } else {
                         android.util.Log.e(TAG, "PVE returned null data for display.");
                         handler.sendEmptyMessage(Constants.PVE_NULL_DATA);
@@ -464,16 +461,23 @@ public class RemoteCanvasActivity extends FragmentActivity implements OnKeyListe
                     handler.sendEmptyMessage(Constants.PVE_VMID_NOT_NUMERIC);
                 }  catch (IOException e) {
                     android.util.Log.e(TAG, "IO Error communicating with PVE API: " + e.getMessage());
-                    handler.sendEmptyMessage(Constants.PVE_API_IO_ERROR);
+                    handler.sendMessage(MessageDialogs.prepareMessageWithString(Constants.PVE_API_IO_ERROR,
+                                        "error", e.getMessage()));
                     e.printStackTrace();
                 } catch (HttpException e) {
                     android.util.Log.e(TAG, "PVE API returned error code: " + e.getMessage());
-                    handler.sendEmptyMessage(Constants.PVE_API_UNEXPECTED_CODE);
+                    handler.sendMessage(MessageDialogs.prepareMessageWithString(Constants.PVE_API_UNEXPECTED_CODE,
+                                        "error", e.getMessage()));
+                }
+                // At this stage we have either retrieved display data or failed, so permit the UI thread to continue.
+                synchronized(tempVvFile) {
+                    tempVvFile.notify();
                 }
             }
         };
         cThread.start();
         
+        // Wait until a timeout or until we are notified the worker thread trying to retrieve display data is done.
         synchronized (tempVvFile) {
             try {
                 tempVvFile.wait(Constants.VV_GET_FILE_TIMEOUT);

@@ -40,11 +40,11 @@ public class RemoteCanvasActivityHandler extends Handler {
             break;
         case Constants.PVE_API_UNEXPECTED_CODE:
             MessageDialogs.displayMessageAndFinish(context, R.string.error_pve_api_unexpected_code,
-                                                   R.string.error_dialog_title);
+                                                   R.string.error_dialog_title, msg.getData().getString("error"));
             break;
         case Constants.PVE_API_IO_ERROR:
-            MessageDialogs.displayMessageAndFinish(context, R.string.error_pve_io_error,
-                                                   R.string.error_dialog_title);
+            MessageDialogs.displayMessageAndFinish(context, R.string.error_pve_api_io_error,
+                                                   R.string.error_dialog_title, msg.getData().getString("error"));
             break;
         case Constants.PVE_TIMEOUT_COMMUNICATING:
             MessageDialogs.displayMessageAndFinish(context, R.string.error_pve_timeout_communicating,
