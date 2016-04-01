@@ -1,5 +1,7 @@
 package com.undatech.opaque.proxmox;
 
+import android.R.bool;
+
 import com.undatech.opaque.proxmox.pojo.*;
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -8,6 +10,7 @@ import java.util.Map;
 import javax.security.auth.login.LoginException;
 
 import org.apache.http.HttpException;
+import org.apache.http.conn.HttpHostConnectException;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -23,10 +26,12 @@ public class ProxmoxClient extends RestClient {
      * @param realm authentication realm, e.g. PAM
      * @param password password to authenticate with
      * @throws JSONException
+     * @throws IOException 
      * @throws HttpException
+     * @throws LoginException 
      */
     public ProxmoxClient(String hostname, String user, String realm, String password)
-            throws JSONException, HttpException {
+            throws JSONException, IOException, HttpException, LoginException {
         super();
         this.baseUrl = "https://" + hostname + ":8006/api2/json";
         resetState(baseUrl + "/access/ticket");
@@ -35,17 +40,15 @@ public class ProxmoxClient extends RestClient {
         addParam("password", password);
         addParam("realm", realm);
 
-        try {
-            execute(RestClient.RequestMethod.POST);
-        } catch (Exception e) {
-            throw new HttpException(e.getMessage());
-        }
+        execute(RestClient.RequestMethod.POST);
 
         if (getResponseCode() == HttpURLConnection.HTTP_OK) {
             JSONObject data = new JSONObject(getResponse())
             .getJSONObject("data");
             ticket = data.getString("ticket");
             csrfToken = data.getString("CSRFPreventionToken");
+        } else if (getResponseCode() == HttpURLConnection.HTTP_UNAUTHORIZED) {
+            throw new LoginException(getErrorMessage());
         } else {
             throw new HttpException(getErrorMessage());
         }
@@ -63,7 +66,7 @@ public class ProxmoxClient extends RestClient {
      * @throws HttpException
      */
     private JSONObject request(String resource, RestClient.RequestMethod method, Map<String, String> requestData)
-                    throws JSONException, LoginException, IOException, HttpException {
+            throws IOException, JSONException, LoginException, HttpException {
 
         resetState(baseUrl + resource);
 
@@ -77,24 +80,25 @@ public class ProxmoxClient extends RestClient {
             for (Map.Entry<String, String> p : requestData.entrySet()) {
                 addParam(p.getKey(), p.getValue());
             }
-
-        try {
-            execute(method);
-        } catch (Exception e) {
-            throw new IOException(e);
-        }
-
-        if (getResponseCode() == HttpURLConnection.HTTP_OK) {
+        
+        execute(method);
+        
+        if (isSuccessfulCode(getResponseCode())) {
             return new JSONObject(getResponse());
-        } else if (getResponseCode() == HttpURLConnection.HTTP_BAD_REQUEST) {
-            throw new HttpException(getErrorMessage());
         } else if (getResponseCode() == HttpURLConnection.HTTP_UNAUTHORIZED) {
             throw new LoginException(getErrorMessage());
         } else {
-            throw new IOException(getErrorMessage());
+            // The API returned an unexpected 4xx or 5xx return code.
+            throw new HttpException(getErrorMessage());
         }
     }
 
+    /**
+     * Checks if an HTTP code is successful (200 - 299) or not
+     */
+    boolean isSuccessfulCode (int code) {
+        return (code/100 == 2);
+    }
     /**
      * Retrieves a representation of the VNC display of a node.
      * @param node the name of the PVE node
@@ -126,7 +130,7 @@ public class ProxmoxClient extends RestClient {
     /**
      * Retrieves a representation of the VNC display of a VM.
      * @param node the name of the PVE node
-     * @param type of VM, one of qemu or openvz
+     * @param type of VM, one of qemu, lxc, or openvz (deprecated)
      * @param vmid the numeric VM ID
      * @return The VNC display of the VM
      * @throws LoginException
@@ -142,7 +146,7 @@ public class ProxmoxClient extends RestClient {
     /**
      * Retrieves a representation of the SPICE display of a VM.
      * @param node the name of the PVE node
-     * @param type of VM, one of qemu or openvz
+     * @param type of VM, one of qemu, lxc, or openvz (deprecated)
      * @param vmid the numeric VM ID
      * @return The SPICE display of the VM
      * @throws LoginException
@@ -158,7 +162,7 @@ public class ProxmoxClient extends RestClient {
     /**
      * Starts a VM.
      * @param node the name of the PVE node
-     * @param type of VM, one of qemu or openvz
+     * @param type of VM, one of qemu, lxc, or openvz (deprecated)
      * @param vmid the numeric VM ID
      * @return status string
      * @throws LoginException
@@ -169,5 +173,21 @@ public class ProxmoxClient extends RestClient {
     public String startVm(String node, String type, int vmid) throws LoginException, JSONException, IOException, HttpException {
         JSONObject jObj = request("/nodes/" + node + "/" + type + "/" + vmid + "/status/start", RestClient.RequestMethod.POST, null);
         return jObj.getString("data");
+    }
+    
+    /**
+     * Gets the current status of a VM.
+     * @param node the name of the PVE node
+     * @param type of VM, one of qemu, lxc, or openvz (deprecated)
+     * @param vmid the numeric VM ID
+     * @return status string
+     * @throws LoginException
+     * @throws JSONException
+     * @throws IOException
+     * @throws HttpException
+     */
+    public VmStatus getCurrentStatus(String node, String type, int vmid) throws LoginException, JSONException, IOException, HttpException {
+        JSONObject jObj = request("/nodes/" + node + "/" + type + "/" + vmid + "/status/current", RestClient.RequestMethod.GET, null);
+        return new VmStatus(jObj.getJSONObject("data"));
     }
 }

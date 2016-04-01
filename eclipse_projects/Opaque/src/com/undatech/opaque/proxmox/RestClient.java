@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.net.Socket;
 import java.net.URLEncoder;
 import java.net.UnknownHostException;
@@ -29,6 +30,7 @@ import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.conn.HttpHostConnectException;
 import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.conn.ssl.AllowAllHostnameVerifier;
 import org.apache.http.conn.ssl.SSLSocketFactory;
@@ -49,7 +51,7 @@ public class RestClient {
     private String message;
 
     private String response;
-    
+
     private String url;
     private static HttpClient client = new DefaultHttpClient();
 
@@ -116,7 +118,7 @@ public class RestClient {
             KeyStore trustStore = KeyStore.getInstance(KeyStore
                     .getDefaultType());
             trustStore.load(null, null);
-            
+
             // TODO: Make it an option whether to trust all certificates.
             MySSLSocketFactory sslsf = new MySSLSocketFactory(trustStore);
 
@@ -137,7 +139,7 @@ public class RestClient {
         params.add(new BasicNameValuePair(name, value));
     }
 
-    public void execute(RequestMethod method) throws Exception {
+    public void execute(RequestMethod method) throws IOException {
         switch (method) {
         case GET: {
             // add parameters
@@ -183,7 +185,7 @@ public class RestClient {
         }
     }
 
-    private void executeRequest(HttpUriRequest request, String url) {
+    private void executeRequest(HttpUriRequest request, String url) throws IOException {
 
         HttpParams params = client.getParams();
 
@@ -193,28 +195,19 @@ public class RestClient {
 
         HttpResponse httpResponse;
 
-        try {
-            httpResponse = client.execute(request);
-            responseCode = httpResponse.getStatusLine().getStatusCode();
-            message = httpResponse.getStatusLine().getReasonPhrase();
+        httpResponse = client.execute(request);
+        responseCode = httpResponse.getStatusLine().getStatusCode();
+        message = httpResponse.getStatusLine().getReasonPhrase();
 
-            HttpEntity entity = httpResponse.getEntity();
+        HttpEntity entity = httpResponse.getEntity();
 
-            if (entity != null) {
+        if (entity != null) {
 
-                InputStream instream = entity.getContent();
-                response = convertStreamToString(instream);
+            InputStream instream = entity.getContent();
+            response = convertStreamToString(instream);
 
-                // Closing the input stream will trigger connection release
-                instream.close();
-            }
-
-        } catch (ClientProtocolException e) {
-            client.getConnectionManager().shutdown();
-            e.printStackTrace();
-        } catch (IOException e) {
-            client.getConnectionManager().shutdown();
-            e.printStackTrace();
+            // Closing the input stream will trigger connection release
+            instream.close();
         }
     }
 

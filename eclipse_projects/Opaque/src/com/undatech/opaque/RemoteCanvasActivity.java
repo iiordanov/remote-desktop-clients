@@ -41,6 +41,7 @@ import java.util.TimerTask;
 import javax.security.auth.login.LoginException;
 
 import org.apache.http.*;
+import org.apache.http.conn.HttpHostConnectException;
 import org.json.JSONException;
 
 import com.gstreamer.GStreamer;
@@ -139,23 +140,7 @@ public class RemoteCanvasActivity extends FragmentActivity implements OnKeyListe
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                              WindowManager.LayoutParams.FLAG_FULLSCREEN);
         
-        handler = new Handler() {
-            @Override
-            public void handleMessage(Message msg) {
-                switch (msg.what) {
-                case Constants.VV_OVER_HTTP_FAILURE:
-                    MessageDialogs.displayMessageAndFinish(RemoteCanvasActivity.this,
-                                                           R.string.error_failed_to_download_vv_http,
-                                                           R.string.error_dialog_title);
-                    break;
-                case Constants.VV_OVER_HTTPS_FAILURE:
-                    MessageDialogs.displayMessageAndFinish(RemoteCanvasActivity.this,
-                                                           R.string.error_failed_to_download_vv_https,
-                                                           R.string.error_dialog_title);
-                    break;
-                }
-            }
-        };
+        handler = new RemoteCanvasActivityHandler(this);
         
         setContentView(R.layout.canvas);
         canvas = (RemoteCanvas) findViewById(R.id.canvas);
@@ -325,6 +310,8 @@ public class RemoteCanvasActivity extends FragmentActivity implements OnKeyListe
             if (dataString.startsWith("http")) {
                 android.util.Log.d(TAG, "Intent is with http scheme.");
                 final String tempVvFile = getFilesDir() + "/tempfile.vv";
+                deleteMyFile(tempVvFile);
+                
                 vvFileName = tempVvFile;
                 // Spin up a thread to grab the file over the network.
                 boolean errorDownloading = false;
@@ -398,14 +385,19 @@ public class RemoteCanvasActivity extends FragmentActivity implements OnKeyListe
         return vvFileName;
     }
 	
+    private void deleteMyFile (String path) {
+        new File(path).delete();
+    }
+    
     /**
      * Initialize the canvas to show the remote desktop
      * @return 
      */
+    // TODO: Switch away from writing out a file to initiating a connection directly.
     String retrieveVvFileFromPve(final ConnectionSettings settings) {
         android.util.Log.i(TAG, String.format("Trying to connect to PVE host: " + settings.getHostname()));
         final String tempVvFile = getFilesDir() + "/tempfile.vv";
-        String result = null;
+        deleteMyFile(tempVvFile);
 
         // TODO: Improve error handling.
         Thread cThread = new Thread () {
@@ -442,25 +434,41 @@ public class RemoteCanvasActivity extends FragmentActivity implements OnKeyListe
                             vmname = vmname.substring(indexOfSecondSlash+1);
                         }
                     }
-
-                    api.startVm(node, virt, Integer.parseInt(vmname));
+                    
+                    VmStatus status = api.getCurrentStatus(node, virt, Integer.parseInt(vmname));
+                    if (status.getStatus().equals(VmStatus.STOPPED)) {
+                        api.startVm(node, virt, Integer.parseInt(vmname));
+                        while (!status.getStatus().equals(VmStatus.RUNNING)) {
+                            status = api.getCurrentStatus(node, virt, Integer.parseInt(vmname));
+                            SystemClock.sleep(500);
+                        }
+                    }
                     SpiceDisplay spiceData = api.spiceVm(node, virt, Integer.parseInt(vmname));
-                    spiceData.outputToFile(tempVvFile, connection.getHostname());
-                    synchronized(tempVvFile) {
-                        tempVvFile.notify();
+                    if (spiceData != null) {
+                        spiceData.outputToFile(tempVvFile, connection.getHostname());
+                        synchronized(tempVvFile) {
+                            tempVvFile.notify();
+                        }
+                    } else {
+                        android.util.Log.e(TAG, "PVE returned null data for display.");
+                        handler.sendEmptyMessage(Constants.PVE_NULL_DATA);
                     }
                 } catch (LoginException e) {
                     android.util.Log.e(TAG, "Failed to login to PVE.");
+                    handler.sendEmptyMessage(Constants.PVE_FAILED_TO_AUTHENTICATE);
                 } catch (JSONException e) {
                     android.util.Log.e(TAG, "Failed to parse json from PVE.");
-                } catch (IOException e) {
-                    android.util.Log.e(TAG, "IO Error communicating with PVE API: " + e.getMessage());
-                    e.printStackTrace();
+                    handler.sendEmptyMessage(Constants.PVE_FAILED_TO_PARSE_JSON);
                 } catch (NumberFormatException e) {
                     android.util.Log.e(TAG, "Error converting PVE ID to integer.");
-                } catch (HttpException e) {
-                    android.util.Log.e(TAG, "HTTP Error while communicating with PVE API: " + e.getMessage());
+                    handler.sendEmptyMessage(Constants.PVE_VMID_NOT_NUMERIC);
+                }  catch (IOException e) {
+                    android.util.Log.e(TAG, "IO Error communicating with PVE API: " + e.getMessage());
+                    handler.sendEmptyMessage(Constants.PVE_API_IO_ERROR);
                     e.printStackTrace();
+                } catch (HttpException e) {
+                    android.util.Log.e(TAG, "PVE API returned error code: " + e.getMessage());
+                    handler.sendEmptyMessage(Constants.PVE_API_UNEXPECTED_CODE);
                 }
             }
         };
@@ -469,13 +477,17 @@ public class RemoteCanvasActivity extends FragmentActivity implements OnKeyListe
         synchronized (tempVvFile) {
             try {
                 tempVvFile.wait(Constants.VV_GET_FILE_TIMEOUT);
-                result = tempVvFile;
             } catch (InterruptedException e) {
+                handler.sendEmptyMessage(Constants.PVE_TIMEOUT_COMMUNICATING);
                 e.printStackTrace();
-                return null;
             }
         }
-        return result;
+        
+        File checkFile = new File(tempVvFile);
+        if (!checkFile.exists() || checkFile.length() == 0) {
+            return null;
+        }
+        return tempVvFile;
     }
     
 	

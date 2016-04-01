@@ -38,6 +38,15 @@ public class Constants {
     public static final int OVIRT_TIMEOUT          = 12;
     public static final int VV_OVER_HTTP_FAILURE   = 13;
     public static final int VV_OVER_HTTPS_FAILURE  = 14;
+    public static final int PVE_FAILED_TO_AUTHENTICATE = 15;
+    public static final int PVE_FAILED_TO_CONNECT      = 16;
+    public static final int PVE_FAILED_TO_PARSE_JSON   = 17;
+    public static final int PVE_VMID_NOT_NUMERIC       = 18;
+    public static final int PVE_API_UNEXPECTED_CODE    = 19;
+    public static final int PVE_API_IO_ERROR           = 20;
+    public static final int PVE_TIMEOUT_COMMUNICATING  = 21;
+    public static final int PVE_NULL_DATA              = 22;
+    public static final int VV_DOWNLOAD_TIMEOUT        = 23;
     
 	public static final int EXTRA_KEYS_OFF         = 0;
 	public static final int EXTRA_KEYS_ON          = 1;
