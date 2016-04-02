@@ -127,21 +127,4 @@ public class MessageDialogs {
             }
         });
     }
-    
-    /**
-     * Convenience function to create a message with a single key and String value pair in it.
-     * @param what
-     * @param key
-     * @param value
-     * @return
-     */
-    public static Message prepareMessageWithString (int what, String key, String value) {
-        Message m = new Message();
-        m.what = what;
-        Bundle d = new Bundle();
-        d.putString(key, value);
-        m.setData(d);
-        return m;
-    }
-
 }

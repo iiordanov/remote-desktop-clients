@@ -20,9 +20,20 @@
 
 package com.undatech.opaque;
 
+import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.ResourceBundle;
 import java.util.Timer;
+
+import javax.crypto.NullCipher;
+import javax.security.auth.login.LoginException;
+
+import org.apache.http.HttpException;
+import org.json.JSONException;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -32,6 +43,7 @@ import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
+import android.os.SystemClock;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.text.ClipboardManager;
@@ -57,111 +69,22 @@ import com.undatech.opaque.input.RemoteKeyboard;
 import com.undatech.opaque.input.RemotePointer;
 import com.undatech.opaque.input.RemoteSpiceKeyboard;
 import com.undatech.opaque.input.RemoteSpicePointer;
+import com.undatech.opaque.proxmox.ProxmoxClient;
+import com.undatech.opaque.proxmox.pojo.PveResource;
+import com.undatech.opaque.proxmox.pojo.SpiceDisplay;
+import com.undatech.opaque.proxmox.pojo.VmStatus;
 import com.undatech.opaque.dialogs.*;
 
-public class RemoteCanvas extends ImageView implements SelectTextElementFragment.OnFragmentDismissedListener,
-                                                           GetTextFragment.OnFragmentDismissedListener {
+public class RemoteCanvas extends ImageView {
 	private final static String TAG = "RemoteCanvas";
 	
-	public Handler handler = new Handler() {
-	    @Override
-	    public void handleMessage(Message msg) {
-	    	FragmentManager fm;
-	        switch (msg.what) {
-            case Constants.VV_FILE_ERROR:
-                stayConnected = false;
-                disconnectAndShowMessage(R.string.vv_file_error, R.string.error_dialog_title);
-                break;
-	        case Constants.NO_VM_FOUND_FOR_USER:
-                stayConnected = false;
-	        	disconnectAndShowMessage(R.string.error_no_vm_found_for_user, R.string.error_dialog_title);
-	        	break;
-	        case Constants.OVIRT_SSL_HANDSHAKE_FAILURE:
-                stayConnected = false;
-	        	disconnectAndShowMessage(R.string.error_ovirt_ssl_handshake_failure, R.string.error_dialog_title);
-	        	break;
-	        case Constants.VM_LOOKUP_FAILED:
-                stayConnected = false;
-	        	disconnectAndShowMessage(R.string.error_vm_lookup_failed, R.string.error_dialog_title);
-	        	break;
-	        case Constants.OVIRT_AUTH_FAILURE:
-	            stayConnected = false;
-		        disconnectAndShowMessage(R.string.error_ovirt_auth_failure, R.string.error_dialog_title);
-		        break;
-	        case Constants.VM_LAUNCHED:
-                stayConnected = false;
-	        	disconnectAndShowMessage(R.string.info_vm_launched_on_stand_by, R.string.info_dialog_title);
-	        	break;
-	        case Constants.LAUNCH_VNC_VIEWER:
-/* TODO: Implement:
-	    		android.util.Log.d(TAG, "Trying to launch VNC viewer");
-	    		Intent intent = new Intent ();
-	    	    String intentURI = "vnc://" + address + ":" + port + "?password=" + password;
-	    	    try {
-	    	        intent = Intent.parseUri(intentURI, Intent.URI_INTENT_SCHEME);
-	    	    } catch (URISyntaxException e) {
-	    	    }
-
-	    	    myself.canvas.getContext().startActivity(intent);
-	    	    disconnectAndCleanup();
-	    	    finish();
-*/
-	        	disconnectAndShowMessage(R.string.error_no_vnc_support_yet, R.string.error_dialog_title);
-	        	break;
-	        case Constants.GET_PASSWORD:
-	            progressDialog.dismiss();
-
-	    		fm = ((FragmentActivity)getContext()).getSupportFragmentManager();
-	    		GetTextFragment getPassword = GetTextFragment.newInstance(
-	    												RemoteCanvas.this.getContext().getString(R.string.enter_password),
-	    												RemoteCanvas.this, true);
-	    		// TODO: Add OK button.
-	    		//newFragment.setCancelable(false);
-	    		getPassword.show(fm, "getPassword");
-	        	break;
-	        case Constants.DIALOG_DISPLAY_VMS:
-	            progressDialog.dismiss();
-
-	    		fm = ((FragmentActivity)getContext()).getSupportFragmentManager();
-	    		SelectTextElementFragment displayVms = SelectTextElementFragment.newInstance(
-	    												RemoteCanvas.this.getContext().getString(R.string.select_vm_title),
-	    												spicecomm.getVmNames(), RemoteCanvas.this);
-	    		displayVms.setCancelable(false);
-	    		displayVms.show(fm, "selectVm");
-	        	break;
-	        case Constants.SPICE_CONNECT_SUCCESS:
-	            progressDialog.dismiss();
-				synchronized(spicecomm) {
-	                spiceUpdateReceived = true;
-					spicecomm.notifyAll();
-				}
-	        	break;
-	        case Constants.SPICE_CONNECT_FAILURE:
-	            progressDialog.dismiss();
-	        	// If we were intending to maintainConnection, and the connection failed, show an error message.
-	        	if (stayConnected) {
-	                stayConnected = false;
-		    		if (!spiceUpdateReceived) {
-		    			disconnectAndShowMessage(R.string.error_ovirt_unable_to_connect, R.string.error_dialog_title);
-		    		} else {
-		    			disconnectAndShowMessage(R.string.error_connection_interrupted, R.string.error_dialog_title);
-		    		}
-	        	}
-	        	break;
-            case Constants.OVIRT_TIMEOUT:
-                stayConnected = false;
-                progressDialog.dismiss();
-                disconnectAndShowMessage(R.string.error_ovirt_timeout, R.string.error_dialog_title);
-                break;
-	        }
-	    }
-	};
+	public Handler handler;
 	
 	// Current connection parameters
 	private ConnectionSettings settings;
 	
 	// Indicates whether we intend to maintain the connection.
-	private boolean stayConnected = true;
+	boolean stayConnected = true;
 	
 	// Variable indicating that we are currently moving the cursor in one of the input modes.
 	public boolean cursorBeingMoved = false;
@@ -178,6 +101,9 @@ public class RemoteCanvas extends ImageView implements SelectTextElementFragment
 		
 	// The class that abstracts communication with the SPICE backend.
 	SpiceCommunicator spicecomm;
+	
+	// Map of VM names to IDs
+	Map<String, String> vmNameToId;
 	
 	// Used to set the contents of the clipboard.
 	ClipboardManager clipboard;
@@ -243,6 +169,8 @@ public class RemoteCanvas extends ImageView implements SelectTextElementFragment
         progressDialog = new ProgressDialog(context);
         progressDialog.setMessage(context.getString(R.string.message_please_wait));
         progressDialog.setCancelable(false);
+        
+        vmNameToId = new HashMap<String, String>();
 	}
 	
 
@@ -276,10 +204,11 @@ public class RemoteCanvas extends ImageView implements SelectTextElementFragment
     /**
      * Initialize the canvas to show the remote desktop
      */
-    void initialize(final String vvFileName, final ConnectionSettings settings) {
+    void initialize(final String vvFileName, final ConnectionSettings settings, final RemoteCanvasActivityHandler handler) {
         checkNetworkConnectivity();
         initializeClipboardMonitor();
         this.settings = settings;
+        this.handler = handler;
         
         Thread cThread = new Thread () {
             @Override
@@ -305,15 +234,244 @@ public class RemoteCanvas extends ImageView implements SelectTextElementFragment
         cThread.start();
     }
     
+    private void deleteMyFile (String path) {
+        new File(path).delete();
+    }
+    
+    /**
+     * Initialize the canvas to show the remote desktop
+     * @return 
+     */
+    // TODO: Switch away from writing out a file to initiating a connection directly.
+    String retrieveVvFileFromPve(final ConnectionSettings settings) {
+        android.util.Log.i(TAG, String.format("Trying to connect to PVE host: " + settings.getHostname()));
+        final String tempVvFile = getContext().getFilesDir() + "/tempfile.vv";
+        deleteMyFile(tempVvFile);
+
+        // TODO: Improve error handling.
+        Thread cThread = new Thread () {
+            @Override
+            public void run() {
+                try {
+                    String user = settings.getUser();
+                    String realm = Constants.PVE_DEFAULT_REALM;
+                    
+                    // Try to parse credentials.
+                    int indexOfAt = settings.getUser().indexOf('@');
+                    if (indexOfAt != -1) {
+                        realm = user.substring(indexOfAt+1);
+                        user = user.substring(0, indexOfAt);
+                    }
+                    
+                    // Login with provided credentials
+                    // TODO: Obtain cert from vv file and pass it into the API client
+                    ProxmoxClient api = new ProxmoxClient(settings.getHostname(), user, realm, settings.getPassword(), settings, handler);
+                    
+                    // Parse out node, virtualization type and VM ID
+                    String node = Constants.PVE_DEFAULT_NODE;
+                    String virt = Constants.PVE_DEFAULT_VIRTUALIZATION;
+                    String vmname = settings.getVmname();
+                    
+                    int indexOfFirstSlash = settings.getVmname().indexOf('/');
+                    if (indexOfFirstSlash != -1) {
+                        // If we find at least one slash, then we need to parse out node for sure.
+                        node = vmname.substring(0, indexOfFirstSlash);
+                        vmname = vmname.substring(indexOfFirstSlash+1);
+                        int indexOfSecondSlash = vmname.indexOf('/');
+                        if (indexOfSecondSlash != -1) {
+                            // If we find a second slash, we need to parse out virtualization type and vmname after node.
+                            virt = vmname.substring(0, indexOfSecondSlash);
+                            vmname = vmname.substring(indexOfSecondSlash+1);
+                        }
+                    }
+                    
+                    VmStatus status = api.getCurrentStatus(node, virt, Integer.parseInt(vmname));
+                    if (status.getStatus().equals(VmStatus.STOPPED)) {
+                        api.startVm(node, virt, Integer.parseInt(vmname));
+                        while (!status.getStatus().equals(VmStatus.RUNNING)) {
+                            status = api.getCurrentStatus(node, virt, Integer.parseInt(vmname));
+                            SystemClock.sleep(500);
+                        }
+                    }
+                    SpiceDisplay spiceData = api.spiceVm(node, virt, Integer.parseInt(vmname));
+                    if (spiceData != null) {
+                        spiceData.outputToFile(tempVvFile, settings.getHostname());
+                    } else {
+                        android.util.Log.e(TAG, "PVE returned null data for display.");
+                        handler.sendEmptyMessage(Constants.PVE_NULL_DATA);
+                    }
+                } catch (LoginException e) {
+                    android.util.Log.e(TAG, "Failed to login to PVE.");
+                    handler.sendEmptyMessage(Constants.PVE_FAILED_TO_AUTHENTICATE);
+                } catch (JSONException e) {
+                    android.util.Log.e(TAG, "Failed to parse json from PVE.");
+                    handler.sendEmptyMessage(Constants.PVE_FAILED_TO_PARSE_JSON);
+                } catch (NumberFormatException e) {
+                    android.util.Log.e(TAG, "Error converting PVE ID to integer.");
+                    handler.sendEmptyMessage(Constants.PVE_VMID_NOT_NUMERIC);
+                }  catch (IOException e) {
+                    android.util.Log.e(TAG, "IO Error communicating with PVE API: " + e.getMessage());
+                    handler.sendMessage(RemoteCanvasActivityHandler.getMessageString(Constants.PVE_API_IO_ERROR,
+                                        "error", e.getMessage()));
+                    e.printStackTrace();
+                } catch (HttpException e) {
+                    android.util.Log.e(TAG, "PVE API returned error code: " + e.getMessage());
+                    handler.sendMessage(RemoteCanvasActivityHandler.getMessageString(Constants.PVE_API_UNEXPECTED_CODE,
+                                        "error", e.getMessage()));
+                }
+                // At this stage we have either retrieved display data or failed, so permit the UI thread to continue.
+                synchronized(tempVvFile) {
+                    tempVvFile.notify();
+                }
+            }
+        };
+        cThread.start();
+        
+        // Wait until a timeout or until we are notified the worker thread trying to retrieve display data is done.
+        synchronized (tempVvFile) {
+            try {
+                tempVvFile.wait();
+            } catch (InterruptedException e) {
+                handler.sendEmptyMessage(Constants.PVE_TIMEOUT_COMMUNICATING);
+                e.printStackTrace();
+            }
+        }
+        
+        File checkFile = new File(tempVvFile);
+        if (!checkFile.exists() || checkFile.length() == 0) {
+            return null;
+        }
+        return tempVvFile;
+    }
+    
+    /**
+     * Initialize the canvas to show the remote desktop
+     */
+    void initializePve(final ConnectionSettings settings, final RemoteCanvasActivityHandler handler) {
+        checkNetworkConnectivity();
+        initializeClipboardMonitor();
+        this.settings = settings;
+        if (!progressDialog.isShowing())
+            progressDialog.show();
+        this.handler = handler;
+
+        Thread cThread = new Thread () {
+            @Override
+            public void run() {
+                try {
+                    spicecomm = new SpiceCommunicator (getContext(), RemoteCanvas.this, settings.isRequestingNewDisplayResolution(), settings.isUsbEnabled());
+                    pointer = new RemoteSpicePointer (spicecomm, RemoteCanvas.this, handler);
+                    keyboard = new RemoteSpiceKeyboard (getResources(), spicecomm, RemoteCanvas.this, handler, settings.getLayoutMap());
+                    spicecomm.setHandler(handler);
+                    
+                    // Obtain user's password if necessary.
+                    if (settings.getPassword().equals("")) {
+                        android.util.Log.i (TAG, "Displaying a dialog to obtain user's password.");
+                        handler.sendEmptyMessage(Constants.GET_PASSWORD);
+                        synchronized(spicecomm) {
+                            spicecomm.wait();
+                        }
+                    }
+                    
+                    // If not VM name is specified, then get a list of VMs and let the user pick one.
+                    if (settings.getVmname().isEmpty()) {
+                        try {
+                            String user = settings.getUser();
+                            String realm = Constants.PVE_DEFAULT_REALM;
+                            
+                            // Try to parse credentials.
+                            int indexOfAt = settings.getUser().indexOf('@');
+                            if (indexOfAt != -1) {
+                                realm = user.substring(indexOfAt+1);
+                                user = user.substring(0, indexOfAt);
+                            }
+                            
+                            // Login with provided credentials
+                            ProxmoxClient api = new ProxmoxClient(settings.getHostname(), user, realm, settings.getPassword(), settings, handler);
+                            
+                            // Get map of user parseable names to resources
+                            Map<String, PveResource> nameToResources = api.getResources();
+                            
+                            if (nameToResources.isEmpty()) {
+                                android.util.Log.e(TAG, "No available suitable resources in PVE cluster");
+                                disconnectAndShowMessage(R.string.error_no_vm_found_for_user, R.string.error_dialog_title);
+                            }
+
+                            // If there is just one VM, pick it and skip the dialog.
+                            if (nameToResources.size() == 1) {
+                                PveResource a = nameToResources.get(0);
+                                settings.setVmname(a.getNode() + "/" + a.getType() + "/" + a.getVmid());
+                                settings.saveToSharedPreferences(getContext());
+                            } else {
+                                while (settings.getVmname().equals("")) {
+                                    android.util.Log.i (TAG, "PVE: Displaying a dialog with VMs to the user.");
+                                    // Populate the data structure that is used to convert VM names to IDs.
+                                    for (String s : nameToResources.keySet()) {
+                                        vmNameToId.put(nameToResources.get(s).getName() + " (" + s + ")", s);
+                                    }
+                                    // Get the user parseable names and display them
+                                    ArrayList<String> vms = new ArrayList<String>(vmNameToId.keySet());
+                                    handler.sendMessage(RemoteCanvasActivityHandler.getMessageStringList(Constants.DIALOG_DISPLAY_VMS,
+                                                                                                             "vms", vms));
+                                    synchronized(spicecomm) {
+                                        spicecomm.wait();
+                                    }
+                                }
+                            }
+                            
+                        } catch (LoginException e) {
+                            android.util.Log.e(TAG, "Failed to login to PVE.");
+                            handler.sendEmptyMessage(Constants.PVE_FAILED_TO_AUTHENTICATE);
+                        } catch (JSONException e) {
+                            android.util.Log.e(TAG, "Failed to parse json from PVE.");
+                            handler.sendEmptyMessage(Constants.PVE_FAILED_TO_PARSE_JSON);
+                        }  catch (IOException e) {
+                            android.util.Log.e(TAG, "IO Error communicating with PVE API: " + e.getMessage());
+                            handler.sendMessage(RemoteCanvasActivityHandler.getMessageString(Constants.PVE_API_IO_ERROR,
+                                                "error", e.getMessage()));
+                            e.printStackTrace();
+                        } catch (HttpException e) {
+                            android.util.Log.e(TAG, "PVE API returned error code: " + e.getMessage());
+                            handler.sendMessage(RemoteCanvasActivityHandler.getMessageString(Constants.PVE_API_UNEXPECTED_CODE,
+                                                "error", e.getMessage()));
+                        }
+                    }
+                    
+                    // Only if we managed to obtain a VM name we try to get a .vv file for the display.
+                    if (!settings.getVmname().isEmpty()) {
+                        String vvFileName = retrieveVvFileFromPve(settings);
+                        if (vvFileName != null) {
+                            initialize(vvFileName, settings, handler);
+                        }
+                    }
+                } catch (Throwable e) {
+                    if (stayConnected) {
+                        e.printStackTrace();
+                        android.util.Log.e(TAG, e.toString());
+                        
+                        if (e instanceof OutOfMemoryError) {
+                            disposeDrawable ();
+                            disconnectAndShowMessage(R.string.error_out_of_memory, R.string.error_dialog_title);
+                        }
+                    }
+                }
+            }
+        };
+        cThread.start();
+    }
+
+    
     
 	/**
 	 * Initialize the canvas to show the remote desktop
 	 */
-	void initialize(final ConnectionSettings settings) {
+	void initialize(final ConnectionSettings settings, final RemoteCanvasActivityHandler handler) {
         checkNetworkConnectivity();
         initializeClipboardMonitor();
 		this.settings = settings;
-        progressDialog.show();
+        if (!progressDialog.isShowing())
+            progressDialog.show();
+        this.handler = handler;
 
 		Thread cThread = new Thread () {
 			@Override
@@ -358,7 +516,12 @@ public class RemoteCanvas extends ImageView implements SelectTextElementFragment
 							} else {
 								while (settings.getVmname().equals("")) {
 									android.util.Log.i (TAG, "Displaying a dialog with VMs to the user.");
-									handler.sendEmptyMessage(Constants.DIALOG_DISPLAY_VMS);
+									// Populate the data structure that is used to convert VM names to IDs.
+                                    for (String s : vmNames) {
+                                        vmNameToId.put(s, s);
+                                    }
+			                        handler.sendMessage(RemoteCanvasActivityHandler.getMessageStringList(Constants.DIALOG_DISPLAY_VMS,
+			                                                                                             "vms", vmNames));
 									synchronized(spicecomm) {
 										spicecomm.wait();
 									}
@@ -821,25 +984,6 @@ public class RemoteCanvas extends ImageView implements SelectTextElementFragment
         }
         return bic;
     }
-
-	@Override
-	public void onTextSelected(String selectedString) {
-        progressDialog.show();
-		settings.setVmname(selectedString);
-		settings.saveToSharedPreferences(getContext());
-		synchronized (spicecomm) {
-			spicecomm.notify();
-		}
-	}
-	
-	@Override
-	public void onTextObtained(String obtainedString) {
-        progressDialog.show();
-		settings.setPassword(obtainedString);
-		synchronized (spicecomm) {
-			spicecomm.notify();
-		}
-	}
 	
     /**
      * Used to wait until getWidth and getHeight return sane values.

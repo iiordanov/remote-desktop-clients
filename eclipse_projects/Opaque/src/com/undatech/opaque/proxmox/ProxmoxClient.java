@@ -2,13 +2,16 @@ package com.undatech.opaque.proxmox;
 
 import android.R.bool;
 import android.R.integer;
+import android.os.Handler;
 
+import com.undatech.opaque.ConnectionSettings;
 import com.undatech.opaque.proxmox.pojo.*;
 import java.io.IOException;
 import java.lang.reflect.Array;
 import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 import javax.security.auth.login.LoginException;
 
@@ -19,6 +22,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class ProxmoxClient extends RestClient {
+    private static final String TAG = "RestClient";
     private String baseUrl;
     private String ticket;
     private String csrfToken;
@@ -34,10 +38,18 @@ public class ProxmoxClient extends RestClient {
      * @throws HttpException
      * @throws LoginException 
      */
-    public ProxmoxClient(String hostname, String user, String realm, String password)
+    public ProxmoxClient(String hostname, String user, String realm, String password, ConnectionSettings connection, Handler handler)
             throws JSONException, IOException, HttpException, LoginException {
-        super();
+        super(connection, handler);
         this.baseUrl = "https://" + hostname + ":8006/api2/json";
+
+        // Ensure we have let the user approve the certificate
+        //if (connection.getOvirtCaData().isEmpty()) {
+        //    android.util.Log.i(TAG, "Connecting over SSL to get the certificate.");
+        //    resetState(baseUrl);
+        //    execute(RestClient.RequestMethod.GET);
+        //}
+        
         resetState(baseUrl + "/access/ticket");
 
         addParam("username", user);
@@ -203,12 +215,15 @@ public class ProxmoxClient extends RestClient {
      * @throws IOException
      * @throws HttpException
      */
-    public ArrayList<PveResource> getResources() throws LoginException, JSONException, IOException, HttpException {
+    public Map<String, PveResource> getResources() throws LoginException, JSONException, IOException, HttpException {
         JSONObject jObj = request("/cluster/resources", RestClient.RequestMethod.GET, null);
         JSONArray jArr = jObj.getJSONArray("data");
-        ArrayList<PveResource> result = new ArrayList<PveResource>(); 
+        HashMap<String, PveResource> result = new HashMap<String, PveResource>(); 
         for (int i = 0; i < jArr.length(); i++) {
-            result.add(new PveResource(jArr.getJSONObject(i)));
+            PveResource r = new PveResource(jArr.getJSONObject(i));
+            if (r.getName() != null && r.getNode() != null && r.getType() != null && r.getVmid() != null) {
+                result.put(r.getNode() + "/" + r.getType() + "/" + r.getVmid(), r);
+            }
         }
         return result;
     }

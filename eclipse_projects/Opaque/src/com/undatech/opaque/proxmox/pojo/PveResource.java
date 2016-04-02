@@ -15,6 +15,7 @@ public class PveResource {
     private String node;
     private String type;
     private String id;
+    private String vmid;
     private String name;
 
     public PveResource(JSONObject data) throws JSONException {
@@ -24,6 +25,8 @@ public class PveResource {
             type = data.getString("type");
         if (!data.isNull("id"))
             id = data.getString("id");
+        if (!data.isNull("vmid"))
+            vmid = data.getString("vmid");
         if (!data.isNull("name"))
             name = data.getString("name");
     }
@@ -50,6 +53,14 @@ public class PveResource {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public String getVmid() {
+        return vmid;
+    }
+
+    public void setVmid(String vmid) {
+        this.vmid = vmid;
     }
 
     public String getName() {

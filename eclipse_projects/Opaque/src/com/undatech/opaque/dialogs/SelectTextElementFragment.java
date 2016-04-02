@@ -18,7 +18,7 @@
  */
 
 
-package com.undatech.opaque;
+package com.undatech.opaque.dialogs;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -72,7 +72,7 @@ public class SelectTextElementFragment extends DialogFragment {
 		this.dismissalListener = dismissalListener;
 	}
     
-    static SelectTextElementFragment newInstance(String title, ArrayList<String> strings, OnFragmentDismissedListener dismissalListener) {
+    public static SelectTextElementFragment newInstance(String title, ArrayList<String> strings, OnFragmentDismissedListener dismissalListener) {
     	android.util.Log.e(TAG, "newInstance called");
     	SelectTextElementFragment f = new SelectTextElementFragment(dismissalListener);
 

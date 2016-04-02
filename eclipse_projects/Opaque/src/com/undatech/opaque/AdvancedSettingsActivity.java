@@ -27,6 +27,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.undatech.opaque.R;
+import com.undatech.opaque.dialogs.ManageCustomCaFragment;
 
 import android.app.Activity;
 import android.app.DialogFragment;

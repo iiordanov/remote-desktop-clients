@@ -1,6 +1,7 @@
 package com.undatech.opaque.proxmox;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -12,8 +13,11 @@ import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.security.PublicKey;
 import java.security.UnrecoverableKeyException;
+import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 
@@ -40,6 +44,13 @@ import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HTTP;
 
+import com.undatech.opaque.ConnectionSettings;
+import com.undatech.opaque.Constants;
+
+import android.os.Handler;
+import android.os.Message;
+import android.util.Base64;
+
 // Examples taken from:
 // http://lukencode.com/2010/04/27/calling-web-services-in-android-using-httpclient
 public class RestClient {
@@ -51,6 +62,9 @@ public class RestClient {
     private String message;
 
     private String response;
+    
+    private ConnectionSettings connection;
+    private Handler handler;
 
     private String url;
     private static HttpClient client = new DefaultHttpClient();
@@ -61,20 +75,52 @@ public class RestClient {
     }
 
     public class MySSLSocketFactory extends SSLSocketFactory {
+        Certificate cert = null;
         SSLContext sslContext = SSLContext.getInstance("TLS");
 
-        public MySSLSocketFactory(KeyStore truststore)
+        public MySSLSocketFactory(KeyStore truststore, String certString, final Handler h)
                 throws NoSuchAlgorithmException, KeyManagementException,
-                KeyStoreException, UnrecoverableKeyException {
+                KeyStoreException, UnrecoverableKeyException, CertificateException {
             super(truststore);
-
+            if (certString != null && !certString.equals("")) {
+                ByteArrayInputStream in = new ByteArrayInputStream(Base64.decode(certString, Base64.DEFAULT));
+                CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
+                cert = (X509Certificate)certFactory.generateCertificate(in);
+            }
+            
             TrustManager tm = new X509TrustManager() {
-                public void checkClientTrusted(X509Certificate[] chain,
-                        String authType) throws CertificateException {
-                }
+                public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException { }
 
-                public void checkServerTrusted(X509Certificate[] chain,
-                        String authType) throws CertificateException {
+                public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+                    
+                    if (cert == null) {
+                        synchronized (h) {
+                            // Send a message containing the certificate to our handler.
+                            Message m = new Message();
+                            m.setTarget(h);
+                            m.what = Constants.DIALOG_X509_CERT;
+                            m.obj = chain[0];
+                            h.sendMessage(m);
+                            // Block indefinitely until the x509 cert is accepted.
+                            while (connection.getOvirtCaData().isEmpty()) {
+                                try {
+                                    h.wait();
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
+                                    throw new CertificateException ("The x509 cert was not accepted.");
+                                }
+                            }
+                        }
+                    } else {
+                        try {
+                            PublicKey publicKey = cert.getPublicKey ();
+                            chain[0].verify (publicKey);
+                          } catch (Exception e) {}
+                          
+                          if (!cert.equals (chain[0])) {
+                              throw new CertificateException ("The x509 cert does not match.");
+                          }
+                    }
                 }
 
                 public X509Certificate[] getAcceptedIssuers() {
@@ -110,17 +156,19 @@ public class RestClient {
         return responseCode;
     }
 
-    public RestClient () {}
+    public RestClient(ConnectionSettings connection, Handler handler) {
+        this.connection = connection;
+        this.handler = handler;
+    }
 
     public void resetState(String url) {
         this.url = url;
         try {
-            KeyStore trustStore = KeyStore.getInstance(KeyStore
-                    .getDefaultType());
+            KeyStore trustStore = KeyStore.getInstance(KeyStore.getDefaultType());
             trustStore.load(null, null);
 
             // TODO: Make it an option whether to trust all certificates.
-            MySSLSocketFactory sslsf = new MySSLSocketFactory(trustStore);
+            MySSLSocketFactory sslsf = new MySSLSocketFactory(trustStore, connection.getOvirtCaData().trim(), handler);
 
             Scheme https = new Scheme("https", sslsf, 8006);
             client.getConnectionManager().getSchemeRegistry().register(https);
@@ -189,9 +237,9 @@ public class RestClient {
 
         HttpParams params = client.getParams();
 
-        // Setting 30 second timeouts
-        HttpConnectionParams.setConnectionTimeout(params, 30 * 1000);
-        HttpConnectionParams.setSoTimeout(params, 30 * 1000);
+        // Setting 60 second timeouts
+        HttpConnectionParams.setConnectionTimeout(params, 60 * 1000);
+        HttpConnectionParams.setSoTimeout(params, 60 * 1000);
 
         HttpResponse httpResponse;
 

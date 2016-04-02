@@ -32,6 +32,7 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -47,6 +48,8 @@ import org.json.JSONException;
 import com.gstreamer.GStreamer;
 import com.iiordanov.android.zoomer.ZoomControls;
 import com.undatech.opaque.R;
+import com.undatech.opaque.dialogs.GetTextFragment;
+import com.undatech.opaque.dialogs.SelectTextElementFragment;
 import com.undatech.opaque.input.*;
 
 import android.app.Activity;
@@ -93,7 +96,9 @@ import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 
-public class RemoteCanvasActivity extends FragmentActivity implements OnKeyListener {   
+public class RemoteCanvasActivity extends FragmentActivity implements OnKeyListener,
+                                                                      SelectTextElementFragment.OnFragmentDismissedListener,
+                                                                      GetTextFragment.OnFragmentDismissedListener {
 	private final static String TAG = "RemoteCanvasActivity";
 	
 	public RemoteCanvas canvas;
@@ -104,7 +109,7 @@ public class RemoteCanvasActivity extends FragmentActivity implements OnKeyListe
 	private ConnectionSettings connection;
 	
 	ZoomControls kbdIcon;
-	Handler handler;
+	RemoteCanvasActivityHandler handler;
 	
     private Vibrator myVibrator;
 	
@@ -140,8 +145,6 @@ public class RemoteCanvasActivity extends FragmentActivity implements OnKeyListe
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                              WindowManager.LayoutParams.FLAG_FULLSCREEN);
         
-        handler = new RemoteCanvasActivityHandler(this);
-        
         setContentView(R.layout.canvas);
         canvas = (RemoteCanvas) findViewById(R.id.canvas);
         
@@ -154,14 +157,12 @@ public class RemoteCanvasActivity extends FragmentActivity implements OnKeyListe
         if (vvFileName == null) {
             android.util.Log.d(TAG, "Initializing session from connection settings.");
             connection = (ConnectionSettings)i.getSerializableExtra("com.undatech.opaque.ConnectionSettings");
+            handler = new RemoteCanvasActivityHandler(this, canvas, connection);
             
             if (connection.getConnectionType().equals(getResources().getString(R.string.connection_type_pve))) {
-                vvFileName = retrieveVvFileFromPve(connection);
-                if (vvFileName != null) {
-                    canvas.initialize(vvFileName, connection);
-                }
+                canvas.initializePve(connection, handler);
             } else {
-                canvas.initialize(connection);
+                canvas.initialize(connection, handler);
             }
         } else {
             android.util.Log.d(TAG, "Initializing session from vv file: " + vvFileName);
@@ -173,7 +174,8 @@ public class RemoteCanvasActivity extends FragmentActivity implements OnKeyListe
             }
             connection = new ConnectionSettings(Constants.DEFAULT_SETTINGS_FILE);
             connection.loadFromSharedPreferences(getApplicationContext());
-            canvas.initialize(vvFileName, connection);
+            handler = new RemoteCanvasActivityHandler(this, canvas, connection);
+            canvas.initialize(vvFileName, connection, handler);
         }
         
         // If we still don't have settings after this, we cannot continue.
@@ -387,111 +389,6 @@ public class RemoteCanvasActivity extends FragmentActivity implements OnKeyListe
 	
     private void deleteMyFile (String path) {
         new File(path).delete();
-    }
-    
-    /**
-     * Initialize the canvas to show the remote desktop
-     * @return 
-     */
-    // TODO: Switch away from writing out a file to initiating a connection directly.
-    String retrieveVvFileFromPve(final ConnectionSettings settings) {
-        android.util.Log.i(TAG, String.format("Trying to connect to PVE host: " + settings.getHostname()));
-        final String tempVvFile = getFilesDir() + "/tempfile.vv";
-        deleteMyFile(tempVvFile);
-
-        // TODO: Improve error handling.
-        Thread cThread = new Thread () {
-            @Override
-            public void run() {
-                try {
-                    String user = settings.getUser();
-                    String realm = Constants.PVE_DEFAULT_REALM;
-                    
-                    // Try to parse credentials.
-                    int indexOfAt = settings.getUser().indexOf('@');
-                    if (indexOfAt != -1) {
-                        realm = user.substring(indexOfAt+1);
-                        user = user.substring(0, indexOfAt);
-                    }
-                    
-                    // Login with provided credentials
-                    ProxmoxClient api = new ProxmoxClient(settings.getHostname(), user, realm, settings.getPassword());
-                    
-                    // Parse out node, virtualization type and VM ID
-                    String node = Constants.PVE_DEFAULT_NODE;
-                    String virt = Constants.PVE_DEFAULT_VIRTUALIZATION;
-                    String vmname = settings.getVmname();
-                    
-                    int indexOfFirstSlash = settings.getVmname().indexOf('/');
-                    if (indexOfFirstSlash != -1) {
-                        // If we find at least one slash, then we need to parse out node for sure.
-                        node = vmname.substring(0, indexOfFirstSlash);
-                        vmname = vmname.substring(indexOfFirstSlash+1);
-                        int indexOfSecondSlash = vmname.indexOf('/');
-                        if (indexOfSecondSlash != -1) {
-                            // If we find a second slash, we need to parse out virtualization type and vmname after node.
-                            virt = vmname.substring(0, indexOfSecondSlash);
-                            vmname = vmname.substring(indexOfSecondSlash+1);
-                        }
-                    }
-                    
-                    VmStatus status = api.getCurrentStatus(node, virt, Integer.parseInt(vmname));
-                    if (status.getStatus().equals(VmStatus.STOPPED)) {
-                        api.startVm(node, virt, Integer.parseInt(vmname));
-                        while (!status.getStatus().equals(VmStatus.RUNNING)) {
-                            status = api.getCurrentStatus(node, virt, Integer.parseInt(vmname));
-                            SystemClock.sleep(500);
-                        }
-                    }
-                    SpiceDisplay spiceData = api.spiceVm(node, virt, Integer.parseInt(vmname));
-                    if (spiceData != null) {
-                        spiceData.outputToFile(tempVvFile, connection.getHostname());
-                    } else {
-                        android.util.Log.e(TAG, "PVE returned null data for display.");
-                        handler.sendEmptyMessage(Constants.PVE_NULL_DATA);
-                    }
-                } catch (LoginException e) {
-                    android.util.Log.e(TAG, "Failed to login to PVE.");
-                    handler.sendEmptyMessage(Constants.PVE_FAILED_TO_AUTHENTICATE);
-                } catch (JSONException e) {
-                    android.util.Log.e(TAG, "Failed to parse json from PVE.");
-                    handler.sendEmptyMessage(Constants.PVE_FAILED_TO_PARSE_JSON);
-                } catch (NumberFormatException e) {
-                    android.util.Log.e(TAG, "Error converting PVE ID to integer.");
-                    handler.sendEmptyMessage(Constants.PVE_VMID_NOT_NUMERIC);
-                }  catch (IOException e) {
-                    android.util.Log.e(TAG, "IO Error communicating with PVE API: " + e.getMessage());
-                    handler.sendMessage(MessageDialogs.prepareMessageWithString(Constants.PVE_API_IO_ERROR,
-                                        "error", e.getMessage()));
-                    e.printStackTrace();
-                } catch (HttpException e) {
-                    android.util.Log.e(TAG, "PVE API returned error code: " + e.getMessage());
-                    handler.sendMessage(MessageDialogs.prepareMessageWithString(Constants.PVE_API_UNEXPECTED_CODE,
-                                        "error", e.getMessage()));
-                }
-                // At this stage we have either retrieved display data or failed, so permit the UI thread to continue.
-                synchronized(tempVvFile) {
-                    tempVvFile.notify();
-                }
-            }
-        };
-        cThread.start();
-        
-        // Wait until a timeout or until we are notified the worker thread trying to retrieve display data is done.
-        synchronized (tempVvFile) {
-            try {
-                tempVvFile.wait();
-            } catch (InterruptedException e) {
-                handler.sendEmptyMessage(Constants.PVE_TIMEOUT_COMMUNICATING);
-                e.printStackTrace();
-            }
-        }
-        
-        File checkFile = new File(tempVvFile);
-        if (!checkFile.exists() || checkFile.length() == 0) {
-            return null;
-        }
-        return tempVvFile;
     }
     
 	
@@ -1158,4 +1055,24 @@ public class RemoteCanvasActivity extends FragmentActivity implements OnKeyListe
 		}
 		return super.onOptionsItemSelected(menuItem);
 	}
+
+    @Override
+    public void onTextSelected(String selectedString) {
+        canvas.progressDialog.show();
+        connection.setVmname(canvas.vmNameToId.get(selectedString));
+        connection.saveToSharedPreferences(this);
+        synchronized (canvas.spicecomm) {
+            canvas.spicecomm.notify();
+        }
+    }
+    
+    @Override
+    public void onTextObtained(String obtainedString) {
+        canvas.progressDialog.show();
+        connection.setPassword(obtainedString);
+        synchronized (canvas.spicecomm) {
+            canvas.spicecomm.notify();
+        }
+    }
+    
 }

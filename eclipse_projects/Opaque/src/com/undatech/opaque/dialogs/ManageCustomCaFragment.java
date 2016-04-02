@@ -18,7 +18,7 @@
  */
 
 
-package com.undatech.opaque;
+package com.undatech.opaque.dialogs;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -26,6 +26,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 
+import com.undatech.opaque.ConnectionSettings;
 import com.undatech.opaque.R;
 
 import android.app.Activity;
@@ -62,7 +63,13 @@ public class ManageCustomCaFragment extends DialogFragment {
 	private Button importButton;
 	private Button helpButton;
     
-    static ManageCustomCaFragment newInstance(int caPurpose, ConnectionSettings currentConnection) {
+	public ManageCustomCaFragment () {}
+	
+    public void setOnFragmentDismissedListener (OnFragmentDismissedListener dismissalListener) {
+        this.dismissalListener = dismissalListener;
+    }
+	
+    public static ManageCustomCaFragment newInstance(int caPurpose, ConnectionSettings currentConnection) {
     	ManageCustomCaFragment f = new ManageCustomCaFragment();
 
         // Supply the CA purpose as an argument.
