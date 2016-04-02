@@ -1,16 +1,20 @@
 package com.undatech.opaque.proxmox;
 
 import android.R.bool;
+import android.R.integer;
 
 import com.undatech.opaque.proxmox.pojo.*;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.net.HttpURLConnection;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Map;
 import javax.security.auth.login.LoginException;
 
 import org.apache.http.HttpException;
 import org.apache.http.conn.HttpHostConnectException;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -180,7 +184,7 @@ public class ProxmoxClient extends RestClient {
      * @param node the name of the PVE node
      * @param type of VM, one of qemu, lxc, or openvz (deprecated)
      * @param vmid the numeric VM ID
-     * @return status string
+     * @return status of VM
      * @throws LoginException
      * @throws JSONException
      * @throws IOException
@@ -189,5 +193,23 @@ public class ProxmoxClient extends RestClient {
     public VmStatus getCurrentStatus(String node, String type, int vmid) throws LoginException, JSONException, IOException, HttpException {
         JSONObject jObj = request("/nodes/" + node + "/" + type + "/" + vmid + "/status/current", RestClient.RequestMethod.GET, null);
         return new VmStatus(jObj.getJSONObject("data"));
+    }
+    
+    /**
+     * Shows what resources are currently available on the PVE cluster
+     * @return object representing resources available
+     * @throws LoginException
+     * @throws JSONException
+     * @throws IOException
+     * @throws HttpException
+     */
+    public ArrayList<PveResource> getResources() throws LoginException, JSONException, IOException, HttpException {
+        JSONObject jObj = request("/cluster/resources", RestClient.RequestMethod.GET, null);
+        JSONArray jArr = jObj.getJSONArray("data");
+        ArrayList<PveResource> result = new ArrayList<PveResource>(); 
+        for (int i = 0; i < jArr.length(); i++) {
+            result.add(new PveResource(jArr.getJSONObject(i)));
+        }
+        return result;
     }
 }

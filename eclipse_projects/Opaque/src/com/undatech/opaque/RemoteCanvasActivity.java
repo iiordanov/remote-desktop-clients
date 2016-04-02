@@ -480,7 +480,7 @@ public class RemoteCanvasActivity extends FragmentActivity implements OnKeyListe
         // Wait until a timeout or until we are notified the worker thread trying to retrieve display data is done.
         synchronized (tempVvFile) {
             try {
-                tempVvFile.wait(Constants.VV_GET_FILE_TIMEOUT);
+                tempVvFile.wait();
             } catch (InterruptedException e) {
                 handler.sendEmptyMessage(Constants.PVE_TIMEOUT_COMMUNICATING);
                 e.printStackTrace();
