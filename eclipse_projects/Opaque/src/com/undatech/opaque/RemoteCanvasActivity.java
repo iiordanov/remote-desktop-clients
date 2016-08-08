@@ -265,6 +265,12 @@ public class RemoteCanvasActivity extends FragmentActivity implements OnKeyListe
 				inputMgr.toggleSoftInput(0, 0);
 			}
 		});
+        kbdIcon.setOnShowMenuClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                RemoteCanvasActivity.this.openOptionsMenu();
+            }
+        });
 		
 		// Initialize and define actions for on-screen keys.
 		initializeOnScreenKeys ();

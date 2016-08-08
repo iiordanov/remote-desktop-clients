@@ -205,10 +205,11 @@ public class RemoteCanvas extends ImageView {
      * Initialize the canvas to show the remote desktop
      */
     void initialize(final String vvFileName, final ConnectionSettings settings, final RemoteCanvasActivityHandler handler) {
-        checkNetworkConnectivity();
-        initializeClipboardMonitor();
         this.settings = settings;
         this.handler = handler;
+        
+        checkNetworkConnectivity();
+        initializeClipboardMonitor();
         
         Thread cThread = new Thread () {
             @Override
@@ -348,13 +349,13 @@ public class RemoteCanvas extends ImageView {
      * Initialize the canvas to show the remote desktop
      */
     void initializePve(final ConnectionSettings settings, final RemoteCanvasActivityHandler handler) {
-        checkNetworkConnectivity();
-        initializeClipboardMonitor();
         this.settings = settings;
         if (!progressDialog.isShowing())
             progressDialog.show();
         this.handler = handler;
-
+        checkNetworkConnectivity();
+        initializeClipboardMonitor();
+        
         Thread cThread = new Thread () {
             @Override
             public void run() {
@@ -466,13 +467,13 @@ public class RemoteCanvas extends ImageView {
 	 * Initialize the canvas to show the remote desktop
 	 */
 	void initialize(final ConnectionSettings settings, final RemoteCanvasActivityHandler handler) {
-        checkNetworkConnectivity();
-        initializeClipboardMonitor();
-		this.settings = settings;
+        this.settings = settings;
         if (!progressDialog.isShowing())
             progressDialog.show();
         this.handler = handler;
-
+        checkNetworkConnectivity();
+        initializeClipboardMonitor();
+        
 		Thread cThread = new Thread () {
 			@Override
 			public void run() {
