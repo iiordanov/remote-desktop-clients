@@ -31,6 +31,8 @@
 package com.iiordanov.bVNC;
 
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.net.Socket;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -430,7 +432,9 @@ public class RemoteCanvas extends ImageView implements LibFreeRDP.UIEventListene
         } catch (AnonCipherUnsupportedException e) {
             showFatalMessageAndQuit (getContext().getString(R.string.error_anon_dh_unsupported));
         } catch (Exception e) {
-            throw new Exception (getContext().getString(R.string.error_vnc_unable_to_connect) + e.getStackTrace().toString() + e.getLocalizedMessage());
+            e.printStackTrace();
+            throw new Exception (getContext().getString(R.string.error_vnc_unable_to_connect) +
+                                 Utils.messageAndStackTraceAsString(e));
         }
         
         rfbconn = rfb;

@@ -18,7 +18,7 @@
 <string name="arrow_right">Right Arrow</string>
 <string name="arrow_up">Up Arrow</string>
 <string name="auto">Auto</string>
-<string name="auto_x_caption">EXPERIMENTAL: bVNC can automatically discover existing and create new X sessions on UNIX systems (like NX). You need x11vnc to find, and Xvfb, Xvnc, or Xdummy to create sessions.</string>
+<string name="auto_x_caption">bVNC can automatically discover existing and create new X sessions on Linux/UNIX systems (similar to NX). You need x11vnc to find, and Xvfb, Xvnc, or Xdummy to create sessions. If you have trouble connecting, try selecting a specific Remote Session Type in the AutoX Advanced Settings.</string>
 <string name="auto_x_cancel">Cancel</string>
 <string name="auto_x_confirm">Confirm</string>
 <string name="auto_x_descript_geom">Remote Desktop Size (WxH)</string>

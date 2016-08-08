@@ -26,7 +26,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.io.Reader;
+import java.io.StringWriter;
 import java.io.Writer;
 import java.lang.reflect.Field;
 import java.net.Inet6Address;
@@ -210,5 +212,16 @@ public class Utils {
         } catch (final UnknownHostException ex) {
             return false;
         }
+    }
+    
+    public static String messageAndStackTraceAsString (Exception e) {
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+        e.printStackTrace(pw);
+        String localizedMessage = e.getLocalizedMessage();
+        if (localizedMessage == null)
+            localizedMessage = "";
+            
+        return "\n" + localizedMessage + "\n" + sw.toString();
     }
 }
