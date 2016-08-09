@@ -73,6 +73,7 @@ import android.os.Message;
 import android.os.SystemClock;
 import android.os.Vibrator;
 import android.provider.MediaStore;
+import android.provider.OpenableColumns;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.inputmethod.InputMethodManager;
@@ -315,76 +316,9 @@ public class RemoteCanvasActivity extends FragmentActivity implements OnKeyListe
         if (data != null) {
             android.util.Log.d(TAG, "Got data: " + data.toString());
             final String dataString = data.toString();
-            if (dataString.startsWith("http")) {
-                android.util.Log.d(TAG, "Intent is with http scheme.");
-                final String tempVvFile = getFilesDir() + "/tempfile.vv";
-                deleteMyFile(tempVvFile);
-                
-                vvFileName = tempVvFile;
-                // Spin up a thread to grab the file over the network.
-                boolean errorDownloading = false;
-                Thread t = new Thread () {
-                    @Override
-                    public void run () {
-                        try {
-                            // Download the file and write it out.
-                            URL url = new URL (data.toString());
-                            File file = new File(tempVvFile);
-                            
-                            URLConnection ucon = url.openConnection();
-                            InputStream is = ucon.getInputStream();
-                            BufferedInputStream bis = new BufferedInputStream(is);
-                            ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-                            
-                            byte[] data = new byte[Constants.URL_BUFFER_SIZE];
-                            int current = 0;
-                            
-                            while((current = bis.read(data, 0, data.length)) != -1){
-                                buffer.write(data,0,current);
-                            }
-                            
-                            FileOutputStream fos = new FileOutputStream(file);
-                            fos.write(buffer.toByteArray());
-                            fos.close();
-                            
-                            synchronized(RemoteCanvasActivity.this) {
-                                RemoteCanvasActivity.this.notify();
-                            }
-                        } catch (IOException e) {
-                            int what = Constants.VV_OVER_HTTP_FAILURE;
-                            if (dataString.startsWith("https")) {
-                                what = Constants.VV_OVER_HTTPS_FAILURE;
-                            }
-                            // Quit with an error we could not download the .vv file.
-                            handler.sendEmptyMessage(what);
-                        }
-                    }
-                };
-                t.start();
-                
-                synchronized (this) {
-                    try {
-                        this.wait(Constants.VV_GET_FILE_TIMEOUT);
-                    } catch (InterruptedException e) {
-                        vvFileName = null;
-                        e.printStackTrace();
-                    }
-                }
-            } else if (dataString.startsWith("file")) {
+            if (dataString.startsWith("file")) {
                 android.util.Log.d(TAG, "Intent is with file scheme.");
                 vvFileName = data.getPath();
-            } else if (dataString.startsWith("content")) {
-                android.util.Log.d(TAG, "Intent is with content scheme.");
-                
-                String[] projection = {MediaStore.MediaColumns.DATA};
-                ContentResolver resolver = getApplicationContext().getContentResolver();
-                Cursor cursor = resolver.query(data, projection, null, null, null);
-                if (cursor != null) {
-                    if (cursor.moveToFirst()) {
-                        vvFileName = cursor.getString(0);
-                    }
-                    cursor.close();
-                }
             }
             
             android.util.Log.d(TAG, "Got filename: " + vvFileName);
