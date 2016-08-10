@@ -12,7 +12,7 @@
 			<arguments>
 				<dictionary>
 					<key>?children?</key>
-					<value>?children?=?name?=entry\\\\\\\|\\\|?name?=entry\\\\\\\|\\\|\|?name?=outputEntries\||</value>
+					<value>?name?=outputEntries\|?children?=?name?=entry\\\\\\\|\\\|?name?=entry\\\\\\\|\\\|\||</value>
 				</dictionary>
 				<dictionary>
 					<key>?name?</key>

@@ -21,9 +21,9 @@
 
 #include <gst/gst.h>
 #include <gst/app/gstappsrc.h>
-#include <gst/app/gstappbuffer.h>
+//#include <gst/app/gstappbuffer.h>
 #include <gst/app/gstappsink.h>
-#include <gst/interfaces/streamvolume.h>
+#include <gst/audio/streamvolume.h>
 
 #include "spice-gstaudio.h"
 #include "spice-common.h"
@@ -156,18 +156,26 @@ static gboolean record_bus_cb(GstBus *bus, GstMessage *msg, gpointer data)
     switch (GST_MESSAGE_TYPE(msg)) {
     case GST_MESSAGE_APPLICATION: {
         GstBuffer *b;
-
-        b = gst_app_sink_pull_buffer(GST_APP_SINK(p->record.sink));
+        GstSample *s;
+        s = gst_app_sink_pull_sample (GST_APP_SINK(p->record.sink));
+        b = gst_sample_get_buffer (s);
+        //b = gst_app_sink_pull_buffer(GST_APP_SINK(p->record.sink));
         if (!b) {
             if (!gst_app_sink_is_eos(GST_APP_SINK(p->record.sink)))
                 g_warning("eos not reached, but can't pull new buffer");
             return TRUE;
         }
 
-        spice_record_send_data(SPICE_RECORD_CHANNEL(p->rchannel),
-                               /* FIXME: server side doesn't care about ts?
-                                  what is the unit? ms apparently */
-                               GST_BUFFER_DATA(b), GST_BUFFER_SIZE(b), 0);
+        GstMapInfo map;
+
+        if (gst_buffer_map (b, &map, GST_MAP_READ)) {
+            spice_record_send_data(SPICE_RECORD_CHANNEL(p->rchannel),
+                                   /* FIXME: server side doesn't care about ts?
+                                      what is the unit? ms apparently */
+                                   map.data, map.size, 0);
+            gst_buffer_unmap (b, &map);
+        }
+
         break;
     }
     default:
@@ -355,7 +363,7 @@ static void playback_data(SpicePlaybackChannel *channel,
     g_return_if_fail(p != NULL);
 
     audio = g_memdup(audio, size); /* TODO: try to avoid memory copy */
-    buf = gst_app_buffer_new(audio, size, g_free, audio);
+    buf = gst_buffer_new_wrapped(audio, size);
     gst_app_src_push_buffer(GST_APP_SRC(p->playback.src), buf);
 }
 

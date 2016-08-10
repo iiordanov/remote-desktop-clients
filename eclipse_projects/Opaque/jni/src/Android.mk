@@ -6,6 +6,7 @@ LIB_PATH := $(LOCAL_PATH)/../../libs/armeabi
 
 SPICE_CLIENT_ANDROID_DEPS   := $(LOCAL_PATH)/../libs/deps
 
+GSTREAMER_ROOT := /opt/gstreamer
 CROSS_DIR  := /opt/gstreamer
 spice_objs := \
     $(SPICE_CLIENT_ANDROID_DEPS)/lib/libssl.a \
@@ -91,6 +92,6 @@ GSTREAMER_NDK_BUILD_PATH  := $(GSTREAMER_SDK_ROOT)/share/gst-android/ndk-build/
 include $(GSTREAMER_NDK_BUILD_PATH)/plugins.mk
 GSTREAMER_PLUGINS         := $(GSTREAMER_PLUGINS_CORE) $(GSTREAMER_PLUGINS_SYS)
 G_IO_MODULES              := gnutls
-GSTREAMER_EXTRA_DEPS      := pixman-1 gstreamer-app-0.10 libsoup-2.4 libxml-2.0 gthread-2.0 gobject-2.0
+GSTREAMER_EXTRA_DEPS      := pixman-1 gstreamer-app-1.0 libsoup-2.4 libxml-2.0 gthread-2.0 gobject-2.0 glib-2.0
 
-include $(GSTREAMER_NDK_BUILD_PATH)/gstreamer.mk
+include $(GSTREAMER_NDK_BUILD_PATH)/gstreamer-1.0.mk
