@@ -315,7 +315,7 @@ public class RemoteCanvasActivity extends FragmentActivity implements OnKeyListe
         int current = 0;
         
         while((current = bis.read(data, 0, data.length)) != -1){
-            buffer.write(data,0,current);
+            buffer.write(data, 0, current);
         }
         
         FileOutputStream fos = new FileOutputStream(file);
@@ -332,6 +332,7 @@ public class RemoteCanvasActivity extends FragmentActivity implements OnKeyListe
         final Uri data = i.getData();
         String vvFileName = null;
         final String tempVvFile = getFilesDir() + "/tempfile.vv";
+        int msgId = 0;
 
         android.util.Log.d(TAG, "Got intent: " + i.toString());
 
@@ -340,11 +341,10 @@ public class RemoteCanvasActivity extends FragmentActivity implements OnKeyListe
             final String dataString = data.toString();
             if (dataString.startsWith("http")) {
                 android.util.Log.d(TAG, "Intent is with http scheme.");
+                msgId = R.string.error_failed_to_download_vv_http;
                 deleteMyFile(tempVvFile);
                 
-                vvFileName = tempVvFile;
                 // Spin up a thread to grab the file over the network.
-                boolean errorDownloading = false;
                 Thread t = new Thread () {
                     @Override
                     public void run () {
@@ -378,12 +378,17 @@ public class RemoteCanvasActivity extends FragmentActivity implements OnKeyListe
                         vvFileName = null;
                         e.printStackTrace();
                     }
+                    vvFileName = tempVvFile;
                 }
             } else if (dataString.startsWith("file")) {
                 android.util.Log.d(TAG, "Intent is with file scheme.");
+                msgId = R.string.error_failed_to_obtain_vv_file;
                 vvFileName = data.getPath();
             } else if (dataString.startsWith("content")) {
                 android.util.Log.d(TAG, "Intent is with content scheme.");
+                msgId = R.string.error_failed_to_obtain_vv_content;
+                deleteMyFile(tempVvFile);
+                
                 try {
                     outputToFile(getContentResolver().openInputStream(data), new File(tempVvFile));
                     vvFileName = tempVvFile;
@@ -392,9 +397,11 @@ public class RemoteCanvasActivity extends FragmentActivity implements OnKeyListe
                     e.printStackTrace();
                 }
             }
+            
+            // Check if we were successful in obtaining a file and put up an error dialog if not.
             if (dataString.startsWith("http") || dataString.startsWith("file") || dataString.startsWith("content")) {
                 if (vvFileName == null)
-                    MessageDialogs.displayMessageAndFinish(this, R.string.error_failed_to_obtain_vv_content, R.string.error_dialog_title);
+                    MessageDialogs.displayMessageAndFinish(this, msgId, R.string.error_dialog_title);
             }
             android.util.Log.d(TAG, "Got filename: " + vvFileName);
         }
