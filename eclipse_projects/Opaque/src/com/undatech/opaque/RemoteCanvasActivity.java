@@ -26,6 +26,7 @@ import com.undatech.opaque.proxmox.pojo.*;
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -300,6 +301,27 @@ public class RemoteCanvasActivity extends FragmentActivity implements OnKeyListe
         startConnection();
     }
     
+    /**
+     * Outputs the given InputStream to a file.
+     * @param is
+     * @param file
+     * @throws IOException
+     */
+    void outputToFile (InputStream is, File file) throws IOException {
+        BufferedInputStream bis = new BufferedInputStream(is);
+        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+        
+        byte[] data = new byte[Constants.URL_BUFFER_SIZE];
+        int current = 0;
+        
+        while((current = bis.read(data, 0, data.length)) != -1){
+            buffer.write(data,0,current);
+        }
+        
+        FileOutputStream fos = new FileOutputStream(file);
+        fos.write(buffer.toByteArray());
+        fos.close();
+    }
     
     /**
      * Retrieves a vv file from the intent if possible and returns the path to it.
@@ -309,6 +331,7 @@ public class RemoteCanvasActivity extends FragmentActivity implements OnKeyListe
     private String retrieveVvFileFromIntent(Intent i) {
         final Uri data = i.getData();
         String vvFileName = null;
+        final String tempVvFile = getFilesDir() + "/tempfile.vv";
 
         android.util.Log.d(TAG, "Got intent: " + i.toString());
 
@@ -317,7 +340,6 @@ public class RemoteCanvasActivity extends FragmentActivity implements OnKeyListe
             final String dataString = data.toString();
             if (dataString.startsWith("http")) {
                 android.util.Log.d(TAG, "Intent is with http scheme.");
-                final String tempVvFile = getFilesDir() + "/tempfile.vv";
                 deleteMyFile(tempVvFile);
                 
                 vvFileName = tempVvFile;
@@ -332,20 +354,7 @@ public class RemoteCanvasActivity extends FragmentActivity implements OnKeyListe
                             File file = new File(tempVvFile);
                             
                             URLConnection ucon = url.openConnection();
-                            InputStream is = ucon.getInputStream();
-                            BufferedInputStream bis = new BufferedInputStream(is);
-                            ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-                            
-                            byte[] data = new byte[Constants.URL_BUFFER_SIZE];
-                            int current = 0;
-                            
-                            while((current = bis.read(data, 0, data.length)) != -1){
-                                buffer.write(data,0,current);
-                            }
-                            
-                            FileOutputStream fos = new FileOutputStream(file);
-                            fos.write(buffer.toByteArray());
-                            fos.close();
+                            outputToFile(ucon.getInputStream(), new File(tempVvFile));
                             
                             synchronized(RemoteCanvasActivity.this) {
                                 RemoteCanvasActivity.this.notify();
@@ -375,21 +384,21 @@ public class RemoteCanvasActivity extends FragmentActivity implements OnKeyListe
                 vvFileName = data.getPath();
             } else if (dataString.startsWith("content")) {
                 android.util.Log.d(TAG, "Intent is with content scheme.");
-                
-                String[] projection = {MediaStore.MediaColumns.DATA};
-                ContentResolver resolver = getApplicationContext().getContentResolver();
-                Cursor cursor = resolver.query(data, projection, null, null, null);
-                if (cursor != null) {
-                    if (cursor.moveToFirst()) {
-                        vvFileName = cursor.getString(0);
-                    }
-                    cursor.close();
+                try {
+                    outputToFile(getContentResolver().openInputStream(data), new File(tempVvFile));
+                    vvFileName = tempVvFile;
+                } catch (IOException e) {
+                    android.util.Log.e(TAG, "Could not write temp file out.");
+                    e.printStackTrace();
                 }
             }
-            
+            if (dataString.startsWith("http") || dataString.startsWith("file") || dataString.startsWith("content")) {
+                if (vvFileName == null)
+                    MessageDialogs.displayMessageAndFinish(this, R.string.error_failed_to_obtain_vv_content, R.string.error_dialog_title);
+            }
             android.util.Log.d(TAG, "Got filename: " + vvFileName);
         }
-        
+
         return vvFileName;
     }
 	
