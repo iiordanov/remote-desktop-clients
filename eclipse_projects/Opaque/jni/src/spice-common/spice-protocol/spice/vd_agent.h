@@ -77,6 +77,7 @@ enum {
     VD_AGENT_FILE_XFER_DATA,
     VD_AGENT_CLIENT_DISCONNECTED,
     VD_AGENT_MAX_CLIPBOARD,
+    VD_AGENT_AUDIO_VOLUME_SYNC,
     VD_AGENT_END_MESSAGE,
 };
 
@@ -206,6 +207,13 @@ typedef struct SPICE_ATTR_PACKED VDAgentMaxClipboard {
     int32_t max;
 } VDAgentMaxClipboard;
 
+typedef struct SPICE_ATTR_PACKED VDAgentAudioVolumeSync {
+    uint8_t is_playback;
+    uint8_t mute;
+    uint8_t nchannels;
+    uint16_t volume[0];
+} VDAgentAudioVolumeSync;
+
 enum {
     VD_AGENT_CAP_MOUSE_STATE = 0,
     VD_AGENT_CAP_MONITORS_CONFIG,
@@ -218,6 +226,7 @@ enum {
     VD_AGENT_CAP_GUEST_LINEEND_LF,
     VD_AGENT_CAP_GUEST_LINEEND_CRLF,
     VD_AGENT_CAP_MAX_CLIPBOARD,
+    VD_AGENT_CAP_AUDIO_VOLUME_SYNC,
     VD_AGENT_END_CAP,
 };
 

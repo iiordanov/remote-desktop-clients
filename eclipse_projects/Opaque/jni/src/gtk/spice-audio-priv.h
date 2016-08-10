@@ -29,7 +29,14 @@ struct _SpiceAudioPrivate {
     GMainContext            *main_context;
 };
 
+void spice_audio_get_playback_volume_info_async(SpiceAudio *audio, GCancellable *cancellable,
+        SpiceMainChannel *main_channel, GAsyncReadyCallback callback, gpointer user_data);
+gboolean spice_audio_get_playback_volume_info_finish(SpiceAudio *audio, GAsyncResult *res,
+        gboolean *mute, guint8 *nchannels, guint16 **volume, GError **error);
+void spice_audio_get_record_volume_info_async(SpiceAudio *audio, GCancellable *cancellable,
+        SpiceMainChannel *main_channel, GAsyncReadyCallback callback, gpointer user_data);
+gboolean spice_audio_get_record_volume_info_finish(SpiceAudio *audio, GAsyncResult *res,
+        gboolean *mute, guint8 *nchannels, guint16 **volume, GError **error);
 G_END_DECLS
 
 #endif /* __SPICE_AUDIO_PRIVATE_H__ */
-

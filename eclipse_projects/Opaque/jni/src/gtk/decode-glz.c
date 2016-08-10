@@ -15,6 +15,8 @@
    You should have received a copy of the GNU Lesser General Public
    License along with this library; if not, see <http://www.gnu.org/licenses/>.
 */
+#include "config.h"
+
 #include <stdio.h>
 #include <stdbool.h>
 #include <inttypes.h>
@@ -50,7 +52,7 @@ static struct glz_image *glz_image_new(struct glz_image_hdr *hdr,
 
     g_return_val_if_fail(type == LZ_IMAGE_TYPE_RGB32 || type == LZ_IMAGE_TYPE_RGBA, NULL);
 
-    img = spice_new0(struct glz_image, 1);
+    img = g_new0(struct glz_image, 1);
     img->hdr = *hdr;
     img->surface = alloc_lz_image_surface
         (opaque, type == LZ_IMAGE_TYPE_RGBA ? PIXMAN_a8r8g8b8 : PIXMAN_x8r8g8b8,
@@ -92,7 +94,7 @@ static void glz_decoder_window_resize(SpiceGlzDecoderWindow *w)
 
     SPICE_DEBUG("%s: array resize %d -> %d", __FUNCTION__,
                 w->nimages, w->nimages * 2);
-    new_images = spice_new0(struct glz_image*, w->nimages * 2);
+    new_images = g_new0(struct glz_image*, w->nimages * 2);
     for (i = 0; i < w->nimages; i++) {
         if (w->images[i] == NULL) {
             /*
@@ -438,13 +440,13 @@ void glz_decoder_window_clear(SpiceGlzDecoderWindow *w)
 
     w->nimages = 16;
     g_free(w->images);
-    w->images = spice_new0(struct glz_image*, w->nimages);
+    w->images = g_new0(struct glz_image*, w->nimages);
     w->tail_gap = 0;
 }
 
 SpiceGlzDecoderWindow *glz_decoder_window_new(void)
 {
-    SpiceGlzDecoderWindow *w = spice_new0(SpiceGlzDecoderWindow, 1);
+    SpiceGlzDecoderWindow *w = g_new0(SpiceGlzDecoderWindow, 1);
     glz_decoder_window_clear(w);
     return w;
 }
@@ -461,7 +463,7 @@ void glz_decoder_window_destroy(SpiceGlzDecoderWindow *w)
 
 SpiceGlzDecoder *glz_decoder_new(SpiceGlzDecoderWindow *w)
 {
-    GlibGlzDecoder *d = spice_new0(GlibGlzDecoder, 1);
+    GlibGlzDecoder *d = g_new0(GlibGlzDecoder, 1);
     d->base.ops = &glz_decoder_ops;
     d->window = w;
     return &d->base;

@@ -15,13 +15,12 @@
    You should have received a copy of the GNU Lesser General Public
    License along with this library; if not, see <http://www.gnu.org/licenses/>.
 */
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
+#include "config.h"
 
 #include <stdlib.h>
 #include <glib-object.h>
 #include <glib/gi18n.h>
+#include "glib-compat.h"
 #include "spice-session.h"
 #include "spice-util.h"
 #include "spice-channel-priv.h"
@@ -41,6 +40,7 @@ static gboolean disable_usbredir = FALSE;
 static gint cache_size = 0;
 static gint glz_window_size = 0;
 static gchar *secure_channels = NULL;
+static gchar *shared_dir = NULL;
 
 G_GNUC_NORETURN
 static void option_version(void)
@@ -192,6 +192,8 @@ GOptionGroup* spice_get_option_group(void)
           N_("Image cache size"), N_("<bytes>") },
         { "spice-glz-window-size", '\0', 0, G_OPTION_ARG_INT, &glz_window_size,
           N_("Glz compression history size"), N_("<bytes>") },
+        { "spice-shared-dir", '\0', 0, G_OPTION_ARG_FILENAME, &shared_dir,
+          N_("Shared directory"), N_("<dir>") },
 
         { "spice-debug", '\0', G_OPTION_FLAG_NO_ARG, G_OPTION_ARG_CALLBACK, option_debug,
           N_("Enable Spice-GTK debugging"), NULL },
@@ -222,7 +224,9 @@ void spice_set_session_option(SpiceSession *session)
         const char *homedir = g_getenv("HOME");
         if (!homedir)
             homedir = g_get_home_dir();
-        ca_file = g_strdup_printf("%s/.spicec/spice_truststore.pem", homedir);
+        ca_file = g_build_filename(homedir, ".spicec", "spice_truststore.pem", NULL);
+        if (!g_file_test(ca_file, G_FILE_TEST_IS_REGULAR))
+            g_clear_pointer(&ca_file, g_free);
     }
 
     if (disable_effects) {
@@ -275,4 +279,6 @@ void spice_set_session_option(SpiceSession *session)
         g_object_set(session, "cache-size", cache_size, NULL);
     if (glz_window_size)
         g_object_set(session, "glz-window-size", glz_window_size, NULL);
+    if (shared_dir)
+        g_object_set(session, "shared-dir", shared_dir, NULL);
 }

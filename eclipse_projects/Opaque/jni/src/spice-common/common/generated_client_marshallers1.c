@@ -19,22 +19,22 @@
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
-#include "messages.h"
-#include "client_marshallers.h"
+#include <common/messages.h>
+#include <client_marshallers.h>
 #include <string.h>
 #include <assert.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <spice/protocol.h>
 #include <spice/macros.h>
-#include "marshaller.h"
+#include "common/marshaller.h"
 
 #ifdef _MSC_VER
 #pragma warning(disable:4101)
 #pragma warning(disable:4018)
 #endif
 
-static void spice_marshall_msgc_ack_sync(SpiceMarshaller *m, SpiceMsgcAckSync *msg)
+static void spice_marshall_msgc_ack_sync(SPICE_GNUC_UNUSED SpiceMarshaller *m, SPICE_GNUC_UNUSED SpiceMsgcAckSync *msg)
 {
     SPICE_GNUC_UNUSED SpiceMarshaller *m2;
     SpiceMsgcAckSync *src;
@@ -43,12 +43,12 @@ static void spice_marshall_msgc_ack_sync(SpiceMarshaller *m, SpiceMsgcAckSync *m
     spice_marshaller_add_uint32(m, src->generation);
 }
 
-static void spice_marshall_SpiceMsgEmpty(SpiceMarshaller *m, SpiceMsgEmpty *msg)
+static void spice_marshall_SpiceMsgEmpty(SPICE_GNUC_UNUSED SpiceMarshaller *m, SPICE_GNUC_UNUSED SpiceMsgEmpty *msg)
 {
     SPICE_GNUC_UNUSED SpiceMarshaller *m2;
 }
 
-static void spice_marshall_msgc_pong(SpiceMarshaller *m, SpiceMsgPing *msg)
+static void spice_marshall_msgc_pong(SPICE_GNUC_UNUSED SpiceMarshaller *m, SPICE_GNUC_UNUSED SpiceMsgPing *msg)
 {
     SPICE_GNUC_UNUSED SpiceMarshaller *m2;
     SpiceMsgPing *src;
@@ -58,12 +58,12 @@ static void spice_marshall_msgc_pong(SpiceMarshaller *m, SpiceMsgPing *msg)
     spice_marshaller_add_uint64(m, src->timestamp);
 }
 
-static void spice_marshall_SpiceMsgData(SpiceMarshaller *m, SpiceMsgData *msg)
+static void spice_marshall_SpiceMsgData(SPICE_GNUC_UNUSED SpiceMarshaller *m, SPICE_GNUC_UNUSED SpiceMsgData *msg)
 {
     SPICE_GNUC_UNUSED SpiceMarshaller *m2;
 }
 
-static void spice_marshall_msgc_disconnecting(SpiceMarshaller *m, SpiceMsgDisconnect *msg)
+static void spice_marshall_msgc_disconnecting(SPICE_GNUC_UNUSED SpiceMarshaller *m, SPICE_GNUC_UNUSED SpiceMsgDisconnect *msg)
 {
     SPICE_GNUC_UNUSED SpiceMarshaller *m2;
     SpiceMsgDisconnect *src;
@@ -73,7 +73,7 @@ static void spice_marshall_msgc_disconnecting(SpiceMarshaller *m, SpiceMsgDiscon
     spice_marshaller_add_uint32(m, src->reason);
 }
 
-static void spice_marshall_msgc_main_client_info(SpiceMarshaller *m, SpiceMsgcClientInfo *msg)
+static void spice_marshall_msgc_main_client_info(SPICE_GNUC_UNUSED SpiceMarshaller *m, SPICE_GNUC_UNUSED SpiceMsgcClientInfo *msg)
 {
     SPICE_GNUC_UNUSED SpiceMarshaller *m2;
     SpiceMsgcClientInfo *src;
@@ -82,7 +82,7 @@ static void spice_marshall_msgc_main_client_info(SpiceMarshaller *m, SpiceMsgcCl
     spice_marshaller_add_uint64(m, src->cache_size);
 }
 
-static void spice_marshall_msgc_main_mouse_mode_request(SpiceMarshaller *m, SpiceMsgcMainMouseModeRequest *msg)
+static void spice_marshall_msgc_main_mouse_mode_request(SPICE_GNUC_UNUSED SpiceMarshaller *m, SPICE_GNUC_UNUSED SpiceMsgcMainMouseModeRequest *msg)
 {
     SPICE_GNUC_UNUSED SpiceMarshaller *m2;
     SpiceMsgcMainMouseModeRequest *src;
@@ -91,7 +91,7 @@ static void spice_marshall_msgc_main_mouse_mode_request(SpiceMarshaller *m, Spic
     spice_marshaller_add_uint32(m, src->mode);
 }
 
-static void spice_marshall_msgc_main_agent_start(SpiceMarshaller *m, SpiceMsgcMainAgentStart *msg)
+static void spice_marshall_msgc_main_agent_start(SPICE_GNUC_UNUSED SpiceMarshaller *m, SPICE_GNUC_UNUSED SpiceMsgcMainAgentStart *msg)
 {
     SPICE_GNUC_UNUSED SpiceMarshaller *m2;
     SpiceMsgcMainAgentStart *src;
@@ -100,7 +100,7 @@ static void spice_marshall_msgc_main_agent_start(SpiceMarshaller *m, SpiceMsgcMa
     spice_marshaller_add_uint32(m, src->num_tokens);
 }
 
-static void spice_marshall_msgc_main_agent_token(SpiceMarshaller *m, SpiceMsgcMainAgentTokens *msg)
+static void spice_marshall_msgc_main_agent_token(SPICE_GNUC_UNUSED SpiceMarshaller *m, SPICE_GNUC_UNUSED SpiceMsgcMainAgentTokens *msg)
 {
     SPICE_GNUC_UNUSED SpiceMarshaller *m2;
     SpiceMsgcMainAgentTokens *src;
@@ -109,7 +109,7 @@ static void spice_marshall_msgc_main_agent_token(SpiceMarshaller *m, SpiceMsgcMa
     spice_marshaller_add_uint32(m, src->num_tokens);
 }
 
-static void spice_marshall_msgc_display_init(SpiceMarshaller *m, SpiceMsgcDisplayInit *msg)
+static void spice_marshall_msgc_display_init(SPICE_GNUC_UNUSED SpiceMarshaller *m, SPICE_GNUC_UNUSED SpiceMsgcDisplayInit *msg)
 {
     SPICE_GNUC_UNUSED SpiceMarshaller *m2;
     SpiceMsgcDisplayInit *src;
@@ -121,7 +121,7 @@ static void spice_marshall_msgc_display_init(SpiceMarshaller *m, SpiceMsgcDispla
     spice_marshaller_add_int32(m, src->glz_dictionary_window_size);
 }
 
-static void spice_marshall_msgc_inputs_key_down(SpiceMarshaller *m, SpiceMsgcKeyDown *msg)
+static void spice_marshall_msgc_inputs_key_down(SPICE_GNUC_UNUSED SpiceMarshaller *m, SPICE_GNUC_UNUSED SpiceMsgcKeyDown *msg)
 {
     SPICE_GNUC_UNUSED SpiceMarshaller *m2;
     SpiceMsgcKeyDown *src;
@@ -130,7 +130,7 @@ static void spice_marshall_msgc_inputs_key_down(SpiceMarshaller *m, SpiceMsgcKey
     spice_marshaller_add_uint32(m, src->code);
 }
 
-static void spice_marshall_msgc_inputs_key_up(SpiceMarshaller *m, SpiceMsgcKeyUp *msg)
+static void spice_marshall_msgc_inputs_key_up(SPICE_GNUC_UNUSED SpiceMarshaller *m, SPICE_GNUC_UNUSED SpiceMsgcKeyUp *msg)
 {
     SPICE_GNUC_UNUSED SpiceMarshaller *m2;
     SpiceMsgcKeyUp *src;
@@ -139,7 +139,7 @@ static void spice_marshall_msgc_inputs_key_up(SpiceMarshaller *m, SpiceMsgcKeyUp
     spice_marshaller_add_uint32(m, src->code);
 }
 
-static void spice_marshall_msgc_inputs_key_modifiers(SpiceMarshaller *m, SpiceMsgcKeyModifiers *msg)
+static void spice_marshall_msgc_inputs_key_modifiers(SPICE_GNUC_UNUSED SpiceMarshaller *m, SPICE_GNUC_UNUSED SpiceMsgcKeyModifiers *msg)
 {
     SPICE_GNUC_UNUSED SpiceMarshaller *m2;
     SpiceMsgcKeyModifiers *src;
@@ -148,7 +148,7 @@ static void spice_marshall_msgc_inputs_key_modifiers(SpiceMarshaller *m, SpiceMs
     spice_marshaller_add_uint32(m, src->modifiers);
 }
 
-static void spice_marshall_msgc_inputs_mouse_motion(SpiceMarshaller *m, SpiceMsgcMouseMotion *msg)
+static void spice_marshall_msgc_inputs_mouse_motion(SPICE_GNUC_UNUSED SpiceMarshaller *m, SPICE_GNUC_UNUSED SpiceMsgcMouseMotion *msg)
 {
     SPICE_GNUC_UNUSED SpiceMarshaller *m2;
     SpiceMsgcMouseMotion *src;
@@ -159,7 +159,7 @@ static void spice_marshall_msgc_inputs_mouse_motion(SpiceMarshaller *m, SpiceMsg
     spice_marshaller_add_uint32(m, src->buttons_state);
 }
 
-static void spice_marshall_msgc_inputs_mouse_position(SpiceMarshaller *m, SpiceMsgcMousePosition *msg)
+static void spice_marshall_msgc_inputs_mouse_position(SPICE_GNUC_UNUSED SpiceMarshaller *m, SPICE_GNUC_UNUSED SpiceMsgcMousePosition *msg)
 {
     SPICE_GNUC_UNUSED SpiceMarshaller *m2;
     SpiceMsgcMousePosition *src;
@@ -171,7 +171,7 @@ static void spice_marshall_msgc_inputs_mouse_position(SpiceMarshaller *m, SpiceM
     spice_marshaller_add_uint8(m, src->display_id);
 }
 
-static void spice_marshall_msgc_inputs_mouse_press(SpiceMarshaller *m, SpiceMsgcMousePress *msg)
+static void spice_marshall_msgc_inputs_mouse_press(SPICE_GNUC_UNUSED SpiceMarshaller *m, SPICE_GNUC_UNUSED SpiceMsgcMousePress *msg)
 {
     SPICE_GNUC_UNUSED SpiceMarshaller *m2;
     SpiceMsgcMousePress *src;
@@ -181,7 +181,7 @@ static void spice_marshall_msgc_inputs_mouse_press(SpiceMarshaller *m, SpiceMsgc
     spice_marshaller_add_uint32(m, src->buttons_state);
 }
 
-static void spice_marshall_msgc_inputs_mouse_release(SpiceMarshaller *m, SpiceMsgcMouseRelease *msg)
+static void spice_marshall_msgc_inputs_mouse_release(SPICE_GNUC_UNUSED SpiceMarshaller *m, SPICE_GNUC_UNUSED SpiceMsgcMouseRelease *msg)
 {
     SPICE_GNUC_UNUSED SpiceMarshaller *m2;
     SpiceMsgcMouseRelease *src;
@@ -191,7 +191,7 @@ static void spice_marshall_msgc_inputs_mouse_release(SpiceMarshaller *m, SpiceMs
     spice_marshaller_add_uint32(m, src->buttons_state);
 }
 
-static void spice_marshall_msgc_record_data(SpiceMarshaller *m, SpiceMsgcRecordPacket *msg)
+static void spice_marshall_msgc_record_data(SPICE_GNUC_UNUSED SpiceMarshaller *m, SPICE_GNUC_UNUSED SpiceMsgcRecordPacket *msg)
 {
     SPICE_GNUC_UNUSED SpiceMarshaller *m2;
     SpiceMsgcRecordPacket *src;
@@ -201,7 +201,7 @@ static void spice_marshall_msgc_record_data(SpiceMarshaller *m, SpiceMsgcRecordP
     /* Don't marshall @nomarshal data */
 }
 
-static void spice_marshall_msgc_record_mode(SpiceMarshaller *m, SpiceMsgcRecordMode *msg)
+static void spice_marshall_msgc_record_mode(SPICE_GNUC_UNUSED SpiceMarshaller *m, SPICE_GNUC_UNUSED SpiceMsgcRecordMode *msg)
 {
     SPICE_GNUC_UNUSED SpiceMarshaller *m2;
     SpiceMsgcRecordMode *src;
@@ -212,7 +212,7 @@ static void spice_marshall_msgc_record_mode(SpiceMarshaller *m, SpiceMsgcRecordM
     /* Remaining data must be appended manually */
 }
 
-static void spice_marshall_msgc_record_start_mark(SpiceMarshaller *m, SpiceMsgcRecordStartMark *msg)
+static void spice_marshall_msgc_record_start_mark(SPICE_GNUC_UNUSED SpiceMarshaller *m, SPICE_GNUC_UNUSED SpiceMsgcRecordStartMark *msg)
 {
     SPICE_GNUC_UNUSED SpiceMarshaller *m2;
     SpiceMsgcRecordStartMark *src;

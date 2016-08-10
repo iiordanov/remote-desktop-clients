@@ -19,14 +19,14 @@
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
-#include "messages.h"
+#include <common/messages.h>
 #include <string.h>
 #include <assert.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <spice/protocol.h>
 #include <spice/macros.h>
-#include "mem.h"
+#include <common/mem.h>
 
 #ifdef _MSC_VER
 #pragma warning(disable:4101)
@@ -147,7 +147,7 @@ struct PointerInfo {
     uint32_t nelements;
 };
 
-static uint8_t * parse_msg_migrate(uint8_t *message_start, uint8_t *message_end, int minor, size_t *size, message_destructor_t *free_message)
+static uint8_t * parse_msg_migrate(uint8_t *message_start, uint8_t *message_end, SPICE_GNUC_UNUSED int minor, size_t *size, message_destructor_t *free_message)
 {
     SPICE_GNUC_UNUSED uint8_t *pos;
     uint8_t *start = message_start;
@@ -191,11 +191,11 @@ static uint8_t * parse_msg_migrate(uint8_t *message_start, uint8_t *message_end,
     return NULL;
 }
 
-static void nofree(uint8_t *data)
+static void nofree(SPICE_GNUC_UNUSED uint8_t *data)
 {
 }
 
-static uint8_t * parse_SpiceMsgData(uint8_t *message_start, uint8_t *message_end, int minor, size_t *size, message_destructor_t *free_message)
+static uint8_t * parse_SpiceMsgData(uint8_t *message_start, uint8_t *message_end, SPICE_GNUC_UNUSED int minor, size_t *size, message_destructor_t *free_message)
 {
     SPICE_GNUC_UNUSED uint8_t *pos;
     uint8_t *start = message_start;
@@ -225,7 +225,7 @@ static uint8_t * parse_SpiceMsgData(uint8_t *message_start, uint8_t *message_end
 
 }
 
-static uint8_t * parse_msg_set_ack(uint8_t *message_start, uint8_t *message_end, int minor, size_t *size, message_destructor_t *free_message)
+static uint8_t * parse_msg_set_ack(uint8_t *message_start, uint8_t *message_end, SPICE_GNUC_UNUSED int minor, size_t *size, message_destructor_t *free_message)
 {
     SPICE_GNUC_UNUSED uint8_t *pos;
     uint8_t *start = message_start;
@@ -270,7 +270,7 @@ static uint8_t * parse_msg_set_ack(uint8_t *message_start, uint8_t *message_end,
     return NULL;
 }
 
-static uint8_t * parse_msg_ping(uint8_t *message_start, uint8_t *message_end, int minor, size_t *size, message_destructor_t *free_message)
+static uint8_t * parse_msg_ping(uint8_t *message_start, uint8_t *message_end, SPICE_GNUC_UNUSED int minor, size_t *size, message_destructor_t *free_message)
 {
     SPICE_GNUC_UNUSED uint8_t *pos;
     uint8_t *start = message_start;
@@ -327,7 +327,7 @@ static uint8_t * parse_msg_ping(uint8_t *message_start, uint8_t *message_end, in
     return NULL;
 }
 
-static uint8_t * parse_msg_wait_for_channels(uint8_t *message_start, uint8_t *message_end, int minor, size_t *size, message_destructor_t *free_message)
+static uint8_t * parse_msg_wait_for_channels(uint8_t *message_start, uint8_t *message_end, SPICE_GNUC_UNUSED int minor, size_t *size, message_destructor_t *free_message)
 {
     SPICE_GNUC_UNUSED uint8_t *pos;
     uint8_t *start = message_start;
@@ -396,7 +396,7 @@ static uint8_t * parse_msg_wait_for_channels(uint8_t *message_start, uint8_t *me
     return NULL;
 }
 
-static uint8_t * parse_msg_disconnecting(uint8_t *message_start, uint8_t *message_end, int minor, size_t *size, message_destructor_t *free_message)
+static uint8_t * parse_msg_disconnecting(uint8_t *message_start, uint8_t *message_end, SPICE_GNUC_UNUSED int minor, size_t *size, message_destructor_t *free_message)
 {
     SPICE_GNUC_UNUSED uint8_t *pos;
     uint8_t *start = message_start;
@@ -441,7 +441,7 @@ static uint8_t * parse_msg_disconnecting(uint8_t *message_start, uint8_t *messag
     return NULL;
 }
 
-static uint8_t * parse_msg_notify(uint8_t *message_start, uint8_t *message_end, int minor, size_t *size, message_destructor_t *free_message)
+static uint8_t * parse_msg_notify(uint8_t *message_start, uint8_t *message_end, SPICE_GNUC_UNUSED int minor, size_t *size, message_destructor_t *free_message)
 {
     SPICE_GNUC_UNUSED uint8_t *pos;
     uint8_t *start = message_start;
@@ -514,7 +514,7 @@ static uint8_t * parse_msg_notify(uint8_t *message_start, uint8_t *message_end, 
     return NULL;
 }
 
-static uint8_t * parse_msg_main_migrate_begin(uint8_t *message_start, uint8_t *message_end, int minor, size_t *size, message_destructor_t *free_message)
+static uint8_t * parse_msg_main_migrate_begin(uint8_t *message_start, uint8_t *message_end, SPICE_GNUC_UNUSED int minor, size_t *size, message_destructor_t *free_message)
 {
     SPICE_GNUC_UNUSED uint8_t *pos;
     uint8_t *start = message_start;
@@ -527,10 +527,10 @@ static uint8_t * parse_msg_main_migrate_begin(uint8_t *message_start, uint8_t *m
 
     { /* dst_info */
         SPICE_GNUC_UNUSED uint8_t *start2 = (start + 0);
-        size_t host_data__nw_size;
-        uint32_t host_data__nelements;
-        size_t pub_key_data__nw_size;
-        uint32_t pub_key_data__nelements;
+        size_t dst_info_host_data__nw_size;
+        uint32_t dst_info_host_data__nelements;
+        size_t dst_info_pub_key_data__nw_size;
+        uint32_t dst_info_pub_key_data__nelements;
         { /* host_data */
             uint32_t host_size__value;
             pos = start2 + 8;
@@ -538,9 +538,9 @@ static uint8_t * parse_msg_main_migrate_begin(uint8_t *message_start, uint8_t *m
                 goto error;
             }
             host_size__value = read_uint32(pos);
-            host_data__nelements = host_size__value;
+            dst_info_host_data__nelements = host_size__value;
 
-            host_data__nw_size = host_data__nelements;
+            dst_info_host_data__nw_size = dst_info_host_data__nelements;
         }
 
         if (minor >= 1) { /* pub_key_data */
@@ -550,15 +550,15 @@ static uint8_t * parse_msg_main_migrate_begin(uint8_t *message_start, uint8_t *m
                 goto error;
             }
             pub_key_size__value = read_uint32(pos);
-            pub_key_data__nelements = pub_key_size__value;
+            dst_info_pub_key_data__nelements = pub_key_size__value;
 
-            pub_key_data__nw_size = pub_key_data__nelements;
+            dst_info_pub_key_data__nw_size = dst_info_pub_key_data__nelements;
         } else { /* minor < 1 */
-            pub_key_data__nelements = 0;
-            pub_key_data__nw_size = 0;
+            dst_info_pub_key_data__nelements = 0;
+            dst_info_pub_key_data__nw_size = 0;
         }
 
-        dst_info__nw_size = 12 + ((minor >= 1)?10:0) + host_data__nw_size + pub_key_data__nw_size;
+        dst_info__nw_size = 12 + ((minor >= 1)?10:0) + dst_info_host_data__nw_size + dst_info_pub_key_data__nw_size;
     }
 
     nw_size = 0 + dst_info__nw_size;
@@ -626,7 +626,7 @@ static uint8_t * parse_msg_main_migrate_begin(uint8_t *message_start, uint8_t *m
     return NULL;
 }
 
-static uint8_t * parse_SpiceMsgEmpty(uint8_t *message_start, uint8_t *message_end, int minor, size_t *size, message_destructor_t *free_message)
+static uint8_t * parse_SpiceMsgEmpty(uint8_t *message_start, uint8_t *message_end, SPICE_GNUC_UNUSED int minor, size_t *size, message_destructor_t *free_message)
 {
     SPICE_GNUC_UNUSED uint8_t *pos;
     uint8_t *start = message_start;
@@ -666,7 +666,7 @@ static uint8_t * parse_SpiceMsgEmpty(uint8_t *message_start, uint8_t *message_en
     return NULL;
 }
 
-static uint8_t * parse_msg_main_init(uint8_t *message_start, uint8_t *message_end, int minor, size_t *size, message_destructor_t *free_message)
+static uint8_t * parse_msg_main_init(uint8_t *message_start, uint8_t *message_end, SPICE_GNUC_UNUSED int minor, size_t *size, message_destructor_t *free_message)
 {
     SPICE_GNUC_UNUSED uint8_t *pos;
     uint8_t *start = message_start;
@@ -717,7 +717,7 @@ static uint8_t * parse_msg_main_init(uint8_t *message_start, uint8_t *message_en
     return NULL;
 }
 
-static uint8_t * parse_msg_main_channels_list(uint8_t *message_start, uint8_t *message_end, int minor, size_t *size, message_destructor_t *free_message)
+static uint8_t * parse_msg_main_channels_list(uint8_t *message_start, uint8_t *message_end, SPICE_GNUC_UNUSED int minor, size_t *size, message_destructor_t *free_message)
 {
     SPICE_GNUC_UNUSED uint8_t *pos;
     uint8_t *start = message_start;
@@ -785,7 +785,7 @@ static uint8_t * parse_msg_main_channels_list(uint8_t *message_start, uint8_t *m
     return NULL;
 }
 
-static uint8_t * parse_msg_main_mouse_mode(uint8_t *message_start, uint8_t *message_end, int minor, size_t *size, message_destructor_t *free_message)
+static uint8_t * parse_msg_main_mouse_mode(uint8_t *message_start, uint8_t *message_end, SPICE_GNUC_UNUSED int minor, size_t *size, message_destructor_t *free_message)
 {
     SPICE_GNUC_UNUSED uint8_t *pos;
     uint8_t *start = message_start;
@@ -830,7 +830,7 @@ static uint8_t * parse_msg_main_mouse_mode(uint8_t *message_start, uint8_t *mess
     return NULL;
 }
 
-static uint8_t * parse_msg_main_multi_media_time(uint8_t *message_start, uint8_t *message_end, int minor, size_t *size, message_destructor_t *free_message)
+static uint8_t * parse_msg_main_multi_media_time(uint8_t *message_start, uint8_t *message_end, SPICE_GNUC_UNUSED int minor, size_t *size, message_destructor_t *free_message)
 {
     SPICE_GNUC_UNUSED uint8_t *pos;
     uint8_t *start = message_start;
@@ -874,7 +874,7 @@ static uint8_t * parse_msg_main_multi_media_time(uint8_t *message_start, uint8_t
     return NULL;
 }
 
-static uint8_t * parse_msg_main_agent_disconnected(uint8_t *message_start, uint8_t *message_end, int minor, size_t *size, message_destructor_t *free_message)
+static uint8_t * parse_msg_main_agent_disconnected(uint8_t *message_start, uint8_t *message_end, SPICE_GNUC_UNUSED int minor, size_t *size, message_destructor_t *free_message)
 {
     SPICE_GNUC_UNUSED uint8_t *pos;
     uint8_t *start = message_start;
@@ -918,7 +918,7 @@ static uint8_t * parse_msg_main_agent_disconnected(uint8_t *message_start, uint8
     return NULL;
 }
 
-static uint8_t * parse_msg_main_agent_token(uint8_t *message_start, uint8_t *message_end, int minor, size_t *size, message_destructor_t *free_message)
+static uint8_t * parse_msg_main_agent_token(uint8_t *message_start, uint8_t *message_end, SPICE_GNUC_UNUSED int minor, size_t *size, message_destructor_t *free_message)
 {
     SPICE_GNUC_UNUSED uint8_t *pos;
     uint8_t *start = message_start;
@@ -962,7 +962,7 @@ static uint8_t * parse_msg_main_agent_token(uint8_t *message_start, uint8_t *mes
     return NULL;
 }
 
-static uint8_t * parse_msg_main_migrate_switch_host(uint8_t *message_start, uint8_t *message_end, int minor, size_t *size, message_destructor_t *free_message)
+static uint8_t * parse_msg_main_migrate_switch_host(uint8_t *message_start, uint8_t *message_end, SPICE_GNUC_UNUSED int minor, size_t *size, message_destructor_t *free_message)
 {
     SPICE_GNUC_UNUSED uint8_t *pos;
     uint8_t *start = message_start;
@@ -1045,7 +1045,7 @@ static uint8_t * parse_msg_main_migrate_switch_host(uint8_t *message_start, uint
     return NULL;
 }
 
-static uint8_t * parse_MainChannel_msg(uint8_t *message_start, uint8_t *message_end, uint16_t message_type, int minor, size_t *size_out, message_destructor_t *free_message)
+static uint8_t * parse_MainChannel_msg(uint8_t *message_start, uint8_t *message_end, uint16_t message_type, SPICE_GNUC_UNUSED int minor, size_t *size_out, message_destructor_t *free_message)
 {
     static parse_msg_func_t funcs1[7] =  {
         parse_msg_migrate,
@@ -1079,7 +1079,7 @@ static uint8_t * parse_MainChannel_msg(uint8_t *message_start, uint8_t *message_
 
 
 
-static uint8_t * parse_msg_display_mode(uint8_t *message_start, uint8_t *message_end, int minor, size_t *size, message_destructor_t *free_message)
+static uint8_t * parse_msg_display_mode(uint8_t *message_start, uint8_t *message_end, SPICE_GNUC_UNUSED int minor, size_t *size, message_destructor_t *free_message)
 {
     SPICE_GNUC_UNUSED uint8_t *pos;
     uint8_t *start = message_start;
@@ -1125,7 +1125,7 @@ static uint8_t * parse_msg_display_mode(uint8_t *message_start, uint8_t *message
     return NULL;
 }
 
-static intptr_t validate_SpiceClipRects(uint8_t *message_start, uint8_t *message_end, uint64_t offset, int minor)
+static intptr_t validate_SpiceClipRects(uint8_t *message_start, uint8_t *message_end, uint64_t offset, SPICE_GNUC_UNUSED int minor)
 {
     uint8_t *start = message_start + offset;
     SPICE_GNUC_UNUSED uint8_t *pos;
@@ -1167,7 +1167,7 @@ static intptr_t validate_SpiceClipRects(uint8_t *message_start, uint8_t *message
     return -1;
 }
 
-static uint8_t * parse_struct_SpiceClipRects(uint8_t *message_start, uint8_t *message_end, uint8_t *struct_data, PointerInfo *this_ptr_info, int minor)
+static uint8_t * parse_struct_SpiceClipRects(uint8_t *message_start, SPICE_GNUC_UNUSED uint8_t *message_end, uint8_t *struct_data, PointerInfo *this_ptr_info, SPICE_GNUC_UNUSED int minor)
 {
     uint8_t *in = message_start + this_ptr_info->offset;
     uint8_t *end;
@@ -1193,7 +1193,7 @@ static uint8_t * parse_struct_SpiceClipRects(uint8_t *message_start, uint8_t *me
     return end;
 }
 
-static uint8_t * parse_msg_display_copy_bits(uint8_t *message_start, uint8_t *message_end, int minor, size_t *size, message_destructor_t *free_message)
+static uint8_t * parse_msg_display_copy_bits(uint8_t *message_start, uint8_t *message_end, SPICE_GNUC_UNUSED int minor, size_t *size, message_destructor_t *free_message)
 {
     SPICE_GNUC_UNUSED uint8_t *pos;
     uint8_t *start = message_start;
@@ -1210,10 +1210,10 @@ static uint8_t * parse_msg_display_copy_bits(uint8_t *message_start, uint8_t *me
 
     { /* base */
         SPICE_GNUC_UNUSED uint8_t *start2 = (start + 0);
-        size_t clip__extra_size;
+        size_t base_clip__extra_size;
         { /* clip */
             SPICE_GNUC_UNUSED uint8_t *start3 = (start2 + 16);
-            size_t u__extra_size;
+            size_t base_clip_u__extra_size;
             uint32_t type__value;
             { /* u */
                 pos = start3 + 0;
@@ -1222,29 +1222,29 @@ static uint8_t * parse_msg_display_copy_bits(uint8_t *message_start, uint8_t *me
                 }
                 type__value = read_uint32(pos);
                 if (type__value == SPICE_CLIP_TYPE_RECTS) {
-                    uint64_t u_rects__value;
+                    uint64_t base_clip_u_rects__value;
                     pos = (start3 + 4);
                     if (SPICE_UNLIKELY(pos + 8 > message_end)) {
                         goto error;
                     }
-                    u_rects__value = read_uint64(pos);
-                    ptr_size = validate_SpiceClipRects(message_start, message_end, u_rects__value, minor);
+                    base_clip_u_rects__value = read_uint64(pos);
+                    ptr_size = validate_SpiceClipRects(message_start, message_end, base_clip_u_rects__value, minor);
                     if (SPICE_UNLIKELY(ptr_size < 0)) {
                         goto error;
                     }
-                    u__extra_size = ptr_size + /* for alignment */ 3;
+                    base_clip_u__extra_size = ptr_size + /* for alignment */ 3;
                 } else if (1) {
-                    u__extra_size = 0;
+                    base_clip_u__extra_size = 0;
                 } else {
-                    u__extra_size = 0;
+                    base_clip_u__extra_size = 0;
                 }
 
             }
 
-            clip__extra_size = u__extra_size;
+            base_clip__extra_size = base_clip_u__extra_size;
         }
 
-        base__extra_size = clip__extra_size;
+        base__extra_size = base_clip__extra_size;
     }
 
     nw_size = 36;
@@ -1319,7 +1319,7 @@ static uint8_t * parse_msg_display_copy_bits(uint8_t *message_start, uint8_t *me
     return NULL;
 }
 
-static uint8_t * parse_msg_display_inval_list(uint8_t *message_start, uint8_t *message_end, int minor, size_t *size, message_destructor_t *free_message)
+static uint8_t * parse_msg_display_inval_list(uint8_t *message_start, uint8_t *message_end, SPICE_GNUC_UNUSED int minor, size_t *size, message_destructor_t *free_message)
 {
     SPICE_GNUC_UNUSED uint8_t *pos;
     uint8_t *start = message_start;
@@ -1387,7 +1387,7 @@ static uint8_t * parse_msg_display_inval_list(uint8_t *message_start, uint8_t *m
     return NULL;
 }
 
-static uint8_t * parse_msg_display_inval_all_pixmaps(uint8_t *message_start, uint8_t *message_end, int minor, size_t *size, message_destructor_t *free_message)
+static uint8_t * parse_msg_display_inval_all_pixmaps(uint8_t *message_start, uint8_t *message_end, SPICE_GNUC_UNUSED int minor, size_t *size, message_destructor_t *free_message)
 {
     SPICE_GNUC_UNUSED uint8_t *pos;
     uint8_t *start = message_start;
@@ -1456,7 +1456,7 @@ static uint8_t * parse_msg_display_inval_all_pixmaps(uint8_t *message_start, uin
     return NULL;
 }
 
-static uint8_t * parse_msg_display_inval_palette(uint8_t *message_start, uint8_t *message_end, int minor, size_t *size, message_destructor_t *free_message)
+static uint8_t * parse_msg_display_inval_palette(uint8_t *message_start, uint8_t *message_end, SPICE_GNUC_UNUSED int minor, size_t *size, message_destructor_t *free_message)
 {
     SPICE_GNUC_UNUSED uint8_t *pos;
     uint8_t *start = message_start;
@@ -1500,7 +1500,7 @@ static uint8_t * parse_msg_display_inval_palette(uint8_t *message_start, uint8_t
     return NULL;
 }
 
-static uint8_t * parse_msg_display_stream_create(uint8_t *message_start, uint8_t *message_end, int minor, size_t *size, message_destructor_t *free_message)
+static uint8_t * parse_msg_display_stream_create(uint8_t *message_start, uint8_t *message_end, SPICE_GNUC_UNUSED int minor, size_t *size, message_destructor_t *free_message)
 {
     SPICE_GNUC_UNUSED uint8_t *pos;
     uint8_t *start = message_start;
@@ -1517,7 +1517,7 @@ static uint8_t * parse_msg_display_stream_create(uint8_t *message_start, uint8_t
 
     { /* clip */
         SPICE_GNUC_UNUSED uint8_t *start2 = (start + 52);
-        size_t u__extra_size;
+        size_t clip_u__extra_size;
         uint32_t type__value;
         { /* u */
             pos = start2 + 0;
@@ -1526,26 +1526,26 @@ static uint8_t * parse_msg_display_stream_create(uint8_t *message_start, uint8_t
             }
             type__value = read_uint32(pos);
             if (type__value == SPICE_CLIP_TYPE_RECTS) {
-                uint64_t u_rects__value;
+                uint64_t clip_u_rects__value;
                 pos = (start2 + 4);
                 if (SPICE_UNLIKELY(pos + 8 > message_end)) {
                     goto error;
                 }
-                u_rects__value = read_uint64(pos);
-                ptr_size = validate_SpiceClipRects(message_start, message_end, u_rects__value, minor);
+                clip_u_rects__value = read_uint64(pos);
+                ptr_size = validate_SpiceClipRects(message_start, message_end, clip_u_rects__value, minor);
                 if (SPICE_UNLIKELY(ptr_size < 0)) {
                     goto error;
                 }
-                u__extra_size = ptr_size + /* for alignment */ 3;
+                clip_u__extra_size = ptr_size + /* for alignment */ 3;
             } else if (1) {
-                u__extra_size = 0;
+                clip_u__extra_size = 0;
             } else {
-                u__extra_size = 0;
+                clip_u__extra_size = 0;
             }
 
         }
 
-        clip__extra_size = u__extra_size;
+        clip__extra_size = clip_u__extra_size;
     }
 
     nw_size = 64;
@@ -1622,7 +1622,7 @@ static uint8_t * parse_msg_display_stream_create(uint8_t *message_start, uint8_t
     return NULL;
 }
 
-static uint8_t * parse_msg_display_stream_data(uint8_t *message_start, uint8_t *message_end, int minor, size_t *size, message_destructor_t *free_message)
+static uint8_t * parse_msg_display_stream_data(uint8_t *message_start, uint8_t *message_end, SPICE_GNUC_UNUSED int minor, size_t *size, message_destructor_t *free_message)
 {
     SPICE_GNUC_UNUSED uint8_t *pos;
     uint8_t *start = message_start;
@@ -1689,7 +1689,7 @@ static uint8_t * parse_msg_display_stream_data(uint8_t *message_start, uint8_t *
     return NULL;
 }
 
-static uint8_t * parse_msg_display_stream_clip(uint8_t *message_start, uint8_t *message_end, int minor, size_t *size, message_destructor_t *free_message)
+static uint8_t * parse_msg_display_stream_clip(uint8_t *message_start, uint8_t *message_end, SPICE_GNUC_UNUSED int minor, size_t *size, message_destructor_t *free_message)
 {
     SPICE_GNUC_UNUSED uint8_t *pos;
     uint8_t *start = message_start;
@@ -1706,7 +1706,7 @@ static uint8_t * parse_msg_display_stream_clip(uint8_t *message_start, uint8_t *
 
     { /* clip */
         SPICE_GNUC_UNUSED uint8_t *start2 = (start + 4);
-        size_t u__extra_size;
+        size_t clip_u__extra_size;
         uint32_t type__value;
         { /* u */
             pos = start2 + 0;
@@ -1715,26 +1715,26 @@ static uint8_t * parse_msg_display_stream_clip(uint8_t *message_start, uint8_t *
             }
             type__value = read_uint32(pos);
             if (type__value == SPICE_CLIP_TYPE_RECTS) {
-                uint64_t u_rects__value;
+                uint64_t clip_u_rects__value;
                 pos = (start2 + 4);
                 if (SPICE_UNLIKELY(pos + 8 > message_end)) {
                     goto error;
                 }
-                u_rects__value = read_uint64(pos);
-                ptr_size = validate_SpiceClipRects(message_start, message_end, u_rects__value, minor);
+                clip_u_rects__value = read_uint64(pos);
+                ptr_size = validate_SpiceClipRects(message_start, message_end, clip_u_rects__value, minor);
                 if (SPICE_UNLIKELY(ptr_size < 0)) {
                     goto error;
                 }
-                u__extra_size = ptr_size + /* for alignment */ 3;
+                clip_u__extra_size = ptr_size + /* for alignment */ 3;
             } else if (1) {
-                u__extra_size = 0;
+                clip_u__extra_size = 0;
             } else {
-                u__extra_size = 0;
+                clip_u__extra_size = 0;
             }
 
         }
 
-        clip__extra_size = u__extra_size;
+        clip__extra_size = clip_u__extra_size;
     }
 
     nw_size = 16;
@@ -1797,7 +1797,7 @@ static uint8_t * parse_msg_display_stream_clip(uint8_t *message_start, uint8_t *
     return NULL;
 }
 
-static uint8_t * parse_msg_display_stream_destroy(uint8_t *message_start, uint8_t *message_end, int minor, size_t *size, message_destructor_t *free_message)
+static uint8_t * parse_msg_display_stream_destroy(uint8_t *message_start, uint8_t *message_end, SPICE_GNUC_UNUSED int minor, size_t *size, message_destructor_t *free_message)
 {
     SPICE_GNUC_UNUSED uint8_t *pos;
     uint8_t *start = message_start;
@@ -1841,7 +1841,7 @@ static uint8_t * parse_msg_display_stream_destroy(uint8_t *message_start, uint8_
     return NULL;
 }
 
-static intptr_t validate_SpicePalette(uint8_t *message_start, uint8_t *message_end, uint64_t offset, int minor)
+static intptr_t validate_SpicePalette(uint8_t *message_start, uint8_t *message_end, uint64_t offset, SPICE_GNUC_UNUSED int minor)
 {
     uint8_t *start = message_start + offset;
     SPICE_GNUC_UNUSED uint8_t *pos;
@@ -1883,7 +1883,7 @@ static intptr_t validate_SpicePalette(uint8_t *message_start, uint8_t *message_e
     return -1;
 }
 
-static intptr_t validate_SpiceImage(uint8_t *message_start, uint8_t *message_end, uint64_t offset, int minor)
+static intptr_t validate_SpiceImage(uint8_t *message_start, uint8_t *message_end, uint64_t offset, SPICE_GNUC_UNUSED int minor)
 {
     uint8_t *start = message_start + offset;
     SPICE_GNUC_UNUSED uint8_t *pos;
@@ -1908,10 +1908,10 @@ static intptr_t validate_SpiceImage(uint8_t *message_start, uint8_t *message_end
         descriptor_type__value = read_uint8(pos);
         if (descriptor_type__value == SPICE_IMAGE_TYPE_BITMAP) {
             SPICE_GNUC_UNUSED uint8_t *start2 = (start + 18);
-            size_t pal__extra_size;
+            size_t u_pal__extra_size;
             uint8_t flags__value;
-            size_t data__extra_size;
-            uint32_t data__array__nelements;
+            size_t u_data__extra_size;
+            uint32_t u_data__array__nelements;
             { /* pal */
                 pos = start2 + 1;
                 if (SPICE_UNLIKELY(pos + 1 > message_end)) {
@@ -1919,28 +1919,28 @@ static intptr_t validate_SpiceImage(uint8_t *message_start, uint8_t *message_end
                 }
                 flags__value = read_uint8(pos);
                 if ((flags__value & SPICE_BITMAP_FLAGS_PAL_FROM_CACHE)) {
-                    pal__extra_size = 0;
+                    u_pal__extra_size = 0;
                 } else if (1) {
-                    uint64_t pal_palette__value;
+                    uint64_t u_pal_palette__value;
                     pos = (start2 + 14);
                     if (SPICE_UNLIKELY(pos + 8 > message_end)) {
                         goto error;
                     }
-                    pal_palette__value = read_uint64(pos);
-                    ptr_size = validate_SpicePalette(message_start, message_end, pal_palette__value, minor);
+                    u_pal_palette__value = read_uint64(pos);
+                    ptr_size = validate_SpicePalette(message_start, message_end, u_pal_palette__value, minor);
                     if (SPICE_UNLIKELY(ptr_size < 0)) {
                         goto error;
                     }
-                    pal__extra_size = ptr_size + /* for alignment */ 3;
+                    u_pal__extra_size = ptr_size + /* for alignment */ 3;
                 } else {
-                    pal__extra_size = 0;
+                    u_pal__extra_size = 0;
                 }
 
             }
 
             { /* data */
                 uint64_t data__value;
-                uint32_t data__array__nw_size;
+                uint32_t u_data__array__nw_size;
                 uint32_t stride__value;
                 uint32_t y__value;
                 pos = (start2 + 22);
@@ -1961,21 +1961,21 @@ static intptr_t validate_SpiceImage(uint8_t *message_start, uint8_t *message_end
                     goto error;
                 }
                 y__value = read_uint32(pos);
-                data__array__nelements = stride__value * y__value;
+                u_data__array__nelements = stride__value * y__value;
 
-                data__array__nw_size = data__array__nelements;
-                if (SPICE_UNLIKELY(message_start + data__value + data__array__nw_size > message_end)) {
+                u_data__array__nw_size = u_data__array__nelements;
+                if (SPICE_UNLIKELY(message_start + data__value + u_data__array__nw_size > message_end)) {
                     goto error;
                 }
-                data__extra_size = sizeof(SpiceChunks) + sizeof(SpiceChunk);
+                u_data__extra_size = sizeof(SpiceChunks) + sizeof(SpiceChunk);
             }
 
             u__nw_size = 30;
-            u__extra_size = pal__extra_size + data__extra_size;
+            u__extra_size = u_pal__extra_size + u_data__extra_size;
         } else if (descriptor_type__value == SPICE_IMAGE_TYPE_QUIC) {
             SPICE_GNUC_UNUSED uint8_t *start2 = (start + 18);
-            size_t data__nw_size, data__extra_size;
-            uint32_t data__nelements;
+            size_t u_data__nw_size, u_data__extra_size;
+            uint32_t u_data__nelements;
             { /* data */
                 uint32_t data_size__value;
                 pos = start2 + 0;
@@ -1983,18 +1983,18 @@ static intptr_t validate_SpiceImage(uint8_t *message_start, uint8_t *message_end
                     goto error;
                 }
                 data_size__value = read_uint32(pos);
-                data__nelements = data_size__value;
+                u_data__nelements = data_size__value;
 
-                data__nw_size = data__nelements;
-                data__extra_size = sizeof(SpiceChunks) + sizeof(SpiceChunk);
+                u_data__nw_size = u_data__nelements;
+                u_data__extra_size = sizeof(SpiceChunks) + sizeof(SpiceChunk);
             }
 
-            u__nw_size = 4 + data__nw_size;
-            u__extra_size = data__extra_size;
+            u__nw_size = 4 + u_data__nw_size;
+            u__extra_size = u_data__extra_size;
         } else if (descriptor_type__value == SPICE_IMAGE_TYPE_LZ_RGB || descriptor_type__value == SPICE_IMAGE_TYPE_GLZ_RGB) {
             SPICE_GNUC_UNUSED uint8_t *start2 = (start + 18);
-            size_t data__nw_size, data__extra_size;
-            uint32_t data__nelements;
+            size_t u_data__nw_size, u_data__extra_size;
+            uint32_t u_data__nelements;
             { /* data */
                 uint32_t data_size__value;
                 pos = start2 + 0;
@@ -2002,20 +2002,20 @@ static intptr_t validate_SpiceImage(uint8_t *message_start, uint8_t *message_end
                     goto error;
                 }
                 data_size__value = read_uint32(pos);
-                data__nelements = data_size__value;
+                u_data__nelements = data_size__value;
 
-                data__nw_size = data__nelements;
-                data__extra_size = sizeof(SpiceChunks) + sizeof(SpiceChunk);
+                u_data__nw_size = u_data__nelements;
+                u_data__extra_size = sizeof(SpiceChunks) + sizeof(SpiceChunk);
             }
 
-            u__nw_size = 4 + data__nw_size;
-            u__extra_size = data__extra_size;
+            u__nw_size = 4 + u_data__nw_size;
+            u__extra_size = u_data__extra_size;
         } else if (descriptor_type__value == SPICE_IMAGE_TYPE_LZ_PLT) {
             SPICE_GNUC_UNUSED uint8_t *start2 = (start + 18);
-            size_t pal__extra_size;
+            size_t u_pal__extra_size;
             uint8_t flags__value;
-            size_t data__nw_size, data__extra_size;
-            uint32_t data__nelements;
+            size_t u_data__nw_size, u_data__extra_size;
+            uint32_t u_data__nelements;
             { /* pal */
                 pos = start2 + 0;
                 if (SPICE_UNLIKELY(pos + 1 > message_end)) {
@@ -2023,24 +2023,24 @@ static intptr_t validate_SpiceImage(uint8_t *message_start, uint8_t *message_end
                 }
                 flags__value = read_uint8(pos);
                 if ((flags__value & SPICE_BITMAP_FLAGS_PAL_FROM_CACHE)) {
-                    pal__extra_size = 0;
+                    u_pal__extra_size = 0;
                 } else if (1) {
-                    uint64_t pal_palette__value;
+                    uint64_t u_pal_palette__value;
                     pos = (start2 + 5);
                     if (SPICE_UNLIKELY(pos + 8 > message_end)) {
                         goto error;
                     }
-                    pal_palette__value = read_uint64(pos);
-                    if (SPICE_UNLIKELY(pal_palette__value == 0)) {
+                    u_pal_palette__value = read_uint64(pos);
+                    if (SPICE_UNLIKELY(u_pal_palette__value == 0)) {
                         goto error;
                     }
-                    ptr_size = validate_SpicePalette(message_start, message_end, pal_palette__value, minor);
+                    ptr_size = validate_SpicePalette(message_start, message_end, u_pal_palette__value, minor);
                     if (SPICE_UNLIKELY(ptr_size < 0)) {
                         goto error;
                     }
-                    pal__extra_size = ptr_size + /* for alignment */ 3;
+                    u_pal__extra_size = ptr_size + /* for alignment */ 3;
                 } else {
-                    pal__extra_size = 0;
+                    u_pal__extra_size = 0;
                 }
 
             }
@@ -2052,14 +2052,14 @@ static intptr_t validate_SpiceImage(uint8_t *message_start, uint8_t *message_end
                     goto error;
                 }
                 data_size__value = read_uint32(pos);
-                data__nelements = data_size__value;
+                u_data__nelements = data_size__value;
 
-                data__nw_size = data__nelements;
-                data__extra_size = sizeof(SpiceChunks) + sizeof(SpiceChunk);
+                u_data__nw_size = u_data__nelements;
+                u_data__extra_size = sizeof(SpiceChunks) + sizeof(SpiceChunk);
             }
 
-            u__nw_size = 13 + data__nw_size;
-            u__extra_size = pal__extra_size + data__extra_size;
+            u__nw_size = 13 + u_data__nw_size;
+            u__extra_size = u_pal__extra_size + u_data__extra_size;
         } else {
             u__nw_size = 0;
             u__extra_size = 0;
@@ -2080,7 +2080,7 @@ static intptr_t validate_SpiceImage(uint8_t *message_start, uint8_t *message_end
     return -1;
 }
 
-static uint8_t * parse_struct_SpicePalette(uint8_t *message_start, uint8_t *message_end, uint8_t *struct_data, PointerInfo *this_ptr_info, int minor)
+static uint8_t * parse_struct_SpicePalette(uint8_t *message_start, SPICE_GNUC_UNUSED uint8_t *message_end, uint8_t *struct_data, PointerInfo *this_ptr_info, SPICE_GNUC_UNUSED int minor)
 {
     uint8_t *in = message_start + this_ptr_info->offset;
     uint8_t *end;
@@ -2101,7 +2101,7 @@ static uint8_t * parse_struct_SpicePalette(uint8_t *message_start, uint8_t *mess
     return end;
 }
 
-static uint8_t * parse_struct_SpiceImage(uint8_t *message_start, uint8_t *message_end, uint8_t *struct_data, PointerInfo *this_ptr_info, int minor)
+static uint8_t * parse_struct_SpiceImage(uint8_t *message_start, SPICE_GNUC_UNUSED uint8_t *message_end, uint8_t *struct_data, PointerInfo *this_ptr_info, SPICE_GNUC_UNUSED int minor)
 {
     uint8_t *in = message_start + this_ptr_info->offset;
     uint8_t *end;
@@ -2223,7 +2223,7 @@ static uint8_t * parse_struct_SpiceImage(uint8_t *message_start, uint8_t *messag
     return NULL;
 }
 
-static uint8_t * parse_msg_display_draw_fill(uint8_t *message_start, uint8_t *message_end, int minor, size_t *size, message_destructor_t *free_message)
+static uint8_t * parse_msg_display_draw_fill(uint8_t *message_start, uint8_t *message_end, SPICE_GNUC_UNUSED int minor, size_t *size, message_destructor_t *free_message)
 {
     SPICE_GNUC_UNUSED uint8_t *pos;
     uint8_t *start = message_start;
@@ -2241,10 +2241,10 @@ static uint8_t * parse_msg_display_draw_fill(uint8_t *message_start, uint8_t *me
 
     { /* base */
         SPICE_GNUC_UNUSED uint8_t *start2 = (start + 0);
-        size_t clip__extra_size;
+        size_t base_clip__extra_size;
         { /* clip */
             SPICE_GNUC_UNUSED uint8_t *start3 = (start2 + 16);
-            size_t u__extra_size;
+            size_t base_clip_u__extra_size;
             uint32_t type__value;
             { /* u */
                 pos = start3 + 0;
@@ -2253,38 +2253,38 @@ static uint8_t * parse_msg_display_draw_fill(uint8_t *message_start, uint8_t *me
                 }
                 type__value = read_uint32(pos);
                 if (type__value == SPICE_CLIP_TYPE_RECTS) {
-                    uint64_t u_rects__value;
+                    uint64_t base_clip_u_rects__value;
                     pos = (start3 + 4);
                     if (SPICE_UNLIKELY(pos + 8 > message_end)) {
                         goto error;
                     }
-                    u_rects__value = read_uint64(pos);
-                    ptr_size = validate_SpiceClipRects(message_start, message_end, u_rects__value, minor);
+                    base_clip_u_rects__value = read_uint64(pos);
+                    ptr_size = validate_SpiceClipRects(message_start, message_end, base_clip_u_rects__value, minor);
                     if (SPICE_UNLIKELY(ptr_size < 0)) {
                         goto error;
                     }
-                    u__extra_size = ptr_size + /* for alignment */ 3;
+                    base_clip_u__extra_size = ptr_size + /* for alignment */ 3;
                 } else if (1) {
-                    u__extra_size = 0;
+                    base_clip_u__extra_size = 0;
                 } else {
-                    u__extra_size = 0;
+                    base_clip_u__extra_size = 0;
                 }
 
             }
 
-            clip__extra_size = u__extra_size;
+            base_clip__extra_size = base_clip_u__extra_size;
         }
 
-        base__extra_size = clip__extra_size;
+        base__extra_size = base_clip__extra_size;
     }
 
     { /* data */
         SPICE_GNUC_UNUSED uint8_t *start2 = (start + 28);
-        size_t brush__extra_size;
-        size_t mask__extra_size;
+        size_t data_brush__extra_size;
+        size_t data_mask__extra_size;
         { /* brush */
             SPICE_GNUC_UNUSED uint8_t *start3 = (start2 + 0);
-            size_t u__extra_size;
+            size_t data_brush_u__extra_size;
             uint32_t type__value;
             { /* u */
                 pos = start3 + 0;
@@ -2293,10 +2293,10 @@ static uint8_t * parse_msg_display_draw_fill(uint8_t *message_start, uint8_t *me
                 }
                 type__value = read_uint32(pos);
                 if (type__value == SPICE_BRUSH_TYPE_SOLID) {
-                    u__extra_size = 0;
+                    data_brush_u__extra_size = 0;
                 } else if (type__value == SPICE_BRUSH_TYPE_PATTERN) {
                     SPICE_GNUC_UNUSED uint8_t *start4 = (start3 + 4);
-                    size_t pat__extra_size;
+                    size_t data_brush_u_pat__extra_size;
                     { /* pat */
                         uint64_t pat__value;
                         pos = (start4 + 0);
@@ -2311,22 +2311,22 @@ static uint8_t * parse_msg_display_draw_fill(uint8_t *message_start, uint8_t *me
                         if (SPICE_UNLIKELY(ptr_size < 0)) {
                             goto error;
                         }
-                        pat__extra_size = ptr_size + /* for alignment */ 3;
+                        data_brush_u_pat__extra_size = ptr_size + /* for alignment */ 3;
                     }
 
-                    u__extra_size = pat__extra_size;
+                    data_brush_u__extra_size = data_brush_u_pat__extra_size;
                 } else {
-                    u__extra_size = 0;
+                    data_brush_u__extra_size = 0;
                 }
 
             }
 
-            brush__extra_size = u__extra_size;
+            data_brush__extra_size = data_brush_u__extra_size;
         }
 
         { /* mask */
             SPICE_GNUC_UNUSED uint8_t *start3 = (start2 + 22);
-            size_t bitmap__extra_size;
+            size_t data_mask_bitmap__extra_size;
             { /* bitmap */
                 uint64_t bitmap__value;
                 pos = (start3 + 9);
@@ -2338,13 +2338,13 @@ static uint8_t * parse_msg_display_draw_fill(uint8_t *message_start, uint8_t *me
                 if (SPICE_UNLIKELY(ptr_size < 0)) {
                     goto error;
                 }
-                bitmap__extra_size = ptr_size + /* for alignment */ 3;
+                data_mask_bitmap__extra_size = ptr_size + /* for alignment */ 3;
             }
 
-            mask__extra_size = bitmap__extra_size;
+            data_mask__extra_size = data_mask_bitmap__extra_size;
         }
 
-        data__extra_size = brush__extra_size + mask__extra_size;
+        data__extra_size = data_brush__extra_size + data_mask__extra_size;
     }
 
     nw_size = 67;
@@ -2447,7 +2447,7 @@ static uint8_t * parse_msg_display_draw_fill(uint8_t *message_start, uint8_t *me
     return NULL;
 }
 
-static uint8_t * parse_msg_display_draw_opaque(uint8_t *message_start, uint8_t *message_end, int minor, size_t *size, message_destructor_t *free_message)
+static uint8_t * parse_msg_display_draw_opaque(uint8_t *message_start, uint8_t *message_end, SPICE_GNUC_UNUSED int minor, size_t *size, message_destructor_t *free_message)
 {
     SPICE_GNUC_UNUSED uint8_t *pos;
     uint8_t *start = message_start;
@@ -2465,10 +2465,10 @@ static uint8_t * parse_msg_display_draw_opaque(uint8_t *message_start, uint8_t *
 
     { /* base */
         SPICE_GNUC_UNUSED uint8_t *start2 = (start + 0);
-        size_t clip__extra_size;
+        size_t base_clip__extra_size;
         { /* clip */
             SPICE_GNUC_UNUSED uint8_t *start3 = (start2 + 16);
-            size_t u__extra_size;
+            size_t base_clip_u__extra_size;
             uint32_t type__value;
             { /* u */
                 pos = start3 + 0;
@@ -2477,36 +2477,36 @@ static uint8_t * parse_msg_display_draw_opaque(uint8_t *message_start, uint8_t *
                 }
                 type__value = read_uint32(pos);
                 if (type__value == SPICE_CLIP_TYPE_RECTS) {
-                    uint64_t u_rects__value;
+                    uint64_t base_clip_u_rects__value;
                     pos = (start3 + 4);
                     if (SPICE_UNLIKELY(pos + 8 > message_end)) {
                         goto error;
                     }
-                    u_rects__value = read_uint64(pos);
-                    ptr_size = validate_SpiceClipRects(message_start, message_end, u_rects__value, minor);
+                    base_clip_u_rects__value = read_uint64(pos);
+                    ptr_size = validate_SpiceClipRects(message_start, message_end, base_clip_u_rects__value, minor);
                     if (SPICE_UNLIKELY(ptr_size < 0)) {
                         goto error;
                     }
-                    u__extra_size = ptr_size + /* for alignment */ 3;
+                    base_clip_u__extra_size = ptr_size + /* for alignment */ 3;
                 } else if (1) {
-                    u__extra_size = 0;
+                    base_clip_u__extra_size = 0;
                 } else {
-                    u__extra_size = 0;
+                    base_clip_u__extra_size = 0;
                 }
 
             }
 
-            clip__extra_size = u__extra_size;
+            base_clip__extra_size = base_clip_u__extra_size;
         }
 
-        base__extra_size = clip__extra_size;
+        base__extra_size = base_clip__extra_size;
     }
 
     { /* data */
         SPICE_GNUC_UNUSED uint8_t *start2 = (start + 28);
-        size_t src_bitmap__extra_size;
-        size_t brush__extra_size;
-        size_t mask__extra_size;
+        size_t data_src_bitmap__extra_size;
+        size_t data_brush__extra_size;
+        size_t data_mask__extra_size;
         { /* src_bitmap */
             uint64_t src_bitmap__value;
             pos = (start2 + 0);
@@ -2518,12 +2518,12 @@ static uint8_t * parse_msg_display_draw_opaque(uint8_t *message_start, uint8_t *
             if (SPICE_UNLIKELY(ptr_size < 0)) {
                 goto error;
             }
-            src_bitmap__extra_size = ptr_size + /* for alignment */ 3;
+            data_src_bitmap__extra_size = ptr_size + /* for alignment */ 3;
         }
 
         { /* brush */
             SPICE_GNUC_UNUSED uint8_t *start3 = (start2 + 24);
-            size_t u__extra_size;
+            size_t data_brush_u__extra_size;
             uint32_t type__value;
             { /* u */
                 pos = start3 + 0;
@@ -2532,10 +2532,10 @@ static uint8_t * parse_msg_display_draw_opaque(uint8_t *message_start, uint8_t *
                 }
                 type__value = read_uint32(pos);
                 if (type__value == SPICE_BRUSH_TYPE_SOLID) {
-                    u__extra_size = 0;
+                    data_brush_u__extra_size = 0;
                 } else if (type__value == SPICE_BRUSH_TYPE_PATTERN) {
                     SPICE_GNUC_UNUSED uint8_t *start4 = (start3 + 4);
-                    size_t pat__extra_size;
+                    size_t data_brush_u_pat__extra_size;
                     { /* pat */
                         uint64_t pat__value;
                         pos = (start4 + 0);
@@ -2550,22 +2550,22 @@ static uint8_t * parse_msg_display_draw_opaque(uint8_t *message_start, uint8_t *
                         if (SPICE_UNLIKELY(ptr_size < 0)) {
                             goto error;
                         }
-                        pat__extra_size = ptr_size + /* for alignment */ 3;
+                        data_brush_u_pat__extra_size = ptr_size + /* for alignment */ 3;
                     }
 
-                    u__extra_size = pat__extra_size;
+                    data_brush_u__extra_size = data_brush_u_pat__extra_size;
                 } else {
-                    u__extra_size = 0;
+                    data_brush_u__extra_size = 0;
                 }
 
             }
 
-            brush__extra_size = u__extra_size;
+            data_brush__extra_size = data_brush_u__extra_size;
         }
 
         { /* mask */
             SPICE_GNUC_UNUSED uint8_t *start3 = (start2 + 47);
-            size_t bitmap__extra_size;
+            size_t data_mask_bitmap__extra_size;
             { /* bitmap */
                 uint64_t bitmap__value;
                 pos = (start3 + 9);
@@ -2577,13 +2577,13 @@ static uint8_t * parse_msg_display_draw_opaque(uint8_t *message_start, uint8_t *
                 if (SPICE_UNLIKELY(ptr_size < 0)) {
                     goto error;
                 }
-                bitmap__extra_size = ptr_size + /* for alignment */ 3;
+                data_mask_bitmap__extra_size = ptr_size + /* for alignment */ 3;
             }
 
-            mask__extra_size = bitmap__extra_size;
+            data_mask__extra_size = data_mask_bitmap__extra_size;
         }
 
-        data__extra_size = src_bitmap__extra_size + brush__extra_size + mask__extra_size;
+        data__extra_size = data_src_bitmap__extra_size + data_brush__extra_size + data_mask__extra_size;
     }
 
     nw_size = 92;
@@ -2697,7 +2697,7 @@ static uint8_t * parse_msg_display_draw_opaque(uint8_t *message_start, uint8_t *
     return NULL;
 }
 
-static uint8_t * parse_msg_display_draw_copy(uint8_t *message_start, uint8_t *message_end, int minor, size_t *size, message_destructor_t *free_message)
+static uint8_t * parse_msg_display_draw_copy(uint8_t *message_start, uint8_t *message_end, SPICE_GNUC_UNUSED int minor, size_t *size, message_destructor_t *free_message)
 {
     SPICE_GNUC_UNUSED uint8_t *pos;
     uint8_t *start = message_start;
@@ -2715,10 +2715,10 @@ static uint8_t * parse_msg_display_draw_copy(uint8_t *message_start, uint8_t *me
 
     { /* base */
         SPICE_GNUC_UNUSED uint8_t *start2 = (start + 0);
-        size_t clip__extra_size;
+        size_t base_clip__extra_size;
         { /* clip */
             SPICE_GNUC_UNUSED uint8_t *start3 = (start2 + 16);
-            size_t u__extra_size;
+            size_t base_clip_u__extra_size;
             uint32_t type__value;
             { /* u */
                 pos = start3 + 0;
@@ -2727,35 +2727,35 @@ static uint8_t * parse_msg_display_draw_copy(uint8_t *message_start, uint8_t *me
                 }
                 type__value = read_uint32(pos);
                 if (type__value == SPICE_CLIP_TYPE_RECTS) {
-                    uint64_t u_rects__value;
+                    uint64_t base_clip_u_rects__value;
                     pos = (start3 + 4);
                     if (SPICE_UNLIKELY(pos + 8 > message_end)) {
                         goto error;
                     }
-                    u_rects__value = read_uint64(pos);
-                    ptr_size = validate_SpiceClipRects(message_start, message_end, u_rects__value, minor);
+                    base_clip_u_rects__value = read_uint64(pos);
+                    ptr_size = validate_SpiceClipRects(message_start, message_end, base_clip_u_rects__value, minor);
                     if (SPICE_UNLIKELY(ptr_size < 0)) {
                         goto error;
                     }
-                    u__extra_size = ptr_size + /* for alignment */ 3;
+                    base_clip_u__extra_size = ptr_size + /* for alignment */ 3;
                 } else if (1) {
-                    u__extra_size = 0;
+                    base_clip_u__extra_size = 0;
                 } else {
-                    u__extra_size = 0;
+                    base_clip_u__extra_size = 0;
                 }
 
             }
 
-            clip__extra_size = u__extra_size;
+            base_clip__extra_size = base_clip_u__extra_size;
         }
 
-        base__extra_size = clip__extra_size;
+        base__extra_size = base_clip__extra_size;
     }
 
     { /* data */
         SPICE_GNUC_UNUSED uint8_t *start2 = (start + 28);
-        size_t src_bitmap__extra_size;
-        size_t mask__extra_size;
+        size_t data_src_bitmap__extra_size;
+        size_t data_mask__extra_size;
         { /* src_bitmap */
             uint64_t src_bitmap__value;
             pos = (start2 + 0);
@@ -2767,12 +2767,12 @@ static uint8_t * parse_msg_display_draw_copy(uint8_t *message_start, uint8_t *me
             if (SPICE_UNLIKELY(ptr_size < 0)) {
                 goto error;
             }
-            src_bitmap__extra_size = ptr_size + /* for alignment */ 3;
+            data_src_bitmap__extra_size = ptr_size + /* for alignment */ 3;
         }
 
         { /* mask */
             SPICE_GNUC_UNUSED uint8_t *start3 = (start2 + 27);
-            size_t bitmap__extra_size;
+            size_t data_mask_bitmap__extra_size;
             { /* bitmap */
                 uint64_t bitmap__value;
                 pos = (start3 + 9);
@@ -2784,13 +2784,13 @@ static uint8_t * parse_msg_display_draw_copy(uint8_t *message_start, uint8_t *me
                 if (SPICE_UNLIKELY(ptr_size < 0)) {
                     goto error;
                 }
-                bitmap__extra_size = ptr_size + /* for alignment */ 3;
+                data_mask_bitmap__extra_size = ptr_size + /* for alignment */ 3;
             }
 
-            mask__extra_size = bitmap__extra_size;
+            data_mask__extra_size = data_mask_bitmap__extra_size;
         }
 
-        data__extra_size = src_bitmap__extra_size + mask__extra_size;
+        data__extra_size = data_src_bitmap__extra_size + data_mask__extra_size;
     }
 
     nw_size = 72;
@@ -2886,7 +2886,7 @@ static uint8_t * parse_msg_display_draw_copy(uint8_t *message_start, uint8_t *me
     return NULL;
 }
 
-static uint8_t * parse_msg_display_draw_blend(uint8_t *message_start, uint8_t *message_end, int minor, size_t *size, message_destructor_t *free_message)
+static uint8_t * parse_msg_display_draw_blend(uint8_t *message_start, uint8_t *message_end, SPICE_GNUC_UNUSED int minor, size_t *size, message_destructor_t *free_message)
 {
     SPICE_GNUC_UNUSED uint8_t *pos;
     uint8_t *start = message_start;
@@ -2904,10 +2904,10 @@ static uint8_t * parse_msg_display_draw_blend(uint8_t *message_start, uint8_t *m
 
     { /* base */
         SPICE_GNUC_UNUSED uint8_t *start2 = (start + 0);
-        size_t clip__extra_size;
+        size_t base_clip__extra_size;
         { /* clip */
             SPICE_GNUC_UNUSED uint8_t *start3 = (start2 + 16);
-            size_t u__extra_size;
+            size_t base_clip_u__extra_size;
             uint32_t type__value;
             { /* u */
                 pos = start3 + 0;
@@ -2916,35 +2916,35 @@ static uint8_t * parse_msg_display_draw_blend(uint8_t *message_start, uint8_t *m
                 }
                 type__value = read_uint32(pos);
                 if (type__value == SPICE_CLIP_TYPE_RECTS) {
-                    uint64_t u_rects__value;
+                    uint64_t base_clip_u_rects__value;
                     pos = (start3 + 4);
                     if (SPICE_UNLIKELY(pos + 8 > message_end)) {
                         goto error;
                     }
-                    u_rects__value = read_uint64(pos);
-                    ptr_size = validate_SpiceClipRects(message_start, message_end, u_rects__value, minor);
+                    base_clip_u_rects__value = read_uint64(pos);
+                    ptr_size = validate_SpiceClipRects(message_start, message_end, base_clip_u_rects__value, minor);
                     if (SPICE_UNLIKELY(ptr_size < 0)) {
                         goto error;
                     }
-                    u__extra_size = ptr_size + /* for alignment */ 3;
+                    base_clip_u__extra_size = ptr_size + /* for alignment */ 3;
                 } else if (1) {
-                    u__extra_size = 0;
+                    base_clip_u__extra_size = 0;
                 } else {
-                    u__extra_size = 0;
+                    base_clip_u__extra_size = 0;
                 }
 
             }
 
-            clip__extra_size = u__extra_size;
+            base_clip__extra_size = base_clip_u__extra_size;
         }
 
-        base__extra_size = clip__extra_size;
+        base__extra_size = base_clip__extra_size;
     }
 
     { /* data */
         SPICE_GNUC_UNUSED uint8_t *start2 = (start + 28);
-        size_t src_bitmap__extra_size;
-        size_t mask__extra_size;
+        size_t data_src_bitmap__extra_size;
+        size_t data_mask__extra_size;
         { /* src_bitmap */
             uint64_t src_bitmap__value;
             pos = (start2 + 0);
@@ -2956,12 +2956,12 @@ static uint8_t * parse_msg_display_draw_blend(uint8_t *message_start, uint8_t *m
             if (SPICE_UNLIKELY(ptr_size < 0)) {
                 goto error;
             }
-            src_bitmap__extra_size = ptr_size + /* for alignment */ 3;
+            data_src_bitmap__extra_size = ptr_size + /* for alignment */ 3;
         }
 
         { /* mask */
             SPICE_GNUC_UNUSED uint8_t *start3 = (start2 + 27);
-            size_t bitmap__extra_size;
+            size_t data_mask_bitmap__extra_size;
             { /* bitmap */
                 uint64_t bitmap__value;
                 pos = (start3 + 9);
@@ -2973,13 +2973,13 @@ static uint8_t * parse_msg_display_draw_blend(uint8_t *message_start, uint8_t *m
                 if (SPICE_UNLIKELY(ptr_size < 0)) {
                     goto error;
                 }
-                bitmap__extra_size = ptr_size + /* for alignment */ 3;
+                data_mask_bitmap__extra_size = ptr_size + /* for alignment */ 3;
             }
 
-            mask__extra_size = bitmap__extra_size;
+            data_mask__extra_size = data_mask_bitmap__extra_size;
         }
 
-        data__extra_size = src_bitmap__extra_size + mask__extra_size;
+        data__extra_size = data_src_bitmap__extra_size + data_mask__extra_size;
     }
 
     nw_size = 72;
@@ -3075,7 +3075,7 @@ static uint8_t * parse_msg_display_draw_blend(uint8_t *message_start, uint8_t *m
     return NULL;
 }
 
-static uint8_t * parse_msg_display_draw_blackness(uint8_t *message_start, uint8_t *message_end, int minor, size_t *size, message_destructor_t *free_message)
+static uint8_t * parse_msg_display_draw_blackness(uint8_t *message_start, uint8_t *message_end, SPICE_GNUC_UNUSED int minor, size_t *size, message_destructor_t *free_message)
 {
     SPICE_GNUC_UNUSED uint8_t *pos;
     uint8_t *start = message_start;
@@ -3093,10 +3093,10 @@ static uint8_t * parse_msg_display_draw_blackness(uint8_t *message_start, uint8_
 
     { /* base */
         SPICE_GNUC_UNUSED uint8_t *start2 = (start + 0);
-        size_t clip__extra_size;
+        size_t base_clip__extra_size;
         { /* clip */
             SPICE_GNUC_UNUSED uint8_t *start3 = (start2 + 16);
-            size_t u__extra_size;
+            size_t base_clip_u__extra_size;
             uint32_t type__value;
             { /* u */
                 pos = start3 + 0;
@@ -3105,37 +3105,37 @@ static uint8_t * parse_msg_display_draw_blackness(uint8_t *message_start, uint8_
                 }
                 type__value = read_uint32(pos);
                 if (type__value == SPICE_CLIP_TYPE_RECTS) {
-                    uint64_t u_rects__value;
+                    uint64_t base_clip_u_rects__value;
                     pos = (start3 + 4);
                     if (SPICE_UNLIKELY(pos + 8 > message_end)) {
                         goto error;
                     }
-                    u_rects__value = read_uint64(pos);
-                    ptr_size = validate_SpiceClipRects(message_start, message_end, u_rects__value, minor);
+                    base_clip_u_rects__value = read_uint64(pos);
+                    ptr_size = validate_SpiceClipRects(message_start, message_end, base_clip_u_rects__value, minor);
                     if (SPICE_UNLIKELY(ptr_size < 0)) {
                         goto error;
                     }
-                    u__extra_size = ptr_size + /* for alignment */ 3;
+                    base_clip_u__extra_size = ptr_size + /* for alignment */ 3;
                 } else if (1) {
-                    u__extra_size = 0;
+                    base_clip_u__extra_size = 0;
                 } else {
-                    u__extra_size = 0;
+                    base_clip_u__extra_size = 0;
                 }
 
             }
 
-            clip__extra_size = u__extra_size;
+            base_clip__extra_size = base_clip_u__extra_size;
         }
 
-        base__extra_size = clip__extra_size;
+        base__extra_size = base_clip__extra_size;
     }
 
     { /* data */
         SPICE_GNUC_UNUSED uint8_t *start2 = (start + 28);
-        size_t mask__extra_size;
+        size_t data_mask__extra_size;
         { /* mask */
             SPICE_GNUC_UNUSED uint8_t *start3 = (start2 + 0);
-            size_t bitmap__extra_size;
+            size_t data_mask_bitmap__extra_size;
             { /* bitmap */
                 uint64_t bitmap__value;
                 pos = (start3 + 9);
@@ -3147,13 +3147,13 @@ static uint8_t * parse_msg_display_draw_blackness(uint8_t *message_start, uint8_
                 if (SPICE_UNLIKELY(ptr_size < 0)) {
                     goto error;
                 }
-                bitmap__extra_size = ptr_size + /* for alignment */ 3;
+                data_mask_bitmap__extra_size = ptr_size + /* for alignment */ 3;
             }
 
-            mask__extra_size = bitmap__extra_size;
+            data_mask__extra_size = data_mask_bitmap__extra_size;
         }
 
-        data__extra_size = mask__extra_size;
+        data__extra_size = data_mask__extra_size;
     }
 
     nw_size = 45;
@@ -3237,7 +3237,7 @@ static uint8_t * parse_msg_display_draw_blackness(uint8_t *message_start, uint8_
     return NULL;
 }
 
-static uint8_t * parse_msg_display_draw_whiteness(uint8_t *message_start, uint8_t *message_end, int minor, size_t *size, message_destructor_t *free_message)
+static uint8_t * parse_msg_display_draw_whiteness(uint8_t *message_start, uint8_t *message_end, SPICE_GNUC_UNUSED int minor, size_t *size, message_destructor_t *free_message)
 {
     SPICE_GNUC_UNUSED uint8_t *pos;
     uint8_t *start = message_start;
@@ -3255,10 +3255,10 @@ static uint8_t * parse_msg_display_draw_whiteness(uint8_t *message_start, uint8_
 
     { /* base */
         SPICE_GNUC_UNUSED uint8_t *start2 = (start + 0);
-        size_t clip__extra_size;
+        size_t base_clip__extra_size;
         { /* clip */
             SPICE_GNUC_UNUSED uint8_t *start3 = (start2 + 16);
-            size_t u__extra_size;
+            size_t base_clip_u__extra_size;
             uint32_t type__value;
             { /* u */
                 pos = start3 + 0;
@@ -3267,37 +3267,37 @@ static uint8_t * parse_msg_display_draw_whiteness(uint8_t *message_start, uint8_
                 }
                 type__value = read_uint32(pos);
                 if (type__value == SPICE_CLIP_TYPE_RECTS) {
-                    uint64_t u_rects__value;
+                    uint64_t base_clip_u_rects__value;
                     pos = (start3 + 4);
                     if (SPICE_UNLIKELY(pos + 8 > message_end)) {
                         goto error;
                     }
-                    u_rects__value = read_uint64(pos);
-                    ptr_size = validate_SpiceClipRects(message_start, message_end, u_rects__value, minor);
+                    base_clip_u_rects__value = read_uint64(pos);
+                    ptr_size = validate_SpiceClipRects(message_start, message_end, base_clip_u_rects__value, minor);
                     if (SPICE_UNLIKELY(ptr_size < 0)) {
                         goto error;
                     }
-                    u__extra_size = ptr_size + /* for alignment */ 3;
+                    base_clip_u__extra_size = ptr_size + /* for alignment */ 3;
                 } else if (1) {
-                    u__extra_size = 0;
+                    base_clip_u__extra_size = 0;
                 } else {
-                    u__extra_size = 0;
+                    base_clip_u__extra_size = 0;
                 }
 
             }
 
-            clip__extra_size = u__extra_size;
+            base_clip__extra_size = base_clip_u__extra_size;
         }
 
-        base__extra_size = clip__extra_size;
+        base__extra_size = base_clip__extra_size;
     }
 
     { /* data */
         SPICE_GNUC_UNUSED uint8_t *start2 = (start + 28);
-        size_t mask__extra_size;
+        size_t data_mask__extra_size;
         { /* mask */
             SPICE_GNUC_UNUSED uint8_t *start3 = (start2 + 0);
-            size_t bitmap__extra_size;
+            size_t data_mask_bitmap__extra_size;
             { /* bitmap */
                 uint64_t bitmap__value;
                 pos = (start3 + 9);
@@ -3309,13 +3309,13 @@ static uint8_t * parse_msg_display_draw_whiteness(uint8_t *message_start, uint8_
                 if (SPICE_UNLIKELY(ptr_size < 0)) {
                     goto error;
                 }
-                bitmap__extra_size = ptr_size + /* for alignment */ 3;
+                data_mask_bitmap__extra_size = ptr_size + /* for alignment */ 3;
             }
 
-            mask__extra_size = bitmap__extra_size;
+            data_mask__extra_size = data_mask_bitmap__extra_size;
         }
 
-        data__extra_size = mask__extra_size;
+        data__extra_size = data_mask__extra_size;
     }
 
     nw_size = 45;
@@ -3399,7 +3399,7 @@ static uint8_t * parse_msg_display_draw_whiteness(uint8_t *message_start, uint8_
     return NULL;
 }
 
-static uint8_t * parse_msg_display_draw_invers(uint8_t *message_start, uint8_t *message_end, int minor, size_t *size, message_destructor_t *free_message)
+static uint8_t * parse_msg_display_draw_invers(uint8_t *message_start, uint8_t *message_end, SPICE_GNUC_UNUSED int minor, size_t *size, message_destructor_t *free_message)
 {
     SPICE_GNUC_UNUSED uint8_t *pos;
     uint8_t *start = message_start;
@@ -3417,10 +3417,10 @@ static uint8_t * parse_msg_display_draw_invers(uint8_t *message_start, uint8_t *
 
     { /* base */
         SPICE_GNUC_UNUSED uint8_t *start2 = (start + 0);
-        size_t clip__extra_size;
+        size_t base_clip__extra_size;
         { /* clip */
             SPICE_GNUC_UNUSED uint8_t *start3 = (start2 + 16);
-            size_t u__extra_size;
+            size_t base_clip_u__extra_size;
             uint32_t type__value;
             { /* u */
                 pos = start3 + 0;
@@ -3429,37 +3429,37 @@ static uint8_t * parse_msg_display_draw_invers(uint8_t *message_start, uint8_t *
                 }
                 type__value = read_uint32(pos);
                 if (type__value == SPICE_CLIP_TYPE_RECTS) {
-                    uint64_t u_rects__value;
+                    uint64_t base_clip_u_rects__value;
                     pos = (start3 + 4);
                     if (SPICE_UNLIKELY(pos + 8 > message_end)) {
                         goto error;
                     }
-                    u_rects__value = read_uint64(pos);
-                    ptr_size = validate_SpiceClipRects(message_start, message_end, u_rects__value, minor);
+                    base_clip_u_rects__value = read_uint64(pos);
+                    ptr_size = validate_SpiceClipRects(message_start, message_end, base_clip_u_rects__value, minor);
                     if (SPICE_UNLIKELY(ptr_size < 0)) {
                         goto error;
                     }
-                    u__extra_size = ptr_size + /* for alignment */ 3;
+                    base_clip_u__extra_size = ptr_size + /* for alignment */ 3;
                 } else if (1) {
-                    u__extra_size = 0;
+                    base_clip_u__extra_size = 0;
                 } else {
-                    u__extra_size = 0;
+                    base_clip_u__extra_size = 0;
                 }
 
             }
 
-            clip__extra_size = u__extra_size;
+            base_clip__extra_size = base_clip_u__extra_size;
         }
 
-        base__extra_size = clip__extra_size;
+        base__extra_size = base_clip__extra_size;
     }
 
     { /* data */
         SPICE_GNUC_UNUSED uint8_t *start2 = (start + 28);
-        size_t mask__extra_size;
+        size_t data_mask__extra_size;
         { /* mask */
             SPICE_GNUC_UNUSED uint8_t *start3 = (start2 + 0);
-            size_t bitmap__extra_size;
+            size_t data_mask_bitmap__extra_size;
             { /* bitmap */
                 uint64_t bitmap__value;
                 pos = (start3 + 9);
@@ -3471,13 +3471,13 @@ static uint8_t * parse_msg_display_draw_invers(uint8_t *message_start, uint8_t *
                 if (SPICE_UNLIKELY(ptr_size < 0)) {
                     goto error;
                 }
-                bitmap__extra_size = ptr_size + /* for alignment */ 3;
+                data_mask_bitmap__extra_size = ptr_size + /* for alignment */ 3;
             }
 
-            mask__extra_size = bitmap__extra_size;
+            data_mask__extra_size = data_mask_bitmap__extra_size;
         }
 
-        data__extra_size = mask__extra_size;
+        data__extra_size = data_mask__extra_size;
     }
 
     nw_size = 45;
@@ -3561,7 +3561,7 @@ static uint8_t * parse_msg_display_draw_invers(uint8_t *message_start, uint8_t *
     return NULL;
 }
 
-static uint8_t * parse_msg_display_draw_rop3(uint8_t *message_start, uint8_t *message_end, int minor, size_t *size, message_destructor_t *free_message)
+static uint8_t * parse_msg_display_draw_rop3(uint8_t *message_start, uint8_t *message_end, SPICE_GNUC_UNUSED int minor, size_t *size, message_destructor_t *free_message)
 {
     SPICE_GNUC_UNUSED uint8_t *pos;
     uint8_t *start = message_start;
@@ -3579,10 +3579,10 @@ static uint8_t * parse_msg_display_draw_rop3(uint8_t *message_start, uint8_t *me
 
     { /* base */
         SPICE_GNUC_UNUSED uint8_t *start2 = (start + 0);
-        size_t clip__extra_size;
+        size_t base_clip__extra_size;
         { /* clip */
             SPICE_GNUC_UNUSED uint8_t *start3 = (start2 + 16);
-            size_t u__extra_size;
+            size_t base_clip_u__extra_size;
             uint32_t type__value;
             { /* u */
                 pos = start3 + 0;
@@ -3591,36 +3591,36 @@ static uint8_t * parse_msg_display_draw_rop3(uint8_t *message_start, uint8_t *me
                 }
                 type__value = read_uint32(pos);
                 if (type__value == SPICE_CLIP_TYPE_RECTS) {
-                    uint64_t u_rects__value;
+                    uint64_t base_clip_u_rects__value;
                     pos = (start3 + 4);
                     if (SPICE_UNLIKELY(pos + 8 > message_end)) {
                         goto error;
                     }
-                    u_rects__value = read_uint64(pos);
-                    ptr_size = validate_SpiceClipRects(message_start, message_end, u_rects__value, minor);
+                    base_clip_u_rects__value = read_uint64(pos);
+                    ptr_size = validate_SpiceClipRects(message_start, message_end, base_clip_u_rects__value, minor);
                     if (SPICE_UNLIKELY(ptr_size < 0)) {
                         goto error;
                     }
-                    u__extra_size = ptr_size + /* for alignment */ 3;
+                    base_clip_u__extra_size = ptr_size + /* for alignment */ 3;
                 } else if (1) {
-                    u__extra_size = 0;
+                    base_clip_u__extra_size = 0;
                 } else {
-                    u__extra_size = 0;
+                    base_clip_u__extra_size = 0;
                 }
 
             }
 
-            clip__extra_size = u__extra_size;
+            base_clip__extra_size = base_clip_u__extra_size;
         }
 
-        base__extra_size = clip__extra_size;
+        base__extra_size = base_clip__extra_size;
     }
 
     { /* data */
         SPICE_GNUC_UNUSED uint8_t *start2 = (start + 28);
-        size_t src_bitmap__extra_size;
-        size_t brush__extra_size;
-        size_t mask__extra_size;
+        size_t data_src_bitmap__extra_size;
+        size_t data_brush__extra_size;
+        size_t data_mask__extra_size;
         { /* src_bitmap */
             uint64_t src_bitmap__value;
             pos = (start2 + 0);
@@ -3632,12 +3632,12 @@ static uint8_t * parse_msg_display_draw_rop3(uint8_t *message_start, uint8_t *me
             if (SPICE_UNLIKELY(ptr_size < 0)) {
                 goto error;
             }
-            src_bitmap__extra_size = ptr_size + /* for alignment */ 3;
+            data_src_bitmap__extra_size = ptr_size + /* for alignment */ 3;
         }
 
         { /* brush */
             SPICE_GNUC_UNUSED uint8_t *start3 = (start2 + 24);
-            size_t u__extra_size;
+            size_t data_brush_u__extra_size;
             uint32_t type__value;
             { /* u */
                 pos = start3 + 0;
@@ -3646,10 +3646,10 @@ static uint8_t * parse_msg_display_draw_rop3(uint8_t *message_start, uint8_t *me
                 }
                 type__value = read_uint32(pos);
                 if (type__value == SPICE_BRUSH_TYPE_SOLID) {
-                    u__extra_size = 0;
+                    data_brush_u__extra_size = 0;
                 } else if (type__value == SPICE_BRUSH_TYPE_PATTERN) {
                     SPICE_GNUC_UNUSED uint8_t *start4 = (start3 + 4);
-                    size_t pat__extra_size;
+                    size_t data_brush_u_pat__extra_size;
                     { /* pat */
                         uint64_t pat__value;
                         pos = (start4 + 0);
@@ -3664,22 +3664,22 @@ static uint8_t * parse_msg_display_draw_rop3(uint8_t *message_start, uint8_t *me
                         if (SPICE_UNLIKELY(ptr_size < 0)) {
                             goto error;
                         }
-                        pat__extra_size = ptr_size + /* for alignment */ 3;
+                        data_brush_u_pat__extra_size = ptr_size + /* for alignment */ 3;
                     }
 
-                    u__extra_size = pat__extra_size;
+                    data_brush_u__extra_size = data_brush_u_pat__extra_size;
                 } else {
-                    u__extra_size = 0;
+                    data_brush_u__extra_size = 0;
                 }
 
             }
 
-            brush__extra_size = u__extra_size;
+            data_brush__extra_size = data_brush_u__extra_size;
         }
 
         { /* mask */
             SPICE_GNUC_UNUSED uint8_t *start3 = (start2 + 46);
-            size_t bitmap__extra_size;
+            size_t data_mask_bitmap__extra_size;
             { /* bitmap */
                 uint64_t bitmap__value;
                 pos = (start3 + 9);
@@ -3691,13 +3691,13 @@ static uint8_t * parse_msg_display_draw_rop3(uint8_t *message_start, uint8_t *me
                 if (SPICE_UNLIKELY(ptr_size < 0)) {
                     goto error;
                 }
-                bitmap__extra_size = ptr_size + /* for alignment */ 3;
+                data_mask_bitmap__extra_size = ptr_size + /* for alignment */ 3;
             }
 
-            mask__extra_size = bitmap__extra_size;
+            data_mask__extra_size = data_mask_bitmap__extra_size;
         }
 
-        data__extra_size = src_bitmap__extra_size + brush__extra_size + mask__extra_size;
+        data__extra_size = data_src_bitmap__extra_size + data_brush__extra_size + data_mask__extra_size;
     }
 
     nw_size = 91;
@@ -3811,7 +3811,7 @@ static uint8_t * parse_msg_display_draw_rop3(uint8_t *message_start, uint8_t *me
     return NULL;
 }
 
-static intptr_t validate_SpicePath(uint8_t *message_start, uint8_t *message_end, uint64_t offset, int minor)
+static intptr_t validate_SpicePath(uint8_t *message_start, uint8_t *message_end, uint64_t offset, SPICE_GNUC_UNUSED int minor)
 {
     uint8_t *start = message_start + offset;
     SPICE_GNUC_UNUSED uint8_t *pos;
@@ -3847,8 +3847,8 @@ static intptr_t validate_SpicePath(uint8_t *message_start, uint8_t *message_end,
         start2_array_end = start2 + segments__nbytes;
         while (start2 < start2_array_end) {
             SPICE_GNUC_UNUSED uint8_t *start3 = start2;
-            size_t points__nw_size, points__mem_size;
-            uint32_t points__nelements;
+            size_t segments__element_points__nw_size, segments__element_points__mem_size;
+            uint32_t segments__element_points__nelements;
             segments__nelements += 1;
             { /* points */
                 uint32_t count__value;
@@ -3857,14 +3857,14 @@ static intptr_t validate_SpicePath(uint8_t *message_start, uint8_t *message_end,
                     goto error;
                 }
                 count__value = read_uint32(pos);
-                points__nelements = count__value;
+                segments__element_points__nelements = count__value;
 
-                points__nw_size = (8) * points__nelements;
-                points__mem_size = sizeof(SpicePointFix) * points__nelements;
+                segments__element_points__nw_size = (8) * segments__element_points__nelements;
+                segments__element_points__mem_size = sizeof(SpicePointFix) * segments__element_points__nelements;
             }
 
-            segments__element__nw_size = 8 + points__nw_size;
-            segments__element__mem_size = sizeof(SpicePathSeg) + points__mem_size;
+            segments__element__nw_size = 8 + segments__element_points__nw_size;
+            segments__element__mem_size = sizeof(SpicePathSeg) + segments__element_points__mem_size;
             segments__mem_size += sizeof(void *) + SPICE_ALIGN(segments__element__mem_size, 4);
             start2 += segments__element__nw_size;
         }
@@ -3888,7 +3888,7 @@ static intptr_t validate_SpicePath(uint8_t *message_start, uint8_t *message_end,
     return -1;
 }
 
-static uint8_t * parse_struct_SpicePath(uint8_t *message_start, uint8_t *message_end, uint8_t *struct_data, PointerInfo *this_ptr_info, int minor)
+static uint8_t * parse_struct_SpicePath(uint8_t *message_start, SPICE_GNUC_UNUSED uint8_t *message_end, uint8_t *struct_data, PointerInfo *this_ptr_info, SPICE_GNUC_UNUSED int minor)
 {
     uint8_t *in = message_start + this_ptr_info->offset;
     uint8_t *end;
@@ -3931,7 +3931,7 @@ static uint8_t * parse_struct_SpicePath(uint8_t *message_start, uint8_t *message
     return end;
 }
 
-static uint8_t * parse_array_int32(uint8_t *message_start, uint8_t *message_end, uint8_t *struct_data, PointerInfo *this_ptr_info, int minor)
+static uint8_t * parse_array_int32(uint8_t *message_start, SPICE_GNUC_UNUSED uint8_t *message_end, uint8_t *struct_data, PointerInfo *this_ptr_info, SPICE_GNUC_UNUSED int minor)
 {
     uint8_t *in = message_start + this_ptr_info->offset;
     uint8_t *end;
@@ -3945,7 +3945,7 @@ static uint8_t * parse_array_int32(uint8_t *message_start, uint8_t *message_end,
     return end;
 }
 
-static uint8_t * parse_msg_display_draw_stroke(uint8_t *message_start, uint8_t *message_end, int minor, size_t *size, message_destructor_t *free_message)
+static uint8_t * parse_msg_display_draw_stroke(uint8_t *message_start, uint8_t *message_end, SPICE_GNUC_UNUSED int minor, size_t *size, message_destructor_t *free_message)
 {
     SPICE_GNUC_UNUSED uint8_t *pos;
     uint8_t *start = message_start;
@@ -3963,10 +3963,10 @@ static uint8_t * parse_msg_display_draw_stroke(uint8_t *message_start, uint8_t *
 
     { /* base */
         SPICE_GNUC_UNUSED uint8_t *start2 = (start + 0);
-        size_t clip__extra_size;
+        size_t base_clip__extra_size;
         { /* clip */
             SPICE_GNUC_UNUSED uint8_t *start3 = (start2 + 16);
-            size_t u__extra_size;
+            size_t base_clip_u__extra_size;
             uint32_t type__value;
             { /* u */
                 pos = start3 + 0;
@@ -3975,36 +3975,36 @@ static uint8_t * parse_msg_display_draw_stroke(uint8_t *message_start, uint8_t *
                 }
                 type__value = read_uint32(pos);
                 if (type__value == SPICE_CLIP_TYPE_RECTS) {
-                    uint64_t u_rects__value;
+                    uint64_t base_clip_u_rects__value;
                     pos = (start3 + 4);
                     if (SPICE_UNLIKELY(pos + 8 > message_end)) {
                         goto error;
                     }
-                    u_rects__value = read_uint64(pos);
-                    ptr_size = validate_SpiceClipRects(message_start, message_end, u_rects__value, minor);
+                    base_clip_u_rects__value = read_uint64(pos);
+                    ptr_size = validate_SpiceClipRects(message_start, message_end, base_clip_u_rects__value, minor);
                     if (SPICE_UNLIKELY(ptr_size < 0)) {
                         goto error;
                     }
-                    u__extra_size = ptr_size + /* for alignment */ 3;
+                    base_clip_u__extra_size = ptr_size + /* for alignment */ 3;
                 } else if (1) {
-                    u__extra_size = 0;
+                    base_clip_u__extra_size = 0;
                 } else {
-                    u__extra_size = 0;
+                    base_clip_u__extra_size = 0;
                 }
 
             }
 
-            clip__extra_size = u__extra_size;
+            base_clip__extra_size = base_clip_u__extra_size;
         }
 
-        base__extra_size = clip__extra_size;
+        base__extra_size = base_clip__extra_size;
     }
 
     { /* data */
         SPICE_GNUC_UNUSED uint8_t *start2 = (start + 28);
-        size_t path__extra_size;
-        size_t attr__extra_size;
-        size_t brush__extra_size;
+        size_t data_path__extra_size;
+        size_t data_attr__extra_size;
+        size_t data_brush__extra_size;
         { /* path */
             uint64_t path__value;
             pos = (start2 + 0);
@@ -4016,17 +4016,17 @@ static uint8_t * parse_msg_display_draw_stroke(uint8_t *message_start, uint8_t *
             if (SPICE_UNLIKELY(ptr_size < 0)) {
                 goto error;
             }
-            path__extra_size = ptr_size + /* for alignment */ 3;
+            data_path__extra_size = ptr_size + /* for alignment */ 3;
         }
 
         { /* attr */
             SPICE_GNUC_UNUSED uint8_t *start3 = (start2 + 8);
-            size_t style__extra_size;
-            uint32_t style__array__nelements;
+            size_t data_attr_style__extra_size;
+            uint32_t data_attr_style__array__nelements;
             { /* style */
                 uint64_t style__value;
-                uint32_t style__array__nw_size;
-                uint32_t style__array__mem_size;
+                uint32_t data_attr_style__array__nw_size;
+                uint32_t data_attr_style__array__mem_size;
                 uint8_t style_nseg__value;
                 pos = (start3 + 12);
                 if (SPICE_UNLIKELY(pos + 8 > message_end)) {
@@ -4041,22 +4041,22 @@ static uint8_t * parse_msg_display_draw_stroke(uint8_t *message_start, uint8_t *
                     goto error;
                 }
                 style_nseg__value = read_uint8(pos);
-                style__array__nelements = style_nseg__value;
+                data_attr_style__array__nelements = style_nseg__value;
 
-                style__array__nw_size = (4) * style__array__nelements;
-                style__array__mem_size = sizeof(SPICE_FIXED28_4) * style__array__nelements;
-                if (SPICE_UNLIKELY(message_start + style__value + style__array__nw_size > message_end)) {
+                data_attr_style__array__nw_size = (4) * data_attr_style__array__nelements;
+                data_attr_style__array__mem_size = sizeof(SPICE_FIXED28_4) * data_attr_style__array__nelements;
+                if (SPICE_UNLIKELY(message_start + style__value + data_attr_style__array__nw_size > message_end)) {
                     goto error;
                 }
-                style__extra_size = style__array__mem_size + /* for alignment */ 3;
+                data_attr_style__extra_size = data_attr_style__array__mem_size + /* for alignment */ 3;
             }
 
-            attr__extra_size = style__extra_size;
+            data_attr__extra_size = data_attr_style__extra_size;
         }
 
         { /* brush */
             SPICE_GNUC_UNUSED uint8_t *start3 = (start2 + 28);
-            size_t u__extra_size;
+            size_t data_brush_u__extra_size;
             uint32_t type__value;
             { /* u */
                 pos = start3 + 0;
@@ -4065,10 +4065,10 @@ static uint8_t * parse_msg_display_draw_stroke(uint8_t *message_start, uint8_t *
                 }
                 type__value = read_uint32(pos);
                 if (type__value == SPICE_BRUSH_TYPE_SOLID) {
-                    u__extra_size = 0;
+                    data_brush_u__extra_size = 0;
                 } else if (type__value == SPICE_BRUSH_TYPE_PATTERN) {
                     SPICE_GNUC_UNUSED uint8_t *start4 = (start3 + 4);
-                    size_t pat__extra_size;
+                    size_t data_brush_u_pat__extra_size;
                     { /* pat */
                         uint64_t pat__value;
                         pos = (start4 + 0);
@@ -4083,20 +4083,20 @@ static uint8_t * parse_msg_display_draw_stroke(uint8_t *message_start, uint8_t *
                         if (SPICE_UNLIKELY(ptr_size < 0)) {
                             goto error;
                         }
-                        pat__extra_size = ptr_size + /* for alignment */ 3;
+                        data_brush_u_pat__extra_size = ptr_size + /* for alignment */ 3;
                     }
 
-                    u__extra_size = pat__extra_size;
+                    data_brush_u__extra_size = data_brush_u_pat__extra_size;
                 } else {
-                    u__extra_size = 0;
+                    data_brush_u__extra_size = 0;
                 }
 
             }
 
-            brush__extra_size = u__extra_size;
+            data_brush__extra_size = data_brush_u__extra_size;
         }
 
-        data__extra_size = path__extra_size + attr__extra_size + brush__extra_size;
+        data__extra_size = data_path__extra_size + data_attr__extra_size + data_brush__extra_size;
     }
 
     nw_size = 80;
@@ -4208,7 +4208,7 @@ static uint8_t * parse_msg_display_draw_stroke(uint8_t *message_start, uint8_t *
     return NULL;
 }
 
-static intptr_t validate_SpiceString(uint8_t *message_start, uint8_t *message_end, uint64_t offset, int minor)
+static intptr_t validate_SpiceString(uint8_t *message_start, uint8_t *message_end, uint64_t offset, SPICE_GNUC_UNUSED int minor)
 {
     uint8_t *start = message_start + offset;
     SPICE_GNUC_UNUSED uint8_t *pos;
@@ -4249,8 +4249,8 @@ static intptr_t validate_SpiceString(uint8_t *message_start, uint8_t *message_en
             u__mem_size = 0;
             for (i = 0; i < u__nelements; i++) {
                 SPICE_GNUC_UNUSED uint8_t *start3 = start2;
-                size_t data__nw_size, data__mem_size;
-                uint32_t data__nelements;
+                size_t u__element_data__nw_size, u__element_data__mem_size;
+                uint32_t u__element_data__nelements;
                 { /* data */
                     uint16_t width__value;
                     uint16_t height__value;
@@ -4264,14 +4264,14 @@ static intptr_t validate_SpiceString(uint8_t *message_start, uint8_t *message_en
                         goto error;
                     }
                     height__value = read_uint16(pos);
-                    data__nelements = ((width__value + 7) / 8 ) * height__value;
+                    u__element_data__nelements = ((width__value + 7) / 8 ) * height__value;
 
-                    data__nw_size = data__nelements;
-                    data__mem_size = sizeof(uint8_t) * data__nelements;
+                    u__element_data__nw_size = u__element_data__nelements;
+                    u__element_data__mem_size = sizeof(uint8_t) * u__element_data__nelements;
                 }
 
-                u__element__nw_size = 20 + data__nw_size;
-                u__element__mem_size = sizeof(SpiceRasterGlyph) + data__mem_size;
+                u__element__nw_size = 20 + u__element_data__nw_size;
+                u__element__mem_size = sizeof(SpiceRasterGlyph) + u__element_data__mem_size;
                 u__nw_size += u__element__nw_size;
                 u__mem_size += sizeof(void *) + SPICE_ALIGN(u__element__mem_size, 4);
                 start2 += u__element__nw_size;
@@ -4293,8 +4293,8 @@ static intptr_t validate_SpiceString(uint8_t *message_start, uint8_t *message_en
             u__mem_size = 0;
             for (i = 0; i < u__nelements; i++) {
                 SPICE_GNUC_UNUSED uint8_t *start3 = start2;
-                size_t data__nw_size, data__mem_size;
-                uint32_t data__nelements;
+                size_t u__element_data__nw_size, u__element_data__mem_size;
+                uint32_t u__element_data__nelements;
                 { /* data */
                     uint16_t width__value;
                     uint16_t height__value;
@@ -4308,14 +4308,14 @@ static intptr_t validate_SpiceString(uint8_t *message_start, uint8_t *message_en
                         goto error;
                     }
                     height__value = read_uint16(pos);
-                    data__nelements = ((4 * width__value + 7) / 8 ) * height__value;
+                    u__element_data__nelements = ((4 * width__value + 7) / 8 ) * height__value;
 
-                    data__nw_size = data__nelements;
-                    data__mem_size = sizeof(uint8_t) * data__nelements;
+                    u__element_data__nw_size = u__element_data__nelements;
+                    u__element_data__mem_size = sizeof(uint8_t) * u__element_data__nelements;
                 }
 
-                u__element__nw_size = 20 + data__nw_size;
-                u__element__mem_size = sizeof(SpiceRasterGlyph) + data__mem_size;
+                u__element__nw_size = 20 + u__element_data__nw_size;
+                u__element__mem_size = sizeof(SpiceRasterGlyph) + u__element_data__mem_size;
                 u__nw_size += u__element__nw_size;
                 u__mem_size += sizeof(void *) + SPICE_ALIGN(u__element__mem_size, 4);
                 start2 += u__element__nw_size;
@@ -4337,8 +4337,8 @@ static intptr_t validate_SpiceString(uint8_t *message_start, uint8_t *message_en
             u__mem_size = 0;
             for (i = 0; i < u__nelements; i++) {
                 SPICE_GNUC_UNUSED uint8_t *start3 = start2;
-                size_t data__nw_size, data__mem_size;
-                uint32_t data__nelements;
+                size_t u__element_data__nw_size, u__element_data__mem_size;
+                uint32_t u__element_data__nelements;
                 { /* data */
                     uint16_t width__value;
                     uint16_t height__value;
@@ -4352,14 +4352,14 @@ static intptr_t validate_SpiceString(uint8_t *message_start, uint8_t *message_en
                         goto error;
                     }
                     height__value = read_uint16(pos);
-                    data__nelements = width__value * height__value;
+                    u__element_data__nelements = width__value * height__value;
 
-                    data__nw_size = data__nelements;
-                    data__mem_size = sizeof(uint8_t) * data__nelements;
+                    u__element_data__nw_size = u__element_data__nelements;
+                    u__element_data__mem_size = sizeof(uint8_t) * u__element_data__nelements;
                 }
 
-                u__element__nw_size = 20 + data__nw_size;
-                u__element__mem_size = sizeof(SpiceRasterGlyph) + data__mem_size;
+                u__element__nw_size = 20 + u__element_data__nw_size;
+                u__element__mem_size = sizeof(SpiceRasterGlyph) + u__element_data__mem_size;
                 u__nw_size += u__element__nw_size;
                 u__mem_size += sizeof(void *) + SPICE_ALIGN(u__element__mem_size, 4);
                 start2 += u__element__nw_size;
@@ -4385,7 +4385,7 @@ static intptr_t validate_SpiceString(uint8_t *message_start, uint8_t *message_en
     return -1;
 }
 
-static uint8_t * parse_struct_SpiceString(uint8_t *message_start, uint8_t *message_end, uint8_t *struct_data, PointerInfo *this_ptr_info, int minor)
+static uint8_t * parse_struct_SpiceString(uint8_t *message_start, SPICE_GNUC_UNUSED uint8_t *message_end, uint8_t *struct_data, PointerInfo *this_ptr_info, SPICE_GNUC_UNUSED int minor)
 {
     uint8_t *in = message_start + this_ptr_info->offset;
     uint8_t *end;
@@ -4497,7 +4497,7 @@ static uint8_t * parse_struct_SpiceString(uint8_t *message_start, uint8_t *messa
     return end;
 }
 
-static uint8_t * parse_msg_display_draw_text(uint8_t *message_start, uint8_t *message_end, int minor, size_t *size, message_destructor_t *free_message)
+static uint8_t * parse_msg_display_draw_text(uint8_t *message_start, uint8_t *message_end, SPICE_GNUC_UNUSED int minor, size_t *size, message_destructor_t *free_message)
 {
     SPICE_GNUC_UNUSED uint8_t *pos;
     uint8_t *start = message_start;
@@ -4515,10 +4515,10 @@ static uint8_t * parse_msg_display_draw_text(uint8_t *message_start, uint8_t *me
 
     { /* base */
         SPICE_GNUC_UNUSED uint8_t *start2 = (start + 0);
-        size_t clip__extra_size;
+        size_t base_clip__extra_size;
         { /* clip */
             SPICE_GNUC_UNUSED uint8_t *start3 = (start2 + 16);
-            size_t u__extra_size;
+            size_t base_clip_u__extra_size;
             uint32_t type__value;
             { /* u */
                 pos = start3 + 0;
@@ -4527,36 +4527,36 @@ static uint8_t * parse_msg_display_draw_text(uint8_t *message_start, uint8_t *me
                 }
                 type__value = read_uint32(pos);
                 if (type__value == SPICE_CLIP_TYPE_RECTS) {
-                    uint64_t u_rects__value;
+                    uint64_t base_clip_u_rects__value;
                     pos = (start3 + 4);
                     if (SPICE_UNLIKELY(pos + 8 > message_end)) {
                         goto error;
                     }
-                    u_rects__value = read_uint64(pos);
-                    ptr_size = validate_SpiceClipRects(message_start, message_end, u_rects__value, minor);
+                    base_clip_u_rects__value = read_uint64(pos);
+                    ptr_size = validate_SpiceClipRects(message_start, message_end, base_clip_u_rects__value, minor);
                     if (SPICE_UNLIKELY(ptr_size < 0)) {
                         goto error;
                     }
-                    u__extra_size = ptr_size + /* for alignment */ 3;
+                    base_clip_u__extra_size = ptr_size + /* for alignment */ 3;
                 } else if (1) {
-                    u__extra_size = 0;
+                    base_clip_u__extra_size = 0;
                 } else {
-                    u__extra_size = 0;
+                    base_clip_u__extra_size = 0;
                 }
 
             }
 
-            clip__extra_size = u__extra_size;
+            base_clip__extra_size = base_clip_u__extra_size;
         }
 
-        base__extra_size = clip__extra_size;
+        base__extra_size = base_clip__extra_size;
     }
 
     { /* data */
         SPICE_GNUC_UNUSED uint8_t *start2 = (start + 28);
-        size_t str__extra_size;
-        size_t fore_brush__extra_size;
-        size_t back_brush__extra_size;
+        size_t data_str__extra_size;
+        size_t data_fore_brush__extra_size;
+        size_t data_back_brush__extra_size;
         { /* str */
             uint64_t str__value;
             pos = (start2 + 0);
@@ -4568,12 +4568,12 @@ static uint8_t * parse_msg_display_draw_text(uint8_t *message_start, uint8_t *me
             if (SPICE_UNLIKELY(ptr_size < 0)) {
                 goto error;
             }
-            str__extra_size = ptr_size + /* for alignment */ 3;
+            data_str__extra_size = ptr_size + /* for alignment */ 3;
         }
 
         { /* fore_brush */
             SPICE_GNUC_UNUSED uint8_t *start3 = (start2 + 24);
-            size_t u__extra_size;
+            size_t data_fore_brush_u__extra_size;
             uint32_t type__value;
             { /* u */
                 pos = start3 + 0;
@@ -4582,10 +4582,10 @@ static uint8_t * parse_msg_display_draw_text(uint8_t *message_start, uint8_t *me
                 }
                 type__value = read_uint32(pos);
                 if (type__value == SPICE_BRUSH_TYPE_SOLID) {
-                    u__extra_size = 0;
+                    data_fore_brush_u__extra_size = 0;
                 } else if (type__value == SPICE_BRUSH_TYPE_PATTERN) {
                     SPICE_GNUC_UNUSED uint8_t *start4 = (start3 + 4);
-                    size_t pat__extra_size;
+                    size_t data_fore_brush_u_pat__extra_size;
                     { /* pat */
                         uint64_t pat__value;
                         pos = (start4 + 0);
@@ -4600,22 +4600,22 @@ static uint8_t * parse_msg_display_draw_text(uint8_t *message_start, uint8_t *me
                         if (SPICE_UNLIKELY(ptr_size < 0)) {
                             goto error;
                         }
-                        pat__extra_size = ptr_size + /* for alignment */ 3;
+                        data_fore_brush_u_pat__extra_size = ptr_size + /* for alignment */ 3;
                     }
 
-                    u__extra_size = pat__extra_size;
+                    data_fore_brush_u__extra_size = data_fore_brush_u_pat__extra_size;
                 } else {
-                    u__extra_size = 0;
+                    data_fore_brush_u__extra_size = 0;
                 }
 
             }
 
-            fore_brush__extra_size = u__extra_size;
+            data_fore_brush__extra_size = data_fore_brush_u__extra_size;
         }
 
         { /* back_brush */
             SPICE_GNUC_UNUSED uint8_t *start3 = (start2 + 44);
-            size_t u__extra_size;
+            size_t data_back_brush_u__extra_size;
             uint32_t type__value;
             { /* u */
                 pos = start3 + 0;
@@ -4624,10 +4624,10 @@ static uint8_t * parse_msg_display_draw_text(uint8_t *message_start, uint8_t *me
                 }
                 type__value = read_uint32(pos);
                 if (type__value == SPICE_BRUSH_TYPE_SOLID) {
-                    u__extra_size = 0;
+                    data_back_brush_u__extra_size = 0;
                 } else if (type__value == SPICE_BRUSH_TYPE_PATTERN) {
                     SPICE_GNUC_UNUSED uint8_t *start4 = (start3 + 4);
-                    size_t pat__extra_size;
+                    size_t data_back_brush_u_pat__extra_size;
                     { /* pat */
                         uint64_t pat__value;
                         pos = (start4 + 0);
@@ -4642,20 +4642,20 @@ static uint8_t * parse_msg_display_draw_text(uint8_t *message_start, uint8_t *me
                         if (SPICE_UNLIKELY(ptr_size < 0)) {
                             goto error;
                         }
-                        pat__extra_size = ptr_size + /* for alignment */ 3;
+                        data_back_brush_u_pat__extra_size = ptr_size + /* for alignment */ 3;
                     }
 
-                    u__extra_size = pat__extra_size;
+                    data_back_brush_u__extra_size = data_back_brush_u_pat__extra_size;
                 } else {
-                    u__extra_size = 0;
+                    data_back_brush_u__extra_size = 0;
                 }
 
             }
 
-            back_brush__extra_size = u__extra_size;
+            data_back_brush__extra_size = data_back_brush_u__extra_size;
         }
 
-        data__extra_size = str__extra_size + fore_brush__extra_size + back_brush__extra_size;
+        data__extra_size = data_str__extra_size + data_fore_brush__extra_size + data_back_brush__extra_size;
     }
 
     nw_size = 96;
@@ -4776,7 +4776,7 @@ static uint8_t * parse_msg_display_draw_text(uint8_t *message_start, uint8_t *me
     return NULL;
 }
 
-static uint8_t * parse_msg_display_draw_transparent(uint8_t *message_start, uint8_t *message_end, int minor, size_t *size, message_destructor_t *free_message)
+static uint8_t * parse_msg_display_draw_transparent(uint8_t *message_start, uint8_t *message_end, SPICE_GNUC_UNUSED int minor, size_t *size, message_destructor_t *free_message)
 {
     SPICE_GNUC_UNUSED uint8_t *pos;
     uint8_t *start = message_start;
@@ -4794,10 +4794,10 @@ static uint8_t * parse_msg_display_draw_transparent(uint8_t *message_start, uint
 
     { /* base */
         SPICE_GNUC_UNUSED uint8_t *start2 = (start + 0);
-        size_t clip__extra_size;
+        size_t base_clip__extra_size;
         { /* clip */
             SPICE_GNUC_UNUSED uint8_t *start3 = (start2 + 16);
-            size_t u__extra_size;
+            size_t base_clip_u__extra_size;
             uint32_t type__value;
             { /* u */
                 pos = start3 + 0;
@@ -4806,34 +4806,34 @@ static uint8_t * parse_msg_display_draw_transparent(uint8_t *message_start, uint
                 }
                 type__value = read_uint32(pos);
                 if (type__value == SPICE_CLIP_TYPE_RECTS) {
-                    uint64_t u_rects__value;
+                    uint64_t base_clip_u_rects__value;
                     pos = (start3 + 4);
                     if (SPICE_UNLIKELY(pos + 8 > message_end)) {
                         goto error;
                     }
-                    u_rects__value = read_uint64(pos);
-                    ptr_size = validate_SpiceClipRects(message_start, message_end, u_rects__value, minor);
+                    base_clip_u_rects__value = read_uint64(pos);
+                    ptr_size = validate_SpiceClipRects(message_start, message_end, base_clip_u_rects__value, minor);
                     if (SPICE_UNLIKELY(ptr_size < 0)) {
                         goto error;
                     }
-                    u__extra_size = ptr_size + /* for alignment */ 3;
+                    base_clip_u__extra_size = ptr_size + /* for alignment */ 3;
                 } else if (1) {
-                    u__extra_size = 0;
+                    base_clip_u__extra_size = 0;
                 } else {
-                    u__extra_size = 0;
+                    base_clip_u__extra_size = 0;
                 }
 
             }
 
-            clip__extra_size = u__extra_size;
+            base_clip__extra_size = base_clip_u__extra_size;
         }
 
-        base__extra_size = clip__extra_size;
+        base__extra_size = base_clip__extra_size;
     }
 
     { /* data */
         SPICE_GNUC_UNUSED uint8_t *start2 = (start + 28);
-        size_t src_bitmap__extra_size;
+        size_t data_src_bitmap__extra_size;
         { /* src_bitmap */
             uint64_t src_bitmap__value;
             pos = (start2 + 0);
@@ -4845,10 +4845,10 @@ static uint8_t * parse_msg_display_draw_transparent(uint8_t *message_start, uint
             if (SPICE_UNLIKELY(ptr_size < 0)) {
                 goto error;
             }
-            src_bitmap__extra_size = ptr_size + /* for alignment */ 3;
+            data_src_bitmap__extra_size = ptr_size + /* for alignment */ 3;
         }
 
-        data__extra_size = src_bitmap__extra_size;
+        data__extra_size = data_src_bitmap__extra_size;
     }
 
     nw_size = 60;
@@ -4933,7 +4933,7 @@ static uint8_t * parse_msg_display_draw_transparent(uint8_t *message_start, uint
     return NULL;
 }
 
-static uint8_t * parse_msg_display_draw_alpha_blend(uint8_t *message_start, uint8_t *message_end, int minor, size_t *size, message_destructor_t *free_message)
+static uint8_t * parse_msg_display_draw_alpha_blend(uint8_t *message_start, uint8_t *message_end, SPICE_GNUC_UNUSED int minor, size_t *size, message_destructor_t *free_message)
 {
     SPICE_GNUC_UNUSED uint8_t *pos;
     uint8_t *start = message_start;
@@ -4951,10 +4951,10 @@ static uint8_t * parse_msg_display_draw_alpha_blend(uint8_t *message_start, uint
 
     { /* base */
         SPICE_GNUC_UNUSED uint8_t *start2 = (start + 0);
-        size_t clip__extra_size;
+        size_t base_clip__extra_size;
         { /* clip */
             SPICE_GNUC_UNUSED uint8_t *start3 = (start2 + 16);
-            size_t u__extra_size;
+            size_t base_clip_u__extra_size;
             uint32_t type__value;
             { /* u */
                 pos = start3 + 0;
@@ -4963,34 +4963,34 @@ static uint8_t * parse_msg_display_draw_alpha_blend(uint8_t *message_start, uint
                 }
                 type__value = read_uint32(pos);
                 if (type__value == SPICE_CLIP_TYPE_RECTS) {
-                    uint64_t u_rects__value;
+                    uint64_t base_clip_u_rects__value;
                     pos = (start3 + 4);
                     if (SPICE_UNLIKELY(pos + 8 > message_end)) {
                         goto error;
                     }
-                    u_rects__value = read_uint64(pos);
-                    ptr_size = validate_SpiceClipRects(message_start, message_end, u_rects__value, minor);
+                    base_clip_u_rects__value = read_uint64(pos);
+                    ptr_size = validate_SpiceClipRects(message_start, message_end, base_clip_u_rects__value, minor);
                     if (SPICE_UNLIKELY(ptr_size < 0)) {
                         goto error;
                     }
-                    u__extra_size = ptr_size + /* for alignment */ 3;
+                    base_clip_u__extra_size = ptr_size + /* for alignment */ 3;
                 } else if (1) {
-                    u__extra_size = 0;
+                    base_clip_u__extra_size = 0;
                 } else {
-                    u__extra_size = 0;
+                    base_clip_u__extra_size = 0;
                 }
 
             }
 
-            clip__extra_size = u__extra_size;
+            base_clip__extra_size = base_clip_u__extra_size;
         }
 
-        base__extra_size = clip__extra_size;
+        base__extra_size = base_clip__extra_size;
     }
 
     { /* data */
         SPICE_GNUC_UNUSED uint8_t *start2 = (start + 28);
-        size_t src_bitmap__extra_size;
+        size_t data_src_bitmap__extra_size;
         { /* src_bitmap */
             uint64_t src_bitmap__value;
             pos = (start2 + 1);
@@ -5002,10 +5002,10 @@ static uint8_t * parse_msg_display_draw_alpha_blend(uint8_t *message_start, uint
             if (SPICE_UNLIKELY(ptr_size < 0)) {
                 goto error;
             }
-            src_bitmap__extra_size = ptr_size + /* for alignment */ 3;
+            data_src_bitmap__extra_size = ptr_size + /* for alignment */ 3;
         }
 
-        data__extra_size = src_bitmap__extra_size;
+        data__extra_size = data_src_bitmap__extra_size;
     }
 
     nw_size = 53;
@@ -5090,7 +5090,7 @@ static uint8_t * parse_msg_display_draw_alpha_blend(uint8_t *message_start, uint
     return NULL;
 }
 
-static uint8_t * parse_DisplayChannel_msg(uint8_t *message_start, uint8_t *message_end, uint16_t message_type, int minor, size_t *size_out, message_destructor_t *free_message)
+static uint8_t * parse_DisplayChannel_msg(uint8_t *message_start, uint8_t *message_end, uint16_t message_type, SPICE_GNUC_UNUSED int minor, size_t *size_out, message_destructor_t *free_message)
 {
     static parse_msg_func_t funcs1[7] =  {
         parse_msg_migrate,
@@ -5146,7 +5146,7 @@ static uint8_t * parse_DisplayChannel_msg(uint8_t *message_start, uint8_t *messa
 
 
 
-static uint8_t * parse_msg_inputs_init(uint8_t *message_start, uint8_t *message_end, int minor, size_t *size, message_destructor_t *free_message)
+static uint8_t * parse_msg_inputs_init(uint8_t *message_start, uint8_t *message_end, SPICE_GNUC_UNUSED int minor, size_t *size, message_destructor_t *free_message)
 {
     SPICE_GNUC_UNUSED uint8_t *pos;
     uint8_t *start = message_start;
@@ -5190,7 +5190,7 @@ static uint8_t * parse_msg_inputs_init(uint8_t *message_start, uint8_t *message_
     return NULL;
 }
 
-static uint8_t * parse_msg_inputs_key_modifiers(uint8_t *message_start, uint8_t *message_end, int minor, size_t *size, message_destructor_t *free_message)
+static uint8_t * parse_msg_inputs_key_modifiers(uint8_t *message_start, uint8_t *message_end, SPICE_GNUC_UNUSED int minor, size_t *size, message_destructor_t *free_message)
 {
     SPICE_GNUC_UNUSED uint8_t *pos;
     uint8_t *start = message_start;
@@ -5234,7 +5234,7 @@ static uint8_t * parse_msg_inputs_key_modifiers(uint8_t *message_start, uint8_t 
     return NULL;
 }
 
-static uint8_t * parse_InputsChannel_msg(uint8_t *message_start, uint8_t *message_end, uint16_t message_type, int minor, size_t *size_out, message_destructor_t *free_message)
+static uint8_t * parse_InputsChannel_msg(uint8_t *message_start, uint8_t *message_end, uint16_t message_type, SPICE_GNUC_UNUSED int minor, size_t *size_out, message_destructor_t *free_message)
 {
     static parse_msg_func_t funcs1[7] =  {
         parse_msg_migrate,
@@ -5264,7 +5264,7 @@ static uint8_t * parse_InputsChannel_msg(uint8_t *message_start, uint8_t *messag
 
 
 
-static uint8_t * parse_msg_cursor_init(uint8_t *message_start, uint8_t *message_end, int minor, size_t *size, message_destructor_t *free_message)
+static uint8_t * parse_msg_cursor_init(uint8_t *message_start, uint8_t *message_end, SPICE_GNUC_UNUSED int minor, size_t *size, message_destructor_t *free_message)
 {
     SPICE_GNUC_UNUSED uint8_t *pos;
     uint8_t *start = message_start;
@@ -5277,15 +5277,15 @@ static uint8_t * parse_msg_cursor_init(uint8_t *message_start, uint8_t *message_
 
     { /* cursor */
         SPICE_GNUC_UNUSED uint8_t *start2 = (start + 9);
-        size_t data__nw_size;
-        uint32_t data__nelements;
+        size_t cursor_data__nw_size;
+        uint32_t cursor_data__nelements;
         { /* data */
-            data__nelements = message_end - (start2 + 22);
+            cursor_data__nelements = message_end - (start2 + 22);
 
-            data__nw_size = data__nelements;
+            cursor_data__nw_size = cursor_data__nelements;
         }
 
-        cursor__nw_size = 22 + data__nw_size;
+        cursor__nw_size = 22 + cursor_data__nw_size;
     }
 
     nw_size = 9 + cursor__nw_size;
@@ -5345,7 +5345,7 @@ static uint8_t * parse_msg_cursor_init(uint8_t *message_start, uint8_t *message_
     return NULL;
 }
 
-static uint8_t * parse_msg_cursor_set(uint8_t *message_start, uint8_t *message_end, int minor, size_t *size, message_destructor_t *free_message)
+static uint8_t * parse_msg_cursor_set(uint8_t *message_start, uint8_t *message_end, SPICE_GNUC_UNUSED int minor, size_t *size, message_destructor_t *free_message)
 {
     SPICE_GNUC_UNUSED uint8_t *pos;
     uint8_t *start = message_start;
@@ -5358,15 +5358,15 @@ static uint8_t * parse_msg_cursor_set(uint8_t *message_start, uint8_t *message_e
 
     { /* cursor */
         SPICE_GNUC_UNUSED uint8_t *start2 = (start + 5);
-        size_t data__nw_size;
-        uint32_t data__nelements;
+        size_t cursor_data__nw_size;
+        uint32_t cursor_data__nelements;
         { /* data */
-            data__nelements = message_end - (start2 + 22);
+            cursor_data__nelements = message_end - (start2 + 22);
 
-            data__nw_size = data__nelements;
+            cursor_data__nw_size = cursor_data__nelements;
         }
 
-        cursor__nw_size = 22 + data__nw_size;
+        cursor__nw_size = 22 + cursor_data__nw_size;
     }
 
     nw_size = 5 + cursor__nw_size;
@@ -5424,7 +5424,7 @@ static uint8_t * parse_msg_cursor_set(uint8_t *message_start, uint8_t *message_e
     return NULL;
 }
 
-static uint8_t * parse_msg_cursor_move(uint8_t *message_start, uint8_t *message_end, int minor, size_t *size, message_destructor_t *free_message)
+static uint8_t * parse_msg_cursor_move(uint8_t *message_start, uint8_t *message_end, SPICE_GNUC_UNUSED int minor, size_t *size, message_destructor_t *free_message)
 {
     SPICE_GNUC_UNUSED uint8_t *pos;
     uint8_t *start = message_start;
@@ -5471,7 +5471,7 @@ static uint8_t * parse_msg_cursor_move(uint8_t *message_start, uint8_t *message_
     return NULL;
 }
 
-static uint8_t * parse_msg_cursor_trail(uint8_t *message_start, uint8_t *message_end, int minor, size_t *size, message_destructor_t *free_message)
+static uint8_t * parse_msg_cursor_trail(uint8_t *message_start, uint8_t *message_end, SPICE_GNUC_UNUSED int minor, size_t *size, message_destructor_t *free_message)
 {
     SPICE_GNUC_UNUSED uint8_t *pos;
     uint8_t *start = message_start;
@@ -5516,7 +5516,7 @@ static uint8_t * parse_msg_cursor_trail(uint8_t *message_start, uint8_t *message
     return NULL;
 }
 
-static uint8_t * parse_msg_cursor_inval_one(uint8_t *message_start, uint8_t *message_end, int minor, size_t *size, message_destructor_t *free_message)
+static uint8_t * parse_msg_cursor_inval_one(uint8_t *message_start, uint8_t *message_end, SPICE_GNUC_UNUSED int minor, size_t *size, message_destructor_t *free_message)
 {
     SPICE_GNUC_UNUSED uint8_t *pos;
     uint8_t *start = message_start;
@@ -5560,7 +5560,7 @@ static uint8_t * parse_msg_cursor_inval_one(uint8_t *message_start, uint8_t *mes
     return NULL;
 }
 
-static uint8_t * parse_CursorChannel_msg(uint8_t *message_start, uint8_t *message_end, uint16_t message_type, int minor, size_t *size_out, message_destructor_t *free_message)
+static uint8_t * parse_CursorChannel_msg(uint8_t *message_start, uint8_t *message_end, uint16_t message_type, SPICE_GNUC_UNUSED int minor, size_t *size_out, message_destructor_t *free_message)
 {
     static parse_msg_func_t funcs1[7] =  {
         parse_msg_migrate,
@@ -5591,7 +5591,7 @@ static uint8_t * parse_CursorChannel_msg(uint8_t *message_start, uint8_t *messag
 
 
 
-static uint8_t * parse_msg_playback_data(uint8_t *message_start, uint8_t *message_end, int minor, size_t *size, message_destructor_t *free_message)
+static uint8_t * parse_msg_playback_data(uint8_t *message_start, uint8_t *message_end, SPICE_GNUC_UNUSED int minor, size_t *size, message_destructor_t *free_message)
 {
     SPICE_GNUC_UNUSED uint8_t *pos;
     uint8_t *start = message_start;
@@ -5647,7 +5647,7 @@ static uint8_t * parse_msg_playback_data(uint8_t *message_start, uint8_t *messag
     return NULL;
 }
 
-static uint8_t * parse_msg_playback_mode(uint8_t *message_start, uint8_t *message_end, int minor, size_t *size, message_destructor_t *free_message)
+static uint8_t * parse_msg_playback_mode(uint8_t *message_start, uint8_t *message_end, SPICE_GNUC_UNUSED int minor, size_t *size, message_destructor_t *free_message)
 {
     SPICE_GNUC_UNUSED uint8_t *pos;
     uint8_t *start = message_start;
@@ -5704,7 +5704,7 @@ static uint8_t * parse_msg_playback_mode(uint8_t *message_start, uint8_t *messag
     return NULL;
 }
 
-static uint8_t * parse_msg_playback_start(uint8_t *message_start, uint8_t *message_end, int minor, size_t *size, message_destructor_t *free_message)
+static uint8_t * parse_msg_playback_start(uint8_t *message_start, uint8_t *message_end, SPICE_GNUC_UNUSED int minor, size_t *size, message_destructor_t *free_message)
 {
     SPICE_GNUC_UNUSED uint8_t *pos;
     uint8_t *start = message_start;
@@ -5751,7 +5751,7 @@ static uint8_t * parse_msg_playback_start(uint8_t *message_start, uint8_t *messa
     return NULL;
 }
 
-static uint8_t * parse_PlaybackChannel_msg(uint8_t *message_start, uint8_t *message_end, uint16_t message_type, int minor, size_t *size_out, message_destructor_t *free_message)
+static uint8_t * parse_PlaybackChannel_msg(uint8_t *message_start, uint8_t *message_end, uint16_t message_type, SPICE_GNUC_UNUSED int minor, size_t *size_out, message_destructor_t *free_message)
 {
     static parse_msg_func_t funcs1[7] =  {
         parse_msg_migrate,
@@ -5778,7 +5778,7 @@ static uint8_t * parse_PlaybackChannel_msg(uint8_t *message_start, uint8_t *mess
 
 
 
-static uint8_t * parse_msg_record_start(uint8_t *message_start, uint8_t *message_end, int minor, size_t *size, message_destructor_t *free_message)
+static uint8_t * parse_msg_record_start(uint8_t *message_start, uint8_t *message_end, SPICE_GNUC_UNUSED int minor, size_t *size, message_destructor_t *free_message)
 {
     SPICE_GNUC_UNUSED uint8_t *pos;
     uint8_t *start = message_start;
@@ -5824,7 +5824,7 @@ static uint8_t * parse_msg_record_start(uint8_t *message_start, uint8_t *message
     return NULL;
 }
 
-static uint8_t * parse_RecordChannel_msg(uint8_t *message_start, uint8_t *message_end, uint16_t message_type, int minor, size_t *size_out, message_destructor_t *free_message)
+static uint8_t * parse_RecordChannel_msg(uint8_t *message_start, uint8_t *message_end, uint16_t message_type, SPICE_GNUC_UNUSED int minor, size_t *size_out, message_destructor_t *free_message)
 {
     static parse_msg_func_t funcs1[7] =  {
         parse_msg_migrate,
@@ -5867,7 +5867,7 @@ spice_parse_channel_func_t spice_get_server_channel_parser1(uint32_t channel, un
     return NULL;
 }
 
-uint8_t * spice_parse_msg1(uint8_t *message_start, uint8_t *message_end, uint32_t channel, uint16_t message_type, int minor, size_t *size_out, message_destructor_t *free_message)
+uint8_t * spice_parse_msg1(uint8_t *message_start, uint8_t *message_end, uint32_t channel, uint16_t message_type, SPICE_GNUC_UNUSED int minor, size_t *size_out, message_destructor_t *free_message)
 {
     spice_parse_channel_func_t func;
     func = spice_get_server_channel_parser1(channel, NULL);

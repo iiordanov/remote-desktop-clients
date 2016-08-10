@@ -25,6 +25,7 @@
 #include <gio/gio.h>
 #include <glib-object.h>
 #include <govirt/ovirt-types.h>
+#include <rest/rest-proxy-call.h>
 #include <rest/rest-xml-node.h>
 
 G_BEGIN_DECLS
@@ -57,8 +58,13 @@ struct _OvirtResourceClass
                               RestXmlNode *node,
                               GError **error);
     char *(*to_xml)(OvirtResource *resource);
-
-    gpointer padding[19];
+#ifdef GOVIRT_UNSTABLE_API_ABI
+    void (*add_rest_params)(OvirtResource *resource,
+                            RestProxyCall *call);
+#else
+    gpointer padding0;
+#endif
+    gpointer padding[18];
 };
 
 GType ovirt_resource_get_type(void);
@@ -75,6 +81,30 @@ void ovirt_resource_update_async(OvirtResource *resource,
                                  GAsyncReadyCallback callback,
                                  gpointer user_data);
 gboolean ovirt_resource_update_finish(OvirtResource *resource,
+                                      GAsyncResult *result,
+                                      GError **err);
+
+gboolean ovirt_resource_refresh(OvirtResource *resource,
+                                OvirtProxy *proxy,
+                                GError **error);
+void ovirt_resource_refresh_async(OvirtResource *resource,
+                                  OvirtProxy *proxy,
+                                  GCancellable *cancellable,
+                                  GAsyncReadyCallback callback,
+                                  gpointer user_data);
+gboolean ovirt_resource_refresh_finish(OvirtResource *resource,
+                                       GAsyncResult *result,
+                                       GError **err);
+
+gboolean ovirt_resource_delete(OvirtResource *resource,
+                               OvirtProxy *proxy,
+                               GError **error);
+void ovirt_resource_delete_async(OvirtResource *resource,
+                                 OvirtProxy *proxy,
+                                 GCancellable *cancellable,
+                                 GAsyncReadyCallback callback,
+                                 gpointer user_data);
+gboolean ovirt_resource_delete_finish(OvirtResource *resource,
                                       GAsyncResult *result,
                                       GError **err);
 

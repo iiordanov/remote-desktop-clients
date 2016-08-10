@@ -19,6 +19,7 @@
 #ifndef _H_MARSHALLER
 #define _H_MARSHALLER
 
+#include <stdbool.h>
 #include <spice/macros.h>
 #include <spice/types.h>
 #include "mem.h"
@@ -37,7 +38,7 @@ void spice_marshaller_destroy(SpiceMarshaller *m);
 uint8_t *spice_marshaller_reserve_space(SpiceMarshaller *m, size_t size);
 void spice_marshaller_unreserve_space(SpiceMarshaller *m, size_t size);
 uint8_t *spice_marshaller_add(SpiceMarshaller *m, const uint8_t *data, size_t size);
-uint8_t *spice_marshaller_add_ref(SpiceMarshaller *m, uint8_t *data, size_t size);
+uint8_t *spice_marshaller_add_ref(SpiceMarshaller *m, const uint8_t *data, size_t size);
 uint8_t *spice_marshaller_add_ref_full(SpiceMarshaller *m, uint8_t *data, size_t size,
                                        spice_marshaller_item_free_func free_data, void *opaque);
 void     spice_marshaller_add_ref_chunks(SpiceMarshaller *m, SpiceChunks *chunks);
@@ -65,6 +66,9 @@ void *spice_marshaller_add_uint8(SpiceMarshaller *m, uint8_t v);
 void *spice_marshaller_add_int8(SpiceMarshaller *m, int8_t v);
 
 void  spice_marshaller_set_uint32(SpiceMarshaller *m, void *ref, uint32_t v);
+
+void  spice_marshaller_add_fd(SpiceMarshaller *m, int fd);
+bool  spice_marshaller_get_fd(SpiceMarshaller *m, int *fd);
 
 SPICE_END_DECLS
 

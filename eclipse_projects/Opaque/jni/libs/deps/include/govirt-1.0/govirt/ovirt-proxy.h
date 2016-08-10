@@ -65,7 +65,10 @@ struct _OvirtProxyClass {
 
 GType ovirt_proxy_get_type(void);
 
-OvirtProxy *ovirt_proxy_new(const char *uri);
+OvirtProxy *ovirt_proxy_new(const char *host);
+void ovirt_proxy_add_header(OvirtProxy *proxy, const char *header, const char *value);
+void ovirt_proxy_add_headers(OvirtProxy *proxy, ...);
+void ovirt_proxy_add_headers_from_valist(OvirtProxy *proxy, va_list headers);
 
 G_DEPRECATED_FOR(ovirt_collection_lookup_resource)
 OvirtVm *ovirt_proxy_lookup_vm(OvirtProxy *proxy, const char *vm_name);
@@ -104,5 +107,6 @@ void ovirt_proxy_fetch_api_async(OvirtProxy *proxy,
 OvirtApi *ovirt_proxy_fetch_api_finish(OvirtProxy *proxy,
                                        GAsyncResult *result,
                                        GError **err);
+OvirtApi *ovirt_proxy_get_api(OvirtProxy *proxy);
 
 #endif

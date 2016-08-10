@@ -19,7 +19,7 @@
 #define __SPICE_CLIENT_PORT_CHANNEL_H__
 
 #include <gio/gio.h>
-#include "spice-client.h"
+#include "spice-channel.h"
 
 G_BEGIN_DECLS
 

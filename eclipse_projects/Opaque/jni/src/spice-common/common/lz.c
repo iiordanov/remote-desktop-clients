@@ -647,6 +647,7 @@ void lz_decode(LzContext *lz, LzImageType to_type, uint8_t *buf)
             if (!encoder->palette) {
                 encoder->usr->error(encoder->usr,
                                     "a palette is missing (for bpp to rgb decoding)\n");
+                return;
             }
             switch (encoder->type) {
             case LZ_IMAGE_TYPE_PLT1_BE:

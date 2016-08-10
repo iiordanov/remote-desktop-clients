@@ -310,7 +310,9 @@ void snd_codec_destroy(SndCodec *codec)
  */
 int snd_codec_frame_size(SndCodec codec)
 {
+#if defined(HAVE_CELT051) || defined(HAVE_OPUS)
     SndCodecInternal *c = (SndCodecInternal *) codec;
+#endif
 #if HAVE_CELT051
     if (c && c->mode == SPICE_AUDIO_DATA_MODE_CELT_0_5_1)
         return SND_CODEC_CELT_FRAME_SIZE;
@@ -342,7 +344,9 @@ int snd_codec_frame_size(SndCodec codec)
 */
 int snd_codec_encode(SndCodec codec, uint8_t *in_ptr, int in_size, uint8_t *out_ptr, int *out_size)
 {
+#if defined(HAVE_CELT051) || defined(HAVE_OPUS)
     SndCodecInternal *c = (SndCodecInternal *) codec;
+#endif
 #if HAVE_CELT051
     if (c && c->mode == SPICE_AUDIO_DATA_MODE_CELT_0_5_1) {
         /* The output buffer size in celt determines the compression,
@@ -379,7 +383,9 @@ int snd_codec_encode(SndCodec codec, uint8_t *in_ptr, int in_size, uint8_t *out_
 */
 int snd_codec_decode(SndCodec codec, uint8_t *in_ptr, int in_size, uint8_t *out_ptr, int *out_size)
 {
+#if defined(HAVE_CELT051) || defined(HAVE_OPUS)
     SndCodecInternal *c = (SndCodecInternal *) codec;
+#endif
 #if HAVE_CELT051
     if (c && c->mode == SPICE_AUDIO_DATA_MODE_CELT_0_5_1)
         return snd_codec_decode_celt051(c, in_ptr, in_size, out_ptr, out_size);

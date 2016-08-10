@@ -109,6 +109,8 @@ const char * rest_proxy_call_get_method (RestProxyCall *call);
 void rest_proxy_call_set_function (RestProxyCall *call,
                                    const gchar   *function);
 
+const char * rest_proxy_call_get_function (RestProxyCall *call);
+
 void rest_proxy_call_add_header (RestProxyCall *call,
                                  const gchar   *header,
                                  const gchar   *value);

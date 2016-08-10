@@ -15,6 +15,8 @@
    You should have received a copy of the GNU Lesser General Public
    License along with this library; if not, see <http://www.gnu.org/licenses/>.
 */
+#include "config.h"
+
 #include "spice-client.h"
 #include "spice-common.h"
 #include "spice-channel-priv.h"
@@ -195,35 +197,6 @@ static void spice_port_channel_class_init(SpicePortChannelClass *klass)
     channel_set_handlers(SPICE_CHANNEL_CLASS(klass));
 }
 
-/* signal trampoline---------------------------------------------------------- */
-
-struct SPICE_PORT_DATA {
-    uint8_t *data;
-    gsize data_size;
-};
-
-struct SPICE_PORT_EVENT {
-    int event;
-};
-
-/* main context */
-static void do_emit_main_context(GObject *object, int signum, gpointer params)
-{
-    switch (signum) {
-    case SPICE_PORT_DATA: {
-        struct SPICE_PORT_DATA *p = params;
-        g_signal_emit(object, signals[signum], 0, p->data, p->data_size);
-        break;
-    }
-    case SPICE_PORT_EVENT: {
-        struct SPICE_PORT_EVENT *p = params;
-        g_signal_emit(object, signals[signum], 0, p->event);
-        break;
-    }
-    default:
-        g_warn_if_reached();
-    }
-}
 
 /* coroutine context */
 static void port_set_opened(SpicePortChannel *self, gboolean opened)
@@ -234,7 +207,7 @@ static void port_set_opened(SpicePortChannel *self, gboolean opened)
         return;
 
     c->opened = opened;
-    g_object_notify_main_context(G_OBJECT(self), "port-opened");
+    g_coroutine_object_notify(G_OBJECT(self), "port-opened");
 }
 
 /* coroutine context */
@@ -252,9 +225,9 @@ static void port_handle_init(SpiceChannel *channel, SpiceMsgIn *in)
 
     port_set_opened(self, init->opened);
     if (init->opened)
-        emit_main_context(channel, SPICE_PORT_EVENT, SPICE_PORT_EVENT_OPENED);
+        g_coroutine_signal_emit(channel, signals[SPICE_PORT_EVENT], 0, SPICE_PORT_EVENT_OPENED);
 
-    g_object_notify_main_context(G_OBJECT(channel), "port-name");
+    g_coroutine_object_notify(G_OBJECT(channel), "port-name");
 }
 
 /* coroutine context */
@@ -273,7 +246,7 @@ static void port_handle_event(SpiceChannel *channel, SpiceMsgIn *in)
         break;
     }
 
-    emit_main_context(channel, SPICE_PORT_EVENT, event->event);
+    g_coroutine_signal_emit(channel, signals[SPICE_PORT_EVENT], 0, event->event);
 }
 
 /* coroutine context */
@@ -286,15 +259,7 @@ static void port_handle_msg(SpiceChannel *channel, SpiceMsgIn *in)
     buf = spice_msg_in_raw(in, &size);
     CHANNEL_DEBUG(channel, "port %p got %d %p", channel, size, buf);
     port_set_opened(self, true);
-    emit_main_context(channel, SPICE_PORT_DATA, buf, size);
-}
-
-static void port_write_free_cb(uint8_t *data, void *user_data)
-{
-    GSimpleAsyncResult *result = user_data;
-
-    g_simple_async_result_complete(result);
-    g_object_unref(result);
+    g_coroutine_signal_emit(channel, signals[SPICE_PORT_DATA], 0, buf, size);
 }
 
 /**
@@ -320,9 +285,7 @@ void spice_port_write_async(SpicePortChannel *self,
                             GAsyncReadyCallback callback,
                             gpointer user_data)
 {
-    GSimpleAsyncResult *simple;
     SpicePortChannelPrivate *c;
-    SpiceMsgOut *msg;
 
     g_return_if_fail(SPICE_IS_PORT_CHANNEL(self));
     g_return_if_fail(buffer != NULL);
@@ -335,14 +298,8 @@ void spice_port_write_async(SpicePortChannel *self,
         return;
     }
 
-    simple = g_simple_async_result_new(G_OBJECT(self), callback, user_data,
-                                       spice_port_write_async);
-    g_simple_async_result_set_op_res_gssize(simple, count);
-
-    msg = spice_msg_out_new(SPICE_CHANNEL(self), SPICE_MSGC_SPICEVMC_DATA);
-    spice_marshaller_add_ref_full(msg->marshaller, (uint8_t*)buffer, count,
-                                  port_write_free_cb, simple);
-    spice_msg_out_send(msg);
+    spice_vmc_write_async(SPICE_CHANNEL(self), buffer, count,
+                          cancellable, callback, user_data);
 }
 
 /**
@@ -360,20 +317,9 @@ void spice_port_write_async(SpicePortChannel *self,
 gssize spice_port_write_finish(SpicePortChannel *self,
                                GAsyncResult *result, GError **error)
 {
-    GSimpleAsyncResult *simple;
-
     g_return_val_if_fail(SPICE_IS_PORT_CHANNEL(self), -1);
-    g_return_val_if_fail(result != NULL, -1);
 
-    simple = (GSimpleAsyncResult *)result;
-
-    if (g_simple_async_result_propagate_error(simple, error))
-        return -1;
-
-    g_return_val_if_fail(g_simple_async_result_is_valid(result, G_OBJECT(self),
-                                                        spice_port_write_async), -1);
-
-    return g_simple_async_result_get_op_res_gssize(simple);
+    return spice_vmc_write_finish(SPICE_CHANNEL(self), result, error);
 }
 
 /**

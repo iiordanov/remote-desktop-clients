@@ -40,7 +40,8 @@
    checkmarks on projects).
 
 6. To build and successfully run aSPICE, you need to:
-   - Install gstreamer-sdk into /opt/gstreamer
+   - Unpack gstreamer-sdk 1.6.4 into /opt/gstreamer. I obtained my copy from:
+     https://gstreamer.freedesktop.org/data/pkg/android/1.6.4/
 
    - Edit AndroidManifest.xml and change android:label="bVNC" and android:name="bVNC"
      to android:label="aSPICE" and android:name="aSPICE" respectively.

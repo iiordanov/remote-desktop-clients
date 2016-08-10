@@ -223,7 +223,7 @@ static void FNAME(compress_row0_seg)(Encoder *encoder, int i,
                                      const PIXEL * const cur_row,
                                      const int end,
                                      const unsigned int waitmask,
-                                     const unsigned int bpc,
+                                     SPICE_GNUC_UNUSED const unsigned int bpc,
                                      const unsigned int bpc_mask)
 {
     Channel * const channel_r = encoder->channels;
@@ -331,7 +331,7 @@ static void FNAME(compress_row_seg)(Encoder *encoder, int i,
                                     const PIXEL * const cur_row,
                                     const int end,
                                     const unsigned int waitmask,
-                                    const unsigned int bpc,
+                                    SPICE_GNUC_UNUSED const unsigned int bpc,
                                     const unsigned int bpc_mask)
 {
     Channel * const channel_r = encoder->channels;
@@ -478,7 +478,7 @@ static void FNAME(uncompress_row0_seg)(Encoder *encoder, int i,
                                        PIXEL * const cur_row,
                                        const int end,
                                        const unsigned int waitmask,
-                                       const unsigned int bpc,
+                                       SPICE_GNUC_UNUSED const unsigned int bpc,
                                        const unsigned int bpc_mask)
 {
     Channel * const channel_r = encoder->channels;
@@ -594,7 +594,7 @@ static void FNAME(uncompress_row_seg)(Encoder *encoder,
                                       PIXEL * const cur_row,
                                       int i,
                                       const int end,
-                                      const unsigned int bpc,
+                                      SPICE_GNUC_UNUSED const unsigned int bpc,
                                       const unsigned int bpc_mask)
 {
     Channel * const channel_r = encoder->channels;

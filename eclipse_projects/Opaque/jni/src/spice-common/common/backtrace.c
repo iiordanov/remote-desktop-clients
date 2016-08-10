@@ -24,18 +24,15 @@
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
+#include "spice_common.h"
 
 #include <unistd.h>
-#include <stdlib.h>
-#include <stdio.h>
 #include <errno.h>
 #include <unistd.h>
 #include <sys/types.h>
 #ifndef __MINGW32__
 #include <sys/wait.h>
 #endif
-
-#include "spice_common.h"
 
 #define GSTACK_PATH "/usr/bin/gstack"
 

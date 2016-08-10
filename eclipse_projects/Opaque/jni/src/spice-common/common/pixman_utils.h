@@ -27,6 +27,16 @@
 
 #include "draw.h"
 
+#ifdef WORDS_BIGENDIAN
+# define PIXMAN_LE_x8r8g8b8   PIXMAN_b8g8r8x8
+# define PIXMAN_LE_a8r8g8b8   PIXMAN_b8g8r8a8
+# define PIXMAN_LE_r8g8b8     PIXMAN_b8g8r8
+#else
+# define PIXMAN_LE_x8r8g8b8   PIXMAN_x8r8g8b8
+# define PIXMAN_LE_a8r8g8b8   PIXMAN_a8r8g8b8
+# define PIXMAN_LE_r8g8b8     PIXMAN_r8g8b8
+#endif
+
 SPICE_BEGIN_DECLS
 
 /* This lists all possible 2 argument binary raster ops.

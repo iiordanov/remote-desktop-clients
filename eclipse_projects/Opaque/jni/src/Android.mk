@@ -22,14 +22,14 @@ spice_objs := \
 
 LOCAL_MODULE    := spice
 
-LOCAL_SRC_FILES := gtk/channel-record.c gtk/channel-playback.c gtk/channel-cursor.c \
-                   gtk/spice-cmdline.c gtk/coroutine_gthread.c gtk/spice-util.c \
+LOCAL_SRC_FILES := gtk/spice-uri.c gtk/channel-record.c gtk/channel-playback.c gtk/channel-cursor.c \
+                   gtk/channel-webdav.c gtk/spice-cmdline.c gtk/coroutine_gthread.c gtk/spice-util.c \
                    gtk/spice-session.c gtk/spice-channel.c gtk/spice-marshal.c gtk/spice-glib-enums.c \
                    gtk/gio-coroutine.c gtk/channel-base.c gtk/channel-main.c gtk/spice-proxy.c gtk/bio-gsocket.c \
                    gtk/glib-compat.c gtk/channel-display.c gtk/channel-display-mjpeg.c gtk/channel-inputs.c \
                    gtk/decode-glz.c gtk/decode-jpeg.c gtk/decode-zlib.c gtk/wocky-http-proxy.c gtk/channel-port.c \
-                   gtk/spice-client.c gtk/spice-audio.c gtk/spice-gstaudio.c \
-                   gtk/channel-usbredir.c gtk/usb-device-manager.c gtk/usbutil.c \
+                   gtk/spice-client.c gtk/spice-audio.c gtk/spice-gstaudio.c gtk/vmcstream.c \
+                   gtk/channel-usbredir.c gtk/usb-device-manager.c gtk/usbutil.c gtk/bio-gio.c \
                    spice-common/common/generated_client_demarshallers.c spice-common/common/generated_client_demarshallers1.c \
                    spice-common/common/generated_client_marshallers.c spice-common/common/generated_client_marshallers1.c \
                    spice-common/common/mem.c spice-common/common/marshaller.c spice-common/common/canvas_utils.c \
@@ -54,6 +54,7 @@ LOCAL_CPPFLAGS 	+= -DG_LOG_DOMAIN=\"GSpice\" \
 LOCAL_C_INCLUDES += \
                     $(LOCAL_PATH)/gtk \
                     $(LOCAL_PATH)/spice-common \
+                    $(LOCAL_PATH)/spice-common/common \
                     $(LOCAL_PATH)/spice-common/spice-protocol \
                     $(LOCAL_PATH)/virt-viewer \
                     $(SPICE_CLIENT_ANDROID_DEPS)/include \
@@ -92,6 +93,6 @@ GSTREAMER_NDK_BUILD_PATH  := $(GSTREAMER_SDK_ROOT)/share/gst-android/ndk-build/
 include $(GSTREAMER_NDK_BUILD_PATH)/plugins.mk
 GSTREAMER_PLUGINS         := $(GSTREAMER_PLUGINS_CORE) $(GSTREAMER_PLUGINS_SYS)
 G_IO_MODULES              := gnutls
-GSTREAMER_EXTRA_DEPS      := pixman-1 gstreamer-app-1.0 libsoup-2.4 libxml-2.0 gthread-2.0 gobject-2.0 glib-2.0
+GSTREAMER_EXTRA_DEPS      := pixman-1 gstreamer-app-1.0 libsoup-2.4 libxml-2.0 gthread-2.0 gobject-2.0 glib-2.0 gio-unix-2.0
 
 include $(GSTREAMER_NDK_BUILD_PATH)/gstreamer-1.0.mk

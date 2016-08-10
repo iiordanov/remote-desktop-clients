@@ -37,6 +37,20 @@ typedef struct _WockyHttpProxyClass   WockyHttpProxyClass;
 
 GType _wocky_http_proxy_get_type (void);
 
+#if GLIB_CHECK_VERSION(2, 28, 0)
+#define WOCKY_TYPE_HTTPS_PROXY         (_wocky_https_proxy_get_type ())
+#define WOCKY_HTTPS_PROXY(o)           (G_TYPE_CHECK_INSTANCE_CAST ((o), WOCKY_TYPE_HTTPS_PROXY, WockyHttpsProxy))
+#define WOCKY_HTTPS_PROXY_CLASS(k)     (G_TYPE_CHECK_CLASS_CAST((k), WOCKY_TYPE_HTTPS_PROXY, WockyHttpsProxyClass))
+#define WOCKY_IS_HTTPS_PROXY(o)        (G_TYPE_CHECK_INSTANCE_TYPE ((o), WOCKY_TYPE_HTTPS_PROXY))
+#define WOCKY_IS_HTTPS_PROXY_CLASS(k)  (G_TYPE_CHECK_CLASS_TYPE ((k), WOCKY_TYPE_HTTPS_PROXY))
+#define WOCKY_HTTPS_PROXY_GET_CLASS(o) (G_TYPE_INSTANCE_GET_CLASS ((o), WOCKY_TYPE_HTTPS_PROXY, WockyHttpsProxyClass))
+
+typedef struct _WockyHttpsProxy        WockyHttpsProxy;
+typedef struct _WockyHttpsProxyClass   WockyHttpsProxyClass;
+
+GType _wocky_https_proxy_get_type (void);
+#endif
+
 G_END_DECLS
 
 #endif /* _WOCKY_HTTP_PROXY_H_ */

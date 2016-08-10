@@ -15,9 +15,7 @@
    You should have received a copy of the GNU Lesser General Public
    License along with this library; if not, see <http://www.gnu.org/licenses/>.
 */
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
+#include "config.h"
 #include <glib/gi18n.h>
 
 #include "spice-client.h"
@@ -110,7 +108,9 @@ int main(int argc, char *argv[])
         exit(0);
     }
 
+#if !GLIB_CHECK_VERSION(2,36,0)
     g_type_init();
+#endif
     mainloop = g_main_loop_new(NULL, false);
 
     session = spice_session_new();

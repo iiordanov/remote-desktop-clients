@@ -19,9 +19,13 @@
 #ifndef SSL_VERIFY_H
 #define SSL_VERIFY_H
 
-#if defined(WIN32) && !defined(__MINGW32__)
+#if defined(WIN32)
 #include <windows.h>
 #include <wincrypt.h>
+#ifdef X509_NAME
+/* wincrypt.h has already a different define... */
+#undef X509_NAME
+#endif
 #endif
 
 #include <openssl/rsa.h>
@@ -29,10 +33,6 @@
 #include <openssl/x509.h>
 #include <openssl/ssl.h>
 #include <openssl/err.h>
-#ifdef X509_NAME
-/* wincrypt.h has already a different define... */
-#undef X509_NAME
-#endif
 #include <openssl/x509v3.h>
 
 #include <spice/macros.h>

@@ -72,6 +72,8 @@ static void FNAME(update_model)(CommonState *state, s_bucket * const bucket,
                                 const BYTE curval)
 {
     spice_static_assert(BPC >= 1);
+    spice_return_if_fail (bucket != NULL);
+
     const unsigned int bpp = BPC;
     COUNTER * const pcounters = bucket->pcounters;
     unsigned int i;

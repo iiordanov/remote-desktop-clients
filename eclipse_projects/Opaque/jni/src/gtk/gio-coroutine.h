@@ -56,9 +56,10 @@ gboolean     g_coroutine_condition_wait (GCoroutine *coroutine,
                                          GConditionWaitFunc func, gpointer data);
 void         g_coroutine_condition_cancel(GCoroutine *coroutine);
 
-void         g_signal_emit_main_context(GObject *object, GSignalEmitMainFunc func,
-                                        int signum, gpointer params, const char *debug_info);
-void         g_object_notify_main_context(GObject *object, const gchar *property_name);
+void         g_coroutine_signal_emit (gpointer instance, guint signal_id,
+                                      GQuark detail, ...);
+
+void         g_coroutine_object_notify(GObject *object, const gchar *property_name);
 
 G_END_DECLS
 

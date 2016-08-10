@@ -78,4 +78,3 @@ GList *spice_smartcard_manager_get_readers(SpiceSmartcardManager *manager);
 G_END_DECLS
 
 #endif /* __SPICE_SMARTCARD_MANAGER_H__ */
-

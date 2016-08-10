@@ -15,6 +15,8 @@
    You should have received a copy of the GNU Lesser General Public
    License along with this library; if not, see <http://www.gnu.org/licenses/>.
 */
+#include "config.h"
+
 #include "glib-compat.h"
 #include "spice-client.h"
 #include "spice-common.h"
@@ -86,7 +88,8 @@ static void spice_cursor_channel_init(SpiceCursorChannel *channel)
 
 static void spice_cursor_channel_finalize(GObject *obj)
 {
-    SpiceCursorChannelPrivate *c = SPICE_CURSOR_CHANNEL_GET_PRIVATE(obj);
+    SpiceCursorChannel *channel = SPICE_CURSOR_CHANNEL(obj);
+    SpiceCursorChannelPrivate *c = channel->priv;
 
     g_clear_pointer(&c->cursors, cache_unref);
 
@@ -196,52 +199,6 @@ static void spice_cursor_channel_class_init(SpiceCursorChannelClass *klass)
 
     g_type_class_add_private(klass, sizeof(SpiceCursorChannelPrivate));
     channel_set_handlers(SPICE_CHANNEL_CLASS(klass));
-}
-
-/* signal trampoline---------------------------------------------------------- */
-
-struct SPICE_CURSOR_HIDE {
-};
-
-struct SPICE_CURSOR_RESET {
-};
-
-struct SPICE_CURSOR_SET {
-    uint16_t width;
-    uint16_t height;
-    uint16_t hot_spot_x;
-    uint16_t hot_spot_y;
-    gpointer rgba;
-};
-
-struct SPICE_CURSOR_MOVE {
-    gint x;
-    gint y;
-};
-
-/* main context */
-static void do_emit_main_context(GObject *object, int signum, gpointer params)
-{
-    switch (signum) {
-    case SPICE_CURSOR_HIDE:
-    case SPICE_CURSOR_RESET: {
-        g_signal_emit(object, signals[signum], 0);
-        break;
-    }
-    case SPICE_CURSOR_SET: {
-        struct SPICE_CURSOR_SET *p = params;
-        g_signal_emit(object, signals[signum], 0,
-                      p->width, p->height, p->hot_spot_x, p->hot_spot_y, p->rgba);
-        break;
-    }
-    case SPICE_CURSOR_MOVE: {
-        struct SPICE_CURSOR_MOVE *p = params;
-        g_signal_emit(object, signals[signum], 0, p->x, p->y);
-        break;
-    }
-    default:
-        g_warn_if_reached();
-    }
 }
 
 /* ------------------------------------------------------------------ */
@@ -367,7 +324,7 @@ static display_cursor *set_cursor(SpiceChannel *channel, SpiceCursor *scursor)
     g_return_val_if_fail(scursor->data_size != 0, NULL);
 
     size = 4u * hdr->width * hdr->height;
-    cursor = spice_malloc(sizeof(*cursor) + size);
+    cursor = g_malloc0(sizeof(*cursor) + size);
     cursor->hdr = *hdr;
     cursor->default_cursor = FALSE;
     cursor->refcount = 1;
@@ -433,7 +390,7 @@ static display_cursor *set_cursor(SpiceChannel *channel, SpiceCursor *scursor)
     }
 
 cache_add:
-    if (cursor && (scursor->flags & SPICE_CURSOR_FLAGS_CACHE_ME)) {
+    if (scursor->flags & SPICE_CURSOR_FLAGS_CACHE_ME) {
         cache_add(c->cursors, hdr->unique, display_cursor_ref(cursor));
     }
 
@@ -444,10 +401,10 @@ cache_add:
 static void emit_cursor_set(SpiceChannel *channel, display_cursor *cursor)
 {
     g_return_if_fail(cursor != NULL);
-    emit_main_context(channel, SPICE_CURSOR_SET,
-                      cursor->hdr.width, cursor->hdr.height,
-                      cursor->hdr.hot_spot_x, cursor->hdr.hot_spot_y,
-                      cursor->default_cursor ? NULL : cursor->data);
+    g_coroutine_signal_emit(channel, signals[SPICE_CURSOR_SET], 0,
+                            cursor->hdr.width, cursor->hdr.height,
+                            cursor->hdr.hot_spot_x, cursor->hdr.hot_spot_y,
+                            cursor->default_cursor ? NULL : cursor->data);
 }
 
 /* coroutine context */
@@ -465,7 +422,7 @@ static void cursor_handle_init(SpiceChannel *channel, SpiceMsgIn *in)
     if (cursor)
         emit_cursor_set(channel, cursor);
     if (!init->visible || !cursor)
-        emit_main_context(channel, SPICE_CURSOR_HIDE);
+        g_coroutine_signal_emit(channel, signals[SPICE_CURSOR_HIDE], 0);
     if (cursor)
         display_cursor_unref(cursor);
 }
@@ -478,7 +435,7 @@ static void cursor_handle_reset(SpiceChannel *channel, SpiceMsgIn *in)
     CHANNEL_DEBUG(channel, "%s, init_done: %d", __FUNCTION__, c->init_done);
 
     cache_clear(c->cursors);
-    emit_main_context(channel, SPICE_CURSOR_RESET);
+    g_coroutine_signal_emit(channel, signals[SPICE_CURSOR_RESET], 0);
     c->init_done = FALSE;
 }
 
@@ -495,7 +452,7 @@ static void cursor_handle_set(SpiceChannel *channel, SpiceMsgIn *in)
     if (cursor)
         emit_cursor_set(channel, cursor);
     else
-        emit_main_context(channel, SPICE_CURSOR_HIDE);
+        g_coroutine_signal_emit(channel, signals[SPICE_CURSOR_HIDE], 0);
 
 
     if (cursor)
@@ -510,8 +467,8 @@ static void cursor_handle_move(SpiceChannel *channel, SpiceMsgIn *in)
 
     g_return_if_fail(c->init_done == TRUE);
 
-    emit_main_context(channel, SPICE_CURSOR_MOVE,
-                      move->position.x, move->position.y);
+    g_coroutine_signal_emit(channel, signals[SPICE_CURSOR_MOVE], 0,
+                            move->position.x, move->position.y);
 }
 
 /* coroutine context */
@@ -523,7 +480,7 @@ static void cursor_handle_hide(SpiceChannel *channel, SpiceMsgIn *in)
     g_return_if_fail(c->init_done == TRUE);
 #endif
 
-    emit_main_context(channel, SPICE_CURSOR_HIDE);
+    g_coroutine_signal_emit(channel, signals[SPICE_CURSOR_HIDE], 0);
 }
 
 /* coroutine context */

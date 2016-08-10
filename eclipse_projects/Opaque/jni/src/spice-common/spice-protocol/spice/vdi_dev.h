@@ -37,6 +37,10 @@
 
 #include <spice/start-packed.h>
 
+#ifndef SPICE_DISABLE_DEPRECATED
+#error "This SPICE interface is deprecated"
+#endif
+
 #define REDHAT_PCI_VENDOR_ID 0x1b36
 
 #define VDI_PORT_DEVICE_ID 0x0105

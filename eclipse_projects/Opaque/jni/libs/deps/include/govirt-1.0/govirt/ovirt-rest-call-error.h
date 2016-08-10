@@ -25,7 +25,8 @@
 G_BEGIN_DECLS
 
 typedef enum {
-    OVIRT_REST_CALL_ERROR_XML
+    OVIRT_REST_CALL_ERROR_XML,
+    OVIRT_REST_CALL_ERROR_CANCELLED,
 } OvirtRestCallError;
 
 #define OVIRT_REST_CALL_ERROR ovirt_rest_call_error_quark()

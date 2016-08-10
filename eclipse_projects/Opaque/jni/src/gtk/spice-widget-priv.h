@@ -20,9 +20,7 @@
 
 G_BEGIN_DECLS
 
-#ifdef HAVE_CONFIG_H
 #include "config.h"
-#endif
 
 #ifdef WITH_X11
 #include <X11/Xlib.h>
@@ -104,13 +102,15 @@ struct _SpiceDisplayPrivate {
     bool                    keyboard_grab_active;
     bool                    keyboard_have_focus;
 
-    const guint16 const     *keycode_map;
+    const guint16          *keycode_map;
     size_t                  keycode_maplen;
     uint32_t                key_state[512 / 32];
     int                     key_delayed_scancode;
     guint                   key_delayed_id;
     SpiceGrabSequence         *grabseq; /* the configured key sequence */
     gboolean                *activeseq; /* the currently pressed keys */
+    gboolean                seq_pressed;
+    gboolean                keyboard_grab_released;
     gint                    mark;
 #ifdef WIN32
     HHOOK                   keyboard_hook;

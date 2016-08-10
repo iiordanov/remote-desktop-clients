@@ -44,7 +44,7 @@
 #include <config.h>
 #endif
 
-#define DJB2_START 5381;
+#define DJB2_START 5381
 #define DJB2_HASH(hash, c) (hash = ((hash << 5) + hash) ^ (c)) //|{hash = ((hash << 5) + hash) + c;}
 
 /*
@@ -214,9 +214,7 @@ static void FNAME(compress_seg)(Encoder *encoder, LzImageSegment *seg, PIXEL *fr
                 ip += 3;
                 ref = anchor + 2;
                 ref_limit = (PIXEL *)(seg->lines_end);
-#if defined(LZ_RGB16) || defined(LZ_RGB24) || defined(LZ_RGB32)
-                len = 3;
-#endif
+
                 goto match;
             }
         }
@@ -325,18 +323,15 @@ match:        // RLE or dictionary (both are encoded by distance from ref (-1) a
             // TODO: maybe separate a run from the same seg or from different ones in order
             //       to spare ref < ref_limit and that way we can also perform 8 calls of
             //       (ref++ != ip++) outside a loop
-            for (;;) {
-                while ((ip < ip_bound) && (ref < ref_limit)) {
-                    if (!SAME_PIXEL(*ref, *ip)) {
-                        ref++;
-                        ip++;
-                        break;
-                    } else {
-                        ref++;
-                        ip++;
-                    }
+            while ((ip < ip_bound) && (ref < ref_limit)) {
+                if (!SAME_PIXEL(*ref, *ip)) {
+                    ref++;
+                    ip++;
+                    break;
+                } else {
+                    ref++;
+                    ip++;
                 }
-                break;
             }
         }
 

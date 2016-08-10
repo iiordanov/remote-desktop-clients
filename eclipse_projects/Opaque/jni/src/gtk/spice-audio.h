@@ -19,8 +19,10 @@
 #define __SPICE_CLIENT_AUDIO_H__
 
 #include <glib-object.h>
+#include <gio/gio.h>
 #include "spice-util.h"
 #include "spice-session.h"
+#include "channel-main.h"
 
 G_BEGIN_DECLS
 
@@ -67,8 +69,30 @@ struct _SpiceAudioClass {
 
     /*< private >*/
     gboolean (*connect_channel)(SpiceAudio *audio, SpiceChannel *channel);
+    void (*get_playback_volume_info_async)(SpiceAudio *audio,
+                                           GCancellable *cancellable,
+                                           SpiceMainChannel *main_channel,
+                                           GAsyncReadyCallback callback,
+                                           gpointer user_data);
+    gboolean (*get_playback_volume_info_finish)(SpiceAudio *audio,
+                                                GAsyncResult *res,
+                                                gboolean *mute,
+                                                guint8 *nchannels,
+                                                guint16 **volume,
+                                                GError **error);
+    void (*get_record_volume_info_async)(SpiceAudio *audio,
+                                         GCancellable *cancellable,
+                                         SpiceMainChannel *main_channel,
+                                         GAsyncReadyCallback callback,
+                                         gpointer user_data);
+    gboolean (*get_record_volume_info_finish)(SpiceAudio *audio,
+                                              GAsyncResult *res,
+                                              gboolean *mute,
+                                              guint8 *nchannels,
+                                              guint16 **volume,
+                                              GError **error);
 
-    gchar _spice_reserved[SPICE_RESERVED_PADDING];
+    gchar _spice_reserved[SPICE_RESERVED_PADDING - 4 * sizeof(void *)];
 };
 
 GType spice_audio_get_type(void);

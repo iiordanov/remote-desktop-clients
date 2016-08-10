@@ -136,18 +136,18 @@ static void spice_smartcard_channel_constructed(GObject *object)
     g_return_if_fail(s != NULL);
 
 #ifdef USE_SMARTCARD
-    if (!s->priv->migration_copy) {
+    if (!spice_session_is_for_migration(s)) {
         SpiceSmartcardChannel *channel = SPICE_SMARTCARD_CHANNEL(object);
         SpiceSmartcardManager *manager = spice_smartcard_manager_get();
 
-        g_signal_connect(G_OBJECT(manager), "reader-added",
-                         (GCallback)reader_added_cb, channel);
-        g_signal_connect(G_OBJECT(manager), "reader-removed",
-                         (GCallback)reader_removed_cb, channel);
-        g_signal_connect(G_OBJECT(manager), "card-inserted",
-                         (GCallback)card_inserted_cb, channel);
-        g_signal_connect(G_OBJECT(manager), "card-removed",
-                         (GCallback)card_removed_cb, channel);
+        spice_g_signal_connect_object(G_OBJECT(manager), "reader-added",
+                                      (GCallback)reader_added_cb, channel, 0);
+        spice_g_signal_connect_object(G_OBJECT(manager), "reader-removed",
+                                      (GCallback)reader_removed_cb, channel, 0);
+        spice_g_signal_connect_object(G_OBJECT(manager), "card-inserted",
+                                      (GCallback)card_inserted_cb, channel, 0);
+        spice_g_signal_connect_object(G_OBJECT(manager), "card-removed",
+                                      (GCallback)card_removed_cb, channel, 0);
     }
 #endif
 
@@ -158,7 +158,8 @@ static void spice_smartcard_channel_constructed(GObject *object)
 
 static void spice_smartcard_channel_finalize(GObject *obj)
 {
-    SpiceSmartcardChannelPrivate *c = SPICE_SMARTCARD_CHANNEL_GET_PRIVATE(obj);
+    SpiceSmartcardChannel *channel = SPICE_SMARTCARD_CHANNEL(obj);
+    SpiceSmartcardChannelPrivate *c = channel->priv;
 
     if (c->pending_card_insertions != NULL) {
         g_hash_table_destroy(c->pending_card_insertions);
@@ -187,7 +188,8 @@ static void spice_smartcard_channel_finalize(GObject *obj)
 
 static void spice_smartcard_channel_reset(SpiceChannel *channel, gboolean migrating)
 {
-    SpiceSmartcardChannelPrivate *c = SPICE_SMARTCARD_CHANNEL_GET_PRIVATE(channel);
+    SpiceSmartcardChannel *smartcard_channel = SPICE_SMARTCARD_CHANNEL(channel);
+    SpiceSmartcardChannelPrivate *c = smartcard_channel->priv;
 
     g_hash_table_remove_all(c->pending_card_insertions);
     g_hash_table_remove_all(c->pending_reader_removals);
@@ -398,6 +400,10 @@ static void reader_added_cb(SpiceSmartcardManager *manager, VReader *reader,
     SpiceSmartcardChannel *channel = SPICE_SMARTCARD_CHANNEL(user_data);
     const char *reader_name = vreader_get_name(reader);
 
+    if (vreader_get_id(reader) != -1 ||
+        g_list_find(channel->priv->pending_reader_additions, reader))
+        return;
+
     channel->priv->pending_reader_additions =
         g_list_append(channel->priv->pending_reader_additions, reader);
 
@@ -450,23 +456,48 @@ static void spice_smartcard_channel_up_cb(GObject *source_object,
                                           gpointer user_data)
 {
     SpiceChannel *channel = SPICE_CHANNEL(user_data);
+#ifdef USE_SMARTCARD
+    SpiceSmartcardManager *manager = spice_smartcard_manager_get();
+    GList *l, *list = NULL;
+#endif
+    GError *error = NULL;
 
     g_return_if_fail(channel != NULL);
     g_return_if_fail(SPICE_IS_SESSION(source_object));
 
-    if (!spice_channel_get_session(SPICE_CHANNEL(channel))->priv->migration_copy) {
-        GError *error = NULL;
-
-        spice_smartcard_manager_init_finish(SPICE_SESSION(source_object),
-                                            res, &error);
-        if (error)
-            g_warning("%s", error->message);
-        g_clear_error(&error);
+    spice_smartcard_manager_init_finish(SPICE_SESSION(source_object),
+                                        res, &error);
+    if (error) {
+        g_warning("%s", error->message);
+        goto end;
     }
+
+#ifdef USE_SMARTCARD
+    list = spice_smartcard_manager_get_readers(manager);
+    for (l = list; l != NULL; l = l->next) {
+        VReader *reader = l->data;
+        gboolean has_card = vreader_card_is_present(reader) == VREADER_OK;
+
+        reader_added_cb(manager, reader, channel);
+        if (has_card)
+            card_inserted_cb(manager, reader, channel);
+
+        g_boxed_free(SPICE_TYPE_SMARTCARD_READER, reader);
+    }
+#endif
+
+end:
+#ifdef USE_SMARTCARD
+    g_list_free(list);
+#endif
+    g_clear_error(&error);
 }
 
 static void spice_smartcard_channel_up(SpiceChannel *channel)
 {
+    if (spice_session_is_for_migration(spice_channel_get_session(channel)))
+        return;
+
     spice_smartcard_manager_init_async(spice_channel_get_session(channel),
                                        g_cancellable_new(),
                                        spice_smartcard_channel_up_cb,
@@ -476,11 +507,11 @@ static void spice_smartcard_channel_up(SpiceChannel *channel)
 static void handle_smartcard_msg(SpiceChannel *channel, SpiceMsgIn *in)
 {
 #ifdef USE_SMARTCARD
-    SpiceSmartcardChannelPrivate *priv = SPICE_SMARTCARD_CHANNEL_GET_PRIVATE(channel);
+    SpiceSmartcardChannel *smartcard_channel = SPICE_SMARTCARD_CHANNEL(channel);
+    SpiceSmartcardChannelPrivate *priv = smartcard_channel->priv;
     SpiceMsgSmartcard *msg = spice_msg_in_parsed(in);
     VReader *reader;
 
-    priv = SPICE_SMARTCARD_CHANNEL_GET_PRIVATE(channel);
     CHANNEL_DEBUG(channel, "handle msg %d", msg->type);
     switch (msg->type) {
         case VSC_Error:
@@ -497,15 +528,14 @@ static void handle_smartcard_msg(SpiceChannel *channel, SpiceMsgIn *in)
                                            priv->pending_reader_additions);
                     vreader_set_id(reader, msg->reader_id);
 
-                    if (spice_channel_has_pending_card_insertion(SPICE_SMARTCARD_CHANNEL(channel), reader)) {
-                        send_msg_atr(SPICE_SMARTCARD_CHANNEL(channel), reader);
-                        spice_channel_drop_pending_card_insertion(SPICE_SMARTCARD_CHANNEL(channel), reader);
+                    if (spice_channel_has_pending_card_insertion(smartcard_channel, reader)) {
+                        send_msg_atr(smartcard_channel, reader);
+                        spice_channel_drop_pending_card_insertion(smartcard_channel, reader);
                     }
 
-                    if (spice_channel_has_pending_reader_removal(SPICE_SMARTCARD_CHANNEL(channel), reader)) {
-                        send_msg_generic(SPICE_SMARTCARD_CHANNEL(channel),
-                                         reader, VSC_CardRemove);
-                        spice_channel_drop_pending_reader_removal(SPICE_SMARTCARD_CHANNEL(channel), reader);
+                    if (spice_channel_has_pending_reader_removal(smartcard_channel, reader)) {
+                        send_msg_generic(smartcard_channel, reader, VSC_CardRemove);
+                        spice_channel_drop_pending_reader_removal(smartcard_channel, reader);
                     }
                     break;
                 case VSC_APDU:
@@ -518,7 +548,7 @@ static void handle_smartcard_msg(SpiceChannel *channel, SpiceMsgIn *in)
                     g_warning("Unexpected message: %d", priv->in_flight_message->message_type);
                     break;
             }
-            smartcard_message_complete_in_flight(SPICE_SMARTCARD_CHANNEL(channel));
+            smartcard_message_complete_in_flight(smartcard_channel);
 
             break;
 
@@ -537,13 +567,13 @@ static void handle_smartcard_msg(SpiceChannel *channel, SpiceMsgIn *in)
                                               msg->data, msg->length,
                                               data_out, &data_out_len);
             if (reader_status == VREADER_OK) {
-                send_msg_generic_with_data(SPICE_SMARTCARD_CHANNEL(channel),
+                send_msg_generic_with_data(smartcard_channel,
                                            reader, VSC_APDU,
                                            data_out, data_out_len, FALSE);
             } else {
                 uint32_t error_code;
                 error_code = GUINT32_TO_LE(reader_status);
-                send_msg_generic_with_data(SPICE_SMARTCARD_CHANNEL(channel),
+                send_msg_generic_with_data(smartcard_channel,
                                            reader, VSC_Error,
                                            (uint8_t*)&error_code,
                                            sizeof (error_code), FALSE);

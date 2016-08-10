@@ -18,6 +18,7 @@
    License along with this library; if not, write to the Free Software
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 */
+#include "config.h"
 
 #include "gio-coroutine.h"
 
@@ -183,20 +184,21 @@ gboolean g_coroutine_condition_wait(GCoroutine *self, GConditionWaitFunc func, g
 
 struct signal_data
 {
-    GObject *object;
+    gpointer instance;
     struct coroutine *caller;
-    int signum;
-    gpointer params;
-    GSignalEmitMainFunc func;
-    const char *debug_info;
+    guint signal_id;
+    GQuark detail;
+    const gchar *propname;
     gboolean notified;
+    va_list var_args;
 };
 
 static gboolean emit_main_context(gpointer opaque)
 {
     struct signal_data *signal = opaque;
 
-    signal->func(signal->object, signal->signum, signal->params);
+    g_signal_emit_valist(signal->instance, signal->signal_id,
+                         signal->detail, signal->var_args);
     signal->notified = TRUE;
 
     coroutine_yieldto(signal->caller, NULL);
@@ -204,41 +206,38 @@ static gboolean emit_main_context(gpointer opaque)
     return FALSE;
 }
 
-/* coroutine -> main context */
-void g_signal_emit_main_context(GObject *object,
-                                GSignalEmitMainFunc emit_main_func,
-                                int signum,
-                                gpointer params,
-                                const char *debug_info)
+void
+g_coroutine_signal_emit(gpointer instance, guint signal_id,
+                        GQuark detail, ...)
 {
-    struct signal_data data;
+    struct signal_data data = {
+        .instance = instance,
+        .signal_id = signal_id,
+        .detail = detail,
+        .caller = coroutine_self(),
+    };
 
-    g_return_if_fail(coroutine_self()->caller);
+    va_start (data.var_args, detail);
 
-    data.object = object;
-    data.caller = coroutine_self();
-    data.signum = signum;
-    data.params = params;
-    data.func = emit_main_func;
-    data.debug_info = debug_info;
-    data.notified = FALSE;
-    g_idle_add(emit_main_context, &data);
+    if (coroutine_self_is_main()) {
+        g_signal_emit_valist(instance, signal_id, detail, data.var_args);
+    } else {
+        g_object_ref(instance);
+        g_idle_add(emit_main_context, &data);
+        coroutine_yield(NULL);
+        g_warn_if_fail(data.notified);
+        g_object_unref(instance);
+    }
 
-    /* This switches to the system coroutine context, lets
-     * the idle function run to dispatch the signal, and
-     * finally returns once complete. ie this is synchronous
-     * from the POV of the coroutine despite there being
-     * an idle function involved
-     */
-    coroutine_yield(NULL);
-    g_warn_if_fail(data.notified);
+    va_end (data.var_args);
 }
+
 
 static gboolean notify_main_context(gpointer opaque)
 {
     struct signal_data *signal = opaque;
 
-    g_object_notify(signal->object, signal->params);
+    g_object_notify(signal->instance, signal->propname);
     signal->notified = TRUE;
 
     coroutine_yieldto(signal->caller, NULL);
@@ -247,8 +246,8 @@ static gboolean notify_main_context(gpointer opaque)
 }
 
 /* coroutine -> main context */
-void g_object_notify_main_context(GObject *object,
-                                  const gchar *property_name)
+void g_coroutine_object_notify(GObject *object,
+                               const gchar *property_name)
 {
     struct signal_data data;
 
@@ -256,9 +255,9 @@ void g_object_notify_main_context(GObject *object,
         g_object_notify(object, property_name);
     } else {
 
-        data.object = object;
+        data.instance = g_object_ref(object);
         data.caller = coroutine_self();
-        data.params = (gpointer)property_name;
+        data.propname = (gpointer)property_name;
         data.notified = FALSE;
 
         g_idle_add(notify_main_context, &data);
@@ -271,5 +270,6 @@ void g_object_notify_main_context(GObject *object,
          */
         coroutine_yield(NULL);
         g_warn_if_fail(data.notified);
+        g_object_unref(object);
     }
 }

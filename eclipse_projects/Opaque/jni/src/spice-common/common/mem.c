@@ -22,8 +22,6 @@
 #include "spice_common.h"
 #include "mem.h"
 
-#include <stdlib.h>
-#include <stdio.h>
 #include <string.h>
 
 #ifndef MALLOC_ERROR
@@ -48,13 +46,15 @@ size_t spice_strnlen(const char *str, size_t max_len)
 char *spice_strdup(const char *str)
 {
     char *copy;
+    size_t len;
 
     if (str == NULL) {
         return NULL;
     }
 
-    copy = (char *)spice_malloc(strlen(str) + 1);
-    strcpy(copy, str);
+    len = strlen(str) + 1;
+    copy = (char *)spice_malloc(len);
+    memcpy(copy, str, len);
     return copy;
 }
 

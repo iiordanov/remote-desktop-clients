@@ -24,6 +24,7 @@
 #define _REST_PROXY
 
 #include <glib-object.h>
+#include <libsoup/soup-session-feature.h>
 #include <rest/rest-proxy-auth.h>
 #include <rest/rest-proxy-call.h>
 
@@ -63,6 +64,7 @@ struct _RestProxy {
  * @bind_valist: Virtual function called to bind parameters.
  * @new_call: Virtual function called to construct a new #RestProxyCall.
  * @simple_run_valist: Virtual function called when making a "simple" call.
+ * @authenticate: class handler for the #RestProxy::authenticate signal
  *
  * Class structure for #RestProxy for subclasses to implement specialised
  * behaviour.
@@ -89,6 +91,44 @@ struct _RestProxyClass {
 
 /**
  * RestProxyError:
+ * @REST_PROXY_ERROR_CANCELLED: Cancelled
+ * @REST_PROXY_ERROR_RESOLUTION: Resolution
+ * @REST_PROXY_ERROR_CONNECTION: Connection
+ * @REST_PROXY_ERROR_SSL: SSL
+ * @REST_PROXY_ERROR_IO: Input/Output
+ * @REST_PROXY_ERROR_FAILED: Failure
+ * @REST_PROXY_ERROR_HTTP_MULTIPLE_CHOICES: HTTP/Multiple choices
+ * @REST_PROXY_ERROR_HTTP_MOVED_PERMANENTLY: HTTP/Moved permanently
+ * @REST_PROXY_ERROR_HTTP_FOUND: HTTP/Found
+ * @REST_PROXY_ERROR_HTTP_SEE_OTHER: HTTP/See other
+ * @REST_PROXY_ERROR_HTTP_NOT_MODIFIED: HTTP/Not modified
+ * @REST_PROXY_ERROR_HTTP_USE_PROXY: HTTP/Use proxy
+ * @REST_PROXY_ERROR_HTTP_THREEOHSIX: HTTP/306
+ * @REST_PROXY_ERROR_HTTP_TEMPORARY_REDIRECT: HTTP/Temporary redirect
+ * @REST_PROXY_ERROR_HTTP_BAD_REQUEST: HTTP/Bad request
+ * @REST_PROXY_ERROR_HTTP_UNAUTHORIZED: HTTP/Unauthorized
+ * @REST_PROXY_ERROR_HTTP_FOUROHTWO: HTTP/402
+ * @REST_PROXY_ERROR_HTTP_FORBIDDEN: HTTP/Forbidden
+ * @REST_PROXY_ERROR_HTTP_NOT_FOUND: HTTP/Not found
+ * @REST_PROXY_ERROR_HTTP_METHOD_NOT_ALLOWED: HTTP/Method not allowed
+ * @REST_PROXY_ERROR_HTTP_NOT_ACCEPTABLE: HTTP/Not acceptable
+ * @REST_PROXY_ERROR_HTTP_PROXY_AUTHENTICATION_REQUIRED: HTTP/Proxy authentication required
+ * @REST_PROXY_ERROR_HTTP_REQUEST_TIMEOUT: HTTP/Request timeout
+ * @REST_PROXY_ERROR_HTTP_CONFLICT: HTTP/Conflict
+ * @REST_PROXY_ERROR_HTTP_GONE: HTTP/Gone
+ * @REST_PROXY_ERROR_HTTP_LENGTH_REQUIRED: HTTP/Length required
+ * @REST_PROXY_ERROR_HTTP_PRECONDITION_FAILED: HTTP/Precondition failed
+ * @REST_PROXY_ERROR_HTTP_REQUEST_ENTITY_TOO_LARGE: HTTP/Request entity too large
+ * @REST_PROXY_ERROR_HTTP_REQUEST_URI_TOO_LONG: HTTP/Request URI too long
+ * @REST_PROXY_ERROR_HTTP_UNSUPPORTED_MEDIA_TYPE: HTTP/Unsupported media type
+ * @REST_PROXY_ERROR_HTTP_REQUESTED_RANGE_NOT_SATISFIABLE: HTTP/Requested range not satisfiable
+ * @REST_PROXY_ERROR_HTTP_EXPECTATION_FAILED: HTTP/Expectation failed
+ * @REST_PROXY_ERROR_HTTP_INTERNAL_SERVER_ERROR: HTTP/Internal server error
+ * @REST_PROXY_ERROR_HTTP_NOT_IMPLEMENTED: HTTP/Not implemented
+ * @REST_PROXY_ERROR_HTTP_BAD_GATEWAY: HTTP/Bad gateway
+ * @REST_PROXY_ERROR_HTTP_SERVICE_UNAVAILABLE: HTTP/Service unavailable
+ * @REST_PROXY_ERROR_HTTP_GATEWAY_TIMEOUT: HTTP/Gateway timeout
+ * @REST_PROXY_ERROR_HTTP_HTTP_VERSION_NOT_SUPPORTED: HTTP/Version not supported
  *
  * Error domain used when returning errors from a #RestProxy.
  */
@@ -156,6 +196,9 @@ gboolean rest_proxy_bind_valist (RestProxy *proxy,
 void rest_proxy_set_user_agent (RestProxy *proxy, const char *user_agent);
 
 const gchar *rest_proxy_get_user_agent (RestProxy *proxy);
+
+void rest_proxy_add_soup_feature (RestProxy *proxy,
+                                  SoupSessionFeature *feature);
 
 RestProxyCall *rest_proxy_new_call (RestProxy *proxy);
 

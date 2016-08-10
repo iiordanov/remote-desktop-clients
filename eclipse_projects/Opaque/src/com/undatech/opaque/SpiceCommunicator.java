@@ -42,7 +42,7 @@ import android.os.Handler;
 import android.os.SystemClock;
 import android.util.Log;
 
-import com.gstreamer.GStreamer;
+import org.freedesktop.gstreamer.GStreamer;
 import com.undatech.opaque.input.RemoteKeyboard;
 import com.undatech.opaque.input.RemoteSpicePointer;
 

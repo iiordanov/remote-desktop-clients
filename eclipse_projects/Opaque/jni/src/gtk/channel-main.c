@@ -15,6 +15,8 @@
    You should have received a copy of the GNU Lesser General Public
    License along with this library; if not, see <http://www.gnu.org/licenses/>.
 */
+#include "config.h"
+
 #include <math.h>
 #include <spice/vd_agent.h>
 #include <common/rect.h>
@@ -28,6 +30,7 @@
 #include "spice-util-priv.h"
 #include "spice-channel-priv.h"
 #include "spice-session-priv.h"
+#include "spice-audio-priv.h"
 
 /**
  * SECTION:channel-main
@@ -107,6 +110,10 @@ struct _SpiceMainChannelPrivate  {
     guint                       migrate_delayed_id;
     spice_migrate               *migrate_data;
     int                         max_clipboard;
+
+    gboolean                    agent_volume_playback_sync;
+    gboolean                    agent_volume_record_sync;
+    GCancellable                *cancellable_volume_info;
 };
 
 struct spice_migrate {
@@ -185,6 +192,7 @@ static const char *agent_msg_types[] = {
     [ VD_AGENT_CLIPBOARD_GRAB          ] = "clipboard grab",
     [ VD_AGENT_CLIPBOARD_REQUEST       ] = "clipboard request",
     [ VD_AGENT_CLIPBOARD_RELEASE       ] = "clipboard release",
+    [ VD_AGENT_AUDIO_VOLUME_SYNC       ] = "volume-sync",
 };
 
 static const char *agent_caps[] = {
@@ -199,6 +207,7 @@ static const char *agent_caps[] = {
     [ VD_AGENT_CAP_GUEST_LINEEND_LF    ] = "line-end lf",
     [ VD_AGENT_CAP_GUEST_LINEEND_CRLF  ] = "line-end crlf",
     [ VD_AGENT_CAP_MAX_CLIPBOARD       ] = "max-clipboard",
+    [ VD_AGENT_CAP_AUDIO_VOLUME_SYNC   ] = "volume-sync",
 };
 #define NAME(_a, _i) ((_i) < SPICE_N_ELEMENTS(_a) ? (_a[(_i)] ?: "?") : "?")
 
@@ -229,6 +238,7 @@ static void spice_main_channel_init(SpiceMainChannel *channel)
     c = channel->priv = SPICE_MAIN_CHANNEL_GET_PRIVATE(channel);
     c->agent_msg_queue = g_queue_new();
     c->file_xfer_tasks = g_hash_table_new(g_direct_hash, g_direct_equal);
+    c->cancellable_volume_info = g_cancellable_new();
 
     spice_main_channel_reset_capabilties(SPICE_CHANNEL(channel));
 }
@@ -344,6 +354,9 @@ static void spice_main_channel_dispose(GObject *obj)
         c->migrate_delayed_id = 0;
     }
 
+    g_cancellable_cancel(c->cancellable_volume_info);
+    g_clear_object(&c->cancellable_volume_info);
+
     if (G_OBJECT_CLASS(spice_main_channel_parent_class)->dispose)
         G_OBJECT_CLASS(spice_main_channel_parent_class)->dispose(obj);
 }
@@ -410,6 +423,9 @@ static void spice_main_channel_reset(SpiceChannel *channel, gboolean migrating)
     c->agent_tokens = 0;
     agent_free_msg_queue(SPICE_MAIN_CHANNEL(channel));
     c->agent_msg_queue = g_queue_new();
+
+    c->agent_volume_playback_sync = FALSE;
+    c->agent_volume_record_sync = FALSE;
 
     set_agent_connected(SPICE_MAIN_CHANNEL(channel), FALSE);
 
@@ -806,115 +822,6 @@ static void spice_main_channel_class_init(SpiceMainChannelClass *klass)
     channel_set_handlers(SPICE_CHANNEL_CLASS(klass));
 }
 
-/* signal trampoline---------------------------------------------------------- */
-
-struct SPICE_MAIN_CLIPBOARD_RELEASE {
-};
-
-struct SPICE_MAIN_AGENT_UPDATE {
-};
-
-struct SPICE_MAIN_MOUSE_UPDATE {
-};
-
-struct SPICE_MAIN_CLIPBOARD {
-    guint type;
-    gpointer data;
-    gsize size;
-};
-
-struct SPICE_MAIN_CLIPBOARD_GRAB {
-    gpointer types;
-    gsize ntypes;
-    gboolean *ret;
-};
-
-struct SPICE_MAIN_CLIPBOARD_REQUEST {
-    guint type;
-    gboolean *ret;
-};
-
-struct SPICE_MAIN_CLIPBOARD_SELECTION {
-    guint8 selection;
-    guint type;
-    gpointer data;
-    gsize size;
-};
-
-struct SPICE_MAIN_CLIPBOARD_SELECTION_GRAB {
-    guint8 selection;
-    gpointer types;
-    gsize ntypes;
-    gboolean *ret;
-};
-
-struct SPICE_MAIN_CLIPBOARD_SELECTION_REQUEST {
-    guint8 selection;
-    guint type;
-    gboolean *ret;
-};
-
-struct SPICE_MAIN_CLIPBOARD_SELECTION_RELEASE {
-    guint8 selection;
-};
-
-/* main context */
-static void do_emit_main_context(GObject *object, int signum, gpointer params)
-{
-    switch (signum) {
-    case SPICE_MAIN_CLIPBOARD_RELEASE:
-    case SPICE_MAIN_AGENT_UPDATE:
-    case SPICE_MAIN_MOUSE_UPDATE: {
-        g_signal_emit(object, signals[signum], 0);
-        break;
-    }
-    case SPICE_MAIN_CLIPBOARD: {
-        struct SPICE_MAIN_CLIPBOARD *p = params;
-        g_signal_emit(object, signals[signum], 0,
-                      p->type, p->data, p->size);
-        break;
-    }
-    case SPICE_MAIN_CLIPBOARD_GRAB: {
-        struct SPICE_MAIN_CLIPBOARD_GRAB *p = params;
-        g_signal_emit(object, signals[signum], 0,
-                      p->types, p->ntypes, p->ret);
-        break;
-    }
-    case SPICE_MAIN_CLIPBOARD_REQUEST: {
-        struct SPICE_MAIN_CLIPBOARD_REQUEST *p = params;
-        g_signal_emit(object, signals[signum], 0,
-                      p->type, p->ret);
-        break;
-    }
-    case SPICE_MAIN_CLIPBOARD_SELECTION: {
-        struct SPICE_MAIN_CLIPBOARD_SELECTION *p = params;
-        g_signal_emit(object, signals[signum], 0,
-                      p->selection, p->type, p->data, p->size);
-        break;
-    }
-    case SPICE_MAIN_CLIPBOARD_SELECTION_GRAB: {
-        struct SPICE_MAIN_CLIPBOARD_SELECTION_GRAB *p = params;
-        g_signal_emit(object, signals[signum], 0,
-                      p->selection, p->types, p->ntypes, p->ret);
-        break;
-    }
-    case SPICE_MAIN_CLIPBOARD_SELECTION_REQUEST: {
-        struct SPICE_MAIN_CLIPBOARD_SELECTION_REQUEST *p = params;
-        g_signal_emit(object, signals[signum], 0,
-                      p->selection, p->type, p->ret);
-        break;
-    }
-    case SPICE_MAIN_CLIPBOARD_SELECTION_RELEASE: {
-        struct SPICE_MAIN_CLIPBOARD_SELECTION_RELEASE *p = params;
-        g_signal_emit(object, signals[signum], 0,
-                      p->selection);
-        break;
-    }
-    default:
-        g_warn_if_reached();
-    }
-}
-
 /* ------------------------------------------------------------------ */
 
 
@@ -1157,7 +1064,7 @@ gboolean spice_main_send_monitor_config(SpiceMainChannel *channel)
     }
 
     size = sizeof(VDAgentMonitorsConfig) + sizeof(VDAgentMonConfig) * monitors;
-    mon = spice_malloc0(size);
+    mon = g_malloc0(size);
 
     mon->num_of_monitors = monitors;
     if (c->disable_display_position == FALSE ||
@@ -1188,7 +1095,7 @@ gboolean spice_main_send_monitor_config(SpiceMainChannel *channel)
         monitors_align(mon->monitors, mon->num_of_monitors);
 
     agent_msg_queue(channel, VD_AGENT_MONITORS_CONFIG, size, mon);
-    free(mon);
+    g_free(mon);
 
     spice_channel_wakeup(SPICE_CHANNEL(channel), FALSE);
     if (c->timer_id != 0) {
@@ -1197,6 +1104,119 @@ gboolean spice_main_send_monitor_config(SpiceMainChannel *channel)
     }
 
     return TRUE;
+}
+
+static void audio_playback_volume_info_cb(GObject *object, GAsyncResult *res, gpointer user_data)
+{
+    SpiceMainChannel *main_channel = user_data;
+    SpiceSession *session = spice_channel_get_session(SPICE_CHANNEL(main_channel));
+    SpiceAudio *audio = spice_audio_get(session, NULL);
+    VDAgentAudioVolumeSync *avs;
+    guint16 *volume;
+    guint8 nchannels;
+    gboolean mute, ret;
+    gsize array_size;
+    GError *error = NULL;
+
+    ret = spice_audio_get_playback_volume_info_finish(audio, res, &mute, &nchannels,
+                                                      &volume, &error);
+    if (ret == FALSE || volume == NULL || nchannels == 0) {
+        if (error != NULL) {
+            spice_warning("Failed to get playback async volume info: %s", error->message);
+            g_error_free (error);
+        } else {
+            SPICE_DEBUG("Failed to get playback async volume info");
+        }
+        main_channel->priv->agent_volume_playback_sync = FALSE;
+        return;
+    }
+
+    array_size = sizeof(uint16_t) * nchannels;
+    avs = g_malloc0(sizeof(VDAgentAudioVolumeSync) + array_size);
+    avs->is_playback = TRUE;
+    avs->mute = mute;
+    avs->nchannels = nchannels;
+    memcpy(avs->volume, volume, array_size);
+
+    SPICE_DEBUG("%s mute=%s nchannels=%u volume[0]=%u",
+                __func__, spice_yes_no(mute), nchannels, volume[0]);
+    g_free(volume);
+    agent_msg_queue(main_channel, VD_AGENT_AUDIO_VOLUME_SYNC,
+                    sizeof(VDAgentAudioVolumeSync) + array_size, avs);
+}
+
+static void agent_sync_audio_playback(SpiceMainChannel *main_channel)
+{
+    SpiceSession *session = spice_channel_get_session(SPICE_CHANNEL(main_channel));
+    SpiceAudio *audio = spice_audio_get(session, NULL);
+    SpiceMainChannelPrivate *c = main_channel->priv;
+
+    if (!test_agent_cap(main_channel, VD_AGENT_CAP_AUDIO_VOLUME_SYNC) ||
+        c->agent_volume_playback_sync == TRUE) {
+        SPICE_DEBUG("%s - is not going to sync audio with guest", __func__);
+        return;
+    }
+    /* only one per connection */
+    g_cancellable_reset(c->cancellable_volume_info);
+    c->agent_volume_playback_sync = TRUE;
+    spice_audio_get_playback_volume_info_async(audio, c->cancellable_volume_info, main_channel,
+                                               audio_playback_volume_info_cb, main_channel);
+}
+
+static void audio_record_volume_info_cb(GObject *object, GAsyncResult *res, gpointer user_data)
+{
+    SpiceMainChannel *main_channel = user_data;
+    SpiceSession *session = spice_channel_get_session(SPICE_CHANNEL(main_channel));
+    SpiceAudio *audio = spice_audio_get(session, NULL);
+    VDAgentAudioVolumeSync *avs;
+    guint16 *volume;
+    guint8 nchannels;
+    gboolean ret, mute;
+    gsize array_size;
+    GError *error = NULL;
+
+    ret = spice_audio_get_record_volume_info_finish(audio, res, &mute, &nchannels, &volume, &error);
+    if (ret == FALSE || volume == NULL || nchannels == 0) {
+        if (error != NULL) {
+            spice_warning ("Failed to get record async volume info: %s", error->message);
+            g_error_free (error);
+        } else {
+            SPICE_DEBUG("Failed to get record async volume info");
+        }
+        main_channel->priv->agent_volume_record_sync = FALSE;
+        return;
+    }
+
+    array_size = sizeof(uint16_t) * nchannels;
+    avs = g_malloc0(sizeof(VDAgentAudioVolumeSync) + array_size);
+    avs->is_playback = FALSE;
+    avs->mute = mute;
+    avs->nchannels = nchannels;
+    memcpy(avs->volume, volume, array_size);
+
+    SPICE_DEBUG("%s mute=%s nchannels=%u volume[0]=%u",
+                __func__, spice_yes_no(mute), nchannels, volume[0]);
+    g_free(volume);
+    agent_msg_queue(main_channel, VD_AGENT_AUDIO_VOLUME_SYNC,
+                    sizeof(VDAgentAudioVolumeSync) + array_size, avs);
+}
+
+static void agent_sync_audio_record(SpiceMainChannel *main_channel)
+{
+    SpiceSession *session = spice_channel_get_session(SPICE_CHANNEL(main_channel));
+    SpiceAudio *audio = spice_audio_get(session, NULL);
+    SpiceMainChannelPrivate *c = main_channel->priv;
+
+    if (!test_agent_cap(main_channel, VD_AGENT_CAP_AUDIO_VOLUME_SYNC) ||
+        c->agent_volume_record_sync == TRUE) {
+        SPICE_DEBUG("%s - is not going to sync audio with guest", __func__);
+        return;
+    }
+    /* only one per connection */
+    g_cancellable_reset(c->cancellable_volume_info);
+    c->agent_volume_record_sync = TRUE;
+    spice_audio_get_record_volume_info_async(audio, c->cancellable_volume_info, main_channel,
+                                             audio_record_volume_info_cb, main_channel);
 }
 
 /* any context: the message is not flushed immediately,
@@ -1240,7 +1260,7 @@ static void agent_announce_caps(SpiceMainChannel *channel)
         return;
 
     size = sizeof(VDAgentAnnounceCapabilities) + VD_AGENT_CAPS_BYTES;
-    caps = spice_malloc0(size);
+    caps = g_malloc0(size);
     if (!c->agent_caps_received)
         caps->request = 1;
     VD_AGENT_SET_CAPABILITY(caps->caps, VD_AGENT_CAP_MOUSE_STATE);
@@ -1251,7 +1271,7 @@ static void agent_announce_caps(SpiceMainChannel *channel)
     VD_AGENT_SET_CAPABILITY(caps->caps, VD_AGENT_CAP_CLIPBOARD_SELECTION);
 
     agent_msg_queue(channel, VD_AGENT_ANNOUNCE_CAPABILITIES, size, caps);
-    free(caps);
+    g_free(caps);
 }
 
 /* any context: the message is not flushed immediately,
@@ -1405,7 +1425,7 @@ static gboolean timer_set_display(gpointer data)
 
     /* ensure we have an explicit monitor configuration at least for
        number of display channels */
-    for (i = 0; i < session->priv->display_channels_count; i++)
+    for (i = 0; i < spice_session_get_n_display_channels(session); i++)
         if (!c->display[i].enabled_set) {
             SPICE_DEBUG("Not sending monitors config, missing monitors");
             return FALSE;
@@ -1435,12 +1455,12 @@ static void set_agent_connected(SpiceMainChannel *channel, gboolean connected)
     SPICE_DEBUG("agent connected: %s", spice_yes_no(connected));
     if (connected != c->agent_connected) {
         c->agent_connected = connected;
-        g_object_notify_main_context(G_OBJECT(channel), "agent-connected");
+        g_coroutine_object_notify(G_OBJECT(channel), "agent-connected");
     }
     if (!connected)
         spice_main_channel_reset_agent(SPICE_MAIN_CHANNEL(channel));
 
-    emit_main_context(channel, SPICE_MAIN_AGENT_UPDATE);
+    g_coroutine_signal_emit(channel, signals[SPICE_MAIN_AGENT_UPDATE], 0);
 }
 
 /* coroutine context  */
@@ -1452,6 +1472,8 @@ static void agent_start(SpiceMainChannel *channel)
     };
     SpiceMsgOut *out;
 
+    c->agent_volume_playback_sync = FALSE;
+    c->agent_volume_record_sync = FALSE;
     c->agent_caps_received = false;
     set_agent_connected(channel, TRUE);
 
@@ -1478,8 +1500,8 @@ static void set_mouse_mode(SpiceMainChannel *channel, uint32_t supported, uint32
 
     if (c->mouse_mode != current) {
         c->mouse_mode = current;
-        emit_main_context(channel, SPICE_MAIN_MOUSE_UPDATE);
-        g_object_notify_main_context(G_OBJECT(channel), "mouse-mode");
+        g_coroutine_signal_emit(channel, signals[SPICE_MAIN_MOUSE_UPDATE], 0);
+        g_coroutine_object_notify(G_OBJECT(channel), "mouse-mode");
     }
 
     /* switch to client mode if possible */
@@ -1588,7 +1610,7 @@ static void main_handle_channels_list(SpiceChannel *channel, SpiceMsgIn *in)
 
     /* guarantee that uuid is notified before setting up the channels, even if
      * the server is older and doesn't actually send the uuid */
-    g_object_notify_main_context(G_OBJECT(session), "uuid");
+    g_coroutine_object_notify(G_OBJECT(session), "uuid");
 
     for (i = 0; i < msg->num_of_channels; i++) {
         channel_new_t *c;
@@ -1615,7 +1637,6 @@ static void main_handle_mouse_mode(SpiceChannel *channel, SpiceMsgIn *in)
 static void main_handle_agent_connected(SpiceChannel *channel, SpiceMsgIn *in)
 {
     agent_start(SPICE_MAIN_CHANNEL(channel));
-    update_display_timer(SPICE_MAIN_CHANNEL(channel), 0);
 }
 
 /* coroutine context */
@@ -1626,7 +1647,6 @@ static void main_handle_agent_connected_tokens(SpiceChannel *channel, SpiceMsgIn
 
     c->agent_tokens = msg->num_tokens;
     agent_start(SPICE_MAIN_CHANNEL(channel));
-    update_display_timer(SPICE_MAIN_CHANNEL(channel), 0);
 }
 
 /* coroutine context */
@@ -1744,9 +1764,11 @@ static void file_xfer_read_cb(GObject *source_object,
         return;
     }
 
-    if (count > 0) {
+    if (count > 0 || task->file_size == 0) {
         task->read_bytes += count;
         file_xfer_queue(task, count);
+        if (count == 0)
+            return;
         file_xfer_flush_async(channel, task->cancellable,
                               file_xfer_data_flushed_cb, task);
         task->pending = TRUE;
@@ -1896,7 +1918,8 @@ static void main_agent_handle_msg(SpiceChannel *channel,
             VD_AGENT_SET_CAPABILITY(c->agent_caps, i);
         }
         c->agent_caps_received = true;
-        emit_main_context(self, SPICE_MAIN_AGENT_UPDATE);
+        g_coroutine_signal_emit(self, signals[SPICE_MAIN_AGENT_UPDATE], 0);
+        update_display_timer(SPICE_MAIN_CHANNEL(channel), 0);
 
         if (caps->request)
             agent_announce_caps(self);
@@ -1907,6 +1930,9 @@ static void main_agent_handle_msg(SpiceChannel *channel,
             c->agent_display_config_sent = true;
         }
 
+        agent_sync_audio_playback(self);
+        agent_sync_audio_record(self);
+
         agent_max_clipboard(self);
 
         agent_send_msg_queue(self);
@@ -1916,21 +1942,21 @@ static void main_agent_handle_msg(SpiceChannel *channel,
     case VD_AGENT_CLIPBOARD:
     {
         VDAgentClipboard *cb = payload;
-        emit_main_context(self, SPICE_MAIN_CLIPBOARD_SELECTION, selection,
-                          cb->type, cb->data, msg->size - sizeof(VDAgentClipboard));
+        g_coroutine_signal_emit(self, signals[SPICE_MAIN_CLIPBOARD_SELECTION], 0, selection,
+                                cb->type, cb->data, msg->size - sizeof(VDAgentClipboard));
 
        if (selection == VD_AGENT_CLIPBOARD_SELECTION_CLIPBOARD)
-            emit_main_context(self, SPICE_MAIN_CLIPBOARD,
+           g_coroutine_signal_emit(self, signals[SPICE_MAIN_CLIPBOARD], 0,
                               cb->type, cb->data, msg->size - sizeof(VDAgentClipboard));
         break;
     }
     case VD_AGENT_CLIPBOARD_GRAB:
     {
         gboolean ret;
-        emit_main_context(self, SPICE_MAIN_CLIPBOARD_SELECTION_GRAB, selection,
+        g_coroutine_signal_emit(self, signals[SPICE_MAIN_CLIPBOARD_SELECTION_GRAB], 0, selection,
                           (guint8*)payload, msg->size / sizeof(uint32_t), &ret);
         if (selection == VD_AGENT_CLIPBOARD_SELECTION_CLIPBOARD)
-            emit_main_context(self, SPICE_MAIN_CLIPBOARD_GRAB,
+            g_coroutine_signal_emit(self, signals[SPICE_MAIN_CLIPBOARD_GRAB], 0,
                               payload, msg->size / sizeof(uint32_t), &ret);
         break;
     }
@@ -1938,20 +1964,20 @@ static void main_agent_handle_msg(SpiceChannel *channel,
     {
         gboolean ret;
         VDAgentClipboardRequest *req = payload;
-        emit_main_context(self, SPICE_MAIN_CLIPBOARD_SELECTION_REQUEST, selection,
+        g_coroutine_signal_emit(self, signals[SPICE_MAIN_CLIPBOARD_SELECTION_REQUEST], 0, selection,
                           req->type, &ret);
 
         if (selection == VD_AGENT_CLIPBOARD_SELECTION_CLIPBOARD)
-            emit_main_context(self, SPICE_MAIN_CLIPBOARD_REQUEST,
+            g_coroutine_signal_emit(self, signals[SPICE_MAIN_CLIPBOARD_REQUEST], 0,
                               req->type, &ret);
         break;
     }
     case VD_AGENT_CLIPBOARD_RELEASE:
     {
-        emit_main_context(self, SPICE_MAIN_CLIPBOARD_SELECTION_RELEASE, selection);
+        g_coroutine_signal_emit(self, signals[SPICE_MAIN_CLIPBOARD_SELECTION_RELEASE], 0, selection);
 
         if (selection == VD_AGENT_CLIPBOARD_SELECTION_CLIPBOARD)
-            emit_main_context(self, SPICE_MAIN_CLIPBOARD_RELEASE);
+            g_coroutine_signal_emit(self, signals[SPICE_MAIN_CLIPBOARD_RELEASE], 0);
         break;
     }
     case VD_AGENT_REPLY:
@@ -1986,7 +2012,7 @@ static void main_handle_agent_data_msg(SpiceChannel* channel, int* msg_size, guc
             SPICE_DEBUG("agent msg start: msg_size=%d, protocol=%d, type=%d",
                         c->agent_msg.size, c->agent_msg.protocol, c->agent_msg.type);
             g_return_if_fail(c->agent_msg_data == NULL);
-            c->agent_msg_data = g_malloc(c->agent_msg.size);
+            c->agent_msg_data = g_malloc0(c->agent_msg.size);
         }
     }
 
@@ -2171,17 +2197,15 @@ static gboolean migrate_connect(gpointer data)
     SpiceChannelPrivate  *c;
     int port, sport;
     const char *host;
-    SpiceSession *session;
 
     g_return_val_if_fail(mig != NULL, FALSE);
     g_return_val_if_fail(mig->info != NULL, FALSE);
     g_return_val_if_fail(mig->nchannels == 0, FALSE);
     c = SPICE_CHANNEL(mig->src_channel)->priv;
     g_return_val_if_fail(c != NULL, FALSE);
+    g_return_val_if_fail(mig->session != NULL, FALSE);
 
-    session = spice_channel_get_session(mig->src_channel);
-    mig->session = spice_session_new_from_session(session);
-    mig->session->priv->migration_copy = true;
+    spice_session_set_migration_state(mig->session, SPICE_SESSION_MIGRATION_CONNECTING);
 
     if ((c->peer_hdr.major_version == 1) &&
         (c->peer_hdr.minor_version < 1)) {
@@ -2240,7 +2264,7 @@ static gboolean migrate_connect(gpointer data)
 
     /* the migration process is in 2 steps, first the main channel and
        then the rest of the channels */
-    mig->session->priv->cmain = migrate_channel_connect(mig, SPICE_CHANNEL_MAIN, 0);
+    migrate_channel_connect(mig, SPICE_CHANNEL_MAIN, 0);
 
     return FALSE;
 }
@@ -2251,15 +2275,24 @@ static void main_migrate_connect(SpiceChannel *channel,
                                  uint32_t src_mig_version)
 {
     SpiceMainChannelPrivate *main_priv = SPICE_MAIN_CHANNEL(channel)->priv;
+    int reply_type = SPICE_MSGC_MAIN_MIGRATE_CONNECT_ERROR;
     spice_migrate mig = { 0, };
     SpiceMsgOut *out;
-    int reply_type;
+    SpiceSession *session;
 
     mig.src_channel = channel;
     mig.info = dst_info;
     mig.from = coroutine_self();
     mig.do_seamless = do_seamless;
     mig.src_mig_version = src_mig_version;
+
+    CHANNEL_DEBUG(channel, "migrate connect");
+    session = spice_channel_get_session(channel);
+    mig.session = spice_session_new_from_session(session);
+    if (mig.session == NULL)
+        goto end;
+    if (!spice_session_set_migration_session(session, mig.session))
+        goto end;
 
     main_priv->migrate_data = &mig;
 
@@ -2268,11 +2301,10 @@ static void main_migrate_connect(SpiceChannel *channel,
 
     /* switch to main loop and wait for connections */
     coroutine_yield(NULL);
-    g_return_if_fail(mig.session != NULL);
 
     if (mig.nchannels != 0) {
-        reply_type = SPICE_MSGC_MAIN_MIGRATE_CONNECT_ERROR;
-        spice_session_disconnect(mig.session);
+        CHANNEL_DEBUG(channel, "migrate failed: some channels failed to connect");
+        spice_session_abort_migration(session);
     } else {
         if (mig.do_seamless) {
             SPICE_DEBUG("migration (seamless): connections all ok");
@@ -2281,12 +2313,12 @@ static void main_migrate_connect(SpiceChannel *channel,
             SPICE_DEBUG("migration (semi-seamless): connections all ok");
             reply_type = SPICE_MSGC_MAIN_MIGRATE_CONNECTED;
         }
-        spice_session_set_migration(spice_channel_get_session(channel),
-                                    mig.session,
-                                    mig.do_seamless);
+        spice_session_start_migrating(spice_channel_get_session(channel),
+                                      mig.do_seamless);
     }
-    g_object_unref(mig.session);
 
+end:
+    CHANNEL_DEBUG(channel, "migrate connect reply %d", reply_type);
     out = spice_msg_out_new(SPICE_CHANNEL(channel), reply_type);
     spice_msg_out_send(out);
 }
@@ -2368,9 +2400,6 @@ static gboolean switch_host_delayed(gpointer data)
 
     spice_channel_disconnect(channel, SPICE_CHANNEL_SWITCHING);
     spice_session_switching_disconnect(session);
-
-    spice_channel_connect(channel);
-    spice_session_set_migration_state(session, SPICE_SESSION_MIGRATION_NONE);
 
     return FALSE;
 }
@@ -2589,7 +2618,7 @@ void spice_main_clipboard_selection_grab(SpiceMainChannel *channel, guint select
  * spice_main_clipboard_release:
  * @channel:
  *
- * Release the clipboard (for example, when the client looses the
+ * Release the clipboard (for example, when the client loses the
  * clipboard grab): Inform the guest no clipboard data is available.
  *
  * Deprecated: 0.6: use spice_main_clipboard_selection_release() instead.
@@ -2604,7 +2633,7 @@ void spice_main_clipboard_release(SpiceMainChannel *channel)
  * @channel:
  * @selection: one of the clipboard #VD_AGENT_CLIPBOARD_SELECTION_*
  *
- * Release the clipboard (for example, when the client looses the
+ * Release the clipboard (for example, when the client loses the
  * clipboard grab): Inform the guest no clipboard data is available.
  *
  * Since: 0.6
@@ -2835,7 +2864,7 @@ static void file_xfer_read_async_cb(GObject *obj, GAsyncResult *res, gpointer da
 }
 
 static void file_xfer_send_start_msg_async(SpiceMainChannel *channel,
-                                           GFile *file,
+                                           GFile **files,
                                            GFileCopyFlags flags,
                                            GCancellable *cancellable,
                                            GFileProgressCallback progress_callback,
@@ -2846,27 +2875,30 @@ static void file_xfer_send_start_msg_async(SpiceMainChannel *channel,
     SpiceMainChannelPrivate *c = channel->priv;
     SpiceFileXferTask *task;
     static uint32_t xfer_id;    /* Used to identify task id */
+    gint i;
 
-    task = spice_malloc0(sizeof(SpiceFileXferTask));
-    task->id = ++xfer_id;
-    task->channel = g_object_ref(channel);
-    task->file = g_object_ref(file);
-    task->flags = flags;
-    task->cancellable = cancellable;
-    task->progress_callback = progress_callback;
-    task->progress_callback_data = progress_callback_data;
-    task->callback = callback;
-    task->user_data = user_data;
+    for (i = 0; files[i] != NULL && !g_cancellable_is_cancelled(cancellable); i++) {
+        task = g_malloc0(sizeof(SpiceFileXferTask));
+        task->id = ++xfer_id;
+        task->channel = g_object_ref(channel);
+        task->file = g_object_ref(files[i]);
+        task->flags = flags;
+        task->cancellable = cancellable;
+        task->progress_callback = progress_callback;
+        task->progress_callback_data = progress_callback_data;
+        task->callback = callback;
+        task->user_data = user_data;
 
-    CHANNEL_DEBUG(task->channel, "Insert a xfer task:%d to task list", task->id);
-    g_hash_table_insert(c->file_xfer_tasks, GUINT_TO_POINTER(task->id), task);
+        CHANNEL_DEBUG(task->channel, "Insert a xfer task:%d to task list", task->id);
+        g_hash_table_insert(c->file_xfer_tasks, GUINT_TO_POINTER(task->id), task);
 
-    g_file_read_async(file,
-                      G_PRIORITY_DEFAULT,
-                      cancellable,
-                      file_xfer_read_async_cb,
-                      task);
-    task->pending = TRUE;
+        g_file_read_async(files[i],
+                          G_PRIORITY_DEFAULT,
+                          cancellable,
+                          file_xfer_read_async_cb,
+                          task);
+        task->pending = TRUE;
+    }
 }
 
 /**
@@ -2909,11 +2941,7 @@ void spice_main_file_copy_async(SpiceMainChannel *channel,
 
     g_return_if_fail(channel != NULL);
     g_return_if_fail(SPICE_IS_MAIN_CHANNEL(channel));
-    g_return_if_fail(sources != NULL && sources[0] != NULL);
-
-    /* At the moment, the copy() method is limited to a single file,
-       support for copying multi-files will be implemented later. */
-    g_return_if_fail(sources[1] == NULL);
+    g_return_if_fail(sources != NULL);
 
     if (!c->agent_connected) {
         g_simple_async_report_error_in_idle(G_OBJECT(channel),
@@ -2926,7 +2954,7 @@ void spice_main_file_copy_async(SpiceMainChannel *channel,
     }
 
     file_xfer_send_start_msg_async(channel,
-                                   sources[0],
+                                   sources,
                                    flags,
                                    cancellable,
                                    progress_callback,

@@ -30,7 +30,7 @@
 
 G_BEGIN_DECLS
 
-#define REST_TYPE_PARAM (gtk_css_section_get_type ())
+#define REST_TYPE_PARAM (rest_param_get_type ())
 
 /**
  * RestMemoryUse:

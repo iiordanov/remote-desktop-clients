@@ -133,7 +133,7 @@
     out->b = (out->b << 3) | ((out->b >> 2) & 0x07);                       \
     out->pad = 0;                                                          \
     out++;                                                                 \
-}                                                        
+}
 #endif
 #endif
 
@@ -334,4 +334,3 @@ static size_t FNAME(decode)(SpiceGlzDecoderWindow *window,
 #undef COPY_COMP_PIXEL
 #undef COPY_PLT_ENTRY
 #undef CAST_PLT_DISTANCE
-

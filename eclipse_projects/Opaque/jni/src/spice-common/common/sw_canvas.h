@@ -30,11 +30,9 @@
 SPICE_BEGIN_DECLS
 
 SpiceCanvas *canvas_create(int width, int height, uint32_t format
+                           , SpiceImageCache *bits_cache
 #ifdef SW_CANVAS_CACHE
-                           , SpiceImageCache *bits_cache
                            , SpicePaletteCache *palette_cache
-#elif defined(SW_CANVAS_IMAGE_CACHE)
-                           , SpiceImageCache *bits_cache
 #endif
                            , SpiceImageSurfaces *surfaces
                            , SpiceGlzDecoder *glz_decoder
@@ -43,11 +41,9 @@ SpiceCanvas *canvas_create(int width, int height, uint32_t format
                            );
 
 SpiceCanvas *canvas_create_for_data(int width, int height, uint32_t format, uint8_t *data, int stride
+                           , SpiceImageCache *bits_cache
 #ifdef SW_CANVAS_CACHE
-                           , SpiceImageCache *bits_cache
                            , SpicePaletteCache *palette_cache
-#elif defined(SW_CANVAS_IMAGE_CACHE)
-                           , SpiceImageCache *bits_cache
 #endif
                            , SpiceImageSurfaces *surfaces
                            , SpiceGlzDecoder *glz_decoder
@@ -56,7 +52,7 @@ SpiceCanvas *canvas_create_for_data(int width, int height, uint32_t format, uint
                            );
 
 
-void sw_canvas_init(void);
+static inline SPICE_GNUC_DEPRECATED void sw_canvas_init(void) {}
 
 SPICE_END_DECLS
 

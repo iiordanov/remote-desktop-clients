@@ -120,7 +120,7 @@ typedef struct SpiceSurface {
 typedef struct SpiceQUICData {
     uint32_t data_size;
     SpiceChunks *data;
-} SpiceQUICData, SpiceLZRGBData, SpiceJPEGData;
+} SpiceQUICData, SpiceLZRGBData, SpiceJPEGData, SpiceLZ4Data;
 
 typedef struct SpiceLZPLTData {
     uint8_t flags;
@@ -153,6 +153,7 @@ typedef struct SpiceImage {
         SpiceLZRGBData      lz_rgb;
         SpiceLZPLTData      lz_plt;
         SpiceJPEGData       jpeg;
+        SpiceLZ4Data        lz4;
         SpiceZlibGlzRGBData zlib_glz;
         SpiceJPEGAlphaData  jpeg_alpha;
     } u;
@@ -292,6 +293,12 @@ typedef struct SpiceCursorHeader {
     uint16_t hot_spot_x;
     uint16_t hot_spot_y;
 } SpiceCursorHeader;
+
+static inline int spice_image_descriptor_is_lossy(const SpiceImageDescriptor *descriptor)
+{
+    return descriptor->type == SPICE_IMAGE_TYPE_JPEG ||
+           descriptor->type == SPICE_IMAGE_TYPE_JPEG_ALPHA;
+}
 
 SPICE_END_DECLS
 

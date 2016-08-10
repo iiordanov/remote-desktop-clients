@@ -15,27 +15,18 @@
   You should have received a copy of the GNU Lesser General Public
   License along with this library; if not, see <http://www.gnu.org/licenses/>.
 */
+#include "config.h"
+
+#include "gtk-compat.h"
 #include "spice-widget.h"
 #include "spice-widget-priv.h"
+#include "spice-gtk-session-priv.h"
 
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
-
-/* Some compatibility defines to let us build on both Gtk2 and Gtk3 */
-#if GTK_CHECK_VERSION (2, 91, 0)
-
-static inline void gdk_drawable_get_size(GdkWindow *w, gint *ww, gint *wh)
-{
-       *ww = gdk_window_get_width(w);
-       *wh = gdk_window_get_height(w);
-}
-#endif
 
 G_GNUC_INTERNAL
 int spicex_image_create(SpiceDisplay *display)
 {
-    SpiceDisplayPrivate *d = SPICE_DISPLAY_GET_PRIVATE(display);
+    SpiceDisplayPrivate *d = display->priv;
 
     if (d->ximage != NULL)
         return 0;
@@ -61,7 +52,7 @@ int spicex_image_create(SpiceDisplay *display)
 G_GNUC_INTERNAL
 void spicex_image_destroy(SpiceDisplay *display)
 {
-    SpiceDisplayPrivate *d = SPICE_DISPLAY_GET_PRIVATE(display);
+    SpiceDisplayPrivate *d = display->priv;
 
     if (d->ximage) {
         cairo_surface_destroy(d->ximage);
@@ -74,18 +65,10 @@ void spicex_image_destroy(SpiceDisplay *display)
     d->convert = FALSE;
 }
 
-#if !GTK_CHECK_VERSION (3, 0, 0)
-#define cairo_rectangle_int_t GdkRectangle
-#define cairo_region_t GdkRegion
-#define cairo_region_create_rectangle gdk_region_rectangle
-#define cairo_region_subtract_rectangle(_dest,_rect) { GdkRegion *_region = gdk_region_rectangle (_rect); gdk_region_subtract (_dest, _region); gdk_region_destroy (_region); }
-#define cairo_region_destroy gdk_region_destroy
-#endif
-
 G_GNUC_INTERNAL
 void spicex_draw_event(SpiceDisplay *display, cairo_t *cr)
 {
-    SpiceDisplayPrivate *d = SPICE_DISPLAY_GET_PRIVATE(display);
+    SpiceDisplayPrivate *d = display->priv;
     cairo_rectangle_int_t rect;
     cairo_region_t *region;
     double s;
@@ -136,7 +119,8 @@ void spicex_draw_event(SpiceDisplay *display, cairo_t *cr)
 
         if (d->mouse_mode == SPICE_MOUSE_MODE_SERVER &&
             d->mouse_guest_x != -1 && d->mouse_guest_y != -1 &&
-            !d->show_cursor) {
+            !d->show_cursor &&
+            spice_gtk_session_get_pointer_grabbed(d->gtk_session)) {
             GdkPixbuf *image = d->mouse_pixbuf;
             if (image != NULL) {
                 gdk_cairo_set_source_pixbuf(cr, image,
@@ -171,6 +155,6 @@ void spicex_expose_event(SpiceDisplay *display, GdkEventExpose *expose)
 G_GNUC_INTERNAL
 gboolean spicex_is_scaled(SpiceDisplay *display)
 {
-    SpiceDisplayPrivate *d = SPICE_DISPLAY_GET_PRIVATE(display);
+    SpiceDisplayPrivate *d = display->priv;
     return d->allow_scaling;
 }

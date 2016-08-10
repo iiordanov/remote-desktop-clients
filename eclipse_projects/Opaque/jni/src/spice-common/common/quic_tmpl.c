@@ -152,7 +152,7 @@ static void FNAME(compress_row0_seg)(Encoder *encoder, Channel *channel, int i,
                                      const PIXEL * const cur_row,
                                      const int end,
                                      const unsigned int waitmask,
-                                     const unsigned int bpc,
+                                     SPICE_GNUC_UNUSED const unsigned int bpc,
                                      const unsigned int bpc_mask)
 {
     BYTE * const decorelate_drow = channel->correlate_row;
@@ -243,7 +243,7 @@ static void FNAME(compress_row_seg)(Encoder *encoder, Channel *channel, int i,
                                     const PIXEL * const cur_row,
                                     const int end,
                                     const unsigned int waitmask,
-                                    const unsigned int bpc,
+                                    SPICE_GNUC_UNUSED const unsigned int bpc,
                                     const unsigned int bpc_mask)
 {
     BYTE * const decorelate_drow = channel->correlate_row;
@@ -385,7 +385,7 @@ static void FNAME(uncompress_row0_seg)(Encoder *encoder, Channel *channel, int i
                                        PIXEL * const cur_row,
                                        const int end,
                                        const unsigned int waitmask,
-                                       const unsigned int bpc,
+                                       SPICE_GNUC_UNUSED const unsigned int bpc,
                                        const unsigned int bpc_mask)
 {
     int stopidx;
@@ -486,7 +486,7 @@ static void FNAME(uncompress_row_seg)(Encoder *encoder, Channel *channel,
                                       PIXEL * const cur_row,
                                       int i,
                                       const int end,
-                                      const unsigned int bpc,
+                                      SPICE_GNUC_UNUSED const unsigned int bpc,
                                       const unsigned int bpc_mask)
 {
     const unsigned int waitmask = bppmask[channel->state.wmidx];

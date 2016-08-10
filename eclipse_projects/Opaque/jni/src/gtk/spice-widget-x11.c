@@ -15,12 +15,10 @@
   You should have received a copy of the GNU Lesser General Public
   License along with this library; if not, see <http://www.gnu.org/licenses/>.
 */
+#include "config.h"
+
 #include "spice-widget.h"
 #include "spice-widget-priv.h"
-
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
 
 #ifdef HAVE_SYS_SHM_H
 #include <sys/shm.h>
@@ -121,7 +119,7 @@ static int catch_no_mitshm(Display * dpy, XErrorEvent * event)
 G_GNUC_INTERNAL
 int spicex_image_create(SpiceDisplay *display)
 {
-    SpiceDisplayPrivate   *d = SPICE_DISPLAY_GET_PRIVATE(display);
+    SpiceDisplayPrivate   *d = display->priv;
 
     if (d->ximage != NULL)
         return 0;
@@ -191,7 +189,7 @@ int spicex_image_create(SpiceDisplay *display)
 G_GNUC_INTERNAL
 void spicex_image_destroy(SpiceDisplay *display)
 {
-    SpiceDisplayPrivate *d = SPICE_DISPLAY_GET_PRIVATE(display);
+    SpiceDisplayPrivate *d = display->priv;
 
     if (d->ximage) {
         /* avoid XDestroy to free shared memory, owned and freed by
@@ -222,7 +220,7 @@ G_GNUC_INTERNAL
 void spicex_expose_event(SpiceDisplay *display, GdkEventExpose *expose)
 {
     GdkDrawable *window = gtk_widget_get_window(GTK_WIDGET(display));
-    SpiceDisplayPrivate *d = SPICE_DISPLAY_GET_PRIVATE(display);
+    SpiceDisplayPrivate *d = display->priv;
     int x, y, w, h;
 
     spice_display_get_scaling(display, NULL, &x, &y, &w, &h);

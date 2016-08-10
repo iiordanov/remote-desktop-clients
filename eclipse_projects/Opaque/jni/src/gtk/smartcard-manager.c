@@ -116,9 +116,9 @@ static void spice_smartcard_manager_dispose(GObject *gobject)
 
 static void spice_smartcard_manager_finalize(GObject *gobject)
 {
-    SpiceSmartcardManagerPrivate *priv;
+    SpiceSmartcardManager *manager = SPICE_SMARTCARD_MANAGER(gobject);
+    SpiceSmartcardManagerPrivate *priv = manager->priv;
 
-    priv = SPICE_SMARTCARD_MANAGER_GET_PRIVATE(gobject);
     if (priv->monitor_id != 0) {
         g_source_remove(priv->monitor_id);
         priv->monitor_id = 0;

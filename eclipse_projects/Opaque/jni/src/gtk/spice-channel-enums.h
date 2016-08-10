@@ -5,7 +5,3 @@
 #include "spice-glib-enums.h"
 
 #endif /* SPICE_CHANNEL_ENUMS_H */
-
-
-
-

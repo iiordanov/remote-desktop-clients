@@ -19,8 +19,6 @@
 #include <config.h>
 #endif
 
-#include <stdio.h>
-
 #include "rop3.h"
 #include "spice_common.h"
 
@@ -43,15 +41,19 @@ static rop3_test_handler_t rop3_test_handlers_32[ROP3_NUM_OPS];
 static rop3_test_handler_t rop3_test_handlers_16[ROP3_NUM_OPS];
 
 
-static void default_rop3_with_pattern_handler(pixman_image_t *d, pixman_image_t *s,
-                                              SpicePoint *src_pos, pixman_image_t *p,
-                                              SpicePoint *pat_pos)
+static void default_rop3_with_pattern_handler(SPICE_GNUC_UNUSED pixman_image_t *d,
+                                              SPICE_GNUC_UNUSED pixman_image_t *s,
+                                              SPICE_GNUC_UNUSED SpicePoint *src_pos,
+                                              SPICE_GNUC_UNUSED pixman_image_t *p,
+                                              SPICE_GNUC_UNUSED SpicePoint *pat_pos)
 {
     spice_critical("not implemented");
 }
 
-static void default_rop3_withe_color_handler(pixman_image_t *d, pixman_image_t *s, SpicePoint *src_pos,
-                                             uint32_t rgb)
+static void default_rop3_withe_color_handler(SPICE_GNUC_UNUSED pixman_image_t *d,
+                                             SPICE_GNUC_UNUSED pixman_image_t *s,
+                                             SPICE_GNUC_UNUSED SpicePoint *src_pos,
+                                             SPICE_GNUC_UNUSED uint32_t rgb)
 {
     spice_critical("not implemented");
 }
@@ -374,15 +376,9 @@ ROP3_HANDLERS(DPSoo, *src | *pat | *dest, 0xfe);
     rop3_test_handlers_32[index] = rop3_test32_##op;             \
     rop3_test_handlers_16[index] = rop3_test16_##op;
 
-void rop3_init(void)
+SPICE_CONSTRUCTOR_FUNC(rop3_global_init)
 {
-    static int need_init = 1;
     int i;
-
-    if (!need_init) {
-        return;
-    }
-    need_init = 0;
 
     for (i = 0; i < ROP3_NUM_OPS; i++) {
         rop3_with_pattern_handlers_32[i] = default_rop3_with_pattern_handler;

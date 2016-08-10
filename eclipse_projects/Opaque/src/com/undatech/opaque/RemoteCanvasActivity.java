@@ -46,7 +46,6 @@ import org.apache.http.*;
 import org.apache.http.conn.HttpHostConnectException;
 import org.json.JSONException;
 
-import com.gstreamer.GStreamer;
 import com.iiordanov.android.zoomer.ZoomControls;
 import com.undatech.opaque.R;
 import com.undatech.opaque.dialogs.GetTextFragment;

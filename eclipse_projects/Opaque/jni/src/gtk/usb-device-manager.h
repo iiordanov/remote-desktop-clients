@@ -89,6 +89,7 @@ GType spice_usb_device_get_type(void);
 GType spice_usb_device_manager_get_type(void);
 
 gchar *spice_usb_device_get_description(SpiceUsbDevice *device, const gchar *format);
+gconstpointer spice_usb_device_get_libusb_device(const SpiceUsbDevice *device);
 
 SpiceUsbDeviceManager *spice_usb_device_manager_get(SpiceSession *session,
                                                     GError **err);

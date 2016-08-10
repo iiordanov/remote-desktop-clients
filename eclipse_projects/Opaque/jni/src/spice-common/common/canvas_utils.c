@@ -18,21 +18,17 @@
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
-
 #include "spice_common.h"
-#include "canvas_utils.h"
 
-#ifdef __GNUC__
-#include <stdlib.h>
-#include <stdio.h>
-#endif
+#include "canvas_utils.h"
 #include "mem.h"
 
 #ifdef WIN32
 static int gdi_handlers = 0;
 #endif
 
-static void release_data(pixman_image_t *image, void *release_data)
+static void release_data(SPICE_GNUC_UNUSED pixman_image_t *image,
+                         void *release_data)
 {
     PixmanData *data = (PixmanData *)release_data;
 
@@ -113,6 +109,7 @@ static inline pixman_image_t *__surface_create_stride(pixman_format_code_t forma
 
     if (surface == NULL) {
         free(data);
+        data = NULL;
         spice_error("create surface failed, out of memory");
     }
 
@@ -161,8 +158,19 @@ pixman_image_t * surface_create(pixman_format_code_t format, int width, int heig
         switch (format) {
         case PIXMAN_a8r8g8b8:
         case PIXMAN_x8r8g8b8:
+#ifdef WORDS_BIGENDIAN
+        case PIXMAN_b8g8r8a8:
+        case PIXMAN_b8g8r8x8:
+#endif
             bitmap_info.inf.bmiHeader.biBitCount = 32;
             nstride = width * 4;
+            break;
+        case PIXMAN_r8g8b8:
+#ifdef WORDS_BIGENDIAN
+        case PIXMAN_b8g8r8:
+#endif
+            bitmap_info.inf.bmiHeader.biBitCount = 24;
+            nstride = SPICE_ALIGN(width * 3, 4);
             break;
         case PIXMAN_x1r5g5b5:
         case PIXMAN_r5g6b5:
@@ -230,7 +238,18 @@ pixman_image_t * surface_create(pixman_format_code_t format, int width, int heig
         switch (format) {
         case PIXMAN_a8r8g8b8:
         case PIXMAN_x8r8g8b8:
+#ifdef WORDS_BIGENDIAN
+        case PIXMAN_b8g8r8a8:
+        case PIXMAN_b8g8r8x8:
+#endif
             stride = width * 4;
+            break;
+        case PIXMAN_r8g8b8:
+#ifdef WORDS_BIGENDIAN
+        case PIXMAN_b8g8r8:
+#endif
+            // NOTE: LZ4 also decodes to RGB24
+            stride = SPICE_ALIGN(width * 3, 4);
             break;
         case PIXMAN_x1r5g5b5:
         case PIXMAN_r5g6b5:
@@ -284,7 +303,7 @@ pixman_image_t *alloc_lz_image_surface(LzDecodeUsrData *canvas_data,
 
     /* pixman requires strides to be 4-byte aligned */
     stride = SPICE_ALIGN(stride, 4);
-    
+
     if (!top_down) {
         stride = -stride;
     }

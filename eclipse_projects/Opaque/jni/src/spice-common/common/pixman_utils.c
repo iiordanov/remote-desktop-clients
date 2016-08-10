@@ -18,19 +18,26 @@
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
+#include "spice_common.h"
 
 #include "pixman_utils.h"
-#include "spice_common.h"
-#include <spice/macros.h>
 
-#include <stdlib.h>
 #include <string.h>
-#include <stdio.h>
 #include "mem.h"
 
+/*
+ * src is used for most OPs, hidden within _equation attribute. For some
+ * operations (such as "clear" and "noop") src is not used and then we have
+ * to add SPICE_GNUC_UNUSED, that's just a __attribute__((__unused__)), to
+ * make GCC happy.
+ * Also, according to GCC documentation [0], the unused attribute "(...) means
+ * that the variable is meant to be possibly unused. GCC does not produce a
+ * warning for this variable.". So, we are safe adding it, even if src is used
+ * for most OPs.
+ */
 #define SOLID_RASTER_OP(_name, _size, _type, _equation)  \
 static void                                        \
-solid_rop_ ## _name ## _ ## _size (_type *ptr, int len, _type src)  \
+solid_rop_ ## _name ## _ ## _size (_type *ptr, int len, SPICE_GNUC_UNUSED _type src)  \
 {                                                  \
     while (len--) {                                \
         _type dst = *ptr;                          \
@@ -993,25 +1000,13 @@ pixman_image_t *spice_bitmap_try_as_pixman(int src_format,
 
     switch (src_format) {
     case SPICE_BITMAP_FMT_32BIT:
-#ifdef WORDS_BIGENDIAN
-        pixman_format = PIXMAN_b8g8r8x8;
-#else
-        pixman_format = PIXMAN_x8r8g8b8;
-#endif
+        pixman_format = PIXMAN_LE_x8r8g8b8;
         break;
     case SPICE_BITMAP_FMT_RGBA:
-#ifdef WORDS_BIGENDIAN
-        pixman_format = PIXMAN_b8g8r8a8;
-#else
-        pixman_format = PIXMAN_a8r8g8b8;
-#endif
+        pixman_format = PIXMAN_LE_a8r8g8b8;
         break;
     case SPICE_BITMAP_FMT_24BIT:
-#ifdef WORDS_BIGENDIAN
-        pixman_format = PIXMAN_b8g8r8;
-#else
-        pixman_format = PIXMAN_r8g8b8;
-#endif
+        pixman_format = PIXMAN_LE_r8g8b8;
         break;
     case SPICE_BITMAP_FMT_16BIT:
 #ifdef WORDS_BIGENDIAN

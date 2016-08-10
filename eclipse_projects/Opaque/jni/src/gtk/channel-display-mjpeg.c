@@ -15,6 +15,8 @@
    You should have received a copy of the GNU Lesser General Public
    License along with this library; if not, see <http://www.gnu.org/licenses/>.
 */
+#include "config.h"
+
 #include "spice-client.h"
 #include "spice-common.h"
 #include "spice-channel-priv.h"
@@ -71,11 +73,9 @@ void stream_mjpeg_data(display_stream *st)
     uint8_t *lines[4];
 
     stream_get_dimensions(st, &width, &height);
-    dest = malloc(width * height * 4);
+    dest = g_malloc0(width * height * 4);
 
-    if (st->out_frame) {
-        free(st->out_frame);
-    }
+    g_free(st->out_frame);
     st->out_frame = dest;
 
     jpeg_read_header(&st->mjpeg_cinfo, 1);
@@ -151,6 +151,6 @@ G_GNUC_INTERNAL
 void stream_mjpeg_cleanup(display_stream *st)
 {
     jpeg_destroy_decompress(&st->mjpeg_cinfo);
-    free(st->out_frame);
+    g_free(st->out_frame);
     st->out_frame = NULL;
 }

@@ -31,6 +31,8 @@
 #include "spice-session.h"
 #include "spice-channel.h"
 #include "spice-option.h"
+#include "spice-uri.h"
+#include "spice-version.h"
 
 #include "channel-main.h"
 #include "channel-display.h"
@@ -41,6 +43,7 @@
 #include "channel-smartcard.h"
 #include "channel-usbredir.h"
 #include "channel-port.h"
+#include "channel-webdav.h"
 
 #include "smartcard-manager.h"
 #include "usb-device-manager.h"
@@ -53,15 +56,28 @@ G_BEGIN_DECLS
 /**
  * SpiceClientError:
  * @SPICE_CLIENT_ERROR_FAILED: generic error code
+ * @SPICE_CLIENT_ERROR_USB_DEVICE_REJECTED: device redirection rejected by host
+ * @SPICE_CLIENT_ERROR_USB_DEVICE_LOST: device disconnected (fatal IO error)
+ * @SPICE_CLIENT_ERROR_AUTH_NEEDS_PASSWORD: password is required
+ * @SPICE_CLIENT_ERROR_AUTH_NEEDS_PASSWORD_AND_USERNAME: password and username are required
+ * @SPICE_CLIENT_ERROR_USB_SERVICE: USB service error
  *
  * Error codes returned by spice-client API.
  */
 typedef enum
 {
     SPICE_CLIENT_ERROR_FAILED,
-    SPICE_CLIENT_USB_DEVICE_REJECTED,
-    SPICE_CLIENT_USB_DEVICE_LOST,
+    SPICE_CLIENT_ERROR_USB_DEVICE_REJECTED,
+    SPICE_CLIENT_ERROR_USB_DEVICE_LOST,
+    SPICE_CLIENT_ERROR_AUTH_NEEDS_PASSWORD,
+    SPICE_CLIENT_ERROR_AUTH_NEEDS_PASSWORD_AND_USERNAME,
+    SPICE_CLIENT_ERROR_USB_SERVICE,
 } SpiceClientError;
+
+#ifndef SPICE_DISABLE_DEPRECATED
+#define SPICE_CLIENT_USB_DEVICE_REJECTED SPICE_CLIENT_ERROR_USB_DEVICE_REJECTED
+#define SPICE_CLIENT_USB_DEVICE_LOST SPICE_CLIENT_ERROR_USB_DEVICE_LOST
+#endif
 
 GQuark spice_client_error_quark(void);
 

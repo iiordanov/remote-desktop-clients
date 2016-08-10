@@ -15,15 +15,36 @@
    You should have received a copy of the GNU Lesser General Public
    License along with this library; if not, see <http://www.gnu.org/licenses/>.
 */
+#include "config.h"
+
+#include <glib.h>
+
+#if HAVE_X11_XKBLIB_H
+#include <X11/XKBlib.h>
+#include <gdk/gdkx.h>
+#endif
+#ifdef GDK_WINDOWING_X11
+#include <X11/Xlib.h>
+#include <gdk/gdkx.h>
+#endif
+#ifdef G_OS_WIN32
+#include <windows.h>
+#include <gdk/gdkwin32.h>
+#ifndef MAPVK_VK_TO_VSC /* may be undefined in older mingw-headers */
+#define MAPVK_VK_TO_VSC 0
+#endif
+#endif
 
 #include <gtk/gtk.h>
 #include <spice/vd_agent.h>
 #include "desktop-integration.h"
+#include "gtk-compat.h"
 #include "spice-common.h"
 #include "spice-gtk-session.h"
 #include "spice-gtk-session-priv.h"
 #include "spice-session-priv.h"
 #include "spice-util-priv.h"
+#include "spice-channel-priv.h"
 
 #define CLIPBOARD_LAST (VD_AGENT_CLIPBOARD_SELECTION_SECONDARY + 1)
 
@@ -42,6 +63,7 @@ struct _SpiceGtkSessionPrivate {
     /* auto-usbredir related */
     gboolean                auto_usbredir_enable;
     int                     auto_usbredir_reqs;
+    gboolean                pointer_grabbed;
 };
 
 /**
@@ -94,11 +116,102 @@ enum {
     PROP_SESSION,
     PROP_AUTO_CLIPBOARD,
     PROP_AUTO_USBREDIR,
+    PROP_POINTER_GRABBED,
 };
+
+static guint32 get_keyboard_lock_modifiers(void)
+{
+    guint32 modifiers = 0;
+#if GTK_CHECK_VERSION(3,18,0)
+    GdkKeymap *keyboard = gdk_keymap_get_default();
+
+    if (gdk_keymap_get_caps_lock_state(keyboard)) {
+        modifiers |= SPICE_INPUTS_CAPS_LOCK;
+    }
+
+    if (gdk_keymap_get_num_lock_state(keyboard)) {
+        modifiers |= SPICE_INPUTS_NUM_LOCK;
+    }
+
+    if (gdk_keymap_get_scroll_lock_state(keyboard)) {
+        modifiers |= SPICE_INPUTS_SCROLL_LOCK;
+    }
+#else
+#if HAVE_X11_XKBLIB_H
+    Display *x_display = NULL;
+    XKeyboardState keyboard_state;
+
+    GdkScreen *screen = gdk_screen_get_default();
+    if (!GDK_IS_X11_DISPLAY(gdk_screen_get_display(screen))) {
+        SPICE_DEBUG("FIXME: gtk backend is not X11");
+        return 0;
+    }
+
+    x_display = GDK_SCREEN_XDISPLAY(screen);
+    XGetKeyboardControl(x_display, &keyboard_state);
+
+    if (keyboard_state.led_mask & 0x01) {
+        modifiers |= SPICE_INPUTS_CAPS_LOCK;
+    }
+    if (keyboard_state.led_mask & 0x02) {
+        modifiers |= SPICE_INPUTS_NUM_LOCK;
+    }
+    if (keyboard_state.led_mask & 0x04) {
+        modifiers |= SPICE_INPUTS_SCROLL_LOCK;
+    }
+#elif defined(G_OS_WIN32)
+    if (GetKeyState(VK_CAPITAL) & 1) {
+        modifiers |= SPICE_INPUTS_CAPS_LOCK;
+    }
+    if (GetKeyState(VK_NUMLOCK) & 1) {
+        modifiers |= SPICE_INPUTS_NUM_LOCK;
+    }
+    if (GetKeyState(VK_SCROLL) & 1) {
+        modifiers |= SPICE_INPUTS_SCROLL_LOCK;
+    }
+#else
+    g_warning("get_keyboard_lock_modifiers not implemented");
+#endif // HAVE_X11_XKBLIB_H
+#endif // GTK_CHECK_VERSION(3,18,0)
+    return modifiers;
+}
+
+static void spice_gtk_session_sync_keyboard_modifiers_for_channel(SpiceGtkSession *self,
+                                                                  SpiceInputsChannel* inputs,
+                                                                  gboolean force)
+{
+    gint guest_modifiers = 0, client_modifiers = 0;
+
+    g_return_if_fail(SPICE_IS_INPUTS_CHANNEL(inputs));
+
+    g_object_get(inputs, "key-modifiers", &guest_modifiers, NULL);
+    client_modifiers = get_keyboard_lock_modifiers();
+
+    if (force || client_modifiers != guest_modifiers) {
+        CHANNEL_DEBUG(inputs, "client_modifiers:0x%x, guest_modifiers:0x%x",
+                      client_modifiers, guest_modifiers);
+        spice_inputs_set_key_locks(inputs, client_modifiers);
+    }
+}
+
+static void keymap_modifiers_changed(GdkKeymap *keymap, gpointer data)
+{
+    SpiceGtkSession *self = data;
+
+    spice_gtk_session_sync_keyboard_modifiers(self);
+}
+
+static void guest_modifiers_changed(SpiceInputsChannel *inputs, gpointer data)
+{
+    SpiceGtkSession *self = data;
+
+    spice_gtk_session_sync_keyboard_modifiers_for_channel(self, inputs, FALSE);
+}
 
 static void spice_gtk_session_init(SpiceGtkSession *self)
 {
     SpiceGtkSessionPrivate *s;
+    GdkKeymap *keymap = gdk_keymap_get_default();
 
     s = self->priv = SPICE_GTK_SESSION_GET_PRIVATE(self);
 
@@ -108,6 +221,8 @@ static void spice_gtk_session_init(SpiceGtkSession *self)
     s->clipboard_primary = gtk_clipboard_get(GDK_SELECTION_PRIMARY);
     g_signal_connect(G_OBJECT(s->clipboard_primary), "owner-change",
                      G_CALLBACK(clipboard_owner_change), self);
+    spice_g_signal_connect_object(keymap, "state-changed",
+                                  G_CALLBACK(keymap_modifiers_changed), self, 0);
 }
 
 static GObject *
@@ -213,6 +328,9 @@ static void spice_gtk_session_get_property(GObject    *gobject,
         break;
     case PROP_AUTO_USBREDIR:
         g_value_set_boolean(value, s->auto_usbredir_enable);
+        break;
+    case PROP_POINTER_GRABBED:
+        g_value_set_boolean(value, s->pointer_grabbed);
         break;
     default:
 	G_OBJECT_WARN_INVALID_PROPERTY_ID(gobject, prop_id, pspec);
@@ -331,6 +449,22 @@ static void spice_gtk_session_class_init(SpiceGtkSessionClass *klass)
                               FALSE,
                               G_PARAM_READWRITE |
                               G_PARAM_CONSTRUCT |
+                              G_PARAM_STATIC_STRINGS));
+
+    /**
+     * SpiceGtkSession:pointer-grabbed:
+     *
+     * Returns %TRUE if the pointer is currently grabbed by this session.
+     *
+     * Since: 0.27
+     **/
+    g_object_class_install_property
+        (gobject_class, PROP_POINTER_GRABBED,
+         g_param_spec_boolean("pointer-grabbed",
+                              "Pointer grabbed",
+                              "Whether the pointer is grabbed",
+                              FALSE,
+                              G_PARAM_READABLE |
                               G_PARAM_STATIC_STRINGS));
 
     g_type_class_add_private(klass, sizeof(SpiceGtkSessionPrivate));
@@ -729,6 +863,24 @@ skip_grab_clipboard:
     return TRUE;
 }
 
+static gboolean check_clipboard_size_limits(SpiceGtkSession *session,
+                                            gint clipboard_len)
+{
+    int max_clipboard;
+
+    g_object_get(session->priv->main, "max-clipboard", &max_clipboard, NULL);
+    if (max_clipboard != -1 && clipboard_len > max_clipboard) {
+        g_warning("discarded clipboard of size %d (max: %d)",
+                  clipboard_len, max_clipboard);
+        return FALSE;
+    } else if (clipboard_len <= 0) {
+        SPICE_DEBUG("discarding empty clipboard");
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
 static void clipboard_received_cb(GtkClipboard *clipboard,
                                   GtkSelectionData *selection_data,
                                   gpointer user_data)
@@ -748,19 +900,13 @@ static void clipboard_received_cb(GtkClipboard *clipboard,
     gchar* name;
     GdkAtom atom;
     int selection;
-    int max_clipboard;
 
     selection = get_selection_from_clipboard(s, clipboard);
     g_return_if_fail(selection != -1);
 
-    g_object_get(s->main, "max-clipboard", &max_clipboard, NULL);
     len = gtk_selection_data_get_length(selection_data);
-    if (len == 0 || (max_clipboard != -1 && len > max_clipboard)) {
-        g_warning("discarded clipboard of size %d (max: %d)", len, max_clipboard);
+    if (!check_clipboard_size_limits(self, len)) {
         return;
-    } else if (len == -1) {
-        SPICE_DEBUG("empty clipboard");
-        len = 0;
     } else {
         atom = gtk_selection_data_get_data_type(selection_data);
         name = gdk_atom_name(atom);
@@ -783,18 +929,32 @@ static void clipboard_received_cb(GtkClipboard *clipboard,
     gpointer conv = NULL;
 
     /* gtk+ internal utf8 newline is always LF, even on windows */
-    if (type == VD_AGENT_CLIPBOARD_UTF8_TEXT &&
-        spice_main_agent_test_capability(s->main, VD_AGENT_CAP_GUEST_LINEEND_CRLF)) {
-        GError *err = NULL;
+    if (type == VD_AGENT_CLIPBOARD_UTF8_TEXT) {
+        if (spice_main_agent_test_capability(s->main, VD_AGENT_CAP_GUEST_LINEEND_CRLF)) {
+            GError *err = NULL;
 
-        conv = spice_unix2dos((gchar*)data, len, &err);
-        if (err) {
-            g_warning("Failed to convert text line ending: %s", err->message);
-            g_clear_error(&err);
+            conv = spice_unix2dos((gchar*)data, len, &err);
+            if (err) {
+                g_warning("Failed to convert text line ending: %s", err->message);
+                g_clear_error(&err);
+                return;
+            }
+
+            len = strlen(conv);
+        } else {
+            /* On Windows, with some versions of gtk+, GtkSelectionData::length
+             * will include the final '\0'. When a string with this trailing '\0'
+             * is pasted in some linux applications, it will be pasted as <NIL> or
+             * as an invisible character, which is unwanted. Ensure the length we
+             * send to the agent does not include any trailing '\0'
+             * This is gtk+ bug https://bugzilla.gnome.org/show_bug.cgi?id=734670
+             */
+            len = strlen((const char *)data);
+        }
+        if (!check_clipboard_size_limits(self, len)) {
+            g_free(conv);
             return;
         }
-
-        len = strlen(conv);
     }
 
     spice_main_clipboard_selection_notify(s->main, selection, type,
@@ -812,6 +972,9 @@ static gboolean clipboard_request(SpiceMainChannel *main, guint selection,
     GdkAtom atom;
     GtkClipboard* cb;
     int m;
+
+    g_return_val_if_fail(s->clipboard_by_guest[selection] == FALSE, FALSE);
+    g_return_val_if_fail(s->clip_grabbed[selection], FALSE);
 
     if (read_only(self))
         return FALSE;
@@ -870,6 +1033,11 @@ static void channel_new(SpiceSession *session, SpiceChannel *channel,
                          G_CALLBACK(clipboard_request), self);
         g_signal_connect(channel, "main-clipboard-selection-release",
                          G_CALLBACK(clipboard_release), self);
+    }
+    if (SPICE_IS_INPUTS_CHANNEL(channel)) {
+        spice_g_signal_connect_object(channel, "inputs-modifiers",
+                                      G_CALLBACK(guest_modifiers_changed), self, 0);
+        spice_gtk_session_sync_keyboard_modifiers_for_channel(self, SPICE_INPUTS_CHANNEL(channel), TRUE);
     }
 }
 
@@ -967,10 +1135,10 @@ SpiceGtkSession *spice_gtk_session_get(SpiceSession *session)
     static GStaticMutex mutex = G_STATIC_MUTEX_INIT;
 
     g_static_mutex_lock(&mutex);
-    self = session->priv->gtk_session;
+    self = g_object_get_data(G_OBJECT(session), "spice-gtk-session");
     if (self == NULL) {
         self = g_object_new(SPICE_TYPE_GTK_SESSION, "session", session, NULL);
-        session->priv->gtk_session = self;
+        g_object_set_data_full(G_OBJECT(session), "spice-gtk-session", self, g_object_unref);
     }
     g_static_mutex_unlock(&mutex);
 
@@ -1027,4 +1195,35 @@ void spice_gtk_session_paste_from_guest(SpiceGtkSession *self)
     }
     s->clipboard_by_guest[selection] = TRUE;
     s->clip_hasdata[selection] = FALSE;
+}
+
+G_GNUC_INTERNAL
+void spice_gtk_session_sync_keyboard_modifiers(SpiceGtkSession *self)
+{
+    GList *l = NULL, *channels = spice_session_get_channels(self->priv->session);
+
+    for (l = channels; l != NULL; l = l->next) {
+        if (SPICE_IS_INPUTS_CHANNEL(l->data)) {
+            SpiceInputsChannel *inputs = SPICE_INPUTS_CHANNEL(l->data);
+            spice_gtk_session_sync_keyboard_modifiers_for_channel(self, inputs, TRUE);
+        }
+    }
+    g_list_free(channels);
+}
+
+G_GNUC_INTERNAL
+void spice_gtk_session_set_pointer_grabbed(SpiceGtkSession *self, gboolean grabbed)
+{
+    g_return_if_fail(SPICE_IS_GTK_SESSION(self));
+
+    self->priv->pointer_grabbed = grabbed;
+    g_object_notify(G_OBJECT(self), "pointer-grabbed");
+}
+
+G_GNUC_INTERNAL
+gboolean spice_gtk_session_get_pointer_grabbed(SpiceGtkSession *self)
+{
+    g_return_val_if_fail(SPICE_IS_GTK_SESSION(self), FALSE);
+
+    return self->priv->pointer_grabbed;
 }

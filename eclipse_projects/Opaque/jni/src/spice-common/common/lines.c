@@ -412,7 +412,7 @@ miStepDash (int dist,           /* distance to step */
     totallen = 0;
     for (i = 0; i < numInDashList; i++)
         totallen += pDash[i];
-    if (totallen <= dist)
+    if (totallen > 0 && totallen <= dist)
         dist = dist % totallen;
     while (dist >= pDash[dashIndex]) {
         dist -= pDash[dashIndex];
@@ -927,7 +927,7 @@ end of the line, we will find the largest number of Y steps that
 satisfies the inequality.  In that case, since we are representing
 the Y steps as (dy - N), we will actually want to solve for the
 smallest N in that equation.
-
+
 Case 1:  X major, starting X coordinate moved by M steps
 
                 -2dx <= 2Mdy - 2Ndx - dx - B < 0
@@ -975,7 +975,7 @@ steps, so we want the highest N, so we use the < inequality:
           = floor((2Mdy + dx + B + 2dx - 1) / 2dx) - 1
           = floor((2Mdy + dx + B + 2dx - 1 - 2dx) / 2dx)
           = floor((2Mdy + dx + B - 1) / 2dx)
-
+
 Case 3: Y major, starting X coordinate moved by M steps
 
                 -2dy <= 2Ndx - 2Mdy - dy - B < 0
@@ -1021,7 +1021,7 @@ Same analysis as Case 4, but we want the smallest number of Y steps
 which means the largest N, so we use the <= inequality:
 
         N = floor((2Mdy + dy - B) / 2dx)
-
+
 Now let's try the Y coordinates, we have the same 4 cases.
 
 Case 5: X major, starting Y coordinate moved by N steps
@@ -1066,7 +1066,7 @@ Same derivations as Case 6, but we want the smallest # of X steps
 which means the largest M, so use the <= inequality:
 
         M = floor((2Ndx + dx - B) / 2dy)
-
+
 Case 7: Y major, starting Y coordinate moved by N steps
 
                 -2dy <= 2Ndx - 2Mdy - dy - B < 0
@@ -1111,7 +1111,7 @@ steps which means the largest M, so we use the < inequality:
           = floor((2Ndx + dy + B + 2dy - 1) / 2dy) - 1
           = floor((2Ndx + dy + B + 2dy - 1 - 2dy) / 2dy)
           = floor((2Ndx + dy + B - 1) / 2dy)
-
+
 So, our equations are:
 
         1:  X major move x1 to x1+M     floor((2Mdy + dx - B) / 2dx)
@@ -1824,7 +1824,7 @@ miFillRectPolyHelper (GCPtr pGC, Boolean foreground, SpanDataPtr spanData, int x
 }
 
 static int
-miPolyBuildEdge (double x0, double y0, double k,        /* x0 * dy - y0 * dx */
+miPolyBuildEdge (SPICE_GNUC_UNUSED double x0, double y0, double k, /* x0 * dy - y0 * dx */
                  int dx, int dy, int xi, int yi, int left, PolyEdgePtr edge)
 {
     int x, y, e;
@@ -1835,15 +1835,6 @@ miPolyBuildEdge (double x0, double y0, double k,        /* x0 * dy - y0 * dx */
         dx = -dx;
         k = -k;
     }
-#ifdef NOTDEF
-    {
-        double realk, kerror;
-        realk = x0 * dy - y0 * dx;
-        kerror = Fabs (realk - k);
-        if (kerror > .1)
-            printf ("realk: %g k: %g\n", realk, k);
-    }
-#endif
     y = ICEIL (y0);
     xady = ICEIL (k) + y * dx;
 
@@ -1968,7 +1959,11 @@ miPolyBuildPoly (PolyVertexPtr vertices,
 }
 
 static void
-miLineOnePoint (GCPtr pGC, Boolean foreground, SpanDataPtr spanData, int x, int y)
+miLineOnePoint (GCPtr pGC,
+                Boolean foreground,
+                SPICE_GNUC_UNUSED SpanDataPtr spanData,
+                int x,
+                int y)
 {
     DDXPointRec pt;
     int wid;
@@ -2499,9 +2494,14 @@ miLineArc (GCPtr pGC,
 }
 
 static void
-miLineProjectingCap (GCPtr pGC, Boolean foreground,
-                     SpanDataPtr spanData, LineFacePtr face, Boolean isLeft,
-                     double xorg, double yorg, Boolean isInt)
+miLineProjectingCap (GCPtr pGC,
+                     Boolean foreground,
+                     SpanDataPtr spanData,
+                     LineFacePtr face,
+                     Boolean isLeft,
+                     SPICE_GNUC_UNUSED double xorg,
+                     SPICE_GNUC_UNUSED double yorg,
+                     Boolean isInt)
 {
     int xorgi = 0, yorgi = 0;
     int lw;
@@ -2978,7 +2978,7 @@ miWideDashSegment (GCPtr pGC,
     double L, l;
     double k;
     PolyVertexRec vertices[4];
-    PolyVertexRec saveRight = { 0 }, saveBottom;
+    PolyVertexRec saveRight = { 0, 0 }, saveBottom;
     PolySlopeRec slopes[4];
     PolyEdgeRec left[4], right[4];
     LineFaceRec lcapFace, rcapFace;

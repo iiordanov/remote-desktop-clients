@@ -18,9 +18,7 @@
 #ifndef __SMARTCARD_MANAGER_PRIV_H__
 #define __SMARTCARD_MANAGER_PRIV_H__
 
-#ifdef HAVE_CONFIG_H
 #include "config.h"
-#endif
 #include <gio/gio.h>
 #include "spice-session.h"
 

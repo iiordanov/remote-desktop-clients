@@ -57,6 +57,7 @@ typedef enum {
     OVIRT_STORAGE_DOMAIN_TYPE_DATA,
     OVIRT_STORAGE_DOMAIN_TYPE_ISO,
     OVIRT_STORAGE_DOMAIN_TYPE_EXPORT,
+    OVIRT_STORAGE_DOMAIN_TYPE_IMAGE,
 } OvirtStorageDomainType;
 
 typedef struct _OvirtStorageDomain OvirtStorageDomain;

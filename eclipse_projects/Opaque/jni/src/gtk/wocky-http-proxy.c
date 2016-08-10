@@ -1,7 +1,9 @@
  /* wocky-http-proxy.c: Source for WockyHttpProxy
  *
  * Copyright (C) 2010 Collabora, Ltd.
+ * Copyright (C) 2014 Red Hat, Inc.
  * @author Nicolas Dufresne <nicolas.dufresne@collabora.co.uk>
+ * @author Marc-André Lureau <marcandre.lureau@redhat.com>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -20,6 +22,7 @@
 
 #include "config.h"
 
+#include "glib-compat.h"
 #include "wocky-http-proxy.h"
 
 #include <string.h>
@@ -40,13 +43,13 @@ static void wocky_http_proxy_iface_init (GProxyInterface *proxy_iface);
 
 #define wocky_http_proxy_get_type _wocky_http_proxy_get_type
 G_DEFINE_TYPE_WITH_CODE (WockyHttpProxy, wocky_http_proxy, G_TYPE_OBJECT,
-    G_IMPLEMENT_INTERFACE (G_TYPE_PROXY,
-      wocky_http_proxy_iface_init)
-    g_io_extension_point_set_required_type (
-      g_io_extension_point_register (G_PROXY_EXTENSION_POINT_NAME),
-      G_TYPE_PROXY);
-    g_io_extension_point_implement (G_PROXY_EXTENSION_POINT_NAME,
-      g_define_type_id, "http", 0))
+  G_IMPLEMENT_INTERFACE (G_TYPE_PROXY,
+    wocky_http_proxy_iface_init)
+  g_io_extension_point_set_required_type (
+    g_io_extension_point_register (G_PROXY_EXTENSION_POINT_NAME),
+    G_TYPE_PROXY);
+  g_io_extension_point_implement (G_PROXY_EXTENSION_POINT_NAME,
+    g_define_type_id, "http", 0))
 
 static void
 wocky_http_proxy_init (WockyHttpProxy *proxy)
@@ -98,7 +101,7 @@ create_request (GProxyAddress *proxy_address, gboolean *has_cred)
       base64_cred = g_base64_encode ((guchar *) cred, strlen (cred));
       g_free (cred);
       g_string_append_printf (request,
-          "Proxy-Authorization: %s\r\n",
+          "Proxy-Authorization: Basic %s\r\n",
           base64_cred);
       g_free (base64_cred);
     }
@@ -180,9 +183,30 @@ wocky_http_proxy_connect (GProxy *proxy,
 {
   GInputStream *in;
   GOutputStream *out;
-  GDataInputStream *data_in;
-  gchar *buffer;
+  GDataInputStream *data_in = NULL;
+  gchar *buffer = NULL;
   gboolean has_cred;
+  GIOStream *tlsconn = NULL;
+
+  if (WOCKY_IS_HTTPS_PROXY (proxy))
+    {
+      tlsconn = g_tls_client_connection_new (io_stream,
+                                             G_SOCKET_CONNECTABLE(proxy_address),
+                                             error);
+      if (!tlsconn)
+          goto error;
+
+      GTlsCertificateFlags tls_validation_flags = G_TLS_CERTIFICATE_VALIDATE_ALL;
+#ifdef DEBUG
+      tls_validation_flags &= ~(G_TLS_CERTIFICATE_UNKNOWN_CA | G_TLS_CERTIFICATE_BAD_IDENTITY);
+#endif
+      g_tls_client_connection_set_validation_flags (G_TLS_CLIENT_CONNECTION (tlsconn),
+                                                    tls_validation_flags);
+      if (!g_tls_connection_handshake (G_TLS_CONNECTION (tlsconn), cancellable, error))
+          goto error;
+
+      io_stream = tlsconn;
+    }
 
   in = g_io_stream_get_input_stream (io_stream);
   out = g_io_stream_get_output_stream (io_stream);
@@ -215,12 +239,14 @@ wocky_http_proxy_connect (GProxy *proxy,
 
   g_free (buffer);
 
-  return g_object_ref (io_stream);
+  g_object_ref (io_stream);
+  g_clear_object (&tlsconn);
+
+  return io_stream;
 
 error:
-  if (data_in != NULL)
-    g_object_unref (data_in);
-
+  g_clear_object (&tlsconn);
+  g_clear_object (&data_in);
   g_free (buffer);
   return NULL;
 }
@@ -291,6 +317,39 @@ do_write (GAsyncReadyCallback callback, ConnectAsyncData *data)
 }
 
 static void
+stream_connected (ConnectAsyncData *data,
+                  GIOStream *io_stream)
+{
+  GInputStream *in;
+
+  data->io_stream = g_object_ref (io_stream);
+  in = g_io_stream_get_input_stream (io_stream);
+  data->data_in = g_data_input_stream_new (in);
+  g_filter_input_stream_set_close_base_stream (G_FILTER_INPUT_STREAM (data->data_in),
+                                               FALSE);
+
+  do_write (request_write_cb, data);
+}
+
+static void
+handshake_completed (GObject *source_object,
+                     GAsyncResult *res,
+                     gpointer user_data)
+{
+  GTlsConnection *conn = G_TLS_CONNECTION (source_object);
+  ConnectAsyncData *data = user_data;
+  GError *error = NULL;
+
+  if (!g_tls_connection_handshake_finish (conn, res, &error))
+    {
+      complete_async_from_error (data, error);
+      return;
+    }
+
+  stream_connected (data, G_IO_STREAM (conn));
+}
+
+static void
 wocky_http_proxy_connect_async (GProxy *proxy,
     GIOStream *io_stream,
     GProxyAddress *proxy_address,
@@ -300,34 +359,53 @@ wocky_http_proxy_connect_async (GProxy *proxy,
 {
   GSimpleAsyncResult *simple;
   ConnectAsyncData *data;
-  GInputStream *in;
 
   simple = g_simple_async_result_new (G_OBJECT (proxy),
-      callback, user_data,
-      wocky_http_proxy_connect_async);
+                                      callback, user_data,
+                                      wocky_http_proxy_connect_async);
 
   data = g_slice_new0 (ConnectAsyncData);
-
-  data->simple = simple;
-  data->io_stream = g_object_ref (io_stream);
-
   if (cancellable != NULL)
     data->cancellable = g_object_ref (cancellable);
-
-  in = g_io_stream_get_input_stream (io_stream);
-
-  data->data_in = g_data_input_stream_new (in);
-  g_filter_input_stream_set_close_base_stream (G_FILTER_INPUT_STREAM (data->data_in),
-      FALSE);
-
-  g_simple_async_result_set_op_res_gpointer (simple, data,
-      (GDestroyNotify) free_connect_data);
+  data->simple = simple;
 
   data->buffer = create_request (proxy_address, &data->has_cred);
   data->length = strlen (data->buffer);
   data->offset = 0;
 
-  do_write (request_write_cb, data);
+  g_simple_async_result_set_op_res_gpointer (simple, data,
+                                             (GDestroyNotify) free_connect_data);
+
+  if (WOCKY_IS_HTTPS_PROXY (proxy))
+    {
+      GError *error = NULL;
+      GIOStream *tlsconn;
+
+      tlsconn = g_tls_client_connection_new (io_stream,
+                                             G_SOCKET_CONNECTABLE(proxy_address),
+                                             &error);
+      if (!tlsconn)
+        {
+          complete_async_from_error (data, error);
+          return;
+        }
+
+      g_return_if_fail (tlsconn != NULL);
+
+      GTlsCertificateFlags tls_validation_flags = G_TLS_CERTIFICATE_VALIDATE_ALL;
+#ifdef DEBUG
+      tls_validation_flags &= ~(G_TLS_CERTIFICATE_UNKNOWN_CA | G_TLS_CERTIFICATE_BAD_IDENTITY);
+#endif
+      g_tls_client_connection_set_validation_flags (G_TLS_CLIENT_CONNECTION (tlsconn),
+                                                    tls_validation_flags);
+      g_tls_connection_handshake_async (G_TLS_CONNECTION (tlsconn),
+                                        G_PRIORITY_DEFAULT, cancellable,
+                                        handshake_completed, data);
+    }
+  else
+    {
+      stream_connected (data, io_stream);
+    }
 }
 
 static void
@@ -426,4 +504,34 @@ wocky_http_proxy_iface_init (GProxyInterface *proxy_iface)
   proxy_iface->connect_async = wocky_http_proxy_connect_async;
   proxy_iface->connect_finish = wocky_http_proxy_connect_finish;
   proxy_iface->supports_hostname = wocky_http_proxy_supports_hostname;
+}
+
+struct _WockyHttpsProxy
+{
+  WockyHttpProxy parent;
+};
+
+struct _WockyHttpsProxyClass
+{
+  WockyHttpProxyClass parent_class;
+};
+
+#define wocky_https_proxy_get_type _wocky_https_proxy_get_type
+G_DEFINE_TYPE_WITH_CODE (WockyHttpsProxy, wocky_https_proxy, WOCKY_TYPE_HTTP_PROXY,
+  G_IMPLEMENT_INTERFACE (G_TYPE_PROXY,
+    wocky_http_proxy_iface_init)
+  g_io_extension_point_set_required_type (
+    g_io_extension_point_register (G_PROXY_EXTENSION_POINT_NAME),
+    G_TYPE_PROXY);
+  g_io_extension_point_implement (G_PROXY_EXTENSION_POINT_NAME,
+    g_define_type_id, "https", 0))
+
+static void
+wocky_https_proxy_init (WockyHttpsProxy *proxy)
+{
+}
+
+static void
+wocky_https_proxy_class_init (WockyHttpsProxyClass *class)
+{
 }

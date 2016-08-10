@@ -39,21 +39,22 @@ _wrap_spice_display_send_keys(PyGObject *self,
 	return NULL;
 
     len = PyList_Size(keyList);
-    keys = malloc(sizeof(guint)*len);
+    keys = g_malloc0(sizeof(guint)*len);
+
     for (i = 0 ; i < len ; i++) {
         PyObject *val;
         char *sym;
         val = PyList_GetItem(keyList, i);
         sym = PyString_AsString(val);
         if (!sym) {
-            free(keys);
+            g_free(keys);
 	    return NULL;
         }
         keys[i] = gdk_keyval_from_name(sym);
     }
 
     spice_display_send_keys(SPICE_DISPLAY(self->obj), keys, len, kind);
-    free(keys);
+    g_free(keys);
 
     Py_INCREF(Py_None);
     return Py_None;

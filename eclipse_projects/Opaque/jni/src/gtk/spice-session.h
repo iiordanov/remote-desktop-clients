@@ -20,6 +20,7 @@
 
 #include <glib-object.h>
 #include "spice-types.h"
+#include "spice-uri.h"
 #include "spice-glib-enums.h"
 #include "spice-util.h"
 
@@ -51,6 +52,7 @@ typedef enum {
  * @SPICE_SESSION_MIGRATION_NONE: no migration going on
  * @SPICE_SESSION_MIGRATION_SWITCHING: the session is switching host (destroy and reconnect)
  * @SPICE_SESSION_MIGRATION_MIGRATING: the session is migrating seamlessly (reconnect)
+ * @SPICE_SESSION_MIGRATION_CONNECTING: the migration is connecting to destination (Since: 0.27)
  *
  * Session migration state.
  **/
@@ -58,6 +60,7 @@ typedef enum {
     SPICE_SESSION_MIGRATION_NONE,
     SPICE_SESSION_MIGRATION_SWITCHING,
     SPICE_SESSION_MIGRATION_MIGRATING,
+    SPICE_SESSION_MIGRATION_CONNECTING,
 } SpiceSessionMigration;
 
 struct _SpiceSession
@@ -92,6 +95,8 @@ void spice_session_disconnect(SpiceSession *session);
 GList *spice_session_get_channels(SpiceSession *session);
 gboolean spice_session_has_channel_type(SpiceSession *session, gint type);
 gboolean spice_session_get_read_only(SpiceSession *session);
+SpiceURI *spice_session_get_proxy_uri(SpiceSession *session);
+gboolean spice_session_is_for_migration(SpiceSession *session);
 
 G_END_DECLS
 

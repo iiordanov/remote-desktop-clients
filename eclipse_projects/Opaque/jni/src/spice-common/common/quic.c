@@ -23,6 +23,8 @@
 #include <config.h>
 #endif
 
+#include <glib.h>
+
 #include "quic.h"
 #include "spice_common.h"
 #include "bitops.h"
@@ -35,7 +37,8 @@
 //#define RLE_PRED_3
 #define QUIC_RGB
 
-#define QUIC_MAGIC (*(uint32_t *)"QUIC")
+/* ASCII "QUIC" */
+#define QUIC_MAGIC 0x43495551
 #define QUIC_VERSION_MAJOR 0U
 #define QUIC_VERSION_MINOR 1U
 #define QUIC_VERSION ((QUIC_VERSION_MAJOR << 16) | (QUIC_VERSION_MAJOR & 0xffff))
@@ -191,16 +194,7 @@ static const unsigned long int bppmask[33] = {
     0x1fffffff, 0x3fffffff, 0x7fffffff, 0xffffffff /* [32] */
 };
 
-static const unsigned int bitat[32] = {
-    0x00000001, 0x00000002, 0x00000004, 0x00000008,
-    0x00000010, 0x00000020, 0x00000040, 0x00000080,
-    0x00000100, 0x00000200, 0x00000400, 0x00000800,
-    0x00001000, 0x00002000, 0x00004000, 0x00008000,
-    0x00010000, 0x00020000, 0x00040000, 0x00080000,
-    0x00100000, 0x00200000, 0x00400000, 0x00800000,
-    0x01000000, 0x02000000, 0x04000000, 0x08000000,
-    0x10000000, 0x20000000, 0x40000000, 0x80000000 /* [31]*/
-};
+#define bitat(n) (1u<<(n))
 
 
 #define TABRAND_TABSIZE 256
@@ -368,7 +362,7 @@ static void golomb_coding_slow(QuicFamily *family, const BYTE n, const unsigned 
                                unsigned int * const codewordlen)
 {
     if (n < family->nGRcodewords[l]) {
-        (*codeword) = bitat[l] | (n & bppmask[l]);
+        (*codeword) = bitat(l) | (n & bppmask[l]);
         (*codewordlen) = (n >> l) + l + 1;
     } else {
         (*codeword) = n - family->nGRcodewords[l];
@@ -391,9 +385,9 @@ static void family_init(QuicFamily *family, int bpc, int limit)
         altcodewords = bppmask[bpc] + 1 - (altprefixlen << l);
 
         family->nGRcodewords[l] = (altprefixlen << l);
-        family->notGRcwlen[l] = altprefixlen + ceil_log_2(altcodewords);
-        family->notGRprefixmask[l] = bppmask[32 - altprefixlen]; /* needed for decoding only */
         family->notGRsuffixlen[l] = ceil_log_2(altcodewords); /* needed for decoding only */
+        family->notGRcwlen[l] = altprefixlen + family->notGRsuffixlen[l];
+        family->notGRprefixmask[l] = bppmask[32 - altprefixlen]; /* needed for decoding only */
 
         for (b = 0; b < 256; b++) {
             unsigned int code, len;
@@ -476,7 +470,7 @@ static inline void flush(Encoder *encoder)
 static void __read_io_word(Encoder *encoder)
 {
     more_io_words(encoder);
-    encoder->io_next_word = *(encoder->io_now++);
+    encoder->io_next_word = GUINT32_FROM_LE(*(encoder->io_now++));
 }
 
 static void (*__read_io_word_ptr)(Encoder *encoder) = __read_io_word;
@@ -489,7 +483,7 @@ static inline void read_io_word(Encoder *encoder)
         return;
     }
     spice_assert(encoder->io_now < encoder->io_end);
-    encoder->io_next_word = *(encoder->io_now++);
+    encoder->io_next_word = GUINT32_FROM_LE(*(encoder->io_now++));
 }
 
 static inline void decode_eatbits(Encoder *encoder, int len)
@@ -537,30 +531,10 @@ static inline void encode_ones(Encoder *encoder, unsigned int n)
 
 #define MELCSTATES 32 /* number of melcode states */
 
-static int zeroLUT[256]; /* table to find out number of leading zeros */
-
-static int J[MELCSTATES] = {
+static const int J[MELCSTATES] = {
     0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 5, 5, 6, 6, 7,
     7, 8, 9, 10, 11, 12, 13, 14, 15
 };
-
-/* creates the bit counting look-up table. */
-static void init_zeroLUT(void)
-{
-    int i, j, k, l;
-
-    j = k = 1;
-    l = 8;
-    for (i = 0; i < 256; ++i) {
-        zeroLUT[i] = l;
-        --k;
-        if (k == 0) {
-            k = j;
-            --l;
-            j *= 2;
-        }
-    }
-}
 
 static void encoder_init_rle(CommonState *state)
 {
@@ -578,7 +552,7 @@ static void encode_run(Encoder *encoder, unsigned int runlen) //todo: try use en
     while (runlen >= encoder->rgb_state.melcorder) {
         hits++;
         runlen -= encoder->rgb_state.melcorder;
-        if (encoder->rgb_state.melcstate < MELCSTATES) {
+        if (encoder->rgb_state.melcstate < MELCSTATES - 1) {
             encoder->rgb_state.melclen = J[++encoder->rgb_state.melcstate];
             encoder->rgb_state.melcorder = (1L << encoder->rgb_state.melclen);
         }
@@ -610,7 +584,7 @@ static void encode_channel_run(Encoder *encoder, Channel *channel, unsigned int 
     while (runlen >= channel->state.melcorder) {
         hits++;
         runlen -= channel->state.melcorder;
-        if (channel->state.melcstate < MELCSTATES) {
+        if (channel->state.melcstate < MELCSTATES - 1) {
             channel->state.melclen = J[++channel->state.melcstate];
             channel->state.melcorder = (1L << channel->state.melclen);
         }
@@ -642,12 +616,12 @@ static int decode_run(Encoder *encoder)
 
     do {
         register int temp, hits;
-        temp = zeroLUT[(BYTE)(~(encoder->io_word >> 24))];/* number of leading ones in the
+        temp = lzeroes[(BYTE)(~(encoder->io_word >> 24))];/* number of leading ones in the
                                                                       input stream, up to 8 */
         for (hits = 1; hits <= temp; hits++) {
             runlen += encoder->rgb_state.melcorder;
 
-            if (encoder->rgb_state.melcstate < MELCSTATES) {
+            if (encoder->rgb_state.melcstate < MELCSTATES - 1) {
                 encoder->rgb_state.melclen = J[++encoder->rgb_state.melcstate];
                 encoder->rgb_state.melcorder = (1U << encoder->rgb_state.melclen);
             }
@@ -683,12 +657,12 @@ static int decode_channel_run(Encoder *encoder, Channel *channel)
 
     do {
         register int temp, hits;
-        temp = zeroLUT[(BYTE)(~(encoder->io_word >> 24))];/* number of leading ones in the
+        temp = lzeroes[(BYTE)(~(encoder->io_word >> 24))];/* number of leading ones in the
                                                                       input stream, up to 8 */
         for (hits = 1; hits <= temp; hits++) {
             runlen += channel->state.melcorder;
 
-            if (channel->state.melcstate < MELCSTATES) {
+            if (channel->state.melcstate < MELCSTATES - 1) {
                 channel->state.melclen = J[++channel->state.melcstate];
                 channel->state.melcorder = (1U << channel->state.melclen);
             }
@@ -763,7 +737,7 @@ static inline unsigned int decode_run(Encoder *encoder)
 
 static inline void init_decode_io(Encoder *encoder)
 {
-    encoder->io_next_word = encoder->io_word = *(encoder->io_now++);
+    encoder->io_next_word = encoder->io_word = GUINT32_FROM_LE(*(encoder->io_now++));
     encoder->io_available_bits = 0;
 }
 
@@ -840,7 +814,7 @@ typedef uint16_t rgb16_pixel_t;
 
 #endif
 
-static void fill_model_structures(Encoder *encoder, FamilyStat *family_stat,
+static void fill_model_structures(SPICE_GNUC_UNUSED Encoder *encoder, FamilyStat *family_stat,
                                   unsigned int rep_first, unsigned int first_size,
                                   unsigned int rep_next, unsigned int mul_size,
                                   unsigned int levels, unsigned int ncounters,
@@ -911,8 +885,11 @@ static void find_model_params(Encoder *encoder,
     unsigned int bstart, bend = 0;   /* bucket start and end, range : 0 to levels-1*/
     unsigned int repcntr;            /* helper */
 
+    /* The only valid values are 1, 3 and 5.
+       0, 2 and 4 are obsolete and the rest of the
+       values are considered out of the range. */
+    spice_static_assert (evol == 1 || evol == 3 || evol == 5);
     spice_assert(bpc <= 8 && bpc > 0);
-
 
     *ncounters = 8;
 
@@ -939,14 +916,9 @@ static void find_model_params(Encoder *encoder,
         *repnext = 1;
         *mulsize = 4;
         break;
-    case 0: /* obsolete */
-    case 2: /* obsolete */
-    case 4: /* obsolete */
-        encoder->usr->error(encoder->usr, "findmodelparams(): evol value obsolete!!!\n");
-        break;
     default:
         encoder->usr->error(encoder->usr, "findmodelparams(): evol out of range!!!\n");
-        break;
+        return;
     }
 
     *nbuckets = 0;
@@ -1662,13 +1634,11 @@ int quic_decode(QuicContext *quic, QuicImageType type, uint8_t *buf, int stride)
     return QUIC_OK;
 }
 
-static int need_init = TRUE;
-
 QuicContext *quic_create(QuicUsrContext *usr)
 {
     Encoder *encoder;
 
-    if (!usr || need_init || !usr->error || !usr->warn || !usr->info || !usr->malloc ||
+    if (!usr || !usr->error || !usr->warn || !usr->info || !usr->malloc ||
         !usr->free || !usr->more_space || !usr->more_lines) {
         return NULL;
     }
@@ -1699,16 +1669,8 @@ void quic_destroy(QuicContext *quic)
     encoder->usr->free(encoder->usr, encoder);
 }
 
-void quic_init(void)
+SPICE_CONSTRUCTOR_FUNC(quic_global_init)
 {
-    if (!need_init) {
-        return;
-    }
-    need_init = FALSE;
-
     family_init(&family_8bpc, 8, DEFmaxclen);
     family_init(&family_5bpc, 5, DEFmaxclen);
-#if defined(RLE) && defined(RLE_STAT)
-    init_zeroLUT();
-#endif
 }

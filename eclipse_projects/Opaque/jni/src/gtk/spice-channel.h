@@ -68,6 +68,8 @@ struct _SpiceChannel
     /* Do not add fields to this struct */
 };
 
+typedef struct _SpiceChannelClassPrivate SpiceChannelClassPrivate;
+
 struct _SpiceChannelClass
 {
     GObjectClass parent_class;
@@ -86,7 +88,7 @@ struct _SpiceChannelClass
 
     /*< private >*/
     /* virtual method, any context */
-    void (*channel_disconnect)(SpiceChannel *channel);
+    gpointer deprecated;
     void (*channel_reset)(SpiceChannel *channel, gboolean migrating);
     void (*channel_reset_capabilities)(SpiceChannel *channel);
 
@@ -94,7 +96,7 @@ struct _SpiceChannelClass
     /* virtual methods, coroutine context */
     void (*channel_send_migration_handshake)(SpiceChannel *channel);
 
-    GArray                      *handlers;
+    SpiceChannelClassPrivate *priv;
     /*
      * If adding fields to this struct, remove corresponding
      * amount of padding to avoid changing overall struct size
@@ -107,7 +109,6 @@ GType spice_channel_get_type(void);
 typedef void (*spice_msg_handler)(SpiceChannel *channel, SpiceMsgIn *in);
 
 SpiceChannel *spice_channel_new(SpiceSession *s, int type, int id);
-void spice_channel_destroy(SpiceChannel *channel);
 gboolean spice_channel_connect(SpiceChannel *channel);
 gboolean spice_channel_open_fd(SpiceChannel *channel, int fd);
 void spice_channel_disconnect(SpiceChannel *channel, SpiceChannelEvent reason);
@@ -118,10 +119,14 @@ gboolean spice_channel_flush_finish(SpiceChannel *channel, GAsyncResult *result,
 #ifndef SPICE_DISABLE_DEPRECATED
 SPICE_DEPRECATED
 void spice_channel_set_capability(SpiceChannel *channel, guint32 cap);
+SPICE_DEPRECATED
+void spice_channel_destroy(SpiceChannel *channel);
 #endif
 
 const gchar* spice_channel_type_to_string(gint type);
 gint spice_channel_string_to_type(const gchar *str);
+
+const GError* spice_channel_get_error(SpiceChannel *channel);
 
 G_END_DECLS
 
