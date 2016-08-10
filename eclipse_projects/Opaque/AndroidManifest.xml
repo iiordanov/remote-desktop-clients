@@ -69,6 +69,7 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 
                 <data android:scheme="file" android:mimeType="application/x-virt-viewer" />
+                <data android:scheme="content" android:mimeType="application/x-virt-viewer" />
             </intent-filter>
             
             <intent-filter
@@ -80,6 +81,7 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 
                 <data android:scheme="file" android:host="*" android:mimeType="application/x-virt-viewer" />
+                <data android:scheme="content" android:host="*" android:mimeType="application/x-virt-viewer" />
             </intent-filter>
             
             <intent-filter
@@ -97,6 +99,14 @@
                 <data android:scheme="file" android:host="*" android:pathPattern=".*\\..*\\..*\\..*\\..*\\.vv" />
                 <data android:scheme="file" android:host="*" android:pathPattern=".*\\..*\\..*\\..*\\..*\\..*\\.vv" />
                 <data android:scheme="file" android:host="*" android:pathPattern=".*\\..*\\..*\\..*\\..*\\..*\\..*\\.vv" />
+                
+                <data android:scheme="content" android:host="*" android:pathPattern=".*\\.vv" />
+                <data android:scheme="content" android:host="*" android:pathPattern=".*\\..*\\.vv" />
+                <data android:scheme="content" android:host="*" android:pathPattern=".*\\..*\\..*\\.vv" />
+                <data android:scheme="content" android:host="*" android:pathPattern=".*\\..*\\..*\\..*\\.vv" />
+                <data android:scheme="content" android:host="*" android:pathPattern=".*\\..*\\..*\\..*\\..*\\.vv" />
+                <data android:scheme="content" android:host="*" android:pathPattern=".*\\..*\\..*\\..*\\..*\\..*\\.vv" />
+                <data android:scheme="content" android:host="*" android:pathPattern=".*\\..*\\..*\\..*\\..*\\..*\\..*\\.vv" />
             </intent-filter>
             
             <intent-filter
@@ -114,6 +124,14 @@
                 <data android:scheme="file" android:host="*" android:mimeType="*/*" android:pathPattern=".*\\..*\\..*\\..*\\..*\\.vv" />
                 <data android:scheme="file" android:host="*" android:mimeType="*/*" android:pathPattern=".*\\..*\\..*\\..*\\..*\\..*\\.vv" />
                 <data android:scheme="file" android:host="*" android:mimeType="*/*" android:pathPattern=".*\\..*\\..*\\..*\\..*\\..*\\..*\\.vv" />
+                
+                <data android:scheme="content" android:host="*" android:mimeType="*/*" android:pathPattern=".*\\.vv" />
+                <data android:scheme="content" android:host="*" android:mimeType="*/*" android:pathPattern=".*\\..*\\.vv" />
+                <data android:scheme="content" android:host="*" android:mimeType="*/*" android:pathPattern=".*\\..*\\..*\\.vv" />
+                <data android:scheme="content" android:host="*" android:mimeType="*/*" android:pathPattern=".*\\..*\\..*\\..*\\.vv" />
+                <data android:scheme="content" android:host="*" android:mimeType="*/*" android:pathPattern=".*\\..*\\..*\\..*\\..*\\.vv" />
+                <data android:scheme="content" android:host="*" android:mimeType="*/*" android:pathPattern=".*\\..*\\..*\\..*\\..*\\..*\\.vv" />
+                <data android:scheme="content" android:host="*" android:mimeType="*/*" android:pathPattern=".*\\..*\\..*\\..*\\..*\\..*\\..*\\.vv" />
             </intent-filter>
         </activity>
         <uses-library android:required="false" name="com.sec.android.app.multiwindow"> </uses-library>
