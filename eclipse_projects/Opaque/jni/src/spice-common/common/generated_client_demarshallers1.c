@@ -65,9 +65,20 @@
 #define read_uint32(ptr) (*((uint32_t *)(ptr)))
 #define write_uint32(ptr, val) (*((uint32_t *)(ptr))) = val
 #define read_int64(ptr) (*((int64_t *)(ptr)))
-#define write_int64(ptr, val) (*((int64_t *)(ptr))) = val
 #define read_uint64(ptr) (*((uint64_t *)(ptr)))
-#define write_uint64(ptr, val) (*((uint64_t *)(ptr))) = val
+/*
+ * Thanks to shohyanglim@gmail.com for saving me time and discovering these
+ * hacks to avoid SIGBUS on some ARM processors.
+ *
+ * TODO: Find out whether something better can be done to avoid the SIGBUS.
+ */
+#ifdef ANDROID
+    #define write_int64(ptr,v) { int64_t val = v; memcpy(ptr, &val, sizeof(int64_t)); }
+    #define write_uint64(ptr,v) { uint64_t val = v; memcpy(ptr, &val, sizeof(uint64_t)); }
+#else
+    #define write_int64(ptr,v) (*((int64_t *)(ptr)) = v)
+    #define write_uint64(ptr,v) (*((uint64_t *)(ptr)) = v)
+#endif
 #endif
 
 static int8_t SPICE_GNUC_UNUSED consume_int8(uint8_t **ptr)

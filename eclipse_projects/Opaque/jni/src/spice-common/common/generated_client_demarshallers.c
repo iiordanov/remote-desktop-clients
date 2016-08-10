@@ -64,10 +64,10 @@
 #define write_int32(ptr, val) (*((int32_t *)(ptr))) = val
 #define read_uint32(ptr) (*((uint32_t *)(ptr)))
 #define write_uint32(ptr, val) (*((uint32_t *)(ptr))) = val
-#define read_int64(ptr) (*((int64_t *)(ptr)))
-#define write_int64(ptr, val) (*((int64_t *)(ptr))) = val
-#define read_uint64(ptr) (*((uint64_t *)(ptr)))
-#define write_uint64(ptr, val) (*((uint64_t *)(ptr))) = val
+static inline int64_t read_int64(uint8_t* ptr) { int64_t val; memcpy(&val,ptr,sizeof(int64_t)); return val;}
+#define write_int64(ptr,v) { int64_t val = v; memcpy(ptr, &val, sizeof(int64_t)); }
+static inline uint64_t read_uint64(uint8_t* ptr) { uint64_t val; memcpy(&val,ptr,sizeof(uint64_t)); return val;}
+#define write_uint64(ptr,v) { uint64_t val = v; memcpy(ptr, &val, sizeof(uint64_t)); }
 #endif
 
 static int8_t SPICE_GNUC_UNUSED consume_int8(uint8_t **ptr)

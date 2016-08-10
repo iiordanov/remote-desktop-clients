@@ -293,6 +293,7 @@ int connectSession (spice_connection *conn)
 	return result;
 }
 
+/*
 JNIEXPORT jint JNICALL
 JNI_OnLoad(JavaVM* vm, void* reserved) {
 	struct sigaction handler;
@@ -306,7 +307,7 @@ JNI_OnLoad(JavaVM* vm, void* reserved) {
 	sigaction(SIGSEGV, &handler, NULL);
 	sigaction(SIGSTKFLT, &handler, NULL);
 	return(JNI_VERSION_1_6);
-}
+}*/
 
 static gboolean
 parse_ovirt_uri(const gchar *uri_str, char **rest_uri, char **name)
