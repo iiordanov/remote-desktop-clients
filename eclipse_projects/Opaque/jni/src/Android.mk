@@ -95,4 +95,6 @@ GSTREAMER_PLUGINS         := $(GSTREAMER_PLUGINS_CORE) $(GSTREAMER_PLUGINS_SYS)
 G_IO_MODULES              := gnutls
 GSTREAMER_EXTRA_DEPS      := pixman-1 gstreamer-app-1.0 libsoup-2.4 libxml-2.0 gthread-2.0 gobject-2.0 glib-2.0 gio-unix-2.0
 
+TARGET_LDFLAGS := -z muldefs
+
 include $(GSTREAMER_NDK_BUILD_PATH)/gstreamer-1.0.mk
