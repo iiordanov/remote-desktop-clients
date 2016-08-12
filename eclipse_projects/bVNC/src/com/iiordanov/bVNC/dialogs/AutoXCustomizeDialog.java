@@ -29,6 +29,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Point;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
@@ -164,8 +165,17 @@ public class AutoXCustomizeDialog extends AlertDialog {
      */
     private void setRemoteWidthAndHeight () {
         
-        nativeWidth  = Math.max(mainConfigDialog.getWidth(), mainConfigDialog.getHeight());
-        nativeHeight = Math.min(mainConfigDialog.getWidth(), mainConfigDialog.getHeight());
+        // Android devices with SDK newer than KITKAT use immersive mode and therefore
+        // we get the resolution of the whole display.
+        if (Constants.SDK_INT < android.os.Build.VERSION_CODES.KITKAT) {
+            nativeWidth  = Math.max(mainConfigDialog.getWidth(), mainConfigDialog.getHeight());
+            nativeHeight = Math.min(mainConfigDialog.getWidth(), mainConfigDialog.getHeight());
+        } else {
+            Point dS = new Point();
+            mainConfigDialog.getWindowManager().getDefaultDisplay().getRealSize(dS);
+            nativeWidth  = Math.max(dS.x, dS.y);
+            nativeHeight = Math.min(dS.x, dS.y);
+        }
         
         spinnerAutoXGeometry.setSelection(selected.getAutoXResType());        
         if (selected.getAutoXResType() == Constants.AUTOX_GEOM_SELECT_NATIVE) {

@@ -132,7 +132,30 @@ public class RemoteCanvasActivity extends FragmentActivity implements OnKeyListe
 	boolean       hardKeyboardExtended;
 	boolean       extraKeysHidden = false;
     int            prevBottomOffset = 0;
-		
+
+    /**
+     * Enables sticky immersive mode if supported.
+     */
+    private void enableImmersive() {
+        if (Constants.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT) {
+            canvas.setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                | View.SYSTEM_UI_FLAG_FULLSCREEN
+                | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
+        }
+    }
+    
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+            super.onWindowFocusChanged(hasFocus);
+        if (hasFocus) {
+            enableImmersive();
+        }
+    }
+    
 	@Override
 	public void onCreate(Bundle icicle) {
 		super.onCreate(icicle);
@@ -253,6 +276,7 @@ public class RemoteCanvasActivity extends FragmentActivity implements OnKeyListe
                     }
 					setKeyStowDrawableAndVisibility();
                     prevBottomOffset = offset;
+                    enableImmersive();
              }
         });
         
@@ -1095,5 +1119,4 @@ public class RemoteCanvasActivity extends FragmentActivity implements OnKeyListe
             canvas.spicecomm.notify();
         }
     }
-    
 }

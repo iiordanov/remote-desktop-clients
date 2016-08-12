@@ -23,6 +23,9 @@ package com.undatech.opaque;
 import com.undatech.opaque.input.InputHandlerDirectSwipePan;
 
 public class Constants {
+    
+    public static final int SDK_INT = android.os.Build.VERSION.SDK_INT;
+    
 	public static final int DIALOG_DISPLAY_VMS     = 0;
 	public static final int DIALOG_X509_CERT       = 1;
 	public static final int LAUNCH_VNC_VIEWER      = 2;
