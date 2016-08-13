@@ -589,7 +589,7 @@ int CreateOvirtSession(JNIEnv *env, jobject obj, const gchar *uri, const gchar *
                  "secure-port", &secure_port,
                  "ticket", &ticket,
                  "host-subject", &spice_host_subject,
-                 "proxy", &proxyuri,
+                 "proxy-url", &proxyuri,
                  NULL);
 
     gport = g_strdup_printf("%d", port);
