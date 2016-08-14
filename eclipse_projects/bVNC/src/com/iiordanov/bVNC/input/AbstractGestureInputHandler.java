@@ -31,6 +31,7 @@ import android.view.MotionEvent;
 import com.iiordanov.android.bc.BCFactory;
 import com.iiordanov.android.bc.IBCScaleGestureDetector;
 import com.iiordanov.android.bc.OnScaleGestureListener;
+import com.iiordanov.bVNC.Constants;
 import com.iiordanov.bVNC.RemoteCanvas;
 import com.iiordanov.bVNC.RemoteCanvasActivity;
 
@@ -89,6 +90,9 @@ abstract class AbstractGestureInputHandler extends GestureDetector.SimpleOnGestu
     final long    baseSwipeTime = 600;
     // This is how far the swipe has to travel before a swipe event is generated.
     final float   baseSwipeDist = 40.f;
+    // This is how far from the top and bottom edge to detect immersive swipe.
+    final float   immersiveSwipeDistance = 50.f;
+    boolean immersiveSwipe = false;
     
     boolean inScrolling         = false;
     boolean inScaling           = false;
@@ -314,22 +318,35 @@ abstract class AbstractGestureInputHandler extends GestureDetector.SimpleOnGestu
         dragMode = true;
         p.processPointerEvent(getX(e), getY(e), e.getActionMasked(), e.getMetaState(), true, false, false, false, 0);
     }
-
+    
     protected boolean endDragModesAndScrolling () {
         canvas.inScrolling = false;
         panMode               = false;
         inScaling             = false;
         inSwiping             = false;
         inScrolling           = false;
+        immersiveSwipe        = false;
         if (dragMode || rightDragMode || middleDragMode) {
             dragMode          = false;
             rightDragMode     = false;
             middleDragMode    = false;
             return true;
-        } else
+        } else {
             return false;
+        }
     }
-
+    
+    private void detectImmersiveSwipe (float y) {
+        if (Constants.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT &&
+            (y <= immersiveSwipeDistance || canvas.getHeight() - y <= immersiveSwipeDistance)) {
+            inSwiping = true;
+            immersiveSwipe = true;
+        } else {
+            inSwiping = false;
+            immersiveSwipe = false;
+        }
+    }
+    
     /**
      * Modify the event so that the mouse goes where we specify.
      * @param e event to be modified.
@@ -384,18 +401,30 @@ abstract class AbstractGestureInputHandler extends GestureDetector.SimpleOnGestu
                 // Cancel drag modes and scrolling.
                 if (!singleHandedGesture) 
                     endDragModesAndScrolling();
+                
                 canvas.inScrolling = true;
                 // If we are manipulating the desktop, turn off bitmap filtering for faster response.
                 canvas.bitmapData.drawable._defaultPaint.setFilterBitmap(false);
                 dragX = e.getX();
                 dragY = e.getY();
+                
+                // Detect whether this is potentially the start of a gesture to show the nav bar.
+                detectImmersiveSwipe(dragY);
                 break;
             case MotionEvent.ACTION_UP:
                 singleHandedGesture = false;
                 singleHandedJustEnded = true;
+                
+                // If this is the end of a swipe that showed the nav bar, consume.
+                if (immersiveSwipe && Math.abs(dragY - e.getY()) > immersiveSwipeDistance) {
+                    endDragModesAndScrolling();
+                    return true;
+                }
+                
                 // If any drag modes were going on, end them and send a mouse up event.
                 if (endDragModesAndScrolling())
                     return p.processPointerEvent(getX(e), getY(e), action, meta, false, false, false, false, 0);
+                
                 break;
             case MotionEvent.ACTION_MOVE:
                 // Send scroll up/down events if swiping is happening.
@@ -439,6 +468,9 @@ abstract class AbstractGestureInputHandler extends GestureDetector.SimpleOnGestu
                     }
                     // Restore the coordinates so that onScale doesn't get all muddled up.
                     setEventCoordinates(e, x, y);
+                } else if (immersiveSwipe) {
+                    // If this is part of swipe that shows the nav bar, consume.
+                    return true;
                 }
             }
             break;
