@@ -84,6 +84,10 @@ abstract class InputHandlerGeneric extends GestureDetector.SimpleOnGestureListen
 	// This is how far the swipe has to travel before a swipe event is generated.
 	final float   baseSwipeDist = 40.f;
 	
+    // This is how far from the top and bottom edge to detect immersive swipe.
+    final float   immersiveSwipeDistance = 50.f;
+    boolean immersiveSwipe = false;
+    
 	// Some variables indicating what kind of a gesture we're currently in or just finished.
 	boolean inScrolling         = false;
 	boolean inScaling           = false;
@@ -351,13 +355,15 @@ abstract class InputHandlerGeneric extends GestureDetector.SimpleOnGestureListen
 		inScaling             = false;
 		inSwiping             = false;
 		inScrolling           = false;
+        immersiveSwipe        = false;
     	if (dragMode || rightDragMode || middleDragMode) {
     		dragMode          = false;
 			rightDragMode     = false;
 			middleDragMode    = false;
 			return true;
-    	} else
+    	} else {
     		return false;
+    	}
 	}
 
 	/**
@@ -369,7 +375,18 @@ abstract class InputHandlerGeneric extends GestureDetector.SimpleOnGestureListen
 	private void setEventCoordinates(MotionEvent e, float x, float y) {
 		e.setLocation(x, y);
 	}
-
+    
+    private void detectImmersiveSwipe (float y) {
+        if (Constants.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT &&
+            (y <= immersiveSwipeDistance || canvas.getHeight() - y <= immersiveSwipeDistance)) {
+            inSwiping = true;
+            immersiveSwipe = true;
+        } else {
+            inSwiping = false;
+            immersiveSwipe = false;
+        }
+    }
+    
 	/*
 	 * @see com.undatech.opaque.input.InputHandler#onTouchEvent(android.view.MotionEvent)
 	 */
@@ -423,10 +440,20 @@ abstract class InputHandlerGeneric extends GestureDetector.SimpleOnGestureListen
          		// Indicate where we start dragging from.
          		dragX = e.getX();
     			dragY = e.getY();
+                
+                // Detect whether this is potentially the start of a gesture to show the nav bar.
+                detectImmersiveSwipe(dragY);
     			break;
         	case MotionEvent.ACTION_UP:
         		singleHandedGesture = false;
         		singleHandedJustEnded = true;
+                
+                // If this is the end of a swipe that showed the nav bar, consume.
+                if (immersiveSwipe && Math.abs(dragY - e.getY()) > immersiveSwipeDistance) {
+                    endDragModesAndScrolling();
+                    return true;
+                }
+                
     			// If any drag modes were going on, end them and send a mouse up event.
     			if (endDragModesAndScrolling()) {
     				p.releaseButton(getX(e), getY(e), meta);
@@ -451,9 +478,12 @@ abstract class InputHandlerGeneric extends GestureDetector.SimpleOnGestureListen
                 	float y = e.getY();
                 	// Set the coordinates to where the swipe began (i.e. where scaling started).
                 	setEventCoordinates(e, xInitialFocus, yInitialFocus);
-                	sendScrollEvents (getX(e), getY(e), meta);                	
+                	sendScrollEvents (getX(e), getY(e), meta);
                 	// Restore the coordinates so that onScale doesn't get all muddled up.
                 	setEventCoordinates(e, x, y);
+        		} else if (immersiveSwipe) {
+                    // If this is part of swipe that shows the nav bar, consume.
+                    return true;
                 }
         	}
         	break;

@@ -16,6 +16,8 @@
 
 package com.undatech.opaque.input;
 
+import com.undatech.opaque.Constants;
+
 import android.content.Context;
 import android.util.DisplayMetrics;
 import android.util.FloatMath;
@@ -86,7 +88,7 @@ class MyScaleGestureDetector extends ScaleGestureDetector {
         mListener = listener;
         mEdgeSlop = config.getScaledEdgeSlop();
     }
-
+    
     /* (non-Javadoc)
      * @see com.iiordanov.android.bc.IBCScaleGestureDetector#onTouchEvent(android.view.MotionEvent)
      */
