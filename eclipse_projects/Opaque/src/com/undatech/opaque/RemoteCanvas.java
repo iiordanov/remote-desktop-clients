@@ -609,6 +609,15 @@ public class RemoteCanvas extends ImageView {
 		});
 	}
 	
+    void disconnectAndShowMessage (final int messageId, final int titleId, final String textToAppend) {
+        disconnectAndCleanUp();
+        handler.post(new Runnable() {
+            public void run() {
+                MessageDialogs.displayMessageAndFinish(getContext(), messageId, titleId, textToAppend);
+            }
+        });
+    }
+	
 	/**
 	 * Set the device clipboard text with the string parameter.
 	 * @param readServerCutText set the device clipboard to the text in this parameter.

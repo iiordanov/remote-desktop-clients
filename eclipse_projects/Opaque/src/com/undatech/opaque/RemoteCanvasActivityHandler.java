@@ -147,13 +147,14 @@ public class RemoteCanvasActivityHandler extends Handler {
             }
             break;
         case Constants.SPICE_CONNECT_FAILURE:
+            String e = msg.getData().getString("message");
             c.progressDialog.dismiss();
             // Only if we were intending to stay connected, and the connection failed, show an error message.
             if (c.stayConnected) {
                 if (!c.spiceUpdateReceived) {
-                    c.disconnectAndShowMessage(R.string.error_ovirt_unable_to_connect, R.string.error_dialog_title);
+                    c.disconnectAndShowMessage(R.string.error_ovirt_unable_to_connect, R.string.error_dialog_title, e);
                 } else {
-                    c.disconnectAndShowMessage(R.string.error_connection_interrupted, R.string.error_dialog_title);
+                    c.disconnectAndShowMessage(R.string.error_connection_interrupted, R.string.error_dialog_title, e);
                 }
             }
             break;

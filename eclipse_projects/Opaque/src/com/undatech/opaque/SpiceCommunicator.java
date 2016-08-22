@@ -38,7 +38,9 @@ import android.graphics.Bitmap;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbDeviceConnection;
 import android.hardware.usb.UsbManager;
+import android.os.Bundle;
 import android.os.Handler;
+import android.os.Message;
 import android.os.SystemClock;
 import android.util.Log;
 
@@ -455,6 +457,16 @@ public class SpiceCommunicator {
 		android.util.Log.d(TAG, "sendMessage called with message: " + message);
 		myself.handler.sendEmptyMessage(message);
 	}
+
+    public static void sendMessageWithText (int message, String messageText) {
+        android.util.Log.d(TAG, "sendMessage called with message: " + messageText);
+        Bundle b = new Bundle();
+        b.putString("message", messageText);
+        Message m = new Message();
+        m.what = message;
+        m.setData(b);
+        myself.handler.sendMessage(m);
+    }
 	
 	public static void LaunchVncViewer (String address, String port, String password) {
 		android.util.Log.d(TAG, "LaunchVncViewer called");
