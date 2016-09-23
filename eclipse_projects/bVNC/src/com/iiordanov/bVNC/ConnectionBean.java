@@ -483,6 +483,12 @@ public class ConnectionBean extends AbstractConnectionBean implements Comparable
             setCertSubject(certSubject);
         }
     	
+        // Parse a keyboard layout parameter
+        String keyboardLayout = dataUri.getQueryParameter(Constants.PARAM_KEYBOARD_LAYOUT);
+        if(keyboardLayout != null) {
+            setLayoutMap(keyboardLayout);
+        }
+		
     	// if we are going to save the connection, we will do so here
     	// it may make sense to confirm overwriting data but is probably unnecessary
     	if (saveConnection) {

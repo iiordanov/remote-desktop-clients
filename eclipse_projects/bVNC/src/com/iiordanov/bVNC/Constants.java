@@ -64,6 +64,7 @@ public class Constants {
     public static final String PARAM_VIEW_ONLY = "ViewOnly";
     public static final String PARAM_SCALE_MODE = "ScaleMode";
     public static final String PARAM_EXTRAKEYS_TOGGLE = "ExtraKeysToggle";
+    public static final String PARAM_KEYBOARD_LAYOUT = "KeyboardLayout";
     
     public static final int SECTYPE_NONE = 1;
     public static final int SECTYPE_VNC = 2;
