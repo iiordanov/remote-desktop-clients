@@ -291,11 +291,10 @@ public class ConnectionBean extends AbstractConnectionBean implements Comparable
     	
     	final int PORT_NONE = -1;
         int port = dataUri.getPort();
-        if (port != PORT_NONE) {
-        	if (!isValidPort(port))
-        		throw new IllegalArgumentException("The specified VNC port is not valid.");
-        	setPort(port);
+        if (port != PORT_NONE && !isValidPort(port)) {
+        	throw new IllegalArgumentException("The specified VNC port is not valid.");
         }
+        setPort(port);
         
     	// handle legacy android-vnc-viewer parsing vnc://host:port/colormodel/password            
         List<String> path = dataUri.getPathSegments();
