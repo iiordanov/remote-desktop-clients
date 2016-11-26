@@ -21,7 +21,7 @@ import com.freerdp.freerdpcore.services.LibFreeRDP.UIEventListener;
 import com.iiordanov.bVNC.input.RemoteKeyboard;
 import com.iiordanov.bVNC.input.RemoteSpicePointer;
 import com.iiordanov.bVNC.Constants;
-import com.gstreamer.*;
+import org.freedesktop.gstreamer.*;
 
 public class SpiceCommunicator implements RfbConnectable {
     private final static String TAG = "SpiceCommunicator";

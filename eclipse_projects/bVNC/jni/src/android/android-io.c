@@ -113,12 +113,12 @@ Java_com_iiordanov_aSPICE_SpiceCommunicator_SpiceKeyEvent(JNIEnv * env, jobject 
     SPICE_DEBUG("%s %s: keycode: %d", __FUNCTION__, "Key", hardware_keycode);
 
     if (!d->inputs)
-        return;
+    	return;
 
     if (down) {
         send_key(display, hardware_keycode, 1);
     } else {
-        send_key(display, hardware_keycode, 0);
+		send_key(display, hardware_keycode, 0);
     }
 }
 
