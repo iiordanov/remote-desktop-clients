@@ -279,6 +279,7 @@ All Input Modes:
 <string name="keep_password_button">Keep</string>
 <string name="keep_screen_awake_enable">Keep Screen Awake</string>
 <string name="keys_caption">Keys</string>
+<string name="landscape_force">Force Landscape Orientation</string>
 <string name="list_caption">List</string>
 <string name="list_name_caption">List Name</string>
 <string name="local_mouse_check">Local mouse pointer (select if pointer is invisible)</string>

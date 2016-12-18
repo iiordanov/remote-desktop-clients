@@ -38,6 +38,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.graphics.Rect;
@@ -185,6 +186,9 @@ public class RemoteCanvasActivity extends FragmentActivity implements OnKeyListe
         
         if (Utils.querySharedPreferenceBoolean(this, Constants.keepScreenOnTag))
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        
+        if (Utils.querySharedPreferenceBoolean(this, Constants.forceLandscapeTag))
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         
         database = new Database(this);
         

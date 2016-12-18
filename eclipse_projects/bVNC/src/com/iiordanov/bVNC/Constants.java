@@ -197,6 +197,7 @@ public class Constants {
     public static final String masterPasswordEnabledTag = "masterPasswordEnabled";
     public static final String keepScreenOnTag = "keepScreenOn";
     public static final String disableImmersiveTag = "disableImmersive";
+    public static final String forceLandscapeTag = "forceLandscape";
     
     public static final String ACTION_USB_PERMISSION = "com.iiordanov.aSPICE.USB_PERMISSION";
     public static final int usbDeviceTimeout = 5000;

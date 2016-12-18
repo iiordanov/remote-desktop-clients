@@ -283,6 +283,8 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
             keepScreenOn.setChecked(Utils.querySharedPreferenceBoolean(this, Constants.keepScreenOnTag));
             MenuItem disableImmersive = menu.findItem(R.id.itemDisableImmersive);
             disableImmersive.setChecked(Utils.querySharedPreferenceBoolean(this, Constants.disableImmersiveTag));
+            MenuItem forceLandscape = menu.findItem(R.id.itemForceLandscape);
+            forceLandscape.setChecked(Utils.querySharedPreferenceBoolean(this, Constants.forceLandscapeTag));
         }
         return true;
     }
@@ -337,6 +339,9 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
             break;
         case R.id.itemDisableImmersive:
             Utils.toggleSharedPreferenceBoolean(this, Constants.disableImmersiveTag);
+            break;
+        case R.id.itemForceLandscape:
+            Utils.toggleSharedPreferenceBoolean(this, Constants.forceLandscapeTag);
             break;
         }
         return true;

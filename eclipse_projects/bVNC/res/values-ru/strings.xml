@@ -279,6 +279,7 @@
 <string name="keep_password_button">Запомнить</string>
 <string name="keep_screen_awake_enable">Держать экран включенным</string>
 <string name="keys_caption">Клавиши</string>
+<string name="landscape_force">Альбомная ориентация</string>
 <string name="list_caption">Список</string>
 <string name="list_name_caption">Имя списка</string>
 <string name="local_mouse_check">Локальный курсор мыши (выберите, если курсор мыши не виден)</string>

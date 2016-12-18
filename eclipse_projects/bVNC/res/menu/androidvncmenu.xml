@@ -6,4 +6,5 @@
     <item android:id="@+id/itemMasterPassword" android:title="@string/master_password_enable" android:checkable="true"/>
     <item android:id="@+id/itemKeepScreenOn" android:title="@string/keep_screen_awake_enable" android:checkable="true"/>
     <item android:id="@+id/itemDisableImmersive" android:title="@string/immersive_mode_disable" android:checkable="true"/>
+    <item android:id="@+id/itemForceLandscape" android:title="@string/landscape_force" android:checkable="true"/>
 </menu>
