@@ -108,7 +108,7 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
         Log.i(TAG, "onResumeFragments called");
         super.onResumeFragments();
         System.gc();
-        if (isMasterPasswordEnabled()) {
+        if (Utils.querySharedPreferenceBoolean(this, Constants.masterPasswordEnabledTag)) {
             showGetTextFragment(getPassword);
         } else {
             arriveOnPage();
@@ -278,11 +278,9 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
             menu.findItem(R.id.itemDeleteConnection).setEnabled(selected != null && !selected.isNew());
             menu.findItem(R.id.itemSaveAsCopy).setEnabled(selected != null && !selected.isNew());
             MenuItem itemMasterPassword = menu.findItem(R.id.itemMasterPassword);
-            if (isMasterPasswordEnabled()) {
-                itemMasterPassword.setTitle(R.string.master_password_disable);
-            } else {
-                itemMasterPassword.setTitle(R.string.master_password_enable);
-            }
+            itemMasterPassword.setChecked(Utils.querySharedPreferenceBoolean(this, Constants.masterPasswordEnabledTag));
+            MenuItem keepScreenOn = menu.findItem(R.id.itemKeepScreenOn);
+            keepScreenOn.setChecked(Utils.querySharedPreferenceBoolean(this, Constants.keepScreenOnTag));
         }
         return true;
     }
@@ -294,7 +292,7 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId())
         {
-        case R.id.itemSaveAsCopy :
+        case R.id.itemSaveAsCopy:
             if (selected.getNickname().equals(textNickname.getText().toString()))
                 textNickname.setText("Copy of "+selected.getNickname());
             updateSelectedFromView();
@@ -302,7 +300,7 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
             selected.saveAndWriteRecent(false);
             arriveOnPage();
             break;
-        case R.id.itemDeleteConnection :
+        case R.id.itemDeleteConnection:
             Utils.showYesNoPrompt(this, "Delete?", "Delete " + selected.getNickname() + "?",
                     new DialogInterface.OnClickListener() {
                 @Override
@@ -325,34 +323,18 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
                 IntroTextDialog.showIntroTextIfNecessary(this, database, true);
             } else {
                 togglingMasterPassword = true;
-                if (isMasterPasswordEnabled()) {
+                if (Utils.querySharedPreferenceBoolean(this, Constants.masterPasswordEnabledTag)) {
                     showGetTextFragment(getPassword);
                 } else {
                     showGetTextFragment(getNewPassword);
                 }
             }
             break;
-            
-        // Disabling Manual/Wiki Menu item as the original does not correspond to this project anymore.
-        //case R.id.itemOpenDoc :
-        //    Utils.showDocumentation(this);
-        //    break;
+        case R.id.itemKeepScreenOn:
+            Utils.toggleSharedPreferenceBoolean(this, "keepScreenOn");
+            break;
         }
         return true;
-    }
-    
-    private boolean isMasterPasswordEnabled() {
-        SharedPreferences sp = getSharedPreferences(Constants.generalSettingsTag, Context.MODE_PRIVATE);
-        return sp.getBoolean(Constants.masterPasswordEnabledTag, false);
-    }
-    
-    private void toggleMasterPasswordState() {
-        SharedPreferences sp = getSharedPreferences("generalSettings", Context.MODE_PRIVATE);
-        boolean state = sp.getBoolean("masterPasswordEnabled", false);
-        Editor editor = sp.edit();
-        editor.putBoolean("masterPasswordEnabled", !state);
-        editor.apply();
-        Log.i(TAG, "Toggled master password state");
     }
     
     private boolean checkMasterPassword (String password) {
@@ -372,15 +354,15 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
     }
     
     public void onTextObtained(String obtainedString, boolean wasCancelled) {
-        handlePasword(obtainedString, wasCancelled);
+        handlePassword(obtainedString, wasCancelled);
     }
     
-    public void handlePasword(String providedPassword, boolean wasCancelled) {
+    public void handlePassword(String providedPassword, boolean wasCancelled) {
         if (togglingMasterPassword) {
             Log.i(TAG, "Asked to toggle master pasword.");
             // The user has requested the password to be enabled or disabled.
             togglingMasterPassword = false;
-            if (isMasterPasswordEnabled()) {
+            if (Utils.querySharedPreferenceBoolean(this, Constants.masterPasswordEnabledTag)) {
                 Log.i(TAG, "Master password is enabled.");
                 // Master password is enabled
                 if (wasCancelled) {
@@ -391,7 +373,7 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
                     // Disable the password since the user input the correct password.
                     Database.setPassword(providedPassword);
                     if (database.changeDatabasePassword("")) {
-                        toggleMasterPasswordState();
+                        Utils.toggleSharedPreferenceBoolean(this, Constants.masterPasswordEnabledTag);
                     } else {
                         Utils.showErrorMessage(this, getResources().getString(R.string.master_password_error_failed_to_disable));
                     }
@@ -408,7 +390,7 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
                     Log.i(TAG, "Setting master password.");
                     Database.setPassword("");
                     if (database.changeDatabasePassword(providedPassword)) {
-                        toggleMasterPasswordState();
+                        Utils.toggleSharedPreferenceBoolean(this, Constants.masterPasswordEnabledTag);
                     } else {
                         Utils.showErrorMessage(this, getResources().getString(R.string.master_password_error_failed_to_enable));
                     }

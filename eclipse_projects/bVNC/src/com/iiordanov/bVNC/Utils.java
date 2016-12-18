@@ -46,14 +46,19 @@ import android.app.AlertDialog;
 import android.app.ActivityManager.MemoryInfo;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.content.DialogInterface.OnClickListener;
+import android.content.SharedPreferences.Editor;
 import android.content.Intent;
 import net.sqlcipher.database.SQLiteDatabase;
 import android.net.Uri;
 import android.text.Html;
+import android.util.Log;
 import android.view.ViewConfiguration;
 
 public class Utils {
+    private final static String TAG = "Utils";
+
     public static void showYesNoPrompt(Context _context, String title, String message, OnClickListener onYesListener, OnClickListener onNoListener) {
         AlertDialog.Builder builder = new AlertDialog.Builder(_context);
         builder.setTitle(title);
@@ -224,4 +229,20 @@ public class Utils {
             
         return "\n" + localizedMessage + "\n" + sw.toString();
     }
+    
+    public static boolean querySharedPreferenceBoolean(Context context, String key) {
+        SharedPreferences sp = context.getSharedPreferences(Constants.generalSettingsTag, Context.MODE_PRIVATE);
+        return sp.getBoolean(key, false);
+    }
+    
+    public static void toggleSharedPreferenceBoolean(Context context,String key) {
+        SharedPreferences sp = context.getSharedPreferences("generalSettings", Context.MODE_PRIVATE);
+        boolean state = sp.getBoolean(key, false);
+        Editor editor = sp.edit();
+        editor.putBoolean(key, !state);
+        editor.apply();
+        Log.i(TAG, "Toggled " + key + " " + String.valueOf(state));
+    }
+    
+    
 }

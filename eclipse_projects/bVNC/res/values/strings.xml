@@ -111,7 +111,7 @@
 <string name="disconnect">Disconnect</string>
 <string name="enable_sound">Enable Sound</string>
 <string name="enable_recording">Enable Recording</string>
-<string name="error_anon_dh_unsupported">The VNC Server is trying to use Anonymous Diffie Hellman ciphers which are not supported on your Android device. If using GNOME\'s Vino VNC server, you can disable AnonTLS bt running the following command in a terminal and then restarting: \"gsettings set org.gnome.Vino require-encryption false\". If running x11vnc, you can add the following options: \"-vencrypt nodh:only -ssl\".</string>
+<string name="error_anon_dh_unsupported">The VNC Server is trying to use Anonymous Diffie Hellman ciphers which are not supported on your Android device. If using GNOME\'s Vino VNC server, you can disable AnonTLS by running the following command in a terminal and then restarting: \"gsettings set org.gnome.Vino require-encryption false\". If running x11vnc, you can add the following options: \"-vencrypt nodh:only -ssl\".</string>
 <string name="error_no_user_hostname">Please enter at least a user and a hostname or IP address.</string>
 <string name="error_uri_noinfo_nosave">Insufficent information specified to connect.</string>
 <string name="error_vnc_authentication">VNC authentication failed! Check VNC password (and user if applicable).</string>
@@ -276,6 +276,7 @@ All Input Modes:
 <string name="input_mode_touchpad">Simulated Touchpad</string>
 <string name="input_mode_touchpad_description">Simulated Touchpad: Swipe to move pointer. Tap anywhere with one finger to left-click, two fingers to right-click, and three fingers to middle-click. Swipe with two fingers to scroll. Long tap to drag and drop.</string>
 <string name="keep_password_button">Keep</string>
+<string name="keep_screen_awake_enable">Keep Screen Awake</string>
 <string name="keys_caption">Keys</string>
 <string name="list_caption">List</string>
 <string name="list_name_caption">List Name</string>
@@ -318,7 +319,6 @@ If you are looking for a quick performance boost, try setting the Color mode to 
  - Auto/Fullscreen Bitmap: The VNC client uses a bitmap to represent the remote display. For very large remote displays, especially in fit-to-screen mode, you may experience strange visual artifacts when in fit-to-screen mode, due to per-process memory limitations. If that happens, try checking this option. Keep in mind that checking the option may cause bVNC to quit on connection.
 
  - Repeater: Available only in UltraVNC mode. IMPORTANT: If you have an UltraVNC repeater, enter its address and port outside the \'UltraVNC Repeater\' dialog and enter the address and port of the actual VNC server inside the \'UltraVNC Repeater\' Dialog. Separate VNC server\'s address and port with a colon, e.g. 192.168.0.100:5900."</string>
-<string name="master_password_disable">Disable Master Password</string>
 <string name="master_password_enable">Enable Master Password</string>
 <string name="master_password_error_failed_to_enable">Could not enable master password. Check free space on your device and try again.</string>
 <string name="master_password_error_failed_to_disable">Could not disable master password. Check free space on your device and try again.</string>

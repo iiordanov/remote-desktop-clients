@@ -179,9 +179,12 @@ public class RemoteCanvasActivity extends FragmentActivity implements OnKeyListe
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                              WindowManager.LayoutParams.FLAG_FULLSCREEN);
-
+        
+        if (Utils.querySharedPreferenceBoolean(this, Constants.keepScreenOnTag))
+            getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        
         database = new Database(this);
-
+        
         Intent i = getIntent();
         connection = null;
         
