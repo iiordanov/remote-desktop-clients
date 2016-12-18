@@ -149,6 +149,7 @@
 <string name="extra_keys_enable">Enable Extra Keys</string>
 <string name="extra_keys_disable">Disable Extra Keys</string>
 <string name="fit_to_screen">Fit to Screen</string>
+<string name="immersive_mode_disable">Disable Immersive Mode</string>
 <string name="import_export_settings">Import/Export Settings</string>
 <string name="import_settings">Import</string>
 <string name="import_settings_file_url"></string>

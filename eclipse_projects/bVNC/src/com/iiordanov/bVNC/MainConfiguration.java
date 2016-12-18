@@ -281,6 +281,8 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
             itemMasterPassword.setChecked(Utils.querySharedPreferenceBoolean(this, Constants.masterPasswordEnabledTag));
             MenuItem keepScreenOn = menu.findItem(R.id.itemKeepScreenOn);
             keepScreenOn.setChecked(Utils.querySharedPreferenceBoolean(this, Constants.keepScreenOnTag));
+            MenuItem disableImmersive = menu.findItem(R.id.itemDisableImmersive);
+            disableImmersive.setChecked(Utils.querySharedPreferenceBoolean(this, Constants.disableImmersiveTag));
         }
         return true;
     }
@@ -331,7 +333,10 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
             }
             break;
         case R.id.itemKeepScreenOn:
-            Utils.toggleSharedPreferenceBoolean(this, "keepScreenOn");
+            Utils.toggleSharedPreferenceBoolean(this, Constants.keepScreenOnTag);
+            break;
+        case R.id.itemDisableImmersive:
+            Utils.toggleSharedPreferenceBoolean(this, Constants.disableImmersiveTag);
             break;
         }
         return true;

@@ -140,6 +140,9 @@ public class RemoteCanvasActivity extends FragmentActivity implements OnKeyListe
      * Enables sticky immersive mode if supported.
      */
     private void enableImmersive() {
+        if (Utils.querySharedPreferenceBoolean(this, Constants.disableImmersiveTag))
+            return;
+        
         if (Constants.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT) {
             canvas.setSystemUiVisibility(
                 View.SYSTEM_UI_FLAG_LAYOUT_STABLE

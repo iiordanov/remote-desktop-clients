@@ -149,6 +149,7 @@
 <string name="extra_keys_enable">Включить клавиши</string>
 <string name="extra_keys_disable">Отключить клавиши</string>
 <string name="fit_to_screen">Подогнать под размер экрана</string>
+<string name="immersive_mode_disable">Отключить Режим Погружения</string>
 <string name="import_export_settings">Импорт/экспорт настроек</string>
 <string name="import_settings">Импорт</string>
 <string name="import_settings_file_url"></string>
