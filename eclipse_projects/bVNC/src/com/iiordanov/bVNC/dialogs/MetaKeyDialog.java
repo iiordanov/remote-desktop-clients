@@ -588,10 +588,10 @@ public class MetaKeyDialog extends Dialog implements ConnectionSettable {
     private void updateDialogForCurrentKey()
     {
         int flags = _currentKeyBean.getMetaFlags();
-        _checkAlt.setChecked(0 != (flags & RemoteKeyboard.ALT_MASK));
-        _checkShift.setChecked(0 != (flags & RemoteKeyboard.SHIFT_MASK));
-        _checkCtrl.setChecked(0 != (flags & RemoteKeyboard.CTRL_MASK));
-        _checkSuper.setChecked(0 != (flags & RemoteKeyboard.SUPER_MASK));
+        _checkAlt.setChecked(0 != (flags & (RemoteKeyboard.ALT_MASK | RemoteKeyboard.RALT_MASK)));
+        _checkShift.setChecked(0 != (flags & (RemoteKeyboard.SHIFT_MASK | RemoteKeyboard.RSHIFT_MASK)));
+        _checkCtrl.setChecked(0 != (flags & (RemoteKeyboard.CTRL_MASK | RemoteKeyboard.RCTRL_MASK)));
+        _checkSuper.setChecked(0 != (flags & (RemoteKeyboard.SUPER_MASK | RemoteKeyboard.RSUPER_MASK)));
         MetaKeyBase base = null;
         if (_currentKeyBean.isMouseClick())
         {

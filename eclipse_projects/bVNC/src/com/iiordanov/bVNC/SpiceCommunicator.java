@@ -326,15 +326,15 @@ public class SpiceCommunicator implements RfbConnectable {
                 remoteMetaState &= ~RemoteKeyboard.ALT_MASK;
             }
         }
-        if ((metaState & RemoteKeyboard.ALTGR_MASK) != 0) {
-            if (!keyDown || key != RemoteKeyboard.SCAN_RIGHTALT && (remoteMetaState & RemoteKeyboard.ALTGR_MASK) == 0) {
+        if ((metaState & RemoteKeyboard.RALT_MASK) != 0) {
+            if (!keyDown || key != RemoteKeyboard.SCAN_RIGHTALT && (remoteMetaState & RemoteKeyboard.RALT_MASK) == 0) {
                 android.util.Log.e("SpiceCommunicator", "Sending ALTGR: " + RemoteKeyboard.SCAN_RIGHTALT + " down: " + keyDown);
                 sendKeyEvent(keyDown, RemoteKeyboard.SCAN_RIGHTALT);
             }
             if (keyDown) {
-                remoteMetaState |= RemoteKeyboard.ALTGR_MASK;
+                remoteMetaState |= RemoteKeyboard.RALT_MASK;
             } else {
-                remoteMetaState &= ~RemoteKeyboard.ALTGR_MASK;
+                remoteMetaState &= ~RemoteKeyboard.RALT_MASK;
             }
         }
         if ((metaState & RemoteKeyboard.SUPER_MASK) != 0) {

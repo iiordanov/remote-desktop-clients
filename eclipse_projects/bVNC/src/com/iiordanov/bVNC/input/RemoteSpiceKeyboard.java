@@ -232,7 +232,7 @@ public class RemoteSpiceKeyboard extends RemoteKeyboard {
                 }
                 if ((scode & SCANCODE_ALTGR_MASK) != 0) {
                     android.util.Log.e(TAG, "Found AltGr mask.");
-                    meta |= ALTGR_MASK;
+                    meta |= RALT_MASK;
                     scode &= ~SCANCODE_ALTGR_MASK;
                 }
                 android.util.Log.e(TAG, "Will send scanCode: " + scode + " with meta: " + meta);

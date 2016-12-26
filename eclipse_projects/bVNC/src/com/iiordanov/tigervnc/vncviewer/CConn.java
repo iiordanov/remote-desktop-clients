@@ -816,13 +816,10 @@ public class CConn extends CConnection
   synchronized void writeModifiers(int newModifiers) {
       if ((newModifiers & RemoteKeyboard.CTRL_MASK) != (oldModifiers & RemoteKeyboard.CTRL_MASK))
           writeKeyEvent(0xffe3, (newModifiers & RemoteKeyboard.CTRL_MASK) != 0);
-
+      
       if ((newModifiers & RemoteKeyboard.SHIFT_MASK) != (oldModifiers & RemoteKeyboard.SHIFT_MASK))
           writeKeyEvent(0xffe1, (newModifiers & RemoteKeyboard.SHIFT_MASK) != 0);
-
-      if ((newModifiers & RemoteKeyboard.META_MASK) != (oldModifiers & RemoteKeyboard.META_MASK))
-          writeKeyEvent(0xffe7, (newModifiers & RemoteKeyboard.META_MASK) != 0);
-
+      
       if ((newModifiers & RemoteKeyboard.ALT_MASK) != (oldModifiers & RemoteKeyboard.ALT_MASK))
           writeKeyEvent(0xffe9, (newModifiers & RemoteKeyboard.ALT_MASK) != 0);
       oldModifiers = newModifiers;
