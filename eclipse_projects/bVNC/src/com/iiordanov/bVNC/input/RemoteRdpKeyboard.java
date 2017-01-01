@@ -59,7 +59,7 @@ public class RemoteRdpKeyboard extends RemoteKeyboard {
                         hardwareMetaState &= ~ALT_MASK;
                     break;
                 case KeyEvent.KEYCODE_ALT_RIGHT:
-                    hardwareMetaState &= ~ALT_MASK;
+                    hardwareMetaState &= ~RALT_MASK;
                     break;
                 }
             } else {
@@ -81,7 +81,7 @@ public class RemoteRdpKeyboard extends RemoteKeyboard {
                         hardwareMetaState |= ALT_MASK;
                     break;
                 case KeyEvent.KEYCODE_ALT_RIGHT:
-                    hardwareMetaState |= ALT_MASK;
+                    hardwareMetaState |= RALT_MASK;
                     break;
                 }
             }
