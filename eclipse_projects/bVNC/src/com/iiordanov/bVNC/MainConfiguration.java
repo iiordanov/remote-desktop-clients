@@ -285,6 +285,8 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
             disableImmersive.setChecked(Utils.querySharedPreferenceBoolean(this, Constants.disableImmersiveTag));
             MenuItem forceLandscape = menu.findItem(R.id.itemForceLandscape);
             forceLandscape.setChecked(Utils.querySharedPreferenceBoolean(this, Constants.forceLandscapeTag));
+            MenuItem rAltAsIsoL3Shift = menu.findItem(R.id.itemRAltAsIsoL3Shift);
+            rAltAsIsoL3Shift.setChecked(Utils.querySharedPreferenceBoolean(this, Constants.rAltAsIsoL3ShiftTag));
         }
         return true;
     }
@@ -342,6 +344,9 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
             break;
         case R.id.itemForceLandscape:
             Utils.toggleSharedPreferenceBoolean(this, Constants.forceLandscapeTag);
+            break;
+        case R.id.itemRAltAsIsoL3Shift:
+            Utils.toggleSharedPreferenceBoolean(this, Constants.rAltAsIsoL3ShiftTag);
             break;
         }
         return true;

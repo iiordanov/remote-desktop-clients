@@ -124,20 +124,36 @@ public class RdpCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyPro
     
     private void sendModifierKeys (boolean down) {
         if ((metaState & RemoteKeyboard.CTRL_MASK) != 0) {
-            //android.util.Log.e("RdpCommunicator", "Sending CTRL " + down);
+            //android.util.Log.e("RdpCommunicator", "Sending LCTRL " + down);
             LibFreeRDP.sendKeyEvent(session.getInstance(), VK_LCONTROL, down);
         }
+        if ((metaState & RemoteKeyboard.RCTRL_MASK) != 0) {
+            //android.util.Log.e("RdpCommunicator", "Sending RCTRL " + down);
+            LibFreeRDP.sendKeyEvent(session.getInstance(), VK_RCONTROL, down);
+        }
         if ((metaState & RemoteKeyboard.ALT_MASK) != 0) {
-            //android.util.Log.e("RdpCommunicator", "Sending ALT " + down);
+            //android.util.Log.e("RdpCommunicator", "Sending LALT " + down);
             LibFreeRDP.sendKeyEvent(session.getInstance(), VK_LMENU, down);
         }
+        if ((metaState & RemoteKeyboard.RALT_MASK) != 0) {
+            //android.util.Log.e("RdpCommunicator", "Sending RALT " + down);
+            LibFreeRDP.sendKeyEvent(session.getInstance(), VK_RMENU, down);
+        }
         if ((metaState & RemoteKeyboard.SUPER_MASK) != 0) {
-            //android.util.Log.e("RdpCommunicator", "Sending SUPER " + down);
+            //android.util.Log.e("RdpCommunicator", "Sending LSUPER " + down);
             LibFreeRDP.sendKeyEvent(session.getInstance(), VK_LWIN | VK_EXT_KEY, down);
         }
+        if ((metaState & RemoteKeyboard.RSUPER_MASK) != 0) {
+            //android.util.Log.e("RdpCommunicator", "Sending RSUPER " + down);
+            LibFreeRDP.sendKeyEvent(session.getInstance(), VK_RWIN | VK_EXT_KEY, down);
+        }
         if ((metaState & RemoteKeyboard.SHIFT_MASK) != 0) {
-            //android.util.Log.e("RdpCommunicator", "Sending SHIFT " + down);
+            //android.util.Log.e("RdpCommunicator", "Sending LSHIFT " + down);
             LibFreeRDP.sendKeyEvent(session.getInstance(), VK_LSHIFT, down);
+        }
+        if ((metaState & RemoteKeyboard.RSHIFT_MASK) != 0) {
+            //android.util.Log.e("RdpCommunicator", "Sending RSHIFT " + down);
+            LibFreeRDP.sendKeyEvent(session.getInstance(), VK_RSHIFT, down);
         }
     }
     

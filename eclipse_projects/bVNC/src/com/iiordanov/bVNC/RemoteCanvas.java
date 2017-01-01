@@ -337,7 +337,8 @@ public class RemoteCanvas extends ImageView implements LibFreeRDP.UIEventListene
         spicecomm = new SpiceCommunicator (getContext(), this, connection);
         rfbconn = spicecomm;
         pointer = new RemoteSpicePointer (rfbconn, RemoteCanvas.this, handler);
-        keyboard = new RemoteSpiceKeyboard (getResources(), spicecomm, RemoteCanvas.this, handler, connection.getLayoutMap());
+        keyboard = new RemoteSpiceKeyboard (getResources(), spicecomm, RemoteCanvas.this, 
+                                            handler, connection.getLayoutMap());
         spicecomm.setUIEventListener(RemoteCanvas.this);
         spicecomm.setHandler(handler);
         spicecomm.connect(address, Integer.toString(port), Integer.toString(tport),
@@ -439,7 +440,9 @@ public class RemoteCanvas extends ImageView implements LibFreeRDP.UIEventListene
         
         rfbconn = rfb;
         pointer = new RemoteVncPointer (rfbconn, RemoteCanvas.this, handler);
-        keyboard = new RemoteVncKeyboard (rfbconn, RemoteCanvas.this, handler);
+        boolean rAltAsIsoL3Shift = Utils.querySharedPreferenceBoolean(this.getContext(),
+                                                                      Constants.rAltAsIsoL3ShiftTag);
+        keyboard = new RemoteVncKeyboard (rfbconn, RemoteCanvas.this, handler, rAltAsIsoL3Shift);
         
         rfb.writeClientInit();
         rfb.readServerInit();
@@ -496,7 +499,9 @@ public class RemoteCanvas extends ImageView implements LibFreeRDP.UIEventListene
         cc = new CConn(RemoteCanvas.this, sock, null, false, connection);
         rfbconn = cc;
         pointer = new RemoteVncPointer (rfbconn, RemoteCanvas.this, handler);
-        keyboard = new RemoteVncKeyboard (rfbconn, RemoteCanvas.this, handler);
+        boolean rAltAsIsoL3Shift = Utils.querySharedPreferenceBoolean(this.getContext(),
+                                                                      Constants.rAltAsIsoL3ShiftTag);
+        keyboard = new RemoteVncKeyboard (rfbconn, RemoteCanvas.this, handler, rAltAsIsoL3Shift);
         initializeBitmap(displayWidth, displayHeight);
         
         // Initialize the protocol before we dismiss the progress dialog and request for the right

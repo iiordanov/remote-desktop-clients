@@ -38,11 +38,11 @@ public abstract class RemoteKeyboard {
     public final static int SHIFT_MASK  = KeyEvent.META_SHIFT_ON;
     public final static int ALT_MASK    = KeyEvent.META_ALT_ON;
     public final static int SUPER_MASK  = 0x8;
-    public final static int RCTRL_MASK  = 0x4000; /* KeyEvent.META_CTRL_RIGHT_ON */
+    public final static int RCTRL_MASK  = KeyEvent.META_CTRL_RIGHT_ON;
     public final static int RSHIFT_MASK = KeyEvent.META_SHIFT_RIGHT_ON;
     public final static int RALT_MASK   = 0x10;
-    public final static int RSUPER_MASK = 0x70000; /* KeyEvent.META_META_RIGHT_ON */
-    
+    public final static int RSUPER_MASK = KeyEvent.META_META_RIGHT_ON;
+
     protected RemoteCanvas canvas;
     protected Handler handler;
     protected RfbConnectable rfb;
@@ -71,11 +71,13 @@ public abstract class RemoteKeyboard {
     // This variable tells us whether we need to skip junk characters for
     // SDK >= 16 and LatinIME next time a multi-character event comes along.
     public boolean skippedJunkChars = true;
-
+    
+    
     RemoteKeyboard (RfbConnectable r, RemoteCanvas v, Handler h) {
-        rfb = r;
-        canvas = v;
-        handler = h;
+        this.rfb = r;
+        this.canvas = v;
+        this.handler = h;
+        
         keyRepeater = new KeyRepeater (this, h);
         
         if (android.os.Build.MODEL.contains("BlackBerry") ||
@@ -276,13 +278,12 @@ public abstract class RemoteKeyboard {
      */
     protected int convertEventMetaState (KeyEvent event, int eventMetaState) {
         int metaState = 0;
-        int leftAltMask = 0;
-        int rightAltMask = KeyEvent.META_ALT_RIGHT_ON;
+        int leftAltMetaStateMask = 0;
         // Detect whether this event is coming from a default hardware keyboard.
         // We have to leave KeyEvent.KEYCODE_ALT_LEFT for symbol input on a default hardware keyboard.
         boolean defaultHardwareKbd = (event.getScanCode() != 0 && event.getDeviceId() == 0);
         if (!bb && !defaultHardwareKbd) {
-            leftAltMask = KeyEvent.META_ALT_LEFT_ON;
+            leftAltMetaStateMask = 0x10 /*KeyEvent.META_ALT_LEFT_ON*/;
         }
         
         // Add shift, ctrl, alt, and super to metaState if necessary.
@@ -298,10 +299,10 @@ public abstract class RemoteKeyboard {
         if ((eventMetaState & 0x00004000 /*KeyEvent.META_CTRL_RIGHT_ON*/) != 0) {
             metaState |= RCTRL_MASK;
         }
-        if ((eventMetaState & leftAltMask) !=0) {
+        if ((eventMetaState & leftAltMetaStateMask) !=0) {
             metaState |= ALT_MASK;
         }
-        if ((eventMetaState & rightAltMask) !=0) {
+        if ((eventMetaState & 0x00000020 /*KeyEvent.META_ALT_RIGHT_ON*/) !=0) {
             metaState |= RALT_MASK;
         }
         if ((eventMetaState & 0x00020000 /*KeyEvent.META_META_LEFT_ON*/) != 0) {

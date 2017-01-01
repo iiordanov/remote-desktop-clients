@@ -108,6 +108,37 @@ public class RemoteSpiceKeyboard extends RemoteKeyboard {
 		}
 	}
 
+	/**
+     * Converts event meta state to our meta state.
+     * @param event
+     * @return
+     */
+    protected int convertEventMetaState (KeyEvent event, int eventMetaState) {
+        int metaState = 0;
+        int altMask = KeyEvent.META_ALT_RIGHT_ON;
+        // Detect whether this event is coming from a default hardware keyboard.
+        // We have to leave KeyEvent.KEYCODE_ALT_LEFT for symbol input on a default hardware keyboard.
+        boolean defaultHardwareKbd = (event.getScanCode() != 0 && event.getDeviceId() == 0);
+        if (!bb && !defaultHardwareKbd) {
+            altMask = KeyEvent.META_ALT_MASK;
+        }
+        
+        // Add shift, ctrl, alt, and super to metaState if necessary.
+        if ((eventMetaState & 0x000000c1 /*KeyEvent.META_SHIFT_MASK*/) != 0) {
+            metaState |= SHIFT_MASK;
+        }
+        if ((eventMetaState & 0x00007000 /*KeyEvent.META_CTRL_MASK*/) != 0) {
+            metaState |= CTRL_MASK;
+        }
+        if ((eventMetaState & altMask) !=0) {
+            metaState |= ALT_MASK;
+        }
+        if ((eventMetaState & 0x00070000 /*KeyEvent.META_META_MASK*/) != 0) {
+            metaState |= SUPER_MASK;
+        }
+        return metaState;
+    }
+
 	public boolean processLocalKeyEvent(int keyCode, KeyEvent event, int additionalMetaState) {
 		return keyEvent(keyCode, event, additionalMetaState);
 	}

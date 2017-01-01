@@ -35,6 +35,7 @@ import javax.net.ssl.SSLSocket;
 import android.util.Log;
 
 import com.iiordanov.bVNC.input.RemoteKeyboard;
+import com.iiordanov.bVNC.input.RemoteVncKeyboard;
 
 /**
  * Access the RFB protocol through a socket.
@@ -1523,9 +1524,12 @@ class RfbProto implements RfbConnectable {
     if ((newModifiers & RemoteKeyboard.RSHIFT_MASK) != (oldModifiers & RemoteKeyboard.RSHIFT_MASK))
         writeKeyEvent(0xffe2, (newModifiers & RemoteKeyboard.RSHIFT_MASK) != 0);
     
-    if ((newModifiers & RemoteKeyboard.RALT_MASK) != (oldModifiers & RemoteKeyboard.RALT_MASK))
-        writeKeyEvent(0xffea, (newModifiers & RemoteKeyboard.RALT_MASK) != 0);
-       //writeKeyEvent(this.canvas.connection.getRAltAsIsoLv3Shift() ? 0xfe03 : 0xffea,
+    if ((newModifiers & RemoteKeyboard.RALT_MASK) != (oldModifiers & RemoteKeyboard.RALT_MASK)) {
+        int ralt_xkeysym = 0xffea;
+        if (RemoteVncKeyboard.rAltAsIsoL3Shift)
+            ralt_xkeysym = 0xfe03;
+        writeKeyEvent(ralt_xkeysym, (newModifiers & RemoteKeyboard.RALT_MASK) != 0);
+    }
     
     oldModifiers = newModifiers;
   }

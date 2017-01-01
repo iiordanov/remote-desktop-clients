@@ -7,4 +7,5 @@
     <item android:id="@+id/itemKeepScreenOn" android:title="@string/keep_screen_awake_enable" android:checkable="true"/>
     <item android:id="@+id/itemDisableImmersive" android:title="@string/immersive_mode_disable" android:checkable="true"/>
     <item android:id="@+id/itemForceLandscape" android:title="@string/landscape_force" android:checkable="true"/>
+    <item android:id="@+id/itemRAltAsIsoL3Shift" android:title="@string/right_alt_as_iso_l3_shift" android:checkable="true"/>
 </menu>
