@@ -11,9 +11,13 @@ import com.iiordanov.tigervnc.rfb.UnicodeToKeysym;
 
 public class RemoteVncKeyboard extends RemoteKeyboard {
     private final static String TAG = "RemoteKeyboard";
-
-    public RemoteVncKeyboard (RfbConnectable r, RemoteCanvas v, Handler h) {
+    public static boolean rAltAsIsoL3Shift = false;
+    
+    public RemoteVncKeyboard (RfbConnectable r, RemoteCanvas v, Handler h, boolean rAltAsIsoL3Shift) {
         super(r, v, h);
+        // Indicate we want Right Alt to be ISO L3 SHIFT if preferred.
+        if (rAltAsIsoL3Shift)
+            RemoteVncKeyboard.rAltAsIsoL3Shift = rAltAsIsoL3Shift;
     }
 
     public boolean processLocalKeyEvent(int keyCode, KeyEvent evt, int additionalMetaState) {

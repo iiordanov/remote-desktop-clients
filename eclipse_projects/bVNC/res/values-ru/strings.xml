@@ -479,6 +479,7 @@
 <string name="repeater_dialog_title">VNC-сервер за ретранслятором</string>
 <string name="repeater_empty_text">Нет ретранслятора</string>
 <string name="repeater_save">Использовать</string>
+<string name="right_alt_as_iso_l3_shift">R-Alt как ISO L3 Shift (только VNC)</string>
 <string name="rotate_dpad">Перевернуть Bluetooth или программный D-Pad</string>
 <string name="save_as_copy">Сохранить копию</string>
 <string name="scaling">Масштаб</string>

@@ -83,6 +83,9 @@ public class RemoteSpiceKeyboard extends RemoteKeyboard {
 	 * @param down
 	 */
 	private void setHardwareMetaState (int keyCode, KeyEvent event, boolean down) {
+        // Detect whether this event is coming from a default hardware keyboard.
+        boolean defaultHardwareKbd = (event.getDeviceId() == 0);
+        
 		int metaMask = 0;
 		switch (event.getScanCode()) {
 		case SCAN_LEFTCTRL:
@@ -95,9 +98,13 @@ public class RemoteSpiceKeyboard extends RemoteKeyboard {
 		case KeyEvent.KEYCODE_DPAD_CENTER:
 			metaMask |= CTRL_MASK;
 			break;
-		// TODO: We leave KeyEvent.KEYCODE_ALT_LEFT for symbol input on hardware keyboards for now.
+        case KeyEvent.KEYCODE_ALT_LEFT:
+            // Leaving KeyEvent.KEYCODE_ALT_LEFT for symbol input on hardware keyboards.
+            if (!defaultHardwareKbd)
+                metaMask |= ALT_MASK;
+            break;
 		case KeyEvent.KEYCODE_ALT_RIGHT:
-			metaMask |= ALT_MASK;
+			metaMask |= RALT_MASK;
 			break;
 		}
 		
