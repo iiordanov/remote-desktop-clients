@@ -461,7 +461,6 @@ public class RemoteCanvas extends ImageView implements LibFreeRDP.UIEventListene
         
         handler.post(drawableSetter);
         handler.post(setModes);
-        handler.post(desktopInfo);
         
         // Hide progress dialog
         if (pd.isShowing())
@@ -719,7 +718,6 @@ public class RemoteCanvas extends ImageView implements LibFreeRDP.UIEventListene
         }
         handler.post(drawableSetter);
         handler.post(setModes);
-        handler.post(desktopInfo);        
         bitmapData.syncScroll();
     }
     
@@ -1361,7 +1359,6 @@ public class RemoteCanvas extends ImageView implements LibFreeRDP.UIEventListene
         // Set the drawable for the canvas, now that we have it (re)initialized.
         handler.post(drawableSetter);
         handler.post(setModes);
-        handler.post(desktopInfo);
         
         // If this is aSPICE, set the new bitmap in the native layer.
         if (isSpice) {

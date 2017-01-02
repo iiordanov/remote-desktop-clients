@@ -53,14 +53,6 @@ public class RemoteRdpKeyboard extends RemoteKeyboard {
                 case KeyEvent.KEYCODE_DPAD_CENTER:
                     hardwareMetaState &= ~CTRL_MASK;
                     break;
-                case KeyEvent.KEYCODE_ALT_LEFT:
-                    // Leaving KeyEvent.KEYCODE_ALT_LEFT for symbol input on hardware keyboards.
-                    if (!defaultHardwareKbd)
-                        hardwareMetaState &= ~ALT_MASK;
-                    break;
-                case KeyEvent.KEYCODE_ALT_RIGHT:
-                    hardwareMetaState &= ~RALT_MASK;
-                    break;
                 }
             } else {
                 // Look for standard scan-codes from hardware keyboards
@@ -74,14 +66,6 @@ public class RemoteRdpKeyboard extends RemoteKeyboard {
                 switch(keyCode) {
                 case KeyEvent.KEYCODE_DPAD_CENTER:
                     hardwareMetaState |= CTRL_MASK;
-                    break;
-                case KeyEvent.KEYCODE_ALT_LEFT:
-                    // Leaving KeyEvent.KEYCODE_ALT_LEFT for symbol input on hardware keyboards.
-                    if (!defaultHardwareKbd)
-                        hardwareMetaState |= ALT_MASK;
-                    break;
-                case KeyEvent.KEYCODE_ALT_RIGHT:
-                    hardwareMetaState |= RALT_MASK;
                     break;
                 }
             }

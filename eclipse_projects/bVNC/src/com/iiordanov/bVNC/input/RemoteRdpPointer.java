@@ -101,7 +101,7 @@ public class RemoteRdpPointer extends RemotePointer {
         public void run() {
             if (rfb != null && rfb.isInNormalProtocol()) {    
                 rfb.writePointerEvent(mouseX, mouseY, 0, scrollButton|PTRFLAGS_DOWN);
-                try {Thread.sleep(2);} catch (InterruptedException e) {}
+                try {Thread.sleep(20);} catch (InterruptedException e) {}
                 rfb.writePointerEvent(mouseX, mouseY, 0, scrollButton);                
                 handler.postDelayed(this, delay);
             }
@@ -209,6 +209,7 @@ public class RemoteRdpPointer extends RemotePointer {
     
     public boolean processPointerEvent(int x, int y, int action, int modifiers, boolean mouseIsDown, boolean useRightButton,
                                         boolean useMiddleButton, boolean useScrollButton, int direction) {
+        try { Thread.sleep(5); } catch (InterruptedException e1) {}
         
         if (rfb != null && rfb.isInNormalProtocol()) {
             if (useRightButton) {
@@ -231,12 +232,12 @@ public class RemoteRdpPointer extends RemotePointer {
                     //android.util.Log.e(TAG, "Scrolling up");
                     pointerMask = MOUSE_BUTTON_SCROLL_UP;
                     // TODO: Remove this sleep when the scroller is implemented.
-                    try { Thread.sleep(2); } catch (InterruptedException e1) {}
+                    try { Thread.sleep(15); } catch (InterruptedException e1) {}
                 } else if ( direction == 1 ) {
                     //android.util.Log.e(TAG, "Scrolling down");
                     pointerMask = MOUSE_BUTTON_SCROLL_DOWN;
                     // TODO: Remove this sleep when the scroller is implemented.
-                    try { Thread.sleep(2); } catch (InterruptedException e1) {}
+                    try { Thread.sleep(15); } catch (InterruptedException e1) {}
                 }/* else if ( direction == 2 ) {
                     android.util.Log.e("", "Scrolling left");
                     pointerMask = MOUSE_BUTTON_SCROLL_LEFT;

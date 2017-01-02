@@ -142,7 +142,7 @@ public class SpiceCommunicator implements RfbConnectable {
     }
 
     public void sendKeyEvent (boolean keyDown, int scanCode) {
-        android.util.Log.e("SpiceCommunicator", "Sending scanCode: " + scanCode + ". Is it down: " + keyDown);
+        android.util.Log.e(TAG, "Sending scanCode: " + scanCode + ". Is it down: " + keyDown);
         SpiceKeyEvent(keyDown, scanCode);
     }
     
@@ -306,49 +306,49 @@ public class SpiceCommunicator implements RfbConnectable {
         // Avoid sending meta keys down multiple times.
         if ((metaState & RemoteKeyboard.CTRL_MASK) != 0) {
             if (!keyDown || key != RemoteKeyboard.SCAN_LEFTCTRL && (remoteMetaState & RemoteKeyboard.CTRL_MASK) == 0) {
-                android.util.Log.v("SpiceCommunicator", "Sending LCTRL: " + RemoteKeyboard.SCAN_LEFTCTRL + " down: " + keyDown);
+                android.util.Log.v(TAG, "Sending LCTRL: " + RemoteKeyboard.SCAN_LEFTCTRL + " down: " + keyDown);
                 sendKeyEvent(keyDown, RemoteKeyboard.SCAN_LEFTCTRL);
             }
         }
         if ((metaState & RemoteKeyboard.RCTRL_MASK) != 0) {
             if (!keyDown || key != RemoteKeyboard.SCAN_RIGHTCTRL && (remoteMetaState & RemoteKeyboard.RCTRL_MASK) == 0) {
-                android.util.Log.v("SpiceCommunicator", "Sending RCTRL: " + RemoteKeyboard.SCAN_RIGHTCTRL + " down: " + keyDown);
+                android.util.Log.v(TAG, "Sending RCTRL: " + RemoteKeyboard.SCAN_RIGHTCTRL + " down: " + keyDown);
                 sendKeyEvent(keyDown, RemoteKeyboard.SCAN_RIGHTCTRL);
             }
         }
         if ((metaState & RemoteKeyboard.ALT_MASK) != 0) {
             if (!keyDown || key != RemoteKeyboard.SCAN_LEFTALT && (remoteMetaState & RemoteKeyboard.ALT_MASK) == 0) {
-                android.util.Log.v("SpiceCommunicator", "Sending LALT: " + RemoteKeyboard.SCAN_LEFTALT + " down: " + keyDown);
+                android.util.Log.v(TAG, "Sending LALT: " + RemoteKeyboard.SCAN_LEFTALT + " down: " + keyDown);
                 sendKeyEvent(keyDown, RemoteKeyboard.SCAN_LEFTALT);
             }
         }
         if ((metaState & RemoteKeyboard.RALT_MASK) != 0) {
             if (!keyDown || key != RemoteKeyboard.SCAN_RIGHTALT && (remoteMetaState & RemoteKeyboard.RALT_MASK) == 0) {
-                android.util.Log.v("SpiceCommunicator", "Sending RALT: " + RemoteKeyboard.SCAN_RIGHTALT + " down: " + keyDown);
+                android.util.Log.v(TAG, "Sending RALT: " + RemoteKeyboard.SCAN_RIGHTALT + " down: " + keyDown);
                 sendKeyEvent(keyDown, RemoteKeyboard.SCAN_RIGHTALT);
             }
         }
         if ((metaState & RemoteKeyboard.SUPER_MASK) != 0) {
             if (!keyDown || key != RemoteKeyboard.SCAN_LEFTSUPER && (remoteMetaState & RemoteKeyboard.SUPER_MASK) == 0) {
-                android.util.Log.v("SpiceCommunicator", "Sending SUPER: " + RemoteKeyboard.SCAN_LEFTSUPER + " down: " + keyDown);
+                android.util.Log.v(TAG, "Sending SUPER: " + RemoteKeyboard.SCAN_LEFTSUPER + " down: " + keyDown);
                 sendKeyEvent(keyDown, RemoteKeyboard.SCAN_LEFTSUPER);
             }
         }
         if ((metaState & RemoteKeyboard.RSUPER_MASK) != 0) {
             if (!keyDown || key != RemoteKeyboard.SCAN_RIGHTSUPER && (remoteMetaState & RemoteKeyboard.RSUPER_MASK) == 0) {
-                android.util.Log.v("SpiceCommunicator", "Sending RSUPER: " + RemoteKeyboard.SCAN_RIGHTSUPER + " down: " + keyDown);
+                android.util.Log.v(TAG, "Sending RSUPER: " + RemoteKeyboard.SCAN_RIGHTSUPER + " down: " + keyDown);
                 sendKeyEvent(keyDown, RemoteKeyboard.SCAN_RIGHTSUPER);
             }
         }
         if ((metaState & RemoteKeyboard.SHIFT_MASK) != 0) {
             if (!keyDown || key != RemoteKeyboard.SCAN_LEFTSHIFT && (remoteMetaState & RemoteKeyboard.SHIFT_MASK) == 0) {
-                android.util.Log.v("SpiceCommunicator", "Sending SHIFT: " + RemoteKeyboard.SCAN_LEFTSHIFT + " down: " + keyDown);
+                android.util.Log.v(TAG, "Sending SHIFT: " + RemoteKeyboard.SCAN_LEFTSHIFT + " down: " + keyDown);
                 sendKeyEvent(keyDown, RemoteKeyboard.SCAN_LEFTSHIFT);
             }
         }
         if ((metaState & RemoteKeyboard.RSHIFT_MASK) != 0) {
             if (!keyDown || key != RemoteKeyboard.SCAN_RIGHTSHIFT && (remoteMetaState & RemoteKeyboard.RSHIFT_MASK) == 0) {
-                android.util.Log.v("SpiceCommunicator", "Sending RSHIFT: " + RemoteKeyboard.SCAN_RIGHTSHIFT + " down: " + keyDown);
+                android.util.Log.v(TAG, "Sending RSHIFT: " + RemoteKeyboard.SCAN_RIGHTSHIFT + " down: " + keyDown);
                 sendKeyEvent(keyDown, RemoteKeyboard.SCAN_RIGHTSHIFT);
             }
         }

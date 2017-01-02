@@ -353,7 +353,7 @@ public class Database extends SQLiteOpenHelper {
             db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
                     +AbstractConnectionBean.GEN_FIELD_ENABLERECORDING + " BOOLEAN DEFAULT FALSE");
             db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
-                    +AbstractConnectionBean.GEN_FIELD_REMOTESOUNDTYPE + " INTEGER DEFAULT " + Constants.REMOTE_SOUND_ON_DEVICE);
+                    +AbstractConnectionBean.GEN_FIELD_REMOTESOUNDTYPE + " INTEGER DEFAULT " + Constants.REMOTE_SOUND_DISABLED);
             oldVersion = DBV_2_1_5;
         }
     }

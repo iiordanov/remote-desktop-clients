@@ -8,6 +8,8 @@ import com.iiordanov.bVNC.input.RdpKeyboardMapper;
 import com.iiordanov.bVNC.input.RemoteRdpPointer;
 
 public class RdpCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyProcessingListener {
+    static final String TAG = "RdpCommunicator";
+
     final static int VK_CONTROL = 0x11;
     final static int VK_LCONTROL = 0xA2;
     final static int VK_RCONTROL = 0xA3;
@@ -171,7 +173,7 @@ public class RdpCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyPro
 
     @Override
     public void processUnicodeKey(int unicodeKey) {
-        android.util.Log.e("SpiceCommunicator", "Unicode character: " + unicodeKey);
+        android.util.Log.e(TAG, "Unicode character: " + unicodeKey);
         sendModifierKeys(true);
         LibFreeRDP.sendUnicodeKeyEvent(session.getInstance(), unicodeKey);
         sendModifierKeys(false);
