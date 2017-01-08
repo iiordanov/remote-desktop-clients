@@ -367,12 +367,16 @@ public class RemoteCanvas extends ImageView implements LibFreeRDP.UIEventListene
         bookmark.<ManualBookmark>get().setUsername(connection.getUserName());
         bookmark.<ManualBookmark>get().setDomain(connection.getRdpDomain());
         bookmark.<ManualBookmark>get().setPassword(connection.getPassword());
-        
+
         // Create a session based on the bookmark
-        session = GlobalApp.createSession(bookmark);
+        session = GlobalApp.createSession(bookmark, this.getContext());
         
         // Set a writable data directory
-        LibFreeRDP.setDataDirectory(session.getInstance(), getContext().getFilesDir().toString());
+        //LibFreeRDP.setDataDirectory(session.getInstance(), getContext().getFilesDir().toString());
+        
+        BookmarkBase.DebugSettings debugSettings = session.getBookmark().getDebugSettings();
+        debugSettings.setAsyncChannel(false);
+        debugSettings.setAsyncTransport(false);
         
         // Set screen settings to native res if instructed to, or if height or width are too small.
         BookmarkBase.ScreenSettings screenSettings = session.getBookmark().getActiveScreenSettings();
@@ -1292,13 +1296,18 @@ public class RemoteCanvas extends ImageView implements LibFreeRDP.UIEventListene
     //////////////////////////////////////////////////////////////////////////////////
     
     @Override
-    public void OnConnectionSuccess(int instance) {
+    public void OnPreConnect(long instance) {
+        Log.v(TAG, "OnPreConnect");
+    }
+    
+    @Override
+    public void OnConnectionSuccess(long instance) {
         rdpcomm.setIsInNormalProtocol(true);
         Log.v(TAG, "OnConnectionSuccess");
     }
     
     @Override
-    public void OnConnectionFailure(int instance) {
+    public void OnConnectionFailure(long instance) {
         rdpcomm.setIsInNormalProtocol(false);
         Log.v(TAG, "OnConnectionFailure");
         if (maintainConnection)
@@ -1306,7 +1315,7 @@ public class RemoteCanvas extends ImageView implements LibFreeRDP.UIEventListene
     }
     
     @Override
-    public void OnDisconnecting(int instance) {
+    public void OnDisconnecting(long instance) {
         rdpcomm.setIsInNormalProtocol(false);
         Log.v(TAG, "OnDisconnecting");
         if (maintainConnection)
@@ -1314,7 +1323,7 @@ public class RemoteCanvas extends ImageView implements LibFreeRDP.UIEventListene
     }
     
     @Override
-    public void OnDisconnected(int instance) {
+    public void OnDisconnected(long instance) {
         rdpcomm.setIsInNormalProtocol(false);
         Log.v(TAG, "OnDisconnected");
         if (maintainConnection)
@@ -1377,7 +1386,8 @@ public class RemoteCanvas extends ImageView implements LibFreeRDP.UIEventListene
     }
 
     @Override
-    public boolean OnVerifiyCertificate(String subject, String issuer, String fingerprint) {
+    public int OnVerifiyCertificate(String commonName, String subject,
+                                    String issuer, String fingerprint, boolean mismatch) {
         android.util.Log.e(TAG, "OnVerifiyCertificate called.");
         
         // Send a message containing the certificate to our handler.
@@ -1401,7 +1411,22 @@ public class RemoteCanvas extends ImageView implements LibFreeRDP.UIEventListene
             }
         }
 
-        return true;
+        return 1;
+    }
+
+    @Override
+    public boolean OnGatewayAuthenticate(StringBuilder username,
+            StringBuilder domain, StringBuilder password) {
+        this.OnAuthenticate(username, domain, password);
+        return false;
+    }
+
+    @Override
+    public int OnVerifyChangedCertificate(String commonName, String subject,
+            String issuer, String fingerprint, String oldSubject,
+            String oldIssuer, String oldFingerprint) {
+        this.OnVerifiyCertificate(commonName, subject, issuer, fingerprint, true);
+        return 0;
     }
 
     @Override

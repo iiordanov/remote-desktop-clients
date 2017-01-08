@@ -223,12 +223,6 @@ public class SpiceCommunicator implements RfbConnectable {
         return false;
     }
 
-    private static boolean OnVerifyCertificate(int inst, String subject, String issuer, String fingerprint) {
-        if (uiEventListener != null)
-            return uiEventListener.OnVerifiyCertificate(subject, issuer, fingerprint);
-        return false;
-    }
-
     private static void OnGraphicsUpdate(int inst, int x, int y, int width, int height) {
         if (uiEventListener != null)
             uiEventListener.OnGraphicsUpdate(x, y, width, height);

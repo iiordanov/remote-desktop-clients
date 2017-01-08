@@ -104,9 +104,9 @@ public class RdpCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyPro
     }
     
     public class DisconnectThread extends Thread {
-        int instance;
+        long instance;
         
-        public DisconnectThread (int i) {
+        public DisconnectThread (long i) {
             this.instance = i;
         }
         public void run () {
@@ -118,7 +118,7 @@ public class RdpCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyPro
     @Override
     public void close() {
         setIsInNormalProtocol(false);
-        int instance = session.getInstance();
+        long instance = session.getInstance();
         DisconnectThread d = new DisconnectThread(instance);
         d.start();
         //session = null;
