@@ -209,8 +209,6 @@ public class RemoteRdpPointer extends RemotePointer {
     
     public boolean processPointerEvent(int x, int y, int action, int modifiers, boolean mouseIsDown, boolean useRightButton,
                                         boolean useMiddleButton, boolean useScrollButton, int direction) {
-        try { Thread.sleep(5); } catch (InterruptedException e1) {}
-        
         if (rfb != null && rfb.isInNormalProtocol()) {
             if (useRightButton) {
                 //android.util.Log.e(TAG, "Mouse button right");
@@ -231,13 +229,9 @@ public class RemoteRdpPointer extends RemotePointer {
                 if        ( direction == 0 ) {
                     //android.util.Log.e(TAG, "Scrolling up");
                     pointerMask = MOUSE_BUTTON_SCROLL_UP;
-                    // TODO: Remove this sleep when the scroller is implemented.
-                    try { Thread.sleep(15); } catch (InterruptedException e1) {}
                 } else if ( direction == 1 ) {
                     //android.util.Log.e(TAG, "Scrolling down");
                     pointerMask = MOUSE_BUTTON_SCROLL_DOWN;
-                    // TODO: Remove this sleep when the scroller is implemented.
-                    try { Thread.sleep(15); } catch (InterruptedException e1) {}
                 }/* else if ( direction == 2 ) {
                     android.util.Log.e("", "Scrolling left");
                     pointerMask = MOUSE_BUTTON_SCROLL_LEFT;
