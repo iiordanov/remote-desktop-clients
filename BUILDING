@@ -8,8 +8,7 @@
    cloned bVNC project:
    git clone git://github.com/FreeRDP/FreeRDP.git
 
-   Check out a commit known to work with bVNC:
-   git checkout stable-1.1
+   The current version of bVNC/aRDP use the master branch.
 
    You should now have bVNC and FreeRDP side by side in the same
    directory.
@@ -18,8 +17,19 @@
    bVNC/eclipse_projects/ directory to Eclipse as existing Android
    projects.
   
-   Add FreeRDPCore from the FreeRDP/client/Android/ directory
-   to Eclipse as an Existing Android Project.
+   Some modifications are needed to the freeRDPCore project because
+   it is set up to be developed under the ADT IDE.
+   - Create the links in FreeRDP/client/Android/Studio/freeRDPCore/src/main:
+       libs -> jniLibs/
+       src -> java/
+   - Import client/Android/Studio/freeRDPCore into Eclipse as
+     "Existing Android Code"
+   - In the Project Properties, change Project Build Target to Android 7.0+
+   - Also there, in Java Build Path->Libraries->Add External JARs, add:
+       android-support-v4.jar
+       android-support-v7-appcompat.jar
+     from your Android SDK.
+   - Also there, make sure Android->Is Library checkbox is checked.
 
 3. Ensure ZoomerWithKeys, PubkeyGenerator, and FreeRDPCore projects
    are called exactly as written here by right-clicking 

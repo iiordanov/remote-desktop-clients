@@ -204,9 +204,9 @@ public class Constants {
     public static final int usbDeviceTimeout = 5000;
     public static final int usbDevicePermissionTimeout = 15000;
     
-    public static final int REMOTE_SOUND_DISABLED = 0;
+    public static final int REMOTE_SOUND_DISABLED = 2;
     public static final int REMOTE_SOUND_ON_SERVER = 1;
-    public static final int REMOTE_SOUND_ON_DEVICE = 2;
+    public static final int REMOTE_SOUND_ON_DEVICE = 0;
     
     /**
      * Returns a string matching a session selection index
