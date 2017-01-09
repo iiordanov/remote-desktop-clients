@@ -470,12 +470,6 @@ public class RdpKeyboardMapper
             case KeyEvent.ACTION_DOWN:
             {
                 boolean modifierActive = isModifierPressed();
-                
-                boolean shiftPressed = event.isShiftPressed();
-                boolean altPressed = event.isAltPressed();
-                boolean ctrlPressed = event.isCtrlPressed();
-                boolean winPressed = event.isMetaPressed();
-                boolean isAnyModifierPressed = (shiftPressed|altPressed|ctrlPressed|winPressed);
 
                 // if a modifier is pressed we will send a VK event (if possible) so that key combinations will be 
                 // recognized correctly. Otherwise we will send the unicode key. At the end we will reset all modifiers
@@ -484,57 +478,25 @@ public class RdpKeyboardMapper
                 //android.util.Log.e("KeyMapper", "VK KeyCode is: " + vkcode);
                 if((vkcode & KEY_FLAG_UNICODE) != 0) {
                     //android.util.Log.i("KeyMapper", "vkcode & KEY_FLAG_UNICODE " + vkcode);
-                    try { Thread.sleep(5); } catch (InterruptedException e) {}
                     listener.processUnicodeKey(vkcode & (~KEY_FLAG_UNICODE));
                 } else if ((vkcode & KEY_FLAG_SHIFT) != 0){
                     //android.util.Log.i("KeyMapper", "vkcode & KEY_FLAG_SHIFT " + vkcode);
                     vkcode = vkcode & ~KEY_FLAG_SHIFT;
                     listener.processVirtualKey(VK_LSHIFT, true);
-                    try { Thread.sleep(5); } catch (InterruptedException e) {}
                     listener.processVirtualKey(vkcode, true);
-                    try { Thread.sleep(5); } catch (InterruptedException e) {}
                     listener.processVirtualKey(vkcode, false);                                        
-                    try { Thread.sleep(5); } catch (InterruptedException e) {}
                     listener.processVirtualKey(VK_LSHIFT, false);
                 // if we got a valid vkcode send it - except for letters/numbers if a modifier is active
-                } else if (vkcode > 0 && ! isAnyModifierPressed) {
-                    //android.util.Log.i("KeyMapper", "vkcode > 0 && ! isAnyModifierPressed " + vkcode);
+                } else if (vkcode > 0) {
+                    //android.util.Log.i("KeyMapper", "vkcode > 0" + vkcode);
                     listener.processVirtualKey(vkcode, true);
-                    try { Thread.sleep(5); } catch (InterruptedException e) {}
                     listener.processVirtualKey(vkcode, false);
-                }
-                else if(vkcode > 0 && isAnyModifierPressed)
-                {
-                    //android.util.Log.i("KeyMapper", "vkcode > 0 && isAnyModifierPressed " + vkcode);
-                    
-                    if (shiftPressed)
-                        listener.processVirtualKey(VK_LSHIFT, true);
-                    if (ctrlPressed)
-                        listener.processVirtualKey(VK_CONTROL, true);
-                    if (altPressed)
-                        listener.processVirtualKey(VK_MENU, true);
-                    if (winPressed)
-                        listener.processVirtualKey(VK_LWIN, true);
-                    try { Thread.sleep(5); } catch (InterruptedException e) {}
-                    listener.processVirtualKey(vkcode, true);
-                    try { Thread.sleep(5); } catch (InterruptedException e) {}
-                    listener.processVirtualKey(vkcode, false);
-                    try { Thread.sleep(5); } catch (InterruptedException e) {}
-                    if (shiftPressed)
-                        listener.processVirtualKey(VK_LSHIFT, false);
-                    if (ctrlPressed)
-                        listener.processVirtualKey(VK_CONTROL, false);
-                    if (altPressed)
-                        listener.processVirtualKey(VK_MENU, false);
-                    if (winPressed)
-                        listener.processVirtualKey(VK_LWIN, false);
                 }
                 else if(event.getUnicodeChar() != 0) {
                     //android.util.Log.i("KeyMapper", "event.getUnicodeChar() != 0 " + vkcode);
                     //KeyEvent copy = new KeyEvent(event.getDownTime(), event.getEventTime(),
                     //            event.getAction(), event.getKeyCode(), event.getRepeatCount(),
                     //            0, event.getDeviceId(), event.getScanCode());
-                    try { Thread.sleep(5); } catch (InterruptedException e) {}
                     listener.processUnicodeKey(event.getUnicodeChar());
                 } else {
                     //android.util.Log.i("KeyMapper", "else " + vkcode);
@@ -551,7 +513,6 @@ public class RdpKeyboardMapper
             {
                 String str = event.getCharacters();
                 for(int i = 0; i < str.length(); i++) {
-                    try { Thread.sleep(5); } catch (InterruptedException e) {}
                     listener.processUnicodeKey(str.charAt(i));
                 }
                 return true;
