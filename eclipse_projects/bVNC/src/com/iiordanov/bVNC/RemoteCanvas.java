@@ -1417,16 +1417,14 @@ public class RemoteCanvas extends ImageView implements LibFreeRDP.UIEventListene
     @Override
     public boolean OnGatewayAuthenticate(StringBuilder username,
             StringBuilder domain, StringBuilder password) {
-        this.OnAuthenticate(username, domain, password);
-        return false;
+        return this.OnAuthenticate(username, domain, password);
     }
 
     @Override
     public int OnVerifyChangedCertificate(String commonName, String subject,
             String issuer, String fingerprint, String oldSubject,
             String oldIssuer, String oldFingerprint) {
-        this.OnVerifiyCertificate(commonName, subject, issuer, fingerprint, true);
-        return 0;
+        return this.OnVerifiyCertificate(commonName, subject, issuer, fingerprint, true);
     }
 
     @Override
