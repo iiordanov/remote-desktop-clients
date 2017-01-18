@@ -249,88 +249,32 @@ public class PubkeyUtils {
 		}
 		return kp;
 	}
-	
-	
-	/*
-	 * Trilead compatibility methods
-	 */
-
-	public static Object convertToTrilead(PublicKey pk) {
-		if (pk instanceof RSAPublicKey) {
-			return new com.trilead.ssh2.signature.RSAPublicKey(
-					((RSAPublicKey) pk).getPublicExponent(),
-					((RSAPublicKey) pk).getModulus());
-		} else if (pk instanceof DSAPublicKey) {
-			DSAParams dp = ((DSAPublicKey) pk).getParams();
-			return new com.trilead.ssh2.signature.DSAPublicKey(
-						dp.getP(), dp.getQ(), dp.getG(), ((DSAPublicKey) pk).getY());
-		}
-
-		throw new IllegalArgumentException("PublicKey is not RSA or DSA format");
-	}
-
-	public static Object convertToTrilead(PrivateKey priv, PublicKey pub) {
-		if (priv instanceof RSAPrivateKey) {
-			return new com.trilead.ssh2.signature.RSAPrivateKey(
-					((RSAPrivateKey) priv).getPrivateExponent(),
-					((RSAPublicKey) pub).getPublicExponent(),
-					((RSAPrivateKey) priv).getModulus());
-		} else if (priv instanceof DSAPrivateKey) {
-			DSAParams dp = ((DSAPrivateKey) priv).getParams();
-			return new com.trilead.ssh2.signature.DSAPrivateKey(
-						dp.getP(), dp.getQ(), dp.getG(), ((DSAPublicKey) pub).getY(),
-						((DSAPrivateKey) priv).getX());
-		}
-
-		throw new IllegalArgumentException("Key is not RSA or DSA format");
-	}
 
 	/*
 	 * OpenSSH compatibility methods
 	 */
 
-	public static String convertToOpenSSHFormat(PublicKey pk, String origNickname) throws IOException, InvalidKeyException {
-		String nickname = origNickname;
-		if (nickname == null)
-			nickname = "pubkeygenerator@mobiledevice";
+    public static String convertToOpenSSHFormat(PublicKey pk, String origNickname) throws IOException, InvalidKeyException {
+        String nickname = origNickname;
+        if (nickname == null)
+            nickname = "pubkeygenerator@mobiledevice";
 
-		if (pk instanceof RSAPublicKey) {
-			String data = "ssh-rsa ";
-			data += String.valueOf(Base64.encode(RSASHA1Verify.encodeSSHRSAPublicKey(
-					(com.trilead.ssh2.signature.RSAPublicKey)convertToTrilead(pk))));
-			return data + " " + nickname;
-		} else if (pk instanceof DSAPublicKey) {
-			String data = "ssh-dss ";
-			data += String.valueOf(Base64.encode(DSASHA1Verify.encodeSSHDSAPublicKey(
-					(com.trilead.ssh2.signature.DSAPublicKey)convertToTrilead(pk))));
-			return data + " " + nickname;
-		}
+        if (pk instanceof RSAPublicKey) {
+            String data = "ssh-rsa ";
+            data += String.valueOf(Base64.encode(RSASHA1Verify.encodeSSHRSAPublicKey((RSAPublicKey)pk)));
+            return data + " " + nickname;
+        } else if (pk instanceof DSAPublicKey) {
+            String data = "ssh-dss ";
+            data += String.valueOf(Base64.encode(DSASHA1Verify.encodeSSHDSAPublicKey((DSAPublicKey)pk)));
+            return data + " " + nickname;
+        }
 
-		throw new InvalidKeyException("Unknown key type");
-	}
+        throw new InvalidKeyException("Unknown key type");
+    }
 
 	/*
 	 * OpenSSH compatibility methods
 	 */
-
-	/**
-	 * @param trileadKey
-	 * @return OpenSSH-encoded pubkey
-	 */
-	public static byte[] extractOpenSSHPublic(Object trileadKey) {
-		try {
-			if (trileadKey instanceof com.trilead.ssh2.signature.RSAPrivateKey)
-				return RSASHA1Verify.encodeSSHRSAPublicKey(
-						((com.trilead.ssh2.signature.RSAPrivateKey) trileadKey).getPublicKey());
-			else if (trileadKey instanceof com.trilead.ssh2.signature.DSAPrivateKey)
-				return DSASHA1Verify.encodeSSHDSAPublicKey(
-						((com.trilead.ssh2.signature.DSAPrivateKey) trileadKey).getPublicKey());
-			else
-				return null;
-		} catch (IOException e) {
-			return null;
-		}
-	}
 
 	public static String exportPEM(PrivateKey key, String secret) throws NoSuchAlgorithmException, InvalidParameterSpecException, NoSuchPaddingException, InvalidKeyException, InvalidAlgorithmParameterException, InvalidKeySpecException, IllegalBlockSizeException, IOException {
 		StringBuilder sb = new StringBuilder();
@@ -486,7 +430,7 @@ public class PubkeyUtils {
 
 		if (PEMDecoder.isPEMEncrypted(ps)) {
 			try {
-				PEMDecoder.decryptPEM(ps, passphrase.getBytes("ISO-8859-1"));
+				PEMDecoder.decode(ps, passphrase);
 			} catch (Exception e) {
 				throw new Exception("Failed to decrypt PEM. It is encrypted, but wrong passphrase was specified. " +
 									"Please specify correct passphrase in the appropriate field, and import again.");
