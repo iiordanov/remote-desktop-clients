@@ -123,6 +123,7 @@
 	<string name="list_name_caption">Nazwa listy</string>
 	<string name="list_caption">Lista</string>
 	<string name="landscape_force">Wymuś poziomą orientację</string>
+	<string name="left_handed_mode">Tryb mańkut</string>
 	<string name="keys_caption">Przyciski</string>
 	<string name="keep_screen_awake_enable">Zachowaj włączony ekran</string>
 	<string name="keep_password_button">Zachowaj</string>

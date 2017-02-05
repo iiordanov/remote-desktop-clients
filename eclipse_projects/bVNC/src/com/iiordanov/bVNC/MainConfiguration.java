@@ -287,6 +287,8 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
             forceLandscape.setChecked(Utils.querySharedPreferenceBoolean(this, Constants.forceLandscapeTag));
             MenuItem rAltAsIsoL3Shift = menu.findItem(R.id.itemRAltAsIsoL3Shift);
             rAltAsIsoL3Shift.setChecked(Utils.querySharedPreferenceBoolean(this, Constants.rAltAsIsoL3ShiftTag));
+            MenuItem itemLeftHandedMode = menu.findItem(R.id.itemLeftHandedMode);
+            itemLeftHandedMode.setChecked(Utils.querySharedPreferenceBoolean(this, Constants.leftHandedModeTag));
         }
         return true;
     }
@@ -347,6 +349,9 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
             break;
         case R.id.itemRAltAsIsoL3Shift:
             Utils.toggleSharedPreferenceBoolean(this, Constants.rAltAsIsoL3ShiftTag);
+            break;
+        case R.id.itemLeftHandedMode:
+            Utils.toggleSharedPreferenceBoolean(this, Constants.leftHandedModeTag);
             break;
         }
         return true;
