@@ -19,6 +19,7 @@
 
 package com.iiordanov.bVNC.dialogs;
 
+import com.iiordanov.bVNC.Database;
 import com.iiordanov.bVNC.bVNC;
 import com.iiordanov.bVNC.ConnectionBean;
 import com.iiordanov.bVNC.R;
@@ -75,16 +76,18 @@ public class AutoXCustomizeDialog extends AlertDialog {
     private CheckBox checkboxAutoXUnixAuth;
     private RandomString rnd;
     private Button buttonAutoXHelp;
+    private Database database;
 
     /**
      * @param context
      */
-    public AutoXCustomizeDialog(Context context) {
+    public AutoXCustomizeDialog(Context context, Database database) {
         super(context);
         setOwnerActivity((Activity)context);
         mainConfigDialog = (bVNC)context;
         selected = mainConfigDialog.getCurrentConnection();
         rnd = new RandomString();
+        this.database = database;
     }
 
     private static final Intent docIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://iiordanov.blogspot.ca/2012/10/looking-for-nx-client-for-android-or.html")); 
@@ -406,7 +409,7 @@ public class AutoXCustomizeDialog extends AlertDialog {
 
         // Update and save.
         mainConfigDialog.updateViewFromSelected();
-        selected.saveAndWriteRecent(false);
+        selected.saveAndWriteRecent(false, database);
     }
     
     public void retainAutoXInfo () {
@@ -416,6 +419,6 @@ public class AutoXCustomizeDialog extends AlertDialog {
 
         // Update and save.
         mainConfigDialog.updateViewFromSelected();
-        selected.saveAndWriteRecent(false);
+        selected.saveAndWriteRecent(false, database);
     }
 }

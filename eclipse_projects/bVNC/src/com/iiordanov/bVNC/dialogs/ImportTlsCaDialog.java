@@ -26,6 +26,7 @@ import java.io.FileReader;
 import java.io.IOException;
 
 import com.iiordanov.bVNC.ConnectionBean;
+import com.iiordanov.bVNC.Database;
 import com.iiordanov.bVNC.R;
 import com.iiordanov.bVNC.aSPICE;
 
@@ -54,15 +55,17 @@ public class ImportTlsCaDialog extends AlertDialog {
     private EditText caCert;
     private Button importButton;
     private Button helpButton;
+    private Database database;
 
     /**
      * @param context
      */
-    public ImportTlsCaDialog(Context context) {
+    public ImportTlsCaDialog(Context context, Database database) {
         super(context);
         setOwnerActivity((Activity)context);
         mainConfigPage = (aSPICE)context;
         selected = mainConfigPage.getCurrentConnection();
+        this.database = database;
     }
 
     private static final Intent docIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://spice-space.org/page/SSLConnection")); 
@@ -80,7 +83,7 @@ public class ImportTlsCaDialog extends AlertDialog {
         selected.setCaCert(caCert.getText().toString());
         selected.setCertSubject(certSubject.getText().toString());
         mainConfigPage.updateViewFromSelected();
-        selected.saveAndWriteRecent(false);
+        selected.saveAndWriteRecent(false, database);
         dismiss();
     }
 

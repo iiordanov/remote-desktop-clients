@@ -193,7 +193,7 @@ public class RemoteCanvasActivity extends FragmentActivity implements OnKeyListe
         if (Utils.querySharedPreferenceBoolean(this, Constants.forceLandscapeTag))
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
         
-        database = new Database(this);
+        database = ((App)getApplication()).getDatabase();
         
         Intent i = getIntent();
         connection = null;
@@ -220,7 +220,7 @@ public class RemoteCanvasActivity extends FragmentActivity implements OnKeyListe
             }
             
             if (connection.isSaved()) {
-                connection.saveAndWriteRecent(false);
+                connection.saveAndWriteRecent(false, database);
             }
             // we need to save the connection to display the loading screen, so otherwise we should exit
             if (!connection.isReadyForConnection()) {

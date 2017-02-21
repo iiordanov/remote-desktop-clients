@@ -84,7 +84,7 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
             }
         });
         
-        database = new Database(this);
+        database = ((App)getApplication()).getDatabase();
     }
     
     @Override
@@ -92,7 +92,7 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
         Log.i(TAG, "onStart called");
         super.onStart();
         System.gc();
-        //arriveOnPage();
+        arriveOnPage();
     }
     
     @Override
@@ -100,7 +100,7 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
         Log.i(TAG, "onResume called");
         super.onResume();
         System.gc();
-        //arriveOnPage();
+        arriveOnPage();
     }
     
     @Override
@@ -133,8 +133,6 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
         if ( selected == null ) {
             return;
         }
-        updateSelectedFromView();
-        selected.saveAndWriteRecent(false);
     }
     
     @Override
@@ -172,7 +170,7 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
     private void start () {
         isConnecting = true;
         updateSelectedFromView();
-        selected.saveAndWriteRecent(false);
+        selected.saveAndWriteRecent(false, database);
         Intent intent = new Intent(this, RemoteCanvasActivity.class);
         intent.putExtra(Constants.CONNECTION, selected.Gen_getValues());
         startActivity(intent);
@@ -305,7 +303,7 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
                 textNickname.setText("Copy of "+selected.getNickname());
             updateSelectedFromView();
             selected.set_Id(0);
-            selected.saveAndWriteRecent(false);
+            selected.saveAndWriteRecent(false, database);
             arriveOnPage();
             break;
         case R.id.itemDeleteConnection:

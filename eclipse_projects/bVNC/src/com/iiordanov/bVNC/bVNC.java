@@ -280,7 +280,7 @@ public class bVNC extends MainConfiguration {
         case R.layout.repeater_dialog:
             return new RepeaterDialog(this);
         case R.layout.auto_x_customize:
-            Dialog d = new AutoXCustomizeDialog(this);
+            Dialog d = new AutoXCustomizeDialog(this, database);
             d.setCancelable(false);
             return d;
         }
@@ -446,7 +446,7 @@ public class bVNC extends MainConfiguration {
      */
     private void generatePubkey () {
         updateSelectedFromView();
-        selected.saveAndWriteRecent(false);
+        selected.saveAndWriteRecent(false, database);
         Intent intent = new Intent(this, GeneratePubkeyActivity.class);
         intent.putExtra("PrivateKey",selected.getSshPrivKey());
         startActivityForResult(intent, Constants.ACTIVITY_GEN_KEY);
@@ -468,7 +468,7 @@ public class bVNC extends MainConfiguration {
                             " button to share, copy to clipboard, or export the public key now.", Toast.LENGTH_LONG).show();
                 selected.setSshPrivKey(privateKey);
                 selected.setSshPubKey((String)b.get("PublicKey"));
-                selected.saveAndWriteRecent(false);
+                selected.saveAndWriteRecent(false, database);
             } else
                 Log.i (TAG, "The user cancelled SSH key generation.");
             break;

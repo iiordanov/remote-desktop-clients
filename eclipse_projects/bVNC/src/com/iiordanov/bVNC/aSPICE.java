@@ -279,7 +279,7 @@ public class aSPICE extends MainConfiguration {
         case R.id.itemMainScreenHelp:
             return createHelpDialog();
         case R.layout.import_tls_ca_dialog:
-            return new ImportTlsCaDialog(this);
+            return new ImportTlsCaDialog(this, database);
         }
         return null;
     }
@@ -446,7 +446,7 @@ public class aSPICE extends MainConfiguration {
      */
     private void generatePubkey() {
         updateSelectedFromView();
-        selected.saveAndWriteRecent(false);
+        selected.saveAndWriteRecent(false, database);
         Intent intent = new Intent(this, GeneratePubkeyActivity.class);
         intent.putExtra("PrivateKey", selected.getSshPrivKey());
         startActivityForResult(intent, Constants.ACTIVITY_GEN_KEY);
@@ -473,7 +473,7 @@ public class aSPICE extends MainConfiguration {
                             Toast.LENGTH_LONG).show();
                 selected.setSshPrivKey(privateKey);
                 selected.setSshPubKey((String) b.get("PublicKey"));
-                selected.saveAndWriteRecent(false);
+                selected.saveAndWriteRecent(false, database);
             } else
                 Log.i(TAG, "The user cancelled SSH key generation.");
             break;
