@@ -1,8 +1,5 @@
 package com.iiordanov.bVNC;
 
-import java.io.UnsupportedEncodingException;
-import java.security.NoSuchAlgorithmException;
-import java.security.spec.InvalidKeySpecException;
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -10,10 +7,11 @@ import net.sqlcipher.database.SQLiteDatabase;
 
 import com.iiordanov.bVNC.dialogs.IntroTextDialog;
 import com.iiordanov.bVNC.dialogs.GetTextFragment;
+import com.iiordanov.pubkeygenerator.GeneratePubkeyActivity;
 
+import android.app.Activity;
 import android.app.ActivityManager.MemoryInfo;
 import android.support.v4.app.FragmentTransaction;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Point;
@@ -28,11 +26,11 @@ import android.view.View;
 import android.view.ViewConfiguration;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.Toast;
 
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
 import android.content.res.Configuration;
 
 public abstract class MainConfiguration extends FragmentActivity implements GetTextFragment.OnFragmentDismissedListener {
@@ -49,6 +47,7 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
     GetTextFragment getPassword = null;
     GetTextFragment getNewPassword = null;
     private boolean isConnecting = false;
+    private Button buttonGeneratePubkey;
     
     protected abstract void updateViewFromSelected();
     protected abstract void updateSelectedFromView();
@@ -81,6 +80,15 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
             @Override
             public void onNothingSelected(AdapterView<?> ad) {
                 selected = null;
+            }
+        });
+        
+        // Here we say what happens when the Pubkey Generate button is pressed.
+        buttonGeneratePubkey = (Button) findViewById(R.id.buttonGeneratePubkey);
+        buttonGeneratePubkey.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                generatePubkey ();
             }
         });
         
@@ -204,6 +212,17 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
         updateViewFromSelected();
         IntroTextDialog.showIntroTextIfNecessary(this, database, Utils.isFree(this) && startingOrHasPaused);
         startingOrHasPaused = false;
+    }
+    
+    /**
+     * Starts the activity which manages keys.
+     */
+    protected void generatePubkey () {
+        updateSelectedFromView();
+        selected.saveAndWriteRecent(true, database);
+        Intent intent = new Intent(this, GeneratePubkeyActivity.class);
+        intent.putExtra("PrivateKey",selected.getSshPrivKey());
+        startActivityForResult(intent, Constants.ACTIVITY_GEN_KEY);
     }
     
     public Database getDatabaseHelper() {
@@ -459,6 +478,29 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
             tx.remove(getNewPassword);
             tx.commit();
             getSupportFragmentManager().executePendingTransactions();
+        }
+    }
+    
+    /**
+     * This function is used to retrieve data returned by activities started with startActivityForResult.
+     */
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch(requestCode) {
+        case (Constants.ACTIVITY_GEN_KEY):
+            if (resultCode == Activity.RESULT_OK) {
+                Bundle b = data.getExtras();
+                String privateKey = (String)b.get("PrivateKey");
+                if (!privateKey.equals(selected.getSshPrivKey()) && privateKey.length() != 0)
+                    Toast.makeText(getBaseContext(), "New key generated/imported successfully. Tap 'Generate/Export Key' " +
+                            " button to share, copy to clipboard, or export the public key now.", Toast.LENGTH_LONG).show();
+                selected.setSshPrivKey(privateKey);
+                selected.setSshPubKey((String)b.get("PublicKey"));
+                selected.saveAndWriteRecent(true, database);
+            } else
+                Log.i (TAG, "The user cancelled SSH key generation.");
+            break;
         }
     }
 }
