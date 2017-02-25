@@ -1,11 +1,29 @@
-1. Install/update sqlitegen plugin v0.1.19 into Eclipse from:
-   https://github.com/iiordanov/sqlitegen-secure/releases/download/v0.1.19/sqlitegen_eclipse_site_0.1.19.jar
+0. On Linux, install Eclipse Neon for Android Developers and ADT Plugin.
+   a) Point Eclipse at a valid Android SDK installation location.
+   b) Install ADT Plugin:
+      Help > Install New Software.
+      Click Add, in the top-right corner.
+      In the Add Repository dialog, name it ADT Plugin and specify location to be
+        https://dl-ssl.google.com/android/eclipse/
 
-   NOTE: Using an older version of the plugin may not work because
-   of the switch to the sqlcipher release of sqlite.
+1. Install sqlitegen into Eclipse.
 
-2. Clone the FreeRDP project in the parent directory of where you
-   cloned bVNC project:
+   a) Download sqlitegen plugin v0.1.19 from:
+      https://github.com/iiordanov/sqlitegen-secure/releases/download/v0.1.19/sqlitegen_eclipse_site_0.1.19.jar
+
+      NOTE: Using an older version of the plugin may not work because
+      of the switch to the sqlcipher release of sqlite.
+
+   b) Help -> Install New Software
+   c) Add -> Archive
+   d) Browse to the downloaded jar file and select it.
+   e) Give it a name and click OK
+   f) Select "Uncategorized"
+   g) Click Next and follow the installation process.
+   h) Restart Eclipse.
+
+2. Clone the FreeRDP projects in the parent directory of where you
+   cloned bVNC (remote-desktop-clients) project:
    git clone git://github.com/FreeRDP/FreeRDP.git
 
    The current version of bVNC/aRDP use the master branch.

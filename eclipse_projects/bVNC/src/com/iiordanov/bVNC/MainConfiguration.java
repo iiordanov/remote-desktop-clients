@@ -92,7 +92,6 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
         Log.i(TAG, "onStart called");
         super.onStart();
         System.gc();
-        arriveOnPage();
     }
     
     @Override
@@ -100,7 +99,6 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
         Log.i(TAG, "onResume called");
         super.onResume();
         System.gc();
-        arriveOnPage();
     }
     
     @Override
@@ -146,6 +144,8 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
         } else {
             isConnecting = false;
         }
+        updateSelectedFromView();
+        selected.saveAndWriteRecent(false, database);
     }
     
     @Override
@@ -167,10 +167,9 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
     /**
      * Starts the activity which makes a VNC connection and displays the remote desktop.
      */
-    private void start () {
+    private void start() {
         isConnecting = true;
         updateSelectedFromView();
-        selected.saveAndWriteRecent(false, database);
         Intent intent = new Intent(this, RemoteCanvasActivity.class);
         intent.putExtra(Constants.CONNECTION, selected.Gen_getValues());
         startActivity(intent);
