@@ -17,7 +17,6 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:id="@+id/zoomer"
-    android:layout_gravity="center|right"
     android:padding="10sp"
 />
 

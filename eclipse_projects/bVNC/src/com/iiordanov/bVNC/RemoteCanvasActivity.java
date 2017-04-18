@@ -49,6 +49,7 @@ import android.os.Handler;
 import android.os.SystemClock;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.InputDevice;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -67,7 +68,9 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
@@ -188,9 +191,9 @@ public class RemoteCanvasActivity extends FragmentActivity implements OnKeyListe
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         
         if (Utils.querySharedPreferenceBoolean(this, Constants.forceLandscapeTag))
-            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
         
-        database = new Database(this);
+        database = ((App)getApplication()).getDatabase();
         
         Intent i = getIntent();
         connection = null;
@@ -217,7 +220,7 @@ public class RemoteCanvasActivity extends FragmentActivity implements OnKeyListe
             }
             
             if (connection.isSaved()) {
-                connection.saveAndWriteRecent(false);
+                connection.saveAndWriteRecent(false, database);
             }
             // we need to save the connection to display the loading screen, so otherwise we should exit
             if (!connection.isReadyForConnection()) {
@@ -360,6 +363,18 @@ public class RemoteCanvasActivity extends FragmentActivity implements OnKeyListe
             }
 
         });
+
+        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.WRAP_CONTENT,
+                FrameLayout.LayoutParams.WRAP_CONTENT);
+
+        if (Utils.querySharedPreferenceBoolean(this, Constants.leftHandedModeTag)) {
+            params.gravity = Gravity.CENTER|Gravity.LEFT;
+        } else {
+            params.gravity = Gravity.CENTER|Gravity.RIGHT;
+        }
+        zoomer.setLayoutParams(params);
+        
         panner = new Panner(this, canvas.handler);
 
         inputHandler = getInputHandlerById(R.id.itemInputTouchPanZoomMouse);

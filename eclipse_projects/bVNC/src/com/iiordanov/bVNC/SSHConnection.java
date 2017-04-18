@@ -255,7 +255,6 @@ public class SSHConnection implements InteractiveCallback, GetTextFragment.OnFra
     public boolean connect() {
             
         try {
-            connection.setTCPNoDelay(true);
             connection.setCompression(false);
 
             // TODO: Try using the provided KeyVerifier instead of verifying keys myself.
@@ -405,7 +404,7 @@ public class SSHConnection implements InteractiveCallback, GetTextFragment.OnFra
         
         decryptAndRecoverKey();
         Log.i(TAG, "Trying SSH pubkey authentication.");
-        return connection.authenticateWithPublicKey(user, PubkeyUtils.convertToTrilead(privateKey, publicKey));
+        return connection.authenticateWithPublicKey(user, kp);
     }
     
     private int createPortForward (int localPortStart, String remoteHost, int remotePort) {

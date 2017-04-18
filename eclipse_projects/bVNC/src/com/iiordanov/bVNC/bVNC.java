@@ -21,21 +21,11 @@
 
 package com.iiordanov.bVNC;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.app.ActivityManager.MemoryInfo;
 import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.res.Configuration;
-import net.sqlcipher.database.SQLiteDatabase;
-import android.graphics.Point;
 import android.os.Bundle;
-import android.view.Display;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewConfiguration;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -51,17 +41,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
-import android.util.Log;
 
-import com.iiordanov.bVNC.Utils;
 import com.iiordanov.bVNC.dialogs.AutoXCustomizeDialog;
 import com.iiordanov.bVNC.dialogs.ImportExportDialog;
-import com.iiordanov.bVNC.dialogs.IntroTextDialog;
 import com.iiordanov.bVNC.dialogs.RepeaterDialog;
-import com.iiordanov.pubkeygenerator.GeneratePubkeyActivity;
-
-import java.util.ArrayList;
-import java.util.Collections;
 
 /**
  * bVNC is the Activity for setting up VNC connections.
@@ -86,7 +69,6 @@ public class bVNC extends MainConfiguration {
     private EditText passwordText;
     private Button goButton;
     private Button repeaterButton;
-    private Button buttonGeneratePubkey;
     private Button buttonCustomizeX11Vnc;
     private ToggleButton toggleAdvancedSettings;
     private LinearLayout repeaterEntry;
@@ -136,19 +118,10 @@ public class bVNC extends MainConfiguration {
                 showDialog(R.layout.repeater_dialog);
             }
         });
-
+        
         // Here we say what happens when the Pubkey Checkbox is checked/unchecked.
         checkboxUseSshPubkey = (CheckBox) findViewById(R.id.checkboxUseSshPubkey);
         
-        // Here we say what happens when the Pubkey Generate button is pressed.
-        buttonGeneratePubkey = (Button) findViewById(R.id.buttonGeneratePubkey);
-        buttonGeneratePubkey.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                generatePubkey ();
-            }
-        });
-
         // Define what happens when somebody clicks on the customize auto X session dialog.
         buttonCustomizeX11Vnc = (Button) findViewById(R.id.buttonCustomizeX11Vnc);
         buttonCustomizeX11Vnc.setOnClickListener(new View.OnClickListener() {    
@@ -280,7 +253,7 @@ public class bVNC extends MainConfiguration {
         case R.layout.repeater_dialog:
             return new RepeaterDialog(this);
         case R.layout.auto_x_customize:
-            Dialog d = new AutoXCustomizeDialog(this);
+            Dialog d = new AutoXCustomizeDialog(this, database);
             d.setCancelable(false);
             return d;
         }
@@ -438,40 +411,6 @@ public class bVNC extends MainConfiguration {
             selected.setUseRepeater(true);
         } else {
             selected.setUseRepeater(false);
-        }
-    }
-    
-    /**
-     * Starts the activity which manages keys.
-     */
-    private void generatePubkey () {
-        updateSelectedFromView();
-        selected.saveAndWriteRecent(false);
-        Intent intent = new Intent(this, GeneratePubkeyActivity.class);
-        intent.putExtra("PrivateKey",selected.getSshPrivKey());
-        startActivityForResult(intent, Constants.ACTIVITY_GEN_KEY);
-    }
-    
-    /**
-     * This function is used to retrieve data returned by activities started with startActivityForResult.
-     */
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        switch(requestCode) {
-        case (Constants.ACTIVITY_GEN_KEY):
-            if (resultCode == Activity.RESULT_OK) {
-                Bundle b = data.getExtras();
-                String privateKey = (String)b.get("PrivateKey");
-                if (!privateKey.equals(selected.getSshPrivKey()) && privateKey.length() != 0)
-                    Toast.makeText(getBaseContext(), "New key generated/imported successfully. Tap 'Generate/Export Key' " +
-                            " button to share, copy to clipboard, or export the public key now.", Toast.LENGTH_LONG).show();
-                selected.setSshPrivKey(privateKey);
-                selected.setSshPubKey((String)b.get("PublicKey"));
-                selected.saveAndWriteRecent(false);
-            } else
-                Log.i (TAG, "The user cancelled SSH key generation.");
-            break;
         }
     }
 }

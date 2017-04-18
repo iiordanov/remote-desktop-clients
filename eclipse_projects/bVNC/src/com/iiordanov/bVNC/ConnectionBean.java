@@ -162,15 +162,15 @@ public class ConnectionBean extends AbstractConnectionBean implements Comparable
     }
     
     public synchronized void save(SQLiteDatabase database) {
-        ContentValues values=Gen_getValues();
+        ContentValues values = Gen_getValues();
         values.remove(GEN_FIELD__ID);
         // Never save the SSH password and passphrase.
         values.put(GEN_FIELD_SSHPASSWORD, "");
         values.put(GEN_FIELD_SSHPASSPHRASE, "");
-        if ( ! getKeepPassword()) {
+        if (!getKeepPassword()) {
             values.put(GEN_FIELD_PASSWORD, "");
         }
-        if ( isNew()) {
+        if (isNew()) {
             set_Id(database.insert(GEN_TABLE_NAME, null, values));
         } else {
             database.update(GEN_TABLE_NAME, values, GEN_FIELD__ID + " = ?", new String[] { Long.toString(get_Id()) });
@@ -598,8 +598,7 @@ public class ConnectionBean extends AbstractConnectionBean implements Comparable
         return recents.get(0);
     }
     
-    public void saveAndWriteRecent(boolean saveEmpty) {
-        Database database = new Database (c);
+    public void saveAndWriteRecent(boolean saveEmpty, Database database) {
         
         // We need server address or SSH server to be filled out to save. Otherwise,
         // we keep adding empty connections. 

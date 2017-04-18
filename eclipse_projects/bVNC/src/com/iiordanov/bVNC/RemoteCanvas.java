@@ -31,10 +31,7 @@
 package com.iiordanov.bVNC;
 
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.net.Socket;
-import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
@@ -53,6 +50,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.SystemClock;
+import android.provider.Settings;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.text.ClipboardManager;
@@ -1181,8 +1179,9 @@ public class RemoteCanvas extends ImageView implements LibFreeRDP.UIEventListene
         
         outAttrs.actionLabel = null;
         outAttrs.inputType = InputType.TYPE_NULL;
-        // Workaround for IME's that don't support InputType.TYPE_NULL.
-        if (version >= 21) {
+        // Workaround for Android AOSP IME that doesn't support InputType.TYPE_NULL.
+        String currentIme = Settings.Secure.getString(getContext().getContentResolver(), Settings.Secure.DEFAULT_INPUT_METHOD);
+        if (version >= 21 && version <= 23 && currentIme.startsWith("com.android.inputmethod.latin")) {
             outAttrs.inputType = InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS;
             outAttrs.imeOptions |= EditorInfo.IME_FLAG_NO_FULLSCREEN;
         }
