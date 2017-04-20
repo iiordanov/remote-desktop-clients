@@ -22,56 +22,63 @@
    g) Click Next and follow the installation process.
    h) Restart Eclipse.
 
-2. Clone the FreeRDP projects in the parent directory of where you
-   cloned bVNC (remote-desktop-clients) project:
-   git clone git://github.com/FreeRDP/FreeRDP.git
+2. Add AppCompat v7 project into Eclipse
+   - Eclipse->Import->Existing Android Code Into Workspace.
+   - The AppCompat project is found here:
+       /path/to/android-sdk/extras/android/support/v7/appcompat/
+   - You may have to switch the Android Build Target to API 23 or newer
+     by (Right-clicking on the project)->Properties->Android
 
-   The current version of bVNC/aRDP use the master branch.
+3. Install at least the following dependencies:
+   cmake aclocal libtoolize intltool gtk-doc-tools gnome-common
 
-   You should now have bVNC and FreeRDP side by side in the same
-   directory.
+4. Change directory to the Opaque project
+   cd eclipse_projects/Opaque/jni/libs/
+   ./build-deps.sh -j 4 -n /path/to/your/ndk build
 
-   Add bVNC, ZoomerWithKeys and PubkeyGenerator from the
+5. Import all projects into Eclipse.
+
+   Add bVNC, ZoomerWithKeys, PubkeyGenerator from the
    bVNC/eclipse_projects/ directory to Eclipse as existing Android
    projects.
   
-   Some modifications are needed to the freeRDPCore project because
+   The FreeRDP project was downloaded automatically as part of the build process,
+   and a symlinc was made to it in bVNC/eclipse_projects/
+
+   Some modifications are needed to the freeRDPCore project in part because
    it is set up to be developed under the ADT IDE.
-   - Create the links in FreeRDP/client/Android/Studio/freeRDPCore/src/main:
-     *PLEASE NOTE: jniLibs will not actually exist until the project is built,
-      see (6c) below if building aRDP only*
-       libs -> jniLibs/
-       src -> java/
-   - Import client/Android/Studio/freeRDPCore into Eclipse as
-     "Existing Android Code"
+
+   - Import eclipse_projects/FreeRDP/client/Android/Studio/freeRDPCore
+     into Eclipse as "Existing Android Code". Name the project FreeRDPCore
+     by clicking "New Project Name" before clicking "Finish".
+
    - In the Project Properties, change Project Build Target to Android 7.0+
-   - Also there, in Java Build Path->Libraries->Add External JARs, add:
-       android-support-v4.jar
-       android-support-v7-appcompat.jar
-     from your Android SDK.
+
    - Also there, make sure Android->Is Library checkbox is checked.
 
-3. Ensure ZoomerWithKeys, PubkeyGenerator, and FreeRDPCore projects
-   are called exactly as written here by right-clicking 
-   on each of them, then selecting Refactor->Rename
+   - Also there, click Add to a reference to the AppCompat project (from 2)
 
-3. Add the ZoomerWithKeys, PubkeyGenerator, and FreeRDPCore projects
-   as Library References to bVNC (right-click on the bVNC project
-   and select Properties -> Android -> Library). If they are not,
-   add them.
+   - Also there, change Java Compiler->Compiler compliance level to 1.7.
 
-4. Ensure that ZoomerWithKeys, PubkeyGenerator, and FreeRDPCore 
-   are specified as "Required projects on the build path" (right-
-   click on the bVNC project, and select Properties -> Java Build
-   Path -> Projects). If they are not, add them.
+   - Clean and rebuild the project.
 
-5. Ensure that ZoomerWithKeys, PubkeyGenerator, and FreeRDPCore
-   are referenced in Properties -> Project References (put
-   checkmarks on projects).
+6. Ensure ZoomerWithKeys, PubkeyGenerator, FreeRDPCore, and android-support-v7-appcompat
+   projects are:
+   - Called exactly as written here by right-clicking on each of them,
+     then selecting Refactor->Rename
 
-6a. To build bVNC, just use the IDE to deploy the project to your device, etc.
+   - Added as as Library References to bVNC (right-click on the bVNC project
+     and select Properties -> Android -> Library). If they are not - add them.
 
-6b. To build aSPICE, you need to:
+   - Are specified as "Required projects on the build path" (right-
+     click on the bVNC project, and select Properties -> Java Build
+     Path -> Projects). If they are not, add them.
+
+   - Are referenced in Properties -> Project References (put checkmarks on projects).
+
+7a. To build bVNC, just use the IDE to deploy the project to your device, etc.
+
+7b. To build aSPICE, you need to:
    - Unpack gstreamer-sdk 1.4.5 into /opt/gstreamer. I obtained my copy from:
      https://gstreamer.freedesktop.org/data/pkg/android/1.4.5/gstreamer-1.0-android-arm-release-1.4.5.tar.bz2
      Newer versions either crash or have GNUtls errors that need work.
@@ -85,7 +92,7 @@
      This requirement should go away in the future. You can use the following command:
        find jni/src -name \*.h -o -name \*.c -exec sed -i 's/aSPICE/bVNC/' {} \;
 
-   - ndk-build GSTREAMER_SDK_ROOT_ANDROID=/opt/gstreamer -j 4
+   - ndk-build -j 12
 
    - Unfortunately, currently ndk-build destroys other pre-existing libraries in eclipse_projects/bVNC/libs,
      so after successfully building libspice and libgstreamer, one has to git checkout the files which were deleted.
@@ -100,26 +107,8 @@
    - Enable requesting the RECORD_AUDIO permission in AndroidManifest.xml with the following sed command:
      sed -i 's/<!--RECORD_AUDIO-->/<uses-permission android:name="android.permission.RECORD_AUDIO"><\/uses-permission>/g' AndroidManifest.xml
 
-6c. To build aRDP, you have to successfully build the FreeRDP library.
+7c. To build aRDP, you have to successfully build the FreeRDP library.
    - Edit AndroidManifest.xml and change android:label="bVNC" and android:name="bVNC"
      to android:label="aRDP" and android:name="aRDP" respectively.
 
-   - Customize: scripts/android-build.conf
-       CMAKE_BUILD_TYPE=Release
-       BUILD_ARCH="armeabi armeabi-v7a x86"
-       WITH_OPENH264=1
-
-   - Depending on your setup, there may be some changes necessary for the project to build successfully. Mine were:
-       - Add to the end of winpr/CMakeLists.txt:
-           set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DWINPR_EXPORTS --sysroot=${ANDROID_SYSROOT}")
-
-       - Add to the end of winpr/CMakeLists.txt, libfreerdp/CMakeLists.txt, client/common/CMakeLists.txt, libfreerdp/CMakeLists.txt:
-           set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} --sysroot=${ANDROID_SYSROOT}")
-           set(CMAKE_STATIC_LINKER_FLAGS "${CMAKE_STATIC_LINKER_FLAGS} --sysroot=${ANDROID_SYSROOT}")
-
-   - Export ANDROID_SDK and ANDROID_NDK environment variables to point to your SDK and NDK installations.
-
-   - Run: ./scripts/android-build-freerdp.sh
-
-Please inform me if (6) needs to be expanded (i.e. if you needed to do
-anything else in addition to the above.
+Please inform me if (6) needs to be expanded (i.e. if you needed to do anything else in addition to the above.

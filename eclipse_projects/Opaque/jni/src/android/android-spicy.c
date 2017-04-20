@@ -23,7 +23,6 @@
 
 #include <sys/stat.h>
 #define SPICY_C
-#include "glib-compat.h"
 #include "android-spice-widget.h"
 #include "spice-audio.h"
 #include "spice-common.h"

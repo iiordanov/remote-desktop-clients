@@ -3,3 +3,5 @@ bin
 gen
 dist
 *~
+eclipse_projects/Opaque/jni/libs/deps
+eclipse_projects/Opaque/jni/libs/tar
