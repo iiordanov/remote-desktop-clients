@@ -487,15 +487,26 @@ fail_handler() {
 }
 
 build_sqlcipher() {
-        export ANDROID_NDK_ROOT="${ndkdir}"
-        cd ..
-        git clone ${sqlcipher_url} || /bin/true
-        pushd android-database-sqlcipher
+    pushd deps
+    if [ ! -f ${sqlcipher_build}/${sqlcipher_artifacts} ]
+    then
+
+        if [ ! -d ${sqlcipher_build} ]
+        then
+            git clone ${sqlcipher_url}
+        fi
+
+        pushd ${sqlcipher_build}
         git checkout v${sqlcipher_ver}
+
+        export ANDROID_NDK_ROOT="${ndkdir}"
         make init
         make
-        rsync -a libs/ ../../../../../bVNC/libs/
+        rsync -a ./libs/ ../../../../../bVNC/libs/
+
         popd
+    fi
+    popd
 }
 
 
@@ -505,6 +516,8 @@ trap fail_handler ERR
 # Parse command-line options
 parallel=""
 ndkdir=""
+origdir="$(pwd)"
+
 while getopts "j:n:" opt
 do
     case "$opt" in
@@ -529,6 +542,10 @@ build)
         build "$curabi"
     done
     build_sqlcipher
+
+    # Run a build of the Android jni code.
+    cd ../../
+    ndk-build
     ;;
 clean)
     shift
@@ -550,8 +567,5 @@ EOF
     exit 1
     ;;
 esac
-
-# Run a build of the Android jni code.
-ndk-build -j 12
 
 exit 0
