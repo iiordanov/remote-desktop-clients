@@ -30,7 +30,7 @@
      by (Right-clicking on the project)->Properties->Android
 
 3. Install at least the following dependencies:
-   cmake aclocal libtoolize intltool gtk-doc-tools gnome-common
+   cmake automake libtool intltool gtk-doc-tools gnome-common
 
 4. Change directory to the Opaque project
    cd eclipse_projects/Opaque/jni/libs/
