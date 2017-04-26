@@ -3,7 +3,7 @@
           package="com.iiordanov.bVNC" android:installLocation="auto"
           android:versionCode="3920" android:versionName="v3.9.2">
 
-    <uses-sdk android:minSdkVersion="8" android:targetSdkVersion="10"></uses-sdk>
+    <uses-sdk android:minSdkVersion="12" android:targetSdkVersion="12"></uses-sdk>
     <uses-permission android:name="android.permission.INTERNET"></uses-permission>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"></uses-permission>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"></uses-permission>

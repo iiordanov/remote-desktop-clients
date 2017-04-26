@@ -92,6 +92,13 @@ is_built() {
 }
 
 do_configure() {
+    if [ "$1" == "install_in_gst" ]
+    then
+        shift
+        prefix="${gst}"
+    else
+        prefix="${root}"
+    fi
     # Run configure with the appropriate parameters.
     # Additional parameters can be specified as arguments.
     #
@@ -102,7 +109,7 @@ do_configure() {
     ./configure \
             --host=${build_host} \
             --build=${build_system} \
-            --prefix="$root" \
+            --prefix="${prefix}" \
             --enable-static \
             --disable-shared \
             --disable-dependency-tracking \
@@ -205,40 +212,6 @@ build_one() {
         done
 
         ;;
-    freerdp)
-        # Patch the config
-        sed -i -e 's/CMAKE_BUILD_TYPE=.*/CMAKE_BUILD_TYPE=Release/'\
-               -e 's/WITH_OPENH264=.*/WITH_OPENH264=1/'\
-               -e "s/BUILD_ARCH=.*/BUILD_ARCH=\"${abi}\"/" ./scripts/android-build.conf
-
-        echo 'set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DWINPR_EXPORTS --sysroot=${ANDROID_SYSROOT}")' >>  winpr/CMakeLists.txt
-        for f in winpr/CMakeLists.txt winpr/libwinpr/CMakeLists.txt libfreerdp/CMakeLists.txt client/common/CMakeLists.txt client/Android/CMakeLists.txt client/common/CMakeLists.txt
-        do
-            echo 'set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} --sysroot=${ANDROID_SYSROOT}")' >> $f
-            echo 'set(CMAKE_STATIC_LINKER_FLAGS "${CMAKE_STATIC_LINKER_FLAGS} --sysroot=${ANDROID_SYSROOT}")' >> $f
-        done
-
-        # Something wrong with NDK?
-        sed -i 's/static int pthread_mutex_timedlock/int pthread_mutex_timedlock/' winpr/libwinpr/synch/wait.c
-
-        patch -p0 < "${basedir}/drive-file.patch"
-
-        export ANDROID_NDK="${ndkdir}"
-        ./scripts/android-build-freerdp.sh
-
-        # Prepare the FreeRDPCore project for importing into Eclipse
-        rm -f ../../../../../../../FreeRDP
-        ln -s Opaque/jni/libs/deps/armeabi-v7a/build/${freerdp_build} ../../../../../../../FreeRDP
-        ln -s jniLibs client/Android/Studio/freeRDPCore/src/main/libs
-        ln -s java client/Android/Studio/freeRDPCore/src/main/src
-
-        # Prove the library was built to the build system
-        cp client/Android/Studio/freeRDPCore/src/main/jniLibs/${abi}/${freerdp_artifacts} ${root}/lib/
-
-        # Collect all of the built libraries into armeabi-v7a
-        rsync -a client/Android/Studio/freeRDPCore/src/main/jniLibs/ \
-                 ../../../armeabi-v7a/build/${freerdp_build}/client/Android/Studio/freeRDPCore/src/main/jniLibs/
-        ;;
     soup)
         #gtkdocize
         echo "EXTRA_DIST =" > gtk-doc.make
@@ -282,6 +255,37 @@ build_one() {
     usbredir)
         autoreconf -fi
         do_configure
+        make $parallel
+        make install
+        ;;
+    gnutls)
+        # Convert the static libs to shared libs
+        pushd ${gst}/lib/
+        for l in gmp hogweed iconv intl nettle z
+        do
+          mkdir $l.tmp
+          pushd $l.tmp
+          ${toolchain}/bin/${build_host}-ar -x ../lib$l.a
+          ${toolchain}/bin/${build_host}-gcc -shared -o lib$l.so *.o -l$l -L../
+          mv lib$l.so ../
+          popd
+          rm -rf $l.tmp
+        done
+        popd
+
+        # Build in normal root once to create artifact
+        do_configure \
+                --disable-crywrap \
+                --without-p11-kit \
+                --disable-doc
+        make $parallel
+        make install
+
+        # Build again over top of gstreamer's gnutls to upgrade it
+        do_configure install_in_gst \
+                --disable-crywrap \
+                --without-p11-kit \
+                --disable-doc
         make $parallel
         make install
         ;;
@@ -486,6 +490,62 @@ fail_handler() {
     exit 1
 }
 
+build_freerdp() {
+    pushd deps
+    basedir="$(pwd)"
+
+    missing_artifact="false"
+    for abi in $abis
+    do
+      for f in ${freerdp_build}/client/Android/Studio/freeRDPCore/src/main/jniLibs/${abi}/${freerdp_artifacts}
+      do
+        if [ ! -f ${f} ]
+        then
+          missing_artifact="true"
+        fi
+      done
+    done
+
+    if [ $missing_artifact == "true" ]
+    then
+        if [ ! -d ${freerdp_build} ]
+        then
+            git clone ${freerdp_url}
+        fi
+
+        pushd ${freerdp_build}
+        git fetch
+        git checkout ${freerdp_ver}
+
+        # Patch the config
+        sed -i -e 's/CMAKE_BUILD_TYPE=.*/CMAKE_BUILD_TYPE=Release/'\
+               -e 's/WITH_OPENH264=.*/WITH_OPENH264=1/'\
+               -e "s/BUILD_ARCH=.*/BUILD_ARCH=\"${abis}\"/" ./scripts/android-build.conf
+
+        echo 'set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DWINPR_EXPORTS --sysroot=${ANDROID_SYSROOT}")' >>  winpr/CMakeLists.txt
+        for f in winpr/CMakeLists.txt winpr/libwinpr/CMakeLists.txt libfreerdp/CMakeLists.txt client/common/CMakeLists.txt client/Android/CMakeLists.txt client/common/CMakeLists.txt
+        do
+            echo 'set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} --sysroot=${ANDROID_SYSROOT}")' >> $f
+            echo 'set(CMAKE_STATIC_LINKER_FLAGS "${CMAKE_STATIC_LINKER_FLAGS} --sysroot=${ANDROID_SYSROOT}")' >> $f
+        done
+
+        # Something wrong with NDK?
+        sed -i 's/static int pthread_mutex_timedlock/int pthread_mutex_timedlock/' winpr/libwinpr/synch/wait.c
+
+        patch -p0 < "${basedir}/drive-file.patch"
+
+        export ANDROID_NDK="${ndkdir}"
+        ./scripts/android-build-freerdp.sh
+
+        # Prepare the FreeRDPCore project for importing into Eclipse
+        rm -f ../../../../../FreeRDP
+        ln -s Opaque/jni/libs/deps/${freerdp_build} ../../../../../FreeRDP
+        ln -s jniLibs client/Android/Studio/freeRDPCore/src/main/libs
+        ln -s java client/Android/Studio/freeRDPCore/src/main/src
+    fi
+    popd
+}
+
 build_sqlcipher() {
     pushd deps
     if [ ! -f ${sqlcipher_build}/${sqlcipher_artifacts} ]
@@ -497,10 +557,13 @@ build_sqlcipher() {
         fi
 
         pushd ${sqlcipher_build}
+        git fetch
         git checkout v${sqlcipher_ver}
 
         export ANDROID_NDK_ROOT="${ndkdir}"
         make init
+
+        rm -f libs/sqlcipher.jar
         make
         rsync -a ./libs/ ../../../../../bVNC/libs/
 
@@ -542,6 +605,7 @@ build)
         build "$curabi"
     done
     build_sqlcipher
+    build_freerdp
 
     # Run a build of the Android jni code.
     cd ../../

@@ -2,6 +2,12 @@ LOCAL_PATH 	:= $(call my-dir)
 COMMON_ROOT	:= ../libs/deps/$(TARGET_ARCH_ABI)
 PREBUILT_ROOT   := $(COMMON_ROOT)/root
 
+# Add prebuilt libraries to avoid deletion.
+include $(CLEAR_VARS)
+LOCAL_MODULE := libsqlcipher
+LOCAL_SRC_FILES := ../libs/deps/android-database-sqlcipher/libs/$(TARGET_ARCH_ABI)/libsqlcipher.so
+include $(PREBUILT_SHARED_LIBRARY)
+
 include $(CLEAR_VARS)
 LOCAL_MODULE            := usb
 LOCAL_SRC_FILES         := $(PREBUILT_ROOT)/lib/libusb-1.0.a
@@ -85,12 +91,6 @@ LOCAL_C_INCLUDES += \
                     $(LOCAL_PATH)/$(PREBUILT_ROOT)/include/rest-0.7 \
                     $(LOCAL_PATH)/$(PREBUILT_ROOT)/include/libusb-1.0 \
                     $(LOCAL_PATH)/virt-viewer
-
-#                    $(LOCAL_PATH)/$(COMMON_ROOT)/build/spice-gtk-$(SPICE_VER) \
-#                    $(LOCAL_PATH)/$(COMMON_ROOT)/build/spice-gtk-$(SPICE_VER)/src \
-#                    $(LOCAL_PATH)/$(COMMON_ROOT)/build/spice-gtk-$(SPICE_VER)/spice-common \
-#                    $(LOCAL_PATH)/$(COMMON_ROOT)/build/spice-gtk-$(SPICE_VER)/spice-common/common \
-
 
 LOCAL_SRC_FILES := virt-viewer/virt-viewer-file.c virt-viewer/virt-viewer-util.c \
                    android/android-service.c android/android-spicy.c android/android-spice-widget.c \
