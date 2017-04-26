@@ -30,11 +30,15 @@
      by (Right-clicking on the project)->Properties->Android
 
 3. Install at least the following dependencies:
-   cmake automake libtool intltool gtk-doc-tools gnome-common
+   cmake automake libtool intltool gtk-doc-tools gnome-common gobject-introspection nasm
 
 4. Change directory to the Opaque project
+
+   export PATH=$PATH:/path/to/your/android/NDK/
+   export PATH=$PATH:/path/to/your/android/SDK/platform-tools/
+   export PATH=$PATH:/path/to/your/android/SDK/tools
    cd eclipse_projects/Opaque/jni/libs/
-   ./build-deps.sh -j 4 -n /path/to/your/ndk build
+   ./build-deps.sh -j 4 -n /path/to/your/android/NDK build
 
 5. Import all projects into Eclipse.
 
