@@ -532,7 +532,7 @@ build_freerdp() {
         # Something wrong with NDK?
         sed -i 's/static int pthread_mutex_timedlock/int pthread_mutex_timedlock/' winpr/libwinpr/synch/wait.c
 
-        patch -p0 < "${basedir}/drive-file.patch"
+        patch -p0 < "${basedir}/../drive-file.patch"
 
         export ANDROID_NDK="${ndkdir}"
         ./scripts/android-build-freerdp.sh
