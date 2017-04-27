@@ -516,6 +516,7 @@ build_freerdp() {
         pushd ${freerdp_build}
         git fetch
         git checkout ${freerdp_ver}
+        git reset --hard
 
         # Patch the config
         sed -i -e 's/CMAKE_BUILD_TYPE=.*/CMAKE_BUILD_TYPE=Release/'\
@@ -532,7 +533,8 @@ build_freerdp() {
         # Something wrong with NDK?
         sed -i 's/static int pthread_mutex_timedlock/int pthread_mutex_timedlock/' winpr/libwinpr/synch/wait.c
 
-        patch -p0 < "${basedir}/../drive-file.patch"
+        patch -p0 < "${basedir}/../freerdp_drive-file.patch"
+        patch -p1 < "${basedir}/../freerdp_cmakelists.patch"
 
         export ANDROID_NDK="${ndkdir}"
         ./scripts/android-build-freerdp.sh
@@ -559,6 +561,7 @@ build_sqlcipher() {
         pushd ${sqlcipher_build}
         git fetch
         git checkout v${sqlcipher_ver}
+	git reset --hard
 
         export ANDROID_NDK_ROOT="${ndkdir}"
         make init
