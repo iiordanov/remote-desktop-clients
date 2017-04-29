@@ -6,11 +6,14 @@ import android.view.View.OnClickListener;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 
-import com.iiordanov.bVNC.R;
 import com.iiordanov.bVNC.RemoteCanvas;
 import com.iiordanov.bVNC.RemoteCanvasActivity;
-import com.iiordanov.bVNC.R.id;
-import com.iiordanov.bVNC.R.string;
+import com.iiordanov.bVNC.*;
+import com.iiordanov.freebVNC.*;
+import com.iiordanov.aRDP.*;
+import com.iiordanov.freeaRDP.*;
+import com.iiordanov.aSPICE.*;
+import com.iiordanov.freeaSPICE.*;
 
 public class SingleHandedInputHandler extends TouchMouseSwipePanInputHandler {
     static final String TAG = "SingleHandedInputHandler";

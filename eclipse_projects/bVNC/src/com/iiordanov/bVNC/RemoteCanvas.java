@@ -87,6 +87,12 @@ import com.iiordanov.bVNC.input.RemoteVncPointer;
 import com.iiordanov.tigervnc.vncviewer.CConn;
 import com.iiordanov.bVNC.dialogs.GetTextFragment;
 import com.iiordanov.bVNC.exceptions.AnonCipherUnsupportedException;
+import com.iiordanov.bVNC.*;
+import com.iiordanov.freebVNC.*;
+import com.iiordanov.aRDP.*;
+import com.iiordanov.freeaRDP.*;
+import com.iiordanov.aSPICE.*;
+import com.iiordanov.freeaSPICE.*;
 
 public class RemoteCanvas extends ImageView implements LibFreeRDP.UIEventListener, LibFreeRDP.EventListener {
     private final static String TAG = "RemoteCanvas";

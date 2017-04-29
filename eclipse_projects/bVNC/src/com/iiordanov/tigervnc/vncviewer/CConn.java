@@ -45,7 +45,6 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 
-import com.iiordanov.bVNC.AbstractConnectionBean;
 import com.iiordanov.bVNC.RemoteCanvas;
 import com.iiordanov.bVNC.AbstractBitmapData;
 import com.iiordanov.bVNC.RfbConnectable;
@@ -53,6 +52,12 @@ import com.iiordanov.bVNC.input.RemoteKeyboard;
 import com.iiordanov.tigervnc.rdr.*;
 import com.iiordanov.tigervnc.rfb.*;
 import com.iiordanov.tigervnc.rfb.Exception;
+import com.iiordanov.bVNC.*;
+import com.iiordanov.freebVNC.*;
+import com.iiordanov.aRDP.*;
+import com.iiordanov.freeaRDP.*;
+import com.iiordanov.aSPICE.*;
+import com.iiordanov.freeaSPICE.*;
 
 public class CConn extends CConnection
   implements UserPasswdGetter, UserMsgBox, RfbConnectable

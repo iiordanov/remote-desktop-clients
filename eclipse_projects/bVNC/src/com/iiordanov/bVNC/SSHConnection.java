@@ -42,6 +42,12 @@ import com.trilead.ssh2.InteractiveCallback;
 import com.trilead.ssh2.KnownHosts;
 import com.trilead.ssh2.Session;
 import com.iiordanov.bVNC.dialogs.GetTextFragment;
+import com.iiordanov.bVNC.*;
+import com.iiordanov.freebVNC.*;
+import com.iiordanov.aRDP.*;
+import com.iiordanov.freeaRDP.*;
+import com.iiordanov.aSPICE.*;
+import com.iiordanov.freeaSPICE.*;
 
 /**
  * @author Iordan K Iordanov

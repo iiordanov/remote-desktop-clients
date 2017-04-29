@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          package="com.iiordanov.aSPICE" android:installLocation="auto"
+          android:versionCode="3920" android:versionName="v3.9.2">
+
+    <uses-sdk android:minSdkVersion="12" android:targetSdkVersion="12"></uses-sdk>
+    <uses-permission android:name="android.permission.INTERNET"></uses-permission>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"></uses-permission>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"></uses-permission>
+    <!--MODIFY_AUDIO_SETTINGS-->
+    <uses-permission android:name="android.permission.RECORD_AUDIO"></uses-permission>
+    <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
+    <uses-feature android:name="android.hardware.microphone" android:required="false"/>
+
+    <supports-screens
+        android:xlargeScreens="true"
+        android:largeScreens="true"
+        android:normalScreens="true"
+        android:smallScreens="true"
+        android:anyDensity="true"/>
+		
+    <application android:icon="@drawable/icon" android:label="@string/aspice_app_name" android:allowBackup="false" android:debuggable="false" android:theme="@style/AppTheme" android:name="com.iiordanov.bVNC.App">
+                <activity android:label="@string/aspice_app_name"
+                          android:name="com.iiordanov.bVNC.aSPICE"
+                          android:screenOrientation="unspecified"
+                          android:configChanges="orientation|keyboardHidden"
+                          android:windowSoftInputMode="stateHidden|adjustResize"
+                          android:theme="@android:style/Theme.DeviceDefault">
+                        <intent-filter>
+                                <action android:name="android.intent.action.MAIN"></action>
+                                <category android:name="android.intent.category.LAUNCHER"></category>
+                                <category android:name="android.intent.category.MULTIWINDOW_LAUNCHER"></category>
+                        </intent-filter>
+                </activity>
+                <activity android:screenOrientation="unspecified"
+                          android:configChanges="orientation|keyboardHidden|keyboard"
+		                  android:name="com.iiordanov.bVNC.RemoteCanvasActivity"
+		                  android:windowSoftInputMode="stateHidden|adjustResize"
+		                  android:theme="@android:style/Theme.DeviceDefault">
+                       <intent-filter>
+                                <action android:name="android.intent.action.VIEW"></action>
+                       </intent-filter>
+                       <intent-filter>
+                                <action android:name="android.intent.action.VIEW" />
+                                <category android:name="android.intent.category.DEFAULT" />
+                                <data android:scheme="vnc" />
+                       </intent-filter>
+                       <intent-filter>
+                                <action android:name="android.intent.action.VIEW" />
+                                <category android:name="android.intent.category.DEFAULT" />
+                                <data android:mimeType="application/vnd.vnc" />
+                       </intent-filter>
+                </activity>
+                <activity android:name="com.iiordanov.bVNC.ConnectionListActivity"
+                          android:label="@string/shortcut_label"
+                          android:windowSoftInputMode="stateHidden|adjustResize"
+                          android:theme="@android:style/Theme.DeviceDefault">
+                       <intent-filter>
+                                <action android:name="android.intent.action.CREATE_SHORTCUT" />
+                                <category android:name="android.intent.category.DEFAULT" />
+                       </intent-filter>
+                </activity>
+		<activity android:name="com.iiordanov.pubkeygenerator.GeneratePubkeyActivity"
+                  android:configChanges="keyboardHidden|orientation"
+                  android:windowSoftInputMode="stateHidden|adjustResize"
+                  android:screenOrientation="unspecified"
+                  android:theme="@android:style/Theme.DeviceDefault"/>
+                <uses-library android:required="false" android:name="com.sec.android.app.multiwindow"> </uses-library>
+                <meta-data android:name="com.sec.android.support.multiwindow"
+                           android:value="true" />
+                <meta-data android:name="com.sec.android.multiwindow.DEFAULT_SIZE_W"
+                           android:resource="@dimen/app_defaultsize_w" />
+                <meta-data android:name="com.sec.android.multiwindow.DEFAULT_SIZE_H"
+                           android:resource="@dimen/app_defaultsize_h" />
+                <meta-data android:name="com.sec.android.multiwindow.MINIMUM_SIZE_W"
+                           android:resource="@dimen/app_minimumsize_w" />
+                <meta-data android:name="com.sec.android.multiwindow.MINIMUM_SIZE_H"
+                           android:resource="@dimen/app_minimumsize_h" />
+    </application>
+</manifest> 

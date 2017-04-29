@@ -24,9 +24,6 @@ import java.io.IOException;
 
 import java.util.ArrayList;
 
-import com.iiordanov.bVNC.R;
-import com.iiordanov.bVNC.SentTextBean;
-import com.iiordanov.bVNC.RemoteCanvasActivity;
 import com.iiordanov.bVNC.input.RemoteKeyboard;
 
 import android.app.Activity;
@@ -39,6 +36,12 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import com.iiordanov.bVNC.*;
+import com.iiordanov.freebVNC.*;
+import com.iiordanov.aRDP.*;
+import com.iiordanov.freeaRDP.*;
+import com.iiordanov.aSPICE.*;
+import com.iiordanov.freeaSPICE.*;
 
 /**
  * @author Michael A. MacDonald

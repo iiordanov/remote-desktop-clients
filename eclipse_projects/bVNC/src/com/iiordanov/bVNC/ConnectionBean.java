@@ -43,6 +43,12 @@ import android.widget.ImageView.ScaleType;
 
 import com.antlersoft.android.dbimpl.NewInstance;
 import com.iiordanov.bVNC.input.TouchMouseSwipePanInputHandler;
+import com.iiordanov.bVNC.*;
+import com.iiordanov.freebVNC.*;
+import com.iiordanov.aRDP.*;
+import com.iiordanov.freeaRDP.*;
+import com.iiordanov.aSPICE.*;
+import com.iiordanov.freeaSPICE.*;
 
 /**
  * @author Iordan Iordanov

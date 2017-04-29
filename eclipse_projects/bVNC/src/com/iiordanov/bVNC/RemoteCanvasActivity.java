@@ -86,7 +86,12 @@ import com.iiordanov.bVNC.input.SimulatedTouchpadInputHandler;
 import com.iiordanov.bVNC.input.SingleHandedInputHandler;
 import com.iiordanov.bVNC.input.TouchMouseDragPanInputHandler;
 import com.iiordanov.bVNC.input.TouchMouseSwipePanInputHandler;
-
+import com.iiordanov.bVNC.*;
+import com.iiordanov.freebVNC.*;
+import com.iiordanov.aRDP.*;
+import com.iiordanov.freeaRDP.*;
+import com.iiordanov.aSPICE.*;
+import com.iiordanov.freeaSPICE.*;
 
 public class RemoteCanvasActivity extends FragmentActivity implements OnKeyListener {
     

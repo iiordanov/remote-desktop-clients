@@ -45,6 +45,12 @@ import android.widget.CompoundButton.OnCheckedChangeListener;
 import com.iiordanov.bVNC.dialogs.AutoXCustomizeDialog;
 import com.iiordanov.bVNC.dialogs.ImportExportDialog;
 import com.iiordanov.bVNC.dialogs.RepeaterDialog;
+import com.iiordanov.bVNC.*;
+import com.iiordanov.freebVNC.*;
+import com.iiordanov.aRDP.*;
+import com.iiordanov.freeaRDP.*;
+import com.iiordanov.aSPICE.*;
+import com.iiordanov.freeaSPICE.*;
 
 /**
  * bVNC is the Activity for setting up VNC connections.

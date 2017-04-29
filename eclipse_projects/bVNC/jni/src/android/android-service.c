@@ -192,7 +192,7 @@ static gboolean disconnect(gpointer user_data) {
  * Called from the JVM, this function causes the SPICE client to disconnect from the server
  */
 JNIEXPORT void JNICALL
-Java_com_iiordanov_aSPICE_SpiceCommunicator_SpiceClientDisconnect (JNIEnv * env, jobject  obj) {
+Java_com_iiordanov_bVNC_SpiceCommunicator_SpiceClientDisconnect (JNIEnv * env, jobject  obj) {
     __android_log_write(6, "spiceDisconnect", "Disconnecting.");
     g_main_context_invoke (NULL, disconnect, NULL);
 }
@@ -206,7 +206,7 @@ gboolean getJvmAndMethodReferences (JNIEnv *env) {
     }
 
     // Find the jclass reference and get a Global reference for it for use in other threads.
-    jclass local_class  = (*env)->FindClass (env, "com/iiordanov/aSPICE/SpiceCommunicator");
+    jclass local_class  = (*env)->FindClass (env, "com/iiordanov/bVNC/SpiceCommunicator");
 	jni_connector_class = (jclass)((*env)->NewGlobalRef(env, local_class));
 
 	// Get global method IDs for callback methods.
@@ -216,7 +216,7 @@ gboolean getJvmAndMethodReferences (JNIEnv *env) {
 }
 
 JNIEXPORT jint JNICALL
-Java_com_iiordanov_aSPICE_SpiceCommunicator_SpiceClientConnect (JNIEnv *env, jobject obj, jstring h, jstring p,
+Java_com_iiordanov_bVNC_SpiceCommunicator_SpiceClientConnect (JNIEnv *env, jobject obj, jstring h, jstring p,
                                                                jstring tp, jstring pw, jstring cf, jstring cs, jboolean sound)
 {
 	const gchar *host = NULL;
@@ -369,7 +369,7 @@ void static sendMessage (JNIEnv* env, const int messageID, const gchar *message_
 	if (env == NULL) {
 	    attached = attachThreadToJvm (&env);
 	}
-    jclass class  = (*env)->FindClass (env, "com/iiordanov/aSPICE/SpiceCommunicator");
+    jclass class  = (*env)->FindClass (env, "com/iiordanov/bVNC/SpiceCommunicator");
 	jmethodID sendMessage = (*env)->GetStaticMethodID (env, class, "sendMessageWithText", "(ILjava/lang/String;)V");
     jstring messageText = (*env)->NewStringUTF(env, message_text);
 	(*env)->CallStaticVoidMethod(env, class, sendMessage, messageID, messageText);
@@ -403,7 +403,7 @@ authenticationCallback(RestProxy *proxy, G_GNUC_UNUSED RestProxyAuth *auth,
 
 
 JNIEXPORT jint JNICALL
-Java_com_iiordanov_aSPICE_SpiceCommunicator_StartSessionFromVvFile(JNIEnv *env, jobject obj, jstring vvFileName, jboolean sound) {
+Java_com_iiordanov_bVNC_SpiceCommunicator_StartSessionFromVvFile(JNIEnv *env, jobject obj, jstring vvFileName, jboolean sound) {
     __android_log_write(6, "StartSessionFromVvFile", "Starting.");
 
     gchar *vv_file_name = NULL;
@@ -440,7 +440,7 @@ error:
 
 
 JNIEXPORT jint JNICALL
-Java_com_iiordanov_aSPICE_SpiceCommunicator_CreateOvirtSession(JNIEnv *env,
+Java_com_iiordanov_bVNC_SpiceCommunicator_CreateOvirtSession(JNIEnv *env,
                                                                      jobject obj,
                                                                      jstring URI, jstring user, jstring pass,
                                                                      jstring sslCaFile,
@@ -602,7 +602,7 @@ int CreateOvirtSession(JNIEnv *env, jobject obj, const gchar *uri, const gchar *
     	__android_log_write(6, "CreateOvirtSession", "VNC display type, trying to launch external app.");
 
         // Get a reference to the static void method used to add VM names to SpiceCommunicator.
-        jclass class  = (*env)->FindClass (env, "com/iiordanov/aSPICE/SpiceCommunicator");
+        jclass class  = (*env)->FindClass (env, "com/iiordanov/bVNC/SpiceCommunicator");
     	jmethodID launchVncViewer = (*env)->GetStaticMethodID (env, class, "LaunchVncViewer", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V");
        	jstring vncAddress = (*env)->NewStringUTF(env, ghost);
        	jstring vncPort    = (*env)->NewStringUTF(env, gport);
@@ -647,7 +647,7 @@ error:
 }
 
 JNIEXPORT jint JNICALL
-Java_com_iiordanov_aSPICE_SpiceCommunicator_FetchVmNames(JNIEnv *env,
+Java_com_iiordanov_bVNC_SpiceCommunicator_FetchVmNames(JNIEnv *env,
 		                                                         jobject obj,
 		                                                         jstring URI, jstring user, jstring password,
 		                                                         jstring sslCaFile, jboolean sslStrict) {
@@ -741,7 +741,7 @@ Java_com_iiordanov_aSPICE_SpiceCommunicator_FetchVmNames(JNIEnv *env,
     g_hash_table_iter_init (&iter, name_to_vm_map);
 
     // Get a reference to the static void method used to add VM names to SpiceCommunicator.
-    jclass class  = (*env)->FindClass (env, "com/iiordanov/aSPICE/SpiceCommunicator");
+    jclass class  = (*env)->FindClass (env, "com/iiordanov/bVNC/SpiceCommunicator");
 	jmethodID jniAddVm = (*env)->GetStaticMethodID (env, class, "AddVm", "(Ljava/lang/String;)V");
 
     while (g_hash_table_iter_next (&iter, &vmname, &vm)) {
@@ -763,7 +763,7 @@ int openUsbDevice (int vid, int pid) {
     gboolean attached = FALSE;
     attached = attachThreadToJvm (&env);
 
-    jclass class  = (*env)->FindClass (env, "com/iiordanov/aSPICE/SpiceCommunicator");
+    jclass class  = (*env)->FindClass (env, "com/iiordanov/bVNC/SpiceCommunicator");
     jmethodID openUsbDevice = (*env)->GetStaticMethodID (env, class, "openUsbDevice", "(II)I");
     int fd = (*env)->CallStaticIntMethod(env, class, openUsbDevice, vid, pid);
 

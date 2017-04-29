@@ -5,10 +5,14 @@ import android.view.KeyEvent;
 import android.view.MotionEvent;
 
 import com.iiordanov.android.bc.BCFactory;
-import com.iiordanov.bVNC.R;
 import com.iiordanov.bVNC.RemoteCanvas;
 import com.iiordanov.bVNC.RemoteCanvasActivity;
-import com.iiordanov.bVNC.R.string;
+import com.iiordanov.bVNC.*;
+import com.iiordanov.freebVNC.*;
+import com.iiordanov.aRDP.*;
+import com.iiordanov.freeaRDP.*;
+import com.iiordanov.aSPICE.*;
+import com.iiordanov.freeaSPICE.*;
 
 public class SimulatedTouchpadInputHandler extends AbstractGestureInputHandler {
     static final String TAG = "SimulatedTouchpadInputHandler";

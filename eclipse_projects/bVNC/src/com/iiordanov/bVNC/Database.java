@@ -29,6 +29,12 @@ import net.sqlcipher.database.SQLiteDatabase;
 import net.sqlcipher.database.SQLiteException;
 import net.sqlcipher.database.SQLiteOpenHelper;
 import android.util.Log;
+import com.iiordanov.bVNC.*;
+import com.iiordanov.freebVNC.*;
+import com.iiordanov.aRDP.*;
+import com.iiordanov.freeaRDP.*;
+import com.iiordanov.aSPICE.*;
+import com.iiordanov.freeaSPICE.*;
 
 /**
  * @author Michael A. MacDonald
@@ -55,7 +61,7 @@ public class Database extends SQLiteOpenHelper {
     
     public final static String TAG = Database.class.toString();
     
-    Database(Context context) {
+    public Database(Context context) {
         super(context, dbName, null, DBV_2_1_5);
         SQLiteDatabase.loadLibs(context);
     }

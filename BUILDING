@@ -29,25 +29,32 @@
    - You may have to switch the Android Build Target to API 23 or newer
      by (Right-clicking on the project)->Properties->Android
 
-3. Install at least the following dependencies:
+3. Install at least the following dependencies on your Linux machine:
    cmake automake libtool intltool gtk-doc-tools gnome-common gobject-introspection nasm
 
-4. Change directory to the Opaque project
+4. Build all library dependencies (30 - 60 minutes of compilation):
 
+   cd eclipse_projects/bVNC/jni/libs/
    export PATH=$PATH:/path/to/your/android/NDK/
    export PATH=$PATH:/path/to/your/android/SDK/platform-tools/
    export PATH=$PATH:/path/to/your/android/SDK/tools
-   cd eclipse_projects/Opaque/jni/libs/
    ./build-deps.sh -j 4 -n /path/to/your/android/NDK build
 
 5. Import all projects into Eclipse.
 
-   Add bVNC, ZoomerWithKeys, PubkeyGenerator from the
-   bVNC/eclipse_projects/ directory to Eclipse as existing Android
+   Add bVNC, ZoomerWithKeys, PubkeyGenerator, android-support-v7-appcompat,
+   and FreeRDPCore projects.
+
+   The bVNC, ZoomerWithKeys, and PubkeyGenerator are in the
+   bVNC/eclipse_projects/ directory. Add them to Eclipse as existing Android
    projects.
-  
+
+   The android-support-v7-appcompat project is available under the
+   extras/android/support/v7/appcompat/ in your Android SDK if you have
+   installed the support libraries through the SDK manager.
+
    The FreeRDP project was downloaded automatically as part of the build process,
-   and a symlinc was made to it in bVNC/eclipse_projects/
+   and a symlinc was made to it in bVNC/eclipse_projects/.
 
    Some modifications are needed to the freeRDPCore project in part because
    it is set up to be developed under the ADT IDE.
@@ -62,7 +69,8 @@
 
    - Also there, click Add to a reference to the AppCompat project (from 2)
 
-   - Also there, change Java Compiler->Compiler compliance level to 1.7.
+   - Also there, change Java Compiler -> Enable project specific settings -> 
+     Compiler compliance level to 1.7.
 
    - Clean and rebuild the project.
 
@@ -83,36 +91,21 @@
 7a. To build bVNC, just use the IDE to deploy the project to your device, etc.
 
 7b. To build aSPICE, you need to:
-   - Unpack gstreamer-sdk 1.4.5 into /opt/gstreamer. I obtained my copy from:
-     https://gstreamer.freedesktop.org/data/pkg/android/1.4.5/gstreamer-1.0-android-arm-release-1.4.5.tar.bz2
-     Newer versions either crash or have GNUtls errors that need work.
-
-   - Edit AndroidManifest.xml and change android:label="bVNC" and android:name="bVNC"
-     to android:label="aSPICE" and android:name="aSPICE" respectively.
-
    - cd bVNC/eclipse_projects/bVNC
+   - cp AndroidManifest.xml.aspice AndroidManifest.xml
 
-   - Replace all instances of aSPICE with bVNC in native code (.c and .h files).
-     This requirement should go away in the future. You can use the following command:
-       find jni/src -name \*.h -o -name \*.c -exec sed -i 's/aSPICE/bVNC/' {} \;
-
-   - ndk-build -j 12
-
-   - Unfortunately, currently ndk-build destroys other pre-existing libraries in eclipse_projects/bVNC/libs,
-     so after successfully building libspice and libgstreamer, one has to git checkout the files which were deleted.
-
-   - Force one boolean variable to be true. You can use the following command:
-       find ./ -name \*.java -exec sed -i 's/isSpice = .*;/isSpice = true;/' {} \;
+   - Recompile with:
+     ndk-build -j 12
 
    - You may have to select the "Android private libraries" entry in
        Project Properties->Java Build Path->Order and Export
      if you have it.
 
-   - Enable requesting the RECORD_AUDIO permission in AndroidManifest.xml with the following sed command:
-     sed -i 's/<!--RECORD_AUDIO-->/<uses-permission android:name="android.permission.RECORD_AUDIO"><\/uses-permission>/g' AndroidManifest.xml
+   - Clean and rebuild the project.
 
 7c. To build aRDP, you have to successfully build the FreeRDP library.
-   - Edit AndroidManifest.xml and change android:label="bVNC" and android:name="bVNC"
-     to android:label="aRDP" and android:name="aRDP" respectively.
+   - cd bVNC/eclipse_projects/bVNC
+   - cp AndroidManifest.xml.ardp AndroidManifest.xml
+   - Clean and rebuild the project.
 
 Please inform me if (6) needs to be expanded (i.e. if you needed to do anything else in addition to the above.

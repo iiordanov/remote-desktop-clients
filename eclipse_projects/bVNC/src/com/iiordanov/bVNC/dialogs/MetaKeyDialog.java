@@ -30,8 +30,6 @@ import com.iiordanov.bVNC.ConnectionBean;
 import com.iiordanov.bVNC.ConnectionSettable;
 import com.iiordanov.bVNC.MetaKeyBase;
 import com.iiordanov.bVNC.MetaKeyBean;
-import com.iiordanov.bVNC.MetaList;
-import com.iiordanov.bVNC.R;
 import com.iiordanov.bVNC.Utils;
 import com.iiordanov.bVNC.RemoteCanvasActivity;
 import com.iiordanov.bVNC.Database;
@@ -60,6 +58,12 @@ import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
+import com.iiordanov.bVNC.*;
+import com.iiordanov.freebVNC.*;
+import com.iiordanov.aRDP.*;
+import com.iiordanov.freeaRDP.*;
+import com.iiordanov.aSPICE.*;
+import com.iiordanov.freeaSPICE.*;
 
 /**
  * @author Michael A. MacDonald

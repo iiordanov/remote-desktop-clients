@@ -1,12 +1,49 @@
 LOCAL_PATH 	:= $(call my-dir)
 COMMON_ROOT	:= ../libs/deps/$(TARGET_ARCH_ABI)
 PREBUILT_ROOT   := $(COMMON_ROOT)/root
+GSTREAMER_ROOT  := $(COMMON_ROOT)/gstreamer
 
 # Add prebuilt libraries to avoid deletion.
 include $(CLEAR_VARS)
 LOCAL_MODULE := libsqlcipher
 LOCAL_SRC_FILES := ../libs/deps/android-database-sqlcipher/libs/$(TARGET_ARCH_ABI)/libsqlcipher.so
 include $(PREBUILT_SHARED_LIBRARY)
+
+include $(CLEAR_VARS)
+LOCAL_MODULE := libhogweed
+LOCAL_SRC_FILES := $(GSTREAMER_ROOT)/lib/libhogweed.so
+include $(PREBUILT_SHARED_LIBRARY)
+
+include $(CLEAR_VARS)
+LOCAL_MODULE := libz
+LOCAL_SRC_FILES := $(GSTREAMER_ROOT)/lib/libz.so
+include $(PREBUILT_SHARED_LIBRARY)
+
+include $(CLEAR_VARS)
+LOCAL_MODULE := libnettle
+LOCAL_SRC_FILES := $(GSTREAMER_ROOT)/lib/libnettle.so
+include $(PREBUILT_SHARED_LIBRARY)
+
+include $(CLEAR_VARS)
+LOCAL_MODULE := libiconv
+LOCAL_SRC_FILES := $(GSTREAMER_ROOT)/lib/libiconv.so
+include $(PREBUILT_SHARED_LIBRARY)
+
+include $(CLEAR_VARS)
+LOCAL_MODULE := libgmp
+LOCAL_SRC_FILES := $(GSTREAMER_ROOT)/lib/libgmp.so
+include $(PREBUILT_SHARED_LIBRARY)
+
+include $(CLEAR_VARS)
+LOCAL_MODULE := libintl
+LOCAL_SRC_FILES := $(GSTREAMER_ROOT)/lib/libintl.so
+include $(PREBUILT_SHARED_LIBRARY)
+
+#include $(CLEAR_VARS)
+#LOCAL_MODULE            := intl
+#LOCAL_SRC_FILES         := $(GSTREAMER_ROOT)/lib/libintl.a
+#LOCAL_EXPORT_C_INCLUDES := $(GSTREAMER_ROOT)/include
+#include $(PREBUILT_STATIC_LIBRARY)
 
 include $(CLEAR_VARS)
 LOCAL_MODULE            := usb

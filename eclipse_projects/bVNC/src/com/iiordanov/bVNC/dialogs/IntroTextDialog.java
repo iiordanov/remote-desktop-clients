@@ -21,8 +21,6 @@
 package com.iiordanov.bVNC.dialogs;
 
 import com.iiordanov.bVNC.ConnectionBean;
-import com.iiordanov.bVNC.MostRecentBean;
-import com.iiordanov.bVNC.R;
 import com.iiordanov.bVNC.Database;
 import com.iiordanov.bVNC.bVNC;
 
@@ -41,6 +39,12 @@ import android.view.MenuItem.OnMenuItemClickListener;
 import android.widget.Button;
 import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView;
+import com.iiordanov.bVNC.*;
+import com.iiordanov.freebVNC.*;
+import com.iiordanov.aRDP.*;
+import com.iiordanov.freeaRDP.*;
+import com.iiordanov.aSPICE.*;
+import com.iiordanov.freeaSPICE.*;
 
 /**
  * @author Michael A. MacDonald

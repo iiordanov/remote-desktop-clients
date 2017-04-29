@@ -12,7 +12,12 @@
 <string name="ad_donate_text2">The Pro version allows you to disable this dialog and gives you access to additional features.</string>
 <string name="ad_donate_text3">If you would like to support the project further, follow the following links for links to client apps for: </string>
 <string name="alt_check">Alt</string>
-<string name="app_name">bVNC Pro</string>
+<string name="bvnc_app_name">bVNC Pro</string>
+<string name="freebvnc_app_name">bVNC</string>
+<string name="aspice_app_name">aSPICE Pro</string>
+<string name="freeaspice_app_name">aSPICE</string>
+<string name="ardp_app_name">aRDP Pro</string>
+<string name="freeardp_app_name">aRDP</string>
 <string name="arrow_down">Down Arrow</string>
 <string name="arrow_left">Left Arrow</string>
 <string name="arrow_right">Right Arrow</string>

@@ -31,7 +31,6 @@ import android.widget.EditText;
 
 import com.iiordanov.android.bc.BCFactory;
 import com.iiordanov.bVNC.MainConfiguration;
-import com.iiordanov.bVNC.R;
 import com.iiordanov.bVNC.Utils;
 import com.antlersoft.android.contentxml.SqliteElement;
 import com.antlersoft.android.contentxml.SqliteElement.ReplaceStrategy;
@@ -50,6 +49,12 @@ import java.net.URL;
 import java.net.URLConnection;
 
 import org.xml.sax.SAXException;
+import com.iiordanov.bVNC.*;
+import com.iiordanov.freebVNC.*;
+import com.iiordanov.aRDP.*;
+import com.iiordanov.freeaRDP.*;
+import com.iiordanov.aSPICE.*;
+import com.iiordanov.freeaSPICE.*;
 
 /**
  * @author Michael A. MacDonald

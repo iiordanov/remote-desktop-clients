@@ -22,6 +22,12 @@ package com.iiordanov.bVNC;
 
 import android.graphics.Matrix;
 import android.widget.ImageView.ScaleType;
+import com.iiordanov.bVNC.*;
+import com.iiordanov.freebVNC.*;
+import com.iiordanov.aRDP.*;
+import com.iiordanov.freeaRDP.*;
+import com.iiordanov.aSPICE.*;
+import com.iiordanov.freeaSPICE.*;
 
 /**
  * @author Michael A. MacDonald

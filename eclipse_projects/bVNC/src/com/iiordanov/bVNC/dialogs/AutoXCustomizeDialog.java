@@ -22,7 +22,6 @@ package com.iiordanov.bVNC.dialogs;
 import com.iiordanov.bVNC.Database;
 import com.iiordanov.bVNC.bVNC;
 import com.iiordanov.bVNC.ConnectionBean;
-import com.iiordanov.bVNC.R;
 import com.iiordanov.util.RandomString;
 import com.iiordanov.bVNC.Constants;
 
@@ -45,7 +44,12 @@ import android.widget.LinearLayout.LayoutParams;
 import android.widget.Spinner;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.ToggleButton;
-
+import com.iiordanov.bVNC.*;
+import com.iiordanov.freebVNC.*;
+import com.iiordanov.aRDP.*;
+import com.iiordanov.freeaRDP.*;
+import com.iiordanov.aSPICE.*;
+import com.iiordanov.freeaSPICE.*;
 
 /**
  * @author Iordan K Iordanov
