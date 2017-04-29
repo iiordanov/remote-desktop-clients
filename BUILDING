@@ -88,24 +88,30 @@
 
    - Are referenced in Properties -> Project References (put checkmarks on projects).
 
-7a. To build bVNC, just use the IDE to deploy the project to your device, etc.
+7a. To build bVNC
 
-7b. To build aSPICE, you need to:
-   - cd bVNC/eclipse_projects/bVNC
-   - cp AndroidManifest.xml.aspice AndroidManifest.xml
+   - Run:
+     cd bVNC/eclipse_projects/bVNC
+     ./prepare_project.sh bVNC
+
+   - Follow the instructions that the script outputs.
+
+7b. To build aSPICE
 
    - Recompile with:
+     cd bVNC/eclipse_projects/bVNC
      ndk-build -j 12
 
-   - You may have to select the "Android private libraries" entry in
-       Project Properties->Java Build Path->Order and Export
-     if you have it.
+   - Run:
+     ./prepare_project.sh aSPICE
 
-   - Clean and rebuild the project.
+   - Follow the instructions that the script outputs.
 
-7c. To build aRDP, you have to successfully build the FreeRDP library.
-   - cd bVNC/eclipse_projects/bVNC
-   - cp AndroidManifest.xml.ardp AndroidManifest.xml
-   - Clean and rebuild the project.
+7c. To build aRDP
 
-Please inform me if (6) needs to be expanded (i.e. if you needed to do anything else in addition to the above.
+   - Run:
+    cd bVNC/eclipse_projects/bVNC
+    ./prepare_project.sh aRDP
+
+   - Follow the instructions that the script outputs.
+

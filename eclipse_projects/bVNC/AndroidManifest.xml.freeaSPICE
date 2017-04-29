@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="com.iiordanov.freeaSPICE" android:installLocation="auto"
-          android:versionCode="3920" android:versionName="v3.9.2">
+          android:versionCode="3930" android:versionName="v3.9.3">
 
     <uses-sdk android:minSdkVersion="12" android:targetSdkVersion="12"></uses-sdk>
     <uses-permission android:name="android.permission.INTERNET"></uses-permission>
@@ -19,7 +19,7 @@
         android:smallScreens="true"
         android:anyDensity="true"/>
 		
-    <application android:icon="@drawable/icon" android:label="@string/freeaspice_app_name" android:allowBackup="false" android:debuggable="false" android:theme="@style/AppTheme" android:name="com.iiordanov.bVNC.App">
+    <application android:icon="@drawable/icon_aspice" android:label="@string/freeaspice_app_name" android:allowBackup="false" android:debuggable="false" android:theme="@style/AppTheme" android:name="com.iiordanov.bVNC.App">
                 <activity android:label="@string/freeaspice_app_name"
                           android:name="com.iiordanov.bVNC.aSPICE"
                           android:screenOrientation="unspecified"

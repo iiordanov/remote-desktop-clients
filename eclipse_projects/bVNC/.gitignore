@@ -9,3 +9,9 @@ libs/armeabi/
 libs/armeabi-v7a
 libs/x86
 gst-build
+src/com/iiordanov/*/AbstractConnectionBean.java
+src/com/iiordanov/*/AbstractMetaKeyBean.java
+src/com/iiordanov/*/MetaList.java
+src/com/iiordanov/*/MostRecentBean.java
+src/com/iiordanov/*/SentTextBean.java
+
