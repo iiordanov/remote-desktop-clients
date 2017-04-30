@@ -101,7 +101,14 @@ public class IntroTextDialog extends Dialog {
         setContentView(R.layout.intro_dialog);
         getWindow().setLayout(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
         
-        StringBuilder sb = new StringBuilder(getContext().getResources().getString(R.string.intro_title));
+        String packageName = getContext().getPackageName();
+        String title = getContext().getResources().getString(R.string.intro_title);
+        if (Utils.isRdp(packageName)) {
+            title = getContext().getResources().getString(R.string.rdp_intro_title);
+        } else if (Utils.isSpice(packageName)) {
+            title = getContext().getResources().getString(R.string.spice_intro_title);
+        }
+        StringBuilder sb = new StringBuilder(title);
         setTitle(sb);
         sb.delete(0, sb.length());
         if (pkgName.contains("SPICE")) {
@@ -117,8 +124,9 @@ public class IntroTextDialog extends Dialog {
         sb.append("<br>");
         sb.append("<br>");
         
+        String donationPackageName = Utils.getDonationPackageName(getContext());
         if (donate) {
-            sb.append("<a href=\"market://DETAILS?id=com.iiordanov.bVNC\">" +
+            sb.append("<a href=\"market://DETAILS?id=" + donationPackageName + "\">" +
                       getContext().getResources().getString(R.string.ad_donate_text1) + "</a>");
             sb.append("<br>");
             sb.append("<br>");
@@ -138,7 +146,13 @@ public class IntroTextDialog extends Dialog {
         }
         
         sb.append(getContext().getResources().getString(R.string.intro_header));
-        sb.append(getContext().getResources().getString(R.string.intro_text));
+        if (Utils.isVnc(packageName)) {
+            sb.append(getContext().getResources().getString(R.string.intro_text));
+        } else if (Utils.isRdp(packageName)) {
+            sb.append(getContext().getResources().getString(R.string.rdp_intro_text));
+        } else if (Utils.isSpice(packageName)) {
+            sb.append(getContext().getResources().getString(R.string.spice_intro_text));
+        }
         sb.append("\n");
         sb.append(getContext().getResources().getString(R.string.intro_version_text));
         TextView introTextView = (TextView)findViewById(R.id.textIntroText);

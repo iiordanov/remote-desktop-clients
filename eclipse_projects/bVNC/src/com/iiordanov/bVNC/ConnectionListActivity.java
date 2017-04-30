@@ -101,14 +101,20 @@ public class ConnectionListActivity extends ListActivity {
         if (connection.Gen_read(database.getReadableDatabase(), id))
         {
             // create shortcut if requested
+            String packageName = getPackageName();
             ShortcutIconResource icon = Intent.ShortcutIconResource.fromContext(this, R.drawable.icon);
-
+            if (Utils.isRdp(packageName)) {
+                icon = Intent.ShortcutIconResource.fromContext(this, R.drawable.icon_ardp);
+            } else if (Utils.isSpice(packageName)) {
+                icon = Intent.ShortcutIconResource.fromContext(this, R.drawable.icon_aspice);
+            }
+            
             Intent intent = new Intent();
             
             Intent launchIntent = new Intent(this,RemoteCanvasActivity.class);
             Uri.Builder builder = new Uri.Builder();
-            builder.authority(Constants.CONNECTION + ":" + connection.get_Id());
-            builder.scheme("vnc");
+            builder.authority(Utils.getConnectionString(this) + ":" + connection.get_Id());
+            builder.scheme(Utils.getConnectionScheme(this));
             launchIntent.setData(builder.build());
             
             intent.putExtra(Intent.EXTRA_SHORTCUT_INTENT, launchIntent);

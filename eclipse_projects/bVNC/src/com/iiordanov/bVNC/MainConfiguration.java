@@ -185,7 +185,7 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
         isConnecting = true;
         updateSelectedFromView();
         Intent intent = new Intent(this, RemoteCanvasActivity.class);
-        intent.putExtra(Constants.CONNECTION, selected.Gen_getValues());
+        intent.putExtra(Utils.getConnectionString(this), selected.Gen_getValues());
         startActivity(intent);
     }
     

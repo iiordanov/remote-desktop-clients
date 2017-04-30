@@ -497,9 +497,10 @@ build_freerdp() {
     missing_artifact="false"
     for abi in $abis
     do
-      for f in ${freerdp_build}/client/Android/Studio/freeRDPCore/src/main/jniLibs/${abi}/${freerdp_artifacts}
+      for f in ${freerdp_artifacts}
       do
-        if [ ! -f ${f} ]
+        if [ ! -f ${freerdp_build}/client/Android/Studio/freeRDPCore/src/main/jniLibs/${abi}/${f} -a \
+             ! -f ${freerdp_build}/client/Android/Studio/freeRDPCore/src/main/jniLibs.DISABLED/${abi}/${f} ]
         then
           missing_artifact="true"
         fi
@@ -568,10 +569,11 @@ build_sqlcipher() {
 
         rm -f libs/sqlcipher.jar
         make
-        rsync -a ./libs/ ../../../../../bVNC/libs/
-
         popd
     fi
+    pushd ${sqlcipher_build}
+    rsync -a ./libs/ ../../../../../bVNC/libs/
+    popd
     popd
 }
 
@@ -610,9 +612,13 @@ build)
     build_sqlcipher
     build_freerdp
 
-    # Run a build of the Android jni code.
-    cd ../../
-    ndk-build
+    echo
+    echo "Now you can run ndk-build if building aSPICE."
+    echo
+    echo "Run the following command:"
+    echo "cd ../../ ; ndk-build"
+    echo
+
     ;;
 clean)
     shift

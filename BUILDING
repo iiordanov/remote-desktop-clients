@@ -7,7 +7,6 @@
         https://dl-ssl.google.com/android/eclipse/
 
 1. Install sqlitegen into Eclipse.
-
    a) Download sqlitegen plugin v0.1.19 from:
       https://github.com/iiordanov/sqlitegen-secure/releases/download/v0.1.19/sqlitegen_eclipse_site_0.1.19.jar
 
@@ -29,19 +28,7 @@
    - You may have to switch the Android Build Target to API 23 or newer
      by (Right-clicking on the project)->Properties->Android
 
-3. Install at least the following dependencies on your Linux machine:
-   cmake automake libtool intltool gtk-doc-tools gnome-common gobject-introspection nasm
-
-4. Build all library dependencies (30 - 60 minutes of compilation):
-
-   cd eclipse_projects/bVNC/jni/libs/
-   export PATH=$PATH:/path/to/your/android/NDK/
-   export PATH=$PATH:/path/to/your/android/SDK/platform-tools/
-   export PATH=$PATH:/path/to/your/android/SDK/tools
-   ./build-deps.sh -j 4 -n /path/to/your/android/NDK build
-
-5. Import all projects into Eclipse.
-
+3. Import all projects into Eclipse.
    Add bVNC, ZoomerWithKeys, PubkeyGenerator, android-support-v7-appcompat,
    and FreeRDPCore projects.
 
@@ -74,7 +61,7 @@
 
    - Clean and rebuild the project.
 
-6. Ensure ZoomerWithKeys, PubkeyGenerator, FreeRDPCore, and android-support-v7-appcompat
+4. Ensure ZoomerWithKeys, PubkeyGenerator, FreeRDPCore, and android-support-v7-appcompat
    projects are:
    - Called exactly as written here by right-clicking on each of them,
      then selecting Refactor->Rename
@@ -88,30 +75,41 @@
 
    - Are referenced in Properties -> Project References (put checkmarks on projects).
 
-7a. To build bVNC
+5. Install at least the following dependencies on your Linux machine:
+   cmake automake libtool intltool gtk-doc-tools gnome-common gobject-introspection nasm
+
+6a. To build bVNC
 
    - Run:
+     export PATH=$PATH:/path/to/your/android/NDK/
+     export PATH=$PATH:/path/to/your/android/SDK/platform-tools/
+     export PATH=$PATH:/path/to/your/android/SDK/tools
      cd bVNC/eclipse_projects/bVNC
-     ./prepare_project.sh bVNC
+     ./prepare_project.sh bVNC /path/to/your/android/NDK/
 
    - Follow the instructions that the script outputs.
 
-7b. To build aSPICE
+6b. To build aSPICE
 
    - Recompile with:
      cd bVNC/eclipse_projects/bVNC
      ndk-build -j 12
 
    - Run:
-     ./prepare_project.sh aSPICE
+     export PATH=$PATH:/path/to/your/android/NDK/
+     export PATH=$PATH:/path/to/your/android/SDK/platform-tools/
+     export PATH=$PATH:/path/to/your/android/SDK/tools
+     ./prepare_project.sh aSPICE /path/to/your/android/NDK/
 
    - Follow the instructions that the script outputs.
 
-7c. To build aRDP
+6c. To build aRDP
 
    - Run:
-    cd bVNC/eclipse_projects/bVNC
-    ./prepare_project.sh aRDP
+     export PATH=$PATH:/path/to/your/android/NDK/
+     export PATH=$PATH:/path/to/your/android/SDK/platform-tools/
+     export PATH=$PATH:/path/to/your/android/SDK/tools
+     cd bVNC/eclipse_projects/bVNC
+     ./prepare_project.sh aRDP /path/to/your/android/NDK/
 
    - Follow the instructions that the script outputs.
-

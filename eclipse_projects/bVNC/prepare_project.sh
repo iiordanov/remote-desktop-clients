@@ -1,15 +1,29 @@
 #!/bin/bash
 
 usage () {
-  echo "$0 bVNC|freebVNC|aSPICE|freeaSPICE|aRDP|freeaRDP"
+  echo "$0 bVNC|freebVNC|aSPICE|freeaSPICE|aRDP|freeaRDP /path/to/your/android/ndk"
   exit 1
 }
 
+clean_libs () {
+  filter=$1
+  dir=$2
+  for f in $(find $dir -type f -name \*.so)
+  do
+    if ! echo $f | egrep -q "$filter"
+    then
+      rm -f $f
+    fi
+  done
+}
+
 PRJ="$1"
+ANDROID_NDK="$2"
 
 if [ "$PRJ" != "bVNC" -a "$PRJ" != "freebVNC" \
   -a "$PRJ" != "aSPICE" -a "$PRJ" != "freeaSPICE" \
-  -a "$PRJ" != "aRDP" -a "$PRJ" != "freeaRDP" ]
+  -a "$PRJ" != "aRDP" -a "$PRJ" != "freeaRDP" \
+  -o "$ANDROID_NDK" == "" ]
 then
   usage
 fi
@@ -48,6 +62,27 @@ do
     mv $file src/com/iiordanov/$PRJ/
   fi
 done
+
+pushd jni/libs
+./build-deps.sh -j 4 -n $ANDROID_NDK build
+popd
+
+ndk-build
+
+freerdp_libs_dir=jni/libs/deps/FreeRDP/client/Android/Studio/freeRDPCore/src/main/jniLibs
+if [ "$PRJ" == "bVNC" -o "$PRJ" == "freebVNC" ]
+then
+  clean_libs "sqlcipher" libs/
+  [ -d ${freerdp_libs_dir} ] && mv ${freerdp_libs_dir} ${freerdp_libs_dir}.DISABLED
+elif [ "$PRJ" == "aRDP" -o "$PRJ" == "freeaRDP" ]
+then
+  clean_libs "sqlcipher" libs/
+  [ -d ${freerdp_libs_dir}.DISABLED ] && mv ${freerdp_libs_dir}.DISABLED ${freerdp_libs_dir}
+elif [ "$PRJ" == "aSPICE" -o "$PRJ" == "freeaSPICE" ]
+then
+  [ -d ${freerdp_libs_dir} ] && mv ${freerdp_libs_dir} ${freerdp_libs_dir}.DISABLED
+fi
+
 
 echo
 echo "Now you can go back to your IDE and install $PRJ to your device, etc."

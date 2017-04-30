@@ -24,7 +24,6 @@ package com.iiordanov.bVNC;
  * Keys for intent values
  */
 public class Constants {
-    public static final String CONNECTION = "com.iiordanov.bVNC.CONNECTION";
     
     public static final int SDK_INT = android.os.Build.VERSION.SDK_INT;
 

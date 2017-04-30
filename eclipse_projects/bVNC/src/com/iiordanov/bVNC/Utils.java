@@ -185,8 +185,40 @@ public class Utils {
           catch (Exception e) {}
     }
     
-    public static boolean isFree (Context ctx) {
+    public static boolean isFree(Context ctx) {
         return ctx.getPackageName().contains("free");
+    }
+    
+    public static String getConnectionString(Context ctx) {
+        return ctx.getPackageName() + ".CONNECTION";
+    }
+    
+    public static boolean isVnc(String packageName) {
+        return packageName.contains("VNC");
+    }
+    
+    public static boolean isRdp(String packageName) {
+        return packageName.contains("RDP");
+    }
+    
+    public static boolean isSpice(String packageName) {
+        return packageName.contains("SPICE");
+    }
+    
+    public static String getConnectionScheme(Context ctx) {
+        String packageName = ctx.getPackageName();
+        if (isVnc(packageName))
+            return "vnc";
+        else if (isRdp(packageName))
+            return "rdp";
+        else if (isSpice(packageName))
+            return "spice";
+        
+        return "unsupported";
+    }
+    
+    public static String getDonationPackageName(Context ctx) {
+        return ctx.getPackageName().replace("free", "");
     }
     
     public static boolean isBlackBerry () {

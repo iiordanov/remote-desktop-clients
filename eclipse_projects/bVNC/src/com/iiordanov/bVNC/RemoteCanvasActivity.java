@@ -220,7 +220,7 @@ public class RemoteCanvasActivity extends FragmentActivity implements OnKeyListe
             connection = ConnectionBean.createLoadFromUri(data, this);
             
             String host = data.getHost();
-            if (!host.startsWith(Constants.CONNECTION)) {
+            if (!host.startsWith(Utils.getConnectionString(this))) {
                 connection.parseFromUri(data);
             }
             
@@ -246,7 +246,7 @@ public class RemoteCanvasActivity extends FragmentActivity implements OnKeyListe
             Bundle extras = i.getExtras();
 
             if (extras != null) {
-                  connection.Gen_populate((ContentValues) extras.getParcelable(Constants.CONNECTION));
+                  connection.Gen_populate((ContentValues) extras.getParcelable(Utils.getConnectionString(this)));
             }
 
             // Parse a HOST:PORT entry but only if not ipv6 address

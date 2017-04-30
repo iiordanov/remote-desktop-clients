@@ -13,11 +13,11 @@
 <string name="ad_donate_text3">If you would like to support the project further, follow the following links for links to client apps for: </string>
 <string name="alt_check">Alt</string>
 <string name="bvnc_app_name">bVNC Pro</string>
-<string name="freebvnc_app_name">bVNC</string>
+<string name="freebvnc_app_name">bVNC Free</string>
 <string name="aspice_app_name">aSPICE Pro</string>
-<string name="freeaspice_app_name">aSPICE</string>
+<string name="freeaspice_app_name">aSPICE Free</string>
 <string name="ardp_app_name">aRDP Pro</string>
-<string name="freeardp_app_name">aRDP</string>
+<string name="freeardp_app_name">aRDP Free</string>
 <string name="arrow_down">Down Arrow</string>
 <string name="arrow_left">Left Arrow</string>
 <string name="arrow_right">Right Arrow</string>
