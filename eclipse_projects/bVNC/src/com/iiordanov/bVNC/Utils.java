@@ -207,14 +207,22 @@ public class Utils {
     
     public static String getConnectionScheme(Context ctx) {
         String packageName = ctx.getPackageName();
+        String scheme = "unsupported";
         if (isVnc(packageName))
-            return "vnc";
+            scheme = "vnc";
         else if (isRdp(packageName))
-            return "rdp";
+            scheme = "rdp";
         else if (isSpice(packageName))
-            return "spice";
-        
-        return "unsupported";
+            scheme = "spice";
+        return scheme;
+    }
+    
+    public static int getDefaultPort(Context ctx) {
+        String packageName = ctx.getPackageName();
+        int port = Constants.DEFAULT_VNC_PORT;
+        if (isRdp(packageName))
+            port = Constants.DEFAULT_RDP_PORT;
+        return port;
     }
     
     public static String getDonationPackageName(Context ctx) {
