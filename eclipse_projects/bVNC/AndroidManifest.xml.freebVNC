@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="com.iiordanov.freebVNC" android:installLocation="auto"
-          android:versionCode="113930" android:versionName="v3.9.3">
+          android:versionCode="113940" android:versionName="v3.9.4">
 
     <uses-sdk android:minSdkVersion="8" android:targetSdkVersion="10"></uses-sdk>
     <uses-permission android:name="android.permission.INTERNET"></uses-permission>

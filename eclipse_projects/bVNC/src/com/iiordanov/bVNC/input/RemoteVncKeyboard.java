@@ -203,8 +203,7 @@ public class RemoteVncKeyboard extends RemoteKeyboard {
                         rfb.writeKeyEvent(keysym, metaState, false);
 
                 } else if (numchars > 1) {
-                    int i = numJunkCharactersToSkip (numchars, evt);
-                    for (; i < numchars; i++) {
+                    for (int i = 0; i < numchars; i++) {
                         key = evt.getCharacters().charAt(i);
                         keysym = UnicodeToKeysym.translate(key);
                         //android.util.Log.e(TAG, "Sending multiple keys. Key: " + key + " keysym: " + keysym + ", metaState: " + metaState);

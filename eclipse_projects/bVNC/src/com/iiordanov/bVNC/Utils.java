@@ -218,10 +218,14 @@ public class Utils {
     }
     
     public static int getDefaultPort(Context ctx) {
-        String packageName = ctx.getPackageName();
-        int port = Constants.DEFAULT_VNC_PORT;
-        if (isRdp(packageName))
-            port = Constants.DEFAULT_RDP_PORT;
+        int port = Constants.DEFAULT_PROTOCOL_PORT;
+        if (ctx != null) {
+            String packageName = ctx.getPackageName();
+            if (isRdp(packageName))
+                port = Constants.DEFAULT_RDP_PORT;
+            else
+                port = Constants.DEFAULT_VNC_PORT;
+        }
         return port;
     }
     

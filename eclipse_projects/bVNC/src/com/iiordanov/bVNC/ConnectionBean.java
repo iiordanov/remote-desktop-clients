@@ -105,7 +105,7 @@ public class ConnectionBean extends AbstractConnectionBean implements Comparable
         setUseSshRemoteCommand(false);
         setUserName("");
         setRdpDomain("");
-        setPort(Utils.getDefaultPort(context));
+        setPort(Constants.DEFAULT_PROTOCOL_PORT);
         setCaCert("");
         setCaCertPath("");
         setTlsPort(-1);

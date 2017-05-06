@@ -9,6 +9,7 @@ public class App extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+        Constants.DEFAULT_PROTOCOL_PORT = Utils.getDefaultPort(this);
         database = new Database(this);
     }
 

@@ -37,6 +37,7 @@ public class Constants {
     public static final int SOCKET_CONN_TIMEOUT = 30 * 1000; //30 sec
     
     public static final int DEFAULT_SSH_PORT = 22;
+    public static volatile int DEFAULT_PROTOCOL_PORT = 5900;
     public static final int DEFAULT_VNC_PORT = 5900;
     public static final int DEFAULT_RDP_PORT = 3389;
     

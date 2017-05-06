@@ -84,8 +84,7 @@ public class RemoteRdpKeyboard extends RemoteKeyboard {
                 String s = evt.getCharacters();
                 if (s != null) {
                     int numchars = s.length();
-                    int i = numJunkCharactersToSkip (numchars, evt);
-                    for (; i < numchars; i++) {
+                    for (int i = 0; i < numchars; i++) {
                         KeyEvent event = new KeyEvent(evt.getEventTime(), s.substring(i, i+1), KeyCharacterMap.FULL, 0);
                         keyboardMapper.processAndroidKeyEvent(event);
                     }

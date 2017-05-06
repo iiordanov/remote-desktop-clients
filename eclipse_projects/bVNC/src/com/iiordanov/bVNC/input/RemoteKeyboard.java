@@ -68,11 +68,6 @@ public abstract class RemoteKeyboard {
     // Variable used for BB10 workarounds
     boolean bb = false;
     
-    // This variable tells us whether we need to skip junk characters for
-    // SDK >= 16 and LatinIME next time a multi-character event comes along.
-    public boolean skippedJunkChars = true;
-    
-    
     RemoteKeyboard (RfbConnectable r, RemoteCanvas v, Handler h) {
         this.rfb = r;
         this.canvas = v;
@@ -313,34 +308,5 @@ public abstract class RemoteKeyboard {
         }
         
         return metaState;
-    }
-    
-    
-    /**
-     * Used to calculate how many junk characters to skip.
-     * @param numchars
-     * @param evt
-     * @return
-     */
-    int numJunkCharactersToSkip (int numchars, KeyEvent evt) {
-        int i = 0;
-        if (!skippedJunkChars) {
-            if (numchars == 10000) {
-                // We received the event not because the user typed something but
-                // because of another reason (for example lock/unlock screen).
-                i = numchars;
-            } else {
-                // The user has typed at least one char, so we need to skip just the junk
-                // characters, so skip backward until we hit the first junk character.
-                for (i = Math.max(numchars - 2, 0); i > 0 ; i--) {
-                    if (evt.getCharacters().charAt(i) == '%') {
-                        i = i + 1;
-                        break;
-                    }
-                }
-                skippedJunkChars = true;
-            }
-        }
-        return i;
     }
 }

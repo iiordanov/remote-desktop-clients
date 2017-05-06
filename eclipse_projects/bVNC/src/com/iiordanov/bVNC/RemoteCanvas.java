@@ -1156,38 +1156,14 @@ public class RemoteCanvas extends ImageView implements LibFreeRDP.UIEventListene
     public InputConnection onCreateInputConnection(EditorInfo outAttrs) {
         android.util.Log.d(TAG, "onCreateInputConnection called");
         int version = android.os.Build.VERSION.SDK_INT;
-        BaseInputConnection bic = null;
-        if (!bb && version >= Build.VERSION_CODES.JELLY_BEAN) {
-            bic = new BaseInputConnection(this, false) {
-                final static String junk_unit = "%%%%%%%%%%";
-                final static int multiple = 1000;
-                Editable e;
-                @Override
-                public Editable getEditable() {
-                    if (e == null) {
-                        int numTotalChars = junk_unit.length()*multiple;
-                        String junk = new String();
-                        for (int i = 0; i < multiple ; i++) {
-                            junk += junk_unit;
-                        }
-                        e = Editable.Factory.getInstance().newEditable(junk);
-                        Selection.setSelection(e, numTotalChars);
-                        if (RemoteCanvas.this.keyboard != null) {
-                            RemoteCanvas.this.keyboard.skippedJunkChars = false;
-                        }
-                    }
-                    return e;
-                }
-            };
-        } else {
-            bic = new BaseInputConnection(this, false);
-        }
-        
+        BaseInputConnection bic = new BaseInputConnection(this, false);
         outAttrs.actionLabel = null;
         outAttrs.inputType = InputType.TYPE_NULL;
         // Workaround for Android AOSP IME that doesn't support InputType.TYPE_NULL.
         String currentIme = Settings.Secure.getString(getContext().getContentResolver(), Settings.Secure.DEFAULT_INPUT_METHOD);
-        if (version >= 21 && version <= 23 && currentIme.startsWith("com.android.inputmethod.latin")) {
+        android.util.Log.d(TAG, "currentIme: " + currentIme);
+        if (version >= Build.VERSION_CODES.LOLLIPOP && currentIme.contains("com.android.inputmethod.latin")) {
+            android.util.Log.d(TAG, "Setting InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS");
             outAttrs.inputType = InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS;
             outAttrs.imeOptions |= EditorInfo.IME_FLAG_NO_FULLSCREEN;
         }
@@ -1307,14 +1283,14 @@ public class RemoteCanvas extends ImageView implements LibFreeRDP.UIEventListene
     
     @Override
     public void OnConnectionSuccess(long instance) {
-        rdpcomm.setIsInNormalProtocol(true);
         Log.v(TAG, "OnConnectionSuccess");
+        rdpcomm.setIsInNormalProtocol(true);
     }
     
     @Override
     public void OnConnectionFailure(long instance) {
-        rdpcomm.setIsInNormalProtocol(false);
         Log.v(TAG, "OnConnectionFailure");
+        rdpcomm.setIsInNormalProtocol(false);
         if (maintainConnection)
             handler.sendEmptyMessage(Constants.RDP_UNABLE_TO_CONNECT);
     }
@@ -1329,10 +1305,14 @@ public class RemoteCanvas extends ImageView implements LibFreeRDP.UIEventListene
     
     @Override
     public void OnDisconnected(long instance) {
-        rdpcomm.setIsInNormalProtocol(false);
         Log.v(TAG, "OnDisconnected");
-        if (maintainConnection)
-            handler.sendEmptyMessage(Constants.RDP_CONNECT_FAILURE);
+        if (maintainConnection) {
+            if (!rdpcomm.isInNormalProtocol()) {
+                handler.sendEmptyMessage(Constants.RDP_UNABLE_TO_CONNECT);
+            } else {
+                handler.sendEmptyMessage(Constants.RDP_CONNECT_FAILURE);
+            }
+        }
     }
     
     //////////////////////////////////////////////////////////////////////////////////
