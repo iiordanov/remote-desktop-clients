@@ -5,7 +5,7 @@ I-a. Building with pre-built dependencies.
 
     export PROJECT=bVNC
     ./eclipse_projects/download-prebuilt-dependencies.sh
-    ./eclipse_projects/bVNC/copy_prebuilt_sqlitegen_files.sh $PROJECT  
+    ./eclipse_projects/bVNC/copy_prebuilt_files.sh $PROJECT  
 
 I-b. Building from scratch and working in Eclipse.
 

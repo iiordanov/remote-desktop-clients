@@ -26,6 +26,9 @@ do
   cp prebuilt/src/com/iiordanov/$PRJ/$f src/com/iiordanov/$PRJ/$f
 done
 
+mkdir -p java
+rsync -a prebuilt/org java/
+
 popd
 
 echo
