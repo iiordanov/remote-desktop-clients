@@ -27,3 +27,6 @@ do
 done
 
 popd
+
+echo
+echo "Done copying prebuilt sqlitegen files."

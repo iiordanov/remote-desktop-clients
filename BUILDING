@@ -1,8 +1,11 @@
 Pick one of I-a or I-b below, then move onto II.
 
 I-a. Building with pre-built dependencies.
-  ./eclipse_projects/download-prebuilt-dependencies.sh
+  - Set the environment variable PROJECT to one of bVNC, aSPICE, or aRDP.
 
+    export PROJECT=bVNC
+    ./eclipse_projects/download-prebuilt-dependencies.sh
+    ./eclipse_projects/bVNC/copy_prebuilt_sqlitegen_files.sh $PROJECT  
 
 I-b. Building from scratch and working in Eclipse.
 
