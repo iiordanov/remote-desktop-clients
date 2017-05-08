@@ -1,5 +1,7 @@
 #!/bin/bash
 
+SKIP_BUILD=false
+
 usage () {
   echo "$0 bVNC|freebVNC|aSPICE|freeaSPICE|aRDP|freeaRDP /path/to/your/android/ndk"
   exit 1
@@ -17,6 +19,16 @@ clean_libs () {
   done
 }
 
+
+if [ $1 == "--skip-build" ]
+then
+  SKIP_BUILD=true
+  shift
+fi
+
+DIR=$(dirname $0)
+pushd $DIR
+
 PRJ="$1"
 ANDROID_NDK="$2"
 
@@ -30,44 +42,41 @@ fi
 
 ln -sf AndroidManifest.xml.$PRJ AndroidManifest.xml
 
-generated_files="AbstractConnectionBean.java AbstractMetaKeyBean.java MetaList.java MostRecentBean.java SentTextBean.java"
-for f in $generated_files
-do
-  rm -f src/com/iiordanov/*/$f
-done
+./copy_prebuilt_sqlitegen_files.sh $PRJ
 
-echo
-echo "Now please switch to your IDE, select the bVNC project, refresh with F5,"
-echo "clean and rebuild it to auto-generate the DAO objects with sqlitegen."
-echo
-echo "You must have sqlitegen installed as per the BUILDING file."
-echo
-echo "When the build in your IDE completes, switch back to this terminal and"
-echo "press ENTER key for this script to continue executing."
-echo
-read CONTINUE
+#echo
+#echo "Now please switch to your IDE, select the bVNC project, refresh with F5,"
+#echo "clean and rebuild it to auto-generate the DAO objects with sqlitegen."
+#echo
+#echo "You must have sqlitegen installed as per the BUILDING file."
+#echo
+#echo "When the build in your IDE completes, switch back to this terminal and"
+#echo "press ENTER key for this script to continue executing."
+#echo
+#read CONTINUE
 
-generated_files="AbstractConnectionBean.java AbstractMetaKeyBean.java MetaList.java MostRecentBean.java SentTextBean.java"
+#for f in $generated_files
+#do
+#  file=gen/com/iiordanov/$PRJ/$f
+#  if [ ! -f $file ]
+#  then
+#    echo "Could not find auto-generated file $file. Please try cleaning / rebuilding the project, and make sure sqlitegen is installed properly."
+#    echo
+#    exit 2
+#  else
+#    echo "Moving $f to src/com/iiordanov/$PRJ"
+#    mv $file src/com/iiordanov/$PRJ/
+#  fi
+#done
 
-for f in $generated_files
-do
-  file=gen/com/iiordanov/$PRJ/$f
-  if [ ! -f $file ]
-  then
-    echo "Could not find auto-generated file $file. Please try cleaning / rebuilding the project, and make sure sqlitegen is installed properly."
-    echo
-    exit 2
-  else
-    echo "Moving $f to src/com/iiordanov/$PRJ"
-    mv $file src/com/iiordanov/$PRJ/
-  fi
-done
+if [ "$SKIP_BUILD" == "false" ]
+then
+  pushd jni/libs
+  ./build-deps.sh -j 4 -n $ANDROID_NDK build
+  popd
 
-pushd jni/libs
-./build-deps.sh -j 4 -n $ANDROID_NDK build
-popd
-
-ndk-build
+  ndk-build
+fi
 
 freerdp_libs_dir=jni/libs/deps/FreeRDP/client/Android/Studio/freeRDPCore/src/main/jniLibs
 if [ "$PRJ" == "bVNC" -o "$PRJ" == "freebVNC" ]
@@ -83,7 +92,7 @@ then
   [ -d ${freerdp_libs_dir} ] && mv ${freerdp_libs_dir} ${freerdp_libs_dir}.DISABLED
 fi
 
-
+popd
 echo
 echo "Now you can go back to your IDE and install $PRJ to your device, etc."
 echo

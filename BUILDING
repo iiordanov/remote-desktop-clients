@@ -1,3 +1,11 @@
+Pick one of I-a or I-b below, then move onto II.
+
+I-a. Building with pre-built dependencies.
+  ./eclipse_projects/download-prebuilt-dependencies.sh
+
+
+I-b. Building from scratch and working in Eclipse.
+
 0. On Linux, install Eclipse Neon for Android Developers and ADT Plugin.
    a) Point Eclipse at a valid Android SDK installation location.
    b) Install ADT Plugin:
@@ -21,27 +29,49 @@
    g) Click Next and follow the installation process.
    h) Restart Eclipse.
 
-2. Add AppCompat v7 project into Eclipse
+2. Install at least the following dependencies on your Linux machine:
+   cmake automake libtool intltool gtk-doc-tools gnome-common gobject-introspection nasm
+
+3. To build bVNC, aSPICE, or aRDP
+
+   - Set the environment variable PROJECT to one of bVNC, aSPICE, or aRDP.
+     Set the environment variable ANDROID_NDK to the path to your Android NDK/.
+
+     then run a build script. E.g.:
+
+     export PROJECT=bVNC
+     export ANDROID_NDK=/path/to/your/android/NDK/
+     export ANDROID_SDK=/path/to/your/android/SDK/
+
+     export PATH=$PATH:${ANDROID_NDK}
+     export PATH=$PATH:${ANDROID_SDK}/platform-tools/
+     export PATH=$PATH:${ANDROID_SDK}/tools
+     ./eclipse_projects/bVNC/prepare_project.sh $PROJECT $ANDROID_NDK
+
+   - Follow the instructions that the script outputs.
+
+
+II. Importing projects into Eclipse.
+
+1. Import android-support-v7-appcompat project into Eclipse
    - Eclipse->Import->Existing Android Code Into Workspace.
    - The AppCompat project is found here:
        /path/to/android-sdk/extras/android/support/v7/appcompat/
    - You may have to switch the Android Build Target to API 23 or newer
      by (Right-clicking on the project)->Properties->Android
 
-3. Import all projects into Eclipse.
-   Add bVNC, ZoomerWithKeys, PubkeyGenerator, android-support-v7-appcompat,
-   and FreeRDPCore projects.
+2. Import all projects under eclipse_projects into Eclipse.
+   Add bVNC, ZoomerWithKeys, PubkeyGenerator, and FreeRDPCore projects.
 
    The bVNC, ZoomerWithKeys, and PubkeyGenerator are in the
    bVNC/eclipse_projects/ directory. Add them to Eclipse as existing Android
    projects.
 
-   The android-support-v7-appcompat project is available under the
-   extras/android/support/v7/appcompat/ in your Android SDK if you have
-   installed the support libraries through the SDK manager.
+   If building from scratch (I-b above), right-click on the bVNC project and
+   ensure SQLiteGen Annotation Processing is enabled.
 
    The FreeRDP project was downloaded automatically as part of the build process,
-   and a symlinc was made to it in bVNC/eclipse_projects/.
+   and a symlink was made to it in bVNC/eclipse_projects/.
 
    Some modifications are needed to the freeRDPCore project in part because
    it is set up to be developed under the ADT IDE.
@@ -61,7 +91,7 @@
 
    - Clean and rebuild the project.
 
-4. Ensure ZoomerWithKeys, PubkeyGenerator, FreeRDPCore, and android-support-v7-appcompat
+3. Ensure ZoomerWithKeys, PubkeyGenerator, FreeRDPCore, and android-support-v7-appcompat
    projects are:
    - Called exactly as written here by right-clicking on each of them,
      then selecting Refactor->Rename
@@ -74,42 +104,3 @@
      Path -> Projects). If they are not, add them.
 
    - Are referenced in Properties -> Project References (put checkmarks on projects).
-
-5. Install at least the following dependencies on your Linux machine:
-   cmake automake libtool intltool gtk-doc-tools gnome-common gobject-introspection nasm
-
-6a. To build bVNC
-
-   - Run:
-     export PATH=$PATH:/path/to/your/android/NDK/
-     export PATH=$PATH:/path/to/your/android/SDK/platform-tools/
-     export PATH=$PATH:/path/to/your/android/SDK/tools
-     cd bVNC/eclipse_projects/bVNC
-     ./prepare_project.sh bVNC /path/to/your/android/NDK/
-
-   - Follow the instructions that the script outputs.
-
-6b. To build aSPICE
-
-   - Recompile with:
-     cd bVNC/eclipse_projects/bVNC
-     ndk-build -j 12
-
-   - Run:
-     export PATH=$PATH:/path/to/your/android/NDK/
-     export PATH=$PATH:/path/to/your/android/SDK/platform-tools/
-     export PATH=$PATH:/path/to/your/android/SDK/tools
-     ./prepare_project.sh aSPICE /path/to/your/android/NDK/
-
-   - Follow the instructions that the script outputs.
-
-6c. To build aRDP
-
-   - Run:
-     export PATH=$PATH:/path/to/your/android/NDK/
-     export PATH=$PATH:/path/to/your/android/SDK/platform-tools/
-     export PATH=$PATH:/path/to/your/android/SDK/tools
-     cd bVNC/eclipse_projects/bVNC
-     ./prepare_project.sh aRDP /path/to/your/android/NDK/
-
-   - Follow the instructions that the script outputs.
