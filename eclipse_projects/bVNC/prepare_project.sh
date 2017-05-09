@@ -42,7 +42,7 @@ fi
 
 ln -sf AndroidManifest.xml.$PRJ AndroidManifest.xml
 
-./copy_prebuilt_sqlitegen_files.sh $PRJ
+./copy_prebuilt_files.sh $PRJ
 
 #echo
 #echo "Now please switch to your IDE, select the bVNC project, refresh with F5,"
@@ -94,5 +94,5 @@ fi
 
 popd
 echo
-echo "Now you can go back to your IDE and install $PRJ to your device, etc."
-echo
+echo "Now please switch to your IDE, select the bVNC project, refresh with F5,"
+echo "and then clean and rebuild the project."

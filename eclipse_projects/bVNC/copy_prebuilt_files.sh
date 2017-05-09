@@ -32,4 +32,4 @@ rsync -a prebuilt/org java/
 popd
 
 echo
-echo "Done copying prebuilt sqlitegen files."
+echo "Done copying prebuilt sqlitegen and Gstreamer files."

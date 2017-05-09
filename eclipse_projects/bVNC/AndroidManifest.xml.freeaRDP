@@ -33,7 +33,7 @@
                         </intent-filter>
                 </activity>
                 <activity android:screenOrientation="unspecified"
-                          android:configChanges="orientation|keyboardHidden|keyboard"
+                          android:configChanges="orientation|keyboardHidden|keyboard|screenSize"
 		                  android:name="com.iiordanov.bVNC.RemoteCanvasActivity"
 		                  android:windowSoftInputMode="stateHidden|adjustResize"
 		                  android:theme="@android:style/Theme.DeviceDefault">
