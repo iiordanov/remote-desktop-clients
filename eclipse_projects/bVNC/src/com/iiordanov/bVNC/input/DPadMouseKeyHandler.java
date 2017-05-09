@@ -31,7 +31,7 @@ import android.view.MotionEvent;
 /**
  * Input handlers delegate to this class to handle keystrokes; this detects keystrokes
  * from the DPad and uses them to perform mouse actions; other keystrokes are passed to
- * VncCanvasActivity.defaultKeyXXXHandler
+ * RemoteCanvasActivity.defaultKeyXXXHandler
  * 
  * @author Iordan Iordanov
  * @author Michael A. MacDonald

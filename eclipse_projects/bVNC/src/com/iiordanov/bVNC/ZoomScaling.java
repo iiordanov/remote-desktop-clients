@@ -90,7 +90,7 @@ class ZoomScaling extends AbstractScaling {
     }
     
     /* (non-Javadoc)
-     * @see com.iiordanov.bVNC.AbstractScaling#zoomIn(com.iiordanov.bVNC.VncCanvasActivity)
+     * @see com.iiordanov.bVNC.AbstractScaling#zoomIn(com.iiordanov.bVNC.RemoteCanvasActivity)
      */
     @Override
     void zoomIn(RemoteCanvasActivity activity) {
@@ -118,7 +118,7 @@ class ZoomScaling extends AbstractScaling {
     }
 
     /* (non-Javadoc)
-     * @see com.iiordanov.bVNC.AbstractScaling#zoomOut(com.iiordanov.bVNC.VncCanvasActivity)
+     * @see com.iiordanov.bVNC.AbstractScaling#zoomOut(com.iiordanov.bVNC.RemoteCanvasActivity)
      */
     @Override
     void zoomOut(RemoteCanvasActivity activity) {
@@ -139,7 +139,7 @@ class ZoomScaling extends AbstractScaling {
     }
 
     /* (non-Javadoc)
-     * @see com.iiordanov.bVNC.AbstractScaling#adjust(com.iiordanov.bVNC.VncCanvasActivity, float, float, float)
+     * @see com.iiordanov.bVNC.AbstractScaling#adjust(com.iiordanov.bVNC.RemoteCanvasActivity, float, float, float)
      */
     @Override
     public void adjust(RemoteCanvasActivity activity, float scaleFactor, float fx, float fy) {
@@ -212,7 +212,7 @@ class ZoomScaling extends AbstractScaling {
     }
 
     /* (non-Javadoc)
-     * @see com.iiordanov.bVNC.AbstractScaling#setScaleTypeForActivity(com.iiordanov.bVNC.VncCanvasActivity)
+     * @see com.iiordanov.bVNC.AbstractScaling#setScaleTypeForActivity(com.iiordanov.bVNC.RemoteCanvasActivity)
      */
     @Override
     void setScaleTypeForActivity(RemoteCanvasActivity activity) {

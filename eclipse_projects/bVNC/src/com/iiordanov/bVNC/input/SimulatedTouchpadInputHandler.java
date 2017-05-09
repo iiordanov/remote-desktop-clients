@@ -52,7 +52,7 @@ public class SimulatedTouchpadInputHandler extends AbstractGestureInputHandler {
     /*
      * (non-Javadoc)
      * 
-     * @see com.iiordanov.bVNC.VncCanvasActivity.ZoomInputHandler#onKeyDown(int,
+     * @see com.iiordanov.bVNC.RemoteCanvasActivity.ZoomInputHandler#onKeyDown(int,
      *      android.view.KeyEvent)
      */
     @Override
@@ -63,7 +63,7 @@ public class SimulatedTouchpadInputHandler extends AbstractGestureInputHandler {
     /*
      * (non-Javadoc)
      * 
-     * @see com.iiordanov.bVNC.VncCanvasActivity.ZoomInputHandler#onKeyUp(int,
+     * @see com.iiordanov.bVNC.RemoteCanvasActivity.ZoomInputHandler#onKeyUp(int,
      *      android.view.KeyEvent)
      */
     @Override

@@ -95,7 +95,7 @@ import com.iiordanov.freeaSPICE.*;
 
 public class RemoteCanvasActivity extends FragmentActivity implements OnKeyListener {
     
-    private final static String TAG = "VncCanvasActivity";
+    private final static String TAG = "RemoteCanvasActivity";
     
     AbstractInputHandler inputHandler;
 

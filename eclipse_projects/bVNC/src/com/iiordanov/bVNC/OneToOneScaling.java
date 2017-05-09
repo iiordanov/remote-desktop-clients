@@ -100,7 +100,7 @@ class OneToOneScaling extends AbstractScaling {
     }
 
     /* (non-Javadoc)
-     * @see com.iiordanov.bVNC.AbstractScaling#setScaleTypeForActivity(com.iiordanov.bVNC.VncCanvasActivity)
+     * @see com.iiordanov.bVNC.AbstractScaling#setScaleTypeForActivity(com.iiordanov.bVNC.RemoteCanvasActivity)
      */
     @Override
     void setScaleTypeForActivity(RemoteCanvasActivity activity) {

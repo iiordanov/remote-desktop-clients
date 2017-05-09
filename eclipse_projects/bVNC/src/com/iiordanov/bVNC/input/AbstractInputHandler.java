@@ -24,14 +24,14 @@ import android.view.KeyEvent;
 import android.view.MotionEvent;
 
 /**
- * The VncCanvasActivity has several different ways of handling input from the touchscreen,
+ * The RemoteCanvasActivity has several different ways of handling input from the touchscreen,
  * keyboard, buttons and trackball.  These will be represented by different implementations
  * of this interface.  Putting the different modes in different classes
- * will keep the logic clean.  The relevant Activity callbacks in VncCanvasActivity
+ * will keep the logic clean.  The relevant Activity callbacks in RemoteCanvasActivity
  * are forwarded to methods in AbstractInputHandler.
  * <p>
  * It is expected that the implementations will be contained within
- * VncCanvasActivity, so they can do things like super.VncCanvasActivity.onXXX to invoke
+ * RemoteCanvasActivity, so they can do things like super.RemoteCanvasActivity.onXXX to invoke
  * default behavior.
  * @author Michael A. MacDonald
  *
