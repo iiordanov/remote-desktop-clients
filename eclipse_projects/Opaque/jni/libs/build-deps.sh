@@ -259,25 +259,12 @@ build_one() {
         make install
         ;;
     gnutls)
-        # Convert the static libs to shared libs
-        pushd ${gst}/lib/
-        for l in gmp hogweed iconv intl nettle z
-        do
-          mkdir $l.tmp
-          pushd $l.tmp
-          ${toolchain}/bin/${build_host}-ar -x ../lib$l.a
-          ${toolchain}/bin/${build_host}-gcc -shared -o lib$l.so *.o -l$l -L../
-          mv lib$l.so ../
-          popd
-          rm -rf $l.tmp
-        done
-        popd
-
         # Build in normal root once to create artifact
         do_configure \
                 --disable-crywrap \
                 --without-p11-kit \
-                --disable-doc
+                --disable-doc \
+                --disable-tests
         make $parallel
         make install
 
@@ -285,7 +272,8 @@ build_one() {
         do_configure install_in_gst \
                 --disable-crywrap \
                 --without-p11-kit \
-                --disable-doc
+                --disable-doc \
+                --disable-tests
         make $parallel
         make install
         ;;
