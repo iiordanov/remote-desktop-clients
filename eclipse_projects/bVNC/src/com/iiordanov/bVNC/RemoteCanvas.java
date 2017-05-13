@@ -1159,14 +1159,9 @@ public class RemoteCanvas extends ImageView implements LibFreeRDP.UIEventListene
         BaseInputConnection bic = new BaseInputConnection(this, false);
         outAttrs.actionLabel = null;
         outAttrs.inputType = InputType.TYPE_NULL;
-        // Workaround for Android AOSP IME that doesn't support InputType.TYPE_NULL.
         String currentIme = Settings.Secure.getString(getContext().getContentResolver(), Settings.Secure.DEFAULT_INPUT_METHOD);
         android.util.Log.d(TAG, "currentIme: " + currentIme);
-        if (version >= Build.VERSION_CODES.LOLLIPOP && currentIme.contains("com.android.inputmethod.latin")) {
-            android.util.Log.d(TAG, "Setting InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS");
-            outAttrs.inputType = InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS;
-            outAttrs.imeOptions |= EditorInfo.IME_FLAG_NO_FULLSCREEN;
-        }
+        outAttrs.imeOptions |= EditorInfo.IME_FLAG_NO_FULLSCREEN;
         return bic;
     }
     

@@ -20,7 +20,7 @@ clean_libs () {
 }
 
 
-if [ $1 == "--skip-build" ]
+if [ "$1" == "--skip-build" ]
 then
   SKIP_BUILD=true
   shift
