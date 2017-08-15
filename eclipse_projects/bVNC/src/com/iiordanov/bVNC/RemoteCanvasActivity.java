@@ -300,6 +300,10 @@ public class RemoteCanvasActivity extends FragmentActivity implements OnKeyListe
         rootView.getViewTreeObserver().addOnGlobalLayoutListener(new OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
+                    if (canvas == null || zoomer == null) {
+                        return;
+                    }
+                    
                     Rect r = new Rect();
 
                     rootView.getWindowVisibleDisplayFrame(r);
