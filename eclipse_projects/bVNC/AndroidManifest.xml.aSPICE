@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="com.iiordanov.aSPICE" android:installLocation="auto"
-          android:versionCode="3944" android:versionName="v3.9.4">
+          android:versionCode="3950" android:versionName="v3.9.5">
 
     <uses-sdk android:minSdkVersion="12" android:targetSdkVersion="12"></uses-sdk>
     <uses-permission android:name="android.permission.INTERNET"></uses-permission>

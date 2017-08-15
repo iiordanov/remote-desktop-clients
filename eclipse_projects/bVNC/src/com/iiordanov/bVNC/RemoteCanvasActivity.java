@@ -126,6 +126,7 @@ public class RemoteCanvasActivity extends FragmentActivity implements OnKeyListe
     Handler handler;
 
     RelativeLayout layoutKeys;
+    LinearLayout   layoutArrowKeys;
     ImageButton    keyStow;
     ImageButton    keyCtrl;
     boolean       keyCtrlToggled;
@@ -316,27 +317,35 @@ public class RemoteCanvasActivity extends FragmentActivity implements OnKeyListe
                     
                     // Enable/show the zoomer if the keyboard is gone, and disable/hide otherwise.
                     // We detect the keyboard if more than 19% of the screen is covered.
-                    int offset = 0;
+                    int topBottomOffset = 0;
+                    int leftRightOffset = 0;
                     int rootViewHeight = rootView.getHeight();
+                    int rootViewWidth = rootView.getWidth();
                     if (r.bottom > rootViewHeight*0.81) {
-                        offset = rootViewHeight - r.bottom;
+                        topBottomOffset = rootViewHeight - r.bottom;
+                        leftRightOffset = rootViewWidth - r.right;
+
                         // Soft Kbd gone, shift the meta keys and arrows down.
                         if (layoutKeys != null) {
-                            layoutKeys.offsetTopAndBottom(offset);
-                            keyStow.offsetTopAndBottom(offset);
-                            if (prevBottomOffset != offset) { 
+                            layoutKeys.offsetTopAndBottom(topBottomOffset);
+                            layoutArrowKeys.offsetLeftAndRight(leftRightOffset);
+                            keyStow.offsetTopAndBottom(topBottomOffset);
+                            if (prevBottomOffset != topBottomOffset) { 
                                 setExtraKeysVisibility(View.GONE, false);
                                 canvas.invalidate();
                                 zoomer.enable();
                             }
                         }
                     } else {
-                        offset = r.bottom - rootViewHeight;
+                        topBottomOffset = r.bottom - rootViewHeight;
+                        leftRightOffset = r.right - rootViewWidth;
+
                         //  Soft Kbd up, shift the meta keys and arrows up.
                         if (layoutKeys != null) {
-                            layoutKeys.offsetTopAndBottom(offset);
-                            keyStow.offsetTopAndBottom(offset);
-                            if (prevBottomOffset != offset) { 
+                            layoutKeys.offsetTopAndBottom(topBottomOffset);
+                            layoutArrowKeys.offsetLeftAndRight(leftRightOffset);
+                            keyStow.offsetTopAndBottom(topBottomOffset);
+                            if (prevBottomOffset != topBottomOffset) { 
                                 setExtraKeysVisibility(View.VISIBLE, true);
                                 canvas.invalidate();
                                 zoomer.hide();
@@ -345,7 +354,7 @@ public class RemoteCanvasActivity extends FragmentActivity implements OnKeyListe
                         }
                     }
                     setKeyStowDrawableAndVisibility();
-                    prevBottomOffset = offset;
+                    prevBottomOffset = topBottomOffset;
                     enableImmersive();
              }
         });
@@ -413,6 +422,7 @@ public class RemoteCanvasActivity extends FragmentActivity implements OnKeyListe
     private void initializeOnScreenKeys () {
         
         layoutKeys = (RelativeLayout) findViewById(R.id.layoutKeys);
+        layoutArrowKeys = (LinearLayout) findViewById(R.id.layoutArrowKeys);
 
         keyStow = (ImageButton)    findViewById(R.id.keyStow);
         setKeyStowDrawableAndVisibility();
