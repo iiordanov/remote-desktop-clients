@@ -1155,7 +1155,6 @@ public class RemoteCanvas extends ImageView implements LibFreeRDP.UIEventListene
     @Override
     public InputConnection onCreateInputConnection(EditorInfo outAttrs) {
         android.util.Log.d(TAG, "onCreateInputConnection called");
-        int version = android.os.Build.VERSION.SDK_INT;
         BaseInputConnection bic = new BaseInputConnection(this, false);
         outAttrs.actionLabel = null;
         outAttrs.inputType = InputType.TYPE_NULL;

@@ -53,10 +53,6 @@ public abstract class RemoteKeyboard {
 	
 	// Variable holding the state of the on-screen meta keys
 	protected int onScreenMetaState = 0;
-	
-    // This variable tells us whether we need to skip junk characters for
-    // SDK >= 16 and LatinIME next time a multi-character event comes along.
-    public boolean skippedJunkChars = true;
     
     // Variable used for BB10 workarounds
     boolean bb = false;
@@ -289,34 +285,6 @@ public abstract class RemoteKeyboard {
 		}
         return result;
 	}
-	
-    /**
-     * Used to calculate how many junk characters to skip.
-     * @param numchars
-     * @param evt
-     * @return
-     */
-    int numJunkCharactersToSkip (int numchars, KeyEvent evt) {
-        int i = 0;
-        if (!skippedJunkChars) {
-            if (numchars == 10000) {
-                // We received the event not because the user typed something but
-                // because of another reason (for example lock/unlock screen).
-                i = numchars;
-            } else {
-                // The user has typed at least one char, so we need to skip just the junk
-                // characters, so skip backward until we hit the first junk character.
-                for (i = Math.max(numchars - 2, 0); i > 0 ; i--) {
-                    if (evt.getCharacters().charAt(i) == '%') {
-                        i = i + 1;
-                        break;
-                    }
-                }
-                skippedJunkChars = true;
-            }
-        }
-        return i;
-    }
     
     /**
      * Converts event meta state to our meta state.

@@ -159,8 +159,7 @@ public class RemoteSpiceKeyboard extends RemoteKeyboard {
 				String s = event.getCharacters();
 				if (s != null) {
                     int numchars = s.length();
-                    int i = numJunkCharactersToSkip (numchars, event);
-					for (; i < numchars; i++) {
+					for (int i = 0; i < numchars; i++) {
 						android.util.Log.e(TAG, "Trying to convert unicode to KeyEvent: " + (int)s.charAt(i));
 						if (!sendUnicodeChar (s.charAt(i))) {
 						    writeKeyEvent(true, (int)s.charAt(i), metaState, true, true);

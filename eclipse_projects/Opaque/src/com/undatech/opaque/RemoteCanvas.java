@@ -44,6 +44,7 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
 import android.os.SystemClock;
+import android.provider.Settings;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.text.ClipboardManager;
@@ -962,45 +963,16 @@ public class RemoteCanvas extends ImageView {
 	public float getDisplayHeight() {
 		return displayHeight;
 	}
-	
+    
     @Override
     public InputConnection onCreateInputConnection(EditorInfo outAttrs) {
         android.util.Log.d(TAG, "onCreateInputConnection called");
-        int version = android.os.Build.VERSION.SDK_INT;
-        BaseInputConnection bic = null;
-        if (!bb && version >= Build.VERSION_CODES.JELLY_BEAN) {
-            bic = new BaseInputConnection(this, false) {
-                final static String junk_unit = "%%%%%%%%%%";
-                final static int multiple = 1000;
-                Editable e;
-                @Override
-                public Editable getEditable() {
-                    if (e == null) {
-                        int numTotalChars = junk_unit.length()*multiple;
-                        String junk = new String();
-                        for (int i = 0; i < multiple ; i++) {
-                            junk += junk_unit;
-                        }
-                        e = Editable.Factory.getInstance().newEditable(junk);
-                        Selection.setSelection(e, numTotalChars);
-                        if (RemoteCanvas.this.keyboard != null) {
-                            RemoteCanvas.this.keyboard.skippedJunkChars = false;
-                        }
-                    }
-                    return e;
-                }
-            };
-        } else {
-            bic = new BaseInputConnection(this, false);
-        }
-        
+        BaseInputConnection bic = new BaseInputConnection(this, false);
         outAttrs.actionLabel = null;
         outAttrs.inputType = InputType.TYPE_NULL;
-        // Workaround for IME's that don't support InputType.TYPE_NULL.
-        if (version >= 21) {
-            outAttrs.inputType = InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS;
-            outAttrs.imeOptions |= EditorInfo.IME_FLAG_NO_FULLSCREEN;
-        }
+        String currentIme = Settings.Secure.getString(getContext().getContentResolver(), Settings.Secure.DEFAULT_INPUT_METHOD);
+        android.util.Log.d(TAG, "currentIme: " + currentIme);
+        outAttrs.imeOptions |= EditorInfo.IME_FLAG_NO_FULLSCREEN;
         return bic;
     }
 	
