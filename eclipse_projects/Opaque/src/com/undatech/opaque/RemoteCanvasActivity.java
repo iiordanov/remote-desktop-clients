@@ -55,6 +55,7 @@ import com.undatech.opaque.input.*;
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.AlertDialog;
+import android.support.v4.app.FragmentManager;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -1127,11 +1128,21 @@ public class RemoteCanvasActivity extends FragmentActivity implements OnKeyListe
     }
     
     @Override
-    public void onTextObtained(String obtainedString) {
+    public void onTextObtained(String id, String obtainedString) {
+        android.util.Log.i(TAG, "onTextObtained called with id: " + id);
         canvas.progressDialog.show();
-        connection.setPassword(obtainedString);
+        
+        if (id.equals(Constants.GET_PASSWORD_ID)) {
+            connection.setPassword(obtainedString);
+        } else if (id.equals(Constants.GET_OTP_CODE_ID)) {
+            connection.setOtpCode(obtainedString);
+        }
+        
         synchronized (canvas.spicecomm) {
             canvas.spicecomm.notify();
         }
+        
+        FragmentManager fm = this.getSupportFragmentManager();
+        fm.beginTransaction().remove(fm.findFragmentByTag(id)).commit();
     }
 }

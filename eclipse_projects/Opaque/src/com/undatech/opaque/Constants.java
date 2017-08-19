@@ -50,6 +50,7 @@ public class Constants {
     public static final int PVE_TIMEOUT_COMMUNICATING  = 21;
     public static final int PVE_NULL_DATA              = 22;
     public static final int VV_DOWNLOAD_TIMEOUT        = 23;
+    public static final int GET_OTP_CODE               = 24;
     
 	public static final int EXTRA_KEYS_OFF         = 0;
 	public static final int EXTRA_KEYS_ON          = 1;
@@ -76,4 +77,7 @@ public class Constants {
     public static final String PVE_DEFAULT_REALM = "pam";
     public static final String PVE_DEFAULT_NODE = "pve";
     public static final String PVE_DEFAULT_VIRTUALIZATION = "qemu";
+    
+    public static final String GET_OTP_CODE_ID = "getOtpCode";
+    public static final String GET_PASSWORD_ID = "getPassword";
 }

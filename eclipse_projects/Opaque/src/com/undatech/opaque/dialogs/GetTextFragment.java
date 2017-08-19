@@ -61,12 +61,14 @@ public class GetTextFragment extends DialogFragment {
 	public static String TAG = "GetTextFragment";
 	
     public interface OnFragmentDismissedListener {
-        public void onTextObtained(String obtainedString);
+        public void onTextObtained(String id, String obtainedString);
     }
 	
     private EditText textBox;
+    private Button okButton;
     private OnFragmentDismissedListener dismissalListener;
-	private String title;
+    private String title;
+    private String id;
 	
 	private boolean password = false;
 	private String obtained = "";
@@ -89,12 +91,14 @@ public class GetTextFragment extends DialogFragment {
         this.dismissalListener = dismissalListener;
     }
     
-	public static GetTextFragment newInstance(String title, OnFragmentDismissedListener dismissalListener, boolean password) {
-    	android.util.Log.e(TAG, "newInstance called");
+	public static GetTextFragment newInstance(String id, String title,
+	                                          OnFragmentDismissedListener dismissalListener, boolean password) {
+    	android.util.Log.i(TAG, "newInstance called");
     	GetTextFragment f = new GetTextFragment();
     	f.setOnFragmentDismissedListener(dismissalListener);
     	
         Bundle args = new Bundle();
+        args.putString("id", id);
         args.putString("title", title);
         args.putBoolean("password", password);
         f.setArguments(args);
@@ -106,14 +110,15 @@ public class GetTextFragment extends DialogFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-    	android.util.Log.e(TAG, "onCreate called");
-        title = getArguments().getString("title");
-        password = getArguments().getBoolean("password");
+    	android.util.Log.i(TAG, "onCreate called");
+        this.id = getArguments().getString("id");
+        this.title = getArguments().getString("title");
+        this.password = getArguments().getBoolean("password");
     }
     
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-    	android.util.Log.e(TAG, "onCreateView called");
+    	android.util.Log.i(TAG, "onCreateView called");
 
     	// Set title for this dialog
     	getDialog().setTitle(title);
@@ -122,26 +127,35 @@ public class GetTextFragment extends DialogFragment {
     	textBox = (EditText) v.findViewById(R.id.textBox);
     	if (password) {
     		textBox.setTransformationMethod(new PasswordTransformationMethod());
-        	textBox.setOnEditorActionListener(new OnEditorActionListener () {
-				@Override
-				public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-					boolean consumed = false;
-					if (actionId == EditorInfo.IME_NULL) {
-						getDialog().dismiss();
-						consumed = true;
-					}
-					return consumed;
-				}
-        	});
     	}
-
-    	return v;
+        textBox.setOnEditorActionListener(new OnEditorActionListener () {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                boolean consumed = false;
+                if (actionId == EditorInfo.IME_NULL || actionId == EditorInfo.IME_ACTION_SEND) {
+                    getDialog().dismiss();
+                    consumed = true;
+                }
+                return consumed;
+            }
+        });
+    	
+    	okButton = (Button)v.findViewById(R.id.okButton);
+    	okButton.setOnClickListener(new View.OnClickListener() {
+            
+            @Override
+            public void onClick(View v) {
+                getDialog().dismiss();
+            }
+        });
+    	
+        return v;
     }
     
     @Override
     public void onDismiss (DialogInterface dialog) {
-    	android.util.Log.e(TAG, "dismiss: sending back data to Activity");
-    	dismissalListener.onTextObtained(textBox.getText().toString());
+    	android.util.Log.i(TAG, "dismiss: sending back data to listener");
+    	dismissalListener.onTextObtained(this.id, textBox.getText().toString());
     }
 
     @Override

@@ -38,8 +38,7 @@ public class ProxmoxClient extends RestClient {
      * @throws HttpException
      * @throws LoginException 
      */
-    public ProxmoxClient(String hostname, String user, String realm, String password, ConnectionSettings connection, Handler handler)
-            throws JSONException, IOException, HttpException, LoginException {
+    public ProxmoxClient(String hostname, ConnectionSettings connection, Handler handler) {
         super(connection, handler);
         this.baseUrl = "https://" + hostname + ":8006/api2/json";
 
@@ -49,18 +48,39 @@ public class ProxmoxClient extends RestClient {
         //    resetState(baseUrl);
         //    execute(RestClient.RequestMethod.GET);
         //}
+    }
+    
+    public HashMap<String, PveRealm> getAvailableRealms()
+            throws JSONException, IOException, HttpException {
+        resetState(baseUrl + "/access/domains");
+        execute(RestClient.RequestMethod.GET);
         
+        HashMap<String, PveRealm> result = null;
+        if (getResponseCode() == HttpURLConnection.HTTP_OK) {
+            JSONArray array = new JSONObject(getResponse()).getJSONArray("data");
+            result = PveRealm.getRealmsFromJsonArray(array);
+        } else {
+            throw new HttpException(getErrorMessage());
+        }
+
+        return result;
+    }
+    
+    public void login(String user, String realm, String password, String otp)
+            throws JSONException, IOException, HttpException, LoginException {
         resetState(baseUrl + "/access/ticket");
 
         addParam("username", user);
         addParam("password", password);
         addParam("realm", realm);
-
+        if (otp != null) {
+            addParam("otp", otp);
+        }
+        
         execute(RestClient.RequestMethod.POST);
 
         if (getResponseCode() == HttpURLConnection.HTTP_OK) {
-            JSONObject data = new JSONObject(getResponse())
-            .getJSONObject("data");
+            JSONObject data = new JSONObject(getResponse()).getJSONObject("data");
             ticket = data.getString("ticket");
             csrfToken = data.getString("CSRFPreventionToken");
         } else if (getResponseCode() == HttpURLConnection.HTTP_UNAUTHORIZED) {

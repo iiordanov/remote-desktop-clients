@@ -38,7 +38,8 @@ public class ConnectionSettings implements Serializable {
     private String hostname = "";
 	private String vmname = "";
 	private String user = "";
-	private String password = "";
+    private String password = "";
+    private String otpCode = "";
 	private String inputMethod = Constants.DEFAULT_INPUT_METHOD_ID;
 	private boolean rotationEnabled = true;
 	private boolean requestingNewDisplayResolution = true;
@@ -114,7 +115,15 @@ public class ConnectionSettings implements Serializable {
 		this.password = password;
 	}
 	
-	public String getFilename() {
+	public String getOtpCode() {
+        return otpCode;
+    }
+
+    public void setOtpCode(String otpCode) {
+        this.otpCode = otpCode;
+    }
+
+    public String getFilename() {
 		return filename;
 	}
 

@@ -70,6 +70,7 @@ import com.undatech.opaque.input.RemotePointer;
 import com.undatech.opaque.input.RemoteSpiceKeyboard;
 import com.undatech.opaque.input.RemoteSpicePointer;
 import com.undatech.opaque.proxmox.ProxmoxClient;
+import com.undatech.opaque.proxmox.pojo.PveRealm;
 import com.undatech.opaque.proxmox.pojo.PveResource;
 import com.undatech.opaque.proxmox.pojo.SpiceDisplay;
 import com.undatech.opaque.proxmox.pojo.VmStatus;
@@ -244,7 +245,7 @@ public class RemoteCanvas extends ImageView {
      * @return 
      */
     // TODO: Switch away from writing out a file to initiating a connection directly.
-    String retrieveVvFileFromPve(final ConnectionSettings settings) {
+    String retrieveVvFileFromPve(final ConnectionSettings settings, final ProxmoxClient api) {
         android.util.Log.i(TAG, String.format("Trying to connect to PVE host: " + settings.getHostname()));
         final String tempVvFile = getContext().getFilesDir() + "/tempfile.vv";
         deleteMyFile(tempVvFile);
@@ -263,10 +264,6 @@ public class RemoteCanvas extends ImageView {
                         realm = user.substring(indexOfAt+1);
                         user = user.substring(0, indexOfAt);
                     }
-                    
-                    // Login with provided credentials
-                    // TODO: Obtain cert from vv file and pass it into the API client
-                    ProxmoxClient api = new ProxmoxClient(settings.getHostname(), user, realm, settings.getPassword(), settings, handler);
                     
                     // Parse out node, virtualization type and VM ID
                     String node = Constants.PVE_DEFAULT_NODE;
@@ -355,7 +352,7 @@ public class RemoteCanvas extends ImageView {
         this.handler = handler;
         checkNetworkConnectivity();
         initializeClipboardMonitor();
-        
+
         Thread cThread = new Thread () {
             @Override
             public void run() {
@@ -364,7 +361,7 @@ public class RemoteCanvas extends ImageView {
                     pointer = new RemoteSpicePointer (spicecomm, RemoteCanvas.this, handler);
                     keyboard = new RemoteSpiceKeyboard (getResources(), spicecomm, RemoteCanvas.this, handler, settings.getLayoutMap());
                     spicecomm.setHandler(handler);
-                    
+
                     // Obtain user's password if necessary.
                     if (settings.getPassword().equals("")) {
                         android.util.Log.i (TAG, "Displaying a dialog to obtain user's password.");
@@ -373,78 +370,89 @@ public class RemoteCanvas extends ImageView {
                             spicecomm.wait();
                         }
                     }
-                    
-                    // If not VM name is specified, then get a list of VMs and let the user pick one.
-                    if (settings.getVmname().isEmpty()) {
-                        try {
-                            String user = settings.getUser();
-                            String realm = Constants.PVE_DEFAULT_REALM;
-                            
-                            // Try to parse credentials.
-                            int indexOfAt = settings.getUser().indexOf('@');
-                            if (indexOfAt != -1) {
-                                realm = user.substring(indexOfAt+1);
-                                user = user.substring(0, indexOfAt);
-                            }
-                            
-                            // Login with provided credentials
-                            ProxmoxClient api = new ProxmoxClient(settings.getHostname(), user, realm, settings.getPassword(), settings, handler);
-                            
-                            // Get map of user parseable names to resources
-                            Map<String, PveResource> nameToResources = api.getResources();
-                            
-                            if (nameToResources.isEmpty()) {
-                                android.util.Log.e(TAG, "No available suitable resources in PVE cluster");
-                                disconnectAndShowMessage(R.string.error_no_vm_found_for_user, R.string.error_dialog_title);
-                            }
 
-                            // If there is just one VM, pick it and skip the dialog.
-                            if (nameToResources.size() == 1) {
-                                PveResource a = nameToResources.get(0);
-                                settings.setVmname(a.getNode() + "/" + a.getType() + "/" + a.getVmid());
-                                settings.saveToSharedPreferences(getContext());
-                            } else {
-                                while (settings.getVmname().equals("")) {
-                                    android.util.Log.i (TAG, "PVE: Displaying a dialog with VMs to the user.");
-                                    // Populate the data structure that is used to convert VM names to IDs.
-                                    for (String s : nameToResources.keySet()) {
-                                        vmNameToId.put(nameToResources.get(s).getName() + " (" + s + ")", s);
-                                    }
-                                    // Get the user parseable names and display them
-                                    ArrayList<String> vms = new ArrayList<String>(vmNameToId.keySet());
-                                    handler.sendMessage(RemoteCanvasActivityHandler.getMessageStringList(Constants.DIALOG_DISPLAY_VMS,
-                                                                                                             "vms", vms));
-                                    synchronized(spicecomm) {
-                                        spicecomm.wait();
-                                    }
-                                }
-                            }
-                            
-                        } catch (LoginException e) {
-                            android.util.Log.e(TAG, "Failed to login to PVE.");
-                            handler.sendEmptyMessage(Constants.PVE_FAILED_TO_AUTHENTICATE);
-                        } catch (JSONException e) {
-                            android.util.Log.e(TAG, "Failed to parse json from PVE.");
-                            handler.sendEmptyMessage(Constants.PVE_FAILED_TO_PARSE_JSON);
-                        }  catch (IOException e) {
-                            android.util.Log.e(TAG, "IO Error communicating with PVE API: " + e.getMessage());
-                            handler.sendMessage(RemoteCanvasActivityHandler.getMessageString(Constants.PVE_API_IO_ERROR,
-                                                "error", e.getMessage()));
-                            e.printStackTrace();
-                        } catch (HttpException e) {
-                            android.util.Log.e(TAG, "PVE API returned error code: " + e.getMessage());
-                            handler.sendMessage(RemoteCanvasActivityHandler.getMessageString(Constants.PVE_API_UNEXPECTED_CODE,
-                                                "error", e.getMessage()));
+                    String user = settings.getUser();
+                    String realm = Constants.PVE_DEFAULT_REALM;
+
+                    // Try to parse realm from user entered
+                    int indexOfAt = settings.getUser().indexOf('@');
+                    if (indexOfAt != -1) {
+                        realm = user.substring(indexOfAt+1);
+                        user = user.substring(0, indexOfAt);
+                    }
+
+                    // Connect to the API and obtain available realms
+                    ProxmoxClient api = new ProxmoxClient(settings.getHostname(), settings, handler);
+                    HashMap<String, PveRealm> realms = api.getAvailableRealms();
+                    
+                    // If selected realm has TFA enabled, then ask for the code
+                    if (realms.get(realm).getTfa() != null) {
+                        android.util.Log.i (TAG, "Displaying a dialog to obtain OTP/TFA.");
+                        handler.sendEmptyMessage(Constants.GET_OTP_CODE);
+                        synchronized(spicecomm) {
+                            spicecomm.wait();
                         }
                     }
                     
+                    // Login with provided credentials
+                    api.login(user, realm, settings.getPassword(), settings.getOtpCode());
+
+                    // If not VM name is specified, then get a list of VMs and let the user pick one.
+                    if (settings.getVmname().isEmpty()) {
+                        // Get map of user parseable names to resources
+                        Map<String, PveResource> nameToResources = api.getResources();
+
+                        if (nameToResources.isEmpty()) {
+                            android.util.Log.e(TAG, "No available suitable resources in PVE cluster");
+                            disconnectAndShowMessage(R.string.error_no_vm_found_for_user, R.string.error_dialog_title);
+                        }
+
+                        // If there is just one VM, pick it and skip the dialog.
+                        if (nameToResources.size() == 1) {
+                            PveResource a = nameToResources.get(0);
+                            settings.setVmname(a.getNode() + "/" + a.getType() + "/" + a.getVmid());
+                            settings.saveToSharedPreferences(getContext());
+                        } else {
+                            while (settings.getVmname().equals("")) {
+                                android.util.Log.i (TAG, "PVE: Displaying a dialog with VMs to the user.");
+                                // Populate the data structure that is used to convert VM names to IDs.
+                                for (String s : nameToResources.keySet()) {
+                                    vmNameToId.put(nameToResources.get(s).getName() + " (" + s + ")", s);
+                                }
+                                // Get the user parseable names and display them
+                                ArrayList<String> vms = new ArrayList<String>(vmNameToId.keySet());
+                                handler.sendMessage(RemoteCanvasActivityHandler.getMessageStringList(
+                                        Constants.DIALOG_DISPLAY_VMS, "vms", vms));
+                                synchronized(spicecomm) {
+                                    spicecomm.wait();
+                                }
+                            }
+                        }
+
+                    }
+
                     // Only if we managed to obtain a VM name we try to get a .vv file for the display.
                     if (!settings.getVmname().isEmpty()) {
-                        String vvFileName = retrieveVvFileFromPve(settings);
+                        String vvFileName = retrieveVvFileFromPve(settings, api);
                         if (vvFileName != null) {
                             initialize(vvFileName, settings, handler);
                         }
                     }
+                } catch (LoginException e) {
+                    android.util.Log.e(TAG, "Failed to login to PVE.");
+                    handler.sendEmptyMessage(Constants.PVE_FAILED_TO_AUTHENTICATE);
+                } catch (JSONException e) {
+                    android.util.Log.e(TAG, "Failed to parse json from PVE.");
+                    handler.sendEmptyMessage(Constants.PVE_FAILED_TO_PARSE_JSON);
+                }  catch (IOException e) {
+                    android.util.Log.e(TAG, "IO Error communicating with PVE API: " + e.getMessage());
+                    handler.sendMessage(RemoteCanvasActivityHandler.getMessageString(Constants.PVE_API_IO_ERROR,
+                            "error", e.getMessage()));
+                    e.printStackTrace();
+                } catch (HttpException e) {
+                    android.util.Log.e(TAG, "PVE API returned error code: " + e.getMessage());
+                    handler.sendMessage(RemoteCanvasActivityHandler.getMessageString(Constants.PVE_API_UNEXPECTED_CODE,
+                            "error", e.getMessage()));
                 } catch (Throwable e) {
                     if (stayConnected) {
                         e.printStackTrace();
@@ -454,13 +462,14 @@ public class RemoteCanvas extends ImageView {
                             disposeDrawable ();
                             disconnectAndShowMessage(R.string.error_out_of_memory, R.string.error_dialog_title);
                         }
+                        
+                        disconnectAndShowMessage(R.string.error_dialog_title, R.string.error_dialog_title, e.toString());
                     }
                 }
             }
         };
         cThread.start();
     }
-
     
     
 	/**

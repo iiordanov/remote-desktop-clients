@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import android.R.id;
 import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -31,17 +32,23 @@ public class RemoteCanvasActivityHandler extends Handler {
     private Context context;
     private RemoteCanvas c;
     private ConnectionSettings settings;
+    private FragmentManager fm;
     
     public RemoteCanvasActivityHandler(Context context, RemoteCanvas c, ConnectionSettings settings) {
         super();
         this.context = context;
         this.c = c;
         this.settings = settings;
+        this.fm = ((FragmentActivity)context).getSupportFragmentManager();
+    }
+    
+    private void showGetTextFragment (String id, String title, boolean password) {
+        GetTextFragment frag = GetTextFragment.newInstance(id, title, (RemoteCanvasActivity)context, password);
+        frag.show(fm, id);
     }
     
     @Override
     public void handleMessage(Message msg) {
-        FragmentManager fm;
         switch (msg.what) {
         case Constants.VV_OVER_HTTP_FAILURE:
             MessageDialogs.displayMessageAndFinish(context, R.string.error_failed_to_download_vv_http,
@@ -117,14 +124,11 @@ public class RemoteCanvasActivityHandler extends Handler {
             break;
         case Constants.GET_PASSWORD:
             c.progressDialog.dismiss();
-
-            fm = ((FragmentActivity)context).getSupportFragmentManager();
-            GetTextFragment getPassword = GetTextFragment.newInstance(
-                                                    context.getString(R.string.enter_password),
-                                                    (RemoteCanvasActivity)context, true);
-            // TODO: Add OK button.
-            //newFragment.setCancelable(false);
-            getPassword.show(fm, "getPassword");
+            showGetTextFragment(Constants.GET_PASSWORD_ID, context.getString(R.string.enter_password), true);
+            break;
+        case Constants.GET_OTP_CODE:
+            c.progressDialog.dismiss();
+            showGetTextFragment(Constants.GET_OTP_CODE_ID, context.getString(R.string.enter_otp_code), false);
             break;
         case Constants.DIALOG_DISPLAY_VMS:
             c.progressDialog.dismiss();

@@ -31,6 +31,7 @@
 <string name="connection_setup_user">User@Domain</string>
 <string name="connection_setup_password">Password (saved if entered)</string>
 <string name="enter_password">Please enter password</string>
+<string name="enter_otp_code">Please enter OTP code</string>
 <string name="manage_custom_ca_title">Manage custom CA</string>
 <string name="save_button">Save</string>
 <string name="snap_one_to_one">Snapped to 1:1 zoom</string>
@@ -72,6 +73,7 @@
 <string name="fit_to_screen">Fit to Screen</string>
 
 <string name="one_to_one">One to One</string>
+<string name="ok">Ok</string>
 
 <string name="input_methods">Input Method</string>
 <string name="input_method_help_text">
