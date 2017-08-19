@@ -22,13 +22,9 @@ package com.iiordanov.tigervnc.rfb;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
-import com.iiordanov.bVNC.AbstractBitmapData;
 import com.iiordanov.bVNC.RemoteCanvas;
 import com.iiordanov.tigervnc.rdr.InStream;
 import com.iiordanov.tigervnc.rdr.ZlibInStream;
-import java.util.ArrayList;
-import java.io.InputStream;
-import java.awt.*;
 
 public class TightDecoder extends Decoder {
 
