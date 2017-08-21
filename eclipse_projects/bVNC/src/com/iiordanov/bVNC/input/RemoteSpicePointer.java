@@ -204,27 +204,27 @@ public class RemoteSpicePointer extends RemotePointer {
         
         if (rfb != null && rfb.isInNormalProtocol()) {
             if (useRightButton) {
-                //android.util.Log.e("", "Mouse button right");
+                //android.util.Log.i("", "Mouse button right");
                 pointerMask = SPICE_MOUSE_BUTTON_RIGHT;
             } else if (useMiddleButton) {
-                //android.util.Log.e("", "Mouse button middle");
+                //android.util.Log.i("", "Mouse button middle");
                 pointerMask = SPICE_MOUSE_BUTTON_MIDDLE;
             } else if (action == MotionEvent.ACTION_DOWN) {
-                //android.util.Log.e("", "Mouse button left");
+                //android.util.Log.i("", "Mouse button left");
                 pointerMask = SPICE_MOUSE_BUTTON_LEFT;
             } else if (useScrollButton) {
                 if        ( direction == 0 ) {
-                    //android.util.Log.e("", "Scrolling up");
+                    //android.util.Log.i("", "Scrolling up");
                     pointerMask = SPICE_MOUSE_BUTTON_UP;
                 } else if ( direction == 1 ) {
-                    //android.util.Log.e("", "Scrolling down");
+                    //android.util.Log.i("", "Scrolling down");
                     pointerMask = SPICE_MOUSE_BUTTON_DOWN;
                 }
             } else if (action == MotionEvent.ACTION_MOVE) {
-                //android.util.Log.e("", "Mouse moving");
+                //android.util.Log.i("", "Mouse moving");
                 pointerMask = SPICE_MOUSE_BUTTON_MOVE;
             } else {
-                //android.util.Log.e("", "Setting previous mouse action with mouse not down.");
+                //android.util.Log.i("", "Setting previous mouse action with mouse not down.");
                 // If none of the conditions are satisfied, then set the pointer mask to
                 // the previous mask so we can unpress any pressed buttons.
                 pointerMask = prevPointerMask;
@@ -241,10 +241,10 @@ public class RemoteSpicePointer extends RemotePointer {
             }
             
             if (mouseIsDown /*&& pointerMask != MOUSE_BUTTON_MOVE*/) {
-                //android.util.Log.e("", "Mouse pointer is down");
+                //android.util.Log.i("", "Mouse pointer is down");
                 pointerMask = pointerMask | PTRFLAGS_DOWN;
             } else {
-                //android.util.Log.e("", "Mouse pointer is up");
+                //android.util.Log.i("", "Mouse pointer is up");
                 prevPointerMask = 0;
             }
                         

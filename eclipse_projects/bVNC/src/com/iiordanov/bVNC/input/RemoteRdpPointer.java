@@ -211,39 +211,39 @@ public class RemoteRdpPointer extends RemotePointer {
                                         boolean useMiddleButton, boolean useScrollButton, int direction) {
         if (rfb != null && rfb.isInNormalProtocol()) {
             if (useRightButton) {
-                //android.util.Log.e(TAG, "Mouse button right");
+                //android.util.Log.i(TAG, "Mouse button right");
                 if (prevPointerMask == MOUSE_BUTTON_RIGHT)
                     pointerMask = MOUSE_BUTTON_MOVE;
                 else
                     pointerMask = MOUSE_BUTTON_RIGHT;
             } else if (useMiddleButton) {
-                //android.util.Log.e(TAG, "Mouse button middle");
+                //android.util.Log.i(TAG, "Mouse button middle");
                 if (prevPointerMask == MOUSE_BUTTON_MIDDLE)
                     pointerMask = MOUSE_BUTTON_MOVE;
                 else
                     pointerMask = MOUSE_BUTTON_MIDDLE;
             } else if (action == MotionEvent.ACTION_DOWN) {
-                //android.util.Log.e(TAG, "Mouse button left");
+                //android.util.Log.i(TAG, "Mouse button left");
                 pointerMask = MOUSE_BUTTON_LEFT;
             } else if (useScrollButton) {
                 if        ( direction == 0 ) {
-                    //android.util.Log.e(TAG, "Scrolling up");
+                    //android.util.Log.i(TAG, "Scrolling up");
                     pointerMask = MOUSE_BUTTON_SCROLL_UP;
                 } else if ( direction == 1 ) {
-                    //android.util.Log.e(TAG, "Scrolling down");
+                    //android.util.Log.i(TAG, "Scrolling down");
                     pointerMask = MOUSE_BUTTON_SCROLL_DOWN;
                 }/* else if ( direction == 2 ) {
-                    android.util.Log.e("", "Scrolling left");
+                    android.util.Log.i("", "Scrolling left");
                     pointerMask = MOUSE_BUTTON_SCROLL_LEFT;
                 } else if ( direction == 3 ) {
-                    android.util.Log.e("", "Scrolling right");
+                    android.util.Log.i("", "Scrolling right");
                     pointerMask = MOUSE_BUTTON_SCROLL_RIGHT;
                 }*/
             } else if (action == MotionEvent.ACTION_MOVE || action == MotionEvent.ACTION_HOVER_MOVE) {
-                //android.util.Log.e(TAG, "Mouse moving");
+                //android.util.Log.i(TAG, "Mouse moving");
                 pointerMask = MOUSE_BUTTON_MOVE;
             } else {
-                //android.util.Log.e(TAG, "Setting previous mouse action with mouse not down.");
+                //android.util.Log.i(TAG, "Setting previous mouse action with mouse not down.");
                 // If none of the conditions are satisfied, then set the pointer mask to
                 // the previous mask so we can unpress any pressed buttons.
                 pointerMask = prevPointerMask;
@@ -255,7 +255,7 @@ public class RemoteRdpPointer extends RemotePointer {
             if (pointerMask != MOUSE_BUTTON_MOVE || action == MotionEvent.ACTION_HOVER_MOVE) {
                 // If this is a new mouse down event, release previous button pressed to avoid confusing the remote OS.
                 if (prevPointerMask != 0 && prevPointerMask != pointerMask) {
-                    //android.util.Log.e(TAG, "Releasing previous mouse button: " + prevPointerMask);
+                    //android.util.Log.i(TAG, "Releasing previous mouse button: " + prevPointerMask);
                     rfb.writePointerEvent(mouseX, mouseY, modifiers|vncCanvas.getKeyboard().getMetaState(), prevPointerMask);
                 }
                 prevPointerMask = pointerMask;
@@ -263,10 +263,10 @@ public class RemoteRdpPointer extends RemotePointer {
             
             // Xrdp doesn't like it when we add ptrflags_down to scroll events...
             if (mouseIsDown && !useScrollButton) {
-                //android.util.Log.e(TAG, "Mouse pointer is down");
+                //android.util.Log.i(TAG, "Mouse pointer is down");
                 pointerMask = pointerMask | PTRFLAGS_DOWN;
             } else {
-                //android.util.Log.e(TAG, "Mouse pointer is up");
+                //android.util.Log.i(TAG, "Mouse pointer is up");
                 prevPointerMask = 0;
             }
                         
@@ -281,7 +281,7 @@ public class RemoteRdpPointer extends RemotePointer {
 
             // Sending pointerMask == 0 causes the RDP connection to close, so we're being extra careful.
             if (pointerMask != 0) {
-                //android.util.Log.e(TAG, "Sending mouse button: " + pointerMask);
+                //android.util.Log.i(TAG, "Sending mouse button: " + pointerMask);
                 rfb.writePointerEvent(mouseX, mouseY, modifiers|vncCanvas.getKeyboard().getMetaState(), pointerMask);
             }
             return true;

@@ -148,7 +148,7 @@ public class SingleHandedInputHandler extends TouchMouseSwipePanInputHandler {
      */
     @Override
     public void onLongPress(MotionEvent e) {
-        android.util.Log.e(TAG, "Long press.");
+        android.util.Log.i(TAG, "Long press.");
 
         if (singleHandedGesture || singleHandedJustEnded)
             return;
