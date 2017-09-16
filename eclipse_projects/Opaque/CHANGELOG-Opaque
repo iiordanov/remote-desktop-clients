@@ -1,3 +1,6 @@
+v1.4.4
+- Import/Export settings
+- VNC console support via URI intent and bVNC
 v1.4.3
 - TFA/OTP support for Proxmox
 - Several bugfixes

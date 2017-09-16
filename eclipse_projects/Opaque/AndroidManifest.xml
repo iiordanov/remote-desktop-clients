@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.undatech.opaque"
-    android:versionCode="1430"
-    android:versionName="1.4.3" >
+    android:versionCode="1440"
+    android:versionName="1.4.4" >
 
     <uses-sdk
         android:minSdkVersion="12"
@@ -55,7 +55,7 @@
         <activity
             android:name="com.undatech.opaque.RemoteCanvasActivity"
             android:screenOrientation="unspecified"
-            android:configChanges="orientation|screenSize|keyboardHidden|keyboard"
+            android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|density|screenLayout"
             android:windowSoftInputMode="stateHidden|adjustResize"
             android:theme="@android:style/Theme.DeviceDefault"
             android:launchMode="singleTask">

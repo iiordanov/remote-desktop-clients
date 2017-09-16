@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="com.iiordanov.aSPICE" android:installLocation="auto"
-          android:versionCode="3951" android:versionName="v3.9.5">
+          android:versionCode="3964" android:versionName="v3.9.6">
 
     <uses-sdk android:minSdkVersion="12" android:targetSdkVersion="12"></uses-sdk>
     <uses-permission android:name="android.permission.INTERNET"></uses-permission>
@@ -25,7 +25,8 @@
                           android:screenOrientation="unspecified"
                           android:configChanges="orientation|keyboardHidden"
                           android:windowSoftInputMode="stateHidden|adjustResize"
-                          android:theme="@android:style/Theme.DeviceDefault">
+                          android:theme="@android:style/Theme.DeviceDefault"
+                          android:resizeableActivity="true">
                         <intent-filter>
                                 <action android:name="android.intent.action.MAIN"></action>
                                 <category android:name="android.intent.category.LAUNCHER"></category>
@@ -33,10 +34,11 @@
                         </intent-filter>
                 </activity>
                 <activity android:screenOrientation="unspecified"
-                          android:configChanges="orientation|keyboardHidden|keyboard"
+                          android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|density|screenLayout"
 		                  android:name="com.iiordanov.bVNC.RemoteCanvasActivity"
 		                  android:windowSoftInputMode="stateHidden|adjustResize"
-		                  android:theme="@android:style/Theme.DeviceDefault">
+		                  android:theme="@android:style/Theme.DeviceDefault"
+		                  android:resizeableActivity="true">
                        <intent-filter>
                                 <action android:name="android.intent.action.VIEW"></action>
                        </intent-filter>
@@ -50,11 +52,17 @@
                                 <category android:name="android.intent.category.DEFAULT" />
                                 <data android:mimeType="application/vnd.vnc" />
                        </intent-filter>
+                       <intent-filter>
+                                <action android:name="android.intent.action.VIEW" />
+                                <category android:name="android.intent.category.DEFAULT" />
+                                <data android:mimeType="application/vnd.spice" />
+                       </intent-filter>
                 </activity>
                 <activity android:name="com.iiordanov.bVNC.ConnectionListActivity"
                           android:label="@string/shortcut_label"
                           android:windowSoftInputMode="stateHidden|adjustResize"
-                          android:theme="@android:style/Theme.DeviceDefault">
+                          android:theme="@android:style/Theme.DeviceDefault"
+                          android:resizeableActivity="true">
                        <intent-filter>
                                 <action android:name="android.intent.action.CREATE_SHORTCUT" />
                                 <category android:name="android.intent.category.DEFAULT" />
@@ -64,7 +72,8 @@
                   android:configChanges="keyboardHidden|orientation"
                   android:windowSoftInputMode="stateHidden|adjustResize"
                   android:screenOrientation="unspecified"
-                  android:theme="@android:style/Theme.DeviceDefault"/>
+                  android:theme="@android:style/Theme.DeviceDefault"
+                  android:resizeableActivity="true"/>
                 <uses-library android:required="false" android:name="com.sec.android.app.multiwindow"> </uses-library>
                 <meta-data android:name="com.sec.android.support.multiwindow"
                            android:value="true" />
@@ -76,5 +85,6 @@
                            android:resource="@dimen/app_minimumsize_w" />
                 <meta-data android:name="com.sec.android.multiwindow.MINIMUM_SIZE_H"
                            android:resource="@dimen/app_minimumsize_h" />
+        <meta-data android:name="com.samsung.android.keepalive.density" android:value="true"/>
     </application>
 </manifest> 
