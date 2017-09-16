@@ -1,0 +1,26 @@
+v3.9.6
+- Multi-window/DEX support
+v3.9.5
+- Several bugfixes
+v3.9.4
+- Security updates
+- Numerous bugfixes
+v3.9.1
+- Bugfix for Gboard
+v3.9.0
+- Bugfix for generating SSH key on empty connection
+v3.8.9
+- Fix for race condition in saving SSH host key on newer devices
+v3.8.8
+- Left-handed mode
+- New ssh lib
+- Landscape 180
+- Polish translation
+v3.8.6
+- New Global options in Main Menu: Force Landscape, Immersive Mode Disable, Keep Screen Awake
+v3.8.4
+- Immersive mode!
+v3.8.2
+- Better error reporting
+v3.8.1
+- Better support for AnonTLS

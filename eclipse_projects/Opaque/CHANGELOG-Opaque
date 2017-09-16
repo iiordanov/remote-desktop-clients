@@ -1,0 +1,22 @@
+v1.4.3
+- TFA/OTP support for Proxmox
+- Several bugfixes
+v1.4.2
+- Security updates
+- Native library updates
+v1.4.1
+- Security update
+- Update to gstreamer 1.x
+- Update to libspice
+- Improved error reporting
+- Fixes for API changed in oVirt 4.x
+v1.4.0
+- Immersive mode!
+v1.3.8
+- Fix for crash on Android 6 with Chrome and .vv files.
+v1.3.6
+- Fix for on-screen menu button
+- Fix for crash when no network
+- Text improvements
+v1.3.5
+- Security update

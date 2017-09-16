@@ -1,0 +1,25 @@
+v3.9.6
+- Multi-window/DEX support
+v3.9.5
+- Several bugfixes
+v3.9.4
+- Better wrong auth detection
+- Security updates
+- Gboard kbd fix
+v3.8.8
+- FreeRDP library fixes.
+v3.8.7
+- FreeRDP library upgrade and many stability fixes.
+v3.8.6
+- New Global options in Main Menu: Force Landscape, Immersive Mode Disable, Keep Screen Awake
+v3.8.4
+- Immersive mode!
+v3.8.2
+- Bug fixes
+- Security library upgrades
+v3.7.9
+- Multi-factor authentication support (pro version)
+v3.7.8
+- New menu icon next to keyboard icon
+v3.7.7
+- Security update
