@@ -208,7 +208,6 @@ public class ConnectionGridActivity extends FragmentActivity {
     public void importSettings (MenuItem menuItem) {
         String pathToFile = FileUtils.join(Environment.getExternalStorageDirectory().toString(),
                                            Constants.EXPORT_SETTINGS_FILE);
-        Toast.makeText(getBaseContext(), "Imported settings from " + pathToFile, Toast.LENGTH_LONG);
         FragmentManager fm = getSupportFragmentManager();
 
         try {
@@ -217,6 +216,7 @@ public class ConnectionGridActivity extends FragmentActivity {
             Editor editor = sp.edit();
             editor.putString("connections", connections);
             editor.apply();
+            loadSavedConnections();
             MessageFragment message = MessageFragment.newInstance(getString(R.string.info_dialog_title),
                     "Imported settings from " + pathToFile, "OK", null);
             message.show(fm, "successImportingSettings");
