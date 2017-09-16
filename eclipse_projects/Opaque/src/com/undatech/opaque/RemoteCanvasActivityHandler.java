@@ -9,9 +9,12 @@ import java.util.List;
 import java.util.Locale;
 
 import android.R.id;
+import android.R.integer;
 import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -24,7 +27,9 @@ import android.util.Log;
 import com.undatech.opaque.R;
 import com.undatech.opaque.dialogs.ChoiceFragment;
 import com.undatech.opaque.dialogs.GetTextFragment;
+import com.undatech.opaque.dialogs.MessageFragment;
 import com.undatech.opaque.dialogs.SelectTextElementFragment;
+import com.undatech.opaque.util.GooglePlayUtils;
 import com.undatech.opaque.util.SslUtils;
 
 public class RemoteCanvasActivityHandler extends Handler {
@@ -45,6 +50,21 @@ public class RemoteCanvasActivityHandler extends Handler {
     private void showGetTextFragment (String id, String title, boolean password) {
         GetTextFragment frag = GetTextFragment.newInstance(id, title, (RemoteCanvasActivity)context, password);
         frag.show(fm, id);
+    }
+    
+    private void displayMessageAndFinish(int titleTextId, int messageTextId, int buttonTextId) {
+        MessageFragment message = MessageFragment.newInstance(
+                context.getString(titleTextId),
+                context.getString(messageTextId),
+                context.getString(buttonTextId),
+                new MessageFragment.OnFragmentDismissedListener() {
+                    @Override
+                    public void onDialogDismissed() {
+                        ((Activity)context).finish();
+                    }
+                });
+        message.show(fm, "endingDialog");
+        c.disconnectAndCleanUp();
     }
     
     @Override
@@ -107,20 +127,21 @@ public class RemoteCanvasActivityHandler extends Handler {
             c.disconnectAndShowMessage(R.string.info_vm_launched_on_stand_by, R.string.info_dialog_title);
             break;
         case Constants.LAUNCH_VNC_VIEWER:
-/* TODO: Implement:
             android.util.Log.d(TAG, "Trying to launch VNC viewer");
-            Intent intent = new Intent ();
-            String intentURI = "vnc://" + address + ":" + port + "?password=" + password;
-            try {
-                intent = Intent.parseUri(intentURI, Intent.URI_INTENT_SCHEME);
-            } catch (URISyntaxException e) {
+
+            if (!GooglePlayUtils.isPackageInstalled(context, "com.iiordanov.bVNC") &&
+                !GooglePlayUtils.isPackageInstalled(context, "com.iiordanov.freebVNC")) {
+                displayMessageAndFinish(R.string.info_dialog_title, R.string.message_please_install_bvnc, R.string.ok);
+                return;
             }
 
-            myself.canvas.getContext().startActivity(intent);
-            disconnectAndCleanup();
-            finish();
-*/
-            c.disconnectAndShowMessage(R.string.error_no_vnc_support_yet, R.string.error_dialog_title);
+            String address = msg.getData().getString("address");
+            String port = msg.getData().getString("port");
+            String password = msg.getData().getString("password");
+            String uriString = "vnc://" + address + ":" + port + "?VncPassword=" + password;
+            Intent intent = new Intent(Intent.ACTION_VIEW).setType("application/vnd.vnc").setData(Uri.parse(uriString));
+            context.startActivity(intent);
+            ((Activity)context).finish();
             break;
         case Constants.GET_PASSWORD:
             c.progressDialog.dismiss();

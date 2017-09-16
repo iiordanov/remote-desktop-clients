@@ -35,6 +35,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbDeviceConnection;
 import android.hardware.usb.UsbManager;
@@ -470,7 +471,14 @@ public class SpiceCommunicator {
 	
 	public static void LaunchVncViewer (String address, String port, String password) {
 		android.util.Log.d(TAG, "LaunchVncViewer called");
-		myself.handler.sendEmptyMessage(Constants.LAUNCH_VNC_VIEWER);
+        Bundle b = new Bundle();
+        b.putString("address", address);
+        b.putString("port", port);
+        b.putString("password", password);
+		Message msg = new Message();
+		msg.what = Constants.LAUNCH_VNC_VIEWER;
+		msg.setData(b);
+		myself.handler.sendMessage(msg);
 	}
 	
 	private static void AddVm (String vmname) {
