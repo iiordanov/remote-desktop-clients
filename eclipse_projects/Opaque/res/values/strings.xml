@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+<string name="action_import_settings">Import Settings</string>
 <string name="action_new_connection">New Connection</string>
 <string name="action_edit_default_settings">Edit Default Settings</string>
+<string name="action_export_settings">Export Settings</string>
 <string name="action_delete_connection">Delete Connection</string>
 <string name="app_name">Opaque</string>
 <string name="app_name_beta">Opaque Beta</string>
@@ -148,6 +150,7 @@ All Input Method:
 <string name="error_vm_lookup_failed">Could not find a virtual machine with the name specified assigned to your user. Please erase the VM name specified to see a list of VMs assigned to the user.</string>
 <string name="error_vv_download_timeout">Timeout downloading vv file.</string>
 <string name="message_please_wait">Please wait</string>
+<string name="message_please_install_bvnc">Please install &lt;a href="market://details?id=com.iiordanov.bVNC">bVNC&lt;/a> from Google Play to connect to the VNC console of this VM.</string>
 <string name="ssl_strict">Require common name to match cert (on recommended)</string>
 <string name="usb">USB (plug in OTG cable first)</string>
 </resources>

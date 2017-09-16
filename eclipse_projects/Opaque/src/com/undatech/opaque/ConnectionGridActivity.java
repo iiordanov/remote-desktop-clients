@@ -26,6 +26,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+import org.json.JSONException;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -34,11 +36,14 @@ import android.content.SharedPreferences.Editor;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Bundle;
+import android.os.Environment;
 import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -47,8 +52,12 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
 
 import com.undatech.opaque.R;
+import com.undatech.opaque.dialogs.ChoiceFragment;
+import com.undatech.opaque.dialogs.GetTextFragment;
+import com.undatech.opaque.dialogs.MessageFragment;
+import com.undatech.opaque.util.FileUtils;
 
-public class ConnectionGridActivity extends Activity {
+public class ConnectionGridActivity extends FragmentActivity {
 	private static String TAG = "ConnectionGridActivity";
 	private Context appContext;
 	private GridView gridView;
@@ -144,7 +153,7 @@ public class ConnectionGridActivity extends Activity {
 	}
 
 	/**
-	 * Automatically linked with android:onClick to the add new connection action bar item.
+	 * Linked with android:onClick to the add new connection action bar item.
 	 * @param view
 	 */
 	public void addNewConnection (MenuItem menuItem) {
@@ -153,7 +162,7 @@ public class ConnectionGridActivity extends Activity {
 	}
 	
     /**
-     * Automatically linked with android:onClick to the edit default settings action bar item.
+     * Linked with android:onClick to the edit default settings action bar item.
      * @param view
      */
     public void editDefaultSettings (MenuItem menuItem) {
@@ -163,7 +172,70 @@ public class ConnectionGridActivity extends Activity {
         intent.putExtra("com.undatech.opaque.ConnectionSettings", defaultConnection);
         startActivityForResult(intent, Constants.DEFAULT_SETTINGS);
     }
-	
+
+    /**
+     * Linked with android:onClick to the export settings action bar item.
+     * @param view
+     */
+    public void exportSettings (MenuItem menuItem) {
+        String pathToFile = FileUtils.join(Environment.getExternalStorageDirectory().toString(),
+                                           Constants.EXPORT_SETTINGS_FILE);
+        SharedPreferences sp = getSharedPreferences("generalSettings", Context.MODE_PRIVATE);
+        String connections = sp.getString("connections", null);
+        FragmentManager fm = getSupportFragmentManager();
+        try {
+            ConnectionSettings.exportPrefsToFile(this, connections, pathToFile);
+            MessageFragment message = MessageFragment.newInstance(getString(R.string.info_dialog_title),
+                    "Exported settings to " + pathToFile, "OK", null);
+            message.show(fm, "successExportingSettings");
+        } catch (JSONException e) {
+            MessageFragment message = MessageFragment.newInstance(getString(R.string.error_dialog_title),
+                    "Could not convert settings to JSON", "OK", null);
+            message.show(fm, "errorExportingSettings");
+            e.printStackTrace();
+        } catch (IOException e) {
+            MessageFragment message = MessageFragment.newInstance(getString(R.string.error_dialog_title),
+                    "Could write to settings file " + pathToFile, "OK", null);
+            message.show(fm, "errorExportingSettings");
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Linked with android:onClick to the export settings action bar item.
+     * @param view
+     */
+    public void importSettings (MenuItem menuItem) {
+        String pathToFile = FileUtils.join(Environment.getExternalStorageDirectory().toString(),
+                                           Constants.EXPORT_SETTINGS_FILE);
+        Toast.makeText(getBaseContext(), "Imported settings from " + pathToFile, Toast.LENGTH_LONG);
+        FragmentManager fm = getSupportFragmentManager();
+
+        try {
+            String connections = ConnectionSettings.importPrefsFromFile(this, pathToFile);
+            SharedPreferences sp = getSharedPreferences("generalSettings", Context.MODE_PRIVATE);
+            Editor editor = sp.edit();
+            editor.putString("connections", connections);
+            editor.apply();
+            MessageFragment message = MessageFragment.newInstance(getString(R.string.info_dialog_title),
+                    "Imported settings from " + pathToFile, "OK", null);
+            message.show(fm, "successImportingSettings");
+        } catch (IOException e) {
+            MessageFragment message = MessageFragment.newInstance(getString(R.string.info_dialog_title),
+                    "Could not read settings settings file " + pathToFile, "OK", null);
+            message.show(fm, "errorImportingSettings");
+            e.printStackTrace();
+        } catch (JSONException e) {
+            MessageFragment message = MessageFragment.newInstance(getString(R.string.info_dialog_title),
+                    "Could not parse JSON from settings file " + pathToFile, "OK", null);
+            message.show(fm, "errorImportingSettings");
+            e.printStackTrace();
+        }
+
+    }
+
+    
+    
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 	    MenuInflater inflater = getMenuInflater();
@@ -176,10 +248,16 @@ public class ConnectionGridActivity extends Activity {
 		int itemID = menuItem.getItemId();
 		switch (itemID) {
 		case R.id.actionNewConnection:
-			addNewConnection (menuItem);
+			addNewConnection(menuItem);
 			break;
         case R.id.actionEditDefaultSettings:
-            editDefaultSettings (menuItem);
+            editDefaultSettings(menuItem);
+            break;
+        case R.id.actionExportSettings:
+            exportSettings(menuItem);
+            break;
+        case R.id.actionImportSettings:
+            importSettings(menuItem);
             break;
 		}
 		return true;

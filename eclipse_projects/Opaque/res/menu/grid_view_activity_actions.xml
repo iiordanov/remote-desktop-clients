@@ -1,14 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <item android:id="@+id/actionEditDefaultSettings"
+          android:icon="@android:drawable/ic_menu_manage"
+          android:title="@string/action_edit_default_settings"
+          android:showAsAction="always"
+          android:onClick="editDefaultSettings" />
+
     <!-- New Connection, should appear as action button -->
     <item android:id="@+id/actionNewConnection"
           android:icon="@drawable/ic_action_new"
           android:title="@string/action_new_connection"
-          android:showAsAction="ifRoom"
+          android:showAsAction="always"
           android:onClick="addNewConnection" />
-    <item android:id="@+id/actionEditDefaultSettings"
-          android:icon="@android:drawable/ic_menu_manage"
-          android:title="@string/action_edit_default_settings"
-          android:showAsAction="ifRoom"
-          android:onClick="editDefaultSettings" />
+
+    <item android:id="@+id/actionExportSettings"
+          android:icon="@android:drawable/ic_menu_save"
+          android:title="@string/action_export_settings"
+          android:showAsAction="never"
+          android:onClick="exportSettings" />
+    
+    <item android:id="@+id/actionImportSettings"
+          android:icon="@android:drawable/ic_menu_save"
+          android:title="@string/action_import_settings"
+          android:showAsAction="never"
+          android:onClick="importSettings" />
 </menu>

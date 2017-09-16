@@ -70,6 +70,8 @@ public class Constants {
     public static final int usbDevicePermissionTimeout = 15000;
     
     public static final String DEFAULT_SETTINGS_FILE = "defaultSettings";
+    public static final String EXPORT_SETTINGS_FILE = "OpaqueExportSettings.json";
+
     
     public static final int URL_BUFFER_SIZE        = 3000;
     public static final int VV_GET_FILE_TIMEOUT    = 17000;
