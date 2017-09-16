@@ -868,7 +868,7 @@ public class RemoteCanvasActivity extends FragmentActivity implements OnKeyListe
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
-        
+        enableImmersive();
         try {
             setExtraKeysVisibility(View.GONE, false);
             
