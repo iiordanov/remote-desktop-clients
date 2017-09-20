@@ -9,11 +9,17 @@ LOCAL_MODULE := libsqlcipher
 LOCAL_SRC_FILES := ../libs/deps/android-database-sqlcipher/libs/$(TARGET_ARCH_ABI)/libsqlcipher.so
 include $(PREBUILT_SHARED_LIBRARY)
 
-#include $(CLEAR_VARS)
-#LOCAL_MODULE            := intl
-#LOCAL_SRC_FILES         := $(GSTREAMER_ROOT)/lib/libintl.a
-#LOCAL_EXPORT_C_INCLUDES := $(GSTREAMER_ROOT)/include
-#include $(PREBUILT_STATIC_LIBRARY)
+include $(CLEAR_VARS)
+LOCAL_MODULE            := iconv
+LOCAL_SRC_FILES         := $(GSTREAMER_ROOT)/lib/libiconv.a
+LOCAL_EXPORT_C_INCLUDES := $(GSTREAMER_ROOT)/include
+include $(PREBUILT_STATIC_LIBRARY)
+
+include $(CLEAR_VARS)
+LOCAL_MODULE            := intl
+LOCAL_SRC_FILES         := $(GSTREAMER_ROOT)/lib/libintl.a
+LOCAL_EXPORT_C_INCLUDES := $(GSTREAMER_ROOT)/include
+include $(PREBUILT_STATIC_LIBRARY)
 
 include $(CLEAR_VARS)
 LOCAL_MODULE            := usb
@@ -115,6 +121,6 @@ LOCAL_EXPORT_CFLAGS += $(LOCAL_CFLAGS)
 LOCAL_EXPORT_LDLIBS += $(LOCAL_LDLIBS)
 LOCAL_ARM_MODE := arm
 LOCAL_SHARED_LIBRARIES := gstreamer_android
-LOCAL_STATIC_LIBRARIES := spice-client-glib govirt rest usb usbredirhost usbredirparser
+LOCAL_STATIC_LIBRARIES := spice-client-glib govirt rest usb usbredirhost usbredirparser iconv intl
 LOCAL_DISABLE_FATAL_LINKER_WARNINGS := true
 include $(BUILD_SHARED_LIBRARY)
