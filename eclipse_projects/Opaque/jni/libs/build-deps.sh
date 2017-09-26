@@ -314,32 +314,29 @@ setup() {
     abi="${1}"
     case "$abi" in
     armeabi)
+        gstarch=arm
         arch=arm
         build_host="arm-linux-androideabi"
         ;;
     armeabi-v7a)
+        gstarch=armv7
         arch=arm
         build_host="arm-linux-androideabi"
         cflags="${cflags} -march=armv7-a -mfloat-abi=softfp -mfpu=neon"
         ldflags="${ldflags} -march=armv7-a -Wl,--fix-cortex-a8"
         ;;
     arm64-v8a)
+        gstarch=arm64
         arch=arm64
         build_host="aarch64-linux-android"
         ;;
-    mips)
-        arch=mips
-        build_host="mipsel-linux-android"
-        ;;
-    mips64)
-        arch=mips64
-        build_host="mips64el-linux-android"
-        ;;
     x86)
+        gstarch=x86
         arch=x86
         build_host="i686-linux-android"
         ;;
     x86-64)
+        gstarch=x86_64
         arch=x86_64
         build_host="x86_64-linux-android"
         ;;
@@ -389,9 +386,10 @@ build() {
         pkgstr="gstreamer_$(echo ${abi} | tr -d -)"
         fetch "${pkgstr}"
         echo "Unpacking ${pkgstr}..."
-        rm -rf "${gst}"
-        mkdir -p "${gst}"
-        tar xf "$(tarpath ${pkgstr})" -C "${gst}"
+        rm -rf "${gst}-${abi}"
+        mkdir -p "${gst}-${abi}"
+        tar xf "$(tarpath ${pkgstr})" -C "${gst}-${abi}"
+        ln -s "${gst}-${abi}/${gstarch}" "${gst}"
         # The .la files point to shared libraries that don't exist, so
         # linking fails.  We can't delete the .la files outright because
         # the GStreamer ndk-build glue depends on them.  Create a separate

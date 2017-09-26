@@ -3,7 +3,7 @@
 SKIP_BUILD=false
 
 usage () {
-  echo "$0 bVNC|freebVNC|aSPICE|freeaSPICE|aRDP|freeaRDP /path/to/your/android/ndk"
+  echo "$0 bVNC|freebVNC|aSPICE|freeaSPICE|aRDP|freeaRDP|libs /path/to/your/android/ndk"
   exit 1
 }
 
@@ -35,9 +35,15 @@ ANDROID_NDK="$2"
 if [ "$PRJ" != "bVNC" -a "$PRJ" != "freebVNC" \
   -a "$PRJ" != "aSPICE" -a "$PRJ" != "freeaSPICE" \
   -a "$PRJ" != "aRDP" -a "$PRJ" != "freeaRDP" \
-  -o "$ANDROID_NDK" == "" ]
+  -a "$PRJ" != "libs" -o "$ANDROID_NDK" == "" ]
 then
   usage
+fi
+
+if [ "$PRJ" == "libs" ]
+then
+  PRJ=bVNC
+  BUILDING_DEPENDENCIES=true
 fi
 
 ln -sf AndroidManifest.xml.$PRJ AndroidManifest.xml
@@ -76,6 +82,12 @@ then
   popd
 
   ndk-build
+fi
+
+if [ -n "$BUILDING_DEPENDENCIES" ]
+then
+  echo "Done building libraries"
+  exit 0
 fi
 
 freerdp_libs_dir=jni/libs/deps/FreeRDP/client/Android/Studio/freeRDPCore/src/main/jniLibs
