@@ -39,9 +39,6 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.widget.AdapterView;
 import android.widget.GridView;
-import android.widget.TextView;
-import android.widget.Toast;
-import android.widget.ToggleButton;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.view.Menu;
@@ -52,8 +49,6 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
 
 import com.undatech.opaque.R;
-import com.undatech.opaque.dialogs.ChoiceFragment;
-import com.undatech.opaque.dialogs.GetTextFragment;
 import com.undatech.opaque.dialogs.MessageFragment;
 import com.undatech.opaque.util.FileUtils;
 
@@ -64,7 +59,8 @@ public class ConnectionGridActivity extends FragmentActivity {
 	private String[] connectionPreferenceFiles;
 	private String[] screenshotFiles;
 	private String[] connectionLabels;
- 
+	
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -107,13 +103,6 @@ public class ConnectionGridActivity extends FragmentActivity {
 				return true;
 			}
 		});
-		
-		// Write out ca-bundle if the version of the app has changed.
-		try {
-			writeCaBundleOutIfNeeded();
-		} catch (Exception e) {
-			android.util.Log.e(TAG, "Error writing ca-bundle.crt file!");
-		}
 	}
 	
 	@Override
@@ -263,47 +252,7 @@ public class ConnectionGridActivity extends FragmentActivity {
 		return true;
 	}
 	
-	private void writeCaBundleOutIfNeeded() throws IOException, NameNotFoundException {
-		PackageInfo pInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
-		String currentVersion = pInfo.versionName;
-		SharedPreferences sp = appContext.getSharedPreferences("generalSettings", Context.MODE_PRIVATE);
-		String lastVersion = sp.getString("lastVersion", "");
-		
-		// If currentVersion != lastVersion, or if the file isn't present,
-		// we write out ca-bundle.crt and save the current version in the prefs.
-		String caBundleFileName = appContext.getFilesDir() + "/ca-bundle.crt";
-		android.util.Log.e(TAG, "The SSL certificates are stored in: " + caBundleFileName);
-		File file = new File(caBundleFileName);
-		if (!file.exists() || !currentVersion.equals(lastVersion)) {
-			
-			// Open the asset ca-bundle.crt
-			InputStream in = getResources().getAssets().open("ca-bundle.crt");
-			ByteArrayOutputStream outputStream=new ByteArrayOutputStream();
-			int size = 0;
-			// Read the entire asset
-			byte[] buffer = new byte[1024];
-			while( (size=in.read(buffer, 0, 1024)) >= 0 ) {
-			    outputStream.write(buffer, 0, size);
-			}
-			in.close();
-			buffer = outputStream.toByteArray();
-			
-			// Write the the ca-bundle.crt file out
-			FileOutputStream fos = openFileOutput("ca-bundle.crt", MODE_PRIVATE);
-			fos.write(buffer);
-			fos.close();
-			
-			// Update version
-			android.util.Log.i(TAG, "Updating CA bundle version.");
-			Editor editor = sp.edit();
-			editor.putString("lastVersion", currentVersion);
-			editor.apply();
-		} else {
-			android.util.Log.i(TAG, "Current version of CA bundle already exists.");
-		}
-	}
-	
-	   /**
+    /**
      * This function is used to retrieve data returned by activities started with startActivityForResult.
      */
     @Override

@@ -506,7 +506,7 @@ public class RemoteCanvas extends ImageView {
 					if (settings.isUsingCustomOvirtCa()) {
 						ovirtCaFile = settings.getOvirtCaFile();
 					} else {
-						String caBundleFileName = getContext().getFilesDir() + "/ca-bundle.crt";
+						String caBundleFileName = new File(getContext().getFilesDir(), "ssl/certs/ca-certificates.crt").getPath();
 						ovirtCaFile = caBundleFileName;
 					}
 					
