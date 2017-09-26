@@ -217,14 +217,16 @@ gboolean getJvmAndMethodReferences (JNIEnv *env) {
 
 JNIEXPORT jint JNICALL
 Java_com_iiordanov_bVNC_SpiceCommunicator_SpiceClientConnect (JNIEnv *env, jobject obj, jstring h, jstring p,
-                                                               jstring tp, jstring pw, jstring cf, jstring cs, jboolean sound)
+                                                               jstring tp, jstring pw, jstring cf, jstring ca, jstring cs, jboolean sound)
 {
 	const gchar *host = NULL;
 	const gchar *port = NULL;
 	const gchar *tls_port = NULL;
 	const gchar *password = NULL;
 	const gchar *ca_file = NULL;
+	const gchar *ca_cert = NULL;
 	const gchar *cert_subj = NULL;
+	GByteArray *ba = NULL;
 	int result = 0;
 
     if (!getJvmAndMethodReferences (env)) {
@@ -235,10 +237,19 @@ Java_com_iiordanov_bVNC_SpiceCommunicator_SpiceClientConnect (JNIEnv *env, jobje
 	port = (*env)->GetStringUTFChars(env, p, NULL);
 	tls_port  = (*env)->GetStringUTFChars(env, tp, NULL);
 	password  = (*env)->GetStringUTFChars(env, pw, NULL);
-	ca_file   = (*env)->GetStringUTFChars(env, cf, NULL);
+	if (cf) {
+	    ca_file = (*env)->GetStringUTFChars(env, cf, NULL);
+	}
+	if (ca) {
+	    ca_cert = (*env)->GetStringUTFChars(env, ca, NULL);
+	    ba = g_byte_array_new_take((guint8 *)ca_cert, strlen(ca_cert) + 1);
+	}
+
 	cert_subj = (*env)->GetStringUTFChars(env, cs, NULL);
 
-	result = spiceClientConnect (host, port, tls_port, password, ca_file, NULL, cert_subj, sound, NULL);
+	result = spiceClientConnect (host, port, tls_port, password, ca_file, ba, cert_subj, sound, NULL);
+
+	g_byte_array_unref(ba);
 
 	jvm                  = NULL;
 	jni_connector_class  = NULL;

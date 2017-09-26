@@ -87,6 +87,7 @@ public class SpiceCommunicator {
 											String tport,
 											String password,
 											String ca_file,
+											String ca_cert,
 											String cert_subj,
 											boolean sound);
 	public native void SpiceClientDisconnect();
@@ -158,9 +159,9 @@ public class SpiceCommunicator {
 	/**
 	 * Launches a new thread which performs a plain SPICE connection.
 	 */
-	public void connectSpice(String ip, String port, String tport, String password, String cf, String cs, boolean sound) {
+	public void connectSpice(String ip, String port, String tport, String password, String cf, String ca, String cs, boolean sound) {
 		android.util.Log.e(TAG, "connectSpice: " + ip + ", " + port + ", " + tport + ", " + cf + ", " + cs);
-		thread = new SpiceThread(ip, port, tport, password, cf, cs, sound);
+		thread = new SpiceThread(ip, port, tport, password, cf, ca, cs, sound);
 		thread.start();
 	}
 
@@ -203,21 +204,22 @@ public class SpiceCommunicator {
 	}
 
 	class SpiceThread extends Thread {
-		private String ip, port, tport, password, cf, cs;
+		private String ip, port, tport, password, cf, ca, cs;
 		boolean sound;
 
-		public SpiceThread(String ip, String port, String tport, String password, String cf, String cs, boolean sound) {
+		public SpiceThread(String ip, String port, String tport, String password, String cf, String ca, String cs, boolean sound) {
 			this.ip = ip;
 			this.port = port;
 			this.tport = tport;
 			this.password = password;
 			this.cf = cf;
+			this.ca = ca;
 			this.cs = cs;
 			this.sound = sound;
 		}
 
 		public void run() {
-			SpiceClientConnect (ip, port, tport, password, cf, cs, sound);
+			SpiceClientConnect (ip, port, tport, password, cf, ca, cs, sound);
 			android.util.Log.e(TAG, "SpiceClientConnect returned.");
 
 			// If we've exited SpiceClientConnect, the connection is certainly

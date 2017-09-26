@@ -74,6 +74,8 @@ import com.freerdp.freerdpcore.application.SessionState;
 import com.freerdp.freerdpcore.domain.BookmarkBase;
 import com.freerdp.freerdpcore.domain.ManualBookmark;
 import com.freerdp.freerdpcore.services.LibFreeRDP;
+import com.freerdp.freerdpcore.services.LibFreeRDP.UIEventListener;
+import com.freerdp.freerdpcore.services.LibFreeRDP.EventListener;
 import com.iiordanov.android.bc.BCFactory;
 import com.iiordanov.bVNC.input.RemoteKeyboard;
 import com.iiordanov.bVNC.input.RemotePointer;
@@ -94,7 +96,7 @@ import com.iiordanov.freeaRDP.*;
 import com.iiordanov.aSPICE.*;
 import com.iiordanov.freeaSPICE.*;
 
-public class RemoteCanvas extends ImageView implements LibFreeRDP.UIEventListener, LibFreeRDP.EventListener {
+public class RemoteCanvas extends ImageView implements UIEventListener, EventListener {
     private final static String TAG = "RemoteCanvas";
     
     public AbstractScaling scaling;
@@ -345,9 +347,9 @@ public class RemoteCanvas extends ImageView implements LibFreeRDP.UIEventListene
                                             handler, connection.getLayoutMap());
         spicecomm.setUIEventListener(RemoteCanvas.this);
         spicecomm.setHandler(handler);
-        spicecomm.connect(address, Integer.toString(port), Integer.toString(tport),
-                            connection.getPassword(), connection.getCaCertPath(),
-                            connection.getCertSubject(), connection.getEnableSound());
+        spicecomm.connect(address, Integer.toString(port), Integer.toString(tport), connection.getPassword(),
+                          connection.getCaCertPath(), null, // TODO: Can send connection.getCaCert() here instead
+                          connection.getCertSubject(), connection.getEnableSound());
     }
     
     

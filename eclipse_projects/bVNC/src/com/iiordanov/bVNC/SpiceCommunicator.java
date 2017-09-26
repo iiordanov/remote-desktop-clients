@@ -45,7 +45,7 @@ public class SpiceCommunicator implements RfbConnectable {
         }
     };
     
-    public native int  SpiceClientConnect (String ip, String port, String tport, String password, String ca_file, String cert_subj, boolean sound);
+    public native int  SpiceClientConnect (String ip, String port, String tport, String password, String ca_file, String ca_cert, String cert_subj, boolean sound);
     public native void SpiceClientDisconnect ();
     public native void SpiceButtonEvent (int x, int y, int metaState, int pointerMask);
     public native void SpiceKeyEvent (boolean keyDown, int virtualKeyCode);
@@ -99,11 +99,12 @@ public class SpiceCommunicator implements RfbConnectable {
         return handler;
     }
 
-    public void connect(String ip, String port, String tport, String password, String cf, String cs, boolean sound) {
+    public void connect(String ip, String port, String tport, String password, String cf, String ca, String cs, boolean sound) {
         //android.util.Log.i(TAG, ip + ", " + port + ", " + tport + ", " + password + ", " + cf + ", " + cs);
-        spicethread = new SpiceThread(ip, port, tport, password, cf, cs, sound);
+        spicethread = new SpiceThread(ip, port, tport, password, cf, ca, cs, sound);
         spicethread.start();
     }
+    
     
     public void disconnect() {
         SpiceClientDisconnect();
@@ -111,21 +112,22 @@ public class SpiceCommunicator implements RfbConnectable {
     }
 
     class SpiceThread extends Thread {
-        private String ip, port, tport, password, cf, cs;
+        private String ip, port, tport, password, cf, ca, cs;
         boolean sound;
 
-        public SpiceThread(String ip, String port, String tport, String password, String cf, String cs, boolean sound) {
+        public SpiceThread(String ip, String port, String tport, String password, String cf, String ca, String cs, boolean sound) {
             this.ip = ip;
             this.port = port;
             this.tport = tport;
             this.password = password;
             this.cf = cf;
+            this.ca = ca;
             this.cs = cs;
             this.sound = sound;
         }
 
         public void run() {
-            SpiceClientConnect (ip, port, tport, password, cf, cs, sound);
+            SpiceClientConnect (ip, port, tport, password, cf, ca, cs, sound);
             android.util.Log.i(TAG, "SpiceClientConnect returned.");
 
             // If we've exited SpiceClientConnect, the connection was
