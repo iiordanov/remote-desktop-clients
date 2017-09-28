@@ -3,7 +3,7 @@
           package="com.iiordanov.aSPICE" android:installLocation="auto"
           android:versionCode="3967" android:versionName="v3.9.6">
 
-    <uses-sdk android:minSdkVersion="12" android:targetSdkVersion="12"></uses-sdk>
+    <uses-sdk android:minSdkVersion="12" android:targetSdkVersion="14"></uses-sdk>
     <uses-permission android:name="android.permission.INTERNET"></uses-permission>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"></uses-permission>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"></uses-permission>

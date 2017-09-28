@@ -127,6 +127,7 @@ public class AutoXCustomizeDialog extends AlertDialog {
         selected = mainConfigDialog.getCurrentConnection();
         if (selected == null) {
             dismiss();
+            return;
         }
         commandIndex = selected.getAutoXType();
         origCommandIndex = selected.getAutoXType();
