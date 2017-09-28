@@ -13,6 +13,6 @@ eclipse_projects/*/libs/*/libspice.so
 eclipse_projects/*/libs/*/libsqlcipher.so
 eclipse_projects/*/java/org/freedesktop/gstreamer/GStreamer.java
 eclipse_projects/*/gst-build-*
-eclipse_projects/*/assets/fontconfig/
-eclipse_projects/*/assets/ssl
+eclipse_projects/*/src/main/assets/fontconfig
+eclipse_projects/*/src/main/assets/ssl
 eclipse_projects/remote-desktop-clients-libs-*.tar.gz
