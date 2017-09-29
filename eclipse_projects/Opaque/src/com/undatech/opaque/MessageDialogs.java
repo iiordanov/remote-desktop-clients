@@ -88,6 +88,7 @@ public class MessageDialogs {
             final TextView message = new TextView(context);
             message.setText(text);
             message.setMovementMethod(LinkMovementMethod.getInstance());
+            message.setPaddingRelative(50, 50, 50, 50);
             builder.setView(message);
             builder.setPositiveButton("OK", ok);
             builder.show();
