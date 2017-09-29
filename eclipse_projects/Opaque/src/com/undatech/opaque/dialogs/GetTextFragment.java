@@ -139,6 +139,7 @@ public class GetTextFragment extends DialogFragment {
                 return consumed;
             }
         });
+        textBox.setHint(title);
     	
     	okButton = (Button)v.findViewById(R.id.okButton);
     	okButton.setOnClickListener(new View.OnClickListener() {
