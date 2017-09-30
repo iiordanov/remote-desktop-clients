@@ -64,9 +64,9 @@ II. Importing projects into Eclipse.
      by (Right-clicking on the project)->Properties->Android
 
 2. Import all projects under eclipse_projects into Eclipse.
-   Add bVNC, ZoomerWithKeys, PubkeyGenerator, and FreeRDPCore projects.
+   Add bVNC, PubkeyGenerator, and FreeRDPCore projects.
 
-   The bVNC, ZoomerWithKeys, and PubkeyGenerator are in the
+   The bVNC and PubkeyGenerator are in the
    bVNC/eclipse_projects/ directory. Add them to Eclipse as existing Android
    projects.
 
@@ -94,7 +94,7 @@ II. Importing projects into Eclipse.
 
    - Clean and rebuild the project.
 
-3. Ensure ZoomerWithKeys, PubkeyGenerator, FreeRDPCore, and android-support-v7-appcompat
+3. Ensure PubkeyGenerator, FreeRDPCore, and android-support-v7-appcompat
    projects are:
    - Called exactly as written here by right-clicking on each of them,
      then selecting Refactor->Rename

@@ -12,13 +12,14 @@
     android:layout_gravity="bottom|center"
     >
 </com.iiordanov.bVNC.RemoteCanvas>
-  
-<com.iiordanov.android.zoomer.ZoomControls
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:id="@+id/zoomer"
-    android:padding="10sp"
-/>
+
+    <android.support.v7.widget.Toolbar
+      android:id="@+id/toolbar"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_gravity="right|center"
+      android:background="?attr/colorPrimary">
+    </android.support.v7.widget.Toolbar>
 
 <ImageButton android:id="@+id/keyStow"
 	android:background="@drawable/showkeys"

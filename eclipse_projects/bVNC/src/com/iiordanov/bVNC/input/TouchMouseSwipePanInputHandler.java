@@ -122,7 +122,7 @@ public class TouchMouseSwipePanInputHandler extends AbstractGestureInputHandler 
             return true;
         }
 
-        activity.showZoomer(false);
+        activity.showToolbar();
         activity.getPanner().start(-(velocityX / FLING_FACTOR),
                 -(velocityY / FLING_FACTOR), new Panner.VelocityUpdater() {
 
@@ -189,7 +189,7 @@ public class TouchMouseSwipePanInputHandler extends AbstractGestureInputHandler 
         }
         
         float scale = canvas.getScale();
-        activity.showZoomer(false);
+        activity.showToolbar();
         return canvas.pan((int)(distanceX*scale), (int)(distanceY*scale));
     }
 }

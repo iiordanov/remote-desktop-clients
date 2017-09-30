@@ -34,6 +34,7 @@
 <string name="connection_setup_password">Password (saved if entered)</string>
 <string name="enter_password">Please enter password</string>
 <string name="enter_otp_code">Please enter OTP code</string>
+<string name="hide_toolbar">Hide toolbar</string>
 <string name="manage_custom_ca_title">Manage custom CA</string>
 <string name="save_button">Save</string>
 <string name="snap_one_to_one">Snapped to 1:1 zoom</string>
@@ -61,6 +62,8 @@
 <string name="single_scroll">Scroll mode - swipe up/down to scroll, lift finger to stop</string>
 <string name="single_reposition">Mouse pointer repositioned for single-handed mode</string>
 <string name="single_zoom">Zoom mode - swipe up/down to zoom in/out, lift finger to stop</string>
+
+<string name="show_keyboard">Show Keyboard</string>
 
 <string name="disconnect">Disconnect</string>
 <string name="ctrl_alt_del">Ctrl-Alt-Delete</string>

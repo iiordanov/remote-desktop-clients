@@ -19,6 +19,7 @@ clean_libs () {
   done
 }
 
+
 if [ "$1" == "--skip-build" ]
 then
   SKIP_BUILD=true
@@ -29,9 +30,11 @@ DIR=$(dirname $0)
 pushd $DIR
 
 PRJ="$1"
-ANDROID_NDK="$2"
+export ANDROID_NDK="$2"
+export ANDROID_SDK="$3"
 
-if [ "$PRJ" != "Opaque" -o "$ANDROID_NDK" == "" ]
+if [ "$PRJ" != "Opaque" -o "$ANDROID_NDK" == "" \
+  -o "$ANDROID_SDK" == "" ]
 then
   usage
 fi
@@ -46,3 +49,6 @@ then
 fi
 
 popd
+echo
+echo "Now please switch to your IDE, select the bVNC project, refresh with F5,"
+echo "and then clean and rebuild the project."

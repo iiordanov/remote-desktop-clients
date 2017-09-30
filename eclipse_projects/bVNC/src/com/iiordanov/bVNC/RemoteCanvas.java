@@ -813,9 +813,13 @@ public class RemoteCanvas extends ImageView implements UIEventListener, EventLis
             keyboard.processLocalKeyEvent(0, new KeyEvent(KeyEvent.ACTION_UP, 0));
         }
         // Close the rfb connection.
-        if (rfbconn != null)
+        if (rfbconn != null) {
             rfbconn.close();
+        }
         
+        if (handler != null) {
+            handler.removeCallbacksAndMessages(null);
+        }
         
         // Close the SSH tunnel.
         if (sshConnection != null) {

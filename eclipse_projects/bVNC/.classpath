@@ -5,7 +5,6 @@
 	<classpathentry kind="lib" path="libs/com.antlersoft.android.contentxml.jar" sourcepath="/dbimpl/src"/>
 	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.LIBRARIES"/>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/ZoomerWithKeys"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/PubkeyGenerator"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/FreeRDPCore"/>
 	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.DEPENDENCIES"/>

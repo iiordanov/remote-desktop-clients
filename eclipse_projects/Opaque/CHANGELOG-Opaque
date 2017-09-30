@@ -1,6 +1,9 @@
 v1.4.4
+- New, relocatable toolbar
 - Import/Export settings
 - VNC console support via URI intent and bVNC
+- Numerous bugfixes
+- Library upgrades
 v1.4.3
 - TFA/OTP support for Proxmox
 - Several bugfixes

@@ -109,7 +109,7 @@ public class SimulatedTouchpadInputHandler extends AbstractGestureInputHandler {
         if (twoFingers||inSwiping||inScaling||scalingJustFinished)
             return true;
 
-        activity.showZoomer(true);
+        activity.showToolbar();
 
         // If the gesture has just began, then don't allow a big delta to prevent
         // pointer jumps at the start of scrolling.

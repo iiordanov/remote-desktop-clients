@@ -114,7 +114,6 @@ public abstract class AbstractScaling {
     void setScaleTypeForActivity(RemoteCanvasActivity activity)
     {
         RemoteCanvas canvas = activity.getCanvas();
-        activity.zoomer.hide();
         canvas.scaling = this;
         // This is a bit of a hack because Scaletype.FIT_CENTER is now obsolete, since fit-to-screen scaling is now
         // essentially zoom-scaling with minimumScale and zoom disabled. However, we still use

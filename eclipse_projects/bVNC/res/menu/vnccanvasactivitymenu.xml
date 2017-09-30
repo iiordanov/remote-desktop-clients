@@ -1,4 +1,16 @@
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:app="http://schemas.android.com/apk/res-auto">
+        
+    <item android:id="@+id/moveToolbar"
+          app:showAsAction="always"
+          android:actionViewClass="android.widget.ImageButton"/>
+    
+    <item android:id="@+id/actionShowKeyboard"
+          android:icon="@drawable/ic_keyboard"
+          app:showAsAction="always"
+          android:onClick="showKeyboard"
+          android:padding="0dp"/>
+    
     <item android:id="@+id/itemExtraKeys" android:title="@string/extra_keys_disable" android:icon="@drawable/extra_keys"/>
     <item android:numericShortcut="5" android:alphabeticShortcut="p" android:id="@+id/itemInputMode" android:title="@string/input_mode" android:icon="@android:drawable/ic_input_get">
     	<menu>
@@ -7,11 +19,6 @@
                 <item android:id="@+id/itemInputDragPanZoomMouse" android:title="@string/input_mode_drag_pan_zoom_mouse"/>
                 <item android:id="@+id/itemInputTouchpad" android:title="@string/input_mode_touchpad"/>
                 <item android:id="@+id/itemInputSingleHanded" android:title="@string/input_mode_single_handed"/>
-                <!-- <item android:id="@+id/itemInputFitToScreen" android:checked="true" android:title="@string/input_mode_fit_to_screen"/> -->
-                <!-- <item android:id="@+id/itemInputPan" android:title="@string/input_mode_panning"/> -->
-                <!-- <item android:id="@+id/itemInputMouse" android:title="@string/input_mode_mouse"/> -->
-	    		<!-- <item android:id="@+id/itemInputTouchPanTrackballMouse" android:title="@string/input_mode_touchpad_pan_trackball_mouse"/> -->
-	    		<!-- <item android:id="@+id/itemInputDPadPanTouchMouse" android:title="@string/input_mode_dpad_pan_touchpad_mouse"/> -->
 		</group>
 	    </menu>
     </item>
