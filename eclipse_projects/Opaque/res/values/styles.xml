@@ -5,17 +5,19 @@
         Base application theme, dependent on API level. This theme is replaced
         by AppBaseTheme from res/values-vXX/styles.xml on newer devices.
     -->
-    <style name="AppBaseTheme" parent="android:Theme.Light">
-        <!--
-            Theme customizations available in newer API levels can go in
-            res/values-vXX/styles.xml, while customizations related to
-            backward-compatibility can go here.
-        -->
-    </style>
 
     <!-- Application theme. -->
-    <style name="AppTheme" parent="AppBaseTheme">
+    <style name="AppTheme" parent="Theme.AppCompat.NoActionBar">
         <!-- All customizations that are NOT specific to a particular API-level can go here. -->
+        <!-- Toolbar background color -->
+        <item name="colorPrimary">#808080</item>
+        <item name="android:toolbarStyle">@style/ToolbarStyle</item>
+        <item name="toolbarStyle">@style/ToolbarStyle</item>
+    </style>
+    
+    <style name="ToolbarStyle" parent="@style/Widget.AppCompat.Toolbar">
+	    <item name="contentInsetStart">0dp</item>
+	    <item name="android:contentInsetStart">0dp</item>
     </style>
 
     <style name="FullscreenTheme" parent="android:Theme.NoTitleBar">
@@ -34,5 +36,4 @@
     </style>
 
     <style name="ButtonBarButton" />
-
 </resources>

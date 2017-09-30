@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="com.iiordanov.freeaRDP" android:installLocation="auto"
-          android:versionCode="3967" android:versionName="v3.9.6">
+          android:versionCode="3970" android:versionName="v3.9.7">
 
     <uses-sdk android:minSdkVersion="21" android:targetSdkVersion="21"></uses-sdk>
     <uses-permission android:name="android.permission.INTERNET"></uses-permission>
@@ -37,7 +37,7 @@
                           android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|density|screenLayout"
 		                  android:name="com.iiordanov.bVNC.RemoteCanvasActivity"
 		                  android:windowSoftInputMode="stateHidden|adjustResize"
-		                  android:theme="@android:style/Theme.DeviceDefault"
+                          android:theme="@style/AppTheme"
 		                  android:resizeableActivity="true">
                        <intent-filter>
                                 <action android:name="android.intent.action.VIEW"></action>

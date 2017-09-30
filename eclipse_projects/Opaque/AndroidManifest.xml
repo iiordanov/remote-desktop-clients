@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.undatech.opaque"
-    android:versionCode="1441"
+    android:versionCode="1442"
     android:versionName="1.4.4" >
 
     <uses-sdk
@@ -29,7 +29,7 @@
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme" >
+        android:theme="@style/AppTheme">
         <activity
             android:name="com.undatech.opaque.ConnectionGridActivity"
             android:configChanges="orientation|screenSize|keyboardHidden"
@@ -57,7 +57,7 @@
             android:screenOrientation="unspecified"
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|density|screenLayout"
             android:windowSoftInputMode="stateHidden|adjustResize"
-            android:theme="@android:style/Theme.DeviceDefault"
+            android:theme="@style/AppTheme"
             android:launchMode="singleTask">
             
             <intent-filter

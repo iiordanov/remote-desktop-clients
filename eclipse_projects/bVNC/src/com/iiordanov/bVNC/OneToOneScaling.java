@@ -115,7 +115,5 @@ class OneToOneScaling extends AbstractScaling {
         canvas.setImageMatrix(matrix);
         resolveZoom(canvas);
         //activity.vncCanvas.pan(0, 0);
-        activity.zoomer.setIsZoomOutEnabled(false);
-        activity.zoomer.setIsZoomInEnabled(false);
     }
 }

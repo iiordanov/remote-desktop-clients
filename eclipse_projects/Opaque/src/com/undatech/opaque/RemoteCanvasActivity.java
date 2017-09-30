@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013- Iordan Iordanov
+ * Copyright (C) 2013-2017 Iordan Iordanov
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,61 +20,42 @@
 
 package com.undatech.opaque;
 
-import com.undatech.opaque.proxmox.*;
-import com.undatech.opaque.proxmox.pojo.*;
-
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import javax.security.auth.login.LoginException;
-
-import org.apache.http.*;
-import org.apache.http.conn.HttpHostConnectException;
-import org.json.JSONException;
-
-import com.iiordanov.android.zoomer.ZoomControls;
 import com.undatech.opaque.R;
 import com.undatech.opaque.dialogs.GetTextFragment;
 import com.undatech.opaque.dialogs.SelectTextElementFragment;
 import com.undatech.opaque.input.*;
+import com.undatech.opaque.util.OnTouchViewMover;
 
-import android.app.Activity;
 import android.app.Dialog;
 import android.app.AlertDialog;
 import android.support.v4.app.FragmentManager;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
-import android.database.Cursor;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
-import android.os.Message;
 import android.os.SystemClock;
 import android.os.Vibrator;
-import android.provider.MediaStore;
-import android.support.v4.app.FragmentActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.inputmethod.InputMethodManager;
 import android.view.InputDevice;
@@ -96,9 +77,11 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
+import android.support.v7.widget.ActionMenuView.OnMenuItemClickListener;
+import android.support.v7.widget.Toolbar;
 
 
-public class RemoteCanvasActivity extends FragmentActivity implements OnKeyListener,
+public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyListener,
                                                                       SelectTextElementFragment.OnFragmentDismissedListener,
                                                                       GetTextFragment.OnFragmentDismissedListener {
 	private final static String TAG = "RemoteCanvasActivity";
@@ -110,36 +93,39 @@ public class RemoteCanvasActivity extends FragmentActivity implements OnKeyListe
 	 
 	private ConnectionSettings connection;
 	
-	ZoomControls kbdIcon;
 	RemoteCanvasActivityHandler handler;
 	
     private Vibrator myVibrator;
 	
 	RelativeLayout layoutKeys;
-    LinearLayout   layoutArrowKeys;
-	ImageButton    keyStow;
-	ImageButton    keyCtrl;
-	boolean       keyCtrlToggled;
-	ImageButton    keySuper;
-	boolean       keySuperToggled;
-	ImageButton    keyAlt;
-	boolean       keyAltToggled;
-	ImageButton    keyTab;
-	ImageButton    keyEsc;
-	ImageButton    keyShift;
-	boolean       keyShiftToggled;
-	ImageButton    keyUp;
-	ImageButton    keyDown;
-	ImageButton    keyLeft;
-	ImageButton    keyRight;
-	boolean       hardKeyboardExtended;
-	boolean       extraKeysHidden = false;
-    int            prevBottomOffset = 0;
+    LinearLayout layoutArrowKeys;
+	ImageButton keyStow;
+	ImageButton keyCtrl;
+	boolean keyCtrlToggled;
+	ImageButton keySuper;
+	boolean keySuperToggled;
+	ImageButton keyAlt;
+	boolean keyAltToggled;
+	ImageButton keyTab;
+	ImageButton keyEsc;
+	ImageButton keyShift;
+	boolean keyShiftToggled;
+	ImageButton keyUp;
+	ImageButton keyDown;
+	ImageButton keyLeft;
+	ImageButton keyRight;
+	volatile boolean softKeyboardUp;
+	boolean hardKeyboardExtended;
+	boolean extraKeysHidden = false;
+	int prevBottomOffset = 0;
+	Toolbar toolbar;
 
+    
     /**
      * Enables sticky immersive mode if supported.
      */
     private void enableImmersive() {
+        android.util.Log.i(TAG, "Enabling immersive mode");
         if (Constants.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT) {
             canvas.setSystemUiVisibility(
                 View.SYSTEM_UI_FLAG_LAYOUT_STABLE
@@ -159,12 +145,9 @@ public class RemoteCanvasActivity extends FragmentActivity implements OnKeyListe
         }
     }
     
-	@Override
-	public void onCreate(Bundle icicle) {
-		super.onCreate(icicle);
-        // TODO: Implement left-icon
-        //requestWindowFeature(Window.FEATURE_LEFT_ICON);
-        //setFeatureDrawableResource(Window.FEATURE_LEFT_ICON, R.drawable.icon); 
+    @Override
+    public void onCreate(Bundle icicle) {
+        super.onCreate(icicle);
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
         
         requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -172,8 +155,9 @@ public class RemoteCanvasActivity extends FragmentActivity implements OnKeyListe
                              WindowManager.LayoutParams.FLAG_FULLSCREEN);
         
         setContentView(R.layout.canvas);
-        canvas = (RemoteCanvas) findViewById(R.id.canvas);
         
+        canvas = (RemoteCanvas) findViewById(R.id.canvas);
+
 		startConnection();
 	}
 	
@@ -222,6 +206,8 @@ public class RemoteCanvasActivity extends FragmentActivity implements OnKeyListe
                 setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
             }
         }
+
+        
         
 		// This code detects when the soft keyboard is up and sets an appropriate visibleHeight in the canvas.
 		// When the keyboard is gone, it resets visibleHeight and pans zero distance to prevent us from being
@@ -232,7 +218,7 @@ public class RemoteCanvasActivity extends FragmentActivity implements OnKeyListe
         rootView.getViewTreeObserver().addOnGlobalLayoutListener(new OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
-                    if (canvas == null || kbdIcon == null) {
+                    if (canvas == null) {
                         return;
                     }
                     
@@ -251,13 +237,14 @@ public class RemoteCanvasActivity extends FragmentActivity implements OnKeyListe
                     	}
                     }
                     
-                    // Enable/show the zoomer if the keyboard is gone, and disable/hide otherwise.
+                    // Enable/show the toolbar if the keyboard is gone, and disable/hide otherwise.
                     // We detect the keyboard if more than 19% of the screen is covered.
                     int topBottomOffset = 0;
                     int leftRightOffset = 0;
                     int rootViewHeight = rootView.getHeight();
                     int rootViewWidth = rootView.getWidth();
                     if (r.bottom > rootViewHeight*0.81) {
+                        softKeyboardUp = false;
                         topBottomOffset = rootViewHeight - r.bottom;
                         leftRightOffset = rootViewWidth - r.right;
 
@@ -266,13 +253,14 @@ public class RemoteCanvasActivity extends FragmentActivity implements OnKeyListe
                             layoutKeys.offsetTopAndBottom(topBottomOffset);
                             layoutArrowKeys.offsetLeftAndRight(leftRightOffset);
                             keyStow.offsetTopAndBottom(topBottomOffset);
-                            if (prevBottomOffset != topBottomOffset) { 
+                            if (prevBottomOffset != topBottomOffset) {
+                                prevBottomOffset = topBottomOffset;
                                 setExtraKeysVisibility(View.GONE, false);
                                 canvas.invalidate();
-                                kbdIcon.enable();
                             }
                         }
                     } else {
+                        softKeyboardUp = true;
                         topBottomOffset = r.bottom - rootViewHeight;
                         leftRightOffset = r.right - rootViewWidth;
 
@@ -281,37 +269,27 @@ public class RemoteCanvasActivity extends FragmentActivity implements OnKeyListe
                             layoutKeys.offsetTopAndBottom(topBottomOffset);
                             layoutArrowKeys.offsetLeftAndRight(leftRightOffset);
                             keyStow.offsetTopAndBottom(topBottomOffset);
-                            if (prevBottomOffset != topBottomOffset) { 
+                            if (extraKeysHidden) {
+                                extraKeysHidden = !extraKeysHidden;
                                 setExtraKeysVisibility(View.VISIBLE, true);
-                                canvas.invalidate();
-                                kbdIcon.hide();
-                                kbdIcon.disable();
+                                extraKeysHidden = !extraKeysHidden;
+                                setExtraKeysVisibility(View.GONE, false);
+                            } else {
+                                extraKeysHidden = !extraKeysHidden;
+                                setExtraKeysVisibility(View.GONE, false);
+                                extraKeysHidden = !extraKeysHidden;
+                                setExtraKeysVisibility(View.VISIBLE, true);
                             }
+                            canvas.invalidate();
+                            prevBottomOffset = topBottomOffset;
                         }
                     }
                     setKeyStowDrawableAndVisibility();
-                    prevBottomOffset = topBottomOffset;
                     enableImmersive();
              }
         });
-        
-		kbdIcon = (ZoomControls) findViewById(R.id.zoomer);
-		kbdIcon.hide();
-		kbdIcon.setOnZoomKeyboardClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				InputMethodManager inputMgr = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
-				inputMgr.toggleSoftInput(0, 0);
-			}
-		});
-        kbdIcon.setOnShowMenuClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                RemoteCanvasActivity.this.openOptionsMenu();
-            }
-        });
-		
-		// Initialize and define actions for on-screen keys.
+
+        // Initialize and define actions for on-screen keys.
 		initializeOnScreenKeys ();
 		
 	    myVibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
@@ -325,6 +303,11 @@ public class RemoteCanvasActivity extends FragmentActivity implements OnKeyListe
 		
 		android.util.Log.e(TAG, "connection.getInputMethod(): " + connection.getInputMethod());
 		inputHandler = idToInputHandler(connection.getInputMethod());
+		
+		toolbar = (Toolbar) findViewById(R.id.toolbar);
+		toolbar.setTitle("");
+        toolbar.getBackground().setAlpha(64);
+		setSupportActionBar(toolbar);
 	}
 	
     
@@ -956,7 +939,6 @@ public class RemoteCanvasActivity extends FragmentActivity implements OnKeyListe
 			canvas.disconnectAndCleanUp();
 		canvas = null;
 		connection = null;
-		kbdIcon = null;
 		inputHandler = null;
 		System.gc();
 	}
@@ -1038,19 +1020,38 @@ public class RemoteCanvasActivity extends FragmentActivity implements OnKeyListe
 		return true;
 	}
 	
-	final long hideKbdIconDelay = 2500;
-	KbdIconHiderRunnable kbdIconHider = new KbdIconHiderRunnable();
+	final long hideToolbarDelay = 2500;
+	ToolbarHiderRunnable toolbarHider = new ToolbarHiderRunnable();
 	
-	public void showKbdIcon() {
-		kbdIcon.show();
-		canvas.handler.removeCallbacks(kbdIconHider);
-		canvas.handler.postAtTime(kbdIconHider, SystemClock.uptimeMillis() + hideKbdIconDelay);
+	public void showToolbar() {
+	    if (!softKeyboardUp) {
+	        getSupportActionBar().show();
+	        handler.removeCallbacks(toolbarHider);
+	        handler.postAtTime(toolbarHider, SystemClock.uptimeMillis() + hideToolbarDelay);
+	    }
 	}
 	
-	private class KbdIconHiderRunnable implements Runnable {
+	private class ToolbarHiderRunnable implements Runnable {
 		public void run() {
-			kbdIcon.hide();
+		    getSupportActionBar().hide();
 		}
+	}
+
+    public void showKeyboard(MenuItem menuItem) {
+        android.util.Log.i(TAG, "Showing keyboard and hiding action bar");
+        InputMethodManager inputMgr = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+        inputMgr.showSoftInput(canvas, 0);
+        softKeyboardUp = true;
+        getSupportActionBar().hide();
+    }
+
+	@Override
+	public boolean onMenuOpened(int featureId, Menu menu) {
+	    if(menu != null){
+	        android.util.Log.i(TAG, "Menu opened, disabling hiding action bar");
+	        handler.removeCallbacks(toolbarHider);
+	    }
+	    return super.onMenuOpened(featureId, menu);
 	}
 	
 	@Override
@@ -1068,10 +1069,17 @@ public class RemoteCanvasActivity extends FragmentActivity implements OnKeyListe
 				menu.findItem(R.id.menuExtraKeys).setTitle(R.string.extra_keys_disable);
 			else
 				menu.findItem(R.id.menuExtraKeys).setTitle(R.string.extra_keys_enable);
+
+			OnTouchListener moveListener = new OnTouchViewMover(toolbar, handler, toolbarHider, hideToolbarDelay);
+			ImageButton moveButton = new ImageButton(this);
+			moveButton.setBackgroundResource(R.drawable.ic_btn_move);
+			MenuItem moveToolbar = menu.findItem(R.id.moveToolbar);
+			moveToolbar.setActionView(moveButton);
+			moveToolbar.getActionView().setOnTouchListener(moveListener);
 		} catch (NullPointerException e) {
 			Log.e (TAG, "There was an error: " + e.getMessage());
 		}
-		return true;
+		return super.onCreateOptionsMenu(menu);
 	}
 	
 	@Override

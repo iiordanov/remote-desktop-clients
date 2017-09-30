@@ -119,7 +119,5 @@ class FitToScreenScaling extends AbstractScaling {
         canvas.setImageMatrix(matrix);
         resolveZoom(activity);
         canvas.pan(0, 0);
-        activity.zoomer.setIsZoomOutEnabled(false);
-        activity.zoomer.setIsZoomInEnabled(false);
     }
 }

@@ -301,7 +301,7 @@ abstract class InputHandlerGeneric extends GestureDetector.SimpleOnGestureListen
 	public boolean onSingleTapConfirmed(MotionEvent e) {
         RemotePointer p = canvas.getPointer();
         int metaState   = e.getMetaState();
-		activity.showKbdIcon();
+		activity.showToolbar();
 		p.leftButtonDown(getX(e), getY(e), metaState);
 		SystemClock.sleep(50);
 		p.releaseButton(getX(e), getY(e), metaState);

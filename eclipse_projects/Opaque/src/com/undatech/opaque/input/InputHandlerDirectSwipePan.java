@@ -88,7 +88,7 @@ public class InputHandlerDirectSwipePan extends InputHandlerGeneric {
 			return true;
 		}
 
-		activity.showKbdIcon();
+		activity.showToolbar();
 		panRepeater.start(-velocityX, -velocityY);
 		return true;
 	}
@@ -139,7 +139,7 @@ public class InputHandlerDirectSwipePan extends InputHandlerGeneric {
         }
        
 		float scale = canvas.getZoomFactor();
-		activity.showKbdIcon();
+		activity.showToolbar();
 		canvas.relativePan((int)(distanceX*scale), (int)(distanceY*scale));
 		return true;
 	}
