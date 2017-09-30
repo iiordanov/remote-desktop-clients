@@ -20,6 +20,8 @@
 
 package com.iiordanov.bVNC;
 
+import org.bouncycastle.jcajce.provider.symmetric.AES.OFB;
+
 import android.graphics.Matrix;
 import android.util.Log;
 import android.widget.Toast;
@@ -83,10 +85,12 @@ class ZoomScaling extends AbstractScaling {
      * Call after scaling and matrix have been changed to resolve scrolling
      * @param activity
      */
-    private void resolveZoom(RemoteCanvas canvas)
-    {
+    private void resolveZoom(RemoteCanvas canvas) {
+        resetMatrix();
+        matrix.postScale(scaling, scaling);
+        canvas.setImageMatrix(matrix);
         canvas.scrollToAbsolute();
-        //activity.vncCanvas.pan(0,0);
+        canvas.pan(0,0);
     }
     
     /* (non-Javadoc)
@@ -97,12 +101,9 @@ class ZoomScaling extends AbstractScaling {
         resetMatrix();
         standardizeScaling();
         scaling += 0.25;
-        if (scaling > 4.0)
-        {
-            scaling = (float)4.0;
-            activity.zoomer.setIsZoomInEnabled(false);
+        if (scaling > 4.0f) {
+            scaling = 4.0f;
         }
-        activity.zoomer.setIsZoomOutEnabled(true);
         matrix.postScale(scaling, scaling);
         //Log.v(TAG,String.format("before set matrix scrollx = %d scrolly = %d", activity.vncCanvas.getScrollX(), activity.vncCanvas.getScrollY()));
         activity.getCanvas().setImageMatrix(matrix);
@@ -125,12 +126,9 @@ class ZoomScaling extends AbstractScaling {
         resetMatrix();
         standardizeScaling();
         scaling -= 0.25;
-        if (scaling < minimumScale)
-        {
+        if (scaling < minimumScale) {
             scaling = minimumScale;
-            activity.zoomer.setIsZoomOutEnabled(false);
         }
-        activity.zoomer.setIsZoomInEnabled(true);
         matrix.postScale(scaling, scaling);
         //Log.v(TAG,String.format("before set matrix scrollx = %d scrolly = %d", activity.vncCanvas.getScrollX(), activity.vncCanvas.getScrollY()));
         activity.getCanvas().setImageMatrix(matrix);
@@ -146,23 +144,15 @@ class ZoomScaling extends AbstractScaling {
         
         float oldScale;
         float newScale = scaleFactor * scaling;
-        if (scaleFactor < 1)
-        {
-            if (newScale < minimumScale)
-            {
+        if (scaleFactor < 1) {
+            if (newScale < minimumScale) {
                 newScale = minimumScale;
-                activity.zoomer.setIsZoomOutEnabled(false);
             }
-            activity.zoomer.setIsZoomInEnabled(true);
         }
-        else
-        {
-            if (newScale > 4)
-            {
+        else {
+            if (newScale > 4) {
                 newScale = 4;
-                activity.zoomer.setIsZoomInEnabled(false);
             }
-            activity.zoomer.setIsZoomOutEnabled(true);
         }
         
         RemoteCanvas canvas = activity.getCanvas();
@@ -197,8 +187,7 @@ class ZoomScaling extends AbstractScaling {
         }
     }    
     
-    private void resetMatrix()
-    {
+    private void resetMatrix() {
         matrix.reset();
         matrix.preTranslate(canvasXOffset, canvasYOffset);
     }
@@ -206,8 +195,7 @@ class ZoomScaling extends AbstractScaling {
     /**
      *  Set scaling to one of the clicks on the zoom scale
      */
-    private void standardizeScaling()
-    {
+    private void standardizeScaling() {
         scaling = ((float)((int)(scaling * 4))) / 4;
     }
 
@@ -222,9 +210,11 @@ class ZoomScaling extends AbstractScaling {
         canvasYOffset = -canvas.getCenteredYOffset();
         canvas.computeShiftFromFullToView ();
         minimumScale = canvas.getMinimumScale();
-        scaling = 1.f;
-        resetMatrix();
-        canvas.setImageMatrix(matrix);
+        if (minimumScale > 1.f) {
+            scaling = minimumScale;
+        } else {
+            scaling = 1.f;
+        }
         resolveZoom(canvas);
     }
 

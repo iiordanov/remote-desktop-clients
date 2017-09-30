@@ -46,7 +46,11 @@ public class CanvasZoomer {
 	
 	public void resetScaling () {
 		minimumZoom = canvas.getMinimumScale();
-		zoomFactor = 1.f;
+		if (minimumZoom > 1.f) {
+            zoomFactor = minimumZoom;
+		} else {
+		    zoomFactor = 1.f;
+		}
 		reinitCanvasMatrix();
 		canvas.resetScroll();
 	}
