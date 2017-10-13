@@ -81,7 +81,7 @@ class OneToOneScaling extends AbstractScaling {
      */
     private void resolveZoom(RemoteCanvas canvas)
     {
-        canvas.scrollToAbsolute();
+        canvas.resetScroll();
         //activity.vncCanvas.pan(0,0);
     }
     
@@ -89,7 +89,7 @@ class OneToOneScaling extends AbstractScaling {
      * @see com.iiordanov.bVNC.AbstractScaling#getScale()
      */
     @Override
-    float getScale() {
+    public float getZoomFactor() {
         return scaling;
     }
 

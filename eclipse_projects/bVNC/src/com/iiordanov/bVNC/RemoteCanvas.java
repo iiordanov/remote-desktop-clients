@@ -86,7 +86,6 @@ import com.iiordanov.bVNC.input.RemoteSpicePointer;
 import com.iiordanov.bVNC.input.RemoteVncKeyboard;
 import com.iiordanov.bVNC.input.RemoteVncPointer;
 
-import com.iiordanov.tigervnc.vncviewer.CConn;
 import com.iiordanov.bVNC.dialogs.GetTextFragment;
 import com.iiordanov.bVNC.exceptions.AnonCipherUnsupportedException;
 import com.iiordanov.bVNC.*;
@@ -99,10 +98,10 @@ import com.iiordanov.freeaSPICE.*;
 public class RemoteCanvas extends ImageView implements UIEventListener, EventListener {
     private final static String TAG = "RemoteCanvas";
     
-    public AbstractScaling scaling;
+    public AbstractScaling canvasZoomer;
     
     // Variable indicating that we are currently scrolling in simulated touchpad mode.
-    public boolean inScrolling = false;
+    public boolean cursorBeingMoved = false;
     
     // Connection parameters
     ConnectionBean connection;
@@ -112,7 +111,6 @@ public class RemoteCanvas extends ImageView implements UIEventListener, EventLis
     // VNC protocol connection
     public RfbConnectable rfbconn   = null;
     private RfbProto rfb            = null;
-    private CConn cc                = null;
     private RdpCommunicator rdpcomm = null;
     private SpiceCommunicator spicecomm = null;
     private Socket sock             = null;
@@ -128,7 +126,7 @@ public class RemoteCanvas extends ImageView implements UIEventListener, EventLis
     
     // Internal bitmap data
     private int capacity;
-    public AbstractBitmapData bitmapData;
+    public AbstractBitmapData myDrawable;
     boolean useFull = false;
     boolean compact = false;
     
@@ -487,53 +485,17 @@ public class RemoteCanvas extends ImageView implements UIEventListener, EventLis
     void sendUnixAuth () {
         // If the type of connection is ssh-tunneled and we are told to send the unix credentials, then do so.
         if (connection.getConnectionType() == Constants.CONN_TYPE_SSH && connection.getAutoXUnixAuth()) {
-            keyboard.processLocalKeyEvent(KeyEvent.KEYCODE_UNKNOWN, new KeyEvent(SystemClock.uptimeMillis(),
+            keyboard.keyEvent(KeyEvent.KEYCODE_UNKNOWN, new KeyEvent(SystemClock.uptimeMillis(),
                                             connection.getSshUser(), 0, 0));
-            keyboard.processLocalKeyEvent(KeyEvent.KEYCODE_ENTER, new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_ENTER));
-            keyboard.processLocalKeyEvent(KeyEvent.KEYCODE_ENTER, new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_ENTER));
+            keyboard.keyEvent(KeyEvent.KEYCODE_ENTER, new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_ENTER));
+            keyboard.keyEvent(KeyEvent.KEYCODE_ENTER, new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_ENTER));
             
-            keyboard.processLocalKeyEvent(KeyEvent.KEYCODE_UNKNOWN, new KeyEvent(SystemClock.uptimeMillis(),
+            keyboard.keyEvent(KeyEvent.KEYCODE_UNKNOWN, new KeyEvent(SystemClock.uptimeMillis(),
                                             connection.getSshPassword(), 0, 0));
-            keyboard.processLocalKeyEvent(KeyEvent.KEYCODE_ENTER, new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_ENTER));
-            keyboard.processLocalKeyEvent(KeyEvent.KEYCODE_ENTER, new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_ENTER));
+            keyboard.keyEvent(KeyEvent.KEYCODE_ENTER, new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_ENTER));
+            keyboard.keyEvent(KeyEvent.KEYCODE_ENTER, new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_ENTER));
         }
     }
-    
-    
-    /**
-     * Starts a VeNCrypt connection using the TigerVNC backend.
-     * @throws Exception
-     */
-    private void startVencryptConnection() throws Exception {
-        cc = new CConn(RemoteCanvas.this, sock, null, false, connection);
-        rfbconn = cc;
-        pointer = new RemoteVncPointer (rfbconn, RemoteCanvas.this, handler);
-        boolean rAltAsIsoL3Shift = Utils.querySharedPreferenceBoolean(this.getContext(),
-                                                                      Constants.rAltAsIsoL3ShiftTag);
-        keyboard = new RemoteVncKeyboard (rfbconn, RemoteCanvas.this, handler, rAltAsIsoL3Shift);
-        initializeBitmap(displayWidth, displayHeight);
-        
-        // Initialize the protocol before we dismiss the progress dialog and request for the right
-        // modes to be set.
-        for (int i = 0; i < 6; i++)
-            cc.processMsg();
-        
-        handler.post(new Runnable() {
-            public void run() {
-                pd.setMessage(getContext().getString(R.string.info_progress_dialog_downloading));
-            }
-        });
-        
-        for (int i = 0; i < 3; i++)
-            cc.processMsg();
-        
-        // Hide progress dialog
-        if (pd.isShowing())
-            pd.dismiss();
-        
-        cc.processProtocol();
-    }
-    
     
     /**
      * Retreives the requested remote width.
@@ -654,29 +616,29 @@ public class RemoteCanvas extends ImageView implements UIEventListener, EventLis
             useFull = (connection.getForceFull() == BitmapImplHint.FULL);
         
         if (!useFull) {
-            bitmapData=new LargeBitmapData(rfbconn, this, dx, dy, capacity);
+            myDrawable=new LargeBitmapData(rfbconn, this, dx, dy, capacity);
             android.util.Log.i(TAG, "Using LargeBitmapData.");
         } else {
             try {
                 // TODO: Remove this if Android 4.2 receives a fix for a bug which causes it to stop drawing
                 // the bitmap in CompactBitmapData when under load (say playing a video over VNC).
                 if (!compact) {
-                    bitmapData=new FullBufferBitmapData(rfbconn, this, capacity);
+                    myDrawable=new FullBufferBitmapData(rfbconn, this, capacity);
                     android.util.Log.i(TAG, "Using FullBufferBitmapData.");
                 } else {
-                    bitmapData=new CompactBitmapData(rfbconn, this, isSpice);
+                    myDrawable=new CompactBitmapData(rfbconn, this, isSpice);
                     android.util.Log.i(TAG, "Using CompactBufferBitmapData.");
                 }
             } catch (Throwable e) { // If despite our efforts we fail to allocate memory, use LBBM.
                 disposeDrawable ();
                 
                 useFull = false;
-                bitmapData=new LargeBitmapData(rfbconn, this, dx, dy, capacity);
+                myDrawable=new LargeBitmapData(rfbconn, this, dx, dy, capacity);
                 android.util.Log.i(TAG, "Using LargeBitmapData.");
             }
         }
         
-        decoder.setBitmapData(bitmapData);
+        decoder.setBitmapData(myDrawable);
     }
     
     
@@ -684,9 +646,9 @@ public class RemoteCanvas extends ImageView implements UIEventListener, EventLis
      * Disposes of the old drawable which holds the remote desktop data.
      */
     private void disposeDrawable () {
-        if (bitmapData != null)
-            bitmapData.dispose();
-        bitmapData = null;
+        if (myDrawable != null)
+            myDrawable.dispose();
+        myDrawable = null;
         System.gc();
     }
     
@@ -697,7 +659,7 @@ public class RemoteCanvas extends ImageView implements UIEventListener, EventLis
      */
     public void updateFBSize () {
         try {
-            bitmapData.frameBufferSizeChanged ();
+            myDrawable.frameBufferSizeChanged ();
         } catch (Throwable e) {
             boolean useLBBM = false;
             
@@ -709,7 +671,7 @@ public class RemoteCanvas extends ImageView implements UIEventListener, EventLis
                 if (compact == true) {
                     compact = false;
                     try {
-                        bitmapData = new FullBufferBitmapData(rfbconn, this, capacity);
+                        myDrawable = new FullBufferBitmapData(rfbconn, this, capacity);
                     } catch (Throwable e2) {
                         useLBBM = true;
                     }
@@ -721,14 +683,14 @@ public class RemoteCanvas extends ImageView implements UIEventListener, EventLis
                     disposeDrawable ();
                     
                     useFull = false;
-                    bitmapData = new LargeBitmapData(rfbconn, this, getWidth(), getHeight(), capacity);
+                    myDrawable = new LargeBitmapData(rfbconn, this, getWidth(), getHeight(), capacity);
                 }
-                decoder.setBitmapData(bitmapData);
+                decoder.setBitmapData(myDrawable);
             }
         }
         handler.post(drawableSetter);
         handler.post(setModes);
-        bitmapData.syncScroll();
+        myDrawable.syncScroll();
     }
     
     
@@ -758,7 +720,7 @@ public class RemoteCanvas extends ImageView implements UIEventListener, EventLis
      * Lets the drawable know that an update from the remote server has arrived.
      */
     public void doneWaiting () {
-        bitmapData.doneWaiting();
+        myDrawable.doneWaiting();
     }
     
     
@@ -767,7 +729,7 @@ public class RemoteCanvas extends ImageView implements UIEventListener, EventLis
      * drawable's scroll position (used only in LargeBitmapData)
      */
     public void syncScroll () {
-        bitmapData.syncScroll();
+        myDrawable.syncScroll();
     }
     
     
@@ -775,7 +737,7 @@ public class RemoteCanvas extends ImageView implements UIEventListener, EventLis
      * Requests a remote desktop update at the specified rectangle.
      */
     public void writeFramebufferUpdateRequest (int x, int y, int w, int h, boolean incremental) throws IOException {
-        bitmapData.prepareFullUpdateRequest(incremental);
+        myDrawable.prepareFullUpdateRequest(incremental);
         rfbconn.writeFramebufferUpdateRequest(x, y, w, h, incremental);
     }
     
@@ -784,9 +746,9 @@ public class RemoteCanvas extends ImageView implements UIEventListener, EventLis
      * Requests an update of the entire remote desktop.
      */
     public void writeFullUpdateRequest (boolean incremental) {
-        bitmapData.prepareFullUpdateRequest(incremental);
-        rfbconn.writeFramebufferUpdateRequest(bitmapData.getXoffset(), bitmapData.getYoffset(),
-                                              bitmapData.bmWidth(),    bitmapData.bmHeight(), incremental);
+        myDrawable.prepareFullUpdateRequest(incremental);
+        rfbconn.writeFramebufferUpdateRequest(myDrawable.getXoffset(), myDrawable.getYoffset(),
+                                              myDrawable.bmWidth(),    myDrawable.bmHeight(), incremental);
     }
     
     
@@ -810,7 +772,7 @@ public class RemoteCanvas extends ImageView implements UIEventListener, EventLis
         if (keyboard != null) {
             // Tell the server to release any meta keys.
             keyboard.clearMetaState();
-            keyboard.processLocalKeyEvent(0, new KeyEvent(KeyEvent.ACTION_UP, 0));
+            keyboard.keyEvent(0, new KeyEvent(KeyEvent.ACTION_UP, 0));
         }
         // Close the rfb connection.
         if (rfbconn != null) {
@@ -847,7 +809,7 @@ public class RemoteCanvas extends ImageView implements UIEventListener, EventLis
         clipboard        = null;
         setModes         = null;
         decoder          = null;
-        scaling          = null;
+        canvasZoomer          = null;
         drawableSetter   = null;
         screenMessage    = null;
         desktopInfo      = null;
@@ -893,8 +855,8 @@ public class RemoteCanvas extends ImageView implements UIEventListener, EventLis
     /**
      * Change to Canvas's scroll position to match the absoluteXPosition
      */
-    void scrollToAbsolute()    {
-        float scale = getScale();
+    void resetScroll()    {
+        float scale = getZoomFactor();
         scrollTo((int)((absoluteXPosition - shiftX) * scale),
                  (int)((absoluteYPosition - shiftY) * scale));
     }
@@ -903,7 +865,7 @@ public class RemoteCanvas extends ImageView implements UIEventListener, EventLis
     /**
      * Make sure mouse is visible on displayable part of screen
      */
-    public void panToMouse() {
+    public void movePanToMakePointerVisible() {
         if (rfbconn == null)
             return;
         
@@ -918,7 +880,7 @@ public class RemoteCanvas extends ImageView implements UIEventListener, EventLis
             panY = false;
         
         // We only pan if the current scaling is able to pan.
-        if (scaling != null && ! scaling.isAbleToPan())
+        if (canvasZoomer != null && ! canvasZoomer.isAbleToPan())
             return;
         
         int x = pointer.getX();
@@ -964,7 +926,7 @@ public class RemoteCanvas extends ImageView implements UIEventListener, EventLis
         
         if (panned) {
             //scrollBy(newX - absoluteXPosition, newY - absoluteYPosition);
-            scrollToAbsolute();
+            resetScroll();
         }
     }
     
@@ -974,13 +936,13 @@ public class RemoteCanvas extends ImageView implements UIEventListener, EventLis
      * @param dY
      * @return True if the pan changed the view (did not move view out of bounds); false otherwise
      */
-    public boolean pan(int dX, int dY) {
+    public boolean relativePan(int dX, int dY) {
         
         // We only pan if the current scaling is able to pan.
-        if (scaling != null && ! scaling.isAbleToPan())
+        if (canvasZoomer != null && ! canvasZoomer.isAbleToPan())
             return false;
         
-        double scale = getScale();
+        double scale = getZoomFactor();
         
         double sX = (double)dX / scale;
         double sY = (double)dY / scale;
@@ -1001,10 +963,31 @@ public class RemoteCanvas extends ImageView implements UIEventListener, EventLis
         absoluteYPosition += sY;
         if (sX != 0.0 || sY != 0.0) {
             //scrollBy((int)sX, (int)sY);
-            scrollToAbsolute();
+            resetScroll();
             return true;
         }
         return false;
+    }
+    
+    /**
+     * Absolute pan.
+     * @param x
+     * @param y
+     */
+    public void absolutePan(int x, int y) {
+        if (canvasZoomer != null) { 
+            int vW = getVisibleWidth();
+            int vH = getVisibleHeight();
+            int w = getImageWidth();
+            int h = getImageHeight();
+            if (x + vW > w) x = w - vW;
+            if (y + vH > h) y = h - vH;
+            if (x < 0) x = 0;
+            if (y < 0) y = 0;
+            absoluteXPosition = x;
+            absoluteYPosition = y;
+            resetScroll();
+        }
     }
 
     /* (non-Javadoc)
@@ -1013,20 +996,20 @@ public class RemoteCanvas extends ImageView implements UIEventListener, EventLis
     @Override
     protected void onScrollChanged(int l, int t, int oldl, int oldt) {
         super.onScrollChanged(l, t, oldl, oldt);
-        if (bitmapData != null) {
-            bitmapData.scrollChanged(absoluteXPosition, absoluteYPosition);
-            pointer.mouseFollowPan();
+        if (myDrawable != null) {
+            myDrawable.scrollChanged(absoluteXPosition, absoluteYPosition);
+            pointer.movePointerToMakeVisible();
         }
     }
     
     
     /**
-     * This runnable sets the drawable (contained in bitmapData) for the VncCanvas (ImageView).
+     * This runnable sets the drawable (contained in myDrawable) for the VncCanvas (ImageView).
      */
     private Runnable drawableSetter = new Runnable() {
         public void run() {
-            if (bitmapData != null)
-                bitmapData.setImageDrawable(RemoteCanvas.this);
+            if (myDrawable != null)
+                myDrawable.setImageDrawable(RemoteCanvas.this);
             }
     };
     
@@ -1051,10 +1034,10 @@ public class RemoteCanvas extends ImageView implements UIEventListener, EventLis
     
     
     /**
-     * Causes a redraw of the bitmapData to happen at the indicated coordinates.
+     * Causes a redraw of the myDrawable to happen at the indicated coordinates.
      */
     public void reDraw(int x, int y, int w, int h) {
-        float scale = getScale();
+        float scale = getZoomFactor();
         float shiftedX = x-shiftX;
         float shiftedY = y-shiftY;
         // Make the box slightly larger to avoid artifacts due to truncation errors.
@@ -1065,10 +1048,10 @@ public class RemoteCanvas extends ImageView implements UIEventListener, EventLis
     
     /**
      * This is a float-accepting version of reDraw().
-     * Causes a redraw of the bitmapData to happen at the indicated coordinates.
+     * Causes a redraw of the myDrawable to happen at the indicated coordinates.
      */
     public void reDraw(float x, float y, float w, float h) {
-        float scale = getScale();
+        float scale = getZoomFactor();
         float shiftedX = x-shiftX;
         float shiftedY = y-shiftY;
         // Make the box slightly larger to avoid artifacts due to truncation errors.
@@ -1110,9 +1093,9 @@ public class RemoteCanvas extends ImageView implements UIEventListener, EventLis
      * Invalidates (to redraw) the location of the remote pointer.
      */
     public void invalidateMousePosition() {
-        if (bitmapData != null) {
-            bitmapData.moveCursorRect(pointer.getX(), pointer.getY());
-            RectF r = bitmapData.getCursorRect();
+        if (myDrawable != null) {
+            myDrawable.moveCursorRect(pointer.getX(), pointer.getY());
+            RectF r = myDrawable.getCursorRect();
             reDraw(r.left, r.top, r.width(), r.height());
         }
     }
@@ -1124,18 +1107,18 @@ public class RemoteCanvas extends ImageView implements UIEventListener, EventLis
      * @param y
      */
     synchronized void softCursorMove(int x, int y) {
-        if (bitmapData.isNotInitSoftCursor()) {
+        if (myDrawable.isNotInitSoftCursor()) {
             initializeSoftCursor();
         }
         
-        if (!inScrolling) {
+        if (!cursorBeingMoved) {
             pointer.setX(x);
             pointer.setY(y);
-            RectF prevR = new RectF(bitmapData.getCursorRect());
+            RectF prevR = new RectF(myDrawable.getCursorRect());
             // Move the cursor.
-            bitmapData.moveCursorRect(x, y);
+            myDrawable.moveCursorRect(x, y);
             // Show the cursor.
-            RectF r = bitmapData.getCursorRect();
+            RectF r = myDrawable.getCursorRect();
             reDraw(r.left, r.top, r.width(), r.height());
             reDraw(prevR.left, prevR.top, prevR.width(), prevR.height());
         }
@@ -1152,9 +1135,9 @@ public class RemoteCanvas extends ImageView implements UIEventListener, EventLis
         int [] tempPixels = new int[w*h];
         bm.getPixels(tempPixels, 0, w, 0, 0, w, h);
         // Set cursor rectangle as well.
-        bitmapData.setCursorRect(pointer.getX(), pointer.getY(), w, h, 0, 0);
+        myDrawable.setCursorRect(pointer.getX(), pointer.getY(), w, h, 0, 0);
         // Set softCursor to whatever the resource is.
-        bitmapData.setSoftCursor (tempPixels);
+        myDrawable.setSoftCursor (tempPixels);
         bm.recycle();
     }
     
@@ -1178,14 +1161,14 @@ public class RemoteCanvas extends ImageView implements UIEventListener, EventLis
         return keyboard;
     }
     
-    public float getScale() {
-        if (scaling == null)
+    public float getZoomFactor() {
+        if (canvasZoomer == null)
             return 1;
-        return scaling.getScale();
+        return canvasZoomer.getZoomFactor();
     }
     
     public int getVisibleWidth() {
-        return (int)((double)getWidth() / getScale() + 0.5);
+        return (int)((double)getWidth() / getZoomFactor() + 0.5);
     }
     
     public void setVisibleHeight(int newHeight) {
@@ -1194,9 +1177,9 @@ public class RemoteCanvas extends ImageView implements UIEventListener, EventLis
     
     public int getVisibleHeight() {
         if (visibleHeight > 0)
-            return (int)((double)visibleHeight / getScale() + 0.5);
+            return (int)((double)visibleHeight / getZoomFactor() + 0.5);
         else
-            return (int)((double)getHeight() / getScale() + 0.5);
+            return (int)((double)getHeight() / getZoomFactor() + 0.5);
     }
     
     public int getImageWidth() {
@@ -1216,8 +1199,8 @@ public class RemoteCanvas extends ImageView implements UIEventListener, EventLis
     }
     
     public float getMinimumScale() {
-        if (bitmapData != null) {
-            return bitmapData.getMinimumScale();
+        if (myDrawable != null) {
+            return myDrawable.getMinimumScale();
         } else
             return 1.f;
     }
@@ -1238,11 +1221,11 @@ public class RemoteCanvas extends ImageView implements UIEventListener, EventLis
         return connection.getFollowPan();
     }
     
-    public int getAbsoluteX () {
+    public int getAbsX () {
         return absoluteXPosition;
     }
     
-    public int getAbsoluteY () {
+    public int getAbsY () {
         return absoluteYPosition;
     }
     
@@ -1340,7 +1323,7 @@ public class RemoteCanvas extends ImageView implements UIEventListener, EventLis
         disposeDrawable ();
         try {
             // TODO: Use frameBufferSizeChanged instead.
-            bitmapData = new CompactBitmapData(rfbconn, this, isSpice);
+            myDrawable = new CompactBitmapData(rfbconn, this, isSpice);
         } catch (Throwable e) {
             showFatalMessageAndQuit (getContext().getString(R.string.error_out_of_memory));
             return;
@@ -1416,14 +1399,14 @@ public class RemoteCanvas extends ImageView implements UIEventListener, EventLis
     public void OnGraphicsUpdate(int x, int y, int width, int height) {
         //android.util.Log.e(TAG, "OnGraphicsUpdate called: " + x +", " + y + " + " + width + "x" + height );
         if (isRdp) {
-            if (bitmapData != null && bitmapData.mbitmap != null && session != null) {
-                synchronized (bitmapData.mbitmap) {
-                    LibFreeRDP.updateGraphics(session.getInstance(), bitmapData.mbitmap, x, y, width, height);
+            if (myDrawable != null && myDrawable.mbitmap != null && session != null) {
+                synchronized (myDrawable.mbitmap) {
+                    LibFreeRDP.updateGraphics(session.getInstance(), myDrawable.mbitmap, x, y, width, height);
                 }
             }
         } else {
-            synchronized (bitmapData.mbitmap) {
-                spicecomm.UpdateBitmap(bitmapData.mbitmap, x, y, width, height);
+            synchronized (myDrawable.mbitmap) {
+                spicecomm.UpdateBitmap(myDrawable.mbitmap, x, y, width, height);
             }
         }
         

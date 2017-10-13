@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="com.iiordanov.bVNC" android:installLocation="auto"
-          android:versionCode="3970" android:versionName="v3.9.7">
+          android:versionCode="3971" android:versionName="v3.9.7">
 
-    <uses-sdk android:minSdkVersion="11" android:targetSdkVersion="14"></uses-sdk>
+    <uses-sdk android:minSdkVersion="11" android:targetSdkVersion="21"></uses-sdk>
     <uses-permission android:name="android.permission.INTERNET"></uses-permission>
+    <uses-permission android:name="android.permission.VIBRATE"></uses-permission>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"></uses-permission>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"></uses-permission>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"></uses-permission>
     <!--MODIFY_AUDIO_SETTINGS-->
     <!--RECORD_AUDIO-->

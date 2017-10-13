@@ -89,8 +89,8 @@ class ZoomScaling extends AbstractScaling {
         resetMatrix();
         matrix.postScale(scaling, scaling);
         canvas.setImageMatrix(matrix);
-        canvas.scrollToAbsolute();
-        canvas.pan(0,0);
+        canvas.resetScroll();
+        canvas.relativePan(0,0);
     }
     
     /* (non-Javadoc)
@@ -114,7 +114,7 @@ class ZoomScaling extends AbstractScaling {
      * @see com.iiordanov.bVNC.AbstractScaling#getScale()
      */
     @Override
-    float getScale() {
+    public float getZoomFactor() {
         return scaling;
     }
 
@@ -140,7 +140,7 @@ class ZoomScaling extends AbstractScaling {
      * @see com.iiordanov.bVNC.AbstractScaling#adjust(com.iiordanov.bVNC.RemoteCanvasActivity, float, float, float)
      */
     @Override
-    public void adjust(RemoteCanvasActivity activity, float scaleFactor, float fx, float fy) {
+    public void changeZoom(RemoteCanvasActivity activity, float scaleFactor, float fx, float fy) {
         
         float oldScale;
         float newScale = scaleFactor * scaling;
@@ -182,8 +182,8 @@ class ZoomScaling extends AbstractScaling {
         
         // Only if we have actually scaled do we pan and potentially set mouse position.
         if (oldScale != newScale) {
-            canvas.pan((int)(newXPan - xPan), (int)(newYPan - yPan));
-            canvas.getPointer().mouseFollowPan();
+            canvas.relativePan((int)(newXPan - xPan), (int)(newYPan - yPan));
+            canvas.getPointer().movePointerToMakeVisible();
         }
     }    
     

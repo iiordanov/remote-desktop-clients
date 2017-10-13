@@ -210,6 +210,9 @@ public class Constants {
     public static final int REMOTE_SOUND_ON_SERVER = 1;
     public static final int REMOTE_SOUND_ON_DEVICE = 0;
     
+    public static final int SHORT_VIBRATION        = 50;
+
+    
     /**
      * Returns a string matching a session selection index
      * @param index - index to convert

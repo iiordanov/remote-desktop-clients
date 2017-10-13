@@ -47,7 +47,7 @@ abstract public class AbstractBitmapData {
     boolean waitingForInput;
     RemoteCanvas vncCanvas;
     public AbstractBitmapDrawable drawable;
-    private Paint paint;
+    public Paint paint;
     int xoffset = 0;
     int yoffset = 0;
 

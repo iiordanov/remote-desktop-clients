@@ -83,7 +83,7 @@ class DPadMouseKeyHandler {
 
         // If we are supposed to use the Dpad as arrows, pass the event to the default handler.
         if (useDpadAsArrows) {
-            return keyboard.processLocalKeyEvent(keyCode, evt);
+            return keyboard.keyEvent(keyCode, evt);
             // Otherwise, control the mouse.
         } else {
             switch (keyCode) {
@@ -102,12 +102,12 @@ class DPadMouseKeyHandler {
             case KeyEvent.KEYCODE_DPAD_CENTER:
                 if (!mouseDown) {
                     mouseDown = true;
-                    result = pointer.processPointerEvent(pointer.getX(), pointer.getY(), MotionEvent.ACTION_DOWN,
-                                                                evt.getMetaState(), mouseDown, cameraButtonDown);
+                    result = true;
+                    pointer.leftButtonDown(pointer.getX(), pointer.getY(), evt.getMetaState());
                 }
                 break;
             default:
-                result = keyboard.processLocalKeyEvent(keyCode, evt);
+                result = keyboard.keyEvent(keyCode, evt);
                 break;
             }
         }
@@ -134,9 +134,11 @@ class DPadMouseKeyHandler {
                 }
 
             });
-            pointer.processPointerEvent(pointer.getX() + x, pointer.getY() + y, MotionEvent.ACTION_MOVE,
-                                        evt.getMetaState(), mouseDown, cameraButtonDown);
-
+            if (mouseDown) {
+                pointer.moveMouseButtonDown(pointer.getX(), pointer.getY(), evt.getMetaState());
+            } else {
+                pointer.moveMouseButtonUp(pointer.getX(), pointer.getY(), evt.getMetaState());
+            }
         }
         return result;
     }
@@ -148,7 +150,7 @@ class DPadMouseKeyHandler {
 
         // Pass the event on if we are not controlling the mouse.
         if (useDpadAsArrows)
-            return keyboard.processLocalKeyEvent(keyCode, evt);
+            return keyboard.keyEvent(keyCode, evt);
 
         boolean result = false;
 
@@ -164,14 +166,13 @@ class DPadMouseKeyHandler {
         case KeyEvent.KEYCODE_DPAD_CENTER:
             if (mouseDown) {
                 mouseDown = false;
-                result = pointer.processPointerEvent(pointer.getX(), pointer.getY(), MotionEvent.ACTION_UP,
-                                                        evt.getMetaState(), mouseDown, cameraButtonDown);
+                pointer.releaseButton(pointer.getX(), pointer.getY(), evt.getMetaState());
             } else {
                 result = true;
             }
             break;
         default:
-            result = keyboard.processLocalKeyEvent(keyCode, evt);
+            result = keyboard.keyEvent(keyCode, evt);
             break;
         }
         return result;

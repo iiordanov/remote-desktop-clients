@@ -42,7 +42,7 @@ import android.util.Log;
 import android.widget.ImageView.ScaleType;
 
 import com.antlersoft.android.dbimpl.NewInstance;
-import com.iiordanov.bVNC.input.TouchMouseSwipePanInputHandler;
+import com.iiordanov.bVNC.input.InputHandlerDirectSwipePan;
 import com.iiordanov.bVNC.*;
 import com.iiordanov.freebVNC.*;
 import com.iiordanov.aRDP.*;
@@ -113,7 +113,7 @@ public class ConnectionBean extends AbstractConnectionBean implements Comparable
         setColorModel(COLORMODEL.C24bit.nameString());
         setPrefEncoding(RfbProto.EncodingTight);
         setScaleMode(ScaleType.MATRIX);
-        setInputMode(TouchMouseSwipePanInputHandler.TOUCH_ZOOM_MODE);
+        setInputMode(InputHandlerDirectSwipePan.ID);
         setUseDpadAsArrows(true);
         setRotateDpad(false);
         setUsePortrait(false);

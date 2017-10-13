@@ -82,7 +82,7 @@ class FitToScreenScaling extends AbstractScaling {
      */
     private void resolveZoom(RemoteCanvasActivity activity)
     {
-        activity.getCanvas().scrollToAbsolute();
+        activity.getCanvas().resetScroll();
         //activity.vncCanvas.pan(0,0);
     }
     
@@ -90,7 +90,7 @@ class FitToScreenScaling extends AbstractScaling {
      * @see com.iiordanov.bVNC.AbstractScaling#getScale()
      */
     @Override
-    float getScale() {
+    public float getZoomFactor() {
         return scaling;
     }
 
@@ -112,12 +112,12 @@ class FitToScreenScaling extends AbstractScaling {
         canvasXOffset = -canvas.getCenteredXOffset();
         canvasYOffset = -canvas.getCenteredYOffset();
         canvas.computeShiftFromFullToView ();
-        minimumScale = canvas.bitmapData.getMinimumScale();
+        minimumScale = canvas.myDrawable.getMinimumScale();
         scaling = minimumScale;
         resetMatrix();
         matrix.postScale(scaling, scaling);
         canvas.setImageMatrix(matrix);
         resolveZoom(activity);
-        canvas.pan(0, 0);
+        canvas.relativePan(0, 0);
     }
 }

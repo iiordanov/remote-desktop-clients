@@ -308,6 +308,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
 		toolbar.setTitle("");
         toolbar.getBackground().setAlpha(64);
 		setSupportActionBar(toolbar);
+		showToolbar();
 	}
 	
     
@@ -1044,7 +1045,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
         softKeyboardUp = true;
         getSupportActionBar().hide();
     }
-
+    
 	@Override
 	public boolean onMenuOpened(int featureId, Menu menu) {
 	    if(menu != null){

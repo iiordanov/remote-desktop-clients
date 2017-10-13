@@ -18,7 +18,7 @@
  */
 
 
-package com.undatech.opaque.input;
+package com.iiordanov.bVNC.input;
 
 import java.util.LinkedList;
 import java.util.Queue;
@@ -30,10 +30,10 @@ import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 
-import com.undatech.opaque.Constants;
-import com.undatech.opaque.RemoteCanvas;
-import com.undatech.opaque.RemoteCanvasActivity;
-import com.undatech.opaque.input.RemotePointer;
+import com.iiordanov.bVNC.Constants;
+import com.iiordanov.bVNC.RemoteCanvas;
+import com.iiordanov.bVNC.RemoteCanvasActivity;
+import com.iiordanov.bVNC.input.RemotePointer;
 
 abstract class InputHandlerGeneric extends GestureDetector.SimpleOnGestureListener 
 										   implements InputHandler, ScaleGestureDetector.OnScaleGestureListener {
@@ -292,6 +292,7 @@ abstract class InputHandlerGeneric extends GestureDetector.SimpleOnGestureListen
     		}
     		numEvents++;
     	}
+        p.releaseButton(x, y, meta);
 	}
 	
 	/*
@@ -388,7 +389,7 @@ abstract class InputHandlerGeneric extends GestureDetector.SimpleOnGestureListen
     }
     
 	/*
-	 * @see com.undatech.opaque.input.InputHandler#onTouchEvent(android.view.MotionEvent)
+	 * @see com.iiordanov.bVNC.input.InputHandler#onTouchEvent(android.view.MotionEvent)
 	 */
 	@Override
 	public boolean onTouchEvent(MotionEvent e) {
@@ -612,7 +613,7 @@ abstract class InputHandlerGeneric extends GestureDetector.SimpleOnGestureListen
 					inScaling = true;
 				}
 				//android.util.Log.i(TAG, "Changing zoom level: " + detector.getScaleFactor());
-				canvas.canvasZoomer.changeZoom(detector.getScaleFactor());
+				canvas.canvasZoomer.changeZoom(activity, detector.getScaleFactor(), xCurrentFocus, yCurrentFocus);
 			}
 		}
 		return eventConsumed;
@@ -647,7 +648,7 @@ abstract class InputHandlerGeneric extends GestureDetector.SimpleOnGestureListen
 	}
 	
 	/*
-	 * @see com.undatech.opaque.input.InputHandler#onKeyDown(int, android.view.KeyEvent)
+	 * @see com.iiordanov.bVNC.input.InputHandler#onKeyDown(int, android.view.KeyEvent)
 	 */
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent evt) {
@@ -655,7 +656,7 @@ abstract class InputHandlerGeneric extends GestureDetector.SimpleOnGestureListen
 	}
 	
 	/*
-	 * @see com.undatech.opaque.input.InputHandler#onKeyUp(int, android.view.KeyEvent)
+	 * @see com.iiordanov.bVNC.input.InputHandler#onKeyUp(int, android.view.KeyEvent)
 	 */
 	@Override
 	public boolean onKeyUp(int keyCode, KeyEvent evt) {
