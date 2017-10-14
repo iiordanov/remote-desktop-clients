@@ -18,7 +18,7 @@
  */
 
 
-package com.undatech.opaque.input;
+package com.iiordanov.bVNC.input;
 
 import java.lang.reflect.Field;
 

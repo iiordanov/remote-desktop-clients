@@ -40,7 +40,7 @@ abstract class InputHandlerGeneric extends GestureDetector.SimpleOnGestureListen
 	private static final String TAG = "InputHandlerGeneric";
 
 	protected GestureDetector gestureDetector;
-	protected ScaleGestureDetector scalingGestureDetector;
+	protected MyScaleGestureDetector scalingGestureDetector;
 
 	// Handles to the RemoteCanvas view and RemoteCanvasActivity activity.
 	protected RemoteCanvas canvas;
@@ -130,8 +130,8 @@ abstract class InputHandlerGeneric extends GestureDetector.SimpleOnGestureListen
 		useDpadAsArrows = true; //activity.getUseDpadAsArrows();
 		rotateDpad      = false; //activity.getRotateDpad();
 		
-		gestureDetector = new GestureDetector (activity, this);
-		scalingGestureDetector = new ScaleGestureDetector (activity, this);
+		gestureDetector = new GestureDetector(activity, this);
+		scalingGestureDetector = new MyScaleGestureDetector(activity, this);
 		
 		gestureDetector.setOnDoubleTapListener(this);
 		
