@@ -55,6 +55,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.os.Vibrator;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.inputmethod.InputMethodManager;
@@ -1033,10 +1034,12 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
 	}
 	
 	private class ToolbarHiderRunnable implements Runnable {
-		public void run() {
-		    getSupportActionBar().hide();
-		}
-	}
+        public void run() {
+            ActionBar toolbar = getSupportActionBar();
+            if (toolbar != null)
+                toolbar.hide();
+        }
+    }
 
     public void showKeyboard(MenuItem menuItem) {
         android.util.Log.i(TAG, "Showing keyboard and hiding action bar");
@@ -1044,6 +1047,12 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
         inputMgr.showSoftInput(canvas, 0);
         softKeyboardUp = true;
         getSupportActionBar().hide();
+    }
+    
+    @Override
+    public void onPanelClosed (int featureId, Menu menu) {
+        super.onPanelClosed(featureId, menu);
+        showToolbar();
     }
     
 	@Override

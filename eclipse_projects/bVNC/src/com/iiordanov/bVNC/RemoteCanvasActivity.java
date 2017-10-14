@@ -48,6 +48,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.os.Vibrator;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -894,6 +895,12 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
     }
     
     @Override
+    public void onPanelClosed (int featureId, Menu menu) {
+        super.onPanelClosed(featureId, menu);
+        showToolbar();
+    }
+    
+    @Override
     public boolean onMenuOpened(int featureId, Menu menu) {
         if(menu != null){
             android.util.Log.i(TAG, "Menu opened, disabling hiding action bar");
@@ -950,14 +957,21 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
             for (MenuItem item : scalingModeMenuItems) {
                 // If the entire framebuffer is NOT contained in the bitmap, fit-to-screen is meaningless.
                 if (item.getItemId() == R.id.itemFitToScreen) {
-                    if ( canvas != null && canvas.myDrawable != null &&
-                         (canvas.myDrawable.bitmapheight != canvas.myDrawable.framebufferheight ||
-                          canvas.myDrawable.bitmapwidth  != canvas.myDrawable.framebufferwidth) )
+                    if (canvas != null && canvas.myDrawable != null &&
+                        (canvas.myDrawable.bitmapheight != canvas.myDrawable.framebufferheight ||
+                         canvas.myDrawable.bitmapwidth  != canvas.myDrawable.framebufferwidth) ) {
                         item.setEnabled(false);
-                    else
+                    } else {
                         item.setEnabled(true);
-                } else
+                    }
+                } else {
                     item.setEnabled(true);
+                }
+                
+                AbstractScaling scaling = AbstractScaling.getById(item.getItemId());
+                if (scaling.scaleType == connection.getScaleMode()) {
+                    item.setChecked(true);
+                }
             }
         } catch (NullPointerException e) { }
     }    
@@ -1332,7 +1346,9 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
     
     private class ToolbarHiderRunnable implements Runnable {
         public void run() {
-            getSupportActionBar().hide();
+            ActionBar toolbar = getSupportActionBar();
+            if (toolbar != null)
+                toolbar.hide();
         }
     }
 
