@@ -30,11 +30,16 @@ public class MyScaleGestureDetector extends ScaleGestureDetector {
     private static final String TAG = "MyScaleGestureDetector";
 
     public MyScaleGestureDetector(Context context, OnScaleGestureListener listener) {
-        this(context, listener, null);
+        super(context, listener);
+        adjustDefaults();
     }
 
     public MyScaleGestureDetector(Context context, OnScaleGestureListener listener, Handler handler) {
         super(context, listener, handler);
+        adjustDefaults();
+    }
+
+    public void adjustDefaults() {
         try {
             Field field = ScaleGestureDetector.class.getDeclaredField("mMinSpan");
             field.setAccessible(true);

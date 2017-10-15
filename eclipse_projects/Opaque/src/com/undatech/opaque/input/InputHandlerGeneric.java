@@ -82,10 +82,10 @@ abstract class InputHandlerGeneric extends GestureDetector.SimpleOnGestureListen
 	final long    baseSwipeTime = 400;
 	
 	// This is how far the swipe has to travel before a swipe event is generated.
-	final float   baseSwipeDist = 40.f;
+	float   baseSwipeDist = 40.f;
 	
     // This is how far from the top and bottom edge to detect immersive swipe.
-    final float   immersiveSwipeDistance = 50.f;
+    float   immersiveSwipeDistance = 10.f;
     boolean immersiveSwipe = false;
     
 	// Some variables indicating what kind of a gesture we're currently in or just finished.
@@ -142,6 +142,11 @@ abstract class InputHandlerGeneric extends GestureDetector.SimpleOnGestureListen
 	    
         distXQueue = new LinkedList<Float>();
         distYQueue = new LinkedList<Float>();
+
+        baseSwipeDist = baseSwipeDist * displayDensity;
+        immersiveSwipeDistance = immersiveSwipeDistance * displayDensity;
+        android.util.Log.i(TAG, "displayDensity, baseSwipeDist, immersiveSwipeDistance: "
+                            + displayDensity + " " + baseSwipeDist + " " + immersiveSwipeDistance);
 	}
 
 	/**
