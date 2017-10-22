@@ -127,13 +127,13 @@
 	<string name="keys_caption">Przyciski</string>
 	<string name="keep_screen_awake_enable">Zachowaj włączony ekran</string>
 	<string name="keep_password_button">Zachowaj</string>
-	<string name="input_mode_touchpad_description"></string>
+	<string name="input_method_touchpad_description"></string>
 	<string name="input_mode_touchpad">Symulowany touchpad</string>
-	<string name="input_mode_single_handed_description"></string>
+	<string name="input_method_single_handed_description"></string>
 	<string name="input_mode_single_handed">Tryb jednej ręki</string>
-	<string name="input_mode_drag_pan_description"></string>
+	<string name="input_method_direct_drag_pan_description"></string>
 	<string name="input_mode_drag_pan_zoom_mouse"></string>
-	<string name="input_mode_touch_pan_description"></string>
+	<string name="input_method_direct_swipe_pan_description"></string>
 	<string name="input_mode_touch_pan_zoom_mouse"></string>
 	<string name="input_mode_panning"></string>
 	<string name="input_mode_mouse">Kontrola wskaźnika myszy</string>

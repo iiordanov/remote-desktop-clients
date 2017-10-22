@@ -190,7 +190,7 @@ public class BCFactory {
         {
             try {
                 result = (IBCScaleGestureDetector)getClass().getClassLoader().
-                    loadClass("com.iiordanov.android.bc.ScaleGestureDetector").
+                    loadClass("com.iiordanov.bVNC.input.MyScaleGestureDetector").
                     getConstructor(scaleDetectorConstructorArgs).newInstance(new Object[] { context, listener });
             } catch (Exception e) {
                 throw new RuntimeException("Error instantiating ScaleGestureDetector", e);

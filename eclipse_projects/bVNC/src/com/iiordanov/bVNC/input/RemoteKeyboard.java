@@ -82,7 +82,7 @@ public abstract class RemoteKeyboard {
         }
     }
 
-    public boolean processLocalKeyEvent(int keyCode, KeyEvent evt) {
+    public boolean keyEvent(int keyCode, KeyEvent evt) {
         return processLocalKeyEvent (keyCode, evt, 0);
     }
     
@@ -209,13 +209,13 @@ public abstract class RemoteKeyboard {
             if (Character.isISOControl(c)) {
                 if (c == '\n') {
                     int keyCode = KeyEvent.KEYCODE_ENTER;
-                    processLocalKeyEvent(keyCode, new KeyEvent(KeyEvent.ACTION_DOWN, keyCode));
+                    keyEvent(keyCode, new KeyEvent(KeyEvent.ACTION_DOWN, keyCode));
                     try { Thread.sleep(10); } catch (InterruptedException e) { }
-                    processLocalKeyEvent(keyCode, new KeyEvent(KeyEvent.ACTION_UP, keyCode));
+                    keyEvent(keyCode, new KeyEvent(KeyEvent.ACTION_UP, keyCode));
                 }
             } else {
                 event = new KeyEvent(SystemClock.uptimeMillis(), s.substring(i, i+1), KeyCharacterMap.FULL, 0);
-                processLocalKeyEvent(event.getKeyCode(), event);
+                keyEvent(event.getKeyCode(), event);
                 try { Thread.sleep(10); } catch (InterruptedException e) { }
             }
         }

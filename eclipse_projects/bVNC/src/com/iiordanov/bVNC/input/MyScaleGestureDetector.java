@@ -18,14 +18,13 @@
  */
 
 
-package com.undatech.opaque.input;
+package com.iiordanov.bVNC.input;
 
 import java.lang.reflect.Field;
 
 import android.content.Context;
 import android.os.Handler;
 import android.view.ScaleGestureDetector;
-import android.view.ScaleGestureDetector.OnScaleGestureListener;
 
 public class MyScaleGestureDetector extends ScaleGestureDetector {
     private static final String TAG = "MyScaleGestureDetector";

@@ -19,6 +19,7 @@ import android.util.Log;
 
 import com.freerdp.freerdpcore.services.LibFreeRDP.UIEventListener;
 import com.iiordanov.bVNC.input.RemoteKeyboard;
+import com.iiordanov.bVNC.input.RemotePointer;
 import com.iiordanov.bVNC.input.RemoteSpicePointer;
 import com.iiordanov.bVNC.Constants;
 import org.freedesktop.gstreamer.*;
@@ -290,10 +291,10 @@ public class SpiceCommunicator implements RfbConnectable {
     @Override
     public void writePointerEvent(int x, int y, int metaState, int pointerMask) {
         this.metaState = metaState; 
-        if ((pointerMask & RemoteSpicePointer.PTRFLAGS_DOWN) != 0)
+        if ((pointerMask & RemotePointer.POINTER_DOWN_MASK) != 0)
             sendModifierKeys(true, 0);
         sendMouseEvent(x, y, metaState, pointerMask);
-        if ((pointerMask & RemoteSpicePointer.PTRFLAGS_DOWN) == 0)
+        if ((pointerMask & RemotePointer.POINTER_DOWN_MASK) == 0)
             sendModifierKeys(false, 0);
     }
 

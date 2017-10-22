@@ -34,7 +34,7 @@ public class RemoteVncKeyboard extends RemoteKeyboard {
             if (keyCode == KeyEvent.KEYCODE_MENU)
                 return true;                           // Ignore menu key
 
-            if (pointer.handleHardwareButtons(keyCode, evt, metaState|onScreenMetaState|hardwareMetaState))
+            if (pointer.hardwareButtonsAsMouseEvents(keyCode, evt, metaState|onScreenMetaState|hardwareMetaState))
                 return true;
 
             int key = 0, keysym = 0;

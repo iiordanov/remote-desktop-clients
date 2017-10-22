@@ -36,7 +36,7 @@ public class RemoteRdpKeyboard extends RemoteKeyboard {
             if (keyCode == KeyEvent.KEYCODE_MENU)
                 return true;                           // Ignore menu key
 
-            if (pointer.handleHardwareButtons(keyCode, evt, metaState|onScreenMetaState|hardwareMetaState))
+            if (pointer.hardwareButtonsAsMouseEvents(keyCode, evt, metaState|onScreenMetaState|hardwareMetaState))
                 return true;
 
             // Detect whether this event is coming from a default hardware keyboard.
@@ -109,29 +109,23 @@ public class RemoteRdpKeyboard extends RemoteKeyboard {
             int button = meta.getMouseButtons();
             switch (button) {
             case RemoteVncPointer.MOUSE_BUTTON_LEFT:
-                pointer.processPointerEvent(x, y, MotionEvent.ACTION_DOWN, meta.getMetaFlags()|onScreenMetaState|hardwareMetaState,
-                        true, false, false, false, 0);
+                pointer.leftButtonDown(x, y, meta.getMetaFlags()|onScreenMetaState|hardwareMetaState);
                 break;
             case RemoteVncPointer.MOUSE_BUTTON_RIGHT:
-                pointer.processPointerEvent(x, y, MotionEvent.ACTION_DOWN, meta.getMetaFlags()|onScreenMetaState|hardwareMetaState,
-                        true, true, false, false, 0);
+                pointer.rightButtonDown(x, y, meta.getMetaFlags()|onScreenMetaState|hardwareMetaState);
                 break;
             case RemoteVncPointer.MOUSE_BUTTON_MIDDLE:
-                pointer.processPointerEvent(x, y, MotionEvent.ACTION_DOWN, meta.getMetaFlags()|onScreenMetaState|hardwareMetaState,
-                        true, false, true, false, 0);
+                pointer.middleButtonDown(x, y, meta.getMetaFlags()|onScreenMetaState|hardwareMetaState);
                 break;
             case RemoteVncPointer.MOUSE_BUTTON_SCROLL_UP:
-                pointer.processPointerEvent(x, y, MotionEvent.ACTION_MOVE, meta.getMetaFlags()|onScreenMetaState|hardwareMetaState,
-                        true, false, false, true, 0);
+                pointer.scrollUp(x, y, meta.getMetaFlags()|onScreenMetaState|hardwareMetaState);
                 break;
             case RemoteVncPointer.MOUSE_BUTTON_SCROLL_DOWN:
-                pointer.processPointerEvent(x, y, MotionEvent.ACTION_MOVE, meta.getMetaFlags()|onScreenMetaState|hardwareMetaState,
-                        true, false, false, true, 1);
+                pointer.scrollDown(x, y, meta.getMetaFlags()|onScreenMetaState|hardwareMetaState);
                 break;
             }
             try { Thread.sleep(50); } catch (InterruptedException e) {}
-            pointer.processPointerEvent(x, y, MotionEvent.ACTION_UP, meta.getMetaFlags()|onScreenMetaState|hardwareMetaState,
-                    false, false, false, false, 0);
+            pointer.releaseButton(x, y, meta.getMetaFlags()|onScreenMetaState|hardwareMetaState);
 
             //rfb.writePointerEvent(x, y, meta.getMetaFlags()|onScreenMetaState|hardwareMetaState, button);
             //rfb.writePointerEvent(x, y, meta.getMetaFlags()|onScreenMetaState|hardwareMetaState, 0);

@@ -27,8 +27,8 @@ public class KeyRepeater implements Runnable {
         // This is here in order to ensure the key event is sent over at least once.
         // Otherwise with very quick repeated sending of events, the removeCallbacks
         // call causes events to be deleted before they've been sent out even once.
-        keyboard.processLocalKeyEvent(keyCode, KeyEvent.changeAction(event, KeyEvent.ACTION_DOWN));
-        keyboard.processLocalKeyEvent(keyCode, KeyEvent.changeAction(event, KeyEvent.ACTION_UP));
+        keyboard.keyEvent(keyCode, KeyEvent.changeAction(event, KeyEvent.ACTION_DOWN));
+        keyboard.keyEvent(keyCode, KeyEvent.changeAction(event, KeyEvent.ACTION_UP));
         starting = true;
         handler.post(this);
     }
@@ -44,8 +44,8 @@ public class KeyRepeater implements Runnable {
             starting = false;
             delay = initialDelay;
         } else {
-            keyboard.processLocalKeyEvent(keyCode, KeyEvent.changeAction(event, KeyEvent.ACTION_DOWN));
-            keyboard.processLocalKeyEvent(keyCode, KeyEvent.changeAction(event, KeyEvent.ACTION_UP));
+            keyboard.keyEvent(keyCode, KeyEvent.changeAction(event, KeyEvent.ACTION_DOWN));
+            keyboard.keyEvent(keyCode, KeyEvent.changeAction(event, KeyEvent.ACTION_UP));
         }
         
         handler.postDelayed(this, delay);

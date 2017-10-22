@@ -15,29 +15,31 @@ import android.view.ViewConfiguration;
 
 public abstract class RemotePointer {
     
+    public static final int POINTER_DOWN_MASK = 0x8000;
+    
     /**
-     * Current and previous state of "mouse" buttons
+     * Current state of "mouse" buttons
      */
     protected int pointerMask = 0;
     protected int prevPointerMask = 0;
-
-    protected RemoteCanvas vncCanvas;
+    
+    protected RemoteCanvas canvas;
     protected Context context;
     protected Handler handler;
-    protected RfbConnectable rfb;
+    protected RfbConnectable protocomm;
     
     /**
      * Indicates where the mouse pointer is located.
      */
-    public int mouseX, mouseY;
+    public int pointerX, pointerY;
     
-    public RemotePointer (RfbConnectable r, RemoteCanvas v, Handler h) {
-        rfb = r;
-        mouseX=rfb.framebufferWidth()/2;
-        mouseY=rfb.framebufferHeight()/2;
-        vncCanvas = v;
-        handler = h;
-        context = v.getContext();
+    public RemotePointer (RfbConnectable protocomm, RemoteCanvas canvas, Handler handler) {
+        this.protocomm = protocomm;
+        this.canvas    = canvas;
+        this.context   = canvas.getContext();
+        this.handler   = handler;
+        pointerX  = canvas.getImageWidth()/2;
+        pointerY  = canvas.getImageHeight()/2;
     }
     
     protected boolean shouldBeRightClick (KeyEvent e) {
@@ -65,20 +67,76 @@ public abstract class RemotePointer {
         return result;
     }
     
-    abstract public int getX();
-    abstract public int getY();
-    abstract public void setX(int newX);
-    abstract public void setY(int newY);
-    abstract public void warpMouse(int x, int y);
-    abstract public void mouseFollowPan();
-    abstract boolean handleHardwareButtons(int keyCode, KeyEvent evt, int combinedMetastate);
-    abstract public boolean processPointerEvent(MotionEvent evt, boolean downEvent, 
-                                       boolean useRightButton, boolean useMiddleButton, boolean useScrollButton, int direction);
-    abstract public boolean processPointerEvent(MotionEvent evt, boolean downEvent, 
-                                       boolean useRightButton, boolean useMiddleButton);
-    abstract public boolean processPointerEvent(MotionEvent evt, boolean downEvent, boolean useRightButton);
-    abstract public boolean processPointerEvent(int x, int y, int action, int modifiers, boolean mouseIsDown, boolean useRightButton);
+    public int getX() {
+        return pointerX;
+    }
+
+    public int getY() {
+        return pointerY;
+    }
+
+    public void setX(int newX) {
+        pointerX = newX;
+    }
+
+    public void setY(int newY) {
+        pointerY = newY;
+    }
+
+    /**
+     * Move mouse pointer to specified coordinates.
+     */
+    public void movePointer(int x, int y) {
+        canvas.invalidateMousePosition();
+        pointerX=x;
+        pointerY=y;
+        canvas.invalidateMousePosition();
+        moveMouseButtonUp (x, y, 0);
+    }
     
-    abstract public boolean processPointerEvent(int x, int y, int action, int modifiers, boolean mouseIsDown, boolean useRightButton,
-                                        boolean useMiddleButton, boolean useScrollButton, int direction);
+    /**
+     * If necessary move the pointer to be visible.
+     */
+    public void movePointerToMakeVisible() {
+        if (canvas.getMouseFollowPan()) {
+            int absX = canvas.getAbsX();
+            int absY = canvas.getAbsY();
+            int vW = canvas.getVisibleWidth();
+            int vH = canvas.getVisibleHeight();
+            if (pointerX < absX || pointerX >= absX + vW ||
+                pointerY < absY || pointerY >= absY + vH) {
+                movePointer(absX + vW / 2, absY + vH / 2);
+            }
+        }
+    }
+
+    /**
+     * Handles any hardware buttons designated to perform mouse events.
+     */
+    public boolean hardwareButtonsAsMouseEvents(int keyCode, KeyEvent e, int combinedMetastate) {
+        boolean used = false;
+        boolean down = (e.getAction() == KeyEvent.ACTION_DOWN) ||
+                       (e.getAction() == KeyEvent.ACTION_MULTIPLE);
+        if (down)
+            pointerMask = POINTER_DOWN_MASK;
+        else
+            pointerMask = 0;
+        
+        if (shouldBeRightClick(e)) {
+            rightButtonDown(getX(), getY(), combinedMetastate);
+            used = true;
+        }
+        return used;
+    }
+    
+    abstract public void leftButtonDown  (int x, int y, int metaState);
+    abstract public void middleButtonDown(int x, int y, int metaState);
+    abstract public void rightButtonDown (int x, int y, int metaState);
+    abstract public void scrollUp        (int x, int y, int metaState);
+    abstract public void scrollDown      (int x, int y, int metaState);
+    abstract public void scrollLeft      (int x, int y, int metaState);
+    abstract public void scrollRight     (int x, int y, int metaState);
+    abstract public void releaseButton   (int x, int y, int metaState);
+    abstract public void moveMouseButtonDown (int x, int y, int metaState);
+    abstract public void moveMouseButtonUp   (int x, int y, int metaState);
 }

@@ -82,7 +82,7 @@ public class Panner implements Runnable {
     }
     
     public void start(float xv, float yv, VelocityUpdater update) {
-         activity.getCanvas().bitmapData.drawable._defaultPaint.setFilterBitmap(false);
+         activity.getCanvas().myDrawable.drawable._defaultPaint.setFilterBitmap(false);
 
          if (update == null)
             update = DefaultUpdater.instance;
@@ -105,16 +105,16 @@ public class Panner implements Runnable {
         double scale = (double)interval / 50.0;
         RemoteCanvas canvas = activity.getCanvas();
         //Log.v(TAG, String.format("panning %f %d %d", scale, (int)((double)velocity.x * scale), (int)((double)velocity.y * scale)));
-        if ( canvas.pan((int)((double)velocity.x * scale), (int)((double)velocity.y * scale))) {
+        if ( canvas.relativePan((int)((double)velocity.x * scale), (int)((double)velocity.y * scale))) {
             if (updater.updateVelocity(velocity, interval)) {
                 handler.postDelayed(this, freq);
             } else {
-                 canvas.bitmapData.drawable._defaultPaint.setFilterBitmap(true);
+                 canvas.myDrawable.drawable._defaultPaint.setFilterBitmap(true);
                  canvas.invalidate();
                  stop();
             }
         } else {
-             canvas.bitmapData.drawable._defaultPaint.setFilterBitmap(true);
+             canvas.myDrawable.drawable._defaultPaint.setFilterBitmap(true);
              canvas.invalidate();
             stop();
         }

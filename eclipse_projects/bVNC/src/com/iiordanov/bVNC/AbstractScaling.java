@@ -73,7 +73,7 @@ public abstract class AbstractScaling {
      * Returns the scale factor of this scaling mode.
      * @return
      */
-    float getScale() { return 1.f; }
+    public float getZoomFactor() { return 1.f; }
 
     void zoomIn(RemoteCanvasActivity activity) {}
     void zoomOut(RemoteCanvasActivity activity) {}
@@ -114,7 +114,7 @@ public abstract class AbstractScaling {
     void setScaleTypeForActivity(RemoteCanvasActivity activity)
     {
         RemoteCanvas canvas = activity.getCanvas();
-        canvas.scaling = this;
+        canvas.canvasZoomer = this;
         // This is a bit of a hack because Scaletype.FIT_CENTER is now obsolete, since fit-to-screen scaling is now
         // essentially zoom-scaling with minimumScale and zoom disabled. However, we still use
         // it to identify Fit-to-screen scale mode. Instead of setting scaleType here, we hard-code MATRIX.
@@ -122,7 +122,7 @@ public abstract class AbstractScaling {
         activity.getConnection().setScaleMode(scaleType);
         if (activity.inputHandler == null || ! isValidInputMode(activity.getModeIdFromHandler(activity.inputHandler))) {
             activity.inputHandler=activity.getInputHandlerById(getDefaultHandlerId());
-            activity.getConnection().setInputMode(activity.inputHandler.getName());
+            activity.getConnection().setInputMode(activity.inputHandler.getId());
         }
         activity.getConnection().Gen_update(activity.getDatabase().getWritableDatabase());
         activity.getDatabase().close();
@@ -151,5 +151,5 @@ public abstract class AbstractScaling {
      * @param fx Focus X of center of scale change
      * @param fy Focus Y of center of scale change
      */
-    public void adjust(RemoteCanvasActivity activity, float scaleFactor, float fx, float fy) { }
+    public void changeZoom(RemoteCanvasActivity activity, float scaleFactor, float fx, float fy) { }
 }
