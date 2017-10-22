@@ -49,7 +49,7 @@ I-b. Building from scratch and working in Eclipse.
      export PATH=$PATH:${ANDROID_NDK}
      export PATH=$PATH:${ANDROID_SDK}/platform-tools/
      export PATH=$PATH:${ANDROID_SDK}/tools
-     ./eclipse_projects/bVNC/prepare_project.sh $PROJECT $ANDROID_NDK
+     ./eclipse_projects/bVNC/prepare_project.sh $PROJECT $ANDROID_NDK $ANDROID_SDK
 
    - Follow the instructions that the script outputs.
 
