@@ -406,7 +406,6 @@ abstract class InputHandlerGeneric extends GestureDetector.SimpleOnGestureListen
         final int meta       = e.getMetaState();
         RemotePointer p = canvas.getPointer();
 
-        
         float f = e.getPressure();
         if (f > 2.f)
             f = f / 50.f;
