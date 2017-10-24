@@ -27,7 +27,24 @@ public abstract class RemotePointer {
     protected Context context;
     protected Handler handler;
     protected RfbConnectable protocomm;
+    MouseScroller scroller;
     
+    public class MouseScroller implements Runnable {
+        int delay = 100;
+        public int direction = 0;
+
+        @Override
+        public void run() {
+            if (direction == 0) {
+                RemotePointer.this.scrollUp(pointerX, pointerY, 0);
+            } else {
+                RemotePointer.this.scrollDown(pointerX, pointerY, 0);
+            }
+            handler.postDelayed(this, delay);
+            
+        }
+    } 
+
     /**
      * Indicates where the mouse pointer is located.
      */
@@ -40,6 +57,7 @@ public abstract class RemotePointer {
         this.handler   = handler;
         pointerX  = canvas.getImageWidth()/2;
         pointerY  = canvas.getImageHeight()/2;
+        scroller = new MouseScroller();
     }
     
     protected boolean shouldBeRightClick (KeyEvent e) {
@@ -124,6 +142,20 @@ public abstract class RemotePointer {
         
         if (shouldBeRightClick(e)) {
             rightButtonDown(getX(), getY(), combinedMetastate);
+            used = true;
+        } else if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN || keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
+            if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
+                scroller.direction = 0;
+            } else {
+                scroller.direction = 1;
+            }
+            
+            if (e.getAction() == KeyEvent.ACTION_DOWN) {
+                handler.post(scroller);
+            } else {
+                handler.removeCallbacks(scroller);
+            }
+            releaseButton(pointerX, pointerY, 0);
             used = true;
         }
         return used;
