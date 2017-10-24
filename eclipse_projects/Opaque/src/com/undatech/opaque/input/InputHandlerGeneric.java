@@ -79,10 +79,11 @@ abstract class InputHandlerGeneric extends GestureDetector.SimpleOnGestureListen
 	
 	// If swipe events are registered once every baseSwipeTime miliseconds, then
 	// swipeSpeed will be one. If more often, swipe-speed goes up, if less, down.
-	final long    baseSwipeTime = 400;
+	final long baseSwipeTime = 400;
 	
 	// This is how far the swipe has to travel before a swipe event is generated.
-	float   baseSwipeDist = 40.f;
+    float   startSwipeDist = 15.f;
+    float   baseSwipeDist = 10.f;
 	
     // This is how far from the top and bottom edge to detect immersive swipe.
     float   immersiveSwipeDistance = 10.f;
@@ -130,8 +131,8 @@ abstract class InputHandlerGeneric extends GestureDetector.SimpleOnGestureListen
 		useDpadAsArrows = true; //activity.getUseDpadAsArrows();
 		rotateDpad      = false; //activity.getRotateDpad();
 		
-		gestureDetector = new GestureDetector (activity, this);
-		scalingGestureDetector = new ScaleGestureDetector (activity, this);
+		gestureDetector = new GestureDetector(activity, this);
+		scalingGestureDetector = new MyScaleGestureDetector(activity, this);
 		
 		gestureDetector.setOnDoubleTapListener(this);
 		
@@ -144,6 +145,7 @@ abstract class InputHandlerGeneric extends GestureDetector.SimpleOnGestureListen
         distYQueue = new LinkedList<Float>();
 
         baseSwipeDist = baseSwipeDist * displayDensity;
+        startSwipeDist = startSwipeDist * displayDensity;
         immersiveSwipeDistance = immersiveSwipeDistance * displayDensity;
         android.util.Log.i(TAG, "displayDensity, baseSwipeDist, immersiveSwipeDistance: "
                             + displayDensity + " " + baseSwipeDist + " " + immersiveSwipeDistance);
@@ -297,6 +299,7 @@ abstract class InputHandlerGeneric extends GestureDetector.SimpleOnGestureListen
     		}
     		numEvents++;
     	}
+        p.releaseButton(x, y, meta);
 	}
 	
 	/*
@@ -559,10 +562,10 @@ abstract class InputHandlerGeneric extends GestureDetector.SimpleOnGestureListen
 		if (!inScaling) {
 			// Start swiping mode only after we've moved away from the initial focal point some distance.
 			if (!inSwiping) {
-				if ( (yCurrentFocus < (yInitialFocus - baseSwipeDist)) ||
-			         (yCurrentFocus > (yInitialFocus + baseSwipeDist)) ||
-			         (xCurrentFocus < (xInitialFocus - baseSwipeDist)) ||
-			         (xCurrentFocus > (xInitialFocus + baseSwipeDist)) ) {
+				if ( (yCurrentFocus < (yInitialFocus - startSwipeDist)) ||
+			         (yCurrentFocus > (yInitialFocus + startSwipeDist)) ||
+			         (xCurrentFocus < (xInitialFocus - startSwipeDist)) ||
+			         (xCurrentFocus > (xInitialFocus + startSwipeDist)) ) {
 					inSwiping      = true;
 					xPreviousFocus = xCurrentFocus;
 					yPreviousFocus = yCurrentFocus;
