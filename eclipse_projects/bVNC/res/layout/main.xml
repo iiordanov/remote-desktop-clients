@@ -279,6 +279,11 @@ android:layout_height="fill_parent">
 			    android:layout_width="wrap_content"
 			    android:layout_height="wrap_content"/>
 		</RadioGroup>
+		<TextView
+            android:id="@+id/versionAndCode"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
 	</LinearLayout>
 	
 	<LinearLayout android:id="@+id/repeaterEntry"

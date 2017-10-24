@@ -29,8 +29,11 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import com.iiordanov.bVNC.*;
 import com.iiordanov.freebVNC.*;
@@ -54,6 +57,7 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
     GetTextFragment getNewPassword = null;
     private boolean isConnecting = false;
     private Button buttonGeneratePubkey;
+    private TextView versionAndCode;
     
     protected abstract void updateViewFromSelected();
     protected abstract void updateSelectedFromView();
@@ -97,6 +101,14 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
                 generatePubkey ();
             }
         });
+
+        versionAndCode = (TextView) findViewById(R.id.versionAndCode);
+        try {
+            PackageInfo pInfo = this.getPackageManager().getPackageInfo(getPackageName(), 0);
+            versionAndCode.setText(pInfo.versionName + "_" + pInfo.versionCode);
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
         
         database = ((App)getApplication()).getDatabase();
     }
