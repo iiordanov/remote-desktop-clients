@@ -388,6 +388,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setTitle("");
         toolbar.getBackground().setAlpha(64);
+        toolbar.setLayoutParams(params);
         setSupportActionBar(toolbar);
         showToolbar();
     }
