@@ -233,10 +233,10 @@ abstract class InputHandlerGeneric extends GestureDetector.SimpleOnGestureListen
 			// Determine direction and speed of scrolling.
 			if (vscroll < 0) {
 				swipeSpeed = (int)(-1*vscroll);
-				scrollDown = false;
+				scrollDown = true;
 			} else if (vscroll > 0) {
 				swipeSpeed = (int)vscroll;
-				scrollUp   = false;
+				scrollUp   = true;
 			} else if (hscroll < 0) {
 				swipeSpeed = (int)(-1*hscroll);
 				scrollRight = true;					
