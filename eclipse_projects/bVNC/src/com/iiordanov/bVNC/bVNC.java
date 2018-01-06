@@ -251,8 +251,10 @@ public class bVNC extends MainConfiguration {
         spinnerGeometry.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> arg0, View view, int itemIndex, long id) {
-                selected.setRdpResType(itemIndex);
-                setRemoteWidthAndHeight();
+                if (selected != null) {
+                    selected.setRdpResType(itemIndex);
+                    setRemoteWidthAndHeight();
+                }
             }
 
             @Override
