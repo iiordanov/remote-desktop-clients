@@ -1,17 +1,17 @@
-/** 
+/**
  * Copyright (C) 2012 Iordan Iordanov
  * Copyright (C) 20?? Michael A. MacDonald
- * 
+ * <p>
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
- * 
+ * <p>
  * This software is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ * <p>
  * You should have received a copy of the GNU General Public License
  * along with this software; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307,
@@ -92,12 +92,19 @@ public class bVNC extends MainConfiguration {
     private CheckBox checkboxPreferHextile;
     private CheckBox checkboxViewOnly;
     private boolean repeaterTextSet;
-    
+
+    private LinearLayout geometryLayout;
+    private CheckBox checkboxEnableGeometry;
+    private TextView descriptGeom;
+    private Spinner spinnerGeometry;
+    private EditText resWidth;
+    private EditText resHeight;
+
     @Override
     public void onCreate(Bundle icicle) {
         layoutID = R.layout.main;
         super.onCreate(icicle);
-        
+
         ipText = (EditText) findViewById(R.id.textIP);
         sshServer = (EditText) findViewById(R.id.sshServer);
         sshPort = (EditText) findViewById(R.id.sshPort);
@@ -114,30 +121,30 @@ public class bVNC extends MainConfiguration {
         textNickname = (EditText) findViewById(R.id.textNickname);
         textUsername = (EditText) findViewById(R.id.textUsername);
         autoXStatus = (TextView) findViewById(R.id.autoXStatus);
-        
+
         // Define what happens when the Repeater button is pressed.
         repeaterButton = (Button) findViewById(R.id.buttonRepeater);
         repeaterEntry = (LinearLayout) findViewById(R.id.repeaterEntry);
-        repeaterButton.setOnClickListener(new View.OnClickListener() {    
+        repeaterButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 showDialog(R.layout.repeater_dialog);
             }
         });
-        
+
         // Here we say what happens when the Pubkey Checkbox is checked/unchecked.
         checkboxUseSshPubkey = (CheckBox) findViewById(R.id.checkboxUseSshPubkey);
-        
+
         // Define what happens when somebody clicks on the customize auto X session dialog.
         buttonCustomizeX11Vnc = (Button) findViewById(R.id.buttonCustomizeX11Vnc);
-        buttonCustomizeX11Vnc.setOnClickListener(new View.OnClickListener() {    
+        buttonCustomizeX11Vnc.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 bVNC.this.updateSelectedFromView();
                 showDialog(R.layout.auto_x_customize);
             }
         });
-        
+
         // Define what happens when somebody selects different VNC connection types.
         connectionType = (Spinner) findViewById(R.id.connectionType);
         connectionType.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -146,26 +153,26 @@ public class bVNC extends MainConfiguration {
 
                 selectedConnType = itemIndex;
                 if (selectedConnType == Constants.CONN_TYPE_PLAIN ||
-                    selectedConnType == Constants.CONN_TYPE_ANONTLS ||
-                    selectedConnType == Constants.CONN_TYPE_STUNNEL) {
-                    setVisibilityOfSshWidgets (View.GONE);
-                    setVisibilityOfUltraVncWidgets (View.GONE);
+                        selectedConnType == Constants.CONN_TYPE_ANONTLS ||
+                        selectedConnType == Constants.CONN_TYPE_STUNNEL) {
+                    setVisibilityOfSshWidgets(View.GONE);
+                    setVisibilityOfUltraVncWidgets(View.GONE);
                     ipText.setHint(R.string.address_caption_hint);
                     textUsername.setHint(R.string.username_hint_optional);
                 } else if (selectedConnType == Constants.CONN_TYPE_SSH) {
-                    setVisibilityOfSshWidgets (View.VISIBLE);
-                    setVisibilityOfUltraVncWidgets (View.GONE);
+                    setVisibilityOfSshWidgets(View.VISIBLE);
+                    setVisibilityOfUltraVncWidgets(View.GONE);
                     if (ipText.getText().toString().equals(""))
                         ipText.setText("localhost");
                     ipText.setHint(R.string.address_caption_hint_tunneled);
                     textUsername.setHint(R.string.username_hint_optional);
                 } else if (selectedConnType == Constants.CONN_TYPE_ULTRAVNC) {
-                    setVisibilityOfSshWidgets (View.GONE);
-                    setVisibilityOfUltraVncWidgets (View.VISIBLE);
+                    setVisibilityOfSshWidgets(View.GONE);
+                    setVisibilityOfUltraVncWidgets(View.VISIBLE);
                     ipText.setHint(R.string.address_caption_hint);
                     textUsername.setHint(R.string.username_hint);
                 } else if (selectedConnType == Constants.CONN_TYPE_VENCRYPT) {
-                    setVisibilityOfSshWidgets (View.GONE);
+                    setVisibilityOfSshWidgets(View.GONE);
                     textUsername.setVisibility(View.VISIBLE);
                     repeaterEntry.setVisibility(View.GONE);
                     if (passwordText.getText().toString().equals(""))
@@ -183,7 +190,7 @@ public class bVNC extends MainConfiguration {
         // The advanced settings button.
         toggleAdvancedSettings = (ToggleButton) findViewById(R.id.toggleAdvancedSettings);
         layoutAdvancedSettings = (LinearLayout) findViewById(R.id.layoutAdvancedSettings);
-        toggleAdvancedSettings.setOnCheckedChangeListener(new OnCheckedChangeListener () {
+        toggleAdvancedSettings.setOnCheckedChangeListener(new OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton arg0, boolean checked) {
                 if (checked)
@@ -192,25 +199,25 @@ public class bVNC extends MainConfiguration {
                     layoutAdvancedSettings.setVisibility(View.GONE);
             }
         });
-        
+
         // Define what happens when the Import/Export button is pressed.
-        ((Button)findViewById(R.id.buttonImportExport)).setOnClickListener(new View.OnClickListener() {
+        ((Button) findViewById(R.id.buttonImportExport)).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 showDialog(R.layout.importexport);
             }
         });
-        
-        colorSpinner = (Spinner)findViewById(R.id.colorformat);
-        COLORMODEL[] models=COLORMODEL.values();
+
+        colorSpinner = (Spinner) findViewById(R.id.colorformat);
+        COLORMODEL[] models = COLORMODEL.values();
         ArrayAdapter<COLORMODEL> colorSpinnerAdapter = new ArrayAdapter<COLORMODEL>(this, R.layout.connection_list_entry, models);
-        groupForceFullScreen = (RadioGroup)findViewById(R.id.groupForceFullScreen);
-        checkboxKeepPassword = (CheckBox)findViewById(R.id.checkboxKeepPassword);
-        checkboxUseDpadAsArrows = (CheckBox)findViewById(R.id.checkboxUseDpadAsArrows);
-        checkboxRotateDpad = (CheckBox)findViewById(R.id.checkboxRotateDpad);
-        checkboxLocalCursor = (CheckBox)findViewById(R.id.checkboxUseLocalCursor);
-        checkboxPreferHextile = (CheckBox)findViewById(R.id.checkboxPreferHextile);
-        checkboxViewOnly = (CheckBox)findViewById(R.id.checkboxViewOnly);
+        groupForceFullScreen = (RadioGroup) findViewById(R.id.groupForceFullScreen);
+        checkboxKeepPassword = (CheckBox) findViewById(R.id.checkboxKeepPassword);
+        checkboxUseDpadAsArrows = (CheckBox) findViewById(R.id.checkboxUseDpadAsArrows);
+        checkboxRotateDpad = (CheckBox) findViewById(R.id.checkboxRotateDpad);
+        checkboxLocalCursor = (CheckBox) findViewById(R.id.checkboxUseLocalCursor);
+        checkboxPreferHextile = (CheckBox) findViewById(R.id.checkboxPreferHextile);
+        checkboxViewOnly = (CheckBox) findViewById(R.id.checkboxViewOnly);
         colorSpinner.setAdapter(colorSpinnerAdapter);
         colorSpinner.setSelection(0);
 
@@ -225,13 +232,40 @@ public class bVNC extends MainConfiguration {
             }
         });
 
-        repeaterText = (TextView)findViewById(R.id.textRepeaterId);
+        geometryLayout = (LinearLayout) findViewById(R.id.layoutVncGeometry);
+        descriptGeom = (TextView) findViewById(R.id.textDescriptGeom);
+
+        checkboxEnableGeometry = (CheckBox) findViewById(R.id.checkboxEnableGeomentry);
+        checkboxEnableGeometry.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                geometryLayout.setVisibility((isChecked) ? View.VISIBLE : View.GONE);
+                descriptGeom.setVisibility((isChecked) ? View.VISIBLE : View.GONE);
+            }
+        });
+
+        spinnerGeometry = (Spinner) findViewById(R.id.spinnerRdpGeometry);
+        resWidth = (EditText) findViewById(R.id.rdpWidth);
+        resHeight = (EditText) findViewById(R.id.rdpHeight);
+
+        spinnerGeometry.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> arg0, View view, int itemIndex, long id) {
+                selected.setRdpResType(itemIndex);
+                setRemoteWidthAndHeight();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> arg0) {
+            }
+        });
+        repeaterText = (TextView) findViewById(R.id.textRepeaterId);
     }
-    
+
     /**
      * Makes the ssh-related widgets visible/invisible.
      */
-    private void setVisibilityOfSshWidgets (int visibility) {
+    private void setVisibilityOfSshWidgets(int visibility) {
         sshCredentials.setVisibility(visibility);
         sshCaption.setVisibility(visibility);
         layoutUseSshPubkey.setVisibility(visibility);
@@ -240,32 +274,45 @@ public class bVNC extends MainConfiguration {
     }
 
     /**
+     * Enables and disables the EditText boxes for width and height of remote desktop.
+     */
+    private void setRemoteWidthAndHeight() {
+        if (selected.getRdpResType() != Constants.RDP_GEOM_SELECT_CUSTOM) {
+            resWidth.setEnabled(false);
+            resHeight.setEnabled(false);
+        } else {
+            resWidth.setEnabled(true);
+            resHeight.setEnabled(true);
+        }
+    }
+
+    /**
      * Makes the uvnc-related widgets visible/invisible.
      */
-    private void setVisibilityOfUltraVncWidgets (int visibility) {
+    private void setVisibilityOfUltraVncWidgets(int visibility) {
         repeaterEntry.setVisibility(visibility);
     }
-    
+
     /* (non-Javadoc)
      * @see android.app.Activity#onCreateDialog(int)
      */
     @Override
     protected Dialog onCreateDialog(int id) {
         switch (id) {
-        case R.layout.importexport:
-            return new ImportExportDialog(this);
-        case R.id.itemMainScreenHelp:
-            return createHelpDialog();
-        case R.layout.repeater_dialog:
-            return new RepeaterDialog(this);
-        case R.layout.auto_x_customize:
-            Dialog d = new AutoXCustomizeDialog(this, database);
-            d.setCancelable(false);
-            return d;
+            case R.layout.importexport:
+                return new ImportExportDialog(this);
+            case R.id.itemMainScreenHelp:
+                return createHelpDialog();
+            case R.layout.repeater_dialog:
+                return new RepeaterDialog(this);
+            case R.layout.auto_x_customize:
+                Dialog d = new AutoXCustomizeDialog(this, database);
+                d.setCancelable(false);
+                return d;
         }
         return null;
     }
-    
+
     /**
      * Creates the help dialog for this activity.
      */
@@ -275,11 +322,11 @@ public class bVNC extends MainConfiguration {
                 .setPositiveButton(R.string.close,
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog,
-                                    int whichButton) {
+                                                int whichButton) {
                                 // We don't have to do anything.
                             }
                         });
-        Dialog d = adb.setView(new ListView (this)).create();
+        Dialog d = adb.setView(new ListView(this)).create();
         WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
         lp.copyFrom(d.getWindow().getAttributes());
         lp.width = WindowManager.LayoutParams.MATCH_PARENT;
@@ -288,7 +335,7 @@ public class bVNC extends MainConfiguration {
         d.getWindow().setAttributes(lp);
         return d;
     }
-    
+
     public void updateViewFromSelected() {
         if (selected == null)
             return;
@@ -297,7 +344,7 @@ public class bVNC extends MainConfiguration {
         sshServer.setText(selected.getSshServer());
         sshPort.setText(Integer.toString(selected.getSshPort()));
         sshUser.setText(selected.getSshUser());
-        
+
         checkboxUseSshPubkey.setChecked(selected.getUseSshPubKey());
 
         if (selectedConnType == Constants.CONN_TYPE_SSH && selected.getAddress().equals(""))
@@ -324,12 +371,12 @@ public class bVNC extends MainConfiguration {
         }
 
         portText.setText(Integer.toString(selected.getPort()));
-        
-        if (selected.getKeepPassword() || selected.getPassword().length()>0) {
+
+        if (selected.getKeepPassword() || selected.getPassword().length() > 0) {
             passwordText.setText(selected.getPassword());
         }
-        groupForceFullScreen.check(selected.getForceFull()==BitmapImplHint.AUTO ?
-                            R.id.radioForceFullScreenAuto : R.id.radioForceFullScreenOn);
+        groupForceFullScreen.check(selected.getForceFull() == BitmapImplHint.AUTO ?
+                R.id.radioForceFullScreenAuto : R.id.radioForceFullScreenOn);
         checkboxKeepPassword.setChecked(selected.getKeepPassword());
         checkboxUseDpadAsArrows.setChecked(selected.getUseDpadAsArrows());
         checkboxRotateDpad.setChecked(selected.getRotateDpad());
@@ -339,9 +386,13 @@ public class bVNC extends MainConfiguration {
         textNickname.setText(selected.getNickname());
         textUsername.setText(selected.getUserName());
         COLORMODEL cm = COLORMODEL.valueOf(selected.getColorModel());
-        COLORMODEL[] colors=COLORMODEL.values();
-        for (int i=0; i<colors.length; ++i)
-        {
+        COLORMODEL[] colors = COLORMODEL.values();
+
+        spinnerGeometry.setSelection(selected.getRdpResType());
+        resWidth.setText(Integer.toString(selected.getRdpWidth()));
+        resHeight.setText(Integer.toString(selected.getRdpHeight()));
+
+        for (int i = 0; i < colors.length; ++i) {
             if (colors[i] == cm) {
                 colorSpinner.setSelection(i);
                 break;
@@ -353,10 +404,10 @@ public class bVNC extends MainConfiguration {
     /**
      * Called when changing view to match selected connection or from
      * Repeater dialog to update the repeater information shown.
+     *
      * @param repeaterId If null or empty, show text for not using repeater
      */
-    public void updateRepeaterInfo(boolean useRepeater, String repeaterId)
-    {
+    public void updateRepeaterInfo(boolean useRepeater, String repeaterId) {
         if (useRepeater) {
             repeaterText.setText(repeaterId);
             repeaterTextSet = true;
@@ -371,7 +422,7 @@ public class bVNC extends MainConfiguration {
     /**
      * Returns the current ConnectionBean.
      */
-    public ConnectionBean getCurrentConnection () {
+    public ConnectionBean getCurrentConnection() {
         return selected;
     }
 
@@ -381,25 +432,25 @@ public class bVNC extends MainConfiguration {
         }
         selected.setConnectionType(selectedConnType);
         selected.setAddress(ipText.getText().toString());
-        try    {
+        try {
             selected.setPort(Integer.parseInt(portText.getText().toString()));
             selected.setSshPort(Integer.parseInt(sshPort.getText().toString()));
+        } catch (NumberFormatException nfe) {
         }
-        catch (NumberFormatException nfe) {}
-        
+
         selected.setNickname(textNickname.getText().toString());
         selected.setSshServer(sshServer.getText().toString());
         selected.setSshUser(sshUser.getText().toString());
 
         selected.setKeepSshPassword(false);
-        
+
         // If we are using an SSH key, then the ssh password box is used
         // for the key pass-phrase instead.
         selected.setUseSshPubKey(checkboxUseSshPubkey.isChecked());
         selected.setSshPassPhrase(sshPassphrase.getText().toString());
         selected.setSshPassword(sshPassword.getText().toString());
         selected.setUserName(textUsername.getText().toString());
-        selected.setForceFull(groupForceFullScreen.getCheckedRadioButtonId()==R.id.radioForceFullScreenAuto ? BitmapImplHint.AUTO : (groupForceFullScreen.getCheckedRadioButtonId()==R.id.radioForceFullScreenOn ? BitmapImplHint.FULL : BitmapImplHint.TILE));
+        selected.setForceFull(groupForceFullScreen.getCheckedRadioButtonId() == R.id.radioForceFullScreenAuto ? BitmapImplHint.AUTO : (groupForceFullScreen.getCheckedRadioButtonId() == R.id.radioForceFullScreenOn ? BitmapImplHint.FULL : BitmapImplHint.TILE));
         selected.setPassword(passwordText.getText().toString());
         selected.setKeepPassword(checkboxKeepPassword.isChecked());
         selected.setUseDpadAsArrows(checkboxUseDpadAsArrows.isChecked());
@@ -411,7 +462,20 @@ public class bVNC extends MainConfiguration {
             selected.setPrefEncoding(RfbProto.EncodingTight);
         selected.setViewOnly(checkboxViewOnly.isChecked());
 
-        selected.setColorModel(((COLORMODEL)colorSpinner.getSelectedItem()).nameString());
+        if (checkboxEnableGeometry.isChecked()) {
+            selected.setRdpResType(spinnerGeometry.getSelectedItemPosition());
+        } else {
+            // Disable Geometry
+            selected.setRdpResType(-1);
+        }
+
+        try {
+            selected.setRdpWidth(Integer.parseInt(resWidth.getText().toString()));
+            selected.setRdpHeight(Integer.parseInt(resHeight.getText().toString()));
+        } catch (NumberFormatException nfe) {
+        }
+
+        selected.setColorModel(((COLORMODEL) colorSpinner.getSelectedItem()).nameString());
         if (repeaterTextSet) {
             selected.setRepeaterId(repeaterText.getText().toString());
             selected.setUseRepeater(true);
