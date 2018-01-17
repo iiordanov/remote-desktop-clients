@@ -6,7 +6,7 @@ android {
 
     defaultConfig {
         applicationId "com.iiordanov.bVNC"
-        minSdkVersion 14
+        minSdkVersion 11
         targetSdkVersion 21
     }
 
