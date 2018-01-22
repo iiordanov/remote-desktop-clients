@@ -26,7 +26,7 @@ public interface RfbConnectable {
     int framebufferHeight ();
     String desktopName ();
     void requestUpdate (boolean incremental);
-    void requestResolution (int x, int y);
+    void requestResolution (int x, int y) throws Exception;
     void writeClientCutText (String text);
     public void setIsInNormalProtocol (boolean state);
     boolean isInNormalProtocol();
