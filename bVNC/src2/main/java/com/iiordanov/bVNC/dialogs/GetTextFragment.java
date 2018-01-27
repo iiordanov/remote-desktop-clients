@@ -76,15 +76,15 @@ public class GetTextFragment extends DialogFragment {
     private int dialogType = 0;
     private int messageNum = 0;
     private int errorNum = 0;
-    
-	public GetTextFragment (OnFragmentDismissedListener dismissalListener) {
-		this.dismissalListener = dismissalListener;
-	}
-    
+
+    public GetTextFragment () {
+    }
+
 	public static GetTextFragment newInstance(String title, OnFragmentDismissedListener dismissalListener,
 	                                          int dialogType, int messageNum, int errorNum) {
     	android.util.Log.i(TAG, "newInstance called");
-    	GetTextFragment f = new GetTextFragment(dismissalListener);
+    	GetTextFragment f = new GetTextFragment();
+    	f.setDismissalListener(dismissalListener);
 
         Bundle args = new Bundle();
         args.putString("title", title);
@@ -160,7 +160,11 @@ public class GetTextFragment extends DialogFragment {
         
         return v;
     }
-    
+
+    public void setDismissalListener (OnFragmentDismissedListener dismissalListener) {
+        this.dismissalListener = dismissalListener;
+    }
+
     private void hideText (EditText textBox) {
         textBox.setTransformationMethod(new PasswordTransformationMethod());
     }
@@ -217,7 +221,9 @@ public class GetTextFragment extends DialogFragment {
     	if (textBox2 != null) {
     	    textBox2.setText("");
     	}
-    	dismissalListener.onTextObtained(result, wasCancelled);
+    	if (dismissalListener != null) {
+            dismissalListener.onTextObtained(result, wasCancelled);
+        }
     }
 
     @Override

@@ -8,8 +8,8 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
+            <option value="$PROJECT_DIR$/Opaque/jni/libs/deps/FreeRDP/client/Android/Studio/freeRDPCore" />
             <option value="$PROJECT_DIR$/bVNC" />
-            <option value="$PROJECT_DIR$/eclipse_projects/FreeRDP/client/Android/Studio/freeRDPCore" />
             <option value="$PROJECT_DIR$/pubkeyGenerator" />
           </set>
         </option>
