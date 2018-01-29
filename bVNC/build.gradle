@@ -4,12 +4,6 @@ android {
     compileSdkVersion 25
     buildToolsVersion "26.0.2"
 
-    defaultConfig {
-        applicationId "com.iiordanov.bVNC"
-        minSdkVersion 11
-        targetSdkVersion 21
-    }
-
     buildTypes {
         release {
             minifyEnabled false
@@ -18,7 +12,7 @@ android {
     }
 
     sourceSets {
-        main.java.srcDirs += 'src2/main/'
+        main.java.srcDirs += 'src2/main/java'
     }
 
     sourceSets.main {
