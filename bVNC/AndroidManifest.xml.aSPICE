@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          xmlns:tools="http://schemas.android.com/tools"
           package="com.iiordanov.aSPICE" android:installLocation="auto"
-          android:versionCode="3976" android:versionName="v3.9.7">
+          android:versionCode="3980" android:versionName="v3.9.8">
 
     <uses-sdk android:minSdkVersion="12" android:targetSdkVersion="21"></uses-sdk>
     <uses-permission android:name="android.permission.INTERNET"></uses-permission>
@@ -21,7 +22,7 @@
         android:smallScreens="true"
         android:anyDensity="true"/>
 		
-    <application android:icon="@drawable/icon_aspice" android:label="@string/aspice_app_name" android:allowBackup="false" android:theme="@style/AppTheme" android:name="com.iiordanov.bVNC.App">
+    <application android:icon="@drawable/icon_aspice" android:label="@string/aspice_app_name" android:allowBackup="false" android:theme="@style/AppTheme" android:name="com.iiordanov.bVNC.App" tools:replace="android:label,android:theme">
                 <activity android:label="@string/aspice_app_name"
                           android:name="com.iiordanov.bVNC.aSPICE"
                           android:screenOrientation="unspecified"
@@ -74,6 +75,7 @@
                   android:configChanges="keyboardHidden|orientation"
                   android:windowSoftInputMode="stateHidden|adjustResize"
                   android:screenOrientation="unspecified"
+                  tools:replace="android:screenOrientation"
                   android:theme="@android:style/Theme.DeviceDefault"
                   android:resizeableActivity="true"/>
                 <uses-library android:required="false" android:name="com.sec.android.app.multiwindow"> </uses-library>

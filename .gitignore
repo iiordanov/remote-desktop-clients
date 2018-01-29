@@ -17,6 +17,24 @@ eclipse_projects/*/src/main/assets/fontconfig
 eclipse_projects/*/src/main/assets/ssl
 eclipse_projects/remote-desktop-clients-libs-*.tar.gz
 
+Opaque/jni/libs/deps/
+Opaque/jni/libs/tar/
+bVNC/debug/
+bVNC/gst-build-armeabi-v7a/
+bVNC/gst-build-x86/
+bVNC/java/
+bVNC/libs/sqlcipher-javadoc.jar
+bVNC/libs/sqlcipher.jar
+bVNC/release/
+bVNC/src/main/assets/
+bVNC/src2/main/assets/fontconfig/
+bVNC/src2/main/assets/ssl/
+bVNC/src2/main/java/com/iiordanov/*/AbstractConnectionBean.java
+bVNC/src2/main/java/com/iiordanov/*/AbstractMetaKeyBean.java
+bVNC/src2/main/java/com/iiordanov/*/MetaList.java
+bVNC/src2/main/java/com/iiordanov/*/MostRecentBean.java
+bVNC/src2/main/java/com/iiordanov/*/SentTextBean.java
+
 ### AndroidStudio ###
 
 # Built application files
