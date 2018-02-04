@@ -1,5 +1,5 @@
 v3.9.8
-- Auto request device resolution with TigerVNC
+- Fix for right-click in TouchPad mode
 v3.9.7
 - New, relocatable toolbar
 - Numerous bugfixes

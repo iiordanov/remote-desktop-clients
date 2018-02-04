@@ -127,7 +127,8 @@ public class InputHandlerTouchpad extends InputHandlerGeneric {
 			// Compute the absolute new mouse position.
 			int newX = (int) (p.getX() + getDelta(-distanceX));
 			int newY = (int) (p.getY() + getDelta(-distanceY));
-	        p.moveMouseButtonUp(newX, newY, meta);
+
+	        p.moveMouseButton(newX, newY, meta);
         }
     	canvas.movePanToMakePointerVisible();
     	return true;

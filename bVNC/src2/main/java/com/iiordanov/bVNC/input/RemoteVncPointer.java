@@ -84,7 +84,13 @@ public class RemoteVncPointer extends RemotePointer {
         pointerMask = MOUSE_BUTTON_SCROLL_RIGHT | POINTER_DOWN_MASK;
         sendPointerEvent (x, y, metaState, false);
     }
-    
+
+    @Override
+    public void moveMouseButton (int x, int y, int metaState) {
+        pointerMask = prevPointerMask;
+        sendPointerEvent (x, y, metaState, true);
+    }
+
     @Override
     public void moveMouseButtonDown (int x, int y, int metaState) {
         pointerMask = prevPointerMask | POINTER_DOWN_MASK;
@@ -96,14 +102,14 @@ public class RemoteVncPointer extends RemotePointer {
         pointerMask = 0;
         sendPointerEvent (x, y, metaState, true);
     }
-    
+
     @Override
     public void releaseButton(int x, int y, int metaState) {
         pointerMask = 0;
         prevPointerMask = 0;
         sendPointerEvent (x, y, metaState, false);
     }
-    
+
     /**
      * Sends a pointer event to the server.
      * @param x

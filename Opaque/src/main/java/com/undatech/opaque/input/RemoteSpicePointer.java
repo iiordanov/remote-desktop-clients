@@ -196,7 +196,13 @@ public class RemoteSpicePointer implements RemotePointer {
 	public void scrollRight(int x, int y, int metaState) {
 		// TODO: Protocol does not support scrolling left/right yet.
 	}
-	
+
+	@Override
+	public void moveMouseButton (int x, int y, int metaState) {
+		pointerMask = prevPointerMask;
+		sendPointerEvent (x, y, metaState, true);
+	}
+
 	@Override
 	public void moveMouseButtonDown (int x, int y, int metaState) {
 		pointerMask = SPICE_MOUSE_BUTTON_MOVE | POINTER_DOWN_MASK;

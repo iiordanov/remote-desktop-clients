@@ -39,6 +39,7 @@ public interface RemotePointer {
 	public void scrollLeft      (int x, int y, int metaState);
 	public void scrollRight     (int x, int y, int metaState);
 	public void releaseButton   (int x, int y, int metaState);
+	public void moveMouseButton (int x, int y, int metaState);
 	public void moveMouseButtonDown (int x, int y, int metaState);
 	public void moveMouseButtonUp   (int x, int y, int metaState);
 }
