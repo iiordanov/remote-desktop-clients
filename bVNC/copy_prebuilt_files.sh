@@ -19,13 +19,6 @@ then
   usage
 fi
 
-generated_files="AbstractConnectionBean.java AbstractMetaKeyBean.java MetaList.java MostRecentBean.java SentTextBean.java"
-for f in $generated_files
-do
-  rm -f src/com/iiordanov/*/$f
-  cp prebuilt/src/com/iiordanov/$PRJ/$f src/com/iiordanov/$PRJ/$f
-done
-
 mkdir -p java
 rsync -a prebuilt/org java/
 

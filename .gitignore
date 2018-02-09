@@ -29,11 +29,6 @@ bVNC/release/
 bVNC/src/main/assets/
 bVNC/src2/main/assets/fontconfig/
 bVNC/src2/main/assets/ssl/
-bVNC/src2/main/java/com/iiordanov/*/AbstractConnectionBean.java
-bVNC/src2/main/java/com/iiordanov/*/AbstractMetaKeyBean.java
-bVNC/src2/main/java/com/iiordanov/*/MetaList.java
-bVNC/src2/main/java/com/iiordanov/*/MostRecentBean.java
-bVNC/src2/main/java/com/iiordanov/*/SentTextBean.java
 
 ### AndroidStudio ###
 
