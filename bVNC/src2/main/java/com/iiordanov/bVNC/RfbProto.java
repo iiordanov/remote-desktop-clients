@@ -2051,6 +2051,9 @@ class RfbProto implements RfbConnectable {
 
     @Override
     public void requestResolution(int x, int y) throws Exception {
+        Log.d(TAG, "requestResolution, wxh: " + x + "x" + y);
+        this.setPreferredFramebufferSize(x, y);
+
         // Is this encoding supported by the server?
         if (!this.isExtendedDesktopSizeSupported) {
             return;
@@ -2107,6 +2110,7 @@ class RfbProto implements RfbConnectable {
         try {
             os.write(setDesktopSizeBuff);
         } catch (IOException e) {
+            Log.e(TAG, "Sending the ExtendedDesktopSize Frame failed");
             throw new Exception("Sending the ExtendedDesktopSize Frame failed");
         }
     }

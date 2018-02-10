@@ -38,6 +38,7 @@ import java.security.cert.X509Certificate;
 import java.util.Locale;
 import java.util.Timer;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -95,7 +96,7 @@ import com.iiordanov.freeaRDP.*;
 import com.iiordanov.aSPICE.*;
 import com.iiordanov.freeaSPICE.*;
 
-public class RemoteCanvas extends ImageView implements UIEventListener, EventListener {
+public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView implements UIEventListener, EventListener {
     private final static String TAG = "RemoteCanvas";
 
     public AbstractScaling canvasZoomer;
@@ -175,12 +176,17 @@ public class RemoteCanvas extends ImageView implements UIEventListener, EventLis
     float displayDensity = 0;
 
     /*
-     * This flag indicates whether this is the RDP 'version' or not.
+     * This flag indicates whether this is the VNC client.
+     */
+    boolean isVnc = false;
+
+    /*
+     * This flag indicates whether this is the RDP client.
      */
     boolean isRdp = false;
 
     /*
-     * This flag indicates whether this is the SPICE 'version' or not.
+     * This flag indicates whether this is the SPICE client.
      */
     boolean isSpice = false;
     boolean spiceUpdateReceived = false;
@@ -202,6 +208,7 @@ public class RemoteCanvas extends ImageView implements UIEventListener, EventLis
 
         decoder = new Decoder(this);
 
+        isVnc = getContext().getPackageName().contains("VNC");
         isRdp = getContext().getPackageName().contains("RDP");
         isSpice = getContext().getPackageName().contains("SPICE");
 
@@ -223,7 +230,6 @@ public class RemoteCanvas extends ImageView implements UIEventListener, EventLis
     /**
      * Create a view showing a remote desktop connection
      *
-     * @param context  Containing context (activity)
      * @param bean     Connection settings
      * @param setModes Callback to run on UI thread after connection is set up
      */
@@ -463,10 +469,10 @@ public class RemoteCanvas extends ImageView implements UIEventListener, EventLis
         rfb.readServerInit();
 
         // Is custom resolution enabled?
-        if(connection.getRdpResType() != -1) {
+        if(connection.getRdpResType() != Constants.VNC_GEOM_SELECT_DISABLED) {
             waitUntilInflated();
-            rfb.setPreferredFramebufferSize(getRemoteWidth(getWidth(), getHeight()),
-                                            getRemoteHeight(getWidth(), getHeight()));
+            rfb.setPreferredFramebufferSize(getVncRemoteWidth(getWidth(), getHeight()),
+                                            getVncRemoteHeight(getWidth(), getHeight()));
         }
 
         initializeBitmap(displayWidth, displayHeight);
@@ -532,7 +538,6 @@ public class RemoteCanvas extends ImageView implements UIEventListener, EventLis
         return remoteWidth;
     }
 
-
     /**
      * Retreives the requested remote height.
      */
@@ -553,6 +558,49 @@ public class RemoteCanvas extends ImageView implements UIEventListener, EventLis
         return remoteHeight;
     }
 
+    /**
+     * Determines the preferred remote width for VNC conncetions.
+     */
+    private int getVncRemoteWidth(int viewWidth, int viewHeight) {
+        int remoteWidth = 0;
+        int reqWidth = connection.getRdpWidth();
+        int reqHeight = connection.getRdpHeight();
+        if (connection.getRdpResType() == Constants.VNC_GEOM_SELECT_CUSTOM &&
+                reqWidth >= 2 && reqHeight >= 2) {
+            remoteWidth = reqWidth;
+        } else if (connection.getRdpResType() == Constants.VNC_GEOM_SELECT_AUTOMATIC) {
+            remoteWidth = viewWidth;
+        } else if (connection.getRdpResType() == Constants.VNC_GEOM_SELECT_NATIVE_PORTRAIT) {
+            remoteWidth = Math.min(viewWidth, viewHeight);
+        } else if (connection.getRdpResType() == Constants.VNC_GEOM_SELECT_NATIVE_LANDSCAPE) {
+            remoteWidth = Math.max(viewWidth, viewHeight);
+        }
+        // We make the resolution even if it is odd.
+        if (remoteWidth % 2 == 1) remoteWidth--;
+        return remoteWidth;
+    }
+
+    /**
+     * Determines the preferred remote height for VNC conncetions.
+     */
+    private int getVncRemoteHeight(int viewWidth, int viewHeight) {
+        int remoteHeight = 0;
+        int reqWidth = connection.getRdpWidth();
+        int reqHeight = connection.getRdpHeight();
+        if (connection.getRdpResType() == Constants.VNC_GEOM_SELECT_CUSTOM &&
+                reqWidth >= 2 && reqHeight >= 2) {
+            remoteHeight = reqHeight;
+        } else if (connection.getRdpResType() == Constants.VNC_GEOM_SELECT_AUTOMATIC) {
+            remoteHeight = viewHeight;
+        } else if (connection.getRdpResType() == Constants.VNC_GEOM_SELECT_NATIVE_PORTRAIT) {
+            remoteHeight = Math.max(viewWidth, viewHeight);
+        } else if (connection.getRdpResType() == Constants.VNC_GEOM_SELECT_NATIVE_LANDSCAPE) {
+            remoteHeight = Math.min(viewWidth, viewHeight);
+        }
+        // We make the resolution even if it is odd.
+        if (remoteHeight % 2 == 1) remoteHeight--;
+        return remoteHeight;
+    }
 
     /**
      * Closes the connection and shows a fatal message which ends the activity.
@@ -777,8 +825,6 @@ public class RemoteCanvas extends ImageView implements UIEventListener, EventLis
 
     /**
      * Set the device clipboard text with the string parameter.
-     *
-     * @param readServerCutText set the device clipboard to the text in this parameter.
      */
     public void setClipboardText(String s) {
         if (s != null && s.length() > 0) {
@@ -1261,7 +1307,7 @@ public class RemoteCanvas extends ImageView implements UIEventListener, EventLis
     /**
      * Used to wait until getWidth and getHeight return sane values.
      */
-    private void waitUntilInflated() {
+    public void waitUntilInflated() {
         synchronized (this) {
             while (getWidth() == 0 || getHeight() == 0) {
                 try {
@@ -1538,6 +1584,7 @@ public class RemoteCanvas extends ImageView implements UIEventListener, EventLis
      *
      * @param cert the given cert.
      */
+    @SuppressLint("StringFormatInvalid")
     private void validateX509Cert(final X509Certificate cert) {
 
         boolean certMismatch = false;

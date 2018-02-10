@@ -432,9 +432,11 @@
     </string-array>
     <string name="rdp_descript_geom">Размер удаленного рабочего стола (ШxВ)</string>
     <string name="rdp_domain_hint">RDP Домен</string>
+    <string name="rdp_geom_automatic">Automatic</string>
     <string name="rdp_geom_checkbox_enable">Enable custom resolution</string>
     <string name="rdp_geom_custom">Другой</string>
     <string name="rdp_geom_description_hint">The server need to support ExtendedDesktopSize</string>
+    <string name="rdp_geom_disabled">Disabled</string>
     <string name="rdp_geom_native_landscape">Оригинальный альбомный</string>
     <string name="rdp_geom_native_portrait">Оригинальный портретный</string>
     <string-array name="rdp_geometry">
@@ -687,6 +689,14 @@
     <string name="verification_code_message">Пожалуйста, введите проверочный код мультифакторной аутентификации</string>
 
     <string name="view_only">Режим просмотра</string>
+
+    <string-array name="vnc_geometry">
+        <item>@string/rdp_geom_disabled</item>
+        <item>@string/rdp_geom_automatic</item>
+        <item>@string/rdp_geom_native_landscape</item>
+        <item>@string/rdp_geom_native_portrait</item>
+        <item>@string/rdp_geom_custom</item>
+    </string-array>
 
     <string name="vnc_server_empty">VNC-сервер или порт пусты. Соединение невозможно!</string>
 

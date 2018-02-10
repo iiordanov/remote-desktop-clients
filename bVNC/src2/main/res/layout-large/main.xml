@@ -280,13 +280,13 @@ android:layout_height="fill_parent">
 			    android:layout_height="wrap_content"/>
 		</RadioGroup>
 
-		<CheckBox
-			android:id="@+id/checkboxEnableGeomentry"
+		<TextView
+			android:id="@+id/textDescriptGeom"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:gravity="left|center_vertical"
-			android:text="@string/rdp_geom_checkbox_enable"
-			android:textAppearance="?android:attr/textAppearanceMedium" />
+			android:layout_marginTop="5dp"
+			android:text="@string/rdp_descript_geom"
+			android:textAppearance="?android:attr/textAppearanceMedium"/>
 
 		<TextView
 			android:layout_width="wrap_content"
@@ -294,29 +294,19 @@ android:layout_height="fill_parent">
 			android:text="@string/rdp_geom_description_hint"
 			android:textAppearance="?android:attr/textAppearanceSmall" />
 
-		<TextView
-			android:id="@+id/textDescriptGeom"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_marginTop="5dp"
-			android:text="@string/rdp_descript_geom"
-			android:textAppearance="?android:attr/textAppearanceMedium"
-			android:visibility="gone" />
-
 		<LinearLayout
 			android:id="@+id/layoutVncGeometry"
 			android:layout_width="fill_parent"
 			android:layout_height="wrap_content"
 			android:orientation="horizontal"
-			android:padding="5dp"
-			android:visibility="gone">
+			android:padding="5dp">
 
 			<Spinner
-				android:id="@+id/spinnerRdpGeometry"
+				android:id="@+id/spinnerVncGeometry"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:layout_weight="0.4"
-				android:entries="@array/rdp_geometry"
+				android:entries="@array/vnc_geometry"
 				android:textAppearance="?android:attr/textAppearanceMedium" />
 
 			<EditText

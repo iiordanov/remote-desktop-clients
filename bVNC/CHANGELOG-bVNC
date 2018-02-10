@@ -1,5 +1,6 @@
 v3.9.8
 - Fix for right-click in TouchPad mode
+- ExtendedDesktopSize support for TigerVNC
 v3.9.7
 - New, relocatable toolbar
 - Numerous bugfixes

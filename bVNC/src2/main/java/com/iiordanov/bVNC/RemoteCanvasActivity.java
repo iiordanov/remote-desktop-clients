@@ -834,7 +834,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
      */
     private Runnable rotationCorrector = new Runnable() {
         public void run() {
-            try { correctAfterRotation (); } catch (NullPointerException e) { }
+            try { correctAfterRotation (); } catch (Exception e) { }
         }
     };
 
@@ -842,7 +842,8 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
      * This function is called by the rotationCorrector runnable
      * to fix things up after a rotation.
      */
-    private void correctAfterRotation () {
+    private void correctAfterRotation () throws Exception {
+        canvas.waitUntilInflated();
         // Its quite common to see NullPointerExceptions here when this function is called
         // at the point of disconnection. Hence, we catch and ignore the error.
         float oldScale = canvas.canvasZoomer.getZoomFactor();
@@ -857,6 +858,9 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
             canvas.absoluteYPosition = y;
             canvas.resetScroll();
         }
+        if (canvas.isVnc && connection.getRdpResType() == Constants.VNC_GEOM_SELECT_AUTOMATIC) {
+            canvas.rfbconn.requestResolution(canvas.getWidth(), canvas.getHeight());
+        }
     }
 
 
@@ -866,11 +870,9 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
         enableImmersive();
         try {
             setExtraKeysVisibility(View.GONE, false);
-            
+
             // Correct a few times just in case. There is no visual effect.
             handler.postDelayed(rotationCorrector, 300);
-            handler.postDelayed(rotationCorrector, 600);
-            handler.postDelayed(rotationCorrector, 1200);
         } catch (NullPointerException e) { }
     }
 
@@ -1287,12 +1289,16 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
     public boolean onGenericMotionEvent(MotionEvent event) {
         // Ignore TOOL_TYPE_FINGER events that come from the touchscreen with HOVER type action
         // which cause pointer jumping trouble in simulated touchpad for some devices.
+        boolean toolTypeFinger = false;
+        if (Constants.SDK_INT >= android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+            toolTypeFinger = event.getToolType(0) == MotionEvent.TOOL_TYPE_FINGER;
+        }
         int a = event.getAction();
         if (! ( (a == MotionEvent.ACTION_HOVER_ENTER ||
                  a == MotionEvent.ACTION_HOVER_EXIT  ||
                  a == MotionEvent.ACTION_HOVER_MOVE) &&
                 event.getSource() == InputDevice.SOURCE_TOUCHSCREEN &&
-                event.getToolType(0) == MotionEvent.TOOL_TYPE_FINGER
+                toolTypeFinger
                ) ) {
             try {
                 return inputHandler.onTouchEvent(event);

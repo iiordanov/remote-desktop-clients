@@ -93,10 +93,7 @@ public class bVNC extends MainConfiguration {
     private CheckBox checkboxViewOnly;
     private boolean repeaterTextSet;
 
-    private LinearLayout geometryLayout;
-    private CheckBox checkboxEnableGeometry;
-    private TextView descriptGeom;
-    private Spinner spinnerGeometry;
+    private Spinner spinnerVncGeometry;
     private EditText resWidth;
     private EditText resHeight;
 
@@ -232,23 +229,11 @@ public class bVNC extends MainConfiguration {
             }
         });
 
-        geometryLayout = (LinearLayout) findViewById(R.id.layoutVncGeometry);
-        descriptGeom = (TextView) findViewById(R.id.textDescriptGeom);
-
-        checkboxEnableGeometry = (CheckBox) findViewById(R.id.checkboxEnableGeomentry);
-        checkboxEnableGeometry.setOnCheckedChangeListener(new OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                geometryLayout.setVisibility((isChecked) ? View.VISIBLE : View.GONE);
-                descriptGeom.setVisibility((isChecked) ? View.VISIBLE : View.GONE);
-            }
-        });
-
-        spinnerGeometry = (Spinner) findViewById(R.id.spinnerRdpGeometry);
+        spinnerVncGeometry = (Spinner) findViewById(R.id.spinnerVncGeometry);
         resWidth = (EditText) findViewById(R.id.rdpWidth);
         resHeight = (EditText) findViewById(R.id.rdpHeight);
 
-        spinnerGeometry.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        spinnerVncGeometry.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> arg0, View view, int itemIndex, long id) {
                 if (selected != null) {
@@ -279,7 +264,7 @@ public class bVNC extends MainConfiguration {
      * Enables and disables the EditText boxes for width and height of remote desktop.
      */
     private void setRemoteWidthAndHeight() {
-        if (selected.getRdpResType() != Constants.RDP_GEOM_SELECT_CUSTOM) {
+        if (selected.getRdpResType() != Constants.VNC_GEOM_SELECT_CUSTOM) {
             resWidth.setEnabled(false);
             resHeight.setEnabled(false);
         } else {
@@ -390,7 +375,7 @@ public class bVNC extends MainConfiguration {
         COLORMODEL cm = COLORMODEL.valueOf(selected.getColorModel());
         COLORMODEL[] colors = COLORMODEL.values();
 
-        spinnerGeometry.setSelection(selected.getRdpResType());
+        spinnerVncGeometry.setSelection(selected.getRdpResType());
         resWidth.setText(Integer.toString(selected.getRdpWidth()));
         resHeight.setText(Integer.toString(selected.getRdpHeight()));
 
@@ -463,13 +448,7 @@ public class bVNC extends MainConfiguration {
         else
             selected.setPrefEncoding(RfbProto.EncodingTight);
         selected.setViewOnly(checkboxViewOnly.isChecked());
-
-        if (checkboxEnableGeometry.isChecked()) {
-            selected.setRdpResType(spinnerGeometry.getSelectedItemPosition());
-        } else {
-            // Disable Geometry
-            selected.setRdpResType(-1);
-        }
+        selected.setRdpResType(spinnerVncGeometry.getSelectedItemPosition());
 
         try {
             selected.setRdpWidth(Integer.parseInt(resWidth.getText().toString()));
