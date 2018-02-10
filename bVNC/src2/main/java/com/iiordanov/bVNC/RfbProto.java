@@ -966,17 +966,18 @@ class RfbProto implements RfbConnectable {
 
     String desktopName;
     int framebufferWidth, framebufferHeight;
+    int preferredFramebufferWidth = 0, preferredFramebufferHeight = 0;
     int bitsPerPixel, depth;
     boolean bigEndian, trueColour;
     int redMax, greenMax, blueMax, redShift, greenShift, blueShift;
 
     void readServerInit() throws IOException {
         android.util.Log.i(TAG, "Reading server init.");
-        framebufferWidth = is.readUnsignedShort();
-        framebufferHeight = is.readUnsignedShort();
-
+        int framebufferWidth = is.readUnsignedShort();
+        int framebufferHeight = is.readUnsignedShort();
 
         android.util.Log.i(TAG, "Read framebuffer size: " + framebufferWidth + "x" + framebufferHeight);
+        this.setFramebufferSize(framebufferWidth, framebufferHeight);
         bitsPerPixel = is.readUnsignedByte();
         depth = is.readUnsignedByte();
         bigEndian = (is.readUnsignedByte() != 0);
@@ -1059,8 +1060,21 @@ class RfbProto implements RfbConnectable {
     //
 
     void setFramebufferSize(int width, int height) {
+        Log.d(TAG, "setFramebufferSize, wxh: " + width + "x" + height);
         framebufferWidth = width;
         framebufferHeight = height;
+    }
+
+
+    /**
+     * Sets the desired framebuffer size if we want to request a custom resolution from the server.
+     * @param width
+     * @param height
+     */
+    void setPreferredFramebufferSize(int width, int height) {
+        Log.d(TAG, "setPreferredFramebufferSize, wxh: " + width + "x" + height);
+        preferredFramebufferWidth = width;
+        preferredFramebufferHeight = height;
     }
 
 
@@ -1501,6 +1515,7 @@ class RfbProto implements RfbConnectable {
 
     // clientRedirect() migrates the client to another host/port
     public void clientRedirect(int port, String host, String x509subject) {
+        Log.d(TAG, "clientRedirect");
         try {
             closeSocket();
             setParameters(decoder, canvas, host, port, null, preferredEncoding, viewOnly, useLocalCursor);
@@ -1917,6 +1932,7 @@ class RfbProto implements RfbConnectable {
                                     readClientRedirect(updateRectX, updateRectY, updateRectW, updateRectH);
                                     break;
                                 case RfbProto.EncodingExtendedDesktopSize:
+                                    Log.d(TAG, "EncodingExtendedDesktopSize, wxh: " + updateRectW + "x" + updateRectH);
                                     handleExtendedDesktopSize();
                                     break;
                                 default:
@@ -1991,6 +2007,8 @@ class RfbProto implements RfbConnectable {
         byte[] padding = new byte[3];
         readFully(padding);
 
+        int width = 0;
+        int height = 0;
         // Read the SCREEN structure, each of them needs 16 bytes
         for (int i = 0; i < screenCount; i++) {
             if (i == 0) {
@@ -2003,10 +2021,10 @@ class RfbProto implements RfbConnectable {
                 int yPos = is.readUnsignedShort();
 
                 // Read the width
-                int width = is.readUnsignedShort();
+                width = is.readUnsignedShort();
 
                 // Read the height
-                int height = is.readUnsignedShort();
+                height = is.readUnsignedShort();
 
                 // Read the screen flags
                 this.screenFlags = is.readInt();
@@ -2017,9 +2035,17 @@ class RfbProto implements RfbConnectable {
             }
         }
 
-        // Notifiy Listeners on first update
-        if (firstUpdate) {
-            requestResolution(this.framebufferWidth, this.framebufferHeight);
+        Log.d(TAG, "handleExtendedDesktopSize, wxh: " + width + "x" + height);
+
+        if (preferredFramebufferWidth != 0 && preferredFramebufferHeight != 0) {
+            if (width != 0 && height != 0) {
+                setFramebufferSize(width, height);
+                canvas.updateFBSize();
+            }
+            // Notifiy Listeners on first update
+            if (firstUpdate) {
+                requestResolution(this.preferredFramebufferWidth, this.preferredFramebufferHeight);
+            }
         }
     }
 

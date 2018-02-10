@@ -26,6 +26,8 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 
 class CompactBitmapData extends AbstractBitmapData {
+    private final static String TAG = "CompactBitmapData";
+
     /**
      * Multiply this times total number of pixels to get estimate of process size with all buffers plus
      * safety factor
@@ -67,7 +69,11 @@ class CompactBitmapData extends AbstractBitmapData {
             cfg = Bitmap.Config.ARGB_8888;
         
         mbitmap = Bitmap.createBitmap(bitmapwidth, bitmapheight, cfg);
-        mbitmap.setHasAlpha(false);
+        android.util.Log.i(TAG, "bitmapsize = ("+bitmapwidth+","+bitmapheight+")");
+
+        if (Constants.SDK_INT >= android.os.Build.VERSION_CODES.HONEYCOMB_MR1) {
+            mbitmap.setHasAlpha(false);
+        }
 
         memGraphics = new Canvas(mbitmap);
         bitmapPixels = new int[bitmapwidth * bitmapheight];
@@ -175,8 +181,9 @@ class CompactBitmapData extends AbstractBitmapData {
     public void frameBufferSizeChanged () {
         framebufferwidth=rfb.framebufferWidth();
         framebufferheight=rfb.framebufferHeight();
-        android.util.Log.i("CBM", "bitmapsize changed = ("+bitmapwidth+","+bitmapheight+")");
         if ( bitmapwidth < framebufferwidth || bitmapheight < framebufferheight ) {
+            android.util.Log.i(TAG, "One or more bitmap dimensions increased, realloc = ("
+                    +framebufferwidth+","+framebufferheight+")");
             dispose();
             // Try to free up some memory.
             System.gc();
@@ -187,6 +194,9 @@ class CompactBitmapData extends AbstractBitmapData {
             memGraphics  = new Canvas(mbitmap);
             drawable     = createDrawable();
             drawable.startDrawing();
+        } else {
+            android.util.Log.i(TAG, "Both bitmap dimensions same or smaller, no realloc = ("
+                    +framebufferwidth+","+framebufferheight+")");
         }
     }
     

@@ -464,7 +464,9 @@ public class RemoteCanvas extends ImageView implements UIEventListener, EventLis
 
         // Is custom resolution enabled?
         if(connection.getRdpResType() != -1) {
-            rfb.setFramebufferSize(getRemoteWidth(getWidth(), getHeight()), getRemoteHeight(getWidth(), getHeight()));
+            waitUntilInflated();
+            rfb.setPreferredFramebufferSize(getRemoteWidth(getWidth(), getHeight()),
+                                            getRemoteHeight(getWidth(), getHeight()));
         }
 
         initializeBitmap(displayWidth, displayHeight);
