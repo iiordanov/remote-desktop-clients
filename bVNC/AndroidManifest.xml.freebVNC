@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           xmlns:tools="http://schemas.android.com/tools"
           package="com.iiordanov.freebVNC" android:installLocation="auto"
-          android:versionCode="113989" android:versionName="v3.9.8">
+          android:versionCode="113990" android:versionName="v3.9.9">
 
     <uses-sdk android:minSdkVersion="11" android:targetSdkVersion="21"></uses-sdk>
     <uses-permission android:name="android.permission.INTERNET"></uses-permission>

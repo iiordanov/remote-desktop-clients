@@ -1,4 +1,5 @@
-v3.9.8
+v3.9.9
+- Fix for IMEs that use META_SHIFT_ON
 - Fix for right-click in TouchPad mode
 - ExtendedDesktopSize support for TigerVNC
 v3.9.7
