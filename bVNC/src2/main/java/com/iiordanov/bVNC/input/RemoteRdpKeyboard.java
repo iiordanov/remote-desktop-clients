@@ -27,6 +27,7 @@ public class RemoteRdpKeyboard extends RemoteKeyboard {
     }
     
     public boolean processLocalKeyEvent(int keyCode, KeyEvent evt, int additionalMetaState) {
+        //android.util.Log.d("RemoteRdpKeyboard", "event: " + evt);
         if (rfb != null && rfb.isInNormalProtocol()) {
             RemotePointer pointer = canvas.getPointer();
             boolean down = (evt.getAction() == KeyEvent.ACTION_DOWN) ||
@@ -78,10 +79,11 @@ public class RemoteRdpKeyboard extends RemoteKeyboard {
             } else {
                 lastDownMetaState = 0;
             }
-            
 
             if (keyCode == 0 /*KEYCODE_UNKNOWN*/) {
                 String s = evt.getCharacters();
+                //android.util.Log.d("RemoteRdpKeyboard", "getCharacters: " + s);
+
                 if (s != null) {
                     int numchars = s.length();
                     for (int i = 0; i < numchars; i++) {

@@ -229,7 +229,7 @@ public abstract class RemoteKeyboard {
     /**
      * Tries to convert a unicode character to a KeyEvent and if successful sends with keyEvent().
      * @param unicodeChar
-     * @param metaState
+     * @param additionalMetaState
      */
     public boolean sendUnicode (char unicodeChar, int additionalMetaState) {
         KeyCharacterMap fullKmap    = KeyCharacterMap.load(KeyCharacterMap.FULL);
@@ -282,7 +282,7 @@ public abstract class RemoteKeyboard {
         }
         
         // Add shift, ctrl, alt, and super to metaState if necessary.
-        if ((eventMetaState & 0x00000040 /*KeyEvent.META_SHIFT_LEFT_ON*/) != 0) {
+        if ((eventMetaState & (0x00000040 | 1) /*KeyEvent.META_SHIFT_LEFT_ON/META_SHIFT_ON*/) != 0) {
             metaState |= SHIFT_MASK;
         }
         if ((eventMetaState & 0x00000080 /*KeyEvent.META_SHIFT_RIGHT_ON*/) != 0) {
