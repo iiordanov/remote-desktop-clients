@@ -1,5 +1,10 @@
 Pick one of I-a or I-b below, then move onto II.
 
+Please note that while for now there is a reference to eclipse_projects
+in the directory structure of the project, you no longer have to work
+in Eclipse to develop bVNC.
+
+
 I-a. Building with pre-built dependencies.
   - Set the environment variable PROJECT to one of bVNC, aSPICE, or aRDP.
 
@@ -7,103 +12,39 @@ I-a. Building with pre-built dependencies.
     ./eclipse_projects/download-prebuilt-dependencies.sh
     ./eclipse_projects/bVNC/copy_prebuilt_files.sh $PROJECT  
 
-I-b. Building from scratch and working in Eclipse.
 
-0. On Linux, install Eclipse Neon for Android Developers and ADT Plugin.
-   a) Point Eclipse at a valid Android SDK installation location.
-   b) Install ADT Plugin:
-      Help > Install New Software.
-      Click Add, in the top-right corner.
-      In the Add Repository dialog, name it ADT Plugin and specify location to be
-        https://dl-ssl.google.com/android/eclipse/
+I-b. Building from scratch and working in Android Studio.
 
-1. Install sqlitegen into Eclipse.
-   a) Download sqlitegen plugin v0.1.19 from:
-      https://github.com/iiordanov/sqlitegen-secure/releases/download/v0.1.19/sqlitegen_eclipse_site_0.1.19.jar
+  - On Linux, install Android Studio, Android SDK, and Android NDK
 
-      NOTE: Using an older version of the plugin may not work because
-      of the switch to the sqlcipher release of sqlite.
+  - Install at least the following dependencies on your Linux machine:
+     cmake automake libtool intltool gtk-doc-tools gnome-common gobject-introspection nasm
 
-   b) Help -> Install New Software
-   c) Add -> Archive
-   d) Browse to the downloaded jar file and select it.
-   e) Give it a name and click OK
-   f) Select "Uncategorized"
-   g) Click Next and follow the installation process.
-   h) Restart Eclipse.
+  - To build bVNC, aSPICE, or aRDP
 
-2. Install at least the following dependencies on your Linux machine:
-   cmake automake libtool intltool gtk-doc-tools gnome-common gobject-introspection nasm
+    - Set the environment variable PROJECT to one of bVNC, aSPICE, or aRDP.
+      Set the environment variables ANDROID_SDK and ANDROID_NDK to your SDK and NDK respectively.
 
-3. To build bVNC, aSPICE, or aRDP
+      then run a build script. E.g.:
 
-   - Set the environment variable PROJECT to one of bVNC, aSPICE, or aRDP.
-     Set the environment variable ANDROID_NDK to the path to your Android NDK/.
+      export PROJECT=bVNC
+      export ANDROID_NDK=/path/to/your/android/NDK/
+      export ANDROID_SDK=/path/to/your/android/SDK/
 
-     then run a build script. E.g.:
+      export PATH=$PATH:${ANDROID_NDK}
+      export PATH=$PATH:${ANDROID_SDK}/platform-tools/
+      export PATH=$PATH:${ANDROID_SDK}/tools
+      ./eclipse_projects/bVNC/prepare_project.sh $PROJECT $ANDROID_NDK $ANDROID_SDK
 
-     export PROJECT=bVNC
-     export ANDROID_NDK=/path/to/your/android/NDK/
-     export ANDROID_SDK=/path/to/your/android/SDK/
-
-     export PATH=$PATH:${ANDROID_NDK}
-     export PATH=$PATH:${ANDROID_SDK}/platform-tools/
-     export PATH=$PATH:${ANDROID_SDK}/tools
-     ./eclipse_projects/bVNC/prepare_project.sh $PROJECT $ANDROID_NDK $ANDROID_SDK
-
-   - Follow the instructions that the script outputs.
+    - Follow the instructions that the script outputs.
 
 
-II. Importing projects into Eclipse.
+II. Importing projects into Android Studio should be as simple as selecting
+  "Open an existing Android Studio project" on the Welcome screen, browsing
+  to the remote-desktop-clients directory and selecting it.
 
-1. Import android-support-v7-appcompat project into Eclipse
-   - Eclipse->Import->Existing Android Code Into Workspace.
-   - The AppCompat project is found here:
-       /path/to/android-sdk/extras/android/support/v7/appcompat/
-   - You may have to switch the Android Build Target to API 23 or newer
-     by (Right-clicking on the project)->Properties->Android
+  - One final tweak is necessary to the (external) freeRDPCore project before
+    the project can build. Double-click "Gradle Scripts" on the left, and
+    open build.gradle (Module freeRDPCore). Change minSdkVersion to 11.
 
-2. Import all projects under eclipse_projects into Eclipse.
-   Add bVNC, PubkeyGenerator, and FreeRDPCore projects.
-
-   The bVNC and PubkeyGenerator are in the
-   bVNC/eclipse_projects/ directory. Add them to Eclipse as existing Android
-   projects.
-
-   If building from scratch (I-b above), right-click on the bVNC project and
-   ensure SQLiteGen Annotation Processing is enabled.
-
-   The FreeRDP project was downloaded automatically as part of the build process,
-   and a symlink was made to it in bVNC/eclipse_projects/.
-
-   Some modifications are needed to the freeRDPCore project in part because
-   it is set up to be developed under the ADT IDE.
-
-   - Import eclipse_projects/FreeRDP/client/Android/Studio/freeRDPCore
-     into Eclipse as "Existing Android Code". Name the project FreeRDPCore
-     by clicking "New Project Name" before clicking "Finish".
-
-   - In the Project Properties, change Project Build Target to Android 7.0+
-
-   - Also there, make sure Android->Is Library checkbox is checked.
-
-   - Also there, click Add to a reference to the AppCompat project (from 2)
-
-   - Also there, change Java Compiler -> Enable project specific settings -> 
-     Compiler compliance level to 1.7.
-
-   - Clean and rebuild the project.
-
-3. Ensure PubkeyGenerator, FreeRDPCore, and android-support-v7-appcompat
-   projects are:
-   - Called exactly as written here by right-clicking on each of them,
-     then selecting Refactor->Rename
-
-   - Added as as Library References to bVNC (right-click on the bVNC project
-     and select Properties -> Android -> Library). If they are not - add them.
-
-   - Are specified as "Required projects on the build path" (right-
-     click on the bVNC project, and select Properties -> Java Build
-     Path -> Projects). If they are not, add them.
-
-   - Are referenced in Properties -> Project References (put checkmarks on projects).
+  - Build -> Make Project should now work.

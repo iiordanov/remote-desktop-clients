@@ -1,0 +1,31 @@
+apply plugin: 'com.android.library'
+
+android {
+    compileSdkVersion 25
+    buildToolsVersion "26.0.2"
+
+    defaultConfig {
+        minSdkVersion 8
+        targetSdkVersion 8
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+        }
+    }
+
+    sourceSets {
+        main.java.srcDirs += 'src2/main/java'
+    }
+
+}
+
+dependencies {
+    compile files('libs/bcpkix-jdk15on-1.48.jar')
+    compile files('libs/bcprov-jdk15on-1.48.jar')
+    compile files('libs/ecc-25519-java-1.0.3.jar')
+    compile files('libs/eddsa-0.1.0.jar')
+    compile files('libs/sshlib-2.2.5-20170115.082822-13.jar')
+}
