@@ -6,7 +6,7 @@ GSTREAMER_ROOT  := $(COMMON_ROOT)/gstreamer
 # Add prebuilt libraries to avoid deletion.
 include $(CLEAR_VARS)
 LOCAL_MODULE := libsqlcipher
-LOCAL_SRC_FILES := ../libs/deps/android-database-sqlcipher/libs/$(TARGET_ARCH_ABI)/libsqlcipher.so
+LOCAL_SRC_FILES := ../libs/deps/android-database-sqlcipher/jni/libs32/$(TARGET_ARCH_ABI)/libsqlcipher.so
 include $(PREBUILT_SHARED_LIBRARY)
 
 include $(CLEAR_VARS)

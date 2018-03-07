@@ -19,6 +19,15 @@ eclipse_projects/remote-desktop-clients-libs-*.tar.gz
 
 Opaque/jni/libs/deps/
 Opaque/jni/libs/tar/
+Opaque/gst-build-x86/
+Opaque/java/
+*/libs/sqlcipher-javadoc.jar
+*/libs/sqlcipher.jar
+*/libs/*/libgstreamer_android.so
+*/libs/*/libspice.so
+*/libs/*/libsqlcipher.so
+Opaque/src/main/assets/fontconfig/
+Opaque/src/main/assets/ssl/
 bVNC/debug/
 bVNC/gst-build-armeabi-v7a/
 bVNC/gst-build-x86/
