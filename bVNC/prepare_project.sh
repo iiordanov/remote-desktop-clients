@@ -61,8 +61,8 @@ then
   popd
 
   ${ANDROID_NDK}/ndk-build
-  ${ANDROID_SDK}/tools/android update project --target android-${FREERDP_ANDROID_TARGET} \
-                               -p jni/libs/deps/FreeRDP/client/Android/Studio/freeRDPCore/src/main
+  #${ANDROID_SDK}/tools/android update project --target android-${FREERDP_ANDROID_TARGET} \
+  #                             -p jni/libs/deps/FreeRDP/client/Android/Studio/freeRDPCore/src/main
 fi
 
 if [ -n "$BUILDING_DEPENDENCIES" ]

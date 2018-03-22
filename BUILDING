@@ -26,8 +26,6 @@ I-b. Building from scratch and working in Android Studio.
     - Set the environment variable PROJECT to one of bVNC, aSPICE, or aRDP.
       Set the environment variables ANDROID_SDK and ANDROID_NDK to your SDK and NDK respectively.
 
-      then run a build script. E.g.:
-
       export PROJECT=bVNC
       export ANDROID_NDK=/path/to/your/android/NDK/
       export ANDROID_SDK=/path/to/your/android/SDK/
@@ -35,6 +33,12 @@ I-b. Building from scratch and working in Android Studio.
       export PATH=$PATH:${ANDROID_NDK}
       export PATH=$PATH:${ANDROID_SDK}/platform-tools/
       export PATH=$PATH:${ANDROID_SDK}/tools
+
+    - Accept all licenses (repeat if you see an error during build)
+      ${ANDROID_SDK}/tools/bin/sdkmanager --licenses
+
+    - Then, run the build script. E.g.:
+
       ./eclipse_projects/bVNC/prepare_project.sh $PROJECT $ANDROID_NDK $ANDROID_SDK
 
     - Follow the instructions that the script outputs.

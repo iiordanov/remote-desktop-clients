@@ -551,14 +551,16 @@ build_sqlcipher() {
 	git reset --hard
 
         export ANDROID_NDK_ROOT="${ndkdir}"
+        export ANDROID_NDK_HOME="${ndkdir}"
         make init
+        make build
 
         rm -f libs/sqlcipher.jar
         make
         popd
     fi
     pushd ${sqlcipher_build}
-    rsync -a ./libs/ ../../../../../bVNC/libs/
+    rsync -a ./jni/libs32/ ../../../../../bVNC/libs/
     popd
     popd
 }
