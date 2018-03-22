@@ -71,8 +71,8 @@ then
   exit 0
 fi
 
-freerdp_libs_dir=jni/libs/deps/FreeRDP/client/Android/Studio/freeRDPCore/src/main/jniLibs
-freerdp_libs_link=jni/libs/deps/FreeRDP/client/Android/Studio/freeRDPCore/src/main/libs
+freerdp_libs_dir=../freeRDPCore/src/main/jniLibs
+freerdp_libs_link=../freeRDPCore/src/main/libs
 if [ "$PRJ" == "bVNC" -o "$PRJ" == "freebVNC" ]
 then
   clean_libs "sqlcipher" libs/
