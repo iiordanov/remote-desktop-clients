@@ -560,7 +560,7 @@ build_sqlcipher() {
         popd
     fi
     pushd ${sqlcipher_build}
-    rsync -a ./jni/libs32/ ../../../../../bVNC/libs/
+    rsync -a ./android-database-sqlcipher/src/main/libs/ ../../../../../bVNC/libs/
     popd
     popd
 }

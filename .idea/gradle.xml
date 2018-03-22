@@ -7,10 +7,10 @@
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
         <option name="modules">
           <set>
-            <option value="$PROJECT_DIR$" />
-            <option value="$PROJECT_DIR$/Opaque/jni/libs/deps/FreeRDP/client/Android/Studio/freeRDPCore" />
-            <option value="$PROJECT_DIR$/bVNC" />
-            <option value="$PROJECT_DIR$/pubkeyGenerator" />
+            <option value="/.." />
+            <option value="/../Opaque/jni/libs/deps/FreeRDP/client/Android/Studio/freeRDPCore" />
+            <option value="/../bVNC" />
+            <option value="/../pubkeyGenerator" />
           </set>
         </option>
         <option name="resolveModulePerSourceSet" value="false" />
