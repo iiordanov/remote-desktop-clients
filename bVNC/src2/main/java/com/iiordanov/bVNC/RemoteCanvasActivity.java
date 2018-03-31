@@ -260,7 +260,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
                     connection.setPort(parsedPort);
                     connection.setAddress(host.substring(0, host.indexOf(':')));
                 } catch (Exception e) {}
-              }
+            }
             
             if (connection.getPort() == 0)
                 connection.setPort(Constants.DEFAULT_PROTOCOL_PORT);
@@ -862,7 +862,6 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
             canvas.rfbconn.requestResolution(canvas.getWidth(), canvas.getHeight());
         }
     }
-
 
     @Override
     public void onConfigurationChanged(Configuration newConfig) {

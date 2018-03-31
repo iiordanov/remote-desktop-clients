@@ -97,7 +97,6 @@ public class aRDP extends MainConfiguration {
     public void onCreate(Bundle icicle) {
         layoutID = R.layout.main_rdp;
         super.onCreate(icicle);
-        
         ipText = (EditText) findViewById(R.id.textIP);
         sshServer = (EditText) findViewById(R.id.sshServer);
         sshPort = (EditText) findViewById(R.id.sshPort);

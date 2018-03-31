@@ -31,9 +31,13 @@ import java.io.Reader;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.lang.reflect.Field;
+import java.net.Inet4Address;
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 import org.xml.sax.SAXException;
 
@@ -55,6 +59,8 @@ import android.net.Uri;
 import android.text.Html;
 import android.util.Log;
 import android.view.ViewConfiguration;
+
+import jcifs.netbios.NbtAddress;
 
 public class Utils {
     private final static String TAG = "Utils";
@@ -287,6 +293,34 @@ public class Utils {
         editor.apply();
         Log.i(TAG, "Toggled " + key + " " + String.valueOf(state));
     }
-    
-    
+
+    public static boolean isDnsResolvable(String address) {
+        try {
+            InetAddress addr = InetAddress.getByName(address);
+            android.util.Log.e(TAG, "DNS is able to resolve address: " + addr.getHostAddress());
+            return true;
+        } catch (final UnknownHostException ex) {
+            return false;
+        }
+    }
+
+    public static boolean isNetBiosResolvable(String address) {
+        try {
+            NbtAddress nbtAddress = NbtAddress.getByName(address);
+            android.util.Log.e(TAG, "NetBios is able to resolve address: " + nbtAddress.getHostAddress());
+            return true;
+        } catch (final UnknownHostException ex) {
+            return false;
+        }
+    }
+
+    public static String resolveNetbiosAddress(String address) {
+        String ip = null;
+        try {
+            NbtAddress nbtAddress = NbtAddress.getByName(address);
+            ip = nbtAddress.getHostAddress();
+            android.util.Log.e(TAG, "NetBIOS resolved address: " + nbtAddress.getHostAddress());
+        } catch (final UnknownHostException e) {}
+        return ip;
+    }
 }

@@ -32,6 +32,7 @@ package com.iiordanov.bVNC;
 
 import java.io.IOException;
 import java.net.Socket;
+import java.net.UnknownHostException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
@@ -367,6 +368,7 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
      * @throws Exception
      */
     private void startRdpConnection() throws Exception {
+
         // Get the address and port (based on whether an SSH tunnel is being established or not).
         String address = getAddress();
         int rdpPort = getPort(connection.getPort());
@@ -644,16 +646,35 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
 
 
     /**
-     * Returns localhost if using SSH tunnel or saved VNC address.
+     * Returns localhost if using SSH tunnel or saved VNC address with NetBios
      *
      * @return
-     * @throws Exception
      */
     String getAddress() {
         if (connection.getConnectionType() == Constants.CONN_TYPE_SSH) {
+            android.util.Log.d(TAG, "SSH-tunnelled connection, proto address is 127.0.0.1");
             return new String("127.0.0.1");
-        } else
-            return connection.getAddress();
+        } else {
+            String address = connection.getAddress();
+            String ip = null;
+
+            if (address.startsWith("\\\\")) {
+                android.util.Log.d(TAG, "NetBios resolution forced via \\\\ prefix.");
+                address = address.substring(2);
+                ip = Utils.resolveNetbiosAddress(address);
+            } else if (!Utils.isDnsResolvable(address)) {
+                android.util.Log.d(TAG, "DNS resolution failed, trying NetBios.");
+                ip = Utils.resolveNetbiosAddress(address);
+            }
+
+            if (ip != null) {
+                android.util.Log.d(TAG, "Returning IP resolved via NetBios: " + ip);
+                return ip;
+            } else {
+                android.util.Log.d(TAG, "Returning original address.");
+                return address;
+            }
+        }
     }
 
 

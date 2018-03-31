@@ -24,6 +24,7 @@ dependencies {
     compile project(':pubkeyGenerator')
     compile project(':freeRDPCore')
     compile 'com.android.support:appcompat-v7:25.3.1'
+    compile 'jcifs:jcifs:1.3.17'
     compile files('libs/com.antlersoft.android.contentxml.jar')
     compile files('libs/com.antlersoft.android.db.jar')
     compile files('libs/sqlcipher-javadoc.jar')
