@@ -37,6 +37,7 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.res.ColorStateList;
+import android.content.res.XmlResourceParser;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.util.AttributeSet;
@@ -67,14 +68,17 @@ public class SelectTextElementFragment extends DialogFragment {
 	LinearLayout verticalLayout;
 	
 	String selected = "";
-    
-	public SelectTextElementFragment (OnFragmentDismissedListener dismissalListener) {
+
+	public SelectTextElementFragment () {}
+
+	public void setOnFragmentDismissedListener (OnFragmentDismissedListener dismissalListener) {
 		this.dismissalListener = dismissalListener;
 	}
-    
-    public static SelectTextElementFragment newInstance(String title, ArrayList<String> strings, OnFragmentDismissedListener dismissalListener) {
+
+	public static SelectTextElementFragment newInstance(String title, ArrayList<String> strings, OnFragmentDismissedListener dismissalListener) {
     	android.util.Log.e(TAG, "newInstance called");
-    	SelectTextElementFragment f = new SelectTextElementFragment(dismissalListener);
+    	SelectTextElementFragment f = new SelectTextElementFragment();
+    	f.setOnFragmentDismissedListener(dismissalListener);
 
         Bundle args = new Bundle();
         args.putStringArrayList("strings", strings);
@@ -98,8 +102,8 @@ public class SelectTextElementFragment extends DialogFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     	android.util.Log.e(TAG, "onCreateView called");
 
-    	XmlPullParser parser = getResources().getXml(R.layout.textelement);
-    	AttributeSet attributes = Xml.asAttributeSet(parser);
+		XmlResourceParser parser = getResources().getLayout(R.layout.textelement);
+		AttributeSet attributes = Xml.asAttributeSet(parser);
 
     	// Set title for this dialog
     	getDialog().setTitle(title);

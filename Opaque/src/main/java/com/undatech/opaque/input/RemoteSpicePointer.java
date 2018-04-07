@@ -114,10 +114,10 @@ public class RemoteSpicePointer implements RemotePointer {
 	 * Move mouse pointer to specified coordinates.
 	 */
 	public void movePointer(int x, int y) {
-		canvas.reDrawRemotePointer();
+		canvas.reDrawRemotePointer(x, y);
 		pointerX=x;
 		pointerY=y;
-		canvas.reDrawRemotePointer();
+		canvas.reDrawRemotePointer(x, y);
 		moveMouseButtonUp (x, y, 0);
 	}
 	
@@ -244,11 +244,11 @@ public class RemoteSpicePointer implements RemotePointer {
 			}
 			prevPointerMask = pointerMask;
 		}
-		
-		canvas.reDrawRemotePointer();
+
+		canvas.reDrawRemotePointer(x, y);
 	    pointerX = x;
 	    pointerY = y;
-	    
+
 	    // Do not let mouse pointer leave the bounds of the desktop.
 	    if ( pointerX < 0) {
 	    	pointerX = 0;
@@ -260,7 +260,7 @@ public class RemoteSpicePointer implements RemotePointer {
 	    } else if ( pointerY >= canvas.getDesktopHeight()) {
 	    	pointerY = spicecomm.framebufferHeight() - 1;
 	    }
-	    canvas.reDrawRemotePointer();
+	    canvas.reDrawRemotePointer(x, y);
 	    
 	    spicecomm.sendPointerEvent(pointerX, pointerY, combinedMetaState, pointerMask);
 	}

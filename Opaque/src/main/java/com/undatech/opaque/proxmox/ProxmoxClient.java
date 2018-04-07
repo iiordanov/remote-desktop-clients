@@ -16,7 +16,6 @@ import java.util.Map;
 import javax.security.auth.login.LoginException;
 
 import org.apache.http.HttpException;
-import org.apache.http.conn.HttpHostConnectException;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;

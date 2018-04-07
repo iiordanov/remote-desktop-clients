@@ -32,7 +32,6 @@ public class CanvasDrawableContainer extends DrawableContainer {
 	
 	// Soft cursor related variables
 	private RectF cursorRect;
-	private int hotX, hotY;
 	private Bitmap softCursor;
 	private boolean softCursorInit = false;
 	
@@ -73,17 +72,15 @@ public class CanvasDrawableContainer extends DrawableContainer {
 		} catch (Throwable e) { }
 	}
 
-	void setCursorRect(int x, int y, float w, float h, int hX, int hY) {
-		hotX = hX;
-		hotY = hY;
-		cursorRect.left   = x - hotX;
+	void setCursorRect(int x, int y, float w, float h) {
+		cursorRect.left   = x;
 		cursorRect.right  = cursorRect.left + w;
-		cursorRect.top    = y - hotY;
+		cursorRect.top    = y;
 		cursorRect.bottom = cursorRect.top + h;
 	}
 	
 	void moveCursorRect(int x, int y) {
-		setCursorRect(x, y, cursorRect.width(), cursorRect.height(), hotX, hotY);
+		cursorRect.offsetTo(x, y);
 	}
 
 	void setSoftCursor (int[] newSoftCursorPixels) {

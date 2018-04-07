@@ -843,13 +843,13 @@ public class RemoteCanvas extends ImageView {
 		postInvalidate ((int)((shiftedX-1.f)*scale),   (int)((shiftedY-1.f)*scale),
 						(int)((shiftedX+w+1.f)*scale), (int)((shiftedY+h+1.f)*scale));
 	}
-	
+
 	/**
 	 * Redraws the location of the remote pointer.
 	 */
-	public void reDrawRemotePointer() {
+	public void reDrawRemotePointer(int x, int y) {
 		if (myDrawable != null) {
-			myDrawable.moveCursorRect(pointer.getX(), pointer.getY());
+			myDrawable.moveCursorRect(x, y);
 			RectF r = myDrawable.getCursorRect();
 			reDraw(r.left, r.top, r.width(), r.height());
 		}
@@ -862,7 +862,7 @@ public class RemoteCanvas extends ImageView {
 	 */
 
     synchronized void softCursorMove(int x, int y) {
-    	if (myDrawable.isNotInitSoftCursor()) {
+        if (myDrawable.isNotInitSoftCursor()) {
     		initializeSoftCursor();
     	}
     	
@@ -886,7 +886,7 @@ public class RemoteCanvas extends ImageView {
 		int [] tempPixels = new int[w*h];
 		bm.getPixels(tempPixels, 0, w, 0, 0, w, h);
     	// Set cursor rectangle as well.
-		myDrawable.setCursorRect(pointer.getX(), pointer.getY(), w, h, 0, 0);
+		myDrawable.setCursorRect(pointer.getX(), pointer.getY(), w, h);
     	// Set softCursor to whatever the resource is.
 		myDrawable.setSoftCursor (tempPixels);
 		bm.recycle();

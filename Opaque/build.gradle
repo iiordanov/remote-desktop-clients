@@ -1,0 +1,53 @@
+apply plugin: 'com.android.application'
+
+// Top-level build file where you can add configuration options common to all sub-projects/modules.
+buildscript {
+    repositories {
+        jcenter()
+        google()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:3.0.1'
+    }
+}
+
+allprojects {
+    repositories {
+        jcenter()
+    }
+}
+
+android {
+    compileSdkVersion 25
+    buildToolsVersion "26.0.2"
+    useLibrary 'org.apache.http.legacy'
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+        }
+    }
+
+    sourceSets {
+        main.java.srcDirs += 'src/main/java'
+    }
+
+    sourceSets.main {
+        jniLibs.srcDirs += ['src/main/jniLibs']
+    }
+
+    packagingOptions {
+        exclude 'META-INF/DEPENDENCIES'
+    }
+}
+
+dependencies {
+    compile 'com.android.support:appcompat-v7:25.3.1'
+    //compile 'com.android.support:appcompat-v7:22.2.0'
+    //compile files ('libs/httpcore-4.4.4.jar')
+    //compile files ('libs/httpclient-4.5.2.jar')
+    //compile 'org.apache.httpcomponents:httpclient:4.5.5'
+    compile 'org.apache.httpcomponents:httpcore:4.4.9'
+}
+

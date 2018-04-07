@@ -3,7 +3,7 @@
 SKIP_BUILD=false
 
 usage () {
-  echo "$0 Opaque /path/to/your/android/ndk"
+  echo "Usage: $0 Opaque /path/to/your/android/ndk /path/to/your/android/sdk"
   exit 1
 }
 
