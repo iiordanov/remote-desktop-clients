@@ -260,6 +260,8 @@ public class SpiceCommunicator {
 	}
 	
 	public void sendMouseEvent (int x, int y, int metaState, int pointerMask) {
+		//android.util.Log.e(TAG, "sendMouseEvent: " + x +"x" + y + "," + "metaState: " +
+		//		           metaState + ", pointerMask: " + pointerMask);
 		SpiceButtonEvent(x, y, metaState, pointerMask);
 	}
 

@@ -169,7 +169,7 @@ public abstract class RemotePointer {
     abstract public void scrollLeft      (int x, int y, int metaState);
     abstract public void scrollRight     (int x, int y, int metaState);
     abstract public void releaseButton   (int x, int y, int metaState);
-    abstract public void moveMouseButton (int x, int y, int metaState);
+    abstract public void moveMouse       (int x, int y, int metaState);
     abstract public void moveMouseButtonDown (int x, int y, int metaState);
     abstract public void moveMouseButtonUp   (int x, int y, int metaState);
 }

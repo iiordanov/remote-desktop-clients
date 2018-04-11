@@ -198,8 +198,9 @@ public class RemoteSpicePointer implements RemotePointer {
 	}
 
 	@Override
-	public void moveMouseButton (int x, int y, int metaState) {
+	public void moveMouse (int x, int y, int metaState) {
 		pointerMask = prevPointerMask;
+		prevPointerMask = 0;
 		sendPointerEvent (x, y, metaState, true);
 	}
 
@@ -238,7 +239,7 @@ public class RemoteSpicePointer implements RemotePointer {
 		if (!isMoving) {
 			// If this is a new mouse down event, release previous button pressed to avoid confusing the remote OS.
 			if (prevPointerMask != 0 && prevPointerMask != pointerMask) {
-				spicecomm.sendPointerEvent(pointerX, pointerY, 
+				spicecomm.sendPointerEvent(pointerX, pointerY,
 											combinedMetaState,
 											prevPointerMask & ~POINTER_DOWN_MASK);
 			}

@@ -86,7 +86,7 @@ public class RemoteVncPointer extends RemotePointer {
     }
 
     @Override
-    public void moveMouseButton (int x, int y, int metaState) {
+    public void moveMouse (int x, int y, int metaState) {
         pointerMask = prevPointerMask;
         sendPointerEvent (x, y, metaState, true);
     }

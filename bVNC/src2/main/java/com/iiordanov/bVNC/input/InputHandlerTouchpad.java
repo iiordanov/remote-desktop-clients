@@ -92,8 +92,9 @@ public class InputHandlerTouchpad extends InputHandlerGeneric {
 			// to stick a spiteful onScroll with a MASSIVE delta here. 
 			// This would cause the mouse pointer to jump to another place suddenly.
 			// Hence, we ignore onScroll after scaling until we lift all pointers up.
-			if (twoFingers||inSwiping||scalingJustFinished)
+			if (twoFingers||inSwiping||scalingJustFinished) {
 				return true;
+			}
 	
 			activity.showToolbar();
 	
@@ -128,7 +129,7 @@ public class InputHandlerTouchpad extends InputHandlerGeneric {
 			int newX = (int) (p.getX() + getDelta(-distanceX));
 			int newY = (int) (p.getY() + getDelta(-distanceY));
 
-	        p.moveMouseButton(newX, newY, meta);
+			p.moveMouse(newX, newY, meta);
         }
     	canvas.movePanToMakePointerVisible();
     	return true;
