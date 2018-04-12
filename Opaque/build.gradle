@@ -19,7 +19,7 @@ allprojects {
 }
 
 android {
-    compileSdkVersion 25
+    compileSdkVersion 26
     buildToolsVersion "26.0.2"
     useLibrary 'org.apache.http.legacy'
 
@@ -44,7 +44,7 @@ android {
 }
 
 dependencies {
-    compile 'com.android.support:appcompat-v7:25.4.0'
+    compile 'com.android.support:appcompat-v7:26.1.0'
     //compile 'org.apache.httpcomponents:httpclient:4.5.5'
     compile 'org.apache.httpcomponents:httpcore:4.4.9'
 }

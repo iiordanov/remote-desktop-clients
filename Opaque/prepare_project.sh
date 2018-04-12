@@ -3,7 +3,7 @@
 SKIP_BUILD=false
 
 usage () {
-  echo "Usage: $0 Opaque /path/to/your/android/ndk /path/to/your/android/sdk"
+  echo "Usage: $0 Opaque|libs /path/to/your/android/ndk /path/to/your/android/sdk"
   exit 1
 }
 
@@ -33,10 +33,16 @@ PRJ="$1"
 export ANDROID_NDK="$2"
 export ANDROID_SDK="$3"
 
-if [ "$PRJ" != "Opaque" -o "$ANDROID_NDK" == "" \
-  -o "$ANDROID_SDK" == "" ]
+if [ "$PRJ" != "Opaque" -o "$PRJ" != "libs" \
+  -o "$ANDROID_NDK" == "" -o "$ANDROID_SDK" == "" ]
 then
   usage
+fi
+
+if [ "$PRJ" == "libs" ]
+then
+  PRJ=Opaque
+  BUILDING_DEPENDENCIES=true
 fi
 
 if [ "$SKIP_BUILD" == "false" ]
@@ -46,6 +52,12 @@ then
   popd
 
   ndk-build
+fi
+
+if [ -n "$BUILDING_DEPENDENCIES" ]
+then
+  echo "Done building libraries"
+  exit 0
 fi
 
 popd
