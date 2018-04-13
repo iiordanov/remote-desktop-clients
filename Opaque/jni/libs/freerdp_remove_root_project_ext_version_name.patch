@@ -1,0 +1,12 @@
+diff --git a/client/Android/Studio/freeRDPCore/build.gradle b/client/Android/Studio/freeRDPCore/build.gradle
+index ed5bc7d..430e602 100644
+--- a/client/Android/Studio/freeRDPCore/build.gradle
++++ b/client/Android/Studio/freeRDPCore/build.gradle
+@@ -9,7 +9,6 @@ android {
+         targetSdkVersion 27
+         vectorDrawables.useSupportLibrary = true
+         versionCode = 12
+-        versionName = rootProject.ext.versionName
+     }
+ 
+     buildTypes {

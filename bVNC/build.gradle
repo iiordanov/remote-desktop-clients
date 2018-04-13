@@ -1,8 +1,8 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 25
-    buildToolsVersion "26.0.2"
+    compileSdkVersion 27
+    buildToolsVersion "27.0.3"
 
     buildTypes {
         release {
@@ -23,7 +23,7 @@ android {
 dependencies {
     compile project(':pubkeyGenerator')
     compile project(':freeRDPCore')
-    compile 'com.android.support:appcompat-v7:25.3.1'
+    compile 'com.android.support:appcompat-v7:27.1.1'
     compile files('libs/com.antlersoft.android.contentxml.jar')
     compile files('libs/com.antlersoft.android.db.jar')
     compile files('libs/sqlcipher-javadoc.jar')

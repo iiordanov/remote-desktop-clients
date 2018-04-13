@@ -1,0 +1,13 @@
+diff --git a/client/Android/Studio/freeRDPCore/src/main/java/com/freerdp/freerdpcore/application/GlobalApp.java b/client/Android/Studio/freeRDPCore/src/main/java/com/freerdp/freerdpcore/application/GlobalApp.java
+index ce6c4d8..085dd40 100644
+--- a/client/Android/Studio/freeRDPCore/src/main/java/com/freerdp/freerdpcore/application/GlobalApp.java
++++ b/client/Android/Studio/freeRDPCore/src/main/java/com/freerdp/freerdpcore/application/GlobalApp.java
+@@ -44,7 +44,7 @@ public class GlobalApp extends Application implements LibFreeRDP.EventListener {
+     public static final int FREERDP_EVENT_DISCONNECTED = 3;
+     private static final String TAG = "GlobalApp";
+     public static boolean ConnectedTo3G = false;
+-    private static Map<Long, SessionState> sessionMap;
++    private static Map<Long, SessionState> sessionMap = Collections.synchronizedMap(new HashMap<Long, SessionState>());
+     private static BookmarkDB bookmarkDB;
+     private static ManualBookmarkGateway manualBookmarkGateway;
+ 

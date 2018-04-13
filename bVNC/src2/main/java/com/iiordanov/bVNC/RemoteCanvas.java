@@ -426,7 +426,7 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
         session.setUIEventListener(RemoteCanvas.this);
         LibFreeRDP.setEventListener(RemoteCanvas.this);
 
-        session.connect();
+        session.connect(this.getContext());
         pd.dismiss();
     }
 

@@ -520,8 +520,8 @@ build_freerdp() {
         # Something wrong with NDK?
         sed -i 's/static int pthread_mutex_timedlock/int pthread_mutex_timedlock/' winpr/libwinpr/synch/wait.c
 
-        patch -p0 < "${basedir}/../freerdp_drive-file.patch"
-        patch -p1 < "${basedir}/../freerdp_cmakelists.patch"
+        patch -p1 < "${basedir}/../freerdp_initialize_session_map.patch"
+        patch -p1 < "${basedir}/../freerdp_remove_root_project_ext_version_name.patch"
 
         export ANDROID_NDK="${ndkdir}"
         ./scripts/android-build-freerdp.sh
@@ -529,7 +529,6 @@ build_freerdp() {
         # Prepare the FreeRDPCore project for importing into Eclipse
         rm -f ../../../../../FreeRDP
         ln -s Opaque/jni/libs/deps/${freerdp_build} ../../../../../FreeRDP
-        ln -s jniLibs client/Android/Studio/freeRDPCore/src/main/libs
         ln -s java client/Android/Studio/freeRDPCore/src/main/src
     fi
     popd
