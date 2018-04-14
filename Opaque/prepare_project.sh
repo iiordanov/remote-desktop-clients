@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -e
 
 SKIP_BUILD=false
 
@@ -33,7 +33,7 @@ PRJ="$1"
 export ANDROID_NDK="$2"
 export ANDROID_SDK="$3"
 
-if [ "$PRJ" != "Opaque" -o "$PRJ" != "libs" \
+if [ "$PRJ" != "Opaque" -a "$PRJ" != "libs" \
   -o "$ANDROID_NDK" == "" -o "$ANDROID_SDK" == "" ]
 then
   usage

@@ -264,7 +264,8 @@ build_one() {
                 --disable-crywrap \
                 --without-p11-kit \
                 --disable-doc \
-                --disable-tests
+                --disable-tests \
+                --with-included-unistring
         make $parallel
         make install
 
@@ -273,7 +274,8 @@ build_one() {
                 --disable-crywrap \
                 --without-p11-kit \
                 --disable-doc \
-                --disable-tests
+                --disable-tests \
+                --with-included-unistring
         make $parallel
         make install
         ;;
@@ -503,7 +505,7 @@ build_freerdp() {
         pushd ${freerdp_build}
         git fetch
         git checkout ${freerdp_ver}
-        git reset --hard
+#        git reset --hard
 
         # Patch the config
         sed -i -e 's/CMAKE_BUILD_TYPE=.*/CMAKE_BUILD_TYPE=Release/'\
@@ -520,8 +522,12 @@ build_freerdp() {
         # Something wrong with NDK?
         sed -i 's/static int pthread_mutex_timedlock/int pthread_mutex_timedlock/' winpr/libwinpr/synch/wait.c
 
-        patch -p1 < "${basedir}/../freerdp_initialize_session_map.patch"
-        patch -p1 < "${basedir}/../freerdp_remove_root_project_ext_version_name.patch"
+        if [ ! -f "FREERDP_PATCHED" ]
+        then
+            patch -p1 < "${basedir}/../freerdp_initialize_session_map.patch"
+            patch -p1 < "${basedir}/../freerdp_remove_root_project_ext_version_name.patch"
+            touch FREERDP_PATCHED
+        fi
 
         export ANDROID_NDK="${ndkdir}"
         ./scripts/android-build-freerdp.sh
@@ -529,7 +535,6 @@ build_freerdp() {
         # Prepare the FreeRDPCore project for importing into Eclipse
         rm -f ../../../../../FreeRDP
         ln -s Opaque/jni/libs/deps/${freerdp_build} ../../../../../FreeRDP
-        ln -s java client/Android/Studio/freeRDPCore/src/main/src
     fi
     popd
 }
