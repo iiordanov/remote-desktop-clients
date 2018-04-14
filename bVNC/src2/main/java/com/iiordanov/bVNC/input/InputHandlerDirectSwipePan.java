@@ -118,7 +118,7 @@ public class InputHandlerDirectSwipePan extends InputHandlerGeneric {
 			if (e2 != null)
 				twoFingers = twoFingers || (e2.getPointerCount() > 1);
 	
-			if (twoFingers||inSwiping||scalingJustFinished)
+			if (twoFingers||inSwiping)
 				return true;
 		}
 

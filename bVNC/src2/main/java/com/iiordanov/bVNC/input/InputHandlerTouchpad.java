@@ -92,7 +92,7 @@ public class InputHandlerTouchpad extends InputHandlerGeneric {
 			// to stick a spiteful onScroll with a MASSIVE delta here. 
 			// This would cause the mouse pointer to jump to another place suddenly.
 			// Hence, we ignore onScroll after scaling until we lift all pointers up.
-			if (twoFingers||inSwiping||scalingJustFinished) {
+			if (twoFingers||inSwiping) {
 				return true;
 			}
 	

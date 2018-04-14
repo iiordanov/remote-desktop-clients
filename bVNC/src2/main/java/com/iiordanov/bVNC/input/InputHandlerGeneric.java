@@ -469,7 +469,7 @@ abstract class InputHandlerGeneric extends GestureDetector.SimpleOnGestureListen
     			}
     			break;
         	case MotionEvent.ACTION_MOVE:
-                // Send scroll up/down events if swiping is happening.
+				// Send scroll up/down events if swiping is happening.
                 if (panMode) {
                 	float scale = canvas.getZoomFactor();
             		canvas.relativePan(-(int)((e.getX() - dragX)*scale), -(int)((e.getY() - dragY)*scale));
