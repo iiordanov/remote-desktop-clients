@@ -539,36 +539,6 @@ build_freerdp() {
     popd
 }
 
-build_sqlcipher() {
-    pushd deps
-    if [ ! -f ${sqlcipher_build}/${sqlcipher_artifacts} ]
-    then
-
-        if [ ! -d ${sqlcipher_build} ]
-        then
-            git clone ${sqlcipher_url}
-        fi
-
-        pushd ${sqlcipher_build}
-        git fetch
-        git checkout v${sqlcipher_ver}
-	git reset --hard
-
-        export ANDROID_NDK_ROOT="${ndkdir}"
-        export ANDROID_NDK_HOME="${ndkdir}"
-        make init
-        make build
-
-        rm -f libs/sqlcipher.jar
-        make
-        popd
-    fi
-    pushd ${sqlcipher_build}
-    rsync -a ./android-database-sqlcipher/src/main/libs/ ../../../../../bVNC/libs/
-    popd
-    popd
-}
-
 
 # Set up error handling
 trap fail_handler ERR
@@ -601,7 +571,6 @@ build)
     do
         build "$curabi"
     done
-    build_sqlcipher
     build_freerdp
 
     echo

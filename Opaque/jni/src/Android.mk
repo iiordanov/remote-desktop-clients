@@ -3,12 +3,6 @@ COMMON_ROOT	:= ../libs/deps/$(TARGET_ARCH_ABI)
 PREBUILT_ROOT   := $(COMMON_ROOT)/root
 GSTREAMER_ROOT  := $(COMMON_ROOT)/gstreamer
 
-# Add prebuilt libraries to avoid deletion.
-include $(CLEAR_VARS)
-LOCAL_MODULE := libsqlcipher
-LOCAL_SRC_FILES := ../libs/deps/android-database-sqlcipher/android-database-sqlcipher/src/main/libs/$(TARGET_ARCH_ABI)/libsqlcipher.so
-include $(PREBUILT_SHARED_LIBRARY)
-
 include $(CLEAR_VARS)
 LOCAL_MODULE            := iconv
 LOCAL_SRC_FILES         := $(GSTREAMER_ROOT)/lib/libiconv.a

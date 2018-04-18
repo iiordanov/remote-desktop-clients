@@ -19,13 +19,9 @@ android {
     sourceSets {
         main.java.srcDirs += 'src2/main/java'
     }
-
 }
 
 dependencies {
-    compile files('libs/bcpkix-jdk15on-1.48.jar')
-    compile files('libs/bcprov-jdk15on-1.48.jar')
-    compile files('libs/ecc-25519-java-1.0.3.jar')
-    compile files('libs/eddsa-0.1.0.jar')
-    compile files('libs/sshlib-2.2.5-20170115.082822-13.jar')
+    compile 'com.jcraft:jzlib:1.1.3'
+    compile 'org.connectbot:sshlib:2.2.5'
 }

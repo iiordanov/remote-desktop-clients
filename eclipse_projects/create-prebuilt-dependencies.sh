@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -e
 
 DIR=$(dirname $0)
 pushd $DIR
@@ -12,9 +12,9 @@ then
   exit 1
 fi
 
-./bVNC/prepare_project.sh libs "${ANDROID_NDK}" "${ANDROID_SDK}"
-./Opaque/prepare_project.sh libs "${ANDROID_NDK}" "${ANDROID_SDK}"
-tar cvzf remote-desktop-clients-libs-${DEPVER}.tar.gz Opaque/libs bVNC/libs FreeRDP/client/Android/Studio/freeRDPCore/
+#./bVNC/prepare_project.sh libs "${ANDROID_NDK}" "${ANDROID_SDK}"
+#./Opaque/prepare_project.sh libs "${ANDROID_NDK}" "${ANDROID_SDK}"
+tar czf remote-desktop-clients-libs-${DEPVER}.tar.gz Opaque/libs bVNC/libs FreeRDP/client/Android/Studio/freeRDPCore/
 
 echo "Done creating new dependencies archive."
 popd

@@ -19,9 +19,6 @@
  */
 
 package com.iiordanov.bVNC;
-
-import org.bouncycastle.jcajce.provider.symmetric.AES.OFB;
-
 import android.graphics.Matrix;
 import android.util.Log;
 import android.widget.Toast;
