@@ -1,5 +1,6 @@
 v4.0.0
 - Input mode bugfixes
+- FreeRDP bugfixes
 - Security and protocol library updates
 v3.9.9
 - Fix for IMEs that use META_SHIFT_ON

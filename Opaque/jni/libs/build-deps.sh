@@ -505,7 +505,7 @@ build_freerdp() {
         pushd ${freerdp_build}
         git fetch
         git checkout ${freerdp_ver}
-#        git reset --hard
+        git reset --hard
 
         # Patch the config
         sed -i -e 's/CMAKE_BUILD_TYPE=.*/CMAKE_BUILD_TYPE=Release/'\
@@ -524,8 +524,9 @@ build_freerdp() {
 
         if [ ! -f "FREERDP_PATCHED" ]
         then
-            patch -p1 < "${basedir}/../freerdp_initialize_session_map.patch"
-            patch -p1 < "${basedir}/../freerdp_remove_root_project_ext_version_name.patch"
+            patch -n -p1 < "${basedir}/../freerdp_initialize_session_map.patch"
+            patch -n -p1 < "${basedir}/../freerdp_remove_root_project_ext_version_name.patch"
+            patch -n -p1 < "${basedir}/../freerdp_wait_for_single_object_infinite.patch"
             touch FREERDP_PATCHED
         fi
 
