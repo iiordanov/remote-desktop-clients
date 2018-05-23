@@ -1,0 +1,21 @@
+diff --git a/client/Android/android_freerdp.c b/client/Android/android_freerdp.c
+index 8a8cc88..0eca15e 100644
+--- a/client/Android/android_freerdp.c
++++ b/client/Android/android_freerdp.c
+@@ -56,6 +56,7 @@
+ 
+ /* Defines the JNI version supported by this library. */
+ #define FREERDP_JNI_VERSION "2.0.0"
++#define WAIT_FOR_SINGLE_OBJECT_TIMEOUT 100
+ 
+ static void android_OnChannelConnectedEventHandler(
+     void* context,
+@@ -619,7 +620,7 @@ disconnect:
+ 
+ 	if (async_input && inputThread)
+ 	{
+-		WaitForSingleObject(inputThread, INFINITE);
++		WaitForSingleObject(inputThread, WAIT_FOR_SINGLE_OBJECT_TIMEOUT);
+ 		CloseHandle(inputThread);
+ 	}
+ 
