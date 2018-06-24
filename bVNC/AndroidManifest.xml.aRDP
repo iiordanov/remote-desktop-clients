@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           xmlns:tools="http://schemas.android.com/tools"
           package="com.iiordanov.aRDP" android:installLocation="auto"
-          android:versionCode="114003" android:versionName="v4.0.0">
+          android:versionCode="114010" android:versionName="v4.0.1">
 
     <uses-sdk android:minSdkVersion="21" android:targetSdkVersion="21"></uses-sdk>
     <uses-permission
@@ -30,7 +30,7 @@
                           android:screenOrientation="unspecified"
                           android:configChanges="orientation|keyboardHidden"
                           android:windowSoftInputMode="stateHidden|adjustResize"
-                          android:theme="@android:style/Theme.DeviceDefault"
+                          android:theme="@style/AppThemeWithToolbar"
                           android:resizeableActivity="true">
                         <intent-filter>
                                 <action android:name="android.intent.action.MAIN"></action>
@@ -71,7 +71,7 @@
                 <activity android:name="com.iiordanov.bVNC.ConnectionListActivity"
                           android:label="@string/shortcut_label"
                           android:windowSoftInputMode="stateHidden|adjustResize"
-                          android:theme="@android:style/Theme.DeviceDefault"
+                          android:theme="@style/AppThemeWithToolbar"
                           android:resizeableActivity="true">
                        <intent-filter>
                                 <action android:name="android.intent.action.CREATE_SHORTCUT" />
@@ -83,7 +83,7 @@
                   android:windowSoftInputMode="stateHidden|adjustResize"
                   android:screenOrientation="unspecified"
                   tools:replace="android:screenOrientation"
-                  android:theme="@android:style/Theme.DeviceDefault"
+                  android:theme="@style/AppThemeWithToolbar"
                   android:resizeableActivity="true"/>
                 <uses-library android:required="false" android:name="com.sec.android.app.multiwindow"> </uses-library>
                 <meta-data android:name="com.sec.android.support.multiwindow"
