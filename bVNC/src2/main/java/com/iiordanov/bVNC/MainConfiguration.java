@@ -154,9 +154,6 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
         Log.i(TAG, "onStop called");
         if (database != null)
             database.close();
-        if ( selected == null ) {
-            return;
-        }
     }
     
     @Override
@@ -170,8 +167,10 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
         } else {
             isConnecting = false;
         }
-        updateSelectedFromView();
-        selected.saveAndWriteRecent(false, database);
+        if (selected != null) {
+            updateSelectedFromView();
+            selected.saveAndWriteRecent(false, database);
+        }
     }
     
     @Override
