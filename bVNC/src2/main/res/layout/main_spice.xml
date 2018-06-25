@@ -23,6 +23,8 @@ android:layout_height="fill_parent">
 		<Button 
 			android:id="@+id/buttonGO" 
 			android:text="@string/connect_button"
+			android:background="#444444"
+			android:textColor="#dddddd"
 			android:textAppearance="?android:attr/textAppearanceMedium"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"

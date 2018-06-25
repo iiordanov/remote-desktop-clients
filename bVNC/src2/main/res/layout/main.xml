@@ -29,6 +29,8 @@
                 android:layout_weight="0"
                 android:singleLine="true"
                 android:text="@string/connect_button"
+                android:background="#444444"
+                android:textColor="#dddddd"
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:textSize="22sp" />
         </LinearLayout>

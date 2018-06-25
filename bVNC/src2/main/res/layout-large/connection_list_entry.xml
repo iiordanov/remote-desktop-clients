@@ -4,8 +4,8 @@
    	android:id="@+id/list_entry"
   	android:layout_width="fill_parent"
   	android:layout_height="fill_parent"
-  	android:textSize="30sp"
-  	android:padding="3sp"
-  	android:textColor="#999"
+  	android:textSize="20dp"
+  	android:padding="1dp"
+	android:textColor="#000"
   	android:singleLine="true"
   	/>
