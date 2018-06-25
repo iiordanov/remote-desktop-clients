@@ -1,3 +1,6 @@
+v4.0.1
+- Text contrast fix for certain devices
+- Targeting new APIs 
 v4.0.0
 - Input mode bugfixes
 - Security and protocol library updates
