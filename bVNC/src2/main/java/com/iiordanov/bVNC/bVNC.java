@@ -21,10 +21,14 @@
 
 package com.iiordanov.bVNC;
 
+import android.Manifest;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.AdapterView;
@@ -197,14 +201,6 @@ public class bVNC extends MainConfiguration {
             }
         });
 
-        // Define what happens when the Import/Export button is pressed.
-        ((Button) findViewById(R.id.buttonImportExport)).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showDialog(R.layout.importexport);
-            }
-        });
-
         colorSpinner = (Spinner) findViewById(R.id.colorformat);
         COLORMODEL[] models = COLORMODEL.values();
         ArrayAdapter<COLORMODEL> colorSpinnerAdapter = new ArrayAdapter<COLORMODEL>(this, R.layout.connection_list_entry, models);
@@ -222,10 +218,11 @@ public class bVNC extends MainConfiguration {
         goButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (ipText.getText().length() != 0 && portText.getText().length() != 0)
+                if (ipText.getText().length() != 0 && portText.getText().length() != 0) {
                     canvasStart();
-                else
+                } else {
                     Toast.makeText(view.getContext(), R.string.vnc_server_empty, Toast.LENGTH_LONG).show();
+                }
             }
         });
 
@@ -248,6 +245,7 @@ public class bVNC extends MainConfiguration {
         });
         repeaterText = (TextView) findViewById(R.id.textRepeaterId);
     }
+
 
     /**
      * Makes the ssh-related widgets visible/invisible.

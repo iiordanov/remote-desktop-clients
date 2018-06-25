@@ -146,10 +146,11 @@ public class aRDP extends MainConfiguration {
         goButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (ipText.getText().length() != 0 && portText.getText().length() != 0)
+                if (ipText.getText().length() != 0 && portText.getText().length() != 0) {
                     canvasStart();
-                else
+                } else {
                     Toast.makeText(view.getContext(), R.string.rdp_server_empty, Toast.LENGTH_LONG).show();
+                }
             }
         });
         
@@ -192,15 +193,6 @@ public class aRDP extends MainConfiguration {
         checkboxWindowContents = (CheckBox)findViewById(R.id.checkboxWindowContents);
         checkboxMenuAnimation = (CheckBox)findViewById(R.id.checkboxMenuAnimation);
         checkboxVisualStyles = (CheckBox)findViewById(R.id.checkboxVisualStyles);
-        
-        // Define what happens when the Import/Export button is pressed.
-        ((Button)findViewById(R.id.buttonImportExport)).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                android.util.Log.e(TAG, "import/export!!");
-                showDialog(R.layout.importexport);
-            }
-        });
     }
     
     /**

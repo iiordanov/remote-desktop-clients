@@ -58,6 +58,7 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
     private boolean isConnecting = false;
     private Button buttonGeneratePubkey;
     private TextView versionAndCode;
+    protected PermissionsManager permissionsManager;
     
     protected abstract void updateViewFromSelected();
     protected abstract void updateSelectedFromView();
@@ -68,7 +69,9 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
         Utils.showMenu(this);
         setContentView(layoutID);
         System.gc();
-        
+
+        permissionsManager = new PermissionsManager();
+
         if (getPassword == null) {
             getPassword = GetTextFragment.newInstance(getString(R.string.master_password_verify),
               this, GetTextFragment.Password, R.string.master_password_verify_message, R.string.master_password_set_error);
@@ -111,6 +114,16 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
         }
         
         database = ((App)getApplication()).getDatabase();
+
+        // Define what happens when the Import/Export button is pressed.
+        ((Button) findViewById(R.id.buttonImportExport)).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                permissionsManager.requestPermissions(MainConfiguration.this);
+                showDialog(R.layout.importexport);
+            }
+        });
+        permissionsManager.requestPermissions(MainConfiguration.this);
     }
     
     @Override
@@ -357,6 +370,7 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
             showDialog(R.id.itemMainScreenHelp);
             break;
         case R.id.itemExportImport:
+            permissionsManager.requestPermissions(MainConfiguration.this);
             showDialog(R.layout.importexport);
             break;
         case R.id.itemMasterPassword:
