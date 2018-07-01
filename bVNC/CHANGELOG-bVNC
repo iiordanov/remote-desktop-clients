@@ -1,6 +1,7 @@
 v4.0.1
 - Text contrast fix for certain devices
 - Targeting new APIs
+- Fix for Menu + immersive mode live-lock on some devices
 v4.0.0
 - Input mode bugfixes
 - Security and protocol library updates

@@ -121,21 +121,34 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
 	int prevBottomOffset = 0;
 	Toolbar toolbar;
 
-    
+
+    /**
+     * This runnable enables immersive mode.
+     */
+    private Runnable immersiveEnabler = new Runnable() {
+        public void run() {
+            android.util.Log.i(TAG, "Enabling immersive mode");
+            try {
+                if (Constants.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT) {
+                    canvas.setSystemUiVisibility(
+                            View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                                    | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                                    | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                                    | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                                    | View.SYSTEM_UI_FLAG_FULLSCREEN
+                                    | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
+                }
+
+            } catch (Exception e) { }
+        }
+    };
+
     /**
      * Enables sticky immersive mode if supported.
      */
     private void enableImmersive() {
-        android.util.Log.i(TAG, "Enabling immersive mode");
-        if (Constants.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT) {
-            canvas.setSystemUiVisibility(
-                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                | View.SYSTEM_UI_FLAG_FULLSCREEN
-                | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
-        }
+        handler.removeCallbacks(immersiveEnabler);
+        handler.postDelayed(immersiveEnabler, 200);
     }
     
     @Override

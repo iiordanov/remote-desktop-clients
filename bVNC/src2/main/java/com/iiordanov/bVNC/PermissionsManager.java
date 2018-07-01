@@ -19,7 +19,7 @@ class PermissionsManager {
         try {
             String [] requestedPermissions = context.getPackageManager().getPackageInfo(context
                     .getPackageName(), PackageManager.GET_PERMISSIONS).requestedPermissions;
-            android.util.Log.e(TAG, Arrays.toString(requestedPermissions));
+            android.util.Log.d(TAG, Arrays.toString(requestedPermissions));
             return requestedPermissions;
         } catch (PackageManager.NameNotFoundException e) {
             throw new RuntimeException("This should have never happened.", e);
