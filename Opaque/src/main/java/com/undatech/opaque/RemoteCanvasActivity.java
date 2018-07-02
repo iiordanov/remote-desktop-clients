@@ -150,7 +150,32 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
         handler.removeCallbacks(immersiveEnabler);
         handler.postDelayed(immersiveEnabler, 200);
     }
-    
+
+    /**
+     * This runnable disables immersive mode.
+     */
+    private Runnable immersiveDisabler = new Runnable() {
+        public void run() {
+            try {
+                if (Constants.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT) {
+                    canvas.setSystemUiVisibility(
+                            View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                                    | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                                    | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
+                }
+
+            } catch (Exception e) { }
+        }
+    };
+
+    /**
+     * Disables sticky immersive mode.
+     */
+    private void disableImmersive() {
+        handler.removeCallbacks(immersiveDisabler);
+        handler.postDelayed(immersiveDisabler, 200);
+    }
+
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
             super.onWindowFocusChanged(hasFocus);
@@ -299,7 +324,6 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
                         }
                     }
                     setKeyStowDrawableAndVisibility();
-                    enableImmersive();
              }
         });
 
@@ -1066,6 +1090,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
     public void onPanelClosed (int featureId, Menu menu) {
         super.onPanelClosed(featureId, menu);
         showToolbar();
+        enableImmersive();
     }
     
 	@Override
@@ -1073,7 +1098,8 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
 	    if(menu != null){
 	        android.util.Log.i(TAG, "Menu opened, disabling hiding action bar");
 	        handler.removeCallbacks(toolbarHider);
-	    }
+            disableImmersive();
+        }
 	    return super.onMenuOpened(featureId, menu);
 	}
 	
