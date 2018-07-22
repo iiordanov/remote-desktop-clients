@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           xmlns:tools="http://schemas.android.com/tools"
           package="com.iiordanov.bVNC" android:installLocation="auto"
-          android:versionCode="114012" android:versionName="v4.0.1">
+          android:versionCode="114020" android:versionName="v4.0.2">
 
     <uses-sdk android:minSdkVersion="14"> </uses-sdk>
     <uses-permission
@@ -57,7 +57,7 @@
                        </intent-filter>
                 </activity>
                 <activity android:name="com.iiordanov.bVNC.ConnectionListActivity"
-                          android:label="@string/shortcut_label"
+                          android:label="@string/shortcut_label_vnc"
                           android:windowSoftInputMode="stateHidden|adjustResize"
                           android:theme="@style/AppThemeWithToolbar"
                           android:resizeableActivity="true">

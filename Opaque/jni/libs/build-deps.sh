@@ -525,6 +525,7 @@ build_freerdp() {
         patch -N -p1 < "${basedir}/../freerdp_initialize_session_map.patch"
         patch -N -p1 < "${basedir}/../freerdp_remove_root_project_ext_version_name.patch"
         patch -N -p1 < "${basedir}/../freerdp_wait_for_single_object_infinite.patch"
+        cp "${basedir}/../freerdp_AndroidManifest.xml" client/Android/Studio/freeRDPCore/src/main/AndroidManifest.xml
 
         export ANDROID_NDK="${ndkdir}"
         ./scripts/android-build-freerdp.sh

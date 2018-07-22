@@ -557,7 +557,9 @@ Known issues:
 
     <string name="shift_check">Shift</string>
 
-    <string name="shortcut_label">Połączenie VNC</string>
+    <string name="shortcut_label_vnc">Połączenie VNC</string>
+    <string name="shortcut_label_rdp">Połączenie RDP</string>
+    <string name="shortcut_label_spice">Połączenie SPICE</string>
 
     <string name="showkbd_label">Klawiatura</string>
 

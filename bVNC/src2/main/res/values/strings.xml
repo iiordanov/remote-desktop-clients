@@ -565,7 +565,9 @@ Known issues:
 
     <string name="shift_check">Shift</string>
 
-    <string name="shortcut_label">VNC Connection</string>
+    <string name="shortcut_label_vnc">VNC Connection</string>
+    <string name="shortcut_label_rdp">RDP Connection</string>
+    <string name="shortcut_label_spice">SPICE Connection</string>
 
     <string name="showkbd_label">Keyboard</string>
 

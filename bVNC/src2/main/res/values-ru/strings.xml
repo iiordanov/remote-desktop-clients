@@ -558,7 +558,9 @@
 
     <string name="shift_check">Shift</string>
 
-    <string name="shortcut_label">VNC Соединение</string>
+    <string name="shortcut_label_vnc">VNC Соединение</string>
+    <string name="shortcut_label_rdp">RDP Соединение</string>
+    <string name="shortcut_label_spice">SPICE Соединение</string>
 
     <string name="showkbd_label">Клавиатура</string>
 
