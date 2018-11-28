@@ -25,7 +25,10 @@ package com.iiordanov.bVNC;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.regex.Matcher;
@@ -111,12 +114,22 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
     private MenuItem[] scalingModeMenuItems;
     private InputHandler inputModeHandlers[];
     private ConnectionBean connection;
-    private static final int inputModeIds[] = { R.id.itemInputTouchpad,
+    static final int[] inputModeIds = { R.id.itemInputTouchpad,
                                                 R.id.itemInputTouchPanZoomMouse,
                                                 R.id.itemInputDragPanZoomMouse,
                                                 R.id.itemInputSingleHanded };
     private static final int scalingModeIds[] = { R.id.itemZoomable, R.id.itemFitToScreen,
                                                   R.id.itemOneToOne};
+
+    static final Map<Integer, String> inputModeMap;
+    static {
+        Map<Integer, String> temp = new HashMap<>();
+        temp.put(R.id.itemInputTouchpad, InputHandlerTouchpad.ID);
+        temp.put(R.id.itemInputDragPanZoomMouse, InputHandlerDirectDragPan.ID);
+        temp.put(R.id.itemInputTouchPanZoomMouse, InputHandlerDirectSwipePan.ID);
+        temp.put(R.id.itemInputSingleHanded, InputHandlerSingleHanded.ID);
+        inputModeMap = Collections.unmodifiableMap(temp);
+    }
 
     Panner panner;
     SSHConnection sshConnection;

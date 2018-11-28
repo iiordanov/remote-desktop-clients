@@ -122,6 +122,7 @@
 
     <string name="ctrl_alt_del">Ctrl-Alt-Delete</string>
 
+    <string name="default_input_mode">Default Input Mode</string>
     <string name="delete_connection">Usuń połączenie</string>
     <string name="delete_key"/>
     <string name="delete_key_list"/>

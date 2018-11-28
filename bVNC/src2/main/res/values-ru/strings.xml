@@ -122,6 +122,7 @@
 
     <string name="ctrl_alt_del">Ctrl-Alt-Del</string>
 
+    <string name="default_input_mode">Режим ввода по умолчанию</string>
     <string name="delete_connection">Удалить подключение</string>
     <string name="delete_key">Удалить выбранный ключ</string>
     <string name="delete_key_list">Удалить список ключей</string>

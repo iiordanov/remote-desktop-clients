@@ -7,6 +7,7 @@ import net.sqlcipher.database.SQLiteDatabase;
 
 import com.iiordanov.bVNC.dialogs.IntroTextDialog;
 import com.iiordanov.bVNC.dialogs.GetTextFragment;
+import com.iiordanov.bVNC.input.InputHandlerDirectSwipePan;
 import com.iiordanov.pubkeygenerator.GeneratePubkeyActivity;
 
 import android.app.Activity;
@@ -59,7 +60,7 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
     private Button buttonGeneratePubkey;
     private TextView versionAndCode;
     protected PermissionsManager permissionsManager;
-    
+
     protected abstract void updateViewFromSelected();
     protected abstract void updateSelectedFromView();
 
@@ -80,9 +81,9 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
             getNewPassword = GetTextFragment.newInstance(getString(R.string.master_password_set),
               this, GetTextFragment.MatchingPasswordTwice, R.string.master_password_set_message, R.string.master_password_set_error);
         }
-        
+
         textNickname = (EditText) findViewById(R.id.textNickname);
-        
+
         spinnerConnection = (Spinner)findViewById(R.id.spinnerConnection);
         spinnerConnection.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -95,7 +96,7 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
                 selected = null;
             }
         });
-        
+
         // Here we say what happens when the Pubkey Generate button is pressed.
         buttonGeneratePubkey = (Button) findViewById(R.id.buttonGeneratePubkey);
         buttonGeneratePubkey.setOnClickListener(new View.OnClickListener() {
@@ -112,7 +113,7 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
         }
-        
+
         database = ((App)getApplication()).getDatabase();
 
         // Define what happens when the Import/Export button is pressed.
@@ -125,21 +126,21 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
         });
         permissionsManager.requestPermissions(MainConfiguration.this);
     }
-    
+
     @Override
     protected void onStart() {
         Log.i(TAG, "onStart called");
         super.onStart();
         System.gc();
     }
-    
+
     @Override
     protected void onResume() {
         Log.i(TAG, "onResume called");
         super.onResume();
         System.gc();
     }
-    
+
     @Override
     protected void onResumeFragments() {
         Log.i(TAG, "onResumeFragments called");
@@ -151,16 +152,16 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
             arriveOnPage();
         }
     }
-    
+
     @Override
     public void onWindowFocusChanged (boolean visible) { }
-    
+
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         Log.i(TAG, "onConfigurationChanged called");
         super.onConfigurationChanged(newConfig);
     }
-    
+
     @Override
     protected void onStop() {
         super.onStop();
@@ -168,7 +169,7 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
         if (database != null)
             database.close();
     }
-    
+
     @Override
     protected void onPause() {
         super.onPause();
@@ -185,7 +186,7 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
             selected.saveAndWriteRecent(false, database);
         }
     }
-    
+
     @Override
     protected void onDestroy() {
         if (database != null)
@@ -193,7 +194,7 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
         System.gc();
         super.onDestroy();
     }
-    
+
     protected void canvasStart() {
         if (selected == null) return;
         MemoryInfo info = Utils.getMemoryInfo(this);
@@ -201,7 +202,7 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
             System.gc();
         start();
     }
-    
+
     /**
      * Starts the activity which makes a VNC connection and displays the remote desktop.
      */
@@ -212,7 +213,7 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
         intent.putExtra(Utils.getConnectionString(this), selected.Gen_getValues());
         startActivity(intent);
     }
-    
+
     public void arriveOnPage() {
         Log.i(TAG, "arriveOnPage called");
         SQLiteDatabase db = database.getReadableDatabase();
@@ -243,7 +244,7 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
         IntroTextDialog.showIntroTextIfNecessary(this, database, Utils.isFree(this) && startingOrHasPaused);
         startingOrHasPaused = false;
     }
-    
+
     /**
      * Starts the activity which manages keys.
      */
@@ -254,11 +255,11 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
         intent.putExtra("PrivateKey",selected.getSshPrivKey());
         startActivityForResult(intent, Constants.ACTIVITY_GEN_KEY);
     }
-    
+
     public Database getDatabaseHelper() {
         return database;
     }
-    
+
     /**
      * Returns the display height, or if the device has software
      * buttons, the 'bottom' of the view (in order to take into account the
@@ -283,7 +284,7 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
         }
         return value;
     }
-    
+
     /**
      * Returns the display width, or if the device has software
      * buttons, the 'right' of the view (in order to take into account the
@@ -304,7 +305,7 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
         }
         return width;
     }
-    
+
 
     /* (non-Javadoc)
      * @see android.app.Activity#onCreateOptionsMenu(android.view.Menu)
@@ -312,6 +313,7 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.androidvncmenu, menu);
+        getMenuInflater().inflate(R.menu.input_mode_menu_item, menu);
         return true;
     }
 
@@ -320,7 +322,9 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
      */
     @Override
     public boolean onMenuOpened(int featureId, Menu menu) {
-        if (menu != null) {
+        android.util.Log.e(TAG, "onMenuOpened");
+        try {
+            updateInputMenu(menu.findItem(R.id.itemInputMode).getSubMenu());
             menu.findItem(R.id.itemDeleteConnection).setEnabled(selected != null && !selected.isNew());
             menu.findItem(R.id.itemSaveAsCopy).setEnabled(selected != null && !selected.isNew());
             MenuItem itemMasterPassword = menu.findItem(R.id.itemMasterPassword);
@@ -335,9 +339,34 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
             rAltAsIsoL3Shift.setChecked(Utils.querySharedPreferenceBoolean(this, Constants.rAltAsIsoL3ShiftTag));
             MenuItem itemLeftHandedMode = menu.findItem(R.id.itemLeftHandedMode);
             itemLeftHandedMode.setChecked(Utils.querySharedPreferenceBoolean(this, Constants.leftHandedModeTag));
-        }
+        } catch (NullPointerException e) {}
         return true;
     }
+
+    /**
+     * Check the right item in the input mode sub-menu
+     */
+    void updateInputMenu(Menu inputMenu) {
+        MenuItem[] inputModeMenuItems = new MenuItem[RemoteCanvasActivity.inputModeIds.length];
+        for (int i = 0; i < RemoteCanvasActivity.inputModeIds.length; i++) {
+            inputModeMenuItems[i] = inputMenu.findItem(RemoteCanvasActivity.inputModeIds[i]);
+        }
+        String defaultInputHandlerId = Utils.querySharedPreferenceString(
+                this, Constants.defaultInputMethodTag, InputHandlerDirectSwipePan.ID);
+        android.util.Log.e(TAG, "Default Input Mode Item: " + defaultInputHandlerId);
+
+        try {
+            for (MenuItem item : inputModeMenuItems) {
+                android.util.Log.e(TAG, "Input Mode Item: " +
+                        RemoteCanvasActivity.inputModeMap.get(item.getItemId()));
+
+                if (defaultInputHandlerId.equals(RemoteCanvasActivity.inputModeMap.get(item.getItemId()))) {
+                    item.setChecked(true);
+                }
+            }
+        } catch (NullPointerException e) { }
+    }
+
 
     /* (non-Javadoc)
      * @see android.app.Activity#onOptionsItemSelected(android.view.MenuItem)
@@ -399,6 +428,13 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
             break;
         case R.id.itemLeftHandedMode:
             Utils.toggleSharedPreferenceBoolean(this, Constants.leftHandedModeTag);
+            break;
+        default:
+            if (item.getGroupId() == R.id.itemInputModeGroup) {
+                android.util.Log.e(TAG, RemoteCanvasActivity.inputModeMap.get(item.getItemId()));
+                Utils.setSharedPreferenceString(this, Constants.defaultInputMethodTag,
+                        RemoteCanvasActivity.inputModeMap.get(item.getItemId()));
+            }
             break;
         }
         return true;
