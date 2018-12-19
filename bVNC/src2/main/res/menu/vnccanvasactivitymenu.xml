@@ -19,6 +19,7 @@
                 <item android:id="@+id/itemInputDragPanZoomMouse" android:title="@string/input_mode_drag_pan_zoom_mouse"/>
                 <item android:id="@+id/itemInputTouchpad" android:title="@string/input_mode_touchpad"/>
                 <item android:id="@+id/itemInputSingleHanded" android:title="@string/input_mode_single_handed"/>
+                <item android:id="@+id/itemInputTablet" android:title="@string/input_mode_tablet"/>
 		</group>
 	    </menu>
     </item>

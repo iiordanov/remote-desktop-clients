@@ -257,6 +257,7 @@ All Input Modes:
     <string name="input_mode_mouse">Mouse Pointer Control</string>
     <string name="input_mode_panning">Desktop Panning Mode</string>
     <string name="input_mode_single_handed">Single Handed</string>
+    <string name="input_mode_tablet">Tablet</string>
     <string name="input_mode_touch_pan_zoom_mouse">Direct, Swipe Pan</string>
     <string name="input_mode_touchpad">Simulated Touchpad</string>
 

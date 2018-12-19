@@ -280,7 +280,7 @@ abstract class InputHandlerGeneric extends GestureDetector.SimpleOnGestureListen
 	 * @param y
 	 * @param meta
 	 */
-	private void sendScrollEvents (int x, int y, int meta) {
+	protected void sendScrollEvents (int x, int y, int meta) {
         RemotePointer p = canvas.getPointer();
     	int numEvents = 0;
     	while (numEvents < swipeSpeed && numEvents < maxSwipeSpeed) {
@@ -384,7 +384,7 @@ abstract class InputHandlerGeneric extends GestureDetector.SimpleOnGestureListen
 		e.setLocation(x, y);
 	}
     
-    private void detectImmersiveSwipe (float y) {
+    protected void detectImmersiveSwipe (float y) {
         if (Constants.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT &&
             (y <= immersiveSwipeDistance || canvas.getHeight() - y <= immersiveSwipeDistance)) {
             inSwiping = true;
