@@ -1,4 +1,4 @@
-/** 
+/**
  * Copyright (C) 2012-2017 Iordan Iordanov
  * Copyright (C) 2010 Michael A. MacDonald
  * 
@@ -86,6 +86,7 @@ import com.iiordanov.bVNC.input.InputHandler;
 import com.iiordanov.bVNC.input.InputHandlerDirectDragPan;
 import com.iiordanov.bVNC.input.InputHandlerDirectSwipePan;
 import com.iiordanov.bVNC.input.InputHandlerSingleHanded;
+import com.iiordanov.bVNC.input.InputHandlerTablet;
 import com.iiordanov.bVNC.input.InputHandlerTouchpad;
 import com.iiordanov.bVNC.input.Panner;
 import com.iiordanov.bVNC.input.RemoteKeyboard;
@@ -114,7 +115,8 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
     private static final int inputModeIds[] = { R.id.itemInputTouchpad,
                                                 R.id.itemInputTouchPanZoomMouse,
                                                 R.id.itemInputDragPanZoomMouse,
-                                                R.id.itemInputSingleHanded };
+                                                R.id.itemInputSingleHanded,
+                                                R.id.itemInputTablet};
     private static final int scalingModeIds[] = { R.id.itemZoomable, R.id.itemFitToScreen,
                                                   R.id.itemOneToOne};
 
@@ -1060,7 +1062,9 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
                     case R.id.itemInputSingleHanded:
                         inputModeHandlers[i] = new InputHandlerSingleHanded(this, canvas, myVibrator);
                         break;
-
+                    case R.id.itemInputTablet:
+                        inputModeHandlers[i] = new InputHandlerTablet(this, canvas, myVibrator);
+                        break;
                     }
                 }
                 return inputModeHandlers[i];
