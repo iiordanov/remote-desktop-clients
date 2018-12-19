@@ -19,7 +19,6 @@
  */
 
 package com.iiordanov.bVNC;
-
 import android.graphics.Matrix;
 import android.widget.ImageView.ScaleType;
 import com.iiordanov.bVNC.*;
@@ -83,7 +82,7 @@ class FitToScreenScaling extends AbstractScaling {
     private void resolveZoom(RemoteCanvasActivity activity)
     {
         activity.getCanvas().resetScroll();
-        //activity.vncCanvas.pan(0,0);
+        //activity.getCanvas().absolutePan(activity.getCanvas().absoluteXPosition,0);
     }
     
     /* (non-Javadoc)
@@ -107,8 +106,6 @@ class FitToScreenScaling extends AbstractScaling {
     void setScaleTypeForActivity(RemoteCanvasActivity activity) {
         super.setScaleTypeForActivity(activity);
         RemoteCanvas canvas = activity.getCanvas();
-        canvas.absoluteXPosition = 0;
-        canvas.absoluteYPosition = 0;
         canvasXOffset = -canvas.getCenteredXOffset();
         canvasYOffset = -canvas.getCenteredYOffset();
         canvas.computeShiftFromFullToView ();
@@ -117,6 +114,14 @@ class FitToScreenScaling extends AbstractScaling {
         resetMatrix();
         matrix.postScale(scaling, scaling);
         canvas.setImageMatrix(matrix);
+
+        canvas.absoluteXPosition = 0;
+        canvas.absoluteYPosition = 0;
+        if (!canvas.myDrawable.widthRatioLessThanHeightRatio()) {
+            canvas.absoluteXPosition = - (int)(((canvas.getWidth() - canvas.rfbconn.framebufferWidth()*minimumScale)/2)/minimumScale);
+        } else {
+            canvas.absoluteYPosition = - (int)(((canvas.getHeight() - canvas.rfbconn.framebufferHeight()*minimumScale)/2)/minimumScale);
+        }
         resolveZoom(activity);
         canvas.relativePan(0, 0);
     }

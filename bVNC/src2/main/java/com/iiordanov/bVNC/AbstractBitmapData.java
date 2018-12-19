@@ -103,6 +103,10 @@ abstract public class AbstractBitmapData {
         return Math.min((float)vncCanvas.getWidth()/bitmapwidth, (float)vncCanvas.getHeight()/bitmapheight);
     }
 
+    boolean widthRatioLessThanHeightRatio() {
+        return (float)vncCanvas.getWidth()/bitmapwidth < vncCanvas.getHeight()/bitmapheight;
+    }
+
     /**
      * Send a request through the protocol to get the data for the currently held bitmap
      * @param incremental True if we want incremental update; false for full update

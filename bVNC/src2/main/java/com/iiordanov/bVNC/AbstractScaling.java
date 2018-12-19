@@ -152,4 +152,8 @@ public abstract class AbstractScaling {
      * @param fy Focus Y of center of scale change
      */
     public void changeZoom(RemoteCanvasActivity activity, float scaleFactor, float fx, float fy) { }
+
+    public ImageView.ScaleType getScaleType() {
+        return scaleType;
+    }
 }

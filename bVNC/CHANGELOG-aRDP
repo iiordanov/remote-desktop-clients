@@ -1,3 +1,7 @@
+v4.0.2
+- Fixes for widget names
+- Fixes for Fit-to-screen scaling
+- Default Input Mode support
 v4.0.1
 - Text contrast fix for certain devices
 - Targeting new APIs 

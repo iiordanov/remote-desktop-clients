@@ -76,6 +76,7 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
@@ -250,7 +251,21 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
         
         if (Utils.querySharedPreferenceBoolean(this, Constants.forceLandscapeTag))
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
-        
+
+        View decorView = getWindow().getDecorView();
+        decorView.setOnSystemUiVisibilityChangeListener
+                (new View.OnSystemUiVisibilityChangeListener() {
+                    @Override
+                    public void onSystemUiVisibilityChange(int visibility) {
+                        try {
+                            correctAfterRotation();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        //handler.postDelayed(rotationCorrector, 300);
+                    }
+                });
+
         database = ((App)getApplication()).getDatabase();
         
         Intent i = getIntent();
@@ -903,7 +918,8 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
         float newScale = canvas.canvasZoomer.getZoomFactor();
         canvas.canvasZoomer.changeZoom(this, oldScale/newScale, 0, 0);
         newScale = canvas.canvasZoomer.getZoomFactor();
-        if (newScale <= oldScale) {
+        if (newScale <= oldScale &&
+                canvas.canvasZoomer.getScaleType() != ImageView.ScaleType.FIT_CENTER) {
             canvas.absoluteXPosition = x;
             canvas.absoluteYPosition = y;
             canvas.resetScroll();

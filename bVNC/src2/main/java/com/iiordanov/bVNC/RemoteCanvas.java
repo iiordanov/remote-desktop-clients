@@ -927,6 +927,8 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
      */
     void resetScroll() {
         float scale = getZoomFactor();
+        //android.util.Log.d(TAG, "resetScroll: " + (absoluteXPosition - shiftX) * scale + ", "
+        //                                        + (absoluteYPosition - shiftY) * scale);
         scrollTo((int) ((absoluteXPosition - shiftX) * scale),
                 (int) ((absoluteYPosition - shiftY) * scale));
     }
@@ -1008,6 +1010,7 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
      * @return True if the pan changed the view (did not move view out of bounds); false otherwise
      */
     public boolean relativePan(int dX, int dY) {
+        //android.util.Log.d(TAG, "relativePan: " + dX + ", " + dY);
 
         // We only pan if the current scaling is able to pan.
         if (canvasZoomer != null && !canvasZoomer.isAbleToPan())
@@ -1047,6 +1050,8 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
      * @param y
      */
     public void absolutePan(int x, int y) {
+        //android.util.Log.d(TAG, "absolutePan: " + x + ", " + y);
+
         if (canvasZoomer != null) {
             int vW = getVisibleWidth();
             int vH = getVisibleHeight();

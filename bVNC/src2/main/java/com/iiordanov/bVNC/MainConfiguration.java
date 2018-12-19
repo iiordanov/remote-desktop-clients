@@ -322,7 +322,7 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
      */
     @Override
     public boolean onMenuOpened(int featureId, Menu menu) {
-        android.util.Log.e(TAG, "onMenuOpened");
+        android.util.Log.d(TAG, "onMenuOpened");
         try {
             updateInputMenu(menu.findItem(R.id.itemInputMode).getSubMenu());
             menu.findItem(R.id.itemDeleteConnection).setEnabled(selected != null && !selected.isNew());
