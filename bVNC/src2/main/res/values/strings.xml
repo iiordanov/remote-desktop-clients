@@ -208,6 +208,7 @@
     <string name="input_method_direct_swipe_pan_description">Direct, Swipe Pan: Swipe to pan around. Tap with one finger wherever you want to left-click, two fingers to right-click, and three fingers to middle-click. Swipe with two fingers to scroll. Long tap to drag and drop.</string>
     <string name="input_method_single_handed_description">Single Handed: Swipe to pan around. Tap with one finger wherever you want to left-click. Long tap to choose left/right/middle drag/scroll/zoom mode. Usual multi-touch controls also work.</string>
     <string name="input_method_touchpad_description">Simulated Touchpad: Swipe to move pointer. Tap anywhere with one finger to left-click, two fingers to right-click, and three fingers to middle-click. Swipe with two fingers to scroll. Long tap to drag and drop.</string>
+    <string name="input_method_tablet_description">Tablet Mode: Same as Direct, Hold Pan. Right click is also triggered by long tap.</string>
     <string name="input_mode">Input Mode</string>
     <string name="input_mode_drag_pan_zoom_mouse">Direct, Hold Pan</string>
     <string name="input_mode_fit_to_screen">No Pan; Trackball Mouse</string>

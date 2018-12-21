@@ -36,7 +36,7 @@ import com.iiordanov.bVNC.input.RemotePointer;
 
 public class InputHandlerTablet extends InputHandlerGeneric {
 	static final String TAG = "InputHandlerTablet";
-	public static final String ID = "TOUCH_ZOOM_MODE_TABLET";
+	public static final String ID = "TABLET_MODE";
 
 	/**
 	 * @param c
@@ -51,7 +51,7 @@ public class InputHandlerTablet extends InputHandlerGeneric {
 	 */
 	@Override
 	public String getDescription() {
-		return canvas.getResources().getString(R.string.input_method_direct_drag_pan_description);
+		return canvas.getResources().getString(R.string.input_method_tablet_description);
 	}
 
 	/*
