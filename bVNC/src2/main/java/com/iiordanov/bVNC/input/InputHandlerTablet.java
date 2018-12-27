@@ -20,8 +20,11 @@
 
 package com.iiordanov.bVNC.input;
 
+import android.support.v4.view.MotionEventCompat;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.os.Vibrator;
+import android.view.ViewConfiguration;
 
 import com.iiordanov.bVNC.*;
 import com.iiordanov.freebVNC.*;
@@ -63,61 +66,99 @@ public class InputHandlerTablet extends InputHandlerGeneric {
 		return ID;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see com.iiordanov.bVNC.input.InputHandlerGeneric#onLongPress(android.view.MotionEvent)
-	 */
-	@Override
-	public void onLongPress(MotionEvent e) {
 
-		// If we've performed a right/middle-click and the gesture is not over yet, do not start drag mode.
-		if (secondPointerWasDown || thirdPointerWasDown)
-			return;
-		RemotePointer p = canvas.getPointer();
-		p.rightButtonDown(getX(e), getY(e), e.getMetaState());
-	}
-
-
-	/*
-	 * (non-Javadoc)
-	 * @see android.view.GestureDetector.SimpleOnGestureListener#onScroll(android.view.MotionEvent, android.view.MotionEvent, float, float)
-	 */
 	@Override
 	public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
 		RemotePointer p = canvas.getPointer();
+		//scrollMode = true;
 
 		// If we are scaling, allow panning around by moving two fingers around the screen
-		if (inScaling) {
-			float scale = canvas.getZoomFactor();
-			activity.showToolbar();
-			canvas.relativePan((int)(distanceX*scale), (int)(distanceY*scale));
-		} else {
-			// onScroll called while scaling/swiping gesture is in effect. We ignore the event and pretend it was
-			// consumed. This prevents the mouse pointer from flailing around while we are scaling.
-			// Also, if one releases one finger slightly earlier than the other when scaling, it causes Android
-			// to stick a spiteful onScroll with a MASSIVE delta here.
-			// This would cause the mouse pointer to jump to another place suddenly.
-			// Hence, we ignore onScroll after scaling until we lift all pointers up.
-			boolean twoFingers = false;
-			if (e1 != null)
-				twoFingers = (e1.getPointerCount() > 1);
-			if (e2 != null)
-				twoFingers = twoFingers || (e2.getPointerCount() > 1);
+		if (scrollMode){
+			//Log.d("tablet", "scroll! distanceX: " + distanceX + " distanceY: " + distanceY);
+			if (distanceX > 10 || distanceY > 10 || distanceX < -10 || distanceY < -10) return true;
+			inSwiping = true;
+			swipeSpeed = 1;
+			scrollDown  = false;
+			scrollUp    = false;
+			scrollRight = false;
+			scrollLeft  = false;
+			if(distanceX > 0 && -1 < distanceY && distanceY < 1) scrollRight = true;
+			else if (distanceX < 0 && -1 < distanceY && distanceY < 1) scrollLeft = true;
+			else if (-1 < distanceX && distanceX < 1 && distanceY > 0) scrollDown = true;
+			else if (-1 < distanceX && distanceX < 1 && distanceY < 0) scrollUp = true;
 
-			if (twoFingers||inSwiping)
-				return true;
-
-			activity.showToolbar();
-
-			if (!dragMode) {
-				dragMode = true;
-				p.leftButtonDown(getX(e1), getY(e1), e1.getMetaState());
-			} else {
-				p.moveMouseButtonDown(getX(e2), getY(e2), e2.getMetaState());
-			}
 		}
-		canvas.movePanToMakePointerVisible();
+
 		return true;
+
+	}
+
+	private void resetAllModes(){
+		scrollMode = false;
+		dragMode = false;
+	}
+
+	protected boolean scrollMode = false;
+	private int alternateScroll = 0; // to reduce scroll speed, send every 3rd scroll event
+	private long touchDownTime = 0;
+	final long longPressTimeout = ViewConfiguration.getLongPressTimeout();
+	@Override
+	public boolean onTouchEvent(MotionEvent e){
+		//Log.d("tablet", "touch event captured!");
+		final int action = MotionEventCompat.getActionMasked(e);
+		final long currentTime = System.currentTimeMillis();
+		RemotePointer p = canvas.getPointer();
+		long touchDuration = currentTime - touchDownTime;
+		activity.showToolbar();
+
+		switch(action){
+			case MotionEvent.ACTION_DOWN:
+				touchDownTime = System.currentTimeMillis();
+				resetAllModes();
+				return true;
+			case MotionEvent.ACTION_UP:
+				//Log.d("tablet", "Duration: " + touchDuration + " longDuration: " + longPressTimeout);
+				if (0.5*longPressTimeout < touchDuration && touchDuration < longPressTimeout) {
+					//right click
+					p.rightButtonDown(getX(e), getY(e), e.getMetaState());
+
+				} else if (touchDuration < 0.5*longPressTimeout){ // left click
+					p.leftButtonDown(getX(e),getY(e),e.getMetaState());
+					p.releaseButton(getX(e), getY(e), e.getMetaState());
+				}
+				resetAllModes();
+				return true;
+			case MotionEvent.ACTION_MOVE:
+				if (touchDuration > 4*longPressTimeout){
+					//Log.d("tablet", "dragMode");
+					if (dragMode) {
+						p.moveMouseButtonDown(getX(e), getY(e), e.getMetaState());
+					} else {
+						p.leftButtonDown(getX(e),getY(e),e.getMetaState());
+						canvas.displayShortToastMessage("Drag Mode!");
+						dragMode = true;
+					}
+					return true;
+				}
+				else if (longPressTimeout<touchDuration && touchDuration<4*longPressTimeout){
+					if (scrollMode) {
+						if (alternateScroll == 2) {
+							gestureDetector.onTouchEvent(e);
+							sendScrollEvents(getX(e), getY(e), e.getMetaState());
+							alternateScroll = 0;
+						}else alternateScroll++;
+						return true;
+					}else{
+						//Log.d("tablet", "scrollMode");
+						dragMode = false;
+						scrollMode = true;
+						return gestureDetector.onTouchEvent(e);
+					}
+				}
+			default:
+				return true;
+		}
 	}
 }
+
 
