@@ -1,3 +1,7 @@
+v4.0.3
+- Fix for SD card redirection
+- Updated FreeRDP
+- Updated sshlib
 v4.0.2
 - Fixes for widget names
 - Fixes for Fit-to-screen scaling

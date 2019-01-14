@@ -5,7 +5,7 @@ index ed5bc7d..430e602 100644
 @@ -9,7 +9,6 @@ android {
          targetSdkVersion 27
          vectorDrawables.useSupportLibrary = true
-         versionCode = 12
+         versionCode = 14
 -        versionName = rootProject.ext.versionName
      }
  

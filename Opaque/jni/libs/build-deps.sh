@@ -522,9 +522,11 @@ build_freerdp() {
         # Something wrong with NDK?
         sed -i 's/static int pthread_mutex_timedlock/int pthread_mutex_timedlock/' winpr/libwinpr/synch/wait.c
 
-        patch -N -p1 < "${basedir}/../freerdp_initialize_session_map.patch"
-        patch -N -p1 < "${basedir}/../freerdp_remove_root_project_ext_version_name.patch"
-        patch -N -p1 < "${basedir}/../freerdp_wait_for_single_object_infinite.patch"
+        for f in ${basedir}/../freerdp_*.patch
+        do
+            patch -N -p1 < ${f}
+        done
+
         cp "${basedir}/../freerdp_AndroidManifest.xml" client/Android/Studio/freeRDPCore/src/main/AndroidManifest.xml
 
         export ANDROID_NDK="${ndkdir}"
