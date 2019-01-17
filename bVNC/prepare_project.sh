@@ -57,7 +57,7 @@ ln -sf AndroidManifest.xml.$PRJ AndroidManifest.xml
 if [ "$SKIP_BUILD" == "false" ]
 then
   pushd jni/libs
-  ./build-deps.sh -j 4 -n $ANDROID_NDK build
+  ./build-deps.sh -j 4 -n $ANDROID_NDK build $PRJ
   popd
 
   ${ANDROID_NDK}/ndk-build

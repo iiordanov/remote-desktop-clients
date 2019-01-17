@@ -4,13 +4,14 @@
     <option name="linkedExternalProjectsSettings">
       <GradleProjectSettings>
         <option name="distributionType" value="DEFAULT_WRAPPED" />
-        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$/" />
+        <option name="gradleJvm" value="#JAVA_HOME" />
         <option name="modules">
           <set>
-            <option value="$PROJECT_DIR$/.." />
-            <option value="$PROJECT_DIR$/../Opaque/jni/libs/deps/FreeRDP/client/Android/Studio/freeRDPCore" />
-            <option value="$PROJECT_DIR$/../bVNC" />
-            <option value="$PROJECT_DIR$/../pubkeyGenerator" />
+            <option value="$PROJECT_DIR$" />
+            <option value="$PROJECT_DIR$/Opaque/jni/libs/deps/FreeRDP/client/Android/Studio/freeRDPCore" />
+            <option value="$PROJECT_DIR$/bVNC" />
+            <option value="$PROJECT_DIR$/pubkeyGenerator" />
           </set>
         </option>
         <option name="resolveModulePerSourceSet" value="false" />

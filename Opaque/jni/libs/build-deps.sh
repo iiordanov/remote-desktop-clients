@@ -106,6 +106,23 @@ do_configure() {
     #
     # Use only our pkg-config library directory, even on cross builds
     # https://bugzilla.redhat.com/show_bug.cgi?id=688171
+    echo Current working directory: $(pwd)
+    echo Executing: ./configure \
+            --host=${build_host} \
+            --build=${build_system} \
+            --prefix=\"${prefix}\" \
+            --enable-static \
+            --disable-shared \
+            --disable-dependency-tracking \
+            PKG_CONFIG=\"pkg-config --static\" \
+            PKG_CONFIG_LIBDIR=\"${root}/share/pkgconfig:${root}/lib/pkgconfig:${gst}/lib-fixed/pkgconfig\" \
+            PKG_CONFIG_PATH= \
+            CPPFLAGS=\"${cppflags} -I${root}/include -I${gst}/include\" \
+            CFLAGS=\"${cflags}\" \
+            CXXFLAGS=\"${cxxflags}\" \
+            LDFLAGS=\"${ldflags} -L${root}/lib -L${gst}/lib-fixed\" \
+            "$@"
+
     ./configure \
             --host=${build_host} \
             --build=${build_system} \
@@ -155,18 +172,36 @@ build_one() {
         case "$abi" in
         armeabi)
             os=android
+            arch=arm
             ;;
         armeabi-v7a)
             os=android-armv7
+            arch=arm
             ;;
         x86)
             os=android-x86
+            arch=x86
             ;;
         *)
             echo "Unsupported ABI: $abi"
             exit 1
             ;;
         esac
+
+        echo Current working directory: $(pwd)
+        echo Executing: ./Configure \
+                \"${os}\" \
+                --prefix=\"$root\" \
+                --cross-compile-prefix=\"${build_host}-\" \
+                no-zlib \
+                no-hw \
+                no-ssl3 \
+                ${cppflags} \
+                ${cflags} \
+                ${ldflags}
+
+        export ANDROID_SYSROOT="${ndkdir}/platforms/android-${android_api}/arch-${arch}"
+        export CROSS_SYSROOT="$ANDROID_SYSROOT"
         ./Configure \
                 "${os}" \
                 --prefix="$root" \
@@ -194,13 +229,22 @@ build_one() {
                 --with-gtk=no \
                 --enable-dbus=no \
                 --enable-controller=no \
-                --with-audio=gstreamer \
+                --enable-gstaudio \
+                --disable-celt051 \
+                --enable-opus \
                 LIBS="-lm"
+
+	# Disable tests and tools
+        sed -i 's/tests//' spice-common/Makefile
+        sed -i 's/tests//' Makefile
+        sed -i 's/tools//' Makefile
+
         patch -p1 < "${basedir}/spice-gtk-exit.patch"
         make $parallel
 
         # Patch to avoid SIGBUS due to unaligned accesses on ARM7
-        patch -p1 < "${basedir}/spice-marshaller-sigbus.patch"
+        # seems it is no longer needed since spice-gtk 0.35
+        #patch -p1 < "${basedir}/spice-marshaller-sigbus.patch"
         make $parallel
 
         make install
@@ -392,18 +436,10 @@ build() {
         mkdir -p "${gst}-${abi}"
         tar xf "$(tarpath ${pkgstr})" -C "${gst}-${abi}"
         ln -s "${gst}-${abi}/${gstarch}" "${gst}"
-        # The .la files point to shared libraries that don't exist, so
-        # linking fails.  We can't delete the .la files outright because
-        # the GStreamer ndk-build glue depends on them.  Create a separate
-        # lib directory with no .la files.
-        cp -a "${gst}/lib" "${gst}/lib-fixed"
-        rm -f ${gst}/lib-fixed/*.la
-        # Fix paths in .pc files
+
         origroot=$(grep '^prefix' "${gst}/lib/pkgconfig/gstreamer-1.0.pc" | \
                 sed -e 's/prefix=//')
-        sed -i -e "s|${origroot}/lib|${gst}/lib-fixed|g" \
-               -e "s|${origroot}|${gst}|g" \
-                ${gst}/lib-fixed/pkgconfig/*.pc
+
         # Add pkg-config file for libjpeg so Android.mk can ask for its
         # symbols to be exposed in the gstreamer .so
         cat > ${gst}/lib/pkgconfig/jpeg.pc <<EOF
@@ -418,10 +454,23 @@ Version: 8
 Libs: -L\${libdir} -ljpeg
 Cflags: -I\${includedir}
 EOF
+
+        # The .la files point to shared libraries that don't exist, so
+        # linking fails.  We can't delete the .la files outright because
+        # the GStreamer ndk-build glue depends on them.  Create a separate
+        # lib directory with no .la files.
+        cp -a "${gst}/lib" "${gst}/lib-fixed"
+        rm -f ${gst}/lib-fixed/*.la
+        # Fix paths in .pc files
+        sed -i -e "s|${origroot}/lib|${gst}/lib-fixed|g" \
+               -e "s|${origroot}|${gst}|g" \
+                ${gst}/lib-fixed/pkgconfig/*.pc
+
         # Drop pkg-config file for opus, since static libopus and static
         # libcelt051 can't be linked into the same binary due to symbol
         # conflicts, and RHEL's libspice-server doesn't link with opus
-        rm -f ${gst}/lib-fixed/pkgconfig/opus.pc
+        # Seems it works now, so enabling it over usage of Celt
+        #rm -f ${gst}/lib-fixed/pkgconfig/opus.pc
     fi
 
     # Build
@@ -571,7 +620,11 @@ build)
     do
         build "$curabi"
     done
-    build_freerdp
+
+    if echo $2 | grep -q RDP
+    then
+        build_freerdp
+    fi
 
     echo
     echo "Now you can run ndk-build if building aSPICE."

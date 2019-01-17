@@ -391,7 +391,9 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
 
         BookmarkBase.DebugSettings debugSettings = session.getBookmark().getDebugSettings();
         //debugSettings.setDebugLevel("TRACE");
-        //debugSettings.setAsyncTransport(false);
+        //debugSettings.setAsyncUpdate(false);
+        //debugSettings.setAsyncInput(false);
+        //debugSettings.setAsyncChannel(false);
 
         // Set screen settings to native res if instructed to, or if height or width are too small.
         BookmarkBase.ScreenSettings screenSettings = session.getBookmark().getActiveScreenSettings();

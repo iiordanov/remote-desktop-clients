@@ -1,5 +1,6 @@
 v1.4.6
 - Fix for Menu + immersive mode live-lock on some devices
+- Updated spice library
 v1.4.5
 - Input mode bugfixes
 - Security and protocol library updates
