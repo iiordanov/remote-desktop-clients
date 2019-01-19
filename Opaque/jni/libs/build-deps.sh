@@ -250,7 +250,7 @@ build_one() {
         make install
 
         # Put some header files in a version-independent location.
-        for f in config.h src/*.h spice-common/common
+        for f in config.h tools/*.h src/*.h spice-common/common
         do
             rsync -a $f ${root}/include/spice-1/
         done
