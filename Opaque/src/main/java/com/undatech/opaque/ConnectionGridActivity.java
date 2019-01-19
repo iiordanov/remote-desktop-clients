@@ -59,8 +59,8 @@ public class ConnectionGridActivity extends FragmentActivity {
 	private String[] connectionPreferenceFiles;
 	private String[] screenshotFiles;
 	private String[] connectionLabels;
-	
-	
+	protected PermissionsManager permissionsManager;
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -103,6 +103,8 @@ public class ConnectionGridActivity extends FragmentActivity {
 				return true;
 			}
 		});
+		permissionsManager = new PermissionsManager();
+		permissionsManager.requestPermissions(ConnectionGridActivity.this);
 	}
 	
 	@Override
@@ -164,10 +166,12 @@ public class ConnectionGridActivity extends FragmentActivity {
 
     /**
      * Linked with android:onClick to the export settings action bar item.
-     * @param view
+     * @param menuItem
      */
     public void exportSettings (MenuItem menuItem) {
-        String pathToFile = FileUtils.join(Environment.getExternalStorageDirectory().toString(),
+		permissionsManager.requestPermissions(ConnectionGridActivity.this);
+
+		String pathToFile = FileUtils.join(Environment.getExternalStorageDirectory().toString(),
                                            Constants.EXPORT_SETTINGS_FILE);
         SharedPreferences sp = getSharedPreferences("generalSettings", Context.MODE_PRIVATE);
         String connections = sp.getString("connections", null);
@@ -192,10 +196,12 @@ public class ConnectionGridActivity extends FragmentActivity {
 
     /**
      * Linked with android:onClick to the export settings action bar item.
-     * @param view
+     * @param menuItem
      */
     public void importSettings (MenuItem menuItem) {
-        String pathToFile = FileUtils.join(Environment.getExternalStorageDirectory().toString(),
+		permissionsManager.requestPermissions(ConnectionGridActivity.this);
+
+		String pathToFile = FileUtils.join(Environment.getExternalStorageDirectory().toString(),
                                            Constants.EXPORT_SETTINGS_FILE);
         FragmentManager fm = getSupportFragmentManager();
 
