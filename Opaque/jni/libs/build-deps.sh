@@ -175,7 +175,7 @@ build_one() {
             arch=arm
             ;;
         armeabi-v7a)
-            os=android-armv7
+            os=android-armeabi
             arch=arm
             ;;
         x86)
