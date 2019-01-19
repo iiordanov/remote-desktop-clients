@@ -264,7 +264,8 @@ build_one() {
         autoreconf -fi
         do_configure \
                 --enable-introspection=no \
-                --without-gnome
+                --without-gnome \
+                --disable-glibtest
         make $parallel
         make install
         ;;
@@ -409,6 +410,7 @@ setup() {
         ${ndkdir}/build/tools/make_standalone_toolchain.py \
                 --api "${android_api}" \
                 --arch "${arch}" \
+                --deprecated-headers \
                 --install-dir "${toolchain}"
     fi
     if ! [ -e "${toolchain}/bin/${build_host}-gcc" ] ; then
