@@ -26,16 +26,16 @@ public class Constants {
     
     public static final int SDK_INT = android.os.Build.VERSION.SDK_INT;
     
-	public static final int DIALOG_DISPLAY_VMS     = 0;
-	public static final int DIALOG_X509_CERT       = 1;
-	public static final int LAUNCH_VNC_VIEWER      = 2;
-	public static final int VM_LAUNCHED            = 3;
-	public static final int SPICE_CONNECT_SUCCESS  = 4;
-	public static final int SPICE_CONNECT_FAILURE  = 5;
-	public static final int OVIRT_AUTH_FAILURE     = 6;
-	public static final int OVIRT_SSL_HANDSHAKE_FAILURE = 7;
-	public static final int VM_LOOKUP_FAILED       = 8;
-	public static final int NO_VM_FOUND_FOR_USER   = 9;
+    public static final int DIALOG_DISPLAY_VMS     = 0;
+    public static final int DIALOG_X509_CERT       = 1;
+    public static final int LAUNCH_VNC_VIEWER      = 2;
+    public static final int VM_LAUNCHED            = 3;
+    public static final int SPICE_CONNECT_SUCCESS  = 4;
+    public static final int SPICE_CONNECT_FAILURE  = 5;
+    public static final int OVIRT_AUTH_FAILURE     = 6;
+    public static final int OVIRT_SSL_HANDSHAKE_FAILURE = 7;
+    public static final int VM_LOOKUP_FAILED       = 8;
+    public static final int NO_VM_FOUND_FOR_USER   = 9;
     public static final int GET_PASSWORD           = 10;
     public static final int VV_FILE_ERROR          = 11;
     public static final int OVIRT_TIMEOUT          = 12;
@@ -52,20 +52,20 @@ public class Constants {
     public static final int VV_DOWNLOAD_TIMEOUT        = 23;
     public static final int GET_OTP_CODE               = 24;
     
-	public static final int EXTRA_KEYS_OFF         = 0;
-	public static final int EXTRA_KEYS_ON          = 1;
-	public static final int EXTRA_KEYS_TIMEOUT     = 2;
-	
+    public static final int EXTRA_KEYS_OFF         = 0;
+    public static final int EXTRA_KEYS_ON          = 1;
+    public static final int EXTRA_KEYS_TIMEOUT     = 2;
+    
     public static final int ADVANCED_SETTINGS      = 1;
     public static final int DEFAULT_SETTINGS       = 2;
-	
-	public static final String DEFAULT_INPUT_METHOD_ID = InputHandlerDirectSwipePan.ID;
-	
-	public static final int SHORT_VIBRATION        = 50;
-	
-	public static final String DEFAULT_LAYOUT_MAP = "English (US)";
-	
-	public static final String ACTION_USB_PERMISSION = "com.undatech.opaque.USB_PERMISSION";
+    
+    public static final String DEFAULT_INPUT_METHOD_ID = InputHandlerDirectSwipePan.ID;
+    
+    public static final int SHORT_VIBRATION        = 50;
+    
+    public static final String DEFAULT_LAYOUT_MAP = "English (US)";
+    
+    public static final String ACTION_USB_PERMISSION = "com.undatech.opaque.USB_PERMISSION";
     public static final int usbDeviceTimeout = 5000;
     public static final int usbDevicePermissionTimeout = 15000;
     

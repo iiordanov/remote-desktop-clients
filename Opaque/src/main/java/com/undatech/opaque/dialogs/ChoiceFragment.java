@@ -60,12 +60,12 @@ import android.widget.Toast;
 import android.widget.LinearLayout.LayoutParams;
 
 public class ChoiceFragment extends DialogFragment {
-	public static String TAG = "GetTextFragment";
-	
+    public static String TAG = "GetTextFragment";
+    
     public interface OnFragmentDismissedListener {
         public void onResponseObtained(boolean result);
     }
-	
+    
     private Button noButton;
     private Button yesButton;
     private TextView message;
@@ -75,30 +75,30 @@ public class ChoiceFragment extends DialogFragment {
     private String messageText;
     private String positiveButtonText;
     private String negativeButtonText;
-	
-	public ChoiceFragment () {}
-	
-	/**
-	 * We make sure that if this dialog is produced automatically as part of an activity rebuild
-	 * and its dismissalListener is null, it closes itself upon being attached to the window.
-	 */
-	@Override
+    
+    public ChoiceFragment () {}
+    
+    /**
+     * We make sure that if this dialog is produced automatically as part of an activity rebuild
+     * and its dismissalListener is null, it closes itself upon being attached to the window.
+     */
+    @Override
     public void onAttach(Activity activity) {
-	    super.onAttach(activity);
-	    if (dismissalListener == null) {
-	        this.dismiss();
-	    }
-	}
+        super.onAttach(activity);
+        if (dismissalListener == null) {
+            this.dismiss();
+        }
+    }
     
     public void setOnFragmentDismissedListener (OnFragmentDismissedListener dismissalListener) {
         this.dismissalListener = dismissalListener;
     }
     
-	public static ChoiceFragment newInstance(String title, String messageText, String positiveButtonText,
-	                                         String negativeButtonText, OnFragmentDismissedListener dismissalListener) {
-    	android.util.Log.e(TAG, "newInstance called");
-    	ChoiceFragment f = new ChoiceFragment();
-    	f.setOnFragmentDismissedListener(dismissalListener);
+    public static ChoiceFragment newInstance(String title, String messageText, String positiveButtonText,
+                                             String negativeButtonText, OnFragmentDismissedListener dismissalListener) {
+        android.util.Log.e(TAG, "newInstance called");
+        ChoiceFragment f = new ChoiceFragment();
+        f.setOnFragmentDismissedListener(dismissalListener);
 
         Bundle args = new Bundle();
         args.putString("title", title);
@@ -110,11 +110,11 @@ public class ChoiceFragment extends DialogFragment {
 
         return f;
     }
-	
+    
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-    	android.util.Log.e(TAG, "onCreate called");
+        android.util.Log.e(TAG, "onCreate called");
         title = getArguments().getString("title");
         messageText = getArguments().getString("messageText");
         positiveButtonText = getArguments().getString("positiveButtonText");
@@ -123,12 +123,12 @@ public class ChoiceFragment extends DialogFragment {
     
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-    	android.util.Log.e(TAG, "onCreateView called");
+        android.util.Log.e(TAG, "onCreateView called");
 
-    	// Set title for this dialog
+        // Set title for this dialog
         getDialog().setTitle(title);
 
-    	View v = inflater.inflate(R.layout.choice, container, false);
+        View v = inflater.inflate(R.layout.choice, container, false);
         message = (TextView) v.findViewById(R.id.message);
         message.setText(messageText);
         
@@ -151,15 +151,15 @@ public class ChoiceFragment extends DialogFragment {
                 ChoiceFragment.this.dismiss();
             }
         });
-    	return v;
+        return v;
     }
     
     @Override
     public void onDismiss (DialogInterface dialog) {
-    	android.util.Log.e(TAG, "dismiss: sending back data to Activity");
-    	if (dismissalListener != null) {
-    	    dismissalListener.onResponseObtained(result);
-    	}
+        android.util.Log.e(TAG, "dismiss: sending back data to Activity");
+        if (dismissalListener != null) {
+            dismissalListener.onResponseObtained(result);
+        }
     }
 
     @Override

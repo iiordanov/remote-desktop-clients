@@ -58,20 +58,20 @@ import android.widget.Toast;
 import android.widget.LinearLayout.LayoutParams;
 
 public class GetTextFragment extends DialogFragment {
-	public static String TAG = "GetTextFragment";
-	
+    public static String TAG = "GetTextFragment";
+    
     public interface OnFragmentDismissedListener {
         public void onTextObtained(String id, String obtainedString);
     }
-	
+    
     private EditText textBox;
     private Button okButton;
     private OnFragmentDismissedListener dismissalListener;
     private String title;
     private String id;
-	
-	private boolean password = false;
-	private String obtained = "";
+    
+    private boolean password = false;
+    private String obtained = "";
     
     public GetTextFragment () {}
     
@@ -91,12 +91,12 @@ public class GetTextFragment extends DialogFragment {
         this.dismissalListener = dismissalListener;
     }
     
-	public static GetTextFragment newInstance(String id, String title,
-	                                          OnFragmentDismissedListener dismissalListener, boolean password) {
-    	android.util.Log.i(TAG, "newInstance called");
-    	GetTextFragment f = new GetTextFragment();
-    	f.setOnFragmentDismissedListener(dismissalListener);
-    	
+    public static GetTextFragment newInstance(String id, String title,
+                                              OnFragmentDismissedListener dismissalListener, boolean password) {
+        android.util.Log.i(TAG, "newInstance called");
+        GetTextFragment f = new GetTextFragment();
+        f.setOnFragmentDismissedListener(dismissalListener);
+        
         Bundle args = new Bundle();
         args.putString("id", id);
         args.putString("title", title);
@@ -110,7 +110,7 @@ public class GetTextFragment extends DialogFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-    	android.util.Log.i(TAG, "onCreate called");
+        android.util.Log.i(TAG, "onCreate called");
         this.id = getArguments().getString("id");
         this.title = getArguments().getString("title");
         this.password = getArguments().getBoolean("password");
@@ -118,16 +118,16 @@ public class GetTextFragment extends DialogFragment {
     
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-    	android.util.Log.i(TAG, "onCreateView called");
+        android.util.Log.i(TAG, "onCreateView called");
 
-    	// Set title for this dialog
-    	getDialog().setTitle(title);
+        // Set title for this dialog
+        getDialog().setTitle(title);
 
-    	View v = inflater.inflate(R.layout.get_text, container, false);
-    	textBox = (EditText) v.findViewById(R.id.textBox);
-    	if (password) {
-    		textBox.setTransformationMethod(new PasswordTransformationMethod());
-    	}
+        View v = inflater.inflate(R.layout.get_text, container, false);
+        textBox = (EditText) v.findViewById(R.id.textBox);
+        if (password) {
+            textBox.setTransformationMethod(new PasswordTransformationMethod());
+        }
         textBox.setOnEditorActionListener(new OnEditorActionListener () {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
@@ -140,23 +140,23 @@ public class GetTextFragment extends DialogFragment {
             }
         });
         textBox.setHint(title);
-    	
-    	okButton = (Button)v.findViewById(R.id.okButton);
-    	okButton.setOnClickListener(new View.OnClickListener() {
+        
+        okButton = (Button)v.findViewById(R.id.okButton);
+        okButton.setOnClickListener(new View.OnClickListener() {
             
             @Override
             public void onClick(View v) {
                 getDialog().dismiss();
             }
         });
-    	
+        
         return v;
     }
     
     @Override
     public void onDismiss (DialogInterface dialog) {
-    	android.util.Log.i(TAG, "dismiss: sending back data to listener");
-    	dismissalListener.onTextObtained(this.id, textBox.getText().toString());
+        android.util.Log.i(TAG, "dismiss: sending back data to listener");
+        dismissalListener.onTextObtained(this.id, textBox.getText().toString());
     }
 
     @Override

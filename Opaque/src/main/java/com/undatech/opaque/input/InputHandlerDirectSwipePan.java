@@ -29,93 +29,93 @@ import com.undatech.opaque.RemoteCanvas;
 import com.undatech.opaque.RemoteCanvasActivity;
 
 public class InputHandlerDirectSwipePan extends InputHandlerGeneric {
-	static final String TAG = "InputHandlerDirectSwipePan";
-	public static final String ID = "DirectSwipePan";
-	
-	public InputHandlerDirectSwipePan(RemoteCanvasActivity activity, RemoteCanvas canvas, Vibrator myVibrator) {
-		super(activity, canvas, myVibrator);
-	}
+    static final String TAG = "InputHandlerDirectSwipePan";
+    public static final String ID = "DirectSwipePan";
+    
+    public InputHandlerDirectSwipePan(RemoteCanvasActivity activity, RemoteCanvas canvas, Vibrator myVibrator) {
+        super(activity, canvas, myVibrator);
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * @see com.undatech.opaque.input.InputHandler#getDescription()
-	 */
-	@Override
-	public String getDescription() {
-		return canvas.getResources().getString(R.string.input_method_direct_swipe_pan_description);
-	}
+    /*
+     * (non-Javadoc)
+     * @see com.undatech.opaque.input.InputHandler#getDescription()
+     */
+    @Override
+    public String getDescription() {
+        return canvas.getResources().getString(R.string.input_method_direct_swipe_pan_description);
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * @see com.undatech.opaque.input.InputHandler#getId()
-	 */
-	@Override
-	public String getId() {
-		return ID;
-	}
+    /*
+     * (non-Javadoc)
+     * @see com.undatech.opaque.input.InputHandler#getId()
+     */
+    @Override
+    public String getId() {
+        return ID;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * @see android.view.GestureDetector.SimpleOnGestureListener#onDown(android.view.MotionEvent)
-	 */
-	@Override
-	public boolean onDown(MotionEvent e) {
-		panRepeater.stop();
-		return true;
-	}
+    /*
+     * (non-Javadoc)
+     * @see android.view.GestureDetector.SimpleOnGestureListener#onDown(android.view.MotionEvent)
+     */
+    @Override
+    public boolean onDown(MotionEvent e) {
+        panRepeater.stop();
+        return true;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * @see android.view.GestureDetector.SimpleOnGestureListener#onFling(android.view.MotionEvent, android.view.MotionEvent, float, float)
-	 */
-	@Override
-	public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+    /*
+     * (non-Javadoc)
+     * @see android.view.GestureDetector.SimpleOnGestureListener#onFling(android.view.MotionEvent, android.view.MotionEvent, float, float)
+     */
+    @Override
+    public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
 
-		// TODO: Workaround for Android 4.2.
-		boolean twoFingers = false;
-		if (e1 != null)
-			twoFingers = (e1.getPointerCount() > 1);
-		if (e2 != null)
-			twoFingers = twoFingers || (e2.getPointerCount() > 1);
+        // TODO: Workaround for Android 4.2.
+        boolean twoFingers = false;
+        if (e1 != null)
+            twoFingers = (e1.getPointerCount() > 1);
+        if (e2 != null)
+            twoFingers = twoFingers || (e2.getPointerCount() > 1);
 
-		// onFling called while scaling/swiping gesture is in effect. We ignore the event and pretend it was
-		// consumed. This prevents the mouse pointer from flailing around while we are scaling.
-		// Also, if one releases one finger slightly earlier than the other when scaling, it causes Android 
-		// to stick a spiteful onFling with a MASSIVE delta here. 
-		// This would cause the mouse pointer to jump to another place suddenly.
-		// Hence, we ignore onFing after scaling until we lift all pointers up.
-		if (twoFingers||disregardNextOnFling||inSwiping||inScaling||scalingJustFinished) {
-			return true;
-		}
+        // onFling called while scaling/swiping gesture is in effect. We ignore the event and pretend it was
+        // consumed. This prevents the mouse pointer from flailing around while we are scaling.
+        // Also, if one releases one finger slightly earlier than the other when scaling, it causes Android 
+        // to stick a spiteful onFling with a MASSIVE delta here. 
+        // This would cause the mouse pointer to jump to another place suddenly.
+        // Hence, we ignore onFing after scaling until we lift all pointers up.
+        if (twoFingers||disregardNextOnFling||inSwiping||inScaling||scalingJustFinished) {
+            return true;
+        }
 
-		activity.showToolbar();
-		panRepeater.start(-velocityX, -velocityY);
-		return true;
-	}
+        activity.showToolbar();
+        panRepeater.start(-velocityX, -velocityY);
+        return true;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * @see android.view.GestureDetector.SimpleOnGestureListener#onScroll(android.view.MotionEvent, android.view.MotionEvent, float, float)
-	 */
-	@Override
-	public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+    /*
+     * (non-Javadoc)
+     * @see android.view.GestureDetector.SimpleOnGestureListener#onScroll(android.view.MotionEvent, android.view.MotionEvent, float, float)
+     */
+    @Override
+    public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
 
-		if (!inScaling) {
-			// onScroll called while swiping gesture is in effect. We ignore the event and pretend it was
-			// consumed. This prevents the mouse pointer from flailing around while we are scaling.
-			// Also, if one releases one finger slightly earlier than the other when scaling, it causes Android 
-			// to stick a spiteful onScroll with a MASSIVE delta here. 
-			// This would cause the mouse pointer to jump to another place suddenly.
-			// Hence, we ignore onScroll after scaling until we lift all pointers up.
-			boolean twoFingers = false;
-			if (e1 != null)
-				twoFingers = (e1.getPointerCount() > 1);
-			if (e2 != null)
-				twoFingers = twoFingers || (e2.getPointerCount() > 1);
-	
-			if (twoFingers||inSwiping)
-				return true;
-		}
+        if (!inScaling) {
+            // onScroll called while swiping gesture is in effect. We ignore the event and pretend it was
+            // consumed. This prevents the mouse pointer from flailing around while we are scaling.
+            // Also, if one releases one finger slightly earlier than the other when scaling, it causes Android 
+            // to stick a spiteful onScroll with a MASSIVE delta here. 
+            // This would cause the mouse pointer to jump to another place suddenly.
+            // Hence, we ignore onScroll after scaling until we lift all pointers up.
+            boolean twoFingers = false;
+            if (e1 != null)
+                twoFingers = (e1.getPointerCount() > 1);
+            if (e2 != null)
+                twoFingers = twoFingers || (e2.getPointerCount() > 1);
+    
+            if (twoFingers||inSwiping)
+                return true;
+        }
 
         if (!inScrolling) {
             inScrolling = true;
@@ -138,10 +138,10 @@ public class InputHandlerDirectSwipePan extends InputHandlerGeneric {
             return true;
         }
        
-		float scale = canvas.getZoomFactor();
-		activity.showToolbar();
-		canvas.relativePan((int)(distanceX*scale), (int)(distanceY*scale));
-		return true;
-	}
+        float scale = canvas.getZoomFactor();
+        activity.showToolbar();
+        canvas.relativePan((int)(distanceX*scale), (int)(distanceY*scale));
+        return true;
+    }
 }
 

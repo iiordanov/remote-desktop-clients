@@ -35,8 +35,8 @@ import com.undatech.opaque.RemoteCanvas;
 import com.undatech.opaque.SpiceCommunicator;
 
 public class RemoteSpiceKeyboard extends RemoteKeyboard {
-	private final static String TAG = "RemoteSpiceKeyboard";
-	private HashMap<Integer, Integer[]> table;
+    private final static String TAG = "RemoteSpiceKeyboard";
+    private HashMap<Integer, Integer[]> table;
     final static int SCANCODE_SHIFT_MASK = 0x10000;
     final static int SCANCODE_ALTGR_MASK = 0x20000;
     final static int SCANCODE_CIRCUMFLEX_MASK = 0x40000;
@@ -44,11 +44,11 @@ public class RemoteSpiceKeyboard extends RemoteKeyboard {
     final static int UNICODE_MASK = 0x100000;
     final static int UNICODE_META_MASK = KeyEvent.META_CTRL_MASK|KeyEvent.META_META_MASK|KeyEvent.META_CAPS_LOCK_ON;
     
-	public RemoteSpiceKeyboard (Resources resources, SpiceCommunicator r, RemoteCanvas v, Handler h, String layoutMapFile) throws IOException {
-	    super(r, v, h);
-	    context = v.getContext();
-	    this.table = loadKeyMap(resources, "layouts/" + layoutMapFile);
-	}
+    public RemoteSpiceKeyboard (Resources resources, SpiceCommunicator r, RemoteCanvas v, Handler h, String layoutMapFile) throws IOException {
+        super(r, v, h);
+        context = v.getContext();
+        this.table = loadKeyMap(resources, "layouts/" + layoutMapFile);
+    }
 
     private HashMap<Integer,Integer[]>loadKeyMap(Resources r, String file) throws IOException {
         InputStream is;
@@ -74,51 +74,51 @@ public class RemoteSpiceKeyboard extends RemoteKeyboard {
         return table;
     }
 
-	/**
-	 * Sets the hardwareMetaState based on certain keys and scancodes being detected.
-	 * @param keyCode
-	 * @param event
-	 * @param down
-	 */
-	private void setHardwareMetaState (int keyCode, KeyEvent event, boolean down) {
-		int metaMask = 0;
-		switch (event.getScanCode()) {
-		case SCANCODE_LCTRL:
-		case SCANCODE_RCTRL:
-			metaMask |= CTRL_ON_MASK;
-			break;
-		}
-		
-		switch(keyCode) {
-		case KeyEvent.KEYCODE_DPAD_CENTER:
-			metaMask |= CTRL_ON_MASK;
-			break;
-		// TODO: We leave KeyEvent.KEYCODE_ALT_LEFT for symbol input on hardware keyboards for now.
-		case KeyEvent.KEYCODE_ALT_RIGHT:
-			metaMask |= ALT_ON_MASK;
-			break;
-		}
-		
-		if (!down) {
-			hardwareMetaState &= ~metaMask;
-		} else {
-			hardwareMetaState |= metaMask;
-		}
-	}
+    /**
+     * Sets the hardwareMetaState based on certain keys and scancodes being detected.
+     * @param keyCode
+     * @param event
+     * @param down
+     */
+    private void setHardwareMetaState (int keyCode, KeyEvent event, boolean down) {
+        int metaMask = 0;
+        switch (event.getScanCode()) {
+        case SCANCODE_LCTRL:
+        case SCANCODE_RCTRL:
+            metaMask |= CTRL_ON_MASK;
+            break;
+        }
+        
+        switch(keyCode) {
+        case KeyEvent.KEYCODE_DPAD_CENTER:
+            metaMask |= CTRL_ON_MASK;
+            break;
+        // TODO: We leave KeyEvent.KEYCODE_ALT_LEFT for symbol input on hardware keyboards for now.
+        case KeyEvent.KEYCODE_ALT_RIGHT:
+            metaMask |= ALT_ON_MASK;
+            break;
+        }
+        
+        if (!down) {
+            hardwareMetaState &= ~metaMask;
+        } else {
+            hardwareMetaState |= metaMask;
+        }
+    }
 
-	public boolean keyEvent(int keyCode, KeyEvent event) {
-		return keyEvent(keyCode, event, 0);
-	}
+    public boolean keyEvent(int keyCode, KeyEvent event) {
+        return keyEvent(keyCode, event, 0);
+    }
 
-	public boolean keyEvent(int keyCode, KeyEvent event, int additionalMetaState) {
-	    
-	    // Discard volume_up/down key events so to let them control music volume.
-	    if (keyCode == KeyEvent.KEYCODE_VOLUME_UP ||
-	        keyCode == KeyEvent.KEYCODE_VOLUME_DOWN ||
-	        keyCode == KeyEvent.KEYCODE_VOLUME_MUTE) {
-	        return false;
-	    }
-	    
+    public boolean keyEvent(int keyCode, KeyEvent event, int additionalMetaState) {
+        
+        // Discard volume_up/down key events so to let them control music volume.
+        if (keyCode == KeyEvent.KEYCODE_VOLUME_UP ||
+            keyCode == KeyEvent.KEYCODE_VOLUME_DOWN ||
+            keyCode == KeyEvent.KEYCODE_VOLUME_MUTE) {
+            return false;
+        }
+        
         android.util.Log.e(TAG, event.toString());
         int action = event.getAction();
         boolean down = (action == KeyEvent.ACTION_DOWN);
@@ -134,39 +134,39 @@ public class RemoteSpiceKeyboard extends RemoteKeyboard {
             return true;
         }*/
         
-	    // Drop some meta key events which may be used to produce unicode characters.
-	    if (down &&
-	        (keyCode == KeyEvent.KEYCODE_ALT_LEFT || keyCode == KeyEvent.KEYCODE_ALT_RIGHT ||
-	         keyCode == KeyEvent.KEYCODE_SHIFT_LEFT || keyCode == KeyEvent.KEYCODE_SHIFT_RIGHT)) {
+        // Drop some meta key events which may be used to produce unicode characters.
+        if (down &&
+            (keyCode == KeyEvent.KEYCODE_ALT_LEFT || keyCode == KeyEvent.KEYCODE_ALT_RIGHT ||
+             keyCode == KeyEvent.KEYCODE_SHIFT_LEFT || keyCode == KeyEvent.KEYCODE_SHIFT_RIGHT)) {
             lastDownMetaState = metaState;
-	        return true;
-	    }
-	    
-		// Set the hardware meta state from any special keys pressed.
-		setHardwareMetaState (keyCode, event, down);
-		
-		// Ignore menu key and handle other hardware buttons here.
-		if (keyCode == KeyEvent.KEYCODE_MENU ||
-			canvas.getPointer().hardwareButtonsAsMouseEvents(keyCode,
-															 event,
-															 metaState|onScreenMetaState|hardwareMetaState)) {
-		} else if (spicecomm != null && spicecomm.isInNormalProtocol()) {
-			// Combine metaState
-			metaState = onScreenMetaState|hardwareMetaState|metaState;
-			
-			// If the event consists of multiple unicode characters, send them one by one.
-			if (action == KeyEvent.ACTION_MULTIPLE) {
-				String s = event.getCharacters();
-				if (s != null) {
+            return true;
+        }
+        
+        // Set the hardware meta state from any special keys pressed.
+        setHardwareMetaState (keyCode, event, down);
+        
+        // Ignore menu key and handle other hardware buttons here.
+        if (keyCode == KeyEvent.KEYCODE_MENU ||
+            canvas.getPointer().hardwareButtonsAsMouseEvents(keyCode,
+                                                             event,
+                                                             metaState|onScreenMetaState|hardwareMetaState)) {
+        } else if (spicecomm != null && spicecomm.isInNormalProtocol()) {
+            // Combine metaState
+            metaState = onScreenMetaState|hardwareMetaState|metaState;
+            
+            // If the event consists of multiple unicode characters, send them one by one.
+            if (action == KeyEvent.ACTION_MULTIPLE) {
+                String s = event.getCharacters();
+                if (s != null) {
                     int numchars = s.length();
-					for (int i = 0; i < numchars; i++) {
-						android.util.Log.e(TAG, "Trying to convert unicode to KeyEvent: " + (int)s.charAt(i));
-						if (!sendUnicodeChar (s.charAt(i))) {
-						    writeKeyEvent(true, (int)s.charAt(i), metaState, true, true);
-						}
-					}
-				}
-			} else {
+                    for (int i = 0; i < numchars; i++) {
+                        android.util.Log.e(TAG, "Trying to convert unicode to KeyEvent: " + (int)s.charAt(i));
+                        if (!sendUnicodeChar (s.charAt(i))) {
+                            writeKeyEvent(true, (int)s.charAt(i), metaState, true, true);
+                        }
+                    }
+                }
+            } else {
                 // Get unicode character that would result from this event, masking out Ctrl and Super keys.
                 int unicode = event.getUnicodeChar(event.getMetaState()&~UNICODE_META_MASK);
                 Integer[] scanCodes = null;
@@ -206,21 +206,21 @@ public class RemoteSpiceKeyboard extends RemoteKeyboard {
                     android.util.Log.e(TAG, "Could not get unicode or determine scancodes for event. Keycode: " + event.getKeyCode());
                     writeKeyEvent(false, event.getKeyCode(), metaState, down, false);
                 }
-			}
-		}
-		return true;
-	}
-	
-	private void writeKeyEvent(boolean isUnicode, int code, int metaState, boolean down, boolean sendUpEvents) {
+            }
+        }
+        return true;
+    }
+    
+    private void writeKeyEvent(boolean isUnicode, int code, int metaState, boolean down, boolean sendUpEvents) {
         if (down) {
             lastDownMetaState = metaState;
         } else {
             lastDownMetaState = 0;
         }
         
-	    if (isUnicode) {
-	        code |= UNICODE_MASK;
-	    }
+        if (isUnicode) {
+            code |= UNICODE_MASK;
+        }
         android.util.Log.e(TAG, "Trying to convert keycode or masked unicode: " + code);
         Integer[] scanCode = null;
         try {
@@ -249,5 +249,5 @@ public class RemoteSpiceKeyboard extends RemoteKeyboard {
                 }
             }
         } catch (NullPointerException e) {}
-	}
+    }
 }

@@ -30,93 +30,93 @@ import com.undatech.opaque.RemoteCanvasActivity;
 import com.undatech.opaque.input.RemotePointer;
 
 public class InputHandlerDirectDragPan extends InputHandlerGeneric {
-	static final String TAG = "InputHandlerDirectDragPan";
-	public static final String ID = "DirectDragPan";
-	
-	/**
-	 * @param c
-	 */
-	public InputHandlerDirectDragPan(RemoteCanvasActivity activity, RemoteCanvas canvas, Vibrator myVibrator) {
-		super(activity, canvas, myVibrator);
-	}
+    static final String TAG = "InputHandlerDirectDragPan";
+    public static final String ID = "DirectDragPan";
+    
+    /**
+     * @param c
+     */
+    public InputHandlerDirectDragPan(RemoteCanvasActivity activity, RemoteCanvas canvas, Vibrator myVibrator) {
+        super(activity, canvas, myVibrator);
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * @see com.undatech.opaque.input.InputHandler#getDescription()
-	 */
-	@Override
-	public String getDescription() {
-		return canvas.getResources().getString(R.string.input_method_direct_drag_pan_description);
-	}
+    /*
+     * (non-Javadoc)
+     * @see com.undatech.opaque.input.InputHandler#getDescription()
+     */
+    @Override
+    public String getDescription() {
+        return canvas.getResources().getString(R.string.input_method_direct_drag_pan_description);
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * @see com.undatech.opaque.input.InputHandler#getId()
-	 */
-	@Override
-	public String getId() {
-		return ID;
-	}
-	
-	/*
-	 * (non-Javadoc)
-	 * @see com.undatech.opaque.input.InputHandlerGeneric#onLongPress(android.view.MotionEvent)
-	 */
-	@Override
-	public void onLongPress(MotionEvent e) {
+    /*
+     * (non-Javadoc)
+     * @see com.undatech.opaque.input.InputHandler#getId()
+     */
+    @Override
+    public String getId() {
+        return ID;
+    }
+    
+    /*
+     * (non-Javadoc)
+     * @see com.undatech.opaque.input.InputHandlerGeneric#onLongPress(android.view.MotionEvent)
+     */
+    @Override
+    public void onLongPress(MotionEvent e) {
 
-		// If we've performed a right/middle-click and the gesture is not over yet, do not start drag mode.
-		if (secondPointerWasDown || thirdPointerWasDown)
-			return;
-		
-		myVibrator.vibrate(Constants.SHORT_VIBRATION);
+        // If we've performed a right/middle-click and the gesture is not over yet, do not start drag mode.
+        if (secondPointerWasDown || thirdPointerWasDown)
+            return;
+        
+        myVibrator.vibrate(Constants.SHORT_VIBRATION);
 
-		canvas.displayShortToastMessage("Panning");
-		endDragModesAndScrolling();
-		panMode = true;
-	}
-	
+        canvas.displayShortToastMessage("Panning");
+        endDragModesAndScrolling();
+        panMode = true;
+    }
+    
 
-	/*
-	 * (non-Javadoc)
-	 * @see android.view.GestureDetector.SimpleOnGestureListener#onScroll(android.view.MotionEvent, android.view.MotionEvent, float, float)
-	 */
-	@Override
-	public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+    /*
+     * (non-Javadoc)
+     * @see android.view.GestureDetector.SimpleOnGestureListener#onScroll(android.view.MotionEvent, android.view.MotionEvent, float, float)
+     */
+    @Override
+    public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
         RemotePointer p = canvas.getPointer();
 
         // If we are scaling, allow panning around by moving two fingers around the screen
         if (inScaling) {
-    		float scale = canvas.getZoomFactor();
-    		activity.showToolbar();
-    		canvas.relativePan((int)(distanceX*scale), (int)(distanceY*scale));
+            float scale = canvas.getZoomFactor();
+            activity.showToolbar();
+            canvas.relativePan((int)(distanceX*scale), (int)(distanceY*scale));
         } else {        
-			// onScroll called while scaling/swiping gesture is in effect. We ignore the event and pretend it was
-			// consumed. This prevents the mouse pointer from flailing around while we are scaling.
-			// Also, if one releases one finger slightly earlier than the other when scaling, it causes Android 
-			// to stick a spiteful onScroll with a MASSIVE delta here. 
-			// This would cause the mouse pointer to jump to another place suddenly.
-			// Hence, we ignore onScroll after scaling until we lift all pointers up.
-			boolean twoFingers = false;
-			if (e1 != null)
-				twoFingers = (e1.getPointerCount() > 1);
-			if (e2 != null)
-				twoFingers = twoFingers || (e2.getPointerCount() > 1);
-	
-			if (twoFingers||inSwiping)
-				return true;
-	
-			activity.showToolbar();
-			
-			if (!dragMode) {
-				dragMode = true;
-				p.leftButtonDown(getX(e1), getY(e1), e1.getMetaState());
-			} else {
-				p.moveMouseButtonDown(getX(e2), getY(e2), e2.getMetaState());
-			}
+            // onScroll called while scaling/swiping gesture is in effect. We ignore the event and pretend it was
+            // consumed. This prevents the mouse pointer from flailing around while we are scaling.
+            // Also, if one releases one finger slightly earlier than the other when scaling, it causes Android 
+            // to stick a spiteful onScroll with a MASSIVE delta here. 
+            // This would cause the mouse pointer to jump to another place suddenly.
+            // Hence, we ignore onScroll after scaling until we lift all pointers up.
+            boolean twoFingers = false;
+            if (e1 != null)
+                twoFingers = (e1.getPointerCount() > 1);
+            if (e2 != null)
+                twoFingers = twoFingers || (e2.getPointerCount() > 1);
+    
+            if (twoFingers||inSwiping)
+                return true;
+    
+            activity.showToolbar();
+            
+            if (!dragMode) {
+                dragMode = true;
+                p.leftButtonDown(getX(e1), getY(e1), e1.getMetaState());
+            } else {
+                p.moveMouseButtonDown(getX(e2), getY(e2), e2.getMetaState());
+            }
         }
-    	canvas.movePanToMakePointerVisible();
-		return true;
-	}
+        canvas.movePanToMakePointerVisible();
+        return true;
+    }
 }
 

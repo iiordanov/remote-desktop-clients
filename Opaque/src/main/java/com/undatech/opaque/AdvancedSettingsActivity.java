@@ -49,47 +49,47 @@ import android.widget.TextView;
 import android.widget.ToggleButton;
 
 public class AdvancedSettingsActivity extends FragmentActivity implements ManageCustomCaFragment.OnFragmentDismissedListener {
-	private static String TAG = "AdvancedSettingsActivity";
-	
-	private ConnectionSettings currentConnection;
-	private ToggleButton toggleAudioPlayback;
-	private ToggleButton toggleAutoRotation;
-	private ToggleButton toggleAutoRequestDisplayResolution;
+    private static String TAG = "AdvancedSettingsActivity";
+    
+    private ConnectionSettings currentConnection;
+    private ToggleButton toggleAudioPlayback;
+    private ToggleButton toggleAutoRotation;
+    private ToggleButton toggleAutoRequestDisplayResolution;
     private ToggleButton toggleSslStrict;
     private ToggleButton toggleUsbEnabled;
-	private ToggleButton toggleUsingCustomOvirtCa;
-	private Button buttonManageOvirtCa;
-	private Spinner layoutMapSpinner;
-	
-	@Override
-	public void onCreate(Bundle icicle) {
-		super.onCreate(icicle);
-		setContentView(R.layout.advanced_settings_activity);
+    private ToggleButton toggleUsingCustomOvirtCa;
+    private Button buttonManageOvirtCa;
+    private Spinner layoutMapSpinner;
+    
+    @Override
+    public void onCreate(Bundle icicle) {
+        super.onCreate(icicle);
+        setContentView(R.layout.advanced_settings_activity);
 
-		Intent i = getIntent();
-		currentConnection = (ConnectionSettings)i.getSerializableExtra("com.undatech.opaque.ConnectionSettings");
-		
-		toggleAudioPlayback = (ToggleButton)findViewById(R.id.toggleAudioPlayback);
-		toggleAudioPlayback.setChecked(currentConnection.isAudioPlaybackEnabled());
-		
-		toggleUsbEnabled = (ToggleButton)findViewById(R.id.toggleUsbEnabled);
-		toggleUsbEnabled.setChecked(currentConnection.isUsbEnabled());
-		
-		toggleAutoRotation = (ToggleButton)findViewById(R.id.toggleAutoRotation);
-		toggleAutoRotation.setChecked(currentConnection.isRotationEnabled());
-		
-		toggleAutoRequestDisplayResolution = (ToggleButton)findViewById(R.id.toggleAutoRequestDisplayResolution);
-		toggleAutoRequestDisplayResolution.setChecked(currentConnection.isRequestingNewDisplayResolution());
+        Intent i = getIntent();
+        currentConnection = (ConnectionSettings)i.getSerializableExtra("com.undatech.opaque.ConnectionSettings");
+        
+        toggleAudioPlayback = (ToggleButton)findViewById(R.id.toggleAudioPlayback);
+        toggleAudioPlayback.setChecked(currentConnection.isAudioPlaybackEnabled());
+        
+        toggleUsbEnabled = (ToggleButton)findViewById(R.id.toggleUsbEnabled);
+        toggleUsbEnabled.setChecked(currentConnection.isUsbEnabled());
+        
+        toggleAutoRotation = (ToggleButton)findViewById(R.id.toggleAutoRotation);
+        toggleAutoRotation.setChecked(currentConnection.isRotationEnabled());
+        
+        toggleAutoRequestDisplayResolution = (ToggleButton)findViewById(R.id.toggleAutoRequestDisplayResolution);
+        toggleAutoRequestDisplayResolution.setChecked(currentConnection.isRequestingNewDisplayResolution());
 
-		toggleSslStrict = (ToggleButton)findViewById(R.id.toggleSslStrict);
-		toggleSslStrict.setChecked(currentConnection.isSslStrict());
-		
-		toggleUsingCustomOvirtCa = (ToggleButton)findViewById(R.id.toggleUsingCustomOvirtCa);
-		toggleUsingCustomOvirtCa.setChecked(currentConnection.isUsingCustomOvirtCa());
-		
-		buttonManageOvirtCa = (Button)findViewById(R.id.buttonManageOvirtCa);
-		buttonManageOvirtCa.setEnabled(currentConnection.isUsingCustomOvirtCa());
-		
+        toggleSslStrict = (ToggleButton)findViewById(R.id.toggleSslStrict);
+        toggleSslStrict.setChecked(currentConnection.isSslStrict());
+        
+        toggleUsingCustomOvirtCa = (ToggleButton)findViewById(R.id.toggleUsingCustomOvirtCa);
+        toggleUsingCustomOvirtCa.setChecked(currentConnection.isUsingCustomOvirtCa());
+        
+        buttonManageOvirtCa = (Button)findViewById(R.id.buttonManageOvirtCa);
+        buttonManageOvirtCa.setEnabled(currentConnection.isUsingCustomOvirtCa());
+        
         layoutMapSpinner = (Spinner) findViewById(R.id.layoutMaps);
         
         layoutMapSpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
@@ -110,31 +110,31 @@ public class AdvancedSettingsActivity extends FragmentActivity implements Manage
             public void onNothingSelected(AdapterView<?> parent) { }
         });
         
-		// Send the generated data back to the calling activity.
-		Intent databackIntent = new Intent();
-		databackIntent.putExtra("com.undatech.opaque.ConnectionSettings", currentConnection);
-		setResult(Activity.RESULT_OK, databackIntent);
-	}
-	
-	/**
-	 * Automatically linked with android:onClick to the toggleAudio button.
-	 * @param view
-	 */
-	public void toggleAudioPlaybackSetting (View view) {
-		ToggleButton s = (ToggleButton) view;
-		currentConnection.setAudioPlaybackEnabled(s.isChecked());	
-	}
-	
-	/**
-	 * Automatically linked with android:onClick to the toggleUsbEnabled button.
-	 * @param view
-	 */
-	public void toggleUsbEnabledSetting (View view) {
-		ToggleButton s = (ToggleButton) view;
-		currentConnection.setUsbEnabled(s.isChecked());	
-	}
-	
-	/**
+        // Send the generated data back to the calling activity.
+        Intent databackIntent = new Intent();
+        databackIntent.putExtra("com.undatech.opaque.ConnectionSettings", currentConnection);
+        setResult(Activity.RESULT_OK, databackIntent);
+    }
+    
+    /**
+     * Automatically linked with android:onClick to the toggleAudio button.
+     * @param view
+     */
+    public void toggleAudioPlaybackSetting (View view) {
+        ToggleButton s = (ToggleButton) view;
+        currentConnection.setAudioPlaybackEnabled(s.isChecked());
+    }
+    
+    /**
+     * Automatically linked with android:onClick to the toggleUsbEnabled button.
+     * @param view
+     */
+    public void toggleUsbEnabledSetting (View view) {
+        ToggleButton s = (ToggleButton) view;
+        currentConnection.setUsbEnabled(s.isChecked());
+    }
+    
+    /**
      * Automatically linked with android:onClick to the toggleAutoRotation button.
      * @param view
      */
@@ -142,69 +142,69 @@ public class AdvancedSettingsActivity extends FragmentActivity implements Manage
         ToggleButton s = (ToggleButton) view;
         currentConnection.setRotationEnabled(s.isChecked());    
     }
-	
-	/**
-	 * Automatically linked with android:onClick to the toggleRotation button.
-	 * @param view
-	 */
-	public void toggleAutoRequestDisplayResolution (View view) {
-		ToggleButton s = (ToggleButton) view;
-		currentConnection.setRequestingNewDisplayResolution(s.isChecked());	
-	}	
-	
-	/**
-	 * Automatically linked with android:onClick to the toggleSslStrict button.
-	 * @param view
-	 */
-	public void toggleSslStrict (View view) {
-		ToggleButton s = (ToggleButton) view;
-		currentConnection.setSslStrict(s.isChecked());	
-	}
-	
-	/**
-	 * Automatically linked with android:onClick to the toggleUsingCustomOvirtCa button.
-	 * @param view
-	 */
-	public void toggleUsingCustomOvirtCa (View view) {
-		ToggleButton s = (ToggleButton) view;
-		boolean usingCustomOvirtCa = s.isChecked();
-		currentConnection.setUsingCustomOvirtCa(usingCustomOvirtCa);
-		buttonManageOvirtCa.setEnabled(usingCustomOvirtCa);
-	}
-	
-	/**
-	 * Automatically linked with android:onClick to the buttonManageOvirtCa button.
-	 * @param view
-	 */
-	public void showManageOvirtCaDialog (View view) {
-		showCaDialog (ManageCustomCaFragment.TYPE_OVIRT);
-	}
-	
-	private void showCaDialog (int caPurpose) {
-		FragmentManager fm = this.getSupportFragmentManager();
-		ManageCustomCaFragment newFragment = ManageCustomCaFragment.newInstance(caPurpose, currentConnection);
-	    newFragment.show(fm, "customCa");
-	}
+    
+    /**
+     * Automatically linked with android:onClick to the toggleRotation button.
+     * @param view
+     */
+    public void toggleAutoRequestDisplayResolution (View view) {
+        ToggleButton s = (ToggleButton) view;
+        currentConnection.setRequestingNewDisplayResolution(s.isChecked());
+    }    
+    
+    /**
+     * Automatically linked with android:onClick to the toggleSslStrict button.
+     * @param view
+     */
+    public void toggleSslStrict (View view) {
+        ToggleButton s = (ToggleButton) view;
+        currentConnection.setSslStrict(s.isChecked());
+    }
+    
+    /**
+     * Automatically linked with android:onClick to the toggleUsingCustomOvirtCa button.
+     * @param view
+     */
+    public void toggleUsingCustomOvirtCa (View view) {
+        ToggleButton s = (ToggleButton) view;
+        boolean usingCustomOvirtCa = s.isChecked();
+        currentConnection.setUsingCustomOvirtCa(usingCustomOvirtCa);
+        buttonManageOvirtCa.setEnabled(usingCustomOvirtCa);
+    }
+    
+    /**
+     * Automatically linked with android:onClick to the buttonManageOvirtCa button.
+     * @param view
+     */
+    public void showManageOvirtCaDialog (View view) {
+        showCaDialog (ManageCustomCaFragment.TYPE_OVIRT);
+    }
+    
+    private void showCaDialog (int caPurpose) {
+        FragmentManager fm = this.getSupportFragmentManager();
+        ManageCustomCaFragment newFragment = ManageCustomCaFragment.newInstance(caPurpose, currentConnection);
+        newFragment.show(fm, "customCa");
+    }
 
-	private List<String> listFiles(String dirFrom) throws IOException {
-	    Resources res = getResources();
-	    AssetManager am = res.getAssets();
-	    String fileList[] = am.list(dirFrom);
+    private List<String> listFiles(String dirFrom) throws IOException {
+        Resources res = getResources();
+        AssetManager am = res.getAssets();
+        String fileList[] = am.list(dirFrom);
 
-	    if (fileList != null)
-	    {   
-	        for ( int i = 0;i<fileList.length;i++)
-	        {
-	            Log.d("",fileList[i]); 
-	        }
-	    }
-	    return (List<String>)Arrays.asList(fileList);
-	}
-	
-	@Override
-	public void onResume () {
-	    super.onResume();
-	    // Load list of items from asset folder and populate this:
+        if (fileList != null)
+        {   
+            for ( int i = 0;i<fileList.length;i++)
+            {
+                Log.d("",fileList[i]); 
+            }
+        }
+        return (List<String>)Arrays.asList(fileList);
+    }
+    
+    @Override
+    public void onResume () {
+        super.onResume();
+        // Load list of items from asset folder and populate this:
         List<String> spinnerArray = null;
         try {
             spinnerArray = listFiles("layouts");
@@ -224,10 +224,10 @@ public class AdvancedSettingsActivity extends FragmentActivity implements Manage
             selection = spinnerArray.indexOf(Constants.DEFAULT_LAYOUT_MAP);
         }
         layoutMapSpinner.setSelection(selection);
-	}
-	
-	@Override
-	public void onFragmentDismissed(ConnectionSettings currentConnection) {
-		this.currentConnection = currentConnection;
-	}
+    }
+    
+    @Override
+    public void onFragmentDismissed(ConnectionSettings currentConnection) {
+        this.currentConnection = currentConnection;
+    }
 }

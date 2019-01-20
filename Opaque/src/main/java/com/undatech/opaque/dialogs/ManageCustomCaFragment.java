@@ -46,31 +46,31 @@ import android.widget.Toast;
 import android.widget.LinearLayout.LayoutParams;
 
 public class ManageCustomCaFragment extends DialogFragment {
-	public static String TAG = "ManageCustomCaFragment";
-	public static int TYPE_OVIRT = 0;
-	public static int TYPE_SPICE = 1;
-	
+    public static String TAG = "ManageCustomCaFragment";
+    public static int TYPE_OVIRT = 0;
+    public static int TYPE_SPICE = 1;
+    
     public interface OnFragmentDismissedListener {
         public void onFragmentDismissed(ConnectionSettings currentConnection);
     }
-	
+    
     private OnFragmentDismissedListener dismissalListener;
     private int caPurpose;
     private ConnectionSettings currentConnection;
     
-	private EditText caCertPath;
-	private EditText caCert;
-	private Button importButton;
-	private Button helpButton;
+    private EditText caCertPath;
+    private EditText caCert;
+    private Button importButton;
+    private Button helpButton;
     
-	public ManageCustomCaFragment () {}
-	
+    public ManageCustomCaFragment () {}
+    
     public void setOnFragmentDismissedListener (OnFragmentDismissedListener dismissalListener) {
         this.dismissalListener = dismissalListener;
     }
-	
+    
     public static ManageCustomCaFragment newInstance(int caPurpose, ConnectionSettings currentConnection) {
-    	ManageCustomCaFragment f = new ManageCustomCaFragment();
+        ManageCustomCaFragment f = new ManageCustomCaFragment();
 
         // Supply the CA purpose as an argument.
         Bundle args = new Bundle();
@@ -85,8 +85,8 @@ public class ManageCustomCaFragment extends DialogFragment {
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         try {
-        	dismissalListener = (OnFragmentDismissedListener) activity;
-        	android.util.Log.e(TAG, "onAttach: assigning OnFragmentDismissedListener");
+            dismissalListener = (OnFragmentDismissedListener) activity;
+            android.util.Log.e(TAG, "onAttach: assigning OnFragmentDismissedListener");
         } catch (ClassCastException e) {
             throw new ClassCastException(activity.toString() + " must implement OnFragmentDismissedListener");
         }
@@ -95,7 +95,7 @@ public class ManageCustomCaFragment extends DialogFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-		
+        
         caPurpose = getArguments().getInt("caPurpose");
         currentConnection = (ConnectionSettings)getArguments().getSerializable("currentConnection");
     }
@@ -104,78 +104,78 @@ public class ManageCustomCaFragment extends DialogFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.manage_custom_ca, container, false);
         
-    	// Set title for this dialog
-    	getDialog().setTitle(R.string.manage_custom_ca_title);
+        // Set title for this dialog
+        getDialog().setTitle(R.string.manage_custom_ca_title);
 
-		caCert      = (EditText) v.findViewById(R.id.caCert);
-		caCertPath  = (EditText) v.findViewById(R.id.caCertPath);
-		
-		// Set up the import button.
-		importButton = (Button) v.findViewById(R.id.importButton);
-		importButton.setOnClickListener(new View.OnClickListener() {
-			
-			@Override
-			public void onClick(View v) {
-				importCaCert();
-			}
-		});
-		
-		// Set up the help button.
-		helpButton = (Button) v.findViewById(R.id.helpButton);
-		helpButton.setOnClickListener(new View.OnClickListener() {
-			
-			@Override
-			public void onClick(View v) {
-				//TODO: Show help
-			}
-		});
-		
-		// Set the widgets' state appropriately.
-		setWidgetStateAppropriately ();
+        caCert      = (EditText) v.findViewById(R.id.caCert);
+        caCertPath  = (EditText) v.findViewById(R.id.caCertPath);
+        
+        // Set up the import button.
+        importButton = (Button) v.findViewById(R.id.importButton);
+        importButton.setOnClickListener(new View.OnClickListener() {
+            
+            @Override
+            public void onClick(View v) {
+                importCaCert();
+            }
+        });
+        
+        // Set up the help button.
+        helpButton = (Button) v.findViewById(R.id.helpButton);
+        helpButton.setOnClickListener(new View.OnClickListener() {
+            
+            @Override
+            public void onClick(View v) {
+                //TODO: Show help
+            }
+        });
+        
+        // Set the widgets' state appropriately.
+        setWidgetStateAppropriately ();
         return v;
     }
     
-	private void importCaCert () {
-		Context context = getActivity();
-		File file = new File (caCertPath.getText().toString());
-		FileReader freader;
-		try {
-			freader = new FileReader(file);
-			BufferedReader reader = new BufferedReader(freader);
-	        StringBuffer buf = new StringBuffer();
-	        String line = null;
-	        do {
-	        	try {
-					line = reader.readLine();
-					if (line != null)
-						buf.append(line + '\n');
-				} catch (IOException e) {
-					Toast.makeText(context, R.string.ca_file_error_reading, Toast.LENGTH_LONG).show();
-				}
-	        } while (line != null);
-	        caCert.setText(buf.toString());
-		} catch (FileNotFoundException e) {
-			Toast.makeText(context, R.string.ca_file_not_found, Toast.LENGTH_LONG).show();
-		}
-	}
+    private void importCaCert () {
+        Context context = getActivity();
+        File file = new File (caCertPath.getText().toString());
+        FileReader freader;
+        try {
+            freader = new FileReader(file);
+            BufferedReader reader = new BufferedReader(freader);
+            StringBuffer buf = new StringBuffer();
+            String line = null;
+            do {
+                try {
+                    line = reader.readLine();
+                    if (line != null)
+                        buf.append(line + '\n');
+                } catch (IOException e) {
+                    Toast.makeText(context, R.string.ca_file_error_reading, Toast.LENGTH_LONG).show();
+                }
+            } while (line != null);
+            caCert.setText(buf.toString());
+        } catch (FileNotFoundException e) {
+            Toast.makeText(context, R.string.ca_file_not_found, Toast.LENGTH_LONG).show();
+        }
+    }
     
-	private void setWidgetStateAppropriately () {
-		if (caPurpose == ManageCustomCaFragment.TYPE_OVIRT) {
-			caCert.setText(currentConnection.getOvirtCaData());
-			caCertPath.setText(getExternalSDCardDirectory());
-		}
-	}
+    private void setWidgetStateAppropriately () {
+        if (caPurpose == ManageCustomCaFragment.TYPE_OVIRT) {
+            caCert.setText(currentConnection.getOvirtCaData());
+            caCertPath.setText(getExternalSDCardDirectory());
+        }
+    }
     
     @Override
     public void onDismiss (DialogInterface dialog) {
-    	android.util.Log.e(TAG, "dismiss: sending back data to Activity");
-		// Depending on the value of caPurpose, assign the certs in currentConnection.
-		if (caPurpose == ManageCustomCaFragment.TYPE_OVIRT) {
-			android.util.Log.e(TAG, "Setting custom oVirt CA");
-			currentConnection.setOvirtCaData(caCert.getText().toString());
-		}
+        android.util.Log.e(TAG, "dismiss: sending back data to Activity");
+        // Depending on the value of caPurpose, assign the certs in currentConnection.
+        if (caPurpose == ManageCustomCaFragment.TYPE_OVIRT) {
+            android.util.Log.e(TAG, "Setting custom oVirt CA");
+            currentConnection.setOvirtCaData(caCert.getText().toString());
+        }
 
-    	dismissalListener.onFragmentDismissed(currentConnection);
+        dismissalListener.onFragmentDismissed(currentConnection);
     }
     
     public String getExternalSDCardDirectory() {

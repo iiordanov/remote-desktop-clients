@@ -55,30 +55,30 @@ import android.widget.Toast;
 import android.widget.LinearLayout.LayoutParams;
 
 public class SelectTextElementFragment extends DialogFragment {
-	public static String TAG = "SelectVmFragment";
-	
+    public static String TAG = "SelectVmFragment";
+    
     public interface OnFragmentDismissedListener {
         public void onTextSelected(String selectedString);
     }
-	
+    
     private OnFragmentDismissedListener dismissalListener;
-	private ArrayList<String> strings;
-	private String title;
-	
-	LinearLayout verticalLayout;
-	
-	String selected = "";
+    private ArrayList<String> strings;
+    private String title;
+    
+    LinearLayout verticalLayout;
+    
+    String selected = "";
 
-	public SelectTextElementFragment () {}
+    public SelectTextElementFragment () {}
 
-	public void setOnFragmentDismissedListener (OnFragmentDismissedListener dismissalListener) {
-		this.dismissalListener = dismissalListener;
-	}
+    public void setOnFragmentDismissedListener (OnFragmentDismissedListener dismissalListener) {
+        this.dismissalListener = dismissalListener;
+    }
 
-	public static SelectTextElementFragment newInstance(String title, ArrayList<String> strings, OnFragmentDismissedListener dismissalListener) {
-    	android.util.Log.e(TAG, "newInstance called");
-    	SelectTextElementFragment f = new SelectTextElementFragment();
-    	f.setOnFragmentDismissedListener(dismissalListener);
+    public static SelectTextElementFragment newInstance(String title, ArrayList<String> strings, OnFragmentDismissedListener dismissalListener) {
+        android.util.Log.e(TAG, "newInstance called");
+        SelectTextElementFragment f = new SelectTextElementFragment();
+        f.setOnFragmentDismissedListener(dismissalListener);
 
         Bundle args = new Bundle();
         args.putStringArrayList("strings", strings);
@@ -92,50 +92,50 @@ public class SelectTextElementFragment extends DialogFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-    	android.util.Log.e(TAG, "onCreate called");
-		
+        android.util.Log.e(TAG, "onCreate called");
+        
         strings = getArguments().getStringArrayList("strings");
         title = getArguments().getString("title");
     }
     
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-    	android.util.Log.e(TAG, "onCreateView called");
+        android.util.Log.e(TAG, "onCreateView called");
 
-		XmlResourceParser parser = getResources().getLayout(R.layout.textelement);
-		AttributeSet attributes = Xml.asAttributeSet(parser);
+        XmlResourceParser parser = getResources().getLayout(R.layout.textelement);
+        AttributeSet attributes = Xml.asAttributeSet(parser);
 
-    	// Set title for this dialog
-    	getDialog().setTitle(title);
+        // Set title for this dialog
+        getDialog().setTitle(title);
 
-    	View v = inflater.inflate(R.layout.select_text, container, false);
+        View v = inflater.inflate(R.layout.select_text, container, false);
 
-    	verticalLayout = (LinearLayout) v.findViewById(R.id.verticalLayout);
-    	ListIterator<String> iter = strings.listIterator();
-    	while (iter.hasNext()) {
-    		android.util.Log.e(TAG, "Adding element to dialog");
-    		String string = iter.next();
-    		TextView element = new TextView (v.getContext(), attributes);
-    		element.setText(string);
-    		element.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 25.f);
-    		element.setPadding(40, 20, 40, 20);
-    		element.setOnClickListener(new View.OnClickListener() {
-    			@Override
-    			public void onClick(View v) {
-    				SelectTextElementFragment.this.selected = ((TextView)v).getText().toString();
-    				SelectTextElementFragment.this.dismiss();
-    			}
-    		});
-    		verticalLayout.addView(element);
-    	}
+        verticalLayout = (LinearLayout) v.findViewById(R.id.verticalLayout);
+        ListIterator<String> iter = strings.listIterator();
+        while (iter.hasNext()) {
+            android.util.Log.e(TAG, "Adding element to dialog");
+            String string = iter.next();
+            TextView element = new TextView (v.getContext(), attributes);
+            element.setText(string);
+            element.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 25.f);
+            element.setPadding(40, 20, 40, 20);
+            element.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    SelectTextElementFragment.this.selected = ((TextView)v).getText().toString();
+                    SelectTextElementFragment.this.dismiss();
+                }
+            });
+            verticalLayout.addView(element);
+        }
 
-    	return v;
+        return v;
     }
     
     @Override
     public void onDismiss (DialogInterface dialog) {
-    	android.util.Log.e(TAG, "dismiss: sending back data to Activity");
-    	dismissalListener.onTextSelected(selected);
+        android.util.Log.e(TAG, "dismiss: sending back data to Activity");
+        dismissalListener.onTextSelected(selected);
     }
 
     @Override

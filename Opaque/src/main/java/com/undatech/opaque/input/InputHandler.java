@@ -24,9 +24,9 @@ import android.view.KeyEvent;
 import android.view.MotionEvent;
 
 public interface InputHandler {
-	boolean onKeyDown(int keyCode, KeyEvent event);
-	boolean onKeyUp(int keyCode, KeyEvent event);
-	boolean onTouchEvent(MotionEvent event);
-	String getDescription();
-	String getId();
+    boolean onKeyDown(int keyCode, KeyEvent event);
+    boolean onKeyUp(int keyCode, KeyEvent event);
+    boolean onTouchEvent(MotionEvent event);
+    String getDescription();
+    String getId();
 }

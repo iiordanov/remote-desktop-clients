@@ -85,41 +85,41 @@ import android.support.v7.widget.Toolbar;
 public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyListener,
                                                                       SelectTextElementFragment.OnFragmentDismissedListener,
                                                                       GetTextFragment.OnFragmentDismissedListener {
-	private final static String TAG = "RemoteCanvasActivity";
-	
-	public RemoteCanvas canvas;
+    private final static String TAG = "RemoteCanvasActivity";
+    
+    public RemoteCanvas canvas;
 
-	private InputHandler inputHandler;
-	Map<Integer, InputHandler> inputHandlerIdMap;
-	 
-	private ConnectionSettings connection;
-	
-	RemoteCanvasActivityHandler handler;
-	
+    private InputHandler inputHandler;
+    Map<Integer, InputHandler> inputHandlerIdMap;
+     
+    private ConnectionSettings connection;
+    
+    RemoteCanvasActivityHandler handler;
+    
     private Vibrator myVibrator;
-	
-	RelativeLayout layoutKeys;
+    
+    RelativeLayout layoutKeys;
     LinearLayout layoutArrowKeys;
-	ImageButton keyStow;
-	ImageButton keyCtrl;
-	boolean keyCtrlToggled;
-	ImageButton keySuper;
-	boolean keySuperToggled;
-	ImageButton keyAlt;
-	boolean keyAltToggled;
-	ImageButton keyTab;
-	ImageButton keyEsc;
-	ImageButton keyShift;
-	boolean keyShiftToggled;
-	ImageButton keyUp;
-	ImageButton keyDown;
-	ImageButton keyLeft;
-	ImageButton keyRight;
-	volatile boolean softKeyboardUp;
-	boolean hardKeyboardExtended;
-	boolean extraKeysHidden = false;
-	int prevBottomOffset = 0;
-	Toolbar toolbar;
+    ImageButton keyStow;
+    ImageButton keyCtrl;
+    boolean keyCtrlToggled;
+    ImageButton keySuper;
+    boolean keySuperToggled;
+    ImageButton keyAlt;
+    boolean keyAltToggled;
+    ImageButton keyTab;
+    ImageButton keyEsc;
+    ImageButton keyShift;
+    boolean keyShiftToggled;
+    ImageButton keyUp;
+    ImageButton keyDown;
+    ImageButton keyLeft;
+    ImageButton keyRight;
+    volatile boolean softKeyboardUp;
+    boolean hardKeyboardExtended;
+    boolean extraKeysHidden = false;
+    int prevBottomOffset = 0;
+    Toolbar toolbar;
 
 
     /**
@@ -197,10 +197,10 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
         
         canvas = (RemoteCanvas) findViewById(R.id.canvas);
 
-		startConnection();
-	}
-	
-	private void startConnection() {
+        startConnection();
+    }
+    
+    private void startConnection() {
         Intent i = getIntent();
         String vvFileName = retrieveVvFileFromIntent(i);
         if (vvFileName == null) {
@@ -248,11 +248,11 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
 
         
         
-		// This code detects when the soft keyboard is up and sets an appropriate visibleHeight in the canvas.
-		// When the keyboard is gone, it resets visibleHeight and pans zero distance to prevent us from being
-		// below the desktop image (if we scrolled all the way down when the keyboard was up).
-		// TODO: Move this into a separate thread, and post the visibility changes to the handler.
-		//       to avoid occupying the UI thread with this.
+        // This code detects when the soft keyboard is up and sets an appropriate visibleHeight in the canvas.
+        // When the keyboard is gone, it resets visibleHeight and pans zero distance to prevent us from being
+        // below the desktop image (if we scrolled all the way down when the keyboard was up).
+        // TODO: Move this into a separate thread, and post the visibility changes to the handler.
+        //       to avoid occupying the UI thread with this.
         final View rootView = ((ViewGroup)findViewById(android.R.id.content)).getChildAt(0);
         rootView.getViewTreeObserver().addOnGlobalLayoutListener(new OnGlobalLayoutListener() {
             @Override
@@ -270,10 +270,10 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
                     // we make sure r.top is zero (i.e. there is no notification bar and we are in full-screen mode)
                     // It's a bit of a hack.
                     if (r.top == 0) {
-                    	if (canvas.myDrawable != null) {
-                        	canvas.setVisibleDesktopHeight(r.bottom);
-                    		canvas.relativePan(0, 0);
-                    	}
+                        if (canvas.myDrawable != null) {
+                            canvas.setVisibleDesktopHeight(r.bottom);
+                            canvas.relativePan(0, 0);
+                        }
                     }
                     
                     // Enable/show the toolbar if the keyboard is gone, and disable/hide otherwise.
@@ -328,27 +328,27 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
         });
 
         // Initialize and define actions for on-screen keys.
-		initializeOnScreenKeys ();
-		
-	    myVibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
-	    
-		// Initialize map from XML IDs to input handlers.
-		inputHandlerIdMap = new HashMap<Integer, InputHandler>();
-		inputHandlerIdMap.put(R.id.inputMethodDirectSwipePan, new InputHandlerDirectSwipePan(this, canvas, myVibrator));
-		inputHandlerIdMap.put(R.id.inputMethodDirectDragPan,  new InputHandlerDirectDragPan (this, canvas, myVibrator));
-		inputHandlerIdMap.put(R.id.inputMethodTouchpad,       new InputHandlerTouchpad      (this, canvas, myVibrator));
-		inputHandlerIdMap.put(R.id.inputMethodSingleHanded,   new InputHandlerSingleHanded  (this, canvas, myVibrator));
-		
-		android.util.Log.e(TAG, "connection.getInputMethod(): " + connection.getInputMethod());
-		inputHandler = idToInputHandler(connection.getInputMethod());
-		
-		toolbar = (Toolbar) findViewById(R.id.toolbar);
-		toolbar.setTitle("");
+        initializeOnScreenKeys ();
+        
+        myVibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
+        
+        // Initialize map from XML IDs to input handlers.
+        inputHandlerIdMap = new HashMap<Integer, InputHandler>();
+        inputHandlerIdMap.put(R.id.inputMethodDirectSwipePan, new InputHandlerDirectSwipePan(this, canvas, myVibrator));
+        inputHandlerIdMap.put(R.id.inputMethodDirectDragPan,  new InputHandlerDirectDragPan (this, canvas, myVibrator));
+        inputHandlerIdMap.put(R.id.inputMethodTouchpad,       new InputHandlerTouchpad      (this, canvas, myVibrator));
+        inputHandlerIdMap.put(R.id.inputMethodSingleHanded,   new InputHandlerSingleHanded  (this, canvas, myVibrator));
+        
+        android.util.Log.e(TAG, "connection.getInputMethod(): " + connection.getInputMethod());
+        inputHandler = idToInputHandler(connection.getInputMethod());
+        
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar.setTitle("");
         toolbar.getBackground().setAlpha(64);
-		setSupportActionBar(toolbar);
-		showToolbar();
-	}
-	
+        setSupportActionBar(toolbar);
+        showToolbar();
+    }
+    
     
     /**
      * Gets called when a new intent comes in.
@@ -468,573 +468,573 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
 
         return vvFileName;
     }
-	
+    
     private void deleteMyFile (String path) {
         new File(path).delete();
     }
     
-	
-	private void setKeyStowDrawableAndVisibility() {
-		Drawable replacer = null;
-		if (layoutKeys.getVisibility() == View.GONE)
-			replacer = getResources().getDrawable(R.drawable.showkeys);
-		else
-			replacer = getResources().getDrawable(R.drawable.hidekeys);
-		keyStow.setBackgroundDrawable(replacer);
+    
+    private void setKeyStowDrawableAndVisibility() {
+        Drawable replacer = null;
+        if (layoutKeys.getVisibility() == View.GONE)
+            replacer = getResources().getDrawable(R.drawable.showkeys);
+        else
+            replacer = getResources().getDrawable(R.drawable.hidekeys);
+        keyStow.setBackgroundDrawable(replacer);
 
-		if (connection.getExtraKeysToggleType() == Constants.EXTRA_KEYS_OFF)
-			keyStow.setVisibility(View.GONE);
-		else
-			keyStow.setVisibility(View.VISIBLE);
-	}
-	
-	/**
-	 * Initializes the on-screen keys for meta keys and arrow keys.
-	 */
-	private void initializeOnScreenKeys () {
-		
+        if (connection.getExtraKeysToggleType() == Constants.EXTRA_KEYS_OFF)
+            keyStow.setVisibility(View.GONE);
+        else
+            keyStow.setVisibility(View.VISIBLE);
+    }
+    
+    /**
+     * Initializes the on-screen keys for meta keys and arrow keys.
+     */
+    private void initializeOnScreenKeys () {
+        
         layoutKeys = (RelativeLayout) findViewById(R.id.layoutKeys);
         layoutArrowKeys = (LinearLayout) findViewById(R.id.layoutArrowKeys);
 
-		keyStow = (ImageButton)    findViewById(R.id.keyStow);
-		setKeyStowDrawableAndVisibility();
-		keyStow.setOnClickListener(new OnClickListener () {
-			@Override
-			public void onClick(View arg0) {
-				if (layoutKeys.getVisibility() == View.VISIBLE) {
-					extraKeysHidden = true;
-					setExtraKeysVisibility(View.GONE, false);
-				} else {
-					extraKeysHidden = false;
-					setExtraKeysVisibility(View.VISIBLE, true);
-				}
-    			layoutKeys.offsetTopAndBottom(prevBottomOffset);
-    			setKeyStowDrawableAndVisibility();
-			}
-		});
+        keyStow = (ImageButton)    findViewById(R.id.keyStow);
+        setKeyStowDrawableAndVisibility();
+        keyStow.setOnClickListener(new OnClickListener () {
+            @Override
+            public void onClick(View arg0) {
+                if (layoutKeys.getVisibility() == View.VISIBLE) {
+                    extraKeysHidden = true;
+                    setExtraKeysVisibility(View.GONE, false);
+                } else {
+                    extraKeysHidden = false;
+                    setExtraKeysVisibility(View.VISIBLE, true);
+                }
+                layoutKeys.offsetTopAndBottom(prevBottomOffset);
+                setKeyStowDrawableAndVisibility();
+            }
+        });
 
-		// Define action of tab key and meta keys.
-		keyTab = (ImageButton) findViewById(R.id.keyTab);
-		keyTab.setOnTouchListener(new OnTouchListener () {
-			@Override
-			public boolean onTouch(View arg0, MotionEvent e) {
-				RemoteKeyboard k = canvas.getKeyboard();
-				int key = KeyEvent.KEYCODE_TAB;
-				if (e.getAction() == MotionEvent.ACTION_DOWN) {
-					myVibrator.vibrate(Constants.SHORT_VIBRATION);
-					keyTab.setImageResource(R.drawable.tabon);
-					k.repeatKeyEvent(key, new KeyEvent(e.getAction(), key));
-					return true;
-				} else if (e.getAction() == MotionEvent.ACTION_UP) {
-					keyTab.setImageResource(R.drawable.taboff);
-					resetOnScreenKeys (0);
-					k.stopRepeatingKeyEvent();
-					return true;
-				}
-				return false;
-			}
-		});
+        // Define action of tab key and meta keys.
+        keyTab = (ImageButton) findViewById(R.id.keyTab);
+        keyTab.setOnTouchListener(new OnTouchListener () {
+            @Override
+            public boolean onTouch(View arg0, MotionEvent e) {
+                RemoteKeyboard k = canvas.getKeyboard();
+                int key = KeyEvent.KEYCODE_TAB;
+                if (e.getAction() == MotionEvent.ACTION_DOWN) {
+                    myVibrator.vibrate(Constants.SHORT_VIBRATION);
+                    keyTab.setImageResource(R.drawable.tabon);
+                    k.repeatKeyEvent(key, new KeyEvent(e.getAction(), key));
+                    return true;
+                } else if (e.getAction() == MotionEvent.ACTION_UP) {
+                    keyTab.setImageResource(R.drawable.taboff);
+                    resetOnScreenKeys (0);
+                    k.stopRepeatingKeyEvent();
+                    return true;
+                }
+                return false;
+            }
+        });
 
-		keyEsc = (ImageButton) findViewById(R.id.keyEsc);
-		keyEsc.setOnTouchListener(new OnTouchListener () {
-			@Override
-			public boolean onTouch(View arg0, MotionEvent e) {
-				RemoteKeyboard k = canvas.getKeyboard();
-				int key = 111; /* KEYCODE_ESCAPE */
-				if (e.getAction() == MotionEvent.ACTION_DOWN) {
-					myVibrator.vibrate(Constants.SHORT_VIBRATION);
-					keyEsc.setImageResource(R.drawable.escon);
-					k.repeatKeyEvent(key, new KeyEvent(e.getAction(), key));
-					return true;
-				} else if (e.getAction() == MotionEvent.ACTION_UP) {
-					keyEsc.setImageResource(R.drawable.escoff);
-					resetOnScreenKeys (0);
-					k.stopRepeatingKeyEvent();
-					return true;
-				}
-				return false;
-			}
-		});
-		
-		keyCtrl = (ImageButton) findViewById(R.id.keyCtrl);
-		keyCtrl.setOnClickListener(new OnClickListener () {
-			@Override
-			public void onClick(View arg0) {
-				boolean on = canvas.getKeyboard().onScreenCtrlToggle();
-				keyCtrlToggled = false;
-				if (on)
-					keyCtrl.setImageResource(R.drawable.ctrlon);
-				else
-					keyCtrl.setImageResource(R.drawable.ctrloff);
-			}
-		});
-		
-		keyCtrl.setOnLongClickListener(new OnLongClickListener () {
-			@Override
-			public boolean onLongClick(View arg0) {
-				myVibrator.vibrate(Constants.SHORT_VIBRATION);
-				boolean on = canvas.getKeyboard().onScreenCtrlToggle();
-				keyCtrlToggled = true;
-				if (on)
-					keyCtrl.setImageResource(R.drawable.ctrlon);
-				else
-					keyCtrl.setImageResource(R.drawable.ctrloff);
-				return true;
-			}
-		});
-		
-		keySuper = (ImageButton) findViewById(R.id.keySuper);
-		keySuper.setOnClickListener(new OnClickListener () {
-			@Override
-			public void onClick(View arg0) {
-				boolean on = canvas.getKeyboard().onScreenSuperToggle();
-				keySuperToggled = false;
-				if (on)
-					keySuper.setImageResource(R.drawable.superon);
-				else
-					keySuper.setImageResource(R.drawable.superoff);
-			}
-		});
-		
-		keySuper.setOnLongClickListener(new OnLongClickListener () {
-			@Override
-			public boolean onLongClick(View arg0) {
-				myVibrator.vibrate(Constants.SHORT_VIBRATION);
-				boolean on = canvas.getKeyboard().onScreenSuperToggle();
-				keySuperToggled = true;
-				if (on)
-					keySuper.setImageResource(R.drawable.superon);
-				else
-					keySuper.setImageResource(R.drawable.superoff);
-				return true;
-			}
-		});
-		
-		keyAlt = (ImageButton) findViewById(R.id.keyAlt);
-		keyAlt.setOnClickListener(new OnClickListener () {
-			@Override
-			public void onClick(View arg0) {
-				boolean on = canvas.getKeyboard().onScreenAltToggle();
-				keyAltToggled = false;
-				if (on)
-					keyAlt.setImageResource(R.drawable.alton);
-				else
-					keyAlt.setImageResource(R.drawable.altoff);
-			}
-		});
-		
-		keyAlt.setOnLongClickListener(new OnLongClickListener () {
-			@Override
-			public boolean onLongClick(View arg0) {
-				myVibrator.vibrate(Constants.SHORT_VIBRATION);
-				boolean on = canvas.getKeyboard().onScreenAltToggle();
-				keyAltToggled = true;
-				if (on)
-					keyAlt.setImageResource(R.drawable.alton);
-				else
-					keyAlt.setImageResource(R.drawable.altoff);
-				return true;
-			}
-		});
-		
-		keyShift = (ImageButton) findViewById(R.id.keyShift);
-		keyShift.setOnClickListener(new OnClickListener () {
-			@Override
-			public void onClick(View arg0) {
-				boolean on = canvas.getKeyboard().onScreenShiftToggle();
-				keyShiftToggled = false;
-				if (on)
-					keyShift.setImageResource(R.drawable.shifton);
-				else
-					keyShift.setImageResource(R.drawable.shiftoff);
-			}
-		});
-		
-		keyShift.setOnLongClickListener(new OnLongClickListener () {
-			@Override
-			public boolean onLongClick(View arg0) {
-				myVibrator.vibrate(Constants.SHORT_VIBRATION);
-				boolean on = canvas.getKeyboard().onScreenShiftToggle();
-				keyShiftToggled = true;
-				if (on)
-					keyShift.setImageResource(R.drawable.shifton);
-				else
-					keyShift.setImageResource(R.drawable.shiftoff);
-				return true;
-			}
-		});
-		
-		// Define action of arrow keys.
-		keyUp = (ImageButton) findViewById(R.id.keyUpArrow);
-		keyUp.setOnTouchListener(new OnTouchListener () {
-			@Override
-			public boolean onTouch(View arg0, MotionEvent e) {
-				RemoteKeyboard k = canvas.getKeyboard();
-				int key = KeyEvent.KEYCODE_DPAD_UP;
-				if (e.getAction() == MotionEvent.ACTION_DOWN) {
-					myVibrator.vibrate(Constants.SHORT_VIBRATION);
-					keyUp.setImageResource(R.drawable.upon);
-					k.repeatKeyEvent(key, new KeyEvent(e.getAction(), key));
-					return true;
-				} else if (e.getAction() == MotionEvent.ACTION_UP) {
-					keyUp.setImageResource(R.drawable.upoff);
-					resetOnScreenKeys (0);
-					k.stopRepeatingKeyEvent();
-					return true;
-				}
-				return false;
-			}
-		});
-		
-		keyDown = (ImageButton) findViewById(R.id.keyDownArrow);
-		keyDown.setOnTouchListener(new OnTouchListener () {
-			@Override
-			public boolean onTouch(View arg0, MotionEvent e) {
-				RemoteKeyboard k = canvas.getKeyboard();
-				int key = KeyEvent.KEYCODE_DPAD_DOWN;
-				if (e.getAction() == MotionEvent.ACTION_DOWN) {
-					myVibrator.vibrate(Constants.SHORT_VIBRATION);
-					keyDown.setImageResource(R.drawable.downon);
-					k.repeatKeyEvent(key, new KeyEvent(e.getAction(), key));
-					return true;
-				} else if (e.getAction() == MotionEvent.ACTION_UP) {
-					keyDown.setImageResource(R.drawable.downoff);
-					resetOnScreenKeys (0);
-					k.stopRepeatingKeyEvent();
-					return true;
-				}
-				return false;
-			}
-		});
+        keyEsc = (ImageButton) findViewById(R.id.keyEsc);
+        keyEsc.setOnTouchListener(new OnTouchListener () {
+            @Override
+            public boolean onTouch(View arg0, MotionEvent e) {
+                RemoteKeyboard k = canvas.getKeyboard();
+                int key = 111; /* KEYCODE_ESCAPE */
+                if (e.getAction() == MotionEvent.ACTION_DOWN) {
+                    myVibrator.vibrate(Constants.SHORT_VIBRATION);
+                    keyEsc.setImageResource(R.drawable.escon);
+                    k.repeatKeyEvent(key, new KeyEvent(e.getAction(), key));
+                    return true;
+                } else if (e.getAction() == MotionEvent.ACTION_UP) {
+                    keyEsc.setImageResource(R.drawable.escoff);
+                    resetOnScreenKeys (0);
+                    k.stopRepeatingKeyEvent();
+                    return true;
+                }
+                return false;
+            }
+        });
+        
+        keyCtrl = (ImageButton) findViewById(R.id.keyCtrl);
+        keyCtrl.setOnClickListener(new OnClickListener () {
+            @Override
+            public void onClick(View arg0) {
+                boolean on = canvas.getKeyboard().onScreenCtrlToggle();
+                keyCtrlToggled = false;
+                if (on)
+                    keyCtrl.setImageResource(R.drawable.ctrlon);
+                else
+                    keyCtrl.setImageResource(R.drawable.ctrloff);
+            }
+        });
+        
+        keyCtrl.setOnLongClickListener(new OnLongClickListener () {
+            @Override
+            public boolean onLongClick(View arg0) {
+                myVibrator.vibrate(Constants.SHORT_VIBRATION);
+                boolean on = canvas.getKeyboard().onScreenCtrlToggle();
+                keyCtrlToggled = true;
+                if (on)
+                    keyCtrl.setImageResource(R.drawable.ctrlon);
+                else
+                    keyCtrl.setImageResource(R.drawable.ctrloff);
+                return true;
+            }
+        });
+        
+        keySuper = (ImageButton) findViewById(R.id.keySuper);
+        keySuper.setOnClickListener(new OnClickListener () {
+            @Override
+            public void onClick(View arg0) {
+                boolean on = canvas.getKeyboard().onScreenSuperToggle();
+                keySuperToggled = false;
+                if (on)
+                    keySuper.setImageResource(R.drawable.superon);
+                else
+                    keySuper.setImageResource(R.drawable.superoff);
+            }
+        });
+        
+        keySuper.setOnLongClickListener(new OnLongClickListener () {
+            @Override
+            public boolean onLongClick(View arg0) {
+                myVibrator.vibrate(Constants.SHORT_VIBRATION);
+                boolean on = canvas.getKeyboard().onScreenSuperToggle();
+                keySuperToggled = true;
+                if (on)
+                    keySuper.setImageResource(R.drawable.superon);
+                else
+                    keySuper.setImageResource(R.drawable.superoff);
+                return true;
+            }
+        });
+        
+        keyAlt = (ImageButton) findViewById(R.id.keyAlt);
+        keyAlt.setOnClickListener(new OnClickListener () {
+            @Override
+            public void onClick(View arg0) {
+                boolean on = canvas.getKeyboard().onScreenAltToggle();
+                keyAltToggled = false;
+                if (on)
+                    keyAlt.setImageResource(R.drawable.alton);
+                else
+                    keyAlt.setImageResource(R.drawable.altoff);
+            }
+        });
+        
+        keyAlt.setOnLongClickListener(new OnLongClickListener () {
+            @Override
+            public boolean onLongClick(View arg0) {
+                myVibrator.vibrate(Constants.SHORT_VIBRATION);
+                boolean on = canvas.getKeyboard().onScreenAltToggle();
+                keyAltToggled = true;
+                if (on)
+                    keyAlt.setImageResource(R.drawable.alton);
+                else
+                    keyAlt.setImageResource(R.drawable.altoff);
+                return true;
+            }
+        });
+        
+        keyShift = (ImageButton) findViewById(R.id.keyShift);
+        keyShift.setOnClickListener(new OnClickListener () {
+            @Override
+            public void onClick(View arg0) {
+                boolean on = canvas.getKeyboard().onScreenShiftToggle();
+                keyShiftToggled = false;
+                if (on)
+                    keyShift.setImageResource(R.drawable.shifton);
+                else
+                    keyShift.setImageResource(R.drawable.shiftoff);
+            }
+        });
+        
+        keyShift.setOnLongClickListener(new OnLongClickListener () {
+            @Override
+            public boolean onLongClick(View arg0) {
+                myVibrator.vibrate(Constants.SHORT_VIBRATION);
+                boolean on = canvas.getKeyboard().onScreenShiftToggle();
+                keyShiftToggled = true;
+                if (on)
+                    keyShift.setImageResource(R.drawable.shifton);
+                else
+                    keyShift.setImageResource(R.drawable.shiftoff);
+                return true;
+            }
+        });
+        
+        // Define action of arrow keys.
+        keyUp = (ImageButton) findViewById(R.id.keyUpArrow);
+        keyUp.setOnTouchListener(new OnTouchListener () {
+            @Override
+            public boolean onTouch(View arg0, MotionEvent e) {
+                RemoteKeyboard k = canvas.getKeyboard();
+                int key = KeyEvent.KEYCODE_DPAD_UP;
+                if (e.getAction() == MotionEvent.ACTION_DOWN) {
+                    myVibrator.vibrate(Constants.SHORT_VIBRATION);
+                    keyUp.setImageResource(R.drawable.upon);
+                    k.repeatKeyEvent(key, new KeyEvent(e.getAction(), key));
+                    return true;
+                } else if (e.getAction() == MotionEvent.ACTION_UP) {
+                    keyUp.setImageResource(R.drawable.upoff);
+                    resetOnScreenKeys (0);
+                    k.stopRepeatingKeyEvent();
+                    return true;
+                }
+                return false;
+            }
+        });
+        
+        keyDown = (ImageButton) findViewById(R.id.keyDownArrow);
+        keyDown.setOnTouchListener(new OnTouchListener () {
+            @Override
+            public boolean onTouch(View arg0, MotionEvent e) {
+                RemoteKeyboard k = canvas.getKeyboard();
+                int key = KeyEvent.KEYCODE_DPAD_DOWN;
+                if (e.getAction() == MotionEvent.ACTION_DOWN) {
+                    myVibrator.vibrate(Constants.SHORT_VIBRATION);
+                    keyDown.setImageResource(R.drawable.downon);
+                    k.repeatKeyEvent(key, new KeyEvent(e.getAction(), key));
+                    return true;
+                } else if (e.getAction() == MotionEvent.ACTION_UP) {
+                    keyDown.setImageResource(R.drawable.downoff);
+                    resetOnScreenKeys (0);
+                    k.stopRepeatingKeyEvent();
+                    return true;
+                }
+                return false;
+            }
+        });
 
-		keyLeft = (ImageButton) findViewById(R.id.keyLeftArrow);
-		keyLeft.setOnTouchListener(new OnTouchListener () {
-			@Override
-			public boolean onTouch(View arg0, MotionEvent e) {
-				RemoteKeyboard k = canvas.getKeyboard();
-				int key = KeyEvent.KEYCODE_DPAD_LEFT;
-				if (e.getAction() == MotionEvent.ACTION_DOWN) {
-					myVibrator.vibrate(Constants.SHORT_VIBRATION);
-					keyLeft.setImageResource(R.drawable.lefton);
-					k.repeatKeyEvent(key, new KeyEvent(e.getAction(), key));
-					return true;
-				} else if (e.getAction() == MotionEvent.ACTION_UP) {
-					keyLeft.setImageResource(R.drawable.leftoff);
-					resetOnScreenKeys (0);
-					k.stopRepeatingKeyEvent();
-					return true;
-				}
-				return false;
-			}
-		});
+        keyLeft = (ImageButton) findViewById(R.id.keyLeftArrow);
+        keyLeft.setOnTouchListener(new OnTouchListener () {
+            @Override
+            public boolean onTouch(View arg0, MotionEvent e) {
+                RemoteKeyboard k = canvas.getKeyboard();
+                int key = KeyEvent.KEYCODE_DPAD_LEFT;
+                if (e.getAction() == MotionEvent.ACTION_DOWN) {
+                    myVibrator.vibrate(Constants.SHORT_VIBRATION);
+                    keyLeft.setImageResource(R.drawable.lefton);
+                    k.repeatKeyEvent(key, new KeyEvent(e.getAction(), key));
+                    return true;
+                } else if (e.getAction() == MotionEvent.ACTION_UP) {
+                    keyLeft.setImageResource(R.drawable.leftoff);
+                    resetOnScreenKeys (0);
+                    k.stopRepeatingKeyEvent();
+                    return true;
+                }
+                return false;
+            }
+        });
 
-		keyRight = (ImageButton) findViewById(R.id.keyRightArrow);
-		keyRight.setOnTouchListener(new OnTouchListener () {
-			@Override
-			public boolean onTouch(View arg0, MotionEvent e) {
-				RemoteKeyboard k = canvas.getKeyboard();
-				int key = KeyEvent.KEYCODE_DPAD_RIGHT;
-				if (e.getAction() == MotionEvent.ACTION_DOWN) {
-					myVibrator.vibrate(Constants.SHORT_VIBRATION);
-					keyRight.setImageResource(R.drawable.righton);
-					k.repeatKeyEvent(key, new KeyEvent(e.getAction(), key));
-					return true;	
-				} else if (e.getAction() == MotionEvent.ACTION_UP) {
-					keyRight.setImageResource(R.drawable.rightoff);
-					resetOnScreenKeys (0);
-					k.stopRepeatingKeyEvent();
-					return true;
-				}
-				return false;
-			}
-		});
-	}
+        keyRight = (ImageButton) findViewById(R.id.keyRightArrow);
+        keyRight.setOnTouchListener(new OnTouchListener () {
+            @Override
+            public boolean onTouch(View arg0, MotionEvent e) {
+                RemoteKeyboard k = canvas.getKeyboard();
+                int key = KeyEvent.KEYCODE_DPAD_RIGHT;
+                if (e.getAction() == MotionEvent.ACTION_DOWN) {
+                    myVibrator.vibrate(Constants.SHORT_VIBRATION);
+                    keyRight.setImageResource(R.drawable.righton);
+                    k.repeatKeyEvent(key, new KeyEvent(e.getAction(), key));
+                    return true;    
+                } else if (e.getAction() == MotionEvent.ACTION_UP) {
+                    keyRight.setImageResource(R.drawable.rightoff);
+                    resetOnScreenKeys (0);
+                    k.stopRepeatingKeyEvent();
+                    return true;
+                }
+                return false;
+            }
+        });
+    }
 
-	/**
-	 * Resets the state and image of the on-screen keys.
-	 */
-	private void resetOnScreenKeys (int keyCode) {
-		// Do not reset on-screen keys if keycode is SHIFT.
-		switch (keyCode) {
-		case KeyEvent.KEYCODE_SHIFT_LEFT:
-		case KeyEvent.KEYCODE_SHIFT_RIGHT: return;
-		}
-		if (!keyCtrlToggled) {
-			keyCtrl.setImageResource(R.drawable.ctrloff);
-			canvas.getKeyboard().onScreenCtrlOff();
-		}
-		if (!keyAltToggled) {
-			keyAlt.setImageResource(R.drawable.altoff);
-			canvas.getKeyboard().onScreenAltOff();
-		}
-		if (!keySuperToggled) {
-			keySuper.setImageResource(R.drawable.superoff);
-			canvas.getKeyboard().onScreenSuperOff();
-		}
-		if (!keyShiftToggled) {
-			keyShift.setImageResource(R.drawable.shiftoff);
-			canvas.getKeyboard().onScreenShiftOff();
-		}
-	}
+    /**
+     * Resets the state and image of the on-screen keys.
+     */
+    private void resetOnScreenKeys (int keyCode) {
+        // Do not reset on-screen keys if keycode is SHIFT.
+        switch (keyCode) {
+        case KeyEvent.KEYCODE_SHIFT_LEFT:
+        case KeyEvent.KEYCODE_SHIFT_RIGHT: return;
+        }
+        if (!keyCtrlToggled) {
+            keyCtrl.setImageResource(R.drawable.ctrloff);
+            canvas.getKeyboard().onScreenCtrlOff();
+        }
+        if (!keyAltToggled) {
+            keyAlt.setImageResource(R.drawable.altoff);
+            canvas.getKeyboard().onScreenAltOff();
+        }
+        if (!keySuperToggled) {
+            keySuper.setImageResource(R.drawable.superoff);
+            canvas.getKeyboard().onScreenSuperOff();
+        }
+        if (!keyShiftToggled) {
+            keyShift.setImageResource(R.drawable.shiftoff);
+            canvas.getKeyboard().onScreenShiftOff();
+        }
+    }
 
-	
-	/**
-	 * Sets the visibility of the extra keys appropriately.
-	 */
-	private void setExtraKeysVisibility (int visibility, boolean forceVisible) {
-		Configuration config = getResources().getConfiguration();
-		boolean makeVisible = forceVisible;
-		if (config.hardKeyboardHidden == Configuration.HARDKEYBOARDHIDDEN_NO)
-			makeVisible = true;
+    
+    /**
+     * Sets the visibility of the extra keys appropriately.
+     */
+    private void setExtraKeysVisibility (int visibility, boolean forceVisible) {
+        Configuration config = getResources().getConfiguration();
+        boolean makeVisible = forceVisible;
+        if (config.hardKeyboardHidden == Configuration.HARDKEYBOARDHIDDEN_NO)
+            makeVisible = true;
 
-		if (!extraKeysHidden && makeVisible && 
-			connection.getExtraKeysToggleType() == Constants.EXTRA_KEYS_ON) {
-			layoutKeys.setVisibility(View.VISIBLE);
-			layoutKeys.invalidate();
-			return;
-		}
-		
-		if (visibility == View.GONE) {
-			layoutKeys.setVisibility(View.GONE);
-			layoutKeys.invalidate();
-		}
-	}
-	
-	/*
-	 * TODO: REMOVE THIS AS SOON AS POSSIBLE.
-	 * onPause: This is an ugly hack for the Playbook, because the Playbook hides the keyboard upon unlock.
-	 * This causes the visible height to remain less, as if the soft keyboard is still up. This hack must go 
-	 * away as soon as the Playbook doesn't need it anymore.
-	 */
-	@Override
-	protected void onPause(){
-		super.onPause();
-		try {
-			InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-			imm.hideSoftInputFromWindow(canvas.getWindowToken(), 0);
-		} catch (NullPointerException e) { }
-	}
+        if (!extraKeysHidden && makeVisible && 
+            connection.getExtraKeysToggleType() == Constants.EXTRA_KEYS_ON) {
+            layoutKeys.setVisibility(View.VISIBLE);
+            layoutKeys.invalidate();
+            return;
+        }
+        
+        if (visibility == View.GONE) {
+            layoutKeys.setVisibility(View.GONE);
+            layoutKeys.invalidate();
+        }
+    }
+    
+    /*
+     * TODO: REMOVE THIS AS SOON AS POSSIBLE.
+     * onPause: This is an ugly hack for the Playbook, because the Playbook hides the keyboard upon unlock.
+     * This causes the visible height to remain less, as if the soft keyboard is still up. This hack must go 
+     * away as soon as the Playbook doesn't need it anymore.
+     */
+    @Override
+    protected void onPause(){
+        super.onPause();
+        try {
+            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(canvas.getWindowToken(), 0);
+        } catch (NullPointerException e) { }
+    }
 
-	/*
-	 * TODO: REMOVE THIS AS SOON AS POSSIBLE.
-	 * onResume: This is an ugly hack for the Playbook which hides the keyboard upon unlock. This causes the visible
-	 * height to remain less, as if the soft keyboard is still up. This hack must go away as soon
-	 * as the Playbook doesn't need it anymore.
-	 */
-	@Override
-	protected void onResume(){
-		super.onResume();
-		Log.i(TAG, "onResume called.");
-		try {
-			canvas.postInvalidateDelayed(600);
-		} catch (NullPointerException e) { }
-	}
-	
-	ConnectionSettings getConnection() {
-		return connection;
-	}
-	
-	@Override
-	protected Dialog onCreateDialog(int dialogID) {
-		switch (dialogID) {
-		// TODO: Introduce the ability to send text collected from an EditText in the future.
-		case R.id.menuHelpInputMethod:
-			return createHelpDialog ();
-		}
-		return createHelpDialog ();
-	}
+    /*
+     * TODO: REMOVE THIS AS SOON AS POSSIBLE.
+     * onResume: This is an ugly hack for the Playbook which hides the keyboard upon unlock. This causes the visible
+     * height to remain less, as if the soft keyboard is still up. This hack must go away as soon
+     * as the Playbook doesn't need it anymore.
+     */
+    @Override
+    protected void onResume(){
+        super.onResume();
+        Log.i(TAG, "onResume called.");
+        try {
+            canvas.postInvalidateDelayed(600);
+        } catch (NullPointerException e) { }
+    }
+    
+    ConnectionSettings getConnection() {
+        return connection;
+    }
+    
+    @Override
+    protected Dialog onCreateDialog(int dialogID) {
+        switch (dialogID) {
+        // TODO: Introduce the ability to send text collected from an EditText in the future.
+        case R.id.menuHelpInputMethod:
+            return createHelpDialog ();
+        }
+        return createHelpDialog ();
+    }
 
-	/**
-	 * Creates the help dialog for this activity.
-	 */
-	private Dialog createHelpDialog() {
-	    AlertDialog.Builder adb = new AlertDialog.Builder(this)
-	    		.setMessage(R.string.input_method_help_text)
-	    		.setPositiveButton(R.string.close,
-	    				new DialogInterface.OnClickListener() {
-	    					public void onClick(DialogInterface dialog,
-	    							int whichButton) {
-	    						// We don't have to do anything.
-	    					}
-	    				});
-	    Dialog d = adb.setView(new ListView (this)).create();
-	    WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
-	    lp.copyFrom(d.getWindow().getAttributes());
-	    lp.width = WindowManager.LayoutParams.FILL_PARENT;
-	    lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
-	    d.show();
-	    d.getWindow().setAttributes(lp);
-	    return d;
-	}
+    /**
+     * Creates the help dialog for this activity.
+     */
+    private Dialog createHelpDialog() {
+        AlertDialog.Builder adb = new AlertDialog.Builder(this)
+                .setMessage(R.string.input_method_help_text)
+                .setPositiveButton(R.string.close,
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog,
+                                    int whichButton) {
+                                // We don't have to do anything.
+                            }
+                        });
+        Dialog d = adb.setView(new ListView (this)).create();
+        WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
+        lp.copyFrom(d.getWindow().getAttributes());
+        lp.width = WindowManager.LayoutParams.FILL_PARENT;
+        lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
+        d.show();
+        d.getWindow().setAttributes(lp);
+        return d;
+    }
 
-	/**
-	 * This runnable fixes things up after a rotation.
-	 */
-	private Runnable rotationCorrector = new Runnable() {
-		public void run() {
-			try { correctAfterRotation (); } catch (NullPointerException e) { }
-		}
-	};
+    /**
+     * This runnable fixes things up after a rotation.
+     */
+    private Runnable rotationCorrector = new Runnable() {
+        public void run() {
+            try { correctAfterRotation (); } catch (NullPointerException e) { }
+        }
+    };
 
-	/**
-	 * This function is called by the rotationCorrector runnable
-	 * to fix things up after a rotation.
-	 */
-	private void correctAfterRotation () {
-		// Its quite common to see NullPointerExceptions here when this function is called
-		// at the point of disconnection. Hence, we catch and ignore the error.
-		float oldScale = canvas.canvasZoomer.getZoomFactor();
-		int x = canvas.absX;
-		int y = canvas.absY;
-		canvas.canvasZoomer.resetScaling();
-		float newScale = canvas.canvasZoomer.getZoomFactor();
-		canvas.canvasZoomer.changeZoom(oldScale/newScale);
-		newScale = canvas.canvasZoomer.getZoomFactor();
-		if (newScale <= oldScale) {
-			canvas.absX = x;
-			canvas.absY = y;
-			canvas.relativePan(0, 0);
-		}
-		if (connection.isRequestingNewDisplayResolution()) {
-			canvas.spicecomm.requestNewResolutionIfNeeded();
-		}
+    /**
+     * This function is called by the rotationCorrector runnable
+     * to fix things up after a rotation.
+     */
+    private void correctAfterRotation () {
+        // Its quite common to see NullPointerExceptions here when this function is called
+        // at the point of disconnection. Hence, we catch and ignore the error.
+        float oldScale = canvas.canvasZoomer.getZoomFactor();
+        int x = canvas.absX;
+        int y = canvas.absY;
+        canvas.canvasZoomer.resetScaling();
+        float newScale = canvas.canvasZoomer.getZoomFactor();
+        canvas.canvasZoomer.changeZoom(oldScale/newScale);
+        newScale = canvas.canvasZoomer.getZoomFactor();
+        if (newScale <= oldScale) {
+            canvas.absX = x;
+            canvas.absY = y;
+            canvas.relativePan(0, 0);
+        }
+        if (connection.isRequestingNewDisplayResolution()) {
+            canvas.spicecomm.requestNewResolutionIfNeeded();
+        }
 
-	}
-	
-	@Override
-	public void onConfigurationChanged(Configuration newConfig) {
-		super.onConfigurationChanged(newConfig);
-		enableImmersive();
-		if (connection.isRotationEnabled()) {
-			try {
-				setExtraKeysVisibility(View.GONE, false);
-				// Correct a couple of times just in case. There is no visual effect.
-				handler.postDelayed(rotationCorrector, 600);
-				handler.postDelayed(rotationCorrector, 1200);
-			} catch (NullPointerException e) { }
-		}
-	}
-	
-	@Override
-	protected void onStart() {
-		super.onStart();
-		try {
-			canvas.postInvalidateDelayed(800);
-		} catch (NullPointerException e) { }
-	}
-	
-	@Override
-	protected void onStop() {
-		super.onStop();
-	}
-	
-	@Override
-	protected void onRestart() {
-		super.onRestart();
-		try {
-			canvas.postInvalidateDelayed(1000);
-		} catch (NullPointerException e) { }
-	}
-	
-	/**
-	 * Try to find an input handler by the specified string ID.
-	 * @param inputHandlerId
-	 * @return
-	 */
-	InputHandler idToInputHandler(String inputHandlerId) {
-		Iterator<Integer> ids = inputHandlerIdMap.keySet().iterator();
-		while (ids.hasNext()) {
-			Integer id = ids.next();
-			InputHandler h = inputHandlerIdMap.get(id);
-			if (inputHandlerId.equals(h.getId())) {
-				return h;
-			}
-		}
-		return null;
-	}
-	
-	/**
-	 * If id corresponds to an input handler, return the XML id of the menu item corresponding
-	 * to the input handler, otherwise return -1.
-	 * @param inputHandlerId
-	 * @return
-	 */
-	int inputHandlerIdToXmlId (String inputHandlerId) {
-		Iterator<Integer> ids = inputHandlerIdMap.keySet().iterator();
-		while (ids.hasNext()) {
-			Integer id = ids.next();
-			InputHandler h = inputHandlerIdMap.get(id);
-			if (inputHandlerId.equals(h.getId())) {
-				return id;
-			}
-		}
-		return -1;
-	}
-	
-	@Override
-	protected void onDestroy() {
-		super.onDestroy();
-		if (canvas != null)
-			canvas.disconnectAndCleanUp();
-		canvas = null;
-		connection = null;
-		inputHandler = null;
-		System.gc();
-	}
-	
-	@Override
-	public boolean onKey(View v, int keyCode, KeyEvent evt) {
-		boolean consumed = false;
-		
-		if (keyCode == KeyEvent.KEYCODE_MENU) {
-			if (evt.getAction() == KeyEvent.ACTION_DOWN)
-				return super.onKeyDown(keyCode, evt);
-			else
-				return super.onKeyUp(keyCode, evt);
-		}
-		
-		try {
-			if (evt.getAction() == KeyEvent.ACTION_DOWN || evt.getAction() == KeyEvent.ACTION_MULTIPLE) {
-				consumed = inputHandler.onKeyDown(keyCode, evt);
-			} else if (evt.getAction() == KeyEvent.ACTION_UP){
-				consumed = inputHandler.onKeyUp(keyCode, evt);
-			}
-			resetOnScreenKeys (keyCode);
-		} catch (NullPointerException e) { }
-		
-		return consumed;
-	}
+    }
+    
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        enableImmersive();
+        if (connection.isRotationEnabled()) {
+            try {
+                setExtraKeysVisibility(View.GONE, false);
+                // Correct a couple of times just in case. There is no visual effect.
+                handler.postDelayed(rotationCorrector, 600);
+                handler.postDelayed(rotationCorrector, 1200);
+            } catch (NullPointerException e) { }
+        }
+    }
+    
+    @Override
+    protected void onStart() {
+        super.onStart();
+        try {
+            canvas.postInvalidateDelayed(800);
+        } catch (NullPointerException e) { }
+    }
+    
+    @Override
+    protected void onStop() {
+        super.onStop();
+    }
+    
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        try {
+            canvas.postInvalidateDelayed(1000);
+        } catch (NullPointerException e) { }
+    }
+    
+    /**
+     * Try to find an input handler by the specified string ID.
+     * @param inputHandlerId
+     * @return
+     */
+    InputHandler idToInputHandler(String inputHandlerId) {
+        Iterator<Integer> ids = inputHandlerIdMap.keySet().iterator();
+        while (ids.hasNext()) {
+            Integer id = ids.next();
+            InputHandler h = inputHandlerIdMap.get(id);
+            if (inputHandlerId.equals(h.getId())) {
+                return h;
+            }
+        }
+        return null;
+    }
+    
+    /**
+     * If id corresponds to an input handler, return the XML id of the menu item corresponding
+     * to the input handler, otherwise return -1.
+     * @param inputHandlerId
+     * @return
+     */
+    int inputHandlerIdToXmlId (String inputHandlerId) {
+        Iterator<Integer> ids = inputHandlerIdMap.keySet().iterator();
+        while (ids.hasNext()) {
+            Integer id = ids.next();
+            InputHandler h = inputHandlerIdMap.get(id);
+            if (inputHandlerId.equals(h.getId())) {
+                return id;
+            }
+        }
+        return -1;
+    }
+    
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (canvas != null)
+            canvas.disconnectAndCleanUp();
+        canvas = null;
+        connection = null;
+        inputHandler = null;
+        System.gc();
+    }
+    
+    @Override
+    public boolean onKey(View v, int keyCode, KeyEvent evt) {
+        boolean consumed = false;
+        
+        if (keyCode == KeyEvent.KEYCODE_MENU) {
+            if (evt.getAction() == KeyEvent.ACTION_DOWN)
+                return super.onKeyDown(keyCode, evt);
+            else
+                return super.onKeyUp(keyCode, evt);
+        }
+        
+        try {
+            if (evt.getAction() == KeyEvent.ACTION_DOWN || evt.getAction() == KeyEvent.ACTION_MULTIPLE) {
+                consumed = inputHandler.onKeyDown(keyCode, evt);
+            } else if (evt.getAction() == KeyEvent.ACTION_UP){
+                consumed = inputHandler.onKeyUp(keyCode, evt);
+            }
+            resetOnScreenKeys (keyCode);
+        } catch (NullPointerException e) { }
+        
+        return consumed;
+    }
 
-	public void displayInputModeInfo(boolean showLonger) {
-		if (showLonger) {
-			final Toast t = Toast.makeText(this, inputHandler.getDescription(), Toast.LENGTH_LONG);
-			TimerTask tt = new TimerTask () {
-				@Override
-				public void run() {
-					t.show();
-					try { Thread.sleep(2000); } catch (InterruptedException e) { }
-					t.show();
-				}};
-			new Timer ().schedule(tt, 2000);
-			t.show();
-		} else {
-			Toast t = Toast.makeText(this, inputHandler.getDescription(), Toast.LENGTH_SHORT);
-			t.show();
-		}
-	}
-	
-	// Send touch events or mouse events like button clicks to be handled.
-	@Override
-	public boolean onTouchEvent(MotionEvent event) {
-		try {
-			return inputHandler.onTouchEvent(event);
-		} catch (NullPointerException e) { }
-		return false;
-	}
-	
-	// Send e.g. mouse events like hover and scroll to be handled.
-	@Override
-	public boolean onGenericMotionEvent(MotionEvent event) {
+    public void displayInputModeInfo(boolean showLonger) {
+        if (showLonger) {
+            final Toast t = Toast.makeText(this, inputHandler.getDescription(), Toast.LENGTH_LONG);
+            TimerTask tt = new TimerTask () {
+                @Override
+                public void run() {
+                    t.show();
+                    try { Thread.sleep(2000); } catch (InterruptedException e) { }
+                    t.show();
+                }};
+            new Timer ().schedule(tt, 2000);
+            t.show();
+        } else {
+            Toast t = Toast.makeText(this, inputHandler.getDescription(), Toast.LENGTH_SHORT);
+            t.show();
+        }
+    }
+    
+    // Send touch events or mouse events like button clicks to be handled.
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        try {
+            return inputHandler.onTouchEvent(event);
+        } catch (NullPointerException e) { }
+        return false;
+    }
+    
+    // Send e.g. mouse events like hover and scroll to be handled.
+    @Override
+    public boolean onGenericMotionEvent(MotionEvent event) {
         // Ignore TOOL_TYPE_FINGER events that come from the touchscreen with y == 0.0
         // which cause pointer jumping trouble for some users.
         int a = event.getAction();
@@ -1049,28 +1049,28 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
             } catch (NullPointerException e) { }
         }
         return super.onGenericMotionEvent(event);
-	}
-	
-	public float getSensitivity() {
-		return 2.0f;
-	}
-	
-	public boolean getAccelerationEnabled() {
-		return true;
-	}
-	
-	final long hideToolbarDelay = 2500;
-	ToolbarHiderRunnable toolbarHider = new ToolbarHiderRunnable();
-	
-	public void showToolbar() {
-	    if (!softKeyboardUp) {
-	        getSupportActionBar().show();
-	        handler.removeCallbacks(toolbarHider);
-	        handler.postAtTime(toolbarHider, SystemClock.uptimeMillis() + hideToolbarDelay);
-	    }
-	}
-	
-	private class ToolbarHiderRunnable implements Runnable {
+    }
+    
+    public float getSensitivity() {
+        return 2.0f;
+    }
+    
+    public boolean getAccelerationEnabled() {
+        return true;
+    }
+    
+    final long hideToolbarDelay = 2500;
+    ToolbarHiderRunnable toolbarHider = new ToolbarHiderRunnable();
+    
+    public void showToolbar() {
+        if (!softKeyboardUp) {
+            getSupportActionBar().show();
+            handler.removeCallbacks(toolbarHider);
+            handler.postAtTime(toolbarHider, SystemClock.uptimeMillis() + hideToolbarDelay);
+        }
+    }
+    
+    private class ToolbarHiderRunnable implements Runnable {
         public void run() {
             ActionBar toolbar = getSupportActionBar();
             if (toolbar != null)
@@ -1093,87 +1093,87 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
         enableImmersive();
     }
     
-	@Override
-	public boolean onMenuOpened(int featureId, Menu menu) {
-	    if(menu != null){
-	        android.util.Log.i(TAG, "Menu opened, disabling hiding action bar");
-	        handler.removeCallbacks(toolbarHider);
+    @Override
+    public boolean onMenuOpened(int featureId, Menu menu) {
+        if(menu != null){
+            android.util.Log.i(TAG, "Menu opened, disabling hiding action bar");
+            handler.removeCallbacks(toolbarHider);
             disableImmersive();
         }
-	    return super.onMenuOpened(featureId, menu);
-	}
-	
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		Log.e (TAG, "onCreateOptionsMenu called");
-		try {
-			getMenuInflater().inflate(R.menu.connectedmenu, menu);
-			
-			// Check the proper input method item.
-			Menu inputMenu = menu.findItem(R.id.menuInputMethod).getSubMenu();	
-			inputMenu.findItem(inputHandlerIdToXmlId (connection.getInputMethod())).setChecked(true);
-			
-			// Set the text of the Extra Keys menu item appropriately.
-			if (connection.getExtraKeysToggleType() == Constants.EXTRA_KEYS_ON)
-				menu.findItem(R.id.menuExtraKeys).setTitle(R.string.extra_keys_disable);
-			else
-				menu.findItem(R.id.menuExtraKeys).setTitle(R.string.extra_keys_enable);
+        return super.onMenuOpened(featureId, menu);
+    }
+    
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        Log.e (TAG, "onCreateOptionsMenu called");
+        try {
+            getMenuInflater().inflate(R.menu.connectedmenu, menu);
+            
+            // Check the proper input method item.
+            Menu inputMenu = menu.findItem(R.id.menuInputMethod).getSubMenu();
+            inputMenu.findItem(inputHandlerIdToXmlId (connection.getInputMethod())).setChecked(true);
+            
+            // Set the text of the Extra Keys menu item appropriately.
+            if (connection.getExtraKeysToggleType() == Constants.EXTRA_KEYS_ON)
+                menu.findItem(R.id.menuExtraKeys).setTitle(R.string.extra_keys_disable);
+            else
+                menu.findItem(R.id.menuExtraKeys).setTitle(R.string.extra_keys_enable);
 
-			OnTouchListener moveListener = new OnTouchViewMover(toolbar, handler, toolbarHider, hideToolbarDelay);
-			ImageButton moveButton = new ImageButton(this);
-			moveButton.setBackgroundResource(R.drawable.ic_btn_move);
-			MenuItem moveToolbar = menu.findItem(R.id.moveToolbar);
-			moveToolbar.setActionView(moveButton);
-			moveToolbar.getActionView().setOnTouchListener(moveListener);
-		} catch (NullPointerException e) {
-			Log.e (TAG, "There was an error: " + e.getMessage());
-		}
-		return super.onCreateOptionsMenu(menu);
-	}
-	
-	@Override
-	public boolean onOptionsItemSelected(MenuItem menuItem) {
-		int itemID = menuItem.getItemId();
-		switch (itemID) {
-		case R.id.menuExtraKeys:
-			if (connection.getExtraKeysToggleType() == Constants.EXTRA_KEYS_ON) {
-				connection.setExtraKeysToggleType(Constants.EXTRA_KEYS_OFF);
-				menuItem.setTitle(R.string.extra_keys_enable);
-				setExtraKeysVisibility(View.GONE, false);
-			} else {
-				connection.setExtraKeysToggleType(Constants.EXTRA_KEYS_ON);
-				menuItem.setTitle(R.string.extra_keys_disable);
-				setExtraKeysVisibility(View.VISIBLE, false);
-				extraKeysHidden = false;
-			}
-			setKeyStowDrawableAndVisibility();
-			connection.saveToSharedPreferences(getApplicationContext());
-			return true;
-		case R.id.menuDisconnect:
-			canvas.disconnectAndCleanUp();
-			finish();
-			return true;
-		case R.id.menuSendCAD:
-			canvas.getKeyboard().keyEvent(112, new KeyEvent(KeyEvent.ACTION_DOWN, 112),
-													  RemoteKeyboard.CTRL_ON_MASK|RemoteKeyboard.ALT_ON_MASK);
-			canvas.getKeyboard().keyEvent(112, new KeyEvent(KeyEvent.ACTION_UP, 112));
-			return true;
-		case R.id.menuHelpInputMethod:
-			showDialog(R.id.menuHelpInputMethod);
-			return true;
-		default:
-			InputHandler newInputHandler = inputHandlerIdMap.get(menuItem.getItemId());
-			if (newInputHandler != null) {
-				inputHandler = newInputHandler;
-				connection.setInputMethod(newInputHandler.getId());
-				menuItem.setChecked(true);
-				displayInputModeInfo(true);
-				connection.saveToSharedPreferences(getApplicationContext());
-				return true;
-			}
-		}
-		return super.onOptionsItemSelected(menuItem);
-	}
+            OnTouchListener moveListener = new OnTouchViewMover(toolbar, handler, toolbarHider, hideToolbarDelay);
+            ImageButton moveButton = new ImageButton(this);
+            moveButton.setBackgroundResource(R.drawable.ic_btn_move);
+            MenuItem moveToolbar = menu.findItem(R.id.moveToolbar);
+            moveToolbar.setActionView(moveButton);
+            moveToolbar.getActionView().setOnTouchListener(moveListener);
+        } catch (NullPointerException e) {
+            Log.e (TAG, "There was an error: " + e.getMessage());
+        }
+        return super.onCreateOptionsMenu(menu);
+    }
+    
+    @Override
+    public boolean onOptionsItemSelected(MenuItem menuItem) {
+        int itemID = menuItem.getItemId();
+        switch (itemID) {
+        case R.id.menuExtraKeys:
+            if (connection.getExtraKeysToggleType() == Constants.EXTRA_KEYS_ON) {
+                connection.setExtraKeysToggleType(Constants.EXTRA_KEYS_OFF);
+                menuItem.setTitle(R.string.extra_keys_enable);
+                setExtraKeysVisibility(View.GONE, false);
+            } else {
+                connection.setExtraKeysToggleType(Constants.EXTRA_KEYS_ON);
+                menuItem.setTitle(R.string.extra_keys_disable);
+                setExtraKeysVisibility(View.VISIBLE, false);
+                extraKeysHidden = false;
+            }
+            setKeyStowDrawableAndVisibility();
+            connection.saveToSharedPreferences(getApplicationContext());
+            return true;
+        case R.id.menuDisconnect:
+            canvas.disconnectAndCleanUp();
+            finish();
+            return true;
+        case R.id.menuSendCAD:
+            canvas.getKeyboard().keyEvent(112, new KeyEvent(KeyEvent.ACTION_DOWN, 112),
+                                                      RemoteKeyboard.CTRL_ON_MASK|RemoteKeyboard.ALT_ON_MASK);
+            canvas.getKeyboard().keyEvent(112, new KeyEvent(KeyEvent.ACTION_UP, 112));
+            return true;
+        case R.id.menuHelpInputMethod:
+            showDialog(R.id.menuHelpInputMethod);
+            return true;
+        default:
+            InputHandler newInputHandler = inputHandlerIdMap.get(menuItem.getItemId());
+            if (newInputHandler != null) {
+                inputHandler = newInputHandler;
+                connection.setInputMethod(newInputHandler.getId());
+                menuItem.setChecked(true);
+                displayInputModeInfo(true);
+                connection.saveToSharedPreferences(getApplicationContext());
+                return true;
+            }
+        }
+        return super.onOptionsItemSelected(menuItem);
+    }
 
     @Override
     public void onTextSelected(String selectedString) {

@@ -39,118 +39,118 @@ import android.widget.TextView;
 import com.undatech.opaque.R;
 
 public class LabeledImageApapter implements ListAdapter {
-	private static final String TAG = "LabeledImageApapter";
-	
-	private Context context;
-	private final String[] imageFiles;
-	private final String[] imageLabels;
-	private int numCols = 0;
-	private Bitmap defaultBitmap = null;
-	private String defaultLabel = null;
+    private static final String TAG = "LabeledImageApapter";
+    
+    private Context context;
+    private final String[] imageFiles;
+    private final String[] imageLabels;
+    private int numCols = 0;
+    private Bitmap defaultBitmap = null;
+    private String defaultLabel = null;
  
-	public LabeledImageApapter(Context context, String[] imageFiles, String[] imageLabels, int numCols) {
-		this.context = context;
-		this.imageFiles = imageFiles;
-		this.imageLabels = imageLabels;
-		this.numCols = numCols;
-		this.defaultBitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.no_screenshot);
-		this.defaultLabel = "(No VM specified)";
-	}
+    public LabeledImageApapter(Context context, String[] imageFiles, String[] imageLabels, int numCols) {
+        this.context = context;
+        this.imageFiles = imageFiles;
+        this.imageLabels = imageLabels;
+        this.numCols = numCols;
+        this.defaultBitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.no_screenshot);
+        this.defaultLabel = "(No VM specified)";
+    }
  
-	public View getView(int position, View convertView, ViewGroup parent) {
-		LayoutInflater inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		android.util.Log.e(TAG, "Now setting label at position: " + position + " to: " + imageLabels[position]);
+    public View getView(int position, View convertView, ViewGroup parent) {
+        LayoutInflater inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        android.util.Log.e(TAG, "Now setting label at position: " + position + " to: " + imageLabels[position]);
 
-		GridView gView = (GridView) ((Activity)context).findViewById(R.id.gridView);
-		int height = gView.getWidth()/numCols;
-		
-		View gridView;
-		if (convertView != null) {
-			gridView = convertView;
-			ImageView iView = (ImageView) convertView.findViewById(R.id.grid_item_image);
-			Bitmap tmp = ((BitmapDrawable)iView.getDrawable()).getBitmap();
-			if (!tmp.equals(defaultBitmap)) {
-				tmp.recycle();
-			}
-		} else {
-			gridView = new View(context); 
-			gridView = inflater.inflate(R.layout.grid_item, null);	
-		}
-		
-		GridView.LayoutParams lp = new GridView.LayoutParams(height, height);
-		gridView.setLayoutParams(lp);
+        GridView gView = (GridView) ((Activity)context).findViewById(R.id.gridView);
+        int height = gView.getWidth()/numCols;
+        
+        View gridView;
+        if (convertView != null) {
+            gridView = convertView;
+            ImageView iView = (ImageView) convertView.findViewById(R.id.grid_item_image);
+            Bitmap tmp = ((BitmapDrawable)iView.getDrawable()).getBitmap();
+            if (!tmp.equals(defaultBitmap)) {
+                tmp.recycle();
+            }
+        } else {
+            gridView = new View(context); 
+            gridView = inflater.inflate(R.layout.grid_item, null);
+        }
+        
+        GridView.LayoutParams lp = new GridView.LayoutParams(height, height);
+        gridView.setLayoutParams(lp);
 
-		TextView textView = (TextView) gridView.findViewById(R.id.grid_item_text);
-		if (imageLabels[position].equals("")) {
-			textView.setText(defaultLabel);		
-		} else {
-			textView.setText(imageLabels[position]);
-		}
-		ImageView imageView = (ImageView) gridView.findViewById(R.id.grid_item_image);
-		if (new File(imageFiles[position]).exists()) {
-			Bitmap gridImage = BitmapFactory.decodeFile(imageFiles[position]);
-			imageView.setImageBitmap(gridImage);
-		} else {
-			imageView.setImageBitmap(defaultBitmap);
-		}
-		
-		return gridView;
-	}
+        TextView textView = (TextView) gridView.findViewById(R.id.grid_item_text);
+        if (imageLabels[position].equals("")) {
+            textView.setText(defaultLabel);
+        } else {
+            textView.setText(imageLabels[position]);
+        }
+        ImageView imageView = (ImageView) gridView.findViewById(R.id.grid_item_image);
+        if (new File(imageFiles[position]).exists()) {
+            Bitmap gridImage = BitmapFactory.decodeFile(imageFiles[position]);
+            imageView.setImageBitmap(gridImage);
+        } else {
+            imageView.setImageBitmap(defaultBitmap);
+        }
+        
+        return gridView;
+    }
  
-	@Override
-	public int getCount() {
-		int count = 0;
-		if (imageFiles != null) {
-			count = imageFiles.length;
-		}
-		return count;
-	}
+    @Override
+    public int getCount() {
+        int count = 0;
+        if (imageFiles != null) {
+            count = imageFiles.length;
+        }
+        return count;
+    }
  
-	@Override
-	public Object getItem(int position) {
-		return null;
-	}
+    @Override
+    public Object getItem(int position) {
+        return null;
+    }
  
-	@Override
-	public long getItemId(int position) {
-		return position;
-	}
-	
-	@Override
-	public boolean areAllItemsEnabled () {
-		return true;
-	}
-	
-	@Override
-	public boolean hasStableIds () {
-		return true;
-	}
+    @Override
+    public long getItemId(int position) {
+        return position;
+    }
+    
+    @Override
+    public boolean areAllItemsEnabled () {
+        return true;
+    }
+    
+    @Override
+    public boolean hasStableIds () {
+        return true;
+    }
 
-	@Override
-	public int getItemViewType(int position) {
-		return 0;
-	}
+    @Override
+    public int getItemViewType(int position) {
+        return 0;
+    }
 
-	@Override
-	public int getViewTypeCount() {
-		return 1;
-	}
+    @Override
+    public int getViewTypeCount() {
+        return 1;
+    }
 
-	@Override
-	public boolean isEmpty() {
-		return false;
-	}
+    @Override
+    public boolean isEmpty() {
+        return false;
+    }
 
-	@Override
-	public void registerDataSetObserver(DataSetObserver observer) {
-	}
+    @Override
+    public void registerDataSetObserver(DataSetObserver observer) {
+    }
 
-	@Override
-	public void unregisterDataSetObserver(DataSetObserver observer) {		
-	}
+    @Override
+    public void unregisterDataSetObserver(DataSetObserver observer) {
+    }
 
-	@Override
-	public boolean isEnabled(int position) {
-		return true;
-	}
+    @Override
+    public boolean isEnabled(int position) {
+        return true;
+    }
 }
