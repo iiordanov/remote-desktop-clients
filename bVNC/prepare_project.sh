@@ -1,7 +1,6 @@
 #!/bin/bash -e
 
 SKIP_BUILD=false
-FREERDP_ANDROID_TARGET=25
 
 usage () {
   echo "$0 bVNC|freebVNC|aSPICE|freeaSPICE|aRDP|freeaRDP|libs /path/to/your/android/ndk /path/to/your/android/sdk"
@@ -60,9 +59,10 @@ then
   ./build-deps.sh -j 4 -n $ANDROID_NDK build $PRJ
   popd
 
-  ${ANDROID_NDK}/ndk-build
-  #${ANDROID_SDK}/tools/android update project --target android-${FREERDP_ANDROID_TARGET} \
-  #                             -p jni/libs/deps/FreeRDP/client/Android/Studio/freeRDPCore/src/main
+  if echo $PRJ | grep -q "SPICE\|Opaque"
+  then
+    ${ANDROID_NDK}/ndk-build
+  fi
 fi
 
 if [ -n "$BUILDING_DEPENDENCIES" ]

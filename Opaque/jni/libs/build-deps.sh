@@ -601,8 +601,8 @@ build_freerdp() {
         ln -s Opaque/jni/libs/deps/${freerdp_build} ../../../../../FreeRDP
     fi
 
-    touch FREERDP_BUILT
     popd
+    touch FREERDP_BUILT
 }
 
 

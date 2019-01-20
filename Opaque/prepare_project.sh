@@ -48,10 +48,13 @@ fi
 if [ "$SKIP_BUILD" == "false" ]
 then
   pushd jni/libs
-  ./build-deps.sh -j 4 -n $ANDROID_NDK build
+  ./build-deps.sh -j 4 -n $ANDROID_NDK build $PRJ
   popd
 
-  ndk-build
+  if echo $PRJ | grep -q "SPICE\|Opaque"
+  then
+    ${ANDROID_NDK}/ndk-build
+  fi
 fi
 
 if [ -n "$BUILDING_DEPENDENCIES" ]
