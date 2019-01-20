@@ -4,7 +4,6 @@
           package="com.iiordanov.bVNC" android:installLocation="auto"
           android:versionCode="114032" android:versionName="v4.0.3">
 
-    <uses-sdk android:minSdkVersion="14"> </uses-sdk>
     <uses-permission
         tools:node="removeAll"/>
     <uses-permission android:name="android.permission.INTERNET"> </uses-permission>

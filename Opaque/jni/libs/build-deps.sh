@@ -531,6 +531,16 @@ fail_handler() {
 
 build_freerdp() {
     pushd deps
+
+    if [ -f FREERDP_BUILT ]
+    then
+      echo ; echo
+      echo "FreeRDP was previously built. Remove $(realpath FREERDP_BUILT) if you want to rebuild it."
+      echo ; echo
+      sleep 5
+      return
+    fi
+
     basedir="$(pwd)"
 
     missing_artifact="false"
@@ -583,10 +593,15 @@ build_freerdp() {
         export ANDROID_NDK="${ndkdir}"
         ./scripts/android-build-freerdp.sh
 
+        sed -i 's/implementationSdkVersion/compileSdkVersion/; s/.*rootProject.ext.versionName.*//; s/.*.*buildToolsVersion.*.*//; s/compile /implementation /' \
+               client/Android/Studio/freeRDPCore/build.gradle
+
         # Prepare the FreeRDPCore project for importing into Eclipse
         rm -f ../../../../../FreeRDP
         ln -s Opaque/jni/libs/deps/${freerdp_build} ../../../../../FreeRDP
     fi
+
+    touch FREERDP_BUILT
     popd
 }
 

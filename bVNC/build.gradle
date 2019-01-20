@@ -2,10 +2,10 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 27
-    buildToolsVersion "27.0.3"
 
     defaultConfig {
         targetSdkVersion 27
+        minSdkVersion 14
     }
 
     buildTypes {
@@ -33,12 +33,12 @@ android {
 }
 
 dependencies {
-    compile project(':pubkeyGenerator')
-    compile project(':freeRDPCore')
-    compile 'com.android.support:appcompat-v7:27.1.1'
-    compile 'com.android.support:support-v4:27.1.1'
-    compile 'com.android.support:support-vector-drawable:27.1.1'
-    compile 'net.zetetic:android-database-sqlcipher:3.5.9@aar'
-    compile files('libs/com.antlersoft.android.contentxml.jar')
-    compile files('libs/com.antlersoft.android.db.jar')
+    implementation project(':pubkeyGenerator')
+    implementation project(':freeRDPCore')
+    implementation 'com.android.support:appcompat-v7:27.1.1'
+    implementation 'com.android.support:support-v4:27.1.1'
+    implementation 'com.android.support:support-vector-drawable:27.1.1'
+    implementation 'net.zetetic:android-database-sqlcipher:3.5.9@aar'
+    implementation files('libs/com.antlersoft.android.contentxml.jar')
+    implementation files('libs/com.antlersoft.android.db.jar')
 }
