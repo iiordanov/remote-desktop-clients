@@ -1,5 +1,6 @@
-package com.undatech.opaque;
+package com.undatech.opaque.util;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
@@ -12,7 +13,7 @@ import java.util.Arrays;
  * Created by iordan on 24/06/18.
  */
 
-class PermissionsManager {
+public class PermissionsManager {
     public static String TAG = "PermissionsManager";
     private static String[] retrievePermissions(Context context) {
         try {
@@ -25,7 +26,7 @@ class PermissionsManager {
         }
     }
 
-    void requestPermissions(Activity activity) {
+    public void requestPermissions(Activity activity) {
         String[] permissions = retrievePermissions(activity);
         for (String permission: permissions) {
             // Here, thisActivity is the current activity

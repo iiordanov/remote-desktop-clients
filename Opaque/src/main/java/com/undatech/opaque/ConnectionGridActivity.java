@@ -51,6 +51,7 @@ import android.widget.AdapterView.OnItemLongClickListener;
 import com.undatech.opaque.R;
 import com.undatech.opaque.dialogs.MessageFragment;
 import com.undatech.opaque.util.FileUtils;
+import com.undatech.opaque.util.PermissionsManager;
 
 public class ConnectionGridActivity extends FragmentActivity {
     private static String TAG = "ConnectionGridActivity";
@@ -145,7 +146,7 @@ public class ConnectionGridActivity extends FragmentActivity {
 
     /**
      * Linked with android:onClick to the add new connection action bar item.
-     * @param view
+     * @param menuItem
      */
     public void addNewConnection (MenuItem menuItem) {
         Intent intent = new Intent(ConnectionGridActivity.this, ConnectionSetupActivity.class);
@@ -154,7 +155,7 @@ public class ConnectionGridActivity extends FragmentActivity {
     
     /**
      * Linked with android:onClick to the edit default settings action bar item.
-     * @param view
+     * @param menuItem
      */
     public void editDefaultSettings (MenuItem menuItem) {
         Intent intent = new Intent(ConnectionGridActivity.this, AdvancedSettingsActivity.class);
