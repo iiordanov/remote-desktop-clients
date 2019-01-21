@@ -260,7 +260,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
                         try {
                             correctAfterRotation();
                         } catch (Exception e) {
-                            e.printStackTrace();
+                            //e.printStackTrace();
                         }
                         //handler.postDelayed(rotationCorrector, 300);
                     }

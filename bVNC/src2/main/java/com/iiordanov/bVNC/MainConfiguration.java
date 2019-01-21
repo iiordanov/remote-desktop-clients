@@ -12,6 +12,7 @@ import com.iiordanov.pubkeygenerator.GeneratePubkeyActivity;
 
 import android.app.Activity;
 import android.app.ActivityManager.MemoryInfo;
+import android.content.Context;
 import android.support.v4.app.FragmentTransaction;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -19,6 +20,7 @@ import android.graphics.Point;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
+import android.text.ClipboardManager;
 import android.util.Log;
 import android.view.Display;
 import android.view.Menu;
@@ -36,6 +38,8 @@ import android.widget.Toast;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+
+import com.undatech.opaque.util.LogcatReader;
 import com.undatech.opaque.util.PermissionsManager;
 
 import com.iiordanov.bVNC.*;
@@ -126,6 +130,18 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
                 showDialog(R.layout.importexport);
             }
         });
+
+        ((Button) findViewById(R.id.copyLogcat)).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                LogcatReader logcatReader = new LogcatReader();
+                ClipboardManager cm = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+                cm.setText(logcatReader.getMyLogcat());
+                Toast.makeText(getBaseContext(), getResources().getString(R.string.log_copied),
+                        Toast.LENGTH_LONG).show();
+            }
+        });
+
         permissionsManager.requestPermissions(MainConfiguration.this);
     }
 

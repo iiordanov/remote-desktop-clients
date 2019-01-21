@@ -309,5 +309,11 @@ android:layout_height="fill_parent">
 		android:textAppearance="?android:attr/textAppearanceMedium"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"/>
+	<Button
+		android:id="@+id/copyLogcat"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:text="@string/copy_logcat"
+		android:textAppearance="?android:attr/textAppearanceMedium" />
 	</LinearLayout>
 </ScrollView>

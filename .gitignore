@@ -119,7 +119,8 @@ obj/
 .idea/dataSources.ids
 .idea/sqlDataSources.xml
 .idea/dynamic.xml
-.idea/uiDesigner.xml
+.idea/caches
+.idea/codeStyles
 
 Opaque/.idea/libraries/
 Opaque/.idea/workspace.xml
@@ -139,6 +140,8 @@ Opaque/.idea/dataSources.ids
 Opaque/.idea/sqlDataSources.xml
 Opaque/.idea/dynamic.xml
 Opaque/.idea/uiDesigner.xml
+Opaque/.idea/caches
+Opaque/.idea/codeStyles
 
 # OS-specific files
 .DS_Store

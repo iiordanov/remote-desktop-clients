@@ -703,4 +703,6 @@ Known issues:
     <string name="vnc_server_empty">VNC Server or port empty. Cannot connect!</string>
 
     <string name="warning_cert_does_not_match">WARNING: The saved x509 certificate or passed in signature does not match the current server certificate! This could be a man-in-the-middle attack. If you are aware of the key change you may proceed. </string>
+    <string name="copy_logcat">Copy Logcat</string>
+    <string name="log_copied">Logcat copied to clipboard. You can now paste it in an email or on the support forum</string>
 </resources>

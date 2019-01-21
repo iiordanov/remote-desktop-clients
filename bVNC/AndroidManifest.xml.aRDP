@@ -4,9 +4,7 @@
           package="com.iiordanov.aRDP" android:installLocation="auto"
           android:versionCode="114032" android:versionName="v4.0.3">
 
-    <uses-sdk android:minSdkVersion="21"> </uses-sdk>
-    <uses-permission
-        tools:node="removeAll"/>
+    <uses-permission tools:node="removeAll"/>
     <uses-permission android:name="android.permission.INTERNET"> </uses-permission>
     <uses-permission android:name="android.permission.VIBRATE"> </uses-permission>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"> </uses-permission>

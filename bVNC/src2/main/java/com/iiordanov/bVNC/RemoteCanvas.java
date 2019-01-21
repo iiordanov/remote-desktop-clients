@@ -390,7 +390,7 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
         //LibFreeRDP.setDataDirectory(session.getInstance(), getContext().getFilesDir().toString());
 
         BookmarkBase.DebugSettings debugSettings = session.getBookmark().getDebugSettings();
-        //debugSettings.setDebugLevel("TRACE");
+        debugSettings.setDebugLevel("DEBUG");
         //debugSettings.setAsyncUpdate(false);
         //debugSettings.setAsyncInput(false);
         //debugSettings.setAsyncChannel(false);
@@ -419,6 +419,7 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
         advancedSettings.setConsoleMode(connection.getConsoleMode());
         advancedSettings.setRedirectSound(connection.getRemoteSoundType());
         advancedSettings.setRedirectMicrophone(connection.getEnableRecording());
+        advancedSettings.setSecurity(0); // Automatic negotiation
 
         rdpcomm = new RdpCommunicator(session);
         rfbconn = rdpcomm;
