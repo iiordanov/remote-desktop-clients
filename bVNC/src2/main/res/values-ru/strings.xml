@@ -705,5 +705,5 @@
 
     <string name="warning_cert_does_not_match">ПРЕДУПРЕЖДЕНИЕ! Сохраненный x509 сертификат или предоставленная подпись не соответствует текущему сертификату сервера! Это может быть атака типа \"Man in the middle\". Если вам известно об изменении ключей, можете продолжить подключение. </string>
     <string name="copy_logcat">Copy Logcat</string>
-    <string name="log_copied">Logcat copied to clipboard. You can now paste it in an email or on the support forum</string>
+    <string name="log_copied">Logcat copied to clipboard. You can now paste it in an email or on the support forum. Please look through for any personal data before posting.</string>
 </resources>
