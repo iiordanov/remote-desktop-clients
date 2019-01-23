@@ -1,5 +1,6 @@
 v4.0.3
 - Updated spice library
+- Updated gnutls
 - Updated sshlib
 v4.0.2
 - Fixes for widget names

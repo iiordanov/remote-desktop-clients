@@ -136,7 +136,7 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
             public void onClick(View v) {
                 LogcatReader logcatReader = new LogcatReader();
                 ClipboardManager cm = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-                cm.setText(logcatReader.getMyLogcat());
+                cm.setText(logcatReader.getMyLogcat(Constants.LOGCAT_MAX_LINES));
                 Toast.makeText(getBaseContext(), getResources().getString(R.string.log_copied),
                         Toast.LENGTH_LONG).show();
             }

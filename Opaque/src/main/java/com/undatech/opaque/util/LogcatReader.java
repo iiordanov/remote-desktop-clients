@@ -1,5 +1,7 @@
 package com.undatech.opaque.util;
 
+import com.iiordanov.bVNC.Constants;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -22,20 +24,26 @@ public class LogcatReader {
         logcatCommand.add(Integer.toString(id));
     }
 
-    public String getMyLogcat() {
-        String logCatOutput = "";
-        String line = "";
+    public String getMyLogcat(int lines) {
+        ArrayList<String> logCatLines = new ArrayList<>(Constants.LOGCAT_MAX_LINES);
+        StringBuilder logCatOutput = new StringBuilder(Constants.LOGCAT_MAX_LINES);
+        String line;
 
         try {
             Process p = new ProcessBuilder().command(logcatCommand).start();
             BufferedReader buffReader = new BufferedReader(new InputStreamReader(p.getInputStream()));
             while ((line = buffReader.readLine()) != null) {
-                logCatOutput = logCatOutput + line + "\n";
+                logCatLines.add(line + "\n");
             }
         } catch (IOException e) {
-            android.util.Log.e (TAG, "Error obtaining output from logcat");
+            android.util.Log.e(TAG, "Error obtaining output from logcat");
             e.printStackTrace();
         }
-        return logCatOutput;
+
+        for (int i = Math.max(logCatLines.size() - Constants.LOGCAT_MAX_LINES, 0); i < logCatLines.size(); i++) {
+            logCatOutput.append(logCatLines.get(i));
+        }
+
+        return logCatOutput.toString();
     }
 }
