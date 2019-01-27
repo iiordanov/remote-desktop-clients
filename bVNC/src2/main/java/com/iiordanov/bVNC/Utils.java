@@ -52,6 +52,8 @@ import android.content.SharedPreferences.Editor;
 import android.content.Intent;
 import net.sqlcipher.database.SQLiteDatabase;
 import android.net.Uri;
+import android.support.v4.app.FragmentActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.text.Html;
 import android.util.Log;
 import android.view.ViewConfiguration;
@@ -112,7 +114,13 @@ public class Utils {
         showMessage(_context, "Error!", message, android.R.drawable.ic_dialog_alert, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                ((Activity) _context).finish();
+                if ( _context instanceof AppCompatActivity ) {
+                    ((AppCompatActivity) _context).finish();
+                } else if ( _context instanceof FragmentActivity ) {
+                    ((FragmentActivity) _context).finish();
+                } else if ( _context instanceof Activity ) {
+                    ((Activity) _context).finish();
+                }
             }
         });
     }
