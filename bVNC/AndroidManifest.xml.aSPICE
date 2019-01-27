@@ -4,7 +4,6 @@
           package="com.iiordanov.aSPICE" android:installLocation="auto"
           android:versionCode="114035" android:versionName="v4.0.3">
 
-    <uses-sdk android:minSdkVersion="14"></uses-sdk>
     <uses-permission tools:node="removeAll"/>
     <uses-permission android:name="android.permission.INTERNET"> </uses-permission>
     <uses-permission android:name="android.permission.VIBRATE"> </uses-permission>

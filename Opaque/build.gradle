@@ -7,7 +7,7 @@ buildscript {
         google()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.2.1'
+        classpath 'com.android.tools.build:gradle:3.3.0'
     }
 }
 
@@ -20,10 +20,10 @@ allprojects {
 
 android {
     compileSdkVersion 27
-    buildToolsVersion "27.0.3"
 
     defaultConfig {
         targetSdkVersion 27
+        minSdkVersion 14
     }
     useLibrary 'org.apache.http.legacy'
 
@@ -48,8 +48,7 @@ android {
 }
 
 dependencies {
-    compile 'com.android.support:appcompat-v7:26.1.0'
-    //compile 'org.apache.httpcomponents:httpclient:4.5.5'
-    compile 'org.apache.httpcomponents:httpcore:4.4.9'
+    implementation 'com.android.support:appcompat-v7:27.1.1'
+    implementation 'org.apache.httpcomponents:httpcore:4.4.9'
 }
 
