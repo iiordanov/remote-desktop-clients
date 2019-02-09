@@ -76,9 +76,8 @@ public class ConnectionBean extends AbstractConnectionBean implements Comparable
         if (context != null) {
             inputMode = Utils.querySharedPreferenceString(context, Constants.defaultInputMethodTag,
                     InputHandlerDirectSwipePan.ID);
-            android.util.Log.e(TAG, "Default input mode found: " + inputMode);
         } else {
-            android.util.Log.d(TAG, "Failed to query default input method, context is null.");
+            android.util.Log.e(TAG, "Failed to query default input method, context is null.");
         }
         set_Id(0);
         setAddress("");
