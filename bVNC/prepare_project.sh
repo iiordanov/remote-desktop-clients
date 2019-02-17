@@ -3,7 +3,7 @@
 SKIP_BUILD=false
 
 usage () {
-  echo "$0 bVNC|freebVNC|aSPICE|freeaSPICE|aRDP|freeaRDP|CustomVnc|libs /path/to/your/android/ndk /path/to/your/android/sdk"
+  echo "$0 bVNC|freebVNC|aSPICE|freeaSPICE|aRDP|freeaRDP|CustomAnyPackageName|libs /path/to/your/android/ndk /path/to/your/android/sdk"
   exit 1
 }
 
@@ -33,12 +33,12 @@ PRJ="$1"
 export ANDROID_NDK="$2"
 export ANDROID_SDK="$3"
 
-if [ "$PRJ" != "bVNC" -a "$PRJ" != "freebVNC" \
-  -a "$PRJ" != "aSPICE" -a "$PRJ" != "freeaSPICE" \
-  -a "$PRJ" != "aRDP" -a "$PRJ" != "freeaRDP" \
-  -a "$PRJ" != "CustomVnc" \
-  -a "$PRJ" != "libs" -o "$ANDROID_NDK" == "" \
-  -o "$ANDROID_SDK" == "" ]
+if [[ "$PRJ" != "bVNC" && "$PRJ" != "freebVNC" \
+  && "$PRJ" != "aSPICE" && "$PRJ" != "freeaSPICE" \
+  && "$PRJ" != "aRDP" && "$PRJ" != "freeaRDP" \
+  && "$PRJ" =~ "^Custom.*" \
+  && "$PRJ" != "libs" || "$ANDROID_NDK" == "" \
+  || "$ANDROID_SDK" == "" ]]
 then
   usage
 fi
@@ -47,13 +47,17 @@ if [ "$PRJ" == "libs" ]
 then
   PRJ=bVNC
   BUILDING_DEPENDENCIES=true
+elif echo ${PRJ} | grep -q Custom
+then
+  ORIG_PRJ=${PRJ}
+  PRJ=$(echo ${PRJ} | sed 's/^Custom//')
 fi
 
-if echo $PRJ | grep -iq "Custom"
+if echo ${ORIG_PRJ} | grep -iq "Custom"
 then
   # TODO: Instead of copying an exact android manifest, copy the one matching the TYPE of app instead (VNC, RDP, or SPICE)
   rm AndroidManifest.xml
-  cp AndroidManifest.xml.$PRJ AndroidManifest.xml
+  cp AndroidManifest.xml.CustomVnc AndroidManifest.xml
 
   sed -i "s/__CUSTOM_APP_PACKAGE__/$PRJ/" AndroidManifest.xml
 
@@ -63,10 +67,11 @@ then
   sed -i "s/package com.iiordanov.freeaSPICE/package com.iiordanov.$PRJ/" src2/main/java/com/iiordanov/$PRJ/*
 
   # TODO: Replace with a placeholder comment that gets text-replaced instead of using the freeaSPICE import
-  find src2/main/java/com/iiordanov -name \*.java -exec sed -i "s/com\.iiordanov\.freeaSPICE\./com\.iiordanov\.$PRJ\./" {} \;
+  find src2/main/java/com/iiordanov -name \*.java -exec sed -i "s/com\.iiordanov\.freeaSPICE\.\(.*\)/com\.iiordanov\.$PRJ\.\1 \/\/CUSTOM_CLIENT_IMPORTS/" {} \;
 else
   ln -sf AndroidManifest.xml.$PRJ AndroidManifest.xml
-  find src2/main/java/com/iiordanov -name \*.java -exec sed -i "s/com\.iiordanov\.Custom.*/com\.iiordanov\.freeaSPICE\.\*;/" {} \;
+  find src2/main/java/com/iiordanov -name \*.java -exec sed -i "s/import.*CUSTOM_CLIENT_IMPORTS/import com\.iiordanov\.freeaSPICE\.\*;/" {} \;
+  find src2/main/java/com/iiordanov -name \*.java -exec sed -i "s/package.*CUSTOM_CLIENT_IMPORTS/package com\.iiordanov\.freeaSPICE;/" {} \;
 fi
 
 ./copy_prebuilt_files.sh $PRJ

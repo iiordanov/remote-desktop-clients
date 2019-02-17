@@ -38,7 +38,8 @@ android:layout_height="fill_parent">
 		android:padding="5dip">
 		<TableRow>
 		    <TextView
-				android:text="Connection Type"
+				android:id="@+id/connectionTypeLabel"
+				android:text="@string/connection_type_caption"
 				android:textAppearance="?android:attr/textAppearanceLarge"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"/> 
