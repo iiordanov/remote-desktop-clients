@@ -341,12 +341,14 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
         // To prevent an SSH tunnel being created when port or TLS port is not set, we only
         // getPort when port/tport are positive.
         int port = connection.getPort();
-        if (port > 0)
+        if (port > 0) {
             port = getPort(port);
+        }
 
         int tport = connection.getTlsPort();
-        if (tport > 0)
+        if (tport > 0) {
             tport = getPort(tport);
+        }
 
         spicecomm = new SpiceCommunicator(getContext(), this, connection);
         rfbconn = spicecomm;
@@ -355,6 +357,12 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
                 handler, connection.getLayoutMap());
         spicecomm.setUIEventListener(RemoteCanvas.this);
         spicecomm.setHandler(handler);
+
+        android.util.Log.d(TAG, "Parameters: " + address + ", " + Integer.toString(port)
+                + ", " + Integer.toString(tport) + ", " +
+                connection.getPassword() + ", " + connection.getCaCertPath() + ", " + connection.getCaCert()
+                + ", " + connection.getCertSubject() + ", " + connection.getEnableSound());
+
         spicecomm.connect(address, Integer.toString(port), Integer.toString(tport), connection.getPassword(),
                 connection.getCaCertPath(), null, // TODO: Can send connection.getCaCert() here instead
                 connection.getCertSubject(), connection.getEnableSound());
