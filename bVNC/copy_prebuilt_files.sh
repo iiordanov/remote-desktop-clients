@@ -10,15 +10,6 @@ usage () {
 DIR=$(dirname $0)
 pushd $DIR
 
-PRJ="$1"
-
-if [ "$PRJ" != "bVNC" -a "$PRJ" != "freebVNC" \
-  -a "$PRJ" != "aSPICE" -a "$PRJ" != "freeaSPICE" \
-  -a "$PRJ" != "aRDP" -a "$PRJ" != "freeaRDP" ]
-then
-  usage
-fi
-
 mkdir -p java
 rsync -a prebuilt/org java/
 

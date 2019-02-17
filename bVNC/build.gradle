@@ -6,6 +6,9 @@ android {
     defaultConfig {
         targetSdkVersion 27
         minSdkVersion project.getProperties().get("SDK_VERSION")
+        manifestPlaceholders = [
+                custom_vnc_app_name: project.getProperties().get("CUSTOM_VNC_APP_NAME")
+        ]
     }
 
     buildTypes {
