@@ -95,6 +95,7 @@ import com.iiordanov.aRDP.*;
 import com.iiordanov.freeaRDP.*;
 import com.iiordanov.aSPICE.*;
 import com.iiordanov.freeaSPICE.*;
+import com.iiordanov.CustomClientPackage.*;
 
 public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView implements UIEventListener, EventListener {
     private final static String TAG = "RemoteCanvas";

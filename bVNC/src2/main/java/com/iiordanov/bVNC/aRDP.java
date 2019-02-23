@@ -47,6 +47,7 @@ import com.iiordanov.aRDP.*;
 import com.iiordanov.freeaRDP.*;
 import com.iiordanov.aSPICE.*;
 import com.iiordanov.freeaSPICE.*;
+import com.iiordanov.CustomClientPackage.*;
 
 /**
  * aRDP is the Activity for setting up RDP connections.
