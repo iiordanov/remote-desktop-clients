@@ -410,8 +410,8 @@ setup() {
         ${ndkdir}/build/tools/make_standalone_toolchain.py \
                 --api "${android_api}" \
                 --arch "${arch}" \
-                --deprecated-headers \
                 --install-dir "${toolchain}"
+#                --deprecated-headers \
     fi
     if ! [ -e "${toolchain}/bin/${build_host}-gcc" ] ; then
         echo "Couldn't configure compiler."
