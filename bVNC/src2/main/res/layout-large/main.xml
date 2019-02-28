@@ -176,7 +176,7 @@ android:layout_height="fill_parent">
 		</TableRow>
 		<TableRow>
 			<EditText android:id="@+id/textUsername" android:layout_width="fill_parent" 
-				android:hint="@string/username_hint" android:layout_height="wrap_content"
+				android:hint="@string/username_hint_optional" android:layout_height="wrap_content"
 				android:singleLine="true" android:layout_weight="1" android:textAppearance="?android:attr/textAppearanceLarge"
 				android:inputType="textNoSuggestions|textVisiblePassword"/>
 		</TableRow>
