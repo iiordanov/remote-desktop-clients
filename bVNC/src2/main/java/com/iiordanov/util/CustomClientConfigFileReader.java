@@ -11,7 +11,7 @@ import java.util.Map;
 public class CustomClientConfigFileReader {
     private final static String TAG = "ConfigFileReader";
 
-    private Map<String, Integer> configData;
+    private Map<String, Map> configData;
 
     public CustomClientConfigFileReader(InputStream configFileInputStream) {
         BufferedReader reader = null;
@@ -28,7 +28,7 @@ public class CustomClientConfigFileReader {
         }
     }
 
-    public Map<String, Integer> getConfigData() {
+    public Map<String, Map> getConfigData() {
         return configData;
     }
 }

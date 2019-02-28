@@ -19,23 +19,27 @@ import java.util.Map;
 
 public class CustomVnc extends bVNC {
     private final static String TAG = "CustomVnc";
-    private View view;
 
     @Override
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
-
         try {
+            View view;
             CustomClientConfigFileReader configFileReader = new CustomClientConfigFileReader(
                             getAssets().open("custom_vnc_client.yaml"));
-            Map<String, Integer> data = configFileReader.getConfigData();
+            Map<String, Map> configData = configFileReader.getConfigData();
+            Map<String, Integer> visibility = (Map<String, Integer>)configData.get("mainConfiguration").get("visibility");
 
-            for (String s : data.keySet()){
+            for (String s : visibility.keySet()){
                 android.util.Log.d(TAG, s);
                 int resID = getResources().getIdentifier(s, "id", getPackageName());
                 view = findViewById(resID);
-                view.setVisibility(data.get(s));
+                view.setVisibility(visibility.get(s));
             }
+
+            String title = (String)configData.get("mainConfiguration").get("title");
+            setTitle(title);
+
         } catch (IOException e) {
             android.util.Log.e(TAG, "Error opening config file from assets.");
             e.printStackTrace();
