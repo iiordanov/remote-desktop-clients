@@ -41,7 +41,6 @@ fi
 
 if [ "$PRJ" == "libs" ]
 then
-  PRJ=Opaque
   BUILDING_DEPENDENCIES=true
 fi
 
@@ -51,7 +50,7 @@ then
   ./build-deps.sh -j 4 -n $ANDROID_NDK build $PRJ
   popd
 
-  if echo $PRJ | grep -q "SPICE\|Opaque"
+  if echo $PRJ | grep -q "SPICE\|Opaque\|libs"
   then
     ${ANDROID_NDK}/ndk-build
   fi
