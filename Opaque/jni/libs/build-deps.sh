@@ -178,9 +178,17 @@ build_one() {
             os=android-armeabi
             arch=arm
             ;;
+        arm64-v8a)
+            os=android64-aarch64
+            arch=arm64
+            ;;
         x86)
             os=android-x86
             arch=x86
+            ;;
+        x86_64)
+            os=android64
+            arch=x86_64
             ;;
         *)
             echo "Unsupported ABI: $abi"
@@ -382,7 +390,7 @@ setup() {
         arch=x86
         build_host="i686-linux-android"
         ;;
-    x86-64)
+    x86_64)
         gstarch=x86_64
         arch=x86_64
         build_host="x86_64-linux-android"
