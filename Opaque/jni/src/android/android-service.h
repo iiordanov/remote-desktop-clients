@@ -24,6 +24,7 @@
 #include "android-spice-widget.h"
 #include "virt-viewer-file.h"
 #include "libusb.h"
+#include <android/log.h>
 
 #define PTRFLAGS_DOWN 0x8000
 
@@ -72,6 +73,3 @@ int CreateOvirtSession(JNIEnv *env, jobject obj, const gchar *uri, const gchar *
 
 int openUsbDevice (int vid, int pid);
 int get_usb_device_fd(libusb_device *device);
-
-extern void __android_log_write(int, char*, char*);
-

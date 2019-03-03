@@ -43,7 +43,7 @@ inline gboolean attachThreadToJvm(JNIEnv** env) {
     case JNI_EDETACHED:
     	rs2 = (*jvm)->AttachCurrentThread(jvm, env, NULL);
     	if (rs2 != JNI_OK) {
-    		__android_log_write(6, "android-io", "ERROR: Could not attach current thread to jvm.");
+    		__android_log_write(ANDROID_LOG_ERROR, "android-io", "ERROR: Could not attach current thread to jvm.");
     	} else {
     		attached = TRUE;
     	}
@@ -157,36 +157,36 @@ void spice_session_setup(SpiceSession *session, const char *host, const char *po
     g_return_if_fail(SPICE_IS_SESSION(session));
 
     if (host) {
-        __android_log_write(6, "spice_session_setup, setting host", host);
+        __android_log_write(ANDROID_LOG_DEBUG, "spice_session_setup, setting host", host);
         g_object_set(session, "host", host, NULL);
     }
     // If we receive "-1" for a port, we assume the port is not set.
     if (port && strcmp (port, "-1") != 0) {
-        __android_log_write(6, "spice_session_setup, setting port", port);
+        __android_log_write(ANDROID_LOG_DEBUG, "spice_session_setup, setting port", port);
         g_object_set(session, "port", port, NULL);
     }
     if (tls_port && strcmp (tls_port, "-1") != 0) {
-        __android_log_write(6, "spice_session_setup, setting tls port", tls_port);
+        __android_log_write(ANDROID_LOG_DEBUG, "spice_session_setup, setting tls port", tls_port);
         g_object_set(session, "tls-port", tls_port, NULL);
     }
     if (password) {
-        __android_log_write(6, "spice_session_setup, setting password", password);
+        __android_log_write(ANDROID_LOG_DEBUG, "spice_session_setup, setting password", password);
         g_object_set(session, "password", password, NULL);
     }
     if (ca_file) {
-        __android_log_write(6, "spice_session_setup, setting ca-file", ca_file);
+        __android_log_write(ANDROID_LOG_DEBUG, "spice_session_setup, setting ca-file", ca_file);
         g_object_set(session, "ca-file", ca_file, NULL);
     }
     if (ca_cert) {
-        __android_log_write(6, "spice_session_setup, setting ca", ca_cert);
+        __android_log_write(ANDROID_LOG_DEBUG, "spice_session_setup, setting ca", ca_cert);
         g_object_set(session, "ca", ca_cert, NULL);
     }
     if (cert_subj) {
-        __android_log_write(6, "spice_session_setup, setting cert-subject", cert_subj);
+        __android_log_write(ANDROID_LOG_DEBUG, "spice_session_setup, setting cert-subject", cert_subj);
         g_object_set(session, "cert-subject", cert_subj, NULL);
     }
     if (proxy) {
-        __android_log_write(6, "spice_session_setup, setting proxy", proxy);
+        __android_log_write(ANDROID_LOG_DEBUG, "spice_session_setup, setting proxy", proxy);
         g_object_set(session, "proxy", proxy, NULL);
     }
 }
@@ -199,7 +199,7 @@ static void signal_handler(int signal, siginfo_t *info, void *reserved) {
  * Implementation of the function used to trigger a disconnect.
  */
 static gboolean disconnect(gpointer user_data) {
-    __android_log_write(6, "disconnect", "Disconnecting the session.");
+    __android_log_write(ANDROID_LOG_INFO, "disconnect", "Disconnecting the session.");
     connection_disconnect(global_conn);
     return FALSE;
 }
@@ -209,7 +209,7 @@ static gboolean disconnect(gpointer user_data) {
  */
 JNIEXPORT void JNICALL
 Java_com_iiordanov_bVNC_SpiceCommunicator_SpiceClientDisconnect (JNIEnv * env, jobject  obj) {
-    __android_log_write(6, "spiceDisconnect", "Disconnecting.");
+    __android_log_write(ANDROID_LOG_INFO, "spiceDisconnect", "Disconnecting.");
     g_main_context_invoke (NULL, disconnect, NULL);
 }
 
@@ -217,7 +217,7 @@ gboolean getJvmAndMethodReferences (JNIEnv *env) {
 	// Get a reference to the JVM to get JNIEnv from in (other) threads.
     jint rs = (*env)->GetJavaVM(env, &jvm);
     if (rs != JNI_OK) {
-    	__android_log_write(6, "getJvmAndMethodReferences", "ERROR: Could not obtain jvm reference.");
+    	__android_log_write(ANDROID_LOG_ERROR, "getJvmAndMethodReferences", "ERROR: Could not obtain jvm reference.");
     	return FALSE;
     }
 
@@ -301,7 +301,7 @@ int connectSession (spice_connection *conn)
 {
     int result = 0;
 
-    __android_log_write(6, "connectSession", "Starting.");
+    __android_log_write(ANDROID_LOG_INFO, "connectSession", "Starting.");
     g_thread_init(NULL);
     g_type_init();
     mainloop = g_main_loop_new(NULL, FALSE);
@@ -311,9 +311,9 @@ int connectSession (spice_connection *conn)
         global_conn = conn;
         g_main_loop_run(mainloop);
         g_object_unref(mainloop);
-	    __android_log_write(6, "connectSession", "Exiting main loop.");
+	    __android_log_write(ANDROID_LOG_INFO, "connectSession", "Exiting main loop.");
     } else {
-        __android_log_write(6, "connectSession", "Wrong hostname, port, or password.");
+        __android_log_write(ANDROID_LOG_ERROR, "connectSession", "Wrong hostname, port, or password.");
         result = 1;
     }
 
@@ -418,9 +418,9 @@ gboolean reportIfSslError (JNIEnv* env, const gchar *message) {
 static gboolean
 authenticationCallback(RestProxy *proxy, G_GNUC_UNUSED RestProxyAuth *auth,
                 gboolean retrying, gpointer user_data) {
-	__android_log_write(6, "authenticationCallback", "authenticationCallback called.");
+	__android_log_write(ANDROID_LOG_DEBUG, "authenticationCallback", "authenticationCallback called.");
 	if (retrying) {
-		__android_log_write(6, "authenticationCallback", "Authentication has failed.");
+		__android_log_write(ANDROID_LOG_ERROR, "authenticationCallback", "Authentication has failed.");
 		sendMessage (NULL, 6, "Authentication Failure."); /* Constants.OVIRT_AUTH_FAILURE */
 	} else {
         g_object_set(G_OBJECT(proxy), "username", oVirtUser, "password", oVirtPassword, NULL);
@@ -431,7 +431,7 @@ authenticationCallback(RestProxy *proxy, G_GNUC_UNUSED RestProxyAuth *auth,
 
 JNIEXPORT jint JNICALL
 Java_com_iiordanov_bVNC_SpiceCommunicator_StartSessionFromVvFile(JNIEnv *env, jobject obj, jstring vvFileName, jboolean sound) {
-    __android_log_write(6, "StartSessionFromVvFile", "Starting.");
+    __android_log_write(ANDROID_LOG_INFO, "StartSessionFromVvFile", "Starting.");
 
     gchar *vv_file_name = NULL;
     VirtViewerFile *vv_file = NULL;
@@ -446,8 +446,8 @@ Java_com_iiordanov_bVNC_SpiceCommunicator_StartSessionFromVvFile(JNIEnv *env, jo
     vv_file_name = (gchar*) (*env)->GetStringUTFChars(env, vvFileName, NULL);
     vv_file = virt_viewer_file_new(vv_file_name, &error);
     if (error) {
-        __android_log_write(6, "StartSessionFromVvFile", "Error creating vv_file object, error:");
-        __android_log_write(6, "StartSessionFromVvFile", error->message);
+        __android_log_write(ANDROID_LOG_ERROR, "StartSessionFromVvFile", "Error creating vv_file object, error:");
+        __android_log_write(ANDROID_LOG_ERROR, "StartSessionFromVvFile", error->message);
         sendMessage (env, 11, error->message); /* Constants.VV_FILE_ERROR */
         result = -1;
         goto error;
@@ -472,7 +472,7 @@ Java_com_iiordanov_bVNC_SpiceCommunicator_CreateOvirtSession(JNIEnv *env,
                                                                      jstring URI, jstring user, jstring pass,
                                                                      jstring sslCaFile,
                                                                      jboolean sound, jboolean sslStrict) {
-    __android_log_write(6, "CreateOvirtSession", "Starting.");
+    __android_log_write(ANDROID_LOG_INFO, "CreateOvirtSession", "Starting.");
 
     const gchar *uri = NULL;
     const gchar *username = NULL;
@@ -522,22 +522,22 @@ int CreateOvirtSession(JNIEnv *env, jobject obj, const gchar *uri, const gchar *
     oVirtPassword = password;
 
     if (!parse_ovirt_uri(uri, &rest_uri, &vm_name)) {
-    	__android_log_write(6, "CreateOvirtSession", "ERROR: Could not parse oVirt URI");
+    	__android_log_write(ANDROID_LOG_ERROR, "CreateOvirtSession", "ERROR: Could not parse oVirt URI");
         goto error;
     }
 
-	__android_log_write(6, "CreateOvirtSession", rest_uri);
-	__android_log_write(6, "CreateOvirtSession", vm_name);
+	__android_log_write(ANDROID_LOG_DEBUG, "CreateOvirtSession", rest_uri);
+	__android_log_write(ANDROID_LOG_DEBUG, "CreateOvirtSession", vm_name);
 
     proxy = ovirt_proxy_new(rest_uri);
     if (proxy == NULL) {
-    	__android_log_write(6, "CreateOvirtSession", "ERROR: Could not instantiate oVirt proxy");
+    	__android_log_write(ANDROID_LOG_ERROR, "CreateOvirtSession", "ERROR: Could not instantiate oVirt proxy");
         goto error;
     }
     g_signal_connect(G_OBJECT(proxy), "authenticate",
                      G_CALLBACK(authenticationCallback), NULL);
 
-    __android_log_write(6, "CreateOvirtSession", "Setting ssl-ca-file in ovirt proxy object");
+    __android_log_write(ANDROID_LOG_DEBUG, "CreateOvirtSession", "Setting ssl-ca-file in ovirt proxy object");
     g_object_set(proxy, "ssl-ca-file", ovirt_ca_file, NULL);
 
     // If we've been instructed to not be strict about SSL checks, then set the
@@ -546,48 +546,48 @@ int CreateOvirtSession(JNIEnv *env, jobject obj, const gchar *uri, const gchar *
     	g_object_set(G_OBJECT(proxy), "ssl-strict", FALSE, NULL);
     }
 
-    __android_log_write(6, "CreateOvirtSession", "Attempting to fetch API");
+    __android_log_write(ANDROID_LOG_INFO, "CreateOvirtSession", "Attempting to fetch API");
     api = ovirt_proxy_fetch_api(proxy, &error);
     if (error != NULL || api == NULL) {
     	// If this is not an SSL error, report a general connection error.
     	if (!reportIfSslError (env, error->message)) {
     		sendMessage (env, 5, error->message); /* Constants.SPICE_CONNECT_FAILURE */
     	}
-    	__android_log_write(6, "CreateOvirtSession", "Failed to fetch API, error:");
-        __android_log_write(6, "CreateOvirtSession", error->message);
+    	__android_log_write(ANDROID_LOG_ERROR, "CreateOvirtSession", "Failed to fetch API, error:");
+        __android_log_write(ANDROID_LOG_ERROR, "CreateOvirtSession", error->message);
         g_debug("failed to fetch api: %s", error->message);
         goto error;
     }
 
     g_assert(api != NULL);
-    __android_log_write(6, "CreateOvirtSession", "Attempting to fetch VMs");
+    __android_log_write(ANDROID_LOG_INFO, "CreateOvirtSession", "Attempting to fetch VMs");
     vms = ovirt_api_get_vms(api);
     g_assert(vms != NULL);
     ovirt_collection_fetch(vms, proxy, &error);
     if (error != NULL) {
-        __android_log_write(6, "CreateOvirtSession", "Failed to fetch VMs, error:");
-        __android_log_write(6, "CreateOvirtSession", error->message);
+        __android_log_write(ANDROID_LOG_ERROR, "CreateOvirtSession", "Failed to fetch VMs, error:");
+        __android_log_write(ANDROID_LOG_ERROR, "CreateOvirtSession", error->message);
         g_debug("failed to fetch VMs: %s", error->message);
         goto error;
     }
 
     // Try to look up the VM.
-    __android_log_write(6, "CreateOvirtSession", "Looking up VM");
+    __android_log_write(ANDROID_LOG_INFO, "CreateOvirtSession", "Looking up VM");
     vm = OVIRT_VM(ovirt_collection_lookup_resource(vms, vm_name));
 
     if (vm == NULL) {
-        __android_log_write(6, "CreateOvirtSession", "VM returned was null");
+        __android_log_write(ANDROID_LOG_ERROR, "CreateOvirtSession", "VM returned was null");
         sendMessage (env, 8, "Could not find specified VM, please delete specified VM name and try again."); /* Constants.VM_LOOKUP_FAILED */
     	goto error;
     }
 
-    __android_log_write(6, "CreateOvirtSession", "Checking the state of the VM");
+    __android_log_write(ANDROID_LOG_INFO, "CreateOvirtSession", "Checking the state of the VM");
     g_object_get(G_OBJECT(vm), "state", &state, NULL);
     if (!didPowerOn && state == OVIRT_VM_STATE_DOWN) {
         ovirt_vm_start(vm, proxy, &error);
         if (error != NULL) {
-            __android_log_write(6, "CreateOvirtSession", "Failed to start VM, error:");
-            __android_log_write(6, "CreateOvirtSession", error->message);
+            __android_log_write(ANDROID_LOG_ERROR, "CreateOvirtSession", "Failed to start VM, error:");
+            __android_log_write(ANDROID_LOG_ERROR, "CreateOvirtSession", error->message);
             g_debug("failed to start %s: %s", vm_name, error->message);
             // We still continue and attempt a connection even if powering on the VM fails.
         }
@@ -598,9 +598,9 @@ int CreateOvirtSession(JNIEnv *env, jobject obj, const gchar *uri, const gchar *
     }
 
     if (!ovirt_vm_get_ticket(vm, proxy, &error)) {
-    	__android_log_write(6, "CreateOvirtSession", "ERROR: Failed to get ticket for requested oVirt VM.");
-    	__android_log_write(6, "CreateOvirtSession", vm_name);
-    	__android_log_write(6, "CreateOvirtSession", error->message);
+    	__android_log_write(ANDROID_LOG_ERROR, "CreateOvirtSession", "ERROR: Failed to get ticket for requested oVirt VM.");
+    	__android_log_write(ANDROID_LOG_ERROR, "CreateOvirtSession", vm_name);
+    	__android_log_write(ANDROID_LOG_ERROR, "CreateOvirtSession", error->message);
         g_debug("failed to get ticket for %s: %s", vm_name, error->message);
         sendMessage (env, 5, error->message); /* Constants.SPICE_CONNECT_FAILURE */
         goto error;
@@ -608,7 +608,7 @@ int CreateOvirtSession(JNIEnv *env, jobject obj, const gchar *uri, const gchar *
 
     g_object_get(G_OBJECT(vm), "display", &display, NULL);
     if (display == NULL) {
-    	__android_log_write(6, "CreateOvirtSession", "ERROR: Failed to obtain requested oVirt VM display.");
+    	__android_log_write(ANDROID_LOG_ERROR, "CreateOvirtSession", "ERROR: Failed to obtain requested oVirt VM display.");
         goto error;
     }
 
@@ -626,7 +626,7 @@ int CreateOvirtSession(JNIEnv *env, jobject obj, const gchar *uri, const gchar *
     gtlsport = g_strdup_printf("%d", secure_port);
 
     if (type != OVIRT_VM_DISPLAY_SPICE) {
-    	__android_log_write(6, "CreateOvirtSession", "VNC display type, trying to launch external app.");
+    	__android_log_write(ANDROID_LOG_INFO, "CreateOvirtSession", "VNC display type, trying to launch external app.");
 
         // Get a reference to the static void method used to add VM names to SpiceCommunicator.
         jclass class  = (*env)->FindClass (env, "com/iiordanov/bVNC/SpiceCommunicator");
@@ -638,7 +638,7 @@ int CreateOvirtSession(JNIEnv *env, jobject obj, const gchar *uri, const gchar *
         	// Call back into SpiceCommunicator to start external app
         	(*env)->CallStaticVoidMethod(env, class, launchVncViewer, vncAddress, vncPort, vncPassword);
         } else {
-        	__android_log_write(6, "CreateOvirtSession", "One of the parameters was null");
+        	__android_log_write(ANDROID_LOG_ERROR, "CreateOvirtSession", "One of the parameters was null");
         }
     } else {
         GByteArray *ca_cert;
@@ -678,7 +678,7 @@ Java_com_iiordanov_bVNC_SpiceCommunicator_FetchVmNames(JNIEnv *env,
 		                                                         jobject obj,
 		                                                         jstring URI, jstring user, jstring password,
 		                                                         jstring sslCaFile, jboolean sslStrict) {
-	__android_log_write(6, "FetchVmNames", "Starting.");
+	__android_log_write(ANDROID_LOG_INFO, "FetchVmNames", "Starting.");
 
     OvirtApi *api = NULL;
     OvirtCollection *vms = NULL;
@@ -707,22 +707,22 @@ Java_com_iiordanov_bVNC_SpiceCommunicator_FetchVmNames(JNIEnv *env,
 
 /*
     if (!parse_ovirt_uri(uri, &rest_uri, &vm_name)) {
-    	__android_log_write(6, "FetchVmNames", "ERROR: Could not parse oVirt URI");
+    	__android_log_write(ANDROID_LOG_ERROR, "FetchVmNames", "ERROR: Could not parse oVirt URI");
     	success = -1;
         goto error;
     }
-	__android_log_write(6, "FetchVmNames", rest_uri);
+	__android_log_write(ANDROID_LOG_DEBUG, "FetchVmNames", rest_uri);
 */
     proxy = ovirt_proxy_new(rest_uri);
     if (proxy == NULL) {
-    	__android_log_write(6, "FetchVmNames", "ERROR: Could not instantiate oVirt proxy");
+    	__android_log_write(ANDROID_LOG_ERROR, "FetchVmNames", "ERROR: Could not instantiate oVirt proxy");
     	success = -1;
         goto error;
     }
     g_signal_connect(G_OBJECT(proxy), "authenticate",
                      G_CALLBACK(authenticationCallback), NULL);
 
-    __android_log_write(6, "FetchVmNames", "Setting ssl-ca-file in ovirt proxy object");
+    __android_log_write(ANDROID_LOG_DEBUG, "FetchVmNames", "Setting ssl-ca-file in ovirt proxy object");
     g_object_set(proxy, "ssl-ca-file", ovirt_ca_file, NULL);
 
     // If we've been instructed to not be strict about SSL checks, then set the
@@ -731,28 +731,28 @@ Java_com_iiordanov_bVNC_SpiceCommunicator_FetchVmNames(JNIEnv *env,
     	g_object_set(G_OBJECT(proxy), "ssl-strict", FALSE, NULL);
     }
 
-    __android_log_write(6, "FetchVmNames", "Attempting to fetch API");
+    __android_log_write(ANDROID_LOG_INFO, "FetchVmNames", "Attempting to fetch API");
     api = ovirt_proxy_fetch_api(proxy, &error);
     if (error != NULL) {
     	// If this is not an SSL error, report a general connection error.
     	if (!reportIfSslError (env, error->message)) {
     		sendMessage (env, 5, error->message); /* Constants.SPICE_CONNECT_FAILURE */
     	}
-    	__android_log_write(6, "FetchVmNames", "Failed to fetch API, error:");
-        __android_log_write(6, "FetchVmNames", error->message);
+    	__android_log_write(ANDROID_LOG_ERROR, "FetchVmNames", "Failed to fetch API, error:");
+        __android_log_write(ANDROID_LOG_ERROR, "FetchVmNames", error->message);
         g_debug("failed to fetch api: %s", error->message);
     	success = -1;
         goto error;
     }
 
     g_assert(api != NULL);
-    __android_log_write(6, "FetchVmNames", "Attempting to fetch VMs");
+    __android_log_write(ANDROID_LOG_INFO, "FetchVmNames", "Attempting to fetch VMs");
     vms = ovirt_api_get_vms(api);
     g_assert(vms != NULL);
     ovirt_collection_fetch(vms, proxy, &error);
     if (error != NULL) {
-        __android_log_write(6, "FetchVmNames", "Failed to fetch VMs, error:");
-        __android_log_write(6, "FetchVmNames", error->message);
+        __android_log_write(ANDROID_LOG_ERROR, "FetchVmNames", "Failed to fetch VMs, error:");
+        __android_log_write(ANDROID_LOG_ERROR, "FetchVmNames", error->message);
         g_debug("failed to fetch VMs: %s", error->message);
     	success = -1;
         goto error;
@@ -772,7 +772,7 @@ Java_com_iiordanov_bVNC_SpiceCommunicator_FetchVmNames(JNIEnv *env,
 	jmethodID jniAddVm = (*env)->GetStaticMethodID (env, class, "AddVm", "(Ljava/lang/String;)V");
 
     while (g_hash_table_iter_next (&iter, &vmname, &vm)) {
-        __android_log_write(6, "FetchVmNames", (char*)vmname);
+        __android_log_write(ANDROID_LOG_DEBUG, "FetchVmNames", (char*)vmname);
 
     	jstring vmName = (*env)->NewStringUTF(env, vmname);
     	if (vmName != NULL) {
@@ -801,7 +801,7 @@ int openUsbDevice (int vid, int pid) {
 }
 
 int get_usb_device_fd(libusb_device *device) {
-    __android_log_write(6, "channel-usbredir", "Trying to open USB device.");
+    __android_log_write(ANDROID_LOG_INFO, "channel-usbredir", "Trying to open USB device.");
     struct libusb_device_descriptor desc;
     int errcode = libusb_get_device_descriptor(device, &desc);
     if (errcode < 0) {

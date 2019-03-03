@@ -32,7 +32,7 @@ Java_com_iiordanov_bVNC_SpiceCommunicator_UpdateBitmap (JNIEnv* env, jobject obj
     SpiceDisplayPrivate *d = SPICE_DISPLAY_GET_PRIVATE(global_display);
 
 	if (AndroidBitmap_lockPixels(env, bitmap, (void**)&pixels) < 0) {
-		__android_log_write(6, "android-io", "AndroidBitmap_lockPixels() failed!");
+		__android_log_write(ANDROID_LOG_ERROR, "android-io", "AndroidBitmap_lockPixels() failed!");
 		return;
 	}
 
@@ -61,7 +61,7 @@ int win32key2spice (int keycode)
 	/*
 	char buf[100];
 	snprintf (buf, 100, "Converted win32 key: %d to linux key: %d", keycode, newKeyCode);
-	__android_log_write(6, "android-io", buf);
+	__android_log_write(ANDROID_LOG_DEBUG, "android-io", buf);
 	*/
 	return newKeyCode;
 }
@@ -98,9 +98,9 @@ Java_com_iiordanov_bVNC_SpiceCommunicator_SpiceRequestResolution(JNIEnv* env, jo
     // TODO: Sending the monitor config right away may be causing guest OS to shut down.
 	/*
     if (spice_main_send_monitor_config(d->main)) {
-        __android_log_write(6, "android-io", "Successfully sent monitor config");
+        __android_log_write(ANDROID_LOG_INFO, "android-io", "Successfully sent monitor config");
     } else {
-        __android_log_write(6, "android-io", "Failed to send monitor config");
+        __android_log_write(ANDROID_LOG_ERROR, "android-io", "Failed to send monitor config");
     }*/
 }
 
@@ -129,7 +129,7 @@ Java_com_iiordanov_bVNC_SpiceCommunicator_SpiceButtonEvent(JNIEnv * env, jobject
     SpiceDisplayPrivate *d = SPICE_DISPLAY_GET_PRIVATE(display);
     //char buf[60];
     //snprintf (buf, 60, "Pointer event: %d at x: %d, y: %d", type, x, y);
-    //__android_log_write(6, "android-io", buf);
+    //__android_log_write(ANDROID_LOG_DEBUG, "android-io", buf);
 
     if (!d->inputs || (x >= 0 && x < d->width && y >= 0 && y < d->height)) {
 
@@ -141,11 +141,11 @@ Java_com_iiordanov_bVNC_SpiceCommunicator_SpiceButtonEvent(JNIEnv * env, jobject
 		gint dy;
 	    switch (d->mouse_mode) {
 	    case SPICE_MOUSE_MODE_CLIENT:
-	        //__android_log_write(6, "android-io", "spice mouse mode client");
+	        //__android_log_write(ANDROID_LOG_DEBUG, "android-io", "spice mouse mode client");
 			spice_inputs_position(d->inputs, x, y, d->channel_id, newMask);
 	        break;
 	    case SPICE_MOUSE_MODE_SERVER:
-	        //__android_log_write(6, "android-io", "spice mouse mode server");
+	        //__android_log_write(ANDROID_LOG_DEBUG, "android-io", "spice mouse mode server");
 	        dx = d->mouse_last_x != -1 ? x - d->mouse_last_x : 0;
 	        dy = d->mouse_last_y != -1 ? y - d->mouse_last_y : 0;
 	        spice_inputs_motion(d->inputs, dx, dy, newMask);
@@ -159,10 +159,10 @@ Java_com_iiordanov_bVNC_SpiceCommunicator_SpiceButtonEvent(JNIEnv * env, jobject
 
 		if (mouseButton != SPICE_MOUSE_BUTTON_INVALID) {
 			if (down) {
-			    //__android_log_write(6, "android-io", "Button press");
+			    //__android_log_write(ANDROID_LOG_DEBUG, "android-io", "Button press");
 				spice_inputs_button_press(d->inputs, mouseButton, newMask);
 			} else {
-			    //__android_log_write(6, "android-io", "Button release");
+			    //__android_log_write(ANDROID_LOG_DEBUG, "android-io", "Button release");
 			    // This sleep is an ugly hack to prevent stuck buttons after a drag/drop gesture.
 			    usleep(50000);
 				spice_inputs_button_release(d->inputs, mouseButton, newMask);

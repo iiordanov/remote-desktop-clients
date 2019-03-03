@@ -224,7 +224,7 @@ void send_key(SpiceDisplay *display, int scancode, int down)
 /* ---------------------------------------------------------------- */
 
 static void disable_secondary_displays(SpiceMainChannel *channel, gpointer data) {
-    __android_log_write(6, "android-spice", "disable_secondary_displays");
+    __android_log_write(ANDROID_LOG_INFO, "android-spice", "disable_secondary_displays");
 
     SpiceDisplay *display = data;
     SpiceDisplayPrivate *d = SPICE_DISPLAY_GET_PRIVATE(display);
@@ -235,7 +235,7 @@ static void disable_secondary_displays(SpiceMainChannel *channel, gpointer data)
 }
 
 static void primary_create(SpiceChannel *channel, gint format, gint width, gint height, gint stride, gint shmid, gpointer imgdata, gpointer data) {
-	__android_log_write(6, "android-spice", "primary_create");
+	__android_log_write(ANDROID_LOG_INFO, "android-spice", "primary_create");
 
     SpiceDisplay *display = data;
     SpiceDisplayPrivate *d = SPICE_DISPLAY_GET_PRIVATE(display);
@@ -279,14 +279,14 @@ static void invalidate(SpiceChannel *channel,
     SpiceDisplayPrivate *d = SPICE_DISPLAY_GET_PRIVATE(display);
 
 	if (x + w > d->width || y + h > d->height) {
-		__android_log_write(6, "android-spice", "Not drawing.");
+		__android_log_write(ANDROID_LOG_INFO, "android-spice", "Not drawing.");
 	} else {
 	    uiCallbackInvalidate (d, x, y, w, h);
 	}
 }
 
 static void mark(SpiceChannel *channel, gint mark, gpointer data) {
-	//__android_log_write(6, "android-spice", "mark");
+	//__android_log_write(ANDROID_LOG_INFO, "android-spice", "mark");
     SpiceDisplay *display = data;
     SpiceDisplayPrivate *d = SPICE_DISPLAY_GET_PRIVATE(display);
     d->mark = mark;
@@ -326,7 +326,7 @@ static void disconnect_display(SpiceDisplay *display)
 
 static void channel_new(SpiceSession *s, SpiceChannel *channel, gpointer data)
 {
-	__android_log_write(6, "android-spice", "channel_new");
+	__android_log_write(ANDROID_LOG_INFO, "android-spice", "channel_new");
 
     SpiceDisplay *display = data;
     SpiceDisplayPrivate *d = SPICE_DISPLAY_GET_PRIVATE(display);

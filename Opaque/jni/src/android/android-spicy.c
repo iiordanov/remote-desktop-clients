@@ -167,12 +167,12 @@ static void channel_new(SpiceSession *s, SpiceChannel *channel, gpointer data)
     }
 
     if (SPICE_IS_USBREDIR_CHANNEL(channel)) {
-        __android_log_write(6, "android-spice", "Created USB channel, attempting to add devices");
+        __android_log_write(ANDROID_LOG_INFO, "android-spice", "Created USB channel, attempting to add devices");
         SpiceUsbDeviceManager *manager = spice_usb_device_manager_get(s, NULL);
         GPtrArray *devices = spice_usb_device_manager_get_devices(manager);
         if (devices) {
             for (int i = 0; i < devices->len; i++) {
-                __android_log_write(6, "android-spicy", "Devices found, connecting...");
+                __android_log_write(ANDROID_LOG_INFO, "android-spicy", "Devices found, connecting...");
                 usb_device_added(manager, g_ptr_array_index(devices, i), NULL);
             }
             g_ptr_array_unref(devices);
@@ -190,7 +190,7 @@ static void channel_new(SpiceSession *s, SpiceChannel *channel, gpointer data)
 
 static void channel_destroy(SpiceSession *s, SpiceChannel *channel, gpointer data)
 {
-	__android_log_write(6, "android-spice", "channel_destroy called");
+	__android_log_write(ANDROID_LOG_INFO, "android-spice", "channel_destroy called");
 
     spice_connection *conn = data;
     int id;
@@ -216,7 +216,7 @@ static void channel_destroy(SpiceSession *s, SpiceChannel *channel, gpointer dat
     }
 
     if (SPICE_IS_USBREDIR_CHANNEL(channel)) {
-        __android_log_write(6, "android-spice", "Destroyed USB channel.");
+        __android_log_write(ANDROID_LOG_INFO, "android-spice", "Destroyed USB channel.");
         //update_auto_usbredir_sensitive(conn);
     }
 
@@ -227,7 +227,7 @@ static void channel_destroy(SpiceSession *s, SpiceChannel *channel, gpointer dat
     conn->channels--;
     char buf[100];
     snprintf (buf, 100, "Number of channels: %d", conn->channels);
-    __android_log_write(6, "android-spice", buf);
+    __android_log_write(ANDROID_LOG_INFO, "android-spice", buf);
     if (conn->channels > 0) {
         return;
     }
@@ -246,20 +246,20 @@ static void migration_state(GObject *session,
 }
 
 static void usb_auto_connect_failed (SpiceUsbDeviceManager *manager, SpiceUsbDevice *device, gpointer user_data) {
-    __android_log_write(6, "android-spicy", "auto-connect-failed");
+    __android_log_write(ANDROID_LOG_ERROR, "android-spicy", "auto-connect-failed");
 }
 
 static void usb_device_error (SpiceUsbDeviceManager *manager, SpiceUsbDevice *device, gpointer user_data) {
-    __android_log_write(6, "android-spicy", "device-error");
+    __android_log_write(ANDROID_LOG_ERROR, "android-spicy", "device-error");
 }
 
 static void usb_device_added (SpiceUsbDeviceManager *manager, SpiceUsbDevice *device, gpointer user_data) {
-    __android_log_write(6, "android-spicy", "device-added");
+    __android_log_write(ANDROID_LOG_INFO, "android-spicy", "device-added");
     spice_usb_device_manager_connect_device_async(manager, device, NULL, NULL, NULL);
 }
 
 static void usb_device_removed (SpiceUsbDeviceManager *manager, SpiceUsbDevice *device, gpointer user_data) {
-    __android_log_write(6, "android-spicy", "device-removed");
+    __android_log_write(ANDROID_LOG_INFO, "android-spicy", "device-removed");
     spice_usb_device_manager_disconnect_device(manager, device);
 }
 
@@ -311,7 +311,7 @@ void connection_disconnect(spice_connection *conn)
 
 static void connection_destroy(spice_connection *conn)
 {
-	__android_log_write(6, "android-spicy", "connection_destroy called");
+	__android_log_write(ANDROID_LOG_INFO, "android-spicy", "connection_destroy called");
     g_object_unref(conn->session);
     free(conn);
 
@@ -321,7 +321,7 @@ static void connection_destroy(spice_connection *conn)
         return;
     }
 
-    __android_log_write(6, "android-spicy", "quitting main loop");
+    __android_log_write(ANDROID_LOG_INFO, "android-spicy", "quitting main loop");
     g_main_loop_quit(mainloop);
 }
 
