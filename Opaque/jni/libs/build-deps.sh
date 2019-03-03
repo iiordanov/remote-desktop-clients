@@ -239,6 +239,7 @@ build_one() {
         sed -i 's/tests//' Makefile
         sed -i 's/tools//' Makefile
 
+        patch -p0 < "${basedir}/spice-gtk-log.patch"
         patch -p1 < "${basedir}/spice-gtk-exit.patch"
         make $parallel
 

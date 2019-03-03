@@ -162,31 +162,31 @@ void spice_session_setup(SpiceSession *session, const char *host, const char *po
     }
     // If we receive "-1" for a port, we assume the port is not set.
     if (port && strcmp (port, "-1") != 0) {
-       __android_log_write(6, "spice_session_setup, setting port", port);
-       g_object_set(session, "port", port, NULL);
+        __android_log_write(6, "spice_session_setup, setting port", port);
+        g_object_set(session, "port", port, NULL);
     }
     if (tls_port && strcmp (tls_port, "-1") != 0) {
-       __android_log_write(6, "spice_session_setup, setting tls port", tls_port);
+        __android_log_write(6, "spice_session_setup, setting tls port", tls_port);
         g_object_set(session, "tls-port", tls_port, NULL);
     }
     if (password) {
-       __android_log_write(6, "spice_session_setup, setting password", password);
+        __android_log_write(6, "spice_session_setup, setting password", password);
         g_object_set(session, "password", password, NULL);
     }
     if (ca_file) {
-       __android_log_write(6, "spice_session_setup, setting ca-file", ca_file);
+        __android_log_write(6, "spice_session_setup, setting ca-file", ca_file);
         g_object_set(session, "ca-file", ca_file, NULL);
     }
     if (ca_cert) {
-       __android_log_write(6, "spice_session_setup, setting ca", ca_cert);
+        __android_log_write(6, "spice_session_setup, setting ca", ca_cert);
         g_object_set(session, "ca", ca_cert, NULL);
     }
     if (cert_subj) {
-       __android_log_write(6, "spice_session_setup, setting cert-subject", cert_subj);
+        __android_log_write(6, "spice_session_setup, setting cert-subject", cert_subj);
         g_object_set(session, "cert-subject", cert_subj, NULL);
     }
     if (proxy) {
-       __android_log_write(6, "spice_session_setup, setting proxy", proxy);
+        __android_log_write(6, "spice_session_setup, setting proxy", proxy);
         g_object_set(session, "proxy", proxy, NULL);
     }
 }

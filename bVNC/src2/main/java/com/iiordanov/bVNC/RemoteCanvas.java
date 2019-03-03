@@ -357,12 +357,6 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
                 handler, connection.getLayoutMap());
         spicecomm.setUIEventListener(RemoteCanvas.this);
         spicecomm.setHandler(handler);
-
-        android.util.Log.d(TAG, "Parameters: " + address + ", " + Integer.toString(port)
-                + ", " + Integer.toString(tport) + ", " +
-                connection.getPassword() + ", " + connection.getCaCertPath() + ", " + connection.getCaCert()
-                + ", " + connection.getCertSubject() + ", " + connection.getEnableSound());
-
         spicecomm.connect(address, Integer.toString(port), Integer.toString(tport), connection.getPassword(),
                 connection.getCaCertPath(), null, // TODO: Can send connection.getCaCert() here instead
                 connection.getCertSubject(), connection.getEnableSound());
