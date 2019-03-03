@@ -445,6 +445,9 @@ build() {
         rm -rf "${gst}-${abi}"
         mkdir -p "${gst}-${abi}"
         tar xf "$(tarpath ${pkgstr})" -C "${gst}-${abi}"
+        pushd "${gst}-${abi}"
+        rm -rf $(ls -1 | grep -v "^${gstarch}$")
+        popd
         ln -s "${gst}-${abi}/${gstarch}" "${gst}"
 
         origroot=$(grep '^prefix' "${gst}/lib/pkgconfig/gstreamer-1.0.pc" | \
