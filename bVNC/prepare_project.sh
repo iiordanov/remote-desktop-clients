@@ -44,14 +44,11 @@ fi
 
 if [ "$PRJ" == "libs" ]
 then
-  PRJ=bVNC
   BUILDING_DEPENDENCIES=true
+else
+  ln -sf AndroidManifest.xml.$PRJ AndroidManifest.xml
+  ./copy_prebuilt_files.sh $PRJ
 fi
-
-ln -sf AndroidManifest.xml.$PRJ AndroidManifest.xml
-
-./copy_prebuilt_files.sh $PRJ
-
 
 if [ "$SKIP_BUILD" == "false" ]
 then
@@ -59,7 +56,7 @@ then
   ./build-deps.sh -j 4 -n $ANDROID_NDK build $PRJ
   popd
 
-  if echo $PRJ | grep -q "SPICE\|Opaque"
+  if echo $PRJ | grep -q "SPICE\|Opaque\|libs"
   then
     ${ANDROID_NDK}/ndk-build
   fi

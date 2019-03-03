@@ -40,7 +40,10 @@ Building from scratch and working in Android Studio.
   - On Linux, install Android Studio, Android SDK, and Android NDK
 
   - Install at least the following dependencies on your Linux machine:
-    cmake automake libtool intltool gtk-doc-tools gnome-common gobject-introspection nasm
+    make cmake automake libtool intltool gtk-doc-tools gnome-common gobject-introspection nasm
+
+  - If cmake on your system throws an error about CMAKE_MAKE_PROGRAM not set, install v3.5.1:
+    https://github.com/Kitware/CMake/releases/tag/v3.5.1
 
   - To build bVNC, aSPICE, or aRDP
 
@@ -57,6 +60,9 @@ Building from scratch and working in Android Studio.
 
     - Accept all licenses (repeat if you see an error during build)
       ${ANDROID_SDK}/tools/bin/sdkmanager --licenses
+
+    - Optionally, add cmake to the front of your PATH (adjust the path to cmake/bin):
+      export PATH=/opt/cmake-3.5.1-Linux-x86_64/bin:${PATH}
 
     - Then, run the build script. E.g.:
 
