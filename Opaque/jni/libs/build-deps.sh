@@ -639,7 +639,7 @@ build)
         build "$curabi"
     done
 
-    if echo $2 | grep -q RDP
+    if echo $2 | grep -q "RDP\|libs"
     then
         build_freerdp
     fi

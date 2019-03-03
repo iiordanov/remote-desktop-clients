@@ -59,13 +59,15 @@ fi
 
 if [ "$PRJ" == "libs" ]
 then
-  PRJ=bVNC
   BUILDING_DEPENDENCIES=true
 elif echo ${PRJ} | grep -q Custom
 then
   CUSTOM_CLIENT=true
   ORIG_PRJ=${PRJ}
   PRJ=$(echo ${PRJ} | sed 's/^Custom//')
+else
+  ln -sf AndroidManifest.xml.$PRJ AndroidManifest.xml
+  ./copy_prebuilt_files.sh $PRJ
 fi
 
 if [ -n "${CUSTOM_CLIENT}" ]
@@ -88,14 +90,13 @@ fi
 
 ./copy_prebuilt_files.sh $PRJ
 
-
 if [ "$SKIP_BUILD" == "false" ]
 then
   pushd jni/libs
   ./build-deps.sh -j 4 -n $ANDROID_NDK build $PRJ
   popd
 
-  if echo $PRJ | grep -iq "SPICE\|Opaque"
+  if echo $PRJ | grep -q "SPICE\|Opaque\|libs"
   then
     ${ANDROID_NDK}/ndk-build
   fi
