@@ -170,7 +170,7 @@ void spice_session_setup(SpiceSession *session, const char *host, const char *po
         g_object_set(session, "tls-port", tls_port, NULL);
     }
     if (password) {
-        __android_log_write(ANDROID_LOG_DEBUG, "spice_session_setup, setting password", password);
+        __android_log_write(ANDROID_LOG_DEBUG, "spice_session_setup, setting password", "(not logged)");
         g_object_set(session, "password", password, NULL);
     }
     if (ca_file) {

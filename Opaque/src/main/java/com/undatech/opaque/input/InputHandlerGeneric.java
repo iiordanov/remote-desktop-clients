@@ -389,7 +389,7 @@ abstract class InputHandlerGeneric extends GestureDetector.SimpleOnGestureListen
             (y <= immersiveSwipeDistance || canvas.getHeight() - y <= immersiveSwipeDistance)) {
             inSwiping = true;
             immersiveSwipe = true;
-        } else {
+        } else if (!singleHandedGesture) {
             inSwiping = false;
             immersiveSwipe = false;
         }
