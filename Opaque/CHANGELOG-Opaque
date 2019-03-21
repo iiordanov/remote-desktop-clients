@@ -1,5 +1,6 @@
 v1.4.7
 - Fix for scrolling in Single Handed mode
+- Bugfixes for Proxmox 
 v1.4.6
 - Fix for Menu + immersive mode live-lock on some devices
 - Updated spice library
