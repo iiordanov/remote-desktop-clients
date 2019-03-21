@@ -410,7 +410,9 @@ public class RemoteCanvas extends ImageView {
 
                         // If there is just one VM, pick it and skip the dialog.
                         if (nameToResources.size() == 1) {
-                            PveResource a = nameToResources.get(0);
+                            android.util.Log.e(TAG, "A single VM was found, so picking it.");
+                            String key = (String)nameToResources.keySet().toArray()[0];
+                            PveResource a = nameToResources.get(key);
                             settings.setVmname(a.getNode() + "/" + a.getType() + "/" + a.getVmid());
                             settings.saveToSharedPreferences(getContext());
                         } else {
