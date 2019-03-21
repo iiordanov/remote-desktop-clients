@@ -245,7 +245,7 @@ build_one() {
 
         # Patch to avoid SIGBUS due to unaligned accesses on ARM7
         # seems it is no longer needed since spice-gtk 0.35
-        #patch -p1 < "${basedir}/spice-marshaller-sigbus.patch"
+        patch -p1 < "${basedir}/spice-marshaller-sigbus.patch"
         make $parallel
 
         make install
