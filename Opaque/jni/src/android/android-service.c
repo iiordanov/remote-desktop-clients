@@ -66,28 +66,33 @@ spice_session_setup_from_vv(VirtViewerFile *file, SpiceSession *session)
     if (virt_viewer_file_is_set(file, "host")) {
         gchar *val = virt_viewer_file_get_host(file);
         g_object_set(G_OBJECT(session), "host", val, NULL);
+        __android_log_write(ANDROID_LOG_DEBUG, "spice_session_setup, setting host", val);
         g_free(val);
     }
 
     if (virt_viewer_file_is_set(file, "port")) {
-        gchar *port = g_strdup_printf("%d", virt_viewer_file_get_port(file));
-        g_object_set(G_OBJECT(session), "port", port, NULL);
-        g_free(port);
+        gchar *val = g_strdup_printf("%d", virt_viewer_file_get_port(file));
+        g_object_set(G_OBJECT(session), "port", val, NULL);
+        __android_log_write(ANDROID_LOG_DEBUG, "spice_session_setup, setting port", val);
+        g_free(val);
     }
     if (virt_viewer_file_is_set(file, "tls-port")) {
-        gchar *tls_port = g_strdup_printf("%d", virt_viewer_file_get_tls_port(file));
-        g_object_set(G_OBJECT(session), "tls-port", tls_port, NULL);
-        g_free(tls_port);
+        gchar *val = g_strdup_printf("%d", virt_viewer_file_get_tls_port(file));
+        g_object_set(G_OBJECT(session), "tls-port", val, NULL);
+        __android_log_write(ANDROID_LOG_DEBUG, "spice_session_setup, setting tls port", val);
+        g_free(val);
     }
     if (virt_viewer_file_is_set(file, "password")) {
         gchar *val = virt_viewer_file_get_password(file);
         g_object_set(G_OBJECT(session), "password", val, NULL);
+        __android_log_write(ANDROID_LOG_DEBUG, "spice_session_setup, setting password", "(not logged)");
         g_free(val);
     }
 
     if (virt_viewer_file_is_set(file, "tls-ciphers")) {
         gchar *val = virt_viewer_file_get_tls_ciphers(file);
         g_object_set(G_OBJECT(session), "ciphers", val, NULL);
+        __android_log_write(ANDROID_LOG_DEBUG, "spice_session_setup, setting ciphers", val);
         g_free(val);
     }
 
@@ -97,18 +102,21 @@ spice_session_setup_from_vv(VirtViewerFile *file, SpiceSession *session)
 
         GByteArray *ba = g_byte_array_new_take((guint8 *)ca, strlen(ca) + 1);
         g_object_set(G_OBJECT(session), "ca", ba, NULL);
+        __android_log_write(ANDROID_LOG_DEBUG, "spice_session_setup, setting ca", "(not logged)");
         g_byte_array_unref(ba);
     }
 
     if (virt_viewer_file_is_set(file, "host-subject")) {
         gchar *val = virt_viewer_file_get_host_subject(file);
         g_object_set(G_OBJECT(session), "cert-subject", val, NULL);
+        __android_log_write(ANDROID_LOG_DEBUG, "spice_session_setup, setting cert-subject", val);
         g_free(val);
     }
 
     if (virt_viewer_file_is_set(file, "proxy")) {
         gchar *val = virt_viewer_file_get_proxy(file);
         g_object_set(G_OBJECT(session), "proxy", val, NULL);
+        __android_log_write(ANDROID_LOG_DEBUG, "spice_session_setup, setting proxy", val);
         g_free(val);
     }
 
@@ -142,6 +150,7 @@ spice_session_setup_from_vv(VirtViewerFile *file, SpiceSession *session)
     if (virt_viewer_file_is_set(file, "secure-channels")) {
         gchar **channels = virt_viewer_file_get_secure_channels(file, NULL);
         g_object_set(G_OBJECT(session), "secure-channels", channels, NULL);
+        __android_log_write(ANDROID_LOG_DEBUG, "spice_session_setup, setting secure-channels", "");
         g_strfreev(channels);
     }
 

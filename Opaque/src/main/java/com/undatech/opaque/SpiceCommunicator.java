@@ -20,6 +20,7 @@
 
 package com.undatech.opaque;
 
+import java.io.File;
 import java.net.URISyntaxException;
 import java.sql.Connection;
 import java.util.ArrayList;
@@ -27,6 +28,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Scanner;
 
 import android.R.integer;
 import android.app.PendingIntent;
@@ -182,6 +184,7 @@ public class SpiceCommunicator {
      * Connects to an oVirt/RHEV server to fetch the names of all VMs available to the specified user.
      */
     public int startSessionFromVvFile (String vvFileName, boolean sound) {
+        android.util.Log.d(TAG, "Starting connection from vv file: " + vvFileName);
         return StartSessionFromVvFile(vvFileName, sound);
     }
     
