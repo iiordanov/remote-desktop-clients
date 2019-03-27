@@ -5,6 +5,14 @@ clients for Android.
 
 Please see the LICENSE file for information on how the source is licensed.
 
+# kiosk_mode branch
+
+## TODO
+
+* Disable Zoom Option (ie pinch to zoom)
+* Disable & Hide Touch Menu
+* Disable & Hide Function Key Menu
+* Disable & Hide Mouse Pointer
 
 # Building
 
