@@ -196,6 +196,8 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
      */
     boolean bb = false;
 
+    boolean bKioskMode=true;
+
     /**
      * Constructor used by the inflation apparatus
      *
@@ -396,6 +398,7 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
         //debugSettings.setAsyncUpdate(false);
         //debugSettings.setAsyncInput(false);
         //debugSettings.setAsyncChannel(false);
+        bKioskMode=session.getBookmark().getKioskModeSetting();
 
         // Set screen settings to native res if instructed to, or if height or width are too small.
         BookmarkBase.ScreenSettings screenSettings = session.getBookmark().getActiveScreenSettings();
@@ -1177,6 +1180,8 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
      * Invalidates (to redraw) the location of the remote pointer.
      */
     public void invalidateMousePosition() {
+        if(bKioskMode)
+            return;
         if (myDrawable != null) {
             myDrawable.moveCursorRect(pointer.getX(), pointer.getY());
             RectF r = myDrawable.getCursorRect();
@@ -1192,6 +1197,8 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
      * @param y
      */
     synchronized void softCursorMove(int x, int y) {
+        if(bKioskMode)
+            return;
         if (myDrawable.isNotInitSoftCursor()) {
             initializeSoftCursor();
         }

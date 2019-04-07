@@ -92,6 +92,7 @@ public class aRDP extends MainConfiguration {
     private CheckBox checkboxRotateDpad;
     private CheckBox checkboxLocalCursor;
     private CheckBox checkboxUseSshPubkey;
+    private CheckBox checkboxKioskMode;
     
     @Override
     public void onCreate(Bundle icicle) {
@@ -141,6 +142,8 @@ public class aRDP extends MainConfiguration {
         checkboxUseDpadAsArrows = (CheckBox)findViewById(R.id.checkboxUseDpadAsArrows);
         checkboxRotateDpad = (CheckBox)findViewById(R.id.checkboxRotateDpad);
         checkboxLocalCursor = (CheckBox)findViewById(R.id.checkboxUseLocalCursor);
+
+        checkboxKioskMode=(CheckBox)findViewById(R.id.toggleKioskMode);
 
         goButton = (Button) findViewById(R.id.buttonGO);
         goButton.setOnClickListener(new View.OnClickListener() {
@@ -295,6 +298,9 @@ public class aRDP extends MainConfiguration {
         checkboxUseDpadAsArrows.setChecked(selected.getUseDpadAsArrows());
         checkboxRotateDpad.setChecked(selected.getRotateDpad());
         checkboxLocalCursor.setChecked(selected.getUseLocalCursor());
+
+        checkboxKioskMode.setChecked(selected.getKioskMode());
+
         textNickname.setText(selected.getNickname());
         textUsername.setText(selected.getUserName());
         rdpDomain.setText(selected.getRdpDomain());
@@ -383,6 +389,9 @@ public class aRDP extends MainConfiguration {
         selected.setUseDpadAsArrows(checkboxUseDpadAsArrows.isChecked());
         selected.setRotateDpad(checkboxRotateDpad.isChecked());
         selected.setUseLocalCursor(checkboxLocalCursor.isChecked());
+
+        selected.setUseKioskMode(checkboxKioskMode.isChecked());
+
         // TODO: Reinstate Color model spinner but for RDP settings.
         //selected.setColorModel(((COLORMODEL)colorSpinner.getSelectedItem()).nameString());
     }

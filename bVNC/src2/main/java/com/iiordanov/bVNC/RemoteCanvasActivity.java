@@ -82,6 +82,8 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
+import com.freerdp.freerdpcore.domain.BookmarkBase;
+import com.freerdp.freerdpcore.domain.ManualBookmark;
 import com.iiordanov.android.bc.BCFactory;
 import com.iiordanov.bVNC.*;
 import com.iiordanov.bVNC.dialogs.EnterTextDialog;
@@ -158,6 +160,8 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
     int prevBottomOffset = 0;
     volatile boolean softKeyboardUp;
     Toolbar toolbar;
+
+    boolean bKioskMode=false;
 
     /**
      * This runnable enables immersive mode.
@@ -241,7 +245,11 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
         }
         
         handler = new Handler ();
-        
+
+        // Create a manual bookmark and populate it from settings.
+        BookmarkBase bookmark = new ManualBookmark();
+        bKioskMode = bookmark.<ManualBookmark>get().getKioskModeSetting();
+
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                              WindowManager.LayoutParams.FLAG_FULLSCREEN);
@@ -251,6 +259,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
         
         if (Utils.querySharedPreferenceBoolean(this, Constants.forceLandscapeTag))
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
+
 
         View decorView = getWindow().getDecorView();
         decorView.setOnSystemUiVisibilityChangeListener
@@ -345,7 +354,8 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
         canvas = (RemoteCanvas) findViewById(R.id.vnc_canvas);
 
         // Initialize and define actions for on-screen keys.
-        initializeOnScreenKeys ();
+        if(!bKioskMode)
+            initializeOnScreenKeys ();
     
         canvas.initializeCanvas(connection, database, new Runnable() {
             public void run() {
@@ -1429,9 +1439,11 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
 
     public void showKeyboard(MenuItem menuItem) {
         android.util.Log.i(TAG, "Showing keyboard and hiding action bar");
-        InputMethodManager inputMgr = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
-        inputMgr.showSoftInput(canvas, 0);
-        softKeyboardUp = true;
+        if(!bKioskMode) {
+            InputMethodManager inputMgr = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+            inputMgr.showSoftInput(canvas, 0);
+            softKeyboardUp = true;
+        }
         getSupportActionBar().hide();
     }
     
