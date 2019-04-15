@@ -1093,6 +1093,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
      * @return
      */
     InputHandler getInputHandlerById(int id) {
+        Log.i(TAG, "getInputHandlerById:"+id);
         boolean isRdp = getPackageName().contains("RDP");
         myVibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
 
@@ -1103,16 +1104,21 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
             if (inputModeIds[i] == id) {
                 if (inputModeHandlers[i] == null) {
                     switch (id) {
-                    case R.id.itemInputTouchPanZoomMouse:
+                    case R.id.itemInputTouchPanZoomMouse: //X
+                        Log.i(TAG, "getInputHandlerById: itemInputTouchPanZoomMouse");
                         inputModeHandlers[i] = new InputHandlerDirectSwipePan(this, canvas, myVibrator);
                         break;
-                    case R.id.itemInputDragPanZoomMouse:
+                    case R.id.itemInputDragPanZoomMouse: //X
+                        Log.i(TAG, "getInputHandlerById: itemInputDragPanZoomMouse");
                         inputModeHandlers[i] = new InputHandlerDirectDragPan(this, canvas, myVibrator);
                         break;
-                    case R.id.itemInputTouchpad:
+                    case R.id.itemInputTouchpad: //X
+                        Log.i(TAG, "getInputHandlerById: itemInputTouchpad");
+                        //TODO: hide mouse
                         inputModeHandlers[i] = new InputHandlerTouchpad(this, canvas, myVibrator);
                         break;
-                    case R.id.itemInputSingleHanded:
+                    case R.id.itemInputSingleHanded: //X
+                        Log.i(TAG, "getInputHandlerById: itemInputSingleHanded");
                         inputModeHandlers[i] = new InputHandlerSingleHanded(this, canvas, myVibrator);
                         break;
 

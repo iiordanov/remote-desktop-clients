@@ -196,7 +196,7 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
      */
     boolean bb = false;
 
-    boolean bKioskMode=true;
+    boolean bKioskMode=false;
 
     /**
      * Constructor used by the inflation apparatus
@@ -398,7 +398,7 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
         //debugSettings.setAsyncUpdate(false);
         //debugSettings.setAsyncInput(false);
         //debugSettings.setAsyncChannel(false);
-        bKioskMode=session.getBookmark().getKioskModeSetting();
+        bKioskMode=connection.getKioskMode();
 
         // Set screen settings to native res if instructed to, or if height or width are too small.
         BookmarkBase.ScreenSettings screenSettings = session.getBookmark().getActiveScreenSettings();
@@ -1180,8 +1180,7 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
      * Invalidates (to redraw) the location of the remote pointer.
      */
     public void invalidateMousePosition() {
-        if(bKioskMode)
-            return;
+        Log.i(TAG, "invalidateMousePosition");
         if (myDrawable != null) {
             myDrawable.moveCursorRect(pointer.getX(), pointer.getY());
             RectF r = myDrawable.getCursorRect();
@@ -1197,8 +1196,8 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
      * @param y
      */
     synchronized void softCursorMove(int x, int y) {
-        if(bKioskMode)
-            return;
+        Log.i(TAG, "softCursorMove");
+
         if (myDrawable.isNotInitSoftCursor()) {
             initializeSoftCursor();
         }
@@ -1429,7 +1428,8 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
         android.util.Log.i(TAG, "Using CompactBufferBitmapData.");
 
         // TODO: In RDP mode, pointer is not visible, so we use a soft cursor.
-        initializeSoftCursor();
+        if(!bKioskMode)
+            initializeSoftCursor();
 
         // Set the drawable for the canvas, now that we have it (re)initialized.
         handler.post(drawableSetter);
