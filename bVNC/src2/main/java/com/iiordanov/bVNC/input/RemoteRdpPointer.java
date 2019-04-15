@@ -133,6 +133,8 @@ public class RemoteRdpPointer extends RemotePointer {
         canvas.invalidateMousePosition();
         
         protocomm.writePointerEvent(pointerX, pointerY, combinedMetaState, pointerMask);
+
+
     }
 
 }

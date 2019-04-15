@@ -236,11 +236,15 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
         Log.i(TAG, "arriveOnPage called");
         SQLiteDatabase db = database.getReadableDatabase();
         ArrayList<ConnectionBean> connections = new ArrayList<ConnectionBean>();
-        ConnectionBean.getAll(db,
-                              ConnectionBean.GEN_TABLE_NAME, connections,
-                              ConnectionBean.newInstance);
-        Collections.sort(connections);
-        connections.add(0, new ConnectionBean(this));
+        try {
+            ConnectionBean.getAll(db,
+                    ConnectionBean.GEN_TABLE_NAME, connections,
+                    ConnectionBean.newInstance);
+            Collections.sort(connections);
+            connections.add(0, new ConnectionBean(this));
+        }catch(Exception ex){
+            Log.e(TAG, "Exception in arriveOnPage(): "+ex.getMessage());
+        }
         int connectionIndex = 0;
         if (connections.size() > 1) {
             MostRecentBean mostRecent = ConnectionBean.getMostRecent(db);
