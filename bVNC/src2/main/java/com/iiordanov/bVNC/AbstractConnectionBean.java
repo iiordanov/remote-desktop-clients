@@ -5,7 +5,7 @@ package com.iiordanov.bVNC;
 public abstract class AbstractConnectionBean extends com.antlersoft.android.dbimpl.IdImplementationBase implements IConnectionBean {
 
     public static final String GEN_TABLE_NAME = "CONNECTION_BEAN";
-    public static final int GEN_COUNT = 76;
+    public static final int GEN_COUNT = 77;
 
     // Field constants
     public static final String GEN_FIELD__ID = "_id";
@@ -295,8 +295,6 @@ public abstract class AbstractConnectionBean extends com.antlersoft.android.dbim
     private boolean gen_usePortrait;
     private boolean gen_useLocalCursor;
 
-    private boolean gen_useKioskMode;
-
     private boolean gen_keepPassword;
     private boolean gen_followMouse;
     private boolean gen_useRepeater;
@@ -326,6 +324,8 @@ public abstract class AbstractConnectionBean extends com.antlersoft.android.dbim
     private int gen_remoteSoundType;
     private boolean gen_viewOnly;
     private java.lang.String gen_layoutMap;
+
+    private boolean gen_useKioskMode;
 
 
     public String Gen_tableName() { return GEN_TABLE_NAME; }
@@ -426,8 +426,6 @@ public abstract class AbstractConnectionBean extends com.antlersoft.android.dbim
 
     public boolean getUseLocalCursor() { return gen_useLocalCursor; }
     public void setUseLocalCursor(boolean arg_useLocalCursor) { gen_useLocalCursor = arg_useLocalCursor; }
-    public boolean getKioskMode(){return gen_useKioskMode;}
-    public void setUseKioskMode(boolean arg_useKioskMode){gen_useKioskMode=arg_useKioskMode;}
 
     public boolean getKeepPassword() { return gen_keepPassword; }
     public void setKeepPassword(boolean arg_keepPassword) { gen_keepPassword = arg_keepPassword; }
@@ -488,6 +486,9 @@ public abstract class AbstractConnectionBean extends com.antlersoft.android.dbim
     public java.lang.String getLayoutMap() { return gen_layoutMap; }
     public void setLayoutMap(java.lang.String arg_layoutMap) { gen_layoutMap = arg_layoutMap; }
 
+    public boolean getKioskMode(){return gen_useKioskMode;}
+    public void setUseKioskMode(boolean arg_useKioskMode){gen_useKioskMode=arg_useKioskMode;}
+
     public android.content.ContentValues Gen_getValues() {
         android.content.ContentValues values=new android.content.ContentValues();
         values.put(GEN_FIELD__ID,Long.toString(this.gen__Id));
@@ -538,8 +539,6 @@ public abstract class AbstractConnectionBean extends com.antlersoft.android.dbim
         values.put(GEN_FIELD_USEPORTRAIT,(this.gen_usePortrait ? "1" : "0"));
         values.put(GEN_FIELD_USELOCALCURSOR,(this.gen_useLocalCursor ? "1" : "0"));
 
-        values.put(GEN_FIELD_USEKIOSKMODE, (this.gen_useKioskMode ? 1 : 0));
-
         values.put(GEN_FIELD_KEEPPASSWORD,(this.gen_keepPassword ? "1" : "0"));
         values.put(GEN_FIELD_FOLLOWMOUSE,(this.gen_followMouse ? "1" : "0"));
         values.put(GEN_FIELD_USEREPEATER,(this.gen_useRepeater ? "1" : "0"));
@@ -569,6 +568,9 @@ public abstract class AbstractConnectionBean extends com.antlersoft.android.dbim
         values.put(GEN_FIELD_REMOTESOUNDTYPE,Integer.toString(this.gen_remoteSoundType));
         values.put(GEN_FIELD_VIEWONLY,(this.gen_viewOnly ? "1" : "0"));
         values.put(GEN_FIELD_LAYOUTMAP,this.gen_layoutMap);
+
+        values.put(GEN_FIELD_USEKIOSKMODE, (this.gen_useKioskMode ? 1 : 0));
+
         return values;
     }
 
@@ -809,10 +811,6 @@ public abstract class AbstractConnectionBean extends com.antlersoft.android.dbim
             gen_useLocalCursor = (cursor.getInt(columnIndices[GEN_ID_USELOCALCURSOR]) != 0);
         }
 
-        if ( columnIndices[GEN_ID_USEKIOSKMODE] >= 0 && ! cursor.isNull(columnIndices[GEN_ID_USEKIOSKMODE])) {
-            gen_useKioskMode = (cursor.getInt(columnIndices[GEN_ID_USEKIOSKMODE]) != 0);
-        }
-
         if ( columnIndices[GEN_ID_KEEPPASSWORD] >= 0 && ! cursor.isNull(columnIndices[GEN_ID_KEEPPASSWORD])) {
             gen_keepPassword = (cursor.getInt(columnIndices[GEN_ID_KEEPPASSWORD]) != 0);
         }
@@ -900,6 +898,11 @@ public abstract class AbstractConnectionBean extends com.antlersoft.android.dbim
         if ( columnIndices[GEN_ID_LAYOUTMAP] >= 0 && ! cursor.isNull(columnIndices[GEN_ID_LAYOUTMAP])) {
             gen_layoutMap = cursor.getString(columnIndices[GEN_ID_LAYOUTMAP]);
         }
+
+        if ( columnIndices[GEN_ID_USEKIOSKMODE] >= 0 && ! cursor.isNull(columnIndices[GEN_ID_USEKIOSKMODE])) {
+            gen_useKioskMode = (cursor.getInt(columnIndices[GEN_ID_USEKIOSKMODE]) != 0);
+        }
+
     }
 
     /**
@@ -954,8 +957,6 @@ public abstract class AbstractConnectionBean extends com.antlersoft.android.dbim
         gen_usePortrait = (values.getAsInteger(GEN_FIELD_USEPORTRAIT) != 0);
         gen_useLocalCursor = (values.getAsInteger(GEN_FIELD_USELOCALCURSOR) != 0);
 
-        gen_useKioskMode=(values.getAsInteger(GEN_FIELD_USEKIOSKMODE)!=0);
-
         gen_keepPassword = (values.getAsInteger(GEN_FIELD_KEEPPASSWORD) != 0);
         gen_followMouse = (values.getAsInteger(GEN_FIELD_FOLLOWMOUSE) != 0);
         gen_useRepeater = (values.getAsInteger(GEN_FIELD_USEREPEATER) != 0);
@@ -985,5 +986,7 @@ public abstract class AbstractConnectionBean extends com.antlersoft.android.dbim
         gen_remoteSoundType = (int)values.getAsInteger(GEN_FIELD_REMOTESOUNDTYPE);
         gen_viewOnly = (values.getAsInteger(GEN_FIELD_VIEWONLY) != 0);
         gen_layoutMap = values.getAsString(GEN_FIELD_LAYOUTMAP);
+
+        gen_useKioskMode=(values.getAsInteger(GEN_FIELD_USEKIOSKMODE)!=0);
     }
 }
