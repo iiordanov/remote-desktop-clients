@@ -82,4 +82,5 @@ public class Constants {
     
     public static final String GET_OTP_CODE_ID = "getOtpCode";
     public static final String GET_PASSWORD_ID = "getPassword";
+    public static final int LOGCAT_MAX_LINES = 500;
 }
