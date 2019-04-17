@@ -142,8 +142,10 @@ public class ConnectionSetupActivity extends Activity {
                 @Override
                 public void onItemSelected(AdapterView<?> parent, View view,
                         int position, long id) {
-                    android.util.Log.e(TAG, new Integer(position).toString() + ((TextView)view).getText().toString());
-                    // TODO Auto-generated method stub
+                    if (view != null) {
+                        android.util.Log.e(TAG, "Selected connection type: " +
+                                Integer.toString(position) + ((TextView)view).getText());
+                    }
                 }
 
                 @Override
@@ -171,10 +173,15 @@ public class ConnectionSetupActivity extends Activity {
     private String nextLargestNumber(String[] numbers) {
         int maxValue = 0;
         if (numbers != null) {
-            for (int i = 0; i < numbers.length; i++) {
-                int currValue = Integer.parseInt(numbers[i]);
-                if (currValue >= maxValue) {
-                    maxValue = currValue + 1;
+            for (String num : numbers) {
+                int currValue = 0;
+                try {
+                    currValue = Integer.parseInt(num);
+                    if (currValue >= maxValue) {
+                        maxValue = currValue + 1;
+                    }
+                } catch (NumberFormatException e) {
+                    e.printStackTrace();
                 }
             }
         }
@@ -190,7 +197,7 @@ public class ConnectionSetupActivity extends Activity {
     private void loadConnections() {
         SharedPreferences sp = appContext.getSharedPreferences("generalSettings", Context.MODE_PRIVATE);
         connectionsList = sp.getString("connections", null);
-        if (connectionsList != null && !connectionsList.equals("")) {
+        if (connectionsList != null && !connectionsList.trim().equals("")) {
             connectionsArray = connectionsList.split(" ");
         }
     }
@@ -231,12 +238,12 @@ public class ConnectionSetupActivity extends Activity {
             
             String newListOfConnections = new String();
             if (connectionsArray != null) {
-                for (int i = 0; i < connectionsArray.length; i++) {
-                    if (!connectionsArray[i].equals(currentSelectedConnection)) {
-                        newListOfConnections += " " + connectionsArray[i];
+                for (String connection : connectionsArray) {
+                    if (!connection.equals(currentSelectedConnection)) {
+                        newListOfConnections += " " + connection;
                     }
                 }
-                
+
                 android.util.Log.d(TAG, "Deleted connection, current list: " + newListOfConnections);
                 SharedPreferences sp = appContext.getSharedPreferences("generalSettings", Context.MODE_PRIVATE);
                 Editor editor = sp.edit();
@@ -332,7 +339,7 @@ public class ConnectionSetupActivity extends Activity {
     
     /**
      * Automatically linked with android:onClick to the add new connection action bar item.
-     * @param view
+     * @param menuItem
      */
     public void deleteConnection (MenuItem menuItem) {
         deleteConnection();
