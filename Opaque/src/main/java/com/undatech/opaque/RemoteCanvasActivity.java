@@ -453,7 +453,10 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
                     outputToFile(getContentResolver().openInputStream(data), new File(tempVvFile));
                     vvFileName = tempVvFile;
                 } catch (IOException e) {
-                    android.util.Log.e(TAG, "Could not write temp file out.");
+                    android.util.Log.e(TAG, "Could not write temp file: IOException.");
+                    e.printStackTrace();
+                } catch (SecurityException e) {
+                    android.util.Log.e(TAG, "Could not write temp file: SecurityException.");
                     e.printStackTrace();
                 }
             }

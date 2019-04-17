@@ -47,12 +47,16 @@ public class ClipboardMonitor extends TimerTask {
      * Grab the current clipboard contents.
      */
     private String getClipboardContents () {
-        if (clipboard != null && clipboard.getText() != null)
-            return clipboard.getText().toString();
-        else
-            return null;
+        CharSequence clipboardContents = null;
+        if (clipboard != null) {
+            clipboardContents = clipboard.getText();
+        }
+        if (clipboardContents != null) {
+            return clipboardContents.toString();
+        }
+        return null;
     }
-    
+
     /*
      * (non-Javadoc)
      * @see java.util.TimerTask#run()

@@ -1,3 +1,5 @@
+v1.4.8
+- Ability to copy logcat
 v1.4.7
 - Fix for scrolling in Single Handed mode
 - Bugfixes for Proxmox 

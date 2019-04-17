@@ -69,7 +69,7 @@ public class LabeledImageApapter implements ListAdapter {
             gridView = convertView;
             ImageView iView = (ImageView) convertView.findViewById(R.id.grid_item_image);
             Bitmap tmp = ((BitmapDrawable)iView.getDrawable()).getBitmap();
-            if (!tmp.equals(defaultBitmap)) {
+            if (tmp != null && !tmp.equals(defaultBitmap)) {
                 tmp.recycle();
             }
         } else {

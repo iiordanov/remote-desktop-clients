@@ -1,28 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:app="http://schemas.android.com/apk/res-auto"
+      xmlns:tools="http://schemas.android.com/tools" >
+
+    <item android:id="@+id/copyLogcat"
+          android:icon="@android:drawable/ic_menu_agenda"
+          android:title="@string/copy_logcat"
+          app:showAsAction="never"
+          android:onClick="copyLogcat" />
 
     <item android:id="@+id/actionEditDefaultSettings"
           android:icon="@android:drawable/ic_menu_manage"
           android:title="@string/action_edit_default_settings"
-          android:showAsAction="always"
+          tools:ignore="AppCompatResource"
+          android:showAsAction="ifRoom"
+          app:showAsAction="ifRoom"
           android:onClick="editDefaultSettings" />
 
     <!-- New Connection, should appear as action button -->
     <item android:id="@+id/actionNewConnection"
           android:icon="@drawable/ic_action_new"
           android:title="@string/action_new_connection"
-          android:showAsAction="always"
+          tools:ignore="AppCompatResource"
+          android:showAsAction="ifRoom"
+          app:showAsAction="ifRoom"
           android:onClick="addNewConnection" />
 
     <item android:id="@+id/actionExportSettings"
           android:icon="@android:drawable/ic_menu_save"
           android:title="@string/action_export_settings"
-          android:showAsAction="never"
+          app:showAsAction="never"
           android:onClick="exportSettings" />
     
     <item android:id="@+id/actionImportSettings"
-          android:icon="@android:drawable/ic_menu_save"
+          android:icon="@android:drawable/ic_menu_upload"
           android:title="@string/action_import_settings"
-          android:showAsAction="never"
+          app:showAsAction="never"
           android:onClick="importSettings" />
 </menu>

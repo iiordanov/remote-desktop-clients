@@ -16,11 +16,17 @@ public class LogcatReader {
     private List<String> logcatCommand = new ArrayList<String>();
 
     public LogcatReader() {
-        int id = android.os.Process.myPid();
+        this(false);
+    }
+
+    public LogcatReader(boolean onlyThisPid) {
         logcatCommand.add("logcat");
         logcatCommand.add("-d");
-        logcatCommand.add("--pid");
-        logcatCommand.add(Integer.toString(id));
+        if (onlyThisPid) {
+            int id = android.os.Process.myPid();
+            logcatCommand.add("--pid");
+            logcatCommand.add(Integer.toString(id));
+        }
     }
 
     public String getMyLogcat(int lines) {

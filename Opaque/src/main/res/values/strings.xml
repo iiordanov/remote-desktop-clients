@@ -156,4 +156,6 @@ All Input Method:
 <string name="message_please_install_bvnc">Please install &lt;a href="market://details?id=com.iiordanov.bVNC">bVNC&lt;/a> from Google Play to connect to the VNC console of this VM.</string>
 <string name="ssl_strict">Require common name to match cert (on recommended)</string>
 <string name="usb">USB (plug in OTG cable first)</string>
+    <string name="log_copied">Logcat copied to clipboard. You can now paste it in an email or on the support forum. Please look through for any personal data before posting.</string>
+    <string name="copy_logcat">Copy Logcat</string>
 </resources>

@@ -37,6 +37,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Bundle;
 import android.os.Environment;
+import android.text.ClipboardManager;
 import android.widget.AdapterView;
 import android.widget.GridView;
 import android.support.v4.app.FragmentActivity;
@@ -47,10 +48,12 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
+import android.widget.Toast;
 
 import com.undatech.opaque.R;
 import com.undatech.opaque.dialogs.MessageFragment;
 import com.undatech.opaque.util.FileUtils;
+import com.undatech.opaque.util.LogcatReader;
 import com.undatech.opaque.util.PermissionsManager;
 
 public class ConnectionGridActivity extends FragmentActivity {
@@ -152,7 +155,19 @@ public class ConnectionGridActivity extends FragmentActivity {
         Intent intent = new Intent(ConnectionGridActivity.this, ConnectionSetupActivity.class);
         startActivity(intent);
     }
-    
+
+    /**
+     * Linked with android:onClick to the copyLogcat action bar item.
+     * @param menuItem
+     */
+    public void copyLogcat (MenuItem menuItem) {
+        LogcatReader logcatReader = new LogcatReader();
+        ClipboardManager cm = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+        cm.setText(logcatReader.getMyLogcat(Constants.LOGCAT_MAX_LINES));
+        Toast.makeText(getBaseContext(), getResources().getString(R.string.log_copied),
+                Toast.LENGTH_LONG).show();
+    }
+
     /**
      * Linked with android:onClick to the edit default settings action bar item.
      * @param menuItem
