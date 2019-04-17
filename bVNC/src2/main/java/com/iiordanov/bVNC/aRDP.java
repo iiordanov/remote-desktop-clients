@@ -21,6 +21,7 @@ package com.iiordanov.bVNC;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.View;
@@ -42,6 +43,7 @@ import com.iiordanov.bVNC.Utils;
 import com.iiordanov.bVNC.dialogs.ImportExportDialog;
 import com.iiordanov.bVNC.dialogs.IntroTextDialog;
 import com.iiordanov.bVNC.*;
+import com.iiordanov.bVNC.input.InputHandlerDirectDragPan;
 import com.iiordanov.freebVNC.*;
 import com.iiordanov.aRDP.*;
 import com.iiordanov.freeaRDP.*;
@@ -93,7 +95,9 @@ public class aRDP extends MainConfiguration {
     private CheckBox checkboxLocalCursor;
     private CheckBox checkboxUseSshPubkey;
     private CheckBox checkboxKioskMode;
-    
+
+    private Context _context=this;
+
     @Override
     public void onCreate(Bundle icicle) {
         layoutID = R.layout.main_rdp;
@@ -144,6 +148,17 @@ public class aRDP extends MainConfiguration {
         checkboxLocalCursor = (CheckBox)findViewById(R.id.checkboxUseLocalCursor);
 
         checkboxKioskMode=(CheckBox)findViewById(R.id.toggleKioskMode);
+        checkboxKioskMode.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(checkboxKioskMode.isChecked()){
+                    //for KioskMode set inputMethod to Direct, Hold Pan
+                    Utils.setSharedPreferenceString(_context, Constants.defaultInputMethodTag,
+                            InputHandlerDirectDragPan.ID);
+                }
+
+            }
+        });
 
         goButton = (Button) findViewById(R.id.buttonGO);
         goButton.setOnClickListener(new View.OnClickListener() {
@@ -391,6 +406,10 @@ public class aRDP extends MainConfiguration {
         selected.setUseLocalCursor(checkboxLocalCursor.isChecked());
 
         selected.setUseKioskMode(checkboxKioskMode.isChecked());
+        if(checkboxKioskMode.isChecked()){
+            Utils.setSharedPreferenceString(this, Constants.defaultInputMethodTag,
+                    InputHandlerDirectDragPan.ID);
+        }
 
         // TODO: Reinstate Color model spinner but for RDP settings.
         //selected.setColorModel(((COLORMODEL)colorSpinner.getSelectedItem()).nameString());
