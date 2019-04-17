@@ -42,6 +42,7 @@ import android.util.Log;
 import android.widget.ImageView.ScaleType;
 
 import com.antlersoft.android.dbimpl.NewInstance;
+import com.iiordanov.bVNC.input.InputHandlerDirectDragPan;
 import com.iiordanov.bVNC.input.InputHandlerDirectSwipePan;
 import com.iiordanov.bVNC.*;
 import com.iiordanov.bVNC.input.InputHandlerTouchpad;
@@ -75,7 +76,7 @@ public class ConnectionBean extends AbstractConnectionBean implements Comparable
         String inputMode = InputHandlerDirectSwipePan.ID;
         if (context != null) {
             inputMode = Utils.querySharedPreferenceString(context, Constants.defaultInputMethodTag,
-                    InputHandlerDirectSwipePan.ID);
+                    InputHandlerDirectDragPan.ID);
         } else {
             android.util.Log.e(TAG, "Failed to query default input method, context is null.");
         }

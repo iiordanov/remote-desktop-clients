@@ -569,7 +569,7 @@ public abstract class AbstractConnectionBean extends com.antlersoft.android.dbim
         values.put(GEN_FIELD_VIEWONLY,(this.gen_viewOnly ? "1" : "0"));
         values.put(GEN_FIELD_LAYOUTMAP,this.gen_layoutMap);
 
-        values.put(GEN_FIELD_USEKIOSKMODE, (this.gen_useKioskMode ? 1 : 0));
+        values.put(GEN_FIELD_USEKIOSKMODE, (this.gen_useKioskMode ? "1" : "0"));
 
         return values;
     }

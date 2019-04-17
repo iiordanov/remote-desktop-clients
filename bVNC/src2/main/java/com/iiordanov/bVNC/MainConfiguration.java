@@ -7,6 +7,7 @@ import net.sqlcipher.database.SQLiteDatabase;
 
 import com.iiordanov.bVNC.dialogs.IntroTextDialog;
 import com.iiordanov.bVNC.dialogs.GetTextFragment;
+import com.iiordanov.bVNC.input.InputHandlerDirectDragPan;
 import com.iiordanov.bVNC.input.InputHandlerDirectSwipePan;
 import com.iiordanov.pubkeygenerator.GeneratePubkeyActivity;
 
@@ -374,7 +375,7 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
             inputModeMenuItems[i] = inputMenu.findItem(RemoteCanvasActivity.inputModeIds[i]);
         }
         String defaultInputHandlerId = Utils.querySharedPreferenceString(
-                this, Constants.defaultInputMethodTag, InputHandlerDirectSwipePan.ID);
+                this, Constants.defaultInputMethodTag, InputHandlerDirectDragPan.ID);
         android.util.Log.e(TAG, "Default Input Mode Item: " + defaultInputHandlerId);
 
         try {
