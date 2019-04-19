@@ -678,7 +678,7 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
         capacity = BCFactory.getInstance().getBCActivityManager().getMemoryClass(Utils.getActivityManager(getContext()));
 
         if (connection.getForceFull() == BitmapImplHint.AUTO) {
-            if (fbsize * CompactBitmapData.CAPACITY_MULTIPLIER <= capacity * 1024 * 1024) {
+            if (!isVnc || fbsize * CompactBitmapData.CAPACITY_MULTIPLIER <= capacity * 1024 * 1024) {
                 useFull = true;
                 compact = true;
             } else if (fbsize * FullBufferBitmapData.CAPACITY_MULTIPLIER <= capacity * 1024 * 1024) {
@@ -704,11 +704,15 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
                     android.util.Log.i(TAG, "Using CompactBufferBitmapData.");
                 }
             } catch (Throwable e) { // If despite our efforts we fail to allocate memory, use LBBM.
-                disposeDrawable();
+                if (isVnc) {
+                    disposeDrawable();
 
-                useFull = false;
-                myDrawable = new LargeBitmapData(rfbconn, this, dx, dy, capacity);
-                android.util.Log.i(TAG, "Using LargeBitmapData.");
+                    useFull = false;
+                    myDrawable = new LargeBitmapData(rfbconn, this, dx, dy, capacity);
+                    android.util.Log.i(TAG, "Using LargeBitmapData.");
+                } else {
+                    throw e;
+                }
             }
         }
 
