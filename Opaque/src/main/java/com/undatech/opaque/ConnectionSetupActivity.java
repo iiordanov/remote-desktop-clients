@@ -367,10 +367,8 @@ public class ConnectionSetupActivity extends Activity {
     @Override
     public boolean onOptionsItemSelected(MenuItem menuItem) {
         int itemID = menuItem.getItemId();
-        switch (itemID) {
-        case R.id.actionDeleteConnection:
+        if (itemID == R.id.actionDeleteConnection) {
             deleteConnection (menuItem);
-            break;
         }
         return true;
     }

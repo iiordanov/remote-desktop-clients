@@ -29,6 +29,8 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.util.Log;
 
+import com.undatech.opaque.RfbConnectable;
+
 class FullBufferBitmapData extends AbstractBitmapData {
     /**
      * Multiply this times total number of pixels to get estimate of process size with all buffers plus

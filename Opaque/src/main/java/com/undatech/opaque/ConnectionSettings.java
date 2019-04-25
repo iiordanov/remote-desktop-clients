@@ -39,6 +39,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 
+import com.undatech.opaque.input.InputHandlerDirectSwipePan;
+
 public class ConnectionSettings implements Serializable {
     private static final String TAG = "ConnectionSettings";
     private static final long serialVersionUID = 1L;
@@ -50,7 +52,7 @@ public class ConnectionSettings implements Serializable {
     private String user = "";
     private String password = "";
     private String otpCode = "";
-    private String inputMethod = Constants.DEFAULT_INPUT_METHOD_ID;
+    private String inputMethod = InputHandlerDirectSwipePan.ID;
     private boolean rotationEnabled = true;
     private boolean requestingNewDisplayResolution = true;
     private boolean audioPlaybackEnabled = false;
@@ -252,7 +254,7 @@ public class ConnectionSettings implements Serializable {
     public void loadAdvancedSettings (Context context, String file) {
         SharedPreferences sp = context.getSharedPreferences(file, Context.MODE_PRIVATE);
         extraKeysToggleType = sp.getInt("extraKeysToggleType", Constants.EXTRA_KEYS_ON);
-        inputMethod = sp.getString("inputMethod", Constants.DEFAULT_INPUT_METHOD_ID).trim();
+        inputMethod = sp.getString("inputMethod", InputHandlerDirectSwipePan.ID).trim();
         audioPlaybackEnabled = sp.getBoolean("audioEnabled", false);
         rotationEnabled = sp.getBoolean("rotationEnabled", true);
         requestingNewDisplayResolution = sp.getBoolean("requestingNewDisplayResolution", true);

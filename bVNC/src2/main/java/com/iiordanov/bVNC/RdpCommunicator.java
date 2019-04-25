@@ -7,6 +7,7 @@ import com.iiordanov.bVNC.input.RemoteKeyboard;
 import com.iiordanov.bVNC.input.RdpKeyboardMapper;
 import com.iiordanov.bVNC.input.RemotePointer;
 import com.iiordanov.bVNC.input.RemoteRdpPointer;
+import com.undatech.opaque.RfbConnectable;
 
 public class RdpCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyProcessingListener {
     static final String TAG = "RdpCommunicator";

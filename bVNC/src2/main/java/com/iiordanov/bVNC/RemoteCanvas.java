@@ -46,7 +46,6 @@ import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.RectF;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -55,9 +54,7 @@ import android.provider.Settings;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.text.ClipboardManager;
-import android.text.Editable;
 import android.text.InputType;
-import android.text.Selection;
 import android.util.AttributeSet;
 import android.util.Base64;
 import android.util.DisplayMetrics;
@@ -67,7 +64,6 @@ import android.view.KeyEvent;
 import android.view.inputmethod.BaseInputConnection;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
-import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.freerdp.freerdpcore.application.GlobalApp;
@@ -89,6 +85,9 @@ import com.iiordanov.bVNC.input.RemoteVncPointer;
 
 import com.iiordanov.bVNC.dialogs.GetTextFragment;
 import com.iiordanov.bVNC.exceptions.AnonCipherUnsupportedException;
+import com.undatech.opaque.RfbConnectable;
+import com.undatech.opaque.Viewable;
+import com.undatech.opaque.SpiceCommunicator;
 import com.iiordanov.bVNC.*;
 import com.iiordanov.freebVNC.*;
 import com.iiordanov.aRDP.*;
@@ -96,7 +95,7 @@ import com.iiordanov.freeaRDP.*;
 import com.iiordanov.aSPICE.*;
 import com.iiordanov.freeaSPICE.*;
 
-public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView implements UIEventListener, EventListener {
+public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView implements UIEventListener, EventListener, Viewable {
     private final static String TAG = "RemoteCanvas";
 
     public AbstractScaling canvasZoomer;
@@ -331,6 +330,27 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
 
 
     /**
+     * Retreives the requested remote width.
+     */
+    @Override
+    public int getDesiredWidth() {
+        int w = getWidth();
+        android.util.Log.e(TAG, "Width requested: " + w);
+        return w;
+    }
+
+    /**
+     * Retreives the requested remote height.
+     */
+    @Override
+    public int getDesiredHeight() {
+        int h = getHeight();
+        android.util.Log.e(TAG, "Height requested: " + h);
+        return h;
+    }
+
+
+    /**
      * Starts a SPICE connection using libspice.
      *
      * @throws Exception
@@ -350,14 +370,14 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
             tport = getPort(tport);
         }
 
-        spicecomm = new SpiceCommunicator(getContext(), this, connection);
+        spicecomm = new SpiceCommunicator(getContext(), handler, this, true, true);
         rfbconn = spicecomm;
         pointer = new RemoteSpicePointer(rfbconn, RemoteCanvas.this, handler);
         keyboard = new RemoteSpiceKeyboard(getResources(), spicecomm, RemoteCanvas.this,
                 handler, connection.getLayoutMap());
-        spicecomm.setUIEventListener(RemoteCanvas.this);
+        //spicecomm.setUIEventListener(RemoteCanvas.this);
         spicecomm.setHandler(handler);
-        spicecomm.connect(address, Integer.toString(port), Integer.toString(tport), connection.getPassword(),
+        spicecomm.connectSpice(address, Integer.toString(port), Integer.toString(tport), connection.getPassword(),
                 connection.getCaCertPath(), null, // TODO: Can send connection.getCaCert() here instead
                 connection.getCertSubject(), connection.getEnableSound());
     }
@@ -480,7 +500,7 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
                                             getVncRemoteHeight(getWidth(), getHeight()));
         }
 
-        initializeBitmap(displayWidth, displayHeight);
+        reallocateDrawable(displayWidth, displayHeight);
         decoder.setPixelFormat(rfb);
 
         handler.post(new Runnable() {
@@ -669,7 +689,8 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
      * @param dy
      * @throws IOException
      */
-    void initializeBitmap(int dx, int dy) throws IOException {
+    @Override
+    public void reallocateDrawable(int dx, int dy) {
         Log.i(TAG, "Desktop name is " + rfbconn.desktopName());
         Log.i(TAG, "Desktop size is " + rfbconn.framebufferWidth() + " x " + rfbconn.framebufferHeight());
 
@@ -716,6 +737,10 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
             }
         }
 
+        initializeSoftCursor();
+        handler.post(drawableSetter);
+        handler.post(setModes);
+        myDrawable.syncScroll();
         decoder.setBitmapData(myDrawable);
     }
 
@@ -1120,11 +1145,16 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
         }
     };
 
+    @Override
+    public Bitmap getBitmap() {
+        return myDrawable.mbitmap;
+    }
 
     /**
      * Causes a redraw of the myDrawable to happen at the indicated coordinates.
      */
     public void reDraw(int x, int y, int w, int h) {
+        //android.util.Log.i(TAG, "reDraw called: " + x +", " + y + " + " + w + "x" + h);
         float scale = getZoomFactor();
         float shiftedX = x - shiftX;
         float shiftedY = y - shiftY;

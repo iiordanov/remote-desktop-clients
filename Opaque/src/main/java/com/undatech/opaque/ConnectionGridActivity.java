@@ -257,19 +257,14 @@ public class ConnectionGridActivity extends FragmentActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem menuItem) {
         int itemID = menuItem.getItemId();
-        switch (itemID) {
-        case R.id.actionNewConnection:
+        if (itemID == R.id.actionNewConnection) {
             addNewConnection(menuItem);
-            break;
-        case R.id.actionEditDefaultSettings:
+        } else if (itemID == R.id.actionEditDefaultSettings) {
             editDefaultSettings(menuItem);
-            break;
-        case R.id.actionExportSettings:
+        } else if (itemID == R.id.actionExportSettings) {
             exportSettings(menuItem);
-            break;
-        case R.id.actionImportSettings:
+        } else if (itemID == R.id.actionImportSettings) {
             importSettings(menuItem);
-            break;
         }
         return true;
     }

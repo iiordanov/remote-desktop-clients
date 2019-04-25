@@ -1,0 +1,72 @@
+//apply plugin: 'com.android.application'
+apply plugin: 'com.android.library'
+
+// Top-level build file where you can add configuration options common to all sub-projects/modules.
+buildscript {
+    repositories {
+        jcenter()
+        google()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:3.3.0'
+    }
+}
+
+allprojects {
+    repositories {
+        jcenter()
+        google()
+    }
+}
+
+android {
+    compileSdkVersion 27
+
+    defaultConfig {
+        targetSdkVersion 27
+        minSdkVersion 14
+    }
+    useLibrary 'org.apache.http.legacy'
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+        }
+    }
+
+    sourceSets.main {
+        java.srcDirs += 'src/main/java'
+        jni.srcDirs += 'jni'
+        jniLibs.srcDirs += 'src/main/jniLibs'
+    }
+
+    packagingOptions {
+        exclude 'META-INF/DEPENDENCIES'
+    }
+    /*
+    externalNativeBuild {
+        ndkBuild {
+            path file('jni/Application.mk')
+            path file('jni/Android.mk')
+        }
+    }
+    defaultConfig {
+        ndk {
+            // Tells Gradle to build outputs for the following ABIs and package
+            // them into your APK.
+            abiFilters 'x86', 'armeabi-v7a'
+        }
+    }
+    */
+}
+tasks.all { task ->
+    if (task.name.startsWith('compile') && task.name.endsWith('Ndk')) {
+        task.enabled = false
+    }
+}
+dependencies {
+    implementation 'com.android.support:appcompat-v7:27.1.1'
+    implementation 'org.apache.httpcomponents:httpcore:4.4.9'
+}
+

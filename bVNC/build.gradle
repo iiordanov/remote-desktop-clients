@@ -35,6 +35,7 @@ android {
 dependencies {
     implementation project(':pubkeyGenerator')
     implementation project(':freeRDPCore')
+    implementation project(':remoteClientLib')
     implementation 'com.android.support:appcompat-v7:27.1.1'
     implementation 'com.android.support:support-v4:27.1.1'
     implementation 'com.android.support:support-vector-drawable:27.1.1'

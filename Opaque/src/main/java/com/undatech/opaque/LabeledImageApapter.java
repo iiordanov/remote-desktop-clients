@@ -36,8 +36,6 @@ import android.widget.ListAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.undatech.opaque.R;
-
 public class LabeledImageApapter implements ListAdapter {
     private static final String TAG = "LabeledImageApapter";
     

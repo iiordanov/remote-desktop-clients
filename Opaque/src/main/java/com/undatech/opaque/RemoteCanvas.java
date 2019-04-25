@@ -77,7 +77,7 @@ import com.undatech.opaque.proxmox.pojo.SpiceDisplay;
 import com.undatech.opaque.proxmox.pojo.VmStatus;
 import com.undatech.opaque.dialogs.*;
 
-public class RemoteCanvas extends ImageView {
+public class RemoteCanvas extends ImageView implements Viewable {
     private final static String TAG = "RemoteCanvas";
     
     public Handler handler;
@@ -217,11 +217,10 @@ public class RemoteCanvas extends ImageView {
             @Override
             public void run() {
                 try {
-                    spicecomm = new SpiceCommunicator (getContext(), RemoteCanvas.this, settings.isRequestingNewDisplayResolution(), settings.isUsbEnabled());
+                    spicecomm = new SpiceCommunicator (getContext(), handler, RemoteCanvas.this, settings.isRequestingNewDisplayResolution(), settings.isUsbEnabled());
                     pointer = new RemoteSpicePointer (spicecomm, RemoteCanvas.this, handler);
                     keyboard = new RemoteSpiceKeyboard (getResources(), spicecomm, RemoteCanvas.this, handler, settings.getLayoutMap());
-                    spicecomm.setHandler(handler);
-                    spicecomm.startSessionFromVvFile(vvFileName, settings.isAudioPlaybackEnabled());                    
+                    spicecomm.startSessionFromVvFile(vvFileName, settings.isAudioPlaybackEnabled());
                 } catch (Throwable e) {
                     if (stayConnected) {
                         e.printStackTrace();
@@ -358,10 +357,9 @@ public class RemoteCanvas extends ImageView {
             @Override
             public void run() {
                 try {
-                    spicecomm = new SpiceCommunicator (getContext(), RemoteCanvas.this, settings.isRequestingNewDisplayResolution(), settings.isUsbEnabled());
+                    spicecomm = new SpiceCommunicator (getContext(), handler, RemoteCanvas.this, settings.isRequestingNewDisplayResolution(), settings.isUsbEnabled());
                     pointer = new RemoteSpicePointer (spicecomm, RemoteCanvas.this, handler);
                     keyboard = new RemoteSpiceKeyboard (getResources(), spicecomm, RemoteCanvas.this, handler, settings.getLayoutMap());
-                    spicecomm.setHandler(handler);
 
                     // Obtain user's password if necessary.
                     if (settings.getPassword().equals("")) {
@@ -490,11 +488,10 @@ public class RemoteCanvas extends ImageView {
             @Override
             public void run() {
                 try {
-                    spicecomm = new SpiceCommunicator (getContext(), RemoteCanvas.this, settings.isRequestingNewDisplayResolution(), settings.isUsbEnabled());
+                    spicecomm = new SpiceCommunicator (getContext(), handler, RemoteCanvas.this, settings.isRequestingNewDisplayResolution(), settings.isUsbEnabled());
                     pointer = new RemoteSpicePointer (spicecomm, RemoteCanvas.this, handler);
                     keyboard = new RemoteSpiceKeyboard (getResources(), spicecomm, RemoteCanvas.this, handler, settings.getLayoutMap());
-                    spicecomm.setHandler(handler);
-                    
+
                     // Obtain user's password if necessary.
                     if (settings.getPassword().equals("")) {
                         android.util.Log.i (TAG, "Displaying a dialog to obtain user's password.");
@@ -580,7 +577,8 @@ public class RemoteCanvas extends ImageView {
     /**
      * Retreives the requested remote width.
      */
-    int getDesiredWidth () {
+    @Override
+    public int getDesiredWidth() {
         int w = getWidth();
         android.util.Log.e(TAG, "Width requested: " + w);
         return w;
@@ -589,7 +587,8 @@ public class RemoteCanvas extends ImageView {
     /**
      * Retreives the requested remote height.
      */
-    int getDesiredHeight () {
+    @Override
+    public int getDesiredHeight() {
         int h = getHeight();
         android.util.Log.e(TAG, "Height requested: " + h);
         return h;
@@ -632,7 +631,7 @@ public class RemoteCanvas extends ImageView {
     
     /**
      * Set the device clipboard text with the string parameter.
-     * @param readServerCutText set the device clipboard to the text in this parameter.
+     * @param s set the device clipboard to the text in this parameter.
      */
     public void setClipboardText(String s) {
         if (s != null && s.length() > 0) {
@@ -646,8 +645,9 @@ public class RemoteCanvas extends ImageView {
         myDrawable = null;
         System.gc();
     }
-    
-    CanvasDrawableContainer reallocateDrawable(int width, int height) {
+
+    @Override
+    public void reallocateDrawable(int width, int height) {
         disposeDrawable();
         try {
             myDrawable = new CanvasDrawableContainer(width, height);
@@ -659,7 +659,6 @@ public class RemoteCanvas extends ImageView {
         // Set the drawable for the canvas, now that we have it (re)initialized.
         handler.post(drawableSetter);
         computeShiftFromFullToView ();
-        return myDrawable; 
     }
     
     
@@ -820,6 +819,11 @@ public class RemoteCanvas extends ImageView {
                 canvasZoomer.resetScaling();
             }
     };
+
+    @Override
+    public Bitmap getBitmap() {
+        return myDrawable.bitmap;
+    }
     
     /**
      * Causes a redraw of the bitmapData to happen at the indicated coordinates.
@@ -981,6 +985,7 @@ public class RemoteCanvas extends ImageView {
     /**
      * Used to wait until getWidth and getHeight return sane values.
      */
+    @Override
     public void waitUntilInflated() {
         synchronized (this) {
             while (getWidth() == 0 || getHeight() == 0) {

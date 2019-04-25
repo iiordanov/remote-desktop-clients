@@ -8,9 +8,9 @@ import android.view.MotionEvent;
 
 import com.iiordanov.bVNC.MetaKeyBean;
 import com.iiordanov.bVNC.RdpCommunicator;
-import com.iiordanov.bVNC.RfbConnectable;
 import com.iiordanov.bVNC.RemoteCanvas;
 import com.iiordanov.tigervnc.rfb.UnicodeToKeysym;
+import com.undatech.opaque.RfbConnectable;
 
 public class RemoteRdpKeyboard extends RemoteKeyboard {
     private final static String TAG = "RemoteRdpKeyboard";

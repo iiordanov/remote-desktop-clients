@@ -78,7 +78,6 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
-import android.support.v7.widget.ActionMenuView.OnMenuItemClickListener;
 import android.support.v7.widget.Toolbar;
 
 
@@ -839,12 +838,9 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
     
     @Override
     protected Dialog onCreateDialog(int dialogID) {
-        switch (dialogID) {
-        // TODO: Introduce the ability to send text collected from an EditText in the future.
-        case R.id.menuHelpInputMethod:
-            return createHelpDialog ();
-        }
-        return createHelpDialog ();
+        if (dialogID == R.id.menuHelpInputMethod)
+            return createHelpDialog();
+        return createHelpDialog();
     }
 
     /**
@@ -899,7 +895,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
             canvas.relativePan(0, 0);
         }
         if (connection.isRequestingNewDisplayResolution()) {
-            canvas.spicecomm.requestNewResolutionIfNeeded();
+            canvas.spicecomm.requestResolution();
         }
 
     }
@@ -1137,8 +1133,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
     @Override
     public boolean onOptionsItemSelected(MenuItem menuItem) {
         int itemID = menuItem.getItemId();
-        switch (itemID) {
-        case R.id.menuExtraKeys:
+        if (itemID == R.id.menuExtraKeys) {
             if (connection.getExtraKeysToggleType() == Constants.EXTRA_KEYS_ON) {
                 connection.setExtraKeysToggleType(Constants.EXTRA_KEYS_OFF);
                 menuItem.setTitle(R.string.extra_keys_enable);
@@ -1152,19 +1147,19 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
             setKeyStowDrawableAndVisibility();
             connection.saveToSharedPreferences(getApplicationContext());
             return true;
-        case R.id.menuDisconnect:
+        } else if (itemID == R.id.menuDisconnect) {
             canvas.disconnectAndCleanUp();
             finish();
             return true;
-        case R.id.menuSendCAD:
+        }  else if (itemID == R.id.menuSendCAD) {
             canvas.getKeyboard().keyEvent(112, new KeyEvent(KeyEvent.ACTION_DOWN, 112),
-                                                      RemoteKeyboard.CTRL_ON_MASK|RemoteKeyboard.ALT_ON_MASK);
+                    RemoteKeyboard.CTRL_ON_MASK | RemoteKeyboard.ALT_ON_MASK);
             canvas.getKeyboard().keyEvent(112, new KeyEvent(KeyEvent.ACTION_UP, 112));
             return true;
-        case R.id.menuHelpInputMethod:
+        }  else if (itemID == R.id.menuHelpInputMethod) {
             showDialog(R.id.menuHelpInputMethod);
             return true;
-        default:
+        } else {
             InputHandler newInputHandler = inputHandlerIdMap.get(menuItem.getItemId());
             if (newInputHandler != null) {
                 inputHandler = newInputHandler;

@@ -5,9 +5,9 @@ import android.view.InputDevice;
 import android.view.KeyEvent;
 
 import com.iiordanov.bVNC.MetaKeyBean;
-import com.iiordanov.bVNC.RfbConnectable;
 import com.iiordanov.bVNC.RemoteCanvas;
 import com.iiordanov.tigervnc.rfb.UnicodeToKeysym;
+import com.undatech.opaque.RfbConnectable;
 
 public class RemoteVncKeyboard extends RemoteKeyboard {
     private final static String TAG = "RemoteKeyboard";

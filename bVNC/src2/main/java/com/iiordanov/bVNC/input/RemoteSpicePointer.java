@@ -23,7 +23,7 @@ package com.iiordanov.bVNC.input;
 import android.os.Handler;
 
 import com.iiordanov.bVNC.RemoteCanvas;
-import com.iiordanov.bVNC.RfbConnectable;
+import com.undatech.opaque.RfbConnectable;
 
 public class RemoteSpicePointer extends RemotePointer {
 	private static final String TAG = "RemoteSpicePointer";
