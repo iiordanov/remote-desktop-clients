@@ -85,6 +85,7 @@ import com.iiordanov.bVNC.input.RemoteVncPointer;
 
 import com.iiordanov.bVNC.dialogs.GetTextFragment;
 import com.iiordanov.bVNC.exceptions.AnonCipherUnsupportedException;
+import com.undatech.opaque.RdpCommunicator;
 import com.undatech.opaque.RfbConnectable;
 import com.undatech.opaque.Viewable;
 import com.undatech.opaque.SpiceCommunicator;
@@ -95,7 +96,7 @@ import com.iiordanov.freeaRDP.*;
 import com.iiordanov.aSPICE.*;
 import com.iiordanov.freeaSPICE.*;
 
-public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView implements UIEventListener, EventListener, Viewable {
+public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView implements Viewable {
     private final static String TAG = "RemoteCanvas";
 
     public AbstractScaling canvasZoomer;
@@ -144,11 +145,6 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
     public boolean serverJustCutText = false;
 
     private Runnable setModes;
-
-    // This variable indicates whether or not the user has accepted an untrusted
-    // security certificate. Used to control progress while the dialog asking the user
-    // to confirm the authenticity of a certificate is displayed.
-    private boolean certificateAccepted = false;
 
     /*
      * Position of the top left portion of the <i>visible</i> part of the screen, in
@@ -353,7 +349,6 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
     /**
      * Starts a SPICE connection using libspice.
      *
-     * @throws Exception
      */
     private void startSpiceConnection() throws Exception {
         // Get the address and port (based on whether an SSH tunnel is being established or not).
@@ -385,8 +380,6 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
 
     /**
      * Starts an RDP connection using the FreeRDP library.
-     *
-     * @throws Exception
      */
     private void startRdpConnection() throws Exception {
         // Get the address and port (based on whether an SSH tunnel is being established or not).
@@ -412,7 +405,7 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
         //LibFreeRDP.setDataDirectory(session.getInstance(), getContext().getFilesDir().toString());
 
         BookmarkBase.DebugSettings debugSettings = session.getBookmark().getDebugSettings();
-        debugSettings.setDebugLevel("DEBUG");
+        debugSettings.setDebugLevel("INFO");
         //debugSettings.setAsyncUpdate(false);
         //debugSettings.setAsyncInput(false);
         //debugSettings.setAsyncChannel(false);
@@ -443,13 +436,13 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
         advancedSettings.setRedirectMicrophone(connection.getEnableRecording());
         advancedSettings.setSecurity(0); // Automatic negotiation
 
-        rdpcomm = new RdpCommunicator(session);
+        rdpcomm = new RdpCommunicator(session, handler, this);
         rfbconn = rdpcomm;
         pointer = new RemoteRdpPointer(rfbconn, RemoteCanvas.this, handler);
         keyboard = new RemoteRdpKeyboard(rfbconn, RemoteCanvas.this, handler);
 
-        session.setUIEventListener(RemoteCanvas.this);
-        LibFreeRDP.setEventListener(RemoteCanvas.this);
+        session.setUIEventListener(rdpcomm);
+        LibFreeRDP.setEventListener(rdpcomm);
 
         session.connect(this.getContext());
         pd.dismiss();
@@ -458,8 +451,6 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
 
     /**
      * Starts a VNC connection using the TightVNC backend.
-     *
-     * @throws Exception
      */
     private void startVncConnection() throws Exception {
         Log.i(TAG, "Connecting to: " + connection.getAddress() + ", port: " + connection.getPort());
@@ -647,7 +638,6 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
      * if SSH tunneling is not needed, returns the given port.
      *
      * @return
-     * @throws Exception
      */
     int getPort(int port) throws Exception {
         int result = 0;
@@ -672,7 +662,6 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
      * Returns localhost if using SSH tunnel or saved VNC address.
      *
      * @return
-     * @throws Exception
      */
     String getAddress() {
         if (connection.getConnectionType() == Constants.CONN_TYPE_SSH) {
@@ -1375,183 +1364,6 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
         }
     }
 
-    //////////////////////////////////////////////////////////////////////////////////
-    //  Implementation of LibFreeRDP.EventListener.  Through the functions implemented
-    //  below, FreeRDP communicates connection state information.
-    //////////////////////////////////////////////////////////////////////////////////
-
-    @Override
-    public void OnPreConnect(long instance) {
-        Log.v(TAG, "OnPreConnect");
-    }
-
-    @Override
-    public void OnConnectionSuccess(long instance) {
-        Log.v(TAG, "OnConnectionSuccess");
-        rdpcomm.setIsInNormalProtocol(true);
-    }
-
-    @Override
-    public void OnConnectionFailure(long instance) {
-        Log.v(TAG, "OnConnectionFailure");
-        rdpcomm.setIsInNormalProtocol(false);
-        if (maintainConnection)
-            handler.sendEmptyMessage(Constants.RDP_UNABLE_TO_CONNECT);
-    }
-
-    @Override
-    public void OnDisconnecting(long instance) {
-        rdpcomm.setIsInNormalProtocol(false);
-        Log.v(TAG, "OnDisconnecting");
-        if (maintainConnection)
-            handler.sendEmptyMessage(Constants.RDP_CONNECT_FAILURE);
-    }
-
-    @Override
-    public void OnDisconnected(long instance) {
-        Log.v(TAG, "OnDisconnected");
-        if (maintainConnection) {
-            if (!rdpcomm.isInNormalProtocol()) {
-                handler.sendEmptyMessage(Constants.RDP_UNABLE_TO_CONNECT);
-            } else {
-                handler.sendEmptyMessage(Constants.RDP_CONNECT_FAILURE);
-            }
-        }
-    }
-
-    //////////////////////////////////////////////////////////////////////////////////
-    //  Implementation of LibFreeRDP.UIEventListener. Through the functions implemented
-    //  below libspice and FreeRDP communicate remote desktop size and updates.
-    //////////////////////////////////////////////////////////////////////////////////
-
-    @Override
-    public void OnSettingsChanged(int width, int height, int bpp) {
-        android.util.Log.e(TAG, "onSettingsChanged called, wxh: " + width + "x" + height);
-
-        // If this is aSPICE, we need to initialize the communicator and remote keyboard and mouse now.
-        if (isSpice) {
-            spicecomm.setFramebufferWidth(width);
-            spicecomm.setFramebufferHeight(height);
-            waitUntilInflated();
-            int remoteWidth = getRemoteWidth(getWidth(), getHeight());
-            int remoteHeight = getRemoteHeight(getWidth(), getHeight());
-            if (width != remoteWidth || height != remoteHeight) {
-                android.util.Log.e(TAG, "Requesting new res: " + remoteWidth + "x" + remoteHeight);
-                try {
-                    rfbconn.requestResolution(remoteWidth, remoteHeight);
-                } catch (Exception e) {
-                    Log.e(TAG, "Request resoultion failed!");
-                }
-            }
-        }
-
-        disposeDrawable();
-        try {
-            // TODO: Use frameBufferSizeChanged instead.
-            myDrawable = new CompactBitmapData(rfbconn, this, isSpice);
-        } catch (Throwable e) {
-            showFatalMessageAndQuit(getContext().getString(R.string.error_out_of_memory));
-            return;
-        }
-        android.util.Log.i(TAG, "Using CompactBufferBitmapData.");
-
-        // TODO: In RDP mode, pointer is not visible, so we use a soft cursor.
-        initializeSoftCursor();
-
-        // Set the drawable for the canvas, now that we have it (re)initialized.
-        handler.post(drawableSetter);
-        handler.post(setModes);
-
-        // If this is aSPICE, set the new bitmap in the native layer.
-        if (isSpice) {
-            spiceUpdateReceived = true;
-            rfbconn.setIsInNormalProtocol(true);
-            handler.sendEmptyMessage(Constants.SPICE_CONNECT_SUCCESS);
-        }
-    }
-
-    @Override
-    public boolean OnAuthenticate(StringBuilder username, StringBuilder domain, StringBuilder password) {
-        android.util.Log.e(TAG, "onAuthenticate called.");
-        if (maintainConnection)
-            handler.sendEmptyMessage(Constants.RDP_AUTH_FAILED);
-        return false;
-    }
-
-    @Override
-    public int OnVerifiyCertificate(String commonName, String subject,
-                                    String issuer, String fingerprint, boolean mismatch) {
-        android.util.Log.e(TAG, "OnVerifiyCertificate called.");
-
-        // Send a message containing the certificate to our handler.
-        Message m = new Message();
-        m.setTarget(handler);
-        m.what = Constants.DIALOG_RDP_CERT;
-        Bundle strings = new Bundle();
-        strings.putString("subject", subject);
-        strings.putString("issuer", issuer);
-        strings.putString("fingerprint", fingerprint);
-        m.obj = strings;
-        handler.sendMessage(m);
-
-        // Block while user decides whether to accept certificate or not.
-        // The activity ends if the user taps "No", so we block indefinitely here.
-        synchronized (RemoteCanvas.this) {
-            while (!certificateAccepted) {
-                try {
-                    RemoteCanvas.this.wait();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-
-        return 1;
-    }
-
-    @Override
-    public boolean OnGatewayAuthenticate(StringBuilder username,
-                                         StringBuilder domain, StringBuilder password) {
-        return this.OnAuthenticate(username, domain, password);
-    }
-
-    @Override
-    public int OnVerifyChangedCertificate(String commonName, String subject,
-                                          String issuer, String fingerprint, String oldSubject,
-                                          String oldIssuer, String oldFingerprint) {
-        return this.OnVerifiyCertificate(commonName, subject, issuer, fingerprint, true);
-    }
-
-    @Override
-    public void OnGraphicsUpdate(int x, int y, int width, int height) {
-        //android.util.Log.e(TAG, "OnGraphicsUpdate called: " + x +", " + y + " + " + width + "x" + height );
-        if (isRdp) {
-            if (myDrawable != null && myDrawable.mbitmap != null && session != null) {
-                synchronized (myDrawable.mbitmap) {
-                    LibFreeRDP.updateGraphics(session.getInstance(), myDrawable.mbitmap, x, y, width, height);
-                }
-            }
-        } else {
-            synchronized (myDrawable.mbitmap) {
-                spicecomm.UpdateBitmap(myDrawable.mbitmap, x, y, width, height);
-            }
-        }
-
-        reDraw(x, y, width, height);
-    }
-
-    @Override
-    public void OnGraphicsResize(int width, int height, int bpp) {
-        android.util.Log.e(TAG, "OnGraphicsResize called.");
-        OnSettingsChanged(width, height, bpp);
-    }
-
-    @Override
-    public void OnRemoteClipboardChanged(String data) {
-        serverJustCutText = true;
-        setClipboardText(data);
-    }
-
     /**
      * Handler for the dialogs that display the x509/RDP/SSH key signatures to the user.
      * Also shows the dialogs which show various connection failures.
@@ -1560,6 +1372,7 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
         @Override
         public void handleMessage(Message msg) {
             FragmentManager fm = null;
+            Bundle s = null;
 
             switch (msg.what) {
                 case Constants.PRO_FEATURE:
@@ -1586,7 +1399,7 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
                     initializeSshHostKey();
                     break;
                 case Constants.DIALOG_RDP_CERT:
-                    Bundle s = (Bundle) msg.obj;
+                    s = (Bundle) msg.obj;
                     validateRdpCert(s.getString("subject"), s.getString("issuer"), s.getString("fingerprint"));
                     break;
                 case Constants.SPICE_CONNECT_SUCCESS:
@@ -1607,13 +1420,24 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
                     }
                     break;
                 case Constants.RDP_CONNECT_FAILURE:
-                    showFatalMessageAndQuit(getContext().getString(R.string.error_rdp_connection_failed));
+                    if (maintainConnection) {
+                        showFatalMessageAndQuit(getContext().getString(R.string.error_rdp_connection_failed));
+                    }
                     break;
                 case Constants.RDP_UNABLE_TO_CONNECT:
-                    showFatalMessageAndQuit(getContext().getString(R.string.error_rdp_unable_to_connect));
+                    if (maintainConnection) {
+                        showFatalMessageAndQuit(getContext().getString(R.string.error_rdp_unable_to_connect));
+                    }
                     break;
                 case Constants.RDP_AUTH_FAILED:
-                    showFatalMessageAndQuit(getContext().getString(R.string.error_rdp_authentication_failed));
+                    if (maintainConnection) {
+                        showFatalMessageAndQuit(getContext().getString(R.string.error_rdp_authentication_failed));
+                    }
+                    break;
+                case Constants.SERVER_CUT_TEXT:
+                    s = (Bundle) msg.obj;
+                    serverJustCutText = true;
+                    setClipboardText(s.getString("text"));
                     break;
             }
         }
@@ -1734,14 +1558,10 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
         connection.save(database.getWritableDatabase());
         database.close();
         // Indicate the certificate was accepted.
-        certificateAccepted = true;
-        synchronized (RemoteCanvas.this) {
-            RemoteCanvas.this.notifyAll();
+        rfb.setCertificateAccepted(true);
+        synchronized (rfb) {
+            rfb.notifyAll();
         }
-    }
-
-    public boolean isCertificateAccepted() {
-        return certificateAccepted;
     }
 
     /**
@@ -1768,9 +1588,9 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 // Indicate the certificate was accepted.
-                certificateAccepted = true;
-                synchronized (RemoteCanvas.this) {
-                    RemoteCanvas.this.notifyAll();
+                rfbconn.setCertificateAccepted(true);
+                synchronized (rfbconn) {
+                    rfbconn.notifyAll();
                 }
             }
         };

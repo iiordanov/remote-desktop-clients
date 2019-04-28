@@ -26,10 +26,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.ResourceBundle;
 import java.util.Timer;
 
-import javax.crypto.NullCipher;
 import javax.security.auth.login.LoginException;
 
 import org.apache.http.HttpException;
@@ -40,17 +38,11 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.os.Build;
 import android.os.Handler;
-import android.os.Message;
 import android.os.SystemClock;
 import android.provider.Settings;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
 import android.text.ClipboardManager;
-import android.text.Editable;
 import android.text.InputType;
-import android.text.Selection;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.view.Display;
@@ -64,8 +56,6 @@ import android.graphics.BitmapFactory;
 import android.graphics.Bitmap;
 import android.graphics.RectF;
 
-import com.undatech.opaque.R;
-import com.undatech.opaque.SpiceCommunicator;
 import com.undatech.opaque.input.RemoteKeyboard;
 import com.undatech.opaque.input.RemotePointer;
 import com.undatech.opaque.input.RemoteSpiceKeyboard;
@@ -75,7 +65,6 @@ import com.undatech.opaque.proxmox.pojo.PveRealm;
 import com.undatech.opaque.proxmox.pojo.PveResource;
 import com.undatech.opaque.proxmox.pojo.SpiceDisplay;
 import com.undatech.opaque.proxmox.pojo.VmStatus;
-import com.undatech.opaque.dialogs.*;
 
 public class RemoteCanvas extends ImageView implements Viewable {
     private final static String TAG = "RemoteCanvas";
@@ -256,7 +245,7 @@ public class RemoteCanvas extends ImageView implements Viewable {
             public void run() {
                 try {
                     String user = settings.getUser();
-                    String realm = Constants.PVE_DEFAULT_REALM;
+                    String realm = RemoteClientLibConstants.PVE_DEFAULT_REALM;
                     
                     // Try to parse credentials.
                     int indexOfAt = settings.getUser().indexOf('@');
@@ -266,8 +255,8 @@ public class RemoteCanvas extends ImageView implements Viewable {
                     }
                     
                     // Parse out node, virtualization type and VM ID
-                    String node = Constants.PVE_DEFAULT_NODE;
-                    String virt = Constants.PVE_DEFAULT_VIRTUALIZATION;
+                    String node = RemoteClientLibConstants.PVE_DEFAULT_NODE;
+                    String virt = RemoteClientLibConstants.PVE_DEFAULT_VIRTUALIZATION;
                     String vmname = settings.getVmname();
                     
                     int indexOfFirstSlash = settings.getVmname().indexOf('/');
@@ -296,25 +285,25 @@ public class RemoteCanvas extends ImageView implements Viewable {
                         spiceData.outputToFile(tempVvFile, settings.getHostname());
                     } else {
                         android.util.Log.e(TAG, "PVE returned null data for display.");
-                        handler.sendEmptyMessage(Constants.PVE_NULL_DATA);
+                        handler.sendEmptyMessage(RemoteClientLibConstants.PVE_NULL_DATA);
                     }
                 } catch (LoginException e) {
                     android.util.Log.e(TAG, "Failed to login to PVE.");
-                    handler.sendEmptyMessage(Constants.PVE_FAILED_TO_AUTHENTICATE);
+                    handler.sendEmptyMessage(RemoteClientLibConstants.PVE_FAILED_TO_AUTHENTICATE);
                 } catch (JSONException e) {
                     android.util.Log.e(TAG, "Failed to parse json from PVE.");
-                    handler.sendEmptyMessage(Constants.PVE_FAILED_TO_PARSE_JSON);
+                    handler.sendEmptyMessage(RemoteClientLibConstants.PVE_FAILED_TO_PARSE_JSON);
                 } catch (NumberFormatException e) {
                     android.util.Log.e(TAG, "Error converting PVE ID to integer.");
-                    handler.sendEmptyMessage(Constants.PVE_VMID_NOT_NUMERIC);
+                    handler.sendEmptyMessage(RemoteClientLibConstants.PVE_VMID_NOT_NUMERIC);
                 }  catch (IOException e) {
                     android.util.Log.e(TAG, "IO Error communicating with PVE API: " + e.getMessage());
-                    handler.sendMessage(RemoteCanvasActivityHandler.getMessageString(Constants.PVE_API_IO_ERROR,
+                    handler.sendMessage(RemoteCanvasActivityHandler.getMessageString(RemoteClientLibConstants.PVE_API_IO_ERROR,
                                         "error", e.getMessage()));
                     e.printStackTrace();
                 } catch (HttpException e) {
                     android.util.Log.e(TAG, "PVE API returned error code: " + e.getMessage());
-                    handler.sendMessage(RemoteCanvasActivityHandler.getMessageString(Constants.PVE_API_UNEXPECTED_CODE,
+                    handler.sendMessage(RemoteCanvasActivityHandler.getMessageString(RemoteClientLibConstants.PVE_API_UNEXPECTED_CODE,
                                         "error", e.getMessage()));
                 }
                 // At this stage we have either retrieved display data or failed, so permit the UI thread to continue.
@@ -330,7 +319,7 @@ public class RemoteCanvas extends ImageView implements Viewable {
             try {
                 tempVvFile.wait();
             } catch (InterruptedException e) {
-                handler.sendEmptyMessage(Constants.PVE_TIMEOUT_COMMUNICATING);
+                handler.sendEmptyMessage(RemoteClientLibConstants.PVE_TIMEOUT_COMMUNICATING);
                 e.printStackTrace();
             }
         }
@@ -364,14 +353,14 @@ public class RemoteCanvas extends ImageView implements Viewable {
                     // Obtain user's password if necessary.
                     if (settings.getPassword().equals("")) {
                         android.util.Log.i (TAG, "Displaying a dialog to obtain user's password.");
-                        handler.sendEmptyMessage(Constants.GET_PASSWORD);
+                        handler.sendEmptyMessage(RemoteClientLibConstants.GET_PASSWORD);
                         synchronized(spicecomm) {
                             spicecomm.wait();
                         }
                     }
 
                     String user = settings.getUser();
-                    String realm = Constants.PVE_DEFAULT_REALM;
+                    String realm = RemoteClientLibConstants.PVE_DEFAULT_REALM;
 
                     // Try to parse realm from user entered
                     int indexOfAt = settings.getUser().indexOf('@');
@@ -387,7 +376,7 @@ public class RemoteCanvas extends ImageView implements Viewable {
                     // If selected realm has TFA enabled, then ask for the code
                     if (realms.get(realm).getTfa() != null) {
                         android.util.Log.i (TAG, "Displaying a dialog to obtain OTP/TFA.");
-                        handler.sendEmptyMessage(Constants.GET_OTP_CODE);
+                        handler.sendEmptyMessage(RemoteClientLibConstants.GET_OTP_CODE);
                         synchronized(spicecomm) {
                             spicecomm.wait();
                         }
@@ -423,7 +412,7 @@ public class RemoteCanvas extends ImageView implements Viewable {
                                 // Get the user parseable names and display them
                                 ArrayList<String> vms = new ArrayList<String>(vmNameToId.keySet());
                                 handler.sendMessage(RemoteCanvasActivityHandler.getMessageStringList(
-                                        Constants.DIALOG_DISPLAY_VMS, "vms", vms));
+                                        RemoteClientLibConstants.DIALOG_DISPLAY_VMS, "vms", vms));
                                 synchronized(spicecomm) {
                                     spicecomm.wait();
                                 }
@@ -441,18 +430,18 @@ public class RemoteCanvas extends ImageView implements Viewable {
                     }
                 } catch (LoginException e) {
                     android.util.Log.e(TAG, "Failed to login to PVE.");
-                    handler.sendEmptyMessage(Constants.PVE_FAILED_TO_AUTHENTICATE);
+                    handler.sendEmptyMessage(RemoteClientLibConstants.PVE_FAILED_TO_AUTHENTICATE);
                 } catch (JSONException e) {
                     android.util.Log.e(TAG, "Failed to parse json from PVE.");
-                    handler.sendEmptyMessage(Constants.PVE_FAILED_TO_PARSE_JSON);
+                    handler.sendEmptyMessage(RemoteClientLibConstants.PVE_FAILED_TO_PARSE_JSON);
                 }  catch (IOException e) {
                     android.util.Log.e(TAG, "IO Error communicating with PVE API: " + e.getMessage());
-                    handler.sendMessage(RemoteCanvasActivityHandler.getMessageString(Constants.PVE_API_IO_ERROR,
+                    handler.sendMessage(RemoteCanvasActivityHandler.getMessageString(RemoteClientLibConstants.PVE_API_IO_ERROR,
                             "error", e.getMessage()));
                     e.printStackTrace();
                 } catch (HttpException e) {
                     android.util.Log.e(TAG, "PVE API returned error code: " + e.getMessage());
-                    handler.sendMessage(RemoteCanvasActivityHandler.getMessageString(Constants.PVE_API_UNEXPECTED_CODE,
+                    handler.sendMessage(RemoteCanvasActivityHandler.getMessageString(RemoteClientLibConstants.PVE_API_UNEXPECTED_CODE,
                             "error", e.getMessage()));
                 } catch (Throwable e) {
                     if (stayConnected) {
@@ -495,7 +484,7 @@ public class RemoteCanvas extends ImageView implements Viewable {
                     // Obtain user's password if necessary.
                     if (settings.getPassword().equals("")) {
                         android.util.Log.i (TAG, "Displaying a dialog to obtain user's password.");
-                        handler.sendEmptyMessage(Constants.GET_PASSWORD);
+                        handler.sendEmptyMessage(RemoteClientLibConstants.GET_PASSWORD);
                         synchronized(spicecomm) {
                             spicecomm.wait();
                         }
@@ -530,7 +519,7 @@ public class RemoteCanvas extends ImageView implements Viewable {
                                     for (String s : vmNames) {
                                         vmNameToId.put(s, s);
                                     }
-                                    handler.sendMessage(RemoteCanvasActivityHandler.getMessageStringList(Constants.DIALOG_DISPLAY_VMS,
+                                    handler.sendMessage(RemoteCanvasActivityHandler.getMessageStringList(RemoteClientLibConstants.DIALOG_DISPLAY_VMS,
                                                                                                          "vms", vmNames));
                                     synchronized(spicecomm) {
                                         spicecomm.wait();
@@ -554,7 +543,7 @@ public class RemoteCanvas extends ImageView implements Viewable {
                     } catch (InterruptedException e) {}
                     
                     if (!spiceUpdateReceived && stayConnected) {
-                        handler.sendEmptyMessage(Constants.OVIRT_TIMEOUT);
+                        handler.sendEmptyMessage(RemoteClientLibConstants.OVIRT_TIMEOUT);
                     }
                     
                 } catch (Throwable e) {

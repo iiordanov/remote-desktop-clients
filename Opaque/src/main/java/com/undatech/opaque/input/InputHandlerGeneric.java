@@ -30,10 +30,9 @@ import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 
-import com.undatech.opaque.Constants;
+import com.undatech.opaque.RemoteClientLibConstants;
 import com.undatech.opaque.RemoteCanvas;
 import com.undatech.opaque.RemoteCanvasActivity;
-import com.undatech.opaque.input.RemotePointer;
 
 abstract class InputHandlerGeneric extends GestureDetector.SimpleOnGestureListener 
                                            implements InputHandler, ScaleGestureDetector.OnScaleGestureListener {
@@ -347,7 +346,7 @@ abstract class InputHandlerGeneric extends GestureDetector.SimpleOnGestureListen
         if (secondPointerWasDown || thirdPointerWasDown)
             return;
         
-        myVibrator.vibrate(Constants.SHORT_VIBRATION);
+        myVibrator.vibrate(RemoteClientLibConstants.SHORT_VIBRATION);
 
         dragMode = true;
         p.leftButtonDown(getX(e), getY(e), metaState);
@@ -385,7 +384,7 @@ abstract class InputHandlerGeneric extends GestureDetector.SimpleOnGestureListen
     }
     
     private void detectImmersiveSwipe (float y) {
-        if (Constants.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT &&
+        if (RemoteClientLibConstants.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT &&
             (y <= immersiveSwipeDistance || canvas.getHeight() - y <= immersiveSwipeDistance)) {
             inSwiping = true;
             immersiveSwipe = true;

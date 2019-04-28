@@ -20,30 +20,16 @@
 
 package com.undatech.opaque;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.security.acl.LastOwnerException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import com.undatech.opaque.R;
-
-import android.R.anim;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager.NameNotFoundException;
-import android.content.res.AssetManager;
-import android.content.res.Resources;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -51,13 +37,11 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.ToggleButton;
 
 public class ConnectionSetupActivity extends Activity {
     private static String TAG = "ConnectionSetupActivity";
@@ -97,7 +81,7 @@ public class ConnectionSetupActivity extends Activity {
                 
                 Intent intent = new Intent(ConnectionSetupActivity.this, AdvancedSettingsActivity.class);
                 intent.putExtra("com.undatech.opaque.ConnectionSettings", currentConnection);
-                startActivityForResult(intent, Constants.ADVANCED_SETTINGS);
+                startActivityForResult(intent, RemoteClientLibConstants.ADVANCED_SETTINGS);
             }
         });
         
@@ -155,7 +139,7 @@ public class ConnectionSetupActivity extends Activity {
         currentConnection = new ConnectionSettings (currentSelectedConnection);
         if (newConnection) {
             // Load advanced settings defaults from the saved default settings
-            currentConnection.loadAdvancedSettings(this, Constants.DEFAULT_SETTINGS_FILE);
+            currentConnection.loadAdvancedSettings(this, RemoteClientLibConstants.DEFAULT_SETTINGS_FILE);
             // Save the empty connection preferences to override any values of a previously
             // deleted connection.
             saveSelectedPreferences(false);
@@ -269,7 +253,7 @@ public class ConnectionSetupActivity extends Activity {
 
         super.onActivityResult(requestCode, resultCode, data);
         switch(requestCode) {
-        case (Constants.ADVANCED_SETTINGS):
+        case (RemoteClientLibConstants.ADVANCED_SETTINGS):
             if (resultCode == Activity.RESULT_OK) {
                 Bundle b = data.getExtras();
                 currentConnection = (ConnectionSettings)b.get("com.undatech.opaque.ConnectionSettings");

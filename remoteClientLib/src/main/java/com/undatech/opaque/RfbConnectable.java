@@ -38,4 +38,6 @@ public interface RfbConnectable {
                int redShift, int greenShift, int blueShift, boolean fGreyScale);
     void writeFramebufferUpdateRequest(int x, int y, int w, int h,    boolean b);
     void close();
+    boolean isCertificateAccepted();
+    void setCertificateAccepted(boolean certificateAccepted);
 }

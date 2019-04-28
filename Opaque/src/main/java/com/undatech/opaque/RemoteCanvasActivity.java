@@ -34,7 +34,6 @@ import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import com.undatech.opaque.R;
 import com.undatech.opaque.dialogs.GetTextFragment;
 import com.undatech.opaque.dialogs.SelectTextElementFragment;
 import com.undatech.opaque.input.*;
@@ -128,7 +127,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
         public void run() {
             android.util.Log.i(TAG, "Enabling immersive mode");
             try {
-                if (Constants.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT) {
+                if (RemoteClientLibConstants.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT) {
                     canvas.setSystemUiVisibility(
                             View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                                     | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
@@ -156,7 +155,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
     private Runnable immersiveDisabler = new Runnable() {
         public void run() {
             try {
-                if (Constants.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT) {
+                if (RemoteClientLibConstants.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT) {
                     canvas.setSystemUiVisibility(
                             View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                                     | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
@@ -220,7 +219,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
                 MessageDialogs.displayMessageAndFinish(this, R.string.vv_file_not_found, R.string.error_dialog_title);
                 return;
             }
-            connection = new ConnectionSettings(Constants.DEFAULT_SETTINGS_FILE);
+            connection = new ConnectionSettings(RemoteClientLibConstants.DEFAULT_SETTINGS_FILE);
             connection.loadFromSharedPreferences(getApplicationContext());
             handler = new RemoteCanvasActivityHandler(this, canvas, connection);
             canvas.initialize(vvFileName, connection, handler);
@@ -370,7 +369,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
         BufferedInputStream bis = new BufferedInputStream(is);
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         
-        byte[] data = new byte[Constants.URL_BUFFER_SIZE];
+        byte[] data = new byte[RemoteClientLibConstants.URL_BUFFER_SIZE];
         int current = 0;
         
         while((current = bis.read(data, 0, data.length)) != -1){
@@ -419,9 +418,9 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
                                 RemoteCanvasActivity.this.notify();
                             }
                         } catch (IOException e) {
-                            int what = Constants.VV_OVER_HTTP_FAILURE;
+                            int what = RemoteClientLibConstants.VV_OVER_HTTP_FAILURE;
                             if (dataString.startsWith("https")) {
-                                what = Constants.VV_OVER_HTTPS_FAILURE;
+                                what = RemoteClientLibConstants.VV_OVER_HTTPS_FAILURE;
                             }
                             // Quit with an error we could not download the .vv file.
                             handler.sendEmptyMessage(what);
@@ -432,7 +431,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
                 
                 synchronized (this) {
                     try {
-                        this.wait(Constants.VV_GET_FILE_TIMEOUT);
+                        this.wait(RemoteClientLibConstants.VV_GET_FILE_TIMEOUT);
                     } catch (InterruptedException e) {
                         vvFileName = null;
                         e.printStackTrace();
@@ -484,7 +483,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
             replacer = getResources().getDrawable(R.drawable.hidekeys);
         keyStow.setBackgroundDrawable(replacer);
 
-        if (connection.getExtraKeysToggleType() == Constants.EXTRA_KEYS_OFF)
+        if (connection.getExtraKeysToggleType() == RemoteClientLibConstants.EXTRA_KEYS_OFF)
             keyStow.setVisibility(View.GONE);
         else
             keyStow.setVisibility(View.VISIBLE);
@@ -523,7 +522,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
                 RemoteKeyboard k = canvas.getKeyboard();
                 int key = KeyEvent.KEYCODE_TAB;
                 if (e.getAction() == MotionEvent.ACTION_DOWN) {
-                    myVibrator.vibrate(Constants.SHORT_VIBRATION);
+                    myVibrator.vibrate(RemoteClientLibConstants.SHORT_VIBRATION);
                     keyTab.setImageResource(R.drawable.tabon);
                     k.repeatKeyEvent(key, new KeyEvent(e.getAction(), key));
                     return true;
@@ -544,7 +543,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
                 RemoteKeyboard k = canvas.getKeyboard();
                 int key = 111; /* KEYCODE_ESCAPE */
                 if (e.getAction() == MotionEvent.ACTION_DOWN) {
-                    myVibrator.vibrate(Constants.SHORT_VIBRATION);
+                    myVibrator.vibrate(RemoteClientLibConstants.SHORT_VIBRATION);
                     keyEsc.setImageResource(R.drawable.escon);
                     k.repeatKeyEvent(key, new KeyEvent(e.getAction(), key));
                     return true;
@@ -574,7 +573,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
         keyCtrl.setOnLongClickListener(new OnLongClickListener () {
             @Override
             public boolean onLongClick(View arg0) {
-                myVibrator.vibrate(Constants.SHORT_VIBRATION);
+                myVibrator.vibrate(RemoteClientLibConstants.SHORT_VIBRATION);
                 boolean on = canvas.getKeyboard().onScreenCtrlToggle();
                 keyCtrlToggled = true;
                 if (on)
@@ -601,7 +600,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
         keySuper.setOnLongClickListener(new OnLongClickListener () {
             @Override
             public boolean onLongClick(View arg0) {
-                myVibrator.vibrate(Constants.SHORT_VIBRATION);
+                myVibrator.vibrate(RemoteClientLibConstants.SHORT_VIBRATION);
                 boolean on = canvas.getKeyboard().onScreenSuperToggle();
                 keySuperToggled = true;
                 if (on)
@@ -628,7 +627,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
         keyAlt.setOnLongClickListener(new OnLongClickListener () {
             @Override
             public boolean onLongClick(View arg0) {
-                myVibrator.vibrate(Constants.SHORT_VIBRATION);
+                myVibrator.vibrate(RemoteClientLibConstants.SHORT_VIBRATION);
                 boolean on = canvas.getKeyboard().onScreenAltToggle();
                 keyAltToggled = true;
                 if (on)
@@ -655,7 +654,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
         keyShift.setOnLongClickListener(new OnLongClickListener () {
             @Override
             public boolean onLongClick(View arg0) {
-                myVibrator.vibrate(Constants.SHORT_VIBRATION);
+                myVibrator.vibrate(RemoteClientLibConstants.SHORT_VIBRATION);
                 boolean on = canvas.getKeyboard().onScreenShiftToggle();
                 keyShiftToggled = true;
                 if (on)
@@ -674,7 +673,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
                 RemoteKeyboard k = canvas.getKeyboard();
                 int key = KeyEvent.KEYCODE_DPAD_UP;
                 if (e.getAction() == MotionEvent.ACTION_DOWN) {
-                    myVibrator.vibrate(Constants.SHORT_VIBRATION);
+                    myVibrator.vibrate(RemoteClientLibConstants.SHORT_VIBRATION);
                     keyUp.setImageResource(R.drawable.upon);
                     k.repeatKeyEvent(key, new KeyEvent(e.getAction(), key));
                     return true;
@@ -695,7 +694,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
                 RemoteKeyboard k = canvas.getKeyboard();
                 int key = KeyEvent.KEYCODE_DPAD_DOWN;
                 if (e.getAction() == MotionEvent.ACTION_DOWN) {
-                    myVibrator.vibrate(Constants.SHORT_VIBRATION);
+                    myVibrator.vibrate(RemoteClientLibConstants.SHORT_VIBRATION);
                     keyDown.setImageResource(R.drawable.downon);
                     k.repeatKeyEvent(key, new KeyEvent(e.getAction(), key));
                     return true;
@@ -716,7 +715,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
                 RemoteKeyboard k = canvas.getKeyboard();
                 int key = KeyEvent.KEYCODE_DPAD_LEFT;
                 if (e.getAction() == MotionEvent.ACTION_DOWN) {
-                    myVibrator.vibrate(Constants.SHORT_VIBRATION);
+                    myVibrator.vibrate(RemoteClientLibConstants.SHORT_VIBRATION);
                     keyLeft.setImageResource(R.drawable.lefton);
                     k.repeatKeyEvent(key, new KeyEvent(e.getAction(), key));
                     return true;
@@ -737,7 +736,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
                 RemoteKeyboard k = canvas.getKeyboard();
                 int key = KeyEvent.KEYCODE_DPAD_RIGHT;
                 if (e.getAction() == MotionEvent.ACTION_DOWN) {
-                    myVibrator.vibrate(Constants.SHORT_VIBRATION);
+                    myVibrator.vibrate(RemoteClientLibConstants.SHORT_VIBRATION);
                     keyRight.setImageResource(R.drawable.righton);
                     k.repeatKeyEvent(key, new KeyEvent(e.getAction(), key));
                     return true;    
@@ -790,7 +789,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
             makeVisible = true;
 
         if (!extraKeysHidden && makeVisible && 
-            connection.getExtraKeysToggleType() == Constants.EXTRA_KEYS_ON) {
+            connection.getExtraKeysToggleType() == RemoteClientLibConstants.EXTRA_KEYS_ON) {
             layoutKeys.setVisibility(View.VISIBLE);
             layoutKeys.invalidate();
             return;
@@ -1113,7 +1112,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
             inputMenu.findItem(inputHandlerIdToXmlId (connection.getInputMethod())).setChecked(true);
             
             // Set the text of the Extra Keys menu item appropriately.
-            if (connection.getExtraKeysToggleType() == Constants.EXTRA_KEYS_ON)
+            if (connection.getExtraKeysToggleType() == RemoteClientLibConstants.EXTRA_KEYS_ON)
                 menu.findItem(R.id.menuExtraKeys).setTitle(R.string.extra_keys_disable);
             else
                 menu.findItem(R.id.menuExtraKeys).setTitle(R.string.extra_keys_enable);
@@ -1134,12 +1133,12 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
     public boolean onOptionsItemSelected(MenuItem menuItem) {
         int itemID = menuItem.getItemId();
         if (itemID == R.id.menuExtraKeys) {
-            if (connection.getExtraKeysToggleType() == Constants.EXTRA_KEYS_ON) {
-                connection.setExtraKeysToggleType(Constants.EXTRA_KEYS_OFF);
+            if (connection.getExtraKeysToggleType() == RemoteClientLibConstants.EXTRA_KEYS_ON) {
+                connection.setExtraKeysToggleType(RemoteClientLibConstants.EXTRA_KEYS_OFF);
                 menuItem.setTitle(R.string.extra_keys_enable);
                 setExtraKeysVisibility(View.GONE, false);
             } else {
-                connection.setExtraKeysToggleType(Constants.EXTRA_KEYS_ON);
+                connection.setExtraKeysToggleType(RemoteClientLibConstants.EXTRA_KEYS_ON);
                 menuItem.setTitle(R.string.extra_keys_disable);
                 setExtraKeysVisibility(View.VISIBLE, false);
                 extraKeysHidden = false;
@@ -1188,9 +1187,9 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
         android.util.Log.i(TAG, "onTextObtained called with id: " + id);
         canvas.progressDialog.show();
         
-        if (id.equals(Constants.GET_PASSWORD_ID)) {
+        if (id.equals(RemoteClientLibConstants.GET_PASSWORD_ID)) {
             connection.setPassword(obtainedString);
-        } else if (id.equals(Constants.GET_OTP_CODE_ID)) {
+        } else if (id.equals(RemoteClientLibConstants.GET_OTP_CODE_ID)) {
             connection.setOtpCode(obtainedString);
         }
         

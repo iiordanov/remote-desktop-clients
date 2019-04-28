@@ -20,11 +20,7 @@
 
 package com.undatech.opaque;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 
 import org.json.JSONException;
 
@@ -33,8 +29,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Bundle;
 import android.os.Environment;
 import android.text.ClipboardManager;
@@ -50,7 +44,6 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.Toast;
 
-import com.undatech.opaque.R;
 import com.undatech.opaque.dialogs.MessageFragment;
 import com.undatech.opaque.util.FileUtils;
 import com.undatech.opaque.util.LogcatReader;
@@ -163,7 +156,7 @@ public class ConnectionGridActivity extends FragmentActivity {
     public void copyLogcat (MenuItem menuItem) {
         LogcatReader logcatReader = new LogcatReader();
         ClipboardManager cm = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-        cm.setText(logcatReader.getMyLogcat(Constants.LOGCAT_MAX_LINES));
+        cm.setText(logcatReader.getMyLogcat(RemoteClientLibConstants.LOGCAT_MAX_LINES));
         Toast.makeText(getBaseContext(), getResources().getString(R.string.log_copied),
                 Toast.LENGTH_LONG).show();
     }
@@ -174,10 +167,10 @@ public class ConnectionGridActivity extends FragmentActivity {
      */
     public void editDefaultSettings (MenuItem menuItem) {
         Intent intent = new Intent(ConnectionGridActivity.this, AdvancedSettingsActivity.class);
-        ConnectionSettings defaultConnection = new ConnectionSettings(Constants.DEFAULT_SETTINGS_FILE);
+        ConnectionSettings defaultConnection = new ConnectionSettings(RemoteClientLibConstants.DEFAULT_SETTINGS_FILE);
         defaultConnection.loadFromSharedPreferences(getApplicationContext());
         intent.putExtra("com.undatech.opaque.ConnectionSettings", defaultConnection);
-        startActivityForResult(intent, Constants.DEFAULT_SETTINGS);
+        startActivityForResult(intent, RemoteClientLibConstants.DEFAULT_SETTINGS);
     }
 
     /**
@@ -188,7 +181,7 @@ public class ConnectionGridActivity extends FragmentActivity {
         permissionsManager.requestPermissions(ConnectionGridActivity.this);
 
         String pathToFile = FileUtils.join(Environment.getExternalStorageDirectory().toString(),
-                                           Constants.EXPORT_SETTINGS_FILE);
+                                           RemoteClientLibConstants.EXPORT_SETTINGS_FILE);
         SharedPreferences sp = getSharedPreferences("generalSettings", Context.MODE_PRIVATE);
         String connections = sp.getString("connections", null);
         FragmentManager fm = getSupportFragmentManager();
@@ -218,7 +211,7 @@ public class ConnectionGridActivity extends FragmentActivity {
         permissionsManager.requestPermissions(ConnectionGridActivity.this);
 
         String pathToFile = FileUtils.join(Environment.getExternalStorageDirectory().toString(),
-                                           Constants.EXPORT_SETTINGS_FILE);
+                                           RemoteClientLibConstants.EXPORT_SETTINGS_FILE);
         FragmentManager fm = getSupportFragmentManager();
 
         try {
@@ -278,7 +271,7 @@ public class ConnectionGridActivity extends FragmentActivity {
 
         super.onActivityResult(requestCode, resultCode, data);
         switch(requestCode) {
-        case (Constants.DEFAULT_SETTINGS):
+        case (RemoteClientLibConstants.DEFAULT_SETTINGS):
             if (resultCode == Activity.RESULT_OK) {
                 Bundle b = data.getExtras();
                 ConnectionSettings defaultSettings = (ConnectionSettings)b.get("com.undatech.opaque.ConnectionSettings");

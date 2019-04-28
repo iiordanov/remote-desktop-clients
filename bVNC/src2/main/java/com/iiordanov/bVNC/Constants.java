@@ -19,6 +19,7 @@
  */
 
 package com.iiordanov.bVNC;
+import com.undatech.opaque.RemoteClientLibConstants;
 
 /**
  * Keys for intent values
@@ -91,15 +92,16 @@ public class Constants {
     
     public static final int DIALOG_X509_CERT       = 1;
     public static final int DIALOG_SSH_CERT        = 2;
-    public static final int DIALOG_RDP_CERT        = 3;
+    public static final int DIALOG_RDP_CERT        = RemoteClientLibConstants.DIALOG_RDP_CERT;
     public static final int SPICE_CONNECT_SUCCESS  = 4;
     public static final int SPICE_CONNECT_FAILURE  = 5;
     public static final int DIALOG_STUNNEL_CERT    = 6;
-    public static final int RDP_CONNECT_FAILURE    = 7;
-    public static final int RDP_UNABLE_TO_CONNECT  = 8;
-    public static final int RDP_AUTH_FAILED        = 9;
+    public static final int RDP_CONNECT_FAILURE    = RemoteClientLibConstants.RDP_CONNECT_FAILURE;
+    public static final int RDP_UNABLE_TO_CONNECT  = RemoteClientLibConstants.RDP_UNABLE_TO_CONNECT;
+    public static final int RDP_AUTH_FAILED        = RemoteClientLibConstants.RDP_AUTH_FAILED;
     public static final int GET_PASSWORD           = 10;
     public static final int GET_VERIFICATIONCODE   = 11;
+    public static final int SERVER_CUT_TEXT        = RemoteClientLibConstants.SERVER_CUT_TEXT;
     public static final int PRO_FEATURE            = 99;
 
     public static final int EXTRA_KEYS_OFF         = 0;

@@ -1,15 +1,20 @@
-package com.iiordanov.bVNC;
+package com.undatech.opaque;
+
+import android.graphics.Bitmap;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.util.Log;
 
 import com.freerdp.freerdpcore.application.SessionState;
 import com.freerdp.freerdpcore.domain.ManualBookmark;
 import com.freerdp.freerdpcore.services.LibFreeRDP;
-import com.iiordanov.bVNC.input.RemoteKeyboard;
-import com.iiordanov.bVNC.input.RdpKeyboardMapper;
-import com.iiordanov.bVNC.input.RemotePointer;
-import com.iiordanov.bVNC.input.RemoteRdpPointer;
-import com.undatech.opaque.RfbConnectable;
+import com.undatech.opaque.input.RemoteKeyboard;
+import com.undatech.opaque.input.RdpKeyboardMapper;
+import com.undatech.opaque.input.RemotePointer;
 
-public class RdpCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyProcessingListener {
+public class RdpCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyProcessingListener,
+                                        LibFreeRDP.UIEventListener, LibFreeRDP.EventListener {
     static final String TAG = "RdpCommunicator";
 
     final static int VK_CONTROL = 0x11;
@@ -22,14 +27,25 @@ public class RdpCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyPro
     final static int VK_LWIN = 0x5B;
     final static int VK_RWIN = 0x5C;
     final static int VK_EXT_KEY = 0x00000100;
-    
+
     SessionState session;
     int metaState = 0;
-
     boolean isInNormalProtocol = false;
 
-    RdpCommunicator (SessionState session) {
+    private final RdpCommunicator myself;
+    private final Handler handler;
+    private final Viewable viewable;
+
+    // This variable indicates whether or not the user has accepted an untrusted
+    // security certificate. Used to control progress while the dialog asking the user
+    // to confirm the authenticity of a certificate is displayed.
+    private boolean certificateAccepted = false;
+
+    public RdpCommunicator(SessionState session, Handler handler, Viewable viewable) {
         this.session = session;
+        this.handler = handler;
+        this.viewable = viewable;
+        myself = this;
     }
 
     @Override
@@ -107,7 +123,7 @@ public class RdpCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyPro
             boolean b) {
         // NOT USED for RDP.
     }
-    
+
     public class DisconnectThread extends Thread {
         long instance;
         
@@ -127,7 +143,17 @@ public class RdpCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyPro
         DisconnectThread d = new DisconnectThread(instance);
         d.start();
     }
-    
+
+    @Override
+    public boolean isCertificateAccepted() {
+        return certificateAccepted;
+    }
+
+    @Override
+    public void setCertificateAccepted(boolean certificateAccepted) {
+        this.certificateAccepted = certificateAccepted;
+    }
+
     private void sendModifierKeys (boolean down) {
         if ((metaState & RemoteKeyboard.CTRL_MASK) != 0) {
             //android.util.Log.d("RdpCommunicator", "Sending LCTRL " + down);
@@ -208,5 +234,143 @@ public class RdpCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyPro
     @Override
     public void requestResolution(int x, int y) {
         // TODO Auto-generated method stub
+    }
+
+    //////////////////////////////////////////////////////////////////////////////////
+    //  Implementation of LibFreeRDP.EventListener.  Through the functions implemented
+    //  below, FreeRDP communicates connection state information.
+    //////////////////////////////////////////////////////////////////////////////////
+
+    @Override
+    public void OnPreConnect(long instance) {
+        Log.v(TAG, "OnPreConnect");
+    }
+
+    @Override
+    public void OnConnectionSuccess(long instance) {
+        Log.v(TAG, "OnConnectionSuccess");
+        myself.setIsInNormalProtocol(true);
+    }
+
+    @Override
+    public void OnConnectionFailure(long instance) {
+        Log.v(TAG, "OnConnectionFailure");
+        myself.setIsInNormalProtocol(false);
+        handler.sendEmptyMessage(RemoteClientLibConstants.RDP_UNABLE_TO_CONNECT);
+    }
+
+    @Override
+    public void OnDisconnecting(long instance) {
+        myself.setIsInNormalProtocol(false);
+        Log.v(TAG, "OnDisconnecting");
+        handler.sendEmptyMessage(RemoteClientLibConstants.RDP_CONNECT_FAILURE);
+    }
+
+    @Override
+    public void OnDisconnected(long instance) {
+        Log.v(TAG, "OnDisconnected");
+        if (!myself.isInNormalProtocol()) {
+            handler.sendEmptyMessage(RemoteClientLibConstants.RDP_UNABLE_TO_CONNECT);
+        } else {
+            handler.sendEmptyMessage(RemoteClientLibConstants.RDP_CONNECT_FAILURE);
+        }
+    }
+
+    //////////////////////////////////////////////////////////////////////////////////
+    //  Implementation of LibFreeRDP.UIEventListener. Through the functions implemented
+    //  below libspice and FreeRDP communicate remote desktop size and updates.
+    //////////////////////////////////////////////////////////////////////////////////
+
+    @Override
+    public void OnSettingsChanged(int width, int height, int bpp) {
+        android.util.Log.e(TAG, "OnSettingsChanged called, wxh: " + width + "x" + height);
+        viewable.reallocateDrawable(width, height);
+    }
+
+    @Override
+    public boolean OnAuthenticate(StringBuilder username, StringBuilder domain, StringBuilder password) {
+        android.util.Log.e(TAG, "OnAuthenticate called.");
+        handler.sendEmptyMessage(RemoteClientLibConstants.RDP_AUTH_FAILED);
+        return false;
+    }
+
+    @Override
+    public int OnVerifiyCertificate(String commonName, String subject,
+                                    String issuer, String fingerprint, boolean mismatch) {
+        android.util.Log.e(TAG, "OnVerifiyCertificate called.");
+
+        // Send a message containing the certificate to our handler.
+        Message m = new Message();
+        m.setTarget(handler);
+        m.what = RemoteClientLibConstants.DIALOG_RDP_CERT;
+        Bundle strings = new Bundle();
+        strings.putString("subject", subject);
+        strings.putString("issuer", issuer);
+        strings.putString("fingerprint", fingerprint);
+        m.obj = strings;
+        handler.sendMessage(m);
+
+        // Block while user decides whether to accept certificate or not.
+        // The activity ends if the user taps "No", so we block indefinitely here.
+        synchronized (this) {
+            while (!certificateAccepted) {
+                try {
+                    this.wait();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        return 1;
+    }
+
+    @Override
+    public boolean OnGatewayAuthenticate(StringBuilder username,
+                                         StringBuilder domain, StringBuilder password) {
+        android.util.Log.e(TAG, "OnGatewayAuthenticate called.");
+        return this.OnAuthenticate(username, domain, password);
+    }
+
+    @Override
+    public int OnVerifyChangedCertificate(String commonName, String subject,
+                                          String issuer, String fingerprint, String oldSubject,
+                                          String oldIssuer, String oldFingerprint) {
+        android.util.Log.e(TAG, "OnVerifyChangedCertificate called.");
+        return this.OnVerifiyCertificate(commonName, subject, issuer, fingerprint, true);
+    }
+
+    @Override
+    public void OnGraphicsUpdate(int x, int y, int width, int height) {
+        //android.util.Log.e(TAG, "OnGraphicsUpdate called: " + x +", " + y + " + " + width + "x" + height );
+        if (viewable != null && session != null) {
+            Bitmap bitmap = viewable.getBitmap();
+            if (bitmap != null) {
+                synchronized (viewable) {
+                    LibFreeRDP.updateGraphics(session.getInstance(), bitmap, x, y, width, height);
+                }
+            }
+            viewable.reDraw(x, y, width, height);
+        }
+    }
+
+    @Override
+    public void OnGraphicsResize(int width, int height, int bpp) {
+        android.util.Log.e(TAG, "OnGraphicsResize called.");
+        OnSettingsChanged(width, height, bpp);
+    }
+
+    @Override
+    public void OnRemoteClipboardChanged(String data) {
+        android.util.Log.e(TAG, "OnRemoteClipboardChanged called.");
+
+        // Send a message containing the text to our handler.
+        Message m = new Message();
+        m.setTarget(handler);
+        m.what = RemoteClientLibConstants.SERVER_CUT_TEXT;
+        Bundle strings = new Bundle();
+        strings.putString("text", data);
+        m.obj = strings;
+        handler.sendMessage(m);
     }
 }

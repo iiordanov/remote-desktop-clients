@@ -8,7 +8,7 @@
 */
 
 
-package com.iiordanov.bVNC.input;
+package com.undatech.opaque.input;
 
 import com.freerdp.freerdpcore.R;
 

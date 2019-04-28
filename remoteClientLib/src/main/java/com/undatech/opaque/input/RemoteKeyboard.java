@@ -33,7 +33,17 @@ public abstract class RemoteKeyboard {
 
     public final static int SCANCODE_LCTRL = 29;
     public final static int SCANCODE_RCTRL = 97;
-    
+
+    // Useful shortcuts for modifier masks.
+    public final static int CTRL_MASK   = KeyEvent.META_SYM_ON;
+    public final static int SHIFT_MASK  = KeyEvent.META_SHIFT_ON;
+    public final static int ALT_MASK    = KeyEvent.META_ALT_ON;
+    public final static int SUPER_MASK  = 0x8;
+    public final static int RCTRL_MASK  = KeyEvent.META_CTRL_RIGHT_ON;
+    public final static int RSHIFT_MASK = KeyEvent.META_SHIFT_RIGHT_ON;
+    public final static int RALT_MASK   = 0x10;
+    public final static int RSUPER_MASK = KeyEvent.META_META_RIGHT_ON;
+
     // My mask for the modifier masks.
     public final static int SHIFT_ON_MASK = 1;
     public final static int ALT_ON_MASK   = 2;

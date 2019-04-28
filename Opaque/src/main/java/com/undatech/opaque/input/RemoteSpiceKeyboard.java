@@ -30,7 +30,7 @@ import android.content.res.Resources;
 import android.os.Handler;
 import android.view.KeyEvent;
 
-import com.undatech.opaque.Constants;
+import com.undatech.opaque.RemoteClientLibConstants;
 import com.undatech.opaque.RemoteCanvas;
 import com.undatech.opaque.SpiceCommunicator;
 
@@ -58,7 +58,7 @@ public class RemoteSpiceKeyboard extends RemoteKeyboard {
             is = r.getAssets().open(file);
         } catch (IOException e) {
             // If layout map file was not found, load the default one.
-            is = r.getAssets().open("layouts/" + Constants.DEFAULT_LAYOUT_MAP);
+            is = r.getAssets().open("layouts/" + RemoteClientLibConstants.DEFAULT_LAYOUT_MAP);
         }
         BufferedReader in = new BufferedReader(new InputStreamReader(is));
         String line = in.readLine();

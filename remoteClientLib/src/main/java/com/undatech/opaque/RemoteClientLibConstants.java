@@ -20,10 +20,10 @@
 
 package com.undatech.opaque;
 
-public class Constants {
+public class RemoteClientLibConstants {
     
     public static final int SDK_INT = android.os.Build.VERSION.SDK_INT;
-    
+
     public static final int DIALOG_DISPLAY_VMS     = 0;
     public static final int DIALOG_X509_CERT       = 1;
     public static final int LAUNCH_VNC_VIEWER      = 2;
@@ -49,7 +49,12 @@ public class Constants {
     public static final int PVE_NULL_DATA              = 22;
     public static final int VV_DOWNLOAD_TIMEOUT        = 23;
     public static final int GET_OTP_CODE               = 24;
-    
+    public static final int DIALOG_RDP_CERT        = 25;
+    public static final int RDP_CONNECT_FAILURE    = 26;
+    public static final int RDP_UNABLE_TO_CONNECT  = 27;
+    public static final int RDP_AUTH_FAILED        = 28;
+    public static final int SERVER_CUT_TEXT        = 29;
+
     public static final int EXTRA_KEYS_OFF         = 0;
     public static final int EXTRA_KEYS_ON          = 1;
     public static final int EXTRA_KEYS_TIMEOUT     = 2;

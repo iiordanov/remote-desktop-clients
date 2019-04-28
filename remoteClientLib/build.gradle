@@ -66,6 +66,7 @@ tasks.all { task ->
     }
 }
 dependencies {
+    implementation project(':freeRDPCore')
     implementation 'com.android.support:appcompat-v7:27.1.1'
     implementation 'org.apache.httpcomponents:httpcore:4.4.9'
 }

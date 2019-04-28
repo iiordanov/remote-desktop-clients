@@ -7,10 +7,10 @@ import android.view.KeyEvent;
 import android.view.MotionEvent;
 
 import com.iiordanov.bVNC.MetaKeyBean;
-import com.iiordanov.bVNC.RdpCommunicator;
 import com.iiordanov.bVNC.RemoteCanvas;
 import com.iiordanov.tigervnc.rfb.UnicodeToKeysym;
 import com.undatech.opaque.RfbConnectable;
+import com.undatech.opaque.input.RdpKeyboardMapper;
 
 public class RemoteRdpKeyboard extends RemoteKeyboard {
     private final static String TAG = "RemoteRdpKeyboard";

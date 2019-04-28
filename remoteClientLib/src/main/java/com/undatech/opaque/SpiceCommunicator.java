@@ -53,7 +53,7 @@ public class SpiceCommunicator implements RfbConnectable {
     private final BroadcastReceiver mUsbReceiver = new BroadcastReceiver() {
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
-            if (Constants.ACTION_USB_PERMISSION.equals(action)) {
+            if (RemoteClientLibConstants.ACTION_USB_PERMISSION.equals(action)) {
                 UsbDevice device = (UsbDevice)intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
                 if (device != null) {
                     int vid = device.getVendorId();
@@ -224,7 +224,7 @@ public class SpiceCommunicator implements RfbConnectable {
             // If we've exited SpiceClientConnect, the connection is certainly
             // interrupted or was never established.
             if (handler != null) {
-                handler.sendEmptyMessage(Constants.SPICE_CONNECT_FAILURE);
+                handler.sendEmptyMessage(RemoteClientLibConstants.SPICE_CONNECT_FAILURE);
             }
         }
     }
@@ -253,7 +253,7 @@ public class SpiceCommunicator implements RfbConnectable {
             // If we've exited CreateOvirtSession, the connection is certainly
             // interrupted or was never established.
             if (handler != null) {
-                handler.sendEmptyMessage(Constants.SPICE_CONNECT_FAILURE);
+                handler.sendEmptyMessage(RemoteClientLibConstants.SPICE_CONNECT_FAILURE);
             }
         }
     }
@@ -377,6 +377,17 @@ public class SpiceCommunicator implements RfbConnectable {
         disconnect();
     }
 
+    @Override
+    public boolean isCertificateAccepted() {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    @Override
+    public void setCertificateAccepted(boolean certificateAccepted) {
+        // TODO Auto-generated method stub
+    }
+
     public void requestResolution(int x, int y) throws Exception {
         requestResolution();
     }
@@ -413,7 +424,7 @@ public class SpiceCommunicator implements RfbConnectable {
         boolean deviceFound = false;
         UsbDevice device = null;
         HashMap<String, UsbDevice> stringDeviceMap = null;
-        int timeout = Constants.usbDeviceTimeout;
+        int timeout = RemoteClientLibConstants.usbDeviceTimeout;
         while (!deviceFound && timeout > 0) {
             stringDeviceMap = myself.mUsbManager.getDeviceList();
             Collection<UsbDevice> usbDevices = stringDeviceMap.values();
@@ -443,15 +454,15 @@ public class SpiceCommunicator implements RfbConnectable {
             } else {
                 // Request permission to access the device.
                 synchronized (myself.deviceToFdMap.get(mapKey)) {
-                    PendingIntent mPermissionIntent = PendingIntent.getBroadcast(myself.context, 0, new Intent(Constants.ACTION_USB_PERMISSION), 0);
+                    PendingIntent mPermissionIntent = PendingIntent.getBroadcast(myself.context, 0, new Intent(RemoteClientLibConstants.ACTION_USB_PERMISSION), 0);
                     
                     // TODO: Try putting this intent filter into the activity in the manifest file.
-                    IntentFilter filter = new IntentFilter(Constants.ACTION_USB_PERMISSION);
+                    IntentFilter filter = new IntentFilter(RemoteClientLibConstants.ACTION_USB_PERMISSION);
                     myself.context.registerReceiver(myself.mUsbReceiver, filter);
                     
                     myself.mUsbManager.requestPermission(device, mPermissionIntent);
                     // Wait for permission with a timeout. 
-                    myself.deviceToFdMap.get(mapKey).wait(Constants.usbDevicePermissionTimeout);
+                    myself.deviceToFdMap.get(mapKey).wait(RemoteClientLibConstants.usbDevicePermissionTimeout);
                     
                     deviceConnection = myself.mUsbManager.openDevice(device);
                     if (deviceConnection != null) {
@@ -485,7 +496,7 @@ public class SpiceCommunicator implements RfbConnectable {
         b.putString("port", port);
         b.putString("password", password);
         Message msg = new Message();
-        msg.what = Constants.LAUNCH_VNC_VIEWER;
+        msg.what = RemoteClientLibConstants.LAUNCH_VNC_VIEWER;
         msg.setData(b);
         myself.handler.sendMessage(msg);
     }
@@ -504,7 +515,7 @@ public class SpiceCommunicator implements RfbConnectable {
         canvas.reallocateDrawable(width, height);
         
         setIsInNormalProtocol(true);
-        handler.sendEmptyMessage(Constants.SPICE_CONNECT_SUCCESS);
+        handler.sendEmptyMessage(RemoteClientLibConstants.SPICE_CONNECT_SUCCESS);
 
         if (isRequestingNewDisplayResolution) {
             requestResolution();
