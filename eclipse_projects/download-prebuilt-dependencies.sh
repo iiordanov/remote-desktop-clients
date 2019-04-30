@@ -3,20 +3,15 @@
 DIR=$(dirname $0)
 pushd $DIR
 
-DEPVER=7
+DEPVER=8
 
 wget -c https://github.com/iiordanov/remote-desktop-clients/releases/download/dependencies/remote-desktop-clients-libs-${DEPVER}.tar.gz
 
-mkdir -p Opaque/jni/libs/deps/FreeRDP/
+mkdir -p remoteClientLib/jni/libs/deps/FreeRDP/
 
 tar xf remote-desktop-clients-libs-${DEPVER}.tar.gz
 
-rsync -a bVNC/prebuilt/ Opaque/prebuilt/
-
-for d in bVNC Opaque
-do
-  rsync -a ${d}/prebuilt/ ${d}/java
-done
+rsync -a remoteClientLib/prebuilt/ remoteClientLib/java/
 
 echo "Done downloading and extracting dependencies."
 

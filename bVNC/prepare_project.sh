@@ -46,7 +46,7 @@ then
   BUILDING_DEPENDENCIES=true
 else
   ln -sf AndroidManifest.xml.$PRJ AndroidManifest.xml
-  ./copy_prebuilt_files.sh $PRJ
+  ../copy_prebuilt_files.sh $PRJ
 fi
 
 if [ "$SKIP_BUILD" == "false" ]

@@ -19,8 +19,8 @@ then
   usage
 fi
 
-mkdir -p java
-rsync -a prebuilt/org java/
+mkdir -p remoteClientLib/java
+rsync -a remoteClientLib/prebuilt/ remoteClientLib/java/
 
 popd
 
