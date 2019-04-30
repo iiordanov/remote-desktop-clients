@@ -585,7 +585,7 @@ build_freerdp() {
         # Something wrong with NDK?
         sed -i 's/static int pthread_mutex_timedlock/int pthread_mutex_timedlock/' winpr/libwinpr/synch/wait.c
 
-        for f in ${basedir}/../freerdp_*.patch
+        for f in ${basedir}/../*_freerdp_*.patch
         do
             patch -N -p1 < ${f}
         done
