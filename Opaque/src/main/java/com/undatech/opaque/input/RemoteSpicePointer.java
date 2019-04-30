@@ -30,7 +30,7 @@ import android.view.KeyEvent;
 import com.undatech.opaque.RemoteCanvas;
 import com.undatech.opaque.SpiceCommunicator;
 
-public class RemoteSpicePointer implements RemotePointer {
+public class RemoteSpicePointer extends RemotePointer {
     private static final String TAG = "RemoteSpicePointer";
 
     public static final int SPICE_MOUSE_BUTTON_MOVE   = 0;
@@ -151,7 +151,7 @@ public class RemoteSpicePointer implements RemotePointer {
         
         if (shouldBeRightClick(e)) {
             pointerMask |= RemoteSpicePointer.SPICE_MOUSE_BUTTON_RIGHT;
-            spicecomm.sendPointerEvent(getX(), getY(), combinedMetastate, pointerMask);
+            spicecomm.writePointerEvent(getX(), getY(), combinedMetastate, pointerMask);
             used = true;
         }
         return used;
@@ -238,7 +238,7 @@ public class RemoteSpicePointer implements RemotePointer {
         if (!isMoving) {
             // If this is a new mouse down event, release previous button pressed to avoid confusing the remote OS.
             if (prevPointerMask != 0 && prevPointerMask != pointerMask) {
-                spicecomm.sendPointerEvent(pointerX, pointerY,
+                spicecomm.writePointerEvent(pointerX, pointerY,
                                             combinedMetaState,
                                             prevPointerMask & ~POINTER_DOWN_MASK);
             }
@@ -262,6 +262,6 @@ public class RemoteSpicePointer implements RemotePointer {
         }
         canvas.reDrawRemotePointer(x, y);
         
-        spicecomm.sendPointerEvent(pointerX, pointerY, combinedMetaState, pointerMask);
+        spicecomm.writePointerEvent(pointerX, pointerY, combinedMetaState, pointerMask);
     }
 }

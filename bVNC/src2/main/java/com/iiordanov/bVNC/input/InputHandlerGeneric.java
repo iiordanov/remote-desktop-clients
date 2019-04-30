@@ -385,11 +385,12 @@ abstract class InputHandlerGeneric extends GestureDetector.SimpleOnGestureListen
 	}
     
     private void detectImmersiveSwipe (float y) {
+        //android.util.Log.d(TAG, "detectImmersiveSwipe");
         if (Constants.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT &&
             (y <= immersiveSwipeDistance || canvas.getHeight() - y <= immersiveSwipeDistance)) {
             inSwiping = true;
             immersiveSwipe = true;
-        } else {
+        } else if (!singleHandedGesture) {
             inSwiping = false;
             immersiveSwipe = false;
         }
@@ -648,7 +649,7 @@ abstract class InputHandlerGeneric extends GestureDetector.SimpleOnGestureListen
 	 */
 	@Override
 	public void onScaleEnd(ScaleGestureDetector detector) {
-		//android.util.Log.i(TAG, "onScaleEnd");
+		//android.util.Log.d(TAG, "onScaleEnd");
 		inScaling = false;
 		inSwiping = false;
 		scalingJustFinished = true;

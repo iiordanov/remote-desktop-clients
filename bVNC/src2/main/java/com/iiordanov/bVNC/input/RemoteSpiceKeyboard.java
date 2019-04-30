@@ -34,7 +34,7 @@ import android.view.MotionEvent;
 import com.iiordanov.bVNC.Constants;
 import com.iiordanov.bVNC.MetaKeyBean;
 import com.iiordanov.bVNC.RemoteCanvas;
-import com.iiordanov.bVNC.SpiceCommunicator;
+import com.undatech.opaque.SpiceCommunicator;
 
 public class RemoteSpiceKeyboard extends RemoteKeyboard {
 	private final static String TAG = "RemoteSpiceKeyboard";
@@ -151,7 +151,7 @@ public class RemoteSpiceKeyboard extends RemoteKeyboard {
 	}
 
 	public boolean keyEvent(int keyCode, KeyEvent event, int additionalMetaState) {
-        android.util.Log.i(TAG, event.toString());
+        //android.util.Log.i(TAG, event.toString());
         int action = event.getAction();
         boolean down = (action == KeyEvent.ACTION_DOWN);
         // Combine current event meta state with any meta state passed in.
@@ -192,7 +192,7 @@ public class RemoteSpiceKeyboard extends RemoteKeyboard {
 				if (s != null) {
                     int numchars = s.length();
 					for (int i = 0; i < numchars; i++) {
-						android.util.Log.i(TAG, "Trying to convert unicode to KeyEvent: " + (int)s.charAt(i));
+						//android.util.Log.i(TAG, "Trying to convert unicode to KeyEvent: " + (int)s.charAt(i));
 						if (!sendUnicode (s.charAt(i), additionalMetaState)) {
 						    writeKeyEvent(true, (int)s.charAt(i), metaState, true, true);
 						}
@@ -231,11 +231,11 @@ public class RemoteSpiceKeyboard extends RemoteKeyboard {
                 }
                 
                 if (unicode > 0) {
-                    android.util.Log.i(TAG, "Got unicode value from event: " + unicode);
+                    //android.util.Log.d(TAG, "Got unicode value from event: " + unicode);
                     writeKeyEvent(true, unicode, unicodeMetaState, down, false);
                 } else {
                     // We were unable to obtain a unicode, or the list of scancodes was empty, so we have to try converting a keyCode.
-                    android.util.Log.i(TAG, "Could not get unicode or determine scancodes for event. Keycode: " + event.getKeyCode());
+                    android.util.Log.w(TAG, "Could not get unicode or determine scancodes for event. Keycode: " + event.getKeyCode());
                     writeKeyEvent(false, event.getKeyCode(), metaState, down, false);
                 }
 			}
@@ -253,7 +253,7 @@ public class RemoteSpiceKeyboard extends RemoteKeyboard {
 	    if (isUnicode) {
 	        code |= UNICODE_MASK;
 	    }
-        android.util.Log.i(TAG, "Trying to convert keycode or masked unicode: " + code);
+        //android.util.Log.d(TAG, "Trying to convert keycode or masked unicode: " + code);
         Integer[] scanCode = null;
         try {
             scanCode = table.get(code);
@@ -261,22 +261,22 @@ public class RemoteSpiceKeyboard extends RemoteKeyboard {
             for (int i = 0; i < scanCode.length; i++) {
                 int scode = scanCode[i];
                 int meta = metaState;
-                android.util.Log.i(TAG, "Got back possibly masked scanCode: " + scode);
+                //android.util.Log.d(TAG, "Got back possibly masked scanCode: " + scode);
                 if ((scode & SCANCODE_SHIFT_MASK) != 0) {
-                    android.util.Log.i(TAG, "Found Shift mask.");
+                    android.util.Log.d(TAG, "Found Shift mask.");
                     meta |= SHIFT_MASK;
                     scode &= ~SCANCODE_SHIFT_MASK;
                 }
                 if ((scode & SCANCODE_ALTGR_MASK) != 0) {
-                    android.util.Log.i(TAG, "Found AltGr mask.");
+                    android.util.Log.d(TAG, "Found AltGr mask.");
                     meta |= RALT_MASK;
                     scode &= ~SCANCODE_ALTGR_MASK;
                 }
-                android.util.Log.i(TAG, "Will send scanCode: " + scode + " with meta: " + meta);
+                //android.util.Log.d(TAG, "Will send scanCode: " + scode + " with meta: " + meta);
                 rfb.writeKeyEvent(scode, meta, down);
                 if (sendUpEvents) {
                     rfb.writeKeyEvent(scode, meta, false);
-                    android.util.Log.i(TAG, "UNsetting lastDownMetaState");
+                    android.util.Log.d(TAG, "UNsetting lastDownMetaState");
                     lastDownMetaState = 0;
                 }
             }

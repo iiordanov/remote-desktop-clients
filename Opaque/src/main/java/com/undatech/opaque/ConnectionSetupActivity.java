@@ -20,30 +20,16 @@
 
 package com.undatech.opaque;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.security.acl.LastOwnerException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import com.undatech.opaque.R;
-
-import android.R.anim;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager.NameNotFoundException;
-import android.content.res.AssetManager;
-import android.content.res.Resources;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -51,13 +37,11 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.ToggleButton;
 
 public class ConnectionSetupActivity extends Activity {
     private static String TAG = "ConnectionSetupActivity";
@@ -97,7 +81,7 @@ public class ConnectionSetupActivity extends Activity {
                 
                 Intent intent = new Intent(ConnectionSetupActivity.this, AdvancedSettingsActivity.class);
                 intent.putExtra("com.undatech.opaque.ConnectionSettings", currentConnection);
-                startActivityForResult(intent, Constants.ADVANCED_SETTINGS);
+                startActivityForResult(intent, RemoteClientLibConstants.ADVANCED_SETTINGS);
             }
         });
         
@@ -142,8 +126,10 @@ public class ConnectionSetupActivity extends Activity {
                 @Override
                 public void onItemSelected(AdapterView<?> parent, View view,
                         int position, long id) {
-                    android.util.Log.e(TAG, new Integer(position).toString() + ((TextView)view).getText().toString());
-                    // TODO Auto-generated method stub
+                    if (view != null) {
+                        android.util.Log.e(TAG, "Selected connection type: " +
+                                Integer.toString(position) + ((TextView)view).getText());
+                    }
                 }
 
                 @Override
@@ -153,7 +139,7 @@ public class ConnectionSetupActivity extends Activity {
         currentConnection = new ConnectionSettings (currentSelectedConnection);
         if (newConnection) {
             // Load advanced settings defaults from the saved default settings
-            currentConnection.loadAdvancedSettings(this, Constants.DEFAULT_SETTINGS_FILE);
+            currentConnection.loadAdvancedSettings(this, RemoteClientLibConstants.DEFAULT_SETTINGS_FILE);
             // Save the empty connection preferences to override any values of a previously
             // deleted connection.
             saveSelectedPreferences(false);
@@ -171,10 +157,15 @@ public class ConnectionSetupActivity extends Activity {
     private String nextLargestNumber(String[] numbers) {
         int maxValue = 0;
         if (numbers != null) {
-            for (int i = 0; i < numbers.length; i++) {
-                int currValue = Integer.parseInt(numbers[i]);
-                if (currValue >= maxValue) {
-                    maxValue = currValue + 1;
+            for (String num : numbers) {
+                int currValue = 0;
+                try {
+                    currValue = Integer.parseInt(num);
+                    if (currValue >= maxValue) {
+                        maxValue = currValue + 1;
+                    }
+                } catch (NumberFormatException e) {
+                    e.printStackTrace();
                 }
             }
         }
@@ -190,7 +181,7 @@ public class ConnectionSetupActivity extends Activity {
     private void loadConnections() {
         SharedPreferences sp = appContext.getSharedPreferences("generalSettings", Context.MODE_PRIVATE);
         connectionsList = sp.getString("connections", null);
-        if (connectionsList != null && !connectionsList.equals("")) {
+        if (connectionsList != null && !connectionsList.trim().equals("")) {
             connectionsArray = connectionsList.split(" ");
         }
     }
@@ -231,12 +222,12 @@ public class ConnectionSetupActivity extends Activity {
             
             String newListOfConnections = new String();
             if (connectionsArray != null) {
-                for (int i = 0; i < connectionsArray.length; i++) {
-                    if (!connectionsArray[i].equals(currentSelectedConnection)) {
-                        newListOfConnections += " " + connectionsArray[i];
+                for (String connection : connectionsArray) {
+                    if (!connection.equals(currentSelectedConnection)) {
+                        newListOfConnections += " " + connection;
                     }
                 }
-                
+
                 android.util.Log.d(TAG, "Deleted connection, current list: " + newListOfConnections);
                 SharedPreferences sp = appContext.getSharedPreferences("generalSettings", Context.MODE_PRIVATE);
                 Editor editor = sp.edit();
@@ -262,7 +253,7 @@ public class ConnectionSetupActivity extends Activity {
 
         super.onActivityResult(requestCode, resultCode, data);
         switch(requestCode) {
-        case (Constants.ADVANCED_SETTINGS):
+        case (RemoteClientLibConstants.ADVANCED_SETTINGS):
             if (resultCode == Activity.RESULT_OK) {
                 Bundle b = data.getExtras();
                 currentConnection = (ConnectionSettings)b.get("com.undatech.opaque.ConnectionSettings");
@@ -332,7 +323,7 @@ public class ConnectionSetupActivity extends Activity {
     
     /**
      * Automatically linked with android:onClick to the add new connection action bar item.
-     * @param view
+     * @param menuItem
      */
     public void deleteConnection (MenuItem menuItem) {
         deleteConnection();
@@ -360,10 +351,8 @@ public class ConnectionSetupActivity extends Activity {
     @Override
     public boolean onOptionsItemSelected(MenuItem menuItem) {
         int itemID = menuItem.getItemId();
-        switch (itemID) {
-        case R.id.actionDeleteConnection:
+        if (itemID == R.id.actionDeleteConnection) {
             deleteConnection (menuItem);
-            break;
         }
         return true;
     }

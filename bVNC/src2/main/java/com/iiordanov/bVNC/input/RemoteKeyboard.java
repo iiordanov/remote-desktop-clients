@@ -6,8 +6,8 @@ import android.os.SystemClock;
 import android.view.KeyCharacterMap;
 import android.view.KeyEvent;
 import com.iiordanov.bVNC.MetaKeyBean;
-import com.iiordanov.bVNC.RfbConnectable;
 import com.iiordanov.bVNC.RemoteCanvas;
+import com.undatech.opaque.RfbConnectable;
 
 public abstract class RemoteKeyboard {
     public final static int SCAN_ESC = 1;

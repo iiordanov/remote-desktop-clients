@@ -25,6 +25,8 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
 
+import com.undatech.opaque.RfbConnectable;
+
 class CompactBitmapData extends AbstractBitmapData {
     private final static String TAG = "CompactBitmapData";
 
@@ -33,7 +35,6 @@ class CompactBitmapData extends AbstractBitmapData {
      * safety factor
      */
     static final int CAPACITY_MULTIPLIER = 7;
-    boolean isSpice = false;
     Bitmap.Config cfg = Bitmap.Config.RGB_565;
     
     class CompactBitmapDrawable extends AbstractBitmapDrawable {
@@ -47,6 +48,7 @@ class CompactBitmapData extends AbstractBitmapData {
          */
         @Override
         public void draw(Canvas canvas) {
+            //android.util.Log.i(TAG, "draw");
             try {
                 synchronized (mbitmap) {
                     canvas.drawBitmap(data.mbitmap, 0.0f, 0.0f, _defaultPaint);

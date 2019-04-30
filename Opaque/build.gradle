@@ -34,12 +34,8 @@ android {
         }
     }
 
-    sourceSets {
-        main.java.srcDirs += 'src/main/java'
-    }
-
     sourceSets.main {
-        jniLibs.srcDirs += ['src/main/jniLibs']
+        java.srcDirs += 'src/main/java'
     }
 
     packagingOptions {
@@ -48,6 +44,7 @@ android {
 }
 
 dependencies {
+    implementation project(':remoteClientLib')
     implementation 'com.android.support:appcompat-v7:27.1.1'
     implementation 'org.apache.httpcomponents:httpcore:4.4.9'
 }

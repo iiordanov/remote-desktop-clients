@@ -28,6 +28,8 @@ import android.graphics.RectF;
 import android.widget.ImageView;
 import android.util.Log;
 
+import com.undatech.opaque.RfbConnectable;
+
 /**
  * Abstract interface between the VncCanvas and the bitmap and pixel data buffers that actually contain
  * the data.

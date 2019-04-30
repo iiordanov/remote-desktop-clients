@@ -3,7 +3,7 @@
 SKIP_BUILD=false
 
 usage () {
-  echo "$0 bVNC|freebVNC|aSPICE|freeaSPICE|aRDP|freeaRDP|CustomVncAnyPackageName|libs /path/to/your/android/ndk /path/to/your/android/sdk"
+  echo "$0 bVNC|freebVNC|aSPICE|freeaSPICE|aRDP|freeaRDP|CustomVncAnyPackageName|libs|remoteClientLib /path/to/your/android/ndk /path/to/your/android/sdk"
   exit 1
 }
 
@@ -18,7 +18,6 @@ clean_libs () {
     fi
   done
 }
-
 
 if [ "$1" == "--skip-build" ]
 then
@@ -37,8 +36,8 @@ if [[ "$PRJ" != "bVNC" && "$PRJ" != "freebVNC" \
   && "$PRJ" != "aSPICE" && "$PRJ" != "freeaSPICE" \
   && "$PRJ" != "aRDP" && "$PRJ" != "freeaRDP" \
   && "$PRJ" =~ "^Custom.*" \
-  && "$PRJ" != "libs" || "$ANDROID_NDK" == "" \
-  || "$ANDROID_SDK" == "" ]]
+  && "$PRJ" != "libs" && "$PRJ" != "remoteClientLib" \
+  || "$ANDROID_NDK" == "" || "$ANDROID_SDK" == "" ]]
 then
   usage
 fi
@@ -67,7 +66,7 @@ then
   PRJ=$(echo ${PRJ} | sed 's/^Custom//')
 else
   ln -sf AndroidManifest.xml.$PRJ AndroidManifest.xml
-  ./copy_prebuilt_files.sh $PRJ
+  ../copy_prebuilt_files.sh $PRJ
 fi
 
 if [ -n "${CUSTOM_CLIENT}" ]
@@ -92,13 +91,15 @@ fi
 
 if [ "$SKIP_BUILD" == "false" ]
 then
-  pushd jni/libs
+  pushd ../remoteClientLib/jni/libs
   ./build-deps.sh -j 4 -n $ANDROID_NDK build $PRJ
   popd
 
-  if echo $PRJ | grep -q "SPICE\|Opaque\|libs"
+  if echo $PRJ | grep -q "SPICE\|Opaque\|libs\|remoteClientLib"
   then
+    pushd ../remoteClientLib
     ${ANDROID_NDK}/ndk-build
+    popd
   fi
 fi
 
@@ -113,11 +114,13 @@ freerdp_libs_link=../freeRDPCore/src/main/libs
 if echo $PRJ | grep -iq "VNC"
 then
   clean_libs "sqlcipher" libs/
+  clean_libs "sqlcipher" ../remoteClientLib/libs/
   [ -d ${freerdp_libs_dir} ] && rm -rf ${freerdp_libs_dir}.DISABLED && mv ${freerdp_libs_dir} ${freerdp_libs_dir}.DISABLED
   rm -rf ${freerdp_libs_link}
 elif echo $PRJ | grep -iq "RDP"
 then
   clean_libs "sqlcipher" libs/
+  clean_libs "sqlcipher" ../remoteClientLib/libs/
   [ -d ${freerdp_libs_dir}.DISABLED ] && rm -rf ${freerdp_libs_dir} && mv ${freerdp_libs_dir}.DISABLED ${freerdp_libs_dir}
   rm -rf ${freerdp_libs_link}
   ln -s jniLibs ${freerdp_libs_link}
