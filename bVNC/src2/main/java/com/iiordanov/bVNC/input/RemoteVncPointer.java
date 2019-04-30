@@ -24,8 +24,8 @@ import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.ViewConfiguration;
 
-import com.iiordanov.bVNC.RfbConnectable;
 import com.iiordanov.bVNC.RemoteCanvas;
+import com.undatech.opaque.RfbConnectable;
 
 public class RemoteVncPointer extends RemotePointer {
     private static final String TAG = "RemotePointer";

@@ -30,7 +30,7 @@ import android.content.res.Resources;
 import android.os.Handler;
 import android.view.KeyEvent;
 
-import com.undatech.opaque.Constants;
+import com.undatech.opaque.RemoteClientLibConstants;
 import com.undatech.opaque.RemoteCanvas;
 import com.undatech.opaque.SpiceCommunicator;
 
@@ -43,9 +43,11 @@ public class RemoteSpiceKeyboard extends RemoteKeyboard {
     final static int SCANCODE_DIAERESIS_MASK = 0x80000;
     final static int UNICODE_MASK = 0x100000;
     final static int UNICODE_META_MASK = KeyEvent.META_CTRL_MASK|KeyEvent.META_META_MASK|KeyEvent.META_CAPS_LOCK_ON;
-    
+    protected RemoteCanvas canvas;
+
     public RemoteSpiceKeyboard (Resources resources, SpiceCommunicator r, RemoteCanvas v, Handler h, String layoutMapFile) throws IOException {
-        super(r, v, h);
+        super(r, h);
+        canvas = v;
         context = v.getContext();
         this.table = loadKeyMap(resources, "layouts/" + layoutMapFile);
     }
@@ -56,7 +58,7 @@ public class RemoteSpiceKeyboard extends RemoteKeyboard {
             is = r.getAssets().open(file);
         } catch (IOException e) {
             // If layout map file was not found, load the default one.
-            is = r.getAssets().open("layouts/" + Constants.DEFAULT_LAYOUT_MAP);
+            is = r.getAssets().open("layouts/" + RemoteClientLibConstants.DEFAULT_LAYOUT_MAP);
         }
         BufferedReader in = new BufferedReader(new InputStreamReader(is));
         String line = in.readLine();
@@ -119,7 +121,7 @@ public class RemoteSpiceKeyboard extends RemoteKeyboard {
             return false;
         }
         
-        android.util.Log.e(TAG, event.toString());
+        //android.util.Log.d(TAG, event.toString());
         int action = event.getAction();
         boolean down = (action == KeyEvent.ACTION_DOWN);
         // Combine current event meta state with any meta state passed in.
@@ -129,7 +131,7 @@ public class RemoteSpiceKeyboard extends RemoteKeyboard {
            my bluetooth keyboard and what the VM expects do not match. For example, d-pad does not send arrows.
         // If the event has a scan code, just send that along!
         if (event.getScanCode() != 0) {
-            android.util.Log.e(TAG, "Event has a scancode, sending that: " + event.getScanCode());
+            android.util.Log.d(TAG, "Event has a scancode, sending that: " + event.getScanCode());
             spicecomm.writeKeyEvent(event.getScanCode(), 0, down);
             return true;
         }*/
@@ -160,7 +162,7 @@ public class RemoteSpiceKeyboard extends RemoteKeyboard {
                 if (s != null) {
                     int numchars = s.length();
                     for (int i = 0; i < numchars; i++) {
-                        android.util.Log.e(TAG, "Trying to convert unicode to KeyEvent: " + (int)s.charAt(i));
+                        //android.util.Log.d(TAG, "Trying to convert unicode to KeyEvent: " + (int)s.charAt(i));
                         if (!sendUnicodeChar (s.charAt(i))) {
                             writeKeyEvent(true, (int)s.charAt(i), metaState, true, true);
                         }
@@ -199,11 +201,11 @@ public class RemoteSpiceKeyboard extends RemoteKeyboard {
                 }
                 
                 if (unicode > 0) {
-                    android.util.Log.e(TAG, "Got unicode value from event: " + unicode);
+                    //android.util.Log.d(TAG, "Got unicode value from event: " + unicode);
                     writeKeyEvent(true, unicode, unicodeMetaState, down, false);
                 } else {
                     // We were unable to obtain a unicode, or the list of scancodes was empty, so we have to try converting a keyCode.
-                    android.util.Log.e(TAG, "Could not get unicode or determine scancodes for event. Keycode: " + event.getKeyCode());
+                    android.util.Log.w(TAG, "Could not get unicode or determine scancodes for event. Keycode: " + event.getKeyCode());
                     writeKeyEvent(false, event.getKeyCode(), metaState, down, false);
                 }
             }
@@ -221,7 +223,7 @@ public class RemoteSpiceKeyboard extends RemoteKeyboard {
         if (isUnicode) {
             code |= UNICODE_MASK;
         }
-        android.util.Log.e(TAG, "Trying to convert keycode or masked unicode: " + code);
+        //android.util.Log.d(TAG, "Trying to convert keycode or masked unicode: " + code);
         Integer[] scanCode = null;
         try {
             scanCode = table.get(code);
@@ -229,22 +231,22 @@ public class RemoteSpiceKeyboard extends RemoteKeyboard {
             for (int i = 0; i < scanCode.length; i++) {
                 int scode = scanCode[i];
                 int meta = metaState;
-                android.util.Log.e(TAG, "Got back possibly masked scanCode: " + scode);
+                //android.util.Log.d(TAG, "Got back possibly masked scanCode: " + scode);
                 if ((scode & SCANCODE_SHIFT_MASK) != 0) {
-                    android.util.Log.e(TAG, "Found Shift mask.");
+                    android.util.Log.d(TAG, "Found Shift mask.");
                     meta |= SHIFT_ON_MASK;
                     scode &= ~SCANCODE_SHIFT_MASK;
                 }
                 if ((scode & SCANCODE_ALTGR_MASK) != 0) {
-                    android.util.Log.e(TAG, "Found AltGr mask.");
+                    android.util.Log.d(TAG, "Found AltGr mask.");
                     meta |= ALTGR_ON_MASK;
                     scode &= ~SCANCODE_ALTGR_MASK;
                 }
-                android.util.Log.e(TAG, "Will send scanCode: " + scode);
+                //android.util.Log.d(TAG, "Will send scanCode: " + scode);
                 spicecomm.writeKeyEvent(scode, meta, down);
                 if (sendUpEvents) {
                     spicecomm.writeKeyEvent(scode, meta, false);
-                    android.util.Log.i(TAG, "UNsetting lastDownMetaState");
+                    android.util.Log.d(TAG, "UNsetting lastDownMetaState");
                     lastDownMetaState = 0;
                 }
             }

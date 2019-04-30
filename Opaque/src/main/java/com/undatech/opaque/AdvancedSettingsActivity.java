@@ -19,25 +19,19 @@
 
 package com.undatech.opaque;
 
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.List;
 
-import com.undatech.opaque.R;
 import com.undatech.opaque.dialogs.ManageCustomCaFragment;
 
 import android.app.Activity;
-import android.app.DialogFragment;
 import android.content.Intent;
 import android.content.res.AssetManager;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -221,7 +215,7 @@ public class AdvancedSettingsActivity extends FragmentActivity implements Manage
         
         int selection = spinnerArray.indexOf(currentConnection.getLayoutMap());
         if (selection < 0) {
-            selection = spinnerArray.indexOf(Constants.DEFAULT_LAYOUT_MAP);
+            selection = spinnerArray.indexOf(RemoteClientLibConstants.DEFAULT_LAYOUT_MAP);
         }
         layoutMapSpinner.setSelection(selection);
     }

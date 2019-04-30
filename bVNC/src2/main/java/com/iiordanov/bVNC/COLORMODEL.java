@@ -20,6 +20,8 @@
 
 package com.iiordanov.bVNC;
 
+import com.undatech.opaque.RfbConnectable;
+
 import java.io.IOException;
 
 public enum COLORMODEL {

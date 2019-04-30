@@ -39,6 +39,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 
+import com.undatech.opaque.input.InputHandlerDirectSwipePan;
+
 public class ConnectionSettings implements Serializable {
     private static final String TAG = "ConnectionSettings";
     private static final long serialVersionUID = 1L;
@@ -50,7 +52,7 @@ public class ConnectionSettings implements Serializable {
     private String user = "";
     private String password = "";
     private String otpCode = "";
-    private String inputMethod = Constants.DEFAULT_INPUT_METHOD_ID;
+    private String inputMethod = InputHandlerDirectSwipePan.ID;
     private boolean rotationEnabled = true;
     private boolean requestingNewDisplayResolution = true;
     private boolean audioPlaybackEnabled = false;
@@ -62,7 +64,7 @@ public class ConnectionSettings implements Serializable {
     private String ovirtCaData = "";
     private String layoutMap = "";
         
-    private int extraKeysToggleType = Constants.EXTRA_KEYS_ON;
+    private int extraKeysToggleType = RemoteClientLibConstants.EXTRA_KEYS_ON;
     
     public ConnectionSettings(String filename) {
         super();
@@ -251,8 +253,8 @@ public class ConnectionSettings implements Serializable {
     
     public void loadAdvancedSettings (Context context, String file) {
         SharedPreferences sp = context.getSharedPreferences(file, Context.MODE_PRIVATE);
-        extraKeysToggleType = sp.getInt("extraKeysToggleType", Constants.EXTRA_KEYS_ON);
-        inputMethod = sp.getString("inputMethod", Constants.DEFAULT_INPUT_METHOD_ID).trim();
+        extraKeysToggleType = sp.getInt("extraKeysToggleType", RemoteClientLibConstants.EXTRA_KEYS_ON);
+        inputMethod = sp.getString("inputMethod", InputHandlerDirectSwipePan.ID).trim();
         audioPlaybackEnabled = sp.getBoolean("audioEnabled", false);
         rotationEnabled = sp.getBoolean("rotationEnabled", true);
         requestingNewDisplayResolution = sp.getBoolean("requestingNewDisplayResolution", true);
@@ -260,7 +262,7 @@ public class ConnectionSettings implements Serializable {
         sslStrict = sp.getBoolean("sslStrict", true);
         usbEnabled = sp.getBoolean("usbEnabled", true);
         ovirtCaData = sp.getString("ovirtCaData", "").trim();
-        layoutMap = sp.getString("layoutMap", Constants.DEFAULT_LAYOUT_MAP).trim();
+        layoutMap = sp.getString("layoutMap", RemoteClientLibConstants.DEFAULT_LAYOUT_MAP).trim();
         // Make sure the CAs get saved to files if necessary.
         ovirtCaFile = saveCaToFile (context, ovirtCaData);
     }
@@ -306,7 +308,7 @@ public class ConnectionSettings implements Serializable {
      */
     public static String exportPrefsToFile(Context context, String connections, String externalFileName) throws JSONException, IOException {
         android.util.Log.d(TAG, "Exporting settings to file: " + externalFileName);
-        connections += " " + Constants.DEFAULT_SETTINGS_FILE;
+        connections += " " + RemoteClientLibConstants.DEFAULT_SETTINGS_FILE;
         String[] preferenceFiles = connections.split(" ");
         JSONObject allPrefs = new JSONObject();
         
@@ -373,7 +375,7 @@ public class ConnectionSettings implements Serializable {
                     editor.putLong(key, (long)((Long)value));
                 }
             }
-            if (!file.equals(Constants.DEFAULT_SETTINGS_FILE)) {
+            if (!file.equals(RemoteClientLibConstants.DEFAULT_SETTINGS_FILE)) {
                 connections += " " + file;
             }
             editor.apply();

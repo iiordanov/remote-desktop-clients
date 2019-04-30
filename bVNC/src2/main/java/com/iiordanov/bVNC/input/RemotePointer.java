@@ -1,7 +1,7 @@
 package com.iiordanov.bVNC.input;
 
 import com.iiordanov.bVNC.RemoteCanvas;
-import com.iiordanov.bVNC.RfbConnectable;
+import com.undatech.opaque.RfbConnectable;
 
 import android.R.integer;
 import android.content.Context;

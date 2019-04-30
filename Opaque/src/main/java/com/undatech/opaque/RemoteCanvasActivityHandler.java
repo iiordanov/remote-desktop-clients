@@ -1,30 +1,20 @@
 package com.undatech.opaque;
 
 import java.security.NoSuchAlgorithmException;
-import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
-import java.text.ChoiceFormat;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
 
-import android.R.id;
-import android.R.integer;
 import android.app.Activity;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.os.SystemClock;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.util.Base64;
-import android.util.Log;
 
-import com.undatech.opaque.R;
 import com.undatech.opaque.dialogs.ChoiceFragment;
 import com.undatech.opaque.dialogs.GetTextFragment;
 import com.undatech.opaque.dialogs.MessageFragment;
@@ -70,63 +60,63 @@ public class RemoteCanvasActivityHandler extends Handler {
     @Override
     public void handleMessage(Message msg) {
         switch (msg.what) {
-        case Constants.VV_OVER_HTTP_FAILURE:
+        case RemoteClientLibConstants.VV_OVER_HTTP_FAILURE:
             MessageDialogs.displayMessageAndFinish(context, R.string.error_failed_to_download_vv_http,
                                                    R.string.error_dialog_title);
             break;
-        case Constants.VV_OVER_HTTPS_FAILURE:
+        case RemoteClientLibConstants.VV_OVER_HTTPS_FAILURE:
             MessageDialogs.displayMessageAndFinish(context, R.string.error_failed_to_download_vv_https,
                                                    R.string.error_dialog_title);
-        case Constants.VV_DOWNLOAD_TIMEOUT:
+        case RemoteClientLibConstants.VV_DOWNLOAD_TIMEOUT:
             MessageDialogs.displayMessageAndFinish(context, R.string.error_vv_download_timeout,
                                                    R.string.error_dialog_title);
-        case Constants.PVE_FAILED_TO_AUTHENTICATE:
+        case RemoteClientLibConstants.PVE_FAILED_TO_AUTHENTICATE:
             MessageDialogs.displayMessageAndFinish(context, R.string.error_pve_failed_to_authenticate,
                                                    R.string.error_dialog_title);
             break;
-        case Constants.PVE_FAILED_TO_PARSE_JSON:
+        case RemoteClientLibConstants.PVE_FAILED_TO_PARSE_JSON:
             MessageDialogs.displayMessageAndFinish(context, R.string.error_pve_failed_to_parse_json,
                                                    R.string.error_dialog_title);
             break;
-        case Constants.PVE_VMID_NOT_NUMERIC:
+        case RemoteClientLibConstants.PVE_VMID_NOT_NUMERIC:
             MessageDialogs.displayMessageAndFinish(context, R.string.error_pve_vmid_not_numeric,
                                                    R.string.error_dialog_title);
             break;
-        case Constants.PVE_API_UNEXPECTED_CODE:
+        case RemoteClientLibConstants.PVE_API_UNEXPECTED_CODE:
             MessageDialogs.displayMessageAndFinish(context, R.string.error_pve_api_unexpected_code,
                                                    R.string.error_dialog_title, msg.getData().getString("error"));
             break;
-        case Constants.PVE_API_IO_ERROR:
+        case RemoteClientLibConstants.PVE_API_IO_ERROR:
             MessageDialogs.displayMessageAndFinish(context, R.string.error_pve_api_io_error,
                                                    R.string.error_dialog_title, msg.getData().getString("error"));
             break;
-        case Constants.PVE_TIMEOUT_COMMUNICATING:
+        case RemoteClientLibConstants.PVE_TIMEOUT_COMMUNICATING:
             MessageDialogs.displayMessageAndFinish(context, R.string.error_pve_timeout_communicating,
                                                    R.string.error_dialog_title);
             break;
-        case Constants.PVE_NULL_DATA:
+        case RemoteClientLibConstants.PVE_NULL_DATA:
             MessageDialogs.displayMessageAndFinish(context, R.string.error_pve_null_data,
                                                    R.string.error_dialog_title);
             break;
-        case Constants.VV_FILE_ERROR:
+        case RemoteClientLibConstants.VV_FILE_ERROR:
             c.disconnectAndShowMessage(R.string.vv_file_error, R.string.error_dialog_title);
             break;
-        case Constants.NO_VM_FOUND_FOR_USER:
+        case RemoteClientLibConstants.NO_VM_FOUND_FOR_USER:
             c.disconnectAndShowMessage(R.string.error_no_vm_found_for_user, R.string.error_dialog_title);
             break;
-        case Constants.OVIRT_SSL_HANDSHAKE_FAILURE:
+        case RemoteClientLibConstants.OVIRT_SSL_HANDSHAKE_FAILURE:
             c.disconnectAndShowMessage(R.string.error_ovirt_ssl_handshake_failure, R.string.error_dialog_title);
             break;
-        case Constants.VM_LOOKUP_FAILED:
+        case RemoteClientLibConstants.VM_LOOKUP_FAILED:
             c.disconnectAndShowMessage(R.string.error_vm_lookup_failed, R.string.error_dialog_title);
             break;
-        case Constants.OVIRT_AUTH_FAILURE:
+        case RemoteClientLibConstants.OVIRT_AUTH_FAILURE:
             c.disconnectAndShowMessage(R.string.error_ovirt_auth_failure, R.string.error_dialog_title);
             break;
-        case Constants.VM_LAUNCHED:
+        case RemoteClientLibConstants.VM_LAUNCHED:
             c.disconnectAndShowMessage(R.string.info_vm_launched_on_stand_by, R.string.info_dialog_title);
             break;
-        case Constants.LAUNCH_VNC_VIEWER:
+        case RemoteClientLibConstants.LAUNCH_VNC_VIEWER:
             android.util.Log.d(TAG, "Trying to launch VNC viewer");
 
             if (!GooglePlayUtils.isPackageInstalled(context, "com.iiordanov.bVNC") &&
@@ -143,15 +133,15 @@ public class RemoteCanvasActivityHandler extends Handler {
             context.startActivity(intent);
             ((Activity)context).finish();
             break;
-        case Constants.GET_PASSWORD:
+        case RemoteClientLibConstants.GET_PASSWORD:
             c.progressDialog.dismiss();
-            showGetTextFragment(Constants.GET_PASSWORD_ID, context.getString(R.string.enter_password), true);
+            showGetTextFragment(RemoteClientLibConstants.GET_PASSWORD_ID, context.getString(R.string.enter_password), true);
             break;
-        case Constants.GET_OTP_CODE:
+        case RemoteClientLibConstants.GET_OTP_CODE:
             c.progressDialog.dismiss();
-            showGetTextFragment(Constants.GET_OTP_CODE_ID, context.getString(R.string.enter_otp_code), false);
+            showGetTextFragment(RemoteClientLibConstants.GET_OTP_CODE_ID, context.getString(R.string.enter_otp_code), false);
             break;
-        case Constants.DIALOG_DISPLAY_VMS:
+        case RemoteClientLibConstants.DIALOG_DISPLAY_VMS:
             c.progressDialog.dismiss();
             ArrayList<String> vms = msg.getData().getStringArrayList("vms");
 
@@ -164,14 +154,14 @@ public class RemoteCanvasActivityHandler extends Handler {
                 displayVms.show(fm, "selectVm");
             }
             break;
-        case Constants.SPICE_CONNECT_SUCCESS:
+        case RemoteClientLibConstants.SPICE_CONNECT_SUCCESS:
             c.progressDialog.dismiss();
             synchronized(c.spicecomm) {
                 c.spiceUpdateReceived = true;
                 c.spicecomm.notifyAll();
             }
             break;
-        case Constants.SPICE_CONNECT_FAILURE:
+        case RemoteClientLibConstants.SPICE_CONNECT_FAILURE:
             String e = msg.getData().getString("message");
             c.progressDialog.dismiss();
             // Only if we were intending to stay connected, and the connection failed, show an error message.
@@ -183,11 +173,11 @@ public class RemoteCanvasActivityHandler extends Handler {
                 }
             }
             break;
-        case Constants.OVIRT_TIMEOUT:
+        case RemoteClientLibConstants.OVIRT_TIMEOUT:
             c.progressDialog.dismiss();
             c.disconnectAndShowMessage(R.string.error_ovirt_timeout, R.string.error_dialog_title);
             break;
-        case Constants.DIALOG_X509_CERT:
+        case RemoteClientLibConstants.DIALOG_X509_CERT:
             X509Certificate cert = (X509Certificate)msg.obj;
             validateX509Cert(cert);
             break;

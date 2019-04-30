@@ -15,9 +15,14 @@ fi
 PROJECT=libs
 ./bVNC/prepare_project.sh $PROJECT $ANDROID_NDK $ANDROID_SDK
 ./Opaque/prepare_project.sh $PROJECT $ANDROID_NDK $ANDROID_SDK
+
 pushd ..
-tar czf remote-desktop-clients-libs-${DEPVER}.tar.gz Opaque/libs bVNC/libs Opaque/jni/libs/deps/FreeRDP/client/Android/Studio/freeRDPCore/
+rsync -a remoteClientLib/java/ remoteClientLib/prebuilt/
+
+tar czf remote-desktop-clients-libs-${DEPVER}.tar.gz remoteClientLib/libs bVNC/libs remoteClientLib/jni/libs/deps/FreeRDP/client/Android/Studio/freeRDPCore/
 
 echo "Done creating new dependencies archive."
+echo "Differences in repo at present:"
+git diff
 popd
 popd

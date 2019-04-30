@@ -1,1 +1,0 @@
-../../Opaque/jni/Android.mk

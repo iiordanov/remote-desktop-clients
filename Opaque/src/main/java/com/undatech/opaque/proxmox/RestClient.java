@@ -5,7 +5,6 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
 import java.net.Socket;
 import java.net.URLEncoder;
 import java.net.UnknownHostException;
@@ -28,15 +27,12 @@ import javax.net.ssl.X509TrustManager;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
-import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.conn.HttpHostConnectException;
 import org.apache.http.conn.scheme.Scheme;
-import org.apache.http.conn.ssl.AllowAllHostnameVerifier;
 import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
@@ -45,7 +41,7 @@ import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HTTP;
 
 import com.undatech.opaque.ConnectionSettings;
-import com.undatech.opaque.Constants;
+import com.undatech.opaque.RemoteClientLibConstants;
 
 import android.os.Handler;
 import android.os.Message;
@@ -98,7 +94,7 @@ public class RestClient {
                             // Send a message containing the certificate to our handler.
                             Message m = new Message();
                             m.setTarget(h);
-                            m.what = Constants.DIALOG_X509_CERT;
+                            m.what = RemoteClientLibConstants.DIALOG_X509_CERT;
                             m.obj = chain[0];
                             h.sendMessage(m);
                             // Block indefinitely until the x509 cert is accepted.

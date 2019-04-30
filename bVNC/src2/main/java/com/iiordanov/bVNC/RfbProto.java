@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2012 Iordan Iordanov
+ * Copyright (C) 2012-2019 Iordan Iordanov
  * Copyright (C) 2001-2004 HorizonLive.com, Inc.  All Rights Reserved.
  * Copyright (C) 2001-2006 Constantin Kaplinsky.  All Rights Reserved.
  * Copyright (C) 2000 Tridia Corporation.  All Rights Reserved.
@@ -30,11 +30,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 
-import javax.net.ssl.SSLSocket;
-
 import android.util.Log;
 
-import com.freerdp.freerdpcore.services.LibFreeRDP;
 import com.iiordanov.bVNC.input.RemoteKeyboard;
 import com.iiordanov.bVNC.input.RemoteVncKeyboard;
 import com.iiordanov.bVNC.*;
@@ -43,6 +40,7 @@ import com.iiordanov.aRDP.*;
 import com.iiordanov.freeaRDP.*;
 import com.iiordanov.aSPICE.*;
 import com.iiordanov.freeaSPICE.*;
+import com.undatech.opaque.RfbConnectable;
 
 /**
  * Access the RFB protocol through a socket.
@@ -300,6 +298,11 @@ class RfbProto implements RfbConnectable {
 
     private boolean isExtendedDesktopSizeSupported = false;
 
+    // This variable indicates whether or not the user has accepted an untrusted
+    // security certificate. Used to control progress while the dialog asking the user
+    // to confirm the authenticity of a certificate is displayed.
+    private boolean certificateAccepted = false;
+
     //
     // Constructor. Make TCP connection to RFB server.
     //
@@ -313,10 +316,10 @@ class RfbProto implements RfbConnectable {
             Log.i(TAG, "Creating secure tunnel.");
             SecureTunnel tunnel = new SecureTunnel(host, port, hashAlgorithm, hash, cert, canvas.handler);
             tunnel.setup();
-            synchronized (canvas) {
-                while (!canvas.isCertificateAccepted()) {
+            synchronized (this) {
+                while (!certificateAccepted) {
                     try {
-                        canvas.wait();
+                        this.wait();
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
@@ -368,6 +371,16 @@ class RfbProto implements RfbConnectable {
         inNormalProtocol = false;
         maintainConnection = false;
         closeSocket();
+    }
+
+    @Override
+    public boolean isCertificateAccepted() {
+        return certificateAccepted;
+    }
+
+    @Override
+    public void setCertificateAccepted(boolean certificateAccepted) {
+        this.certificateAccepted = certificateAccepted;
     }
 
     synchronized boolean closed() {
@@ -738,7 +751,7 @@ class RfbProto implements RfbConnectable {
     }
 
     void authenticateX509(String certstr) throws Exception {
-        X509Tunnel tunnel = new X509Tunnel(sock, certstr, canvas);
+        X509Tunnel tunnel = new X509Tunnel(sock, certstr, canvas.handler, this);
         tunnel.setup(this);
     }
 

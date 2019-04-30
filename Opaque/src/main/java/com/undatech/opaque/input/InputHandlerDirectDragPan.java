@@ -24,10 +24,9 @@ import android.view.MotionEvent;
 import android.os.Vibrator;
 
 import com.undatech.opaque.R;
-import com.undatech.opaque.Constants;
+import com.undatech.opaque.RemoteClientLibConstants;
 import com.undatech.opaque.RemoteCanvas;
 import com.undatech.opaque.RemoteCanvasActivity;
-import com.undatech.opaque.input.RemotePointer;
 
 public class InputHandlerDirectDragPan extends InputHandlerGeneric {
     static final String TAG = "InputHandlerDirectDragPan";
@@ -69,7 +68,7 @@ public class InputHandlerDirectDragPan extends InputHandlerGeneric {
         if (secondPointerWasDown || thirdPointerWasDown)
             return;
         
-        myVibrator.vibrate(Constants.SHORT_VIBRATION);
+        myVibrator.vibrate(RemoteClientLibConstants.SHORT_VIBRATION);
 
         canvas.displayShortToastMessage("Panning");
         endDragModesAndScrolling();
