@@ -688,7 +688,7 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
         capacity = BCFactory.getInstance().getBCActivityManager().getMemoryClass(Utils.getActivityManager(getContext()));
 
         if (connection.getForceFull() == BitmapImplHint.AUTO) {
-            if (!isVnc || fbsize * CompactBitmapData.CAPACITY_MULTIPLIER <= capacity * 1024 * 1024) {
+            if (fbsize * CompactBitmapData.CAPACITY_MULTIPLIER <= capacity * 1024 * 1024) {
                 useFull = true;
                 compact = true;
             } else if (fbsize * FullBufferBitmapData.CAPACITY_MULTIPLIER <= capacity * 1024 * 1024) {
@@ -696,10 +696,14 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
             } else {
                 useFull = false;
             }
-        } else
+        } else {
             useFull = (connection.getForceFull() == BitmapImplHint.FULL);
+        }
 
-        if (!useFull) {
+        if (!isVnc) {
+            myDrawable = new UltraCompactBitmapData(rfbconn, this, isSpice);
+            android.util.Log.i(TAG, "Using UltraCompactBufferBitmapData.");
+        } else if (!useFull) {
             myDrawable = new LargeBitmapData(rfbconn, this, dx, dy, capacity);
             android.util.Log.i(TAG, "Using LargeBitmapData.");
         } else {
@@ -714,15 +718,11 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
                     android.util.Log.i(TAG, "Using CompactBufferBitmapData.");
                 }
             } catch (Throwable e) { // If despite our efforts we fail to allocate memory, use LBBM.
-                if (isVnc) {
-                    disposeDrawable();
+                disposeDrawable();
 
-                    useFull = false;
-                    myDrawable = new LargeBitmapData(rfbconn, this, dx, dy, capacity);
-                    android.util.Log.i(TAG, "Using LargeBitmapData.");
-                } else {
-                    throw e;
-                }
+                useFull = false;
+                myDrawable = new LargeBitmapData(rfbconn, this, dx, dy, capacity);
+                android.util.Log.i(TAG, "Using LargeBitmapData.");
             }
         }
 
