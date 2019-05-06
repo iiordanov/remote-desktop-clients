@@ -71,9 +71,8 @@ import com.freerdp.freerdpcore.application.SessionState;
 import com.freerdp.freerdpcore.domain.BookmarkBase;
 import com.freerdp.freerdpcore.domain.ManualBookmark;
 import com.freerdp.freerdpcore.services.LibFreeRDP;
-import com.freerdp.freerdpcore.services.LibFreeRDP.UIEventListener;
-import com.freerdp.freerdpcore.services.LibFreeRDP.EventListener;
 import com.iiordanov.android.bc.BCFactory;
+import com.iiordanov.bVNC.input.InputHandlerTouchpad;
 import com.iiordanov.bVNC.input.RemoteKeyboard;
 import com.iiordanov.bVNC.input.RemotePointer;
 import com.iiordanov.bVNC.input.RemoteRdpKeyboard;
@@ -89,12 +88,7 @@ import com.undatech.opaque.RdpCommunicator;
 import com.undatech.opaque.RfbConnectable;
 import com.undatech.opaque.Viewable;
 import com.undatech.opaque.SpiceCommunicator;
-import com.iiordanov.bVNC.*;
-import com.iiordanov.freebVNC.*;
-import com.iiordanov.aRDP.*;
-import com.iiordanov.freeaRDP.*;
 import com.iiordanov.aSPICE.*;
-import com.iiordanov.freeaSPICE.*;
 
 public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView implements Viewable {
     private final static String TAG = "RemoteCanvas";
@@ -228,7 +222,7 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
      * @param bean     Connection settings
      * @param setModes Callback to run on UI thread after connection is set up
      */
-    void initializeCanvas(ConnectionBean bean, Database db, final Runnable setModes) {
+    RemotePointer initializeCanvas(ConnectionBean bean, Database db, final Runnable setModes) {
         this.setModes = setModes;
         connection = bean;
         database = db;
@@ -251,6 +245,18 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
 
         // Make this dialog cancellable only upon hitting the Back button and not touching outside.
         pd.setCanceledOnTouchOutside(false);
+
+        try {
+            if (isSpice) {
+                initializeSpiceConnection();
+            } else if (isRdp) {
+                initializeRdpConnection();
+            } else {
+                initializeVncConnection();
+            }
+        } catch (Throwable e) {
+            handleUncaughtException(e);
+        }
 
         Thread t = new Thread() {
             public void run() {
@@ -282,31 +288,7 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
                         startVncConnection();
                     }
                 } catch (Throwable e) {
-                    if (maintainConnection) {
-                        Log.e(TAG, e.toString());
-                        e.printStackTrace();
-                        // Ensure we dismiss the progress dialog before we finish
-                        if (pd.isShowing())
-                            pd.dismiss();
-
-                        if (e instanceof OutOfMemoryError) {
-                            disposeDrawable();
-                            showFatalMessageAndQuit(getContext().getString(R.string.error_out_of_memory));
-                        } else {
-                            String error = getContext().getString(R.string.error_connection_failed);
-                            if (e.getMessage() != null) {
-                                if (e.getMessage().indexOf("SSH") < 0 &&
-                                        (e.getMessage().indexOf("authentication") > -1 ||
-                                                e.getMessage().indexOf("Unknown security result") > -1 ||
-                                                e.getMessage().indexOf("password check failed") > -1)
-                                        ) {
-                                    error = getContext().getString(R.string.error_vnc_authentication);
-                                }
-                                error = error + "<br>" + e.getLocalizedMessage();
-                            }
-                            showFatalMessageAndQuit(error);
-                        }
-                    }
+                    handleUncaughtException(e);
                 }
             }
         };
@@ -320,6 +302,36 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
                     clipboardMonitorTimer.schedule(clipboardMonitor, 0, 500);
                 } catch (NullPointerException e) {
                 }
+            }
+        }
+
+        return pointer;
+    }
+
+    private void handleUncaughtException(Throwable e) {
+        if (maintainConnection) {
+            Log.e(TAG, e.toString());
+            e.printStackTrace();
+            // Ensure we dismiss the progress dialog before we finish
+            if (pd.isShowing())
+                pd.dismiss();
+
+            if (e instanceof OutOfMemoryError) {
+                disposeDrawable();
+                showFatalMessageAndQuit(getContext().getString(R.string.error_out_of_memory));
+            } else {
+                String error = getContext().getString(R.string.error_connection_failed);
+                if (e.getMessage() != null) {
+                    if (e.getMessage().indexOf("SSH") < 0 &&
+                            (e.getMessage().indexOf("authentication") > -1 ||
+                                    e.getMessage().indexOf("Unknown security result") > -1 ||
+                                    e.getMessage().indexOf("password check failed") > -1)
+                    ) {
+                        error = getContext().getString(R.string.error_vnc_authentication);
+                    }
+                    error = error + "<br>" + e.getLocalizedMessage();
+                }
+                showFatalMessageAndQuit(error);
             }
         }
     }
@@ -347,6 +359,20 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
 
 
     /**
+     * Initializes a SPICE connection.
+     *
+     */
+    private void initializeSpiceConnection() throws Exception {
+        spicecomm = new SpiceCommunicator(getContext(), handler, this, true, true);
+        rfbconn = spicecomm;
+        pointer = new RemoteSpicePointer(rfbconn, RemoteCanvas.this, handler);
+        keyboard = new RemoteSpiceKeyboard(getResources(), spicecomm, RemoteCanvas.this,
+                handler, connection.getLayoutMap());
+        //spicecomm.setUIEventListener(RemoteCanvas.this);
+        spicecomm.setHandler(handler);
+    }
+
+    /**
      * Starts a SPICE connection using libspice.
      *
      */
@@ -365,23 +391,15 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
             tport = getPort(tport);
         }
 
-        spicecomm = new SpiceCommunicator(getContext(), handler, this, true, true);
-        rfbconn = spicecomm;
-        pointer = new RemoteSpicePointer(rfbconn, RemoteCanvas.this, handler);
-        keyboard = new RemoteSpiceKeyboard(getResources(), spicecomm, RemoteCanvas.this,
-                handler, connection.getLayoutMap());
-        //spicecomm.setUIEventListener(RemoteCanvas.this);
-        spicecomm.setHandler(handler);
         spicecomm.connectSpice(address, Integer.toString(port), Integer.toString(tport), connection.getPassword(),
                 connection.getCaCertPath(), null, // TODO: Can send connection.getCaCert() here instead
                 connection.getCertSubject(), connection.getEnableSound());
     }
 
-
     /**
-     * Starts an RDP connection using the FreeRDP library.
+     * Initializes an RDP connection.
      */
-    private void startRdpConnection() throws Exception {
+    private void initializeRdpConnection() throws Exception {
         // Get the address and port (based on whether an SSH tunnel is being established or not).
         String address = getAddress();
         int rdpPort = getPort(connection.getPort());
@@ -443,16 +461,20 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
 
         session.setUIEventListener(rdpcomm);
         LibFreeRDP.setEventListener(rdpcomm);
+    }
 
+    /**
+     * Starts an RDP connection using the FreeRDP library.
+     */
+    private void startRdpConnection() throws Exception {
         session.connect(this.getContext());
         pd.dismiss();
     }
 
-
     /**
-     * Starts a VNC connection using the TightVNC backend.
+     * Initializes a VNC connection.
      */
-    private void startVncConnection() throws Exception {
+    private void initializeVncConnection() throws Exception {
         Log.i(TAG, "Connecting to: " + connection.getAddress() + ", port: " + connection.getPort());
         String address = getAddress();
         int vncPort = getPort(connection.getPort());
@@ -480,7 +502,12 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
         boolean rAltAsIsoL3Shift = Utils.querySharedPreferenceBoolean(this.getContext(),
                 Constants.rAltAsIsoL3ShiftTag);
         keyboard = new RemoteVncKeyboard(rfbconn, RemoteCanvas.this, handler, rAltAsIsoL3Shift);
+    }
 
+    /**
+     * Starts a VNC connection using the TightVNC backend.
+     */
+    private void startVncConnection() throws Exception {
         rfb.writeClientInit();
         rfb.readServerInit();
 
@@ -616,6 +643,22 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
         // We make the resolution even if it is odd.
         if (remoteHeight % 2 == 1) remoteHeight--;
         return remoteHeight;
+    }
+
+    /**
+     * Shows a non-fatal error message.
+     *
+     * @param error
+     */
+    Runnable showDialogMessage = new Runnable() {
+        public void run() {
+            Utils.showErrorMessage(getContext(), String.valueOf(screenMessage));
+        }
+    };
+    void showMessage(final String error) {
+        screenMessage = error;
+        handler.removeCallbacks(showDialogMessage);
+        handler.post(showDialogMessage);
     }
 
     /**
@@ -1208,6 +1251,19 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
     }
 
 
+    @Override
+    public void setMousePointerPosition(int x, int y) {
+        if (!pointer.isRelativeEvents()) {
+            if (!connection.getInputMode().equals(InputHandlerTouchpad.ID)) {
+                showMessage(getContext().getString(R.string.info_set_touchpad_input_mode));
+            } else {
+                pointer.setRelativeEvents(true);
+            }
+        } else {
+            softCursorMove(x, y);
+        }
+    }
+
     /**
      * Moves soft cursor into a particular location.
      *
@@ -1219,7 +1275,7 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
             initializeSoftCursor();
         }
 
-        if (!cursorBeingMoved) {
+        if (!cursorBeingMoved || pointer.isRelativeEvents()) {
             pointer.setX(x);
             pointer.setY(y);
             RectF prevR = new RectF(myDrawable.getCursorRect());

@@ -56,6 +56,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Bitmap;
 import android.graphics.RectF;
 
+import com.undatech.opaque.input.InputHandlerTouchpad;
 import com.undatech.opaque.input.RemoteKeyboard;
 import com.undatech.opaque.input.RemotePointer;
 import com.undatech.opaque.input.RemoteSpiceKeyboard;
@@ -191,34 +192,47 @@ public class RemoteCanvas extends ImageView implements Viewable {
             }
         }
     }
-    
+
+    void handleUncaughtException(Throwable e) {
+        if (stayConnected) {
+            e.printStackTrace();
+            android.util.Log.e(TAG, e.toString());
+
+            if (e instanceof OutOfMemoryError) {
+                disposeDrawable ();
+                disconnectAndShowMessage(R.string.error_out_of_memory, R.string.error_dialog_title);
+            }
+
+            disconnectAndShowMessage(R.string.error_dialog_title, R.string.error_dialog_title, e.toString());
+        }
+    }
+
+    RemotePointer init(final ConnectionSettings settings, final RemoteCanvasActivityHandler handler) {
+        this.settings = settings;
+        this.handler = handler;
+        checkNetworkConnectivity();
+        initializeClipboardMonitor();
+        spicecomm = new SpiceCommunicator (getContext(), handler, RemoteCanvas.this, settings.isRequestingNewDisplayResolution(), settings.isUsbEnabled());
+        pointer = new RemoteSpicePointer (spicecomm, RemoteCanvas.this, handler);
+        try {
+            keyboard = new RemoteSpiceKeyboard(getResources(), spicecomm, RemoteCanvas.this, handler, settings.getLayoutMap());
+        } catch (Throwable e) {
+            handleUncaughtException(e);
+        }
+        return pointer;
+    }
+
     /**
      * Initialize the canvas to show the remote desktop
      */
-    void initialize(final String vvFileName, final ConnectionSettings settings, final RemoteCanvasActivityHandler handler) {
-        this.settings = settings;
-        this.handler = handler;
-        
-        checkNetworkConnectivity();
-        initializeClipboardMonitor();
-        
+    void startFromVvFile(final String vvFileName) {
         Thread cThread = new Thread () {
             @Override
             public void run() {
                 try {
-                    spicecomm = new SpiceCommunicator (getContext(), handler, RemoteCanvas.this, settings.isRequestingNewDisplayResolution(), settings.isUsbEnabled());
-                    pointer = new RemoteSpicePointer (spicecomm, RemoteCanvas.this, handler);
-                    keyboard = new RemoteSpiceKeyboard (getResources(), spicecomm, RemoteCanvas.this, handler, settings.getLayoutMap());
                     spicecomm.startSessionFromVvFile(vvFileName, settings.isAudioPlaybackEnabled());
                 } catch (Throwable e) {
-                    if (stayConnected) {
-                        e.printStackTrace();
-                        android.util.Log.e(TAG, e.toString());
-                        if (e instanceof OutOfMemoryError) {
-                            disposeDrawable ();
-                            disconnectAndShowMessage(R.string.error_out_of_memory, R.string.error_dialog_title);
-                        }
-                    }
+                    handleUncaughtException(e);
                 }
             }
         };
@@ -245,15 +259,7 @@ public class RemoteCanvas extends ImageView implements Viewable {
             public void run() {
                 try {
                     String user = settings.getUser();
-                    String realm = RemoteClientLibConstants.PVE_DEFAULT_REALM;
-                    
-                    // Try to parse credentials.
-                    int indexOfAt = settings.getUser().indexOf('@');
-                    if (indexOfAt != -1) {
-                        realm = user.substring(indexOfAt+1);
-                        user = user.substring(0, indexOfAt);
-                    }
-                    
+
                     // Parse out node, virtualization type and VM ID
                     String node = RemoteClientLibConstants.PVE_DEFAULT_NODE;
                     String virt = RemoteClientLibConstants.PVE_DEFAULT_VIRTUALIZATION;
@@ -334,22 +340,14 @@ public class RemoteCanvas extends ImageView implements Viewable {
     /**
      * Initialize the canvas to show the remote desktop
      */
-    void initializePve(final ConnectionSettings settings, final RemoteCanvasActivityHandler handler) {
-        this.settings = settings;
+    void startPve() {
         if (!progressDialog.isShowing())
             progressDialog.show();
-        this.handler = handler;
-        checkNetworkConnectivity();
-        initializeClipboardMonitor();
 
         Thread cThread = new Thread () {
             @Override
             public void run() {
                 try {
-                    spicecomm = new SpiceCommunicator (getContext(), handler, RemoteCanvas.this, settings.isRequestingNewDisplayResolution(), settings.isUsbEnabled());
-                    pointer = new RemoteSpicePointer (spicecomm, RemoteCanvas.this, handler);
-                    keyboard = new RemoteSpiceKeyboard (getResources(), spicecomm, RemoteCanvas.this, handler, settings.getLayoutMap());
-
                     // Obtain user's password if necessary.
                     if (settings.getPassword().equals("")) {
                         android.util.Log.i (TAG, "Displaying a dialog to obtain user's password.");
@@ -425,7 +423,7 @@ public class RemoteCanvas extends ImageView implements Viewable {
                     if (!settings.getVmname().isEmpty()) {
                         String vvFileName = retrieveVvFileFromPve(settings, api);
                         if (vvFileName != null) {
-                            initialize(vvFileName, settings, handler);
+                            startFromVvFile(vvFileName);
                         }
                     }
                 } catch (LoginException e) {
@@ -444,17 +442,7 @@ public class RemoteCanvas extends ImageView implements Viewable {
                     handler.sendMessage(RemoteCanvasActivityHandler.getMessageString(RemoteClientLibConstants.PVE_API_UNEXPECTED_CODE,
                             "error", e.getMessage()));
                 } catch (Throwable e) {
-                    if (stayConnected) {
-                        e.printStackTrace();
-                        android.util.Log.e(TAG, e.toString());
-                        
-                        if (e instanceof OutOfMemoryError) {
-                            disposeDrawable ();
-                            disconnectAndShowMessage(R.string.error_out_of_memory, R.string.error_dialog_title);
-                        }
-                        
-                        disconnectAndShowMessage(R.string.error_dialog_title, R.string.error_dialog_title, e.toString());
-                    }
+                    handleUncaughtException(e);
                 }
             }
         };
@@ -465,22 +453,14 @@ public class RemoteCanvas extends ImageView implements Viewable {
     /**
      * Initialize the canvas to show the remote desktop
      */
-    void initialize(final ConnectionSettings settings, final RemoteCanvasActivityHandler handler) {
-        this.settings = settings;
+    void start() {
         if (!progressDialog.isShowing())
             progressDialog.show();
-        this.handler = handler;
-        checkNetworkConnectivity();
-        initializeClipboardMonitor();
-        
+
         Thread cThread = new Thread () {
             @Override
             public void run() {
                 try {
-                    spicecomm = new SpiceCommunicator (getContext(), handler, RemoteCanvas.this, settings.isRequestingNewDisplayResolution(), settings.isUsbEnabled());
-                    pointer = new RemoteSpicePointer (spicecomm, RemoteCanvas.this, handler);
-                    keyboard = new RemoteSpiceKeyboard (getResources(), spicecomm, RemoteCanvas.this, handler, settings.getLayoutMap());
-
                     // Obtain user's password if necessary.
                     if (settings.getPassword().equals("")) {
                         android.util.Log.i (TAG, "Displaying a dialog to obtain user's password.");
@@ -547,15 +527,7 @@ public class RemoteCanvas extends ImageView implements Viewable {
                     }
                     
                 } catch (Throwable e) {
-                    if (stayConnected) {
-                        e.printStackTrace();
-                        android.util.Log.e(TAG, e.toString());
-                        
-                        if (e instanceof OutOfMemoryError) {
-                            disposeDrawable ();
-                            disconnectAndShowMessage(R.string.error_out_of_memory, R.string.error_dialog_title);
-                        }
-                    }
+                    handleUncaughtException(e);
                 }
             }
         };
@@ -849,19 +821,33 @@ public class RemoteCanvas extends ImageView implements Viewable {
             reDraw(r.left, r.top, r.width(), r.height());
         }
     }
-    
+
+    @Override
+    public void setMousePointerPosition(int x, int y) {
+        if (!pointer.isRelativeEvents()) {
+            if (!settings.getInputMethod().equals(InputHandlerTouchpad.ID)) {
+                android.util.Log.d(TAG, "Trying to show dialog");
+                MessageDialogs.displayMessage(handler, getContext(), R.string.info_set_touchpad_input_mode, R.string.error_dialog_title);
+            } else {
+                pointer.setRelativeEvents(true);
+            }
+        } else {
+            softCursorMove(x, y);
+        }
+    }
+
     /**
      * Moves soft cursor into a particular location.
+     *
      * @param x
      * @param y
      */
-
     synchronized void softCursorMove(int x, int y) {
         if (myDrawable.isNotInitSoftCursor()) {
             initializeSoftCursor();
         }
-        
-        if (!cursorBeingMoved) {
+
+        if (!cursorBeingMoved || pointer.isRelativeEvents()) {
             pointer.setX(x);
             pointer.setY(y);
             RectF prevR = new RectF(myDrawable.getCursorRect());

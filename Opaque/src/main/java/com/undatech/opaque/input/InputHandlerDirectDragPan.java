@@ -32,11 +32,9 @@ public class InputHandlerDirectDragPan extends InputHandlerGeneric {
     static final String TAG = "InputHandlerDirectDragPan";
     public static final String ID = "DirectDragPan";
     
-    /**
-     * @param c
-     */
-    public InputHandlerDirectDragPan(RemoteCanvasActivity activity, RemoteCanvas canvas, Vibrator myVibrator) {
-        super(activity, canvas, myVibrator);
+    public InputHandlerDirectDragPan(RemoteCanvasActivity activity, RemoteCanvas canvas,
+                                     RemotePointer pointer, Vibrator myVibrator) {
+        super(activity, canvas, pointer, myVibrator);
     }
 
     /*

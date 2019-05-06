@@ -3,15 +3,12 @@ package com.iiordanov.bVNC.input;
 import com.iiordanov.bVNC.RemoteCanvas;
 import com.undatech.opaque.RfbConnectable;
 
-import android.R.integer;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Handler;
 import android.view.InputDevice;
 import android.view.KeyEvent;
-import android.view.MotionEvent;
-import android.view.ViewConfiguration;
 
 public abstract class RemotePointer {
     
@@ -28,7 +25,20 @@ public abstract class RemotePointer {
     protected Handler handler;
     protected RfbConnectable protocomm;
     MouseScroller scroller;
-    
+
+    /**
+     * Indicates where the mouse pointer is located.
+     */
+    protected int pointerX, pointerY;
+
+    protected boolean relativeEvents = false;
+
+    public static float DEFAULT_SENSITIVITY = 2.0f;
+    public static boolean DEFAULT_ACCELERATED = true;
+
+    protected float sensitivity = DEFAULT_SENSITIVITY;
+    protected boolean accelerated = DEFAULT_ACCELERATED;
+
     public class MouseScroller implements Runnable {
         int delay = 100;
         public int direction = 0;
@@ -45,11 +55,6 @@ public abstract class RemotePointer {
         }
     } 
 
-    /**
-     * Indicates where the mouse pointer is located.
-     */
-    public int pointerX, pointerY;
-    
     public RemotePointer (RfbConnectable protocomm, RemoteCanvas canvas, Handler handler) {
         this.protocomm = protocomm;
         this.canvas    = canvas;
@@ -105,6 +110,7 @@ public abstract class RemotePointer {
      * Move mouse pointer to specified coordinates.
      */
     public void movePointer(int x, int y) {
+        //android.util.Log.d("RemotePointer", "movePointer");
         canvas.invalidateMousePosition();
         pointerX=x;
         pointerY=y;
@@ -116,6 +122,7 @@ public abstract class RemotePointer {
      * If necessary move the pointer to be visible.
      */
     public void movePointerToMakeVisible() {
+        //android.util.Log.d("RemotePointer", "movePointerToMakeVisible");
         if (canvas.getMouseFollowPan()) {
             int absX = canvas.getAbsX();
             int absY = canvas.getAbsY();
@@ -172,4 +179,36 @@ public abstract class RemotePointer {
     abstract public void moveMouse       (int x, int y, int metaState);
     abstract public void moveMouseButtonDown (int x, int y, int metaState);
     abstract public void moveMouseButtonUp   (int x, int y, int metaState);
+
+    public boolean isRelativeEvents() {
+        return relativeEvents;
+    }
+
+    public void setRelativeEvents(boolean relativeEvents) {
+        this.relativeEvents = relativeEvents;
+        if (relativeEvents) {
+            setSensitivity(1.0f);
+            setAccelerated(false);
+        } else {
+            setSensitivity(DEFAULT_SENSITIVITY);
+            setAccelerated(DEFAULT_ACCELERATED);
+        }
+    }
+
+    public float getSensitivity() {
+        return sensitivity;
+    }
+
+    public void setSensitivity(float sensitivity) {
+        this.sensitivity = sensitivity;
+    }
+
+    public boolean isAccelerated() {
+        return accelerated;
+    }
+
+    public void setAccelerated(boolean accelerated) {
+        this.accelerated = accelerated;
+    }
+
 }

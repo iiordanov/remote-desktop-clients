@@ -158,4 +158,5 @@ All Input Method:
 <string name="usb">USB (plug in OTG cable first)</string>
     <string name="log_copied">Logcat copied to clipboard. You can now paste it in an email or on the support forum. Please look through for any personal data before posting.</string>
     <string name="copy_logcat">Copy Logcat</string>
+    <string name="info_set_touchpad_input_mode">This server does not support Client Mode Input, and the current mouse input mode will not work correctly. Install spice tools in the virtual machine or switch to Simulated Touchpad Input Mode from the Menu.</string>
 </resources>

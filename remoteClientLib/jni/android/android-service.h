@@ -35,6 +35,7 @@
 	jclass     jni_connector_class = NULL;
 	jmethodID jni_settings_changed = NULL;
 	jmethodID  jni_graphics_update = NULL;
+	jmethodID  jni_mouse_update    = NULL;
 	GMainLoop            *mainloop = NULL;
 	int                connections = 0;
 	gboolean          soundEnabled = FALSE;
@@ -47,6 +48,7 @@
 	extern jclass     jni_connector_class;
 	extern jmethodID jni_settings_changed;
 	extern jmethodID  jni_graphics_update;
+	extern jmethodID     jni_mouse_update;
 	extern GMainLoop*            mainloop;
 	extern int                connections;
 	extern gboolean          soundEnabled;

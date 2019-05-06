@@ -60,6 +60,7 @@ import android.view.ViewConfiguration;
 
 public class Utils {
     private final static String TAG = "Utils";
+    private static AlertDialog alertDialog;
 
     public static void showYesNoPrompt(Context _context, String title, String message, OnClickListener onYesListener, OnClickListener onNoListener) {
         AlertDialog.Builder builder = new AlertDialog.Builder(_context);
@@ -72,12 +73,15 @@ public class Utils {
         boolean show = true;
         if ( _context instanceof Activity ) {
             Activity activity = (Activity) _context;
-            if (activity.isFinishing()) {
+            if (activity.isFinishing() || alertDialog != null && alertDialog.isShowing()) {
                 show = false;
             }
         }
-        if (show)
-            builder.show();
+
+        if (show) {
+            alertDialog = builder.create();
+            alertDialog.show();
+        }
     }
     
     private static final Intent docIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://code.google.com/p/android-vnc-viewer/wiki/Documentation")); 
@@ -135,12 +139,14 @@ public class Utils {
         boolean show = true;
         if ( _context instanceof Activity ) {
             Activity activity = (Activity) _context;
-            if (activity.isFinishing()) {
+            if (activity.isFinishing() || alertDialog != null && alertDialog.isShowing()) {
                 show = false;
             }
         }
-        if (show)
-            builder.show();
+        if (show) {
+            alertDialog = builder.create();
+            alertDialog.show();
+        }
     }
     
     /**

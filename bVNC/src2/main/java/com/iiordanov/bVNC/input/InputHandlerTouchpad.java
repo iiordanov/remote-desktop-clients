@@ -23,26 +23,17 @@ package com.iiordanov.bVNC.input;
 import android.view.MotionEvent;
 import android.os.Vibrator;
 
-import com.iiordanov.bVNC.*;
-import com.iiordanov.freebVNC.*;
-import com.iiordanov.aRDP.*;
-import com.iiordanov.freeaRDP.*;
 import com.iiordanov.aSPICE.*;
-import com.iiordanov.freeaSPICE.*;
 import com.iiordanov.bVNC.RemoteCanvas;
 import com.iiordanov.bVNC.RemoteCanvasActivity;
-import com.iiordanov.bVNC.input.RemotePointer;
 
 public class InputHandlerTouchpad extends InputHandlerGeneric {
 	static final String TAG = "InputHandlerTouchpad";
 	public static final String ID = "TOUCHPAD_MODE";
-	float sensitivity = 0;
-	boolean acceleration = false;
 
-	public InputHandlerTouchpad(RemoteCanvasActivity activity, RemoteCanvas canvas, Vibrator myVibrator) {
-		super(activity, canvas, myVibrator);
-		acceleration = activity.getAccelerationEnabled();
-		sensitivity = activity.getSensitivity();
+	public InputHandlerTouchpad(RemoteCanvasActivity activity, RemoteCanvas canvas,
+								RemotePointer pointer, Vibrator myVibrator) {
+		super(activity, canvas, pointer, myVibrator);
 	}
 
 	/*
@@ -69,7 +60,6 @@ public class InputHandlerTouchpad extends InputHandlerGeneric {
 	 */
 	@Override
 	public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-        RemotePointer p = canvas.getPointer();
         final int action = e2.getActionMasked();
         final int meta   = e2.getMetaState();
         
@@ -122,14 +112,15 @@ public class InputHandlerTouchpad extends InputHandlerGeneric {
 	        }
 
 	        // Make distanceX/Y display density independent.
+                float sensitivity = pointer.getSensitivity();
 	        distanceX = sensitivity * distanceX / displayDensity;
 	        distanceY = sensitivity * distanceY / displayDensity;
 	        
 			// Compute the absolute new mouse position.
-			int newX = (int) (p.getX() + getDelta(-distanceX));
-			int newY = (int) (p.getY() + getDelta(-distanceY));
+			int newX = (int) (pointer.getX() + getDelta(-distanceX));
+			int newY = (int) (pointer.getY() + getDelta(-distanceY));
 
-			p.moveMouse(newX, newY, meta);
+			pointer.moveMouse(newX, newY, meta);
         }
     	canvas.movePanToMakePointerVisible();
     	return true;
@@ -195,11 +186,12 @@ public class InputHandlerTouchpad extends InputHandlerGeneric {
 	private float computeAcceleration (float delta) {
 		float origSign = getSign(delta);
 		delta = Math.abs(delta);
+                boolean accelerated = pointer.isAccelerated();
 		if (delta <= 15) {
 			delta = delta * 0.75f;
-		} else if (acceleration && delta <= 70.0f ) {
+		} else if (accelerated && delta <= 70.0f ) {
 			delta = delta * delta / 20.0f;
-		} else if (acceleration) {
+		} else if (accelerated) {
 			delta = delta * 4.5f;
 		}
 		return origSign * delta;

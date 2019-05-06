@@ -93,6 +93,7 @@ import com.iiordanov.bVNC.input.InputHandlerSingleHanded;
 import com.iiordanov.bVNC.input.InputHandlerTouchpad;
 import com.iiordanov.bVNC.input.Panner;
 import com.iiordanov.bVNC.input.RemoteKeyboard;
+import com.iiordanov.bVNC.input.RemotePointer;
 import com.iiordanov.freebVNC.*;
 import com.iiordanov.aRDP.*;
 import com.iiordanov.freeaRDP.*;
@@ -158,6 +159,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
     int prevBottomOffset = 0;
     volatile boolean softKeyboardUp;
     Toolbar toolbar;
+    RemotePointer pointer;
 
     /**
      * This runnable enables immersive mode.
@@ -224,7 +226,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
             enableImmersive();
         }
     }
-    
+
     @Override
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
@@ -233,7 +235,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
         if (connection != null && connection.isReadyForConnection())
         	continueConnecting();
     }
-    
+
     void initialize () {
         if (android.os.Build.VERSION.SDK_INT >= 9) {
             android.os.StrictMode.ThreadPolicy policy = new android.os.StrictMode.ThreadPolicy.Builder().permitAll().build();
@@ -347,7 +349,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
         // Initialize and define actions for on-screen keys.
         initializeOnScreenKeys ();
     
-        canvas.initializeCanvas(connection, database, new Runnable() {
+        pointer = canvas.initializeCanvas(connection, database, new Runnable() {
             public void run() {
                 try { setModes(); } catch (NullPointerException e) { }
             }
@@ -1078,16 +1080,16 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
                 if (inputModeHandlers[i] == null) {
                     switch (id) {
                     case R.id.itemInputTouchPanZoomMouse:
-                        inputModeHandlers[i] = new InputHandlerDirectSwipePan(this, canvas, myVibrator);
+                        inputModeHandlers[i] = new InputHandlerDirectSwipePan(this, canvas, pointer, myVibrator);
                         break;
                     case R.id.itemInputDragPanZoomMouse:
-                        inputModeHandlers[i] = new InputHandlerDirectDragPan(this, canvas, myVibrator);
+                        inputModeHandlers[i] = new InputHandlerDirectDragPan(this, canvas, pointer, myVibrator);
                         break;
                     case R.id.itemInputTouchpad:
-                        inputModeHandlers[i] = new InputHandlerTouchpad(this, canvas, myVibrator);
+                        inputModeHandlers[i] = new InputHandlerTouchpad(this, canvas, pointer, myVibrator);
                         break;
                     case R.id.itemInputSingleHanded:
-                        inputModeHandlers[i] = new InputHandlerSingleHanded(this, canvas, myVibrator);
+                        inputModeHandlers[i] = new InputHandlerSingleHanded(this, canvas, pointer, myVibrator);
                         break;
 
                     }
@@ -1223,26 +1225,35 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
             showDialog(R.id.itemHelpInputMode);
             return true;
         default:
-            InputHandler input = getInputHandlerById(item.getItemId());
-            if (input != null) {
-                inputHandler = input;
-                connection.setInputMode(input.getId());
-                if (input.getId().equals(InputHandlerTouchpad.ID)) {
-                    connection.setFollowMouse(true);
-                    connection.setFollowPan(true);
-                } else {
-                    connection.setFollowMouse(false);
-                    connection.setFollowPan(false);
-                }
-
-                item.setChecked(true);
-                showPanningState(true);
-                connection.save(database.getWritableDatabase());
-                database.close();
-                return true;
+            boolean inputModeSet = setInputMode(item.getItemId());
+            item.setChecked(inputModeSet);
+            if (inputModeSet) {
+                return inputModeSet;
             }
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    public boolean setInputMode(int id) {
+        InputHandler input = getInputHandlerById(id);
+        if (input != null) {
+            inputHandler = input;
+            connection.setInputMode(input.getId());
+            if (input.getId().equals(InputHandlerTouchpad.ID)) {
+                connection.setFollowMouse(true);
+                connection.setFollowPan(true);
+            } else {
+                connection.setFollowMouse(false);
+                connection.setFollowPan(false);
+                canvas.getPointer().setRelativeEvents(false);
+            }
+
+            showPanningState(true);
+            connection.save(database.getWritableDatabase());
+            database.close();
+            return true;
+        }
+        return false;
     }
 
     private MetaKeyBean lastSentKey;
@@ -1451,16 +1462,6 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
     // Returns whether the D-pad should be rotated to accommodate BT keyboards paired with phones.
     public boolean getRotateDpad() {
         return connection.getRotateDpad();
-    }
-    
-    public float getSensitivity() {
-        // TODO: Make this a slider config option.
-        return 2.0f;
-    }
-    
-    public boolean getAccelerationEnabled() {
-        // TODO: Make this a config option.
-        return true;
     }
 
     public Database getDatabase() {

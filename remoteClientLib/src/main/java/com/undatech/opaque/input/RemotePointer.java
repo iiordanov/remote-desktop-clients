@@ -26,6 +26,19 @@ import android.view.MotionEvent;
 public abstract class RemotePointer {
     public static final int POINTER_DOWN_MASK         = 0x8000;
 
+    /**
+     * Indicates where the mouse pointer is located.
+     */
+    protected int pointerX, pointerY;
+
+    protected boolean relativeEvents = false;
+
+    public static float DEFAULT_SENSITIVITY = 2.0f;
+    public static boolean DEFAULT_ACCELERATED = true;
+
+    protected float sensitivity = DEFAULT_SENSITIVITY;
+    protected boolean accelerated = DEFAULT_ACCELERATED;
+
     public abstract int getX();
     public abstract int getY();
     public abstract void setX(int newX);
@@ -44,4 +57,36 @@ public abstract class RemotePointer {
     public abstract void moveMouse       (int x, int y, int metaState);
     public abstract void moveMouseButtonDown (int x, int y, int metaState);
     public abstract void moveMouseButtonUp   (int x, int y, int metaState);
+
+    public boolean isRelativeEvents() {
+        return relativeEvents;
+    }
+
+    public void setRelativeEvents(boolean relativeEvents) {
+        this.relativeEvents = relativeEvents;
+        if (relativeEvents) {
+            setSensitivity(1.0f);
+            setAccelerated(false);
+        } else {
+            setSensitivity(DEFAULT_SENSITIVITY);
+            setAccelerated(DEFAULT_ACCELERATED);
+        }
+    }
+
+    public float getSensitivity() {
+        return sensitivity;
+    }
+
+    public void setSensitivity(float sensitivity) {
+        this.sensitivity = sensitivity;
+    }
+
+    public boolean isAccelerated() {
+        return accelerated;
+    }
+
+    public void setAccelerated(boolean accelerated) {
+        this.accelerated = accelerated;
+    }
+
 }

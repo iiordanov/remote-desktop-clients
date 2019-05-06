@@ -89,7 +89,7 @@ public class RdpCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyPro
     }
 
     @Override
-    public void writePointerEvent(int x, int y, int metaState, int pointerMask) {
+    public void writePointerEvent(int x, int y, int metaState, int pointerMask, boolean rel) {
         this.metaState = metaState;
         if ((pointerMask & RemotePointer.POINTER_DOWN_MASK) != 0) {
             sendModifierKeys(true);

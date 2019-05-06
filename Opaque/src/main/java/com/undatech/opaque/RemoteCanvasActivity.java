@@ -118,6 +118,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
     boolean extraKeysHidden = false;
     int prevBottomOffset = 0;
     Toolbar toolbar;
+    RemotePointer pointer;
 
 
     /**
@@ -205,11 +206,12 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
             android.util.Log.d(TAG, "Initializing session from connection settings.");
             connection = (ConnectionSettings)i.getSerializableExtra("com.undatech.opaque.ConnectionSettings");
             handler = new RemoteCanvasActivityHandler(this, canvas, connection);
-            
+            pointer = canvas.init(connection, handler);
+
             if (connection.getConnectionType().equals(getResources().getString(R.string.connection_type_pve))) {
-                canvas.initializePve(connection, handler);
+                canvas.startPve();
             } else {
-                canvas.initialize(connection, handler);
+                canvas.start();
             }
         } else {
             android.util.Log.d(TAG, "Initializing session from vv file: " + vvFileName);
@@ -222,7 +224,8 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
             connection = new ConnectionSettings(RemoteClientLibConstants.DEFAULT_SETTINGS_FILE);
             connection.loadFromSharedPreferences(getApplicationContext());
             handler = new RemoteCanvasActivityHandler(this, canvas, connection);
-            canvas.initialize(vvFileName, connection, handler);
+            pointer = canvas.init(connection, handler);
+            canvas.startFromVvFile(vvFileName);
         }
         
         // If we still don't have settings after this, we cannot continue.
@@ -332,10 +335,10 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
         
         // Initialize map from XML IDs to input handlers.
         inputHandlerIdMap = new HashMap<Integer, InputHandler>();
-        inputHandlerIdMap.put(R.id.inputMethodDirectSwipePan, new InputHandlerDirectSwipePan(this, canvas, myVibrator));
-        inputHandlerIdMap.put(R.id.inputMethodDirectDragPan,  new InputHandlerDirectDragPan (this, canvas, myVibrator));
-        inputHandlerIdMap.put(R.id.inputMethodTouchpad,       new InputHandlerTouchpad      (this, canvas, myVibrator));
-        inputHandlerIdMap.put(R.id.inputMethodSingleHanded,   new InputHandlerSingleHanded  (this, canvas, myVibrator));
+        inputHandlerIdMap.put(R.id.inputMethodDirectSwipePan, new InputHandlerDirectSwipePan(this, canvas, pointer, myVibrator));
+        inputHandlerIdMap.put(R.id.inputMethodDirectDragPan,  new InputHandlerDirectDragPan (this, canvas, pointer, myVibrator));
+        inputHandlerIdMap.put(R.id.inputMethodTouchpad,       new InputHandlerTouchpad      (this, canvas, pointer, myVibrator));
+        inputHandlerIdMap.put(R.id.inputMethodSingleHanded,   new InputHandlerSingleHanded  (this, canvas, pointer, myVibrator));
         
         android.util.Log.e(TAG, "connection.getInputMethod(): " + connection.getInputMethod());
         inputHandler = idToInputHandler(connection.getInputMethod());
@@ -1048,15 +1051,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
         }
         return super.onGenericMotionEvent(event);
     }
-    
-    public float getSensitivity() {
-        return 2.0f;
-    }
-    
-    public boolean getAccelerationEnabled() {
-        return true;
-    }
-    
+
     final long hideToolbarDelay = 2500;
     ToolbarHiderRunnable toolbarHider = new ToolbarHiderRunnable();
     
@@ -1166,6 +1161,9 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
                 menuItem.setChecked(true);
                 displayInputModeInfo(true);
                 connection.saveToSharedPreferences(getApplicationContext());
+                if (!inputHandler.getId().equals(InputHandlerTouchpad.ID)) {
+                    canvas.getPointer().setRelativeEvents(false);
+                }
                 return true;
             }
         }

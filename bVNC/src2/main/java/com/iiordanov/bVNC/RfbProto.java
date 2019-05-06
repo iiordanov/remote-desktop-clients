@@ -1414,7 +1414,8 @@ class RfbProto implements RfbConnectable {
      * @param pointerMask
      * @throws IOException
      */
-    public synchronized void writePointerEvent(int x, int y, int modifiers, int pointerMask) {
+    public synchronized void writePointerEvent(int x, int y, int modifiers, int pointerMask,
+                                               boolean rel) {
         if (viewOnly)
             return;
 

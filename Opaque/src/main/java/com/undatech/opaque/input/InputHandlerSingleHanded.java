@@ -47,8 +47,9 @@ public class InputHandlerSingleHanded extends InputHandlerDirectSwipePan {
     private int eventStartX, eventStartY, eventAction, eventMeta;
     private boolean needInitPan;
     
-    public InputHandlerSingleHanded(RemoteCanvasActivity activity, RemoteCanvas canvas, Vibrator myVibrator) {
-        super(activity, canvas, myVibrator);
+    public InputHandlerSingleHanded(RemoteCanvasActivity activity, RemoteCanvas canvas,
+                                    RemotePointer pointer, Vibrator myVibrator) {
+        super(activity, canvas, pointer, myVibrator);
         initializeButtons();
     }
 
