@@ -38,6 +38,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.provider.Settings;
@@ -248,8 +249,8 @@ public class RemoteCanvas extends ImageView implements Viewable {
      * @return 
      */
     // TODO: Switch away from writing out a file to initiating a connection directly.
-    String retrieveVvFileFromPve(final ConnectionSettings settings, final ProxmoxClient api) {
-        android.util.Log.i(TAG, String.format("Trying to connect to PVE host: " + settings.getHostname()));
+    String retrieveVvFileFromPve(final String hostname, final ProxmoxClient api) {
+        android.util.Log.i(TAG, String.format("Trying to connect to PVE host: " + hostname));
         final String tempVvFile = getContext().getFilesDir() + "/tempfile.vv";
         deleteMyFile(tempVvFile);
 
@@ -288,7 +289,7 @@ public class RemoteCanvas extends ImageView implements Viewable {
                     }
                     SpiceDisplay spiceData = api.spiceVm(node, virt, Integer.parseInt(vmname));
                     if (spiceData != null) {
-                        spiceData.outputToFile(tempVvFile, settings.getHostname());
+                        spiceData.outputToFile(tempVvFile, hostname);
                     } else {
                         android.util.Log.e(TAG, "PVE returned null data for display.");
                         handler.sendEmptyMessage(RemoteClientLibConstants.PVE_NULL_DATA);
@@ -368,7 +369,20 @@ public class RemoteCanvas extends ImageView implements Viewable {
                     }
 
                     // Connect to the API and obtain available realms
-                    ProxmoxClient api = new ProxmoxClient(settings.getHostname(), settings, handler);
+                    String uriToParse = settings.getHostname();
+                    if (!uriToParse.startsWith("http://") && !uriToParse.startsWith("https://")) {
+                        uriToParse = String.format("%s%s", "https://", uriToParse);
+                    }
+                    Uri uri = Uri.parse(uriToParse);
+                    String protocol = uri.getScheme();
+                    String host = uri.getHost();
+                    int port = uri.getPort();
+                    if (port < 0) {
+                        port = 8006;
+                    }
+                    String pveUri = String.format("%s://%s:%d", protocol, host, port);
+
+                    ProxmoxClient api = new ProxmoxClient(pveUri, settings, handler);
                     HashMap<String, PveRealm> realms = api.getAvailableRealms();
                     
                     // If selected realm has TFA enabled, then ask for the code
@@ -421,7 +435,7 @@ public class RemoteCanvas extends ImageView implements Viewable {
 
                     // Only if we managed to obtain a VM name we try to get a .vv file for the display.
                     if (!settings.getVmname().isEmpty()) {
-                        String vvFileName = retrieveVvFileFromPve(settings, api);
+                        String vvFileName = retrieveVvFileFromPve(host, api);
                         if (vvFileName != null) {
                             startFromVvFile(vvFileName);
                         }
