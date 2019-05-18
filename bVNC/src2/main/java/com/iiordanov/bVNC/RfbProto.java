@@ -303,12 +303,35 @@ class RfbProto implements RfbConnectable {
     // to confirm the authenticity of a certificate is displayed.
     private boolean certificateAccepted = false;
 
+    private boolean sslTunneled = false;
+    private int hashAlgorithm;
+    private String hash;
+    private String cert;
+
     //
-    // Constructor. Make TCP connection to RFB server.
+    // Constructor
     //
     RfbProto(Decoder decoder, RemoteCanvas canvas, String host, int port, int preferredEncoding,
              boolean viewOnly, boolean useLocalCursor, boolean sslTunneled, int hashAlgorithm,
              String hash, String cert) throws Exception {
+        this.sslTunneled = sslTunneled;
+        this.decoder = decoder;
+        this.viewOnly = viewOnly;
+        this.canvas = canvas;
+        this.host = host;
+        this.port = port;
+        this.preferredEncoding = preferredEncoding;
+        this.useLocalCursor = useLocalCursor;
+        this.hashAlgorithm = hashAlgorithm;
+        this.hash = hash;
+        this.cert = cert;
+        timing = false;
+        timeWaitedIn100us = 5;
+        timedKbits = 0;
+    }
+
+    // Make TCP connection to RFB server.
+    private void initSocket() throws Exception {
         Socket sock = null;
 
         if (sslTunneled) {
@@ -328,20 +351,6 @@ class RfbProto implements RfbConnectable {
             sock = tunnel.getSocket();
         }
 
-        setParameters(decoder, canvas, host, port, sock, preferredEncoding, viewOnly, useLocalCursor);
-    }
-
-
-    void setParameters(Decoder decoder, RemoteCanvas canvas,
-                       String host, int port, Socket sock, int preferredEncoding,
-                       boolean viewOnly, boolean useLocalCursor) throws Exception {
-        this.decoder = decoder;
-        this.viewOnly = viewOnly;
-        this.canvas = canvas;
-        this.host = host;
-        this.port = port;
-        this.preferredEncoding = preferredEncoding;
-        this.useLocalCursor = useLocalCursor;
 
         if (sock == null) {
             sock = new Socket(host, port);
@@ -350,10 +359,6 @@ class RfbProto implements RfbConnectable {
 
         this.sock = sock;
         setStreams(sock.getInputStream(), sock.getOutputStream());
-
-        timing = false;
-        timeWaitedIn100us = 5;
-        timedKbits = 0;
     }
 
     public synchronized void closeSocket() {
@@ -387,7 +392,9 @@ class RfbProto implements RfbConnectable {
         return closed;
     }
 
-    public void initializeAndAuthenticate(String us, String pw, boolean useRepeater, String repeaterID, int connType, String cert) throws Exception {
+    void initializeAndAuthenticate(String us, String pw, boolean useRepeater, String repeaterID, int connType, String cert) throws Exception {
+        Log.v(TAG, "Connecting to server: " + this.host + " at port: " + this.port);
+        initSocket();
 
         // <RepeaterMagic>
         if (useRepeater && repeaterID != null && repeaterID.length() > 0) {
@@ -1532,7 +1539,9 @@ class RfbProto implements RfbConnectable {
         Log.d(TAG, "clientRedirect");
         try {
             closeSocket();
-            setParameters(decoder, canvas, host, port, null, preferredEncoding, viewOnly, useLocalCursor);
+            this.host = host;
+            this.port = port;
+            initSocket();
             writeClientInit();
             readServerInit();
             processProtocol();

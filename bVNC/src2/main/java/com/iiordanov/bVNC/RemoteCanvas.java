@@ -479,23 +479,9 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
         String address = getAddress();
         int vncPort = getPort(connection.getPort());
         boolean sslTunneled = connection.getConnectionType() == Constants.CONN_TYPE_STUNNEL;
-
-        try {
-            rfb = new RfbProto(decoder, this, address, vncPort, connection.getPrefEncoding(), connection.getViewOnly(),
-                    connection.getUseLocalCursor(), sslTunneled, connection.getIdHashAlgorithm(),
-                    connection.getIdHash(), connection.getSshHostKey());
-
-            Log.v(TAG, "Connected to server: " + address + " at port: " + vncPort);
-            rfb.initializeAndAuthenticate(connection.getUserName(), connection.getPassword(),
-                    connection.getUseRepeater(), connection.getRepeaterId(),
-                    connection.getConnectionType(), connection.getSshHostKey());
-        } catch (AnonCipherUnsupportedException e) {
-            showFatalMessageAndQuit(getContext().getString(R.string.error_anon_dh_unsupported));
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new Exception(getContext().getString(R.string.error_vnc_unable_to_connect) +
-                    Utils.messageAndStackTraceAsString(e));
-        }
+        rfb = new RfbProto(decoder, this, address, vncPort, connection.getPrefEncoding(), connection.getViewOnly(),
+                connection.getUseLocalCursor(), sslTunneled, connection.getIdHashAlgorithm(),
+                connection.getIdHash(), connection.getSshHostKey());
 
         rfbconn = rfb;
         pointer = new RemoteVncPointer(rfbconn, RemoteCanvas.this, handler);
@@ -508,6 +494,19 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
      * Starts a VNC connection using the TightVNC backend.
      */
     private void startVncConnection() throws Exception {
+
+        try {
+            rfb.initializeAndAuthenticate(connection.getUserName(), connection.getPassword(),
+                    connection.getUseRepeater(), connection.getRepeaterId(),
+                    connection.getConnectionType(), connection.getSshHostKey());
+        } catch (AnonCipherUnsupportedException e) {
+            showFatalMessageAndQuit(getContext().getString(R.string.error_anon_dh_unsupported));
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new Exception(getContext().getString(R.string.error_vnc_unable_to_connect) +
+                    Utils.messageAndStackTraceAsString(e));
+        }
+
         rfb.writeClientInit();
         rfb.readServerInit();
 
@@ -1430,6 +1429,8 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
             FragmentManager fm = null;
             Bundle s = null;
 
+            android.util.Log.d(TAG, "Handling message, msg.what: " + msg.what);
+
             switch (msg.what) {
                 case Constants.PRO_FEATURE:
                     if (pd != null && pd.isShowing()) {
@@ -1510,7 +1511,7 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
      */
     @SuppressLint("StringFormatInvalid")
     private void validateX509Cert(final X509Certificate cert) {
-
+        android.util.Log.d(TAG, "Displaying dialog to validate X509 Cert");
         boolean certMismatch = false;
 
         int hashAlg = connection.getIdHashAlgorithm();

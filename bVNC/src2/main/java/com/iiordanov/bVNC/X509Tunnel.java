@@ -60,16 +60,32 @@ public class X509Tunnel extends TLSTunnelBase {
     Log.i(TAG, "X509Tunnel ended.");
   }
 
+  private boolean tlsNewerThan1_3(String[] protocols) {
+      boolean result = false;
+      for (String s : protocols) {
+          if (s.matches("TLSv1.[3-9]") || s.matches("TLSv[2-9].*")) {
+              result = true;
+          }
+      }
+      return result;
+  }
+
   protected void setParam (SSLSocket sock) {
     String[] supported;
     ArrayList<String> enabled = new ArrayList<String> ();
 
     supported = sock.getSupportedCipherSuites ();
 
+    String[] protocols = sock.getEnabledProtocols();;
+    android.util.Log.d(TAG, "Supported TLS Protocols: " + Arrays.toString(protocols));
+
     for (int i = 0; i < supported.length; i++) {
-      if (!supported[i].matches (".*DH_anon.*")) {
-        enabled.add (supported[i]);
-        Log.i(TAG, "Adding cipher: " + supported[i]);
+      if (!supported[i].matches(".*DH_anon.*") &&
+           !(tlsNewerThan1_3(protocols) && supported[i].equals("TLS_FALLBACK_SCSV"))) {
+          Log.d(TAG, "Adding cipher: " + supported[i]);
+          enabled.add (supported[i]);
+      } else {
+          android.util.Log.d(TAG, "Omitting cipher: " + supported[i]);
       }
     }
 
