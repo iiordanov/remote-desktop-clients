@@ -1,5 +1,6 @@
 v4.0.6
 - Bugfix for FreeRDP ignoring certs
+- Bugfix to sshlib for sha2-256 and sha2-512 keys
 v4.0.5
 - Bugfixes
 - Logcat copy from previous runs as well

@@ -63,6 +63,9 @@ public class Utils {
     private static AlertDialog alertDialog;
 
     public static void showYesNoPrompt(Context _context, String title, String message, OnClickListener onYesListener, OnClickListener onNoListener) {
+        if (alertDialog != null) {
+            alertDialog.dismiss();
+        }
         AlertDialog.Builder builder = new AlertDialog.Builder(_context);
         builder.setTitle(title);
         builder.setIcon(android.R.drawable.ic_dialog_info);
@@ -111,13 +114,19 @@ public class Utils {
     }
 
     public static void showErrorMessage(Context _context, String message) {
-        showMessage(_context, "Error!", message, android.R.drawable.ic_dialog_alert, null);
+        showMessage(_context, "Error!", message, android.R.drawable.ic_dialog_alert, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
     }
 
     public static void showFatalErrorMessage(final Context _context, String message) {
         showMessage(_context, "Error!", message, android.R.drawable.ic_dialog_alert, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
                 if ( _context instanceof AppCompatActivity ) {
                     ((AppCompatActivity) _context).finish();
                 } else if ( _context instanceof FragmentActivity ) {

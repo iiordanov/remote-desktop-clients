@@ -23,7 +23,12 @@ package com.iiordanov.bVNC.input;
 import android.view.MotionEvent;
 import android.os.Vibrator;
 
+import com.iiordanov.bVNC.*;
+import com.iiordanov.freebVNC.*;
+import com.iiordanov.aRDP.*;
+import com.iiordanov.freeaRDP.*;
 import com.iiordanov.aSPICE.*;
+import com.iiordanov.freeaSPICE.*;
 import com.iiordanov.bVNC.RemoteCanvas;
 import com.iiordanov.bVNC.RemoteCanvasActivity;
 

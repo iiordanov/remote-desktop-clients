@@ -159,6 +159,8 @@ public class SecureTunnel implements X509TrustManager
 	
 	public static boolean isSignatureEqual(int hashAlgorithm, String expectedSignature, byte[] remoteData) throws Exception
 	{
+		if (Utils.isNullOrEmptry(expectedSignature))
+			return false;
 		String trimExpectedSignature = expectedSignature.trim();
 		if (Utils.isNullOrEmptry(trimExpectedSignature))
 			return false;

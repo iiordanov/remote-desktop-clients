@@ -185,6 +185,8 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
      */
     boolean bb = false;
 
+    boolean sshTunneled = false;
+
     /**
      * Constructor used by the inflation apparatus
      *
@@ -228,6 +230,8 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
         database = db;
         decoder.setColorModel(COLORMODEL.valueOf(bean.getColorModel()));
 
+        sshTunneled = (connection.getConnectionType() == Constants.CONN_TYPE_SSH);
+
         // Startup the connection thread with a progress dialog
         pd = ProgressDialog.show(getContext(), getContext().getString(R.string.info_progress_dialog_connecting),
                 getContext().getString(R.string.info_progress_dialog_establishing),
@@ -262,8 +266,7 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
             public void run() {
                 try {
                     // Initialize SSH key if necessary
-                    if (connection.getConnectionType() == Constants.CONN_TYPE_SSH &&
-                            connection.getSshHostKey().equals("") &&
+                    if (sshTunneled && connection.getSshHostKey().equals("") &&
                             Utils.isNullOrEmptry(connection.getIdHash())) {
                         handler.sendEmptyMessage(Constants.DIALOG_SSH_CERT);
 
@@ -475,27 +478,11 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
      * Initializes a VNC connection.
      */
     private void initializeVncConnection() throws Exception {
-        Log.i(TAG, "Connecting to: " + connection.getAddress() + ", port: " + connection.getPort());
-        String address = getAddress();
-        int vncPort = getPort(connection.getPort());
+        Log.i(TAG, "Initializing connection to: " + connection.getAddress() + ", port: " + connection.getPort());
         boolean sslTunneled = connection.getConnectionType() == Constants.CONN_TYPE_STUNNEL;
-
-        try {
-            rfb = new RfbProto(decoder, this, address, vncPort, connection.getPrefEncoding(), connection.getViewOnly(),
-                    connection.getUseLocalCursor(), sslTunneled, connection.getIdHashAlgorithm(),
-                    connection.getIdHash(), connection.getSshHostKey());
-
-            Log.v(TAG, "Connected to server: " + address + " at port: " + vncPort);
-            rfb.initializeAndAuthenticate(connection.getUserName(), connection.getPassword(),
-                    connection.getUseRepeater(), connection.getRepeaterId(),
-                    connection.getConnectionType(), connection.getSshHostKey());
-        } catch (AnonCipherUnsupportedException e) {
-            showFatalMessageAndQuit(getContext().getString(R.string.error_anon_dh_unsupported));
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new Exception(getContext().getString(R.string.error_vnc_unable_to_connect) +
-                    Utils.messageAndStackTraceAsString(e));
-        }
+        rfb = new RfbProto(decoder, this, connection.getPrefEncoding(), connection.getViewOnly(),
+                connection.getUseLocalCursor(), sslTunneled, connection.getIdHashAlgorithm(),
+                connection.getIdHash(), connection.getSshHostKey());
 
         rfbconn = rfb;
         pointer = new RemoteVncPointer(rfbconn, RemoteCanvas.this, handler);
@@ -508,6 +495,27 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
      * Starts a VNC connection using the TightVNC backend.
      */
     private void startVncConnection() throws Exception {
+
+        try {
+            String address = getAddress();
+            int vncPort = getPort(connection.getPort());
+            Log.i(TAG, "Establishing VNC session to: " + address + ", port: " + vncPort);
+            // TODO: VNC Server cert is not set when the connection is SSH tunneled because there at
+            // TODO: present it is assumed the connection is either SSH tunneled or x509 encrypted,
+            // TODO: and when both are the case, there is no way to save the x509 cert.
+            String sslCert = !sshTunneled? connection.getSshHostKey() : "";
+            rfb.initializeAndAuthenticate(address, vncPort, connection.getUserName(),
+                    connection.getPassword(), connection.getUseRepeater(),
+                    connection.getRepeaterId(), connection.getConnectionType(),
+                    sslCert);
+        } catch (AnonCipherUnsupportedException e) {
+            showFatalMessageAndQuit(getContext().getString(R.string.error_anon_dh_unsupported));
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new Exception(getContext().getString(R.string.error_vnc_unable_to_connect) +
+                    Utils.messageAndStackTraceAsString(e));
+        }
+
         rfb.writeClientInit();
         rfb.readServerInit();
 
@@ -548,7 +556,7 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
      */
     void sendUnixAuth() {
         // If the type of connection is ssh-tunneled and we are told to send the unix credentials, then do so.
-        if (connection.getConnectionType() == Constants.CONN_TYPE_SSH && connection.getAutoXUnixAuth()) {
+        if (sshTunneled && connection.getAutoXUnixAuth()) {
             keyboard.keyEvent(KeyEvent.KEYCODE_UNKNOWN, new KeyEvent(SystemClock.uptimeMillis(),
                     connection.getSshUser(), 0, 0));
             keyboard.keyEvent(KeyEvent.KEYCODE_ENTER, new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_ENTER));
@@ -685,7 +693,7 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
     int getPort(int port) throws Exception {
         int result = 0;
 
-        if (connection.getConnectionType() == Constants.CONN_TYPE_SSH) {
+        if (sshTunneled) {
             if (sshConnection == null) {
                 sshConnection = new SSHConnection(connection, getContext(), handler);
             }
@@ -695,7 +703,11 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
                 port = newPort;
             result = sshConnection.createLocalPortForward(port);
         } else {
-            result = port;
+            if (port <= 20) {
+                result = 5900 + port;
+            } else {
+                result = port;
+            }
         }
         return result;
     }
@@ -707,7 +719,7 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
      * @return
      */
     String getAddress() {
-        if (connection.getConnectionType() == Constants.CONN_TYPE_SSH) {
+        if (sshTunneled) {
             return new String("127.0.0.1");
         } else
             return connection.getAddress();
@@ -1430,6 +1442,8 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
             FragmentManager fm = null;
             Bundle s = null;
 
+            android.util.Log.d(TAG, "Handling message, msg.what: " + msg.what);
+
             switch (msg.what) {
                 case Constants.PRO_FEATURE:
                     if (pd != null && pd.isShowing()) {
@@ -1510,7 +1524,7 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
      */
     @SuppressLint("StringFormatInvalid")
     private void validateX509Cert(final X509Certificate cert) {
-
+        android.util.Log.d(TAG, "Displaying dialog to validate X509 Cert");
         boolean certMismatch = false;
 
         int hashAlg = connection.getIdHashAlgorithm();
@@ -1542,6 +1556,8 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
             Log.i(TAG, "Certificate validated from saved key.");
             saveAndAcceptCert(cert);
             return;
+        } else if (sshTunneled) {
+            Log.i(TAG, "X509 connection tunneled over SSH, so we have no place to save the cert fingerprint.");
         } else {
             certMismatch = true;
         }
@@ -1603,16 +1619,21 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
      * @param cert
      */
     private void saveAndAcceptCert(X509Certificate cert) {
-        String certificate = null;
-        try {
-            certificate = Base64.encodeToString(cert.getEncoded(), Base64.DEFAULT);
-        } catch (CertificateEncodingException e) {
-            e.printStackTrace();
-            showFatalMessageAndQuit(getContext().getString(R.string.error_x509_could_not_generate_encoding));
+        if (!sshTunneled) {
+            android.util.Log.d(TAG, "Saving X509 cert fingerprint.");
+            String certificate = null;
+            try {
+                certificate = Base64.encodeToString(cert.getEncoded(), Base64.DEFAULT);
+            } catch (CertificateEncodingException e) {
+                e.printStackTrace();
+                showFatalMessageAndQuit(getContext().getString(R.string.error_x509_could_not_generate_encoding));
+            }
+            connection.setSshHostKey(certificate);
+            connection.save(database.getWritableDatabase());
+            database.close();
+        } else {
+            android.util.Log.d(TAG, "Not saving X509 cert fingerprint because connection is SSH tunneled.");
         }
-        connection.setSshHostKey(certificate);
-        connection.save(database.getWritableDatabase());
-        database.close();
         // Indicate the certificate was accepted.
         rfb.setCertificateAccepted(true);
         synchronized (rfb) {

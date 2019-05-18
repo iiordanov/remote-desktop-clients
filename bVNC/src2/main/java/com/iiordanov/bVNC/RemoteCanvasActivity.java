@@ -134,7 +134,6 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
     }
 
     Panner panner;
-    SSHConnection sshConnection;
     Handler handler;
 
     RelativeLayout layoutKeys;
@@ -1135,7 +1134,10 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        canvas.getKeyboard().setAfterMenu(true);
+        RemoteKeyboard k = canvas.getKeyboard();
+        if (k != null) {
+            k.setAfterMenu(true);
+        }
         switch (item.getItemId()) {
         case R.id.itemInfo:
             canvas.showConnectionInfo();
