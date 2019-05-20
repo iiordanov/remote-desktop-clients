@@ -33,7 +33,6 @@ import android.view.ScaleGestureDetector;
 import com.iiordanov.bVNC.Constants;
 import com.iiordanov.bVNC.RemoteCanvas;
 import com.iiordanov.bVNC.RemoteCanvasActivity;
-import com.iiordanov.bVNC.input.RemotePointer;
 
 abstract class InputHandlerGeneric extends GestureDetector.SimpleOnGestureListener 
 										   implements InputHandler, ScaleGestureDetector.OnScaleGestureListener {

@@ -1,7 +1,6 @@
 package com.iiordanov.bVNC.input;
 
 import android.os.Handler;
-import android.view.InputDevice;
 import android.view.KeyEvent;
 
 import com.iiordanov.bVNC.MetaKeyBean;

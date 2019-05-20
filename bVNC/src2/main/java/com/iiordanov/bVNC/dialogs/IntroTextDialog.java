@@ -22,7 +22,6 @@ package com.iiordanov.bVNC.dialogs;
 
 import com.iiordanov.bVNC.ConnectionBean;
 import com.iiordanov.bVNC.Database;
-import com.iiordanov.bVNC.bVNC;
 
 import android.app.Activity;
 import android.app.Dialog;

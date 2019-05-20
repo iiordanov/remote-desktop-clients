@@ -32,7 +32,6 @@ import com.iiordanov.freeaSPICE.*;
 import com.iiordanov.bVNC.Constants;
 import com.iiordanov.bVNC.RemoteCanvas;
 import com.iiordanov.bVNC.RemoteCanvasActivity;
-import com.iiordanov.bVNC.input.RemotePointer;
 
 public class InputHandlerDirectDragPan extends InputHandlerGeneric {
 	static final String TAG = "InputHandlerDirectDragPan";

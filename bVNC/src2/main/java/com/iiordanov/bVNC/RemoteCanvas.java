@@ -88,7 +88,13 @@ import com.undatech.opaque.RdpCommunicator;
 import com.undatech.opaque.RfbConnectable;
 import com.undatech.opaque.Viewable;
 import com.undatech.opaque.SpiceCommunicator;
+
+import com.iiordanov.bVNC.*;
+import com.iiordanov.freebVNC.*;
+import com.iiordanov.aRDP.*;
+import com.iiordanov.freeaRDP.*;
 import com.iiordanov.aSPICE.*;
+import com.iiordanov.freeaSPICE.*;
 
 public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView implements Viewable {
     private final static String TAG = "RemoteCanvas";
@@ -422,6 +428,19 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
         // Create a session based on the bookmark
         session = GlobalApp.createSession(bookmark, this.getContext());
 
+        rdpcomm = new RdpCommunicator(session, handler, this);
+        rfbconn = rdpcomm;
+        pointer = new RemoteRdpPointer(rfbconn, RemoteCanvas.this, handler);
+        keyboard = new RemoteRdpKeyboard(rfbconn, RemoteCanvas.this, handler);
+
+        session.setUIEventListener(rdpcomm);
+        LibFreeRDP.setEventListener(rdpcomm);
+    }
+
+    /**
+     * Starts an RDP connection using the FreeRDP library.
+     */
+    private void startRdpConnection() throws Exception {
         // Set a writable data directory
         //LibFreeRDP.setDataDirectory(session.getInstance(), getContext().getFilesDir().toString());
 
@@ -457,19 +476,6 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
         advancedSettings.setRedirectMicrophone(connection.getEnableRecording());
         advancedSettings.setSecurity(0); // Automatic negotiation
 
-        rdpcomm = new RdpCommunicator(session, handler, this);
-        rfbconn = rdpcomm;
-        pointer = new RemoteRdpPointer(rfbconn, RemoteCanvas.this, handler);
-        keyboard = new RemoteRdpKeyboard(rfbconn, RemoteCanvas.this, handler);
-
-        session.setUIEventListener(rdpcomm);
-        LibFreeRDP.setEventListener(rdpcomm);
-    }
-
-    /**
-     * Starts an RDP connection using the FreeRDP library.
-     */
-    private void startRdpConnection() throws Exception {
         session.connect(this.getContext());
         pd.dismiss();
     }

@@ -20,9 +20,7 @@
 package com.iiordanov.bVNC.input;
 
 import android.os.Handler;
-import android.view.KeyEvent;
 import android.view.MotionEvent;
-import android.view.ViewConfiguration;
 
 import com.iiordanov.bVNC.RemoteCanvas;
 import com.undatech.opaque.RfbConnectable;

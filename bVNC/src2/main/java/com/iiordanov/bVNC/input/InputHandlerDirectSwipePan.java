@@ -20,7 +20,6 @@
 
 package com.iiordanov.bVNC.input;
 
-import android.graphics.PointF;
 import android.view.MotionEvent;
 import android.os.Vibrator;
 

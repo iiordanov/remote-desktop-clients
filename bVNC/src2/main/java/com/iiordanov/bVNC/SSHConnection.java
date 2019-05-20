@@ -31,7 +31,6 @@ import java.util.concurrent.CountDownLatch;
 
 import android.content.Context;
 import android.os.Handler;
-import android.os.Message;
 import android.util.Base64;
 import android.util.Log;
 

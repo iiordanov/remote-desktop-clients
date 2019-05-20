@@ -27,13 +27,10 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.regex.Matcher;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.ContentValues;
@@ -83,7 +80,6 @@ import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.iiordanov.android.bc.BCFactory;
-import com.iiordanov.bVNC.*;
 import com.iiordanov.bVNC.dialogs.EnterTextDialog;
 import com.iiordanov.bVNC.dialogs.MetaKeyDialog;
 import com.iiordanov.bVNC.input.InputHandler;
@@ -94,12 +90,13 @@ import com.iiordanov.bVNC.input.InputHandlerTouchpad;
 import com.iiordanov.bVNC.input.Panner;
 import com.iiordanov.bVNC.input.RemoteKeyboard;
 import com.iiordanov.bVNC.input.RemotePointer;
+import com.undatech.opaque.util.OnTouchViewMover;
+import com.iiordanov.bVNC.*;
 import com.iiordanov.freebVNC.*;
 import com.iiordanov.aRDP.*;
 import com.iiordanov.freeaRDP.*;
 import com.iiordanov.aSPICE.*;
 import com.iiordanov.freeaSPICE.*;
-import com.undatech.opaque.util.OnTouchViewMover;
 
 public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyListener {
     
