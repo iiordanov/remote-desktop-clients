@@ -17,7 +17,6 @@
  * USA.
  */
 
-#include <jni.h>
 #include <android/bitmap.h>
 
 #include "android-spice-widget.h"
@@ -142,24 +141,28 @@ Java_com_undatech_opaque_SpiceCommunicator_SpiceButtonEvent(JNIEnv * env, jobjec
 	    switch (d->mouse_mode) {
 	    case SPICE_MOUSE_MODE_CLIENT:
 	        //__android_log_write(ANDROID_LOG_DEBUG, "android-io", "spice mouse mode client");
-	        if (x >= 0 && x < d->width && y >= 0 && y < d->height) {
+	        if (relative) {
+	            __android_log_write(ANDROID_LOG_ERROR, "android-io",
+	                                        "Relative mouse events sent in mouse mode client.");
+                uiCallbackMouseMode(env, false);
+	        } else if (x >= 0 && x < d->width && y >= 0 && y < d->height) {
 			    spice_inputs_position(d->inputs, x, y, d->channel_id, newMask);
 			} else {
-	            __android_log_write(ANDROID_LOG_WARN, "android-io",
+	            __android_log_write(ANDROID_LOG_ERROR, "android-io",
 	                                        "Absolute coordinates outside server resolution.");
 			}
 	        break;
 	    case SPICE_MOUSE_MODE_SERVER:
 	        //__android_log_write(ANDROID_LOG_DEBUG, "android-io", "spice mouse mode server");
             if (!relative) {
-                __android_log_write(ANDROID_LOG_WARN, "android-io",
-                                            "Absolute mouse event sent while in mouse mode server");
-                x = d->mouse_last_x > 0 ? 1 : -1;
-                y = d->mouse_last_y > 0 ? 1 : -1;
-	        }
-	        spice_inputs_motion(d->inputs, x, y, newMask);
-            d->mouse_last_x = d->mouse_last_x == -1 ? 0 : d->mouse_last_x - x;
-            d->mouse_last_y = d->mouse_last_y == -1 ? 0 : d->mouse_last_y - y;
+                __android_log_write(ANDROID_LOG_ERROR, "android-io",
+                                            "Absolute mouse event sent in mouse mode server");
+                uiCallbackMouseMode(env, true);
+	        } else {
+                spice_inputs_motion(d->inputs, x, y, newMask);
+                d->mouse_last_x = d->mouse_last_x == -1 ? 0 : d->mouse_last_x - x;
+                d->mouse_last_y = d->mouse_last_y == -1 ? 0 : d->mouse_last_y - y;
+            }
 	        break;
 	    default:
 	        g_warn_if_reached();
@@ -206,4 +209,8 @@ void uiCallbackSettingsChanged (gint instance, gint width, gint height, gint bpp
     if (attached) {
     	detachThreadFromJvm ();
     }
+}
+
+void uiCallbackMouseMode(JNIEnv *env, gboolean relative) {
+    (*env)->CallStaticVoidMethod(env, jni_connector_class, jni_mouse_mode, relative);
 }

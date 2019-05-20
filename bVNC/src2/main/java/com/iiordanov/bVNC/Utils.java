@@ -139,6 +139,9 @@ public class Utils {
     }
     
     public static void showMessage(Context _context, String title, String message, int icon, DialogInterface.OnClickListener ackHandler) {
+        if (alertDialog != null) {
+            alertDialog.dismiss();
+        }
         AlertDialog.Builder builder = new AlertDialog.Builder(_context);
         builder.setTitle(title);
         builder.setMessage(Html.fromHtml(message));
@@ -148,7 +151,7 @@ public class Utils {
         boolean show = true;
         if ( _context instanceof Activity ) {
             Activity activity = (Activity) _context;
-            if (activity.isFinishing() || alertDialog != null && alertDialog.isShowing()) {
+            if (activity.isFinishing()) {
                 show = false;
             }
         }

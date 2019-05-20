@@ -17,6 +17,8 @@
  * USA.
  */
 
+#include <jni.h>
+
 typedef unsigned char uchar;
 
 void updatePixels (uchar* dest, uchar* source, int x, int y, int width, int height, int buffwidth, int buffheight, int bpp);
@@ -25,3 +27,5 @@ void uiCallbackInvalidate (SpiceDisplayPrivate *d, gint x, gint y, gint w, gint 
 void uiCallbackSettingsChanged (gint instance, gint width, gint height, gint bpp);
 
 gint get_display_id(SpiceDisplay *display);
+
+void uiCallbackMouseMode(JNIEnv *env, gboolean relative);

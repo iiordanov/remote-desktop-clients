@@ -838,15 +838,15 @@ public class RemoteCanvas extends ImageView implements Viewable {
 
     @Override
     public void setMousePointerPosition(int x, int y) {
-        if (!pointer.isRelativeEvents()) {
-            if (!settings.getInputMethod().equals(InputHandlerTouchpad.ID)) {
-                android.util.Log.d(TAG, "Trying to show dialog");
-                MessageDialogs.displayMessage(handler, getContext(), R.string.info_set_touchpad_input_mode, R.string.error_dialog_title);
-            } else {
-                pointer.setRelativeEvents(true);
-            }
+        softCursorMove(x, y);
+    }
+
+    @Override
+    public void mouseMode(boolean relative) {
+        if (relative && !settings.getInputMethod().equals(InputHandlerTouchpad.ID)) {
+            MessageDialogs.displayMessage(handler, getContext(), R.string.info_set_touchpad_input_mode, R.string.error_dialog_title);
         } else {
-            softCursorMove(x, y);
+            this.pointer.setRelativeEvents(relative);
         }
     }
 

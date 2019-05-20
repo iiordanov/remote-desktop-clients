@@ -32,10 +32,11 @@
 	SpiceDisplay*   global_display = NULL;
 	spice_connection*  global_conn = NULL;
 	JavaVM*                    jvm = NULL;
-	jclass     jni_connector_class = NULL;
+	jclass    jni_connector_class  = NULL;
 	jmethodID jni_settings_changed = NULL;
-	jmethodID  jni_graphics_update = NULL;
-	jmethodID  jni_mouse_update    = NULL;
+	jmethodID jni_graphics_update  = NULL;
+	jmethodID jni_mouse_update     = NULL;
+	jmethodID jni_mouse_mode       = NULL;
 	GMainLoop            *mainloop = NULL;
 	int                connections = 0;
 	gboolean          soundEnabled = FALSE;
@@ -49,6 +50,7 @@
 	extern jmethodID jni_settings_changed;
 	extern jmethodID  jni_graphics_update;
 	extern jmethodID     jni_mouse_update;
+	extern jmethodID       jni_mouse_mode;
 	extern GMainLoop*            mainloop;
 	extern int                connections;
 	extern gboolean          soundEnabled;

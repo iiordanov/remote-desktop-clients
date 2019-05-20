@@ -541,4 +541,8 @@ public class SpiceCommunicator implements RfbConnectable {
         myself.canvas.setMousePointerPosition(x, y);
     }
 
+    private static void OnMouseMode(boolean relative) {
+        android.util.Log.i(TAG, "OnMouseMode called, relative: " + relative);
+        myself.canvas.mouseMode(relative);
+    }
 }

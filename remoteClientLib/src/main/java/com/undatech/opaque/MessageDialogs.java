@@ -32,6 +32,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 public class MessageDialogs {
+    private static final String TAG = "MessageDialogs";
     private static Runnable showMessageRunnable;
     private static AlertDialog alertDialog;
 
@@ -69,9 +70,12 @@ public class MessageDialogs {
             int alertID, String appendText, DialogInterface.OnClickListener ok) {
 
         boolean show = true;
+        if (alertDialog != null) {
+            alertDialog.dismiss();
+        }
         if (context instanceof Activity) {
             Activity activity = (Activity) context;
-            if (activity.isFinishing() || alertDialog != null && alertDialog.isShowing()) {
+            if (activity.isFinishing()) {
                 show = false;
             }
         }
@@ -103,6 +107,7 @@ public class MessageDialogs {
      */
     public static void displayMessage(final Handler handler, final Context context,
                                       final int infoId, final int titleId) {
+        android.util.Log.d(TAG, "displayMessage");
         if (showMessageRunnable == null) {
             showMessageRunnable = new Runnable() {
                 @Override

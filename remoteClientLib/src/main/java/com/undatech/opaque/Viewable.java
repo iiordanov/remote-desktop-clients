@@ -10,4 +10,5 @@ public interface Viewable {
     Bitmap getBitmap();
     void reDraw(int x, int y, int width, int height);
     void setMousePointerPosition(int x, int y);
+    void mouseMode(boolean relative);
 }

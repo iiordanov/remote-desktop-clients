@@ -670,6 +670,7 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
         }
     };
     void showMessage(final String error) {
+        android.util.Log.d(TAG, "showMessage");
         screenMessage = error;
         handler.removeCallbacks(showDialogMessage);
         handler.post(showDialogMessage);
@@ -1268,17 +1269,17 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
         }
     }
 
-
     @Override
     public void setMousePointerPosition(int x, int y) {
-        if (!pointer.isRelativeEvents()) {
-            if (!connection.getInputMode().equals(InputHandlerTouchpad.ID)) {
-                showMessage(getContext().getString(R.string.info_set_touchpad_input_mode));
-            } else {
-                pointer.setRelativeEvents(true);
-            }
+        softCursorMove(x, y);
+    }
+
+    @Override
+    public void mouseMode(boolean relative) {
+        if (relative && !connection.getInputMode().equals(InputHandlerTouchpad.ID)) {
+            showMessage(getContext().getString(R.string.info_set_touchpad_input_mode));
         } else {
-            softCursorMove(x, y);
+            this.pointer.setRelativeEvents(relative);
         }
     }
 
