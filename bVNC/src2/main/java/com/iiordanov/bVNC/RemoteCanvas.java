@@ -179,6 +179,7 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
      * This flag indicates whether this is the RDP client.
      */
     boolean isRdp = false;
+    BookmarkBase bookmark;
 
     /*
      * This flag indicates whether this is the SPICE client.
@@ -409,21 +410,11 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
      * Initializes an RDP connection.
      */
     private void initializeRdpConnection() throws Exception {
-        // Get the address and port (based on whether an SSH tunnel is being established or not).
-        String address = getAddress();
-        int rdpPort = getPort(connection.getPort());
-
         // This is necessary because it initializes a synchronizedMap referenced later.
         freeRdpApp = new GlobalApp();
 
         // Create a manual bookmark and populate it from settings.
-        BookmarkBase bookmark = new ManualBookmark();
-        bookmark.<ManualBookmark>get().setLabel(connection.getNickname());
-        bookmark.<ManualBookmark>get().setHostname(address);
-        bookmark.<ManualBookmark>get().setPort(rdpPort);
-        bookmark.<ManualBookmark>get().setUsername(connection.getUserName());
-        bookmark.<ManualBookmark>get().setDomain(connection.getRdpDomain());
-        bookmark.<ManualBookmark>get().setPassword(connection.getPassword());
+        bookmark = new ManualBookmark();
 
         // Create a session based on the bookmark
         session = GlobalApp.createSession(bookmark, this.getContext());
@@ -443,6 +434,16 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
     private void startRdpConnection() throws Exception {
         // Set a writable data directory
         //LibFreeRDP.setDataDirectory(session.getInstance(), getContext().getFilesDir().toString());
+        // Get the address and port (based on whether an SSH tunnel is being established or not).
+        String address = getAddress();
+        int rdpPort = getPort(connection.getPort());
+
+        bookmark.<ManualBookmark>get().setLabel(connection.getNickname());
+        bookmark.<ManualBookmark>get().setHostname(address);
+        bookmark.<ManualBookmark>get().setPort(rdpPort);
+        bookmark.<ManualBookmark>get().setUsername(connection.getUserName());
+        bookmark.<ManualBookmark>get().setDomain(connection.getRdpDomain());
+        bookmark.<ManualBookmark>get().setPassword(connection.getPassword());
 
         BookmarkBase.DebugSettings debugSettings = session.getBookmark().getDebugSettings();
         debugSettings.setDebugLevel("INFO");
