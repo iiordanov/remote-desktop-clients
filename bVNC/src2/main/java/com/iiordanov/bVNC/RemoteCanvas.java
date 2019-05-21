@@ -710,8 +710,8 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
                 port = newPort;
             result = sshConnection.createLocalPortForward(port);
         } else {
-            if (port <= 20) {
-                result = 5900 + port;
+            if (isVnc && port <= 20) {
+                result = Constants.DEFAULT_VNC_PORT + port;
             } else {
                 result = port;
             }
