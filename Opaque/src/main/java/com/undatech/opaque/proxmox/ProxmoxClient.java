@@ -233,7 +233,7 @@ public class ProxmoxClient extends RestClient {
         for (int i = 0; i < jArr.length(); i++) {
             PveResource r = new PveResource(jArr.getJSONObject(i));
             if (r.getName() != null && r.getNode() != null && r.getType() != null && r.getVmid() != null) {
-                result.put(r.getNode() + "/" + r.getType() + "/" + r.getVmid(), r);
+                result.put(r.getVmid(), r);
             }
         }
         return result;

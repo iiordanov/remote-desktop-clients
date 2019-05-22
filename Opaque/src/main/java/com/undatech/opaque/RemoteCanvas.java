@@ -249,45 +249,25 @@ public class RemoteCanvas extends ImageView implements Viewable {
      * @return 
      */
     // TODO: Switch away from writing out a file to initiating a connection directly.
-    String retrieveVvFileFromPve(final String hostname, final ProxmoxClient api) {
+    String retrieveVvFileFromPve(final String hostname, final ProxmoxClient api, final String vmId,
+                                 final String node, final String virt) {
         android.util.Log.i(TAG, String.format("Trying to connect to PVE host: " + hostname));
         final String tempVvFile = getContext().getFilesDir() + "/tempfile.vv";
         deleteMyFile(tempVvFile);
 
-        // TODO: Improve error handling.
         Thread cThread = new Thread () {
             @Override
             public void run() {
                 try {
-                    String user = settings.getUser();
-
-                    // Parse out node, virtualization type and VM ID
-                    String node = RemoteClientLibConstants.PVE_DEFAULT_NODE;
-                    String virt = RemoteClientLibConstants.PVE_DEFAULT_VIRTUALIZATION;
-                    String vmname = settings.getVmname();
-                    
-                    int indexOfFirstSlash = settings.getVmname().indexOf('/');
-                    if (indexOfFirstSlash != -1) {
-                        // If we find at least one slash, then we need to parse out node for sure.
-                        node = vmname.substring(0, indexOfFirstSlash);
-                        vmname = vmname.substring(indexOfFirstSlash+1);
-                        int indexOfSecondSlash = vmname.indexOf('/');
-                        if (indexOfSecondSlash != -1) {
-                            // If we find a second slash, we need to parse out virtualization type and vmname after node.
-                            virt = vmname.substring(0, indexOfSecondSlash);
-                            vmname = vmname.substring(indexOfSecondSlash+1);
-                        }
-                    }
-                    
-                    VmStatus status = api.getCurrentStatus(node, virt, Integer.parseInt(vmname));
+                    VmStatus status = api.getCurrentStatus(node, virt, Integer.parseInt(vmId));
                     if (status.getStatus().equals(VmStatus.STOPPED)) {
-                        api.startVm(node, virt, Integer.parseInt(vmname));
+                        api.startVm(node, virt, Integer.parseInt(vmId));
                         while (!status.getStatus().equals(VmStatus.RUNNING)) {
-                            status = api.getCurrentStatus(node, virt, Integer.parseInt(vmname));
+                            status = api.getCurrentStatus(node, virt, Integer.parseInt(vmId));
                             SystemClock.sleep(500);
                         }
                     }
-                    SpiceDisplay spiceData = api.spiceVm(node, virt, Integer.parseInt(vmname));
+                    SpiceDisplay spiceData = api.spiceVm(node, virt, Integer.parseInt(vmId));
                     if (spiceData != null) {
                         spiceData.outputToFile(tempVvFile, hostname);
                     } else {
@@ -397,45 +377,65 @@ public class RemoteCanvas extends ImageView implements Viewable {
                     // Login with provided credentials
                     api.login(user, realm, settings.getPassword(), settings.getOtpCode());
 
-                    // If not VM name is specified, then get a list of VMs and let the user pick one.
-                    if (settings.getVmname().isEmpty()) {
-                        // Get map of user parseable names to resources
-                        Map<String, PveResource> nameToResources = api.getResources();
+                    // Get map of user parseable names to resources
+                    Map<String, PveResource> nameToResources = api.getResources();
 
-                        if (nameToResources.isEmpty()) {
-                            android.util.Log.e(TAG, "No available suitable resources in PVE cluster");
-                            disconnectAndShowMessage(R.string.error_no_vm_found_for_user, R.string.error_dialog_title);
-                        }
+                    if (nameToResources.isEmpty()) {
+                        android.util.Log.e(TAG, "No available VMs found for user in PVE cluster");
+                        disconnectAndShowMessage(R.string.error_no_vm_found_for_user, R.string.error_dialog_title);
+                        return;
+                    }
 
-                        // If there is just one VM, pick it and skip the dialog.
-                        if (nameToResources.size() == 1) {
-                            android.util.Log.e(TAG, "A single VM was found, so picking it.");
-                            String key = (String)nameToResources.keySet().toArray()[0];
-                            PveResource a = nameToResources.get(key);
-                            settings.setVmname(a.getNode() + "/" + a.getType() + "/" + a.getVmid());
-                            settings.saveToSharedPreferences(getContext());
-                        } else {
-                            while (settings.getVmname().equals("")) {
-                                android.util.Log.i (TAG, "PVE: Displaying a dialog with VMs to the user.");
-                                // Populate the data structure that is used to convert VM names to IDs.
-                                for (String s : nameToResources.keySet()) {
-                                    vmNameToId.put(nameToResources.get(s).getName() + " (" + s + ")", s);
-                                }
-                                // Get the user parseable names and display them
-                                ArrayList<String> vms = new ArrayList<String>(vmNameToId.keySet());
-                                handler.sendMessage(RemoteCanvasActivityHandler.getMessageStringList(
-                                        RemoteClientLibConstants.DIALOG_DISPLAY_VMS, "vms", vms));
-                                synchronized(spicecomm) {
-                                    spicecomm.wait();
-                                }
+                    String vmId = settings.getVmname();
+                    if (vmId.matches("/")) {
+                        vmId = settings.getVmname().replaceAll(".*/", "");
+                        settings.setVmname(vmId);
+                        settings.saveToSharedPreferences(getContext());
+                    }
+
+                    String node = null;
+                    String virt = null;
+
+                    // If there is just one VM, pick it and ignore what is saved in settings.
+                    if (nameToResources.size() == 1) {
+                        android.util.Log.e(TAG, "A single VM was found, so picking it.");
+                        String key = (String)nameToResources.keySet().toArray()[0];
+                        PveResource a = nameToResources.get(key);
+                        node = a.getNode();
+                        virt = a.getType();
+                        settings.setVmname(a.getVmid());
+                        settings.saveToSharedPreferences(getContext());
+                    } else {
+                        while (settings.getVmname().isEmpty()) {
+                            android.util.Log.i (TAG, "PVE: Displaying a dialog with VMs to the user.");
+                            // Populate the data structure that is used to convert VM names to IDs.
+                            for (String s : nameToResources.keySet()) {
+                                vmNameToId.put(nameToResources.get(s).getName() + " (" + s + ")", s);
+                            }
+                            // Get the user parseable names and display them
+                            ArrayList<String> vms = new ArrayList<String>(vmNameToId.keySet());
+                            handler.sendMessage(RemoteCanvasActivityHandler.getMessageStringList(
+                                    RemoteClientLibConstants.DIALOG_DISPLAY_VMS, "vms", vms));
+                            synchronized(spicecomm) {
+                                spicecomm.wait();
                             }
                         }
 
+                        // At this point, either the user selected a VM or there was an ID saved.
+                        if (nameToResources.get(settings.getVmname()) != null) {
+                            node = nameToResources.get(settings.getVmname()).getNode();
+                            virt = nameToResources.get(settings.getVmname()).getType();
+                        } else {
+                            android.util.Log.e(TAG, "No VM with the following ID was found: " + settings.getVmname());
+                            disconnectAndShowMessage(R.string.error_no_such_vm_found_for_user, R.string.error_dialog_title);
+                            return;
+                        }
                     }
 
+                    vmId = settings.getVmname();
                     // Only if we managed to obtain a VM name we try to get a .vv file for the display.
-                    if (!settings.getVmname().isEmpty()) {
-                        String vvFileName = retrieveVvFileFromPve(host, api);
+                    if (!vmId.isEmpty()) {
+                        String vvFileName = retrieveVvFileFromPve(host, api, vmId, node, virt);
                         if (vvFileName != null) {
                             startFromVvFile(vvFileName);
                         }
