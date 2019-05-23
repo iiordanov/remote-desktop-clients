@@ -292,8 +292,42 @@ static void mark(SpiceChannel *channel, gint mark, gpointer data) {
     d->mark = mark;
 }
 
-static void disconnect_main(SpiceDisplay *display)
-{
+static void cursor_set(SpiceCursorChannel *channel,
+                       G_GNUC_UNUSED GParamSpec *pspec,
+                       gpointer data) {
+    //__android_log_write(ANDROID_LOG_INFO, "android-spice", "cursor_set");
+    // TODO: implement extracting cursor shape and drawing it.
+}
+
+static void cursor_move(SpiceCursorChannel *channel, gint x, gint y, gpointer data) {
+    //__android_log_write(ANDROID_LOG_DEBUG, "android-spice", "cursor_move");
+
+    SpiceDisplay *display = data;
+    SpiceDisplayPrivate *d = display->priv;
+
+    d->mouse_guest_x = x;
+    d->mouse_guest_y = y;
+
+    JNIEnv* env;
+    gboolean attached = attachThreadToJvm (&env);
+
+    // Tell the UI that it needs to send in the bitmap to be updated and to redraw.
+    (*env)->CallStaticVoidMethod(env, jni_connector_class, jni_mouse_update, x, y);
+
+    if (attached) {
+        detachThreadFromJvm ();
+    }
+}
+
+static void cursor_hide(SpiceCursorChannel *channel, gpointer data) {
+    //__android_log_write(ANDROID_LOG_DEBUG, "android-spice", "cursor_hide");
+}
+
+static void cursor_reset(SpiceCursorChannel *channel, gpointer data) {
+    //__android_log_write(ANDROID_LOG_DEBUG, "android-spice", "cursor_reset");
+}
+
+static void disconnect_main(SpiceDisplay *display) {
 	SpiceDisplayPrivate *d = SPICE_DISPLAY_GET_PRIVATE(display);
     //gint i;
 
@@ -338,6 +372,7 @@ static void channel_new(SpiceSession *s, SpiceChannel *channel, gpointer data)
         spice_g_signal_connect_object(channel, "main-mouse-update",
                                       G_CALLBACK(update_mouse_mode), display, 0);
         update_mouse_mode(channel, display);
+        spice_main_request_mouse_mode((SpiceMainChannel*)channel, SPICE_MOUSE_MODE_CLIENT);
         // TODO: For now, connect to this signal with a callback that disables
         // any secondary displays that crop up.
         g_signal_connect(channel, "main-agent-update",
@@ -361,21 +396,27 @@ static void channel_new(SpiceSession *s, SpiceChannel *channel, gpointer data)
         return;
     }
 
-    //if (SPICE_IS_CURSOR_CHANNEL(channel)) {
-    //    if (id != d->channel_id)
-    //        return;
-    //    d->cursor = SPICE_CURSOR_CHANNEL(channel);
-    //    g_signal_connect(channel, "cursor-set",
-    //                     G_CALLBACK(cursor_set), display);
-    //    g_signal_connect(channel, "cursor-move",
-    //                     G_CALLBACK(cursor_move), display);
-    //    g_signal_connect(channel, "cursor-hide",
-    //                     G_CALLBACK(cursor_hide), display);
-    //    g_signal_connect(channel, "cursor-reset",
-    //                     G_CALLBACK(cursor_reset), display);
-    //    spice_channel_connect(channel);
-    //    return;
-    //}
+    if (SPICE_IS_CURSOR_CHANNEL(channel)) {
+        gpointer cursor_shape;
+        if (id != d->channel_id)
+            return;
+        d->cursor = SPICE_CURSOR_CHANNEL(channel);
+        spice_g_signal_connect_object(channel, "notify::cursor",
+                                      G_CALLBACK(cursor_set), display, 0);
+        spice_g_signal_connect_object(channel, "cursor-move",
+                                      G_CALLBACK(cursor_move), display, 0);
+        spice_g_signal_connect_object(channel, "cursor-hide",
+                                      G_CALLBACK(cursor_hide), display, 0);
+        spice_g_signal_connect_object(channel, "cursor-reset",
+                                      G_CALLBACK(cursor_reset), display, 0);
+        spice_channel_connect(channel);
+
+        g_object_get(G_OBJECT(channel), "cursor", &cursor_shape, NULL);
+        if (cursor_shape != NULL) {
+            cursor_set(d->cursor, NULL, display);
+        }
+        return;
+    }
 
     if (SPICE_IS_INPUTS_CHANNEL(channel)) {
         d->inputs = SPICE_INPUTS_CHANNEL(channel);
@@ -416,12 +457,12 @@ static void channel_destroy(SpiceSession *s, SpiceChannel *channel, gpointer dat
         return;
     }
 
-    //if (SPICE_IS_CURSOR_CHANNEL(channel)) {
-    //    if (id != d->channel_id)
-    //        return;
-    //    disconnect_cursor(display);
-    //    return;
-    //}
+    if (SPICE_IS_CURSOR_CHANNEL(channel)) {
+        if (id != d->channel_id)
+            return;
+        d->cursor = NULL;
+        return;
+    }
 
     if (SPICE_IS_INPUTS_CHANNEL(channel)) {
         d->inputs = NULL;

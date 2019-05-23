@@ -237,6 +237,8 @@ gboolean getJvmAndMethodReferences (JNIEnv *env) {
 	// Get global method IDs for callback methods.
 	jni_settings_changed = (*env)->GetStaticMethodID (env, jni_connector_class, "OnSettingsChanged", "(IIII)V");
 	jni_graphics_update  = (*env)->GetStaticMethodID (env, jni_connector_class, "OnGraphicsUpdate", "(IIIII)V");
+	jni_mouse_update     = (*env)->GetStaticMethodID (env, jni_connector_class, "OnMouseUpdate", "(II)V");
+	jni_mouse_mode       = (*env)->GetStaticMethodID (env, jni_connector_class, "OnMouseMode", "(Z)V");
 	return TRUE;
 }
 

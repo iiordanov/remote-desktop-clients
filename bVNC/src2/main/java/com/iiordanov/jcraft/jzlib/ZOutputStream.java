@@ -33,7 +33,9 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
 package com.iiordanov.jcraft.jzlib;
-import java.io.*;
+
+import java.io.IOException;
+import java.io.OutputStream;
 
 public class ZOutputStream extends OutputStream {
 

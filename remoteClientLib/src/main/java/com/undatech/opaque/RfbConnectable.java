@@ -31,7 +31,7 @@ public interface RfbConnectable {
     public void setIsInNormalProtocol (boolean state);
     boolean isInNormalProtocol();
     String getEncoding ();
-    void writePointerEvent(int x, int y, int metaState, int pointerMask);
+    void writePointerEvent(int x, int y, int metaState, int pointerMask, boolean relative);
     void writeKeyEvent(int key, int metaState, boolean down);
     void writeSetPixelFormat(int bitsPerPixel, int depth, boolean bigEndian,
                boolean trueColour, int redMax, int greenMax, int blueMax,

@@ -705,4 +705,5 @@ Known issues:
     <string name="warning_cert_does_not_match">WARNING: The saved x509 certificate or passed in signature does not match the current server certificate! This could be a man-in-the-middle attack. If you are aware of the key change you may proceed. </string>
     <string name="copy_logcat">Copy Logcat</string>
     <string name="log_copied">Logcat copied to clipboard. You can now paste it in an email or on the support forum. Please look through for any personal data before posting.</string>
+    <string name="info_set_touchpad_input_mode">The server reports that it does not support Client Mode Mouse Input, and the current mouse input mode will not work correctly. If this persists, make sure spice tools is installed in the virtual machine or switch to Simulated Touchpad Input Mode from the Menu.</string>
 </resources>

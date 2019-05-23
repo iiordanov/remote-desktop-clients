@@ -20,8 +20,6 @@
 
 package com.iiordanov.bVNC.dialogs;
 
-import java.io.IOException;
-
 import java.util.ArrayList;
 
 import com.iiordanov.bVNC.input.RemoteKeyboard;

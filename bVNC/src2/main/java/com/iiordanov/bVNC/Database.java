@@ -21,12 +21,8 @@
 package com.iiordanov.bVNC;
 
 import java.io.File;
-
-import javax.crypto.NullCipher;
-
 import android.content.Context;
 import net.sqlcipher.database.SQLiteDatabase;
-import net.sqlcipher.database.SQLiteException;
 import net.sqlcipher.database.SQLiteOpenHelper;
 import android.util.Log;
 import com.iiordanov.bVNC.*;

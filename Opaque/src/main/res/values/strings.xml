@@ -135,7 +135,8 @@ All Input Method:
 <string name="info_vm_launched_on_stand_by">Your VM was found powered off and has been started. Please try again in a couple of minutes. If you try too soon and get a connection failure, try again later.</string>
 <string name="error_connection_interrupted">Connection interrupted.</string>
 <string name="error_no_user_hostname">Please enter at least a user and a hostname or IP address.</string>
-<string name="error_no_vm_found_for_user">No available Virtual Machines for the given user.</string>
+ <string name="error_no_vm_found_for_user">No available Virtual Machines for the given user.</string>
+ <string name="error_no_such_vm_found_for_user">No Virtual Machine with the ID provided was found for the given user. Erase the ID to get a list of VMs.</string>
 <string name="error_no_vnc_support_yet">VNC display type not supported yet, but it is an upcoming feature. Thanks for your understanding!</string>
 <string name="error_not_connected_to_network">You do not appear to be connected to the Internet. Cannot continue without being connected!</string>
 <string name="error_out_of_memory">"Unable to allocate sufficient memory to draw remote screen. Try restarting the application, then restart your device. You can also try reducing the size of the remote desktop through the app settings."</string>
@@ -145,7 +146,7 @@ All Input Method:
 <string name="error_ovirt_ssl_handshake_failure">SSL handshake failure. There is a problem with the server SSL certificate. If you are using a self-signed certificate, you need to (re)import your certificate authority.</string>
 <string name="error_pve_failed_to_authenticate">Failed to authenticate to Proxmox Virtual Environment. Please make sure you enter your username in user@realm format and that you password is correct.</string>
 <string name="error_pve_failed_to_parse_json">Failed to parse response from Proxmox Virtual Environment.</string>
-<string name="error_pve_vmid_not_numeric">VM ID not numeric. Please make sure it is an integer.</string>
+<string name="error_pve_vmid_not_numeric">VM ID not numeric. Please enter a numeric VM ID or leave empty to choose the VM from a list.</string>
 <string name="error_pve_api_unexpected_code">Unexpected response from Proxmox Virtual Environment: </string>
 <string name="error_pve_api_io_error">Connection to Proxmox Virtual Environment failed: </string>
 <string name="error_pve_null_data">Proxmox Virtual Environment returned null data.</string>
@@ -158,4 +159,5 @@ All Input Method:
 <string name="usb">USB (plug in OTG cable first)</string>
     <string name="log_copied">Logcat copied to clipboard. You can now paste it in an email or on the support forum. Please look through for any personal data before posting.</string>
     <string name="copy_logcat">Copy Logcat</string>
+    <string name="info_set_touchpad_input_mode">The server reports that it does not support Client Mode Mouse Input, and the current mouse input mode will not work correctly. If this persists, make sure spice tools is installed in the virtual machine or switch to Simulated Touchpad Input Mode from the Menu.</string>
 </resources>

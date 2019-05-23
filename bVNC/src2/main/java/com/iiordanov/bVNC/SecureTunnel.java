@@ -35,7 +35,6 @@ import javax.net.ssl.X509TrustManager;
 
 import android.os.Handler;
 import android.os.Message;
-import android.util.Base64;
 import android.util.Log;
 
 // this is a secure tunnel meant to be established prior to creating the rfb connection
@@ -159,6 +158,8 @@ public class SecureTunnel implements X509TrustManager
 	
 	public static boolean isSignatureEqual(int hashAlgorithm, String expectedSignature, byte[] remoteData) throws Exception
 	{
+		if (Utils.isNullOrEmptry(expectedSignature))
+			return false;
 		String trimExpectedSignature = expectedSignature.trim();
 		if (Utils.isNullOrEmptry(trimExpectedSignature))
 			return false;

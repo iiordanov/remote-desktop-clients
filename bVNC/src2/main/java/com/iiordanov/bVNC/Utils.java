@@ -60,8 +60,12 @@ import android.view.ViewConfiguration;
 
 public class Utils {
     private final static String TAG = "Utils";
+    private static AlertDialog alertDialog;
 
     public static void showYesNoPrompt(Context _context, String title, String message, OnClickListener onYesListener, OnClickListener onNoListener) {
+        if (alertDialog != null) {
+            alertDialog.dismiss();
+        }
         AlertDialog.Builder builder = new AlertDialog.Builder(_context);
         builder.setTitle(title);
         builder.setIcon(android.R.drawable.ic_dialog_info);
@@ -72,12 +76,15 @@ public class Utils {
         boolean show = true;
         if ( _context instanceof Activity ) {
             Activity activity = (Activity) _context;
-            if (activity.isFinishing()) {
+            if (activity.isFinishing() || alertDialog != null && alertDialog.isShowing()) {
                 show = false;
             }
         }
-        if (show)
-            builder.show();
+
+        if (show) {
+            alertDialog = builder.create();
+            alertDialog.show();
+        }
     }
     
     private static final Intent docIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://code.google.com/p/android-vnc-viewer/wiki/Documentation")); 
@@ -107,13 +114,19 @@ public class Utils {
     }
 
     public static void showErrorMessage(Context _context, String message) {
-        showMessage(_context, "Error!", message, android.R.drawable.ic_dialog_alert, null);
+        showMessage(_context, "Error!", message, android.R.drawable.ic_dialog_alert, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
     }
 
     public static void showFatalErrorMessage(final Context _context, String message) {
         showMessage(_context, "Error!", message, android.R.drawable.ic_dialog_alert, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
                 if ( _context instanceof AppCompatActivity ) {
                     ((AppCompatActivity) _context).finish();
                 } else if ( _context instanceof FragmentActivity ) {
@@ -126,6 +139,9 @@ public class Utils {
     }
     
     public static void showMessage(Context _context, String title, String message, int icon, DialogInterface.OnClickListener ackHandler) {
+        if (alertDialog != null) {
+            alertDialog.dismiss();
+        }
         AlertDialog.Builder builder = new AlertDialog.Builder(_context);
         builder.setTitle(title);
         builder.setMessage(Html.fromHtml(message));
@@ -139,8 +155,10 @@ public class Utils {
                 show = false;
             }
         }
-        if (show)
-            builder.show();
+        if (show) {
+            alertDialog = builder.create();
+            alertDialog.show();
+        }
     }
     
     /**

@@ -44,7 +44,6 @@ import android.widget.ImageView.ScaleType;
 import com.antlersoft.android.dbimpl.NewInstance;
 import com.iiordanov.bVNC.input.InputHandlerDirectSwipePan;
 import com.iiordanov.bVNC.*;
-import com.iiordanov.bVNC.input.InputHandlerTouchpad;
 import com.iiordanov.freebVNC.*;
 import com.iiordanov.aRDP.*;
 import com.iiordanov.freeaRDP.*;

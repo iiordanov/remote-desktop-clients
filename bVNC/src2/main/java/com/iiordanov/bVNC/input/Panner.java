@@ -26,7 +26,6 @@ import com.iiordanov.bVNC.RemoteCanvasActivity;
 import android.graphics.PointF;
 import android.os.Handler;
 import android.os.SystemClock;
-import android.util.Log;
 
 /**
  * Handles panning the screen continuously over a period of time

@@ -20,9 +20,7 @@
 package com.iiordanov.bVNC.input;
 
 import android.os.Handler;
-import android.view.KeyEvent;
 import android.view.MotionEvent;
-import android.view.ViewConfiguration;
 
 import com.iiordanov.bVNC.RemoteCanvas;
 import com.undatech.opaque.RfbConnectable;
@@ -128,7 +126,7 @@ public class RemoteVncPointer extends RemotePointer {
             if (prevPointerMask != 0 && prevPointerMask != pointerMask) {
                 protocomm.writePointerEvent(pointerX, pointerY, 
                                             combinedMetaState,
-                                            prevPointerMask & ~POINTER_DOWN_MASK);
+                                            prevPointerMask & ~POINTER_DOWN_MASK, false);
             }
             prevPointerMask = pointerMask;
         }
@@ -150,7 +148,7 @@ public class RemoteVncPointer extends RemotePointer {
         }
         canvas.invalidateMousePosition();
         
-        protocomm.writePointerEvent(pointerX, pointerY, combinedMetaState, pointerMask);
+        protocomm.writePointerEvent(pointerX, pointerY, combinedMetaState, pointerMask, false);
     }
     
     public boolean processPointerEvent(int x, int y, int action, int modifiers, boolean mouseIsDown, boolean useRightButton,
@@ -200,7 +198,8 @@ public class RemoteVncPointer extends RemotePointer {
             }
             canvas.invalidateMousePosition();
             
-            protocomm.writePointerEvent(pointerX, pointerY, modifiers|canvas.getKeyboard().getMetaState(), pointerMask);
+            protocomm.writePointerEvent(pointerX, pointerY,
+                    modifiers|canvas.getKeyboard().getMetaState(), pointerMask, false);
             return true;
         }
         return false;

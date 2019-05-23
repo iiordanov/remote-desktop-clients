@@ -23,7 +23,6 @@ package com.iiordanov.bVNC.input;
 import com.iiordanov.bVNC.RemoteCanvas;
 
 import android.os.Handler;
-import android.view.KeyEvent;
 
 public class PanRepeater implements Runnable {
 	

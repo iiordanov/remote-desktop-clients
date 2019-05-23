@@ -26,7 +26,6 @@ import com.iiordanov.bVNC.RemoteCanvasActivity;
 import android.graphics.PointF;
 import android.os.Handler;
 import android.view.KeyEvent;
-import android.view.MotionEvent;
 
 /**
  * Input handlers delegate to this class to handle keystrokes; this detects keystrokes

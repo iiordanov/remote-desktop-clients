@@ -88,7 +88,7 @@ public class SpiceCommunicator implements RfbConnectable {
                                             String cert_subj,
                                             boolean sound);
     public native void SpiceClientDisconnect();
-    public native void SpiceButtonEvent(int x, int y, int metaState, int pointerMask);
+    public native void SpiceButtonEvent(int x, int y, int metaState, int pointerMask, boolean rel);
     public native void SpiceKeyEvent(boolean keyDown, int virtualKeyCode);
     public native void UpdateBitmap(Bitmap bitmap, int x, int y, int w, int h);
     public native void SpiceRequestResolution(int x, int y);
@@ -257,11 +257,11 @@ public class SpiceCommunicator implements RfbConnectable {
             }
         }
     }
-    
-    public void sendMouseEvent (int x, int y, int metaState, int pointerMask) {
+
+    public void sendMouseEvent (int x, int y, int metaState, int pointerMask, boolean rel) {
         //android.util.Log.d(TAG, "sendMouseEvent: " + x +"x" + y + "," + "metaState: " +
         //                   metaState + ", pointerMask: " + pointerMask);
-        SpiceButtonEvent(x, y, metaState, pointerMask);
+        SpiceButtonEvent(x, y, metaState, pointerMask, rel);
     }
 
     public void sendSpiceKeyEvent (boolean keyDown, int virtualKeyCode) {
@@ -314,11 +314,11 @@ public class SpiceCommunicator implements RfbConnectable {
     }
 
     @Override
-    public void writePointerEvent(int x, int y, int metaState, int pointerMask) {
+    public void writePointerEvent(int x, int y, int metaState, int pointerMask, boolean rel) {
         remoteMetaState = metaState; 
         if ((pointerMask & RemotePointer.POINTER_DOWN_MASK) != 0)
             sendModifierKeys(true);
-        sendMouseEvent(x, y, metaState, pointerMask);
+        sendMouseEvent(x, y, metaState, pointerMask, rel);
         if ((pointerMask & RemotePointer.POINTER_DOWN_MASK) == 0)
             sendModifierKeys(false);
     }
@@ -535,4 +535,14 @@ public class SpiceCommunicator implements RfbConnectable {
         //myself.onGraphicsUpdate(x, y, width, height);
     }
     /* END Callbacks from jni and corresponding non-static methods */
+
+    private static void OnMouseUpdate(int x, int y) {
+        //android.util.Log.i(TAG, "OnMouseUpdate called: " + x +", " + y);
+        myself.canvas.setMousePointerPosition(x, y);
+    }
+
+    private static void OnMouseMode(boolean relative) {
+        android.util.Log.i(TAG, "OnMouseMode called, relative: " + relative);
+        myself.canvas.mouseMode(relative);
+    }
 }

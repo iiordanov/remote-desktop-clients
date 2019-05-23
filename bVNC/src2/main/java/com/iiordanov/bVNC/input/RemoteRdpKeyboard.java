@@ -1,14 +1,11 @@
 package com.iiordanov.bVNC.input;
 
 import android.os.Handler;
-import android.os.SystemClock;
 import android.view.KeyCharacterMap;
 import android.view.KeyEvent;
-import android.view.MotionEvent;
 
 import com.iiordanov.bVNC.MetaKeyBean;
 import com.iiordanov.bVNC.RemoteCanvas;
-import com.iiordanov.tigervnc.rfb.UnicodeToKeysym;
 import com.undatech.opaque.RfbConnectable;
 import com.undatech.opaque.input.RdpKeyboardMapper;
 

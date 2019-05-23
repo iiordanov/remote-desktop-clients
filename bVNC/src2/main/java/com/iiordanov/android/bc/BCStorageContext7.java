@@ -8,8 +8,6 @@ import java.io.File;
 
 import com.iiordanov.bVNC.MainConfiguration;
 
-import android.content.Context;
-
 import android.os.Environment;
 
 /**
