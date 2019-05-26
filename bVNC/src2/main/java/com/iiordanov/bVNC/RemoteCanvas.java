@@ -419,7 +419,7 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
         // Create a session based on the bookmark
         session = GlobalApp.createSession(bookmark, this.getContext());
 
-        rdpcomm = new RdpCommunicator(session, handler, this);
+        rdpcomm = new RdpCommunicator(session, handler, this, connection.getUserName(), connection.getPassword(), connection.getRdpDomain());
         rfbconn = rdpcomm;
         pointer = new RemoteRdpPointer(rfbconn, RemoteCanvas.this, handler);
         keyboard = new RemoteRdpKeyboard(rfbconn, RemoteCanvas.this, handler);
@@ -441,9 +441,6 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
         bookmark.<ManualBookmark>get().setLabel(connection.getNickname());
         bookmark.<ManualBookmark>get().setHostname(address);
         bookmark.<ManualBookmark>get().setPort(rdpPort);
-        bookmark.<ManualBookmark>get().setUsername(connection.getUserName());
-        bookmark.<ManualBookmark>get().setDomain(connection.getRdpDomain());
-        bookmark.<ManualBookmark>get().setPassword(connection.getPassword());
 
         BookmarkBase.DebugSettings debugSettings = session.getBookmark().getDebugSettings();
         debugSettings.setDebugLevel("INFO");

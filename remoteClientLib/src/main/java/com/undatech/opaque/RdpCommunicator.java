@@ -40,16 +40,22 @@ public class RdpCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyPro
     // security certificate. Used to control progress while the dialog asking the user
     // to confirm the authenticity of a certificate is displayed.
     private boolean certificateAccepted = false;
+    private String u, p, d;
+    private boolean authenticationAttempted = false;
 
-    public RdpCommunicator(SessionState session, Handler handler, Viewable viewable) {
+    public RdpCommunicator(SessionState session, Handler handler, Viewable viewable, String u, String p, String d) {
         this.session = session;
         this.handler = handler;
         this.viewable = viewable;
         myself = this;
+        this.u = u;
+        this.p = p;
+        this.d = d;
     }
 
     @Override
     public void setIsInNormalProtocol (boolean state) {
+        android.util.Log.d(TAG, "setIsInNormalProtocol: " + state);
         isInNormalProtocol = state;
     }
     
@@ -261,9 +267,16 @@ public class RdpCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyPro
 
     @Override
     public void OnDisconnecting(long instance) {
-        myself.setIsInNormalProtocol(false);
-        Log.v(TAG, "OnDisconnecting");
-        handler.sendEmptyMessage(RemoteClientLibConstants.RDP_CONNECT_FAILURE);
+        Log.v(TAG, "OnDisconnecting, authenticationAttempted: " + authenticationAttempted +
+                         ", isInNormalProtocol: " + myself.isInNormalProtocol());
+        if (authenticationAttempted && !myself.isInNormalProtocol()) {
+            handler.sendEmptyMessage(RemoteClientLibConstants.RDP_AUTH_FAILED);
+        } else if (!myself.isInNormalProtocol()) {
+            handler.sendEmptyMessage(RemoteClientLibConstants.RDP_UNABLE_TO_CONNECT);
+        } else {
+            myself.setIsInNormalProtocol(false);
+            handler.sendEmptyMessage(RemoteClientLibConstants.RDP_CONNECT_FAILURE);
+        }
     }
 
     @Override
@@ -290,8 +303,17 @@ public class RdpCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyPro
     @Override
     public boolean OnAuthenticate(StringBuilder username, StringBuilder domain, StringBuilder password) {
         android.util.Log.e(TAG, "OnAuthenticate called.");
-        handler.sendEmptyMessage(RemoteClientLibConstants.RDP_AUTH_FAILED);
-        return false;
+        authenticationAttempted = true;
+
+        username.setLength(0);
+        domain.setLength(0);
+        password.setLength(0);
+
+        username.append(this.u);
+        domain.append(this.d);
+        password.append(this.p);
+
+        return true;
     }
 
     @Override
