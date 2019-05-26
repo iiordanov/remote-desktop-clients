@@ -60,10 +60,10 @@ public class X509Tunnel extends TLSTunnelBase {
     Log.i(TAG, "X509Tunnel ended.");
   }
 
-  private boolean tlsNewerThan1_3(String[] protocols) {
+  private boolean tlsIsOrNewerThan1_2(String[] protocols) {
       boolean result = false;
       for (String s : protocols) {
-          if (s.matches("TLSv1.[3-9]") || s.matches("TLSv[2-9].*")) {
+          if (s.matches("TLSv1.[2-9]") || s.matches("TLSv[2-9].*")) {
               result = true;
           }
       }
@@ -81,7 +81,7 @@ public class X509Tunnel extends TLSTunnelBase {
 
     for (int i = 0; i < supported.length; i++) {
       if (!supported[i].matches(".*DH_anon.*") &&
-           !(tlsNewerThan1_3(protocols) && supported[i].equals("TLS_FALLBACK_SCSV"))) {
+           !(tlsIsOrNewerThan1_2(protocols) && supported[i].equals("TLS_FALLBACK_SCSV"))) {
           Log.d(TAG, "Adding cipher: " + supported[i]);
           enabled.add (supported[i]);
       } else {
