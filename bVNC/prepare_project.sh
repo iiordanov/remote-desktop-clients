@@ -87,7 +87,7 @@ else
   find src2/main/java/com/iiordanov -name \*.java -exec sed -i "s/package.*CUSTOM_CLIENT_IMPORTS/package com\.iiordanov\.CustomClientPackage;/" {} \;
 fi
 
-./copy_prebuilt_files.sh $PRJ
+../copy_prebuilt_files.sh $PRJ
 
 if [ "$SKIP_BUILD" == "false" ]
 then
