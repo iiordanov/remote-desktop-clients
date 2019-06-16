@@ -362,7 +362,9 @@ class RfbProto implements RfbConnectable {
     public synchronized void closeSocket() {
         inNormalProtocol = false;
         try {
-            sock.close();
+            if (sock != null) {
+                sock.close();
+            }
             closed = true;
             Log.v(TAG, "RFB socket closed");
         } catch (Exception e) {
