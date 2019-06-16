@@ -63,7 +63,7 @@ public class Utils {
     private static AlertDialog alertDialog;
 
     public static void showYesNoPrompt(Context _context, String title, String message, OnClickListener onYesListener, OnClickListener onNoListener) {
-        if (alertDialog != null) {
+        if (alertDialog != null && alertDialog.isShowing()) {
             alertDialog.dismiss();
         }
         AlertDialog.Builder builder = new AlertDialog.Builder(_context);
@@ -139,7 +139,7 @@ public class Utils {
     }
     
     public static void showMessage(Context _context, String title, String message, int icon, DialogInterface.OnClickListener ackHandler) {
-        if (alertDialog != null) {
+        if (alertDialog != null && alertDialog.isShowing()) {
             alertDialog.dismiss();
         }
         AlertDialog.Builder builder = new AlertDialog.Builder(_context);

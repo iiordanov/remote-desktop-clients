@@ -70,7 +70,7 @@ public class MessageDialogs {
             int alertID, String appendText, DialogInterface.OnClickListener ok) {
 
         boolean show = true;
-        if (alertDialog != null) {
+        if (alertDialog != null && alertDialog.isShowing()) {
             alertDialog.dismiss();
         }
         if (context instanceof Activity) {
