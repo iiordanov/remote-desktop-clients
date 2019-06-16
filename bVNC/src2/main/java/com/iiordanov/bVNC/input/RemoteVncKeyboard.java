@@ -20,7 +20,7 @@ public class RemoteVncKeyboard extends RemoteKeyboard {
     }
 
     public boolean processLocalKeyEvent(int keyCode, KeyEvent evt, int additionalMetaState) {
-        android.util.Log.i(TAG, evt.toString() + " " + keyCode);
+        //android.util.Log.d(TAG, evt.toString() + " " + keyCode);
 
         if (rfb != null && rfb.isInNormalProtocol()) {
             RemotePointer pointer = canvas.getPointer();
