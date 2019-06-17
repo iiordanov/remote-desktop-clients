@@ -540,10 +540,13 @@ public class SpiceCommunicator implements RfbConnectable {
 
     private static void OnGraphicsUpdate(int inst, int x, int y, int width, int height) {
         //android.util.Log.i(TAG, "OnGraphicsUpdate called: " + x +", " + y + " + " + width + "x" + height );
-        synchronized (myself.canvas) {
-            myself.UpdateBitmap(myself.canvas.getBitmap(), x, y, width, height);
-        }    
-        myself.canvas.reDraw(x, y, width, height);
+        Bitmap bitmap = myself.canvas.getBitmap();
+        if (bitmap != null) {
+            synchronized (myself.canvas) {
+                myself.UpdateBitmap(bitmap, x, y, width, height);
+            }
+            myself.canvas.reDraw(x, y, width, height);
+        }
         //myself.onGraphicsUpdate(x, y, width, height);
     }
     /* END Callbacks from jni and corresponding non-static methods */

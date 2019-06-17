@@ -786,11 +786,15 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
             }
         }
 
-        initializeSoftCursor();
-        handler.post(drawableSetter);
-        handler.post(setModes);
-        myDrawable.syncScroll();
-        decoder.setBitmapData(myDrawable);
+        try {
+            initializeSoftCursor();
+            handler.post(drawableSetter);
+            handler.post(setModes);
+            myDrawable.syncScroll();
+            decoder.setBitmapData(myDrawable);
+        } catch (NullPointerException e) {
+            e.printStackTrace();
+        }
     }
 
 
@@ -1196,7 +1200,11 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
 
     @Override
     public Bitmap getBitmap() {
-        return myDrawable.mbitmap;
+        Bitmap bitmap = null;
+        if (myDrawable != null) {
+            bitmap = myDrawable.mbitmap;
+        }
+        return bitmap;
     }
 
     /**

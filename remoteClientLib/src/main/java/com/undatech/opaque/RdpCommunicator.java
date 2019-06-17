@@ -371,8 +371,8 @@ public class RdpCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyPro
                 synchronized (viewable) {
                     LibFreeRDP.updateGraphics(session.getInstance(), bitmap, x, y, width, height);
                 }
+                viewable.reDraw(x, y, width, height);
             }
-            viewable.reDraw(x, y, width, height);
         }
     }
 
