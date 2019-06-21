@@ -282,7 +282,7 @@ abstract class InputHandlerGeneric extends GestureDetector.SimpleOnGestureListen
 	 * @param y
 	 * @param meta
 	 */
-	private void sendScrollEvents (int x, int y, int meta) {
+	protected void sendScrollEvents (int x, int y, int meta) {
     	int numEvents = 0;
     	while (numEvents < swipeSpeed && numEvents < maxSwipeSpeed) {
     		if         (scrollDown) {

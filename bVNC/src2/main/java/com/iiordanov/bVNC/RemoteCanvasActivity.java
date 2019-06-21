@@ -87,6 +87,7 @@ import com.iiordanov.bVNC.input.InputHandlerDirectDragPan;
 import com.iiordanov.bVNC.input.InputHandlerDirectSwipePan;
 import com.iiordanov.bVNC.input.InputHandlerSingleHanded;
 import com.iiordanov.bVNC.input.InputHandlerTouchpad;
+import com.iiordanov.bVNC.input.InputHandlerTablet;
 import com.iiordanov.bVNC.input.Panner;
 import com.iiordanov.bVNC.input.RemoteKeyboard;
 import com.iiordanov.bVNC.input.RemotePointer;
@@ -114,9 +115,10 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
     private InputHandler inputModeHandlers[];
     private ConnectionBean connection;
     static final int[] inputModeIds = { R.id.itemInputTouchpad,
-                                                R.id.itemInputTouchPanZoomMouse,
-                                                R.id.itemInputDragPanZoomMouse,
-                                                R.id.itemInputSingleHanded };
+                                        R.id.itemInputTouchPanZoomMouse,
+                                        R.id.itemInputTablet,
+                                        R.id.itemInputDragPanZoomMouse,
+                                        R.id.itemInputSingleHanded };
     private static final int scalingModeIds[] = { R.id.itemZoomable, R.id.itemFitToScreen,
                                                   R.id.itemOneToOne};
 
@@ -125,6 +127,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
         Map<Integer, String> temp = new HashMap<>();
         temp.put(R.id.itemInputTouchpad, InputHandlerTouchpad.ID);
         temp.put(R.id.itemInputDragPanZoomMouse, InputHandlerDirectDragPan.ID);
+        temp.put(R.id.itemInputTablet, InputHandlerTablet.ID);
         temp.put(R.id.itemInputTouchPanZoomMouse, InputHandlerDirectSwipePan.ID);
         temp.put(R.id.itemInputSingleHanded, InputHandlerSingleHanded.ID);
         inputModeMap = Collections.unmodifiableMap(temp);
@@ -1080,6 +1083,9 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
                         break;
                     case R.id.itemInputDragPanZoomMouse:
                         inputModeHandlers[i] = new InputHandlerDirectDragPan(this, canvas, pointer, myVibrator);
+                        break;
+                    case R.id.itemInputTablet:
+                        inputModeHandlers[i] = new InputHandlerTablet(this, canvas, pointer, myVibrator);
                         break;
                     case R.id.itemInputTouchpad:
                         inputModeHandlers[i] = new InputHandlerTouchpad(this, canvas, pointer, myVibrator);
