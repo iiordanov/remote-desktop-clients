@@ -151,7 +151,7 @@ public class RemoteSpicePointer extends RemotePointer {
         
         if (shouldBeRightClick(e)) {
             pointerMask |= RemoteSpicePointer.SPICE_MOUSE_BUTTON_RIGHT;
-            spicecomm.writePointerEvent(getX(), getY(), combinedMetastate, pointerMask);
+            spicecomm.writePointerEvent(getX(), getY(), combinedMetastate, pointerMask, false);
             used = true;
         }
         return used;
@@ -221,7 +221,24 @@ public class RemoteSpicePointer extends RemotePointer {
         prevPointerMask = 0;
         sendPointerEvent (x, y, metaState, false);
     }
-    
+
+    /**
+     * Clears mouse down events to avoid stuck buttons.
+     */
+    private void clearPointerMaskEvent(int x, int y, boolean isMoving, int combinedMetaState) {
+        // Save the previous pointer mask other than action_move, so we can
+        // send it with the pointer flag "not down" to clear the action.
+        if (!isMoving) {
+            // If this is a new mouse down event,
+            // release previous button pressed to avoid confusing the remote OS.
+            if (prevPointerMask != 0 && prevPointerMask != pointerMask) {
+                spicecomm.writePointerEvent(x, y, combinedMetaState,
+                        prevPointerMask & ~POINTER_DOWN_MASK, relativeEvents);
+            }
+            prevPointerMask = pointerMask;
+        }
+    }
+
     /**
      * Sends a pointer event to the server.
      * @param x
@@ -230,38 +247,36 @@ public class RemoteSpicePointer extends RemotePointer {
      * @param isMoving
      */
     private void sendPointerEvent(int x, int y, int metaState, boolean isMoving) {
-        
+
         int combinedMetaState = metaState|canvas.getKeyboard().getMetaState();
-        
-        // Save the previous pointer mask other than action_move, so we can
-        // send it with the pointer flag "not down" to clear the action.
-        if (!isMoving) {
-            // If this is a new mouse down event, release previous button pressed to avoid confusing the remote OS.
-            if (prevPointerMask != 0 && prevPointerMask != pointerMask) {
-                spicecomm.writePointerEvent(pointerX, pointerY,
-                                            combinedMetaState,
-                                            prevPointerMask & ~POINTER_DOWN_MASK);
+
+        if (relativeEvents) {
+            int relX = x - pointerX;
+            int relY = y - pointerY;
+            //android.util.Log.d(TAG, "Sending relative mouse event: " + relX + ", " + relY);
+            clearPointerMaskEvent(relX, relY, isMoving, combinedMetaState);
+            spicecomm.writePointerEvent(relX, relY, combinedMetaState, pointerMask, relativeEvents);
+
+        } else {
+            canvas.reDrawRemotePointer(x, y);
+            pointerX = x;
+            pointerY = y;
+            // Do not let mouse pointer leave the bounds of the desktop.
+            // Do not let mouse pointer leave the bounds of the desktop.
+            if ( pointerX < 0) {
+                pointerX = 0;
+            } else if ( pointerX >= canvas.getDesktopWidth()) {
+                pointerX = spicecomm.framebufferWidth()  - 1;
             }
-            prevPointerMask = pointerMask;
+            if ( pointerY < 0) {
+                pointerY=0;
+            } else if ( pointerY >= canvas.getDesktopHeight()) {
+                pointerY = spicecomm.framebufferHeight() - 1;
+            }
+            clearPointerMaskEvent(x, y, isMoving, combinedMetaState);
+            spicecomm.writePointerEvent(pointerX, pointerY, combinedMetaState, pointerMask,
+                                        relativeEvents);
+            canvas.reDrawRemotePointer(x, y);
         }
-
-        canvas.reDrawRemotePointer(x, y);
-        pointerX = x;
-        pointerY = y;
-
-        // Do not let mouse pointer leave the bounds of the desktop.
-        if ( pointerX < 0) {
-            pointerX = 0;
-        } else if ( pointerX >= canvas.getDesktopWidth()) {
-            pointerX = spicecomm.framebufferWidth()  - 1;
-        }
-        if ( pointerY < 0) { 
-            pointerY=0;
-        } else if ( pointerY >= canvas.getDesktopHeight()) {
-            pointerY = spicecomm.framebufferHeight() - 1;
-        }
-        canvas.reDrawRemotePointer(x, y);
-        
-        spicecomm.writePointerEvent(pointerX, pointerY, combinedMetaState, pointerMask);
     }
 }

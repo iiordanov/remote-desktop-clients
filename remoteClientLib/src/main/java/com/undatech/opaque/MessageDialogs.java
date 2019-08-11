@@ -20,6 +20,7 @@
 package com.undatech.opaque;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -31,6 +32,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 public class MessageDialogs {
+    private static final String TAG = "MessageDialogs";
+    private static Runnable showMessageRunnable;
+    private static AlertDialog alertDialog;
 
     /**
      * Converts a given sequence of bytes to a human-readable colon-separated
@@ -64,40 +68,63 @@ public class MessageDialogs {
      */
     private static void displayDialog(final Context context, int alertTitleID,
             int alertID, String appendText, DialogInterface.OnClickListener ok) {
-        boolean show = true;
-        if (context instanceof Activity) {
-            Activity activity = (Activity) context;
-            if (activity.isFinishing()) {
-                show = false;
+        try {
+            boolean show = true;
+            if (alertDialog != null && alertDialog.isShowing()) {
+                alertDialog.dismiss();
             }
-        }
+            if (context instanceof Activity) {
+                Activity activity = (Activity) context;
+                if (activity.isFinishing()) {
+                    show = false;
+                }
+            }
 
-        if (show) {
-            Builder builder = new Builder((Activity) context);
-            builder.setCancelable(false);
-            builder.setTitle(alertTitleID);
-            String displayText = context.getString(alertID);
-            if (appendText != null) {
-                displayText = displayText + " " + appendText;
+            if (show) {
+                Builder builder = new Builder((Activity) context);
+                builder.setCancelable(false);
+                builder.setTitle(alertTitleID);
+                String displayText = context.getString(alertID);
+                if (appendText != null) {
+                    displayText = displayText + " " + appendText;
+                }
+                Spanned text = Html.fromHtml(displayText);
+                final TextView message = new TextView(context);
+                message.setText(text);
+                message.setMovementMethod(LinkMovementMethod.getInstance());
+                message.setPaddingRelative(50, 50, 50, 50);
+                builder.setView(message);
+                builder.setPositiveButton("OK", ok);
+                alertDialog = builder.create();
+                alertDialog.show();
             }
-            Spanned text = Html.fromHtml(displayText);
-            final TextView message = new TextView(context);
-            message.setText(text);
-            message.setMovementMethod(LinkMovementMethod.getInstance());
-            message.setPaddingRelative(50, 50, 50, 50);
-            builder.setView(message);
-            builder.setPositiveButton("OK", ok);
-            builder.show();
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
         }
     }
 
     /**
      * Displays an info dialog which is dismissed on pressing OK.
-     * 
+     *
      * @param context
      */
-    public static void displayMessage(final Context context, int infoId,
-            int titleId) {
+    public static void displayMessage(final Handler handler, final Context context,
+                                      final int infoId, final int titleId) {
+        android.util.Log.d(TAG, "displayMessage");
+        if (showMessageRunnable == null) {
+            showMessageRunnable = new Runnable() {
+                @Override
+                public void run() {
+                    displayMessage(context, infoId, titleId);
+                }
+            };
+        }
+        handler.removeCallbacks(showMessageRunnable);
+        handler.post(showMessageRunnable);
+    }
+
+
+    public static void displayMessage(final Context context, int infoId, int titleId) {
         displayDialog(context, titleId, infoId, null,
                 new DialogInterface.OnClickListener() {
                     @Override
@@ -113,8 +140,7 @@ public class MessageDialogs {
      * 
      * @param context
      */
-    public static void displayMessageAndFinish(final Context context,
-            int messageId, int titleId) {
+    public static void displayMessageAndFinish(final Context context, int messageId, int titleId) {
         displayDialog(context, titleId, messageId, null,
                 new DialogInterface.OnClickListener() {
                     @Override
@@ -130,8 +156,8 @@ public class MessageDialogs {
      * 
      * @param context
      */
-    public static void displayMessageAndFinish(final Context context,
-            int messageId, int titleId, String appendText) {
+    public static void displayMessageAndFinish(final Context context, int messageId, int titleId,
+                                               String appendText) {
         displayDialog(context, titleId, messageId, appendText,
                 new DialogInterface.OnClickListener() {
                     @Override

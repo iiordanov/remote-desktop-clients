@@ -104,7 +104,7 @@ public class ConnectionSettings implements Serializable {
     }
     
     public String getVmname() {
-        return vmname;
+        return vmname.trim();
     }
     
     public void setVmname(String vmname) {

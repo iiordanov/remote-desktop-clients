@@ -29,7 +29,6 @@ import java.util.HashMap;
 import android.content.res.Resources;
 import android.os.Handler;
 import android.view.KeyEvent;
-import android.view.MotionEvent;
 
 import com.iiordanov.bVNC.Constants;
 import com.iiordanov.bVNC.MetaKeyBean;

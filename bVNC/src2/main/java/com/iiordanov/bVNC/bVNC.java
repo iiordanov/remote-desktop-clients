@@ -21,14 +21,10 @@
 
 package com.iiordanov.bVNC;
 
-import android.Manifest;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.AdapterView;
@@ -370,7 +366,12 @@ public class bVNC extends MainConfiguration {
         checkboxViewOnly.setChecked(selected.getViewOnly());
         textNickname.setText(selected.getNickname());
         textUsername.setText(selected.getUserName());
-        COLORMODEL cm = COLORMODEL.valueOf(selected.getColorModel());
+        COLORMODEL cm = COLORMODEL.C24bit;
+        try {
+            cm = COLORMODEL.valueOf(selected.getColorModel());
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+        }
         COLORMODEL[] colors = COLORMODEL.values();
 
         spinnerVncGeometry.setSelection(selected.getRdpResType());

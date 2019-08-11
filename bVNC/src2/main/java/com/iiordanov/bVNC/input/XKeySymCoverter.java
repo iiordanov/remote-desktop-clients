@@ -36,7 +36,6 @@
  */
 
 package com.iiordanov.bVNC.input;
-import android.util.Log;
 
 public class XKeySymCoverter {
     private final static String TAG = "XKeySymCoverter";

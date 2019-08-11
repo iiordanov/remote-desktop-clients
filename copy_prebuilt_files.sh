@@ -3,7 +3,7 @@
 SKIP_BUILD=false
 
 usage () {
-  echo "$0 bVNC|freebVNC|aSPICE|freeaSPICE|aRDP|freeaRDP"
+  echo "$0 bVNC|freebVNC|aSPICE|freeaSPICE|aRDP|freeaRDP|Opaque"
   exit 1
 }
 
@@ -14,7 +14,7 @@ PRJ="$1"
 
 if [ "$PRJ" != "bVNC" -a "$PRJ" != "freebVNC" \
   -a "$PRJ" != "aSPICE" -a "$PRJ" != "freeaSPICE" \
-  -a "$PRJ" != "aRDP" -a "$PRJ" != "freeaRDP" ]
+  -a "$PRJ" != "aRDP" -a "$PRJ" != "freeaRDP" -a "$PRJ" != "Opaque" ]
 then
   usage
 fi

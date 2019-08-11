@@ -38,6 +38,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.provider.Settings;
@@ -56,6 +57,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Bitmap;
 import android.graphics.RectF;
 
+import com.undatech.opaque.input.InputHandlerTouchpad;
 import com.undatech.opaque.input.RemoteKeyboard;
 import com.undatech.opaque.input.RemotePointer;
 import com.undatech.opaque.input.RemoteSpiceKeyboard;
@@ -191,34 +193,47 @@ public class RemoteCanvas extends ImageView implements Viewable {
             }
         }
     }
-    
+
+    void handleUncaughtException(Throwable e) {
+        if (stayConnected) {
+            e.printStackTrace();
+            android.util.Log.e(TAG, e.toString());
+
+            if (e instanceof OutOfMemoryError) {
+                disposeDrawable ();
+                disconnectAndShowMessage(R.string.error_out_of_memory, R.string.error_dialog_title);
+            }
+
+            disconnectAndShowMessage(R.string.error_dialog_title, R.string.error_dialog_title, e.toString());
+        }
+    }
+
+    RemotePointer init(final ConnectionSettings settings, final RemoteCanvasActivityHandler handler) {
+        this.settings = settings;
+        this.handler = handler;
+        checkNetworkConnectivity();
+        initializeClipboardMonitor();
+        spicecomm = new SpiceCommunicator (getContext(), handler, RemoteCanvas.this, settings.isRequestingNewDisplayResolution(), settings.isUsbEnabled());
+        pointer = new RemoteSpicePointer (spicecomm, RemoteCanvas.this, handler);
+        try {
+            keyboard = new RemoteSpiceKeyboard(getResources(), spicecomm, RemoteCanvas.this, handler, settings.getLayoutMap());
+        } catch (Throwable e) {
+            handleUncaughtException(e);
+        }
+        return pointer;
+    }
+
     /**
      * Initialize the canvas to show the remote desktop
      */
-    void initialize(final String vvFileName, final ConnectionSettings settings, final RemoteCanvasActivityHandler handler) {
-        this.settings = settings;
-        this.handler = handler;
-        
-        checkNetworkConnectivity();
-        initializeClipboardMonitor();
-        
+    void startFromVvFile(final String vvFileName) {
         Thread cThread = new Thread () {
             @Override
             public void run() {
                 try {
-                    spicecomm = new SpiceCommunicator (getContext(), handler, RemoteCanvas.this, settings.isRequestingNewDisplayResolution(), settings.isUsbEnabled());
-                    pointer = new RemoteSpicePointer (spicecomm, RemoteCanvas.this, handler);
-                    keyboard = new RemoteSpiceKeyboard (getResources(), spicecomm, RemoteCanvas.this, handler, settings.getLayoutMap());
                     spicecomm.startSessionFromVvFile(vvFileName, settings.isAudioPlaybackEnabled());
                 } catch (Throwable e) {
-                    if (stayConnected) {
-                        e.printStackTrace();
-                        android.util.Log.e(TAG, e.toString());
-                        if (e instanceof OutOfMemoryError) {
-                            disposeDrawable ();
-                            disconnectAndShowMessage(R.string.error_out_of_memory, R.string.error_dialog_title);
-                        }
-                    }
+                    handleUncaughtException(e);
                 }
             }
         };
@@ -234,55 +249,27 @@ public class RemoteCanvas extends ImageView implements Viewable {
      * @return 
      */
     // TODO: Switch away from writing out a file to initiating a connection directly.
-    String retrieveVvFileFromPve(final ConnectionSettings settings, final ProxmoxClient api) {
-        android.util.Log.i(TAG, String.format("Trying to connect to PVE host: " + settings.getHostname()));
+    String retrieveVvFileFromPve(final String hostname, final ProxmoxClient api, final String vmId,
+                                 final String node, final String virt) {
+        android.util.Log.i(TAG, String.format("Trying to connect to PVE host: " + hostname));
         final String tempVvFile = getContext().getFilesDir() + "/tempfile.vv";
         deleteMyFile(tempVvFile);
 
-        // TODO: Improve error handling.
         Thread cThread = new Thread () {
             @Override
             public void run() {
                 try {
-                    String user = settings.getUser();
-                    String realm = RemoteClientLibConstants.PVE_DEFAULT_REALM;
-                    
-                    // Try to parse credentials.
-                    int indexOfAt = settings.getUser().indexOf('@');
-                    if (indexOfAt != -1) {
-                        realm = user.substring(indexOfAt+1);
-                        user = user.substring(0, indexOfAt);
-                    }
-                    
-                    // Parse out node, virtualization type and VM ID
-                    String node = RemoteClientLibConstants.PVE_DEFAULT_NODE;
-                    String virt = RemoteClientLibConstants.PVE_DEFAULT_VIRTUALIZATION;
-                    String vmname = settings.getVmname();
-                    
-                    int indexOfFirstSlash = settings.getVmname().indexOf('/');
-                    if (indexOfFirstSlash != -1) {
-                        // If we find at least one slash, then we need to parse out node for sure.
-                        node = vmname.substring(0, indexOfFirstSlash);
-                        vmname = vmname.substring(indexOfFirstSlash+1);
-                        int indexOfSecondSlash = vmname.indexOf('/');
-                        if (indexOfSecondSlash != -1) {
-                            // If we find a second slash, we need to parse out virtualization type and vmname after node.
-                            virt = vmname.substring(0, indexOfSecondSlash);
-                            vmname = vmname.substring(indexOfSecondSlash+1);
-                        }
-                    }
-                    
-                    VmStatus status = api.getCurrentStatus(node, virt, Integer.parseInt(vmname));
+                    VmStatus status = api.getCurrentStatus(node, virt, Integer.parseInt(vmId));
                     if (status.getStatus().equals(VmStatus.STOPPED)) {
-                        api.startVm(node, virt, Integer.parseInt(vmname));
+                        api.startVm(node, virt, Integer.parseInt(vmId));
                         while (!status.getStatus().equals(VmStatus.RUNNING)) {
-                            status = api.getCurrentStatus(node, virt, Integer.parseInt(vmname));
+                            status = api.getCurrentStatus(node, virt, Integer.parseInt(vmId));
                             SystemClock.sleep(500);
                         }
                     }
-                    SpiceDisplay spiceData = api.spiceVm(node, virt, Integer.parseInt(vmname));
+                    SpiceDisplay spiceData = api.spiceVm(node, virt, Integer.parseInt(vmId));
                     if (spiceData != null) {
-                        spiceData.outputToFile(tempVvFile, settings.getHostname());
+                        spiceData.outputToFile(tempVvFile, hostname);
                     } else {
                         android.util.Log.e(TAG, "PVE returned null data for display.");
                         handler.sendEmptyMessage(RemoteClientLibConstants.PVE_NULL_DATA);
@@ -334,22 +321,14 @@ public class RemoteCanvas extends ImageView implements Viewable {
     /**
      * Initialize the canvas to show the remote desktop
      */
-    void initializePve(final ConnectionSettings settings, final RemoteCanvasActivityHandler handler) {
-        this.settings = settings;
+    void startPve() {
         if (!progressDialog.isShowing())
             progressDialog.show();
-        this.handler = handler;
-        checkNetworkConnectivity();
-        initializeClipboardMonitor();
 
         Thread cThread = new Thread () {
             @Override
             public void run() {
                 try {
-                    spicecomm = new SpiceCommunicator (getContext(), handler, RemoteCanvas.this, settings.isRequestingNewDisplayResolution(), settings.isUsbEnabled());
-                    pointer = new RemoteSpicePointer (spicecomm, RemoteCanvas.this, handler);
-                    keyboard = new RemoteSpiceKeyboard (getResources(), spicecomm, RemoteCanvas.this, handler, settings.getLayoutMap());
-
                     // Obtain user's password if necessary.
                     if (settings.getPassword().equals("")) {
                         android.util.Log.i (TAG, "Displaying a dialog to obtain user's password.");
@@ -370,7 +349,20 @@ public class RemoteCanvas extends ImageView implements Viewable {
                     }
 
                     // Connect to the API and obtain available realms
-                    ProxmoxClient api = new ProxmoxClient(settings.getHostname(), settings, handler);
+                    String uriToParse = settings.getHostname();
+                    if (!uriToParse.startsWith("http://") && !uriToParse.startsWith("https://")) {
+                        uriToParse = String.format("%s%s", "https://", uriToParse);
+                    }
+                    Uri uri = Uri.parse(uriToParse);
+                    String protocol = uri.getScheme();
+                    String host = uri.getHost();
+                    int port = uri.getPort();
+                    if (port < 0) {
+                        port = 8006;
+                    }
+                    String pveUri = String.format("%s://%s:%d", protocol, host, port);
+
+                    ProxmoxClient api = new ProxmoxClient(pveUri, settings, handler);
                     HashMap<String, PveRealm> realms = api.getAvailableRealms();
                     
                     // If selected realm has TFA enabled, then ask for the code
@@ -385,47 +377,67 @@ public class RemoteCanvas extends ImageView implements Viewable {
                     // Login with provided credentials
                     api.login(user, realm, settings.getPassword(), settings.getOtpCode());
 
-                    // If not VM name is specified, then get a list of VMs and let the user pick one.
-                    if (settings.getVmname().isEmpty()) {
-                        // Get map of user parseable names to resources
-                        Map<String, PveResource> nameToResources = api.getResources();
+                    // Get map of user parseable names to resources
+                    Map<String, PveResource> nameToResources = api.getResources();
 
-                        if (nameToResources.isEmpty()) {
-                            android.util.Log.e(TAG, "No available suitable resources in PVE cluster");
-                            disconnectAndShowMessage(R.string.error_no_vm_found_for_user, R.string.error_dialog_title);
-                        }
+                    if (nameToResources.isEmpty()) {
+                        android.util.Log.e(TAG, "No available VMs found for user in PVE cluster");
+                        disconnectAndShowMessage(R.string.error_no_vm_found_for_user, R.string.error_dialog_title);
+                        return;
+                    }
 
-                        // If there is just one VM, pick it and skip the dialog.
-                        if (nameToResources.size() == 1) {
-                            android.util.Log.e(TAG, "A single VM was found, so picking it.");
-                            String key = (String)nameToResources.keySet().toArray()[0];
-                            PveResource a = nameToResources.get(key);
-                            settings.setVmname(a.getNode() + "/" + a.getType() + "/" + a.getVmid());
-                            settings.saveToSharedPreferences(getContext());
-                        } else {
-                            while (settings.getVmname().equals("")) {
-                                android.util.Log.i (TAG, "PVE: Displaying a dialog with VMs to the user.");
-                                // Populate the data structure that is used to convert VM names to IDs.
-                                for (String s : nameToResources.keySet()) {
-                                    vmNameToId.put(nameToResources.get(s).getName() + " (" + s + ")", s);
-                                }
-                                // Get the user parseable names and display them
-                                ArrayList<String> vms = new ArrayList<String>(vmNameToId.keySet());
-                                handler.sendMessage(RemoteCanvasActivityHandler.getMessageStringList(
-                                        RemoteClientLibConstants.DIALOG_DISPLAY_VMS, "vms", vms));
-                                synchronized(spicecomm) {
-                                    spicecomm.wait();
-                                }
+                    String vmId = settings.getVmname();
+                    if (vmId.matches("/")) {
+                        vmId = settings.getVmname().replaceAll(".*/", "");
+                        settings.setVmname(vmId);
+                        settings.saveToSharedPreferences(getContext());
+                    }
+
+                    String node = null;
+                    String virt = null;
+
+                    // If there is just one VM, pick it and ignore what is saved in settings.
+                    if (nameToResources.size() == 1) {
+                        android.util.Log.e(TAG, "A single VM was found, so picking it.");
+                        String key = (String)nameToResources.keySet().toArray()[0];
+                        PveResource a = nameToResources.get(key);
+                        node = a.getNode();
+                        virt = a.getType();
+                        settings.setVmname(a.getVmid());
+                        settings.saveToSharedPreferences(getContext());
+                    } else {
+                        while (settings.getVmname().isEmpty()) {
+                            android.util.Log.i (TAG, "PVE: Displaying a dialog with VMs to the user.");
+                            // Populate the data structure that is used to convert VM names to IDs.
+                            for (String s : nameToResources.keySet()) {
+                                vmNameToId.put(nameToResources.get(s).getName() + " (" + s + ")", s);
+                            }
+                            // Get the user parseable names and display them
+                            ArrayList<String> vms = new ArrayList<String>(vmNameToId.keySet());
+                            handler.sendMessage(RemoteCanvasActivityHandler.getMessageStringList(
+                                    RemoteClientLibConstants.DIALOG_DISPLAY_VMS, "vms", vms));
+                            synchronized(spicecomm) {
+                                spicecomm.wait();
                             }
                         }
 
+                        // At this point, either the user selected a VM or there was an ID saved.
+                        if (nameToResources.get(settings.getVmname()) != null) {
+                            node = nameToResources.get(settings.getVmname()).getNode();
+                            virt = nameToResources.get(settings.getVmname()).getType();
+                        } else {
+                            android.util.Log.e(TAG, "No VM with the following ID was found: " + settings.getVmname());
+                            disconnectAndShowMessage(R.string.error_no_such_vm_found_for_user, R.string.error_dialog_title);
+                            return;
+                        }
                     }
 
+                    vmId = settings.getVmname();
                     // Only if we managed to obtain a VM name we try to get a .vv file for the display.
-                    if (!settings.getVmname().isEmpty()) {
-                        String vvFileName = retrieveVvFileFromPve(settings, api);
+                    if (!vmId.isEmpty()) {
+                        String vvFileName = retrieveVvFileFromPve(host, api, vmId, node, virt);
                         if (vvFileName != null) {
-                            initialize(vvFileName, settings, handler);
+                            startFromVvFile(vvFileName);
                         }
                     }
                 } catch (LoginException e) {
@@ -444,17 +456,7 @@ public class RemoteCanvas extends ImageView implements Viewable {
                     handler.sendMessage(RemoteCanvasActivityHandler.getMessageString(RemoteClientLibConstants.PVE_API_UNEXPECTED_CODE,
                             "error", e.getMessage()));
                 } catch (Throwable e) {
-                    if (stayConnected) {
-                        e.printStackTrace();
-                        android.util.Log.e(TAG, e.toString());
-                        
-                        if (e instanceof OutOfMemoryError) {
-                            disposeDrawable ();
-                            disconnectAndShowMessage(R.string.error_out_of_memory, R.string.error_dialog_title);
-                        }
-                        
-                        disconnectAndShowMessage(R.string.error_dialog_title, R.string.error_dialog_title, e.toString());
-                    }
+                    handleUncaughtException(e);
                 }
             }
         };
@@ -465,22 +467,14 @@ public class RemoteCanvas extends ImageView implements Viewable {
     /**
      * Initialize the canvas to show the remote desktop
      */
-    void initialize(final ConnectionSettings settings, final RemoteCanvasActivityHandler handler) {
-        this.settings = settings;
+    void start() {
         if (!progressDialog.isShowing())
             progressDialog.show();
-        this.handler = handler;
-        checkNetworkConnectivity();
-        initializeClipboardMonitor();
-        
+
         Thread cThread = new Thread () {
             @Override
             public void run() {
                 try {
-                    spicecomm = new SpiceCommunicator (getContext(), handler, RemoteCanvas.this, settings.isRequestingNewDisplayResolution(), settings.isUsbEnabled());
-                    pointer = new RemoteSpicePointer (spicecomm, RemoteCanvas.this, handler);
-                    keyboard = new RemoteSpiceKeyboard (getResources(), spicecomm, RemoteCanvas.this, handler, settings.getLayoutMap());
-
                     // Obtain user's password if necessary.
                     if (settings.getPassword().equals("")) {
                         android.util.Log.i (TAG, "Displaying a dialog to obtain user's password.");
@@ -547,15 +541,7 @@ public class RemoteCanvas extends ImageView implements Viewable {
                     }
                     
                 } catch (Throwable e) {
-                    if (stayConnected) {
-                        e.printStackTrace();
-                        android.util.Log.e(TAG, e.toString());
-                        
-                        if (e instanceof OutOfMemoryError) {
-                            disposeDrawable ();
-                            disconnectAndShowMessage(R.string.error_out_of_memory, R.string.error_dialog_title);
-                        }
-                    }
+                    handleUncaughtException(e);
                 }
             }
         };
@@ -811,7 +797,11 @@ public class RemoteCanvas extends ImageView implements Viewable {
 
     @Override
     public Bitmap getBitmap() {
-        return myDrawable.bitmap;
+        Bitmap bitmap = null;
+        if (myDrawable != null) {
+            bitmap = myDrawable.bitmap;
+        }
+        return bitmap;
     }
     
     /**
@@ -849,19 +839,33 @@ public class RemoteCanvas extends ImageView implements Viewable {
             reDraw(r.left, r.top, r.width(), r.height());
         }
     }
-    
+
+    @Override
+    public void setMousePointerPosition(int x, int y) {
+        softCursorMove(x, y);
+    }
+
+    @Override
+    public void mouseMode(boolean relative) {
+        if (relative && !settings.getInputMethod().equals(InputHandlerTouchpad.ID)) {
+            MessageDialogs.displayMessage(handler, getContext(), R.string.info_set_touchpad_input_mode, R.string.error_dialog_title);
+        } else {
+            this.pointer.setRelativeEvents(relative);
+        }
+    }
+
     /**
      * Moves soft cursor into a particular location.
+     *
      * @param x
      * @param y
      */
-
     synchronized void softCursorMove(int x, int y) {
         if (myDrawable.isNotInitSoftCursor()) {
             initializeSoftCursor();
         }
-        
-        if (!cursorBeingMoved) {
+
+        if (!cursorBeingMoved || pointer.isRelativeEvents()) {
             pointer.setX(x);
             pointer.setY(y);
             RectF prevR = new RectF(myDrawable.getCursorRect());

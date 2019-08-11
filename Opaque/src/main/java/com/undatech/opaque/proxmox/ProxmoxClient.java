@@ -28,19 +28,11 @@ public class ProxmoxClient extends RestClient {
 
     /**
      * Initializes a connection to PVE's API.
-     * @param hostname the hostname of PVE
-     * @param user user to authenticate with
-     * @param realm authentication realm, e.g. PAM
-     * @param password password to authenticate with
-     * @throws JSONException
-     * @throws IOException 
-     * @throws HttpException
-     * @throws LoginException 
+     * @param address the address of PVE
      */
-    public ProxmoxClient(String hostname, ConnectionSettings connection, Handler handler) {
+    public ProxmoxClient(String address, ConnectionSettings connection, Handler handler) {
         super(connection, handler);
-        this.baseUrl = "https://" + hostname + ":8006/api2/json";
-
+        this.baseUrl = String.format("%s%s", address, "/api2/json");
         // Ensure we have let the user approve the certificate
         //if (connection.getOvirtCaData().isEmpty()) {
         //    android.util.Log.i(TAG, "Connecting over SSL to get the certificate.");
@@ -241,7 +233,7 @@ public class ProxmoxClient extends RestClient {
         for (int i = 0; i < jArr.length(); i++) {
             PveResource r = new PveResource(jArr.getJSONObject(i));
             if (r.getName() != null && r.getNode() != null && r.getType() != null && r.getVmid() != null) {
-                result.put(r.getNode() + "/" + r.getType() + "/" + r.getVmid(), r);
+                result.put(r.getVmid(), r);
             }
         }
         return result;

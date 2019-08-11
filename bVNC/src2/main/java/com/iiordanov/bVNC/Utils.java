@@ -60,24 +60,27 @@ import android.view.ViewConfiguration;
 
 public class Utils {
     private final static String TAG = "Utils";
+    private static AlertDialog alertDialog;
 
     public static void showYesNoPrompt(Context _context, String title, String message, OnClickListener onYesListener, OnClickListener onNoListener) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(_context);
-        builder.setTitle(title);
-        builder.setIcon(android.R.drawable.ic_dialog_info);
-        builder.setMessage(message);
-        builder.setCancelable(false);
-        builder.setPositiveButton("Yes", onYesListener);
-        builder.setNegativeButton("No", onNoListener);
-        boolean show = true;
-        if ( _context instanceof Activity ) {
-            Activity activity = (Activity) _context;
-            if (activity.isFinishing()) {
-                show = false;
+        try {
+            if (alertDialog != null && alertDialog.isShowing() && !isContextActivityThatIsFinishing(_context)) {
+                alertDialog.dismiss();
             }
+            AlertDialog.Builder builder = new AlertDialog.Builder(_context);
+            builder.setTitle(title);
+            builder.setIcon(android.R.drawable.ic_dialog_info);
+            builder.setMessage(message);
+            builder.setCancelable(false);
+            builder.setPositiveButton("Yes", onYesListener);
+            builder.setNegativeButton("No", onNoListener);
+            if (!(alertDialog != null && alertDialog.isShowing()) && !isContextActivityThatIsFinishing(_context)) {
+                alertDialog = builder.create();
+                alertDialog.show();
+            }
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
         }
-        if (show)
-            builder.show();
     }
     
     private static final Intent docIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://code.google.com/p/android-vnc-viewer/wiki/Documentation")); 
@@ -107,13 +110,19 @@ public class Utils {
     }
 
     public static void showErrorMessage(Context _context, String message) {
-        showMessage(_context, "Error!", message, android.R.drawable.ic_dialog_alert, null);
+        showMessage(_context, "Error!", message, android.R.drawable.ic_dialog_alert, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
     }
 
     public static void showFatalErrorMessage(final Context _context, String message) {
         showMessage(_context, "Error!", message, android.R.drawable.ic_dialog_alert, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
                 if ( _context instanceof AppCompatActivity ) {
                     ((AppCompatActivity) _context).finish();
                 } else if ( _context instanceof FragmentActivity ) {
@@ -126,21 +135,23 @@ public class Utils {
     }
     
     public static void showMessage(Context _context, String title, String message, int icon, DialogInterface.OnClickListener ackHandler) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(_context);
-        builder.setTitle(title);
-        builder.setMessage(Html.fromHtml(message));
-        builder.setCancelable(false);
-        builder.setPositiveButton("Acknowledged", ackHandler);
-        builder.setIcon(icon);
-        boolean show = true;
-        if ( _context instanceof Activity ) {
-            Activity activity = (Activity) _context;
-            if (activity.isFinishing()) {
-                show = false;
+        try {
+            if (alertDialog != null && alertDialog.isShowing() && !isContextActivityThatIsFinishing(_context)) {
+                alertDialog.dismiss();
             }
+            AlertDialog.Builder builder = new AlertDialog.Builder(_context);
+            builder.setTitle(title);
+            builder.setMessage(Html.fromHtml(message));
+            builder.setCancelable(false);
+            builder.setPositiveButton("Acknowledged", ackHandler);
+            builder.setIcon(icon);
+            if (!(alertDialog != null && alertDialog.isShowing()) && !isContextActivityThatIsFinishing(_context)) {
+                alertDialog = builder.create();
+                alertDialog.show();
+            }
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
         }
-        if (show)
-            builder.show();
     }
     
     /**
@@ -325,6 +336,15 @@ public class Utils {
             Log.i(TAG, "Toggled " + key + " " + String.valueOf(state));
         }
     }
-    
-    
+
+    static boolean isContextActivityThatIsFinishing(Context _context) {
+        boolean result = false;
+        if (_context instanceof Activity) {
+            Activity activity = (Activity)_context;
+            if (activity.isFinishing()) {
+                result = true;
+            }
+        }
+        return result;
+    }
 }

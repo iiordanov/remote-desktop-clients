@@ -38,7 +38,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
-import com.iiordanov.bVNC.Utils;
 import com.iiordanov.bVNC.dialogs.ImportExportDialog;
 import com.iiordanov.bVNC.dialogs.IntroTextDialog;
 import com.iiordanov.bVNC.*;

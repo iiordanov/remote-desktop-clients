@@ -1,3 +1,6 @@
+v1.5.0
+- Ability to specify custom port for PVE
+- Support for SPICE server mouse mode
 v1.4.9
 - Bugfixes
 v1.4.8
