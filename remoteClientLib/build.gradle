@@ -25,6 +25,7 @@ android {
     defaultConfig {
         targetSdkVersion 27
         minSdkVersion 14
+        ndk.abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86' ,'x86_64'
     }
     useLibrary 'org.apache.http.legacy'
 
@@ -49,13 +50,6 @@ android {
         ndkBuild {
             path file('jni/Application.mk')
             path file('jni/Android.mk')
-        }
-    }
-    defaultConfig {
-        ndk {
-            // Tells Gradle to build outputs for the following ABIs and package
-            // them into your APK.
-            abiFilters 'x86', 'armeabi-v7a'
         }
     }
     */
