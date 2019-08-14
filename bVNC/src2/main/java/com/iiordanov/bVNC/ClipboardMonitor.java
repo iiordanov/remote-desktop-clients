@@ -50,6 +50,8 @@ public class ClipboardMonitor extends TimerTask {
             return clipboard.getText().toString();
         } catch (NullPointerException e) {
             return null;
+        } catch (RuntimeException e) {
+            return null;
         }
     }
     

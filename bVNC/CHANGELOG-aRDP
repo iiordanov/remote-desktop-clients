@@ -1,3 +1,6 @@
+v4.0.7
+- 64-bit support
+- Bugfixes
 v4.0.6
 - Bugfix for FreeRDP ignoring certs
 - Bugfix to sshlib for sha2-256 and sha2-512 keys
