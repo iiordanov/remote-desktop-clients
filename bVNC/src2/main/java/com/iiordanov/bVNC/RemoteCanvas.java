@@ -66,8 +66,6 @@ import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
 import android.widget.Toast;
 
-import com.freerdp.freerdpcore.domain.BookmarkBase;
-import com.freerdp.freerdpcore.domain.ManualBookmark;
 import com.iiordanov.android.bc.BCFactory;
 import com.iiordanov.bVNC.input.InputHandlerTouchpad;
 import com.iiordanov.bVNC.input.RemoteKeyboard;
@@ -172,7 +170,6 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
      * This flag indicates whether this is the RDP client.
      */
     boolean isRdp = false;
-    BookmarkBase bookmark;
 
     /*
      * This flag indicates whether this is the SPICE client.
@@ -405,10 +402,7 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
     private void initializeRdpConnection() throws Exception {
         android.util.Log.i(TAG, "initializeRdpConnection: Initializing RDP connection.");
 
-        // Create a manual bookmark and populate it from settings.
-        bookmark = new ManualBookmark();
-
-        rdpcomm = new RdpCommunicator(bookmark, getContext(), handler, this,
+        rdpcomm = new RdpCommunicator(getContext(), handler, this,
                 connection.getUserName(), connection.getRdpDomain(), connection.getPassword());
         rfbconn = rdpcomm;
         pointer = new RemoteRdpPointer(rfbconn, RemoteCanvas.this, handler);
@@ -421,51 +415,19 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
     private void startRdpConnection() throws Exception {
         android.util.Log.i(TAG, "startRdpConnection: Starting RDP connection.");
 
-        // Set a writable data directory
-        //LibFreeRDP.setDataDirectory(session.getInstance(), getContext().getFilesDir().toString());
         // Get the address and port (based on whether an SSH tunnel is being established or not).
         String address = getAddress();
         int rdpPort = getPort(connection.getPort());
-
-        bookmark.<ManualBookmark>get().setLabel(connection.getNickname());
-        bookmark.<ManualBookmark>get().setHostname(address);
-        bookmark.<ManualBookmark>get().setPort(rdpPort);
-        bookmark.<ManualBookmark>get().setUsername(connection.getUserName());
-        bookmark.<ManualBookmark>get().setDomain(connection.getRdpDomain());
-        bookmark.<ManualBookmark>get().setPassword(connection.getPassword());
-
-        BookmarkBase.DebugSettings debugSettings = bookmark.getDebugSettings();
-        debugSettings.setDebugLevel("INFO");
-        //debugSettings.setAsyncUpdate(false);
-        //debugSettings.setAsyncInput(false);
-        //debugSettings.setAsyncChannel(false);
-
-        // Set screen settings to native res if instructed to, or if height or width are too small.
-        BookmarkBase.ScreenSettings screenSettings = bookmark.getActiveScreenSettings();
         waitUntilInflated();
         int remoteWidth = getRemoteWidth(getWidth(), getHeight());
         int remoteHeight = getRemoteHeight(getWidth(), getHeight());
-        screenSettings.setWidth(remoteWidth);
-        screenSettings.setHeight(remoteHeight);
-        screenSettings.setColors(16);
 
-        // Set performance flags.
-        BookmarkBase.PerformanceFlags performanceFlags = bookmark.getPerformanceFlags();
-        performanceFlags.setRemoteFX(false);
-        performanceFlags.setWallpaper(connection.getDesktopBackground());
-        performanceFlags.setFontSmoothing(connection.getFontSmoothing());
-        performanceFlags.setDesktopComposition(connection.getDesktopComposition());
-        performanceFlags.setFullWindowDrag(connection.getWindowContents());
-        performanceFlags.setMenuAnimations(connection.getMenuAnimation());
-        performanceFlags.setTheming(connection.getVisualStyles());
-
-        BookmarkBase.AdvancedSettings advancedSettings = bookmark.getAdvancedSettings();
-        advancedSettings.setRedirectSDCard(connection.getRedirectSdCard());
-        advancedSettings.setConsoleMode(connection.getConsoleMode());
-        advancedSettings.setRedirectSound(connection.getRemoteSoundType());
-        advancedSettings.setRedirectMicrophone(connection.getEnableRecording());
-        advancedSettings.setSecurity(0); // Automatic negotiation
-
+        rdpcomm.setConnectionParameters(address, rdpPort, connection.getNickname(), remoteWidth,
+                remoteHeight, connection.getDesktopBackground(), connection.getFontSmoothing(),
+                connection.getDesktopComposition(), connection.getWindowContents(),
+                connection.getMenuAnimation(), connection.getVisualStyles(),
+                connection.getRedirectSdCard(), connection.getConsoleMode(),
+                connection.getRemoteSoundType(), connection.getEnableRecording());
         rdpcomm.connect();
         pd.dismiss();
     }

@@ -51,16 +51,17 @@ public class RdpCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyPro
     private boolean certificateAccepted = false;
     private boolean reattemptWithoutCredentials = true;
     private boolean authenticationAttempted = false;
+    private boolean disconnectRequested = false;
 
     private String username, password, domain;
 
-    public RdpCommunicator(BookmarkBase bookmark, Context context, Handler handler,
+    public RdpCommunicator(Context context, Handler handler,
                            Viewable viewable, String username, String domain, String password) {
         // This is necessary because it initializes a synchronizedMap referenced later.
         this.freeRdpApp = new GlobalApp();
 
-        // Create a session based on the bookmark
-        this.bookmark = bookmark;
+        // Create a manual bookmark and populate it from settings.
+        this.bookmark = new ManualBookmark();
         this.context = context;
         this.handler = handler;
         this.viewable = viewable;
@@ -163,6 +164,7 @@ public class RdpCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyPro
     @Override
     public void close() {
         setIsInNormalProtocol(false);
+        disconnectRequested = true;
         long instance = session.getInstance();
         DisconnectThread d = new DisconnectThread(instance);
         d.start();
@@ -269,6 +271,48 @@ public class RdpCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyPro
         LibFreeRDP.setEventListener(this);
     }
 
+    public void setConnectionParameters(String address, int rdpPort, String nickname, int remoteWidth,
+                                        int remoteHeight, boolean wallpaper, boolean fontSmoothing,
+                                        boolean desktopComposition, boolean fullWindowDrag,
+                                        boolean menuAnimations, boolean theming, boolean redirectSdCard,
+                                        boolean consoleMode, int redirectSound, boolean enableRecording) {
+        // Set a writable data directory
+        //LibFreeRDP.setDataDirectory(session.getInstance(), getContext().getFilesDir().toString());
+        // Get the address and port (based on whether an SSH tunnel is being established or not).
+        bookmark.<ManualBookmark>get().setLabel(nickname);
+        bookmark.<ManualBookmark>get().setHostname(address);
+        bookmark.<ManualBookmark>get().setPort(rdpPort);
+
+        BookmarkBase.DebugSettings debugSettings = bookmark.getDebugSettings();
+        debugSettings.setDebugLevel("INFO");
+        //debugSettings.setAsyncUpdate(false);
+        //debugSettings.setAsyncInput(false);
+        //debugSettings.setAsyncChannel(false);
+
+        // Set screen settings to native res if instructed to, or if height or width are too small.
+        BookmarkBase.ScreenSettings screenSettings = bookmark.getActiveScreenSettings();
+        screenSettings.setWidth(remoteWidth);
+        screenSettings.setHeight(remoteHeight);
+        screenSettings.setColors(16);
+
+        // Set performance flags.
+        BookmarkBase.PerformanceFlags performanceFlags = bookmark.getPerformanceFlags();
+        performanceFlags.setRemoteFX(false);
+        performanceFlags.setWallpaper(wallpaper);
+        performanceFlags.setFontSmoothing(fontSmoothing);
+        performanceFlags.setDesktopComposition(desktopComposition);
+        performanceFlags.setFullWindowDrag(fullWindowDrag);
+        performanceFlags.setMenuAnimations(menuAnimations);
+        performanceFlags.setTheming(theming);
+
+        BookmarkBase.AdvancedSettings advancedSettings = bookmark.getAdvancedSettings();
+        advancedSettings.setRedirectSDCard(redirectSdCard);
+        advancedSettings.setConsoleMode(consoleMode);
+        advancedSettings.setRedirectSound(redirectSound);
+        advancedSettings.setRedirectMicrophone(enableRecording);
+        advancedSettings.setSecurity(0); // Automatic negotiation
+    }
+
     public void connect() {
         session.connect(context);
     }
@@ -286,7 +330,7 @@ public class RdpCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyPro
     @Override
     public void OnConnectionSuccess(long instance) {
         Log.v(TAG, "OnConnectionSuccess");
-        reattemptWithoutCredentials = true;
+        reattemptWithoutCredentials = false;
         authenticationAttempted = false;
         myself.setIsInNormalProtocol(true);
     }
@@ -301,21 +345,21 @@ public class RdpCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyPro
     public void OnDisconnecting(long instance) {
         Log.v(TAG, "OnDisconnecting, reattemptWithoutCredentials: " + reattemptWithoutCredentials +
                          ", authenticationAttempted: " + authenticationAttempted +
+                         ", disconnectRequested: " + disconnectRequested +
                          ", isInNormalProtocol: " + myself.isInNormalProtocol());
         if (reattemptWithoutCredentials && !myself.isInNormalProtocol()) {
             reattemptWithoutCredentials = false;
             // It could be bad credentials that caused the disconnection, so trying to connect
             // once again with no credentials before reporting the type of failure.
-            close();
             initSession("", "", "");
             connect();
         } else if (authenticationAttempted && !myself.isInNormalProtocol()) {
             Log.v(TAG, "Sending message: RDP_AUTH_FAILED");
             handler.sendEmptyMessage(RemoteClientLibConstants.RDP_AUTH_FAILED);
-        } else if (!myself.isInNormalProtocol()) {
+        } else if (!disconnectRequested && !myself.isInNormalProtocol()) {
             Log.v(TAG, "Sending message: RDP_UNABLE_TO_CONNECT");
             handler.sendEmptyMessage(RemoteClientLibConstants.RDP_UNABLE_TO_CONNECT);
-        } else {
+        } else if (!disconnectRequested) {
             myself.setIsInNormalProtocol(false);
             Log.v(TAG, "Sending message: RDP_CONNECT_FAILURE");
             handler.sendEmptyMessage(RemoteClientLibConstants.RDP_CONNECT_FAILURE);
