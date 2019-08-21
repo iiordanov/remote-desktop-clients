@@ -1,12 +1,15 @@
 package com.undatech.opaque;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 
+import com.freerdp.freerdpcore.application.GlobalApp;
 import com.freerdp.freerdpcore.application.SessionState;
+import com.freerdp.freerdpcore.domain.BookmarkBase;
 import com.freerdp.freerdpcore.domain.ManualBookmark;
 import com.freerdp.freerdpcore.services.LibFreeRDP;
 import com.undatech.opaque.input.RemoteKeyboard;
@@ -17,20 +20,26 @@ public class RdpCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyPro
                                         LibFreeRDP.UIEventListener, LibFreeRDP.EventListener {
     static final String TAG = "RdpCommunicator";
 
-    final static int VK_CONTROL = 0x11;
-    final static int VK_LCONTROL = 0xA2;
-    final static int VK_RCONTROL = 0xA3;
-    final static int VK_LMENU = 0xA4;
-    final static int VK_RMENU = 0xA5;
-    final static int VK_LSHIFT = 0xA0;
-    final static int VK_RSHIFT = 0xA1;
-    final static int VK_LWIN = 0x5B;
-    final static int VK_RWIN = 0x5C;
-    final static int VK_EXT_KEY = 0x00000100;
+    private final static int VK_CONTROL = 0x11;
+    private final static int VK_LCONTROL = 0xA2;
+    private final static int VK_RCONTROL = 0xA3;
+    private final static int VK_LMENU = 0xA4;
+    private final static int VK_RMENU = 0xA5;
+    private final static int VK_LSHIFT = 0xA0;
+    private final static int VK_RSHIFT = 0xA1;
+    private final static int VK_LWIN = 0x5B;
+    private final static int VK_RWIN = 0x5C;
+    private final static int VK_EXT_KEY = 0x00000100;
 
-    SessionState session;
-    int metaState = 0;
-    boolean isInNormalProtocol = false;
+    private SessionState session;
+    private BookmarkBase bookmark;
+    // Keeps track of libFreeRDP instance
+    private GlobalApp freeRdpApp;
+
+
+    private Context context;
+    private int metaState = 0;
+    private boolean isInNormalProtocol = false;
 
     private final RdpCommunicator myself;
     private final Handler handler;
@@ -40,17 +49,26 @@ public class RdpCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyPro
     // security certificate. Used to control progress while the dialog asking the user
     // to confirm the authenticity of a certificate is displayed.
     private boolean certificateAccepted = false;
-    private String u, p, d;
+    private boolean reattemptWithoutCredentials = true;
     private boolean authenticationAttempted = false;
 
-    public RdpCommunicator(SessionState session, Handler handler, Viewable viewable, String u, String p, String d) {
-        this.session = session;
+    private String username, password, domain;
+
+    public RdpCommunicator(BookmarkBase bookmark, Context context, Handler handler,
+                           Viewable viewable, String username, String domain, String password) {
+        // This is necessary because it initializes a synchronizedMap referenced later.
+        this.freeRdpApp = new GlobalApp();
+
+        // Create a session based on the bookmark
+        this.bookmark = bookmark;
+        this.context = context;
         this.handler = handler;
         this.viewable = viewable;
-        myself = this;
-        this.u = u;
-        this.p = p;
-        this.d = d;
+        this.myself = this;
+        this.username = username;
+        this.domain = domain;
+        this.password = password;
+        initSession(username, domain, password);
     }
 
     @Override
@@ -242,6 +260,19 @@ public class RdpCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyPro
         // TODO Auto-generated method stub
     }
 
+    private void initSession(String username, String domain, String password) {
+        bookmark.setUsername(username);
+        bookmark.setDomain(domain);
+        bookmark.setPassword(password);
+        session = GlobalApp.createSession(bookmark, context);
+        session.setUIEventListener(this);
+        LibFreeRDP.setEventListener(this);
+    }
+
+    public void connect() {
+        session.connect(context);
+    }
+
     //////////////////////////////////////////////////////////////////////////////////
     //  Implementation of LibFreeRDP.EventListener.  Through the functions implemented
     //  below, FreeRDP communicates connection state information.
@@ -255,6 +286,8 @@ public class RdpCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyPro
     @Override
     public void OnConnectionSuccess(long instance) {
         Log.v(TAG, "OnConnectionSuccess");
+        reattemptWithoutCredentials = true;
+        authenticationAttempted = false;
         myself.setIsInNormalProtocol(true);
     }
 
@@ -262,19 +295,29 @@ public class RdpCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyPro
     public void OnConnectionFailure(long instance) {
         Log.v(TAG, "OnConnectionFailure");
         myself.setIsInNormalProtocol(false);
-        handler.sendEmptyMessage(RemoteClientLibConstants.RDP_UNABLE_TO_CONNECT);
     }
 
     @Override
     public void OnDisconnecting(long instance) {
-        Log.v(TAG, "OnDisconnecting, authenticationAttempted: " + authenticationAttempted +
+        Log.v(TAG, "OnDisconnecting, reattemptWithoutCredentials: " + reattemptWithoutCredentials +
+                         ", authenticationAttempted: " + authenticationAttempted +
                          ", isInNormalProtocol: " + myself.isInNormalProtocol());
-        if (authenticationAttempted && !myself.isInNormalProtocol()) {
+        if (reattemptWithoutCredentials && !myself.isInNormalProtocol()) {
+            reattemptWithoutCredentials = false;
+            // It could be bad credentials that caused the disconnection, so trying to connect
+            // once again with no credentials before reporting the type of failure.
+            close();
+            initSession("", "", "");
+            connect();
+        } else if (authenticationAttempted && !myself.isInNormalProtocol()) {
+            Log.v(TAG, "Sending message: RDP_AUTH_FAILED");
             handler.sendEmptyMessage(RemoteClientLibConstants.RDP_AUTH_FAILED);
         } else if (!myself.isInNormalProtocol()) {
+            Log.v(TAG, "Sending message: RDP_UNABLE_TO_CONNECT");
             handler.sendEmptyMessage(RemoteClientLibConstants.RDP_UNABLE_TO_CONNECT);
         } else {
             myself.setIsInNormalProtocol(false);
+            Log.v(TAG, "Sending message: RDP_CONNECT_FAILURE");
             handler.sendEmptyMessage(RemoteClientLibConstants.RDP_CONNECT_FAILURE);
         }
     }
@@ -283,8 +326,10 @@ public class RdpCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyPro
     public void OnDisconnected(long instance) {
         Log.v(TAG, "OnDisconnected");
         if (!myself.isInNormalProtocol()) {
+            Log.v(TAG, "Sending message: RDP_UNABLE_TO_CONNECT");
             handler.sendEmptyMessage(RemoteClientLibConstants.RDP_UNABLE_TO_CONNECT);
         } else {
+            Log.v(TAG, "Sending message: RDP_CONNECT_FAILURE");
             handler.sendEmptyMessage(RemoteClientLibConstants.RDP_CONNECT_FAILURE);
         }
     }
@@ -309,9 +354,9 @@ public class RdpCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyPro
         domain.setLength(0);
         password.setLength(0);
 
-        username.append(this.u);
-        domain.append(this.d);
-        password.append(this.p);
+        username.append(this.username);
+        domain.append(this.domain);
+        password.append(this.password);
 
         return true;
     }

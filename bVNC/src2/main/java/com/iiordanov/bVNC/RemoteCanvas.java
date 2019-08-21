@@ -66,11 +66,8 @@ import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
 import android.widget.Toast;
 
-import com.freerdp.freerdpcore.application.GlobalApp;
-import com.freerdp.freerdpcore.application.SessionState;
 import com.freerdp.freerdpcore.domain.BookmarkBase;
 import com.freerdp.freerdpcore.domain.ManualBookmark;
-import com.freerdp.freerdpcore.services.LibFreeRDP;
 import com.iiordanov.android.bc.BCFactory;
 import com.iiordanov.bVNC.input.InputHandlerTouchpad;
 import com.iiordanov.bVNC.input.RemoteKeyboard;
@@ -130,10 +127,6 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
     public AbstractBitmapData myDrawable;
     boolean useFull = false;
     boolean compact = false;
-
-    // Keeps track of libFreeRDP instance. 
-    GlobalApp freeRdpApp = null;
-    SessionState session = null;
 
     // Progress dialog shown at connection time.
     ProgressDialog pd;
@@ -410,28 +403,24 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
      * Initializes an RDP connection.
      */
     private void initializeRdpConnection() throws Exception {
-        // This is necessary because it initializes a synchronizedMap referenced later.
-        freeRdpApp = new GlobalApp();
+        android.util.Log.i(TAG, "initializeRdpConnection: Initializing RDP connection.");
 
         // Create a manual bookmark and populate it from settings.
         bookmark = new ManualBookmark();
 
-        // Create a session based on the bookmark
-        session = GlobalApp.createSession(bookmark, this.getContext());
-
-        rdpcomm = new RdpCommunicator(session, handler, this, connection.getUserName(), connection.getPassword(), connection.getRdpDomain());
+        rdpcomm = new RdpCommunicator(bookmark, getContext(), handler, this,
+                connection.getUserName(), connection.getRdpDomain(), connection.getPassword());
         rfbconn = rdpcomm;
         pointer = new RemoteRdpPointer(rfbconn, RemoteCanvas.this, handler);
         keyboard = new RemoteRdpKeyboard(rfbconn, RemoteCanvas.this, handler);
-
-        session.setUIEventListener(rdpcomm);
-        LibFreeRDP.setEventListener(rdpcomm);
     }
 
     /**
      * Starts an RDP connection using the FreeRDP library.
      */
     private void startRdpConnection() throws Exception {
+        android.util.Log.i(TAG, "startRdpConnection: Starting RDP connection.");
+
         // Set a writable data directory
         //LibFreeRDP.setDataDirectory(session.getInstance(), getContext().getFilesDir().toString());
         // Get the address and port (based on whether an SSH tunnel is being established or not).
@@ -441,15 +430,18 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
         bookmark.<ManualBookmark>get().setLabel(connection.getNickname());
         bookmark.<ManualBookmark>get().setHostname(address);
         bookmark.<ManualBookmark>get().setPort(rdpPort);
+        bookmark.<ManualBookmark>get().setUsername(connection.getUserName());
+        bookmark.<ManualBookmark>get().setDomain(connection.getRdpDomain());
+        bookmark.<ManualBookmark>get().setPassword(connection.getPassword());
 
-        BookmarkBase.DebugSettings debugSettings = session.getBookmark().getDebugSettings();
+        BookmarkBase.DebugSettings debugSettings = bookmark.getDebugSettings();
         debugSettings.setDebugLevel("INFO");
         //debugSettings.setAsyncUpdate(false);
         //debugSettings.setAsyncInput(false);
         //debugSettings.setAsyncChannel(false);
 
         // Set screen settings to native res if instructed to, or if height or width are too small.
-        BookmarkBase.ScreenSettings screenSettings = session.getBookmark().getActiveScreenSettings();
+        BookmarkBase.ScreenSettings screenSettings = bookmark.getActiveScreenSettings();
         waitUntilInflated();
         int remoteWidth = getRemoteWidth(getWidth(), getHeight());
         int remoteHeight = getRemoteHeight(getWidth(), getHeight());
@@ -458,7 +450,7 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
         screenSettings.setColors(16);
 
         // Set performance flags.
-        BookmarkBase.PerformanceFlags performanceFlags = session.getBookmark().getPerformanceFlags();
+        BookmarkBase.PerformanceFlags performanceFlags = bookmark.getPerformanceFlags();
         performanceFlags.setRemoteFX(false);
         performanceFlags.setWallpaper(connection.getDesktopBackground());
         performanceFlags.setFontSmoothing(connection.getFontSmoothing());
@@ -467,14 +459,14 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
         performanceFlags.setMenuAnimations(connection.getMenuAnimation());
         performanceFlags.setTheming(connection.getVisualStyles());
 
-        BookmarkBase.AdvancedSettings advancedSettings = session.getBookmark().getAdvancedSettings();
+        BookmarkBase.AdvancedSettings advancedSettings = bookmark.getAdvancedSettings();
         advancedSettings.setRedirectSDCard(connection.getRedirectSdCard());
         advancedSettings.setConsoleMode(connection.getConsoleMode());
         advancedSettings.setRedirectSound(connection.getRemoteSoundType());
         advancedSettings.setRedirectMicrophone(connection.getEnableRecording());
         advancedSettings.setSecurity(0); // Automatic negotiation
 
-        session.connect(this.getContext());
+        rdpcomm.connect();
         pd.dismiss();
     }
 
