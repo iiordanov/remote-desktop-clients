@@ -197,9 +197,9 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
 
         decoder = new Decoder(this);
 
-        isVnc = getContext().getPackageName().contains("VNC");
-        isRdp = getContext().getPackageName().contains("RDP");
-        isSpice = getContext().getPackageName().contains("SPICE");
+        isVnc = getContext().getPackageName().toUpperCase().contains("VNC");
+        isRdp = getContext().getPackageName().toUpperCase().contains("RDP");
+        isSpice = getContext().getPackageName().toUpperCase().contains("SPICE");
 
         final Display display = ((Activity) context).getWindow().getWindowManager().getDefaultDisplay();
         displayWidth = display.getWidth();

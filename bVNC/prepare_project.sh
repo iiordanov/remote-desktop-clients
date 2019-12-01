@@ -71,6 +71,14 @@ fi
 
 if [ -n "${CUSTOM_CLIENT}" ]
 then
+  # Check that there are no changes to source code and exit if there are.
+  if [ -n "$(git diff src2)" ]
+  then
+    echo "Exiting because there are changes in src2. Please commit them before building custom clients. Changes:"
+    git diff src2
+    exit 1
+  fi
+
   rm AndroidManifest.xml
   cp AndroidManifest.xml.${CUSTOM_MANIFEST_EXTENSION} AndroidManifest.xml
 
