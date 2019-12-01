@@ -3,7 +3,8 @@
 SKIP_BUILD=false
 
 usage () {
-  echo "$0 bVNC|freebVNC|aSPICE|freeaSPICE|aRDP|freeaRDP|CustomVncAnyPackageName|libs|remoteClientLib /path/to/your/android/ndk /path/to/your/android/sdk"
+  echo "$0 bVNC|freebVNC|aSPICE|freeaSPICE|aRDP|freeaRDP|CustomVncAnyPackageName|\
+CustomRdpAnyPackageName|CustomSpiceAnyPackageName|libs|remoteClientLib /path/to/your/android/ndk /path/to/your/android/sdk"
   exit 1
 }
 
@@ -72,10 +73,10 @@ fi
 if [ -n "${CUSTOM_CLIENT}" ]
 then
   # Check that there are no changes to source code and exit if there are.
-  if [ -n "$(git diff src2)" ]
+  if [ -n "$(git diff src src2)" ]
   then
-    echo "Exiting because there are changes in src2. Please commit them before building custom clients. Changes:"
-    git diff src2
+    echo "Exiting because there are changes in src or src2. Please commit them before building custom clients. Changes:"
+    git diff src src2
     exit 1
   fi
 
