@@ -116,6 +116,9 @@ public class SpiceCommunicator implements RfbConnectable {
     
     private Thread thread = null;
 
+    private int lastRequestedWidth = -1;
+    private int lastRequestedHeight = -1;
+
     public SpiceCommunicator (Context context, Handler handler, Viewable canvas, boolean res, boolean usb) {
         this.context = context;
         this.canvas = canvas;
@@ -396,14 +399,23 @@ public class SpiceCommunicator implements RfbConnectable {
         if (isInNormalProtocol) {
             int currentWidth = this.width;
             int currentHeight = this.height;
-            if (isRequestingNewDisplayResolution) {
+            if (isRequestingNewDisplayResolution &&
+                    lastRequestedWidth == -1 && lastRequestedHeight == -1) {
                 canvas.waitUntilInflated();
-                int desiredWidth  = canvas.getDesiredWidth();
-                int desiredHeight = canvas.getDesiredHeight();
-                if (currentWidth != desiredWidth || currentHeight != desiredHeight) {
-                    android.util.Log.e(TAG, "Requesting new res: " + desiredWidth + "x" + desiredHeight);
-                    SpiceRequestResolution (desiredWidth, desiredHeight);
+                lastRequestedWidth = canvas.getDesiredWidth();
+                lastRequestedHeight = canvas.getDesiredHeight();
+                if (currentWidth != lastRequestedWidth || currentHeight != lastRequestedHeight) {
+                    android.util.Log.d(TAG, "Requesting new res: " + lastRequestedWidth + "x" + lastRequestedHeight);
+                    SpiceRequestResolution (lastRequestedWidth, lastRequestedHeight);
+                } else {
+                    android.util.Log.d(TAG, "Resolution request was satisfied.");
+                    lastRequestedWidth = -1;
+                    lastRequestedHeight = -1;
                 }
+            } else {
+                android.util.Log.d(TAG, "Resolution request disabled or last request unsatisfied (resolution request loop?).");
+                lastRequestedWidth = -1;
+                lastRequestedHeight = -1;
             }
         }
     }
@@ -508,7 +520,7 @@ public class SpiceCommunicator implements RfbConnectable {
     
     public void onSettingsChanged(int width, int height, int bpp) {
         android.util.Log.i(TAG, "onSettingsChanged called, wxh: " + width + "x" + height);
-        
+
         setFramebufferWidth(width);
         setFramebufferHeight(height);
         
@@ -528,10 +540,13 @@ public class SpiceCommunicator implements RfbConnectable {
 
     private static void OnGraphicsUpdate(int inst, int x, int y, int width, int height) {
         //android.util.Log.i(TAG, "OnGraphicsUpdate called: " + x +", " + y + " + " + width + "x" + height );
-        synchronized (myself.canvas) {
-            myself.UpdateBitmap(myself.canvas.getBitmap(), x, y, width, height);
-        }    
-        myself.canvas.reDraw(x, y, width, height);
+        Bitmap bitmap = myself.canvas.getBitmap();
+        if (bitmap != null) {
+            synchronized (myself.canvas) {
+                myself.UpdateBitmap(bitmap, x, y, width, height);
+            }
+            myself.canvas.reDraw(x, y, width, height);
+        }
         //myself.onGraphicsUpdate(x, y, width, height);
     }
     /* END Callbacks from jni and corresponding non-static methods */

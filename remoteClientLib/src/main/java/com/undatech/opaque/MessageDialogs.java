@@ -68,35 +68,38 @@ public class MessageDialogs {
      */
     private static void displayDialog(final Context context, int alertTitleID,
             int alertID, String appendText, DialogInterface.OnClickListener ok) {
-
-        boolean show = true;
-        if (alertDialog != null) {
-            alertDialog.dismiss();
-        }
-        if (context instanceof Activity) {
-            Activity activity = (Activity) context;
-            if (activity.isFinishing()) {
-                show = false;
+        try {
+            boolean show = true;
+            if (alertDialog != null && alertDialog.isShowing()) {
+                alertDialog.dismiss();
             }
-        }
-
-        if (show) {
-            Builder builder = new Builder((Activity) context);
-            builder.setCancelable(false);
-            builder.setTitle(alertTitleID);
-            String displayText = context.getString(alertID);
-            if (appendText != null) {
-                displayText = displayText + " " + appendText;
+            if (context instanceof Activity) {
+                Activity activity = (Activity) context;
+                if (activity.isFinishing()) {
+                    show = false;
+                }
             }
-            Spanned text = Html.fromHtml(displayText);
-            final TextView message = new TextView(context);
-            message.setText(text);
-            message.setMovementMethod(LinkMovementMethod.getInstance());
-            message.setPaddingRelative(50, 50, 50, 50);
-            builder.setView(message);
-            builder.setPositiveButton("OK", ok);
-            alertDialog = builder.create();
-            alertDialog.show();
+
+            if (show) {
+                Builder builder = new Builder((Activity) context);
+                builder.setCancelable(false);
+                builder.setTitle(alertTitleID);
+                String displayText = context.getString(alertID);
+                if (appendText != null) {
+                    displayText = displayText + " " + appendText;
+                }
+                Spanned text = Html.fromHtml(displayText);
+                final TextView message = new TextView(context);
+                message.setText(text);
+                message.setMovementMethod(LinkMovementMethod.getInstance());
+                message.setPaddingRelative(50, 50, 50, 50);
+                builder.setView(message);
+                builder.setPositiveButton("OK", ok);
+                alertDialog = builder.create();
+                alertDialog.show();
+            }
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
         }
     }
 

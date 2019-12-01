@@ -63,27 +63,23 @@ public class Utils {
     private static AlertDialog alertDialog;
 
     public static void showYesNoPrompt(Context _context, String title, String message, OnClickListener onYesListener, OnClickListener onNoListener) {
-        if (alertDialog != null) {
-            alertDialog.dismiss();
-        }
-        AlertDialog.Builder builder = new AlertDialog.Builder(_context);
-        builder.setTitle(title);
-        builder.setIcon(android.R.drawable.ic_dialog_info);
-        builder.setMessage(message);
-        builder.setCancelable(false);
-        builder.setPositiveButton("Yes", onYesListener);
-        builder.setNegativeButton("No", onNoListener);
-        boolean show = true;
-        if ( _context instanceof Activity ) {
-            Activity activity = (Activity) _context;
-            if (activity.isFinishing() || alertDialog != null && alertDialog.isShowing()) {
-                show = false;
+        try {
+            if (alertDialog != null && alertDialog.isShowing() && !isContextActivityThatIsFinishing(_context)) {
+                alertDialog.dismiss();
             }
-        }
-
-        if (show) {
-            alertDialog = builder.create();
-            alertDialog.show();
+            AlertDialog.Builder builder = new AlertDialog.Builder(_context);
+            builder.setTitle(title);
+            builder.setIcon(android.R.drawable.ic_dialog_info);
+            builder.setMessage(message);
+            builder.setCancelable(false);
+            builder.setPositiveButton("Yes", onYesListener);
+            builder.setNegativeButton("No", onNoListener);
+            if (!(alertDialog != null && alertDialog.isShowing()) && !isContextActivityThatIsFinishing(_context)) {
+                alertDialog = builder.create();
+                alertDialog.show();
+            }
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
         }
     }
     
@@ -139,25 +135,22 @@ public class Utils {
     }
     
     public static void showMessage(Context _context, String title, String message, int icon, DialogInterface.OnClickListener ackHandler) {
-        if (alertDialog != null) {
-            alertDialog.dismiss();
-        }
-        AlertDialog.Builder builder = new AlertDialog.Builder(_context);
-        builder.setTitle(title);
-        builder.setMessage(Html.fromHtml(message));
-        builder.setCancelable(false);
-        builder.setPositiveButton("Acknowledged", ackHandler);
-        builder.setIcon(icon);
-        boolean show = true;
-        if ( _context instanceof Activity ) {
-            Activity activity = (Activity) _context;
-            if (activity.isFinishing()) {
-                show = false;
+        try {
+            if (alertDialog != null && alertDialog.isShowing() && !isContextActivityThatIsFinishing(_context)) {
+                alertDialog.dismiss();
             }
-        }
-        if (show) {
-            alertDialog = builder.create();
-            alertDialog.show();
+            AlertDialog.Builder builder = new AlertDialog.Builder(_context);
+            builder.setTitle(title);
+            builder.setMessage(Html.fromHtml(message));
+            builder.setCancelable(false);
+            builder.setPositiveButton("Acknowledged", ackHandler);
+            builder.setIcon(icon);
+            if (!(alertDialog != null && alertDialog.isShowing()) && !isContextActivityThatIsFinishing(_context)) {
+                alertDialog = builder.create();
+                alertDialog.show();
+            }
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
         }
     }
     
@@ -343,6 +336,15 @@ public class Utils {
             Log.i(TAG, "Toggled " + key + " " + String.valueOf(state));
         }
     }
-    
-    
+
+    static boolean isContextActivityThatIsFinishing(Context _context) {
+        boolean result = false;
+        if (_context instanceof Activity) {
+            Activity activity = (Activity)_context;
+            if (activity.isFinishing()) {
+                result = true;
+            }
+        }
+        return result;
+    }
 }

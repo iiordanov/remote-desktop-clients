@@ -92,7 +92,7 @@ fi
 if [ "$SKIP_BUILD" == "false" ]
 then
   pushd ../remoteClientLib/jni/libs
-  ./build-deps.sh -j 4 -n $ANDROID_NDK build $PRJ
+  ./build-deps.sh -j 8 -n $ANDROID_NDK build $PRJ
   popd
 
   if echo $PRJ | grep -q "SPICE\|Opaque\|libs\|remoteClientLib"

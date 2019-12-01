@@ -178,9 +178,17 @@ build_one() {
             os=android-armeabi
             arch=arm
             ;;
+        arm64-v8a)
+            os=android64-aarch64
+            arch=arm64
+            ;;
         x86)
             os=android-x86
             arch=x86
+            ;;
+        x86_64)
+            os=android64
+            arch=x86_64
             ;;
         *)
             echo "Unsupported ABI: $abi"
@@ -383,7 +391,7 @@ setup() {
         arch=x86
         build_host="i686-linux-android"
         ;;
-    x86-64)
+    x86_64)
         gstarch=x86_64
         arch=x86_64
         build_host="x86_64-linux-android"
@@ -438,6 +446,9 @@ build() {
         rm -rf "${gst}-${abi}"
         mkdir -p "${gst}-${abi}"
         tar xf "$(tarpath ${pkgstr})" -C "${gst}-${abi}"
+        pushd "${gst}-${abi}"
+        rm -rf $(ls -1 | grep -v "^${gstarch}$")
+        popd
         ln -s "${gst}-${abi}/${gstarch}" "${gst}"
 
         origroot=$(grep '^prefix' "${gst}/lib/pkgconfig/gstreamer-1.0.pc" | \

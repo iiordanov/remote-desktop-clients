@@ -28,11 +28,9 @@ android {
     }
 
     packagingOptions {
-        exclude 'lib/arm64-v8a/libsqlcipher.so'
         exclude 'lib/armeabi/libsqlcipher.so'
         exclude 'lib/mips64/libsqlcipher.so'
         exclude 'lib/mips/libsqlcipher.so'
-        exclude 'lib/x86_64/libsqlcipher.so'
     }
 }
 

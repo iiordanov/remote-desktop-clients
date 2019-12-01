@@ -146,7 +146,7 @@
     <string name="error_pick_correct_item">Upewnij się, że wybrałeś poprawny rodzaj połączenia.</string>
     <string name="error_rdp_authentication_failed">Uwierzytelnianie RDP nie powiodło się. Sprawdź nazwę użytkownika i hasło RDP i spróbuj ponownie.</string>
     <string name="error_rdp_connection_failed">Połączenie RDP nie powiodło się! Połączenie mogło zostać przerwane, serwer RDP mógł zostać wyłączony lub sesja mogła zostać zamknięta.</string>
-    <string name="error_rdp_unable_to_connect">Nie można połączyć do serwera RDP lub wystąpił błąd uwierzytelniania. Upewnij się, że ustawienia i dane serwera są prawidłowe, serwer i RDP są włączone i serwer jest połączony z tą samą siecią.</string>
+    <string name="error_rdp_unable_to_connect">Nie można połączyć do serwera RDP . Upewnij się, że ustawienia i dane serwera są prawidłowe, serwer i RDP są włączone i serwer jest połączony z tą samą siecią.</string>
     <string name="error_security_type">Serwer nie obsługuje tego rodzaju zabezpieczenia.</string>
     <string name="error_spice_unable_to_connect">Nie udało się połączyć lub uwierzytelnić. Sprawdź adres serwera, hasło, ważność certyfikatu i temat.</string>
     <string name="error_ssh_could_not_exec_command">Nie można zdalnie wykonać komendy.</string>

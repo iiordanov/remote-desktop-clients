@@ -22,7 +22,7 @@ eclipse_projects/remote-desktop-clients-libs-*.tar.gz
 remoteClientLib/jni/libs/deps/
 remoteClientLib/jni/libs/tar/
 remoteClientLib/jni/libs/FREERDP_BUILT
-remoteClientLib/gst-build-x86/
+remoteClientLib/gst-build-*/
 remoteClientLib/java/
 remoteClientLib/debug/
 remoteClientLib/release/
@@ -36,6 +36,8 @@ remoteClientLib/src/main/assets/ssl/
 bVNC/debug/
 bVNC/gst-build-armeabi-v7a/
 bVNC/gst-build-x86/
+bVNC/gst-build-arm64-v8a/
+bVNC/gst-build-x86_64/
 bVNC/java/
 bVNC/libs/sqlcipher-javadoc.jar
 bVNC/libs/sqlcipher.jar

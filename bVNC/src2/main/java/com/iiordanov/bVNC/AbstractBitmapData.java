@@ -100,11 +100,11 @@ abstract public class AbstractBitmapData {
      * the bitmap would be smaller than the screen
      */
     float getMinimumScale() {
-        return Math.min((float)vncCanvas.getWidth()/bitmapwidth, (float)vncCanvas.getHeight()/bitmapheight);
+        return Math.min((float)vncCanvas.getWidth()/framebufferwidth, (float)vncCanvas.getHeight()/framebufferheight);
     }
 
     boolean widthRatioLessThanHeightRatio() {
-        return (float)vncCanvas.getWidth()/bitmapwidth < vncCanvas.getHeight()/bitmapheight;
+        return (float)vncCanvas.getWidth()/framebufferwidth < vncCanvas.getHeight()/framebufferheight;
     }
 
     /**

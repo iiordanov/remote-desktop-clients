@@ -367,7 +367,12 @@ public class bVNC extends MainConfiguration {
         checkboxViewOnly.setChecked(selected.getViewOnly());
         textNickname.setText(selected.getNickname());
         textUsername.setText(selected.getUserName());
-        COLORMODEL cm = COLORMODEL.valueOf(selected.getColorModel());
+        COLORMODEL cm = COLORMODEL.C24bit;
+        try {
+            cm = COLORMODEL.valueOf(selected.getColorModel());
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+        }
         COLORMODEL[] colors = COLORMODEL.values();
 
         spinnerVncGeometry.setSelection(selected.getRdpResType());

@@ -797,7 +797,11 @@ public class RemoteCanvas extends ImageView implements Viewable {
 
     @Override
     public Bitmap getBitmap() {
-        return myDrawable.bitmap;
+        Bitmap bitmap = null;
+        if (myDrawable != null) {
+            bitmap = myDrawable.bitmap;
+        }
+        return bitmap;
     }
     
     /**
