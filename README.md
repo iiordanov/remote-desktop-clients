@@ -27,10 +27,10 @@ Building bVNC with pre-built dependencies.
 
   - Set the environment variable PROJECT to one of bVNC, aSPICE, or aRDP.
 
-    export PROJECT=bVNC
-    ./eclipse_projects/download-prebuilt-dependencies.sh
-    ./eclipse_projects/bVNC/copy_prebuilt_files.sh $PROJECT  
-    ./eclipse_projects/bVNC/prepare_project.sh --skip-build $PROJECT nopath nopath
+        export PROJECT=bVNC
+        ./eclipse_projects/download-prebuilt-dependencies.sh
+        ./eclipse_projects/bVNC/copy_prebuilt_files.sh $PROJECT  
+        ./eclipse_projects/bVNC/prepare_project.sh --skip-build $PROJECT nopath nopath
 
 
 ## I-b From Scratch
@@ -42,7 +42,7 @@ Building from scratch and working in Android Studio.
   - Install at least the following dependencies on your Linux machine:
     make cmake automake libtool intltool gtk-doc-tools gnome-common gobject-introspection nasm
 
-  - If cmake on your system throws an error about CMAKE_MAKE_PROGRAM not set, install v3.5.1:
+  - If cmake on your system throws an error about CMAKE_MAKE_PROGRAM not set, install v3.5.1 from
     https://github.com/Kitware/CMake/releases/tag/v3.5.1
 
   - To build bVNC, aSPICE, or aRDP
@@ -50,23 +50,24 @@ Building from scratch and working in Android Studio.
     - Set the environment variable PROJECT to one of bVNC, aSPICE, or aRDP.
       Set the environment variables ANDROID_SDK and ANDROID_NDK to your SDK and NDK respectively.
 
-      export PROJECT=bVNC
-      export ANDROID_NDK=/path/to/your/android/NDK/
-      export ANDROID_SDK=/path/to/your/android/SDK/
-
-      export PATH=$PATH:${ANDROID_NDK}
-      export PATH=$PATH:${ANDROID_SDK}/platform-tools/
-      export PATH=$PATH:${ANDROID_SDK}/tools
+              export PROJECT=bVNC
+              export ANDROID_NDK=/path/to/your/android/NDK/
+              export ANDROID_SDK=/path/to/your/android/SDK/
+              export PATH=$PATH:${ANDROID_NDK}
+              export PATH=$PATH:${ANDROID_SDK}/platform-tools/
+              export PATH=$PATH:${ANDROID_SDK}/tools
 
     - Accept all licenses (repeat if you see an error during build)
-      ${ANDROID_SDK}/tools/bin/sdkmanager --licenses
+
+              ${ANDROID_SDK}/tools/bin/sdkmanager --licenses
 
     - Optionally, add cmake to the front of your PATH (adjust the path to cmake/bin):
-      export PATH=/opt/cmake-3.5.1-Linux-x86_64/bin:${PATH}
+
+              export PATH=/opt/cmake-3.5.1-Linux-x86_64/bin:${PATH}
 
     - Then, run the build script. E.g.:
 
-      ./eclipse_projects/bVNC/prepare_project.sh $PROJECT $ANDROID_NDK $ANDROID_SDK
+              ./eclipse_projects/bVNC/prepare_project.sh $PROJECT $ANDROID_NDK $ANDROID_SDK
 
     - Follow the instructions that the script outputs.
 
