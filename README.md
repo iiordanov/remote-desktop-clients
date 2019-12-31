@@ -29,7 +29,7 @@ Building bVNC with pre-built dependencies.
 
         export PROJECT=bVNC
         ./eclipse_projects/download-prebuilt-dependencies.sh
-        ./eclipse_projects/bVNC/copy_prebuilt_files.sh $PROJECT  
+        ./copy_prebuilt_files.sh $PROJECT
         ./eclipse_projects/bVNC/prepare_project.sh --skip-build $PROJECT nopath nopath
 
 
