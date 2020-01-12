@@ -20,19 +20,17 @@ func UserInterface(_ block: @escaping ()->Void) {
 var globalContentView: Image?
 var globalScene: UIWindowScene?
 var globalWindow: UIWindow?
-var globalImage: UIImageView?
-var currentFbWidth: Int32?
-var currentFbHeight: Int32?
+var globalImageView: UIImageView?
 
 func callback(data: UnsafeMutablePointer<UInt8>?, fbW: Int32, fbH: Int32, x: Int32, y: Int32, w: Int32, h: Int32) -> Void {
     UserInterface {
         //print("On UI Thread: ", fbW, fbH, x, y, w, h)
-        if (fbW != currentFbWidth || fbH != currentFbHeight) {
-            globalImage = UIImageView(frame: CGRect(x: 0, y: 0, width: Int(fbW), height: Int(fbH)))
-            globalWindow!.addSubview(globalImage!)
-            globalImage!.frame = globalWindow!.bounds
-        }
-        globalImage!.image = imageFromARGB32Bitmap(pixels: data, withWidth: Int(fbW), withHeight: Int(fbH))
+        globalImageView?.removeFromSuperview()
+        globalImageView = nil
+        globalImageView = UIImageView(frame: CGRect(x: 0, y: 0, width: Int(fbW), height: Int(fbH)))
+        globalImageView?.image = imageFromARGB32Bitmap(pixels: data, withWidth: Int(fbW), withHeight: Int(fbH))
+        globalImageView!.frame = globalWindow!.bounds
+        globalWindow!.addSubview(globalImageView!)
     }
 }
 
