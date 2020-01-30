@@ -3,7 +3,7 @@
 DIR=$(dirname $0)
 pushd $DIR
 
-DEPVER=8
+DEPVER=9
 
 wget -c https://github.com/iiordanov/remote-desktop-clients/releases/download/dependencies/remote-desktop-clients-libs-${DEPVER}.tar.gz
 
