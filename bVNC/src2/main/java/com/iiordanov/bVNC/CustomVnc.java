@@ -7,7 +7,7 @@ import com.iiordanov.freebVNC.*;
 import com.iiordanov.aRDP.*;
 import com.iiordanov.freeaRDP.*;
 import com.iiordanov.aSPICE.*;
-import com.iiordanov.HakkoHmiVnc.*;
+import com.iiordanov.CustomClientPackage.*;
 import com.iiordanov.util.CustomClientConfigFileReader;
 
 import org.yaml.snakeyaml.Yaml;
