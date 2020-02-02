@@ -20,10 +20,6 @@
 
 package com.undatech.opaque;
 
-import java.io.IOException;
-
-import org.json.JSONException;
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -31,23 +27,26 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
 import android.os.Environment;
-import android.text.ClipboardManager;
-import android.widget.AdapterView;
-import android.widget.GridView;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
+import android.text.ClipboardManager;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
+import android.widget.GridView;
 import android.widget.Toast;
 
 import com.undatech.opaque.dialogs.MessageFragment;
 import com.undatech.opaque.util.FileUtils;
 import com.undatech.opaque.util.LogcatReader;
 import com.undatech.opaque.util.PermissionsManager;
+import org.json.JSONException;
+import java.io.IOException;
+import com.undatech.remoteClientLib.R;
 
 public class ConnectionGridActivity extends FragmentActivity {
     private static String TAG = "ConnectionGridActivity";
@@ -57,6 +56,16 @@ public class ConnectionGridActivity extends FragmentActivity {
     private String[] screenshotFiles;
     private String[] connectionLabels;
     protected PermissionsManager permissionsManager;
+
+    private Class<?> getClassByName(String name) {
+        Class<?> remoteCanvasActivityClass = null;
+        try {
+            remoteCanvasActivityClass = Class.forName(name);
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        return remoteCanvasActivityClass;
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -74,7 +83,7 @@ public class ConnectionGridActivity extends FragmentActivity {
                     connectionPreferenceFiles = connections.split(" ");
                 }
                 
-                Intent intent = new Intent(ConnectionGridActivity.this, RemoteCanvasActivity.class);
+                Intent intent = new Intent(ConnectionGridActivity.this, getClassByName("com.undatech.opaque.RemoteCanvasActivity"));
                 if (connectionPreferenceFiles != null && position < connectionPreferenceFiles.length) {
                     ConnectionSettings cs = new ConnectionSettings(connectionPreferenceFiles[position]);
                     cs.loadFromSharedPreferences(appContext);
@@ -92,7 +101,7 @@ public class ConnectionGridActivity extends FragmentActivity {
                 if (connections != null) {
                     connectionPreferenceFiles = connections.split(" ");
                 }
-                Intent intent = new Intent(ConnectionGridActivity.this, ConnectionSetupActivity.class);
+                Intent intent = new Intent(ConnectionGridActivity.this, getClassByName("com.undatech.opaque.ConnectionSetupActivity"));
                 if (connectionPreferenceFiles != null && position < connectionPreferenceFiles.length) {
                     intent.putExtra("com.undatech.opaque.connectionToEdit", connectionPreferenceFiles[position]);
                 }
@@ -145,7 +154,7 @@ public class ConnectionGridActivity extends FragmentActivity {
      * @param menuItem
      */
     public void addNewConnection (MenuItem menuItem) {
-        Intent intent = new Intent(ConnectionGridActivity.this, ConnectionSetupActivity.class);
+        Intent intent = new Intent(ConnectionGridActivity.this, getClassByName("com.undatech.opaque.ConnectionSetupActivity"));
         startActivity(intent);
     }
 
@@ -166,7 +175,7 @@ public class ConnectionGridActivity extends FragmentActivity {
      * @param menuItem
      */
     public void editDefaultSettings (MenuItem menuItem) {
-        Intent intent = new Intent(ConnectionGridActivity.this, AdvancedSettingsActivity.class);
+        Intent intent = new Intent(ConnectionGridActivity.this, getClassByName("com.undatech.opaque.AdvancedSettingsActivity"));
         ConnectionSettings defaultConnection = new ConnectionSettings(RemoteClientLibConstants.DEFAULT_SETTINGS_FILE);
         defaultConnection.loadFromSharedPreferences(getApplicationContext());
         intent.putExtra("com.undatech.opaque.ConnectionSettings", defaultConnection);

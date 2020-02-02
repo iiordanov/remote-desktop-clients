@@ -72,8 +72,8 @@ then
     then
       for ca in certificate_authorities/*
       do
-        echo Adding ${ca} to gstreamer provided ca-certificates.crt
-        cat ${ca} >> src/main/assets/ssl/certs/ca-certificates.crt
+        echo Adding ${ca} to gstreamer provided ca-bundle.crt
+        cat ${ca} >> src/main/assets/ca-bundle.crt
       done
     fi
     popd

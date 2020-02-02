@@ -20,42 +20,22 @@
 
 package com.undatech.opaque.dialogs;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.ListIterator;
-
-import org.xmlpull.v1.XmlPullParser;
-
-import com.undatech.opaque.R;
-
 import android.app.Activity;
-import android.app.Dialog;
-import android.content.Context;
 import android.content.DialogInterface;
-import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.text.method.PasswordTransformationMethod;
-import android.util.AttributeSet;
-import android.util.TypedValue;
-import android.util.Xml;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
-import android.widget.Toast;
-import android.widget.LinearLayout.LayoutParams;
+
+import com.undatech.remoteClientLib.R;
 
 public class GetTextFragment extends DialogFragment {
     public static String TAG = "GetTextFragment";

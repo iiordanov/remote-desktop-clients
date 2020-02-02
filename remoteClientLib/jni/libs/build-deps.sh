@@ -60,6 +60,7 @@ fetch() {
             wget -q -O "$(tarpath $1)" "$url"
             ;;
         *)
+            echo wget -P tar -q "$url"
             wget -P tar -q "$url"
             ;;
         esac
@@ -123,6 +124,9 @@ do_configure() {
             LDFLAGS=\"${ldflags} -L${root}/lib -L${gst}/lib-fixed\" \
             "$@"
 
+    echo Environment:
+    env
+
     ./configure \
             --host=${build_host} \
             --build=${build_system} \
@@ -146,6 +150,7 @@ build_one() {
     local basedir builddir
 
     if is_built "$1" ; then
+        echo "Dependency ${1} already built, skipping."
         return
     fi
 
@@ -312,6 +317,18 @@ build_one() {
         make $parallel
         make install
         ;;
+    gmp)
+        autoreconf -fi
+        do_configure
+        make $parallel
+        make install
+        ;;
+    nettle)
+        autoreconf -fi
+        do_configure --enable-mini-gmp
+        make $parallel
+        make install
+        ;;
     gnutls)
         # Build in normal root once to create artifact
         do_configure \
@@ -320,8 +337,8 @@ build_one() {
                 --disable-doc \
                 --disable-tests \
                 --with-included-unistring
-        make $parallel
-        make install
+        make $parallel || /bin/true
+        make install || /bin/true
 
         # Build again over top of gstreamer's gnutls to upgrade it
         do_configure install_in_gst \
@@ -330,8 +347,8 @@ build_one() {
                 --disable-doc \
                 --disable-tests \
                 --with-included-unistring
-        make $parallel
-        make install
+        make $parallel || /bin/true
+        make install || /bin/true
         ;;
     esac
 
@@ -363,7 +380,7 @@ setup() {
     fi
 
     cppflags=""
-    cflags="-O2"
+    cflags="-O2 -std=c99"
     cxxflags="${cflags}"
     ldflags=""
 
@@ -529,6 +546,7 @@ updates() {
                 sed -nr "s%.*$(expand ${package}_upregex).*%\\1%p" | \
                 sort -uV | \
                 tail -n 1)
+
         if [ "${curver}" != "${newver}" ] ; then
             printf "%-15s %10s  => %10s\n" "${package}" "${curver}" "${newver}"
         fi
