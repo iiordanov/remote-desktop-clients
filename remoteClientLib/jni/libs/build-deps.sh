@@ -470,6 +470,9 @@ build() {
     # Build GStreamer SDK
     if git clone https://gitlab.freedesktop.org/gstreamer/cerbero
     then
+      pushd cerbero
+      git checkout 1.16
+      popd
       cerbero/cerbero-uninstalled bootstrap
       pushd cerbero/build
       if [ ! -e android-ndk-18 ]
