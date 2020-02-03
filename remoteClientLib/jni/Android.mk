@@ -51,27 +51,13 @@ LOCAL_SRC_FILES         := $(PREBUILT_ROOT)/lib/libgovirt.a
 LOCAL_EXPORT_C_INCLUDES := $(PREBUILT_ROOT)/include/govirt-1.0
 include $(PREBUILT_STATIC_LIBRARY)
 
-
-include $(CLEAR_VARS)
-LOCAL_MODULE            := libcrypto
-LOCAL_SRC_FILES         := $(PREBUILT_ROOT)/lib/libcrypto.a
-LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH)/$(PREBUILT_ROOT)/include
-include $(PREBUILT_STATIC_LIBRARY)
-
-include $(CLEAR_VARS)
-LOCAL_MODULE            := libssl
-LOCAL_SRC_FILES         := $(PREBUILT_ROOT)/lib/libssl.a
-LOCAL_STATIC_LIBRARIES  := libcrypto
-LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH)/$(PREBUILT_ROOT)/include
-include $(PREBUILT_STATIC_LIBRARY)
-
 include $(CLEAR_VARS)
 LOCAL_MODULE            := spice-client-glib
 LOCAL_SRC_FILES         := $(PREBUILT_ROOT)/lib/libspice-client-glib-2.0.a
 LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH)/$(PREBUILT_ROOT)/include/spice-client-glib-2.0 \
                            $(LOCAL_PATH)/$(PREBUILT_ROOT)/include/spice-1
 LOCAL_SHARED_LIBRARIES  := gstreamer_android
-LOCAL_STATIC_LIBRARIES  := opus libssl
+LOCAL_STATIC_LIBRARIES  := opus
 include $(PREBUILT_STATIC_LIBRARY)
 
 include $(CLEAR_VARS)
@@ -81,7 +67,7 @@ GSTREAMER_JAVA_SRC_DIR	  := java
 include $(GSTREAMER_NDK_BUILD_PATH)/plugins.mk
 GSTREAMER_PLUGINS         := $(GSTREAMER_PLUGINS_CORE) $(GSTREAMER_PLUGINS_SYS)
 G_IO_MODULES              := gnutls
-GSTREAMER_EXTRA_DEPS      := pixman-1 gstreamer-app-1.0 libsoup-2.4 libxml-2.0 glib-2.0 gthread-2.0 gobject-2.0 jpeg
+GSTREAMER_EXTRA_DEPS      := pixman-1 gstreamer-app-1.0 libsoup-2.4 libxml-2.0 glib-2.0 gthread-2.0 gobject-2.0 libjpeg openssl libssl gnutls
 include $(GSTREAMER_NDK_BUILD_PATH)/gstreamer-1.0.mk
 
 

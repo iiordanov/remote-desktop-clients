@@ -114,14 +114,16 @@ do_configure() {
             --prefix=\"${prefix}\" \
             --enable-static \
             --disable-shared \
+            --disable-tests \
+            --disable-examples \
             --disable-dependency-tracking \
             PKG_CONFIG=\"pkg-config --static\" \
-            PKG_CONFIG_LIBDIR=\"${root}/share/pkgconfig:${root}/lib/pkgconfig:${gst}/lib-fixed/pkgconfig\" \
+            PKG_CONFIG_LIBDIR=\"${root}/share/pkgconfig:${root}/lib/pkgconfig:${gst}/lib/pkgconfig\" \
             PKG_CONFIG_PATH= \
             CPPFLAGS=\"${cppflags} -I${root}/include -I${gst}/include\" \
             CFLAGS=\"${cflags}\" \
             CXXFLAGS=\"${cxxflags}\" \
-            LDFLAGS=\"${ldflags} -L${root}/lib -L${gst}/lib-fixed\" \
+            LDFLAGS=\"${ldflags} -L${root}/lib -L${gst}/lib\" \
             "$@"
 
     echo Environment:
@@ -135,12 +137,12 @@ do_configure() {
             --disable-shared \
             --disable-dependency-tracking \
             PKG_CONFIG="pkg-config --static" \
-            PKG_CONFIG_LIBDIR="${root}/share/pkgconfig:${root}/lib/pkgconfig:${gst}/lib-fixed/pkgconfig" \
+            PKG_CONFIG_LIBDIR="${root}/share/pkgconfig:${root}/lib/pkgconfig:${gst}/lib/pkgconfig" \
             PKG_CONFIG_PATH= \
             CPPFLAGS="${cppflags} -I${root}/include -I${gst}/include" \
             CFLAGS="${cflags}" \
             CXXFLAGS="${cxxflags}" \
-            LDFLAGS="${ldflags} -L${root}/lib -L${gst}/lib-fixed" \
+            LDFLAGS="${ldflags} -L${root}/lib -L${gst}/lib" \
             "$@"
 }
 
@@ -208,6 +210,7 @@ build_one() {
                 --cross-compile-prefix=\"${build_host}-\" \
                 no-zlib \
                 no-hw \
+                no-ssl2 \
                 no-ssl3 \
                 ${cppflags} \
                 ${cflags} \
@@ -215,6 +218,10 @@ build_one() {
 
         export ANDROID_SYSROOT="${ndkdir}/platforms/android-${android_api}/arch-${arch}"
         export CROSS_SYSROOT="$ANDROID_SYSROOT"
+
+	echo Environment:
+        env
+
         ./Configure \
                 "${os}" \
                 --prefix="$root" \
@@ -248,7 +255,7 @@ build_one() {
                 LIBS="-lm"
 
 	# Disable tests and tools
-        sed -i 's/tests//' spice-common/Makefile
+        sed -i 's/tests//' subprojects/spice-common/Makefile
         sed -i 's/tests//' Makefile
         sed -i 's/tools//' Makefile
 
@@ -258,13 +265,13 @@ build_one() {
 
         # Patch to avoid SIGBUS due to unaligned accesses on ARM7
         # seems it is no longer needed since spice-gtk 0.35
-        patch -p1 < "${basedir}/spice-marshaller-sigbus.patch"
+        #patch -p1 < "${basedir}/spice-marshaller-sigbus.patch"
         make $parallel
 
         make install
 
         # Put some header files in a version-independent location.
-        for f in config.h tools/*.h src/*.h spice-common/common
+        for f in config.h tools/*.h src/*.h subprojects/spice-common/common
         do
             rsync -a $f ${root}/include/spice-1/
         done
@@ -279,6 +286,8 @@ build_one() {
         do_configure \
                 --enable-introspection=no \
                 --without-gnome \
+                --disable-tests \
+                --disable-examples \
                 --disable-glibtest
         make $parallel
         make install
@@ -290,6 +299,9 @@ build_one() {
         do_configure \
                 --enable-introspection=no \
                 --without-gnome \
+                --disable-tests \
+                --disable-examples \
+                --disable-rest-examples \
                 --disable-gtk-doc
         make $parallel
         make install
@@ -380,7 +392,7 @@ setup() {
     fi
 
     cppflags=""
-    cflags="-O2 -std=c99"
+    cflags="-O2 -std=c99 -Dtypeof=__typeof__"
     cxxflags="${cflags}"
     ldflags=""
 
@@ -455,47 +467,82 @@ build() {
     setup "$1"
     fetch configsub
 
-    # Unpack GStreamer SDK
-    if [ ! -e "${gst}/lib/libglib-2.0.a" ] ; then
-        pkgstr="gstreamer_$(echo ${abi} | tr -d -)"
-        fetch "${pkgstr}"
-        echo "Unpacking ${pkgstr}..."
-        rm -rf "${gst}-${abi}"
-        mkdir -p "${gst}-${abi}"
-        tar xf "$(tarpath ${pkgstr})" -C "${gst}-${abi}"
-        pushd "${gst}-${abi}"
-        rm -rf $(ls -1 | grep -v "^${gstarch}$")
-        popd
-        ln -s "${gst}-${abi}/${gstarch}" "${gst}"
+    # Build GStreamer SDK
+    if git clone https://gitlab.freedesktop.org/gstreamer/cerbero
+    then
+      cerbero/cerbero-uninstalled bootstrap
+      pushd cerbero/build
+      if [ ! -e android-ndk-18 ]
+      then
+        wget https://dl.google.com/android/repository/android-ndk-r18b-linux-x86_64.zip
+        unzip android-ndk-r18b-linux-x86_64.zip
+        ln -s android-ndk-r18b android-ndk-18
+      fi
+      popd
+      echo "allow_parallel_build = True" >>  cerbero/config/cross-android-universal.cbc
+      cerbero/cerbero-uninstalled -c cerbero/config/cross-android-universal.cbc build \
+        gstreamer-1.0 libxml2 libtasn1 pixman libsoup nettle gnutls cairo json-glib gst-android-1.0
+    fi
 
-        origroot=$(grep '^prefix' "${gst}/lib/pkgconfig/gstreamer-1.0.pc" | \
-                sed -e 's/prefix=//')
+    # Workaround for non-existent lib-pthread.la dpendency snaking its way into some of the libraries.
+    sed -i 's/[^ ]*lib-pthread.la//' cerbero/build/dist/android_universal/*/lib/*la
+
+    # Prepare gstreamer for current architecture
+    if [ ! -e "${gst}/lib/libglib-2.0.a" ] ; then
+        #pkgstr="gstreamer_$(echo ${abi} | tr -d -)"
+        #fetch "${pkgstr}"
+        #echo "Unpacking ${pkgstr}..."
+
+        echo "Linking ../../cerbero/build/dist/android_universal/${gstarch} to ${gst}"
+
+        #rm -rf "${gst}-${abi}"
+        #mkdir -p "${gst}-${abi}"
+        ln -sf "../../cerbero/build/dist/android_universal/${gstarch}" "${gst}"
+	ls -ld "${gst}"
+        #tar xf "$(tarpath ${pkgstr})" -C "${gst}-${abi}"
+        #pushd "${gst}-${abi}"
+        #rm -rf $(ls -1 | grep -v "^${gstarch}$")
+        #popd
+        #ln -s "${gst}-${abi}/${gstarch}" "${gst}"
+
+        #origroot=$(grep '^prefix' "${gst}/lib/pkgconfig/gstreamer-1.0.pc" | \
+        #        sed -e 's/prefix=//')
+
+        #echo "Replacing ${origroot} with ${gst} in .pc and .la files in a new directory lib-fixed in gstreamer."
 
         # Add pkg-config file for libjpeg so Android.mk can ask for its
         # symbols to be exposed in the gstreamer .so
-        cat > ${gst}/lib/pkgconfig/jpeg.pc <<EOF
-prefix=${origroot}
-exec_prefix=\${prefix}
-libdir=\${prefix}/lib
-includedir=\${prefix}/include
-
-Name: jpeg
-Description: JPEG library
-Version: 8
-Libs: -L\${libdir} -ljpeg
-Cflags: -I\${includedir}
-EOF
+#        cat > ${gst}/lib/pkgconfig/jpeg.pc <<EOF
+#prefix=${origroot}
+#exec_prefix=\${prefix}
+#libdir=\${prefix}/lib
+#includedir=\${prefix}/include
+#
+#Name: jpeg
+#Description: JPEG library
+#Version: 8
+#Libs: -L\${libdir} -ljpeg
+#Cflags: -I\${includedir}
+#EOF
 
         # The .la files point to shared libraries that don't exist, so
         # linking fails.  We can't delete the .la files outright because
         # the GStreamer ndk-build glue depends on them.  Create a separate
         # lib directory with no .la files.
-        cp -a "${gst}/lib" "${gst}/lib-fixed"
-        rm -f ${gst}/lib-fixed/*.la
+
+        #cp -a "${gst}/lib" "${gst}/lib-fixed"
+        #rm -f ${gst}/lib-fixed/*.la
+
         # Fix paths in .pc files
-        sed -i -e "s|${origroot}/lib|${gst}/lib-fixed|g" \
-               -e "s|${origroot}|${gst}|g" \
-                ${gst}/lib-fixed/pkgconfig/*.pc
+
+        #sed -i -e "s|${origroot}/lib|${gst}/lib-fixed|g" \
+        #       -e "s|${origroot}|${gst}|g" \
+        #        ${gst}/lib-fixed/pkgconfig/*.pc
+
+        # Create shared libs
+
+        #echo "Creating shared libraries from static ones"
+        #find ${gst}/lib-fixed/ -name \*.a | while read line ; do ${build_host}-gcc -fPIC -shared $line -o $(echo $line | sed 's/\.a$/.so/g') ; done
 
         # Drop pkg-config file for opus, since static libopus and static
         # libcelt051 can't be linked into the same binary due to symbol
