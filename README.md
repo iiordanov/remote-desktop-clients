@@ -29,7 +29,7 @@ Building bVNC with pre-built dependencies.
         export PROJECT=bVNC
         ./eclipse_projects/download-prebuilt-dependencies.sh
         ./copy_prebuilt_files.sh $PROJECT
-        ./eclipse_projects/bVNC/prepare_project.sh --skip-build $PROJECT nopath nopath
+        ./eclipse_projects/bVNC/prepare_project.sh --skip-build $PROJECT nopath
 
 
 ## I-b From Scratch
@@ -50,7 +50,7 @@ Building from scratch and working in Android Studio.
       client, set PROJECT to a string that stars with Custom and contains Vnc, i.e. `CustomYourVncClient`
       (see III below for details).
       
-    - Set the environment variables ANDROID_SDK and ANDROID_NDK to your SDK and NDK respectively.
+    - Set the environment variables ANDROID_SDK to your SDK installation. The scripts will install the NDK automatically.
 
     - Example:
 
@@ -71,7 +71,7 @@ Building from scratch and working in Android Studio.
 
     - Then, run the build script. E.g.:
 
-              ./eclipse_projects/bVNC/prepare_project.sh $PROJECT $ANDROID_NDK $ANDROID_SDK
+              ./eclipse_projects/bVNC/prepare_project.sh $PROJECT $ANDROID_SDK
 
     - Follow the instructions that the script outputs.
 

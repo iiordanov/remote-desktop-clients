@@ -25,6 +25,20 @@ set -eE
 
 . build-deps.conf
 
+install_ndk() {
+    DIR=$1
+    VER=$2
+
+    pushd ${DIR} >&/dev/null
+    if [ ! -e android-ndk-${VER} ]
+    then
+        wget https://dl.google.com/android/repository/android-ndk-${VER}-linux-x86_64.zip  >&/dev/null
+        unzip android-ndk-${VER}-linux-x86_64.zip >&/dev/null
+    fi
+    popd >&/dev/null
+    echo $(realpath ${DIR}/android-ndk-${VER})
+}
+
 expand() {
     # Print the contents of the named variable
     # $1  = the name of the variable to expand
@@ -392,7 +406,7 @@ setup() {
     fi
 
     cppflags=""
-    cflags="-O2 -std=c99 -Dtypeof=__typeof__"
+    cflags="-O2 -std=c99 -Dtypeof=__typeof__ -fPIC"
     cxxflags="${cflags}"
     ldflags=""
 
@@ -435,6 +449,7 @@ setup() {
     toolchain="$(pwd)/deps/${abi}/toolchain"
     gst="$(pwd)/deps/${abi}/gstreamer"
     mkdir -p "${root}"
+    [ -e ${gst} ] && mkdir -p ${gst}/etc/ssl/certs/ && cp /etc/ssl/certs/ca-certificates.crt ${gst}/etc/ssl/certs/ || /bin/true
 
     fetch configguess
     build_system=$(sh tar/config.guess)
@@ -474,18 +489,12 @@ build() {
       git checkout 1.16
       popd
       cerbero/cerbero-uninstalled bootstrap
-      pushd cerbero/build
-      if [ ! -e android-ndk-18 ]
-      then
-        wget https://dl.google.com/android/repository/android-ndk-r18b-linux-x86_64.zip
-        unzip android-ndk-r18b-linux-x86_64.zip
-        ln -s android-ndk-r18b android-ndk-18
-      fi
-      popd
       echo "allow_parallel_build = True" >>  cerbero/config/cross-android-universal.cbc
-      cerbero/cerbero-uninstalled -c cerbero/config/cross-android-universal.cbc build \
-        gstreamer-1.0 libxml2 libtasn1 pixman libsoup nettle gnutls cairo json-glib gst-android-1.0
+      echo "toolchain_prefix = \"${ndkdir}\"" >> cerbero/config/cross-android-universal.cbc
     fi
+
+    cerbero/cerbero-uninstalled -c cerbero/config/cross-android-universal.cbc build \
+      gstreamer-1.0 libxml2 libtasn1 pixman libsoup nettle gnutls openssl cairo json-glib gst-android-1.0 gst-plugins-bad-1.0 gst-plugins-good-1.0 gst-plugins-base-1.0 gst-plugins-ugly-1.0
 
     # Workaround for non-existent lib-pthread.la dpendency snaking its way into some of the libraries.
     sed -i 's/[^ ]*lib-pthread.la//' cerbero/build/dist/android_universal/*/lib/*la
@@ -652,8 +661,9 @@ build_freerdp() {
         # Patch the config
         sed -i -e 's/CMAKE_BUILD_TYPE=.*/CMAKE_BUILD_TYPE=Release/'\
                -e 's/WITH_OPENH264=.*/WITH_OPENH264=1/'\
-               -e 's/OPENSSL_TAG=.*/OPENSSL_TAG=OpenSSL_1_1_1a/'\
+               -e 's/OPENSSL_TAG=.*/OPENSSL_TAG=OpenSSL_1_1_1d/'\
                -e "s/BUILD_ARCH=.*/BUILD_ARCH=\"${abis}\"/" ./scripts/android-build.conf
+#               -e 's/OPENH264_TAG=.*/OPENH264_TAG=v2.0.0/'\
 
         echo 'set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DWINPR_EXPORTS --sysroot=${ANDROID_SYSROOT}")' >>  winpr/CMakeLists.txt
         for f in winpr/CMakeLists.txt winpr/libwinpr/CMakeLists.txt libfreerdp/CMakeLists.txt client/common/CMakeLists.txt client/Android/CMakeLists.txt client/common/CMakeLists.txt
@@ -672,7 +682,7 @@ build_freerdp() {
 
         cp "${basedir}/../freerdp_AndroidManifest.xml" client/Android/Studio/freeRDPCore/src/main/AndroidManifest.xml
 
-        export ANDROID_NDK="${ndkdir}"
+        export ANDROID_NDK=$(install_ndk ./ r14b)
         ./scripts/android-build-freerdp.sh
 
         sed -i 's/implementationSdkVersion/compileSdkVersion/; s/.*rootProject.ext.versionName.*//; s/.*.*buildToolsVersion.*.*//; s/compile /implementation /' \
