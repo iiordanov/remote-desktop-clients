@@ -2,8 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="com.undatech.opaque"
-    android:versionCode="1511"
-    android:versionName="1.5.1" >
+    android:versionCode="1520"
+    android:versionName="1.5.2" >
 
     <uses-permission android:name="android.permission.INTERNET"></uses-permission>
     <uses-permission android:name="android.permission.VIBRATE" />
