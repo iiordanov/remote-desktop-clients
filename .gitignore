@@ -23,7 +23,6 @@ remoteClientLib/jni/libs/deps/
 remoteClientLib/jni/libs/tar/
 remoteClientLib/jni/libs/FREERDP_BUILT
 remoteClientLib/gst-build-*/
-remoteClientLib/java/
 remoteClientLib/debug/
 remoteClientLib/release/
 */libs/sqlcipher-javadoc.jar

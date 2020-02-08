@@ -81,7 +81,6 @@ then
   PRJ=$(echo ${PRJ} | sed 's/^Custom//')
 else
   ln -sf AndroidManifest.xml.$PRJ AndroidManifest.xml
-  ../copy_prebuilt_files.sh $PRJ
 fi
 
 if [ -n "${CUSTOM_CLIENT}" ]
@@ -109,8 +108,6 @@ else
   find src2/main/java/com/iiordanov -name \*.java -exec sed -i "s/import.*CUSTOM_CLIENT_IMPORTS/import com\.iiordanov\.CustomClientPackage\.\*;/" {} \;
   find src2/main/java/com/iiordanov -name \*.java -exec sed -i "s/package.*CUSTOM_CLIENT_IMPORTS/package com\.iiordanov\.CustomClientPackage;/" {} \;
 fi
-
-../copy_prebuilt_files.sh $PRJ
 
 if [ "$SKIP_BUILD" == "false" ]
 then

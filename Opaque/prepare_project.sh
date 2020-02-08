@@ -65,8 +65,6 @@ fi
 if [ "$PRJ" == "libs" ]
 then
   BUILDING_DEPENDENCIES=true
-else
-  ../copy_prebuilt_files.sh $PRJ
 fi
 
 if [ "$SKIP_BUILD" == "false" ]
