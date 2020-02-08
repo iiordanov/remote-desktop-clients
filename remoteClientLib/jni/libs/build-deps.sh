@@ -515,66 +515,9 @@ build() {
 
     # Prepare gstreamer for current architecture
     if [ ! -e "${gst}/lib/libglib-2.0.a" ] ; then
-        #pkgstr="gstreamer_$(echo ${abi} | tr -d -)"
-        #fetch "${pkgstr}"
-        #echo "Unpacking ${pkgstr}..."
-
         echo "Linking ../../cerbero/build/dist/android_universal/${gstarch} to ${gst}"
-
-        #rm -rf "${gst}-${abi}"
-        #mkdir -p "${gst}-${abi}"
         ln -sf "../../cerbero/build/dist/android_universal/${gstarch}" "${gst}"
 	ls -ld "${gst}"
-        #tar xf "$(tarpath ${pkgstr})" -C "${gst}-${abi}"
-        #pushd "${gst}-${abi}"
-        #rm -rf $(ls -1 | grep -v "^${gstarch}$")
-        #popd
-        #ln -s "${gst}-${abi}/${gstarch}" "${gst}"
-
-        #origroot=$(grep '^prefix' "${gst}/lib/pkgconfig/gstreamer-1.0.pc" | \
-        #        sed -e 's/prefix=//')
-
-        #echo "Replacing ${origroot} with ${gst} in .pc and .la files in a new directory lib-fixed in gstreamer."
-
-        # Add pkg-config file for libjpeg so Android.mk can ask for its
-        # symbols to be exposed in the gstreamer .so
-#        cat > ${gst}/lib/pkgconfig/jpeg.pc <<EOF
-#prefix=${origroot}
-#exec_prefix=\${prefix}
-#libdir=\${prefix}/lib
-#includedir=\${prefix}/include
-#
-#Name: jpeg
-#Description: JPEG library
-#Version: 8
-#Libs: -L\${libdir} -ljpeg
-#Cflags: -I\${includedir}
-#EOF
-
-        # The .la files point to shared libraries that don't exist, so
-        # linking fails.  We can't delete the .la files outright because
-        # the GStreamer ndk-build glue depends on them.  Create a separate
-        # lib directory with no .la files.
-
-        #cp -a "${gst}/lib" "${gst}/lib-fixed"
-        #rm -f ${gst}/lib-fixed/*.la
-
-        # Fix paths in .pc files
-
-        #sed -i -e "s|${origroot}/lib|${gst}/lib-fixed|g" \
-        #       -e "s|${origroot}|${gst}|g" \
-        #        ${gst}/lib-fixed/pkgconfig/*.pc
-
-        # Create shared libs
-
-        #echo "Creating shared libraries from static ones"
-        #find ${gst}/lib-fixed/ -name \*.a | while read line ; do ${build_host}-gcc -fPIC -shared $line -o $(echo $line | sed 's/\.a$/.so/g') ; done
-
-        # Drop pkg-config file for opus, since static libopus and static
-        # libcelt051 can't be linked into the same binary due to symbol
-        # conflicts, and RHEL's libspice-server doesn't link with opus
-        # Seems it works now, so enabling it over usage of Celt
-        #rm -f ${gst}/lib-fixed/pkgconfig/opus.pc
     fi
 
     # Build
