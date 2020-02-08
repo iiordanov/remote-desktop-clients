@@ -11,8 +11,6 @@ mkdir -p remoteClientLib/jni/libs/deps/FreeRDP/
 
 tar xf remote-desktop-clients-libs-${DEPVER}.tar.gz
 
-rsync -a remoteClientLib/prebuilt/ remoteClientLib/java/
-
 echo "Done downloading and extracting dependencies."
 
 popd
