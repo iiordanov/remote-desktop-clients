@@ -39,6 +39,20 @@ install_ndk() {
     echo $(realpath ${DIR}/android-ndk-${VER})
 }
 
+install_cmake() {
+    DIR=$1
+    VER=$2
+
+    pushd ${DIR} >&/dev/null
+    if [ ! -e cmake-${VER}-Linux-x86_64 ]
+    then
+        wget https://github.com/Kitware/CMake/releases/download/v${VER}/cmake-${VER}-Linux-x86_64.tar.gz >& /dev/null
+        tar xzf cmake-3.5.1-Linux-x86_64.tar.gz >& /dev/null
+    fi
+    popd >&/dev/null
+    echo $(realpath ${DIR}/cmake-${VER}-Linux-x86_64)
+}
+
 expand() {
     # Print the contents of the named variable
     # $1  = the name of the variable to expand
@@ -682,7 +696,10 @@ build_freerdp() {
 
         cp "${basedir}/../freerdp_AndroidManifest.xml" client/Android/Studio/freeRDPCore/src/main/AndroidManifest.xml
 
+        echo "Installing android NDK 14b for FreeRDP build compatibility"
         export ANDROID_NDK=$(install_ndk ./ r14b)
+        echo "Installing cmake 3.5.1 for FreeRDP build compatibility"
+        export PATH=$(install_cmake ./ 3.5.1)/bin:${PATH}
         ./scripts/android-build-freerdp.sh
 
         sed -i 's/implementationSdkVersion/compileSdkVersion/; s/.*rootProject.ext.versionName.*//; s/.*.*buildToolsVersion.*.*//; s/compile /implementation /' \
