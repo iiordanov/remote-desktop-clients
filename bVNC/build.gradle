@@ -20,9 +20,8 @@ android {
     }
 
     sourceSets {
-        main {
-            jniLibs.srcDirs += ['src2/main/java', 'src2/main/jniLibs', 'src2/main/jniLibs_freerdp']
-        }
+        main.java.srcDirs += 'src2/main/java'
+        main.jniLibs.srcDirs += ['src2/main/jniLibs', 'src2/main/jniLibs_freerdp']
     }
 
     packagingOptions {
