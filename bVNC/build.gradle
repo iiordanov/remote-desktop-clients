@@ -1,10 +1,10 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 27
+    compileSdkVersion 28
 
     defaultConfig {
-        targetSdkVersion 27
+        targetSdkVersion 28
         minSdkVersion project.getProperties().get("SDK_VERSION")
         manifestPlaceholders = [
                 custom_vnc_app_name: project.getProperties().get("CUSTOM_VNC_APP_NAME"),
