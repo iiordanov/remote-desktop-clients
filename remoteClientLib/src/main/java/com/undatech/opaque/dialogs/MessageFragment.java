@@ -20,24 +20,21 @@
 
 package com.undatech.opaque.dialogs;
 
-import com.undatech.opaque.R;
-import com.undatech.opaque.dialogs.GetTextFragment.OnFragmentDismissedListener;
-
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.text.Html;
-import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.method.LinkMovementMethod;
-import android.text.util.Linkify;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+
+import com.undatech.remoteClientLib.R;
 
 public class MessageFragment extends DialogFragment {
     public static String TAG = "MessageFragment";

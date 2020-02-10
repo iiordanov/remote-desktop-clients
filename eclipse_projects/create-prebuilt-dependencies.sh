@@ -17,7 +17,6 @@ PROJECT=libs
 ./Opaque/prepare_project.sh $PROJECT $ANDROID_NDK $ANDROID_SDK
 
 pushd ..
-rsync -a remoteClientLib/java/ remoteClientLib/prebuilt/
 
 tar czf remote-desktop-clients-libs-${DEPVER}.tar.gz remoteClientLib/libs bVNC/libs remoteClientLib/jni/libs/deps/FreeRDP/client/Android/Studio/freeRDPCore/
 

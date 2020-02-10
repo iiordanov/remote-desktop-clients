@@ -19,10 +19,10 @@ allprojects {
 }
 
 android {
-    compileSdkVersion 27
+    compileSdkVersion 28
 
     defaultConfig {
-        targetSdkVersion 27
+        targetSdkVersion 28
         minSdkVersion 14
     }
     useLibrary 'org.apache.http.legacy'
