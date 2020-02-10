@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           xmlns:tools="http://schemas.android.com/tools"
           package="com.iiordanov.aRDP" android:installLocation="auto"
-          android:versionCode="114080" android:versionName="v4.0.8">
+          android:versionCode="114081" android:versionName="v4.0.8">
 
     <uses-permission tools:node="removeAll"/>
     <uses-permission android:name="android.permission.INTERNET"> </uses-permission>
