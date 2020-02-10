@@ -41,11 +41,11 @@
             android:padding="5dip">
 
             <TableRow>
-
                 <TextView
+                    android:id="@+id/connectionTypeLabel"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Connection Type"
+                    android:text="@string/connection_type_caption"
                     android:textAppearance="?android:attr/textAppearanceMedium" />
             </TableRow>
 
@@ -278,7 +278,7 @@
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:hint="@string/username_hint"
+                    android:hint="@string/username_hint_optional"
                     android:inputType="textNoSuggestions|textVisiblePassword"
                     android:singleLine="true"
                     android:textAppearance="?android:attr/textAppearanceMedium" />

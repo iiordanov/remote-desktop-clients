@@ -5,7 +5,6 @@ clients for Android.
 
 Please see the LICENSE file for information on how the source is licensed.
 
-
 # Building
 
 There are two ways to build the applications. With pre-built libraries, or from
@@ -27,10 +26,10 @@ Building bVNC with pre-built dependencies.
 
   - Set the environment variable PROJECT to one of bVNC, aSPICE, or aRDP.
 
-    export PROJECT=bVNC
-    ./eclipse_projects/download-prebuilt-dependencies.sh
-    ./eclipse_projects/bVNC/copy_prebuilt_files.sh $PROJECT  
-    ./eclipse_projects/bVNC/prepare_project.sh --skip-build $PROJECT nopath nopath
+        export PROJECT=bVNC
+        ./eclipse_projects/download-prebuilt-dependencies.sh
+        ./copy_prebuilt_files.sh $PROJECT
+        ./eclipse_projects/bVNC/prepare_project.sh --skip-build $PROJECT nopath nopath
 
 
 ## I-b From Scratch
@@ -42,31 +41,37 @@ Building from scratch and working in Android Studio.
   - Install at least the following dependencies on your Linux machine:
     make cmake automake libtool intltool gtk-doc-tools gnome-common gobject-introspection nasm
 
-  - If cmake on your system throws an error about CMAKE_MAKE_PROGRAM not set, install v3.5.1:
-    https://github.com/Kitware/CMake/releases/tag/v3.5.1
+  - If cmake on your system throws an error about CMAKE_MAKE_PROGRAM not set, install v3.5.1 from:
+    [https://github.com/Kitware/CMake/releases/tag/v3.5.1]
 
   - To build bVNC, aSPICE, or aRDP
 
-    - Set the environment variable PROJECT to one of bVNC, aSPICE, or aRDP.
-      Set the environment variables ANDROID_SDK and ANDROID_NDK to your SDK and NDK respectively.
+    - Set the environment variable PROJECT to one of `bVNC`, `aSPICE`, or `aRDP`. For a "custom" VNC
+      client, set PROJECT to a string that stars with Custom and contains Vnc, i.e. `CustomYourVncClient`
+      (see III below for details).
+      
+    - Set the environment variables ANDROID_SDK and ANDROID_NDK to your SDK and NDK respectively.
 
-      export PROJECT=bVNC
-      export ANDROID_NDK=/path/to/your/android/NDK/
-      export ANDROID_SDK=/path/to/your/android/SDK/
+    - Example:
 
-      export PATH=$PATH:${ANDROID_NDK}
-      export PATH=$PATH:${ANDROID_SDK}/platform-tools/
-      export PATH=$PATH:${ANDROID_SDK}/tools
+              export PROJECT=bVNC
+              export ANDROID_NDK=/path/to/your/android/NDK/
+              export ANDROID_SDK=/path/to/your/android/SDK/
+              export PATH=$PATH:${ANDROID_NDK}
+              export PATH=$PATH:${ANDROID_SDK}/platform-tools/
+              export PATH=$PATH:${ANDROID_SDK}/tools
 
     - Accept all licenses (repeat if you see an error during build)
-      ${ANDROID_SDK}/tools/bin/sdkmanager --licenses
+
+              ${ANDROID_SDK}/tools/bin/sdkmanager --licenses
 
     - Optionally, add cmake to the front of your PATH (adjust the path to cmake/bin):
-      export PATH=/opt/cmake-3.5.1-Linux-x86_64/bin:${PATH}
+
+              export PATH=/opt/cmake-3.5.1-Linux-x86_64/bin:${PATH}
 
     - Then, run the build script. E.g.:
 
-      ./eclipse_projects/bVNC/prepare_project.sh $PROJECT $ANDROID_NDK $ANDROID_SDK
+              ./eclipse_projects/bVNC/prepare_project.sh $PROJECT $ANDROID_NDK $ANDROID_SDK
 
     - Follow the instructions that the script outputs.
 
@@ -81,3 +86,23 @@ Welcome screen, browsing to the remote-desktop-clients directory and selecting i
     open build.gradle (Module freeRDPCore). Change minSdkVersion to 11.
 
   - Build -> Make Project should now work.
+
+## III Building "Custom" VNC clients
+
+It is possible to programmatically build additional customized clients based on the VNC client contained in this project
+without altering any of the source code of the project.
+
+- Place a configuration file in yaml format in `bVNC/src2/main/assets/custom_vnc_client.yaml`
+
+- See the file `custom_vnc_client.yaml-EXAMPLE`. The numbers after each field are one of View.INVISIBLE or View.GONE
+  and it controls whether the field is invisible or gone in the customized interface.
+
+- See [https://developer.android.com/reference/android/view/View.html#GONE] for the numeric value of View.GONE
+  and [https://developer.android.com/reference/android/view/View.html#INVISIBLE] for the numberic value of View.INVISIBLE.
+
+- Place an icon at `bVNC/src2/main/res/drawable/icon_of_the_custom_app.png`.
+
+- Edit `gradle.properties` and set CUSTOM_VNC_APP_NAME to `Name Of The Custom App` and CUSTOM_VNC_APP_ICON to `icon_of_the_custom_app`
+
+- Follow the build procedure in I-a or I-b above, but with PROJECT set to anything that starts with `Custom` and has `Vnc` in its name.
+  For instance, `CustomYourVncClient`. Your package name once the project is built will be com.iiordanov.YourVncClient.

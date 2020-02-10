@@ -6,6 +6,10 @@ android {
     defaultConfig {
         targetSdkVersion 27
         minSdkVersion project.getProperties().get("SDK_VERSION")
+        manifestPlaceholders = [
+                custom_vnc_app_name: project.getProperties().get("CUSTOM_VNC_APP_NAME"),
+                custom_vnc_app_icon: project.getProperties().get("CUSTOM_VNC_APP_ICON")
+        ]
     }
 
     buildTypes {
@@ -40,4 +44,5 @@ dependencies {
     implementation 'net.zetetic:android-database-sqlcipher:3.5.9@aar'
     implementation files('libs/com.antlersoft.android.contentxml.jar')
     implementation files('libs/com.antlersoft.android.db.jar')
+    implementation group: 'org.yaml', name: 'snakeyaml', version: '1.23'
 }

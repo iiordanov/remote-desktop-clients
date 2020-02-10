@@ -584,6 +584,7 @@ build_freerdp() {
         # Patch the config
         sed -i -e 's/CMAKE_BUILD_TYPE=.*/CMAKE_BUILD_TYPE=Release/'\
                -e 's/WITH_OPENH264=.*/WITH_OPENH264=1/'\
+               -e 's/OPENSSL_TAG=.*/OPENSSL_TAG=OpenSSL_1_1_1a/'\
                -e "s/BUILD_ARCH=.*/BUILD_ARCH=\"${abis}\"/" ./scripts/android-build.conf
 
         echo 'set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DWINPR_EXPORTS --sysroot=${ANDROID_SYSROOT}")' >>  winpr/CMakeLists.txt

@@ -97,6 +97,7 @@ import com.iiordanov.aRDP.*;
 import com.iiordanov.freeaRDP.*;
 import com.iiordanov.aSPICE.*;
 import com.iiordanov.freeaSPICE.*;
+import com.iiordanov.CustomClientPackage.*;
 
 public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyListener {
     

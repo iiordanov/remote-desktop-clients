@@ -38,7 +38,8 @@ android:layout_height="fill_parent">
 		android:padding="5dip">
 		<TableRow>
 		    <TextView
-				android:text="Connection Type"
+				android:id="@+id/connectionTypeLabel"
+				android:text="@string/connection_type_caption"
 				android:textAppearance="?android:attr/textAppearanceLarge"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"/> 
@@ -175,7 +176,7 @@ android:layout_height="fill_parent">
 		</TableRow>
 		<TableRow>
 			<EditText android:id="@+id/textUsername" android:layout_width="fill_parent" 
-				android:hint="@string/username_hint" android:layout_height="wrap_content"
+				android:hint="@string/username_hint_optional" android:layout_height="wrap_content"
 				android:singleLine="true" android:layout_weight="1" android:textAppearance="?android:attr/textAppearanceLarge"
 				android:inputType="textNoSuggestions|textVisiblePassword"/>
 		</TableRow>

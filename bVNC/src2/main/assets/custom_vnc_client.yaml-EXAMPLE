@@ -1,0 +1,4 @@
+mainConfiguration:
+  visibility:
+    connectionTypeLabel: 8
+  title: "Some Alternate Title"
