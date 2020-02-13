@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="com.undatech.opaque"
-    android:versionCode="1522"
+    android:versionCode="1523"
     android:versionName="1.5.2" >
 
     <uses-permission android:name="android.permission.INTERNET"></uses-permission>
