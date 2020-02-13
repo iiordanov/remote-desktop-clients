@@ -210,11 +210,11 @@ build_one() {
             arch=arm
             ;;
         armeabi-v7a)
-            os=android-armeabi
+            os=android-arm
             arch=arm
             ;;
         arm64-v8a)
-            os=android64-aarch64
+            os=android-arm64
             arch=arm64
             ;;
         x86)
@@ -222,7 +222,7 @@ build_one() {
             arch=x86
             ;;
         x86_64)
-            os=android64
+            os=android-x86_64
             arch=x86_64
             ;;
         *)
@@ -231,33 +231,33 @@ build_one() {
             ;;
         esac
 
-        echo Current working directory: $(pwd)
-        echo Executing: ./Configure \
-                \"${os}\" \
-                --prefix=\"$root\" \
-                --cross-compile-prefix=\"${build_host}-\" \
+        export PATH=${ndkdir}/toolchains/llvm/prebuilt/linux-x86_64/bin/:${PATH}
+
+        echo Environment:
+        env
+
+        echo Executing:
+        echo ./Configure \
+                "${os}" \
+                --prefix="$root" \
                 no-zlib \
                 no-hw \
                 no-ssl2 \
                 no-ssl3 \
+                -D__ANDROID_API__=21 \
                 ${cppflags} \
                 ${cflags} \
                 ${ldflags}
 
-        export ANDROID_SYSROOT="${ndkdir}/platforms/android-${android_api}/arch-${arch}"
-        export CROSS_SYSROOT="$ANDROID_SYSROOT"
-
-	echo Environment:
-        env
-
+        echo Current working directory: $(pwd)
         ./Configure \
                 "${os}" \
                 --prefix="$root" \
-                --cross-compile-prefix="${build_host}-" \
                 no-zlib \
                 no-hw \
                 no-ssl2 \
                 no-ssl3 \
+                -D__ANDROID_API__=21 \
                 ${cppflags} \
                 ${cflags} \
                 ${ldflags}
@@ -420,7 +420,7 @@ setup() {
     fi
 
     cppflags=""
-    cflags="-O2 -std=c99 -Dtypeof=__typeof__ -fPIC"
+    cflags="-O2 -std=gnu99 -Dtypeof=__typeof__ -fPIC"
     cxxflags="${cflags}"
     ldflags=""
 
