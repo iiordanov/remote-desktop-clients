@@ -2,6 +2,9 @@
 <Workspace
    version = "1.0">
    <FileRef
+      location = "group:../ca.pem">
+   </FileRef>
+   <FileRef
       location = "self:bVNC.xcodeproj">
    </FileRef>
 </Workspace>

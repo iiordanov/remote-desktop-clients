@@ -76,6 +76,14 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             globalWindow!.makeKeyAndVisible()
         }
         
+        // Print out contents of CA file added for testing.
+        let ca_path = Bundle.main.path(forResource: "ca", ofType: "pem")
+        var contents = "Not Loaded"
+        do { contents = try String(contentsOfFile: ca_path!, encoding: String.Encoding.utf8) }
+            catch { print("Error Loading CA") }
+        print("Contents of ca.pem file built into the package:")
+        print(contents)
+
         let addr = "ADDRESS:PORT"
         let user = "USER"
         let password = "PASSWORD"
@@ -84,7 +92,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             connectVnc(callback,
                        UnsafeMutablePointer<Int8>(mutating: (addr as NSString).utf8String),
                        UnsafeMutablePointer<Int8>(mutating: (user as NSString).utf8String),
-                       UnsafeMutablePointer<Int8>(mutating: (password as NSString).utf8String))
+                       UnsafeMutablePointer<Int8>(mutating: (password as NSString).utf8String),
+                       UnsafeMutablePointer<Int8>(mutating: (ca_path as! NSString).utf8String))
         }
         
     }

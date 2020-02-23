@@ -18,6 +18,7 @@
 		AF48282D23B47D8A00826395 /* libvncclient.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AF48247F23B478C300826395 /* libvncclient.1.dylib */; };
 		AF48282E23B47D8A00826395 /* libvncclient.1.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = AF48247F23B478C300826395 /* libvncclient.1.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		AF48283223B47EC300826395 /* VncBridge.c in Sources */ = {isa = PBXBuildFile; fileRef = AF48283123B47EC300826395 /* VncBridge.c */; };
+		AF53DCAF24002C9F00569F19 /* ca.pem in Resources */ = {isa = PBXBuildFile; fileRef = AF53DCAE24002C9F00569F19 /* ca.pem */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -466,6 +467,7 @@
 		AF48282F23B47EC200826395 /* bVNC-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "bVNC-Bridging-Header.h"; sourceTree = "<group>"; };
 		AF48283023B47EC300826395 /* VncBridge.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VncBridge.h; sourceTree = "<group>"; };
 		AF48283123B47EC300826395 /* VncBridge.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = VncBridge.c; sourceTree = "<group>"; };
+		AF53DCAE24002C9F00569F19 /* ca.pem */ = {isa = PBXFileReference; lastKnownFileType = text; path = ca.pem; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -497,6 +499,7 @@
 		AF043A0C23B3DADA00C43ED7 = {
 			isa = PBXGroup;
 			children = (
+				AF53DCAE24002C9F00569F19 /* ca.pem */,
 				AF043A1723B3DADA00C43ED7 /* bVNC */,
 				AF043A2E23B3DADB00C43ED7 /* bVNCTests */,
 				AF043A3923B3DADB00C43ED7 /* bVNCUITests */,
@@ -1068,6 +1071,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AF53DCAF24002C9F00569F19 /* ca.pem in Resources */,
 				AF043A2523B3DADB00C43ED7 /* LaunchScreen.storyboard in Resources */,
 				AF043A2223B3DADB00C43ED7 /* Preview Assets.xcassets in Resources */,
 				AF043A1F23B3DADB00C43ED7 /* Assets.xcassets in Resources */,

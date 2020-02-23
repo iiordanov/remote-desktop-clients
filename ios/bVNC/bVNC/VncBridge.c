@@ -11,34 +11,39 @@
 char* HOST_AND_PORT;
 char* USERNAME;
 char* PASSWORD;
+char* CA_PATH;
 
 static rfbCredential* get_credential(rfbClient* cl, int credentialType){
-    rfbClientLog("Authenticating with credentials\n");
+    rfbClientLog("VeNCrypt authentication callback called\n\n");
     rfbCredential *c = malloc(sizeof(rfbCredential));
-    c->userCredential.username = malloc(RFB_BUF_SIZE);
-    c->userCredential.password = malloc(RFB_BUF_SIZE);
     
-    if(credentialType != rfbCredentialTypeUser) {
-        rfbClientErr("Something else than username and password required for authentication\n");
-        return NULL;
+    if(credentialType == rfbCredentialTypeUser) {
+        rfbClientLog("Username and password requested for authentication, initializing now\n");
+        c->userCredential.username = malloc(RFB_BUF_SIZE);
+        c->userCredential.password = malloc(RFB_BUF_SIZE);
+        strcpy(c->userCredential.username, USERNAME);
+        strcpy(c->userCredential.password, PASSWORD);
+        /* remove trailing newlines */
+        c->userCredential.username[strcspn(c->userCredential.username, "\n")] = 0;
+        c->userCredential.password[strcspn(c->userCredential.password, "\n")] = 0;
+    } else if (credentialType == rfbCredentialTypeX509) {
+        rfbClientLog("x509 certificates requested for authentication, initializing now\n");
+        c->x509Credential.x509CACertFile = malloc(strlen(CA_PATH));
+        strcpy(c->x509Credential.x509CACertFile, CA_PATH);
+        c->x509Credential.x509CrlVerifyMode = rfbX509CrlVerifyNone;
+        c->x509Credential.x509CACrlFile = false;
+        c->x509Credential.x509ClientKeyFile = false;
+        c->x509Credential.x509ClientCertFile = false;
     }
-    
-    rfbClientLog("username and password required for authentication!\n");
-    strcpy(c->userCredential.username, USERNAME);
-    strcpy(c->userCredential.password, PASSWORD);
-    
-    /* remove trailing newlines */
-    c->userCredential.username[strcspn(c->userCredential.username, "\n")] = 0;
-    c->userCredential.password[strcspn(c->userCredential.password, "\n")] = 0;
     
     return c;
 }
 
 static char* get_password(rfbClient* cl){
-    rfbClientLog("Doing password auth\n\n");
+    rfbClientLog("VNC password authentication callback called\n\n");
     char *p = malloc(RFB_BUF_SIZE);
     
-    rfbClientLog("Password required for authentication!\n");
+    rfbClientLog("Password requested for authentication\n");
     strcpy(p, PASSWORD);
     
     /* remove trailing newlines */
@@ -66,12 +71,13 @@ static rfbBool resize (rfbClient *cl) {
 }
 
 void connectVnc(void (*callback)(uint8_t *, int fbW, int fbH, int x, int y, int w, int h),
-                char* addr, char* user, char* password) {
+                char* addr, char* user, char* password, char* ca_path) {
     printf("Setting up connection");
     
     HOST_AND_PORT = addr;
     USERNAME = user;
     PASSWORD = password;
+    CA_PATH = ca_path;
     callback_from_swift = callback;
     
     rfbClient *cl = NULL;

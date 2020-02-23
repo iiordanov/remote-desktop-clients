@@ -1,0 +1,96 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index ee2457d..4e67ae5 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -27,7 +27,8 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Mo
+ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+ 
+ 
+-include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/libvncserver ${CMAKE_CURRENT_SOURCE_DIR}/common)
++include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/libvncserver ${CMAKE_CURRENT_SOURCE_DIR}/common
++${CMAKE_CURRENT_SOURCE_DIR}/../../OpenSSL-for-iPhone/ /opt/libjpeg-turbo/)
+ 
+ # all the build configuration switches
+ option(LIBVNCSERVER_INSTALL "Generate installation target" ON)
+diff --git a/libvncclient/tls_openssl.c b/libvncclient/tls_openssl.c
+index 4f8e287..0149be4 100644
+--- a/libvncclient/tls_openssl.c
++++ b/libvncclient/tls_openssl.c
+@@ -18,6 +18,8 @@
+  *  USA.
+  */
+ 
++#include <stdio.h>
++
+ #ifndef _MSC_VER
+ #define _XOPEN_SOURCE 500
+ #endif
+@@ -216,7 +218,6 @@ static int wait_for_data(SSL *ssl, int ret, int timeout)
+    }
+ 	
+   ERR_clear_error();
+-				
+   return retval;
+ }
+ 
+@@ -268,7 +269,11 @@ open_ssl_connection (rfbClient *client, int sockfd, rfbBool anonTLS, rfbCredenti
+   SSL *ssl = NULL;
+   int n, finished = 0;
+   X509_VERIFY_PARAM *param;
+-  uint8_t verify_crls = cred->x509Credential.x509CrlVerifyMode;
++  uint8_t verify_crls = false;
++
++  if (cred != NULL) {
++    verify_crls = cred->x509Credential.x509CrlVerifyMode;
++  }
+ 
+   if (!(ssl_ctx = SSL_CTX_new(SSLv23_client_method())))
+   {
+@@ -348,7 +353,6 @@ open_ssl_connection (rfbClient *client, int sockfd, rfbBool anonTLS, rfbCredenti
+ 
+   /* TODO: finetune this list, take into account anonTLS bool */
+   SSL_set_cipher_list(ssl, "ALL");
+-
+   SSL_set_fd (ssl, sockfd);
+   SSL_CTX_set_app_data (ssl_ctx, client);
+ 
+@@ -385,6 +389,8 @@ error_free_ctx:
+ static rfbBool
+ InitializeTLSSession(rfbClient* client, rfbBool anonTLS, rfbCredential *cred)
+ {
++  rfbClientLog("InitializeTLSSession called.\n");
++
+   if (client->tlsSession) return TRUE;
+ 
+   client->tlsSession = open_ssl_connection (client, client->sock, anonTLS, cred);
+@@ -508,6 +514,8 @@ ReadVeNCryptSecurityType(rfbClient* client, uint32_t *result)
+ rfbBool
+ HandleAnonTLSAuth(rfbClient* client)
+ {
++  rfbClientLog("HandleAnonTLSAuth called.\n");
++
+   if (!InitializeTLS() || !InitializeTLSSession(client, TRUE, NULL)) return FALSE;
+ 
+   if (!HandshakeTLS(client)) return FALSE;
+@@ -528,6 +536,8 @@ FreeX509Credential(rfbCredential *cred)
+ rfbBool
+ HandleVeNCryptAuth(rfbClient* client)
+ {
++  rfbClientLog("HandleVeNCryptAuth called.\n");
++
+   uint8_t major, minor, status;
+   uint32_t authScheme;
+   rfbBool anonTLS;
+diff --git a/libvncserver/rfbssl_openssl.c b/libvncserver/rfbssl_openssl.c
+index cbd6865..28b62d6 100644
+--- a/libvncserver/rfbssl_openssl.c
++++ b/libvncserver/rfbssl_openssl.c
+@@ -56,7 +56,7 @@ int rfbssl_init(rfbClientPtr cl)
+ 	rfbErr("OOM\n");
+     } else if (!cl->screen->sslcertfile || !cl->screen->sslcertfile[0]) {
+ 	rfbErr("SSL connection but no cert specified\n");
+-    } else if (NULL == (ctx->ssl_ctx = SSL_CTX_new(TLSv1_server_method()))) {
++    } else if (NULL == (ctx->ssl_ctx = SSL_CTX_new(TLS_server_method()))) {
+ 	rfbssl_error();
+     } else if (SSL_CTX_use_PrivateKey_file(ctx->ssl_ctx, keyfile, SSL_FILETYPE_PEM) <= 0) {
+ 	rfbErr("Unable to load private key file %s\n", keyfile);
