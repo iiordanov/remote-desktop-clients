@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -e
 
 DEVELOPMENT_TEAM=$1
 shift
@@ -16,25 +16,84 @@ then
   TYPE=Debug
 fi
 
-git clone https://github.com/LibVNC/libvncserver.git
-git clone https://github.com/leetal/ios-cmake.git
+CLEAN=$2
+
+# Ensure libjpeg-turbo is installed in the default path
+if [ ! -d /opt/libjpeg-turbo/ ]
+then
+  echo "You need to download and install libjpeg-turbo in the default location."
+  echo "Pre-built libraries for iOS are available at https://libjpeg-turbo.org/Documentation/OfficialBinaries"
+  exit 1
+fi
+
+# Clone and build OpenSSL
+if git clone https://github.com/x2on/OpenSSL-for-iPhone.git
+then
+  pushd OpenSSL-for-iPhone
+  patch -p1 < ../01_openssl.patch
+  ./build-libssl.sh --version=1.1.1d
+  patch -p1 < ../02_openssl.patch
+  patch -p1 < ../03_openssl.patch
+  popd
+else
+  echo "Found OpenSSL-for-iPhone directory, assuming it is built, please remove with 'rm -rf OpenSSL-for-iPhone' to rebuild"
+fi
+
+if git clone https://github.com/LibVNC/libvncserver.git
+then
+  patch -p1 < ../01_libvncserver.patch
+fi
+
+git clone https://github.com/leetal/ios-cmake.git || true
 pushd libvncserver/
 
-rm -rf build_simulator64
-mkdir build_simulator64
-pushd build_simulator64
+if [ -n "${CLEAN}" ]
+then
+  rm -rf build_simulator64
+fi
 
-cmake .. -G Xcode -DCMAKE_INSTALL_PREFIX=./libs -DCMAKE_TOOLCHAIN_FILE=../../ios-cmake/ios.toolchain.cmake -DPLATFORM=SIMULATOR64 -DCMAKE_XCODE_ATTRIBUTE_DEVELOPMENT_TEAM="${DEVELOPMENT_TEAM}"
+if [ -n "${CLEAN}" -o ! -d build_simulator64 ]
+then
+  mkdir -p build_simulator64
+  pushd build_simulator64
+  cmake .. -G Xcode -DENABLE_BITCODE=OFF -DARCHS='arm64 x86_64' \
+    -DCMAKE_C_FLAGS='-D OPENSSL_MIN_API=0x00908000L -D OPENSSL_API_COMPAT=0x00908000L' \
+    -DOPENSSL_SSL_LIBRARY=../../OpenSSL-for-iPhone/lib/libssl.a \
+    -DOPENSSL_CRYPTO_LIBRARY=../../OpenSSL-for-iPhone/lib/libcrypto.a \
+    -DOPENSSL_INCLUDE_DIR=../../OpenSSL-for-iPhone/include \
+    -DCMAKE_INSTALL_PREFIX=./libs -DCMAKE_INSTALL_PREFIX=./libs \
+    -DCMAKE_TOOLCHAIN_FILE=../../ios-cmake/ios.toolchain.cmake \
+    -DPLATFORM=SIMULATOR64 -DCMAKE_XCODE_ATTRIBUTE_DEVELOPMENT_TEAM="${DEVELOPMENT_TEAM}" \
+    -DJPEG_LIBRARY=/opt/libjpeg-turbo/lib/libjpeg.a -DJPEG_INCLUDE_DIR=/opt/libjpeg-turbo/include
+else
+  pushd build_simulator64
+fi
 cmake --build . --config ${TYPE} --target install
 
 popd
 
-rm -rf build_iphone
-mkdir build_iphone
-pushd build_iphone
+if [ -n "${CLEAN}" ]
+then
+  rm -rf build_iphone
+fi
 
 echo 'PRODUCT_BUNDLE_IDENTIFIER = com.iiordanov.bVNC' > ${TYPE}.xcconfig
-cmake .. -G Xcode -DCMAKE_INSTALL_PREFIX=./libs -DCMAKE_TOOLCHAIN_FILE=../../ios-cmake/ios.toolchain.cmake -DPLATFORM=OS -DCMAKE_XCODE_ATTRIBUTE_DEVELOPMENT_TEAM="${DEVELOPMENT_TEAM}"
+if [ -n "${CLEAN}" -o ! -d build_iphone ]
+then
+  mkdir -p build_iphone
+  pushd build_iphone
+  cmake .. -G Xcode -DENABLE_BITCODE=OFF -DARCHS='arm64 x86_64' \
+    -DCMAKE_C_FLAGS='-D OPENSSL_MIN_API=0x00908000L -D OPENSSL_API_COMPAT=0x00908000L' \
+    -DOPENSSL_SSL_LIBRARY=../../OpenSSL-for-iPhone/lib/libssl.a \
+    -DOPENSSL_CRYPTO_LIBRARY=../../OpenSSL-for-iPhone/lib/libcrypto.a \
+    -DOPENSSL_INCLUDE_DIR=../../OpenSSL-for-iPhone/include \
+    -DCMAKE_INSTALL_PREFIX=./libs -DCMAKE_INSTALL_PREFIX=./libs \
+    -DCMAKE_TOOLCHAIN_FILE=../../ios-cmake/ios.toolchain.cmake \
+    -DPLATFORM=OS -DCMAKE_XCODE_ATTRIBUTE_DEVELOPMENT_TEAM="${DEVELOPMENT_TEAM}" \
+    -DJPEG_LIBRARY=/opt/libjpeg-turbo/lib/libjpeg.a -DJPEG_INCLUDE_DIR=/opt/libjpeg-turbo/include
+else
+  pushd build_iphone
+fi
 
 # Workaround for missing PRODUCT_BUNDLE_IDENTIFIER in generated LibVNCServer.xcodeproj/project.pbxproj file
 sed -i.bak '/ *ARCHS =.*/a\

@@ -12,7 +12,7 @@
 #include <stdio.h>
 #include "rfb/rfbclient.h"
 
-void connectVnc(void (*callback)(uint8_t *, int fbW, int fbH, int x, int y, int w, int h), char*, char*, char*);
+void connectVnc(void (*callback)(uint8_t *, int fbW, int fbH, int x, int y, int w, int h), char*, char*, char*, char*);
 void (*callback_from_swift)(uint8_t *, int fbW, int fbH, int x, int y, int w, int h);
 
 #endif /* VncBridge_h */
