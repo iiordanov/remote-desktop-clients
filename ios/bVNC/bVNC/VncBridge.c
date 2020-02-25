@@ -12,6 +12,13 @@ char* HOST_AND_PORT;
 char* USERNAME;
 char* PASSWORD;
 char* CA_PATH;
+rfbClient *cl;
+
+bool maintainConnection = true;
+
+bool getMaintainConnection() {
+    return maintainConnection;
+}
 
 static rfbCredential* get_credential(rfbClient* cl, int credentialType){
     rfbClientLog("VeNCrypt authentication callback called\n\n");
@@ -70,18 +77,23 @@ static rfbBool resize (rfbClient *cl) {
     return TRUE;
 }
 
+void disconnectVnc() {
+    maintainConnection = false;
+}
+
 void connectVnc(void (*callback)(uint8_t *, int fbW, int fbH, int x, int y, int w, int h),
                 char* addr, char* user, char* password, char* ca_path) {
     printf("Setting up connection");
+    maintainConnection = true;
     
     HOST_AND_PORT = addr;
     USERNAME = user;
     PASSWORD = password;
     CA_PATH = ca_path;
     callback_from_swift = callback;
-    
-    rfbClient *cl = NULL;
-    
+
+    cl = NULL;
+
     int argc = 2;
     
     char **argv = (char**)malloc(argc*sizeof(char*));
@@ -113,6 +125,10 @@ void connectVnc(void (*callback)(uint8_t *, int fbW, int fbH, int x, int y, int 
     
     while (cl != NULL) {
         i = WaitForMessage(cl, 500);
+        if (maintainConnection != true) {
+            printf("Quitting because maintainConnection was set to false.\n");
+            break;
+        }
         if (i < 0) {
             printf("Quitting because WaitForMessage < 0\n\n");
             //cleanup(cl);

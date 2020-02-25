@@ -19,6 +19,9 @@
 		AF48282E23B47D8A00826395 /* libvncclient.1.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = AF48247F23B478C300826395 /* libvncclient.1.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		AF48283223B47EC300826395 /* VncBridge.c in Sources */ = {isa = PBXBuildFile; fileRef = AF48283123B47EC300826395 /* VncBridge.c */; };
 		AF53DCAF24002C9F00569F19 /* ca.pem in Resources */ = {isa = PBXBuildFile; fileRef = AF53DCAE24002C9F00569F19 /* ca.pem */; };
+		AF53DCB124022C8C00569F19 /* VncSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF53DCB024022C8C00569F19 /* VncSession.swift */; };
+		AF53DCB32402391600569F19 /* StateKeeper.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF53DCB22402391600569F19 /* StateKeeper.swift */; };
+		AF53DCB524024B2900569F19 /* ConnectionSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF53DCB424024B2900569F19 /* ConnectionSettings.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -468,6 +471,9 @@
 		AF48283023B47EC300826395 /* VncBridge.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VncBridge.h; sourceTree = "<group>"; };
 		AF48283123B47EC300826395 /* VncBridge.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = VncBridge.c; sourceTree = "<group>"; };
 		AF53DCAE24002C9F00569F19 /* ca.pem */ = {isa = PBXFileReference; lastKnownFileType = text; path = ca.pem; sourceTree = "<group>"; };
+		AF53DCB024022C8C00569F19 /* VncSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VncSession.swift; sourceTree = "<group>"; };
+		AF53DCB22402391600569F19 /* StateKeeper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StateKeeper.swift; sourceTree = "<group>"; };
+		AF53DCB424024B2900569F19 /* ConnectionSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionSettings.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -531,6 +537,9 @@
 				AF48283023B47EC300826395 /* VncBridge.h */,
 				AF48283123B47EC300826395 /* VncBridge.c */,
 				AF48282F23B47EC200826395 /* bVNC-Bridging-Header.h */,
+				AF53DCB024022C8C00569F19 /* VncSession.swift */,
+				AF53DCB22402391600569F19 /* StateKeeper.swift */,
+				AF53DCB424024B2900569F19 /* ConnectionSettings.swift */,
 			);
 			path = bVNC;
 			sourceTree = "<group>";
@@ -1099,10 +1108,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AF53DCB124022C8C00569F19 /* VncSession.swift in Sources */,
 				AF043A1923B3DADA00C43ED7 /* AppDelegate.swift in Sources */,
 				AF043A1B23B3DADA00C43ED7 /* SceneDelegate.swift in Sources */,
+				AF53DCB32402391600569F19 /* StateKeeper.swift in Sources */,
 				AF48283223B47EC300826395 /* VncBridge.c in Sources */,
 				AF043A1D23B3DADA00C43ED7 /* ContentView.swift in Sources */,
+				AF53DCB524024B2900569F19 /* ConnectionSettings.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1271,6 +1283,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_ASSET_PATHS = "bVNC/Preview\\ Content";
 				DEVELOPMENT_TEAM = 96Z3MCQKZA;
+				ENABLE_BITCODE = NO;
 				ENABLE_PREVIEWS = YES;
 				HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/bVNC.xcodeproj/libs_combined/include/**";
 				"HEADER_SEARCH_PATHS[arch=*]" = "";
@@ -1303,6 +1316,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_ASSET_PATHS = "bVNC/Preview\\ Content";
 				DEVELOPMENT_TEAM = 96Z3MCQKZA;
+				ENABLE_BITCODE = NO;
 				ENABLE_PREVIEWS = YES;
 				"HEADER_SEARCH_PATHS[arch=*]" = "$(PROJECT_DIR)/bVNC.xcodeproj/libs_combined/include/**";
 				INFOPLIST_FILE = bVNC/Info.plist;

@@ -9,95 +9,31 @@
 import UIKit
 import SwiftUI
 
-func Background(_ block: @escaping ()->Void) {
-    DispatchQueue.global(qos: .default).async(execute: block)
-}
-
-func UserInterface(_ block: @escaping ()->Void) {
-    DispatchQueue.main.async(execute: block)
-}
-
-var globalContentView: Image?
-var globalScene: UIWindowScene?
-var globalWindow: UIWindow?
-var globalImageView: UIImageView?
-
-func callback(data: UnsafeMutablePointer<UInt8>?, fbW: Int32, fbH: Int32, x: Int32, y: Int32, w: Int32, h: Int32) -> Void {
-    UserInterface {
-        //print("On UI Thread: ", fbW, fbH, x, y, w, h)
-        globalImageView?.removeFromSuperview()
-        globalImageView = nil
-        globalImageView = UIImageView(frame: CGRect(x: 0, y: 0, width: Int(fbW), height: Int(fbH)))
-        globalImageView?.image = imageFromARGB32Bitmap(pixels: data, withWidth: Int(fbW), withHeight: Int(fbH))
-        globalImageView!.frame = globalWindow!.bounds
-        globalWindow!.addSubview(globalImageView!)
-    }
-}
-
-func imageFromARGB32Bitmap(pixels: UnsafeMutablePointer<UInt8>?, withWidth: Int, withHeight: Int) -> UIImage? {
-    guard withWidth > 0 && withHeight > 0 else { return nil }
-    let rgbColorSpace = CGColorSpaceCreateDeviceRGB()
-    let bitmapInfo = CGBitmapInfo(rawValue: CGImageAlphaInfo.noneSkipLast.rawValue).union(.byteOrder32Big)
-    let bitsPerComponent = 8
-    let bitsPerPixel = 32
-    guard let providerRef = CGDataProvider(data: NSData(bytes: pixels, length: withWidth*withHeight*4)) else { return nil }
-    guard let cgim = CGImage(width: withWidth,
-                             height: withHeight,
-                             bitsPerComponent: bitsPerComponent,
-                             bitsPerPixel: bitsPerPixel,
-                             bytesPerRow: 4*withWidth,
-                             space: rgbColorSpace,
-                             bitmapInfo: bitmapInfo,
-                             provider: providerRef,
-                             decode: nil,
-                             shouldInterpolate: true,
-                             intent: .defaultIntent) else { return nil }
-    return UIImage(cgImage: cgim)
-}
-
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     
     var window: UIWindow?
+    @ObservedObject var stateKeeper: StateKeeper = StateKeeper()
     
-    func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
+    func scene(_ scene: UIScene, willConnectTo session: UISceneSession,
+               options connectionOptions: UIScene.ConnectionOptions) {
         // Use this method to optionally configure and attach the UIWindow `window` to the provided UIWindowScene `scene`.
         // If using a storyboard, the `window` property will automatically be initialized and attached to the scene.
         // This delegate does not imply the connecting scene or session are new (see `application:configurationForConnectingSceneSession` instead).
         
         // Create the SwiftUI view that provides the window contents.
-        //let contentView = ContentView()
+        let contentView = ContentView(stateKeeper: self.stateKeeper)
         
         // Use a UIHostingController as window root view controller.
         
         if let windowScene = scene as? UIWindowScene {
-            globalScene = windowScene
-            globalWindow = UIWindow(windowScene: globalScene!)
-            globalWindow!.rootViewController = UIHostingController(rootView: globalContentView)
-            globalWindow!.makeKeyAndVisible()
+            window = UIWindow(windowScene: windowScene)
+            window!.rootViewController = UIHostingController(rootView: contentView)
+            window!.makeKeyAndVisible()
         }
-        
-        // Print out contents of CA file added for testing.
-        let ca_path = Bundle.main.path(forResource: "ca", ofType: "pem")
-        var contents = "Not Loaded"
-        do { contents = try String(contentsOfFile: ca_path!, encoding: String.Encoding.utf8) }
-            catch { print("Error Loading CA") }
-        print("Contents of ca.pem file built into the package:")
-        print(contents)
-
-        let addr = "ADDRESS:PORT"
-        let user = "USER"
-        let password = "PASSWORD"
-        Background {
-            print("Connecting in the background...")
-            connectVnc(callback,
-                       UnsafeMutablePointer<Int8>(mutating: (addr as NSString).utf8String),
-                       UnsafeMutablePointer<Int8>(mutating: (user as NSString).utf8String),
-                       UnsafeMutablePointer<Int8>(mutating: (password as NSString).utf8String),
-                       UnsafeMutablePointer<Int8>(mutating: (ca_path as! NSString).utf8String))
-        }
-        
+        self.stateKeeper.setScene(scene: scene)
+        self.stateKeeper.setWindow(window: window!)
     }
-    
+
     func sceneDidDisconnect(_ scene: UIScene) {
         // Called as the scene is being released by the system.
         // This occurs shortly after the scene enters the background, or when its session is discarded.
