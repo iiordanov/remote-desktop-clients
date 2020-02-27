@@ -8,13 +8,15 @@
 
 #include "VncBridge.h"
 
-char* HOST_AND_PORT;
-char* USERNAME;
-char* PASSWORD;
-char* CA_PATH;
-rfbClient *cl;
-
+char* HOST_AND_PORT = NULL;
+char* USERNAME = NULL;
+char* PASSWORD = NULL;
+char* CA_PATH = NULL;
+rfbClient *cl = NULL;
+uint8_t* pixelBuffer = NULL;
+int pixel_buffer_size = 0;
 bool maintainConnection = true;
+int BYTES_PER_PIXEL = 4;
 
 bool getMaintainConnection() {
     return maintainConnection;
@@ -59,20 +61,22 @@ static char* get_password(rfbClient* cl){
 
 static void update (rfbClient *cl, int x, int y, int w, int h) {
     //rfbClientLog("Update received\n");
-    callback_from_swift(cl->frameBuffer, cl->width, cl->height, x, y, w, h);
+    framebuffer_update_callback(cl->frameBuffer, cl->width, cl->height, x, y, w, h);
 }
 
 static rfbBool resize (rfbClient *cl) {
     rfbClientLog("Resize RFB Buffer, allocating buffer\n");
     static char first = TRUE;
-    rfbClientLog("%d %d", cl->width, cl->height);
+    rfbClientLog("Width, height: %d, %d\n", cl->width, cl->height);
     
     if (first) {
         first = FALSE;
     } else {
         free(cl->frameBuffer);
     }
-    cl->frameBuffer = (uint8_t*)malloc(4*cl->width*cl->height*sizeof(char));
+    pixel_buffer_size = BYTES_PER_PIXEL*cl->width*cl->height*sizeof(char);
+    cl->frameBuffer = (uint8_t*)malloc(pixel_buffer_size);
+    framebuffer_resize_callback(cl->width, cl->height);
     update(cl, 0, 0, cl->width, cl->height);
     return TRUE;
 }
@@ -82,6 +86,7 @@ void disconnectVnc() {
 }
 
 void connectVnc(void (*callback)(uint8_t *, int fbW, int fbH, int x, int y, int w, int h),
+                void (*callback2)(int fbW, int fbH),
                 char* addr, char* user, char* password, char* ca_path) {
     printf("Setting up connection");
     maintainConnection = true;
@@ -90,7 +95,8 @@ void connectVnc(void (*callback)(uint8_t *, int fbW, int fbH, int x, int y, int 
     USERNAME = user;
     PASSWORD = password;
     CA_PATH = ca_path;
-    callback_from_swift = callback;
+    framebuffer_update_callback = callback;
+    framebuffer_resize_callback = callback2;
 
     cl = NULL;
 
@@ -106,7 +112,7 @@ void connectVnc(void (*callback)(uint8_t *, int fbW, int fbH, int x, int y, int 
     strcpy(argv[1], HOST_AND_PORT);
     
     /* 16-bit: cl=rfbGetClient(5,3,2); */
-    cl=rfbGetClient(8,3,4);
+    cl=rfbGetClient(8,3,BYTES_PER_PIXEL);
     cl->MallocFrameBuffer=resize;
     cl->canHandleNewFBSize = TRUE;
     cl->GotFrameBufferUpdate=update;

@@ -22,51 +22,66 @@ var globalScene: UIWindowScene?
 var globalWindow: UIWindow?
 var globalImageView: UIImageView?
 var globalStateKeeper: StateKeeper?
-var globalDisconnectButton: Button<Text>?
+var globalDisconnectButton: UIButton?
 
-
-func callback(data: UnsafeMutablePointer<UInt8>?, fbW: Int32, fbH: Int32, x: Int32, y: Int32, w: Int32, h: Int32) -> Void {
-    UserInterface {
-        if (!getMaintainConnection()) {
-            return
-        }
-        globalWindow!.rootViewController = UIHostingController(rootView: globalContentView)
-        globalWindow!.makeKeyAndVisible()
-
-        //print("On UI Thread: ", fbW, fbH, x, y, w, h)
-        globalImageView?.removeFromSuperview()
-        globalImageView = nil
-        globalImageView = UIImageView(frame: CGRect(x: 0, y: 0, width: Int(fbW), height: Int(fbH)))
-        globalImageView?.image = imageFromARGB32Bitmap(pixels: data, withWidth: Int(fbW), withHeight: Int(fbH))
-        globalImageView!.frame = globalWindow!.bounds
-        globalWindow!.addSubview(globalImageView!)
-        
-        let button = UIButton(frame: CGRect(x: 100, y: 100, width: 100, height: 50))
-        button.setTitle("Disconnect", for: [])
-        button.addTarget(globalStateKeeper, action: #selector(globalStateKeeper?.disconnect), for: .touchUpInside)
-        globalWindow!.addSubview(button)
+extension UIImage {
+    func image(byDrawingImage image: UIImage, inRect rect: CGRect) -> UIImage! {
+        UIGraphicsBeginImageContext(size)
+        draw(in: CGRect(x: 0, y: 0, width: size.width, height: size.height))
+        image.draw(in: rect)
+        let result = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        return result
     }
 }
 
-func imageFromARGB32Bitmap(pixels: UnsafeMutablePointer<UInt8>?, withWidth: Int, withHeight: Int) -> UIImage? {
+func resize_callback(fbW: Int32, fbH: Int32) -> Void {
+    UserInterface {
+        globalWindow!.rootViewController = UIHostingController(rootView: globalContentView)
+        globalWindow!.makeKeyAndVisible()
+        globalImageView = UIImageView(frame: CGRect(x: 0, y: 0, width: Int(fbW), height: Int(fbH)))
+        globalImageView!.frame = globalWindow!.bounds
+        globalWindow!.addSubview(globalImageView!)
+        globalWindow!.addSubview(globalDisconnectButton!)
+    }
+}
+
+func update_callback(data: UnsafeMutablePointer<UInt8>?, fbW: Int32, fbH: Int32, x: Int32, y: Int32, w: Int32, h: Int32) -> Void {
+    UserInterface {
+        //print("On UI Thread: ", fbW, fbH, x, y, w, h)
+        if (!getMaintainConnection()) {
+            return
+        }
+        autoreleasepool {
+            globalImageView?.image = UIImage(cgImage: imageFromARGB32Bitmap(pixels: data, withWidth: Int(fbW), withHeight: Int(fbH))!)
+        }
+    }
+}
+
+func imageFromARGB32Bitmap(pixels: UnsafeMutablePointer<UInt8>?, withWidth: Int, withHeight: Int) -> CGImage? {
     guard withWidth > 0 && withHeight > 0 else { return nil }
-    let rgbColorSpace = CGColorSpaceCreateDeviceRGB()
+    let colorSpace = CGColorSpaceCreateDeviceRGB()
     let bitmapInfo = CGBitmapInfo(rawValue: CGImageAlphaInfo.noneSkipLast.rawValue).union(.byteOrder32Big)
     let bitsPerComponent = 8
+    /*
+    guard let context: CGContext = CGContext(data: pixels, width: withWidth, height: withHeight, bitsPerComponent: bitsPerComponent, bytesPerRow: 4*withWidth, space: colorSpace, bitmapInfo: bitmapInfo.rawValue) else {
+        print("Could not create CGContext")
+        return nil
+    }
+    return context.makeImage()
+    */
     let bitsPerPixel = 32
-    guard let providerRef = CGDataProvider(data: NSData(bytes: pixels, length: withWidth*withHeight*4)) else { return nil }
-    guard let cgim = CGImage(width: withWidth,
+    return CGImage(width: withWidth,
                              height: withHeight,
                              bitsPerComponent: bitsPerComponent,
                              bitsPerPixel: bitsPerPixel,
                              bytesPerRow: 4*withWidth,
-                             space: rgbColorSpace,
+                             space: colorSpace,
                              bitmapInfo: bitmapInfo,
-                             provider: providerRef,
+                             provider: CGDataProvider(data: NSData(bytes: pixels, length: withWidth*withHeight*4))!,
                              decode: nil,
                              shouldInterpolate: true,
-                             intent: .defaultIntent) else { return nil }
-    return UIImage(cgImage: cgim)
+                             intent: .defaultIntent)
 }
 
 class VncSession {
@@ -77,6 +92,10 @@ class VncSession {
         self.stateKeeper = stateKeeper
         self.window = window
         globalStateKeeper = stateKeeper
+        let button = UIButton(frame: CGRect(x: 100, y: 100, width: 100, height: 50))
+        button.setTitle("Disconnect", for: [])
+        button.addTarget(globalStateKeeper, action: #selector(globalStateKeeper?.disconnect), for: .touchUpInside)
+        globalDisconnectButton = button
     }
     
     func captureScreen(window: UIWindow) -> UIImage {
@@ -113,7 +132,7 @@ class VncSession {
 
         Background {
             print("Connecting in the background...")
-            connectVnc(callback,
+            connectVnc(update_callback, resize_callback,
                        UnsafeMutablePointer<Int8>(mutating: (addressAndPort as NSString).utf8String),
                        UnsafeMutablePointer<Int8>(mutating: (user as NSString).utf8String),
                        UnsafeMutablePointer<Int8>(mutating: (pass as NSString).utf8String),
