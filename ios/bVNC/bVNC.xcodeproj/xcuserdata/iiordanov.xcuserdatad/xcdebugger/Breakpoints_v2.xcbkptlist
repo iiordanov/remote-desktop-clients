@@ -94,8 +94,8 @@
             filePath = "bVNC/VncBridge.c"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "128"
-            endingLineNumber = "128"
+            startingLineNumber = "124"
+            endingLineNumber = "124"
             landmarkName = "connectVnc(, addr, user, password, ca_path)"
             landmarkType = "9">
          </BreakpointContent>
