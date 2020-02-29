@@ -15,7 +15,7 @@ class StateKeeper: ObservableObject {
     var connectionSettings: ConnectionSettings = ConnectionSettings()
     var settings = UserDefaults.standard
     var scene: UIScene?
-    var window: UIWindow?
+    var window: CustomTouchInput?
     var vncSession: VncSession?
     
     var currentPage: String = "page1" {
@@ -28,7 +28,7 @@ class StateKeeper: ObservableObject {
         self.scene = scene
     }
 
-    func setWindow(window: UIWindow) {
+    func setWindow(window: CustomTouchInput) {
         self.window = window
     }
 
@@ -38,6 +38,7 @@ class StateKeeper: ObservableObject {
     }
 
     @objc func disconnect() {
+        window?.disableTouch()
         self.vncSession?.disconnect()
         // TODO: Show a spinner instead of going to the connection screen and allow the backend to indicate when the disconnection is completed
         let contentView = ContentView(stateKeeper: self)
