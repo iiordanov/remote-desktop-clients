@@ -39,9 +39,10 @@ class StateKeeper: ObservableObject {
 
     @objc func disconnect() {
         self.vncSession?.disconnect()
+        // TODO: Show a spinner instead of going to the connection screen and allow the backend to indicate when the disconnection is completed
         let contentView = ContentView(stateKeeper: self)
         window!.rootViewController = UIHostingController(rootView: contentView)
-        self.currentPage = "page1"
+        self.currentPage = "page3"
     }
 
 }

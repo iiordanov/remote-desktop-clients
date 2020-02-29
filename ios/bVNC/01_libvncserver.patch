@@ -1,5 +1,5 @@
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index ee2457d..4e67ae5 100644
+index 4ae2f92..135a4fa 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
 @@ -27,7 +27,8 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Mo
@@ -12,8 +12,20 @@ index ee2457d..4e67ae5 100644
  
  # all the build configuration switches
  option(LIBVNCSERVER_INSTALL "Generate installation target" ON)
+diff --git a/common/crypto_openssl.c b/common/crypto_openssl.c
+index 60d4bd4..4cc5923 100644
+--- a/common/crypto_openssl.c
++++ b/common/crypto_openssl.c
+@@ -28,6 +28,7 @@
+ #include <openssl/dh.h>
+ #include <openssl/evp.h>
+ #include <openssl/rand.h>
++#include <openssl/bn.h>
+ #include "crypto.h"
+ 
+ static unsigned char reverseByte(unsigned char b) {
 diff --git a/libvncclient/tls_openssl.c b/libvncclient/tls_openssl.c
-index 4f8e287..0149be4 100644
+index c9b2647..0f6f3aa 100644
 --- a/libvncclient/tls_openssl.c
 +++ b/libvncclient/tls_openssl.c
 @@ -18,6 +18,8 @@
@@ -63,7 +75,7 @@ index 4f8e287..0149be4 100644
    if (client->tlsSession) return TRUE;
  
    client->tlsSession = open_ssl_connection (client, client->sock, anonTLS, cred);
-@@ -508,6 +514,8 @@ ReadVeNCryptSecurityType(rfbClient* client, uint32_t *result)
+@@ -502,6 +508,8 @@ ReadVeNCryptSecurityType(rfbClient* client, uint32_t *result)
  rfbBool
  HandleAnonTLSAuth(rfbClient* client)
  {
@@ -72,7 +84,7 @@ index 4f8e287..0149be4 100644
    if (!InitializeTLS() || !InitializeTLSSession(client, TRUE, NULL)) return FALSE;
  
    if (!HandshakeTLS(client)) return FALSE;
-@@ -528,6 +536,8 @@ FreeX509Credential(rfbCredential *cred)
+@@ -522,6 +530,8 @@ FreeX509Credential(rfbCredential *cred)
  rfbBool
  HandleVeNCryptAuth(rfbClient* client)
  {
