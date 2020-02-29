@@ -25,6 +25,34 @@ set -eE
 
 . build-deps.conf
 
+install_ndk() {
+    DIR=$1
+    VER=$2
+
+    pushd ${DIR} >&/dev/null
+    if [ ! -e android-ndk-${VER} ]
+    then
+        wget https://dl.google.com/android/repository/android-ndk-${VER}-linux-x86_64.zip  >&/dev/null
+        unzip android-ndk-${VER}-linux-x86_64.zip >&/dev/null
+    fi
+    popd >&/dev/null
+    echo $(realpath ${DIR}/android-ndk-${VER})
+}
+
+install_cmake() {
+    DIR=$1
+    VER=$2
+
+    pushd ${DIR} >&/dev/null
+    if [ ! -e cmake-${VER}-Linux-x86_64 ]
+    then
+        wget https://github.com/Kitware/CMake/releases/download/v${VER}/cmake-${VER}-Linux-x86_64.tar.gz >& /dev/null
+        tar xzf cmake-3.5.1-Linux-x86_64.tar.gz >& /dev/null
+    fi
+    popd >&/dev/null
+    echo $(realpath ${DIR}/cmake-${VER}-Linux-x86_64)
+}
+
 expand() {
     # Print the contents of the named variable
     # $1  = the name of the variable to expand
@@ -60,6 +88,7 @@ fetch() {
             wget -q -O "$(tarpath $1)" "$url"
             ;;
         *)
+            echo wget -P tar -q "$url"
             wget -P tar -q "$url"
             ;;
         esac
@@ -113,15 +142,20 @@ do_configure() {
             --prefix=\"${prefix}\" \
             --enable-static \
             --disable-shared \
+            --disable-tests \
+            --disable-examples \
             --disable-dependency-tracking \
             PKG_CONFIG=\"pkg-config --static\" \
-            PKG_CONFIG_LIBDIR=\"${root}/share/pkgconfig:${root}/lib/pkgconfig:${gst}/lib-fixed/pkgconfig\" \
+            PKG_CONFIG_LIBDIR=\"${root}/share/pkgconfig:${root}/lib/pkgconfig:${gst}/lib/pkgconfig\" \
             PKG_CONFIG_PATH= \
             CPPFLAGS=\"${cppflags} -I${root}/include -I${gst}/include\" \
             CFLAGS=\"${cflags}\" \
             CXXFLAGS=\"${cxxflags}\" \
-            LDFLAGS=\"${ldflags} -L${root}/lib -L${gst}/lib-fixed\" \
+            LDFLAGS=\"${ldflags} -L${root}/lib -L${gst}/lib\" \
             "$@"
+
+    echo Environment:
+    env
 
     ./configure \
             --host=${build_host} \
@@ -131,12 +165,12 @@ do_configure() {
             --disable-shared \
             --disable-dependency-tracking \
             PKG_CONFIG="pkg-config --static" \
-            PKG_CONFIG_LIBDIR="${root}/share/pkgconfig:${root}/lib/pkgconfig:${gst}/lib-fixed/pkgconfig" \
+            PKG_CONFIG_LIBDIR="${root}/share/pkgconfig:${root}/lib/pkgconfig:${gst}/lib/pkgconfig" \
             PKG_CONFIG_PATH= \
             CPPFLAGS="${cppflags} -I${root}/include -I${gst}/include" \
             CFLAGS="${cflags}" \
             CXXFLAGS="${cxxflags}" \
-            LDFLAGS="${ldflags} -L${root}/lib -L${gst}/lib-fixed" \
+            LDFLAGS="${ldflags} -L${root}/lib -L${gst}/lib" \
             "$@"
 }
 
@@ -146,6 +180,7 @@ build_one() {
     local basedir builddir
 
     if is_built "$1" ; then
+        echo "Dependency ${1} already built, skipping."
         return
     fi
 
@@ -175,11 +210,11 @@ build_one() {
             arch=arm
             ;;
         armeabi-v7a)
-            os=android-armeabi
+            os=android-arm
             arch=arm
             ;;
         arm64-v8a)
-            os=android64-aarch64
+            os=android-arm64
             arch=arm64
             ;;
         x86)
@@ -187,7 +222,7 @@ build_one() {
             arch=x86
             ;;
         x86_64)
-            os=android64
+            os=android-x86_64
             arch=x86_64
             ;;
         *)
@@ -196,28 +231,33 @@ build_one() {
             ;;
         esac
 
-        echo Current working directory: $(pwd)
-        echo Executing: ./Configure \
-                \"${os}\" \
-                --prefix=\"$root\" \
-                --cross-compile-prefix=\"${build_host}-\" \
-                no-zlib \
-                no-hw \
-                no-ssl3 \
-                ${cppflags} \
-                ${cflags} \
-                ${ldflags}
+        export PATH=${ndkdir}/toolchains/llvm/prebuilt/linux-x86_64/bin/:${PATH}
 
-        export ANDROID_SYSROOT="${ndkdir}/platforms/android-${android_api}/arch-${arch}"
-        export CROSS_SYSROOT="$ANDROID_SYSROOT"
-        ./Configure \
+        echo Environment:
+        env
+
+        echo Executing:
+        echo ./Configure \
                 "${os}" \
                 --prefix="$root" \
-                --cross-compile-prefix="${build_host}-" \
                 no-zlib \
                 no-hw \
                 no-ssl2 \
                 no-ssl3 \
+                -D__ANDROID_API__=21 \
+                ${cppflags} \
+                ${cflags} \
+                ${ldflags}
+
+        echo Current working directory: $(pwd)
+        ./Configure \
+                "${os}" \
+                --prefix="$root" \
+                no-zlib \
+                no-hw \
+                no-ssl2 \
+                no-ssl3 \
+                -D__ANDROID_API__=21 \
                 ${cppflags} \
                 ${cflags} \
                 ${ldflags}
@@ -243,7 +283,7 @@ build_one() {
                 LIBS="-lm"
 
 	# Disable tests and tools
-        sed -i 's/tests//' spice-common/Makefile
+        sed -i 's/tests//' subprojects/spice-common/Makefile
         sed -i 's/tests//' Makefile
         sed -i 's/tools//' Makefile
 
@@ -253,13 +293,13 @@ build_one() {
 
         # Patch to avoid SIGBUS due to unaligned accesses on ARM7
         # seems it is no longer needed since spice-gtk 0.35
-        patch -p1 < "${basedir}/spice-marshaller-sigbus.patch"
+        #patch -p1 < "${basedir}/spice-marshaller-sigbus.patch"
         make $parallel
 
         make install
 
         # Put some header files in a version-independent location.
-        for f in config.h tools/*.h src/*.h spice-common/common
+        for f in config.h tools/*.h src/*.h subprojects/spice-common/common
         do
             rsync -a $f ${root}/include/spice-1/
         done
@@ -274,6 +314,8 @@ build_one() {
         do_configure \
                 --enable-introspection=no \
                 --without-gnome \
+                --disable-tests \
+                --disable-examples \
                 --disable-glibtest
         make $parallel
         make install
@@ -285,6 +327,9 @@ build_one() {
         do_configure \
                 --enable-introspection=no \
                 --without-gnome \
+                --disable-tests \
+                --disable-examples \
+                --disable-rest-examples \
                 --disable-gtk-doc
         make $parallel
         make install
@@ -312,6 +357,18 @@ build_one() {
         make $parallel
         make install
         ;;
+    gmp)
+        autoreconf -fi
+        do_configure
+        make $parallel
+        make install
+        ;;
+    nettle)
+        autoreconf -fi
+        do_configure --enable-mini-gmp
+        make $parallel
+        make install
+        ;;
     gnutls)
         # Build in normal root once to create artifact
         do_configure \
@@ -320,8 +377,8 @@ build_one() {
                 --disable-doc \
                 --disable-tests \
                 --with-included-unistring
-        make $parallel
-        make install
+        make $parallel || /bin/true
+        make install || /bin/true
 
         # Build again over top of gstreamer's gnutls to upgrade it
         do_configure install_in_gst \
@@ -330,8 +387,8 @@ build_one() {
                 --disable-doc \
                 --disable-tests \
                 --with-included-unistring
-        make $parallel
-        make install
+        make $parallel || /bin/true
+        make install || /bin/true
         ;;
     esac
 
@@ -363,7 +420,7 @@ setup() {
     fi
 
     cppflags=""
-    cflags="-O2"
+    cflags="-O2 -std=gnu99 -Dtypeof=__typeof__ -fPIC"
     cxxflags="${cflags}"
     ldflags=""
 
@@ -406,6 +463,7 @@ setup() {
     toolchain="$(pwd)/deps/${abi}/toolchain"
     gst="$(pwd)/deps/${abi}/gstreamer"
     mkdir -p "${root}"
+    [ -e ${gst} ] && mkdir -p ${gst}/etc/ssl/certs/ && cp /etc/ssl/certs/ca-certificates.crt ${gst}/etc/ssl/certs/ || /bin/true
 
     fetch configguess
     build_system=$(sh tar/config.guess)
@@ -438,53 +496,28 @@ build() {
     setup "$1"
     fetch configsub
 
-    # Unpack GStreamer SDK
+    # Build GStreamer SDK
+    if git clone https://gitlab.freedesktop.org/gstreamer/cerbero
+    then
+      pushd cerbero
+      git checkout 1.16
+      popd
+      cerbero/cerbero-uninstalled bootstrap
+      echo "allow_parallel_build = True" >>  cerbero/config/cross-android-universal.cbc
+      echo "toolchain_prefix = \"${ndkdir}\"" >> cerbero/config/cross-android-universal.cbc
+    fi
+
+    cerbero/cerbero-uninstalled -c cerbero/config/cross-android-universal.cbc build \
+      gstreamer-1.0 libxml2 libtasn1 pixman libsoup nettle gnutls openssl cairo json-glib gst-android-1.0 gst-plugins-bad-1.0 gst-plugins-good-1.0 gst-plugins-base-1.0 gst-plugins-ugly-1.0
+
+    # Workaround for non-existent lib-pthread.la dpendency snaking its way into some of the libraries.
+    sed -i 's/[^ ]*lib-pthread.la//' cerbero/build/dist/android_universal/*/lib/*la
+
+    # Prepare gstreamer for current architecture
     if [ ! -e "${gst}/lib/libglib-2.0.a" ] ; then
-        pkgstr="gstreamer_$(echo ${abi} | tr -d -)"
-        fetch "${pkgstr}"
-        echo "Unpacking ${pkgstr}..."
-        rm -rf "${gst}-${abi}"
-        mkdir -p "${gst}-${abi}"
-        tar xf "$(tarpath ${pkgstr})" -C "${gst}-${abi}"
-        pushd "${gst}-${abi}"
-        rm -rf $(ls -1 | grep -v "^${gstarch}$")
-        popd
-        ln -s "${gst}-${abi}/${gstarch}" "${gst}"
-
-        origroot=$(grep '^prefix' "${gst}/lib/pkgconfig/gstreamer-1.0.pc" | \
-                sed -e 's/prefix=//')
-
-        # Add pkg-config file for libjpeg so Android.mk can ask for its
-        # symbols to be exposed in the gstreamer .so
-        cat > ${gst}/lib/pkgconfig/jpeg.pc <<EOF
-prefix=${origroot}
-exec_prefix=\${prefix}
-libdir=\${prefix}/lib
-includedir=\${prefix}/include
-
-Name: jpeg
-Description: JPEG library
-Version: 8
-Libs: -L\${libdir} -ljpeg
-Cflags: -I\${includedir}
-EOF
-
-        # The .la files point to shared libraries that don't exist, so
-        # linking fails.  We can't delete the .la files outright because
-        # the GStreamer ndk-build glue depends on them.  Create a separate
-        # lib directory with no .la files.
-        cp -a "${gst}/lib" "${gst}/lib-fixed"
-        rm -f ${gst}/lib-fixed/*.la
-        # Fix paths in .pc files
-        sed -i -e "s|${origroot}/lib|${gst}/lib-fixed|g" \
-               -e "s|${origroot}|${gst}|g" \
-                ${gst}/lib-fixed/pkgconfig/*.pc
-
-        # Drop pkg-config file for opus, since static libopus and static
-        # libcelt051 can't be linked into the same binary due to symbol
-        # conflicts, and RHEL's libspice-server doesn't link with opus
-        # Seems it works now, so enabling it over usage of Celt
-        #rm -f ${gst}/lib-fixed/pkgconfig/opus.pc
+        echo "Linking ../../cerbero/build/dist/android_universal/${gstarch} to ${gst}"
+        ln -sf "../../cerbero/build/dist/android_universal/${gstarch}" "${gst}"
+	ls -ld "${gst}"
     fi
 
     # Build
@@ -529,6 +562,7 @@ updates() {
                 sed -nr "s%.*$(expand ${package}_upregex).*%\\1%p" | \
                 sort -uV | \
                 tail -n 1)
+
         if [ "${curver}" != "${newver}" ] ; then
             printf "%-15s %10s  => %10s\n" "${package}" "${curver}" "${newver}"
         fi
@@ -584,8 +618,9 @@ build_freerdp() {
         # Patch the config
         sed -i -e 's/CMAKE_BUILD_TYPE=.*/CMAKE_BUILD_TYPE=Release/'\
                -e 's/WITH_OPENH264=.*/WITH_OPENH264=1/'\
-               -e 's/OPENSSL_TAG=.*/OPENSSL_TAG=OpenSSL_1_1_1a/'\
+               -e 's/OPENSSL_TAG=.*/OPENSSL_TAG=OpenSSL_1_1_1d/'\
                -e "s/BUILD_ARCH=.*/BUILD_ARCH=\"${abis}\"/" ./scripts/android-build.conf
+#               -e 's/OPENH264_TAG=.*/OPENH264_TAG=v2.0.0/'\
 
         echo 'set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DWINPR_EXPORTS --sysroot=${ANDROID_SYSROOT}")' >>  winpr/CMakeLists.txt
         for f in winpr/CMakeLists.txt winpr/libwinpr/CMakeLists.txt libfreerdp/CMakeLists.txt client/common/CMakeLists.txt client/Android/CMakeLists.txt client/common/CMakeLists.txt
@@ -604,7 +639,10 @@ build_freerdp() {
 
         cp "${basedir}/../freerdp_AndroidManifest.xml" client/Android/Studio/freeRDPCore/src/main/AndroidManifest.xml
 
-        export ANDROID_NDK="${ndkdir}"
+        echo "Installing android NDK 14b for FreeRDP build compatibility"
+        export ANDROID_NDK=$(install_ndk ./ r14b)
+        echo "Installing cmake 3.5.1 for FreeRDP build compatibility"
+        export PATH=$(install_cmake ./ 3.5.1)/bin:${PATH}
         ./scripts/android-build-freerdp.sh
 
         sed -i 's/implementationSdkVersion/compileSdkVersion/; s/.*rootProject.ext.versionName.*//; s/.*.*buildToolsVersion.*.*//; s/compile /implementation /' \

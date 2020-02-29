@@ -2,13 +2,13 @@
 
 SKIP_BUILD=false
 
-usage () {
+function usage () {
   echo "$0 bVNC|freebVNC|aSPICE|freeaSPICE|aRDP|freeaRDP|CustomVncAnyPackageName|\
 CustomRdpAnyPackageName|CustomSpiceAnyPackageName|libs|remoteClientLib /path/to/your/android/ndk /path/to/your/android/sdk"
   exit 1
 }
 
-clean_libs () {
+function clean_libs () {
   filter=$1
   dir=$2
   for f in $(find $dir -type f -name \*.so)
@@ -20,6 +20,21 @@ clean_libs () {
   done
 }
 
+function install_ndk() {
+    DIR=$1
+    VER=$2
+
+    pushd ${DIR} >&/dev/null
+    if [ ! -e android-ndk-${VER} ]
+    then
+        wget https://dl.google.com/android/repository/android-ndk-${VER}-linux-x86_64.zip  >&/dev/null
+        unzip android-ndk-${VER}-linux-x86_64.zip >&/dev/null
+    fi
+    popd >&/dev/null
+    echo $(realpath ${DIR}/android-ndk-${VER})
+}
+
+
 if [ "$1" == "--skip-build" ]
 then
   SKIP_BUILD=true
@@ -30,15 +45,14 @@ DIR=$(dirname $0)
 pushd $DIR
 
 PRJ="$1"
-export ANDROID_NDK="$2"
-export ANDROID_SDK="$3"
+export ANDROID_SDK="$2"
 
 if [[ "$PRJ" != "bVNC" && "$PRJ" != "freebVNC" \
   && "$PRJ" != "aSPICE" && "$PRJ" != "freeaSPICE" \
   && "$PRJ" != "aRDP" && "$PRJ" != "freeaRDP" \
   && "$PRJ" =~ "^Custom.*" \
   && "$PRJ" != "libs" && "$PRJ" != "remoteClientLib" \
-  || "$ANDROID_NDK" == "" || "$ANDROID_SDK" == "" ]]
+  || "$ANDROID_SDK" == "" ]]
 then
   usage
 fi
@@ -67,7 +81,6 @@ then
   PRJ=$(echo ${PRJ} | sed 's/^Custom//')
 else
   ln -sf AndroidManifest.xml.$PRJ AndroidManifest.xml
-  ../copy_prebuilt_files.sh $PRJ
 fi
 
 if [ -n "${CUSTOM_CLIENT}" ]
@@ -96,11 +109,11 @@ else
   find src2/main/java/com/iiordanov -name \*.java -exec sed -i "s/package.*CUSTOM_CLIENT_IMPORTS/package com\.iiordanov\.CustomClientPackage;/" {} \;
 fi
 
-../copy_prebuilt_files.sh $PRJ
-
 if [ "$SKIP_BUILD" == "false" ]
 then
   pushd ../remoteClientLib/jni/libs
+  echo "Automatically installing Android NDK"
+  export ANDROID_NDK=$(install_ndk ./ r18b)
   ./build-deps.sh -j 8 -n $ANDROID_NDK build $PRJ
   popd
 

@@ -2,12 +2,12 @@
 
 SKIP_BUILD=false
 
-usage () {
+function usage () {
   echo "Usage: $0 Opaque|remoteClientLib|libs /path/to/your/android/ndk /path/to/your/android/sdk"
   exit 1
 }
 
-clean_libs () {
+function clean_libs () {
   filter=$1
   dir=$2
   for f in $(find $dir -type f -name \*.so)
@@ -17,6 +17,20 @@ clean_libs () {
       rm -f $f
     fi
   done
+}
+
+function install_ndk() {
+    DIR=$1
+    VER=$2
+
+    pushd ${DIR} >&/dev/null
+    if [ ! -e android-ndk-${VER} ]
+    then
+        wget https://dl.google.com/android/repository/android-ndk-${VER}-linux-x86_64.zip  >&/dev/null
+        unzip android-ndk-${VER}-linux-x86_64.zip >&/dev/null
+    fi
+    popd >&/dev/null
+    echo $(realpath ${DIR}/android-ndk-${VER})
 }
 
 
@@ -40,11 +54,10 @@ DIR=$(dirname $0)
 pushd $DIR
 
 PRJ="$1"
-export ANDROID_NDK="$2"
-export ANDROID_SDK="$3"
+export ANDROID_SDK="$2"
 
 if [ "$PRJ" != "Opaque" -a "$PRJ" != "libs" -a "$PRJ" != "remoteClientLib" \
-  -o "$ANDROID_NDK" == "" -o "$ANDROID_SDK" == "" ]
+  -o "$ANDROID_SDK" == "" ]
 then
   usage
 fi
@@ -52,13 +65,14 @@ fi
 if [ "$PRJ" == "libs" ]
 then
   BUILDING_DEPENDENCIES=true
-else
-  ../copy_prebuilt_files.sh $PRJ
 fi
 
 if [ "$SKIP_BUILD" == "false" ]
 then
   pushd ../remoteClientLib/jni/libs/
+  echo "Automatically installing Android NDK"
+  export ANDROID_NDK=$(install_ndk ./ r18b)
+
   ./build-deps.sh -j 4 -n $ANDROID_NDK build $PRJ
   popd
 
@@ -72,8 +86,8 @@ then
     then
       for ca in certificate_authorities/*
       do
-        echo Adding ${ca} to gstreamer provided ca-certificates.crt
-        cat ${ca} >> src/main/assets/ssl/certs/ca-certificates.crt
+        echo Adding ${ca} to gstreamer provided ca-bundle.crt
+        cat ${ca} >> src/main/assets/ca-bundle.crt
       done
     fi
     popd

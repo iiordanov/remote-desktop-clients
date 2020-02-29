@@ -1074,6 +1074,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
     public void showKeyboard(MenuItem menuItem) {
         android.util.Log.i(TAG, "Showing keyboard and hiding action bar");
         InputMethodManager inputMgr = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+        canvas.requestFocus();
         inputMgr.showSoftInput(canvas, 0);
         softKeyboardUp = true;
         getSupportActionBar().hide();

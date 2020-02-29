@@ -20,6 +20,13 @@
 
 package com.undatech.opaque;
 
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -32,15 +39,6 @@ import java.io.PrintWriter;
 import java.io.Serializable;
 import java.util.Iterator;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
-
-import com.undatech.opaque.input.InputHandlerDirectSwipePan;
-
 public class ConnectionSettings implements Serializable {
     private static final String TAG = "ConnectionSettings";
     private static final long serialVersionUID = 1L;
@@ -52,7 +50,7 @@ public class ConnectionSettings implements Serializable {
     private String user = "";
     private String password = "";
     private String otpCode = "";
-    private String inputMethod = InputHandlerDirectSwipePan.ID;
+    private String inputMethod = "DirectSwipePan";
     private boolean rotationEnabled = true;
     private boolean requestingNewDisplayResolution = true;
     private boolean audioPlaybackEnabled = false;
@@ -254,7 +252,7 @@ public class ConnectionSettings implements Serializable {
     public void loadAdvancedSettings (Context context, String file) {
         SharedPreferences sp = context.getSharedPreferences(file, Context.MODE_PRIVATE);
         extraKeysToggleType = sp.getInt("extraKeysToggleType", RemoteClientLibConstants.EXTRA_KEYS_ON);
-        inputMethod = sp.getString("inputMethod", InputHandlerDirectSwipePan.ID).trim();
+        inputMethod = sp.getString("inputMethod", "DirectSwipePan").trim();
         audioPlaybackEnabled = sp.getBoolean("audioEnabled", false);
         rotationEnabled = sp.getBoolean("rotationEnabled", true);
         requestingNewDisplayResolution = sp.getBoolean("requestingNewDisplayResolution", true);

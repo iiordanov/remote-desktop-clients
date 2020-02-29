@@ -29,8 +29,7 @@ Building bVNC with pre-built dependencies.
         export PROJECT=bVNC
         ./eclipse_projects/download-prebuilt-dependencies.sh
         ./copy_prebuilt_files.sh $PROJECT
-        ./eclipse_projects/bVNC/prepare_project.sh --skip-build $PROJECT nopath nopath
-
+        ./eclipse_projects/bVNC/prepare_project.sh --skip-build $PROJECT nopath
 
 ## I-b From Scratch
 
@@ -38,19 +37,13 @@ Building from scratch and working in Android Studio.
 
   - On Linux, install Android Studio, Android SDK, and Android NDK
 
-  - Install at least the following dependencies on your Linux machine:
-    make cmake automake libtool intltool gtk-doc-tools gnome-common gobject-introspection nasm
-
-  - If cmake on your system throws an error about CMAKE_MAKE_PROGRAM not set, install v3.5.1 from:
-    [https://github.com/Kitware/CMake/releases/tag/v3.5.1]
-
   - To build bVNC, aSPICE, or aRDP
 
     - Set the environment variable PROJECT to one of `bVNC`, `aSPICE`, or `aRDP`. For a "custom" VNC
       client, set PROJECT to a string that stars with Custom and contains Vnc, i.e. `CustomYourVncClient`
       (see III below for details).
       
-    - Set the environment variables ANDROID_SDK and ANDROID_NDK to your SDK and NDK respectively.
+    - Set the environment variables ANDROID_SDK to your SDK installation. The scripts will install the NDK automatically.
 
     - Example:
 
@@ -65,16 +58,11 @@ Building from scratch and working in Android Studio.
 
               ${ANDROID_SDK}/tools/bin/sdkmanager --licenses
 
-    - Optionally, add cmake to the front of your PATH (adjust the path to cmake/bin):
+    - Then, run the build script which takes hours to run. E.g.:
 
-              export PATH=/opt/cmake-3.5.1-Linux-x86_64/bin:${PATH}
-
-    - Then, run the build script. E.g.:
-
-              ./eclipse_projects/bVNC/prepare_project.sh $PROJECT $ANDROID_NDK $ANDROID_SDK
+              ./eclipse_projects/bVNC/prepare_project.sh $PROJECT $ANDROID_SDK
 
     - Follow the instructions that the script outputs.
-
 
 ## II Importing projects into Android Studio
 
