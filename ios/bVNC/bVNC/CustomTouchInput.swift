@@ -16,6 +16,7 @@ class CustomTouchInput: UIWindow {
     var lastX: CGFloat = 0.0
     var lastY: CGFloat = 0.0
     var lastTime: Double = 0.0
+    var touchEnabled: Bool = false
 
     override init(windowScene: UIWindowScene) {
         super.init(windowScene: windowScene)
@@ -29,6 +30,14 @@ class CustomTouchInput: UIWindow {
         isMultipleTouchEnabled = true
     }
     
+    func enableTouch() {
+        touchEnabled = true
+    }
+
+    func disableTouch() {
+        touchEnabled = false
+    }
+    
     func sendPointerEvent(touch: UITouch, forceSend: Bool, firstDown: Bool, secondDown: Bool, thirdDown: Bool) {
         if (touch.view != nil) {
             self.width = touch.view!.frame.width
@@ -38,7 +47,7 @@ class CustomTouchInput: UIWindow {
             let newY = point.y
             let currentTime = CACurrentMediaTime()
             print ("Current time: " + String(currentTime) + " last time: " + String(lastTime))
-            if (forceSend || abs(self.lastTime - currentTime) > 0.1 && abs(lastX - newX) > 1.0 && abs(lastX - newX) > 1.0) {
+            if (touchEnabled && (forceSend || abs(self.lastTime - currentTime) > 0.1 && abs(lastX - newX) > 1.0 && abs(lastX - newX) > 1.0)) {
                 lastX = newX
                 lastY = newY
                 Background {

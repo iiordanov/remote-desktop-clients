@@ -19,7 +19,7 @@ func UserInterface(_ block: @escaping ()->Void) {
 
 var globalContentView: Image?
 var globalScene: UIWindowScene?
-var globalWindow: UIWindow?
+var globalWindow: CustomTouchInput?
 var globalImageView: UIImageView?
 var globalStateKeeper: StateKeeper?
 var globalDisconnectButton: UIButton?
@@ -40,6 +40,7 @@ extension UIImage {
 func failure_callback() -> Void {
     UserInterface {
         print("We were told to quit by the native library.")
+        globalWindow!.disableTouch()
         let contentView = ContentView(stateKeeper: globalStateKeeper!)
         globalWindow!.rootViewController = UIHostingController(rootView: contentView)
         globalStateKeeper!.currentPage = "page1"
@@ -56,6 +57,7 @@ func resize_callback(fbW: Int32, fbH: Int32) -> Void {
         globalWindow!.addSubview(globalDisconnectButton!)
         globalWindow!.addSubview(globalKeyboardButton!)
         globalWindow!.addSubview(globalHideKeyboardButton!)
+        globalWindow!.enableTouch()
     }
 }
 
@@ -98,9 +100,9 @@ func imageFromARGB32Bitmap(pixels: UnsafeMutablePointer<UInt8>?, withWidth: Int,
 }
 
 class VncSession {
-    let scene: UIScene, stateKeeper: StateKeeper, window: UIWindow
+    let scene: UIScene, stateKeeper: StateKeeper, window: CustomTouchInput
     
-    init(scene: UIScene, stateKeeper: StateKeeper, window: UIWindow) {
+    init(scene: UIScene, stateKeeper: StateKeeper, window: CustomTouchInput) {
         self.scene = scene
         self.stateKeeper = stateKeeper
         self.window = window
