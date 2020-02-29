@@ -6,6 +6,7 @@
 //  Copyright © 2019 iordan iordanov. All rights reserved.
 //
 
+#include <pthread/pthread.h>
 #include "VncBridge.h"
 
 char* HOST_AND_PORT = NULL;
@@ -17,6 +18,8 @@ uint8_t* pixelBuffer = NULL;
 int pixel_buffer_size = 0;
 bool maintainConnection = true;
 int BYTES_PER_PIXEL = 4;
+int fbW = 0;
+int fbH = 0;
 
 bool getMaintainConnection() {
     return maintainConnection;
@@ -61,23 +64,25 @@ static char* get_password(rfbClient* cl){
 
 static void update (rfbClient *cl, int x, int y, int w, int h) {
     //rfbClientLog("Update received\n");
-    framebuffer_update_callback(cl->frameBuffer, cl->width, cl->height, x, y, w, h);
+    framebuffer_update_callback(cl->frameBuffer, fbW, fbH, x, y, w, h);
 }
 
 static rfbBool resize (rfbClient *cl) {
     rfbClientLog("Resize RFB Buffer, allocating buffer\n");
     static char first = TRUE;
-    rfbClientLog("Width, height: %d, %d\n", cl->width, cl->height);
+    fbW = cl->width;
+    fbH = cl->height;
+    rfbClientLog("Width, height: %d, %d\n", fbW, fbH);
     
     if (first) {
         first = FALSE;
     } else {
         free(cl->frameBuffer);
     }
-    pixel_buffer_size = BYTES_PER_PIXEL*cl->width*cl->height*sizeof(char);
+    pixel_buffer_size = BYTES_PER_PIXEL*fbW*fbH*sizeof(char);
     cl->frameBuffer = (uint8_t*)malloc(pixel_buffer_size);
-    framebuffer_resize_callback(cl->width, cl->height);
-    update(cl, 0, 0, cl->width, cl->height);
+    framebuffer_resize_callback(fbW, fbH);
+    update(cl, 0, 0, fbW, fbH);
     return TRUE;
 }
 
@@ -99,6 +104,10 @@ void connectVnc(void (*callback)(uint8_t *, int fbW, int fbH, int x, int y, int 
     framebuffer_update_callback = callback;
     framebuffer_resize_callback = callback2;
     failure_callback = callback3;
+
+    if(cl != NULL) {
+        rfbClientCleanup(cl);
+    }
 
     cl = NULL;
 
@@ -128,23 +137,17 @@ void connectVnc(void (*callback)(uint8_t *, int fbW, int fbH, int x, int y, int 
     
     if (!rfbInitClient(cl, &argc, argv)) {
         cl = NULL; /* rfbInitClient has already freed the client struct */
-        failure_callback();
-        //cleanup(cl);
+        cleanup("Failed to initialize RFB Client object.\n\n", cl);
     }
     
     while (cl != NULL) {
         i = WaitForMessage(cl, 100);
         if (maintainConnection != true) {
-            printf("Quitting because maintainConnection was set to false.\n");
-            if(cl) {
-                rfbClientCleanup(cl);
-            }
-            failure_callback();
+            cleanup("Quitting because maintainConnection was set to false.\n\n", cl);
             break;
         }
         if (i < 0) {
-            printf("Quitting because WaitForMessage < 0\n\n");
-            //cleanup(cl);
+            cleanup("Quitting because WaitForMessage < 0\n\n", cl);
             break;
         }
         if (i) {
@@ -152,12 +155,20 @@ void connectVnc(void (*callback)(uint8_t *, int fbW, int fbH, int x, int y, int 
         }
         
         if (!HandleRFBServerMessage(cl)) {
-            //cleanup(cl);
+            cleanup("Quitting because HandleRFBServerMessage returned false\n\n", cl);
             break;
         }
     }
+    printf("Background thread exiting connectVnc function.\n\n");
 }
 
+void cleanup(char *message, rfbClient *client) {
+    maintainConnection = false;
+    printf("%s", message);
+    failure_callback();
+}
+
+// TODO: Replace with real conversion table
 struct { char mask; int bits_stored; } utf8Mapping[]= {
         {0b00111111, 6},
         {0b01111111, 7},
@@ -181,6 +192,9 @@ static rfbKeySym utf8char2rfbKeySym(const char chr[4]) {
 }
 
 void sendKeyEvent(const unsigned char *c) {
+    if (!maintainConnection) {
+        return;
+    }
     rfbKeySym sym = utf8char2rfbKeySym(c);
     if (sym == 10) {
         sym = 0xff0d;
@@ -190,7 +204,9 @@ void sendKeyEvent(const unsigned char *c) {
 }
 
 void sendKeyEventWithKeySym(int sym) {
-    rfbBool res = false;
+    if (!maintainConnection) {
+        return;
+    }
     if (cl != NULL) {
         printf("Sending xkeysym: %d\n", sym);
         checkForError(SendKeyEvent(cl, sym, TRUE));
@@ -202,6 +218,9 @@ void sendKeyEventWithKeySym(int sym) {
 }
 
 void sendPointerEventToServer(int totalX, int totalY, int x, int y, bool firstDown, bool secondDown, bool thirdDown) {
+    if (!maintainConnection) {
+        return;
+    }
     int buttonMask = 0;
     if (firstDown) {
         buttonMask = buttonMask | rfbButton1Mask;
@@ -213,8 +232,8 @@ void sendPointerEventToServer(int totalX, int totalY, int x, int y, bool firstDo
         buttonMask = buttonMask | rfbButton3Mask;
     }
     if (cl != NULL) {
-        int remoteX = cl->width * x / totalX;
-        int remoteY = cl->height * y / totalY;
+        int remoteX = fbW * x / totalX;
+        int remoteY = fbH * y / totalY;
         printf("Total x, y: %d, %d. Sending pointer event at %d, %d, with mask %d\n", totalX, totalY, remoteX, remoteY, buttonMask);
         checkForError(SendPointerEvent(cl, remoteX, remoteY, buttonMask));
     } else {
@@ -224,12 +243,14 @@ void sendPointerEventToServer(int totalX, int totalY, int x, int y, bool firstDo
 }
 
 void checkForError(rfbBool res) {
+    bool haveQuit = false;
     if (cl == NULL) {
         printf("RFB Client object is NULL, quitting.\n");
         maintainConnection = false;
         failure_callback();
+        haveQuit = true;
     }
-    if (!res) {
+    if (!res && !haveQuit) {
         printf("Failed to send message, quitting.\n");
         maintainConnection = false;
         failure_callback();

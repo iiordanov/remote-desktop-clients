@@ -15,8 +15,14 @@ class CustomTouchInput: UIWindow {
     var height: CGFloat = 0.0
     var lastX: CGFloat = 0.0
     var lastY: CGFloat = 0.0
+    var newX: CGFloat = 0.0
+    var newY: CGFloat = 0.0
     var lastTime: Double = 0.0
     var touchEnabled: Bool = false
+    var firstDown: Bool = false
+    var secondDown: Bool = false
+    var thirdDown: Bool = false
+    var point: CGPoint = CGPoint(x: 0, y: 0)
 
     override init(windowScene: UIWindowScene) {
         super.init(windowScene: windowScene)
@@ -38,25 +44,28 @@ class CustomTouchInput: UIWindow {
         touchEnabled = false
     }
     
-    func sendPointerEvent(touch: UITouch, forceSend: Bool, firstDown: Bool, secondDown: Bool, thirdDown: Bool) {
-        if (touch.view != nil) {
-            self.width = touch.view!.frame.width
-            self.height = touch.view!.frame.height
-            let point = touch.location(in: touch.view)
-            let newX = point.x
-            let newY = point.y
+    func sendPointerEvent(action: String, index: Int, touch: UITouch, forceSend: Bool, firstDown: Bool, secondDown: Bool, thirdDown: Bool) {
+        Background {
+            print(#function)
+            if (!firstDown && !secondDown && !thirdDown &&
+                !self.firstDown && !self.secondDown && !self.thirdDown) {
+                print("No mouse button is down but we were told to send button up event, returning.")
+                return
+            }
+            self.firstDown = firstDown
+            self.secondDown = secondDown
+            self.thirdDown = thirdDown
             let currentTime = CACurrentMediaTime()
-            print ("Current time: " + String(currentTime) + " last time: " + String(lastTime))
-            if (touchEnabled && (forceSend || abs(self.lastTime - currentTime) > 0.1 && abs(lastX - newX) > 1.0 && abs(lastX - newX) > 1.0)) {
-                lastX = newX
-                lastY = newY
-                Background {
-                    if(forceSend) {
-                        Thread.sleep(forTimeInterval: 0.2)
-                    }
-                    self.lastTime = currentTime
-                    sendPointerEventToServer(Int32(self.width), Int32(self.height), Int32(newX), Int32(newY), firstDown, secondDown, thirdDown)
+            print(action + ": \(index+1): x=\(self.point.x) , y=\(self.point.y)")
+            print("currentTime - lastTime: " + String(abs(self.lastTime - currentTime)) + " last time: " + String(self.lastTime), " forceSend: " + String(forceSend) + " touchEnabled: " + String(self.touchEnabled))
+            if (self.touchEnabled && (forceSend || abs(self.lastTime - currentTime) > 0.1 && abs(self.lastX - self.newX) > 1.0 && abs(self.lastX - self.newX) > 1.0)) {
+                self.lastX = self.newX
+                self.lastY = self.newY
+                if(forceSend) {
+                    Thread.sleep(forTimeInterval: 0.2)
                 }
+                self.lastTime = currentTime
+                sendPointerEventToServer(Int32(self.width), Int32(self.height), Int32(self.newX), Int32(self.newY), firstDown, secondDown, thirdDown)
             }
         }
     }
@@ -64,12 +73,20 @@ class CustomTouchInput: UIWindow {
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         super.touchesBegan(touches, with: event)
         for touch in touches {
-            let point = touch.location(in: touch.view)
-            for (index, finger)  in fingers.enumerated() {
+            if let touchView = touch.view {
+                self.width = touchView.frame.width
+                self.height = touchView.frame.height
+                self.point = touch.location(in: touchView)
+                self.newX = self.point.x
+                self.newY = self.point.y
+            } else {
+                print("Could not unwrap touch.view, sending event at last coordinates.")
+            }
+
+            for (index, finger)  in self.fingers.enumerated() {
                 if finger == nil {
-                    fingers[index] = touch
-                    print("finger down: \(index+1): x=\(point.x) , y=\(point.y)")
-                    sendPointerEvent(touch: touch, forceSend: false, firstDown: true, secondDown: false, thirdDown: false)
+                    self.fingers[index] = touch
+                    self.sendPointerEvent(action: "finger down", index: index, touch: touch, forceSend: false, firstDown: true, secondDown: false, thirdDown: false)
                     break
                 }
             }
@@ -79,11 +96,19 @@ class CustomTouchInput: UIWindow {
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
         super.touchesMoved(touches, with: event)
         for touch in touches {
-            let point = touch.location(in: touch.view)
-            for (index,finger) in fingers.enumerated() {
+            if let touchView = touch.view {
+                self.width = touchView.frame.width
+                self.height = touchView.frame.height
+                self.point = touch.location(in: touchView)
+                self.newX = self.point.x
+                self.newY = self.point.y
+            } else {
+                print("Could not unwrap touch.view, sending event at last coordinates.")
+            }
+
+            for (index,finger) in self.fingers.enumerated() {
                 if let finger = finger, finger == touch {
-                    print("finger moved: \(index+1): x=\(point.x) , y=\(point.y)")
-                    sendPointerEvent(touch: touch, forceSend: false, firstDown: true, secondDown: false, thirdDown: false)
+                    self.sendPointerEvent(action: "finger moved", index: index, touch: touch, forceSend: false, firstDown: true, secondDown: false, thirdDown: false)
                     break
                 }
             }
@@ -93,12 +118,20 @@ class CustomTouchInput: UIWindow {
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
         super.touchesEnded(touches, with: event)
         for touch in touches {
-            let point = touch.location(in: touch.view)
-            for (index,finger) in fingers.enumerated() {
+            if let touchView = touch.view {
+                self.width = touchView.frame.width
+                self.height = touchView.frame.height
+                self.point = touch.location(in: touchView)
+                self.newX = self.point.x
+                self.newY = self.point.y
+            } else {
+                print("Could not unwrap touch.view, sending event at last coordinates.")
+            }
+
+            for (index,finger) in self.fingers.enumerated() {
                 if let finger = finger, finger == touch {
-                    fingers[index] = nil
-                    print("finger lifted: \(index+1): x=\(point.x) , y=\(point.y)")
-                    sendPointerEvent(touch: touch, forceSend: true, firstDown: false, secondDown: false, thirdDown: false)
+                    self.fingers[index] = nil
+                    self.sendPointerEvent(action: "finger lifted", index: index, touch: touch, forceSend: true, firstDown: false, secondDown: false, thirdDown: false)
                     break
                 }
             }
@@ -107,9 +140,7 @@ class CustomTouchInput: UIWindow {
 
     override func touchesCancelled(_ touches: Set<UITouch>?, with event: UIEvent?) {
         super.touchesCancelled(touches!, with: event)
-        guard let touches = touches else {
-            return
-        }
-        touchesEnded(touches, with: event)
+        guard let touches = touches else { return }
+        self.touchesEnded(touches, with: event)
     }
 }
