@@ -39,8 +39,8 @@ extension UIImage {
 
 func failure_callback() -> Void {
     UserInterface {
-        print("We were told to quit by the native library.")
         globalWindow!.disableTouch()
+        print("We were told to quit by the native library.")
         let contentView = ContentView(stateKeeper: globalStateKeeper!)
         globalWindow!.rootViewController = UIHostingController(rootView: contentView)
         globalStateKeeper!.currentPage = "page1"
@@ -63,10 +63,7 @@ func resize_callback(fbW: Int32, fbH: Int32) -> Void {
 
 func update_callback(data: UnsafeMutablePointer<UInt8>?, fbW: Int32, fbH: Int32, x: Int32, y: Int32, w: Int32, h: Int32) -> Void {
     UserInterface {
-        //print("Graphics update: ", fbW, fbH, x, y, w, h)
-        if (!getMaintainConnection()) {
-            return
-        }
+        print("Graphics update: ", fbW, fbH, x, y, w, h)
         autoreleasepool {
             globalImageView?.image = UIImage(cgImage: imageFromARGB32Bitmap(pixels: data, withWidth: Int(fbW), withHeight: Int(fbH))!)
         }
@@ -165,6 +162,8 @@ class VncSession {
     }
     
     func disconnect() {
-        disconnectVnc()
+        Background {
+            disconnectVnc()
+        }
     }
 }

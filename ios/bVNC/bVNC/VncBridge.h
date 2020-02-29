@@ -24,5 +24,6 @@ void sendKeyEvent(const unsigned char *c);
 void sendKeyEventWithKeySym(int c);
 void sendPointerEventToServer(int totalX, int totalY, int x, int y, bool firstDown, bool secondDown, bool thirdDown);
 void checkForError(rfbBool res);
+void cleanup(char* message, rfbClient *client);
 
 #endif /* VncBridge_h */
