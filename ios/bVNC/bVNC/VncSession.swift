@@ -23,6 +23,8 @@ var globalWindow: UIWindow?
 var globalImageView: UIImageView?
 var globalStateKeeper: StateKeeper?
 var globalDisconnectButton: UIButton?
+var globalKeyboardButton: CustomTextInput?
+var globalHideKeyboardButton: UIButton?
 
 extension UIImage {
     func image(byDrawingImage image: UIImage, inRect rect: CGRect) -> UIImage! {
@@ -35,6 +37,15 @@ extension UIImage {
     }
 }
 
+func failure_callback() -> Void {
+    UserInterface {
+        print("We were told to quit by the native library.")
+        let contentView = ContentView(stateKeeper: globalStateKeeper!)
+        globalWindow!.rootViewController = UIHostingController(rootView: contentView)
+        globalStateKeeper!.currentPage = "page1"
+    }
+}
+
 func resize_callback(fbW: Int32, fbH: Int32) -> Void {
     UserInterface {
         globalWindow!.rootViewController = UIHostingController(rootView: globalContentView)
@@ -43,12 +54,14 @@ func resize_callback(fbW: Int32, fbH: Int32) -> Void {
         globalImageView!.frame = globalWindow!.bounds
         globalWindow!.addSubview(globalImageView!)
         globalWindow!.addSubview(globalDisconnectButton!)
+        globalWindow!.addSubview(globalKeyboardButton!)
+        globalWindow!.addSubview(globalHideKeyboardButton!)
     }
 }
 
 func update_callback(data: UnsafeMutablePointer<UInt8>?, fbW: Int32, fbH: Int32, x: Int32, y: Int32, w: Int32, h: Int32) -> Void {
     UserInterface {
-        //print("On UI Thread: ", fbW, fbH, x, y, w, h)
+        //print("Graphics update: ", fbW, fbH, x, y, w, h)
         if (!getMaintainConnection()) {
             return
         }
@@ -92,10 +105,19 @@ class VncSession {
         self.stateKeeper = stateKeeper
         self.window = window
         globalStateKeeper = stateKeeper
-        let button = UIButton(frame: CGRect(x: 100, y: 100, width: 100, height: 50))
-        button.setTitle("Disconnect", for: [])
-        button.addTarget(globalStateKeeper, action: #selector(globalStateKeeper?.disconnect), for: .touchUpInside)
-        globalDisconnectButton = button
+        let disconnectButton = UIButton(frame: CGRect(x: 100, y: 10, width: 100, height: 50))
+        disconnectButton.setTitle("Disconnect", for: [])
+        disconnectButton.addTarget(globalStateKeeper, action: #selector(globalStateKeeper?.disconnect), for: .touchUpInside)
+        globalDisconnectButton = disconnectButton
+        let keyboardButton = CustomTextInput(frame: CGRect(x: 200, y: 10, width: 100, height: 50))
+        keyboardButton.setTitle("Show Kbd", for: [])
+        keyboardButton.addTarget(globalKeyboardButton, action: #selector(globalKeyboardButton?.becomeFirstResponder), for: .touchUpInside)
+        globalKeyboardButton = keyboardButton
+
+        let hideKeyboardButton = UIButton(frame: CGRect(x: 300, y: 10, width: 100, height: 50))
+        hideKeyboardButton.setTitle("Hide Kbd", for: [])
+        hideKeyboardButton.addTarget(globalKeyboardButton, action: #selector(globalKeyboardButton?.resignFirstResponder), for: .touchUpInside)
+        globalHideKeyboardButton = hideKeyboardButton
     }
     
     func captureScreen(window: UIWindow) -> UIImage {
@@ -132,7 +154,7 @@ class VncSession {
 
         Background {
             print("Connecting in the background...")
-            connectVnc(update_callback, resize_callback,
+            connectVnc(update_callback, resize_callback, failure_callback,
                        UnsafeMutablePointer<Int8>(mutating: (addressAndPort as NSString).utf8String),
                        UnsafeMutablePointer<Int8>(mutating: (user as NSString).utf8String),
                        UnsafeMutablePointer<Int8>(mutating: (pass as NSString).utf8String),

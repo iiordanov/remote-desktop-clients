@@ -1,3 +1,7 @@
+OpenSSL-for-iPhone
 ios-cmake
 libvncserver
 bVNC.xcodeproj/libs_combined/
+bVNC.xcodeproj/xcuserdata/*.xcuserdatad/xcdebugger/Breakpoints_v2.xcbkptlist
+bVNC.xcodeproj/project.xcworkspace/xcuserdata/
+bVNC.xcodeproj/xcshareddata/

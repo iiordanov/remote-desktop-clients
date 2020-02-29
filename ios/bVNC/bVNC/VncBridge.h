@@ -12,12 +12,17 @@
 #include <stdio.h>
 #include "rfb/rfbclient.h"
 
-bool getMaintainConnection();
+bool getMaintainConnection(void);
 void connectVnc(void (*callback)(uint8_t *, int fbW, int fbH, int x, int y, int w, int h),
-                void (*callback2)(int fbW, int fbH), char*, char*, char*, char*);
-void disconnectVnc();
+                void (*callback2)(int fbW, int fbH),
+                void (*callback3)(void), char*, char*, char*, char*);
+void disconnectVnc(void);
 void (*framebuffer_update_callback)(uint8_t *, int fbW, int fbH, int x, int y, int w, int h);
 void (*framebuffer_resize_callback)(int fbW, int fbH);
-void freeBuffer(uint8_t*);
+void (*failure_callback)(void);
+void sendKeyEvent(const unsigned char *c);
+void sendKeyEventWithKeySym(int c);
+void sendPointerEventToServer(int totalX, int totalY, int x, int y, bool firstDown, bool secondDown, bool thirdDown);
+void checkForError(rfbBool res);
 
 #endif /* VncBridge_h */

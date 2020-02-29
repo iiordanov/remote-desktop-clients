@@ -87,8 +87,9 @@ void disconnectVnc() {
 
 void connectVnc(void (*callback)(uint8_t *, int fbW, int fbH, int x, int y, int w, int h),
                 void (*callback2)(int fbW, int fbH),
+                void (*callback3)(void),
                 char* addr, char* user, char* password, char* ca_path) {
-    printf("Setting up connection");
+    printf("Setting up connection.\n");
     maintainConnection = true;
     
     HOST_AND_PORT = addr;
@@ -97,6 +98,7 @@ void connectVnc(void (*callback)(uint8_t *, int fbW, int fbH, int x, int y, int 
     CA_PATH = ca_path;
     framebuffer_update_callback = callback;
     framebuffer_resize_callback = callback2;
+    failure_callback = callback3;
 
     cl = NULL;
 
@@ -126,13 +128,18 @@ void connectVnc(void (*callback)(uint8_t *, int fbW, int fbH, int x, int y, int 
     
     if (!rfbInitClient(cl, &argc, argv)) {
         cl = NULL; /* rfbInitClient has already freed the client struct */
+        failure_callback();
         //cleanup(cl);
     }
     
     while (cl != NULL) {
-        i = WaitForMessage(cl, 500);
+        i = WaitForMessage(cl, 100);
         if (maintainConnection != true) {
             printf("Quitting because maintainConnection was set to false.\n");
+            if(cl) {
+                rfbClientCleanup(cl);
+            }
+            failure_callback();
             break;
         }
         if (i < 0) {
@@ -148,5 +155,83 @@ void connectVnc(void (*callback)(uint8_t *, int fbW, int fbH, int x, int y, int 
             //cleanup(cl);
             break;
         }
+    }
+}
+
+struct { char mask; int bits_stored; } utf8Mapping[]= {
+        {0b00111111, 6},
+        {0b01111111, 7},
+        {0b00011111, 5},
+        {0b00001111, 4},
+        {0b00000111, 3},
+        {0,0}
+};
+
+/* UTF-8 decoding is from https://rosettacode.org/wiki/UTF-8_encode_and_decode which is under GFDL 1.2 */
+static rfbKeySym utf8char2rfbKeySym(const char chr[4]) {
+        int bytes = (int)strlen(chr);
+        int shift = utf8Mapping[0].bits_stored * (bytes - 1);
+        rfbKeySym codep = (*chr++ & utf8Mapping[bytes].mask) << shift;
+        int i;
+        for(i = 1; i < bytes; ++i, ++chr) {
+                shift -= utf8Mapping[0].bits_stored;
+                codep |= ((char)*chr & utf8Mapping[0].mask) << shift;
+        }
+        return codep;
+}
+
+void sendKeyEvent(const unsigned char *c) {
+    rfbKeySym sym = utf8char2rfbKeySym(c);
+    if (sym == 10) {
+        sym = 0xff0d;
+    }
+    printf("Converted to %d xkeysym: %d\n", (int)*c, sym);
+    sendKeyEventWithKeySym(sym);
+}
+
+void sendKeyEventWithKeySym(int sym) {
+    rfbBool res = false;
+    if (cl != NULL) {
+        printf("Sending xkeysym: %d\n", sym);
+        checkForError(SendKeyEvent(cl, sym, TRUE));
+        checkForError(SendKeyEvent(cl, sym, FALSE));
+    } else {
+        printf("RFB Client object is NULL, need to quit!");
+        checkForError(false);
+    }
+}
+
+void sendPointerEventToServer(int totalX, int totalY, int x, int y, bool firstDown, bool secondDown, bool thirdDown) {
+    int buttonMask = 0;
+    if (firstDown) {
+        buttonMask = buttonMask | rfbButton1Mask;
+    }
+    if (secondDown) {
+        buttonMask = buttonMask | rfbButton2Mask;
+    }
+    if (thirdDown) {
+        buttonMask = buttonMask | rfbButton3Mask;
+    }
+    if (cl != NULL) {
+        int remoteX = cl->width * x / totalX;
+        int remoteY = cl->height * y / totalY;
+        printf("Total x, y: %d, %d. Sending pointer event at %d, %d, with mask %d\n", totalX, totalY, remoteX, remoteY, buttonMask);
+        checkForError(SendPointerEvent(cl, remoteX, remoteY, buttonMask));
+    } else {
+        printf("RFB Client object is NULL, will quit now.\n");
+        checkForError(false);
+    }
+}
+
+void checkForError(rfbBool res) {
+    if (cl == NULL) {
+        printf("RFB Client object is NULL, quitting.\n");
+        maintainConnection = false;
+        failure_callback();
+    }
+    if (!res) {
+        printf("Failed to send message, quitting.\n");
+        maintainConnection = false;
+        failure_callback();
     }
 }

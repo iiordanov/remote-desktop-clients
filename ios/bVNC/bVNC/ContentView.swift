@@ -25,6 +25,8 @@ struct ContentView : View {
                              certText: stateKeeper.settings.string(forKey: "cert") ?? "")
             } else if stateKeeper.currentPage == "page2" {
                 ContentViewB(stateKeeper: stateKeeper)
+            } else if stateKeeper.currentPage == "page3" {
+                ContentViewC(stateKeeper: stateKeeper)
             }
         }
     }
@@ -85,6 +87,18 @@ struct ContentViewB : View {
     }
 }
 
+struct ContentViewC : View {
+    
+    @ObservedObject var stateKeeper: StateKeeper
+    
+    var body: some View {
+        VStack {
+            Text("Disconnecting from VNC Server")
+        }
+    }
+}
+
+
 struct ContentViewA_Previews : PreviewProvider {
     static var previews: some View {
         ContentViewA(stateKeeper: StateKeeper(), addressText: "", portText: "", usernameText: "", passwordText: "", certText: "")
@@ -94,6 +108,12 @@ struct ContentViewA_Previews : PreviewProvider {
 struct ContentViewB_Previews : PreviewProvider {
     static var previews: some View {
         ContentViewB(stateKeeper: StateKeeper())
+    }
+}
+
+struct ContentViewC_Previews : PreviewProvider {
+    static var previews: some View {
+        ContentViewC(stateKeeper: StateKeeper())
     }
 }
 
