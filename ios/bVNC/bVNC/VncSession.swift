@@ -19,8 +19,8 @@ func UserInterface(_ block: @escaping ()->Void) {
 
 var globalContentView: Image?
 var globalScene: UIWindowScene?
-var globalWindow: CustomTouchInput?
-var globalImageView: UIImageView?
+var globalWindow: UIWindow?
+var globalImageView: TouchEnabledUIImageView?
 var globalStateKeeper: StateKeeper?
 var globalDisconnectButton: UIButton?
 var globalKeyboardButton: CustomTextInput?
@@ -39,7 +39,7 @@ extension UIImage {
 
 func failure_callback() -> Void {
     UserInterface {
-        globalWindow!.disableTouch()
+        globalImageView!.disableTouch()
         print("We were told to quit by the native library.")
         let contentView = ContentView(stateKeeper: globalStateKeeper!)
         globalWindow!.rootViewController = UIHostingController(rootView: contentView)
@@ -51,19 +51,21 @@ func resize_callback(fbW: Int32, fbH: Int32) -> Void {
     UserInterface {
         globalWindow!.rootViewController = UIHostingController(rootView: globalContentView)
         globalWindow!.makeKeyAndVisible()
-        globalImageView = UIImageView(frame: CGRect(x: 0, y: 0, width: Int(fbW), height: Int(fbH)))
+        globalImageView = TouchEnabledUIImageView(frame: CGRect(x: 0, y: 0, width: Int(fbW), height: Int(fbH)))
         globalImageView!.frame = globalWindow!.bounds
+        globalImageView!.enableGestures()
+        globalImageView!.enableTouch()
+        globalStateKeeper?.setImageView(imageView: globalImageView!)
         globalWindow!.addSubview(globalImageView!)
         globalWindow!.addSubview(globalDisconnectButton!)
         globalWindow!.addSubview(globalKeyboardButton!)
         globalWindow!.addSubview(globalHideKeyboardButton!)
-        globalWindow!.enableTouch()
     }
 }
 
 func update_callback(data: UnsafeMutablePointer<UInt8>?, fbW: Int32, fbH: Int32, x: Int32, y: Int32, w: Int32, h: Int32) -> Void {
     UserInterface {
-        print("Graphics update: ", fbW, fbH, x, y, w, h)
+        //print("Graphics update: ", fbW, fbH, x, y, w, h)
         autoreleasepool {
             globalImageView?.image = UIImage(cgImage: imageFromARGB32Bitmap(pixels: data, withWidth: Int(fbW), withHeight: Int(fbH))!)
         }
@@ -97,9 +99,9 @@ func imageFromARGB32Bitmap(pixels: UnsafeMutablePointer<UInt8>?, withWidth: Int,
 }
 
 class VncSession {
-    let scene: UIScene, stateKeeper: StateKeeper, window: CustomTouchInput
+    let scene: UIScene, stateKeeper: StateKeeper, window: UIWindow
     
-    init(scene: UIScene, stateKeeper: StateKeeper, window: CustomTouchInput) {
+    init(scene: UIScene, stateKeeper: StateKeeper, window: UIWindow) {
         self.scene = scene
         self.stateKeeper = stateKeeper
         self.window = window

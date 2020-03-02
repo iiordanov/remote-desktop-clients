@@ -23,7 +23,7 @@
 		AF53DCB32402391600569F19 /* StateKeeper.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF53DCB22402391600569F19 /* StateKeeper.swift */; };
 		AF53DCB524024B2900569F19 /* ConnectionSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF53DCB424024B2900569F19 /* ConnectionSettings.swift */; };
 		AFF244E22407985E00F5839B /* CustomTextInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFF244E12407985E00F5839B /* CustomTextInput.swift */; };
-		AFF244E42408AF9B00F5839B /* CustomTouchInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFF244E32408AF9B00F5839B /* CustomTouchInput.swift */; };
+		AFF244E42408AF9B00F5839B /* TouchEnabledUIImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFF244E32408AF9B00F5839B /* TouchEnabledUIImageView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -477,7 +477,7 @@
 		AF53DCB22402391600569F19 /* StateKeeper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StateKeeper.swift; sourceTree = "<group>"; };
 		AF53DCB424024B2900569F19 /* ConnectionSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionSettings.swift; sourceTree = "<group>"; };
 		AFF244E12407985E00F5839B /* CustomTextInput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomTextInput.swift; sourceTree = "<group>"; };
-		AFF244E32408AF9B00F5839B /* CustomTouchInput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomTouchInput.swift; sourceTree = "<group>"; };
+		AFF244E32408AF9B00F5839B /* TouchEnabledUIImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TouchEnabledUIImageView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -533,7 +533,7 @@
 			children = (
 				AF043A1823B3DADA00C43ED7 /* AppDelegate.swift */,
 				AF043A1A23B3DADA00C43ED7 /* SceneDelegate.swift */,
-				AFF244E32408AF9B00F5839B /* CustomTouchInput.swift */,
+				AFF244E32408AF9B00F5839B /* TouchEnabledUIImageView.swift */,
 				AFF244E12407985E00F5839B /* CustomTextInput.swift */,
 				AF043A1C23B3DADA00C43ED7 /* ContentView.swift */,
 				AF043A1E23B3DADB00C43ED7 /* Assets.xcassets */,
@@ -1121,7 +1121,7 @@
 				AF53DCB32402391600569F19 /* StateKeeper.swift in Sources */,
 				AF48283223B47EC300826395 /* VncBridge.c in Sources */,
 				AF043A1D23B3DADA00C43ED7 /* ContentView.swift in Sources */,
-				AFF244E42408AF9B00F5839B /* CustomTouchInput.swift in Sources */,
+				AFF244E42408AF9B00F5839B /* TouchEnabledUIImageView.swift in Sources */,
 				AF53DCB524024B2900569F19 /* ConnectionSettings.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
