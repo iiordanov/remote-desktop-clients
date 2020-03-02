@@ -234,7 +234,7 @@ void sendPointerEventToServer(int totalX, int totalY, int x, int y, bool firstDo
     if (cl != NULL) {
         int remoteX = fbW * x / totalX;
         int remoteY = fbH * y / totalY;
-        printf("Total x, y: %d, %d. Sending pointer event at %d, %d, with mask %d\n", totalX, totalY, remoteX, remoteY, buttonMask);
+        //printf("Total x, y: %d, %d. Sending pointer event at %d, %d, with mask %d\n", totalX, totalY, remoteX, remoteY, buttonMask);
         checkForError(SendPointerEvent(cl, remoteX, remoteY, buttonMask));
     } else {
         printf("RFB Client object is NULL, will quit now.\n");

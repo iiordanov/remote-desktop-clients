@@ -12,7 +12,7 @@ import SwiftUI
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     
-    var window: CustomTouchInput?
+    var window: UIWindow?
     @ObservedObject var stateKeeper: StateKeeper = StateKeeper()
 
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession,
@@ -27,7 +27,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // Use a UIHostingController as window root view controller.
         
         if let windowScene = scene as? UIWindowScene {
-            window = CustomTouchInput(windowScene: windowScene)
+            window = UIWindow(windowScene: windowScene)
             window!.rootViewController = UIHostingController(rootView: contentView)
             window!.makeKeyAndVisible()
         }
