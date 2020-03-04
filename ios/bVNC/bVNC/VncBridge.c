@@ -88,6 +88,7 @@ static rfbBool resize (rfbClient *cl) {
 
 void disconnectVnc() {
     maintainConnection = false;
+    SendFramebufferUpdateRequest(cl, 0, 0, 1, 1, FALSE);
 }
 
 void connectVnc(void (*callback)(uint8_t *, int fbW, int fbH, int x, int y, int w, int h),
@@ -141,7 +142,8 @@ void connectVnc(void (*callback)(uint8_t *, int fbW, int fbH, int x, int y, int 
     }
     
     while (cl != NULL) {
-        i = WaitForMessage(cl, 100);
+        i = WaitForMessage(cl, 1000);
+        printf("something\n");
         if (maintainConnection != true) {
             cleanup("Quitting because maintainConnection was set to false.\n\n", cl);
             break;
@@ -217,7 +219,8 @@ void sendKeyEventWithKeySym(int sym) {
     }
 }
 
-void sendPointerEventToServer(int totalX, int totalY, int x, int y, bool firstDown, bool secondDown, bool thirdDown) {
+void sendPointerEventToServer(int totalX, int totalY, int x, int y, bool firstDown, bool secondDown, bool thirdDown,
+                              bool scrollUp, bool scrollDown) {
     if (!maintainConnection) {
         return;
     }
@@ -231,10 +234,16 @@ void sendPointerEventToServer(int totalX, int totalY, int x, int y, bool firstDo
     if (thirdDown) {
         buttonMask = buttonMask | rfbButton3Mask;
     }
+    if (scrollUp) {
+        buttonMask = buttonMask | rfbButton4Mask;
+    }
+    if (scrollDown) {
+        buttonMask = buttonMask | rfbButton5Mask;
+    }
     if (cl != NULL) {
         int remoteX = fbW * x / totalX;
         int remoteY = fbH * y / totalY;
-        //printf("Total x, y: %d, %d. Sending pointer event at %d, %d, with mask %d\n", totalX, totalY, remoteX, remoteY, buttonMask);
+        printf("Sending pointer event at %d, %d, with mask %d\n", remoteX, remoteY, buttonMask);
         checkForError(SendPointerEvent(cl, remoteX, remoteY, buttonMask));
     } else {
         printf("RFB Client object is NULL, will quit now.\n");

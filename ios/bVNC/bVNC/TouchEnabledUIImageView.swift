@@ -28,6 +28,9 @@ class TouchEnabledUIImageView: UIImageView {
     var panGesture: UIPanGestureRecognizer?
     var pinchGesture: UIPinchGestureRecognizer?
     var moveEventsSinceFingerDown = 0
+    var inScrolling = false
+    var inPanning = false
+    var panningToleranceEvents = 0
 
     func initialize() {
         isMultipleTouchEnabled = true
@@ -83,14 +86,13 @@ class TouchEnabledUIImageView: UIImageView {
         Background {
             self.lock.lock()
             if (self.touchEnabled) {
-                if !moving ||
-                    abs(self.lastX - self.newX) > 15.0 || abs(self.lastY - self.newY) > 15.0 {
-                    print ("Not moving or moved far enough, sending event.")
-                    sendPointerEventToServer(Int32(self.width), Int32(self.height), Int32(self.newX), Int32(self.newY), firstDown, secondDown, thirdDown)
+                if !moving || abs(self.lastX - self.newX) > 12.0 || abs(self.lastY - self.newY) > 12.0 {
+                    //print ("Not moving or moved far enough, sending event.")
+                    sendPointerEventToServer(Int32(self.width), Int32(self.height), Int32(self.newX), Int32(self.newY), firstDown, secondDown, thirdDown, false, false)
                     self.lastX = self.newX
                     self.lastY = self.newY
-                } else {
-                    print ("Moving and not moved far enough, discarding event.")
+                //} else {
+                //    print ("Moving and not moved far enough, discarding event.")
                 }
             }
             self.lock.unlock()
@@ -118,7 +120,9 @@ class TouchEnabledUIImageView: UIImageView {
                 if finger == nil {
                     self.fingers[index] = touch
                     if index == 0 {
-                        moveEventsSinceFingerDown = 0
+                        self.inScrolling = false
+                        self.inPanning = false
+                        self.moveEventsSinceFingerDown = 0
                         print("ONE FINGER Detected, marking this a left-click")
                         self.firstDown = true
                         self.secondDown = false
@@ -165,7 +169,7 @@ class TouchEnabledUIImageView: UIImageView {
                         if let touchView = touch.view {
                             self.setViewParameters(touch: touch, touchView: touchView)
                         }
-                        if moveEventsSinceFingerDown > 1 {
+                        if moveEventsSinceFingerDown > 2 {
                             self.sendPointerEvent(action: "finger moved", index: index, touch: touch, moving: true, firstDown: self.firstDown, secondDown: self.secondDown, thirdDown: self.thirdDown)
                         } else {
                             print("Discarding some events")
@@ -200,7 +204,7 @@ class TouchEnabledUIImageView: UIImageView {
                     self.fingers[index] = nil
                     if (index == 0) {
                         if (self.panGesture?.state == .began || self.pinchGesture?.state == .began) {
-                            print("Is panning or zooming and first finger lifted, not sending mouse events.")
+                            print("Currently panning or zooming and first finger lifted, not sending mouse events.")
                         } else {
                             print("Not panning or zooming and first finger lifted, sending mouse events.")
                             self.sendPointerEvent(action: "finger lifted", index: index, touch: touch, moving: false, firstDown: self.firstDown, secondDown: self.secondDown, thirdDown: self.thirdDown)
@@ -236,7 +240,31 @@ class TouchEnabledUIImageView: UIImageView {
         if let view = sender.view {
             let scaleX = sender.view!.transform.a
             let scaleY = sender.view!.transform.d
-
+            //print ("abs(scaleX*translation.x): \(abs(scaleX*translation.x)), abs(scaleY*translation.y): \(abs(scaleY*translation.y))")
+            // If scrolling or tolerance for scrolling is exceeded
+            if (!self.inPanning && (self.inScrolling || abs(scaleX*translation.x) < 0.25 && abs(scaleY*translation.y) >= 0.25)) {
+                // If tolerance for scrolling was just exceeded, begin scroll event
+                if (!self.inScrolling) {
+                    self.inScrolling = true
+                    self.point = sender.location(in: view)
+                    self.viewTransform = view.transform
+                    self.newX = self.point.x*viewTransform.a
+                    self.newY = self.point.y*viewTransform.d
+                }
+                var sentDown = false
+                if translation.y >= 0.25 {
+                    sendPointerEventToServer(Int32(self.width), Int32(self.height), Int32(self.newX), Int32(self.newY), false, false, false, true, false)
+                    sentDown = true
+                } else if translation.y <= 0.25 {
+                    sendPointerEventToServer(Int32(self.width), Int32(self.height), Int32(self.newX), Int32(self.newY), false, false, false, false, true)
+                    sentDown = true
+                }
+                if sentDown {
+                    sendPointerEventToServer(Int32(self.width), Int32(self.height), Int32(self.newX), Int32(self.newY), false, false, false, false, false)
+                }
+                return
+            }
+            self.inPanning = true
             var newCenterX = view.center.x + scaleX*translation.x
             var newCenterY = view.center.y + scaleY*translation.y
             let scaledWidth = sender.view!.frame.width/scaleX
@@ -246,8 +274,8 @@ class TouchEnabledUIImageView: UIImageView {
             if sender.view!.frame.minX/scaleX <= -20 - (scaleX-1.0)*scaledWidth/scaleX { newCenterX = view.center.x + 10 }
             if sender.view!.frame.minY/scaleY <= -20 - (scaleY-1.0)*scaledHeight/scaleY { newCenterY = view.center.y + 10 }
             view.center = CGPoint(x: newCenterX, y: newCenterY)
+            sender.setTranslation(CGPoint.zero, in: view)
         }
-        sender.setTranslation(CGPoint.zero, in: sender.view)
     }
     
     @objc private func handleZooming(_ sender: UIPinchGestureRecognizer) {
