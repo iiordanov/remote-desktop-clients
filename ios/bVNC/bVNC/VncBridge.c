@@ -143,7 +143,6 @@ void connectVnc(void (*callback)(uint8_t *, int fbW, int fbH, int x, int y, int 
     
     while (cl != NULL) {
         i = WaitForMessage(cl, 1000);
-        printf("something\n");
         if (maintainConnection != true) {
             cleanup("Quitting because maintainConnection was set to false.\n\n", cl);
             break;

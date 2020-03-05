@@ -25,6 +25,7 @@ class TouchEnabledUIImageView: UIImageView {
     var thirdDown: Bool = false
     var point: CGPoint = CGPoint(x: 0, y: 0)
     let lock = NSLock()
+    let fingerLock = NSLock()
     var panGesture: UIPanGestureRecognizer?
     var pinchGesture: UIPinchGestureRecognizer?
     var moveEventsSinceFingerDown = 0
@@ -82,30 +83,29 @@ class TouchEnabledUIImageView: UIImageView {
         self.newY = self.point.y*viewTransform.d
     }
     
-    func sendPointerEvent(action: String, index: Int, touch: UITouch, moving: Bool, firstDown: Bool, secondDown: Bool, thirdDown: Bool) {
-        Background {
-            self.lock.lock()
-            if (self.touchEnabled) {
-                if !moving || abs(self.lastX - self.newX) > 12.0 || abs(self.lastY - self.newY) > 12.0 {
-                    //print ("Not moving or moved far enough, sending event.")
-                    sendPointerEventToServer(Int32(self.width), Int32(self.height), Int32(self.newX), Int32(self.newY), firstDown, secondDown, thirdDown, false, false)
-                    self.lastX = self.newX
-                    self.lastY = self.newY
-                //} else {
-                //    print ("Moving and not moved far enough, discarding event.")
+    func sendDownThenUpEvent(moving: Bool, firstDown: Bool, secondDown: Bool, thirdDown: Bool, fourthDown: Bool, fifthDown: Bool) {
+        if (self.touchEnabled) {
+            Background {
+                self.lock.lock()
+                self.sendPointerEvent(moving: moving, firstDown: firstDown, secondDown: secondDown, thirdDown: thirdDown, fourthDown: fourthDown, fifthDown: fifthDown)
+                if (!moving) {
+                    self.sendPointerEvent(moving: moving, firstDown: false, secondDown: false, thirdDown: false, fourthDown: false, fifthDown: false)
                 }
+                self.lock.unlock()
             }
-            self.lock.unlock()
+        }
+    }
+    
+    func sendPointerEvent(moving: Bool, firstDown: Bool, secondDown: Bool, thirdDown: Bool, fourthDown: Bool, fifthDown: Bool) {
+        if !moving || abs(self.lastX - self.newX) > 12.0 || abs(self.lastY - self.newY) > 12.0 {
+            sendPointerEventToServer(Int32(self.width), Int32(self.height), Int32(self.newX), Int32(self.newY), firstDown, secondDown, thirdDown, fourthDown, fifthDown)
+            self.lastX = self.newX
+            self.lastY = self.newY
         }
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         super.touchesBegan(touches, with: event)
-        /*
-        if (touches.count == 2) {
-            print("Two fingers down, so ignore to allow pinch zooming and panning unhindered.")
-            return
-        }*/
         for touch in touches {
             if let touchView = touch.view {
                 if !isOutsideImageBoundaries(touch: touch, touchView: touchView) {
@@ -118,7 +118,9 @@ class TouchEnabledUIImageView: UIImageView {
             
             for (index, finger)  in self.fingers.enumerated() {
                 if finger == nil {
+                    self.fingerLock.lock()
                     self.fingers[index] = touch
+                    self.fingerLock.unlock()
                     if index == 0 {
                         self.inScrolling = false
                         self.inPanning = false
@@ -170,7 +172,7 @@ class TouchEnabledUIImageView: UIImageView {
                             self.setViewParameters(touch: touch, touchView: touchView)
                         }
                         if moveEventsSinceFingerDown > 2 {
-                            self.sendPointerEvent(action: "finger moved", index: index, touch: touch, moving: true, firstDown: self.firstDown, secondDown: self.secondDown, thirdDown: self.thirdDown)
+                            self.sendDownThenUpEvent(moving: true, firstDown: self.firstDown, secondDown: self.secondDown, thirdDown: self.thirdDown, fourthDown: false, fifthDown: false)
                         } else {
                             print("Discarding some events")
                             moveEventsSinceFingerDown += 1
@@ -184,11 +186,6 @@ class TouchEnabledUIImageView: UIImageView {
     
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
         super.touchesEnded(touches, with: event)
-        if (!firstDown && !secondDown && !thirdDown) {
-            print("No buttons are indicated to be down, ignoring.")
-            return
-        }
-
         for touch in touches {
             if let touchView = touch.view {
                 if !isOutsideImageBoundaries(touch: touch, touchView: touchView) {
@@ -201,17 +198,18 @@ class TouchEnabledUIImageView: UIImageView {
             
             for (index, finger) in self.fingers.enumerated() {
                 if let finger = finger, finger == touch {
+                    self.fingerLock.lock()
                     self.fingers[index] = nil
+                    self.fingerLock.unlock()
                     if (index == 0) {
                         if (self.panGesture?.state == .began || self.pinchGesture?.state == .began) {
                             print("Currently panning or zooming and first finger lifted, not sending mouse events.")
                         } else {
                             print("Not panning or zooming and first finger lifted, sending mouse events.")
-                            self.sendPointerEvent(action: "finger lifted", index: index, touch: touch, moving: false, firstDown: self.firstDown, secondDown: self.secondDown, thirdDown: self.thirdDown)
+                            self.sendDownThenUpEvent(moving: false, firstDown: self.firstDown, secondDown: self.secondDown, thirdDown: self.thirdDown, fourthDown: false, fifthDown: false)
                             self.firstDown = false
                             self.secondDown = false
                             self.thirdDown = false
-                            self.sendPointerEvent(action: "finger lifted", index: index, touch: touch, moving: false, firstDown: self.firstDown, secondDown: self.secondDown, thirdDown: self.thirdDown)
                         }
                     } else {
                         print("Fingers other than first lifted, not sending mouse events.")
@@ -240,6 +238,7 @@ class TouchEnabledUIImageView: UIImageView {
         if let view = sender.view {
             let scaleX = sender.view!.transform.a
             let scaleY = sender.view!.transform.d
+
             //print ("abs(scaleX*translation.x): \(abs(scaleX*translation.x)), abs(scaleY*translation.y): \(abs(scaleY*translation.y))")
             // If scrolling or tolerance for scrolling is exceeded
             if (!self.inPanning && (self.inScrolling || abs(scaleX*translation.x) < 0.25 && abs(scaleY*translation.y) >= 0.25)) {
@@ -251,16 +250,10 @@ class TouchEnabledUIImageView: UIImageView {
                     self.newX = self.point.x*viewTransform.a
                     self.newY = self.point.y*viewTransform.d
                 }
-                var sentDown = false
                 if translation.y >= 0.25 {
-                    sendPointerEventToServer(Int32(self.width), Int32(self.height), Int32(self.newX), Int32(self.newY), false, false, false, true, false)
-                    sentDown = true
+                    sendDownThenUpEvent(moving: false, firstDown: false, secondDown: false, thirdDown: false, fourthDown: true, fifthDown: false)
                 } else if translation.y <= 0.25 {
-                    sendPointerEventToServer(Int32(self.width), Int32(self.height), Int32(self.newX), Int32(self.newY), false, false, false, false, true)
-                    sentDown = true
-                }
-                if sentDown {
-                    sendPointerEventToServer(Int32(self.width), Int32(self.height), Int32(self.newX), Int32(self.newY), false, false, false, false, false)
+                    sendDownThenUpEvent(moving: false, firstDown: false, secondDown: false, thirdDown: false, fourthDown: false, fifthDown: true)
                 }
                 return
             }
