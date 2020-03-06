@@ -508,7 +508,7 @@ build() {
     fi
 
     cerbero/cerbero-uninstalled -c cerbero/config/cross-android-universal.cbc build \
-      gstreamer-1.0 libxml2 libtasn1 pixman libsoup nettle gnutls openssl cairo json-glib gst-android-1.0 gst-plugins-bad-1.0 gst-plugins-good-1.0 gst-plugins-base-1.0 gst-plugins-ugly-1.0
+      gstreamer-1.0 libxml2 libtasn1 pixman libsoup nettle gnutls openssl cairo json-glib gst-android-1.0 gst-plugins-bad-1.0 gst-plugins-good-1.0 gst-plugins-base-1.0 gst-plugins-ugly-1.0 gst-libav-1.0
 
     # Workaround for non-existent lib-pthread.la dpendency snaking its way into some of the libraries.
     sed -i 's/[^ ]*lib-pthread.la//' cerbero/build/dist/android_universal/*/lib/*la
