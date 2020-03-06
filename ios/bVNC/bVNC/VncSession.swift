@@ -106,17 +106,20 @@ class VncSession {
         self.stateKeeper = stateKeeper
         self.window = window
         globalStateKeeper = stateKeeper
-        let disconnectButton = UIButton(frame: CGRect(x: 100, y: 10, width: 100, height: 50))
-        disconnectButton.setTitle("Disconnect", for: [])
+        let disconnectButton = UIButton(frame: CGRect(x: 100, y: 20, width: 20, height: 20))
+        disconnectButton.setTitle("D", for: [])
+        disconnectButton.backgroundColor = UIColor(red: 100/255, green: 100/255, blue: 100/255, alpha: 0.3)
         disconnectButton.addTarget(globalStateKeeper, action: #selector(globalStateKeeper?.disconnect), for: .touchUpInside)
         globalDisconnectButton = disconnectButton
-        let keyboardButton = CustomTextInput(frame: CGRect(x: 200, y: 10, width: 100, height: 50))
-        keyboardButton.setTitle("Show Kbd", for: [])
+        let keyboardButton = CustomTextInput(frame: CGRect(x: 130, y: 20, width: 20, height: 20))
+        keyboardButton.setTitle("K", for: [])
+        keyboardButton.backgroundColor = UIColor(red: 100/255, green: 100/255, blue: 100/255, alpha: 0.3)
         keyboardButton.addTarget(globalKeyboardButton, action: #selector(globalKeyboardButton?.becomeFirstResponder), for: .touchUpInside)
         globalKeyboardButton = keyboardButton
 
-        let hideKeyboardButton = UIButton(frame: CGRect(x: 300, y: 10, width: 100, height: 50))
-        hideKeyboardButton.setTitle("Hide Kbd", for: [])
+        let hideKeyboardButton = UIButton(frame: CGRect(x: 160, y: 20, width: 20, height: 20))
+        hideKeyboardButton.setTitle("H", for: [])
+        hideKeyboardButton.backgroundColor = UIColor(red: 100/255, green: 100/255, blue: 100/255, alpha: 0.3)
         hideKeyboardButton.addTarget(globalKeyboardButton, action: #selector(globalKeyboardButton?.resignFirstResponder), for: .touchUpInside)
         globalHideKeyboardButton = hideKeyboardButton
     }
