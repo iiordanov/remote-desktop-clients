@@ -8,6 +8,7 @@
 
 #include <pthread/pthread.h>
 #include "VncBridge.h"
+#include "ucs2xkeysym.h"
 
 char* HOST_AND_PORT = NULL;
 char* USERNAME = NULL;
@@ -200,7 +201,7 @@ void sendKeyEvent(const unsigned char *c) {
     if (sym == 10) {
         sym = 0xff0d;
     }
-    printf("Converted to %d xkeysym: %d\n", (int)*c, sym);
+    printf("Converted %d to xkeysym: %d\n", (int)*c, sym);
     sendKeyEventWithKeySym(sym);
 }
 

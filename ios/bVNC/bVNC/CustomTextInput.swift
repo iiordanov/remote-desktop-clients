@@ -30,20 +30,25 @@ extension String {
 
 class CustomTextInput: UIButton, UIKeyInput{
     public var hasText: Bool { return false }
-    public func insertText(_ text: String){
-        print(#function)
-        print(text)
-        print(text.count)
+    let lock = NSLock()
 
-        Background {
-            sendKeyEvent(text.toPointer());
+    public func insertText(_ text: String){
+        print("Sending: " + text + ", number of characters: " + String(text.count))
+        for char in text {
+            Background {
+                self.lock.lock()
+                sendKeyEvent(String(char).toPointer());
+                self.lock.unlock()
+            }
         }
     }
     public func deleteBackward(){
         print(#function)
 
         Background {
+            self.lock.lock()
             sendKeyEventWithKeySym(0xff08);
+            self.lock.unlock()
         }
     }
     
