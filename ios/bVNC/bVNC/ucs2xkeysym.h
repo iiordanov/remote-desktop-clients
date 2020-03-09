@@ -39,8 +39,9 @@
 #define ucs2xkeysym_h
 
 #include <stdio.h>
+#include <string.h>
 
-int ucs2keysym (const unsigned char *c);
+int ucs2keysym (int ucs);
 long keysym2ucs(long keysym);
 
 #endif /* ucs2xkeysym_h */

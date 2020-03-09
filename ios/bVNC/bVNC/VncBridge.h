@@ -21,6 +21,7 @@ void (*framebuffer_update_callback)(uint8_t *, int fbW, int fbH, int x, int y, i
 void (*framebuffer_resize_callback)(int fbW, int fbH);
 void (*failure_callback)(void);
 void sendKeyEvent(const unsigned char *c);
+bool sendKeyEventInt(int c);
 void sendKeyEventWithKeySym(int c);
 void sendPointerEventToServer(int totalX, int totalY, int x, int y, bool firstDown, bool secondDown, bool thirdDown, bool scrollUp, bool scrollDown);
 void checkForError(rfbBool res);

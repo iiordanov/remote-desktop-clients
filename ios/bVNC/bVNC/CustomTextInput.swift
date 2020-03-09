@@ -33,11 +33,13 @@ class CustomTextInput: UIButton, UIKeyInput{
     let lock = NSLock()
 
     public func insertText(_ text: String){
-        print("Sending: " + text + ", number of characters: " + String(text.count))
-        for char in text {
+        //print("Sending: " + text + ", number of characters: " + String(text.count))
+        for char in text.unicodeScalars {
             Background {
                 self.lock.lock()
-                sendKeyEvent(String(char).toPointer());
+                if !sendKeyEventInt(Int32(String(char.value))!) {
+                    sendKeyEvent(String(char))
+                }
                 self.lock.unlock()
             }
         }
