@@ -39,10 +39,10 @@ extension UIImage {
 
 func failure_callback() -> Void {
     UserInterface {
-        globalImageView!.disableTouch()
+        globalImageView?.disableTouch()
         print("We were told to quit by the native library.")
         let contentView = ContentView(stateKeeper: globalStateKeeper!)
-        globalWindow!.rootViewController = UIHostingController(rootView: contentView)
+        globalWindow?.rootViewController = UIHostingController(rootView: contentView)
         globalStateKeeper!.currentPage = "page1"
     }
 }
@@ -71,7 +71,10 @@ func update_callback(data: UnsafeMutablePointer<UInt8>?, fbW: Int32, fbH: Int32,
         }
     }
 }
-
+// This is awesome!!!
+/*
+£¥
+ */
 func imageFromARGB32Bitmap(pixels: UnsafeMutablePointer<UInt8>?, withWidth: Int, withHeight: Int) -> CGImage? {
     guard withWidth > 0 && withHeight > 0 else { return nil }
     let colorSpace = CGColorSpaceCreateDeviceRGB()

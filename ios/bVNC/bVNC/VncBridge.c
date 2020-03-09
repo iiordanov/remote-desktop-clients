@@ -171,7 +171,7 @@ void cleanup(char *message, rfbClient *client) {
 }
 
 // TODO: Replace with real conversion table
-struct { char mask; int bits_stored; } utf8Mapping[]= {
+struct { char mask; int bits_stored; } utf8Mapping[] = {
         {0b00111111, 6},
         {0b01111111, 7},
         {0b00011111, 5},
@@ -183,6 +183,8 @@ struct { char mask; int bits_stored; } utf8Mapping[]= {
 /* UTF-8 decoding is from https://rosettacode.org/wiki/UTF-8_encode_and_decode which is under GFDL 1.2 */
 static rfbKeySym utf8char2rfbKeySym(const char chr[4]) {
         int bytes = (int)strlen(chr);
+        //printf("Number of bytes in %s: %d\n", chr, bytes);
+
         int shift = utf8Mapping[0].bits_stored * (bytes - 1);
         rfbKeySym codep = (*chr++ & utf8Mapping[bytes].mask) << shift;
         int i;
@@ -190,6 +192,7 @@ static rfbKeySym utf8char2rfbKeySym(const char chr[4]) {
                 shift -= utf8Mapping[0].bits_stored;
                 codep |= ((char)*chr & utf8Mapping[0].mask) << shift;
         }
+        //printf("%s converted to %#06x\n", chr, codep);
         return codep;
 }
 
@@ -198,19 +201,31 @@ void sendKeyEvent(const unsigned char *c) {
         return;
     }
     rfbKeySym sym = utf8char2rfbKeySym(c);
-    if (sym == 10) {
-        sym = 0xff0d;
-    }
-    printf("Converted %d to xkeysym: %d\n", (int)*c, sym);
+    //printf("sendKeyEvent converted %#06x to xkeysym: %#06x\n", (int)*c, sym);
     sendKeyEventWithKeySym(sym);
 }
+
+bool sendKeyEventInt(int c) {
+    if (!maintainConnection) {
+        return false;
+    }
+    rfbKeySym sym = ucs2keysym(c);
+    if (sym == -1) {
+        return false;
+    }
+    //printf("sendKeyEventInt converted %#06x to xkeysym: %#06x\n", c, sym);
+    sendKeyEventWithKeySym(sym);
+    return true;
+}
+
+
 
 void sendKeyEventWithKeySym(int sym) {
     if (!maintainConnection) {
         return;
     }
     if (cl != NULL) {
-        printf("Sending xkeysym: %d\n", sym);
+        //printf("Sending xkeysym: %#06x\n", sym);
         checkForError(SendKeyEvent(cl, sym, TRUE));
         checkForError(SendKeyEvent(cl, sym, FALSE));
     } else {
