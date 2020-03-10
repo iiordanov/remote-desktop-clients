@@ -21,7 +21,6 @@ extension String {
     data.withUnsafeBytes({ (p: UnsafePointer<UInt8>) -> Void in
       stream.write(p, maxLength: data.count)
     })
-
     stream.close()
 
     return UnsafePointer<UInt8>(buffer)
@@ -44,9 +43,9 @@ class CustomTextInput: UIButton, UIKeyInput{
             }
         }
     }
+    
     public func deleteBackward(){
-        print(#function)
-
+        //print(#function)
         Background {
             self.lock.lock()
             sendKeyEventWithKeySym(0xff08);
@@ -54,21 +53,18 @@ class CustomTextInput: UIButton, UIKeyInput{
         }
     }
     
-    override func becomeFirstResponder() -> Bool {
-        if (!self.isFirstResponder) {
-            print("Trying to show keyboard.")
-            return super.becomeFirstResponder()
+    @objc func toggleFirstResponder() -> Bool {
+        if (self.isFirstResponder) {
+            print("Keyboard should be showing already, hiding it.")
+            becomeFirstResponder()
+            return resignFirstResponder()
         } else {
-            print("Keyboard should be showing already, not attempting to show it.")
+            print("Showing keyboard.")
+            return becomeFirstResponder()
         }
-        return true;
     }
     
-    override func resignFirstResponder() -> Bool {
-        print("Trying to hide keyboard.")
-        super.becomeFirstResponder()
-        return super.resignFirstResponder()
+    override var canBecomeFirstResponder: Bool {
+        return true
     }
-
-    override var canBecomeFirstResponder: Bool {return true}
 }

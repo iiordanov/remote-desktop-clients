@@ -24,7 +24,6 @@ var globalImageView: TouchEnabledUIImageView?
 var globalStateKeeper: StateKeeper?
 var globalDisconnectButton: UIButton?
 var globalKeyboardButton: CustomTextInput?
-var globalHideKeyboardButton: UIButton?
 
 extension UIImage {
     func image(byDrawingImage image: UIImage, inRect rect: CGRect) -> UIImage! {
@@ -59,7 +58,6 @@ func resize_callback(fbW: Int32, fbH: Int32) -> Void {
         globalWindow!.addSubview(globalImageView!)
         globalWindow!.addSubview(globalDisconnectButton!)
         globalWindow!.addSubview(globalKeyboardButton!)
-        globalWindow!.addSubview(globalHideKeyboardButton!)
     }
 }
 
@@ -117,14 +115,8 @@ class VncSession {
         let keyboardButton = CustomTextInput(frame: CGRect(x: 130, y: 20, width: 20, height: 20))
         keyboardButton.setTitle("K", for: [])
         keyboardButton.backgroundColor = UIColor(red: 100/255, green: 100/255, blue: 100/255, alpha: 0.3)
-        keyboardButton.addTarget(globalKeyboardButton, action: #selector(globalKeyboardButton?.becomeFirstResponder), for: .touchUpInside)
+        keyboardButton.addTarget(globalKeyboardButton, action: #selector(globalKeyboardButton?.toggleFirstResponder), for: .touchUpInside)
         globalKeyboardButton = keyboardButton
-
-        let hideKeyboardButton = UIButton(frame: CGRect(x: 160, y: 20, width: 20, height: 20))
-        hideKeyboardButton.setTitle("H", for: [])
-        hideKeyboardButton.backgroundColor = UIColor(red: 100/255, green: 100/255, blue: 100/255, alpha: 0.3)
-        hideKeyboardButton.addTarget(globalKeyboardButton, action: #selector(globalKeyboardButton?.resignFirstResponder), for: .touchUpInside)
-        globalHideKeyboardButton = hideKeyboardButton
     }
     
     func captureScreen(window: UIWindow) -> UIImage {
