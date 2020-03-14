@@ -11,6 +11,7 @@
 
 #include <stdio.h>
 #include "rfb/rfbclient.h"
+#include "SshPortForwarder.h"
 
 bool getMaintainConnection(void);
 void connectVnc(void (*callback)(uint8_t *, int fbW, int fbH, int x, int y, int w, int h),
