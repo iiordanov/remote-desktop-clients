@@ -6,7 +6,7 @@ shift
 if [ -z "${DEVELOPMENT_TEAM}" ]
 then
   echo "Pass your development team from https://developer.apple.com/account/#/membership/ as the first argument."
-  echo "$0 123456789A [Debug|Release]"
+  echo "$0 123456789A [Debug|Release] [clean]"
   exit 1
 fi
 
@@ -31,13 +31,26 @@ if git clone https://github.com/x2on/OpenSSL-for-iPhone.git
 then
   pushd OpenSSL-for-iPhone
   patch -p1 < ../01_openssl.patch
-  ./build-libssl.sh --version=1.1.1d
+  ./build-libssl.sh --deprecated --version=1.1.1d
   patch -p1 < ../02_openssl.patch
   patch -p1 < ../03_openssl.patch
   popd
 else
   echo "Found OpenSSL-for-iPhone directory, assuming it is built, please remove with 'rm -rf OpenSSL-for-iPhone' to rebuild"
 fi
+
+# Clone and build libssh2
+if git clone https://github.com/Frugghi/iSSH2.git
+then
+  pushd iSSH2
+  ./iSSH2.sh --platform=iphoneos --min-version=12.0
+  popd
+else
+  echo "Found libssh2 directory, assuming it is built, please remove with 'rm -rf iSSH2' to rebuild"
+fi
+
+# Copy SSH libs and header files to project
+rsync -avP iSSH2/libssh2_iphoneos/ ./bVNC.xcodeproj/libs_combined/
 
 if git clone https://github.com/LibVNC/libvncserver.git
 then

@@ -9,6 +9,7 @@
 #include <pthread/pthread.h>
 #include "VncBridge.h"
 #include "ucs2xkeysym.h"
+#include "SshPortForwarder.h"
 
 char* HOST_AND_PORT = NULL;
 char* USERNAME = NULL;
@@ -98,7 +99,7 @@ void connectVnc(void (*callback)(uint8_t *, int fbW, int fbH, int x, int y, int 
                 char* addr, char* user, char* password, char* ca_path) {
     printf("Setting up connection.\n");
     maintainConnection = true;
-    
+        
     HOST_AND_PORT = addr;
     USERNAME = user;
     PASSWORD = password;
@@ -118,7 +119,7 @@ void connectVnc(void (*callback)(uint8_t *, int fbW, int fbH, int x, int y, int 
     char **argv = (char**)malloc(argc*sizeof(char*));
     int i = 0;
     for (i = 0; i < argc; i++) {
-        printf("%d\n", i);
+        //printf("%d\n", i);
         argv[i] = (char*)malloc(256*sizeof(char));
     }
     strcpy(argv[0], "dummy");

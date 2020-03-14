@@ -107,12 +107,12 @@ class VncSession {
         self.stateKeeper = stateKeeper
         self.window = window
         globalStateKeeper = stateKeeper
-        let disconnectButton = UIButton(frame: CGRect(x: 100, y: 20, width: 20, height: 20))
+        let disconnectButton = UIButton(frame: CGRect(x: 100, y: 20, width: 40, height: 40))
         disconnectButton.setTitle("D", for: [])
         disconnectButton.backgroundColor = UIColor(red: 100/255, green: 100/255, blue: 100/255, alpha: 0.3)
         disconnectButton.addTarget(globalStateKeeper, action: #selector(globalStateKeeper?.disconnect), for: .touchUpInside)
         globalDisconnectButton = disconnectButton
-        let keyboardButton = CustomTextInput(frame: CGRect(x: 130, y: 20, width: 20, height: 20))
+        let keyboardButton = CustomTextInput(frame: CGRect(x: 150, y: 20, width: 40, height: 40))
         keyboardButton.setTitle("K", for: [])
         keyboardButton.backgroundColor = UIColor(red: 100/255, green: 100/255, blue: 100/255, alpha: 0.3)
         keyboardButton.addTarget(globalKeyboardButton, action: #selector(globalKeyboardButton?.toggleFirstResponder), for: .touchUpInside)
@@ -151,8 +151,24 @@ class VncSession {
         let cert = connectionSettings.cert!
         // TODO: Write out CA to a file.
 
+        /*
         Background {
-            print("Connecting in the background...")
+            print("Setting up SSH forwarding")
+            setupSshPortForward(
+                UnsafeMutablePointer<Int8>(mutating: ("host_ip" as NSString).utf8String),
+                UnsafeMutablePointer<Int8>(mutating: ("user" as NSString).utf8String),
+                UnsafeMutablePointer<Int8>(mutating: ("password" as NSString).utf8String),
+                UnsafeMutablePointer<Int8>(mutating: ("127.0.0.1" as NSString).utf8String),
+                UnsafeMutablePointer<Int8>(mutating: ("61234" as NSString).utf8String),
+                UnsafeMutablePointer<Int8>(mutating: ("127.0.0.1" as NSString).utf8String),
+                UnsafeMutablePointer<Int8>(mutating: ("5900" as NSString).utf8String))
+        }*/
+        
+        //TODO: Figure out resolution of hostnames for SSH tunneling.
+        //TODO: Wait for SSH tunnel to be established before continuing if SSH tunneling is enabled.
+
+        Background {
+            print("Connecting VNC Session in the background...")
             connectVnc(update_callback, resize_callback, failure_callback,
                        UnsafeMutablePointer<Int8>(mutating: (addressAndPort as NSString).utf8String),
                        UnsafeMutablePointer<Int8>(mutating: (user as NSString).utf8String),
