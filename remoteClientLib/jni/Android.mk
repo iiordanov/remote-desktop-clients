@@ -83,7 +83,7 @@ GSTREAMER_ROOT		  := $(LOCAL_PATH)/$(COMMON_ROOT)/gstreamer
 GSTREAMER_NDK_BUILD_PATH  := $(GSTREAMER_ROOT)/share/gst-android/ndk-build/
 GSTREAMER_JAVA_SRC_DIR	  := java
 include $(GSTREAMER_NDK_BUILD_PATH)/plugins.mk
-GSTREAMER_PLUGINS         := $(GSTREAMER_PLUGINS_CORE) $(GSTREAMER_PLUGINS_SYS)
+GSTREAMER_PLUGINS         := $(GSTREAMER_PLUGINS_CORE) $(GSTREAMER_PLUGINS_SYS) # TODO: test with additional codecs: $(GSTREAMER_PLUGINS_CODECS) $(GSTREAMER_PLUGINS_CODECS_GPL) $(GSTREAMER_PLUGINS_CODECS_RESTRICTED) $(GSTREAMER_PLUGINS_ENCODING) $(GSTREAMER_PLUGINS_PLAYBACK)
 G_IO_MODULES              := gnutls
 GSTREAMER_EXTRA_DEPS      := pixman-1 gstreamer-app-1.0 libsoup-2.4 libxml-2.0 glib-2.0 gthread-2.0 gobject-2.0 libjpeg openssl libssl gnutls
 include $(GSTREAMER_NDK_BUILD_PATH)/gstreamer-1.0.mk
@@ -106,14 +106,14 @@ LOCAL_C_INCLUDES += \
 
 LOCAL_SRC_FILES := virt-viewer/virt-viewer-file.c virt-viewer/virt-viewer-util.c \
                    android/android-service.c android/android-spicy.c android/android-spice-widget.c \
-                   android/android-io.c
+                   android/android-io.c android/dummy.cpp
 
 LOCAL_LDLIBS 	+= -ljnigraphics -llog
 
 LOCAL_CPPFLAGS  += -DG_LOG_DOMAIN=\"android-spice\"
 
 LOCAL_CFLAGS 	:=  $(LOCAL_CPPFLAGS) \
-                   -std=gnu99 -Wall -Wno-int-to-pointer-cast -Wno-pointer-to-int-cast -Wl,--no-undefined \
+                   -Wall -Wno-int-to-pointer-cast -Wno-pointer-to-int-cast -Wl,--no-undefined \
                    -O3 -funroll-loops
 
 LOCAL_LDFLAGS   += -fuse-ld=bfd
