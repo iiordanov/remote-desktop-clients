@@ -96,18 +96,19 @@ then
   rm AndroidManifest.xml
   cp AndroidManifest.xml.${CUSTOM_MANIFEST_EXTENSION} AndroidManifest.xml
 
-  sed -i "s/__CUSTOM_APP_PACKAGE__/$PRJ/" AndroidManifest.xml
+  sed -i.bakautocustom "s/__CUSTOM_APP_PACKAGE__/$PRJ/" AndroidManifest.xml
 
   rm -rf src2/main/java/com/iiordanov/$PRJ
   cp -a src2/main/java/com/iiordanov/CustomClientPackage src2/main/java/com/iiordanov/$PRJ
-  sed -i "s/package com.iiordanov.CustomClientPackage/package com.iiordanov.$PRJ/" src2/main/java/com/iiordanov/$PRJ/*
+  sed -i.bakautocustom "s/package com.iiordanov.CustomClientPackage/package com.iiordanov.$PRJ/" src2/main/java/com/iiordanov/$PRJ/*
 
-  find src2/main/java/com/iiordanov -name \*.java -exec sed -i "s/com\.iiordanov\.CustomClientPackage\.\(.*\)/com\.iiordanov\.$PRJ\.\1 \/\/CUSTOM_CLIENT_IMPORTS/" {} \;
+  find src2/main/java/com/iiordanov -name \*.java -exec sed -i.bakautocustom "s/com\.iiordanov\.CustomClientPackage\.\(.*\)/com\.iiordanov\.$PRJ\.\1 \/\/CUSTOM_CLIENT_IMPORTS/" {} \;
 else
   ln -sf AndroidManifest.xml.$PRJ AndroidManifest.xml
-  find src2/main/java/com/iiordanov -name \*.java -exec sed -i "s/import.*CUSTOM_CLIENT_IMPORTS/import com\.iiordanov\.CustomClientPackage\.\*;/" {} \;
-  find src2/main/java/com/iiordanov -name \*.java -exec sed -i "s/package.*CUSTOM_CLIENT_IMPORTS/package com\.iiordanov\.CustomClientPackage;/" {} \;
+  find src2/main/java/com/iiordanov -name \*.java -exec sed -i.bakautocustom "s/import.*CUSTOM_CLIENT_IMPORTS/import com\.iiordanov\.CustomClientPackage\.\*;/" {} \;
+  find src2/main/java/com/iiordanov -name \*.java -exec sed -i.bakautocustom "s/package.*CUSTOM_CLIENT_IMPORTS/package com\.iiordanov\.CustomClientPackage;/" {} \;
 fi
+find src2/main/java/com/iiordanov -name \*.bakautocustom -exec rm {} \;
 
 if [ "$SKIP_BUILD" == "false" ]
 then
