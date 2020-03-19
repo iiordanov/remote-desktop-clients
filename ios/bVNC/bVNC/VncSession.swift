@@ -60,12 +60,28 @@ func failure_callback() -> Void {
     }
 }
 
+/**
+ *
+ * @return The smallest scale supported by the implementation; the scale at which
+ * the bitmap would be smaller than the screen
+ */
+func getMinimumScale(fbW: CGFloat, fbH: CGFloat) -> CGFloat {
+    return min(globalWindow!.bounds.maxX / fbW, globalWindow!.bounds.maxY / fbH);
+}
+
+func widthRatioLessThanHeightRatio(fbW: CGFloat, fbH: CGFloat) -> Bool {
+    return globalWindow!.bounds.maxX / fbW < globalWindow!.bounds.maxY / fbH;
+}
+
+
 func resize_callback(fbW: Int32, fbH: Int32) -> Void {
     UserInterface {
+        let minScale = getMinimumScale(fbW: CGFloat(fbW), fbH: CGFloat(fbH))
+        
         globalWindow!.rootViewController = UIHostingController(rootView: globalContentView)
         globalWindow!.makeKeyAndVisible()
         globalImageView = TouchEnabledUIImageView(frame: CGRect(x: 0, y: 0, width: Int(fbW), height: Int(fbH)))
-        globalImageView!.frame = globalWindow!.bounds
+        globalImageView!.frame = CGRect(x: 0, y: 0, width: CGFloat(fbW)*minScale, height: CGFloat(fbH)*minScale)
         globalImageView!.enableGestures()
         globalImageView!.enableTouch()
         globalStateKeeper?.setImageView(imageView: globalImageView!)
@@ -83,10 +99,7 @@ func update_callback(data: UnsafeMutablePointer<UInt8>?, fbW: Int32, fbH: Int32,
         }
     }
 }
-// This is awesome!!!
-/*
-£¥
- */
+
 func imageFromARGB32Bitmap(pixels: UnsafeMutablePointer<UInt8>?, withWidth: Int, withHeight: Int) -> CGImage? {
     guard withWidth > 0 && withHeight > 0 else { return nil }
     let colorSpace = CGColorSpaceCreateDeviceRGB()
