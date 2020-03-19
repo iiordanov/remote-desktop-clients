@@ -8,6 +8,7 @@
 
 #include "SshPortForwarder.h"
 
+#include <netdb.h>'
 #include <libssh2.h>
 
 #ifdef WIN32
@@ -58,14 +59,22 @@ enum {
     AUTH_PUBLICKEY
 };
 
-void setupSshPortForward(char* host, char* user, char* password, char* local_ip, char* local_port, char* remote_ip, char* remote_port) {
+void setupSshPortForward(void (*ssh_forward_success)(void), void (*ssh_forward_failure)(void), char* host, char* user, char* password, char* local_ip, char* local_port, char* remote_ip, char* remote_port) {
     char **argv = (char**)malloc(9*sizeof(char*));
     int i = 0;
+    
+    char host_ip[256];
+    if (resolve_host_to_ip(host , host_ip) != 0) {
+        printf("Unable to resolve %s to an IP\n", host);
+        ssh_forward_failure();
+        return;
+    }
+    
     for (i = 0; i < 9; i++) {
         argv[i] = (char*)malloc(256*sizeof(char));
     }
     strcpy(argv[0], "dummy");
-    strcpy(argv[1], host);
+    strcpy(argv[1], host_ip);
     strcpy(argv[2], user);
     strcpy(argv[3], password);
     strcpy(argv[4], local_ip);
@@ -73,11 +82,43 @@ void setupSshPortForward(char* host, char* user, char* password, char* local_ip,
     strcpy(argv[6], remote_ip);
     strcpy(argv[7], remote_port);
 
-    int res = startForwarding(8, argv);
+    int res = startForwarding(8, argv, ssh_forward_success);
     printf ("Result of SSH forwarding: %d\n", res);
+    ssh_forward_success();
 }
 
-int startForwarding(int argc, char *argv[])
+int resolve_host_to_ip(char *hostname , char* ip) {
+    struct hostent *he;
+    struct in_addr **addr_list;
+    int i;
+    
+    struct sockaddr_in sa;
+    if (inet_pton(AF_INET, hostname, &(sa.sin_addr)) != 0) {
+        // This is already an ip address
+        printf("Specified hostname %s is already an IP address\n", hostname);
+        strcpy(ip, hostname);
+        return 0;
+    }
+    
+    if ((he = gethostbyname(hostname) ) == NULL) {
+        printf("Error calling gethostbyname for %s\n", hostname);
+        herror("gethostbyname");
+        return 1;
+    }
+
+    addr_list = (struct in_addr **) he->h_addr_list;
+    
+    for(i = 0; addr_list[i] != NULL; i++) {
+        strcpy(ip, inet_ntoa(*addr_list[i]));
+        printf("Successfully resolved hostname %s to IP %s\n", hostname, ip);
+        return 0;
+    }
+    
+    printf("Unable to resolve hostname %s\n", hostname);
+    return 1;
+}
+
+int startForwarding(int argc, char *argv[], void (*ssh_forward_success)(void))
 {
     int rc, i, auth = AUTH_NONE;
     struct sockaddr_in sin;
@@ -258,6 +299,7 @@ int startForwarding(int argc, char *argv[])
         goto shutdown;
     }
 
+    ssh_forward_success();
     fprintf(stderr, "Waiting for TCP connection on %s:%d...\n",
         inet_ntoa(sin.sin_addr), ntohs(sin.sin_port));
 

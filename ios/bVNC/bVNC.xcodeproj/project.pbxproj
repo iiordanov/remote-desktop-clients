@@ -551,7 +551,6 @@
 				AF043A1E23B3DADB00C43ED7 /* Assets.xcassets */,
 				AF043A2323B3DADB00C43ED7 /* LaunchScreen.storyboard */,
 				AF043A2623B3DADB00C43ED7 /* Info.plist */,
-				AF043A2023B3DADB00C43ED7 /* Preview Content */,
 				AF48283023B47EC300826395 /* VncBridge.h */,
 				AF48283123B47EC300826395 /* VncBridge.c */,
 				AF51B2FE2410BAED005DE8AB /* ucs2xkeysym.h */,
@@ -561,6 +560,7 @@
 				AF53DCB22402391600569F19 /* StateKeeper.swift */,
 				AF53DCB424024B2900569F19 /* ConnectionSettings.swift */,
 				AF7421F2241D58EB00C552A7 /* SshPortForwarder.h */,
+				AF043A2023B3DADB00C43ED7 /* Preview Content */,
 				AF7421F3241D58EB00C552A7 /* SshPortForwarder.c */,
 			);
 			path = bVNC;
