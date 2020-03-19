@@ -9,6 +9,11 @@
 import Foundation
 
 class ConnectionSettings {
+    let sshAddress: String?
+    let sshPort: String?
+    let sshUser: String?
+    let sshPass: String?
+    
     let address: String?
     let port: String?
     let username: String?
@@ -16,6 +21,11 @@ class ConnectionSettings {
     let cert: String?
     
     init() {
+        self.sshAddress = nil
+        self.sshPort = nil
+        self.sshUser = nil
+        self.sshPass = nil
+        
         self.address = nil
         self.port = nil
         self.username = nil
@@ -23,7 +33,12 @@ class ConnectionSettings {
         self.cert = nil
     }
     
-    init(address: String, port: String, username: String, password: String, cert: String) {
+    init(sshAddress: String, sshPort: String, sshUser: String, sshPass: String, address: String, port: String, username: String, password: String, cert: String) {
+        self.sshAddress = sshAddress
+        self.sshPort = sshPort
+        self.sshUser = sshUser
+        self.sshPass = sshPass
+        
         self.address = address
         self.port = port
         self.username = username

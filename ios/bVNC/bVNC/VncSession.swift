@@ -24,6 +24,20 @@ var globalImageView: TouchEnabledUIImageView?
 var globalStateKeeper: StateKeeper?
 var globalDisconnectButton: UIButton?
 var globalKeyboardButton: CustomTextInput?
+var sshForwardingLock: NSLock = NSLock()
+var sshForwardingStatus: Bool = false
+
+func ssh_forward_success() -> Void {
+    print("SSH library is telling us we can proceed with the VNC connection")
+    sshForwardingStatus = true
+    sshForwardingLock.unlock()
+}
+
+func ssh_forward_failure() -> Void {
+    print("SSH library is telling us it failed to set up SSH forwarding")
+    sshForwardingStatus = false
+    sshForwardingLock.unlock()
+}
 
 extension UIImage {
     func image(byDrawingImage image: UIImage, inRect rect: CGRect) -> UIImage! {
@@ -39,7 +53,7 @@ extension UIImage {
 func failure_callback() -> Void {
     UserInterface {
         globalImageView?.disableTouch()
-        print("We were told to quit by the native library.")
+        print("Connection failure, going back to connection setup screen.")
         let contentView = ContentView(stateKeeper: globalStateKeeper!)
         globalWindow?.rootViewController = UIHostingController(rootView: contentView)
         globalStateKeeper!.currentPage = "page1"
@@ -139,41 +153,74 @@ class VncSession {
             globalScene = windowScene
             globalWindow = window
         }
-        
+
         // Print out contents of CA file added for testing.
         let ca_path = Bundle.main.path(forResource: "ca", ofType: "pem")
         print("Contents of ca.pem file built into the package:")
         print(loadTextFile(path: ca_path!))
 
-        let addressAndPort = connectionSettings.address! + ":" + connectionSettings.port!
+        let sshAddress = connectionSettings.sshAddress!
+        let sshPort = connectionSettings.sshPort!
+        let sshUser = connectionSettings.sshUser!
+        let sshPass = connectionSettings.sshPass!
+        let vncPort = connectionSettings.port!
+        let vncAddress = connectionSettings.address!
+        let sshForwardPort = String(arc4random_uniform(30000) + 30000)
+        
+        var addressAndPort = vncAddress + ":" + vncPort
+
+        if sshAddress != "" {
+            Background {
+                sshForwardingLock.unlock()
+                sshForwardingLock.lock()
+                print("Setting up SSH forwarding")
+                setupSshPortForward(
+                    ssh_forward_success,
+                    ssh_forward_failure,
+                    UnsafeMutablePointer<Int8>(mutating: (sshAddress as NSString).utf8String),
+                    UnsafeMutablePointer<Int8>(mutating: (sshUser as NSString).utf8String),
+                    UnsafeMutablePointer<Int8>(mutating: (sshPass as NSString).utf8String),
+                    UnsafeMutablePointer<Int8>(mutating: ("127.0.0.1" as NSString).utf8String),
+                    UnsafeMutablePointer<Int8>(mutating: (sshForwardPort as NSString).utf8String),
+                    UnsafeMutablePointer<Int8>(mutating: (vncAddress as NSString).utf8String),
+                    UnsafeMutablePointer<Int8>(mutating: (vncPort as NSString).utf8String))
+            }
+            addressAndPort = "127.0.0.1" + ":" + sshForwardPort
+        }
+        
         let user = connectionSettings.username!
         let pass = connectionSettings.password!
-        let cert = connectionSettings.cert!
         // TODO: Write out CA to a file.
-
-        /*
-        Background {
-            print("Setting up SSH forwarding")
-            setupSshPortForward(
-                UnsafeMutablePointer<Int8>(mutating: ("host_ip" as NSString).utf8String),
-                UnsafeMutablePointer<Int8>(mutating: ("user" as NSString).utf8String),
-                UnsafeMutablePointer<Int8>(mutating: ("password" as NSString).utf8String),
-                UnsafeMutablePointer<Int8>(mutating: ("127.0.0.1" as NSString).utf8String),
-                UnsafeMutablePointer<Int8>(mutating: ("61234" as NSString).utf8String),
-                UnsafeMutablePointer<Int8>(mutating: ("127.0.0.1" as NSString).utf8String),
-                UnsafeMutablePointer<Int8>(mutating: ("5900" as NSString).utf8String))
-        }*/
-        
-        //TODO: Figure out resolution of hostnames for SSH tunneling.
-        //TODO: Wait for SSH tunnel to be established before continuing if SSH tunneling is enabled.
+        let cert = connectionSettings.cert!
 
         Background {
-            print("Connecting VNC Session in the background...")
-            connectVnc(update_callback, resize_callback, failure_callback,
-                       UnsafeMutablePointer<Int8>(mutating: (addressAndPort as NSString).utf8String),
-                       UnsafeMutablePointer<Int8>(mutating: (user as NSString).utf8String),
-                       UnsafeMutablePointer<Int8>(mutating: (pass as NSString).utf8String),
-                       UnsafeMutablePointer<Int8>(mutating: (ca_path as! NSString).utf8String))
+            print("Waiting for SSH forwarding to complete successfully")
+            var continueConnecting = true
+            if sshAddress != "" {
+                // Wait for SSH Tunnel to be established for 15 seconds
+                continueConnecting = sshForwardingLock.lock(before: Date(timeIntervalSinceNow: 15))
+                if !continueConnecting {
+                    print("Timeout establishing SSH Tunnel")
+                } else if (sshForwardingStatus != true) {
+                    print("Failed to establish SSH Tunnel")
+                    continueConnecting = false
+                } else {
+                    print("SSH Tunnel indicated to be successful")
+                    sshForwardingLock.unlock()
+                }
+            }
+            if continueConnecting {
+                print("Connecting VNC Session in the background...")
+                connectVnc(update_callback, resize_callback, failure_callback,
+                           UnsafeMutablePointer<Int8>(mutating: (addressAndPort as NSString).utf8String),
+                           UnsafeMutablePointer<Int8>(mutating: (user as NSString).utf8String),
+                           UnsafeMutablePointer<Int8>(mutating: (pass as NSString).utf8String),
+                           UnsafeMutablePointer<Int8>(mutating: (ca_path as! NSString).utf8String))
+            } else {
+                print("Something went wrong, not connecting to VNC server.")
+                failure_callback()
+                // TODO: Show error to user.
+            }
         }
     }
     
