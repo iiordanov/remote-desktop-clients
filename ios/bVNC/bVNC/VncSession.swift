@@ -66,7 +66,7 @@ func failure_callback() -> Void {
         print("Connection failure, going back to connection setup screen.")
         let contentView = ContentView(stateKeeper: globalStateKeeper!)
         globalWindow?.rootViewController = UIHostingController(rootView: contentView)
-        globalStateKeeper!.currentPage = "page1"
+        globalStateKeeper!.showConnections()
     }
 }
 

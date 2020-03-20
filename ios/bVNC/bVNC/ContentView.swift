@@ -16,24 +16,95 @@ struct ContentView : View {
     
     var body: some View {
         VStack {
-            if stateKeeper.currentPage == "page1" {
+            if stateKeeper.currentPage == "page0" {
+                ConnectionsList(stateKeeper: stateKeeper)
+            } else if stateKeeper.currentPage == "page1" {
                 ContentViewA(
                      stateKeeper: stateKeeper,
-                     sshAddressText: stateKeeper.currentConnection["sshAddress"] ?? "",
-                     sshPortText: stateKeeper.currentConnection["sshPort"] ?? "22",
-                     sshUserText: stateKeeper.currentConnection["sshUser"] ?? "",
-                     sshPassText: stateKeeper.currentConnection["sshPass"] ?? "",
-                     addressText: stateKeeper.currentConnection["address"] ?? "",
-                     portText: stateKeeper.currentConnection["port"] ?? "5900",
-                     usernameText: stateKeeper.currentConnection["username"] ?? "",
-                     passwordText: stateKeeper.currentConnection["password"] ?? "",
-                     certText: stateKeeper.currentConnection["cert"] ?? "")
+                     sshAddressText: stateKeeper.selectedConnection["sshAddress"] ?? "",
+                     sshPortText: stateKeeper.selectedConnection["sshPort"] ?? "22",
+                     sshUserText: stateKeeper.selectedConnection["sshUser"] ?? "",
+                     sshPassText: stateKeeper.selectedConnection["sshPass"] ?? "",
+                     addressText: stateKeeper.selectedConnection["address"] ?? "",
+                     portText: stateKeeper.selectedConnection["port"] ?? "5900",
+                     usernameText: stateKeeper.selectedConnection["username"] ?? "",
+                     passwordText: stateKeeper.selectedConnection["password"] ?? "",
+                     certText: stateKeeper.selectedConnection["cert"] ?? "")
             } else if stateKeeper.currentPage == "page2" {
                 ContentViewB(stateKeeper: stateKeeper)
             } else if stateKeeper.currentPage == "page3" {
                 ContentViewC(stateKeeper: stateKeeper)
             } else if stateKeeper.currentPage == "page4" {
                 ContentViewD()
+            }
+        }
+    }
+}
+
+struct ConnectionsList : View {
+    
+    @ObservedObject var stateKeeper: StateKeeper
+    
+    func connect(index: Int) {
+        self.stateKeeper.connect(index: index)
+    }
+
+    func edit(index: Int) {
+        self.stateKeeper.edit(index: index)
+    }
+    
+    func elementAt(index: Int) -> [String:String] {
+        return self.stateKeeper.connections[index]
+    }
+    
+    func buildTitle(i: Int) -> String {
+        let connection = self.elementAt(index: i)
+        var title = ""
+        if connection["sshAddress"] != "" {
+            title = "SSH: \(connection["sshAddress"] ?? ""):\(connection["sshPort"] ?? "22")\n"
+        }
+        title += "VNC: \(connection["address"] ?? ""):\(connection["port"] ?? "5900")"
+        return title
+    }
+
+    var body: some View {
+        ScrollView {
+            VStack {
+                Button(action: {
+                    self.stateKeeper.addNew()
+                }) {
+                    Text("New Connection")
+                    .fontWeight(.bold)
+                    .font(.title)
+                    .padding(5)
+                    .background(Color.gray)
+                    .cornerRadius(10)
+                    .foregroundColor(.white)
+                    .padding(10)
+                }
+
+                Text("Tap a connection to connect")
+                Text("Long tap a connection to edit")
+                ForEach(0 ..< stateKeeper.connections.count) { i in
+                    Button(action: {
+                    }) {
+                        Text(self.buildTitle(i: i))
+                            .font(.headline)
+                            .padding(5)
+                            .background(Color.black)
+                            .cornerRadius(10)
+                            .foregroundColor(.white)
+                            .padding(10)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 10)
+                                    .stroke(Color.white, lineWidth: 4)
+                        ).onTapGesture {
+                            self.connect(index: i)
+                        }.onLongPressGesture {
+                            self.edit(index: i)
+                        }
+                    }.padding()
+                }
             }
         }
     }
@@ -56,9 +127,10 @@ struct ContentViewA : View {
     var body: some View {
         ScrollView {
             VStack {
+                HStack {
                 Button(action: {
                     self.stateKeeper.currentPage = "page2"
-                    self.stateKeeper.currentConnection = [
+                    let selectedConnection = [
                         "sshAddress": self.sshAddressText,
                         "sshPort": self.sshPortText,
                         "sshUser": self.sshUserText,
@@ -68,21 +140,30 @@ struct ContentViewA : View {
                         "username": self.usernameText,
                         "password": self.passwordText,
                         "cert": self.certText                    ]
-                    self.stateKeeper.connect()
+                    self.stateKeeper.saveNewConnection(connection: selectedConnection)
                 }) {
-                    Text("Connect")
+                    Text("Save")
                         .fontWeight(.bold)
                         .font(.title)
-                        .padding()
+                        .padding(5)
                         .background(Color.gray)
                         .cornerRadius(10)
                         .foregroundColor(.white)
                         .padding(10)
-                        /*
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 10)
-                                .stroke(Color.white, lineWidth: 4)
-                        )*/
+                }
+                Button(action: {
+                    self.stateKeeper.currentPage = "page2"
+                    self.stateKeeper.deleteCurrent()
+                }) {
+                    Text("Delete")
+                        .fontWeight(.bold)
+                        .font(.title)
+                        .padding(5)
+                        .background(Color.red)
+                        .cornerRadius(10)
+                        .foregroundColor(.white)
+                        .padding(10)
+                }
                 }
 
                 Text("VNC Connection Parameters")
