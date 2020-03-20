@@ -197,6 +197,15 @@ static rfbKeySym utf8char2rfbKeySym(const char chr[4]) {
         return codep;
 }
 
+void sendUniDirectionalKeyEvent(const unsigned char *c, bool down) {
+    if (!maintainConnection) {
+        return;
+    }
+    rfbKeySym sym = utf8char2rfbKeySym(c);
+    //printf("sendKeyEvent converted %#06x to xkeysym: %#06x\n", (int)*c, sym);
+    sendUniDirectionalKeyEventWithKeySym(sym, down);
+}
+
 void sendKeyEvent(const unsigned char *c) {
     if (!maintainConnection) {
         return;
@@ -229,6 +238,19 @@ void sendKeyEventWithKeySym(int sym) {
         //printf("Sending xkeysym: %#06x\n", sym);
         checkForError(SendKeyEvent(cl, sym, TRUE));
         checkForError(SendKeyEvent(cl, sym, FALSE));
+    } else {
+        printf("RFB Client object is NULL, need to quit!");
+        checkForError(false);
+    }
+}
+
+void sendUniDirectionalKeyEventWithKeySym(int sym, bool down) {
+    if (!maintainConnection) {
+        return;
+    }
+    if (cl != NULL) {
+        //printf("Sending xkeysym: %#06x\n", sym);
+        checkForError(SendKeyEvent(cl, sym, down));
     } else {
         printf("RFB Client object is NULL, need to quit!");
         checkForError(false);

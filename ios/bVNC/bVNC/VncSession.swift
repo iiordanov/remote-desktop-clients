@@ -17,6 +17,11 @@ func UserInterface(_ block: @escaping ()->Void) {
     DispatchQueue.main.async(execute: block)
 }
 
+let buttonHeight: CGFloat = 30.0
+let buttonWidth: CGFloat = 40.0
+var topSpacing: CGFloat = 20.0
+let buttonSpacing: CGFloat = 5.0
+
 var globalContentView: Image?
 var globalScene: UIWindowScene?
 var globalWindow: UIWindow?
@@ -24,6 +29,11 @@ var globalImageView: TouchEnabledUIImageView?
 var globalStateKeeper: StateKeeper?
 var globalDisconnectButton: UIButton?
 var globalKeyboardButton: CustomTextInput?
+var globalCtrlButton: ToggleButton?
+var globalAltButton: ToggleButton?
+var globalSuperButton: ToggleButton?
+var globalTabButton: ToggleButton?
+
 var sshForwardingLock: NSLock = NSLock()
 var sshForwardingStatus: Bool = false
 
@@ -78,16 +88,14 @@ func resize_callback(fbW: Int32, fbH: Int32) -> Void {
     UserInterface {
         let minScale = getMinimumScale(fbW: CGFloat(fbW), fbH: CGFloat(fbH))
         
-        globalWindow!.rootViewController = UIHostingController(rootView: globalContentView)
-        globalWindow!.makeKeyAndVisible()
         globalImageView = TouchEnabledUIImageView(frame: CGRect(x: 0, y: 0, width: Int(fbW), height: Int(fbH)))
-        globalImageView!.frame = CGRect(x: 0, y: 0, width: CGFloat(fbW)*minScale, height: CGFloat(fbH)*minScale)
+        globalImageView!.frame = CGRect(x: 0, y: topSpacing, width: CGFloat(fbW)*minScale, height: CGFloat(fbH)*minScale)
+        globalImageView!.backgroundColor = UIColor.gray
         globalImageView!.enableGestures()
         globalImageView!.enableTouch()
         globalStateKeeper?.setImageView(imageView: globalImageView!)
         globalWindow!.addSubview(globalImageView!)
-        globalWindow!.addSubview(globalDisconnectButton!)
-        globalWindow!.addSubview(globalKeyboardButton!)
+        addButtons()
     }
 }
 
@@ -95,7 +103,7 @@ func update_callback(data: UnsafeMutablePointer<UInt8>?, fbW: Int32, fbH: Int32,
     UserInterface {
         //print("Graphics update: ", fbW, fbH, x, y, w, h)
         autoreleasepool {
-            globalImageView?.image = UIImage(cgImage: imageFromARGB32Bitmap(pixels: data, withWidth: Int(fbW), withHeight: Int(fbH))!)
+            globalImageView?.image = UIImage(cgImage: imageFromARGB32Bitmap(pixels: data, withWidth: Int(fbW), withHeight: Int(fbH))!).imageWithInsets(insets: UIEdgeInsets(top: insetDimension, left: insetDimension, bottom: insetDimension, right: insetDimension))
         }
     }
 }
@@ -126,6 +134,58 @@ func imageFromARGB32Bitmap(pixels: UnsafeMutablePointer<UInt8>?, withWidth: Int,
                              intent: .defaultIntent)
 }
 
+func createButtons() {
+    let disconnectButton = UIButton(frame: CGRect(
+        x: globalWindow!.frame.width-buttonWidth,
+        y: topSpacing,
+        width: buttonWidth, height: buttonHeight))
+    
+    disconnectButton.setTitle("D", for: [])
+    disconnectButton.backgroundColor = UIColor(red: 0.5, green: 0.5, blue: 0.5, alpha: 0.5)
+    disconnectButton.addTarget(globalStateKeeper, action: #selector(globalStateKeeper?.disconnect), for: .touchDown)
+    globalDisconnectButton = disconnectButton
+    
+    let keyboardButton = CustomTextInput(frame: CGRect(
+        x: globalWindow!.frame.width-buttonWidth,
+        y: topSpacing+buttonSpacing+buttonHeight,
+        width: buttonWidth, height: buttonHeight))
+    
+    keyboardButton.setTitle("K", for: [])
+    keyboardButton.backgroundColor = UIColor(red: 0.5, green: 0.5, blue: 0.5, alpha: 0.5)
+    keyboardButton.addTarget(globalKeyboardButton, action: #selector(globalKeyboardButton?.toggleFirstResponder), for: .touchDown)
+    globalKeyboardButton = keyboardButton
+    
+    let ctrlButton = ToggleButton(frame: CGRect(x: 0, y: topSpacing, width: buttonWidth, height: buttonHeight), title: "C", background: UIColor(red: 0.5, green: 0.5, blue: 0.5, alpha: 0.5), stateKeeper: globalStateKeeper!, toSend: XK_Control_L, toggle: true)
+    globalCtrlButton = ctrlButton
+    
+    let altButton = ToggleButton(frame: CGRect(x: 0, y: topSpacing+buttonSpacing+buttonHeight, width: buttonWidth, height: buttonHeight), title: "A", background: UIColor(red: 0.5, green: 0.5, blue: 0.5, alpha: 0.5), stateKeeper: globalStateKeeper!, toSend: XK_Alt_L, toggle: true)
+    globalAltButton = altButton
+
+    let superButton = ToggleButton(frame: CGRect(x: 0, y: topSpacing+2*(buttonSpacing+buttonHeight), width: buttonWidth, height: buttonHeight), title: "S", background: UIColor(red: 0.5, green: 0.5, blue: 0.5, alpha: 0.5), stateKeeper: globalStateKeeper!, toSend: XK_Super_L, toggle: true)
+    globalSuperButton = superButton
+
+    let tabButton = ToggleButton(frame: CGRect(x: 0, y: topSpacing+3*(buttonSpacing+buttonHeight), width: buttonWidth, height: buttonHeight), title: "T", background: UIColor(red: 0.5, green: 0.5, blue: 0.5, alpha: 0.5), stateKeeper: globalStateKeeper!, toSend: XK_Tab, toggle: false)
+    globalTabButton = tabButton
+}
+
+func addButtons() {
+    globalWindow!.addSubview(globalDisconnectButton!)
+    globalWindow!.addSubview(globalKeyboardButton!)
+    globalWindow!.addSubview(globalCtrlButton!)
+    globalWindow!.addSubview(globalAltButton!)
+    globalWindow!.addSubview(globalSuperButton!)
+    globalWindow!.addSubview(globalTabButton!)
+}
+
+func removeButtons() {
+    globalDisconnectButton!.removeFromSuperview()
+    globalKeyboardButton!.removeFromSuperview()
+    globalCtrlButton!.removeFromSuperview()
+    globalAltButton!.removeFromSuperview()
+    globalSuperButton!.removeFromSuperview()
+    globalTabButton!.removeFromSuperview()
+}
+
 class VncSession {
     let scene: UIScene, stateKeeper: StateKeeper, window: UIWindow
     
@@ -134,16 +194,7 @@ class VncSession {
         self.stateKeeper = stateKeeper
         self.window = window
         globalStateKeeper = stateKeeper
-        let disconnectButton = UIButton(frame: CGRect(x: 100, y: 20, width: 40, height: 40))
-        disconnectButton.setTitle("D", for: [])
-        disconnectButton.backgroundColor = UIColor(red: 100/255, green: 100/255, blue: 100/255, alpha: 0.3)
-        disconnectButton.addTarget(globalStateKeeper, action: #selector(globalStateKeeper?.disconnect), for: .touchUpInside)
-        globalDisconnectButton = disconnectButton
-        let keyboardButton = CustomTextInput(frame: CGRect(x: 150, y: 20, width: 40, height: 40))
-        keyboardButton.setTitle("K", for: [])
-        keyboardButton.backgroundColor = UIColor(red: 100/255, green: 100/255, blue: 100/255, alpha: 0.3)
-        keyboardButton.addTarget(globalKeyboardButton, action: #selector(globalKeyboardButton?.toggleFirstResponder), for: .touchUpInside)
-        globalKeyboardButton = keyboardButton
+        correctTopSpacingForOrientation()
     }
     
     func captureScreen(window: UIWindow) -> UIImage {
@@ -165,6 +216,7 @@ class VncSession {
         if let windowScene = scene as? UIWindowScene {
             globalScene = windowScene
             globalWindow = window
+            createButtons()
         }
 
         // Print out contents of CA file added for testing.
@@ -234,6 +286,32 @@ class VncSession {
                 failure_callback()
                 // TODO: Show error to user.
             }
+        }
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(self.orientationChanged),
+            name: UIDevice.orientationDidChangeNotification, object: nil
+        );
+    }
+    
+    func correctTopSpacingForOrientation() {
+        if UIDevice.current.orientation.isLandscape {
+            print("Landscape")
+            topSpacing = 0
+        }
+
+        if UIDevice.current.orientation.isPortrait {
+            print("Portrait")
+            topSpacing = 20
+        }
+    }
+    
+    @objc func orientationChanged(_ notification: NSNotification) {
+        print("Device rotated, correcting button layout.")
+        if getMaintainConnection() {
+            correctTopSpacingForOrientation()
+            removeButtons()
+            createButtons()
+            addButtons()
         }
     }
     

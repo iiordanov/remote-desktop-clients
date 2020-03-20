@@ -9,6 +9,22 @@
 import Foundation
 import UIKit
 
+let insetDimension: CGFloat = 10
+
+extension UIImage {
+    func imageWithInsets(insets: UIEdgeInsets) -> UIImage? {
+        UIGraphicsBeginImageContextWithOptions(
+            CGSize(width: self.size.width + insets.left + insets.right,
+                   height: self.size.height + insets.top + insets.bottom), false, self.scale)
+        let _ = UIGraphicsGetCurrentContext()
+        let origin = CGPoint(x: insets.left, y: insets.top)
+        self.draw(at: origin)
+        let imageWithInsets = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        return imageWithInsets
+    }
+}
+
 class TouchEnabledUIImageView: UIImageView {
     var fingers = [UITouch?](repeating: nil, count:5)
     var width: CGFloat = 0.0
@@ -79,8 +95,10 @@ class TouchEnabledUIImageView: UIImageView {
         self.height = touchView.frame.height
         self.point = touch.location(in: touchView)
         self.viewTransform = touchView.transform
-        self.newX = self.point.x*viewTransform.a
-        self.newY = self.point.y*viewTransform.d
+        let sDx = (touchView.center.x - self.point.x)/self.width
+        let sDy = (touchView.center.y - self.point.y)/self.height
+        self.newX = (self.point.x)*viewTransform.a + insetDimension/viewTransform.a
+        self.newY = (self.point.y)*viewTransform.d + insetDimension/viewTransform.d
     }
     
     func sendDownThenUpEvent(moving: Bool, firstDown: Bool, secondDown: Bool, thirdDown: Bool, fourthDown: Bool, fifthDown: Bool) {
@@ -262,10 +280,10 @@ class TouchEnabledUIImageView: UIImageView {
             var newCenterY = view.center.y + scaleY*translation.y
             let scaledWidth = sender.view!.frame.width/scaleX
             let scaledHeight = sender.view!.frame.height/scaleY
-            if sender.view!.frame.minX/scaleX >= 20 { newCenterX = view.center.x - 10 }
-            if sender.view!.frame.minY/scaleY >= 20 { newCenterY = view.center.y - 10 }
-            if sender.view!.frame.minX/scaleX <= -20 - (scaleX-1.0)*scaledWidth/scaleX { newCenterX = view.center.x + 10 }
-            if sender.view!.frame.minY/scaleY <= -20 - (scaleY-1.0)*scaledHeight/scaleY { newCenterY = view.center.y + 10 }
+            if sender.view!.frame.minX/scaleX >= 50 { newCenterX = view.center.x - 5 }
+            if sender.view!.frame.minY/scaleY >= 50 { newCenterY = view.center.y - 5 }
+            if sender.view!.frame.minX/scaleX <= -50 - (scaleX-1.0)*scaledWidth/scaleX { newCenterX = view.center.x + 5 }
+            if sender.view!.frame.minY/scaleY <= -50 - (scaleY-1.0)*scaledHeight/scaleY { newCenterY = view.center.y + 5 }
             view.center = CGPoint(x: newCenterX, y: newCenterY)
             sender.setTranslation(CGPoint.zero, in: view)
         }
