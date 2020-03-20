@@ -17,17 +17,17 @@ struct ContentView : View {
     var body: some View {
         VStack {
             if stateKeeper.currentPage == "page1" {
-                ContentViewA(stateKeeper: stateKeeper,
-                             sshAddressText: stateKeeper.settings.string(forKey: "sshAddress") ?? "",
-                             sshPortText: stateKeeper.settings.string(forKey: "sshPort") ?? "22",
-                             sshUserText: stateKeeper.settings.string(forKey: "sshUser") ?? "",
-                             sshPassText: stateKeeper.settings.string(forKey: "sshPass") ?? "",
-
-                             addressText: stateKeeper.settings.string(forKey: "address") ?? "",
-                             portText: stateKeeper.settings.string(forKey: "port") ?? "5900",
-                             usernameText: stateKeeper.settings.string(forKey: "username") ?? "",
-                             passwordText: stateKeeper.settings.string(forKey: "password") ?? "",
-                             certText: stateKeeper.settings.string(forKey: "cert") ?? "")
+                ContentViewA(
+                     stateKeeper: stateKeeper,
+                     sshAddressText: stateKeeper.currentConnection["sshAddress"] ?? "",
+                     sshPortText: stateKeeper.currentConnection["sshPort"] ?? "22",
+                     sshUserText: stateKeeper.currentConnection["sshUser"] ?? "",
+                     sshPassText: stateKeeper.currentConnection["sshPass"] ?? "",
+                     addressText: stateKeeper.currentConnection["address"] ?? "",
+                     portText: stateKeeper.currentConnection["port"] ?? "5900",
+                     usernameText: stateKeeper.currentConnection["username"] ?? "",
+                     passwordText: stateKeeper.currentConnection["password"] ?? "",
+                     certText: stateKeeper.currentConnection["cert"] ?? "")
             } else if stateKeeper.currentPage == "page2" {
                 ContentViewB(stateKeeper: stateKeeper)
             } else if stateKeeper.currentPage == "page3" {
@@ -41,9 +41,8 @@ struct ContentView : View {
 
 struct ContentViewA : View {
     
-    @ObservedObject var stateKeeper: StateKeeper
     var settings: UserDefaults = UserDefaults.standard
-    
+    @ObservedObject var stateKeeper: StateKeeper
     @State var sshAddressText: String
     @State var sshPortText: String
     @State var sshUserText: String
@@ -59,21 +58,16 @@ struct ContentViewA : View {
             VStack {
                 Button(action: {
                     self.stateKeeper.currentPage = "page2"
-                    self.stateKeeper.connectionSettings = ConnectionSettings(
-                        sshAddress: self.sshAddressText, sshPort: self.sshPortText,
-                        sshUser: self.sshUserText, sshPass: self.sshPassText,
-                        address: self.addressText, port: self.portText,
-                        username: self.usernameText, password: self.passwordText, cert: self.certText)
-                    
-                    self.stateKeeper.settings.set(self.sshAddressText, forKey: "sshAddress")
-                    self.stateKeeper.settings.set(self.sshPortText, forKey: "sshPort")
-                    self.stateKeeper.settings.set(self.sshUserText, forKey: "sshUser")
-                    self.stateKeeper.settings.set(self.sshPassText, forKey: "sshPass")
-                    self.stateKeeper.settings.set(self.addressText, forKey: "address")
-                    self.stateKeeper.settings.set(self.portText, forKey: "port")
-                    self.stateKeeper.settings.set(self.usernameText, forKey: "username")
-                    self.stateKeeper.settings.set(self.passwordText, forKey: "password")
-                    self.stateKeeper.settings.set(self.certText, forKey: "cert")
+                    self.stateKeeper.currentConnection = [
+                        "sshAddress": self.sshAddressText,
+                        "sshPort": self.sshPortText,
+                        "sshUser": self.sshUserText,
+                        "sshPass": self.sshPassText,
+                        "address": self.addressText,
+                        "port": self.portText,
+                        "username": self.usernameText,
+                        "password": self.passwordText,
+                        "cert": self.certText                    ]
                     self.stateKeeper.connect()
                 }) {
                     Text("Connect")

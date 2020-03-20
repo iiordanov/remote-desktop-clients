@@ -12,12 +12,17 @@ import SwiftUI
 
 class StateKeeper: ObservableObject {
     let objectWillChange = PassthroughSubject<StateKeeper, Never>()
-    var connectionSettings: ConnectionSettings = ConnectionSettings()
+    var currentConnection: [String: String]
     var settings = UserDefaults.standard
     var scene: UIScene?
     var window: UIWindow?
     var imageView: TouchEnabledUIImageView?
     var vncSession: VncSession?
+    
+    init() {
+        // Load settings for current connection
+        currentConnection = self.settings.dictionary(forKey: "selectedConnection") as? [String:String] ?? [:]
+    }
     
     var currentPage: String = "page1" {
         didSet {
@@ -38,8 +43,10 @@ class StateKeeper: ObservableObject {
     }
 
     func connect() {
+        // Save settings for current connection
+        self.settings.set(self.currentConnection, forKey: "selectedConnection")
         self.vncSession = VncSession(scene: self.scene!, stateKeeper: self, window: self.window!)
-        self.vncSession!.connect(connectionSettings: self.connectionSettings)
+        self.vncSession!.connect(currentConnection: self.currentConnection)
         self.currentPage = "page4"
     }
 
