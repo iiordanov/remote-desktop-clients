@@ -32,6 +32,8 @@ struct ContentView : View {
                 ContentViewB(stateKeeper: stateKeeper)
             } else if stateKeeper.currentPage == "page3" {
                 ContentViewC(stateKeeper: stateKeeper)
+            } else if stateKeeper.currentPage == "page4" {
+                ContentViewD()
             }
         }
     }
@@ -133,6 +135,12 @@ struct ContentViewC : View {
     }
 }
 
+struct ContentViewD : View {
+    var body: some View {
+        Text("")
+    }
+}
+
 
 struct ContentViewA_Previews : PreviewProvider {
     static var previews: some View {
@@ -149,6 +157,12 @@ struct ContentViewB_Previews : PreviewProvider {
 struct ContentViewC_Previews : PreviewProvider {
     static var previews: some View {
         ContentViewC(stateKeeper: StateKeeper())
+    }
+}
+
+struct ContentViewD_Previews : PreviewProvider {
+    static var previews: some View {
+        ContentViewD()
     }
 }
 
