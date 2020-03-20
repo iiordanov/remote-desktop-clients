@@ -21,8 +21,7 @@ android {
 }
 
 dependencies {
-//    api 'org.connectbot:sshlib:2.2.9'
+    api 'org.connectbot:sshlib:2.2.9'
     api 'net.vrallev.ecc:ecc-25519-java:1.0.3'
     api 'io.moatwel.crypto:eddsa:0.4.3-beta'
-    api fileTree(dir: 'libs', include: ['sshlib-2.2.9-SNAPSHOT.jar'])
 }
