@@ -16,7 +16,6 @@
 		AF043A3023B3DADB00C43ED7 /* bVNCTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF043A2F23B3DADB00C43ED7 /* bVNCTests.swift */; };
 		AF043A3B23B3DADB00C43ED7 /* bVNCUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF043A3A23B3DADB00C43ED7 /* bVNCUITests.swift */; };
 		AF291AD1241D5AC100DCD383 /* libssh2.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AF7421F0241D57E000C552A7 /* libssh2.a */; };
-		AF291AD324240E4400DCD383 /* VerticalButtonToolbar.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF291AD224240E4400DCD383 /* VerticalButtonToolbar.swift */; };
 		AF291AD5242418A200DCD383 /* ToggleButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF291AD4242418A200DCD383 /* ToggleButton.swift */; };
 		AF48282D23B47D8A00826395 /* libvncclient.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AF48247F23B478C300826395 /* libvncclient.1.dylib */; };
 		AF48282E23B47D8A00826395 /* libvncclient.1.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = AF48247F23B478C300826395 /* libvncclient.1.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
@@ -25,7 +24,6 @@
 		AF53DCAF24002C9F00569F19 /* ca.pem in Resources */ = {isa = PBXBuildFile; fileRef = AF53DCAE24002C9F00569F19 /* ca.pem */; };
 		AF53DCB124022C8C00569F19 /* VncSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF53DCB024022C8C00569F19 /* VncSession.swift */; };
 		AF53DCB32402391600569F19 /* StateKeeper.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF53DCB22402391600569F19 /* StateKeeper.swift */; };
-		AF53DCB524024B2900569F19 /* ConnectionSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF53DCB424024B2900569F19 /* ConnectionSettings.swift */; };
 		AF7421F1241D57E100C552A7 /* libssh2.a in Embed Libraries */ = {isa = PBXBuildFile; fileRef = AF7421F0241D57E000C552A7 /* libssh2.a */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		AF7421F4241D58EB00C552A7 /* SshPortForwarder.c in Sources */ = {isa = PBXBuildFile; fileRef = AF7421F3241D58EB00C552A7 /* SshPortForwarder.c */; };
 		AFF244E22407985E00F5839B /* CustomTextInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFF244E12407985E00F5839B /* CustomTextInput.swift */; };
@@ -79,7 +77,6 @@
 		AF043A3623B3DADB00C43ED7 /* bVNCUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = bVNCUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		AF043A3A23B3DADB00C43ED7 /* bVNCUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = bVNCUITests.swift; sourceTree = "<group>"; };
 		AF043A3C23B3DADB00C43ED7 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		AF291AD224240E4400DCD383 /* VerticalButtonToolbar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VerticalButtonToolbar.swift; sourceTree = "<group>"; };
 		AF291AD4242418A200DCD383 /* ToggleButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToggleButton.swift; sourceTree = "<group>"; };
 		AF48247D23B4783500826395 /* libvncclient.0.9.13.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libvncclient.0.9.13.dylib; path = bVNC.xcodeproj/libs_combined/lib/libvncclient.0.9.13.dylib; sourceTree = "<group>"; };
 		AF48247F23B478C300826395 /* libvncclient.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libvncclient.1.dylib; path = bVNC.xcodeproj/libs_combined/lib/libvncclient.1.dylib; sourceTree = "<group>"; };
@@ -486,7 +483,6 @@
 		AF53DCAE24002C9F00569F19 /* ca.pem */ = {isa = PBXFileReference; lastKnownFileType = text; path = ca.pem; sourceTree = "<group>"; };
 		AF53DCB024022C8C00569F19 /* VncSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VncSession.swift; sourceTree = "<group>"; };
 		AF53DCB22402391600569F19 /* StateKeeper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StateKeeper.swift; sourceTree = "<group>"; };
-		AF53DCB424024B2900569F19 /* ConnectionSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionSettings.swift; sourceTree = "<group>"; };
 		AF7421F0241D57E000C552A7 /* libssh2.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libssh2.a; path = bVNC.xcodeproj/libs_combined/lib/libssh2.a; sourceTree = "<group>"; };
 		AF7421F2241D58EB00C552A7 /* SshPortForwarder.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SshPortForwarder.h; sourceTree = "<group>"; };
 		AF7421F3241D58EB00C552A7 /* SshPortForwarder.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = SshPortForwarder.c; sourceTree = "<group>"; };
@@ -548,7 +544,6 @@
 			isa = PBXGroup;
 			children = (
 				AF043A1823B3DADA00C43ED7 /* AppDelegate.swift */,
-				AF291AD224240E4400DCD383 /* VerticalButtonToolbar.swift */,
 				AF043A1A23B3DADA00C43ED7 /* SceneDelegate.swift */,
 				AFF244E32408AF9B00F5839B /* TouchEnabledUIImageView.swift */,
 				AFF244E12407985E00F5839B /* CustomTextInput.swift */,
@@ -563,7 +558,6 @@
 				AF48282F23B47EC200826395 /* bVNC-Bridging-Header.h */,
 				AF53DCB024022C8C00569F19 /* VncSession.swift */,
 				AF53DCB22402391600569F19 /* StateKeeper.swift */,
-				AF53DCB424024B2900569F19 /* ConnectionSettings.swift */,
 				AF7421F2241D58EB00C552A7 /* SshPortForwarder.h */,
 				AF043A2023B3DADB00C43ED7 /* Preview Content */,
 				AF7421F3241D58EB00C552A7 /* SshPortForwarder.c */,
@@ -1138,7 +1132,6 @@
 			files = (
 				AF7421F4241D58EB00C552A7 /* SshPortForwarder.c in Sources */,
 				AFF244E22407985E00F5839B /* CustomTextInput.swift in Sources */,
-				AF291AD324240E4400DCD383 /* VerticalButtonToolbar.swift in Sources */,
 				AF291AD5242418A200DCD383 /* ToggleButton.swift in Sources */,
 				AF51B3002410BAED005DE8AB /* ucs2xkeysym.c in Sources */,
 				AF53DCB124022C8C00569F19 /* VncSession.swift in Sources */,
@@ -1148,7 +1141,6 @@
 				AF48283223B47EC300826395 /* VncBridge.c in Sources */,
 				AF043A1D23B3DADA00C43ED7 /* ContentView.swift in Sources */,
 				AFF244E42408AF9B00F5839B /* TouchEnabledUIImageView.swift in Sources */,
-				AF53DCB524024B2900569F19 /* ConnectionSettings.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

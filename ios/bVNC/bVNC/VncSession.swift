@@ -212,7 +212,7 @@ class VncSession {
         return contents
     }
     
-    func connect(connectionSettings: ConnectionSettings) {
+    func connect(currentConnection: [String:String]) {
         if let windowScene = scene as? UIWindowScene {
             globalScene = windowScene
             globalWindow = window
@@ -224,12 +224,12 @@ class VncSession {
         print("Contents of ca.pem file built into the package:")
         print(loadTextFile(path: ca_path!))
 
-        let sshAddress = connectionSettings.sshAddress!
-        let sshPort = connectionSettings.sshPort!
-        let sshUser = connectionSettings.sshUser!
-        let sshPass = connectionSettings.sshPass!
-        let vncPort = connectionSettings.port!
-        let vncAddress = connectionSettings.address!
+        let sshAddress = currentConnection["sshAddress"] ?? ""
+        let sshPort = currentConnection["sshPort"] ?? ""
+        let sshUser = currentConnection["sshUser"] ?? ""
+        let sshPass = currentConnection["sshPass"] ?? ""
+        let vncPort = currentConnection["port"] ?? ""
+        let vncAddress = currentConnection["address"] ?? ""
         let sshForwardPort = String(arc4random_uniform(30000) + 30000)
         
         var addressAndPort = vncAddress + ":" + vncPort
@@ -253,10 +253,10 @@ class VncSession {
             addressAndPort = "127.0.0.1" + ":" + sshForwardPort
         }
         
-        let user = connectionSettings.username!
-        let pass = connectionSettings.password!
+        let user = currentConnection["username"] ?? ""
+        let pass = currentConnection["password"] ?? ""
         // TODO: Write out CA to a file.
-        let cert = connectionSettings.cert!
+        let cert = currentConnection["cert"] ?? ""
 
         Background {
             print("Waiting for SSH forwarding to complete successfully")
