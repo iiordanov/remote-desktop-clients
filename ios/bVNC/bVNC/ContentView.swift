@@ -36,6 +36,8 @@ struct ContentView : View {
                 ContentViewC(stateKeeper: stateKeeper)
             } else if stateKeeper.currentPage == "page4" {
                 ContentViewD()
+            } else if stateKeeper.currentPage == "dismissableErrorMessage" {
+                DismissableErrorDialog(stateKeeper: stateKeeper)
             }
         }
     }
@@ -78,13 +80,13 @@ struct ConnectionsList : View {
                     .font(.title)
                     .padding(5)
                     .background(Color.gray)
-                    .cornerRadius(10)
+                    .cornerRadius(5)
                     .foregroundColor(.white)
                     .padding(10)
                 }
 
-                Text("Tap a connection to connect")
-                Text("Long tap a connection to edit")
+                Text("Tap a connection to connect").font(.headline)
+                Text("Long tap a connection to edit").font(.headline)
                 ForEach(0 ..< stateKeeper.connections.count) { i in
                     Button(action: {
                     }) {
@@ -92,18 +94,19 @@ struct ConnectionsList : View {
                             .font(.headline)
                             .padding(5)
                             .background(Color.black)
-                            .cornerRadius(10)
+                            .cornerRadius(5)
                             .foregroundColor(.white)
-                            .padding(10)
+                            .padding(5)
+                            .frame(minWidth: 0, maxWidth: .infinity)
                             .overlay(
-                                RoundedRectangle(cornerRadius: 10)
+                                RoundedRectangle(cornerRadius: 5)
                                     .stroke(Color.white, lineWidth: 4)
                         ).onTapGesture {
                             self.connect(index: i)
                         }.onLongPressGesture {
                             self.edit(index: i)
                         }
-                    }.padding()
+                    }.padding(10)
                 }
             }
         }
@@ -166,18 +169,19 @@ struct ContentViewA : View {
                 }
                 }
 
-                Text("VNC Connection Parameters")
-                TextField("SSH Server", text: $sshAddressText).autocapitalization(.none)
-                TextField("SSH Port", text: $sshPortText).autocapitalization(.none)
-                TextField("SSH User", text: $sshUserText).autocapitalization(.none)
-                SecureField("SSH Password or Passphrase", text: $sshPassText).autocapitalization(.none)
+                Text("Optional SSH Connection Parameters").font(.headline)
+                TextField("SSH Server", text: $sshAddressText).autocapitalization(.none).font(.title)
+                TextField("SSH Port", text: $sshPortText).autocapitalization(.none).font(.title)
+                TextField("SSH User", text: $sshUserText).autocapitalization(.none).font(.title)
+                SecureField("SSH Password or Passphrase", text: $sshPassText).autocapitalization(.none).font(.title)
             }
             VStack {
-                TextField("Address", text: $addressText).autocapitalization(.none)
-                TextField("Port", text: $portText)
-                TextField("User", text: $usernameText).autocapitalization(.none)
-                SecureField("Password", text: $passwordText)
-                TextField("Certificate Authority", text: $certText).padding(.bottom, 500)
+                Text("Main Connection Parameters").font(.headline)
+                TextField("Address", text: $addressText).autocapitalization(.none).font(.title)
+                TextField("Port", text: $portText).font(.title)
+                TextField("User (if required)", text: $usernameText).autocapitalization(.none).font(.title)
+                SecureField("Password", text: $passwordText).font(.title)
+                TextField("Certificate Authority", text: $certText).padding(.bottom, 500).font(.title)
             }
         }
     }
@@ -189,7 +193,7 @@ struct ContentViewB : View {
     
     var body: some View {
         VStack {
-            Text("Connecting to VNC Server")
+            Text("Connecting to Server")
             Button(action: {
                 self.stateKeeper.disconnect()
             }) {
@@ -205,7 +209,7 @@ struct ContentViewC : View {
     
     var body: some View {
         VStack {
-            Text("Disconnecting from VNC Server")
+            Text("Disconnecting from Server")
         }
     }
 }
@@ -213,6 +217,33 @@ struct ContentViewC : View {
 struct ContentViewD : View {
     var body: some View {
         Text("")
+    }
+}
+
+struct DismissableErrorDialog : View {
+    @ObservedObject var stateKeeper: StateKeeper
+    
+    func getErrorMessage() -> String {
+        return stateKeeper.errorMessage ?? ""
+    }
+
+    var body: some View {
+        VStack {
+            Text(self.getErrorMessage()).font(.title)
+
+            Button(action: {
+                self.stateKeeper.showConnections()
+            }) {
+                Text("Dismiss")
+                .fontWeight(.bold)
+                .font(.title)
+                .padding(5)
+                .background(Color.gray)
+                .cornerRadius(5)
+                .foregroundColor(.white)
+                .padding(10)
+            }
+        }
     }
 }
 
