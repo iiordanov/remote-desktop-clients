@@ -18,6 +18,7 @@ class StateKeeper: ObservableObject {
     var settings = UserDefaults.standard
     var scene: UIScene?
     var window: UIWindow?
+    var errorMessage: String?
     var imageView: TouchEnabledUIImageView?
     var vncSession: VncSession?
     
@@ -122,5 +123,10 @@ class StateKeeper: ObservableObject {
     
     func showConnections() {
         self.currentPage = "page0"
+    }
+    
+    func showError(message: String) {
+        self.errorMessage = message
+        self.currentPage = "dismissableErrorMessage"
     }
 }

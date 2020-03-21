@@ -40,17 +40,18 @@
 #define INADDR_NONE (in_addr_t)-1
 #endif
 
-const char *keyfile1 = "/home/username/.ssh/id_rsa.pub";
-const char *keyfile2 = "/home/username/.ssh/id_rsa";
-const char *username = "username";
-const char *password = "";
+const char *keyfile1 = NULL;
+const char *keyfile2 = NULL;
+char *username = NULL;
+char *password = NULL;
 
-const char *server_ip = "127.0.0.1";
+char *server_ip = NULL;
+unsigned int server_ssh_port = 22;
 
-const char *local_listenip = "127.0.0.1";
+char *local_listenip = NULL;
 unsigned int local_listenport = 2222;
 
-const char *remote_desthost = "localhost"; /* resolved by the server */
+char *remote_desthost = NULL; /* resolved by the server */
 unsigned int remote_destport = 22;
 
 enum {
@@ -59,8 +60,10 @@ enum {
     AUTH_PUBLICKEY
 };
 
-void setupSshPortForward(void (*ssh_forward_success)(void), void (*ssh_forward_failure)(void), char* host, char* user, char* password, char* local_ip, char* local_port, char* remote_ip, char* remote_port) {
-    char **argv = (char**)malloc(9*sizeof(char*));
+void setupSshPortForward(void (*ssh_forward_success)(void), void (*ssh_forward_failure)(void), char* host, char* port, char* user, char* password, char* local_ip, char* local_port, char* remote_ip, char* remote_port) {
+    
+    int argc = 9;
+    char **argv = (char**)malloc(argc*sizeof(char*));
     int i = 0;
     
     char host_ip[256];
@@ -70,19 +73,20 @@ void setupSshPortForward(void (*ssh_forward_success)(void), void (*ssh_forward_f
         return;
     }
     
-    for (i = 0; i < 9; i++) {
+    for (i = 0; i <= argc; i++) {
         argv[i] = (char*)malloc(256*sizeof(char));
     }
     strcpy(argv[0], "dummy");
     strcpy(argv[1], host_ip);
-    strcpy(argv[2], user);
-    strcpy(argv[3], password);
-    strcpy(argv[4], local_ip);
-    strcpy(argv[5], local_port);
-    strcpy(argv[6], remote_ip);
-    strcpy(argv[7], remote_port);
+    strcpy(argv[2], port);
+    strcpy(argv[3], user);
+    strcpy(argv[4], password);
+    strcpy(argv[5], local_ip);
+    strcpy(argv[6], local_port);
+    strcpy(argv[7], remote_ip);
+    strcpy(argv[8], remote_port);
 
-    int res = startForwarding(8, argv, ssh_forward_success);
+    int res = startForwarding(argc, argv, ssh_forward_success);
     printf ("Result of SSH forwarding: %d\n", res);
     ssh_forward_success();
 }
@@ -159,17 +163,19 @@ int startForwarding(int argc, char *argv[], void (*ssh_forward_success)(void))
     if(argc > 1)
         strcpy(server_ip, argv[1]);
     if(argc > 2)
-        strcpy(username, argv[2]);
+        server_ssh_port = atoi(argv[2]);
     if(argc > 3)
-        strcpy(password, argv[3]);
+        strcpy(username, argv[3]);
     if(argc > 4)
-        strcpy(local_listenip, argv[4]);
+        strcpy(password, argv[4]);
     if(argc > 5)
-        local_listenport = atoi(argv[5]);
+        strcpy(local_listenip, argv[5]);
     if(argc > 6)
-        strcpy(remote_desthost, argv[6]);
+        local_listenport = atoi(argv[6]);
     if(argc > 7)
-        remote_destport = atoi(argv[7]);
+        strcpy(remote_desthost, argv[7]);
+    if(argc > 8)
+        remote_destport = atoi(argv[8]);
 
     rc = libssh2_init(0);
     if(rc) {
@@ -197,7 +203,7 @@ int startForwarding(int argc, char *argv[], void (*ssh_forward_success)(void))
         perror("inet_addr");
         return -1;
     }
-    sin.sin_port = htons(22);
+    sin.sin_port = htons(server_ssh_port);
     if(connect(sock, (struct sockaddr*)(&sin),
                sizeof(struct sockaddr_in)) != 0) {
         fprintf(stderr, "failed to connect!\n");

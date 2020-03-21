@@ -297,7 +297,7 @@
 
 int resolve_host_to_ip(char *  , char *);
 int startForwarding(int argc, char *argv[], void (*ssh_forward_success)(void));
-void setupSshPortForward(void (*ssh_forward_success)(void), void (*ssh_forward_failure)(void), char* host, char* user, char* password, char* local_ip, char* local_port, char* remote_ip, char* remote_port);
+void setupSshPortForward(void (*ssh_forward_success)(void), void (*ssh_forward_failure)(void), char* host, char* port, char* user, char* password, char* local_ip, char* local_port, char* remote_ip, char* remote_port);
 
 #endif
 /* vim: set expandtab ts=4 sw=4: */

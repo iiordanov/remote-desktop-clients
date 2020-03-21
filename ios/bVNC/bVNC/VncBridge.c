@@ -90,12 +90,14 @@ static rfbBool resize (rfbClient *cl) {
 
 void disconnectVnc() {
     maintainConnection = false;
+    // Force force some communication with server in order to wake up the
+    // background thread waiting for server messages.
     SendFramebufferUpdateRequest(cl, 0, 0, 1, 1, FALSE);
 }
 
 void connectVnc(void (*callback)(uint8_t *, int fbW, int fbH, int x, int y, int w, int h),
                 void (*callback2)(int fbW, int fbH),
-                void (*callback3)(void),
+                void (*callback3)(int8_t *),
                 char* addr, char* user, char* password, char* ca_path) {
     printf("Setting up connection.\n");
     maintainConnection = true;
@@ -140,25 +142,25 @@ void connectVnc(void (*callback)(uint8_t *, int fbW, int fbH, int x, int y, int 
     
     if (!rfbInitClient(cl, &argc, argv)) {
         cl = NULL; /* rfbInitClient has already freed the client struct */
-        cleanup("Failed to initialize RFB Client object.\n\n", cl);
+        cleanup("Failed to connect to server\n", cl);
     }
     
     while (cl != NULL) {
-        i = WaitForMessage(cl, 1000);
+        i = WaitForMessage(cl, 500);
         if (maintainConnection != true) {
-            cleanup("Quitting because maintainConnection was set to false.\n\n", cl);
+            cleanup(NULL, cl);
             break;
         }
         if (i < 0) {
-            cleanup("Quitting because WaitForMessage < 0\n\n", cl);
+            cleanup("Connection to server failed\n", cl);
             break;
         }
         if (i) {
-            printf("Handling RFB Server Message\n\n");
+            printf("Handling RFB Server Message\n");
         }
         
         if (!HandleRFBServerMessage(cl)) {
-            cleanup("Quitting because HandleRFBServerMessage returned false\n\n", cl);
+            cleanup("Connection to server failed\n", cl);
             break;
         }
     }
@@ -168,7 +170,7 @@ void connectVnc(void (*callback)(uint8_t *, int fbW, int fbH, int x, int y, int 
 void cleanup(char *message, rfbClient *client) {
     maintainConnection = false;
     printf("%s", message);
-    failure_callback();
+    failure_callback((int8_t*)message);
 }
 
 // TODO: Replace with real conversion table
@@ -227,8 +229,6 @@ bool sendKeyEventInt(int c) {
     sendKeyEventWithKeySym(sym);
     return true;
 }
-
-
 
 void sendKeyEventWithKeySym(int sym) {
     if (!maintainConnection) {
@@ -290,16 +290,9 @@ void sendPointerEventToServer(int totalX, int totalY, int x, int y, bool firstDo
 }
 
 void checkForError(rfbBool res) {
-    bool haveQuit = false;
     if (cl == NULL) {
-        printf("RFB Client object is NULL, quitting.\n");
-        maintainConnection = false;
-        failure_callback();
-        haveQuit = true;
-    }
-    if (!res && !haveQuit) {
-        printf("Failed to send message, quitting.\n");
-        maintainConnection = false;
-        failure_callback();
+        cleanup("Unexpectedly, RFB client object is null\n", cl);
+    } else if (!res) {
+        cleanup("Failed to send message to server\n", cl);
     }
 }

@@ -60,13 +60,22 @@ extension UIImage {
     }
 }
 
-func failure_callback() -> Void {
+func failure_callback_str(message: String) {
+    failure_callback(message: UnsafeMutablePointer<Int8>(mutating: (message as NSString).utf8String!))
+}
+
+func failure_callback(message: UnsafeMutablePointer<Int8>?) -> Void {
     UserInterface {
         globalImageView?.disableTouch()
-        print("Connection failure, going back to connection setup screen.")
         let contentView = ContentView(stateKeeper: globalStateKeeper!)
         globalWindow?.rootViewController = UIHostingController(rootView: contentView)
-        globalStateKeeper!.showConnections()
+        if message != nil {
+            print("Connection failure, going back to connection setup screen.")
+            globalStateKeeper?.showError(message: String(cString: message!))
+        } else {
+            print("Successful exit, no error was reported.")
+            globalStateKeeper?.showConnections()
+        }
     }
 }
 
@@ -103,7 +112,7 @@ func update_callback(data: UnsafeMutablePointer<UInt8>?, fbW: Int32, fbH: Int32,
     UserInterface {
         //print("Graphics update: ", fbW, fbH, x, y, w, h)
         autoreleasepool {
-            globalImageView?.image = UIImage(cgImage: imageFromARGB32Bitmap(pixels: data, withWidth: Int(fbW), withHeight: Int(fbH))!).imageWithInsets(insets: UIEdgeInsets(top: insetDimension, left: insetDimension, bottom: insetDimension, right: insetDimension))
+            globalImageView?.image = UIImage(cgImage: imageFromARGB32Bitmap(pixels: data, withWidth: Int(fbW), withHeight: Int(fbH))!)
         }
     }
 }
@@ -243,6 +252,7 @@ class VncSession {
                     ssh_forward_success,
                     ssh_forward_failure,
                     UnsafeMutablePointer<Int8>(mutating: (sshAddress as NSString).utf8String),
+                    UnsafeMutablePointer<Int8>(mutating: (sshPort as NSString).utf8String),
                     UnsafeMutablePointer<Int8>(mutating: (sshUser as NSString).utf8String),
                     UnsafeMutablePointer<Int8>(mutating: (sshPass as NSString).utf8String),
                     UnsafeMutablePointer<Int8>(mutating: ("127.0.0.1" as NSString).utf8String),
@@ -259,15 +269,18 @@ class VncSession {
         let cert = currentConnection["cert"] ?? ""
 
         Background {
-            print("Waiting for SSH forwarding to complete successfully")
+            var message = ""
             var continueConnecting = true
             if sshAddress != "" {
+                print("Waiting for SSH forwarding to complete successfully")
                 // Wait for SSH Tunnel to be established for 15 seconds
                 continueConnecting = sshForwardingLock.lock(before: Date(timeIntervalSinceNow: 15))
                 if !continueConnecting {
-                    print("Timeout establishing SSH Tunnel")
+                    message = "Timeout establishing SSH Tunnel"
+                    print(message)
                 } else if (sshForwardingStatus != true) {
-                    print("Failed to establish SSH Tunnel")
+                    message = "Failed to establish SSH Tunnel"
+                    print(message)
                     continueConnecting = false
                 } else {
                     print("SSH Tunnel indicated to be successful")
@@ -282,9 +295,9 @@ class VncSession {
                            UnsafeMutablePointer<Int8>(mutating: (pass as NSString).utf8String),
                            UnsafeMutablePointer<Int8>(mutating: (ca_path as! NSString).utf8String))
             } else {
-                print("Something went wrong, not connecting to VNC server.")
-                failure_callback()
-                // TODO: Show error to user.
+                message = "Something went wrong, not connecting to VNC server.\n\n" + message
+                print(message)
+                failure_callback_str(message: message)
             }
         }
         
