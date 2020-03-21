@@ -30,10 +30,7 @@ fi
 if git clone https://github.com/x2on/OpenSSL-for-iPhone.git
 then
   pushd OpenSSL-for-iPhone
-  patch -p1 < ../01_openssl.patch
   ./build-libssl.sh --deprecated --version=1.1.1d
-  patch -p1 < ../02_openssl.patch
-  patch -p1 < ../03_openssl.patch
   popd
 else
   echo "Found OpenSSL-for-iPhone directory, assuming it is built, please remove with 'rm -rf OpenSSL-for-iPhone' to rebuild"
@@ -54,7 +51,10 @@ rsync -avP iSSH2/libssh2_iphoneos/ ./bVNC.xcodeproj/libs_combined/
 
 if git clone https://github.com/LibVNC/libvncserver.git
 then
+  pushd libvncserver
+  git checkout 852dcdd8a8c4fbbfe330e4757f3773b3d59176da
   patch -p1 < ../01_libvncserver.patch
+  popd
 fi
 
 git clone https://github.com/leetal/ios-cmake.git || true
