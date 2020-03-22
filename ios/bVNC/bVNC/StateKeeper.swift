@@ -23,6 +23,7 @@ class StateKeeper: ObservableObject {
     var vncSession: VncSession?
     var bottomButtons: [String: UIButton]
     var keyboardHeight: CGFloat = 0.0
+    var clientLog: String = "Client Log:\n\n"
     
     init() {
         // Load settings for current connection
