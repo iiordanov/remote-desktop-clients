@@ -43,8 +43,7 @@ class ToggleButton: UIButton {
     @objc func sendText() {
         print("Sending my xksysym: \(toSend!), up and then down.")
         sendKeyEventWithKeySym(toSend!)
-        AudioServicesPlaySystemSound(kSystemSoundID_Vibrate);
-        AudioServicesPlaySystemSound(1520);
+        //AudioServicesPlayAlertSound(kSystemSoundID_Vibrate);
     }
 
     override init(frame: CGRect) {
