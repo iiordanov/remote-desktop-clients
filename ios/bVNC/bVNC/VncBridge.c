@@ -113,6 +113,8 @@ void connectVnc(void (*fb_update_callback)(uint8_t *, int fbW, int fbH, int x, i
     failure_callback = fail_callback;
     client_log_callback = cl_log_callback;
 
+    rfbClientLog = rfbClientErr = client_log;
+    
     if(cl != NULL) {
         rfbClientCleanup(cl);
     }
@@ -142,8 +144,6 @@ void connectVnc(void (*fb_update_callback)(uint8_t *, int fbW, int fbH, int x, i
     cl->GetPassword = get_password;
     //cl->listenPort = LISTEN_PORT_OFFSET;
     //cl->listen6Port = LISTEN_PORT_OFFSET;
-    cl->RfbClientErr = client_log;
-    cl->RfbClientLog = client_log;
 
     if (!rfbInitClient(cl, &argc, argv)) {
         cl = NULL; /* rfbInitClient has already freed the client struct */
