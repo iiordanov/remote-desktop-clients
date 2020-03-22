@@ -119,6 +119,7 @@ class TouchEnabledUIImageView: UIImageView {
                 self.lock.lock()
                 self.sendPointerEvent(moving: moving, firstDown: firstDown, secondDown: secondDown, thirdDown: thirdDown, fourthDown: fourthDown, fifthDown: fifthDown)
                 if (!moving) {
+                    Thread.sleep(forTimeInterval: 0.02)
                     self.sendPointerEvent(moving: moving, firstDown: false, secondDown: false, thirdDown: false, fourthDown: false, fifthDown: false)
                 }
                 self.lock.unlock()
@@ -204,7 +205,7 @@ class TouchEnabledUIImageView: UIImageView {
                         if let touchView = touch.view {
                             self.setViewParameters(touch: touch, touchView: touchView)
                         }
-                        if moveEventsSinceFingerDown > 2 {
+                        if moveEventsSinceFingerDown > 4 {
                             self.sendDownThenUpEvent(moving: true, firstDown: self.firstDown, secondDown: self.secondDown, thirdDown: self.thirdDown, fourthDown: false, fifthDown: false)
                         } else {
                             print("Discarding some touch events")
@@ -274,7 +275,7 @@ class TouchEnabledUIImageView: UIImageView {
 
             //print ("abs(scaleX*translation.x): \(abs(scaleX*translation.x)), abs(scaleY*translation.y): \(abs(scaleY*translation.y))")
             // If scrolling or tolerance for scrolling is exceeded
-            if (!self.inPanning && (self.inScrolling || abs(scaleX*translation.x) < 0.25 && abs(scaleY*translation.y) >= 0.25)) {
+            if (!self.inPanning && (self.inScrolling || abs(scaleX*translation.x) < 0.3 && abs(scaleY*translation.y) > 0.7)) {
                 // If tolerance for scrolling was just exceeded, begin scroll event
                 if (!self.inScrolling) {
                     self.inScrolling = true
@@ -285,10 +286,10 @@ class TouchEnabledUIImageView: UIImageView {
                 }
                 let timeNow = CACurrentMediaTime();
                 let timeDiff = timeNow - self.timeLast
-                if translation.y >= 0.25 && timeDiff > timeThreshhold {
+                if translation.y > 0 && timeDiff > timeThreshhold {
                     sendDownThenUpEvent(moving: false, firstDown: false, secondDown: false, thirdDown: false, fourthDown: true, fifthDown: false)
                     self.timeLast = timeNow
-                } else if translation.y <= 0.25 && timeDiff > timeThreshhold {
+                } else if translation.y < 0 && timeDiff > timeThreshhold {
                     sendDownThenUpEvent(moving: false, firstDown: false, secondDown: false, thirdDown: false, fourthDown: false, fifthDown: true)
                     self.timeLast = timeNow
                 }
