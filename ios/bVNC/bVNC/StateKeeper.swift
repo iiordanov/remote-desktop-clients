@@ -21,12 +21,15 @@ class StateKeeper: ObservableObject {
     var errorMessage: String?
     var imageView: TouchEnabledUIImageView?
     var vncSession: VncSession?
+    var bottomButtons: [String: UIButton]
+    var keyboardHeight: CGFloat = 0.0
     
     init() {
         // Load settings for current connection
         selectedConnection = self.settings.dictionary(forKey: "selectedConnection") as? [String:String] ?? [:]
         connectionIndex = self.settings.integer(forKey: "connectionIndex")
         connections = self.settings.array(forKey: "connections") as? [Dictionary<String, String>] ?? []
+        bottomButtons = [:]
     }
     
     var currentPage: String = "page0" {
@@ -49,6 +52,7 @@ class StateKeeper: ObservableObject {
 
     func connect(index: Int) {
         print("Connecting and navigating to the connection screen")
+        registerForNotifications()
         self.connectionIndex = index
         self.selectedConnection = self.connections[index]
         self.vncSession = VncSession(scene: self.scene!, stateKeeper: self, window: self.window!)
@@ -59,6 +63,7 @@ class StateKeeper: ObservableObject {
     @objc func disconnect() {
         print("Disconnecting and navigating to the disconnection screen")
         imageView?.disableTouch()
+        deregisterFromNotifications()
         self.vncSession?.disconnect()
         self.currentPage = "page3"
     }
@@ -129,4 +134,165 @@ class StateKeeper: ObservableObject {
         self.errorMessage = message
         self.currentPage = "dismissableErrorMessage"
     }
+    
+    @objc func keyboardWasShown(notification: NSNotification){
+        let info = notification.userInfo!
+        let keyboardSize = (info[UIResponder.keyboardFrameBeginUserInfoKey] as? NSValue)?.cgRectValue.size
+        keyboardHeight = keyboardSize?.height ?? 0
+        print("Keyboard will be shown, height: \(keyboardHeight)")
+        if getMaintainConnection() {
+            createAndRepositionButtons()
+        }
+    }
+
+    @objc func keyboardWillBeHidden(notification: NSNotification){
+        let info = notification.userInfo!
+        let keyboardSize = (info[UIResponder.keyboardFrameBeginUserInfoKey] as? NSValue)?.cgRectValue.size
+        keyboardHeight = 0
+        if getMaintainConnection() {
+            createAndRepositionButtons()
+        }
+        print("Keyboard will be hidden, height: \(keyboardHeight)")
+    }
+    
+    func moveAllButtons(yDistance: CGFloat) {
+        self.bottomButtons.forEach(){ button in
+            button.value.center = CGPoint(x: button.value.center.x, y: button.value.center.y + yDistance)
+        }
+    }
+
+    func registerForNotifications(){
+        NotificationCenter.default.addObserver(self, selector: #selector(self.keyboardWillBeHidden(notification:)), name: UIResponder.keyboardWillHideNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.keyboardWasShown(notification:)), name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.orientationChanged),
+            name: UIDevice.orientationDidChangeNotification, object: nil)
+    }
+
+    func deregisterFromNotifications(){
+        NotificationCenter.default.removeObserver(self)
+    }
+    
+    @objc func orientationChanged(_ notification: NSNotification) {
+        print("Device rotated, correcting button layout.")
+        if getMaintainConnection() {
+            correctTopSpacingForOrientation()
+            removeButtons()
+            createAndRepositionButtons()
+            addButtons()
+        }
+    }
+    
+    func correctTopSpacingForOrientation() {
+        if UIDevice.current.orientation.isLandscape {
+            print("Landscape")
+            topSpacing = 0
+        }
+
+        if UIDevice.current.orientation.isPortrait {
+            print("Portrait")
+            topSpacing = 20
+        }
+    }
+    
+    func createAndRepositionButtons() {
+        print("Creating buttons")
+        if (self.bottomButtons["keyboardButton"] == nil) {
+            let b = CustomTextInput()
+            b.setTitle("K", for: [])
+            b.backgroundColor = UIColor(red: 0.5, green: 0.5, blue: 0.5, alpha: 0.2)
+            b.addTarget(b, action: #selector(b.toggleFirstResponder), for: .touchDown)
+            self.bottomButtons["keyboardButton"] = b
+        }
+        self.bottomButtons["keyboardButton"]!.frame = CGRect(
+            x: globalWindow!.frame.width-buttonWidth,
+            y: globalWindow!.frame.height-3*buttonHeight-self.keyboardHeight,
+            width: buttonWidth, height: buttonHeight)
+
+        if (self.bottomButtons["disconnectButton"] == nil) {
+            let b = UIButton()
+            b.setTitle("D", for: [])
+            b.backgroundColor = UIColor(red: 0.5, green: 0.5, blue: 0.5, alpha: 0.2)
+            b.addTarget(globalStateKeeper, action: #selector(globalStateKeeper?.disconnect), for: .touchDown)
+            self.bottomButtons["disconnectButton"] = b
+        }
+        self.bottomButtons["disconnectButton"]!.frame = CGRect(
+            x: globalWindow!.frame.width-buttonWidth,
+            y: globalWindow!.frame.height-4*buttonHeight-buttonSpacing-self.keyboardHeight,
+            width: buttonWidth, height: buttonHeight)
+        
+        if (self.bottomButtons["ctrlButton"] == nil) {
+            let ctrlButton = ToggleButton(frame: CGRect(), title: "C", background: UIColor(red: 0.5, green: 0.5, blue: 0.5, alpha: 0.2), stateKeeper: self, toSend: XK_Control_L, toggle: true)
+            self.bottomButtons["ctrlButton"] = ctrlButton
+        }
+        self.bottomButtons["ctrlButton"]!.frame = CGRect(x: 0, y: globalWindow!.frame.height-1*buttonHeight-self.keyboardHeight, width: buttonWidth, height: buttonHeight)
+
+        if (self.bottomButtons["superButton"] == nil) {
+            let superButton = ToggleButton(frame: CGRect(), title: "S", background: UIColor(red: 0.5, green: 0.5, blue: 0.5, alpha: 0.2), stateKeeper: self, toSend: XK_Super_L, toggle: true)
+            self.bottomButtons["superButton"] = superButton
+        }
+        self.bottomButtons["superButton"]!.frame = CGRect(x: 1*buttonWidth+1*buttonSpacing, y: globalWindow!.frame.height-1*buttonHeight-self.keyboardHeight, width: buttonWidth, height: buttonHeight)
+
+        if (self.bottomButtons["altButton"] == nil) {
+            let altButton = ToggleButton(frame: CGRect(), title: "A", background: UIColor(red: 0.5, green: 0.5, blue: 0.5, alpha: 0.2), stateKeeper: self, toSend: XK_Alt_L, toggle: true)
+            self.bottomButtons["altButton"] = altButton
+        }
+        self.bottomButtons["altButton"]!.frame = CGRect(x: 2*buttonWidth+2*buttonSpacing, y: globalWindow!.frame.height-1*buttonHeight-self.keyboardHeight, width: buttonWidth, height: buttonHeight)
+
+        if (self.bottomButtons["tabButton"] == nil) {
+            let tabButton = ToggleButton(frame: CGRect(), title: "T", background: UIColor(red: 0.5, green: 0.5, blue: 0.5, alpha: 0.2), stateKeeper: self, toSend: XK_Tab, toggle: false)
+            self.bottomButtons["tabButton"] = tabButton
+        }
+        self.bottomButtons["tabButton"]!.frame = CGRect(x: 0, y: globalWindow!.frame.height-2*buttonHeight-1*buttonSpacing-self.keyboardHeight, width: buttonWidth, height: buttonHeight)
+        
+        if (self.bottomButtons["leftButton"] == nil) {
+            let leftButton = ToggleButton(frame: CGRect(), title: "←", background: UIColor(red: 0.5, green: 0.5, blue: 0.5, alpha: 0.2), stateKeeper: self, toSend: XK_Left, toggle: false)
+            self.bottomButtons["leftButton"] = leftButton
+        }
+        self.bottomButtons["leftButton"]!.frame = CGRect(
+            x: globalWindow!.frame.width-3*buttonWidth-2*buttonSpacing,
+            y: globalWindow!.frame.height-1*buttonHeight-self.keyboardHeight,
+            width: buttonWidth, height: buttonHeight)
+
+        if (self.bottomButtons["rightButton"] == nil) {
+            let rightButton = ToggleButton(frame: CGRect(), title: "→", background: UIColor(red: 0.5, green: 0.5, blue: 0.5, alpha: 0.2), stateKeeper: self, toSend: XK_Right, toggle: false)
+            self.bottomButtons["rightButton"] = rightButton
+        }
+        self.bottomButtons["rightButton"]!.frame = CGRect(
+            x: globalWindow!.frame.width-1*buttonWidth-0*buttonSpacing,
+            y: globalWindow!.frame.height-1*buttonHeight-self.keyboardHeight,
+            width: buttonWidth, height: buttonHeight)
+
+        if (self.bottomButtons["upButton"] == nil) {
+            let upButton = ToggleButton(frame: CGRect(), title: "↑", background: UIColor(red: 0.5, green: 0.5, blue: 0.5, alpha: 0.2), stateKeeper: self, toSend: XK_Up, toggle: false)
+            self.bottomButtons["upButton"] = upButton
+        }
+        self.bottomButtons["upButton"]!.frame = CGRect(
+            x: globalWindow!.frame.width-2*buttonWidth-1*buttonSpacing,
+            y: globalWindow!.frame.height-2*buttonHeight-1*buttonSpacing-self.keyboardHeight,
+            width: buttonWidth, height: buttonHeight)
+
+        if (self.bottomButtons["downButton"] == nil) {
+            let downButton = ToggleButton(frame: CGRect(), title: "↓", background: UIColor(red: 0.5, green: 0.5, blue: 0.5, alpha: 0.2), stateKeeper: self, toSend: XK_Down, toggle: false)
+            self.bottomButtons["downButton"] = downButton
+        }
+        self.bottomButtons["downButton"]!.frame = CGRect(
+            x: globalWindow!.frame.width-2*buttonWidth-1*buttonSpacing,
+            y: globalWindow!.frame.height-1*buttonHeight-self.keyboardHeight,
+            width: buttonWidth, height: buttonHeight)
+    }
+
+    func addButtons() {
+        print("Adding buttons")
+        self.bottomButtons.forEach(){ button in
+            globalWindow!.addSubview(button.value)
+        }
+    }
+
+    func removeButtons() {
+        print("Removing buttons")
+        self.bottomButtons.forEach(){ button in
+            button.value.removeFromSuperview()
+        }
+    }
+
 }
