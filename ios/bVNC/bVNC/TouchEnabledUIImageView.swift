@@ -45,7 +45,8 @@ class TouchEnabledUIImageView: UIImageView {
     var newX: CGFloat = 0.0
     var newY: CGFloat = 0.0
     var viewTransform: CGAffineTransform = CGAffineTransform()
-    var lastTime: Double = 0.0
+    var timeLast: Double = 0.0
+    let timeThreshhold: Double = 0.06
     var touchEnabled: Bool = false
     var firstDown: Bool = false
     var secondDown: Bool = false
@@ -126,10 +127,13 @@ class TouchEnabledUIImageView: UIImageView {
     }
     
     func sendPointerEvent(moving: Bool, firstDown: Bool, secondDown: Bool, thirdDown: Bool, fourthDown: Bool, fifthDown: Bool) {
-        if !moving || abs(self.lastX - self.newX) > 12.0 || abs(self.lastY - self.newY) > 12.0 {
+        let timeNow = CACurrentMediaTime();
+        let timeDiff = timeNow - self.timeLast
+        if !moving || (abs(self.lastX - self.newX) > 1.0 || abs(self.lastY - self.newY) > 1.0) && timeDiff > timeThreshhold {
             sendPointerEventToServer(Int32(self.width), Int32(self.height), Int32(self.newX), Int32(self.newY), firstDown, secondDown, thirdDown, fourthDown, fifthDown)
             self.lastX = self.newX
             self.lastY = self.newY
+            self.timeLast = timeNow
         }
     }
     
@@ -203,7 +207,7 @@ class TouchEnabledUIImageView: UIImageView {
                         if moveEventsSinceFingerDown > 2 {
                             self.sendDownThenUpEvent(moving: true, firstDown: self.firstDown, secondDown: self.secondDown, thirdDown: self.thirdDown, fourthDown: false, fifthDown: false)
                         } else {
-                            print("Discarding some events")
+                            print("Discarding some touch events")
                             moveEventsSinceFingerDown += 1
                         }
                     }
@@ -279,10 +283,14 @@ class TouchEnabledUIImageView: UIImageView {
                     self.newX = self.point.x*viewTransform.a
                     self.newY = self.point.y*viewTransform.d
                 }
-                if translation.y >= 0.25 {
+                let timeNow = CACurrentMediaTime();
+                let timeDiff = timeNow - self.timeLast
+                if translation.y >= 0.25 && timeDiff > timeThreshhold {
                     sendDownThenUpEvent(moving: false, firstDown: false, secondDown: false, thirdDown: false, fourthDown: true, fifthDown: false)
-                } else if translation.y <= 0.25 {
+                    self.timeLast = timeNow
+                } else if translation.y <= 0.25 && timeDiff > timeThreshhold {
                     sendDownThenUpEvent(moving: false, firstDown: false, secondDown: false, thirdDown: false, fourthDown: false, fifthDown: true)
+                    self.timeLast = timeNow
                 }
                 return
             }
