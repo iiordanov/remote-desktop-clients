@@ -275,7 +275,7 @@ class TouchEnabledUIImageView: UIImageView {
 
             //print ("abs(scaleX*translation.x): \(abs(scaleX*translation.x)), abs(scaleY*translation.y): \(abs(scaleY*translation.y))")
             // If scrolling or tolerance for scrolling is exceeded
-            if (!self.inPanning && (self.inScrolling || abs(scaleX*translation.x) < 0.3 && abs(scaleY*translation.y) > 0.7)) {
+            if (!self.inPanning && (self.inScrolling || abs(scaleX*translation.x) < 0.2 && abs(scaleY*translation.y) > 1.0)) {
                 // If tolerance for scrolling was just exceeded, begin scroll event
                 if (!self.inScrolling) {
                     self.inScrolling = true

@@ -27,6 +27,18 @@ bool getMaintainConnection() {
     return maintainConnection;
 }
 
+char *message_buffer = NULL;
+void rfb_client_log(const char *format, ...) {
+    va_list args;
+    if (message_buffer == NULL) {
+        message_buffer = malloc(65536);
+    }
+    va_start(args, format);
+    snprintf(message_buffer, 65535, format, args);
+    client_log_callback((int8_t*)message_buffer);
+    va_end(args);
+}
+
 static rfbCredential* get_credential(rfbClient* cl, int credentialType){
     rfbClientLog("VeNCrypt authentication callback called\n\n");
     rfbCredential *c = malloc(sizeof(rfbCredential));
@@ -95,9 +107,10 @@ void disconnectVnc() {
     SendFramebufferUpdateRequest(cl, 0, 0, 1, 1, FALSE);
 }
 
-void connectVnc(void (*callback)(uint8_t *, int fbW, int fbH, int x, int y, int w, int h),
-                void (*callback2)(int fbW, int fbH),
-                void (*callback3)(int8_t *),
+void connectVnc(void (*fb_update_callback)(uint8_t *, int fbW, int fbH, int x, int y, int w, int h),
+                void (*fb_resize_callback)(int fbW, int fbH),
+                void (*fail_callback)(int8_t *),
+                void (*cl_log_callback)(int8_t *),
                 char* addr, char* user, char* password, char* ca_path) {
     printf("Setting up connection.\n");
     maintainConnection = true;
@@ -106,9 +119,10 @@ void connectVnc(void (*callback)(uint8_t *, int fbW, int fbH, int x, int y, int 
     USERNAME = user;
     PASSWORD = password;
     CA_PATH = ca_path;
-    framebuffer_update_callback = callback;
-    framebuffer_resize_callback = callback2;
-    failure_callback = callback3;
+    framebuffer_update_callback = fb_update_callback;
+    framebuffer_resize_callback = fb_resize_callback;
+    failure_callback = fail_callback;
+    client_log_callback = cl_log_callback;
 
     if(cl != NULL) {
         rfbClientCleanup(cl);
@@ -139,7 +153,9 @@ void connectVnc(void (*callback)(uint8_t *, int fbW, int fbH, int x, int y, int 
     cl->GetPassword = get_password;
     //cl->listenPort = LISTEN_PORT_OFFSET;
     //cl->listen6Port = LISTEN_PORT_OFFSET;
-    
+    cl->RfbClientErr = rfb_client_log;
+    cl->RfbClientLog = rfb_client_log;
+
     if (!rfbInitClient(cl, &argc, argv)) {
         cl = NULL; /* rfbInitClient has already freed the client struct */
         cleanup("Failed to connect to server\n", cl);

@@ -62,6 +62,10 @@ func failure_callback(message: UnsafeMutablePointer<Int8>?) -> Void {
     }
 }
 
+func log_callback(message: UnsafeMutablePointer<Int8>?) -> Void {
+    globalStateKeeper?.clientLog += String(cString: message!)
+}
+
 /**
  *
  * @return The smallest scale supported by the implementation; the scale at which
@@ -219,7 +223,7 @@ class VncSession {
             }
             if continueConnecting {
                 print("Connecting VNC Session in the background...")
-                connectVnc(update_callback, resize_callback, failure_callback,
+                connectVnc(update_callback, resize_callback, failure_callback, log_callback,
                            UnsafeMutablePointer<Int8>(mutating: (addressAndPort as NSString).utf8String),
                            UnsafeMutablePointer<Int8>(mutating: (user as NSString).utf8String),
                            UnsafeMutablePointer<Int8>(mutating: (pass as NSString).utf8String),

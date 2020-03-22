@@ -226,11 +226,16 @@ struct DismissableErrorDialog : View {
     func getErrorMessage() -> String {
         return stateKeeper.errorMessage ?? ""
     }
-
+    func getClientLog() -> String {
+        return stateKeeper.clientLog
+    }
+    
     var body: some View {
         VStack {
-            Text(self.getErrorMessage()).font(.title)
-
+            ScrollView {
+                Text(self.getErrorMessage()).font(.title)
+                Text(self.getClientLog()).font(.body)
+            }
             Button(action: {
                 self.stateKeeper.showConnections()
             }) {

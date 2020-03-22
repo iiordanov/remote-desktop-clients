@@ -14,13 +14,17 @@
 #include "SshPortForwarder.h"
 
 bool getMaintainConnection(void);
-void connectVnc(void (*callback)(uint8_t *, int fbW, int fbH, int x, int y, int w, int h),
-                void (*callback2)(int fbW, int fbH),
-                void (*callback3)(int8_t *), char*, char*, char*, char*);
+void connectVnc(void (*fb_update_callback)(uint8_t *, int fbW, int fbH, int x, int y, int w, int h),
+                void (*fb_resize_callback)(int fbW, int fbH),
+                void (*fail_callback)(int8_t *),
+                void (*cl_log_callback)(int8_t *),
+                char* addr, char* user, char* password, char* ca_path);
+
 void disconnectVnc(void);
 void (*framebuffer_update_callback)(uint8_t *, int fbW, int fbH, int x, int y, int w, int h);
 void (*framebuffer_resize_callback)(int fbW, int fbH);
 void (*failure_callback)(int8_t *);
+void (*client_log_callback)(int8_t *);
 void sendKeyEvent(const unsigned char *c);
 void sendUniDirectionalKeyEvent(const unsigned char *c, bool down);
 bool sendKeyEventInt(int c);
