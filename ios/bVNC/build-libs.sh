@@ -49,14 +49,10 @@ fi
 # Copy SSH libs and header files to project
 rsync -avP iSSH2/libssh2_iphoneos/ ./bVNC.xcodeproj/libs_combined/
 
-if git clone https://github.com/iiordanov/libvncserver.git
-then
-  pushd libvncserver
-  git revert --no-edit eae530696e255389c467f7da7f90ee68789769f9
-  popd
-fi
-
 git clone https://github.com/leetal/ios-cmake.git || true
+
+git clone https://github.com/LibVNC/libvncserver.git || true
+
 pushd libvncserver/
 
 if [ -n "${CLEAN}" ]

@@ -46,7 +46,7 @@ class TouchEnabledUIImageView: UIImageView {
     var newY: CGFloat = 0.0
     var viewTransform: CGAffineTransform = CGAffineTransform()
     var timeLast: Double = 0.0
-    let timeThreshhold: Double = 0.06
+    let timeThreshhold: Double = 0.07
     var touchEnabled: Bool = false
     var firstDown: Bool = false
     var secondDown: Bool = false
