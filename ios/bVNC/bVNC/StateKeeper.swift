@@ -23,7 +23,7 @@ class StateKeeper: ObservableObject {
     var vncSession: VncSession?
     var bottomButtons: [String: UIButton]
     var keyboardHeight: CGFloat = 0.0
-    var clientLog: String = "Client Log:\n\n"
+    var clientLog: String = ""
     
     init() {
         // Load settings for current connection
@@ -53,7 +53,8 @@ class StateKeeper: ObservableObject {
 
     func connect(index: Int) {
         print("Connecting and navigating to the connection screen")
-        registerForNotifications()
+        self.clientLog = "Client Log:\n\n"
+        self.registerForNotifications()
         self.connectionIndex = index
         self.selectedConnection = self.connections[index]
         self.vncSession = VncSession(scene: self.scene!, stateKeeper: self, window: self.window!)

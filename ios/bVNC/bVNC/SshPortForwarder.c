@@ -7,8 +7,9 @@
 //
 
 #include "SshPortForwarder.h"
+#include "Utility.h"
 
-#include <netdb.h>'
+#include <netdb.h>
 #include <libssh2.h>
 
 #ifdef WIN32
@@ -60,15 +61,19 @@ enum {
     AUTH_PUBLICKEY
 };
 
-void setupSshPortForward(void (*ssh_forward_success)(void), void (*ssh_forward_failure)(void), char* host, char* port, char* user, char* password, char* local_ip, char* local_port, char* remote_ip, char* remote_port) {
-    
+void setupSshPortForward(void (*ssh_forward_success)(void),
+                         void (*ssh_forward_failure)(void),
+                         void (*cl_log_callback)(int8_t *),
+                         char* host, char* port, char* user, char* password, char* local_ip,
+                         char* local_port, char* remote_ip, char* remote_port) {
+    client_log_callback = cl_log_callback;
     int argc = 9;
     char **argv = (char**)malloc(argc*sizeof(char*));
     int i = 0;
     
     char host_ip[256];
     if (resolve_host_to_ip(host , host_ip) != 0) {
-        printf("Unable to resolve %s to an IP\n", host);
+        client_log("Unable to resolve %s to an IP\n", host);
         ssh_forward_failure();
         return;
     }
@@ -87,7 +92,7 @@ void setupSshPortForward(void (*ssh_forward_success)(void), void (*ssh_forward_f
     strcpy(argv[8], remote_port);
 
     int res = startForwarding(argc, argv, ssh_forward_success);
-    printf ("Result of SSH forwarding: %d\n", res);
+    client_log ("Result of SSH forwarding: %d\n", res);
     ssh_forward_success();
 }
 
@@ -99,13 +104,13 @@ int resolve_host_to_ip(char *hostname , char* ip) {
     struct sockaddr_in sa;
     if (inet_pton(AF_INET, hostname, &(sa.sin_addr)) != 0) {
         // This is already an ip address
-        printf("Specified hostname %s is already an IP address\n", hostname);
+        client_log("Specified hostname %s is already an IP address\n", hostname);
         strcpy(ip, hostname);
         return 0;
     }
     
     if ((he = gethostbyname(hostname) ) == NULL) {
-        printf("Error calling gethostbyname for %s\n", hostname);
+        client_log("Error calling gethostbyname for %s\n", hostname);
         herror("gethostbyname");
         return 1;
     }
@@ -114,11 +119,11 @@ int resolve_host_to_ip(char *hostname , char* ip) {
     
     for(i = 0; addr_list[i] != NULL; i++) {
         strcpy(ip, inet_ntoa(*addr_list[i]));
-        printf("Successfully resolved hostname %s to IP %s\n", hostname, ip);
+        client_log("Successfully resolved hostname %s to IP %s\n", hostname, ip);
         return 0;
     }
     
-    printf("Unable to resolve hostname %s\n", hostname);
+    client_log("Unable to resolve hostname %s\n", hostname);
     return 1;
 }
 
@@ -147,7 +152,7 @@ int startForwarding(int argc, char *argv[], void (*ssh_forward_success)(void))
 
     err = WSAStartup(MAKEWORD(2, 0), &wsadata);
     if(err != 0) {
-        fprintf(stderr, "WSAStartup failed with error: %d\n", err);
+        fclient_log(stderr, "WSAStartup failed with error: %d\n", err);
         return 1;
     }
 #else
@@ -179,7 +184,7 @@ int startForwarding(int argc, char *argv[], void (*ssh_forward_success)(void))
 
     rc = libssh2_init(0);
     if(rc) {
-        fprintf(stderr, "libssh2 initialization failed (%d)\n", rc);
+        client_log("libssh2 initialization failed (%d)\n", rc);
         return 1;
     }
 
@@ -187,7 +192,7 @@ int startForwarding(int argc, char *argv[], void (*ssh_forward_success)(void))
     sock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
 #ifdef WIN32
     if(sock == INVALID_SOCKET) {
-        fprintf(stderr, "failed to open socket!\n");
+        client_log("failed to open socket!\n");
         return -1;
     }
 #else
@@ -206,14 +211,14 @@ int startForwarding(int argc, char *argv[], void (*ssh_forward_success)(void))
     sin.sin_port = htons(server_ssh_port);
     if(connect(sock, (struct sockaddr*)(&sin),
                sizeof(struct sockaddr_in)) != 0) {
-        fprintf(stderr, "failed to connect!\n");
+        client_log("failed to connect!\n");
         return -1;
     }
 
     /* Create a session instance */
     session = libssh2_session_init();
     if(!session) {
-        fprintf(stderr, "Could not initialize SSH session!\n");
+        client_log("Could not initialize SSH session!\n");
         return -1;
     }
 
@@ -222,7 +227,7 @@ int startForwarding(int argc, char *argv[], void (*ssh_forward_success)(void))
      */
     rc = libssh2_session_handshake(session, sock);
     if(rc) {
-        fprintf(stderr, "Error when starting up SSH session: %d\n", rc);
+        client_log("Error when starting up SSH session: %d\n", rc);
         return -1;
     }
 
@@ -232,14 +237,14 @@ int startForwarding(int argc, char *argv[], void (*ssh_forward_success)(void))
      * user, that's your call
      */
     fingerprint = libssh2_hostkey_hash(session, LIBSSH2_HOSTKEY_HASH_SHA1);
-    fprintf(stderr, "Fingerprint: ");
+    client_log("Fingerprint: ");
     for(i = 0; i < 20; i++)
-        fprintf(stderr, "%02X ", (unsigned char)fingerprint[i]);
-    fprintf(stderr, "\n");
+        client_log("%02X ", (unsigned char)fingerprint[i]);
+    client_log("\n");
 
     /* check what authentication methods are available */
     userauthlist = libssh2_userauth_list(session, username, strlen(username));
-    fprintf(stderr, "Authentication methods: %s\n", userauthlist);
+    client_log("Authentication methods: %s\n", userauthlist);
     if(strstr(userauthlist, "password"))
         auth |= AUTH_PASSWORD;
     if(strstr(userauthlist, "publickey"))
@@ -255,27 +260,27 @@ int startForwarding(int argc, char *argv[], void (*ssh_forward_success)(void))
 
     if(auth & AUTH_PASSWORD) {
         if(libssh2_userauth_password(session, username, password)) {
-            fprintf(stderr, "Authentication by password failed.\n");
+            client_log("Authentication by password failed.\n");
             goto shutdown;
         }
     }
     else if(auth & AUTH_PUBLICKEY) {
         if(libssh2_userauth_publickey_fromfile(session, username, keyfile1,
                                                keyfile2, password)) {
-            fprintf(stderr, "\tAuthentication by public key failed!\n");
+            client_log("\tAuthentication by public key failed!\n");
             goto shutdown;
         }
-        fprintf(stderr, "\tAuthentication by public key succeeded.\n");
+        client_log("\tAuthentication by public key succeeded.\n");
     }
     else {
-        fprintf(stderr, "No supported authentication methods found!\n");
+        client_log("No supported authentication methods found!\n");
         goto shutdown;
     }
 
     listensock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
 #ifdef WIN32
     if(listensock == INVALID_SOCKET) {
-        fprintf(stderr, "failed to open listen socket!\n");
+        fclient_log(stderr, "failed to open listen socket!\n");
         return -1;
     }
 #else
@@ -306,13 +311,13 @@ int startForwarding(int argc, char *argv[], void (*ssh_forward_success)(void))
     }
 
     ssh_forward_success();
-    fprintf(stderr, "Waiting for TCP connection on %s:%d...\n",
+    client_log("Waiting for TCP connection on %s:%d...\n",
         inet_ntoa(sin.sin_addr), ntohs(sin.sin_port));
 
     forwardsock = accept(listensock, (struct sockaddr *)&sin, &sinlen);
 #ifdef WIN32
     if(forwardsock == INVALID_SOCKET) {
-        fprintf(stderr, "failed to accept forward socket!\n");
+        client_log("failed to accept forward socket!\n");
         goto shutdown;
     }
 #else
@@ -325,13 +330,13 @@ int startForwarding(int argc, char *argv[], void (*ssh_forward_success)(void))
     shost = inet_ntoa(sin.sin_addr);
     sport = ntohs(sin.sin_port);
 
-    fprintf(stderr, "Forwarding connection from %s:%d here to remote %s:%d\n",
+    client_log("Forwarding connection from %s:%d here to remote %s:%d\n",
         shost, sport, remote_desthost, remote_destport);
 
     channel = libssh2_channel_direct_tcpip_ex(session, remote_desthost,
         remote_destport, shost, sport);
     if(!channel) {
-        fprintf(stderr, "Could not open the direct-tcpip channel!\n"
+        client_log("Could not open the direct-tcpip channel!\n"
                 "(Note that this can be a problem at the server!"
                 " Please review the server logs.)\n");
         goto shutdown;
@@ -357,7 +362,7 @@ int startForwarding(int argc, char *argv[], void (*ssh_forward_success)(void))
                 goto shutdown;
             }
             else if(0 == len) {
-                fprintf(stderr, "The client at %s:%d disconnected!\n", shost,
+                client_log("The client at %s:%d disconnected!\n", shost,
                     sport);
                 goto shutdown;
             }
@@ -368,7 +373,7 @@ int startForwarding(int argc, char *argv[], void (*ssh_forward_success)(void))
                     continue;
                 }
                 if(i < 0) {
-                    fprintf(stderr, "libssh2_channel_write: %d\n", i);
+                    client_log("libssh2_channel_write: %d\n", i);
                     goto shutdown;
                 }
                 wr += i;
@@ -379,7 +384,7 @@ int startForwarding(int argc, char *argv[], void (*ssh_forward_success)(void))
             if(LIBSSH2_ERROR_EAGAIN == len)
                 break;
             else if(len < 0) {
-                fprintf(stderr, "libssh2_channel_read: %d", (int)len);
+                client_log("libssh2_channel_read: %d", (int)len);
                 goto shutdown;
             }
             wr = 0;
@@ -392,7 +397,7 @@ int startForwarding(int argc, char *argv[], void (*ssh_forward_success)(void))
                 wr += i;
             }
             if(libssh2_channel_eof(channel)) {
-                fprintf(stderr, "The server at %s:%d disconnected!\n",
+                client_log("The server at %s:%d disconnected!\n",
                     remote_desthost, remote_destport);
                 goto shutdown;
             }

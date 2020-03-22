@@ -26,6 +26,7 @@
 		AF53DCB32402391600569F19 /* StateKeeper.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF53DCB22402391600569F19 /* StateKeeper.swift */; };
 		AF7421F1241D57E100C552A7 /* libssh2.a in Embed Libraries */ = {isa = PBXBuildFile; fileRef = AF7421F0241D57E000C552A7 /* libssh2.a */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		AF7421F4241D58EB00C552A7 /* SshPortForwarder.c in Sources */ = {isa = PBXBuildFile; fileRef = AF7421F3241D58EB00C552A7 /* SshPortForwarder.c */; };
+		AF9E8F932427F3B500752FC2 /* Utility.c in Sources */ = {isa = PBXBuildFile; fileRef = AF9E8F922427F3B500752FC2 /* Utility.c */; };
 		AFF244E22407985E00F5839B /* CustomTextInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFF244E12407985E00F5839B /* CustomTextInput.swift */; };
 		AFF244E42408AF9B00F5839B /* TouchEnabledUIImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFF244E32408AF9B00F5839B /* TouchEnabledUIImageView.swift */; };
 /* End PBXBuildFile section */
@@ -486,6 +487,8 @@
 		AF7421F0241D57E000C552A7 /* libssh2.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libssh2.a; path = bVNC.xcodeproj/libs_combined/lib/libssh2.a; sourceTree = "<group>"; };
 		AF7421F2241D58EB00C552A7 /* SshPortForwarder.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SshPortForwarder.h; sourceTree = "<group>"; };
 		AF7421F3241D58EB00C552A7 /* SshPortForwarder.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = SshPortForwarder.c; sourceTree = "<group>"; };
+		AF9E8F912427F3B500752FC2 /* Utility.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Utility.h; sourceTree = "<group>"; };
+		AF9E8F922427F3B500752FC2 /* Utility.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = Utility.c; sourceTree = "<group>"; };
 		AFF244E12407985E00F5839B /* CustomTextInput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomTextInput.swift; sourceTree = "<group>"; };
 		AFF244E32408AF9B00F5839B /* TouchEnabledUIImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TouchEnabledUIImageView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -562,6 +565,8 @@
 				AF043A2023B3DADB00C43ED7 /* Preview Content */,
 				AF7421F3241D58EB00C552A7 /* SshPortForwarder.c */,
 				AF291AD4242418A200DCD383 /* ToggleButton.swift */,
+				AF9E8F912427F3B500752FC2 /* Utility.h */,
+				AF9E8F922427F3B500752FC2 /* Utility.c */,
 			);
 			path = bVNC;
 			sourceTree = "<group>";
@@ -1140,6 +1145,7 @@
 				AF53DCB32402391600569F19 /* StateKeeper.swift in Sources */,
 				AF48283223B47EC300826395 /* VncBridge.c in Sources */,
 				AF043A1D23B3DADA00C43ED7 /* ContentView.swift in Sources */,
+				AF9E8F932427F3B500752FC2 /* Utility.c in Sources */,
 				AFF244E42408AF9B00F5839B /* TouchEnabledUIImageView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
