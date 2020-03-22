@@ -24,7 +24,6 @@ void disconnectVnc(void);
 void (*framebuffer_update_callback)(uint8_t *, int fbW, int fbH, int x, int y, int w, int h);
 void (*framebuffer_resize_callback)(int fbW, int fbH);
 void (*failure_callback)(int8_t *);
-void (*client_log_callback)(int8_t *);
 void sendKeyEvent(const unsigned char *c);
 void sendUniDirectionalKeyEvent(const unsigned char *c, bool down);
 bool sendKeyEventInt(int c);

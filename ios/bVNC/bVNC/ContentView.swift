@@ -134,15 +134,15 @@ struct ContentViewA : View {
                 Button(action: {
                     self.stateKeeper.currentPage = "page2"
                     let selectedConnection = [
-                        "sshAddress": self.sshAddressText,
-                        "sshPort": self.sshPortText,
-                        "sshUser": self.sshUserText,
-                        "sshPass": self.sshPassText,
-                        "address": self.addressText,
-                        "port": self.portText,
-                        "username": self.usernameText,
-                        "password": self.passwordText,
-                        "cert": self.certText                    ]
+                        "sshAddress": self.sshAddressText.trimmingCharacters(in: .whitespacesAndNewlines),
+                        "sshPort": self.sshPortText.trimmingCharacters(in: .whitespacesAndNewlines),
+                        "sshUser": self.sshUserText.trimmingCharacters(in: .whitespacesAndNewlines),
+                        "sshPass": self.sshPassText.trimmingCharacters(in: .whitespacesAndNewlines),
+                        "address": self.addressText.trimmingCharacters(in: .whitespacesAndNewlines),
+                        "port": self.portText.trimmingCharacters(in: .whitespacesAndNewlines),
+                        "username": self.usernameText.trimmingCharacters(in: .whitespacesAndNewlines),
+                        "password": self.passwordText.trimmingCharacters(in: .whitespacesAndNewlines),
+                        "cert": self.certText.trimmingCharacters(in: .whitespacesAndNewlines)]
                     self.stateKeeper.saveNewConnection(connection: selectedConnection)
                 }) {
                     Text("Save")

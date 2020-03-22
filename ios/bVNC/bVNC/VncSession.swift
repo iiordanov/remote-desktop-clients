@@ -185,6 +185,7 @@ class VncSession {
                 setupSshPortForward(
                     ssh_forward_success,
                     ssh_forward_failure,
+                    log_callback,
                     UnsafeMutablePointer<Int8>(mutating: (sshAddress as NSString).utf8String),
                     UnsafeMutablePointer<Int8>(mutating: (sshPort as NSString).utf8String),
                     UnsafeMutablePointer<Int8>(mutating: (sshUser as NSString).utf8String),

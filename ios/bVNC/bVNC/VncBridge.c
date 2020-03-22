@@ -10,6 +10,7 @@
 #include "VncBridge.h"
 #include "ucs2xkeysym.h"
 #include "SshPortForwarder.h"
+#include "Utility.h"
 
 char* HOST_AND_PORT = NULL;
 char* USERNAME = NULL;
@@ -25,18 +26,6 @@ int fbH = 0;
 
 bool getMaintainConnection() {
     return maintainConnection;
-}
-
-char *message_buffer = NULL;
-void rfb_client_log(const char *format, ...) {
-    va_list args;
-    if (message_buffer == NULL) {
-        message_buffer = malloc(65536);
-    }
-    va_start(args, format);
-    snprintf(message_buffer, 65535, format, args);
-    client_log_callback((int8_t*)message_buffer);
-    va_end(args);
 }
 
 static rfbCredential* get_credential(rfbClient* cl, int credentialType){
@@ -153,8 +142,8 @@ void connectVnc(void (*fb_update_callback)(uint8_t *, int fbW, int fbH, int x, i
     cl->GetPassword = get_password;
     //cl->listenPort = LISTEN_PORT_OFFSET;
     //cl->listen6Port = LISTEN_PORT_OFFSET;
-    cl->RfbClientErr = rfb_client_log;
-    cl->RfbClientLog = rfb_client_log;
+    cl->RfbClientErr = client_log;
+    cl->RfbClientLog = client_log;
 
     if (!rfbInitClient(cl, &argc, argv)) {
         cl = NULL; /* rfbInitClient has already freed the client struct */
