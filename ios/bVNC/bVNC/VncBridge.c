@@ -17,7 +17,6 @@ char* USERNAME = NULL;
 char* PASSWORD = NULL;
 char* CA_PATH = NULL;
 rfbClient *cl = NULL;
-uint8_t* pixelBuffer = NULL;
 int pixel_buffer_size = 0;
 bool maintainConnection = true;
 int BYTES_PER_PIXEL = 4;
@@ -72,20 +71,18 @@ static void update (rfbClient *cl, int x, int y, int w, int h) {
 
 static rfbBool resize (rfbClient *cl) {
     rfbClientLog("Resize RFB Buffer, allocating buffer\n");
-    static char first = TRUE;
     fbW = cl->width;
     fbH = cl->height;
     rfbClientLog("Width, height: %d, %d\n", fbW, fbH);
     
-    if (first) {
-        first = FALSE;
-    } else {
-        free(cl->frameBuffer);
-    }
+    uint8_t* oldFrameBuffer = cl->frameBuffer;
     pixel_buffer_size = BYTES_PER_PIXEL*fbW*fbH*sizeof(char);
     cl->frameBuffer = (uint8_t*)malloc(pixel_buffer_size);
     framebuffer_resize_callback(fbW, fbH);
     update(cl, 0, 0, fbW, fbH);
+    if (oldFrameBuffer != NULL) {
+        free(oldFrameBuffer);
+    }
     return TRUE;
 }
 
@@ -110,8 +107,8 @@ char* fingerprint_sha256, char* fingerprint_sha512, int pday, int psec) {
             "Issuer: %s\n\nCommon name: %s\n\nSHA256 Fingerprint: %s\n\nSHA512 Fingerprint: %s\n\n%s for %d days and %d seconds.\n",
             issuer, common_name, fingerprint_sha256, fingerprint_sha512, validity, pday, psec);
     
-    int response = yes_no_callback((int8_t *)"Please verify server certificate", (int8_t *)user_message,
-                                   (int8_t *)fingerprint_sha256, (int8_t *)fingerprint_sha512);
+    int response = yes_no_callback((int8_t *)"Please verify VNC server certificate", (int8_t *)user_message,
+                                   (int8_t *)fingerprint_sha256, (int8_t *)fingerprint_sha512, "X509");
 
     return response;
 }
@@ -120,7 +117,7 @@ void connectVnc(void (*fb_update_callback)(uint8_t *, int fbW, int fbH, int x, i
                 void (*fb_resize_callback)(int fbW, int fbH),
                 void (*fail_callback)(int8_t *),
                 void (*cl_log_callback)(int8_t *),
-                int (*y_n_callback)(int8_t *, int8_t *, int8_t *, int8_t *),
+                int (*y_n_callback)(int8_t *, int8_t *, int8_t *, int8_t *, int8_t *),
                 char* addr, char* user, char* password, char* ca_path) {
     rfbClientLog("Setting up connection.\n");
     maintainConnection = true;
@@ -138,8 +135,7 @@ void connectVnc(void (*fb_update_callback)(uint8_t *, int fbW, int fbH, int x, i
     rfbClientLog = rfbClientErr = client_log;
     
     if(cl != NULL) {
-        rfbClientCleanup(cl);
-        cl = NULL;
+        rfb_client_cleanup();
     }
     
     int argc = 2;
@@ -191,6 +187,16 @@ void connectVnc(void (*fb_update_callback)(uint8_t *, int fbW, int fbH, int x, i
         }
     }
     rfbClientLog("Background thread exiting connectVnc function.\n\n");
+}
+
+void rfb_client_cleanup() {
+    if (cl != NULL) {
+        if (cl->frameBuffer != NULL) {
+            free(cl->frameBuffer);
+        }
+        rfbClientCleanup(cl);
+        cl = NULL;
+    }
 }
 
 void cleanup(char *message, rfbClient *client) {

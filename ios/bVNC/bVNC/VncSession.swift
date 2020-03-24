@@ -66,8 +66,9 @@ func log_callback(message: UnsafeMutablePointer<Int8>?) -> Void {
     globalStateKeeper?.clientLog += String(cString: message!)
 }
 
-func yes_no_dialog_callback(title: UnsafeMutablePointer<Int8>?, message: UnsafeMutablePointer<Int8>?, fingerprintSha256: UnsafeMutablePointer<Int8>?, fingerprintSha512: UnsafeMutablePointer<Int8>?) -> Int32 {
+func yes_no_dialog_callback(title: UnsafeMutablePointer<Int8>?, message: UnsafeMutablePointer<Int8>?, fingerPrint1: UnsafeMutablePointer<Int8>?, fingerPrint2: UnsafeMutablePointer<Int8>?, type: UnsafeMutablePointer<Int8>?) -> Int32 {
     // TODO: Save fingerprints to check against, and check against saved finger prints.
+    print ("Received fingerprints \(String(cString: fingerPrint1!)) and \(String(cString: fingerPrint2!)) of type \(String(cString: type!))")
     return globalStateKeeper?.yesNoResponseRequired(
         title: String(cString: title!), message: String(cString: message!)) ?? 0
 }
@@ -88,7 +89,7 @@ func widthRatioLessThanHeightRatio(fbW: CGFloat, fbH: CGFloat) -> Bool {
 func resize_callback(fbW: Int32, fbH: Int32) -> Void {
     UserInterface {
         let minScale = getMinimumScale(fbW: CGFloat(fbW), fbH: CGFloat(fbH))
-        
+        globalStateKeeper?.imageView?.removeFromSuperview()
         globalStateKeeper?.imageView = TouchEnabledUIImageView(frame: CGRect(x: 0, y: 0, width: Int(fbW), height: Int(fbH)))
         globalStateKeeper?.imageView?.frame = CGRect(x: 0, y: topSpacing, width: CGFloat(fbW)*minScale, height: CGFloat(fbH)*minScale)
         globalStateKeeper?.imageView?.backgroundColor = UIColor.gray
@@ -193,6 +194,7 @@ class VncSession {
                     ssh_forward_success,
                     ssh_forward_failure,
                     log_callback,
+                    yes_no_dialog_callback,
                     UnsafeMutablePointer<Int8>(mutating: (sshAddress as NSString).utf8String),
                     UnsafeMutablePointer<Int8>(mutating: (sshPort as NSString).utf8String),
                     UnsafeMutablePointer<Int8>(mutating: (sshUser as NSString).utf8String),

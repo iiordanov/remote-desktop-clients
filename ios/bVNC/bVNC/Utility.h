@@ -14,7 +14,8 @@
 #include <stdarg.h>
 
 void client_log(const char *format, ...);
+char *get_human_readable_fingerprint(uint8_t *raw_fingerprint, uint32_t len);
 extern void (*client_log_callback)(int8_t *);
-extern int (*yes_no_callback)(int8_t *, int8_t *, int8_t *, int8_t *);
+extern int (*yes_no_callback)(int8_t *, int8_t *, int8_t *, int8_t *, int8_t *);
 
 #endif /* Utility_h */

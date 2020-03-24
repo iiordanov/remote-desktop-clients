@@ -61,12 +61,28 @@ enum {
     AUTH_PUBLICKEY
 };
 
+int ssh_certificate_verification_callback(char* fingerprint_sha1, char* fingerprint_sha256) {
+    char user_message[1024];
+
+    snprintf(user_message, 1023,
+            "SHA1 Fingerprint: %s\n\nSHA256 Fingerprint: %s\n\n\n",
+            fingerprint_sha1, fingerprint_sha256);
+    
+    int response = yes_no_callback((int8_t *)"Please verify SSH server certificate", (int8_t *)user_message,
+                                   (int8_t *)fingerprint_sha1, (int8_t *)fingerprint_sha256, "SSH");
+
+    return response;
+}
+
 void setupSshPortForward(void (*ssh_forward_success)(void),
                          void (*ssh_forward_failure)(void),
                          void (*cl_log_callback)(int8_t *),
+                         int  (*y_n_callback)(int8_t *, int8_t *, int8_t *, int8_t *, int8_t *),
                          char* host, char* port, char* user, char* password, char* local_ip,
                          char* local_port, char* remote_ip, char* remote_port) {
     client_log_callback = cl_log_callback;
+    yes_no_callback = y_n_callback;
+    
     int argc = 9;
     char **argv = (char**)malloc(argc*sizeof(char*));
     int i = 0;
@@ -132,7 +148,8 @@ int startForwarding(int argc, char *argv[], void (*ssh_forward_success)(void))
     int rc, i, auth = AUTH_NONE;
     struct sockaddr_in sin;
     socklen_t sinlen;
-    const char *fingerprint;
+    const char *fingerprint_sha1;
+    const char *fingerprint_sha256;
     char *userauthlist;
     LIBSSH2_SESSION *session;
     LIBSSH2_CHANNEL *channel = NULL;
@@ -236,11 +253,16 @@ int startForwarding(int argc, char *argv[], void (*ssh_forward_success)(void))
      * may have it hard coded, may go to a file, may present it to the
      * user, that's your call
      */
-    fingerprint = libssh2_hostkey_hash(session, LIBSSH2_HOSTKEY_HASH_SHA1);
-    client_log("Fingerprint: ");
-    for(i = 0; i < 20; i++)
-        client_log("%02X ", (unsigned char)fingerprint[i]);
-    client_log("\n");
+    fingerprint_sha1 = libssh2_hostkey_hash(session, LIBSSH2_HOSTKEY_HASH_SHA1);
+    char *fingerprint_sha1_str = get_human_readable_fingerprint(fingerprint_sha1, 20);
+    client_log("SHA1 Fingerprint: %s\n", fingerprint_sha1_str);
+    fingerprint_sha256 = libssh2_hostkey_hash(session, LIBSSH2_HOSTKEY_HASH_SHA256);
+    char *fingerprint_sha256_str = get_human_readable_fingerprint(fingerprint_sha256, 32);
+    client_log("SHA256 Fingerprint: %s\n", fingerprint_sha256_str);
+    if (!ssh_certificate_verification_callback(fingerprint_sha1_str, fingerprint_sha256_str)) {
+        client_log("User did not accept SSH server certificate.\n");
+        goto shutdown;
+    }
 
     /* check what authentication methods are available */
     userauthlist = libssh2_userauth_list(session, username, strlen(username));
