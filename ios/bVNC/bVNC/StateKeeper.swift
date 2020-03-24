@@ -18,7 +18,10 @@ class StateKeeper: ObservableObject {
     var settings = UserDefaults.standard
     var scene: UIScene?
     var window: UIWindow?
-    var errorMessage: String?
+    var title: String?
+    var message: String?
+    var yesNoDialogLock: NSLock = NSLock()
+    var yesNoDialogResponse: Int32 = 0
     var imageView: TouchEnabledUIImageView?
     var vncSession: VncSession?
     var bottomButtons: [String: UIButton]
@@ -33,7 +36,7 @@ class StateKeeper: ObservableObject {
         bottomButtons = [:]
     }
     
-    var currentPage: String = "page0" {
+    var currentPage: String = "connectionsList" {
         didSet {
             self.objectWillChange.send(self)
         }
@@ -53,28 +56,45 @@ class StateKeeper: ObservableObject {
 
     func connect(index: Int) {
         print("Connecting and navigating to the connection screen")
+        goToBlankPage()
+        yesNoDialogResponse = 0
         self.clientLog = "Client Log:\n\n"
         self.registerForNotifications()
         self.connectionIndex = index
         self.selectedConnection = self.connections[index]
         self.vncSession = VncSession(scene: self.scene!, stateKeeper: self, window: self.window!)
         self.vncSession!.connect(currentConnection: self.selectedConnection)
-        self.currentPage = "page4"
+    }
+    
+    func goToConnectedSession() {
+        UserInterface {
+            self.currentPage = "connectedSession"
+        }
     }
 
+    func goToBlankPage() {
+        UserInterface {
+            self.currentPage = "blankPage"
+        }
+    }
+    
     @objc func disconnect() {
         print("Disconnecting and navigating to the disconnection screen")
-        imageView?.disableTouch()
-        deregisterFromNotifications()
+        self.deregisterFromNotifications()
         self.vncSession?.disconnect()
-        self.currentPage = "page3"
+        UserInterface {
+            self.imageView?.disableTouch()
+            self.currentPage = "page3"
+        }
     }
     
     func addNew() {
         print("Adding new connection and navigating to connection setup screen")
         self.connectionIndex = -1
         self.selectedConnection = [:]
-        self.currentPage = "page1"
+        UserInterface {
+            self.currentPage = "page1"
+        }
     }
 
     func edit(index: Int) {
@@ -82,7 +102,9 @@ class StateKeeper: ObservableObject {
         self.connectionIndex = index
         self.selectedConnection = connections[index]
         print("Navigating to setup screen for connection at index \(self.connectionIndex)")
-        self.currentPage = "page1"
+        UserInterface {
+            self.currentPage = "page1"
+        }
     }
 
     func deleteCurrent() {
@@ -103,7 +125,9 @@ class StateKeeper: ObservableObject {
         } else {
             print("We were adding a new connection, so not deleting anything")
         }
-        self.currentPage = "page0"
+        UserInterface {
+            self.currentPage = "connectionsList"
+        }
     }
     
     func saveSettings() {
@@ -125,16 +149,22 @@ class StateKeeper: ObservableObject {
             self.connections[connectionIndex] = connection
         }
         self.saveSettings()
-        self.currentPage = "page0"
+        UserInterface {
+            self.currentPage = "connectionsList"
+        }
     }
     
     func showConnections() {
-        self.currentPage = "page0"
+        UserInterface {
+            self.currentPage = "connectionsList"
+        }
     }
     
     func showError(message: String) {
-        self.errorMessage = message
-        self.currentPage = "dismissableErrorMessage"
+        self.message = message
+        UserInterface {
+            self.currentPage = "dismissableErrorMessage"
+        }
     }
     
     @objc func keyboardWasShown(notification: NSNotification){
@@ -175,8 +205,8 @@ class StateKeeper: ObservableObject {
     }
     
     @objc func orientationChanged(_ notification: NSNotification) {
-        print("Device rotated, correcting button layout.")
-        if getMaintainConnection() {
+        if getMaintainConnection() && currentPage == "connectedSession" {
+            //print("Device rotated, correcting button layout.")
             correctTopSpacingForOrientation()
             removeButtons()
             createAndRepositionButtons()
@@ -186,18 +216,18 @@ class StateKeeper: ObservableObject {
     
     func correctTopSpacingForOrientation() {
         if UIDevice.current.orientation.isLandscape {
-            print("Landscape")
+            //print("Landscape")
             topSpacing = 0
         }
 
         if UIDevice.current.orientation.isPortrait {
-            print("Portrait")
+            //print("Portrait")
             topSpacing = 20
         }
     }
     
     func createAndRepositionButtons() {
-        print("Creating buttons")
+        //print("Creating buttons")
         if (self.bottomButtons["keyboardButton"] == nil) {
             let b = CustomTextInput()
             b.setTitle("K", for: [])
@@ -284,17 +314,60 @@ class StateKeeper: ObservableObject {
     }
 
     func addButtons() {
-        print("Adding buttons")
+        //print("Adding buttons")
         self.bottomButtons.forEach(){ button in
             globalWindow!.addSubview(button.value)
         }
     }
 
     func removeButtons() {
-        print("Removing buttons")
+        //print("Removing buttons")
         self.bottomButtons.forEach(){ button in
             button.value.removeFromSuperview()
         }
     }
+    
+    /*
+     Indicates the user will need to answer yes / no at a dialog.
+     */
+    func yesNoResponseRequired() {
+        // Make sure current thread does not hold the lock
+        self.yesNoDialogLock.unlock()
 
+        UserInterface {
+            // Acquire the lock on the UI thread
+            self.yesNoDialogLock.unlock()
+            self.yesNoDialogLock.lock()
+
+            self.yesNoDialogResponse = 0
+            self.currentPage = "yesNoMessage"
+        }
+        
+        // Allow some time for the UI thread to aquire the lock
+        Thread.sleep(forTimeInterval: 1)
+        // Wait for approval on a lock held by the UI thread.
+        self.yesNoDialogLock.lock()
+        // Release the lock
+        self.yesNoDialogLock.unlock()
+
+    }
+    
+    /*
+     Sets the user's response to to a yes / no dialog.
+     */
+    func setYesNoReponse(response: Bool, pageYes: String, pageNo: String) {
+        var responseInt: Int32 = 0
+        if response {
+            responseInt = 1
+        }
+        UserInterface {
+            self.yesNoDialogResponse = responseInt
+            self.yesNoDialogLock.unlock()
+            if response {
+                self.currentPage = pageYes
+            } else {
+                self.currentPage = pageNo
+            }
+        }
+    }
 }

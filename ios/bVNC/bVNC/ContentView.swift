@@ -16,7 +16,7 @@ struct ContentView : View {
     
     var body: some View {
         VStack {
-            if stateKeeper.currentPage == "page0" {
+            if stateKeeper.currentPage == "connectionsList" {
                 ConnectionsList(stateKeeper: stateKeeper)
             } else if stateKeeper.currentPage == "page1" {
                 ContentViewA(
@@ -34,10 +34,14 @@ struct ContentView : View {
                 ContentViewB(stateKeeper: stateKeeper)
             } else if stateKeeper.currentPage == "page3" {
                 ContentViewC(stateKeeper: stateKeeper)
-            } else if stateKeeper.currentPage == "page4" {
+            } else if stateKeeper.currentPage == "connectedSession" {
                 ContentViewD()
             } else if stateKeeper.currentPage == "dismissableErrorMessage" {
-                DismissableErrorDialog(stateKeeper: stateKeeper)
+                DismissableErrorWithLogDialog(stateKeeper: stateKeeper)
+            } else if stateKeeper.currentPage == "yesNoMessage" {
+                YesNoDialog(stateKeeper: stateKeeper)
+            } else if stateKeeper.currentPage == "blankPage" {
+                BlankPage()
             }
         }
     }
@@ -220,11 +224,17 @@ struct ContentViewD : View {
     }
 }
 
-struct DismissableErrorDialog : View {
+struct BlankPage : View {
+    var body: some View {
+        Text("")
+    }
+}
+
+struct DismissableErrorWithLogDialog : View {
     @ObservedObject var stateKeeper: StateKeeper
     
-    func getErrorMessage() -> String {
-        return stateKeeper.errorMessage ?? ""
+    func getMessage() -> String {
+        return stateKeeper.message ?? ""
     }
     func getClientLog() -> String {
         return stateKeeper.clientLog
@@ -233,7 +243,7 @@ struct DismissableErrorDialog : View {
     var body: some View {
         VStack {
             ScrollView {
-                Text(self.getErrorMessage()).font(.title)
+                Text(self.getMessage()).font(.title)
                 Text(self.getClientLog()).font(.body)
             }
             Button(action: {
@@ -247,6 +257,60 @@ struct DismissableErrorDialog : View {
                 .cornerRadius(5)
                 .foregroundColor(.white)
                 .padding(10)
+            }
+        }
+    }
+}
+
+struct YesNoDialog : View {
+    @ObservedObject var stateKeeper: StateKeeper
+    
+    func getTitle() -> String {
+        return stateKeeper.title ?? ""
+    }
+    
+    func getMessage() -> String {
+        return stateKeeper.message ?? ""
+    }
+    
+    func setResponse(response: Bool) -> Void {
+        stateKeeper.setYesNoReponse(response: response,
+                                    pageYes: "connectedSession",
+                                    pageNo: "connectionsList")
+    }
+
+    var body: some View {
+        VStack {
+            ScrollView {
+                Text(self.getTitle()).font(.title)
+                Text(self.getMessage()).font(.body)
+            }
+            HStack {
+                Button(action: {
+                    self.setResponse(response: false)
+                }) {
+                    Text("No")
+                    .fontWeight(.bold)
+                    .font(.title)
+                    .padding(5)
+                    .background(Color.gray)
+                    .cornerRadius(5)
+                    .foregroundColor(.white)
+                    .padding(10)
+                }
+                Button(action: {
+                    self.setResponse(response: true)
+                }) {
+                    Text("Yes")
+                    .fontWeight(.bold)
+                    .font(.title)
+                    .padding(5)
+                    .background(Color.gray)
+                    .cornerRadius(5)
+                    .foregroundColor(.white)
+                    .padding(10)
+                }
+
             }
         }
     }

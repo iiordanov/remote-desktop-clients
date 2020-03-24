@@ -18,6 +18,7 @@ void connectVnc(void (*fb_update_callback)(uint8_t *, int fbW, int fbH, int x, i
                 void (*fb_resize_callback)(int fbW, int fbH),
                 void (*fail_callback)(int8_t *),
                 void (*cl_log_callback)(int8_t *),
+                int (*y_n_callback)(int8_t *, int8_t *, int8_t *, int8_t *),
                 char* addr, char* user, char* password, char* ca_path);
 
 void disconnectVnc(void);

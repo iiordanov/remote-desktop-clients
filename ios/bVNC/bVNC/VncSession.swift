@@ -53,7 +53,7 @@ func failure_callback(message: UnsafeMutablePointer<Int8>?) -> Void {
         let contentView = ContentView(stateKeeper: globalStateKeeper!)
         globalWindow?.rootViewController = UIHostingController(rootView: contentView)
         if message != nil {
-            print("Connection failure, going back to connection setup screen.")
+            print("Connection failure, showing error.")
             globalStateKeeper?.showError(message: String(cString: message!))
         } else {
             print("Successful exit, no error was reported.")
@@ -64,6 +64,14 @@ func failure_callback(message: UnsafeMutablePointer<Int8>?) -> Void {
 
 func log_callback(message: UnsafeMutablePointer<Int8>?) -> Void {
     globalStateKeeper?.clientLog += String(cString: message!)
+}
+
+func yes_no_dialog_callback(title: UnsafeMutablePointer<Int8>?, message: UnsafeMutablePointer<Int8>?, fingerprintSha256: UnsafeMutablePointer<Int8>?, fingerprintSha512: UnsafeMutablePointer<Int8>?) -> Int32 {
+    // TODO: Save fingerprints to check against, and check against saved finger prints.
+    globalStateKeeper?.title = String(cString: title!)
+    globalStateKeeper?.message = String(cString: message!)
+    globalStateKeeper?.yesNoResponseRequired()
+    return globalStateKeeper?.yesNoDialogResponse ?? 0
 }
 
 /**
@@ -91,6 +99,7 @@ func resize_callback(fbW: Int32, fbH: Int32) -> Void {
         globalWindow!.addSubview(globalStateKeeper!.imageView!)
         globalStateKeeper?.createAndRepositionButtons()
         globalStateKeeper?.addButtons()
+        globalStateKeeper?.goToConnectedSession()
     }
 }
 
@@ -164,8 +173,8 @@ class VncSession {
 
         // Print out contents of CA file added for testing.
         let ca_path = Bundle.main.path(forResource: "ca", ofType: "pem")
-        print("Contents of ca.pem file built into the package:")
-        print(loadTextFile(path: ca_path!))
+        //print("Contents of ca.pem file built into the package:")
+        //print(loadTextFile(path: ca_path!))
 
         let sshAddress = currentConnection["sshAddress"] ?? ""
         let sshPort = currentConnection["sshPort"] ?? ""
@@ -204,6 +213,7 @@ class VncSession {
         let cert = currentConnection["cert"] ?? ""
 
         Background {
+            globalStateKeeper?.yesNoDialogLock.unlock()
             var message = ""
             var continueConnecting = true
             if sshAddress != "" {
@@ -224,7 +234,7 @@ class VncSession {
             }
             if continueConnecting {
                 print("Connecting VNC Session in the background...")
-                connectVnc(update_callback, resize_callback, failure_callback, log_callback,
+                connectVnc(update_callback, resize_callback, failure_callback, log_callback, yes_no_dialog_callback,
                            UnsafeMutablePointer<Int8>(mutating: (addressAndPort as NSString).utf8String),
                            UnsafeMutablePointer<Int8>(mutating: (user as NSString).utf8String),
                            UnsafeMutablePointer<Int8>(mutating: (pass as NSString).utf8String),

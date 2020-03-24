@@ -96,14 +96,35 @@ void disconnectVnc() {
     SendFramebufferUpdateRequest(cl, 0, 0, 1, 1, FALSE);
 }
 
+int ssl_certificate_verification_callback(rfbClient* client, char* issuer, char* common_name,
+char* fingerprint_sha256, char* fingerprint_sha512, int pday, int psec) {
+    char user_message[8192];
+
+    char validity[8];
+    snprintf(validity, 8, "Invalid");
+    if (pday >= 0 && psec > 0) {
+        snprintf(validity, 8, "Valid");
+    }
+
+    snprintf(user_message, 8191,
+            "Issuer: %s\n\nCommon name: %s\n\nSHA256 Fingerprint: %s\n\nSHA512 Fingerprint: %s\n\n%s for %d days and %d seconds.\n",
+            issuer, common_name, fingerprint_sha256, fingerprint_sha512, validity, pday, psec);
+    
+    int response = yes_no_callback((int8_t *)"Please verify server certificate", (int8_t *)user_message,
+                                   (int8_t *)fingerprint_sha256, (int8_t *)fingerprint_sha512);
+
+    return response;
+}
+
 void connectVnc(void (*fb_update_callback)(uint8_t *, int fbW, int fbH, int x, int y, int w, int h),
                 void (*fb_resize_callback)(int fbW, int fbH),
                 void (*fail_callback)(int8_t *),
                 void (*cl_log_callback)(int8_t *),
+                int (*y_n_callback)(int8_t *, int8_t *, int8_t *, int8_t *),
                 char* addr, char* user, char* password, char* ca_path) {
-    printf("Setting up connection.\n");
+    rfbClientLog("Setting up connection.\n");
     maintainConnection = true;
-        
+    
     HOST_AND_PORT = addr;
     USERNAME = user;
     PASSWORD = password;
@@ -112,21 +133,20 @@ void connectVnc(void (*fb_update_callback)(uint8_t *, int fbW, int fbH, int x, i
     framebuffer_resize_callback = fb_resize_callback;
     failure_callback = fail_callback;
     client_log_callback = cl_log_callback;
+    yes_no_callback = y_n_callback;
 
     rfbClientLog = rfbClientErr = client_log;
     
     if(cl != NULL) {
         rfbClientCleanup(cl);
+        cl = NULL;
     }
-
-    cl = NULL;
-
-    int argc = 2;
     
+    int argc = 2;
     char **argv = (char**)malloc(argc*sizeof(char*));
     int i = 0;
     for (i = 0; i < argc; i++) {
-        //printf("%d\n", i);
+        //rfbClientLog("%d\n", i);
         argv[i] = (char*)malloc(256*sizeof(char));
     }
     strcpy(argv[0], "dummy");
@@ -144,6 +164,7 @@ void connectVnc(void (*fb_update_callback)(uint8_t *, int fbW, int fbH, int x, i
     cl->GetPassword = get_password;
     //cl->listenPort = LISTEN_PORT_OFFSET;
     //cl->listen6Port = LISTEN_PORT_OFFSET;
+    cl->SslCertificateVerifyCallback = ssl_certificate_verification_callback;
 
     if (!rfbInitClient(cl, &argc, argv)) {
         cl = NULL; /* rfbInitClient has already freed the client struct */
@@ -161,7 +182,7 @@ void connectVnc(void (*fb_update_callback)(uint8_t *, int fbW, int fbH, int x, i
             break;
         }
         if (i) {
-            printf("Handling RFB Server Message\n");
+            rfbClientLog("Handling RFB Server Message\n");
         }
         
         if (!HandleRFBServerMessage(cl)) {
@@ -169,12 +190,12 @@ void connectVnc(void (*fb_update_callback)(uint8_t *, int fbW, int fbH, int x, i
             break;
         }
     }
-    printf("Background thread exiting connectVnc function.\n\n");
+    rfbClientLog("Background thread exiting connectVnc function.\n\n");
 }
 
 void cleanup(char *message, rfbClient *client) {
     maintainConnection = false;
-    printf("%s", message);
+    rfbClientLog("%s", message);
     failure_callback((int8_t*)message);
 }
 
@@ -191,7 +212,7 @@ struct { char mask; int bits_stored; } utf8Mapping[] = {
 /* UTF-8 decoding is from https://rosettacode.org/wiki/UTF-8_encode_and_decode which is under GFDL 1.2 */
 static rfbKeySym utf8char2rfbKeySym(const char chr[4]) {
         int bytes = (int)strlen(chr);
-        //printf("Number of bytes in %s: %d\n", chr, bytes);
+        //rfbClientLog("Number of bytes in %s: %d\n", chr, bytes);
 
         int shift = utf8Mapping[0].bits_stored * (bytes - 1);
         rfbKeySym codep = (*chr++ & utf8Mapping[bytes].mask) << shift;
@@ -200,7 +221,7 @@ static rfbKeySym utf8char2rfbKeySym(const char chr[4]) {
                 shift -= utf8Mapping[0].bits_stored;
                 codep |= ((char)*chr & utf8Mapping[0].mask) << shift;
         }
-        //printf("%s converted to %#06x\n", chr, codep);
+        //rfbClientLog("%s converted to %#06x\n", chr, codep);
         return codep;
 }
 
@@ -209,7 +230,7 @@ void sendUniDirectionalKeyEvent(const unsigned char *c, bool down) {
         return;
     }
     rfbKeySym sym = utf8char2rfbKeySym(c);
-    //printf("sendKeyEvent converted %#06x to xkeysym: %#06x\n", (int)*c, sym);
+    //rfbClientLog("sendKeyEvent converted %#06x to xkeysym: %#06x\n", (int)*c, sym);
     sendUniDirectionalKeyEventWithKeySym(sym, down);
 }
 
@@ -218,7 +239,7 @@ void sendKeyEvent(const unsigned char *c) {
         return;
     }
     rfbKeySym sym = utf8char2rfbKeySym(c);
-    //printf("sendKeyEvent converted %#06x to xkeysym: %#06x\n", (int)*c, sym);
+    //rfbClientLog("sendKeyEvent converted %#06x to xkeysym: %#06x\n", (int)*c, sym);
     sendKeyEventWithKeySym(sym);
 }
 
@@ -230,7 +251,7 @@ bool sendKeyEventInt(int c) {
     if (sym == -1) {
         return false;
     }
-    //printf("sendKeyEventInt converted %#06x to xkeysym: %#06x\n", c, sym);
+    //rfbClientLog("sendKeyEventInt converted %#06x to xkeysym: %#06x\n", c, sym);
     sendKeyEventWithKeySym(sym);
     return true;
 }
@@ -240,11 +261,11 @@ void sendKeyEventWithKeySym(int sym) {
         return;
     }
     if (cl != NULL) {
-        //printf("Sending xkeysym: %#06x\n", sym);
+        //rfbClientLog("Sending xkeysym: %#06x\n", sym);
         checkForError(SendKeyEvent(cl, sym, TRUE));
         checkForError(SendKeyEvent(cl, sym, FALSE));
     } else {
-        printf("RFB Client object is NULL, need to quit!");
+        rfbClientLog("RFB Client object is NULL, need to quit!");
         checkForError(false);
     }
 }
@@ -254,10 +275,10 @@ void sendUniDirectionalKeyEventWithKeySym(int sym, bool down) {
         return;
     }
     if (cl != NULL) {
-        //printf("Sending xkeysym: %#06x\n", sym);
+        //rfbClientLog("Sending xkeysym: %#06x\n", sym);
         checkForError(SendKeyEvent(cl, sym, down));
     } else {
-        printf("RFB Client object is NULL, need to quit!");
+        rfbClientLog("RFB Client object is NULL, need to quit!");
         checkForError(false);
     }
 }
@@ -289,7 +310,7 @@ void sendPointerEventToServer(int totalX, int totalY, int x, int y, bool firstDo
         printf("Sending pointer event at %d, %d, with mask %d\n", remoteX, remoteY, buttonMask);
         checkForError(SendPointerEvent(cl, remoteX, remoteY, buttonMask));
     } else {
-        printf("RFB Client object is NULL, will quit now.\n");
+        rfbClientLog("RFB Client object is NULL, will quit now.\n");
         checkForError(false);
     }
 }
