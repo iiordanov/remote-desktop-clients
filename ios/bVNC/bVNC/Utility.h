@@ -15,5 +15,6 @@
 
 void client_log(const char *format, ...);
 extern void (*client_log_callback)(int8_t *);
+extern int (*yes_no_callback)(int8_t *, int8_t *, int8_t *, int8_t *);
 
 #endif /* Utility_h */
