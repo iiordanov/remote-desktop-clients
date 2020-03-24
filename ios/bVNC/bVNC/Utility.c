@@ -13,14 +13,13 @@
 void (*client_log_callback)(int8_t *);
 int (*yes_no_callback)(int8_t *, int8_t *, int8_t *, int8_t *);
 
-char *message_buffer = NULL;
+
 void client_log(const char *format, ...) {
     va_list args;
-    if (message_buffer == NULL) {
-        message_buffer = malloc(65536);
-    }
+    char *message_buffer = malloc(128);
     va_start(args, format);
-    vsnprintf(message_buffer, 65535, format, args);
+    vsnprintf(message_buffer, 127, format, args);
     client_log_callback((int8_t*)message_buffer);
     va_end(args);
+    free(message_buffer);
 }

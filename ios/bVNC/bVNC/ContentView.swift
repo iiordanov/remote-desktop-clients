@@ -37,7 +37,7 @@ struct ContentView : View {
             } else if stateKeeper.currentPage == "connectedSession" {
                 ContentViewD()
             } else if stateKeeper.currentPage == "dismissableErrorMessage" {
-                DismissableErrorWithLogDialog(stateKeeper: stateKeeper)
+                DismissableLogDialog(stateKeeper: stateKeeper)
             } else if stateKeeper.currentPage == "yesNoMessage" {
                 YesNoDialog(stateKeeper: stateKeeper)
             } else if stateKeeper.currentPage == "blankPage" {
@@ -112,6 +112,20 @@ struct ConnectionsList : View {
                         }
                     }.padding(10)
                 }
+                
+                Button(action: {
+                    self.stateKeeper.showError(title: "Client Log Messages")
+                }) {
+                    Text("View Log")
+                    .fontWeight(.bold)
+                    .font(.title)
+                    .padding(5)
+                    .background(Color.gray)
+                    .cornerRadius(5)
+                    .foregroundColor(.white)
+                    .padding(10)
+                }
+
             }
         }
     }
@@ -230,12 +244,13 @@ struct BlankPage : View {
     }
 }
 
-struct DismissableErrorWithLogDialog : View {
+struct DismissableLogDialog : View {
     @ObservedObject var stateKeeper: StateKeeper
     
-    func getMessage() -> String {
-        return stateKeeper.message ?? ""
+    func getTitle() -> String {
+        return stateKeeper.title ?? ""
     }
+
     func getClientLog() -> String {
         return stateKeeper.clientLog
     }
@@ -243,7 +258,7 @@ struct DismissableErrorWithLogDialog : View {
     var body: some View {
         VStack {
             ScrollView {
-                Text(self.getMessage()).font(.title)
+                Text(self.getTitle()).font(.title)
                 Text(self.getClientLog()).font(.body)
             }
             Button(action: {

@@ -54,7 +54,7 @@ func failure_callback(message: UnsafeMutablePointer<Int8>?) -> Void {
         globalWindow?.rootViewController = UIHostingController(rootView: contentView)
         if message != nil {
             print("Connection failure, showing error.")
-            globalStateKeeper?.showError(message: String(cString: message!))
+            globalStateKeeper?.showError(title: String(cString: message!))
         } else {
             print("Successful exit, no error was reported.")
             globalStateKeeper?.showConnections()
@@ -68,10 +68,8 @@ func log_callback(message: UnsafeMutablePointer<Int8>?) -> Void {
 
 func yes_no_dialog_callback(title: UnsafeMutablePointer<Int8>?, message: UnsafeMutablePointer<Int8>?, fingerprintSha256: UnsafeMutablePointer<Int8>?, fingerprintSha512: UnsafeMutablePointer<Int8>?) -> Int32 {
     // TODO: Save fingerprints to check against, and check against saved finger prints.
-    globalStateKeeper?.title = String(cString: title!)
-    globalStateKeeper?.message = String(cString: message!)
-    globalStateKeeper?.yesNoResponseRequired()
-    return globalStateKeeper?.yesNoDialogResponse ?? 0
+    return globalStateKeeper?.yesNoResponseRequired(
+        title: String(cString: title!), message: String(cString: message!)) ?? 0
 }
 
 /**

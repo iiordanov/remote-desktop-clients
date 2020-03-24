@@ -160,8 +160,8 @@ class StateKeeper: ObservableObject {
         }
     }
     
-    func showError(message: String) {
-        self.message = message
+    func showError(title: String) {
+        self.title = title
         UserInterface {
             self.currentPage = "dismissableErrorMessage"
         }
@@ -330,7 +330,10 @@ class StateKeeper: ObservableObject {
     /*
      Indicates the user will need to answer yes / no at a dialog.
      */
-    func yesNoResponseRequired() {
+    func yesNoResponseRequired(title: String, message: String) -> Int32 {
+        self.title = title
+        self.message = message
+        
         // Make sure current thread does not hold the lock
         self.yesNoDialogLock.unlock()
 
@@ -349,7 +352,8 @@ class StateKeeper: ObservableObject {
         self.yesNoDialogLock.lock()
         // Release the lock
         self.yesNoDialogLock.unlock()
-
+        
+        return self.yesNoDialogResponse
     }
     
     /*
