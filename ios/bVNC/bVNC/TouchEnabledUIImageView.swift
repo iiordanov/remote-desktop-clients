@@ -277,6 +277,9 @@ class TouchEnabledUIImageView: UIImageView {
     }
     
     @objc private func handlePan(_ sender: UIPanGestureRecognizer) {
+        if self.secondDown {
+            return
+        }
         let translation = sender.translation(in: sender.view)
 
         if let view = sender.view {
@@ -323,10 +326,13 @@ class TouchEnabledUIImageView: UIImageView {
     }
     
     @objc private func handleZooming(_ sender: UIPinchGestureRecognizer) {
-        if (self.inScrolling || self.inPanning) {
+        if (self.secondDown || self.inScrolling || self.inPanning) {
             return
         }
         let scale = sender.scale
+        if sender.scale < 0.85 || sender.scale > 1.15 {
+            print("Preventing big skips in scale.")
+        }
         let transformResult = sender.view?.transform.scaledBy(x: sender.scale, y: sender.scale)
         guard let newTransform = transformResult, newTransform.a > 1, newTransform.d > 1 else { return }
 
