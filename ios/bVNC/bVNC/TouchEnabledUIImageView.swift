@@ -46,7 +46,7 @@ class TouchEnabledUIImageView: UIImageView {
     var newY: CGFloat = 0.0
     var viewTransform: CGAffineTransform = CGAffineTransform()
     var timeLast: Double = 0.0
-    let timeThreshhold: Double = 0.1
+    let timeThreshhold: Double = 0.05
     var touchEnabled: Bool = false
     var firstDown: Bool = false
     var secondDown: Bool = false
@@ -107,44 +107,42 @@ class TouchEnabledUIImageView: UIImageView {
         self.height = touchView.frame.height
         self.point = touch.location(in: touchView)
         self.viewTransform = touchView.transform
-        let sDx = (touchView.center.x - self.point.x)/self.width
-        let sDy = (touchView.center.y - self.point.y)/self.height
+        //let sDx = (touchView.center.x - self.point.x)/self.width
+        //let sDy = (touchView.center.y - self.point.y)/self.height
         self.newX = (self.point.x)*viewTransform.a + insetDimension/viewTransform.a
         self.newY = (self.point.y)*viewTransform.d + insetDimension/viewTransform.d
     }
     
     func sendDownThenUpEvent(scrolling: Bool, moving: Bool, firstDown: Bool, secondDown: Bool, thirdDown: Bool, fourthDown: Bool, fifthDown: Bool) {
         if (self.touchEnabled) {
-            Background {
-                self.lock.lock()
+            //Background {
+            //    self.lock.lock()
                 let timeNow = CACurrentMediaTime()
                 let timeDiff = timeNow - self.timeLast
                 if ((!moving && !scrolling) || (moving || scrolling) && timeDiff >= self.timeThreshhold) {
                     self.sendPointerEvent(scrolling: scrolling, moving: moving, firstDown: firstDown, secondDown: secondDown, thirdDown: thirdDown, fourthDown: fourthDown, fifthDown: fifthDown)
                     if (!moving) {
-                        print ("Sleeping \(self.timeThreshhold)s before sending up event.")
+                        //print ("Sleeping \(self.timeThreshhold)s before sending up event.")
                         Thread.sleep(forTimeInterval: self.timeThreshhold)
                         self.sendPointerEvent(scrolling: scrolling, moving: moving, firstDown: false, secondDown: false, thirdDown: false, fourthDown: false, fifthDown: false)
                     }
                     self.timeLast = CACurrentMediaTime()
                 } else if timeDiff < self.timeThreshhold {
-                    print ("Discarding some move or scroll events until timeDiff \(timeDiff)s is above \(self.timeThreshhold)s.")
+                    //print ("Discarding some move or scroll events until timeDiff \(timeDiff)s is above \(self.timeThreshhold)s.")
                 }
-                self.lock.unlock()
-            }
+            //    self.lock.unlock()
+            //}
         }
     }
     
     func sendPointerEvent(scrolling: Bool, moving: Bool, firstDown: Bool, secondDown: Bool, thirdDown: Bool, fourthDown: Bool, fifthDown: Bool) {
         //let timeNow = CACurrentMediaTime();
         //let timeDiff = timeNow - self.timeLast
-        Background {
-            if !moving || (abs(self.lastX - self.newX) > 1.0 || abs(self.lastY - self.newY) > 1.0) {
-                sendPointerEventToServer(Int32(self.width), Int32(self.height), Int32(self.newX), Int32(self.newY), firstDown, secondDown, thirdDown, fourthDown, fifthDown)
-                self.lastX = self.newX
-                self.lastY = self.newY
-                //self.timeLast = timeNow
-            }
+        if !moving || (abs(self.lastX - self.newX) > 1.0 || abs(self.lastY - self.newY) > 1.0) {
+            sendPointerEventToServer(Int32(self.width), Int32(self.height), Int32(self.newX), Int32(self.newY), firstDown, secondDown, thirdDown, fourthDown, fifthDown)
+            self.lastX = self.newX
+            self.lastY = self.newY
+            //self.timeLast = timeNow
         }
     }
     
