@@ -44,10 +44,10 @@ func ssh_forward_failure() -> Void {
 }
 
 func failure_callback_str(message: String) {
-    failure_callback(message: UnsafeMutablePointer<Int8>(mutating: (message as NSString).utf8String!))
+    failure_callback_swift(message: UnsafeMutablePointer<Int8>(mutating: (message as NSString).utf8String!))
 }
 
-func failure_callback(message: UnsafeMutablePointer<Int8>?) -> Void {
+func failure_callback_swift(message: UnsafeMutablePointer<Int8>?) -> Void {
     UserInterface {
         globalImageView?.disableTouch()
         let contentView = ContentView(stateKeeper: globalStateKeeper!)
@@ -127,7 +127,7 @@ func resize_callback(fbW: Int32, fbH: Int32) -> Void {
 
 func update_callback(data: UnsafeMutablePointer<UInt8>?, fbW: Int32, fbH: Int32, x: Int32, y: Int32, w: Int32, h: Int32) -> Void {
     let currentCpuUsage = SystemMonitor.appCpuUsage()
-    if (currentCpuUsage > 60.0) {
+    if (currentCpuUsage > 40.0) {
         return
     }
     UserInterface {
@@ -261,7 +261,7 @@ class VncSession {
             }
             if continueConnecting {
                 print("Connecting VNC Session in the background...")
-                connectVnc(update_callback, resize_callback, failure_callback, log_callback, yes_no_dialog_callback,
+                connectVnc(update_callback, resize_callback, failure_callback_swift, log_callback, yes_no_dialog_callback,
                            UnsafeMutablePointer<Int8>(mutating: (addressAndPort as NSString).utf8String),
                            UnsafeMutablePointer<Int8>(mutating: (user as NSString).utf8String),
                            UnsafeMutablePointer<Int8>(mutating: (pass as NSString).utf8String),
