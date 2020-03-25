@@ -46,7 +46,7 @@ class TouchEnabledUIImageView: UIImageView {
     var newY: CGFloat = 0.0
     var viewTransform: CGAffineTransform = CGAffineTransform()
     var timeLast: Double = 0.0
-    let timeThreshhold: Double = 0.07
+    let timeThreshhold: Double = 0.1
     var touchEnabled: Bool = false
     var firstDown: Bool = false
     var secondDown: Bool = false
@@ -285,7 +285,7 @@ class TouchEnabledUIImageView: UIImageView {
             
             //print ("abs(scaleX*translation.x): \(abs(scaleX*translation.x)), abs(scaleY*translation.y): \(abs(scaleY*translation.y))")
             // If scrolling or tolerance for scrolling is exceeded
-            if (!self.inPanning && (self.inScrolling || abs(scaleX*translation.x) < 0.1 && abs(scaleY*translation.y) > 0.5)) {
+            if (!self.inPanning && (self.inScrolling || abs(scaleX*translation.x) < 0.2 && abs(scaleY*translation.y) > 0.7)) {
                 // If tolerance for scrolling was just exceeded, begin scroll event
                 if (!self.inScrolling) {
                     self.inScrolling = true

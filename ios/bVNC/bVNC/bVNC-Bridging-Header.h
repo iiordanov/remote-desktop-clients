@@ -3,3 +3,5 @@
 //
 #include "VncBridge.h"
 #include "SshPortForwarder.h"
+#include "SystemMonitor.h"
+#include "Utilities.h"

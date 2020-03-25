@@ -103,6 +103,10 @@ func resize_callback(fbW: Int32, fbH: Int32) -> Void {
 }
 
 func update_callback(data: UnsafeMutablePointer<UInt8>?, fbW: Int32, fbH: Int32, x: Int32, y: Int32, w: Int32, h: Int32) -> Void {
+    let currentCpuUsage = SystemMonitor.appCpuUsage()
+    if (currentCpuUsage > 60.0) {
+        return
+    }
     UserInterface {
         //print("Graphics update: ", fbW, fbH, x, y, w, h)
         autoreleasepool {
