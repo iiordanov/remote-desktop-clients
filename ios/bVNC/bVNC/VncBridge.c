@@ -108,7 +108,7 @@ char* fingerprint_sha256, char* fingerprint_sha512, int pday, int psec) {
             issuer, common_name, fingerprint_sha256, fingerprint_sha512, validity, pday, psec);
     
     int response = yes_no_callback((int8_t *)"Please verify VNC server certificate", (int8_t *)user_message,
-                                   (int8_t *)fingerprint_sha256, (int8_t *)fingerprint_sha512, "X509");
+                                   (int8_t *)fingerprint_sha256, (int8_t *)fingerprint_sha512, (int8_t *)"X509");
 
     return response;
 }
@@ -231,7 +231,7 @@ static rfbKeySym utf8char2rfbKeySym(const char chr[4]) {
         return codep;
 }
 
-void sendUniDirectionalKeyEvent(const unsigned char *c, bool down) {
+void sendUniDirectionalKeyEvent(const char *c, bool down) {
     if (!maintainConnection) {
         return;
     }
@@ -240,7 +240,7 @@ void sendUniDirectionalKeyEvent(const unsigned char *c, bool down) {
     sendUniDirectionalKeyEventWithKeySym(sym, down);
 }
 
-void sendKeyEvent(const unsigned char *c) {
+void sendKeyEvent(const char *c) {
     if (!maintainConnection) {
         return;
     }
@@ -311,8 +311,8 @@ void sendPointerEventToServer(int totalX, int totalY, int x, int y, bool firstDo
         buttonMask = buttonMask | rfbButton5Mask;
     }
     if (cl != NULL) {
-        int remoteX = fbW * x / totalX;
-        int remoteY = fbH * y / totalY;
+        int remoteX = (double)fbW * (double)x / (double)totalX;
+        int remoteY = (double)fbH * (double)y / (double)totalY;
         printf("Sending pointer event at %d, %d, with mask %d\n", remoteX, remoteY, buttonMask);
         checkForError(SendPointerEvent(cl, remoteX, remoteY, buttonMask));
     } else {

@@ -134,6 +134,7 @@ class StateKeeper: ObservableObject {
         print("Saving settings")
         self.settings.set(self.selectedConnection, forKey: "selectedConnection")
         self.settings.set(self.connectionIndex, forKey: "connectionIndex")
+        self.connections[connectionIndex] = self.selectedConnection
         self.settings.set(self.connections, forKey: "connections")
     }
     
@@ -178,8 +179,6 @@ class StateKeeper: ObservableObject {
     }
 
     @objc func keyboardWillBeHidden(notification: NSNotification){
-        let info = notification.userInfo!
-        let keyboardSize = (info[UIResponder.keyboardFrameBeginUserInfoKey] as? NSValue)?.cgRectValue.size
         keyboardHeight = 0
         if getMaintainConnection() {
             createAndRepositionButtons()

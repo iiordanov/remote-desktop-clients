@@ -68,9 +68,32 @@ func log_callback(message: UnsafeMutablePointer<Int8>?) -> Void {
 
 func yes_no_dialog_callback(title: UnsafeMutablePointer<Int8>?, message: UnsafeMutablePointer<Int8>?, fingerPrint1: UnsafeMutablePointer<Int8>?, fingerPrint2: UnsafeMutablePointer<Int8>?, type: UnsafeMutablePointer<Int8>?) -> Int32 {
     // TODO: Save fingerprints to check against, and check against saved finger prints.
-    print ("Received fingerprints \(String(cString: fingerPrint1!)) and \(String(cString: fingerPrint2!)) of type \(String(cString: type!))")
-    return globalStateKeeper?.yesNoResponseRequired(
+    let fingerprintType = String(cString: type!)
+    let fingerPrint1Str = String(cString: fingerPrint1!)
+    let fingerPrint2Str = String(cString: fingerPrint2!)
+    if fingerprintType == "SSH" &&
+       fingerPrint1Str == globalStateKeeper?.selectedConnection["sshFingerprintSha256"] {
+        print ("Found matching saved SHA256 SSH host key fingerprint, continuing.")
+        return 1
+    } else if fingerprintType == "X509" &&
+       fingerPrint1Str == globalStateKeeper?.selectedConnection["x509FingerprintSha256"] &&
+       fingerPrint2Str == globalStateKeeper?.selectedConnection["x509FingerprintSha512"] {
+       print ("Found matching saved SHA256 and SHA512 X509 key fingerprints, continuing.")
+       return 1
+    }
+    print ("Asking user to verify fingerprints \(String(cString: fingerPrint1!)) and \(String(cString: fingerPrint2!)) of type \(String(cString: type!))")
+    let res = globalStateKeeper?.yesNoResponseRequired(
         title: String(cString: title!), message: String(cString: message!)) ?? 0
+    
+    if res == 1 && fingerprintType == "SSH" {
+        globalStateKeeper?.selectedConnection["sshFingerprintSha256"] = fingerPrint1Str
+        globalStateKeeper?.saveSettings()
+    } else if res == 1 && fingerprintType == "X509" {
+        globalStateKeeper?.selectedConnection["x509FingerprintSha256"] = fingerPrint1Str
+        globalStateKeeper?.selectedConnection["x509FingerprintSha512"] = fingerPrint2Str
+        globalStateKeeper?.saveSettings()
+    }
+    return res
 }
 
 /**
@@ -213,8 +236,8 @@ class VncSession {
         
         let user = currentConnection["username"] ?? ""
         let pass = currentConnection["password"] ?? ""
-        // TODO: Write out CA to a file.
-        let cert = currentConnection["cert"] ?? ""
+        // TODO: Write out CA to a file if keeping it
+        //let cert = currentConnection["cert"] ?? ""
 
         Background {
             globalStateKeeper?.yesNoDialogLock.unlock()

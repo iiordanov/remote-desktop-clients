@@ -1873,8 +1873,8 @@ struct codepairbyucs {
     { 0x20a9, 0x20a9 }, /* u WonSign */
     { 0x20aa, 0x20aa }, /* u NewSheqelSign */
     { 0x20ab, 0x20ab }, /* u DongSign */ // 0x13a4
-    /* TODO: Test { 0x13a4, 0x20ac }, /* . Euro */
-    /* TODO: Test { 0x20ac, 0x20ac }, /* . EuroSign */
+    /* TODO: Test { 0x13a4, 0x20ac }, //. Euro */
+    /* TODO: Test { 0x20ac, 0x20ac }, //. EuroSign */
     { 0x20ac, 0x20ac }, /*                        Euro € EURO SIGN */
     { 0x0ab8, 0x2105 }, /*                      careof ℅ CARE OF */
     { 0x06b0, 0x2116 }, /*                  numerosign № NUMERO SIGN */
