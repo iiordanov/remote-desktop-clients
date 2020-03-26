@@ -47,23 +47,24 @@ func ssh_forward_failure() -> Void {
     globalStateKeeper[currInst]?.sshForwardingLock.unlock()
 }
 
-func failure_callback_str(message: String) {
-    failure_callback_swift(message: UnsafeMutablePointer<Int8>(mutating: (message as NSString).utf8String!))
-}
-
-func failure_callback_swift(message: UnsafeMutablePointer<Int8>?) -> Void {
+func failure_callback_str(message: String?) {
     UserInterface {
         globalImageView?.disableTouch()
         let contentView = ContentView(stateKeeper: globalStateKeeper[currInst]!)
         globalWindow?.rootViewController = UIHostingController(rootView: contentView)
         if message != nil {
-            print("Connection failure, showing error.")
-            globalStateKeeper[currInst]?.showError(title: String(cString: message!))
+            print("Connection failure, showing error with title \(message!).")
+            globalStateKeeper[currInst]?.showError(title: message!)
         } else {
             print("Successful exit, no error was reported.")
             globalStateKeeper[currInst]?.showConnections()
         }
     }
+}
+
+func failure_callback_swift(message: UnsafeMutablePointer<Int8>?) -> Void {
+    print("Will show error with title: \(String(cString: message!))")
+    failure_callback_str(message: String(cString: message!))
 }
 
 func log_callback(message: UnsafeMutablePointer<Int8>?) -> Void {
@@ -257,14 +258,12 @@ class VncSession {
             var continueConnecting = true
             if sshAddress != "" {
                 print("Waiting for SSH forwarding to complete successfully")
-                // Wait for SSH Tunnel to be established for 15 seconds
-                continueConnecting = globalStateKeeper[currInst]!.sshForwardingLock.lock(before: Date(timeIntervalSinceNow: 15))
+                // Wait for SSH Tunnel to be established for 60 seconds
+                continueConnecting = globalStateKeeper[currInst]!.sshForwardingLock.lock(before: Date(timeIntervalSinceNow: 60))
                 if !continueConnecting {
                     message = "Timeout establishing SSH Tunnel"
-                    print(message)
                 } else if (globalStateKeeper[currInst]?.sshForwardingStatus != true) {
                     message = "Failed to establish SSH Tunnel"
-                    print(message)
                     continueConnecting = false
                 } else {
                     print("SSH Tunnel indicated to be successful")
@@ -279,8 +278,8 @@ class VncSession {
                            UnsafeMutablePointer<Int8>(mutating: (pass as NSString).utf8String),
                            UnsafeMutablePointer<Int8>(mutating: (ca_path as! NSString).utf8String))
             } else {
-                message = "Something went wrong, not connecting to VNC server.\n\n" + message
-                print(message)
+                message = "Error connecting: " + message
+                print("Error message: \(message)")
                 failure_callback_str(message: message)
             }
         }        
