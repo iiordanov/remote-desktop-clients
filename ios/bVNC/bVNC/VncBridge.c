@@ -113,10 +113,22 @@ char* fingerprint_sha256, char* fingerprint_sha512, int pday, int psec) {
     return response;
 }
 
+rfbBool lockWriteToTLS(rfbClient* client) {
+    lock_write_tls_callback();
+    return TRUE;
+}
+
+rfbBool unlockWriteToTLS(rfbClient* client) {
+    unlock_write_tls_callback();
+    return TRUE;
+}
+
 void connectVnc(void (*fb_update_callback)(uint8_t *, int fbW, int fbH, int x, int y, int w, int h),
                 void (*fb_resize_callback)(int fbW, int fbH),
                 void (*fail_callback)(int8_t *),
                 void (*cl_log_callback)(int8_t *),
+                void (*lock_wrt_tls_callback)(void),
+                void (*unlock_wrt_tls_callback)(void),
                 int (*y_n_callback)(int8_t *, int8_t *, int8_t *, int8_t *, int8_t *),
                 char* addr, char* user, char* password, char* ca_path) {
     rfbClientLog("Setting up connection.\n");
@@ -131,6 +143,8 @@ void connectVnc(void (*fb_update_callback)(uint8_t *, int fbW, int fbH, int x, i
     failure_callback = fail_callback;
     client_log_callback = cl_log_callback;
     yes_no_callback = y_n_callback;
+    lock_write_tls_callback = lock_wrt_tls_callback;
+    unlock_write_tls_callback = unlock_wrt_tls_callback;
 
     rfbClientLog = rfbClientErr = client_log;
     
@@ -161,7 +175,9 @@ void connectVnc(void (*fb_update_callback)(uint8_t *, int fbW, int fbH, int x, i
     //cl->listenPort = LISTEN_PORT_OFFSET;
     //cl->listen6Port = LISTEN_PORT_OFFSET;
     cl->SslCertificateVerifyCallback = ssl_certificate_verification_callback;
-
+    cl->LockWriteToTLS = lockWriteToTLS;
+    cl->UnlockWriteToTLS = unlockWriteToTLS;
+    
     if (!rfbInitClient(cl, &argc, argv)) {
         cl = NULL; /* rfbInitClient has already freed the client struct */
         cleanup("Failed to connect to server\n", cl);
