@@ -18,6 +18,8 @@ void connectVnc(void (*fb_update_callback)(uint8_t *, int fbW, int fbH, int x, i
                 void (*fb_resize_callback)(int fbW, int fbH),
                 void (*fail_callback)(int8_t *),
                 void (*cl_log_callback)(int8_t *),
+                void (*lock_write_tls_callback)(void),
+                void (*unlock_write_tls_callback)(void),
                 int (*y_n_callback)(int8_t *, int8_t *, int8_t *, int8_t *, int8_t *),
                 char* addr, char* user, char* password, char* ca_path);
 
@@ -34,5 +36,7 @@ void sendPointerEventToServer(int totalX, int totalY, int x, int y, bool firstDo
 void checkForError(rfbBool res);
 void cleanup(char* message, rfbClient *client);
 void rfb_client_cleanup(void);
+void (*lock_write_tls_callback)(void);
+void (*unlock_write_tls_callback)(void);
 
 #endif /* VncBridge_h */

@@ -34,23 +34,20 @@ class CustomTextInput: UIButton, UIKeyInput{
     public func insertText(_ text: String){
         //print("Sending: " + text + ", number of characters: " + String(text.count))
         for char in text.unicodeScalars {
-            //Background {
-            //    self.lock.lock()
+            Background {
                 if !sendKeyEventInt(Int32(String(char.value))!) {
                     sendKeyEvent(String(char))
                 }
-                self.lock.unlock()
-            //}
+            }
         }
     }
     
     public func deleteBackward(){
-        //print(#function)
-        //Background {
+        Background {
             self.lock.lock()
             sendKeyEventWithKeySym(0xff08);
             self.lock.unlock()
-        //}
+        }
     }
     
     @objc func toggleFirstResponder() -> Bool {

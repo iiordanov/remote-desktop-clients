@@ -46,7 +46,7 @@ class TouchEnabledUIImageView: UIImageView {
     var newY: CGFloat = 0.0
     var viewTransform: CGAffineTransform = CGAffineTransform()
     var timeLast: Double = 0.0
-    let timeThreshhold: Double = 0.05
+    let timeThreshhold: Double = 0.01
     var touchEnabled: Bool = false
     var firstDown: Bool = false
     var secondDown: Bool = false
@@ -115,8 +115,7 @@ class TouchEnabledUIImageView: UIImageView {
     
     func sendDownThenUpEvent(scrolling: Bool, moving: Bool, firstDown: Bool, secondDown: Bool, thirdDown: Bool, fourthDown: Bool, fifthDown: Bool) {
         if (self.touchEnabled) {
-            //Background {
-            //    self.lock.lock()
+            Background {
                 let timeNow = CACurrentMediaTime()
                 let timeDiff = timeNow - self.timeLast
                 if ((!moving && !scrolling) || (moving || scrolling) && timeDiff >= self.timeThreshhold) {
@@ -127,11 +126,8 @@ class TouchEnabledUIImageView: UIImageView {
                         self.sendPointerEvent(scrolling: scrolling, moving: moving, firstDown: false, secondDown: false, thirdDown: false, fourthDown: false, fifthDown: false)
                     }
                     self.timeLast = CACurrentMediaTime()
-                } else if timeDiff < self.timeThreshhold {
-                    //print ("Discarding some move or scroll events until timeDiff \(timeDiff)s is above \(self.timeThreshhold)s.")
                 }
-            //    self.lock.unlock()
-            //}
+            }
         }
     }
     
@@ -285,8 +281,7 @@ class TouchEnabledUIImageView: UIImageView {
             let scaleY = sender.view!.transform.d
             
             //print ("abs(scaleX*translation.x): \(abs(scaleX*translation.x)), abs(scaleY*translation.y): \(abs(scaleY*translation.y))")
-            // If scrolling or tolerance for scrolling is exceeded
-            if (!self.inPanning && (self.inScrolling || abs(scaleX*translation.x) < 0.2 && abs(scaleY*translation.y) > 0.7)) {
+            if (!self.inPanning && (self.inScrolling || abs(scaleX*translation.x) < 0.1 && abs(scaleY*translation.y) > 0.25)) {
                 // If tolerance for scrolling was just exceeded, begin scroll event
                 if (!self.inScrolling) {
                     self.inScrolling = true
@@ -296,17 +291,11 @@ class TouchEnabledUIImageView: UIImageView {
                     self.newY = self.point.y*viewTransform.d
                 }
                 
-                //let timeNow = CACurrentMediaTime();
-                //let timeDiff = timeNow - self.timeLast
-                if translation.y > 0 { //&& timeDiff >= timeThreshhold {
+                if translation.y > 0 {
                     sendDownThenUpEvent(scrolling: true, moving: false, firstDown: false, secondDown: false, thirdDown: false, fourthDown: true, fifthDown: false)
-                    //self.timeLast = timeNow
-                } else if translation.y < 0 { //&& timeDiff >= timeThreshhold {
+                } else if translation.y < 0 {
                     sendDownThenUpEvent(scrolling: true, moving: false, firstDown: false, secondDown: false, thirdDown: false, fourthDown: false, fifthDown: true)
-                    //self.timeLast = timeNow
-                } //else if timeDiff < timeThreshhold {
-                  //  print("Scroll timeDiff \(timeDiff) below threshold of \(timeThreshhold)")
-                //}
+                }
                 return
             }
             self.inPanning = true
@@ -317,7 +306,7 @@ class TouchEnabledUIImageView: UIImageView {
             if sender.view!.frame.minX/scaleX >= 50/scaleX { newCenterX = view.center.x - 5 }
             if sender.view!.frame.minY/scaleY >= 50/scaleY { newCenterY = view.center.y - 5 }
             if sender.view!.frame.minX/scaleX <= -50/scaleX - (scaleX-1.0)*scaledWidth/scaleX { newCenterX = view.center.x + 5 }
-            if sender.view!.frame.minY/scaleY <= -50/scaleY - globalStateKeeper!.keyboardHeight/scaleY - (scaleY-1.0)*scaledHeight/scaleY { newCenterY = view.center.y + 5 }
+            if sender.view!.frame.minY/scaleY <= -50/scaleY - globalStateKeeper[currInst]!.keyboardHeight/scaleY - (scaleY-1.0)*scaledHeight/scaleY { newCenterY = view.center.y + 5 }
             view.center = CGPoint(x: newCenterX, y: newCenterY)
             sender.setTranslation(CGPoint.zero, in: view)
         }
@@ -344,7 +333,6 @@ class TouchEnabledUIImageView: UIImageView {
         }
         sender.view?.transform = newTransform
         sender.scale = 1
-        //print("Frame: \(sender.view!.frame)")
     }
     
 }
