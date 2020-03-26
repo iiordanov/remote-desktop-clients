@@ -10,7 +10,7 @@ import Foundation
 import Combine
 import SwiftUI
 
-class StateKeeper: ObservableObject {
+class StateKeeper: ObservableObject, KeyboardObserving {
     let objectWillChange = PassthroughSubject<StateKeeper, Never>()
     var selectedConnection: [String: String]
     var connections: [Dictionary<String, String>]
@@ -37,7 +37,14 @@ class StateKeeper: ObservableObject {
     var fbW: Int32 = 0
     var fbH: Int32 = 0
     var data: UnsafeMutablePointer<UInt8>?
+    var minScale: CGFloat = 0
     
+    let buttonHeight: CGFloat = 30.0
+    let buttonWidth: CGFloat = 40.0
+    var topSpacing: CGFloat = 20.0
+    var leftSpacing: CGFloat = 0.0
+    let buttonSpacing: CGFloat = 5.0
+
     func redraw() {
         self.imageView?.image = UIImage(cgImage: imageFromARGB32Bitmap(pixels: self.data, withWidth: Int(self.fbW), withHeight: Int(self.fbH))!)
     }
@@ -201,28 +208,26 @@ class StateKeeper: ObservableObject {
         }
     }
     
-    @objc func keyboardWasShown(notification: NSNotification){
-        let info = notification.userInfo!
-        let keyboardSize = (info[UIResponder.keyboardFrameBeginUserInfoKey] as? NSValue)?.cgRectValue.size
-        keyboardHeight = keyboardSize?.height ?? 0
-        print("Keyboard will be shown, height: \(keyboardHeight)")
+    func keyboardWillShow(withSize keyboardSize: CGSize) {
+        print("Keyboard will be shown, height: \(self.keyboardHeight)")
+        self.keyboardHeight = keyboardSize.height
         if getMaintainConnection() {
-            createAndRepositionButtons()
-            self.addButtons(buttons: keyboardButtons)
-            setButtonsVisibility(buttons: keyboardButtons, isHidden: false)
-            self.addButtons(buttons: modifierButtons)
-            setButtonsVisibility(buttons: modifierButtons, isHidden: false)
+            self.createAndRepositionButtons()
+            self.addButtons(buttons: self.keyboardButtons)
+            self.setButtonsVisibility(buttons: self.keyboardButtons, isHidden: false)
+            self.addButtons(buttons: self.modifierButtons)
+            self.setButtonsVisibility(buttons: self.modifierButtons, isHidden: false)
         }
     }
-
-    @objc func keyboardWillBeHidden(notification: NSNotification){
-        keyboardHeight = 0
-        if getMaintainConnection() {
-            createAndRepositionButtons()
-            setButtonsVisibility(buttons: keyboardButtons, isHidden: true)
-            setButtonsVisibility(buttons: modifierButtons, isHidden: true)
-        }
-        print("Keyboard will be hidden, height: \(keyboardHeight)")
+    
+    func keyboardWillHide() {
+      print("Keyboard will be hidden, height: \(self.keyboardHeight)")
+      self.keyboardHeight = 0
+      if getMaintainConnection() {
+          self.createAndRepositionButtons()
+          self.setButtonsVisibility(buttons: keyboardButtons, isHidden: true)
+          self.setButtonsVisibility(buttons: modifierButtons, isHidden: true)
+      }
     }
     
     func moveAllButtons(yDistance: CGFloat) {
@@ -244,17 +249,18 @@ class StateKeeper: ObservableObject {
     }
     
     func registerForNotifications() {
-        NotificationCenter.default.addObserver(self, selector: #selector(self.keyboardWillBeHidden(notification:)), name: UIResponder.keyboardWillHideNotification, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(self.keyboardWasShown(notification:)), name: UIResponder.keyboardWillShowNotification, object: nil)
+        addKeyboardObservers(to: .default)
         NotificationCenter.default.addObserver(self, selector: #selector(self.orientationChanged),
             name: UIDevice.orientationDidChangeNotification, object: nil)
     }
 
     func deregisterFromNotifications(){
+        removeKeyboardObservers(from: .default)
         NotificationCenter.default.removeObserver(self)
     }
     
     @objc func orientationChanged(_ notification: NSNotification) {
+        print("Orientation changed")
         if getMaintainConnection() && currentPage == "connectedSession" {
             //print("Device rotated, correcting button layout.")
             correctTopSpacingForOrientation()
@@ -262,19 +268,34 @@ class StateKeeper: ObservableObject {
             createAndRepositionButtons()
             addButtons(buttons: keyboardButtons)
             addButtons(buttons: interfaceButtons)
+            setButtonsVisibility(buttons: keyboardButtons, isHidden: true)
+            setButtonsVisibility(buttons: modifierButtons, isHidden: true)
         }
     }
     
     func correctTopSpacingForOrientation() {
-        if UIDevice.current.orientation.isLandscape {
-            //print("Landscape")
+        minScale = getMinimumScale(fbW: CGFloat(fbW), fbH: CGFloat(fbH))
+        print("Orientation isValidInterfaceOrientation \(UIDevice.current.orientation.isValidInterfaceOrientation)")
+
+        if UIDevice.current.orientation.isFlat {
+            print("Orientation is flat")
+            leftSpacing = (globalWindow!.bounds.maxX - CGFloat(fbW)*minScale)/2
             topSpacing = 0
         }
 
-        if UIDevice.current.orientation.isPortrait {
-            //print("Portrait")
-            topSpacing = 20
+        if UIDevice.current.orientation.isLandscape {
+            print("Orientation is landscape")
+            leftSpacing = (globalWindow!.bounds.maxX - CGFloat(fbW)*minScale)/2
+            topSpacing = 0
         }
+        
+        if UIDevice.current.orientation.isPortrait {
+            print("Orientation is portrait")
+            leftSpacing = 0
+            topSpacing = (globalWindow!.bounds.maxY - CGFloat(fbH)*minScale)/4
+        }
+        imageView?.frame = CGRect(x: leftSpacing, y: topSpacing, width: CGFloat(fbW)*minScale, height: CGFloat(fbH)*minScale)
+        print("Corrected spacing and minScale for orientation, left: \(leftSpacing), top: \(topSpacing), minScale: \(minScale)")
     }
     
     func createAndRepositionButtons() {
@@ -288,7 +309,7 @@ class StateKeeper: ObservableObject {
         }
         self.interfaceButtons["keyboardButton"]!.frame = CGRect(
             x: globalWindow!.frame.width-buttonWidth,
-            y: globalWindow!.frame.height-3*buttonHeight-2*buttonSpacing-self.keyboardHeight,
+            y: globalWindow!.frame.height-1*buttonHeight-0*buttonSpacing-self.keyboardHeight,
             width: buttonWidth, height: buttonHeight)
 
         if (self.interfaceButtons["disconnectButton"] == nil) {
@@ -300,7 +321,7 @@ class StateKeeper: ObservableObject {
         }
         self.interfaceButtons["disconnectButton"]!.frame = CGRect(
             x: globalWindow!.frame.width-buttonWidth,
-            y: globalWindow!.frame.height-4*buttonHeight-3*buttonSpacing-self.keyboardHeight,
+            y: globalWindow!.frame.height-2*buttonHeight-1*buttonSpacing-self.keyboardHeight,
             width: buttonWidth, height: buttonHeight)
         
         if (self.modifierButtons["ctrlButton"] == nil) {
@@ -332,7 +353,7 @@ class StateKeeper: ObservableObject {
             self.keyboardButtons["leftButton"] = leftButton
         }
         self.keyboardButtons["leftButton"]!.frame = CGRect(
-            x: globalWindow!.frame.width-3*buttonWidth-2*buttonSpacing,
+            x: globalWindow!.frame.width-4*buttonWidth-3*buttonSpacing,
             y: globalWindow!.frame.height-1*buttonHeight-self.keyboardHeight,
             width: buttonWidth, height: buttonHeight)
 
@@ -341,7 +362,7 @@ class StateKeeper: ObservableObject {
             self.keyboardButtons["rightButton"] = rightButton
         }
         self.keyboardButtons["rightButton"]!.frame = CGRect(
-            x: globalWindow!.frame.width-1*buttonWidth-0*buttonSpacing,
+            x: globalWindow!.frame.width-2*buttonWidth-1*buttonSpacing,
             y: globalWindow!.frame.height-1*buttonHeight-self.keyboardHeight,
             width: buttonWidth, height: buttonHeight)
 
@@ -350,7 +371,7 @@ class StateKeeper: ObservableObject {
             self.keyboardButtons["upButton"] = upButton
         }
         self.keyboardButtons["upButton"]!.frame = CGRect(
-            x: globalWindow!.frame.width-1*buttonWidth-0*buttonSpacing,
+            x: globalWindow!.frame.width-3*buttonWidth-2*buttonSpacing,
             y: globalWindow!.frame.height-2*buttonHeight-1*buttonSpacing-self.keyboardHeight,
             width: buttonWidth, height: buttonHeight)
 
@@ -359,7 +380,7 @@ class StateKeeper: ObservableObject {
             self.keyboardButtons["downButton"] = downButton
         }
         self.keyboardButtons["downButton"]!.frame = CGRect(
-            x: globalWindow!.frame.width-2*buttonWidth-1*buttonSpacing,
+            x: globalWindow!.frame.width-3*buttonWidth-2*buttonSpacing,
             y: globalWindow!.frame.height-1*buttonHeight-self.keyboardHeight,
             width: buttonWidth, height: buttonHeight)
     }

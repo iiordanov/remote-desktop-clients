@@ -17,11 +17,6 @@ func UserInterface(_ block: @escaping ()->Void) {
     DispatchQueue.main.async(execute: block)
 }
 
-let buttonHeight: CGFloat = 30.0
-let buttonWidth: CGFloat = 40.0
-var topSpacing: CGFloat = 20.0
-let buttonSpacing: CGFloat = 5.0
-
 var globalContentView: Image?
 var globalScene: UIWindowScene?
 var globalWindow: UIWindow?
@@ -119,11 +114,15 @@ func widthRatioLessThanHeightRatio(fbW: CGFloat, fbH: CGFloat) -> Bool {
 }
 
 func resize_callback(fbW: Int32, fbH: Int32) -> Void {
+    globalStateKeeper[currInst]?.fbW = fbW
+    globalStateKeeper[currInst]?.fbH = fbH
     UserInterface {
         let minScale = getMinimumScale(fbW: CGFloat(fbW), fbH: CGFloat(fbH))
+        globalStateKeeper[currInst]?.correctTopSpacingForOrientation()
         globalStateKeeper[currInst]?.imageView?.removeFromSuperview()
-        globalStateKeeper[currInst]?.imageView = TouchEnabledUIImageView(frame: CGRect(x: 0, y: 0, width: Int(fbW), height: Int(fbH)))
-        globalStateKeeper[currInst]?.imageView?.frame = CGRect(x: 0, y: topSpacing, width: CGFloat(fbW)*minScale, height: CGFloat(fbH)*minScale)
+        let leftSpacing = globalStateKeeper[currInst]?.leftSpacing ?? 0
+        let topSpacing = globalStateKeeper[currInst]?.topSpacing ?? 0
+        globalStateKeeper[currInst]?.imageView = TouchEnabledUIImageView(frame: CGRect(x: leftSpacing, y: topSpacing, width: CGFloat(fbW)*minScale, height: CGFloat(fbH)*minScale))
         globalStateKeeper[currInst]?.imageView?.backgroundColor = UIColor.gray
         globalStateKeeper[currInst]?.imageView?.enableGestures()
         globalStateKeeper[currInst]?.imageView?.enableTouch()
@@ -186,7 +185,6 @@ class VncSession {
         self.window = window
         currInst = instance
         globalStateKeeper[currInst] = stateKeeper
-        stateKeeper.correctTopSpacingForOrientation()
     }
     
     func captureScreen(window: UIWindow) -> UIImage {

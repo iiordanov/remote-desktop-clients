@@ -24,6 +24,7 @@
 		AF53DCAF24002C9F00569F19 /* ca.pem in Resources */ = {isa = PBXBuildFile; fileRef = AF53DCAE24002C9F00569F19 /* ca.pem */; };
 		AF53DCB124022C8C00569F19 /* VncSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF53DCB024022C8C00569F19 /* VncSession.swift */; };
 		AF53DCB32402391600569F19 /* StateKeeper.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF53DCB22402391600569F19 /* StateKeeper.swift */; };
+		AF59A3D4242CE9E100658CE6 /* KeyboardObserving.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF59A3D3242CE9E100658CE6 /* KeyboardObserving.swift */; };
 		AF7421F1241D57E100C552A7 /* libssh2.a in Embed Libraries */ = {isa = PBXBuildFile; fileRef = AF7421F0241D57E000C552A7 /* libssh2.a */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		AF7421F4241D58EB00C552A7 /* SshPortForwarder.c in Sources */ = {isa = PBXBuildFile; fileRef = AF7421F3241D58EB00C552A7 /* SshPortForwarder.c */; };
 		AF9E8F932427F3B500752FC2 /* Utility.c in Sources */ = {isa = PBXBuildFile; fileRef = AF9E8F922427F3B500752FC2 /* Utility.c */; };
@@ -486,6 +487,7 @@
 		AF53DCAE24002C9F00569F19 /* ca.pem */ = {isa = PBXFileReference; lastKnownFileType = text; path = ca.pem; sourceTree = "<group>"; };
 		AF53DCB024022C8C00569F19 /* VncSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VncSession.swift; sourceTree = "<group>"; };
 		AF53DCB22402391600569F19 /* StateKeeper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StateKeeper.swift; sourceTree = "<group>"; };
+		AF59A3D3242CE9E100658CE6 /* KeyboardObserving.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardObserving.swift; sourceTree = "<group>"; };
 		AF7421F0241D57E000C552A7 /* libssh2.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libssh2.a; path = bVNC.xcodeproj/libs_combined/lib/libssh2.a; sourceTree = "<group>"; };
 		AF7421F2241D58EB00C552A7 /* SshPortForwarder.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SshPortForwarder.h; sourceTree = "<group>"; };
 		AF7421F3241D58EB00C552A7 /* SshPortForwarder.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = SshPortForwarder.c; sourceTree = "<group>"; };
@@ -577,6 +579,7 @@
 				AF9E8F97242AE4BB00752FC2 /* SystemMonitor.h */,
 				AF9E8F98242AE4E900752FC2 /* SystemMonitor.m */,
 				AF043A2023B3DADB00C43ED7 /* Preview Content */,
+				AF59A3D3242CE9E100658CE6 /* KeyboardObserving.swift */,
 			);
 			path = bVNC;
 			sourceTree = "<group>";
@@ -1153,6 +1156,7 @@
 				AF9E8F99242AE4E900752FC2 /* SystemMonitor.m in Sources */,
 				AF043A1923B3DADA00C43ED7 /* AppDelegate.swift in Sources */,
 				AF043A1B23B3DADA00C43ED7 /* SceneDelegate.swift in Sources */,
+				AF59A3D4242CE9E100658CE6 /* KeyboardObserving.swift in Sources */,
 				AF53DCB32402391600569F19 /* StateKeeper.swift in Sources */,
 				AF48283223B47EC300826395 /* VncBridge.c in Sources */,
 				AF043A1D23B3DADA00C43ED7 /* ContentView.swift in Sources */,
