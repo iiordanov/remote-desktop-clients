@@ -60,6 +60,12 @@ class CustomTextInput: UIButton, UIKeyInput{
             return becomeFirstResponder()
         }
     }
+
+    @objc func hideKeyboard() -> Bool {
+        print("Hiding keyboard.")
+        return resignFirstResponder()
+    }
+
     
     override var canBecomeFirstResponder: Bool {
         return true

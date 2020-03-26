@@ -109,6 +109,7 @@ class StateKeeper: ObservableObject {
         self.deregisterFromNotifications()
         self.vncSession?.disconnect()
         UserInterface {
+            (self.interfaceButtons["keyboardButton"] as! CustomTextInput).hideKeyboard()
             self.imageView?.disableTouch()
             self.currentPage = "page3"
         }
