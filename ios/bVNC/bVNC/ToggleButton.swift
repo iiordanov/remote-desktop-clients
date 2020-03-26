@@ -13,8 +13,7 @@ import AudioToolbox
 class ToggleButton: UIButton {
     var originalBackground: UIColor?
     var toSend: Int32?
-    var down: Bool = true
-    
+    var down: Bool = false
     
     init (frame: CGRect, title: String, background: UIColor, stateKeeper: StateKeeper, toSend: Int32, toggle: Bool) {
         super.init(frame: frame)
@@ -30,20 +29,29 @@ class ToggleButton: UIButton {
     }
     
     @objc func sendToggleText() {
-        print("Toggling my xksysym: \(toSend!), down: \(down)")
-        sendUniDirectionalKeyEventWithKeySym(toSend!, down)
-        if down {
-            self.backgroundColor = originalBackground?.withAlphaComponent(1)
-        } else {
-            self.backgroundColor = originalBackground
-        }
         down = !down
+        print("Toggled my xksysym: \(toSend!), down: \(down)")
+        sendUniDirectionalKeyEventWithKeySym(toSend!, down)
+        UserInterface {
+            if self.down {
+                self.backgroundColor = self.originalBackground?.withAlphaComponent(1)
+            } else {
+                self.backgroundColor = self.originalBackground
+            }
+            self.setNeedsDisplay()
+        }
     }
 
     @objc func sendText() {
         print("Sending my xksysym: \(toSend!), up and then down.")
         sendKeyEventWithKeySym(toSend!)
         //AudioServicesPlayAlertSound(kSystemSoundID_Vibrate);
+    }
+
+    @objc func sendUpIfToggled() {
+        if down {
+            sendToggleText()
+        }
     }
 
     override init(frame: CGRect) {

@@ -24,6 +24,7 @@ class StateKeeper: ObservableObject {
     var yesNoDialogResponse: Int32 = 0
     var imageView: TouchEnabledUIImageView?
     var vncSession: VncSession?
+    var modifierButtons: [String: UIButton]
     var keyboardButtons: [String: UIButton]
     var interfaceButtons: [String: UIButton]
     var keyboardHeight: CGFloat = 0.0
@@ -60,6 +61,7 @@ class StateKeeper: ObservableObject {
         connections = self.settings.array(forKey: "connections") as? [Dictionary<String, String>] ?? []
         interfaceButtons = [:]
         keyboardButtons = [:]
+        modifierButtons = [:]
     }
     
     var currentPage: String = "connectionsList" {
@@ -107,8 +109,12 @@ class StateKeeper: ObservableObject {
     @objc func disconnect() {
         print("Disconnecting and navigating to the disconnection screen")
         self.deregisterFromNotifications()
+        UserInterface {
+            self.toggleModifiersIfDown()
+        }
         self.vncSession?.disconnect()
         UserInterface {
+            self.removeButtons()
             (self.interfaceButtons["keyboardButton"] as! CustomTextInput).hideKeyboard()
             self.imageView?.disableTouch()
             self.currentPage = "page3"
@@ -204,6 +210,8 @@ class StateKeeper: ObservableObject {
             createAndRepositionButtons()
             self.addButtons(buttons: keyboardButtons)
             setButtonsVisibility(buttons: keyboardButtons, isHidden: false)
+            self.addButtons(buttons: modifierButtons)
+            setButtonsVisibility(buttons: modifierButtons, isHidden: false)
         }
     }
 
@@ -212,6 +220,7 @@ class StateKeeper: ObservableObject {
         if getMaintainConnection() {
             createAndRepositionButtons()
             setButtonsVisibility(buttons: keyboardButtons, isHidden: true)
+            setButtonsVisibility(buttons: modifierButtons, isHidden: true)
         }
         print("Keyboard will be hidden, height: \(keyboardHeight)")
     }
@@ -221,6 +230,9 @@ class StateKeeper: ObservableObject {
             button.value.center = CGPoint(x: button.value.center.x, y: button.value.center.y + yDistance)
         }
         self.keyboardButtons.forEach() { button in
+            button.value.center = CGPoint(x: button.value.center.x, y: button.value.center.y + yDistance)
+        }
+        self.modifierButtons.forEach() { button in
             button.value.center = CGPoint(x: button.value.center.x, y: button.value.center.y + yDistance)
         }
     }
@@ -268,7 +280,7 @@ class StateKeeper: ObservableObject {
     func createAndRepositionButtons() {
         //print("Creating buttons")
         if (self.interfaceButtons["keyboardButton"] == nil) {
-            let b = CustomTextInput()
+            let b = CustomTextInput(stateKeeper: self)
             b.setTitle("K", for: [])
             b.backgroundColor = UIColor(red: 0.5, green: 0.5, blue: 0.5, alpha: 0.2)
             b.addTarget(b, action: #selector(b.toggleFirstResponder), for: .touchDown)
@@ -291,23 +303,23 @@ class StateKeeper: ObservableObject {
             y: globalWindow!.frame.height-4*buttonHeight-3*buttonSpacing-self.keyboardHeight,
             width: buttonWidth, height: buttonHeight)
         
-        if (self.keyboardButtons["ctrlButton"] == nil) {
+        if (self.modifierButtons["ctrlButton"] == nil) {
             let ctrlButton = ToggleButton(frame: CGRect(), title: "C", background: UIColor(red: 0.5, green: 0.5, blue: 0.5, alpha: 0.2), stateKeeper: self, toSend: XK_Control_L, toggle: true)
-            self.keyboardButtons["ctrlButton"] = ctrlButton
+            self.modifierButtons["ctrlButton"] = ctrlButton
         }
-        self.keyboardButtons["ctrlButton"]!.frame = CGRect(x: 0, y: globalWindow!.frame.height-1*buttonHeight-self.keyboardHeight, width: buttonWidth, height: buttonHeight)
+        self.modifierButtons["ctrlButton"]!.frame = CGRect(x: 0, y: globalWindow!.frame.height-1*buttonHeight-self.keyboardHeight, width: buttonWidth, height: buttonHeight)
 
-        if (self.keyboardButtons["superButton"] == nil) {
+        if (self.modifierButtons["superButton"] == nil) {
             let superButton = ToggleButton(frame: CGRect(), title: "S", background: UIColor(red: 0.5, green: 0.5, blue: 0.5, alpha: 0.2), stateKeeper: self, toSend: XK_Super_L, toggle: true)
-            self.keyboardButtons["superButton"] = superButton
+            self.modifierButtons["superButton"] = superButton
         }
-        self.keyboardButtons["superButton"]!.frame = CGRect(x: 1*buttonWidth+1*buttonSpacing, y: globalWindow!.frame.height-1*buttonHeight-self.keyboardHeight, width: buttonWidth, height: buttonHeight)
+        self.modifierButtons["superButton"]!.frame = CGRect(x: 1*buttonWidth+1*buttonSpacing, y: globalWindow!.frame.height-1*buttonHeight-self.keyboardHeight, width: buttonWidth, height: buttonHeight)
 
-        if (self.keyboardButtons["altButton"] == nil) {
+        if (self.modifierButtons["altButton"] == nil) {
             let altButton = ToggleButton(frame: CGRect(), title: "A", background: UIColor(red: 0.5, green: 0.5, blue: 0.5, alpha: 0.2), stateKeeper: self, toSend: XK_Alt_L, toggle: true)
-            self.keyboardButtons["altButton"] = altButton
+            self.modifierButtons["altButton"] = altButton
         }
-        self.keyboardButtons["altButton"]!.frame = CGRect(x: 2*buttonWidth+2*buttonSpacing, y: globalWindow!.frame.height-1*buttonHeight-self.keyboardHeight, width: buttonWidth, height: buttonHeight)
+        self.modifierButtons["altButton"]!.frame = CGRect(x: 2*buttonWidth+2*buttonSpacing, y: globalWindow!.frame.height-1*buttonHeight-self.keyboardHeight, width: buttonWidth, height: buttonHeight)
 
         if (self.keyboardButtons["tabButton"] == nil) {
             let tabButton = ToggleButton(frame: CGRect(), title: "T", background: UIColor(red: 0.5, green: 0.5, blue: 0.5, alpha: 0.2), stateKeeper: self, toSend: XK_Tab, toggle: false)
@@ -364,6 +376,12 @@ class StateKeeper: ObservableObject {
         self.interfaceButtons.forEach(){ button in
             button.value.removeFromSuperview()
         }
+        self.modifierButtons.forEach(){ button in
+            button.value.removeFromSuperview()
+        }
+        self.keyboardButtons.forEach(){ button in
+            button.value.removeFromSuperview()
+        }
     }
     
     /*
@@ -411,6 +429,13 @@ class StateKeeper: ObservableObject {
             } else {
                 self.currentPage = pageNo
             }
+        }
+    }
+    
+    func toggleModifiersIfDown() {
+        self.modifierButtons.forEach() { button in
+            print ("Toggling \(button.key) if down")
+            (button.value as! ToggleButton).sendUpIfToggled()
         }
     }
 }

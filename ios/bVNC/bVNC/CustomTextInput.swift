@@ -29,8 +29,17 @@ extension String {
 
 class CustomTextInput: UIButton, UIKeyInput{
     public var hasText: Bool { return false }
-    let lock = NSLock()
-
+    var stateKeeper: StateKeeper?
+    
+    init(stateKeeper: StateKeeper) {
+        super.init(frame: CGRect())
+        self.stateKeeper = stateKeeper;
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
     public func insertText(_ text: String){
         //print("Sending: " + text + ", number of characters: " + String(text.count))
         for char in text.unicodeScalars {
@@ -38,15 +47,15 @@ class CustomTextInput: UIButton, UIKeyInput{
                 if !sendKeyEventInt(Int32(String(char.value))!) {
                     sendKeyEvent(String(char))
                 }
+                self.stateKeeper?.toggleModifiersIfDown()
             }
         }
     }
     
     public func deleteBackward(){
         Background {
-            self.lock.lock()
             sendKeyEventWithKeySym(0xff08);
-            self.lock.unlock()
+            self.stateKeeper?.toggleModifiersIfDown()
         }
     }
     

@@ -87,6 +87,7 @@ static rfbBool resize (rfbClient *cl) {
 }
 
 void disconnectVnc() {
+    printf("Setting maintainConnection to false\n");
     maintainConnection = false;
     // Force force some communication with server in order to wake up the
     // background thread waiting for server messages.
