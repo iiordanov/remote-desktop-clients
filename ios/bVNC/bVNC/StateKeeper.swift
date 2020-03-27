@@ -44,7 +44,7 @@ class StateKeeper: ObservableObject, KeyboardObserving {
     var topSpacing: CGFloat = 20.0
     var leftSpacing: CGFloat = 0.0
     let buttonSpacing: CGFloat = 5.0
-
+    
     func redraw() {
         self.imageView?.image = UIImage(cgImage: imageFromARGB32Bitmap(pixels: self.data, withWidth: Int(self.fbW), withHeight: Int(self.fbH))!)
     }
@@ -63,8 +63,8 @@ class StateKeeper: ObservableObject, KeyboardObserving {
     
     init() {
         // Load settings for current connection
-        selectedConnection = self.settings.dictionary(forKey: "selectedConnection") as? [String:String] ?? [:]
-        connectionIndex = self.settings.integer(forKey: "connectionIndex")
+        connectionIndex = -1
+        selectedConnection = [:]
         connections = self.settings.array(forKey: "connections") as? [Dictionary<String, String>] ?? []
         interfaceButtons = [:]
         keyboardButtons = [:]
@@ -95,10 +95,12 @@ class StateKeeper: ObservableObject, KeyboardObserving {
         yesNoDialogResponse = 0
         self.clientLog = "Client Log:\n\n"
         self.registerForNotifications()
+        // Needed in case we need to save a certificate during connection or change settings.
         self.connectionIndex = index
         self.selectedConnection = self.connections[index]
+        
         self.vncSession = VncSession(scene: self.scene!, stateKeeper: self, window: self.window!, instance: 0)
-        self.vncSession!.connect(currentConnection: self.selectedConnection)
+        self.vncSession!.connect(currentConnection: selectedConnection)
     }
     
     func goToConnectedSession() {
@@ -128,7 +130,7 @@ class StateKeeper: ObservableObject, KeyboardObserving {
         }
     }
     
-    func addNew() {
+    func addNewConnection() {
         print("Adding new connection and navigating to connection setup screen")
         self.connectionIndex = -1
         self.selectedConnection = [:]
@@ -137,31 +139,24 @@ class StateKeeper: ObservableObject, KeyboardObserving {
         }
     }
 
-    func edit(index: Int) {
-        print("Editing connection at index \(index)")
+    func editConnection(index: Int) {
+        print("Editing connection at index \(index) and navigating to setup screen")
         self.connectionIndex = index
         self.selectedConnection = connections[index]
-        print("Navigating to setup screen for connection at index \(self.connectionIndex)")
         UserInterface {
             self.currentPage = "page1"
         }
     }
 
-    func deleteCurrent() {
+    func deleteCurrentConnection() {
         print("Deleting connection at index \(self.connectionIndex) and navigating to list of connections screen")
         // Do something only if we were not adding a new connection.
         if connectionIndex >= 0 {
             print("Deleting connection with index \(connectionIndex)")
             self.connections.remove(at: self.connectionIndex)
-            self.connectionIndex = 0
-            if self.connections.count > 0 {
-                self.selectedConnection = self.connections[connectionIndex]
-            } else {
-                self.selectedConnection = [:]
-            }
-            self.settings.set(self.selectedConnection, forKey: "selectedConnection")
-            self.settings.set(self.connectionIndex, forKey: "connectionIndex")
-            self.settings.set(self.connections, forKey: "connections")
+            self.selectedConnection = [:]
+            self.connectionIndex = -1
+            saveSettings()
         } else {
             print("We were adding a new connection, so not deleting anything")
         }
@@ -172,27 +167,23 @@ class StateKeeper: ObservableObject, KeyboardObserving {
     
     func saveSettings() {
         print("Saving settings")
-        self.settings.set(self.selectedConnection, forKey: "selectedConnection")
-        self.settings.set(self.connectionIndex, forKey: "connectionIndex")
-        self.connections[connectionIndex] = self.selectedConnection
+        if connectionIndex >= 0 {
+            self.connections[connectionIndex] = selectedConnection
+        }
         self.settings.set(self.connections, forKey: "connections")
     }
     
-    func saveNewConnection(connection: [String: String]) {
-        self.selectedConnection = connection
+    func saveConnection(connection: [String: String]) {
         // Negative index indicates we are adding a connection, otherwise we are editing one.
         if (connectionIndex < 0) {
             print("Saving a new connection and navigating to list of connections")
-            self.connectionIndex = self.connections.count - 1
             self.connections.append(connection)
         } else {
             print("Saving a connection at index \(self.connectionIndex) and navigating to list of connections")
-            self.connections[connectionIndex] = connection
+            self.selectedConnection = connection
         }
         self.saveSettings()
-        UserInterface {
-            self.currentPage = "connectionsList"
-        }
+        self.showConnections()
     }
     
     func showConnections() {
@@ -262,7 +253,6 @@ class StateKeeper: ObservableObject, KeyboardObserving {
     @objc func orientationChanged(_ notification: NSNotification) {
         print("Orientation changed")
         if getMaintainConnection() && currentPage == "connectedSession" {
-            //print("Device rotated, correcting button layout.")
             correctTopSpacingForOrientation()
             removeButtons()
             createAndRepositionButtons()
@@ -299,7 +289,7 @@ class StateKeeper: ObservableObject, KeyboardObserving {
     }
     
     func createAndRepositionButtons() {
-        //print("Creating buttons")
+        print("Ensuring buttons are initialized, and positioning them where they should be")
         if (self.interfaceButtons["keyboardButton"] == nil) {
             let b = CustomTextInput(stateKeeper: self)
             b.setTitle("K", for: [])
@@ -313,7 +303,7 @@ class StateKeeper: ObservableObject, KeyboardObserving {
             width: buttonWidth, height: buttonHeight)
 
         if (self.interfaceButtons["disconnectButton"] == nil) {
-            let b = UIButton()
+            let b = ToggleButton()
             b.setTitle("D", for: [])
             b.backgroundColor = UIColor(red: 0.5, green: 0.5, blue: 0.5, alpha: 0.2)
             b.addTarget(self, action: #selector(self.disconnect), for: .touchDown)

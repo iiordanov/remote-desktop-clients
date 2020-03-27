@@ -56,7 +56,7 @@ struct ConnectionsList : View {
     }
 
     func edit(index: Int) {
-        self.stateKeeper.edit(index: index)
+        self.stateKeeper.editConnection(index: index)
     }
     
     func elementAt(index: Int) -> [String:String] {
@@ -77,7 +77,7 @@ struct ConnectionsList : View {
         ScrollView {
             VStack {
                 Button(action: {
-                    self.stateKeeper.addNew()
+                    self.stateKeeper.addNewConnection()
                 }) {
                     Text("New Connection")
                     .fontWeight(.bold)
@@ -161,7 +161,7 @@ struct ContentViewA : View {
                         "username": self.usernameText.trimmingCharacters(in: .whitespacesAndNewlines),
                         "password": self.passwordText.trimmingCharacters(in: .whitespacesAndNewlines),
                         "cert": self.certText.trimmingCharacters(in: .whitespacesAndNewlines)]
-                    self.stateKeeper.saveNewConnection(connection: selectedConnection)
+                    self.stateKeeper.saveConnection(connection: selectedConnection)
                 }) {
                     Text("Save")
                         .fontWeight(.bold)
@@ -174,7 +174,7 @@ struct ContentViewA : View {
                 }
                 Button(action: {
                     self.stateKeeper.currentPage = "page2"
-                    self.stateKeeper.deleteCurrent()
+                    self.stateKeeper.deleteCurrentConnection()
                 }) {
                     Text("Delete")
                         .fontWeight(.bold)
