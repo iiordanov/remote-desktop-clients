@@ -11,7 +11,7 @@ import UIKit
 
 extension String {
 
-  func toPointer() -> UnsafePointer<UInt8>? {
+  func toPointer() -> UnsafeMutablePointer<UInt8>? {
     guard let data = self.data(using: String.Encoding.utf8) else { return nil }
 
     let buffer = UnsafeMutablePointer<UInt8>.allocate(capacity: data.count)
@@ -23,7 +23,7 @@ extension String {
     })
     stream.close()
 
-    return UnsafePointer<UInt8>(buffer)
+    return UnsafeMutablePointer<UInt8>(buffer)
   }
 }
 

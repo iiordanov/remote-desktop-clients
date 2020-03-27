@@ -126,7 +126,7 @@ rfbBool unlockWriteToTLS(rfbClient* client) {
 
 void connectVnc(void (*fb_update_callback)(uint8_t *, int fbW, int fbH, int x, int y, int w, int h),
                 void (*fb_resize_callback)(int fbW, int fbH),
-                void (*fail_callback)(int8_t *),
+                void (*fail_callback)(uint8_t *),
                 void (*cl_log_callback)(int8_t *),
                 void (*lock_wrt_tls_callback)(void),
                 void (*unlock_wrt_tls_callback)(void),
@@ -219,7 +219,7 @@ void rfb_client_cleanup() {
 void cleanup(char *message, rfbClient *client) {
     maintainConnection = false;
     rfbClientLog("%s", message);
-    failure_callback((int8_t*)message);
+    failure_callback((uint8_t*)message);
 }
 
 // TODO: Replace with real conversion table

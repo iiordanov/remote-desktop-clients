@@ -16,7 +16,7 @@
 bool getMaintainConnection(void);
 void connectVnc(void (*fb_update_callback)(uint8_t *, int fbW, int fbH, int x, int y, int w, int h),
                 void (*fb_resize_callback)(int fbW, int fbH),
-                void (*fail_callback)(int8_t *),
+                void (*fail_callback)(uint8_t *),
                 void (*cl_log_callback)(int8_t *),
                 void (*lock_write_tls_callback)(void),
                 void (*unlock_write_tls_callback)(void),
@@ -26,7 +26,7 @@ void connectVnc(void (*fb_update_callback)(uint8_t *, int fbW, int fbH, int x, i
 void disconnectVnc(void);
 void (*framebuffer_update_callback)(uint8_t *, int fbW, int fbH, int x, int y, int w, int h);
 void (*framebuffer_resize_callback)(int fbW, int fbH);
-void (*failure_callback)(int8_t *);
+void (*failure_callback)(uint8_t *);
 void sendKeyEvent(const char *c);
 void sendUniDirectionalKeyEvent(const char *c, bool down);
 bool sendKeyEventInt(int c);

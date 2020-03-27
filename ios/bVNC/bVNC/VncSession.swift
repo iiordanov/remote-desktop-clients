@@ -62,9 +62,13 @@ func failure_callback_str(message: String?) {
     }
 }
 
-func failure_callback_swift(message: UnsafeMutablePointer<Int8>?) -> Void {
-    print("Will show error with title: \(String(cString: message!))")
-    failure_callback_str(message: String(cString: message!))
+func failure_callback_swift(message: UnsafeMutablePointer<UInt8>?) -> Void {
+    if message != nil {
+        print("Will show error with title: \(String(cString: message!))")
+        failure_callback_str(message: String(cString: message!))
+    } else {
+        failure_callback_str(message: nil)
+    }
 }
 
 func log_callback(message: UnsafeMutablePointer<Int8>?) -> Void {
