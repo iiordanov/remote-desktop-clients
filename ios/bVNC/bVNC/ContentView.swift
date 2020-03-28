@@ -10,6 +10,96 @@ import Foundation
 import Combine
 import SwiftUI
 
+struct MultilineTextView: UIViewRepresentable {
+    var placeholder: String
+    @Binding var text: String
+
+    var minHeight: CGFloat
+    @Binding var calculatedHeight: CGFloat
+
+    init(placeholder: String, text: Binding<String>, minHeight: CGFloat, calculatedHeight: Binding<CGFloat>) {
+        self.placeholder = placeholder
+        self._text = text
+        self.minHeight = minHeight
+        self._calculatedHeight = calculatedHeight
+    }
+
+    func makeCoordinator() -> Coordinator {
+        Coordinator(self)
+    }
+
+    func makeUIView(context: Context) -> UITextView {
+        let textView = UITextView()
+        textView.delegate = context.coordinator
+
+        // Decrease priority of content resistance, so content would not push external layout set in SwiftUI
+        textView.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+
+        textView.isScrollEnabled = false
+        textView.isEditable = true
+        textView.isUserInteractionEnabled = true
+        textView.backgroundColor = UIColor(white: 0.0, alpha: 0.5)
+
+        // Set the placeholder
+        textView.text = placeholder
+        textView.textColor = UIColor.lightGray
+
+        return textView
+    }
+
+    func updateUIView(_ textView: UITextView, context: Context) {
+        if textView.text != self.text {
+            textView.text = self.text
+        }
+
+        recalculateHeight(view: textView)
+    }
+
+    func recalculateHeight(view: UIView) {
+        let newSize = view.sizeThatFits(CGSize(width: view.frame.size.width, height: CGFloat.greatestFiniteMagnitude))
+        if minHeight < newSize.height && $calculatedHeight.wrappedValue != newSize.height {
+            DispatchQueue.main.async {
+                self.$calculatedHeight.wrappedValue = newSize.height // !! must be called asynchronously
+            }
+        } else if minHeight >= newSize.height && $calculatedHeight.wrappedValue != minHeight {
+            DispatchQueue.main.async {
+                self.$calculatedHeight.wrappedValue = self.minHeight // !! must be called asynchronously
+            }
+        }
+    }
+
+    class Coordinator : NSObject, UITextViewDelegate {
+
+        var parent: MultilineTextView
+
+        init(_ uiTextView: MultilineTextView) {
+            self.parent = uiTextView
+        }
+
+        func textViewDidChange(_ textView: UITextView) {
+            // This is needed for multistage text input (eg. Chinese, Japanese)
+            if textView.markedTextRange == nil {
+                parent.text = textView.text ?? String()
+                parent.recalculateHeight(view: textView)
+            }
+        }
+
+        func textViewDidBeginEditing(_ textView: UITextView) {
+            if textView.textColor == UIColor.lightGray {
+                textView.text = nil
+                textView.textColor = UIColor.lightGray
+            }
+        }
+
+        func textViewDidEndEditing(_ textView: UITextView) {
+            if textView.text.isEmpty {
+                textView.text = parent.placeholder
+                textView.textColor = UIColor.lightGray
+            }
+        }
+    }
+}
+
 struct ContentView : View {
     
     @ObservedObject var stateKeeper: StateKeeper
@@ -25,6 +115,8 @@ struct ContentView : View {
                      sshPortText: stateKeeper.selectedConnection["sshPort"] ?? "22",
                      sshUserText: stateKeeper.selectedConnection["sshUser"] ?? "",
                      sshPassText: stateKeeper.selectedConnection["sshPass"] ?? "",
+                     sshPassphraseText: stateKeeper.selectedConnection["sshPassphrase"] ?? "",
+                     sshPrivateKeyText: stateKeeper.selectedConnection["sshPrivateKey"] ?? "",
                      addressText: stateKeeper.selectedConnection["address"] ?? "",
                      portText: stateKeeper.selectedConnection["port"] ?? "5900",
                      usernameText: stateKeeper.selectedConnection["username"] ?? "",
@@ -139,12 +231,15 @@ struct ContentViewA : View {
     @State var sshPortText: String
     @State var sshUserText: String
     @State var sshPassText: String
+    @State var sshPassphraseText: String
+    @State var sshPrivateKeyText: String
     @State var addressText: String
     @State var portText: String
     @State var usernameText: String
     @State var passwordText: String
     @State var certText: String
-
+    @State var textHeight: CGFloat = 20
+    
     var body: some View {
         ScrollView {
             VStack {
@@ -156,6 +251,8 @@ struct ContentViewA : View {
                         "sshPort": self.sshPortText.trimmingCharacters(in: .whitespacesAndNewlines),
                         "sshUser": self.sshUserText.trimmingCharacters(in: .whitespacesAndNewlines),
                         "sshPass": self.sshPassText.trimmingCharacters(in: .whitespacesAndNewlines),
+                        "sshPassphrase": self.sshPassphraseText.trimmingCharacters(in: .whitespacesAndNewlines),
+                        "sshPrivateKey": self.sshPrivateKeyText.trimmingCharacters(in: .whitespacesAndNewlines),
                         "address": self.addressText.trimmingCharacters(in: .whitespacesAndNewlines),
                         "port": self.portText.trimmingCharacters(in: .whitespacesAndNewlines),
                         "username": self.usernameText.trimmingCharacters(in: .whitespacesAndNewlines),
@@ -191,7 +288,10 @@ struct ContentViewA : View {
                 TextField("SSH Server", text: $sshAddressText).autocapitalization(.none).font(.title)
                 TextField("SSH Port", text: $sshPortText).autocapitalization(.none).font(.title)
                 TextField("SSH User", text: $sshUserText).autocapitalization(.none).font(.title)
-                SecureField("SSH Password or Passphrase", text: $sshPassText).autocapitalization(.none).font(.title)
+                SecureField("SSH Password", text: $sshPassText).autocapitalization(.none).font(.title)
+                SecureField("SSH Passphrase", text: $sshPassphraseText).autocapitalization(.none).font(.title)
+                Text("Paste optional SSH Key below").font(.headline)
+                MultilineTextView(placeholder: "SSH Key", text: $sshPrivateKeyText, minHeight: self.textHeight, calculatedHeight: $textHeight).frame(minHeight: self.textHeight, maxHeight: self.textHeight)
             }
             VStack {
                 Text("Main Connection Parameters").font(.headline)
@@ -334,7 +434,7 @@ struct YesNoDialog : View {
 
 struct ContentViewA_Previews : PreviewProvider {
     static var previews: some View {
-        ContentViewA(stateKeeper: StateKeeper(), sshAddressText: "", sshPortText: "", sshUserText: "", sshPassText: "", addressText: "", portText: "", usernameText: "", passwordText: "", certText: "")
+        ContentViewA(stateKeeper: StateKeeper(), sshAddressText: "", sshPortText: "", sshUserText: "", sshPassText: "", sshPassphraseText: "", sshPrivateKeyText: "", addressText: "", portText: "", usernameText: "", passwordText: "", certText: "")
     }
 }
 
