@@ -62,19 +62,22 @@ class CustomTextInput: UIButton, UIKeyInput{
     @objc func toggleFirstResponder() -> Bool {
         if (self.isFirstResponder) {
             print("Keyboard should be showing already, hiding it.")
-            becomeFirstResponder()
-            return resignFirstResponder()
+            return hideKeyboard()
         } else {
-            print("Showing keyboard.")
-            return becomeFirstResponder()
+            return showKeyboard()
         }
     }
 
     @objc func hideKeyboard() -> Bool {
         print("Hiding keyboard.")
+        becomeFirstResponder()
         return resignFirstResponder()
     }
 
+    @objc func showKeyboard() -> Bool {
+        print("Showing keyboard.")
+        return becomeFirstResponder()
+    }
     
     override var canBecomeFirstResponder: Bool {
         return true

@@ -560,6 +560,7 @@
 				AFF244E12407985E00F5839B /* CustomTextInput.swift */,
 				AF043A1C23B3DADA00C43ED7 /* ContentView.swift */,
 				AF043A1E23B3DADB00C43ED7 /* Assets.xcassets */,
+				AF59A3D3242CE9E100658CE6 /* KeyboardObserving.swift */,
 				AF043A2323B3DADB00C43ED7 /* LaunchScreen.storyboard */,
 				AF043A2623B3DADB00C43ED7 /* Info.plist */,
 				AF48283023B47EC300826395 /* VncBridge.h */,
@@ -579,7 +580,6 @@
 				AF9E8F97242AE4BB00752FC2 /* SystemMonitor.h */,
 				AF9E8F98242AE4E900752FC2 /* SystemMonitor.m */,
 				AF043A2023B3DADB00C43ED7 /* Preview Content */,
-				AF59A3D3242CE9E100658CE6 /* KeyboardObserving.swift */,
 			);
 			path = bVNC;
 			sourceTree = "<group>";
