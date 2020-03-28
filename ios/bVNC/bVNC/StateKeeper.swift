@@ -378,7 +378,7 @@ class StateKeeper: ObservableObject, KeyboardObserving {
             // Top buttons can wrap around and go a row down if they are out of horizontal space.
             let windowWidth = window?.frame.maxX ?? 0
             if topButton && locX + width > window?.frame.maxX ?? 0 {
-                print ("Need to wrap button: \(title) to left and a row down")
+                //print ("Need to wrap button: \(title) to left and a row down")
                 locY = locY + height + spacing
                 locX = locX - windowWidth + width
             }

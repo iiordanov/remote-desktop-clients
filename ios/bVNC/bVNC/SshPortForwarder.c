@@ -43,6 +43,8 @@
 
 const char *keyfile1 = NULL;
 const char *keyfile2 = NULL;
+char *privKeyPassphrase = NULL;
+char *privKeyData = NULL;
 char *username = NULL;
 char *password = NULL;
 
@@ -78,8 +80,8 @@ void setupSshPortForward(void (*ssh_forward_success)(void),
                          void (*ssh_forward_failure)(void),
                          void (*cl_log_callback)(int8_t *),
                          int  (*y_n_callback)(int8_t *, int8_t *, int8_t *, int8_t *, int8_t *),
-                         char* host, char* port, char* user, char* password, char* local_ip,
-                         char* local_port, char* remote_ip, char* remote_port) {
+                         char* host, char* port, char* user, char* password, char* privKeyP, char* privKeyD,
+                         char* local_ip, char* local_port, char* remote_ip, char* remote_port) {
     client_log_callback = cl_log_callback;
     yes_no_callback = y_n_callback;
     
@@ -106,6 +108,11 @@ void setupSshPortForward(void (*ssh_forward_success)(void),
     strcpy(argv[6], local_port);
     strcpy(argv[7], remote_ip);
     strcpy(argv[8], remote_port);
+    
+    privKeyPassphrase = (char*)malloc(1024*sizeof(char));
+    strncpy(privKeyPassphrase, privKeyP, 1023);
+    privKeyData = (char*)malloc(16384*sizeof(char));
+    strncpy(privKeyData, privKeyD, 16383);
 
     int res = startForwarding(argc, argv, ssh_forward_success);
     client_log ("Result of SSH forwarding: %d\n", res);
@@ -280,21 +287,23 @@ int startForwarding(int argc, char *argv[], void (*ssh_forward_success)(void))
             auth = AUTH_PUBLICKEY;
     }
 
-    if(auth & AUTH_PASSWORD) {
+    if(auth & AUTH_PASSWORD && strcmp(password, "") != 0) {
         if(libssh2_userauth_password(session, username, password)) {
             client_log("Authentication by password failed.\n");
             goto shutdown;
         }
     }
-    else if(auth & AUTH_PUBLICKEY) {
-        if(libssh2_userauth_publickey_fromfile(session, username, keyfile1,
-                                               keyfile2, password)) {
+    else if(auth & AUTH_PUBLICKEY && strcmp(privKeyData, "") != 0) {
+        if(libssh2_userauth_publickey_frommemory(session, username, strlen(username), NULL, 0, privKeyData, strlen(privKeyData), privKeyPassphrase)) {
             client_log("\tAuthentication by public key failed!\n");
             goto shutdown;
         }
         client_log("\tAuthentication by public key succeeded.\n");
     }
     else {
+        if (strcmp(password, "") == 0 && strcmp(privKeyData, "") == 0) {
+            client_log("Both password and private key are empty!\n");
+        }
         client_log("No supported authentication methods found!\n");
         goto shutdown;
     }

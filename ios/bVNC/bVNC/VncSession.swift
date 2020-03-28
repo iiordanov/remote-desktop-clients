@@ -214,17 +214,16 @@ class VncSession {
             self.stateKeeper.createAndRepositionButtons()
         }
 
-        // Print out contents of CA file added for testing.
         let ca_path = Bundle.main.path(forResource: "ca", ofType: "pem")
-        //print("Contents of ca.pem file built into the package:")
-        //print(loadTextFile(path: ca_path!))
-
         let sshAddress = currentConnection["sshAddress"] ?? ""
         let sshPort = currentConnection["sshPort"] ?? ""
         let sshUser = currentConnection["sshUser"] ?? ""
         let sshPass = currentConnection["sshPass"] ?? ""
         let vncPort = currentConnection["port"] ?? ""
         let vncAddress = currentConnection["address"] ?? ""
+        let sshPassphrase = currentConnection["sshPassphrase"] ?? ""
+        let sshPrivateKey = currentConnection["sshPrivateKey"] ?? ""
+
         let sshForwardPort = String(arc4random_uniform(30000) + 30000)
         
         var addressAndPort = vncAddress + ":" + vncPort
@@ -243,6 +242,8 @@ class VncSession {
                     UnsafeMutablePointer<Int8>(mutating: (sshPort as NSString).utf8String),
                     UnsafeMutablePointer<Int8>(mutating: (sshUser as NSString).utf8String),
                     UnsafeMutablePointer<Int8>(mutating: (sshPass as NSString).utf8String),
+                    UnsafeMutablePointer<Int8>(mutating: (sshPassphrase as NSString).utf8String),
+                    UnsafeMutablePointer<Int8>(mutating: (sshPrivateKey as NSString).utf8String),
                     UnsafeMutablePointer<Int8>(mutating: ("127.0.0.1" as NSString).utf8String),
                     UnsafeMutablePointer<Int8>(mutating: (sshForwardPort as NSString).utf8String),
                     UnsafeMutablePointer<Int8>(mutating: (vncAddress as NSString).utf8String),
