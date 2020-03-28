@@ -10,15 +10,16 @@ import Foundation
 import Combine
 import SwiftUI
 
-let bH = CGFloat(30.0)
-let bW = CGFloat(40.0)
-let tbW = CGFloat(30.0)
-let bSp = CGFloat(5.0)
-let tbSp = CGFloat(3.0)
-let z = CGFloat(0.0)
-let bBg = UIColor(red: 0.5, green: 0.5, blue: 0.5, alpha: 0.2)
-
 class StateKeeper: ObservableObject, KeyboardObserving {
+    
+    static let bH = CGFloat(30.0)
+    static let bW = CGFloat(40.0)
+    static let tbW = CGFloat(30.0)
+    static let bSp = CGFloat(5.0)
+    static let tbSp = CGFloat(3.0)
+    static let z = CGFloat(0.0)
+    static let bBg = UIColor(red: 0.5, green: 0.5, blue: 0.5, alpha: 0.2)
+    
     let objectWillChange = PassthroughSubject<StateKeeper, Never>()
     var selectedConnection: [String: String]
     var connections: [Dictionary<String, String>]
@@ -54,25 +55,42 @@ class StateKeeper: ObservableObject, KeyboardObserving {
     
     var orientation: Int = -1 /* -1 == Uninitialized, 0 == Portrait, 1 == Landscape */
     
-    // Dictionary desctibing onscreen ToggleButton type buttons
-    let topButtonData: [ String : [ String: [ String: Any ] ] ] = [
-    "topButtons": [
-        "escButton": [ "title": "Esc", "lx": 0*bW+0*tbSp, "ly": z, "bg": bBg, "send": XK_Escape, "tgl": false ],
-        "f1Button": [ "title": "F1", "lx": 1*bW+1*tbSp, "ly": z, "bg": bBg, "send": XK_F1, "tgl": false ],
-        "f2Button": [ "title": "F2", "lx": 2*bW+2*tbSp, "ly": z, "bg": bBg, "send": XK_F2, "tgl": false ],
-        "f3Button": [ "title": "F3", "lx": 3*bW+3*tbSp, "ly": z, "bg": bBg, "send": XK_F3, "tgl": false ],
-        "f4Button": [ "title": "F4", "lx": 4*bW+4*tbSp, "ly": z, "bg": bBg, "send": XK_F4, "tgl": false ],
-        "f5Button": [ "title": "F5", "lx": 5*bW+5*tbSp, "ly": z, "bg": bBg, "send": XK_F5, "tgl": false ],
-        "f6Button": [ "title": "F6", "lx": 6*bW+6*tbSp, "ly": z, "bg": bBg, "send": XK_F6, "tgl": false ],
-        "f7Button": [ "title": "F7", "lx": 7*bW+7*tbSp, "ly": z, "bg": bBg, "send": XK_F7, "tgl": false ],
-        "f8Button": [ "title": "F8", "lx": 8*bW+8*tbSp, "ly": z, "bg": bBg, "send": XK_F8, "tgl": false ],
-        "f9Button": [ "title": "F9", "lx": 9*bW+9*tbSp, "ly": z, "bg": bBg, "send": XK_F9, "tgl": false ],
-        "f10Button": [ "title": "F10", "lx": 10*bW+10*tbSp, "ly": z, "bg": bBg, "send": XK_F10, "tgl": false ],
-        "f11Button": [ "title": "F11", "lx": 11*bW+11*tbSp, "ly": z, "bg": bBg, "send": XK_F11, "tgl": false ],
-        "f12Button": [ "title": "F12", "lx": 12*bW+12*tbSp, "ly": z, "bg": bBg, "send": XK_F12, "tgl": false ],
-        ]
+    // Dictionaries desctibing onscreen ToggleButton type buttons
+    let topButtonData: [ String: [ String: Any ] ] = [
+        "escButton": [ "title": "Esc", "lx": 0*bW+0*tbSp, "ly": z, "bg": bBg, "send": XK_Escape, "tgl": false, "top": true, "right": false ],
+        "f1Button": [ "title": "F1", "lx": 1*bW+1*tbSp, "ly": z, "bg": bBg, "send": XK_F1, "tgl": false, "top": true, "right": false ],
+        "f2Button": [ "title": "F2", "lx": 2*bW+2*tbSp, "ly": z, "bg": bBg, "send": XK_F2, "tgl": false, "top": true, "right": false ],
+        "f3Button": [ "title": "F3", "lx": 3*bW+3*tbSp, "ly": z, "bg": bBg, "send": XK_F3, "tgl": false, "top": true, "right": false ],
+        "f4Button": [ "title": "F4", "lx": 4*bW+4*tbSp, "ly": z, "bg": bBg, "send": XK_F4, "tgl": false, "top": true, "right": false ],
+        "f5Button": [ "title": "F5", "lx": 5*bW+5*tbSp, "ly": z, "bg": bBg, "send": XK_F5, "tgl": false, "top": true, "right": false ],
+        "f6Button": [ "title": "F6", "lx": 6*bW+6*tbSp, "ly": z, "bg": bBg, "send": XK_F6, "tgl": false, "top": true, "right": false ],
+        "f7Button": [ "title": "F7", "lx": 7*bW+7*tbSp, "ly": z, "bg": bBg, "send": XK_F7, "tgl": false, "top": true, "right": false ],
+        "f8Button": [ "title": "F8", "lx": 8*bW+8*tbSp, "ly": z, "bg": bBg, "send": XK_F8, "tgl": false, "top": true, "right": false ],
+        "f9Button": [ "title": "F9", "lx": 9*bW+9*tbSp, "ly": z, "bg": bBg, "send": XK_F9, "tgl": false, "top": true, "right": false ],
+        "f10Button": [ "title": "F10", "lx": 10*bW+10*tbSp, "ly": z, "bg": bBg, "send": XK_F10, "tgl": false, "top": true, "right": false ],
+        "f11Button": [ "title": "F11", "lx": 11*bW+11*tbSp, "ly": z, "bg": bBg, "send": XK_F11, "tgl": false, "top": true, "right": false ],
+        "f12Button": [ "title": "F12", "lx": 12*bW+12*tbSp, "ly": z, "bg": bBg, "send": XK_F12, "tgl": false, "top": true, "right": false ],
+    ]
+
+    let modifierButtonData: [ String: [ String: Any ] ] = [
+        "ctrlButton": [ "title": "Ctr", "lx": 0*bW+0*bSp, "ly": 1*bH, "bg": bBg, "send": XK_Control_L, "tgl": true, "top": false, "right": false ],
+        "superButton": [ "title": "Sup", "lx": 1*bW+1*bSp, "ly": 1*bH, "bg": bBg, "send": XK_Super_L, "tgl": true, "top": false, "right": false ],
+        "altButton": [ "title": "Alt", "lx": 2*bW+2*bSp, "ly": 1*bH, "bg": bBg, "send": XK_Alt_L, "tgl": true, "top": false, "right": false ],
     ]
     
+    let keyboardButtonData: [ String: [ String: Any ] ] = [
+        "tabButton": [ "title": "Tab", "lx": 0*bW+0*bSp, "ly": 2*bH+1*bSp, "bg": bBg, "send": XK_Tab, "tgl": false, "top": false, "right": false ],
+        "leftButton": [ "title": "←", "lx": 4*bW-3*bSp, "ly": 1*bH, "bg": bBg, "send": XK_Left, "tgl": false, "top": false, "right": true ],
+        "downButton": [ "title": "↓", "lx": 3*bW-2*bSp, "ly": 1*bH, "bg": bBg, "send": XK_Down, "tgl": false, "top": false, "right": true ],
+        "rightButton": [ "title": "→", "lx": 2*bW-1*bSp, "ly": 1*bH, "bg": bBg, "send": XK_Right, "tgl": false, "top": false, "right": true ],
+        "upButton": [ "title": "↑", "lx": 3*bW-2*bSp, "ly": 2*bH+1*bSp, "bg": bBg, "send": XK_Up, "tgl": false, "top": false, "right": true ],
+    ]
+
+    let interfaceButtonData: [ String: [ String: Any ] ] = [
+        "disconnectButton": [ "title": "Dsc", "lx": 1*bW+0*bSp, "ly": 2*bH+1*bSp, "bg": bBg, "send": Int32(-1), "tgl": false, "top": false, "right": true ],
+        "keyboardButton": [ "title": "Kbd", "lx": 1*bW+0*bSp, "ly": 1*bH+0*bSp, "bg": bBg, "send": Int32(-1), "tgl": false, "top": false, "right": true ],
+    ]
+
     func redraw() {
         self.imageView?.image = UIImage(cgImage: imageFromARGB32Bitmap(pixels: self.data, withWidth: Int(self.fbW), withHeight: Int(self.fbH))!)
     }
@@ -253,18 +271,6 @@ class StateKeeper: ObservableObject, KeyboardObserving {
         }
     }
     
-    func moveAllButtons(yDistance: CGFloat) {
-        self.interfaceButtons.forEach() { button in
-            button.value.center = CGPoint(x: button.value.center.x, y: button.value.center.y + yDistance)
-        }
-        self.keyboardButtons.forEach() { button in
-            button.value.center = CGPoint(x: button.value.center.x, y: button.value.center.y + yDistance)
-        }
-        self.modifierButtons.forEach() { button in
-            button.value.center = CGPoint(x: button.value.center.x, y: button.value.center.y + yDistance)
-        }
-    }
-
     func setButtonsVisibility(buttons: [String: UIButton], isHidden: Bool) {
         buttons.forEach() { button in
             button.value.isHidden = isHidden
@@ -314,12 +320,7 @@ class StateKeeper: ObservableObject, KeyboardObserving {
         if (newOrientation != orientation) {
             orientation = newOrientation
             imageView?.frame = CGRect(x: leftSpacing, y: topSpacing, width: CGFloat(fbW)*minScale, height: CGFloat(fbH)*minScale)
-            removeButtons()
             createAndRepositionButtons()
-            addButtons(buttons: keyboardButtons)
-            addButtons(buttons: interfaceButtons)
-            setButtonsVisibility(buttons: keyboardButtons, isHidden: true)
-            setButtonsVisibility(buttons: modifierButtons, isHidden: true)
             print("Corrected spacing and minScale for orientation, left: \(leftSpacing), top: \(topSpacing), minScale: \(minScale)")
         } else {
             print("Actual orientation appears not to have changed, not disturbing the displayed image or buttons.")
@@ -335,121 +336,66 @@ class StateKeeper: ObservableObject, KeyboardObserving {
             b.addTarget(b, action: #selector(b.toggleFirstResponder), for: .touchDown)
             self.interfaceButtons["keyboardButton"] = b
         }
-        self.interfaceButtons["keyboardButton"]!.frame = CGRect(
-            x: globalWindow!.frame.width-bW,
-            y: globalWindow!.frame.height-1*bH-0*bSp-self.keyboardHeight,
-            width: bW, height: bH)
+        interfaceButtons = createButtonsFromData(populateDict: interfaceButtons, buttonData: interfaceButtonData, width: StateKeeper.bW, height: StateKeeper.bH, spacing: StateKeeper.bSp)
+        interfaceButtons["disconnectButton"]?.addTarget(self, action: #selector(self.disconnect), for: .touchDown)
 
-        if (self.interfaceButtons["disconnectButton"] == nil) {
-            let b = ToggleButton()
-            b.setTitle("Dsc", for: [])
-            b.backgroundColor = UIColor(red: 0.5, green: 0.5, blue: 0.5, alpha: 0.2)
-            b.addTarget(self, action: #selector(self.disconnect), for: .touchDown)
-            self.interfaceButtons["disconnectButton"] = b
-        }
-        self.interfaceButtons["disconnectButton"]!.frame = CGRect(
-            x: globalWindow!.frame.width-bW,
-            y: globalWindow!.frame.height-2*bH-1*bSp-self.keyboardHeight,
-            width: bW, height: bH)
-        
-        if (self.modifierButtons["ctrlButton"] == nil) {
-            let ctrlButton = ToggleButton(frame: CGRect(), title: "Ctr", background: UIColor(red: 0.5, green: 0.5, blue: 0.5, alpha: 0.2), stateKeeper: self, toSend: XK_Control_L, toggle: true)
-            self.modifierButtons["ctrlButton"] = ctrlButton
-        }
-        self.modifierButtons["ctrlButton"]!.frame = CGRect(x: 0, y: globalWindow!.frame.height-1*bH-self.keyboardHeight, width: bW, height: bH)
+        topButtons = createButtonsFromData(populateDict: topButtons, buttonData: topButtonData, width: StateKeeper.tbW, height: StateKeeper.bH, spacing: StateKeeper.tbSp)
+        modifierButtons = createButtonsFromData(populateDict: modifierButtons, buttonData: modifierButtonData, width: StateKeeper.bW, height: StateKeeper.bH, spacing: StateKeeper.bSp)
+        keyboardButtons = createButtonsFromData(populateDict: keyboardButtons, buttonData: keyboardButtonData, width: StateKeeper.bW, height: StateKeeper.bH, spacing: StateKeeper.bSp)
 
-        if (self.modifierButtons["superButton"] == nil) {
-            let superButton = ToggleButton(frame: CGRect(), title: "Sup", background: UIColor(red: 0.5, green: 0.5, blue: 0.5, alpha: 0.2), stateKeeper: self, toSend: XK_Super_L, toggle: true)
-            self.modifierButtons["superButton"] = superButton
-        }
-        self.modifierButtons["superButton"]!.frame = CGRect(x: 1*bW+1*bSp, y: globalWindow!.frame.height-1*bH-self.keyboardHeight, width: bW, height: bH)
-
-        if (self.modifierButtons["altButton"] == nil) {
-            let altButton = ToggleButton(frame: CGRect(), title: "Alt", background: UIColor(red: 0.5, green: 0.5, blue: 0.5, alpha: 0.2), stateKeeper: self, toSend: XK_Alt_L, toggle: true)
-            self.modifierButtons["altButton"] = altButton
-        }
-        self.modifierButtons["altButton"]!.frame = CGRect(x: 2*bW+2*bSp, y: globalWindow!.frame.height-1*bH-self.keyboardHeight, width: bW, height: bH)
-
-        if (self.keyboardButtons["tabButton"] == nil) {
-            let tabButton = ToggleButton(frame: CGRect(), title: "Tab", background: UIColor(red: 0.5, green: 0.5, blue: 0.5, alpha: 0.2), stateKeeper: self, toSend: XK_Tab, toggle: false)
-            self.keyboardButtons["tabButton"] = tabButton
-        }
-        self.keyboardButtons["tabButton"]!.frame = CGRect(x: 0, y: globalWindow!.frame.height-2*bH-1*bSp-self.keyboardHeight, width: bW, height: bH)
-        
-        if (self.keyboardButtons["leftButton"] == nil) {
-            let leftButton = ToggleButton(frame: CGRect(), title: "←", background: UIColor(red: 0.5, green: 0.5, blue: 0.5, alpha: 0.2), stateKeeper: self, toSend: XK_Left, toggle: false)
-            self.keyboardButtons["leftButton"] = leftButton
-        }
-        self.keyboardButtons["leftButton"]!.frame = CGRect(
-            x: globalWindow!.frame.width-4*bW-3*bSp,
-            y: globalWindow!.frame.height-1*bH-self.keyboardHeight,
-            width: bW, height: bH)
-
-        if (self.keyboardButtons["rightButton"] == nil) {
-            let rightButton = ToggleButton(frame: CGRect(), title: "→", background: UIColor(red: 0.5, green: 0.5, blue: 0.5, alpha: 0.2), stateKeeper: self, toSend: XK_Right, toggle: false)
-            self.keyboardButtons["rightButton"] = rightButton
-        }
-        self.keyboardButtons["rightButton"]!.frame = CGRect(
-            x: globalWindow!.frame.width-2*bW-1*bSp,
-            y: globalWindow!.frame.height-1*bH-self.keyboardHeight,
-            width: bW, height: bH)
-
-        if (self.keyboardButtons["upButton"] == nil) {
-            let upButton = ToggleButton(frame: CGRect(), title: "↑", background: UIColor(red: 0.5, green: 0.5, blue: 0.5, alpha: 0.2), stateKeeper: self, toSend: XK_Up, toggle: false)
-            self.keyboardButtons["upButton"] = upButton
-        }
-        self.keyboardButtons["upButton"]!.frame = CGRect(
-            x: globalWindow!.frame.width-3*bW-2*bSp,
-            y: globalWindow!.frame.height-2*bH-1*bSp-self.keyboardHeight,
-            width: bW, height: bH)
-
-        if (self.keyboardButtons["downButton"] == nil) {
-            let downButton = ToggleButton(frame: CGRect(), title: "↓", background: UIColor(red: 0.5, green: 0.5, blue: 0.5, alpha: 0.2), stateKeeper: self, toSend: XK_Down, toggle: false)
-            self.keyboardButtons["downButton"] = downButton
-        }
-        self.keyboardButtons["downButton"]!.frame = CGRect(
-            x: globalWindow!.frame.width-3*bW-2*bSp,
-            y: globalWindow!.frame.height-1*bH-self.keyboardHeight,
-            width: bW, height: bH)
-        
-        createButtonsFromData(buttonData: topButtonData)
     }
     
-    func createButtonsFromData(buttonData: [ String : [ String: [ String: Any ] ] ]) {
-        buttonData.forEach() { buttonSet in
-            buttonSet.value.forEach() { button in
-                if topButtons[button.key] == nil {
-                    let b = button.value
-                    let title = b["title"] as! String
-                    let background = b["bg"] as! UIColor
-                    let toSend = b["send"] as! Int32
-                    let toggle = b["tgl"] as! Bool
-                    var locX = b["lx"] as! CGFloat
-                    var locY = b["ly"] as! CGFloat + topButtonSpacing
-                    let windowWidth = window?.frame.maxX ?? 0
-                    if locX + bW > window?.frame.maxX ?? 0 {
-                        print ("I should wrap this button around: \(title)")
-                        locY = locY + bH + tbSp
-                        locX = locX - windowWidth + tbW - 2*tbSp
-                    }
-                    let nb = ToggleButton(frame: CGRect(), title: title, background: background, stateKeeper: self, toSend: toSend, toggle: toggle)
-                    nb.frame = CGRect(x: locX, y: locY, width: bW, height: bH)
-                    topButtons[button.key] = nb
-                }
+    func createButtonsFromData(populateDict: [String: UIButton], buttonData: [ String: [ String: Any ] ], width: CGFloat, height: CGFloat, spacing: CGFloat ) -> [String: UIButton] {
+        var newButtonDict: [ String: UIButton ] = [:]
+        buttonData.forEach() { button in
+            let b = button.value
+            let title = b["title"] as! String
+            let topButton = b["top"] as! Bool
+            let rightButton = b["right"] as! Bool
+            if populateDict[button.key] == nil {
+                // Create the button only if not already in the dictionary
+                let background = b["bg"] as! UIColor
+                let toSend = b["send"] as! Int32
+                let toggle = b["tgl"] as! Bool
+                let nb = ToggleButton(frame: CGRect(), title: title, background: background, stateKeeper: self, toSend: toSend, toggle: toggle)
+                newButtonDict[button.key] = nb
+            } else {
+                // Otherwise, reuse the existing button.
+                newButtonDict[button.key] = populateDict[button.key]
             }
+            
+            // In either case, adjust the location of the button
+            // Left and right buttons have different logic for calculating x position
+            var locX = b["lx"] as! CGFloat
+            if rightButton {
+                locX = window!.frame.width - (b["lx"] as! CGFloat)
+            }
+            // Top and bottom buttons have different logic for when they go up and down.
+            var locY = b["ly"] as! CGFloat + topButtonSpacing
+            if !topButton {
+                locY = (window?.frame.height ?? 0) - (b["ly"] as! CGFloat) - self.keyboardHeight
+            }
+            // Top buttons can wrap around and go a row down if they are out of horizontal space.
+            let windowWidth = window?.frame.maxX ?? 0
+            if topButton && locX + width > window?.frame.maxX ?? 0 {
+                print ("Need to wrap button: \(title) to left and a row down")
+                locY = locY + height + spacing
+                locX = locX - windowWidth + width
+            }
+            newButtonDict[button.key]?.frame = CGRect(x: locX, y: locY, width: width, height: height)
         }
-
+        return newButtonDict
     }
 
     func addButtons(buttons: [String: UIButton]) {
-        //print("Adding buttons")
+        //print("Adding buttons to superview")
         buttons.forEach(){ button in
             globalWindow!.addSubview(button.value)
         }
     }
 
     func removeButtons() {
-        //print("Removing buttons")
+        //print("Removing buttons from superview")
         self.interfaceButtons.forEach(){ button in
             button.value.removeFromSuperview()
         }
@@ -462,7 +408,6 @@ class StateKeeper: ObservableObject, KeyboardObserving {
         self.topButtons.forEach(){ button in
             button.value.removeFromSuperview()
         }
-        self.topButtons = [:]
     }
     
     /*
