@@ -214,7 +214,6 @@ class VncSession {
             self.stateKeeper.createAndRepositionButtons()
         }
 
-        let ca_path = Bundle.main.path(forResource: "ca", ofType: "pem")
         let sshAddress = currentConnection["sshAddress"] ?? ""
         let sshPort = currentConnection["sshPort"] ?? ""
         let sshUser = currentConnection["sshUser"] ?? ""
@@ -280,8 +279,7 @@ class VncSession {
                 connectVnc(update_callback, resize_callback, failure_callback_swift, log_callback, lock_write_tls_callback_swift, unlock_write_tls_callback_swift, yes_no_dialog_callback,
                            UnsafeMutablePointer<Int8>(mutating: (addressAndPort as NSString).utf8String),
                            UnsafeMutablePointer<Int8>(mutating: (user as NSString).utf8String),
-                           UnsafeMutablePointer<Int8>(mutating: (pass as NSString).utf8String),
-                           UnsafeMutablePointer<Int8>(mutating: (ca_path as! NSString).utf8String))
+                           UnsafeMutablePointer<Int8>(mutating: (pass as NSString).utf8String))
             } else {
                 message = "Error connecting: " + message
                 print("Error message: \(message)")

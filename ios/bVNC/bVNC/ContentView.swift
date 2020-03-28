@@ -120,8 +120,7 @@ struct ContentView : View {
                      addressText: stateKeeper.selectedConnection["address"] ?? "",
                      portText: stateKeeper.selectedConnection["port"] ?? "5900",
                      usernameText: stateKeeper.selectedConnection["username"] ?? "",
-                     passwordText: stateKeeper.selectedConnection["password"] ?? "",
-                     certText: stateKeeper.selectedConnection["cert"] ?? "")
+                     passwordText: stateKeeper.selectedConnection["password"] ?? "")
             } else if stateKeeper.currentPage == "page2" {
                 ContentViewB(stateKeeper: stateKeeper)
             } else if stateKeeper.currentPage == "page3" {
@@ -237,7 +236,6 @@ struct ContentViewA : View {
     @State var portText: String
     @State var usernameText: String
     @State var passwordText: String
-    @State var certText: String
     @State var textHeight: CGFloat = 20
     
     var body: some View {
@@ -256,8 +254,7 @@ struct ContentViewA : View {
                         "address": self.addressText.trimmingCharacters(in: .whitespacesAndNewlines),
                         "port": self.portText.trimmingCharacters(in: .whitespacesAndNewlines),
                         "username": self.usernameText.trimmingCharacters(in: .whitespacesAndNewlines),
-                        "password": self.passwordText.trimmingCharacters(in: .whitespacesAndNewlines),
-                        "cert": self.certText.trimmingCharacters(in: .whitespacesAndNewlines)]
+                        "password": self.passwordText.trimmingCharacters(in: .whitespacesAndNewlines)]
                     self.stateKeeper.saveConnection(connection: selectedConnection)
                 }) {
                     Text("Save")
@@ -299,7 +296,7 @@ struct ContentViewA : View {
                 TextField("Port", text: $portText).font(.title)
                 TextField("User (if required)", text: $usernameText).autocapitalization(.none).font(.title)
                 SecureField("Password", text: $passwordText).font(.title)
-                TextField("Certificate Authority", text: $certText).padding(.bottom, 500).font(.title)
+                Text("").padding(.bottom, 1000)
             }
         }
     }
@@ -434,7 +431,7 @@ struct YesNoDialog : View {
 
 struct ContentViewA_Previews : PreviewProvider {
     static var previews: some View {
-        ContentViewA(stateKeeper: StateKeeper(), sshAddressText: "", sshPortText: "", sshUserText: "", sshPassText: "", sshPassphraseText: "", sshPrivateKeyText: "", addressText: "", portText: "", usernameText: "", passwordText: "", certText: "")
+        ContentViewA(stateKeeper: StateKeeper(), sshAddressText: "", sshPortText: "", sshUserText: "", sshPassText: "", sshPassphraseText: "", sshPrivateKeyText: "", addressText: "", portText: "", usernameText: "", passwordText: "")
     }
 }
 

@@ -21,7 +21,7 @@ void connectVnc(void (*fb_update_callback)(uint8_t *, int fbW, int fbH, int x, i
                 void (*lock_write_tls_callback)(void),
                 void (*unlock_write_tls_callback)(void),
                 int (*y_n_callback)(int8_t *, int8_t *, int8_t *, int8_t *, int8_t *),
-                char* addr, char* user, char* password, char* ca_path);
+                char* addr, char* user, char* password);
 
 void disconnectVnc(void);
 void (*framebuffer_update_callback)(uint8_t *, int fbW, int fbH, int x, int y, int w, int h);

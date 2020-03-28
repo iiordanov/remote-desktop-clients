@@ -15,7 +15,6 @@
 char* HOST_AND_PORT = NULL;
 char* USERNAME = NULL;
 char* PASSWORD = NULL;
-char* CA_PATH = NULL;
 rfbClient *cl = NULL;
 int pixel_buffer_size = 0;
 bool maintainConnection = true;
@@ -42,8 +41,6 @@ static rfbCredential* get_credential(rfbClient* cl, int credentialType){
         c->userCredential.password[strcspn(c->userCredential.password, "\n")] = 0;
     } else if (credentialType == rfbCredentialTypeX509) {
         rfbClientLog("x509 certificates requested for authentication, initializing now\n");
-        c->x509Credential.x509CACertFile = malloc(strlen(CA_PATH));
-        strcpy(c->x509Credential.x509CACertFile, CA_PATH);
         c->x509Credential.x509CrlVerifyMode = rfbX509CrlVerifyNone;
         c->x509Credential.x509CACrlFile = false;
         c->x509Credential.x509ClientKeyFile = false;
@@ -131,14 +128,13 @@ void connectVnc(void (*fb_update_callback)(uint8_t *, int fbW, int fbH, int x, i
                 void (*lock_wrt_tls_callback)(void),
                 void (*unlock_wrt_tls_callback)(void),
                 int (*y_n_callback)(int8_t *, int8_t *, int8_t *, int8_t *, int8_t *),
-                char* addr, char* user, char* password, char* ca_path) {
+                char* addr, char* user, char* password) {
     rfbClientLog("Setting up connection.\n");
     maintainConnection = true;
     
     HOST_AND_PORT = addr;
     USERNAME = user;
     PASSWORD = password;
-    CA_PATH = ca_path;
     framebuffer_update_callback = fb_update_callback;
     framebuffer_resize_callback = fb_resize_callback;
     failure_callback = fail_callback;
