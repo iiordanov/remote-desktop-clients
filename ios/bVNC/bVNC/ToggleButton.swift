@@ -14,15 +14,17 @@ class ToggleButton: UIButton {
     var originalBackground: UIColor?
     var toSend: Int32?
     var down: Bool = false
+    var stateKeeper: StateKeeper?
     
     init (frame: CGRect, title: String, background: UIColor, stateKeeper: StateKeeper, toSend: Int32, toggle: Bool) {
         super.init(frame: frame)
+        self.stateKeeper = stateKeeper
         self.setTitle(title, for: [])
         self.originalBackground = background
         self.backgroundColor = background
-        if toggle {
+        if toggle && toSend >= 0 {
             self.addTarget(self, action: #selector(self.sendToggleText), for: .touchDown)
-        } else {
+        } else if (toSend >= 0) {
             self.addTarget(self, action: #selector(self.sendText), for: .touchDown)
         }
         self.toSend = toSend
@@ -45,6 +47,7 @@ class ToggleButton: UIButton {
     @objc func sendText() {
         print("Sending my xksysym: \(toSend!), up and then down.")
         sendKeyEventWithKeySym(toSend!)
+        self.stateKeeper?.toggleModifiersIfDown()
         //AudioServicesPlayAlertSound(kSystemSoundID_Vibrate);
     }
 
@@ -56,7 +59,6 @@ class ToggleButton: UIButton {
 
     override init(frame: CGRect) {
         super.init(frame: frame)
-        
     }
     
     required init?(coder aDecoder: NSCoder) {
