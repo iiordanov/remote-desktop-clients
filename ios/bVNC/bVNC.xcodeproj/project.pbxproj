@@ -21,7 +21,6 @@
 		AF48282E23B47D8A00826395 /* libvncclient.1.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = AF48247F23B478C300826395 /* libvncclient.1.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		AF48283223B47EC300826395 /* VncBridge.c in Sources */ = {isa = PBXBuildFile; fileRef = AF48283123B47EC300826395 /* VncBridge.c */; };
 		AF51B3002410BAED005DE8AB /* ucs2xkeysym.c in Sources */ = {isa = PBXBuildFile; fileRef = AF51B2FF2410BAED005DE8AB /* ucs2xkeysym.c */; };
-		AF53DCAF24002C9F00569F19 /* ca.pem in Resources */ = {isa = PBXBuildFile; fileRef = AF53DCAE24002C9F00569F19 /* ca.pem */; };
 		AF53DCB124022C8C00569F19 /* VncSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF53DCB024022C8C00569F19 /* VncSession.swift */; };
 		AF53DCB32402391600569F19 /* StateKeeper.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF53DCB22402391600569F19 /* StateKeeper.swift */; };
 		AF59A3D4242CE9E100658CE6 /* KeyboardObserving.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF59A3D3242CE9E100658CE6 /* KeyboardObserving.swift */; };
@@ -484,7 +483,6 @@
 		AF48283123B47EC300826395 /* VncBridge.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = VncBridge.c; sourceTree = "<group>"; };
 		AF51B2FE2410BAED005DE8AB /* ucs2xkeysym.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ucs2xkeysym.h; sourceTree = "<group>"; };
 		AF51B2FF2410BAED005DE8AB /* ucs2xkeysym.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = ucs2xkeysym.c; sourceTree = "<group>"; };
-		AF53DCAE24002C9F00569F19 /* ca.pem */ = {isa = PBXFileReference; lastKnownFileType = text; path = ca.pem; sourceTree = "<group>"; };
 		AF53DCB024022C8C00569F19 /* VncSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VncSession.swift; sourceTree = "<group>"; };
 		AF53DCB22402391600569F19 /* StateKeeper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StateKeeper.swift; sourceTree = "<group>"; };
 		AF59A3D3242CE9E100658CE6 /* KeyboardObserving.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardObserving.swift; sourceTree = "<group>"; };
@@ -532,7 +530,6 @@
 			isa = PBXGroup;
 			children = (
 				AF7421F0241D57E000C552A7 /* libssh2.a */,
-				AF53DCAE24002C9F00569F19 /* ca.pem */,
 				AF043A1723B3DADA00C43ED7 /* bVNC */,
 				AF043A2E23B3DADB00C43ED7 /* bVNCTests */,
 				AF043A3923B3DADB00C43ED7 /* bVNCUITests */,
@@ -1120,7 +1117,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				AF53DCAF24002C9F00569F19 /* ca.pem in Resources */,
 				AF043A2523B3DADB00C43ED7 /* LaunchScreen.storyboard in Resources */,
 				AF043A2223B3DADB00C43ED7 /* Preview Assets.xcassets in Resources */,
 				AF043A1F23B3DADB00C43ED7 /* Assets.xcassets in Resources */,
