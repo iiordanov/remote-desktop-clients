@@ -145,7 +145,7 @@ class StateKeeper: ObservableObject, KeyboardObserving {
         // Needed in case we need to save a certificate during connection or change settings.
         self.connectionIndex = index
         self.selectedConnection = self.connections[index]
-        
+        goToConnectionInProgress()
         self.vncSession = VncSession(scene: self.scene!, stateKeeper: self, window: self.window!, instance: 0)
         self.vncSession!.connect(currentConnection: selectedConnection)
     }
@@ -153,6 +153,12 @@ class StateKeeper: ObservableObject, KeyboardObserving {
     func goToConnectedSession() {
         UserInterface {
             self.currentPage = "connectedSession"
+        }
+    }
+
+    func goToConnectionInProgress() {
+        UserInterface {
+            self.currentPage = "connectionInProgress"
         }
     }
 
@@ -173,7 +179,7 @@ class StateKeeper: ObservableObject, KeyboardObserving {
             self.removeButtons()
             (self.interfaceButtons["keyboardButton"] as! CustomTextInput).hideKeyboard()
             self.imageView?.disableTouch()
-            self.currentPage = "page3"
+            self.currentPage = "disconnectionInProgress"
         }
     }
     
