@@ -76,10 +76,11 @@ func log_callback(message: UnsafeMutablePointer<Int8>?) -> Void {
 }
 
 func yes_no_dialog_callback(title: UnsafeMutablePointer<Int8>?, message: UnsafeMutablePointer<Int8>?, fingerPrint1: UnsafeMutablePointer<Int8>?, fingerPrint2: UnsafeMutablePointer<Int8>?, type: UnsafeMutablePointer<Int8>?) -> Int32 {
-    // TODO: Save fingerprints to check against, and check against saved finger prints.
     let fingerprintType = String(cString: type!)
     let fingerPrint1Str = String(cString: fingerPrint1!)
     let fingerPrint2Str = String(cString: fingerPrint2!)
+    
+    // Check for a match
     if fingerprintType == "SSH" &&
        fingerPrint1Str == globalStateKeeper[currInst]?.selectedConnection["sshFingerprintSha256"] {
         print ("Found matching saved SHA256 SSH host key fingerprint, continuing.")
@@ -91,8 +92,22 @@ func yes_no_dialog_callback(title: UnsafeMutablePointer<Int8>?, message: UnsafeM
        return 1
     }
     print ("Asking user to verify fingerprints \(String(cString: fingerPrint1!)) and \(String(cString: fingerPrint2!)) of type \(String(cString: type!))")
+
+    let titleStr = String(cString: title!)
+    var messageStr = String(cString: message!)
+    
+    // Check for a mismatch if keys were already set
+    if fingerprintType == "SSH" &&
+        globalStateKeeper[currInst]?.selectedConnection["sshFingerprintSha256"] != nil {
+        messageStr = "\nWARNING: SSH key of this connection has changed! This could be a man in the middle attack! Do not continue unless you are aware of this change.\n\n" + messageStr
+    } else if fingerprintType == "X509" &&
+       (globalStateKeeper[currInst]?.selectedConnection["sshFingerprintSha256"] != nil ||
+        globalStateKeeper[currInst]?.selectedConnection["sshFingerprintSha512"] != nil) {
+        messageStr = "\nWARNING: X509 key of this connection has changed! This could be a man in the middle attack! Do not continue unless you are aware of this change.\n\n" + messageStr
+    }
+
     let res = globalStateKeeper[currInst]?.yesNoResponseRequired(
-        title: String(cString: title!), message: String(cString: message!)) ?? 0
+        title: titleStr, message: messageStr) ?? 0
     
     if res == 1 && fingerprintType == "SSH" {
         globalStateKeeper[currInst]?.selectedConnection["sshFingerprintSha256"] = fingerPrint1Str

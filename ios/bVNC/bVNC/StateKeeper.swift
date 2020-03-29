@@ -227,7 +227,9 @@ class StateKeeper: ObservableObject, KeyboardObserving {
             self.connections.append(connection)
         } else {
             print("Saving a connection at index \(self.connectionIndex) and navigating to list of connections")
-            self.selectedConnection = connection
+            connection.forEach() { setting in // Iterate through new settings to avoid losing e.g. ssh and x509 fingerprints
+                self.selectedConnection[setting.key] = setting.value
+            }
         }
         self.saveSettings()
         self.showConnections()
