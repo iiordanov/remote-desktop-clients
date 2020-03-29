@@ -121,9 +121,9 @@ struct ContentView : View {
                      portText: stateKeeper.selectedConnection["port"] ?? "5900",
                      usernameText: stateKeeper.selectedConnection["username"] ?? "",
                      passwordText: stateKeeper.selectedConnection["password"] ?? "")
-            } else if stateKeeper.currentPage == "page2" {
+            } else if stateKeeper.currentPage == "connectionInProgress" {
                 ContentViewB(stateKeeper: stateKeeper)
-            } else if stateKeeper.currentPage == "page3" {
+            } else if stateKeeper.currentPage == "disconnectionInProgress" {
                 ContentViewC(stateKeeper: stateKeeper)
             } else if stateKeeper.currentPage == "connectedSession" {
                 ContentViewD()
@@ -243,7 +243,6 @@ struct ContentViewA : View {
             VStack {
                 HStack {
                 Button(action: {
-                    self.stateKeeper.currentPage = "page2"
                     let selectedConnection = [
                         "sshAddress": self.sshAddressText.trimmingCharacters(in: .whitespacesAndNewlines),
                         "sshPort": self.sshPortText.trimmingCharacters(in: .whitespacesAndNewlines),
@@ -267,7 +266,6 @@ struct ContentViewA : View {
                         .padding(10)
                 }
                 Button(action: {
-                    self.stateKeeper.currentPage = "page2"
                     self.stateKeeper.deleteCurrentConnection()
                 }) {
                     Text("Delete")
@@ -278,7 +276,7 @@ struct ContentViewA : View {
                         .cornerRadius(10)
                         .foregroundColor(.white)
                         .padding(10)
-                }
+                    }
                 }
 
                 Text("Optional SSH Connection Parameters").font(.headline)
@@ -312,7 +310,14 @@ struct ContentViewB : View {
             Button(action: {
                 self.stateKeeper.disconnect()
             }) {
-                Text("Disconnect")
+                Text("Cancel")
+                    .fontWeight(.bold)
+                    .font(.title)
+                    .padding(5)
+                    .background(Color.gray)
+                    .cornerRadius(10)
+                    .foregroundColor(.white)
+                    .padding(10)
             }
         }
     }
