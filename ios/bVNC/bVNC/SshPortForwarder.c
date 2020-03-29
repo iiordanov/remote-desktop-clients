@@ -89,8 +89,8 @@ void setupSshPortForward(void (*ssh_forward_success)(void),
     char **argv = (char**)malloc(argc*sizeof(char*));
     int i = 0;
     
-    char host_ip[256];
-    if (resolve_host_to_ip(host , host_ip) != 0) {
+    char *host_ip = calloc(256, sizeof(char));
+    if (resolve_host_to_ip(host, host_ip) != 0) {
         client_log("Unable to resolve %s to an IP\n", host);
         ssh_forward_failure();
         return;
@@ -119,41 +119,11 @@ void setupSshPortForward(void (*ssh_forward_success)(void),
     ssh_forward_success();
 }
 
-int resolve_host_to_ip(char *hostname , char* ip) {
-    struct hostent *he;
-    struct in_addr **addr_list;
-    int i;
-    
-    struct sockaddr_in sa;
-    if (inet_pton(AF_INET, hostname, &(sa.sin_addr)) != 0) {
-        // This is already an ip address
-        client_log("Specified hostname %s is already an IP address\n", hostname);
-        strcpy(ip, hostname);
-        return 0;
-    }
-    
-    if ((he = gethostbyname(hostname) ) == NULL) {
-        client_log("Error calling gethostbyname for %s\n", hostname);
-        herror("gethostbyname");
-        return 1;
-    }
-
-    addr_list = (struct in_addr **) he->h_addr_list;
-    
-    for(i = 0; addr_list[i] != NULL; i++) {
-        strcpy(ip, inet_ntoa(*addr_list[i]));
-        client_log("Successfully resolved hostname %s to IP %s\n", hostname, ip);
-        return 0;
-    }
-    
-    client_log("Unable to resolve hostname %s\n", hostname);
-    return 1;
-}
-
 int startForwarding(int argc, char *argv[], void (*ssh_forward_success)(void))
 {
     int rc, i, auth = AUTH_NONE;
     struct sockaddr_in sin;
+    struct sockaddr_in6 addr;
     socklen_t sinlen;
     const char *fingerprint_sha1;
     const char *fingerprint_sha256;
@@ -211,9 +181,21 @@ int startForwarding(int argc, char *argv[], void (*ssh_forward_success)(void))
         client_log("libssh2 initialization failed (%d)\n", rc);
         return 1;
     }
-
+    
     /* Connect to SSH server */
-    sock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
+    
+    int is_ipv6 = is_address_ipv6(server_ip);
+    if (is_ipv6 == 1) {
+        client_log("Address is ipv6, will try to connect over ipv6!\n");
+        sock = socket(AF_INET6, SOCK_STREAM, IPPROTO_TCP);
+    } else if (is_ipv6 == 0) {
+        client_log("Address is ipv4, will try to connect over ipv4!\n");
+        sock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
+    } else {
+        client_log("Unknown address format.!\n");
+        return -1;
+    }
+    
 #ifdef WIN32
     if(sock == INVALID_SOCKET) {
         client_log("failed to open socket!\n");
@@ -226,18 +208,29 @@ int startForwarding(int argc, char *argv[], void (*ssh_forward_success)(void))
     }
 #endif
 
-    sin.sin_family = AF_INET;
-    sin.sin_addr.s_addr = inet_addr(server_ip);
-    if(INADDR_NONE == sin.sin_addr.s_addr) {
-        perror("inet_addr");
-        return -1;
-    }
-    sin.sin_port = htons(server_ssh_port);
-    if(connect(sock, (struct sockaddr*)(&sin),
-               sizeof(struct sockaddr_in)) != 0) {
-        client_log("failed to connect!\n");
-        return -1;
-    }
+    if (is_ipv6 == 1) {
+        addr.sin6_family = AF_INET6;
+        addr.sin6_port = htons(server_ssh_port);
+        inet_pton(AF_INET6, server_ip, &addr.sin6_addr);
+        addr.sin6_port = htons(server_ssh_port);
+        if(connect(sock, (struct sockaddr *)&addr, sizeof(addr)) != 0) {
+            client_log("Failed to connect over ipv6!\n");
+            return -1;
+        }
+    } else {
+        sin.sin_family = AF_INET;
+        sin.sin_addr.s_addr = inet_addr(server_ip);
+        if(INADDR_NONE == sin.sin_addr.s_addr) {
+            perror("inet_addr");
+            return -1;
+        }
+        sin.sin_port = htons(server_ssh_port);
+        if(connect(sock, (struct sockaddr*)(&sin),
+                   sizeof(struct sockaddr_in)) != 0) {
+            client_log("Failed to connect over ipv4!\n");
+            return -1;
+        }
+	}
 
     /* Create a session instance */
     session = libssh2_session_init();
