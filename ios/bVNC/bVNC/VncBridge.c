@@ -42,9 +42,10 @@ static rfbCredential* get_credential(rfbClient* cl, int credentialType){
     } else if (credentialType == rfbCredentialTypeX509) {
         rfbClientLog("x509 certificates requested for authentication, initializing now\n");
         c->x509Credential.x509CrlVerifyMode = rfbX509CrlVerifyNone;
-        c->x509Credential.x509CACrlFile = false;
-        c->x509Credential.x509ClientKeyFile = false;
-        c->x509Credential.x509ClientCertFile = false;
+        c->x509Credential.x509CACrlFile = NULL;
+        c->x509Credential.x509CACertFile = NULL;
+        c->x509Credential.x509ClientKeyFile = NULL;
+        c->x509Credential.x509ClientCertFile = NULL;
     }
     
     return c;
