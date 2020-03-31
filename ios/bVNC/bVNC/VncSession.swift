@@ -137,26 +137,30 @@ func resize_callback(fbW: Int32, fbH: Int32) -> Void {
     globalStateKeeper[currInst]?.fbW = fbW
     globalStateKeeper[currInst]?.fbH = fbH
     UserInterface {
-        let minScale = getMinimumScale(fbW: CGFloat(fbW), fbH: CGFloat(fbH))
-        globalStateKeeper[currInst]?.correctTopSpacingForOrientation()
-        globalStateKeeper[currInst]?.imageView?.removeFromSuperview()
-        let leftSpacing = globalStateKeeper[currInst]?.leftSpacing ?? 0
-        let topSpacing = globalStateKeeper[currInst]?.topSpacing ?? 0
-        globalStateKeeper[currInst]?.imageView = TouchEnabledUIImageView(frame: CGRect(x: leftSpacing, y: topSpacing, width: CGFloat(fbW)*minScale, height: CGFloat(fbH)*minScale))
-        globalStateKeeper[currInst]?.imageView?.backgroundColor = UIColor.gray
-        globalStateKeeper[currInst]?.imageView?.enableGestures()
-        globalStateKeeper[currInst]?.imageView?.enableTouch()
-        globalWindow!.addSubview(globalStateKeeper[currInst]!.imageView!)
-        globalStateKeeper[currInst]?.createAndRepositionButtons()
-        globalStateKeeper[currInst]?.addButtons(buttons: globalStateKeeper[currInst]?.interfaceButtons ?? [:])
-        globalStateKeeper[currInst]?.goToConnectedSession()
+        autoreleasepool {
+            globalStateKeeper[currInst]?.imageView?.removeFromSuperview()
+            globalStateKeeper[currInst]?.imageView?.image = nil
+            globalStateKeeper[currInst]?.imageView = nil
+            let minScale = getMinimumScale(fbW: CGFloat(fbW), fbH: CGFloat(fbH))
+            globalStateKeeper[currInst]?.correctTopSpacingForOrientation()
+            let leftSpacing = globalStateKeeper[currInst]?.leftSpacing ?? 0
+            let topSpacing = globalStateKeeper[currInst]?.topSpacing ?? 0
+            globalStateKeeper[currInst]?.imageView = TouchEnabledUIImageView(frame: CGRect(x: leftSpacing, y: topSpacing, width: CGFloat(fbW)*minScale, height: CGFloat(fbH)*minScale))
+            //globalStateKeeper[currInst]?.imageView?.backgroundColor = UIColor.gray
+            globalStateKeeper[currInst]?.imageView?.enableGestures()
+            globalStateKeeper[currInst]?.imageView?.enableTouch()
+            globalWindow!.addSubview(globalStateKeeper[currInst]!.imageView!)
+            globalStateKeeper[currInst]?.createAndRepositionButtons()
+            globalStateKeeper[currInst]?.addButtons(buttons: globalStateKeeper[currInst]?.interfaceButtons ?? [:])
+            globalStateKeeper[currInst]?.goToConnectedSession()
+        }
     }
 }
 
 func update_callback(data: UnsafeMutablePointer<UInt8>?, fbW: Int32, fbH: Int32, x: Int32, y: Int32, w: Int32, h: Int32) -> Void {
     globalStateKeeper[currInst]!.frames += 1
     let currentCpuUsage = SystemMonitor.appCpuUsage()
-    if (currentCpuUsage > 30.0 && globalStateKeeper[currInst]!.frames % 1000 != 0) {
+    if (currentCpuUsage > 40.0 && globalStateKeeper[currInst]!.frames % 1000 != 0) {
         UserInterface {
             globalStateKeeper[currInst]!.rescheduleTimer(data: data, fbW: fbW, fbH: fbH)
         }
@@ -175,13 +179,13 @@ func imageFromARGB32Bitmap(pixels: UnsafeMutablePointer<UInt8>?, withWidth: Int,
     let colorSpace = CGColorSpaceCreateDeviceRGB()
     let bitmapInfo = CGBitmapInfo(rawValue: CGImageAlphaInfo.noneSkipLast.rawValue).union(.byteOrder32Big)
     let bitsPerComponent = 8
-    /*
+
     guard let context: CGContext = CGContext(data: pixels, width: withWidth, height: withHeight, bitsPerComponent: bitsPerComponent, bytesPerRow: 4*withWidth, space: colorSpace, bitmapInfo: bitmapInfo.rawValue) else {
         print("Could not create CGContext")
         return nil
     }
     return context.makeImage()
-    */
+    /*
     let bitsPerPixel = 32
     return CGImage(width: withWidth,
                              height: withHeight,
@@ -194,6 +198,7 @@ func imageFromARGB32Bitmap(pixels: UnsafeMutablePointer<UInt8>?, withWidth: Int,
                              decode: nil,
                              shouldInterpolate: true,
                              intent: .defaultIntent)
+     */
 }
 
 class VncSession {
