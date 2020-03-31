@@ -162,7 +162,7 @@ func update_callback(data: UnsafeMutablePointer<UInt8>?, fbW: Int32, fbH: Int32,
     let currentCpuUsage = SystemMonitor.appCpuUsage()
     if (currentCpuUsage > 40.0 && globalStateKeeper[currInst]!.frames % 1000 != 0) {
         UserInterface {
-            globalStateKeeper[currInst]!.rescheduleTimer(data: data, fbW: fbW, fbH: fbH)
+            globalStateKeeper[currInst]!.rescheduleReDrawTimer(data: data, fbW: fbW, fbH: fbH)
         }
         return
     }

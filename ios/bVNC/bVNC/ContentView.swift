@@ -101,7 +101,6 @@ struct MultilineTextView: UIViewRepresentable {
 }
 
 struct ContentView : View {
-    
     @ObservedObject var stateKeeper: StateKeeper
     
     var body: some View {

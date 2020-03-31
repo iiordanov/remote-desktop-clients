@@ -44,13 +44,14 @@ class StateKeeper: ObservableObject, KeyboardObserving {
     var globalWriteTlsLock: NSLock = NSLock()
     var frames = 0
     var reDrawTimer: Timer = Timer()
+    var orientationTimer: Timer = Timer()
     var fbW: Int32 = 0
     var fbH: Int32 = 0
     var data: UnsafeMutablePointer<UInt8>?
     var minScale: CGFloat = 0
     
-    var topSpacing: CGFloat = 20.0
-    var topButtonSpacing: CGFloat = 20.0
+    var topSpacing: CGFloat = bH
+    var topButtonSpacing: CGFloat = 0.0
     var leftSpacing: CGFloat = 0.0
     
     var orientation: Int = -1 /* -1 == Uninitialized, 0 == Portrait, 1 == Landscape */
@@ -91,20 +92,16 @@ class StateKeeper: ObservableObject, KeyboardObserving {
         "keyboardButton": [ "title": "Kbd", "lx": 1*bW+0*bSp, "ly": 1*bH+0*bSp, "bg": bBg, "send": Int32(-1), "tgl": false, "top": false, "right": true ],
     ]
 
-    func redraw() {
+    @objc func reDraw() {
         self.imageView?.image = UIImage(cgImage: imageFromARGB32Bitmap(pixels: self.data, withWidth: Int(self.fbW), withHeight: Int(self.fbH))!)
     }
     
-    @objc func fireTimer() {
-        redraw()
-    }
-    
-    func rescheduleTimer(data: UnsafeMutablePointer<UInt8>?, fbW: Int32, fbH: Int32) {
+    func rescheduleReDrawTimer(data: UnsafeMutablePointer<UInt8>?, fbW: Int32, fbH: Int32) {
         self.data = data
         self.fbW = fbW
         self.fbH = fbH
         self.reDrawTimer.invalidate()
-        self.reDrawTimer = Timer.scheduledTimer(timeInterval: 0.2, target: self, selector: #selector(fireTimer), userInfo: nil, repeats: false)
+        self.reDrawTimer = Timer.scheduledTimer(timeInterval: 0.2, target: self, selector: #selector(reDraw), userInfo: nil, repeats: false)
     }
     
     init() {
@@ -299,15 +296,20 @@ class StateKeeper: ObservableObject, KeyboardObserving {
     @objc func orientationChanged(_ notification: NSNotification) {
         print("Orientation changed")
         if getMaintainConnection() && currentPage == "connectedSession" {
-            correctTopSpacingForOrientation()
+            rescheduleOrientationTimer()
         }
     }
     
-    func correctTopSpacingForOrientation() {
+    func rescheduleOrientationTimer() {
+        self.orientationTimer = Timer.scheduledTimer(timeInterval: 0.5, target: self, selector: #selector(correctTopSpacingForOrientation), userInfo: nil, repeats: false)
+    }
+    
+    @objc func correctTopSpacingForOrientation() {
         minScale = getMinimumScale(fbW: CGFloat(fbW), fbH: CGFloat(fbH))
 
         let windowX = window?.frame.maxX ?? 0
         let windowY = window?.frame.maxY ?? 0
+        //print ("windowX: \(windowX), windowY: \(windowY)")
         var newOrientation = 0
         if (windowX > windowY) {
             newOrientation = 1
@@ -316,12 +318,12 @@ class StateKeeper: ObservableObject, KeyboardObserving {
         if newOrientation == 0 {
             print("New orientation is portrait")
             leftSpacing = 0
-            topSpacing = (globalWindow!.bounds.maxY - CGFloat(fbH)*minScale)/4
-            topButtonSpacing = 20
+            topSpacing = max(StateKeeper.bH, (globalWindow!.bounds.maxY - CGFloat(fbH)*minScale)/4)
+            topButtonSpacing = 0
         } else if newOrientation == 1 {
             print("New orientation is landscape")
             leftSpacing = (globalWindow!.bounds.maxX - CGFloat(fbW)*minScale)/2
-            topSpacing = 0
+            topSpacing = StateKeeper.bH
             topButtonSpacing = 0
         }
         
