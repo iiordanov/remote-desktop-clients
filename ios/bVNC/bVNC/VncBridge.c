@@ -12,21 +12,23 @@
 #include "SshPortForwarder.h"
 #include "Utility.h"
 
-char* HOST_AND_PORT = NULL;
 char* USERNAME = NULL;
 char* PASSWORD = NULL;
-rfbClient *cl = NULL;
 int pixel_buffer_size = 0;
-bool maintainConnection = true;
 int BYTES_PER_PIXEL = 4;
 int fbW = 0;
 int fbH = 0;
 
-bool getMaintainConnection() {
-    return maintainConnection;
+bool getMaintainConnection(void *c) {
+    rfbClient *cl = (rfbClient *)c;
+    if (cl != NULL) {
+        return cl->maintainConnection;
+    } else {
+        return 0;
+    }
 }
 
-static rfbCredential* get_credential(rfbClient* cl, int credentialType){
+static rfbCredential* get_credential(rfbClient *cl, int credentialType){
     rfbClientLog("VeNCrypt authentication callback called\n\n");
     rfbCredential *c = malloc(sizeof(rfbCredential));
     
@@ -51,7 +53,7 @@ static rfbCredential* get_credential(rfbClient* cl, int credentialType){
     return c;
 }
 
-static char* get_password(rfbClient* cl){
+static char* get_password(rfbClient *cl){
     rfbClientLog("VNC password authentication callback called\n\n");
     char *p = malloc(RFB_BUF_SIZE);
     
@@ -64,7 +66,11 @@ static char* get_password(rfbClient* cl){
 
 static void update (rfbClient *cl, int x, int y, int w, int h) {
     //rfbClientLog("Update received\n");
-    framebuffer_update_callback(cl->frameBuffer, fbW, fbH, x, y, w, h);
+    if (!framebuffer_update_callback(cl->instance, cl->frameBuffer, fbW, fbH, x, y, w, h)) {
+        // This session is a left-over backgrounded session and must quit.
+        printf("Must quit background session with instance number %d\n", cl->instance);
+        cl->maintainConnection = false;
+    }
 }
 
 static rfbBool resize (rfbClient *cl) {
@@ -76,7 +82,7 @@ static rfbBool resize (rfbClient *cl) {
     uint8_t* oldFrameBuffer = cl->frameBuffer;
     pixel_buffer_size = BYTES_PER_PIXEL*fbW*fbH*sizeof(char);
     cl->frameBuffer = (uint8_t*)malloc(pixel_buffer_size);
-    framebuffer_resize_callback(fbW, fbH);
+    framebuffer_resize_callback(cl->instance, cl, fbW, fbH);
     update(cl, 0, 0, fbW, fbH);
     if (oldFrameBuffer != NULL) {
         free(oldFrameBuffer);
@@ -84,15 +90,23 @@ static rfbBool resize (rfbClient *cl) {
     return TRUE;
 }
 
-void disconnectVnc() {
+void disconnectVnc(void *c) {
+    rfbClient *cl = (rfbClient *)c;
     printf("Setting maintainConnection to false\n");
-    maintainConnection = false;
+    cl->maintainConnection = false;
     // Force force some communication with server in order to wake up the
     // background thread waiting for server messages.
     SendFramebufferUpdateRequest(cl, 0, 0, 1, 1, FALSE);
 }
 
-int ssl_certificate_verification_callback(rfbClient* client, char* issuer, char* common_name,
+void sendWholeScreenUpdateRequest(void *c) {
+    rfbClient *cl = (rfbClient *)c;
+    if (cl->maintainConnection) {
+        SendFramebufferUpdateRequest(cl, 0, 0, cl->width, cl->height, FALSE);
+    }
+}
+
+int ssl_certificate_verification_callback(rfbClient *client, char* issuer, char* common_name,
 char* fingerprint_sha256, char* fingerprint_sha512, int pday, int psec) {
     char user_message[8192];
 
@@ -106,34 +120,32 @@ char* fingerprint_sha256, char* fingerprint_sha512, int pday, int psec) {
             "Issuer: %s\n\nCommon name: %s\n\nSHA256 Fingerprint: %s\n\nSHA512 Fingerprint: %s\n\n%s for %d days and %d seconds.\n",
             issuer, common_name, fingerprint_sha256, fingerprint_sha512, validity, pday, psec);
     
-    int response = yes_no_callback((int8_t *)"Please verify VNC server certificate", (int8_t *)user_message,
+    int response = yes_no_callback(client->instance, (int8_t *)"Please verify VNC server certificate", (int8_t *)user_message,
                                    (int8_t *)fingerprint_sha256, (int8_t *)fingerprint_sha512, (int8_t *)"X509");
 
     return response;
 }
 
-rfbBool lockWriteToTLS(rfbClient* client) {
-    lock_write_tls_callback();
+rfbBool lockWriteToTLS(rfbClient *client) {
+    lock_write_tls_callback(client->instance);
     return TRUE;
 }
 
-rfbBool unlockWriteToTLS(rfbClient* client) {
-    unlock_write_tls_callback();
+rfbBool unlockWriteToTLS(rfbClient *client) {
+    unlock_write_tls_callback(client->instance);
     return TRUE;
 }
 
-void connectVnc(void (*fb_update_callback)(uint8_t *, int fbW, int fbH, int x, int y, int w, int h),
-                void (*fb_resize_callback)(int fbW, int fbH),
-                void (*fail_callback)(uint8_t *),
-                void (*cl_log_callback)(int8_t *),
-                void (*lock_wrt_tls_callback)(void),
-                void (*unlock_wrt_tls_callback)(void),
-                int (*y_n_callback)(int8_t *, int8_t *, int8_t *, int8_t *, int8_t *),
-                char* addr, char* user, char* password) {
-    rfbClientLog("Setting up connection.\n");
-    maintainConnection = true;
-    
-    HOST_AND_PORT = addr;
+void *initializeVnc(int instance,
+                   bool (*fb_update_callback)(int instance, uint8_t *, int fbW, int fbH, int x, int y, int w, int h),
+                   void (*fb_resize_callback)(int instance, void *, int fbW, int fbH),
+                   void (*fail_callback)(int instance, uint8_t *),
+                   void (*cl_log_callback)(int8_t *),
+                   void (*lock_wrt_tls_callback)(int instance),
+                   void (*unlock_wrt_tls_callback)(int instance),
+                   int (*y_n_callback)(int instance, int8_t *, int8_t *, int8_t *, int8_t *, int8_t *),
+                   char* addr, char* user, char* password) {
+    rfbClientLog("Initializing VNC session.\n");
     USERNAME = user;
     PASSWORD = password;
     framebuffer_update_callback = fb_update_callback;
@@ -145,11 +157,7 @@ void connectVnc(void (*fb_update_callback)(uint8_t *, int fbW, int fbH, int x, i
     unlock_write_tls_callback = unlock_wrt_tls_callback;
 
     rfbClientLog = rfbClientErr = client_log;
-    
-    if(cl != NULL) {
-        rfb_client_cleanup();
-    }
-    
+    rfbClient *cl = NULL;
     int argc = 2;
     char **argv = (char**)malloc(argc*sizeof(char*));
     int i = 0;
@@ -158,7 +166,7 @@ void connectVnc(void (*fb_update_callback)(uint8_t *, int fbW, int fbH, int x, i
         argv[i] = (char*)malloc(256*sizeof(char));
     }
     strcpy(argv[0], "dummy");
-    strcpy(argv[1], HOST_AND_PORT);
+    strcpy(argv[1], addr);
     
     /* 16-bit: cl=rfbGetClient(5,3,2); */
     cl=rfbGetClient(8,3,BYTES_PER_PIXEL);
@@ -175,20 +183,30 @@ void connectVnc(void (*fb_update_callback)(uint8_t *, int fbW, int fbH, int x, i
     cl->SslCertificateVerifyCallback = ssl_certificate_verification_callback;
     cl->LockWriteToTLS = lockWriteToTLS;
     cl->UnlockWriteToTLS = unlockWriteToTLS;
+    cl->instance = instance;
     
     if (!rfbInitClient(cl, &argc, argv)) {
         cl = NULL; /* rfbInitClient has already freed the client struct */
-        cleanup("Failed to connect to server\n", cl);
+        cleanup(cl, "Failed to connect to server\n");
     }
-    
+    rfbClientLog("Done initializing VNC session\n");
+    return (void *)cl;
+}
+
+void connectVnc(void *c) {
+    rfbClientLog("Setting up connection.\n");
+    rfbClient *cl = (rfbClient *)c;
+    cl->maintainConnection = true;
+    int i;
+        
     while (cl != NULL) {
         i = WaitForMessage(cl, 500);
-        if (maintainConnection != true) {
-            cleanup(NULL, cl);
+        if (cl->maintainConnection != true) {
+            cleanup(cl, NULL);
             break;
         }
         if (i < 0) {
-            cleanup("Connection to server failed\n", cl);
+            cleanup(cl, "Connection to server failed\n");
             break;
         }
         if (i) {
@@ -196,27 +214,31 @@ void connectVnc(void (*fb_update_callback)(uint8_t *, int fbW, int fbH, int x, i
         }
         
         if (!HandleRFBServerMessage(cl)) {
-            cleanup("Connection to server failed\n", cl);
+            cleanup(cl, "Connection to server failed\n");
             break;
         }
     }
     rfbClientLog("Background thread exiting connectVnc function.\n\n");
+    rfb_client_cleanup(cl);
 }
 
-void rfb_client_cleanup() {
+void rfb_client_cleanup(rfbClient *cl) {
     if (cl != NULL) {
         if (cl->frameBuffer != NULL) {
             free(cl->frameBuffer);
         }
-        rfbClientCleanup(cl);
-        cl = NULL;
+        //rfbClientCleanup(cl);
+        //cl = NULL;
     }
 }
 
-void cleanup(char *message, rfbClient *client) {
-    maintainConnection = false;
+void cleanup(rfbClient *cl, char *message) {
     rfbClientLog("%s", message);
-    failure_callback((uint8_t*)message);
+    
+    if (cl != NULL) {
+        cl->maintainConnection = false;
+        failure_callback(cl->instance, (uint8_t*)message);
+    }
 }
 
 // TODO: Replace with real conversion table
@@ -245,67 +267,77 @@ static rfbKeySym utf8char2rfbKeySym(const char chr[4]) {
         return codep;
 }
 
-void sendUniDirectionalKeyEvent(const char *c, bool down) {
-    if (!maintainConnection) {
+void sendUniDirectionalKeyEvent(void *c, const char *characters, bool down) {
+    rfbClient *cl = (rfbClient *)c;
+
+    if (!cl->maintainConnection) {
         return;
     }
     rfbKeySym sym = utf8char2rfbKeySym(c);
     //rfbClientLog("sendKeyEvent converted %#06x to xkeysym: %#06x\n", (int)*c, sym);
-    sendUniDirectionalKeyEventWithKeySym(sym, down);
+    sendUniDirectionalKeyEventWithKeySym(cl, sym, down);
 }
 
-void sendKeyEvent(const char *c) {
-    if (!maintainConnection) {
+void sendKeyEvent(void *c, const char *character) {
+    rfbClient *cl = (rfbClient *)c;
+
+    if (!cl->maintainConnection) {
         return;
     }
     rfbKeySym sym = utf8char2rfbKeySym(c);
     //rfbClientLog("sendKeyEvent converted %#06x to xkeysym: %#06x\n", (int)*c, sym);
-    sendKeyEventWithKeySym(sym);
+    sendKeyEventWithKeySym(cl, sym);
 }
 
-bool sendKeyEventInt(int c) {
-    if (!maintainConnection) {
+bool sendKeyEventInt(void *c, int character) {
+    rfbClient *cl = (rfbClient *)c;
+    
+    if (!cl->maintainConnection) {
         return false;
     }
-    rfbKeySym sym = ucs2keysym(c);
+    rfbKeySym sym = ucs2keysym(character);
     if (sym == -1) {
         return false;
     }
     //rfbClientLog("sendKeyEventInt converted %#06x to xkeysym: %#06x\n", c, sym);
-    sendKeyEventWithKeySym(sym);
+    sendKeyEventWithKeySym(cl, sym);
     return true;
 }
 
-void sendKeyEventWithKeySym(int sym) {
-    if (!maintainConnection) {
+void sendKeyEventWithKeySym(void *c, int sym) {
+    rfbClient *cl = (rfbClient *)c;
+
+    if (!cl->maintainConnection) {
         return;
     }
     if (cl != NULL) {
         //rfbClientLog("Sending xkeysym: %#06x\n", sym);
-        checkForError(SendKeyEvent(cl, sym, TRUE));
-        checkForError(SendKeyEvent(cl, sym, FALSE));
+        checkForError(cl, SendKeyEvent(cl, sym, TRUE));
+        checkForError(cl, SendKeyEvent(cl, sym, FALSE));
     } else {
         rfbClientLog("RFB Client object is NULL, need to quit!");
-        checkForError(false);
+        checkForError(cl, false);
     }
 }
 
-void sendUniDirectionalKeyEventWithKeySym(int sym, bool down) {
-    if (!maintainConnection) {
+void sendUniDirectionalKeyEventWithKeySym(void *c, int sym, bool down) {
+    rfbClient *cl = c;
+    if (!cl->maintainConnection) {
         return;
     }
     if (cl != NULL) {
         //rfbClientLog("Sending xkeysym: %#06x\n", sym);
-        checkForError(SendKeyEvent(cl, sym, down));
+        checkForError(cl, SendKeyEvent(cl, sym, down));
     } else {
         rfbClientLog("RFB Client object is NULL, need to quit!");
-        checkForError(false);
+        checkForError(cl, false);
     }
 }
 
-void sendPointerEventToServer(int totalX, int totalY, int x, int y, bool firstDown, bool secondDown, bool thirdDown,
-                              bool scrollUp, bool scrollDown) {
-    if (!maintainConnection) {
+void sendPointerEventToServer(void *c, int totalX, int totalY, int x, int y, bool firstDown, bool secondDown, bool thirdDown, bool scrollUp, bool scrollDown) {
+    rfbClient *cl = (rfbClient *)c;
+    
+    if (!cl->maintainConnection) {
         return;
     }
     int buttonMask = 0;
@@ -327,18 +359,18 @@ void sendPointerEventToServer(int totalX, int totalY, int x, int y, bool firstDo
     if (cl != NULL) {
         int remoteX = (double)fbW * (double)x / (double)totalX;
         int remoteY = (double)fbH * (double)y / (double)totalY;
-        printf("Sending pointer event at %d, %d, with mask %d\n", remoteX, remoteY, buttonMask);
-        checkForError(SendPointerEvent(cl, remoteX, remoteY, buttonMask));
+        //printf("Sending pointer event at %d, %d, with mask %d\n", remoteX, remoteY, buttonMask);
+        checkForError(cl, SendPointerEvent(cl, remoteX, remoteY, buttonMask));
     } else {
         rfbClientLog("RFB Client object is NULL, will quit now.\n");
-        checkForError(false);
+        checkForError(cl, false);
     }
 }
 
-void checkForError(rfbBool res) {
+void checkForError(rfbClient *cl, rfbBool res) {
     if (cl == NULL) {
-        cleanup("Unexpectedly, RFB client object is null\n", cl);
+        cleanup(cl, "Unexpectedly, RFB client object is null\n");
     } else if (!res) {
-        cleanup("Failed to send message to server\n", cl);
+        cleanup(cl, "Failed to send message to server\n");
     }
 }
