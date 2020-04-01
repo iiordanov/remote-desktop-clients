@@ -124,6 +124,8 @@ struct ContentView : View {
                 ContentViewB(stateKeeper: stateKeeper)
             } else if stateKeeper.currentPage == "disconnectionInProgress" {
                 ContentViewC(stateKeeper: stateKeeper)
+            } else if stateKeeper.currentPage == "reconnectionInProgress" {
+                ContentViewE(stateKeeper: stateKeeper)
             } else if stateKeeper.currentPage == "connectedSession" {
                 ContentViewD()
             } else if stateKeeper.currentPage == "dismissableErrorMessage" {
@@ -323,12 +325,19 @@ struct ContentViewB : View {
 }
 
 struct ContentViewC : View {
-    
     @ObservedObject var stateKeeper: StateKeeper
-    
     var body: some View {
         VStack {
             Text("Disconnecting from Server")
+        }
+    }
+}
+
+struct ContentViewE : View {
+    @ObservedObject var stateKeeper: StateKeeper
+    var body: some View {
+        VStack {
+            Text("Automatically reconnecting to Server")
         }
     }
 }
@@ -353,7 +362,7 @@ struct DismissableLogDialog : View {
     }
 
     func getClientLog() -> String {
-        return stateKeeper.clientLog
+        return stateKeeper.clientLog.joined()
     }
     
     var body: some View {

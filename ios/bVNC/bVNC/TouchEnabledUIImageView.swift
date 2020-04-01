@@ -135,7 +135,7 @@ class TouchEnabledUIImageView: UIImageView {
         //let timeNow = CACurrentMediaTime();
         //let timeDiff = timeNow - self.timeLast
         if !moving || (abs(self.lastX - self.newX) > 1.0 || abs(self.lastY - self.newY) > 1.0) {
-            sendPointerEventToServer(Int32(self.width), Int32(self.height), Int32(self.newX), Int32(self.newY), firstDown, secondDown, thirdDown, fourthDown, fifthDown)
+            sendPointerEventToServer(globalStateKeeper!.cl!, Int32(self.width), Int32(self.height), Int32(self.newX), Int32(self.newY), firstDown, secondDown, thirdDown, fourthDown, fifthDown)
             self.lastX = self.newX
             self.lastY = self.newY
             //self.timeLast = timeNow
@@ -212,7 +212,7 @@ class TouchEnabledUIImageView: UIImageView {
                         if moveEventsSinceFingerDown > 4 {
                             self.sendDownThenUpEvent(scrolling: false, moving: true, firstDown: self.firstDown, secondDown: self.secondDown, thirdDown: self.thirdDown, fourthDown: false, fifthDown: false)
                         } else {
-                            print("Discarding some touch events")
+                            //print("Discarding some touch events")
                             moveEventsSinceFingerDown += 1
                         }
                     }
@@ -248,6 +248,7 @@ class TouchEnabledUIImageView: UIImageView {
                             self.firstDown = false
                             self.secondDown = false
                             self.thirdDown = false
+                            sendWholeScreenUpdateRequest(globalStateKeeper!.cl!)
                         }
                     } else {
                         print("Fingers other than first lifted, not sending mouse events.")
@@ -304,9 +305,9 @@ class TouchEnabledUIImageView: UIImageView {
             let scaledWidth = sender.view!.frame.width/scaleX
             let scaledHeight = sender.view!.frame.height/scaleY
             if sender.view!.frame.minX/scaleX >= 50/scaleX { newCenterX = view.center.x - 5 }
-            if sender.view!.frame.minY/scaleY >= 50/scaleY + globalStateKeeper[currInst]!.topSpacing/scaleY { newCenterY = view.center.y - 5 }
+            if sender.view!.frame.minY/scaleY >= 50/scaleY + globalStateKeeper!.topSpacing/scaleY { newCenterY = view.center.y - 5 }
             if sender.view!.frame.minX/scaleX <= -50/scaleX - (scaleX-1.0)*scaledWidth/scaleX { newCenterX = view.center.x + 5 }
-            if sender.view!.frame.minY/scaleY <= -50/scaleY - globalStateKeeper[currInst]!.keyboardHeight/scaleY - (scaleY-1.0)*scaledHeight/scaleY { newCenterY = view.center.y + 5 }
+            if sender.view!.frame.minY/scaleY <= -50/scaleY - globalStateKeeper!.keyboardHeight/scaleY - (scaleY-1.0)*scaledHeight/scaleY { newCenterY = view.center.y + 5 }
             view.center = CGPoint(x: newCenterX, y: newCenterY)
             sender.setTranslation(CGPoint.zero, in: view)
         }

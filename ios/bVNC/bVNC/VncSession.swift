@@ -21,73 +21,90 @@ var globalContentView: Image?
 var globalScene: UIWindowScene?
 var globalWindow: UIWindow?
 var globalImageView: TouchEnabledUIImageView?
-var currInst: Int = 0
-var globalStateKeeper: [StateKeeper?] = [StateKeeper?](repeating: nil, count: 20)
+var globalStateKeeper: StateKeeper?
 
 
-func lock_write_tls_callback_swift() -> Void {
-    globalStateKeeper[currInst]?.globalWriteTlsLock.lock();
-    //print("Locked write to TLS \(Thread.current)")
+func lock_write_tls_callback_swift(instance: Int32) -> Void {
+    if (instance != globalStateKeeper!.currInst) { print("Current instance \(globalStateKeeper!.currInst) discarding call from instance \(instance)") ; return }
+
+    globalStateKeeper?.globalWriteTlsLock.lock();
 }
 
-func unlock_write_tls_callback_swift() -> Void {
-    globalStateKeeper[currInst]?.globalWriteTlsLock.unlock();
-    //print("Unlocked write to TLS \(Thread.current)")
+func unlock_write_tls_callback_swift(instance: Int32) -> Void {
+    if (instance != globalStateKeeper!.currInst) { print("Current instance \(globalStateKeeper!.currInst) discarding call from instance \(instance)") ; return }
+
+    globalStateKeeper?.globalWriteTlsLock.unlock();
 }
 
 func ssh_forward_success() -> Void {
     print("SSH library is telling us we can proceed with the VNC connection")
-    globalStateKeeper[currInst]?.sshForwardingStatus = true
-    globalStateKeeper[currInst]?.sshForwardingLock.unlock()
+    globalStateKeeper?.sshForwardingStatus = true
+    globalStateKeeper?.sshForwardingLock.unlock()
 }
 
 func ssh_forward_failure() -> Void {
     print("SSH library is telling us it failed to set up SSH forwarding")
-    globalStateKeeper[currInst]?.sshForwardingStatus = false
-    globalStateKeeper[currInst]?.sshForwardingLock.unlock()
+    globalStateKeeper?.sshForwardingStatus = false
+    globalStateKeeper?.sshForwardingLock.unlock()
 }
 
-func failure_callback_str(message: String?) {
+func failure_callback_str(instance: Int, message: String?) {
+    if (instance != globalStateKeeper!.currInst) { print("Current instance \(globalStateKeeper!.currInst) discarding call from instance \(instance)") ; return }
+
     UserInterface {
         globalImageView?.disableTouch()
-        let contentView = ContentView(stateKeeper: globalStateKeeper[currInst]!)
-        globalWindow?.rootViewController = UIHostingController(rootView: contentView)
+        let contentView = ContentView(stateKeeper: globalStateKeeper!)
+        globalWindow?.rootViewController = MyUIHostingController(rootView: contentView)
+        globalWindow?.makeKeyAndVisible()
+
         if message != nil {
             print("Connection failure, showing error with title \(message!).")
-            globalStateKeeper[currInst]?.showError(title: message!)
+            globalStateKeeper?.showError(title: message!)
         } else {
             print("Successful exit, no error was reported.")
-            globalStateKeeper[currInst]?.showConnections()
+            globalStateKeeper?.showConnections()
         }
     }
 }
 
-func failure_callback_swift(message: UnsafeMutablePointer<UInt8>?) -> Void {
+func failure_callback_swift(instance: Int32, message: UnsafeMutablePointer<UInt8>?) -> Void {
+    if (instance != globalStateKeeper!.currInst) { print("Current instance \(globalStateKeeper!.currInst) discarding call from instance \(instance)") ; return }
+
+    if (instance != globalStateKeeper!.currInst) { return }
+
     if message != nil {
         print("Will show error with title: \(String(cString: message!))")
-        failure_callback_str(message: String(cString: message!))
+        failure_callback_str(instance: Int(instance), message: String(cString: message!))
     } else {
-        failure_callback_str(message: nil)
+        failure_callback_str(instance: Int(instance), message: nil)
     }
 }
 
 func log_callback(message: UnsafeMutablePointer<Int8>?) -> Void {
-    globalStateKeeper[currInst]?.clientLog += String(cString: message!)
+    // Prevent the log from growing too large
+    if globalStateKeeper?.clientLog.count ?? 0 > 500 {
+        globalStateKeeper?.clientLog.remove(at: 0)
+    }
+    globalStateKeeper?.clientLog.append(String(cString: message!))
 }
 
-func yes_no_dialog_callback(title: UnsafeMutablePointer<Int8>?, message: UnsafeMutablePointer<Int8>?, fingerPrint1: UnsafeMutablePointer<Int8>?, fingerPrint2: UnsafeMutablePointer<Int8>?, type: UnsafeMutablePointer<Int8>?) -> Int32 {
+func yes_no_dialog_callback(instance: Int32, title: UnsafeMutablePointer<Int8>?, message: UnsafeMutablePointer<Int8>?, fingerPrint1: UnsafeMutablePointer<Int8>?, fingerPrint2: UnsafeMutablePointer<Int8>?, type: UnsafeMutablePointer<Int8>?) -> Int32 {
+    if (instance != globalStateKeeper!.currInst) { print("Current instance \(globalStateKeeper!.currInst) discarding call from instance \(instance)") ; return 0 }
+
+    if (instance != globalStateKeeper!.currInst) { return 0 }
+
     let fingerprintType = String(cString: type!)
     let fingerPrint1Str = String(cString: fingerPrint1!)
     let fingerPrint2Str = String(cString: fingerPrint2!)
     
     // Check for a match
     if fingerprintType == "SSH" &&
-       fingerPrint1Str == globalStateKeeper[currInst]?.selectedConnection["sshFingerprintSha256"] {
+       fingerPrint1Str == globalStateKeeper?.selectedConnection["sshFingerprintSha256"] {
         print ("Found matching saved SHA256 SSH host key fingerprint, continuing.")
         return 1
     } else if fingerprintType == "X509" &&
-       fingerPrint1Str == globalStateKeeper[currInst]?.selectedConnection["x509FingerprintSha256"] &&
-       fingerPrint2Str == globalStateKeeper[currInst]?.selectedConnection["x509FingerprintSha512"] {
+       fingerPrint1Str == globalStateKeeper?.selectedConnection["x509FingerprintSha256"] &&
+       fingerPrint2Str == globalStateKeeper?.selectedConnection["x509FingerprintSha512"] {
        print ("Found matching saved SHA256 and SHA512 X509 key fingerprints, continuing.")
        return 1
     }
@@ -98,24 +115,24 @@ func yes_no_dialog_callback(title: UnsafeMutablePointer<Int8>?, message: UnsafeM
     
     // Check for a mismatch if keys were already set
     if fingerprintType == "SSH" &&
-        globalStateKeeper[currInst]?.selectedConnection["sshFingerprintSha256"] != nil {
+        globalStateKeeper?.selectedConnection["sshFingerprintSha256"] != nil {
         messageStr = "\nWARNING: SSH key of this connection has changed! This could be a man in the middle attack! Do not continue unless you are aware of this change.\n\n" + messageStr
     } else if fingerprintType == "X509" &&
-       (globalStateKeeper[currInst]?.selectedConnection["sshFingerprintSha256"] != nil ||
-        globalStateKeeper[currInst]?.selectedConnection["sshFingerprintSha512"] != nil) {
+       (globalStateKeeper?.selectedConnection["sshFingerprintSha256"] != nil ||
+        globalStateKeeper?.selectedConnection["sshFingerprintSha512"] != nil) {
         messageStr = "\nWARNING: X509 key of this connection has changed! This could be a man in the middle attack! Do not continue unless you are aware of this change.\n\n" + messageStr
     }
 
-    let res = globalStateKeeper[currInst]?.yesNoResponseRequired(
+    let res = globalStateKeeper?.yesNoResponseRequired(
         title: titleStr, message: messageStr) ?? 0
     
     if res == 1 && fingerprintType == "SSH" {
-        globalStateKeeper[currInst]?.selectedConnection["sshFingerprintSha256"] = fingerPrint1Str
-        globalStateKeeper[currInst]?.saveSettings()
+        globalStateKeeper?.selectedConnection["sshFingerprintSha256"] = fingerPrint1Str
+        globalStateKeeper?.saveSettings()
     } else if res == 1 && fingerprintType == "X509" {
-        globalStateKeeper[currInst]?.selectedConnection["x509FingerprintSha256"] = fingerPrint1Str
-        globalStateKeeper[currInst]?.selectedConnection["x509FingerprintSha512"] = fingerPrint2Str
-        globalStateKeeper[currInst]?.saveSettings()
+        globalStateKeeper?.selectedConnection["x509FingerprintSha256"] = fingerPrint1Str
+        globalStateKeeper?.selectedConnection["x509FingerprintSha512"] = fingerPrint2Str
+        globalStateKeeper?.saveSettings()
     }
     return res
 }
@@ -133,45 +150,54 @@ func widthRatioLessThanHeightRatio(fbW: CGFloat, fbH: CGFloat) -> Bool {
     return globalWindow!.bounds.maxX / fbW < globalWindow!.bounds.maxY / fbH;
 }
 
-func resize_callback(fbW: Int32, fbH: Int32) -> Void {
-    globalStateKeeper[currInst]?.fbW = fbW
-    globalStateKeeper[currInst]?.fbH = fbH
+func resize_callback(instance: Int32, cl: UnsafeMutableRawPointer?, fbW: Int32, fbH: Int32) -> Void {
+    if (instance != globalStateKeeper!.currInst) { print("Current instance \(globalStateKeeper!.currInst) discarding call from instance \(instance)") ; return }
+
+    globalStateKeeper?.fbW = fbW
+    globalStateKeeper?.fbH = fbH
     UserInterface {
         autoreleasepool {
-            globalStateKeeper[currInst]?.imageView?.removeFromSuperview()
-            globalStateKeeper[currInst]?.imageView?.image = nil
-            globalStateKeeper[currInst]?.imageView = nil
+            globalStateKeeper?.imageView?.removeFromSuperview()
+            globalStateKeeper?.imageView?.image = nil
+            globalStateKeeper?.imageView = nil
             let minScale = getMinimumScale(fbW: CGFloat(fbW), fbH: CGFloat(fbH))
-            globalStateKeeper[currInst]?.correctTopSpacingForOrientation()
-            let leftSpacing = globalStateKeeper[currInst]?.leftSpacing ?? 0
-            let topSpacing = globalStateKeeper[currInst]?.topSpacing ?? 0
-            globalStateKeeper[currInst]?.imageView = TouchEnabledUIImageView(frame: CGRect(x: leftSpacing, y: topSpacing, width: CGFloat(fbW)*minScale, height: CGFloat(fbH)*minScale))
-            //globalStateKeeper[currInst]?.imageView?.backgroundColor = UIColor.gray
-            globalStateKeeper[currInst]?.imageView?.enableGestures()
-            globalStateKeeper[currInst]?.imageView?.enableTouch()
-            globalWindow!.addSubview(globalStateKeeper[currInst]!.imageView!)
-            globalStateKeeper[currInst]?.createAndRepositionButtons()
-            globalStateKeeper[currInst]?.addButtons(buttons: globalStateKeeper[currInst]?.interfaceButtons ?? [:])
-            globalStateKeeper[currInst]?.goToConnectedSession()
+            globalStateKeeper?.correctTopSpacingForOrientation()
+            let leftSpacing = globalStateKeeper?.leftSpacing ?? 0
+            let topSpacing = globalStateKeeper?.topSpacing ?? 0
+            globalStateKeeper?.imageView = TouchEnabledUIImageView(frame: CGRect(x: leftSpacing, y: topSpacing, width: CGFloat(fbW)*minScale, height: CGFloat(fbH)*minScale))
+            //globalStateKeeper?.imageView?.backgroundColor = UIColor.gray
+            globalStateKeeper?.imageView?.enableGestures()
+            globalStateKeeper?.imageView?.enableTouch()
+            globalWindow!.addSubview(globalStateKeeper!.imageView!)
+            globalStateKeeper?.createAndRepositionButtons()
+            globalStateKeeper?.addButtons(buttons: globalStateKeeper?.interfaceButtons ?? [:])
+            globalStateKeeper?.goToConnectedSession()
         }
     }
+    sendWholeScreenUpdateRequest(cl)
 }
 
-func update_callback(data: UnsafeMutablePointer<UInt8>?, fbW: Int32, fbH: Int32, x: Int32, y: Int32, w: Int32, h: Int32) -> Void {
-    globalStateKeeper[currInst]!.frames += 1
+func update_callback(instance: Int32, data: UnsafeMutablePointer<UInt8>?, fbW: Int32, fbH: Int32, x: Int32, y: Int32, w: Int32, h: Int32) -> Bool {
+    if (instance != globalStateKeeper!.currInst) { print("Current instance \(globalStateKeeper!.currInst) discarding call from instance \(instance)") ; return false }
+    if (!(globalStateKeeper?.isDrawing ?? false)) {
+        return false
+    }
+    
+    globalStateKeeper!.frames += 1
     let currentCpuUsage = SystemMonitor.appCpuUsage()
-    if (currentCpuUsage > 40.0 && globalStateKeeper[currInst]!.frames % 1000 != 0) {
+    if (currentCpuUsage > 40.0 && globalStateKeeper!.frames % 1000 != 0) {
         UserInterface {
-            globalStateKeeper[currInst]!.rescheduleReDrawTimer(data: data, fbW: fbW, fbH: fbH)
+            globalStateKeeper!.rescheduleReDrawTimer(data: data, fbW: fbW, fbH: fbH)
         }
-        return
+        return true
     }
     UserInterface {
         //print("Graphics update: ", fbW, fbH, x, y, w, h)
         autoreleasepool {
-            globalStateKeeper[currInst]?.imageView?.image = UIImage(cgImage: imageFromARGB32Bitmap(pixels: data, withWidth: Int(fbW), withHeight: Int(fbH))!)
+            globalStateKeeper?.imageView?.image = UIImage(cgImage: imageFromARGB32Bitmap(pixels: data, withWidth: Int(fbW), withHeight: Int(fbH))!)
         }
     }
+    return true
 }
 
 func imageFromARGB32Bitmap(pixels: UnsafeMutablePointer<UInt8>?, withWidth: Int, withHeight: Int) -> CGImage? {
@@ -202,14 +228,14 @@ func imageFromARGB32Bitmap(pixels: UnsafeMutablePointer<UInt8>?, withWidth: Int,
 }
 
 class VncSession {
-    let scene: UIScene, stateKeeper: StateKeeper, window: UIWindow
+    let scene: UIScene, window: UIWindow
+    var instance: Int
     
-    init(scene: UIScene, stateKeeper: StateKeeper, window: UIWindow, instance: Int) {
+    init(scene: UIScene, window: UIWindow, instance: Int) {
+        print("Initializing VNC Session instance: \(instance)")
         self.scene = scene
-        self.stateKeeper = stateKeeper
         self.window = window
-        currInst = instance
-        globalStateKeeper[currInst] = stateKeeper
+        self.instance = instance
     }
     
     func captureScreen(window: UIWindow) -> UIImage {
@@ -231,7 +257,6 @@ class VncSession {
         if let windowScene = scene as? UIWindowScene {
             globalScene = windowScene
             globalWindow = window
-            self.stateKeeper.createAndRepositionButtons()
         }
 
         let sshAddress = currentConnection["sshAddress"] ?? ""
@@ -249,10 +274,11 @@ class VncSession {
 
         if sshAddress != "" {
             Background {
-                globalStateKeeper[currInst]?.sshForwardingLock.unlock()
-                globalStateKeeper[currInst]?.sshForwardingLock.lock()
+                globalStateKeeper?.sshForwardingLock.unlock()
+                globalStateKeeper?.sshForwardingLock.lock()
                 print("Setting up SSH forwarding")
                 setupSshPortForward(
+                    Int32(globalStateKeeper!.currInst),
                     ssh_forward_success,
                     ssh_forward_failure,
                     log_callback,
@@ -277,40 +303,48 @@ class VncSession {
         //let cert = currentConnection["cert"] ?? ""
 
         Background {
-            globalStateKeeper[currInst]?.yesNoDialogLock.unlock()
+            globalStateKeeper?.yesNoDialogLock.unlock()
             var message = ""
             var continueConnecting = true
             if sshAddress != "" {
                 print("Waiting for SSH forwarding to complete successfully")
                 // Wait for SSH Tunnel to be established for 60 seconds
-                continueConnecting = globalStateKeeper[currInst]!.sshForwardingLock.lock(before: Date(timeIntervalSinceNow: 60))
+                continueConnecting = globalStateKeeper!.sshForwardingLock.lock(before: Date(timeIntervalSinceNow: 60))
                 if !continueConnecting {
                     message = "Timeout establishing SSH Tunnel"
-                } else if (globalStateKeeper[currInst]?.sshForwardingStatus != true) {
+                } else if (globalStateKeeper?.sshForwardingStatus != true) {
                     message = "Failed to establish SSH Tunnel"
                     continueConnecting = false
                 } else {
                     print("SSH Tunnel indicated to be successful")
-                    globalStateKeeper[currInst]?.sshForwardingLock.unlock()
+                    globalStateKeeper?.sshForwardingLock.unlock()
                 }
             }
             if continueConnecting {
                 print("Connecting VNC Session in the background...")
-                connectVnc(update_callback, resize_callback, failure_callback_swift, log_callback, lock_write_tls_callback_swift, unlock_write_tls_callback_swift, yes_no_dialog_callback,
+                let cl = initializeVnc(Int32(self.instance), update_callback, resize_callback, failure_callback_swift, log_callback, lock_write_tls_callback_swift, unlock_write_tls_callback_swift, yes_no_dialog_callback,
                            UnsafeMutablePointer<Int8>(mutating: (addressAndPort as NSString).utf8String),
                            UnsafeMutablePointer<Int8>(mutating: (user as NSString).utf8String),
                            UnsafeMutablePointer<Int8>(mutating: (pass as NSString).utf8String))
+                if cl != nil {
+                    globalStateKeeper?.cl = cl
+                    connectVnc(cl)
+                } else {
+                    message = "Failed to establish connection to VNC server."
+                    print("Error message: \(message)")
+                    failure_callback_str(instance: globalStateKeeper!.currInst, message: message)
+                }
             } else {
                 message = "Error connecting: " + message
                 print("Error message: \(message)")
-                failure_callback_str(message: message)
+                failure_callback_str(instance: globalStateKeeper!.currInst, message: message)
             }
         }        
     }
         
-    func disconnect() {
+    func disconnect(cl: UnsafeMutableRawPointer?) {
         Background {
-            disconnectVnc()
+            disconnectVnc(cl)
         }
     }
 }

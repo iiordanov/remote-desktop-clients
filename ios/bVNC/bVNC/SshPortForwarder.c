@@ -63,29 +63,32 @@ enum {
     AUTH_PUBLICKEY
 };
 
-int ssh_certificate_verification_callback(char* fingerprint_sha1, char* fingerprint_sha256) {
+
+int ssh_certificate_verification_callback(int instance, char* fingerprint_sha1, char* fingerprint_sha256) {
     char user_message[1024];
 
     snprintf(user_message, 1023,
             "SHA1 Fingerprint: %s\n\nSHA256 Fingerprint: %s\n\n\n",
             fingerprint_sha1, fingerprint_sha256);
     
-    int response = yes_no_callback((int8_t *)"Please verify SSH server certificate", (int8_t *)user_message,
+    int response = yes_no_callback(instance,
+                                   (int8_t *)"Please verify SSH server certificate", (int8_t *)user_message,
                                    (int8_t *)fingerprint_sha256, (int8_t *)fingerprint_sha256, (int8_t *)"SSH");
 
     return response;
 }
 
-void setupSshPortForward(void (*ssh_forward_success)(void),
+void setupSshPortForward(int instance,
+                         void (*ssh_forward_success)(void),
                          void (*ssh_forward_failure)(void),
                          void (*cl_log_callback)(int8_t *),
-                         int  (*y_n_callback)(int8_t *, int8_t *, int8_t *, int8_t *, int8_t *),
+                         int  (*y_n_callback)(int instance, int8_t *, int8_t *, int8_t *, int8_t *, int8_t *),
                          char* host, char* port, char* user, char* password, char* privKeyP, char* privKeyD,
                          char* local_ip, char* local_port, char* remote_ip, char* remote_port) {
     client_log_callback = cl_log_callback;
     yes_no_callback = y_n_callback;
-    
-    int argc = 9;
+        
+    int argc = 10;
     char **argv = (char**)malloc(argc*sizeof(char*));
     int i = 0;
     
@@ -96,7 +99,7 @@ void setupSshPortForward(void (*ssh_forward_success)(void),
         return;
     }
     
-    for (i = 0; i <= argc; i++) {
+    for (i = 0; i < argc; i++) {
         argv[i] = (char*)malloc(256*sizeof(char));
     }
     strcpy(argv[0], "dummy");
@@ -114,12 +117,12 @@ void setupSshPortForward(void (*ssh_forward_success)(void),
     privKeyData = (char*)malloc(16384*sizeof(char));
     strncpy(privKeyData, privKeyD, 16383);
 
-    int res = startForwarding(argc, argv, ssh_forward_success);
+    int res = startForwarding(instance, argc, argv, ssh_forward_success);
     client_log ("Result of SSH forwarding: %d\n", res);
     ssh_forward_success();
 }
 
-int startForwarding(int argc, char *argv[], void (*ssh_forward_success)(void))
+int startForwarding(int instance, int argc, char *argv[], void (*ssh_forward_success)(void))
 {
     int rc, i, auth = AUTH_NONE;
     struct sockaddr_in sin;
@@ -259,7 +262,7 @@ int startForwarding(int argc, char *argv[], void (*ssh_forward_success)(void))
     fingerprint_sha256 = libssh2_hostkey_hash(session, LIBSSH2_HOSTKEY_HASH_SHA256);
     char *fingerprint_sha256_str = get_human_readable_fingerprint((uint8_t *)fingerprint_sha256, 32);
     client_log("SHA256 Fingerprint: %s\n", fingerprint_sha256_str);
-    if (!ssh_certificate_verification_callback(fingerprint_sha1_str, fingerprint_sha256_str)) {
+    if (!ssh_certificate_verification_callback(instance, fingerprint_sha1_str, fingerprint_sha256_str)) {
         client_log("User did not accept SSH server certificate.\n");
         goto shutdown;
     }

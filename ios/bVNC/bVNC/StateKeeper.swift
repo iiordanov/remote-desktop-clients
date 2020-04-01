@@ -38,13 +38,14 @@ class StateKeeper: ObservableObject, KeyboardObserving {
     var topButtons: [String: UIButton]
     var interfaceButtons: [String: UIButton]
     var keyboardHeight: CGFloat = 0.0
-    var clientLog: String = ""
+    var clientLog: [String] = []
     var sshForwardingLock: NSLock = NSLock()
     var sshForwardingStatus: Bool = false
     var globalWriteTlsLock: NSLock = NSLock()
     var frames = 0
     var reDrawTimer: Timer = Timer()
     var orientationTimer: Timer = Timer()
+    var disconnectTimer: Timer = Timer()
     var fbW: Int32 = 0
     var fbH: Int32 = 0
     var data: UnsafeMutablePointer<UInt8>?
@@ -55,6 +56,13 @@ class StateKeeper: ObservableObject, KeyboardObserving {
     var leftSpacing: CGFloat = 0.0
     
     var orientation: Int = -1 /* -1 == Uninitialized, 0 == Portrait, 1 == Landscape */
+    
+    var disconnectedDueToBackgrounding: Bool = false
+    var currInst: Int = 0
+    
+    var cl: UnsafeMutableRawPointer?
+    
+    var isDrawing: Bool = false;
     
     // Dictionaries desctibing onscreen ToggleButton type buttons
     let topButtonData: [ String: [ String: Any ] ] = [
@@ -93,7 +101,9 @@ class StateKeeper: ObservableObject, KeyboardObserving {
     ]
 
     @objc func reDraw() {
-        self.imageView?.image = UIImage(cgImage: imageFromARGB32Bitmap(pixels: self.data, withWidth: Int(self.fbW), withHeight: Int(self.fbH))!)
+        if (self.isDrawing) {
+            self.imageView?.image = UIImage(cgImage: imageFromARGB32Bitmap(pixels: self.data, withWidth: Int(self.fbW), withHeight: Int(self.fbH))!)
+        }
     }
     
     func rescheduleReDrawTimer(data: UnsafeMutablePointer<UInt8>?, fbW: Int32, fbH: Int32) {
@@ -137,14 +147,21 @@ class StateKeeper: ObservableObject, KeyboardObserving {
         print("Connecting and navigating to the connection screen")
         goToBlankPage()
         yesNoDialogResponse = 0
-        self.clientLog = "Client Log:\n\n"
+        self.clientLog = []
+        self.clientLog.append("Client Log:\n\n")
         self.registerForNotifications()
         // Needed in case we need to save a certificate during connection or change settings.
         self.connectionIndex = index
         self.selectedConnection = self.connections[index]
+        let contentView = ContentView(stateKeeper: self)
+        self.window!.rootViewController = MyUIHostingController(rootView: contentView)
+        self.window!.makeKeyAndVisible()
         goToConnectionInProgress()
-        self.vncSession = VncSession(scene: self.scene!, stateKeeper: self, window: self.window!, instance: 0)
+        currInst = currInst + 1
+        isDrawing = true;
+        self.vncSession = VncSession(scene: self.scene!, window: self.window!, instance: currInst)
         self.vncSession!.connect(currentConnection: selectedConnection)
+        createAndRepositionButtons()
     }
     
     func goToConnectedSession() {
@@ -165,18 +182,44 @@ class StateKeeper: ObservableObject, KeyboardObserving {
         }
     }
     
+    func reconnectIfDisconnectedDueToBackgrounding() {
+        if disconnectedDueToBackgrounding {
+            disconnectedDueToBackgrounding = false
+            self.currentPage = "reconnectionInProgress"
+            connect(index: self.connectionIndex)
+        } else {
+            self.showConnections()
+        }
+    }
+    
+    func disconnectDueToBackgrounding() {
+        if (getMaintainConnection(cl)) {
+            disconnectedDueToBackgrounding = true
+            disconnect()
+            self.currentPage = "reconnectionInProgress"
+        }
+    }
+    
     @objc func disconnect() {
         print("Disconnecting and navigating to the disconnection screen")
+        isDrawing = false;
         self.deregisterFromNotifications()
         UserInterface {
             self.toggleModifiersIfDown()
         }
-        self.vncSession?.disconnect()
-        UserInterface {
-            self.removeButtons()
-            (self.interfaceButtons["keyboardButton"] as! CustomTextInput).hideKeyboard()
-            self.imageView?.disableTouch()
-            self.currentPage = "disconnectionInProgress"
+        print("getMaintainConnection(): \(getMaintainConnection(cl))")
+        if (getMaintainConnection(cl)) {
+            self.vncSession?.disconnect(cl: cl)
+            UserInterface {
+                self.removeButtons()
+                (self.interfaceButtons["keyboardButton"] as? CustomTextInput)?.hideKeyboard()
+                self.imageView?.disableTouch()
+                self.imageView?.removeFromSuperview()
+                self.showConnections()
+            }
+        } else {
+            print("\(#function) called but maintainConnection was already false")
+            self.showConnections()
         }
     }
     
@@ -254,7 +297,7 @@ class StateKeeper: ObservableObject, KeyboardObserving {
     func keyboardWillShow(withSize keyboardSize: CGSize) {
         print("Keyboard will be shown, height: \(self.keyboardHeight)")
         self.keyboardHeight = keyboardSize.height
-        if getMaintainConnection() {
+        if getMaintainConnection(cl) {
             self.createAndRepositionButtons()
             self.addButtons(buttons: self.keyboardButtons)
             self.setButtonsVisibility(buttons: self.keyboardButtons, isHidden: false)
@@ -268,7 +311,7 @@ class StateKeeper: ObservableObject, KeyboardObserving {
     func keyboardWillHide() {
         print("Keyboard will be hidden, height: \(self.keyboardHeight)")
         self.keyboardHeight = 0
-        if getMaintainConnection() {
+        if getMaintainConnection(cl) {
             self.createAndRepositionButtons()
             self.setButtonsVisibility(buttons: keyboardButtons, isHidden: true)
             self.setButtonsVisibility(buttons: modifierButtons, isHidden: true)
@@ -295,12 +338,13 @@ class StateKeeper: ObservableObject, KeyboardObserving {
     
     @objc func orientationChanged(_ notification: NSNotification) {
         print("Orientation changed")
-        if getMaintainConnection() && currentPage == "connectedSession" {
+        if getMaintainConnection(cl) && currentPage == "connectedSession" {
             rescheduleOrientationTimer()
         }
     }
     
     func rescheduleOrientationTimer() {
+        self.reDrawTimer.invalidate()
         self.orientationTimer = Timer.scheduledTimer(timeInterval: 0.5, target: self, selector: #selector(correctTopSpacingForOrientation), userInfo: nil, repeats: false)
     }
     

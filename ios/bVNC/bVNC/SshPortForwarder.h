@@ -296,13 +296,13 @@
 #endif
 
 #import <stdint.h>
-
 int resolve_host_to_ip(char *  , char *);
-int startForwarding(int argc, char *argv[], void (*ssh_forward_success)(void));
-void setupSshPortForward(void (*ssh_forward_success)(void),
+int startForwarding(int instance, int argc, char *argv[], void (*ssh_forward_success)(void));
+void setupSshPortForward(int instance,
+                         void (*ssh_forward_success)(void),
                          void (*ssh_forward_failure)(void),
                          void (*cl_log_callback)(int8_t *),
-                         int  (*y_n_callback)(int8_t *, int8_t *, int8_t *, int8_t *, int8_t *),
+                         int  (*y_n_callback)(int instance, int8_t *, int8_t *, int8_t *, int8_t *, int8_t *),
                          char* host, char* port, char* user, char* password, char* privKeyP, char* privKeyD,
                          char* local_ip, char* local_port, char* remote_ip, char* remote_port);
 #endif
