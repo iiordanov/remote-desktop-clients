@@ -165,7 +165,7 @@ func resize_callback(instance: Int32, cl: UnsafeMutableRawPointer?, fbW: Int32, 
             globalStateKeeper?.correctTopSpacingForOrientation()
             let leftSpacing = globalStateKeeper?.leftSpacing ?? 0
             let topSpacing = globalStateKeeper?.topSpacing ?? 0
-            globalStateKeeper?.imageView = TouchEnabledUIImageView(frame: CGRect(x: leftSpacing, y: topSpacing, width: CGFloat(fbW)*minScale, height: CGFloat(fbH)*minScale))
+            globalStateKeeper?.imageView = LongTapDragUIImageView(frame: CGRect(x: leftSpacing, y: topSpacing, width: CGFloat(fbW)*minScale, height: CGFloat(fbH)*minScale))
             //globalStateKeeper?.imageView?.backgroundColor = UIColor.gray
             globalStateKeeper?.imageView?.enableGestures()
             globalStateKeeper?.imageView?.enableTouch()

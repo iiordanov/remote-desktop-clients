@@ -51,27 +51,28 @@ class TouchEnabledUIImageView: UIImageView {
     var firstDown: Bool = false
     var secondDown: Bool = false
     var thirdDown: Bool = false
-    var point: CGPoint = CGPoint(x: 0, y: 0)
     let lock = NSLock()
     let fingerLock = NSLock()
     var panGesture: UIPanGestureRecognizer?
     var pinchGesture: UIPinchGestureRecognizer?
+    var tapGesture: UITapGestureRecognizer?
+    var longTapGesture: UILongPressGestureRecognizer?
+
     var moveEventsSinceFingerDown = 0
     var inScrolling = false
     var inPanning = false
+    var inPanDragging = false
     var panningToleranceEvents = 0
 
     func initialize() {
         isMultipleTouchEnabled = true
         self.width = self.frame.width
         self.height = self.frame.height
-        panGesture = UIPanGestureRecognizer(target: self, action: #selector(handlePan(_:)))
+        tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleDoubleTap(_:)))
+        tapGesture?.numberOfTapsRequired = 2
         pinchGesture = UIPinchGestureRecognizer(target: self, action: #selector(handleZooming(_:)))
-        panGesture?.minimumNumberOfTouches = 2
-        panGesture?.maximumNumberOfTouches = 2
-
     }
-    
+
     override init(image: UIImage?) {
         super.init(image: image)
         initialize()
@@ -102,15 +103,14 @@ class TouchEnabledUIImageView: UIImageView {
         return true
     }
     
-    func setViewParameters(touch: UITouch, touchView: UIView) {
+    func setViewParameters(point: CGPoint, touchView: UIView) {
         self.width = touchView.frame.width
         self.height = touchView.frame.height
-        self.point = touch.location(in: touchView)
         self.viewTransform = touchView.transform
         //let sDx = (touchView.center.x - self.point.x)/self.width
         //let sDy = (touchView.center.y - self.point.y)/self.height
-        self.newX = (self.point.x)*viewTransform.a + insetDimension/viewTransform.a
-        self.newY = (self.point.y)*viewTransform.d + insetDimension/viewTransform.d
+        self.newX = (point.x)*viewTransform.a + insetDimension/viewTransform.a
+        self.newY = (point.y)*viewTransform.d + insetDimension/viewTransform.d
     }
     
     func sendDownThenUpEvent(scrolling: Bool, moving: Bool, firstDown: Bool, secondDown: Bool, thirdDown: Bool, fourthDown: Bool, fifthDown: Bool) {
@@ -141,6 +141,14 @@ class TouchEnabledUIImageView: UIImageView {
             //self.timeLast = timeNow
         }
     }
+        
+    func enableGestures() {
+        isUserInteractionEnabled = true
+        if let pinchGesture = pinchGesture { addGestureRecognizer(pinchGesture) }
+        if let panGesture = panGesture { addGestureRecognizer(panGesture) }
+        if let tapGesture = tapGesture { addGestureRecognizer(tapGesture) }
+        if let longTapGesture = longTapGesture { addGestureRecognizer(longTapGesture) }
+    }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         super.touchesBegan(touches, with: event)
@@ -169,7 +177,7 @@ class TouchEnabledUIImageView: UIImageView {
                         self.thirdDown = false
                         // Record location only for first index
                         if let touchView = touch.view {
-                            self.setViewParameters(touch: touch, touchView: touchView)
+                            self.setViewParameters(point: touch.location(in: touchView), touchView: touchView)
                         }
                     }
                     if index == 1 {
@@ -207,10 +215,12 @@ class TouchEnabledUIImageView: UIImageView {
                     if index == 0 {
                         // Record location only for first index
                         if let touchView = touch.view {
-                            self.setViewParameters(touch: touch, touchView: touchView)
+                            self.setViewParameters(point: touch.location(in: touchView), touchView: touchView)
                         }
                         if moveEventsSinceFingerDown > 4 {
-                            self.sendDownThenUpEvent(scrolling: false, moving: true, firstDown: self.firstDown, secondDown: self.secondDown, thirdDown: self.thirdDown, fourthDown: false, fifthDown: false)
+                            print(#function, self.firstDown, self.secondDown, self.thirdDown)
+                            self.inPanDragging = true
+                            self.sendDownThenUpEvent(scrolling: false, moving: true, firstDown: self.firstDown, secondDown:     self.secondDown, thirdDown: self.thirdDown, fourthDown: false, fifthDown: false)
                         } else {
                             //print("Discarding some touch events")
                             moveEventsSinceFingerDown += 1
@@ -260,60 +270,14 @@ class TouchEnabledUIImageView: UIImageView {
     }
     
     override func touchesCancelled(_ touches: Set<UITouch>?, with event: UIEvent?) {
+        print(#function)
         super.touchesCancelled(touches!, with: event)
         guard let touches = touches else { return }
         self.touchesEnded(touches, with: event)
     }
-    
-    func enableGestures() {
-        isUserInteractionEnabled = true
-        if let pinchGesture = pinchGesture { addGestureRecognizer(pinchGesture) }
-        if let panGesture = panGesture { addGestureRecognizer(panGesture) }
-    }
-    
-    @objc private func handlePan(_ sender: UIPanGestureRecognizer) {
-        if self.secondDown {
-            return
-        }
-        let translation = sender.translation(in: sender.view)
 
-        if let view = sender.view {
-            let scaleX = sender.view!.transform.a
-            let scaleY = sender.view!.transform.d
-            
-            //print ("abs(scaleX*translation.x): \(abs(scaleX*translation.x)), abs(scaleY*translation.y): \(abs(scaleY*translation.y))")
-            if (!self.inPanning && (self.inScrolling || abs(scaleY*translation.y)/abs(scaleX*translation.x) > 1.7)) {
-                // If tolerance for scrolling was just exceeded, begin scroll event
-                if (!self.inScrolling) {
-                    self.inScrolling = true
-                    self.point = sender.location(in: view)
-                    self.viewTransform = view.transform
-                    self.newX = self.point.x*viewTransform.a
-                    self.newY = self.point.y*viewTransform.d
-                }
-                
-                if translation.y > 0 {
-                    sendDownThenUpEvent(scrolling: true, moving: false, firstDown: false, secondDown: false, thirdDown: false, fourthDown: true, fifthDown: false)
-                } else if translation.y < 0 {
-                    sendDownThenUpEvent(scrolling: true, moving: false, firstDown: false, secondDown: false, thirdDown: false, fourthDown: false, fifthDown: true)
-                }
-                return
-            }
-            self.inPanning = true
-            var newCenterX = view.center.x + scaleX*translation.x
-            var newCenterY = view.center.y + scaleY*translation.y
-            let scaledWidth = sender.view!.frame.width/scaleX
-            let scaledHeight = sender.view!.frame.height/scaleY
-            if sender.view!.frame.minX/scaleX >= 50/scaleX { newCenterX = view.center.x - 5 }
-            if sender.view!.frame.minY/scaleY >= 50/scaleY + globalStateKeeper!.topSpacing/scaleY { newCenterY = view.center.y - 5 }
-            if sender.view!.frame.minX/scaleX <= -50/scaleX - (scaleX-1.0)*scaledWidth/scaleX { newCenterX = view.center.x + 5 }
-            if sender.view!.frame.minY/scaleY <= -50/scaleY - globalStateKeeper!.keyboardHeight/scaleY - (scaleY-1.0)*scaledHeight/scaleY { newCenterY = view.center.y + 5 }
-            view.center = CGPoint(x: newCenterX, y: newCenterY)
-            sender.setTranslation(CGPoint.zero, in: view)
-        }
-    }
     
-    @objc private func handleZooming(_ sender: UIPinchGestureRecognizer) {
+    @objc func handleZooming(_ sender: UIPinchGestureRecognizer) {
         if (self.secondDown || self.inScrolling || self.inPanning) {
             return
         }
@@ -336,4 +300,18 @@ class TouchEnabledUIImageView: UIImageView {
         sender.scale = 1
     }
     
+    @objc private func handleDoubleTap(_ sender: UILongPressGestureRecognizer) {
+        print("Double tap detected.")
+        self.firstDown = true
+        self.secondDown = false
+        self.thirdDown = false
+        if let touchView = sender.view {
+            self.setViewParameters(point: sender.location(in: touchView), touchView: touchView)
+            self.sendDownThenUpEvent(scrolling: false, moving: false, firstDown: self.firstDown, secondDown: self.secondDown, thirdDown: self.thirdDown, fourthDown: false, fifthDown: false)
+            self.sendDownThenUpEvent(scrolling: false, moving: false, firstDown: false, secondDown: self.secondDown, thirdDown: self.thirdDown, fourthDown: false, fifthDown: false)
+            self.sendDownThenUpEvent(scrolling: false, moving: false, firstDown: self.firstDown, secondDown: self.secondDown, thirdDown: self.thirdDown, fourthDown: false, fifthDown: false)
+            self.sendDownThenUpEvent(scrolling: false, moving: false, firstDown: false, secondDown: self.secondDown, thirdDown: self.thirdDown, fourthDown: false, fifthDown: false)
+        }
+    }
+
 }
