@@ -26,6 +26,8 @@
 		AF59A3D4242CE9E100658CE6 /* KeyboardObserving.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF59A3D3242CE9E100658CE6 /* KeyboardObserving.swift */; };
 		AF7421F1241D57E100C552A7 /* libssh2.a in Embed Libraries */ = {isa = PBXBuildFile; fileRef = AF7421F0241D57E000C552A7 /* libssh2.a */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		AF7421F4241D58EB00C552A7 /* SshPortForwarder.c in Sources */ = {isa = PBXBuildFile; fileRef = AF7421F3241D58EB00C552A7 /* SshPortForwarder.c */; };
+		AF99997D243593C70018204F /* LongTapDragUIImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF99997C243593C70018204F /* LongTapDragUIImageView.swift */; };
+		AF99997F2435955F0018204F /* ShortTapDragUIImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF99997E2435955F0018204F /* ShortTapDragUIImageView.swift */; };
 		AF9E8F932427F3B500752FC2 /* Utility.c in Sources */ = {isa = PBXBuildFile; fileRef = AF9E8F922427F3B500752FC2 /* Utility.c */; };
 		AF9E8F95242ADD9200752FC2 /* Utilities.m in Sources */ = {isa = PBXBuildFile; fileRef = AF9E8F94242ADD9200752FC2 /* Utilities.m */; };
 		AF9E8F99242AE4E900752FC2 /* SystemMonitor.m in Sources */ = {isa = PBXBuildFile; fileRef = AF9E8F98242AE4E900752FC2 /* SystemMonitor.m */; };
@@ -489,6 +491,8 @@
 		AF7421F0241D57E000C552A7 /* libssh2.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libssh2.a; path = bVNC.xcodeproj/libs_combined/lib/libssh2.a; sourceTree = "<group>"; };
 		AF7421F2241D58EB00C552A7 /* SshPortForwarder.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SshPortForwarder.h; sourceTree = "<group>"; };
 		AF7421F3241D58EB00C552A7 /* SshPortForwarder.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = SshPortForwarder.c; sourceTree = "<group>"; };
+		AF99997C243593C70018204F /* LongTapDragUIImageView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LongTapDragUIImageView.swift; sourceTree = "<group>"; };
+		AF99997E2435955F0018204F /* ShortTapDragUIImageView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShortTapDragUIImageView.swift; sourceTree = "<group>"; };
 		AF9E8F912427F3B500752FC2 /* Utility.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Utility.h; sourceTree = "<group>"; };
 		AF9E8F922427F3B500752FC2 /* Utility.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = Utility.c; sourceTree = "<group>"; };
 		AF9E8F94242ADD9200752FC2 /* Utilities.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Utilities.m; sourceTree = "<group>"; };
@@ -551,6 +555,8 @@
 		AF043A1723B3DADA00C43ED7 /* bVNC */ = {
 			isa = PBXGroup;
 			children = (
+				AF99997E2435955F0018204F /* ShortTapDragUIImageView.swift */,
+				AF99997C243593C70018204F /* LongTapDragUIImageView.swift */,
 				AF043A1823B3DADA00C43ED7 /* AppDelegate.swift */,
 				AF043A1A23B3DADA00C43ED7 /* SceneDelegate.swift */,
 				AFF244E32408AF9B00F5839B /* TouchEnabledUIImageView.swift */,
@@ -1150,6 +1156,7 @@
 				AF51B3002410BAED005DE8AB /* ucs2xkeysym.c in Sources */,
 				AF53DCB124022C8C00569F19 /* VncSession.swift in Sources */,
 				AF9E8F99242AE4E900752FC2 /* SystemMonitor.m in Sources */,
+				AF99997D243593C70018204F /* LongTapDragUIImageView.swift in Sources */,
 				AF043A1923B3DADA00C43ED7 /* AppDelegate.swift in Sources */,
 				AF043A1B23B3DADA00C43ED7 /* SceneDelegate.swift in Sources */,
 				AF59A3D4242CE9E100658CE6 /* KeyboardObserving.swift in Sources */,
@@ -1157,6 +1164,7 @@
 				AF48283223B47EC300826395 /* VncBridge.c in Sources */,
 				AF043A1D23B3DADA00C43ED7 /* ContentView.swift in Sources */,
 				AF9E8F932427F3B500752FC2 /* Utility.c in Sources */,
+				AF99997F2435955F0018204F /* ShortTapDragUIImageView.swift in Sources */,
 				AF9E8F95242ADD9200752FC2 /* Utilities.m in Sources */,
 				AFF244E42408AF9B00F5839B /* TouchEnabledUIImageView.swift in Sources */,
 			);
