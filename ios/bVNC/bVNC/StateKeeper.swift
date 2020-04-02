@@ -91,10 +91,10 @@ class StateKeeper: ObservableObject, KeyboardObserving {
     
     let keyboardButtonData: [ String: [ String: Any ] ] = [
         "tabButton": [ "title": "Tab", "lx": 0*bW+0*bSp, "ly": 2*bH+1*bSp, "bg": bBg, "send": XK_Tab, "tgl": false, "top": false, "right": false ],
-        "leftButton": [ "title": "←", "lx": 4*bW-3*bSp, "ly": 1*bH, "bg": bBg, "send": XK_Left, "tgl": false, "top": false, "right": true ],
-        "downButton": [ "title": "↓", "lx": 3*bW-2*bSp, "ly": 1*bH, "bg": bBg, "send": XK_Down, "tgl": false, "top": false, "right": true ],
-        "rightButton": [ "title": "→", "lx": 2*bW-1*bSp, "ly": 1*bH, "bg": bBg, "send": XK_Right, "tgl": false, "top": false, "right": true ],
-        "upButton": [ "title": "↑", "lx": 3*bW-2*bSp, "ly": 2*bH+1*bSp, "bg": bBg, "send": XK_Up, "tgl": false, "top": false, "right": true ],
+        "leftButton": [ "title": "←", "lx": 4*bW+3*bSp, "ly": 1*bH, "bg": bBg, "send": XK_Left, "tgl": false, "top": false, "right": true ],
+        "downButton": [ "title": "↓", "lx": 3*bW+2*bSp, "ly": 1*bH, "bg": bBg, "send": XK_Down, "tgl": false, "top": false, "right": true ],
+        "rightButton": [ "title": "→", "lx": 2*bW+1*bSp, "ly": 1*bH, "bg": bBg, "send": XK_Right, "tgl": false, "top": false, "right": true ],
+        "upButton": [ "title": "↑", "lx": 3*bW+2*bSp, "ly": 2*bH+1*bSp, "bg": bBg, "send": XK_Up, "tgl": false, "top": false, "right": true ],
     ]
 
     let interfaceButtonData: [ String: [ String: Any ] ] = [
@@ -181,7 +181,7 @@ class StateKeeper: ObservableObject, KeyboardObserving {
         if disconnectedDueToBackgrounding {
             disconnectedDueToBackgrounding = false
             connect(index: self.connectionIndex)
-        } else {
+        } else if !getMaintainConnection(cl) {
             self.showConnections()
         }
     }
