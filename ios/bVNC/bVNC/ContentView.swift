@@ -107,8 +107,8 @@ struct ContentView : View {
         VStack {
             if stateKeeper.currentPage == "connectionsList" {
                 ConnectionsList(stateKeeper: stateKeeper)
-            } else if stateKeeper.currentPage == "page1" {
-                ContentViewA(
+            } else if stateKeeper.currentPage == "addOrEditConnection" {
+                AddOrEditConnectionPage(
                      stateKeeper: stateKeeper,
                      sshAddressText: stateKeeper.selectedConnection["sshAddress"] ?? "",
                      sshPortText: stateKeeper.selectedConnection["sshPort"] ?? "22",
@@ -120,14 +120,12 @@ struct ContentView : View {
                      portText: stateKeeper.selectedConnection["port"] ?? "5900",
                      usernameText: stateKeeper.selectedConnection["username"] ?? "",
                      passwordText: stateKeeper.selectedConnection["password"] ?? "")
+            } else if stateKeeper.currentPage == "genericProgressPage" {
+                ProgressPage(stateKeeper: stateKeeper)
             } else if stateKeeper.currentPage == "connectionInProgress" {
-                ContentViewB(stateKeeper: stateKeeper)
-            } else if stateKeeper.currentPage == "disconnectionInProgress" {
-                ContentViewC(stateKeeper: stateKeeper)
-            } else if stateKeeper.currentPage == "reconnectionInProgress" {
-                ContentViewE(stateKeeper: stateKeeper)
+                ConnectionInProgressPage(stateKeeper: stateKeeper)
             } else if stateKeeper.currentPage == "connectedSession" {
-                ContentViewD()
+                ConnectedSessionPage()
             } else if stateKeeper.currentPage == "dismissableErrorMessage" {
                 DismissableLogDialog(stateKeeper: stateKeeper)
             } else if stateKeeper.currentPage == "yesNoMessage" {
@@ -223,7 +221,7 @@ struct ConnectionsList : View {
     }
 }
 
-struct ContentViewA : View {
+struct AddOrEditConnectionPage : View {
     
     var settings: UserDefaults = UserDefaults.standard
     @ObservedObject var stateKeeper: StateKeeper
@@ -301,7 +299,7 @@ struct ContentViewA : View {
     }
 }
 
-struct ContentViewB : View {
+struct ConnectionInProgressPage : View {
     
     @ObservedObject var stateKeeper: StateKeeper
     
@@ -324,25 +322,21 @@ struct ContentViewB : View {
     }
 }
 
-struct ContentViewC : View {
+struct ProgressPage : View {
     @ObservedObject var stateKeeper: StateKeeper
+    
+    func getCurrentTransition() -> String {
+        return stateKeeper.currentTransition
+    }
+    
     var body: some View {
         VStack {
-            Text("Disconnecting from Server")
+            Text(getCurrentTransition())
         }
     }
 }
 
-struct ContentViewE : View {
-    @ObservedObject var stateKeeper: StateKeeper
-    var body: some View {
-        VStack {
-            Text("Automatically reconnecting to Server")
-        }
-    }
-}
-
-struct ContentViewD : View {
+struct ConnectedSessionPage : View {
     var body: some View {
         Text("")
     }
@@ -444,25 +438,25 @@ struct YesNoDialog : View {
 
 struct ContentViewA_Previews : PreviewProvider {
     static var previews: some View {
-        ContentViewA(stateKeeper: StateKeeper(), sshAddressText: "", sshPortText: "", sshUserText: "", sshPassText: "", sshPassphraseText: "", sshPrivateKeyText: "", addressText: "", portText: "", usernameText: "", passwordText: "")
+        AddOrEditConnectionPage(stateKeeper: StateKeeper(), sshAddressText: "", sshPortText: "", sshUserText: "", sshPassText: "", sshPassphraseText: "", sshPrivateKeyText: "", addressText: "", portText: "", usernameText: "", passwordText: "")
     }
 }
 
-struct ContentViewB_Previews : PreviewProvider {
+struct ConnectionInProgressPage_Previews : PreviewProvider {
     static var previews: some View {
-        ContentViewB(stateKeeper: StateKeeper())
+        ConnectionInProgressPage(stateKeeper: StateKeeper())
     }
 }
 
-struct ContentViewC_Previews : PreviewProvider {
+struct ProgressPage_Previews : PreviewProvider {
     static var previews: some View {
-        ContentViewC(stateKeeper: StateKeeper())
+        ProgressPage(stateKeeper: StateKeeper())
     }
 }
 
-struct ContentViewD_Previews : PreviewProvider {
+struct ConnectedSessionPage_Previews : PreviewProvider {
     static var previews: some View {
-        ContentViewD()
+        ConnectedSessionPage()
     }
 }
 
