@@ -40,6 +40,7 @@ class LongTapDragUIImageView: TouchEnabledUIImageView {
         if sender.state == .ended {
             self.inPanDragging = false
         }
+        
         let translation = sender.translation(in: sender.view)
 
         if let view = sender.view {

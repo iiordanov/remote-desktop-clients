@@ -56,6 +56,7 @@ class TouchEnabledUIImageView: UIImageView {
     var panGesture: UIPanGestureRecognizer?
     var pinchGesture: UIPinchGestureRecognizer?
     var tapGesture: UITapGestureRecognizer?
+    var doubleTapGesture: UITapGestureRecognizer?
     var longTapGesture: UILongPressGestureRecognizer?
 
     var moveEventsSinceFingerDown = 0
@@ -68,8 +69,10 @@ class TouchEnabledUIImageView: UIImageView {
         isMultipleTouchEnabled = true
         self.width = self.frame.width
         self.height = self.frame.height
-        tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleDoubleTap(_:)))
-        tapGesture?.numberOfTapsRequired = 2
+        tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleTap(_:)))
+        tapGesture?.numberOfTapsRequired = 1
+        doubleTapGesture = UITapGestureRecognizer(target: self, action: #selector(handleTap(_:)))
+        doubleTapGesture?.numberOfTapsRequired = 2
         pinchGesture = UIPinchGestureRecognizer(target: self, action: #selector(handleZooming(_:)))
     }
 
@@ -300,17 +303,22 @@ class TouchEnabledUIImageView: UIImageView {
         sender.scale = 1
     }
     
-    @objc private func handleDoubleTap(_ sender: UILongPressGestureRecognizer) {
-        print("Double tap detected.")
-        self.firstDown = true
-        self.secondDown = false
-        self.thirdDown = false
-        if let touchView = sender.view {
-            self.setViewParameters(point: sender.location(in: touchView), touchView: touchView)
-            self.sendDownThenUpEvent(scrolling: false, moving: false, firstDown: self.firstDown, secondDown: self.secondDown, thirdDown: self.thirdDown, fourthDown: false, fifthDown: false)
-            self.sendDownThenUpEvent(scrolling: false, moving: false, firstDown: false, secondDown: self.secondDown, thirdDown: self.thirdDown, fourthDown: false, fifthDown: false)
-            self.sendDownThenUpEvent(scrolling: false, moving: false, firstDown: self.firstDown, secondDown: self.secondDown, thirdDown: self.thirdDown, fourthDown: false, fifthDown: false)
-            self.sendDownThenUpEvent(scrolling: false, moving: false, firstDown: false, secondDown: self.secondDown, thirdDown: self.thirdDown, fourthDown: false, fifthDown: false)
+    @objc private func handleTap(_ sender: UITapGestureRecognizer) {
+        if !self.secondDown && !self.thirdDown {
+            print("Tap detected.")
+            self.firstDown = true
+            self.secondDown = false
+            self.thirdDown = false
+            if let touchView = sender.view {
+                self.setViewParameters(point: sender.location(in: touchView), touchView: touchView)
+                self.sendDownThenUpEvent(scrolling: false, moving: false, firstDown: self.firstDown, secondDown: self.secondDown, thirdDown: self.thirdDown, fourthDown: false, fifthDown: false)
+                self.firstDown = false
+                self.secondDown = false
+                self.thirdDown = false
+                self.sendDownThenUpEvent(scrolling: false, moving: false, firstDown: self.firstDown, secondDown: self.secondDown, thirdDown: self.thirdDown, fourthDown: false, fifthDown: false)
+            }
+        } else {
+            print("Other fingers were down, not acting on single tap")
         }
     }
 
