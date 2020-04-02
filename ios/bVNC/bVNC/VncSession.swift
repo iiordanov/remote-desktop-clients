@@ -85,6 +85,7 @@ func log_callback(message: UnsafeMutablePointer<Int8>?) -> Void {
     if globalStateKeeper?.clientLog.count ?? 0 > 500 {
         globalStateKeeper?.clientLog.remove(at: 0)
     }
+    // TODO: Bad Access here
     globalStateKeeper?.clientLog.append(String(cString: message!))
 }
 
@@ -171,7 +172,7 @@ func resize_callback(instance: Int32, cl: UnsafeMutableRawPointer?, fbW: Int32, 
             globalWindow!.addSubview(globalStateKeeper!.imageView!)
             globalStateKeeper?.createAndRepositionButtons()
             globalStateKeeper?.addButtons(buttons: globalStateKeeper?.interfaceButtons ?? [:])
-            globalStateKeeper?.goToConnectedSession()
+            globalStateKeeper?.showConnectedSession()
         }
     }
     sendWholeScreenUpdateRequest(cl)

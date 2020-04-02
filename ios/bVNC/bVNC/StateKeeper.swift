@@ -64,6 +64,8 @@ class StateKeeper: ObservableObject, KeyboardObserving {
     
     var isDrawing: Bool = false;
     
+    var currentTransition: String = "";
+    
     // Dictionaries desctibing onscreen ToggleButton type buttons
     let topButtonData: [ String: [ String: Any ] ] = [
         "escButton": [ "title": "Esc", "lx": 0*bW+0*tbSp, "ly": z, "bg": bBg, "send": XK_Escape, "tgl": false, "top": true, "right": false ],
@@ -145,7 +147,6 @@ class StateKeeper: ObservableObject, KeyboardObserving {
 
     func connect(index: Int) {
         print("Connecting and navigating to the connection screen")
-        goToBlankPage()
         yesNoDialogResponse = 0
         self.clientLog = []
         self.clientLog.append("Client Log:\n\n")
@@ -156,7 +157,7 @@ class StateKeeper: ObservableObject, KeyboardObserving {
         let contentView = ContentView(stateKeeper: self)
         self.window!.rootViewController = MyUIHostingController(rootView: contentView)
         self.window!.makeKeyAndVisible()
-        goToConnectionInProgress()
+        showConnectionInProgress()
         currInst = currInst + 1
         isDrawing = true;
         self.vncSession = VncSession(scene: self.scene!, window: self.window!, instance: currInst)
@@ -164,28 +165,21 @@ class StateKeeper: ObservableObject, KeyboardObserving {
         createAndRepositionButtons()
     }
     
-    func goToConnectedSession() {
+    func showConnectedSession() {
         UserInterface {
             self.currentPage = "connectedSession"
         }
     }
 
-    func goToConnectionInProgress() {
+    func showConnectionInProgress() {
         UserInterface {
             self.currentPage = "connectionInProgress"
-        }
-    }
-
-    func goToBlankPage() {
-        UserInterface {
-            self.currentPage = "blankPage"
         }
     }
     
     func reconnectIfDisconnectedDueToBackgrounding() {
         if disconnectedDueToBackgrounding {
             disconnectedDueToBackgrounding = false
-            self.currentPage = "reconnectionInProgress"
             connect(index: self.connectionIndex)
         } else {
             self.showConnections()
@@ -196,7 +190,6 @@ class StateKeeper: ObservableObject, KeyboardObserving {
         if (getMaintainConnection(cl)) {
             disconnectedDueToBackgrounding = true
             disconnect()
-            self.currentPage = "reconnectionInProgress"
         }
     }
     
@@ -228,7 +221,7 @@ class StateKeeper: ObservableObject, KeyboardObserving {
         self.connectionIndex = -1
         self.selectedConnection = [:]
         UserInterface {
-            self.currentPage = "page1"
+            self.currentPage = "addOrEditConnection"
         }
     }
 
@@ -237,7 +230,7 @@ class StateKeeper: ObservableObject, KeyboardObserving {
         self.connectionIndex = index
         self.selectedConnection = connections[index]
         UserInterface {
-            self.currentPage = "page1"
+            self.currentPage = "addOrEditConnection"
         }
     }
 
