@@ -47,6 +47,8 @@ class TouchEnabledUIImageView: UIImageView {
     var viewTransform: CGAffineTransform = CGAffineTransform()
     var timeLast: Double = 0.0
     let timeThreshhold: Double = 0.01
+    var tapLast: Double = 0
+    let doubleTapThreshhold: Double = 0.5
     var touchEnabled: Bool = false
     var firstDown: Bool = false
     var secondDown: Bool = false
@@ -56,7 +58,6 @@ class TouchEnabledUIImageView: UIImageView {
     var panGesture: UIPanGestureRecognizer?
     var pinchGesture: UIPinchGestureRecognizer?
     var tapGesture: UITapGestureRecognizer?
-    var doubleTapGesture: UITapGestureRecognizer?
     var longTapGesture: UILongPressGestureRecognizer?
 
     var moveEventsSinceFingerDown = 0
@@ -64,6 +65,8 @@ class TouchEnabledUIImageView: UIImageView {
     var inPanning = false
     var inPanDragging = false
     var panningToleranceEvents = 0
+    
+    var tapGestureDetected = false
 
     func initialize() {
         isMultipleTouchEnabled = true
@@ -71,8 +74,6 @@ class TouchEnabledUIImageView: UIImageView {
         self.height = self.frame.height
         tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleTap(_:)))
         tapGesture?.numberOfTapsRequired = 1
-        doubleTapGesture = UITapGestureRecognizer(target: self, action: #selector(handleTap(_:)))
-        doubleTapGesture?.numberOfTapsRequired = 2
         pinchGesture = UIPinchGestureRecognizer(target: self, action: #selector(handleZooming(_:)))
     }
 
@@ -253,8 +254,8 @@ class TouchEnabledUIImageView: UIImageView {
                     self.fingers[index] = nil
                     self.fingerLock.unlock()
                     if (index == 0) {
-                        if (self.panGesture?.state == .began || self.pinchGesture?.state == .began) {
-                            print("Currently panning or zooming and first finger lifted, not sending mouse events.")
+                        if (self.tapGestureDetected || self.panGesture?.state == .began || self.pinchGesture?.state == .began) {
+                            print("Currently single or double-tapping, panning or zooming and first finger lifted, not sending mouse events.")
                         } else {
                             print("Not panning or zooming and first finger lifted, sending mouse events.")
                             self.sendDownThenUpEvent(scrolling: false, moving: false, firstDown: self.firstDown, secondDown: self.secondDown, thirdDown: self.thirdDown, fourthDown: false, fifthDown: false)
@@ -263,6 +264,7 @@ class TouchEnabledUIImageView: UIImageView {
                             self.thirdDown = false
                             sendWholeScreenUpdateRequest(globalStateKeeper!.cl!)
                         }
+                        self.tapGestureDetected = false
                     } else {
                         print("Fingers other than first lifted, not sending mouse events.")
                     }
@@ -273,7 +275,6 @@ class TouchEnabledUIImageView: UIImageView {
     }
     
     override func touchesCancelled(_ touches: Set<UITouch>?, with event: UIEvent?) {
-        print(#function)
         super.touchesCancelled(touches!, with: event)
         guard let touches = touches else { return }
         self.touchesEnded(touches, with: event)
@@ -305,12 +306,19 @@ class TouchEnabledUIImageView: UIImageView {
     
     @objc private func handleTap(_ sender: UITapGestureRecognizer) {
         if !self.secondDown && !self.thirdDown {
-            print("Tap detected.")
+            self.tapGestureDetected = true
             self.firstDown = true
             self.secondDown = false
             self.thirdDown = false
             if let touchView = sender.view {
-                self.setViewParameters(point: sender.location(in: touchView), touchView: touchView)
+                let timeNow = CACurrentMediaTime()
+                if timeNow - tapLast > doubleTapThreshhold {
+                    print("Single tap detected.")
+                    self.setViewParameters(point: sender.location(in: touchView), touchView: touchView)
+                } else {
+                    print("Double tap detected.")
+                }
+                self.tapLast = timeNow
                 self.sendDownThenUpEvent(scrolling: false, moving: false, firstDown: self.firstDown, secondDown: self.secondDown, thirdDown: self.thirdDown, fourthDown: false, fifthDown: false)
                 self.firstDown = false
                 self.secondDown = false
@@ -321,7 +329,7 @@ class TouchEnabledUIImageView: UIImageView {
             print("Other fingers were down, not acting on single tap")
         }
     }
-    
+
     func panView(sender: UIPanGestureRecognizer) -> Void {
         if let view = sender.view {
             let scaleX = sender.view!.transform.a
