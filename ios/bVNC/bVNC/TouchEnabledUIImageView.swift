@@ -220,7 +220,7 @@ class TouchEnabledUIImageView: UIImageView {
                         if let touchView = touch.view {
                             self.setViewParameters(point: touch.location(in: touchView), touchView: touchView)
                         }
-                        if moveEventsSinceFingerDown > 4 {
+                        if moveEventsSinceFingerDown > 8 {
                             print(#function, self.firstDown, self.secondDown, self.thirdDown)
                             self.inPanDragging = true
                             self.sendDownThenUpEvent(scrolling: false, moving: true, firstDown: self.firstDown, secondDown:     self.secondDown, thirdDown: self.thirdDown, fourthDown: false, fifthDown: false)
@@ -285,8 +285,8 @@ class TouchEnabledUIImageView: UIImageView {
             return
         }
         let scale = sender.scale
-        if sender.scale < 0.85 || sender.scale > 1.15 {
-            print("Preventing big skips in scale.")
+        if sender.scale < 0.95 || sender.scale > 1.05 {
+            print("Preventing large skips in scale.")
         }
         let transformResult = sender.view?.transform.scaledBy(x: sender.scale, y: sender.scale)
         guard let newTransform = transformResult, newTransform.a > 1, newTransform.d > 1 else { return }
@@ -320,6 +320,28 @@ class TouchEnabledUIImageView: UIImageView {
         } else {
             print("Other fingers were down, not acting on single tap")
         }
+    }
+    
+    func panView(sender: UIPanGestureRecognizer) -> Void {
+        if let view = sender.view {
+            let scaleX = sender.view!.transform.a
+            let scaleY = sender.view!.transform.d
+            let translation = sender.translation(in: sender.view)
+
+            //print("\(#function), panning")
+            self.inPanning = true
+            var newCenterX = view.center.x + scaleX*translation.x
+            var newCenterY = view.center.y + scaleY*translation.y
+            let scaledWidth = sender.view!.frame.width/scaleX
+            let scaledHeight = sender.view!.frame.height/scaleY
+            if sender.view!.frame.minX/scaleX >= 50/scaleX && view.center.x - newCenterX < 0 { newCenterX = view.center.x - 5 }
+            if sender.view!.frame.minY/scaleY >= 50/scaleY + globalStateKeeper!.topSpacing/scaleY && view.center.y - newCenterY < 0 { newCenterY = view.center.y - 5 }
+            if sender.view!.frame.minX/scaleX <= -50/scaleX - (scaleX-1.0)*scaledWidth/scaleX && newCenterX - view.center.x < 0 { newCenterX = view.center.x + 5 }
+            if sender.view!.frame.minY/scaleY <= -50/scaleY - globalStateKeeper!.keyboardHeight/scaleY - (scaleY-1.0)*scaledHeight/scaleY && newCenterY - view.center.y < 0 { newCenterY = view.center.y + 5 }
+            view.center = CGPoint(x: newCenterX, y: newCenterY)
+            sender.setTranslation(CGPoint.zero, in: view)
+        }
+
     }
 
 }

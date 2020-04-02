@@ -48,7 +48,9 @@ class LongTapDragUIImageView: TouchEnabledUIImageView {
             let scaleY = sender.view!.transform.d
             
             //print ("abs(scaleX*translation.x): \(abs(scaleX*translation.x)), abs(scaleY*translation.y): \(abs(scaleY*translation.y))")
-            if (!self.inPanDragging && !self.inPanning && (self.inScrolling || abs(scaleY*translation.y)/abs(scaleX*translation.x) > 1.7)) {
+            // self.thirdDown (which marks a right click) helps ensure this mode does not scroll with one finger
+            if (!self.inPanDragging && !self.inPanning && self.thirdDown &&
+                (self.inScrolling || abs(scaleY*translation.y)/abs(scaleX*translation.x) > 1.7)) {
 
                 // If tolerance for scrolling was just exceeded, begin scroll event
                 if (!self.inScrolling) {
@@ -77,18 +79,7 @@ class LongTapDragUIImageView: TouchEnabledUIImageView {
                 }
                 return
             } else {
-                //print("\(#function), panning")
-                self.inPanning = true
-                var newCenterX = view.center.x + scaleX*translation.x
-                var newCenterY = view.center.y + scaleY*translation.y
-                let scaledWidth = sender.view!.frame.width/scaleX
-                let scaledHeight = sender.view!.frame.height/scaleY
-                if sender.view!.frame.minX/scaleX >= 50/scaleX { newCenterX = view.center.x - 5 }
-                if sender.view!.frame.minY/scaleY >= 50/scaleY + globalStateKeeper!.topSpacing/scaleY { newCenterY = view.center.y - 5 }
-                if sender.view!.frame.minX/scaleX <= -50/scaleX - (scaleX-1.0)*scaledWidth/scaleX { newCenterX = view.center.x + 5 }
-                if sender.view!.frame.minY/scaleY <= -50/scaleY - globalStateKeeper!.keyboardHeight/scaleY - (scaleY-1.0)*scaledHeight/scaleY { newCenterY = view.center.y + 5 }
-                view.center = CGPoint(x: newCenterX, y: newCenterY)
-                sender.setTranslation(CGPoint.zero, in: view)
+                panView(sender: sender)
             }
         }
     }
