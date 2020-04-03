@@ -330,7 +330,7 @@ class StateKeeper: ObservableObject, KeyboardObserving {
     }
     
     @objc func orientationChanged(_ notification: NSNotification) {
-        print("Orientation changed")
+        //print("Orientation changed")
         if getMaintainConnection(cl) && currentPage == "connectedSession" {
             rescheduleOrientationTimer()
         }
@@ -353,12 +353,12 @@ class StateKeeper: ObservableObject, KeyboardObserving {
         }
         
         if newOrientation == 0 {
-            print("New orientation is portrait")
+            //print("New orientation is portrait")
             leftSpacing = 0
             topSpacing = max(StateKeeper.bH, (globalWindow!.bounds.maxY - CGFloat(fbH)*minScale)/4)
             topButtonSpacing = 0
         } else if newOrientation == 1 {
-            print("New orientation is landscape")
+            //print("New orientation is landscape")
             leftSpacing = (globalWindow!.bounds.maxX - CGFloat(fbW)*minScale)/2
             topSpacing = StateKeeper.bH
             topButtonSpacing = 0
@@ -368,9 +368,9 @@ class StateKeeper: ObservableObject, KeyboardObserving {
             orientation = newOrientation
             imageView?.frame = CGRect(x: leftSpacing, y: topSpacing, width: CGFloat(fbW)*minScale, height: CGFloat(fbH)*minScale)
             createAndRepositionButtons()
-            print("Corrected spacing and minScale for orientation, left: \(leftSpacing), top: \(topSpacing), minScale: \(minScale)")
+            print("Corrected spacing and minScale for new orientation, left: \(leftSpacing), top: \(topSpacing), minScale: \(minScale)")
         } else {
-            print("Actual orientation appears not to have changed, not disturbing the displayed image or buttons.")
+            //print("Actual orientation appears not to have changed, not disturbing the displayed image or buttons.")
         }
     }
     
