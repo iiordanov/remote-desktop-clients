@@ -44,11 +44,15 @@ class TouchEnabledUIImageView: UIImageView {
     var lastY: CGFloat = 0.0
     var newX: CGFloat = 0.0
     var newY: CGFloat = 0.0
+    var newDoubleTapX: CGFloat = 0.0
+    var newDoubleTapY: CGFloat = 0.0
+    var pendingDoubleTap: Bool = false
     var viewTransform: CGAffineTransform = CGAffineTransform()
     var timeLast: Double = 0.0
     let timeThreshhold: Double = 0.01
     var tapLast: Double = 0
-    let doubleTapThreshhold: Double = 0.5
+    let doubleTapTimeThreshhold: Double = 0.5
+    let doubleTapDistanceThreshhold: CGFloat = 20.0
     var touchEnabled: Bool = false
     var firstDown: Bool = false
     var secondDown: Bool = false
@@ -67,7 +71,7 @@ class TouchEnabledUIImageView: UIImageView {
     var panningToleranceEvents = 0
     
     var tapGestureDetected = false
-
+    
     func initialize() {
         isMultipleTouchEnabled = true
         self.width = self.frame.width
@@ -107,7 +111,7 @@ class TouchEnabledUIImageView: UIImageView {
         return true
     }
     
-    func setViewParameters(point: CGPoint, touchView: UIView) {
+    func setViewParameters(point: CGPoint, touchView: UIView, setDoubleTapCoordinates: Bool=false) {
         self.width = touchView.frame.width
         self.height = touchView.frame.height
         self.viewTransform = touchView.transform
@@ -115,6 +119,11 @@ class TouchEnabledUIImageView: UIImageView {
         //let sDy = (touchView.center.y - self.point.y)/self.height
         self.newX = (point.x)*viewTransform.a + insetDimension/viewTransform.a
         self.newY = (point.y)*viewTransform.d + insetDimension/viewTransform.d
+        if setDoubleTapCoordinates {
+            self.pendingDoubleTap = true
+            newDoubleTapX = newX
+            newDoubleTapY = newY
+        }
     }
     
     func sendDownThenUpEvent(scrolling: Bool, moving: Bool, firstDown: Bool, secondDown: Bool, thirdDown: Bool, fourthDown: Bool, fifthDown: Bool) {
@@ -312,18 +321,27 @@ class TouchEnabledUIImageView: UIImageView {
             self.thirdDown = false
             if let touchView = sender.view {
                 let timeNow = CACurrentMediaTime()
-                if timeNow - tapLast > doubleTapThreshhold {
+                if timeNow - tapLast > doubleTapTimeThreshhold {
                     print("Single tap detected.")
+                    self.setViewParameters(point: sender.location(in: touchView), touchView: touchView, setDoubleTapCoordinates: true)
+                } else if self.pendingDoubleTap {
+                    print("Potential double tap detected.")
+                    self.pendingDoubleTap = false
                     self.setViewParameters(point: sender.location(in: touchView), touchView: touchView)
-                } else {
-                    print("Double tap detected.")
+                    let distance = abs(lastX - newX) + abs(lastY - newY)
+                    if distance < doubleTapDistanceThreshhold {
+                        print("Second tap was \(distance) away from first, sending click at previous coordinates.")
+                        newX = newDoubleTapX
+                        newY = newDoubleTapY
+                    } else {
+                        print("Second tap was \(distance) away from first, threshhold: \(doubleTapDistanceThreshhold).")
+                    }
                 }
                 self.tapLast = timeNow
                 self.sendDownThenUpEvent(scrolling: false, moving: false, firstDown: self.firstDown, secondDown: self.secondDown, thirdDown: self.thirdDown, fourthDown: false, fifthDown: false)
                 self.firstDown = false
                 self.secondDown = false
                 self.thirdDown = false
-                self.sendDownThenUpEvent(scrolling: false, moving: false, firstDown: self.firstDown, secondDown: self.secondDown, thirdDown: self.thirdDown, fourthDown: false, fifthDown: false)
             }
         } else {
             print("Other fingers were down, not acting on single tap")

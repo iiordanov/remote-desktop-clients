@@ -50,7 +50,7 @@ class LongTapDragUIImageView: TouchEnabledUIImageView {
             //print ("abs(scaleX*translation.x): \(abs(scaleX*translation.x)), abs(scaleY*translation.y): \(abs(scaleY*translation.y))")
             // self.thirdDown (which marks a right click) helps ensure this mode does not scroll with one finger
             if (!self.inPanDragging && !self.inPanning && self.thirdDown &&
-                (self.inScrolling || abs(scaleY*translation.y)/abs(scaleX*translation.x) > 1.7)) {
+                (self.inScrolling || abs(scaleY*translation.y)/abs(scaleX*translation.x) > 1.4)) {
 
                 // If tolerance for scrolling was just exceeded, begin scroll event
                 if (!self.inScrolling) {
@@ -78,7 +78,7 @@ class LongTapDragUIImageView: TouchEnabledUIImageView {
                     self.sendDownThenUpEvent(scrolling: false, moving: moving, firstDown: self.firstDown, secondDown: self.secondDown, thirdDown: self.thirdDown, fourthDown: false, fifthDown: false)
                 }
                 return
-            } else {
+            } else if abs(scaleY*translation.y) > 0.25 || abs(scaleX*translation.x) > 0.25 {
                 panView(sender: sender)
             }
         }
