@@ -10,7 +10,11 @@ import UIKit
 import SwiftUI
 
 func Background(_ block: @escaping ()->Void) {
-    DispatchQueue.global(qos: .default).async(execute: block)
+    DispatchQueue.global(qos: .userInteractive).async(execute: block)
+}
+
+func BackgroundLowPrio(_ block: @escaping ()->Void) {
+    DispatchQueue.global(qos: .background).async(execute: block)
 }
 
 func UserInterface(_ block: @escaping ()->Void) {
@@ -166,7 +170,7 @@ func resize_callback(instance: Int32, cl: UnsafeMutableRawPointer?, fbW: Int32, 
             globalStateKeeper?.correctTopSpacingForOrientation()
             let leftSpacing = globalStateKeeper?.leftSpacing ?? 0
             let topSpacing = globalStateKeeper?.topSpacing ?? 0
-            globalStateKeeper?.imageView = LongTapDragUIImageView(frame: CGRect(x: leftSpacing, y: topSpacing, width: CGFloat(fbW)*minScale, height: CGFloat(fbH)*minScale))
+            globalStateKeeper?.imageView = LongTapDragUIImageView(frame: CGRect(x: leftSpacing, y: topSpacing, width: CGFloat(fbW)*minScale, height: CGFloat(fbH)*minScale), stateKeeper: globalStateKeeper)
             //globalStateKeeper?.imageView?.backgroundColor = UIColor.gray
             globalStateKeeper?.imageView?.enableGestures()
             globalStateKeeper?.imageView?.enableTouch()
@@ -179,25 +183,33 @@ func resize_callback(instance: Int32, cl: UnsafeMutableRawPointer?, fbW: Int32, 
     sendWholeScreenUpdateRequest(cl)
 }
 
+func draw(data: UnsafeMutablePointer<UInt8>?, fbW: Int32, fbH: Int32, x: Int32, y: Int32, w: Int32, h: Int32) {
+    UserInterface {
+        autoreleasepool {
+            globalStateKeeper?.imageView?.image = UIImage(cgImage: imageFromARGB32Bitmap(pixels: data, withWidth: Int(fbW), withHeight: Int(fbH))!)
+        }
+    }
+}
+
 func update_callback(instance: Int32, data: UnsafeMutablePointer<UInt8>?, fbW: Int32, fbH: Int32, x: Int32, y: Int32, w: Int32, h: Int32) -> Bool {
     if (instance != globalStateKeeper!.currInst) { print("Current instance \(globalStateKeeper!.currInst) discarding call from instance \(instance)") ; return false }
     if (!(globalStateKeeper?.isDrawing ?? false)) {
+        print("Not drawing, discard.")
         return false
     }
     
     globalStateKeeper!.frames += 1
     let currentCpuUsage = SystemMonitor.appCpuUsage()
-    if (currentCpuUsage > 40.0 && globalStateKeeper!.frames % 1000 != 0) {
-        UserInterface {
-            globalStateKeeper!.rescheduleReDrawTimer(data: data, fbW: fbW, fbH: fbH)
+    if (currentCpuUsage > 40.0) {
+        //print("CPU usage high, discarding frame, scheduling redraw")
+        globalStateKeeper!.rescheduleReDrawTimer(data: data, fbW: fbW, fbH: fbH)
+        if (globalStateKeeper!.frames % 10 == 0) {
+            //print("Drawing a 10th frame.")
+            draw(data: data, fbW: fbW, fbH: fbH, x: x, y: y, w: w, h: h)
         }
-        return true
-    }
-    UserInterface {
-        //print("Graphics update: ", fbW, fbH, x, y, w, h)
-        autoreleasepool {
-            globalStateKeeper?.imageView?.image = UIImage(cgImage: imageFromARGB32Bitmap(pixels: data, withWidth: Int(fbW), withHeight: Int(fbH))!)
-        }
+    } else {
+        //print("Drawing a frame normally.")
+        draw(data: data, fbW: fbW, fbH: fbH, x: x, y: y, w: w, h: h)
     }
     return true
 }
@@ -230,14 +242,15 @@ func imageFromARGB32Bitmap(pixels: UnsafeMutablePointer<UInt8>?, withWidth: Int,
 }
 
 class VncSession {
-    let scene: UIScene, window: UIWindow
+    let scene: UIScene, window: UIWindow, stateKeeper: StateKeeper
     var instance: Int
     
-    init(scene: UIScene, window: UIWindow, instance: Int) {
+    init(scene: UIScene, window: UIWindow, instance: Int, stateKeeper: StateKeeper) {
         print("Initializing VNC Session instance: \(instance)")
         self.scene = scene
         self.window = window
         self.instance = instance
+        self.stateKeeper = stateKeeper
     }
     
     func captureScreen(window: UIWindow) -> UIImage {
@@ -276,11 +289,11 @@ class VncSession {
 
         if sshAddress != "" {
             Background {
-                globalStateKeeper?.sshForwardingLock.unlock()
-                globalStateKeeper?.sshForwardingLock.lock()
+                self.stateKeeper.sshForwardingLock.unlock()
+                self.stateKeeper.sshForwardingLock.lock()
                 print("Setting up SSH forwarding")
                 setupSshPortForward(
-                    Int32(globalStateKeeper!.currInst),
+                    Int32(self.stateKeeper.currInst),
                     ssh_forward_success,
                     ssh_forward_failure,
                     log_callback,
@@ -305,43 +318,48 @@ class VncSession {
         //let cert = currentConnection["cert"] ?? ""
 
         Background {
-            globalStateKeeper?.yesNoDialogLock.unlock()
+            self.stateKeeper.yesNoDialogLock.unlock()
             var message = ""
             var continueConnecting = true
             if sshAddress != "" {
                 print("Waiting for SSH forwarding to complete successfully")
                 // Wait for SSH Tunnel to be established for 60 seconds
-                continueConnecting = globalStateKeeper!.sshForwardingLock.lock(before: Date(timeIntervalSinceNow: 60))
+                continueConnecting = self.stateKeeper.sshForwardingLock.lock(before: Date(timeIntervalSinceNow: 60))
                 if !continueConnecting {
                     message = "Timeout establishing SSH Tunnel"
-                } else if (globalStateKeeper?.sshForwardingStatus != true) {
+                } else if (self.stateKeeper.sshForwardingStatus != true) {
                     message = "Failed to establish SSH Tunnel"
                     continueConnecting = false
                 } else {
                     print("SSH Tunnel indicated to be successful")
-                    globalStateKeeper?.sshForwardingLock.unlock()
+                    self.stateKeeper.sshForwardingLock.unlock()
                 }
             }
             if continueConnecting {
                 print("Connecting VNC Session in the background...")
-                let cl = initializeVnc(Int32(self.instance), update_callback, resize_callback, failure_callback_swift, log_callback, lock_write_tls_callback_swift, unlock_write_tls_callback_swift, yes_no_dialog_callback,
+                self.stateKeeper.cl = initializeVnc(Int32(self.instance), update_callback, resize_callback, failure_callback_swift, log_callback, lock_write_tls_callback_swift, unlock_write_tls_callback_swift, yes_no_dialog_callback,
                            UnsafeMutablePointer<Int8>(mutating: (addressAndPort as NSString).utf8String),
                            UnsafeMutablePointer<Int8>(mutating: (user as NSString).utf8String),
                            UnsafeMutablePointer<Int8>(mutating: (pass as NSString).utf8String))
-                if cl != nil {
-                    globalStateKeeper?.cl = cl
-                    connectVnc(cl)
+                if self.stateKeeper.cl != nil {
+                    //let thread = Thread.init(target: self, selector: #selector(self.connectVncSession), object: self.stateKeeper.cl)
+                    //thread.start()
+                    connectVnc(self.stateKeeper.cl)
                 } else {
                     message = "Failed to establish connection to VNC server."
                     print("Error message: \(message)")
-                    failure_callback_str(instance: globalStateKeeper!.currInst, message: message)
+                    failure_callback_str(instance: self.instance, message: message)
                 }
             } else {
                 message = "Error connecting: " + message
                 print("Error message: \(message)")
-                failure_callback_str(instance: globalStateKeeper!.currInst, message: message)
+                failure_callback_str(instance: self.instance, message: message)
             }
-        }        
+        }
+    }
+    
+    @objc func connectVncSession(cl: UnsafeMutableRawPointer?) {
+        connectVnc(cl)
     }
         
     func disconnect(cl: UnsafeMutableRawPointer?) {

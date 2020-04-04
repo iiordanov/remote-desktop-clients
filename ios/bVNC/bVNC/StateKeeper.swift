@@ -46,6 +46,7 @@ class StateKeeper: ObservableObject, KeyboardObserving {
     var reDrawTimer: Timer = Timer()
     var orientationTimer: Timer = Timer()
     var disconnectTimer: Timer = Timer()
+    var screenUpdateTimer: Timer = Timer()
     var fbW: Int32 = 0
     var fbH: Int32 = 0
     var data: UnsafeMutablePointer<UInt8>?
@@ -103,8 +104,10 @@ class StateKeeper: ObservableObject, KeyboardObserving {
     ]
 
     @objc func reDraw() {
-        if (self.isDrawing) {
-            self.imageView?.image = UIImage(cgImage: imageFromARGB32Bitmap(pixels: self.data, withWidth: Int(self.fbW), withHeight: Int(self.fbH))!)
+        UserInterface {
+            if (self.isDrawing) {
+                self.imageView?.image = UIImage(cgImage: imageFromARGB32Bitmap(pixels: self.data, withWidth: Int(self.fbW), withHeight: Int(self.fbH))!)
+            }
         }
     }
     
@@ -114,6 +117,16 @@ class StateKeeper: ObservableObject, KeyboardObserving {
         self.fbH = fbH
         self.reDrawTimer.invalidate()
         self.reDrawTimer = Timer.scheduledTimer(timeInterval: 0.2, target: self, selector: #selector(reDraw), userInfo: nil, repeats: false)
+    }
+    
+    @objc func requestScreenUpdate() {
+        print("Firing off a whole screen update request.")
+        sendWholeScreenUpdateRequest(cl)
+    }
+    
+    func rescheduleScreenUpdateRequest() {
+        self.screenUpdateTimer.invalidate()
+        self.screenUpdateTimer = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(requestScreenUpdate), userInfo: nil, repeats: false)
     }
     
     init() {
@@ -157,11 +170,11 @@ class StateKeeper: ObservableObject, KeyboardObserving {
         let contentView = ContentView(stateKeeper: self)
         self.window!.rootViewController = MyUIHostingController(rootView: contentView)
         self.window!.makeKeyAndVisible()
-        showConnectionInProgress()
         currInst = currInst + 1
         isDrawing = true;
-        self.vncSession = VncSession(scene: self.scene!, window: self.window!, instance: currInst)
+        self.vncSession = VncSession(scene: self.scene!, window: self.window!, instance: currInst, stateKeeper: self)
         self.vncSession!.connect(currentConnection: selectedConnection)
+        showConnectionInProgress()
         createAndRepositionButtons()
     }
     
@@ -193,10 +206,16 @@ class StateKeeper: ObservableObject, KeyboardObserving {
         }
     }
     
-    @objc func disconnect() {
+    @objc func lazyDisconnect() {
         print("Disconnecting and navigating to the disconnection screen")
-        isDrawing = false;
+        self.currInst += 1
+        self.isDrawing = false
         self.deregisterFromNotifications()
+    }
+
+    
+    @objc func disconnect() {
+        lazyDisconnect()
         UserInterface {
             self.toggleModifiersIfDown()
         }
@@ -334,10 +353,7 @@ class StateKeeper: ObservableObject, KeyboardObserving {
     }
     
     @objc func orientationChanged(_ notification: NSNotification) {
-        //print("Orientation changed")
-        if getMaintainConnection(cl) && currentPage == "connectedSession" {
-            rescheduleOrientationTimer()
-        }
+        rescheduleOrientationTimer()
     }
     
     func rescheduleOrientationTimer() {
