@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
 <resources>
   <string name="ad_donate_text0">Proバージョンは多要素認証に対応しています。不正使用防止の為に、マスターパスワード機能にも対応しています。また、パスワード/SSHキーを含む全ての接続設定が暗号化されているため、盗難防止にも役立ちます。メインメニューから設定を有効にできます。メニューボタンが見つからない場合、起動中のアプリボタンを長押しして下さい。</string>
   <string name="ad_donate_text1">Proバージョン購入で少額の寄付に同意される方は、こちらをタップして下さい。</string>
