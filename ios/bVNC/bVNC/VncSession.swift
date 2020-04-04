@@ -26,7 +26,7 @@ var globalScene: UIWindowScene?
 var globalWindow: UIWindow?
 var globalImageView: TouchEnabledUIImageView?
 var globalStateKeeper: StateKeeper?
-
+var lastUpdate: Double = 0.0
 
 func lock_write_tls_callback_swift(instance: Int32) -> Void {
     if (instance != globalStateKeeper!.currInst) { print("Current instance \(globalStateKeeper!.currInst) discarding call from instance \(instance)") ; return }
@@ -187,6 +187,7 @@ func draw(data: UnsafeMutablePointer<UInt8>?, fbW: Int32, fbH: Int32, x: Int32, 
     UserInterface {
         autoreleasepool {
             globalStateKeeper?.imageView?.image = UIImage(cgImage: imageFromARGB32Bitmap(pixels: data, withWidth: Int(fbW), withHeight: Int(fbH))!)
+            lastUpdate = CACurrentMediaTime()
         }
     }
 }
@@ -194,19 +195,14 @@ func draw(data: UnsafeMutablePointer<UInt8>?, fbW: Int32, fbH: Int32, x: Int32, 
 func update_callback(instance: Int32, data: UnsafeMutablePointer<UInt8>?, fbW: Int32, fbH: Int32, x: Int32, y: Int32, w: Int32, h: Int32) -> Bool {
     if (instance != globalStateKeeper!.currInst) { print("Current instance \(globalStateKeeper!.currInst) discarding call from instance \(instance)") ; return false }
     if (!(globalStateKeeper?.isDrawing ?? false)) {
-        print("Not drawing, discard.")
+        print("Not drawing, discard update.")
         return false
     }
     
-    globalStateKeeper!.frames += 1
-    let currentCpuUsage = SystemMonitor.appCpuUsage()
-    if (currentCpuUsage > 40.0) {
-        //print("CPU usage high, discarding frame, scheduling redraw")
+    let timeNow = CACurrentMediaTime()
+    if (timeNow - lastUpdate < 0.016) {
+        //print("Last frame drawn less than 16ms ago, discarding frame, scheduling redraw")
         globalStateKeeper!.rescheduleReDrawTimer(data: data, fbW: fbW, fbH: fbH)
-        if (globalStateKeeper!.frames % 10 == 0) {
-            //print("Drawing a 10th frame.")
-            draw(data: data, fbW: fbW, fbH: fbH, x: x, y: y, w: w, h: h)
-        }
     } else {
         //print("Drawing a frame normally.")
         draw(data: data, fbW: fbW, fbH: fbH, x: x, y: y, w: w, h: h)
