@@ -180,7 +180,7 @@ func resize_callback(instance: Int32, cl: UnsafeMutableRawPointer?, fbW: Int32, 
             globalStateKeeper?.showConnectedSession()
         }
     }
-    sendWholeScreenUpdateRequest(cl)
+    globalStateKeeper?.keepSessionRefreshed()
 }
 
 func draw(data: UnsafeMutablePointer<UInt8>?, fbW: Int32, fbH: Int32, x: Int32, y: Int32, w: Int32, h: Int32) {
@@ -356,10 +356,6 @@ class VncSession {
                 failure_callback_str(instance: self.instance, message: message)
             }
         }
-    }
-    
-    @objc func connectVncSession(cl: UnsafeMutableRawPointer?) {
-        connectVnc(cl)
     }
         
     func disconnect(cl: UnsafeMutableRawPointer?) {

@@ -64,6 +64,7 @@ class StateKeeper: ObservableObject, KeyboardObserving {
     var cl: UnsafeMutableRawPointer?
     
     var isDrawing: Bool = false;
+    var isKeptFresh: Bool = false;
     
     var currentTransition: String = "";
     
@@ -161,6 +162,7 @@ class StateKeeper: ObservableObject, KeyboardObserving {
     func connect(index: Int) {
         print("Connecting and navigating to the connection screen")
         yesNoDialogResponse = 0
+        self.isKeptFresh = false
         self.clientLog = []
         self.clientLog.append("Client Log:\n\n")
         self.registerForNotifications()
@@ -529,6 +531,20 @@ class StateKeeper: ObservableObject, KeyboardObserving {
         self.modifierButtons.forEach() { button in
             print ("Toggling \(button.key) if down")
             (button.value as! ToggleButton).sendUpIfToggled()
+        }
+    }
+    
+    func keepSessionRefreshed() {
+        print(#function)
+        BackgroundLowPrio {
+            if !self.isKeptFresh {
+                self.isKeptFresh = true
+                self.rescheduleScreenUpdateRequest()
+                while (self.isDrawing) {
+                    keepSessionFresh(self.cl)
+                    sleep(1)
+                }
+            }
         }
     }
 }

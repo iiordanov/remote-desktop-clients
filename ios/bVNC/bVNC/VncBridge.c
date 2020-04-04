@@ -237,7 +237,6 @@ void connectVnc(void *c) {
 void keepSessionFresh(void *c) {
     rfbClient *cl = (rfbClient *)c;
     if (cl != NULL && cl->maintainConnection == true) {
-        printf("Making screen update request\n");
         SendFramebufferUpdateRequest(cl, 0, 0, cl->width, cl->height, TRUE);
     }
 }
