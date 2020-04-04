@@ -117,7 +117,7 @@ class StateKeeper: ObservableObject, KeyboardObserving {
         self.fbW = fbW
         self.fbH = fbH
         self.reDrawTimer.invalidate()
-        self.reDrawTimer = Timer.scheduledTimer(timeInterval: 0.2, target: self, selector: #selector(reDraw), userInfo: nil, repeats: false)
+        self.reDrawTimer = Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(reDraw), userInfo: nil, repeats: false)
     }
     
     @objc func requestScreenUpdate() {
@@ -196,13 +196,13 @@ class StateKeeper: ObservableObject, KeyboardObserving {
         if disconnectedDueToBackgrounding {
             disconnectedDueToBackgrounding = false
             connect(index: self.connectionIndex)
-        } else if !getMaintainConnection(cl) {
+        } else if !self.isDrawing {
             self.showConnections()
         }
     }
     
     func disconnectDueToBackgrounding() {
-        if (getMaintainConnection(cl)) {
+        if (self.isDrawing) {
             disconnectedDueToBackgrounding = true
             disconnect()
         }
@@ -217,12 +217,13 @@ class StateKeeper: ObservableObject, KeyboardObserving {
 
     
     @objc func disconnect() {
+        let wasDrawing = self.isDrawing
         lazyDisconnect()
         UserInterface {
             self.toggleModifiersIfDown()
         }
-        print("getMaintainConnection(): \(getMaintainConnection(cl))")
-        if (getMaintainConnection(cl)) {
+        print("wasDrawing(): \(wasDrawing)")
+        if (wasDrawing) {
             self.vncSession?.disconnect(cl: cl)
             UserInterface {
                 self.removeButtons()
@@ -315,7 +316,7 @@ class StateKeeper: ObservableObject, KeyboardObserving {
     func keyboardWillShow(withSize keyboardSize: CGSize) {
         print("Keyboard will be shown, height: \(self.keyboardHeight)")
         self.keyboardHeight = keyboardSize.height
-        if getMaintainConnection(cl) {
+        if isDrawing {
             self.createAndRepositionButtons()
             self.addButtons(buttons: self.keyboardButtons)
             self.setButtonsVisibility(buttons: self.keyboardButtons, isHidden: false)
@@ -329,7 +330,7 @@ class StateKeeper: ObservableObject, KeyboardObserving {
     func keyboardWillHide() {
         print("Keyboard will be hidden, height: \(self.keyboardHeight)")
         self.keyboardHeight = 0
-        if getMaintainConnection(cl) {
+        if isDrawing {
             self.createAndRepositionButtons()
             self.setButtonsVisibility(buttons: keyboardButtons, isHidden: true)
             self.setButtonsVisibility(buttons: modifierButtons, isHidden: true)
