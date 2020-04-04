@@ -205,7 +205,7 @@ class StateKeeper: ObservableObject, KeyboardObserving {
             self.vncSession?.disconnect(cl: cl)
             UserInterface {
                 self.removeButtons()
-                (self.interfaceButtons["keyboardButton"] as? CustomTextInput)?.hideKeyboard()
+                self.hideKeyboard()
                 self.imageView?.disableTouch()
                 self.imageView?.removeFromSuperview()
                 self.showConnections()
@@ -214,6 +214,10 @@ class StateKeeper: ObservableObject, KeyboardObserving {
             print("\(#function) called but maintainConnection was already false")
             self.showConnections()
         }
+    }
+    
+    func hideKeyboard() {
+        (self.interfaceButtons["keyboardButton"] as? CustomTextInput)?.hideKeyboard()
     }
     
     func addNewConnection() {
