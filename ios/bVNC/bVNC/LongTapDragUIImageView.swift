@@ -20,25 +20,14 @@ class LongTapDragUIImageView: TouchEnabledUIImageView {
         longTapGesture = UILongPressGestureRecognizer(target: self, action: #selector(handleLongTap(_:)))
         pinchGesture = UIPinchGestureRecognizer(target: self, action: #selector(handleZooming(_:)))
     }
-    
-    override init(image: UIImage?) {
-        super.init(image: image)
-        initialize()
-    }
-    
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        initialize()
-    }
-    
-    required init?(coder aDecoder: NSCoder) {
-        super.init(coder: aDecoder)
-        initialize()
-    }
-        
+            
     @objc private func handlePan(_ sender: UIPanGestureRecognizer) {
         if sender.state == .ended {
             self.inPanDragging = false
+            if !inPanning {
+                // If there was actual pointer interaction to the server, request a refresh
+                self.stateKeeper?.rescheduleScreenUpdateRequest()
+            }
         }
         
         let translation = sender.translation(in: sender.view)
@@ -50,7 +39,7 @@ class LongTapDragUIImageView: TouchEnabledUIImageView {
             //print ("abs(scaleX*translation.x): \(abs(scaleX*translation.x)), abs(scaleY*translation.y): \(abs(scaleY*translation.y))")
             // self.thirdDown (which marks a right click) helps ensure this mode does not scroll with one finger
             if (!self.inPanDragging && !self.inPanning && self.thirdDown &&
-                (self.inScrolling || abs(scaleY*translation.y)/abs(scaleX*translation.x) > 1.4)) {
+                (self.inScrolling || abs(scaleY*translation.y)/abs(scaleX*translation.x) > 1.4 )) {
 
                 // If tolerance for scrolling was just exceeded, begin scroll event
                 if (!self.inScrolling) {
@@ -61,10 +50,10 @@ class LongTapDragUIImageView: TouchEnabledUIImageView {
                     self.newY = point.y*viewTransform.d
                 }
                 
-                if translation.y > 0 {
+                if translation.y > 20 {
                     //print("\(#function), up")
                     sendDownThenUpEvent(scrolling: true, moving: false, firstDown: false, secondDown: false, thirdDown: false, fourthDown: true, fifthDown: false)
-                } else if translation.y < 0 {
+                } else if translation.y < -20 {
                     //print("\(#function), down")
                     sendDownThenUpEvent(scrolling: true, moving: false, firstDown: false, secondDown: false, thirdDown: false, fourthDown: false, fifthDown: true)
                 }

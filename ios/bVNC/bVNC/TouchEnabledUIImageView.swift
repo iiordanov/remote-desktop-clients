@@ -49,10 +49,10 @@ class TouchEnabledUIImageView: UIImageView {
     var pendingDoubleTap: Bool = false
     var viewTransform: CGAffineTransform = CGAffineTransform()
     var timeLast: Double = 0.0
-    let timeThreshhold: Double = 0.01
+    let timeThreshold: Double = 0.02
     var tapLast: Double = 0
-    let doubleTapTimeThreshhold: Double = 0.5
-    let doubleTapDistanceThreshhold: CGFloat = 20.0
+    let doubleTapTimeThreshold: Double = 0.5
+    let doubleTapDistanceThreshold: CGFloat = 20.0
     var touchEnabled: Bool = false
     var firstDown: Bool = false
     var secondDown: Bool = false
@@ -72,6 +72,8 @@ class TouchEnabledUIImageView: UIImageView {
     
     var tapGestureDetected = false
     
+    var stateKeeper: StateKeeper?
+    
     func initialize() {
         isMultipleTouchEnabled = true
         self.width = self.frame.width
@@ -86,8 +88,9 @@ class TouchEnabledUIImageView: UIImageView {
         initialize()
     }
     
-    override init(frame: CGRect) {
+    init(frame: CGRect, stateKeeper: StateKeeper?) {
         super.init(frame: frame)
+        self.stateKeeper = stateKeeper
         initialize()
     }
     
@@ -131,11 +134,11 @@ class TouchEnabledUIImageView: UIImageView {
             Background {
                 let timeNow = CACurrentMediaTime()
                 let timeDiff = timeNow - self.timeLast
-                if ((!moving && !scrolling) || (moving || scrolling) && timeDiff >= self.timeThreshhold) {
+                if ((!moving && !scrolling) || (moving || scrolling) && timeDiff >= self.timeThreshold) {
                     self.sendPointerEvent(scrolling: scrolling, moving: moving, firstDown: firstDown, secondDown: secondDown, thirdDown: thirdDown, fourthDown: fourthDown, fifthDown: fifthDown)
                     if (!moving) {
                         //print ("Sleeping \(self.timeThreshhold)s before sending up event.")
-                        Thread.sleep(forTimeInterval: self.timeThreshhold)
+                        Thread.sleep(forTimeInterval: self.timeThreshold)
                         self.sendPointerEvent(scrolling: scrolling, moving: moving, firstDown: false, secondDown: false, thirdDown: false, fourthDown: false, fifthDown: false)
                     }
                     self.timeLast = CACurrentMediaTime()
@@ -271,7 +274,7 @@ class TouchEnabledUIImageView: UIImageView {
                             self.firstDown = false
                             self.secondDown = false
                             self.thirdDown = false
-                            sendWholeScreenUpdateRequest(globalStateKeeper!.cl!)
+                            self.stateKeeper?.rescheduleScreenUpdateRequest()
                         }
                         self.tapGestureDetected = false
                     } else {
@@ -321,7 +324,7 @@ class TouchEnabledUIImageView: UIImageView {
             self.thirdDown = false
             if let touchView = sender.view {
                 let timeNow = CACurrentMediaTime()
-                if timeNow - tapLast > doubleTapTimeThreshhold {
+                if timeNow - tapLast > doubleTapTimeThreshold {
                     print("Single tap detected.")
                     self.setViewParameters(point: sender.location(in: touchView), touchView: touchView, setDoubleTapCoordinates: true)
                 } else if self.pendingDoubleTap {
@@ -329,12 +332,12 @@ class TouchEnabledUIImageView: UIImageView {
                     self.pendingDoubleTap = false
                     self.setViewParameters(point: sender.location(in: touchView), touchView: touchView)
                     let distance = abs(lastX - newX) + abs(lastY - newY)
-                    if distance < doubleTapDistanceThreshhold {
+                    if distance < doubleTapDistanceThreshold {
                         print("Second tap was \(distance) away from first, sending click at previous coordinates.")
                         newX = newDoubleTapX
                         newY = newDoubleTapY
                     } else {
-                        print("Second tap was \(distance) away from first, threshhold: \(doubleTapDistanceThreshhold).")
+                        print("Second tap was \(distance) away from first, threshhold: \(doubleTapDistanceThreshold).")
                     }
                 }
                 self.tapLast = timeNow
@@ -342,6 +345,7 @@ class TouchEnabledUIImageView: UIImageView {
                 self.firstDown = false
                 self.secondDown = false
                 self.thirdDown = false
+                self.stateKeeper?.rescheduleScreenUpdateRequest()
             }
         } else {
             print("Other fingers were down, not acting on single tap")
@@ -360,14 +364,13 @@ class TouchEnabledUIImageView: UIImageView {
             var newCenterY = view.center.y + scaleY*translation.y
             let scaledWidth = sender.view!.frame.width/scaleX
             let scaledHeight = sender.view!.frame.height/scaleY
-            if sender.view!.frame.minX/scaleX >= 50/scaleX && view.center.x - newCenterX < 0 { newCenterX = view.center.x - 5 }
-            if sender.view!.frame.minY/scaleY >= 50/scaleY + globalStateKeeper!.topSpacing/scaleY && view.center.y - newCenterY < 0 { newCenterY = view.center.y - 5 }
-            if sender.view!.frame.minX/scaleX <= -50/scaleX - (scaleX-1.0)*scaledWidth/scaleX && newCenterX - view.center.x < 0 { newCenterX = view.center.x + 5 }
-            if sender.view!.frame.minY/scaleY <= -50/scaleY - globalStateKeeper!.keyboardHeight/scaleY - (scaleY-1.0)*scaledHeight/scaleY && newCenterY - view.center.y < 0 { newCenterY = view.center.y + 5 }
+            if sender.view!.frame.minX/scaleX >= 50/scaleX && view.center.x - newCenterX < 0 { newCenterX = view.center.x }
+            if sender.view!.frame.minY/scaleY >= 50/scaleY + globalStateKeeper!.topSpacing/scaleY && view.center.y - newCenterY < 0 { newCenterY = view.center.y }
+            if sender.view!.frame.minX/scaleX <= -50/scaleX - (scaleX-1.0)*scaledWidth/scaleX && newCenterX - view.center.x < 0 { newCenterX = view.center.x }
+            if sender.view!.frame.minY/scaleY <= -50/scaleY - globalStateKeeper!.keyboardHeight/scaleY - (scaleY-1.0)*scaledHeight/scaleY && newCenterY - view.center.y < 0 { newCenterY = view.center.y }
             view.center = CGPoint(x: newCenterX, y: newCenterY)
             sender.setTranslation(CGPoint.zero, in: view)
         }
-
     }
 
 }

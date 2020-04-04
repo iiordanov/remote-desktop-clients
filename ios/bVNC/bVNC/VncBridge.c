@@ -28,6 +28,14 @@ bool getMaintainConnection(void *c) {
     }
 }
 
+void setMaintainConnection(void *c, int state) {
+    rfbClient *cl = (rfbClient *)c;
+    if (cl != NULL) {
+        cl->maintainConnection = state;
+    }
+}
+
+
 static rfbCredential* get_credential(rfbClient *cl, int credentialType){
     rfbClientLog("VeNCrypt authentication callback called\n\n");
     rfbCredential *c = malloc(sizeof(rfbCredential));
@@ -158,7 +166,7 @@ void *initializeVnc(int instance,
 
     rfbClientLog = rfbClientErr = client_log;
     rfbClient *cl = NULL;
-    int argc = 2;
+    int argc = 6;
     char **argv = (char**)malloc(argc*sizeof(char*));
     int i = 0;
     for (i = 0; i < argc; i++) {
@@ -166,8 +174,12 @@ void *initializeVnc(int instance,
         argv[i] = (char*)malloc(256*sizeof(char));
     }
     strcpy(argv[0], "dummy");
-    strcpy(argv[1], addr);
-    
+    strcpy(argv[1], "-compress");
+    strcpy(argv[2], "7");
+    strcpy(argv[3], "-quality");
+    strcpy(argv[4], "8");
+    strcpy(argv[5], addr);
+
     /* 16-bit: cl=rfbGetClient(5,3,2); */
     cl=rfbGetClient(8,3,BYTES_PER_PIXEL);
     cl->MallocFrameBuffer=resize;
@@ -189,7 +201,7 @@ void *initializeVnc(int instance,
         cl = NULL; /* rfbInitClient has already freed the client struct */
         cleanup(cl, "Failed to connect to server\n");
     }
-    rfbClientLog("Done initializing VNC session\n");
+    printf("Done initializing VNC session\n");
     return (void *)cl;
 }
 
@@ -222,13 +234,21 @@ void connectVnc(void *c) {
     rfb_client_cleanup(cl);
 }
 
+void keepSessionFresh(void *c) {
+    rfbClient *cl = (rfbClient *)c;
+    if (cl != NULL && cl->maintainConnection == true) {
+        printf("Making screen update request\n");
+        SendFramebufferUpdateRequest(cl, 0, 0, cl->width, cl->height, TRUE);
+    }
+}
+
 void rfb_client_cleanup(rfbClient *cl) {
     if (cl != NULL) {
         if (cl->frameBuffer != NULL) {
             free(cl->frameBuffer);
         }
-        //rfbClientCleanup(cl);
-        //cl = NULL;
+        rfbClientCleanup(cl);
+        cl = NULL;
     }
 }
 

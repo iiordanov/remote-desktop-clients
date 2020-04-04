@@ -307,7 +307,8 @@ struct ConnectionInProgressPage : View {
         VStack {
             Text("Connecting to Server")
             Button(action: {
-                self.stateKeeper.disconnect()
+                self.stateKeeper.lazyDisconnect()
+                self.stateKeeper.showConnections()
             }) {
                 Text("Cancel")
                     .fontWeight(.bold)

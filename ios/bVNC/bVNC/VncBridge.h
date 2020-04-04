@@ -41,5 +41,7 @@ void rfb_client_cleanup(rfbClient *cl);
 void (*lock_write_tls_callback)(int instance);
 void (*unlock_write_tls_callback)(int instance);
 void sendWholeScreenUpdateRequest(void *c);
+void setMaintainConnection(void *c, int state);
+void keepSessionFresh(void *c);
 
 #endif /* VncBridge_h */
