@@ -72,7 +72,8 @@ then
     -DCMAKE_INSTALL_PREFIX=./libs -DCMAKE_INSTALL_PREFIX=./libs \
     -DCMAKE_TOOLCHAIN_FILE=../../ios-cmake/ios.toolchain.cmake \
     -DPLATFORM=SIMULATOR64 -DCMAKE_XCODE_ATTRIBUTE_DEVELOPMENT_TEAM="${DEVELOPMENT_TEAM}" \
-    -DJPEG_LIBRARY=/opt/libjpeg-turbo/lib/libjpeg.a -DJPEG_INCLUDE_DIR=/opt/libjpeg-turbo/include
+    -DJPEG_LIBRARY=/opt/libjpeg-turbo/lib/libjpeg.a -DJPEG_INCLUDE_DIR=/opt/libjpeg-turbo/include \
+    -DBUILD_SHARED_LIBS=OFF
 else
   pushd build_simulator64
 fi
@@ -98,7 +99,8 @@ then
     -DCMAKE_INSTALL_PREFIX=./libs -DCMAKE_INSTALL_PREFIX=./libs \
     -DCMAKE_TOOLCHAIN_FILE=../../ios-cmake/ios.toolchain.cmake \
     -DPLATFORM=OS -DCMAKE_XCODE_ATTRIBUTE_DEVELOPMENT_TEAM="${DEVELOPMENT_TEAM}" \
-    -DJPEG_LIBRARY=/opt/libjpeg-turbo/lib/libjpeg.a -DJPEG_INCLUDE_DIR=/opt/libjpeg-turbo/include
+    -DJPEG_LIBRARY=/opt/libjpeg-turbo/lib/libjpeg.a -DJPEG_INCLUDE_DIR=/opt/libjpeg-turbo/include \
+    -DBUILD_SHARED_LIBS=OFF
 else
   pushd build_iphone
 fi
@@ -123,7 +125,7 @@ popd
 rsync -avP build_iphone/libs/ libs_combined/
 pushd libs_combined
 
-for lib in lib/lib*[0-9]*.[0-9]*.[0-9]*.*
+for lib in lib/lib*.a
 do
  echo $lib
  lipo ../build_iphone/libs/${lib} ../build_simulator64/libs/${lib} -output ${lib} -create

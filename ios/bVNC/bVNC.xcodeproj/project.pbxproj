@@ -15,22 +15,21 @@
 		AF043A2523B3DADB00C43ED7 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AF043A2323B3DADB00C43ED7 /* LaunchScreen.storyboard */; };
 		AF043A3023B3DADB00C43ED7 /* bVNCTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF043A2F23B3DADB00C43ED7 /* bVNCTests.swift */; };
 		AF043A3B23B3DADB00C43ED7 /* bVNCUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF043A3A23B3DADB00C43ED7 /* bVNCUITests.swift */; };
-		AF291AD1241D5AC100DCD383 /* libssh2.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AF7421F0241D57E000C552A7 /* libssh2.a */; };
 		AF291AD5242418A200DCD383 /* ToggleButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF291AD4242418A200DCD383 /* ToggleButton.swift */; };
-		AF48282D23B47D8A00826395 /* libvncclient.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AF48247F23B478C300826395 /* libvncclient.1.dylib */; };
 		AF48282E23B47D8A00826395 /* libvncclient.1.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = AF48247F23B478C300826395 /* libvncclient.1.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		AF48283223B47EC300826395 /* VncBridge.c in Sources */ = {isa = PBXBuildFile; fileRef = AF48283123B47EC300826395 /* VncBridge.c */; };
 		AF51B3002410BAED005DE8AB /* ucs2xkeysym.c in Sources */ = {isa = PBXBuildFile; fileRef = AF51B2FF2410BAED005DE8AB /* ucs2xkeysym.c */; };
 		AF53DCB124022C8C00569F19 /* VncSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF53DCB024022C8C00569F19 /* VncSession.swift */; };
 		AF53DCB32402391600569F19 /* StateKeeper.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF53DCB22402391600569F19 /* StateKeeper.swift */; };
 		AF59A3D4242CE9E100658CE6 /* KeyboardObserving.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF59A3D3242CE9E100658CE6 /* KeyboardObserving.swift */; };
-		AF7421F1241D57E100C552A7 /* libssh2.a in Embed Libraries */ = {isa = PBXBuildFile; fileRef = AF7421F0241D57E000C552A7 /* libssh2.a */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		AF7421F4241D58EB00C552A7 /* SshPortForwarder.c in Sources */ = {isa = PBXBuildFile; fileRef = AF7421F3241D58EB00C552A7 /* SshPortForwarder.c */; };
 		AF99997D243593C70018204F /* LongTapDragUIImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF99997C243593C70018204F /* LongTapDragUIImageView.swift */; };
 		AF99997F2435955F0018204F /* ShortTapDragUIImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF99997E2435955F0018204F /* ShortTapDragUIImageView.swift */; };
 		AF9E8F932427F3B500752FC2 /* Utility.c in Sources */ = {isa = PBXBuildFile; fileRef = AF9E8F922427F3B500752FC2 /* Utility.c */; };
 		AF9E8F95242ADD9200752FC2 /* Utilities.m in Sources */ = {isa = PBXBuildFile; fileRef = AF9E8F94242ADD9200752FC2 /* Utilities.m */; };
 		AF9E8F99242AE4E900752FC2 /* SystemMonitor.m in Sources */ = {isa = PBXBuildFile; fileRef = AF9E8F98242AE4E900752FC2 /* SystemMonitor.m */; };
+		AFE7B0C0243A316A00275C3A /* libvncclient.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AFE7B0BF243A316900275C3A /* libvncclient.a */; };
+		AFECDF222439D9C6000E1E9A /* libssh2.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AFECDF212439D9C6000E1E9A /* libssh2.a */; };
 		AFF244E22407985E00F5839B /* CustomTextInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFF244E12407985E00F5839B /* CustomTextInput.swift */; };
 		AFF244E42408AF9B00F5839B /* TouchEnabledUIImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFF244E32408AF9B00F5839B /* TouchEnabledUIImageView.swift */; };
 /* End PBXBuildFile section */
@@ -59,7 +58,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				AF7421F1241D57E100C552A7 /* libssh2.a in Embed Libraries */,
 				AF48282E23B47D8A00826395 /* libvncclient.1.dylib in Embed Libraries */,
 			);
 			name = "Embed Libraries";
@@ -488,7 +486,6 @@
 		AF53DCB024022C8C00569F19 /* VncSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VncSession.swift; sourceTree = "<group>"; };
 		AF53DCB22402391600569F19 /* StateKeeper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StateKeeper.swift; sourceTree = "<group>"; };
 		AF59A3D3242CE9E100658CE6 /* KeyboardObserving.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardObserving.swift; sourceTree = "<group>"; };
-		AF7421F0241D57E000C552A7 /* libssh2.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libssh2.a; path = bVNC.xcodeproj/libs_combined/lib/libssh2.a; sourceTree = "<group>"; };
 		AF7421F2241D58EB00C552A7 /* SshPortForwarder.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SshPortForwarder.h; sourceTree = "<group>"; };
 		AF7421F3241D58EB00C552A7 /* SshPortForwarder.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = SshPortForwarder.c; sourceTree = "<group>"; };
 		AF99997C243593C70018204F /* LongTapDragUIImageView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LongTapDragUIImageView.swift; sourceTree = "<group>"; };
@@ -499,6 +496,8 @@
 		AF9E8F96242AE02D00752FC2 /* Utilities.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Utilities.h; sourceTree = "<group>"; };
 		AF9E8F97242AE4BB00752FC2 /* SystemMonitor.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SystemMonitor.h; sourceTree = "<group>"; };
 		AF9E8F98242AE4E900752FC2 /* SystemMonitor.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SystemMonitor.m; sourceTree = "<group>"; };
+		AFE7B0BF243A316900275C3A /* libvncclient.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libvncclient.a; path = bVNC.xcodeproj/libs_combined/lib/libvncclient.a; sourceTree = "<group>"; };
+		AFECDF212439D9C6000E1E9A /* libssh2.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libssh2.a; path = bVNC.xcodeproj/libs_combined/lib/libssh2.a; sourceTree = "<group>"; };
 		AFF244E12407985E00F5839B /* CustomTextInput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomTextInput.swift; sourceTree = "<group>"; };
 		AFF244E32408AF9B00F5839B /* TouchEnabledUIImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TouchEnabledUIImageView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -508,8 +507,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				AF291AD1241D5AC100DCD383 /* libssh2.a in Frameworks */,
-				AF48282D23B47D8A00826395 /* libvncclient.1.dylib in Frameworks */,
+				AFE7B0C0243A316A00275C3A /* libvncclient.a in Frameworks */,
+				AFECDF222439D9C6000E1E9A /* libssh2.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -533,7 +532,6 @@
 		AF043A0C23B3DADA00C43ED7 = {
 			isa = PBXGroup;
 			children = (
-				AF7421F0241D57E000C552A7 /* libssh2.a */,
 				AF043A1723B3DADA00C43ED7 /* bVNC */,
 				AF043A2E23B3DADB00C43ED7 /* bVNCTests */,
 				AF043A3923B3DADB00C43ED7 /* bVNCUITests */,
@@ -616,6 +614,8 @@
 		AF48247C23B4783500826395 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				AFE7B0BF243A316900275C3A /* libvncclient.a */,
+				AFECDF212439D9C6000E1E9A /* libssh2.a */,
 				AF48282923B47D7F00826395 /* libvncserver.1.dylib */,
 				AF48281F23B47C9E00826395 /* libjpeg.62.3.0.dylib */,
 				AF48281D23B47C9E00826395 /* libturbojpeg.0.2.0.dylib */,
@@ -1028,6 +1028,7 @@
 				AF043A1223B3DADA00C43ED7 /* Frameworks */,
 				AF043A1323B3DADA00C43ED7 /* Resources */,
 				AF48282C23B47D7F00826395 /* Embed Libraries */,
+				AFECDF232439DB08000E1E9A /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -1144,6 +1145,26 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		AFECDF232439DB08000E1E9A /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Type a script or drag a script file from your workspace to insert its path.APP_PATH=\"${TARGET_BUILD_DIR}/${WRAPPER_NAME}\"\n\n# This script loops through the frameworks embedded in the application and\n# removes unused architectures.\nfind \"$APP_PATH\" -name '*.framework' -type d | while read -r FRAMEWORK\ndo\n    FRAMEWORK_EXECUTABLE_NAME=$(defaults read \"$FRAMEWORK/Info.plist\" CFBundleExecutable)\n    FRAMEWORK_EXECUTABLE_PATH=\"$FRAMEWORK/$FRAMEWORK_EXECUTABLE_NAME\"\n    echo \"Executable is $FRAMEWORK_EXECUTABLE_PATH\"\n\n    EXTRACTED_ARCHS=()\n\n    for ARCH in $ARCHS\n    do\n        echo \"Extracting $ARCH from $FRAMEWORK_EXECUTABLE_NAME\"\n        lipo -extract \"$ARCH\" \"$FRAMEWORK_EXECUTABLE_PATH\" -o \"$FRAMEWORK_EXECUTABLE_PATH-$ARCH\"\n        EXTRACTED_ARCHS+=(\"$FRAMEWORK_EXECUTABLE_PATH-$ARCH\")\n    done\n\n    echo \"Merging extracted architectures: ${ARCHS}\"\n    lipo -o \"$FRAMEWORK_EXECUTABLE_PATH-merged\" -create \n\"${EXTRACTED_ARCHS[@]}\"\n    rm \"${EXTRACTED_ARCHS[@]}\"\n\n    echo \"Replacing original executable with thinned version\"\n    rm \"$FRAMEWORK_EXECUTABLE_PATH\"\n    mv \"$FRAMEWORK_EXECUTABLE_PATH-merged\" \"$FRAMEWORK_EXECUTABLE_PATH\"\n\ndone\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		AF043A1123B3DADA00C43ED7 /* Sources */ = {
