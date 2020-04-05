@@ -218,7 +218,7 @@ class StateKeeper: ObservableObject, KeyboardObserving {
     
     @objc func disconnect() {
         let wasDrawing = self.isDrawing
-        let saveScreenResult = self.saveImage(image: self.captureScreen(window: self.window!))
+        self.saveImage(image: self.captureScreen(window: self.imageView ?? UIImageView()))
         lazyDisconnect()
         UserInterface {
             self.toggleModifiersIfDown()
@@ -552,7 +552,7 @@ class StateKeeper: ObservableObject, KeyboardObserving {
         }
     }
     
-    func captureScreen(window: UIWindow) -> UIImage {
+    func captureScreen(window: UIImageView) -> UIImage {
         UIGraphicsBeginImageContextWithOptions(window.bounds.size, false, UIScreen.main.scale)
         window.layer.render(in: UIGraphicsGetCurrentContext()!)
         let image = UIGraphicsGetImageFromCurrentImageContext()
