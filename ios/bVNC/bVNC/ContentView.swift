@@ -119,7 +119,8 @@ struct ContentView : View {
                      addressText: stateKeeper.selectedConnection["address"] ?? "",
                      portText: stateKeeper.selectedConnection["port"] ?? "5900",
                      usernameText: stateKeeper.selectedConnection["username"] ?? "",
-                     passwordText: stateKeeper.selectedConnection["password"] ?? "")
+                     passwordText: stateKeeper.selectedConnection["password"] ?? "",
+                     screenShotFile: stateKeeper.selectedConnection["screenShotFile"] ?? UUID().uuidString)
             } else if stateKeeper.currentPage == "genericProgressPage" {
                 ProgressPage(stateKeeper: stateKeeper)
             } else if stateKeeper.currentPage == "connectionInProgress" {
@@ -162,6 +163,13 @@ struct ConnectionsList : View {
         title += "VNC: \(connection["address"] ?? ""):\(connection["port"] ?? "5900")"
         return title
     }
+    
+    func getSavedImage(named: String) -> UIImage? {
+        if let dir = try? FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: false) {
+            return UIImage(contentsOfFile: URL(fileURLWithPath: dir.absoluteString).appendingPathComponent(named).path)
+        }
+        return nil
+    }
 
     var body: some View {
         ScrollView {
@@ -184,23 +192,35 @@ struct ConnectionsList : View {
                 ForEach(0 ..< stateKeeper.connections.count) { i in
                     Button(action: {
                     }) {
-                        Text(self.buildTitle(i: i))
-                            .font(.headline)
-                            .padding(5)
-                            .background(Color.black)
-                            .cornerRadius(5)
-                            .foregroundColor(.white)
-                            .padding(5)
-                            .frame(minWidth: 0, maxWidth: .infinity)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 5)
-                                    .stroke(Color.white, lineWidth: 4)
-                        ).onTapGesture {
+                        VStack {
+                            Image(uiImage: self.getSavedImage(named: self.stateKeeper.connections[i]["screenShotFile"]!) ?? UIImage())
+                                .resizable()
+                                .scaledToFit()
+                                .cornerRadius(5)
+                                .frame(maxWidth: 600, maxHeight: 200)
+                            Text(self.buildTitle(i: i))
+                                .font(.headline)
+                                .padding(5)
+                                .background(Color.black)
+                                .cornerRadius(5)
+                                .foregroundColor(.white)
+                                .padding(5)
+                                .frame(height:100)
+                        }
+                        .padding()
+                        .foregroundColor(.white)
+                        .background(Color.black)
+                        .cornerRadius(5)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 5)
+                                .stroke(Color.white, lineWidth: 2))
+                        .onTapGesture {
                             self.connect(index: i)
                         }.onLongPressGesture {
                             self.edit(index: i)
                         }
-                    }.padding(10)
+
+                    }.buttonStyle(PlainButtonStyle())
                 }
                 
                 Button(action: {
@@ -235,6 +255,7 @@ struct AddOrEditConnectionPage : View {
     @State var portText: String
     @State var usernameText: String
     @State var passwordText: String
+    @State var screenShotFile: String
     @State var textHeight: CGFloat = 20
     
     var body: some View {
@@ -252,7 +273,9 @@ struct AddOrEditConnectionPage : View {
                         "address": self.addressText.trimmingCharacters(in: .whitespacesAndNewlines),
                         "port": self.portText.trimmingCharacters(in: .whitespacesAndNewlines),
                         "username": self.usernameText.trimmingCharacters(in: .whitespacesAndNewlines),
-                        "password": self.passwordText.trimmingCharacters(in: .whitespacesAndNewlines)]
+                        "password": self.passwordText.trimmingCharacters(in: .whitespacesAndNewlines),
+                        "screenShotFile": self.screenShotFile.trimmingCharacters(in: .whitespacesAndNewlines)
+                    ]
                     self.stateKeeper.saveConnection(connection: selectedConnection)
                 }) {
                     Text("Save")
@@ -439,7 +462,7 @@ struct YesNoDialog : View {
 
 struct ContentViewA_Previews : PreviewProvider {
     static var previews: some View {
-        AddOrEditConnectionPage(stateKeeper: StateKeeper(), sshAddressText: "", sshPortText: "", sshUserText: "", sshPassText: "", sshPassphraseText: "", sshPrivateKeyText: "", addressText: "", portText: "", usernameText: "", passwordText: "")
+        AddOrEditConnectionPage(stateKeeper: StateKeeper(), sshAddressText: "", sshPortText: "", sshUserText: "", sshPassText: "", sshPassphraseText: "", sshPrivateKeyText: "", addressText: "", portText: "", usernameText: "", passwordText: "", screenShotFile: "")
     }
 }
 
