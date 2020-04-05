@@ -248,15 +248,7 @@ class VncSession {
         self.instance = instance
         self.stateKeeper = stateKeeper
     }
-    
-    func captureScreen(window: UIWindow) -> UIImage {
-        UIGraphicsBeginImageContextWithOptions(window.bounds.size, false, UIScreen.main.scale)
-        window.layer.render(in: UIGraphicsGetCurrentContext()!)
-        let image = UIGraphicsGetImageFromCurrentImageContext()
-        UIGraphicsEndImageContext()
-        return image!
-    }
-    
+        
     func loadTextFile(path: String) -> String {
         var contents = "Not Loaded"
         do { contents = try String(contentsOfFile: path, encoding: String.Encoding.utf8) }

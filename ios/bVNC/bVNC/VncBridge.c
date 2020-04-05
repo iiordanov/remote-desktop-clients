@@ -212,7 +212,7 @@ void connectVnc(void *c) {
     int i;
         
     while (cl != NULL) {
-        i = WaitForMessage(cl, 500);
+        i = WaitForMessage(cl, 16000);
         if (cl->maintainConnection != true) {
             cleanup(cl, NULL);
             break;

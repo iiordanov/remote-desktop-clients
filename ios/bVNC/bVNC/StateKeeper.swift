@@ -218,6 +218,7 @@ class StateKeeper: ObservableObject, KeyboardObserving {
     
     @objc func disconnect() {
         let wasDrawing = self.isDrawing
+        let saveScreenResult = self.saveImage(image: self.captureScreen(window: self.window!))
         lazyDisconnect()
         UserInterface {
             self.toggleModifiersIfDown()
@@ -265,6 +266,8 @@ class StateKeeper: ObservableObject, KeyboardObserving {
         // Do something only if we were not adding a new connection.
         if connectionIndex >= 0 {
             print("Deleting connection with index \(connectionIndex)")
+            let deleteScreenshotResult = deleteFile(name: connections[self.connectionIndex]["screenShotFile"]!)
+            print("Deleting connection screenshot \(deleteScreenshotResult)")
             self.connections.remove(at: self.connectionIndex)
             self.selectedConnection = [:]
             self.connectionIndex = -1
@@ -383,7 +386,7 @@ class StateKeeper: ObservableObject, KeyboardObserving {
         } else if newOrientation == 1 {
             //print("New orientation is landscape")
             leftSpacing = (globalWindow!.bounds.maxX - CGFloat(fbW)*minScale)/2
-            topSpacing = StateKeeper.bH
+            topSpacing = min(StateKeeper.bH, (globalWindow!.bounds.maxY - CGFloat(fbH)*minScale)/2)
             topButtonSpacing = 0
         }
         
@@ -543,9 +546,47 @@ class StateKeeper: ObservableObject, KeyboardObserving {
                 self.rescheduleScreenUpdateRequest()
                 while (self.isDrawing) {
                     keepSessionFresh(self.cl)
-                    sleep(1)
+                    sleep(30)
                 }
             }
         }
     }
+    
+    func captureScreen(window: UIWindow) -> UIImage {
+        UIGraphicsBeginImageContextWithOptions(window.bounds.size, false, UIScreen.main.scale)
+        window.layer.render(in: UIGraphicsGetCurrentContext()!)
+        let image = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        return image!
+    }
+    
+    func saveImage(image: UIImage) -> Bool {
+        guard let data = image.jpegData(compressionQuality: 1) ?? image.pngData() else {
+            return false
+        }
+        guard let directory = try? FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: false) as NSURL else {
+            return false
+        }
+        do {
+            try data.write(to: directory.appendingPathComponent(String(self.selectedConnection["screenShotFile"]!))!)
+            return true
+        } catch {
+            print(error.localizedDescription)
+            return false
+        }
+    }
+    
+    func deleteFile(name: String) -> Bool {
+        guard let directory = try? FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: false) as NSURL else {
+            return false
+        }
+        do {
+            try FileManager.default.removeItem(at: directory.appendingPathComponent(name)!)
+            return true
+        } catch {
+            print(error.localizedDescription)
+            return false
+        }
+    }
+
 }
