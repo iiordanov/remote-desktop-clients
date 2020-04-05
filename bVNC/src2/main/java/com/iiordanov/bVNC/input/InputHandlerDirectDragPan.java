@@ -74,7 +74,7 @@ public class InputHandlerDirectDragPan extends InputHandlerGeneric {
 		
 		myVibrator.vibrate(Constants.SHORT_VIBRATION);
 
-		canvas.displayShortToastMessage("Panning");
+		canvas.displayShortToastMessage(activity.getString(R.string.panning));
 		endDragModesAndScrolling();
 		panMode = true;
 	}

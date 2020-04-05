@@ -396,14 +396,14 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
         {
         case R.id.itemSaveAsCopy:
             if (selected.getNickname().equals(textNickname.getText().toString()))
-                textNickname.setText("Copy of "+selected.getNickname());
+                textNickname.setText(new String(getString(R.string.copy_of) + " " + selected.getNickname()));
             updateSelectedFromView();
             selected.set_Id(0);
             selected.saveAndWriteRecent(false, database);
             arriveOnPage();
             break;
         case R.id.itemDeleteConnection:
-            Utils.showYesNoPrompt(this, "Delete?", "Delete " + selected.getNickname() + "?",
+            Utils.showYesNoPrompt(this, getString(R.string.delete) + "?", getString(R.string.delete) + " " + selected.getNickname() + "?",
                     new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int i)
@@ -579,8 +579,7 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
                 Bundle b = data.getExtras();
                 String privateKey = (String)b.get("PrivateKey");
                 if (!privateKey.equals(selected.getSshPrivKey()) && privateKey.length() != 0)
-                    Toast.makeText(getBaseContext(), "New key generated/imported successfully. Tap 'Generate/Export Key' " +
-                            " button to share, copy to clipboard, or export the public key now.", Toast.LENGTH_LONG).show();
+                    Toast.makeText(getBaseContext(), getString(R.string.ssh_key_generated), Toast.LENGTH_LONG).show();
                 selected.setSshPrivKey(privateKey);
                 selected.setSshPubKey((String)b.get("PublicKey"));
                 selected.saveAndWriteRecent(true, database);

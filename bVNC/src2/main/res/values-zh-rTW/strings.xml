@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="no"?>
+﻿<?xml version="1.0" encoding="utf-8" standalone="no"?>
 <resources>
   <string name="ad_donate_text0">Pro版本對應於多重要素驗證。為了防止違法使用，也對應於主密碼功能。加上為了防盜包含密碼與SSH鍵的所有連接設定都是加密的。這些都在主功能表內進行設定。如果主功能表按鈕不見，請按住在功能表上的應用按鈕。</string>
   <string name="ad_donate_text1">如果您購買Pro版本並且同意捐贈我們的話，請點選這裡。</string>
@@ -513,7 +513,7 @@ aRDP對應預定的功能：
   <string name="spice_ca_cert_path_hint">證書頒發機構文件的路徑</string>
   <string name="spice_ca_file_error_reading">讀取CA文件時出錯。請確認它是可讀取的。</string>
   <string name="spice_ca_file_not_found">找不到文件。請在文本欄位中輸入有效的文件名（例如：/sdcard/ca-cert.pem）。</string>
-  <string name="spice_cert_subject_hint">憑證科目</string>
+  <string name="cert_subject">憑證科目</string>
   <string-array name="spice_connection_type">
     <item>@string/connection_type_spice</item>
     <item>@string/connection_type_spice_over_ssh</item>

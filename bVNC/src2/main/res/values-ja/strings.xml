@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="no"?>
+﻿<?xml version="1.0" encoding="utf-8" standalone="no"?>
 <resources>
   <string name="ad_donate_text0">Proバージョンは多要素認証に対応しています。不正使用防止の為に、マスターパスワード機能にも対応しています。また、パスワード/SSHキーを含む全ての接続設定が暗号化されているため、盗難防止にも役立ちます。メインメニューから設定を有効にできます。メニューボタンが見つからない場合、起動中のアプリボタンを長押しして下さい。</string>
   <string name="ad_donate_text1">Proバージョン購入で少額の寄付に同意される方は、こちらをタップして下さい。</string>
@@ -522,7 +522,7 @@ aRDP対応予定機能：
   <string name="spice_ca_cert_path_hint">認証局ファイルへのパス</string>
   <string name="spice_ca_file_error_reading">認証局ファイル読込エラー。読込可能であることを確認してください。</string>
   <string name="spice_ca_file_not_found">ファイルが見つかりません。有効なファイル名をテキスト領域に入力してください。(例：/sdcard/ca-cert.pem)</string>
-  <string name="spice_cert_subject_hint">証明書サブジェクト</string>
+  <string name="cert_subject">証明書サブジェクト</string>
   <string-array name="spice_connection_type">
     <item>@string/connection_type_spice</item>
     <item>@string/connection_type_spice_over_ssh</item>

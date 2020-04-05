@@ -27,11 +27,11 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="0"
+                android:background="#444444"
                 android:singleLine="true"
                 android:text="@string/connect_button"
-                android:background="#444444"
-                android:textColor="#dddddd"
                 android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textColor="#dddddd"
                 android:textSize="22sp" />
         </LinearLayout>
 
@@ -41,6 +41,7 @@
             android:padding="5dip">
 
             <TableRow>
+
                 <TextView
                     android:id="@+id/connectionTypeLabel"
                     android:layout_width="wrap_content"
@@ -78,7 +79,7 @@
                     android:id="@+id/sshCaption"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="SSH Tunnel Settings"
+                    android:text="@string/ssh_tunnel_settings"
                     android:textAppearance="?android:attr/textAppearanceMedium" />
             </TableRow>
 
@@ -235,7 +236,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="VNC Connection Settings"
+                    android:text="@string/vnc_connection_settings"
                     android:textAppearance="?android:attr/textAppearanceMedium" />
             </TableRow>
 
@@ -330,7 +331,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Show Advanced Settings"
+                android:text="@string/show_advanced_settings"
                 android:textAppearance="?android:attr/textAppearanceMedium" />
         </LinearLayout>
 
@@ -385,7 +386,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="left|center_vertical"
-                android:text="Use Hextile encoding (for chroot connections)"
+                android:text="@string/use_no_compression_for_local_connections"
                 android:textAppearance="?android:attr/textAppearanceMedium" />
 
             <RadioGroup
@@ -415,7 +416,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="5dp"
                 android:text="@string/rdp_descript_geom"
-                android:textAppearance="?android:attr/textAppearanceMedium"/>
+                android:textAppearance="?android:attr/textAppearanceMedium" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -497,6 +498,7 @@
             android:layout_height="wrap_content"
             android:text="@string/import_export_settings"
             android:textAppearance="?android:attr/textAppearanceMedium" />
+
         <Button
             android:id="@+id/copyLogcat"
             android:layout_width="wrap_content"

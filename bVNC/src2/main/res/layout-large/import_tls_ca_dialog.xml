@@ -11,7 +11,7 @@
 	    <TextView
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
-	        android:text="Paste the Cert Subject here. Not needed if the cert common name (CN) matches the SPICE server hostname."
+	        android:text="@string/ca_subject"
 	        android:textAppearance="?android:attr/textAppearanceLarge" />
 
         <EditText
@@ -27,7 +27,7 @@
        	<TextView
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
-	        android:text="Enter a path (e.g. /sdcard/ca-cert.pem) and tap Import to load your Certificate Authority."
+	        android:text="@string/path_to_ca"
 	        android:textAppearance="?android:attr/textAppearanceLarge" />
         	    
 	    <LinearLayout
@@ -46,13 +46,13 @@
 	            android:id="@+id/importButton"
 	            android:layout_width="wrap_content"
 	            android:layout_height="wrap_content"
-	            android:text="Import" />
+	            android:text="@string/import_settings" />
 	    </LinearLayout>
         
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Paste (if not importing) the Certificate Authority here."
+            android:text="@string/paste_ca"
             android:textAppearance="?android:attr/textAppearanceLarge" />
         
         <EditText
@@ -70,8 +70,6 @@
             android:id="@+id/helpButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Help" />
+            android:text="@string/title_help" />
     </LinearLayout>
-	    
-
 </ScrollView>

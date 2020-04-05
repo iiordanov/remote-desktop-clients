@@ -1640,12 +1640,11 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
             }
         };
         Utils.showYesNoPrompt(getContext(), getContext().getString(R.string.info_continue_connecting) + connection.getAddress() + "?",
-                getContext().getString(R.string.info_cert_signatures) +
-                        "\nSubject:      " + subject +
-                        "\nIssuer:       " + issuer +
-                        "\nFingerprint:  " + fingerprint +
-                        getContext().getString(R.string.info_cert_signatures_identical),
-                signatureYes, signatureNo);
+            getContext().getString(R.string.info_cert_signatures) +
+            "\n" + getContext().getString(R.string.cert_subject) + ":     " + subject +
+            "\n" + getContext().getString(R.string.cert_issuer) + ":      " + issuer +
+            "\n" + getContext().getString(R.string.cert_fingerprint) + ": " + fingerprint +
+            getContext().getString(R.string.info_cert_signatures_identical), signatureYes, signatureNo);
     }
 
 

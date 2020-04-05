@@ -116,8 +116,8 @@ public class MetaKeyDialog extends Dialog implements ConnectionSettable {
                      */
                     @Override
                     public boolean onMenuItemClick(MenuItem item) {
-                        Utils.showYesNoPrompt(_canvasActivity, "Delete key list",
-                                "Delete list "+_textListName.getText().toString(),
+                        Utils.showYesNoPrompt(_canvasActivity, getContext().getString(R.string.delete_key_list),
+                                getContext().getString(R.string.delete_key_list) + " " +_textListName.getText().toString(),
                                 new OnClickListener() {
 
                                     /* (non-Javadoc)
@@ -164,8 +164,8 @@ public class MetaKeyDialog extends Dialog implements ConnectionSettable {
                         if (position != Spinner.INVALID_POSITION)
                         {
                             final MetaKeyBean toDelete = _keysInList.get(position);
-                            Utils.showYesNoPrompt(_canvasActivity, "Delete from list",
-                                    "Delete key " + toDelete.getKeyDesc(),
+                            Utils.showYesNoPrompt(_canvasActivity, getContext().getString(R.string.delete_key),
+                                    getContext().getString(R.string.delete_key) + " " + toDelete.getKeyDesc(),
                                     new OnClickListener() {
                 
                                         /* (non-Javadoc)
@@ -336,7 +336,7 @@ public class MetaKeyDialog extends Dialog implements ConnectionSettable {
             @Override
             public void onClick(View v) {
                 MetaList newList = new MetaList();
-                newList.setName("New");
+                newList.setName(getContext().getString(R.string.new_list_button));
                 SQLiteDatabase db = _database.getWritableDatabase();
                 newList.Gen_insert(db);
                 _connection.setMetaListId(newList.get_Id());
@@ -355,7 +355,7 @@ public class MetaKeyDialog extends Dialog implements ConnectionSettable {
             @Override
             public void onClick(View v) {
                 MetaList newList = new MetaList();
-                newList.setName("Copy of " + _textListName.getText().toString());
+                newList.setName(getContext().getString(R.string.copy_of) + " " + _textListName.getText().toString());
                 SQLiteDatabase db = _database.getWritableDatabase();
                 newList.Gen_insert(db);
                 db.execSQL(MessageFormat.format(getCopyListString(), newList.get_Id(), _listId));

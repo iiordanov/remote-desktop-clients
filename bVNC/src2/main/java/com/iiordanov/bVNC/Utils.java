@@ -72,8 +72,8 @@ public class Utils {
             builder.setIcon(android.R.drawable.ic_dialog_info);
             builder.setMessage(message);
             builder.setCancelable(false);
-            builder.setPositiveButton("Yes", onYesListener);
-            builder.setNegativeButton("No", onNoListener);
+            builder.setPositiveButton(_context.getString(android.R.string.yes), onYesListener);
+            builder.setNegativeButton(_context.getString(android.R.string.no), onNoListener);
             if (!(alertDialog != null && alertDialog.isShowing()) && !isContextActivityThatIsFinishing(_context)) {
                 alertDialog = builder.create();
                 alertDialog.show();
@@ -110,7 +110,7 @@ public class Utils {
     }
 
     public static void showErrorMessage(Context _context, String message) {
-        showMessage(_context, "Error!", message, android.R.drawable.ic_dialog_alert, new DialogInterface.OnClickListener() {
+        showMessage(_context, _context.getString(R.string.error) + "!", message, android.R.drawable.ic_dialog_alert, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.dismiss();
@@ -119,7 +119,7 @@ public class Utils {
     }
 
     public static void showFatalErrorMessage(final Context _context, String message) {
-        showMessage(_context, "Error!", message, android.R.drawable.ic_dialog_alert, new DialogInterface.OnClickListener() {
+        showMessage(_context, _context.getString(R.string.error) + "!", message, android.R.drawable.ic_dialog_alert, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.dismiss();
@@ -143,7 +143,7 @@ public class Utils {
             builder.setTitle(title);
             builder.setMessage(Html.fromHtml(message));
             builder.setCancelable(false);
-            builder.setPositiveButton("Acknowledged", ackHandler);
+            builder.setPositiveButton(_context.getString(android.R.string.ok), ackHandler);
             builder.setIcon(icon);
             if (!(alertDialog != null && alertDialog.isShowing()) && !isContextActivityThatIsFinishing(_context)) {
                 alertDialog = builder.create();
