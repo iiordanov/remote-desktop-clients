@@ -101,15 +101,17 @@ static rfbBool resize (rfbClient *cl) {
 void disconnectVnc(void *c) {
     rfbClient *cl = (rfbClient *)c;
     printf("Setting maintainConnection to false\n");
-    cl->maintainConnection = false;
-    // Force force some communication with server in order to wake up the
-    // background thread waiting for server messages.
-    SendFramebufferUpdateRequest(cl, 0, 0, 1, 1, FALSE);
+    if (cl != NULL) {
+        cl->maintainConnection = false;
+        // Force force some communication with server in order to wake up the
+        // background thread waiting for server messages.
+        SendFramebufferUpdateRequest(cl, 0, 0, 1, 1, FALSE);
+    }
 }
 
 void sendWholeScreenUpdateRequest(void *c) {
     rfbClient *cl = (rfbClient *)c;
-    if (cl->maintainConnection) {
+    if (cl != NULL && cl->maintainConnection) {
         SendFramebufferUpdateRequest(cl, 0, 0, cl->width, cl->height, FALSE);
     }
 }
@@ -221,9 +223,9 @@ void connectVnc(void *c) {
             cleanup(cl, "Connection to server failed\n");
             break;
         }
-        if (i) {
-            rfbClientLog("Handling RFB Server Message\n");
-        }
+        //if (i) {
+            //rfbClientLog("Handling RFB Server Message\n");
+        //}
         
         if (!HandleRFBServerMessage(cl)) {
             cleanup(cl, "Connection to server failed\n");
@@ -247,7 +249,6 @@ void rfb_client_cleanup(rfbClient *cl) {
             free(cl->frameBuffer);
         }
         rfbClientCleanup(cl);
-        cl = NULL;
     }
 }
 
@@ -356,7 +357,7 @@ void sendUniDirectionalKeyEventWithKeySym(void *c, int sym, bool down) {
 void sendPointerEventToServer(void *c, int totalX, int totalY, int x, int y, bool firstDown, bool secondDown, bool thirdDown, bool scrollUp, bool scrollDown) {
     rfbClient *cl = (rfbClient *)c;
     
-    if (!cl->maintainConnection) {
+    if (cl == NULL || !cl->maintainConnection) {
         return;
     }
     int buttonMask = 0;

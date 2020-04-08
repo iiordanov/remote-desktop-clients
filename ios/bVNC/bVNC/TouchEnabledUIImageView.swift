@@ -151,7 +151,8 @@ class TouchEnabledUIImageView: UIImageView {
         //let timeNow = CACurrentMediaTime();
         //let timeDiff = timeNow - self.timeLast
         if !moving || (abs(self.lastX - self.newX) > 1.0 || abs(self.lastY - self.newY) > 1.0) {
-            sendPointerEventToServer(globalStateKeeper!.cl!, Int32(self.width), Int32(self.height), Int32(self.newX), Int32(self.newY), firstDown, secondDown, thirdDown, fourthDown, fifthDown)
+            guard let cl = globalStateKeeper?.cl else { return }
+            sendPointerEventToServer(cl, Int32(self.width), Int32(self.height), Int32(self.newX), Int32(self.newY), firstDown, secondDown, thirdDown, fourthDown, fifthDown)
             self.lastX = self.newX
             self.lastY = self.newY
             //self.timeLast = timeNow

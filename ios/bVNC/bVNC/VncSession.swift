@@ -27,6 +27,7 @@ var globalWindow: UIWindow?
 var globalImageView: TouchEnabledUIImageView?
 var globalStateKeeper: StateKeeper?
 var lastUpdate: Double = 0.0
+var isDrawing: Bool = false
 
 func lock_write_tls_callback_swift(instance: Int32) -> Void {
     if (instance != globalStateKeeper!.currInst) { print("Current instance \(globalStateKeeper!.currInst) discarding call from instance \(instance)") ; return }
