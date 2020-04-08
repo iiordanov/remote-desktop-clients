@@ -701,8 +701,4 @@ Known issues:
     </string-array>
 
     <string name="vnc_server_empty">Pole serwera lub portu VNC jest puste. Nie można połączyć.</string>
-
-    <string name="warning_cert_does_not_match"/>
-    <string name="copy_logcat">Copy Logcat</string>
-    <string name="log_copied">Logcat copied to clipboard. You can now paste it in an email or on the support forum. Please look through for any personal data before posting.</string>
 </resources>

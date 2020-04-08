@@ -628,4 +628,20 @@ aSPICEで対応済み機能は以下の通り：
   <string name="copy_logcat">Logcatをコピーする</string>
   <string name="log_copied">Logcatがクリップボードにコピーされました。Eメール或いはサポートフォーラムに貼り付け可能です。個人データは、掲載前に内容をご確認ください。</string>
   <string name="info_set_touchpad_input_mode">クライアントモードのマウス入力が、サーバー非対応の為、既存のマウス入力が正しく行われません。仮想マシーンにSPICEツールがインストールされていることを確認してください。或いは、メニューから、シミュレートタッチパッド入力モードに切り替えてください。</string>
+  <string name="vnc_connection_settings">VNC接続設定</string>
+  <string name="show_advanced_settings">詳細設定表示</string>
+  <string name="use_no_compression_for_local_connections">圧縮無し(ローカル接続、Hextileエンコード)</string>
+  <string name="rdp_connection_settings">RDP接続設定</string>
+  <string name="local_device_tweaks">ローカルデバイス調整</string>
+  <string name="spice_connection_settings">SPICE接続設定</string>
+  <string name="ca_subject">証明書サブジェクト名をここに記入する。証明書共通名(CN)がサーバーホスト名と同一の場合、不要の場合あり。</string>
+  <string name="path_to_ca">ファイルパス(例/sdcard/ca-cert.pem)の入力後、インポートをタップして証明局をロードする。</string>
+  <string name="paste_ca">ファイルとしてインポートしない場合、証明局をここに入力する。</string>
+  <string name="cert_issuer">証明書発行者</string>
+  <string name="cert_fingerprint">証明書指紋</string>
+  <string name="error">エラー</string>
+  <string name="panning">平行移動スクリーン</string>
+  <string name="copy_of">コピー</string>
+  <string name="ssh_key_generated">新規の鍵が無事に作成、或いはインポートされました。\'Generate/Export Key\'スイッチをタップし、共有、クリップボードへコピー、公開鍵のエクスポートが可能です。</string>
+  <string name="ssh_tunnel_settings">SSHトンネル設定</string>
 </resources>

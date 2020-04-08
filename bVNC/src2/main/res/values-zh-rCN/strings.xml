@@ -619,4 +619,20 @@ aSPICE对应的功能如下：
   <string name="copy_logcat">复制Logcat</string>
   <string name="log_copied">Logcat已复制到剪贴板。您可以将它粘贴到电子邮件中或在支持论坛上。发布之前，请仔细确认是否有任何个人数据。</string>
   <string name="info_set_touchpad_input_mode">服务器不支持客户端模式的鼠标输入，因此当前的鼠标输入无法正常工作。请确认SPICE工具已安装在虚拟机中。或者从菜单上切换到模拟触摸板输入模式。</string>
+  <string name="vnc_connection_settings">VNC连接设定</string>
+  <string name="show_advanced_settings">显示详细设定</string>
+  <string name="use_no_compression_for_local_connections">无压缩（本地连接，Hextile编码）</string>
+  <string name="rdp_connection_settings">RDP连接设定</string>
+  <string name="local_device_tweaks">本地设备调整</string>
+  <string name="spice_connection_settings">SPICE连接设定</string>
+  <string name="ca_subject">在此输入证书主题名称。 如果证书公用名（CN）与服务器主机名匹配的话，就有可能不需要。</string>
+  <string name="path_to_ca">输入文件路径（例如/sdcard/ca-cert.pem），然后点击导入，以便加载您的证书颁发机构。</string>
+  <string name="paste_ca">如果您不将它作为文件导入的话，请在此输入证书颁发机构。</string>
+  <string name="cert_issuer">证书颁发行人</string>
+  <string name="cert_fingerprint">证书指纹</string>
+  <string name="error">错误</string>
+  <string name="panning">平移屏幕</string>
+  <string name="copy_of">复制</string>
+  <string name="ssh_key_generated">成功生成或导入新密钥。 您可以点击\'Generate/Export Key\'按钮来共享、复制到剪贴板或导出公钥。</string>
+  <string name="ssh_tunnel_settings">SSH隧道设定</string>
 </resources>
