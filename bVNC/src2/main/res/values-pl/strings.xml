@@ -213,48 +213,7 @@
     <string name="input_mode_drag_pan_zoom_mouse"/>
     <string name="input_mode_fit_to_screen"/>
     <string name="input_mode_help">Pomoc trybu wprowadzania</string>
-    <string name="input_mode_help_text">
-"In any Input Mode, tap the keyboard icon to get the on-screen keyboard. Also, your device may have its own gesture which bring up the keyboard.
 
-Use the Direct input modes for more intuitive touch-screen control. Use Simulated Touchpad Mode for finer control over the mouse.
-
-Direct, Swipe Pan Mode:
- - Control the mouse directly through touch.
- - Swipe to pan around.
- - Tapping makes the mouse click where you tapped.
- - Scroll events are sent between the two fingers where a two-finger swipe started.
-
-Direct, Hold Pan Mode:
- - Control the mouse directly through touch.
- - Long-tap to start pan mode.
- - Tapping makes the mouse click where you tapped.
- - Scroll events are sent between the two fingers where a two-finger swipe started.
-
-Simulated Touchpad Mode:
- - Use your screen like a touchpad.
- - Swipe to move the mouse pointer around.
- - Move mouse beyond edge of screen to pan.
- - Tapping makes the mouse click where the pointer is.
- - Scroll events are sent where the mouse pointer is located.
-
-Single Handed Mode:
- - Same as Direct, Swipe Pan Mode, except long-tap opens menu with choice of modes.
- - After choosing mode, swiping finger on screen performs selected gesture.
- - Lifting finger completes the gesture.
-
-All Input Modes:
- - Left-click: Tap once.
- - Double-click: Double-tap.
- - Right-click: Tap-hold and tap with a second finger (anywhere else on screen).
- - Alternate Right-click: Use the \"Back\" button or gesture for your device.
- - Middle-click: Tap-hold and tap with two more fingers (anywhere else on screen).
- - Mouse-drag: Tap-hold-long and swipe.
- - Scroll-wheel: Two-finger drag up/down and left/right. Quick drag scrolls faster.
- - Zoom in/out: In Zoomable scaling, pinch-zoom to control scaling.
- - Ctrl/Alt key: Menu-&gt;Ctrl/Alt buttons. Don't forget to toggle off when done!
- - Key combos: Menu-&gt;More-&gt;Send Keys.
- - Send text: Either type on the on-screen keyboard, or use Menu-&gt;More-&gt;Send Text."
-</string>
     <string name="input_mode_mouse">Kontrola wskaźnika myszy</string>
     <string name="input_mode_panning"/>
     <string name="input_mode_single_handed">Tryb jednej ręki</string>
@@ -264,55 +223,7 @@ All Input Modes:
     <string name="intro_close">Zamknij</string>
     <string name="intro_dont_show">Nie pokazuj więcej</string>
     <string name="intro_header"/>
-    <string name="intro_text">
-"Current list of bVNC features:
-&lt;br&gt;
-- Plain VNC, Secure VNC over SSH, AnonTLS, and VeNCrypt, and UltraVNC Windows Logon with optional Repeater.
-&lt;br&gt;
-- AutoX mode: In VNC over SSH mode, automatically discover existing and/or create new X-sessions using x11vnc! Works like NX client.
-&lt;br&gt;
-- Free rotation support. Use Operating System to limit rotation if needed.
-&lt;br&gt;
-- SSH Public/Private key-pair generation and export.
-&lt;br&gt;
-- All standard VNC encodings, including Tight, ZRLE, and CopyRect.
-&lt;br&gt;
-- Automatic Session saving.
-&lt;br&gt;
-- Zoomable, Fit to Screen, and One to One scaling modes.
-&lt;br&gt;
-- Multi-touch control over remote mouse in Direct and Simulated Touchpad input modes.
-&lt;br&gt;
-- Full single-handed control over remote mouse in Single-Handed input mode.
-&lt;br&gt;
-- Multi-touch mouse clicks: tap to Left-click, two-finger tap to right-click, three-finger-tap to middle click.
-&lt;br&gt;
-- Multi-touch scrolling: two finger drag Up/Down, and Left/Right to scroll.
-&lt;br&gt;
-- On-screen meta and arrow keys which can be completely disabled from menu or stowed with on-screen button.
-&lt;br&gt;
-- Sending Text and arbitrary Key combinations when connected.
-&lt;br&gt;
-- Help with creating connections (\"Menu-&gt;Connection Help\") in connection screen.
-&lt;br&gt;
-- Help with input modes (\"Menu-&gt;More-&gt;Input Mode Help\") when connected.
-&lt;br&gt;
-- Using an available trackpad as Arrows instead of moving the mouse, and trackpad click as Ctrl.
-&lt;br&gt;
-- Switching to portrait mode during connections, rotating D-pad/trackpad for BT keyboards.
-&lt;br&gt;
-- Multi-language support, as long as the VNC server has the necessary language layout enabled.
-&lt;br&gt;
-- Copy/Paste integration
-&lt;br&gt;
-- Remote machine resolution changes
-&lt;br&gt;
-- Full mouse support on Android 4.0+ devices, including right and middle click and scroll wheel.
-&lt;br&gt;
-&lt;br&gt;
-Known issues:
-&lt;br&gt;"
-</string>
+
     <string name="intro_title">bVNC: Intuitive, secure VNC client</string>
     <string name="intro_version_text"/>
 
@@ -331,43 +242,6 @@ Known issues:
     <string name="local_mouse_check"/>
 
     <string name="main_screen_help">Pomoc z połączeniem</string>
-    <string name="main_screen_help_text">
-"When you first start bVNC, you will see a connection configuration page. Here you can set up a new VNC connection, or choose a preexisting one. The page is divided into two sections. The top section contains a drop-down list of the connection configurations you've created previously. The first time your run bVNC, you will only be able to make a new connection. Next to the list is a Connect button. The Connect button will start the VNC client with the currently selected configuration. Below that is where you configure your connection.
-
-If you are looking for a quick performance boost, try setting the Color mode to a lower value. Also, try removing any desktop background image on the VNC server. Finally, ensure your device has good network connectivity and avoid covering its antenna and reducing the signal strength.
-
- - Connection Type: Here you choose the VNC connection type. Available connection types are:
-   (a) Plain VNC, which is  supported by all VNC servers but lacks encryption and is vulnerable to brute-force attacks due to an 8-character password limitation.
-   (b) Secure VNC over SSH, which connects over an encrypted SSH tunnel. You need an SSHD service running as well as a VNC server. As long as the VNC server does not accept connections directly from the Internet, this connection type suffers no known vulnerabilities, as long as you verify the server certificate signature when first connecting.
-   (c) UltraVNC, which gives you Windows Logon and UltraVNC Repeater options. Using Windows Logon does not suffer from the 8-character password limitation, but this mode offers no encryption, so your session is vulnerable to sniffing.
-   (d) Secure VNC over AnonTLS, which is regular VNC over a stunnel-equivalent connection. You either need to run stunnel, or use a VNC server like Vino which supports AnonTLS out of the box. This mode gives you session encryption, but suffers from the 8-character password limitation and does not prevent man-in-the-middle attacks.
-   (e) Secure VNC over VeNCrypt, which uses x509 certificates as well as session encryption, and depending on the server configuration can use user/password credentials with no 8-character limitation. This mode prevents man-in-the-middle attacks. as well as providing session privacy. Servers like x11vnc and TigerVNC support this mode and are as secure as VNC over SSH. 
-
- - Title: Each connection you create can have a nickname to easily identify it on the list.
- 
- - SSH Tunnel Settings: Available in VNC over SSH mode.
-   (a) SSH Server/Port: The address and port of the SSH server that the connection will be tunnelled through. By default SSH listens on port 22.
-   (b) Username/Password: The username and password of the account on the SSH server. The password will be filled in on this page if you haven't quit bVNC since you last entered it.
-   (c) Manage Key/Use Key: A button to manage public/private keys, and a checkbox indicating whether to use a key rather than password to authenticate. If you use the Copy to Clipboard button after generating a key-pair, you should be able to paste the public key once connected to the VNC server (the clipboard is synchronized to the server).
-
- - Configure AutoX: Available only in VNC over SSH mode. bVNC can automatically discover existing and optionally create new X sessions on UNIX systems (like NX client). You need x11vnc to find, and Xvfb, Xvnc, or Xdummy installed on the remote system to create sessions. You may have to move away your .dmrc file and add a .xinit file in your home directory if your desktop doesn't look proper or you are getting just an xterm window.
-
- - VNC Connection Settings:
-   (a) VNC Server/Port: This is where you enter the host name or IP address and port of the computer running the VNC server that you wish to contact. In VNC over SSH mode, this address is as seen from the SSH Server. If the SSH Server and VNC server are the same computer, you can use localhost. VNC servers typically listen starting at port 5900 (the first VNC screen, screen :0).
-   (b) VNC User: Available in UltraVNC with Windows Logon mode, or Secure VNC over VeNCrypt, this is where you enter your Windows/UNIX account username.
-   (c) VNC Password: If your VNC server configuration requires a password, enter that password here. In UltraVNC with Windows Logon/VeNCrypt modes, put your Windows/UNIX account password here. Secure storage is not used for passwords, and the password will be stored only if you check the "Keep" box. The password will be filled in on this page if you haven't quit bVNC since you last entered it.
-
- - Color Mode: The client supports several color modes. Modes with more colors provide a better visual experience at the expense of greater bandwidth and more CPU computation on your device. Some VNC servers do not support all color depths (e.g. OS/X Remote Desktop requires 24-bit color). If you are having trouble connecting, try another color depth.
-
- - Use D-Pad for arrows: If you prefer, you can use the D-Pad of your Bluetooth keyboard or arrows on your on-screen keyboard to send arrows to the VNC server.
-
- - Rotate D-Pad: Phones paired with a Bluetooth keyboard may need the keyboard's D-pad to be rotated anti-clockwise to send correct directions to the server.
- 
- - Local mouse pointer: Some VNC servers (e.g. OS/X Remote Desktop) will not draw the mouse pointer on the client. Checking this option will cause bVNC to draw a small square at the mouse position. 
-
- - Auto/Fullscreen Bitmap: The VNC client uses a bitmap to represent the remote display. For very large remote displays, especially in fit-to-screen mode, you may experience strange visual artifacts when in fit-to-screen mode, due to per-process memory limitations. If that happens, try checking this option. Keep in mind that checking the option may cause bVNC to quit on connection.
-
- - Repeater: Available only in UltraVNC mode. IMPORTANT: If you have an UltraVNC repeater, enter its address and port outside the \'UltraVNC Repeater\' dialog and enter the address and port of the actual VNC server inside the \'UltraVNC Repeater\' Dialog. Separate VNC server\'s address and port with a colon, e.g. 192.168.0.100:5900."</string>
 
     <string name="master_password_enable">Włącz główne hasło</string>
     <string name="master_password_error_failed_to_disable">Nie można wyłączyć głównego hasła. Sprawdź wolne miejsce na swoim urządzeniu i spróbuj ponownie.</string>
@@ -445,89 +319,8 @@ If you are looking for a quick performance boost, try setting the Color mode to 
         <item>\@string/rdp_geom_native_portrait</item>
         <item>\@string/rdp_geom_custom</item>
     </string-array>
-    <string name="rdp_intro_text">
-"Thank you for supporting aRDP and open-source software in general! For help with using aRDP, see the Help items in the Menu, and the description of the app in the market.
-&lt;br&gt;
-&lt;br&gt;
-Current list of aRDP features includes:
-&lt;br&gt;
-- Plain RDP, RDP tunneled over SSH.
-&lt;br&gt;
-- Free rotation support. Use Operating System to limit rotation if needed.
-&lt;br&gt;
-- Setting of remote resolution, native resolution in landscape and portrait modes.
-&lt;br&gt;
-- SSH Public/Private key-pair generation and export.
-&lt;br&gt;
-- Automatic Session saving.
-&lt;br&gt;
-- Zoomable, Fit to Screen, and One to One scaling modes.
-&lt;br&gt;
-- Multi-touch control over remote mouse in Direct and Simulated Touchpad input modes.
-&lt;br&gt;
-- Full single-handed control over remote mouse in Single-Handed input mode.
-&lt;br&gt;
-- Multi-touch mouse clicks: tap to Left-click, two-finger tap to right-click, three-finger-tap to middle click.
-&lt;br&gt;
-- Multi-touch scrolling: two finger drag Up/Down, and Left/Right to scroll.
-&lt;br&gt;
-- On-screen meta and arrow keys which can be completely disabled from menu or stowed with on-screen button.
-&lt;br&gt;
-- Sending Text and arbitrary Key combinations when connected.
-&lt;br&gt;
-- Help with creating connections (\"Menu-&gt;Connection Help\") in connection screen.
-&lt;br&gt;
-- Help with input modes (\"Menu-&gt;More-&gt;Input Mode Help\") when connected.
-&lt;br&gt;
-- Using an available trackpad as Arrows instead of moving the mouse, and trackpad click as Ctrl, rotating D-pad/trackpad for BT keyboards.
-&lt;br&gt;
-- Multi-language support, as long as the VNC server has the necessary language layout enabled.
-&lt;br&gt;
-- Seamless remote machine resolution changes
-&lt;br&gt;
-- Full mouse support on Android 4.0+ devices, including right and middle click and scroll wheel.
-&lt;br&gt;
-&lt;br&gt;
-Planned features of aRDP include:
-&lt;br&gt;
-- A choice of color modes
-&lt;br&gt;
-- Copy/Paste integration
-&lt;br&gt;
-- Exporting settings
-&lt;br&gt;
-- Sound
-&lt;br&gt;
-&lt;br&gt;
-Known issues:
-</string>
+
     <string name="rdp_intro_title">aRDP: Intuicyjny i bezpieczny klient RDP</string>
-    <string name="rdp_main_screen_help_text">
-"When you first start aRDP, you will see a connection configuration page. Here you can set up a new RDP connection, or choose a preexisting one. The page is divided into two sections. The top section contains a drop-down list of the connection configurations you've created previously. The first time your run aRDP, you will only be able to make a new connection. Next to the list is a Connect button. The Connect button will start the RDP client with the currently selected configuration. Below that is where you configure your connection.
-
- - Connection Type: Here you choose the RDP connection type. Available connection types are:
-   (a) RDP, which connects directly to a computer over the RDP protocol.
-   (b) RDP over SSH, which first tunnels your connection through a computer running an SSH server.
-
- - Title: Each connection you create can have a nickname to easily identify it on the list.
- 
- - SSH Tunnel Settings: Available in RDP over SSH mode.
-   (a) SSH Server/Port: The address and port of the SSH server that the connection will be tunnelled through. By default SSH listens on port 22.
-   (b) Username/Password: The username and password of the account on the SSH server. The password will be filled in on this page if you haven't quit bVNC since you last entered it.
-   (c) Manage Key/Use Key: A button to manage public/private keys, and a checkbox indicating whether to use a key rather than password to authenticate. If you use the Copy to Clipboard button after generating a key-pair, you should be able to paste the public key once connected to the VNC server (the clipboard is synchronized to the server).
-
- - RDP Connection Settings:
-   (a) RDP Server/Port: This is where you enter the host name or IP address and port of the computer running the RDP server that you wish to contact. In RDP over SSH mode, this address is as seen from the SSH Server. If the SSH Server and RDP server are the same physical computer, you can use localhost. RDP servers typically listen on port 3389.
-   (b) RDP User: This is where you enter your Windows/UNIX account user name.
-   (c) RDP Domain: Enter the domain your account belongs to.
-   (d) RDP Password: This si where you enter your Windows/UNIX account password. Secure storage is not used for passwords (they are in a database), and the password will be stored only if you check the "Keep" box. The password will be filled in on this page if you haven't quit aRDP since you last entered it.
-
- - Advanced settings: In this section you'll find a ways to customize the resolution of the desktop, and various RDP performance tweaks
- 
- - Local Device Tweaks: These adjust the behavior of aRDP on your device.
-   (a) Use D-Pad for arrows: If you prefer, you can use the D-Pad of your Bluetooth keyboard or arrows on your on-screen keyboard to send arrows to the RDP server.
-   (b) Rotate D-Pad: Phones paired with a Bluetooth keyboard may need the keyboard's D-pad to be rotated anti-clockwise to send correct directions to the server.
-   (c) Local mouse pointer: If the pointer is invisible, select this to force it to be drawn by aRDP.</string>
     <string name="rdp_password_hint">Hasło RDP</string>
     <string name="rdp_server_empty">Pole serwera lub portu RDP nie może być puste. Nie można połączyć.</string>
     <string name="rdp_username_hint">Nazwa użytkownika RDP</string>
@@ -587,84 +380,7 @@ Known issues:
         <item>\@string/connection_type_spice</item>
         <item>\@string/connection_type_spice_over_ssh</item>
     </string-array>
-    <string name="spice_intro_text">
-"Thank you for supporting aSPICE and open-source software in general! For help with using aSPICE, see the Help items in the Menu, and the description of the app in the market.
-&lt;br&gt;
-&lt;br&gt;
-Current list of aSPICE features includes:
-&lt;br&gt;
-- Plain SPICE, SPICE tunneled over SSH.
-&lt;br&gt;
-- Free rotation support. Use Operating System to limit rotation if needed.
-&lt;br&gt;
-- SSH Public/Private key-pair generation and export.
-&lt;br&gt;
-- Automatic Session saving.
-&lt;br&gt;
-- Zoomable, Fit to Screen, and One to One scaling modes.
-&lt;br&gt;
-- Multi-touch control over remote mouse in Direct and Simulated Touchpad input modes.
-&lt;br&gt;
-- Full single-handed control over remote mouse in Single-Handed input mode.
-&lt;br&gt;
-- Multi-touch mouse clicks: tap to Left-click, two-finger tap to right-click, three-finger-tap to middle click.
-&lt;br&gt;
-- Multi-touch scrolling: two finger drag Up/Down, and Left/Right to scroll.
-&lt;br&gt;
-- On-screen meta and arrow keys which can be completely disabled from menu or stowed with on-screen button.
-&lt;br&gt;
-- Sending Text and arbitrary Key combinations when connected.
-&lt;br&gt;
-- Help with creating connections (\"Menu-&gt;Connection Help\") in connection screen.
-&lt;br&gt;
-- Help with input modes (\"Menu-&gt;More-&gt;Input Mode Help\") when connected.
-&lt;br&gt;
-- Using an available trackpad as Arrows instead of moving the mouse, and trackpad click as Ctrl, rotating D-pad/trackpad for BT keyboards.
-&lt;br&gt;
-- Multi-language support, as long as the VNC server has the necessary language layout enabled.
-&lt;br&gt;
-- Seamless remote machine resolution changes
-&lt;br&gt;
-- Full mouse support on Android 4.0+ devices, including right and middle click and scroll wheel.
-&lt;br&gt;
-&lt;br&gt;
-Planned features:
-&lt;br&gt;
-- Copy/Paste integration
-&lt;br&gt;
-- Sound
-&lt;br&gt;
-- Performance improvements
-&lt;br&gt;
-Known issues:
-&lt;br&gt;
-- Send text does not send some symbols.
-&lt;br&gt;
-</string>
     <string name="spice_intro_title">aSPICE: Intuicyjny, bezpieczny klient SPICE</string>
-    <string name="spice_main_screen_help_text">
-"When you first start aSPICE, you will see a connection configuration page. Here you can set up a new SPICE connection, or choose a preexisting one. The page is divided into two sections. The top section contains a drop-down list of the connection configurations you've created previously. The first time your run aSPICE, you will only be able to make a new connection. Next to the list is a Connect button. The Connect button will start the SPICE client with the currently selected configuration. Below that is where you configure your connection.
-
- - Connection Type: Here you choose the SPICE connection type. Available connection types are:
-   (a) SPICE, which connects directly to a computer over the SPICE protocol.
-   (b) SPICE over SSH, which first tunnels your connection through a computer running an SSH server.
-
- - Title: Each connection you create can have a nickname to easily identify it on the list.
- 
- - SSH Tunnel Settings: Available in SPICE over SSH mode.
-   (a) SSH Server/Port: The address and port of the SSH server that the connection will be tunnelled through. By default SSH listens on port 22.
-   (b) Username/Password: The username and password of the account on the SSH server. The password will be filled in on this page if you haven't quit bVNC since you last entered it.
-   (c) Manage Key/Use Key: A button to manage public/private keys, and a checkbox indicating whether to use a key rather than password to authenticate. If you use the Copy to Clipboard button after generating a key-pair, you should be able to paste the public key once connected to the VNC server (the clipboard is synchronized to the server).
-
- - SPICE Connection Settings:
-   (a) SPICE Server/Port: This is where you enter the host name or IP address and port of the computer running the SPICE server that you wish to contact. In SPICE over SSH mode, this address is as seen from the SSH Server. If the SSH Server and SPICE server are the same physical computer, you can use localhost. SPICE servers typically listen on port 5900 and up.
-   (d) SPICE Password: This is where you enter the password set to protect your SPICE session. Secure storage is not used for passwords (they are in a database), and the password will be stored only if you check the "Keep" box. The password will be filled in on this page if you haven't quit aSPICE since you last entered it.
-
- - Advanced settings: In this section you'll find any local device or SPICE performance tweaks
- - Local Device Tweaks: These adjust the behavior of aSPICE on your device.
-   (a) Use D-Pad for arrows: If you prefer, you can use the D-Pad of your Bluetooth keyboard or arrows on your on-screen keyboard to send arrows to the SPICE server.
-   (b) Rotate D-Pad: Phones paired with a Bluetooth keyboard may need the keyboard's D-pad to be rotated anti-clockwise to send correct directions to the server.
-   (c) Local mouse pointer: If the pointer is invisible, select this to force it to be drawn by aSPICE.</string>
     <string name="spice_password_hint">Hasło SPICE</string>
     <string name="spice_server_empty">Pole serwera SPICE nie może być puste. Nie można połączyć.</string>
     <string name="spice_tls_port_hint">Port TLS</string>

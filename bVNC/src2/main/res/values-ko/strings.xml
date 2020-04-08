@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
 <resources>
   <string name="ad_donate_text0">Pro 버전은 다단계 인증에 지원하고 있습니다.무단 사용 방지를 위해 마스터 Password 기능도 지원하고 있습니다.또한 Password/SSH키를 포함한 모든 연결 설정이 암호화가 되어 있기 때문에 도난 방지에도 도움이됩니다.</string>
   <string name="ad_donate_text1">Pro 버전 구입시 소액 기부에 동의하시는 분은 여기를 눌러주세요.</string>
@@ -180,7 +180,8 @@
   <string name="input_mode_drag_pan_zoom_mouse">직접, 길게 누르고 평행 이동</string>
   <string name="input_mode_fit_to_screen">평행 이동 없음; 트랙볼 마우스</string>
   <string name="input_mode_help">입력 모드 HELP</string>
-  <string name="input_mode_help_text">키보드 아이콘을 탭하여 온 스크린 키보드를 표시(모든 입력 모드에 대응). 사용 기기에 따라 키보드 표시 방법은 다릅니다.
+  <string name="input_mode_help_text">
+"키보드 아이콘을 탭하여 온 스크린 키보드를 표시(모든 입력 모드에 대응). 사용 기기에 따라 키보드 표시 방법은 다릅니다.
 
 직접 입력 모드 사용하면 더 직관적 인 터치 스크린 조작이 가능합니다. 터치 패드 시뮬레이션 모드로하면 마우스를 사용한 손가락 조작이 가능합니다.
 
@@ -219,7 +220,8 @@
 ･확대/축소 : 핀치 인 /아웃에서 표시 크기 제어
 ･Ctrl/Alt 키 : 메뉴&gt; Ctrl/Alt 스위치 종료 후 해제하는 것을 잊지 마세요!
 ･키 콤보 : 메뉴&gt; 상세&gt; 키를 전송
-･텍스트 전송 : 온 스크린 키보드로 입력하거나 메뉴&gt; 상세&gt; 텍스트 전송에서 입력</string>
+･텍스트 전송 : 온 스크린 키보드로 입력하거나 메뉴&gt; 상세&gt; 텍스트 전송에서 입력"
+  </string>
   <string name="input_mode_mouse">마우스 포인터 컨트롤</string>
   <string name="input_mode_panning">데스크톱 패닝 모드</string>
   <string name="input_mode_single_handed">한손</string>
@@ -276,8 +278,8 @@
 &lt;br&gt;
 &lt;br&gt;
 문제:
-&lt;br&gt; ”
-</string>
+&lt;br&gt;"
+  </string>
   <string name="intro_title">bVNC: 직관적이고 안전한 VNC 클라이언트</string>
   <string name="intro_version_text" />
   <string name="keep_password_button">저장</string>
@@ -289,7 +291,8 @@
   <string name="list_name_caption">리스트 이름</string>
   <string name="local_mouse_check">로컬 마우스 포인터(포인터가 가시가능한 경우는 선택)</string>
   <string name="main_screen_help">연결 도움</string>
-  <string name="main_screen_help_text">bVNC 시작할 때 연결 설정 화면이 표시됩니다. 여기에서는 새 VNC 연결 설정하거나 기존 연결 선택이 가능합니다. 페이지는 두 섹션으로 나누어 져 있으며, 화면 상단에서는 과거의 연결 설정 풀다운 메뉴에서 표시됩니다. bVNC를 처음 실행하면 새 설정 화면 만 표시됩니다. 풀다운 메뉴 옆에있는 연결 스위치를 누르면, 선택한 설정으로 VNC 클라이언트가 시작됩니다. 연결 스위치 아래에서 연결 설정을합니다.
+  <string name="main_screen_help_text">
+"bVNC 시작할 때 연결 설정 화면이 표시됩니다. 여기에서는 새 VNC 연결 설정하거나 기존 연결 선택이 가능합니다. 페이지는 두 섹션으로 나누어 져 있으며, 화면 상단에서는 과거의 연결 설정 풀다운 메뉴에서 표시됩니다. bVNC를 처음 실행하면 새 설정 화면 만 표시됩니다. 풀다운 메뉴 옆에있는 연결 스위치를 누르면, 선택한 설정으로 VNC 클라이언트가 시작됩니다. 연결 스위치 아래에서 연결 설정을합니다.
 
 간단한 성능 개선을 요구하는 경우 화면의 색상 설정을 낮은 것으로 변경하거나 또는 VNC 서버의 데스크탑 배경 이미지를 제거에도 효과적입니다. 사용중인 단말기의 네트워크 상태를 확인하고 안테나가 덮여 통신 강도가 떨어지는 일이 없도록하십시오.
 
@@ -323,7 +326,8 @@
 
 · 자동/전체 화면 비트 맵 : 리모트 디스플레이에 VNC 클라이언트는 비트 맵을 사용합니다. 면적이 큰 리모트 디스플레이, 특히 Fit-to-screen 모드에서는 반드시 프로세스 별 메모리 제한의 영향으로 부 자연스러운 표시 될 수있습니다. 이 경우, 이 기능의 사용을 권장합니다. 주의점으로 이 기능을 사용하면 bVNC의 연결이 끊킬수도 있습니다.
 
-･리피터 : 연결 타입 UltraVNC 선택시에만 가능합니다. 중요 : UltraVNC 리피터를 가지고 계신 경우 IP주소 및 포트 번호는 \'UltraVNC Repeater\' 다이얼로그 밖에 입력하고 실제 VNC 서버의 IP주소 및 포트 번호는 \'UltraVNC Repeater\' 다이얼로그의 안에 입력한다. VNC 서버의 IP주소와 포트 번호는 콜론으로 구분합니다. (예 : 192.168.0.100 : 5900)</string>
+･리피터 : 연결 타입 UltraVNC 선택시에만 가능합니다. 중요 : UltraVNC 리피터를 가지고 계신 경우 IP주소 및 포트 번호는 \'UltraVNC Repeater\' 다이얼로그 밖에 입력하고 실제 VNC 서버의 IP주소 및 포트 번호는 \'UltraVNC Repeater\' 다이얼로그의 안에 입력한다. VNC 서버의 IP주소와 포트 번호는 콜론으로 구분합니다. (예 : 192.168.0.100 : 5900)"
+  </string>
   <string name="master_password_enable">마스터 Password를 활성화하는</string>
   <string name="master_password_error_failed_to_disable">마스터 Password를 비활성화 할 수 없습니다.기기의 가능한 용량을 확인하고 다시 실행하십시오.</string>
   <string name="master_password_error_failed_to_enable">마스터 Password를 활성화 할 수 없습니다.기기의 가능한 용량을 확인하고 다시 실행하십시오.</string>
@@ -394,7 +398,8 @@
     <item>@string/rdp_geom_native_portrait</item>
     <item>@string/rdp_geom_custom</item>
   </string-array>
-  <string name="rdp_intro_text">"aRDP 및 범용 오픈 소스 소프트웨어에 대한 지원에 감사합니다! aRDP의 사용에 관해서는 메뉴의 도움말 항목 애플리케이션 설명을 참조하십시오.
+  <string name="rdp_intro_text">
+"aRDP 및 범용 오픈 소스 소프트웨어에 대한 지원에 감사합니다! aRDP의 사용에 관해서는 메뉴의 도움말 항목 애플리케이션 설명을 참조하십시오.
 &lt;br&gt;
 &lt;br&gt;
 aRDP의 대응 기능는 이하와 같다:
@@ -447,10 +452,11 @@ aRDP지원 예정 기능:
 ･사운드
 &lt;br&gt;
 &lt;br&gt;
-문제:</string>
+문제:"
+  </string>
   <string name="rdp_intro_title">aRDP: 직관적이고 안전한 RDP 클라이언트</string>
   <string name="rdp_main_screen_help_text">
-”aRDP 시작할 때 연결 설정 화면이 표시됩니다. 여기에서는 새 RDP 연결 설정하거나 기존 연결 선택이 가능합니다. 페이지는 2개의 섹션으로 나누어 져 있으며,화면 상단에서는 과거의 연결 설정이 풀다운 메뉴에서 표시됩니다.aRDP를 처음 실행할 때 새 설정 화면 만 표시됩니다.풀다운 메뉴 옆에있는 연결 스위치를 누르면,선택한 설정에 RDP 클라이언트가 시작됩니다.연결 스위치 아래에서 연결 설정을합니다.
+"aRDP 시작할 때 연결 설정 화면이 표시됩니다. 여기에서는 새 RDP 연결 설정하거나 기존 연결 선택이 가능합니다. 페이지는 2개의 섹션으로 나누어 져 있으며,화면 상단에서는 과거의 연결 설정이 풀다운 메뉴에서 표시됩니다.aRDP를 처음 실행할 때 새 설정 화면 만 표시됩니다.풀다운 메뉴 옆에있는 연결 스위치를 누르면,선택한 설정에 RDP 클라이언트가 시작됩니다.연결 스위치 아래에서 연결 설정을합니다.
 
 ・연결 타입: 사용 RDP 연결 타입을 이하에서 선택하십시오.
  (a) RDP：RDP프로토콜로 컴퓨터에 직접 연결한다.
@@ -475,7 +481,8 @@ aRDP지원 예정 기능:
 ･로컬 기기 조정: 사용 단말기에서 aRDP 동작 조정한다.
   (a) 화살표 D-Pad를 사용: VNC서버에 화살표를 전송하는 경우,Bluetooth 키보드의 D-Pad 혹은 온 스크린 키보드의 화살표가 사용 가능.
   (b) D-Pad의 회전 : Bluetooth 키보드와 페어링 된 스마트 폰의 경우,올바른 방향을 서버로 전송하기 위해 키보드의 D-Pad를 반 시계 방향으로 회전시킬 필요가 있습니다.
-  (c)　로컬 마우스 포인터: 마우스 포인터가 표시되지 않는 경우이 기능을 사용하여 aRDP 따라 마우스 위치 표시가 가능.</string>
+  (c)　로컬 마우스 포인터: 마우스 포인터가 표시되지 않는 경우이 기능을 사용하여 aRDP 따라 마우스 위치 표시가 가능."
+  </string>
   <string name="rdp_password_hint">RDP Password</string>
   <string name="rdp_server_empty">RDP서버 혹은 포트가 비어 있습니다. 연결할 수 없습니다!</string>
   <string name="rdp_username_hint">RDP 사용자 이름</string>
@@ -522,7 +529,8 @@ aRDP지원 예정 기능:
     <item>@string/connection_type_spice</item>
     <item>@string/connection_type_spice_over_ssh</item>
   </string-array>
-  <string name="spice_intro_text">"aSPICE 및 범용 오픈 소스 소프트웨어에 대한 지원 감사합니다! 메뉴의 도움말 아이템 애플리케이션 설명을 참조하십시오.
+  <string name="spice_intro_text">
+"aSPICE 및 범용 오픈 소스 소프트웨어에 대한 지원 감사합니다! 메뉴의 도움말 아이템 애플리케이션 설명을 참조하십시오.
 &lt;br&gt;
 &lt;br&gt;  
 aSPICEで의 대응 기능는 이하와 같다 :
@@ -573,9 +581,11 @@ aSPICEで의 대응 기능는 이하와 같다 :
 문제 :
 &lt;br&gt;
 ・"텍스트 전송 "비 대응의 기호 있다
-&lt;br&gt;</string>
+&lt;br&gt;"
+  </string>
   <string name="spice_intro_title">aSPICE: 직관적이고 안전한 SPICE 클라이언트</string>
-  <string name="spice_main_screen_help_text">”aSPICE 시작할 때 연결 설정 화면이 표시됩니다.여기에서는 새 SPICE 연결 설정하거나 기존 연결 선택이 가능합니다.페이지는 2개의 섹션으로 나누어 져 있으며,화면 상단에서는 과거의 연결 설정이 풀다운 메뉴에서 표시됩니다.aSPICE를 처음 실행할 때 새 설정 화면 만 표시됩니다.풀다운 메뉴 옆에있는 연결 스위치를 누르면,선택한 설정에 SPICE클라이언트가 시작됩니다.연결 스위치 아래에서 연결 설정을합니다.
+  <string name="spice_main_screen_help_text">
+"aSPICE 시작할 때 연결 설정 화면이 표시됩니다.여기에서는 새 SPICE 연결 설정하거나 기존 연결 선택이 가능합니다.페이지는 2개의 섹션으로 나누어 져 있으며,화면 상단에서는 과거의 연결 설정이 풀다운 메뉴에서 표시됩니다.aSPICE를 처음 실행할 때 새 설정 화면 만 표시됩니다.풀다운 메뉴 옆에있는 연결 스위치를 누르면,선택한 설정에 SPICE클라이언트가 시작됩니다.연결 스위치 아래에서 연결 설정을합니다.
 
 ・연결 타입: 사용 SPICE 연결 타입을 이하에서 선택하십시오.
 　　(a) SPICE：SPICE프로토콜로 컴퓨터에 직접 연결한다.
@@ -597,7 +607,8 @@ aSPICEで의 대응 기능는 이하와 같다 :
 ・로컬 기기 조정: 사용 단말기에서 aSPICE 동작 조정한다.
 　　(a) 화살표 D-Pad를 사용: SPICE서버에 화살표를 전송하는 경우,Bluetooth 키보드의 D-Pad 혹은 온 스크린 키보드의 화살표가 사용 가능.
 　　(b) D-Pad의 회전: Bluetooth 키보드와 페어링 된 스마트 폰의 경우,올바른 방향을 서버로 전송하기 위해 키보드의 D-Pad를 반 시계 방향으로 회전시킬 필요가있다.
-　　(c)　로컬 마우스 포인터: 마우스 포인터가 표시되지 않는 경우이 기능을 사용하여 aSPICE따라 마우스 위치 표시가 가능.</string>
+　　(c)　로컬 마우스 포인터: 마우스 포인터가 표시되지 않는 경우이 기능을 사용하여 aSPICE따라 마우스 위치 표시가 가능."
+  </string>
   <string name="spice_password_hint">SPICE Password</string>
   <string name="spice_server_empty">SPICE서버 혹은 포트가 비어 있습니다. 연결할 수 없습니다!</string>
   <string name="spice_tls_port_hint">TLS 포트</string>

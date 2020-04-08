@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
 <resources>
   <string name="ad_donate_text0">Proバージョンは多要素認証に対応しています。不正使用防止の為に、マスターパスワード機能にも対応しています。また、パスワード/SSHキーを含む全ての接続設定が暗号化されているため、盗難防止にも役立ちます。メインメニューから設定を有効にできます。メニューボタンが見つからない場合、起動中のアプリボタンを長押しして下さい。</string>
   <string name="ad_donate_text1">Proバージョン購入で少額の寄付に同意される方は、こちらをタップして下さい。</string>
@@ -180,7 +180,8 @@
   <string name="input_mode_drag_pan_zoom_mouse">ダイレクト、長押し平行移動</string>
   <string name="input_mode_fit_to_screen">平行移動無し；トラックボールマウス</string>
   <string name="input_mode_help">入力モードヘルプ</string>
-  <string name="input_mode_help_text">キーボードアイコンをタップしてオンスクリーンキーボードを表示(全ての入力モードに対応)。ご使用の機器によってキーボード表示方法は異なります。
+  <string name="input_mode_help_text">
+"キーボードアイコンをタップしてオンスクリーンキーボードを表示(全ての入力モードに対応)。ご使用の機器によってキーボード表示方法は異なります。
 
 ダイレクト入力モードの利用で、更に直観的なタッチスクリーン操作が可能です。タッチパッドシミュレーションモードにすれば、マウスを使った指操作が可能です。
 
@@ -219,7 +220,8 @@
 ・拡大/縮小：ピンチイン/アウトで表示大きさコントロール
 ・Ctrl/Altキー：メニュー&gt;Ctrl/Altスイッチ、終了後にオフするのをお忘れなく！
 ・キーコンボ：メニュー&gt;詳細&gt;キーを送信
-・テキスト送信：オンスクリーンキーボードで入力、或いはメニュー&gt;詳細&gt;テキスト送信から入力</string>
+・テキスト送信：オンスクリーンキーボードで入力、或いはメニュー&gt;詳細&gt;テキスト送信から入力"
+  </string>
   <string name="input_mode_mouse">マウスポインタ―コントロール</string>
   <string name="input_mode_panning">デスクトップパニングモード</string>
   <string name="input_mode_single_handed">片手</string>
@@ -273,8 +275,8 @@
 &lt;br&gt;
 &lt;br&gt;
 不具合：
-&lt;br&gt; ”
-</string>
+&lt;br&gt;"
+  </string>
   <string name="intro_title">bVNC: 直観的で、安全なVNCクライアント</string>
   <string name="intro_version_text" />
   <string name="keep_password_button">保存</string>
@@ -286,7 +288,8 @@
   <string name="list_name_caption">リスト名</string>
   <string name="local_mouse_check">ローカルマウスポインタ―（ポインタが可視できる場合は選択する）</string>
   <string name="main_screen_help">接続ヘルプ</string>
-  <string name="main_screen_help_text">bVNC起動時、接続設定画面が表示されます。ここでは、新規VNC接続設定や、既存接続の選択が可能です。ページは2つのセクションに分かれており、画面上部では、過去の接続設定がプルダウンメニューから表示されます。bVNCの初回実行時は、新規設定画面のみが表示されます。プルダウンメニューの隣にある接続スイッチを押下すると、選択中の設定でVNCクライアントが開始されます。接続スイッチ以下にて接続設定を行います。
+  <string name="main_screen_help_text">
+"bVNC起動時、接続設定画面が表示されます。ここでは、新規VNC接続設定や、既存接続の選択が可能です。ページは2つのセクションに分かれており、画面上部では、過去の接続設定がプルダウンメニューから表示されます。bVNCの初回実行時は、新規設定画面のみが表示されます。プルダウンメニューの隣にある接続スイッチを押下すると、選択中の設定でVNCクライアントが開始されます。接続スイッチ以下にて接続設定を行います。
 
 簡単なパフォーマンス改善を求める場合、画面の色設定を低いものに変更する、或いはVNCサーバーのデスクトップ背景画像を取り除くのも有効です。ご使用中の端末機器のネットワーク状況を確認し、 アンテナが覆われて通信強度が下がることのないようにしてください。
 
@@ -329,7 +332,8 @@
 ・自動/全画面ビットマップ：リモートディスプレイ表示に、VNCクライアントはビットマップを使用する。面積の大きいリモートディスプレイ、特にFit-to-screenモードでは必ず、プロセス毎のメモリ制限の影響により、不自然な表示になることがある。その場合、本機能の使用を推奨する。注意点として、本機能の使用により、bVNCの接続が切れる恐れあり。
 
 
-・リピーター：接続タイプUltraVNC選択中のみ利用可能。重要：UltraVNCリピーターをお持ちの場合、そのIPアドレス及びポート番号は \'UltraVNC Repeater\'ダイアログの外に入力し、実際のVNCサーバーのIPアドレス及びポート番号は、 \'UltraVNC Repeater\'ダイアログの中に入力する。VNCサーバーのIPアドレスとポート番号は、コロンで隔てる。(例：192.168.0.100:5900)</string>
+・リピーター：接続タイプUltraVNC選択中のみ利用可能。重要：UltraVNCリピーターをお持ちの場合、そのIPアドレス及びポート番号は \'UltraVNC Repeater\'ダイアログの外に入力し、実際のVNCサーバーのIPアドレス及びポート番号は、 \'UltraVNC Repeater\'ダイアログの中に入力する。VNCサーバーのIPアドレスとポート番号は、コロンで隔てる。(例：192.168.0.100:5900)"
+  </string>
   <string name="master_password_enable">マスターパスワードを有効にする</string>
   <string name="master_password_error_failed_to_disable">マスターパスワードを無効にできません。機器の空き容量を確認し、再試行してください。</string>
   <string name="master_password_error_failed_to_enable">マスターパスワードを有効にできません。機器の空き容量を確認し、再試行してください。</string>
@@ -400,7 +404,8 @@
     <item>@string/rdp_geom_native_portrait</item>
     <item>@string/rdp_geom_custom</item>
   </string-array>
-  <string name="rdp_intro_text">"aRDP及び汎用オープンソースソフトウェアへのご支援ありがとうございます！aRDPのご使用に関しては、メニューのヘルプアイテム、アプリ説明をご参照ください。
+  <string name="rdp_intro_text">
+"aRDP及び汎用オープンソースソフトウェアへのご支援ありがとうございます！aRDPのご使用に関しては、メニューのヘルプアイテム、アプリ説明をご参照ください。
 &lt;br&gt;
 &lt;br&gt;
 aRDPの対応機能は以下の通り：
@@ -453,10 +458,11 @@ aRDP対応予定機能：
 ・サウンド
 &lt;br&gt;
 &lt;br&gt;
-不具合：</string>
+不具合："
+  </string>
   <string name="rdp_intro_title">aRDP: 直観的で安全なRDPクライアント</string>
   <string name="rdp_main_screen_help_text">
-”aRDP起動時、接続設定画面が表示されます。ここでは、新規RDP接続設定や、既存接続の選択が可能です。ページは2つのセクションに分かれており、画面上部では、過去の接続設定がプルダウンメニューから表示されます。aRDPの初回実行時は、新規設定画面のみが表示されます。プルダウンメニューの隣にある接続スイッチを押下すると、選択中の設定でRDPクライアントが開始されます。接続スイッチ以下にて接続設定を行います。
+"aRDP起動時、接続設定画面が表示されます。ここでは、新規RDP接続設定や、既存接続の選択が可能です。ページは2つのセクションに分かれており、画面上部では、過去の接続設定がプルダウンメニューから表示されます。aRDPの初回実行時は、新規設定画面のみが表示されます。プルダウンメニューの隣にある接続スイッチを押下すると、選択中の設定でRDPクライアントが開始されます。接続スイッチ以下にて接続設定を行います。
 
 ・接続タイプ：使用するRDP接続タイプを以下より選択してください。
  (a) RDP：RDPプロトコルでコンピュータに直接接続する。
@@ -480,7 +486,8 @@ aRDP対応予定機能：
 ・ローカル機器微調整：ご使用の端末機器でのaRDP動作調整を行う。
   (a) 矢印にD-Padを使用：VNCサーバーに矢印を送る場合、BluetoothキーボードのD-Pad、或いはオンスクリーンキーボードの矢印が使用可能。
   (b) D-Padの回転：Bluetoothキーボードとペアリング済みのスマホの場合、正しい方向をサーバーに送信する為にキーボードのD-Padを反時計方向に回転させる必要がある。
-  (c)ローカルマウスポインタ：マウスポインタが表示されない場合、本機能を使用することにより、aRDPによってマウス位置表示が可能。</string>
+  (c)ローカルマウスポインタ：マウスポインタが表示されない場合、本機能を使用することにより、aRDPによってマウス位置表示が可能。"
+  </string>
   <string name="rdp_password_hint">RDPパスワード</string>
   <string name="rdp_server_empty">RDPサーバー或いはポートが空欄です。接続できません！</string>
   <string name="rdp_username_hint">RDPユーザー名</string>
@@ -527,7 +534,8 @@ aRDP対応予定機能：
     <item>@string/connection_type_spice</item>
     <item>@string/connection_type_spice_over_ssh</item>
   </string-array>
-  <string name="spice_intro_text">"aSPICE及び汎用オープンソースソフトウェアへのご支援ありがとうございます！メニューのヘルプアイテム、アプリ説明をご参照ください。
+  <string name="spice_intro_text">
+"aSPICE及び汎用オープンソースソフトウェアへのご支援ありがとうございます！メニューのヘルプアイテム、アプリ説明をご参照ください。
 &lt;br&gt;
 &lt;br&gt;  
 aSPICEで対応済み機能は以下の通り：
@@ -578,9 +586,11 @@ aSPICEで対応済み機能は以下の通り：
 不具合：
 &lt;br&gt;
 ・「テキスト送信」非対応の記号あり
-&lt;br&gt;</string>
+&lt;br&gt;"
+  </string>
   <string name="spice_intro_title">aSPICE: 直観的で安全なSPICEクライアント</string>
-  <string name="spice_main_screen_help_text">”aSPICE起動時、接続設定画面が表示されます。ここでは、新規SPICE接続設定や、既存接続の選択が可能です。ページは2つのセクションに分かれており、画面上部では、過去の接続設定がプルダウンメニューから表示されます。aSPICEの初回実行時は、新規設定画面のみが表示されます。プルダウンメニューの隣にある接続スイッチを押下すると、選択中の設定でSPICEクライアントが開始されます。接続スイッチ以下にて接続設定を行います。
+  <string name="spice_main_screen_help_text">
+"aSPICE起動時、接続設定画面が表示されます。ここでは、新規SPICE接続設定や、既存接続の選択が可能です。ページは2つのセクションに分かれており、画面上部では、過去の接続設定がプルダウンメニューから表示されます。aSPICEの初回実行時は、新規設定画面のみが表示されます。プルダウンメニューの隣にある接続スイッチを押下すると、選択中の設定でSPICEクライアントが開始されます。接続スイッチ以下にて接続設定を行います。
 
 ・接続タイプ：使用するSPICE接続タイプを以下より選択してください。
 　　(a) SPICE：SPICEプロトコルでコンピュータに直接接続する。
@@ -602,7 +612,8 @@ aSPICEで対応済み機能は以下の通り：
 ・ローカル機器微調整：ご使用の端末機器でのaSPICE動作調整を行う。
 　　(a) 矢印にD-Padを使用：SPICEサーバーに矢印を送る場合、BluetoothキーボードのD-Pad、或いはオンスクリーンキーボードの矢印が使用可能。
 　　(b) D-Padの回転：Bluetoothキーボードとペアリング済みの端末機器の場合、正しい方向をサーバーに送信する為にキーボードのD-Padを反時計方向に回転させる必要がある。
-　　(c)　ローカルマウスポインタ：マウスポインタが表示されない場合、本機能を使用することにより、aSPICEによってマウス位置表示が可能。</string>
+　　(c)　ローカルマウスポインタ：マウスポインタが表示されない場合、本機能を使用することにより、aSPICEによってマウス位置表示が可能。"
+  </string>
   <string name="spice_password_hint">SPICEパスワード</string>
   <string name="spice_server_empty">SPICEサーバー或いはポートが空欄です。接続できません！</string>
   <string name="spice_tls_port_hint">TLSポート</string>

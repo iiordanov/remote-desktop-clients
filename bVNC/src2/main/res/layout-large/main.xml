@@ -326,7 +326,9 @@
                 android:id="@+id/toggleAdvancedSettings"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceMedium" />
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textOn="@android:string/no"
+                android:textOff="@android:string/yes" />
 
             <TextView
                 android:layout_width="wrap_content"

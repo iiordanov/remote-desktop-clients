@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
 <resources>
   <string name="ad_donate_text0">Pro版本對應於多重要素驗證。為了防止違法使用，也對應於主密碼功能。加上為了防盜包含密碼與SSH鍵的所有連接設定都是加密的。這些都在主功能表內進行設定。如果主功能表按鈕不見，請按住在功能表上的應用按鈕。</string>
   <string name="ad_donate_text1">如果您購買Pro版本並且同意捐贈我們的話，請點選這裡。</string>
@@ -180,7 +180,8 @@
   <string name="input_mode_drag_pan_zoom_mouse">直接、按住並平移</string>
   <string name="input_mode_fit_to_screen">無平移：軌跡球滑鼠</string>
   <string name="input_mode_help">輸入模式操作幫助</string>
-  <string name="input_mode_help_text">"在所有輸入模式下都可以透過點選鍵盤圖標來顯示屏上鍵盤。鍵盤的顯示方法因使用的機器而異。
+  <string name="input_mode_help_text">
+"在所有輸入模式下都可以透過點選鍵盤圖標來顯示屏上鍵盤。鍵盤的顯示方法因使用的機器而異。
 
 使用直接輸入模式可以更直觀地控制觸摸屏。 使用模擬觸摸板模式可以更好地控制滑鼠。
 
@@ -219,7 +220,8 @@
   -放大/縮小：縮放即可控制顯示的大小
   -Ctrl / Alt鍵：功能表-&gt; Ctrl / Alt按鈕。完成後請不要忘記關閉！
   -按鍵組合：功能表-&gt;更多-&gt;發送按鍵
-  -發送文字：在屏幕鍵盤上輸入文字，或使用菜單-&gt;更多-&gt;發送文字"</string>
+  -發送文字：在屏幕鍵盤上輸入文字，或使用菜單-&gt;更多-&gt;發送文字"
+  </string>
   <string name="input_mode_mouse">滑鼠指標控制</string>
   <string name="input_mode_panning">桌面平移模式</string>
   <string name="input_mode_single_handed">單手</string>
@@ -228,7 +230,8 @@
   <string name="intro_close">關閉</string>
   <string name="intro_dont_show">不再顯示</string>
   <string name="intro_header" />
-  <string name="intro_text">"bVNC對應的功能如下：
+  <string name="intro_text">
+"bVNC對應的功能如下：
 &lt;br&gt;
 - Plain VNC／基於SSH的安全VNC／AnonTLS／VeNCrypt／UltraVNC Windows登入（帶有可選中繼器）
 &lt;br&gt;
@@ -274,7 +277,8 @@
 &lt;br&gt;
 &lt;br&gt;
 已知的問題：
-&lt;br&gt;"</string>
+&lt;br&gt;"
+  </string>
   <string name="intro_title">bVNC：又直觀又安全的VNC客戶端</string>
   <string name="intro_version_text" />
   <string name="keep_password_button">保存</string>
@@ -286,7 +290,8 @@
   <string name="list_name_caption">一覽表名</string>
   <string name="local_mouse_check">本地滑鼠指標（指標不可見時選擇）</string>
   <string name="main_screen_help">連接操作幫助</string>
-  <string name="main_screen_help_text">"首次啟動bVNC時連接設定畫面會顯示出來。在此可以設置新的VNC連接設定或選擇現有的VNC連接。該頁面分為2個部分，頂部有下拉功能表顯示之前創建的連接設定。首次啟動bVNC時只能創建新的連接。下拉功能表旁邊有連接按鈕，按下它就按照當前的設定啟動VNC客戶端。在連接按鈕之下可設定連接。
+  <string name="main_screen_help_text">
+"首次啟動bVNC時連接設定畫面會顯示出來。在此可以設置新的VNC連接設定或選擇現有的VNC連接。該頁面分為2個部分，頂部有下拉功能表顯示之前創建的連接設定。首次啟動bVNC時只能創建新的連接。下拉功能表旁邊有連接按鈕，按下它就按照當前的設定啟動VNC客戶端。在連接按鈕之下可設定連接。
 
 如果要快速提高性能，請嘗試將“色彩”模式設置為較低的值。另外，請嘗試刪除VNC伺服器上的所有桌面背景圖像。最後，請確認您的設備具有良好的網絡連接性，並避免由於覆蓋其天線而降低信號強度。
 
@@ -321,7 +326,8 @@
 
 -自動/全屏位圖：VNC客戶端使用位圖表示遠程顯示。 對於非常大的遠程顯示器，尤其是在適合於屏幕的模式下，由於每個進程的內存限制，您可能會遇到奇怪的視覺偽像。 如果發生這種情況，請嘗試勾選此選項。 請記住，勾選該選項可能會導致bVNC中斷連接。
 
--中繼器：僅在UltraVNC模式下可用。 重要信息：如果您有UltraVNC中繼器，請在“ UltraVNC中繼器”對話框之外輸入其地址和端口，並在“ UltraVNC中繼器”對話框中輸入實際VNC服務器的地址和端口。 用冒號分隔VNC服務器的地址和端口，例如 192.168.0.100:5900。“</string>
+-中繼器：僅在UltraVNC模式下可用。 重要信息：如果您有UltraVNC中繼器，請在“ UltraVNC中繼器”對話框之外輸入其地址和端口，並在“ UltraVNC中繼器”對話框中輸入實際VNC服務器的地址和端口。 用冒號分隔VNC服務器的地址和端口，例如 192.168.0.100:5900。"
+  </string>
   <string name="master_password_enable">使主密碼有效</string>
   <string name="master_password_error_failed_to_disable">無法使主密碼無效。 請確認設備上的可用空間，然後重試。</string>
   <string name="master_password_error_failed_to_enable">無法使主密碼有效。 請確認設備上的可用空間，然後重試。</string>
@@ -392,7 +398,8 @@
     <item>@string/rdp_geom_native_portrait</item>
     <item>@string/rdp_geom_custom</item>
   </string-array>
-  <string name="rdp_intro_text">"感謝您支援aRDP以及開源軟件！關於aRDP的用法，請參照功能表中的幫助項目以及應用的說明。
+  <string name="rdp_intro_text">
+"感謝您支援aRDP以及開源軟件！關於aRDP的用法，請參照功能表中的幫助項目以及應用的說明。
 &lt;br&gt;
 &lt;br&gt;
 aRDP對應的功能如下：
@@ -444,9 +451,11 @@ aRDP對應預定的功能：
 &lt;br&gt;
 &lt;br&gt;
 已知的問題：
-&lt;br&gt;"</string>
+&lt;br&gt;"
+  </string>
   <string name="rdp_intro_title">aRDP：又直觀又安全的RDP客戶端</string>
-  <string name="rdp_main_screen_help_text">"首次啟動aRDP時連接設定畫面會顯示出來。在此可以設置新的VNC連接設定或選擇現有的RDP連接。該頁面分為2個部分，頂部有下拉功能表顯示之前創建的連接設定。首次啟動aRDP時只能創建新的連接。下拉功能表旁邊有連接按鈕，按下它就按照當前的設定啟動RDP客戶端。在連接按鈕之下可設定連接。
+  <string name="rdp_main_screen_help_text">
+"首次啟動aRDP時連接設定畫面會顯示出來。在此可以設置新的VNC連接設定或選擇現有的RDP連接。該頁面分為2個部分，頂部有下拉功能表顯示之前創建的連接設定。首次啟動aRDP時只能創建新的連接。下拉功能表旁邊有連接按鈕，按下它就按照當前的設定啟動RDP客戶端。在連接按鈕之下可設定連接。
 
 -連接類型：在此處選擇RDP連接類型。可用的連接類型如下：
    （a）RDP：透過RDP通訊協議直接連接計算機。
@@ -471,7 +480,8 @@ aRDP對應預定的功能：
 
   （b）旋轉D-Pad：與Bluetooth鍵盤配對的手機可能需要逆時針旋轉鍵盤的D-pad，才能將正確的方向發送到伺服器。
 
-  （c）本地滑鼠指標：如果滑鼠指標隱藏的話，勾選此選項將使aRDP顯示滑鼠位置。"</string>
+  （c）本地滑鼠指標：如果滑鼠指標隱藏的話，勾選此選項將使aRDP顯示滑鼠位置。"
+  </string>
   <string name="rdp_password_hint">RDP密碼</string>
   <string name="rdp_server_empty">RDP伺服器或端口是空著。無法連接！</string>
   <string name="rdp_username_hint">RDP用戶名</string>
@@ -518,7 +528,8 @@ aRDP對應預定的功能：
     <item>@string/connection_type_spice</item>
     <item>@string/connection_type_spice_over_ssh</item>
   </string-array>
-  <string name="spice_intro_text">"感謝您支援aSPICE以及開源軟件！關於aSPICE的用法，請參照功能表中的幫助項目以及應用的說明。
+  <string name="spice_intro_text">
+"感謝您支援aSPICE以及開源軟件！關於aSPICE的用法，請參照功能表中的幫助項目以及應用的說明。
 &lt;br&gt;
 &lt;br&gt;
 aSPICE對應的功能如下：
@@ -567,9 +578,11 @@ aSPICE對應的功能如下：
 已知的問題：
 &lt;br&gt;
 - 有非對應文本發送
-&lt;br&gt;"</string>
+&lt;br&gt;"
+  </string>
   <string name="spice_intro_title">aSPICE：又直觀又安全的SPICE客戶端</string>
-  <string name="spice_main_screen_help_text">"首次啟動aSPICE時連接設定畫面會顯示出來。在此可以設置新的VNC連接設定或選擇現有的SPICE連接。該頁面分為2個部分，頂部有下拉功能表顯示之前創建的連接設定。首次啟動aSPICE時只能創建新的連接。下拉功能表旁邊有連接按鈕，按下它就按照當前的設定啟動SPICE客戶端。在連接按鈕之下可設定連接。
+  <string name="spice_main_screen_help_text">
+"首次啟動aSPICE時連接設定畫面會顯示出來。在此可以設置新的VNC連接設定或選擇現有的SPICE連接。該頁面分為2個部分，頂部有下拉功能表顯示之前創建的連接設定。首次啟動aSPICE時只能創建新的連接。下拉功能表旁邊有連接按鈕，按下它就按照當前的設定啟動SPICE客戶端。在連接按鈕之下可設定連接。
 
 -連接類型：在此處選擇SPICE連接類型。可用的連接類型如下：
    （a）SPICE：透過SPICE通訊協議直接連接計算機。
@@ -593,7 +606,8 @@ aSPICE對應的功能如下：
 
   （b）旋轉D-Pad：與Bluetooth鍵盤配對的裝置可能需要逆時針旋轉鍵盤的D-pad，才能將正確的方向發送到伺服器。
 
-  （c）本地滑鼠指標：如果滑鼠指標隱藏的話，勾選此選項將使aSPICE顯示滑鼠位置。"</string>
+  （c）本地滑鼠指標：如果滑鼠指標隱藏的話，勾選此選項將使aSPICE顯示滑鼠位置。"
+  </string>
   <string name="spice_password_hint">SPICE密碼</string>
   <string name="spice_server_empty">SPICE伺服器或端口是空著。無法連接！</string>
   <string name="spice_tls_port_hint">TLS端口</string>

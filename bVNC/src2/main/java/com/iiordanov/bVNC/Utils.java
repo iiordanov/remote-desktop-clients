@@ -58,6 +58,14 @@ import android.text.Html;
 import android.util.Log;
 import android.view.ViewConfiguration;
 
+import com.iiordanov.bVNC.*;
+import com.iiordanov.freebVNC.*;
+import com.iiordanov.aRDP.*;
+import com.iiordanov.freeaRDP.*;
+import com.iiordanov.aSPICE.*;
+import com.iiordanov.freeaSPICE.*;
+import com.iiordanov.CustomClientPackage.*;
+
 public class Utils {
     private final static String TAG = "Utils";
     private static AlertDialog alertDialog;
