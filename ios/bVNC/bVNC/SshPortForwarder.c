@@ -124,7 +124,8 @@ void setupSshPortForward(int instance,
 
 int startForwarding(int instance, int argc, char *argv[], void (*ssh_forward_success)(void))
 {
-    int rc, i, auth = AUTH_NONE;
+    int rc, auth = AUTH_NONE;
+    long i;
     struct sockaddr_in sin;
     struct sockaddr_in6 addr;
     socklen_t sinlen;
