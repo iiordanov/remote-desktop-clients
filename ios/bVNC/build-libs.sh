@@ -1,14 +1,14 @@
 #!/bin/bash -e
 
-DEVELOPMENT_TEAM=$1
-shift
-
-if [ -z "${DEVELOPMENT_TEAM}" ]
+if [ -z "${1}" ]
 then
   echo "Pass your development team from https://developer.apple.com/account/#/membership/ as the first argument."
   echo "$0 123456789A [Debug|Release] [clean]"
   exit 1
 fi
+
+DEVELOPMENT_TEAM=$1
+shift
 
 TYPE=$1
 if [ -z "$TYPE" ]
@@ -26,6 +26,8 @@ then
   exit 1
 fi
 
+rsync -avP /opt/libjpeg-turbo/lib /opt/libjpeg-turbo/include ./bVNC.xcodeproj/libs_combined/
+
 # Clone and build OpenSSL
 if git clone https://github.com/x2on/OpenSSL-for-iPhone.git
 then
@@ -35,6 +37,8 @@ then
 else
   echo "Found OpenSSL-for-iPhone directory, assuming it is built, please remove with 'rm -rf OpenSSL-for-iPhone' to rebuild"
 fi
+
+rsync -avP OpenSSL-for-iPhone/lib OpenSSL-for-iPhone/include ./bVNC.xcodeproj/libs_combined/
 
 # Clone and build libssh2
 if git clone https://github.com/Frugghi/iSSH2.git
@@ -47,7 +51,7 @@ else
 fi
 
 # Copy SSH libs and header files to project
-rsync -avP iSSH2/libssh2_iphoneos/ ./bVNC.xcodeproj/libs_combined/
+rsync -avP iSSH2/libssh2_iphoneos/lib iSSH2/libssh2_iphoneos/include ./bVNC.xcodeproj/libs_combined/
 
 git clone https://github.com/leetal/ios-cmake.git || true
 
@@ -73,7 +77,7 @@ then
     -DCMAKE_TOOLCHAIN_FILE=../../ios-cmake/ios.toolchain.cmake \
     -DPLATFORM=SIMULATOR64 -DCMAKE_XCODE_ATTRIBUTE_DEVELOPMENT_TEAM="${DEVELOPMENT_TEAM}" \
     -DJPEG_LIBRARY=/opt/libjpeg-turbo/lib/libjpeg.a -DJPEG_INCLUDE_DIR=/opt/libjpeg-turbo/include \
-    -DBUILD_SHARED_LIBS=OFF
+    -DBUILD_SHARED_LIBS=OFF -DENABLE_VISIBILITY=ON -DENABLE_ARC=OFF
 else
   pushd build_simulator64
 fi
@@ -100,7 +104,7 @@ then
     -DCMAKE_TOOLCHAIN_FILE=../../ios-cmake/ios.toolchain.cmake \
     -DPLATFORM=OS -DCMAKE_XCODE_ATTRIBUTE_DEVELOPMENT_TEAM="${DEVELOPMENT_TEAM}" \
     -DJPEG_LIBRARY=/opt/libjpeg-turbo/lib/libjpeg.a -DJPEG_INCLUDE_DIR=/opt/libjpeg-turbo/include \
-    -DBUILD_SHARED_LIBS=OFF
+    -DBUILD_SHARED_LIBS=OFF -DENABLE_VISIBILITY=ON -DENABLE_ARC=OFF
 else
   pushd build_iphone
 fi
@@ -135,4 +139,9 @@ popd
 
 popd
 
-rsync -avPL libvncserver/libs_combined/ bVNC.xcodeproj/libs_combined/
+rsync -avPL libvncserver/libs_combined/lib libvncserver/libs_combined/include bVNC.xcodeproj/libs_combined/
+
+# Make a super duper static lib out of all the other libs
+pushd bVNC.xcodeproj/libs_combined/lib
+/Library/Developer/CommandLineTools/usr/bin//libtool -static -o superlib.a libcrypto.a libssh2.a libssl.a libturbojpeg.a libvncclient.a
+popd

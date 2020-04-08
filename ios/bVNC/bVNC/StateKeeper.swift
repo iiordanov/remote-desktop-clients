@@ -10,8 +10,7 @@ import Foundation
 import Combine
 import SwiftUI
 
-class StateKeeper: ObservableObject, KeyboardObserving {
-    
+class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
     static let bH = CGFloat(30.0)
     static let bW = CGFloat(40.0)
     static let tbW = CGFloat(30.0)
@@ -45,7 +44,6 @@ class StateKeeper: ObservableObject, KeyboardObserving {
     var frames = 0
     var reDrawTimer: Timer = Timer()
     var orientationTimer: Timer = Timer()
-    var disconnectTimer: Timer = Timer()
     var screenUpdateTimer: Timer = Timer()
     var fbW: Int32 = 0
     var fbH: Int32 = 0
@@ -117,20 +115,26 @@ class StateKeeper: ObservableObject, KeyboardObserving {
         self.fbW = fbW
         self.fbH = fbH
         self.reDrawTimer.invalidate()
-        self.reDrawTimer = Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(reDraw), userInfo: nil, repeats: false)
+        if (self.isDrawing) {
+            self.reDrawTimer = Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(reDraw), userInfo: nil, repeats: false)
+        }
     }
     
     @objc func requestScreenUpdate() {
-        print("Firing off a whole screen update request.")
-        sendWholeScreenUpdateRequest(cl)
+        if self.isDrawing {
+            print("Firing off a whole screen update request.")
+            sendWholeScreenUpdateRequest(cl)
+        }
     }
     
     func rescheduleScreenUpdateRequest() {
         self.screenUpdateTimer.invalidate()
-        self.screenUpdateTimer = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(requestScreenUpdate), userInfo: nil, repeats: false)
+        if (self.isDrawing) {
+            self.screenUpdateTimer = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(requestScreenUpdate), userInfo: nil, repeats: false)
+        }
     }
     
-    init() {
+    override init() {
         // Load settings for current connection
         connectionIndex = -1
         selectedConnection = [:]
@@ -139,6 +143,20 @@ class StateKeeper: ObservableObject, KeyboardObserving {
         keyboardButtons = [:]
         modifierButtons = [:]
         topButtons = [:]
+    }
+
+    required init?(coder: NSCoder) {
+        // Load settings for current connection
+        connectionIndex = -1
+        selectedConnection = [:]
+        connections = self.settings.array(forKey: "connections") as? [Dictionary<String, String>] ?? []
+        interfaceButtons = [:]
+        keyboardButtons = [:]
+        modifierButtons = [:]
+        topButtons = [:]
+    }
+
+    func encode(with coder: NSCoder) {
     }
     
     var currentPage: String = "connectionsList" {
@@ -213,6 +231,9 @@ class StateKeeper: ObservableObject, KeyboardObserving {
         self.currInst += 1
         self.isDrawing = false
         self.deregisterFromNotifications()
+        self.orientationTimer.invalidate()
+        self.reDrawTimer.invalidate()
+        self.screenUpdateTimer.invalidate()
     }
 
     
@@ -364,7 +385,9 @@ class StateKeeper: ObservableObject, KeyboardObserving {
     
     func rescheduleOrientationTimer() {
         self.reDrawTimer.invalidate()
-        self.orientationTimer = Timer.scheduledTimer(timeInterval: 0.5, target: self, selector: #selector(correctTopSpacingForOrientation), userInfo: nil, repeats: false)
+        if (self.isDrawing) {
+            self.orientationTimer = Timer.scheduledTimer(timeInterval: 0.5, target: self, selector: #selector(correctTopSpacingForOrientation), userInfo: nil, repeats: false)
+        }
     }
     
     @objc func correctTopSpacingForOrientation() {

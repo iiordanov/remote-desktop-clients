@@ -15,8 +15,8 @@
 		AF043A2523B3DADB00C43ED7 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AF043A2323B3DADB00C43ED7 /* LaunchScreen.storyboard */; };
 		AF043A3023B3DADB00C43ED7 /* bVNCTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF043A2F23B3DADB00C43ED7 /* bVNCTests.swift */; };
 		AF043A3B23B3DADB00C43ED7 /* bVNCUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF043A3A23B3DADB00C43ED7 /* bVNCUITests.swift */; };
+		AF25C1A2243C086200513BBD /* superlib.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AF25C1A1243C085600513BBD /* superlib.a */; };
 		AF291AD5242418A200DCD383 /* ToggleButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF291AD4242418A200DCD383 /* ToggleButton.swift */; };
-		AF48282E23B47D8A00826395 /* libvncclient.1.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = AF48247F23B478C300826395 /* libvncclient.1.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		AF48283223B47EC300826395 /* VncBridge.c in Sources */ = {isa = PBXBuildFile; fileRef = AF48283123B47EC300826395 /* VncBridge.c */; };
 		AF51B3002410BAED005DE8AB /* ucs2xkeysym.c in Sources */ = {isa = PBXBuildFile; fileRef = AF51B2FF2410BAED005DE8AB /* ucs2xkeysym.c */; };
 		AF53DCB124022C8C00569F19 /* VncSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF53DCB024022C8C00569F19 /* VncSession.swift */; };
@@ -28,8 +28,6 @@
 		AF9E8F932427F3B500752FC2 /* Utility.c in Sources */ = {isa = PBXBuildFile; fileRef = AF9E8F922427F3B500752FC2 /* Utility.c */; };
 		AF9E8F95242ADD9200752FC2 /* Utilities.m in Sources */ = {isa = PBXBuildFile; fileRef = AF9E8F94242ADD9200752FC2 /* Utilities.m */; };
 		AF9E8F99242AE4E900752FC2 /* SystemMonitor.m in Sources */ = {isa = PBXBuildFile; fileRef = AF9E8F98242AE4E900752FC2 /* SystemMonitor.m */; };
-		AFE7B0C0243A316A00275C3A /* libvncclient.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AFE7B0BF243A316900275C3A /* libvncclient.a */; };
-		AFECDF222439D9C6000E1E9A /* libssh2.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AFECDF212439D9C6000E1E9A /* libssh2.a */; };
 		AFF244E22407985E00F5839B /* CustomTextInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFF244E12407985E00F5839B /* CustomTextInput.swift */; };
 		AFF244E42408AF9B00F5839B /* TouchEnabledUIImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFF244E32408AF9B00F5839B /* TouchEnabledUIImageView.swift */; };
 /* End PBXBuildFile section */
@@ -49,24 +47,17 @@
 			remoteGlobalIDString = AF043A1423B3DADA00C43ED7;
 			remoteInfo = bVNC;
 		};
+		AF25C1A7243CCC0000513BBD /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = AF8C75F4243BEF4B00AF0CF3 /* libvncclient.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = AF8C75E6243BEEB000AF0CF3;
+			remoteInfo = libvncclient;
+		};
 /* End PBXContainerItemProxy section */
 
-/* Begin PBXCopyFilesBuildPhase section */
-		AF48282C23B47D7F00826395 /* Embed Libraries */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 12;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-				AF48282E23B47D8A00826395 /* libvncclient.1.dylib in Embed Libraries */,
-			);
-			name = "Embed Libraries";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXCopyFilesBuildPhase section */
-
 /* Begin PBXFileReference section */
-		AF043A1523B3DADA00C43ED7 /* bVNC.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = bVNC.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		AF043A1523B3DADA00C43ED7 /* bVNC Pro.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "bVNC Pro.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		AF043A1823B3DADA00C43ED7 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		AF043A1A23B3DADA00C43ED7 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
 		AF043A1C23B3DADA00C43ED7 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -80,6 +71,7 @@
 		AF043A3623B3DADB00C43ED7 /* bVNCUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = bVNCUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		AF043A3A23B3DADB00C43ED7 /* bVNCUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = bVNCUITests.swift; sourceTree = "<group>"; };
 		AF043A3C23B3DADB00C43ED7 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		AF25C1A1243C085600513BBD /* superlib.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = superlib.a; path = bVNC.xcodeproj/libs_combined/lib/superlib.a; sourceTree = "<group>"; };
 		AF291AD4242418A200DCD383 /* ToggleButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToggleButton.swift; sourceTree = "<group>"; };
 		AF48247D23B4783500826395 /* libvncclient.0.9.13.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libvncclient.0.9.13.dylib; path = bVNC.xcodeproj/libs_combined/lib/libvncclient.0.9.13.dylib; sourceTree = "<group>"; };
 		AF48247F23B478C300826395 /* libvncclient.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libvncclient.1.dylib; path = bVNC.xcodeproj/libs_combined/lib/libvncclient.1.dylib; sourceTree = "<group>"; };
@@ -488,6 +480,10 @@
 		AF59A3D3242CE9E100658CE6 /* KeyboardObserving.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardObserving.swift; sourceTree = "<group>"; };
 		AF7421F2241D58EB00C552A7 /* SshPortForwarder.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SshPortForwarder.h; sourceTree = "<group>"; };
 		AF7421F3241D58EB00C552A7 /* SshPortForwarder.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = SshPortForwarder.c; sourceTree = "<group>"; };
+		AF8C75A1243AB46100AF0CF3 /* libcrypto.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libcrypto.a; path = bVNC.xcodeproj/libs_combined/lib/libcrypto.a; sourceTree = "<group>"; };
+		AF8C75A3243AB47700AF0CF3 /* libssl.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libssl.a; path = bVNC.xcodeproj/libs_combined/lib/libssl.a; sourceTree = "<group>"; };
+		AF8C75A5243AB48600AF0CF3 /* libturbojpeg.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libturbojpeg.a; path = bVNC.xcodeproj/libs_combined/lib/libturbojpeg.a; sourceTree = "<group>"; };
+		AF8C75F4243BEF4B00AF0CF3 /* libvncclient.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = libvncclient.xcodeproj; path = ../../../libvncclient/libvncclient/libvncclient.xcodeproj; sourceTree = "<group>"; };
 		AF99997C243593C70018204F /* LongTapDragUIImageView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LongTapDragUIImageView.swift; sourceTree = "<group>"; };
 		AF99997E2435955F0018204F /* ShortTapDragUIImageView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShortTapDragUIImageView.swift; sourceTree = "<group>"; };
 		AF9E8F912427F3B500752FC2 /* Utility.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Utility.h; sourceTree = "<group>"; };
@@ -507,8 +503,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				AFE7B0C0243A316A00275C3A /* libvncclient.a in Frameworks */,
-				AFECDF222439D9C6000E1E9A /* libssh2.a in Frameworks */,
+				AF25C1A2243C086200513BBD /* superlib.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -543,7 +538,7 @@
 		AF043A1623B3DADA00C43ED7 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				AF043A1523B3DADA00C43ED7 /* bVNC.app */,
+				AF043A1523B3DADA00C43ED7 /* bVNC Pro.app */,
 				AF043A2B23B3DADB00C43ED7 /* bVNCTests.xctest */,
 				AF043A3623B3DADB00C43ED7 /* bVNCUITests.xctest */,
 			);
@@ -611,9 +606,21 @@
 			path = bVNCUITests;
 			sourceTree = "<group>";
 		};
+		AF25C1A4243CCB5400513BBD /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				AF25C1A8243CCC0000513BBD /* libvncclient.framework */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		AF48247C23B4783500826395 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				AF25C1A1243C085600513BBD /* superlib.a */,
+				AF8C75A5243AB48600AF0CF3 /* libturbojpeg.a */,
+				AF8C75A3243AB47700AF0CF3 /* libssl.a */,
+				AF8C75A1243AB46100AF0CF3 /* libcrypto.a */,
 				AFE7B0BF243A316900275C3A /* libvncclient.a */,
 				AFECDF212439D9C6000E1E9A /* libssh2.a */,
 				AF48282923B47D7F00826395 /* libvncserver.1.dylib */,
@@ -1027,7 +1034,6 @@
 				AF043A1123B3DADA00C43ED7 /* Sources */,
 				AF043A1223B3DADA00C43ED7 /* Frameworks */,
 				AF043A1323B3DADA00C43ED7 /* Resources */,
-				AF48282C23B47D7F00826395 /* Embed Libraries */,
 				AFECDF232439DB08000E1E9A /* ShellScript */,
 			);
 			buildRules = (
@@ -1036,7 +1042,7 @@
 			);
 			name = bVNC;
 			productName = bVNC;
-			productReference = AF043A1523B3DADA00C43ED7 /* bVNC.app */;
+			productReference = AF043A1523B3DADA00C43ED7 /* bVNC Pro.app */;
 			productType = "com.apple.product-type.application";
 		};
 		AF043A2A23B3DADB00C43ED7 /* bVNCTests */ = {
@@ -1110,6 +1116,12 @@
 			mainGroup = AF043A0C23B3DADA00C43ED7;
 			productRefGroup = AF043A1623B3DADA00C43ED7 /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = AF25C1A4243CCB5400513BBD /* Products */;
+					ProjectRef = AF8C75F4243BEF4B00AF0CF3 /* libvncclient.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				AF043A1423B3DADA00C43ED7 /* bVNC */,
@@ -1118,6 +1130,16 @@
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		AF25C1A8243CCC0000513BBD /* libvncclient.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = libvncclient.framework;
+			remoteRef = AF25C1A7243CCC0000513BBD /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
 		AF043A1323B3DADA00C43ED7 /* Resources */ = {
@@ -1354,16 +1376,23 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 6;
 				DEVELOPMENT_ASSET_PATHS = "bVNC/Preview\\ Content";
 				DEVELOPMENT_TEAM = 96Z3MCQKZA;
 				ENABLE_BITCODE = NO;
 				ENABLE_PREVIEWS = YES;
-				HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/bVNC.xcodeproj/libs_combined/include/**";
-				"HEADER_SEARCH_PATHS[arch=*]" = "";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/bVNC.xcodeproj",
+				);
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_STRICT_ALIASING = YES;
+				GENERATE_MASTER_OBJECT_FILE = NO;
+				HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/bVNC.xcodeproj/libs_combined/include";
 				INFOPLIST_FILE = bVNC/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 13.2;
 				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
+					"${inherited}",
 					"@executable_path/Frameworks",
 				);
 				LIBRARY_SEARCH_PATHS = (
@@ -1371,13 +1400,17 @@
 					"$(PROJECT_DIR)/bVNC.xcodeproj/libs_combined/lib",
 					"$(SDKROOT)/usr/lib/swift",
 				);
+				LLVM_LTO = NO;
+				MARKETING_VERSION = 1.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.iiordanov.bVNC;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = "bVNC Pro";
+				SWIFT_DISABLE_SAFETY_CHECKS = NO;
 				SWIFT_OBJC_BRIDGING_HEADER = "bVNC/bVNC-Bridging-Header.h";
-				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 5.0;
 				"SYSTEM_HEADER_SEARCH_PATHS[arch=*]" = "$(PROJECT_DIR)/bVNC.xcodeproj/libs_combined/include";
 				TARGETED_DEVICE_FAMILY = "1,2";
+				VALID_ARCHS = "arm64 arm64e";
 			};
 			name = Debug;
 		};
@@ -1387,15 +1420,27 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 6;
 				DEVELOPMENT_ASSET_PATHS = "bVNC/Preview\\ Content";
 				DEVELOPMENT_TEAM = 96Z3MCQKZA;
 				ENABLE_BITCODE = NO;
 				ENABLE_PREVIEWS = YES;
-				"HEADER_SEARCH_PATHS[arch=*]" = "$(PROJECT_DIR)/bVNC.xcodeproj/libs_combined/include/**";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/bVNC.xcodeproj",
+				);
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_STRICT_ALIASING = YES;
+				GENERATE_MASTER_OBJECT_FILE = NO;
+				HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/bVNC.xcodeproj/libs_combined/include";
 				INFOPLIST_FILE = bVNC/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 13.2;
 				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
+					"${inherited}",
+					"@executable_path/Frameworks",
+				);
+				"LD_RUNPATH_SEARCH_PATHS[arch=*]" = (
+					"${inherited}",
 					"@executable_path/Frameworks",
 				);
 				LIBRARY_SEARCH_PATHS = (
@@ -1403,12 +1448,18 @@
 					"$(PROJECT_DIR)/bVNC.xcodeproj/libs_combined/lib",
 					"$(SDKROOT)/usr/lib/swift",
 				);
+				LLVM_LTO = NO;
+				MARKETING_VERSION = 1.0.0;
+				"PRELINK_LIBS[arch=*]" = "";
 				PRODUCT_BUNDLE_IDENTIFIER = com.iiordanov.bVNC;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = "bVNC Pro";
+				SWIFT_DISABLE_SAFETY_CHECKS = NO;
 				SWIFT_OBJC_BRIDGING_HEADER = "bVNC/bVNC-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 5.0;
 				"SYSTEM_HEADER_SEARCH_PATHS[arch=*]" = "$(PROJECT_DIR)/bVNC.xcodeproj/libs_combined/include";
 				TARGETED_DEVICE_FAMILY = "1,2";
+				VALID_ARCHS = "arm64 arm64e";
 			};
 			name = Release;
 		};
