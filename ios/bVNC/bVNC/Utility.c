@@ -77,7 +77,6 @@ int is_address_ipv6(char * ip_address) {
 int resolve_host_to_ip(char *hostname , char* ip) {
     struct hostent *he;
     struct in_addr **addr_list;
-    int i;
     
     struct sockaddr_in sa;
     struct sockaddr_in6 sa6;
@@ -96,8 +95,8 @@ int resolve_host_to_ip(char *hostname , char* ip) {
 
     addr_list = (struct in_addr **) he->h_addr_list;
     
-    for(i = 0; addr_list[i] != NULL; i++) {
-        strncpy(ip, inet_ntoa(*addr_list[i]), 255);
+    if (addr_list[0] != NULL) {
+        strncpy(ip, inet_ntoa(*addr_list[0]), 255);
         client_log("Successfully resolved hostname %s to IP %s\n", hostname, ip);
         return 0;
     }

@@ -239,7 +239,7 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
     
     @objc func disconnect() {
         let wasDrawing = self.isDrawing
-        self.saveImage(image: self.captureScreen(imageView: self.imageView ?? UIImageView()))
+        _ = self.saveImage(image: self.captureScreen(imageView: self.imageView ?? UIImageView()))
         lazyDisconnect()
         UserInterface {
             self.toggleModifiersIfDown()
@@ -261,7 +261,7 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
     }
     
     func hideKeyboard() {
-        (self.interfaceButtons["keyboardButton"] as? CustomTextInput)?.hideKeyboard()
+        _ = (self.interfaceButtons["keyboardButton"] as? CustomTextInput)?.hideKeyboard()
     }
     
     func addNewConnection() {

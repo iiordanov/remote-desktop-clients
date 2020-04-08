@@ -57,6 +57,7 @@ func failure_callback_str(instance: Int, message: String?) {
     if (instance != globalStateKeeper!.currInst) { print("Current instance \(globalStateKeeper!.currInst) discarding call from instance \(instance)") ; return }
 
     UserInterface {
+        globalStateKeeper?.isDrawing = false
         globalStateKeeper?.hideKeyboard()
         globalImageView?.disableTouch()
         let contentView = ContentView(stateKeeper: globalStateKeeper!)

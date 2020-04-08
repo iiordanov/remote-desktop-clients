@@ -18,6 +18,7 @@ extension String {
     let stream = OutputStream(toBuffer: buffer, capacity: data.count)
 
     stream.open()
+    
     data.withUnsafeBytes({ (p: UnsafePointer<UInt8>) -> Void in
       stream.write(p, maxLength: data.count)
     })
