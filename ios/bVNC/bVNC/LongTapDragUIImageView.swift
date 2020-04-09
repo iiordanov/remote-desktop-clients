@@ -26,7 +26,7 @@ class LongTapDragUIImageView: TouchEnabledUIImageView {
             self.inPanDragging = false
             if !inPanning {
                 // If there was actual pointer interaction to the server, request a refresh
-                self.stateKeeper?.rescheduleScreenUpdateRequest()
+                self.stateKeeper?.rescheduleScreenUpdateRequest(timeInterval: 0.5, fullScreenUpdate: false, recurring: false)
             }
         }
         

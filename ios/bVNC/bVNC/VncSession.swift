@@ -88,12 +88,14 @@ func failure_callback_swift(instance: Int32, message: UnsafeMutablePointer<UInt8
 }
 
 func log_callback(message: UnsafeMutablePointer<Int8>?) -> Void {
-    // Prevent the log from growing too large
+    globalStateKeeper?.logLock.lock()
     if globalStateKeeper?.clientLog.count ?? 0 > 500 {
         globalStateKeeper?.clientLog.remove(at: 0)
     }
     // TODO: Bad Access here
-    globalStateKeeper?.clientLog.append(String(cString: message!))
+    let messageStr = String(cString: message!)
+    globalStateKeeper?.clientLog.append(messageStr)
+    globalStateKeeper?.logLock.unlock()
 }
 
 func yes_no_dialog_callback(instance: Int32, title: UnsafeMutablePointer<Int8>?, message: UnsafeMutablePointer<Int8>?, fingerPrint1: UnsafeMutablePointer<Int8>?, fingerPrint2: UnsafeMutablePointer<Int8>?, type: UnsafeMutablePointer<Int8>?) -> Int32 {
@@ -278,9 +280,11 @@ class VncSession {
         var addressAndPort = vncAddress + ":" + vncPort
 
         if sshAddress != "" {
+            self.stateKeeper.sshTunnelingStarted = false
             Background {
                 self.stateKeeper.sshForwardingLock.unlock()
                 self.stateKeeper.sshForwardingLock.lock()
+                self.stateKeeper.sshTunnelingStarted = true
                 print("Setting up SSH forwarding")
                 setupSshPortForward(
                     Int32(self.stateKeeper.currInst),
@@ -308,10 +312,16 @@ class VncSession {
         //let cert = currentConnection["cert"] ?? ""
 
         Background {
+            // Make it highly probable the SSH thread would obtain the lock before the VNC one does.
             self.stateKeeper.yesNoDialogLock.unlock()
             var message = ""
             var continueConnecting = true
             if sshAddress != "" {
+                // Wait until the SSH tunnel lock is obtained by the thread which sets up ssh tunneling.
+                while self.stateKeeper.sshTunnelingStarted != true {
+                    print("Waiting for SSH thread to start work")
+                    sleep(1)
+                }
                 print("Waiting for SSH forwarding to complete successfully")
                 // Wait for SSH Tunnel to be established for 60 seconds
                 continueConnecting = self.stateKeeper.sshForwardingLock.lock(before: Date(timeIntervalSinceNow: 60))
@@ -327,14 +337,14 @@ class VncSession {
             }
             if continueConnecting {
                 print("Connecting VNC Session in the background...")
-                self.stateKeeper.cl = initializeVnc(Int32(self.instance), update_callback, resize_callback, failure_callback_swift, log_callback, lock_write_tls_callback_swift, unlock_write_tls_callback_swift, yes_no_dialog_callback,
+                self.stateKeeper.cl[self.instance] = initializeVnc(Int32(self.instance), update_callback, resize_callback, failure_callback_swift, log_callback, lock_write_tls_callback_swift, unlock_write_tls_callback_swift, yes_no_dialog_callback,
                            UnsafeMutablePointer<Int8>(mutating: (addressAndPort as NSString).utf8String),
                            UnsafeMutablePointer<Int8>(mutating: (user as NSString).utf8String),
                            UnsafeMutablePointer<Int8>(mutating: (pass as NSString).utf8String))
-                if self.stateKeeper.cl != nil {
+                if self.stateKeeper.cl[self.instance] != nil {
                     //let thread = Thread.init(target: self, selector: #selector(self.connectVncSession), object: self.stateKeeper.cl)
                     //thread.start()
-                    connectVnc(self.stateKeeper.cl)
+                    connectVnc(self.stateKeeper.cl[self.instance])
                 } else {
                     message = "Failed to establish connection to VNC server."
                     print("Error message: \(message)")

@@ -34,13 +34,13 @@ void sendUniDirectionalKeyEvent(void *c, const char *characters, bool down);
 bool sendKeyEventInt(void *c, int character);
 void sendKeyEventWithKeySym(void *c, int character);
 void sendUniDirectionalKeyEventWithKeySym(void *c, int sym, bool down);
-void sendPointerEventToServer(void *c, int totalX, int totalY, int x, int y, bool firstDown, bool secondDown, bool thirdDown, bool scrollUp, bool scrollDown);
+void sendPointerEventToServer(void *c, float totalX, float totalY, float x, float y, bool firstDown, bool secondDown, bool thirdDown, bool scrollUp, bool scrollDown);
 void checkForError(rfbClient *cl, rfbBool res);
 void cleanup(rfbClient *cl, char* message);
 void rfb_client_cleanup(rfbClient *cl);
 void (*lock_write_tls_callback)(int instance);
 void (*unlock_write_tls_callback)(int instance);
-void sendWholeScreenUpdateRequest(void *c);
+void sendWholeScreenUpdateRequest(void *c, bool fullScreenUpdate);
 void setMaintainConnection(void *c, int state);
 void keepSessionFresh(void *c);
 

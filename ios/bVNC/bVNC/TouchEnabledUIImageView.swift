@@ -9,7 +9,7 @@
 import Foundation
 import UIKit
 
-let insetDimension: CGFloat = 10
+let insetDimension: CGFloat = 0
 
 extension UIImage {
     func imageWithInsets(insets: UIEdgeInsets) -> UIImage? {
@@ -63,6 +63,7 @@ class TouchEnabledUIImageView: UIImageView {
     var pinchGesture: UIPinchGestureRecognizer?
     var tapGesture: UITapGestureRecognizer?
     var longTapGesture: UILongPressGestureRecognizer?
+    var hoverGesture: UIHoverGestureRecognizer?
 
     var moveEventsSinceFingerDown = 0
     var inScrolling = false
@@ -81,6 +82,8 @@ class TouchEnabledUIImageView: UIImageView {
         tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleTap(_:)))
         tapGesture?.numberOfTapsRequired = 1
         pinchGesture = UIPinchGestureRecognizer(target: self, action: #selector(handleZooming(_:)))
+        //TODO: For MacOS X
+        //hoverGesture = UIHoverGestureRecognizer(target: self, action: #selector(handleHovering(_:)))
     }
 
     override init(image: UIImage?) {
@@ -151,8 +154,8 @@ class TouchEnabledUIImageView: UIImageView {
         //let timeNow = CACurrentMediaTime();
         //let timeDiff = timeNow - self.timeLast
         if !moving || (abs(self.lastX - self.newX) > 1.0 || abs(self.lastY - self.newY) > 1.0) {
-            guard let cl = globalStateKeeper?.cl else { return }
-            sendPointerEventToServer(cl, Int32(self.width), Int32(self.height), Int32(self.newX), Int32(self.newY), firstDown, secondDown, thirdDown, fourthDown, fifthDown)
+            let cl = self.stateKeeper!.cl[self.stateKeeper!.currInst]!
+            sendPointerEventToServer(cl, Float32(self.width), Float32(self.height), Float32(self.newX), Float32(self.newY), firstDown, secondDown, thirdDown, fourthDown, fifthDown)
             self.lastX = self.newX
             self.lastY = self.newY
             //self.timeLast = timeNow
@@ -275,7 +278,7 @@ class TouchEnabledUIImageView: UIImageView {
                             self.firstDown = false
                             self.secondDown = false
                             self.thirdDown = false
-                            self.stateKeeper?.rescheduleScreenUpdateRequest()
+                            self.stateKeeper?.rescheduleScreenUpdateRequest(timeInterval: 0.5, fullScreenUpdate: false, recurring: false)
                         }
                         self.tapGestureDetected = false
                     } else {
@@ -293,7 +296,10 @@ class TouchEnabledUIImageView: UIImageView {
         self.touchesEnded(touches, with: event)
     }
 
-    
+    @objc func handleHovering(_ sender: UIHoverGestureRecognizer) {
+        print(#function, sender)
+    }
+
     @objc func handleZooming(_ sender: UIPinchGestureRecognizer) {
         if (self.secondDown || self.inScrolling || self.inPanning) {
             return
@@ -346,7 +352,7 @@ class TouchEnabledUIImageView: UIImageView {
                 self.firstDown = false
                 self.secondDown = false
                 self.thirdDown = false
-                self.stateKeeper?.rescheduleScreenUpdateRequest()
+                self.stateKeeper?.rescheduleScreenUpdateRequest(timeInterval: 0.5, fullScreenUpdate: false, recurring: false)
             }
         } else {
             print("Other fingers were down, not acting on single tap")
@@ -373,5 +379,4 @@ class TouchEnabledUIImageView: UIImageView {
             sender.setTranslation(CGPoint.zero, in: view)
         }
     }
-
 }

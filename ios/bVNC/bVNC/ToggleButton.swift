@@ -34,7 +34,7 @@ class ToggleButton: UIButton {
         AudioServicesPlaySystemSound(1100);
         down = !down
         print("Toggled my xksysym: \(toSend!), down: \(down)")
-        sendUniDirectionalKeyEventWithKeySym(self.stateKeeper!.cl!, toSend!, down)
+        sendUniDirectionalKeyEventWithKeySym(self.stateKeeper!.cl[self.stateKeeper!.currInst]!, toSend!, down)
         UserInterface {
             if self.down {
                 self.backgroundColor = self.originalBackground?.withAlphaComponent(1)
@@ -48,7 +48,7 @@ class ToggleButton: UIButton {
     @objc func sendText() {
         AudioServicesPlaySystemSound(1100);
         //print("Sending my xksysym: \(toSend!), up and then down.")
-        sendKeyEventWithKeySym(self.stateKeeper!.cl!, toSend!)
+        sendKeyEventWithKeySym(self.stateKeeper!.cl[self.stateKeeper!.currInst]!, toSend!)
         self.stateKeeper?.toggleModifiersIfDown()
     }
 
