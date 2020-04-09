@@ -40,6 +40,7 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
     var clientLog: [String] = []
     var sshForwardingLock: NSLock = NSLock()
     var sshForwardingStatus: Bool = false
+    var sshTunnelingStarted: Bool = false
     var globalWriteTlsLock: NSLock = NSLock()
     var frames = 0
     var reDrawTimer: Timer = Timer()
@@ -59,12 +60,14 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
     var disconnectedDueToBackgrounding: Bool = false
     var currInst: Int = 0
     
-    var cl: UnsafeMutableRawPointer?
+    var cl: [UnsafeMutableRawPointer?]
+    var maxClCapacity = 1000
     
     var isDrawing: Bool = false;
     var isKeptFresh: Bool = false;
     
     var currentTransition: String = "";
+    var logLock: NSLock = NSLock()
     
     // Dictionaries desctibing onscreen ToggleButton type buttons
     let topButtonData: [ String: [ String: Any ] ] = [
@@ -120,17 +123,45 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
         }
     }
     
-    @objc func requestScreenUpdate() {
-        if self.isDrawing {
+    @objc func requestFullScreenUpdate(sender: Timer) {
+        if self.isDrawing && (sender.userInfo as! Int) == self.currInst {
             print("Firing off a whole screen update request.")
-            sendWholeScreenUpdateRequest(cl)
+            sendWholeScreenUpdateRequest(cl[currInst], true)
+        }
+    }
+
+    @objc func requestPartialScreenUpdate(sender: Timer) {
+        if self.isDrawing && (sender.userInfo as! Int) == self.currInst {
+            print("Firing off a partial screen update request.")
+            sendWholeScreenUpdateRequest(cl[currInst], true)
+        }
+    }
+
+    @objc func requestRecurringPartialScreenUpdate(sender: Timer) {
+        if self.isDrawing && (sender.userInfo as! Int) == self.currInst {
+            print("Firing off a recurring partial screen update request.")
+            sendWholeScreenUpdateRequest(cl[currInst], false)
+            UserInterface {
+                self.rescheduleScreenUpdateRequest(timeInterval: 30, fullScreenUpdate: false, recurring: true)
+            }
         }
     }
     
-    func rescheduleScreenUpdateRequest() {
-        self.screenUpdateTimer.invalidate()
-        if (self.isDrawing) {
-            self.screenUpdateTimer = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(requestScreenUpdate), userInfo: nil, repeats: false)
+    func rescheduleScreenUpdateRequest(timeInterval: TimeInterval, fullScreenUpdate: Bool, recurring: Bool) {
+        UserInterface {
+            self.screenUpdateTimer.invalidate()
+            if (self.isDrawing) {
+                if (fullScreenUpdate) {
+                    print("Scheduling full screen update")
+                    self.screenUpdateTimer = Timer.scheduledTimer(timeInterval: timeInterval, target: self, selector: #selector(self.requestFullScreenUpdate(sender:)), userInfo: self.currInst, repeats: false)
+                } else if !recurring {
+                    print("Scheduling non-recurring partial screen update")
+                    self.screenUpdateTimer = Timer.scheduledTimer(timeInterval: timeInterval, target: self, selector: #selector(self.requestRecurringPartialScreenUpdate), userInfo: self.currInst, repeats: false)
+                } else {
+                    print("Scheduling recurring partial screen update")
+                    self.screenUpdateTimer = Timer.scheduledTimer(timeInterval: timeInterval, target: self, selector: #selector(self.requestRecurringPartialScreenUpdate), userInfo: self.currInst, repeats: false)
+                }
+            }
         }
     }
     
@@ -143,6 +174,7 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
         keyboardButtons = [:]
         modifierButtons = [:]
         topButtons = [:]
+        cl = Array<UnsafeMutableRawPointer?>(repeating:UnsafeMutableRawPointer.allocate(byteCount: 0, alignment: MemoryLayout<UInt8>.alignment), count: maxClCapacity);
     }
 
     required init?(coder: NSCoder) {
@@ -154,6 +186,7 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
         keyboardButtons = [:]
         modifierButtons = [:]
         topButtons = [:]
+        cl = Array<UnsafeMutableRawPointer?>(repeating:UnsafeMutableRawPointer.allocate(byteCount: 0, alignment: MemoryLayout<UInt8>.alignment), count: maxClCapacity);
     }
 
     func encode(with coder: NSCoder) {
@@ -190,7 +223,7 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
         let contentView = ContentView(stateKeeper: self)
         self.window!.rootViewController = MyUIHostingController(rootView: contentView)
         self.window!.makeKeyAndVisible()
-        currInst = currInst + 1
+        currInst = (currInst + 1) % maxClCapacity
         isDrawing = true;
         self.vncSession = VncSession(scene: self.scene!, window: self.window!, instance: currInst, stateKeeper: self)
         self.vncSession!.connect(currentConnection: selectedConnection)
@@ -228,7 +261,7 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
     
     @objc func lazyDisconnect() {
         print("Disconnecting and navigating to the disconnection screen")
-        self.currInst += 1
+        currInst = (currInst + 1) % maxClCapacity
         self.isDrawing = false
         self.deregisterFromNotifications()
         self.orientationTimer.invalidate()
@@ -238,6 +271,7 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
 
     
     @objc func disconnect() {
+        let instance = self.currInst
         let wasDrawing = self.isDrawing
         _ = self.saveImage(image: self.captureScreen(imageView: self.imageView ?? UIImageView()))
         lazyDisconnect()
@@ -246,7 +280,7 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
         }
         print("wasDrawing(): \(wasDrawing)")
         if (wasDrawing) {
-            self.vncSession?.disconnect(cl: cl)
+            self.vncSession?.disconnect(cl: cl[instance])
             UserInterface {
                 self.removeButtons()
                 self.hideKeyboard()
@@ -256,6 +290,9 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
             }
         } else {
             print("\(#function) called but maintainConnection was already false")
+            let contentView = ContentView(stateKeeper: self)
+            self.window!.rootViewController = MyUIHostingController(rootView: contentView)
+            self.window!.makeKeyAndVisible()
             self.showConnections()
         }
     }
@@ -562,15 +599,12 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
     }
     
     func keepSessionRefreshed() {
-        print(#function)
         BackgroundLowPrio {
             if !self.isKeptFresh {
+                print("Will keep session fresh")
                 self.isKeptFresh = true
-                self.rescheduleScreenUpdateRequest()
-                while (self.isDrawing) {
-                    keepSessionFresh(self.cl)
-                    sleep(30)
-                }
+                self.rescheduleScreenUpdateRequest(timeInterval: 1, fullScreenUpdate: true, recurring: false)
+                self.rescheduleScreenUpdateRequest(timeInterval: 2, fullScreenUpdate: false, recurring: true)
             }
         }
     }

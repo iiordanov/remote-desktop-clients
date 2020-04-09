@@ -45,8 +45,8 @@ class CustomTextInput: UIButton, UIKeyInput{
         //print("Sending: " + text + ", number of characters: " + String(text.count))
         for char in text.unicodeScalars {
             Background {
-                if !sendKeyEventInt(self.stateKeeper!.cl!, Int32(String(char.value))!) {
-                    sendKeyEvent(self.stateKeeper!.cl!, String(char))
+                if !sendKeyEventInt(self.stateKeeper!.cl[self.stateKeeper!.currInst]!, Int32(String(char.value))!) {
+                    sendKeyEvent(self.stateKeeper!.cl[self.stateKeeper!.currInst]!, String(char))
                 }
                 self.stateKeeper?.toggleModifiersIfDown()
             }
@@ -55,7 +55,7 @@ class CustomTextInput: UIButton, UIKeyInput{
     
     public func deleteBackward(){
         Background {
-            sendKeyEventWithKeySym(self.stateKeeper!.cl!, 0xff08);
+            sendKeyEventWithKeySym(self.stateKeeper!.cl[self.stateKeeper!.currInst]!, 0xff08);
             self.stateKeeper?.toggleModifiersIfDown()
         }
     }

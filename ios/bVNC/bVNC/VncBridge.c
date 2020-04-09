@@ -109,10 +109,10 @@ void disconnectVnc(void *c) {
     }
 }
 
-void sendWholeScreenUpdateRequest(void *c) {
+void sendWholeScreenUpdateRequest(void *c, bool fullScreenUpdate) {
     rfbClient *cl = (rfbClient *)c;
     if (cl != NULL && cl->maintainConnection) {
-        SendFramebufferUpdateRequest(cl, 0, 0, cl->width, cl->height, FALSE);
+        SendFramebufferUpdateRequest(cl, 0, 0, cl->width, cl->height, fullScreenUpdate);
     }
 }
 
@@ -236,13 +236,6 @@ void connectVnc(void *c) {
     rfb_client_cleanup(cl);
 }
 
-void keepSessionFresh(void *c) {
-    rfbClient *cl = (rfbClient *)c;
-    if (cl != NULL && cl->maintainConnection == true) {
-        SendFramebufferUpdateRequest(cl, 0, 0, cl->width, cl->height, TRUE);
-    }
-}
-
 void rfb_client_cleanup(rfbClient *cl) {
     if (cl != NULL) {
         if (cl->frameBuffer != NULL) {
@@ -354,7 +347,7 @@ void sendUniDirectionalKeyEventWithKeySym(void *c, int sym, bool down) {
     }
 }
 
-void sendPointerEventToServer(void *c, int totalX, int totalY, int x, int y, bool firstDown, bool secondDown, bool thirdDown, bool scrollUp, bool scrollDown) {
+void sendPointerEventToServer(void *c, float totalX, float totalY, float x, float y, bool firstDown, bool secondDown, bool thirdDown, bool scrollUp, bool scrollDown) {
     rfbClient *cl = (rfbClient *)c;
     
     if (cl == NULL || !cl->maintainConnection) {
@@ -377,8 +370,8 @@ void sendPointerEventToServer(void *c, int totalX, int totalY, int x, int y, boo
         buttonMask = buttonMask | rfbButton5Mask;
     }
     if (cl != NULL) {
-        int remoteX = (double)fbW * (double)x / (double)totalX;
-        int remoteY = (double)fbH * (double)y / (double)totalY;
+        int remoteX = fbW * x / totalX;
+        int remoteY = fbH * y / totalY;
         printf("Sending pointer event at %d, %d, with mask %d\n", remoteX, remoteY, buttonMask);
         checkForError(cl, SendPointerEvent(cl, remoteX, remoteY, buttonMask));
     } else {
