@@ -194,12 +194,12 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
         super(context, attrs);
 
         clipboard = (ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE);
-
-        decoder = new Decoder(this);
-
         isVnc = getContext().getPackageName().toUpperCase().contains("VNC");
         isRdp = getContext().getPackageName().toUpperCase().contains("RDP");
         isSpice = getContext().getPackageName().toUpperCase().contains("SPICE");
+        if (isVnc) {
+            decoder = new Decoder(this);
+        }
 
         final Display display = ((Activity) context).getWindow().getWindowManager().getDefaultDisplay();
         displayWidth = display.getWidth();
@@ -226,7 +226,13 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
         this.setModes = setModes;
         connection = bean;
         database = db;
-        decoder.setColorModel(COLORMODEL.valueOf(bean.getColorModel()));
+        
+        try {
+            COLORMODEL cm = COLORMODEL.valueOf(bean.getColorModel());
+            setColorModel(cm);
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+        }
 
         sshTunneled = (connection.getConnectionType() == Constants.CONN_TYPE_SSH);
 
@@ -746,7 +752,9 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
             handler.post(drawableSetter);
             handler.post(setModes);
             myDrawable.syncScroll();
-            decoder.setBitmapData(myDrawable);
+            if (decoder != null) {
+                decoder.setBitmapData(myDrawable);
+            }
         } catch (NullPointerException e) {
             e.printStackTrace();
         }
@@ -796,7 +804,9 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
                     useFull = false;
                     myDrawable = new LargeBitmapData(rfbconn, this, getWidth(), getHeight(), capacity);
                 }
-                decoder.setBitmapData(myDrawable);
+                if (decoder != null) {
+                    decoder.setBitmapData(myDrawable);
+                }
             }
         }
         handler.post(drawableSetter);
@@ -1209,11 +1219,11 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
         msg += "\n" + rfbconn.framebufferWidth() + "x" + rfbconn.framebufferHeight();
         String enc = rfbconn.getEncoding();
         // Encoding might not be set when we display this message
-        if (decoder.getColorModel() != null) {
-            if (enc != null && !enc.equals(""))
+        if (decoder != null && decoder.getColorModel() != null) {
+            if (enc != null && !enc.equals("")) {
                 msg += ", " + rfbconn.getEncoding() + getContext().getString(R.string.info_encoding) + decoder.getColorModel().toString();
-            else
-                msg += ", " + decoder.getColorModel().toString();
+            }
+            msg += ", " + decoder.getColorModel().toString();
         }
         Toast.makeText(getContext(), msg, Toast.LENGTH_SHORT).show();
     }
@@ -1354,11 +1364,17 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
     }
 
     public boolean isColorModel(COLORMODEL cm) {
-        return (decoder.getColorModel() != null) && decoder.getColorModel().equals(cm);
+        if (isVnc && decoder != null) {
+            return (decoder.getColorModel() != null) && decoder.getColorModel().equals(cm);
+        } else {
+            return false;
+        }
     }
 
     public void setColorModel(COLORMODEL cm) {
-        decoder.setColorModel(cm);
+        if (isVnc && decoder != null) {
+            decoder.setColorModel(cm);
+        }
     }
 
     public boolean getMouseFollowPan() {
