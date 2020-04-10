@@ -64,7 +64,7 @@ class TouchEnabledUIImageView: UIImageView {
     var tapGesture: UITapGestureRecognizer?
     var longTapGesture: UILongPressGestureRecognizer?
     var hoverGesture: UIHoverGestureRecognizer?
-
+    var inLeftDragging = false
     var moveEventsSinceFingerDown = 0
     var inScrolling = false
     var inPanning = false
@@ -270,8 +270,8 @@ class TouchEnabledUIImageView: UIImageView {
                     self.fingers[index] = nil
                     self.fingerLock.unlock()
                     if (index == 0) {
-                        if (self.tapGestureDetected || self.panGesture?.state == .began || self.pinchGesture?.state == .began) {
-                            print("Currently single or double-tapping, panning or zooming and first finger lifted, not sending mouse events.")
+                        if (self.inLeftDragging || self.tapGestureDetected || self.panGesture?.state == .began || self.pinchGesture?.state == .began) {
+                            print("Currently left-dragging, single or double-tapping, panning or zooming and first finger lifted, not sending mouse events.")
                         } else {
                             print("Not panning or zooming and first finger lifted, sending mouse events.")
                             self.sendDownThenUpEvent(scrolling: false, moving: false, firstDown: self.firstDown, secondDown: self.secondDown, thirdDown: self.thirdDown, fourthDown: false, fifthDown: false)
