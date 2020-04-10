@@ -1846,12 +1846,12 @@ struct codepairbyucs {
     { 0x0aa9, 0x2014 }, /*                      emdash — EM DASH */
     { 0x07af, 0x2015 }, /*              Greek_horizbar ― HORIZONTAL BAR */
     { 0x0cdf, 0x2017 }, /*        hebrew_doublelowline ‗ DOUBLE LOW LINE */
-    { 0x0ad0, 0x2018 }, /*         leftsinglequotemark ‘ LEFT SINGLE QUOTATION MARK */
-    { 0x0ad1, 0x2019 }, /*        rightsinglequotemark ’ RIGHT SINGLE QUOTATION MARK */
-    { 0x0afd, 0x201a }, /*          singlelowquotemark ‚ SINGLE LOW-9 QUOTATION MARK */
-    { 0x0ad2, 0x201c }, /*         leftdoublequotemark “ LEFT DOUBLE QUOTATION MARK */
-    { 0x0ad3, 0x201d }, /*        rightdoublequotemark ” RIGHT DOUBLE QUOTATION MARK */
-    { 0x0afe, 0x201e }, /*          doublelowquotemark „ DOUBLE LOW-9 QUOTATION MARK */
+    { 0x0027, 0x2018 }, /*         leftsinglequotemark ‘ LEFT SINGLE QUOTATION MARK */
+    { 0x0027, 0x2019 }, /*        rightsinglequotemark ’ RIGHT SINGLE QUOTATION MARK */
+    { 0x0027, 0x201a }, /*          singlelowquotemark ‚ SINGLE LOW-9 QUOTATION MARK */
+    { 0x0022, 0x201c }, /*         leftdoublequotemark “ LEFT DOUBLE QUOTATION MARK */
+    { 0x0022, 0x201d }, /*        rightdoublequotemark ” RIGHT DOUBLE QUOTATION MARK */
+    { 0x0022, 0x201e }, /*          doublelowquotemark „ DOUBLE LOW-9 QUOTATION MARK */
     { 0x0af1, 0x2020 }, /*                      dagger † DAGGER */
     { 0x0af2, 0x2021 }, /*                doubledagger ‡ DOUBLE DAGGER */
     { 0x0ae6, 0x2022 }, /*          enfilledcircbullet • BULLET */
