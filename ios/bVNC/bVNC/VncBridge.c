@@ -276,7 +276,7 @@ static rfbKeySym utf8char2rfbKeySym(const char chr[4]) {
                 shift -= utf8Mapping[0].bits_stored;
                 codep |= ((char)*chr & utf8Mapping[0].mask) << shift;
         }
-        //rfbClientLog("%s converted to %#06x\n", chr, codep);
+        //printf("utf8char2rfbKeySym %s converted to %#06x\n", chr, codep);
         return codep;
 }
 
@@ -287,7 +287,7 @@ void sendUniDirectionalKeyEvent(void *c, const char *characters, bool down) {
         return;
     }
     rfbKeySym sym = utf8char2rfbKeySym(c);
-    //rfbClientLog("sendKeyEvent converted %#06x to xkeysym: %#06x\n", (int)*c, sym);
+    //printf("sendUniDirectionalKeyEvent converted %s to xkeysym: %#06x\n", characters, sym);
     sendUniDirectionalKeyEventWithKeySym(cl, sym, down);
 }
 
@@ -298,7 +298,7 @@ void sendKeyEvent(void *c, const char *character) {
         return;
     }
     rfbKeySym sym = utf8char2rfbKeySym(c);
-    //rfbClientLog("sendKeyEvent converted %#06x to xkeysym: %#06x\n", (int)*c, sym);
+    //printf("sendKeyEvent converted %#06x to xkeysym: %#06x\n", (int)*character, sym);
     sendKeyEventWithKeySym(cl, sym);
 }
 
@@ -312,7 +312,7 @@ bool sendKeyEventInt(void *c, int character) {
     if (sym == -1) {
         return false;
     }
-    //rfbClientLog("sendKeyEventInt converted %#06x to xkeysym: %#06x\n", c, sym);
+    //printf("sendKeyEventInt converted %#06x to xkeysym: %#06x\n", character, sym);
     sendKeyEventWithKeySym(cl, sym);
     return true;
 }
@@ -320,31 +320,21 @@ bool sendKeyEventInt(void *c, int character) {
 void sendKeyEventWithKeySym(void *c, int sym) {
     rfbClient *cl = (rfbClient *)c;
 
-    if (!cl->maintainConnection) {
+    if (cl == NULL || !cl->maintainConnection) {
         return;
     }
-    if (cl != NULL) {
-        //rfbClientLog("Sending xkeysym: %#06x\n", sym);
-        checkForError(cl, SendKeyEvent(cl, sym, TRUE));
-        checkForError(cl, SendKeyEvent(cl, sym, FALSE));
-    } else {
-        rfbClientLog("RFB Client object is NULL, need to quit!");
-        checkForError(cl, false);
-    }
+    //printf("sendKeyEventWithKeySym sending xkeysym: %#06x\n", sym);
+    checkForError(cl, SendKeyEvent(cl, sym, TRUE));
+    checkForError(cl, SendKeyEvent(cl, sym, FALSE));
 }
 
 void sendUniDirectionalKeyEventWithKeySym(void *c, int sym, bool down) {
     rfbClient *cl = c;
-    if (!cl->maintainConnection) {
+    if (cl == NULL || !cl->maintainConnection) {
         return;
     }
-    if (cl != NULL) {
-        //rfbClientLog("Sending xkeysym: %#06x\n", sym);
-        checkForError(cl, SendKeyEvent(cl, sym, down));
-    } else {
-        rfbClientLog("RFB Client object is NULL, need to quit!");
-        checkForError(cl, false);
-    }
+    //printf("sendUniDirectionalKeyEventWithKeySym sending xkeysym: %#06x\n", sym);
+    checkForError(cl, SendKeyEvent(cl, sym, down));
 }
 
 void sendPointerEventToServer(void *c, float totalX, float totalY, float x, float y, bool firstDown, bool secondDown, bool thirdDown, bool scrollUp, bool scrollDown) {
@@ -369,15 +359,10 @@ void sendPointerEventToServer(void *c, float totalX, float totalY, float x, floa
     if (scrollDown) {
         buttonMask = buttonMask | rfbButton5Mask;
     }
-    if (cl != NULL) {
-        int remoteX = fbW * x / totalX;
-        int remoteY = fbH * y / totalY;
-        printf("Sending pointer event at %d, %d, with mask %d\n", remoteX, remoteY, buttonMask);
-        checkForError(cl, SendPointerEvent(cl, remoteX, remoteY, buttonMask));
-    } else {
-        rfbClientLog("RFB Client object is NULL, will quit now.\n");
-        checkForError(cl, false);
-    }
+    int remoteX = fbW * x / totalX;
+    int remoteY = fbH * y / totalY;
+    //printf("Sending pointer event at %d, %d, with mask %d\n", remoteX, remoteY, buttonMask);
+    checkForError(cl, SendPointerEvent(cl, remoteX, remoteY, buttonMask));
 }
 
 void checkForError(rfbClient *cl, rfbBool res) {
