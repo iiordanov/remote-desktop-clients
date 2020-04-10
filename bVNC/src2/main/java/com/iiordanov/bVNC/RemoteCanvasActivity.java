@@ -296,14 +296,20 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
             }
             // we need to save the connection to display the loading screen, so otherwise we should exit
             if (!connection.isReadyForConnection()) {
-            	if (!connection.isSaved()) {
+                Toast.makeText(this, getString(R.string.error_uri_noinfo_nosave), Toast.LENGTH_LONG).show();;
+                if (!connection.isSaved()) {
             		Log.i(TAG, "Exiting - Insufficent information to connect and connection was not saved.");
-            		Toast.makeText(this, getString(R.string.error_uri_noinfo_nosave), Toast.LENGTH_LONG).show();;
             	} else {
-            		// launch bVNC activity
-            		Log.i(TAG, "Insufficent information to connect, showing connection dialog.");
-            		Intent bVncIntent = new Intent(this, bVNC.class);
-            		startActivity(bVncIntent);
+                    Log.i(TAG, "Insufficent information to connect, showing connection dialog.");
+                    // launch appropriate activity
+                    Class cls = bVNC.class;
+                    if (Utils.isRdp(getPackageName())) {
+                        cls = aRDP.class;
+                    } else if (Utils.isSpice(getPackageName())) {
+                        cls = aSPICE.class;
+                    }
+                    Intent bVncIntent = new Intent(this, cls);
+                    startActivity(bVncIntent);
             	}
             	finish();
             	return;
@@ -1287,12 +1293,6 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
             canvas.closeConnection();
         if (database != null)
             database.close();
-        canvas = null;
-        connection = null;
-        database = null;
-        panner = null;
-        clearInputHandlers();
-        inputHandler = null;
         System.gc();
     }
 
@@ -1477,10 +1477,6 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
         return canvas;
     }
 
-    public void setCanvas(RemoteCanvas vncCanvas) {
-        this.canvas = vncCanvas;
-    }
-    
     public Panner getPanner() {
         return panner;
     }
