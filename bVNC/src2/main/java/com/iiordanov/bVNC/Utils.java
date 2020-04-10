@@ -221,15 +221,15 @@ public class Utils {
     }
     
     public static boolean isVnc(String packageName) {
-        return packageName.contains("VNC");
+        return packageName.toLowerCase().contains("vnc");
     }
     
     public static boolean isRdp(String packageName) {
-        return packageName.contains("RDP");
+        return packageName.toLowerCase().contains("rdp");
     }
     
     public static boolean isSpice(String packageName) {
-        return packageName.contains("SPICE");
+        return packageName.toLowerCase().contains("spice");
     }
     
     public static String getConnectionScheme(Context ctx) {
