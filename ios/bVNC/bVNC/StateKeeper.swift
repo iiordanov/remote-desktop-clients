@@ -71,25 +71,31 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
     
     // Dictionaries desctibing onscreen ToggleButton type buttons
     let topButtonData: [ String: [ String: Any ] ] = [
-        "escButton": [ "title": "Esc", "lx": 0*bW+0*tbSp, "ly": z, "bg": bBg, "send": XK_Escape, "tgl": false, "top": true, "right": false ],
-        "f1Button": [ "title": "F1", "lx": 1*bW+1*tbSp, "ly": z, "bg": bBg, "send": XK_F1, "tgl": false, "top": true, "right": false ],
-        "f2Button": [ "title": "F2", "lx": 2*bW+2*tbSp, "ly": z, "bg": bBg, "send": XK_F2, "tgl": false, "top": true, "right": false ],
-        "f3Button": [ "title": "F3", "lx": 3*bW+3*tbSp, "ly": z, "bg": bBg, "send": XK_F3, "tgl": false, "top": true, "right": false ],
-        "f4Button": [ "title": "F4", "lx": 4*bW+4*tbSp, "ly": z, "bg": bBg, "send": XK_F4, "tgl": false, "top": true, "right": false ],
-        "f5Button": [ "title": "F5", "lx": 5*bW+5*tbSp, "ly": z, "bg": bBg, "send": XK_F5, "tgl": false, "top": true, "right": false ],
-        "f6Button": [ "title": "F6", "lx": 6*bW+6*tbSp, "ly": z, "bg": bBg, "send": XK_F6, "tgl": false, "top": true, "right": false ],
-        "f7Button": [ "title": "F7", "lx": 7*bW+7*tbSp, "ly": z, "bg": bBg, "send": XK_F7, "tgl": false, "top": true, "right": false ],
-        "f8Button": [ "title": "F8", "lx": 8*bW+8*tbSp, "ly": z, "bg": bBg, "send": XK_F8, "tgl": false, "top": true, "right": false ],
-        "f9Button": [ "title": "F9", "lx": 9*bW+9*tbSp, "ly": z, "bg": bBg, "send": XK_F9, "tgl": false, "top": true, "right": false ],
-        "f10Button": [ "title": "F10", "lx": 10*bW+10*tbSp, "ly": z, "bg": bBg, "send": XK_F10, "tgl": false, "top": true, "right": false ],
-        "f11Button": [ "title": "F11", "lx": 11*bW+11*tbSp, "ly": z, "bg": bBg, "send": XK_F11, "tgl": false, "top": true, "right": false ],
-        "f12Button": [ "title": "F12", "lx": 12*bW+12*tbSp, "ly": z, "bg": bBg, "send": XK_F12, "tgl": false, "top": true, "right": false ],
+        "escButton": [ "title": "Esc", "lx": 0*tbW+0*tbSp, "ly": z, "bg": bBg, "send": XK_Escape, "tgl": false, "top": true, "right": false ],
+        "f1Button": [ "title": "F1", "lx": 1*tbW+1*tbSp, "ly": z, "bg": bBg, "send": XK_F1, "tgl": false, "top": true, "right": false ],
+        "f2Button": [ "title": "F2", "lx": 2*tbW+2*tbSp, "ly": z, "bg": bBg, "send": XK_F2, "tgl": false, "top": true, "right": false ],
+        "f3Button": [ "title": "F3", "lx": 3*tbW+3*tbSp, "ly": z, "bg": bBg, "send": XK_F3, "tgl": false, "top": true, "right": false ],
+        "f4Button": [ "title": "F4", "lx": 4*tbW+4*tbSp, "ly": z, "bg": bBg, "send": XK_F4, "tgl": false, "top": true, "right": false ],
+        "f5Button": [ "title": "F5", "lx": 5*tbW+5*tbSp, "ly": z, "bg": bBg, "send": XK_F5, "tgl": false, "top": true, "right": false ],
+        "f6Button": [ "title": "F6", "lx": 6*tbW+6*tbSp, "ly": z, "bg": bBg, "send": XK_F6, "tgl": false, "top": true, "right": false ],
+        "f7Button": [ "title": "F7", "lx": 7*tbW+7*tbSp, "ly": z, "bg": bBg, "send": XK_F7, "tgl": false, "top": true, "right": false ],
+        "f8Button": [ "title": "F8", "lx": 8*tbW+8*tbSp, "ly": z, "bg": bBg, "send": XK_F8, "tgl": false, "top": true, "right": false ],
+        "f9Button": [ "title": "F9", "lx": 9*tbW+9*tbSp, "ly": z, "bg": bBg, "send": XK_F9, "tgl": false, "top": true, "right": false ],
+        "f10Button": [ "title": "F10", "lx": 10*tbW+10*tbSp, "ly": z, "bg": bBg, "send": XK_F10, "tgl": false, "top": true, "right": false ],
+        "f11Button": [ "title": "F11", "lx": 11*tbW+11*tbSp, "ly": z, "bg": bBg, "send": XK_F11, "tgl": false, "top": true, "right": false ],
+        "f12Button": [ "title": "F12", "lx": 12*tbW+12*tbSp, "ly": z, "bg": bBg, "send": XK_F12, "tgl": false, "top": true, "right": false ],
+        "pageUp": [ "title": "P↑", "lx": 13*tbW+13*tbSp, "ly": z, "bg": bBg, "send": XK_Page_Up, "tgl": false, "top": true, "right": false ],
+        "pageDown": [ "title": "P↓", "lx": 14*tbW+14*tbSp, "ly": z, "bg": bBg, "send": XK_Page_Down, "tgl": false, "top": true, "right": false ],
+        "home": [ "title": "Hm", "lx": 15*tbW+15*tbSp, "ly": z, "bg": bBg, "send": XK_Home, "tgl": false, "top": true, "right": false ],
+        "end": [ "title": "En", "lx": 16*tbW+16*tbSp, "ly": z, "bg": bBg, "send": XK_End, "tgl": false, "top": true, "right": false ],
+
     ]
 
     let modifierButtonData: [ String: [ String: Any ] ] = [
         "ctrlButton": [ "title": "Ctr", "lx": 0*bW+0*bSp, "ly": 1*bH, "bg": bBg, "send": XK_Control_L, "tgl": true, "top": false, "right": false ],
         "superButton": [ "title": "Sup", "lx": 1*bW+1*bSp, "ly": 1*bH, "bg": bBg, "send": XK_Super_L, "tgl": true, "top": false, "right": false ],
         "altButton": [ "title": "Alt", "lx": 2*bW+2*bSp, "ly": 1*bH, "bg": bBg, "send": XK_Alt_L, "tgl": true, "top": false, "right": false ],
+        "shiftButton": [ "title": "Shf", "lx": 1*bW+1*bSp, "ly": 2*bH+1*bSp, "bg": bBg, "send": XK_Shift_L, "tgl": true, "top": false, "right": false ],
     ]
     
     let keyboardButtonData: [ String: [ String: Any ] ] = [
@@ -593,7 +599,7 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
     
     func toggleModifiersIfDown() {
         self.modifierButtons.forEach() { button in
-            print ("Toggling \(button.key) if down")
+            //print ("Toggling \(button.key) if down")
             (button.value as! ToggleButton).sendUpIfToggled()
         }
     }
