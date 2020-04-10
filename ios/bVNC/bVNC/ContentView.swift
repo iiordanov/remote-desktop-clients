@@ -129,6 +129,8 @@ struct ContentView : View {
                 ConnectedSessionPage()
             } else if stateKeeper.currentPage == "dismissableErrorMessage" {
                 DismissableLogDialog(stateKeeper: stateKeeper)
+            } else if stateKeeper.currentPage == "helpDialog" {
+                HelpDialog(stateKeeper: stateKeeper)
             } else if stateKeeper.currentPage == "yesNoMessage" {
                 YesNoDialog(stateKeeper: stateKeeper)
             } else if stateKeeper.currentPage == "blankPage" {
@@ -174,17 +176,31 @@ struct ConnectionsList : View {
     var body: some View {
         ScrollView {
             VStack {
-                Button(action: {
-                    self.stateKeeper.addNewConnection()
-                }) {
-                    Text("New Connection")
-                    .fontWeight(.bold)
-                    .font(.title)
-                    .padding(5)
-                    .background(Color.gray)
-                    .cornerRadius(5)
-                    .foregroundColor(.white)
-                    .padding(10)
+                HStack {
+                    Button(action: {
+                        self.stateKeeper.addNewConnection()
+                    }) {
+                        Text("Add")
+                        .fontWeight(.bold)
+                        .font(.title)
+                        .padding(5)
+                        .background(Color.gray)
+                        .cornerRadius(5)
+                        .foregroundColor(.white)
+                        .padding(10)
+                    }
+                    Button(action: {
+                        self.stateKeeper.showHelp()
+                    }) {
+                        Text("Help")
+                        .fontWeight(.bold)
+                        .font(.title)
+                        .padding(5)
+                        .background(Color.gray)
+                        .cornerRadius(5)
+                        .foregroundColor(.white)
+                        .padding(10)
+                    }
                 }
 
                 Text("Tap a connection to connect").font(.headline)
@@ -365,6 +381,81 @@ struct ConnectedSessionPage : View {
         Text("")
     }
 }
+
+struct HelpDialog : View {
+    @ObservedObject var stateKeeper: StateKeeper
+    
+    func getTitle() -> String {
+        return stateKeeper.title ?? ""
+    }
+    
+    var body: some View {
+        VStack {
+            ScrollView {
+                Text("Help").font(.title).padding()
+                Text("When the application launches, tap the Add button to add a new connection. If tunneling over SSH, enter the SSH tunneling information under Optional SSH Connection Parameters. In either case, enter the VNC connection parameters under Main Connection Parameters.\n\nFor more information, please tap on the following buttons for various help options. Report bugs to the Issue Tracker, post questions on the Support Forum, and watch the video in Input Help for the multi-touch interface.").font(.body).padding()
+                VStack {
+                    Button(action: {
+                        UIApplication.shared.open(URL(string: "https://groups.google.com/forum/#!forum/bvnc-ardp-aspice-opaque-android-bb10-clients")!, options: [:], completionHandler: nil)
+                        
+                    }) {
+                        Text("Support Forum")
+                        .fontWeight(.bold)
+                        .font(.title)
+                        .padding(5)
+                        .background(Color.gray)
+                        .cornerRadius(5)
+                        .foregroundColor(.white)
+                        .padding(10)
+                    }
+                    
+                    Button(action: {
+                        UIApplication.shared.open(URL(string: "https://github.com/iiordanov/remote-desktop-clients/issues")!, options: [:], completionHandler: nil)
+                        
+                    }) {
+                        Text("Issue Tracker")
+                        .fontWeight(.bold)
+                        .font(.title)
+                        .padding(5)
+                        .background(Color.gray)
+                        .cornerRadius(5)
+                        .foregroundColor(.white)
+                        .padding(10)
+                    }
+
+                    Button(action: {
+                        UIApplication.shared.open(URL(string: "https://www.youtube.com/watch?v=BDqIDD-eat8")!, options: [:], completionHandler: nil)
+                        
+                    }) {
+                        Text("Input Help")
+                        .fontWeight(.bold)
+                        .font(.title)
+                        .padding(5)
+                        .background(Color.gray)
+                        .cornerRadius(5)
+                        .foregroundColor(.white)
+                        .padding(10)
+                    }
+
+                }
+            }
+            Button(action: {
+                self.stateKeeper.showConnections()
+            }) {
+                Text("Dismiss")
+                .fontWeight(.bold)
+                .font(.title)
+                .padding(5)
+                .background(Color.gray)
+                .cornerRadius(5)
+                .foregroundColor(.white)
+                .padding(10)
+            }
+        }
+    }
+}
+
+
 
 struct BlankPage : View {
     var body: some View {

@@ -301,6 +301,7 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
             self.window!.makeKeyAndVisible()
             self.showConnections()
         }
+        StoreReviewHelper.checkAndAskForReview()
     }
     
     func hideKeyboard() {
@@ -316,6 +317,13 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
         }
     }
 
+    func showHelp() {
+        print("Showing help screen")
+        UserInterface {
+            self.currentPage = "helpDialog"
+        }
+    }
+    
     func editConnection(index: Int) {
         print("Editing connection at index \(index) and navigating to setup screen")
         self.connectionIndex = index
