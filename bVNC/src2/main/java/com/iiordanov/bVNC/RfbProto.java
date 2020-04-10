@@ -267,7 +267,7 @@ class RfbProto implements RfbConnectable {
 
     // Tight encoding parameters
     private int compressLevel = 6;
-    private int jpegQuality = 6;
+    private int jpegQuality = 7;
 
     // Used to determine if encoding update is necessary
     private int[] encodingsSaved = null;
