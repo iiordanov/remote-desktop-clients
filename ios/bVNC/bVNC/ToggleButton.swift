@@ -35,6 +35,7 @@ class ToggleButton: UIButton {
         down = !down
         print("Toggled my xksysym: \(toSend!), down: \(down)")
         sendUniDirectionalKeyEventWithKeySym(self.stateKeeper!.cl[self.stateKeeper!.currInst]!, toSend!, down)
+        self.stateKeeper?.rescheduleScreenUpdateRequest(timeInterval: 0.5, fullScreenUpdate: false, recurring: false)
         UserInterface {
             if self.down {
                 self.backgroundColor = self.originalBackground?.withAlphaComponent(1)
@@ -50,6 +51,7 @@ class ToggleButton: UIButton {
         //print("Sending my xksysym: \(toSend!), up and then down.")
         sendKeyEventWithKeySym(self.stateKeeper!.cl[self.stateKeeper!.currInst]!, toSend!)
         self.stateKeeper?.toggleModifiersIfDown()
+        self.stateKeeper?.rescheduleScreenUpdateRequest(timeInterval: 0.5, fullScreenUpdate: false, recurring: false)
     }
 
     @objc func sendUpIfToggled() {

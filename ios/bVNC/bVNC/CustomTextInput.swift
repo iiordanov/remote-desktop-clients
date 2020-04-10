@@ -50,6 +50,7 @@ class CustomTextInput: UIButton, UIKeyInput{
                 }
                 self.stateKeeper?.toggleModifiersIfDown()
             }
+            self.stateKeeper?.rescheduleScreenUpdateRequest(timeInterval: 0.5, fullScreenUpdate: false, recurring: false)
         }
     }
     
@@ -58,6 +59,7 @@ class CustomTextInput: UIButton, UIKeyInput{
             sendKeyEventWithKeySym(self.stateKeeper!.cl[self.stateKeeper!.currInst]!, 0xff08);
             self.stateKeeper?.toggleModifiersIfDown()
         }
+        self.stateKeeper?.rescheduleScreenUpdateRequest(timeInterval: 0.5, fullScreenUpdate: false, recurring: false)
     }
     
     @objc func toggleFirstResponder() -> Bool {
