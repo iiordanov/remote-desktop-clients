@@ -77,6 +77,9 @@ class LongTapDragUIImageView: TouchEnabledUIImageView {
         if let touchView = sender.view {
             if sender.state == .began {
                 AudioServicesPlaySystemSound(1100);
+                self.inLeftDragging = true
+            } else if sender.state == .ended {
+                self.inLeftDragging = false
             }
             self.setViewParameters(point: sender.location(in: touchView), touchView: touchView)
             self.firstDown = !(sender.state == .ended)
