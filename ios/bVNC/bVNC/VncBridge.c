@@ -11,6 +11,7 @@
 #include "ucs2xkeysym.h"
 #include "SshPortForwarder.h"
 #include "Utility.h"
+#include <signal.h>
 
 char* USERNAME = NULL;
 char* PASSWORD = NULL;
@@ -146,6 +147,23 @@ rfbBool unlockWriteToTLS(rfbClient *client) {
     return TRUE;
 }
 
+static void signal_handler(int signal, siginfo_t *info, void *reserved) {
+    printf("Handling signal: %d\n", signal);
+}
+
+static void handle_signals() {
+    struct sigaction handler;
+    memset(&handler, 0, sizeof(handler));
+    handler.sa_sigaction = signal_handler;
+    handler.sa_flags = SA_SIGINFO;
+    sigaction(SIGILL, &handler, NULL);
+    sigaction(SIGABRT, &handler, NULL);
+    sigaction(SIGBUS, &handler, NULL);
+    sigaction(SIGFPE, &handler, NULL);
+    sigaction(SIGSEGV, &handler, NULL);
+    sigaction(SIGPIPE, &handler, NULL);
+}
+
 void *initializeVnc(int instance,
                    bool (*fb_update_callback)(int instance, uint8_t *, int fbW, int fbH, int x, int y, int w, int h),
                    void (*fb_resize_callback)(int instance, void *, int fbW, int fbH),
@@ -156,6 +174,7 @@ void *initializeVnc(int instance,
                    int (*y_n_callback)(int instance, int8_t *, int8_t *, int8_t *, int8_t *, int8_t *),
                    char* addr, char* user, char* password) {
     rfbClientLog("Initializing VNC session.\n");
+    handle_signals();
     USERNAME = user;
     PASSWORD = password;
     framebuffer_update_callback = fb_update_callback;
@@ -177,9 +196,9 @@ void *initializeVnc(int instance,
     }
     strcpy(argv[0], "dummy");
     strcpy(argv[1], "-compress");
-    strcpy(argv[2], "7");
+    strcpy(argv[2], "8");
     strcpy(argv[3], "-quality");
-    strcpy(argv[4], "8");
+    strcpy(argv[4], "7");
     strcpy(argv[5], addr);
 
     /* 16-bit: cl=rfbGetClient(5,3,2); */

@@ -46,6 +46,7 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
     var reDrawTimer: Timer = Timer()
     var orientationTimer: Timer = Timer()
     var screenUpdateTimer: Timer = Timer()
+    var disconnectTimer: Timer = Timer()
     var fbW: Int32 = 0
     var fbH: Int32 = 0
     var data: UnsafeMutablePointer<UInt8>?
@@ -304,6 +305,13 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
         StoreReviewHelper.checkAndAskForReview()
     }
     
+    @objc func scheduleDisconnectTimer() {
+        print("Scheduling disconnect")
+        self.lazyDisconnect()
+        self.disconnectTimer.invalidate()
+        self.disconnectTimer = Timer.scheduledTimer(timeInterval: 2, target: self, selector: #selector(disconnect), userInfo: nil, repeats: false)
+    }
+    
     func hideKeyboard() {
         _ = (self.interfaceButtons["keyboardButton"] as? CustomTextInput)?.hideKeyboard()
     }
@@ -484,7 +492,7 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
             self.interfaceButtons["keyboardButton"] = b
         }
         interfaceButtons = createButtonsFromData(populateDict: interfaceButtons, buttonData: interfaceButtonData, width: StateKeeper.bW, height: StateKeeper.bH, spacing: StateKeeper.bSp)
-        interfaceButtons["disconnectButton"]?.addTarget(self, action: #selector(self.disconnect), for: .touchDown)
+        interfaceButtons["disconnectButton"]?.addTarget(self, action: #selector(self.scheduleDisconnectTimer), for: .touchDown)
 
         topButtons = createButtonsFromData(populateDict: topButtons, buttonData: topButtonData, width: StateKeeper.tbW, height: StateKeeper.bH, spacing: StateKeeper.tbSp)
         modifierButtons = createButtonsFromData(populateDict: modifierButtons, buttonData: modifierButtonData, width: StateKeeper.bW, height: StateKeeper.bH, spacing: StateKeeper.bSp)

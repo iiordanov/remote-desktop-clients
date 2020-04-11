@@ -77,9 +77,20 @@ class CustomTextInput: UIButton, UIKeyInput{
         return resignFirstResponder()
     }
 
-    @objc func showKeyboard() -> Bool {
-        print("Showing keyboard.")
+    @objc func showKeyboardFunction() -> Bool {
+        print("showKeyboardFunction called")
+        resignFirstResponder()
         return becomeFirstResponder()
+    }
+
+    
+    @objc func showKeyboard() -> Bool {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            self.showKeyboardFunction()
+        }
+        print("Showing keyboard with delay")
+        return true
+
     }
     
     override var canBecomeFirstResponder: Bool {
