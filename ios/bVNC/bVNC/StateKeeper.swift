@@ -307,9 +307,17 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
     
     @objc func scheduleDisconnectTimer() {
         print("Scheduling disconnect")
+        
+        let spinner = UIActivityIndicatorView(style: .large)
+        spinner.frame.origin.x = (window?.frame.size.width ?? 0) / 2 - spinner.frame.size.width / 2
+        spinner.frame.origin.y = (window?.frame.size.height ?? 0) / 2 - spinner.frame.size.height / 2
+        spinner.translatesAutoresizingMaskIntoConstraints = false
+        spinner.startAnimating()
+        window?.addSubview(spinner)
+        
         self.lazyDisconnect()
         self.disconnectTimer.invalidate()
-        self.disconnectTimer = Timer.scheduledTimer(timeInterval: 2, target: self, selector: #selector(disconnect), userInfo: nil, repeats: false)
+        self.disconnectTimer = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(disconnect), userInfo: nil, repeats: false)
     }
     
     func hideKeyboard() {

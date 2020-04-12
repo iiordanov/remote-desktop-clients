@@ -149,6 +149,7 @@ rfbBool unlockWriteToTLS(rfbClient *client) {
 
 static void signal_handler(int signal, siginfo_t *info, void *reserved) {
     printf("Handling signal: %d\n", signal);
+    failure_callback(-1, NULL);
 }
 
 static void handle_signals() {
@@ -162,6 +163,7 @@ static void handle_signals() {
     sigaction(SIGFPE, &handler, NULL);
     sigaction(SIGSEGV, &handler, NULL);
     sigaction(SIGPIPE, &handler, NULL);
+    sigaction(SIGINT, &handler, NULL);
 }
 
 void *initializeVnc(int instance,
