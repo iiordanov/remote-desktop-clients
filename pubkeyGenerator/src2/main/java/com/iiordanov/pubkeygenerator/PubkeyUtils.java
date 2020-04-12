@@ -169,7 +169,7 @@ public class PubkeyUtils {
 		PublicKey pub;
 		KeyFactory kf;
 		try {
-			kf = KeyFactory.getInstance(PubkeyDatabase.KEY_TYPE_RSA, "BC");
+			kf = KeyFactory.getInstance(PubkeyDatabase.KEY_TYPE_RSA, new org.spongycastle.jce.provider.BouncyCastleProvider());
 			priv = kf.generatePrivate(privKeySpec);
 
 			pubKeySpec = new RSAPublicKeySpec(((RSAPrivateCrtKey) priv)
@@ -178,7 +178,7 @@ public class PubkeyUtils {
 
 			pub = kf.generatePublic(pubKeySpec);
         } catch (ClassCastException e) {
-            kf = KeyFactory.getInstance(PubkeyDatabase.KEY_TYPE_DSA, "BC");
+            kf = KeyFactory.getInstance(PubkeyDatabase.KEY_TYPE_DSA, new org.spongycastle.jce.provider.BouncyCastleProvider());
             priv = kf.generatePrivate(privKeySpec);
 
             DSAParams params = ((DSAPrivateKey) priv).getParams();
