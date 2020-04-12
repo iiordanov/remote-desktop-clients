@@ -396,7 +396,7 @@ struct HelpDialog : View {
                 Text("When the application launches, tap the Add button to add a new connection. If tunneling over SSH, enter the SSH tunneling information under Optional SSH Connection Parameters. In either case, enter the VNC connection parameters under Main Connection Parameters.\n\nIf tunneling over SSH, the address field under Main Connection Parameters is with respect to the SSH server. For instance, it would be 'localhost' if the SSH server and VNC server are on the same machine. To edit or delete an existing connection, long-tap that connection.\n\nFor more information, please tap on the following buttons for various help options. Post your questions on the Support Forum, report bugs and problems to the Issue Tracker, and watch the video in Usage Help Video for an overview of how to use the application including the multi-touch interface.").font(.body).padding()
                 VStack {
                     Button(action: {
-                        UIApplication.shared.open(URL(string: "https://groups.google.com/forum/#!forum/bvnc-ardp-aspice-opaque-android-bb10-clients")!, options: [:], completionHandler: nil)
+                        UIApplication.shared.open(URL(string: "https://groups.google.com/forum/#!forum/bvnc-ardp-aspice-opaque-remote-desktop-clients")!, options: [:], completionHandler: nil)
                         
                     }) {
                         Text("Support Forum")
