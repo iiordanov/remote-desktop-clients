@@ -262,7 +262,7 @@ void rfb_client_cleanup(rfbClient *cl) {
         if (cl->frameBuffer != NULL) {
             free(cl->frameBuffer);
         }
-        rfbClientCleanup(cl);
+        //rfbClientCleanup(cl);
     }
 }
 
