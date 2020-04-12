@@ -54,7 +54,7 @@ func ssh_forward_failure() -> Void {
 }
 
 func failure_callback_str(instance: Int, message: String?) {
-    if (instance != globalStateKeeper!.currInst) { print("Current instance \(globalStateKeeper!.currInst) discarding call from instance \(instance)") ; return }
+    if (instance != -1 && instance != globalStateKeeper!.currInst) { print("Current instance \(globalStateKeeper!.currInst) discarding call from instance \(instance)") ; return }
 
     UserInterface {
         globalStateKeeper?.isDrawing = false
@@ -75,9 +75,7 @@ func failure_callback_str(instance: Int, message: String?) {
 }
 
 func failure_callback_swift(instance: Int32, message: UnsafeMutablePointer<UInt8>?) -> Void {
-    if (instance != globalStateKeeper!.currInst) { print("Current instance \(globalStateKeeper!.currInst) discarding call from instance \(instance)") ; return }
-
-    if (instance != globalStateKeeper!.currInst) { return }
+    if (instance != -1 && instance != globalStateKeeper!.currInst) { print("Current instance \(globalStateKeeper!.currInst) discarding call from instance \(instance)") ; return }
 
     if message != nil {
         print("Will show error with title: \(String(cString: message!))")
