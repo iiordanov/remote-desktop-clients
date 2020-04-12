@@ -59,7 +59,7 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
     var orientation: Int = -1 /* -1 == Uninitialized, 0 == Portrait, 1 == Landscape */
     
     var disconnectedDueToBackgrounding: Bool = false
-    var currInst: Int = 0
+    var currInst: Int = -1
     
     var cl: [UnsafeMutableRawPointer?]
     var maxClCapacity = 1000
@@ -69,7 +69,8 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
     
     var currentTransition: String = "";
     var logLock: NSLock = NSLock()
-    
+    var spinner = UIActivityIndicatorView(style: .large)
+
     // Dictionaries desctibing onscreen ToggleButton type buttons
     let topButtonData: [ String: [ String: Any ] ] = [
         "escButton": [ "title": "Esc", "lx": 0*tbW+0*tbSp, "ly": z, "bg": bBg, "send": XK_Escape, "tgl": false, "top": true, "right": false ],
@@ -262,13 +263,12 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
     func disconnectDueToBackgrounding() {
         if (self.isDrawing) {
             disconnectedDueToBackgrounding = true
-            disconnect()
+            scheduleDisconnectTimer()
         }
     }
     
     @objc func lazyDisconnect() {
         print("Disconnecting and navigating to the disconnection screen")
-        currInst = (currInst + 1) % maxClCapacity
         self.isDrawing = false
         self.deregisterFromNotifications()
         self.orientationTimer.invalidate()
@@ -276,30 +276,31 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
         self.screenUpdateTimer.invalidate()
     }
 
-    
-    @objc func disconnect() {
+    @objc func disconnect(sender: Timer) {
         let instance = self.currInst
-        let wasDrawing = self.isDrawing
+        self.currInst = (currInst + 1) % maxClCapacity
+        let wasDrawing = (sender.userInfo as! Bool)
         _ = self.saveImage(image: self.captureScreen(imageView: self.imageView ?? UIImageView()))
-        lazyDisconnect()
         UserInterface {
             self.toggleModifiersIfDown()
         }
         print("wasDrawing(): \(wasDrawing)")
         if (wasDrawing) {
-            self.vncSession?.disconnect(cl: cl[instance])
+            self.vncSession?.disconnect()
             UserInterface {
                 self.removeButtons()
                 self.hideKeyboard()
                 self.imageView?.disableTouch()
                 self.imageView?.removeFromSuperview()
-                self.showConnections()
             }
         } else {
-            print("\(#function) called but maintainConnection was already false")
+            print("\(#function) called but wasDrawing was already false")
+        }
+        UserInterface {
             let contentView = ContentView(stateKeeper: self)
             self.window!.rootViewController = MyUIHostingController(rootView: contentView)
             self.window!.makeKeyAndVisible()
+            self.spinner.removeFromSuperview()
             self.showConnections()
         }
         StoreReviewHelper.checkAndAskForReview()
@@ -308,16 +309,15 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
     @objc func scheduleDisconnectTimer() {
         print("Scheduling disconnect")
         
-        let spinner = UIActivityIndicatorView(style: .large)
-        spinner.frame.origin.x = (window?.frame.size.width ?? 0) / 2 - spinner.frame.size.width / 2
-        spinner.frame.origin.y = (window?.frame.size.height ?? 0) / 2 - spinner.frame.size.height / 2
-        spinner.translatesAutoresizingMaskIntoConstraints = false
-        spinner.startAnimating()
+        self.spinner.frame.origin.x = (window?.frame.size.width ?? 0) / 2 - spinner.frame.size.width / 2
+        self.spinner.frame.origin.y = (window?.frame.size.height ?? 0) / 2 - spinner.frame.size.height / 2
+        self.spinner.translatesAutoresizingMaskIntoConstraints = false
+        self.spinner.startAnimating()
         window?.addSubview(spinner)
-        
+        let wasDrawing = self.isDrawing
         self.lazyDisconnect()
         self.disconnectTimer.invalidate()
-        self.disconnectTimer = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(disconnect), userInfo: nil, repeats: false)
+        self.disconnectTimer = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(disconnect(sender:)), userInfo: wasDrawing, repeats: false)
     }
     
     func hideKeyboard() {

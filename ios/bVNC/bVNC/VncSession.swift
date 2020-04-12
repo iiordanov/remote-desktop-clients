@@ -202,8 +202,8 @@ func update_callback(instance: Int32, data: UnsafeMutablePointer<UInt8>?, fbW: I
     }
     
     let timeNow = CACurrentMediaTime()
-    if (timeNow - lastUpdate < 0.016) {
-        //print("Last frame drawn less than 16ms ago, discarding frame, scheduling redraw")
+    if (timeNow - lastUpdate < 0.050) {
+        //print("Last frame drawn less than 50ms ago, discarding frame, scheduling redraw")
         globalStateKeeper!.rescheduleReDrawTimer(data: data, fbW: fbW, fbH: fbH)
     } else {
         //print("Drawing a frame normally.")
@@ -242,6 +242,7 @@ func imageFromARGB32Bitmap(pixels: UnsafeMutablePointer<UInt8>?, withWidth: Int,
 class VncSession {
     let scene: UIScene, window: UIWindow, stateKeeper: StateKeeper
     var instance: Int
+    var cl: UnsafeMutableRawPointer?
     
     init(scene: UIScene, window: UIWindow, instance: Int, stateKeeper: StateKeeper) {
         print("Initializing VNC Session instance: \(instance)")
@@ -249,6 +250,7 @@ class VncSession {
         self.window = window
         self.instance = instance
         self.stateKeeper = stateKeeper
+        self.cl = nil
     }
         
     func loadTextFile(path: String) -> String {
@@ -335,14 +337,13 @@ class VncSession {
             }
             if continueConnecting {
                 print("Connecting VNC Session in the background...")
-                self.stateKeeper.cl[self.instance] = initializeVnc(Int32(self.instance), update_callback, resize_callback, failure_callback_swift, log_callback, lock_write_tls_callback_swift, unlock_write_tls_callback_swift, yes_no_dialog_callback,
+                self.cl = initializeVnc(Int32(self.instance), update_callback, resize_callback, failure_callback_swift, log_callback, lock_write_tls_callback_swift, unlock_write_tls_callback_swift, yes_no_dialog_callback,
                            UnsafeMutablePointer<Int8>(mutating: (addressAndPort as NSString).utf8String),
                            UnsafeMutablePointer<Int8>(mutating: (user as NSString).utf8String),
                            UnsafeMutablePointer<Int8>(mutating: (pass as NSString).utf8String))
-                if self.stateKeeper.cl[self.instance] != nil {
-                    //let thread = Thread.init(target: self, selector: #selector(self.connectVncSession), object: self.stateKeeper.cl)
-                    //thread.start()
-                    connectVnc(self.stateKeeper.cl[self.instance])
+                if self.cl != nil {
+                    self.stateKeeper.cl[self.stateKeeper.currInst] = self.cl
+                    connectVnc(self.cl)
                 } else {
                     message = "Failed to establish connection to VNC server."
                     print("Error message: \(message)")
@@ -356,9 +357,9 @@ class VncSession {
         }
     }
         
-    func disconnect(cl: UnsafeMutableRawPointer?) {
+    func disconnect() {
         Background {
-            disconnectVnc(cl)
+            disconnectVnc(self.cl)
         }
     }
 }
