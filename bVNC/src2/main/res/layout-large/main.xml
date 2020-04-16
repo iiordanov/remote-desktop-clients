@@ -375,13 +375,39 @@
                 android:text="@string/rotate_dpad"
                 android:textAppearance="?android:attr/textAppearanceLarge" />
 
-            <CheckBox
-                android:id="@+id/checkboxUseLocalCursor"
+            <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:gravity="left|center_vertical"
-                android:text="@string/local_mouse_check"
+                android:text="@string/cursor_mode"
                 android:textAppearance="?android:attr/textAppearanceLarge" />
+
+            <RadioGroup
+                android:id="@+id/radioCursor"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <RadioButton
+                    android:id="@+id/radioCursorAuto"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/auto"
+                    android:textAppearance="?android:attr/textAppearanceLarge" />
+
+                <RadioButton
+                    android:id="@+id/radioCursorForceLocal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/cursor_force_local"
+                    android:textAppearance="?android:attr/textAppearanceLarge" />
+
+                <RadioButton
+                    android:id="@+id/radioCursorForceDisable"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/cursor_force_disable"
+                    android:textAppearance="?android:attr/textAppearanceLarge" />
+            </RadioGroup>
 
             <CheckBox
                 android:id="@+id/checkboxPreferHextile"
@@ -389,6 +415,12 @@
                 android:layout_height="wrap_content"
                 android:gravity="left|center_vertical"
                 android:text="@string/use_no_compression_for_local_connections"
+                android:textAppearance="?android:attr/textAppearanceLarge" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/rendering_mode"
                 android:textAppearance="?android:attr/textAppearanceLarge" />
 
             <RadioGroup
@@ -418,13 +450,13 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="5dp"
                 android:text="@string/rdp_descript_geom"
-                android:textAppearance="?android:attr/textAppearanceMedium" />
+                android:textAppearance="?android:attr/textAppearanceLarge" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/rdp_geom_description_hint"
-                android:textAppearance="?android:attr/textAppearanceSmall" />
+                android:textAppearance="?android:attr/textAppearanceMedium" />
 
             <LinearLayout
                 android:id="@+id/layoutVncGeometry"
@@ -439,7 +471,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="0.4"
                     android:entries="@array/vnc_geometry"
-                    android:textAppearance="?android:attr/textAppearanceMedium" />
+                    android:textAppearance="?android:attr/textAppearanceLarge" />
 
                 <EditText
                     android:id="@+id/rdpWidth"
@@ -447,13 +479,13 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="0.3"
                     android:singleLine="true"
-                    android:textAppearance="?android:attr/textAppearanceMedium" />
+                    android:textAppearance="?android:attr/textAppearanceLarge" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="x"
-                    android:textAppearance="?android:attr/textAppearanceMedium" />
+                    android:textAppearance="?android:attr/textAppearanceLarge" />
 
                 <EditText
                     android:id="@+id/rdpHeight"
@@ -461,7 +493,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="0.3"
                     android:singleLine="true"
-                    android:textAppearance="?android:attr/textAppearanceMedium" />
+                    android:textAppearance="?android:attr/textAppearanceLarge" />
             </LinearLayout>
 
             <TextView

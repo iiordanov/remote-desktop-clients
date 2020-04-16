@@ -125,7 +125,7 @@ public class ConnectionBean extends AbstractConnectionBean implements Comparable
         setUseDpadAsArrows(true);
         setRotateDpad(false);
         setUsePortrait(false);
-        setUseLocalCursor(false);
+        setUseLocalCursor(Constants.CURSOR_AUTO);
         setRepeaterId("");
         setExtraKeysToggleType(1);
         setMetaListId(1);

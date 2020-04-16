@@ -129,7 +129,7 @@ interface IConnectionBean {
     @FieldAccessor
     boolean getUsePortrait();
     @FieldAccessor
-    boolean getUseLocalCursor();
+    int getUseLocalCursor();
     @FieldAccessor
     boolean getKeepPassword();
     @FieldAccessor

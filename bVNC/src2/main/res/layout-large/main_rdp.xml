@@ -510,13 +510,39 @@
                 android:text="@string/rotate_dpad"
                 android:textAppearance="?android:attr/textAppearanceLarge" />
 
-            <CheckBox
-                android:id="@+id/checkboxUseLocalCursor"
+            <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:gravity="left|center_vertical"
-                android:text="@string/local_mouse_check"
+                android:text="@string/cursor_mode"
                 android:textAppearance="?android:attr/textAppearanceLarge" />
+
+            <RadioGroup
+                android:id="@+id/radioCursor"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <RadioButton
+                    android:id="@+id/radioCursorAuto"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/auto"
+                    android:textAppearance="?android:attr/textAppearanceLarge" />
+
+                <RadioButton
+                    android:id="@+id/radioCursorForceLocal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/cursor_force_local"
+                    android:textAppearance="?android:attr/textAppearanceLarge" />
+
+                <RadioButton
+                    android:id="@+id/radioCursorForceDisable"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/cursor_force_disable"
+                    android:textAppearance="?android:attr/textAppearanceLarge" />
+            </RadioGroup>
 
             <TextView
                 android:id="@+id/versionAndCode"

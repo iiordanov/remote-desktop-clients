@@ -288,9 +288,6 @@ class RfbProto implements RfbConnectable {
     // The remote canvas
     RemoteCanvas canvas;
 
-    // Whether to only use a local cursor.
-    private boolean useLocalCursor = false;
-
     // ExtendedDesktopSize Variables
     // ScreenId
     private int screenId;
@@ -313,14 +310,13 @@ class RfbProto implements RfbConnectable {
     // Constructor
     //
     RfbProto(Decoder decoder, RemoteCanvas canvas, int preferredEncoding,
-             boolean viewOnly, boolean useLocalCursor, boolean sslTunneled, int hashAlgorithm,
+             boolean viewOnly, boolean sslTunneled, int hashAlgorithm,
              String hash, String cert) {
         this.sslTunneled = sslTunneled;
         this.decoder = decoder;
         this.viewOnly = viewOnly;
         this.canvas = canvas;
         this.preferredEncoding = preferredEncoding;
-        this.useLocalCursor = useLocalCursor;
         this.hashAlgorithm = hashAlgorithm;
         this.hash = hash;
         this.cert = cert;
@@ -1846,10 +1842,8 @@ class RfbProto implements RfbConnectable {
         encodings[nEncodings++] = RfbProto.EncodingCompressLevel0 + compressLevel;
         encodings[nEncodings++] = RfbProto.EncodingQualityLevel0 + jpegQuality;
 
-        if (!useLocalCursor) {
-            encodings[nEncodings++] = RfbProto.EncodingXCursor;
-            encodings[nEncodings++] = RfbProto.EncodingRichCursor;
-        }
+        encodings[nEncodings++] = RfbProto.EncodingXCursor;
+        encodings[nEncodings++] = RfbProto.EncodingRichCursor;
 
         encodings[nEncodings++] = RfbProto.EncodingPointerPos;
         encodings[nEncodings++] = RfbProto.EncodingLastRect;
@@ -1926,6 +1920,7 @@ class RfbProto implements RfbConnectable {
                                 case RfbProto.EncodingRichCursor:
                                     decoder.handleCursorShapeUpdate(this, updateRectEncoding, updateRectX, updateRectY,
                                             updateRectW, updateRectH);
+                                    canvas.softCursorMove(updateRectX, updateRectY);
                                     break;
                                 case RfbProto.EncodingLastRect:
                                     exitforloop = true;

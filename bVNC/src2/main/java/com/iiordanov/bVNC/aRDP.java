@@ -90,7 +90,6 @@ public class aRDP extends MainConfiguration {
     private CheckBox checkboxMenuAnimation;
     private CheckBox checkboxVisualStyles;
     private CheckBox checkboxRotateDpad;
-    private CheckBox checkboxLocalCursor;
     private CheckBox checkboxUseSshPubkey;
     
     @Override
@@ -140,7 +139,6 @@ public class aRDP extends MainConfiguration {
         checkboxKeepPassword = (CheckBox)findViewById(R.id.checkboxKeepPassword);
         checkboxUseDpadAsArrows = (CheckBox)findViewById(R.id.checkboxUseDpadAsArrows);
         checkboxRotateDpad = (CheckBox)findViewById(R.id.checkboxRotateDpad);
-        checkboxLocalCursor = (CheckBox)findViewById(R.id.checkboxUseLocalCursor);
 
         goButton = (Button) findViewById(R.id.buttonGO);
         goButton.setOnClickListener(new View.OnClickListener() {
@@ -256,6 +254,8 @@ public class aRDP extends MainConfiguration {
     }
     
     protected void updateViewFromSelected() {
+        commonUpdateViewFromSelected();
+
         if (selected == null)
             return;
         selectedConnType = selected.getConnectionType();
@@ -294,7 +294,6 @@ public class aRDP extends MainConfiguration {
         checkboxKeepPassword.setChecked(selected.getKeepPassword());
         checkboxUseDpadAsArrows.setChecked(selected.getUseDpadAsArrows());
         checkboxRotateDpad.setChecked(selected.getRotateDpad());
-        checkboxLocalCursor.setChecked(selected.getUseLocalCursor());
         textNickname.setText(selected.getNickname());
         textUsername.setText(selected.getUserName());
         rdpDomain.setText(selected.getRdpDomain());
@@ -339,6 +338,8 @@ public class aRDP extends MainConfiguration {
     }
     
     protected void updateSelectedFromView() {
+        commonUpdateSelectedFromView();
+
         if (selected == null) {
             return;
         }
@@ -382,7 +383,6 @@ public class aRDP extends MainConfiguration {
         selected.setKeepPassword(checkboxKeepPassword.isChecked());
         selected.setUseDpadAsArrows(checkboxUseDpadAsArrows.isChecked());
         selected.setRotateDpad(checkboxRotateDpad.isChecked());
-        selected.setUseLocalCursor(checkboxLocalCursor.isChecked());
         // TODO: Reinstate Color model spinner but for RDP settings.
         //selected.setColorModel(((COLORMODEL)colorSpinner.getSelectedItem()).nameString());
     }

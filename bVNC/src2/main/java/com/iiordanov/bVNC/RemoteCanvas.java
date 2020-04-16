@@ -197,9 +197,6 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
         isVnc = getContext().getPackageName().toUpperCase().contains("VNC");
         isRdp = getContext().getPackageName().toUpperCase().contains("RDP");
         isSpice = getContext().getPackageName().toUpperCase().contains("SPICE");
-        if (isVnc) {
-            decoder = new Decoder(this);
-        }
 
         final Display display = ((Activity) context).getWindow().getWindowManager().getDefaultDisplay();
         displayWidth = display.getWidth();
@@ -445,9 +442,9 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
     private void initializeVncConnection() throws Exception {
         Log.i(TAG, "Initializing connection to: " + connection.getAddress() + ", port: " + connection.getPort());
         boolean sslTunneled = connection.getConnectionType() == Constants.CONN_TYPE_STUNNEL;
+        decoder = new Decoder(this, connection.getUseLocalCursor() == Constants.CURSOR_FORCE_LOCAL);
         rfb = new RfbProto(decoder, this, connection.getPrefEncoding(), connection.getViewOnly(),
-                connection.getUseLocalCursor(), sslTunneled, connection.getIdHashAlgorithm(),
-                connection.getIdHash(), connection.getSshHostKey());
+                sslTunneled, connection.getIdHashAlgorithm(), connection.getIdHash(), connection.getSshHostKey());
 
         rfbconn = rfb;
         pointer = new RemoteVncPointer(rfbconn, RemoteCanvas.this, handler);
@@ -501,7 +498,7 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
         });
 
         sendUnixAuth();
-        if (connection.getUseLocalCursor())
+        if (isRdp || connection.getUseLocalCursor() == Constants.CURSOR_FORCE_LOCAL)
             initializeSoftCursor();
 
         handler.post(drawableSetter);
@@ -748,7 +745,9 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
         }
 
         try {
-            initializeSoftCursor();
+            if (isRdp || connection.getUseLocalCursor() == Constants.CURSOR_FORCE_LOCAL) {
+                initializeSoftCursor();
+            }
             handler.post(drawableSetter);
             handler.post(setModes);
             myDrawable.syncScroll();
@@ -1261,7 +1260,7 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
      * @param y
      */
     synchronized void softCursorMove(int x, int y) {
-        if (myDrawable.isNotInitSoftCursor()) {
+        if (myDrawable.isNotInitSoftCursor() && connection.getUseLocalCursor() != Constants.CURSOR_FORCE_DISABLE) {
             initializeSoftCursor();
         }
 

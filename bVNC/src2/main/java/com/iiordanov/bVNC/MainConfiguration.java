@@ -31,6 +31,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -67,9 +68,30 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
     private Button buttonGeneratePubkey;
     private TextView versionAndCode;
     protected PermissionsManager permissionsManager;
+    private RadioGroup radioCursor;
 
     protected abstract void updateViewFromSelected();
     protected abstract void updateSelectedFromView();
+
+    public void commonUpdateViewFromSelected() {
+        if (selected.getUseLocalCursor() == Constants.CURSOR_AUTO) {
+            radioCursor.check(R.id.radioCursorAuto);
+        } else if (selected.getUseLocalCursor() == Constants.CURSOR_FORCE_LOCAL) {
+            radioCursor.check(R.id.radioCursorForceLocal);
+        } else if (selected.getUseLocalCursor() == Constants.CURSOR_FORCE_DISABLE) {
+            radioCursor.check(R.id.radioCursorForceDisable);
+        }
+    }
+
+    public void commonUpdateSelectedFromView() {
+        if (radioCursor.getCheckedRadioButtonId() == R.id.radioCursorAuto) {
+            selected.setUseLocalCursor(Constants.CURSOR_AUTO);
+        } else if (radioCursor.getCheckedRadioButtonId() == R.id.radioCursorForceLocal) {
+            selected.setUseLocalCursor(Constants.CURSOR_FORCE_LOCAL);
+        } else if (radioCursor.getCheckedRadioButtonId() == R.id.radioCursorForceDisable) {
+            selected.setUseLocalCursor(Constants.CURSOR_FORCE_DISABLE);
+        }
+    }
 
     @Override
     public void onCreate(Bundle icicle) {
@@ -144,6 +166,7 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
         });
 
         permissionsManager.requestPermissions(MainConfiguration.this);
+        radioCursor = findViewById(R.id.radioCursor);
     }
 
     @Override

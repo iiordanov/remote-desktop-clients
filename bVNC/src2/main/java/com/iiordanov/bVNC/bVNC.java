@@ -88,7 +88,6 @@ public class bVNC extends MainConfiguration {
     private CheckBox checkboxKeepPassword;
     private CheckBox checkboxUseDpadAsArrows;
     private CheckBox checkboxRotateDpad;
-    private CheckBox checkboxLocalCursor;
     private CheckBox checkboxUseSshPubkey;
     private CheckBox checkboxPreferHextile;
     private CheckBox checkboxViewOnly;
@@ -205,7 +204,6 @@ public class bVNC extends MainConfiguration {
         checkboxKeepPassword = (CheckBox) findViewById(R.id.checkboxKeepPassword);
         checkboxUseDpadAsArrows = (CheckBox) findViewById(R.id.checkboxUseDpadAsArrows);
         checkboxRotateDpad = (CheckBox) findViewById(R.id.checkboxRotateDpad);
-        checkboxLocalCursor = (CheckBox) findViewById(R.id.checkboxUseLocalCursor);
         checkboxPreferHextile = (CheckBox) findViewById(R.id.checkboxPreferHextile);
         checkboxViewOnly = (CheckBox) findViewById(R.id.checkboxViewOnly);
         colorSpinner.setAdapter(colorSpinnerAdapter);
@@ -319,6 +317,8 @@ public class bVNC extends MainConfiguration {
     }
 
     public void updateViewFromSelected() {
+        commonUpdateViewFromSelected();
+
         if (selected == null)
             return;
         selectedConnType = selected.getConnectionType();
@@ -362,7 +362,6 @@ public class bVNC extends MainConfiguration {
         checkboxKeepPassword.setChecked(selected.getKeepPassword());
         checkboxUseDpadAsArrows.setChecked(selected.getUseDpadAsArrows());
         checkboxRotateDpad.setChecked(selected.getRotateDpad());
-        checkboxLocalCursor.setChecked(selected.getUseLocalCursor());
         checkboxPreferHextile.setChecked(selected.getPrefEncoding() == RfbProto.EncodingHextile);
         checkboxViewOnly.setChecked(selected.getViewOnly());
         textNickname.setText(selected.getNickname());
@@ -414,6 +413,8 @@ public class bVNC extends MainConfiguration {
     }
 
     protected void updateSelectedFromView() {
+        commonUpdateSelectedFromView();
+
         if (selected == null) {
             return;
         }
@@ -442,7 +443,6 @@ public class bVNC extends MainConfiguration {
         selected.setKeepPassword(checkboxKeepPassword.isChecked());
         selected.setUseDpadAsArrows(checkboxUseDpadAsArrows.isChecked());
         selected.setRotateDpad(checkboxRotateDpad.isChecked());
-        selected.setUseLocalCursor(checkboxLocalCursor.isChecked());
         if (checkboxPreferHextile.isChecked())
             selected.setPrefEncoding(RfbProto.EncodingHextile);
         else

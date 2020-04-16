@@ -277,4 +277,8 @@ public class Constants {
         }
         return "";
     }
+
+    public static final int CURSOR_AUTO = 0;
+    public static final int CURSOR_FORCE_LOCAL = 1;
+    public static final int CURSOR_FORCE_DISABLE = 2;
 }

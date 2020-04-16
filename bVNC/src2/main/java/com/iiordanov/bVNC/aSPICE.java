@@ -90,7 +90,6 @@ public class aSPICE extends MainConfiguration {
     private CheckBox checkboxKeepPassword;
     private CheckBox checkboxUseDpadAsArrows;
     private CheckBox checkboxRotateDpad;
-    private CheckBox checkboxLocalCursor;
     private CheckBox checkboxUseSshPubkey;
     private CheckBox checkboxEnableSound;
     private Spinner layoutMapSpinner = null;
@@ -156,7 +155,6 @@ public class aSPICE extends MainConfiguration {
         checkboxKeepPassword = (CheckBox) findViewById(R.id.checkboxKeepPassword);
         checkboxUseDpadAsArrows = (CheckBox) findViewById(R.id.checkboxUseDpadAsArrows);
         checkboxRotateDpad = (CheckBox) findViewById(R.id.checkboxRotateDpad);
-        checkboxLocalCursor = (CheckBox) findViewById(R.id.checkboxUseLocalCursor);
         checkboxEnableSound = (CheckBox) findViewById(R.id.checkboxEnableSound);
         
         goButton = (Button) findViewById(R.id.buttonGO);
@@ -281,6 +279,8 @@ public class aSPICE extends MainConfiguration {
     }
     
     public void updateViewFromSelected() {
+        commonUpdateViewFromSelected();
+
         if (selected == null)
             return;
         selectedConnType = selected.getConnectionType();
@@ -315,7 +315,6 @@ public class aSPICE extends MainConfiguration {
         checkboxKeepPassword.setChecked(selected.getKeepPassword());
         checkboxUseDpadAsArrows.setChecked(selected.getUseDpadAsArrows());
         checkboxRotateDpad.setChecked(selected.getRotateDpad());
-        checkboxLocalCursor.setChecked(selected.getUseLocalCursor());
         checkboxEnableSound.setChecked(selected.getEnableSound());
         textNickname.setText(selected.getNickname());
         spinnerGeometry.setSelection(selected.getRdpResType());
@@ -355,6 +354,8 @@ public class aSPICE extends MainConfiguration {
     }
     
     protected void updateSelectedFromView() {
+        commonUpdateSelectedFromView();
+
         if (selected == null) {
             return;
         }
@@ -404,7 +405,6 @@ public class aSPICE extends MainConfiguration {
         selected.setKeepPassword(checkboxKeepPassword.isChecked());
         selected.setUseDpadAsArrows(checkboxUseDpadAsArrows.isChecked());
         selected.setRotateDpad(checkboxRotateDpad.isChecked());
-        selected.setUseLocalCursor(checkboxLocalCursor.isChecked());
         selected.setEnableSound(checkboxEnableSound.isChecked());
         
         TextView selection = null;

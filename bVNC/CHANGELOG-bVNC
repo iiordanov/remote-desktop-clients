@@ -1,3 +1,6 @@
+v4.1.0
+- Option to disable cursor
+- Fixes to cursor shape handling
 v4.0.9
 - Japanese, Korean, Traditional Chinese, and Simplified Chinese localizations
 v4.0.8

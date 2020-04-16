@@ -92,9 +92,10 @@ public class Decoder {
     
     private AbstractBitmapData bitmapData;
     private RemoteCanvas vncCanvas;
+    private boolean discardCursorShapeUpdates;
 
-
-    public Decoder (RemoteCanvas v) {
+    public Decoder (RemoteCanvas v, boolean discardCursorShapeUpdates) {
+        this.discardCursorShapeUpdates = discardCursorShapeUpdates;
         handleRREPaint.setStyle(Style.FILL);
         handleTightRectPaint.setStyle(Style.FILL);
         bitmapopts.inPurgeable      = false;
@@ -1061,16 +1062,19 @@ public class Decoder {
             }
             return;
         }*/
+        int[] cursorShape = decodeCursorShape(rfb, encodingType, w, h);
 
-        // Set cursor rectangle.
-        bitmapData.setCursorRect(x, y, w, h, hotX, hotY);
+        if (!discardCursorShapeUpdates) {
+            // Set cursor rectangle.
+            bitmapData.setCursorRect(x, y, w, h, hotX, hotY);
 
-        // Decode cursor pixel data, and set pixel data into bitmap drawable.
-        bitmapData.setSoftCursor (decodeCursorShape(rfb, encodingType, w, h));
+            // Decode cursor pixel data, and set pixel data into bitmap drawable.
+            bitmapData.setSoftCursor(cursorShape);
 
-        // Show the cursor.
-        RectF r = bitmapData.getCursorRect();
-        vncCanvas.reDraw(r.left, r.top, r.width(), r.height());
+            // Show the cursor.
+            RectF r = bitmapData.getCursorRect();
+            vncCanvas.reDraw(r.left, r.top, r.width(), r.height());
+        }
     }
 
     /**
