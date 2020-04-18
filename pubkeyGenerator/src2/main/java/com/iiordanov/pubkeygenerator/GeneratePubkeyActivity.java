@@ -427,7 +427,7 @@ public class GeneratePubkeyActivity extends Activity implements OnEntropyGathere
 
 	private void startKeyGen() {
 		progress = new ProgressDialog(GeneratePubkeyActivity.this);
-		progress.setMessage(getResources().getText(R.string.pubkey_generating));
+		progress.setMessage(getResources().getText(R.string.generating));
 		progress.setIndeterminate(true);
 		progress.setCancelable(false);
 		progress.show();
@@ -440,7 +440,7 @@ public class GeneratePubkeyActivity extends Activity implements OnEntropyGathere
 	private Handler handler = new Handler() {
 		@Override
 		public void handleMessage(Message msg) {
-			progress.setMessage(getResources().getText(R.string.pubkey_generated));
+			progress.setMessage(getResources().getText(R.string.generated));
 			progress.dismiss();
 			GeneratePubkeyActivity.this.finish();
 		}

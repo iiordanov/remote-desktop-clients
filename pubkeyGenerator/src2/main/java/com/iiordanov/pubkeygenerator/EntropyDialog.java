@@ -29,7 +29,7 @@ public class EntropyDialog extends Dialog implements OnEntropyGatheredListener {
 		super(context);
 
 		this.setContentView(R.layout.dia_gatherentropy);
-		this.setTitle(R.string.pubkey_gather_entropy);
+		this.setTitle(R.string.gather_entropy);
 
 		((EntropyView) findViewById(R.id.entropy)).addOnEntropyGatheredListener(this);
 	}
@@ -38,7 +38,7 @@ public class EntropyDialog extends Dialog implements OnEntropyGatheredListener {
 		super(context);
 
 		this.setContentView(view);
-		this.setTitle(R.string.pubkey_gather_entropy);
+		this.setTitle(R.string.gather_entropy);
 
 		((EntropyView) findViewById(R.id.entropy)).addOnEntropyGatheredListener(this);
 	}

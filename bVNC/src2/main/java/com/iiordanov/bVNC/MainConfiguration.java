@@ -426,7 +426,7 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
             arriveOnPage();
             break;
         case R.id.itemDeleteConnection:
-            Utils.showYesNoPrompt(this, getString(R.string.delete) + "?", getString(R.string.delete) + " " + selected.getNickname() + "?",
+            Utils.showYesNoPrompt(this, getString(R.string.delete_connection) + "?", getString(R.string.delete_connection) + " " + selected.getNickname() + "?",
                     new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int i)

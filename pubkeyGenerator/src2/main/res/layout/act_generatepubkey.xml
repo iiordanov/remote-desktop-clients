@@ -37,19 +37,19 @@
 		    android:layout_width="fill_parent"
 		    android:layout_height="wrap_content"
 		    android:enabled="true"
-		    android:text="@string/pubkey_generate" />
+		    android:text="@string/generate" />
 		<Button
 			android:layout_width="fill_parent"
 			android:layout_height="wrap_content"
 			android:id="@+id/importKey"
-			android:text="@string/pubkey_import"
+			android:text="@string/key_import"
 			android:enabled="true" />
 		<Button
 		    android:id="@+id/decrypt"
 		    android:layout_width="fill_parent"
 		    android:layout_height="wrap_content"
 		    android:enabled="false"
-		    android:text="@string/pubkey_decrypt" />	
+		    android:text="@string/decrypt" />
 		<TextView
 			android:text="@string/prompt_password_can_be_blank"
 			android:gravity="left"
@@ -122,19 +122,19 @@
 			android:layout_width="fill_parent"
 			android:layout_height="wrap_content"
 			android:id="@+id/share"
-			android:text="@string/pubkey_share"
+			android:text="@string/share"
 			android:enabled="false" />
 		<Button
 			android:layout_width="fill_parent"
 			android:layout_height="wrap_content"
 			android:id="@+id/copy"
-			android:text="@string/pubkey_copy"
+			android:text="@string/copy"
 			android:enabled="false" />
 	    <Button
 			android:layout_width="fill_parent"
 			android:layout_height="wrap_content"
 			android:id="@+id/save"
-			android:text="@string/pubkey_save"
+			android:text="@string/save"
 			android:enabled="false" />
 		<TextView
 	        android:layout_width="wrap_content"
