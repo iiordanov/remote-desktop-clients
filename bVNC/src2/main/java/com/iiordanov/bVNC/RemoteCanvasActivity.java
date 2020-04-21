@@ -1500,4 +1500,9 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
         SharedPreferences sp = getSharedPreferences(Constants.generalSettingsTag, Context.MODE_PRIVATE);
         return sp.getBoolean(Constants.masterPasswordEnabledTag, false);
     }
+
+    @Override
+    public void onBackPressed() {
+        inputHandler.onKeyDown(KeyEvent.KEYCODE_BACK, new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_BACK));
+    }
 }

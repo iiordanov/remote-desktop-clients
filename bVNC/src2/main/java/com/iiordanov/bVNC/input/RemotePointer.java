@@ -149,6 +149,7 @@ public abstract class RemotePointer {
         
         if (shouldBeRightClick(e)) {
             rightButtonDown(getX(), getY(), combinedMetastate);
+            releaseButton(getX(), getY(), combinedMetastate);
             used = true;
         } else if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN || keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
             if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
