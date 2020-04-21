@@ -1920,7 +1920,6 @@ class RfbProto implements RfbConnectable {
                                 case RfbProto.EncodingRichCursor:
                                     decoder.handleCursorShapeUpdate(this, updateRectEncoding, updateRectX, updateRectY,
                                             updateRectW, updateRectH);
-                                    canvas.softCursorMove(updateRectX, updateRectY);
                                     break;
                                 case RfbProto.EncodingLastRect:
                                     exitforloop = true;
