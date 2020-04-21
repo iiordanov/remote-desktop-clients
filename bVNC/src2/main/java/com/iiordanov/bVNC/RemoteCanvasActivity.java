@@ -31,6 +31,7 @@ import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.ContentValues;
@@ -233,6 +234,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
         	continueConnecting();
     }
 
+    @SuppressLint("SourceLockedOrientationActivity")
     void initialize () {
         if (android.os.Build.VERSION.SDK_INT >= 9) {
             android.os.StrictMode.ThreadPolicy policy = new android.os.StrictMode.ThreadPolicy.Builder().permitAll().build();
@@ -394,12 +396,15 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
                     // We detect the keyboard if more than 19% of the screen is covered.
                     int topBottomOffset = 0;
                     int leftRightOffset = 0;
+                    // Use the visible display frame of the decor view to compute notch dimensions.
+                    Rect re = new Rect();
+                    getWindow().getDecorView().getWindowVisibleDisplayFrame(re);
                     int rootViewHeight = rootView.getHeight();
                     int rootViewWidth = rootView.getWidth();
                     if (r.bottom > rootViewHeight*0.81) {
                         softKeyboardUp = false;
-                        topBottomOffset = rootViewHeight - r.bottom;
-                        leftRightOffset = rootViewWidth - r.right;
+                        topBottomOffset = rootViewHeight - r.bottom + re.top;
+                        leftRightOffset = rootViewWidth - r.right + re.left;
 
                         // Soft Kbd gone, shift the meta keys and arrows down.
                         if (layoutKeys != null) {
@@ -414,8 +419,8 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
                         }
                     } else {
                         softKeyboardUp = true;
-                        topBottomOffset = r.bottom - rootViewHeight;
-                        leftRightOffset = r.right - rootViewWidth;
+                        topBottomOffset = r.bottom - rootViewHeight - re.top;
+                        leftRightOffset = r.right - rootViewWidth - re.left;
 
                         //  Soft Kbd up, shift the meta keys and arrows up.
                         if (layoutKeys != null) {
