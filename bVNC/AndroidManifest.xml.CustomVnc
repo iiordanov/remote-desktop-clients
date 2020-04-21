@@ -3,7 +3,7 @@
           xmlns:tools="http://schemas.android.com/tools"
           package="com.iiordanov.__CUSTOM_APP_PACKAGE__"
           android:installLocation="auto"
-          android:versionCode="114100" android:versionName="v4.1.0">
+          android:versionCode="114101" android:versionName="v4.1.0">
 
     <uses-permission tools:node="removeAll"/>
     <uses-permission android:name="android.permission.INTERNET"> </uses-permission>
