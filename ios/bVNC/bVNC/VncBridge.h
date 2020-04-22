@@ -43,5 +43,6 @@ void (*unlock_write_tls_callback)(int instance);
 void sendWholeScreenUpdateRequest(void *c, bool fullScreenUpdate);
 void setMaintainConnection(void *c, int state);
 void keepSessionFresh(void *c);
+void signal_handler(int signal, siginfo_t *info, void *reserved);
 
 #endif /* VncBridge_h */

@@ -147,7 +147,7 @@ rfbBool unlockWriteToTLS(rfbClient *client) {
     return TRUE;
 }
 
-static void signal_handler(int signal, siginfo_t *info, void *reserved) {
+void signal_handler(int signal, siginfo_t *info, void *reserved) {
     printf("Handling signal: %d\n", signal);
     failure_callback(-1, NULL);
 }
@@ -253,8 +253,9 @@ void connectVnc(void *c) {
             break;
         }
     }
-    rfbClientLog("Background thread exiting connectVnc function.\n\n");
     rfb_client_cleanup(cl);
+    printf("Background thread exiting connectVnc function.\n\n");
+    rfbClientLog("Connection terminating.\n\n");
 }
 
 void rfb_client_cleanup(rfbClient *cl) {
