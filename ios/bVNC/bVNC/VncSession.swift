@@ -54,16 +54,15 @@ func ssh_forward_failure() -> Void {
 }
 
 func failure_callback_str(instance: Int, message: String?) {
-    if (instance != -1 && instance != globalStateKeeper!.currInst) { print("Current instance \(globalStateKeeper!.currInst) discarding call from instance \(instance)") ; return }
+    if (instance != -1 && instance != globalStateKeeper!.currInst) {
+        print("Current instance \(globalStateKeeper!.currInst) discarding call from instance \(instance)") ; return
+    }
+    
+    let wasDrawing = globalStateKeeper!.isDrawing
+    globalStateKeeper!.isDrawing = false
+    globalStateKeeper!.scheduleDisconnectTimer(interval: 0, wasDrawing: wasDrawing)
 
     UserInterface {
-        globalStateKeeper?.isDrawing = false
-        globalStateKeeper?.hideKeyboard()
-        globalImageView?.disableTouch()
-        let contentView = ContentView(stateKeeper: globalStateKeeper!)
-        globalWindow?.rootViewController = MyUIHostingController(rootView: contentView)
-        globalWindow?.makeKeyAndVisible()
-
         if message != nil {
             print("Connection failure, showing error with title \(message!).")
             globalStateKeeper?.showError(title: message!)
@@ -78,9 +77,10 @@ func failure_callback_swift(instance: Int32, message: UnsafeMutablePointer<UInt8
     if (instance != -1 && instance != globalStateKeeper!.currInst) { print("Current instance \(globalStateKeeper!.currInst) discarding call from instance \(instance)") ; return }
 
     if message != nil {
-        print("Will show error with title: \(String(cString: message!))")
+        print("Will show error dialog with title: \(String(cString: message!))")
         failure_callback_str(instance: Int(instance), message: String(cString: message!))
     } else {
+        print("Will show not show error dialog")
         failure_callback_str(instance: Int(instance), message: nil)
     }
 }
@@ -90,9 +90,17 @@ func log_callback(message: UnsafeMutablePointer<Int8>?) -> Void {
     if globalStateKeeper?.clientLog.count ?? 0 > 500 {
         globalStateKeeper?.clientLog.remove(at: 0)
     }
-    // TODO: Bad Access here
     let messageStr = String(cString: message!)
     globalStateKeeper?.clientLog.append(messageStr)
+    globalStateKeeper?.logLock.unlock()
+}
+
+func log_callback_str(message: String) -> Void {
+    globalStateKeeper?.logLock.lock()
+    if globalStateKeeper?.clientLog.count ?? 0 > 500 {
+        globalStateKeeper?.clientLog.remove(at: 0)
+    }
+    globalStateKeeper?.clientLog.append(message)
     globalStateKeeper?.logLock.unlock()
 }
 

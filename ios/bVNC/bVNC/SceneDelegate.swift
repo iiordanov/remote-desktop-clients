@@ -13,6 +13,10 @@ class MyUIHostingController<Content> : UIHostingController<Content> where Conten
     override var prefersStatusBarHidden: Bool {
         return true
     }
+    override func didReceiveMemoryWarning() {
+        super.didReceiveMemoryWarning()
+        log_callback_str(message: "Received a memory warning.")
+    }
 }
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {

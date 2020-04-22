@@ -263,12 +263,14 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
     func disconnectDueToBackgrounding() {
         if (self.isDrawing) {
             disconnectedDueToBackgrounding = true
-            scheduleDisconnectTimer()
+            let wasDrawing = self.isDrawing
+            self.isDrawing = false
+            scheduleDisconnectTimer(interval: 0, wasDrawing: wasDrawing)
         }
     }
     
     @objc func lazyDisconnect() {
-        print("Disconnecting and navigating to the disconnection screen")
+        print("Lazy disconnecting")
         self.isDrawing = false
         self.deregisterFromNotifications()
         self.orientationTimer.invalidate()
@@ -277,10 +279,11 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
     }
 
     @objc func disconnect(sender: Timer) {
-        let instance = self.currInst
         self.currInst = (currInst + 1) % maxClCapacity
         let wasDrawing = (sender.userInfo as! Bool)
-        _ = self.saveImage(image: self.captureScreen(imageView: self.imageView ?? UIImageView()))
+        if !disconnectedDueToBackgrounding {
+            _ = self.saveImage(image: self.captureScreen(imageView: self.imageView ?? UIImageView()))
+        }
         UserInterface {
             self.toggleModifiersIfDown()
         }
@@ -306,18 +309,18 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
         StoreReviewHelper.checkAndAskForReview()
     }
     
-    @objc func scheduleDisconnectTimer() {
-        print("Scheduling disconnect")
-        
-        self.spinner.frame.origin.x = (window?.frame.size.width ?? 0) / 2 - spinner.frame.size.width / 2
-        self.spinner.frame.origin.y = (window?.frame.size.height ?? 0) / 2 - spinner.frame.size.height / 2
-        self.spinner.translatesAutoresizingMaskIntoConstraints = false
-        self.spinner.startAnimating()
-        window?.addSubview(spinner)
-        let wasDrawing = self.isDrawing
-        self.lazyDisconnect()
-        self.disconnectTimer.invalidate()
-        self.disconnectTimer = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(disconnect(sender:)), userInfo: wasDrawing, repeats: false)
+    @objc func scheduleDisconnectTimer(interval: Double = 1, wasDrawing: Bool) {
+        UserInterface {
+            print("Scheduling disconnect")
+            self.spinner.frame.origin.x = (self.window?.frame.size.width ?? 0) / 2 - self.spinner.frame.size.width / 2
+            self.spinner.frame.origin.y = (self.window?.frame.size.height ?? 0) / 2 - self.spinner.frame.size.height / 2
+            self.spinner.translatesAutoresizingMaskIntoConstraints = false
+            self.spinner.startAnimating()
+            self.window?.addSubview(self.spinner)
+            self.lazyDisconnect()
+            self.disconnectTimer.invalidate()
+            self.disconnectTimer = Timer.scheduledTimer(timeInterval: interval, target: self, selector: #selector(self.disconnect(sender:)), userInfo: wasDrawing, repeats: false)
+        }
     }
     
     func hideKeyboard() {
@@ -442,7 +445,7 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
     }
 
     func deregisterFromNotifications(){
-        removeKeyboardObservers(from: .default)
+        //removeKeyboardObservers(from: .default)
         NotificationCenter.default.removeObserver(self)
     }
     
@@ -676,5 +679,22 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
             return false
         }
     }
+    
+	/*
+    // Used to simulate failure with signal_handler
+    @objc func fail() {
+        Background {
+            signal_handler(13, nil, nil);
+        }
+    }
+    var failureTimer: Timer?
+    func rescheduleFailureTimer() {
+        UserInterface {
+            print("Scheduling failure timer.")
+            self.failureTimer?.invalidate()
+            self.failureTimer = Timer.scheduledTimer(timeInterval: 2, target: self, selector: #selector(self.fail), userInfo: nil, repeats: false)
+        }
+    }
+    */
 
 }
