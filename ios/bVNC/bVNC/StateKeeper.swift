@@ -264,6 +264,7 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
         if (self.isDrawing) {
             disconnectedDueToBackgrounding = true
             let wasDrawing = self.isDrawing
+            self.imageView?.disableTouch()
             self.isDrawing = false
             scheduleDisconnectTimer(interval: 0, wasDrawing: wasDrawing)
         }
@@ -271,6 +272,7 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
     
     @objc func lazyDisconnect() {
         print("Lazy disconnecting")
+        self.imageView?.disableTouch()
         self.isDrawing = false
         self.deregisterFromNotifications()
         self.orientationTimer.invalidate()
@@ -299,12 +301,9 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
         } else {
             print("\(#function) called but wasDrawing was already false")
         }
-        UserInterface {
-            let contentView = ContentView(stateKeeper: self)
-            self.window!.rootViewController = MyUIHostingController(rootView: contentView)
-            self.window!.makeKeyAndVisible()
-            self.spinner.removeFromSuperview()
-            self.showConnections()
+        spinner.removeFromSuperview()
+        if !wasDrawing {
+            showConnections()
         }
         StoreReviewHelper.checkAndAskForReview()
     }
@@ -396,6 +395,10 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
     
     func showConnections() {
         UserInterface {
+            let contentView = ContentView(stateKeeper: self)
+            self.window!.rootViewController = MyUIHostingController(rootView: contentView)
+            self.window!.makeKeyAndVisible()
+            self.spinner.removeFromSuperview()
             self.currentPage = "connectionsList"
         }
     }

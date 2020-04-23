@@ -58,11 +58,12 @@ func failure_callback_str(instance: Int, message: String?) {
         print("Current instance \(globalStateKeeper!.currInst) discarding call from instance \(instance)") ; return
     }
     
-    let wasDrawing = globalStateKeeper!.isDrawing
-    globalStateKeeper!.isDrawing = false
-    globalStateKeeper!.scheduleDisconnectTimer(interval: 0, wasDrawing: wasDrawing)
+    let wasDrawing = globalStateKeeper?.isDrawing ?? false
+    globalStateKeeper?.isDrawing = false
+    globalStateKeeper?.imageView?.disableTouch()
 
     UserInterface {
+        globalStateKeeper?.scheduleDisconnectTimer(interval: 0, wasDrawing: wasDrawing)
         if message != nil {
             print("Connection failure, showing error with title \(message!).")
             globalStateKeeper?.showError(title: message!)
@@ -80,7 +81,7 @@ func failure_callback_swift(instance: Int32, message: UnsafeMutablePointer<UInt8
         print("Will show error dialog with title: \(String(cString: message!))")
         failure_callback_str(instance: Int(instance), message: String(cString: message!))
     } else {
-        print("Will show not show error dialog")
+        print("Will not show error dialog")
         failure_callback_str(instance: Int(instance), message: nil)
     }
 }
@@ -210,7 +211,7 @@ func update_callback(instance: Int32, data: UnsafeMutablePointer<UInt8>?, fbW: I
     }
     
     let timeNow = CACurrentMediaTime()
-    if (timeNow - lastUpdate < 0.050) {
+    if (timeNow - lastUpdate < 0.032) {
         //print("Last frame drawn less than 50ms ago, discarding frame, scheduling redraw")
         globalStateKeeper!.rescheduleReDrawTimer(data: data, fbW: fbW, fbH: fbH)
     } else {
