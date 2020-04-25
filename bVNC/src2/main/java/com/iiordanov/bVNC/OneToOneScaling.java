@@ -107,6 +107,8 @@ class OneToOneScaling extends AbstractScaling {
     void setScaleTypeForActivity(RemoteCanvasActivity activity) {
         super.setScaleTypeForActivity(activity);
         RemoteCanvas canvas = activity.getCanvas();
+        if (canvas == null || canvas.myDrawable == null)
+            return;
         canvasXOffset = -canvas.getCenteredXOffset();
         canvasYOffset = -canvas.getCenteredYOffset();
         canvas.computeShiftFromFullToView ();
