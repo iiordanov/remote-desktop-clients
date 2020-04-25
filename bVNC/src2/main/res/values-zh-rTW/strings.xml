@@ -649,4 +649,8 @@ aSPICE對應的功能如下：
   <string name="copy_of">複製</string>
   <string name="ssh_key_generated">成功生成或匯入新密鑰。 您可以點選\'Generate/Export Key\'按鈕來共享、複製到剪貼板或導出公開金鑰。</string>
   <string name="ssh_tunnel_settings">SSH隧道設定</string>
+  <string name="cursor_force_local">"本地"</string>
+  <string name="cursor_force_disable">"無效"</string>
+  <string name="cursor_mode">"光標模式："</string>
+  <string name="rendering_mode">"渲染模式："</string>
 </resources>

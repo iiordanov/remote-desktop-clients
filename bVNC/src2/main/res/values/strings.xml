@@ -722,8 +722,8 @@ Known issues:
     <string name="panning">Panning Screen</string>
     <string name="copy_of">Copy of</string>
     <string name="ssh_key_generated">New key generated or imported successfully. You can now tap \'Generate/Export Key\' button to share, copy to clipboard, or export the public key.</string>
-    <string name="cursor_force_local">Local</string>
-    <string name="cursor_force_disable">Disable</string>
-    <string name="cursor_mode">Cursor Mode:</string>
-    <string name="rendering_mode">Rendering Mode:</string>
+    <string name="cursor_force_local">"Local"</string>
+    <string name="cursor_force_disable">"Disable"</string>
+    <string name="cursor_mode">"Cursor Mode:"</string>
+    <string name="rendering_mode">"Rendering Mode:"</string>
 </resources>

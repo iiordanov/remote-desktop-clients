@@ -650,4 +650,8 @@ aSPICEで의 대응 기능는 이하와 같다 :
   <string name="copy_of">복사</string>
   <string name="ssh_key_generated">새 키가 성공적으로 작성 혹은 가져 오는되었습니다. \'Generate/Export Key\'스위치를 탭하고 공유 클립 보드로 복사, 공개 키 내보내기 가능합니다.</string>
   <string name="ssh_tunnel_settings">SSH 터널 설정</string>
+  <string name="cursor_force_local">"로컬"</string>
+  <string name="cursor_force_disable">"무효"</string>
+  <string name="cursor_mode">"커서 모드 :"</string>
+  <string name="rendering_mode">"렌더링 모드 :"</string>
 </resources>

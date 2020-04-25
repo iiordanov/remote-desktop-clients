@@ -655,4 +655,8 @@ aSPICEで対応済み機能は以下の通り：
   <string name="copy_of">コピー</string>
   <string name="ssh_key_generated">新規の鍵が無事に作成、或いはインポートされました。\'Generate/Export Key\'スイッチをタップし、共有、クリップボードへコピー、公開鍵のエクスポートが可能です。</string>
   <string name="ssh_tunnel_settings">SSHトンネル設定</string>
+  <string name="cursor_force_local">"ローカル"</string>
+  <string name="cursor_force_disable">"無効"</string>
+  <string name="cursor_mode">"カーソルモード："</string>
+  <string name="rendering_mode">"レンダリングモード："</string>
 </resources>
