@@ -142,7 +142,7 @@
   <string name="error_ssh_x11vnc_no_port_failure">x11vnｃから、リモートVNCポートを取得できません。x11vncがインストールされていることを確認してください。念のために、コマンドラインでx11vncを稼動させてください。</string>
   <string name="error_uri_noinfo_nosave">接続のための情報が不十分です。</string>
   <string name="error_vnc_authentication">VNC認証に失敗しました！VNCパスワードとユーザー名が適切か確認してください。</string>
-  <string name="error_vnc_unable_to_connect">”VNCサーバーへの接続に失敗しました。理由：”</string>
+  <string name="error_vnc_unable_to_connect">"VNCサーバーへの接続に失敗しました。理由："</string>
   <string name="error_x509_could_not_generate_encoding">証明書の暗号化ができません。</string>
   <string name="error_x509_could_not_generate_signature">SHA1/MDS署名の証明書が作成できません。SHA1/MDSのアルゴリズムが見つかりません。</string>
   <string name="export_settings">エクスポート</string>
@@ -159,7 +159,7 @@
   <string name="import_settings">インポート</string>
   <string name="import_settings_file_url" />
   <string name="info">情報</string>
-  <string name="info_cert_signatures">"証明書情報：”</string>
+  <string name="info_cert_signatures">"証明書情報："</string>
   <string name="info_cert_signatures_identical">\n\n中間者攻撃対策として、サーバー証明書と情報が一致しているか確認可能です。</string>
   <string name="info_cert_tunnel">次の証明書によって特定されたホストへ接続しますか？: %1$s\n\nIssued to:\n%2$s\n\nIssued by:\n%3$s\n\nValid from:\n%4$s\n\nValid until:\n%5$s\n\nNote: bVNC does not verify certificate authorities or check for certificate revocation.</string>
   <string name="info_continue_connecting">"接続を継続する："</string>

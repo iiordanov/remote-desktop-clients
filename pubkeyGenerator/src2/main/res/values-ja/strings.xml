@@ -6,8 +6,8 @@
 	<string name="prompt_password_can_be_blank">"パスフレーズが空欄のこともありますが、鍵は暗号化されません"</string>
 	<string name="prompt_bits">"ビット"</string>
 	<string name="gather_entropy">"乱数性の向上"</string>
-	<string name="generating">"鍵ペア生成中・・・”</string>
-	<string name="generated">"正常に鍵が生成されました”</string>
+	<string name="generating">"鍵ペア生成中・・・"</string>
+	<string name="generated">"正常に鍵が生成されました"</string>
 	<string name="generate">"新しい鍵を作る"</string>
 	<string name="copy">"クリップボードのコピー"</string>
 	<string name="save">"公開鍵をファイルに保存"</string>

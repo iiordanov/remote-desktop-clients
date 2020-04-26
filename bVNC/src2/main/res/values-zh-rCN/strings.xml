@@ -115,13 +115,13 @@
   <string name="enable_sound">使声音有效</string>
   <string name="enter_text">发送文字</string>
   <string name="enter_text_title">输入发送用文字</string>
-  <string name="error_anon_dh_unsupported">VNC服务器正在尝试使用匿名Diffie Hellman密码，但您的Android设备不支持的。如果使用GNOME的Vino VNC服务器，就可以通过在终端中运行以下命令然后重新启动来禁用AnonTLS：\“ gsettings set org.gnome.Vino require-encryption false \”。如果运行x11vnc，就可以添加以下选项：\“-vencrypt nodh：only -ssl \”。</string>
+  <string name="error_anon_dh_unsupported">VNC服务器正在尝试使用匿名Diffie Hellman密码，但您的Android设备不支持的。如果使用GNOME的Vino VNC服务器，就可以通过在终端中运行以下命令然后重新启动来禁用AnonTLS：\" gsettings set org.gnome.Vino require-encryption false \"。如果运行x11vnc，就可以添加以下选项：\"-vencrypt nodh：only -ssl \"。</string>
   <string name="error_connection_failed">连接失败了。</string>
   <string name="error_connection_interrupted">连接被中断了。</string>
   <string name="error_no_user_hostname">请输入用户名，以及主机名或IP地址。</string>
   <string name="error_out_of_memory">无法将足够的内存分配给远程屏幕的绘制。请尝试重新启动应用或者设备。您也可以尝试通过应用设置来缩小远程桌面的大小。</string>
   <string name="error_ovirt_unable_to_connect">无法连接或认证，请确认服务器地址，用户名，密码以及CA与主题。</string>
-  <string name="error_pick_correct_item">请确认您在“连接类型”中选择了正确的项目。</string>
+  <string name="error_pick_correct_item">请确认您在\"连接类型\"中选择了正确的项目。</string>
   <string name="error_rdp_authentication_failed">RDP验证失败了！ 请先确认RDP用户名和密码再重试。</string>
   <string name="error_rdp_connection_failed">RDP连接失败了！网络连接被中断或RDP服务器已停止／无效。或者将会话切换到另外用户了。</string>
   <string name="error_rdp_unable_to_connect">无法连接到RDP服务器！请确认RDP服务器设置正确，服务器已上电，RDP已有效以及服务器与该设备位于同一网络上。</string>
@@ -136,13 +136,13 @@
   <string name="error_ssh_keypair_missing">尚未创建SSH密钥对！ 请创建它并将它（公钥）放入SSH服务器上的authorized_keys中。</string>
   <string name="error_ssh_passphrase_but_keypair_unencrypted">已创建了密码短语，但密钥对未加密。请删除密码短语。</string>
   <string name="error_ssh_port_forwarding_failure">无法设置为通过SSH隧道连接VNC的端口转发。请确认SSH服务器设置为允许端口转发，然后重试。</string>
-  <string name="error_ssh_pubkey_auth_method_unavail">SSH服务器不支持\“ publickey \”身份验证方法，我们正在尝试使用密钥对进行身份验证。请设置为允许公钥身份验证，然后重试。可用的身份验证方法：</string>
+  <string name="error_ssh_pubkey_auth_method_unavail">SSH服务器不支持\" publickey \"身份验证方法，我们正在尝试使用密钥对进行身份验证。请设置为允许公钥身份验证，然后重试。可用的身份验证方法：</string>
   <string name="error_ssh_pwd_auth_fail">使用密码对SSH服务器进行身份验证失败了。请确认您的SSH用户名和SSH密码。</string>
   <string name="error_ssh_unable_to_connect">连接SSH服务器失败了。请确认网络连接以及SSH服务器地址和端口。</string>
   <string name="error_ssh_x11vnc_no_port_failure">无法从x11vnc获取远程VNC端口。请确认是否已安装x11vnc。为慎重起见，请尝试在命令行上手动运行x11vnc。</string>
   <string name="error_uri_noinfo_nosave">用于连接的信息不足。</string>
   <string name="error_vnc_authentication">VNC验证失败了！请确认VNC密码和用户名。</string>
-  <string name="error_vnc_unable_to_connect">“与VNC服务器的连接失败了，原因如下：”</string>
+  <string name="error_vnc_unable_to_connect">"与VNC服务器的连接失败了，原因如下："</string>
   <string name="error_x509_could_not_generate_encoding">无法生成证书编码。</string>
   <string name="error_x509_could_not_generate_signature">无法生成证书的SHA1或MD5签名。找不到SHA1 / MD5算法。</string>
   <string name="export_settings">导出</string>
@@ -159,19 +159,19 @@
   <string name="import_settings">导入</string>
   <string name="import_settings_file_url" />
   <string name="info">信息</string>
-  <string name="info_cert_signatures">“证书信息是：”</string>
+  <string name="info_cert_signatures">"证书信息是："</string>
   <string name="info_cert_signatures_identical">\n\n您可以确认信息与服务器证书匹配，以防止中间人攻击。</string>
   <string name="info_cert_tunnel">是否要连接以下证书标识的主机？\n\nFingerprint: %1$s\n\nIssued to:\n%2$s\n\nIssued by:\n%3$s\n\nValid from:\n%4$s\n\nValid until:\n%5$s\n\nNote: bVNC does not verify certificate authorities or check for certificate revocation.</string>
-  <string name="info_continue_connecting">“继续连接到：”</string>
-  <string name="info_encoding">“编码”</string>
+  <string name="info_continue_connecting">"继续连接到："</string>
+  <string name="info_encoding">"编码"</string>
   <string name="info_progress_dialog_aborted">连接被中止了！</string>
   <string name="info_progress_dialog_connecting">正在连接…</string>
   <string name="info_progress_dialog_downloading">正在下载第一帧。\n请稍候...</string>
   <string name="info_progress_dialog_establishing">正在建立握手。\n请稍候...</string>
   <string name="info_ssh_initializing_hostkey">尝试初始化SSH HostKey。</string>
-  <string name="info_ssh_key_fingerprint">“主机密钥指纹是：”</string>
+  <string name="info_ssh_key_fingerprint">"主机密钥指纹是："</string>
   <string name="info_ssh_key_fingerprint_identical">\n\n您可以确认它与服务器证书的已知指纹相同，以防止中间人攻击。</string>
-  <string name="info_update_color_model_to">“将颜色模型更新为”</string>
+  <string name="info_update_color_model_to">"将颜色模型更新为"</string>
   <string name="input_method_direct_drag_pan_description">直接、按住并平移：滑动并拖曳下拉。 一根手指单击相当于鼠标左击，用两根手指单击相当于鼠标右击，再用三根手指单击相当于鼠标中击。 用两根手指滑动即可滚动。 长按即可开始平移。</string>
   <string name="input_method_direct_swipe_pan_description">直接、滑动平移：滑动即可随意平移。 一根手指单击相当于鼠标左击，用两根手指单击相当于鼠标右击，再用三根手指单击相当于鼠标中击。 用两根手指滑动即可滚动。 长按即可拖曳下拉。</string>
   <string name="input_method_single_handed_description">单手操作：滑动即可随意平移。 一根手指单击相当于鼠标左击。长按可选择左击/右击/中击/拖动/滚动/缩放模式。 通常的多点触摸操作也可以使用。</string>
@@ -293,7 +293,7 @@
   <string name="main_screen_help_text">
 "首次启动bVNC时连接设定画面会显示出来。在此可以设置新的VNC连接设定或选择现有的VNC连接。该页面分为2个部分，顶部有下拉菜单显示之前创建的连接设定。首次启动bVNC时只能创建新的连接。下拉菜单旁边有连接按钮，按下它就按照当前的设定启动VNC客户端。在连接按钮之下可设定连接。
 
-如果要快速提高性能，请尝试将“色彩”模式设置为较低的值。另外，请尝试删除VNC服务器上的所有桌面背景图像。最后，请确认您的设备具有良好的网络连接性，并避免由于覆盖其天线而降低信号强度。
+如果要快速提高性能，请尝试将\"色彩\"模式设置为较低的值。另外，请尝试删除VNC服务器上的所有桌面背景图像。最后，请确认您的设备具有良好的网络连接性，并避免由于覆盖其天线而降低信号强度。
 
 -连接类型：在此处选择VNC连接类型。可用的连接类型如下：
    （a）普通VNC：所有VNC服务器都支持，但缺乏加密，并且由于密码限制为8个字符，因此容易受到蛮力攻击。
@@ -307,14 +307,14 @@
 -SSH隧道设置：在SSH模式的VNC中可用。
   （a）SSH服务器/端口：将通过隧道建立连接的SSH服务器的地址和端口。 默认端口是22。
   （b）用户名/密码：SSH服务器上帐户的用户名和密码。 未退出bVNC，密码就保留在画面上。
-  （c）管理密钥/使用密钥：用于管理公钥／密钥的按钮，以及验证方法是否从密码改为密钥的选项。如果在生成密钥对后使用“复制到剪贴板”按钮的话，连接到VNC服务器后可以粘贴公钥（剪贴板同步到服务器）。
+  （c）管理密钥/使用密钥：用于管理公钥／密钥的按钮，以及验证方法是否从密码改为密钥的选项。如果在生成密钥对后使用\"复制到剪贴板\"按钮的话，连接到VNC服务器后可以粘贴公钥（剪贴板同步到服务器）。
 
 -设置AutoX：仅在SSH模式下的VNC中可用。 bVNC可以在UNIX系统（例如NX客户端）上自动发现现有的X会话，并可以选择创建新的X会话。您需要x11vnc来查找，并且需要在远程系统上安装Xvfb、Xvnc或Xdummy来创建会话。如果您的桌面看起来不正确或您仅获得xterm窗口，则可能必须移走.dmrc文件并在主目录中添加.xinit文件。
 
 -VNC连接设置：
   （a）VNC服务器／端口：在此输入运行VNC服务器的计算机的主机名或IP地址与端口号。在通过SSH模式的VNC中，SSH服务器也咖已看到此IP地址。如果SSH服务器与VNC服务器在同一台计算机上，就可以使用localhost。VNC服务器通常从端口5900开始侦听（第一个VNC屏幕，屏幕：0）。
 （b）VNC用户：在具有Windows登录模式的UltraVNC中可用，或通过VeNCrypt的安全VNC中可用。在此输入Windows / UNIX帐户用户名。
-（c）VNC密码：如果您的VNC服务器设置需要密码，在此输入该密码。具有Windows登录或VeNCrypt模式的UltraVNC的话，在此输入Windows / UNIX帐户密码。 密码不使用安全存储，只有选中“保持”选项，才会存储密码。未退出bVNC，密码就保留在画面上。
+（c）VNC密码：如果您的VNC服务器设置需要密码，在此输入该密码。具有Windows登录或VeNCrypt模式的UltraVNC的话，在此输入Windows / UNIX帐户密码。 密码不使用安全存储，只有选中\"保持\"选项，才会存储密码。未退出bVNC，密码就保留在画面上。
 
 -颜色模式：客户端支持几种颜色模式。 如果选用具有更多颜色的模式，就可以提供更好的视觉体验，但在设备上需要更大的带宽和更多的CPU计算。 某些VNC服务器不支持所有颜色深度（例如OS / X远程桌面需要24位颜色）。 如果连接时遇到问题，请尝试其他颜色深度。
 
@@ -326,7 +326,7 @@
 
 -自动/全屏位图：VNC客户端使用位图表示远程显示。 对于非常大的远程显示器，尤其是在适合于屏幕的模式下，由于每个进程的内存限制，您可能会遇到奇怪的视觉伪像。 如果发生这种情况，请尝试勾选此选项。 请记住，勾选该选项可能会导致bVNC中断连接。
 
--中继器：仅在UltraVNC模式下可用。 重要信息：如果您有UltraVNC中继器，请在“ UltraVNC中继器”对话框之外输入其地址和端口，并在“ UltraVNC中继器”对话框中输入实际VNC服务器的地址和端口。 用冒号分隔VNC服务器的地址和端口，例如 192.168.0.100:5900。"
+-中继器：仅在UltraVNC模式下可用。 重要信息：如果您有UltraVNC中继器，请在\" UltraVNC中继器\"对话框之外输入其地址和端口，并在\" UltraVNC中继器\"对话框中输入实际VNC服务器的地址和端口。 用冒号分隔VNC服务器的地址和端口，例如 192.168.0.100:5900。"
   </string>
   <string name="master_password_enable">使主密码有效</string>
   <string name="master_password_error_failed_to_disable">无法使主密码无效。 请确认设备上的可用空间，然后重试。</string>
@@ -466,12 +466,12 @@ aRDP对应预定的功能：
 -SSH隧道设置：在SSH模式的RDP中可用。
   （a）SSH服务器/端口：将通过隧道建立连接的SSH服务器的地址和端口。 默认端口是22。
   （b）用户名/密码：SSH服务器上帐户的用户名和密码。 未退出aRDP，密码就保留在画面上。
-  （c）管理密钥/使用密钥：用于管理公钥／密钥的按钮，以及验证方法是否从密码改为密钥的选项。如果在生成密钥对后使用“复制到剪贴板”按钮的话，连接到RDP服务器后可以粘贴公钥（剪贴板同步到服务器）。
+  （c）管理密钥/使用密钥：用于管理公钥／密钥的按钮，以及验证方法是否从密码改为密钥的选项。如果在生成密钥对后使用\"复制到剪贴板\"按钮的话，连接到RDP服务器后可以粘贴公钥（剪贴板同步到服务器）。
 
 -RDP连接设置：
   （a）RDP服务器／端口：在此输入运行RDP服务器的计算机的主机名或IP地址与端口号。在通过SSH模式的RDP中，SSH服务器也咖已看到此IP地址。如果SSH服务器与RDP服务器在同一台计算机上，就可以使用localhost。RDP服务器通常用端口3389侦听（第一个RDP屏幕，屏幕：0）。
 （b）RDP用户：在具有Windows登录模式的UltraRDP中可用，或通过VeNCrypt的安全RDP中可用。在此输入Windows / UNIX帐户用户名。
-（c）RDP密码：如果您的RDP服务器设置需要密码，在此输入该密码。具有Windows登录或VeNCrypt模式的UltraRDP的话，在此输入Windows / UNIX帐户密码。 密码不使用安全存储，只有选中“保持”选项，才会存储密码。未退出aRDP，密码就保留在画面上。
+（c）RDP密码：如果您的RDP服务器设置需要密码，在此输入该密码。具有Windows登录或VeNCrypt模式的UltraRDP的话，在此输入Windows / UNIX帐户密码。 密码不使用安全存储，只有选中\"保持\"选项，才会存储密码。未退出aRDP，密码就保留在画面上。
 
 -详细设定：在此进行桌面分辨率的自定义设定或者RDP性能微调。
 
@@ -593,11 +593,11 @@ aSPICE对应的功能如下：
 -SSH隧道设置：在SSH模式的SPICE中可用。
   （a）SSH服务器/端口：将通过隧道建立连接的SSH服务器的地址和端口。 默认端口是22。
   （b）用户名/密码：SSH服务器上帐户的用户名和密码。 未退出aSPICE，密码就保留在画面上。
-  （c）管理密钥/使用密钥：用于管理公钥／密钥的按钮，以及验证方法是否从密码改为密钥的选项。如果在生成密钥对后使用“复制到剪贴板”按钮的话，连接到SPICE服务器后可以粘贴公钥（剪贴板同步到服务器）。
+  （c）管理密钥/使用密钥：用于管理公钥／密钥的按钮，以及验证方法是否从密码改为密钥的选项。如果在生成密钥对后使用\"复制到剪贴板\"按钮的话，连接到SPICE服务器后可以粘贴公钥（剪贴板同步到服务器）。
 
 -SPICE连接设置：
   （a）SPICE服务器／端口：在此输入运行SPICE服务器的计算机的主机名或IP地址与端口号。在通过SSH模式的SPICE中，SSH服务器也咖已看到此IP地址。如果SSH服务器与SPICE服务器在同一台计算机上，就可以使用localhost。SPICE服务器通常用端口5900侦听（第一个SPICE屏幕，屏幕：0）。
-（c）SPICE密码：为了保护SPICE会话设定密码。密码不使用安全存储（储存在数据库里），只有选中“保持”选项，才会存储密码。未退出aSPICE，密码就保留在画面上。
+（c）SPICE密码：为了保护SPICE会话设定密码。密码不使用安全存储（储存在数据库里），只有选中\"保持\"选项，才会存储密码。未退出aSPICE，密码就保留在画面上。
 
 -详细设定：在此进行桌面分辨率的自定义设定或者SPICE性能微调。
 
