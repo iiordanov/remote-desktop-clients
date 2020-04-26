@@ -21,6 +21,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <sys/time.h>
+#include <netinet/tcp.h>
 #endif
 
 #include <fcntl.h>
@@ -211,6 +212,10 @@ int startForwarding(int instance, int argc, char *argv[], void (*ssh_forward_suc
         return -1;
     }
 #endif
+    
+    sockopt = 1;
+    setsockopt(sock, SOL_SOCKET, SO_NOSIGPIPE, &sockopt, sizeof(sockopt));
+    setsockopt(sock, IPPROTO_TCP, TCP_NODELAY, &sockopt, sizeof(sockopt));
 
     if (is_ipv6 == 1) {
         addr.sin6_family = AF_INET6;
@@ -326,8 +331,8 @@ int startForwarding(int instance, int argc, char *argv[], void (*ssh_forward_suc
         goto shutdown;
     }
     sockopt = 1;
-    setsockopt(listensock, SOL_SOCKET, SO_REUSEADDR, &sockopt,
-               sizeof(sockopt));
+    setsockopt(listensock, SOL_SOCKET, (SO_REUSEADDR|SO_NOSIGPIPE), &sockopt, sizeof(sockopt));
+    setsockopt(sock, IPPROTO_TCP, TCP_NODELAY, &sockopt, sizeof(sockopt));
     sinlen = sizeof(sin);
     if(-1 == bind(listensock, (struct sockaddr *)&sin, sinlen)) {
         perror("bind");
