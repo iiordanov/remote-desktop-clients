@@ -44,8 +44,9 @@ android {
 }
 
 dependencies {
+    implementation project(':bVNC')
     implementation project(':remoteClientLib')
-    implementation 'com.android.support:appcompat-v7:27.1.1'
-    implementation 'org.apache.httpcomponents:httpcore:4.4.9'
+    implementation 'com.android.support:appcompat-v7:28.0.0'
+    implementation 'org.apache.httpcomponents:httpcore:4.4.10'
 }
 

@@ -39,6 +39,7 @@ import com.undatech.opaque.dialogs.SelectTextElementFragment;
 import com.undatech.opaque.input.*;
 import com.undatech.opaque.util.OnTouchViewMover;
 
+import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.app.AlertDialog;
 import android.support.v4.app.FragmentManager;
@@ -199,6 +200,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
         startConnection();
     }
     
+    @SuppressLint("SourceLockedOrientationActivity")
     private void startConnection() {
         Intent i = getIntent();
         String vvFileName = retrieveVvFileFromIntent(i);
@@ -281,12 +283,15 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
                     // We detect the keyboard if more than 19% of the screen is covered.
                     int topBottomOffset = 0;
                     int leftRightOffset = 0;
+                    // Use the visible display frame of the decor view to compute notch dimensions.
+                    Rect re = new Rect();
+                    getWindow().getDecorView().getWindowVisibleDisplayFrame(re);
                     int rootViewHeight = rootView.getHeight();
                     int rootViewWidth = rootView.getWidth();
                     if (r.bottom > rootViewHeight*0.81) {
                         softKeyboardUp = false;
-                        topBottomOffset = rootViewHeight - r.bottom;
-                        leftRightOffset = rootViewWidth - r.right;
+                        topBottomOffset = rootViewHeight - r.bottom + re.top;
+                        leftRightOffset = rootViewWidth - r.right + re.left;
 
                         // Soft Kbd gone, shift the meta keys and arrows down.
                         if (layoutKeys != null) {
@@ -301,8 +306,8 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
                         }
                     } else {
                         softKeyboardUp = true;
-                        topBottomOffset = r.bottom - rootViewHeight;
-                        leftRightOffset = r.right - rootViewWidth;
+                        topBottomOffset = r.bottom - rootViewHeight - re.top;
+                        leftRightOffset = r.right - rootViewWidth - re.left;
 
                         //  Soft Kbd up, shift the meta keys and arrows up.
                         if (layoutKeys != null) {
@@ -787,6 +792,10 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
      */
     private void setExtraKeysVisibility (int visibility, boolean forceVisible) {
         Configuration config = getResources().getConfiguration();
+        //Log.e(TAG, "Hardware kbd hidden: " + Integer.toString(config.hardKeyboardHidden));
+        //Log.e(TAG, "Any keyboard hidden: " + Integer.toString(config.keyboardHidden));
+        //Log.e(TAG, "Keyboard type: " + Integer.toString(config.keyboard));
+
         boolean makeVisible = forceVisible;
         if (config.hardKeyboardHidden == Configuration.HARDKEYBOARDHIDDEN_NO)
             makeVisible = true;
@@ -873,7 +882,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
      */
     private Runnable rotationCorrector = new Runnable() {
         public void run() {
-            try { correctAfterRotation (); } catch (NullPointerException e) { }
+            try { correctAfterRotation (); } catch (Exception e) { }
         }
     };
 
@@ -985,6 +994,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
     
     @Override
     public boolean onKey(View v, int keyCode, KeyEvent evt) {
+
         boolean consumed = false;
         
         if (keyCode == KeyEvent.KEYCODE_MENU) {

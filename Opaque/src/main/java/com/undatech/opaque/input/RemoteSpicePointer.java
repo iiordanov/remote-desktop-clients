@@ -65,8 +65,8 @@ public class RemoteSpicePointer extends RemotePointer {
         this.canvas    = canvas;
         this.context   = canvas.getContext();
         this.handler   = handler;
-        pointerX  = canvas.getDesktopWidth() /2;
-        pointerY  = canvas.getDesktopHeight()/2;
+        pointerX  = canvas.getImageWidth() /2;
+        pointerY  = canvas.getImageHeight()/2;
     }
     
     protected boolean shouldBeRightClick (KeyEvent e) {
@@ -265,12 +265,12 @@ public class RemoteSpicePointer extends RemotePointer {
             // Do not let mouse pointer leave the bounds of the desktop.
             if ( pointerX < 0) {
                 pointerX = 0;
-            } else if ( pointerX >= canvas.getDesktopWidth()) {
+            } else if ( pointerX >= canvas.getImageWidth()) {
                 pointerX = spicecomm.framebufferWidth()  - 1;
             }
             if ( pointerY < 0) {
                 pointerY=0;
-            } else if ( pointerY >= canvas.getDesktopHeight()) {
+            } else if ( pointerY >= canvas.getImageHeight()) {
                 pointerY = spicecomm.framebufferHeight() - 1;
             }
             clearPointerMaskEvent(x, y, isMoving, combinedMetaState);

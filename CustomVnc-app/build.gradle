@@ -1,0 +1,26 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 28
+
+    defaultConfig {
+        targetSdkVersion 28
+        minSdkVersion project.getProperties().get("SDK_VERSION")
+        manifestPlaceholders = [
+                custom_vnc_app_name: project.getProperties().get("CUSTOM_VNC_APP_NAME"),
+                custom_vnc_app_icon: project.getProperties().get("CUSTOM_VNC_APP_ICON")
+        ]
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+        }
+    }
+}
+
+dependencies {
+    implementation project(':bVNC')
+    implementation project(':pubkeyGenerator')
+}

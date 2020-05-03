@@ -11,8 +11,15 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
+            <option value="$PROJECT_DIR$/CustomVnc-app" />
             <option value="$PROJECT_DIR$/Opaque" />
+            <option value="$PROJECT_DIR$/aRDP-app" />
+            <option value="$PROJECT_DIR$/aSPICE-app" />
             <option value="$PROJECT_DIR$/bVNC" />
+            <option value="$PROJECT_DIR$/bVNC-app" />
+            <option value="$PROJECT_DIR$/freeaRDP-app" />
+            <option value="$PROJECT_DIR$/freeaSPICE-app" />
+            <option value="$PROJECT_DIR$/freebVNC-app" />
             <option value="$PROJECT_DIR$/pubkeyGenerator" />
             <option value="$PROJECT_DIR$/remoteClientLib" />
             <option value="$PROJECT_DIR$/remoteClientLib/jni/libs/deps/FreeRDP/client/Android/Studio/freeRDPCore" />

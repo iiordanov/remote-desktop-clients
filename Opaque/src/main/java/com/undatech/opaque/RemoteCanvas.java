@@ -586,7 +586,7 @@ public class RemoteCanvas extends ImageView implements Viewable {
         handler.post(showMessage);
     }
     
-    void disconnectAndShowMessage (final int messageId, final int titleId) {
+    public void disconnectAndShowMessage (final int messageId, final int titleId) {
         disconnectAndCleanUp();
         handler.post(new Runnable() {
             public void run() {
@@ -692,8 +692,8 @@ public class RemoteCanvas extends ImageView implements Viewable {
             int hthresh = 30;
             int visibleWidth  = getVisibleDesktopWidth();
             int visibleHeight = getVisibleDesktopHeight();
-            int desktopWidth  = getDesktopWidth();
-            int desktopHeight = getDesktopHeight();
+            int desktopWidth  = getImageWidth();
+            int desktopHeight = getImageHeight();
             if (x - absX >= visibleWidth - wthresh) {
                 newAbsX = x - (visibleWidth - wthresh);
             } else if (x < absX + wthresh) {
@@ -739,8 +739,8 @@ public class RemoteCanvas extends ImageView implements Viewable {
         if (canvasZoomer != null) {
             int vW = getVisibleDesktopWidth();
             int vH = getVisibleDesktopHeight();
-            int w = getDesktopWidth();
-            int h = getDesktopHeight();
+            int w = getImageWidth();
+            int h = getImageHeight();
             if (x + vW > w) x = w - vW;
             if (y + vH > h) y = h - vH;
             if (x < 0) x = 0;
@@ -920,11 +920,11 @@ public class RemoteCanvas extends ImageView implements Viewable {
         visibleHeight = newHeight;
     }
     
-    public int getDesktopWidth() {
+    public int getImageWidth() {
         return spicecomm.framebufferWidth();
     }
 
-    public int getDesktopHeight() {
+    public int getImageHeight() {
         return spicecomm.framebufferHeight();
     }
     

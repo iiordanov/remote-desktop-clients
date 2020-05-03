@@ -80,7 +80,7 @@ Welcome screen, browsing to the remote-desktop-clients directory and selecting i
 It is possible to programmatically build additional customized clients based on the VNC client contained in this project
 without altering any of the source code of the project.
 
-- Place a configuration file in yaml format in `bVNC/src2/main/assets/custom_vnc_client.yaml`
+- Place a configuration file in yaml format in `bVNC/src/main/assets/custom_vnc_client.yaml`
 
 - See the file `custom_vnc_client.yaml-EXAMPLE`. The numbers after each field are one of View.INVISIBLE or View.GONE
   and it controls whether the field is invisible or gone in the customized interface.
@@ -88,7 +88,7 @@ without altering any of the source code of the project.
 - See [https://developer.android.com/reference/android/view/View.html#GONE] for the numeric value of View.GONE
   and [https://developer.android.com/reference/android/view/View.html#INVISIBLE] for the numberic value of View.INVISIBLE.
 
-- Place an icon at `bVNC/src2/main/res/drawable/icon_of_the_custom_app.png`.
+- Place an icon at `CustomVnc-app/src/main/res/drawable/icon_of_the_custom_app.png`.
 
 - Edit `gradle.properties` and set CUSTOM_VNC_APP_NAME to `Name Of The Custom App` and CUSTOM_VNC_APP_ICON to `icon_of_the_custom_app`
 

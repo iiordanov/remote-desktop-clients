@@ -42,7 +42,7 @@
 <string name="select_vm_title">Select Virtual Machine</string>
 <string name="vv_file_not_found">The .vv file was not found!</string>
 <string name="vv_file_error">The .vv file is either missing or corrupt!</string>
-<string name="info_cert">Do you accept this new or changed host certificate?\n\nFingerprints:\nMD5: %1$s\nSHA1: %2$s\nSHA256: %3$s\n\nIssued to: %2$s\nIssued by: %3$s\n\nValid from: %4$s\nValid until: %5$s\n</string>
+<string name="info_cert">Do you accept this new or changed host certificate?\n\nFingerprints:\nMD5: %1$s\nSHA1: %2$s\nSHA256: %3$s\n\nIssued to: %4$s\nIssued by: %5$s\n\nValid from: %6$s\nValid until: %7$s\n</string>
 <string name="input_method_direct_swipe_pan">Direct, Swipe Pan</string>
 <string name="input_method_direct_swipe_pan_description">Direct, Swipe Pan: Swipe to pan around. Tap with one finger wherever you want to left-click, two fingers to right-click, and three fingers to middle-click. Swipe with two fingers to scroll. Long tap to drag and drop.</string>
 <string name="input_method_direct_drag_pan">Direct, Hold Pan</string>
