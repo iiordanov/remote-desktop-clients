@@ -83,7 +83,7 @@ fi
 
 if [ -n "${CUSTOM_CLIENT}" ]
 then
-  sed -i.bakautocustom "s/__CUSTOM_APP_PACKAGE__/$PRJ/" ../${CUSTOM_MANIFEST_EXTENSION}-app/src/main/AndroidManifest.xml
+  sed -i.bakautocustom "s/CUSTOM_APP_PACKAGE_NAME/$PRJ/" ../${CUSTOM_MANIFEST_EXTENSION}-app/src/main/AndroidManifest.xml
 fi
 
 if [ "$SKIP_BUILD" == "false" ]

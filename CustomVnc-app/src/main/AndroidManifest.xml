@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           xmlns:tools="http://schemas.android.com/tools"
-          package="com.iiordanov.__CUSTOM_APP_PACKAGE__"
+          package="com.iiordanov.CUSTOM_APP_PACKAGE_NAME"
           android:installLocation="auto"
           android:versionCode="114101" android:versionName="v4.1.0">
 
@@ -54,6 +54,7 @@
                                 <action android:name="android.intent.action.VIEW" />
                                 <category android:name="android.intent.category.DEFAULT" />
                                 <category android:name="android.intent.category.BROWSABLE" />
+                                <data android:scheme="intent" />
                                 <data android:mimeType="application/vnd.vnc" />
                        </intent-filter>
                 </activity>

@@ -3,23 +3,11 @@ bin
 gen
 dist
 *~
-eclipse_projects/Opaque/jni/libs/deps
-eclipse_projects/Opaque/jni/libs/tar
-eclipse_projects/FreeRDP
-eclipse_projects/*/libs/sqlcipher-javadoc.jar
-eclipse_projects/*/libs/sqlcipher.jar
-eclipse_projects/*/libs/*/libgstreamer_android.so
-eclipse_projects/*/libs/*/libspice.so
-eclipse_projects/*/libs/*/libsqlcipher.so
-eclipse_projects/*/java/org/freedesktop/gstreamer/GStreamer.java
-eclipse_projects/*/gst-build-*
-eclipse_projects/*/src/main/assets/fontconfig
-eclipse_projects/*/src/main/assets/ssl
-eclipse_projects/remote-desktop-clients-libs-*.tar.gz
-
 remoteClientLib/jni/libs/deps/
+remoteClientLib/jni/libs/cerbero/
 remoteClientLib/jni/libs/tar/
 remoteClientLib/jni/libs/FREERDP_BUILT
+remoteClientLib/jni/libs/android-ndk*
 remoteClientLib/gst-build-*/
 remoteClientLib/debug/
 remoteClientLib/release/
@@ -42,6 +30,7 @@ bVNC/release/
 bVNC/src/main/assets/
 bVNC/src2/main/assets/fontconfig/
 bVNC/src2/main/assets/ssl/
+CustomVnc-app/src/main/AndroidManifest.xml.bakautocustom
 
 ### AndroidStudio ###
 
