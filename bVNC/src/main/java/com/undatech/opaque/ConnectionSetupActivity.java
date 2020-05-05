@@ -42,6 +42,7 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+import com.undatech.remoteClientUi.R;
 
 public class ConnectionSetupActivity extends Activity {
     private static String TAG = "ConnectionSetupActivity";

@@ -21,6 +21,7 @@ import com.undatech.opaque.dialogs.MessageFragment;
 import com.undatech.opaque.dialogs.SelectTextElementFragment;
 import com.undatech.opaque.util.GooglePlayUtils;
 import com.undatech.opaque.util.SslUtils;
+import com.undatech.remoteClientUi.R;
 
 public class RemoteCanvasActivityHandler extends Handler {
     private static String TAG = "RemoteCanvasActivityHandler";

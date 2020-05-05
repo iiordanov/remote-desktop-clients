@@ -27,7 +27,7 @@ import android.view.MotionEvent;
 import android.view.View.OnClickListener;
 import android.view.View;
 
-import com.undatech.opaque.R;
+import com.undatech.remoteClientUi.R;
 import com.undatech.opaque.RemoteCanvas;
 import com.undatech.opaque.RemoteCanvasActivity;
 import com.undatech.opaque.input.RemotePointer;

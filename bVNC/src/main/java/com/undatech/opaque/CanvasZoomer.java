@@ -20,7 +20,7 @@
 
 package com.undatech.opaque;
 
-import com.undatech.opaque.R;
+import com.undatech.remoteClientUi.R;
 
 import android.graphics.Matrix;
 

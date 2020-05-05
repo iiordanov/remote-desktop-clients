@@ -79,6 +79,7 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 import android.support.v7.widget.Toolbar;
+import com.undatech.remoteClientUi.R;
 
 
 public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyListener,

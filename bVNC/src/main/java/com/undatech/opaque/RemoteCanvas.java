@@ -67,6 +67,7 @@ import com.undatech.opaque.proxmox.pojo.PveRealm;
 import com.undatech.opaque.proxmox.pojo.PveResource;
 import com.undatech.opaque.proxmox.pojo.SpiceDisplay;
 import com.undatech.opaque.proxmox.pojo.VmStatus;
+import com.undatech.remoteClientUi.R;
 
 public class RemoteCanvas extends ImageView implements Viewable {
     private final static String TAG = "RemoteCanvas";

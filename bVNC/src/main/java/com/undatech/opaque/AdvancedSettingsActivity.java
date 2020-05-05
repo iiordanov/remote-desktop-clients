@@ -41,6 +41,8 @@ import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.ToggleButton;
+import com.undatech.remoteClientUi.R;
+
 
 public class AdvancedSettingsActivity extends FragmentActivity implements ManageCustomCaFragment.OnFragmentDismissedListener {
     private static String TAG = "AdvancedSettingsActivity";

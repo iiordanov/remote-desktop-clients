@@ -23,7 +23,7 @@ package com.undatech.opaque.input;
 import android.view.MotionEvent;
 import android.os.Vibrator;
 
-import com.undatech.opaque.R;
+import com.undatech.remoteClientUi.R;
 import com.undatech.opaque.RemoteClientLibConstants;
 import com.undatech.opaque.RemoteCanvas;
 import com.undatech.opaque.RemoteCanvasActivity;

@@ -27,7 +27,7 @@ import java.io.FileReader;
 import java.io.IOException;
 
 import com.undatech.opaque.ConnectionSettings;
-import com.undatech.opaque.R;
+import com.undatech.remoteClientUi.R;
 
 import android.app.Activity;
 import android.app.Dialog;
