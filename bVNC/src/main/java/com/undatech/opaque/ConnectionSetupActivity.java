@@ -86,7 +86,7 @@ public class ConnectionSetupActivity extends Activity {
             }
         });
         
-        // Define what happens when one taps the Connect button.
+        // Define what happens when one taps the Save button.
         saveButton = (Button) findViewById(R.id.saveButton);
         saveButton.setOnClickListener(new OnClickListener () {
             @Override
@@ -94,13 +94,10 @@ public class ConnectionSetupActivity extends Activity {
                 String u = user.getText().toString();
                 String h = hostname.getText().toString();
                 
-                // Only if a username and a hostname were entered, save the connection and try to connect.
+                // Only if a username and a hostname were entered, save the connection.
                 if (!(u.equals("") || h.equals(""))) {
                     saveSelectedPreferences(true);
                     finish();
-                    //Intent intent = new Intent(ConnectionSetupActivity.this, RemoteCanvasActivity.class);
-                    //intent.putExtra("com.undatech.opaque.ConnectionSettings", currentConnection);
-                    //startActivity(intent);
                 // Otherwise, let the user know that at least a user and hostname are required.
                 } else {
                     Toast toast = Toast.makeText(appContext, R.string.error_no_user_hostname, Toast.LENGTH_LONG);
@@ -122,20 +119,19 @@ public class ConnectionSetupActivity extends Activity {
             newConnection = true;
         }
         
-          spinnerConnectionType = (Spinner) findViewById(R.id.spinnerConnectionType);
-            spinnerConnectionType.setOnItemSelectedListener(new OnItemSelectedListener() {
-                @Override
-                public void onItemSelected(AdapterView<?> parent, View view,
-                        int position, long id) {
-                    if (view != null) {
-                        android.util.Log.e(TAG, "Selected connection type: " +
-                                Integer.toString(position) + ((TextView)view).getText());
-                    }
+        spinnerConnectionType = (Spinner) findViewById(R.id.spinnerConnectionType);
+        spinnerConnectionType.setOnItemSelectedListener(new OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if (view != null) {
+                    android.util.Log.e(TAG, "Selected connection type: " +
+                            Integer.toString(position) + " " + ((TextView)view).getText());
                 }
+            }
 
-                @Override
-                public void onNothingSelected(AdapterView<?> parent) {}
-            });
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {}
+        });
         
         currentConnection = new ConnectionSettings (currentSelectedConnection);
         if (newConnection) {
@@ -277,7 +273,7 @@ public class ConnectionSetupActivity extends Activity {
     
     private void updateViewsFromPreferences () {
         List<String> connectionTypes = Arrays.asList(getResources().getStringArray(R.array.connection_types));
-        spinnerConnectionType.setSelection(connectionTypes.indexOf(currentConnection.getConnectionType()));
+        spinnerConnectionType.setSelection(connectionTypes.indexOf(currentConnection.getConnectionTypeString()));
         hostname.setText(currentConnection.getHostname());
         vmname.setText(currentConnection.getVmname());
         user.setText(currentConnection.getUser());
@@ -299,7 +295,7 @@ public class ConnectionSetupActivity extends Activity {
         }
 
         // Then, save the connection to a separate SharedPreferences file.
-        currentConnection.setConnectionType(spinnerConnectionType.getSelectedItem().toString());
+        currentConnection.setConnectionTypeString(spinnerConnectionType.getSelectedItem().toString());
         currentConnection.setUser(u);
         currentConnection.setHostname(h);
         currentConnection.setVmname(vmname.getText().toString());

@@ -201,7 +201,10 @@ void spice_session_setup(SpiceSession *session, const char *host, const char *po
 }
 
 static void signal_handler(int signal, siginfo_t *info, void *reserved) {
-	kill(getpid(), SIGKILL);
+    // TODO: Send message back to UI
+    __android_log_write(ANDROID_LOG_ERROR, "signal_handler", "Handling a signal.");
+    disconnect(NULL);
+    kill(getpid(), SIGKILL);
 }
 
 /**

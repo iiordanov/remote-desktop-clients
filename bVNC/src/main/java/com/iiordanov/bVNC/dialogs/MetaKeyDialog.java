@@ -65,6 +65,7 @@ import com.iiordanov.freeaRDP.*;
 import com.iiordanov.aSPICE.*;
 import com.iiordanov.freeaSPICE.*;
 import com.iiordanov.CustomClientPackage.*;
+import com.undatech.opaque.Connection;
 import com.undatech.remoteClientUi.*;
 
 /**
@@ -85,14 +86,14 @@ public class MetaKeyDialog extends Dialog implements ConnectionSettable {
     
     Database _database;
     static ArrayList<MetaList> _lists;
-    ArrayList<MetaKeyBean> _keysInList;
+    ArrayList<MetaKeyBean> _keysInList = new ArrayList<MetaKeyBean>();
     long _listId;
     RemoteCanvasActivity _canvasActivity;
-    MetaKeyBean _currentKeyBean;
+    MetaKeyBean _currentKeyBean = new MetaKeyBean(0, 0, MetaKeyBean.allKeys.get(0));
     
     public static final String[] EMPTY_ARGS = new String[0];
     
-    ConnectionBean _connection;
+    Connection _connection;
     
     /**
      * @param context
@@ -142,8 +143,9 @@ public class MetaKeyDialog extends Dialog implements ConnectionSettable {
                                             db.execSQL(MessageFormat.format("DELETE FROM {0} WHERE {1} = {2}",
                                                     MetaList.GEN_TABLE_NAME, MetaList.GEN_FIELD__ID,
                                                     _listId));
+                                            db.close();
                                             _connection.setMetaListId(1);
-                                            _connection.save(db);
+                                            _connection.save(getContext());
                                             setMetaKeyList();
                                         }
                                     }
@@ -185,7 +187,7 @@ public class MetaKeyDialog extends Dialog implements ConnectionSettable {
                                             if (_connection.getLastMetaKeyId() == toDelete.get_Id())
                                             {
                                                 _connection.setLastMetaKeyId(0);
-                                                _connection.save(db);
+                                                _connection.save(getContext());
                                             }
                                             int newPos = _spinnerKeysInList.getSelectedItemPosition();
                                             if (newPos != Spinner.INVALID_POSITION && newPos < _keysInList.size())
@@ -241,7 +243,7 @@ public class MetaKeyDialog extends Dialog implements ConnectionSettable {
         _spinnerKeysInList = (Spinner)findViewById(R.id.spinnerKeysInList);
         _spinnerLists = (Spinner)findViewById(R.id.spinnerLists);
         
-        _database = _canvasActivity.getDatabase();
+        _database = new Database(getContext());
         if (_lists == null) {
             _lists = new ArrayList<MetaList>();
             MetaList.getAll(_database.getReadableDatabase(), MetaList.GEN_TABLE_NAME, _lists, MetaList.GEN_NEW);
@@ -264,7 +266,7 @@ public class MetaKeyDialog extends Dialog implements ConnectionSettable {
             public void onItemSelected(AdapterView<?> parent, View view,
                     int position, long id) {
                 _connection.setMetaListId(_lists.get(position).get_Id());
-                _connection.Gen_update(_database.getWritableDatabase());
+                _connection.save(getContext());
                 setMetaKeyList();
             }
 
@@ -341,7 +343,7 @@ public class MetaKeyDialog extends Dialog implements ConnectionSettable {
                 SQLiteDatabase db = _database.getWritableDatabase();
                 newList.Gen_insert(db);
                 _connection.setMetaListId(newList.get_Id());
-                _connection.save(db);
+                _connection.save(getContext());
                 _lists.add(newList);
                 getSpinnerAdapter(_spinnerLists).add(newList.getName());
                 setMetaKeyList();
@@ -361,7 +363,7 @@ public class MetaKeyDialog extends Dialog implements ConnectionSettable {
                 newList.Gen_insert(db);
                 db.execSQL(MessageFormat.format(getCopyListString(), newList.get_Id(), _listId));
                 _connection.setMetaListId(newList.get_Id());
-                _connection.save(db);
+                _connection.save(getContext());
                 _lists.add(newList);
                 getSpinnerAdapter(_spinnerLists).add(newList.getName());
                 setMetaKeyList();
@@ -524,7 +526,10 @@ public class MetaKeyDialog extends Dialog implements ConnectionSettable {
             int insertionPoint = -(index + 1);
             _currentKeyBean.Gen_insert(db);
             _keysInList.add(insertionPoint,_currentKeyBean);
-            getSpinnerAdapter(_spinnerKeysInList).insert(_currentKeyBean.getKeyDesc(), insertionPoint);
+            ArrayAdapter<String> adapter = getSpinnerAdapter(_spinnerKeysInList);
+            if (adapter != null) {
+                adapter.insert(_currentKeyBean.getKeyDesc(), insertionPoint);
+            }
             _spinnerKeysInList.setSelection(insertionPoint);
             _connection.setLastMetaKeyId(_currentKeyBean.get_Id());
         }
@@ -534,7 +539,7 @@ public class MetaKeyDialog extends Dialog implements ConnectionSettable {
             _connection.setLastMetaKeyId(bean.get_Id());
             _spinnerKeysInList.setSelection(index);
         }
-        _connection.Gen_update(db);
+        _connection.save(getContext());
         _canvasActivity.getCanvas().getKeyboard().sendMetaKey(_currentKeyBean);
     }
     
@@ -614,7 +619,7 @@ public class MetaKeyDialog extends Dialog implements ConnectionSettable {
         _textKeyDesc.setText(_currentKeyBean.getKeyDesc());
     }
     
-    public void setConnection(ConnectionBean conn)
+    public void setConnection(Connection conn)
     {
         if ( _connection != conn) {
             _connection = conn;

@@ -69,7 +69,7 @@ import com.undatech.opaque.proxmox.pojo.SpiceDisplay;
 import com.undatech.opaque.proxmox.pojo.VmStatus;
 import com.undatech.remoteClientUi.R;
 
-public class RemoteCanvas extends ImageView implements Viewable {
+public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView implements Viewable {
     private final static String TAG = "RemoteCanvas";
     
     public Handler handler;
@@ -209,7 +209,7 @@ public class RemoteCanvas extends ImageView implements Viewable {
         }
     }
 
-    RemotePointer init(final ConnectionSettings settings, final RemoteCanvasActivityHandler handler) {
+    RemotePointer init(final ConnectionSettings settings, final OpaqueHandler handler) {
         this.settings = settings;
         this.handler = handler;
         checkNetworkConnectivity();
@@ -286,12 +286,12 @@ public class RemoteCanvas extends ImageView implements Viewable {
                     handler.sendEmptyMessage(RemoteClientLibConstants.PVE_VMID_NOT_NUMERIC);
                 }  catch (IOException e) {
                     android.util.Log.e(TAG, "IO Error communicating with PVE API: " + e.getMessage());
-                    handler.sendMessage(RemoteCanvasActivityHandler.getMessageString(RemoteClientLibConstants.PVE_API_IO_ERROR,
+                    handler.sendMessage(OpaqueHandler.getMessageString(RemoteClientLibConstants.PVE_API_IO_ERROR,
                                         "error", e.getMessage()));
                     e.printStackTrace();
                 } catch (HttpException e) {
                     android.util.Log.e(TAG, "PVE API returned error code: " + e.getMessage());
-                    handler.sendMessage(RemoteCanvasActivityHandler.getMessageString(RemoteClientLibConstants.PVE_API_UNEXPECTED_CODE,
+                    handler.sendMessage(OpaqueHandler.getMessageString(RemoteClientLibConstants.PVE_API_UNEXPECTED_CODE,
                                         "error", e.getMessage()));
                 }
                 // At this stage we have either retrieved display data or failed, so permit the UI thread to continue.
@@ -363,7 +363,7 @@ public class RemoteCanvas extends ImageView implements Viewable {
                     }
                     String pveUri = String.format("%s://%s:%d", protocol, host, port);
 
-                    ProxmoxClient api = new ProxmoxClient(pveUri, settings, handler);
+                    ProxmoxClient api = new ProxmoxClient(pveUri, settings.getOvirtCaData().trim(), handler);
                     HashMap<String, PveRealm> realms = api.getAvailableRealms();
                     
                     // If selected realm has TFA enabled, then ask for the code
@@ -415,7 +415,7 @@ public class RemoteCanvas extends ImageView implements Viewable {
                             }
                             // Get the user parseable names and display them
                             ArrayList<String> vms = new ArrayList<String>(vmNameToId.keySet());
-                            handler.sendMessage(RemoteCanvasActivityHandler.getMessageStringList(
+                            handler.sendMessage(OpaqueHandler.getMessageStringList(
                                     RemoteClientLibConstants.DIALOG_DISPLAY_VMS, "vms", vms));
                             synchronized(spicecomm) {
                                 spicecomm.wait();
@@ -449,12 +449,12 @@ public class RemoteCanvas extends ImageView implements Viewable {
                     handler.sendEmptyMessage(RemoteClientLibConstants.PVE_FAILED_TO_PARSE_JSON);
                 }  catch (IOException e) {
                     android.util.Log.e(TAG, "IO Error communicating with PVE API: " + e.getMessage());
-                    handler.sendMessage(RemoteCanvasActivityHandler.getMessageString(RemoteClientLibConstants.PVE_API_IO_ERROR,
+                    handler.sendMessage(OpaqueHandler.getMessageString(RemoteClientLibConstants.PVE_API_IO_ERROR,
                             "error", e.getMessage()));
                     e.printStackTrace();
                 } catch (HttpException e) {
                     android.util.Log.e(TAG, "PVE API returned error code: " + e.getMessage());
-                    handler.sendMessage(RemoteCanvasActivityHandler.getMessageString(RemoteClientLibConstants.PVE_API_UNEXPECTED_CODE,
+                    handler.sendMessage(OpaqueHandler.getMessageString(RemoteClientLibConstants.PVE_API_UNEXPECTED_CODE,
                             "error", e.getMessage()));
                 } catch (Throwable e) {
                     handleUncaughtException(e);
@@ -463,8 +463,8 @@ public class RemoteCanvas extends ImageView implements Viewable {
         };
         cThread.start();
     }
-    
-    
+
+
     /**
      * Initialize the canvas to show the remote desktop
      */
@@ -484,7 +484,7 @@ public class RemoteCanvas extends ImageView implements Viewable {
                             spicecomm.wait();
                         }
                     }
-                    
+
                     String ovirtCaFile = null;
                     if (settings.isUsingCustomOvirtCa()) {
                         ovirtCaFile = settings.getOvirtCaFile();
@@ -492,12 +492,12 @@ public class RemoteCanvas extends ImageView implements Viewable {
                         String caBundleFileName = new File(getContext().getFilesDir(), "ssl/certs/ca-certificates.crt").getPath();
                         ovirtCaFile = caBundleFileName;
                     }
-                    
+
                     // If not VM name is specified, then get a list of VMs and let the user pick one.
                     if (settings.getVmname().equals("")) {
                         int success = spicecomm.fetchOvirtVmNames(settings.getHostname(), settings.getUser(),
-                                                                    settings.getPassword(), ovirtCaFile,
-                                                                    settings.isSslStrict());
+                                settings.getPassword(), ovirtCaFile,
+                                settings.isSslStrict());
                         // VM retrieval was unsuccessful we do not continue.
                         ArrayList<String> vmNames = spicecomm.getVmNames();
                         if (success != 0 || vmNames.isEmpty()) {
@@ -514,8 +514,8 @@ public class RemoteCanvas extends ImageView implements Viewable {
                                     for (String s : vmNames) {
                                         vmNameToId.put(s, s);
                                     }
-                                    handler.sendMessage(RemoteCanvasActivityHandler.getMessageStringList(RemoteClientLibConstants.DIALOG_DISPLAY_VMS,
-                                                                                                         "vms", vmNames));
+                                    handler.sendMessage(OpaqueHandler.getMessageStringList(RemoteClientLibConstants.DIALOG_DISPLAY_VMS,
+                                            "vms", vmNames));
                                     synchronized(spicecomm) {
                                         spicecomm.wait();
                                     }
@@ -523,24 +523,24 @@ public class RemoteCanvas extends ImageView implements Viewable {
                             }
                         }
                     }
-                    
+
                     spicecomm.connectOvirt(settings.getHostname(),
-                                            settings.getVmname(),
-                                            settings.getUser(),
-                                            settings.getPassword(),
-                                            ovirtCaFile,
-                                            settings.isAudioPlaybackEnabled(), settings.isSslStrict());
-                    
+                            settings.getVmname(),
+                            settings.getUser(),
+                            settings.getPassword(),
+                            ovirtCaFile,
+                            settings.isAudioPlaybackEnabled(), settings.isSslStrict());
+
                     try {
                         synchronized(spicecomm) {
                             spicecomm.wait(35000);
                         }
                     } catch (InterruptedException e) {}
-                    
+
                     if (!spiceUpdateReceived && stayConnected) {
                         handler.sendEmptyMessage(RemoteClientLibConstants.OVIRT_TIMEOUT);
                     }
-                    
+
                 } catch (Throwable e) {
                     handleUncaughtException(e);
                 }
@@ -548,7 +548,7 @@ public class RemoteCanvas extends ImageView implements Viewable {
         };
         cThread.start();
     }
-    
+
     
     /**
      * Retreives the requested remote width.

@@ -50,7 +50,7 @@
             android:theme="@android:style/Theme.DeviceDefault">
         </activity>
         <activity
-            android:name="com.undatech.opaque.RemoteCanvasActivity"
+            android:name="com.iiordanov.bVNC.RemoteCanvasActivity"
             android:screenOrientation="unspecified"
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|density|screenLayout"
             android:windowSoftInputMode="stateHidden|adjustResize"

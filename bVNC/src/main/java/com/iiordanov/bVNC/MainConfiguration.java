@@ -226,7 +226,7 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
         }
         if (selected != null) {
             updateSelectedFromView();
-            selected.saveAndWriteRecent(false, database);
+            selected.saveAndWriteRecent(false, this);
         }
     }
 
@@ -293,7 +293,7 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
      */
     protected void generatePubkey () {
         updateSelectedFromView();
-        selected.saveAndWriteRecent(true, database);
+        selected.saveAndWriteRecent(true, this);
         Intent intent = new Intent(this, GeneratePubkeyActivity.class);
         intent.putExtra("PrivateKey",selected.getSshPrivKey());
         startActivityForResult(intent, Constants.ACTIVITY_GEN_KEY);
@@ -422,7 +422,7 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
                 textNickname.setText(new String(getString(R.string.copy_of) + " " + selected.getNickname()));
             updateSelectedFromView();
             selected.set_Id(0);
-            selected.saveAndWriteRecent(false, database);
+            selected.saveAndWriteRecent(false, this);
             arriveOnPage();
         } else if (itemId == R.id.itemDeleteConnection) {
             Utils.showYesNoPrompt(this, getString(R.string.delete_connection) + "?", getString(R.string.delete_connection) + " " + selected.getNickname() + "?",
@@ -593,7 +593,7 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
                     Toast.makeText(getBaseContext(), getString(R.string.ssh_key_generated), Toast.LENGTH_LONG).show();
                 selected.setSshPrivKey(privateKey);
                 selected.setSshPubKey((String)b.get("PublicKey"));
-                selected.saveAndWriteRecent(true, database);
+                selected.saveAndWriteRecent(true, this);
             } else
                 Log.i (TAG, "The user cancelled SSH key generation.");
             break;

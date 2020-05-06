@@ -60,8 +60,8 @@ public abstract class RemotePointer {
         this.canvas    = canvas;
         this.context   = canvas.getContext();
         this.handler   = handler;
-        pointerX  = canvas.getImageWidth()/2;
-        pointerY  = canvas.getImageHeight()/2;
+        //pointerX  = canvas.getImageWidth()/2;
+        //pointerY  = canvas.getImageHeight()/2;
         scroller = new MouseScroller();
     }
     

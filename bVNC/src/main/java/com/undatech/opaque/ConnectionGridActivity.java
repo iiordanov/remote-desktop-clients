@@ -74,7 +74,7 @@ public class ConnectionGridActivity extends FragmentActivity {
                     connectionPreferenceFiles = connections.split(" ");
                 }
                 
-                Intent intent = new Intent(ConnectionGridActivity.this, GeneralUtils.getClassByName("com.undatech.opaque.RemoteCanvasActivity"));
+                Intent intent = new Intent(ConnectionGridActivity.this, GeneralUtils.getClassByName("com.iiordanov.bVNC.RemoteCanvasActivity"));
                 if (connectionPreferenceFiles != null && position < connectionPreferenceFiles.length) {
                     ConnectionSettings cs = new ConnectionSettings(connectionPreferenceFiles[position]);
                     cs.loadFromSharedPreferences(appContext);

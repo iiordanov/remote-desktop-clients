@@ -79,7 +79,7 @@ public class EnterTextDialog extends Dialog {
         {
             SentTextBean added = new SentTextBean();
             added.setSentText(s);
-            SQLiteDatabase db = _canvasActivity.getDatabase().getWritableDatabase();
+            SQLiteDatabase db = new Database(getContext()).getWritableDatabase();
             added.Gen_insert(db);
             _history.add(added);
             for (int i = 0; i < _historyIndex - NUMBER_SENT_SAVED; i++)
@@ -196,7 +196,7 @@ public class EnterTextDialog extends Dialog {
                     if (s.equals(bean.getSentText()))
                     {
                         
-                        bean.Gen_delete(_canvasActivity.getDatabase().getWritableDatabase());
+                        bean.Gen_delete(new Database(getContext()).getWritableDatabase());
                         _history.remove(_historyIndex);
                         if (_historyIndex > 0)
                         {
@@ -214,7 +214,7 @@ public class EnterTextDialog extends Dialog {
             }
             
         });
-        Cursor readInOrder = _canvasActivity.getDatabase().getReadableDatabase().rawQuery(
+        Cursor readInOrder = new Database(getContext()).getReadableDatabase().rawQuery(
                  "select * from " + SentTextBean.GEN_TABLE_NAME + " ORDER BY _id", null);
         try
         {

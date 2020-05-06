@@ -37,6 +37,7 @@ import java.util.TimerTask;
 import com.undatech.opaque.dialogs.GetTextFragment;
 import com.undatech.opaque.dialogs.SelectTextElementFragment;
 import com.undatech.opaque.input.*;
+import com.undatech.opaque.util.FileUtils;
 import com.undatech.opaque.util.OnTouchViewMover;
 
 import android.annotation.SuppressLint;
@@ -94,7 +95,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
      
     private ConnectionSettings connection;
     
-    RemoteCanvasActivityHandler handler;
+    OpaqueHandler handler;
     
     private Vibrator myVibrator;
     
@@ -208,10 +209,10 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
         if (vvFileName == null) {
             android.util.Log.d(TAG, "Initializing session from connection settings.");
             connection = (ConnectionSettings)i.getSerializableExtra("com.undatech.opaque.ConnectionSettings");
-            handler = new RemoteCanvasActivityHandler(this, canvas, connection);
+            //handler = new OpaqueHandler(this, canvas, connection);
             pointer = canvas.init(connection, handler);
 
-            if (connection.getConnectionType().equals(getResources().getString(R.string.connection_type_pve))) {
+            if (connection.getConnectionTypeString().equals(getResources().getString(R.string.connection_type_pve))) {
                 canvas.startPve();
             } else {
                 canvas.start();
@@ -226,7 +227,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
             }
             connection = new ConnectionSettings(RemoteClientLibConstants.DEFAULT_SETTINGS_FILE);
             connection.loadFromSharedPreferences(getApplicationContext());
-            handler = new RemoteCanvasActivityHandler(this, canvas, connection);
+            //handler = new OpaqueHandler(this, canvas, connection);
             pointer = canvas.init(connection, handler);
             canvas.startFromVvFile(vvFileName);
         }
@@ -367,29 +368,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
         setIntent(i);
         startConnection();
     }
-    
-    /**
-     * Outputs the given InputStream to a file.
-     * @param is
-     * @param file
-     * @throws IOException
-     */
-    void outputToFile (InputStream is, File file) throws IOException {
-        BufferedInputStream bis = new BufferedInputStream(is);
-        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-        
-        byte[] data = new byte[RemoteClientLibConstants.URL_BUFFER_SIZE];
-        int current = 0;
-        
-        while((current = bis.read(data, 0, data.length)) != -1){
-            buffer.write(data, 0, current);
-        }
-        
-        FileOutputStream fos = new FileOutputStream(file);
-        fos.write(buffer.toByteArray());
-        fos.close();
-    }
-    
+
     /**
      * Retrieves a vv file from the intent if possible and returns the path to it.
      * @param i
@@ -409,7 +388,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
             if (dataString.startsWith("http")) {
                 android.util.Log.d(TAG, "Intent is with http scheme.");
                 msgId = R.string.error_failed_to_download_vv_http;
-                deleteMyFile(tempVvFile);
+                FileUtils.deleteFile(tempVvFile);
                 
                 // Spin up a thread to grab the file over the network.
                 Thread t = new Thread () {
@@ -421,7 +400,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
                             File file = new File(tempVvFile);
                             
                             URLConnection ucon = url.openConnection();
-                            outputToFile(ucon.getInputStream(), new File(tempVvFile));
+                            FileUtils.outputToFile(ucon.getInputStream(), new File(tempVvFile));
                             
                             synchronized(RemoteCanvasActivity.this) {
                                 RemoteCanvasActivity.this.notify();
@@ -454,10 +433,10 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
             } else if (dataString.startsWith("content")) {
                 android.util.Log.d(TAG, "Intent is with content scheme.");
                 msgId = R.string.error_failed_to_obtain_vv_content;
-                deleteMyFile(tempVvFile);
+                FileUtils.deleteFile(tempVvFile);
                 
                 try {
-                    outputToFile(getContentResolver().openInputStream(data), new File(tempVvFile));
+                    FileUtils.outputToFile(getContentResolver().openInputStream(data), new File(tempVvFile));
                     vvFileName = tempVvFile;
                 } catch (IOException e) {
                     android.util.Log.e(TAG, "Could not write temp file: IOException.");
@@ -478,11 +457,6 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
 
         return vvFileName;
     }
-    
-    private void deleteMyFile (String path) {
-        new File(path).delete();
-    }
-    
     
     private void setKeyStowDrawableAndVisibility() {
         Drawable replacer = null;
@@ -1184,6 +1158,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
 
     @Override
     public void onTextSelected(String selectedString) {
+        android.util.Log.i(TAG, "onTextSelected called with selectedString: " + selectedString);
         canvas.progressDialog.show();
         connection.setVmname(canvas.vmNameToId.get(selectedString));
         connection.saveToSharedPreferences(this);

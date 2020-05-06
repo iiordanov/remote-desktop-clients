@@ -408,7 +408,7 @@ public class AutoXCustomizeDialog extends AlertDialog {
 
         // Update and save.
         mainConfigDialog.updateViewFromSelected();
-        selected.saveAndWriteRecent(false, database);
+        selected.saveAndWriteRecent(false, getContext());
     }
     
     public void retainAutoXInfo () {
@@ -418,6 +418,6 @@ public class AutoXCustomizeDialog extends AlertDialog {
 
         // Update and save.
         mainConfigDialog.updateViewFromSelected();
-        selected.saveAndWriteRecent(false, database);
+        selected.saveAndWriteRecent(false, getContext());
     }
 }

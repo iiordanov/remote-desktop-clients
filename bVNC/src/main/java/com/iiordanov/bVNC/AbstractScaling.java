@@ -121,8 +121,7 @@ public abstract class AbstractScaling {
             activity.inputHandler=activity.getInputHandlerById(getDefaultHandlerId());
             activity.getConnection().setInputMode(activity.inputHandler.getId());
         }
-        activity.getConnection().Gen_update(activity.getDatabase().getWritableDatabase());
-        activity.getDatabase().close();
+        activity.getConnection().save(activity);
         activity.updateInputMenu();
     }
     

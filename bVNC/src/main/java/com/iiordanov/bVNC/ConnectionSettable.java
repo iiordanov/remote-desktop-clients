@@ -20,6 +20,8 @@
 
 package com.iiordanov.bVNC;
 
+import com.undatech.opaque.Connection;
+
 public interface ConnectionSettable {
-    void setConnection(ConnectionBean connection);
+    void setConnection(Connection connection);
 }

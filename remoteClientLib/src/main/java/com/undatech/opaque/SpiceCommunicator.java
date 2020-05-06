@@ -132,7 +132,7 @@ public class SpiceCommunicator implements RfbConnectable {
             GStreamer.init(context);
         } catch (Exception e) {
             e.printStackTrace();
-            MessageDialogs.displayToast(context, handler, e.getMessage(), Toast.LENGTH_SHORT);
+            Toast.makeText(context, e.getMessage(), Toast.LENGTH_LONG).show();
         }
     }
     

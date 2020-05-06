@@ -20,18 +20,9 @@
 
 package com.iiordanov.bVNC;
 
-import java.io.UnsupportedEncodingException;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.security.spec.InvalidKeySpecException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-
-import javax.crypto.BadPaddingException;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -43,13 +34,7 @@ import android.widget.ImageView.ScaleType;
 
 import com.antlersoft.android.dbimpl.NewInstance;
 import com.iiordanov.bVNC.input.InputHandlerDirectSwipePan;
-import com.iiordanov.bVNC.*;
-import com.iiordanov.freebVNC.*;
-import com.iiordanov.aRDP.*;
-import com.iiordanov.freeaRDP.*;
-import com.iiordanov.aSPICE.*;
-import com.iiordanov.freeaSPICE.*;
-import com.iiordanov.CustomClientPackage.*;
+import com.undatech.opaque.Connection;
 import com.undatech.remoteClientUi.*;
 
 /**
@@ -58,16 +43,16 @@ import com.undatech.remoteClientUi.*;
  * @author David Warden
  *
  */
-public class ConnectionBean extends AbstractConnectionBean implements Comparable<ConnectionBean> {
+public class ConnectionBean extends AbstractConnectionBean implements Connection, Comparable<ConnectionBean> {
     
 	private static final String TAG = "ConnectionBean";
     static Context c = null;
-    protected boolean m_isReadyForConnection = true; // saved connections are OK
-    protected boolean m_saved = false;
+    protected boolean readyForConnection = true; // saved connections are OK
+    protected boolean readyToBeSaved = false;
     private int idHashAlgorithm;
     private String idHash;
     private String masterPassword;
-    
+
     static final NewInstance<ConnectionBean> newInstance=new NewInstance<ConnectionBean>() {
         public ConnectionBean get() { return new ConnectionBean(c); }
     };
@@ -149,7 +134,7 @@ public class ConnectionBean extends AbstractConnectionBean implements Comparable
         setViewOnly(false);
 		setLayoutMap("English (US)");
         c = context;
-        
+
         // These two are not saved in the database since we always save the cert data. 
         setIdHashAlgorithm(Constants.ID_HASH_SHA1);
         setIdHash("");
@@ -175,8 +160,158 @@ public class ConnectionBean extends AbstractConnectionBean implements Comparable
     {
         return get_Id()== 0;
     }
-    
-    public synchronized void save(SQLiteDatabase database) {
+
+    @Override
+    public String saveCaToFile(Context context, String caCertData) {
+        return null;
+    }
+
+    @Override
+    public void populateFromContentValues(ContentValues values) {
+        Gen_populate(values);
+    }
+
+    @Override
+    public String getConnectionTypeString() {
+        return "";
+    }
+
+    @Override
+    public void setConnectionTypeString(String connectionTypeString) {
+
+    }
+
+    @Override
+    public String getHostname() {
+        return null;
+    }
+
+    @Override
+    public void setHostname(String hostname) {
+
+    }
+
+    @Override
+    public String getVmname() {
+        return null;
+    }
+
+    @Override
+    public void setVmname(String vmname) {
+
+    }
+
+    @Override
+    public String getOtpCode() {
+        return null;
+    }
+
+    @Override
+    public void setOtpCode(String otpCode) {
+
+    }
+
+    @Override
+    public String getFilename() {
+        return null;
+    }
+
+    @Override
+    public void setFilename(String filename) {
+
+    }
+
+    @Override
+    public boolean isRotationEnabled() {
+        return false;
+    }
+
+    @Override
+    public void setRotationEnabled(boolean rotationEnabled) {
+
+    }
+
+    @Override
+    public boolean isRequestingNewDisplayResolution() {
+        return false;
+    }
+
+    @Override
+    public void setRequestingNewDisplayResolution(boolean requestingNewDisplayResolution) {
+
+    }
+
+    @Override
+    public boolean isAudioPlaybackEnabled() {
+        return false;
+    }
+
+    @Override
+    public void setAudioPlaybackEnabled(boolean audioPlaybackEnabled) {
+
+    }
+
+    @Override
+    public boolean isUsingCustomOvirtCa() {
+        return false;
+    }
+
+    @Override
+    public void setUsingCustomOvirtCa(boolean useCustomCa) {
+
+    }
+
+    @Override
+    public boolean isSslStrict() {
+        return false;
+    }
+
+    @Override
+    public void setSslStrict(boolean sslStrict) {
+
+    }
+
+    @Override
+    public boolean isUsbEnabled() {
+        return false;
+    }
+
+    @Override
+    public void setUsbEnabled(boolean usbEnabled) {
+
+    }
+
+    @Override
+    public String getOvirtCaFile() {
+        return null;
+    }
+
+    @Override
+    public void setOvirtCaFile(String ovirtCaFile) {
+
+    }
+
+    @Override
+    public String getOvirtCaData() {
+        return null;
+    }
+
+    @Override
+    public void setOvirtCaData(String ovirtCaData) {
+
+    }
+
+    public synchronized void save(Context c) {
+        Database database = new Database(c);
+        save(database.getWritableDatabase());
+    }
+
+    @Override
+    public void load(Context context) {
+
+    }
+
+    private synchronized void save(SQLiteDatabase database) {
         ContentValues values = Gen_getValues();
         values.remove(GEN_FIELD__ID);
         // Never save the SSH password and passphrase.
@@ -192,21 +327,20 @@ public class ConnectionBean extends AbstractConnectionBean implements Comparable
         }
     }
     
-    public boolean isReadyForConnection()
-    {
-    	return m_isReadyForConnection;
+    public boolean isReadyForConnection() {
+    	return readyForConnection;
     }
-    public boolean isSaved()
-    {
-    	return m_saved;
+
+    public boolean isReadyToBeSaved() {
+    	return readyToBeSaved;
     }
     
-    ScaleType getScaleMode()
+    public ScaleType getScaleMode()
     {
         return ScaleType.valueOf(getScaleModeAsString());
     }
     
-    void setScaleMode(ScaleType value)
+    public void setScaleMode(ScaleType value)
     {
         setScaleModeAsString(value.toString());
     }
@@ -281,11 +415,11 @@ public class ConnectionBean extends AbstractConnectionBean implements Comparable
     	return connection;
     }
     
-    void parseFromUri(Uri dataUri) {
+    public void parseFromUri(Uri dataUri) {
     	Log.i(TAG, "Parsing VNC URI.");
     	if (dataUri == null) {
-    		m_isReadyForConnection = false;
-    		m_saved = true;
+    		readyForConnection = false;
+    		readyToBeSaved = true;
     		return;
     	}
     	
@@ -510,16 +644,16 @@ public class ConnectionBean extends AbstractConnectionBean implements Comparable
     		Database database = new Database(c);
     		save(database.getWritableDatabase());
     		database.close();
-    		m_saved = true;
+    		readyToBeSaved = true;
     	}
     	
     	// we do not currently use API keys
     	
     	// check if we need to show data-entry screen
     	// it may be possible to prompt for data later
-    	m_isReadyForConnection = true;
+    	readyForConnection = true;
     	if (Utils.isNullOrEmptry(getAddress())) {
-    		m_isReadyForConnection = false;
+    		readyForConnection = false;
     		Log.i(TAG, "URI missing remote address.");
     	}
     	
@@ -531,14 +665,14 @@ public class ConnectionBean extends AbstractConnectionBean implements Comparable
     		// the user can supply a blank value and the server will not
     		// request it and it is better to support the common case
     		if (Utils.isNullOrEmptry(getPassword())) {
-    			m_isReadyForConnection = false;
+    			readyForConnection = false;
     			Log.i(TAG, "URI missing VNC password.");
     		}
     	}
     	if (connType == Constants.CONN_TYPE_SSH) {
     		// the below should not occur
     		if (Utils.isNullOrEmptry(getSshServer()))
-    			m_isReadyForConnection = false;
+    			readyForConnection = false;
     		// we probably need either a username/password or a key
     		// however the main screen doesn't validate this
     	}
@@ -613,8 +747,13 @@ public class ConnectionBean extends AbstractConnectionBean implements Comparable
             return null;
         return recents.get(0);
     }
-    
-    public void saveAndWriteRecent(boolean saveEmpty, Database database) {
+
+    public void saveAndWriteRecent(boolean saveEmpty, Context c) {
+        Database database = new Database(c);
+        saveAndWriteRecent(saveEmpty, database);
+    }
+
+    private void saveAndWriteRecent(boolean saveEmpty, Database database) {
         
         // We need server address or SSH server to be filled out to save. Otherwise,
         // we keep adding empty connections. 
@@ -624,7 +763,7 @@ public class ConnectionBean extends AbstractConnectionBean implements Comparable
             || getAddress().equals("")) && !saveEmpty) {
             return;
         }
-        
+
         SQLiteDatabase db = database.getWritableDatabase();
         db.beginTransaction();
         try {

@@ -24,7 +24,6 @@ public class RemoteClientLibConstants {
     
     public static final int SDK_INT = android.os.Build.VERSION.SDK_INT;
 
-    public static final int DIALOG_DISPLAY_VMS     = 0;
     public static final int DIALOG_X509_CERT       = 1;
     public static final int LAUNCH_VNC_VIEWER      = 2;
     public static final int VM_LAUNCHED            = 3;
@@ -54,6 +53,7 @@ public class RemoteClientLibConstants {
     public static final int RDP_UNABLE_TO_CONNECT  = 27;
     public static final int RDP_AUTH_FAILED        = 28;
     public static final int SERVER_CUT_TEXT        = 29;
+    public static final int DIALOG_DISPLAY_VMS     = 30;
 
     public static final int EXTRA_KEYS_OFF         = 0;
     public static final int EXTRA_KEYS_ON          = 1;

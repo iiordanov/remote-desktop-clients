@@ -30,8 +30,8 @@ public class ProxmoxClient extends RestClient {
      * Initializes a connection to PVE's API.
      * @param address the address of PVE
      */
-    public ProxmoxClient(String address, ConnectionSettings connection, Handler handler) {
-        super(connection, handler);
+    public ProxmoxClient(String address, String ovirtCaData, Handler handler) {
+        super(ovirtCaData, handler);
         this.baseUrl = String.format("%s%s", address, "/api2/json");
         // Ensure we have let the user approve the certificate
         //if (connection.getOvirtCaData().isEmpty()) {

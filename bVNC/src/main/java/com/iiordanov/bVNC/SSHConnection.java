@@ -102,7 +102,7 @@ public class SSHConnection implements InteractiveCallback, GetTextFragment.OnFra
     private String verificationCode;
     private CountDownLatch vcLatch;
 
-    public SSHConnection(ConnectionBean conn, Context cntxt, Handler handler) {
+    public SSHConnection(com.undatech.opaque.Connection conn, Context cntxt, Handler handler) {
         host = conn.getSshServer();
         sshPort = conn.getSshPort();
         user = conn.getSshUser();

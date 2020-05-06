@@ -22,15 +22,17 @@ import com.undatech.opaque.dialogs.SelectTextElementFragment;
 import com.undatech.opaque.util.GooglePlayUtils;
 import com.undatech.opaque.util.SslUtils;
 import com.undatech.remoteClientUi.R;
+import com.iiordanov.bVNC.RemoteCanvas;
+import com.iiordanov.bVNC.RemoteCanvasActivity;
 
-public class RemoteCanvasActivityHandler extends Handler {
-    private static String TAG = "RemoteCanvasActivityHandler";
+public class OpaqueHandler extends Handler {
+    private static String TAG = "OpaqueHandler";
     private Context context;
     private RemoteCanvas c;
-    private ConnectionSettings settings;
+    private Connection settings;
     private FragmentManager fm;
     
-    public RemoteCanvasActivityHandler(Context context, RemoteCanvas c, ConnectionSettings settings) {
+    public OpaqueHandler(Context context, RemoteCanvas c, Connection settings) {
         super();
         this.context = context;
         this.c = c;
@@ -60,6 +62,12 @@ public class RemoteCanvasActivityHandler extends Handler {
     
     @Override
     public void handleMessage(Message msg) {
+        android.util.Log.d(TAG, "handleMessage: " + msg.what);
+        if (msg.what == 0) {
+            android.util.Log.d(TAG, "Ignoring message with ID 0");
+            return;
+        }
+
         switch (msg.what) {
         case RemoteClientLibConstants.VV_OVER_HTTP_FAILURE:
             MessageDialogs.displayMessageAndFinish(context, R.string.error_failed_to_download_vv_http,
@@ -135,15 +143,15 @@ public class RemoteCanvasActivityHandler extends Handler {
             ((Activity)context).finish();
             break;
         case RemoteClientLibConstants.GET_PASSWORD:
-            c.progressDialog.dismiss();
+            c.pd.dismiss();
             showGetTextFragment(RemoteClientLibConstants.GET_PASSWORD_ID, context.getString(R.string.enter_password), true);
             break;
         case RemoteClientLibConstants.GET_OTP_CODE:
-            c.progressDialog.dismiss();
+            c.pd.dismiss();
             showGetTextFragment(RemoteClientLibConstants.GET_OTP_CODE_ID, context.getString(R.string.enter_otp_code), false);
             break;
         case RemoteClientLibConstants.DIALOG_DISPLAY_VMS:
-            c.progressDialog.dismiss();
+            c.pd.dismiss();
             ArrayList<String> vms = msg.getData().getStringArrayList("vms");
 
             if (vms.size() > 0) {
@@ -156,7 +164,7 @@ public class RemoteCanvasActivityHandler extends Handler {
             }
             break;
         case RemoteClientLibConstants.SPICE_CONNECT_SUCCESS:
-            c.progressDialog.dismiss();
+            c.pd.dismiss();
             synchronized(c.spicecomm) {
                 c.spiceUpdateReceived = true;
                 c.spicecomm.notifyAll();
@@ -164,9 +172,9 @@ public class RemoteCanvasActivityHandler extends Handler {
             break;
         case RemoteClientLibConstants.SPICE_CONNECT_FAILURE:
             String e = msg.getData().getString("message");
-            c.progressDialog.dismiss();
+            c.pd.dismiss();
             // Only if we were intending to stay connected, and the connection failed, show an error message.
-            if (c.stayConnected) {
+            if (c.maintainConnection) {
                 if (!c.spiceUpdateReceived) {
                     c.disconnectAndShowMessage(R.string.error_ovirt_unable_to_connect, R.string.error_dialog_title, e);
                 } else {
@@ -175,7 +183,7 @@ public class RemoteCanvasActivityHandler extends Handler {
             }
             break;
         case RemoteClientLibConstants.OVIRT_TIMEOUT:
-            c.progressDialog.dismiss();
+            c.pd.dismiss();
             c.disconnectAndShowMessage(R.string.error_ovirt_timeout, R.string.error_dialog_title);
             break;
         case RemoteClientLibConstants.DIALOG_X509_CERT:
@@ -231,23 +239,23 @@ public class RemoteCanvasActivityHandler extends Handler {
                 certInfo,
                 "Accept",
                 "Reject",
-                                                new ChoiceFragment.OnFragmentDismissedListener() {
-                                                    
-                                                    @Override
-                                                    public void onResponseObtained(boolean result) {
-                                                        if (result) {
-                                                            android.util.Log.e(TAG, "We were told to continue");
-                                                            settings.setOvirtCaData(Base64.encodeToString(certData, Base64.DEFAULT));
-                                                            settings.saveToSharedPreferences(RemoteCanvasActivityHandler.this.context);
-                                                            synchronized (RemoteCanvasActivityHandler.this) {
-                                                                RemoteCanvasActivityHandler.this.notify();
-                                                            }
-                                                        } else {
-                                                            android.util.Log.e(TAG, "We were told not to continue");
-                                                            ((Activity)context).finish();
-                                                        }                                                            
-                                                    }
-                                                });
+                new ChoiceFragment.OnFragmentDismissedListener() {
+
+                    @Override
+                    public void onResponseObtained(boolean result) {
+                        if (result) {
+                            android.util.Log.e(TAG, "We were told to continue");
+                            settings.setOvirtCaData(Base64.encodeToString(certData, Base64.DEFAULT));
+                            settings.save(OpaqueHandler.this.context);
+                            synchronized (OpaqueHandler.this) {
+                                OpaqueHandler.this.notify();
+                            }
+                        } else {
+                            android.util.Log.e(TAG, "We were told not to continue");
+                            ((Activity)context).finish();
+                        }
+                    }
+                });
         
         FragmentManager fm = ((FragmentActivity)context).getSupportFragmentManager();
         certDialog.setCancelable(false);

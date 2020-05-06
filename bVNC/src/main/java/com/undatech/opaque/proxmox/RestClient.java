@@ -59,7 +59,7 @@ public class RestClient {
 
     private String response;
     
-    private ConnectionSettings connection;
+    private String ovirtCaData;
     private Handler handler;
 
     private String url;
@@ -98,7 +98,7 @@ public class RestClient {
                             m.obj = chain[0];
                             h.sendMessage(m);
                             // Block indefinitely until the x509 cert is accepted.
-                            while (connection.getOvirtCaData().isEmpty()) {
+                            while (ovirtCaData.isEmpty()) {
                                 try {
                                     h.wait();
                                 } catch (InterruptedException e) {
@@ -152,8 +152,8 @@ public class RestClient {
         return responseCode;
     }
 
-    public RestClient(ConnectionSettings connection, Handler handler) {
-        this.connection = connection;
+    public RestClient(String ovirtCaData, Handler handler) {
+        this.ovirtCaData = ovirtCaData;
         this.handler = handler;
     }
 
@@ -164,7 +164,7 @@ public class RestClient {
             trustStore.load(null, null);
 
             // TODO: Make it an option whether to trust all certificates.
-            MySSLSocketFactory sslsf = new MySSLSocketFactory(trustStore, connection.getOvirtCaData().trim(), handler);
+            MySSLSocketFactory sslsf = new MySSLSocketFactory(trustStore, ovirtCaData.trim(), handler);
 
             Scheme https = new Scheme("https", sslsf, 8006);
             client.getConnectionManager().getSchemeRegistry().register(https);
