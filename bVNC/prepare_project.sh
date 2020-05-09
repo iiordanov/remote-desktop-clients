@@ -4,7 +4,7 @@ SKIP_BUILD=false
 
 function usage () {
   echo "$0 bVNC|freebVNC|aSPICE|freeaSPICE|aRDP|freeaRDP|CustomVncAnyPackageName|\
-CustomRdpAnyPackageName|CustomSpiceAnyPackageName|libs|remoteClientLib /path/to/your/android/ndk /path/to/your/android/sdk"
+CustomRdpAnyPackageName|CustomSpiceAnyPackageName|libs|remoteClientLib|Opaque /path/to/your/android/sdk"
   exit 1
 }
 
@@ -52,7 +52,7 @@ if [[ "$PRJ" != "bVNC" && "$PRJ" != "freebVNC" \
   && "$PRJ" != "aRDP" && "$PRJ" != "freeaRDP" \
   && "$PRJ" =~ "^Custom.*" \
   && "$PRJ" != "libs" && "$PRJ" != "remoteClientLib" \
-  || "$ANDROID_SDK" == "" ]]
+  && "$PRJ" != "Opaque" || "$ANDROID_SDK" == "" ]]
 then
   usage
 fi
@@ -98,6 +98,16 @@ then
   then
     pushd ../remoteClientLib
     ${ANDROID_NDK}/ndk-build
+
+    echo "Add your custom certificate authority files to certificate bundle from gstreamer."
+    if [ -n "$(ls certificate_authorities/)" ]
+    then
+      for ca in certificate_authorities/*
+      do
+        echo Adding ${ca} to gstreamer provided ca-bundle.crt
+        cat ${ca} >> src/main/assets/ca-bundle.crt
+      done
+    fi
     popd
   fi
 fi
@@ -123,7 +133,7 @@ then
   [ -d ${freerdp_libs_dir}.DISABLED ] && rm -rf ${freerdp_libs_dir} && mv ${freerdp_libs_dir}.DISABLED ${freerdp_libs_dir}
   rm -rf ${freerdp_libs_link}
   ln -s jniLibs ${freerdp_libs_link}
-elif echo $PRJ | grep -iq "SPICE"
+elif echo $PRJ | grep -iq "SPICE\|Opaque"
 then
   [ -d ${freerdp_libs_dir} ] && rm -rf ${freerdp_libs_dir}.DISABLED && mv ${freerdp_libs_dir} ${freerdp_libs_dir}.DISABLED
   rm -rf ${freerdp_libs_link}

@@ -12,7 +12,7 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/CustomVnc-app" />
-            <option value="$PROJECT_DIR$/Opaque" />
+            <option value="$PROJECT_DIR$/Opaque-app" />
             <option value="$PROJECT_DIR$/aRDP-app" />
             <option value="$PROJECT_DIR$/aSPICE-app" />
             <option value="$PROJECT_DIR$/bVNC" />
