@@ -279,7 +279,9 @@ public class RemoteSpiceKeyboard extends RemoteKeyboard {
                     lastDownMetaState = 0;
                 }
             }
-        } catch (NullPointerException e) {}
+        } catch (NullPointerException e) {
+            e.printStackTrace();
+        }
 	}
 	
     public void sendMetaKey(MetaKeyBean meta) {
@@ -313,8 +315,7 @@ public class RemoteSpiceKeyboard extends RemoteKeyboard {
             //rfb.writePointerEvent(x, y, meta.getMetaFlags()|onScreenMetaState|hardwareMetaState, button);
             //rfb.writePointerEvent(x, y, meta.getMetaFlags()|onScreenMetaState|hardwareMetaState, 0);
         } else if (meta.equals(MetaKeyBean.keyCtrlAltDel)) {
-            rfb.writeKeyEvent(RemoteKeyboard.SCAN_DELETE, RemoteKeyboard.CTRL_MASK|RemoteKeyboard.ALT_MASK, true);
-            rfb.writeKeyEvent(RemoteKeyboard.SCAN_DELETE, RemoteKeyboard.CTRL_MASK|RemoteKeyboard.ALT_MASK, false);
+            writeKeyEvent(false, KeyEvent.KEYCODE_FORWARD_DEL, RemoteKeyboard.CTRL_MASK|RemoteKeyboard.ALT_MASK,true, true);
         } else {
             sendKeySym (meta.getKeySym(), meta.getMetaFlags());
         }
