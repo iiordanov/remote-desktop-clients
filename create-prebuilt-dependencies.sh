@@ -14,7 +14,6 @@ fi
 
 PROJECT=libs
 ./bVNC/prepare_project.sh $PROJECT $ANDROID_NDK $ANDROID_SDK
-./Opaque/prepare_project.sh $PROJECT $ANDROID_NDK $ANDROID_SDK
 
 tar czf remote-desktop-clients-libs-${DEPVER}.tar.gz remoteClientLib/libs bVNC/libs remoteClientLib/jni/libs/deps/FreeRDP/client/Android/Studio/freeRDPCore/
 
