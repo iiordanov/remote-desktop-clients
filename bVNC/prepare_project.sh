@@ -99,13 +99,13 @@ then
     pushd ../remoteClientLib
     ${ANDROID_NDK}/ndk-build
 
-    echo "Add your custom certificate authority files to certificate bundle from gstreamer."
+    echo "Adding any custom certificate authority files in $(pwd)/certificate_authorities/ to certificate bundle from gstreamer."
     if [ -n "$(ls certificate_authorities/)" ]
     then
       for ca in certificate_authorities/*
       do
-        echo Adding ${ca} to gstreamer provided ca-bundle.crt
-        cat ${ca} >> src/main/assets/ca-bundle.crt
+        echo Adding ${ca} to gstreamer provided ca-certificates.crt
+        cat ${ca} >> src/main/assets/ssl/certs/ca-certificates.crt
       done
     fi
     popd

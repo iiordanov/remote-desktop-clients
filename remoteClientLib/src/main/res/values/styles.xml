@@ -16,8 +16,8 @@
     </style>
     
     <style name="ToolbarStyle" parent="@style/Widget.AppCompat.Toolbar">
-	    <item name="contentInsetStart">0dp</item>
-	    <item name="android:contentInsetStart">0dp</item>
+        <item name="contentInsetStart">0dp</item>
+        <item name="android:background">@android:color/transparent</item>
     </style>
 
     <style name="FullscreenTheme" parent="android:Theme.NoTitleBar">

@@ -47,7 +47,7 @@ import com.undatech.opaque.util.LogcatReader;
 import com.undatech.opaque.util.PermissionsManager;
 import org.json.JSONException;
 import java.io.IOException;
-import com.undatech.remoteClientLib.R;
+import com.undatech.remoteClientUi.R;
 
 public class ConnectionGridActivity extends FragmentActivity {
     private static String TAG = "ConnectionGridActivity";

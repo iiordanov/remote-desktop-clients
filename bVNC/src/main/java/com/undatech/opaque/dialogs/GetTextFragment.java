@@ -35,7 +35,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
-import com.undatech.remoteClientLib.R;
+import com.undatech.remoteClientUi.R;
 
 public class GetTextFragment extends DialogFragment {
     public static String TAG = "GetTextFragment";
@@ -103,7 +103,7 @@ public class GetTextFragment extends DialogFragment {
         // Set title for this dialog
         getDialog().setTitle(title);
 
-        View v = inflater.inflate(R.layout.get_text, container, false);
+        View v = inflater.inflate(R.layout.get_text_with_ok, container, false);
         textBox = (EditText) v.findViewById(R.id.textBox);
         if (password) {
             textBox.setTransformationMethod(new PasswordTransformationMethod());

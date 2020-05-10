@@ -58,6 +58,7 @@ import com.iiordanov.freeaRDP.*;
 import com.iiordanov.aSPICE.*;
 import com.iiordanov.freeaSPICE.*;
 import com.iiordanov.CustomClientPackage.*;
+import com.undatech.opaque.util.FileUtils;
 import com.undatech.remoteClientUi.*;
 
 /**
@@ -204,7 +205,7 @@ public class aSPICE extends MainConfiguration {
 
         // Load list of items from asset folder and populate
         try {
-            spinnerArray = listFiles("layouts");
+            spinnerArray = FileUtils.listFiles(this, "layouts");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -414,20 +415,5 @@ public class aSPICE extends MainConfiguration {
         if (selection != null) {
             selected.setLayoutMap(selection.getText().toString());
         }
-    }
-    
-    private List<String> listFiles(String dirFrom) throws IOException {
-        Resources res = getResources();
-        AssetManager am = res.getAssets();
-        String fileList[] = am.list(dirFrom);
-
-            if (fileList != null)
-            {   
-                for ( int i = 0;i<fileList.length;i++)
-                {
-                    Log.d("",fileList[i]); 
-                }
-            }
-        return (List<String>)Arrays.asList(fileList);
     }
 }

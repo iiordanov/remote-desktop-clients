@@ -36,7 +36,7 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.ListIterator;
 
-import com.undatech.remoteClientLib.R;
+import com.undatech.remoteClientUi.R;
 
 public class SelectTextElementFragment extends DialogFragment {
     public static String TAG = "SelectVmFragment";

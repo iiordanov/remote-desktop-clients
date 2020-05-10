@@ -30,10 +30,10 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.undatech.remoteClientLib.R;
+import com.undatech.remoteClientUi.R;
 
 public class ChoiceFragment extends DialogFragment {
-    public static String TAG = "GetTextFragment";
+    public static String TAG = "ChoiceFragment";
     
     public interface OnFragmentDismissedListener {
         public void onResponseObtained(boolean result);

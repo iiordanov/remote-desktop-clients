@@ -41,6 +41,8 @@ import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.ToggleButton;
+
+import com.undatech.opaque.util.FileUtils;
 import com.undatech.remoteClientUi.R;
 
 
@@ -182,28 +184,13 @@ public class AdvancedSettingsActivity extends FragmentActivity implements Manage
         newFragment.show(fm, "customCa");
     }
 
-    private List<String> listFiles(String dirFrom) throws IOException {
-        Resources res = getResources();
-        AssetManager am = res.getAssets();
-        String fileList[] = am.list(dirFrom);
-
-        if (fileList != null)
-        {   
-            for ( int i = 0;i<fileList.length;i++)
-            {
-                Log.d("",fileList[i]); 
-            }
-        }
-        return (List<String>)Arrays.asList(fileList);
-    }
-    
     @Override
     public void onResume () {
         super.onResume();
         // Load list of items from asset folder and populate this:
         List<String> spinnerArray = null;
         try {
-            spinnerArray = listFiles("layouts");
+            spinnerArray = FileUtils.listFiles(this, "layouts");
         } catch (IOException e) {
             e.printStackTrace();
         }

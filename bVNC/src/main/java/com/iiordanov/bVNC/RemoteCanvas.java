@@ -663,8 +663,7 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
                     if (connection.isUsingCustomOvirtCa()) {
                         ovirtCaFile = connection.getOvirtCaFile();
                     } else {
-                        String caBundleFileName = new File(getContext().getFilesDir(), "ssl/certs/ca-certificates.crt").getPath();
-                        ovirtCaFile = caBundleFileName;
+                        ovirtCaFile = new File(getContext().getFilesDir(), "ssl/certs/ca-certificates.crt").getPath();
                     }
 
                     // If not VM name is specified, then get a list of VMs and let the user pick one.
