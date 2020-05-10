@@ -19,7 +19,7 @@
 import sys
 
 layoutLocation = "/usr/share/qemu/keymaps/"
-targetLocation = "../assets/layouts/"
+targetLocation = "../src/main/assets/layouts/"
 layouts = {"en-us" : "English (US)", "en-gb" : "English (UK)", "de" : "German (Germany)", "fr" : "French (France)",
            "es" : "Spanish (Spain, Traditional Sort)", "sv" : "Swedish (Sweden)", "pl" : "Polish (Programmers)",
            "it" : "Italian (Italy)", "hu" : "Hungarian (Hungary)", "da" : "Danish", "pt" : "Portuguese (Portugal)",

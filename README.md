@@ -74,6 +74,10 @@ Welcome screen, browsing to the remote-desktop-clients directory and selecting i
 You can add custom CAs for aSPICE and Opaque in remoteClientLib/certificate_authorities/. They will be merged with the
 ca-bundle.crt provided to the app to validate your self-signed server certs if you have any.
 
+## Generating new layouts for aSPICE and Opaque
+
+The directory `bVNC/layouts` contains a utiliy `convert.py` that can be used to generate new layouts for the desktop clients.
+
 ## III Building "Custom" VNC clients
 
 It is possible to programmatically build additional customized clients based on the VNC client contained in this project
