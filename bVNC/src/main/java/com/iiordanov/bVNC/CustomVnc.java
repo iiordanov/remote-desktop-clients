@@ -15,6 +15,7 @@ import org.yaml.snakeyaml.Yaml;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Locale;
 import java.util.Map;
 
 public class CustomVnc extends bVNC {
@@ -37,7 +38,13 @@ public class CustomVnc extends bVNC {
                 view.setVisibility(visibility.get(s));
             }
 
-            String title = (String)configData.get("mainConfiguration").get("title");
+            Locale current = getResources().getConfiguration().locale;
+            String currentLanguage = current.getLanguage();
+            String title = (String)((Map)configData.get("mainConfiguration").get("title")).get("default");
+            String currentLanguageTitle = (String)((Map)configData.get("mainConfiguration").get("title")).get(currentLanguage);
+            if (currentLanguageTitle != null) {
+                title = currentLanguageTitle;
+            }
             setTitle(title);
 
         } catch (IOException e) {

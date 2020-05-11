@@ -1,4 +1,6 @@
 mainConfiguration:
   visibility:
     connectionTypeLabel: 8
-  title: "Some Alternate Title"
+  title:
+    default: "Default Alternate Title"
+    en: "Override of Title for English Language"
