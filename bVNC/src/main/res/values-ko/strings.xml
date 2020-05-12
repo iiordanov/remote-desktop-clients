@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
   <string name="ad_donate_text0">Pro 버전은 다단계 인증에 지원하고 있습니다.무단 사용 방지를 위해 마스터 Password 기능도 지원하고 있습니다.또한 Password/SSH키를 포함한 모든 연결 설정이 암호화가 되어 있기 때문에 도난 방지에도 도움이됩니다.</string>
   <string name="ad_donate_text1">Pro 버전 구입시 소액 기부에 동의하시는 분은 여기를 눌러주세요.</string>
   <string name="ad_donate_text2">Pro 버전 사용시 이 다이얼로그는 무효로 설정 가능합니다. 또한 추가 기능에 액세스 할 수 있습니다.</string>
@@ -22,7 +22,7 @@
   <string name="auto_x_cancel">취소</string>
   <string name="auto_x_caption">bVNC은 기존내용을 자동 검색하고 Linux/UNIX 시스템상에서 X세션을 신규 작성합니다(NX와 유사).검색은 x11vnc세션 작성은 XvfbXvncXdummy가 필요합니다.연결에 문제가있을 경우 AutoX 상세 설정에서 특정 리모트 세션 타입을 선택하십시오.</string>
   <string name="auto_x_confirm">확인</string>
-  <string name="auto_x_descript_geom">리모트 데스크톱 크기 (가로x세로)</string>
+  <string name="auto_x_descript_geom">리모트 데스크톱 크기 (WxH)</string>
   <string name="auto_x_descript_session">리모트 세션 타입</string>
   <string name="auto_x_disabled">무효</string>
   <string name="auto_x_disabled_selection">AutoX 무효</string>
@@ -103,7 +103,7 @@
   <string name="connection_type_vnc_over_stunnel">SSL 터널을 경유한 안전한 VNC</string>
   <string name="connection_type_vnc_over_vencrypt">VeNCrypt를 경유한 안전한 VNC</string>
   <string name="control_check">Ctrl</string>
-  <string name="copy_list_button">Cipy List</string>
+  <string name="copy_list_button">복사 목록</string>
   <string name="ctrl_alt_del">Ctrl-Alt-Del</string>
   <string name="default_input_mode">기본 입력 모드</string>
   <string name="delete_connection">연결을 삭제</string>
@@ -130,7 +130,7 @@
   <string name="error_ssh_could_not_exec_command">리모트 명령을 실행할 수 없습니다.</string>
   <string name="error_ssh_could_not_send_sudo_pwd">sudo Password를 전송할 수 없습니다.</string>
   <string name="error_ssh_hostkey_changed">에러! 서버 호스트 키가 변경되었습니다.의도적으로 변경된 경우는 한번 연결을 제거하고 재시행하십시오.그렇지 않은 경우 중간자 공격의 가능성이 있습니다.</string>
-  <string name="error_ssh_kbd_auth_method_unavail">SSH 서버는 \"password\" 과 \"keyboard-interactive\" 양쪽의 인증 방식으로 대응하지 않습니다. 혹은 \"publickey \" 방식을 먼저 실행해야합니다. 적어도 어느 하나를 허용하도록 설정하십시오. 또는 bVNC측을 재 설정하십시오. 유효한 인증 방식:</string>
+  <string name="error_ssh_kbd_auth_method_unavail">SSH 서버는 \"password\" 과 \"keyboard-interactive\" 양쪽의 인증 방식으로 대응하지 않습니다. 혹은 \"publickey \" 방식을 먼저 실행해야합니다. 적어도 어느 하나를 허용하도록 설정하십시오. 또는 본  애플리케이션측을 재 설정하십시오. 유효한 인증 방식:</string>
   <string name="error_ssh_key_auth_fail">key-pair(공개 키와 비밀 키)에 의한 SSH서버에 인증에 실패했습니다.SSH 사용자 이름을 확인하십시오.또한 공개 키가 리모트의 "인증 된 키 파일"에 들어 있는지 확인하십시오.</string>
   <string name="error_ssh_keypair_decryption_failure">key-pair(공개 키와 비밀 키)의 해독에 실패했습니다.메인 화면의 \'SSH Passphrase\' 필드에 passphrase(암호 문구)를 올바르게 입력되어 있는지 확인하십시오.</string>
   <string name="error_ssh_keypair_missing">SSH key-pair(공개 키와 개인 키)가 생성되지 않습니다! 생성 후 SSH서버의 인증 키(공개 키)를 설치하십시오.</string>
@@ -147,8 +147,8 @@
   <string name="error_x509_could_not_generate_signature">SHA1/MDS 서명 인증서를 생성 할 수 없습니다.SHA1/MDS 알고리즘을 찾을 수 없습니다.</string>
   <string name="export_settings">Export</string>
   <string name="export_settings_path" />
-  <string name="extra_keys_disable">만능 키 비활성화</string>
-  <string name="extra_keys_enable">만능 키 활성화</string>
+  <string name="extra_keys_disable">특수 키를 비활성화</string>
+  <string name="extra_keys_enable">특수 키를 활성화</string>
   <string name="fit_to_screen">화면 크기에 맞추기</string>
   <string name="force">전체 화면 비트 맵</string>
   <string name="freeardp_app_name">aRDP Free</string>
@@ -161,13 +161,13 @@
   <string name="info">정보</string>
   <string name="info_cert_signatures">"인증서 정보:"</string>
   <string name="info_cert_signatures_identical">\n\n 중간자 공격 대책으로 서버 인증서와 정보가 일치하는지 확인 가능합니다.</string>
-  <string name="info_cert_tunnel">다음 인증서에 의해 특정 된 호스트에 연결 하시겠습니까?: %1$s\n\nIssued to:\n%2$s\n\nIssued by:\n%3$s\n\nValid from:\n%4$s\n\nValid until:\n%5$s\n\nNote: bVNC does not verify certificate authorities or check for certificate revocation.</string>
+  <string name="info_cert_tunnel">다음 인증서에 의해 특정 된 호스트에 연결 하시겠습니까?: %1$s\n\nIssued to:\n%2$s\n\nIssued by:\n%3$s\n\nValid from:\n%4$s\n\nValid until:\n%5$s\n\nNote: The application does not verify certificate authorities or check for certificate revocation.</string>
   <string name="info_continue_connecting">"연결을 계속하기："</string>
   <string name="info_encoding">"암호화"</string>
   <string name="info_progress_dialog_aborted">연결이 중단되었습니다!</string>
-  <string name="info_progress_dialog_connecting">연결 중 ...</string>
-  <string name="info_progress_dialog_downloading">초기 프레임을 다운로드 중. \n 잠시 기다려주십시오 ...</string>
-  <string name="info_progress_dialog_establishing">핸드 셰이크 구축 중입니다. \n 잠시 기다려주십시오 ...</string>
+  <string name="info_progress_dialog_connecting" tools:ignore="TypographyEllipsis">연결 중 ...</string>
+  <string name="info_progress_dialog_downloading" tools:ignore="TypographyEllipsis">초기 프레임을 다운로드 중. \n 잠시 기다려주십시오 ...</string>
+  <string name="info_progress_dialog_establishing" tools:ignore="TypographyEllipsis">핸드 셰이크 구축 중입니다. \n 잠시 기다려주십시오 ...</string>
   <string name="info_ssh_initializing_hostkey">SSH 호스트 키를 초기화하고 있습니다.</string>
   <string name="info_ssh_key_fingerprint">"호스트 키 지문:"</string>
   <string name="info_ssh_key_fingerprint_identical">\n\n 중간자 공격 방지용으로 알려진 된 서버 인증서 지문과 일치하는지 확인 가능합니다.</string>
@@ -291,29 +291,29 @@
   <string name="list_name_caption">리스트 이름</string>
   <string name="local_mouse_check">로컬 마우스 포인터(포인터가 가시가능한 경우는 선택)</string>
   <string name="main_screen_help">연결 도움</string>
-  <string name="main_screen_help_text">
-"bVNC 시작할 때 연결 설정 화면이 표시됩니다. 여기에서는 새 VNC 연결 설정하거나 기존 연결 선택이 가능합니다. 페이지는 두 섹션으로 나누어 져 있으며, 화면 상단에서는 과거의 연결 설정 풀다운 메뉴에서 표시됩니다. bVNC를 처음 실행하면 새 설정 화면 만 표시됩니다. 풀다운 메뉴 옆에있는 연결 스위치를 누르면, 선택한 설정으로 VNC 클라이언트가 시작됩니다. 연결 스위치 아래에서 연결 설정을합니다.
+  <string name="main_screen_help_text" tools:ignore="TypographyOther">
+"본  애플리케이션 시작할 때 연결 설정 화면이 표시됩니다. 여기에서는 새 VNC 연결 설정하거나 기존 연결 선택이 가능합니다. 페이지는 두 섹션으로 나누어 져 있으며, 화면 상단에서는 과거의 연결 설정 풀다운 메뉴에서 표시됩니다. 본  애플리케이션를 처음 실행하면 새 설정 화면 만 표시됩니다. 풀다운 메뉴 옆에있는 연결 스위치를 누르면, 선택한 설정으로 VNC 클라이언트가 시작됩니다. 연결 스위치 아래에서 연결 설정을합니다.
 
 간단한 성능 개선을 요구하는 경우 화면의 색상 설정을 낮은 것으로 변경하거나 또는 VNC 서버의 데스크탑 배경 이미지를 제거에도 효과적입니다. 사용중인 단말기의 네트워크 상태를 확인하고 안테나가 덮여 통신 강도가 떨어지는 일이 없도록하십시오.
 
 ･연결 타입 : 사용하는 VNC 연결 타입을 아래에서 선택하십시오.
- (a) Plain VNC : 전체 VNC 서버에 대응하고 있습니다. 단, 암호화 비대응. 또한 Password 8문자 제한을 위해 무차별 대입 공격을 받기 쉽다.
- (b) SSH를 통해 안전한 VNC : 암호화 된 SSH 터널을 통한 연결을 지원하고있다. VNC 서버와 SSHD 서비스가 필요합니다. VNC 서버가 인터넷에서 직접 연결을 지원하지 않으면 취약점의 두려움없이. 초기 연결시 서버 인증서 서명의 확인이 필요합니다.
- (c) UltraVNC : Windows 로그온 및 UltraVNC 리피터 옵션을 사용할 수 있습니다. Windows 로그온 Password 8 문자 제한은 없지만, 암호화는 지원을 위해 sniffing되는 경우가 있습니다.
- (d) AnonTLS 통해 안전한 VNC : Stunnnel 상당의 연결을 지원하는 일반적인 VNC. Stunnel을 가동 시키거나 AnonTLS에 대응하고있는, Vino 등의 VNC 서버의 사용이 필요합니다. 암호화에 대응하고 있지만, Password 8문자 제한을 위해 중앙 공격을받을 수 있습니다.
- (e) VeNCrypt 통해 안전한 VNC : x509 인증서 사용 암호화를 지원합니다. Password 설정은 서버 측에 의존하고 사용자 이름/Password 인증 정보가 사용 가능하다. Password 8문자 제한은 없다. 중간자 공격을 방지 할 수 있습니다. x11vnc과 TigerVNC 등의 서버가 본 연결 유형을 지원하고 있으며, 안전 수준은 SSH경유한 VNC와 동등
+   (a) Plain VNC : 전체 VNC 서버에 대응하고 있습니다. 단, 암호화 비대응. 또한 Password 8문자 제한을 위해 무차별 대입 공격을 받기 쉽다.
+   (b) SSH를 통해 안전한 VNC : 암호화 된 SSH 터널을 통한 연결을 지원하고있다. VNC 서버와 SSHD 서비스가 필요합니다. VNC 서버가 인터넷에서 직접 연결을 지원하지 않으면 취약점의 두려움없이. 초기 연결시 서버 인증서 서명의 확인이 필요합니다.
+   (c) UltraVNC : Windows 로그온 및 UltraVNC 리피터 옵션을 사용할 수 있습니다. Windows 로그온 Password 8 문자 제한은 없지만, 암호화는 지원을 위해 sniffing되는 경우가 있습니다.
+   (d) AnonTLS 통해 안전한 VNC : Stunnnel 상당의 연결을 지원하는 일반적인 VNC. Stunnel을 가동 시키거나 AnonTLS에 대응하고있는, Vino 등의 VNC 서버의 사용이 필요합니다. 암호화에 대응하고 있지만, Password 8문자 제한을 위해 중앙 공격을받을 수 있습니다.
+   (e) VeNCrypt 통해 안전한 VNC : x509 인증서 사용 암호화를 지원합니다. Password 설정은 서버 측에 의존하고 사용자 이름/Password 인증 정보가 사용 가능하다. Password 8문자 제한은 없다. 중간자 공격을 방지 할 수 있습니다. x11vnc과 TigerVNC 등의 서버가 본 연결 유형을 지원하고 있으며, 안전 수준은 SSH경유한 VNC와 동등
 
 ･제목 : 작성한 연결에 이름을 붙일 수 있습니다.
 
 ･SSH 터널 설정 : SSH를 통해 VNC를 모드 한정
-　(a) SSH 서버 / 포트 : SSH 서버 IP 주소와 포트 번호. 기본 포트 번호는 22.
-　(b) 사용자 이름 / Password : SSH 서버 Account 정보 (사용자 이름 / Password). bVNC을 중단하지 않으면 입력 한 Password 입력 된 상태로 됩니다.
-　(c) 키 관리 / 키의 사용 : 공개 키 / 비밀 키 관리 용 스위치. 인증 방법 Password 대신 키 사용 여부 체크 박스. key-pair (공개 키와 비밀 키) 생성 후 클립 포 드에 복사를 실행한 경우 VNC 서버에 연결 한 후 공개 키 붙여 넣기가 가능합니다. (클립 보드는 서버에 동기화되는)
+   (a) SSH 서버 / 포트 : SSH 서버 IP 주소와 포트 번호. 기본 포트 번호는 22.
+   (b) 사용자 이름 / Password : SSH 서버 Account 정보 (사용자 이름 / Password). 본  애플리케이션을 중단하지 않으면 입력 한 Password 입력 된 상태로 됩니다.
+   (c) 키 관리 / 키의 사용 : 공개 키 / 비밀 키 관리 용 스위치. 인증 방법 Password 대신 키 사용 여부 체크 박스. key-pair (공개 키와 비밀 키) 생성 후 클립 포 드에 복사를 실행한 경우 VNC 서버에 연결 한 후 공개 키 붙여 넣기가 가능합니다. (클립 보드는 서버에 동기화되는)
 
 · VNC 연결 설정 :
-　(a) VNC 서버/포트 : VNC 서버를 가동하는 컴퓨터의 호스트 이름 또는 IP 주소와 포트 번호를 입력합니다. SSH를 통해 VNC를 모드의 경우이 IP 주소는 SSH 서버에서도 볼 수있다. SSH 서버와 VNC 서버가 동일한 컴퓨터 인 경우 localhost를 사용할 수 있습니다. VNC 서버는 일반적으로 포트 5900에서 시작합니다. (첫 번째 VNC 화면, 스크린 : 0)
-　(b) VNC 사용자 : Windows 로그온 유의 UltraVNC 혹은 VeNCrypt 통해 안전한 VNC를 사용할 수 있습니다. Windows/UNIX Account의 사용자 이름을 입력합니다.
-　(c) VNC Password : VNC 서버 설정이 Password를 필요로하는 경우 여기에 입력한다. Windows 로그온 유의 UltraVNC/VeNCrypt 연결 타입의 경우 Windows/UNIX Account의 Password를 입력한다. Password용 secure storage는 사용되지 않습니다. "저장"에 체크 한 경우에만 Password 저장됩니다. bVNC을 중단하지 않으면 입력 한 Password 입력 된 상태로됩니다.
+   (a) VNC 서버/포트 : VNC 서버를 가동하는 컴퓨터의 호스트 이름 또는 IP 주소와 포트 번호를 입력합니다. SSH를 통해 VNC를 모드의 경우이 IP 주소는 SSH 서버에서도 볼 수있다. SSH 서버와 VNC 서버가 동일한 컴퓨터 인 경우 localhost를 사용할 수 있습니다. VNC 서버는 일반적으로 포트 5900에서 시작합니다. (첫 번째 VNC 화면, 스크린 : 0)
+   (b) VNC 사용자 : Windows 로그온 유의 UltraVNC 혹은 VeNCrypt 통해 안전한 VNC를 사용할 수 있습니다. Windows/UNIX Account의 사용자 이름을 입력합니다.
+   (c) VNC Password : VNC 서버 설정이 Password를 필요로하는 경우 여기에 입력한다. Windows 로그온 유의 UltraVNC/VeNCrypt 연결 타입의 경우 Windows/UNIX Account의 Password를 입력한다. Password용 secure storage는 사용되지 않습니다. "저장"에 체크 한 경우에만 Password 저장됩니다. 본  애플리케이션을 중단하지 않으면 입력 한 Password 입력 된 상태로됩니다.
 
 ･컬러 모드 : 복수의 선택 사항이 있습니다. 색상 수가 많은 모드를 선택하면 단말기의 처리 능력과 CPU 연산 능력에 따라 더 아름다운 표시가 실현 가능합니다.
 
@@ -324,7 +324,7 @@
 
 ･로컬 마우스 포인터 : VNC 서버따라서는 마우스 포인터가 클라이언트에 표시되지 않습니다. (예 : OS/X 리모트 데스크탑)이 기능을 사용하여 마우스 위치에 작은 사각형이 표시됩니다.
 
-· 자동/전체 화면 비트 맵 : 리모트 디스플레이에 VNC 클라이언트는 비트 맵을 사용합니다. 면적이 큰 리모트 디스플레이, 특히 Fit-to-screen 모드에서는 반드시 프로세스 별 메모리 제한의 영향으로 부 자연스러운 표시 될 수있습니다. 이 경우, 이 기능의 사용을 권장합니다. 주의점으로 이 기능을 사용하면 bVNC의 연결이 끊킬수도 있습니다.
+· 자동/전체 화면 비트 맵 : 리모트 디스플레이에 VNC 클라이언트는 비트 맵을 사용합니다. 면적이 큰 리모트 디스플레이, 특히 Fit-to-screen 모드에서는 반드시 프로세스 별 메모리 제한의 영향으로 부 자연스러운 표시 될 수있습니다. 이 경우, 이 기능의 사용을 권장합니다. 주의점으로 이 기능을 사용하면 본  애플리케이션의 연결이 끊킬수도 있습니다.
 
 ･리피터 : 연결 타입 UltraVNC 선택시에만 가능합니다. 중요 : UltraVNC 리피터를 가지고 계신 경우 IP주소 및 포트 번호는 \'UltraVNC Repeater\' 다이얼로그 밖에 입력하고 실제 VNC 서버의 IP주소 및 포트 번호는 \'UltraVNC Repeater\' 다이얼로그의 안에 입력한다. VNC 서버의 IP주소와 포트 번호는 콜론으로 구분합니다. (예 : 192.168.0.100 : 5900)"
   </string>
@@ -377,7 +377,7 @@
     <item>@string/connection_type_rdp</item>
     <item>@string/connection_type_rdp_over_ssh</item>
   </string-array>
-  <string name="rdp_descript_geom">리모트 데스크탑 크기(가로x세로)</string>
+  <string name="rdp_descript_geom">리모트 데스크탑 크기(WxH)</string>
   <string name="rdp_domain_hint">RDP도메인</string>
   <string name="rdp_geom_automatic">자동</string>
   <string name="rdp_geom_checkbox_enable">사용자 지정 해상도를 활성화</string>
@@ -434,7 +434,7 @@ aRDP의 대응 기능는 이하와 같다:
 &lt;br&gt;
 ･마우스 대신 트랙 패드에서 화살표 조작,트랙 패드 클릭에서 Ctrl, D-pad/트랙 패드 회전에서 Bluetooth 키보드 조작
 &lt;br&gt;
-･다국어 (필요한 언어 레이아웃 VNC 서버 측에서 활성화되어있는 경우)
+･다국어 (필요한 언어 레이아웃 RDP 서버 측에서 활성화되어있는 경우)
 &lt;br&gt;
 ･Seamless 리모트 머신의 해상도 변경
 &lt;br&gt;
@@ -455,33 +455,33 @@ aRDP지원 예정 기능:
 문제:"
   </string>
   <string name="rdp_intro_title">aRDP: 직관적이고 안전한 RDP 클라이언트</string>
-  <string name="rdp_main_screen_help_text">
+  <string name="rdp_main_screen_help_text" tools:ignore="TypographyOther">
 "aRDP 시작할 때 연결 설정 화면이 표시됩니다. 여기에서는 새 RDP 연결 설정하거나 기존 연결 선택이 가능합니다. 페이지는 2개의 섹션으로 나누어 져 있으며,화면 상단에서는 과거의 연결 설정이 풀다운 메뉴에서 표시됩니다.aRDP를 처음 실행할 때 새 설정 화면 만 표시됩니다.풀다운 메뉴 옆에있는 연결 스위치를 누르면,선택한 설정에 RDP 클라이언트가 시작됩니다.연결 스위치 아래에서 연결 설정을합니다.
 
 ・연결 타입: 사용 RDP 연결 타입을 이하에서 선택하십시오.
- (a) RDP：RDP프로토콜로 컴퓨터에 직접 연결한다.
- (b) SSH를 통해 RDP: SSH 서버를 실행하는 컴퓨터를 통해 터널 연결한다.
+   (a) RDP：RDP프로토콜로 컴퓨터에 직접 연결한다.
+   (b) SSH를 통해 RDP: SSH 서버를 실행하는 컴퓨터를 통해 터널 연결한다.
 
 
 ･제목: 작성한 연결에 이름을 붙일 수 있습니다.
 
 ･SSH 터널 설정: SSH를 통한 RDP 모드 한정
-  (a) SSH 서버/포트 : SSH서버 IP주소와 포트 번호. 기본 포트 번호는 22.
-  (b) 사용자 이름 / Password : SSH 서버 계정 정보 (사용자 이름 / Password). aRDP을 중단하지 않으면 입력 한 Password 입력 된 상태로됩니다.
-  (c) 키 관리 / 키의 사용 : 공개 키 / 비밀 키 관리 용 스위치. 인증 방법 Password 대신 키 사용 여부 체크 박스. key-pair (공개 키와 비밀 키) 생성 후 클립포드에 복사를 실행하면 RDP 서버에 연결 한 후 공개 키 붙여 넣기가 가능합니다. (클립 보드는 서버에 동기화되는)
+    (a) SSH 서버/포트 : SSH서버 IP주소와 포트 번호. 기본 포트 번호는 22.
+    (b) 사용자 이름 / Password : SSH 서버 계정 정보 (사용자 이름 / Password). aRDP을 중단하지 않으면 입력 한 Password 입력 된 상태로됩니다.
+    (c) 키 관리 / 키의 사용 : 공개 키 / 비밀 키 관리 용 스위치. 인증 방법 Password 대신 키 사용 여부 체크 박스. key-pair (공개 키와 비밀 키) 생성 후 클립포드에 복사를 실행하면 RDP 서버에 연결 한 후 공개 키 붙여 넣기가 가능합니다. (클립 보드는 서버에 동기화되는)
 
 ・RDP연결 설정:
-  (a) RDP 서버 / 포트 : VNC 서버를 가동하는 컴퓨터의 호스트 이름 혹은 IP 주소와 포트 번호를 입력합니다. SSH를 통한 RDP 모드의 경우이 IP 주소는 SSH 서버에서도 볼 수있습니다. SSH 서버와 RDP 서버가 동일한 컴퓨터 인 경우 localhost를 사용할 수 있습니다. RDP 서버는 일반적으로 포트 3389에서 시작합니다.
-  (b) RDP 사용자: Windows/UNIX 계정의 사용자 이름을 입력합니다.
-  (c) RDP도메인: 계정의 도메인 이름을 입력합니다.
-  (d) RDPPassword : Windows / UNIX 계정의 Password를 입력합니다. Password 용 시큐어 스토리지는 사용되지 않는 (데이터베이스에 저장된다). "저장"에 체크 한 경우에만 Password 저장된다. aRDP을 중단하지 않으면 입력 한 Password 입력 된 상태로 됩니다.
+    (a) RDP 서버 / 포트 : RDP 서버를 가동하는 컴퓨터의 호스트 이름 혹은 IP 주소와 포트 번호를 입력합니다. SSH를 통한 RDP 모드의 경우이 IP 주소는 SSH 서버에서도 볼 수있습니다. SSH 서버와 RDP 서버가 동일한 컴퓨터 인 경우 localhost를 사용할 수 있습니다. RDP 서버는 일반적으로 포트 3389에서 시작합니다.
+    (b) RDP 사용자: Windows/UNIX 계정의 사용자 이름을 입력합니다.
+    (c) RDP도메인: 계정의 도메인 이름을 입력합니다.
+    (d) RDPPassword : Windows / UNIX 계정의 Password를 입력합니다. Password 용 시큐어 스토리지는 사용되지 않는 (데이터베이스에 저장된다). "저장"에 체크 한 경우에만 Password 저장된다. aRDP을 중단하지 않으면 입력 한 Password 입력 된 상태로 됩니다.
 
 ・상세 설정 : 여기에서는 데스크탑 해상도의 사용자 설정 또는 RDP 성능의 미세 조정을 실시합니다.
 
 ･로컬 기기 조정: 사용 단말기에서 aRDP 동작 조정한다.
-  (a) 화살표 D-Pad를 사용: VNC서버에 화살표를 전송하는 경우,Bluetooth 키보드의 D-Pad 혹은 온 스크린 키보드의 화살표가 사용 가능.
-  (b) D-Pad의 회전 : Bluetooth 키보드와 페어링 된 스마트 폰의 경우,올바른 방향을 서버로 전송하기 위해 키보드의 D-Pad를 반 시계 방향으로 회전시킬 필요가 있습니다.
-  (c)　로컬 마우스 포인터: 마우스 포인터가 표시되지 않는 경우이 기능을 사용하여 aRDP 따라 마우스 위치 표시가 가능."
+    (a) 화살표 D-Pad를 사용: RDP서버에 화살표를 전송하는 경우,Bluetooth 키보드의 D-Pad 혹은 온 스크린 키보드의 화살표가 사용 가능.
+    (b) D-Pad의 회전 : Bluetooth 키보드와 페어링 된 스마트 폰의 경우,올바른 방향을 서버로 전송하기 위해 키보드의 D-Pad를 반 시계 방향으로 회전시킬 필요가 있습니다.
+    (c)　로컬 마우스 포인터: 마우스 포인터가 표시되지 않는 경우이 기능을 사용하여 aRDP 따라 마우스 위치 표시가 가능."
   </string>
   <string name="rdp_password_hint">RDP Password</string>
   <string name="rdp_server_empty">RDP서버 혹은 포트가 비어 있습니다. 연결할 수 없습니다!</string>
@@ -504,7 +504,7 @@ aRDP지원 예정 기능:
   <!-- Send selected metakey -->
   <string name="send_button">전송</string>
   <string name="send_key_again">키를 다시 전송</string>
-  <string name="shift_check">소프트</string>
+  <string name="shift_check">Shift</string>
   <string name="shortcut_label_vnc">VNC 연결</string>
   <string name="shortcut_label_rdp">RDP 연결</string>
   <string name="shortcut_label_spice">SPICE 연결</string>
@@ -563,7 +563,7 @@ aSPICEで의 대응 기능는 이하와 같다 :
 &lt;br&gt;
 ・마우스 대신 트랙 패드에서 화살표 조작, 트랙 패드 클릭에서 Ctrl, D-pad/트랙 패드 회전에서 Bluetooth 키보드 조작
 &lt;br&gt;
-・다국어 (필요한 언어 레이아웃 VNC 서버 측에서 활성화되어있는 경우)
+・다국어 (필요한 언어 레이아웃 SPICE 서버 측에서 활성화되어있는 경우)
 &lt;br&gt;
 ・Seamless 리모트 머신의 해상도 변경
 &lt;br&gt;
@@ -584,7 +584,7 @@ aSPICEで의 대응 기능는 이하와 같다 :
 &lt;br&gt;"
   </string>
   <string name="spice_intro_title">aSPICE: 직관적이고 안전한 SPICE 클라이언트</string>
-  <string name="spice_main_screen_help_text">
+  <string name="spice_main_screen_help_text" tools:ignore="TypographyOther">
 "aSPICE 시작할 때 연결 설정 화면이 표시됩니다.여기에서는 새 SPICE 연결 설정하거나 기존 연결 선택이 가능합니다.페이지는 2개의 섹션으로 나누어 져 있으며,화면 상단에서는 과거의 연결 설정이 풀다운 메뉴에서 표시됩니다.aSPICE를 처음 실행할 때 새 설정 화면 만 표시됩니다.풀다운 메뉴 옆에있는 연결 스위치를 누르면,선택한 설정에 SPICE클라이언트가 시작됩니다.연결 스위치 아래에서 연결 설정을합니다.
 
 ・연결 타입: 사용 SPICE 연결 타입을 이하에서 선택하십시오.
@@ -599,7 +599,7 @@ aSPICEで의 대응 기능는 이하와 같다 :
 　　(c) 키 관리/키의 사용 : 공개 키/비밀 키 관리 용 스위치. 인증 방법 Password 대신 키 사용 여부 체크 박스. key-pair(공개 키와 비밀 키) 생성 후 클립포드에 복사를 실행하면 SPICE 서버에 연결 한 후 공개 키 붙여 넣기가 가능합니다.(클립 보드는 서버에 동기화되는)
  
 ・SPICE연결 설정:
-　　(a)SPICE 서버 / 포트 : VNC 서버를 가동하는 컴퓨터의 호스트 이름 혹은 IP 주소와 포트 번호를 입력합니다. SSH를 통한 SPICE 모드의 경우이 IP 주소는 SSH 서버에서도 볼 수 있습니다. SSH 서버와 SPICE 서버가 동일한 컴퓨터 인 경우 localhost를 사용할 수 있습니다. SPICE 서버는 일반적으로 포트 5900에서 시작합니다.
+　　(a)SPICE 서버 / 포트 : SPICE 서버를 가동하는 컴퓨터의 호스트 이름 혹은 IP 주소와 포트 번호를 입력합니다. SSH를 통한 SPICE 모드의 경우이 IP 주소는 SSH 서버에서도 볼 수 있습니다. SSH 서버와 SPICE 서버가 동일한 컴퓨터 인 경우 localhost를 사용할 수 있습니다. SPICE 서버는 일반적으로 포트 5900에서 시작합니다.
 　　(d) SPICE Password : SPICE 세션의 보호를 위해 Password를 입력합니다. Password 용 시큐어 스토리지는 사용되지 않는 (데이터베이스에 저장된다.) "저장"에 체크 한 경우에만 Password 저장됩니다. aSPICE을 중단하지 않으면 입력 한 Password 입력 된 상태로됩니다.
  
 ・상세 설정: 여기에서는 데스크탑 해상도의 사용자 설정 또는 SPICE 성능의 미세 조정을 실시한다.
@@ -618,7 +618,7 @@ aSPICEで의 대응 기능는 이하와 같다 :
   <string name="ssh_use_pubkey">키를 사용</string>
   <string name="ssh_use_x11vnc">자동　데스크탑</string>
   <string name="ssh_x11vnc_customize">AutoX을 설정</string>
-  <string name="super_check">수퍼</string>
+  <string name="super_check">Super</string>
   <string name="tap_disable">무효</string>
   <string name="tap_enable">유효</string>
   <string name="username_caption">VNC 사용자</string>
@@ -654,4 +654,12 @@ aSPICEで의 대응 기능는 이하와 같다 :
   <string name="cursor_force_disable">"무효"</string>
   <string name="cursor_mode">"커서 모드 :"</string>
   <string name="rendering_mode">"렌더링 모드 :"</string>
+  <string name="color_24_bit">"24비트 컬러(24 bpp)"</string>
+  <string name="color_256">"256컬러(8 bpp)"</string>
+  <string name="color_64">"64컬러(4 bpp)"</string>
+  <string name="color_8">"8컬러(2 bpp)"</string>
+  <string name="color_greyscale">"그레이 스케일(1 bpp)"</string>
+  <string name="color_black_and_white">"흑백(1 bpp)"</string>
+  <string name="show">"표시"</string>
+  <string name="hide">"비표시"</string>
 </resources>
