@@ -232,7 +232,11 @@ public class Utils {
     public static boolean isSpice(String packageName) {
         return packageName.toLowerCase().contains("spice");
     }
-    
+
+    public static boolean isOpaque(String packageName) {
+        return packageName.toLowerCase().contains("opaque");
+    }
+
     public static String getConnectionScheme(Context ctx) {
         String packageName = ctx.getPackageName();
         String scheme = "unsupported";

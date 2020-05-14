@@ -97,3 +97,15 @@ without altering any of the source code of the project.
 
 - Follow the build procedure in I-a or I-b above, but with PROJECT set to anything that starts with `Custom` and has `Vnc` in its name.
   For instance, `CustomYourVncClient`. Your package name once the project is built will be com.iiordanov.YourVncClient.
+
+## Bugs
+
+Please post any bugs you find at the github issue tracker:
+
+https://github.com/iiordanov/remote-desktop-clients/issues
+
+## Support Forum
+
+Questions and general discussion should be posted at the following forum:
+
+https://groups.google.com/forum/#!forum/bvnc-ardp-aspice-opaque-remote-desktop-clients
