@@ -40,7 +40,10 @@ import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.GridView;
 import android.widget.Toast;
 
+import com.iiordanov.bVNC.Utils;
+import com.iiordanov.bVNC.bVNC;
 import com.undatech.opaque.dialogs.MessageFragment;
+import com.undatech.opaque.util.ConnectionLoader;
 import com.undatech.opaque.util.FileUtils;
 import com.undatech.opaque.util.GeneralUtils;
 import com.undatech.opaque.util.LogcatReader;
@@ -54,9 +57,8 @@ public class ConnectionGridActivity extends FragmentActivity {
     private Context appContext;
     private GridView gridView;
     private String[] connectionPreferenceFiles;
-    private String[] screenshotFiles;
-    private String[] connectionLabels;
     protected PermissionsManager permissionsManager;
+    private ConnectionLoader connectionLoader;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -68,42 +70,51 @@ public class ConnectionGridActivity extends FragmentActivity {
         gridView.setOnItemClickListener(new OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
-                SharedPreferences sp = getSharedPreferences("generalSettings", Context.MODE_PRIVATE);
-                String connections = sp.getString("connections", null);
-                if (connections != null) {
-                    connectionPreferenceFiles = connections.split(" ");
-                }
-                
-                Intent intent = new Intent(ConnectionGridActivity.this, GeneralUtils.getClassByName("com.iiordanov.bVNC.RemoteCanvasActivity"));
-                if (connectionPreferenceFiles != null && position < connectionPreferenceFiles.length) {
-                    ConnectionSettings cs = new ConnectionSettings(connectionPreferenceFiles[position]);
-                    cs.loadFromSharedPreferences(appContext);
-                    intent.putExtra("com.undatech.opaque.ConnectionSettings", cs);
-                }
-                startActivity(intent);
+                launchConnection(position);
             }
         });
         
         gridView.setOnItemLongClickListener(new OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View v, int position, long id) {
-                SharedPreferences sp = getSharedPreferences("generalSettings", Context.MODE_PRIVATE);
-                String connections = sp.getString("connections", null);
-                if (connections != null) {
-                    connectionPreferenceFiles = connections.split(" ");
-                }
-                Intent intent = new Intent(ConnectionGridActivity.this, GeneralUtils.getClassByName("com.undatech.opaque.ConnectionSetupActivity"));
-                if (connectionPreferenceFiles != null && position < connectionPreferenceFiles.length) {
-                    intent.putExtra("com.undatech.opaque.connectionToEdit", connectionPreferenceFiles[position]);
-                }
-                startActivity(intent);
+                editConnection(position);
                 return true;
             }
         });
         permissionsManager = new PermissionsManager();
         permissionsManager.requestPermissions(ConnectionGridActivity.this);
     }
-    
+
+    private void launchConnection(int position) {
+        SharedPreferences sp = getSharedPreferences("generalSettings", Context.MODE_PRIVATE);
+        String connections = sp.getString("connections", null);
+        if (connections != null) {
+            connectionPreferenceFiles = connections.split(" ");
+        }
+
+        Intent intent = new Intent(ConnectionGridActivity.this, GeneralUtils.getClassByName("com.iiordanov.bVNC.RemoteCanvasActivity"));
+        if (connectionPreferenceFiles != null && position < connectionPreferenceFiles.length) {
+            ConnectionSettings cs = new ConnectionSettings(connectionPreferenceFiles[position]);
+            cs.loadFromSharedPreferences(appContext);
+            intent.putExtra("com.undatech.opaque.ConnectionSettings", cs);
+        }
+        startActivity(intent);
+
+    }
+
+    private void editConnection(int position) {
+        SharedPreferences sp = getSharedPreferences("generalSettings", Context.MODE_PRIVATE);
+        String connections = sp.getString("connections", null);
+        if (connections != null) {
+            connectionPreferenceFiles = connections.split(" ");
+        }
+        Intent intent = new Intent(ConnectionGridActivity.this, GeneralUtils.getClassByName("com.undatech.opaque.ConnectionSetupActivity"));
+        if (connectionPreferenceFiles != null && position < connectionPreferenceFiles.length) {
+            intent.putExtra("com.undatech.opaque.connectionToEdit", connectionPreferenceFiles[position]);
+        }
+        startActivity(intent);
+    }
+
     @Override
     public void onResume() {
         super.onResume();
@@ -112,29 +123,14 @@ public class ConnectionGridActivity extends FragmentActivity {
     }
     
     private void loadSavedConnections() {
-        SharedPreferences sp = getSharedPreferences("generalSettings", Context.MODE_PRIVATE);
-        String connections = sp.getString("connections", null);
-        android.util.Log.d(TAG, "Loading connections from this list: " + connections);
-        if (connections != null && !connections.equals("")) {
-            connectionPreferenceFiles = connections.split(" ");
-            int numConnections = connectionPreferenceFiles.length;
-            screenshotFiles = new String[numConnections];
-            connectionLabels = new String[numConnections];
-            for (int i = 0; i < numConnections; i++) {
-                ConnectionSettings cs = new ConnectionSettings(connectionPreferenceFiles[i]);
-                cs.loadFromSharedPreferences(appContext);
-                connectionLabels[i] = cs.getVmname();
-                android.util.Log.d(TAG, "Adding label: " + connectionLabels[i]);
-                String location = cs.getFilename();
-                screenshotFiles[i] = getFilesDir() + "/" + location + ".png";
-            }
-            
+        connectionLoader = new ConnectionLoader(appContext, this, getSupportFragmentManager(), Utils.isOpaque(getPackageName()));
+        if (connectionLoader.getNumConnections() > 0) {
             int numCols = 1;
-            if (numConnections > 2) {
+            if (connectionLoader.getNumConnections() > 2) {
                 numCols = 2;
             }
             gridView.setNumColumns(numCols);
-            gridView.setAdapter(new LabeledImageApapter(this, screenshotFiles, connectionLabels, numCols));
+            gridView.setAdapter(new LabeledImageApapter(this, connectionLoader.getScreenshotFiles(), connectionLoader.getConnectionLabels(), numCols));
         } else {
             gridView.setAdapter(new LabeledImageApapter(this, null, null, 1));
         }
@@ -145,7 +141,8 @@ public class ConnectionGridActivity extends FragmentActivity {
      * @param menuItem
      */
     public void addNewConnection (MenuItem menuItem) {
-        Intent intent = new Intent(ConnectionGridActivity.this, GeneralUtils.getClassByName("com.undatech.opaque.ConnectionSetupActivity"));
+        Intent intent = new Intent(ConnectionGridActivity.this,
+                Utils.getConnectionSetupClass(getPackageName()));
         startActivity(intent);
     }
 
@@ -178,29 +175,7 @@ public class ConnectionGridActivity extends FragmentActivity {
      * @param menuItem
      */
     public void exportSettings (MenuItem menuItem) {
-        permissionsManager.requestPermissions(ConnectionGridActivity.this);
-
-        String pathToFile = FileUtils.join(Environment.getExternalStorageDirectory().toString(),
-                                           RemoteClientLibConstants.EXPORT_SETTINGS_FILE);
-        SharedPreferences sp = getSharedPreferences("generalSettings", Context.MODE_PRIVATE);
-        String connections = sp.getString("connections", null);
-        FragmentManager fm = getSupportFragmentManager();
-        try {
-            ConnectionSettings.exportPrefsToFile(this, connections, pathToFile);
-            MessageFragment message = MessageFragment.newInstance(getString(R.string.info_dialog_title),
-                    "Exported settings to " + pathToFile, "OK", null);
-            message.show(fm, "successExportingSettings");
-        } catch (JSONException e) {
-            MessageFragment message = MessageFragment.newInstance(getString(R.string.error_dialog_title),
-                    "Could not convert settings to JSON", "OK", null);
-            message.show(fm, "errorExportingSettings");
-            e.printStackTrace();
-        } catch (IOException e) {
-            MessageFragment message = MessageFragment.newInstance(getString(R.string.error_dialog_title),
-                    "Could write to settings file " + pathToFile, "OK", null);
-            message.show(fm, "errorExportingSettings");
-            e.printStackTrace();
-        }
+        connectionLoader.exportSettings();
     }
 
     /**
@@ -208,58 +183,15 @@ public class ConnectionGridActivity extends FragmentActivity {
      * @param menuItem
      */
     public void importSettings (MenuItem menuItem) {
-        permissionsManager.requestPermissions(ConnectionGridActivity.this);
-
-        String pathToFile = FileUtils.join(Environment.getExternalStorageDirectory().toString(),
-                                           RemoteClientLibConstants.EXPORT_SETTINGS_FILE);
-        FragmentManager fm = getSupportFragmentManager();
-
-        try {
-            String connections = ConnectionSettings.importPrefsFromFile(this, pathToFile);
-            SharedPreferences sp = getSharedPreferences("generalSettings", Context.MODE_PRIVATE);
-            Editor editor = sp.edit();
-            editor.putString("connections", connections);
-            editor.apply();
-            loadSavedConnections();
-            MessageFragment message = MessageFragment.newInstance(getString(R.string.info_dialog_title),
-                    "Imported settings from " + pathToFile, "OK", null);
-            message.show(fm, "successImportingSettings");
-        } catch (IOException e) {
-            MessageFragment message = MessageFragment.newInstance(getString(R.string.info_dialog_title),
-                    "Could not read settings settings file " + pathToFile, "OK", null);
-            message.show(fm, "errorImportingSettings");
-            e.printStackTrace();
-        } catch (JSONException e) {
-            MessageFragment message = MessageFragment.newInstance(getString(R.string.info_dialog_title),
-                    "Could not parse JSON from settings file " + pathToFile, "OK", null);
-            message.show(fm, "errorImportingSettings");
-            e.printStackTrace();
-        }
-
+        connectionLoader.importSettings();
+        loadSavedConnections();
     }
 
-    
-    
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.grid_view_activity_actions, menu);
         return super.onCreateOptionsMenu(menu);
-    }
-    
-    @Override
-    public boolean onOptionsItemSelected(MenuItem menuItem) {
-        int itemID = menuItem.getItemId();
-        if (itemID == R.id.actionNewConnection) {
-            addNewConnection(menuItem);
-        } else if (itemID == R.id.actionEditDefaultSettings) {
-            editDefaultSettings(menuItem);
-        } else if (itemID == R.id.actionExportSettings) {
-            exportSettings(menuItem);
-        } else if (itemID == R.id.actionImportSettings) {
-            importSettings(menuItem);
-        }
-        return true;
     }
     
     /**

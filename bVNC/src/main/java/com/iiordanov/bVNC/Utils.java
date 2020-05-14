@@ -65,6 +65,7 @@ import com.iiordanov.freeaRDP.*;
 import com.iiordanov.aSPICE.*;
 import com.iiordanov.freeaSPICE.*;
 import com.iiordanov.CustomClientPackage.*;
+import com.undatech.opaque.ConnectionSetupActivity;
 import com.undatech.remoteClientUi.*;
 
 public class Utils {
@@ -235,6 +236,20 @@ public class Utils {
 
     public static boolean isOpaque(String packageName) {
         return packageName.toLowerCase().contains("opaque");
+    }
+
+    public static Class getConnectionSetupClass(String packageName) {
+        if (isOpaque(packageName)) {
+            return ConnectionSetupActivity.class;
+        } else if (isVnc(packageName)) {
+            return bVNC.class;
+        } else if (isRdp(packageName)) {
+            return aRDP.class;
+        } else if (isSpice(packageName)) {
+            return aSPICE.class;
+        } else {
+            throw new IllegalArgumentException("Could not find appropriate connection setup activity class for package " + packageName);
+        }
     }
 
     public static String getConnectionScheme(Context ctx) {
