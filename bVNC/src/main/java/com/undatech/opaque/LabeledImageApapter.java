@@ -59,7 +59,7 @@ public class LabeledImageApapter implements ListAdapter {
  
     public View getView(int position, View convertView, ViewGroup parent) {
         LayoutInflater inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        android.util.Log.e(TAG, "Now setting label at position: " + position + " to: " + imageLabels[position]);
+        android.util.Log.d(TAG, "Now setting label at position: " + position + " to: " + imageLabels[position]);
 
         GridView gView = (GridView) ((Activity)context).findViewById(R.id.gridView);
         int height = gView.getWidth()/numCols;
