@@ -18,14 +18,10 @@ Pick one of I-a or I-b below, then move onto II.
 
 ## I-a With Prebuilt Libraries
 
-Building bVNC with pre-built dependencies.
+Building the projects with pre-built dependencies.
 
-  - Set the environment variable PROJECT to one of bVNC, aSPICE, or aRDP.
-
-        export PROJECT=bVNC
         ./download-prebuilt-dependencies.sh
-        ./copy_prebuilt_files.sh $PROJECT
-        ./bVNC/prepare_project.sh --skip-build $PROJECT nopath
+        ./bVNC/prepare_project.sh --skip-build libs nopath
 
 ## I-b From Scratch
 
@@ -33,17 +29,16 @@ Building from scratch and working in Android Studio.
 
   - On Linux, install Android Studio and Android SDK
 
-  - To build bVNC, aSPICE, or aRDP
+  - To build the projects
 
-    - Set the environment variable PROJECT to one of `bVNC`, `aSPICE`, or `aRDP`. For a "custom" VNC
-      client, set PROJECT to a string that stars with Custom and contains Vnc, i.e. `CustomYourVncClient`
-      (see III below for details).
+    - If building a non-custom client, set PROJECT to libs. For a custom VNC client, set PROJECT to a string
+      that stars with Custom and contains Vnc, i.e. `CustomYourVncClient` (see III below for details).
       
     - Set the environment variables ANDROID_SDK to your SDK installation. The scripts will install the NDK automatically.
 
     - Example:
 
-              export PROJECT=bVNC
+              export PROJECT=libs # or CustomSomethingOrOther
               export ANDROID_SDK=/path/to/your/android/SDK/
               export PATH=$PATH:${ANDROID_SDK}/platform-tools/
               export PATH=$PATH:${ANDROID_SDK}/tools
@@ -56,7 +51,9 @@ Building from scratch and working in Android Studio.
 
               ./bVNC/prepare_project.sh $PROJECT $ANDROID_SDK
 
-    - Follow the instructions that the script outputs.
+    - Switch to Android Studio, select the launch configuration you want to run, and run it on an emulator or device.
+
+    - If using an emulator, choose x86_64 as the architecture to avoid "has text relocations" errors loading gstreamer on Android.
 
 ## II Importing projects into Android Studio
 
@@ -74,7 +71,7 @@ Welcome screen, browsing to the remote-desktop-clients directory and selecting i
 You can add custom CAs for aSPICE and Opaque in remoteClientLib/certificate_authorities/. They will be merged with the
 ca-bundle.crt provided to the app to validate your self-signed server certs if you have any.
 
-## Generating new layouts for aSPICE and Opaque
+## Generating Keyboard Layouts for aSPICE and Opaque
 
 The directory `bVNC/layouts` contains a utiliy `convert.py` that can be used to generate new layouts for the desktop clients.
 
