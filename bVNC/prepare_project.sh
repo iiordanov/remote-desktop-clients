@@ -125,7 +125,7 @@ then
   clean_libs "sqlcipher" ../remoteClientLib/libs/
   [ -d ${freerdp_libs_dir} ] && rm -rf ${freerdp_libs_dir}.DISABLED && mv ${freerdp_libs_dir} ${freerdp_libs_dir}.DISABLED
   rm -rf ${freerdp_libs_link}
-elif echo $PRJ | grep -iq "RDP\|libs"
+elif echo $PRJ | grep -iq "RDP"
 then
   clean_libs "sqlcipher" libs/
   clean_libs "sqlcipher" ../remoteClientLib/libs/
