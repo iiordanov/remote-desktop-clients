@@ -62,6 +62,7 @@ public class aRDP extends MainConfiguration {
     private LinearLayout layoutUseSshPubkey;
     private LinearLayout sshServerEntry;
     private LinearLayout layoutAdvancedSettings;
+
     private EditText sshServer;
     private EditText sshPort;
     private EditText sshUser;
@@ -105,6 +106,7 @@ public class aRDP extends MainConfiguration {
         
         ipText = (EditText) findViewById(R.id.textIP);
         sshServer = (EditText) findViewById(R.id.sshServer);
+
         sshPort = (EditText) findViewById(R.id.sshPort);
         sshUser = (EditText) findViewById(R.id.sshUser);
         sshPassword = (EditText) findViewById(R.id.sshPassword);
@@ -281,7 +283,10 @@ public class aRDP extends MainConfiguration {
         sshServer.setText(selected.getSshServer());
         sshPort.setText(Integer.toString(selected.getSshPort()));
         sshUser.setText(selected.getSshUser());
-        
+
+        sshPassword.setText(selected.getSshPassword());
+        sshPassphrase.setText(selected.getSshPassPhrase());
+
         checkboxUseSshPubkey.setChecked(selected.getUseSshPubKey());
 
         if (selectedConnType == Constants.CONN_TYPE_SSH && selected.getAddress().equals(""))
@@ -374,13 +379,19 @@ public class aRDP extends MainConfiguration {
         selected.setSshServer(sshServer.getText().toString());
         selected.setSshUser(sshUser.getText().toString());
 
-        selected.setKeepSshPassword(false);
-        
+        if(checkboxKeepPassword.isChecked()) {
+            selected.setKeepSshPassword(true);
+            selected.setSshPassPhrase(sshPassphrase.getText().toString());
+            selected.setSshPassword(sshPassword.getText().toString());
+        }
+        else {
+            selected.setKeepSshPassword(false);
+        }
+
         // If we are using an SSH key, then the ssh password box is used
         // for the key pass-phrase instead.
         selected.setUseSshPubKey(checkboxUseSshPubkey.isChecked());
-        selected.setSshPassPhrase(sshPassphrase.getText().toString());
-        selected.setSshPassword(sshPassword.getText().toString());
+
         selected.setUserName(textUsername.getText().toString());
         selected.setRdpDomain(rdpDomain.getText().toString());
         selected.setRdpResType(spinnerRdpGeometry.getSelectedItemPosition());

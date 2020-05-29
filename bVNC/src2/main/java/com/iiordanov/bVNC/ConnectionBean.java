@@ -181,8 +181,9 @@ public class ConnectionBean extends AbstractConnectionBean implements Comparable
         ContentValues values = Gen_getValues();
         values.remove(GEN_FIELD__ID);
         // Never save the SSH password and passphrase.
-        values.put(GEN_FIELD_SSHPASSWORD, "");
-        values.put(GEN_FIELD_SSHPASSPHRASE, "");
+        //TODO: Why not, if the user wants
+//        values.put(GEN_FIELD_SSHPASSWORD, "");
+//        values.put(GEN_FIELD_SSHPASSPHRASE, "");
         if (!getKeepPassword()) {
             values.put(GEN_FIELD_PASSWORD, "");
         }
