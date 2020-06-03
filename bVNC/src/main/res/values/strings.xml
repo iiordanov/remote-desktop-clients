@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="action_import_settings">Import Settings</string>
     <string name="action_new_connection">New Connection</string>
     <string name="action_edit_default_settings">Edit Default Settings</string>
@@ -277,7 +277,7 @@ All Input Method:
     <string name="error_ssh_could_not_exec_command">Could not execute remote command.</string>
     <string name="error_ssh_could_not_send_sudo_pwd">Could not send sudo password.</string>
     <string name="error_ssh_hostkey_changed">ERROR! The server host key has changed. If this is intentional, please delete and recreate the connection. Otherwise, this may be a man in the middle attack. Not continuing.</string>
-    <string name="error_ssh_kbd_auth_method_unavail">The SSH server supports neither \"password\" nor \"keyboard-interactive\" auth methods or requires \"publickey\" method first. Please configure it to allow at least one of the two methods, or reconfigure bVNC. Available auth methods: </string>
+    <string name="error_ssh_kbd_auth_method_unavail">The SSH server supports neither \"password\" nor \"keyboard-interactive\" auth methods or requires \"publickey\" method first. Please configure it to allow at least one of the two methods, or reconfigure the application. Available auth methods: </string>
     <string name="error_ssh_key_auth_fail">Failed to authenticate to SSH server with a key-pair. Please check your SSH username, and ensure your public key is in the authorized_keys file on the remote side.</string>
     <string name="error_ssh_keypair_decryption_failure">Failed to decrypt key-pair. Please ensure you\'ve entered your passphrase correctly in the \'SSH Passphrase\' field on the main screen.</string>
     <string name="error_ssh_keypair_missing">SSH key-pair not generated yet! Please generate one and put (its public part) in authorized_keys on the SSH server.</string>
@@ -318,7 +318,7 @@ All Input Method:
     <string name="info">Info</string>
     <string name="info_cert_signatures">"The certificate information is: "</string>
     <string name="info_cert_signatures_identical">\n\nYou can ensure the information matches the server certificate to prevent a man-in-the-middle attack.</string>
-    <string name="info_cert_tunnel">Do you want to connect to the host identified by the following certificate?\n\nFingerprint: %1$s\n\nIssued to:\n%2$s\n\nIssued by:\n%3$s\n\nValid from:\n%4$s\n\nValid until:\n%5$s\n\nNote: bVNC does not verify certificate authorities or check for certificate revocation.</string>
+    <string name="info_cert_tunnel">Do you want to connect to the host identified by the following certificate?\n\nFingerprint: %1$s\n\nIssued to:\n%2$s\n\nIssued by:\n%3$s\n\nValid from:\n%4$s\n\nValid until:\n%5$s\n\nNote: The application does not verify certificate authorities or check for certificate revocation.</string>
     <string name="info_continue_connecting">"Continue connecting to: "</string>
     <string name="info_encoding">" encoding, "</string>
     <string name="info_progress_dialog_aborted">Connection aborted!</string>
@@ -456,8 +456,8 @@ Known issues:
     <string name="local_mouse_check">Local mouse pointer (select if pointer is invisible)</string>
 
     <string name="main_screen_help">Connection Help</string>
-    <string name="main_screen_help_text">
-"When you first start bVNC, you will see a connection configuration page. Here you can set up a new VNC connection, or choose a preexisting one. The page is divided into two sections. The top section contains a drop-down list of the connection configurations you've created previously. The first time your run bVNC, you will only be able to make a new connection. Next to the list is a Connect button. The Connect button will start the VNC client with the currently selected configuration. Below that is where you configure your connection.
+    <string name="main_screen_help_text" tools:ignore="TypographyOther">
+"When you first start the application, you will see a connection configuration page. Here you can set up a new VNC connection, or choose a preexisting one. The page is divided into two sections. The top section contains a drop-down list of the connection configurations you've created previously. The first time your run the application, you will only be able to make a new connection. Next to the list is a Connect button. The Connect button will start the VNC client with the currently selected configuration. Below that is where you configure your connection.
 
 If you are looking for a quick performance boost, try setting the Color mode to a lower value. Also, try removing any desktop background image on the VNC server. Finally, ensure your device has good network connectivity and avoid covering its antenna and reducing the signal strength.
 
@@ -472,15 +472,15 @@ If you are looking for a quick performance boost, try setting the Color mode to 
  
  - SSH Tunnel Settings: Available in VNC over SSH mode.
    (a) SSH Server/Port: The address and port of the SSH server that the connection will be tunnelled through. By default SSH listens on port 22.
-   (b) Username/Password: The username and password of the account on the SSH server. The password will be filled in on this page if you haven't quit bVNC since you last entered it.
+   (b) Username/Password: The username and password of the account on the SSH server. The password will be filled in on this page if you haven't quit the application since you last entered it.
    (c) Manage Key/Use Key: A button to manage public/private keys, and a checkbox indicating whether to use a key rather than password to authenticate. If you use the Copy to Clipboard button after generating a key-pair, you should be able to paste the public key once connected to the VNC server (the clipboard is synchronized to the server).
 
- - Configure AutoX: Available only in VNC over SSH mode. bVNC can automatically discover existing and optionally create new X sessions on UNIX systems (like NX client). You need x11vnc to find, and Xvfb, Xvnc, or Xdummy installed on the remote system to create sessions. You may have to move away your .dmrc file and add a .xinit file in your home directory if your desktop doesn't look proper or you are getting just an xterm window.
+ - Configure AutoX: Available only in VNC over SSH mode. The application can automatically discover existing and optionally create new X sessions on UNIX systems (like NX client). You need x11vnc to find, and Xvfb, Xvnc, or Xdummy installed on the remote system to create sessions. You may have to move away your .dmrc file and add a .xinit file in your home directory if your desktop doesn't look proper or you are getting just an xterm window.
 
  - VNC Connection Settings:
    (a) VNC Server/Port: This is where you enter the host name or IP address and port of the computer running the VNC server that you wish to contact. In VNC over SSH mode, this address is as seen from the SSH Server. If the SSH Server and VNC server are the same computer, you can use localhost. VNC servers typically listen starting at port 5900 (the first VNC screen, screen :0).
    (b) VNC User: Available in UltraVNC with Windows Logon mode, or Secure VNC over VeNCrypt, this is where you enter your Windows/UNIX account username.
-   (c) VNC Password: If your VNC server configuration requires a password, enter that password here. In UltraVNC with Windows Logon/VeNCrypt modes, put your Windows/UNIX account password here. Secure storage is not used for passwords, and the password will be stored only if you check the "Keep" box. The password will be filled in on this page if you haven't quit bVNC since you last entered it.
+   (c) VNC Password: If your VNC server configuration requires a password, enter that password here. In UltraVNC with Windows Logon/VeNCrypt modes, put your Windows/UNIX account password here. Secure storage is not used for passwords, and the password will be stored only if you check the "Keep" box. The password will be filled in on this page if you haven't quit the application since you last entered it.
 
  - Color Mode: The client supports several color modes. Modes with more colors provide a better visual experience at the expense of greater bandwidth and more CPU computation on your device. Some VNC servers do not support all color depths (e.g. OS/X Remote Desktop requires 24-bit color). If you are having trouble connecting, try another color depth.
 
@@ -488,9 +488,9 @@ If you are looking for a quick performance boost, try setting the Color mode to 
 
  - Rotate D-Pad: Phones paired with a Bluetooth keyboard may need the keyboard's D-pad to be rotated anti-clockwise to send correct directions to the server.
  
- - Local mouse pointer: Some VNC servers (e.g. OS/X Remote Desktop) will not draw the mouse pointer on the client. Checking this option will cause bVNC to draw a small square at the mouse position. 
+ - Local mouse pointer: Some VNC servers (e.g. OS/X Remote Desktop) will not draw the mouse pointer on the client. Checking this option will cause the application to draw a mouse pointer at the mouse position.
 
- - Auto/Fullscreen Bitmap: The VNC client uses a bitmap to represent the remote display. For very large remote displays, especially in fit-to-screen mode, you may experience strange visual artifacts when in fit-to-screen mode, due to per-process memory limitations. If that happens, try checking this option. Keep in mind that checking the option may cause bVNC to quit on connection.
+ - Auto/Fullscreen Bitmap: The VNC client uses a bitmap to represent the remote display. For very large remote displays, especially in fit-to-screen mode, you may experience strange visual artifacts when in fit-to-screen mode, due to per-process memory limitations. If that happens, try checking this option. Keep in mind that checking the option may cause the application to quit on connection.
 
  - Repeater: Available only in UltraVNC mode. IMPORTANT: If you have an UltraVNC repeater, enter its address and port outside the \'UltraVNC Repeater\' dialog and enter the address and port of the actual VNC server inside the \'UltraVNC Repeater\' Dialog. Separate VNC server\'s address and port with a colon, e.g. 192.168.0.100:5900."</string>
 
@@ -613,7 +613,7 @@ Current list of aRDP features includes:
 &lt;br&gt;
 - Using an available trackpad as Arrows instead of moving the mouse, and trackpad click as Ctrl, rotating D-pad/trackpad for BT keyboards.
 &lt;br&gt;
-- Multi-language support, as long as the VNC server has the necessary language layout enabled.
+- Multi-language support, as long as the RDP server has the necessary language layout enabled.
 &lt;br&gt;
 - Seamless remote machine resolution changes
 &lt;br&gt;
@@ -634,7 +634,7 @@ Planned features of aRDP include:
 Known issues:
 </string>
     <string name="rdp_intro_title">aRDP: Intuitive, secure RDP client</string>
-    <string name="rdp_main_screen_help_text">
+    <string name="rdp_main_screen_help_text" tools:ignore="TypographyOther">
 "When you first start aRDP, you will see a connection configuration page. Here you can set up a new RDP connection, or choose a preexisting one. The page is divided into two sections. The top section contains a drop-down list of the connection configurations you've created previously. The first time your run aRDP, you will only be able to make a new connection. Next to the list is a Connect button. The Connect button will start the RDP client with the currently selected configuration. Below that is where you configure your connection.
 
  - Connection Type: Here you choose the RDP connection type. Available connection types are:
@@ -645,8 +645,8 @@ Known issues:
  
  - SSH Tunnel Settings: Available in RDP over SSH mode.
    (a) SSH Server/Port: The address and port of the SSH server that the connection will be tunnelled through. By default SSH listens on port 22.
-   (b) Username/Password: The username and password of the account on the SSH server. The password will be filled in on this page if you haven't quit bVNC since you last entered it.
-   (c) Manage Key/Use Key: A button to manage public/private keys, and a checkbox indicating whether to use a key rather than password to authenticate. If you use the Copy to Clipboard button after generating a key-pair, you should be able to paste the public key once connected to the VNC server (the clipboard is synchronized to the server).
+   (b) Username/Password: The username and password of the account on the SSH server. The password will be filled in on this page if you haven't quit aRDP since you last entered it.
+   (c) Manage Key/Use Key: A button to manage public/private keys, and a checkbox indicating whether to use a key rather than password to authenticate. If you use the Copy to Clipboard button after generating a key-pair, you should be able to paste the public key once connected to the RDP server (the clipboard is synchronized to the server).
 
  - RDP Connection Settings:
    (a) RDP Server/Port: This is where you enter the host name or IP address and port of the computer running the RDP server that you wish to contact. In RDP over SSH mode, this address is as seen from the SSH Server. If the SSH Server and RDP server are the same physical computer, you can use localhost. RDP servers typically listen on port 3389.
@@ -754,7 +754,7 @@ Current list of aSPICE features includes:
 &lt;br&gt;
 - Using an available trackpad as Arrows instead of moving the mouse, and trackpad click as Ctrl, rotating D-pad/trackpad for BT keyboards.
 &lt;br&gt;
-- Multi-language support, as long as the VNC server has the necessary language layout enabled.
+- Multi-language support, as long as the SPICE server has the necessary language layout enabled.
 &lt;br&gt;
 - Seamless remote machine resolution changes
 &lt;br&gt;
@@ -775,7 +775,7 @@ Known issues:
 &lt;br&gt;
 </string>
     <string name="spice_intro_title">aSPICE: Intuitive, secure SPICE client</string>
-    <string name="spice_main_screen_help_text">
+    <string name="spice_main_screen_help_text" tools:ignore="TypographyOther">
 "When you first start aSPICE, you will see a connection configuration page. Here you can set up a new SPICE connection, or choose a preexisting one. The page is divided into two sections. The top section contains a drop-down list of the connection configurations you've created previously. The first time your run aSPICE, you will only be able to make a new connection. Next to the list is a Connect button. The Connect button will start the SPICE client with the currently selected configuration. Below that is where you configure your connection.
 
  - Connection Type: Here you choose the SPICE connection type. Available connection types are:
@@ -786,8 +786,8 @@ Known issues:
  
  - SSH Tunnel Settings: Available in SPICE over SSH mode.
    (a) SSH Server/Port: The address and port of the SSH server that the connection will be tunnelled through. By default SSH listens on port 22.
-   (b) Username/Password: The username and password of the account on the SSH server. The password will be filled in on this page if you haven't quit bVNC since you last entered it.
-   (c) Manage Key/Use Key: A button to manage public/private keys, and a checkbox indicating whether to use a key rather than password to authenticate. If you use the Copy to Clipboard button after generating a key-pair, you should be able to paste the public key once connected to the VNC server (the clipboard is synchronized to the server).
+   (b) Username/Password: The username and password of the account on the SSH server. The password will be filled in on this page if you haven't quit aSPICE since you last entered it.
+   (c) Manage Key/Use Key: A button to manage public/private keys, and a checkbox indicating whether to use a key rather than password to authenticate. If you use the Copy to Clipboard button after generating a key-pair, you should be able to paste the public key once connected to the SPICE server (the clipboard is synchronized to the server).
 
  - SPICE Connection Settings:
    (a) SPICE Server/Port: This is where you enter the host name or IP address and port of the computer running the SPICE server that you wish to contact. In SPICE over SSH mode, this address is as seen from the SSH Server. If the SSH Server and SPICE server are the same physical computer, you can use localhost. SPICE servers typically listen on port 5900 and up.
@@ -851,4 +851,12 @@ Known issues:
     <string name="cursor_force_disable">"Disable"</string>
     <string name="cursor_mode">"Cursor Mode:"</string>
     <string name="rendering_mode">"Rendering Mode:"</string>
+    <string name="color_24_bit">"24-bit color (24 bpp)"</string>
+    <string name="color_256">"256 colors (8 bpp)"</string>
+    <string name="color_64">"64 colors (4 bpp)"</string>
+    <string name="color_8">"8 colors (2 bpp)"</string>
+    <string name="color_greyscale">"Greyscale (1 bpp)"</string>
+    <string name="color_black_and_white"><![CDATA["Black & White (1 bpp)"]]></string>
+    <string name="show">"Show"</string>
+    <string name="hide">"Hide"</string>
 </resources>

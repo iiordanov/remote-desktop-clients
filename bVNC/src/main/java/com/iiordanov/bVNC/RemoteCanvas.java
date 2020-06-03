@@ -202,11 +202,6 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
 
     public boolean spiceUpdateReceived = false;
 
-    /*
-     * Variable used for BB workarounds.
-     */
-    boolean bb = false;
-
     boolean sshTunneled = false;
 
     /**
@@ -218,10 +213,10 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
         super(context, attrs);
 
         clipboard = (ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE);
-        isVnc = getContext().getPackageName().toUpperCase().contains("VNC");
-        isRdp = getContext().getPackageName().toUpperCase().contains("RDP");
-        isSpice = getContext().getPackageName().toUpperCase().contains("SPICE");
-        isOpaque = getContext().getPackageName().toUpperCase().contains("OPAQUE");
+        isVnc = Utils.isVnc(getContext().getPackageName());
+        isRdp = Utils.isRdp(getContext().getPackageName());
+        isSpice = Utils.isSpice(getContext().getPackageName());
+        isOpaque = Utils.isOpaque(getContext().getPackageName());
 
         final Display display = ((Activity) context).getWindow().getWindowManager().getDefaultDisplay();
         displayWidth = display.getWidth();
@@ -229,12 +224,6 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
         DisplayMetrics metrics = new DisplayMetrics();
         display.getMetrics(metrics);
         displayDensity = metrics.density;
-
-        if (android.os.Build.MODEL.contains("BlackBerry") ||
-                android.os.Build.BRAND.contains("BlackBerry") ||
-                android.os.Build.MANUFACTURER.contains("BlackBerry")) {
-            bb = true;
-        }
 
         // Startup the connection thread with a progress dialog
         pd = ProgressDialog.show(getContext(), getContext().getString(R.string.info_progress_dialog_connecting),

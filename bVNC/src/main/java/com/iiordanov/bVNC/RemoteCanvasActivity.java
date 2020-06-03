@@ -277,7 +277,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
                 }
             }};
 
-        if (canvas.isOpaque) {
+        if (Utils.isOpaque(getPackageName())) {
             initializeOpaque(setModes);
         } else {
             initialize(setModes);
@@ -1215,7 +1215,6 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
      * @return
      */
     InputHandler getInputHandlerById(int id) {
-        boolean isRdp = getPackageName().contains("RDP");
         myVibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
 
         if (inputModeHandlers == null) {

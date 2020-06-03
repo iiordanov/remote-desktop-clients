@@ -115,7 +115,6 @@ fi
 if [ -n "$BUILDING_DEPENDENCIES" ]
 then
   echo "Done building libraries"
-  exit 0
 fi
 
 freerdp_libs_dir=../freeRDPCore/src/main/jniLibs
@@ -137,9 +136,14 @@ elif echo $PRJ | grep -iq "SPICE\|Opaque"
 then
   [ -d ${freerdp_libs_dir} ] && rm -rf ${freerdp_libs_dir}.DISABLED && mv ${freerdp_libs_dir} ${freerdp_libs_dir}.DISABLED
   rm -rf ${freerdp_libs_link}
+elif echo $PRJ | grep -iq "libs"
+then
+  [ -d ${freerdp_libs_dir}.DISABLED ] && rm -rf ${freerdp_libs_dir} && mv ${freerdp_libs_dir}.DISABLED ${freerdp_libs_dir}
+  rm -rf ${freerdp_libs_link}
+  ln -s jniLibs ${freerdp_libs_link}
 fi
 
 popd
 echo
-echo "Now please switch to your IDE, select the bVNC project, refresh with F5,"
-echo "and then clean and rebuild the project."
+echo "Now please switch to your IDE, select a launch configuration for the project you want to run"
+echo "and then clean and rebuild the project before running."

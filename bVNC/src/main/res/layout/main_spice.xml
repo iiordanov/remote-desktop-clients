@@ -322,8 +322,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceSmall"
-                android:textOn="@android:string/no"
-                android:textOff="@android:string/yes" />
+                android:textOn="@string/hide"
+                android:textOff="@string/show" />
 
             <TextView
                 android:layout_width="wrap_content"

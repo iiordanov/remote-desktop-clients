@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
   <string name="ad_donate_text0">Pro版本對應於多重要素驗證。為了防止違法使用，也對應於主密碼功能。加上為了防盜包含密碼與SSH鍵的所有連接設定都是加密的。這些都在主功能表內進行設定。如果主功能表按鈕不見，請按住在功能表上的應用按鈕。</string>
   <string name="ad_donate_text1">如果您購買Pro版本並且同意捐贈我們的話，請點選這裡。</string>
   <string name="ad_donate_text2">使用Pro版本時，可以將這個對話框設定為無效，也可以存取追加功能。</string>
@@ -103,7 +103,7 @@
   <string name="connection_type_vnc_over_stunnel">透過SSL隧道的安全VNC</string>
   <string name="connection_type_vnc_over_vencrypt">透過VeNCrypt的安全VNC</string>
   <string name="control_check">Ctrl</string>
-  <string name="copy_list_button">Copy List</string>
+  <string name="copy_list_button">複製清單</string>
   <string name="ctrl_alt_del">Ctrl-Alt-Del</string>
   <string name="default_input_mode">默認輸入模式</string>
   <string name="delete_connection">刪除連接設定</string>
@@ -130,7 +130,7 @@
   <string name="error_ssh_could_not_exec_command">沒能執行遠端命令。</string>
   <string name="error_ssh_could_not_send_sudo_pwd">沒能發送sudo密碼。</string>
   <string name="error_ssh_hostkey_changed">ERROR！伺服器主機密鑰已更改。如果有意這樣做，請刪除並重試連接。否則，這可能是中間人的攻擊，不能繼續。</string>
-  <string name="error_ssh_kbd_auth_method_unavail">SSH伺服器都不支持\"password\"與\"keyboard-interactive\"這兩種認證方式，或者先要執行\"publickey\"方式。請設定為允許這兩種方式中的至少一種。或者重新設定bVNC。有效的認證方式：</string>
+  <string name="error_ssh_kbd_auth_method_unavail">SSH伺服器都不支持\"password\"與\"keyboard-interactive\"這兩種認證方式，或者先要執行\"publickey\"方式。請設定為允許這兩種方式中的至少一種。或者重新設定本App。有效的認證方式：</string>
   <string name="error_ssh_key_auth_fail">透過密鑰對來向SSH伺服器認證失敗了。請確認SSH用戶名，並確認您的公開金鑰在遠端端的authorized_keys文件中。</string>
   <string name="error_ssh_keypair_decryption_failure">解密密鑰對失敗了。請確認您在主畫面的\'SSH Passphrase\'欄位中正確輸入了密碼。</string>
   <string name="error_ssh_keypair_missing">尚未創建SSH密鑰對！ 請創建它並將它（公開金鑰）放入SSH伺服器上的authorized_keys中。</string>
@@ -147,8 +147,8 @@
   <string name="error_x509_could_not_generate_signature">無法生成證書的SHA1或MD5簽名。找不到SHA1 / MD5算法。</string>
   <string name="export_settings">匯出</string>
   <string name="export_settings_path" />
-  <string name="extra_keys_disable">使萬能鑰匙無效</string>
-  <string name="extra_keys_enable">使萬能鑰匙有效</string>
+  <string name="extra_keys_disable">使特殊鍵無效</string>
+  <string name="extra_keys_enable">使特殊鍵有效</string>
   <string name="fit_to_screen">適應於屏幕</string>
   <string name="force">全屏位圖</string>
   <string name="freeardp_app_name">aRDP Free</string>
@@ -161,13 +161,13 @@
   <string name="info">信息</string>
   <string name="info_cert_signatures">"證書信息是："</string>
   <string name="info_cert_signatures_identical">\n\n您可以確認信息與伺服器證書匹配，以防止中間人攻擊。</string>
-  <string name="info_cert_tunnel">是否要連接以下證書標識的主機？\n\nFingerprint: %1$s\n\nIssued to:\n%2$s\n\nIssued by:\n%3$s\n\nValid from:\n%4$s\n\nValid until:\n%5$s\n\nNote: bVNC does not verify certificate authorities or check for certificate revocation.</string>
+  <string name="info_cert_tunnel">是否要連接以下證書標識的主機？\n\nFingerprint: %1$s\n\nIssued to:\n%2$s\n\nIssued by:\n%3$s\n\nValid from:\n%4$s\n\nValid until:\n%5$s\n\nNote: The application does not verify certificate authorities or check for certificate revocation.</string>
   <string name="info_continue_connecting">"繼續連接到："</string>
   <string name="info_encoding">"編碼"</string>
   <string name="info_progress_dialog_aborted">連接被中止了！</string>
   <string name="info_progress_dialog_connecting">正在連接…</string>
-  <string name="info_progress_dialog_downloading">正在下載第一幀。\n請稍候...</string>
-  <string name="info_progress_dialog_establishing">正在建立握手。\n請稍候...</string>
+  <string name="info_progress_dialog_downloading" tools:ignore="TypographyEllipsis">正在下載第一幀。\n請稍候...</string>
+  <string name="info_progress_dialog_establishing" tools:ignore="TypographyEllipsis">正在建立握手。\n請稍候...</string>
   <string name="info_ssh_initializing_hostkey">嘗試初始化SSH HostKey。</string>
   <string name="info_ssh_key_fingerprint">"主機密鑰指紋是："</string>
   <string name="info_ssh_key_fingerprint_identical">\n\n您可以確認它與伺服器證書的已知指紋相同，以防止中間人攻擊。</string>
@@ -291,14 +291,14 @@
   <string name="local_mouse_check">本地滑鼠指標（指標不可見時選擇）</string>
   <string name="main_screen_help">連接操作幫助</string>
   <string name="main_screen_help_text">
-"首次啟動bVNC時連接設定畫面會顯示出來。在此可以設置新的VNC連接設定或選擇現有的VNC連接。該頁面分為2個部分，頂部有下拉功能表顯示之前創建的連接設定。首次啟動bVNC時只能創建新的連接。下拉功能表旁邊有連接按鈕，按下它就按照當前的設定啟動VNC客戶端。在連接按鈕之下可設定連接。
+"首次啟動本App時連接設定畫面會顯示出來。在此可以設置新的VNC連接設定或選擇現有的VNC連接。該頁面分為2個部分，頂部有下拉功能表顯示之前創建的連接設定。首次啟動本App時只能創建新的連接。下拉功能表旁邊有連接按鈕，按下它就按照當前的設定啟動VNC客戶端。在連接按鈕之下可設定連接。
 
 如果要快速提高性能，請嘗試將\"色彩\"模式設置為較低的值。另外，請嘗試刪除VNC伺服器上的所有桌面背景圖像。最後，請確認您的設備具有良好的網絡連接性，並避免由於覆蓋其天線而降低信號強度。
 
 -連接類型：在此處選擇VNC連接類型。可用的連接類型如下：
-   （a）普通VNC：所有VNC伺服器都支持，但缺乏加密，並且由於密碼限制為8個字符，因此容易受到蠻力攻擊。
-   （b）透過SSH的安全VNC：它透過加密的SSH隧道連接。您需要運行SSHD服務以及VNC伺服器。只要VNC伺服器不直接連接到因特網，此連接類型就不會遭受任何已知的漏洞。在首次連接時需要驗證服務器證書籤名。
-   （c）UltraVNC：它為您提供Windows登入和UltraVNC轉發器選項。使用Windows登入不受8個字符的密碼限制，但是此模式不提供加密，因此您的會話很容易被嗅探。
+  （a）普通VNC：所有VNC伺服器都支持，但缺乏加密，並且由於密碼限制為8個字符，因此容易受到蠻力攻擊。
+  （b）透過SSH的安全VNC：它透過加密的SSH隧道連接。您需要運行SSHD服務以及VNC伺服器。只要VNC伺服器不直接連接到因特網，此連接類型就不會遭受任何已知的漏洞。在首次連接時需要驗證服務器證書籤名。
+  （c）UltraVNC：它為您提供Windows登入和UltraVNC轉發器選項。使用Windows登入不受8個字符的密碼限制，但是此模式不提供加密，因此您的會話很容易被嗅探。
   （d）透過AnonTLS的安全VNC：這是透過相當於Stunnel連接的常規VNC。您要麼需要運行Stunnel，要麼使用像對應AnonTLS的Vino等VNC服務器。此模式為您提供會話加密，但受到8個字符的密碼限制，因此有可能受到中間人攻擊。
   （e）透過VeNCrypt的安全VNC：它使用x509證書以及會話加密，密碼根據服務器設定，可以使用不受到8個字符限制的用戶/密碼憑據。此模式可防止中間人攻擊，以及提供會話隱私。 x11vnc和TigerVNC等服務器支持此模式，與透過SSH的VNC一樣安全。
 
@@ -306,15 +306,15 @@
 
 -SSH隧道設置：在SSH模式的VNC中可用。
   （a）SSH服務器/端口：將透過隧道建立連接的SSH服務器的地址和端口。 默認端口是22。
-  （b）用戶名/密碼：SSH服務器上帳戶的用戶名和密碼。 未退出bVNC，密碼就保留在畫面上。
+  （b）用戶名/密碼：SSH服務器上帳戶的用戶名和密碼。 未退出本App，密碼就保留在畫面上。
   （c）管理密鑰/使用密鑰：用於管理公開金鑰／密鑰的按鈕，以及驗證方法是否從密碼改為密鑰的選項。如果在生成密鑰對後使用\"複製到剪貼板\"按鈕的話，連接到VNC服務器後可以粘貼公開金鑰（剪貼板同步到服務器）。
 
--設置AutoX：僅在SSH模式下的VNC中可用。 bVNC可以在UNIX系統（例如NX客戶端）上自動發現現有的X會話，並可以選擇創建新的X會話。您需要x11vnc來查找，並且需要在遠端系統上安裝Xvfb、Xvnc或Xdummy來創建會話。如果您的桌面看起來不正確或您僅獲得xterm窗口，則可能必須移走.dmrc文件並在主目錄中添加.xinit文件。
+-設置AutoX：僅在SSH模式下的VNC中可用。 本App可以在UNIX系統（例如NX客戶端）上自動發現現有的X會話，並可以選擇創建新的X會話。您需要x11vnc來查找，並且需要在遠端系統上安裝Xvfb、Xvnc或Xdummy來創建會話。如果您的桌面看起來不正確或您僅獲得xterm窗口，則可能必須移走.dmrc文件並在主目錄中添加.xinit文件。
 
 -VNC連接設置：
   （a）VNC服務器／端口：在此輸入運行VNC服務器的計算機的主機名或IP地址與端口號。在透過SSH模式的VNC中，SSH服務器也咖已看到此IP地址。如果SSH服務器與VNC服務器在同一台計算機上，就可以使用localhost。VNC服務器通常從端口5900開始偵聽（第一個VNC屏幕，屏幕：0）。
-（b）VNC用戶：在具有Windows登入模式的UltraVNC中可用，或透過VeNCrypt的安全VNC中可用。在此輸入Windows / UNIX帳戶用戶名。
-（c）VNC密碼：如果您的VNC服務器設置需要密碼，在此輸入該密碼。具有Windows登錄或VeNCrypt模式的UltraVNC的話，在此輸入Windows / UNIX帳戶密碼。 密碼不使用安全存儲，只有選中\"保持\"選項，才會存儲密碼。未退出bVNC，密碼就保留在畫面上。
+  （b）VNC用戶：在具有Windows登入模式的UltraVNC中可用，或透過VeNCrypt的安全VNC中可用。在此輸入Windows / UNIX帳戶用戶名。
+  （c）VNC密碼：如果您的VNC服務器設置需要密碼，在此輸入該密碼。具有Windows登錄或VeNCrypt模式的UltraVNC的話，在此輸入Windows / UNIX帳戶密碼。 密碼不使用安全存儲，只有選中\"保持\"選項，才會存儲密碼。未退出本App，密碼就保留在畫面上。
 
 -顏色模式：客戶端支持幾種顏色模式。 如果選用具有更多顏色的模式，就可以提供更好的視覺體驗，但在設備上需要更大的帶寬和更多的CPU計算。 某些VNC服務器不支持所有顏色深度（例如OS / X遠端桌面需要24位顏色）。 如果連接時遇到問題，請嘗試其他顏色深度。
 
@@ -322,9 +322,9 @@
 
 -旋轉D-Pad：與Bluetooth鍵盤配對的裝置可能需要逆時針旋轉鍵盤的D-pad，才能將正確的方向發送到服務器。
 
--本地滑鼠指標：某些VNC服務器（例如OS / X遠端桌面）不會在客戶端上繪製滑鼠指標。 選中此選項將使bVNC在滑鼠位置繪製一個小方塊。
+-本地滑鼠指標：某些VNC服務器（例如OS / X遠端桌面）不會在客戶端上繪製滑鼠指標。 選中此選項將使本App在滑鼠位置繪製一個小方塊。
 
--自動/全屏位圖：VNC客戶端使用位圖表示遠程顯示。 對於非常大的遠程顯示器，尤其是在適合於屏幕的模式下，由於每個進程的內存限制，您可能會遇到奇怪的視覺偽像。 如果發生這種情況，請嘗試勾選此選項。 請記住，勾選該選項可能會導致bVNC中斷連接。
+-自動/全屏位圖：VNC客戶端使用位圖表示遠程顯示。 對於非常大的遠程顯示器，尤其是在適合於屏幕的模式下，由於每個進程的內存限制，您可能會遇到奇怪的視覺偽像。 如果發生這種情況，請嘗試勾選此選項。 請記住，勾選該選項可能會導致本App中斷連接。
 
 -中繼器：僅在UltraVNC模式下可用。 重要信息：如果您有UltraVNC中繼器，請在\" UltraVNC中繼器\"對話框之外輸入其地址和端口，並在\" UltraVNC中繼器\"對話框中輸入實際VNC服務器的地址和端口。 用冒號分隔VNC服務器的地址和端口，例如 192.168.0.100:5900。"
   </string>
@@ -432,7 +432,7 @@ aRDP對應的功能如下：
 &lt;br&gt;
 - 觸控板可代替滑鼠操作箭頭，單擊觸控板可代替按Ctrl。
 &lt;br&gt;
-- 支持多語言，只要VNC伺服器已啟用必要的語言佈局即可。
+- 支持多語言，只要RDP伺服器已啟用必要的語言佈局即可。
 &lt;br&gt;
 -無縫的遠端機器分辨率更改
 &lt;br&gt;
@@ -455,11 +455,11 @@ aRDP對應預定的功能：
   </string>
   <string name="rdp_intro_title">aRDP：又直觀又安全的RDP客戶端</string>
   <string name="rdp_main_screen_help_text">
-"首次啟動aRDP時連接設定畫面會顯示出來。在此可以設置新的VNC連接設定或選擇現有的RDP連接。該頁面分為2個部分，頂部有下拉功能表顯示之前創建的連接設定。首次啟動aRDP時只能創建新的連接。下拉功能表旁邊有連接按鈕，按下它就按照當前的設定啟動RDP客戶端。在連接按鈕之下可設定連接。
+"首次啟動aRDP時連接設定畫面會顯示出來。在此可以設置新的RDP連接設定或選擇現有的RDP連接。該頁面分為2個部分，頂部有下拉功能表顯示之前創建的連接設定。首次啟動aRDP時只能創建新的連接。下拉功能表旁邊有連接按鈕，按下它就按照當前的設定啟動RDP客戶端。在連接按鈕之下可設定連接。
 
 -連接類型：在此處選擇RDP連接類型。可用的連接類型如下：
-   （a）RDP：透過RDP通訊協議直接連接計算機。
-   （b）透過SSH的RDP：透過運行SSH伺服器的計算機進行隧道連接。
+  （a）RDP：透過RDP通訊協議直接連接計算機。
+  （b）透過SSH的RDP：透過運行SSH伺服器的計算機進行隧道連接。
 
 -標題：您創建的每個連接都可以有一個暱稱，以便在列表中輕鬆識別它。
 
@@ -470,16 +470,14 @@ aRDP對應預定的功能：
 
 -RDP連接設置：
   （a）RDP伺服器／端口：在此輸入運行RDP伺服器的計算機的主機名或IP地址與端口號。在透過SSH模式的RDP中，SSH伺服器也咖已看到此IP地址。如果SSH伺服器與RDP伺服器在同一台計算機上，就可以使用localhost。RDP伺服器通常用端口3389偵聽（第一個RDP屏幕，屏幕：0）。
-（b）RDP用戶：在具有Windows登入模式的UltraRDP中可用，或透過VeNCrypt的安全RDP中可用。在此輸入Windows / UNIX帳戶用戶名。
-（c）RDP密碼：如果您的RDP伺服器設置需要密碼，在此輸入該密碼。具有Windows登入或VeNCrypt模式的UltraRDP的話，在此輸入Windows / UNIX帳戶密碼。 密碼不使用安全存儲，只有選中\"保持\"選項，才會存儲密碼。未退出aRDP，密碼就保留在畫面上。
+  （b）RDP用戶：在具有Windows登入模式的UltraRDP中可用，或透過VeNCrypt的安全RDP中可用。在此輸入Windows / UNIX帳戶用戶名。
+  （c）RDP密碼：如果您的RDP伺服器設置需要密碼，在此輸入該密碼。具有Windows登入或VeNCrypt模式的UltraRDP的話，在此輸入Windows / UNIX帳戶密碼。 密碼不使用安全存儲，只有選中\"保持\"選項，才會存儲密碼。未退出aRDP，密碼就保留在畫面上。
 
 -詳細設定：在此進行桌面分辨率的自定義設定或者RDP性能微調。
 
 -本地設備調整：在此調整aRDP在您的設備上的動作。
   （a）D-Pad用於箭頭：想要將箭頭髮送到RDP伺服器時，可以使用藍牙鍵盤的D-Pad或屏幕鍵盤上的箭頭。
-
   （b）旋轉D-Pad：與Bluetooth鍵盤配對的手機可能需要逆時針旋轉鍵盤的D-pad，才能將正確的方向發送到伺服器。
-
   （c）本地滑鼠指標：如果滑鼠指標隱藏的話，勾選此選項將使aRDP顯示滑鼠位置。"
   </string>
   <string name="rdp_password_hint">RDP密碼</string>
@@ -560,7 +558,7 @@ aSPICE對應的功能如下：
 &lt;br&gt;
 - 觸控板可代替滑鼠操作箭頭，單擊觸控板可代替按Ctrl。
 &lt;br&gt;
-- 支持多語言，只要VNC伺服器已啟用必要的語言佈局即可。
+- 支持多語言，只要SPICE伺服器已啟用必要的語言佈局即可。
 &lt;br&gt;
 -無縫的遠端機器分辨率更改
 &lt;br&gt;
@@ -582,11 +580,11 @@ aSPICE對應的功能如下：
   </string>
   <string name="spice_intro_title">aSPICE：又直觀又安全的SPICE客戶端</string>
   <string name="spice_main_screen_help_text">
-"首次啟動aSPICE時連接設定畫面會顯示出來。在此可以設置新的VNC連接設定或選擇現有的SPICE連接。該頁面分為2個部分，頂部有下拉功能表顯示之前創建的連接設定。首次啟動aSPICE時只能創建新的連接。下拉功能表旁邊有連接按鈕，按下它就按照當前的設定啟動SPICE客戶端。在連接按鈕之下可設定連接。
+"首次啟動aSPICE時連接設定畫面會顯示出來。在此可以設置新的SPICE連接設定或選擇現有的SPICE連接。該頁面分為2個部分，頂部有下拉功能表顯示之前創建的連接設定。首次啟動aSPICE時只能創建新的連接。下拉功能表旁邊有連接按鈕，按下它就按照當前的設定啟動SPICE客戶端。在連接按鈕之下可設定連接。
 
 -連接類型：在此處選擇SPICE連接類型。可用的連接類型如下：
-   （a）SPICE：透過SPICE通訊協議直接連接計算機。
-   （b）透過SSH的SPICE：透過運行SSH伺服器的計算機進行隧道連接。
+  （a）SPICE：透過SPICE通訊協議直接連接計算機。
+  （b）透過SSH的SPICE：透過運行SSH伺服器的計算機進行隧道連接。
 
 -標題：您創建的每個連接都可以有一個暱稱，以便在列表中輕鬆識別它。
 
@@ -597,15 +595,13 @@ aSPICE對應的功能如下：
 
 -SPICE連接設置：
   （a）SPICE伺服器／端口：在此輸入運行SPICE伺服器的計算機的主機名或IP地址與端口號。在透過SSH模式的SPICE中，SSH伺服器也咖已看到此IP地址。如果SSH伺服器與SPICE伺服器在同一台計算機上，就可以使用localhost。SPICE伺服器通常用端口5900偵聽（第一個SPICE屏幕，屏幕：0）。
-（c）SPICE密碼：為了保護SPICE會話設定密碼。密碼不使用安全存儲（儲存在數據庫裡），只有選中\"保持\"選項，才會存儲密碼。未退出aSPICE，密碼就保留在畫面上。
+  （c）SPICE密碼：為了保護SPICE會話設定密碼。密碼不使用安全存儲（儲存在數據庫裡），只有選中\"保持\"選項，才會存儲密碼。未退出aSPICE，密碼就保留在畫面上。
 
 -詳細設定：在此進行桌面分辨率的自定義設定或者SPICE性能微調。
 
 -本地設備調整：在此調整aSPICE在您的設備上的動作。
   （a）D-Pad用於箭頭：想要將箭頭髮送到SPICE伺服器時，可以使用藍牙鍵盤的D-Pad或屏幕鍵盤上的箭頭。
-
   （b）旋轉D-Pad：與Bluetooth鍵盤配對的裝置可能需要逆時針旋轉鍵盤的D-pad，才能將正確的方向發送到伺服器。
-
   （c）本地滑鼠指標：如果滑鼠指標隱藏的話，勾選此選項將使aSPICE顯示滑鼠位置。"
   </string>
   <string name="spice_password_hint">SPICE密碼</string>
@@ -653,4 +649,12 @@ aSPICE對應的功能如下：
   <string name="cursor_force_disable">"無效"</string>
   <string name="cursor_mode">"光標模式："</string>
   <string name="rendering_mode">"渲染模式："</string>
+  <string name="color_24_bit">"24位元彩色（24 bpp）"</string>
+  <string name="color_256">"256色（8 bpp）"</string>
+  <string name="color_64">"64色（4 bpp）"</string>
+  <string name="color_8">"8色（2 bpp）"</string>
+  <string name="color_greyscale">"灰度（1 bpp）"</string>
+  <string name="color_black_and_white">"黑白（1 bpp）"</string>
+  <string name="show">"顯示"</string>
+  <string name="hide">"隱藏"</string>
 </resources>

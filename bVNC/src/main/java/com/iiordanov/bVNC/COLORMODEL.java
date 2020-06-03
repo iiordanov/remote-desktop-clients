@@ -21,6 +21,7 @@
 package com.iiordanov.bVNC;
 
 import com.undatech.opaque.RfbConnectable;
+import com.undatech.remoteClientUi.R;
 
 import java.io.IOException;
 
@@ -93,19 +94,19 @@ public enum COLORMODEL {
     public String toString() {
         switch (this) {
         case C24bit:
-            return "24-bit color (24 bpp)";
+            return App.getContext().getString(R.string.color_24_bit);
         case C256:
-            return "256 colors (8 bpp)";
+            return App.getContext().getString(R.string.color_256);
         case C64:
-            return "64 colors (4 bpp)";
+            return App.getContext().getString(R.string.color_64);
         case C8:
-            return "8 colors (2 bpp)";
+            return App.getContext().getString(R.string.color_8);
         case C4:
-            return "Greyscale (1 bpp)";
+            return App.getContext().getString(R.string.color_greyscale);
         case C2:
-            return "Black & White (1 bpp)";
+            return App.getContext().getString(R.string.color_black_and_white);
         default:
-            return "24-bit color (24 bpp)";
+            return App.getContext().getString(R.string.color_24_bit);
         }
     }
 }
