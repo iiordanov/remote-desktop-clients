@@ -1,11 +1,11 @@
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion 27
+    compileSdkVersion 28
 
     defaultConfig {
         minSdkVersion 8
-        targetSdkVersion 27
+        targetSdkVersion 28
     }
 
     buildTypes {
@@ -14,14 +14,29 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
         }
     }
+}
 
-    sourceSets {
-        main.java.srcDirs += 'src2/main/java'
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.google.gradle:osdetector-gradle-plugin:1.4.0'
     }
 }
 
+// Use the osdetector-gradle-plugin
+apply plugin: "com.google.osdetector"
+
 dependencies {
     api 'org.connectbot:sshlib:2.2.9'
+    // https://mvnrepository.com/artifact/com.madgag.spongycastle/core
+    api group: 'com.madgag.spongycastle', name: 'core', version: '1.58.0.0'
+    api group: 'com.madgag.spongycastle', name: 'prov', version: '1.58.0.0'
+    api group: 'com.madgag.spongycastle', name: 'pkix', version: '1.54.0.0'
+    api group: 'com.madgag.spongycastle', name: 'pg', version: '1.54.0.0'
     api 'net.vrallev.ecc:ecc-25519-java:1.0.3'
-    api 'io.moatwel.crypto:eddsa:0.4.3-beta'
+    api 'io.moatwel.crypto:eddsa:0.7.0-beta'
+    // https://mvnrepository.com/artifact/net.i2p.crypto/eddsa
+    api group: 'net.i2p.crypto', name: 'eddsa', version: '0.3.0'
 }

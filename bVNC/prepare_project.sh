@@ -4,7 +4,7 @@ SKIP_BUILD=false
 
 function usage () {
   echo "$0 bVNC|freebVNC|aSPICE|freeaSPICE|aRDP|freeaRDP|CustomVncAnyPackageName|\
-CustomRdpAnyPackageName|CustomSpiceAnyPackageName|libs|remoteClientLib /path/to/your/android/ndk /path/to/your/android/sdk"
+CustomRdpAnyPackageName|CustomSpiceAnyPackageName|libs|remoteClientLib|Opaque /path/to/your/android/sdk"
   exit 1
 }
 
@@ -52,7 +52,7 @@ if [[ "$PRJ" != "bVNC" && "$PRJ" != "freebVNC" \
   && "$PRJ" != "aRDP" && "$PRJ" != "freeaRDP" \
   && "$PRJ" =~ "^Custom.*" \
   && "$PRJ" != "libs" && "$PRJ" != "remoteClientLib" \
-  || "$ANDROID_SDK" == "" ]]
+  && "$PRJ" != "Opaque" || "$ANDROID_SDK" == "" ]]
 then
   usage
 fi
@@ -79,36 +79,12 @@ then
   CUSTOM_CLIENT=true
   ORIG_PRJ=${PRJ}
   PRJ=$(echo ${PRJ} | sed 's/^Custom//')
-else
-  ln -sf AndroidManifest.xml.$PRJ AndroidManifest.xml
 fi
 
 if [ -n "${CUSTOM_CLIENT}" ]
 then
-  # Check that there are no changes to source code and exit if there are.
-  if [ -n "$(git diff src src2)" ]
-  then
-    echo "Exiting because there are changes in src or src2. Please commit them before building custom clients. Changes:"
-    git diff src src2
-    exit 1
-  fi
-
-  rm AndroidManifest.xml
-  cp AndroidManifest.xml.${CUSTOM_MANIFEST_EXTENSION} AndroidManifest.xml
-
-  sed -i.bakautocustom "s/__CUSTOM_APP_PACKAGE__/$PRJ/" AndroidManifest.xml
-
-  rm -rf src2/main/java/com/iiordanov/$PRJ
-  cp -a src2/main/java/com/iiordanov/CustomClientPackage src2/main/java/com/iiordanov/$PRJ
-  sed -i.bakautocustom "s/package com.iiordanov.CustomClientPackage/package com.iiordanov.$PRJ/" src2/main/java/com/iiordanov/$PRJ/*
-
-  find src2/main/java/com/iiordanov -name \*.java -exec sed -i.bakautocustom "s/com\.iiordanov\.CustomClientPackage\.\(.*\)/com\.iiordanov\.$PRJ\.\1 \/\/CUSTOM_CLIENT_IMPORTS/" {} \;
-else
-  ln -sf AndroidManifest.xml.$PRJ AndroidManifest.xml
-  find src2/main/java/com/iiordanov -name \*.java -exec sed -i.bakautocustom "s/import.*CUSTOM_CLIENT_IMPORTS/import com\.iiordanov\.CustomClientPackage\.\*;/" {} \;
-  find src2/main/java/com/iiordanov -name \*.java -exec sed -i.bakautocustom "s/package.*CUSTOM_CLIENT_IMPORTS/package com\.iiordanov\.CustomClientPackage;/" {} \;
+  sed -i.bakautocustom "s/CUSTOM_APP_PACKAGE_NAME/$PRJ/" ../${CUSTOM_MANIFEST_EXTENSION}-app/src/main/AndroidManifest.xml
 fi
-find src2/main/java/com/iiordanov -name \*.bakautocustom -exec rm {} \;
 
 if [ "$SKIP_BUILD" == "false" ]
 then
@@ -118,10 +94,20 @@ then
   ./build-deps.sh -j 8 -n $ANDROID_NDK build $PRJ
   popd
 
-  if echo $PRJ | grep -q "SPICE\|Opaque\|libs\|remoteClientLib"
+  if echo $PRJ | grep -qi "SPICE\|Opaque\|libs\|remoteClientLib"
   then
     pushd ../remoteClientLib
     ${ANDROID_NDK}/ndk-build
+
+    echo "Adding any custom certificate authority files in $(pwd)/certificate_authorities/ to certificate bundle from gstreamer."
+    if [ -n "$(ls certificate_authorities/)" ]
+    then
+      for ca in certificate_authorities/*
+      do
+        echo Adding ${ca} to gstreamer provided ca-certificates.crt
+        cat ${ca} >> src/main/assets/ssl/certs/ca-certificates.crt
+      done
+    fi
     popd
   fi
 fi
@@ -147,7 +133,7 @@ then
   [ -d ${freerdp_libs_dir}.DISABLED ] && rm -rf ${freerdp_libs_dir} && mv ${freerdp_libs_dir}.DISABLED ${freerdp_libs_dir}
   rm -rf ${freerdp_libs_link}
   ln -s jniLibs ${freerdp_libs_link}
-elif echo $PRJ | grep -iq "SPICE"
+elif echo $PRJ | grep -iq "SPICE\|Opaque"
 then
   [ -d ${freerdp_libs_dir} ] && rm -rf ${freerdp_libs_dir}.DISABLED && mv ${freerdp_libs_dir} ${freerdp_libs_dir}.DISABLED
   rm -rf ${freerdp_libs_link}

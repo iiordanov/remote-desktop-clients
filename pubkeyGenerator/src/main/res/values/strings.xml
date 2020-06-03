@@ -1,0 +1,22 @@
+<resources>
+	<string name="app_name">"PubkeyGenerator"</string>
+	<string name="title_activity_pubkey_generator">"PubkeyGeneratorActivity"</string>
+	<string name="prompt_file_name">"File name to save in Download directory"</string>
+	<string name="prompt_file_will_be_saved">"File will be saved into or read from Download directory."</string>
+	<string name="prompt_passphrase">"Passphrase"</string>
+	<string name="prompt_type">"Type"</string>
+	<string name="prompt_password_can_be_blank">"Passphrase can be blank but key is not encrypted"</string>
+	<string name="prompt_bits">"Bits"</string>
+	<string name="gather_entropy">"Improving Randomness"</string>
+	<string name="generating">"Generating key pair..."</string>
+	<string name="generated">"Successfully Generated Key"</string>
+	<string name="generate">"Generate New Key"</string>
+	<string name="copy">"Copy to Clipboard"</string>
+	<string name="save">"Save Public Key to File"</string>
+	<string name="share">"Share Public Key"</string>
+	<string name="decrypt">"Decrypt Current Key"</string>
+	<string name="key_import">"Import"</string>
+	<string name="touch_prompt">"Touch this box to gather randomness: %1$d%% done"</string>
+	<string name="touch_hint">"In order to ensure randomness during the key generation, move your finger randomly over the box below."</string>
+	<string name="menu_settings">"Settings"</string>
+</resources>

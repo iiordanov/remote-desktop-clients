@@ -14,10 +14,6 @@ The build automation of requires Linux at the moment, due to the use of symlinks
 
 Building from scratch (I-b) is known to build with Android NDK r14b.
 
-Please note that while for now there is a reference to eclipse_projects
-in the directory structure of the project, you no longer have to work
-in Eclipse to develop bVNC.
-
 Pick one of I-a or I-b below, then move onto II.
 
 ## I-a With Prebuilt Libraries
@@ -27,15 +23,15 @@ Building bVNC with pre-built dependencies.
   - Set the environment variable PROJECT to one of bVNC, aSPICE, or aRDP.
 
         export PROJECT=bVNC
-        ./eclipse_projects/download-prebuilt-dependencies.sh
+        ./download-prebuilt-dependencies.sh
         ./copy_prebuilt_files.sh $PROJECT
-        ./eclipse_projects/bVNC/prepare_project.sh --skip-build $PROJECT nopath
+        ./bVNC/prepare_project.sh --skip-build $PROJECT nopath
 
 ## I-b From Scratch
 
 Building from scratch and working in Android Studio.
 
-  - On Linux, install Android Studio, Android SDK, and Android NDK
+  - On Linux, install Android Studio and Android SDK
 
   - To build bVNC, aSPICE, or aRDP
 
@@ -48,9 +44,7 @@ Building from scratch and working in Android Studio.
     - Example:
 
               export PROJECT=bVNC
-              export ANDROID_NDK=/path/to/your/android/NDK/
               export ANDROID_SDK=/path/to/your/android/SDK/
-              export PATH=$PATH:${ANDROID_NDK}
               export PATH=$PATH:${ANDROID_SDK}/platform-tools/
               export PATH=$PATH:${ANDROID_SDK}/tools
 
@@ -60,7 +54,7 @@ Building from scratch and working in Android Studio.
 
     - Then, run the build script which takes hours to run. E.g.:
 
-              ./eclipse_projects/bVNC/prepare_project.sh $PROJECT $ANDROID_SDK
+              ./bVNC/prepare_project.sh $PROJECT $ANDROID_SDK
 
     - Follow the instructions that the script outputs.
 
@@ -75,12 +69,21 @@ Welcome screen, browsing to the remote-desktop-clients directory and selecting i
 
   - Build -> Make Project should now work.
 
+## Custom Certificate Authority
+
+You can add custom CAs for aSPICE and Opaque in remoteClientLib/certificate_authorities/. They will be merged with the
+ca-bundle.crt provided to the app to validate your self-signed server certs if you have any.
+
+## Generating new layouts for aSPICE and Opaque
+
+The directory `bVNC/layouts` contains a utiliy `convert.py` that can be used to generate new layouts for the desktop clients.
+
 ## III Building "Custom" VNC clients
 
 It is possible to programmatically build additional customized clients based on the VNC client contained in this project
 without altering any of the source code of the project.
 
-- Place a configuration file in yaml format in `bVNC/src2/main/assets/custom_vnc_client.yaml`
+- Place a configuration file in yaml format in `bVNC/src/main/assets/custom_vnc_client.yaml`
 
 - See the file `custom_vnc_client.yaml-EXAMPLE`. The numbers after each field are one of View.INVISIBLE or View.GONE
   and it controls whether the field is invisible or gone in the customized interface.
@@ -88,7 +91,7 @@ without altering any of the source code of the project.
 - See [https://developer.android.com/reference/android/view/View.html#GONE] for the numeric value of View.GONE
   and [https://developer.android.com/reference/android/view/View.html#INVISIBLE] for the numberic value of View.INVISIBLE.
 
-- Place an icon at `bVNC/src2/main/res/drawable/icon_of_the_custom_app.png`.
+- Place an icon at `CustomVnc-app/src/main/res/drawable/icon_of_the_custom_app.png`.
 
 - Edit `gradle.properties` and set CUSTOM_VNC_APP_NAME to `Name Of The Custom App` and CUSTOM_VNC_APP_ICON to `icon_of_the_custom_app`
 

@@ -1,3 +1,9 @@
+v4.1.0
+- Option to disable cursor
+- Fixes to cursor shape handling
+- Fix for devices with cutouts
+- Fix for back button right click
+- Fix for pointer bad pointer location when pointer shape changes
 v4.0.9
 - Japanese, Korean, Traditional Chinese, and Simplified Chinese localizations
 v4.0.8

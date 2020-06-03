@@ -1,4 +1,4 @@
-apply plugin: 'com.android.application'
+apply plugin: 'com.android.library'
 
 android {
     compileSdkVersion 28
@@ -6,10 +6,6 @@ android {
     defaultConfig {
         targetSdkVersion 28
         minSdkVersion project.getProperties().get("SDK_VERSION")
-        manifestPlaceholders = [
-                custom_vnc_app_name: project.getProperties().get("CUSTOM_VNC_APP_NAME"),
-                custom_vnc_app_icon: project.getProperties().get("CUSTOM_VNC_APP_ICON")
-        ]
     }
 
     buildTypes {
@@ -19,27 +15,25 @@ android {
         }
     }
 
-    sourceSets {
-        main.java.srcDirs += 'src2/main/java'
-        main.jniLibs.srcDirs += ['src2/main/jniLibs', 'src2/main/jniLibs_freerdp']
-    }
-
     packagingOptions {
         exclude 'lib/armeabi/libsqlcipher.so'
         exclude 'lib/mips64/libsqlcipher.so'
         exclude 'lib/mips/libsqlcipher.so'
     }
+
+    useLibrary 'org.apache.http.legacy'
 }
 
 dependencies {
     implementation project(':pubkeyGenerator')
     implementation project(':freeRDPCore')
     implementation project(':remoteClientLib')
-    implementation 'com.android.support:appcompat-v7:27.1.1'
-    implementation 'com.android.support:support-v4:27.1.1'
-    implementation 'com.android.support:support-vector-drawable:27.1.1'
+    implementation 'com.android.support:appcompat-v7:28.0.0'
+    implementation 'com.android.support:support-v4:28.0.0'
+    implementation 'com.android.support:support-vector-drawable:28.0.0'
     implementation 'net.zetetic:android-database-sqlcipher:3.5.9@aar'
     implementation files('libs/com.antlersoft.android.contentxml.jar')
     implementation files('libs/com.antlersoft.android.db.jar')
     implementation group: 'org.yaml', name: 'snakeyaml', version: '1.23'
+    implementation 'org.apache.httpcomponents:httpcore:4.4.10'
 }
