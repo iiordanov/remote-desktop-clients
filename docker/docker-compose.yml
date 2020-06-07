@@ -1,0 +1,16 @@
+version: "3"
+
+services:
+  remote-clients:
+    env_file: .env
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - USER_UID
+        - USER_GID
+        - ANDROID_SDK
+        - CURRENT_WORKING_DIR
+    volumes:
+      - ${ANDROID_SDK}:${ANDROID_SDK}:cached
+      - ${CURRENT_WORKING_DIR}:${CURRENT_WORKING_DIR}:cached
