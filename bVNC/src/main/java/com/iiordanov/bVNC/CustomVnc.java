@@ -1,5 +1,6 @@
 package com.iiordanov.bVNC;
 
+import android.app.ActionBar;
 import android.os.Bundle;
 import android.view.View;
 import com.iiordanov.bVNC.*;
@@ -40,13 +41,21 @@ public class CustomVnc extends bVNC {
 
             Locale current = getResources().getConfiguration().locale;
             String currentLanguage = current.getLanguage();
+            Map mainConfiguration = configData.get("mainConfiguration");
+
             String title = (String)((Map)configData.get("mainConfiguration").get("title")).get("default");
+            String subtitle = (String)((Map)configData.get("mainConfiguration").get("subtitle")).get("default");
             String currentLanguageTitle = (String)((Map)configData.get("mainConfiguration").get("title")).get(currentLanguage);
             if (currentLanguageTitle != null) {
                 title = currentLanguageTitle;
             }
-            setTitle(title);
-
+            String currentLanguageSubTitle = (String)((Map)configData.get("mainConfiguration").get("subtitle")).get(currentLanguage);
+            if (currentLanguageSubTitle != null) {
+                subtitle = currentLanguageSubTitle;
+            }
+            ActionBar ab = getActionBar();
+            ab.setTitle(title);
+            ab.setSubtitle(subtitle);
         } catch (IOException e) {
             android.util.Log.e(TAG, "Error opening config file from assets.");
             e.printStackTrace();

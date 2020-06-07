@@ -139,6 +139,8 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
         versionAndCode = (TextView) findViewById(R.id.versionAndCode);
         try {
             PackageInfo pInfo = this.getPackageManager().getPackageInfo(getPackageName(), 0);
+            android.util.Log.d(TAG, "Version of " + getPackageName() +
+                                         " is " + pInfo.versionName + "_" + pInfo.versionCode);
             versionAndCode.setText(pInfo.versionName + "_" + pInfo.versionCode);
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();

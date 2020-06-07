@@ -27,7 +27,13 @@ Building the projects with pre-built dependencies.
 
 Building from scratch and working in Android Studio.
 
-  - On Linux, install Android Studio and Android SDK
+  - Install some packages. On Ubuntu:
+        apt install gnome-common gobject-introspection nasm
+
+  - On Linux, install Android Studio
+  - Install Android SDK from Tools -> SDK Tools
+  - Install Android SDK command-line tools and CMake from the SDK Tools tab
+  - Ensure that the path to ANDROID_SDK is ${HOME}/Android/Sdk/ and correct below if necessary
 
   - To build the projects
 
@@ -39,7 +45,7 @@ Building from scratch and working in Android Studio.
     - Example:
 
               export PROJECT=libs # or CustomSomethingOrOther
-              export ANDROID_SDK=/path/to/your/android/SDK/
+              export ANDROID_SDK=${HOME}/Android/Sdk/
               export PATH=$PATH:${ANDROID_SDK}/platform-tools/
               export PATH=$PATH:${ANDROID_SDK}/tools
 
