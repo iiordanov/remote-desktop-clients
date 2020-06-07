@@ -5,8 +5,9 @@ ARG USER_GID
 ARG CURRENT_WORKING_DIR
 ARG ANDROID_SDK
 
-RUN apt update && apt install -yy gnome-common gobject-introspection nasm openjdk-8-jdk && apt clean && apt autoclean
-RUN apt update && apt install -yy build-essential git python-setuptools python3-setuptools wget curl unzip sudo
+RUN apt update && \
+apt install -yy gnome-common gobject-introspection nasm openjdk-8-jdk build-essential git python-setuptools python3-setuptools wget curl unzip sudo rsync && \
+apt clean && apt autoclean
 
 # This layer is needed by cerbero to avoid an interactive sudo apt-get failing, needs to be update with subsequent cerbero versions
 RUN sudo apt -yy install autotools-dev automake autoconf libtool g++ autopoint make cmake bison flex yasm pkg-config gtk-doc-tools \
