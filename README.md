@@ -23,7 +23,21 @@ Building the projects with pre-built dependencies.
         ./download-prebuilt-dependencies.sh
         ./bVNC/prepare_project.sh --skip-build libs nopath
 
-## I-b From Scratch
+## I-b From Scratch with Docker
+
+Make sure you're running the commands below from the root of the project.
+Ensure ANDROID_SDK is set to the path to your SDK.
+
+```bash
+export ANDROID_SDK=${HOME}/Android/Sdk
+echo "USER_UID=$(id -u)" > docker/.env
+echo "USER_GID=$(id -g)" >> docker/.env
+echo "ANDROID_SDK=${ANDROID_SDK}" >> docker/.env
+echo "CURRENT_WORKING_DIR=$(pwd)" >> docker/.env
+docker-compose -f docker/docker-compose.yml up
+```
+
+## I-c From Scratch
 
 Building from scratch and working in Android Studio.
 

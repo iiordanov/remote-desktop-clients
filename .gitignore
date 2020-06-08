@@ -1,3 +1,4 @@
+docker/.env
 .settings
 bin
 gen
@@ -182,5 +183,3 @@ fabric.properties
 !/gradle/wrapper/gradle-wrapper.jar
 
 # End of AndroidStudio ###
-
-

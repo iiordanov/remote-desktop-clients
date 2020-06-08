@@ -32,7 +32,7 @@ install_ndk() {
     pushd ${DIR} >&/dev/null
     if [ ! -e android-ndk-${VER} ]
     then
-        wget https://dl.google.com/android/repository/android-ndk-${VER}-linux-x86_64.zip  >&/dev/null
+        wget -c https://dl.google.com/android/repository/android-ndk-${VER}-linux-x86_64.zip  >&/dev/null
         unzip android-ndk-${VER}-linux-x86_64.zip >&/dev/null
     fi
     popd >&/dev/null
