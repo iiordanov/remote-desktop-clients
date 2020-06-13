@@ -70,6 +70,7 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
     private TextView versionAndCode;
     protected PermissionsManager permissionsManager;
     private RadioGroup radioCursor;
+    protected boolean IsNewConnection;
 
     protected abstract void updateViewFromSelected();
     protected abstract void updateSelectedFromView();

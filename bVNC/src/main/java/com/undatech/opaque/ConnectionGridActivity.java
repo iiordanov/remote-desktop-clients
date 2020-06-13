@@ -143,6 +143,7 @@ public class ConnectionGridActivity extends FragmentActivity {
     public void addNewConnection (MenuItem menuItem) {
         Intent intent = new Intent(ConnectionGridActivity.this,
                 Utils.getConnectionSetupClass(getPackageName()));
+        intent.putExtra("AddNewConnection", true);
         startActivity(intent);
     }
 

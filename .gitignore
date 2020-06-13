@@ -114,6 +114,7 @@ obj/
 .idea/dynamic.xml
 .idea/caches
 .idea/codeStyles
+.idea/jarRepositories.xml
 
 Opaque/.idea/libraries/
 Opaque/.idea/workspace.xml
