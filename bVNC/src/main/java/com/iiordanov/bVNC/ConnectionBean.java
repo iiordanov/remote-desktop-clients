@@ -53,7 +53,7 @@ public class ConnectionBean extends AbstractConnectionBean implements Connection
     private String idHash;
     private String masterPassword;
 
-    static final NewInstance<ConnectionBean> newInstance=new NewInstance<ConnectionBean>() {
+    public static final NewInstance<ConnectionBean> newInstance=new NewInstance<ConnectionBean>() {
         public ConnectionBean get() { return new ConnectionBean(c); }
     };
     ConnectionBean(Context context)

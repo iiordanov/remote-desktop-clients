@@ -15,6 +15,14 @@ import com.undatech.opaque.RemoteClientLibConstants;
 import com.undatech.opaque.dialogs.MessageFragment;
 import com.undatech.remoteClientUi.R;
 
+//For loading in Connections of bVNC
+import java.util.ArrayList;
+import java.util.Collections;
+import net.sqlcipher.database.SQLiteDatabase;
+import com.iiordanov.bVNC.ConnectionBean;
+import com.iiordanov.bVNC.Database;
+import com.iiordanov.bVNC.App;
+
 import org.json.JSONException;
 
 import java.io.IOException;
@@ -52,7 +60,25 @@ public class ConnectionLoader {
     }
 
     private void loadFromDatabase() {
-        android.util.Log.e(TAG, "Missing implementation of loadFromDatabase()");
+        Database database = new Database(this.appContext);
+        SQLiteDatabase db = database.getReadableDatabase();
+
+        ArrayList<ConnectionBean> connections = new ArrayList<ConnectionBean>();
+        ConnectionBean.getAll(db, ConnectionBean.GEN_TABLE_NAME, connections, ConnectionBean.newInstance);
+        Collections.sort(connections);
+        numConnections = connections.size();
+        screenshotFiles = new String[numConnections];
+        connectionLabels = new String[numConnections];
+        if (connections.size() == 0) {
+            android.util.Log.e(TAG, "No connections in the database");
+        }
+        else {
+            for (int i = 0; i < connections.size(); i++) {
+                connectionLabels[i] = (connections.get(i)).getAddress();
+                screenshotFiles[i] = this.appContext.getFilesDir() + "/" + (connections.get(i)).getAddress() + ".png";
+            }
+        }
+        database.close();
     }
 
     private void loadFromSharedPrefs() {
