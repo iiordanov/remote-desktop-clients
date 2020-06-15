@@ -221,7 +221,6 @@ All Input Method:
     <string name="connect_button">Connect</string>
     <string name="back_button">Go Back</string>
     <string name="update_button">Update</string>
-    <string name="save_button">Save</string>
 
     <string name="connection_caption">Connection</string>
     <string-array name="connection_type">
