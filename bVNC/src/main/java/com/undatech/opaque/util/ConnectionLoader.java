@@ -74,7 +74,20 @@ public class ConnectionLoader {
         }
         else {
             for (int i = 0; i < connections.size(); i++) {
-                connectionLabels[i] = (connections.get(i)).getAddress();
+                ConnectionBean connection = connections.get(i);
+                String nickname = "";
+                if (!"".equals(connection.getNickname())) {
+                    nickname = connection.getNickname() + " | " ;
+                }
+                String address = connection.getAddress() + ":" + connection.getPort();
+                if (!"".equals(connection.getUserName())) {
+                    address = connection.getUserName() + "@" + address;
+                }
+                if (!"".equals(connection.getSshServer())) {
+                    address = connection.getSshUser() + "@" + connection.getSshServer() + ":" +
+                              connection.getSshPort() + " | " + address;
+                }
+                connectionLabels[i] = nickname + address;
                 screenshotFiles[i] = this.appContext.getFilesDir() + "/" + (connections.get(i)).getAddress() + ".png";
             }
         }
