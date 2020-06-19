@@ -59,7 +59,6 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
 
     protected ConnectionBean selected;
     protected Database database;
-    protected Spinner spinnerConnection;
     protected EditText textNickname;
     protected boolean startingOrHasPaused = true;
     protected int layoutID;
@@ -70,7 +69,9 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
     private TextView versionAndCode;
     protected PermissionsManager permissionsManager;
     private RadioGroup radioCursor;
+
     protected boolean IsNewConnection;
+    protected int ConnId;
 
     protected abstract void updateViewFromSelected();
     protected abstract void updateSelectedFromView();
@@ -114,19 +115,6 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
         }
 
         textNickname = (EditText) findViewById(R.id.textNickname);
-
-        spinnerConnection = (Spinner)findViewById(R.id.spinnerConnection);
-        spinnerConnection.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> ad, View view, int itemIndex, long id) {
-                selected = (ConnectionBean)ad.getSelectedItem();
-                updateViewFromSelected();
-            }
-            @Override
-            public void onNothingSelected(AdapterView<?> ad) {
-                selected = null;
-            }
-        });
 
         // Here we say what happens when the Pubkey Generate button is pressed.
         buttonGeneratePubkey = (Button) findViewById(R.id.buttonGeneratePubkey);
@@ -249,6 +237,15 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
         start();
     }
 
+    protected void saveConnectionAndCloseLayout() {
+        if (selected != null) {
+            updateSelectedFromView();
+            selected.saveAndWriteRecent(false, this);
+        }
+        finish();
+    }
+
+
     /**
      * Starts the activity which makes a VNC connection and displays the remote desktop.
      */
@@ -262,30 +259,24 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
 
     public void arriveOnPage() {
         Log.i(TAG, "arriveOnPage called");
-        SQLiteDatabase db = database.getReadableDatabase();
-        ArrayList<ConnectionBean> connections = new ArrayList<ConnectionBean>();
-        ConnectionBean.getAll(db,
-                              ConnectionBean.GEN_TABLE_NAME, connections,
-                              ConnectionBean.newInstance);
-        Collections.sort(connections);
-        connections.add(0, new ConnectionBean(this));
-        int connectionIndex = 0;
-        if (connections.size() > 1) {
-            MostRecentBean mostRecent = ConnectionBean.getMostRecent(db);
-            if (mostRecent != null) {
-                for (int i = 1; i < connections.size(); ++i) {
-                    if (connections.get(i).get_Id() == mostRecent.getConnectionId()) {
-                        connectionIndex = i;
-                        break;
-                    }
+        if(!IsNewConnection) {
+            SQLiteDatabase db = database.getReadableDatabase();
+            ArrayList<ConnectionBean> connections = new ArrayList<ConnectionBean>();
+            ConnectionBean.getAll(db,
+                    ConnectionBean.GEN_TABLE_NAME, connections,
+                    ConnectionBean.newInstance);
+            Collections.sort(connections);
+            for (int i = 1; i < connections.size(); ++i) {
+                if (connections.get(i).get_Id() == ConnId) {
+                    selected = connections.get(i);
+                    break;
                 }
             }
+            database.close();
         }
-        database.close();
-        spinnerConnection.setAdapter(new ArrayAdapter<ConnectionBean>(this, R.layout.connection_list_entry,
-                                     connections.toArray(new ConnectionBean[connections.size()])));
-        spinnerConnection.setSelection(connectionIndex, false);
-        selected = connections.get(connectionIndex);
+        if(selected == null) {
+            selected = new ConnectionBean(this);
+        }
         updateViewFromSelected();
         IntroTextDialog.showIntroTextIfNecessary(this, database, Utils.isFree(this) && startingOrHasPaused);
         startingOrHasPaused = false;

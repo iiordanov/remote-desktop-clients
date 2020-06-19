@@ -95,11 +95,14 @@ public class bVNC extends MainConfiguration {
 
     @Override
     public void onCreate(Bundle icicle) {
-        layoutID = R.layout.main; // R.layout.vnc_opaque
+        layoutID = R.layout.main;
         Intent intent = getIntent();
         IsNewConnection = intent.getBooleanExtra("AddNewConnection", false);
-
+        if (IsNewConnection == true) {
+            ConnId = intent.getIntExtra("ConnId", 0);
+        }
         super.onCreate(icicle);
+
 
         ipText = (EditText) findViewById(R.id.textIP);
         sshServer = (EditText) findViewById(R.id.sshServer);
@@ -213,7 +216,7 @@ public class bVNC extends MainConfiguration {
             @Override
             public void onClick(View view) {
                 if (ipText.getText().length() != 0 && portText.getText().length() != 0) {
-                    canvasStart();
+                    saveConnectionAndCloseLayout();
                 } else {
                     Toast.makeText(view.getContext(), R.string.vnc_server_empty, Toast.LENGTH_LONG).show();
                 }
