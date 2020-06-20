@@ -172,6 +172,23 @@ public class ConnectionBean extends AbstractConnectionBean implements Connection
     }
 
     @Override
+    public String getLabel() {
+        String nickname = "";
+        if (!"".equals(this.getNickname())) {
+            nickname = this.getNickname() + " / " ;
+        }
+        String address = this.getAddress() + ":" + this.getPort();
+        if (!"".equals(this.getUserName())) {
+            address = this.getUserName() + "@" + address;
+        }
+        if (!"".equals(this.getSshServer())) {
+            address = this.getSshUser() + "@" + this.getSshServer() + ":" +
+                    this.getSshPort() + " -> " + address;
+        }
+        return nickname + address;
+    }
+
+    @Override
     public String getConnectionTypeString() {
         return "";
     }
@@ -211,9 +228,10 @@ public class ConnectionBean extends AbstractConnectionBean implements Connection
 
     }
 
+    // TODO: Extend the schema of the database to save
     @Override
     public String getFilename() {
-        return null;
+        return getLabel();
     }
 
     @Override

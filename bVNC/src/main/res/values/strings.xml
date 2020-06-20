@@ -862,4 +862,5 @@ Known issues:
     <string name="color_black_and_white"><![CDATA["Black & White (1 bpp)"]]></string>
     <string name="show">"Show"</string>
     <string name="hide">"Hide"</string>
+    <string name="search_connections">Search Connections</string>
 </resources>

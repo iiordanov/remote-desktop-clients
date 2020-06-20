@@ -5,6 +5,12 @@
     android:orientation="vertical" 
     android:padding="4dip" >
     <TextView
+        android:id="@+id/item_id"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone">
+    </TextView>
+    <TextView
         android:id="@+id/grid_item_text"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"

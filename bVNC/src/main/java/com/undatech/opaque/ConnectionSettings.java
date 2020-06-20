@@ -74,6 +74,16 @@ public class ConnectionSettings implements Connection, Serializable {
     }
 
     @Override
+    public String getLabel() {
+        String address = this.getAddress();
+        if (!"".equals(this.getUserName())) {
+            address = this.getUserName() + "@" + address;
+        }
+        return getVmname() + " @ " + address;
+
+    }
+
+    @Override
     public String getNickname() {
         return null;
     }
@@ -296,12 +306,12 @@ public class ConnectionSettings implements Connection, Serializable {
 
     @Override
     public String getAddress() {
-        return null;
+        return getHostname();
     }
 
     @Override
     public void setAddress(String address) {
-
+        setHostname(address);
     }
 
     @Override

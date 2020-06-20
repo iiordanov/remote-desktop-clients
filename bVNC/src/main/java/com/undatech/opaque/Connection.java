@@ -23,6 +23,8 @@ import android.net.Uri;
 import android.widget.ImageView.ScaleType;
 
 public interface Connection {
+    String getLabel();
+
     String getNickname();
     void setNickname(String nickname);
 

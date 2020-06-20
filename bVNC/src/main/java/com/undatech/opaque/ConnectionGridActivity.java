@@ -30,6 +30,8 @@ import android.os.Environment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.text.ClipboardManager;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -37,6 +39,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
+import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.Toast;
 
@@ -59,6 +62,7 @@ public class ConnectionGridActivity extends FragmentActivity {
     private String[] connectionPreferenceFiles;
     protected PermissionsManager permissionsManager;
     private ConnectionLoader connectionLoader;
+    private EditText search;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -83,6 +87,18 @@ public class ConnectionGridActivity extends FragmentActivity {
         });
         permissionsManager = new PermissionsManager();
         permissionsManager.requestPermissions(ConnectionGridActivity.this);
+
+        search = findViewById(R.id.search);
+        search.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) { }
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+            @Override
+            public void afterTextChanged(Editable s) {
+                android.util.Log.v(TAG, "afterTextChanged:\t" + s.toString());
+            }
+        });
     }
 
     private void launchConnection(int position) {
@@ -130,9 +146,9 @@ public class ConnectionGridActivity extends FragmentActivity {
                 numCols = 2;
             }
             gridView.setNumColumns(numCols);
-            gridView.setAdapter(new LabeledImageApapter(this, connectionLoader.getScreenshotFiles(), connectionLoader.getConnectionLabels(), numCols));
+            gridView.setAdapter(new LabeledImageApapter(this, connectionLoader.getConnectionsById(), numCols));
         } else {
-            gridView.setAdapter(new LabeledImageApapter(this, null, null, 1));
+            gridView.setAdapter(new LabeledImageApapter(this, null, 1));
         }
     }
 

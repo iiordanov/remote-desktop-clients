@@ -21,6 +21,7 @@
 package com.undatech.opaque;
 
 import java.io.File;
+import java.util.Map;
 
 import android.app.Activity;
 import android.content.Context;
@@ -42,24 +43,22 @@ public class LabeledImageApapter implements ListAdapter {
     private static final String TAG = "LabeledImageApapter";
     
     private Context context;
-    private final String[] imageFiles;
-    private final String[] imageLabels;
     private int numCols = 0;
     private Bitmap defaultBitmap = null;
     private String defaultLabel = null;
- 
-    public LabeledImageApapter(Context context, String[] imageFiles, String[] imageLabels, int numCols) {
+    Map<String, Connection> getConnectionsById = null;
+
+    public LabeledImageApapter(Context context, Map<String, Connection> getConnectionsById, int numCols) {
         this.context = context;
-        this.imageFiles = imageFiles;
-        this.imageLabels = imageLabels;
         this.numCols = numCols;
         this.defaultBitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.no_screenshot);
         this.defaultLabel = "(No VM specified)";
+        this.getConnectionsById = getConnectionsById;
     }
  
     public View getView(int position, View convertView, ViewGroup parent) {
         LayoutInflater inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        android.util.Log.d(TAG, "Now setting label at position: " + position + " to: " + imageLabels[position]);
+        android.util.Log.d(TAG, "Now setting label at position: " + position + " to: " + getConnectionsById.get(Integer.toString(position)).getLabel());
 
         GridView gView = (GridView) ((Activity)context).findViewById(R.id.gridView);
         int height = gView.getWidth()/numCols;
@@ -81,14 +80,14 @@ public class LabeledImageApapter implements ListAdapter {
         gridView.setLayoutParams(lp);
 
         TextView textView = (TextView) gridView.findViewById(R.id.grid_item_text);
-        if (imageLabels[position].equals("")) {
+        if (getConnectionsById.get(Integer.toString(position)).getLabel().equals("")) {
             textView.setText(defaultLabel);
         } else {
-            textView.setText(imageLabels[position]);
+            textView.setText(getConnectionsById.get(Integer.toString(position)).getLabel());
         }
         ImageView imageView = (ImageView) gridView.findViewById(R.id.grid_item_image);
-        if (new File(imageFiles[position]).exists()) {
-            Bitmap gridImage = BitmapFactory.decodeFile(imageFiles[position]);
+        if (new File(getConnectionsById.get(Integer.toString(position)).getFilename()).exists()) {
+            Bitmap gridImage = BitmapFactory.decodeFile(getConnectionsById.get(Integer.toString(position)).getFilename());
             imageView.setImageBitmap(gridImage);
         } else {
             imageView.setImageBitmap(defaultBitmap);
@@ -100,8 +99,8 @@ public class LabeledImageApapter implements ListAdapter {
     @Override
     public int getCount() {
         int count = 0;
-        if (imageFiles != null) {
-            count = imageFiles.length;
+        if (getConnectionsById != null) {
+            count = getConnectionsById.size();
         }
         return count;
     }

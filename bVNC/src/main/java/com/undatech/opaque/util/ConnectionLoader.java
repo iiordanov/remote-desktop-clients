@@ -26,11 +26,14 @@ import com.iiordanov.bVNC.App;
 import org.json.JSONException;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ConnectionLoader {
     private static String TAG = "ConnectionLoader";
     private Context appContext;
     private boolean connectionsInSharedPrefs = false;
+    private Map<String, Connection> connectionsById;
     private String[] connectionPreferenceFiles;
     private String[] screenshotFiles;
     private String[] connectionLabels;
@@ -45,6 +48,7 @@ public class ConnectionLoader {
         this.permissionsManager = permissionsManager;
         this.fm = fm;
         this.activity = activity;
+        this.connectionsById = new HashMap<>();
         permissionsManager = new PermissionsManager();
         permissionsManager.requestPermissions(activity);
         load();
@@ -75,20 +79,9 @@ public class ConnectionLoader {
         else {
             for (int i = 0; i < connections.size(); i++) {
                 ConnectionBean connection = connections.get(i);
-                String nickname = "";
-                if (!"".equals(connection.getNickname())) {
-                    nickname = connection.getNickname() + " | " ;
-                }
-                String address = connection.getAddress() + ":" + connection.getPort();
-                if (!"".equals(connection.getUserName())) {
-                    address = connection.getUserName() + "@" + address;
-                }
-                if (!"".equals(connection.getSshServer())) {
-                    address = connection.getSshUser() + "@" + connection.getSshServer() + ":" +
-                              connection.getSshPort() + " | " + address;
-                }
-                connectionLabels[i] = nickname + address;
-                screenshotFiles[i] = this.appContext.getFilesDir() + "/" + (connections.get(i)).getAddress() + ".png";
+                connectionLabels[i] = connection.getLabel();
+                screenshotFiles[i] = appContext.getFilesDir() + "/" + connection.getFilename() + ".png";
+                connectionsById.put(Integer.toString(i), connection);
             }
         }
         database.close();
@@ -108,8 +101,8 @@ public class ConnectionLoader {
                 cs.load(appContext);
                 connectionLabels[i] = cs.getVmname();
                 android.util.Log.d(TAG, "Adding label: " + connectionLabels[i]);
-                String location = cs.getFilename();
-                screenshotFiles[i] = appContext.getFilesDir() + "/" + location + ".png";
+                screenshotFiles[i] = appContext.getFilesDir() + "/" + cs.getFilename() + ".png";
+                connectionsById.put(Integer.toString(i), cs);
             }
         }
     }
@@ -211,5 +204,9 @@ public class ConnectionLoader {
 
     public int getNumConnections() {
         return numConnections;
+    }
+
+    public Map<String, Connection> getConnectionsById() {
+        return connectionsById;
     }
 }
