@@ -96,7 +96,12 @@ public class ConnectionGridActivity extends FragmentActivity {
             public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
             @Override
             public void afterTextChanged(Editable s) {
-                android.util.Log.v(TAG, "afterTextChanged:\t" + s.toString());
+                int numCols = 1;
+                if (connectionLoader.getNumConnections() > 2) {
+                    numCols = 2;
+                }
+                gridView.setAdapter(new LabeledImageApapter(ConnectionGridActivity.this,
+                        connectionLoader.getConnectionsById(), search.getText().toString(), numCols));
             }
         });
     }
@@ -146,9 +151,11 @@ public class ConnectionGridActivity extends FragmentActivity {
                 numCols = 2;
             }
             gridView.setNumColumns(numCols);
-            gridView.setAdapter(new LabeledImageApapter(this, connectionLoader.getConnectionsById(), numCols));
+            gridView.setAdapter(new LabeledImageApapter(this,
+                    connectionLoader.getConnectionsById(), search.getText().toString(), numCols));
         } else {
-            gridView.setAdapter(new LabeledImageApapter(this, null, 1));
+            gridView.setAdapter(new LabeledImageApapter(this,
+                    null, search.getText().toString(), 1));
         }
     }
 

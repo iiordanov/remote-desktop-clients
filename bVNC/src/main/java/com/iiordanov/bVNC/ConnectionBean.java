@@ -52,6 +52,7 @@ public class ConnectionBean extends AbstractConnectionBean implements Connection
     private int idHashAlgorithm;
     private String idHash;
     private String masterPassword;
+    private String id;
 
     public static final NewInstance<ConnectionBean> newInstance=new NewInstance<ConnectionBean>() {
         public ConnectionBean get() { return new ConnectionBean(c); }
@@ -186,6 +187,16 @@ public class ConnectionBean extends AbstractConnectionBean implements Connection
                     this.getSshPort() + " -> " + address;
         }
         return nickname + address;
+    }
+
+    @Override
+    public String getId() {
+        return id;
+    }
+
+    @Override
+    public void setId(String id) {
+        this.id = id;
     }
 
     @Override

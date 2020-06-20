@@ -25,6 +25,9 @@ import android.widget.ImageView.ScaleType;
 public interface Connection {
     String getLabel();
 
+    String getId();
+    void setId(String id);
+
     String getNickname();
     void setNickname(String nickname);
 

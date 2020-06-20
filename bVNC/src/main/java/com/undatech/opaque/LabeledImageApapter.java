@@ -21,6 +21,7 @@
 package com.undatech.opaque;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.Map;
 
 import android.app.Activity;
@@ -45,20 +46,30 @@ public class LabeledImageApapter implements ListAdapter {
     private Context context;
     private int numCols = 0;
     private Bitmap defaultBitmap = null;
-    private String defaultLabel = null;
-    Map<String, Connection> getConnectionsById = null;
+    private String defaultLabel = "Untitled";
+    Map<String, Connection> filteredConnectionsByPosition = new HashMap<>();
+    String filter = null;
 
-    public LabeledImageApapter(Context context, Map<String, Connection> getConnectionsById, int numCols) {
+    public LabeledImageApapter(Context context, Map<String, Connection> connectionsByPosition, String filter, int numCols) {
         this.context = context;
         this.numCols = numCols;
         this.defaultBitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.no_screenshot);
-        this.defaultLabel = "(No VM specified)";
-        this.getConnectionsById = getConnectionsById;
+        this.filter = filter;
+        int i = 0;
+        for (Connection c : connectionsByPosition.values()) {
+            if (c.getLabel().contains(filter)) {
+                this.filteredConnectionsByPosition.put(Integer.toString(i), c);
+                i++;
+            }
+        }
     }
  
     public View getView(int position, View convertView, ViewGroup parent) {
         LayoutInflater inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        android.util.Log.d(TAG, "Now setting label at position: " + position + " to: " + getConnectionsById.get(Integer.toString(position)).getLabel());
+        Connection c = filteredConnectionsByPosition.get(Integer.toString(position));
+
+        String label = c.getLabel();
+        android.util.Log.d(TAG, "Now setting label at position: " + position + " to: " + label);
 
         GridView gView = (GridView) ((Activity)context).findViewById(R.id.gridView);
         int height = gView.getWidth()/numCols;
@@ -72,35 +83,39 @@ public class LabeledImageApapter implements ListAdapter {
                 tmp.recycle();
             }
         } else {
-            gridView = new View(context); 
             gridView = inflater.inflate(R.layout.grid_item, null);
         }
-        
+
         GridView.LayoutParams lp = new GridView.LayoutParams(height, height);
         gridView.setLayoutParams(lp);
 
         TextView textView = (TextView) gridView.findViewById(R.id.grid_item_text);
-        if (getConnectionsById.get(Integer.toString(position)).getLabel().equals("")) {
+        if ("".equals(label)) {
             textView.setText(defaultLabel);
         } else {
-            textView.setText(getConnectionsById.get(Integer.toString(position)).getLabel());
+            textView.setText(label);
         }
         ImageView imageView = (ImageView) gridView.findViewById(R.id.grid_item_image);
-        if (new File(getConnectionsById.get(Integer.toString(position)).getFilename()).exists()) {
-            Bitmap gridImage = BitmapFactory.decodeFile(getConnectionsById.get(Integer.toString(position)).getFilename());
+        if (new File(c.getFilename()).exists()) {
+            Bitmap gridImage = BitmapFactory.decodeFile(c.getFilename());
             imageView.setImageBitmap(gridImage);
         } else {
             imageView.setImageBitmap(defaultBitmap);
         }
-        
+
+        // This ID in a hidden TextView is used to send the right connection for editing or connection establishment
+        // when the item is long-tapped or tapped respectively.
+        TextView gridItemId = (TextView) gridView.findViewById(R.id.grid_item_id);
+        gridItemId.setText(c.getId());
+
         return gridView;
     }
  
     @Override
     public int getCount() {
         int count = 0;
-        if (getConnectionsById != null) {
-            count = getConnectionsById.size();
+        if (filteredConnectionsByPosition != null) {
+            count = filteredConnectionsByPosition.size();
         }
         return count;
     }

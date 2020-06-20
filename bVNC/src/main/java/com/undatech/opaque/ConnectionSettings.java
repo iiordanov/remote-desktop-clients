@@ -45,7 +45,8 @@ import java.util.Iterator;
 public class ConnectionSettings implements Connection, Serializable {
     private static final String TAG = "ConnectionSettings";
     private static final long serialVersionUID = 1L;
-    
+
+    private String id = "";
     private String filename = "";
     private String connectionType = "";
     private String hostname = "";
@@ -81,6 +82,16 @@ public class ConnectionSettings implements Connection, Serializable {
         }
         return getVmname() + " @ " + address;
 
+    }
+
+    @Override
+    public String getId() {
+        return id;
+    }
+
+    @Override
+    public void setId(String id) {
+        this.id = id;
     }
 
     @Override
