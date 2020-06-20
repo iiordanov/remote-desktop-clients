@@ -41,6 +41,7 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.EditText;
 import android.widget.GridView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.iiordanov.bVNC.Utils;
@@ -81,7 +82,7 @@ public class ConnectionGridActivity extends FragmentActivity {
         gridView.setOnItemLongClickListener(new OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View v, int position, long id) {
-                editConnection(position);
+                editConnection(v);
                 return true;
             }
         });
@@ -123,16 +124,16 @@ public class ConnectionGridActivity extends FragmentActivity {
 
     }
 
-    private void editConnection(int position) {
-        SharedPreferences sp = getSharedPreferences("generalSettings", Context.MODE_PRIVATE);
-        String connections = sp.getString("connections", null);
-        if (connections != null) {
-            connectionPreferenceFiles = connections.split(" ");
-        }
-        Intent intent = new Intent(ConnectionGridActivity.this, GeneralUtils.getClassByName("com.undatech.opaque.ConnectionSetupActivity"));
-        if (connectionPreferenceFiles != null && position < connectionPreferenceFiles.length) {
-            intent.putExtra("com.undatech.opaque.connectionToEdit", connectionPreferenceFiles[position]);
-        }
+    private void editConnection(View v) {
+        android.util.Log.e(TAG, "Modify Connection");
+        String runtimeId = (String) ((TextView) v.findViewById(R.id.grid_item_id)).getText();
+        Connection conn = connectionLoader.getConnectionsById().get(runtimeId);
+        Intent intent = new Intent(ConnectionGridActivity.this, Utils.getConnectionSetupClass(getPackageName()));
+//        if (connectionPreferenceFiles != null && position < connectionPreferenceFiles.length) {
+//            intent.putExtra("com.undatech.opaque.connectionToEdit", connectionPreferenceFiles[position]);
+//        }
+        intent.putExtra("AddNewConnection", false);
+        intent.putExtra("ConnId", conn.getId());
         startActivity(intent);
     }
 

@@ -56,10 +56,12 @@ public class LabeledImageApapter implements ListAdapter {
         this.defaultBitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.no_screenshot);
         this.filter = filter;
         int i = 0;
-        for (Connection c : connectionsByPosition.values()) {
-            if (c.getLabel().contains(filter)) {
-                this.filteredConnectionsByPosition.put(Integer.toString(i), c);
-                i++;
+        if (connectionsByPosition != null) {
+            for (Connection c : connectionsByPosition.values()) {
+                if (c.getLabel().contains(filter)) {
+                    this.filteredConnectionsByPosition.put(Integer.toString(i), c);
+                    i++;
+                }
             }
         }
     }
@@ -106,7 +108,7 @@ public class LabeledImageApapter implements ListAdapter {
         // This ID in a hidden TextView is used to send the right connection for editing or connection establishment
         // when the item is long-tapped or tapped respectively.
         TextView gridItemId = (TextView) gridView.findViewById(R.id.grid_item_id);
-        gridItemId.setText(c.getId());
+        gridItemId.setText(c.getRuntimeId());
 
         return gridView;
     }

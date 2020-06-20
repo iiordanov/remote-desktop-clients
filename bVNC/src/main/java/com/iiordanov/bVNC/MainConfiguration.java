@@ -71,7 +71,7 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
     private RadioGroup radioCursor;
 
     protected boolean IsNewConnection;
-    protected int ConnId;
+    protected long ConnId = 0;
 
     protected abstract void updateViewFromSelected();
     protected abstract void updateSelectedFromView();
@@ -266,7 +266,9 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
                     ConnectionBean.GEN_TABLE_NAME, connections,
                     ConnectionBean.newInstance);
             Collections.sort(connections);
+            connections.add(0, new ConnectionBean(this));
             for (int i = 1; i < connections.size(); ++i) {
+
                 if (connections.get(i).get_Id() == ConnId) {
                     selected = connections.get(i);
                     break;

@@ -26,7 +26,9 @@ public interface Connection {
     String getLabel();
 
     String getId();
-    void setId(String id);
+
+    String getRuntimeId();
+    void setRuntimeId(String id);
 
     String getNickname();
     void setNickname(String nickname);

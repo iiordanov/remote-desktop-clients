@@ -190,12 +190,15 @@ public class ConnectionBean extends AbstractConnectionBean implements Connection
     }
 
     @Override
-    public String getId() {
+    public String getRuntimeId() {
         return id;
     }
 
     @Override
-    public void setId(String id) {
+    public String getId() { return Long.toString(get_Id()); }
+
+    @Override
+    public void setRuntimeId(String id) {
         this.id = id;
     }
 

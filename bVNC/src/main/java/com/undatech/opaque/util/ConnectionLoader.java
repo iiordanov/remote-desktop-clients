@@ -71,14 +71,15 @@ public class ConnectionLoader {
         ConnectionBean.getAll(db, ConnectionBean.GEN_TABLE_NAME, connections, ConnectionBean.newInstance);
         Collections.sort(connections);
         numConnections = connections.size();
-        screenshotFiles = new String[numConnections];
-        connectionLabels = new String[numConnections];
         if (connections.size() == 0) {
             android.util.Log.e(TAG, "No connections in the database");
         }
         else {
+            screenshotFiles = new String[numConnections];
+            connectionLabels = new String[numConnections];
             for (int i = 0; i < connections.size(); i++) {
-                ConnectionBean connection = connections.get(i);
+                Connection connection = connections.get(i);
+                connection.setRuntimeId(Integer.toString(i));
                 connectionLabels[i] = connection.getLabel();
                 screenshotFiles[i] = appContext.getFilesDir() + "/" + connection.getFilename() + ".png";
                 connectionsById.put(Integer.toString(i), connection);
@@ -98,8 +99,9 @@ public class ConnectionLoader {
             connectionLabels = new String[numConnections];
             for (int i = 0; i < numConnections; i++) {
                 Connection cs = new ConnectionSettings(connectionPreferenceFiles[i]);
+                cs.setRuntimeId(Integer.toString(i));
                 cs.load(appContext);
-                connectionLabels[i] = cs.getVmname();
+                connectionLabels[i] = cs.getLabel();
                 android.util.Log.d(TAG, "Adding label: " + connectionLabels[i]);
                 screenshotFiles[i] = appContext.getFilesDir() + "/" + cs.getFilename() + ".png";
                 connectionsById.put(Integer.toString(i), cs);

@@ -98,9 +98,11 @@ public class bVNC extends MainConfiguration {
         layoutID = R.layout.main;
         Intent intent = getIntent();
         IsNewConnection = intent.getBooleanExtra("AddNewConnection", false);
-        if (IsNewConnection == true) {
-            ConnId = intent.getIntExtra("ConnId", 0);
+        if (!IsNewConnection) {
+            ConnId = Long.parseLong(intent.getStringExtra("ConnId"));
         }
+        android.util.Log.e(TAG, "STARTING CREATE");
+        android.util.Log.e(TAG, Long.toString(this.ConnId));
         super.onCreate(icicle);
 
 

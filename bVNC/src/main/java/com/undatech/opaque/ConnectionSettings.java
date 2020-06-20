@@ -86,11 +86,16 @@ public class ConnectionSettings implements Connection, Serializable {
 
     @Override
     public String getId() {
+        return getRuntimeId();
+    }
+
+    @Override
+    public String getRuntimeId() {
         return id;
     }
 
     @Override
-    public void setId(String id) {
+    public void setRuntimeId(String id) {
         this.id = id;
     }
 
