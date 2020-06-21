@@ -141,8 +141,7 @@ public class GeneratePubkeyActivity extends Activity implements OnEntropyGathere
 		if (sshPrivKey != null && sshPrivKey.length() != 0) {
 			decryptAndRecoverKey ();
 		} else {
-			Toast.makeText(getBaseContext(), "Key not generated yet. Set parameters and tap 'Generate New Key'.",
-					Toast.LENGTH_LONG).show();
+			Toast.makeText(getBaseContext(), getString(R.string.key_not_generated_yet), Toast.LENGTH_LONG).show();
 		}
 
 		keyTypeGroup.setOnCheckedChangeListener(new OnCheckedChangeListener() {
@@ -239,13 +238,6 @@ public class GeneratePubkeyActivity extends Activity implements OnEntropyGathere
 				// This is an UGLY HACK for Blackberry devices which do not transmit the "+" character.
 				// Remove as soon as the bug is fixed.
 				String s = android.os.Build.MODEL;
-				if (s.contains("BlackBerry")) {
-					Toast.makeText(getBaseContext(), "ERROR: Blackberry devices have problems sharing public keys. " +
-							"The '+' character is not transmitted. Please save as a file and attach in an email, or " +
-							"copy to clipboard and paste when connected to the server with a password.",
-							Toast.LENGTH_LONG).show();
-					return;
-				}
 				Intent share = new Intent(Intent.ACTION_SEND);
 				share.setType("text/plain");
 				share.putExtra(Intent.EXTRA_TEXT, publicKeySSHFormat);
@@ -257,8 +249,7 @@ public class GeneratePubkeyActivity extends Activity implements OnEntropyGathere
 			public void onClick(View view) {
 				hideSoftKeyboard(view);
 				cm.setText(publicKeySSHFormat);
-				Toast.makeText(getBaseContext(), "Copied public key in OpenSSH format to clipboard.",
-						Toast.LENGTH_SHORT).show();				
+				Toast.makeText(getBaseContext(), getString(R.string.copied_to_clipboard), Toast.LENGTH_SHORT).show();
 			}
 		});
 		
@@ -268,8 +259,7 @@ public class GeneratePubkeyActivity extends Activity implements OnEntropyGathere
 				
 				String fname = file_name.getText().toString();
 				if (fname.length() == 0) {
-					Toast.makeText(getBaseContext(), "Please enter file name.",
-							Toast.LENGTH_SHORT).show();
+					Toast.makeText(getBaseContext(), getString(R.string.enter_filename), Toast.LENGTH_SHORT).show();
 					return;
 				}
 					
@@ -285,14 +275,14 @@ public class GeneratePubkeyActivity extends Activity implements OnEntropyGathere
 					writer.close();
 					fout.close();
 				} catch (IOException e) {
-					Toast.makeText(getBaseContext(), "Failed to write " + fname,
+					Toast.makeText(getBaseContext(), getString(R.string.error_writing_file) + fname,
 							Toast.LENGTH_LONG).show();
 					Log.e (TAG, "Failed to output file " + fname);
 					e.printStackTrace();
 					return;
 				}
 
-				Toast.makeText(getBaseContext(), "Successfully wrote public key in OpenSSH format to " + fname,
+				Toast.makeText(getBaseContext(), getString(R.string.success_writing_file) + fname,
 						Toast.LENGTH_LONG).show();
 			}
 		});
@@ -303,9 +293,7 @@ public class GeneratePubkeyActivity extends Activity implements OnEntropyGathere
 				
 				String fname = file_name.getText().toString();
 				if (fname.length() == 0) {
-					Toast.makeText(getBaseContext(), "Please enter file name (at the bottom) to import PEM formatted " +
-													 "encrypted/unencrypted RSA keys, PKCS#8 unencrypted DSA keys. " +
-													 "Keys generated with 'ssh-keygen -t rsa' are known to work.", Toast.LENGTH_LONG).show();
+					Toast.makeText(getBaseContext(), getString(R.string.error_importing), Toast.LENGTH_LONG).show();
 					return;
 				}
 				
@@ -317,14 +305,13 @@ public class GeneratePubkeyActivity extends Activity implements OnEntropyGathere
 				} catch (IOException e) {
 					e.printStackTrace();
 					Log.e (TAG, "Failed to read key from file: " + fname);
-					Toast.makeText(getBaseContext(), "Failed to read file: " + fname + ". Please ensure it is present " +
-													 "in Download directory.", Toast.LENGTH_LONG).show();
+					Toast.makeText(getBaseContext(), getString(R.string.error_reading_file) + fname, Toast.LENGTH_LONG).show();
 					return;
 				}
 				
 				try {
 					passphrase = password1.getText().toString();
-					KeyPair pair = PubkeyUtils.tryImportingPemAndPkcs8(data, passphrase);
+					KeyPair pair = PubkeyUtils.tryImportingPemAndPkcs8(GeneratePubkeyActivity.this, data, passphrase);
 					converToBase64AndSendIntent (pair);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -332,7 +319,7 @@ public class GeneratePubkeyActivity extends Activity implements OnEntropyGathere
 					Toast.makeText(getBaseContext(), e.getLocalizedMessage(), Toast.LENGTH_LONG).show();
 					return;
 				}
-				Toast.makeText(getBaseContext(), "Successfully imported SSH key from file.", Toast.LENGTH_LONG).show();
+				Toast.makeText(getBaseContext(), getString(R.string.success_importing), Toast.LENGTH_LONG).show();
 				finish();
 			}
 		});
@@ -371,11 +358,9 @@ public class GeneratePubkeyActivity extends Activity implements OnEntropyGathere
 		}
 
 		if (recovered) {
-			Toast.makeText(getBaseContext(), "Successfully decrypted key.", Toast.LENGTH_LONG).show();
+			Toast.makeText(getBaseContext(), getString(R.string.success_decrypting), Toast.LENGTH_LONG).show();
 		} else {
-			Toast.makeText(getBaseContext(),
-					"Could not decrypt key. Please enter correct passphrase and try decrypting again.",
-					Toast.LENGTH_LONG).show();
+			Toast.makeText(getBaseContext(), getString(R.string.error_decrypting_key), Toast.LENGTH_LONG).show();
 		}
 		checkEntries();
 		return success;

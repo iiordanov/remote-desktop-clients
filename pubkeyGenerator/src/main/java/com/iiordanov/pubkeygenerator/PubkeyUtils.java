@@ -56,6 +56,7 @@ import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.PBEParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
+import android.content.Context;
 import android.util.Log;
 
 import com.trilead.ssh2.crypto.Base64;
@@ -416,7 +417,7 @@ public class PubkeyUtils {
 	}
 	
 	// New method that uses additional PEMDecoder functionality
-    public static KeyPair importPem (String pem, String passphrase) throws Exception {
+    public static KeyPair importPem (Context c, String pem, String passphrase) throws Exception {
     	PEMStructure ps = null;
 		KeyPair recovered = null;
 
@@ -432,8 +433,7 @@ public class PubkeyUtils {
 			try {
 				PEMDecoder.decode(ps, passphrase);
 			} catch (Exception e) {
-				throw new Exception("Failed to decrypt PEM. It is encrypted, but wrong passphrase was specified. " +
-									"Please specify correct passphrase in the appropriate field, and import again.");
+				throw new Exception(c.getString(R.string.error_decrypting));
 			}
 		}
 		
@@ -447,7 +447,7 @@ public class PubkeyUtils {
     }
 
     // This function first tries to import keys in PEM format and failing that, tries passphrase-less PKCS8 format.
-    public static KeyPair tryImportingPemAndPkcs8 (String pem, String passphrase) throws Exception {
+    public static KeyPair tryImportingPemAndPkcs8 (Context c, String pem, String passphrase) throws Exception {
     	KeyPair pair = null;
    		// Try to import as PEM
     	pair = importPem (pem, passphrase);
@@ -457,9 +457,7 @@ public class PubkeyUtils {
    		}
    		// If both failed, throw an exception to alert the user to the failure.
    		if (pair == null) {
-   			throw new Exception("Failed to recover key-pair from file. Supported formats are " +
-   								"encrypted/unencrypted RSA key in PEM format or unencrypted RSA/DSA " +
-   								"key in PKCS8 format. Keys generated with 'ssh-keygen -t rsa' are known to work.");
+   			throw new Exception(c.getString(R.string.error_importing));
    		}
     	return pair;
     }
