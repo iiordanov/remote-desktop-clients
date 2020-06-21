@@ -450,7 +450,7 @@ public class PubkeyUtils {
     public static KeyPair tryImportingPemAndPkcs8 (Context c, String pem, String passphrase) throws Exception {
     	KeyPair pair = null;
    		// Try to import as PEM
-    	pair = importPem (pem, passphrase);
+    	pair = importPem (c, pem, passphrase);
    		// If PEM import failed, try to import as PKCS#8
    		if (pair == null) {
    			pair = importPkcs8 (pem);
