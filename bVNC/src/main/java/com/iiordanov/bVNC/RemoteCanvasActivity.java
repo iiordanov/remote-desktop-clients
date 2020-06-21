@@ -438,10 +438,14 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
                 // (when r.bottom holds the width of the screen rather than the height due to a rotation)
                 // we make sure r.top is zero (i.e. there is no notification bar and we are in full-screen mode)
                 // It's a bit of a hack.
-                if (r.top == 0) {
+                // One additional situation that needed handling was that devices with notches / cutouts don't
+                // ever have r.top equal to zero. so a special case for them.
+                Rect re = new Rect();
+                getWindow().getDecorView().getWindowVisibleDisplayFrame(re);
+                if (r.top == 0 || re.top > 0) {
                     if (canvas.myDrawable != null) {
                         android.util.Log.d(TAG, "onGlobalLayout: Setting VisibleDesktopHeight to: " + r.bottom);
-                        canvas.setVisibleDesktopHeight(r.bottom);
+                        canvas.setVisibleDesktopHeight(r.bottom - re.top);
                         canvas.relativePan(0, 0);
                     } else {
                         android.util.Log.d(TAG, "onGlobalLayout: canvas.myDrawable is null");
@@ -455,8 +459,6 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
                 int topBottomOffset = 0;
                 int leftRightOffset = 0;
                 // Use the visible display frame of the decor view to compute notch dimensions.
-                Rect re = new Rect();
-                getWindow().getDecorView().getWindowVisibleDisplayFrame(re);
                 int rootViewHeight = rootView.getHeight();
                 int rootViewWidth = rootView.getWidth();
                 android.util.Log.d(TAG, "onGlobalLayout: rootViewHeight: " + rootViewHeight);
