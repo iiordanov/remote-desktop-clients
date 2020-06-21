@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           xmlns:tools="http://schemas.android.com/tools"
           package="com.iiordanov.aSPICE" android:installLocation="auto"
-          android:versionCode="114207" android:versionName="v4.2.0">
+          android:versionCode="114300" android:versionName="v4.3.0">
 
     <uses-permission tools:node="removeAll"/>
     <uses-permission android:name="android.permission.INTERNET"> </uses-permission>

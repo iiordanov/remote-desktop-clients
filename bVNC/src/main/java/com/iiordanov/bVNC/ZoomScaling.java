@@ -43,10 +43,6 @@ class ZoomScaling extends AbstractScaling {
     float scaling;
     float minimumScale;
     
-    /**
-     * @param id
-     * @param scaleType
-     */
     public ZoomScaling() {
         super(R.id.itemZoomable, ScaleType.MATRIX);
         matrix = new Matrix();
@@ -80,7 +76,7 @@ class ZoomScaling extends AbstractScaling {
     
     /**
      * Call after scaling and matrix have been changed to resolve scrolling
-     * @param activity
+     * @param canvas
      */
     private void resolveZoom(RemoteCanvas canvas) {
         resetMatrix();
@@ -180,7 +176,6 @@ class ZoomScaling extends AbstractScaling {
         // Only if we have actually scaled do we pan and potentially set mouse position.
         if (oldScale != newScale) {
             canvas.relativePan((int)(newXPan - xPan), (int)(newYPan - yPan));
-            canvas.getPointer().movePointerToMakeVisible();
         }
     }    
     
@@ -209,11 +204,7 @@ class ZoomScaling extends AbstractScaling {
         canvasYOffset = -canvas.getCenteredYOffset();
         canvas.computeShiftFromFullToView ();
         minimumScale = canvas.getMinimumScale();
-        if (minimumScale > 1.f) {
-            scaling = minimumScale;
-        } else {
-            scaling = 1.f;
-        }
+        scaling = minimumScale;
         resolveZoom(canvas);
     }
 
