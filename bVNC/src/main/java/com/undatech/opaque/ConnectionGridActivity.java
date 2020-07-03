@@ -44,8 +44,10 @@ import android.widget.GridView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.iiordanov.bVNC.RemoteCanvasActivity;
 import com.iiordanov.bVNC.Utils;
 import com.iiordanov.bVNC.bVNC;
+import com.iiordanov.bVNC.ConnectionBean;
 import com.undatech.opaque.dialogs.MessageFragment;
 import com.undatech.opaque.util.ConnectionLoader;
 import com.undatech.opaque.util.FileUtils;
@@ -64,6 +66,7 @@ public class ConnectionGridActivity extends FragmentActivity {
     protected PermissionsManager permissionsManager;
     private ConnectionLoader connectionLoader;
     private EditText search;
+    private boolean isConnecting = false;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -75,7 +78,7 @@ public class ConnectionGridActivity extends FragmentActivity {
         gridView.setOnItemClickListener(new OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
-                launchConnection(position);
+                launchConnection(v);
             }
         });
         
@@ -107,18 +110,19 @@ public class ConnectionGridActivity extends FragmentActivity {
         });
     }
 
-    private void launchConnection(int position) {
-        SharedPreferences sp = getSharedPreferences("generalSettings", Context.MODE_PRIVATE);
-        String connections = sp.getString("connections", null);
-        if (connections != null) {
-            connectionPreferenceFiles = connections.split(" ");
-        }
-
+    private void launchConnection(View v) {
+        android.util.Log.e(TAG, "Launch Connection");
+        isConnecting = true;
+        String runtimeId = (String) ((TextView) v.findViewById(R.id.grid_item_id)).getText();
         Intent intent = new Intent(ConnectionGridActivity.this, GeneralUtils.getClassByName("com.iiordanov.bVNC.RemoteCanvasActivity"));
-        if (connectionPreferenceFiles != null && position < connectionPreferenceFiles.length) {
-            ConnectionSettings cs = new ConnectionSettings(connectionPreferenceFiles[position]);
+        if (Utils.isOpaque(getPackageName())) {
+            ConnectionSettings cs = (ConnectionSettings) connectionLoader.getConnectionsById().get(runtimeId);;
             cs.loadFromSharedPreferences(appContext);
             intent.putExtra("com.undatech.opaque.ConnectionSettings", cs);
+        }
+        else{
+            ConnectionBean conn = (ConnectionBean) connectionLoader.getConnectionsById().get(runtimeId);
+            intent.putExtra(Utils.getConnectionString(appContext), conn.Gen_getValues());
         }
         startActivity(intent);
 
