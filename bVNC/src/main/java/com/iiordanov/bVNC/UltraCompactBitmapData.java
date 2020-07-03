@@ -35,16 +35,16 @@ class UltraCompactBitmapData extends AbstractBitmapData {
     static final int CAPACITY_MULTIPLIER = 4;
     Bitmap.Config cfg = Bitmap.Config.RGB_565;
 
-    class CompactBitmapDrawable extends AbstractBitmapDrawable {
+    class UltraCompactBitmapDrawable extends AbstractBitmapDrawable {
 
-        CompactBitmapDrawable()    {
+        UltraCompactBitmapDrawable()    {
             super(UltraCompactBitmapData.this);
         }
 
         @Override
         public void draw(Canvas canvas) {
             try {
-                synchronized (mbitmap) {
+                synchronized (this) {
                     canvas.drawBitmap(data.mbitmap, 0.0f, 0.0f, _defaultPaint);
                     canvas.drawBitmap(softCursor, cursorRect.left, cursorRect.top, _defaultPaint);
                 }
@@ -89,7 +89,7 @@ class UltraCompactBitmapData extends AbstractBitmapData {
 
     @Override
     AbstractBitmapDrawable createDrawable() {
-        return new CompactBitmapDrawable();
+        return new UltraCompactBitmapDrawable();
     }
 
     @Override
