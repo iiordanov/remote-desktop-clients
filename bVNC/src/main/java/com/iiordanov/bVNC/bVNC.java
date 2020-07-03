@@ -24,7 +24,6 @@ package com.iiordanov.bVNC;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.view.WindowManager;
@@ -96,12 +95,7 @@ public class bVNC extends MainConfiguration {
     @Override
     public void onCreate(Bundle icicle) {
         layoutID = R.layout.main;
-        Intent intent = getIntent();
-        IsNewConnection = intent.getBooleanExtra("AddNewConnection", false);
-        if (!IsNewConnection) {
-            ConnId = Long.parseLong(intent.getStringExtra("ConnId"));
-        }
-        android.util.Log.e(TAG, Long.toString(this.ConnId));
+
         super.onCreate(icicle);
 
 

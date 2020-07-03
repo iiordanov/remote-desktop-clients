@@ -48,7 +48,6 @@ import com.iiordanov.aSPICE.*;
 import com.iiordanov.freeaSPICE.*;
 import com.iiordanov.CustomClientPackage.*;
 import com.undatech.remoteClientUi.*;
-import android.content.Intent;
 
 /**
  * aRDP is the Activity for setting up RDP connections.
@@ -97,12 +96,7 @@ public class aRDP extends MainConfiguration {
     @Override
     public void onCreate(Bundle icicle) {
         layoutID = R.layout.main_rdp;
-        Intent intent = getIntent();
-        IsNewConnection = intent.getBooleanExtra("AddNewConnection", false);
-        if (!IsNewConnection) {
-            ConnId = Long.parseLong(intent.getStringExtra("ConnId"));
-        }
-        android.util.Log.e(TAG, Long.toString(this.ConnId));
+
         super.onCreate(icicle);
         
         ipText = (EditText) findViewById(R.id.textIP);

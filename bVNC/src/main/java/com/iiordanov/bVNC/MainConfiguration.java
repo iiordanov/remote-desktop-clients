@@ -70,8 +70,8 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
     protected PermissionsManager permissionsManager;
     private RadioGroup radioCursor;
 
-    protected boolean IsNewConnection;
-    protected long ConnId = 0;
+    private boolean isNewConnection;
+    private long connID = 0;
 
     protected abstract void updateViewFromSelected();
     protected abstract void updateSelectedFromView();
@@ -98,6 +98,12 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
 
     @Override
     public void onCreate(Bundle icicle) {
+        Intent intent = getIntent();
+        isNewConnection = intent.getBooleanExtra("isNewConnection", false);
+        if (!isNewConnection) {
+            connID = Long.parseLong(intent.getStringExtra("connID"));
+        }
+
         super.onCreate(icicle);
         Utils.showMenu(this);
         setContentView(layoutID);
@@ -259,7 +265,7 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
 
     public void arriveOnPage() {
         Log.i(TAG, "arriveOnPage called");
-        if(!IsNewConnection) {
+        if(!isNewConnection) {
             SQLiteDatabase db = database.getReadableDatabase();
             ArrayList<ConnectionBean> connections = new ArrayList<ConnectionBean>();
             ConnectionBean.getAll(db,
@@ -269,7 +275,7 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
             connections.add(0, new ConnectionBean(this));
             for (int i = 1; i < connections.size(); ++i) {
 
-                if (connections.get(i).get_Id() == ConnId) {
+                if (connections.get(i).get_Id() == connID) {
                     selected = connections.get(i);
                     break;
                 }

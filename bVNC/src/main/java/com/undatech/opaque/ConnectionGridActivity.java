@@ -136,8 +136,8 @@ public class ConnectionGridActivity extends FragmentActivity {
 //        if (connectionPreferenceFiles != null && position < connectionPreferenceFiles.length) {
 //            intent.putExtra("com.undatech.opaque.connectionToEdit", connectionPreferenceFiles[position]);
 //        }
-        intent.putExtra("AddNewConnection", false);
-        intent.putExtra("ConnId", conn.getId());
+        intent.putExtra("isNewConnection", false);
+        intent.putExtra("connID", conn.getId());
         startActivity(intent);
     }
 
@@ -171,7 +171,7 @@ public class ConnectionGridActivity extends FragmentActivity {
     public void addNewConnection (MenuItem menuItem) {
         Intent intent = new Intent(ConnectionGridActivity.this,
                 Utils.getConnectionSetupClass(getPackageName()));
-        intent.putExtra("AddNewConnection", true);
+        intent.putExtra("isNewConnection", true);
         startActivity(intent);
     }
 
