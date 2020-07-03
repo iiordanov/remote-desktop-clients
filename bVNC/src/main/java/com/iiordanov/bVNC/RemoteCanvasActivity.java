@@ -50,6 +50,7 @@ import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
@@ -422,77 +423,91 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
         rootView.getViewTreeObserver().addOnGlobalLayoutListener(new OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
-                    if (canvas == null) {
-                        return;
-                    }
-                    
-                    Rect r = new Rect();
-                    
-                    rootView.getWindowVisibleDisplayFrame(r);
-                    
-                    // To avoid setting the visible height to a wrong value after an screen unlock event
-                    // (when r.bottom holds the width of the screen rather than the height due to a rotation)
-                    // we make sure r.top is zero (i.e. there is no notification bar and we are in full-screen mode)
-                    // It's a bit of a hack.
-                    if (r.top == 0) {
-                        if (canvas.myDrawable != null) {
-                            canvas.setVisibleDesktopHeight(r.bottom);
-                            canvas.relativePan(0, 0);
-                        }
-                    }
-                    
-                    // Enable/show the toolbar if the keyboard is gone, and disable/hide otherwise.
-                    // We detect the keyboard if more than 19% of the screen is covered.
-                    int topBottomOffset = 0;
-                    int leftRightOffset = 0;
-                    // Use the visible display frame of the decor view to compute notch dimensions.
-                    Rect re = new Rect();
-                    getWindow().getDecorView().getWindowVisibleDisplayFrame(re);
-                    int rootViewHeight = rootView.getHeight();
-                    int rootViewWidth = rootView.getWidth();
-                    if (r.bottom > rootViewHeight*0.81) {
-                        softKeyboardUp = false;
-                        topBottomOffset = rootViewHeight - r.bottom + re.top;
-                        leftRightOffset = rootViewWidth - r.right + re.left;
+                android.util.Log.d(TAG, "onGlobalLayout: start");
+                if (canvas == null) {
+                    android.util.Log.d(TAG, "onGlobalLayout: canvas null, returning");
+                    return;
+                }
 
-                        // Soft Kbd gone, shift the meta keys and arrows down.
-                        if (layoutKeys != null) {
-                            layoutKeys.offsetTopAndBottom(topBottomOffset);
-                            layoutArrowKeys.offsetLeftAndRight(leftRightOffset);
-                            keyStow.offsetTopAndBottom(topBottomOffset);
-                            if (prevBottomOffset != topBottomOffset) {
-                                prevBottomOffset = topBottomOffset;
-                                setExtraKeysVisibility(View.GONE, false);
-                                canvas.invalidate();
-                            }
-                        }
+                Rect r = new Rect();
+
+                rootView.getWindowVisibleDisplayFrame(r);
+                android.util.Log.d(TAG, "onGlobalLayout: getWindowVisibleDisplayFrame: " + r.toString());
+
+                // To avoid setting the visible height to a wrong value after an screen unlock event
+                // (when r.bottom holds the width of the screen rather than the height due to a rotation)
+                // we make sure r.top is zero (i.e. there is no notification bar and we are in full-screen mode)
+                // It's a bit of a hack.
+                // One additional situation that needed handling was that devices with notches / cutouts don't
+                // ever have r.top equal to zero. so a special case for them.
+                Rect re = new Rect();
+                getWindow().getDecorView().getWindowVisibleDisplayFrame(re);
+                if (r.top == 0 || re.top > 0) {
+                    if (canvas.myDrawable != null) {
+                        android.util.Log.d(TAG, "onGlobalLayout: Setting VisibleDesktopHeight to: " + r.bottom);
+                        canvas.setVisibleDesktopHeight(r.bottom - re.top);
+                        canvas.relativePan(0, 0);
                     } else {
-                        softKeyboardUp = true;
-                        topBottomOffset = r.bottom - rootViewHeight - re.top;
-                        leftRightOffset = r.right - rootViewWidth - re.left;
+                        android.util.Log.d(TAG, "onGlobalLayout: canvas.myDrawable is null");
+                    }
+                } else {
+                    android.util.Log.d(TAG, "onGlobalLayout: Found r.top to be non-zero");
+                }
 
-                        //  Soft Kbd up, shift the meta keys and arrows up.
-                        if (layoutKeys != null) {
-                            layoutKeys.offsetTopAndBottom(topBottomOffset);
-                            layoutArrowKeys.offsetLeftAndRight(leftRightOffset);
-                            keyStow.offsetTopAndBottom(topBottomOffset);
-                            if (extraKeysHidden) {
-                                extraKeysHidden = !extraKeysHidden;
-                                setExtraKeysVisibility(View.VISIBLE, true);
-                                extraKeysHidden = !extraKeysHidden;
-                                setExtraKeysVisibility(View.GONE, false);
-                            } else {
-                                extraKeysHidden = !extraKeysHidden;
-                                setExtraKeysVisibility(View.GONE, false);
-                                extraKeysHidden = !extraKeysHidden;
-                                setExtraKeysVisibility(View.VISIBLE, true);
-                            }
-                            canvas.invalidate();
+                // Enable/show the toolbar if the keyboard is gone, and disable/hide otherwise.
+                // We detect the keyboard if more than 19% of the screen is covered.
+                int topBottomOffset = 0;
+                int leftRightOffset = 0;
+                // Use the visible display frame of the decor view to compute notch dimensions.
+                int rootViewHeight = rootView.getHeight();
+                int rootViewWidth = rootView.getWidth();
+                android.util.Log.d(TAG, "onGlobalLayout: rootViewHeight: " + rootViewHeight);
+                if (r.bottom > rootViewHeight * 0.81) {
+                    android.util.Log.d(TAG, "onGlobalLayout: Less than 19% of screen is covered");
+                    softKeyboardUp = false;
+                    topBottomOffset = rootViewHeight - r.bottom + re.top;
+                    leftRightOffset = rootViewWidth - r.right + re.left;
+
+                    // Soft Kbd gone, shift the meta keys and arrows down.
+                    if (layoutKeys != null) {
+                        android.util.Log.d(TAG, "onGlobalLayout: shifting on-screen buttons down by: " + topBottomOffset);
+                        layoutKeys.offsetTopAndBottom(topBottomOffset);
+                        android.util.Log.d(TAG, "onGlobalLayout: shifting arrow keys by: " + leftRightOffset);
+                        layoutArrowKeys.offsetLeftAndRight(leftRightOffset);
+                        keyStow.offsetTopAndBottom(topBottomOffset);
+                        if (prevBottomOffset != topBottomOffset) {
+                            android.util.Log.d(TAG, "onGlobalLayout: hiding on-screen buttons");
                             prevBottomOffset = topBottomOffset;
+                            setExtraKeysVisibility(View.GONE, false);
+                            canvas.invalidate();
                         }
                     }
-                    setKeyStowDrawableAndVisibility();
-             }
+                } else {
+                    android.util.Log.d(TAG, "onGlobalLayout: More than 19% of screen is covered");
+                    softKeyboardUp = true;
+                    topBottomOffset = r.bottom - rootViewHeight - re.top;
+                    leftRightOffset = r.right - rootViewWidth - re.left;
+
+                    //  Soft Kbd up, shift the meta keys and arrows up.
+                    if (layoutKeys != null) {
+                        android.util.Log.d(TAG, "onGlobalLayout: shifting on-screen buttons up by: " + topBottomOffset);
+                        layoutKeys.offsetTopAndBottom(topBottomOffset);
+                        android.util.Log.d(TAG, "onGlobalLayout: shifting arrow keys by: " + leftRightOffset);
+                        layoutArrowKeys.offsetLeftAndRight(leftRightOffset);
+                        keyStow.offsetTopAndBottom(topBottomOffset);
+                        if (extraKeysHidden) {
+                            android.util.Log.d(TAG, "onGlobalLayout: on-screen buttons should be hidden");
+                            setExtraKeysVisibility(View.GONE, false);
+                        } else {
+                            android.util.Log.d(TAG, "onGlobalLayout: on-screen buttons should be showing");
+                            setExtraKeysVisibility(View.VISIBLE, true);
+                        }
+                        canvas.invalidate();
+                        prevBottomOffset = topBottomOffset;
+                    }
+                }
+                setKeyStowDrawableAndVisibility();
+            }
         });
 
         FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(

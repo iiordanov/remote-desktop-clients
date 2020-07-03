@@ -582,7 +582,7 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
         super.onActivityResult(requestCode, resultCode, data);
         switch(requestCode) {
         case (Constants.ACTIVITY_GEN_KEY):
-            if (resultCode == Activity.RESULT_OK) {
+            if (resultCode == Activity.RESULT_OK && data != null && data.getExtras() != null) {
                 Bundle b = data.getExtras();
                 String privateKey = (String)b.get("PrivateKey");
                 if (!privateKey.equals(selected.getSshPrivKey()) && privateKey.length() != 0)

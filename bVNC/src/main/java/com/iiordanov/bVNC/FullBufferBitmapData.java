@@ -85,9 +85,11 @@ class FullBufferBitmapData extends AbstractBitmapData {
                 drawHeight = data.framebufferheight - yo;
 
             try {
-                canvas.drawBitmap(data.bitmapPixels, offset(xo, yo), data.framebufferwidth, 
-                                      xo, yo, drawWidth, drawHeight, false, _defaultPaint);
-                canvas.drawBitmap(softCursor, cursorRect.left, cursorRect.top, _defaultPaint);
+                synchronized (this) {
+                    canvas.drawBitmap(data.bitmapPixels, offset(xo, yo), data.framebufferwidth,
+                            xo, yo, drawWidth, drawHeight, false, _defaultPaint);
+                    canvas.drawBitmap(softCursor, cursorRect.left, cursorRect.top, _defaultPaint);
+                }
             } catch (Throwable e) { }
         }
     }

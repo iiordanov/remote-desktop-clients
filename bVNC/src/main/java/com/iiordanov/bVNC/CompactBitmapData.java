@@ -37,7 +37,7 @@ class CompactBitmapData extends AbstractBitmapData {
     Bitmap.Config cfg = Bitmap.Config.RGB_565;
     
     class CompactBitmapDrawable extends AbstractBitmapDrawable {
-        
+
         CompactBitmapDrawable()    {
             super(CompactBitmapData.this);
         }
@@ -49,7 +49,7 @@ class CompactBitmapData extends AbstractBitmapData {
         public void draw(Canvas canvas) {
             //android.util.Log.i(TAG, "draw");
             try {
-                synchronized (mbitmap) {
+                synchronized (this) {
                     canvas.drawBitmap(data.mbitmap, 0.0f, 0.0f, _defaultPaint);
                     canvas.drawBitmap(softCursor, cursorRect.left, cursorRect.top, _defaultPaint);
                 }

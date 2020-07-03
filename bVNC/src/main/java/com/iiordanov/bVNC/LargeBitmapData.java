@@ -79,8 +79,8 @@ class LargeBitmapData extends AbstractBitmapData {
             synchronized ( LargeBitmapData.this ) {
                 xoff=xoffset;
                 yoff=yoffset;
+                draw(canvas, xoff, yoff);
             }
-            draw(canvas, xoff, yoff);
         }
     }
     

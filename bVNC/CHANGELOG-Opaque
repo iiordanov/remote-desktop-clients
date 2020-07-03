@@ -1,3 +1,9 @@
+v4.3.0
+- Fix for SSH key generation instructions.
+- Fixes for devices with curved screens
+- Fixes to allow no overlap of on-screen buttons with remote desktop.
+- Fixes for erratic pointer behavior around screen edges.
+- Fixes for devices with a notch.
 v1.5.2
 - Security updates
 - Stability fixes for Android 10
