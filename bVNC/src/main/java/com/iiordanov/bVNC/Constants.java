@@ -101,6 +101,8 @@ public class Constants {
     public static final int RDP_AUTH_FAILED        = RemoteClientLibConstants.RDP_AUTH_FAILED;
     public static final int GET_PASSWORD           = 10;
     public static final int GET_VERIFICATIONCODE   = 11;
+    public static final int GET_SSH_PASSWORD       = 12;
+    public static final int GET_SSH_PASSPHRASE     = 13;
     public static final int SERVER_CUT_TEXT        = RemoteClientLibConstants.SERVER_CUT_TEXT;
     public static final int PRO_FEATURE            = 99;
 

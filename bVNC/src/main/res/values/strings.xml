@@ -863,4 +863,8 @@ Known issues:
     <string name="show">"Show"</string>
     <string name="hide">"Hide"</string>
     <string name="search_connections">Search Connections</string>
+    <string name="enter_ssh_password_message">Please enter SSH Password</string>
+    <string name="enter_passphrase">Enter Key Passphrase</string>
+    <string name="enter_ssh_passphrase_message">Please enter SSH Passphrase</string>
+    <string name="ssh_server_needs_password_in_addition_to_key">Your server needs password authentication in addition to key authentication.</string>
 </resources>

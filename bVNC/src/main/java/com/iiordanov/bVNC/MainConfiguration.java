@@ -112,12 +112,16 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
         permissionsManager = new PermissionsManager();
 
         if (getPassword == null) {
-            getPassword = GetTextFragment.newInstance(getString(R.string.master_password_verify),
-              this, GetTextFragment.Password, R.string.master_password_verify_message, R.string.master_password_set_error);
+            getPassword = GetTextFragment.newInstance(GetTextFragment.DIALOG_ID_GET_MASTER_PASSWORD,
+                    getString(R.string.master_password_verify), this,
+                    GetTextFragment.Password, R.string.master_password_verify_message,
+                    R.string.master_password_set_error);
         }
         if (getNewPassword == null) {
-            getNewPassword = GetTextFragment.newInstance(getString(R.string.master_password_set),
-              this, GetTextFragment.MatchingPasswordTwice, R.string.master_password_set_message, R.string.master_password_set_error);
+            getNewPassword = GetTextFragment.newInstance(GetTextFragment.DIALOG_ID_GET_MATCHING_MASTER_PASSWORDS,
+                    getString(R.string.master_password_set), this,
+                    GetTextFragment.MatchingPasswordTwice, R.string.master_password_set_message,
+                    R.string.master_password_set_error);
         }
 
         textNickname = (EditText) findViewById(R.id.textNickname);
@@ -488,7 +492,7 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
         return result;
     }
     
-    public void onTextObtained(String obtainedString, boolean wasCancelled) {
+    public void onTextObtained(String dialogId, String obtainedString, boolean wasCancelled) {
         handlePassword(obtainedString, wasCancelled);
     }
     

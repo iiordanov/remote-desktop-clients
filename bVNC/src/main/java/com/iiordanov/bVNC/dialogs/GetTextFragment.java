@@ -49,9 +49,16 @@ public class GetTextFragment extends DialogFragment {
     public static final int Plaintext = 1;
     public static final int Password = 2;
     public static final int MatchingPasswordTwice = 3;
+    public static final String DIALOG_ID_GET_PASSWORD                  = "DIALOG_ID_GET_PASSWORD";
+    public static final String DIALOG_ID_GET_MASTER_PASSWORD           = "DIALOG_ID_GET_MASTER_PASSWORD";
+    public static final String DIALOG_ID_GET_MATCHING_MASTER_PASSWORDS = "DIALOG_ID_GET_MATCHING_MASTER_PASSWORDS";
+    public static final String DIALOG_ID_GET_VERIFICATIONCODE          = "DIALOG_ID_GET_VERIFICATIONCODE";
+    public static final String DIALOG_ID_GET_SSH_PASSWORD              = "DIALOG_ID_GET_SSH_PASSWORD";
+    public static final String DIALOG_ID_GET_SSH_PASSPHRASE            = "DIALOG_ID_GET_SSH_PASSPHRASE";
+    public static final String DIALOG_ID_GET_PROTOCOL_PASSWORD         = "DIALOG_ID_GET_PROTOCOL_PASSWORD";
 
     public interface OnFragmentDismissedListener {
-        public void onTextObtained(String obtainedString, boolean dialogCancelled);
+        void onTextObtained(String id, String obtainedString, boolean dialogCancelled);
     }
 
     private class TextMatcher implements TextWatcher {
@@ -74,6 +81,7 @@ public class GetTextFragment extends DialogFragment {
     private Button buttonCancel;
     private OnFragmentDismissedListener dismissalListener;
 	private String title;
+	private String dialogId;
 	
     private int dialogType = 0;
     private int messageNum = 0;
@@ -82,13 +90,14 @@ public class GetTextFragment extends DialogFragment {
     public GetTextFragment () {
     }
 
-	public static GetTextFragment newInstance(String title, OnFragmentDismissedListener dismissalListener,
+	public static GetTextFragment newInstance(String dialogId, String title, OnFragmentDismissedListener dismissalListener,
 	                                          int dialogType, int messageNum, int errorNum) {
     	android.util.Log.i(TAG, "newInstance called");
     	GetTextFragment f = new GetTextFragment();
     	f.setDismissalListener(dismissalListener);
 
         Bundle args = new Bundle();
+        args.putString("dialogId", dialogId);
         args.putString("title", title);
         args.putInt("dialogType", dialogType);
         args.putInt("messageNum", messageNum);
@@ -103,6 +112,7 @@ public class GetTextFragment extends DialogFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
     	android.util.Log.i(TAG, "onCreate called");
+        dialogId = getArguments().getString("dialogId");
         title = getArguments().getString("title");
         dialogType = getArguments().getInt("dialogType");
         messageNum = getArguments().getInt("messageNum");
@@ -212,11 +222,6 @@ public class GetTextFragment extends DialogFragment {
     public void onDismiss (DialogInterface dialog) {
     	android.util.Log.i(TAG, "onDismiss called: Sending data back to Activity");
     	String result = textBox.getText().toString();
-    	if (wasCancelled || result.equals("")) {
-    	    wasCancelled = true;
-    	    result = "";
-    	}
-    	
     	if (textBox != null) {
     	    textBox.setText("");
     	}
@@ -224,7 +229,7 @@ public class GetTextFragment extends DialogFragment {
     	    textBox2.setText("");
     	}
     	if (dismissalListener != null) {
-            dismissalListener.onTextObtained(result, wasCancelled);
+            dismissalListener.onTextObtained(dialogId, result, wasCancelled);
         }
     }
 

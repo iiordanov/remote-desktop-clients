@@ -33,7 +33,6 @@ package com.iiordanov.bVNC;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.net.Socket;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
@@ -76,6 +75,7 @@ import android.widget.Toast;
 
 import com.iiordanov.android.bc.BCFactory;
 import com.iiordanov.bVNC.input.InputHandlerTouchpad;
+import com.iiordanov.bVNC.input.RemoteCanvasHandler;
 import com.iiordanov.bVNC.input.RemoteKeyboard;
 import com.iiordanov.bVNC.input.RemotePointer;
 import com.iiordanov.bVNC.input.RemoteRdpKeyboard;
@@ -121,7 +121,7 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
     Connection connection;
 
     Database database;
-    private SSHConnection sshConnection = null;
+    public SSHConnection sshConnection = null;
 
     // VNC protocol connection
     public RfbConnectable rfbconn = null;
@@ -1073,7 +1073,7 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
      *
      * @param error
      */
-    void showFatalMessageAndQuit(final String error) {
+    public void showFatalMessageAndQuit(final String error) {
         closeConnection();
         handler.post(new Runnable() {
             public void run() {
@@ -1868,82 +1868,7 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
      * Handler for the dialogs that display the x509/RDP/SSH key signatures to the user.
      * Also shows the dialogs which show various connection failures.
      */
-    public Handler handler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            FragmentManager fm = null;
-            Bundle s = null;
-
-            android.util.Log.d(TAG, "Handling message, msg.what: " + msg.what);
-
-            switch (msg.what) {
-                case Constants.PRO_FEATURE:
-                    if (pd != null && pd.isShowing()) {
-                        pd.dismiss();
-                    }
-                    showFatalMessageAndQuit(getContext().getString(R.string.pro_feature_mfa));
-                    break;
-                case Constants.GET_VERIFICATIONCODE:
-                    if (pd != null && pd.isShowing()) {
-                        pd.dismiss();
-                    }
-                    fm = ((FragmentActivity) getContext()).getSupportFragmentManager();
-                    GetTextFragment getPassword = GetTextFragment.newInstance(
-                            RemoteCanvas.this.getContext().getString(R.string.verification_code),
-                            sshConnection, GetTextFragment.Plaintext, R.string.verification_code_message, R.string.verification_code);
-                    getPassword.setCancelable(false);
-                    getPassword.show(fm, RemoteCanvas.this.getContext().getString(R.string.verification_code));
-                    break;
-                case Constants.DIALOG_X509_CERT:
-                    validateX509Cert((X509Certificate) msg.obj);
-                    break;
-                case Constants.DIALOG_SSH_CERT:
-                    initializeSshHostKey();
-                    break;
-                case Constants.DIALOG_RDP_CERT:
-                    s = (Bundle) msg.obj;
-                    validateRdpCert(s.getString("subject"), s.getString("issuer"), s.getString("fingerprint"));
-                    break;
-                case Constants.SPICE_CONNECT_SUCCESS:
-                    if (pd != null && pd.isShowing()) {
-                        pd.dismiss();
-                    }
-                    break;
-                case Constants.SPICE_CONNECT_FAILURE:
-                    if (maintainConnection) {
-                        if (pd != null && pd.isShowing()) {
-                            pd.dismiss();
-                        }
-                        if (!spiceUpdateReceived) {
-                            showFatalMessageAndQuit(getContext().getString(R.string.error_spice_unable_to_connect));
-                        } else {
-                            showFatalMessageAndQuit(getContext().getString(R.string.error_connection_interrupted));
-                        }
-                    }
-                    break;
-                case Constants.RDP_CONNECT_FAILURE:
-                    if (maintainConnection) {
-                        showFatalMessageAndQuit(getContext().getString(R.string.error_rdp_connection_failed));
-                    }
-                    break;
-                case Constants.RDP_UNABLE_TO_CONNECT:
-                    if (maintainConnection) {
-                        showFatalMessageAndQuit(getContext().getString(R.string.error_rdp_unable_to_connect));
-                    }
-                    break;
-                case Constants.RDP_AUTH_FAILED:
-                    if (maintainConnection) {
-                        showFatalMessageAndQuit(getContext().getString(R.string.error_rdp_authentication_failed));
-                    }
-                    break;
-                case Constants.SERVER_CUT_TEXT:
-                    s = (Bundle) msg.obj;
-                    serverJustCutText = true;
-                    setClipboardText(s.getString("text"));
-                    break;
-            }
-        }
-    };
+    public Handler handler = new RemoteCanvasHandler(getContext(), this, connection);
 
     /**
      * If there is a saved cert, checks the one given against it. If a signature was passed in
@@ -2079,7 +2004,7 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
      * @param issuer
      * @param fingerprint
      */
-    private void validateRdpCert(String subject, String issuer, final String fingerprint) {
+    public void validateRdpCert(String subject, String issuer, final String fingerprint) {
         // Since LibFreeRDP handles saving accepted certificates, if we ever get here, we must
         // present the user with a query whether to accept the certificate or not.
 
@@ -2114,7 +2039,7 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
     /**
      * Function used to initialize an empty SSH HostKey for a new VNC over SSH connection.
      */
-    private void initializeSshHostKey() {
+    public void initializeSshHostKey() {
         // If the SSH HostKey is empty, then we need to grab the HostKey from the server and save it.
         Log.d(TAG, "Attempting to initialize SSH HostKey.");
 
