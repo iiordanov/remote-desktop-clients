@@ -165,7 +165,7 @@ public class aSPICE extends MainConfiguration {
             public void onClick(View view) {
                 if (ipText.getText().length() != 0
                         && (portText.getText().length() != 0 || tlsPort.getText().length() != 0)) {
-                    canvasStart();
+                    saveConnectionAndCloseLayout();
                 } else {
                     Toast.makeText(view.getContext(),
                             R.string.spice_server_empty, Toast.LENGTH_LONG)
