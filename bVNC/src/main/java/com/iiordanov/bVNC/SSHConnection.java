@@ -21,6 +21,7 @@ package com.iiordanov.bVNC;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.security.KeyPair;
@@ -86,6 +87,7 @@ public class SSHConnection implements InteractiveCallback, GetTextFragment.OnFra
     private int     sshRemoteCommandTimeout;
     private String  sshRemoteCommand;
     private BufferedInputStream remoteStdout;
+    private BufferedInputStream remoteStderr;
     private BufferedOutputStream remoteStdin;
     private boolean autoXEnabled;
     private int     autoXType;
@@ -269,7 +271,8 @@ public class SSHConnection implements InteractiveCallback, GetTextFragment.OnFra
                 } else {
                     Log.e(TAG, "SSH server does not support key auth, but SSH tunnel is configured to use it");
                     String authMethods = Arrays.toString(connection.getRemainingAuthMethods(user));
-                    throw new Exception(context.getString(R.string.error_ssh_pubkey_auth_method_unavail) + " " + authMethods);
+                    throw new Exception(context.getString(R.string.error_ssh_pubkey_auth_method_unavail)
+                            + " " + authMethods);
                 }
             }
         }
@@ -303,7 +306,9 @@ public class SSHConnection implements InteractiveCallback, GetTextFragment.OnFra
             }
 
             if (port < 0) {
-                throw new Exception (context.getString(R.string.error_ssh_x11vnc_no_port_failure));
+                throw new Exception (context.getString(R.string.error_ssh_x11vnc_no_port_failure)
+                        + "  \n\n" + context.getString(R.string.error) + ":  \n\n"
+                        + bufferedInputStreamToString(remoteStderr));
             }
         }
         
@@ -514,11 +519,14 @@ public class SSHConnection implements InteractiveCallback, GetTextFragment.OnFra
             session = connection.openSession();
             session.execCommand(command);
             remoteStdout = new BufferedInputStream(session.getStdout());
+            remoteStderr = new BufferedInputStream(session.getStderr());
             remoteStdin  = new BufferedOutputStream(session.getStdin());
             Thread.sleep(secTimeout*1000);
         } catch (Exception e) {
             e.printStackTrace();
-            throw new Exception (context.getString(R.string.error_ssh_could_not_exec_command));
+            throw new Exception (context.getString(R.string.error_ssh_could_not_exec_command)
+                    + "  \n\n" + context.getString(R.string.error) + ":  \n\n"
+                    + bufferedInputStreamToString(remoteStderr));
         }
     }
     
@@ -553,7 +561,9 @@ public class SSHConnection implements InteractiveCallback, GetTextFragment.OnFra
             remoteStdin.write(new String (password + '\n').getBytes());
         } catch (IOException e) {
             e.printStackTrace();
-            throw new Exception (context.getString(R.string.error_ssh_could_not_send_sudo_pwd));
+            throw new Exception (context.getString(R.string.error_ssh_could_not_send_sudo_pwd)
+                    + "  \n\n" + context.getString(R.string.error) + ":  \n\n"
+                    + bufferedInputStreamToString(remoteStderr));
         }
     }
 
@@ -601,6 +611,27 @@ public class SSHConnection implements InteractiveCallback, GetTextFragment.OnFra
         }
 
         return port;
+    }
+
+    String bufferedInputStreamToString(BufferedInputStream remote) {
+        int nRead;
+        byte[] dataBuf = new byte[1024];
+        ByteArrayOutputStream bufferOs = new ByteArrayOutputStream();
+
+        try {
+            while ((nRead = remote.read(dataBuf, 0, dataBuf.length)) != -1) {
+                bufferOs.write(dataBuf, 0, nRead);
+            }
+            String output = bufferOs.toString("UTF-8");
+
+            Log.d(TAG, "bufferedInputStreamToString:");
+            Log.d(TAG, output);
+            return output;
+        } catch (IOException e) {
+            Log.e (TAG, "Failed to read from remote stdout.");
+            e.printStackTrace();
+        }
+        return "";
     }
 
     /**
