@@ -6,6 +6,7 @@ android {
     defaultConfig {
         targetSdkVersion 28
         minSdkVersion project.getProperties().get("SDK_VERSION")
+        multiDexEnabled true
         manifestPlaceholders = [
                 custom_vnc_app_name: project.getProperties().get("CUSTOM_VNC_APP_NAME"),
                 custom_vnc_app_icon: project.getProperties().get("CUSTOM_VNC_APP_ICON")
@@ -21,6 +22,7 @@ android {
 }
 
 dependencies {
+    api 'com.android.support:multidex:1.0.3'
     implementation project(':bVNC')
     implementation project(':pubkeyGenerator')
 }

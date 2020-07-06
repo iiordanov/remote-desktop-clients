@@ -29,7 +29,7 @@ buildscript {
 apply plugin: "com.google.osdetector"
 
 dependencies {
-    api 'org.connectbot:sshlib:2.2.9'
+    api 'org.connectbot:sshlib:2.2.13'
     // https://mvnrepository.com/artifact/com.madgag.spongycastle/core
     api group: 'com.madgag.spongycastle', name: 'core', version: '1.58.0.0'
     api group: 'com.madgag.spongycastle', name: 'prov', version: '1.58.0.0'
