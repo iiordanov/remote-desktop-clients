@@ -181,6 +181,7 @@ public class GetTextFragment extends DialogFragment {
             buttonCancel = (Button) v.findViewById(R.id.buttonCancel);
             dismissOnCancel(buttonCancel);
             dismissOnConfirm(buttonConfirm);
+            break;
         case Credentials:
             v = inflater.inflate(R.layout.get_credentials, container, false);
             error = (TextView) v.findViewById(R.id.error);

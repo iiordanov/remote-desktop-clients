@@ -82,7 +82,7 @@ public class RemoteCanvasHandler extends Handler {
             case RemoteClientLibConstants.GET_VNC_PASSWORD:
                 showGetTextFragment(context.getString(R.string.enter_vnc_password),
                         GetTextFragment.DIALOG_ID_GET_VNC_PASSWORD,
-                        context.getString(R.string.enter_password),
+                        context.getString(R.string.enter_vnc_password),
                         c, GetTextFragment.Password,
                         R.string.enter_vnc_password, R.string.enter_vnc_password,
                         settings.getPassword(), null, null);
@@ -90,7 +90,7 @@ public class RemoteCanvasHandler extends Handler {
             case RemoteClientLibConstants.GET_VNC_CREDENTIALS:
                 showGetTextFragment(context.getString(R.string.enter_vnc_credentials),
                         GetTextFragment.DIALOG_ID_GET_VNC_CREDENTIALS,
-                        context.getString(R.string.enter_password),
+                        context.getString(R.string.enter_vnc_credentials),
                         c, GetTextFragment.Credentials,
                         R.string.enter_vnc_credentials, R.string.enter_vnc_credentials,
                         settings.getUserName(), settings.getPassword(), null);
@@ -98,7 +98,7 @@ public class RemoteCanvasHandler extends Handler {
             case RemoteClientLibConstants.GET_RDP_CREDENTIALS:
                 showGetTextFragment(context.getString(R.string.enter_rdp_credentials),
                         GetTextFragment.DIALOG_ID_GET_RDP_CREDENTIALS,
-                        context.getString(R.string.enter_password),
+                        context.getString(R.string.enter_rdp_credentials),
                         c, GetTextFragment.CredentialsWithDomain,
                         R.string.enter_rdp_credentials, R.string.enter_rdp_credentials,
                         settings.getUserName(), settings.getRdpDomain(), settings.getPassword());
@@ -106,7 +106,7 @@ public class RemoteCanvasHandler extends Handler {
             case RemoteClientLibConstants.GET_SPICE_PASSWORD:
                 showGetTextFragment(context.getString(R.string.enter_spice_password),
                         GetTextFragment.DIALOG_ID_GET_SPICE_PASSWORD,
-                        context.getString(R.string.enter_password),
+                        context.getString(R.string.enter_spice_password),
                         c, GetTextFragment.Password,
                         R.string.enter_spice_password, R.string.enter_spice_password,
                         settings.getPassword(), null, null);
