@@ -53,13 +53,9 @@ import android.graphics.RectF;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
-import android.os.Bundle;
 import android.os.Handler;
-import android.os.Message;
 import android.os.SystemClock;
 import android.provider.Settings;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
 import android.text.ClipboardManager;
 import android.text.InputType;
 import android.util.AttributeSet;
@@ -88,7 +84,6 @@ import com.iiordanov.bVNC.input.RemoteVncPointer;
 import com.iiordanov.bVNC.dialogs.GetTextFragment;
 import com.iiordanov.bVNC.exceptions.AnonCipherUnsupportedException;
 import com.undatech.opaque.Connection;
-import com.undatech.opaque.ConnectionSettings;
 import com.undatech.opaque.MessageDialogs;
 import com.undatech.opaque.OpaqueHandler;
 import com.undatech.opaque.RdpCommunicator;
@@ -109,7 +104,8 @@ import org.json.JSONException;
 
 import javax.security.auth.login.LoginException;
 
-public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView implements Viewable {
+public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView
+        implements Viewable, GetTextFragment.OnFragmentDismissedListener {
     private final static String TAG = "RemoteCanvas";
 
     public AbstractScaling canvasZoomer;
@@ -118,14 +114,14 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
     public boolean cursorBeingMoved = false;
 
     // Connection parameters
-    Connection connection;
+    public Connection connection;
 
     Database database;
     public SSHConnection sshConnection = null;
 
     // VNC protocol connection
     public RfbConnectable rfbconn = null;
-    private RfbProto rfb = null;
+    public RfbProto rfb = null;
     private RdpCommunicator rdpcomm = null;
     public SpiceCommunicator spicecomm = null;
     Map<String, String> vmNameToId = new HashMap<String, String>();
@@ -154,7 +150,7 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
     ClipboardMonitor clipboardMonitor;
     public boolean serverJustCutText = false;
 
-    private Runnable setModes;
+    public Runnable setModes;
 
     /*
      * Position of the top left portion of the <i>visible</i> part of the screen, in
@@ -348,25 +344,23 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
         }
     }
 
-    /**
-     * Create a view showing a remote desktop connection
-     *
-     * @param conn     Connection settings
-     * @param setModes Callback to run on UI thread after connection is set up
-     */
-    RemotePointer initializeCanvas(Connection conn, final Runnable setModes) {
+    public void reinitializeCanvas() {
+        Log.i(TAG, "Reinitializing remote canvas");
+        initializeCanvas(this.connection, this.setModes);
+    }
+
+        /**
+         * Create a view showing a remote desktop connection
+         *
+         * @param conn     Connection settings
+         * @param setModes Callback to run on UI thread after connection is set up
+         */
+    public RemotePointer initializeCanvas(Connection conn, final Runnable setModes) {
         maintainConnection = true;
         this.setModes = setModes;
         connection = conn;
-
-        try {
-            COLORMODEL cm = COLORMODEL.valueOf(conn.getColorModel());
-            setColorModel(cm);
-        } catch (IllegalArgumentException e) {
-            e.printStackTrace();
-        }
-
         sshTunneled = (connection.getConnectionType() == Constants.CONN_TYPE_SSH);
+        handler = new RemoteCanvasHandler(getContext(), this, connection);
 
         try {
             if (isSpice) {
@@ -386,7 +380,7 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
                     // Initialize SSH key if necessary
                     if (sshTunneled && connection.getSshHostKey().equals("") &&
                             Utils.isNullOrEmptry(connection.getIdHash())) {
-                        handler.sendEmptyMessage(Constants.DIALOG_SSH_CERT);
+                        handler.sendEmptyMessage(RemoteClientLibConstants.DIALOG_SSH_CERT);
 
                         // Block while user decides whether to accept certificate or not.
                         // The activity ends if the user taps "No", so we block indefinitely here.
@@ -589,6 +583,14 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
                     sslCert);
         } catch (AnonCipherUnsupportedException e) {
             showFatalMessageAndQuit(getContext().getString(R.string.error_anon_dh_unsupported));
+        } catch (RfbProto.RfbPasswordAuthenticationException e) {
+            Log.e(TAG, "Authentication failed, will prompt user for password");
+            handler.sendEmptyMessage(RemoteClientLibConstants.GET_VNC_CREDENTIALS);
+            return;
+        } catch (RfbProto.RfbUsernameRequiredException e) {
+            Log.e(TAG, "Username required, will prompt user for username and password");
+            handler.sendEmptyMessage(RemoteClientLibConstants.GET_VNC_CREDENTIALS);
+            return;
         } catch (Exception e) {
             e.printStackTrace();
             throw new Exception(getContext().getString(R.string.error_vnc_unable_to_connect) +
@@ -615,11 +617,7 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
         });
 
         sendUnixAuth();
-        if (isRdp || connection.getUseLocalCursor() == Constants.CURSOR_FORCE_LOCAL)
-            initializeSoftCursor();
-
         handler.post(drawableSetter);
-        handler.post(setModes);
 
         // Hide progress dialog
         if (pd.isShowing())
@@ -1093,9 +1091,7 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
         int result = 0;
 
         if (sshTunneled) {
-            if (sshConnection == null) {
-                sshConnection = new SSHConnection(connection, getContext(), handler);
-            }
+            sshConnection = new SSHConnection(connection, getContext(), handler);
             // TODO: Take the AutoX stuff out to a separate function.
             int newPort = sshConnection.initializeSSHTunnel();
             if (newPort > 0)
@@ -1868,7 +1864,7 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
      * Handler for the dialogs that display the x509/RDP/SSH key signatures to the user.
      * Also shows the dialogs which show various connection failures.
      */
-    public Handler handler = new RemoteCanvasHandler(getContext(), this, connection);
+    public Handler handler;
 
     /**
      * If there is a saved cert, checks the one given against it. If a signature was passed in
@@ -1880,7 +1876,7 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
      * @param cert the given cert.
      */
     @SuppressLint("StringFormatInvalid")
-    private void validateX509Cert(final X509Certificate cert) {
+    public void validateX509Cert(final X509Certificate cert) {
         android.util.Log.d(TAG, "Displaying dialog to validate X509 Cert");
         boolean certMismatch = false;
 
@@ -2080,6 +2076,43 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
                     getContext().getString(R.string.info_ssh_key_fingerprint) + sshConnection.getHostKeySignature() +
                             getContext().getString(R.string.info_ssh_key_fingerprint_identical),
                     signatureYes, signatureNo);
+        }
+    }
+
+    @Override
+    public void onTextObtained(String dialogId, String[] obtainedString, boolean dialogCancelled) {
+        if (dialogCancelled) {
+            handler.sendEmptyMessage(RemoteClientLibConstants.DISCONNECT_NO_MESSAGE);
+            return;
+        }
+
+        switch (dialogId) {
+            case GetTextFragment.DIALOG_ID_GET_VNC_CREDENTIALS:
+                android.util.Log.i(TAG, "Text obtained from DIALOG_ID_GET_VNC_USERNAME.");
+                connection.setUserName(obtainedString[0]);
+                connection.setPassword(obtainedString[1]);
+                handler.sendEmptyMessage(RemoteClientLibConstants.REINIT_SESSION);
+                break;
+            case GetTextFragment.DIALOG_ID_GET_VNC_PASSWORD:
+                android.util.Log.i(TAG, "Text obtained from DIALOG_ID_GET_VNC_PASSWORD.");
+                connection.setPassword(obtainedString[0]);
+                handler.sendEmptyMessage(RemoteClientLibConstants.REINIT_SESSION);
+                break;
+            case GetTextFragment.DIALOG_ID_GET_RDP_CREDENTIALS:
+                android.util.Log.i(TAG, "Text obtained from DIALOG_ID_GET_VNC_PASSWORD.");
+                connection.setUserName(obtainedString[0]);
+                connection.setRdpDomain(obtainedString[1]);
+                connection.setPassword(obtainedString[2]);
+                handler.sendEmptyMessage(RemoteClientLibConstants.REINIT_SESSION);
+                break;
+            case GetTextFragment.DIALOG_ID_GET_SPICE_PASSWORD:
+                android.util.Log.i(TAG, "Text obtained from DIALOG_ID_GET_VNC_PASSWORD.");
+                connection.setPassword(obtainedString[0]);
+                handler.sendEmptyMessage(RemoteClientLibConstants.REINIT_SESSION);
+                break;
+            default:
+                android.util.Log.e(TAG, "Unknown dialog type.");
+                break;
         }
     }
 }

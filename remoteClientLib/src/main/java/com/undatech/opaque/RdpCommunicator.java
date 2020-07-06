@@ -355,7 +355,7 @@ public class RdpCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyPro
             connect();
         } else if (authenticationAttempted && !myself.isInNormalProtocol()) {
             Log.v(TAG, "Sending message: RDP_AUTH_FAILED");
-            handler.sendEmptyMessage(RemoteClientLibConstants.RDP_AUTH_FAILED);
+            handler.sendEmptyMessage(RemoteClientLibConstants.GET_RDP_CREDENTIALS);
         } else if (!disconnectRequested && !myself.isInNormalProtocol()) {
             Log.v(TAG, "Sending message: RDP_UNABLE_TO_CONNECT");
             handler.sendEmptyMessage(RemoteClientLibConstants.RDP_UNABLE_TO_CONNECT);

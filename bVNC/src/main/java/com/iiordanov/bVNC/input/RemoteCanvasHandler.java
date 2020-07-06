@@ -2,30 +2,17 @@ package com.iiordanov.bVNC.input;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
-import android.util.Base64;
-
-import com.iiordanov.bVNC.Constants;
 import com.iiordanov.bVNC.RemoteCanvas;
-import com.iiordanov.bVNC.RemoteCanvasActivity;
+import com.iiordanov.bVNC.dialogs.GetTextFragment;
 import com.undatech.opaque.Connection;
-import com.undatech.opaque.MessageDialogs;
 import com.undatech.opaque.RemoteClientLibConstants;
-import com.undatech.opaque.dialogs.ChoiceFragment;
-import com.undatech.opaque.dialogs.GetTextFragment;
-import com.undatech.opaque.dialogs.MessageFragment;
-
-import java.security.NoSuchAlgorithmException;
 import java.security.cert.X509Certificate;
-import java.util.ArrayList;
 
-import com.undatech.opaque.util.SslUtils;
 import com.undatech.remoteClientUi.R;
 
 public class RemoteCanvasHandler extends Handler {
@@ -42,103 +29,121 @@ public class RemoteCanvasHandler extends Handler {
         this.settings = settings;
         this.fm = ((FragmentActivity)context).getSupportFragmentManager();
     }
-    
-    private void showGetTextFragment (String id, String title, boolean password) {
-        GetTextFragment frag = GetTextFragment.newInstance(id, title, (RemoteCanvasActivity)context, password);
-        frag.show(fm, id);
-    }
-    
-    private void displayMessageAndFinish(int titleTextId, int messageTextId, int buttonTextId) {
-        MessageFragment message = MessageFragment.newInstance(
-                context.getString(titleTextId),
-                context.getString(messageTextId),
-                context.getString(buttonTextId),
-                new MessageFragment.OnFragmentDismissedListener() {
-                    @Override
-                    public void onDialogDismissed() {
-                        ((Activity)context).finish();
-                    }
-                });
-        message.show(fm, "endingDialog");
-        c.disconnectAndCleanUp();
+
+    private void showGetTextFragment(String tag, String dialogId, String title,
+                                      GetTextFragment.OnFragmentDismissedListener dismissalListener,
+                                      int dialogType, int messageNum, int errorNum,
+                                      String t1, String t2, String t3) {
+        if (c.pd != null && c.pd.isShowing()) {
+            c.pd.dismiss();
+        }
+        GetTextFragment frag = GetTextFragment.newInstance(dialogId, title, dismissalListener,
+                dialogType, messageNum, errorNum, t1, t2, t3);
+        frag.setCancelable(false);
+        frag.show(fm, tag);
     }
 
     @Override
     public void handleMessage(Message msg) {
-        FragmentManager fm = null;
-        Bundle s = null;
-
+        Bundle s;
         android.util.Log.d(TAG, "Handling message, msg.what: " + msg.what);
 
         switch (msg.what) {
-            case Constants.PRO_FEATURE:
+            case RemoteClientLibConstants.PRO_FEATURE:
                 if (c.pd != null && c.pd.isShowing()) {
                     c.pd.dismiss();
                 }
                 c.showFatalMessageAndQuit(context.getString(R.string.pro_feature_mfa));
                 break;
-            case Constants.GET_VERIFICATIONCODE:
-                if (c.pd != null && c.pd.isShowing()) {
-                    c.pd.dismiss();
-                }
-                fm = ((FragmentActivity) context).getSupportFragmentManager();
-                com.iiordanov.bVNC.dialogs.GetTextFragment getVerificationCode =
-                        com.iiordanov.bVNC.dialogs.GetTextFragment.newInstance(
-                                com.iiordanov.bVNC.dialogs.GetTextFragment.DIALOG_ID_GET_VERIFICATIONCODE,
-                                context.getString(R.string.verification_code),
-                                c.sshConnection, com.iiordanov.bVNC.dialogs.GetTextFragment.Plaintext,
-                                R.string.verification_code_message, R.string.verification_code);
-                getVerificationCode.setCancelable(false);
-                getVerificationCode.show(fm, context.getString(R.string.verification_code));
+            case RemoteClientLibConstants.GET_VERIFICATIONCODE:
+                showGetTextFragment(context.getString(R.string.verification_code),
+                        GetTextFragment.DIALOG_ID_GET_VERIFICATIONCODE,
+                        context.getString(R.string.verification_code),
+                        c.sshConnection, GetTextFragment.Plaintext,
+                        R.string.verification_code_message, R.string.verification_code,
+                        null, null, null);
                 break;
-            case Constants.GET_SSH_PASSWORD:
-                if (c.pd != null && c.pd.isShowing()) {
-                    c.pd.dismiss();
-                }
-                fm = ((FragmentActivity) context).getSupportFragmentManager();
-                com.iiordanov.bVNC.dialogs.GetTextFragment getSshPassword =
-                        com.iiordanov.bVNC.dialogs.GetTextFragment.newInstance(
-                                com.iiordanov.bVNC.dialogs.GetTextFragment.DIALOG_ID_GET_SSH_PASSWORD,
-                                context.getString(R.string.enter_password),
-                                c.sshConnection, com.iiordanov.bVNC.dialogs.GetTextFragment.Password,
-                                R.string.enter_ssh_password_message, R.string.password_hint_ssh);
-                getSshPassword.setCancelable(false);
-                getSshPassword.show(fm, context.getString(R.string.verification_code));
+            case RemoteClientLibConstants.GET_SSH_PASSWORD:
+                showGetTextFragment(context.getString(R.string.password_hint_ssh),
+                        GetTextFragment.DIALOG_ID_GET_SSH_PASSWORD,
+                        context.getString(R.string.enter_password),
+                        c.sshConnection, GetTextFragment.Password,
+                        R.string.enter_ssh_password_message, R.string.password_hint_ssh,
+                        null, null, null);
                 break;
-            case Constants.GET_SSH_PASSPHRASE:
-                if (c.pd != null && c.pd.isShowing()) {
-                    c.pd.dismiss();
-                }
-                fm = ((FragmentActivity) context).getSupportFragmentManager();
-                com.iiordanov.bVNC.dialogs.GetTextFragment getSshPassPhrase =
-                        com.iiordanov.bVNC.dialogs.GetTextFragment.newInstance(
-                                com.iiordanov.bVNC.dialogs.GetTextFragment.DIALOG_ID_GET_SSH_PASSPHRASE,
-                                context.getString(R.string.enter_passphrase),
-                                c.sshConnection, com.iiordanov.bVNC.dialogs.GetTextFragment.Password,
-                                R.string.enter_ssh_passphrase_message, R.string.ssh_passphrase_hint);
-                getSshPassPhrase.setCancelable(false);
-                getSshPassPhrase.show(fm, context.getString(R.string.verification_code));
+            case RemoteClientLibConstants.GET_SSH_PASSPHRASE:
+                showGetTextFragment(context.getString(R.string.ssh_passphrase_hint),
+                        GetTextFragment.DIALOG_ID_GET_SSH_PASSPHRASE,
+                        context.getString(R.string.enter_passphrase_title),
+                        c.sshConnection, GetTextFragment.Password,
+                        R.string.enter_passphrase, R.string.ssh_passphrase_hint,
+                        null, null, null);
                 break;
-            case Constants.DIALOG_X509_CERT:
+            case RemoteClientLibConstants.GET_VNC_PASSWORD:
+                showGetTextFragment(context.getString(R.string.enter_vnc_password),
+                        GetTextFragment.DIALOG_ID_GET_VNC_PASSWORD,
+                        context.getString(R.string.enter_password),
+                        c, GetTextFragment.Password,
+                        R.string.enter_vnc_password, R.string.enter_vnc_password,
+                        settings.getPassword(), null, null);
+                break;
+            case RemoteClientLibConstants.GET_VNC_CREDENTIALS:
+                showGetTextFragment(context.getString(R.string.enter_vnc_credentials),
+                        GetTextFragment.DIALOG_ID_GET_VNC_CREDENTIALS,
+                        context.getString(R.string.enter_password),
+                        c, GetTextFragment.Credentials,
+                        R.string.enter_vnc_credentials, R.string.enter_vnc_credentials,
+                        settings.getUserName(), settings.getPassword(), null);
+                break;
+            case RemoteClientLibConstants.GET_RDP_CREDENTIALS:
+                showGetTextFragment(context.getString(R.string.enter_rdp_credentials),
+                        GetTextFragment.DIALOG_ID_GET_RDP_CREDENTIALS,
+                        context.getString(R.string.enter_password),
+                        c, GetTextFragment.CredentialsWithDomain,
+                        R.string.enter_rdp_credentials, R.string.enter_rdp_credentials,
+                        settings.getUserName(), settings.getRdpDomain(), settings.getPassword());
+                break;
+            case RemoteClientLibConstants.GET_SPICE_PASSWORD:
+                showGetTextFragment(context.getString(R.string.enter_spice_password),
+                        GetTextFragment.DIALOG_ID_GET_SPICE_PASSWORD,
+                        context.getString(R.string.enter_password),
+                        c, GetTextFragment.Password,
+                        R.string.enter_spice_password, R.string.enter_spice_password,
+                        settings.getPassword(), null, null);
+                break;
+            case RemoteClientLibConstants.DIALOG_X509_CERT:
                 android.util.Log.d(TAG, "DIALOG_X509_CERT");
-                validateX509Cert((X509Certificate) msg.obj);
+                c.validateX509Cert((X509Certificate) msg.obj);
                 break;
-            case Constants.DIALOG_SSH_CERT:
+            case RemoteClientLibConstants.DIALOG_SSH_CERT:
                 android.util.Log.d(TAG, "DIALOG_SSH_CERT");
                 c.initializeSshHostKey();
                 break;
-            case Constants.DIALOG_RDP_CERT:
+            case RemoteClientLibConstants.DIALOG_RDP_CERT:
                 android.util.Log.d(TAG, "DIALOG_RDP_CERT");
                 s = (Bundle) msg.obj;
                 c.validateRdpCert(s.getString("subject"), s.getString("issuer"), s.getString("fingerprint"));
                 break;
-            case Constants.SPICE_CONNECT_SUCCESS:
+            case RemoteClientLibConstants.DISCONNECT_WITH_MESSAGE:
+                c.showFatalMessageAndQuit(getStringFromMessage(msg, "message"));
+                break;
+            case RemoteClientLibConstants.SPICE_CONNECT_FAILURE_IF_MAINTAINING_CONNECTION:
+                if (c.maintainConnection) {
+                    c.showFatalMessageAndQuit(getStringFromMessage(msg, "message"));
+                }
+                break;
+            case RemoteClientLibConstants.DISCONNECT_NO_MESSAGE:
+                c.disconnectAndCleanUp();
+                ((Activity)context).finish();
+                break;
+            case RemoteClientLibConstants.SPICE_CONNECT_SUCCESS:
                 if (c.pd != null && c.pd.isShowing()) {
                     c.pd.dismiss();
                 }
                 break;
-            case Constants.SPICE_CONNECT_FAILURE:
+            case RemoteClientLibConstants.SPICE_CONNECT_FAILURE:
                 if (c.maintainConnection) {
+                    c.maintainConnection = false;
                     if (c.pd != null && c.pd.isShowing()) {
                         c.pd.dismiss();
                     }
@@ -149,127 +154,41 @@ public class RemoteCanvasHandler extends Handler {
                     }
                 }
                 break;
-            case Constants.RDP_CONNECT_FAILURE:
+            case RemoteClientLibConstants.SPICE_TLS_ERROR:
+                c.showFatalMessageAndQuit(context.getString(R.string.error_ovirt_ssl_handshake_failure));
+                break;
+            case RemoteClientLibConstants.RDP_CONNECT_FAILURE:
                 if (c.maintainConnection) {
                     c.showFatalMessageAndQuit(context.getString(R.string.error_rdp_connection_failed));
                 }
                 break;
-            case Constants.RDP_UNABLE_TO_CONNECT:
+            case RemoteClientLibConstants.RDP_UNABLE_TO_CONNECT:
                 if (c.maintainConnection) {
                     c.showFatalMessageAndQuit(context.getString(R.string.error_rdp_unable_to_connect));
                 }
                 break;
-            case Constants.RDP_AUTH_FAILED:
+            case RemoteClientLibConstants.RDP_AUTH_FAILED:
                 if (c.maintainConnection) {
                     c.showFatalMessageAndQuit(context.getString(R.string.error_rdp_authentication_failed));
                 }
                 break;
-            case Constants.SERVER_CUT_TEXT:
+            case RemoteClientLibConstants.SERVER_CUT_TEXT:
                 s = (Bundle) msg.obj;
                 c.serverJustCutText = true;
                 c.setClipboardText(s.getString("text"));
                 break;
+            case RemoteClientLibConstants.REINIT_SESSION:
+                c.reinitializeCanvas();
+                break;
         }
     }
-    /**
-     * If there is a saved cert, checks the one given against it. If a signature was passed in
-     * and no saved cert, then check that signature. Otherwise, presents the
-     * given cert's signature to the user for approval.
-     * 
-     * The saved data must always win over any passed-in URI data
-     * 
-     * @param cert the given cert.
-     */
-    private void validateX509Cert (final X509Certificate cert) {
-        
-        byte[] certDataTemp = null;
-        try {
-            certDataTemp = cert.getEncoded();
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            return;
-        }   
-        final byte[] certData = certDataTemp;
-        
-        String md5Hash = "";
-        String sha1Hash = "";
-        String sha256Hash = "";
-        try {
-            md5Hash = SslUtils.signature("MD5", certData);
-            sha1Hash = SslUtils.signature("SHA-1", certData);
-            sha256Hash = SslUtils.signature("SHA-256", certData);
-        } catch (NoSuchAlgorithmException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+
+    public static String getStringFromMessage(Message msg, String key) {
+        Bundle s = msg.getData();
+        String value = "";
+        if (s != null) {
+            value = s.getString(key);
         }
-
-        String certInfo;
-            certInfo = String.format(context.getString(R.string.info_cert), md5Hash, sha1Hash, sha256Hash,
-            cert.getSubjectX500Principal().getName(),
-            cert.getIssuerX500Principal().getName(),
-            cert.getNotBefore(),
-            cert.getNotAfter()
-            );
-
-        // TODO: Create title string
-        ChoiceFragment certDialog = ChoiceFragment.newInstance(
-                context.getString(R.string.ca_new_or_changed),
-                certInfo,
-                "Accept",
-                "Reject",
-                new ChoiceFragment.OnFragmentDismissedListener() {
-
-                    @Override
-                    public void onResponseObtained(boolean result) {
-                        if (result) {
-                            android.util.Log.e(TAG, "We were told to continue");
-                            settings.setOvirtCaData(Base64.encodeToString(certData, Base64.DEFAULT));
-                            settings.save(RemoteCanvasHandler.this.context);
-                            synchronized (RemoteCanvasHandler.this) {
-                                RemoteCanvasHandler.this.notify();
-                            }
-                        } else {
-                            android.util.Log.e(TAG, "We were told not to continue");
-                            ((Activity)context).finish();
-                        }
-                    }
-                });
-        
-        FragmentManager fm = ((FragmentActivity)context).getSupportFragmentManager();
-        certDialog.setCancelable(false);
-        certDialog.show(fm, "certDialog");
-
-    }
-    
-    /**
-     * Convenience function to create a message with a single key and String value pair in it.
-     * @param what
-     * @param key
-     * @param value
-     * @return
-     */
-    public static Message getMessageString (int what, String key, String value) {
-        Message m = new Message();
-        m.what = what;
-        Bundle d = new Bundle();
-        d.putString(key, value);
-        m.setData(d);
-        return m;
-    }
-    
-    /**
-     * Convenience function to create a message with a single key and String value pair in it.
-     * @param what
-     * @param key
-     * @param value
-     * @return
-     */
-    public static Message getMessageStringList (int what, String key, ArrayList<String> value) {
-        Message m = new Message();
-        m.what = what;
-        Bundle d = new Bundle();
-        d.putStringArrayList(key, value);
-        m.setData(d);
-        return m;
+        return value;
     }
 }

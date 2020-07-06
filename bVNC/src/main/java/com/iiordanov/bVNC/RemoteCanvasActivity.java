@@ -166,7 +166,6 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
     int prevBottomOffset = 0;
     volatile boolean softKeyboardUp;
     Toolbar toolbar;
-    RemotePointer pointer;
 
     /**
      * This runnable enables immersive mode.
@@ -370,7 +369,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
             if (connection.getSshPort() == 0)
                 connection.setSshPort(Constants.DEFAULT_SSH_PORT);
         }
-        pointer = canvas.initializeCanvas(connection, setModes);
+        canvas.initializeCanvas(connection, setModes);
     }
 
     @SuppressLint("SourceLockedOrientationActivity")
@@ -382,7 +381,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
             android.util.Log.d(TAG, "Initializing session from connection settings.");
             connection = (ConnectionSettings)i.getSerializableExtra("com.undatech.opaque.ConnectionSettings");
             handler = new OpaqueHandler(this, canvas, connection);
-            pointer = canvas.init(connection, handler, setModes);
+            canvas.init(connection, handler, setModes);
 
             if (connection.getConnectionTypeString().equals(getResources().getString(R.string.connection_type_pve))) {
                 canvas.startPve();
@@ -400,7 +399,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
             connection = new ConnectionSettings(RemoteClientLibConstants.DEFAULT_SETTINGS_FILE);
             connection.load(getApplicationContext());
             handler = new OpaqueHandler(this, canvas, connection);
-            pointer = canvas.init(connection, handler, setModes);
+            canvas.init(connection, handler, setModes);
             canvas.startFromVvFile(vvFileName);
         }
     }
@@ -408,7 +407,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
     void continueConnecting () {
         android.util.Log.d(TAG, "continueConnecting");
         // Initialize and define actions for on-screen keys.
-        initializeOnScreenKeys ();
+        initializeOnScreenKeys();
 
         canvas.setOnKeyListener(this);
         canvas.setFocusableInTouchMode(true);
@@ -522,8 +521,6 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
         
         panner = new Panner(this, canvas.handler);
 
-        inputHandler = getInputHandlerById(R.id.itemInputTouchPanZoomMouse);
-        
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setTitle("");
         toolbar.getBackground().setAlpha(64);
@@ -997,10 +994,23 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
      * color mode (already done) scaling, input mode
      */
     void setModes() {
-        InputHandler handler = getInputHandlerByName(connection.getInputMode());
+        Log.d(TAG, "setModes");
+        inputHandler = getInputHandlerByName(connection.getInputMode());
         AbstractScaling.getByScaleType(connection.getScaleMode()).setScaleTypeForActivity(this);
-        this.inputHandler = handler;
-        //showPanningState(false);
+        initializeOnScreenKeys();
+        try {
+            COLORMODEL cm = COLORMODEL.valueOf(connection.getColorModel());
+            canvas.setColorModel(cm);
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+        }
+        canvas.setOnKeyListener(this);
+        canvas.setFocusableInTouchMode(true);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            canvas.setFocusedByDefault(true);
+        }
+        canvas.requestFocus();
+        canvas.setDrawingCacheEnabled(false);
     }
 
     /*
@@ -1239,13 +1249,13 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
             if (inputModeIds[i] == id) {
                 if (inputModeHandlers[i] == null) {
                     if (id == R.id.itemInputTouchPanZoomMouse) {
-                        inputModeHandlers[i] = new InputHandlerDirectSwipePan(this, canvas, pointer, myVibrator);
+                        inputModeHandlers[i] = new InputHandlerDirectSwipePan(this, canvas, canvas.getPointer(), myVibrator);
                     } else if (id == R.id.itemInputDragPanZoomMouse) {
-                        inputModeHandlers[i] = new InputHandlerDirectDragPan(this, canvas, pointer, myVibrator);
+                        inputModeHandlers[i] = new InputHandlerDirectDragPan(this, canvas, canvas.getPointer(), myVibrator);
                     } else if (id == R.id.itemInputTouchpad) {
-                        inputModeHandlers[i] = new InputHandlerTouchpad(this, canvas, pointer, myVibrator);
+                        inputModeHandlers[i] = new InputHandlerTouchpad(this, canvas, canvas.getPointer(), myVibrator);
                     } else if (id == R.id.itemInputSingleHanded) {
-                        inputModeHandlers[i] = new InputHandlerSingleHanded(this, canvas, pointer, myVibrator);
+                        inputModeHandlers[i] = new InputHandlerSingleHanded(this, canvas, canvas.getPointer(), myVibrator);
                     } else {
                         throw new IllegalStateException("Unexpected value: " + id);
                     }
@@ -1265,7 +1275,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
         }
         inputModeHandlers = null;
     }
-    
+
     InputHandler getInputHandlerByName(String name) {
         InputHandler result = null;
         for (int id : inputModeIds) {

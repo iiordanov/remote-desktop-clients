@@ -89,29 +89,28 @@ static void main_channel_event(SpiceChannel *channel, SpiceChannelEvent event,
         connection_disconnect(conn);
         break;
     case SPICE_CHANNEL_ERROR_TLS:
+        g_message("main channel: tls error while connecting");
+        __android_log_write(ANDROID_LOG_ERROR, "main_channel_event", "TLS error.");
+        sendMessage(g_env, 45, "TLS error."); /* SPICE_TLS_ERROR */
+        connection_disconnect(conn);
+        break;
     case SPICE_CHANNEL_ERROR_LINK:
+        g_message("main channel: link error while connecting");
+        __android_log_write(ANDROID_LOG_ERROR, "main_channel_event", "Link failed.");
+        sendMessage(g_env, 5, "Link failed."); /* SPICE_CONNECT_FAILURE */
+        connection_disconnect(conn);
+        break;
     case SPICE_CHANNEL_ERROR_CONNECT:
         g_message("main channel: failed to connect");
-        //rc = connect_dialog(conn->session);
-        if (rc == 0) {
-            connection_connect(conn);
-        } else {
-            connection_disconnect(conn);
-        }
+        __android_log_write(ANDROID_LOG_ERROR, "main_channel_event", "Connection failed.");
+        sendMessage(g_env, 5, "Connection failed."); /* SPICE_CONNECT_FAILURE */
+        connection_disconnect(conn);
         break;
     case SPICE_CHANNEL_ERROR_AUTH:
         g_warning("main channel: auth failure (wrong password?)");
         strcpy(password, "");
-        /* FIXME i18 */
-        //rc = ask_user(NULL, _("Authentication"),
-        //              _("Please enter the spice server password"),
-        //              password, sizeof(password), true);
-        if (rc == 0) {
-            g_object_set(conn->session, "password", password, NULL);
-            connection_connect(conn);
-        } else {
-            connection_disconnect(conn);
-        }
+        sendMessage(g_env, 20, "Authentication failed."); /* GET_SPICE_PASSWORD */
+        connection_disconnect(conn);
         break;
     default:
         /* TODO: more sophisticated error handling */

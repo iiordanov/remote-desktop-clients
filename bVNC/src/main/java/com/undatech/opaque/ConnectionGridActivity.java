@@ -100,6 +100,9 @@ public class ConnectionGridActivity extends FragmentActivity {
             public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
             @Override
             public void afterTextChanged(Editable s) {
+                if (connectionLoader == null) {
+                    return;
+                }
                 int numCols = 1;
                 if (connectionLoader.getNumConnections() > 2) {
                     numCols = 2;

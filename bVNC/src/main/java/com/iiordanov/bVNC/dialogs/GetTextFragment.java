@@ -35,13 +35,7 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-import com.iiordanov.bVNC.*;
-import com.iiordanov.freebVNC.*;
-import com.iiordanov.aRDP.*;
-import com.iiordanov.freeaRDP.*;
-import com.iiordanov.aSPICE.*;
-import com.iiordanov.freeaSPICE.*;
-import com.iiordanov.CustomClientPackage.*;
+
 import com.undatech.remoteClientUi.*;
 
 public class GetTextFragment extends DialogFragment {
@@ -49,16 +43,22 @@ public class GetTextFragment extends DialogFragment {
     public static final int Plaintext = 1;
     public static final int Password = 2;
     public static final int MatchingPasswordTwice = 3;
+    public static final int Credentials = 4;
+    public static final int CredentialsWithDomain = 5;
+
     public static final String DIALOG_ID_GET_PASSWORD                  = "DIALOG_ID_GET_PASSWORD";
     public static final String DIALOG_ID_GET_MASTER_PASSWORD           = "DIALOG_ID_GET_MASTER_PASSWORD";
     public static final String DIALOG_ID_GET_MATCHING_MASTER_PASSWORDS = "DIALOG_ID_GET_MATCHING_MASTER_PASSWORDS";
     public static final String DIALOG_ID_GET_VERIFICATIONCODE          = "DIALOG_ID_GET_VERIFICATIONCODE";
     public static final String DIALOG_ID_GET_SSH_PASSWORD              = "DIALOG_ID_GET_SSH_PASSWORD";
     public static final String DIALOG_ID_GET_SSH_PASSPHRASE            = "DIALOG_ID_GET_SSH_PASSPHRASE";
-    public static final String DIALOG_ID_GET_PROTOCOL_PASSWORD         = "DIALOG_ID_GET_PROTOCOL_PASSWORD";
+    public static final String DIALOG_ID_GET_VNC_CREDENTIALS           = "DIALOG_ID_GET_VNC_CREDENTIALS";
+    public static final String DIALOG_ID_GET_VNC_PASSWORD              = "DIALOG_ID_GET_VNC_PASSWORD";
+    public static final String DIALOG_ID_GET_RDP_CREDENTIALS           = "DIALOG_ID_GET_RDP_CREDENTIALS";
+    public static final String DIALOG_ID_GET_SPICE_PASSWORD            = "DIALOG_ID_GET_SPICE_PASSWORD";
 
     public interface OnFragmentDismissedListener {
-        void onTextObtained(String id, String obtainedString, boolean dialogCancelled);
+        void onTextObtained(String dialogId, String[] obtainedStrings, boolean dialogCancelled);
     }
 
     private class TextMatcher implements TextWatcher {
@@ -77,12 +77,16 @@ public class GetTextFragment extends DialogFragment {
     private TextView error;
     private EditText textBox;
     private EditText textBox2;
+    private EditText textBox3;
     private Button buttonConfirm;
     private Button buttonCancel;
     private OnFragmentDismissedListener dismissalListener;
 	private String title;
-	private String dialogId;
-	
+    private String dialogId;
+    private String t1;
+    private String t2;
+    private String t3;
+
     private int dialogType = 0;
     private int messageNum = 0;
     private int errorNum = 0;
@@ -90,8 +94,8 @@ public class GetTextFragment extends DialogFragment {
     public GetTextFragment () {
     }
 
-	public static GetTextFragment newInstance(String dialogId, String title, OnFragmentDismissedListener dismissalListener,
-	                                          int dialogType, int messageNum, int errorNum) {
+    public static GetTextFragment newInstance(String dialogId, String title, OnFragmentDismissedListener dismissalListener,
+	                                          int dialogType, int messageNum, int errorNum, String t1, String t2, String t3) {
     	android.util.Log.i(TAG, "newInstance called");
     	GetTextFragment f = new GetTextFragment();
     	f.setDismissalListener(dismissalListener);
@@ -102,6 +106,9 @@ public class GetTextFragment extends DialogFragment {
         args.putInt("dialogType", dialogType);
         args.putInt("messageNum", messageNum);
         args.putInt("errorNum", errorNum);
+        args.putString("t1", t1);
+        args.putString("t2", t2);
+        args.putString("t3", t3);
         f.setArguments(args);
         f.setRetainInstance(false);
 
@@ -117,6 +124,9 @@ public class GetTextFragment extends DialogFragment {
         dialogType = getArguments().getInt("dialogType");
         messageNum = getArguments().getInt("messageNum");
         errorNum = getArguments().getInt("errorNum");
+        t1 = getArguments().getString("t1");
+        t2 = getArguments().getString("t2");
+        t3 = getArguments().getString("t3");
     }
     
     @Override
@@ -160,11 +170,40 @@ public class GetTextFragment extends DialogFragment {
             dismissOnCancel(buttonCancel);
             ensureMatchingDismissOnConfirm (buttonConfirm, textBox, textBox2, error);
             break;
+        case CredentialsWithDomain:
+            v = inflater.inflate(R.layout.get_credentials_with_domain, container, false);
+            error = (TextView) v.findViewById(R.id.error);
+            textBox = (EditText) v.findViewById(R.id.textBox);
+            textBox2 = (EditText) v.findViewById(R.id.textBox2);
+            textBox3 = (EditText) v.findViewById(R.id.textBox3);
+            hideText(textBox3);
+            buttonConfirm = (Button) v.findViewById(R.id.buttonConfirm);
+            buttonCancel = (Button) v.findViewById(R.id.buttonCancel);
+            dismissOnCancel(buttonCancel);
+            dismissOnConfirm(buttonConfirm);
+        case Credentials:
+            v = inflater.inflate(R.layout.get_credentials, container, false);
+            error = (TextView) v.findViewById(R.id.error);
+            textBox = (EditText) v.findViewById(R.id.textBox);
+            textBox2 = (EditText) v.findViewById(R.id.textBox2);
+            hideText(textBox2);
+            buttonConfirm = (Button) v.findViewById(R.id.buttonConfirm);
+            buttonCancel = (Button) v.findViewById(R.id.buttonCancel);
+            dismissOnCancel(buttonCancel);
+            dismissOnConfirm(buttonConfirm);
+            break;
         default:
             getDialog().dismiss();
             break;
         }
-        
+
+        if (textBox != null && t1 != null)
+            textBox.setText(t1);
+        if (textBox2 != null && t2 != null)
+            textBox2.setText(t2);
+        if (textBox3 != null && t3 != null)
+            textBox3.setText(t3);
+
         message = (TextView) v.findViewById(R.id.message);
         message.setText(messageNum);
         
@@ -221,15 +260,21 @@ public class GetTextFragment extends DialogFragment {
     @Override
     public void onDismiss (DialogInterface dialog) {
     	android.util.Log.i(TAG, "onDismiss called: Sending data back to Activity");
-    	String result = textBox.getText().toString();
+        String[] results = new String[3];
     	if (textBox != null) {
+            results[0] = textBox.getText().toString();
     	    textBox.setText("");
     	}
-    	if (textBox2 != null) {
-    	    textBox2.setText("");
-    	}
+        if (textBox2 != null) {
+            results[1] = textBox2.getText().toString();
+            textBox2.setText("");
+        }
+        if (textBox3 != null) {
+            results[2] = textBox3.getText().toString();
+            textBox3.setText("");
+        }
     	if (dismissalListener != null) {
-            dismissalListener.onTextObtained(dialogId, result, wasCancelled);
+            dismissalListener.onTextObtained(dialogId, results, wasCancelled);
         }
     }
 

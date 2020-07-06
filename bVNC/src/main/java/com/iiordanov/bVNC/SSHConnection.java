@@ -44,6 +44,7 @@ import com.trilead.ssh2.KnownHosts;
 import com.trilead.ssh2.Session;
 import com.iiordanov.bVNC.dialogs.GetTextFragment;
 import com.undatech.opaque.MessageDialogs;
+import com.undatech.opaque.RemoteClientLibConstants;
 import com.undatech.remoteClientUi.*;
 
 /**
@@ -98,11 +99,11 @@ public class SSHConnection implements InteractiveCallback, GetTextFragment.OnFra
     private Handler handler;
     private int sshPasswordAuthAttempts = 0;
     private int sshKeyDecryptionAttempts = 0;
+    private com.undatech.opaque.Connection conn;
 
     // Used to communicate the MFA verification code obtained.
     private String verificationCode;
     private CountDownLatch userInputLatch;
-    private boolean dialogCancelled = false;
 
     public SSHConnection(com.undatech.opaque.Connection conn, Context cntxt, Handler handler) {
         host = conn.getSshServer();
@@ -130,6 +131,7 @@ public class SSHConnection implements InteractiveCallback, GetTextFragment.OnFra
         userInputLatch = new CountDownLatch(1);
         this.verificationCode = new String();
         this.handler = handler;
+        this.conn = conn;
     }
     
     String getServerHostKey() {
@@ -146,25 +148,26 @@ public class SSHConnection implements InteractiveCallback, GetTextFragment.OnFra
 
     public void setPassword(String sshPassword) {
         this.password = sshPassword;
+        this.conn.setSshPassword(sshPassword);
         this.userInputLatch.countDown();
     }
 
     public void setPassphrase(String sshPassphrase) {
         this.passphrase = sshPassphrase;
+        this.conn.setSshPassPhrase(sshPassphrase);
         this.userInputLatch.countDown();
     }
 
     private void attemptSshPasswordAuthentication() throws Exception {
         Log.i(TAG, "attemptSshPasswordAuthentication");
-        dialogCancelled = false;
         while(!authenticateWithPassword() && canAuthWithPass()) {
             sshPasswordAuthAttempts++;
-            if (sshPasswordAuthAttempts > MAX_AUTH_RETRIES || dialogCancelled) {
+            if (sshPasswordAuthAttempts > MAX_AUTH_RETRIES) {
                 throw new Exception(context.getString(R.string.error_ssh_pwd_auth_fail));
             }
             userInputLatch = new CountDownLatch(1);
             Log.i(TAG, "Requesting SSH password from user");
-            handler.sendEmptyMessage(Constants.GET_SSH_PASSWORD);
+            handler.sendEmptyMessage(RemoteClientLibConstants.GET_SSH_PASSWORD);
             while (true) {
                 try {
                     userInputLatch.await();
@@ -177,17 +180,16 @@ public class SSHConnection implements InteractiveCallback, GetTextFragment.OnFra
     }
 
     private void attemptSshKeyDecryption() throws Exception {
-        dialogCancelled = false;
         // Try to decrypt and recover keypair, and failing that, report error.
         kp = PubkeyUtils.decryptAndRecoverKeyPair(sshPrivKey, passphrase);
         while(kp == null) {
             sshKeyDecryptionAttempts++;
-            if (sshKeyDecryptionAttempts > MAX_DECRYPTION_ATTEMPTS || dialogCancelled) {
+            if (sshKeyDecryptionAttempts > MAX_DECRYPTION_ATTEMPTS) {
                 throw new Exception(context.getString(R.string.error_ssh_keypair_decryption_failure));
             }
             userInputLatch = new CountDownLatch(1);
             Log.i(TAG, "Requesting SSH passphrase from user");
-            handler.sendEmptyMessage(Constants.GET_SSH_PASSPHRASE);
+            handler.sendEmptyMessage(RemoteClientLibConstants.GET_SSH_PASSPHRASE);
             while (true) {
                 try {
                     userInputLatch.await();
@@ -646,12 +648,12 @@ public class SSHConnection implements InteractiveCallback, GetTextFragment.OnFra
             if (prompt[0].indexOf("Verification code:") != -1) {
                 Log.i(TAG, prompt[x] + "  Will request verification code from user");
                 if (Utils.isFree(context)) {
-                    handler.sendEmptyMessage(Constants.PRO_FEATURE);
+                    handler.sendEmptyMessage(RemoteClientLibConstants.PRO_FEATURE);
                     responses[x] = "";
                 } else {
                     userInputLatch = new CountDownLatch(1);
                     Log.i(TAG, "Requesting verification code from user");
-                    handler.sendEmptyMessage(Constants.GET_VERIFICATIONCODE);
+                    handler.sendEmptyMessage(RemoteClientLibConstants.GET_VERIFICATIONCODE);
                     while (true) {
                         try {
                             userInputLatch.await();
@@ -670,20 +672,24 @@ public class SSHConnection implements InteractiveCallback, GetTextFragment.OnFra
     }
     
     @Override
-    public void onTextObtained(String dialogId, String obtainedString, boolean dialogCancelled) {
-        this.dialogCancelled = dialogCancelled;
+    public void onTextObtained(String dialogId, String[] obtainedStrings, boolean dialogCancelled) {
+        if (dialogCancelled) {
+            handler.sendEmptyMessage(RemoteClientLibConstants.DISCONNECT_NO_MESSAGE);
+            return;
+        }
+
         switch (dialogId) {
             case GetTextFragment.DIALOG_ID_GET_VERIFICATIONCODE:
                 android.util.Log.i(TAG, "Text obtained from DIALOG_ID_GET_VERIFICATIONCODE.");
-                setVerificationCode(obtainedString);
+                setVerificationCode(obtainedStrings[0]);
                 break;
             case GetTextFragment.DIALOG_ID_GET_SSH_PASSWORD:
                 android.util.Log.i(TAG, "Text obtained from DIALOG_ID_GET_SSH_PASSWORD.");
-                setPassword(obtainedString);
+                setPassword(obtainedStrings[0]);
                 break;
             case GetTextFragment.DIALOG_ID_GET_SSH_PASSPHRASE:
                 android.util.Log.i(TAG, "Text obtained from DIALOG_ID_GET_SSH_PASSPHRASE.");
-                setPassphrase(obtainedString);
+                setPassphrase(obtainedStrings[0]);
                 break;
             default:
                 android.util.Log.e(TAG, "Unknown dialog type.");

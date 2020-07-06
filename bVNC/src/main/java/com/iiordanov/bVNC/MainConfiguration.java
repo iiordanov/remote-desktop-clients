@@ -115,13 +115,13 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
             getPassword = GetTextFragment.newInstance(GetTextFragment.DIALOG_ID_GET_MASTER_PASSWORD,
                     getString(R.string.master_password_verify), this,
                     GetTextFragment.Password, R.string.master_password_verify_message,
-                    R.string.master_password_set_error);
+                    R.string.master_password_set_error, null, null, null);
         }
         if (getNewPassword == null) {
             getNewPassword = GetTextFragment.newInstance(GetTextFragment.DIALOG_ID_GET_MATCHING_MASTER_PASSWORDS,
                     getString(R.string.master_password_set), this,
                     GetTextFragment.MatchingPasswordTwice, R.string.master_password_set_message,
-                    R.string.master_password_set_error);
+                    R.string.master_password_set_error, null, null, null);
         }
 
         textNickname = (EditText) findViewById(R.id.textNickname);
@@ -492,8 +492,8 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
         return result;
     }
     
-    public void onTextObtained(String dialogId, String obtainedString, boolean wasCancelled) {
-        handlePassword(obtainedString, wasCancelled);
+    public void onTextObtained(String dialogId, String[] obtainedStrings, boolean wasCancelled) {
+        handlePassword(obtainedStrings[0], wasCancelled);
     }
     
     public void handlePassword(String providedPassword, boolean wasCancelled) {

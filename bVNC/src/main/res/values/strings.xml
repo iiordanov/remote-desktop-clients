@@ -275,7 +275,7 @@ All Input Method:
     <string name="error_rdp_connection_failed">RDP Connection failed! Either network connectivity was interrupted, the RDP server was turned off or disabled, or your session was taken over.</string>
     <string name="error_rdp_unable_to_connect">Could not connect to RDP server! Please ensure RDP Server setting is correct, the server is turned on, RDP is enabled, and that the server is on the same network as this device.</string>
     <string name="error_security_type">Server did not offer supported security type.</string>
-    <string name="error_spice_unable_to_connect">Unable to connect or authenticate, please check server address, password, and cert authority and subject.</string>
+    <string name="error_spice_unable_to_connect">Unable to connect or authenticate, please check server address and port.</string>
     <string name="error_ssh_could_not_exec_command">Could not execute remote command.</string>
     <string name="error_ssh_could_not_send_sudo_pwd">Could not send sudo password.</string>
     <string name="error_ssh_hostkey_changed">ERROR! The server host key has changed. If this is intentional, please delete and recreate the connection. Otherwise, this may be a man in the middle attack. Not continuing.</string>
@@ -863,8 +863,12 @@ Known issues:
     <string name="show">"Show"</string>
     <string name="hide">"Hide"</string>
     <string name="search_connections">Search Connections</string>
-    <string name="enter_ssh_password_message">Please enter SSH Password</string>
-    <string name="enter_passphrase">Enter Key Passphrase</string>
-    <string name="enter_ssh_passphrase_message">Please enter SSH Passphrase</string>
+    <string name="enter_ssh_password_message">Please enter SSH password</string>
+    <string name="enter_vnc_credentials">Please enter VNC credentials</string>
+    <string name="enter_vnc_password">Please enter VNC password</string>
+    <string name="enter_rdp_credentials">Please enter RDP credentials</string>
+    <string name="enter_spice_password">Please enter SPICE password</string>
+    <string name="enter_passphrase_title">Enter Key Passphrase</string>
+    <string name="enter_passphrase">Please enter Key Passphrase</string>
     <string name="ssh_server_needs_password_in_addition_to_key">Your server needs password authentication in addition to key authentication.</string>
 </resources>

@@ -52,6 +52,17 @@ import com.undatech.remoteClientUi.*;
  */
 class RfbProto implements RfbConnectable {
 
+    public class RfbPasswordAuthenticationException extends Exception {
+        public RfbPasswordAuthenticationException(String errorMessage) {
+            super(errorMessage);
+        }
+    }
+    public class RfbUsernameRequiredException extends Exception {
+        public RfbUsernameRequiredException(String errorMessage) {
+            super(errorMessage);
+        }
+    }
+
     final static String TAG = "RfbProto";
 
     final static String
@@ -120,7 +131,8 @@ class RfbProto implements RfbConnectable {
     final static int
             VncAuthOK = 0,
             VncAuthFailed = 1,
-            VncAuthTooMany = 2;
+            VncAuthTooMany = 2,
+            PlainAuthFailed = 13;
 
     // Server-to-client messages
     final static int
@@ -574,7 +586,7 @@ class RfbProto implements RfbConnectable {
             case SecTypeUltraVnc2:
                 if ((bitPref & 1) == 1)
                     return secType;
-                throw new Exception("Username required.");
+                throw new RfbUsernameRequiredException("Username required.");
             default:
                 throw new Exception("Unknown security type from RFB server: " + secType);
         }
@@ -790,9 +802,11 @@ class RfbProto implements RfbConnectable {
             case VncAuthFailed:
                 if (clientMinor >= 8)
                     readConnFailedReason();
-                throw new Exception(authType + ": failed");
+                throw new RfbPasswordAuthenticationException(authType + ": failed");
             case VncAuthTooMany:
-                throw new Exception(authType + ": failed, too many tries");
+                throw new RfbPasswordAuthenticationException(authType + ": failed, too many tries");
+            case PlainAuthFailed:
+                throw new RfbPasswordAuthenticationException(authType + ": failed");
             default:
                 throw new Exception(authType + ": unknown result " + securityResult);
         }
