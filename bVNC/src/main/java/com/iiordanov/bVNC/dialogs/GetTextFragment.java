@@ -45,12 +45,13 @@ public class GetTextFragment extends DialogFragment {
     public static final int MatchingPasswordTwice = 3;
     public static final int Credentials = 4;
     public static final int CredentialsWithDomain = 5;
+    public static final int CredentialsWithReadOnlyUser = 6;
 
     public static final String DIALOG_ID_GET_PASSWORD                  = "DIALOG_ID_GET_PASSWORD";
     public static final String DIALOG_ID_GET_MASTER_PASSWORD           = "DIALOG_ID_GET_MASTER_PASSWORD";
     public static final String DIALOG_ID_GET_MATCHING_MASTER_PASSWORDS = "DIALOG_ID_GET_MATCHING_MASTER_PASSWORDS";
     public static final String DIALOG_ID_GET_VERIFICATIONCODE          = "DIALOG_ID_GET_VERIFICATIONCODE";
-    public static final String DIALOG_ID_GET_SSH_PASSWORD              = "DIALOG_ID_GET_SSH_PASSWORD";
+    public static final String DIALOG_ID_GET_SSH_CREDENTIALS           = "DIALOG_ID_GET_SSH_CREDENTIALS";
     public static final String DIALOG_ID_GET_SSH_PASSPHRASE            = "DIALOG_ID_GET_SSH_PASSPHRASE";
     public static final String DIALOG_ID_GET_VNC_CREDENTIALS           = "DIALOG_ID_GET_VNC_CREDENTIALS";
     public static final String DIALOG_ID_GET_VNC_PASSWORD              = "DIALOG_ID_GET_VNC_PASSWORD";
@@ -75,6 +76,7 @@ public class GetTextFragment extends DialogFragment {
 	private boolean wasCancelled = false;
     private TextView message;
     private TextView error;
+    private TextView textViewBox;
     private EditText textBox;
     private EditText textBox2;
     private EditText textBox3;
@@ -177,6 +179,7 @@ public class GetTextFragment extends DialogFragment {
             textBox2 = (EditText) v.findViewById(R.id.textBox2);
             textBox3 = (EditText) v.findViewById(R.id.textBox3);
             hideText(textBox3);
+            textBox3.requestFocus();
             buttonConfirm = (Button) v.findViewById(R.id.buttonConfirm);
             buttonCancel = (Button) v.findViewById(R.id.buttonCancel);
             dismissOnCancel(buttonCancel);
@@ -188,6 +191,19 @@ public class GetTextFragment extends DialogFragment {
             textBox = (EditText) v.findViewById(R.id.textBox);
             textBox2 = (EditText) v.findViewById(R.id.textBox2);
             hideText(textBox2);
+            textBox2.requestFocus();
+            buttonConfirm = (Button) v.findViewById(R.id.buttonConfirm);
+            buttonCancel = (Button) v.findViewById(R.id.buttonCancel);
+            dismissOnCancel(buttonCancel);
+            dismissOnConfirm(buttonConfirm);
+            break;
+        case CredentialsWithReadOnlyUser:
+            v = inflater.inflate(R.layout.get_credentials_with_read_only_user, container, false);
+            error = (TextView) v.findViewById(R.id.error);
+            textViewBox = v.findViewById(R.id.textViewBox);
+            textBox2 = (EditText) v.findViewById(R.id.textBox2);
+            hideText(textBox2);
+            textBox2.requestFocus();
             buttonConfirm = (Button) v.findViewById(R.id.buttonConfirm);
             buttonCancel = (Button) v.findViewById(R.id.buttonCancel);
             dismissOnCancel(buttonCancel);
@@ -198,6 +214,8 @@ public class GetTextFragment extends DialogFragment {
             break;
         }
 
+        if (textViewBox != null)
+            textViewBox.setText(t1);
         if (textBox != null && t1 != null)
             textBox.setText(t1);
         if (textBox2 != null && t2 != null)
@@ -262,10 +280,14 @@ public class GetTextFragment extends DialogFragment {
     public void onDismiss (DialogInterface dialog) {
     	android.util.Log.i(TAG, "onDismiss called: Sending data back to Activity");
         String[] results = new String[3];
-    	if (textBox != null) {
+        if (textViewBox != null) {
+            results[0] = textViewBox.getText().toString();
+            textViewBox.setText("");
+        }
+        if (textBox != null) {
             results[0] = textBox.getText().toString();
-    	    textBox.setText("");
-    	}
+            textBox.setText("");
+        }
         if (textBox2 != null) {
             results[1] = textBox2.getText().toString();
             textBox2.setText("");

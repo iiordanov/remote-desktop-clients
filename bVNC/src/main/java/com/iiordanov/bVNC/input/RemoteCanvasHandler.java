@@ -63,13 +63,13 @@ public class RemoteCanvasHandler extends Handler {
                         R.string.verification_code_message, R.string.verification_code,
                         null, null, null);
                 break;
-            case RemoteClientLibConstants.GET_SSH_PASSWORD:
-                showGetTextFragment(context.getString(R.string.password_hint_ssh),
-                        GetTextFragment.DIALOG_ID_GET_SSH_PASSWORD,
-                        context.getString(R.string.enter_password),
-                        c.sshConnection, GetTextFragment.Password,
-                        R.string.enter_ssh_password_message, R.string.password_hint_ssh,
-                        null, null, null);
+            case RemoteClientLibConstants.GET_SSH_CREDENTIALS:
+                showGetTextFragment(context.getString(R.string.enter_ssh_credentials),
+                        GetTextFragment.DIALOG_ID_GET_SSH_CREDENTIALS,
+                        context.getString(R.string.enter_ssh_credentials),
+                        c.sshConnection, GetTextFragment.CredentialsWithReadOnlyUser,
+                        R.string.enter_ssh_credentials, R.string.enter_ssh_credentials,
+                        settings.getSshUser(), settings.getSshPassword(), null);
                 break;
             case RemoteClientLibConstants.GET_SSH_PASSPHRASE:
                 showGetTextFragment(context.getString(R.string.ssh_passphrase_hint),

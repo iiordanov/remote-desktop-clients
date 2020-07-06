@@ -863,7 +863,8 @@ Known issues:
     <string name="show">"Show"</string>
     <string name="hide">"Hide"</string>
     <string name="search_connections">Search Connections</string>
-    <string name="enter_ssh_password_message">Please enter SSH password</string>
+    <string name="user_not_specified">User not specified</string>
+    <string name="enter_ssh_credentials">Please enter SSH credentials</string>
     <string name="enter_vnc_credentials">Please enter VNC credentials</string>
     <string name="enter_vnc_password">Please enter VNC password</string>
     <string name="enter_rdp_credentials">Please enter RDP credentials</string>

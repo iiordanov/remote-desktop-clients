@@ -146,8 +146,10 @@ public class SSHConnection implements InteractiveCallback, GetTextFragment.OnFra
         this.userInputLatch.countDown();
     }
 
-    public void setPassword(String sshPassword) {
+    public void setUserAndPassword(String sshUser, String sshPassword) {
+        this.user = sshUser;
         this.password = sshPassword;
+        this.conn.setSshUser(sshUser);
         this.conn.setSshPassword(sshPassword);
         this.userInputLatch.countDown();
     }
@@ -167,7 +169,7 @@ public class SSHConnection implements InteractiveCallback, GetTextFragment.OnFra
             }
             userInputLatch = new CountDownLatch(1);
             Log.i(TAG, "Requesting SSH password from user");
-            handler.sendEmptyMessage(RemoteClientLibConstants.GET_SSH_PASSWORD);
+            handler.sendEmptyMessage(RemoteClientLibConstants.GET_SSH_CREDENTIALS);
             while (true) {
                 try {
                     userInputLatch.await();
@@ -451,7 +453,7 @@ public class SSHConnection implements InteractiveCallback, GetTextFragment.OnFra
                 isAuthenticated = connection.authenticateWithKeyboardInteractive(user, this);
             }
             if (!isAuthenticated && hasPasswordAuth()) {
-                Log.i(TAG, "Trying SSH password authentication.");
+                Log.i(TAG, "Trying SSH password authentication. " + user + " " + password);
                 isAuthenticated = connection.authenticateWithPassword(user, password);
             }
             return isAuthenticated;
@@ -683,9 +685,9 @@ public class SSHConnection implements InteractiveCallback, GetTextFragment.OnFra
                 android.util.Log.i(TAG, "Text obtained from DIALOG_ID_GET_VERIFICATIONCODE.");
                 setVerificationCode(obtainedStrings[0]);
                 break;
-            case GetTextFragment.DIALOG_ID_GET_SSH_PASSWORD:
-                android.util.Log.i(TAG, "Text obtained from DIALOG_ID_GET_SSH_PASSWORD.");
-                setPassword(obtainedStrings[0]);
+            case GetTextFragment.DIALOG_ID_GET_SSH_CREDENTIALS:
+                android.util.Log.i(TAG, "Text obtained from DIALOG_ID_GET_SSH_CREDENTIALS.");
+                setUserAndPassword(obtainedStrings[0], obtainedStrings[1]);
                 break;
             case GetTextFragment.DIALOG_ID_GET_SSH_PASSPHRASE:
                 android.util.Log.i(TAG, "Text obtained from DIALOG_ID_GET_SSH_PASSPHRASE.");

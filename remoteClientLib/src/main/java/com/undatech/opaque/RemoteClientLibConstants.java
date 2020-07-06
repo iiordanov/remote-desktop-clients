@@ -35,7 +35,7 @@ public class RemoteClientLibConstants {
     public static final int RDP_AUTH_FAILED        = 9;
     public static final int GET_PASSWORD           = 10;
     public static final int GET_VERIFICATIONCODE   = 11;
-    public static final int GET_SSH_PASSWORD       = 12;
+    public static final int GET_SSH_CREDENTIALS    = 12;
     public static final int GET_SSH_PASSPHRASE     = 13;
     public static final int GET_VNC_CREDENTIALS    = 14;
     public static final int GET_VNC_PASSWORD       = 15;
