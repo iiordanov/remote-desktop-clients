@@ -204,6 +204,8 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
 
     boolean sshTunneled = false;
 
+    long lastDraw;
+
     /**
      * Constructor used by the inflation apparatus
      *
@@ -1628,9 +1630,13 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
         float scale = getZoomFactor();
         float shiftedX = x - shiftX;
         float shiftedY = y - shiftY;
-        // Make the box slightly larger to avoid artifacts due to truncation errors.
-        postInvalidate((int) ((shiftedX - 1) * scale), (int) ((shiftedY - 1) * scale),
-                (int) ((shiftedX + w + 1) * scale), (int) ((shiftedY + h + 1) * scale));
+        long timeNow = System.currentTimeMillis();
+        if (timeNow - lastDraw > 0.166) {
+            // Make the box slightly larger to avoid artifacts due to truncation errors.
+            postInvalidate((int) ((shiftedX - 1) * scale), (int) ((shiftedY - 1) * scale),
+                    (int) ((shiftedX + w + 1) * scale), (int) ((shiftedY + h + 1) * scale));
+            lastDraw = timeNow;
+        }
     }
 
 
@@ -1642,9 +1648,12 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
         float scale = getZoomFactor();
         float shiftedX = x - shiftX;
         float shiftedY = y - shiftY;
-        // Make the box slightly larger to avoid artifacts due to truncation errors.
-        postInvalidate((int) ((shiftedX - 1.f) * scale), (int) ((shiftedY - 1.f) * scale),
-                (int) ((shiftedX + w + 1.f) * scale), (int) ((shiftedY + h + 1.f) * scale));
+        long timeNow = System.currentTimeMillis();
+        if (timeNow - lastDraw > 0.166) {
+            // Make the box slightly larger to avoid artifacts due to truncation errors.
+            postInvalidate((int) ((shiftedX - 1.f) * scale), (int) ((shiftedY - 1.f) * scale),
+                    (int) ((shiftedX + w + 1.f) * scale), (int) ((shiftedY + h + 1.f) * scale));
+        }
     }
 
     /**
