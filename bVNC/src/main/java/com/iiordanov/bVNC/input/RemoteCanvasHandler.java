@@ -133,7 +133,7 @@ public class RemoteCanvasHandler extends Handler {
                 }
                 break;
             case RemoteClientLibConstants.DISCONNECT_NO_MESSAGE:
-                c.disconnectAndCleanUp();
+                c.closeConnection();
                 ((Activity)context).finish();
                 break;
             case RemoteClientLibConstants.SPICE_CONNECT_SUCCESS:

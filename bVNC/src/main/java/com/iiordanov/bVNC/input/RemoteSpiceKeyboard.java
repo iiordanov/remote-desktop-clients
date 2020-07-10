@@ -28,6 +28,7 @@ import java.util.HashMap;
 
 import android.content.res.Resources;
 import android.os.Handler;
+import android.util.Log;
 import android.view.KeyEvent;
 
 import com.iiordanov.bVNC.Constants;
@@ -256,7 +257,10 @@ public class RemoteSpiceKeyboard extends RemoteKeyboard {
         Integer[] scanCode = null;
         try {
             scanCode = table.get(code);
-            
+            if (scanCode == null) {
+                Log.d(TAG, "Could not convert KeyCode to scan codes. Not sending key.");
+                return;
+            }
             for (int i = 0; i < scanCode.length; i++) {
                 int scode = scanCode[i];
                 int meta = metaState;

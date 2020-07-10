@@ -35,8 +35,6 @@ public class ConnectionLoader {
     private boolean connectionsInSharedPrefs = false;
     private Map<String, Connection> connectionsById;
     private String[] connectionPreferenceFiles;
-    private String[] screenshotFiles;
-    private String[] connectionLabels;
     private int numConnections = 0;
     private PermissionsManager permissionsManager;
     private FragmentManager fm;
@@ -75,13 +73,9 @@ public class ConnectionLoader {
             android.util.Log.e(TAG, "No connections in the database");
         }
         else {
-            screenshotFiles = new String[numConnections];
-            connectionLabels = new String[numConnections];
             for (int i = 0; i < connections.size(); i++) {
                 Connection connection = connections.get(i);
                 connection.setRuntimeId(Integer.toString(i));
-                connectionLabels[i] = connection.getLabel();
-                screenshotFiles[i] = appContext.getFilesDir() + "/" + connection.getFilename() + ".png";
                 connectionsById.put(Integer.toString(i), connection);
             }
         }
@@ -95,15 +89,11 @@ public class ConnectionLoader {
         if (connections != null && !connections.equals("")) {
             connectionPreferenceFiles = connections.split(" ");
             numConnections = connectionPreferenceFiles.length;
-            screenshotFiles = new String[numConnections];
-            connectionLabels = new String[numConnections];
             for (int i = 0; i < numConnections; i++) {
                 Connection cs = new ConnectionSettings(connectionPreferenceFiles[i]);
                 cs.setRuntimeId(Integer.toString(i));
                 cs.load(appContext);
-                connectionLabels[i] = cs.getLabel();
-                android.util.Log.d(TAG, "Adding label: " + connectionLabels[i]);
-                screenshotFiles[i] = appContext.getFilesDir() + "/" + cs.getFilename() + ".png";
+                android.util.Log.d(TAG, "Adding label: " + cs.getLabel());
                 connectionsById.put(Integer.toString(i), cs);
             }
         }
@@ -194,14 +184,6 @@ public class ConnectionLoader {
 
     public String[] getConnectionPreferenceFiles() {
         return connectionPreferenceFiles;
-    }
-
-    public String[] getScreenshotFiles() {
-        return screenshotFiles;
-    }
-
-    public String[] getConnectionLabels() {
-        return connectionLabels;
     }
 
     public int getNumConnections() {

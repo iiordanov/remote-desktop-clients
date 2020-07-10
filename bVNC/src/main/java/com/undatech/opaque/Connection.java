@@ -253,4 +253,9 @@ public interface Connection {
 
     long getMetaListId();
     void setMetaListId(long metaListId);
+
+    public String getScreenshotFilename();
+    public void setScreenshotFilename(String screenShotFilename);
+    public String getX509KeySignature();
+    public void setX509KeySignature(String x509KeySignature);
 }

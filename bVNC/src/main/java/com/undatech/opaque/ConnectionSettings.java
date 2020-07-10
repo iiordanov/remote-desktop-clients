@@ -41,13 +41,14 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.Serializable;
 import java.util.Iterator;
+import java.util.UUID;
 
 public class ConnectionSettings implements Connection, Serializable {
     private static final String TAG = "ConnectionSettings";
     private static final long serialVersionUID = 1L;
 
     private String id = "";
-    private String filename = "";
+    private String filename;
     private String connectionType = "";
     private String hostname = "";
     private String vmname = "";
@@ -66,6 +67,8 @@ public class ConnectionSettings implements Connection, Serializable {
     private String ovirtCaData = "";
     private String layoutMap = "";
     private String scaleMode = "";
+    private String screenshotFilename = UUID.randomUUID().toString() + ".png";
+    private String x509KeySignature = "";
 
     private int extraKeysToggleType = RemoteClientLibConstants.EXTRA_KEYS_ON;
     
@@ -109,9 +112,12 @@ public class ConnectionSettings implements Connection, Serializable {
 
     }
 
+    @Override
     public String getConnectionTypeString() {
         return connectionType;
     }
+
+    @Override
     public void setConnectionTypeString(String connectionType) {
         this.connectionType = connectionType;
     }
@@ -138,31 +144,37 @@ public class ConnectionSettings implements Connection, Serializable {
     public String getInputMethod() {
         return inputMethod;
     }
-    
+
     public void setInputMethod(String inputMethod) {
         this.inputMethod = inputMethod;
     }
-    
+
+    @Override
     public int getExtraKeysToggleType() {
         return extraKeysToggleType;
     }
-    
+
+    @Override
     public void setExtraKeysToggleType(int extraKeysToggleType) {
         this.extraKeysToggleType = extraKeysToggleType;
     }
-    
+
+    @Override
     public String getHostname() {
         return hostname;
     }
-    
+
+    @Override
     public void setHostname(String hostname) {
         this.hostname = hostname;
     }
-    
+
+    @Override
     public String getVmname() {
         return vmname.trim();
     }
-    
+
+    @Override
     public void setVmname(String vmname) {
         this.vmname = vmname;
     }
@@ -180,104 +192,128 @@ public class ConnectionSettings implements Connection, Serializable {
     public String getUser() {
         return user;
     }
-    
+
     public void setUser(String user) {
         this.user = user;
     }
-    
+
+    @Override
     public String getPassword() {
         return password;
     }
-    
+
+    @Override
     public void setPassword(String password) {
         this.password = password;
     }
-    
+
+    @Override
     public String getOtpCode() {
         return otpCode;
     }
 
+    @Override
     public void setOtpCode(String otpCode) {
         this.otpCode = otpCode;
     }
 
+    @Override
     public String getFilename() {
         return filename;
     }
 
+    @Override
     public void setFilename(String filename) {
         this.filename = filename;
     }
 
+    @Override
     public boolean isRotationEnabled() {
         return rotationEnabled;
     }
 
+    @Override
     public void setRotationEnabled(boolean rotationEnabled) {
         this.rotationEnabled = rotationEnabled;
     }
 
+    @Override
     public boolean isRequestingNewDisplayResolution() {
         return requestingNewDisplayResolution;
     }
 
+    @Override
     public void setRequestingNewDisplayResolution(
             boolean requestingNewDisplayResolution) {
         this.requestingNewDisplayResolution = requestingNewDisplayResolution;
     }
 
+    @Override
     public boolean isAudioPlaybackEnabled() {
         return audioPlaybackEnabled;
     }
 
+    @Override
     public void setAudioPlaybackEnabled(boolean audioPlaybackEnabled) {
         this.audioPlaybackEnabled = audioPlaybackEnabled;
     }
 
+    @Override
     public boolean isUsingCustomOvirtCa() {
         return usingCustomOvirtCa;
     }
 
+    @Override
     public void setUsingCustomOvirtCa(boolean useCustomCa) {
         this.usingCustomOvirtCa = useCustomCa;
     }
 
+    @Override
     public boolean isSslStrict() {
         return sslStrict;
     }
 
+    @Override
     public void setSslStrict(boolean sslStrict) {
         this.sslStrict = sslStrict;
     }
-    
+
+    @Override
     public boolean isUsbEnabled() {
         return usbEnabled;
     }
 
+    @Override
     public void setUsbEnabled(boolean usbEnabled) {
         this.usbEnabled = usbEnabled;
     }
 
+    @Override
     public String getOvirtCaFile() {
         return ovirtCaFile;
     }
 
+    @Override
     public void setOvirtCaFile(String ovirtCaFile) {
         this.ovirtCaFile = ovirtCaFile;
     }
 
+    @Override
     public String getOvirtCaData() {
         return ovirtCaData;
     }
 
+    @Override
     public void setOvirtCaData(String ovirtCaData) {
         this.ovirtCaData = ovirtCaData;
     }
 
+    @Override
     public String getLayoutMap() {
         return layoutMap;
     }
 
+    @Override
     public void setLayoutMap(String layoutMap) {
         this.layoutMap = layoutMap;
     }
@@ -287,6 +323,7 @@ public class ConnectionSettings implements Connection, Serializable {
         save(c);
     }
 
+    @Override
     public void save(Context context) {
         this.saveToSharedPreferences(context);
     }
@@ -311,6 +348,8 @@ public class ConnectionSettings implements Connection, Serializable {
         editor.putString("ovirtCaData", ovirtCaData);
         editor.putString("layoutMap", layoutMap);
         editor.putString("scaleMode", scaleMode);
+        editor.putString("x509KeySignature", x509KeySignature);
+        editor.putString("screenshotFilename", screenshotFilename);
         editor.apply();
         // Make sure the CA gets saved to a file if necessary.
         ovirtCaFile = saveCaToFile (context, ovirtCaData);
@@ -488,6 +527,8 @@ public class ConnectionSettings implements Connection, Serializable {
         vmname = sp.getString("vmname", "").trim();
         user = sp.getString("user", "").trim();
         password = sp.getString("password", "");
+        x509KeySignature = sp.getString("x509KeySignature", "").trim();
+        screenshotFilename = sp.getString("screenshotFilename", UUID.randomUUID().toString() + ".png").trim();
         loadAdvancedSettings (context, filename);
     }
 
@@ -1047,6 +1088,27 @@ public class ConnectionSettings implements Connection, Serializable {
     public void setMetaListId(long metaListId) {
 
     }
+
+    @Override
+    public String getScreenshotFilename() {
+        return screenshotFilename;
+    }
+
+    @Override
+    public void setScreenshotFilename(String screenshotFilename) {
+        this.screenshotFilename = screenshotFilename;
+    }
+
+    @Override
+    public String getX509KeySignature() {
+        return x509KeySignature;
+    }
+
+    @Override
+    public void setX509KeySignature(String x509KeySignature) {
+        this.x509KeySignature = x509KeySignature;
+    }
+
 
     /**
      * Exports preferences to a file.

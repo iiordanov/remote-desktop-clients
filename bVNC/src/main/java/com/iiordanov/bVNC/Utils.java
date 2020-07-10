@@ -34,6 +34,7 @@ import java.lang.reflect.Field;
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.UUID;
 
 import org.xml.sax.SAXException;
 
@@ -51,6 +52,8 @@ import android.content.DialogInterface.OnClickListener;
 import android.content.SharedPreferences.Editor;
 import android.content.Intent;
 import net.sqlcipher.database.SQLiteDatabase;
+
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AppCompatActivity;
@@ -374,5 +377,36 @@ public class Utils {
             }
         }
         return result;
+    }
+
+    static void writeScreenshotToFile(Context context, AbstractBitmapData drawable,
+                                      String filePath, int dstWidth, int dstHeight) {
+        try {
+            if (drawable != null && drawable.mbitmap != null) {
+                // TODO: Add Filename to settings.
+                FileOutputStream out = new FileOutputStream(filePath);
+                Bitmap tmp = Bitmap.createScaledBitmap(drawable.mbitmap, dstWidth, dstHeight, true);
+                drawable.mbitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
+                out.close();
+                tmp.recycle();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    /**
+     * Either returns the input of it's already a UUID or returns a random UUID.
+     * @param string which if it's a string representation of a UUID will be returned unaltered
+     * @return the input if it's a UUID or a random UUID as a string
+     */
+    static String getUuid(String string) {
+        try {
+            UUID.fromString(string);
+            return string;
+        } catch (IllegalArgumentException e) {
+            return UUID.randomUUID().toString();
+        }
     }
 }

@@ -30,6 +30,7 @@ import android.database.DataSetObserver;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -97,9 +98,11 @@ public class LabeledImageApapter implements ListAdapter {
         } else {
             textView.setText(label);
         }
+        String screenshotFilePath = context.getFilesDir() + "/" + c.getScreenshotFilename();
         ImageView imageView = (ImageView) gridView.findViewById(R.id.grid_item_image);
-        if (new File(c.getFilename()).exists()) {
-            Bitmap gridImage = BitmapFactory.decodeFile(c.getFilename());
+        if (new File(screenshotFilePath).exists()) {
+            Log.d(TAG, "Setting screenshot from file " + screenshotFilePath);
+            Bitmap gridImage = BitmapFactory.decodeFile(screenshotFilePath);
             imageView.setImageBitmap(gridImage);
         } else {
             imageView.setImageBitmap(defaultBitmap);

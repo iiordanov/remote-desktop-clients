@@ -23,6 +23,7 @@ package com.iiordanov.bVNC;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.UUID;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -134,6 +135,9 @@ public class ConnectionBean extends AbstractConnectionBean implements Connection
         setRemoteSoundType(Constants.REMOTE_SOUND_ON_DEVICE);
         setViewOnly(false);
 		setLayoutMap("English (US)");
+        setFilename(UUID.randomUUID().toString());
+        setX509KeySignature("");
+        setScreenshotFilename(UUID.randomUUID().toString() + ".png");
         c = context;
 
         // These two are not saved in the database since we always save the cert data. 
@@ -239,17 +243,6 @@ public class ConnectionBean extends AbstractConnectionBean implements Connection
 
     @Override
     public void setOtpCode(String otpCode) {
-
-    }
-
-    // TODO: Extend the schema of the database to save
-    @Override
-    public String getFilename() {
-        return getLabel();
-    }
-
-    @Override
-    public void setFilename(String filename) {
 
     }
 

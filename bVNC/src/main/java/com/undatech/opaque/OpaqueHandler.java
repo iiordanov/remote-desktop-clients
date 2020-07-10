@@ -57,7 +57,7 @@ public class OpaqueHandler extends Handler {
                     }
                 });
         message.show(fm, "endingDialog");
-        c.disconnectAndCleanUp();
+        c.closeConnection();
     }
     
     @Override

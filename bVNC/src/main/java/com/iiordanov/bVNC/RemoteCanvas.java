@@ -270,7 +270,7 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView
     }
 
     public void disconnectAndShowMessage (final int messageId, final int titleId) {
-        disconnectAndCleanUp();
+        closeConnection();
         handler.post(new Runnable() {
             public void run() {
                 MessageDialogs.displayMessageAndFinish(getContext(), messageId, titleId);
@@ -279,57 +279,13 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView
     }
 
     public void disconnectAndShowMessage (final int messageId, final int titleId, final String textToAppend) {
-        disconnectAndCleanUp();
+        closeConnection();
         handler.post(new Runnable() {
             public void run() {
                 MessageDialogs.displayMessageAndFinish(getContext(), messageId, titleId, textToAppend);
             }
         });
     }
-
-
-    public void disconnectAndCleanUp() {
-        maintainConnection = false;
-
-        if (keyboard != null) {
-            // Tell the server to release any meta keys.
-            keyboard.clearMetaState();
-            keyboard.keyEvent(0, new KeyEvent(KeyEvent.ACTION_UP, 0));
-        }
-
-        if (spicecomm != null)
-            spicecomm.close();
-
-        if (handler != null) {
-            handler.removeCallbacksAndMessages(null);
-        }
-
-        if (clipboardMonitorTimer != null) {
-            clipboardMonitorTimer.cancel();
-            // Occasionally causes a NullPointerException
-            //clipboardMonitorTimer.purge();
-            clipboardMonitorTimer = null;
-        }
-
-        clipboardMonitor = null;
-        clipboard        = null;
-
-        try {
-            if (myDrawable != null && myDrawable.mbitmap != null) {
-                // TODO: Add Filename to settings.
-                String location = connection.getFilename();
-                FileOutputStream out = new FileOutputStream(getContext().getFilesDir() + "/" + location + ".png");
-                Bitmap tmp = Bitmap.createScaledBitmap(myDrawable.mbitmap, 360, 300, true);
-                myDrawable.mbitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
-                out.close();
-                tmp.recycle();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        disposeDrawable ();
-    }
-
 
     /**
      * Initializes the clipboard monitor.
@@ -1341,6 +1297,11 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView
             sshConnection.terminateSSHTunnel();
             sshConnection = null;
         }
+
+        Log.d(TAG, "Saving screenshot to " + getContext().getFilesDir() + "/" + connection.getScreenshotFilename());
+        Utils.writeScreenshotToFile(getContext(), myDrawable, getContext().getFilesDir() + "/" + connection.getScreenshotFilename(), 720, 600);
+        disposeDrawable ();
+
         onDestroy();
     }
 
