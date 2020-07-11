@@ -63,6 +63,7 @@ import com.iiordanov.bVNC.Utils;
 import com.iiordanov.bVNC.bVNC;
 import com.iiordanov.bVNC.ConnectionBean;
 import com.iiordanov.bVNC.dialogs.GetTextFragment;
+import com.iiordanov.bVNC.dialogs.GlobalPreferencesFragment;
 import com.iiordanov.bVNC.dialogs.ImportExportDialog;
 import com.iiordanov.bVNC.dialogs.IntroTextDialog;
 import com.iiordanov.bVNC.input.InputHandlerDirectSwipePan;
@@ -78,6 +79,7 @@ import com.undatech.remoteClientUi.R;
 
 public class ConnectionGridActivity extends FragmentActivity implements GetTextFragment.OnFragmentDismissedListener {
     private static String TAG = "ConnectionGridActivity";
+    FragmentManager fragmentManager = getSupportFragmentManager();
     private Context appContext;
     private GridView gridView;
     private String[] connectionPreferenceFiles;
@@ -205,7 +207,7 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
     
     private void loadSavedConnections() {
         boolean connectionsInSharedPrefs = Utils.isOpaque(getPackageName());
-        connectionLoader = new ConnectionLoader(appContext, this, getSupportFragmentManager(), connectionsInSharedPrefs);
+        connectionLoader = new ConnectionLoader(appContext, this, fragmentManager, connectionsInSharedPrefs);
         if (connectionLoader.getNumConnections() > 0) {
             int numCols = 1;
             if (connectionLoader.getNumConnections() > 2) {
@@ -248,6 +250,7 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
      * @param menuItem
      */
     public void editDefaultSettings (MenuItem menuItem) {
+        android.util.Log.d(TAG, "editDefaultSettings selected.");
         if (Utils.isOpaque(getPackageName())) {
             Intent intent = new Intent(ConnectionGridActivity.this, GeneralUtils.getClassByName("com.undatech.opaque.AdvancedSettingsActivity"));
             ConnectionSettings defaultConnection = new ConnectionSettings(RemoteClientLibConstants.DEFAULT_SETTINGS_FILE);
@@ -498,9 +501,8 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
     private void showGetTextFragment(GetTextFragment f) {
         if (!f.isVisible()) {
             removeGetPasswordFragments();
-            FragmentManager fm = ((FragmentActivity)this).getSupportFragmentManager();
             f.setCancelable(false);
-            f.show(fm, "");
+            f.show(fragmentManager, "");
         }
     }
 
@@ -509,15 +511,13 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
             FragmentTransaction tx = this.getSupportFragmentManager().beginTransaction();
             tx.remove(getPassword);
             tx.commit();
-            getSupportFragmentManager().executePendingTransactions();
+            fragmentManager.executePendingTransactions();
         }
         if (getNewPassword.isAdded()) {
             FragmentTransaction tx = this.getSupportFragmentManager().beginTransaction();
             tx.remove(getNewPassword);
             tx.commit();
-            getSupportFragmentManager().executePendingTransactions();
+            fragmentManager.executePendingTransactions();
         }
     }
-
-
 }
