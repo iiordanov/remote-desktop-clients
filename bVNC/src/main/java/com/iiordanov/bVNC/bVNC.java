@@ -275,11 +275,7 @@ public class bVNC extends MainConfiguration {
      */
     @Override
     protected Dialog onCreateDialog(int id) {
-        if (id == R.layout.importexport) {
-            return new ImportExportDialog(this);
-        } else if (id == R.id.itemMainScreenHelp) {
-            return createHelpDialog();
-        } else if (id == R.layout.repeater_dialog) {
+        if (id == R.layout.repeater_dialog) {
             return new RepeaterDialog(this);
         } else if (id == R.layout.auto_x_customize) {
             Dialog d = new AutoXCustomizeDialog(this, database);
@@ -287,29 +283,6 @@ public class bVNC extends MainConfiguration {
             return d;
         }
         return null;
-    }
-
-    /**
-     * Creates the help dialog for this activity.
-     */
-    private Dialog createHelpDialog() {
-        AlertDialog.Builder adb = new AlertDialog.Builder(this)
-                .setMessage(R.string.main_screen_help_text)
-                .setPositiveButton(R.string.close,
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog,
-                                                int whichButton) {
-                                // We don't have to do anything.
-                            }
-                        });
-        Dialog d = adb.setView(new ListView(this)).create();
-        WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
-        lp.copyFrom(d.getWindow().getAttributes());
-        lp.width = WindowManager.LayoutParams.MATCH_PARENT;
-        lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
-        d.show();
-        d.getWindow().setAttributes(lp);
-        return d;
     }
 
     public void updateViewFromSelected() {
@@ -399,13 +372,6 @@ public class bVNC extends MainConfiguration {
             repeaterTextSet = false;
             ipText.setHint(R.string.address_caption_hint);
         }
-    }
-
-    /**
-     * Returns the current ConnectionBean.
-     */
-    public ConnectionBean getCurrentConnection() {
-        return selected;
     }
 
     protected void updateSelectedFromView() {

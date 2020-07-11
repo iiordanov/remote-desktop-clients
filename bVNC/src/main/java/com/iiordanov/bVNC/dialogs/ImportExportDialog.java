@@ -51,19 +51,20 @@ import com.undatech.remoteClientUi.*;
  *
  */
 public class ImportExportDialog extends Dialog {
-
-    private MainConfiguration _configurationDialog;
+    public static final String TAG = "ImportExportDialog";
+    private Activity activity;
     private EditText _textLoadUrl;
     private EditText _textSaveUrl;
-    
-    
+    private Database database;
+
     /**
      * @param context
      */
-    public ImportExportDialog(MainConfiguration context) {
+    public ImportExportDialog(Activity context, Database database) {
         super((Context)context);
         setOwnerActivity((Activity)context);
-        _configurationDialog = context;
+        activity = context;
+        this.database = database;
     }
 
     /* (non-Javadoc)
@@ -77,7 +78,7 @@ public class ImportExportDialog extends Dialog {
         _textLoadUrl = (EditText)findViewById(R.id.textImportUrl);
         _textSaveUrl = (EditText)findViewById(R.id.textExportPath);
         
-        File f = BCFactory.getInstance().getStorageContext().getExternalStorageDir(_configurationDialog, null);
+        File f = getContext().getExternalFilesDir(null);
         // Sdcard not mounted; nothing else to do
         if (f == null)
             return;
@@ -93,7 +94,7 @@ public class ImportExportDialog extends Dialog {
             @Override
             public void onClick(View v) {
                 try {
-                    Utils.exportSettingsToXml(_textSaveUrl.getText().toString(), _configurationDialog.getDatabaseHelper().getReadableDatabase());
+                    Utils.exportSettingsToXml(_textSaveUrl.getText().toString(), database.getReadableDatabase());
                     dismiss();
                 }
                 catch (IOException ioe)
@@ -112,9 +113,9 @@ public class ImportExportDialog extends Dialog {
             public void onClick(View v) {
                 try
                 {
-                    Utils.importSettingsFromXml(_textLoadUrl.getText().toString(), _configurationDialog.getDatabaseHelper().getWritableDatabase());
+                    Utils.importSettingsFromXml(_textLoadUrl.getText().toString(), database.getWritableDatabase());
                     dismiss();
-                    _configurationDialog.arriveOnPage();
+                    activity.recreate();
                 }
                 catch (IOException ioe)
                 {
@@ -131,7 +132,7 @@ public class ImportExportDialog extends Dialog {
     
     private void errorNotify(String msg, Throwable t)
     {
-        Log.i("com.iiordanov.bVNC.ImportExportDialog", msg, t);
+        Log.i(TAG, msg, t);
         Utils.showErrorMessage(this.getContext(), msg + ":" + t.getMessage());
     }
 

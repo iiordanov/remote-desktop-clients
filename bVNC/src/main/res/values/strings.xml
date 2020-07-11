@@ -872,4 +872,5 @@ Known issues:
     <string name="enter_passphrase_title">Enter Key Passphrase</string>
     <string name="enter_passphrase">Please enter Key Passphrase</string>
     <string name="ssh_server_needs_password_in_addition_to_key">Your server needs password authentication in addition to key authentication.</string>
+    <string name="opaque_main_screen_help_text">Opaque help</string>
 </resources>

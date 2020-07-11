@@ -11,7 +11,6 @@ import com.iiordanov.bVNC.input.InputHandlerDirectSwipePan;
 import com.iiordanov.pubkeygenerator.GeneratePubkeyActivity;
 
 import android.app.Activity;
-import android.app.ActivityManager.MemoryInfo;
 import android.content.Context;
 import android.support.v4.app.FragmentTransaction;
 import android.content.DialogInterface;
@@ -27,12 +26,9 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewConfiguration;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RadioGroup;
-import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -43,27 +39,16 @@ import android.content.res.Configuration;
 import com.undatech.opaque.util.LogcatReader;
 import com.undatech.opaque.util.PermissionsManager;
 
-import com.iiordanov.bVNC.*;
-import com.iiordanov.freebVNC.*;
-import com.iiordanov.aRDP.*;
-import com.iiordanov.freeaRDP.*;
-import com.iiordanov.aSPICE.*;
-import com.iiordanov.freeaSPICE.*;
-import com.iiordanov.CustomClientPackage.*;
 import com.undatech.remoteClientUi.*;
 
-public abstract class MainConfiguration extends FragmentActivity implements GetTextFragment.OnFragmentDismissedListener {
+public abstract class MainConfiguration extends FragmentActivity {
     private final static String TAG = "MainConfiguration";
-
-    private boolean togglingMasterPassword = false;
 
     protected ConnectionBean selected;
     protected Database database;
     protected EditText textNickname;
     protected boolean startingOrHasPaused = true;
     protected int layoutID;
-    GetTextFragment getPassword = null;
-    GetTextFragment getNewPassword = null;
     private boolean isConnecting = false;
     private Button buttonGeneratePubkey;
     private TextView versionAndCode;
@@ -111,19 +96,6 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
 
         permissionsManager = new PermissionsManager();
 
-        if (getPassword == null) {
-            getPassword = GetTextFragment.newInstance(GetTextFragment.DIALOG_ID_GET_MASTER_PASSWORD,
-                    getString(R.string.master_password_verify), this,
-                    GetTextFragment.Password, R.string.master_password_verify_message,
-                    R.string.master_password_set_error, null, null, null);
-        }
-        if (getNewPassword == null) {
-            getNewPassword = GetTextFragment.newInstance(GetTextFragment.DIALOG_ID_GET_MATCHING_MASTER_PASSWORDS,
-                    getString(R.string.master_password_set), this,
-                    GetTextFragment.MatchingPasswordTwice, R.string.master_password_set_message,
-                    R.string.master_password_set_error, null, null, null);
-        }
-
         textNickname = (EditText) findViewById(R.id.textNickname);
 
         // Here we say what happens when the Pubkey Generate button is pressed.
@@ -167,7 +139,6 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
             }
         });
 
-        permissionsManager.requestPermissions(MainConfiguration.this);
         radioCursor = findViewById(R.id.radioCursor);
     }
 
@@ -189,12 +160,7 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
     protected void onResumeFragments() {
         Log.i(TAG, "onResumeFragments called");
         super.onResumeFragments();
-        System.gc();
-        if (Utils.querySharedPreferenceBoolean(this, Constants.masterPasswordEnabledTag)) {
-            showGetTextFragment(getPassword);
-        } else {
-            arriveOnPage();
-        }
+        arriveOnPage();
     }
 
     @Override
@@ -239,32 +205,12 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
         super.onDestroy();
     }
 
-    protected void canvasStart() {
-        if (selected == null) return;
-        MemoryInfo info = Utils.getMemoryInfo(this);
-        if (info.lowMemory)
-            System.gc();
-        start();
-    }
-
     protected void saveConnectionAndCloseLayout() {
         if (selected != null) {
             updateSelectedFromView();
             selected.saveAndWriteRecent(false, this);
         }
         finish();
-    }
-
-
-    /**
-     * Starts the activity which makes a VNC connection and displays the remote desktop.
-     */
-    private void start() {
-        isConnecting = true;
-        updateSelectedFromView();
-        Intent intent = new Intent(this, RemoteCanvasActivity.class);
-        intent.putExtra(Utils.getConnectionString(this), selected.Gen_getValues());
-        startActivity(intent);
     }
 
     public void arriveOnPage() {
@@ -303,10 +249,6 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
         Intent intent = new Intent(this, GeneratePubkeyActivity.class);
         intent.putExtra("PrivateKey",selected.getSshPrivKey());
         startActivityForResult(intent, Constants.ACTIVITY_GEN_KEY);
-    }
-
-    public Database getDatabaseHelper() {
-        return database;
     }
 
     /**
@@ -361,8 +303,7 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
      */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.androidvncmenu, menu);
-        getMenuInflater().inflate(R.menu.input_mode_menu_item, menu);
+        getMenuInflater().inflate(R.menu.connectionsetupmenu, menu);
         return true;
     }
 
@@ -373,49 +314,11 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
     public boolean onMenuOpened(int featureId, Menu menu) {
         android.util.Log.d(TAG, "onMenuOpened");
         try {
-            updateInputMenu(menu.findItem(R.id.itemInputMode).getSubMenu());
             menu.findItem(R.id.itemDeleteConnection).setEnabled(selected != null && !selected.isNew());
             menu.findItem(R.id.itemSaveAsCopy).setEnabled(selected != null && !selected.isNew());
-            MenuItem itemMasterPassword = menu.findItem(R.id.itemMasterPassword);
-            itemMasterPassword.setChecked(Utils.querySharedPreferenceBoolean(this, Constants.masterPasswordEnabledTag));
-            MenuItem keepScreenOn = menu.findItem(R.id.itemKeepScreenOn);
-            keepScreenOn.setChecked(Utils.querySharedPreferenceBoolean(this, Constants.keepScreenOnTag));
-            MenuItem disableImmersive = menu.findItem(R.id.itemDisableImmersive);
-            disableImmersive.setChecked(Utils.querySharedPreferenceBoolean(this, Constants.disableImmersiveTag));
-            MenuItem forceLandscape = menu.findItem(R.id.itemForceLandscape);
-            forceLandscape.setChecked(Utils.querySharedPreferenceBoolean(this, Constants.forceLandscapeTag));
-            MenuItem rAltAsIsoL3Shift = menu.findItem(R.id.itemRAltAsIsoL3Shift);
-            rAltAsIsoL3Shift.setChecked(Utils.querySharedPreferenceBoolean(this, Constants.rAltAsIsoL3ShiftTag));
-            MenuItem itemLeftHandedMode = menu.findItem(R.id.itemLeftHandedMode);
-            itemLeftHandedMode.setChecked(Utils.querySharedPreferenceBoolean(this, Constants.leftHandedModeTag));
         } catch (NullPointerException e) {}
         return true;
     }
-
-    /**
-     * Check the right item in the input mode sub-menu
-     */
-    void updateInputMenu(Menu inputMenu) {
-        MenuItem[] inputModeMenuItems = new MenuItem[RemoteCanvasActivity.inputModeIds.length];
-        for (int i = 0; i < RemoteCanvasActivity.inputModeIds.length; i++) {
-            inputModeMenuItems[i] = inputMenu.findItem(RemoteCanvasActivity.inputModeIds[i]);
-        }
-        String defaultInputHandlerId = Utils.querySharedPreferenceString(
-                this, Constants.defaultInputMethodTag, InputHandlerDirectSwipePan.ID);
-        android.util.Log.e(TAG, "Default Input Mode Item: " + defaultInputHandlerId);
-
-        try {
-            for (MenuItem item : inputModeMenuItems) {
-                android.util.Log.e(TAG, "Input Mode Item: " +
-                        RemoteCanvasActivity.inputModeMap.get(item.getItemId()));
-
-                if (defaultInputHandlerId.equals(RemoteCanvasActivity.inputModeMap.get(item.getItemId()))) {
-                    item.setChecked(true);
-                }
-            }
-        } catch (NullPointerException e) { }
-    }
-
 
     /* (non-Javadoc)
      * @see android.app.Activity#onOptionsItemSelected(android.view.MenuItem)
@@ -440,150 +343,10 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
                             arriveOnPage();
                         }
                     }, null);
-        } else if (itemId == R.id.itemMainScreenHelp) {
-            showDialog(R.id.itemMainScreenHelp);
-        } else if (itemId == R.id.itemExportImport) {
-            permissionsManager.requestPermissions(MainConfiguration.this);
-            showDialog(R.layout.importexport);
-        } else if (itemId == R.id.itemMasterPassword) {
-            if (Utils.isFree(this)) {
-                IntroTextDialog.showIntroTextIfNecessary(this, database, true);
-            } else {
-                togglingMasterPassword = true;
-                if (Utils.querySharedPreferenceBoolean(this, Constants.masterPasswordEnabledTag)) {
-                    showGetTextFragment(getPassword);
-                } else {
-                    showGetTextFragment(getNewPassword);
-                }
-            }
-        } else if (itemId == R.id.itemKeepScreenOn) {
-            Utils.toggleSharedPreferenceBoolean(this, Constants.keepScreenOnTag);
-        } else if (itemId == R.id.itemDisableImmersive) {
-            Utils.toggleSharedPreferenceBoolean(this, Constants.disableImmersiveTag);
-        } else if (itemId == R.id.itemForceLandscape) {
-            Utils.toggleSharedPreferenceBoolean(this, Constants.forceLandscapeTag);
-        } else if (itemId == R.id.itemRAltAsIsoL3Shift) {
-            Utils.toggleSharedPreferenceBoolean(this, Constants.rAltAsIsoL3ShiftTag);
-        } else if (itemId == R.id.itemLeftHandedMode) {
-            Utils.toggleSharedPreferenceBoolean(this, Constants.leftHandedModeTag);
-        } else {
-            if (item.getGroupId() == R.id.itemInputModeGroup) {
-                Log.e(TAG, RemoteCanvasActivity.inputModeMap.get(item.getItemId()));
-                Utils.setSharedPreferenceString(this, Constants.defaultInputMethodTag,
-                        RemoteCanvasActivity.inputModeMap.get(item.getItemId()));
-            }
         }
         return true;
     }
-    
-    private boolean checkMasterPassword (String password) {
-        Log.i(TAG, "Checking master password.");
-        boolean result = false;
-        
-        Database testPassword = new Database(this);
-        testPassword.close();
-        try {
-            testPassword.getReadableDatabase(password);
-            result = true;
-        } catch (Exception e) {
-            result = false;
-        }
-        testPassword.close();
-        return result;
-    }
-    
-    public void onTextObtained(String dialogId, String[] obtainedStrings, boolean wasCancelled) {
-        handlePassword(obtainedStrings[0], wasCancelled);
-    }
-    
-    public void handlePassword(String providedPassword, boolean wasCancelled) {
-        if (togglingMasterPassword) {
-            Log.i(TAG, "Asked to toggle master pasword.");
-            // The user has requested the password to be enabled or disabled.
-            togglingMasterPassword = false;
-            if (Utils.querySharedPreferenceBoolean(this, Constants.masterPasswordEnabledTag)) {
-                Log.i(TAG, "Master password is enabled.");
-                // Master password is enabled
-                if (wasCancelled) {
-                    Log.i(TAG, "Dialog cancelled, so quitting.");
-                    Utils.showFatalErrorMessage(this, getResources().getString(R.string.master_password_error_password_necessary));
-                } else if (checkMasterPassword(providedPassword)) {
-                    Log.i(TAG, "Entered password correct, disabling password.");
-                    // Disable the password since the user input the correct password.
-                    Database.setPassword(providedPassword);
-                    if (database.changeDatabasePassword("")) {
-                        Utils.toggleSharedPreferenceBoolean(this, Constants.masterPasswordEnabledTag);
-                    } else {
-                        Utils.showErrorMessage(this, getResources().getString(R.string.master_password_error_failed_to_disable));
-                    }
-                    removeGetPasswordFragments();
-                    arriveOnPage();
-                } else {
-                    Log.i(TAG, "Entered password is wrong or dialog cancelled, so quitting.");
-                    Utils.showFatalErrorMessage(this, getResources().getString(R.string.master_password_error_wrong_password));
-                }
-            } else {
-                Log.i(TAG, "Master password is disabled.");
-                if (!wasCancelled) {
-                    // The password is disabled, so set it in the preferences.
-                    Log.i(TAG, "Setting master password.");
-                    Database.setPassword("");
-                    if (database.changeDatabasePassword(providedPassword)) {
-                        Utils.toggleSharedPreferenceBoolean(this, Constants.masterPasswordEnabledTag);
-                    } else {
-                        Utils.showErrorMessage(this, getResources().getString(R.string.master_password_error_failed_to_enable));
-                    }
-                } else {
-                    // No need to show error message because user cancelled consciously.
-                    Log.i(TAG, "Dialog cancelled, not setting master password.");
-                    Utils.showErrorMessage(this, getResources().getString(R.string.master_password_error_password_not_set));
-                }
-                removeGetPasswordFragments();
-                arriveOnPage();
-            }
-        } else {
-            // We are just trying to check the password.
-            Log.i(TAG, "Just checking the password.");
-            if (wasCancelled) {
-                Log.i(TAG, "Dialog cancelled, so quitting.");
-                Utils.showFatalErrorMessage(this, getResources().getString(R.string.master_password_error_password_necessary));
-            } else if (checkMasterPassword(providedPassword)) {
-                Log.i(TAG, "Entered password is correct, so proceeding.");
-                Database.setPassword(providedPassword);
-                removeGetPasswordFragments();
-                arriveOnPage();
-            } else {
-                // Finish the activity if the password was wrong.
-                Log.i(TAG, "Entered password is wrong, so quitting.");
-                Utils.showFatalErrorMessage(this, getResources().getString(R.string.master_password_error_wrong_password));
-            }
-        }
-    }
-    
-    private void showGetTextFragment(GetTextFragment f) {
-        if (!f.isVisible()) {
-            removeGetPasswordFragments();
-            FragmentManager fm = ((FragmentActivity)this).getSupportFragmentManager();
-            f.setCancelable(false);
-            f.show(fm, "");
-        }
-    }
-    
-    private void removeGetPasswordFragments() {
-        if (getPassword.isAdded()) {
-            FragmentTransaction tx = this.getSupportFragmentManager().beginTransaction();
-            tx.remove(getPassword);
-            tx.commit();
-            getSupportFragmentManager().executePendingTransactions();
-        }
-        if (getNewPassword.isAdded()) {
-            FragmentTransaction tx = this.getSupportFragmentManager().beginTransaction();
-            tx.remove(getNewPassword);
-            tx.commit();
-            getSupportFragmentManager().executePendingTransactions();
-        }
-    }
-    
+
     /**
      * This function is used to retrieve data returned by activities started with startActivityForResult.
      */
@@ -604,5 +367,12 @@ public abstract class MainConfiguration extends FragmentActivity implements GetT
                 Log.i (TAG, "The user cancelled SSH key generation.");
             break;
         }
+    }
+
+    /**
+     * Returns the current ConnectionBean.
+     */
+    public ConnectionBean getCurrentConnection() {
+        return selected;
     }
 }

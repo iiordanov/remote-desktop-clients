@@ -45,6 +45,7 @@ import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.app.ActivityManager.MemoryInfo;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
@@ -60,6 +61,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.text.Html;
 import android.util.Log;
 import android.view.ViewConfiguration;
+import android.view.WindowManager;
+import android.widget.ListView;
 
 import com.iiordanov.bVNC.*;
 import com.iiordanov.freebVNC.*;
@@ -408,5 +411,38 @@ public class Utils {
         } catch (IllegalArgumentException e) {
             return UUID.randomUUID().toString();
         }
+    }
+
+    /**
+     * Creates a help dialog for each app.
+     * @param context
+     * @return
+     */
+    public static Dialog createHelpDialog(Context context) {
+        int textId = R.string.main_screen_help_text;
+        if (Utils.isRdp(context.getPackageName()))
+            textId = R.string.rdp_main_screen_help_text;
+        else if (Utils.isSpice(context.getPackageName()))
+            textId = R.string.spice_main_screen_help_text;
+        else if (Utils.isOpaque(context.getPackageName()))
+            textId = R.string.opaque_main_screen_help_text;
+
+        AlertDialog.Builder adb = new AlertDialog.Builder(context)
+                .setMessage(textId)
+                .setPositiveButton(R.string.close,
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog,
+                                                int whichButton) {
+                                // We don't have to do anything.
+                            }
+                        });
+        Dialog d = adb.setView(new ListView(context)).create();
+        WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
+        lp.copyFrom(d.getWindow().getAttributes());
+        lp.width = WindowManager.LayoutParams.MATCH_PARENT;
+        lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
+        d.show();
+        d.getWindow().setAttributes(lp);
+        return d;
     }
 }

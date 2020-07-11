@@ -248,37 +248,12 @@ public class aSPICE extends MainConfiguration {
      */
     @Override
     protected Dialog onCreateDialog(int id) {
-        if (id == R.layout.importexport) {
-            return new ImportExportDialog(this);
-        } else if (id == R.id.itemMainScreenHelp) {
-            return createHelpDialog();
-        } else if (id == R.layout.import_tls_ca_dialog) {
+        if (id == R.layout.import_tls_ca_dialog) {
             return new ImportTlsCaDialog(this, database);
         }
         return null;
     }
 
-    /**
-     * Creates the help dialog for this activity.
-     */
-    private Dialog createHelpDialog() {
-        AlertDialog.Builder adb = new AlertDialog.Builder(this).setMessage(
-                R.string.spice_main_screen_help_text).setPositiveButton(
-                R.string.close, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int whichButton) {
-                        // We don't have to do anything.
-                    }
-                });
-        Dialog d = adb.setView(new ListView(this)).create();
-        WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
-        lp.copyFrom(d.getWindow().getAttributes());
-        lp.width = WindowManager.LayoutParams.FILL_PARENT;
-        lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
-        d.show();
-        d.getWindow().setAttributes(lp);
-        return d;
-    }
-    
     public void updateViewFromSelected() {
         commonUpdateViewFromSelected();
 
@@ -346,14 +321,7 @@ public class aSPICE extends MainConfiguration {
         }
         layoutMapSpinner.setSelection(selection);
     }
-    
-    /**
-     * Returns the current ConnectionBean.
-     */
-    public ConnectionBean getCurrentConnection() {
-        return selected;
-    }
-    
+
     protected void updateSelectedFromView() {
         commonUpdateSelectedFromView();
 

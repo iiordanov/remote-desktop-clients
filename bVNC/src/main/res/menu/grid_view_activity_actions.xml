@@ -2,7 +2,14 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
       xmlns:app="http://schemas.android.com/apk/res-auto"
       xmlns:tools="http://schemas.android.com/tools" >
-
+    <item android:id="@+id/itemMainScreenHelp" android:title="@string/main_screen_help"/>
+    <item android:id="@+id/itemExportImport" android:title="@string/import_export_settings"/>
+    <item android:id="@+id/itemMasterPassword" android:title="@string/master_password_enable" android:checkable="true"/>
+    <item android:id="@+id/itemKeepScreenOn" android:title="@string/keep_screen_awake_enable" android:checkable="true"/>
+    <item android:id="@+id/itemDisableImmersive" android:title="@string/immersive_mode_disable" android:checkable="true"/>
+    <item android:id="@+id/itemForceLandscape" android:title="@string/landscape_force" android:checkable="true"/>
+    <item android:id="@+id/itemRAltAsIsoL3Shift" android:title="@string/right_alt_as_iso_l3_shift" android:checkable="true"/>
+    <item android:id="@+id/itemLeftHandedMode" android:title="@string/left_handed_mode" android:checkable="true"/>
     <item android:id="@+id/copyLogcat"
           android:icon="@android:drawable/ic_menu_agenda"
           android:title="@string/copy_logcat"
