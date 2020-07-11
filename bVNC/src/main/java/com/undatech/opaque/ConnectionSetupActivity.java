@@ -211,37 +211,6 @@ public class ConnectionSetupActivity extends Activity {
     }
     
     /**
-     * Deletes the currentSelectedConnection from the list of connections and saves it.
-     */
-    private void deleteConnection() {
-        // Only if this is a not a new connection do we need to remove it from the list
-        if (!newConnection) {
-            String newListOfConnections = new String();
-            if (connectionsArray != null) {
-                currentConnection = new ConnectionSettings (currentSelectedConnection);
-                for (String connection : connectionsArray) {
-                    if (!connection.equals(currentSelectedConnection)) {
-                        newListOfConnections += " " + connection;
-                    }
-                }
-                android.util.Log.d(TAG, "Deleted connection, current list: " + newListOfConnections);
-                SharedPreferences sp = appContext.getSharedPreferences("generalSettings", Context.MODE_PRIVATE);
-                Editor editor = sp.edit();
-                editor.putString("connections", newListOfConnections.trim());
-                editor.apply();
-                
-                // Delete the screenshot associated with this connection.
-                File toDelete = new File (getFilesDir() + "/" + currentConnection.getScreenshotFilename());
-                boolean deleted = toDelete.delete();
-                android.util.Log.d(TAG, "Result of deleting screenshot : " + deleted);
-
-                // Reload the list of connections from preferences for consistency.
-                loadConnections();
-            }
-        }
-    }
-    
-    /**
      * This function is used to retrieve data returned by activities started with startActivityForResult.
      */
     @Override
@@ -317,17 +286,7 @@ public class ConnectionSetupActivity extends Activity {
         loadSelectedPreferences();
         updateViewsFromPreferences ();
     }
-    
-    /**
-     * Automatically linked with android:onClick to the add new connection action bar item.
-     * @param menuItem
-     */
-    public void deleteConnection (MenuItem menuItem) {
-        deleteConnection();
-        finish();
-    }
-    
-    
+
     /**
      * Automatically linked with android:onClick to the toggleSslStrict button.
      * @param view
@@ -340,17 +299,12 @@ public class ConnectionSetupActivity extends Activity {
     
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.connection_setup_activity_actions, menu);
         return super.onCreateOptionsMenu(menu);
     }
     
     @Override
     public boolean onOptionsItemSelected(MenuItem menuItem) {
         int itemID = menuItem.getItemId();
-        if (itemID == R.id.actionDeleteConnection) {
-            deleteConnection (menuItem);
-        }
         return true;
     }
 }

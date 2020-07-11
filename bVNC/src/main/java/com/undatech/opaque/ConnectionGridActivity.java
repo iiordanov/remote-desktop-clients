@@ -40,11 +40,14 @@ import android.text.ClipboardManager;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.DragEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
+import android.view.View.OnDragListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
@@ -73,6 +76,8 @@ import com.undatech.opaque.util.GeneralUtils;
 import com.undatech.opaque.util.LogcatReader;
 import com.undatech.opaque.util.PermissionsManager;
 import org.json.JSONException;
+
+import java.io.File;
 import java.io.IOException;
 import com.undatech.remoteClientUi.R;
 
@@ -103,11 +108,26 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
                 launchConnection(v);
             }
         });
-        
         gridView.setOnItemLongClickListener(new OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View v, int position, long id) {
-                editConnection(v);
+                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(ConnectionGridActivity.this);
+                String gridItemText = (String) ((TextView) v.findViewById(R.id.grid_item_text)).getText();
+                alertDialogBuilder.setTitle(getString(R.string.connection_edit_delete_prompt) + " " + gridItemText + " ?");
+                CharSequence [] cs = {getString(R.string.connection_edit), getString(R.string.connection_delete)};
+                alertDialogBuilder.setItems(cs, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int item) {
+                        if (cs[item].toString() == getString(R.string.connection_edit)) {
+                            editConnection(v);
+                        }
+                        else if (cs[item].toString() == getString(R.string.connection_delete)) {
+                            deleteConnection(v);
+                        }
+                    }
+                });
+                AlertDialog alertDialog = alertDialogBuilder.create();
+                alertDialog.show();
                 return true;
             }
         });
@@ -159,7 +179,7 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
         String runtimeId = (String) ((TextView) v.findViewById(R.id.grid_item_id)).getText();
         Intent intent = new Intent(ConnectionGridActivity.this, GeneralUtils.getClassByName("com.iiordanov.bVNC.RemoteCanvasActivity"));
         if (Utils.isOpaque(getPackageName())) {
-            ConnectionSettings cs = (ConnectionSettings) connectionLoader.getConnectionsById().get(runtimeId);;
+            ConnectionSettings cs = (ConnectionSettings) connectionLoader.getConnectionsById().get(runtimeId);
             cs.loadFromSharedPreferences(appContext);
             intent.putExtra("com.undatech.opaque.ConnectionSettings", cs);
         }
@@ -176,12 +196,57 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
         String runtimeId = (String) ((TextView) v.findViewById(R.id.grid_item_id)).getText();
         Connection conn = connectionLoader.getConnectionsById().get(runtimeId);
         Intent intent = new Intent(ConnectionGridActivity.this, Utils.getConnectionSetupClass(getPackageName()));
-//        if (connectionPreferenceFiles != null && position < connectionPreferenceFiles.length) {
-//            intent.putExtra("com.undatech.opaque.connectionToEdit", connectionPreferenceFiles[position]);
-//        }
-        intent.putExtra("isNewConnection", false);
-        intent.putExtra("connID", conn.getId());
+        if (Utils.isOpaque(getPackageName())) {
+            ConnectionSettings cs = (ConnectionSettings) connectionLoader.getConnectionsById().get(runtimeId);
+            intent.putExtra("com.undatech.opaque.connectionToEdit", cs.getFilename());
+
+        }
+        else {
+            intent.putExtra("isNewConnection", false);
+            intent.putExtra("connID", conn.getId());
+        }
         startActivity(intent);
+    }
+
+    private void deleteConnection(View v) {
+        android.util.Log.e(TAG, "Delete Connection");
+        String runtimeId = (String) ((TextView) v.findViewById(R.id.grid_item_id)).getText();
+        String gridItemText = (String) ((TextView) v.findViewById(R.id.grid_item_text)).getText();
+        Utils.showYesNoPrompt(this, getString(R.string.delete_connection) + "?", getString(R.string.delete_connection) + " " + gridItemText+ " ?",
+                new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int i) {
+                if (Utils.isOpaque(getPackageName())) {
+
+                    String newListOfConnections = new String();
+
+                    SharedPreferences sp = appContext.getSharedPreferences("generalSettings", Context.MODE_PRIVATE);
+                    String currentConnectionsStr = sp.getString("connections", null);
+
+                    ConnectionSettings cs = (ConnectionSettings) connectionLoader.getConnectionsById().get(runtimeId);
+                    if (sp != null) {
+                        String [] currentConnections = currentConnectionsStr.split(" ");
+                        for (String connection : currentConnections) {
+                            if (!connection.equals(cs.getFilename())) {
+                                newListOfConnections += " " + connection;
+                            }
+                        }
+                        android.util.Log.d(TAG, "Deleted connection, current list: " + newListOfConnections);
+                        Editor editor = sp.edit();
+                        editor.putString("connections", newListOfConnections.trim());
+                        editor.apply();
+                        File toDelete = new File (getFilesDir() + "/" + cs.getFilename() + ".png");
+                        toDelete.delete();
+                    }
+                }
+                else {
+                    ConnectionBean conn = (ConnectionBean) connectionLoader.getConnectionsById().get(runtimeId);
+                    conn.Gen_delete(database.getWritableDatabase());
+                    database.close();
+                }
+                onResume();
+            }
+        }, null);
     }
 
     @Override
@@ -518,6 +583,4 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
             getSupportFragmentManager().executePendingTransactions();
         }
     }
-
-
 }
