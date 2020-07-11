@@ -214,17 +214,16 @@ public class ConnectionSetupActivity extends Activity {
      * Deletes the currentSelectedConnection from the list of connections and saves it.
      */
     private void deleteConnection() {
-        // Only if this is a new connection do we need to add it to the list
+        // Only if this is a not a new connection do we need to remove it from the list
         if (!newConnection) {
-            
             String newListOfConnections = new String();
             if (connectionsArray != null) {
+                currentConnection = new ConnectionSettings (currentSelectedConnection);
                 for (String connection : connectionsArray) {
                     if (!connection.equals(currentSelectedConnection)) {
                         newListOfConnections += " " + connection;
                     }
                 }
-
                 android.util.Log.d(TAG, "Deleted connection, current list: " + newListOfConnections);
                 SharedPreferences sp = appContext.getSharedPreferences("generalSettings", Context.MODE_PRIVATE);
                 Editor editor = sp.edit();
@@ -232,9 +231,10 @@ public class ConnectionSetupActivity extends Activity {
                 editor.apply();
                 
                 // Delete the screenshot associated with this connection.
-                File toDelete = new File (getFilesDir() + "/" + currentSelectedConnection + ".png");
-                toDelete.delete();
-                
+                File toDelete = new File (getFilesDir() + "/" + currentConnection.getScreenshotFilename());
+                boolean deleted = toDelete.delete();
+                android.util.Log.d(TAG, "Result of deleting screenshot : " + deleted);
+
                 // Reload the list of connections from preferences for consistency.
                 loadConnections();
             }

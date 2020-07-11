@@ -204,7 +204,8 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
     }
     
     private void loadSavedConnections() {
-        connectionLoader = new ConnectionLoader(appContext, this, getSupportFragmentManager(), Utils.isOpaque(getPackageName()));
+        boolean connectionsInSharedPrefs = Utils.isOpaque(getPackageName());
+        connectionLoader = new ConnectionLoader(appContext, this, getSupportFragmentManager(), connectionsInSharedPrefs);
         if (connectionLoader.getNumConnections() > 0) {
             int numCols = 1;
             if (connectionLoader.getNumConnections() > 2) {
@@ -358,7 +359,8 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
     @Override
     protected Dialog onCreateDialog(int id) {
         if (id == R.layout.importexport) {
-            return new ImportExportDialog(this, database);
+            boolean connectionsInSharedPrefs = Utils.isOpaque(getPackageName());
+            return new ImportExportDialog(this, database, connectionsInSharedPrefs);
         } else if (id == R.id.itemMainScreenHelp) {
             return Utils.createHelpDialog(this);
         }

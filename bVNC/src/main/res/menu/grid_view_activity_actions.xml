@@ -32,16 +32,4 @@
           android:showAsAction="ifRoom"
           app:showAsAction="ifRoom"
           android:onClick="addNewConnection" />
-
-    <item android:id="@+id/actionExportSettings"
-          android:icon="@android:drawable/ic_menu_save"
-          android:title="@string/action_export_settings"
-          app:showAsAction="never"
-          android:onClick="exportSettings" />
-    
-    <item android:id="@+id/actionImportSettings"
-          android:icon="@android:drawable/ic_menu_upload"
-          android:title="@string/action_import_settings"
-          app:showAsAction="never"
-          android:onClick="importSettings" />
 </menu>

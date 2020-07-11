@@ -24,6 +24,7 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Environment;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -35,6 +36,7 @@ import com.iiordanov.bVNC.Utils;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Paths;
 
 import org.xml.sax.SAXException;
 import com.iiordanov.bVNC.*;
@@ -56,15 +58,17 @@ public class ImportExportDialog extends Dialog {
     private EditText _textLoadUrl;
     private EditText _textSaveUrl;
     private Database database;
+    private boolean connectionsInSharedPrefs;
 
     /**
      * @param context
      */
-    public ImportExportDialog(Activity context, Database database) {
+    public ImportExportDialog(Activity context, Database database, boolean connectionsInSharedPrefs) {
         super((Context)context);
         setOwnerActivity((Activity)context);
         activity = context;
         this.database = database;
+        this.connectionsInSharedPrefs = connectionsInSharedPrefs;
     }
 
     /* (non-Javadoc)
@@ -77,14 +81,11 @@ public class ImportExportDialog extends Dialog {
         setTitle(R.string.import_export_settings);
         _textLoadUrl = (EditText)findViewById(R.id.textImportUrl);
         _textSaveUrl = (EditText)findViewById(R.id.textExportPath);
-        
-        File f = getContext().getExternalFilesDir(null);
-        // Sdcard not mounted; nothing else to do
-        if (f == null)
-            return;
-        
-        f = new File(f, "settings.xml");
-        String path = "/sdcard/" + f.getName();
+
+        File f = new File(Environment.getExternalStorageDirectory().getPath());
+        f = new File(f, Utils.getExportFileName(getContext().getPackageName()));
+
+        String path = f.getAbsolutePath();
         _textSaveUrl.setText(path);
         _textLoadUrl.setText(path);
         
@@ -94,7 +95,11 @@ public class ImportExportDialog extends Dialog {
             @Override
             public void onClick(View v) {
                 try {
-                    Utils.exportSettingsToXml(_textSaveUrl.getText().toString(), database.getReadableDatabase());
+                    if (connectionsInSharedPrefs) {
+                        Utils.exportSettingsFromSharedPrefsToJson(_textLoadUrl.getText().toString(), getContext());
+                    } else {
+                        Utils.exportSettingsToXml(_textSaveUrl.getText().toString(), database.getReadableDatabase());
+                    }
                     dismiss();
                 }
                 catch (IOException ioe)
@@ -113,7 +118,11 @@ public class ImportExportDialog extends Dialog {
             public void onClick(View v) {
                 try
                 {
-                    Utils.importSettingsFromXml(_textLoadUrl.getText().toString(), database.getWritableDatabase());
+                    if (connectionsInSharedPrefs) {
+                        Utils.importSettingsFromJsonToSharedPrefs(_textSaveUrl.getText().toString(), getContext());
+                    } else {
+                        Utils.importSettingsFromXml(_textLoadUrl.getText().toString(), database.getWritableDatabase());
+                    }
                     dismiss();
                     activity.recreate();
                 }

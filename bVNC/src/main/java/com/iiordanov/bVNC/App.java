@@ -2,13 +2,21 @@ package com.iiordanov.bVNC;
 
 import android.app.Application;
 import android.content.Context;
+import android.support.multidex.MultiDex;
+import android.support.multidex.MultiDexApplication;
 
 import java.lang.ref.WeakReference;
 
-public class App extends Application {
+public class App extends MultiDexApplication {
 
     private Database database;
     private static WeakReference<Context> context;
+
+    @Override
+    protected void attachBaseContext(Context base) {
+        super.attachBaseContext(base);
+        MultiDex.install(getBaseContext());
+    }
 
     @Override
     public void onCreate() {

@@ -6,6 +6,7 @@ android {
     defaultConfig {
         targetSdkVersion 28
         minSdkVersion project.getProperties().get("SDK_VERSION")
+        multiDexEnabled true
     }
 
     buildTypes {
@@ -30,6 +31,7 @@ android {
 }
 
 dependencies {
+    api 'com.android.support:multidex:1.0.3'
     implementation project(':pubkeyGenerator')
     implementation project(':freeRDPCore')
     implementation project(':remoteClientLib')

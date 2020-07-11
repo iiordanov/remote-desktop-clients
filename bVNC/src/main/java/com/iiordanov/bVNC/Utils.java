@@ -36,6 +36,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.UUID;
 
+import org.json.JSONException;
 import org.xml.sax.SAXException;
 
 import com.antlersoft.android.contentxml.SqliteElement;
@@ -56,7 +57,10 @@ import net.sqlcipher.database.SQLiteDatabase;
 
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.Environment;
+import android.os.Handler;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Html;
 import android.util.Log;
@@ -71,7 +75,11 @@ import com.iiordanov.freeaRDP.*;
 import com.iiordanov.aSPICE.*;
 import com.iiordanov.freeaSPICE.*;
 import com.iiordanov.CustomClientPackage.*;
+import com.undatech.opaque.ConnectionSettings;
 import com.undatech.opaque.ConnectionSetupActivity;
+import com.undatech.opaque.RemoteClientLibConstants;
+import com.undatech.opaque.dialogs.MessageFragment;
+import com.undatech.opaque.util.FileUtils;
 import com.undatech.remoteClientUi.*;
 
 public class Utils {
@@ -302,7 +310,54 @@ public class Utils {
         SqliteElement.exportDbAsXmlToStream(db, writer);
         writer.close();
     }
-    
+
+    public static void importSettingsFromJsonToSharedPrefs(String file, Context context) {
+        String pathToFile = FileUtils.join(Environment.getExternalStorageDirectory().toString(),
+                RemoteClientLibConstants.EXPORT_SETTINGS_FILE);
+
+        try {
+            String connections = ConnectionSettings.importPrefsFromFile(context, pathToFile);
+            SharedPreferences sp = context.getSharedPreferences("generalSettings", Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = sp.edit();
+            editor.putString("connections", connections);
+            editor.apply();
+        } catch (JSONException e) {
+            Log.e(TAG, "JSON Exception while importing settings " + e.getLocalizedMessage());
+            e.printStackTrace();
+        } catch (IOException e) {
+            Log.e(TAG, "IO Exception while importing settings " + e.getLocalizedMessage());
+            e.printStackTrace();
+        }
+    }
+
+    public static void exportSettingsFromSharedPrefsToJson(String file, Context context) {
+        SharedPreferences sp = context.getSharedPreferences("generalSettings", Context.MODE_PRIVATE);
+        String connections = sp.getString("connections", null);
+        try {
+            ConnectionSettings.exportPrefsToFile(context, connections, file);
+        } catch (JSONException e) {
+            Log.e(TAG, "JSON Exception while exporting settings " + e.getLocalizedMessage());
+            e.printStackTrace();
+        } catch (IOException e) {
+            Log.e(TAG, "IO Exception while exporting settings " + e.getLocalizedMessage());
+            e.printStackTrace();
+        }
+    }
+
+    public static String getExportFileName(String packageName) {
+        String res = "settings.xml";
+        if (isVnc(packageName))
+            res = "vnc_" + res;
+        else if (isRdp(packageName))
+            res = "rdp_" + res;
+        else if (isSpice(packageName))
+            res = "rdp_settings" + res;
+        else if (isOpaque(packageName))
+            res = "opaque_settings.json";
+        return res;
+    }
+
+
     public static void importSettingsFromXml (String file, SQLiteDatabase db) throws SAXException, IOException {
         Reader reader = new InputStreamReader(new FileInputStream(file));
         SqliteElement.importXmlStreamToDb(db, reader, ReplaceStrategy.REPLACE_EXISTING);

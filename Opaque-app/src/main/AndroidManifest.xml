@@ -21,6 +21,7 @@
         android:anyDensity="true"/>
         
     <application
+        android:name="com.iiordanov.bVNC.App"
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/opaque_app_name"
