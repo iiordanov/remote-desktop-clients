@@ -314,7 +314,6 @@ public abstract class MainConfiguration extends FragmentActivity {
     public boolean onMenuOpened(int featureId, Menu menu) {
         android.util.Log.d(TAG, "onMenuOpened");
         try {
-            menu.findItem(R.id.itemDeleteConnection).setEnabled(selected != null && !selected.isNew());
             menu.findItem(R.id.itemSaveAsCopy).setEnabled(selected != null && !selected.isNew());
         } catch (NullPointerException e) {}
         return true;
@@ -333,16 +332,6 @@ public abstract class MainConfiguration extends FragmentActivity {
             selected.set_Id(0);
             selected.saveAndWriteRecent(false, this);
             arriveOnPage();
-        } else if (itemId == R.id.itemDeleteConnection) {
-            Utils.showYesNoPrompt(this, getString(R.string.delete_connection) + "?", getString(R.string.delete_connection) + " " + selected.getNickname() + "?",
-                    new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int i) {
-                            selected.Gen_delete(database.getWritableDatabase());
-                            database.close();
-                            arriveOnPage();
-                        }
-                    }, null);
         }
         return true;
     }

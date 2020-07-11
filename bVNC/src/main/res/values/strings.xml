@@ -242,6 +242,9 @@ All Input Method:
     <string name="connection_type_vnc_over_ssl">Secure VNC over AnonTLS</string>
     <string name="connection_type_vnc_over_stunnel">Secure VNC over SSL Tunnel</string>
     <string name="connection_type_vnc_over_vencrypt">Secure VNC over VeNCrypt</string>
+    <string name="connection_edit_delete_prompt">Do you want to edit or delete the connection</string>
+    <string name="connection_edit">Edit</string>
+    <string name="connection_delete">Delete</string>
 
     <string name="control_check">Ctrl</string>
 
