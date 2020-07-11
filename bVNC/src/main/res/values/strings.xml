@@ -124,7 +124,7 @@ All Input Method:
     <string name="message_please_install_bvnc">Please install &lt;a href="market://details?id=com.iiordanov.bVNC">bVNC&lt;/a> from Google Play to connect to the VNC console of this VM.</string>
     <string name="ssl_strict">Require common name to match cert (on recommended)</string>
     <string name="usb">USB (plug in OTG cable first)</string>
-    
+
     <string name="ad_donate_text0">The Pro version now has support for multi-factor authentication. In addition, it supports the much requested Master Password feature that prevents unauthorized use and also encrypts all connection settings including passwords and SSH keys to guard against theft. Enable it from the main Menu. If the Menu button is missing, please long-tap the running apps button for the Menu.</string>
     <string name="ad_donate_text1">Tap here to support the project with a small donation by buying the Pro version.</string>
     <string name="ad_donate_text2">The Pro version allows you to disable this dialog and gives you access to additional features.</string>

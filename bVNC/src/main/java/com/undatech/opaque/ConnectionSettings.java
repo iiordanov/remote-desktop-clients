@@ -25,6 +25,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.net.Uri;
+import android.util.Log;
 import android.widget.ImageView;
 
 import org.json.JSONException;
@@ -1196,4 +1197,35 @@ public class ConnectionSettings implements Connection, Serializable {
 
         return connections.trim();
     }
+
+    public static void importSettingsFromJsonToSharedPrefs(String file, Context context) {
+        try {
+            String connections = ConnectionSettings.importPrefsFromFile(context, file);
+            SharedPreferences sp = context.getSharedPreferences("generalSettings", Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = sp.edit();
+            editor.putString("connections", connections);
+            editor.apply();
+        } catch (JSONException e) {
+            Log.e(TAG, "JSON Exception while importing settings " + e.getLocalizedMessage());
+            e.printStackTrace();
+        } catch (IOException e) {
+            Log.e(TAG, "IO Exception while importing settings " + e.getLocalizedMessage());
+            e.printStackTrace();
+        }
+    }
+
+    public static void exportSettingsFromSharedPrefsToJson(String file, Context context) {
+        SharedPreferences sp = context.getSharedPreferences("generalSettings", Context.MODE_PRIVATE);
+        String connections = sp.getString("connections", null);
+        try {
+            ConnectionSettings.exportPrefsToFile(context, connections, file);
+        } catch (JSONException e) {
+            Log.e(TAG, "JSON Exception while exporting settings " + e.getLocalizedMessage());
+            e.printStackTrace();
+        } catch (IOException e) {
+            Log.e(TAG, "IO Exception while exporting settings " + e.getLocalizedMessage());
+            e.printStackTrace();
+        }
+    }
+
 }

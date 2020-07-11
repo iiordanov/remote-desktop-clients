@@ -311,39 +311,6 @@ public class Utils {
         writer.close();
     }
 
-    public static void importSettingsFromJsonToSharedPrefs(String file, Context context) {
-        String pathToFile = FileUtils.join(Environment.getExternalStorageDirectory().toString(),
-                RemoteClientLibConstants.EXPORT_SETTINGS_FILE);
-
-        try {
-            String connections = ConnectionSettings.importPrefsFromFile(context, pathToFile);
-            SharedPreferences sp = context.getSharedPreferences("generalSettings", Context.MODE_PRIVATE);
-            SharedPreferences.Editor editor = sp.edit();
-            editor.putString("connections", connections);
-            editor.apply();
-        } catch (JSONException e) {
-            Log.e(TAG, "JSON Exception while importing settings " + e.getLocalizedMessage());
-            e.printStackTrace();
-        } catch (IOException e) {
-            Log.e(TAG, "IO Exception while importing settings " + e.getLocalizedMessage());
-            e.printStackTrace();
-        }
-    }
-
-    public static void exportSettingsFromSharedPrefsToJson(String file, Context context) {
-        SharedPreferences sp = context.getSharedPreferences("generalSettings", Context.MODE_PRIVATE);
-        String connections = sp.getString("connections", null);
-        try {
-            ConnectionSettings.exportPrefsToFile(context, connections, file);
-        } catch (JSONException e) {
-            Log.e(TAG, "JSON Exception while exporting settings " + e.getLocalizedMessage());
-            e.printStackTrace();
-        } catch (IOException e) {
-            Log.e(TAG, "IO Exception while exporting settings " + e.getLocalizedMessage());
-            e.printStackTrace();
-        }
-    }
-
     public static String getExportFileName(String packageName) {
         String res = "settings.xml";
         if (isVnc(packageName))
@@ -356,7 +323,6 @@ public class Utils {
             res = "opaque_settings.json";
         return res;
     }
-
 
     public static void importSettingsFromXml (String file, SQLiteDatabase db) throws SAXException, IOException {
         Reader reader = new InputStreamReader(new FileInputStream(file));

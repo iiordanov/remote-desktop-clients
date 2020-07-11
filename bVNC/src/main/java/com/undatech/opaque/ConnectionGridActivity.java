@@ -66,7 +66,6 @@ import com.iiordanov.bVNC.Utils;
 import com.iiordanov.bVNC.bVNC;
 import com.iiordanov.bVNC.ConnectionBean;
 import com.iiordanov.bVNC.dialogs.GetTextFragment;
-import com.iiordanov.bVNC.dialogs.GlobalPreferencesFragment;
 import com.iiordanov.bVNC.dialogs.ImportExportDialog;
 import com.iiordanov.bVNC.dialogs.IntroTextDialog;
 import com.iiordanov.bVNC.input.InputHandlerDirectSwipePan;
@@ -272,7 +271,7 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
     
     private void loadSavedConnections() {
         boolean connectionsInSharedPrefs = Utils.isOpaque(getPackageName());
-        connectionLoader = new ConnectionLoader(appContext, this, fragmentManager, connectionsInSharedPrefs);
+        connectionLoader = new ConnectionLoader(appContext, this, connectionsInSharedPrefs);
         if (connectionLoader.getNumConnections() > 0) {
             int numCols = 1;
             if (connectionLoader.getNumConnections() > 2) {
@@ -323,25 +322,10 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
             intent.putExtra("com.undatech.opaque.ConnectionSettings", defaultConnection);
             startActivityForResult(intent, RemoteClientLibConstants.DEFAULT_SETTINGS);
         } else {
-            Log.e(TAG, "Not implemented yet.");
+            Intent intent = new Intent();
+            intent.setClassName(this, "com.iiordanov.bVNC.GlobalPreferencesActivity");
+            startActivity(intent);
         }
-    }
-
-    /**
-     * Linked with android:onClick to the export settings action bar item.
-     * @param menuItem
-     */
-    public void exportSettings (MenuItem menuItem) {
-        connectionLoader.exportSettings();
-    }
-
-    /**
-     * Linked with android:onClick to the export settings action bar item.
-     * @param menuItem
-     */
-    public void importSettings (MenuItem menuItem) {
-        connectionLoader.importSettings();
-        loadSavedConnections();
     }
 
     @Override

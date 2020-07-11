@@ -46,6 +46,7 @@ import com.iiordanov.freeaRDP.*;
 import com.iiordanov.aSPICE.*;
 import com.iiordanov.freeaSPICE.*;
 import com.iiordanov.CustomClientPackage.*;
+import com.undatech.opaque.ConnectionSettings;
 import com.undatech.remoteClientUi.*;
 
 /**
@@ -96,7 +97,7 @@ public class ImportExportDialog extends Dialog {
             public void onClick(View v) {
                 try {
                     if (connectionsInSharedPrefs) {
-                        Utils.exportSettingsFromSharedPrefsToJson(_textLoadUrl.getText().toString(), getContext());
+                        ConnectionSettings.exportSettingsFromSharedPrefsToJson(_textLoadUrl.getText().toString(), getContext());
                     } else {
                         Utils.exportSettingsToXml(_textSaveUrl.getText().toString(), database.getReadableDatabase());
                     }
@@ -119,7 +120,7 @@ public class ImportExportDialog extends Dialog {
                 try
                 {
                     if (connectionsInSharedPrefs) {
-                        Utils.importSettingsFromJsonToSharedPrefs(_textSaveUrl.getText().toString(), getContext());
+                        ConnectionSettings.importSettingsFromJsonToSharedPrefs(_textSaveUrl.getText().toString(), getContext());
                     } else {
                         Utils.importSettingsFromXml(_textLoadUrl.getText().toString(), database.getWritableDatabase());
                     }
