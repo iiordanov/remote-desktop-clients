@@ -25,6 +25,7 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.AdapterView;
@@ -69,7 +70,6 @@ public class bVNC extends MainConfiguration {
     private EditText ipText;
     private EditText portText;
     private EditText passwordText;
-    private Button goButton;
     private Button repeaterButton;
     private Button buttonCustomizeX11Vnc;
     private ToggleButton toggleAdvancedSettings;
@@ -205,18 +205,6 @@ public class bVNC extends MainConfiguration {
         checkboxViewOnly = (CheckBox) findViewById(R.id.checkboxViewOnly);
         colorSpinner.setAdapter(colorSpinnerAdapter);
         colorSpinner.setSelection(0);
-
-        goButton = (Button) findViewById(R.id.buttonGO);
-        goButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (ipText.getText().length() != 0 && portText.getText().length() != 0) {
-                    saveConnectionAndCloseLayout();
-                } else {
-                    Toast.makeText(view.getContext(), R.string.vnc_server_empty, Toast.LENGTH_LONG).show();
-                }
-            }
-        });
 
         spinnerVncGeometry = (Spinner) findViewById(R.id.spinnerVncGeometry);
         resWidth = (EditText) findViewById(R.id.rdpWidth);
@@ -424,6 +412,14 @@ public class bVNC extends MainConfiguration {
             selected.setUseRepeater(true);
         } else {
             selected.setUseRepeater(false);
+        }
+    }
+
+    public void save(MenuItem item) {
+        if (ipText.getText().length() != 0 && portText.getText().length() != 0) {
+            saveConnectionAndCloseLayout();
+        } else {
+            Toast.makeText(this, R.string.vnc_server_empty, Toast.LENGTH_LONG).show();
         }
     }
 }

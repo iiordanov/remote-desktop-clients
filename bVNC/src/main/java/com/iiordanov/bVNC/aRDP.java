@@ -23,6 +23,7 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.AdapterView;
@@ -69,7 +70,6 @@ public class aRDP extends MainConfiguration {
     private EditText ipText;
     private EditText portText;
     private EditText passwordText;
-    private Button goButton;
     private ToggleButton toggleAdvancedSettings;
     //private Spinner colorSpinner;
     private Spinner spinnerRdpGeometry;
@@ -141,19 +141,6 @@ public class aRDP extends MainConfiguration {
         checkboxKeepPassword = (CheckBox)findViewById(R.id.checkboxKeepPassword);
         checkboxUseDpadAsArrows = (CheckBox)findViewById(R.id.checkboxUseDpadAsArrows);
         checkboxRotateDpad = (CheckBox)findViewById(R.id.checkboxRotateDpad);
-
-        goButton = (Button) findViewById(R.id.buttonGO);
-        goButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (ipText.getText().length() != 0 && portText.getText().length() != 0) {
-                    saveConnectionAndCloseLayout();
-                } else {
-                    Toast.makeText(view.getContext(), R.string.rdp_server_empty, Toast.LENGTH_LONG).show();
-                }
-            }
-        });
-        
         // The advanced settings button.
         toggleAdvancedSettings = (ToggleButton) findViewById(R.id.toggleAdvancedSettings);
         layoutAdvancedSettings = (LinearLayout) findViewById(R.id.layoutAdvancedSettings);
@@ -407,5 +394,14 @@ public class aRDP extends MainConfiguration {
             break;
         }
         groupRemoteSoundType.check(id);
+    }
+
+    public void save(MenuItem item) {
+        if (ipText.getText().length() != 0 && portText.getText().length() != 0) {
+            saveConnectionAndCloseLayout();
+        } else {
+            Toast.makeText(this, R.string.rdp_server_empty, Toast.LENGTH_LONG).show();
+        }
+
     }
 }

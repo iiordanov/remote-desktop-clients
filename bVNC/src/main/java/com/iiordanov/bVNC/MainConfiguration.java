@@ -319,22 +319,6 @@ public abstract class MainConfiguration extends FragmentActivity {
         return true;
     }
 
-    /* (non-Javadoc)
-     * @see android.app.Activity#onOptionsItemSelected(android.view.MenuItem)
-     */
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int itemId = item.getItemId();
-        if (itemId == R.id.itemSaveAsCopy) {
-            if (selected.getNickname().equals(textNickname.getText().toString()))
-                textNickname.setText(new String(getString(R.string.copy_of) + " " + selected.getNickname()));
-            updateSelectedFromView();
-            selected.set_Id(0);
-            selected.saveAndWriteRecent(false, this);
-            arriveOnPage();
-        }
-        return true;
-    }
 
     /**
      * This function is used to retrieve data returned by activities started with startActivityForResult.
@@ -363,5 +347,20 @@ public abstract class MainConfiguration extends FragmentActivity {
      */
     public ConnectionBean getCurrentConnection() {
         return selected;
+    }
+
+    public void saveAsCopy(MenuItem item) {
+        if (selected.getNickname().equals(textNickname.getText().toString()))
+            textNickname.setText(new String(getString(R.string.copy_of) + " " + selected.getNickname()));
+        updateSelectedFromView();
+        selected.set_Id(0);
+        selected.saveAndWriteRecent(false, this);
+        arriveOnPage();
+        finish();
+    }
+
+    public void showConnectionScreenHelp(MenuItem item) {
+        Log.d(TAG, "Showing connection screen help.");
+        Utils.createConnectionScreenDialog(this);
     }
 }

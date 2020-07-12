@@ -2,29 +2,34 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
       xmlns:app="http://schemas.android.com/apk/res-auto"
       xmlns:tools="http://schemas.android.com/tools" >
-    <item android:id="@+id/itemMainScreenHelp" android:title="@string/main_screen_help"/>
-    <item android:id="@+id/itemExportImport" android:title="@string/import_export_settings"/>
-    <item android:id="@+id/itemMasterPassword" android:title="@string/master_password_enable" android:checkable="true"/>
-    <item android:id="@+id/copyLogcat"
-          android:icon="@android:drawable/ic_menu_agenda"
-          android:title="@string/copy_logcat"
-          app:showAsAction="never"
-          android:onClick="copyLogcat" />
-
-    <item android:id="@+id/actionEditDefaultSettings"
-          android:icon="@android:drawable/ic_menu_manage"
-          android:title="@string/action_edit_default_settings"
-          tools:ignore="AppCompatResource"
-          android:showAsAction="ifRoom"
-          app:showAsAction="ifRoom"
-          android:onClick="editDefaultSettings" />
+    <item android:id="@+id/itemExportImport" android:title="@string/import_export_settings" app:showAsAction="never"/>
+    <item android:id="@+id/itemMasterPassword" android:title="@string/master_password_enable" app:showAsAction="never" android:checkable="true"/>
+    <item android:id="@+id/copyLogcat" android:title="@string/copy_logcat" app:showAsAction="never" android:onClick="copyLogcat" />
+    <item android:id="@+id/actionSupportForum" android:title="@string/support_forum" app:showAsAction="never" android:onClick="showSupportForum" />
+    <item android:id="@+id/reportBug" android:title="@string/report_bug" app:showAsAction="never" android:onClick="reportBug" />
 
     <!-- New Connection, should appear as action button -->
     <item android:id="@+id/actionNewConnection"
-          android:icon="@drawable/ic_action_new"
-          android:title="@string/action_new_connection"
-          tools:ignore="AppCompatResource"
-          android:showAsAction="ifRoom"
-          app:showAsAction="ifRoom"
-          android:onClick="addNewConnection" />
+        android:icon="@drawable/ic_action_new"
+        android:title="@string/action_new_connection"
+        tools:ignore="AppCompatResource"
+        android:showAsAction="always"
+        app:showAsAction="always"
+        android:onClick="addNewConnection" />
+
+    <item android:id="@+id/actionEditDefaultSettings"
+        android:icon="@android:drawable/ic_menu_manage"
+        android:title="@string/action_edit_default_settings"
+        tools:ignore="AppCompatResource"
+        android:showAsAction="always"
+        app:showAsAction="always"
+        android:onClick="editDefaultSettings" />
+
+    <item android:id="@+id/actionHelp"
+        android:icon="@android:drawable/ic_menu_info_details"
+        android:title="@string/help"
+        tools:ignore="AppCompatResource"
+        android:showAsAction="always"
+        app:showAsAction="always"
+        android:onClick="showMainScreenHelp" />
 </menu>

@@ -10,31 +10,6 @@
         android:orientation="vertical"
         android:padding="0dip">
 
-        <LinearLayout
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <Spinner
-                android:id="@+id/spinnerConnection"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:singleLine="true" />
-
-            <Button
-                android:id="@+id/buttonGO"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="0"
-                android:background="#444444"
-                android:singleLine="true"
-                android:text="@string/connect_button"
-                android:textAppearance="?android:attr/textAppearanceMedium"
-                android:textColor="#dddddd"
-                android:textSize="35sp" />
-        </LinearLayout>
-
         <TableLayout
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"

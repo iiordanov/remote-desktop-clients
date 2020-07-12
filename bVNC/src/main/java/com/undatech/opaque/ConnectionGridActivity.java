@@ -29,6 +29,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v4.app.DialogFragment;
@@ -403,8 +404,6 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
         if (id == R.layout.importexport) {
             boolean connectionsInSharedPrefs = Utils.isOpaque(getPackageName());
             return new ImportExportDialog(this, database, connectionsInSharedPrefs);
-        } else if (id == R.id.itemMainScreenHelp) {
-            return Utils.createHelpDialog(this);
         }
         return null;
     }
@@ -415,11 +414,7 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int itemId = item.getItemId();
-        if (itemId == R.id.itemMainScreenHelp) {
-            //DialogFragment dialog = (DialogFragment)DialogFragment.instantiate(this, "Hello world");
-            //dialog.show(getSupportFragmentManager(), "dialog");
-            showDialog(R.id.itemMainScreenHelp);
-        } else if (itemId == R.id.itemExportImport) {
+        if (itemId == R.id.itemExportImport) {
             permissionsManager.requestPermissions(ConnectionGridActivity.this);
             showDialog(R.layout.importexport);
         } else if (itemId == R.id.itemMasterPassword) {
@@ -546,5 +541,26 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
             tx.commit();
             fragmentManager.executePendingTransactions();
         }
+    }
+
+    public void showMainScreenHelp(MenuItem item) {
+        Log.d(TAG, "Showing main screen help.");
+        Utils.createMainScreenDialog(this);
+    }
+
+    public void showSupportForum(MenuItem item) {
+        Log.d(TAG, "Showing support forum.");
+        String url = "https://groups.google.com/forum/#!forum/bvnc-ardp-aspice-opaque-remote-desktop-clients";
+        Intent i = new Intent(Intent.ACTION_VIEW);
+        i.setData(Uri.parse(url));
+        startActivity(i);
+    }
+
+    public void reportBug(MenuItem item) {
+        Log.d(TAG, "Showing report bug page.");
+        String url = "https://github.com/iiordanov/remote-desktop-clients/issues";
+        Intent i = new Intent(Intent.ACTION_VIEW);
+        i.setData(Uri.parse(url));
+        startActivity(i);
     }
 }

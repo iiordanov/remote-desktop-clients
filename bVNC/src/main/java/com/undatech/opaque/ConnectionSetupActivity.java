@@ -30,6 +30,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -42,6 +43,8 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.iiordanov.bVNC.Utils;
 import com.undatech.remoteClientUi.R;
 
 public class ConnectionSetupActivity extends Activity {
@@ -51,7 +54,6 @@ public class ConnectionSetupActivity extends Activity {
     private EditText vmname = null;
     private EditText user = null;
     private EditText password = null;
-    private Button   saveButton = null;
     private Button   advancedSettingsButton = null;
     
     private Context appContext = null;
@@ -85,27 +87,7 @@ public class ConnectionSetupActivity extends Activity {
                 startActivityForResult(intent, RemoteClientLibConstants.ADVANCED_SETTINGS);
             }
         });
-        
-        // Define what happens when one taps the Save button.
-        saveButton = (Button) findViewById(R.id.saveButton);
-        saveButton.setOnClickListener(new OnClickListener () {
-            @Override
-            public void onClick(View arg0) {
-                String u = user.getText().toString();
-                String h = hostname.getText().toString();
-                
-                // Only if a username and a hostname were entered, save the connection.
-                if (!(u.equals("") || h.equals(""))) {
-                    saveSelectedPreferences(true);
-                    finish();
-                // Otherwise, let the user know that at least a user and hostname are required.
-                } else {
-                    Toast toast = Toast.makeText(appContext, R.string.error_no_user_hostname, Toast.LENGTH_LONG);
-                    toast.show ();
-                }
-            }
-        });
-        
+
         // Load any existing list of connection preferences.
         loadConnections();
         
@@ -299,6 +281,7 @@ public class ConnectionSetupActivity extends Activity {
     
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.connection_setup_activity_actions, menu);
         return super.onCreateOptionsMenu(menu);
     }
     
@@ -306,5 +289,25 @@ public class ConnectionSetupActivity extends Activity {
     public boolean onOptionsItemSelected(MenuItem menuItem) {
         int itemID = menuItem.getItemId();
         return true;
+    }
+
+    public void showConnectionScreenHelp(MenuItem item) {
+        Log.d(TAG, "Showing connection screen help.");
+        Utils.createConnectionScreenDialog(this);
+    }
+
+    public void save(MenuItem item) {
+        String u = user.getText().toString();
+        String h = hostname.getText().toString();
+
+        // Only if a username and a hostname were entered, save the connection.
+        if (!(u.equals("") || h.equals(""))) {
+            saveSelectedPreferences(true);
+            finish();
+            // Otherwise, let the user know that at least a user and hostname are required.
+        } else {
+            Toast toast = Toast.makeText(appContext, R.string.error_no_user_hostname, Toast.LENGTH_LONG);
+            toast.show ();
+        }
     }
 }

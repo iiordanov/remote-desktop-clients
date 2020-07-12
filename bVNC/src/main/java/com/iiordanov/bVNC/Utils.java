@@ -435,19 +435,32 @@ public class Utils {
     }
 
     /**
-     * Creates a help dialog for each app.
+     * Creates a connection screen help dialog for each app.
      * @param context
      * @return
      */
-    public static Dialog createHelpDialog(Context context) {
+    public static Dialog createMainScreenDialog(Context context) {
         int textId = R.string.main_screen_help_text;
-        if (Utils.isRdp(context.getPackageName()))
-            textId = R.string.rdp_main_screen_help_text;
-        else if (Utils.isSpice(context.getPackageName()))
-            textId = R.string.spice_main_screen_help_text;
-        else if (Utils.isOpaque(context.getPackageName()))
-            textId = R.string.opaque_main_screen_help_text;
+        return createDialog(context, textId);
+    }
 
+    /**
+     * Creates a connection screen help dialog for each app.
+     * @param context
+     * @return
+     */
+    public static Dialog createConnectionScreenDialog(Context context) {
+        int textId = R.string.vnc_connection_screen_help_text;
+        if (Utils.isRdp(context.getPackageName()))
+            textId = R.string.rdp_connection_screen_help_text;
+        else if (Utils.isSpice(context.getPackageName()))
+            textId = R.string.spice_connection_screen_help_text;
+        else if (Utils.isOpaque(context.getPackageName()))
+            textId = R.string.opaque_connection_screen_help_text;
+        return createDialog(context, textId);
+    }
+
+    public static Dialog createDialog(Context context, int textId) {
         AlertDialog.Builder adb = new AlertDialog.Builder(context)
                 .setMessage(textId)
                 .setPositiveButton(R.string.close,
@@ -465,5 +478,6 @@ public class Utils {
         d.show();
         d.getWindow().setAttributes(lp);
         return d;
+
     }
 }

@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ConnectionSetupActivity"
+    tools:context="com.undatech.opaque.ConnectionSetupActivity"
     android:padding="10dip" >
     
         <TableLayout
@@ -73,13 +73,5 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="@string/advanced_settings" />
-            
-            <Button
-                android:id="@+id/saveButton"
-                style="?buttonBarButtonStyle"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/save_button" />
         </TableLayout>
 </FrameLayout>

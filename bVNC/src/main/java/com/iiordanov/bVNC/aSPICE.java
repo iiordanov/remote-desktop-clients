@@ -33,6 +33,7 @@ import android.content.res.AssetManager;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.AdapterView;
@@ -83,7 +84,6 @@ public class aSPICE extends MainConfiguration {
     private Button buttonImportCa;
     private EditText tlsPort;
     private EditText passwordText;
-    private Button goButton;
     private ToggleButton toggleAdvancedSettings;
     private Spinner spinnerGeometry;
     private EditText textNickname;
@@ -158,21 +158,6 @@ public class aSPICE extends MainConfiguration {
         checkboxUseDpadAsArrows = (CheckBox) findViewById(R.id.checkboxUseDpadAsArrows);
         checkboxRotateDpad = (CheckBox) findViewById(R.id.checkboxRotateDpad);
         checkboxEnableSound = (CheckBox) findViewById(R.id.checkboxEnableSound);
-        
-        goButton = (Button) findViewById(R.id.buttonGO);
-        goButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (ipText.getText().length() != 0
-                        && (portText.getText().length() != 0 || tlsPort.getText().length() != 0)) {
-                    saveConnectionAndCloseLayout();
-                } else {
-                    Toast.makeText(view.getContext(),
-                            R.string.spice_server_empty, Toast.LENGTH_LONG)
-                            .show();
-                }
-            }
-        });
 
         // The advanced settings button.
         toggleAdvancedSettings = (ToggleButton) findViewById(R.id.toggleAdvancedSettings);
@@ -382,6 +367,15 @@ public class aSPICE extends MainConfiguration {
         }
         if (selection != null) {
             selected.setLayoutMap(selection.getText().toString());
+        }
+    }
+
+    public void save(MenuItem item) {
+        if (ipText.getText().length() != 0
+                && (portText.getText().length() != 0 || tlsPort.getText().length() != 0)) {
+            saveConnectionAndCloseLayout();
+        } else {
+            Toast.makeText(this, R.string.spice_server_empty, Toast.LENGTH_LONG).show();
         }
     }
 }
