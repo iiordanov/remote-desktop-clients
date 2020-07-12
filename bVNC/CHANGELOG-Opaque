@@ -1,3 +1,8 @@
+v5.0.0
+- Many improvements and fixes
+- Improved UX and error messaging
+- Improved settings import/export functionality
+- Updated help
 v4.3.0
 - Fix for SSH key generation instructions.
 - Fixes for devices with curved screens

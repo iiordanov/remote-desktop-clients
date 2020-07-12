@@ -1,3 +1,12 @@
+v5.0.0
+- New Grid UI with remote screenshots
+- Many improvements and fixes
+- Improved UX and error messaging
+- AutoX error detection
+- Ability to collect credentials on the fly
+- SSH library updated to latest version
+- Improved settings import/export functionality
+- Updated help
 v4.3.0
 - Fix for SSH key generation instructions.
 - Fixes for devices with curved screens
