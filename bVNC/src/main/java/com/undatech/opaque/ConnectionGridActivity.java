@@ -367,16 +367,6 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
             updateInputMenu(menu.findItem(R.id.itemInputMode).getSubMenu());
             MenuItem itemMasterPassword = menu.findItem(R.id.itemMasterPassword);
             itemMasterPassword.setChecked(Utils.querySharedPreferenceBoolean(this, Constants.masterPasswordEnabledTag));
-            MenuItem keepScreenOn = menu.findItem(R.id.itemKeepScreenOn);
-            keepScreenOn.setChecked(Utils.querySharedPreferenceBoolean(this, Constants.keepScreenOnTag));
-            MenuItem disableImmersive = menu.findItem(R.id.itemDisableImmersive);
-            disableImmersive.setChecked(Utils.querySharedPreferenceBoolean(this, Constants.disableImmersiveTag));
-            MenuItem forceLandscape = menu.findItem(R.id.itemForceLandscape);
-            forceLandscape.setChecked(Utils.querySharedPreferenceBoolean(this, Constants.forceLandscapeTag));
-            MenuItem rAltAsIsoL3Shift = menu.findItem(R.id.itemRAltAsIsoL3Shift);
-            rAltAsIsoL3Shift.setChecked(Utils.querySharedPreferenceBoolean(this, Constants.rAltAsIsoL3ShiftTag));
-            MenuItem itemLeftHandedMode = menu.findItem(R.id.itemLeftHandedMode);
-            itemLeftHandedMode.setChecked(Utils.querySharedPreferenceBoolean(this, Constants.leftHandedModeTag));
         } catch (NullPointerException e) {}
         return true;
     }
@@ -443,22 +433,10 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
                     showGetTextFragment(getNewPassword);
                 }
             }
-        } else if (itemId == R.id.itemKeepScreenOn) {
-            Utils.toggleSharedPreferenceBoolean(this, Constants.keepScreenOnTag);
-        } else if (itemId == R.id.itemDisableImmersive) {
-            Utils.toggleSharedPreferenceBoolean(this, Constants.disableImmersiveTag);
-        } else if (itemId == R.id.itemForceLandscape) {
-            Utils.toggleSharedPreferenceBoolean(this, Constants.forceLandscapeTag);
-        } else if (itemId == R.id.itemRAltAsIsoL3Shift) {
-            Utils.toggleSharedPreferenceBoolean(this, Constants.rAltAsIsoL3ShiftTag);
-        } else if (itemId == R.id.itemLeftHandedMode) {
-            Utils.toggleSharedPreferenceBoolean(this, Constants.leftHandedModeTag);
-        } else {
-            if (item.getGroupId() == R.id.itemInputModeGroup) {
-                Log.e(TAG, RemoteCanvasActivity.inputModeMap.get(item.getItemId()));
-                Utils.setSharedPreferenceString(this, Constants.defaultInputMethodTag,
-                        RemoteCanvasActivity.inputModeMap.get(item.getItemId()));
-            }
+        } else if (item.getGroupId() == R.id.itemInputModeGroup) {
+            Log.e(TAG, RemoteCanvasActivity.inputModeMap.get(item.getItemId()));
+            Utils.setSharedPreferenceString(this, Constants.defaultInputMethodTag,
+                    RemoteCanvasActivity.inputModeMap.get(item.getItemId()));
         }
         return true;
     }

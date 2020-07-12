@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <SwitchPreferenceCompat
+        android:defaultValue="false" android:key="disableImmersive" android:title="@string/immersive_mode_disable"/>
+    <SwitchPreferenceCompat
+        android:defaultValue="false" android:key="keepScreenOn" android:title="@string/keep_screen_awake_enable"/>
+    <SwitchPreferenceCompat
+        android:defaultValue="false" android:key="rAltAsIsoL3Shift" android:title="@string/right_alt_as_iso_l3_shift"/>
+    <SwitchPreferenceCompat
+        android:defaultValue="false" android:key="forceLandscape" android:title="@string/landscape_force"/>
+    <SwitchPreferenceCompat
+        android:defaultValue="false" android:key="leftHandedModeTag" android:title="@string/left_handed_mode"/>
+</PreferenceScreen>
