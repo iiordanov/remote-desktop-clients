@@ -87,7 +87,6 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
     FragmentManager fragmentManager = getSupportFragmentManager();
     private Context appContext;
     private GridView gridView;
-    private String[] connectionPreferenceFiles;
     protected PermissionsManager permissionsManager;
     private ConnectionLoader connectionLoader;
     private EditText search;
@@ -96,13 +95,14 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
     private boolean togglingMasterPassword = false;
     GetTextFragment getPassword = null;
     GetTextFragment getNewPassword = null;
+    protected boolean startingOrHasPaused = true;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         appContext = getApplicationContext();
         setContentView(R.layout.grid_view_activity);
- 
+
         gridView = (GridView) findViewById(R.id.gridView);
         gridView.setOnItemClickListener(new OnItemClickListener() {
             @Override
@@ -255,8 +255,23 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
     @Override
     public void onResume() {
         super.onResume();
-        android.util.Log.e(TAG, "onResume");
+        Log.i(TAG, "onResume");
         loadSavedConnections();
+        IntroTextDialog.showIntroTextIfNecessary(this, database, Utils.isFree(this) && startingOrHasPaused);
+        startingOrHasPaused = false;
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Log.i(TAG, "onPause");
+        if (!isConnecting) {
+            startingOrHasPaused = true;
+        } else {
+            isConnecting = false;
+        }
+        if (database != null)
+            database.close();
     }
 
     @Override

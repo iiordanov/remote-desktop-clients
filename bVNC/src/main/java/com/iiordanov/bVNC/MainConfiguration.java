@@ -5,20 +5,14 @@ import java.util.Collections;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
-import com.iiordanov.bVNC.dialogs.IntroTextDialog;
-import com.iiordanov.bVNC.dialogs.GetTextFragment;
-import com.iiordanov.bVNC.input.InputHandlerDirectSwipePan;
 import com.iiordanov.pubkeygenerator.GeneratePubkeyActivity;
 
 import android.app.Activity;
 import android.content.Context;
-import android.support.v4.app.FragmentTransaction;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
 import android.text.ClipboardManager;
 import android.util.Log;
 import android.view.Display;
@@ -47,9 +41,7 @@ public abstract class MainConfiguration extends FragmentActivity {
     protected ConnectionBean selected;
     protected Database database;
     protected EditText textNickname;
-    protected boolean startingOrHasPaused = true;
     protected int layoutID;
-    private boolean isConnecting = false;
     private Button buttonGeneratePubkey;
     private TextView versionAndCode;
     protected PermissionsManager permissionsManager;
@@ -186,11 +178,6 @@ public abstract class MainConfiguration extends FragmentActivity {
         Log.i(TAG, "onPause called");
         if (database != null)
             database.close();
-        if (!isConnecting) {
-            startingOrHasPaused = true;
-        } else {
-            isConnecting = false;
-        }
         if (selected != null) {
             updateSelectedFromView();
             selected.saveAndWriteRecent(false, this);
@@ -236,8 +223,6 @@ public abstract class MainConfiguration extends FragmentActivity {
             selected = new ConnectionBean(this);
         }
         updateViewFromSelected();
-        IntroTextDialog.showIntroTextIfNecessary(this, database, Utils.isFree(this) && startingOrHasPaused);
-        startingOrHasPaused = false;
     }
 
     /**

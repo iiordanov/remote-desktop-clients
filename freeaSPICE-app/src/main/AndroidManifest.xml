@@ -21,19 +21,24 @@
         android:smallScreens="true"
         android:anyDensity="true"/>
 		
-    <application android:icon="@drawable/icon_aspice" android:label="@string/freeaspice_app_name" android:allowBackup="false" android:theme="@style/AppTheme" android:name="com.iiordanov.bVNC.App" tools:replace="android:label,android:theme">
-                <activity android:label="@string/freeaspice_app_name"
+    <application android:icon="@drawable/icon_aspice" android:label="@string/aspice_app_name" android:allowBackup="false" android:theme="@style/AppTheme" android:name="com.iiordanov.bVNC.App" tools:replace="android:label,android:theme">
+                <activity android:name="com.undatech.opaque.ConnectionGridActivity"
+                        android:configChanges="orientation|screenSize|keyboardHidden"
+                        android:label="@string/freeaspice_app_name"
+                        android:theme="@android:style/Theme.DeviceDefault">
+                        <intent-filter>
+                            <action android:name="android.intent.action.MAIN" />
+                            <category android:name="android.intent.category.LAUNCHER" />
+                            <category android:name="android.intent.category.MULTIWINDOW_LAUNCHER"></category>
+                        </intent-filter>
+                </activity>
+                <activity android:label="@string/aspice_app_name"
                           android:name="com.iiordanov.bVNC.aSPICE"
                           android:screenOrientation="unspecified"
                           android:configChanges="orientation|keyboardHidden"
                           android:windowSoftInputMode="stateHidden|adjustResize"
                           android:theme="@style/AppThemeWithToolbar"
                           android:resizeableActivity="true">
-                        <intent-filter>
-                                <action android:name="android.intent.action.MAIN"></action>
-                                <category android:name="android.intent.category.LAUNCHER"></category>
-                                <category android:name="android.intent.category.MULTIWINDOW_LAUNCHER"></category>
-                        </intent-filter>
                 </activity>
                 <activity android:screenOrientation="unspecified"
                           android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|density|screenLayout"
