@@ -49,9 +49,9 @@ public class LabeledImageApapter implements ListAdapter {
     private Bitmap defaultBitmap = null;
     private String defaultLabel = "Untitled";
     Map<String, Connection> filteredConnectionsByPosition = new HashMap<>();
-    String filter = null;
+    String[] filter = null;
 
-    public LabeledImageApapter(Context context, Map<String, Connection> connectionsByPosition, String filter, int numCols) {
+    public LabeledImageApapter(Context context, Map<String, Connection> connectionsByPosition, String[] filter, int numCols) {
         this.context = context;
         this.numCols = numCols;
         this.defaultBitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.no_screenshot);
@@ -59,7 +59,13 @@ public class LabeledImageApapter implements ListAdapter {
         int i = 0;
         if (connectionsByPosition != null) {
             for (Connection c : connectionsByPosition.values()) {
-                if (c.getLabel().contains(filter)) {
+                boolean include = true;
+                for (String item : this.filter) {
+                    if (!c.getLabel().toLowerCase().contains(item)) {
+                        include = false;
+                    }
+                }
+                if (include) {
                     this.filteredConnectionsByPosition.put(Integer.toString(i), c);
                     i++;
                 }

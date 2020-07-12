@@ -180,15 +180,15 @@ public class ConnectionBean extends AbstractConnectionBean implements Connection
     public String getLabel() {
         String nickname = "";
         if (!"".equals(this.getNickname())) {
-            nickname = this.getNickname() + " / " ;
+            nickname = this.getNickname() + "\n" ;
         }
         String address = this.getAddress() + ":" + this.getPort();
         if (!"".equals(this.getUserName())) {
             address = this.getUserName() + "@" + address;
         }
         if (!"".equals(this.getSshServer())) {
-            address = this.getSshUser() + "@" + this.getSshServer() + ":" +
-                    this.getSshPort() + " -> " + address;
+            address = "SSH: " + this.getSshUser() + "@" + this.getSshServer() + ":" +
+                    this.getSshPort() + " ->\n" + address;
         }
         return nickname + address;
     }

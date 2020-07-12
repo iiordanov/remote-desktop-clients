@@ -152,7 +152,8 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
                     numCols = 2;
                 }
                 gridView.setAdapter(new LabeledImageApapter(ConnectionGridActivity.this,
-                        connectionLoader.getConnectionsById(), search.getText().toString(), numCols));
+                        connectionLoader.getConnectionsById(),
+                        search.getText().toString().toLowerCase().split(" "), numCols));
             }
         });
         database = ((App)getApplication()).getDatabase();
@@ -280,10 +281,12 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
             }
             gridView.setNumColumns(numCols);
             gridView.setAdapter(new LabeledImageApapter(this,
-                    connectionLoader.getConnectionsById(), search.getText().toString(), numCols));
+                    connectionLoader.getConnectionsById(),
+                    search.getText().toString().toLowerCase().split(" "), numCols));
         } else {
             gridView.setAdapter(new LabeledImageApapter(this,
-                    null, search.getText().toString(), 1));
+                    null,
+                    search.getText().toString().toLowerCase().split(" "), 1));
         }
     }
 

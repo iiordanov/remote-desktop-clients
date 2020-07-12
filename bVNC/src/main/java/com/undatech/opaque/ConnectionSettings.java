@@ -84,8 +84,12 @@ public class ConnectionSettings implements Connection, Serializable {
         if (!"".equals(this.getUserName())) {
             address = this.getUserName() + "@" + address;
         }
-        return getVmname() + " @ " + address;
-
+        String vmName = getVmname();
+        String res = address;
+        if (!"".equals(vmName)) {
+            res = vmName + "\n" + address;
+        }
+        return res;
     }
 
     @Override
