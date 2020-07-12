@@ -248,7 +248,7 @@ public class OpaqueHandler extends Handler {
                             settings.setOvirtCaData(Base64.encodeToString(certData, Base64.DEFAULT));
                             settings.save(OpaqueHandler.this.context);
                             synchronized (OpaqueHandler.this) {
-                                OpaqueHandler.this.notify();
+                                OpaqueHandler.this.notifyAll();
                             }
                         } else {
                             android.util.Log.e(TAG, "We were told not to continue");

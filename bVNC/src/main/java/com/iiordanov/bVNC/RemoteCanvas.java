@@ -511,7 +511,7 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView
         boolean sslTunneled = connection.getConnectionType() == Constants.CONN_TYPE_STUNNEL;
         decoder = new Decoder(this, connection.getUseLocalCursor() == Constants.CURSOR_FORCE_LOCAL);
         rfb = new RfbProto(decoder, this, connection.getPrefEncoding(), connection.getViewOnly(),
-                sslTunneled, connection.getIdHashAlgorithm(), connection.getIdHash(), connection.getSshHostKey());
+                sslTunneled, connection.getIdHashAlgorithm(), connection.getIdHash(), connection.getX509KeySignature());
 
         rfbconn = rfb;
         pointer = new RemoteVncPointer(rfbconn, RemoteCanvas.this, handler);
@@ -532,7 +532,7 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView
             // TODO: VNC Server cert is not set when the connection is SSH tunneled because there at
             // TODO: present it is assumed the connection is either SSH tunneled or x509 encrypted,
             // TODO: and when both are the case, there is no way to save the x509 cert.
-            String sslCert = !sshTunneled? connection.getSshHostKey() : "";
+            String sslCert = connection.getX509KeySignature();
             rfb.initializeAndAuthenticate(address, vncPort, connection.getUserName(),
                     connection.getPassword(), connection.getUseRepeater(),
                     connection.getRepeaterId(), connection.getConnectionType(),
@@ -800,7 +800,7 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView
                     }
                     String pveUri = String.format("%s://%s:%d", protocol, host, port);
 
-                    ProxmoxClient api = new ProxmoxClient(pveUri, connection.getOvirtCaData().trim(), handler);
+                    ProxmoxClient api = new ProxmoxClient(pveUri, connection, handler);
                     HashMap<String, PveRealm> realms = api.getAvailableRealms();
 
                     // If selected realm has TFA enabled, then ask for the code
@@ -1855,8 +1855,8 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView
 
         // If there is no saved cert, then if a signature was provided,
         // check the signature and save the cert if the signature matches.
-        if (connection.getSshHostKey().equals("")) {
-            if (!connection.getIdHash().equals("")) {
+        if (connection.getX509KeySignature().equals("")) {
+            if (connection.getIdHash() != null && !connection.getIdHash().equals("")) {
                 if (isSigEqual) {
                     Log.i(TAG, "Certificate validated from URI data.");
                     saveAndAcceptCert(cert);
@@ -1866,7 +1866,7 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView
                 }
             }
             // If there is a saved cert, check against it.
-        } else if (connection.getSshHostKey().equals(Base64.encodeToString(certData, Base64.DEFAULT))) {
+        } else if (connection.getX509KeySignature().equals(Base64.encodeToString(certData, Base64.DEFAULT))) {
             Log.i(TAG, "Certificate validated from saved key.");
             saveAndAcceptCert(cert);
             return;
@@ -1933,20 +1933,16 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView
      * @param cert
      */
     private void saveAndAcceptCert(X509Certificate cert) {
-        if (!sshTunneled) {
-            android.util.Log.d(TAG, "Saving X509 cert fingerprint.");
-            String certificate = null;
-            try {
-                certificate = Base64.encodeToString(cert.getEncoded(), Base64.DEFAULT);
-            } catch (CertificateEncodingException e) {
-                e.printStackTrace();
-                showFatalMessageAndQuit(getContext().getString(R.string.error_x509_could_not_generate_encoding));
-            }
-            connection.setSshHostKey(certificate);
-            connection.save(getContext());
-        } else {
-            android.util.Log.d(TAG, "Not saving X509 cert fingerprint because connection is SSH tunneled.");
+        android.util.Log.d(TAG, "Saving X509 cert fingerprint.");
+        String certificate = null;
+        try {
+            certificate = Base64.encodeToString(cert.getEncoded(), Base64.DEFAULT);
+        } catch (CertificateEncodingException e) {
+            e.printStackTrace();
+            showFatalMessageAndQuit(getContext().getString(R.string.error_x509_could_not_generate_encoding));
         }
+        connection.setX509KeySignature(certificate);
+        connection.save(getContext());
         // Indicate the certificate was accepted.
         rfb.setCertificateAccepted(true);
         synchronized (rfb) {

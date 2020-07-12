@@ -363,7 +363,7 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
                     }
                     String pveUri = String.format("%s://%s:%d", protocol, host, port);
 
-                    ProxmoxClient api = new ProxmoxClient(pveUri, settings.getOvirtCaData().trim(), handler);
+                    ProxmoxClient api = new ProxmoxClient(pveUri, settings, handler);
                     HashMap<String, PveRealm> realms = api.getAvailableRealms();
                     
                     // If selected realm has TFA enabled, then ask for the code

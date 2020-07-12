@@ -4,6 +4,7 @@ import android.R.bool;
 import android.R.integer;
 import android.os.Handler;
 
+import com.undatech.opaque.Connection;
 import com.undatech.opaque.ConnectionSettings;
 import com.undatech.opaque.proxmox.pojo.*;
 import java.io.IOException;
@@ -30,8 +31,8 @@ public class ProxmoxClient extends RestClient {
      * Initializes a connection to PVE's API.
      * @param address the address of PVE
      */
-    public ProxmoxClient(String address, String ovirtCaData, Handler handler) {
-        super(ovirtCaData, handler);
+    public ProxmoxClient(String address, Connection connection, Handler handler) {
+        super(connection, handler);
         this.baseUrl = String.format("%s%s", address, "/api2/json");
         // Ensure we have let the user approve the certificate
         //if (connection.getOvirtCaData().isEmpty()) {

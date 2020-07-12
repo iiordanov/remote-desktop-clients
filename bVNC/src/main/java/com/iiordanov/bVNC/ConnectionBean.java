@@ -137,6 +137,7 @@ public class ConnectionBean extends AbstractConnectionBean implements Connection
 		setLayoutMap("English (US)");
         setFilename(UUID.randomUUID().toString());
         setX509KeySignature("");
+        setIdHash("");
         setScreenshotFilename(UUID.randomUUID().toString() + ".png");
         c = context;
 
