@@ -28,7 +28,7 @@ public class CustomVnc extends bVNC {
         try {
             View view;
             CustomClientConfigFileReader configFileReader = new CustomClientConfigFileReader(
-                            getAssets().open("custom_vnc_client.yaml"));
+                            getAssets().open(getPackageName() + ".yaml"));
             Map<String, Map> configData = configFileReader.getConfigData();
             Map<String, Integer> visibility = (Map<String, Integer>)configData.get("mainConfiguration").get("visibility");
 

@@ -1431,6 +1431,10 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
         boolean panX = true;
         boolean panY = true;
 
+        double scale = getZoomFactor();
+        int buttonAndCurveOffset = (int)(300/scale);
+        int curveOffset = (int)(100/scale);
+
         // Don't pan in a certain direction if dimension scaled is already less 
         // than the dimension of the visible part of the screen.
         if (rfbconn.framebufferWidth() <= getVisibleDesktopWidth())
@@ -1449,8 +1453,8 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
         int h = getVisibleDesktopHeight();
         int iw = getImageWidth();
         int ih = getImageHeight();
-        int wthresh = 30;
-        int hthresh = 30;
+        int wthresh = 100;
+        int hthresh = 100;
 
         int newX = absoluteXPosition;
         int newY = absoluteYPosition;
@@ -1471,12 +1475,12 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
 
         if (y - absoluteYPosition >= h - hthresh) {
             newY = y - (h - hthresh);
-            if (newY + h > ih)
-                newY = ih - h;
+            if (newY + h > ih + buttonAndCurveOffset)
+                newY = ih - h + buttonAndCurveOffset;
         } else if (y < absoluteYPosition + hthresh) {
             newY = y - hthresh;
-            if (newY < 0)
-                newY = 0;
+            if (newY < 0 - curveOffset)
+                newY = 0 - curveOffset;
         }
         if (panY && newY != absoluteYPosition) {
             absoluteYPosition = newY;
@@ -1508,17 +1512,22 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
         double sX = (double) dX / scale;
         double sY = (double) dY / scale;
 
+        int buttonAndCurveOffset = (int)(300/scale);
+        int curveOffset = (int)(100/scale);
+
+        // Prevent panning above the desktop image except for provision for curved screens.
         if (absoluteXPosition + sX < 0)
             // dX = diff to 0
             sX = -absoluteXPosition;
-        if (absoluteYPosition + sY < 0)
-            sY = -absoluteYPosition;
+        if (absoluteYPosition + sY < 0 - curveOffset)
+            sY = -absoluteYPosition - curveOffset;
 
-        // Prevent panning right or below desktop image
+        // Prevent panning right or below desktop image except for provision for on-screen
+        // buttons and curved screens
         if (absoluteXPosition + getVisibleDesktopWidth() + sX > getImageWidth())
             sX = getImageWidth() - getVisibleDesktopWidth() - absoluteXPosition;
-        if (absoluteYPosition + getVisibleDesktopHeight() + sY > getImageHeight())
-            sY = getImageHeight() - getVisibleDesktopHeight() - absoluteYPosition;
+        if (absoluteYPosition + getVisibleDesktopHeight() + sY > getImageHeight() + buttonAndCurveOffset)
+            sY = getImageHeight() - getVisibleDesktopHeight() - absoluteYPosition + buttonAndCurveOffset;
 
         absoluteXPosition += sX;
         absoluteYPosition += sY;
@@ -1562,7 +1571,6 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
         super.onScrollChanged(l, t, oldl, oldt);
         if (myDrawable != null) {
             myDrawable.scrollChanged(absoluteXPosition, absoluteYPosition);
-            pointer.movePointerToMakeVisible();
         }
     }
 

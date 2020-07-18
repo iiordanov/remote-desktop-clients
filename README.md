@@ -12,9 +12,7 @@ scratch.
 
 The build automation of requires Linux at the moment, due to the use of symlinks.
 
-Building from scratch (I-b) is known to build with Android NDK r14b.
-
-Pick one of I-a or I-b below, then move onto II.
+Pick one of I-a, I-b, or I-c below, then move onto II.
 
 ## I-a With Prebuilt Libraries
 
@@ -23,7 +21,21 @@ Building the projects with pre-built dependencies.
         ./download-prebuilt-dependencies.sh
         ./bVNC/prepare_project.sh --skip-build libs nopath
 
-## I-b From Scratch
+## I-b From Scratch with Docker
+
+Make sure you're running the commands below from the root of the project.
+Ensure ANDROID_SDK is set to the path to your SDK.
+
+```bash
+export ANDROID_SDK=${HOME}/Android/Sdk
+echo "USER_UID=$(id -u)" > docker/.env
+echo "USER_GID=$(id -g)" >> docker/.env
+echo "ANDROID_SDK=${ANDROID_SDK}" >> docker/.env
+echo "CURRENT_WORKING_DIR=$(pwd)" >> docker/.env
+docker-compose -f docker/docker-compose.yml up
+```
+
+## I-c From Scratch
 
 Building from scratch and working in Android Studio.
 
@@ -86,10 +98,15 @@ The directory `bVNC/layouts` contains a utiliy `convert.py` that can be used to 
 It is possible to programmatically build additional customized clients based on the VNC client contained in this project
 without altering any of the source code of the project.
 
-- Place a configuration file in yaml format in `bVNC/src/main/assets/custom_vnc_client.yaml`
+- Pick a unique identifier for your app. It will become part of the
+  (application ID)[https://developer.android.com/studio/build/application-id] of the app. For example,
+  say you pick YourVncClient. The application ID will be com.iiordanov.YourVncClient.
 
-- See the file `custom_vnc_client.yaml-EXAMPLE`. The numbers after each field are one of View.INVISIBLE or View.GONE
-  and it controls whether the field is invisible or gone in the customized interface.
+- Place a configuration file in yaml format (note - with filename matching your resulting application ID) at
+  `bVNC/src/main/assets/com.iiordanov.YourVncClient.yaml`
+
+- Use the file `custom_vnc_client.yaml-EXAMPLE` as a starting point. The numbers after each field are one of
+  View.INVISIBLE or View.GONE and it controls whether the field is invisible or gone in the customized interface.
 
 - See [https://developer.android.com/reference/android/view/View.html#GONE] for the numeric value of View.GONE
   and [https://developer.android.com/reference/android/view/View.html#INVISIBLE] for the numberic value of View.INVISIBLE.
@@ -98,8 +115,9 @@ without altering any of the source code of the project.
 
 - Edit `gradle.properties` and set CUSTOM_VNC_APP_NAME to `Name Of The Custom App` and CUSTOM_VNC_APP_ICON to `icon_of_the_custom_app`
 
-- Follow the build procedure in I-a or I-b above, but with PROJECT set to anything that starts with `Custom` and has `Vnc` in its name.
-  For instance, `CustomYourVncClient`. Your package name once the project is built will be com.iiordanov.YourVncClient.
+- Follow the build procedure in I-a, I-b, or I-c above, but with the PROJECT environment variable set to anything that starts with
+  `Custom` and has `Vnc` in its name. For instance, if you set PROJECT to `CustomYourVncClient`. The `bVNC/prepare_project.sh` script
+  will strip "Custom" from that identifier and once the project is built will be com.iiordanov.YourVncClient.
 
 ## Bugs
 
