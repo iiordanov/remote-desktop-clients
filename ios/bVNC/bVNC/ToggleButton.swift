@@ -38,9 +38,9 @@ class ToggleButton: UIButton {
         self.stateKeeper?.rescheduleScreenUpdateRequest(timeInterval: 0.5, fullScreenUpdate: false, recurring: false)
         UserInterface {
             if self.down {
-                self.backgroundColor = self.originalBackground?.withAlphaComponent(1)
+                self.backgroundColor = self.originalBackground?.withAlphaComponent(0.75)
             } else {
-                self.backgroundColor = self.originalBackground
+                self.backgroundColor = self.originalBackground?.withAlphaComponent(0.5)
             }
             self.setNeedsDisplay()
         }

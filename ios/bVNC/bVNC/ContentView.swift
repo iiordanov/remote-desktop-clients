@@ -367,7 +367,7 @@ struct ConnectionInProgressPage : View {
                 self.stateKeeper.lazyDisconnect()
                 self.stateKeeper.showConnections()
             }) {
-                VStack(spacing: 10) {
+                HStack(spacing: 10) {
                     Image(systemName: "arrowshape.turn.up.left")
                         .resizable()
                         .scaledToFit()
