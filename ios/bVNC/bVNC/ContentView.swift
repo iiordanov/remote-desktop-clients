@@ -129,6 +129,8 @@ struct ContentView : View {
                 ConnectedSessionPage()
             } else if stateKeeper.currentPage == "dismissableErrorMessage" {
                 DismissableLogDialog(stateKeeper: stateKeeper)
+            } else if stateKeeper.currentPage == "dismissableMessage" {
+                DismissableMessageDialog(stateKeeper: stateKeeper)
             } else if stateKeeper.currentPage == "helpDialog" {
                 HelpDialog(stateKeeper: stateKeeper)
             } else if stateKeeper.currentPage == "yesNoMessage" {
@@ -176,35 +178,31 @@ struct ConnectionsList : View {
     var body: some View {
         ScrollView {
             VStack {
-                HStack {
+                HStack(spacing: 100) {
                     Button(action: {
                         self.stateKeeper.addNewConnection()
                     }) {
-                        Text("Add")
-                        .fontWeight(.bold)
-                        .font(.title)
-                        .padding(5)
-                        .background(Color.gray)
-                        .cornerRadius(5)
-                        .foregroundColor(.white)
-                        .padding(10)
+                        HStack(spacing: 10) {
+                            Image(systemName: "plus")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 32, height: 32)
+                            Text("New")
+                        }.padding()
                     }
                     Button(action: {
-                        self.stateKeeper.showHelp()
+                        self.stateKeeper.showHelp(text: "MAIN_HELP_TEXT")
                     }) {
-                        Text("Help")
-                        .fontWeight(.bold)
-                        .font(.title)
-                        .padding(5)
-                        .background(Color.gray)
-                        .cornerRadius(5)
-                        .foregroundColor(.white)
-                        .padding(10)
+                        HStack(spacing: 10) {
+                            Image(systemName: "info")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 32, height: 32)
+                            Text("Help")
+                        }.padding()
                     }
                 }
 
-                Text("Tap a connection to connect").font(.headline)
-                Text("Long tap a connection to edit").font(.headline)
                 ForEach(0 ..< stateKeeper.connections.count) { i in
                     Button(action: {
                     }) {
@@ -240,18 +238,16 @@ struct ConnectionsList : View {
                 }
                 
                 Button(action: {
-                    self.stateKeeper.showError(title: "Client Log Messages")
+                    self.stateKeeper.showError(title: "Session Log")
                 }) {
-                    Text("View Log")
-                    .fontWeight(.bold)
-                    .font(.title)
-                    .padding(5)
-                    .background(Color.gray)
-                    .cornerRadius(5)
-                    .foregroundColor(.white)
-                    .padding(10)
+                    HStack(spacing: 10) {
+                        Image(systemName: "text.alignleft")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 32, height: 32)
+                        Text("Log")
+                    }.padding()
                 }
-
             }
         }
     }
@@ -294,27 +290,49 @@ struct AddOrEditConnectionPage : View {
                     ]
                     self.stateKeeper.saveConnection(connection: selectedConnection)
                 }) {
-                    Text("Save")
-                        .fontWeight(.bold)
-                        .font(.title)
-                        .padding(5)
-                        .background(Color.gray)
-                        .cornerRadius(10)
-                        .foregroundColor(.white)
-                        .padding(10)
-                }
+                        HStack(spacing: 10) {
+                            Image(systemName: "folder.badge.plus")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 32, height: 32)
+                            Text("Save")
+                        }.padding()
+                    }
                 Button(action: {
                     self.stateKeeper.deleteCurrentConnection()
                 }) {
-                    Text("Delete")
-                        .fontWeight(.bold)
-                        .font(.title)
-                        .padding(5)
-                        .background(Color.red)
-                        .cornerRadius(10)
-                        .foregroundColor(.white)
-                        .padding(10)
+                        HStack(spacing: 10) {
+                            Image(systemName: "trash")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 32, height: 32)
+                            Text("Delete")
+                        }.padding()
                     }
+                Button(action: {
+                    self.stateKeeper.showConnections()
+                }) {
+                        HStack(spacing: 10) {
+                            Image(systemName: "arrowshape.turn.up.left")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 32, height: 32)
+                            Text("Cancel")
+                        }.padding()
+                    }
+
+                Button(action: {
+                    self.stateKeeper.showHelp(text: "VNC_CONNECTION_SETUP_HELP_TEXT")
+                }) {
+                        HStack(spacing: 10) {
+                            Image(systemName: "info")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 32, height: 32)
+                            Text("Help")
+                        }.padding()
+                    }
+
                 }
 
                 Text("Optional SSH Connection Parameters").font(.headline)
@@ -349,14 +367,13 @@ struct ConnectionInProgressPage : View {
                 self.stateKeeper.lazyDisconnect()
                 self.stateKeeper.showConnections()
             }) {
-                Text("Cancel")
-                    .fontWeight(.bold)
-                    .font(.title)
-                    .padding(5)
-                    .background(Color.gray)
-                    .cornerRadius(10)
-                    .foregroundColor(.white)
-                    .padding(10)
+                VStack(spacing: 10) {
+                    Image(systemName: "arrowshape.turn.up.left")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 32, height: 32)
+                    Text("Cancel")
+                }.padding()
             }
         }
     }
@@ -388,53 +405,50 @@ struct HelpDialog : View {
     func getTitle() -> String {
         return stateKeeper.title ?? ""
     }
-    
+
     var body: some View {
         VStack {
             ScrollView {
                 Text("Help").font(.title).padding()
-                Text("When the application launches, tap the Add button to add a new connection. If tunneling over SSH, enter the SSH tunneling information under Optional SSH Connection Parameters. In either case, enter the VNC connection parameters under Main Connection Parameters.\n\nIf tunneling over SSH, the address field under Main Connection Parameters is with respect to the SSH server. For instance, it would be 'localhost' if the SSH server and VNC server are on the same machine. To edit or delete an existing connection, long-tap that connection.\n\nFor more information, please tap on the following buttons for various help options. Post your questions on the Support Forum, report bugs and problems to the Issue Tracker, and watch the video in Usage Help Video for an overview of how to use the application including the multi-touch interface.").font(.body).padding()
+                Text(self.stateKeeper.localizedMessage ?? "").font(.body).padding()
                 VStack {
                     Button(action: {
                         UIApplication.shared.open(URL(string: "https://groups.google.com/forum/#!forum/bvnc-ardp-aspice-opaque-remote-desktop-clients")!, options: [:], completionHandler: nil)
                         
                     }) {
-                        Text("Support Forum")
-                        .fontWeight(.bold)
-                        .font(.title)
-                        .padding(5)
-                        .background(Color.gray)
-                        .cornerRadius(5)
-                        .foregroundColor(.white)
-                        .padding(10)
+                        HStack(spacing: 10) {
+                            Image(systemName: "info.circle")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 32, height: 32)
+                            Text("Support Forum")
+                        }.padding()
                     }
                     
                     Button(action: {
                         UIApplication.shared.open(URL(string: "https://github.com/iiordanov/remote-desktop-clients/issues")!, options: [:], completionHandler: nil)
                         
                     }) {
-                        Text("Issue Tracker")
-                        .fontWeight(.bold)
-                        .font(.title)
-                        .padding(5)
-                        .background(Color.gray)
-                        .cornerRadius(5)
-                        .foregroundColor(.white)
-                        .padding(10)
+                        HStack(spacing: 10) {
+                            Image(systemName: "ant.circle")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 32, height: 32)
+                            Text("Report Bug")
+                        }.padding()
                     }
 
                     Button(action: {
                         UIApplication.shared.open(URL(string: "https://www.youtube.com/watch?v=16pwo3wwv9w")!, options: [:], completionHandler: nil)
                         
                     }) {
-                        Text("Usage Help Video")
-                        .fontWeight(.bold)
-                        .font(.title)
-                        .padding(5)
-                        .background(Color.gray)
-                        .cornerRadius(5)
-                        .foregroundColor(.white)
-                        .padding(10)
+                        HStack(spacing: 10) {
+                            Image(systemName: "video.circle")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 32, height: 32)
+                            Text("Help Videos")
+                        }.padding()
                     }
 
                 }
@@ -442,14 +456,13 @@ struct HelpDialog : View {
             Button(action: {
                 self.stateKeeper.showConnections()
             }) {
-                Text("Dismiss")
-                .fontWeight(.bold)
-                .font(.title)
-                .padding(5)
-                .background(Color.gray)
-                .cornerRadius(5)
-                .foregroundColor(.white)
-                .padding(10)
+                HStack(spacing: 10) {
+                    Image(systemName: "arrowshape.turn.up.left")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 32, height: 32)
+                    Text("Dismiss")
+                }.padding()
             }
         }
     }
@@ -477,19 +490,61 @@ struct DismissableLogDialog : View {
         VStack {
             ScrollView {
                 Text(self.getTitle()).font(.title)
-                Text(self.getClientLog()).font(.body)
+                Button(action: {
+                    self.stateKeeper.showLog(title: "Session Log",
+                                             text: self.getClientLog())
+                }) {
+                    HStack(spacing: 10) {
+                        Image(systemName: "text.alignleft")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 32, height: 32)
+                        Text("Log")
+                    }.padding()
+                }
             }
             Button(action: {
                 self.stateKeeper.showConnections()
             }) {
-                Text("Dismiss")
-                .fontWeight(.bold)
-                .font(.title)
-                .padding(5)
-                .background(Color.gray)
-                .cornerRadius(5)
-                .foregroundColor(.white)
-                .padding(10)
+                HStack(spacing: 10) {
+                    Image(systemName: "arrowshape.turn.up.left")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 32, height: 32)
+                    Text("Dismiss")
+                }.padding()
+            }
+        }
+    }
+}
+
+struct DismissableMessageDialog : View {
+    @ObservedObject var stateKeeper: StateKeeper
+    
+    func getTitle() -> String {
+        return stateKeeper.title ?? ""
+    }
+
+    func getMessage() -> String {
+        return stateKeeper.message ?? ""
+    }
+    
+    var body: some View {
+        VStack {
+            ScrollView {
+                Text(self.getTitle()).font(.title)
+                Text(self.getMessage()).font(.body)
+            }
+            Button(action: {
+                self.stateKeeper.showConnections()
+            }) {
+                HStack(spacing: 10) {
+                    Image(systemName: "arrowshape.turn.up.left")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 32, height: 32)
+                    Text("Dismiss")
+                }.padding()
             }
         }
     }

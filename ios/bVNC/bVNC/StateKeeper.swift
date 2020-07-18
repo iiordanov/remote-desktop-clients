@@ -27,7 +27,9 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
     var scene: UIScene?
     var window: UIWindow?
     var title: String?
+    var localizedTitle: LocalizedStringKey?
     var message: String?
+    var localizedMessage: LocalizedStringKey?
     var yesNoDialogLock: NSLock = NSLock()
     var yesNoDialogResponse: Int32 = 0
     var imageView: TouchEnabledUIImageView?
@@ -223,7 +225,7 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
         yesNoDialogResponse = 0
         self.isKeptFresh = false
         self.clientLog = []
-        self.clientLog.append("Client Log:\n\n")
+        self.clientLog.append("\n\n")
         self.registerForNotifications()
         // Needed in case we need to save a certificate during connection or change settings.
         self.connectionIndex = index
@@ -335,8 +337,9 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
         }
     }
 
-    func showHelp() {
+    func showHelp(text: LocalizedStringKey) {
         print("Showing help screen")
+        self.localizedMessage = text
         UserInterface {
             self.currentPage = "helpDialog"
         }
@@ -409,7 +412,15 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
             self.currentPage = "dismissableErrorMessage"
         }
     }
-    
+
+    func showLog(title: String, text: String) {
+        self.title = title
+        self.message = text
+        UserInterface {
+            self.currentPage = "dismissableMessage"
+        }
+    }
+
     func keyboardWillShow(withSize keyboardSize: CGSize) {
         print("Keyboard will be shown, height: \(self.keyboardHeight)")
         self.keyboardHeight = keyboardSize.height
