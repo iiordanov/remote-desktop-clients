@@ -573,16 +573,30 @@ struct DismissableMessageDialog : View {
                 Text(self.getTitle()).font(.title)
                 Text(self.getMessage()).font(.body)
             }
-            Button(action: {
-                self.stateKeeper.showConnections()
-            }) {
-                HStack(spacing: 10) {
-                    Image(systemName: "arrowshape.turn.up.left")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 32, height: 32)
-                    Text("DISMISS_LABEL")
-                }.padding()
+            HStack {
+                Button(action: {
+                    let pasteboard = UIPasteboard.general
+                    pasteboard.string = self.getMessage()
+                }) {
+                    HStack(spacing: 10) {
+                        Image(systemName: "doc.on.clipboard")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 32, height: 32)
+                        Text("COPY_TO_CLIPBOARD_LABEL")
+                    }.padding()
+                }
+                Button(action: {
+                    self.stateKeeper.showConnections()
+                }) {
+                    HStack(spacing: 10) {
+                        Image(systemName: "arrowshape.turn.up.left")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 32, height: 32)
+                        Text("DISMISS_LABEL")
+                    }.padding()
+                }
             }
         }
     }

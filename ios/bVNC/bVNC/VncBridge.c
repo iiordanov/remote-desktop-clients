@@ -77,7 +77,7 @@ static void update (rfbClient *cl, int x, int y, int w, int h) {
     //rfbClientLog("Update received\n");
     if (!framebuffer_update_callback(cl->instance, cl->frameBuffer, fbW, fbH, x, y, w, h)) {
         // This session is a left-over backgrounded session and must quit.
-        printf("Must quit background session with instance number %d\n", cl->instance);
+        rfbClientLog("Must quit background session with instance number %d\n", cl->instance);
         cl->maintainConnection = false;
     }
 }
@@ -101,7 +101,7 @@ static rfbBool resize (rfbClient *cl) {
 
 void disconnectVnc(void *c) {
     rfbClient *cl = (rfbClient *)c;
-    printf("Setting maintainConnection to false\n");
+    rfbClientLog("Setting maintainConnection to false\n");
     if (cl != NULL) {
         cl->maintainConnection = false;
         // Force force some communication with server in order to wake up the
@@ -147,7 +147,7 @@ rfbBool unlockWriteToTLS(rfbClient *client) {
 }
 
 void signal_handler(int signal, siginfo_t *info, void *reserved) {
-    printf("Handling signal: %d\n", signal);
+    rfbClientLog("Handling signal: %d\n", signal);
     failure_callback(-1, NULL);
 }
 
@@ -223,7 +223,7 @@ void *initializeVnc(int instance,
         cl = NULL; /* rfbInitClient has already freed the client struct */
         cleanup(cl, "FAILED_TO_INIT_CONNECTION_TO_SERVER");
     }
-    printf("Done initializing VNC session\n");
+    rfbClientLog("Done initializing VNC session\n");
     return (void *)cl;
 }
 
@@ -253,7 +253,7 @@ void connectVnc(void *c) {
         }
     }
     rfb_client_cleanup(cl);
-    printf("Background thread exiting connectVnc function.\n\n");
+    rfbClientLog("Background thread exiting connectVnc function.\n\n");
     rfbClientLog("Connection terminating.\n\n");
 }
 

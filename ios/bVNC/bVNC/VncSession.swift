@@ -30,32 +30,32 @@ var lastUpdate: Double = 0.0
 var isDrawing: Bool = false
 
 func lock_write_tls_callback_swift(instance: Int32) -> Void {
-    if (instance != globalStateKeeper!.currInst) { print("Current instance \(globalStateKeeper!.currInst) discarding call from instance \(instance)") ; return }
+    if (instance != globalStateKeeper!.currInst) { log_callback_str(message: "Current instance \(globalStateKeeper!.currInst) discarding call from instance \(instance)") ; return }
 
     globalStateKeeper?.globalWriteTlsLock.lock();
 }
 
 func unlock_write_tls_callback_swift(instance: Int32) -> Void {
-    if (instance != globalStateKeeper!.currInst) { print("Current instance \(globalStateKeeper!.currInst) discarding call from instance \(instance)") ; return }
+    if (instance != globalStateKeeper!.currInst) { log_callback_str(message: "Current instance \(globalStateKeeper!.currInst) discarding call from instance \(instance)") ; return }
 
     globalStateKeeper?.globalWriteTlsLock.unlock();
 }
 
 func ssh_forward_success() -> Void {
-    print("SSH library is telling us we can proceed with the VNC connection")
+    log_callback_str(message: "SSH library is telling us we can proceed with the VNC connection")
     globalStateKeeper?.sshForwardingStatus = true
     globalStateKeeper?.sshForwardingLock.unlock()
 }
 
 func ssh_forward_failure() -> Void {
-    print("SSH library is telling us it failed to set up SSH forwarding")
+    log_callback_str(message: "SSH library is telling us it failed to set up SSH forwarding")
     globalStateKeeper?.sshForwardingStatus = false
     globalStateKeeper?.sshForwardingLock.unlock()
 }
 
 func failure_callback_str(instance: Int, title: String?) {
     if (instance != -1 && instance != globalStateKeeper!.currInst) {
-        print("Current instance \(globalStateKeeper!.currInst) discarding call from instance \(instance)") ; return
+        log_callback_str(message: "Current instance \(globalStateKeeper!.currInst) discarding call from instance \(instance)") ; return
     }
     
     let wasDrawing = globalStateKeeper?.isDrawing ?? false
@@ -65,23 +65,23 @@ func failure_callback_str(instance: Int, title: String?) {
     UserInterface {
         globalStateKeeper?.scheduleDisconnectTimer(interval: 0, wasDrawing: wasDrawing)
         if title != nil {
-            print("Connection failure, showing error with title \(title!).")
+            log_callback_str(message: "Connection failure, showing error with title \(title!).")
             globalStateKeeper?.showError(title: LocalizedStringKey(title!))
         } else {
-            print("Successful exit, no error was reported.")
+            log_callback_str(message: "Successful exit, no error was reported.")
             globalStateKeeper?.showConnections()
         }
     }
 }
 
 func failure_callback_swift(instance: Int32, message: UnsafeMutablePointer<UInt8>?) -> Void {
-    if (instance != -1 && instance != globalStateKeeper!.currInst) { print("Current instance \(globalStateKeeper!.currInst) discarding call from instance \(instance)") ; return }
+    if (instance != -1 && instance != globalStateKeeper!.currInst) { log_callback_str(message: "Current instance \(globalStateKeeper!.currInst) discarding call from instance \(instance)") ; return }
 
     if message != nil {
-        print("Will show error dialog with title: \(String(cString: message!))")
+        log_callback_str(message: "Will show error dialog with title: \(String(cString: message!))")
         failure_callback_str(instance: Int(instance), title: String(cString: message!))
     } else {
-        print("Will not show error dialog")
+        log_callback_str(message: "Will not show error dialog")
         failure_callback_str(instance: Int(instance), title: nil)
     }
 }
@@ -101,14 +101,14 @@ func log_callback_str(message: String) -> Void {
     if globalStateKeeper?.clientLog.count ?? 0 > 500 {
         globalStateKeeper?.clientLog.remove(at: 0)
     }
-    globalStateKeeper?.clientLog.append(message)
+    globalStateKeeper?.clientLog.append(message + "\n")
     globalStateKeeper?.logLock.unlock()
 }
 
 func yes_no_dialog_callback(instance: Int32, title: UnsafeMutablePointer<Int8>?, message: UnsafeMutablePointer<Int8>?,
                             fingerPrint1: UnsafeMutablePointer<Int8>?, fingerPrint2: UnsafeMutablePointer<Int8>?,
                             type: UnsafeMutablePointer<Int8>?, valid: Int32) -> Int32 {
-    if (instance != globalStateKeeper!.currInst) { print("Current instance \(globalStateKeeper!.currInst) discarding call from instance \(instance)") ; return 0 }
+    if (instance != globalStateKeeper!.currInst) { log_callback_str(message: "Current instance \(globalStateKeeper!.currInst) discarding call from instance \(instance)") ; return 0 }
 
     if (instance != globalStateKeeper!.currInst) { return 0 }
 
@@ -183,7 +183,7 @@ func widthRatioLessThanHeightRatio(fbW: CGFloat, fbH: CGFloat) -> Bool {
 }
 
 func resize_callback(instance: Int32, cl: UnsafeMutableRawPointer?, fbW: Int32, fbH: Int32) -> Void {
-    if (instance != globalStateKeeper!.currInst) { print("Current instance \(globalStateKeeper!.currInst) discarding call from instance \(instance)") ; return }
+    if (instance != globalStateKeeper!.currInst) { log_callback_str(message: "Current instance \(globalStateKeeper!.currInst) discarding call from instance \(instance)") ; return }
 
     globalStateKeeper?.fbW = fbW
     globalStateKeeper?.fbH = fbH
@@ -219,9 +219,9 @@ func draw(data: UnsafeMutablePointer<UInt8>?, fbW: Int32, fbH: Int32, x: Int32, 
 }
 
 func update_callback(instance: Int32, data: UnsafeMutablePointer<UInt8>?, fbW: Int32, fbH: Int32, x: Int32, y: Int32, w: Int32, h: Int32) -> Bool {
-    if (instance != globalStateKeeper!.currInst) { print("Current instance \(globalStateKeeper!.currInst) discarding call from instance \(instance)") ; return false }
+    if (instance != globalStateKeeper!.currInst) { log_callback_str(message: "Current instance \(globalStateKeeper!.currInst) discarding call from instance \(instance)") ; return false }
     if (!(globalStateKeeper?.isDrawing ?? false)) {
-        print("Not drawing, discard update.")
+        log_callback_str(message: "Not drawing, discard update.")
         return false
     }
     
@@ -243,7 +243,7 @@ func imageFromARGB32Bitmap(pixels: UnsafeMutablePointer<UInt8>?, withWidth: Int,
     let bitsPerComponent = 8
 
     guard let context: CGContext = CGContext(data: pixels, width: withWidth, height: withHeight, bitsPerComponent: bitsPerComponent, bytesPerRow: 4*withWidth, space: colorSpace, bitmapInfo: bitmapInfo.rawValue) else {
-        print("Could not create CGContext")
+        log_callback_str(message: "Could not create CGContext")
         return nil
     }
     return context.makeImage()
@@ -269,7 +269,7 @@ class VncSession {
     var cl: UnsafeMutableRawPointer?
     
     init(scene: UIScene, window: UIWindow, instance: Int, stateKeeper: StateKeeper) {
-        print("Initializing VNC Session instance: \(instance)")
+        log_callback_str(message: "Initializing VNC Session instance: \(instance)")
         self.scene = scene
         self.window = window
         self.instance = instance
@@ -280,7 +280,7 @@ class VncSession {
     func loadTextFile(path: String) -> String {
         var contents = "Not Loaded"
         do { contents = try String(contentsOfFile: path, encoding: String.Encoding.utf8) }
-            catch { print("Error loading file") }
+            catch { log_callback_str(message: "Error loading file") }
         return contents
     }
     
@@ -309,7 +309,7 @@ class VncSession {
                 self.stateKeeper.sshForwardingLock.unlock()
                 self.stateKeeper.sshForwardingLock.lock()
                 self.stateKeeper.sshTunnelingStarted = true
-                print("Setting up SSH forwarding")
+                log_callback_str(message: "Setting up SSH forwarding")
                 setupSshPortForward(
                     Int32(self.stateKeeper.currInst),
                     ssh_forward_success,
@@ -343,10 +343,10 @@ class VncSession {
             if sshAddress != "" {
                 // Wait until the SSH tunnel lock is obtained by the thread which sets up ssh tunneling.
                 while self.stateKeeper.sshTunnelingStarted != true {
-                    print("Waiting for SSH thread to start work")
+                    log_callback_str(message: "Waiting for SSH thread to start work")
                     sleep(1)
                 }
-                print("Waiting for SSH forwarding to complete successfully")
+                log_callback_str(message: "Waiting for SSH forwarding to complete successfully")
                 // Wait for SSH Tunnel to be established for 60 seconds
                 continueConnecting = self.stateKeeper.sshForwardingLock.lock(before: Date(timeIntervalSinceNow: 60))
                 if !continueConnecting {
@@ -355,12 +355,12 @@ class VncSession {
                     title = "SSH_TUNNEL_CONNECTION_FAILURE_TITLE"
                     continueConnecting = false
                 } else {
-                    print("SSH Tunnel indicated to be successful")
+                    log_callback_str(message: "SSH Tunnel indicated to be successful")
                     self.stateKeeper.sshForwardingLock.unlock()
                 }
             }
             if continueConnecting {
-                print("Connecting VNC Session in the background...")
+                log_callback_str(message: "Connecting VNC Session in the background...")
                 self.cl = initializeVnc(Int32(self.instance), update_callback, resize_callback, failure_callback_swift, log_callback, lock_write_tls_callback_swift, unlock_write_tls_callback_swift, yes_no_dialog_callback,
                            UnsafeMutablePointer<Int8>(mutating: (addressAndPort as NSString).utf8String),
                            UnsafeMutablePointer<Int8>(mutating: (user as NSString).utf8String),
@@ -370,11 +370,9 @@ class VncSession {
                     connectVnc(self.cl)
                 } else {
                     title = "VNC_CONNECTION_FAILURE_TITLE"
-                    print("Error title: \(title)")
                     failure_callback_str(instance: self.instance, title: title)
                 }
             } else {
-                print("Error title: \(title)")
                 failure_callback_str(instance: self.instance, title: title)
             }
         }

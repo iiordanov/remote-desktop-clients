@@ -175,11 +175,11 @@ class TouchEnabledUIImageView: UIImageView {
         for touch in touches {
             if let touchView = touch.view {
                 if !isOutsideImageBoundaries(touch: touch, touchView: touchView) {
-                    print("Touch is outside image, ignoring.")
+                    log_callback_str(message: "Touch is outside image, ignoring.")
                     continue
                 }
             } else {
-                print("Could not unwrap touch.view, sending event at last coordinates.")
+                log_callback_str(message: "Could not unwrap touch.view, sending event at last coordinates.")
             }
             
             for (index, finger)  in self.fingers.enumerated() {
@@ -223,11 +223,11 @@ class TouchEnabledUIImageView: UIImageView {
         for touch in touches {
             if let touchView = touch.view {
                 if !isOutsideImageBoundaries(touch: touch, touchView: touchView) {
-                    print("Touch is outside image, ignoring.")
+                    log_callback_str(message: "Touch is outside image, ignoring.")
                     continue
                 }
             } else {
-                print("Could not unwrap touch.view, sending event at last coordinates.")
+                log_callback_str(message: "Could not unwrap touch.view, sending event at last coordinates.")
             }
             
             for (index, finger) in self.fingers.enumerated() {
@@ -238,7 +238,7 @@ class TouchEnabledUIImageView: UIImageView {
                             self.setViewParameters(point: touch.location(in: touchView), touchView: touchView)
                         }
                         if moveEventsSinceFingerDown > 8 {
-                            print(#function, self.firstDown, self.secondDown, self.thirdDown)
+                            log_callback_str(message: "\(#function) +\(self.firstDown) + \(self.secondDown) + \(self.thirdDown)")
                             self.inPanDragging = true
                             self.sendDownThenUpEvent(scrolling: false, moving: true, firstDown: self.firstDown, secondDown:     self.secondDown, thirdDown: self.thirdDown, fourthDown: false, fifthDown: false)
                         } else {
@@ -257,11 +257,11 @@ class TouchEnabledUIImageView: UIImageView {
         for touch in touches {
             if let touchView = touch.view {
                 if !isOutsideImageBoundaries(touch: touch, touchView: touchView) {
-                    print("Touch is outside image, ignoring.")
+                    log_callback_str(message: "Touch is outside image, ignoring.")
                     continue
                 }
             } else {
-                print("Could not unwrap touch.view, sending event at last coordinates.")
+                log_callback_str(message: "Could not unwrap touch.view, sending event at last coordinates.")
             }
             
             for (index, finger) in self.fingers.enumerated() {
@@ -271,9 +271,9 @@ class TouchEnabledUIImageView: UIImageView {
                     self.fingerLock.unlock()
                     if (index == 0) {
                         if (self.inLeftDragging || self.tapGestureDetected || self.panGesture?.state == .began || self.pinchGesture?.state == .began) {
-                            print("Currently left-dragging, single or double-tapping, panning or zooming and first finger lifted, not sending mouse events.")
+                            log_callback_str(message: "Currently left-dragging, single or double-tapping, panning or zooming and first finger lifted, not sending mouse events.")
                         } else {
-                            print("Not panning or zooming and first finger lifted, sending mouse events.")
+                            log_callback_str(message: "Not panning or zooming and first finger lifted, sending mouse events.")
                             self.sendDownThenUpEvent(scrolling: false, moving: false, firstDown: self.firstDown, secondDown: self.secondDown, thirdDown: self.thirdDown, fourthDown: false, fifthDown: false)
                             self.firstDown = false
                             self.secondDown = false
@@ -282,7 +282,7 @@ class TouchEnabledUIImageView: UIImageView {
                         }
                         self.tapGestureDetected = false
                     } else {
-                        print("Fingers other than first lifted, not sending mouse events.")
+                        log_callback_str(message: "Fingers other than first lifted, not sending mouse events.")
                     }
                     break
                 }
@@ -297,7 +297,7 @@ class TouchEnabledUIImageView: UIImageView {
     }
 
     @objc func handleHovering(_ sender: UIHoverGestureRecognizer) {
-        print(#function, sender)
+        log_callback_str(message: "\(#function) + \(sender)")
     }
 
     @objc func handleZooming(_ sender: UIPinchGestureRecognizer) {
@@ -332,19 +332,19 @@ class TouchEnabledUIImageView: UIImageView {
             if let touchView = sender.view {
                 let timeNow = CACurrentMediaTime()
                 if timeNow - tapLast > doubleTapTimeThreshold {
-                    print("Single tap detected.")
+                    log_callback_str(message: "Single tap detected.")
                     self.setViewParameters(point: sender.location(in: touchView), touchView: touchView, setDoubleTapCoordinates: true)
                 } else if self.pendingDoubleTap {
-                    print("Potential double tap detected.")
+                    log_callback_str(message: "Potential double tap detected.")
                     self.pendingDoubleTap = false
                     self.setViewParameters(point: sender.location(in: touchView), touchView: touchView)
                     let distance = abs(lastX - newX) + abs(lastY - newY)
                     if distance < doubleTapDistanceThreshold {
-                        print("Second tap was \(distance) away from first, sending click at previous coordinates.")
+                        log_callback_str(message: "Second tap was \(distance) away from first, sending click at previous coordinates.")
                         newX = newDoubleTapX
                         newY = newDoubleTapY
                     } else {
-                        print("Second tap was \(distance) away from first, threshhold: \(doubleTapDistanceThreshold).")
+                        log_callback_str(message: "Second tap was \(distance) away from first, threshhold: \(doubleTapDistanceThreshold).")
                     }
                 }
                 self.tapLast = timeNow
@@ -355,7 +355,7 @@ class TouchEnabledUIImageView: UIImageView {
                 self.stateKeeper?.rescheduleScreenUpdateRequest(timeInterval: 0.5, fullScreenUpdate: false, recurring: false)
             }
         } else {
-            print("Other fingers were down, not acting on single tap")
+            log_callback_str(message: "Other fingers were down, not acting on single tap")
         }
     }
 

@@ -43,7 +43,7 @@ class CustomTextInput: UIButton, UIKeyInput{
     }
     
     public func insertText(_ text: String){
-        //print("Sending: " + text + ", number of characters: " + String(text.count))
+        //log_callback_str(message: "Sending: " + text + ", number of characters: " + String(text.count))
         for char in text.unicodeScalars {
             Background {
                 if !sendKeyEventInt(self.stateKeeper!.cl[self.stateKeeper!.currInst]!, Int32(String(char.value))!) {
@@ -65,7 +65,7 @@ class CustomTextInput: UIButton, UIKeyInput{
     
     @objc func toggleFirstResponder() -> Bool {
         if (self.isFirstResponder) {
-            print("Keyboard should be showing already, hiding it.")
+            log_callback_str(message: "Keyboard should be showing already, hiding it.")
             return hideKeyboard()
         } else {
             return showKeyboard()
@@ -73,13 +73,13 @@ class CustomTextInput: UIButton, UIKeyInput{
     }
 
     @objc func hideKeyboard() -> Bool {
-        print("Hiding keyboard.")
+        log_callback_str(message: "Hiding keyboard.")
         becomeFirstResponder()
         return resignFirstResponder()
     }
 
     @objc func showKeyboardFunction() -> Bool {
-        print("showKeyboardFunction called")
+        log_callback_str(message: "showKeyboardFunction called")
         resignFirstResponder()
         return becomeFirstResponder()
     }
@@ -89,7 +89,7 @@ class CustomTextInput: UIButton, UIKeyInput{
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
             let _ = self.showKeyboardFunction()
         }
-        print("Showing keyboard with delay")
+        log_callback_str(message: "Showing keyboard with delay")
         return true
 
     }

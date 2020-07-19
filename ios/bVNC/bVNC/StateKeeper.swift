@@ -224,7 +224,7 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
     }
 
     func connect(index: Int) {
-        print("Connecting and navigating to the connection screen")
+        log_callback_str(message: "Connecting and navigating to the connection screen")
         yesNoDialogResponse = 0
         self.isKeptFresh = false
         self.clientLog = []
@@ -278,7 +278,7 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
     }
     
     @objc func lazyDisconnect() {
-        print("Lazy disconnecting")
+        log_callback_str(message: "Lazy disconnecting")
         self.imageView?.disableTouch()
         self.isDrawing = false
         self.deregisterFromNotifications()
@@ -296,7 +296,7 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
         UserInterface {
             self.toggleModifiersIfDown()
         }
-        print("wasDrawing(): \(wasDrawing)")
+        log_callback_str(message: "wasDrawing(): \(wasDrawing)")
         if (wasDrawing) {
             self.vncSession?.disconnect()
             UserInterface {
@@ -306,7 +306,7 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
                 self.imageView?.removeFromSuperview()
             }
         } else {
-            print("\(#function) called but wasDrawing was already false")
+            log_callback_str(message: "\(#function) called but wasDrawing was already false")
         }
         spinner.removeFromSuperview()
         if !wasDrawing {
@@ -317,7 +317,7 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
     
     @objc func scheduleDisconnectTimer(interval: Double = 1, wasDrawing: Bool) {
         UserInterface {
-            print("Scheduling disconnect")
+            log_callback_str(message: "Scheduling disconnect")
             self.spinner.frame.origin.x = (self.window?.frame.size.width ?? 0) / 2 - self.spinner.frame.size.width / 2
             self.spinner.frame.origin.y = (self.window?.frame.size.height ?? 0) / 2 - self.spinner.frame.size.height / 2
             self.spinner.translatesAutoresizingMaskIntoConstraints = false
@@ -334,7 +334,7 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
     }
     
     func addNewConnection() {
-        print("Adding new connection and navigating to connection setup screen")
+        log_callback_str(message: "Adding new connection and navigating to connection setup screen")
         self.connectionIndex = -1
         self.selectedConnection = [:]
         UserInterface {
@@ -343,7 +343,7 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
     }
 
     func showHelp(messages: [ LocalizedStringKey ]) {
-        print("Showing help screen")
+        log_callback_str(message: "Showing help screen")
         self.localizedMessages = messages
         UserInterface {
             self.currentPage = "helpDialog"
@@ -351,7 +351,7 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
     }
     
     func editConnection(index: Int) {
-        print("Editing connection at index \(index) and navigating to setup screen")
+        log_callback_str(message: "Editing connection at index \(index) and navigating to setup screen")
         self.connectionIndex = index
         self.selectedConnection = connections[index]
         UserInterface {
@@ -360,18 +360,18 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
     }
 
     func deleteCurrentConnection() {
-        print("Deleting connection at index \(self.connectionIndex) and navigating to list of connections screen")
+        log_callback_str(message: "Deleting connection at index \(self.connectionIndex) and navigating to list of connections screen")
         // Do something only if we were not adding a new connection.
         if connectionIndex >= 0 {
-            print("Deleting connection with index \(connectionIndex)")
+            log_callback_str(message: "Deleting connection with index \(connectionIndex)")
             let deleteScreenshotResult = deleteFile(name: connections[self.connectionIndex]["screenShotFile"]!)
-            print("Deleting connection screenshot \(deleteScreenshotResult)")
+            log_callback_str(message: "Deleting connection screenshot \(deleteScreenshotResult)")
             self.connections.remove(at: self.connectionIndex)
             self.selectedConnection = [:]
             self.connectionIndex = -1
             saveSettings()
         } else {
-            print("We were adding a new connection, so not deleting anything")
+            log_callback_str(message: "We were adding a new connection, so not deleting anything")
         }
         UserInterface {
             self.currentPage = "connectionsList"
@@ -379,7 +379,7 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
     }
     
     func saveSettings() {
-        print("Saving settings")
+        log_callback_str(message: "Saving settings")
         if connectionIndex >= 0 {
             self.connections[connectionIndex] = selectedConnection
         }
@@ -389,10 +389,10 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
     func saveConnection(connection: [String: String]) {
         // Negative index indicates we are adding a connection, otherwise we are editing one.
         if (connectionIndex < 0) {
-            print("Saving a new connection and navigating to list of connections")
+            log_callback_str(message: "Saving a new connection and navigating to list of connections")
             self.connections.append(connection)
         } else {
-            print("Saving a connection at index \(self.connectionIndex) and navigating to list of connections")
+            log_callback_str(message: "Saving a connection at index \(self.connectionIndex) and navigating to list of connections")
             connection.forEach() { setting in // Iterate through new settings to avoid losing e.g. ssh and x509 fingerprints
                 self.selectedConnection[setting.key] = setting.value
             }
@@ -427,7 +427,7 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
     }
 
     func keyboardWillShow(withSize keyboardSize: CGSize) {
-        print("Keyboard will be shown, height: \(self.keyboardHeight)")
+        log_callback_str(message: "Keyboard will be shown, height: \(self.keyboardHeight)")
         self.keyboardHeight = keyboardSize.height
         if isDrawing {
             self.createAndRepositionButtons()
@@ -441,7 +441,7 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
     }
     
     func keyboardWillHide() {
-        print("Keyboard will be hidden, height: \(self.keyboardHeight)")
+        log_callback_str(message: "Keyboard will be hidden, height: \(self.keyboardHeight)")
         self.keyboardHeight = 0
         if isDrawing {
             self.createAndRepositionButtons()
@@ -491,12 +491,12 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
         }
         
         if newOrientation == 0 {
-            //print("New orientation is portrait")
+            //log_callback_str(message: "New orientation is portrait")
             leftSpacing = 0
             topSpacing = max(StateKeeper.bH, (globalWindow!.bounds.maxY - CGFloat(fbH)*minScale)/4)
             topButtonSpacing = 0
         } else if newOrientation == 1 {
-            //print("New orientation is landscape")
+            //log_callback_str(message: "New orientation is landscape")
             leftSpacing = (globalWindow!.bounds.maxX - CGFloat(fbW)*minScale)/2
             topSpacing = min(StateKeeper.bH, (globalWindow!.bounds.maxY - CGFloat(fbH)*minScale)/2)
             topButtonSpacing = 0
@@ -506,14 +506,14 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
             orientation = newOrientation
             imageView?.frame = CGRect(x: leftSpacing, y: topSpacing, width: CGFloat(fbW)*minScale, height: CGFloat(fbH)*minScale)
             createAndRepositionButtons()
-            print("Corrected spacing and minScale for new orientation, left: \(leftSpacing), top: \(topSpacing), minScale: \(minScale)")
+            log_callback_str(message: "Corrected spacing and minScale for new orientation, left: \(leftSpacing), top: \(topSpacing), minScale: \(minScale)")
         } else {
-            //print("Actual orientation appears not to have changed, not disturbing the displayed image or buttons.")
+            //log_callback_str(message: "Actual orientation appears not to have changed, not disturbing the displayed image or buttons.")
         }
     }
     
     func createAndRepositionButtons() {
-        print("Ensuring buttons are initialized, and positioning them where they should be")
+        log_callback_str(message: "Ensuring buttons are initialized, and positioning them where they should be")
         if (self.interfaceButtons["keyboardButton"] == nil) {
             let b = CustomTextInput(stateKeeper: self)
             b.addTarget(b, action: #selector(b.toggleFirstResponder), for: .touchDown)
@@ -585,14 +585,14 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
     }
 
     func addButtons(buttons: [String: UIButton]) {
-        //print("Adding buttons to superview")
+        //log_callback_str(message: "Adding buttons to superview")
         buttons.forEach(){ button in
             globalWindow!.addSubview(button.value)
         }
     }
 
     func removeButtons() {
-        //print("Removing buttons from superview")
+        //log_callback_str(message: "Removing buttons from superview")
         self.interfaceButtons.forEach(){ button in
             button.value.removeFromSuperview()
         }
@@ -666,7 +666,7 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
     func keepSessionRefreshed() {
         BackgroundLowPrio {
             if !self.isKeptFresh {
-                print("Will keep session fresh")
+                log_callback_str(message: "Will keep session fresh")
                 self.isKeptFresh = true
                 self.rescheduleScreenUpdateRequest(timeInterval: 1, fullScreenUpdate: true, recurring: false)
                 self.rescheduleScreenUpdateRequest(timeInterval: 2, fullScreenUpdate: false, recurring: true)
@@ -694,7 +694,7 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
             try data.write(to: directory.appendingPathComponent(String(self.selectedConnection["screenShotFile"]!))!)
             return true
         } catch {
-            print(error.localizedDescription)
+            log_callback_str(message: error.localizedDescription)
             return false
         }
     }
@@ -707,7 +707,7 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
             try FileManager.default.removeItem(at: directory.appendingPathComponent(name)!)
             return true
         } catch {
-            print(error.localizedDescription)
+            log_callback_str(message: error.localizedDescription)
             return false
         }
     }
@@ -722,7 +722,7 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
     var failureTimer: Timer?
     func rescheduleFailureTimer() {
         UserInterface {
-            print("Scheduling failure timer.")
+            log_callback_str(message: "Scheduling failure timer.")
             self.failureTimer?.invalidate()
             self.failureTimer = Timer.scheduledTimer(timeInterval: 2, target: self, selector: #selector(self.fail), userInfo: nil, repeats: false)
         }
