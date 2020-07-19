@@ -183,6 +183,7 @@ struct ConnectionsList : View {
         ScrollView {
             VStack {
                 HStack(spacing: 100) {
+                    
                     Button(action: {
                         self.stateKeeper.addNewConnection()
                     }) {
@@ -194,6 +195,7 @@ struct ConnectionsList : View {
                             Text("NEW_LABEL")
                         }.padding()
                     }
+                    
                     Button(action: {
                         self.stateKeeper.showHelp(messages: [ "MAIN_HELP_TEXT" ])
                     }) {
@@ -203,6 +205,19 @@ struct ConnectionsList : View {
                                 .scaledToFit()
                                 .frame(width: 32, height: 32)
                             Text("HELP_LABEL")
+                        }.padding()
+                    }
+                    
+                    Button(action: {
+                        self.stateKeeper.showLog(title: "SESSION_LOG_LABEL",
+                                                 text: self.stateKeeper.clientLog.joined())
+                    }) {
+                        HStack(spacing: 10) {
+                            Image(systemName: "text.alignleft")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 32, height: 32)
+                            Text("LOG_LABEL")
                         }.padding()
                     }
                 }
@@ -239,18 +254,6 @@ struct ConnectionsList : View {
                         }
 
                     }.buttonStyle(PlainButtonStyle())
-                }
-                
-                Button(action: {
-                    self.stateKeeper.showError(title: "SESSION_LOG_LABEL")
-                }) {
-                    HStack(spacing: 10) {
-                        Image(systemName: "text.alignleft")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 32, height: 32)
-                        Text("LOG_LABEL")
-                    }.padding()
                 }
             }
         }
@@ -519,10 +522,6 @@ struct DismissableLogDialog : View {
     func getTitle() -> LocalizedStringKey {
         return stateKeeper.localizedTitle ?? ""
     }
-
-    func getClientLog() -> String {
-        return stateKeeper.clientLog.joined()
-    }
     
     var body: some View {
         VStack {
@@ -530,7 +529,7 @@ struct DismissableLogDialog : View {
                 Text(self.getTitle()).font(.title)
                 Button(action: {
                     self.stateKeeper.showLog(title: "SESSION_LOG_LABEL",
-                                             text: self.getClientLog())
+                                             text: self.stateKeeper.clientLog.joined())
                 }) {
                     HStack(spacing: 10) {
                         Image(systemName: "text.alignleft")
@@ -570,8 +569,8 @@ struct DismissableMessageDialog : View {
     var body: some View {
         VStack {
             ScrollView {
-                Text(self.getTitle()).font(.title)
-                Text(self.getMessage()).font(.body)
+                Text(self.getTitle()).font(.title).padding()
+                Text(self.getMessage()).font(.body).padding()
             }
             HStack {
                 Button(action: {
