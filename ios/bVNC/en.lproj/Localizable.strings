@@ -47,4 +47,4 @@
 "FAILED_TO_SEND_MESSAGE_TO_SERVER" = "Failed to Send Message to Server";
 "FAILED_TO_INIT_CONNECTION_TO_SERVER" = "Failed to Initialize Connection to Server";
 "CONNECTION_FAILED" = "Connection to Server Failed";
-
+"SHOW_SSH_TUNNEL_SETTINGS_LABEL" = "Show SSH Tunnel Settings";

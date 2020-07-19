@@ -122,7 +122,8 @@ struct ContentView : View {
                      passwordText: stateKeeper.selectedConnection["password"] ?? "",
                      screenShotFile: stateKeeper.selectedConnection["screenShotFile"] ?? UUID().uuidString,
                      allowZooming: Bool(stateKeeper.selectedConnection["allowZooming"] ?? "true") ?? true,
-                     allowPanning: Bool(stateKeeper.selectedConnection["allowPanning"] ?? "true") ?? true)
+                     allowPanning: Bool(stateKeeper.selectedConnection["allowPanning"] ?? "true") ?? true,
+                     showSshTunnelSettings: Bool(stateKeeper.selectedConnection["showSshTunnelSettings"] ?? "false")! || (stateKeeper.selectedConnection["sshAddress"] ?? "") != "")
             } else if stateKeeper.currentPage == "genericProgressPage" {
                 ProgressPage(stateKeeper: stateKeeper)
             } else if stateKeeper.currentPage == "connectionInProgress" {
@@ -274,6 +275,7 @@ struct AddOrEditConnectionPage : View {
     @State var textHeight: CGFloat = 20
     @State var allowZooming: Bool
     @State var allowPanning: Bool
+    @State var showSshTunnelSettings: Bool
 
     var body: some View {
         ScrollView {
@@ -293,7 +295,8 @@ struct AddOrEditConnectionPage : View {
                         "password": self.passwordText.trimmingCharacters(in: .whitespacesAndNewlines),
                         "screenShotFile": self.screenShotFile.trimmingCharacters(in: .whitespacesAndNewlines),
                         "allowZooming": String(self.allowZooming),
-                        "allowPanning": String(self.allowPanning)
+                        "allowPanning": String(self.allowPanning),
+                        "showSshTunnelSettings": String(self.showSshTunnelSettings)
                     ]
                     self.stateKeeper.saveConnection(connection: selectedConnection)
                 }) {
@@ -342,7 +345,14 @@ struct AddOrEditConnectionPage : View {
                         }.padding()
                     }
                 }
+                
+                VStack {
+                    Toggle(isOn: $showSshTunnelSettings) {
+                        Text("SHOW_SSH_TUNNEL_SETTINGS_LABEL")
+                    }
+                }
 
+                if self.showSshTunnelSettings {
                 VStack {
                     Text("SSH_TUNNEL_LABEL").font(.headline)
                     TextField("SSH_SERVER_LABEL", text: $sshAddressText).autocapitalization(.none).font(.title)
@@ -360,6 +370,7 @@ struct AddOrEditConnectionPage : View {
                         }
                         Divider()
                     }
+                }
                 }
 
                 VStack {
@@ -380,7 +391,6 @@ struct AddOrEditConnectionPage : View {
                     }
                     Text("").padding(.bottom, 1000)
                 }
-
             }
         }
     }
@@ -635,7 +645,7 @@ struct YesNoDialog : View {
 
 struct ContentViewA_Previews : PreviewProvider {
     static var previews: some View {
-        AddOrEditConnectionPage(stateKeeper: StateKeeper(), sshAddressText: "", sshPortText: "", sshUserText: "", sshPassText: "", sshPassphraseText: "", sshPrivateKeyText: "", addressText: "", portText: "", usernameText: "", passwordText: "", screenShotFile: "", allowZooming: true, allowPanning: true)
+        AddOrEditConnectionPage(stateKeeper: StateKeeper(), sshAddressText: "", sshPortText: "", sshUserText: "", sshPassText: "", sshPassphraseText: "", sshPrivateKeyText: "", addressText: "", portText: "", usernameText: "", passwordText: "", screenShotFile: "", allowZooming: true, allowPanning: true, showSshTunnelSettings: false)
     }
 }
 
