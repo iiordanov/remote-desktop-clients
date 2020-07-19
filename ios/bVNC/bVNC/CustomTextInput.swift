@@ -9,6 +9,7 @@
 import Foundation
 import UIKit
 
+/*
 extension String {
 
   func toPointer() -> UnsafeMutablePointer<UInt8>? {
@@ -26,7 +27,7 @@ extension String {
 
     return UnsafeMutablePointer<UInt8>(buffer)
   }
-}
+}*/
 
 class CustomTextInput: UIButton, UIKeyInput{
     public var hasText: Bool { return false }
@@ -86,7 +87,7 @@ class CustomTextInput: UIButton, UIKeyInput{
     
     @objc func showKeyboard() -> Bool {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-            self.showKeyboardFunction()
+            let _ = self.showKeyboardFunction()
         }
         print("Showing keyboard with delay")
         return true

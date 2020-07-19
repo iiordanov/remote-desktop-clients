@@ -74,7 +74,7 @@ class TouchEnabledUIImageView: UIImageView {
     var tapGestureDetected = false
     
     var stateKeeper: StateKeeper?
-    
+
     func initialize() {
         isMultipleTouchEnabled = true
         self.width = self.frame.width
@@ -301,7 +301,7 @@ class TouchEnabledUIImageView: UIImageView {
     }
 
     @objc func handleZooming(_ sender: UIPinchGestureRecognizer) {
-        if (self.secondDown || self.inScrolling || self.inPanning) {
+        if (self.stateKeeper?.allowZooming != true || self.secondDown || self.inScrolling || self.inPanning) {
             return
         }
         let scale = sender.scale
@@ -360,6 +360,9 @@ class TouchEnabledUIImageView: UIImageView {
     }
 
     func panView(sender: UIPanGestureRecognizer) -> Void {
+        if self.stateKeeper?.allowPanning != true  {
+            return
+        }
         if let view = sender.view {
             let scaleX = sender.view!.transform.a
             let scaleY = sender.view!.transform.d

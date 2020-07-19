@@ -120,7 +120,9 @@ struct ContentView : View {
                      portText: stateKeeper.selectedConnection["port"] ?? "5900",
                      usernameText: stateKeeper.selectedConnection["username"] ?? "",
                      passwordText: stateKeeper.selectedConnection["password"] ?? "",
-                     screenShotFile: stateKeeper.selectedConnection["screenShotFile"] ?? UUID().uuidString)
+                     screenShotFile: stateKeeper.selectedConnection["screenShotFile"] ?? UUID().uuidString,
+                     allowZooming: Bool(stateKeeper.selectedConnection["allowZooming"] ?? "true") ?? true,
+                     allowPanning: Bool(stateKeeper.selectedConnection["allowPanning"] ?? "true") ?? true)
             } else if stateKeeper.currentPage == "genericProgressPage" {
                 ProgressPage(stateKeeper: stateKeeper)
             } else if stateKeeper.currentPage == "connectionInProgress" {
@@ -154,7 +156,7 @@ struct ConnectionsList : View {
         self.stateKeeper.editConnection(index: index)
     }
     
-    func elementAt(index: Int) -> [String:String] {
+    func elementAt(index: Int) -> [String: String] {
         return self.stateKeeper.connections[index]
     }
     
@@ -269,13 +271,15 @@ struct AddOrEditConnectionPage : View {
     @State var passwordText: String
     @State var screenShotFile: String
     @State var textHeight: CGFloat = 20
-    
+    @State var allowZooming: Bool
+    @State var allowPanning: Bool
+
     var body: some View {
         ScrollView {
             VStack {
                 HStack {
                 Button(action: {
-                    let selectedConnection = [
+                    let selectedConnection: [String : String] = [
                         "sshAddress": self.sshAddressText.trimmingCharacters(in: .whitespacesAndNewlines),
                         "sshPort": self.sshPortText.trimmingCharacters(in: .whitespacesAndNewlines),
                         "sshUser": self.sshUserText.trimmingCharacters(in: .whitespacesAndNewlines),
@@ -286,7 +290,9 @@ struct AddOrEditConnectionPage : View {
                         "port": self.portText.trimmingCharacters(in: .whitespacesAndNewlines),
                         "username": self.usernameText.trimmingCharacters(in: .whitespacesAndNewlines),
                         "password": self.passwordText.trimmingCharacters(in: .whitespacesAndNewlines),
-                        "screenShotFile": self.screenShotFile.trimmingCharacters(in: .whitespacesAndNewlines)
+                        "screenShotFile": self.screenShotFile.trimmingCharacters(in: .whitespacesAndNewlines),
+                        "allowZooming": String(self.allowZooming),
+                        "allowPanning": String(self.allowPanning)
                     ]
                     self.stateKeeper.saveConnection(connection: selectedConnection)
                 }) {
@@ -350,6 +356,15 @@ struct AddOrEditConnectionPage : View {
                 TextField("Port", text: $portText).font(.title)
                 TextField("User (if required)", text: $usernameText).autocapitalization(.none).font(.title)
                 SecureField("Password", text: $passwordText).font(.title)
+            }
+            VStack {
+                Text("User Interface Settings").font(.headline)
+                Toggle(isOn: $allowZooming) {
+                    Text("Allow Desktop Zooming")
+                }.padding()
+                Toggle(isOn: $allowPanning) {
+                    Text("Allow Desktop Panning")
+                }.padding()
                 Text("").padding(.bottom, 1000)
             }
         }
@@ -607,7 +622,7 @@ struct YesNoDialog : View {
 
 struct ContentViewA_Previews : PreviewProvider {
     static var previews: some View {
-        AddOrEditConnectionPage(stateKeeper: StateKeeper(), sshAddressText: "", sshPortText: "", sshUserText: "", sshPassText: "", sshPassphraseText: "", sshPrivateKeyText: "", addressText: "", portText: "", usernameText: "", passwordText: "", screenShotFile: "")
+        AddOrEditConnectionPage(stateKeeper: StateKeeper(), sshAddressText: "", sshPortText: "", sshUserText: "", sshPassText: "", sshPassphraseText: "", sshPrivateKeyText: "", addressText: "", portText: "", usernameText: "", passwordText: "", screenShotFile: "", allowZooming: true, allowPanning: true)
     }
 }
 

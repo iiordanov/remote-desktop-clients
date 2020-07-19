@@ -73,6 +73,9 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
     var logLock: NSLock = NSLock()
     var spinner = UIActivityIndicatorView(style: .large)
 
+    var allowZooming = true
+    var allowPanning = true
+    
     // Dictionaries desctibing onscreen ToggleButton type buttons
     let topButtonData: [ String: [ String: Any ] ] = [
         "f1Button": [ "title": "F1", "lx": 1*tbW+1*tbSp, "ly": z, "bg": bBg, "send": XK_F1, "tgl": false, "top": true, "right": false ],
@@ -230,6 +233,8 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
         // Needed in case we need to save a certificate during connection or change settings.
         self.connectionIndex = index
         self.selectedConnection = self.connections[index]
+        self.allowZooming = Bool(selectedConnection["allowZooming"] ?? "true") ?? true
+        self.allowPanning = Bool(selectedConnection["allowPanning"] ?? "true") ?? true
         let contentView = ContentView(stateKeeper: self)
         self.window!.rootViewController = MyUIHostingController(rootView: contentView)
         self.window!.makeKeyAndVisible()
