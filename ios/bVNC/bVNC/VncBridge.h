@@ -21,7 +21,7 @@ void *initializeVnc(int instance,
                    void (*cl_log_callback)(int8_t *),
                    void (*lock_wrt_tls_callback)(int instance),
                    void (*unlock_wrt_tls_callback)(int instance),
-                   int (*y_n_callback)(int instance, int8_t *, int8_t *, int8_t *, int8_t *, int8_t *),
+                   int (*y_n_callback)(int instance, int8_t *, int8_t *, int8_t *, int8_t *, int8_t *, int),
                    char* addr, char* user, char* password);
 void connectVnc(void *c);
 

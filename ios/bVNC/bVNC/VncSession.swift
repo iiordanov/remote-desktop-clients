@@ -53,7 +53,7 @@ func ssh_forward_failure() -> Void {
     globalStateKeeper?.sshForwardingLock.unlock()
 }
 
-func failure_callback_str(instance: Int, message: String?) {
+func failure_callback_str(instance: Int, title: String?) {
     if (instance != -1 && instance != globalStateKeeper!.currInst) {
         print("Current instance \(globalStateKeeper!.currInst) discarding call from instance \(instance)") ; return
     }
@@ -64,9 +64,9 @@ func failure_callback_str(instance: Int, message: String?) {
 
     UserInterface {
         globalStateKeeper?.scheduleDisconnectTimer(interval: 0, wasDrawing: wasDrawing)
-        if message != nil {
-            print("Connection failure, showing error with title \(message!).")
-            globalStateKeeper?.showError(title: message!)
+        if title != nil {
+            print("Connection failure, showing error with title \(title!).")
+            globalStateKeeper?.showError(title: LocalizedStringKey(title!))
         } else {
             print("Successful exit, no error was reported.")
             globalStateKeeper?.showConnections()
@@ -79,10 +79,10 @@ func failure_callback_swift(instance: Int32, message: UnsafeMutablePointer<UInt8
 
     if message != nil {
         print("Will show error dialog with title: \(String(cString: message!))")
-        failure_callback_str(instance: Int(instance), message: String(cString: message!))
+        failure_callback_str(instance: Int(instance), title: String(cString: message!))
     } else {
         print("Will not show error dialog")
-        failure_callback_str(instance: Int(instance), message: nil)
+        failure_callback_str(instance: Int(instance), title: nil)
     }
 }
 
@@ -105,7 +105,9 @@ func log_callback_str(message: String) -> Void {
     globalStateKeeper?.logLock.unlock()
 }
 
-func yes_no_dialog_callback(instance: Int32, title: UnsafeMutablePointer<Int8>?, message: UnsafeMutablePointer<Int8>?, fingerPrint1: UnsafeMutablePointer<Int8>?, fingerPrint2: UnsafeMutablePointer<Int8>?, type: UnsafeMutablePointer<Int8>?) -> Int32 {
+func yes_no_dialog_callback(instance: Int32, title: UnsafeMutablePointer<Int8>?, message: UnsafeMutablePointer<Int8>?,
+                            fingerPrint1: UnsafeMutablePointer<Int8>?, fingerPrint2: UnsafeMutablePointer<Int8>?,
+                            type: UnsafeMutablePointer<Int8>?, valid: Int32) -> Int32 {
     if (instance != globalStateKeeper!.currInst) { print("Current instance \(globalStateKeeper!.currInst) discarding call from instance \(instance)") ; return 0 }
 
     if (instance != globalStateKeeper!.currInst) { return 0 }
@@ -127,21 +129,34 @@ func yes_no_dialog_callback(instance: Int32, title: UnsafeMutablePointer<Int8>?,
     }
     print ("Asking user to verify fingerprints \(String(cString: fingerPrint1!)) and \(String(cString: fingerPrint2!)) of type \(String(cString: type!))")
 
-    let titleStr = String(cString: title!)
-    var messageStr = String(cString: message!)
-    
+    let titleStr = LocalizedStringKey(String(cString: title!))
+    var messages: [ LocalizedStringKey ] = []
+    let additionalMessageStr = String(cString: message!)
+
+    // Output the right message depending on key type
+    if fingerprintType == "SSH" {
+        messages.append("SSH_KEY_VERIFY_TEXT")
+    } else if fingerprintType == "X509"  {
+        messages.append("X509_KEY_VERIFY_TEXT")
+        if valid == 0 {
+            messages.append("X509_KEY_EXPIRED_TEXT")
+        } else {
+            messages.append("X509_KEY_NOT_EXPIRED_TEXT")
+        }
+    }
+
     // Check for a mismatch if keys were already set
     if fingerprintType == "SSH" &&
         globalStateKeeper?.selectedConnection["sshFingerprintSha256"] != nil {
-        messageStr = "\nWARNING: SSH key of this connection has changed! This could be a man in the middle attack! Do not continue unless you are aware of this change.\n\n" + messageStr
+        messages.append("WARNING_SSH_KEY_CHANGED_TEXT")
     } else if fingerprintType == "X509" &&
        (globalStateKeeper?.selectedConnection["sshFingerprintSha256"] != nil ||
         globalStateKeeper?.selectedConnection["sshFingerprintSha512"] != nil) {
-        messageStr = "\nWARNING: X509 key of this connection has changed! This could be a man in the middle attack! Do not continue unless you are aware of this change.\n\n" + messageStr
+        messages.append("WARNING_X509_KEY_CHANGED_TEXT")
     }
 
     let res = globalStateKeeper?.yesNoResponseRequired(
-        title: titleStr, message: messageStr) ?? 0
+        title: titleStr, messages: messages, nonLocalizedMessage: additionalMessageStr) ?? 0
     
     if res == 1 && fingerprintType == "SSH" {
         globalStateKeeper?.selectedConnection["sshFingerprintSha256"] = fingerPrint1Str
@@ -323,7 +338,7 @@ class VncSession {
         Background {
             // Make it highly probable the SSH thread would obtain the lock before the VNC one does.
             self.stateKeeper.yesNoDialogLock.unlock()
-            var message = ""
+            var title = ""
             var continueConnecting = true
             if sshAddress != "" {
                 // Wait until the SSH tunnel lock is obtained by the thread which sets up ssh tunneling.
@@ -335,9 +350,9 @@ class VncSession {
                 // Wait for SSH Tunnel to be established for 60 seconds
                 continueConnecting = self.stateKeeper.sshForwardingLock.lock(before: Date(timeIntervalSinceNow: 60))
                 if !continueConnecting {
-                    message = "Timeout establishing SSH Tunnel"
+                    title = "SSH_TUNNEL_TIMEOUT_TITLE"
                 } else if (self.stateKeeper.sshForwardingStatus != true) {
-                    message = "Failed to establish SSH Tunnel"
+                    title = "SSH_TUNNEL_CONNECTION_FAILURE_TITLE"
                     continueConnecting = false
                 } else {
                     print("SSH Tunnel indicated to be successful")
@@ -354,14 +369,13 @@ class VncSession {
                     self.stateKeeper.cl[self.stateKeeper.currInst] = self.cl
                     connectVnc(self.cl)
                 } else {
-                    message = "Failed to establish connection to VNC server."
-                    print("Error message: \(message)")
-                    failure_callback_str(instance: self.instance, message: message)
+                    title = "VNC_CONNECTION_FAILURE_TITLE"
+                    print("Error title: \(title)")
+                    failure_callback_str(instance: self.instance, title: title)
                 }
             } else {
-                message = "Error connecting: " + message
-                print("Error message: \(message)")
-                failure_callback_str(instance: self.instance, message: message)
+                print("Error title: \(title)")
+                failure_callback_str(instance: self.instance, title: title)
             }
         }
     }

@@ -302,7 +302,7 @@ void setupSshPortForward(int instance,
                          void (*ssh_forward_success)(void),
                          void (*ssh_forward_failure)(void),
                          void (*cl_log_callback)(int8_t *),
-                         int  (*y_n_callback)(int instance, int8_t *, int8_t *, int8_t *, int8_t *, int8_t *),
+                         int  (*y_n_callback)(int instance, int8_t *, int8_t *, int8_t *, int8_t *, int8_t *, int),
                          char* host, char* port, char* user, char* password, char* privKeyP, char* privKeyD,
                          char* local_ip, char* local_port, char* remote_ip, char* remote_port);
 #endif

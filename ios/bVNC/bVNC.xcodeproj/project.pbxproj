@@ -29,6 +29,7 @@
 		AF9E8F932427F3B500752FC2 /* Utility.c in Sources */ = {isa = PBXBuildFile; fileRef = AF9E8F922427F3B500752FC2 /* Utility.c */; };
 		AF9E8F95242ADD9200752FC2 /* Utilities.m in Sources */ = {isa = PBXBuildFile; fileRef = AF9E8F94242ADD9200752FC2 /* Utilities.m */; };
 		AF9E8F99242AE4E900752FC2 /* SystemMonitor.m in Sources */ = {isa = PBXBuildFile; fileRef = AF9E8F98242AE4E900752FC2 /* SystemMonitor.m */; };
+		AFBBBD7B24C4A1E600F64E4A /* LocalizedStringKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFBBBD7A24C4A1E600F64E4A /* LocalizedStringKey.swift */; };
 		AFF244E22407985E00F5839B /* CustomTextInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFF244E12407985E00F5839B /* CustomTextInput.swift */; };
 		AFF244E42408AF9B00F5839B /* TouchEnabledUIImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFF244E32408AF9B00F5839B /* TouchEnabledUIImageView.swift */; };
 		AFF808412487533C00A6B35E /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = AFF808432487533C00A6B35E /* Localizable.strings */; };
@@ -495,6 +496,7 @@
 		AF9E8F97242AE4BB00752FC2 /* SystemMonitor.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SystemMonitor.h; sourceTree = "<group>"; };
 		AF9E8F98242AE4E900752FC2 /* SystemMonitor.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SystemMonitor.m; sourceTree = "<group>"; };
 		AFBBBD7924C3C6CD00F64E4A /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		AFBBBD7A24C4A1E600F64E4A /* LocalizedStringKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalizedStringKey.swift; sourceTree = "<group>"; };
 		AFE7B0BF243A316900275C3A /* libvncclient.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libvncclient.a; path = bVNC.xcodeproj/libs_combined/lib/libvncclient.a; sourceTree = "<group>"; };
 		AFECDF212439D9C6000E1E9A /* libssh2.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libssh2.a; path = bVNC.xcodeproj/libs_combined/lib/libssh2.a; sourceTree = "<group>"; };
 		AFF244E12407985E00F5839B /* CustomTextInput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomTextInput.swift; sourceTree = "<group>"; };
@@ -584,6 +586,7 @@
 				AF9E8F98242AE4E900752FC2 /* SystemMonitor.m */,
 				AF043A2023B3DADB00C43ED7 /* Preview Content */,
 				AF25C1AA2440FB2400513BBD /* StoreReviewHelper.swift */,
+				AFBBBD7A24C4A1E600F64E4A /* LocalizedStringKey.swift */,
 			);
 			path = bVNC;
 			sourceTree = "<group>";
@@ -1207,6 +1210,7 @@
 				AFF244E22407985E00F5839B /* CustomTextInput.swift in Sources */,
 				AF291AD5242418A200DCD383 /* ToggleButton.swift in Sources */,
 				AF51B3002410BAED005DE8AB /* ucs2xkeysym.c in Sources */,
+				AFBBBD7B24C4A1E600F64E4A /* LocalizedStringKey.swift in Sources */,
 				AF53DCB124022C8C00569F19 /* VncSession.swift in Sources */,
 				AF25C1AB2440FB2400513BBD /* StoreReviewHelper.swift in Sources */,
 				AF9E8F99242AE4E900752FC2 /* SystemMonitor.m in Sources */,

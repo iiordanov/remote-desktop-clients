@@ -69,12 +69,12 @@ int ssh_certificate_verification_callback(int instance, char* fingerprint_sha1, 
     char user_message[1024];
 
     snprintf(user_message, 1023,
-            "SHA1 Fingerprint: %s\n\nSHA256 Fingerprint: %s\n\n\n",
+            "SHA1: %s\n\nSHA256: %s\n\n\n",
             fingerprint_sha1, fingerprint_sha256);
     
     int response = yes_no_callback(instance,
-                                   (int8_t *)"Please verify SSH server certificate", (int8_t *)user_message,
-                                   (int8_t *)fingerprint_sha256, (int8_t *)fingerprint_sha256, (int8_t *)"SSH");
+                                   (int8_t *)"PLEASE_VERIFY_SSH_CERT_TITLE", (int8_t *)user_message,
+                                   (int8_t *)fingerprint_sha256, (int8_t *)fingerprint_sha256, (int8_t *)"SSH", 1);
 
     return response;
 }
@@ -83,7 +83,7 @@ void setupSshPortForward(int instance,
                          void (*ssh_forward_success)(void),
                          void (*ssh_forward_failure)(void),
                          void (*cl_log_callback)(int8_t *),
-                         int  (*y_n_callback)(int instance, int8_t *, int8_t *, int8_t *, int8_t *, int8_t *),
+                         int  (*y_n_callback)(int instance, int8_t *, int8_t *, int8_t *, int8_t *, int8_t *, int),
                          char* host, char* port, char* user, char* password, char* privKeyP, char* privKeyD,
                          char* local_ip, char* local_port, char* remote_ip, char* remote_port) {
     client_log_callback = cl_log_callback;

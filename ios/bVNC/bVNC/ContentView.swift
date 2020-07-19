@@ -164,9 +164,10 @@ struct ConnectionsList : View {
         let connection = self.elementAt(index: i)
         var title = ""
         if connection["sshAddress"] != "" {
-            title = "SSH: \(connection["sshAddress"] ?? ""):\(connection["sshPort"] ?? "22")\n"
+            let user = "\(connection["sshUser"] ?? "")"
+            title = "SSH\t\(user)@\(connection["sshAddress"] ?? ""):\(connection["sshPort"] ?? "22")\n"
         }
-        title += "VNC: \(connection["address"] ?? ""):\(connection["port"] ?? "5900")"
+        title += "VNC\t\(connection["address"] ?? ""):\(connection["port"] ?? "5900")"
         return title
     }
     
@@ -189,18 +190,18 @@ struct ConnectionsList : View {
                                 .resizable()
                                 .scaledToFit()
                                 .frame(width: 32, height: 32)
-                            Text("New")
+                            Text("NEW_LABEL")
                         }.padding()
                     }
                     Button(action: {
-                        self.stateKeeper.showHelp(text: "MAIN_HELP_TEXT")
+                        self.stateKeeper.showHelp(messages: [ "MAIN_HELP_TEXT" ])
                     }) {
                         HStack(spacing: 10) {
                             Image(systemName: "info")
                                 .resizable()
                                 .scaledToFit()
                                 .frame(width: 32, height: 32)
-                            Text("Help")
+                            Text("HELP_LABEL")
                         }.padding()
                     }
                 }
@@ -240,14 +241,14 @@ struct ConnectionsList : View {
                 }
                 
                 Button(action: {
-                    self.stateKeeper.showError(title: "Session Log")
+                    self.stateKeeper.showError(title: "SESSION_LOG_LABEL")
                 }) {
                     HStack(spacing: 10) {
                         Image(systemName: "text.alignleft")
                             .resizable()
                             .scaledToFit()
                             .frame(width: 32, height: 32)
-                        Text("Log")
+                        Text("LOG_LABEL")
                     }.padding()
                 }
             }
@@ -301,7 +302,7 @@ struct AddOrEditConnectionPage : View {
                                 .resizable()
                                 .scaledToFit()
                                 .frame(width: 32, height: 32)
-                            Text("Save")
+                            Text("SAVE_LABEL")
                         }.padding()
                     }
                 Button(action: {
@@ -312,7 +313,7 @@ struct AddOrEditConnectionPage : View {
                                 .resizable()
                                 .scaledToFit()
                                 .frame(width: 32, height: 32)
-                            Text("Delete")
+                            Text("DELETE_LABEL")
                         }.padding()
                     }
                 Button(action: {
@@ -323,49 +324,63 @@ struct AddOrEditConnectionPage : View {
                                 .resizable()
                                 .scaledToFit()
                                 .frame(width: 32, height: 32)
-                            Text("Cancel")
+                            Text("CANCEL_LABEL")
                         }.padding()
                     }
 
                 Button(action: {
-                    self.stateKeeper.showHelp(text: "VNC_CONNECTION_SETUP_HELP_TEXT")
+                    self.stateKeeper.showHelp(messages: [ "SSH_CONNECTION_SETUP_HELP_TEXT",
+                                                          "VNC_CONNECTION_SETUP_HELP_TEXT",
+                                                          "UI_SETUP_HELP_TEXT" ])
                 }) {
                         HStack(spacing: 10) {
                             Image(systemName: "info")
                                 .resizable()
                                 .scaledToFit()
                                 .frame(width: 32, height: 32)
-                            Text("Help")
+                            Text("HELP_LABEL")
                         }.padding()
                     }
-
                 }
 
-                Text("Optional SSH Connection Parameters").font(.headline)
-                TextField("SSH Server", text: $sshAddressText).autocapitalization(.none).font(.title)
-                TextField("SSH Port", text: $sshPortText).autocapitalization(.none).font(.title)
-                TextField("SSH User", text: $sshUserText).autocapitalization(.none).font(.title)
-                SecureField("SSH Password", text: $sshPassText).autocapitalization(.none).font(.title)
-                SecureField("SSH Passphrase", text: $sshPassphraseText).autocapitalization(.none).font(.title)
-                Text("Paste optional SSH Key below").font(.headline)
-                MultilineTextView(placeholder: "SSH Key", text: $sshPrivateKeyText, minHeight: self.textHeight, calculatedHeight: $textHeight).frame(minHeight: self.textHeight, maxHeight: self.textHeight)
-            }
-            VStack {
-                Text("Main Connection Parameters").font(.headline)
-                TextField("Address", text: $addressText).autocapitalization(.none).font(.title)
-                TextField("Port", text: $portText).font(.title)
-                TextField("User (if required)", text: $usernameText).autocapitalization(.none).font(.title)
-                SecureField("Password", text: $passwordText).font(.title)
-            }
-            VStack {
-                Text("User Interface Settings").font(.headline)
-                Toggle(isOn: $allowZooming) {
-                    Text("Allow Desktop Zooming")
-                }.padding()
-                Toggle(isOn: $allowPanning) {
-                    Text("Allow Desktop Panning")
-                }.padding()
-                Text("").padding(.bottom, 1000)
+                VStack {
+                    Text("SSH_TUNNEL_LABEL").font(.headline)
+                    TextField("SSH_SERVER_LABEL", text: $sshAddressText).autocapitalization(.none).font(.title)
+                    TextField("SSH_PORT_LABEL", text: $sshPortText).autocapitalization(.none).font(.title)
+                    TextField("SSH_USER_LABEL", text: $sshUserText).autocapitalization(.none).font(.title)
+                    SecureField("SSH_PASSWORD_LABEL", text: $sshPassText).autocapitalization(.none).font(.title)
+                    SecureField("SSH_PASSPHRASE_LABEL", text: $sshPassphraseText).autocapitalization(.none).font(.title)
+                    VStack {
+                        Divider()
+                        HStack {
+                            Text("SSH_KEY_LABEL").font(.headline)
+                            Divider()
+                            MultilineTextView(placeholder: "", text: $sshPrivateKeyText, minHeight: self.textHeight, calculatedHeight: $textHeight).frame(minHeight: self.textHeight, maxHeight: self.textHeight)
+                            Divider()
+                        }
+                        Divider()
+                    }
+                }
+
+                VStack {
+                    Text("MAIN_CONNECTION_SETTINGS_LABEL").font(.headline)
+                    TextField("ADDRESS_LABEL", text: $addressText).autocapitalization(.none).font(.title)
+                    TextField("PORT_LABEL", text: $portText).font(.title)
+                    TextField("USER_LABEL", text: $usernameText).autocapitalization(.none).font(.title)
+                    SecureField("PASSWORD_LABEL", text: $passwordText).font(.title)
+                }
+                
+                VStack {
+                    Text("USER_INTERFACE_SETTINGS_LABEL").font(.headline)
+                    Toggle(isOn: $allowZooming) {
+                        Text("ALLOW_DESKTOP_ZOOMING_LABEL")
+                    }
+                    Toggle(isOn: $allowPanning) {
+                        Text("ALLOW_DESKTOP_PANNING_LABEL")
+                    }
+                    Text("").padding(.bottom, 1000)
+                }
+
             }
         }
     }
@@ -377,7 +392,7 @@ struct ConnectionInProgressPage : View {
     
     var body: some View {
         VStack {
-            Text("Connecting to Server")
+            Text("CONNECTING_TO_SERVER_LABEL")
             Button(action: {
                 self.stateKeeper.lazyDisconnect()
                 self.stateKeeper.showConnections()
@@ -387,7 +402,7 @@ struct ConnectionInProgressPage : View {
                         .resizable()
                         .scaledToFit()
                         .frame(width: 32, height: 32)
-                    Text("Cancel")
+                    Text("CANCEL_LABEL")
                 }.padding()
             }
         }
@@ -417,15 +432,13 @@ struct ConnectedSessionPage : View {
 struct HelpDialog : View {
     @ObservedObject var stateKeeper: StateKeeper
     
-    func getTitle() -> String {
-        return stateKeeper.title ?? ""
-    }
-
     var body: some View {
         VStack {
             ScrollView {
-                Text("Help").font(.title).padding()
-                Text(self.stateKeeper.localizedMessage ?? "").font(.body).padding()
+                Text("HELP_LABEL").font(.title).padding()
+                ForEach(self.stateKeeper.localizedMessages, id: \.self) { message in
+                    Text(message).font(.body).padding()
+                }
                 VStack {
                     Button(action: {
                         UIApplication.shared.open(URL(string: "https://groups.google.com/forum/#!forum/bvnc-ardp-aspice-opaque-remote-desktop-clients")!, options: [:], completionHandler: nil)
@@ -436,7 +449,7 @@ struct HelpDialog : View {
                                 .resizable()
                                 .scaledToFit()
                                 .frame(width: 32, height: 32)
-                            Text("Support Forum")
+                            Text("SUPPORT_FORUM_LABEL")
                         }.padding()
                     }
                     
@@ -449,7 +462,7 @@ struct HelpDialog : View {
                                 .resizable()
                                 .scaledToFit()
                                 .frame(width: 32, height: 32)
-                            Text("Report Bug")
+                            Text("REPORT_BUG_LABEL")
                         }.padding()
                     }
 
@@ -462,7 +475,7 @@ struct HelpDialog : View {
                                 .resizable()
                                 .scaledToFit()
                                 .frame(width: 32, height: 32)
-                            Text("Help Videos")
+                            Text("HELP_VIDEOS_LABEL")
                         }.padding()
                     }
 
@@ -476,7 +489,7 @@ struct HelpDialog : View {
                         .resizable()
                         .scaledToFit()
                         .frame(width: 32, height: 32)
-                    Text("Dismiss")
+                    Text("DISMISS_LABEL")
                 }.padding()
             }
         }
@@ -493,8 +506,8 @@ struct BlankPage : View {
 struct DismissableLogDialog : View {
     @ObservedObject var stateKeeper: StateKeeper
     
-    func getTitle() -> String {
-        return stateKeeper.title ?? ""
+    func getTitle() -> LocalizedStringKey {
+        return stateKeeper.localizedTitle ?? ""
     }
 
     func getClientLog() -> String {
@@ -506,7 +519,7 @@ struct DismissableLogDialog : View {
             ScrollView {
                 Text(self.getTitle()).font(.title)
                 Button(action: {
-                    self.stateKeeper.showLog(title: "Session Log",
+                    self.stateKeeper.showLog(title: "SESSION_LOG_LABEL",
                                              text: self.getClientLog())
                 }) {
                     HStack(spacing: 10) {
@@ -514,7 +527,7 @@ struct DismissableLogDialog : View {
                             .resizable()
                             .scaledToFit()
                             .frame(width: 32, height: 32)
-                        Text("Log")
+                        Text("LOG_LABEL")
                     }.padding()
                 }
             }
@@ -526,7 +539,7 @@ struct DismissableLogDialog : View {
                         .resizable()
                         .scaledToFit()
                         .frame(width: 32, height: 32)
-                    Text("Dismiss")
+                    Text("DISMISS_LABEL")
                 }.padding()
             }
         }
@@ -536,12 +549,12 @@ struct DismissableLogDialog : View {
 struct DismissableMessageDialog : View {
     @ObservedObject var stateKeeper: StateKeeper
     
-    func getTitle() -> String {
-        return stateKeeper.title ?? ""
+    func getTitle() -> LocalizedStringKey {
+        return stateKeeper.localizedTitle ?? ""
     }
 
     func getMessage() -> String {
-        return stateKeeper.message ?? ""
+        return stateKeeper.message
     }
     
     var body: some View {
@@ -558,7 +571,7 @@ struct DismissableMessageDialog : View {
                         .resizable()
                         .scaledToFit()
                         .frame(width: 32, height: 32)
-                    Text("Dismiss")
+                    Text("DISMISS_LABEL")
                 }.padding()
             }
         }
@@ -568,12 +581,8 @@ struct DismissableMessageDialog : View {
 struct YesNoDialog : View {
     @ObservedObject var stateKeeper: StateKeeper
     
-    func getTitle() -> String {
-        return stateKeeper.title ?? ""
-    }
-    
-    func getMessage() -> String {
-        return stateKeeper.message ?? ""
+    func getLocalizedTitle() -> LocalizedStringKey {
+        return stateKeeper.localizedTitle ?? ""
     }
     
     func setResponse(response: Bool) -> Void {
@@ -584,15 +593,19 @@ struct YesNoDialog : View {
 
     var body: some View {
         VStack {
+            Text(self.getLocalizedTitle()).font(.title).padding()
+            Divider()
             ScrollView {
-                Text(self.getTitle()).font(.title)
-                Text(self.getMessage()).font(.body)
+                ForEach(self.stateKeeper.localizedMessages, id: \.self) { message in
+                    Text(message).font(.body).padding()
+                }
+                Text(self.stateKeeper.message).font(.body).padding()
             }
             HStack {
                 Button(action: {
                     self.setResponse(response: false)
                 }) {
-                    Text("No")
+                    Text("NO_LABEL")
                     .fontWeight(.bold)
                     .font(.title)
                     .padding(5)
@@ -604,7 +617,7 @@ struct YesNoDialog : View {
                 Button(action: {
                     self.setResponse(response: true)
                 }) {
-                    Text("Yes")
+                    Text("YES_LABEL")
                     .fontWeight(.bold)
                     .font(.title)
                     .padding(5)

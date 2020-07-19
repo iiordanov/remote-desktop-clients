@@ -28,8 +28,8 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
     var window: UIWindow?
     var title: String?
     var localizedTitle: LocalizedStringKey?
-    var message: String?
-    var localizedMessage: LocalizedStringKey?
+    var message: String = ""
+    var localizedMessages: [ LocalizedStringKey ] = []
     var yesNoDialogLock: NSLock = NSLock()
     var yesNoDialogResponse: Int32 = 0
     var imageView: TouchEnabledUIImageView?
@@ -342,9 +342,9 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
         }
     }
 
-    func showHelp(text: LocalizedStringKey) {
+    func showHelp(messages: [ LocalizedStringKey ]) {
         print("Showing help screen")
-        self.localizedMessage = text
+        self.localizedMessages = messages
         UserInterface {
             self.currentPage = "helpDialog"
         }
@@ -411,15 +411,15 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
         }
     }
     
-    func showError(title: String) {
-        self.title = title
+    func showError(title: LocalizedStringKey) {
+        self.localizedTitle = title
         UserInterface {
             self.currentPage = "dismissableErrorMessage"
         }
     }
 
-    func showLog(title: String, text: String) {
-        self.title = title
+    func showLog(title: LocalizedStringKey, text: String) {
+        self.localizedTitle = title
         self.message = text
         UserInterface {
             self.currentPage = "dismissableMessage"
@@ -610,9 +610,10 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
     /*
      Indicates the user will need to answer yes / no at a dialog.
      */
-    func yesNoResponseRequired(title: String, message: String) -> Int32 {
-        self.title = title
-        self.message = message
+    func yesNoResponseRequired(title: LocalizedStringKey, messages: [ LocalizedStringKey ], nonLocalizedMessage: String) -> Int32 {
+        self.localizedTitle = title
+        self.localizedMessages = messages
+        self.message = nonLocalizedMessage
         
         // Make sure current thread does not hold the lock
         self.yesNoDialogLock.unlock()

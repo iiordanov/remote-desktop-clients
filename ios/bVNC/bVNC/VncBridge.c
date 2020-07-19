@@ -120,19 +120,18 @@ void sendWholeScreenUpdateRequest(void *c, bool fullScreenUpdate) {
 int ssl_certificate_verification_callback(rfbClient *client, char* issuer, char* common_name,
 char* fingerprint_sha256, char* fingerprint_sha512, int pday, int psec) {
     char user_message[8192];
-
-    char validity[8];
-    snprintf(validity, 8, "Invalid");
+    int valid = 0;
+    
     if (pday >= 0 && psec > 0) {
-        snprintf(validity, 8, "Valid");
+        valid = 1;
     }
 
     snprintf(user_message, 8191,
-            "Issuer: %s\n\nCommon name: %s\n\nSHA256 Fingerprint: %s\n\nSHA512 Fingerprint: %s\n\n%s for %d days and %d seconds.\n",
-            issuer, common_name, fingerprint_sha256, fingerprint_sha512, validity, pday, psec);
+            "Issuer: %s\n\nCommon name: %s\n\nSHA256: %s\n\nSHA512: %s\n\n",
+            issuer, common_name, fingerprint_sha256, fingerprint_sha512);
     
-    int response = yes_no_callback(client->instance, (int8_t *)"Please verify VNC server certificate", (int8_t *)user_message,
-                                   (int8_t *)fingerprint_sha256, (int8_t *)fingerprint_sha512, (int8_t *)"X509");
+    int response = yes_no_callback(client->instance, (int8_t *)"PLEASE_VERIFY_X509_CERT_TITLE", (int8_t *)user_message,
+                                   (int8_t *)fingerprint_sha256, (int8_t *)fingerprint_sha512, (int8_t *)"X509", valid);
 
     return response;
 }
@@ -173,7 +172,7 @@ void *initializeVnc(int instance,
                    void (*cl_log_callback)(int8_t *),
                    void (*lock_wrt_tls_callback)(int instance),
                    void (*unlock_wrt_tls_callback)(int instance),
-                   int (*y_n_callback)(int instance, int8_t *, int8_t *, int8_t *, int8_t *, int8_t *),
+                   int (*y_n_callback)(int instance, int8_t *, int8_t *, int8_t *, int8_t *, int8_t *, int),
                    char* addr, char* user, char* password) {
     rfbClientLog("Initializing VNC session.\n");
     handle_signals();
@@ -222,7 +221,7 @@ void *initializeVnc(int instance,
     
     if (!rfbInitClient(cl, &argc, argv)) {
         cl = NULL; /* rfbInitClient has already freed the client struct */
-        cleanup(cl, "Failed to connect to server\n");
+        cleanup(cl, "FAILED_TO_INIT_CONNECTION_TO_SERVER");
     }
     printf("Done initializing VNC session\n");
     return (void *)cl;
@@ -241,7 +240,7 @@ void connectVnc(void *c) {
             break;
         }
         if (i < 0) {
-            cleanup(cl, "Connection to server failed\n");
+            cleanup(cl, "CONNECTION_FAILED");
             break;
         }
         //if (i) {
@@ -249,7 +248,7 @@ void connectVnc(void *c) {
         //}
         
         if (!HandleRFBServerMessage(cl)) {
-            cleanup(cl, "Connection to server failed\n");
+            cleanup(cl, "CONNECTION_FAILED");
             break;
         }
     }
@@ -268,7 +267,7 @@ void rfb_client_cleanup(rfbClient *cl) {
 }
 
 void cleanup(rfbClient *cl, char *message) {
-    rfbClientLog("%s", message);
+    rfbClientLog("%s\n", message);
     
     if (cl != NULL) {
         cl->maintainConnection = false;
@@ -389,8 +388,8 @@ void sendPointerEventToServer(void *c, float totalX, float totalY, float x, floa
 
 void checkForError(rfbClient *cl, rfbBool res) {
     if (cl == NULL) {
-        cleanup(cl, "Unexpectedly, RFB client object is null\n");
+        cleanup(cl, "RFB_CLIENT_OBJECT_NOT_INITIALIZED");
     } else if (!res) {
-        cleanup(cl, "Failed to send message to server\n");
+        cleanup(cl, "FAILED_TO_SEND_MESSAGE_TO_SERVER");
     }
 }
