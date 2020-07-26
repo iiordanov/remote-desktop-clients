@@ -101,7 +101,6 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
     
     RelativeLayout layoutKeys;
     LinearLayout layoutArrowKeys;
-    ImageButton keyStow;
     ImageButton keyCtrl;
     boolean keyCtrlToggled;
     ImageButton keySuper;
@@ -299,7 +298,6 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
                         if (layoutKeys != null) {
                             layoutKeys.offsetTopAndBottom(topBottomOffset);
                             layoutArrowKeys.offsetLeftAndRight(leftRightOffset);
-                            keyStow.offsetTopAndBottom(topBottomOffset);
                             if (prevBottomOffset != topBottomOffset) {
                                 prevBottomOffset = topBottomOffset;
                                 setExtraKeysVisibility(View.GONE, false);
@@ -315,7 +313,6 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
                         if (layoutKeys != null) {
                             layoutKeys.offsetTopAndBottom(topBottomOffset);
                             layoutArrowKeys.offsetLeftAndRight(leftRightOffset);
-                            keyStow.offsetTopAndBottom(topBottomOffset);
                             if (extraKeysHidden) {
                                 extraKeysHidden = !extraKeysHidden;
                                 setExtraKeysVisibility(View.VISIBLE, true);
@@ -464,12 +461,6 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
             replacer = getResources().getDrawable(R.drawable.showkeys);
         else
             replacer = getResources().getDrawable(R.drawable.hidekeys);
-        keyStow.setBackgroundDrawable(replacer);
-
-        if (connection.getExtraKeysToggleType() == RemoteClientLibConstants.EXTRA_KEYS_OFF)
-            keyStow.setVisibility(View.GONE);
-        else
-            keyStow.setVisibility(View.VISIBLE);
     }
     
     /**
@@ -480,22 +471,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
         layoutKeys = (RelativeLayout) findViewById(R.id.layoutKeys);
         layoutArrowKeys = (LinearLayout) findViewById(R.id.layoutArrowKeys);
 
-        keyStow = (ImageButton)    findViewById(R.id.keyStow);
         setKeyStowDrawableAndVisibility();
-        keyStow.setOnClickListener(new OnClickListener () {
-            @Override
-            public void onClick(View arg0) {
-                if (layoutKeys.getVisibility() == View.VISIBLE) {
-                    extraKeysHidden = true;
-                    setExtraKeysVisibility(View.GONE, false);
-                } else {
-                    extraKeysHidden = false;
-                    setExtraKeysVisibility(View.VISIBLE, true);
-                }
-                layoutKeys.offsetTopAndBottom(prevBottomOffset);
-                setKeyStowDrawableAndVisibility();
-            }
-        });
 
         // Define action of tab key and meta keys.
         keyTab = (ImageButton) findViewById(R.id.keyTab);
@@ -1062,7 +1038,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
         canvas.requestFocus();
         inputMgr.showSoftInput(canvas, 0);
         softKeyboardUp = true;
-        getSupportActionBar().hide();
+        //getSupportActionBar().hide();
     }
     
     @Override

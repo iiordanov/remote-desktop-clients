@@ -56,6 +56,7 @@ import android.os.Handler;
 import android.os.SystemClock;
 import android.os.Vibrator;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -146,7 +147,6 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
 
     RelativeLayout layoutKeys;
     LinearLayout layoutArrowKeys;
-    ImageButton keyStow;
     ImageButton keyCtrl;
     boolean keyCtrlToggled;
     ImageButton keySuper;
@@ -482,16 +482,17 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
         // We detect the keyboard if more than 19% of the screen is covered.
         // Use the visible display frame of the decor view to compute notch dimensions.
         int rootViewHeight = rootView.getHeight();
-        int rootViewWidth = rootView.getWidth();
 
         int layoutKeysBottom = layoutKeys.getBottom();
+        int toolbarBottom = toolbar.getBottom();
         int rootViewBottom = layoutKeys.getRootView().getBottom();
         int diffArrowKeysPosition = r.right - re.left - layoutArrowKeys.getRight();
         int diffLayoutKeysPosition = r.bottom - re.top - layoutKeysBottom;
-        int diffKeyStowPosition = r.bottom - re.top - keyStow.getBottom();
-        android.util.Log.d(TAG, "onGlobalLayout: after: r.bottom: " + r.bottom +
+        int diffToolbarPosition = r.bottom - re.top - toolbarBottom - r.bottom/2;
+        android.util.Log.d(TAG, "onGlobalLayout: before: r.bottom: " + r.bottom +
                 " rootViewHeight: " + rootViewHeight + " re.top: " + re.top + " re.bottom: " + re.bottom +
-                " layoutKeysBottom: " + layoutKeysBottom + " rootViewBottom: " + rootViewBottom);
+                " layoutKeysBottom: " + layoutKeysBottom + " rootViewBottom: " + rootViewBottom + " toolbarBottom: " + toolbarBottom +
+                " diffLayoutKeysPosition: " + diffLayoutKeysPosition + " diffToolbarPosition: " + diffToolbarPosition);
 
         if (r.bottom > rootViewHeight * 0.81) {
             android.util.Log.d(TAG, "onGlobalLayout: Less than 19% of screen is covered");
@@ -501,9 +502,9 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
             if (layoutKeys != null) {
                 android.util.Log.d(TAG, "onGlobalLayout: shifting on-screen buttons down by: " + diffLayoutKeysPosition);
                 layoutKeys.offsetTopAndBottom(diffLayoutKeysPosition);
+                toolbar.offsetTopAndBottom(diffToolbarPosition);
                 android.util.Log.d(TAG, "onGlobalLayout: shifting arrow keys by: " + diffArrowKeysPosition);
                 layoutArrowKeys.offsetLeftAndRight(diffArrowKeysPosition);
-                keyStow.offsetTopAndBottom(diffKeyStowPosition);
                 if (diffLayoutKeysPosition > 0) {
                     android.util.Log.d(TAG, "onGlobalLayout: hiding on-screen buttons");
                     setExtraKeysVisibility(View.GONE, false);
@@ -518,10 +519,9 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
             if (layoutKeys != null) {
                 android.util.Log.d(TAG, "onGlobalLayout: shifting on-screen buttons up by: " + diffLayoutKeysPosition);
                 layoutKeys.offsetTopAndBottom(diffLayoutKeysPosition);
-
+                toolbar.offsetTopAndBottom(diffToolbarPosition);
                 android.util.Log.d(TAG, "onGlobalLayout: shifting arrow keys by: " + diffArrowKeysPosition);
                 layoutArrowKeys.offsetLeftAndRight(diffArrowKeysPosition);
-                keyStow.offsetTopAndBottom(diffKeyStowPosition);
                 if (extraKeysHidden) {
                     android.util.Log.d(TAG, "onGlobalLayout: on-screen buttons should be hidden");
                     setExtraKeysVisibility(View.GONE, false);
@@ -536,7 +536,8 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
         rootViewBottom = layoutKeys.getRootView().getBottom();
         android.util.Log.d(TAG, "onGlobalLayout: after: r.bottom: " + r.bottom +
                 " rootViewHeight: " + rootViewHeight + " re.top: " + re.top + " re.bottom: " + re.bottom +
-                " layoutKeysBottom: " + layoutKeysBottom + " rootViewBottom: " + rootViewBottom);
+                " layoutKeysBottom: " + layoutKeysBottom + " rootViewBottom: " + rootViewBottom + " toolbarBottom: " + toolbarBottom +
+                " diffLayoutKeysPosition: " + diffLayoutKeysPosition + " diffToolbarPosition: " + diffToolbarPosition);
     }
 
     /**
@@ -628,52 +629,34 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
         return vvFileName;
     }
 
-    @SuppressWarnings("deprecation")
-    private void setKeyStowDrawableAndVisibility() {
-        Drawable replacer = null;
+    public void extraKeysToggle(MenuItem m) {
+        if (layoutKeys.getVisibility() == View.VISIBLE) {
+            extraKeysHidden = true;
+            setExtraKeysVisibility(View.GONE, false);
+        } else {
+            extraKeysHidden = false;
+            setExtraKeysVisibility(View.VISIBLE, true);
+        }
+        setKeyStowDrawableAndVisibility(m);
+        relayoutViews(rootView);
+    }
+
+    private void setKeyStowDrawableAndVisibility(MenuItem m) {
+        Drawable replacer;
         if (layoutKeys.getVisibility() == View.GONE)
             replacer = getResources().getDrawable(R.drawable.showkeys);
         else
             replacer = getResources().getDrawable(R.drawable.hidekeys);
-        
-        int sdk = android.os.Build.VERSION.SDK_INT;
-        if(sdk < android.os.Build.VERSION_CODES.JELLY_BEAN) {
-            keyStow.setBackgroundDrawable(replacer);
-        } else {
-            keyStow.setBackground(replacer);
-        }
 
-        // TODO: Implement for Opaque client
-        if (connection != null && connection.getExtraKeysToggleType() == Constants.EXTRA_KEYS_OFF)
-            keyStow.setVisibility(View.GONE);
-        else
-            keyStow.setVisibility(View.VISIBLE);
+        m.setIcon(replacer);
     }
     
     /**
      * Initializes the on-screen keys for meta keys and arrow keys.
      */
     private void initializeOnScreenKeys () {
-        
         layoutKeys = (RelativeLayout) findViewById(R.id.layoutKeys);
         layoutArrowKeys = (LinearLayout) findViewById(R.id.layoutArrowKeys);
-
-        keyStow = (ImageButton)    findViewById(R.id.keyStow);
-        setKeyStowDrawableAndVisibility();
-        keyStow.setOnClickListener(new OnClickListener () {
-            @Override
-            public void onClick(View arg0) {
-                if (layoutKeys.getVisibility() == View.VISIBLE) {
-                    extraKeysHidden = true;
-                    setExtraKeysVisibility(View.GONE, false);
-                } else {
-                    extraKeysHidden = false;
-                    setExtraKeysVisibility(View.VISIBLE, true);
-                }
-                setKeyStowDrawableAndVisibility();
-                relayoutViews(rootView);
-            }
-        });
 
         // Define action of tab key and meta keys.
         keyTab = (ImageButton) findViewById(R.id.keyTab);
@@ -1193,7 +1176,8 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
 
             OnTouchListener moveListener = new OnTouchViewMover(toolbar, handler, toolbarHider, hideToolbarDelay);
             ImageButton moveButton = new ImageButton(this);
-            moveButton.setBackgroundResource(R.drawable.ic_btn_move);
+
+            moveButton.setBackgroundResource(R.drawable.ic_all_out_gray_36dp);
             MenuItem moveToolbar = menu.findItem(R.id.moveToolbar);
             moveToolbar.setActionView(moveButton);
             moveToolbar.getActionView().setOnTouchListener(moveListener);
@@ -1363,7 +1347,6 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
                 setExtraKeysVisibility(View.VISIBLE, false);
                 extraKeysHidden = false;
             }
-            setKeyStowDrawableAndVisibility();
             connection.save(this);
             return true;
         } else if (itemId == R.id.itemHelpInputMode) {
@@ -1560,11 +1543,9 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
     ToolbarHiderRunnable toolbarHider = new ToolbarHiderRunnable();
     
     public void showToolbar() {
-        if (!softKeyboardUp) {
-            getSupportActionBar().show();
-            handler.removeCallbacks(toolbarHider);
-            handler.postAtTime(toolbarHider, SystemClock.uptimeMillis() + hideToolbarDelay);
-        }
+        getSupportActionBar().show();
+        handler.removeCallbacks(toolbarHider);
+        handler.postAtTime(toolbarHider, SystemClock.uptimeMillis() + hideToolbarDelay);
     }
 
     @Override

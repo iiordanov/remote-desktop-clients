@@ -7,6 +7,7 @@ android {
         targetSdkVersion 28
         minSdkVersion project.getProperties().get("SDK_VERSION")
         multiDexEnabled true
+        vectorDrawables.useSupportLibrary = true
     }
 
     buildTypes {
