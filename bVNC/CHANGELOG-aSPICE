@@ -6,6 +6,7 @@ v5.0.0
 - SSH library updated to latest version
 - Improved settings import/export functionality
 - Updated help
+- Bufixes and UX improvements for on-screen buttons 
 v4.3.0
 - Fix for SSH key generation instructions.
 - Fixes for devices with curved screens
