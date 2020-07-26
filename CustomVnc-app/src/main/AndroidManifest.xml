@@ -22,6 +22,16 @@
         android:anyDensity="true"/>
 		
     <application android:icon="@drawable/${custom_vnc_app_icon}" android:label="${custom_vnc_app_name}" android:allowBackup="false" android:theme="@style/AppTheme" android:name="com.iiordanov.bVNC.App" tools:replace="android:label,android:theme">
+                <activity android:name="com.undatech.opaque.ConnectionGridActivity"
+                          android:configChanges="keyboardHidden"
+                          android:label="${custom_vnc_app_name}"
+                          android:theme="@android:style/Theme.DeviceDefault">
+                        <intent-filter>
+                                <action android:name="android.intent.action.MAIN" />
+                                <category android:name="android.intent.category.LAUNCHER" />
+                                <category android:name="android.intent.category.MULTIWINDOW_LAUNCHER"></category>
+                        </intent-filter>
+                </activity>
                 <activity android:label="${custom_vnc_app_name}"
                           android:name="com.iiordanov.bVNC.CustomVnc"
                           android:screenOrientation="unspecified"
@@ -29,11 +39,6 @@
                           android:windowSoftInputMode="stateHidden|adjustResize"
                           android:theme="@style/AppThemeWithToolbar"
                           android:resizeableActivity="true">
-                        <intent-filter>
-                                <action android:name="android.intent.action.MAIN"></action>
-                                <category android:name="android.intent.category.LAUNCHER"></category>
-                                <category android:name="android.intent.category.MULTIWINDOW_LAUNCHER"></category>
-                        </intent-filter>
                 </activity>
                 <activity android:screenOrientation="unspecified"
                           android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|density|screenLayout"
@@ -86,6 +91,7 @@
                            android:resource="@dimen/app_minimumsize_w" />
                 <meta-data android:name="com.sec.android.multiwindow.MINIMUM_SIZE_H"
                            android:resource="@dimen/app_minimumsize_h" />
+        <activity android:name=".presentation.ShortcutsActivity" tools:node="remove"/>
         <meta-data android:name="com.samsung.android.keepalive.density" android:value="true"/>
     </application>
 </manifest> 

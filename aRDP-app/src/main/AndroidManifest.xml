@@ -24,7 +24,7 @@
 		
     <application android:icon="@drawable/icon_ardp" android:label="@string/ardp_app_name" android:allowBackup="false" android:theme="@style/AppTheme" android:name="com.iiordanov.bVNC.App" tools:replace="android:label,android:theme">
                 <activity android:name="com.undatech.opaque.ConnectionGridActivity"
-                    android:configChanges="orientation|screenSize|keyboardHidden"
+                    android:configChanges="keyboardHidden"
                     android:label="@string/ardp_app_name"
                     android:theme="@android:style/Theme.DeviceDefault">
                     <intent-filter>
