@@ -83,7 +83,19 @@ fi
 
 if [ -n "${CUSTOM_CLIENT}" ]
 then
+  if ! grep -q CUSTOM_APP_PACKAGE_NAME ../${CUSTOM_MANIFEST_EXTENSION}-app/src/main/AndroidManifest.xml
+  then
+    echo "Failed to find CUSTOM_APP_PACKAGE_NAME in manifest."
+    exit 1
+  fi
+
   sed -i.bakautocustom "s/CUSTOM_APP_PACKAGE_NAME/$PRJ/" ../${CUSTOM_MANIFEST_EXTENSION}-app/src/main/AndroidManifest.xml
+
+  if grep -q CUSTOM_APP_PACKAGE_NAME ../${CUSTOM_MANIFEST_EXTENSION}-app/src/main/AndroidManifest.xml
+  then
+    echo "Failed to set CUSTOM_APP_PACKAGE_NAME in manifest."
+    exit 1
+  fi
 fi
 
 if [ "$SKIP_BUILD" == "false" ]
