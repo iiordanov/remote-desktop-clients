@@ -318,7 +318,7 @@ public class Utils {
         else if (isRdp(packageName))
             res = "rdp_" + res;
         else if (isSpice(packageName))
-            res = "rdp_" + res;
+            res = "spice_" + res;
         else if (isOpaque(packageName))
             res = "opaque_settings.json";
         return res;
