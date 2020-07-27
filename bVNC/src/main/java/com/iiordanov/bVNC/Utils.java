@@ -235,7 +235,22 @@ public class Utils {
     public static String getConnectionString(Context ctx) {
         return ctx.getPackageName() + ".CONNECTION";
     }
-    
+
+    public static String[] standardPackageNames = {
+                    "com.iiordanov.bVNC", "com.iiordanov.freebVNC",
+                    "com.iiordanov.aRDP", "com.iiordanov.freeaRDP",
+                    "com.iiordanov.aSPICE", "com.iiordanov.freeaSPICE"
+    };
+
+    public static boolean isCustom(String packageName) {
+        for (String s: standardPackageNames) {
+            if (packageName.equals(s)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     public static boolean isVnc(String packageName) {
         return packageName.toLowerCase().contains("vnc");
     }
@@ -253,14 +268,27 @@ public class Utils {
     }
 
     public static Class getConnectionSetupClass(String packageName) {
+        boolean custom = isCustom(packageName);
         if (isOpaque(packageName)) {
             return ConnectionSetupActivity.class;
         } else if (isVnc(packageName)) {
-            return bVNC.class;
+            if (custom) {
+                return CustomVnc.class;
+            } else {
+                return bVNC.class;
+            }
         } else if (isRdp(packageName)) {
-            return aRDP.class;
+            if (custom) {
+                throw new IllegalArgumentException("Custom SPICE clients not supported yet.");
+            } else {
+                return aRDP.class;
+            }
         } else if (isSpice(packageName)) {
-            return aSPICE.class;
+            if (custom) {
+                throw new IllegalArgumentException("Custom SPICE clients not supported yet.");
+            } else {
+                return aSPICE.class;
+            }
         } else {
             throw new IllegalArgumentException("Could not find appropriate connection setup activity class for package " + packageName);
         }

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           xmlns:tools="http://schemas.android.com/tools"
-          package="com.iiordanov.CUSTOM_APP_PACKAGE_NAME"
+          package="com.iiordanov.CUSTOM_VNC_APP_PACKAGE_NAME"
           android:installLocation="auto"
           android:versionCode="115001" android:versionName="v5.0.0">
 
