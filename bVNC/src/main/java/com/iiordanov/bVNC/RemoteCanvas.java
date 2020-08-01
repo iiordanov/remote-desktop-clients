@@ -1584,11 +1584,11 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView
      */
     public void reDraw(int x, int y, int w, int h) {
         //android.util.Log.i(TAG, "reDraw called: " + x +", " + y + " + " + w + "x" + h);
-        float scale = getZoomFactor();
-        float shiftedX = x - shiftX;
-        float shiftedY = y - shiftY;
         long timeNow = System.currentTimeMillis();
-        if (timeNow - lastDraw > 0.166) {
+        if (timeNow - lastDraw > 33.3333) {
+            float scale = getZoomFactor();
+            float shiftedX = x - shiftX;
+            float shiftedY = y - shiftY;
             // Make the box slightly larger to avoid artifacts due to truncation errors.
             postInvalidate((int) ((shiftedX - 1) * scale), (int) ((shiftedY - 1) * scale),
                     (int) ((shiftedX + w + 1) * scale), (int) ((shiftedY + h + 1) * scale));
@@ -1602,11 +1602,11 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView
      * Causes a redraw of the myDrawable to happen at the indicated coordinates.
      */
     public void reDraw(float x, float y, float w, float h) {
-        float scale = getZoomFactor();
-        float shiftedX = x - shiftX;
-        float shiftedY = y - shiftY;
         long timeNow = System.currentTimeMillis();
-        if (timeNow - lastDraw > 0.166) {
+        if (timeNow - lastDraw > 33.3333) {
+            float scale = getZoomFactor();
+            float shiftedX = x - shiftX;
+            float shiftedY = y - shiftY;
             // Make the box slightly larger to avoid artifacts due to truncation errors.
             postInvalidate((int) ((shiftedX - 1.f) * scale), (int) ((shiftedY - 1.f) * scale),
                     (int) ((shiftedX + w + 1.f) * scale), (int) ((shiftedY + h + 1.f) * scale));
