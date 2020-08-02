@@ -468,7 +468,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
         getWindow().getDecorView().getWindowVisibleDisplayFrame(re);
         if (r.top == 0 || re.top > 0) {
             if (canvas.myDrawable != null) {
-                android.util.Log.d(TAG, "onGlobalLayout: Setting VisibleDesktopHeight to: " + r.bottom);
+                android.util.Log.d(TAG, "onGlobalLayout: Setting VisibleDesktopHeight to: " + (r.bottom - re.top));
                 canvas.setVisibleDesktopHeight(r.bottom - re.top);
                 canvas.relativePan(0, 0);
             } else {

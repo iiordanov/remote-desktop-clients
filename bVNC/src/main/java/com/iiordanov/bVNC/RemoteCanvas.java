@@ -1460,7 +1460,7 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView
      * @return True if the pan changed the view (did not move view out of bounds); false otherwise
      */
     public boolean relativePan(int dX, int dY) {
-        //android.util.Log.d(TAG, "relativePan: " + dX + ", " + dY);
+        android.util.Log.d(TAG, "relativePan: " + dX + ", " + dY);
 
         // We only pan if the current scaling is able to pan.
         if (canvasZoomer != null && !canvasZoomer.isAbleToPan())
@@ -1472,7 +1472,11 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView
         double sY = (double) dY / scale;
 
         int buttonAndCurveOffset = (int)(300/scale);
-        int curveOffset = (int)(100/scale);
+
+        int curveOffset = 0;
+        // If this is a relativePan called after a rotation, do not shift image down.
+        if ( dX != 0 && dY != 0)
+            curveOffset = (int)(100/scale);
 
         // Prevent panning above the desktop image except for provision for curved screens.
         if (absoluteXPosition + sX < 0)
