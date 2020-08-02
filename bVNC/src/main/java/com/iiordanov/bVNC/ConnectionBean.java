@@ -330,6 +330,7 @@ public class ConnectionBean extends AbstractConnectionBean implements Connection
     public synchronized void save(Context c) {
         Database database = new Database(c);
         save(database.getWritableDatabase());
+        database.close();
     }
 
     @Override
