@@ -16,7 +16,6 @@
             android:padding="5dip">
 
             <TableRow>
-
                 <TextView
                     android:id="@+id/connectionTypeLabel"
                     android:layout_width="wrap_content"
@@ -26,7 +25,6 @@
             </TableRow>
 
             <TableRow>
-
                 <Spinner
                     android:id="@+id/connectionType"
                     android:layout_width="fill_parent"
@@ -37,7 +35,6 @@
             </TableRow>
 
             <TableRow>
-
                 <EditText
                     android:id="@+id/textNickname"
                     android:layout_width="fill_parent"
@@ -49,7 +46,6 @@
             </TableRow>
 
             <TableRow>
-
                 <TextView
                     android:id="@+id/sshCaption"
                     android:layout_width="wrap_content"
@@ -59,7 +55,6 @@
             </TableRow>
 
             <TableRow>
-
                 <LinearLayout
                     android:id="@+id/sshServerEntry"
                     android:layout_width="fill_parent"
@@ -94,41 +89,52 @@
             </TableRow>
 
             <TableRow>
-
                 <LinearLayout
                     android:id="@+id/sshCredentials"
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
+                    android:orientation="vertical"
                     android:layout_weight="1"
-                    android:orientation="horizontal"
                     android:visibility="gone">
 
-                    <EditText
-                        android:id="@+id/sshUser"
+                    <LinearLayout
                         android:layout_width="fill_parent"
                         android:layout_height="wrap_content"
-                        android:layout_weight=".5"
-                        android:hint="@string/username_hint_ssh"
-                        android:inputType="textNoSuggestions|textVisiblePassword"
-                        android:nextFocusDown="@+id/sshPassword"
                         android:singleLine="true"
-                        android:textAppearance="?android:attr/textAppearanceMedium" />
+                        android:orientation="horizontal"
+                        android:padding="0dp">
 
+                        <EditText
+                            android:id="@+id/sshUser"
+                            android:layout_width="fill_parent"
+                            android:layout_height="wrap_content"
+                            android:hint="@string/username_hint_ssh"
+                            android:inputType="textNoSuggestions|textVisiblePassword"
+                            android:nextFocusDown="@+id/sshPassword"
+                            android:layout_weight="1"
+                            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+                        <EditText
+                            android:id="@+id/sshPassword"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:hint="@string/password_hint_ssh"
+                            android:inputType="textNoSuggestions|textPassword"
+                            android:layout_weight="0"
+                            android:textAppearance="?android:attr/textAppearanceMedium" />
+                    </LinearLayout>
                     <EditText
-                        android:id="@+id/sshPassword"
+                        android:id="@+id/sshPassphrase"
                         android:layout_width="fill_parent"
                         android:layout_height="wrap_content"
-                        android:layout_weight=".5"
-                        android:hint="@string/password_hint_ssh"
-                        android:inputType="textNoSuggestions"
-                        android:password="true"
+                        android:hint="@string/ssh_passphrase_hint"
+                        android:inputType="textNoSuggestions|textPassword"
                         android:singleLine="true"
                         android:textAppearance="?android:attr/textAppearanceMedium" />
                 </LinearLayout>
             </TableRow>
 
             <TableRow>
-
                 <LinearLayout
                     android:id="@+id/layoutUseSshPubkey"
                     android:layout_width="fill_parent"
@@ -142,17 +148,6 @@
                         android:layout_height="wrap_content"
                         android:orientation="horizontal">
 
-                        <EditText
-                            android:id="@+id/sshPassphrase"
-                            android:layout_width="fill_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_weight=".5"
-                            android:hint="@string/ssh_passphrase_hint"
-                            android:inputType="textNoSuggestions"
-                            android:password="true"
-                            android:singleLine="true"
-                            android:textAppearance="?android:attr/textAppearanceMedium" />
-
                         <CheckBox
                             android:id="@+id/checkboxUseSshPubkey"
                             android:layout_width="fill_parent"
@@ -161,6 +156,16 @@
                             android:checked="false"
                             android:singleLine="true"
                             android:text="@string/ssh_use_pubkey"
+                            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+                        <CheckBox
+                            android:id="@+id/checkboxKeepSshPass"
+                            android:layout_width="fill_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_weight=".5"
+                            android:checked="false"
+                            android:singleLine="true"
+                            android:text="@string/keep_password_button"
                             android:textAppearance="?android:attr/textAppearanceMedium" />
                     </LinearLayout>
 
@@ -175,7 +180,6 @@
             </TableRow>
 
             <TableRow>
-
                 <LinearLayout
                     android:id="@+id/layoutUseX11Vnc"
                     android:layout_width="fill_parent"
@@ -207,7 +211,6 @@
             </TableRow>
 
             <TableRow>
-
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -216,7 +219,6 @@
             </TableRow>
 
             <TableRow>
-
                 <LinearLayout
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
@@ -248,7 +250,6 @@
             </TableRow>
 
             <TableRow>
-
                 <EditText
                     android:id="@+id/textUsername"
                     android:layout_width="fill_parent"
@@ -261,7 +262,6 @@
             </TableRow>
 
             <TableRow>
-
                 <LinearLayout
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
@@ -274,8 +274,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:hint="@string/password_caption_hint"
-                        android:inputType="textNoSuggestions"
-                        android:password="true"
+                        android:inputType="textNoSuggestions|textPassword"
                         android:singleLine="true"
                         android:textAppearance="?android:attr/textAppearanceMedium" />
 
@@ -317,7 +316,7 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="0dip"
+            android:padding="5dip"
             android:visibility="gone">
 
             <Spinner
@@ -475,7 +474,7 @@
                 android:id="@+id/versionAndCode"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceMedium" />s
+                android:textAppearance="?android:attr/textAppearanceMedium" />
         </LinearLayout>
 
         <LinearLayout

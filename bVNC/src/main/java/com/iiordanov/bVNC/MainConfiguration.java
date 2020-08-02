@@ -20,9 +20,13 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewConfiguration;
+import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.RadioGroup;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -47,6 +51,18 @@ public abstract class MainConfiguration extends FragmentActivity {
     protected PermissionsManager permissionsManager;
     private RadioGroup radioCursor;
 
+    protected Spinner connectionType;
+    protected int selectedConnType;
+    protected EditText ipText;
+
+    private TextView sshCaption;
+    private LinearLayout sshCredentials;
+    private LinearLayout layoutUseSshPubkey;
+    private LinearLayout sshServerEntry;
+    private EditText sshPassword;
+    private EditText sshPassphrase;
+    private CheckBox checkboxKeepSshPass;
+
     private boolean isNewConnection;
     private long connID = 0;
 
@@ -54,6 +70,27 @@ public abstract class MainConfiguration extends FragmentActivity {
     protected abstract void updateSelectedFromView();
 
     public void commonUpdateViewFromSelected() {
+        selectedConnType = selected.getConnectionType();
+        connectionType.setSelection(selectedConnType);
+        checkboxKeepSshPass.setChecked(selected.getKeepSshPassword());
+
+        if (selected.getKeepSshPassword() || selected.getSshPassword().length() > 0) {
+            sshPassword.setText(selected.getSshPassword());
+        } else {
+            sshPassword.setText("");
+        }
+
+        if (selected.getKeepSshPassword() || selected.getSshPassPhrase().length() > 0) {
+            sshPassphrase.setText(selected.getSshPassPhrase());
+        } else {
+            sshPassphrase.setText("");
+        }
+
+        if (selectedConnType == Constants.CONN_TYPE_SSH && selected.getAddress().equals(""))
+            ipText.setText("localhost");
+        else
+            ipText.setText(selected.getAddress());
+
         if (selected.getUseLocalCursor() == Constants.CURSOR_AUTO) {
             radioCursor.check(R.id.radioCursorAuto);
         } else if (selected.getUseLocalCursor() == Constants.CURSOR_FORCE_LOCAL) {
@@ -64,6 +101,12 @@ public abstract class MainConfiguration extends FragmentActivity {
     }
 
     public void commonUpdateSelectedFromView() {
+        selected.setConnectionType(selectedConnType);
+        selected.setAddress(ipText.getText().toString());
+        selected.setSshPassPhrase(sshPassphrase.getText().toString());
+        selected.setSshPassword(sshPassword.getText().toString());
+        selected.setKeepSshPassword(checkboxKeepSshPass.isChecked());
+
         if (radioCursor.getCheckedRadioButtonId() == R.id.radioCursorAuto) {
             selected.setUseLocalCursor(Constants.CURSOR_AUTO);
         } else if (radioCursor.getCheckedRadioButtonId() == R.id.radioCursorForceLocal) {
@@ -132,6 +175,49 @@ public abstract class MainConfiguration extends FragmentActivity {
         });
 
         radioCursor = findViewById(R.id.radioCursor);
+
+        sshCredentials = (LinearLayout) findViewById(R.id.sshCredentials);
+        sshCaption = (TextView) findViewById(R.id.sshCaption);
+        layoutUseSshPubkey = (LinearLayout) findViewById(R.id.layoutUseSshPubkey);
+        sshServerEntry = (LinearLayout) findViewById(R.id.sshServerEntry);
+        sshPassword = (EditText) findViewById(R.id.sshPassword);
+        sshPassphrase = (EditText) findViewById(R.id.sshPassphrase);
+
+        // Define what happens when somebody selects different connection types.
+        connectionType = (Spinner) findViewById(R.id.connectionType);
+        connectionType.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> ad, View view, int itemIndex, long id) {
+                selectedConnType = itemIndex;
+                selected.setConnectionType(selectedConnType);
+                selected.save(MainConfiguration.this);
+                if (selectedConnType == Constants.CONN_TYPE_PLAIN) {
+                    setVisibilityOfSshWidgets (View.GONE);
+                } else if (selectedConnType == Constants.CONN_TYPE_SSH) {
+                    setVisibilityOfSshWidgets (View.VISIBLE);
+                    if (ipText.getText().toString().equals(""))
+                        ipText.setText("localhost");
+                }
+                updateViewFromSelected();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> ad) {
+            }
+        });
+
+        ipText = (EditText) findViewById(R.id.textIP);
+        checkboxKeepSshPass = (CheckBox) findViewById(R.id.checkboxKeepSshPass);
+    }
+
+    /**
+     * Makes the ssh-related widgets visible/invisible.
+     */
+    protected void setVisibilityOfSshWidgets (int visibility) {
+        sshCredentials.setVisibility(visibility);
+        sshCaption.setVisibility(visibility);
+        layoutUseSshPubkey.setVisibility(visibility);
+        sshServerEntry.setVisibility(visibility);
     }
 
     @Override

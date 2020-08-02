@@ -54,20 +54,11 @@ import com.antlersoft.android.dbimpl.*;
  */
 public class bVNC extends MainConfiguration {
     private final static String TAG = "androidVNC";
-    private Spinner connectionType;
-    private int selectedConnType;
-    private TextView sshCaption;
-    private LinearLayout sshCredentials;
-    private LinearLayout layoutUseSshPubkey;
     private LinearLayout layoutUseX11Vnc;
-    private LinearLayout sshServerEntry;
     private LinearLayout layoutAdvancedSettings;
     private EditText sshServer;
     private EditText sshPort;
     private EditText sshUser;
-    private EditText sshPassword;
-    private EditText sshPassphrase;
-    private EditText ipText;
     private EditText portText;
     private EditText passwordText;
     private Button repeaterButton;
@@ -95,21 +86,12 @@ public class bVNC extends MainConfiguration {
     @Override
     public void onCreate(Bundle icicle) {
         layoutID = R.layout.main;
-
         super.onCreate(icicle);
 
-
-        ipText = (EditText) findViewById(R.id.textIP);
         sshServer = (EditText) findViewById(R.id.sshServer);
         sshPort = (EditText) findViewById(R.id.sshPort);
         sshUser = (EditText) findViewById(R.id.sshUser);
-        sshPassword = (EditText) findViewById(R.id.sshPassword);
-        sshPassphrase = (EditText) findViewById(R.id.sshPassphrase);
-        sshCredentials = (LinearLayout) findViewById(R.id.sshCredentials);
-        sshCaption = (TextView) findViewById(R.id.sshCaption);
-        layoutUseSshPubkey = (LinearLayout) findViewById(R.id.layoutUseSshPubkey);
         layoutUseX11Vnc = (LinearLayout) findViewById(R.id.layoutUseX11Vnc);
-        sshServerEntry = (LinearLayout) findViewById(R.id.sshServerEntry);
         portText = (EditText) findViewById(R.id.textPORT);
         passwordText = (EditText) findViewById(R.id.textPASSWORD);
         textNickname = (EditText) findViewById(R.id.textNickname);
@@ -144,8 +126,9 @@ public class bVNC extends MainConfiguration {
         connectionType.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> ad, View view, int itemIndex, long id) {
-
                 selectedConnType = itemIndex;
+                selected.setConnectionType(selectedConnType);
+                selected.save(bVNC.this);
                 if (selectedConnType == Constants.CONN_TYPE_PLAIN ||
                         selectedConnType == Constants.CONN_TYPE_ANONTLS ||
                         selectedConnType == Constants.CONN_TYPE_STUNNEL) {
@@ -174,6 +157,7 @@ public class bVNC extends MainConfiguration {
                     ipText.setHint(R.string.address_caption_hint);
                     textUsername.setHint(R.string.username_hint_vencrypt);
                 }
+                updateViewFromSelected();
             }
 
             @Override
@@ -226,16 +210,12 @@ public class bVNC extends MainConfiguration {
         repeaterText = (TextView) findViewById(R.id.textRepeaterId);
     }
 
-
     /**
      * Makes the ssh-related widgets visible/invisible.
      */
-    private void setVisibilityOfSshWidgets(int visibility) {
-        sshCredentials.setVisibility(visibility);
-        sshCaption.setVisibility(visibility);
-        layoutUseSshPubkey.setVisibility(visibility);
+    protected void setVisibilityOfSshWidgets(int visibility) {
+        super.setVisibilityOfSshWidgets(visibility);
         layoutUseX11Vnc.setVisibility(visibility);
-        sshServerEntry.setVisibility(visibility);
     }
 
     /**
@@ -274,22 +254,15 @@ public class bVNC extends MainConfiguration {
     }
 
     public void updateViewFromSelected() {
-        commonUpdateViewFromSelected();
-
         if (selected == null)
             return;
-        selectedConnType = selected.getConnectionType();
-        connectionType.setSelection(selectedConnType);
+        super.commonUpdateViewFromSelected();
+
         sshServer.setText(selected.getSshServer());
         sshPort.setText(Integer.toString(selected.getSshPort()));
         sshUser.setText(selected.getSshUser());
 
         checkboxUseSshPubkey.setChecked(selected.getUseSshPubKey());
-
-        if (selectedConnType == Constants.CONN_TYPE_SSH && selected.getAddress().equals(""))
-            ipText.setText("localhost");
-        else
-            ipText.setText(selected.getAddress());
 
         // If we are doing automatic X session discovery, then disable
         // vnc address, vnc port, and vnc password, and vice-versa
@@ -363,13 +336,11 @@ public class bVNC extends MainConfiguration {
     }
 
     protected void updateSelectedFromView() {
-        commonUpdateSelectedFromView();
+        super.commonUpdateSelectedFromView();
 
         if (selected == null) {
             return;
         }
-        selected.setConnectionType(selectedConnType);
-        selected.setAddress(ipText.getText().toString());
         try {
             selected.setPort(Integer.parseInt(portText.getText().toString()));
             selected.setSshPort(Integer.parseInt(sshPort.getText().toString()));
@@ -380,13 +351,9 @@ public class bVNC extends MainConfiguration {
         selected.setSshServer(sshServer.getText().toString());
         selected.setSshUser(sshUser.getText().toString());
 
-        selected.setKeepSshPassword(false);
-
         // If we are using an SSH key, then the ssh password box is used
         // for the key pass-phrase instead.
         selected.setUseSshPubKey(checkboxUseSshPubkey.isChecked());
-        selected.setSshPassPhrase(sshPassphrase.getText().toString());
-        selected.setSshPassword(sshPassword.getText().toString());
         selected.setUserName(textUsername.getText().toString());
         selected.setForceFull(groupForceFullScreen.getCheckedRadioButtonId() == R.id.radioForceFullScreenAuto ? BitmapImplHint.AUTO : (groupForceFullScreen.getCheckedRadioButtonId() == R.id.radioForceFullScreenOn ? BitmapImplHint.FULL : BitmapImplHint.TILE));
         selected.setPassword(passwordText.getText().toString());

@@ -56,7 +56,10 @@ public interface Connection {
     
     String getPassword();
     void setPassword(String password);
-    
+
+    boolean getKeepPassword();
+    void setKeepPassword(boolean keepPassword);
+
     String getOtpCode();
     void setOtpCode(String otpCode);
 

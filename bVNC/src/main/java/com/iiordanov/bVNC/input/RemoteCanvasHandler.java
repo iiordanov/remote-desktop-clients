@@ -33,12 +33,12 @@ public class RemoteCanvasHandler extends Handler {
     private void showGetTextFragment(String tag, String dialogId, String title,
                                       GetTextFragment.OnFragmentDismissedListener dismissalListener,
                                       int dialogType, int messageNum, int errorNum,
-                                      String t1, String t2, String t3) {
+                                      String t1, String t2, String t3, boolean keep) {
         if (c.pd != null && c.pd.isShowing()) {
             c.pd.dismiss();
         }
         GetTextFragment frag = GetTextFragment.newInstance(dialogId, title, dismissalListener,
-                dialogType, messageNum, errorNum, t1, t2, t3);
+                dialogType, messageNum, errorNum, t1, t2, t3, keep);
         frag.setCancelable(false);
         frag.show(fm, tag);
     }
@@ -61,7 +61,7 @@ public class RemoteCanvasHandler extends Handler {
                         context.getString(R.string.verification_code),
                         c.sshConnection, GetTextFragment.Plaintext,
                         R.string.verification_code_message, R.string.verification_code,
-                        null, null, null);
+                        null, null, null, false);
                 break;
             case RemoteClientLibConstants.GET_SSH_CREDENTIALS:
                 showGetTextFragment(context.getString(R.string.enter_ssh_credentials),
@@ -69,7 +69,8 @@ public class RemoteCanvasHandler extends Handler {
                         context.getString(R.string.enter_ssh_credentials),
                         c.sshConnection, GetTextFragment.CredentialsWithReadOnlyUser,
                         R.string.enter_ssh_credentials, R.string.enter_ssh_credentials,
-                        settings.getSshUser(), settings.getSshPassword(), null);
+                        settings.getSshUser(), settings.getSshPassword(), null,
+                        settings.getKeepSshPassword());
                 break;
             case RemoteClientLibConstants.GET_SSH_PASSPHRASE:
                 showGetTextFragment(context.getString(R.string.ssh_passphrase_hint),
@@ -77,7 +78,7 @@ public class RemoteCanvasHandler extends Handler {
                         context.getString(R.string.enter_passphrase_title),
                         c.sshConnection, GetTextFragment.Password,
                         R.string.enter_passphrase, R.string.ssh_passphrase_hint,
-                        null, null, null);
+                        null, null, null, settings.getKeepSshPassword());
                 break;
             case RemoteClientLibConstants.GET_VNC_PASSWORD:
                 showGetTextFragment(context.getString(R.string.enter_vnc_password),
@@ -85,7 +86,7 @@ public class RemoteCanvasHandler extends Handler {
                         context.getString(R.string.enter_vnc_password),
                         c, GetTextFragment.Password,
                         R.string.enter_vnc_password, R.string.enter_vnc_password,
-                        settings.getPassword(), null, null);
+                        settings.getPassword(), null, null, settings.getKeepPassword());
                 break;
             case RemoteClientLibConstants.GET_VNC_CREDENTIALS:
                 showGetTextFragment(context.getString(R.string.enter_vnc_credentials),
@@ -93,7 +94,8 @@ public class RemoteCanvasHandler extends Handler {
                         context.getString(R.string.enter_vnc_credentials),
                         c, GetTextFragment.Credentials,
                         R.string.enter_vnc_credentials, R.string.enter_vnc_credentials,
-                        settings.getUserName(), settings.getPassword(), null);
+                        settings.getUserName(), settings.getPassword(), null,
+                        settings.getKeepPassword());
                 break;
             case RemoteClientLibConstants.GET_RDP_CREDENTIALS:
                 showGetTextFragment(context.getString(R.string.enter_rdp_credentials),
@@ -101,7 +103,8 @@ public class RemoteCanvasHandler extends Handler {
                         context.getString(R.string.enter_rdp_credentials),
                         c, GetTextFragment.CredentialsWithDomain,
                         R.string.enter_rdp_credentials, R.string.enter_rdp_credentials,
-                        settings.getUserName(), settings.getRdpDomain(), settings.getPassword());
+                        settings.getUserName(), settings.getRdpDomain(), settings.getPassword(),
+                        settings.getKeepPassword());
                 break;
             case RemoteClientLibConstants.GET_SPICE_PASSWORD:
                 showGetTextFragment(context.getString(R.string.enter_spice_password),
@@ -109,7 +112,7 @@ public class RemoteCanvasHandler extends Handler {
                         context.getString(R.string.enter_spice_password),
                         c, GetTextFragment.Password,
                         R.string.enter_spice_password, R.string.enter_spice_password,
-                        settings.getPassword(), null, null);
+                        settings.getPassword(), null, null, settings.getKeepPassword());
                 break;
             case RemoteClientLibConstants.DIALOG_X509_CERT:
                 android.util.Log.d(TAG, "DIALOG_X509_CERT");

@@ -161,13 +161,13 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
             getPassword = GetTextFragment.newInstance(GetTextFragment.DIALOG_ID_GET_MASTER_PASSWORD,
                     getString(R.string.master_password_verify), this,
                     GetTextFragment.Password, R.string.master_password_verify_message,
-                    R.string.master_password_set_error, null, null, null);
+                    R.string.master_password_set_error, null, null, null, false);
         }
         if (getNewPassword == null) {
             getNewPassword = GetTextFragment.newInstance(GetTextFragment.DIALOG_ID_GET_MATCHING_MASTER_PASSWORDS,
                     getString(R.string.master_password_set), this,
                     GetTextFragment.MatchingPasswordTwice, R.string.master_password_set_message,
-                    R.string.master_password_set_error, null, null, null);
+                    R.string.master_password_set_error, null, null, null, false);
         }
     }
 
@@ -470,7 +470,7 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
         return result;
     }
 
-    public void onTextObtained(String dialogId, String[] obtainedStrings, boolean wasCancelled) {
+    public void onTextObtained(String dialogId, String[] obtainedStrings, boolean wasCancelled, boolean keep) {
         handlePassword(obtainedStrings[0], wasCancelled);
     }
 

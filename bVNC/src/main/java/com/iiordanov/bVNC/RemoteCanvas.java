@@ -2063,7 +2063,7 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView
     }
 
     @Override
-    public void onTextObtained(String dialogId, String[] obtainedString, boolean dialogCancelled) {
+    public void onTextObtained(String dialogId, String[] obtainedString, boolean dialogCancelled, boolean save) {
         if (dialogCancelled) {
             handler.sendEmptyMessage(RemoteClientLibConstants.DISCONNECT_NO_MESSAGE);
             return;
@@ -2074,11 +2074,15 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView
                 android.util.Log.i(TAG, "Text obtained from DIALOG_ID_GET_VNC_USERNAME.");
                 connection.setUserName(obtainedString[0]);
                 connection.setPassword(obtainedString[1]);
+                connection.setKeepPassword(save);
+                connection.save(getContext());
                 handler.sendEmptyMessage(RemoteClientLibConstants.REINIT_SESSION);
                 break;
             case GetTextFragment.DIALOG_ID_GET_VNC_PASSWORD:
                 android.util.Log.i(TAG, "Text obtained from DIALOG_ID_GET_VNC_PASSWORD.");
                 connection.setPassword(obtainedString[0]);
+                connection.setKeepPassword(save);
+                connection.save(getContext());
                 handler.sendEmptyMessage(RemoteClientLibConstants.REINIT_SESSION);
                 break;
             case GetTextFragment.DIALOG_ID_GET_RDP_CREDENTIALS:
@@ -2086,11 +2090,15 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView
                 connection.setUserName(obtainedString[0]);
                 connection.setRdpDomain(obtainedString[1]);
                 connection.setPassword(obtainedString[2]);
+                connection.setKeepPassword(save);
+                connection.save(getContext());
                 handler.sendEmptyMessage(RemoteClientLibConstants.REINIT_SESSION);
                 break;
             case GetTextFragment.DIALOG_ID_GET_SPICE_PASSWORD:
-                android.util.Log.i(TAG, "Text obtained from DIALOG_ID_GET_VNC_PASSWORD.");
+                android.util.Log.i(TAG, "Text obtained from DIALOG_ID_GET_SPICE_PASSWORD.");
                 connection.setPassword(obtainedString[0]);
+                connection.setKeepPassword(save);
+                connection.save(getContext());
                 handler.sendEmptyMessage(RemoteClientLibConstants.REINIT_SESSION);
                 break;
             default:

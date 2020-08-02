@@ -67,19 +67,10 @@ import com.undatech.remoteClientUi.*;
  */
 public class aSPICE extends MainConfiguration {
     private final static String TAG = "aSPICE";
-    private Spinner connectionType;
-    private int selectedConnType;
-    private TextView sshCaption;
-    private LinearLayout sshCredentials;
-    private LinearLayout layoutUseSshPubkey;
-    private LinearLayout sshServerEntry;
     private LinearLayout layoutAdvancedSettings;
     private EditText sshServer;
     private EditText sshPort;
     private EditText sshUser;
-    private EditText sshPassword;
-    private EditText sshPassphrase;
-    private EditText ipText;
     private EditText portText;
     private Button buttonImportCa;
     private EditText tlsPort;
@@ -102,16 +93,9 @@ public class aSPICE extends MainConfiguration {
         layoutID = R.layout.main_spice;
         super.onCreate(icicle);
         
-        ipText = (EditText) findViewById(R.id.textIP);
         sshServer = (EditText) findViewById(R.id.sshServer);
         sshPort = (EditText) findViewById(R.id.sshPort);
         sshUser = (EditText) findViewById(R.id.sshUser);
-        sshPassword = (EditText) findViewById(R.id.sshPassword);
-        sshPassphrase = (EditText) findViewById(R.id.sshPassphrase);
-        sshCredentials = (LinearLayout) findViewById(R.id.sshCredentials);
-        sshCaption = (TextView) findViewById(R.id.sshCaption);
-        layoutUseSshPubkey = (LinearLayout) findViewById(R.id.layoutUseSshPubkey);
-        sshServerEntry = (LinearLayout) findViewById(R.id.sshServerEntry);
         portText = (EditText) findViewById(R.id.textPORT);
         tlsPort = (EditText) findViewById(R.id.tlsPort);
         passwordText = (EditText) findViewById(R.id.textPASSWORD);
@@ -129,30 +113,6 @@ public class aSPICE extends MainConfiguration {
         // Here we say what happens when the Pubkey Checkbox is
         // checked/unchecked.
         checkboxUseSshPubkey = (CheckBox) findViewById(R.id.checkboxUseSshPubkey);
-        
-        // Define what happens when somebody selects different VNC connection
-        // types.
-        connectionType = (Spinner) findViewById(R.id.connectionType);
-        connectionType
-                .setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                    @Override
-                    public void onItemSelected(AdapterView<?> ad, View view,
-                            int itemIndex, long id) {
-                        
-                        selectedConnType = itemIndex;
-                        if (selectedConnType == Constants.CONN_TYPE_PLAIN) {
-                            setVisibilityOfSshWidgets(View.GONE);
-                        } else if (selectedConnType == Constants.CONN_TYPE_SSH) {
-                            setVisibilityOfSshWidgets(View.VISIBLE);
-                            if (ipText.getText().toString().equals(""))
-                                ipText.setText("localhost");
-                        }
-                    }
-
-                    @Override
-                    public void onNothingSelected(AdapterView<?> ad) {
-                    }
-                });
 
         checkboxKeepPassword = (CheckBox) findViewById(R.id.checkboxKeepPassword);
         checkboxUseDpadAsArrows = (CheckBox) findViewById(R.id.checkboxUseDpadAsArrows);
@@ -204,16 +164,6 @@ public class aSPICE extends MainConfiguration {
     }
 
     /**
-     * Makes the ssh-related widgets visible/invisible.
-     */
-    private void setVisibilityOfSshWidgets(int visibility) {
-        sshCredentials.setVisibility(visibility);
-        sshCaption.setVisibility(visibility);
-        layoutUseSshPubkey.setVisibility(visibility);
-        sshServerEntry.setVisibility(visibility);
-    }
-
-    /**
      * Enables and disables the EditText boxes for width and height of remote desktop.
      */
     private void setRemoteWidthAndHeight () {
@@ -240,23 +190,15 @@ public class aSPICE extends MainConfiguration {
     }
 
     public void updateViewFromSelected() {
-        commonUpdateViewFromSelected();
+        super.commonUpdateViewFromSelected();
 
         if (selected == null)
             return;
-        selectedConnType = selected.getConnectionType();
-        connectionType.setSelection(selectedConnType);
         sshServer.setText(selected.getSshServer());
         sshPort.setText(Integer.toString(selected.getSshPort()));
         sshUser.setText(selected.getSshUser());
 
         checkboxUseSshPubkey.setChecked(selected.getUseSshPubKey());
-
-        if (selectedConnType == Constants.CONN_TYPE_SSH
-                && selected.getAddress().equals(""))
-            ipText.setText("localhost");
-        else
-            ipText.setText(selected.getAddress());
 
         if (selected.getPort() < 0) {
             portText.setText("");
@@ -308,14 +250,11 @@ public class aSPICE extends MainConfiguration {
     }
 
     protected void updateSelectedFromView() {
-        commonUpdateSelectedFromView();
-
         if (selected == null) {
             return;
         }
-        selected.setConnectionType(selectedConnType);
-        selected.setAddress(ipText.getText().toString());
-        
+        super.commonUpdateSelectedFromView();
+
         String port = portText.getText().toString();
         if (!port.equals("")) {
             try {
@@ -343,13 +282,9 @@ public class aSPICE extends MainConfiguration {
         selected.setSshServer(sshServer.getText().toString());
         selected.setSshUser(sshUser.getText().toString());
 
-        selected.setKeepSshPassword(false);
-
         // If we are using an SSH key, then the ssh password box is used
         // for the key pass-phrase instead.
         selected.setUseSshPubKey(checkboxUseSshPubkey.isChecked());
-        selected.setSshPassPhrase(sshPassphrase.getText().toString());
-        selected.setSshPassword(sshPassword.getText().toString());
         selected.setRdpResType(spinnerGeometry.getSelectedItemPosition());
         try    {
             selected.setRdpWidth(Integer.parseInt(resWidth.getText().toString()));

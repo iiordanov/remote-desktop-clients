@@ -213,6 +213,16 @@ public class ConnectionSettings implements Connection, Serializable {
     }
 
     @Override
+    public boolean getKeepPassword() {
+        return false;
+    }
+
+    @Override
+    public void setKeepPassword(boolean keepPassword) {
+
+    }
+
+    @Override
     public String getOtpCode() {
         return otpCode;
     }

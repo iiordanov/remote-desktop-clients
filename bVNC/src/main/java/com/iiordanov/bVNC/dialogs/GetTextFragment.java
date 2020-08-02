@@ -33,6 +33,7 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -59,7 +60,7 @@ public class GetTextFragment extends DialogFragment {
     public static final String DIALOG_ID_GET_SPICE_PASSWORD            = "DIALOG_ID_GET_SPICE_PASSWORD";
 
     public interface OnFragmentDismissedListener {
-        void onTextObtained(String dialogId, String[] obtainedStrings, boolean dialogCancelled);
+        void onTextObtained(String dialogId, String[] obtainedStrings, boolean dialogCancelled, boolean save);
     }
 
     private class TextMatcher implements TextWatcher {
@@ -82,12 +83,14 @@ public class GetTextFragment extends DialogFragment {
     private EditText textBox3;
     private Button buttonConfirm;
     private Button buttonCancel;
+    private CheckBox checkboxKeepPassword;
     private OnFragmentDismissedListener dismissalListener;
 	private String title;
     private String dialogId;
     private String t1;
     private String t2;
     private String t3;
+    private boolean keepPassword;
 
     private int dialogType = 0;
     private int messageNum = 0;
@@ -96,8 +99,10 @@ public class GetTextFragment extends DialogFragment {
     public GetTextFragment () {
     }
 
-    public static GetTextFragment newInstance(String dialogId, String title, OnFragmentDismissedListener dismissalListener,
-	                                          int dialogType, int messageNum, int errorNum, String t1, String t2, String t3) {
+    public static GetTextFragment newInstance(String dialogId, String title,
+                                              OnFragmentDismissedListener dismissalListener,
+	                                          int dialogType, int messageNum, int errorNum,
+                                              String t1, String t2, String t3, boolean keepPassword) {
     	android.util.Log.i(TAG, "newInstance called");
     	GetTextFragment f = new GetTextFragment();
     	f.setDismissalListener(dismissalListener);
@@ -111,6 +116,7 @@ public class GetTextFragment extends DialogFragment {
         args.putString("t1", t1);
         args.putString("t2", t2);
         args.putString("t3", t3);
+        args.putBoolean("keepPassword", keepPassword);
         f.setArguments(args);
         f.setRetainInstance(false);
 
@@ -129,6 +135,7 @@ public class GetTextFragment extends DialogFragment {
         t1 = getArguments().getString("t1");
         t2 = getArguments().getString("t2");
         t3 = getArguments().getString("t3");
+        keepPassword = getArguments().getBoolean("keepPassword");
     }
     
     @Override
@@ -155,6 +162,7 @@ public class GetTextFragment extends DialogFragment {
             v = inflater.inflate(R.layout.get_text, container, false);
             textBox = (EditText) v.findViewById(R.id.textBox);
             hideText(textBox);
+            checkboxKeepPassword = v.findViewById(R.id.checkboxKeepPassword);
             buttonConfirm = (Button) v.findViewById(R.id.buttonConfirm);
             buttonCancel = (Button) v.findViewById(R.id.buttonCancel);
             dismissOnCancel(buttonCancel);
@@ -180,6 +188,7 @@ public class GetTextFragment extends DialogFragment {
             textBox3 = (EditText) v.findViewById(R.id.textBox3);
             hideText(textBox3);
             textBox3.requestFocus();
+            checkboxKeepPassword = v.findViewById(R.id.checkboxKeepPassword);
             buttonConfirm = (Button) v.findViewById(R.id.buttonConfirm);
             buttonCancel = (Button) v.findViewById(R.id.buttonCancel);
             dismissOnCancel(buttonCancel);
@@ -192,6 +201,7 @@ public class GetTextFragment extends DialogFragment {
             textBox2 = (EditText) v.findViewById(R.id.textBox2);
             hideText(textBox2);
             textBox2.requestFocus();
+            checkboxKeepPassword = v.findViewById(R.id.checkboxKeepPassword);
             buttonConfirm = (Button) v.findViewById(R.id.buttonConfirm);
             buttonCancel = (Button) v.findViewById(R.id.buttonCancel);
             dismissOnCancel(buttonCancel);
@@ -204,6 +214,7 @@ public class GetTextFragment extends DialogFragment {
             textBox2 = (EditText) v.findViewById(R.id.textBox2);
             hideText(textBox2);
             textBox2.requestFocus();
+            checkboxKeepPassword = v.findViewById(R.id.checkboxKeepPassword);
             buttonConfirm = (Button) v.findViewById(R.id.buttonConfirm);
             buttonCancel = (Button) v.findViewById(R.id.buttonCancel);
             dismissOnCancel(buttonCancel);
@@ -222,6 +233,8 @@ public class GetTextFragment extends DialogFragment {
             textBox2.setText(t2);
         if (textBox3 != null && t3 != null)
             textBox3.setText(t3);
+
+        checkboxKeepPassword.setChecked(keepPassword);
 
         message = (TextView) v.findViewById(R.id.message);
         message.setText(messageNum);
@@ -296,8 +309,11 @@ public class GetTextFragment extends DialogFragment {
             results[2] = textBox3.getText().toString();
             textBox3.setText("");
         }
+        if (checkboxKeepPassword != null) {
+            keepPassword = checkboxKeepPassword.isChecked();
+        }
     	if (dismissalListener != null) {
-            dismissalListener.onTextObtained(dialogId, results, wasCancelled);
+            dismissalListener.onTextObtained(dialogId, results, wasCancelled, keepPassword);
         }
     }
 

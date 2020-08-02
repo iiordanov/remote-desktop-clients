@@ -146,17 +146,19 @@ public class SSHConnection implements InteractiveCallback, GetTextFragment.OnFra
         this.userInputLatch.countDown();
     }
 
-    public void setUserAndPassword(String sshUser, String sshPassword) {
+    public void setUserAndPassword(String sshUser, String sshPassword, boolean keep) {
         this.user = sshUser;
         this.password = sshPassword;
         this.conn.setSshUser(sshUser);
         this.conn.setSshPassword(sshPassword);
+        this.conn.setKeepSshPassword(keep);
         this.userInputLatch.countDown();
     }
 
-    public void setPassphrase(String sshPassphrase) {
+    public void setPassphrase(String sshPassphrase, boolean keep) {
         this.passphrase = sshPassphrase;
         this.conn.setSshPassPhrase(sshPassphrase);
+        this.conn.setKeepSshPassword(keep);
         this.userInputLatch.countDown();
     }
 
@@ -674,7 +676,7 @@ public class SSHConnection implements InteractiveCallback, GetTextFragment.OnFra
     }
     
     @Override
-    public void onTextObtained(String dialogId, String[] obtainedStrings, boolean dialogCancelled) {
+    public void onTextObtained(String dialogId, String[] obtainedStrings, boolean dialogCancelled, boolean keep) {
         if (dialogCancelled) {
             handler.sendEmptyMessage(RemoteClientLibConstants.DISCONNECT_NO_MESSAGE);
             return;
@@ -687,11 +689,11 @@ public class SSHConnection implements InteractiveCallback, GetTextFragment.OnFra
                 break;
             case GetTextFragment.DIALOG_ID_GET_SSH_CREDENTIALS:
                 android.util.Log.i(TAG, "Text obtained from DIALOG_ID_GET_SSH_CREDENTIALS.");
-                setUserAndPassword(obtainedStrings[0], obtainedStrings[1]);
+                setUserAndPassword(obtainedStrings[0], obtainedStrings[1], keep);
                 break;
             case GetTextFragment.DIALOG_ID_GET_SSH_PASSPHRASE:
                 android.util.Log.i(TAG, "Text obtained from DIALOG_ID_GET_SSH_PASSPHRASE.");
-                setPassphrase(obtainedStrings[0]);
+                setPassphrase(obtainedStrings[0], keep);
                 break;
             default:
                 android.util.Log.e(TAG, "Unknown dialog type.");

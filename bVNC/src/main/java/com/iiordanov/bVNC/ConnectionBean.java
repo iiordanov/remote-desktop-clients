@@ -342,8 +342,10 @@ public class ConnectionBean extends AbstractConnectionBean implements Connection
         ContentValues values = Gen_getValues();
         values.remove(GEN_FIELD__ID);
         // Never save the SSH password and passphrase.
-        values.put(GEN_FIELD_SSHPASSWORD, "");
-        values.put(GEN_FIELD_SSHPASSPHRASE, "");
+        if (!getKeepSshPassword()) {
+            values.put(GEN_FIELD_SSHPASSWORD, "");
+            values.put(GEN_FIELD_SSHPASSPHRASE, "");
+        }
         if (!getKeepPassword()) {
             values.put(GEN_FIELD_PASSWORD, "");
         }
