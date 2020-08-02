@@ -1384,6 +1384,7 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView
      * Make sure mouse is visible on displayable part of screen
      */
     public void movePanToMakePointerVisible() {
+        //Log.d(TAG, "movePanToMakePointerVisible");
         if (rfbconn == null)
             return;
 
@@ -1396,9 +1397,9 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView
 
         // Don't pan in a certain direction if dimension scaled is already less 
         // than the dimension of the visible part of the screen.
-        if (rfbconn.framebufferWidth() <= getVisibleDesktopWidth())
+        if (rfbconn.framebufferWidth() < getVisibleDesktopWidth())
             panX = false;
-        if (rfbconn.framebufferHeight() <= getVisibleDesktopHeight())
+        if (rfbconn.framebufferHeight() < getVisibleDesktopHeight())
             panY = false;
 
         // We only pan if the current scaling is able to pan.
