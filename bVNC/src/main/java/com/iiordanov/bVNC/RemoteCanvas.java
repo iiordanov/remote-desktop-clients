@@ -101,6 +101,7 @@ import com.undatech.remoteClientUi.*;
 
 import org.apache.http.HttpException;
 import org.json.JSONException;
+import org.yaml.snakeyaml.scanner.Constant;
 
 import javax.security.auth.login.LoginException;
 
@@ -201,6 +202,8 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView
     boolean sshTunneled = false;
 
     long lastDraw;
+
+    boolean userPanned = false;
 
     /**
      * Constructor used by the inflation apparatus
@@ -1392,8 +1395,8 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView
         boolean panY = true;
 
         double scale = getZoomFactor();
-        int buttonAndCurveOffset = (int)(300/scale);
-        int curveOffset = (int)(100/scale);
+        int buttonAndCurveOffset = getBottomMargin(scale);
+        int curveOffset = getTopMargin(scale);
 
         // Don't pan in a certain direction if dimension scaled is already less 
         // than the dimension of the visible part of the screen.
@@ -1453,6 +1456,14 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView
         }
     }
 
+    public int getTopMargin(double scale) {
+        return (int)(Constants.TOP_MARGIN/scale);
+    }
+
+    public int getBottomMargin(double scale) {
+        return (int)(Constants.BOTTOM_MARGIN/scale);
+    }
+
     /**
      * Pan by a number of pixels (relative pan)
      *
@@ -1460,7 +1471,7 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView
      * @param dY
      * @return True if the pan changed the view (did not move view out of bounds); false otherwise
      */
-    public boolean relativePan(int dX, int dY) {
+    public boolean relativePan(float dX, float dY) {
         android.util.Log.d(TAG, "relativePan: " + dX + ", " + dY);
 
         // We only pan if the current scaling is able to pan.
@@ -1472,12 +1483,13 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView
         double sX = (double) dX / scale;
         double sY = (double) dY / scale;
 
-        int buttonAndCurveOffset = (int)(300/scale);
-
+        int buttonAndCurveOffset = getBottomMargin(scale);
         int curveOffset = 0;
-        // If this is a relativePan called after a rotation, do not shift image down.
-        if ( dX != 0 && dY != 0)
-            curveOffset = (int)(100/scale);
+        if (userPanned) {
+            curveOffset = getTopMargin(scale);
+        }
+
+        userPanned = dX != 0.0 || dY != 0.0;
 
         // Prevent panning above the desktop image except for provision for curved screens.
         if (absoluteXPosition + sX < 0)

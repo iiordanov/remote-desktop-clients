@@ -1072,7 +1072,8 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
      * This function is called by the rotationCorrector runnable
      * to fix things up after a rotation.
      */
-    private void correctAfterRotation () throws Exception {
+    private void correctAfterRotation() throws Exception {
+        Log.d(TAG, "correctAfterRotation");
         canvas.waitUntilInflated();
         // Its quite common to see NullPointerExceptions here when this function is called
         // at the point of disconnection. Hence, we catch and ignore the error.
