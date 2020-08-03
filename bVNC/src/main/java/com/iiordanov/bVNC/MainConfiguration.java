@@ -21,6 +21,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
@@ -185,6 +186,7 @@ public abstract class MainConfiguration extends FragmentActivity {
 
         // Define what happens when somebody selects different connection types.
         connectionType = (Spinner) findViewById(R.id.connectionType);
+
         connectionType.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> ad, View view, int itemIndex, long id) {
@@ -208,6 +210,13 @@ public abstract class MainConfiguration extends FragmentActivity {
 
         ipText = (EditText) findViewById(R.id.textIP);
         checkboxKeepSshPass = (CheckBox) findViewById(R.id.checkboxKeepSshPass);
+    }
+
+    void setConnectionTypeSpinnerAdapter(int arrayId) {
+        ArrayAdapter adapter = ArrayAdapter.createFromResource(this,
+                arrayId, R.layout.connection_list_entry);
+        adapter.setDropDownViewResource(R.layout.connection_list_entry);
+        connectionType.setAdapter(adapter);
     }
 
     /**

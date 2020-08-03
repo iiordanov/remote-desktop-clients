@@ -143,6 +143,7 @@ public class aRDP extends MainConfiguration {
         checkboxWindowContents = (CheckBox)findViewById(R.id.checkboxWindowContents);
         checkboxMenuAnimation = (CheckBox)findViewById(R.id.checkboxMenuAnimation);
         checkboxVisualStyles = (CheckBox)findViewById(R.id.checkboxVisualStyles);
+        setConnectionTypeSpinnerAdapter(R.array.rdp_connection_type);
     }
 
     /**

@@ -161,6 +161,7 @@ public class aSPICE extends MainConfiguration {
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         // Apply the adapter to the spinner
         layoutMapSpinner.setAdapter(adapter);
+        setConnectionTypeSpinnerAdapter(R.array.spice_connection_type);
     }
 
     /**

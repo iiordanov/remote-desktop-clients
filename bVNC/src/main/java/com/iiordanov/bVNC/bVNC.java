@@ -208,6 +208,8 @@ public class bVNC extends MainConfiguration {
             }
         });
         repeaterText = (TextView) findViewById(R.id.textRepeaterId);
+
+        setConnectionTypeSpinnerAdapter(R.array.connection_type);
     }
 
     /**
