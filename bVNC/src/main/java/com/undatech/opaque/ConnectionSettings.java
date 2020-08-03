@@ -82,7 +82,7 @@ public class ConnectionSettings implements Connection, Serializable {
     public String getLabel() {
         String address = this.getAddress();
         if (!"".equals(this.getUserName())) {
-            address = this.getUserName() + "@" + address;
+            address = this.getUserName() + "\n" + address;
         }
         String vmName = getVmname();
         String res = address;

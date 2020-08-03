@@ -188,8 +188,8 @@ public class ConnectionBean extends AbstractConnectionBean implements Connection
             address = this.getUserName() + "@" + address;
         }
         if (!"".equals(this.getSshServer())) {
-            address = "SSH: " + this.getSshUser() + "@" + this.getSshServer() + ":" +
-                    this.getSshPort() + " ->\n" + address;
+            address = "SSH " + this.getSshUser() + "@" + this.getSshServer() + ":" +
+                    this.getSshPort() + "\n" + address;
         }
         return nickname + address;
     }
