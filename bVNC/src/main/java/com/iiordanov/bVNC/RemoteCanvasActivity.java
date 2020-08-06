@@ -1090,9 +1090,13 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
             canvas.absoluteYPosition = y;
             canvas.resetScroll();
         }
+        // Automatic resolution update request handling
         if (canvas.isVnc && connection.getRdpResType() == Constants.VNC_GEOM_SELECT_AUTOMATIC) {
             canvas.rfbconn.requestResolution(canvas.getWidth(), canvas.getHeight());
+        } else if (canvas.isOpaque && connection.isRequestingNewDisplayResolution()) {
+            canvas.spicecomm.requestResolution();
         }
+
     }
 
 

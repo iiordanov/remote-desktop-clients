@@ -396,6 +396,7 @@ public class SpiceCommunicator implements RfbConnectable {
     }
 
     public void requestResolution() {
+        android.util.Log.d(TAG, "requestResolution()");
         if (isInNormalProtocol) {
             int currentWidth = this.width;
             int currentHeight = this.height;
@@ -405,7 +406,7 @@ public class SpiceCommunicator implements RfbConnectable {
                 lastRequestedWidth = canvas.getDesiredWidth();
                 lastRequestedHeight = canvas.getDesiredHeight();
                 if (currentWidth != lastRequestedWidth || currentHeight != lastRequestedHeight) {
-                    android.util.Log.d(TAG, "Requesting new res: " + lastRequestedWidth + "x" + lastRequestedHeight);
+                    android.util.Log.d(TAG, "Requesting new resolution: " + lastRequestedWidth + "x" + lastRequestedHeight);
                     SpiceRequestResolution (lastRequestedWidth, lastRequestedHeight);
                 } else {
                     android.util.Log.d(TAG, "Resolution request was satisfied.");
