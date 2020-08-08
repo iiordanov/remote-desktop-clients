@@ -173,6 +173,8 @@ public class SpiceCommunicator implements RfbConnectable {
                             String user, String password,
                             String sslCaFile,
                             boolean sound, boolean sslStrict) {
+        ip = ip.replace("http://", "");
+        ip = ip.replace("https://", "");
         android.util.Log.e(TAG, "connectOvirt: " + ip + ", " + vmname + ", " + user);
         thread = new OvirtThread(ip, vmname, user, password, sslCaFile, sound, sslStrict);
         thread.start();
