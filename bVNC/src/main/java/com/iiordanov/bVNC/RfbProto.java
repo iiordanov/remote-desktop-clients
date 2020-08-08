@@ -434,18 +434,23 @@ class RfbProto implements RfbConnectable {
         int secType = negotiateSecurity(bitPref, connType);
         int authType;
         if (secType == RfbProto.SecTypeTight) {
+            Log.i(TAG, "secType == RfbProto.SecTypeTight");
             initCapabilities();
             setupTunneling();
             authType = negotiateAuthenticationTight();
         } else if (secType == RfbProto.SecTypeVeNCrypt) {
+            Log.i(TAG, "secType == RfbProto.SecTypeVeNCrypt");
             authType = authenticateVeNCrypt();
         } else if (secType == RfbProto.SecTypeTLS) {
+            Log.i(TAG, "secType == RfbProto.SecTypeTLS");
             authenticateTLS();
             authType = negotiateSecurity(bitPref, 0);
         } else if (secType == RfbProto.SecTypeUltra34 ||
                 secType == RfbProto.SecTypeUltraVnc2) {
+            Log.i(TAG, "secType == RfbProto.SecTypeUltra34 or SecTypeUltraVnc2");
             authType = RfbProto.AuthUltra;
         } else if (secType == RfbProto.SecTypeArd) {
+            Log.i(TAG, "secType == RfbProto.SecTypeArd");
             RFBSecurityARD ardAuth = new RFBSecurityARD(us, pw);
             ardAuth.perform(this);
             if (is.readInt() == 1) {
@@ -458,48 +463,49 @@ class RfbProto implements RfbConnectable {
 
         switch (authType) {
             case RfbProto.AuthNone:
-                Log.i(TAG, "No authentication needed");
+                Log.i(TAG, "authType == RfbProto.AuthNone, No authentication needed");
                 authenticateNone();
                 break;
             case RfbProto.AuthPlain:
-                Log.i(TAG, "Plain authentication needed");
+                Log.i(TAG, "authType == RfbProto.AuthPlain, Plain authentication needed ");
                 authenticatePlain(us, pw);
                 break;
             case RfbProto.AuthVNC:
-                Log.i(TAG, "VNC authentication needed");
+                Log.i(TAG, "authType == RfbProto.AuthVNC, VNC authentication needed");
                 authenticateVNC(pw);
                 break;
             case RfbProto.AuthUltra:
+                Log.i(TAG, "authType == RfbProto.AuthUltra, UltraVNC authentication needed");
                 prepareDH();
                 authenticateDH(us, pw);
                 break;
             case RfbProto.AuthTLSNone:
-                Log.i(TAG, "No authentication needed");
+                Log.i(TAG, "authType == RfbProto.AuthTLSNone, No authentication needed");
                 authenticateTLS();
                 authenticateNone();
                 break;
             case RfbProto.AuthTLSPlain:
-                Log.i(TAG, "Plain authentication needed");
+                Log.i(TAG, "authType == RfbProto.AuthTLSPlain, Plain authentication needed");
                 authenticateTLS();
                 authenticatePlain(us, pw);
                 break;
             case RfbProto.AuthTLSVnc:
-                Log.i(TAG, "VNC authentication needed");
+                Log.i(TAG, "authType == RfbProto.AuthTLSVnc, VNC authentication needed");
                 authenticateTLS();
                 authenticateVNC(pw);
                 break;
             case RfbProto.AuthX509None:
-                Log.i(TAG, "No authentication needed");
+                Log.i(TAG, "authType == RfbProto.AuthX509None, No authentication needed");
                 authenticateX509(cert);
                 authenticateNone();
                 break;
             case RfbProto.AuthX509Plain:
-                Log.i(TAG, "Plain authentication needed");
+                Log.i(TAG, "authType == RfbProto.AuthX509Plain, Plain authentication needed");
                 authenticateX509(cert);
                 authenticatePlain(us, pw);
                 break;
             case RfbProto.AuthX509Vnc:
-                Log.i(TAG, "VNC authentication needed");
+                Log.i(TAG, "authType == RfbProto.AuthX509Vnc,VNC authentication needed");
                 authenticateX509(cert);
                 authenticateVNC(pw);
                 break;
