@@ -801,7 +801,7 @@ class RfbProto implements RfbConnectable {
                 break;
             case VncAuthFailed:
                 if (clientMinor >= 8)
-                    readConnFailedReason();
+                    readConnFailedReason(false);
                 throw new RfbPasswordAuthenticationException(authType + ": failed");
             case VncAuthTooMany:
                 throw new RfbPasswordAuthenticationException(authType + ": failed, too many tries");
@@ -818,12 +818,18 @@ class RfbProto implements RfbConnectable {
     //
 
     void readConnFailedReason() throws Exception {
+        readConnFailedReason(true);
+    }
+
+    void readConnFailedReason(boolean throwException) throws Exception {
         int reasonLen = is.readInt();
         byte[] reason = new byte[reasonLen];
         readFully(reason);
         String reasonString = new String(reason);
         Log.v(TAG, reasonString);
-        throw new Exception(reasonString);
+        if (throwException) {
+            throw new Exception(reasonString);
+        }
     }
 
     void prepareDH() throws Exception {

@@ -506,6 +506,9 @@ public class Utils {
         d.show();
         d.getWindow().setAttributes(lp);
         return d;
+    }
 
+    public static String newScreenshotFileName() {
+        return UUID.randomUUID().toString() + ".png";
     }
 }

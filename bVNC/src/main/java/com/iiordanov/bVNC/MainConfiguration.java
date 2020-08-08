@@ -432,6 +432,7 @@ public abstract class MainConfiguration extends FragmentActivity {
     public void saveAsCopy(MenuItem item) {
         if (selected.getNickname().equals(textNickname.getText().toString()))
             textNickname.setText(new String(getString(R.string.copy_of) + " " + selected.getNickname()));
+        selected.setScreenshotFilename(Utils.newScreenshotFileName());
         updateSelectedFromView();
         selected.set_Id(0);
         selected.saveAndWriteRecent(false, this);

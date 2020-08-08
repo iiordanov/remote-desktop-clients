@@ -138,7 +138,7 @@ public class ConnectionBean extends AbstractConnectionBean implements Connection
         setFilename(UUID.randomUUID().toString());
         setX509KeySignature("");
         setIdHash("");
-        setScreenshotFilename(UUID.randomUUID().toString() + ".png");
+        setScreenshotFilename(Utils.newScreenshotFileName());
         c = context;
 
         // These two are not saved in the database since we always save the cert data. 
