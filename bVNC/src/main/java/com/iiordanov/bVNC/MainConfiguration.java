@@ -122,7 +122,13 @@ public abstract class MainConfiguration extends FragmentActivity {
         Intent intent = getIntent();
         isNewConnection = intent.getBooleanExtra("isNewConnection", false);
         if (!isNewConnection) {
-            connID = Long.parseLong(intent.getStringExtra("connID"));
+            try {
+                connID = Long.parseLong(intent.getStringExtra("connID"));
+            } catch (NumberFormatException e) {
+                connID = 0;
+                Log.e(TAG, "Could not parse connection to edit from connID!");
+                e.printStackTrace();
+            }
         }
 
         super.onCreate(icicle);
