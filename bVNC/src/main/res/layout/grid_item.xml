@@ -3,7 +3,7 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:orientation="vertical" 
-    android:padding="4dip" >
+    android:padding="5dip" >
     <TextView
         android:id="@+id/grid_item_id"
         android:layout_width="fill_parent"
@@ -14,7 +14,7 @@
         android:id="@+id/grid_item_text"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:textSize="15dip"
+        android:textSize="14sp"
         android:gravity="top"
         android:background="#555555"
         android:textColor="#ffffff"
@@ -27,8 +27,9 @@
         android:id="@+id/grid_item_image"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:scaleType="fitXY"
-        android:gravity="bottom" >
+        android:scaleType="centerInside"
+        android:background="@color/black_overlay"
+        android:gravity="bottom">
     </ImageView>
 </LinearLayout>
 

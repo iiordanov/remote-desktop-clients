@@ -30,6 +30,7 @@ import android.database.DataSetObserver;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -46,7 +47,6 @@ public class LabeledImageApapter implements ListAdapter {
     
     private Context context;
     private int numCols = 0;
-    private Bitmap defaultBitmap = null;
     private String defaultLabel = "Untitled";
     Map<String, Connection> filteredConnectionsByPosition = new HashMap<>();
     String[] filter = null;
@@ -54,7 +54,6 @@ public class LabeledImageApapter implements ListAdapter {
     public LabeledImageApapter(Context context, Map<String, Connection> connectionsByPosition, String[] filter, int numCols) {
         this.context = context;
         this.numCols = numCols;
-        this.defaultBitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.no_screenshot);
         this.filter = filter;
         int i = 0;
         if (connectionsByPosition != null) {
@@ -87,9 +86,12 @@ public class LabeledImageApapter implements ListAdapter {
         if (convertView != null) {
             gridView = convertView;
             ImageView iView = (ImageView) convertView.findViewById(R.id.grid_item_image);
-            Bitmap tmp = ((BitmapDrawable)iView.getDrawable()).getBitmap();
-            if (tmp != null && !tmp.equals(defaultBitmap)) {
-                tmp.recycle();
+            Drawable tempDrawable = iView.getDrawable();
+            if (tempDrawable instanceof BitmapDrawable) {
+                Bitmap tmp = ((BitmapDrawable) tempDrawable).getBitmap();
+                if (tmp != null) {
+                    tmp.recycle();
+                }
             }
         } else {
             gridView = inflater.inflate(R.layout.grid_item, null);
@@ -111,7 +113,8 @@ public class LabeledImageApapter implements ListAdapter {
             Bitmap gridImage = BitmapFactory.decodeFile(screenshotFilePath);
             imageView.setImageBitmap(gridImage);
         } else {
-            imageView.setImageBitmap(defaultBitmap);
+            imageView.setImageResource(R.drawable.ic_screen_black_48dp);
+            imageView.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
         }
 
         // This ID in a hidden TextView is used to send the right connection for editing or connection establishment
