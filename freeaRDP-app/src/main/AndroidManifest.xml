@@ -22,7 +22,7 @@
         android:smallScreens="true"
         android:anyDensity="true"/>
 		
-    <application android:icon="@drawable/icon_ardp" android:label="@string/ardp_app_name" android:allowBackup="false" android:theme="@style/AppTheme" android:name="com.iiordanov.bVNC.App" tools:replace="android:label,android:theme">
+    <application android:icon="@drawable/icon_ardp" android:label="@string/freeardp_app_name" android:allowBackup="false" android:theme="@style/AppTheme" android:name="com.iiordanov.bVNC.App" tools:replace="android:label,android:theme">
                 <activity android:name="com.undatech.opaque.ConnectionGridActivity"
                     android:configChanges="keyboardHidden"
                     android:label="@string/freeardp_app_name"
