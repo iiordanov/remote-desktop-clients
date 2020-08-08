@@ -292,6 +292,15 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView
         });
     }
 
+    public void disconnectWithoutMessage () {
+        closeConnection();
+        handler.post(new Runnable() {
+            public void run() {
+                MessageDialogs.justFinish(getContext());
+            }
+        });
+    }
+
     /**
      * Initializes the clipboard monitor.
      */

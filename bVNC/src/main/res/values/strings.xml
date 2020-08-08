@@ -12,7 +12,7 @@
     <string name="auto_rotation">Screen rotation while connected</string>
     <string name="auto_request_new_res">Sync remote to display resolution</string>
     <string name="custom_ca_subject">Optional Cert Subject. Not needed if cert CN matches hostname</string>
-    <string name="custom_ca_import">Enter full path to your CA and tap Import</string>
+    <string name="custom_ca_import">Alternatively, enter full path to your CA and tap Import</string>
     <string name="custom_ca_paste">Paste (if not importing) the CA here</string>
     <string name="ca_ovirt_use_custom">Custom RHEV/oVirt CA</string>
     <string name="ca_spice_use_ovirt">Use RHEV/oVirt CA for SPICE</string>
@@ -909,4 +909,6 @@ Below that is where you configure your connection.
     <string name="help">Help</string>
     <string name="support_forum">Support Forum</string>
     <string name="report_bug">Report a bug</string>
+    <string name="download_from_server">Download from Server</string>
+    <string name="import_from_file">Import from File</string>
 </resources>

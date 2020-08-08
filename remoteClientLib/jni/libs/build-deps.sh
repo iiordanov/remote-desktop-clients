@@ -309,7 +309,7 @@ build_one() {
         ;;
     govirt)
         ./autogen.sh || /bin/true
-        patch -p0 < "${basedir}/libgovirt-status.patch"
+        #patch -p0 < "${basedir}/libgovirt-status.patch"
         patch -p0 < "${basedir}/libgovirt-tests.patch"
         do_configure \
                 --enable-introspection=no \
