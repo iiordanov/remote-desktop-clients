@@ -234,7 +234,9 @@ public class GetTextFragment extends DialogFragment {
         if (textBox3 != null && t3 != null)
             textBox3.setText(t3);
 
-        checkboxKeepPassword.setChecked(keepPassword);
+        if (checkboxKeepPassword != null) {
+            checkboxKeepPassword.setChecked(keepPassword);
+        }
 
         message = (TextView) v.findViewById(R.id.message);
         message.setText(messageNum);
