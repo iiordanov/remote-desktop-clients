@@ -386,6 +386,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
             if (connection.getConnectionTypeString().equals(getResources().getString(R.string.connection_type_pve))) {
                 canvas.startPve();
             } else {
+                connection.setAddress(Utils.getHostFromUriString(connection.getAddress()));
                 canvas.startOvirt();
             }
         } else {

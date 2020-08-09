@@ -511,4 +511,13 @@ public class Utils {
     public static String newScreenshotFileName() {
         return UUID.randomUUID().toString() + ".png";
     }
+
+    public static String getHostFromUriString(String uriString) {
+        if (!uriString.startsWith("http")) {
+            uriString = "https://" + uriString;
+        }
+        Uri uri = Uri.parse(uriString);
+        String host = uri.getHost();
+        return host;
+    }
 }
