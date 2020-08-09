@@ -31,6 +31,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.support.v7.widget.AppCompatImageView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -85,7 +86,7 @@ public class LabeledImageApapter implements ListAdapter {
         View gridView;
         if (convertView != null) {
             gridView = convertView;
-            ImageView iView = (ImageView) convertView.findViewById(R.id.grid_item_image);
+            AppCompatImageView iView = convertView.findViewById(R.id.grid_item_image);
             Drawable tempDrawable = iView.getDrawable();
             if (tempDrawable instanceof BitmapDrawable) {
                 Bitmap tmp = ((BitmapDrawable) tempDrawable).getBitmap();
@@ -107,7 +108,7 @@ public class LabeledImageApapter implements ListAdapter {
             textView.setText(label);
         }
         String screenshotFilePath = context.getFilesDir() + "/" + c.getScreenshotFilename();
-        ImageView imageView = (ImageView) gridView.findViewById(R.id.grid_item_image);
+        AppCompatImageView imageView = gridView.findViewById(R.id.grid_item_image);
         if (new File(screenshotFilePath).exists()) {
             Log.d(TAG, "Setting screenshot from file " + screenshotFilePath);
             Bitmap gridImage = BitmapFactory.decodeFile(screenshotFilePath);

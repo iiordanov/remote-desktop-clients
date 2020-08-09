@@ -8,6 +8,7 @@ import android.os.Message;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import com.iiordanov.bVNC.RemoteCanvas;
+import com.iiordanov.bVNC.Utils;
 import com.iiordanov.bVNC.dialogs.GetTextFragment;
 import com.undatech.opaque.Connection;
 import com.undatech.opaque.RemoteClientLibConstants;
@@ -27,7 +28,10 @@ public class RemoteCanvasHandler extends Handler {
         this.context = context;
         this.c = c;
         this.settings = settings;
-        this.fm = ((FragmentActivity)context).getSupportFragmentManager();
+        Activity activity = Utils.getActivity(context);
+        if (activity instanceof FragmentActivity) {
+            this.fm = ((FragmentActivity) Utils.getActivity(context)).getSupportFragmentManager();
+        }
     }
 
     private void showGetTextFragment(String tag, String dialogId, String title,

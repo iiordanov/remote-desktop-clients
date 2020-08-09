@@ -48,6 +48,7 @@ import android.app.AlertDialog;
 import android.app.ActivityManager.MemoryInfo;
 import android.app.Dialog;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.content.DialogInterface.OnClickListener;
@@ -67,6 +68,7 @@ import android.util.Log;
 import android.view.ViewConfiguration;
 import android.view.WindowManager;
 import android.widget.ListView;
+import android.widget.ScrollView;
 
 import com.iiordanov.bVNC.*;
 import com.iiordanov.freebVNC.*;
@@ -147,12 +149,9 @@ public class Utils {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.dismiss();
-                if ( _context instanceof AppCompatActivity ) {
-                    ((AppCompatActivity) _context).finish();
-                } else if ( _context instanceof FragmentActivity ) {
-                    ((FragmentActivity) _context).finish();
-                } else if ( _context instanceof Activity ) {
-                    ((Activity) _context).finish();
+                Activity activity = Utils.getActivity(_context);
+                if (activity != null) {
+                    activity.finish();
                 }
             }
         });
@@ -498,7 +497,7 @@ public class Utils {
                                 // We don't have to do anything.
                             }
                         });
-        Dialog d = adb.setView(new ListView(context)).create();
+        Dialog d = adb.setView(new ScrollView(context)).create();
         WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
         lp.copyFrom(d.getWindow().getAttributes());
         lp.width = WindowManager.LayoutParams.MATCH_PARENT;
@@ -519,5 +518,15 @@ public class Utils {
         Uri uri = Uri.parse(uriString);
         String host = uri.getHost();
         return host;
+    }
+
+    public static Activity getActivity(Context context) {
+        while (context instanceof ContextWrapper) {
+            if (context instanceof Activity) {
+                return (Activity)context;
+            }
+            context = ((ContextWrapper)context).getBaseContext();
+        }
+        return null;
     }
 }
