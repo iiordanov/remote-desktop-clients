@@ -5,8 +5,9 @@ android {
 
     defaultConfig {
         targetSdkVersion 28
-        minSdkVersion 14
+        minSdkVersion project.getProperties().get("SDK_VERSION")
         multiDexEnabled true
+        vectorDrawables.useSupportLibrary = true
     }
 
     buildTypes {
