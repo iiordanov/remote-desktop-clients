@@ -23,10 +23,14 @@ package com.iiordanov.bVNC.dialogs;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.text.method.PasswordTransformationMethod;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -325,4 +329,20 @@ public class GetTextFragment extends DialogFragment {
         getDialog().setOnDismissListener(null);
       super.onDestroyView();
     }
+
+    @Override
+    public void show(FragmentManager fm, String tag) {
+        try {
+            FragmentTransaction ft = fm.beginTransaction();
+            for (Fragment fragment : fm.getFragments()) {
+                fm.beginTransaction().remove(fragment).commit();
+            }
+            ft.add(this, tag); //.addToBackStack(null);
+            ft.commitAllowingStateLoss();
+        } catch (IllegalStateException e) {
+            Log.e("IllegalStateException", "Exception", e);
+            e.printStackTrace();
+        }
+    }
+
 }
