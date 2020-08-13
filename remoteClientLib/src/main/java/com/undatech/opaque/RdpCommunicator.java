@@ -16,6 +16,12 @@ import com.undatech.opaque.input.RemoteKeyboard;
 import com.undatech.opaque.input.RdpKeyboardMapper;
 import com.undatech.opaque.input.RemotePointer;
 
+import java.lang.reflect.Field;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
+
 public class RdpCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyProcessingListener,
                                         LibFreeRDP.UIEventListener, LibFreeRDP.EventListener {
     static final String TAG = "RdpCommunicator";
@@ -59,7 +65,7 @@ public class RdpCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyPro
                            Viewable viewable, String username, String domain, String password) {
         // This is necessary because it initializes a synchronizedMap referenced later.
         this.freeRdpApp = new GlobalApp();
-
+        patchFreeRdpCore();
         // Create a manual bookmark and populate it from settings.
         this.bookmark = new ManualBookmark();
         this.context = context;
@@ -70,6 +76,20 @@ public class RdpCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyPro
         this.domain = domain;
         this.password = password;
         initSession(username, domain, password);
+    }
+
+    private void patchFreeRdpCore() {
+        Class cls = this.freeRdpApp.getClass();
+        try {
+            Log.i(TAG, "Initializing sessionMap in GlobalApp");
+            Field sessionMap = cls.getDeclaredField("sessionMap");
+            sessionMap.setAccessible(true);
+            sessionMap.set(this.freeRdpApp, Collections.synchronizedMap(new HashMap<Long, SessionState>()));
+        } catch (NoSuchFieldException e) {
+            Log.e(TAG, "There is no longer a sessionMap field in GlobalApp");
+        } catch (IllegalAccessException e) {
+            Log.e(TAG, "The field sessionMap in GlobalApp was not accessible despite our attempts");
+        }
     }
 
     @Override
@@ -151,7 +171,7 @@ public class RdpCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyPro
 
     public class DisconnectThread extends Thread {
         long instance;
-        
+
         public DisconnectThread (long i) {
             this.instance = i;
         }
@@ -304,6 +324,8 @@ public class RdpCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyPro
         performanceFlags.setFullWindowDrag(fullWindowDrag);
         performanceFlags.setMenuAnimations(menuAnimations);
         performanceFlags.setTheming(theming);
+        performanceFlags.setGfx(true);
+        performanceFlags.setH264(true);
 
         BookmarkBase.AdvancedSettings advancedSettings = bookmark.getAdvancedSettings();
         advancedSettings.setRedirectSDCard(redirectSdCard);

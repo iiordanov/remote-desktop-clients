@@ -469,6 +469,12 @@ build() {
     setup "$1"
     fetch configsub
 
+    if [ -f CERBERO_BUILT_${1} ]
+    then
+      echo ; echo
+      echo "Cerbero was previously built. Remove $(realpath CERBERO_BUILT_${1}) if you want to rebuild it."
+      echo ; echo
+    else
     # Build GStreamer SDK
     if git clone https://gitlab.freedesktop.org/gstreamer/cerbero
     then
@@ -491,6 +497,8 @@ build() {
         echo "Linking ../../cerbero/build/dist/android_universal/${gstarch} to ${gst}"
         ln -sf "../../cerbero/build/dist/android_universal/${gstarch}" "${gst}"
 	ls -ld "${gst}"
+    fi
+    touch CERBERO_BUILT_${1}
     fi
 
     # Build
@@ -555,7 +563,6 @@ build_freerdp() {
       echo ; echo
       echo "FreeRDP was previously built. Remove $(realpath FREERDP_BUILT) if you want to rebuild it."
       echo ; echo
-      sleep 5
       return
     fi
 
@@ -591,9 +598,11 @@ build_freerdp() {
         # Patch the config
         sed -i -e 's/CMAKE_BUILD_TYPE=.*/CMAKE_BUILD_TYPE=Release/'\
                -e 's/WITH_OPENH264=.*/WITH_OPENH264=1/'\
-               -e 's/OPENSSL_TAG=.*/OPENSSL_TAG=OpenSSL_1_1_1e/'\
+               -e 's/WITH_JPEG=.*/WITH_JPEG=1/'\
+               -e 's/OPENH264_TAG=.*/OPENH264_TAG=v2.0.0/'\
+               -e 's/OPENSSL_TAG=.*/OPENSSL_TAG=OpenSSL_1_1_1g/'\
                -e "s/BUILD_ARCH=.*/BUILD_ARCH=\"${abis}\"/" ./scripts/android-build.conf
-#               -e 's/OPENH264_TAG=.*/OPENH264_TAG=v2.0.0/'\
+
 
         echo 'set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DWINPR_EXPORTS --sysroot=${ANDROID_SYSROOT}")' >>  winpr/CMakeLists.txt
         for f in winpr/CMakeLists.txt winpr/libwinpr/CMakeLists.txt libfreerdp/CMakeLists.txt client/common/CMakeLists.txt client/Android/CMakeLists.txt client/common/CMakeLists.txt
@@ -607,18 +616,21 @@ build_freerdp() {
 
         for f in ${basedir}/../*_freerdp_*.patch
         do
+            echo "Applying $f"
             patch -N -p1 < ${f}
         done
 
         cp "${basedir}/../freerdp_AndroidManifest.xml" client/Android/Studio/freeRDPCore/src/main/AndroidManifest.xml
 
-        echo "Installing android NDK 14b for FreeRDP build compatibility"
-        export ANDROID_NDK=$(install_ndk ./ r14b)
-        echo "Installing cmake 3.5.1 for FreeRDP build compatibility"
-        export PATH=$(install_cmake ./ 3.5.1)/bin:${PATH}
+        echo "Installing android NDK ${freerdp_ndk_version} for FreeRDP build compatibility"
+        export ANDROID_NDK=$(install_ndk ../../ ${freerdp_ndk_version})
+        echo "Installing cmake ${freerdp_cmake_version} for FreeRDP build compatibility"
+        export CMAKE_PATH=$(install_cmake ../../ ${freerdp_cmake_version})/bin
+        export PATH=${CMAKE_PATH}:${PATH}
+        export CMAKE_PROGRAM=${CMAKE_PATH}/cmake
         ./scripts/android-build-freerdp.sh
 
-        sed -i 's/implementationSdkVersion/compileSdkVersion/; s/.*rootProject.ext.versionName.*//; s/.*.*buildToolsVersion.*.*//; s/compile /implementation /' \
+        sed -i 's/implementationSdkVersion/compileSdkVersion/; s/.*rootProject.ext.versionName.*//; s/.*.*buildToolsVersion.*.*//; s/compile /implementation /; s/minSdkVersion .*/minSdkVersion 14/' \
                client/Android/Studio/freeRDPCore/build.gradle
 
         # Prepare the FreeRDPCore project for importing into Eclipse
