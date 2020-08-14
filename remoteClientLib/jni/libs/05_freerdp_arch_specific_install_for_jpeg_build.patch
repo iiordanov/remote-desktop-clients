@@ -1,0 +1,20 @@
+diff --git a/scripts/android-build-jpeg.sh b/scripts/android-build-jpeg.sh
+index 7b06adf33..b06275bdf 100755
+--- a/scripts/android-build-jpeg.sh
++++ b/scripts/android-build-jpeg.sh
+@@ -25,8 +25,8 @@ function build {
+ 	echo "Building architectures $BUILD_ARCH..."
+ 	BASE=$(pwd)
+ 	common_run cd $BUILD_SRC
+-	common_run $NDK_BUILD V=1 APP_ABI="${BUILD_ARCH}" -j clean
+-	common_run $NDK_BUILD V=1 APP_ABI="${BUILD_ARCH}" -j
++	common_run $NDK_BUILD V=1 APP_ABI="${BUILD_ARCH}" NDK_TOOLCHAIN_VERSION=4.9 -j clean
++	common_run $NDK_BUILD V=1 APP_ABI="${BUILD_ARCH}" NDK_TOOLCHAIN_VERSION=4.9 -j
+ 	common_run cd $BASE
+ }
+ 
+@@ -39,3 +39,4 @@ common_clean $BUILD_DST
+ build
+ 
+ common_copy $BUILD_SRC $BUILD_DST
++common_copy $BUILD_SRC $BUILD_DST/"${BUILD_ARCH}"
