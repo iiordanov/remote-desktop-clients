@@ -263,7 +263,10 @@ public class RdpCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyPro
         android.util.Log.e(TAG, "Unicode character: " + unicodeKey);
         sendModifierKeys(true);
         try { Thread.sleep(5); } catch (InterruptedException e) {}
-        LibFreeRDP.sendUnicodeKeyEvent(session.getInstance(), unicodeKey);
+        LibFreeRDP.sendUnicodeKeyEvent(session.getInstance(), unicodeKey, true);
+        try { Thread.sleep(5); } catch (InterruptedException e) {}
+        LibFreeRDP.sendUnicodeKeyEvent(session.getInstance(), unicodeKey, false);
+        try { Thread.sleep(5); } catch (InterruptedException e) {}
         sendModifierKeys(false);
     }
 

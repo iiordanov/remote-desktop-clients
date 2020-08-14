@@ -1,0 +1,13 @@
+diff --git a/scripts/android-build-common.sh b/scripts/android-build-common.sh
+index 11fda6765..b9404f194 100644
+--- a/scripts/android-build-common.sh
++++ b/scripts/android-build-common.sh
+@@ -287,6 +287,8 @@ function common_copy {
+ 	then
+ 		common_run mkdir -p $2
+ 	fi
++        echo "COMMON_COPY: Copying $1/include to $2"
+ 	common_run cp -L -r $1/include $2
++        echo "COMMON_COPY: Copying $1/libs/* to $2"
+ 	common_run cp -L -r $1/libs/* $2
+ }
