@@ -911,4 +911,5 @@ Below that is where you configure your connection.
     <string name="report_bug">Report a bug</string>
     <string name="download_from_server">Download from Server</string>
     <string name="import_from_file">Import from File</string>
+    <string name="please_grant_permission_from_prefs">You may need to grant permissions to the application through Settings.</string>
 </resources>

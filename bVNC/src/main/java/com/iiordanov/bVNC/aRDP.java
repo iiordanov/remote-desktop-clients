@@ -268,6 +268,8 @@ public class aRDP extends MainConfiguration {
         if (Utils.isFree(this)) {
             IntroTextDialog.showIntroTextIfNecessary(this, database, true);
             b.setChecked(false);
+        } else {
+            permissionsManager.requestPermissions(this, true);
         }
         selected.setEnableRecording(b.isChecked());
     }

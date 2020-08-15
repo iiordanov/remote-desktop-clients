@@ -378,8 +378,7 @@ public class Utils {
     public static boolean querySharedPreferenceBoolean(Context context, String key) {
         boolean result = false;
         if (context != null) {
-            SharedPreferences sp = context.getSharedPreferences(Constants.generalSettingsTag,
-                    Context.MODE_PRIVATE);
+            SharedPreferences sp = context.getSharedPreferences(Constants.generalSettingsTag, Context.MODE_PRIVATE);
             result = sp.getBoolean(key, false);
         }
         return result;
@@ -388,8 +387,7 @@ public class Utils {
     public static String querySharedPreferenceString(Context context, String key, String dftValue) {
         String result = dftValue;
         if (context != null) {
-            SharedPreferences sp = context.getSharedPreferences(Constants.generalSettingsTag,
-                    Context.MODE_PRIVATE);
+            SharedPreferences sp = context.getSharedPreferences(Constants.generalSettingsTag, Context.MODE_PRIVATE);
             result = sp.getString(key, dftValue);
         }
         return result;
@@ -397,10 +395,19 @@ public class Utils {
 
     public static void setSharedPreferenceString(Context context, String key, String value) {
         if (context != null) {
-            SharedPreferences sp = context.getSharedPreferences(Constants.generalSettingsTag,
-                    Context.MODE_PRIVATE);
+            SharedPreferences sp = context.getSharedPreferences(Constants.generalSettingsTag, Context.MODE_PRIVATE);
             Editor editor = sp.edit();
             editor.putString(key, value);
+            editor.apply();
+            Log.i(TAG, "Set: " + key + " to value: " + value);
+        }
+    }
+
+    public static void setSharedPreferenceBoolean(Context context, String key, boolean value) {
+        if (context != null) {
+            SharedPreferences sp = context.getSharedPreferences(Constants.generalSettingsTag, Context.MODE_PRIVATE);
+            Editor editor = sp.edit();
+            editor.putBoolean(key, value);
             editor.apply();
             Log.i(TAG, "Set: " + key + " to value: " + value);
         }
