@@ -630,7 +630,7 @@ build_freerdp() {
         export CMAKE_PROGRAM=${CMAKE_PATH}/cmake
         ./scripts/android-build-freerdp.sh
 
-        sed -i 's/implementationSdkVersion/compileSdkVersion/; s/.*rootProject.ext.versionName.*//; s/.*.*buildToolsVersion.*.*//; s/compile /implementation /; s/minSdkVersion .*/minSdkVersion 14/' \
+        sed -i 's/implementationSdkVersion/compileSdkVersion/; s/.*rootProject.ext.versionName.*//; s/.*rootProject.ext.versionCode.*//; s/.*.*buildToolsVersion.*.*//; s/compile /implementation /' \
                client/Android/Studio/freeRDPCore/build.gradle
 
         # Prepare the FreeRDPCore project for importing into Eclipse
