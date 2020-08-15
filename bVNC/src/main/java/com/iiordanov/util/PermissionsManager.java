@@ -1,4 +1,4 @@
-package com.undatech.opaque.util;
+package com.iiordanov.util;
 
 import android.Manifest;
 import android.app.Activity;
@@ -6,6 +6,12 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
+import android.widget.Toast;
+
+import com.iiordanov.bVNC.Constants;
+import com.iiordanov.bVNC.Utils;
+import com.undatech.remoteClientUi.R;
 
 import java.util.Arrays;
 
@@ -15,7 +21,9 @@ import java.util.Arrays;
 
 public class PermissionsManager {
     public static String TAG = "PermissionsManager";
+
     private static String[] retrievePermissions(Context context) {
+        Log.i(TAG, "Retrieving permissions.");
         try {
             String [] requestedPermissions = context.getPackageManager().getPackageInfo(context
                     .getPackageName(), PackageManager.GET_PERMISSIONS).requestedPermissions;
@@ -26,17 +34,20 @@ public class PermissionsManager {
         }
     }
 
-    public void requestPermissions(Activity activity) {
+    public void requestPermissions(Activity activity, boolean showToast) {
+        Log.i(TAG, "Requesting permissions.");
         String[] permissions = retrievePermissions(activity);
         for (String permission: permissions) {
             // Here, thisActivity is the current activity
-            if (ContextCompat.checkSelfPermission(activity, permission)
-                    != PackageManager.PERMISSION_GRANTED) {
-
-                // No explanation needed; request the permission
-                ActivityCompat.requestPermissions(activity, permissions,0);
+            if (ContextCompat.checkSelfPermission(activity, permission) != PackageManager.PERMISSION_GRANTED) {
+                if (!Utils.querySharedPreferenceBoolean(activity, Constants.permissionsRequested)) {
+                    Utils.setSharedPreferenceBoolean(activity, Constants.permissionsRequested, true);
+                    // No explanation needed; request the permission
+                    ActivityCompat.requestPermissions(activity, permissions,0);
+                } else if (showToast) {
+                    Toast.makeText(activity, R.string.please_grant_permission_from_prefs, Toast.LENGTH_SHORT).show();
+                }
             }
         }
     }
-
 }

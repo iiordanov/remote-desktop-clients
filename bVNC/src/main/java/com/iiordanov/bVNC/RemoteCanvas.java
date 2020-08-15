@@ -1625,7 +1625,7 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView
             lastDraw = timeNow;
         } else {
             handler.removeCallbacks(invalidateCanvasRunnable);
-            handler.postDelayed(invalidateCanvasRunnable, 300);
+            handler.postDelayed(invalidateCanvasRunnable, 100);
         }
     }
 
@@ -1646,7 +1646,7 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView
             lastDraw = timeNow;
         } else {
             handler.removeCallbacks(invalidateCanvasRunnable);
-            handler.postDelayed(invalidateCanvasRunnable, 300);
+            handler.postDelayed(invalidateCanvasRunnable, 100);
         }
     }
 

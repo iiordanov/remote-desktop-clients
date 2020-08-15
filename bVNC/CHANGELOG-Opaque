@@ -1,3 +1,7 @@
+v5.0.1
+- Fix for annoying permissions request loop
+- Performance improvements
+- Security updates
 v5.0.0
 - Many improvements and fixes
 - Improved UX and error messaging

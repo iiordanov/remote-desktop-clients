@@ -36,7 +36,7 @@ import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 
 import com.undatech.opaque.util.LogcatReader;
-import com.undatech.opaque.util.PermissionsManager;
+import com.iiordanov.util.PermissionsManager;
 
 import com.undatech.remoteClientUi.*;
 
@@ -165,7 +165,7 @@ public abstract class MainConfiguration extends FragmentActivity {
         ((Button) findViewById(R.id.buttonImportExport)).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                permissionsManager.requestPermissions(MainConfiguration.this);
+                permissionsManager.requestPermissions(MainConfiguration.this, true);
                 showDialog(R.layout.importexport);
             }
         });

@@ -31,9 +31,6 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
-import android.support.v4.app.DialogFragment;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -41,45 +38,35 @@ import android.text.ClipboardManager;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.view.DragEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
-import android.view.WindowManager;
-import android.view.View.OnDragListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.EditText;
 import android.widget.GridView;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.iiordanov.bVNC.App;
 import com.iiordanov.bVNC.Constants;
 import com.iiordanov.bVNC.Database;
-import com.iiordanov.bVNC.MainConfiguration;
 import com.iiordanov.bVNC.RemoteCanvasActivity;
 import com.iiordanov.bVNC.Utils;
-import com.iiordanov.bVNC.bVNC;
 import com.iiordanov.bVNC.ConnectionBean;
 import com.iiordanov.bVNC.dialogs.GetTextFragment;
 import com.iiordanov.bVNC.dialogs.ImportExportDialog;
 import com.iiordanov.bVNC.dialogs.IntroTextDialog;
 import com.iiordanov.bVNC.input.InputHandlerDirectSwipePan;
-import com.undatech.opaque.dialogs.MessageFragment;
 import com.undatech.opaque.util.ConnectionLoader;
-import com.undatech.opaque.util.FileUtils;
 import com.undatech.opaque.util.GeneralUtils;
 import com.undatech.opaque.util.LogcatReader;
-import com.undatech.opaque.util.PermissionsManager;
-import org.json.JSONException;
+import com.iiordanov.util.PermissionsManager;
 
 import java.io.File;
-import java.io.IOException;
+
 import com.undatech.remoteClientUi.R;
 
 public class ConnectionGridActivity extends FragmentActivity implements GetTextFragment.OnFragmentDismissedListener {
@@ -95,7 +82,7 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
     private boolean togglingMasterPassword = false;
     GetTextFragment getPassword = null;
     GetTextFragment getNewPassword = null;
-    protected boolean startingOrHasPaused = true;
+    protected boolean isStarting = true;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -134,7 +121,7 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
             }
         });
         permissionsManager = new PermissionsManager();
-        permissionsManager.requestPermissions(ConnectionGridActivity.this);
+        permissionsManager.requestPermissions(ConnectionGridActivity.this, false);
 
         search = findViewById(R.id.search);
         search.addTextChangedListener(new TextWatcher() {
@@ -257,19 +244,14 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
         super.onResume();
         Log.i(TAG, "onResume");
         loadSavedConnections();
-        IntroTextDialog.showIntroTextIfNecessary(this, database, Utils.isFree(this) && startingOrHasPaused);
-        startingOrHasPaused = false;
+        IntroTextDialog.showIntroTextIfNecessary(this, database, Utils.isFree(this) && isStarting);
+        isStarting = false;
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         Log.i(TAG, "onPause");
-        if (!isConnecting) {
-            startingOrHasPaused = true;
-        } else {
-            isConnecting = false;
-        }
         if (database != null)
             database.close();
     }
@@ -433,7 +415,7 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
     public boolean onOptionsItemSelected(MenuItem item) {
         int itemId = item.getItemId();
         if (itemId == R.id.itemExportImport) {
-            permissionsManager.requestPermissions(ConnectionGridActivity.this);
+            permissionsManager.requestPermissions(ConnectionGridActivity.this, true);
             showDialog(R.layout.importexport);
         } else if (itemId == R.id.itemMasterPassword) {
             if (Utils.isFree(this)) {

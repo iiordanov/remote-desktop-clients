@@ -4,6 +4,9 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import com.iiordanov.bVNC.Constants;
+import com.iiordanov.bVNC.Utils;
+import com.iiordanov.util.PermissionsManager;
 import com.undatech.opaque.Connection;
 import com.undatech.opaque.ConnectionSettings;
 
@@ -31,12 +34,11 @@ public class ConnectionLoader {
         this.activity = activity;
         this.connectionsById = new HashMap<>();
         permissionsManager = new PermissionsManager();
-        permissionsManager.requestPermissions(activity);
         load();
     }
 
     public void load() {
-        permissionsManager.requestPermissions(activity);
+        permissionsManager.requestPermissions(activity, false);
         if (connectionsInSharedPrefs) {
             loadFromSharedPrefs();
         } else {
@@ -53,9 +55,8 @@ public class ConnectionLoader {
         Collections.sort(connections);
         numConnections = connections.size();
         if (connections.size() == 0) {
-            android.util.Log.e(TAG, "No connections in the database");
-        }
-        else {
+            android.util.Log.i(TAG, "No connections in the database");
+        } else {
             for (int i = 0; i < connections.size(); i++) {
                 Connection connection = connections.get(i);
                 connection.setRuntimeId(Integer.toString(i));

@@ -59,6 +59,7 @@ import com.iiordanov.freeaRDP.*;
 import com.iiordanov.aSPICE.*;
 import com.iiordanov.freeaSPICE.*;
 import com.iiordanov.CustomClientPackage.*;
+import com.iiordanov.util.PermissionsManager;
 import com.undatech.opaque.util.FileUtils;
 import com.undatech.remoteClientUi.*;
 
@@ -219,6 +220,9 @@ public class aSPICE extends MainConfiguration {
         checkboxKeepPassword.setChecked(selected.getKeepPassword());
         checkboxUseDpadAsArrows.setChecked(selected.getUseDpadAsArrows());
         checkboxRotateDpad.setChecked(selected.getRotateDpad());
+        if (selected.getEnableSound()) {
+            permissionsManager.requestPermissions(this, true);
+        }
         checkboxEnableSound.setChecked(selected.getEnableSound());
         textNickname.setText(selected.getNickname());
         spinnerGeometry.setSelection(selected.getRdpResType());

@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
+import com.iiordanov.util.PermissionsManager;
 import com.undatech.opaque.dialogs.ManageCustomCaFragment;
 
 import android.app.Activity;
@@ -131,6 +132,10 @@ public class AdvancedSettingsActivity extends FragmentActivity implements Manage
      */
     public void toggleAudioPlaybackSetting (View view) {
         ToggleButton s = (ToggleButton) view;
+        if (s.isChecked()) {
+            PermissionsManager permissionsManager = new PermissionsManager();
+            permissionsManager.requestPermissions(this, true);
+        }
         currentConnection.setAudioPlaybackEnabled(s.isChecked());
     }
     
