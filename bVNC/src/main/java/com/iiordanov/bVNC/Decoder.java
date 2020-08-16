@@ -39,6 +39,7 @@ import android.graphics.Rect;
 import android.graphics.Paint.Style;
 import android.graphics.RectF;
 import android.util.Log;
+import com.github.luben.zstd.Zstd;
 
 public class Decoder {
     private final static String TAG = "Decoder";
@@ -713,7 +714,7 @@ public class Decoder {
     //
     // Handle a Tight-encoded rectangle.
     //
-    void handleTightRect(RfbProto rfb, int x, int y, int w, int h) throws Exception {
+    void handleTightRect(RfbProto rfb, int x, int y, int w, int h, boolean zstd) throws Exception {
         
         int[] pixels = bitmapData.bitmapPixels;
         valid = bitmapData.validDraw(x, y, w, h);
@@ -867,29 +868,46 @@ public class Decoder {
             }
 
         } else {
-            // Data was compressed with zlib.
-            int zlibDataLen = rfb.readCompactLen();
-            if (zlibDataLen > zlibData.length) {
-                zlibData = new byte[zlibDataLen*2];
-            }
-            rfb.readFully(zlibData, 0, zlibDataLen);
+            // Data was compressed with zlib or zstd
+            if (zstd) {
+                // Data was compressed with zstd.
+                int zlibDataLen = rfb.readCompactLen();
+                zlibData = new byte[zlibDataLen];
+                rfb.readFully(zlibData);
 
-            stream_id = comp_ctl & 0x03;
-            if (tightInflaters[stream_id] == null) {
-                tightInflaters[stream_id] = new Inflater();
-            }
+                inflBuf = new byte[dataSize];
 
-            Inflater myInflater = tightInflaters[stream_id];
-            myInflater.setInput(zlibData, 0, zlibDataLen);
-            
-            if (dataSize > inflBuf.length) {
-                inflBuf = new byte[dataSize*2];
-            }
+                try {
+                    Zstd.decompress(inflBuf, zlibData);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    return;
+                }
+            } else {
+                // Data was compressed with zlib.
+                int zlibDataLen = rfb.readCompactLen();
+                if (zlibDataLen > zlibData.length) {
+                    zlibData = new byte[zlibDataLen * 2];
+                }
+                rfb.readFully(zlibData, 0, zlibDataLen);
 
-            try {
-                myInflater.inflate(inflBuf, 0, dataSize);
-            } catch (DataFormatException e) {
-                e.printStackTrace();
+                stream_id = comp_ctl & 0x03;
+                if (tightInflaters[stream_id] == null) {
+                    tightInflaters[stream_id] = new Inflater();
+                }
+
+                Inflater myInflater = tightInflaters[stream_id];
+                myInflater.setInput(zlibData, 0, zlibDataLen);
+
+                if (dataSize > inflBuf.length) {
+                    inflBuf = new byte[dataSize * 2];
+                }
+
+                try {
+                    myInflater.inflate(inflBuf, 0, dataSize);
+                } catch (DataFormatException e) {
+                    e.printStackTrace();
+                }
             }
 
             if (!valid)

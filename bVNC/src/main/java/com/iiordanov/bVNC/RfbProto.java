@@ -161,7 +161,18 @@ class RfbProto implements RfbConnectable {
             EncodingHextile = 5,
             EncodingZlib = 6,
             EncodingTight = 7,
+//            EncodingZlibHex = 8,
+//            EncodingUltra = 9,
+//            EncodingUltra2 = 10,
             EncodingZRLE = 16,
+//            EncodingZYWRLE = 17,
+//            EncodingXZ = 18,
+//            EncodingXZYW = 19,
+//            EncodingZstd = 25,
+            EncodingTightZstd = 26,
+//            EncodingZstdHex = 27,
+//            EncodingZSTDRLE = 28,
+//            EncodingZSTDYWRLE = 29,
             EncodingCompressLevel0 = -256,
             EncodingQualityLevel0 = -32,
             EncodingXCursor = -240,
@@ -180,6 +191,7 @@ class RfbProto implements RfbConnectable {
             SigEncodingHextile = "HEXTILE_",
             SigEncodingZlib = "ZLIB____",
             SigEncodingTight = "TIGHT___",
+            SigEncodingTightZstd = "TIGHTZSTD___",
             SigEncodingZRLE = "ZRLE____",
             SigEncodingCompressLevel0 = "COMPRLVL",
             SigEncodingQualityLevel0 = "JPEGQLVL",
@@ -293,7 +305,7 @@ class RfbProto implements RfbConnectable {
     private int shareDesktop = 1;
 
     // Suggests to the server a preferred encoding
-    private int preferredEncoding = EncodingTight;
+    private int preferredEncoding;
 
     // View Only mode
     private boolean viewOnly = false;
@@ -910,6 +922,8 @@ class RfbProto implements RfbConnectable {
                 SigEncodingZlib, "Zlib encoding");
         encodingCaps.add(EncodingTight, TightVncVendor,
                 SigEncodingTight, "Tight encoding");
+        encodingCaps.add(EncodingTightZstd, TightVncVendor,
+                SigEncodingTightZstd, "Tight Zstd encoding");
 
         // Supported pseudo-encoding types
         encodingCaps.add(EncodingCompressLevel0, TightVncVendor,
@@ -1835,6 +1849,8 @@ class RfbProto implements RfbConnectable {
                 return "RAW";
             case RfbProto.EncodingTight:
                 return "TIGHT";
+            case RfbProto.EncodingTightZstd:
+                return "TIGHTZSTD";
             case RfbProto.EncodingCoRRE:
                 return "CoRRE";
             case RfbProto.EncodingHextile:
@@ -1938,7 +1954,10 @@ class RfbProto implements RfbConnectable {
 
                             switch (updateRectEncoding) {
                                 case RfbProto.EncodingTight:
-                                    decoder.handleTightRect(this, updateRectX, updateRectY, updateRectW, updateRectH);
+                                    decoder.handleTightRect(this, updateRectX, updateRectY, updateRectW, updateRectH, false);
+                                    break;
+                                case RfbProto.EncodingTightZstd:
+                                    decoder.handleTightRect(this, updateRectX, updateRectY, updateRectW, updateRectH, true);
                                     break;
                                 case RfbProto.EncodingPointerPos:
                                     canvas.softCursorMove(updateRectX, updateRectY);
