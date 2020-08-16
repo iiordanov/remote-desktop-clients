@@ -620,7 +620,7 @@ build_freerdp() {
             patch -N -p1 < ${f}
         done
 
-        sed -i 's/implementationSdkVersion/compileSdkVersion/; s/.*rootProject.ext.versionName.*//; s/.*rootProject.ext.versionCode.*//; s/.*.*buildToolsVersion.*.*//; s/compile /implementation /' \
+        sed -i 's/implementationSdkVersion/compileSdkVersion/; s/.*rootProject.ext.versionName.*//; s/.*rootProject.ext.versionCode.*//; s/.*.*buildToolsVersion.*.*//; s/compile /implementation /; s/minSdkVersion .*/minSdkVersion 14/;' \
                client/Android/Studio/freeRDPCore/build.gradle
 
         cp "${basedir}/../freerdp_AndroidManifest.xml" client/Android/Studio/freeRDPCore/src/main/AndroidManifest.xml

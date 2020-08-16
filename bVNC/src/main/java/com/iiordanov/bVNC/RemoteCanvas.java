@@ -1616,7 +1616,7 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView
     public void reDraw(int x, int y, int w, int h) {
         //android.util.Log.i(TAG, "reDraw called: " + x +", " + y + " + " + w + "x" + h);
         long timeNow = System.currentTimeMillis();
-        if (timeNow - lastDraw > 33.3333) {
+        if (timeNow - lastDraw > 16.6666) {
             float scale = getZoomFactor();
             float shiftedX = x - shiftX;
             float shiftedY = y - shiftY;
@@ -1637,7 +1637,7 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView
      */
     public void reDraw(float x, float y, float w, float h) {
         long timeNow = System.currentTimeMillis();
-        if (timeNow - lastDraw > 33.3333) {
+        if (timeNow - lastDraw > 16.6666) {
             float scale = getZoomFactor();
             float shiftedX = x - shiftX;
             float shiftedY = y - shiftY;
