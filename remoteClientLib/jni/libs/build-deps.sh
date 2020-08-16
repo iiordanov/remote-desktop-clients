@@ -604,15 +604,15 @@ build_freerdp() {
                -e "s/BUILD_ARCH=.*/BUILD_ARCH=\"${abis}\"/" ./scripts/android-build.conf
 
 
-        echo 'set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DWINPR_EXPORTS --sysroot=${ANDROID_SYSROOT}")' >>  winpr/CMakeLists.txt
-        for f in winpr/CMakeLists.txt winpr/libwinpr/CMakeLists.txt libfreerdp/CMakeLists.txt client/common/CMakeLists.txt client/Android/CMakeLists.txt client/common/CMakeLists.txt
-        do
-            echo 'set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} --sysroot=${ANDROID_SYSROOT}")' >> $f
-            echo 'set(CMAKE_STATIC_LINKER_FLAGS "${CMAKE_STATIC_LINKER_FLAGS} --sysroot=${ANDROID_SYSROOT}")' >> $f
-        done
+        #echo 'set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DWINPR_EXPORTS --sysroot=${ANDROID_SYSROOT}")' >>  winpr/CMakeLists.txt
+        #for f in winpr/CMakeLists.txt winpr/libwinpr/CMakeLists.txt libfreerdp/CMakeLists.txt client/common/CMakeLists.txt client/Android/CMakeLists.txt client/common/CMakeLists.txt
+        #do
+        #    echo 'set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} --sysroot=${ANDROID_SYSROOT}")' >> $f
+        #    echo 'set(CMAKE_STATIC_LINKER_FLAGS "${CMAKE_STATIC_LINKER_FLAGS} --sysroot=${ANDROID_SYSROOT}")' >> $f
+        #done
 
         # Something wrong with NDK?
-        sed -i 's/static int pthread_mutex_timedlock/int pthread_mutex_timedlock/' winpr/libwinpr/synch/wait.c
+        #sed -i 's/static int pthread_mutex_timedlock/int pthread_mutex_timedlock/' winpr/libwinpr/synch/wait.c
 
         for f in ${basedir}/../*_freerdp_*.patch
         do
