@@ -1604,6 +1604,7 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView
     Runnable invalidateCanvasRunnable = new Runnable() {
         @Override
         public void run() {
+            Log.d(TAG, "invalidateCanvasRunnable");
             postInvalidate();
         }
     };

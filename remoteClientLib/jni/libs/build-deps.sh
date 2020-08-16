@@ -597,7 +597,7 @@ build_freerdp() {
 
         # Patch the config
         sed -i -e 's/CMAKE_BUILD_TYPE=.*/CMAKE_BUILD_TYPE=Release/'\
-               -e 's/WITH_OPENH264=.*/WITH_OPENH264=1/'\
+               -e 's/WITH_OPENH264=.*/WITH_OPENH264=0/'\
                -e 's/WITH_JPEG=.*/WITH_JPEG=1/'\
                -e 's/OPENH264_TAG=.*/OPENH264_TAG=v2.0.0/'\
                -e 's/OPENSSL_TAG=.*/OPENSSL_TAG=OpenSSL_1_1_1g/'\
@@ -620,6 +620,9 @@ build_freerdp() {
             patch -N -p1 < ${f}
         done
 
+        sed -i 's/implementationSdkVersion/compileSdkVersion/; s/.*rootProject.ext.versionName.*//; s/.*rootProject.ext.versionCode.*//; s/.*.*buildToolsVersion.*.*//; s/compile /implementation /' \
+               client/Android/Studio/freeRDPCore/build.gradle
+
         cp "${basedir}/../freerdp_AndroidManifest.xml" client/Android/Studio/freeRDPCore/src/main/AndroidManifest.xml
 
         echo "Installing android NDK ${freerdp_ndk_version} for FreeRDP build compatibility"
@@ -630,10 +633,7 @@ build_freerdp() {
         export CMAKE_PROGRAM=${CMAKE_PATH}/cmake
         ./scripts/android-build-freerdp.sh
 
-        sed -i 's/implementationSdkVersion/compileSdkVersion/; s/.*rootProject.ext.versionName.*//; s/.*.*buildToolsVersion.*.*//; s/compile /implementation /; s/minSdkVersion .*/minSdkVersion 14/' \
-               client/Android/Studio/freeRDPCore/build.gradle
-
-        # Prepare the FreeRDPCore project for importing into Eclipse
+        # Prepare the FreeRDPCore project for use as a library
         rm -f ../../../../../freeRDPCore
         ln -s remoteClientLib/jni/libs/deps/${freerdp_build}/client/Android/Studio/freeRDPCore/ ../../../../../freeRDPCore
         popd

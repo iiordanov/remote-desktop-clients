@@ -263,7 +263,8 @@ public class RdpCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyPro
         android.util.Log.e(TAG, "Unicode character: " + unicodeKey);
         sendModifierKeys(true);
         try { Thread.sleep(5); } catch (InterruptedException e) {}
-        LibFreeRDP.sendUnicodeKeyEvent(session.getInstance(), unicodeKey);
+        LibFreeRDP.sendUnicodeKeyEvent(session.getInstance(), unicodeKey, true);
+        LibFreeRDP.sendUnicodeKeyEvent(session.getInstance(), unicodeKey, false);
         sendModifierKeys(false);
     }
 
@@ -325,7 +326,7 @@ public class RdpCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyPro
         performanceFlags.setMenuAnimations(menuAnimations);
         performanceFlags.setTheming(theming);
         performanceFlags.setGfx(true);
-        performanceFlags.setH264(true);
+        performanceFlags.setH264(false);
 
         BookmarkBase.AdvancedSettings advancedSettings = bookmark.getAdvancedSettings();
         advancedSettings.setRedirectSDCard(redirectSdCard);
