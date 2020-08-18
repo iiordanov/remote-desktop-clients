@@ -62,6 +62,11 @@ class RfbProto implements RfbConnectable {
             super(errorMessage);
         }
     }
+    public class RfbUltraVncColorMapException extends Exception {
+        public RfbUltraVncColorMapException(String errorMessage) {
+            super(errorMessage);
+        }
+    }
 
     final static String TAG = "RfbProto";
 
@@ -2043,6 +2048,10 @@ class RfbProto implements RfbConnectable {
                             // TODO implement chat interface
                         }
                         break;
+
+                    case 14:
+                        // This message is sent by UltraVNC when color < 24bit is requested by the client
+                        throw new RfbUltraVncColorMapException("Only 24bpp color supported with UltraVNC");
 
                     default:
                         throw new Exception("Unknown RFB message type " + msgType);

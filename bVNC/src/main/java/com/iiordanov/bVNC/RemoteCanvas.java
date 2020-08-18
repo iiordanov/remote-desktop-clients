@@ -593,7 +593,14 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView
         if (pd.isShowing())
             pd.dismiss();
 
-        rfb.processProtocol();
+        try {
+            rfb.processProtocol();
+        } catch (RfbProto.RfbUltraVncColorMapException e) {
+            Log.e(TAG, "UltraVnc supports only 24bpp. Switching color mode and reconnecting.");
+            connection.setColorModel(COLORMODEL.C24bit.nameString());
+            connection.save(getContext());
+            handler.sendEmptyMessage(RemoteClientLibConstants.REINIT_SESSION);
+        }
     }
 
     /**
