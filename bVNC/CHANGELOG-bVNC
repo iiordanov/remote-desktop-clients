@@ -1,4 +1,5 @@
 v5.0.1
+- Workaround for UltraVNC and lower color modes
 - Fix for annoying permissions request loop
 - Performance improvements
 - Security updates
