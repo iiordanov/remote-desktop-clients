@@ -8,7 +8,7 @@ buildscript {
         google()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:4.0.1'
+        classpath 'com.android.tools.build:gradle:3.5.3'
     }
 }
 
@@ -23,7 +23,7 @@ android {
     compileSdkVersion 27
 
     defaultConfig {
-        targetSdkVersion 28
+        targetSdkVersion 27
         minSdkVersion project.getProperties().get("SDK_VERSION")
         ndk.abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86' ,'x86_64'
     }
