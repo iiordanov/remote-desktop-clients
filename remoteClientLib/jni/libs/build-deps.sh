@@ -217,7 +217,7 @@ build_one() {
                 no-hw \
                 no-ssl2 \
                 no-ssl3 \
-                -D__ANDROID_API__=21 \
+                -D__ANDROID_API__=${android_api} \
                 ${cppflags} \
                 ${cflags} \
                 ${ldflags}
@@ -230,7 +230,7 @@ build_one() {
                 no-hw \
                 no-ssl2 \
                 no-ssl3 \
-                -D__ANDROID_API__=21 \
+                -D__ANDROID_API__=${android_api} \
                 ${cppflags} \
                 ${cflags} \
                 ${ldflags}
@@ -447,6 +447,7 @@ setup() {
             echo "No toolchain configured and NDK directory not set."
             exit 1
         fi
+        echo "Toolchain for ${arch} not found, building it."
         ${ndkdir}/build/tools/make_standalone_toolchain.py \
                 --api "${android_api}" \
                 --arch "${arch}" \
@@ -627,6 +628,7 @@ build_freerdp() {
 
         echo "Installing android NDK ${freerdp_ndk_version} for FreeRDP build compatibility"
         export ANDROID_NDK=$(install_ndk ../../ ${freerdp_ndk_version})
+        echo "Android NDK version for FreeRDP ${ndk_version} is installed at ${ANDROID_NDK}"
         echo "Installing cmake ${freerdp_cmake_version} for FreeRDP build compatibility"
         export CMAKE_PATH=$(install_cmake ../../ ${freerdp_cmake_version})/bin
         export PATH=${CMAKE_PATH}:${PATH}
@@ -649,7 +651,9 @@ trap fail_handler ERR
 
 # Parse command-line options
 parallel=""
-ndkdir=""
+export ANDROID_NDK=$(install_ndk ./ ${ndk_version})
+echo "Android NDK version ${ndk_version} is installed at ${ANDROID_NDK}"
+ndkdir="${ANDROID_NDK}"
 origdir="$(pwd)"
 
 while getopts "j:n:" opt

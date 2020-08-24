@@ -226,12 +226,21 @@ void send_key(SpiceDisplay *display, int scancode, int down)
 static void disable_secondary_displays(SpiceMainChannel *channel, gpointer data) {
     __android_log_write(ANDROID_LOG_INFO, "android-spice", "disable_secondary_displays");
 
+    if (!SPICE_IS_MAIN_CHANNEL(channel)) {
+        return;
+    }
+
     SpiceDisplay *display = data;
     SpiceDisplayPrivate *d = SPICE_DISPLAY_GET_PRIVATE(display);
 
     spice_main_set_display_enabled(d->main, -1, FALSE);
     spice_main_set_display_enabled(d->main, 0, FALSE);
-    spice_main_send_monitor_config(d->main);
+
+    if (spice_main_channel_send_monitor_config(d->main)) {
+        __android_log_write(ANDROID_LOG_INFO, "android-io", "Successfully sent monitor config");
+    } else {
+        __android_log_write(ANDROID_LOG_ERROR, "android-io", "Failed to send monitor config");
+    }
 }
 
 static void primary_create(SpiceChannel *channel, gint format, gint width, gint height, gint stride, gint shmid, gpointer imgdata, gpointer data) {

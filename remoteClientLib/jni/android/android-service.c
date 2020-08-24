@@ -611,7 +611,7 @@ int CreateOvirtSession(JNIEnv *env, jobject obj, const gchar *uri, const gchar *
             // We still continue and attempt a connection even if powering on the VM fails.
         }
         // Wait a bit and then recursively create a new session setting didPowerOn to TRUE.
-        sleep (3);
+        sleep (15);
         CreateOvirtSession(env, obj, uri, user, password, ovirt_ca_file, sound, sslStrict, TRUE);
         goto error;
     }

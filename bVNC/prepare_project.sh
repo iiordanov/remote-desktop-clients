@@ -42,6 +42,9 @@ then
 fi
 
 DIR=$(dirname $0)
+
+. ${DIR}/../remoteClientLib/jni/libs/build-deps.conf
+
 pushd $DIR
 
 PRJ="$1"
@@ -102,8 +105,8 @@ if [ "$SKIP_BUILD" == "false" ]
 then
   pushd ../remoteClientLib/jni/libs
   echo "Automatically installing Android NDK"
-  export ANDROID_NDK=$(install_ndk ./ r18b)
-  ./build-deps.sh -j 8 -n $ANDROID_NDK build $PRJ
+  export ANDROID_NDK=$(install_ndk ./ ${ndk_version})
+  ./build-deps.sh -j 8 build $PRJ
   popd
 
   if echo $PRJ | grep -qi "SPICE\|Opaque\|libs\|remoteClientLib"
