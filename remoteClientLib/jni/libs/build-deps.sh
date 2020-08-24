@@ -256,7 +256,8 @@ build_one() {
                 LIBS="-lm"
 
 	# Disable tests and tools
-        sed -i 's/tests//' subprojects/spice-common/Makefile
+        sed -i 's/tests//' subprojects/spice-common/Makefile || true
+        sed -i 's/tests//' spice-common/Makefile || true
         sed -i 's/tests//' Makefile
         sed -i 's/tools//' Makefile
 
@@ -265,16 +266,15 @@ build_one() {
         make $parallel
 
         # Patch to avoid SIGBUS due to unaligned accesses on ARM7
-        # seems it is no longer needed since spice-gtk 0.35
         patch -p1 < "${basedir}/spice-marshaller-sigbus.patch"
         make $parallel
 
         make install
 
         # Put some header files in a version-independent location.
-        for f in config.h tools/*.h src/*.h subprojects/spice-common/common
+        for f in config.h tools/*.h src/*.h spice-common/common subprojects/spice-common/common
         do
-            rsync -a $f ${root}/include/spice-1/
+            rsync -a $f ${root}/include/spice-1/ || true
         done
 
         ;;
