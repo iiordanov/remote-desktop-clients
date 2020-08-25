@@ -111,6 +111,8 @@ gint get_display_id(SpiceDisplay *display)
 
 static void update_mouse_mode(SpiceChannel *channel, gpointer data)
 {
+    SPICE_DEBUG("update_mouse_mode");
+
     SpiceDisplay *display = data;
     SpiceDisplayPrivate *d = SPICE_DISPLAY_GET_PRIVATE(display);
 
@@ -227,6 +229,7 @@ static void disable_secondary_displays(SpiceMainChannel *channel, gpointer data)
     __android_log_write(ANDROID_LOG_INFO, "android-spice", "disable_secondary_displays");
 
     if (!SPICE_IS_MAIN_CHANNEL(channel)) {
+        __android_log_write(ANDROID_LOG_INFO, "android-spice", "Not main channel, returning from disable_secondary_displays");
         return;
     }
 
@@ -234,12 +237,15 @@ static void disable_secondary_displays(SpiceMainChannel *channel, gpointer data)
     SpiceDisplayPrivate *d = SPICE_DISPLAY_GET_PRIVATE(display);
 
     spice_main_set_display_enabled(d->main, -1, FALSE);
-    spice_main_set_display_enabled(d->main, 0, FALSE);
+    spice_main_update_display_enabled(d->main, -1, FALSE, TRUE);
+
+    spice_main_set_display_enabled(d->main, 0, TRUE);
+    spice_main_update_display_enabled(d->main, 0, TRUE, TRUE);
 
     if (spice_main_channel_send_monitor_config(d->main)) {
-        __android_log_write(ANDROID_LOG_INFO, "android-io", "Successfully sent monitor config");
+        __android_log_write(ANDROID_LOG_INFO, "android-spice", "Successfully sent monitor config");
     } else {
-        __android_log_write(ANDROID_LOG_ERROR, "android-io", "Failed to send monitor config");
+        __android_log_write(ANDROID_LOG_ERROR, "android-spice", "Failed to send monitor config");
     }
 }
 
@@ -265,6 +271,8 @@ static void primary_create(SpiceChannel *channel, gint format, gint width, gint 
 }
 
 static void primary_destroy(SpiceChannel *channel, gpointer data) {
+    SPICE_DEBUG("primary_destroy");
+
     SpiceDisplay *display = SPICE_DISPLAY(data);
     SpiceDisplayPrivate *d = SPICE_DISPLAY_GET_PRIVATE(display);
 
@@ -280,6 +288,7 @@ static void primary_destroy(SpiceChannel *channel, gpointer data) {
 
 static void invalidate(SpiceChannel *channel,
                        gint x, gint y, gint w, gint h, gpointer data) {
+    SPICE_DEBUG("invalidate %d %d %d %d", x, y, w, h);
     SpiceDisplay *display = data;
 
     if (!do_color_convert(display, x, y, w, h))
@@ -295,6 +304,7 @@ static void invalidate(SpiceChannel *channel,
 }
 
 static void mark(SpiceChannel *channel, gint mark, gpointer data) {
+    SPICE_DEBUG("mark");
 	//__android_log_write(ANDROID_LOG_INFO, "android-spice", "mark");
     SpiceDisplay *display = data;
     SpiceDisplayPrivate *d = SPICE_DISPLAY_GET_PRIVATE(display);
@@ -393,6 +403,7 @@ static void channel_new(SpiceSession *s, SpiceChannel *channel, gpointer data)
         if (id != d->channel_id)
             return;
         d->display = channel;
+        SPICE_DEBUG("Connecting display-primary-create signal");
         g_signal_connect(channel, "display-primary-create",
                          G_CALLBACK(primary_create), display);
         g_signal_connect(channel, "display-primary-destroy",

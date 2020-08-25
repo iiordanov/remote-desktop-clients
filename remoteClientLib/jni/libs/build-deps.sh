@@ -263,6 +263,7 @@ build_one() {
 
         patch -p0 < "${basedir}/spice-gtk-log.patch"
         patch -p1 < "${basedir}/spice-gtk-exit.patch"
+        patch -p1 < "${basedir}/spice-gtk-disable-agent-sync-audio-calls.patch"
         make $parallel
 
         # Patch to avoid SIGBUS due to unaligned accesses on ARM7

@@ -58,7 +58,7 @@ inline void detachThreadFromJvm() {
 }
 
 static void
-spice_session_setup_from_vv(VirtViewerFile *file, SpiceSession *session)
+spice_session_setup_from_vv(VirtViewerFile *file, SpiceSession *session, gboolean enable_audio)
 {
     g_return_if_fail(VIRT_VIEWER_IS_FILE(file));
     g_return_if_fail(SPICE_IS_SESSION(session));
@@ -157,11 +157,15 @@ spice_session_setup_from_vv(VirtViewerFile *file, SpiceSession *session)
     if (virt_viewer_file_is_set(file, "disable-channels")) {
         //DEBUG_LOG("FIXME: disable-channels is not supported atm");
     }
+
+    __android_log_write(ANDROID_LOG_DEBUG, "spice_session_setup", "setting enable_audio");
+    g_object_set(session, "enable-audio", enable_audio, NULL);
 }
 
 void spice_session_setup(SpiceSession *session, const char *host, const char *port,
                             const char *tls_port, const char *password, const char *ca_file,
-                            GByteArray *ca_cert, const char *cert_subj, const char *proxy) {
+                            GByteArray *ca_cert, const char *cert_subj, const char *proxy,
+                            gboolean enable_audio) {
 
     g_return_if_fail(SPICE_IS_SESSION(session));
 
@@ -198,6 +202,12 @@ void spice_session_setup(SpiceSession *session, const char *host, const char *po
         __android_log_write(ANDROID_LOG_DEBUG, "spice_session_setup, setting proxy", proxy);
         g_object_set(session, "proxy", proxy, NULL);
     }
+    __android_log_write(ANDROID_LOG_DEBUG, "spice_session_setup", "setting enable_audio");
+    g_object_set(session, "enable-audio", enable_audio, NULL);
+    __android_log_write(ANDROID_LOG_DEBUG, "spice_session_setup", "disabling smartcard");
+    g_object_set(session, "enable-smartcard", FALSE, NULL);
+    __android_log_write(ANDROID_LOG_DEBUG, "spice_session_setup", "disabling usbredir");
+    g_object_set(session, "enable-usbredir", FALSE, NULL);
 }
 
 static void signal_handler(int signal, siginfo_t *info, void *reserved) {
@@ -294,21 +304,23 @@ int spiceClientConnect (const gchar *h, const gchar *p, const gchar *tp,
                         const gchar *pw, const gchar *cf, GByteArray *cc,
                         const gchar *cs, const gboolean sound, const gchar *proxy)
 {
+    spice_util_set_debug(true);
 	spice_connection *conn;
 
     soundEnabled = sound;
     conn = connection_new();
-	spice_session_setup(conn->session, h, p, tp, pw, cf, cc, cs, proxy);
+	spice_session_setup(conn->session, h, p, tp, pw, cf, cc, cs, proxy, sound);
 	return connectSession(conn);
 }
 
 int spiceClientConnectVv (VirtViewerFile *vv_file, const gboolean sound)
 {
+    spice_util_set_debug(true);
     spice_connection *conn;
 
     soundEnabled = sound;
     conn = connection_new();
-	spice_session_setup_from_vv(vv_file, conn->session);
+	spice_session_setup_from_vv(vv_file, conn->session, sound);
 	return connectSession(conn);
 }
 
