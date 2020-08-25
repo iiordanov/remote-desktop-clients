@@ -580,12 +580,12 @@ public class ConnectionSettings implements Connection, Serializable {
                 fileName = context.getFilesDir() + "/ca" + Integer.toString(caCertData.hashCode()) + ".crt";
                 File file = new File(fileName);
                 if (!file.exists()) {
-                    android.util.Log.e(TAG, "Writing out CA to file: " + fileName);
+                    android.util.Log.d(TAG, "Writing out CA to file: " + fileName);
                     PrintWriter fout = new PrintWriter(fileName);
                     fout.println(caCertData);
                     fout.close();
                 } else {
-                    android.util.Log.e(TAG, "File already exists: " + fileName);
+                    android.util.Log.d(TAG, "File already exists: " + fileName);
                 }
             } catch (FileNotFoundException e) {
                 fileName = "";
