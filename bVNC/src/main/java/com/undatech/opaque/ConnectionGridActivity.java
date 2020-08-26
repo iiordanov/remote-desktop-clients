@@ -242,7 +242,7 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
     @Override
     public void onResume() {
         super.onResume();
-        Log.i(TAG, "onResume");
+        Log.i(TAG, "onResume of version " + Utils.getVersionAndCode(this));
         loadSavedConnections();
         IntroTextDialog.showIntroTextIfNecessary(this, database, Utils.isFree(this) && isStarting);
         isStarting = false;

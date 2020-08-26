@@ -56,6 +56,8 @@ import android.content.SharedPreferences.Editor;
 import android.content.Intent;
 import net.sqlcipher.database.SQLiteDatabase;
 
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Environment;
@@ -535,5 +537,18 @@ public class Utils {
             context = ((ContextWrapper)context).getBaseContext();
         }
         return null;
+    }
+
+    public static String getVersionAndCode(Context context) {
+        String result = "";
+        try {
+            String packageName = context.getPackageName();
+            PackageInfo pInfo = context.getPackageManager().getPackageInfo(packageName, 0);
+            result = pInfo.versionName + "_" + pInfo.versionCode;
+            android.util.Log.d(TAG, "Version of " + packageName + " is " + result);
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
+        return result;
     }
 }
