@@ -1124,6 +1124,21 @@ public class ConnectionSettings implements Connection, Serializable {
         this.x509KeySignature = x509KeySignature;
     }
 
+    @Override
+    public boolean getEnableGfx() {
+        return false;
+    }
+
+    @Override
+    public void setEnableGfx(boolean enableGfx) {}
+
+    @Override
+    public boolean getEnableGfxH264() {
+        return false;
+    }
+
+    @Override
+    public void setEnableGfxH264(boolean enableGfxH264) {}
 
     /**
      * Exports preferences to a file.

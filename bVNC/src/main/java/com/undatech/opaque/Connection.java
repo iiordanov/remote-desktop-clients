@@ -261,4 +261,9 @@ public interface Connection {
     public void setScreenshotFilename(String screenShotFilename);
     public String getX509KeySignature();
     public void setX509KeySignature(String x509KeySignature);
+
+    boolean getEnableGfx();
+    void setEnableGfx(boolean enableGfx);
+    boolean getEnableGfxH264();
+    void setEnableGfxH264(boolean enableGfxH264);
 }

@@ -465,6 +465,23 @@
                 android:text="@string/rdp_adv_visual_styles"
                 android:textAppearance="?android:attr/textAppearanceMedium" />
 
+            <CheckBox
+                android:id="@+id/checkboxEnableGfx"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="left|center_vertical"
+                android:text="@string/rdp_adv_gfx"
+                android:textAppearance="?android:attr/textAppearanceMedium" />
+
+            <CheckBox
+                android:id="@+id/checkboxEnableGfxH264"
+                android:visibility="gone"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="left|center_vertical"
+                android:text="@string/rdp_adv_gfxh264"
+                android:textAppearance="?android:attr/textAppearanceMedium" />
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

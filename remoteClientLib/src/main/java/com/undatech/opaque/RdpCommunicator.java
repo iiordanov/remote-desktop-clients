@@ -296,7 +296,8 @@ public class RdpCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyPro
                                         int remoteHeight, boolean wallpaper, boolean fontSmoothing,
                                         boolean desktopComposition, boolean fullWindowDrag,
                                         boolean menuAnimations, boolean theming, boolean redirectSdCard,
-                                        boolean consoleMode, int redirectSound, boolean enableRecording) {
+                                        boolean consoleMode, int redirectSound, boolean enableRecording,
+                                        boolean enableRemoteFx, boolean enableGfx, boolean enableGfxH264) {
         // Set a writable data directory
         //LibFreeRDP.setDataDirectory(session.getInstance(), getContext().getFilesDir().toString());
         // Get the address and port (based on whether an SSH tunnel is being established or not).
@@ -318,15 +319,15 @@ public class RdpCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyPro
 
         // Set performance flags.
         BookmarkBase.PerformanceFlags performanceFlags = bookmark.getPerformanceFlags();
-        performanceFlags.setRemoteFX(false);
+        performanceFlags.setRemoteFX(enableRemoteFx);
         performanceFlags.setWallpaper(wallpaper);
         performanceFlags.setFontSmoothing(fontSmoothing);
         performanceFlags.setDesktopComposition(desktopComposition);
         performanceFlags.setFullWindowDrag(fullWindowDrag);
         performanceFlags.setMenuAnimations(menuAnimations);
         performanceFlags.setTheming(theming);
-        performanceFlags.setGfx(true);
-        performanceFlags.setH264(false);
+        performanceFlags.setGfx(enableGfx);
+        performanceFlags.setH264(enableGfxH264);
 
         BookmarkBase.AdvancedSettings advancedSettings = bookmark.getAdvancedSettings();
         advancedSettings.setRedirectSDCard(redirectSdCard);

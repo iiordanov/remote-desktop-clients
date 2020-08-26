@@ -512,7 +512,8 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView
                 connection.getDesktopComposition(), connection.getWindowContents(),
                 connection.getMenuAnimation(), connection.getVisualStyles(),
                 connection.getRedirectSdCard(), connection.getConsoleMode(),
-                connection.getRemoteSoundType(), connection.getEnableRecording());
+                connection.getRemoteSoundType(), connection.getEnableRecording(),
+                connection.getRemoteFx(), connection.getEnableGfx(), connection.getEnableGfxH264());
         rdpcomm.connect();
         pd.dismiss();
     }

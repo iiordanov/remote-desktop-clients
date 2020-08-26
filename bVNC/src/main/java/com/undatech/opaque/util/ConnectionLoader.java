@@ -48,7 +48,7 @@ public class ConnectionLoader {
 
     private void loadFromDatabase() {
         Database database = new Database(this.appContext);
-        SQLiteDatabase db = database.getReadableDatabase();
+        SQLiteDatabase db = database.getWritableDatabase();
 
         ArrayList<ConnectionBean> connections = new ArrayList<ConnectionBean>();
         ConnectionBean.getAll(db, ConnectionBean.GEN_TABLE_NAME, connections, ConnectionBean.newInstance);

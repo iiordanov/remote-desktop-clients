@@ -83,7 +83,9 @@ public class aRDP extends MainConfiguration {
     private CheckBox checkboxVisualStyles;
     private CheckBox checkboxRotateDpad;
     private CheckBox checkboxUseSshPubkey;
-    
+    private CheckBox checkboxEnableGfx;
+    private CheckBox checkboxEnableGfxH264;
+
     @Override
     public void onCreate(Bundle icicle) {
         layoutID = R.layout.main_rdp;
@@ -143,6 +145,8 @@ public class aRDP extends MainConfiguration {
         checkboxWindowContents = (CheckBox)findViewById(R.id.checkboxWindowContents);
         checkboxMenuAnimation = (CheckBox)findViewById(R.id.checkboxMenuAnimation);
         checkboxVisualStyles = (CheckBox)findViewById(R.id.checkboxVisualStyles);
+        checkboxEnableGfx = (CheckBox)findViewById(R.id.checkboxEnableGfx);
+        checkboxEnableGfxH264 = (CheckBox)findViewById(R.id.checkboxEnableGfxH264);
         setConnectionTypeSpinnerAdapter(R.array.rdp_connection_type);
     }
 
@@ -197,6 +201,8 @@ public class aRDP extends MainConfiguration {
         checkboxWindowContents.setChecked(selected.getWindowContents());
         checkboxMenuAnimation.setChecked(selected.getMenuAnimation());
         checkboxVisualStyles.setChecked(selected.getVisualStyles());
+        checkboxEnableGfx.setChecked(selected.getEnableGfx());
+        checkboxEnableGfxH264.setChecked(selected.getEnableGfxH264());
 
         /* TODO: Reinstate color spinner but for RDP settings.
         colorSpinner = (Spinner)findViewById(R.id.colorformat);
@@ -251,6 +257,9 @@ public class aRDP extends MainConfiguration {
         selected.setWindowContents(checkboxWindowContents.isChecked());
         selected.setMenuAnimation(checkboxMenuAnimation.isChecked());
         selected.setVisualStyles(checkboxVisualStyles.isChecked());
+        selected.setEnableGfx(checkboxEnableGfx.isChecked());
+        selected.setEnableGfxH264(checkboxEnableGfxH264.isChecked());
+
         selected.setPassword(passwordText.getText().toString());
         selected.setKeepPassword(checkboxKeepPassword.isChecked());
         selected.setUseDpadAsArrows(checkboxUseDpadAsArrows.isChecked());
