@@ -255,6 +255,8 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
             android.os.StrictMode.setThreadPolicy(policy);
         }
 
+        myVibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
+
         View decorView = getWindow().getDecorView();
         decorView.setOnSystemUiVisibilityChangeListener
                 (new View.OnSystemUiVisibilityChangeListener() {
@@ -651,6 +653,14 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
 
         m.setIcon(replacer);
     }
+
+    public void sendShortVibration() {
+        if (myVibrator != null) {
+            myVibrator.vibrate(Constants.SHORT_VIBRATION);
+        } else {
+            Log.i(TAG, "Device cannot vibrate, not sending vibration");
+        }
+    }
     
     /**
      * Initializes the on-screen keys for meta keys and arrow keys.
@@ -718,7 +728,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
         keyCtrl.setOnLongClickListener(new OnLongClickListener () {
             @Override
             public boolean onLongClick(View arg0) {
-                myVibrator.vibrate(RemoteClientLibConstants.SHORT_VIBRATION);
+                sendShortVibration();
                 boolean on = canvas.getKeyboard().onScreenCtrlToggle();
                 keyCtrlToggled = true;
                 if (on)
@@ -745,7 +755,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
         keySuper.setOnLongClickListener(new OnLongClickListener () {
             @Override
             public boolean onLongClick(View arg0) {
-                myVibrator.vibrate(RemoteClientLibConstants.SHORT_VIBRATION);
+                sendShortVibration();
                 boolean on = canvas.getKeyboard().onScreenSuperToggle();
                 keySuperToggled = true;
                 if (on)
@@ -772,7 +782,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
         keyAlt.setOnLongClickListener(new OnLongClickListener () {
             @Override
             public boolean onLongClick(View arg0) {
-                myVibrator.vibrate(RemoteClientLibConstants.SHORT_VIBRATION);
+                sendShortVibration();
                 boolean on = canvas.getKeyboard().onScreenAltToggle();
                 keyAltToggled = true;
                 if (on)
@@ -799,7 +809,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
         keyShift.setOnLongClickListener(new OnLongClickListener () {
             @Override
             public boolean onLongClick(View arg0) {
-                myVibrator.vibrate(RemoteClientLibConstants.SHORT_VIBRATION);
+                sendShortVibration();
                 boolean on = canvas.getKeyboard().onScreenShiftToggle();
                 keyShiftToggled = true;
                 if (on)
@@ -821,7 +831,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
                 RemoteKeyboard k = canvas.getKeyboard();
                 int key = KeyEvent.KEYCODE_DPAD_UP;
                 if (e.getAction() == MotionEvent.ACTION_DOWN) {
-                    myVibrator.vibrate(RemoteClientLibConstants.SHORT_VIBRATION);
+                    sendShortVibration();
                     keyUp.setImageResource(R.drawable.upon);
                     k.repeatKeyEvent(key, new KeyEvent(e.getAction(), key));
                     return true;
@@ -842,7 +852,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
                 RemoteKeyboard k = canvas.getKeyboard();
                 int key = KeyEvent.KEYCODE_DPAD_DOWN;
                 if (e.getAction() == MotionEvent.ACTION_DOWN) {
-                    myVibrator.vibrate(RemoteClientLibConstants.SHORT_VIBRATION);
+                    sendShortVibration();
                     keyDown.setImageResource(R.drawable.downon);
                     k.repeatKeyEvent(key, new KeyEvent(e.getAction(), key));
                     return true;
@@ -863,7 +873,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
                 RemoteKeyboard k = canvas.getKeyboard();
                 int key = KeyEvent.KEYCODE_DPAD_LEFT;
                 if (e.getAction() == MotionEvent.ACTION_DOWN) {
-                    myVibrator.vibrate(RemoteClientLibConstants.SHORT_VIBRATION);
+                    sendShortVibration();
                     keyLeft.setImageResource(R.drawable.lefton);
                     k.repeatKeyEvent(key, new KeyEvent(e.getAction(), key));
                     return true;
@@ -884,7 +894,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
                 RemoteKeyboard k = canvas.getKeyboard();
                 int key = KeyEvent.KEYCODE_DPAD_RIGHT;
                 if (e.getAction() == MotionEvent.ACTION_DOWN) {
-                    myVibrator.vibrate(RemoteClientLibConstants.SHORT_VIBRATION);
+                    sendShortVibration();
                     keyRight.setImageResource(R.drawable.righton);
                     k.repeatKeyEvent(key, new KeyEvent(e.getAction(), key));
                     return true;    
@@ -1249,13 +1259,13 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
             if (inputModeIds[i] == id) {
                 if (inputModeHandlers[i] == null) {
                     if (id == R.id.itemInputTouchPanZoomMouse) {
-                        inputModeHandlers[i] = new InputHandlerDirectSwipePan(this, canvas, canvas.getPointer(), myVibrator);
+                        inputModeHandlers[i] = new InputHandlerDirectSwipePan(this, canvas, canvas.getPointer());
                     } else if (id == R.id.itemInputDragPanZoomMouse) {
-                        inputModeHandlers[i] = new InputHandlerDirectDragPan(this, canvas, canvas.getPointer(), myVibrator);
+                        inputModeHandlers[i] = new InputHandlerDirectDragPan(this, canvas, canvas.getPointer());
                     } else if (id == R.id.itemInputTouchpad) {
-                        inputModeHandlers[i] = new InputHandlerTouchpad(this, canvas, canvas.getPointer(), myVibrator);
+                        inputModeHandlers[i] = new InputHandlerTouchpad(this, canvas, canvas.getPointer());
                     } else if (id == R.id.itemInputSingleHanded) {
-                        inputModeHandlers[i] = new InputHandlerSingleHanded(this, canvas, canvas.getPointer(), myVibrator);
+                        inputModeHandlers[i] = new InputHandlerSingleHanded(this, canvas, canvas.getPointer());
                     } else {
                         throw new IllegalStateException("Unexpected value: " + id);
                     }

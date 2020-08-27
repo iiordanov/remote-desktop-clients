@@ -21,7 +21,6 @@
 package com.iiordanov.bVNC.input;
 
 import android.view.MotionEvent;
-import android.os.Vibrator;
 
 import com.iiordanov.bVNC.*;
 import com.iiordanov.freebVNC.*;
@@ -40,8 +39,8 @@ public class InputHandlerDirectDragPan extends InputHandlerGeneric {
 	public static final String ID = "TOUCH_ZOOM_MODE_DRAG_PAN";
 	
 	public InputHandlerDirectDragPan(RemoteCanvasActivity activity, RemoteCanvas canvas,
-									 RemotePointer pointer, Vibrator myVibrator) {
-		super(activity, canvas, pointer, myVibrator);
+									 RemotePointer pointer) {
+		super(activity, canvas, pointer);
 	}
 
 	/*
@@ -72,8 +71,8 @@ public class InputHandlerDirectDragPan extends InputHandlerGeneric {
 		// If we've performed a right/middle-click and the gesture is not over yet, do not start drag mode.
 		if (secondPointerWasDown || thirdPointerWasDown)
 			return;
-		
-		myVibrator.vibrate(Constants.SHORT_VIBRATION);
+
+		activity.sendShortVibration();
 
 		canvas.displayShortToastMessage(activity.getString(R.string.panning));
 		endDragModesAndScrolling();
@@ -123,4 +122,3 @@ public class InputHandlerDirectDragPan extends InputHandlerGeneric {
 		return true;
 	}
 }
-

@@ -21,7 +21,6 @@
 package com.iiordanov.bVNC.input;
 
 import android.view.MotionEvent;
-import android.os.Vibrator;
 
 import com.iiordanov.bVNC.*;
 import com.iiordanov.freebVNC.*;
@@ -39,8 +38,8 @@ public class InputHandlerTouchpad extends InputHandlerGeneric {
 	public static final String ID = "TOUCHPAD_MODE";
 
 	public InputHandlerTouchpad(RemoteCanvasActivity activity, RemoteCanvas canvas,
-								RemotePointer pointer, Vibrator myVibrator) {
-		super(activity, canvas, pointer, myVibrator);
+								RemotePointer pointer) {
+		super(activity, canvas, pointer);
 	}
 
 	/*

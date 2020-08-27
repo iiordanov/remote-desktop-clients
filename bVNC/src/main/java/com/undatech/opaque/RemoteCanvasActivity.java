@@ -34,6 +34,7 @@ import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import com.iiordanov.bVNC.Constants;
 import com.undatech.opaque.dialogs.GetTextFragment;
 import com.undatech.opaque.dialogs.SelectTextElementFragment;
 import com.undatech.opaque.input.*;
@@ -481,7 +482,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
                 RemoteKeyboard k = canvas.getKeyboard();
                 int key = KeyEvent.KEYCODE_TAB;
                 if (e.getAction() == MotionEvent.ACTION_DOWN) {
-                    myVibrator.vibrate(RemoteClientLibConstants.SHORT_VIBRATION);
+                    myVibrator.vibrate(Constants.SHORT_VIBRATION);
                     keyTab.setImageResource(R.drawable.tabon);
                     k.repeatKeyEvent(key, new KeyEvent(e.getAction(), key));
                     return true;
@@ -502,7 +503,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
                 RemoteKeyboard k = canvas.getKeyboard();
                 int key = 111; /* KEYCODE_ESCAPE */
                 if (e.getAction() == MotionEvent.ACTION_DOWN) {
-                    myVibrator.vibrate(RemoteClientLibConstants.SHORT_VIBRATION);
+                    myVibrator.vibrate(Constants.SHORT_VIBRATION);
                     keyEsc.setImageResource(R.drawable.escon);
                     k.repeatKeyEvent(key, new KeyEvent(e.getAction(), key));
                     return true;
@@ -532,7 +533,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
         keyCtrl.setOnLongClickListener(new OnLongClickListener () {
             @Override
             public boolean onLongClick(View arg0) {
-                myVibrator.vibrate(RemoteClientLibConstants.SHORT_VIBRATION);
+                myVibrator.vibrate(Constants.SHORT_VIBRATION);
                 boolean on = canvas.getKeyboard().onScreenCtrlToggle();
                 keyCtrlToggled = true;
                 if (on)
@@ -559,7 +560,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
         keySuper.setOnLongClickListener(new OnLongClickListener () {
             @Override
             public boolean onLongClick(View arg0) {
-                myVibrator.vibrate(RemoteClientLibConstants.SHORT_VIBRATION);
+                myVibrator.vibrate(Constants.SHORT_VIBRATION);
                 boolean on = canvas.getKeyboard().onScreenSuperToggle();
                 keySuperToggled = true;
                 if (on)
@@ -586,7 +587,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
         keyAlt.setOnLongClickListener(new OnLongClickListener () {
             @Override
             public boolean onLongClick(View arg0) {
-                myVibrator.vibrate(RemoteClientLibConstants.SHORT_VIBRATION);
+                myVibrator.vibrate(Constants.SHORT_VIBRATION);
                 boolean on = canvas.getKeyboard().onScreenAltToggle();
                 keyAltToggled = true;
                 if (on)
@@ -613,7 +614,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
         keyShift.setOnLongClickListener(new OnLongClickListener () {
             @Override
             public boolean onLongClick(View arg0) {
-                myVibrator.vibrate(RemoteClientLibConstants.SHORT_VIBRATION);
+                myVibrator.vibrate(Constants.SHORT_VIBRATION);
                 boolean on = canvas.getKeyboard().onScreenShiftToggle();
                 keyShiftToggled = true;
                 if (on)
@@ -632,7 +633,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
                 RemoteKeyboard k = canvas.getKeyboard();
                 int key = KeyEvent.KEYCODE_DPAD_UP;
                 if (e.getAction() == MotionEvent.ACTION_DOWN) {
-                    myVibrator.vibrate(RemoteClientLibConstants.SHORT_VIBRATION);
+                    myVibrator.vibrate(Constants.SHORT_VIBRATION);
                     keyUp.setImageResource(R.drawable.upon);
                     k.repeatKeyEvent(key, new KeyEvent(e.getAction(), key));
                     return true;
@@ -653,7 +654,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
                 RemoteKeyboard k = canvas.getKeyboard();
                 int key = KeyEvent.KEYCODE_DPAD_DOWN;
                 if (e.getAction() == MotionEvent.ACTION_DOWN) {
-                    myVibrator.vibrate(RemoteClientLibConstants.SHORT_VIBRATION);
+                    myVibrator.vibrate(Constants.SHORT_VIBRATION);
                     keyDown.setImageResource(R.drawable.downon);
                     k.repeatKeyEvent(key, new KeyEvent(e.getAction(), key));
                     return true;
@@ -674,7 +675,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
                 RemoteKeyboard k = canvas.getKeyboard();
                 int key = KeyEvent.KEYCODE_DPAD_LEFT;
                 if (e.getAction() == MotionEvent.ACTION_DOWN) {
-                    myVibrator.vibrate(RemoteClientLibConstants.SHORT_VIBRATION);
+                    myVibrator.vibrate(Constants.SHORT_VIBRATION);
                     keyLeft.setImageResource(R.drawable.lefton);
                     k.repeatKeyEvent(key, new KeyEvent(e.getAction(), key));
                     return true;
@@ -695,7 +696,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
                 RemoteKeyboard k = canvas.getKeyboard();
                 int key = KeyEvent.KEYCODE_DPAD_RIGHT;
                 if (e.getAction() == MotionEvent.ACTION_DOWN) {
-                    myVibrator.vibrate(RemoteClientLibConstants.SHORT_VIBRATION);
+                    myVibrator.vibrate(Constants.SHORT_VIBRATION);
                     keyRight.setImageResource(R.drawable.righton);
                     k.repeatKeyEvent(key, new KeyEvent(e.getAction(), key));
                     return true;    

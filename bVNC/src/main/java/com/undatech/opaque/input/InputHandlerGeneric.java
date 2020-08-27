@@ -30,6 +30,7 @@ import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 
+import com.iiordanov.bVNC.Constants;
 import com.undatech.opaque.RemoteClientLibConstants;
 import com.undatech.opaque.RemoteCanvas;
 import com.undatech.opaque.RemoteCanvasActivity;
@@ -344,8 +345,8 @@ abstract class InputHandlerGeneric extends GestureDetector.SimpleOnGestureListen
         // If we've performed a right/middle-click and the gesture is not over yet, do not start drag mode.
         if (secondPointerWasDown || thirdPointerWasDown)
             return;
-        
-        myVibrator.vibrate(RemoteClientLibConstants.SHORT_VIBRATION);
+
+        myVibrator.vibrate(Constants.SHORT_VIBRATION);
 
         dragMode = true;
         pointer.leftButtonDown(getX(e), getY(e), metaState);

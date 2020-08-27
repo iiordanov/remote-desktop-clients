@@ -78,8 +78,6 @@ public class RemoteClientLibConstants {
     public static final int ADVANCED_SETTINGS      = 1;
     public static final int DEFAULT_SETTINGS       = 2;
 
-    public static final int SHORT_VIBRATION        = 50;
-    
     public static final String DEFAULT_LAYOUT_MAP = "English (US)";
     
     public static final String ACTION_USB_PERMISSION = "com.undatech.opaque.USB_PERMISSION";
