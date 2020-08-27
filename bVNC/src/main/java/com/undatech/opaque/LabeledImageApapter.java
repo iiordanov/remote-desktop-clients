@@ -21,7 +21,8 @@
 package com.undatech.opaque;
 
 import java.io.File;
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import android.app.Activity;
@@ -29,34 +30,31 @@ import android.content.Context;
 import android.database.DataSetObserver;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.support.v7.widget.AppCompatImageView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.BaseAdapter;
 import android.widget.GridView;
-import android.widget.ListAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.undatech.remoteClientUi.R;
 
-public class LabeledImageApapter implements ListAdapter {
+public class LabeledImageApapter extends BaseAdapter {
     private static final String TAG = "LabeledImageApapter";
-    
+
     private Context context;
     private int numCols = 0;
     private String defaultLabel = "Untitled";
-    Map<String, Connection> filteredConnectionsByPosition = new HashMap<>();
+    List<Connection> filteredConnectionsByPosition = new ArrayList<>();
     String[] filter = null;
 
     public LabeledImageApapter(Context context, Map<String, Connection> connectionsByPosition, String[] filter, int numCols) {
         this.context = context;
         this.numCols = numCols;
         this.filter = filter;
-        int i = 0;
         if (connectionsByPosition != null) {
             for (Connection c : connectionsByPosition.values()) {
                 boolean include = true;
@@ -66,34 +64,25 @@ public class LabeledImageApapter implements ListAdapter {
                     }
                 }
                 if (include) {
-                    this.filteredConnectionsByPosition.put(Integer.toString(i), c);
-                    i++;
+                    this.filteredConnectionsByPosition.add(c);
                 }
             }
         }
     }
- 
+
     public View getView(int position, View convertView, ViewGroup parent) {
         LayoutInflater inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        Connection c = filteredConnectionsByPosition.get(Integer.toString(position));
+        Connection c = filteredConnectionsByPosition.get(position);
 
         String label = c.getLabel();
         android.util.Log.d(TAG, "Now setting label at position: " + position + " to: " + label);
 
         GridView gView = (GridView) ((Activity)context).findViewById(R.id.gridView);
         int height = gView.getWidth()/numCols;
-        
+
         View gridView;
         if (convertView != null) {
             gridView = convertView;
-            AppCompatImageView iView = convertView.findViewById(R.id.grid_item_image);
-            Drawable tempDrawable = iView.getDrawable();
-            if (tempDrawable instanceof BitmapDrawable) {
-                Bitmap tmp = ((BitmapDrawable) tempDrawable).getBitmap();
-                if (tmp != null) {
-                    tmp.recycle();
-                }
-            }
         } else {
             gridView = inflater.inflate(R.layout.grid_item, null);
         }
@@ -125,7 +114,7 @@ public class LabeledImageApapter implements ListAdapter {
 
         return gridView;
     }
- 
+
     @Override
     public int getCount() {
         int count = 0;
@@ -134,52 +123,15 @@ public class LabeledImageApapter implements ListAdapter {
         }
         return count;
     }
- 
+
     @Override
     public Object getItem(int position) {
-        return null;
+        return filteredConnectionsByPosition.get(position);
     }
- 
+
     @Override
     public long getItemId(int position) {
         return position;
     }
-    
-    @Override
-    public boolean areAllItemsEnabled () {
-        return true;
-    }
-    
-    @Override
-    public boolean hasStableIds () {
-        return true;
-    }
 
-    @Override
-    public int getItemViewType(int position) {
-        return 0;
-    }
-
-    @Override
-    public int getViewTypeCount() {
-        return 1;
-    }
-
-    @Override
-    public boolean isEmpty() {
-        return false;
-    }
-
-    @Override
-    public void registerDataSetObserver(DataSetObserver observer) {
-    }
-
-    @Override
-    public void unregisterDataSetObserver(DataSetObserver observer) {
-    }
-
-    @Override
-    public boolean isEnabled(int position) {
-        return true;
-    }
 }
