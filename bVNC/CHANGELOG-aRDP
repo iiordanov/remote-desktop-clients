@@ -3,6 +3,9 @@ v5.0.1
 - New graphics features enabled
 - Performance improvements
 - Security updates
+- Improved vibration for gestures and on-screen keys
+- FreeRDP Library upgrade
+- Many bugfixes
 v5.0.0
 - New Grid UI with remote screenshots
 - Many improvements and fixes

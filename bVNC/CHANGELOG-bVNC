@@ -3,6 +3,8 @@ v5.0.1
 - Fix for annoying permissions request loop
 - Performance improvements
 - Security updates
+- Improved vibration for gestures and on-screen keys 
+- Many bugfixes 
 v5.0.0
 - New Grid UI with remote screenshots
 - Many improvements and fixes
