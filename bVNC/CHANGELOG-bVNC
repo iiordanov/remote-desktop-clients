@@ -1,3 +1,6 @@
+v5.0.2
+- Samsung DEX fixes
+- Better handling of Extra Keys visibility 
 v5.0.1
 - Workaround for UltraVNC and lower color modes
 - Fix for annoying permissions request loop
