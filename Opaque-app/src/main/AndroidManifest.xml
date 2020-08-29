@@ -31,7 +31,8 @@
             android:name="com.undatech.opaque.ConnectionGridActivity"
             android:configChanges="keyboardHidden"
             android:label="@string/opaque_app_name"
-            android:theme="@android:style/Theme.DeviceDefault">
+            android:theme="@android:style/Theme.DeviceDefault"
+            android:resizeableActivity="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -41,13 +42,15 @@
             android:name="com.undatech.opaque.ConnectionSetupActivity"
             android:configChanges="orientation|screenSize|keyboardHidden"
             android:label="@string/opaque_app_name"
-            android:theme="@android:style/Theme.DeviceDefault">
+            android:theme="@android:style/Theme.DeviceDefault"
+            android:resizeableActivity="true">
         </activity>
         <activity
             android:name="com.undatech.opaque.AdvancedSettingsActivity"
             android:configChanges="orientation|screenSize|keyboardHidden"
             android:label="@string/advanced_settings"
-            android:theme="@android:style/Theme.DeviceDefault">
+            android:theme="@android:style/Theme.DeviceDefault"
+            android:resizeableActivity="true">
         </activity>
         <activity
             android:name="com.iiordanov.bVNC.RemoteCanvasActivity"
@@ -55,7 +58,8 @@
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|density|screenLayout"
             android:windowSoftInputMode="stateHidden|adjustResize"
             android:theme="@style/AppTheme"
-            android:launchMode="singleTask">
+            android:launchMode="singleTask"
+            android:resizeableActivity="true">
             
             <intent-filter
                 android:icon="@drawable/icon"

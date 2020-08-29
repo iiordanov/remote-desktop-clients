@@ -248,7 +248,8 @@ abstract class InputHandlerGeneric extends GestureDetector.SimpleOnGestureListen
 		// If the mouse was moved OR as reported, some external mice trigger this when a
 		// mouse button is pressed as well, so we check bstate here too.
 		case MotionEvent.ACTION_HOVER_MOVE:
-	    	canvas.movePanToMakePointerVisible();
+			activity.showToolbar();
+			canvas.movePanToMakePointerVisible();
 			switch (bstate) {
 			case MotionEvent.BUTTON_PRIMARY:
 				pointer.leftButtonDown(x, y, meta);

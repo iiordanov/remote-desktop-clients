@@ -24,7 +24,8 @@
                 <activity android:name="com.undatech.opaque.ConnectionGridActivity"
                           android:configChanges="keyboardHidden"
                           android:label="@string/bvnc_app_name"
-                          android:theme="@android:style/Theme.DeviceDefault">
+                          android:theme="@android:style/Theme.DeviceDefault"
+                          android:resizeableActivity="true">
                         <intent-filter>
                                 <action android:name="android.intent.action.MAIN" />
                                 <category android:name="android.intent.category.LAUNCHER" />
@@ -41,10 +42,10 @@
                 </activity>
                 <activity android:screenOrientation="unspecified"
                           android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|density|screenLayout"
-		                  android:name="com.iiordanov.bVNC.RemoteCanvasActivity"
-		                  android:windowSoftInputMode="stateHidden|adjustResize"
-		                  android:theme="@style/AppTheme"
-		                  android:resizeableActivity="true">
+		          android:name="com.iiordanov.bVNC.RemoteCanvasActivity"
+		          android:windowSoftInputMode="stateHidden|adjustResize"
+                          android:theme="@style/AppTheme"
+		          android:resizeableActivity="true">
                        <intent-filter>
                                 <action android:name="android.intent.action.VIEW"></action>
                        </intent-filter>

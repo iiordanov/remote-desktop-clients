@@ -23,13 +23,14 @@
 		
     <application android:icon="@drawable/icon_aspice" android:label="@string/aspice_app_name" android:allowBackup="false" android:theme="@style/AppTheme" android:name="com.iiordanov.bVNC.App" tools:replace="android:label,android:theme">
                 <activity android:name="com.undatech.opaque.ConnectionGridActivity"
-                        android:configChanges="keyboardHidden"
-                        android:label="@string/aspice_app_name"
-                        android:theme="@android:style/Theme.DeviceDefault">
+                          android:configChanges="keyboardHidden"
+                          android:label="@string/aspice_app_name"
+                          android:theme="@android:style/Theme.DeviceDefault"
+                          android:resizeableActivity="true">
                         <intent-filter>
-                            <action android:name="android.intent.action.MAIN" />
-                            <category android:name="android.intent.category.LAUNCHER" />
-                            <category android:name="android.intent.category.MULTIWINDOW_LAUNCHER"></category>
+                                <action android:name="android.intent.action.MAIN" />
+                                <category android:name="android.intent.category.LAUNCHER" />
+                                <category android:name="android.intent.category.MULTIWINDOW_LAUNCHER"></category>
                         </intent-filter>
                 </activity>
                 <activity android:label="@string/aspice_app_name"
@@ -42,10 +43,10 @@
                 </activity>
                 <activity android:screenOrientation="unspecified"
                           android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|density|screenLayout"
-		                  android:name="com.iiordanov.bVNC.RemoteCanvasActivity"
-		                  android:windowSoftInputMode="stateHidden|adjustResize"
+		          android:name="com.iiordanov.bVNC.RemoteCanvasActivity"
+		          android:windowSoftInputMode="stateHidden|adjustResize"
                           android:theme="@style/AppTheme"
-		                  android:resizeableActivity="true">
+		          android:resizeableActivity="true">
                        <intent-filter>
                                 <action android:name="android.intent.action.VIEW"></action>
                        </intent-filter>
