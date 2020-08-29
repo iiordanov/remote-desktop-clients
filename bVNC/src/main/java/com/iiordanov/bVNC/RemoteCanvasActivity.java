@@ -32,6 +32,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -1625,10 +1626,18 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
     public void showKeyboard(MenuItem menuItem) {
         android.util.Log.i(TAG, "Showing keyboard and hiding action bar");
         InputMethodManager inputMgr = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
-        canvas.requestFocus();
-        inputMgr.showSoftInput(canvas, 0);
-        softKeyboardUp = true;
-        getSupportActionBar().hide();
+        if (softKeyboardUp) {
+            // Hide keyboard
+            canvas.clearFocus();
+            inputMgr.hideSoftInputFromWindow(canvas.getWindowToken(), 0);
+            softKeyboardUp = false;
+        } else {
+            // Show keyboard
+            canvas.requestFocus();
+            inputMgr.showSoftInput(canvas, 0);
+            softKeyboardUp = true;
+        }
+        Objects.requireNonNull(getSupportActionBar()).hide();
     }
     
     public void stopPanner() {
