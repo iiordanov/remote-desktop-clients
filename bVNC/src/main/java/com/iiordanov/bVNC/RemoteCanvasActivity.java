@@ -497,8 +497,12 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
                 " layoutKeysBottom: " + layoutKeysBottom + " rootViewBottom: " + rootViewBottom + " toolbarBottom: " + toolbarBottom +
                 " diffLayoutKeysPosition: " + diffLayoutKeysPosition + " diffToolbarPosition: " + diffToolbarPosition);
 
+        boolean softKeyboardPositionChanged = false;
         if (r.bottom > rootViewHeight * 0.81) {
             android.util.Log.d(TAG, "onGlobalLayout: Less than 19% of screen is covered");
+            if (softKeyboardUp) {
+                softKeyboardPositionChanged = true;
+            }
             softKeyboardUp = false;
 
             // Soft Kbd gone, shift the meta keys and arrows down.
@@ -508,7 +512,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
                 toolbar.offsetTopAndBottom(diffToolbarPosition);
                 android.util.Log.d(TAG, "onGlobalLayout: shifting arrow keys by: " + diffArrowKeysPosition);
                 layoutArrowKeys.offsetLeftAndRight(diffArrowKeysPosition);
-                if (diffLayoutKeysPosition > 0) {
+                if (softKeyboardPositionChanged) {
                     android.util.Log.d(TAG, "onGlobalLayout: hiding on-screen buttons");
                     setExtraKeysVisibility(View.GONE, false);
                     canvas.invalidate();
@@ -645,7 +649,15 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
     }
 
     private void setKeyStowDrawableAndVisibility(MenuItem m) {
+        if (m == null) {
+            return;
+        }
         Drawable replacer;
+        if (connection.getExtraKeysToggleType() == Constants.EXTRA_KEYS_OFF) {
+            m.setVisible(false);
+        } else {
+            m.setVisible(true);
+        }
         if (layoutKeys.getVisibility() == View.GONE)
             replacer = getResources().getDrawable(R.drawable.showkeys);
         else
@@ -951,7 +963,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
             makeVisible = true;
 
         if (!extraKeysHidden && makeVisible && 
-            connection.getExtraKeysToggleType() == RemoteClientLibConstants.EXTRA_KEYS_ON) {
+            connection.getExtraKeysToggleType() == Constants.EXTRA_KEYS_ON) {
             layoutKeys.setVisibility(View.VISIBLE);
             layoutKeys.invalidate();
             return;
@@ -1162,7 +1174,14 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
         }
         return super.onMenuOpened(featureId, menu);
     }
-    
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        // Make sure extra keys stow item is gone if extra keys are disabled and vice versa.
+        setKeyStowDrawableAndVisibility(menu.findItem(R.id.extraKeysToggle));
+        return true;
+    }
+
     /** {@inheritDoc} */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -1363,6 +1382,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
                 setExtraKeysVisibility(View.VISIBLE, false);
                 extraKeysHidden = false;
             }
+            invalidateOptionsMenu();
             connection.save(this);
             return true;
         } else if (itemId == R.id.itemHelpInputMode) {
