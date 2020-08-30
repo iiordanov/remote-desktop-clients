@@ -31,6 +31,9 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -83,6 +86,7 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
     GetTextFragment getPassword = null;
     GetTextFragment getNewPassword = null;
     protected boolean isStarting = true;
+    LogcatReader logcatReader = new LogcatReader();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -155,6 +159,24 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
                     getString(R.string.master_password_set), this,
                     GetTextFragment.MatchingPasswordTwice, R.string.master_password_set_message,
                     R.string.master_password_set_error, null, null, null, false);
+        }
+
+        if(logcatReader.logContainsFatalSignalOrException(LogcatReader.LOGCAT_MAX_LINES)) {
+            Utils.showYesNoPrompt(this,
+                    getString(R.string.error),
+                    getString(R.string.crash_detected),
+                    (dialog, which) -> {
+                        Intent emailIntent = new Intent(Intent.ACTION_SEND);
+                        emailIntent.setType("vnd.android.cursor.dir/email");
+                        String email[] = { Constants.ERROR_EMAIL_ADDRESS };
+                        emailIntent .putExtra(Intent.EXTRA_EMAIL, email);
+                        emailIntent.putExtra(Intent.EXTRA_TEXT,
+                                logcatReader.getMyLogcat(LogcatReader.LOGCAT_MAX_LINES));
+                        emailIntent.putExtra(Intent.EXTRA_SUBJECT, getPackageName() + " crash report");
+                        startActivity(Intent.createChooser(emailIntent, ""));
+                        logcatReader.clearMyLogcat();
+                    },
+                    (dialog, which) -> logcatReader.clearMyLogcat());
         }
     }
 
@@ -303,7 +325,6 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
      * @param menuItem
      */
     public void copyLogcat (MenuItem menuItem) {
-        LogcatReader logcatReader = new LogcatReader();
         ClipboardManager cm = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
         cm.setText(logcatReader.getMyLogcat(RemoteClientLibConstants.LOGCAT_MAX_LINES));
         Toast.makeText(getBaseContext(), getResources().getString(R.string.log_copied),

@@ -32,6 +32,12 @@ android {
 }
 
 dependencies {
+    def acraVersion = '5.5.0'
+    implementation "ch.acra:acra-mail:$acraVersion"
+    implementation "ch.acra:acra-dialog:$acraVersion"
+    implementation "ch.acra:acra-limiter:$acraVersion"
+    //implementation "ch.acra:acra-advanced-scheduler:$acraVersion"
+
     api 'com.android.support:multidex:1.0.3'
     implementation project(':pubkeyGenerator')
     implementation project(':freeRDPCore')

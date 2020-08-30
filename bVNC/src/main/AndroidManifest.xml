@@ -19,7 +19,6 @@
 
     <application>
         <activity android:name="com.iiordanov.bVNC.GlobalPreferencesActivity"></activity>
+        <activity android:name="com.freerdp.freerdpcore.presentation.ShortcutsActivity" tools:node="remove"/>
     </application>
-
-    <uses-sdk android:minSdkVersion="14" tools:overrideLibrary="com.github.luben.zstd"/>
 </manifest>

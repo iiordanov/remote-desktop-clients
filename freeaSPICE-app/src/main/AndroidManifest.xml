@@ -92,7 +92,6 @@
                            android:resource="@dimen/app_minimumsize_w" />
                 <meta-data android:name="com.sec.android.multiwindow.MINIMUM_SIZE_H"
                            android:resource="@dimen/app_minimumsize_h" />
-        <activity android:name=".presentation.ShortcutsActivity" tools:node="remove"/>
         <meta-data android:name="com.samsung.android.keepalive.density" android:value="true"/>
     </application>
 </manifest> 

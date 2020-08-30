@@ -12,7 +12,7 @@ import java.util.List;
 
 public class LogcatReader {
     public static String TAG = "LogcatReader";
-    private static final int LOGCAT_MAX_LINES = 1000;
+    public static final int LOGCAT_MAX_LINES = 1000;
     private List<String> logcatCommand = new ArrayList<String>();
 
     public LogcatReader() {
@@ -50,5 +50,22 @@ public class LogcatReader {
         }
 
         return logCatOutput.toString();
+    }
+
+    public boolean logContainsFatalSignalOrException(int lines) {
+        String log = getMyLogcat(lines).toLowerCase();
+        if (log.contains("fatal exception") || log.contains("fatal signal")) {
+            return true;
+        }
+        return false;
+    }
+
+    public void clearMyLogcat() {
+        try {
+            new ProcessBuilder().command("logcat", "-c").redirectErrorStream(true).start();
+        } catch (IOException e) {
+            android.util.Log.e(TAG, "Error obtaining output from logcat");
+            e.printStackTrace();
+        }
     }
 }

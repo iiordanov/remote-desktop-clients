@@ -44,6 +44,7 @@ public class Constants {
     public static final int W_THRESH = 50;
     public static final int TOP_MARGIN = 110;
     public static final int BOTTOM_MARGIN = 300;
+    public static final String ERROR_EMAIL_ADDRESS = "remotedesktopclientsmailbox@gmail.com";
     public static volatile int DEFAULT_PROTOCOL_PORT = 5900;
     public static final int DEFAULT_VNC_PORT = 5900;
     public static final int DEFAULT_RDP_PORT = 3389;

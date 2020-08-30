@@ -914,4 +914,5 @@ Below that is where you configure your connection.
     <string name="please_grant_permission_from_prefs">You may need to grant permissions to the application through Settings.</string>
     <string name="rdp_adv_gfx">RDP Gfx</string>
     <string name="rdp_adv_gfxh264">RDP Gfx H264</string>
+    <string name="crash_detected">An uncaught exception was detected. Would you like to email the crash report to the developer to help fix it?</string>
 </resources>
