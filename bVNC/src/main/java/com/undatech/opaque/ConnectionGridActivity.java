@@ -61,6 +61,7 @@ import com.iiordanov.bVNC.dialogs.ImportExportDialog;
 import com.iiordanov.bVNC.dialogs.IntroTextDialog;
 import com.iiordanov.bVNC.input.InputHandlerDirectSwipePan;
 import com.undatech.opaque.util.ConnectionLoader;
+import com.undatech.opaque.util.FileUtils;
 import com.undatech.opaque.util.GeneralUtils;
 import com.undatech.opaque.util.LogcatReader;
 import com.iiordanov.util.PermissionsManager;
@@ -156,6 +157,8 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
                     GetTextFragment.MatchingPasswordTwice, R.string.master_password_set_message,
                     R.string.master_password_set_error, null, null, null, false);
         }
+        FileUtils.logFilesInPrivateStorage(this);
+        FileUtils.deletePrivateFileIfExisting(this, ".config/freerdp/licenses");
     }
 
     private void launchConnection(View v) {
