@@ -29,3 +29,4 @@ WORKDIR ${CURRENT_WORKING_DIR}
 CMD export PROJECT=libs && export ANDROID_SDK=$ANDROID_SDK && export PATH=$PATH:$ANDROID_SDK/platform-tools/ && export PATH=$PATH:$ANDROID_SDK/tools && \
 yes | $ANDROID_SDK/tools/bin/sdkmanager --licenses && \
 ./bVNC/prepare_project.sh libs $ANDROID_SDK
+CMD while true; do sleep 1000; done

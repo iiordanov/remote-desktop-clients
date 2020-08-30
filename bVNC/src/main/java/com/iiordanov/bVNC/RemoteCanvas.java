@@ -718,7 +718,7 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView
                         handler.sendEmptyMessage(RemoteClientLibConstants.PVE_NULL_DATA);
                     }
                 } catch (LoginException e) {
-                    android.util.Log.e(TAG, "Failed to login to PVE.");
+                    android.util.Log.e(TAG, "Authentication failed, will prompt user for password.");
                     handler.sendEmptyMessage(RemoteClientLibConstants.PVE_FAILED_TO_AUTHENTICATE);
                 } catch (JSONException e) {
                     android.util.Log.e(TAG, "Failed to parse json from PVE.");
@@ -901,7 +901,7 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView
                         }
                     }
                 } catch (LoginException e) {
-                    android.util.Log.e(TAG, "Failed to login to PVE.");
+                    android.util.Log.e(TAG, "Authentication failed, will prompt user for password");
                     handler.sendEmptyMessage(RemoteClientLibConstants.PVE_FAILED_TO_AUTHENTICATE);
                 } catch (JSONException e) {
                     android.util.Log.e(TAG, "Failed to parse json from PVE.");

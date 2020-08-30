@@ -44,6 +44,11 @@ public class OpaqueHandler extends Handler {
         GetTextFragment frag = GetTextFragment.newInstance(id, title, (RemoteCanvasActivity)context, password);
         frag.show(fm, id);
     }
+
+    private void showGetTextFragment (String id, String title, String username, String password, boolean passwordBool) {
+        GetTextFragment frag = GetTextFragment.newInstance(id, title, (RemoteCanvasActivity)context, username, password, passwordBool);
+        frag.show(fm, id);
+    }
     
     private void displayMessageAndFinish(int titleTextId, int messageTextId, int buttonTextId) {
         MessageFragment message = MessageFragment.newInstance(
@@ -79,10 +84,6 @@ public class OpaqueHandler extends Handler {
         case RemoteClientLibConstants.VV_DOWNLOAD_TIMEOUT:
             MessageDialogs.displayMessageAndFinish(context, R.string.error_vv_download_timeout,
                                                    R.string.error_dialog_title);
-        case RemoteClientLibConstants.PVE_FAILED_TO_AUTHENTICATE:
-            MessageDialogs.displayMessageAndFinish(context, R.string.error_pve_failed_to_authenticate,
-                                                   R.string.error_dialog_title);
-            break;
         case RemoteClientLibConstants.PVE_FAILED_TO_PARSE_JSON:
             MessageDialogs.displayMessageAndFinish(context, R.string.error_pve_failed_to_parse_json,
                                                    R.string.error_dialog_title);
@@ -145,6 +146,10 @@ public class OpaqueHandler extends Handler {
         case RemoteClientLibConstants.GET_PASSWORD:
             c.pd.dismiss();
             showGetTextFragment(RemoteClientLibConstants.GET_PASSWORD_ID, context.getString(R.string.enter_password), true);
+            break;
+        case RemoteClientLibConstants.PVE_FAILED_TO_AUTHENTICATE:
+            c.pd.dismiss();
+            showGetTextFragment(RemoteClientLibConstants.GET_CREDENTIALS_ID, context.getString(R.string.enter_password_auth_failed), settings.getUserName(), settings.getPassword(), true);
             break;
         case RemoteClientLibConstants.GET_OTP_CODE:
             c.pd.dismiss();

@@ -1565,18 +1565,33 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
     }
 
     @Override
-    public void onTextObtained(String id, String obtainedString) {
+    public void onTextObtained(String id, String [] obtainedStrings, boolean wasCancelled) {
         android.util.Log.i(TAG, "onTextObtained called with id: " + id);
         canvas.pd.show();
 
-        if (id.equals(RemoteClientLibConstants.GET_PASSWORD_ID)) {
-            connection.setPassword(obtainedString);
-        } else if (id.equals(RemoteClientLibConstants.GET_OTP_CODE_ID)) {
-            connection.setOtpCode(obtainedString);
-        }
+        switch(id) {
+            case RemoteClientLibConstants.GET_CREDENTIALS_ID:
+                connection.setUserName(obtainedStrings[0]);
+                connection.setPassword(obtainedStrings[1]);
+                connection.save(this);
+                Runnable setModes = new Runnable() {
+                    public void run() {
+                        try {
+                            setModes();
+                        } catch (NullPointerException e) {
+                        }
+                    }};
 
-        synchronized (canvas.spicecomm) {
-            canvas.spicecomm.notify();
+                initializeOpaque(setModes);
+                break;
+            case RemoteClientLibConstants.GET_PASSWORD_ID:
+                connection.setPassword(obtainedStrings[0]);
+            case RemoteClientLibConstants.GET_OTP_CODE_ID:
+                connection.setOtpCode(obtainedStrings[0]);
+            default:
+                synchronized (canvas.spicecomm) {
+                    canvas.spicecomm.notify();
+                }
         }
 
         FragmentManager fm = this.getSupportFragmentManager();

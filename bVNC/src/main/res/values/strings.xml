@@ -33,6 +33,7 @@
     <string name="connection_setup_user">User@Domain</string>
     <string name="connection_setup_password">Password (saved if entered)</string>
     <string name="enter_password">Please enter password</string>
+    <string name="enter_password_auth_failed">Authentication failed. Please re-enter your credentials.</string>
     <string name="enter_otp_code">Please enter OTP code</string>
     <string name="hide_toolbar">Hide toolbar</string>
     <string name="manage_custom_ca_title">Manage custom CA</string>

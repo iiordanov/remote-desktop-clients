@@ -35,22 +35,34 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
+import com.undatech.opaque.MessageDialogs;
+import com.undatech.opaque.RemoteClientLibConstants;
 import com.undatech.remoteClientUi.R;
 
 public class GetTextFragment extends DialogFragment {
     public static String TAG = "GetTextFragment";
     
     public interface OnFragmentDismissedListener {
-        public void onTextObtained(String id, String obtainedString);
+        public void onTextObtained(String id, String [] obtainedStrings, boolean wasCancelled);
     }
-    
+
+    private TextView message;
+
     private EditText textBox;
+    private EditText textBox2;
+
     private Button okButton;
+    private Button cancelButton;
+
     private OnFragmentDismissedListener dismissalListener;
     private String title;
     private String id;
-    
+    private String username;
+    private String passwordContent;
+
     private boolean password = false;
+    private boolean wasCancelled = false;
+
     private String obtained = "";
     
     public GetTextFragment () {}
@@ -72,7 +84,7 @@ public class GetTextFragment extends DialogFragment {
     }
     
     public static GetTextFragment newInstance(String id, String title,
-                                              OnFragmentDismissedListener dismissalListener, boolean password) {
+                                              OnFragmentDismissedListener dismissalListener, boolean passwordBool) {
         android.util.Log.i(TAG, "newInstance called");
         GetTextFragment f = new GetTextFragment();
         f.setOnFragmentDismissedListener(dismissalListener);
@@ -80,7 +92,28 @@ public class GetTextFragment extends DialogFragment {
         Bundle args = new Bundle();
         args.putString("id", id);
         args.putString("title", title);
-        args.putBoolean("password", password);
+        args.putBoolean("password", passwordBool);
+        f.setArguments(args);
+        f.setRetainInstance(true);
+
+        return f;
+    }
+
+    public static GetTextFragment newInstance(String id, String title,
+                                              OnFragmentDismissedListener dismissalListener,
+                                              String username,
+                                              String password,
+                                              boolean passwordBool) {
+        android.util.Log.i(TAG, "newInstance called");
+        GetTextFragment f = new GetTextFragment();
+        f.setOnFragmentDismissedListener(dismissalListener);
+
+        Bundle args = new Bundle();
+        args.putString("id", id);
+        args.putString("title", title);
+        args.putString("username", username);
+        args.putString("passwordContent", password);
+        args.putBoolean("password", passwordBool);
         f.setArguments(args);
         f.setRetainInstance(true);
 
@@ -93,6 +126,10 @@ public class GetTextFragment extends DialogFragment {
         android.util.Log.i(TAG, "onCreate called");
         this.id = getArguments().getString("id");
         this.title = getArguments().getString("title");
+        if (this.id == RemoteClientLibConstants.GET_CREDENTIALS_ID) {
+            this.username = getArguments().getString("username");
+            this.passwordContent = getArguments().getString("passwordContent");
+        }
         this.password = getArguments().getBoolean("password");
     }
     
@@ -102,41 +139,88 @@ public class GetTextFragment extends DialogFragment {
 
         // Set title for this dialog
         getDialog().setTitle(title);
+        View v = null;
 
-        View v = inflater.inflate(R.layout.get_text_with_ok, container, false);
-        textBox = (EditText) v.findViewById(R.id.textBox);
-        if (password) {
-            textBox.setTransformationMethod(new PasswordTransformationMethod());
-        }
-        textBox.setOnEditorActionListener(new OnEditorActionListener () {
-            @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                boolean consumed = false;
-                if (actionId == EditorInfo.IME_NULL || actionId == EditorInfo.IME_ACTION_SEND) {
-                    getDialog().dismiss();
-                    consumed = true;
+        switch (this.id) {
+            case RemoteClientLibConstants.GET_CREDENTIALS_ID:
+                v = inflater.inflate(R.layout.get_credentials_rm_keep, container, false);
+                message = (TextView) v.findViewById(R.id.message);
+                message.setText(title);
+                textBox = (EditText) v.findViewById(R.id.textBox);
+                textBox2 = (EditText) v.findViewById(R.id.textBox2);
+                hideText(textBox2);
+                textBox2.requestFocus();
+                okButton = (Button) v.findViewById(R.id.buttonConfirm);
+                cancelButton = (Button) v.findViewById(R.id.buttonCancel);
+                dismissOnCancel(cancelButton);
+
+                if (textBox != null)
+                    textBox.setText(username);
+                if (textBox2 != null)
+                    textBox2.setText(passwordContent);
+                break;
+            default:
+                v = inflater.inflate(R.layout.get_text_with_ok, container, false);
+                textBox = (EditText) v.findViewById(R.id.textBox);
+                if (password) {
+                    hideText(textBox);
                 }
-                return consumed;
+                textBox.setOnEditorActionListener(new OnEditorActionListener () {
+                    @Override
+                    public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                        boolean consumed = false;
+                        if (actionId == EditorInfo.IME_NULL || actionId == EditorInfo.IME_ACTION_SEND) {
+                            getDialog().dismiss();
+                            consumed = true;
+                        }
+                        return consumed;
+                    }
+                });
+                textBox.setHint(title);
+
+                okButton = (Button)v.findViewById(R.id.okButton);
+        }
+        dismissOnConfirm(okButton);
+
+        return v;
+    }
+
+    private void hideText (EditText textBox) {
+        textBox.setTransformationMethod(new PasswordTransformationMethod());
+    }
+
+    private void dismissOnCancel (Button cancelButton) {
+        cancelButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                wasCancelled = true;
+                getDialog().dismiss();
             }
         });
-        textBox.setHint(title);
-        
-        okButton = (Button)v.findViewById(R.id.okButton);
-        okButton.setOnClickListener(new View.OnClickListener() {
-            
+    }
+
+    private void dismissOnConfirm (Button buttonConfirm) {
+        buttonConfirm.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 getDialog().dismiss();
             }
         });
-        
-        return v;
     }
     
     @Override
     public void onDismiss (DialogInterface dialog) {
-        android.util.Log.i(TAG, "dismiss: sending back data to listener");
-        dismissalListener.onTextObtained(this.id, textBox.getText().toString());
+        android.util.Log.i(TAG, "onDismiss called: Sending data back to Activity");
+        String[] results = new String[2];
+        if (textBox != null) {
+            results[0] = textBox.getText().toString();
+            textBox.setText("");
+        }
+        if (textBox2 != null) {
+            results[1] = textBox2.getText().toString();
+            textBox2.setText("");
+        }
+        dismissalListener.onTextObtained(this.id, results, wasCancelled);
     }
 
     @Override
