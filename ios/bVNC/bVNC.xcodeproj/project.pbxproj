@@ -487,6 +487,7 @@
 		AF8C75A3243AB47700AF0CF3 /* libssl.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libssl.a; path = bVNC.xcodeproj/libs_combined/lib/libssl.a; sourceTree = "<group>"; };
 		AF8C75A5243AB48600AF0CF3 /* libturbojpeg.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libturbojpeg.a; path = bVNC.xcodeproj/libs_combined/lib/libturbojpeg.a; sourceTree = "<group>"; };
 		AF8C75F4243BEF4B00AF0CF3 /* libvncclient.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = libvncclient.xcodeproj; path = ../../../libvncclient/libvncclient/libvncclient.xcodeproj; sourceTree = "<group>"; };
+		AF94A6B3251663C000AA2A25 /* bVNC Pro.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "bVNC Pro.entitlements"; sourceTree = "<group>"; };
 		AF99997C243593C70018204F /* LongTapDragUIImageView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LongTapDragUIImageView.swift; sourceTree = "<group>"; };
 		AF99997E2435955F0018204F /* ShortTapDragUIImageView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShortTapDragUIImageView.swift; sourceTree = "<group>"; };
 		AF9E8F912427F3B500752FC2 /* Utility.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Utility.h; sourceTree = "<group>"; };
@@ -558,7 +559,7 @@
 		AF043A1723B3DADA00C43ED7 /* bVNC */ = {
 			isa = PBXGroup;
 			children = (
-				AFB91CB825256CF000C5CD4E /* bVNC Pro.entitlements */,
+				AF94A6B3251663C000AA2A25 /* bVNC Pro.entitlements */,
 				AF99997E2435955F0018204F /* ShortTapDragUIImageView.swift */,
 				AF99997C243593C70018204F /* LongTapDragUIImageView.swift */,
 				AF043A1823B3DADA00C43ED7 /* AppDelegate.swift */,
@@ -1404,6 +1405,10 @@
 		AF043A4023B3DADB00C43ED7 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ARCHS = (
+					"$(ARCHS_STANDARD)",
+					x86_64h,
+				);
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_USE_OPTIMIZATION_PROFILE = NO;
@@ -1437,8 +1442,6 @@
 				MARKETING_VERSION = 1.0.4;
 				PRODUCT_BUNDLE_IDENTIFIER = com.iiordanov.bVNC;
 				PRODUCT_NAME = "bVNC Pro";
-				SDKROOT = iphoneos;
-				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos";
 				SUPPORTS_MACCATALYST = YES;
 				SWIFT_DISABLE_SAFETY_CHECKS = NO;
 				SWIFT_OBJC_BRIDGING_HEADER = "bVNC/bVNC-Bridging-Header.h";
@@ -1446,12 +1449,17 @@
 				SWIFT_VERSION = 5.0;
 				"SYSTEM_HEADER_SEARCH_PATHS[arch=*]" = "$(PROJECT_DIR)/bVNC.xcodeproj/libs_combined/include";
 				TARGETED_DEVICE_FAMILY = "1,2";
+				VALID_ARCHS = "arm64 arm64e x86_64h";
 			};
 			name = Debug;
 		};
 		AF043A4123B3DADB00C43ED7 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ARCHS = (
+					"$(ARCHS_STANDARD)",
+					x86_64h,
+				);
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_USE_OPTIMIZATION_PROFILE = NO;
@@ -1490,8 +1498,6 @@
 				"PRELINK_LIBS[arch=*]" = "";
 				PRODUCT_BUNDLE_IDENTIFIER = com.iiordanov.bVNC;
 				PRODUCT_NAME = "bVNC Pro";
-				SDKROOT = iphoneos;
-				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos";
 				SUPPORTS_MACCATALYST = YES;
 				SWIFT_DISABLE_SAFETY_CHECKS = NO;
 				SWIFT_OBJC_BRIDGING_HEADER = "bVNC/bVNC-Bridging-Header.h";
@@ -1499,6 +1505,7 @@
 				SWIFT_VERSION = 5.0;
 				"SYSTEM_HEADER_SEARCH_PATHS[arch=*]" = "$(PROJECT_DIR)/bVNC.xcodeproj/libs_combined/include";
 				TARGETED_DEVICE_FAMILY = "1,2";
+				VALID_ARCHS = "arm64 arm64e x86_64h";
 			};
 			name = Release;
 		};
