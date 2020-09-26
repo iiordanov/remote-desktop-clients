@@ -18,7 +18,7 @@
                                 <PersistentState>
                                   <option name="values">
                                     <map>
-                                      <entry key="url" value="jar:file:/home/iordan/software/android-studio/plugins/android/lib/android.jar!/images/material_design_icons/communication/ic_screen_share_black_24dp.xml" />
+                                      <entry key="url" value="jar:file:/home/iordan/software/android-studio/plugins/android/lib/android.jar!/images/material/icons/materialicons/add_to_queue/baseline_add_to_queue_24.xml" />
                                     </map>
                                   </option>
                                 </PersistentState>
@@ -29,8 +29,7 @@
                         <option name="values">
                           <map>
                             <entry key="color" value="a0a0a0" />
-                            <entry key="opacityPercent" value="80" />
-                            <entry key="outputName" value="ic_screen_black_48dp" />
+                            <entry key="outputName" value="ic_baseline_add_to_queue_24" />
                             <entry key="sourceFile" value="$USER_HOME$" />
                           </map>
                         </option>

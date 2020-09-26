@@ -10,7 +10,7 @@
 
     <!-- New Connection, should appear as action button -->
     <item android:id="@+id/actionNewConnection"
-        android:icon="@drawable/ic_action_new"
+        android:icon="@drawable/ic_baseline_add_to_queue_24"
         android:title="@string/action_new_connection"
         tools:ignore="AppCompatResource"
         android:showAsAction="always"
@@ -21,7 +21,7 @@
         android:icon="@android:drawable/ic_menu_manage"
         android:title="@string/action_edit_default_settings"
         tools:ignore="AppCompatResource"
-        android:showAsAction="always"
+        android:showAsAction="ifRoom"
         app:showAsAction="always"
         android:onClick="editDefaultSettings" />
 
@@ -29,7 +29,7 @@
         android:icon="@android:drawable/ic_menu_info_details"
         android:title="@string/help"
         tools:ignore="AppCompatResource"
-        android:showAsAction="always"
+        android:showAsAction="ifRoom"
         app:showAsAction="always"
         android:onClick="showMainScreenHelp" />
 </menu>

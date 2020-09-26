@@ -46,7 +46,7 @@ public class LabeledImageApapter extends BaseAdapter {
     private static final String TAG = "LabeledImageApapter";
 
     private Context context;
-    private int numCols = 0;
+    private int numCols = 2;
     private String defaultLabel = "Untitled";
     List<Connection> filteredConnectionsByPosition = new ArrayList<>();
     String[] filter = null;

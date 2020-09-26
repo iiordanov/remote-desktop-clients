@@ -135,13 +135,10 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
                 if (connectionLoader == null) {
                     return;
                 }
-                int numCols = 1;
-                if (connectionLoader.getNumConnections() > 2) {
-                    numCols = 2;
-                }
+                gridView.setNumColumns(2);
                 gridView.setAdapter(new LabeledImageApapter(ConnectionGridActivity.this,
                         connectionLoader.getConnectionsById(),
-                        search.getText().toString().toLowerCase().split(" "), numCols));
+                        search.getText().toString().toLowerCase().split(" "), 2));
             }
         });
         database = ((App)getApplication()).getDatabase();
@@ -275,18 +272,14 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
         boolean connectionsInSharedPrefs = Utils.isOpaque(getPackageName());
         connectionLoader = new ConnectionLoader(appContext, this, connectionsInSharedPrefs);
         if (connectionLoader.getNumConnections() > 0) {
-            int numCols = 1;
-            if (connectionLoader.getNumConnections() > 2) {
-                numCols = 2;
-            }
-            gridView.setNumColumns(numCols);
+            gridView.setNumColumns(2);
             gridView.setAdapter(new LabeledImageApapter(this,
                     connectionLoader.getConnectionsById(),
-                    search.getText().toString().toLowerCase().split(" "), numCols));
+                    search.getText().toString().toLowerCase().split(" "), 2));
         } else {
             gridView.setAdapter(new LabeledImageApapter(this,
                     null,
-                    search.getText().toString().toLowerCase().split(" "), 1));
+                    search.getText().toString().toLowerCase().split(" "), 2));
         }
     }
 

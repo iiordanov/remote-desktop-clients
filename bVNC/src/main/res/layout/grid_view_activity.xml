@@ -2,7 +2,6 @@
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/something"
-    android:numColumns="1"
     android:gravity="top|center"
     android:stretchMode="columnWidth"
     android:layout_width="fill_parent"
@@ -20,7 +19,7 @@
 
     <GridView xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/gridView"
-        android:numColumns="1"
+        android:numColumns="2"
         android:gravity="top|center"
         android:stretchMode="columnWidth"
         android:layout_width="fill_parent"
