@@ -2,6 +2,7 @@ v5.0.2
 - Samsung DEX fixes
 - Better handling of Extra Keys visibility
 - Debug logging of files in app directory
+- Main grid activity fixes.
 v5.0.1
 - Fix for annoying permissions request loop
 - New graphics features enabled
