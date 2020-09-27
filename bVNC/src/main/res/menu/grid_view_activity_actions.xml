@@ -22,7 +22,7 @@
         android:title="@string/action_edit_default_settings"
         tools:ignore="AppCompatResource"
         android:showAsAction="ifRoom"
-        app:showAsAction="always"
+        app:showAsAction="ifRoom"
         android:onClick="editDefaultSettings" />
 
     <item android:id="@+id/actionHelp"
@@ -30,6 +30,6 @@
         android:title="@string/help"
         tools:ignore="AppCompatResource"
         android:showAsAction="ifRoom"
-        app:showAsAction="always"
+        app:showAsAction="ifRoom"
         android:onClick="showMainScreenHelp" />
 </menu>
