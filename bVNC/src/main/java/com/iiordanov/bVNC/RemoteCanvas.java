@@ -152,6 +152,7 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView
     public boolean serverJustCutText = false;
 
     public Runnable setModes;
+    public Runnable clearToggles;
 
     /*
      * Position of the top left portion of the <i>visible</i> part of the screen, in
@@ -205,6 +206,8 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView
 
     boolean userPanned = false;
 
+    String vvFileName;
+
     /**
      * Constructor used by the inflation apparatus
      *
@@ -245,10 +248,12 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView
         pd.setCanceledOnTouchOutside(false);
     }
 
-    RemotePointer init(final Connection settings, final Handler handler, final Runnable setModes) {
+    void init(final Connection settings, final Handler handler, final Runnable setModes, final Runnable clearToggles, final String vvFileName) {
         this.connection = settings;
         this.handler = handler;
         this.setModes = setModes;
+        this.clearToggles = clearToggles;
+        this.vvFileName = vvFileName;
         checkNetworkConnectivity();
         initializeClipboardMonitor();
         spicecomm = new SpiceCommunicator(getContext(), handler, this, settings.isRequestingNewDisplayResolution(), settings.isUsbEnabled());
@@ -260,7 +265,17 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView
             handleUncaughtException(e);
         }
         maintainConnection = true;
-        return pointer;
+        if (vvFileName == null) {
+            if (connection.getConnectionTypeString().equals(getResources().getString(R.string.connection_type_pve))) {
+                startPve();
+            } else {
+                connection.setAddress(Utils.getHostFromUriString(connection.getAddress()));
+                startOvirt();
+            }
+        }
+        else {
+            startFromVvFile(vvFileName);
+        }
     }
 
     /**
@@ -316,7 +331,14 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView
 
     public void reinitializeCanvas() {
         Log.i(TAG, "Reinitializing remote canvas");
-        initializeCanvas(this.connection, this.setModes);
+        initializeCanvas(this.connection, this.setModes, this.clearToggles);
+        handler.post(this.clearToggles);
+    }
+
+    public void reinitializeOpaque() {
+        Log.i(TAG, "Reinitializing remote canvas opaque");
+        init(this.connection, this.handler, this.setModes, this.clearToggles, this.vvFileName);
+        handler.post(this.clearToggles);
     }
 
         /**
@@ -325,9 +347,10 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView
          * @param conn     Connection settings
          * @param setModes Callback to run on UI thread after connection is set up
          */
-    public RemotePointer initializeCanvas(Connection conn, final Runnable setModes) {
+    public RemotePointer initializeCanvas(Connection conn, final Runnable setModes, final Runnable clearToggles) {
         maintainConnection = true;
         this.setModes = setModes;
+        this.clearToggles = clearToggles;
         connection = conn;
         sshTunneled = (connection.getConnectionType() == Constants.CONN_TYPE_SSH);
         handler = new RemoteCanvasHandler(getContext(), this, connection);
@@ -777,6 +800,12 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView
         };
         cThread.start();
     }
+
+    /**
+     * Reinitialize Opaque
+     */
+
+
 
     /**
      * Initialize the canvas to show the remote desktop
@@ -2126,6 +2155,14 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView
             case GetTextFragment.DIALOG_ID_GET_SPICE_PASSWORD:
                 android.util.Log.i(TAG, "Text obtained from DIALOG_ID_GET_SPICE_PASSWORD.");
                 connection.setPassword(obtainedString[0]);
+                connection.setKeepPassword(save);
+                connection.save(getContext());
+                handler.sendEmptyMessage(RemoteClientLibConstants.REINIT_SESSION);
+                break;
+            case GetTextFragment.DIALOG_ID_GET_OPAQUE_CREDENTIALS:
+                android.util.Log.i(TAG, "Text obtained from DIALOG_ID_GET_OPAQUE_CREDENTIALS");
+                connection.setUserName(obtainedString[0]);
+                connection.setPassword(obtainedString[1]);
                 connection.setKeepPassword(save);
                 connection.save(getContext());
                 handler.sendEmptyMessage(RemoteClientLibConstants.REINIT_SESSION);
