@@ -182,12 +182,12 @@ struct ConnectionsList : View {
     var body: some View {
         ScrollView {
             VStack {
-                HStack(spacing: 100) {
+                HStack() {
                     
                     Button(action: {
                         self.stateKeeper.addNewConnection()
                     }) {
-                        HStack(spacing: 10) {
+                        VStack(spacing: 10) {
                             Image(systemName: "plus")
                                 .resizable()
                                 .scaledToFit()
@@ -199,7 +199,7 @@ struct ConnectionsList : View {
                     Button(action: {
                         self.stateKeeper.showHelp(messages: [ "MAIN_HELP_TEXT" ])
                     }) {
-                        HStack(spacing: 10) {
+                        VStack(spacing: 10) {
                             Image(systemName: "info")
                                 .resizable()
                                 .scaledToFit()
@@ -212,7 +212,7 @@ struct ConnectionsList : View {
                         self.stateKeeper.showLog(title: "SESSION_LOG_LABEL",
                                                  text: self.stateKeeper.clientLog.joined())
                     }) {
-                        HStack(spacing: 10) {
+                        VStack(spacing: 10) {
                             Image(systemName: "text.alignleft")
                                 .resizable()
                                 .scaledToFit()
@@ -220,7 +220,7 @@ struct ConnectionsList : View {
                             Text("LOG_LABEL")
                         }.padding()
                     }
-                }
+                }.frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, alignment: .topTrailing).padding()
 
                 ForEach(0 ..< stateKeeper.connections.count) { i in
                     Button(action: {
@@ -303,7 +303,7 @@ struct AddOrEditConnectionPage : View {
                     ]
                     self.stateKeeper.saveConnection(connection: selectedConnection)
                 }) {
-                        HStack(spacing: 10) {
+                        VStack(spacing: 10) {
                             Image(systemName: "folder.badge.plus")
                                 .resizable()
                                 .scaledToFit()
@@ -314,7 +314,7 @@ struct AddOrEditConnectionPage : View {
                 Button(action: {
                     self.stateKeeper.deleteCurrentConnection()
                 }) {
-                        HStack(spacing: 10) {
+                        VStack(spacing: 10) {
                             Image(systemName: "trash")
                                 .resizable()
                                 .scaledToFit()
@@ -325,7 +325,7 @@ struct AddOrEditConnectionPage : View {
                 Button(action: {
                     self.stateKeeper.showConnections()
                 }) {
-                        HStack(spacing: 10) {
+                        VStack(spacing: 10) {
                             Image(systemName: "arrowshape.turn.up.left")
                                 .resizable()
                                 .scaledToFit()
@@ -339,7 +339,7 @@ struct AddOrEditConnectionPage : View {
                                                           "VNC_CONNECTION_SETUP_HELP_TEXT",
                                                           "UI_SETUP_HELP_TEXT" ])
                 }) {
-                        HStack(spacing: 10) {
+                        VStack(spacing: 10) {
                             Image(systemName: "info")
                                 .resizable()
                                 .scaledToFit()
@@ -353,7 +353,7 @@ struct AddOrEditConnectionPage : View {
                     Toggle(isOn: $showSshTunnelSettings) {
                         Text("SHOW_SSH_TUNNEL_SETTINGS_LABEL")
                     }
-                }
+                }.padding()
 
                 if self.showSshTunnelSettings {
                 VStack {
@@ -373,7 +373,7 @@ struct AddOrEditConnectionPage : View {
                         }
                         Divider()
                     }
-                }
+                }.padding()
                 }
 
                 VStack {
@@ -382,7 +382,7 @@ struct AddOrEditConnectionPage : View {
                     TextField("PORT_LABEL", text: $portText).font(.title)
                     TextField("USER_LABEL", text: $usernameText).autocapitalization(.none).font(.title)
                     SecureField("PASSWORD_LABEL", text: $passwordText).font(.title)
-                }
+                }.padding()
                 
                 VStack {
                     Text("USER_INTERFACE_SETTINGS_LABEL").font(.headline)
@@ -393,7 +393,7 @@ struct AddOrEditConnectionPage : View {
                         Text("ALLOW_DESKTOP_PANNING_LABEL")
                     }
                     Text("").padding(.bottom, 1000)
-                }
+                }.padding()
             }
         }
     }
