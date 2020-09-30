@@ -1,0 +1,11 @@
+diff --git a/catalyst.sh b/catalyst.sh
+index 4ee4658..3aa18fd 100755
+--- a/catalyst.sh
++++ b/catalyst.sh
+@@ -208,4 +208,5 @@ lipo -info ./libssh2_iphoneos/lib/libssh2.a
+ lipo -create ${TMPDIR}iSSH2/openssl-$LIBSSL_VERSION/MacOSX_10.15-x86_64/install/lib/libcrypto.a ${TMPDIR}iSSH2/openssl-$LIBSSL_VERSION/iPhoneOS_$SDK_VERSION-arm64/libcrypto.a ${TMPDIR}iSSH2/openssl-$LIBSSL_VERSION/iPhoneOS_$SDK_VERSION-arm64e/libcrypto.a ${TMPDIR}iSSH2/openssl-$LIBSSL_VERSION/iPhoneOS_$SDK_VERSION-armv7/libcrypto.a ${TMPDIR}iSSH2/openssl-$LIBSSL_VERSION/iPhoneOS_$SDK_VERSION-armv7s/libcrypto.a ${TMPDIR}iSSH2/openssl-$LIBSSL_VERSION/iPhoneSimulator_$SDK_VERSION-i386/libcrypto.a -output ./openssl_iphoneos/lib/libcrypto.a
+ lipo -info ./openssl_iphoneos/lib/libcrypto.a
+ lipo -create ${TMPDIR}iSSH2/openssl-$LIBSSL_VERSION/MacOSX_10.15-x86_64/install/lib/libssl.a ${TMPDIR}iSSH2/openssl-$LIBSSL_VERSION/iPhoneOS_$SDK_VERSION-arm64/libssl.a ${TMPDIR}iSSH2/openssl-$LIBSSL_VERSION/iPhoneOS_$SDK_VERSION-arm64e/libssl.a ${TMPDIR}iSSH2/openssl-$LIBSSL_VERSION/iPhoneOS_$SDK_VERSION-armv7/libssl.a ${TMPDIR}iSSH2/openssl-$LIBSSL_VERSION/iPhoneOS_$SDK_VERSION-armv7s/libssl.a ${TMPDIR}iSSH2/openssl-$LIBSSL_VERSION/iPhoneSimulator_$SDK_VERSION-i386/libssl.a -output ./openssl_iphoneos/lib/libssl.a
+-lipo -info ./openssl_iphoneos/lib/libssl.a && rm -rf $TMPDIR/iSSH2
++lipo -info ./openssl_iphoneos/lib/libssl.a
++rsync -avP ${TMPDIR}iSSH2/openssl-$LIBSSL_VERSION/iPhoneOS_$SDK_VERSION-arm64/include/ ./openssl_iphoneos/include/

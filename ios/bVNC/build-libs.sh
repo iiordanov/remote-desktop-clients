@@ -28,32 +28,32 @@ fi
 
 rsync -avP /opt/libjpeg-turbo/lib /opt/libjpeg-turbo/include ./bVNC.xcodeproj/libs_combined/
 
-# Clone and build OpenSSL
-if git clone https://github.com/x2on/OpenSSL-for-iPhone.git
-then
-  pushd OpenSSL-for-iPhone
-  ./build-libssl.sh --deprecated --version=1.1.1g
-  popd
-else
-  echo "Found OpenSSL-for-iPhone directory, assuming it is built, please remove with 'rm -rf OpenSSL-for-iPhone' to rebuild"
-fi
-
-rsync -avP OpenSSL-for-iPhone/lib OpenSSL-for-iPhone/include ./bVNC.xcodeproj/libs_combined/
+echo "Ensure there are links for your version of Mac OS X present here in the form MacOSX10.15.7.sdk -> MacOSX.sdk"
+echo "If you do not, OpenSSL build for Mac OS X will fail."
+ls -l /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/
 
 # Clone and build libssh2
-if git clone https://github.com/Frugghi/iSSH2.git
+if git clone https://github.com/Jan-E/iSSH2.git
 then
   pushd iSSH2
-  ./iSSH2.sh --platform=iphoneos --min-version=12.0
+  git checkout catalyst
+  patch -p1 < ../iSSH2.patch
+  ./catalyst.sh
   popd
 else
   echo "Found libssh2 directory, assuming it is built, please remove with 'rm -rf iSSH2' to rebuild"
 fi
 
 # Copy SSH libs and header files to project
-rsync -avP iSSH2/libssh2_iphoneos/lib iSSH2/libssh2_iphoneos/include ./bVNC.xcodeproj/libs_combined/
+rsync -avP iSSH2/libssh2_iphoneos/ ./bVNC.xcodeproj/libs_combined/
+rsync -avP iSSH2/openssl_iphoneos/ ./bVNC.xcodeproj/libs_combined/
 
-git clone https://github.com/leetal/ios-cmake.git || true
+if git clone https://github.com/leetal/ios-cmake.git
+then
+  pushd ios-cmake
+  patch -p1 < ../ios-cmake.patch
+  popd
+fi
 
 git clone https://github.com/iiordanov/libvncserver.git || true
 
@@ -74,16 +74,18 @@ then
     pushd build_simulator64
     cmake .. -G Xcode -DENABLE_BITCODE=OFF -DARCHS='x86_64' \
       -DCMAKE_C_FLAGS='-D OPENSSL_MIN_API=0x00908000L -D OPENSSL_API_COMPAT=0x00908000L' \
-      -DOPENSSL_SSL_LIBRARY=../../OpenSSL-for-iPhone/lib/libssl.a \
-      -DOPENSSL_CRYPTO_LIBRARY=../../OpenSSL-for-iPhone/lib/libcrypto.a \
-      -DOPENSSL_INCLUDE_DIR=../../OpenSSL-for-iPhone/include \
+      -DOPENSSL_SSL_LIBRARY=../../iSSH2/openssl_iphoneos/lib/libssl.a \
+      -DOPENSSL_CRYPTO_LIBRARY=../../iSSH2/openssl_iphoneos/lib/libcrypto.a \
+      -DOPENSSL_INCLUDE_DIR=../../iSSH2/openssl_iphoneos/include \
       -DCMAKE_INSTALL_PREFIX=./libs -DCMAKE_INSTALL_PREFIX=./libs \
       -DCMAKE_TOOLCHAIN_FILE=../../ios-cmake/ios.toolchain.cmake \
       -DPLATFORM=SIMULATOR64 -DCMAKE_XCODE_ATTRIBUTE_DEVELOPMENT_TEAM="${DEVELOPMENT_TEAM}" \
-      -DJPEG_LIBRARY=/opt/libjpeg-turbo/lib/libjpeg.a -DJPEG_INCLUDE_DIR=/opt/libjpeg-turbo/include \
       -DBUILD_SHARED_LIBS=OFF -DENABLE_VISIBILITY=ON -DENABLE_ARC=OFF \
       -DDEPLOYMENT_TARGET=12.0 \
+      -DLIBVNCSERVER_HAVE_ENDIAN_H=OFF \
       -DWITH_GCRYPT=OFF
+# TODO: Prebuilt Jpeg lib not build with Mac Catalyst support
+#      -DJPEG_LIBRARY=/opt/libjpeg-turbo/lib/libjpeg.a -DJPEG_INCLUDE_DIR=/opt/libjpeg-turbo/include \
      popd
   fi
   pushd build_simulator64
@@ -105,18 +107,22 @@ then
   then
     mkdir -p build_iphone
     pushd build_iphone
+# TODO: Prebuilt jpeg turbo doesn't have arm64e
+#    cmake .. -G Xcode -DENABLE_BITCODE=OFF -DARCHS='arm64 arm64e'
     cmake .. -G Xcode -DENABLE_BITCODE=OFF -DARCHS='arm64' \
       -DCMAKE_C_FLAGS='-D OPENSSL_MIN_API=0x00908000L -D OPENSSL_API_COMPAT=0x00908000L' \
-      -DOPENSSL_SSL_LIBRARY=../../OpenSSL-for-iPhone/lib/libssl.a \
-      -DOPENSSL_CRYPTO_LIBRARY=../../OpenSSL-for-iPhone/lib/libcrypto.a \
-      -DOPENSSL_INCLUDE_DIR=../../OpenSSL-for-iPhone/include \
+      -DOPENSSL_SSL_LIBRARY=../../iSSH2/openssl_iphoneos/lib/libssl.a \
+      -DOPENSSL_CRYPTO_LIBRARY=../../iSSH2/openssl_iphoneos/lib/libcrypto.a \
+      -DOPENSSL_INCLUDE_DIR=../../iSSH2/openssl_iphoneos/include \
       -DCMAKE_INSTALL_PREFIX=./libs -DCMAKE_INSTALL_PREFIX=./libs \
       -DCMAKE_TOOLCHAIN_FILE=../../ios-cmake/ios.toolchain.cmake \
       -DPLATFORM=OS64 -DCMAKE_XCODE_ATTRIBUTE_DEVELOPMENT_TEAM="${DEVELOPMENT_TEAM}" \
-      -DJPEG_LIBRARY=/opt/libjpeg-turbo/lib/libjpeg.a -DJPEG_INCLUDE_DIR=/opt/libjpeg-turbo/include \
       -DBUILD_SHARED_LIBS=OFF -DENABLE_VISIBILITY=ON -DENABLE_ARC=OFF \
       -DDEPLOYMENT_TARGET=12.0 \
+      -DLIBVNCSERVER_HAVE_ENDIAN_H=OFF \
       -DWITH_GCRYPT=OFF
+# TODO: Prebuilt Jpeg lib not build with Mac Catalyst support
+#      -DJPEG_LIBRARY=/opt/libjpeg-turbo/lib/libjpeg.a -DJPEG_INCLUDE_DIR=/opt/libjpeg-turbo/include \
     popd
   fi
   pushd build_iphone
@@ -135,7 +141,35 @@ then
     mkdir ${TYPE}-iphoneos
     cmake --build . --config ${TYPE} --target install
   fi
+  popd
 
+  if [ ! -d build_maccatalyst ]
+  then
+    mkdir -p build_maccatalyst
+    pushd build_maccatalyst
+    for i in 1 2 ; do cmake .. -DARCHS='x86_64' \
+      -DCMAKE_TOOLCHAIN_FILE=../../ios-cmake/ios.toolchain.cmake \
+      -DPLATFORM=MAC_CATALYST \
+      -DDEPLOYMENT_TARGET=10.15 \
+      -DCMAKE_CXX_FLAGS_MAC_CATALYST:STRING="-target x86_64-apple-ios13.2-macabi" \
+      -DCMAKE_C_FLAGS_MAC_CATALYST:STRING="-target x86_64-apple-ios13.2-macabi" \
+      -DCMAKE_BUILD_TYPE=MAC_CATALYST \
+      -DENABLE_BITCODE=OFF \
+      -DOPENSSL_SSL_LIBRARY=../../iSSH2/openssl_iphoneos/lib/libssl.a \
+      -DOPENSSL_CRYPTO_LIBRARY=../../iSSH2/openssl_iphoneos/lib/libcrypto.a \
+      -DOPENSSL_INCLUDE_DIR=../../iSSH2/openssl_iphoneos/include \
+      -DCMAKE_INSTALL_PREFIX=./libs \
+      -DBUILD_SHARED_LIBS=OFF -DENABLE_VISIBILITY=ON -DENABLE_ARC=OFF \
+      -DWITH_SASL=OFF \
+      -DLIBVNCSERVER_HAVE_ENDIAN_H=OFF \
+      -DWITH_GCRYPT=OFF
+    done
+# TODO: Prebuilt Jpeg lib not build with Mac Catalyst support
+#      -DJPEG_LIBRARY=/opt/libjpeg-turbo/lib/libjpeg.a -DJPEG_INCLUDE_DIR=/opt/libjpeg-turbo/include \
+    popd
+  fi
+  pushd build_maccatalyst
+  cmake --build . --config ${TYPE} --target install
   popd
 fi
 
@@ -147,7 +181,7 @@ do
   echo $lib
   if [ -z "${SIMULATOR_BUILD}" ]
   then
-    lipo ../build_iphone/libs/${lib} -output ${lib} -create
+    lipo ../build_maccatalyst/libs/${lib} ../build_iphone/libs/${lib} -output ${lib} -create
   else
     lipo ../build_simulator64/libs/${lib} -output ${lib} -create
   fi
