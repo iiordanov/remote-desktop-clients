@@ -5,12 +5,14 @@
 VNC client for iOS.
 
 ### Building Libraries
-First, build dependent libraries. Determine your Development team ID from https://developer.apple.com/account/#/membership/
+First, build dependent libraries, optionally providing the type of build as a parameter:
 
-Then, pass it to `build-libs.sh`, optionally providing the type of build as a second parameter:
-
-    ./build-libs.sh DEV_TEAM_ID Debug
+```bash
+./build-libs.sh Debug
+```
 
 ### Developing
 
-Open `bVNC.xcodeproj` in Xcode.
+- Open `bVNC.xcodeproj` in Xcode.
+- You will probably need to enter your Development team ID into the project.
+- Get it from https://developer.apple.com/account/#/membership/

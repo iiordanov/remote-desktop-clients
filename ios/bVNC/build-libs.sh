@@ -27,45 +27,68 @@ fi
 
 CLEAN=$2
 
+if git clone https://github.com/leetal/ios-cmake.git
+then
+  pushd ios-cmake
+  echo "Patching ios-cmake"
+  patch -p1 < ../ios-cmake.patch
+  popd
+fi
+
 # Clone and build libjpeg-turbo
 if git clone https://github.com/libjpeg-turbo/libjpeg-turbo.git
 then
   pushd libjpeg-turbo
   git checkout 2.0.5
 
+  echo "Patching libjpeg-turbo"
   patch -p1 < ../libjpeg-turbo.patch
   mkdir -p build_iphoneos
   pushd build_iphoneos
-  cmake -G"Unix Makefiles" -DCMAKE_TOOLCHAIN_FILE=../../ios-cmake/ios.toolchain.cmake \
-        -DPLATFORM=OS64 -DDEPLOYMENT_TARGET=12.0 -DCMAKE_INSTALL_PREFIX=./libs \
-        -DENABLE_BITCODE=OFF -DENABLE_VISIBILITY=ON -DENABLE_ARC=OFF ..
+  while ! cmake .. -G"Unix Makefiles" -DCMAKE_TOOLCHAIN_FILE=$(realpath ../../ios-cmake/ios.toolchain.cmake) \
+        -DPLATFORM=OS64 -DDEPLOYMENT_TARGET=12.0 \
+        -DCMAKE_INSTALL_PREFIX=./libs \
+        -DENABLE_BITCODE=OFF \
+        -DENABLE_VISIBILITY=ON \
+        -DENABLE_ARC=OFF
+  do
+    echo "Failed to run cmake on libjpeg-turbo. Sometimes running sudo xcode-select --reset."
+    sleep 1
+  done
   make -j 12
+  make install
   popd
 
   mkdir -p build_maccatalyst
   pushd build_maccatalyst
-  while ! cmake -G"Unix Makefiles" -DCMAKE_TOOLCHAIN_FILE=../../ios-cmake/ios.toolchain.cmake \
+  while ! cmake .. -G"Unix Makefiles" -DCMAKE_TOOLCHAIN_FILE=$(realpath ../../ios-cmake/ios.toolchain.cmake) \
         -DPLATFORM=MAC_CATALYST -DDEPLOYMENT_TARGET=10.15 \
+        -DCMAKE_INSTALL_PREFIX=./libs \
         -DCMAKE_CXX_FLAGS_MAC_CATALYST:STRING="-target x86_64-apple-ios13.2-macabi" \
         -DCMAKE_C_FLAGS_MAC_CATALYST:STRING="-target x86_64-apple-ios13.2-macabi" \
-        -DCMAKE_BUILD_TYPE=MAC_CATALYST -DCMAKE_INSTALL_PREFIX=./libs \
-        -DENABLE_BITCODE=OFF -DENABLE_VISIBILITY=ON -DENABLE_ARC=OFF ..
+        -DCMAKE_BUILD_TYPE=MAC_CATALYST \
+        -DENABLE_BITCODE=OFF \
+        -DENABLE_VISIBILITY=ON \
+        -DENABLE_ARC=OFF
   do
-    echo "Retrying Mac Catalyst cmake config"
-    sleep 2
+    echo "Failed to run cmake on libjpeg-turbo. Sometimes running sudo xcode-select --reset."
+    sleep 1
   done
   make -j 12
+  make install
   popd
 
   popd
 fi
 
-mkdir -p libjpeg-turbo/libs_combined/lib/ libjpeg-turbo/libs_combined/include
-cp libjpeg-turbo/build_iphoneos/jconfig.h libjpeg-turbo/*.h libjpeg-turbo/libs_combined/include/
-for lib in libturbojpeg.a
+# Lipo together the architectures for libjpeg-turbo and copy them to the common directory.
+mkdir -p libjpeg-turbo/libs_combined/lib/
+rsync -avP libjpeg-turbo/build_iphoneos/libs/include libjpeg-turbo/libs_combined/
+for lib in libjpeg.a libturbojpeg.a
 do
-  lipo libjpeg-turbo/build_maccatalyst/libturbojpeg.a libjpeg-turbo/build_iphoneos/libturbojpeg.a\
-      -output libjpeg-turbo/libs_combined/lib/libjpeg.a -create 
+  echo "Running lipo to create ${lib}"
+  lipo libjpeg-turbo/build_maccatalyst/libs/lib/libturbojpeg.a libjpeg-turbo/build_iphoneos/libs/lib/libturbojpeg.a \
+        -output libjpeg-turbo/libs_combined/lib/${lib} -create
 done
 rsync -avP libjpeg-turbo/libs_combined/ ./bVNC.xcodeproj/libs_combined/
 
@@ -99,6 +122,7 @@ if git clone https://github.com/Jan-E/iSSH2.git
 then
   pushd iSSH2
   git checkout catalyst
+  echo "Patching Jan-E/iSSH2"
   patch -p1 < ../iSSH2.patch
   ./catalyst.sh
   popd
@@ -110,20 +134,13 @@ fi
 rsync -avP iSSH2/libssh2_iphoneos/ ./bVNC.xcodeproj/libs_combined/
 rsync -avP iSSH2/openssl_iphoneos/ ./bVNC.xcodeproj/libs_combined/
 
-if git clone https://github.com/leetal/ios-cmake.git
-then
-  pushd ios-cmake
-  patch -p1 < ../ios-cmake.patch
-  popd
-fi
-
 git clone https://github.com/iiordanov/libvncserver.git || true
 
 pushd libvncserver/
 
 if [ -n "${CLEAN}" ]
 then
-  rm -rf build_simulator64
+  rm -rf build_simulator64 build_iphone build_maccatalyst
 fi
 
 if [ -n "${SIMULATOR_BUILD}" -a ! -d build_simulator64 ]
@@ -152,11 +169,6 @@ then
   pushd build_simulator64
   cmake --build . --config ${TYPE} --target install || true
   popd
-fi
-
-if [ -n "${CLEAN}" ]
-then
-  rm -rf build_iphone
 fi
 
 echo 'PRODUCT_BUNDLE_IDENTIFIER = com.iiordanov.bVNC' > ${TYPE}.xcconfig
@@ -222,12 +234,12 @@ then
   popd
 fi
 
+# Lipo together the architectures for libvncserver and copy them to the common directory.
 rsync -avP build_iphone/libs/ libs_combined/
 pushd libs_combined
-
 for lib in lib/lib*.a
 do
-  echo $lib
+  echo "Running lipo for ${lib}"
   if [ -z "${SIMULATOR_BUILD}" ]
   then
     lipo ../build_maccatalyst/libs/${lib} ../build_iphone/libs/${lib} -output ${lib} -create
@@ -235,12 +247,10 @@ do
     lipo ../build_simulator64/libs/${lib} -output ${lib} -create
   fi
 done
-
+popd
 popd
 
-popd
-
-rsync -avPL libvncserver/libs_combined/lib libvncserver/libs_combined/include bVNC.xcodeproj/libs_combined/
+rsync -avPL libvncserver/libs_combined/ bVNC.xcodeproj/libs_combined/
 
 # Make a super duper static lib out of all the other libs
 pushd bVNC.xcodeproj/libs_combined/lib
