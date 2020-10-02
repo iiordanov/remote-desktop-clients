@@ -82,8 +82,7 @@ class TouchEnabledUIImageView: UIImageView {
         tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleTap(_:)))
         tapGesture?.numberOfTapsRequired = 1
         pinchGesture = UIPinchGestureRecognizer(target: self, action: #selector(handleZooming(_:)))
-        //TODO: For MacOS X
-        //hoverGesture = UIHoverGestureRecognizer(target: self, action: #selector(handleHovering(_:)))
+        hoverGesture = UIHoverGestureRecognizer(target: self, action: #selector(handleHovering(_:)))
     }
 
     override init(image: UIImage?) {
@@ -168,6 +167,7 @@ class TouchEnabledUIImageView: UIImageView {
         if let panGesture = panGesture { addGestureRecognizer(panGesture) }
         if let tapGesture = tapGesture { addGestureRecognizer(tapGesture) }
         if let longTapGesture = longTapGesture { addGestureRecognizer(longTapGesture) }
+        if let hoverGesture = hoverGesture { addGestureRecognizer(hoverGesture) }
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -295,9 +295,14 @@ class TouchEnabledUIImageView: UIImageView {
         guard let touches = touches else { return }
         self.touchesEnded(touches, with: event)
     }
-
+    
     @objc func handleHovering(_ sender: UIHoverGestureRecognizer) {
-        log_callback_str(message: "\(#function) + \(sender)")
+        if let touchView = sender.view {
+            self.setViewParameters(point: sender.location(in: touchView), touchView: touchView)
+        } else {
+            return
+        }
+        sendPointerEvent(scrolling: false, moving: true, firstDown: self.firstDown, secondDown: self.secondDown, thirdDown: self.thirdDown, fourthDown: false, fifthDown: false)
     }
 
     @objc func handleZooming(_ sender: UIPinchGestureRecognizer) {
