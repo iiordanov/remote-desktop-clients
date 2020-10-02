@@ -1,14 +1,18 @@
 #!/bin/bash -e
 
-if [ -z "${1}" ]
-then
-  echo "Pass your development team from https://developer.apple.com/account/#/membership/ as the first argument."
-  echo "$0 123456789A [Debug|Release] [clean]"
-  exit 1
-fi
+function realpath() {
+    [[ $1 = /* ]] && echo "$1" || echo "$PWD/${1#./}"
+}
 
-DEVELOPMENT_TEAM=$1
-shift
+function usage() {
+  echo "$0 [Debug|Release] [clean]"
+  exit 1
+}
+
+if [ "${1}" == "-h" ]
+then
+  usage
+fi
 
 TYPE=$1
 if [ -z "$TYPE" ]
@@ -16,44 +20,102 @@ then
   TYPE=Debug
 fi
 
+if [ "${TYPE}" != "Debug" -a "${TYPE}" != "Release" ]
+then
+  usage
+fi
+
 CLEAN=$2
 
-# Ensure libjpeg-turbo is installed in the default path
-if [ ! -d /opt/libjpeg-turbo/ ]
+# Clone and build libjpeg-turbo
+if git clone https://github.com/libjpeg-turbo/libjpeg-turbo.git
 then
-  echo "You need to download and install libjpeg-turbo in the default location."
-  echo "Pre-built libraries for iOS are available at https://libjpeg-turbo.org/Documentation/OfficialBinaries"
-  exit 1
-fi
+  pushd libjpeg-turbo
+  git checkout 2.0.5
 
-rsync -avP /opt/libjpeg-turbo/lib /opt/libjpeg-turbo/include ./bVNC.xcodeproj/libs_combined/
-
-# Clone and build OpenSSL
-if git clone https://github.com/x2on/OpenSSL-for-iPhone.git
-then
-  pushd OpenSSL-for-iPhone
-  ./build-libssl.sh --deprecated --version=1.1.1g
+  patch -p1 < ../libjpeg-turbo.patch
+  mkdir -p build_iphoneos
+  pushd build_iphoneos
+  cmake -G"Unix Makefiles" -DCMAKE_TOOLCHAIN_FILE=../../ios-cmake/ios.toolchain.cmake \
+        -DPLATFORM=OS64 -DDEPLOYMENT_TARGET=12.0 -DCMAKE_INSTALL_PREFIX=./libs \
+        -DENABLE_BITCODE=OFF -DENABLE_VISIBILITY=ON -DENABLE_ARC=OFF ..
+  make -j 12
   popd
-else
-  echo "Found OpenSSL-for-iPhone directory, assuming it is built, please remove with 'rm -rf OpenSSL-for-iPhone' to rebuild"
+
+  mkdir -p build_maccatalyst
+  pushd build_maccatalyst
+  while ! cmake -G"Unix Makefiles" -DCMAKE_TOOLCHAIN_FILE=../../ios-cmake/ios.toolchain.cmake \
+        -DPLATFORM=MAC_CATALYST -DDEPLOYMENT_TARGET=10.15 \
+        -DCMAKE_CXX_FLAGS_MAC_CATALYST:STRING="-target x86_64-apple-ios13.2-macabi" \
+        -DCMAKE_C_FLAGS_MAC_CATALYST:STRING="-target x86_64-apple-ios13.2-macabi" \
+        -DCMAKE_BUILD_TYPE=MAC_CATALYST -DCMAKE_INSTALL_PREFIX=./libs \
+        -DENABLE_BITCODE=OFF -DENABLE_VISIBILITY=ON -DENABLE_ARC=OFF ..
+  do
+    echo "Retrying Mac Catalyst cmake config"
+    sleep 2
+  done
+  make -j 12
+  popd
+
+  popd
 fi
 
-rsync -avP OpenSSL-for-iPhone/lib OpenSSL-for-iPhone/include ./bVNC.xcodeproj/libs_combined/
+mkdir -p libjpeg-turbo/libs_combined/lib/ libjpeg-turbo/libs_combined/include
+cp libjpeg-turbo/build_iphoneos/jconfig.h libjpeg-turbo/*.h libjpeg-turbo/libs_combined/include/
+for lib in libturbojpeg.a
+do
+  lipo libjpeg-turbo/build_maccatalyst/libturbojpeg.a libjpeg-turbo/build_iphoneos/libturbojpeg.a\
+      -output libjpeg-turbo/libs_combined/lib/libjpeg.a -create 
+done
+rsync -avP libjpeg-turbo/libs_combined/ ./bVNC.xcodeproj/libs_combined/
+
+echo
+echo
+echo "Checking whether there are links for the patch version e.g. 10.15.6 of Mac OS X present here in the form MacOSX10.15.7.sdk -> MacOSX.sdk"
+echo "If you do not, OpenSSL build for Mac Catalyst and Xcode builds may fail."
+echo
+echo
+if ! ls -1d /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.[0-9]*.[0-9]*.sdk
+then
+  SDK_VERSION=$(xcrun --show-sdk-version)
+  echo "It seems you are missing some symlinks of the form MacOSX${SDK_VERSION}.sdk -> MacOSX.sdk in"
+  echo "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/"
+  ls -l /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/
+  echo "Should we make a symlink automatically? Type y and hit enter for yes, any other key for no."
+  read response
+  if [ "${response}" == "y" ]
+  then
+    pushd /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/
+    sudo ln -s MacOSX.sdk MacOSX${SDK_VERSION}.sdk
+    popd
+  fi
+  echo
+  echo
+fi
+sleep 2
 
 # Clone and build libssh2
-if git clone https://github.com/Frugghi/iSSH2.git
+if git clone https://github.com/Jan-E/iSSH2.git
 then
   pushd iSSH2
-  ./iSSH2.sh --platform=iphoneos --min-version=12.0
+  git checkout catalyst
+  patch -p1 < ../iSSH2.patch
+  ./catalyst.sh
   popd
 else
   echo "Found libssh2 directory, assuming it is built, please remove with 'rm -rf iSSH2' to rebuild"
 fi
 
 # Copy SSH libs and header files to project
-rsync -avP iSSH2/libssh2_iphoneos/lib iSSH2/libssh2_iphoneos/include ./bVNC.xcodeproj/libs_combined/
+rsync -avP iSSH2/libssh2_iphoneos/ ./bVNC.xcodeproj/libs_combined/
+rsync -avP iSSH2/openssl_iphoneos/ ./bVNC.xcodeproj/libs_combined/
 
-git clone https://github.com/leetal/ios-cmake.git || true
+if git clone https://github.com/leetal/ios-cmake.git
+then
+  pushd ios-cmake
+  patch -p1 < ../ios-cmake.patch
+  popd
+fi
 
 git clone https://github.com/iiordanov/libvncserver.git || true
 
@@ -72,22 +134,23 @@ then
   then
     mkdir -p build_simulator64
     pushd build_simulator64
-    cmake .. -G Xcode -DENABLE_BITCODE=OFF -DARCHS='x86_64' \
-      -DCMAKE_C_FLAGS='-D OPENSSL_MIN_API=0x00908000L -D OPENSSL_API_COMPAT=0x00908000L' \
-      -DOPENSSL_SSL_LIBRARY=../../OpenSSL-for-iPhone/lib/libssl.a \
-      -DOPENSSL_CRYPTO_LIBRARY=../../OpenSSL-for-iPhone/lib/libcrypto.a \
-      -DOPENSSL_INCLUDE_DIR=../../OpenSSL-for-iPhone/include \
-      -DCMAKE_INSTALL_PREFIX=./libs -DCMAKE_INSTALL_PREFIX=./libs \
-      -DCMAKE_TOOLCHAIN_FILE=../../ios-cmake/ios.toolchain.cmake \
-      -DPLATFORM=SIMULATOR64 -DCMAKE_XCODE_ATTRIBUTE_DEVELOPMENT_TEAM="${DEVELOPMENT_TEAM}" \
-      -DJPEG_LIBRARY=/opt/libjpeg-turbo/lib/libjpeg.a -DJPEG_INCLUDE_DIR=/opt/libjpeg-turbo/include \
-      -DBUILD_SHARED_LIBS=OFF -DENABLE_VISIBILITY=ON -DENABLE_ARC=OFF \
-      -DDEPLOYMENT_TARGET=12.0 \
-      -DWITH_GCRYPT=OFF
+    cmake .. -G"Unix Makefiles" -DENABLE_BITCODE=OFF -DARCHS='x86_64' \
+        -DCMAKE_TOOLCHAIN_FILE=$(realpath ../../ios-cmake/ios.toolchain.cmake) \
+        -DCMAKE_C_FLAGS='-D OPENSSL_MIN_API=0x00908000L -D OPENSSL_API_COMPAT=0x00908000L' \
+        -DOPENSSL_SSL_LIBRARY=$(realpath ../../iSSH2/openssl_iphoneos/lib/libssl.a) \
+        -DOPENSSL_CRYPTO_LIBRARY=$(realpath ../../iSSH2/openssl_iphoneos/lib/libcrypto.a) \
+        -DOPENSSL_INCLUDE_DIR=$(realpath ../../iSSH2/openssl_iphoneos/include) \
+        -DCMAKE_INSTALL_PREFIX=./libs \
+        -DPLATFORM=SIMULATOR64 \
+        -DBUILD_SHARED_LIBS=OFF -DENABLE_VISIBILITY=ON -DENABLE_ARC=OFF \
+        -DDEPLOYMENT_TARGET=12.0 \
+        -DLIBVNCSERVER_HAVE_ENDIAN_H=OFF \
+        -DWITH_GCRYPT=OFF \
+        -DCMAKE_PREFIX_PATH=$(realpath ../../libjpeg-turbo/libs_combined/)
      popd
   fi
   pushd build_simulator64
-  cmake --build . --config ${TYPE} --target install
+  cmake --build . --config ${TYPE} --target install || true
   popd
 fi
 
@@ -105,37 +168,57 @@ then
   then
     mkdir -p build_iphone
     pushd build_iphone
-    cmake .. -G Xcode -DENABLE_BITCODE=OFF -DARCHS='arm64' \
-      -DCMAKE_C_FLAGS='-D OPENSSL_MIN_API=0x00908000L -D OPENSSL_API_COMPAT=0x00908000L' \
-      -DOPENSSL_SSL_LIBRARY=../../OpenSSL-for-iPhone/lib/libssl.a \
-      -DOPENSSL_CRYPTO_LIBRARY=../../OpenSSL-for-iPhone/lib/libcrypto.a \
-      -DOPENSSL_INCLUDE_DIR=../../OpenSSL-for-iPhone/include \
-      -DCMAKE_INSTALL_PREFIX=./libs -DCMAKE_INSTALL_PREFIX=./libs \
-      -DCMAKE_TOOLCHAIN_FILE=../../ios-cmake/ios.toolchain.cmake \
-      -DPLATFORM=OS64 -DCMAKE_XCODE_ATTRIBUTE_DEVELOPMENT_TEAM="${DEVELOPMENT_TEAM}" \
-      -DJPEG_LIBRARY=/opt/libjpeg-turbo/lib/libjpeg.a -DJPEG_INCLUDE_DIR=/opt/libjpeg-turbo/include \
-      -DBUILD_SHARED_LIBS=OFF -DENABLE_VISIBILITY=ON -DENABLE_ARC=OFF \
-      -DDEPLOYMENT_TARGET=12.0 \
-      -DWITH_GCRYPT=OFF
+    cmake .. -G"Unix Makefiles" -DARCHS='arm64' \
+        -DCMAKE_TOOLCHAIN_FILE=$(realpath ../../ios-cmake/ios.toolchain.cmake) \
+        -DPLATFORM=OS64 \
+        -DDEPLOYMENT_TARGET=12.0 \
+        -DENABLE_BITCODE=OFF \
+        -DOPENSSL_SSL_LIBRARY=$(realpath ../../iSSH2/openssl_iphoneos/lib/libssl.a) \
+        -DOPENSSL_CRYPTO_LIBRARY=$(realpath ../../iSSH2/openssl_iphoneos/lib/libcrypto.a) \
+        -DOPENSSL_INCLUDE_DIR=$(realpath ../../iSSH2/openssl_iphoneos/include) \
+        -DCMAKE_INSTALL_PREFIX=./libs \
+        -DBUILD_SHARED_LIBS=OFF \
+        -DENABLE_VISIBILITY=ON \
+        -DENABLE_ARC=OFF \
+        -DWITH_SASL=OFF \
+        -DLIBVNCSERVER_HAVE_ENDIAN_H=OFF \
+        -DWITH_GCRYPT=OFF \
+        -DCMAKE_PREFIX_PATH=$(realpath ../../libjpeg-turbo/libs_combined/)
     popd
   fi
   pushd build_iphone
+  make -j 12
+  make install
+  popd
 
-  # Workaround for missing PRODUCT_BUNDLE_IDENTIFIER in generated LibVNCServer.xcodeproj/project.pbxproj file
-  sed -i.bak '/ *ARCHS =.*/a\
-  PRODUCT_BUNDLE_IDENTIFIER="com.iiordanov.bVNC";
-  ' LibVNCServer.xcodeproj/project.pbxproj
-
-  cmake --build . --config ${TYPE} --target install
-
-  # Workaround for a file that blocks the creation of a directory
-  if [ -f ${TYPE}-iphoneos ]
+  if [ ! -d build_maccatalyst ]
   then
-    rm ${TYPE}-iphoneos
-    mkdir ${TYPE}-iphoneos
-    cmake --build . --config ${TYPE} --target install
+    mkdir -p build_maccatalyst
+    pushd build_maccatalyst
+    cmake .. -G"Unix Makefiles" -DARCHS='x86_64' \
+        -DCMAKE_TOOLCHAIN_FILE=$(realpath ../../ios-cmake/ios.toolchain.cmake) \
+        -DPLATFORM=MAC_CATALYST \
+        -DDEPLOYMENT_TARGET=10.15 \
+        -DCMAKE_CXX_FLAGS_MAC_CATALYST:STRING="-target x86_64-apple-ios13.2-macabi" \
+        -DCMAKE_C_FLAGS_MAC_CATALYST:STRING="-target x86_64-apple-ios13.2-macabi" \
+        -DCMAKE_BUILD_TYPE=MAC_CATALYST \
+        -DENABLE_BITCODE=OFF \
+        -DOPENSSL_SSL_LIBRARY=$(realpath ../../iSSH2/openssl_iphoneos/lib/libssl.a) \
+        -DOPENSSL_CRYPTO_LIBRARY=$(realpath ../../iSSH2/openssl_iphoneos/lib/libcrypto.a) \
+        -DOPENSSL_INCLUDE_DIR=$(realpath ../../iSSH2/openssl_iphoneos/include) \
+        -DCMAKE_INSTALL_PREFIX=./libs \
+        -DBUILD_SHARED_LIBS=OFF \
+        -DENABLE_VISIBILITY=ON \
+        -DENABLE_ARC=OFF \
+        -DWITH_SASL=OFF \
+        -DLIBVNCSERVER_HAVE_ENDIAN_H=OFF \
+        -DWITH_GCRYPT=OFF \
+        -DCMAKE_PREFIX_PATH=$(realpath ../../libjpeg-turbo/libs_combined/)
+    popd
   fi
-
+  pushd build_maccatalyst
+  make -j 12
+  make install
   popd
 fi
 
@@ -147,7 +230,7 @@ do
   echo $lib
   if [ -z "${SIMULATOR_BUILD}" ]
   then
-    lipo ../build_iphone/libs/${lib} -output ${lib} -create
+    lipo ../build_maccatalyst/libs/${lib} ../build_iphone/libs/${lib} -output ${lib} -create
   else
     lipo ../build_simulator64/libs/${lib} -output ${lib} -create
   fi

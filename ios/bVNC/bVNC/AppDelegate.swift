@@ -3,7 +3,7 @@
 //  bVNC
 //
 //  Created by iordan iordanov on 2019-12-25.
-//  Copyright © 2019 iordan iordanov. All rights reserved.
+//  Copyright © 2020 iordan iordanov. All rights reserved.
 //
 
 import UIKit

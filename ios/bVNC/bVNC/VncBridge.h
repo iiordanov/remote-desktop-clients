@@ -12,6 +12,7 @@
 #include <stdio.h>
 #include "rfb/rfbclient.h"
 #include "SshPortForwarder.h"
+#include <stdbool.h>
 
 bool getMaintainConnection(void *c);
 void *initializeVnc(int instance,
