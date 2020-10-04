@@ -150,6 +150,7 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView
     Timer clipboardMonitorTimer;
     ClipboardMonitor clipboardMonitor;
     public boolean serverJustCutText = false;
+    public boolean blockHandler25 = false;
 
     public Runnable setModes;
     public Runnable clearToggles;

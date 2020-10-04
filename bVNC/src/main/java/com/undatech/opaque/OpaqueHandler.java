@@ -166,6 +166,7 @@ public class OpaqueHandler extends Handler {
                 true);
             break;
         case RemoteClientLibConstants.OVIRT_AUTH_FAILURE:
+            c.blockHandler25 = true;
             showGetTextFragmentRemoteCanvas(context.getString(R.string.enter_password_auth_failed),
                 GetTextFragment.DIALOG_ID_GET_OPAQUE_CREDENTIALS,
                 context.getString(R.string.enter_password_auth_failed),
@@ -198,13 +199,14 @@ public class OpaqueHandler extends Handler {
             String e = msg.getData().getString("message");
             c.pd.dismiss();
             // Only if we were intending to stay connected, and the connection failed, show an error message.
-            if (c.maintainConnection) {
+            if (c.maintainConnection && !c.blockHandler25) {
                 if (!c.spiceUpdateReceived) {
                     c.disconnectAndShowMessage(R.string.error_ovirt_unable_to_connect, R.string.error_dialog_title, e);
                 } else {
                     c.disconnectAndShowMessage(R.string.error_connection_interrupted, R.string.error_dialog_title, e);
                 }
             }
+            c.blockHandler25 = false;
             break;
         case RemoteClientLibConstants.OVIRT_TIMEOUT:
             c.pd.dismiss();
