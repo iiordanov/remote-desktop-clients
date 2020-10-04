@@ -22,8 +22,6 @@ func UserInterface(_ block: @escaping ()->Void) {
 }
 
 var globalContentView: Image?
-var globalScene: UIWindowScene?
-var globalWindow: UIWindow?
 var globalImageView: TouchEnabledUIImageView?
 var globalStateKeeper: StateKeeper?
 var lastUpdate: Double = 0.0
@@ -97,6 +95,9 @@ func log_callback(message: UnsafeMutablePointer<Int8>?) -> Void {
 }
 
 func log_callback_str(message: String) -> Void {
+    UserInterface {
+        print(message)
+    }
     globalStateKeeper?.logLock.lock()
     if globalStateKeeper?.clientLog.count ?? 0 > 500 {
         globalStateKeeper?.clientLog.remove(at: 0)
@@ -196,7 +197,13 @@ func resize_callback(instance: Int32, cl: UnsafeMutableRawPointer?, fbW: Int32, 
             globalStateKeeper?.correctTopSpacingForOrientation()
             let leftSpacing = globalStateKeeper?.leftSpacing ?? 0
             let topSpacing = globalStateKeeper?.topSpacing ?? 0
-            globalStateKeeper?.imageView = LongTapDragUIImageView(frame: CGRect(x: leftSpacing, y: topSpacing, width: CGFloat(fbW)*minScale, height: CGFloat(fbH)*minScale), stateKeeper: globalStateKeeper)
+            if globalStateKeeper?.macOs == true {
+                log_callback_str(message: "Running on MacOS")
+                globalStateKeeper?.imageView = ShortTapDragUIImageView(frame: CGRect(x: leftSpacing, y: topSpacing, width: CGFloat(fbW)*minScale, height: CGFloat(fbH)*minScale), stateKeeper: globalStateKeeper)
+            } else {
+                log_callback_str(message: "Running on iOS")
+                globalStateKeeper?.imageView = LongTapDragUIImageView(frame: CGRect(x: leftSpacing, y: topSpacing, width: CGFloat(fbW)*minScale, height: CGFloat(fbH)*minScale), stateKeeper: globalStateKeeper)
+            }
             //globalStateKeeper?.imageView?.backgroundColor = UIColor.gray
             globalStateKeeper?.imageView?.enableGestures()
             globalStateKeeper?.imageView?.enableTouch()
@@ -264,14 +271,12 @@ func imageFromARGB32Bitmap(pixels: UnsafeMutablePointer<UInt8>?, withWidth: Int,
 }
 
 class VncSession {
-    let scene: UIScene, window: UIWindow, stateKeeper: StateKeeper
+    let stateKeeper: StateKeeper
     var instance: Int
     var cl: UnsafeMutableRawPointer?
     
-    init(scene: UIScene, window: UIWindow, instance: Int, stateKeeper: StateKeeper) {
+    init(instance: Int, stateKeeper: StateKeeper) {
         log_callback_str(message: "Initializing VNC Session instance: \(instance)")
-        self.scene = scene
-        self.window = window
         self.instance = instance
         self.stateKeeper = stateKeeper
         self.cl = nil
@@ -285,11 +290,6 @@ class VncSession {
     }
     
     func connect(currentConnection: [String:String]) {
-        if let windowScene = scene as? UIWindowScene {
-            globalScene = windowScene
-            globalWindow = window
-        }
-
         let sshAddress = currentConnection["sshAddress"] ?? ""
         let sshPort = currentConnection["sshPort"] ?? ""
         let sshUser = currentConnection["sshUser"] ?? ""

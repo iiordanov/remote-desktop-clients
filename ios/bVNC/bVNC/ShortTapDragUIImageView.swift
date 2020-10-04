@@ -29,6 +29,10 @@ class ShortTapDragUIImageView: TouchEnabledUIImageView {
             let scaleY = sender.view!.transform.d
             
             //print ("abs(scaleX*translation.x): \(abs(scaleX*translation.x)), abs(scaleY*translation.y): \(abs(scaleY*translation.y))")
+            if self.stateKeeper?.macOs == true {
+                self.inPanning = false
+                self.inScrolling = true
+            }
             if (!self.inPanning && (self.inScrolling || abs(scaleY*translation.y)/abs(scaleX*translation.x) > 1.7)) {
                 // If tolerance for scrolling was just exceeded, begin scroll event
                 if (!self.inScrolling) {

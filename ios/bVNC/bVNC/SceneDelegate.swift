@@ -9,6 +9,8 @@
 import UIKit
 import SwiftUI
 
+var globalWindow: UIWindow?
+
 class MyUIHostingController<Content> : UIHostingController<Content> where Content : View {
     override var prefersStatusBarHidden: Bool {
         return true
@@ -43,8 +45,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             //window!.rootViewController?.modalPresentationCapturesStatusBarAppearance = true
 
             window!.makeKeyAndVisible()
-            self.stateKeeper.setScene(scene: scene)
-            self.stateKeeper.setWindow(window: window!)
+            globalWindow = window
         }
     }
 

@@ -164,7 +164,14 @@ class TouchEnabledUIImageView: UIImageView {
     func enableGestures() {
         isUserInteractionEnabled = true
         if let pinchGesture = pinchGesture { addGestureRecognizer(pinchGesture) }
-        if let panGesture = panGesture { addGestureRecognizer(panGesture) }
+        if let panGesture = panGesture {
+            addGestureRecognizer(panGesture)
+            if #available(macCatalyst 13.4, *) {
+                if #available(iOS 13.4, *) {
+                    panGesture.allowedScrollTypesMask = UIScrollTypeMask.continuous
+                }
+            }
+        }
         if let tapGesture = tapGesture { addGestureRecognizer(tapGesture) }
         if let longTapGesture = longTapGesture { addGestureRecognizer(longTapGesture) }
         if let hoverGesture = hoverGesture { addGestureRecognizer(hoverGesture) }
@@ -237,7 +244,7 @@ class TouchEnabledUIImageView: UIImageView {
                         if let touchView = touch.view {
                             self.setViewParameters(point: touch.location(in: touchView), touchView: touchView)
                         }
-                        if moveEventsSinceFingerDown > 8 {
+                        if stateKeeper!.macOs || moveEventsSinceFingerDown > 8 {
                             log_callback_str(message: "\(#function) +\(self.firstDown) + \(self.secondDown) + \(self.thirdDown)")
                             self.inPanDragging = true
                             self.sendDownThenUpEvent(scrolling: false, moving: true, firstDown: self.firstDown, secondDown:     self.secondDown, thirdDown: self.thirdDown, fourthDown: false, fifthDown: false)

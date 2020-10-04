@@ -24,8 +24,6 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
     var connections: [Dictionary<String, String>]
     var connectionIndex: Int
     var settings = UserDefaults.standard
-    var scene: UIScene?
-    var window: UIWindow?
     var title: String?
     var localizedTitle: LocalizedStringKey?
     var message: String = ""
@@ -53,6 +51,7 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
     var fbH: Int32 = 0
     var data: UnsafeMutablePointer<UInt8>?
     var minScale: CGFloat = 0
+    var macOs: Bool = false;
     
     var topSpacing: CGFloat = bH
     var topButtonSpacing: CGFloat = 0.0
@@ -179,6 +178,9 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
     }
     
     override init() {
+        if #available(macCatalyst 13.4, *) {
+            self.macOs = true
+        }
         // Load settings for current connection
         connectionIndex = -1
         selectedConnection = [:]
@@ -211,14 +213,6 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
         }
     }
 
-    func setScene(scene: UIScene) {
-        self.scene = scene
-    }
-
-    func setWindow(window: UIWindow) {
-        self.window = window
-    }
-
     func setImageView(imageView: TouchEnabledUIImageView) {
         self.imageView = imageView
     }
@@ -236,11 +230,11 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
         self.allowZooming = Bool(selectedConnection["allowZooming"] ?? "true") ?? true
         self.allowPanning = Bool(selectedConnection["allowPanning"] ?? "true") ?? true
         let contentView = ContentView(stateKeeper: self)
-        self.window!.rootViewController = MyUIHostingController(rootView: contentView)
-        self.window!.makeKeyAndVisible()
+        globalWindow!.rootViewController = MyUIHostingController(rootView: contentView)
+        globalWindow!.makeKeyAndVisible()
         currInst = (currInst + 1) % maxClCapacity
         isDrawing = true;
-        self.vncSession = VncSession(scene: self.scene!, window: self.window!, instance: currInst, stateKeeper: self)
+        self.vncSession = VncSession(instance: currInst, stateKeeper: self)
         self.vncSession!.connect(currentConnection: selectedConnection)
         showConnectionInProgress()
         createAndRepositionButtons()
@@ -318,11 +312,11 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
     @objc func scheduleDisconnectTimer(interval: Double = 1, wasDrawing: Bool) {
         UserInterface {
             log_callback_str(message: "Scheduling disconnect")
-            self.spinner.frame.origin.x = (self.window?.frame.size.width ?? 0) / 2 - self.spinner.frame.size.width / 2
-            self.spinner.frame.origin.y = (self.window?.frame.size.height ?? 0) / 2 - self.spinner.frame.size.height / 2
+            self.spinner.frame.origin.x = (globalWindow?.frame.size.width ?? 0) / 2 - self.spinner.frame.size.width / 2
+            self.spinner.frame.origin.y = (globalWindow?.frame.size.height ?? 0) / 2 - self.spinner.frame.size.height / 2
             self.spinner.translatesAutoresizingMaskIntoConstraints = false
             self.spinner.startAnimating()
-            self.window?.addSubview(self.spinner)
+            globalWindow?.addSubview(self.spinner)
             self.lazyDisconnect()
             self.disconnectTimer.invalidate()
             self.disconnectTimer = Timer.scheduledTimer(timeInterval: interval, target: self, selector: #selector(self.disconnect(sender:)), userInfo: wasDrawing, repeats: false)
@@ -404,8 +398,8 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
     func showConnections() {
         UserInterface {
             let contentView = ContentView(stateKeeper: self)
-            self.window!.rootViewController = MyUIHostingController(rootView: contentView)
-            self.window!.makeKeyAndVisible()
+            globalWindow!.rootViewController = MyUIHostingController(rootView: contentView)
+            globalWindow!.makeKeyAndVisible()
             self.spinner.removeFromSuperview()
             self.currentPage = "connectionsList"
         }
@@ -482,8 +476,8 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
     @objc func correctTopSpacingForOrientation() {
         minScale = getMinimumScale(fbW: CGFloat(fbW), fbH: CGFloat(fbH))
 
-        let windowX = window?.frame.maxX ?? 0
-        let windowY = window?.frame.maxY ?? 0
+        let windowX = globalWindow?.frame.maxX ?? 0
+        let windowY = globalWindow?.frame.maxY ?? 0
         //print ("windowX: \(windowX), windowY: \(windowY)")
         var newOrientation = 0
         if (windowX > windowY) {
@@ -565,16 +559,16 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
             // Left and right buttons have different logic for calculating x position
             var locX = b["lx"] as! CGFloat
             if rightButton {
-                locX = window!.frame.width - (b["lx"] as! CGFloat)
+                locX = globalWindow!.frame.width - (b["lx"] as! CGFloat)
             }
             // Top and bottom buttons have different logic for when they go up and down.
             var locY = b["ly"] as! CGFloat + topButtonSpacing
             if !topButton {
-                locY = (window?.frame.height ?? 0) - (b["ly"] as! CGFloat) - self.keyboardHeight
+                locY = (globalWindow?.frame.height ?? 0) - (b["ly"] as! CGFloat) - self.keyboardHeight
             }
             // Top buttons can wrap around and go a row down if they are out of horizontal space.
-            let windowWidth = window?.frame.maxX ?? 0
-            if topButton && locX + width > window?.frame.maxX ?? 0 {
+            let windowWidth = globalWindow?.frame.maxX ?? 0
+            if topButton && locX + width > globalWindow?.frame.maxX ?? 0 {
                 //print ("Need to wrap button: \(title) to left and a row down")
                 locY = locY + height + spacing
                 locX = locX - windowWidth + width
