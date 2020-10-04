@@ -147,6 +147,25 @@ do_configure() {
             "$@"
 }
 
+do_configure_cmake() {
+    CMAKE_CMD_ARGS="-DANDROID_NDK=${ANDROID_NDK} \
+    -DANDROID_NATIVE_API_LEVEL=android-${android_api} \
+    -DCMAKE_TOOLCHAIN_FILE=${ANDROID_NDK}/build/cmake/android.toolchain.cmake \
+    -DANDROID_ABI=${abi} \
+    -DCMAKE_INSTALL_PREFIX=${root}"
+
+    echo "Current working directory: $(pwd)"
+
+    echo Executing: ${CMAKE_PROGRAM} \
+            ${CMAKE_CMD_ARGS} \
+            "$@"
+
+    echo Environment:
+    env
+
+    ${CMAKE_PROGRAM} ${CMAKE_CMD_ARGS}
+}
+
 build_one() {
     # Build the specified package if not already built
     # $1  = package shortname
@@ -364,6 +383,11 @@ build_one() {
         make $parallel || /bin/true
         make install || /bin/true
         ;;
+    libvnc)
+        autoreconf -fi
+        do_configure_cmake
+        ${CMAKE_PROGRAM} --build . --target install
+        ;;
     esac
 
     popd >/dev/null
@@ -432,10 +456,17 @@ setup() {
         exit 1
     esac
 
+    #Install CMAKE for CMAKE dependencies that are not FreeRDP version of CMAKE
+    echo "Installing cmake ${cmake_version} for FreeRDP build compatibility"
+    export CMAKE_PATH=$(install_cmake ../../ ${freerdp_cmake_version})/bin
+    export PATH=${CMAKE_PATH}:${PATH}
+    export CMAKE_PROGRAM=${CMAKE_PATH}/cmake
+
     build="deps/${abi}/build"
     root="$(pwd)/deps/${abi}/root"
     toolchain="$(pwd)/deps/${abi}/toolchain"
     gst="$(pwd)/deps/${abi}/gstreamer"
+
     mkdir -p "${root}"
     [ -e ${gst} ] && mkdir -p ${gst}/etc/ssl/certs/ && cp /etc/ssl/certs/ca-certificates.crt ${gst}/etc/ssl/certs/ || /bin/true
 
@@ -630,10 +661,6 @@ build_freerdp() {
         echo "Installing android NDK ${freerdp_ndk_version} for FreeRDP build compatibility"
         export ANDROID_NDK=$(install_ndk ../../ ${freerdp_ndk_version})
         echo "Android NDK version for FreeRDP ${ndk_version} is installed at ${ANDROID_NDK}"
-        echo "Installing cmake ${freerdp_cmake_version} for FreeRDP build compatibility"
-        export CMAKE_PATH=$(install_cmake ../../ ${freerdp_cmake_version})/bin
-        export PATH=${CMAKE_PATH}:${PATH}
-        export CMAKE_PROGRAM=${CMAKE_PATH}/cmake
         ./scripts/android-build-freerdp.sh
 
         # Prepare the FreeRDPCore project for use as a library
@@ -645,7 +672,6 @@ build_freerdp() {
     popd
     touch FREERDP_BUILT
 }
-
 
 # Set up error handling
 trap fail_handler ERR
