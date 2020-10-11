@@ -384,7 +384,6 @@ build_one() {
         make install || /bin/true
         ;;
     libvnc)
-        autoreconf -fi
         do_configure_cmake
         ${CMAKE_PROGRAM} --build . --target install
         ;;
@@ -456,9 +455,9 @@ setup() {
         exit 1
     esac
 
-    #Install CMAKE for CMAKE dependencies that are not FreeRDP version of CMAKE
-    echo "Installing cmake ${cmake_version} for FreeRDP build compatibility"
-    export CMAKE_PATH=$(install_cmake ../../ ${freerdp_cmake_version})/bin
+    #Install CMAKE for CMAKE dependencies required to be compiled
+    echo "Installing cmake ${cmake_version} for compilation usage"
+    export CMAKE_PATH=$(install_cmake . ${cmake_version})/bin
     export PATH=${CMAKE_PATH}:${PATH}
     export CMAKE_PROGRAM=${CMAKE_PATH}/cmake
 
