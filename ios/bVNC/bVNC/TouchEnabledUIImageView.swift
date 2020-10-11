@@ -166,10 +166,8 @@ class TouchEnabledUIImageView: UIImageView {
         if let pinchGesture = pinchGesture { addGestureRecognizer(pinchGesture) }
         if let panGesture = panGesture {
             addGestureRecognizer(panGesture)
-            if #available(macCatalyst 13.4, *) {
-                if #available(iOS 13.4, *) {
-                    panGesture.allowedScrollTypesMask = UIScrollTypeMask.continuous
-                }
+            if #available(iOS 13.4, *) {
+                panGesture.allowedScrollTypesMask = UIScrollTypeMask.continuous
             }
         }
         if let tapGesture = tapGesture { addGestureRecognizer(tapGesture) }

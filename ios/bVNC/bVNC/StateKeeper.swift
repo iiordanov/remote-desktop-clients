@@ -178,9 +178,9 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
     }
     
     override init() {
-        if #available(macCatalyst 13.4, *) {
+        #if targetEnvironment(macCatalyst)
             self.macOs = true
-        }
+        #endif
         // Load settings for current connection
         connectionIndex = -1
         selectedConnection = [:]
