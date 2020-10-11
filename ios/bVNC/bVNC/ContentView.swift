@@ -261,6 +261,8 @@ struct ConnectionsList : View {
 }
 
 struct AddOrEditConnectionPage : View {
+    let sshEnabledAppIds = ["com.iiordanov.bVNC", "com.iiordanov.freebVNC", "com.iiordanov.aRDP",
+                            "com.iiordanov.freeaRDP", "com.iiordanov.aSPICE", "com.iiordanov.freeaSPICE"]
     
     var settings: UserDefaults = UserDefaults.standard
     @ObservedObject var stateKeeper: StateKeeper
@@ -349,11 +351,13 @@ struct AddOrEditConnectionPage : View {
                     }
                 }
                 
-                VStack {
-                    Toggle(isOn: $showSshTunnelSettings) {
-                        Text("SHOW_SSH_TUNNEL_SETTINGS_LABEL")
-                    }
-                }.padding()
+                if self.sshEnabledAppIds.contains(UIApplication.appId ?? "") {
+                    VStack {
+                        Toggle(isOn: $showSshTunnelSettings) {
+                            Text("SHOW_SSH_TUNNEL_SETTINGS_LABEL")
+                        }
+                    }.padding()
+                }
 
                 if self.showSshTunnelSettings {
                 VStack {
