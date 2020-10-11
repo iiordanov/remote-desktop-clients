@@ -312,7 +312,7 @@ void sendUniDirectionalKeyEvent(void *c, const char *characters, bool down) {
     sendUniDirectionalKeyEventWithKeySym(cl, sym, down);
 }
 
-void sendKeyEvent(void *c, const char *character) {
+void sendKeyEvent(void *c, const char *character, bool down) {
     rfbClient *cl = (rfbClient *)c;
 
     if (!cl->maintainConnection) {
@@ -320,10 +320,10 @@ void sendKeyEvent(void *c, const char *character) {
     }
     rfbKeySym sym = utf8char2rfbKeySym(c);
     //printf("sendKeyEvent converted %#06x to xkeysym: %#06x\n", (int)*character, sym);
-    sendKeyEventWithKeySym(cl, sym);
+    sendKeyEventWithKeySym(cl, sym, down);
 }
 
-bool sendKeyEventInt(void *c, int character) {
+bool sendKeyEventInt(void *c, int character, bool down) {
     rfbClient *cl = (rfbClient *)c;
     
     if (!cl->maintainConnection) {
@@ -334,19 +334,18 @@ bool sendKeyEventInt(void *c, int character) {
         return false;
     }
     //printf("sendKeyEventInt converted %#06x to xkeysym: %#06x\n", character, sym);
-    sendKeyEventWithKeySym(cl, sym);
+    sendKeyEventWithKeySym(cl, sym, down);
     return true;
 }
 
-void sendKeyEventWithKeySym(void *c, int sym) {
+void sendKeyEventWithKeySym(void *c, int sym, bool down) {
     rfbClient *cl = (rfbClient *)c;
 
     if (cl == NULL || !cl->maintainConnection) {
         return;
     }
     //printf("sendKeyEventWithKeySym sending xkeysym: %#06x\n", sym);
-    checkForError(cl, SendKeyEvent(cl, sym, TRUE));
-    checkForError(cl, SendKeyEvent(cl, sym, FALSE));
+    checkForError(cl, SendKeyEvent(cl, sym, down));
 }
 
 void sendUniDirectionalKeyEventWithKeySym(void *c, int sym, bool down) {

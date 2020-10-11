@@ -49,7 +49,8 @@ class ToggleButton: UIButton {
     @objc func sendText() {
         AudioServicesPlaySystemSound(1100);
         log_callback_str(message: "ToggleButton: Sending my xksysym: \(toSend!), up and then down.")
-        sendKeyEventWithKeySym(self.stateKeeper!.cl[self.stateKeeper!.currInst]!, toSend!)
+        sendKeyEventWithKeySym(self.stateKeeper!.cl[self.stateKeeper!.currInst]!, toSend!, true)
+        sendKeyEventWithKeySym(self.stateKeeper!.cl[self.stateKeeper!.currInst]!, toSend!, false)
         self.stateKeeper?.toggleModifiersIfDown()
         self.stateKeeper?.rescheduleScreenUpdateRequest(timeInterval: 0.5, fullScreenUpdate: false, recurring: false)
     }

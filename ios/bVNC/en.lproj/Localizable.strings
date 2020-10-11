@@ -49,3 +49,5 @@
 "CONNECTION_FAILED" = "Connection to Server Failed";
 "SHOW_SSH_TUNNEL_SETTINGS_LABEL" = "Show SSH Tunnel Settings";
 "COPY_TO_CLIPBOARD_LABEL" = "Copy to Clipboard";
+"DISCONNECT" = "Disconnect";
+"CONNECTION" = "Connection";

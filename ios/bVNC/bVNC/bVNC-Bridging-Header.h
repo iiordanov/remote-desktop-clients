@@ -5,3 +5,4 @@
 #include "SshPortForwarder.h"
 #include "SystemMonitor.h"
 #include "Utilities.h"
+#include "AppKitBundleInit.h"

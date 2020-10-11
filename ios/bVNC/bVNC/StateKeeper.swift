@@ -509,20 +509,26 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
     func createAndRepositionButtons() {
         log_callback_str(message: "Ensuring buttons are initialized, and positioning them where they should be")
         if (self.interfaceButtons["keyboardButton"] == nil) {
-            let b = CustomTextInput(stateKeeper: self)
-            b.addTarget(b, action: #selector(b.toggleFirstResponder), for: .touchDown)
-            if let imageName = interfaceButtonData["keyboardButton"]!["image"] {
-                if let image = UIImage(systemName: imageName as! String) {
-                    b.setImage(image, for: .normal)
-                    b.tintColor = .white
-                    b.backgroundColor = StateKeeper.bBg
+            //if !self.macOs {
+                let b = CustomTextInput(stateKeeper: self)
+                b.addTarget(b, action: #selector(b.toggleFirstResponder), for: .touchDown)
+                if let imageName = interfaceButtonData["keyboardButton"]!["image"] {
+                    if let image = UIImage(systemName: imageName as! String) {
+                        b.setImage(image, for: .normal)
+                        b.tintColor = .white
+                        b.backgroundColor = StateKeeper.bBg
+                    }
                 }
-            }
-            self.interfaceButtons["keyboardButton"] = b
+                self.interfaceButtons["keyboardButton"] = b
+            //}
         }
-        interfaceButtons = createButtonsFromData(populateDict: interfaceButtons, buttonData: interfaceButtonData, width: StateKeeper.bW, height: StateKeeper.bH, spacing: StateKeeper.bSp)
-        interfaceButtons["disconnectButton"]?.addTarget(self, action: #selector(self.scheduleDisconnectTimer), for: .touchDown)
 
+        // Do not create interface buttons altogether on Mac OS
+        //if !self.macOs {
+            interfaceButtons = createButtonsFromData(populateDict: interfaceButtons, buttonData: interfaceButtonData, width: StateKeeper.bW, height: StateKeeper.bH, spacing: StateKeeper.bSp)
+            interfaceButtons["disconnectButton"]?.addTarget(self, action: #selector(self.scheduleDisconnectTimer), for: .touchDown)
+        //}
+        
         topButtons = createButtonsFromData(populateDict: topButtons, buttonData: topButtonData, width: StateKeeper.tbW, height: StateKeeper.bH, spacing: StateKeeper.tbSp)
         modifierButtons = createButtonsFromData(populateDict: modifierButtons, buttonData: modifierButtonData, width: StateKeeper.bW, height: StateKeeper.bH, spacing: StateKeeper.bSp)
         keyboardButtons = createButtonsFromData(populateDict: keyboardButtons, buttonData: keyboardButtonData, width: StateKeeper.bW, height: StateKeeper.bH, spacing: StateKeeper.bSp)

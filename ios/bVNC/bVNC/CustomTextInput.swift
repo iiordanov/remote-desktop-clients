@@ -29,7 +29,9 @@ extension String {
   }
 }*/
 
-class CustomTextInput: UIButton, UIKeyInput{
+class CustomTextInput: UIButton, UIKeyInput {
+    var plugin: Plugin?
+
     public var hasText: Bool { return false }
     var stateKeeper: StateKeeper?
     
@@ -37,7 +39,8 @@ class CustomTextInput: UIButton, UIKeyInput{
         super.init(frame: CGRect())
         self.stateKeeper = stateKeeper;
         if stateKeeper.macOs {
-            self.becomeFirstResponder()
+            //self.resignFirstResponder()
+            loadPlugin()
         }
     }
     
@@ -49,8 +52,11 @@ class CustomTextInput: UIButton, UIKeyInput{
         //log_callback_str(message: "Sending: " + text + ", number of characters: " + String(text.count))
         for char in text.unicodeScalars {
             Background {
-                if !sendKeyEventInt(self.stateKeeper!.cl[self.stateKeeper!.currInst]!, Int32(String(char.value))!) {
-                    sendKeyEvent(self.stateKeeper!.cl[self.stateKeeper!.currInst]!, String(char))
+                if !sendKeyEventInt(self.stateKeeper!.cl[self.stateKeeper!.currInst]!, Int32(String(char.value))!, true) {
+                    sendKeyEvent(self.stateKeeper!.cl[self.stateKeeper!.currInst]!, String(char), true)
+                }
+                if !sendKeyEventInt(self.stateKeeper!.cl[self.stateKeeper!.currInst]!, Int32(String(char.value))!, false) {
+                    sendKeyEvent(self.stateKeeper!.cl[self.stateKeeper!.currInst]!, String(char), false)
                 }
                 self.stateKeeper?.toggleModifiersIfDown()
             }
@@ -60,7 +66,8 @@ class CustomTextInput: UIButton, UIKeyInput{
     
     public func deleteBackward(){
         Background {
-            sendKeyEventWithKeySym(self.stateKeeper!.cl[self.stateKeeper!.currInst]!, 0xff08);
+            sendKeyEventWithKeySym(self.stateKeeper!.cl[self.stateKeeper!.currInst]!, 0xff08, true);
+            sendKeyEventWithKeySym(self.stateKeeper!.cl[self.stateKeeper!.currInst]!, 0xff08, false);
             self.stateKeeper?.toggleModifiersIfDown()
         }
         self.stateKeeper?.rescheduleScreenUpdateRequest(timeInterval: 0.5, fullScreenUpdate: false, recurring: false)
@@ -78,9 +85,6 @@ class CustomTextInput: UIButton, UIKeyInput{
     @objc func hideKeyboard() -> Bool {
         log_callback_str(message: "Hiding keyboard.")
         becomeFirstResponder()
-        if stateKeeper?.macOs == true {
-            return true
-        }
         return resignFirstResponder()
     }
 
@@ -102,5 +106,42 @@ class CustomTextInput: UIButton, UIKeyInput{
     
     override var canBecomeFirstResponder: Bool {
         return true
+        //return stateKeeper?.macOs != true
+    }
+    
+    
+    override func becomeFirstResponder() -> Bool {
+        if stateKeeper?.macOs == true {
+            return plugin?.becomeFirstResponder() ?? false
+        } else {
+            return super.becomeFirstResponder()
+        }
+    }
+    
+    private func loadPlugin() {
+        print("SOMETHING0")
+        /// 1. Form the plugin's bundle URL
+        let bundleFileName = "AppKitBundle.bundle"
+        guard let bundleURL = Bundle.main.builtInPlugInsURL?
+                                    .appendingPathComponent(bundleFileName) else { return }
+
+        /// 2. Create a bundle instance with the plugin URL
+        guard let bundle = Bundle(url: bundleURL) else { return }
+
+        /// 3. Load the bundle and our plugin class
+        let className = "AppKitBundle.MacPlugin"
+        guard let pluginClass = bundle.classNamed(className) as? Plugin.Type else { return }
+
+        /// 4. Create an instance of the plugin class
+        /*
+        let data = Data()
+        do {
+            let plugin = try? pluginClass.init(coder: NSKeyedUnarchiver(forReadingFrom: data))
+            plugin?.sayHello()
+        }*/
+        
+        plugin = pluginClass.init()
+        //plugin?.sayHello()
+        print("SOMETHING3", plugin!.becomeFirstResponder())
     }
 }
