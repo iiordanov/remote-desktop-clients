@@ -97,7 +97,6 @@ class CustomTextInput: UIButton, UIKeyInput{
         }
         log_callback_str(message: "Showing keyboard with delay")
         return true
-
     }
     
     override var canBecomeFirstResponder: Bool {

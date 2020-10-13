@@ -75,6 +75,8 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
     var allowZooming = true
     var allowPanning = true
     
+    var originalImageRect: CGRect = CGRect()
+
     // Dictionaries desctibing onscreen ToggleButton type buttons
     let topButtonData: [ String: [ String: Any ] ] = [
         "f1Button": [ "title": "F1", "lx": 1*tbW+1*tbSp, "ly": z, "bg": bBg, "send": XK_F1, "tgl": false, "top": true, "right": false ],
@@ -422,6 +424,9 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
 
     func keyboardWillShow(withSize keyboardSize: CGSize) {
         log_callback_str(message: "Keyboard will be shown, height: \(self.keyboardHeight)")
+        if !self.allowPanning {
+            self.saveImageRect()
+        }
         self.keyboardHeight = keyboardSize.height
         if isDrawing {
             self.createAndRepositionButtons()
@@ -436,6 +441,10 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
     
     func keyboardWillHide() {
         log_callback_str(message: "Keyboard will be hidden, height: \(self.keyboardHeight)")
+        if !self.allowPanning {
+            self.setImageRect(newRect: self.originalImageRect)
+        }
+        
         self.keyboardHeight = 0
         if isDrawing {
             self.createAndRepositionButtons()
@@ -498,12 +507,20 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
         
         if (newOrientation != orientation) {
             orientation = newOrientation
-            imageView?.frame = CGRect(x: leftSpacing, y: topSpacing, width: CGFloat(fbW)*minScale, height: CGFloat(fbH)*minScale)
+            setImageRect(newRect: CGRect(x: leftSpacing, y: topSpacing, width: CGFloat(fbW)*minScale, height: CGFloat(fbH)*minScale))
             createAndRepositionButtons()
-            log_callback_str(message: "Corrected spacing and minScale for new orientation, left: \(leftSpacing), top: \(topSpacing), minScale: \(minScale)")
         } else {
             //log_callback_str(message: "Actual orientation appears not to have changed, not disturbing the displayed image or buttons.")
         }
+    }
+    
+    func saveImageRect() {
+        self.originalImageRect = imageView?.frame ?? CGRect()
+    }
+    
+    func setImageRect(newRect: CGRect) {
+        imageView?.frame = newRect
+        log_callback_str(message: "Set image rect to: \(newRect)")
     }
     
     func createAndRepositionButtons() {
