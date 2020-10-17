@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           xmlns:tools="http://schemas.android.com/tools"
           package="com.iiordanov.aSPICE" android:installLocation="auto"
-          android:versionCode="115030" android:versionName="v5.0.3">
+          android:versionCode="115031" android:versionName="v5.0.3">
 
     <uses-permission tools:node="removeAll"/>
     <uses-permission android:name="android.permission.INTERNET"> </uses-permission>
@@ -13,6 +13,7 @@
     <uses-permission android:name="android.permission.RECORD_AUDIO"> </uses-permission>
     <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
     <uses-feature android:name="android.hardware.microphone" android:required="false"/>
+    <uses-feature android:name="android.software.leanback" android:required="false" />
 
     <supports-screens
         android:xlargeScreens="true"
@@ -21,7 +22,14 @@
         android:smallScreens="true"
         android:anyDensity="true"/>
 		
-    <application android:icon="@drawable/icon_aspice" android:label="@string/aspice_app_name" android:allowBackup="false" android:theme="@style/AppTheme" android:name="com.iiordanov.bVNC.App" tools:replace="android:label,android:theme">
+    <application
+        android:banner="@drawable/banner_aspice"
+        android:icon="@drawable/icon_aspice"
+        android:label="@string/aspice_app_name"
+        android:allowBackup="false"
+        android:theme="@style/AppTheme"
+        android:name="com.iiordanov.bVNC.App"
+        tools:replace="android:label,android:theme">
                 <activity android:name="com.undatech.opaque.ConnectionGridActivity"
                           android:configChanges="keyboardHidden"
                           android:label="@string/aspice_app_name"
@@ -30,7 +38,8 @@
                         <intent-filter>
                                 <action android:name="android.intent.action.MAIN" />
                                 <category android:name="android.intent.category.LAUNCHER" />
-                                <category android:name="android.intent.category.MULTIWINDOW_LAUNCHER"></category>
+                                <category android:name="android.intent.category.MULTIWINDOW_LAUNCHER" />
+                                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
                         </intent-filter>
                 </activity>
                 <activity android:label="@string/aspice_app_name"

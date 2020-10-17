@@ -34,6 +34,7 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v7.widget.AppCompatImageButton;
 import android.text.ClipboardManager;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -84,6 +85,7 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
     GetTextFragment getPassword = null;
     GetTextFragment getNewPassword = null;
     protected boolean isStarting = true;
+    private AppCompatImageButton addNewConnection = null;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -156,6 +158,13 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
         }
         FileUtils.logFilesInPrivateStorage(this);
         FileUtils.deletePrivateFileIfExisting(this, ".config/freerdp/licenses");
+        addNewConnection = findViewById(R.id.addNewConnection);
+        addNewConnection.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                addNewConnection();
+            }
+        });
     }
 
     private void launchConnection(View v) {
@@ -284,14 +293,27 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
     }
 
     /**
-     * Linked with android:onClick to the add new connection action bar item.
-     * @param menuItem
+     * Starts a new connection.
      */
-    public void addNewConnection (MenuItem menuItem) {
+    public void addNewConnection () {
         Intent intent = new Intent(ConnectionGridActivity.this,
                 Utils.getConnectionSetupClass(getPackageName()));
         intent.putExtra("isNewConnection", true);
         startActivity(intent);
+    }
+
+    /**
+     * Linked with android:onClick to the add new connection action bar item.
+     */
+    public void addNewConnection (MenuItem menuItem) {
+        addNewConnection();
+    }
+
+    /**
+     * Linked with android:onClick to the add new connection item in the activity.
+     */
+    public void addNewConnection(View view) {
+        addNewConnection();
     }
 
     /**

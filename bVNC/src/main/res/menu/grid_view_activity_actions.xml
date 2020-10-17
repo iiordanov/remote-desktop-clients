@@ -13,8 +13,8 @@
         android:icon="@drawable/ic_baseline_add_to_queue_24"
         android:title="@string/action_new_connection"
         tools:ignore="AppCompatResource"
-        android:showAsAction="always"
-        app:showAsAction="always"
+        android:showAsAction="never"
+        app:showAsAction="never"
         android:onClick="addNewConnection" />
 
     <item android:id="@+id/actionEditDefaultSettings"
