@@ -30,6 +30,29 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // If any sessions were discarded while the application was not running, this will be called shortly after application:didFinishLaunchingWithOptions.
         // Use this method to release any resources that were specific to the discarded scenes, as they will not return.
     }
+    
+    override func buildMenu(with builder: UIMenuBuilder) {
+        if builder.system == .main {
+            builder.remove(menu: .edit)
+            builder.remove(menu: .format)
+            builder.remove(menu: .help)
+            builder.remove(menu: .file)
+            builder.remove(menu: .window)
+            builder.remove(menu: .view)
+            
+            let disconnectCommand = UICommand(title: "Disconnect",
+                      action: #selector(disconnect),
+                      discoverabilityTitle: "disconnect")
+            
+            let connectionsMenu = UIMenu(title: "Connections", image: nil, identifier: UIMenu.Identifier("connections"), children: [disconnectCommand])
+            builder.replace(menu: .application, with: connectionsMenu)
+        }
+    }
+    
+    @objc func disconnect() {
+        globalStateKeeper?.scheduleDisconnectTimer(
+            wasDrawing: globalStateKeeper?.isDrawing ?? false)
+    }
 }
 
 extension UIApplication {
