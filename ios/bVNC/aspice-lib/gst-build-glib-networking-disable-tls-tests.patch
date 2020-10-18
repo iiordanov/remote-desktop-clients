@@ -1,0 +1,13 @@
+diff --git a/meson.build b/meson.build
+index df9d7b1..e339f6c 100644
+--- a/meson.build
++++ b/meson.build
+@@ -175,8 +175,6 @@ if backends.contains('openssl')
+   subdir('tls/openssl')
+ endif
+ 
+-subdir('tls/tests')
+-
+ # Will automatically pick it up from the cross file if defined
+ gio_querymodules = find_program('gio-querymodules', required : false)
+ if gio_querymodules.found()

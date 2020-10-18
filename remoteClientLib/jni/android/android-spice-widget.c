@@ -308,6 +308,7 @@ static void cursor_move(SpiceCursorChannel *channel, gint x, gint y, gpointer da
     d->mouse_guest_x = x;
     d->mouse_guest_y = y;
 
+#ifdef __ANDROID__
     JNIEnv* env;
     gboolean attached = attachThreadToJvm (&env);
 
@@ -317,6 +318,7 @@ static void cursor_move(SpiceCursorChannel *channel, gint x, gint y, gpointer da
     if (attached) {
         detachThreadFromJvm ();
     }
+#endif
 }
 
 static void cursor_hide(SpiceCursorChannel *channel, gpointer data) {

@@ -17,26 +17,34 @@
  * USA.
  */
 
+#ifdef __ANDROID__
 #include <jni.h>
 #include <android/bitmap.h>
+#include <android/log.h>
+#endif
 
 #include "android-spicy.h"
 #include "android-spice-widget.h"
 #include "virt-viewer-file.h"
 #include "libusb.h"
-#include <android/log.h>
+
+#include "common-service.h"
 
 #define PTRFLAGS_DOWN 0x8000
 
 #ifdef ANDROID_SERVICE_C
 	SpiceDisplay*   global_display = NULL;
 	spice_connection*  global_conn = NULL;
+
+#ifdef __ANDROID__
 	JavaVM*                    jvm = NULL;
 	jclass    jni_connector_class  = NULL;
 	jmethodID jni_settings_changed = NULL;
 	jmethodID jni_graphics_update  = NULL;
 	jmethodID jni_mouse_update     = NULL;
 	jmethodID jni_mouse_mode       = NULL;
+#endif
+
 	GMainLoop            *mainloop = NULL;
 	int                connections = 0;
 	gboolean          soundEnabled = FALSE;
@@ -45,21 +53,22 @@
 #else
 	extern SpiceDisplay*   global_display;
 	extern spice_connection*  global_conn;
+
+#ifdef __ANDROID__
 	extern JavaVM*                    jvm;
 	extern jclass     jni_connector_class;
 	extern jmethodID jni_settings_changed;
 	extern jmethodID  jni_graphics_update;
 	extern jmethodID     jni_mouse_update;
 	extern jmethodID       jni_mouse_mode;
+#endif
+
 	extern GMainLoop*            mainloop;
 	extern int                connections;
 	extern gboolean          soundEnabled;
 	extern gchar*               oVirtUser;
 	extern gchar*           oVirtPassword;
 #endif
-
-gboolean attachThreadToJvm (JNIEnv** env);
-void detachThreadFromJvm ();
 
 int spiceClientConnect (const gchar *h, const gchar *p, const gchar *tp,
 		                   const gchar *pw, const gchar *cf, GByteArray *cc,
@@ -69,11 +78,16 @@ int spiceClientConnectVv (VirtViewerFile *vv_file, const gboolean sound);
 
 int connectSession (spice_connection *conn);
 
+#ifdef __ANDROID__
+gboolean attachThreadToJvm (JNIEnv** env);
+void detachThreadFromJvm ();
+
 int SpiceClientConnect(JNIEnv *env, jobject obj, const gchar *h, const gchar *p,
                            const gchar *tp, const gchar *pw, const gchar *cf, GByteArray *cc, const gchar *cs,
                            const gboolean sound, VirtViewerFile *vv_file);
 int CreateOvirtSession(JNIEnv *env, jobject obj, const gchar *uri, const gchar *user, const gchar *password,
                           const gchar *ovirt_ca_file, const gboolean sound, const gboolean sslStrict, const gboolean didPowerOn);
+#endif
 
 int openUsbDevice (int vid, int pid);
 int get_usb_device_fd(libusb_device *device);

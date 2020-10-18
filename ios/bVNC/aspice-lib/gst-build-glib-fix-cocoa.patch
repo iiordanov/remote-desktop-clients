@@ -1,0 +1,22 @@
+diff --git a/glib/gosxutils.m b/glib/gosxutils.m
+index 7a0d84d31..ea52b19cf 100644
+--- a/glib/gosxutils.m
++++ b/glib/gosxutils.m
+@@ -17,10 +17,6 @@
+ 
+ #include "config.h"
+ 
+-#ifndef HAVE_COCOA
+-#error "Can only build gutils-macos.m on MacOS"
+-#endif
+-
+ #include <Cocoa/Cocoa.h>
+ #include "gutils.h"
+ #include "gstrfuncs.h"
+@@ -55,4 +51,4 @@
+   table[G_USER_DIRECTORY_PUBLIC_SHARE] = find_folder (NSSharedPublicDirectory);
+   table[G_USER_DIRECTORY_TEMPLATES] = NULL;
+   table[G_USER_DIRECTORY_VIDEOS] = find_folder (NSMoviesDirectory);
+-}
+\ No newline at end of file
++}

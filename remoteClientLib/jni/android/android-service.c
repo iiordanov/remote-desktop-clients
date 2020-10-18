@@ -19,8 +19,6 @@
 
 #include <libxml/uri.h>
 #include <govirt/govirt.h>
-#include <jni.h>
-#include <android/bitmap.h>
 #include <string.h>
 
 #define ANDROID_SERVICE_C
@@ -33,6 +31,7 @@
 
 static gboolean disconnect(gpointer user_data);
 
+#ifdef __ANDROID__
 inline gboolean attachThreadToJvm(JNIEnv** env) {
 	gboolean attached = FALSE;
     int rs2 = 0;
@@ -56,6 +55,7 @@ inline gboolean attachThreadToJvm(JNIEnv** env) {
 inline void detachThreadFromJvm() {
 	(*jvm)->DetachCurrentThread(jvm);
 }
+#endif
 
 static void
 spice_session_setup_from_vv(VirtViewerFile *file, SpiceSession *session)
@@ -216,6 +216,7 @@ static gboolean disconnect(gpointer user_data) {
     return FALSE;
 }
 
+#ifdef __ANDROID__
 /**
  * Called from the JVM, this function causes the SPICE client to disconnect from the server
  */
@@ -287,7 +288,7 @@ Java_com_undatech_opaque_SpiceCommunicator_SpiceClientConnect (JNIEnv *env, jobj
 	jni_graphics_update  = NULL;
 	return result;
 }
-
+#endif
 
 int spiceClientConnect (const gchar *h, const gchar *p, const gchar *tp,
                         const gchar *pw, const gchar *cf, GByteArray *cc,
@@ -297,8 +298,8 @@ int spiceClientConnect (const gchar *h, const gchar *p, const gchar *tp,
 
     soundEnabled = sound;
     conn = connection_new();
-	spice_session_setup(conn->session, h, p, tp, pw, cf, cc, cs, proxy);
-	return connectSession(conn);
+    spice_session_setup(conn->session, h, p, tp, pw, cf, cc, cs, proxy);
+    return connectSession(conn);
 }
 
 int spiceClientConnectVv (VirtViewerFile *vv_file, const gboolean sound)
@@ -334,7 +335,7 @@ int connectSession (spice_connection *conn)
 	return result;
 }
 
-
+#ifdef __ANDROID__
 JNIEXPORT jint JNICALL
 JNI_OnLoad(JavaVM* vm, void* reserved) {
 	struct sigaction handler;
@@ -349,6 +350,7 @@ JNI_OnLoad(JavaVM* vm, void* reserved) {
 	sigaction(SIGSTKFLT, &handler, NULL);
 	return(JNI_VERSION_1_6);
 }
+#endif
 
 static gboolean
 parse_ovirt_uri(const gchar *uri_str, char **rest_uri, char **name)
@@ -405,6 +407,7 @@ parse_ovirt_uri(const gchar *uri_str, char **rest_uri, char **name)
 }
 
 
+#ifdef __ANDROID__
 void static sendMessage (JNIEnv* env, const int messageID, const gchar *message_text) {
     gboolean attached = FALSE;
 	if (env == NULL) {
@@ -428,6 +431,7 @@ gboolean reportIfSslError (JNIEnv* env, const gchar *message) {
 	}
 	return ssl_failed;
 }
+#endif
 
 static gboolean
 authenticationCallback(RestProxy *proxy, G_GNUC_UNUSED RestProxyAuth *auth,
@@ -442,7 +446,7 @@ authenticationCallback(RestProxy *proxy, G_GNUC_UNUSED RestProxyAuth *auth,
     return !retrying;
 }
 
-
+#ifdef __ANDROID__
 JNIEXPORT jint JNICALL
 Java_com_undatech_opaque_SpiceCommunicator_StartSessionFromVvFile(JNIEnv *env, jobject obj, jstring vvFileName, jboolean sound) {
     __android_log_write(ANDROID_LOG_INFO, "StartSessionFromVvFile", "Starting.");
@@ -824,4 +828,10 @@ int get_usb_device_fd(libusb_device *device) {
     int vid = desc.idVendor;
     int pid = desc.idProduct;
     return openUsbDevice(vid, pid);
+}
+#endif
+
+int main(int argc, char** argv) {
+  spiceClientConnect (argv[1], argv[2], argv[3], argv[4], NULL, NULL, NULL, false, NULL);
+  return 0;
 }

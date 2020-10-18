@@ -1,0 +1,20 @@
+diff --git a/meson.build b/meson.build
+index d0cea8e..69e6646 100644
+--- a/meson.build
++++ b/meson.build
+@@ -69,7 +69,6 @@ govirt_global_cflags = ['-std=c99',
+                         '-Wformat-security',
+                         '-Wmissing-include-dirs',
+                         '-Wmissing-format-attribute',
+-                        '-Wclobbered',
+                         '-Wempty-body',
+                         '-Wignored-qualifiers',
+                         '-Wsign-compare',
+@@ -80,7 +79,6 @@ govirt_global_cflags = ['-std=c99',
+                         '-Wshadow',
+                         '-Wno-strict-aliasing',
+                         '-Winline',
+-                        '-Wmissing-parameter-type',
+                         '-Woverride-init',
+                         '-Wno-unused-parameter']
+ 

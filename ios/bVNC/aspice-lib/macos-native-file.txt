@@ -1,0 +1,13 @@
+[constants]
+c_args = ['--sysroot=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk', '-DHAVE_LZMA_H', '-framework Foundation', '-Wno-unknown-warning-option', '-Wno-error']
+cpp_args = ['--sysroot=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk', '-DHAVE_LZMA_H', '-framework Foundation', '-Wno-unknown-warning-option', '-Wno-error']
+link_args = ['-Wno-unknown-warning-option', '-Wno-error']
+cpp_link_args = ['-Wno-unknown-warning-option', '-Wno-error']
+
+
+[properties]
+c_args = ['--sysroot=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk', '-DHAVE_LZMA_H', '-Wno-unknown-warning-option', '-Wno-error']
+cpp_args = ['--sysroot=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk', '-DHAVE_LZMA_H', '-Wno-unknown-warning-option', '-Wno-error']
+link_args = ['-Wno-unknown-warning-option', '-Wno-error']
+cpp_link_args = ['-Wno-unknown-warning-option', '-Wno-error']
+

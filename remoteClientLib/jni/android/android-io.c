@@ -17,14 +17,14 @@
  * USA.
  */
 
-#include <android/bitmap.h>
-
 #include "android-spice-widget.h"
 #include "android-spice-widget-priv.h"
 #include "win32keymap.h"
 #include "android-io.h"
 #include "android-service.h"
 
+#ifdef __ANDROID__
+#include <android/bitmap.h>
 JNIEXPORT void JNICALL
 Java_com_undatech_opaque_SpiceCommunicator_UpdateBitmap (JNIEnv* env, jobject obj, jobject bitmap, gint x, gint y, gint width, gint height) {
 	uchar* pixels;
@@ -53,6 +53,7 @@ Java_com_undatech_opaque_SpiceCommunicator_UpdateBitmap (JNIEnv* env, jobject ob
 
 	AndroidBitmap_unlockPixels(env, bitmap);
 }
+#endif
 
 int win32key2spice (int keycode)
 {
@@ -83,6 +84,7 @@ static int update_mask (int button, gboolean down) {
 }
 
 
+#ifdef __ANDROID__
 /* JNI functions related to input (keyboard, mouse), and output (display). */
 /***************************************************************************/
 
@@ -183,11 +185,16 @@ Java_com_undatech_opaque_SpiceCommunicator_SpiceButtonEvent(JNIEnv * env, jobjec
     }
 }
 
+void uiCallbackMouseMode(JNIEnv *env, gboolean relative) {
+    (*env)->CallStaticVoidMethod(env, jni_connector_class, jni_mouse_mode, relative);
+}
+#endif
 
 /* Callbacks to the UI layer to draw screen updates and invalidate part of the screen,
  * or to request a new bitmap. */
 
 void uiCallbackInvalidate (SpiceDisplayPrivate *d, gint x, gint y, gint w, gint h) {
+#ifdef __ANDROID__
     JNIEnv* env;
     gboolean attached = attachThreadToJvm (&env);
 
@@ -197,9 +204,11 @@ void uiCallbackInvalidate (SpiceDisplayPrivate *d, gint x, gint y, gint w, gint 
     if (attached) {
     	detachThreadFromJvm ();
     }
+#endif
 }
 
 void uiCallbackSettingsChanged (gint instance, gint width, gint height, gint bpp) {
+#ifdef __ANDROID__
     JNIEnv* env;
     gboolean attached = attachThreadToJvm (&env);
 
@@ -209,8 +218,5 @@ void uiCallbackSettingsChanged (gint instance, gint width, gint height, gint bpp
     if (attached) {
     	detachThreadFromJvm ();
     }
-}
-
-void uiCallbackMouseMode(JNIEnv *env, gboolean relative) {
-    (*env)->CallStaticVoidMethod(env, jni_connector_class, jni_mouse_mode, relative);
+#endif
 }

@@ -1,0 +1,19 @@
+diff --git a/meson_options.txt b/meson_options.txt
+index aabb961..21dcf50 100644
+--- a/meson_options.txt
++++ b/meson_options.txt
+@@ -20,10 +20,11 @@ option('gst-full-libraries', type : 'array', value : [],
+   description : '''List of libraries to expose in gstreamer-full's ABI. gstreamer, glib and gobject are always included.''')
+ 
+ # Common options, automatically inherited by subprojects
+-option('tests', type : 'feature', value : 'auto', description : 'Build tests')
+-option('examples', type : 'feature', value : 'auto', description : 'Build examples')
+-option('introspection', type : 'feature', value : 'auto', description : 'Generate introspection data')
++option('tests', type : 'feature', value : 'disabled', description : 'Build tests')
++option('examples', type : 'feature', value : 'disabled', description : 'Build examples')
++option('introspection', type : 'feature', value : 'enabled', description : 'Generate introspection data')
+ option('nls', type : 'feature', value : 'auto', description : 'Enable native language support (translations)')
+ option('orc', type : 'feature', value : 'auto', description : 'Enable Optimized Inner Loop Runtime Compiler')
+ option('doc', type : 'feature', value : 'auto', description : 'Generate API documentation with hotdoc')
+ option('gtk_doc', type : 'feature', value : 'disabled', description : 'Generate API documentation with gtk-doc')
++
