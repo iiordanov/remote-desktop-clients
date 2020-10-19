@@ -23,7 +23,6 @@ func UserInterface(_ block: @escaping ()->Void) {
 
 var globalContentView: Image?
 var globalImageView: TouchEnabledUIImageView?
-var globalStateKeeper: StateKeeper?
 var lastUpdate: Double = 0.0
 var isDrawing: Bool = false
 

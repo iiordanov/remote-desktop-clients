@@ -17,7 +17,7 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
     static let bSp = CGFloat(5.0)
     static let tbSp = CGFloat(3.0)
     static let z = CGFloat(0.0)
-    static let bBg = UIColor(red: 1, green: 1, blue: 1, alpha: 0.5)
+    static let bBg = UIColor(red: 0.9, green: 0.9, blue: 0.9, alpha: 0.5)
     
     let objectWillChange = PassthroughSubject<StateKeeper, Never>()
     var selectedConnection: [String: String]
@@ -76,6 +76,17 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
     var allowPanning = true
     
     var originalImageRect: CGRect = CGRect()
+    
+    var modifiers = [
+        XK_Control_L: false,
+        XK_Control_R: false,
+        XK_Alt_L: false,
+        XK_Alt_R: false,
+        XK_Shift_L: false,
+        XK_Shift_R: false,
+        XK_Super_L: false,
+        XK_Super_R: false,
+    ]
 
     // Dictionaries desctibing onscreen ToggleButton type buttons
     let topButtonData: [ String: [ String: Any ] ] = [
@@ -236,6 +247,7 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
         globalWindow!.makeKeyAndVisible()
         currInst = (currInst + 1) % maxClCapacity
         isDrawing = true;
+        self.toggleModifiersIfDown()
         self.vncSession = VncSession(instance: currInst, stateKeeper: self)
         self.vncSession!.connect(currentConnection: selectedConnection)
         showConnectionInProgress()
@@ -526,7 +538,9 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
     func createAndRepositionButtons() {
         log_callback_str(message: "Ensuring buttons are initialized, and positioning them where they should be")
         if (self.interfaceButtons["keyboardButton"] == nil) {
-            let b = CustomTextInput(stateKeeper: self)
+            guard let b = globalTextInput else {
+                return
+            }
             b.addTarget(b, action: #selector(b.toggleFirstResponder), for: .touchDown)
             if let imageName = interfaceButtonData["keyboardButton"]!["image"] {
                 if let image = UIImage(systemName: imageName as! String) {
@@ -667,7 +681,27 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
         }
     }
     
+    @objc func sendModifierIfNotDown(modifier: Int32) {
+        if !modifiers[modifier]! {
+            modifiers[modifier] = true
+            print("Sending modifier", modifier)
+            sendUniDirectionalKeyEventWithKeySym(self.cl[self.currInst]!, modifier, true)
+        }
+    }
+
+    @objc func releaseModifierIfDown(modifier: Int32) {
+        if modifiers[modifier]! {
+            modifiers[modifier] = false
+            print("Releasing modifier", modifier)
+            sendUniDirectionalKeyEventWithKeySym(self.cl[self.currInst]!, modifier, false)
+        }
+    }
+    
     func toggleModifiersIfDown() {
+        modifiers.forEach {
+            releaseModifierIfDown(modifier: $0.key)
+        }
+
         self.modifierButtons.forEach() { button in
             //print ("Toggling \(button.key) if down")
             (button.value as! ToggleButton).sendUpIfToggled()

@@ -33,12 +33,9 @@ class CustomTextInput: UIButton, UIKeyInput{
     public var hasText: Bool { return false }
     var stateKeeper: StateKeeper?
     
-    init(stateKeeper: StateKeeper) {
+    init(stateKeeper: StateKeeper?) {
         super.init(frame: CGRect())
         self.stateKeeper = stateKeeper;
-        if stateKeeper.macOs {
-            self.becomeFirstResponder()
-        }
     }
     
     required init?(coder: NSCoder) {
@@ -100,25 +97,6 @@ class CustomTextInput: UIButton, UIKeyInput{
     }
     
     override var canBecomeFirstResponder: Bool {
-        return true
-    }
-    
-    override var keyCommands: [UIKeyCommand]? {
-        return [
-            UIKeyCommand(input: "", modifierFlags: .command, action: #selector(captureModifiers)),
-            UIKeyCommand(input: "", modifierFlags: .alternate, action: #selector(captureModifiers)),
-            UIKeyCommand(input: "", modifierFlags: .shift, action: #selector(captureModifiers)),
-            UIKeyCommand(input: "", modifierFlags: .alphaShift, action: #selector(captureModifiers)),
-            UIKeyCommand(input: "", modifierFlags: .numericPad, action: #selector(captureModifiers)),
-            UIKeyCommand(input: "", modifierFlags: .control, action: #selector(captureModifiers)),
-            UIKeyCommand(input: "", modifierFlags: [.control, .alternate], action: #selector(captureModifiers)),
-            UIKeyCommand(input: "", modifierFlags: [.control, .command], action: #selector(captureModifiers)),
-            UIKeyCommand(input: "", modifierFlags: [.control, .alternate], action: #selector(captureModifiers)),
-            UIKeyCommand(input: "", modifierFlags: [.control, .shift], action: #selector(captureModifiers)),
-        ]
-    }
-
-    @objc func captureModifiers(sender: UIKeyCommand) {
-        print(sender.modifierFlags)
+        return self.stateKeeper?.macOs != true
     }
 }
