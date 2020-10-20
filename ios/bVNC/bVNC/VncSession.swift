@@ -208,7 +208,9 @@ func resize_callback(instance: Int32, cl: UnsafeMutableRawPointer?, fbW: Int32, 
             globalStateKeeper?.imageView?.enableTouch()
             globalWindow!.addSubview(globalStateKeeper!.imageView!)
             globalStateKeeper?.createAndRepositionButtons()
-            globalStateKeeper?.addButtons(buttons: globalStateKeeper?.interfaceButtons ?? [:])
+            if !(globalStateKeeper?.macOs ?? false) {
+                globalStateKeeper?.addButtons(buttons: globalStateKeeper?.interfaceButtons ?? [:])
+            }
             globalStateKeeper?.showConnectedSession()
         }
     }
