@@ -86,7 +86,7 @@ class TouchEnabledUIImageView: UIImageView, UIContextMenuInteractionDelegate {
         hoverGesture = UIHoverGestureRecognizer(target: self, action: #selector(handleHovering(_:)))
         
         // Pan gesture to recognize mouse-wheel scrolling
-        if #available(macCatalyst 13.4, *) {
+        if #available(iOS 13.4, *) {
             scrollWheelGesture = UIPanGestureRecognizer(target: self, action: #selector(handleScroll(_:)))
             scrollWheelGesture?.allowedScrollTypesMask = UIScrollTypeMask.discrete
             scrollWheelGesture?.maximumNumberOfTouches = 0;

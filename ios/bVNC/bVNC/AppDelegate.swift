@@ -95,7 +95,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                         text = key.charactersIgnoringModifiers
                     }
                 }
-                if #available(macCatalyst 13.4, *) {
+                if #available(iOS 13.4, *) {
                     let specialKeyMap = [
                         UIKeyCommand.f1: XK_F1,
                         UIKeyCommand.f2: XK_F2,
