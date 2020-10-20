@@ -19,23 +19,15 @@ int pixel_buffer_size = 0;
 int BYTES_PER_PIXEL = 4;
 int fbW = 0;
 int fbH = 0;
+bool maintainConnection = 0;
 
 bool getMaintainConnection(void *c) {
-    rfbClient *cl = (rfbClient *)c;
-    if (cl != NULL) {
-        return cl->maintainConnection;
-    } else {
-        return 0;
-    }
+    return maintainConnection;
 }
 
 void setMaintainConnection(void *c, int state) {
-    rfbClient *cl = (rfbClient *)c;
-    if (cl != NULL) {
-        cl->maintainConnection = state;
-    }
+    maintainConnection = state;
 }
-
 
 static rfbCredential* get_credential(rfbClient *cl, int credentialType){
     rfbClientLog("VeNCrypt authentication callback called\n\n");
@@ -78,7 +70,7 @@ static void update (rfbClient *cl, int x, int y, int w, int h) {
     if (!framebuffer_update_callback(cl->instance, cl->frameBuffer, fbW, fbH, x, y, w, h)) {
         // This session is a left-over backgrounded session and must quit.
         rfbClientLog("Must quit background session with instance number %d\n", cl->instance);
-        cl->maintainConnection = false;
+        maintainConnection = false;
     }
 }
 
@@ -103,7 +95,7 @@ void disconnectVnc(void *c) {
     rfbClient *cl = (rfbClient *)c;
     rfbClientLog("Setting maintainConnection to false\n");
     if (cl != NULL) {
-        cl->maintainConnection = false;
+        maintainConnection = false;
         // Force force some communication with server in order to wake up the
         // background thread waiting for server messages.
         SendFramebufferUpdateRequest(cl, 0, 0, 1, 1, FALSE);
@@ -112,7 +104,7 @@ void disconnectVnc(void *c) {
 
 void sendWholeScreenUpdateRequest(void *c, bool fullScreenUpdate) {
     rfbClient *cl = (rfbClient *)c;
-    if (cl != NULL && cl->maintainConnection) {
+    if (cl != NULL && maintainConnection) {
         SendFramebufferUpdateRequest(cl, 0, 0, cl->width, cl->height, fullScreenUpdate);
     }
 }
@@ -230,12 +222,12 @@ void *initializeVnc(int instance,
 void connectVnc(void *c) {
     rfbClientLog("Setting up connection.\n");
     rfbClient *cl = (rfbClient *)c;
-    cl->maintainConnection = true;
+    maintainConnection = true;
     int i;
         
     while (cl != NULL) {
         i = WaitForMessage(cl, 16000);
-        if (cl->maintainConnection != true) {
+        if (maintainConnection != true) {
             cleanup(cl, NULL);
             break;
         }
@@ -270,7 +262,7 @@ void cleanup(rfbClient *cl, char *message) {
     rfbClientLog("%s\n", message);
     
     if (cl != NULL) {
-        cl->maintainConnection = false;
+        maintainConnection = false;
         failure_callback(cl->instance, (uint8_t*)message);
     }
 }
@@ -304,7 +296,7 @@ static rfbKeySym utf8char2rfbKeySym(const char chr[4]) {
 void sendUniDirectionalKeyEvent(void *c, const char *characters, bool down) {
     rfbClient *cl = (rfbClient *)c;
 
-    if (!cl->maintainConnection) {
+    if (!maintainConnection) {
         return;
     }
     rfbKeySym sym = utf8char2rfbKeySym(c);
@@ -315,7 +307,7 @@ void sendUniDirectionalKeyEvent(void *c, const char *characters, bool down) {
 void sendKeyEvent(void *c, const char *character) {
     rfbClient *cl = (rfbClient *)c;
 
-    if (!cl->maintainConnection) {
+    if (!maintainConnection) {
         return;
     }
     rfbKeySym sym = utf8char2rfbKeySym(c);
@@ -326,7 +318,7 @@ void sendKeyEvent(void *c, const char *character) {
 bool sendKeyEventInt(void *c, int character) {
     rfbClient *cl = (rfbClient *)c;
     
-    if (!cl->maintainConnection) {
+    if (!maintainConnection) {
         return false;
     }
     rfbKeySym sym = ucs2keysym(character);
@@ -341,7 +333,7 @@ bool sendKeyEventInt(void *c, int character) {
 void sendKeyEventWithKeySym(void *c, int sym) {
     rfbClient *cl = (rfbClient *)c;
 
-    if (cl == NULL || !cl->maintainConnection) {
+    if (cl == NULL || !maintainConnection) {
         return;
     }
     //printf("sendKeyEventWithKeySym sending xkeysym: %#06x\n", sym);
@@ -351,7 +343,7 @@ void sendKeyEventWithKeySym(void *c, int sym) {
 
 void sendUniDirectionalKeyEventWithKeySym(void *c, int sym, bool down) {
     rfbClient *cl = c;
-    if (cl == NULL || !cl->maintainConnection) {
+    if (cl == NULL || !maintainConnection) {
         return;
     }
     //printf("sendUniDirectionalKeyEventWithKeySym sending xkeysym: %#06x\n", sym);
@@ -361,7 +353,7 @@ void sendUniDirectionalKeyEventWithKeySym(void *c, int sym, bool down) {
 void sendPointerEventToServer(void *c, float totalX, float totalY, float x, float y, bool firstDown, bool secondDown, bool thirdDown, bool scrollUp, bool scrollDown) {
     rfbClient *cl = (rfbClient *)c;
     
-    if (cl == NULL || !cl->maintainConnection) {
+    if (cl == NULL || !maintainConnection) {
         return;
     }
     int buttonMask = 0;
