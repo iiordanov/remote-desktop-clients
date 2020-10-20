@@ -36,7 +36,7 @@ extension UIImage {
     }
 }
 
-class TouchEnabledUIImageView: UIImageView {
+class TouchEnabledUIImageView: UIImageView, UIContextMenuInteractionDelegate {
     var fingers = [UITouch?](repeating: nil, count:5)
     var width: CGFloat = 0.0
     var height: CGFloat = 0.0
@@ -64,6 +64,7 @@ class TouchEnabledUIImageView: UIImageView {
     var tapGesture: UITapGestureRecognizer?
     var longTapGesture: UILongPressGestureRecognizer?
     var hoverGesture: UIHoverGestureRecognizer?
+    var scrollWheelGesture: UIPanGestureRecognizer?
     var inLeftDragging = false
     var moveEventsSinceFingerDown = 0
     var inScrolling = false
@@ -83,6 +84,26 @@ class TouchEnabledUIImageView: UIImageView {
         tapGesture?.numberOfTapsRequired = 1
         pinchGesture = UIPinchGestureRecognizer(target: self, action: #selector(handleZooming(_:)))
         hoverGesture = UIHoverGestureRecognizer(target: self, action: #selector(handleHovering(_:)))
+        
+        // Pan gesture to recognize mouse-wheel scrolling
+        if #available(macCatalyst 13.4, *) {
+            scrollWheelGesture = UIPanGestureRecognizer(target: self, action: #selector(handleScroll(_:)))
+            scrollWheelGesture?.allowedScrollTypesMask = UIScrollTypeMask.discrete
+            scrollWheelGesture?.maximumNumberOfTouches = 0;
+        }
+        
+        // Method of detecting mouse right-click or two-finger tap/click on trackpad
+        let interaction = UIContextMenuInteraction(delegate: self)
+        self.addInteraction(interaction)
+    }
+    
+    @objc func handleScroll(_ sender: UIPanGestureRecognizer) {
+        let translation = sender.translation(in: sender.view)
+        if translation.y > 0 {
+            sendDownThenUpEvent(scrolling: true, moving: false, firstDown: false, secondDown: false, thirdDown: false, fourthDown: true, fifthDown: false)
+        } else if translation.y < 0 {
+            sendDownThenUpEvent(scrolling: true, moving: false, firstDown: false, secondDown: false, thirdDown: false, fourthDown: false, fifthDown: true)
+        }
     }
 
     override init(image: UIImage?) {
@@ -173,6 +194,7 @@ class TouchEnabledUIImageView: UIImageView {
         if let tapGesture = tapGesture { addGestureRecognizer(tapGesture) }
         if let longTapGesture = longTapGesture { addGestureRecognizer(longTapGesture) }
         if let hoverGesture = hoverGesture { addGestureRecognizer(hoverGesture) }
+        if let scrollWheelGesture = scrollWheelGesture { addGestureRecognizer(scrollWheelGesture) }
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -403,5 +425,17 @@ class TouchEnabledUIImageView: UIImageView {
             view.center = CGPoint(x: newCenterX, y: newCenterY)
             sender.setTranslation(CGPoint.zero, in: view)
         }
+    }
+    
+    func contextMenuInteraction(_ interaction: UIContextMenuInteraction, configurationForMenuAtLocation location: CGPoint) -> UIContextMenuConfiguration? {
+        print(#function)
+        if let view = interaction.view {
+            self.setViewParameters(point: interaction.location(in: view), touchView: view, setDoubleTapCoordinates: true)
+            self.sendPointerEvent(scrolling: false, moving: false, firstDown: false, secondDown: false, thirdDown: true, fourthDown: false, fifthDown: false)
+            self.sendPointerEvent(scrolling: false, moving: false, firstDown: false, secondDown: false, thirdDown: false, fourthDown: false, fifthDown: false)
+        } else {
+            log_callback_str(message: "Could not unwrap interaction.view, sending event at last coordinates.")
+        }
+        return nil
     }
 }

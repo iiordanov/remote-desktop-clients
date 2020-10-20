@@ -43,11 +43,7 @@ class ShortTapDragUIImageView: TouchEnabledUIImageView {
                     self.newY = point.y*viewTransform.d
                 }
                 
-                if translation.y > 0 {
-                    sendDownThenUpEvent(scrolling: true, moving: false, firstDown: false, secondDown: false, thirdDown: false, fourthDown: true, fifthDown: false)
-                } else if translation.y < 0 {
-                    sendDownThenUpEvent(scrolling: true, moving: false, firstDown: false, secondDown: false, thirdDown: false, fourthDown: false, fifthDown: true)
-                }
+                super.handleScroll(sender)
                 return
             }
             panView(sender: sender)
