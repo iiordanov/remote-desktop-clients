@@ -53,17 +53,31 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             let disconnectCommand = UICommand(title: "Disconnect",
                       action: #selector(disconnect),
                       discoverabilityTitle: "disconnect")
-            
-            let connectionsMenu = UIMenu(title: "Connections", image: nil, identifier: UIMenu.Identifier("connections"), children: [disconnectCommand])
-            builder.replace(menu: .application, with: connectionsMenu)
+            let quitCommand = UICommand(title: "Quit",
+                      action: #selector(quit),
+                      discoverabilityTitle: "quit")
+
+            let actionsMenu = UIMenu(title: "Actions", image: nil, identifier: UIMenu.Identifier("actions"), children: [disconnectCommand, quitCommand])
+            builder.replace(menu: .application, with: actionsMenu)
         }
     }
     
     @objc func disconnect() {
-        globalStateKeeper?.scheduleDisconnectTimer(
+        globalStateKeeper?.scheduleDisconnectTimer(interval: 1,
             wasDrawing: globalStateKeeper?.isDrawing ?? false)
+        globalStateKeeper?.scheduleDisconnectTimer(interval: 2, wasDrawing: false)
     }
-    
+
+    @objc func quit() {
+        disconnect()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+            UIApplication.shared.perform(#selector(NSXPCConnection.suspend))
+             DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
+              exit(0)
+             }
+        }
+    }
+
     override func pressesBegan(_ presses: Set<UIPress>,
                                with event: UIPressesEvent?) {
         for p in presses {
