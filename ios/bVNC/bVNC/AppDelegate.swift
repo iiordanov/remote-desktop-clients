@@ -16,7 +16,8 @@ var globalTextInput: CustomTextInput?
 class AppDelegate: UIResponder, UIApplicationDelegate {
     var stateKeeper: StateKeeper = StateKeeper()
     var textInput: CustomTextInput?
-
+    var commands: [UIKeyCommand]?
+    
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
         StoreReviewHelper.incrementAppOpenedCount()
@@ -154,30 +155,31 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
     
     override var keyCommands: [UIKeyCommand]? {
-        var commands: [UIKeyCommand] = []
-        commands += (0...255).map({UIKeyCommand(input: String(UnicodeScalar($0)), modifierFlags: [.command], action: #selector(captureCmd))})
-        commands += (0...255).map({UIKeyCommand(input: String(UnicodeScalar($0)), modifierFlags: [.command, .shift], action: #selector(captureCmd))})
-        commands += (0...255).map({UIKeyCommand(input: String(UnicodeScalar($0)), modifierFlags: [.command, .alternate], action: #selector(captureCmd))})
-        commands += (0...255).map({UIKeyCommand(input: String(UnicodeScalar($0)), modifierFlags: [.command, .control], action: #selector(captureCmd))})
-        commands += (0...255).map({UIKeyCommand(input: String(UnicodeScalar($0)), modifierFlags: [.command, .shift, .alternate], action: #selector(captureCmd))})
-        commands += (0...255).map({UIKeyCommand(input: String(UnicodeScalar($0)), modifierFlags: [.command, .shift, .control], action: #selector(captureCmd))})
-        commands += (0...255).map({UIKeyCommand(input: String(UnicodeScalar($0)), modifierFlags: [.command, .control, .alternate], action: #selector(captureCmd))})
-        commands += (0...255).map({UIKeyCommand(input: String(UnicodeScalar($0)), modifierFlags: [.command, .control, .alternate, .shift], action: #selector(captureCmd))})
-        
-        commands += [UIKeyCommand(input: "", modifierFlags: [.command], action: #selector(captureCmd))]
-        commands += [UIKeyCommand(input: "", modifierFlags: [.command, .shift], action: #selector(captureCmd))]
-        commands += [UIKeyCommand(input: "", modifierFlags: [.command, .alternate], action: #selector(captureCmd))]
-        commands += [UIKeyCommand(input: "", modifierFlags: [.command, .control], action: #selector(captureCmd))]
-        commands += [UIKeyCommand(input: "", modifierFlags: [.command, .control, .shift], action: #selector(captureCmd))]
-        commands += [UIKeyCommand(input: "", modifierFlags: [.command, .control, .alternate], action: #selector(captureCmd))]
-        commands += [UIKeyCommand(input: "", modifierFlags: [.command, .alternate, .shift], action: #selector(captureCmd))]
-        commands += [UIKeyCommand(input: "", modifierFlags: [.command, .control, .alternate, .shift], action: #selector(captureCmd))]
-
-        return commands
+        if self.commands != nil {
+            return self.commands
+        }
+        self.commands = (0...255).map({UIKeyCommand(input: String(UnicodeScalar($0)), modifierFlags: [.command], action: #selector(captureCmd))})
+        commands! += (0...255).map({UIKeyCommand(input: String(UnicodeScalar($0)), modifierFlags: [.command, .shift], action: #selector(captureCmd))})
+        commands! += (0...255).map({UIKeyCommand(input: String(UnicodeScalar($0)), modifierFlags: [.command, .alternate], action: #selector(captureCmd))})
+        commands! += (0...255).map({UIKeyCommand(input: String(UnicodeScalar($0)), modifierFlags: [.command, .control], action: #selector(captureCmd))})
+        commands! += (0...255).map({UIKeyCommand(input: String(UnicodeScalar($0)), modifierFlags: [.command, .shift, .alternate], action: #selector(captureCmd))})
+        commands! += (0...255).map({UIKeyCommand(input: String(UnicodeScalar($0)), modifierFlags: [.command, .shift, .control], action: #selector(captureCmd))})
+        commands! += (0...255).map({UIKeyCommand(input: String(UnicodeScalar($0)), modifierFlags: [.command, .control, .alternate], action: #selector(captureCmd))})
+        commands! += (0...255).map({UIKeyCommand(input: String(UnicodeScalar($0)), modifierFlags: [.command, .control, .alternate, .shift], action: #selector(captureCmd))})
+        commands! += [
+            UIKeyCommand(input: "", modifierFlags: [.command], action: #selector(captureCmd)),
+            UIKeyCommand(input: "", modifierFlags: [.command, .shift], action: #selector(captureCmd)),
+            UIKeyCommand(input: "", modifierFlags: [.command, .alternate], action: #selector(captureCmd)),
+            UIKeyCommand(input: "", modifierFlags: [.command, .control], action: #selector(captureCmd)),
+            UIKeyCommand(input: "", modifierFlags: [.command, .control, .shift], action: #selector(captureCmd)),
+            UIKeyCommand(input: "", modifierFlags: [.command, .control, .alternate], action: #selector(captureCmd)),
+            UIKeyCommand(input: "", modifierFlags: [.command, .alternate, .shift], action: #selector(captureCmd)),
+            UIKeyCommand(input: "", modifierFlags: [.command, .control, .alternate, .shift], action: #selector(captureCmd))
+        ]
+        return self.commands
     }
     
     @objc func captureCmd(sender: UIKeyCommand) {
-        print(#function)
         var anotherModifier = false
         if sender.modifierFlags.contains(.control) {
             self.stateKeeper.sendModifierIfNotDown(modifier: XK_Control_L)
