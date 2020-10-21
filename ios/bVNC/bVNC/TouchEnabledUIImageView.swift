@@ -243,7 +243,7 @@ class TouchEnabledUIImageView: UIImageView, UIContextMenuInteractionDelegate {
                         self.inScrolling = false
                         self.inPanning = false
                         self.moveEventsSinceFingerDown = 0
-                        log_callback_str(message: "ONE FINGER Detected, marking this a left-click")
+                        log_callback_str(message: "Single index detected, marking this a left-click")
                         self.firstDown = true
                         self.secondDown = false
                         self.thirdDown = false
@@ -253,13 +253,13 @@ class TouchEnabledUIImageView: UIImageView, UIContextMenuInteractionDelegate {
                         }
                     }
                     if index == 1 {
-                        log_callback_str(message: "TWO FINGERS Detected, marking this a right-click")
+                        log_callback_str(message: "Two indexes detected, marking this a right-click")
                         self.firstDown = false
                         self.secondDown = false
                         self.thirdDown = true
                     }
                     if index == 2 {
-                        log_callback_str(message: "THREE FINGERS Detected, marking this a middle-click")
+                        log_callback_str(message: "Three indexes detected, marking this a middle-click")
                         self.firstDown = false
                         self.secondDown = true
                         self.thirdDown = false
@@ -286,7 +286,7 @@ class TouchEnabledUIImageView: UIImageView, UIContextMenuInteractionDelegate {
                 if let finger = finger, finger == touch {
                     if index == 0 {
                         if stateKeeper!.macOs || moveEventsSinceFingerDown > 8 {
-                            log_callback_str(message: "\(#function) +\(self.firstDown) + \(self.secondDown) + \(self.thirdDown)")
+                            //log_callback_str(message: "\(#function) +\(self.firstDown) + \(self.secondDown) + \(self.thirdDown)")
                             self.inPanDragging = true
                             self.sendDownThenUpEvent(scrolling: false, moving: true, firstDown: self.firstDown, secondDown:     self.secondDown, thirdDown: self.thirdDown, fourthDown: false, fifthDown: false)
                         } else {
@@ -454,7 +454,7 @@ class TouchEnabledUIImageView: UIImageView, UIContextMenuInteractionDelegate {
     }
     
     func contextMenuInteraction(_ interaction: UIContextMenuInteraction, configurationForMenuAtLocation location: CGPoint) -> UIContextMenuConfiguration? {
-        print(#function, interaction)
+        //print(#function, interaction)
         if let view = interaction.view {
             self.setViewParameters(point: interaction.location(in: view), touchView: view, setDoubleTapCoordinates: true)
             self.sendDownThenUpEvent(scrolling: false, moving: false, firstDown: false, secondDown: false, thirdDown: true, fourthDown: false, fifthDown: false)

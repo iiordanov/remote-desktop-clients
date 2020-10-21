@@ -44,6 +44,7 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
     var globalWriteTlsLock: NSLock = NSLock()
     var frames = 0
     var reDrawTimer: Timer = Timer()
+    var superUpKeyTimer: Timer = Timer()
     var orientationTimer: Timer = Timer()
     var screenUpdateTimer: Timer = Timer()
     var disconnectTimer: Timer = Timer()
@@ -148,6 +149,17 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
         }
     }
     
+    func rescheduleSuperKeyUpTimer() {
+        self.superUpKeyTimer.invalidate()
+        self.superUpKeyTimer = Timer.scheduledTimer(timeInterval: 0.2, target: self, selector: #selector(sendSuperKeyUp), userInfo: nil, repeats: false)
+    }
+    
+    @objc func sendSuperKeyUp() {
+        sendUniDirectionalKeyEventWithKeySym(self.cl[self.currInst], XK_Super_L, false)
+        self.modifiers[XK_Super_L] = false
+        self.rescheduleScreenUpdateRequest(timeInterval: 0.2, fullScreenUpdate: false, recurring: false)
+    }
+    
     @objc func requestFullScreenUpdate(sender: Timer) {
         if self.isDrawing && (sender.userInfo as! Int) == self.currInst {
             //print("Firing off a whole screen update request.")
@@ -177,13 +189,13 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
             self.screenUpdateTimer.invalidate()
             if (self.isDrawing) {
                 if (fullScreenUpdate) {
-                    print("Scheduling full screen update")
+                    //print("Scheduling full screen update")
                     self.screenUpdateTimer = Timer.scheduledTimer(timeInterval: timeInterval, target: self, selector: #selector(self.requestFullScreenUpdate(sender:)), userInfo: self.currInst, repeats: false)
                 } else if !recurring {
-                    print("Scheduling non-recurring partial screen update")
+                    //print("Scheduling non-recurring partial screen update")
                     self.screenUpdateTimer = Timer.scheduledTimer(timeInterval: timeInterval, target: self, selector: #selector(self.requestRecurringPartialScreenUpdate), userInfo: self.currInst, repeats: false)
                 } else {
-                    print("Scheduling recurring partial screen update")
+                    //print("Scheduling recurring partial screen update")
                     self.screenUpdateTimer = Timer.scheduledTimer(timeInterval: timeInterval, target: self, selector: #selector(self.requestRecurringPartialScreenUpdate), userInfo: self.currInst, repeats: false)
                 }
             }
@@ -684,7 +696,7 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
     @objc func sendModifierIfNotDown(modifier: Int32) {
         if !modifiers[modifier]! {
             modifiers[modifier] = true
-            print("Sending modifier", modifier)
+            //print("Sending modifier", modifier)
             sendUniDirectionalKeyEventWithKeySym(self.cl[self.currInst]!, modifier, true)
         }
     }
@@ -692,7 +704,7 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
     @objc func releaseModifierIfDown(modifier: Int32) {
         if modifiers[modifier]! {
             modifiers[modifier] = false
-            print("Releasing modifier", modifier)
+            //print("Releasing modifier", modifier)
             sendUniDirectionalKeyEventWithKeySym(self.cl[self.currInst]!, modifier, false)
         }
     }

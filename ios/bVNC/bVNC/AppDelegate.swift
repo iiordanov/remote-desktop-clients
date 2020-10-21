@@ -98,6 +98,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 shiftDown = true
                 self.stateKeeper.sendModifierIfNotDown(modifier: XK_Shift_L)
             }
+            if key.modifierFlags.contains(.alphaShift) {
+                shiftDown = true
+            }
 
             if key.characters != "" {
                 var text = ""
@@ -181,7 +184,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         commands! += (0...255).map({UIKeyCommand(input: String(UnicodeScalar($0)), modifierFlags: [.command, .control, .alternate], action: #selector(captureCmd))})
         commands! += (0...255).map({UIKeyCommand(input: String(UnicodeScalar($0)), modifierFlags: [.command, .control, .alternate, .shift], action: #selector(captureCmd))})
         commands! += [
-            UIKeyCommand(input: "", modifierFlags: [.command], action: #selector(captureCmd)),
+            //UIKeyCommand(input: "", modifierFlags: [.command], action: #selector(captureCmd)),
             UIKeyCommand(input: "", modifierFlags: [.command, .shift], action: #selector(captureCmd)),
             UIKeyCommand(input: "", modifierFlags: [.command, .alternate], action: #selector(captureCmd)),
             UIKeyCommand(input: "", modifierFlags: [.command, .control], action: #selector(captureCmd)),
@@ -207,6 +210,29 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             self.stateKeeper.modifiers[XK_Shift_L] = true
             anotherModifier = true
         }
+
+        /*
+         // This implementation is able to send a single Start/Super key command, but
+         // causes stray Start/Super key to be sent when Command-Tabbing away from the app.
+         // UIKeyCommand(input: "", modifierFlags: [.command], action: #selector(captureCmd))
+         // needs to be added above
+        if sender.modifierFlags.contains(.command) {
+            self.stateKeeper.sendModifierIfNotDown(modifier: XK_Super_L)
+            self.stateKeeper.rescheduleSuperKeyUpTimer()
+        }
+        
+        if sender.input != "" {
+            if self.stateKeeper.modifiers[XK_Shift_L]! {
+                textInput?.insertText(sender.input!.uppercased())
+            } else {
+                textInput?.insertText(sender.input!.lowercased())
+            }
+        } else if sender.input == "" && !anotherModifier {
+            self.stateKeeper.releaseModifierIfDown(modifier: XK_Control_L)
+            self.stateKeeper.releaseModifierIfDown(modifier: XK_Alt_L)
+            self.stateKeeper.modifiers[XK_Shift_L] = false
+        }
+        */
         
         if sender.input != "" || anotherModifier {
             if !self.stateKeeper.modifiers[XK_Super_L]! {
