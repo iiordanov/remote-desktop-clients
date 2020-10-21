@@ -65,6 +65,7 @@ class TouchEnabledUIImageView: UIImageView, UIContextMenuInteractionDelegate {
     var primaryClickGesture: UITapGestureRecognizer?
     var secondaryClickGesture: UITapGestureRecognizer?
     var longTapGesture: UILongPressGestureRecognizer?
+    var doubleTapDragGesture: UILongPressGestureRecognizer?
     var hoverGesture: UIHoverGestureRecognizer?
     var scrollWheelGesture: UIPanGestureRecognizer?
     var inLeftDragging = false
@@ -100,6 +101,10 @@ class TouchEnabledUIImageView: UIImageView, UIContextMenuInteractionDelegate {
             scrollWheelGesture?.allowedScrollTypesMask = UIScrollTypeMask.discrete
             scrollWheelGesture?.maximumNumberOfTouches = 0;
         }
+        
+        doubleTapDragGesture = UILongPressGestureRecognizer(target: self, action: #selector(handleDrag(_:)))
+        doubleTapDragGesture?.minimumPressDuration = 0.05
+        doubleTapDragGesture?.numberOfTapsRequired = 1
         
         // Method of detecting two-finger tap/click on trackpad. Not adding unless this is running on a Mac
         // because it also captures long-taps on a touch screen
@@ -192,6 +197,7 @@ class TouchEnabledUIImageView: UIImageView, UIContextMenuInteractionDelegate {
             self.lastX = self.newX
             self.lastY = self.newY
             //self.timeLast = timeNow
+            self.stateKeeper?.rescheduleScreenUpdateRequest(timeInterval: 0.2, fullScreenUpdate: false, recurring: false)
         }
     }
         
@@ -208,7 +214,8 @@ class TouchEnabledUIImageView: UIImageView, UIContextMenuInteractionDelegate {
         if let longTapGesture = longTapGesture { addGestureRecognizer(longTapGesture) }
         if let hoverGesture = hoverGesture { addGestureRecognizer(hoverGesture) }
         if let scrollWheelGesture = scrollWheelGesture { addGestureRecognizer(scrollWheelGesture) }
-        
+        if let doubleTapDragGesture = doubleTapDragGesture { addGestureRecognizer(doubleTapDragGesture) }
+
         /*
         if let primaryClickGesture = primaryClickGesture { addGestureRecognizer(primaryClickGesture) }
         if let secondaryClickGesture = secondaryClickGesture { addGestureRecognizer(secondaryClickGesture) }
@@ -236,7 +243,7 @@ class TouchEnabledUIImageView: UIImageView, UIContextMenuInteractionDelegate {
                         self.inScrolling = false
                         self.inPanning = false
                         self.moveEventsSinceFingerDown = 0
-                        print("ONE FINGER Detected, marking this a left-click")
+                        log_callback_str(message: "ONE FINGER Detected, marking this a left-click")
                         self.firstDown = true
                         self.secondDown = false
                         self.thirdDown = false
@@ -246,13 +253,13 @@ class TouchEnabledUIImageView: UIImageView, UIContextMenuInteractionDelegate {
                         }
                     }
                     if index == 1 {
-                        print("TWO FINGERS Detected, marking this a right-click")
+                        log_callback_str(message: "TWO FINGERS Detected, marking this a right-click")
                         self.firstDown = false
                         self.secondDown = false
                         self.thirdDown = true
                     }
                     if index == 2 {
-                        print("THREE FINGERS Detected, marking this a middle-click")
+                        log_callback_str(message: "THREE FINGERS Detected, marking this a middle-click")
                         self.firstDown = false
                         self.secondDown = true
                         self.thirdDown = false
@@ -323,7 +330,6 @@ class TouchEnabledUIImageView: UIImageView, UIContextMenuInteractionDelegate {
                             self.firstDown = false
                             self.secondDown = false
                             self.thirdDown = false
-                            self.stateKeeper?.rescheduleScreenUpdateRequest(timeInterval: 0.5, fullScreenUpdate: false, recurring: false)
                         }
                         self.tapGestureDetected = false
                     } else {
@@ -357,7 +363,7 @@ class TouchEnabledUIImageView: UIImageView, UIContextMenuInteractionDelegate {
         }
         let scale = sender.scale
         if sender.scale < 0.95 || sender.scale > 1.05 {
-            print("Preventing large skips in scale.")
+            log_callback_str(message: "Preventing large skips in scale.")
         }
         let transformResult = sender.view?.transform.scaledBy(x: sender.scale, y: sender.scale)
         guard let newTransform = transformResult, newTransform.a > 1, newTransform.d > 1 else { return }
@@ -372,6 +378,7 @@ class TouchEnabledUIImageView: UIImageView, UIContextMenuInteractionDelegate {
         }
         sender.view?.transform = newTransform
         sender.scale = 1
+        self.stateKeeper?.rescheduleScreenUpdateRequest(timeInterval: 0.2, fullScreenUpdate: false, recurring: false)
     }
     
     @objc private func handleTap(_ sender: UITapGestureRecognizer) {
@@ -403,7 +410,6 @@ class TouchEnabledUIImageView: UIImageView, UIContextMenuInteractionDelegate {
                 self.firstDown = false
                 self.secondDown = false
                 self.thirdDown = false
-                self.stateKeeper?.rescheduleScreenUpdateRequest(timeInterval: 0.5, fullScreenUpdate: false, recurring: false)
             }
         } else {
             log_callback_str(message: "Other fingers were down, not acting on single tap")
@@ -443,21 +449,41 @@ class TouchEnabledUIImageView: UIImageView, UIContextMenuInteractionDelegate {
             }
             view.center = CGPoint(x: newCenterX, y: newCenterY)
             sender.setTranslation(CGPoint.zero, in: view)
+            self.stateKeeper?.rescheduleScreenUpdateRequest(timeInterval: 0.2, fullScreenUpdate: false, recurring: false)
         }
     }
     
     func contextMenuInteraction(_ interaction: UIContextMenuInteraction, configurationForMenuAtLocation location: CGPoint) -> UIContextMenuConfiguration? {
-        //print(#function, interaction)
+        print(#function, interaction)
         if let view = interaction.view {
             self.setViewParameters(point: interaction.location(in: view), touchView: view, setDoubleTapCoordinates: true)
-            self.sendPointerEvent(scrolling: false, moving: false, firstDown: false, secondDown: false, thirdDown: true, fourthDown: false, fifthDown: false)
-            self.sendPointerEvent(scrolling: false, moving: false, firstDown: false, secondDown: false, thirdDown: false, fourthDown: false, fifthDown: false)
+            self.sendDownThenUpEvent(scrolling: false, moving: false, firstDown: false, secondDown: false, thirdDown: true, fourthDown: false, fifthDown: false)
         } else {
             log_callback_str(message: "Could not unwrap interaction.view, sending event at last coordinates.")
         }
         return nil
     }
-    
+
+    @objc func handleDrag(_ sender: UILongPressGestureRecognizer) {
+        //print(#function, sender)
+        if let view = sender.view {
+            self.setViewParameters(point: sender.location(in: view), touchView: view, setDoubleTapCoordinates: false)
+            switch sender.state {
+            case .began, .changed:
+                self.sendPointerEvent(scrolling: false, moving: false, firstDown: true, secondDown: false, thirdDown: false, fourthDown: false, fifthDown: false)
+                break
+            case .ended, .cancelled, .failed:
+                self.setViewParameters(point: sender.location(in: view), touchView: view, setDoubleTapCoordinates: false)
+                self.sendPointerEvent(scrolling: false, moving: false, firstDown: false, secondDown: false, thirdDown: false, fourthDown: false, fifthDown: false)
+                break
+            @unknown default:
+                log_callback_str(message: "Unknown state in UILongPressGestureRecognizer. Ignoring.")
+            }
+        } else {
+            log_callback_str(message: "Could not unwrap interaction.view, sending event at last coordinates.")
+        }
+    }
+
     @objc private func handlePrimaryClick(_ sender: UITapGestureRecognizer) {
         print(#function, sender)
     }

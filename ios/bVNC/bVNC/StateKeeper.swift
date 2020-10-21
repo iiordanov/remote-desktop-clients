@@ -150,21 +150,21 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
     
     @objc func requestFullScreenUpdate(sender: Timer) {
         if self.isDrawing && (sender.userInfo as! Int) == self.currInst {
-            print("Firing off a whole screen update request.")
+            //print("Firing off a whole screen update request.")
             sendWholeScreenUpdateRequest(cl[currInst], true)
         }
     }
 
     @objc func requestPartialScreenUpdate(sender: Timer) {
         if self.isDrawing && (sender.userInfo as! Int) == self.currInst {
-            print("Firing off a partial screen update request.")
+            //print("Firing off a partial screen update request.")
             sendWholeScreenUpdateRequest(cl[currInst], true)
         }
     }
 
     @objc func requestRecurringPartialScreenUpdate(sender: Timer) {
         if self.isDrawing && (sender.userInfo as! Int) == self.currInst {
-            print("Firing off a recurring partial screen update request.")
+            //print("Firing off a recurring partial screen update request.")
             sendWholeScreenUpdateRequest(cl[currInst], false)
             UserInterface {
                 self.rescheduleScreenUpdateRequest(timeInterval: 30, fullScreenUpdate: false, recurring: true)
