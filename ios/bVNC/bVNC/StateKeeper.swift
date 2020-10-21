@@ -252,8 +252,8 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
         // Needed in case we need to save a certificate during connection or change settings.
         self.connectionIndex = index
         self.selectedConnection = self.connections[index]
-        self.allowZooming = Bool(selectedConnection["allowZooming"] ?? "true") ?? true
-        self.allowPanning = Bool(selectedConnection["allowPanning"] ?? "true") ?? true
+        self.allowZooming = Bool(selectedConnection["allowZooming"] ?? "true") ?? true && !macOs
+        self.allowPanning = Bool(selectedConnection["allowPanning"] ?? "true") ?? true && !macOs
         let contentView = ContentView(stateKeeper: self)
         globalWindow!.rootViewController = MyUIHostingController(rootView: contentView)
         globalWindow!.makeKeyAndVisible()

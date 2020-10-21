@@ -107,6 +107,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 if shiftDown && !altOrCtrlDown {
                     text = key.characters
                 } else {
+                    // TODO: This means we can't send Ctrl/Alt+Shift+[:non-alpha:] keys like Ctrl+Shift+=.
+                    // Try implementing .control and .alternate UIKeyCommand keyCommands to avoid this limitation.
                     if shiftDown {
                         text = key.charactersIgnoringModifiers.uppercased()
                     } else {

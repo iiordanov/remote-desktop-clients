@@ -476,8 +476,10 @@ class TouchEnabledUIImageView: UIImageView, UIContextMenuInteractionDelegate {
                 self.setViewParameters(point: sender.location(in: view), touchView: view, setDoubleTapCoordinates: false)
                 self.sendPointerEvent(scrolling: false, moving: false, firstDown: false, secondDown: false, thirdDown: false, fourthDown: false, fifthDown: false)
                 break
+            case .possible:
+                log_callback_str(message: "Ignoring possible state in UILongPressGestureRecognizer")
             @unknown default:
-                log_callback_str(message: "Unknown state in UILongPressGestureRecognizer. Ignoring.")
+                log_callback_str(message: "Ignoring unknown state in UILongPressGestureRecognizer")
             }
         } else {
             log_callback_str(message: "Could not unwrap interaction.view, sending event at last coordinates.")
