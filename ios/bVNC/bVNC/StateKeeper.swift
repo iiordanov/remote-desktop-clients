@@ -243,6 +243,7 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
     }
 
     func connect(index: Int) {
+        showConnectionInProgress()
         log_callback_str(message: "Connecting and navigating to the connection screen")
         yesNoDialogResponse = 0
         self.isKeptFresh = false
@@ -254,15 +255,14 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
         self.selectedConnection = self.connections[index]
         self.allowZooming = Bool(selectedConnection["allowZooming"] ?? "true") ?? true && !macOs
         self.allowPanning = Bool(selectedConnection["allowPanning"] ?? "true") ?? true && !macOs
-        let contentView = ContentView(stateKeeper: self)
-        globalWindow!.rootViewController = MyUIHostingController(rootView: contentView)
+        //let contentView = ContentView(stateKeeper: self)
+        //globalWindow!.rootViewController = MyUIHostingController(rootView: self.contentView)
         globalWindow!.makeKeyAndVisible()
         currInst = (currInst + 1) % maxClCapacity
         isDrawing = true;
         self.toggleModifiersIfDown()
         self.vncSession = VncSession(instance: currInst, stateKeeper: self)
         self.vncSession!.connect(currentConnection: selectedConnection)
-        showConnectionInProgress()
         createAndRepositionButtons()
     }
     

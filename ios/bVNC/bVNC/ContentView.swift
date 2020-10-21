@@ -150,7 +150,10 @@ struct ConnectionsList : View {
     @ObservedObject var stateKeeper: StateKeeper
     
     func connect(index: Int) {
-        self.stateKeeper.connect(index: index)
+        if self.stateKeeper.currentPage != "connectionInProgress" {
+            self.stateKeeper.currentPage = "connectionInProgress"
+            self.stateKeeper.connect(index: index)
+        }
     }
 
     func edit(index: Int) {
