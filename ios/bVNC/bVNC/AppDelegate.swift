@@ -17,6 +17,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var stateKeeper: StateKeeper = StateKeeper()
     var textInput: CustomTextInput?
     var commands: [UIKeyCommand]?
+    var physicalKeyboardHandler = PhysicalKeyboardHandler()
     
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
@@ -104,46 +105,26 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
             if key.characters != "" {
                 var text = ""
+
                 if shiftDown && !altOrCtrlDown {
                     text = key.characters
-                } else {
-                    // TODO: This means we can't send Ctrl/Alt+Shift+[:non-alpha:] keys like Ctrl+Shift+=.
-                    // Try implementing .control and .alternate UIKeyCommand keyCommands to avoid this limitation.
-                    if shiftDown {
+                } else if shiftDown {
+                    if self.physicalKeyboardHandler.keyCodeWithShiftModifierToString[key.keyCode.rawValue] != nil {
+                        text = self.physicalKeyboardHandler.keyCodeWithShiftModifierToString[key.keyCode.rawValue]!
+                    } else {
+                        // TODO: This means we can't send Ctrl/Alt+Shift+[:non-alpha:] that are not in the
+                        // keyCodeWithShiftModifierToString map.
+                        // Try implementing .control and .alternate UIKeyCommand keyCommands to avoid this limitation.
                         text = key.charactersIgnoringModifiers.uppercased()
-                    } else {
-                        text = key.charactersIgnoringModifiers
                     }
+                } else {
+                    text = key.charactersIgnoringModifiers
                 }
-                if #available(iOS 13.4, *) {
-                    let specialKeyMap = [
-                        UIKeyCommand.f1: XK_F1,
-                        UIKeyCommand.f2: XK_F2,
-                        UIKeyCommand.f3: XK_F3,
-                        UIKeyCommand.f4: XK_F4,
-                        UIKeyCommand.f5: XK_F5,
-                        UIKeyCommand.f6: XK_F6,
-                        UIKeyCommand.f7: XK_F7,
-                        UIKeyCommand.f8: XK_F8,
-                        UIKeyCommand.f9: XK_F9,
-                        UIKeyCommand.f10: XK_F10,
-                        UIKeyCommand.f11: XK_F11,
-                        UIKeyCommand.f12: XK_F12,
-                        UIKeyCommand.inputEscape: XK_Escape,
-                        UIKeyCommand.inputHome: XK_Home,
-                        UIKeyCommand.inputEnd: XK_End,
-                        UIKeyCommand.inputPageUp: XK_Page_Up,
-                        UIKeyCommand.inputPageDown: XK_Page_Down,
-                        UIKeyCommand.inputUpArrow: XK_Up,
-                        UIKeyCommand.inputDownArrow: XK_Down,
-                        UIKeyCommand.inputLeftArrow: XK_Left,
-                        UIKeyCommand.inputRightArrow: XK_Right,
-                    ]
-                    if specialKeyMap[text] != nil {
-                        sendKeyEventWithKeySym(self.stateKeeper.cl[self.stateKeeper.currInst]!, specialKeyMap[text]!)
-                    } else {
-                        textInput?.insertText(text)
-                    }
+                if self.physicalKeyboardHandler.specialKeyToXKeySymMap[text] != nil {
+                    let xKeySym = self.physicalKeyboardHandler.specialKeyToXKeySymMap[text]
+                    sendKeyEventWithKeySym(self.stateKeeper.cl[self.stateKeeper.currInst]!, xKeySym!)
+                } else {
+                    textInput?.insertText(text)
                 }
             }
         }
