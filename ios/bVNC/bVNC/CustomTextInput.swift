@@ -29,7 +29,7 @@ extension String {
   }
 }*/
 
-class CustomTextInput: UIButton, UIKeyInput{
+class CustomTextInput: UIButton, UIKeyInput {
     public var hasText: Bool { return false }
     var stateKeeper: StateKeeper?
     
