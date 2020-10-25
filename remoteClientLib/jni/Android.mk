@@ -90,6 +90,11 @@ include $(GSTREAMER_NDK_BUILD_PATH)/gstreamer-1.0.mk
 
 
 include $(CLEAR_VARS)
+LOCAL_MODULE    := ndkdemo
+LOCAL_SRC_FILES := android/ndk_demo.c
+include $(BUILD_SHARED_LIBRARY)
+
+include $(CLEAR_VARS)
 LOCAL_MODULE    := spice
 
 LOCAL_CPPFLAGS  += -DSW_CANVAS_CACHE \

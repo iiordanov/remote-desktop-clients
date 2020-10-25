@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.iiordanov.freeLIBVNCServer" android:installLocation="auto"
+    android:versionCode="115024" android:versionName="v5.0.2">
+
+    <uses-permission tools:node="removeAll"/>
+    <uses-permission android:name="android.permission.INTERNET"> </uses-permission>
+    <uses-permission android:name="android.permission.VIBRATE"> </uses-permission>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"> </uses-permission>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"> </uses-permission>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"> </uses-permission>
+    <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
+    <uses-feature android:name="android.hardware.microphone" android:required="false"/>
+
+    <supports-screens
+        android:xlargeScreens="true"
+        android:largeScreens="true"
+        android:normalScreens="true"
+        android:smallScreens="true"
+        android:anyDensity="true"/>
+
+    <application android:icon="@drawable/icon" android:label="@string/freevncserver_app_name" android:allowBackup="false" android:theme="@style/AppTheme" tools:replace="android:label,android:theme">
+        <activity android:name="com.undatech.opaque.ServerMainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+
+</manifest>

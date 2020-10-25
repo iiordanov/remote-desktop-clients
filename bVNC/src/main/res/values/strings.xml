@@ -314,6 +314,8 @@ All Input Methods:
 
     <string name="freeaspice_app_name">aSPICE Free</string>
 
+    <string name="freevncserver_app_name">aVNC Server Free</string>
+
     <string name="freebvnc_app_name">bVNC Free</string>
 
     <string name="immersive_mode_disable">Disable Immersive Mode</string>
