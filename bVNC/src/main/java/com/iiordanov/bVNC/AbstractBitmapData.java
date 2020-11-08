@@ -50,6 +50,7 @@ abstract public class AbstractBitmapData {
     public Paint paint;
     int xoffset = 0;
     int yoffset = 0;
+    int scale = 1;
 
     AbstractBitmapData(RfbConnectable p, RemoteCanvas c)
     {

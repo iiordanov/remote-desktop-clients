@@ -23,6 +23,13 @@ package com.iiordanov.bVNC;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.opengl.EGL14;
+import android.opengl.EGLConfig;
+import android.opengl.EGLContext;
+import android.opengl.EGLDisplay;
+import android.opengl.EGLSurface;
+import android.opengl.GLES20;
+import android.util.Log;
 
 import com.undatech.opaque.RfbConnectable;
 
@@ -60,6 +67,61 @@ class CompactBitmapData extends AbstractBitmapData {
     CompactBitmapData(RfbConnectable rfb, RemoteCanvas c, boolean trueColor)
     {
         super(rfb,c);
+        //TODO: Scale drawable down if needed.
+        EGLDisplay dpy = EGL14.eglGetDisplay(EGL14.EGL_DEFAULT_DISPLAY);
+        int[] vers = new int[2];
+        EGL14.eglInitialize(dpy, vers, 0, vers, 1);
+
+        int[] configAttr = {
+                EGL14.EGL_COLOR_BUFFER_TYPE, EGL14.EGL_RGB_BUFFER,
+                EGL14.EGL_LEVEL, 0,
+                EGL14.EGL_RENDERABLE_TYPE, EGL14.EGL_OPENGL_ES2_BIT,
+                EGL14.EGL_SURFACE_TYPE, EGL14.EGL_PBUFFER_BIT,
+                EGL14.EGL_NONE
+        };
+        EGLConfig[] configs = new EGLConfig[1];
+        int[] numConfig = new int[1];
+        EGL14.eglChooseConfig(dpy, configAttr, 0,
+                configs, 0, 1, numConfig, 0);
+        if (numConfig[0] == 0) {
+            Log.e(TAG, "NO CONFIG FOUND");
+            // TODO: Do somesing
+            // TROUBLE! No config found.
+        }
+        EGLConfig config = configs[0];
+
+        int[] surfAttr = {
+                EGL14.EGL_WIDTH, 64,
+                EGL14.EGL_HEIGHT, 64,
+                EGL14.EGL_NONE
+        };
+        EGLSurface surf = EGL14.eglCreatePbufferSurface(dpy, config, surfAttr, 0);
+
+        int[] ctxAttrib = {
+                EGL14.EGL_CONTEXT_CLIENT_VERSION, 2,
+                EGL14.EGL_NONE
+        };
+        EGLContext ctx = EGL14.eglCreateContext(dpy, config, EGL14.EGL_NO_CONTEXT, ctxAttrib, 0);
+
+        EGL14.eglMakeCurrent(dpy, surf, surf, ctx);
+
+        int [] max = new int[1];
+        GLES20.glGetIntegerv(GLES20.GL_MAX_TEXTURE_SIZE, max, 0);
+
+        if (framebufferheight > max[0] || framebufferwidth > max[0]) {
+            Log.i(TAG, "Bitmap needs to be scaled, because GL_MAX_TEXTURE_SIZE=" + max[0]);
+            scale = Math.max(framebufferheight/max[0], framebufferwidth/max[0]) + 1;
+        } else {
+            Log.i(TAG, "Bitmap does not need to be scaled, because GL_MAX_TEXTURE_SIZE=" + max[0]);
+        }
+        scale = 2;
+
+        EGL14.eglMakeCurrent(dpy, EGL14.EGL_NO_SURFACE, EGL14.EGL_NO_SURFACE,
+                EGL14.EGL_NO_CONTEXT);
+        EGL14.eglDestroySurface(dpy, surf);
+        EGL14.eglDestroyContext(dpy, ctx);
+        EGL14.eglTerminate(dpy);
+
         bitmapwidth=framebufferwidth;
         bitmapheight=framebufferheight;
         // To please createBitmap, we ensure the size it at least 1x1.
@@ -68,8 +130,11 @@ class CompactBitmapData extends AbstractBitmapData {
 
         if (trueColor)
             cfg = Bitmap.Config.ARGB_8888;
-        
+
         mbitmap = Bitmap.createBitmap(bitmapwidth, bitmapheight, cfg);
+        if (scale > 1) {
+            mbitmap = Bitmap.createScaledBitmap(mbitmap, bitmapwidth/scale, bitmapheight/scale, false);
+        }
         android.util.Log.i(TAG, "bitmapsize = ("+bitmapwidth+","+bitmapheight+")");
 
         if (Constants.SDK_INT >= android.os.Build.VERSION_CODES.HONEYCOMB_MR1) {
@@ -104,8 +169,15 @@ class CompactBitmapData extends AbstractBitmapData {
      */
     @Override
     public void updateBitmap(int x, int y, int w, int h) {
-        synchronized (mbitmap) {
-            mbitmap.setPixels(bitmapPixels, offset(x,y), bitmapwidth, x, y, w, h);
+        Log.d(TAG, "updateBitmap from bitmapPixels");
+        if (scale > 1) {
+            Bitmap b = Bitmap.createBitmap(w, h, cfg);
+            b.setPixels(bitmapPixels, offset(x, y), bitmapwidth, 0, 0, w, h);
+            this.updateBitmap(b, x, y, w, h);
+        } else {
+            synchronized (mbitmap) {
+                mbitmap.setPixels(bitmapPixels, offset(x, y), bitmapwidth, x, y, w, h);
+            }
         }
     }
 
@@ -114,8 +186,16 @@ class CompactBitmapData extends AbstractBitmapData {
      */
     @Override
     public void updateBitmap(Bitmap b, int x, int y, int w, int h) {
-        synchronized (mbitmap) {
-            memGraphics.drawBitmap(b, x, y, null);
+        Log.d(TAG, "updateBitmap with a bitmap");
+        if (scale > 1) {
+            int sw = Math.max(w/scale, 1);
+            int sh = Math.max(h/scale, 1);
+            Bitmap b2 = Bitmap.createScaledBitmap(b, sw, sh, false);
+            memGraphics.drawBitmap(b2, x/scale, y/scale, null);
+        } else {
+            synchronized (mbitmap) {
+                memGraphics.drawBitmap(b, x, y, null);
+            }
         }
     }
 
@@ -124,6 +204,8 @@ class CompactBitmapData extends AbstractBitmapData {
      */
     @Override
     public void copyRect(int sx, int sy, int dx, int dy, int w, int h) {
+        Log.d(TAG, "copyRect");
+
         int srcOffset, dstOffset;
         int dstH = h;
         int dstW = w;
@@ -162,8 +244,13 @@ class CompactBitmapData extends AbstractBitmapData {
      */
     @Override
     void drawRect(int x, int y, int w, int h, Paint paint) {
-        synchronized (mbitmap) {
-            memGraphics.drawRect(x, y, x + w, y + h, paint);
+        Log.d(TAG, "drawRect");
+        if (scale > 1) {
+            memGraphics.drawRect(x/scale, y/scale, (x + w)/scale, (y + h)/scale, paint);
+        } else {
+            synchronized (mbitmap) {
+                memGraphics.drawRect(x, y, x + w, y + h, paint);
+            }
         }
     }
 
@@ -191,7 +278,10 @@ class CompactBitmapData extends AbstractBitmapData {
             bitmapwidth  = framebufferwidth;
             bitmapheight = framebufferheight;
             bitmapPixels = new int[bitmapwidth * bitmapheight];
-            mbitmap      = Bitmap.createBitmap(bitmapwidth, bitmapheight, cfg);
+            mbitmap = Bitmap.createBitmap(bitmapwidth, bitmapheight, cfg);
+            if (scale > 1) {
+                mbitmap = Bitmap.createScaledBitmap(mbitmap, bitmapwidth/scale, bitmapheight/scale, false);
+            }
             memGraphics  = new Canvas(mbitmap);
             drawable     = createDrawable();
             drawable.startDrawing();
