@@ -15,8 +15,7 @@ public class RemoteVncKeyboard extends RemoteKeyboard {
     public RemoteVncKeyboard (RfbConnectable r, RemoteCanvas v, Handler h, boolean rAltAsIsoL3Shift) {
         super(r, v, h);
         // Indicate we want Right Alt to be ISO L3 SHIFT if preferred.
-        if (rAltAsIsoL3Shift)
-            RemoteVncKeyboard.rAltAsIsoL3Shift = rAltAsIsoL3Shift;
+        RemoteVncKeyboard.rAltAsIsoL3Shift = rAltAsIsoL3Shift;
     }
 
     public boolean processLocalKeyEvent(int keyCode, KeyEvent evt, int additionalMetaState) {
