@@ -133,7 +133,7 @@
 
     <string name="enable_recording">Włącz nagrywanie</string>
     <string name="enable_sound">Włącz dźwięk</string>
-
+    <string name="enter_password_auth_failed">Authentication failed. Please re-enter your credentials.</string>
     <string name="enter_text">Wyślij tekst</string>
     <string name="enter_text_title">Wprowadź tekst aby wysłać</string>
 
@@ -396,7 +396,7 @@
 
     <string name="tap_disable">Wyłącz</string>
     <string name="tap_enable">Włącz</string>
-
+    <string name="toggle_keyboard">Toggle Keyboard</string>
     <string name="username_caption">Użytkownik VNC</string>
     <string name="username_hint"/>
     <string name="username_hint_optional">Nazwa użytkownika VNC (opcjonalna)</string>
