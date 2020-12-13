@@ -15,8 +15,8 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.util.Base64;
 
+import com.iiordanov.bVNC.dialogs.GetTextFragment;
 import com.undatech.opaque.dialogs.ChoiceFragment;
-import com.undatech.opaque.dialogs.GetTextFragment;
 import com.undatech.opaque.dialogs.MessageFragment;
 import com.undatech.opaque.dialogs.SelectTextElementFragment;
 import com.undatech.opaque.util.GooglePlayUtils;
@@ -40,11 +40,24 @@ public class OpaqueHandler extends Handler {
         this.fm = ((FragmentActivity)context).getSupportFragmentManager();
     }
     
-    private void showGetTextFragment (String id, String title, boolean password) {
-        GetTextFragment frag = GetTextFragment.newInstance(id, title, (RemoteCanvasActivity)context, password);
+    private void showGetTextFragmentOpaque(String id, String title, boolean password) {
+        com.undatech.opaque.dialogs.GetTextFragment frag = com.undatech.opaque.dialogs.GetTextFragment.newInstance(id, title, (RemoteCanvasActivity)context, password);
         frag.show(fm, id);
     }
-    
+
+    private void showGetTextFragmentRemoteCanvas(String tag, String dialogId, String title,
+                                                 GetTextFragment.OnFragmentDismissedListener dismissalListener,
+                                     int dialogType, int messageNum, int errorNum,
+                                     String t1, String t2, String t3, boolean keep) {
+        if (c.pd != null && c.pd.isShowing()) {
+            c.pd.dismiss();
+        }
+        GetTextFragment frag = GetTextFragment.newInstance(dialogId, title, dismissalListener,
+                dialogType, messageNum, errorNum, t1, t2, t3, keep);
+        frag.setCancelable(false);
+        frag.show(fm, tag);
+    }
+
     private void displayMessageAndFinish(int titleTextId, int messageTextId, int buttonTextId) {
         MessageFragment message = MessageFragment.newInstance(
                 context.getString(titleTextId),
@@ -67,7 +80,6 @@ public class OpaqueHandler extends Handler {
             android.util.Log.d(TAG, "Ignoring message with ID 0");
             return;
         }
-
         switch (msg.what) {
         case RemoteClientLibConstants.VV_OVER_HTTP_FAILURE:
             MessageDialogs.displayMessageAndFinish(context, R.string.error_failed_to_download_vv_http,
@@ -79,10 +91,6 @@ public class OpaqueHandler extends Handler {
         case RemoteClientLibConstants.VV_DOWNLOAD_TIMEOUT:
             MessageDialogs.displayMessageAndFinish(context, R.string.error_vv_download_timeout,
                                                    R.string.error_dialog_title);
-        case RemoteClientLibConstants.PVE_FAILED_TO_AUTHENTICATE:
-            MessageDialogs.displayMessageAndFinish(context, R.string.error_pve_failed_to_authenticate,
-                                                   R.string.error_dialog_title);
-            break;
         case RemoteClientLibConstants.PVE_FAILED_TO_PARSE_JSON:
             MessageDialogs.displayMessageAndFinish(context, R.string.error_pve_failed_to_parse_json,
                                                    R.string.error_dialog_title);
@@ -119,9 +127,6 @@ public class OpaqueHandler extends Handler {
         case RemoteClientLibConstants.VM_LOOKUP_FAILED:
             c.disconnectAndShowMessage(R.string.error_vm_lookup_failed, R.string.error_dialog_title);
             break;
-        case RemoteClientLibConstants.OVIRT_AUTH_FAILURE:
-            c.disconnectAndShowMessage(R.string.error_ovirt_auth_failure, R.string.error_dialog_title);
-            break;
         case RemoteClientLibConstants.VM_LAUNCHED:
             c.disconnectAndShowMessage(R.string.info_vm_launched_on_stand_by, R.string.info_dialog_title);
             break;
@@ -144,12 +149,45 @@ public class OpaqueHandler extends Handler {
             break;
         case RemoteClientLibConstants.GET_PASSWORD:
             c.pd.dismiss();
-            showGetTextFragment(RemoteClientLibConstants.GET_PASSWORD_ID, context.getString(R.string.enter_password), true);
+            showGetTextFragmentOpaque(RemoteClientLibConstants.GET_PASSWORD_ID, context.getString(R.string.enter_password), true);
             break;
         case RemoteClientLibConstants.GET_OTP_CODE:
             c.pd.dismiss();
-            showGetTextFragment(RemoteClientLibConstants.GET_OTP_CODE_ID, context.getString(R.string.enter_otp_code), false);
+            showGetTextFragmentOpaque(RemoteClientLibConstants.GET_OTP_CODE_ID, context.getString(R.string.enter_otp_code), false);
             break;
+        case RemoteClientLibConstants.PVE_FAILED_TO_AUTHENTICATE:
+            if (c.retrievevvFileName() != null) {
+                MessageDialogs.displayMessageAndFinish(context, R.string.error_pve_failed_to_authenticate,
+                        R.string.error_dialog_title);
+                break;
+            }
+            else {
+                c.maintainConnection = false;
+                showGetTextFragmentRemoteCanvas(context.getString(R.string.enter_password_auth_failed),
+                        GetTextFragment.DIALOG_ID_GET_OPAQUE_CREDENTIALS,
+                        context.getString(R.string.enter_password_auth_failed),
+                        c, GetTextFragment.Credentials,
+                        R.string.enter_password_auth_failed, R.string.enter_password_auth_failed,
+                        settings.getUserName(), settings.getPassword(), null,
+                        true);
+                break;
+            }
+        case RemoteClientLibConstants.OVIRT_AUTH_FAILURE:
+            if (c.retrievevvFileName() != null) {
+                c.disconnectAndShowMessage(R.string.error_ovirt_auth_failure, R.string.error_dialog_title);
+                break;
+            }
+            else {
+                c.maintainConnection = false;
+                showGetTextFragmentRemoteCanvas(context.getString(R.string.enter_password_auth_failed),
+                        GetTextFragment.DIALOG_ID_GET_OPAQUE_CREDENTIALS,
+                        context.getString(R.string.enter_password_auth_failed),
+                        c, GetTextFragment.Credentials,
+                        R.string.enter_password_auth_failed, R.string.enter_password_auth_failed,
+                        settings.getUserName(), settings.getPassword(), null,
+                        true);
+                break;
+            }
         case RemoteClientLibConstants.DIALOG_DISPLAY_VMS:
             c.pd.dismiss();
             ArrayList<String> vms = msg.getData().getStringArrayList("vms");
@@ -189,6 +227,13 @@ public class OpaqueHandler extends Handler {
         case RemoteClientLibConstants.DIALOG_X509_CERT:
             X509Certificate cert = (X509Certificate)msg.obj;
             validateX509Cert(cert);
+            break;
+        case RemoteClientLibConstants.DISCONNECT_NO_MESSAGE:
+            c.closeConnection();
+            ((Activity)context).finish();
+            break;
+        case RemoteClientLibConstants.REINIT_SESSION:
+            c.reinitializeOpaque();
             break;
         }
     }

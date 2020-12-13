@@ -279,11 +279,18 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
                 } catch (NullPointerException e) {
                 }
             }};
+        Runnable hideKeyboardAndExtraKeys = new Runnable() {
+            public void run() {
+                try {
+                    hideKeyboardAndExtraKeys();
+                } catch (NullPointerException e) {
+                }
+            }};
 
         if (Utils.isOpaque(getPackageName())) {
-            initializeOpaque(setModes);
+            initializeOpaque(setModes, hideKeyboardAndExtraKeys);
         } else {
-            initialize(setModes);
+            initialize(setModes, hideKeyboardAndExtraKeys);
         }
         if (connection != null && connection.isReadyForConnection()) {
             continueConnecting();
@@ -291,7 +298,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
     }
 
     @SuppressLint("SourceLockedOrientationActivity")
-    void initialize (final Runnable setModes) {
+    void initialize (final Runnable setModes, final Runnable hideKeyboardAndExtraKeys) {
         handler = new Handler ();
 
         if (Utils.querySharedPreferenceBoolean(this, Constants.keepScreenOnTag))
@@ -372,26 +379,17 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
             if (connection.getSshPort() == 0)
                 connection.setSshPort(Constants.DEFAULT_SSH_PORT);
         }
-        canvas.initializeCanvas(connection, setModes);
+        canvas.initializeCanvas(connection, setModes, hideKeyboardAndExtraKeys);
     }
 
     @SuppressLint("SourceLockedOrientationActivity")
-    private void initializeOpaque(final Runnable setModes) {
+    private void initializeOpaque(final Runnable setModes, final Runnable hideKeyboardAndExtraKeys) {
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
         Intent i = getIntent();
         String vvFileName = retrieveVvFileFromIntent(i);
         if (vvFileName == null) {
             android.util.Log.d(TAG, "Initializing session from connection settings.");
             connection = (ConnectionSettings)i.getSerializableExtra("com.undatech.opaque.ConnectionSettings");
-            handler = new OpaqueHandler(this, canvas, connection);
-            canvas.init(connection, handler, setModes);
-
-            if (connection.getConnectionTypeString().equals(getResources().getString(R.string.connection_type_pve))) {
-                canvas.startPve();
-            } else {
-                connection.setAddress(Utils.getHostFromUriString(connection.getAddress()));
-                canvas.startOvirt();
-            }
         } else {
             android.util.Log.d(TAG, "Initializing session from vv file: " + vvFileName);
             File f = new File(vvFileName);
@@ -402,10 +400,9 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
             }
             connection = new ConnectionSettings(RemoteClientLibConstants.DEFAULT_SETTINGS_FILE);
             connection.load(getApplicationContext());
-            handler = new OpaqueHandler(this, canvas, connection);
-            canvas.init(connection, handler, setModes);
-            canvas.startFromVvFile(vvFileName);
         }
+        handler = new OpaqueHandler(this, canvas, connection);
+        canvas.init(connection, handler, setModes, hideKeyboardAndExtraKeys, vvFileName);
     }
 
     void continueConnecting () {
@@ -1623,23 +1620,41 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
         }
     }
 
-    public void showKeyboard(MenuItem menuItem) {
-        android.util.Log.i(TAG, "Showing keyboard and hiding action bar");
-        InputMethodManager inputMgr = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+    public void toggleKeyboard(MenuItem menuItem) {
         if (softKeyboardUp) {
-            // Hide keyboard
-            canvas.clearFocus();
-            inputMgr.hideSoftInputFromWindow(canvas.getWindowToken(), 0);
-            softKeyboardUp = false;
-        } else {
-            // Show keyboard
-            canvas.requestFocus();
-            inputMgr.showSoftInput(canvas, 0);
-            softKeyboardUp = true;
+            hideKeyboard();
         }
+        else {
+            showKeyboard();
+        }
+    }
+
+    public void showKeyboard() {
+        android.util.Log.i(TAG, "Showing keyboard and hiding action bar");
+        InputMethodManager inputMgr = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        canvas.requestFocus();
+        inputMgr.showSoftInput(canvas, 0);
+        softKeyboardUp = true;
         Objects.requireNonNull(getSupportActionBar()).hide();
     }
-    
+
+    public void hideKeyboard() {
+        android.util.Log.i(TAG, "Hiding keyboard and hiding action bar");
+        InputMethodManager inputMgr = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+        canvas.requestFocus();
+        inputMgr.hideSoftInputFromWindow(canvas.getWindowToken(), 0);
+        softKeyboardUp = false;
+        Objects.requireNonNull(getSupportActionBar()).hide();
+    }
+
+    public void hideKeyboardAndExtraKeys() {
+        hideKeyboard();
+        if (layoutKeys.getVisibility() == View.VISIBLE) {
+            extraKeysHidden = true;
+            setExtraKeysVisibility(View.GONE, false);
+        }
+    }
+
     public void stopPanner() {
         panner.stop();
     }
