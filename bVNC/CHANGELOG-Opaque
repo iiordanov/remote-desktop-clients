@@ -1,6 +1,9 @@
 v5.0.3
+- Mandatory Android API target update
+- Usability fixes
+- Password entry retry
 - Castillian Spanish localization
-- Android TV support
+- Android TV support improvements
 v5.0.2
 - Samsung DEX fixes
 - Better handling of Extra Keys visibility 
