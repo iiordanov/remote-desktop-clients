@@ -131,16 +131,16 @@ public class RemoteSpiceKeyboard extends RemoteKeyboard {
         }
         
         // Add shift, ctrl, alt, and super to metaState if necessary.
-        if ((eventMetaState & 0x000000c1 /*KeyEvent.META_SHIFT_MASK*/) != 0) {
+        if ((eventMetaState & KeyEvent.META_SHIFT_MASK) != 0) {
             metaState |= SHIFT_MASK;
         }
-        if ((eventMetaState & 0x00007000 /*KeyEvent.META_CTRL_MASK*/) != 0) {
+        if ((eventMetaState & KeyEvent.META_CTRL_MASK) != 0) {
             metaState |= CTRL_MASK;
         }
         if ((eventMetaState & altMask) !=0) {
             metaState |= ALT_MASK;
         }
-        if ((eventMetaState & 0x00070000 /*KeyEvent.META_META_MASK*/) != 0) {
+        if ((eventMetaState &KeyEvent.META_META_MASK) != 0) {
             metaState |= SUPER_MASK;
         }
         return metaState;

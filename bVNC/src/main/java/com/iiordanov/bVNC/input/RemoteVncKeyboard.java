@@ -125,12 +125,12 @@ public class RemoteVncKeyboard extends RemoteKeyboard {
                 // through to the VNC server so that they get handled there, but strip
                 // them from the character before retrieving the Unicode char from it.
                 // Don't clear Shift, we still want uppercase characters.
-                int metaMask = (0x00007000 | 0x00070000); // KeyEvent.META_CTRL_MASK | KeyEvent.META_META_MASK
+                int metaMask = (KeyEvent.META_CTRL_MASK | KeyEvent.META_META_MASK);
                 // When events come from a default hardware keyboard, we still want alt-key combinations to
                 // give us symbols, so we only strip out KeyEvent.META_ALT_MASK if we've decided to send
                 // over ALT as a separate key modifier in convertEventMetaState().
                 if ((metaState & ALT_MASK) != 0 || (metaState & RALT_MASK) != 0) {
-                    metaMask |= 0x00000032; /* KeyEvent.META_ALT_MASK */
+                    metaMask |= KeyEvent.META_ALT_MASK;
                 }
                 KeyEvent copy = new KeyEvent(evt.getDownTime(), evt.getEventTime(), evt.getAction(),
                         evt.getKeyCode(), evt.getRepeatCount(), evt.getMetaState() & ~metaMask,
