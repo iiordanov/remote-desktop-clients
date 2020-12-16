@@ -4,10 +4,12 @@ import android.os.Handler;
 import android.view.KeyCharacterMap;
 import android.view.KeyEvent;
 
+import com.iiordanov.bVNC.App;
 import com.iiordanov.bVNC.MetaKeyBean;
 import com.iiordanov.bVNC.RemoteCanvas;
 import com.undatech.opaque.RfbConnectable;
 import com.undatech.opaque.input.RdpKeyboardMapper;
+import com.undatech.opaque.util.GeneralUtils;
 
 public class RemoteRdpKeyboard extends RemoteKeyboard {
     private final static String TAG = "RemoteRdpKeyboard";
@@ -24,7 +26,8 @@ public class RemoteRdpKeyboard extends RemoteKeyboard {
     }
     
     public boolean processLocalKeyEvent(int keyCode, KeyEvent evt, int additionalMetaState) {
-        //android.util.Log.d("RemoteRdpKeyboard", "event: " + evt);
+        GeneralUtils.debugLog(App.debugLog, TAG, "processLocalKeyEvent: " + evt.toString() + " " + keyCode);
+
         if (rfb != null && rfb.isInNormalProtocol()) {
             RemotePointer pointer = canvas.getPointer();
             boolean down = (evt.getAction() == KeyEvent.ACTION_DOWN) ||
@@ -79,7 +82,7 @@ public class RemoteRdpKeyboard extends RemoteKeyboard {
 
             if (keyCode == 0 /*KEYCODE_UNKNOWN*/) {
                 String s = evt.getCharacters();
-                //android.util.Log.d("RemoteRdpKeyboard", "getCharacters: " + s);
+                GeneralUtils.debugLog(App.debugLog, TAG, "processLocalKeyEvent: getCharacters: " + s);
 
                 if (s != null) {
                     int numchars = s.length();

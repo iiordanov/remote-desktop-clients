@@ -17,7 +17,7 @@
         android:name="android.hardware.microphone"
         android:required="false" />
 
-    <application>
+    <application android:requestLegacyExternalStorage="true">
         <activity android:name="com.iiordanov.bVNC.GlobalPreferencesActivity"></activity>
     </application>
 

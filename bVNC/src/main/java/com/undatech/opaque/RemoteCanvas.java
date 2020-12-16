@@ -214,7 +214,8 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView i
         this.handler = handler;
         checkNetworkConnectivity();
         initializeClipboardMonitor();
-        spicecomm = new SpiceCommunicator (getContext(), handler, RemoteCanvas.this, settings.isRequestingNewDisplayResolution(), settings.isUsbEnabled());
+        //spicecomm = new SpiceCommunicator (getContext(), handler, RemoteCanvas.this,
+        //        settings.isRequestingNewDisplayResolution(), settings.isUsbEnabled(), App.debugLogging);
         pointer = new RemoteSpicePointer (spicecomm, RemoteCanvas.this, handler);
         try {
             keyboard = new RemoteSpiceKeyboard(getResources(), spicecomm, RemoteCanvas.this, handler, settings.getLayoutMap());

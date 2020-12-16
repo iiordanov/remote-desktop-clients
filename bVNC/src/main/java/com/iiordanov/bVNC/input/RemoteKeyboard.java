@@ -5,11 +5,16 @@ import android.os.Handler;
 import android.os.SystemClock;
 import android.view.KeyCharacterMap;
 import android.view.KeyEvent;
+
+import com.iiordanov.bVNC.App;
 import com.iiordanov.bVNC.MetaKeyBean;
 import com.iiordanov.bVNC.RemoteCanvas;
 import com.undatech.opaque.RfbConnectable;
+import com.undatech.opaque.util.GeneralUtils;
 
 public abstract class RemoteKeyboard {
+    private static final String TAG = "RemoteKeyboard";
+
     public final static int SCAN_ESC = 1;
     public final static int SCAN_LEFTCTRL = 29;
     public final static int SCAN_LEFTSHIFT = 42;
@@ -279,31 +284,41 @@ public abstract class RemoteKeyboard {
         boolean defaultHardwareKbd = (event.getScanCode() != 0 && event.getDeviceId() == 0);
         if (!bb && !defaultHardwareKbd) {
             leftAltMetaStateMask = KeyEvent.META_ALT_LEFT_ON;
+        } else {
+            GeneralUtils.debugLog(App.debugLog, TAG, "convertEventMetaState: Ignoring KeyEvent.META_ALT_LEFT_ON to allow for symbol input.");
         }
         
         // Add shift, ctrl, alt, and super to metaState if necessary.
         if ((eventMetaState & KeyEvent.META_SHIFT_LEFT_ON) != 0) {
+            GeneralUtils.debugLog(App.debugLog, TAG, "convertEventMetaState: KeyEvent.META_SHIFT_LEFT_ON");
             metaState |= SHIFT_MASK;
         }
         if ((eventMetaState & KeyEvent.META_SHIFT_RIGHT_ON) != 0) {
+            GeneralUtils.debugLog(App.debugLog, TAG, "convertEventMetaState: KeyEvent.META_SHIFT_RIGHT_ON");
             metaState |= RSHIFT_MASK;
         }
         if ((eventMetaState & KeyEvent.META_CTRL_LEFT_ON) != 0) {
+            GeneralUtils.debugLog(App.debugLog, TAG, "convertEventMetaState: KeyEvent.META_CTRL_LEFT_ON");
             metaState |= CTRL_MASK;
         }
         if ((eventMetaState & KeyEvent.META_CTRL_RIGHT_ON) != 0) {
+            GeneralUtils.debugLog(App.debugLog, TAG, "convertEventMetaState: KeyEvent.META_CTRL_RIGHT_ON");
             metaState |= RCTRL_MASK;
         }
         if ((eventMetaState & leftAltMetaStateMask) !=0) {
+            GeneralUtils.debugLog(App.debugLog, TAG, "convertEventMetaState: KeyEvent.META_ALT_LEFT_ON");
             metaState |= ALT_MASK;
         }
         if ((eventMetaState & KeyEvent.META_ALT_RIGHT_ON) !=0) {
+            GeneralUtils.debugLog(App.debugLog, TAG, "convertEventMetaState: KeyEvent.META_ALT_RIGHT_ON");
             metaState |= RALT_MASK;
         }
         if ((eventMetaState & KeyEvent.META_META_LEFT_ON) != 0) {
+            GeneralUtils.debugLog(App.debugLog, TAG, "convertEventMetaState: KeyEvent.META_META_LEFT_ON");
             metaState |= SUPER_MASK;
         }
         if ((eventMetaState & KeyEvent.META_META_RIGHT_ON) != 0) {
+            GeneralUtils.debugLog(App.debugLog, TAG, "convertEventMetaState: KeyEvent.META_META_RIGHT_ON");
             metaState |= RSUPER_MASK;
         }
         

@@ -256,7 +256,8 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView
         this.vvFileName = vvFileName;
         checkNetworkConnectivity();
         initializeClipboardMonitor();
-        spicecomm = new SpiceCommunicator(getContext(), handler, this, settings.isRequestingNewDisplayResolution(), settings.isUsbEnabled());
+        spicecomm = new SpiceCommunicator(getContext(), handler, this,
+                settings.isRequestingNewDisplayResolution(), settings.isUsbEnabled(), App.debugLog);
         rfbconn = spicecomm;
         pointer = new RemoteSpicePointer(spicecomm, this, handler);
         try {
@@ -477,7 +478,7 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView
      *
      */
     private void initializeSpiceConnection() throws Exception {
-        spicecomm = new SpiceCommunicator(getContext(), handler, this, true, true);
+        spicecomm = new SpiceCommunicator(getContext(), handler, this, true, true, App.debugLog);
         rfbconn = spicecomm;
         pointer = new RemoteSpicePointer(rfbconn, RemoteCanvas.this, handler);
         keyboard = new RemoteSpiceKeyboard(getResources(), spicecomm, RemoteCanvas.this,
@@ -517,7 +518,8 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView
         android.util.Log.i(TAG, "initializeRdpConnection: Initializing RDP connection.");
 
         rdpcomm = new RdpCommunicator(getContext(), handler, this,
-                connection.getUserName(), connection.getRdpDomain(), connection.getPassword());
+                connection.getUserName(), connection.getRdpDomain(), connection.getPassword(),
+                App.debugLog);
         rfbconn = rdpcomm;
         pointer = new RemoteRdpPointer(rfbconn, RemoteCanvas.this, handler);
         keyboard = new RemoteRdpKeyboard(rfbconn, RemoteCanvas.this, handler);
@@ -1641,7 +1643,7 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView
     Runnable invalidateCanvasRunnable = new Runnable() {
         @Override
         public void run() {
-            Log.d(TAG, "invalidateCanvasRunnable");
+            //Log.d(TAG, "invalidateCanvasRunnable");
             postInvalidate();
         }
     };

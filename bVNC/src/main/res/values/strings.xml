@@ -916,4 +916,5 @@ Below that is where you configure your connection.
     <string name="please_grant_permission_from_prefs">You may need to grant permissions to the application through Settings.</string>
     <string name="rdp_adv_gfx">RDP Gfx</string>
     <string name="rdp_adv_gfxh264">RDP Gfx H264</string>
+    <string name="more_debug_logging">More Debug Logging</string>
 </resources>

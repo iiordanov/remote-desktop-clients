@@ -15,6 +15,7 @@ import com.freerdp.freerdpcore.services.LibFreeRDP;
 import com.undatech.opaque.input.RemoteKeyboard;
 import com.undatech.opaque.input.RdpKeyboardMapper;
 import com.undatech.opaque.input.RemotePointer;
+import com.undatech.opaque.util.GeneralUtils;
 
 import java.lang.reflect.Field;
 import java.util.Collections;
@@ -61,8 +62,10 @@ public class RdpCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyPro
 
     private String username, password, domain;
 
-    public RdpCommunicator(Context context, Handler handler,
-                           Viewable viewable, String username, String domain, String password) {
+    private boolean debugLogging = false;
+
+    public RdpCommunicator(Context context, Handler handler, Viewable viewable, String username,
+                           String domain, String password, boolean debugLogging) {
         // This is necessary because it initializes a synchronizedMap referenced later.
         this.freeRdpApp = new GlobalApp();
         patchFreeRdpCore();
@@ -75,6 +78,7 @@ public class RdpCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyPro
         this.username = username;
         this.domain = domain;
         this.password = password;
+        this.debugLogging = debugLogging;
         initSession(username, domain, password);
     }
 
@@ -247,10 +251,12 @@ public class RdpCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyPro
     // KeyboardMapper.KeyProcessingListener implementation
     @Override
     public void processVirtualKey(int virtualKeyCode, boolean down) {
+        GeneralUtils.debugLog(this.debugLogging, TAG, "processVirtualKey: " +
+                "Sending VK key: " + virtualKeyCode + ". Is it down: " + down);
+
         if (down) {
             sendModifierKeys(true);
         }
-        android.util.Log.d("RdpCommunicator", "Sending VK key: " + virtualKeyCode + ". Is it down: " + down);
         try { Thread.sleep(5); } catch (InterruptedException e) {}
         LibFreeRDP.sendKeyEvent(session.getInstance(), virtualKeyCode, down);
         if (!down) {

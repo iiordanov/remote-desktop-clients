@@ -3,6 +3,7 @@ v5.0.3
 - Usability fixes
 - Castillian Spanish localization
 - Android TV support improvements
+- Feature to turn on/off debug logging
 v5.0.2
 - Samsung DEX fixes
 - Better handling of Extra Keys visibility 

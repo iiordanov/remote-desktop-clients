@@ -10,4 +10,6 @@
         android:defaultValue="false" android:key="forceLandscape" android:title="@string/landscape_force"/>
     <SwitchPreferenceCompat
         android:defaultValue="false" android:key="leftHandedModeTag" android:title="@string/left_handed_mode"/>
+    <SwitchPreferenceCompat
+        android:defaultValue="false" android:key="moreDebugLoggingTag" android:title="@string/more_debug_logging"/>
 </PreferenceScreen>
