@@ -186,3 +186,5 @@ fabric.properties
 !/gradle/wrapper/gradle-wrapper.jar
 
 # End of AndroidStudio ###
+
+GITHUB_TOKEN
