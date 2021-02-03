@@ -266,7 +266,7 @@ public class RdpCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyPro
 
     @Override
     public void processUnicodeKey(int unicodeKey) {
-        android.util.Log.e(TAG, "Unicode character: " + unicodeKey);
+        //android.util.Log.d(TAG, "Unicode character: " + unicodeKey);
         sendModifierKeys(true);
         try { Thread.sleep(5); } catch (InterruptedException e) {}
         LibFreeRDP.sendUnicodeKeyEvent(session.getInstance(), unicodeKey, true);
@@ -415,13 +415,13 @@ public class RdpCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyPro
 
     @Override
     public void OnSettingsChanged(int width, int height, int bpp) {
-        android.util.Log.e(TAG, "OnSettingsChanged called, wxh: " + width + "x" + height);
+        android.util.Log.d(TAG, "OnSettingsChanged called, wxh: " + width + "x" + height);
         viewable.reallocateDrawable(width, height);
     }
 
     @Override
     public boolean OnAuthenticate(StringBuilder username, StringBuilder domain, StringBuilder password) {
-        android.util.Log.e(TAG, "OnAuthenticate called.");
+        android.util.Log.d(TAG, "OnAuthenticate called.");
         authenticationAttempted = true;
 
         username.setLength(0);
@@ -438,7 +438,7 @@ public class RdpCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyPro
     @Override
     public int OnVerifiyCertificate(String commonName, String subject,
                                     String issuer, String fingerprint, boolean mismatch) {
-        android.util.Log.e(TAG, "OnVerifiyCertificate called.");
+        android.util.Log.d(TAG, "OnVerifiyCertificate called.");
 
         // Send a message containing the certificate to our handler.
         Message m = new Message();
@@ -469,7 +469,7 @@ public class RdpCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyPro
     @Override
     public boolean OnGatewayAuthenticate(StringBuilder username,
                                          StringBuilder domain, StringBuilder password) {
-        android.util.Log.e(TAG, "OnGatewayAuthenticate called.");
+        android.util.Log.d(TAG, "OnGatewayAuthenticate called.");
         return this.OnAuthenticate(username, domain, password);
     }
 
@@ -477,13 +477,13 @@ public class RdpCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyPro
     public int OnVerifyChangedCertificate(String commonName, String subject,
                                           String issuer, String fingerprint, String oldSubject,
                                           String oldIssuer, String oldFingerprint) {
-        android.util.Log.e(TAG, "OnVerifyChangedCertificate called.");
+        android.util.Log.d(TAG, "OnVerifyChangedCertificate called.");
         return this.OnVerifiyCertificate(commonName, subject, issuer, fingerprint, true);
     }
 
     @Override
     public void OnGraphicsUpdate(int x, int y, int width, int height) {
-        //android.util.Log.e(TAG, "OnGraphicsUpdate called: " + x +", " + y + " + " + width + "x" + height );
+        //android.util.Log.v(TAG, "OnGraphicsUpdate called: " + x +", " + y + " + " + width + "x" + height );
         if (viewable != null && session != null) {
             Bitmap bitmap = viewable.getBitmap();
             if (bitmap != null) {
@@ -495,13 +495,13 @@ public class RdpCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyPro
 
     @Override
     public void OnGraphicsResize(int width, int height, int bpp) {
-        android.util.Log.e(TAG, "OnGraphicsResize called.");
+        android.util.Log.d(TAG, "OnGraphicsResize called.");
         OnSettingsChanged(width, height, bpp);
     }
 
     @Override
     public void OnRemoteClipboardChanged(String data) {
-        android.util.Log.e(TAG, "OnRemoteClipboardChanged called.");
+        android.util.Log.d(TAG, "OnRemoteClipboardChanged called.");
 
         // Send a message containing the text to our handler.
         Message m = new Message();

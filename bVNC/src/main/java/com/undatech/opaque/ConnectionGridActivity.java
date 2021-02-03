@@ -191,7 +191,7 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
     }
 
     private void editConnection(View v) {
-        android.util.Log.e(TAG, "Modify Connection");
+        android.util.Log.d(TAG, "Modify Connection");
         String runtimeId = (String) ((TextView) v.findViewById(R.id.grid_item_id)).getText();
         Connection conn = connectionLoader.getConnectionsById().get(runtimeId);
         Intent intent = new Intent(ConnectionGridActivity.this, Utils.getConnectionSetupClass(getPackageName()));
@@ -208,7 +208,7 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
     }
 
     private void deleteConnection(View v) {
-        android.util.Log.e(TAG, "Delete Connection");
+        android.util.Log.d(TAG, "Delete Connection");
         String runtimeId = (String) ((TextView) v.findViewById(R.id.grid_item_id)).getText();
         String gridItemText = (String) ((TextView) v.findViewById(R.id.grid_item_text)).getText();
         Utils.showYesNoPrompt(this, getString(R.string.delete_connection) + "?", getString(R.string.delete_connection) + " " + gridItemText+ " ?",
@@ -400,11 +400,11 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
         }
         String defaultInputHandlerId = Utils.querySharedPreferenceString(
                 this, Constants.defaultInputMethodTag, InputHandlerDirectSwipePan.ID);
-        android.util.Log.e(TAG, "Default Input Mode Item: " + defaultInputHandlerId);
+        android.util.Log.d(TAG, "Default Input Mode Item: " + defaultInputHandlerId);
 
         try {
             for (MenuItem item : inputModeMenuItems) {
-                android.util.Log.e(TAG, "Input Mode Item: " +
+                android.util.Log.d(TAG, "Input Mode Item: " +
                         RemoteCanvasActivity.inputModeMap.get(item.getItemId()));
 
                 if (defaultInputHandlerId.equals(RemoteCanvasActivity.inputModeMap.get(item.getItemId()))) {
@@ -447,7 +447,7 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
                 }
             }
         } else if (item.getGroupId() == R.id.itemInputModeGroup) {
-            Log.e(TAG, RemoteCanvasActivity.inputModeMap.get(item.getItemId()));
+            Log.d(TAG, RemoteCanvasActivity.inputModeMap.get(item.getItemId()));
             Utils.setSharedPreferenceString(this, Constants.defaultInputMethodTag,
                     RemoteCanvasActivity.inputModeMap.get(item.getItemId()));
         }

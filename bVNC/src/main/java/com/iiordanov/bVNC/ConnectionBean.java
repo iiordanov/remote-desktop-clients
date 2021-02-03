@@ -65,7 +65,7 @@ public class ConnectionBean extends AbstractConnectionBean implements Connection
             inputMode = Utils.querySharedPreferenceString(context, Constants.defaultInputMethodTag,
                     InputHandlerDirectSwipePan.ID);
         } else {
-            android.util.Log.e(TAG, "Failed to query default input method, context is null.");
+            android.util.Log.w(TAG, "Failed to query default input method, context is null.");
         }
         set_Id(0);
         setAddress("");

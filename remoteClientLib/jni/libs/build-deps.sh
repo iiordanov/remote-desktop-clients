@@ -599,22 +599,13 @@ build_freerdp() {
 
         # Patch the config
         sed -i -e 's/CMAKE_BUILD_TYPE=.*/CMAKE_BUILD_TYPE=Release/'\
-               -e 's/WITH_OPENH264=.*/WITH_OPENH264=1/'\
                -e 's/WITH_JPEG=.*/WITH_JPEG=1/'\
-               -e 's/OPENH264_TAG=.*/OPENH264_TAG=v2.0.0/'\
-               -e 's/OPENSSL_TAG=.*/OPENSSL_TAG=OpenSSL_1_1_1g/'\
-               -e "s/BUILD_ARCH=.*/BUILD_ARCH=\"${abis}\"/" ./scripts/android-build.conf
+               -e 's/WITH_OPENH264=.*/WITH_OPENH264=1/'\
+               -e 's/OPENH264_TAG=.*/OPENH264_TAG=v2.1.1/'\
+                ./scripts/android-build.conf
 
-
-        #echo 'set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DWINPR_EXPORTS --sysroot=${ANDROID_SYSROOT}")' >>  winpr/CMakeLists.txt
-        #for f in winpr/CMakeLists.txt winpr/libwinpr/CMakeLists.txt libfreerdp/CMakeLists.txt client/common/CMakeLists.txt client/Android/CMakeLists.txt client/common/CMakeLists.txt
-        #do
-        #    echo 'set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} --sysroot=${ANDROID_SYSROOT}")' >> $f
-        #    echo 'set(CMAKE_STATIC_LINKER_FLAGS "${CMAKE_STATIC_LINKER_FLAGS} --sysroot=${ANDROID_SYSROOT}")' >> $f
-        #done
-
-        # Something wrong with NDK?
-        #sed -i 's/static int pthread_mutex_timedlock/int pthread_mutex_timedlock/' winpr/libwinpr/synch/wait.c
+#               -e 's/OPENSSL_TAG=.*/OPENSSL_TAG=OpenSSL_1_1_1g/'\
+#               -e "s/BUILD_ARCH=.*/BUILD_ARCH=\"${abis}\"/"\
 
         for f in ${basedir}/../*_freerdp_*.patch
         do
@@ -629,6 +620,7 @@ build_freerdp() {
 
         echo "Installing android NDK ${freerdp_ndk_version} for FreeRDP build compatibility"
         export ANDROID_NDK=$(install_ndk ../../ ${freerdp_ndk_version})
+        export OPENH264_NDK=$(install_ndk ../../ ${freerdp_openh264_ndk_version})
         echo "Android NDK version for FreeRDP ${ndk_version} is installed at ${ANDROID_NDK}"
         echo "Installing cmake ${freerdp_cmake_version} for FreeRDP build compatibility"
         export CMAKE_PATH=$(install_cmake ../../ ${freerdp_cmake_version})/bin
