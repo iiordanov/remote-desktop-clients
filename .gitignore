@@ -188,3 +188,6 @@ fabric.properties
 # End of AndroidStudio ###
 
 GITHUB_TOKEN
+build-*
+upload_*
+trigger-*
