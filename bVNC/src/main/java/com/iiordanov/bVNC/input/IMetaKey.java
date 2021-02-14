@@ -18,7 +18,7 @@
  * USA.
  */
 
-package com.iiordanov.bVNC;
+package com.iiordanov.bVNC.input;
 
 import com.antlersoft.android.db.FieldAccessor;
 import com.antlersoft.android.db.TableInterface;

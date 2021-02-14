@@ -35,7 +35,7 @@
  * This software is in the public domain. Share and enjoy!
  */
 
-package com.iiordanov.bVNC.input;
+package com.undatech.opaque.input;
 
 public class XKeySymCoverter {
     private final static String TAG = "XKeySymCoverter";

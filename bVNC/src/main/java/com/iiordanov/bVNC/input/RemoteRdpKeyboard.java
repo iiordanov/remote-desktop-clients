@@ -5,7 +5,6 @@ import android.view.KeyCharacterMap;
 import android.view.KeyEvent;
 
 import com.iiordanov.bVNC.App;
-import com.iiordanov.bVNC.MetaKeyBean;
 import com.iiordanov.bVNC.RemoteCanvas;
 import com.undatech.opaque.RfbConnectable;
 import com.undatech.opaque.input.RdpKeyboardMapper;
@@ -14,12 +13,11 @@ import com.undatech.opaque.util.GeneralUtils;
 public class RemoteRdpKeyboard extends RemoteKeyboard {
     private final static String TAG = "RemoteRdpKeyboard";
     protected RdpKeyboardMapper keyboardMapper;
-        
-    public RemoteRdpKeyboard (RfbConnectable r, RemoteCanvas v, Handler h) {
-        super(r, v, h);
-        
-        context = v.getContext();
-        
+    protected RemoteCanvas canvas;
+
+    public RemoteRdpKeyboard (RfbConnectable r, RemoteCanvas v, Handler h, boolean debugLog) {
+        super(r, v.getContext(), h, debugLog);
+        canvas = v;
         keyboardMapper = new RdpKeyboardMapper();
         keyboardMapper.init(context);
         keyboardMapper.reset((RdpKeyboardMapper.KeyProcessingListener)r);

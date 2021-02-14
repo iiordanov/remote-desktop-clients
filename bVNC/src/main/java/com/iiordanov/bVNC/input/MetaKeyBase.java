@@ -18,7 +18,7 @@
  * USA.
  */
 
-package com.iiordanov.bVNC;
+package com.iiordanov.bVNC.input;
 
 /**
  * @author Michael A. MacDonald

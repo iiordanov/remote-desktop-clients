@@ -32,7 +32,7 @@ import java.net.Socket;
 
 import android.util.Log;
 
-import com.iiordanov.bVNC.input.RemoteKeyboard;
+import com.undatech.opaque.input.RemoteKeyboard;
 import com.iiordanov.bVNC.input.RemoteVncKeyboard;
 import com.iiordanov.bVNC.*;
 import com.iiordanov.freebVNC.*;

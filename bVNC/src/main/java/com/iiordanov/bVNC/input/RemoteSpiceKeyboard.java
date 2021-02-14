@@ -32,9 +32,9 @@ import android.util.Log;
 import android.view.KeyEvent;
 
 import com.iiordanov.bVNC.Constants;
-import com.iiordanov.bVNC.MetaKeyBean;
 import com.iiordanov.bVNC.RemoteCanvas;
 import com.undatech.opaque.SpiceCommunicator;
+import com.undatech.opaque.util.GeneralUtils;
 
 public class RemoteSpiceKeyboard extends RemoteKeyboard {
 	private final static String TAG = "RemoteSpiceKeyboard";
@@ -45,10 +45,12 @@ public class RemoteSpiceKeyboard extends RemoteKeyboard {
     final static int SCANCODE_DIAERESIS_MASK = 0x80000;
     final static int UNICODE_MASK = 0x100000;
     final static int UNICODE_META_MASK = KeyEvent.META_CTRL_MASK|KeyEvent.META_META_MASK|KeyEvent.META_CAPS_LOCK_ON;
+    protected RemoteCanvas canvas;
 
-	public RemoteSpiceKeyboard (Resources resources, SpiceCommunicator r, RemoteCanvas v, Handler h, String layoutMapFile) throws IOException {
-	    super(r, v, h);
-	    context = v.getContext();
+	public RemoteSpiceKeyboard (Resources resources, SpiceCommunicator r, RemoteCanvas v, Handler h,
+                                String layoutMapFile, boolean debugLog) throws IOException {
+	    super(r, v.getContext(), h, debugLog);
+	    canvas = v;
 	    this.table = loadKeyMap(resources, "layouts/" + layoutMapFile);
 	}
 
@@ -126,21 +128,25 @@ public class RemoteSpiceKeyboard extends RemoteKeyboard {
         // Detect whether this event is coming from a default hardware keyboard.
         // We have to leave KeyEvent.KEYCODE_ALT_LEFT for symbol input on a default hardware keyboard.
         boolean defaultHardwareKbd = (event.getScanCode() != 0 && event.getDeviceId() == 0);
-        if (!bb && !defaultHardwareKbd) {
+        if (!defaultHardwareKbd) {
             altMask = KeyEvent.META_ALT_MASK;
         }
         
         // Add shift, ctrl, alt, and super to metaState if necessary.
         if ((eventMetaState & KeyEvent.META_SHIFT_MASK) != 0) {
+            GeneralUtils.debugLog(debugLog, TAG, "convertEventMetaState: KeyEvent.META_SHIFT_MASK");
             metaState |= SHIFT_MASK;
         }
         if ((eventMetaState & KeyEvent.META_CTRL_MASK) != 0) {
+            GeneralUtils.debugLog(debugLog, TAG, "convertEventMetaState: KeyEvent.META_CTRL_MASK");
             metaState |= CTRL_MASK;
         }
         if ((eventMetaState & altMask) !=0) {
+            GeneralUtils.debugLog(debugLog, TAG, "convertEventMetaState: altMask: " + altMask);
             metaState |= ALT_MASK;
         }
         if ((eventMetaState &KeyEvent.META_META_MASK) != 0) {
+            GeneralUtils.debugLog(debugLog, TAG, "convertEventMetaState: KeyEvent.META_META_MASK");
             metaState |= SUPER_MASK;
         }
         return metaState;

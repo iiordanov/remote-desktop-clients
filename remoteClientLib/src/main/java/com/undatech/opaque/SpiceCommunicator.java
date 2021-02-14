@@ -333,27 +333,27 @@ public class SpiceCommunicator implements RfbConnectable {
     }
 
     private void sendModifierKeys(boolean keyDown) {
-        if ((remoteMetaState & RemoteKeyboard.CTRL_ON_MASK) != 0) {
+        if ((remoteMetaState & RemoteKeyboard.CTRL_MASK) != 0) {
             GeneralUtils.debugLog(this.debugLogging, TAG,
                     "sendModifierKeys: Sending CTRL: " + LCONTROL + " down: " + keyDown);
             sendSpiceKeyEvent(keyDown, LCONTROL);
         }
-        if ((remoteMetaState & RemoteKeyboard.ALT_ON_MASK) != 0) {
+        if ((remoteMetaState & RemoteKeyboard.ALT_MASK) != 0) {
             GeneralUtils.debugLog(this.debugLogging, TAG,
                     "sendModifierKeys: Sending LALT: " + LALT + " down: " + keyDown);
             sendSpiceKeyEvent(keyDown, LALT);
         }
-        if ((remoteMetaState & RemoteKeyboard.ALTGR_ON_MASK) != 0) {
+        if ((remoteMetaState & RemoteKeyboard.RALT_MASK) != 0) {
             GeneralUtils.debugLog(this.debugLogging, TAG,
                     "sendModifierKeys: Sending RALT: " + RALT + " down: " + keyDown);
             sendSpiceKeyEvent(keyDown, RALT);
         }
-        if ((remoteMetaState & RemoteKeyboard.SUPER_ON_MASK) != 0) {
+        if ((remoteMetaState & RemoteKeyboard.SUPER_MASK) != 0) {
             GeneralUtils.debugLog(this.debugLogging, TAG,
                     "sendModifierKeys: Sending LWIN: " + LWIN + " down: " + keyDown);
             sendSpiceKeyEvent(keyDown, LWIN);
         }
-        if ((remoteMetaState & RemoteKeyboard.SHIFT_ON_MASK) != 0) {
+        if ((remoteMetaState & RemoteKeyboard.SHIFT_MASK) != 0) {
             GeneralUtils.debugLog(this.debugLogging, TAG,
                     "sendModifierKeys: Sending SHIFT: " + LSHIFT + " down: " + keyDown);
             sendSpiceKeyEvent(keyDown, LSHIFT);

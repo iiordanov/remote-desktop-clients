@@ -18,23 +18,17 @@
  * USA.
  */
 
-package com.iiordanov.bVNC;
+package com.iiordanov.bVNC.input;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
 import com.antlersoft.android.dbimpl.NewInstance;
-import com.iiordanov.bVNC.input.RemoteKeyboard;
-import com.iiordanov.bVNC.input.RemoteVncPointer;
+import com.undatech.opaque.input.RemoteKeyboard;
 
 import android.view.KeyEvent;
-import com.iiordanov.bVNC.*;
-import com.iiordanov.freebVNC.*;
-import com.iiordanov.aRDP.*;
-import com.iiordanov.freeaRDP.*;
-import com.iiordanov.aSPICE.*;
-import com.iiordanov.freeaSPICE.*;
-import com.iiordanov.CustomClientPackage.*;
+
+import com.undatech.opaque.input.RemoteKeyboard;
 
 /**
  * @author Michael A. MacDonald
@@ -147,7 +141,7 @@ public class MetaKeyBean extends AbstractMetaKeyBean implements Comparable<MetaK
                     return new MetaKeyBean();
                 }
             };
-        keyCtrlAltDel = new MetaKeyBean(0,RemoteKeyboard.CTRL_MASK|RemoteKeyboard.ALT_MASK,keysByKeyCode.get(KeyEvent.KEYCODE_DEL));
+        keyCtrlAltDel = new MetaKeyBean(0, RemoteKeyboard.CTRL_MASK|RemoteKeyboard.ALT_MASK,keysByKeyCode.get(KeyEvent.KEYCODE_DEL));
         keyArrowLeft = new MetaKeyBean(0,0,keysByKeySym.get(0xFF51));
         keyArrowUp = new MetaKeyBean(0,0,keysByKeySym.get(0xFF52));
         keyArrowRight = new MetaKeyBean(0,0,keysByKeySym.get(0xFF53));

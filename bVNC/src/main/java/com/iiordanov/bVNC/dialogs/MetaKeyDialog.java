@@ -26,14 +26,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Map.Entry;
 
-import com.iiordanov.bVNC.ConnectionBean;
 import com.iiordanov.bVNC.ConnectionSettable;
-import com.iiordanov.bVNC.MetaKeyBase;
-import com.iiordanov.bVNC.MetaKeyBean;
+import com.iiordanov.bVNC.input.MetaKeyBase;
+import com.iiordanov.bVNC.input.MetaKeyBean;
 import com.iiordanov.bVNC.Utils;
 import com.iiordanov.bVNC.RemoteCanvasActivity;
 import com.iiordanov.bVNC.Database;
-import com.iiordanov.bVNC.input.RemoteKeyboard;
+import com.undatech.opaque.input.RemoteKeyboard;
 
 import android.app.Activity;
 import android.app.Dialog;
@@ -59,12 +58,6 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 import com.iiordanov.bVNC.*;
-import com.iiordanov.freebVNC.*;
-import com.iiordanov.aRDP.*;
-import com.iiordanov.freeaRDP.*;
-import com.iiordanov.aSPICE.*;
-import com.iiordanov.freeaSPICE.*;
-import com.iiordanov.CustomClientPackage.*;
 import com.undatech.opaque.Connection;
 import com.undatech.remoteClientUi.*;
 

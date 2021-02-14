@@ -26,118 +26,107 @@ import android.os.SystemClock;
 import android.view.KeyCharacterMap;
 import android.view.KeyEvent;
 
-import com.undatech.opaque.SpiceCommunicator;
+import com.undatech.opaque.RfbConnectable;
+import com.undatech.opaque.util.GeneralUtils;
 
 public abstract class RemoteKeyboard {
     private static final String TAG = "RemoteKeyboard";
 
-    public final static int SCANCODE_LCTRL = 29;
-    public final static int SCANCODE_RCTRL = 97;
-
+    public final static int SCAN_ESC = 1;
+    public final static int SCAN_LEFTCTRL = 29;
+    public final static int SCAN_LEFTSHIFT = 42;
+    public final static int SCAN_RIGHTSHIFT = 54;
+    public final static int SCAN_LEFTALT = 56;
+    public final static int SCAN_RIGHTCTRL = 97;
+    public final static int SCAN_RIGHTALT = 100;
+    public final static int SCAN_DELETE = 111;
+    public final static int SCAN_LEFTSUPER = 125;
+    public final static int SCAN_RIGHTSUPER = 126;
+    public final static int SCAN_F1 = 59;
+    public final static int SCAN_F2 = 60;
+    public final static int SCAN_F3 = 61;
+    public final static int SCAN_F4 = 62;
+    public final static int SCAN_F5 = 63;
+    public final static int SCAN_F6 = 64;
+    public final static int SCAN_F7 = 65;
+    public final static int SCAN_F8 = 66;
+    public final static int SCAN_F9 = 67;
+    public final static int SCAN_F10 = 68;
+    //public final static int SCAN_HOME = 102;
+    //public final static int SCAN_END = 107;
+    
     // Useful shortcuts for modifier masks.
-    public final static int CTRL_MASK   = KeyEvent.META_SYM_ON;
+    public final static int CTRL_MASK   = KeyEvent.META_CTRL_ON;
     public final static int SHIFT_MASK  = KeyEvent.META_SHIFT_ON;
     public final static int ALT_MASK    = KeyEvent.META_ALT_ON;
-    public final static int SUPER_MASK  = 0x8;
+    public final static int SUPER_MASK  = KeyEvent.META_META_LEFT_ON;
     public final static int RCTRL_MASK  = KeyEvent.META_CTRL_RIGHT_ON;
     public final static int RSHIFT_MASK = KeyEvent.META_SHIFT_RIGHT_ON;
-    public final static int RALT_MASK   = 0x10;
+    public final static int RALT_MASK   = KeyEvent.META_ALT_RIGHT_ON;
     public final static int RSUPER_MASK = KeyEvent.META_META_RIGHT_ON;
 
-    // My mask for the modifier masks.
-    public final static int SHIFT_ON_MASK = 1;
-    public final static int ALT_ON_MASK   = 2;
-    public final static int CTRL_ON_MASK  = 4;
-    public final static int SUPER_ON_MASK = 8;
-    public final static int ALTGR_ON_MASK = 16;
-    
     protected Handler handler;
-    protected SpiceCommunicator spicecomm;
+    protected RfbConnectable rfb;
     protected Context context;
     protected KeyRepeater keyRepeater;
 
-    // Variable holding the state of any pressed hardware meta keys
+    // Variable holding the state of any pressed hardware meta keys (Ctrl, Alt...)
     protected int hardwareMetaState = 0;
     
-    // Variable holding the state of the on-screen meta keys
+    // Use camera button as meta key for right mouse button
+    boolean cameraButtonDown = false;
+    
+    // Keep track when a seeming key press was the result of a menu shortcut
+    protected int lastKeyDown;
+    protected boolean afterMenu;
+
+    // Variable holding the state of the on-screen buttons for meta keys (Ctrl, Alt...)
     protected int onScreenMetaState = 0;
     
-    // Variable used for BB10 workarounds
-    boolean bb = false;
-    
-    // Variable holding the state of the last metaState sent over with
-    // a button down event. It is reset to 0 with a button up event.
+    // Variable holding the state of the last metaState resulting from a button press.
     protected int lastDownMetaState = 0;
+
+    protected boolean debugLog = false;
     
-    RemoteKeyboard (SpiceCommunicator r, Handler h) {
-        spicecomm = r;
-        handler = h;
-        keyRepeater = new KeyRepeater (this, h);
+    public RemoteKeyboard (RfbConnectable r, Context v, Handler h, boolean debugLog) {
+        this.rfb = r;
+        this.context = v;
+        this.handler = h;
         
-        if (android.os.Build.MODEL.contains("BlackBerry") ||
-            android.os.Build.BRAND.contains("BlackBerry") || 
-            android.os.Build.MANUFACTURER.contains("BlackBerry")) {
-            bb = true;
-        }
+        keyRepeater = new KeyRepeater (this, h);
     }
 
-    /**
-     * Sends key event to server with no additional meta state.
-     * @param keyCode
-     * @param event
-     * @return
-     */
-    public abstract boolean keyEvent(int keyCode, KeyEvent event);
+    public boolean keyEvent(int keyCode, KeyEvent evt) {
+        return processLocalKeyEvent (keyCode, evt, 0);
+    }
+    
+    public abstract boolean processLocalKeyEvent(int keyCode, KeyEvent evt, int additionalMetaState);
 
-    /**
-     * Sends key event with additional meta state to server
-     * @param keyCode
-     * @param event
-     * @param additionalMetaState
-     * @return
-     */
-    public abstract boolean keyEvent(int keyCode, KeyEvent event, int additionalMetaState);
-
-    /**
-     * Starts repeating a key event.
-     * @param keyCode
-     * @param event
-     */
     public void repeatKeyEvent(int keyCode, KeyEvent event) { keyRepeater.start(keyCode, event); }
 
-    /**
-     * Stops repeating the last key event being repeated.
-     */
     public void stopRepeatingKeyEvent() { keyRepeater.stop(); }
-    
+
     /**
      * Toggles on-screen Ctrl mask. Returns true if result is Ctrl enabled, false otherwise.
      * @return true if on false otherwise.
      */
-    public boolean onScreenCtrlToggle() {
+    public boolean onScreenCtrlToggle()    {
         // If we find Ctrl on, turn it off. Otherwise, turn it on.
-        if (onScreenMetaState == (onScreenMetaState | CTRL_ON_MASK)) {
+        if (onScreenMetaState == (onScreenMetaState | CTRL_MASK)) {
             onScreenCtrlOff();
             return false;
         }
         else {
-            onScreenCtrlOn();
+            onScreenMetaState = onScreenMetaState | CTRL_MASK;
             return true;
         }
-    }
-
-    /**
-     * Turns on on-screen Ctrl.
-     */
-    public void onScreenCtrlOn() {
-        onScreenMetaState = onScreenMetaState | CTRL_ON_MASK;
     }
     
     /**
      * Turns off on-screen Ctrl.
      */
-    public void onScreenCtrlOff() {
-        onScreenMetaState = onScreenMetaState & ~CTRL_ON_MASK;
+    public void onScreenCtrlOff()    {
+        onScreenMetaState = onScreenMetaState & ~CTRL_MASK;
     }
     
     /**
@@ -146,28 +135,21 @@ public abstract class RemoteKeyboard {
      */
     public boolean onScreenAltToggle() {
         // If we find Alt on, turn it off. Otherwise, turn it on.
-        if (onScreenMetaState == (onScreenMetaState | ALT_ON_MASK)) {
+        if (onScreenMetaState == (onScreenMetaState | ALT_MASK)) {
             onScreenAltOff();
             return false;
         }
         else {
-            onScreenAltOn();
+            onScreenMetaState = onScreenMetaState | ALT_MASK;
             return true;
         }
     }
 
     /**
-     * Turns on on-screen Alt.
-     */
-    public void onScreenAltOn() {
-        onScreenMetaState = onScreenMetaState | ALT_ON_MASK;
-    }
-    
-    /**
      * Turns off on-screen Alt.
      */
-    public void onScreenAltOff() {
-        onScreenMetaState = onScreenMetaState & ~ALT_ON_MASK;
+    public void onScreenAltOff()    {
+        onScreenMetaState = onScreenMetaState & ~ALT_MASK;
     }
 
     /**
@@ -176,28 +158,21 @@ public abstract class RemoteKeyboard {
      */
     public boolean onScreenSuperToggle() {
         // If we find Super on, turn it off. Otherwise, turn it on.
-        if (onScreenMetaState == (onScreenMetaState | SUPER_ON_MASK)) {
+        if (onScreenMetaState == (onScreenMetaState | SUPER_MASK)) {
             onScreenSuperOff();
             return false;
         }
         else {
-            onScreenSuperOn();
+            onScreenMetaState = onScreenMetaState | SUPER_MASK;
             return true;
         }
     }
     
     /**
-     * Turns on on-screen Super.
-     */
-    public void onScreenSuperOn() {
-        onScreenMetaState = onScreenMetaState | SUPER_ON_MASK;
-    }    
-    
-    /**
      * Turns off on-screen Super.
      */
     public void onScreenSuperOff() {
-        onScreenMetaState = onScreenMetaState & ~SUPER_ON_MASK;
+        onScreenMetaState = onScreenMetaState & ~SUPER_MASK;        
     }
     
     /**
@@ -206,90 +181,101 @@ public abstract class RemoteKeyboard {
      */
     public boolean onScreenShiftToggle() {
         // If we find Super on, turn it off. Otherwise, turn it on.
-        if (onScreenMetaState == (onScreenMetaState | SHIFT_ON_MASK)) {
+        if (onScreenMetaState == (onScreenMetaState | SHIFT_MASK)) {
             onScreenShiftOff();
             return false;
         }
         else {
-            onScreenShiftOn();
+            onScreenMetaState = onScreenMetaState | SHIFT_MASK;
             return true;
         }
     }
-    
-    /**
-     * Turns on on-screen Shift.
-     */
-    public void onScreenShiftOn() {
-        onScreenMetaState = onScreenMetaState | SHIFT_ON_MASK;
-    }
-    
+
     /**
      * Turns off on-screen Shift.
      */
     public void onScreenShiftOff() {
-        onScreenMetaState = onScreenMetaState & ~SHIFT_ON_MASK;
+        onScreenMetaState = onScreenMetaState & ~SHIFT_MASK;
     }
-    
-    /**
-     * Getter for the on-screen meta state.
-     * @return
-     */
+
     public int getMetaState () {
         return onScreenMetaState|lastDownMetaState;
     }
     
-    /**
-     * Clears the on-screen meta state.
-     */
-    public void clearOnScreenMetaState () {
+    public void setAfterMenu(boolean value) {
+        afterMenu = value;
+    }
+    
+    public boolean getCameraButtonDown() {
+        return cameraButtonDown;
+    }
+    
+    public void clearMetaState () {
         onScreenMetaState = 0;
     }
-
-    /**
-     * Used to send a string over as a stream of unicode characters.
-     * @param s
-     */
-    public void sendString(String s) {
+    
+    public void sendText(String s) {
         for (int i = 0; i < s.length(); i++) {
-            char nextChar = s.charAt(i);
-            if (Character.isISOControl(nextChar)) {
-                if (nextChar == '\n') {
+            KeyEvent event = null;
+            char c = s.charAt(i);
+            if (Character.isISOControl(c)) {
+                if (c == '\n') {
                     int keyCode = KeyEvent.KEYCODE_ENTER;
                     keyEvent(keyCode, new KeyEvent(KeyEvent.ACTION_DOWN, keyCode));
+                    try { Thread.sleep(10); } catch (InterruptedException e) { }
                     keyEvent(keyCode, new KeyEvent(KeyEvent.ACTION_UP, keyCode));
                 }
             } else {
-                sendUnicodeChar (nextChar);
+                event = new KeyEvent(SystemClock.uptimeMillis(), s.substring(i, i+1), KeyCharacterMap.FULL, 0);
+                keyEvent(event.getKeyCode(), event);
+                try { Thread.sleep(10); } catch (InterruptedException e) { }
             }
         }
+    }
+    
+    public void sendKeySym (int keysym, int metaState) {
+        char c = (char)XKeySymCoverter.keysym2ucs(keysym);
+        sendUnicode(c, metaState);
     }
     
     /**
      * Tries to convert a unicode character to a KeyEvent and if successful sends with keyEvent().
      * @param unicodeChar
+     * @param additionalMetaState
      */
-    public boolean sendUnicodeChar (char unicodeChar) {
+    public boolean sendUnicode (char unicodeChar, int additionalMetaState) {
         KeyCharacterMap fullKmap    = KeyCharacterMap.load(KeyCharacterMap.FULL);
         KeyCharacterMap virtualKmap = KeyCharacterMap.load(KeyCharacterMap.VIRTUAL_KEYBOARD);
         char[] s = new char[1];
         s[0] = unicodeChar;
+        
         KeyEvent[] events = fullKmap.getEvents(s);
         // Failing with the FULL keymap, try the VIRTUAL_KEYBOARD one.
         if (events == null) {
             events = virtualKmap.getEvents(s);
         }
         
-        boolean result = false;
         if (events != null) {
             for (int i = 0; i < events.length; i++) {
                 KeyEvent evt = events[i];
-                keyEvent(evt.getKeyCode(), evt);
-                result = true;
+                processLocalKeyEvent(evt.getKeyCode(), evt, additionalMetaState);
+                KeyEvent upEvt = new KeyEvent(KeyEvent.ACTION_UP, evt.getKeyCode());
+                processLocalKeyEvent(upEvt.getKeyCode(), upEvt, additionalMetaState);
+                return true;
             }
         } else {
             android.util.Log.e("RemoteKeyboard", "Could not use any keymap to generate KeyEvent for unicode: " + unicodeChar);
         }
-        return result;
+        return false;
+    }
+    
+    /**
+     * Converts event meta state to our meta state.
+     * @param event
+     * @return
+     */
+    protected int convertEventMetaState (KeyEvent event) {
+        return convertEventMetaState(event, event.getMetaState());
     }
     
     /**
@@ -299,27 +285,50 @@ public abstract class RemoteKeyboard {
      */
     protected int convertEventMetaState (KeyEvent event, int eventMetaState) {
         int metaState = 0;
-        int altMask = KeyEvent.META_ALT_RIGHT_ON;
+        int leftAltMetaStateMask = 0;
         // Detect whether this event is coming from a default hardware keyboard.
         // We have to leave KeyEvent.KEYCODE_ALT_LEFT for symbol input on a default hardware keyboard.
-        boolean defaultHardwareKbd = (event.getDeviceId() == 0);
-        if (!bb && !defaultHardwareKbd) {
-            altMask = KeyEvent.META_ALT_MASK;
+        boolean defaultHardwareKbd = (event.getScanCode() != 0 && event.getDeviceId() == 0);
+        if (!defaultHardwareKbd) {
+            leftAltMetaStateMask = KeyEvent.META_ALT_LEFT_ON;
+        } else {
+            GeneralUtils.debugLog(debugLog, TAG, "convertEventMetaState: Ignoring KeyEvent.META_ALT_LEFT_ON to allow for symbol input.");
         }
         
         // Add shift, ctrl, alt, and super to metaState if necessary.
-        if ((eventMetaState & 0x000000c1 /*KeyEvent.META_SHIFT_MASK*/) != 0) {
-            metaState |= SHIFT_ON_MASK;
+        if ((eventMetaState & KeyEvent.META_SHIFT_LEFT_ON) != 0) {
+            GeneralUtils.debugLog(debugLog, TAG, "convertEventMetaState: KeyEvent.META_SHIFT_LEFT_ON");
+            metaState |= SHIFT_MASK;
         }
-        if ((eventMetaState & 0x00007000 /*KeyEvent.META_CTRL_MASK*/) != 0) {
-            metaState |= CTRL_ON_MASK;
+        if ((eventMetaState & KeyEvent.META_SHIFT_RIGHT_ON) != 0) {
+            GeneralUtils.debugLog(debugLog, TAG, "convertEventMetaState: KeyEvent.META_SHIFT_RIGHT_ON");
+            metaState |= RSHIFT_MASK;
         }
-        if ((eventMetaState & altMask) !=0) {
-            metaState |= ALT_ON_MASK;
+        if ((eventMetaState & KeyEvent.META_CTRL_LEFT_ON) != 0) {
+            GeneralUtils.debugLog(debugLog, TAG, "convertEventMetaState: KeyEvent.META_CTRL_LEFT_ON");
+            metaState |= CTRL_MASK;
         }
-        if ((eventMetaState & 0x00070000 /*KeyEvent.META_META_MASK*/) != 0) {
-            metaState |= SUPER_ON_MASK;
+        if ((eventMetaState & KeyEvent.META_CTRL_RIGHT_ON) != 0) {
+            GeneralUtils.debugLog(debugLog, TAG, "convertEventMetaState: KeyEvent.META_CTRL_RIGHT_ON");
+            metaState |= RCTRL_MASK;
         }
+        if ((eventMetaState & leftAltMetaStateMask) !=0) {
+            GeneralUtils.debugLog(debugLog, TAG, "convertEventMetaState: KeyEvent.META_ALT_LEFT_ON");
+            metaState |= ALT_MASK;
+        }
+        if ((eventMetaState & KeyEvent.META_ALT_RIGHT_ON) !=0) {
+            GeneralUtils.debugLog(debugLog, TAG, "convertEventMetaState: KeyEvent.META_ALT_RIGHT_ON");
+            metaState |= RALT_MASK;
+        }
+        if ((eventMetaState & KeyEvent.META_META_LEFT_ON) != 0) {
+            GeneralUtils.debugLog(debugLog, TAG, "convertEventMetaState: KeyEvent.META_META_LEFT_ON");
+            metaState |= SUPER_MASK;
+        }
+        if ((eventMetaState & KeyEvent.META_META_RIGHT_ON) != 0) {
+            GeneralUtils.debugLog(debugLog, TAG, "convertEventMetaState: KeyEvent.META_META_RIGHT_ON");
+            metaState |= RSUPER_MASK;
+        }
+        
         return metaState;
     }
 }

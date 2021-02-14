@@ -22,7 +22,7 @@ package com.iiordanov.bVNC.dialogs;
 
 import java.util.ArrayList;
 
-import com.iiordanov.bVNC.input.RemoteKeyboard;
+import com.undatech.opaque.input.RemoteKeyboard;
 
 import android.app.Activity;
 import android.app.Dialog;

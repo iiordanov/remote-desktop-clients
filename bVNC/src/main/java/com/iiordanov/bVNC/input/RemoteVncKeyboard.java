@@ -4,7 +4,6 @@ import android.os.Handler;
 import android.view.KeyEvent;
 
 import com.iiordanov.bVNC.App;
-import com.iiordanov.bVNC.MetaKeyBean;
 import com.iiordanov.bVNC.RemoteCanvas;
 import com.iiordanov.tigervnc.rfb.UnicodeToKeysym;
 import com.undatech.opaque.RfbConnectable;
@@ -13,9 +12,12 @@ import com.undatech.opaque.util.GeneralUtils;
 public class RemoteVncKeyboard extends RemoteKeyboard {
     private final static String TAG = "RemoteKeyboard";
     public static boolean rAltAsIsoL3Shift = false;
-    
-    public RemoteVncKeyboard (RfbConnectable r, RemoteCanvas v, Handler h, boolean rAltAsIsoL3Shift) {
-        super(r, v, h);
+    protected RemoteCanvas canvas;
+
+    public RemoteVncKeyboard (RfbConnectable r, RemoteCanvas v, Handler h,
+                              boolean rAltAsIsoL3Shift, boolean debugLog) {
+        super(r, v.getContext(), h, debugLog);
+        canvas = v;
         // Indicate we want Right Alt to be ISO L3 SHIFT if preferred.
         RemoteVncKeyboard.rAltAsIsoL3Shift = rAltAsIsoL3Shift;
     }

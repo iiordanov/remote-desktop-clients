@@ -459,13 +459,17 @@ public class RdpKeyboardMapper
     }
 
     public boolean processAndroidKeyEvent(KeyEvent event) {
+        int vkcode = getVirtualKeyCode(event.getKeyCode());
+
         switch(event.getAction())
         {
-            // we only process down events
             case KeyEvent.ACTION_UP:
             {
-                return false;
-            }            
+                if (vkcode == VK_LCONTROL || vkcode == VK_RCONTROL) {
+                    listener.processVirtualKey(vkcode, false);
+                }
+                return true;
+            }
             
             case KeyEvent.ACTION_DOWN:
             {
@@ -474,7 +478,6 @@ public class RdpKeyboardMapper
                 // if a modifier is pressed we will send a VK event (if possible) so that key combinations will be 
                 // recognized correctly. Otherwise we will send the unicode key. At the end we will reset all modifiers
                 // and notifiy our listener.
-                int vkcode = getVirtualKeyCode(event.getKeyCode());
                 //android.util.Log.e("KeyMapper", "VK KeyCode is: " + vkcode);
                 if((vkcode & KEY_FLAG_UNICODE) != 0) {
                     //android.util.Log.i("KeyMapper", "vkcode & KEY_FLAG_UNICODE " + vkcode);
@@ -487,6 +490,9 @@ public class RdpKeyboardMapper
                     listener.processVirtualKey(vkcode, false);                                        
                     listener.processVirtualKey(VK_LSHIFT, false);
                 // if we got a valid vkcode send it - except for letters/numbers if a modifier is active
+                } else if (vkcode == VK_LCONTROL || vkcode == VK_RCONTROL) {
+                    //android.util.Log.i("KeyMapper", "vkcode > 0" + vkcode);
+                    listener.processVirtualKey(vkcode, true);
                 } else if (vkcode > 0) {
                     //android.util.Log.i("KeyMapper", "vkcode > 0" + vkcode);
                     listener.processVirtualKey(vkcode, true);

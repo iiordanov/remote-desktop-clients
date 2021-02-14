@@ -261,7 +261,8 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView
         rfbconn = spicecomm;
         pointer = new RemoteSpicePointer(spicecomm, this, handler);
         try {
-            keyboard = new RemoteSpiceKeyboard(getResources(), spicecomm, this, handler, settings.getLayoutMap());
+            keyboard = new RemoteSpiceKeyboard(getResources(), spicecomm, this, handler,
+                    settings.getLayoutMap(), App.debugLog);
         } catch (Throwable e) {
             handleUncaughtException(e);
         }
@@ -482,7 +483,7 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView
         rfbconn = spicecomm;
         pointer = new RemoteSpicePointer(rfbconn, RemoteCanvas.this, handler);
         keyboard = new RemoteSpiceKeyboard(getResources(), spicecomm, RemoteCanvas.this,
-                handler, connection.getLayoutMap());
+                handler, connection.getLayoutMap(), App.debugLog);
         //spicecomm.setUIEventListener(RemoteCanvas.this);
         spicecomm.setHandler(handler);
     }
@@ -522,7 +523,7 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView
                 App.debugLog);
         rfbconn = rdpcomm;
         pointer = new RemoteRdpPointer(rfbconn, RemoteCanvas.this, handler);
-        keyboard = new RemoteRdpKeyboard(rfbconn, RemoteCanvas.this, handler);
+        keyboard = new RemoteRdpKeyboard(rfbconn, RemoteCanvas.this, handler, App.debugLog);
     }
 
     /**
@@ -563,7 +564,8 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView
         pointer = new RemoteVncPointer(rfbconn, RemoteCanvas.this, handler);
         boolean rAltAsIsoL3Shift = Utils.querySharedPreferenceBoolean(this.getContext(),
                 Constants.rAltAsIsoL3ShiftTag);
-        keyboard = new RemoteVncKeyboard(rfbconn, RemoteCanvas.this, handler, rAltAsIsoL3Shift);
+        keyboard = new RemoteVncKeyboard(rfbconn, RemoteCanvas.this, handler,
+                rAltAsIsoL3Shift, App.debugLog);
     }
 
     /**
