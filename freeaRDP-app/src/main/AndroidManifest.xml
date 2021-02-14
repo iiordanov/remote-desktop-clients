@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           xmlns:tools="http://schemas.android.com/tools"
           package="com.iiordanov.freeaRDP" android:installLocation="auto"
-          android:versionCode="115037" android:versionName="v5.0.3">
+          android:versionCode="115038" android:versionName="v5.0.3">
 
     <uses-permission tools:node="removeAll"/>
     <uses-permission android:name="android.permission.INTERNET"> </uses-permission>
