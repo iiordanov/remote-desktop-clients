@@ -279,17 +279,9 @@ public class Utils {
                 return bVNC.class;
             }
         } else if (isRdp(packageName)) {
-            if (custom) {
-                throw new IllegalArgumentException("Custom SPICE clients not supported yet.");
-            } else {
-                return aRDP.class;
-            }
+            return aRDP.class;
         } else if (isSpice(packageName)) {
-            if (custom) {
-                throw new IllegalArgumentException("Custom SPICE clients not supported yet.");
-            } else {
-                return aSPICE.class;
-            }
+            return aSPICE.class;
         } else {
             throw new IllegalArgumentException("Could not find appropriate connection setup activity class for package " + packageName);
         }
