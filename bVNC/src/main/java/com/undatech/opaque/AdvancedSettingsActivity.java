@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
+import com.iiordanov.util.PermissionsManager;
 import com.undatech.opaque.dialogs.ManageCustomCaFragment;
 
 import android.app.Activity;
@@ -38,6 +39,7 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.ToggleButton;
@@ -58,7 +60,9 @@ public class AdvancedSettingsActivity extends FragmentActivity implements Manage
     private ToggleButton toggleUsingCustomOvirtCa;
     private Button buttonManageOvirtCa;
     private Spinner layoutMapSpinner;
-    
+    private LinearLayout layoutManageOvirtCa;
+    private LinearLayout layoutToggleUsingCustomOvirtCa;
+
     @Override
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
@@ -81,13 +85,21 @@ public class AdvancedSettingsActivity extends FragmentActivity implements Manage
 
         toggleSslStrict = (ToggleButton)findViewById(R.id.toggleSslStrict);
         toggleSslStrict.setChecked(currentConnection.isSslStrict());
-        
+
+        layoutManageOvirtCa = (LinearLayout)findViewById(R.id.layoutManageOvirtCa);
+        layoutToggleUsingCustomOvirtCa = (LinearLayout)findViewById(R.id.layoutToggleUsingCustomOvirtCa);
         toggleUsingCustomOvirtCa = (ToggleButton)findViewById(R.id.toggleUsingCustomOvirtCa);
         toggleUsingCustomOvirtCa.setChecked(currentConnection.isUsingCustomOvirtCa());
-        
+
         buttonManageOvirtCa = (Button)findViewById(R.id.buttonManageOvirtCa);
         buttonManageOvirtCa.setEnabled(currentConnection.isUsingCustomOvirtCa());
-        
+
+        if (currentConnection.getConnectionTypeString()
+                .equals(getResources().getString(R.string.connection_type_pve))) {
+            layoutToggleUsingCustomOvirtCa.setVisibility(View.GONE);
+            layoutManageOvirtCa.setVisibility(View.GONE);
+        }
+
         layoutMapSpinner = (Spinner) findViewById(R.id.layoutMaps);
         
         layoutMapSpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
@@ -120,6 +132,10 @@ public class AdvancedSettingsActivity extends FragmentActivity implements Manage
      */
     public void toggleAudioPlaybackSetting (View view) {
         ToggleButton s = (ToggleButton) view;
+        if (s.isChecked()) {
+            PermissionsManager permissionsManager = new PermissionsManager();
+            permissionsManager.requestPermissions(this, true);
+        }
         currentConnection.setAudioPlaybackEnabled(s.isChecked());
     }
     

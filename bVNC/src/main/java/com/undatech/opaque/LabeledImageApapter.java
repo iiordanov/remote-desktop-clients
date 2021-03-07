@@ -21,136 +21,117 @@
 package com.undatech.opaque;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 import android.app.Activity;
 import android.content.Context;
 import android.database.DataSetObserver;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
+import android.support.v7.widget.AppCompatImageView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.BaseAdapter;
 import android.widget.GridView;
-import android.widget.ListAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.undatech.remoteClientUi.R;
 
-public class LabeledImageApapter implements ListAdapter {
+public class LabeledImageApapter extends BaseAdapter {
     private static final String TAG = "LabeledImageApapter";
-    
+
     private Context context;
-    private final String[] imageFiles;
-    private final String[] imageLabels;
-    private int numCols = 0;
-    private Bitmap defaultBitmap = null;
-    private String defaultLabel = null;
- 
-    public LabeledImageApapter(Context context, String[] imageFiles, String[] imageLabels, int numCols) {
+    private int numCols = 2;
+    private String defaultLabel = "Untitled";
+    List<Connection> filteredConnectionsByPosition = new ArrayList<>();
+    String[] filter = null;
+
+    public LabeledImageApapter(Context context, Map<String, Connection> connectionsByPosition, String[] filter, int numCols) {
         this.context = context;
-        this.imageFiles = imageFiles;
-        this.imageLabels = imageLabels;
         this.numCols = numCols;
-        this.defaultBitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.no_screenshot);
-        this.defaultLabel = "(No VM specified)";
+        this.filter = filter;
+        if (connectionsByPosition != null) {
+            for (Connection c : connectionsByPosition.values()) {
+                boolean include = true;
+                for (String item : this.filter) {
+                    if (!c.getLabel().toLowerCase().contains(item)) {
+                        include = false;
+                    }
+                }
+                if (include) {
+                    this.filteredConnectionsByPosition.add(c);
+                }
+            }
+        }
     }
- 
+
     public View getView(int position, View convertView, ViewGroup parent) {
         LayoutInflater inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        android.util.Log.e(TAG, "Now setting label at position: " + position + " to: " + imageLabels[position]);
+        Connection c = filteredConnectionsByPosition.get(position);
+
+        String label = c.getLabel();
+        android.util.Log.d(TAG, "Now setting label at position: " + position + " to: " + label);
 
         GridView gView = (GridView) ((Activity)context).findViewById(R.id.gridView);
         int height = gView.getWidth()/numCols;
-        
+
         View gridView;
         if (convertView != null) {
             gridView = convertView;
-            ImageView iView = (ImageView) convertView.findViewById(R.id.grid_item_image);
-            Bitmap tmp = ((BitmapDrawable)iView.getDrawable()).getBitmap();
-            if (tmp != null && !tmp.equals(defaultBitmap)) {
-                tmp.recycle();
-            }
         } else {
-            gridView = new View(context); 
             gridView = inflater.inflate(R.layout.grid_item, null);
         }
-        
+
         GridView.LayoutParams lp = new GridView.LayoutParams(height, height);
         gridView.setLayoutParams(lp);
 
         TextView textView = (TextView) gridView.findViewById(R.id.grid_item_text);
-        if (imageLabels[position].equals("")) {
+        if ("".equals(label)) {
             textView.setText(defaultLabel);
         } else {
-            textView.setText(imageLabels[position]);
+            textView.setText(label);
         }
-        ImageView imageView = (ImageView) gridView.findViewById(R.id.grid_item_image);
-        if (new File(imageFiles[position]).exists()) {
-            Bitmap gridImage = BitmapFactory.decodeFile(imageFiles[position]);
+        String screenshotFilePath = context.getFilesDir() + "/" + c.getScreenshotFilename();
+        AppCompatImageView imageView = gridView.findViewById(R.id.grid_item_image);
+        if (new File(screenshotFilePath).exists()) {
+            Log.d(TAG, "Setting screenshot from file " + screenshotFilePath);
+            Bitmap gridImage = BitmapFactory.decodeFile(screenshotFilePath);
             imageView.setImageBitmap(gridImage);
         } else {
-            imageView.setImageBitmap(defaultBitmap);
+            imageView.setImageResource(R.drawable.ic_screen_black_48dp);
+            imageView.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
         }
-        
+
+        // This ID in a hidden TextView is used to send the right connection for editing or connection establishment
+        // when the item is long-tapped or tapped respectively.
+        TextView gridItemId = (TextView) gridView.findViewById(R.id.grid_item_id);
+        gridItemId.setText(c.getRuntimeId());
+
         return gridView;
     }
- 
+
     @Override
     public int getCount() {
         int count = 0;
-        if (imageFiles != null) {
-            count = imageFiles.length;
+        if (filteredConnectionsByPosition != null) {
+            count = filteredConnectionsByPosition.size();
         }
         return count;
     }
- 
+
     @Override
     public Object getItem(int position) {
-        return null;
+        return filteredConnectionsByPosition.get(position);
     }
- 
+
     @Override
     public long getItemId(int position) {
         return position;
     }
-    
-    @Override
-    public boolean areAllItemsEnabled () {
-        return true;
-    }
-    
-    @Override
-    public boolean hasStableIds () {
-        return true;
-    }
 
-    @Override
-    public int getItemViewType(int position) {
-        return 0;
-    }
-
-    @Override
-    public int getViewTypeCount() {
-        return 1;
-    }
-
-    @Override
-    public boolean isEmpty() {
-        return false;
-    }
-
-    @Override
-    public void registerDataSetObserver(DataSetObserver observer) {
-    }
-
-    @Override
-    public void unregisterDataSetObserver(DataSetObserver observer) {
-    }
-
-    @Override
-    public boolean isEnabled(int position) {
-        return true;
-    }
 }

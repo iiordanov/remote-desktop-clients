@@ -113,6 +113,7 @@
   <string name="dpad_as_arrows">將D-Pad用於箭頭鍵，將D-Pad單擊用於Ctrl。</string>
   <string name="enable_recording">使錄像有效</string>
   <string name="enable_sound">使聲音有效</string>
+  <string name="enter_password_auth_failed">Authentication failed. Please re-enter your credentials.</string>
   <string name="enter_text">發送文字</string>
   <string name="enter_text_title">輸入發送用文字</string>
   <string name="error_anon_dh_unsupported">VNC伺服器正在嘗試使用匿名Diffie Hellman密碼，但您的Android設備不支持的。如果使用GNOME的Vino VNC伺服器，就可以透過在終端中運行以下命令然後重新啟動來禁用AnonTLS：\" gsettings set org.gnome.Vino require-encryption false \"。如果運行x11vnc，就可以添加以下選項：\"-vencrypt nodh：only -ssl \"。</string>
@@ -616,6 +617,7 @@ aSPICE對應的功能如下：
   <string name="super_check">Super</string>
   <string name="tap_disable">無效</string>
   <string name="tap_enable">有效</string>
+  <string name="toggle_keyboard">Toggle Keyboard</string>
   <string name="username_caption">VNC用戶</string>
   <string name="username_hint">UltraVNC MS登入用戶名</string>
   <string name="username_hint_optional">VNC用戶名（可選）</string>

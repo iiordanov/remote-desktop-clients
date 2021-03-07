@@ -23,6 +23,13 @@ import android.net.Uri;
 import android.widget.ImageView.ScaleType;
 
 public interface Connection {
+    String getLabel();
+
+    String getId();
+
+    String getRuntimeId();
+    void setRuntimeId(String id);
+
     String getNickname();
     void setNickname(String nickname);
 
@@ -49,7 +56,10 @@ public interface Connection {
     
     String getPassword();
     void setPassword(String password);
-    
+
+    boolean getKeepPassword();
+    void setKeepPassword(boolean keepPassword);
+
     String getOtpCode();
     void setOtpCode(String otpCode);
 
@@ -246,4 +256,14 @@ public interface Connection {
 
     long getMetaListId();
     void setMetaListId(long metaListId);
+
+    public String getScreenshotFilename();
+    public void setScreenshotFilename(String screenShotFilename);
+    public String getX509KeySignature();
+    public void setX509KeySignature(String x509KeySignature);
+
+    boolean getEnableGfx();
+    void setEnableGfx(boolean enableGfx);
+    boolean getEnableGfxH264();
+    void setEnableGfxH264(boolean enableGfxH264);
 }

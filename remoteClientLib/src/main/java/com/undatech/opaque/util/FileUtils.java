@@ -16,8 +16,16 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 
 import static android.content.Context.MODE_PRIVATE;
 
@@ -119,5 +127,53 @@ public class FileUtils {
         } else {
             android.util.Log.i(TAG, "Current version of file already exists: " + outFileName);
         }
+    }
+
+    public static void logFilesInPrivateStorage(Context context) {
+        Log.d(TAG, "logFilesInPrivateStorage");
+        for (File f : getListFiles(context.getFilesDir())) {
+            Log.d(TAG, f.toString());
+        }
+    }
+
+    public static List<File> getListFiles(File parentDir) {
+        List<File> inFiles = new ArrayList<>();
+        Queue<File> files = new LinkedList<>(Arrays.asList(parentDir.listFiles()));
+        while (!files.isEmpty()) {
+            File file = files.remove();
+            if (file.isDirectory()) {
+                files.addAll(Arrays.asList(file.listFiles()));
+            } else {
+                inFiles.add(file);
+            }
+        }
+        return inFiles;
+    }
+
+    public static void deletePrivateFileIfExisting(Context context, String path) {
+        String privatePath = context.getFilesDir().getPath() + "/" + path;
+        File file = new File(privatePath);
+        try {
+            deleteDirectoryRecursively(file);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static boolean deleteDirectoryRecursively(File file) throws IOException {
+        if (file.isDirectory()) {
+            File[] entries = file.listFiles();
+            if (entries != null) {
+                for (File entry : entries) {
+                    return deleteDirectoryRecursively(entry);
+                }
+            }
+        }
+        if (!file.delete()) {
+            Log.d(TAG, "Failed to delete the file or directory: " + file.toString());
+            return false;
+        }
+        Log.d(TAG, "Successfully deleted the file or directory: " + file.toString());
+        return true;
     }
 }

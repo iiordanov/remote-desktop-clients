@@ -23,6 +23,7 @@ package com.iiordanov.bVNC;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.UUID;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -52,8 +53,9 @@ public class ConnectionBean extends AbstractConnectionBean implements Connection
     private int idHashAlgorithm;
     private String idHash;
     private String masterPassword;
+    private String id;
 
-    static final NewInstance<ConnectionBean> newInstance=new NewInstance<ConnectionBean>() {
+    public static final NewInstance<ConnectionBean> newInstance=new NewInstance<ConnectionBean>() {
         public ConnectionBean get() { return new ConnectionBean(c); }
     };
     ConnectionBean(Context context)
@@ -63,7 +65,7 @@ public class ConnectionBean extends AbstractConnectionBean implements Connection
             inputMode = Utils.querySharedPreferenceString(context, Constants.defaultInputMethodTag,
                     InputHandlerDirectSwipePan.ID);
         } else {
-            android.util.Log.e(TAG, "Failed to query default input method, context is null.");
+            android.util.Log.w(TAG, "Failed to query default input method, context is null.");
         }
         set_Id(0);
         setAddress("");
@@ -133,6 +135,13 @@ public class ConnectionBean extends AbstractConnectionBean implements Connection
         setRemoteSoundType(Constants.REMOTE_SOUND_ON_DEVICE);
         setViewOnly(false);
 		setLayoutMap("English (US)");
+        setFilename(UUID.randomUUID().toString());
+        setX509KeySignature("");
+        setIdHash("");
+        setScreenshotFilename(Utils.newScreenshotFileName());
+
+        setEnableGfx(false);
+        setEnableGfxH264(false);
         c = context;
 
         // These two are not saved in the database since we always save the cert data. 
@@ -172,6 +181,36 @@ public class ConnectionBean extends AbstractConnectionBean implements Connection
     }
 
     @Override
+    public String getLabel() {
+        String nickname = "";
+        if (!"".equals(this.getNickname())) {
+            nickname = this.getNickname() + "\n" ;
+        }
+        String address = this.getAddress() + ":" + this.getPort();
+        if (!"".equals(this.getUserName())) {
+            address = this.getUserName() + "@" + address;
+        }
+        if (!"".equals(this.getSshServer())) {
+            address = "SSH " + this.getSshUser() + "@" + this.getSshServer() + ":" +
+                    this.getSshPort() + "\n" + address;
+        }
+        return nickname + address;
+    }
+
+    @Override
+    public String getRuntimeId() {
+        return id;
+    }
+
+    @Override
+    public String getId() { return Long.toString(get_Id()); }
+
+    @Override
+    public void setRuntimeId(String id) {
+        this.id = id;
+    }
+
+    @Override
     public String getConnectionTypeString() {
         return "";
     }
@@ -208,16 +247,6 @@ public class ConnectionBean extends AbstractConnectionBean implements Connection
 
     @Override
     public void setOtpCode(String otpCode) {
-
-    }
-
-    @Override
-    public String getFilename() {
-        return null;
-    }
-
-    @Override
-    public void setFilename(String filename) {
 
     }
 
@@ -304,6 +333,7 @@ public class ConnectionBean extends AbstractConnectionBean implements Connection
     public synchronized void save(Context c) {
         Database database = new Database(c);
         save(database.getWritableDatabase());
+        database.close();
     }
 
     @Override
@@ -315,8 +345,10 @@ public class ConnectionBean extends AbstractConnectionBean implements Connection
         ContentValues values = Gen_getValues();
         values.remove(GEN_FIELD__ID);
         // Never save the SSH password and passphrase.
-        values.put(GEN_FIELD_SSHPASSWORD, "");
-        values.put(GEN_FIELD_SSHPASSPHRASE, "");
+        if (!getKeepSshPassword()) {
+            values.put(GEN_FIELD_SSHPASSWORD, "");
+            values.put(GEN_FIELD_SSHPASSPHRASE, "");
+        }
         if (!getKeepPassword()) {
             values.put(GEN_FIELD_PASSWORD, "");
         }

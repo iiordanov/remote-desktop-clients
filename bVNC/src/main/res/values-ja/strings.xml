@@ -113,6 +113,7 @@
   <string name="dpad_as_arrows">矢印キーはD-Padを、CtrlキーはD-Padクリックを使用する。</string>
   <string name="enable_recording">録画を有効にする</string>
   <string name="enable_sound">サウンドを有効にする</string>
+  <string name="enter_password_auth_failed">Authentication failed. Please re-enter your credentials.</string>
   <string name="enter_text">テキスト送信</string>
   <string name="enter_text_title">送信用テキストの入力</string>
   <string name="error_anon_dh_unsupported">VNCサーバーがAnonymous Diffie Hellman 暗号の使用を試みていますが、ご使用のAndroid端末機器では対応していません。GNOME\'s Vino VNCサーバーをお使いの場合、コマンド\"gsettings set org.gnome.Vino require-encryption false\" を実行し、リスタートさせることにより、AnonTLSを無効にできます。x11vnc稼動時は \"-vencrypt nodh:only -ssl\"を追加してください。</string>
@@ -622,6 +623,7 @@ aSPICEで対応済み機能は以下の通り：
   <string name="super_check">Super</string>
   <string name="tap_disable">無効</string>
   <string name="tap_enable">有効</string>
+  <string name="toggle_keyboard">Toggle Keyboard</string>
   <string name="username_caption">VNCユーザー</string>
   <string name="username_hint">UltraVNC MSログオン　ユーザー名</string>
   <string name="username_hint_optional">VNC ユーザー名(任意)</string>

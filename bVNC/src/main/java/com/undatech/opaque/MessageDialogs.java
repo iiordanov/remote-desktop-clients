@@ -167,6 +167,10 @@ public class MessageDialogs {
                 });
     }
 
+    public static void justFinish(Context context) {
+        ((Activity)context).finish();
+    }
+
     public static void displayToast(final Context context, Handler handler,
                                     final CharSequence message, final int length) {
         Runnable toastMessage = new Runnable() {

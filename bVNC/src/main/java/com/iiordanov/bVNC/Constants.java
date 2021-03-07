@@ -39,6 +39,11 @@ public class Constants {
     
     public static final int DEFAULT_SSH_PORT = 22;
     public static final int LOGCAT_MAX_LINES = 500;
+    // H_THRESH needs to be < than TOP_MARGIN to avoid pan following pointer unnecessarily.
+    public static final int H_THRESH = 50;
+    public static final int W_THRESH = 50;
+    public static final int TOP_MARGIN = 110;
+    public static final int BOTTOM_MARGIN = 300;
     public static volatile int DEFAULT_PROTOCOL_PORT = 5900;
     public static final int DEFAULT_VNC_PORT = 5900;
     public static final int DEFAULT_RDP_PORT = 3389;
@@ -89,20 +94,6 @@ public class Constants {
     public static final int COLORMODEL_16BIT = 6;
     public static final int COLORMODEL_24BIT = 7;
     public static final int COLORMODEL_32BIT = 8;
-    
-    public static final int DIALOG_X509_CERT       = 1;
-    public static final int DIALOG_SSH_CERT        = 2;
-    public static final int DIALOG_RDP_CERT        = RemoteClientLibConstants.DIALOG_RDP_CERT;
-    public static final int SPICE_CONNECT_SUCCESS  = 4;
-    public static final int SPICE_CONNECT_FAILURE  = 5;
-    public static final int DIALOG_STUNNEL_CERT    = 6;
-    public static final int RDP_CONNECT_FAILURE    = RemoteClientLibConstants.RDP_CONNECT_FAILURE;
-    public static final int RDP_UNABLE_TO_CONNECT  = RemoteClientLibConstants.RDP_UNABLE_TO_CONNECT;
-    public static final int RDP_AUTH_FAILED        = RemoteClientLibConstants.RDP_AUTH_FAILED;
-    public static final int GET_PASSWORD           = 10;
-    public static final int GET_VERIFICATIONCODE   = 11;
-    public static final int SERVER_CUT_TEXT        = RemoteClientLibConstants.SERVER_CUT_TEXT;
-    public static final int PRO_FEATURE            = 99;
 
     public static final int EXTRA_KEYS_OFF         = 0;
     public static final int EXTRA_KEYS_ON          = 1;
@@ -211,6 +202,7 @@ public class Constants {
     public static final String rAltAsIsoL3ShiftTag = "rAltAsIsoL3Shift";
     public static final String leftHandedModeTag = "leftHandedModeTag";
     public static final String defaultInputMethodTag = "defaultInputMethod";
+    public static final String permissionsRequested = "permissionsRequested";
 
     public static final String ACTION_USB_PERMISSION = "com.iiordanov.aSPICE.USB_PERMISSION";
     public static final int usbDeviceTimeout = 5000;
@@ -220,7 +212,7 @@ public class Constants {
     public static final int REMOTE_SOUND_ON_SERVER = 1;
     public static final int REMOTE_SOUND_ON_DEVICE = 0;
     
-    public static final int SHORT_VIBRATION        = 50;
+    public static final int SHORT_VIBRATION        = 1;
 
     
     /**

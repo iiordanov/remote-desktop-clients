@@ -34,7 +34,9 @@ import java.lang.reflect.Field;
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.UUID;
 
+import org.json.JSONException;
 import org.xml.sax.SAXException;
 
 import com.antlersoft.android.contentxml.SqliteElement;
@@ -44,19 +46,31 @@ import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.app.ActivityManager.MemoryInfo;
+import android.app.Dialog;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.content.DialogInterface.OnClickListener;
 import android.content.SharedPreferences.Editor;
 import android.content.Intent;
 import net.sqlcipher.database.SQLiteDatabase;
+
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.Environment;
+import android.os.Handler;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Html;
 import android.util.Log;
 import android.view.ViewConfiguration;
+import android.view.WindowManager;
+import android.widget.ListView;
+import android.widget.ScrollView;
 
 import com.iiordanov.bVNC.*;
 import com.iiordanov.freebVNC.*;
@@ -65,6 +79,11 @@ import com.iiordanov.freeaRDP.*;
 import com.iiordanov.aSPICE.*;
 import com.iiordanov.freeaSPICE.*;
 import com.iiordanov.CustomClientPackage.*;
+import com.undatech.opaque.ConnectionSettings;
+import com.undatech.opaque.ConnectionSetupActivity;
+import com.undatech.opaque.RemoteClientLibConstants;
+import com.undatech.opaque.dialogs.MessageFragment;
+import com.undatech.opaque.util.FileUtils;
 import com.undatech.remoteClientUi.*;
 
 public class Utils {
@@ -132,12 +151,9 @@ public class Utils {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.dismiss();
-                if ( _context instanceof AppCompatActivity ) {
-                    ((AppCompatActivity) _context).finish();
-                } else if ( _context instanceof FragmentActivity ) {
-                    ((FragmentActivity) _context).finish();
-                } else if ( _context instanceof Activity ) {
-                    ((Activity) _context).finish();
+                Activity activity = Utils.getActivity(_context);
+                if (activity != null) {
+                    activity.finish();
                 }
             }
         });
@@ -220,7 +236,22 @@ public class Utils {
     public static String getConnectionString(Context ctx) {
         return ctx.getPackageName() + ".CONNECTION";
     }
-    
+
+    public static String[] standardPackageNames = {
+                    "com.iiordanov.bVNC", "com.iiordanov.freebVNC",
+                    "com.iiordanov.aRDP", "com.iiordanov.freeaRDP",
+                    "com.iiordanov.aSPICE", "com.iiordanov.freeaSPICE"
+    };
+
+    public static boolean isCustom(String packageName) {
+        for (String s: standardPackageNames) {
+            if (packageName.equals(s)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     public static boolean isVnc(String packageName) {
         return packageName.toLowerCase().contains("vnc");
     }
@@ -235,6 +266,25 @@ public class Utils {
 
     public static boolean isOpaque(String packageName) {
         return packageName.toLowerCase().contains("opaque");
+    }
+
+    public static Class getConnectionSetupClass(String packageName) {
+        boolean custom = isCustom(packageName);
+        if (isOpaque(packageName)) {
+            return ConnectionSetupActivity.class;
+        } else if (isVnc(packageName)) {
+            if (custom) {
+                return CustomVnc.class;
+            } else {
+                return bVNC.class;
+            }
+        } else if (isRdp(packageName)) {
+            return aRDP.class;
+        } else if (isSpice(packageName)) {
+            return aSPICE.class;
+        } else {
+            throw new IllegalArgumentException("Could not find appropriate connection setup activity class for package " + packageName);
+        }
     }
 
     public static String getConnectionScheme(Context ctx) {
@@ -281,7 +331,20 @@ public class Utils {
         SqliteElement.exportDbAsXmlToStream(db, writer);
         writer.close();
     }
-    
+
+    public static String getExportFileName(String packageName) {
+        String res = "settings.xml";
+        if (isVnc(packageName))
+            res = "vnc_" + res;
+        else if (isRdp(packageName))
+            res = "rdp_" + res;
+        else if (isSpice(packageName))
+            res = "spice_" + res;
+        else if (isOpaque(packageName))
+            res = "opaque_settings.json";
+        return res;
+    }
+
     public static void importSettingsFromXml (String file, SQLiteDatabase db) throws SAXException, IOException {
         Reader reader = new InputStreamReader(new FileInputStream(file));
         SqliteElement.importXmlStreamToDb(db, reader, ReplaceStrategy.REPLACE_EXISTING);
@@ -309,8 +372,7 @@ public class Utils {
     public static boolean querySharedPreferenceBoolean(Context context, String key) {
         boolean result = false;
         if (context != null) {
-            SharedPreferences sp = context.getSharedPreferences(Constants.generalSettingsTag,
-                    Context.MODE_PRIVATE);
+            SharedPreferences sp = context.getSharedPreferences(Constants.generalSettingsTag, Context.MODE_PRIVATE);
             result = sp.getBoolean(key, false);
         }
         return result;
@@ -319,8 +381,7 @@ public class Utils {
     public static String querySharedPreferenceString(Context context, String key, String dftValue) {
         String result = dftValue;
         if (context != null) {
-            SharedPreferences sp = context.getSharedPreferences(Constants.generalSettingsTag,
-                    Context.MODE_PRIVATE);
+            SharedPreferences sp = context.getSharedPreferences(Constants.generalSettingsTag, Context.MODE_PRIVATE);
             result = sp.getString(key, dftValue);
         }
         return result;
@@ -328,10 +389,19 @@ public class Utils {
 
     public static void setSharedPreferenceString(Context context, String key, String value) {
         if (context != null) {
-            SharedPreferences sp = context.getSharedPreferences(Constants.generalSettingsTag,
-                    Context.MODE_PRIVATE);
+            SharedPreferences sp = context.getSharedPreferences(Constants.generalSettingsTag, Context.MODE_PRIVATE);
             Editor editor = sp.edit();
             editor.putString(key, value);
+            editor.apply();
+            Log.i(TAG, "Set: " + key + " to value: " + value);
+        }
+    }
+
+    public static void setSharedPreferenceBoolean(Context context, String key, boolean value) {
+        if (context != null) {
+            SharedPreferences sp = context.getSharedPreferences(Constants.generalSettingsTag, Context.MODE_PRIVATE);
+            Editor editor = sp.edit();
+            editor.putBoolean(key, value);
             editor.apply();
             Log.i(TAG, "Set: " + key + " to value: " + value);
         }
@@ -357,6 +427,119 @@ public class Utils {
             if (activity.isFinishing()) {
                 result = true;
             }
+        }
+        return result;
+    }
+
+    static void writeScreenshotToFile(Context context, AbstractBitmapData drawable,
+                                      String filePath, int dstWidth, int dstHeight) {
+        try {
+            if (drawable != null && drawable.mbitmap != null) {
+                // TODO: Add Filename to settings.
+                FileOutputStream out = new FileOutputStream(filePath);
+                Bitmap tmp = Bitmap.createScaledBitmap(drawable.mbitmap, dstWidth, dstHeight, true);
+                drawable.mbitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
+                out.close();
+                tmp.recycle();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    /**
+     * Either returns the input of it's already a UUID or returns a random UUID.
+     * @param string which if it's a string representation of a UUID will be returned unaltered
+     * @return the input if it's a UUID or a random UUID as a string
+     */
+    static String getUuid(String string) {
+        try {
+            UUID.fromString(string);
+            return string;
+        } catch (IllegalArgumentException e) {
+            return UUID.randomUUID().toString();
+        }
+    }
+
+    /**
+     * Creates a connection screen help dialog for each app.
+     * @param context
+     * @return
+     */
+    public static Dialog createMainScreenDialog(Context context) {
+        int textId = R.string.main_screen_help_text;
+        return createDialog(context, textId);
+    }
+
+    /**
+     * Creates a connection screen help dialog for each app.
+     * @param context
+     * @return
+     */
+    public static Dialog createConnectionScreenDialog(Context context) {
+        int textId = R.string.vnc_connection_screen_help_text;
+        if (Utils.isRdp(context.getPackageName()))
+            textId = R.string.rdp_connection_screen_help_text;
+        else if (Utils.isSpice(context.getPackageName()))
+            textId = R.string.spice_connection_screen_help_text;
+        else if (Utils.isOpaque(context.getPackageName()))
+            textId = R.string.opaque_connection_screen_help_text;
+        return createDialog(context, textId);
+    }
+
+    public static Dialog createDialog(Context context, int textId) {
+        AlertDialog.Builder adb = new AlertDialog.Builder(context)
+                .setMessage(textId)
+                .setPositiveButton(R.string.close,
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog,
+                                                int whichButton) {
+                                // We don't have to do anything.
+                            }
+                        });
+        Dialog d = adb.setView(new ScrollView(context)).create();
+        WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
+        lp.copyFrom(d.getWindow().getAttributes());
+        lp.width = WindowManager.LayoutParams.MATCH_PARENT;
+        lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
+        d.show();
+        d.getWindow().setAttributes(lp);
+        return d;
+    }
+
+    public static String newScreenshotFileName() {
+        return UUID.randomUUID().toString() + ".png";
+    }
+
+    public static String getHostFromUriString(String uriString) {
+        if (!uriString.startsWith("http")) {
+            uriString = "https://" + uriString;
+        }
+        Uri uri = Uri.parse(uriString);
+        String host = uri.getHost();
+        return host;
+    }
+
+    public static Activity getActivity(Context context) {
+        while (context instanceof ContextWrapper) {
+            if (context instanceof Activity) {
+                return (Activity)context;
+            }
+            context = ((ContextWrapper)context).getBaseContext();
+        }
+        return null;
+    }
+
+    public static String getVersionAndCode(Context context) {
+        String result = "";
+        try {
+            String packageName = context.getPackageName();
+            PackageInfo pInfo = context.getPackageManager().getPackageInfo(packageName, 0);
+            result = pInfo.versionName + "_" + pInfo.versionCode;
+            android.util.Log.d(TAG, "Version of " + packageName + " is " + result);
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
         }
         return result;
     }

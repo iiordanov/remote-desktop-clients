@@ -32,7 +32,7 @@ import java.net.Socket;
 
 import android.util.Log;
 
-import com.iiordanov.bVNC.input.RemoteKeyboard;
+import com.undatech.opaque.input.RemoteKeyboard;
 import com.iiordanov.bVNC.input.RemoteVncKeyboard;
 import com.iiordanov.bVNC.*;
 import com.iiordanov.freebVNC.*;
@@ -51,6 +51,22 @@ import com.undatech.remoteClientUi.*;
  * and input events as defined in the RFB protocol.
  */
 class RfbProto implements RfbConnectable {
+
+    public class RfbPasswordAuthenticationException extends Exception {
+        public RfbPasswordAuthenticationException(String errorMessage) {
+            super(errorMessage);
+        }
+    }
+    public class RfbUsernameRequiredException extends Exception {
+        public RfbUsernameRequiredException(String errorMessage) {
+            super(errorMessage);
+        }
+    }
+    public class RfbUltraVncColorMapException extends Exception {
+        public RfbUltraVncColorMapException(String errorMessage) {
+            super(errorMessage);
+        }
+    }
 
     final static String TAG = "RfbProto";
 
@@ -120,7 +136,8 @@ class RfbProto implements RfbConnectable {
     final static int
             VncAuthOK = 0,
             VncAuthFailed = 1,
-            VncAuthTooMany = 2;
+            VncAuthTooMany = 2,
+            PlainAuthFailed = 13;
 
     // Server-to-client messages
     final static int
@@ -149,7 +166,18 @@ class RfbProto implements RfbConnectable {
             EncodingHextile = 5,
             EncodingZlib = 6,
             EncodingTight = 7,
+//            EncodingZlibHex = 8,
+//            EncodingUltra = 9,
+//            EncodingUltra2 = 10,
             EncodingZRLE = 16,
+//            EncodingZYWRLE = 17,
+//            EncodingXZ = 18,
+//            EncodingXZYW = 19,
+//            EncodingZstd = 25,
+            EncodingTightZstd = 26,
+//            EncodingZstdHex = 27,
+//            EncodingZSTDRLE = 28,
+//            EncodingZSTDYWRLE = 29,
             EncodingCompressLevel0 = -256,
             EncodingQualityLevel0 = -32,
             EncodingXCursor = -240,
@@ -168,6 +196,7 @@ class RfbProto implements RfbConnectable {
             SigEncodingHextile = "HEXTILE_",
             SigEncodingZlib = "ZLIB____",
             SigEncodingTight = "TIGHT___",
+            SigEncodingTightZstd = "TIGHTZSTD___",
             SigEncodingZRLE = "ZRLE____",
             SigEncodingCompressLevel0 = "COMPRLVL",
             SigEncodingQualityLevel0 = "JPEGQLVL",
@@ -281,7 +310,7 @@ class RfbProto implements RfbConnectable {
     private int shareDesktop = 1;
 
     // Suggests to the server a preferred encoding
-    private int preferredEncoding = EncodingTight;
+    private int preferredEncoding;
 
     // View Only mode
     private boolean viewOnly = false;
@@ -422,18 +451,23 @@ class RfbProto implements RfbConnectable {
         int secType = negotiateSecurity(bitPref, connType);
         int authType;
         if (secType == RfbProto.SecTypeTight) {
+            Log.i(TAG, "secType == RfbProto.SecTypeTight");
             initCapabilities();
             setupTunneling();
             authType = negotiateAuthenticationTight();
         } else if (secType == RfbProto.SecTypeVeNCrypt) {
+            Log.i(TAG, "secType == RfbProto.SecTypeVeNCrypt");
             authType = authenticateVeNCrypt();
         } else if (secType == RfbProto.SecTypeTLS) {
+            Log.i(TAG, "secType == RfbProto.SecTypeTLS");
             authenticateTLS();
             authType = negotiateSecurity(bitPref, 0);
         } else if (secType == RfbProto.SecTypeUltra34 ||
                 secType == RfbProto.SecTypeUltraVnc2) {
+            Log.i(TAG, "secType == RfbProto.SecTypeUltra34 or SecTypeUltraVnc2");
             authType = RfbProto.AuthUltra;
         } else if (secType == RfbProto.SecTypeArd) {
+            Log.i(TAG, "secType == RfbProto.SecTypeArd");
             RFBSecurityARD ardAuth = new RFBSecurityARD(us, pw);
             ardAuth.perform(this);
             if (is.readInt() == 1) {
@@ -446,48 +480,49 @@ class RfbProto implements RfbConnectable {
 
         switch (authType) {
             case RfbProto.AuthNone:
-                Log.i(TAG, "No authentication needed");
+                Log.i(TAG, "authType == RfbProto.AuthNone, No authentication needed");
                 authenticateNone();
                 break;
             case RfbProto.AuthPlain:
-                Log.i(TAG, "Plain authentication needed");
+                Log.i(TAG, "authType == RfbProto.AuthPlain, Plain authentication needed ");
                 authenticatePlain(us, pw);
                 break;
             case RfbProto.AuthVNC:
-                Log.i(TAG, "VNC authentication needed");
+                Log.i(TAG, "authType == RfbProto.AuthVNC, VNC authentication needed");
                 authenticateVNC(pw);
                 break;
             case RfbProto.AuthUltra:
+                Log.i(TAG, "authType == RfbProto.AuthUltra, UltraVNC authentication needed");
                 prepareDH();
                 authenticateDH(us, pw);
                 break;
             case RfbProto.AuthTLSNone:
-                Log.i(TAG, "No authentication needed");
+                Log.i(TAG, "authType == RfbProto.AuthTLSNone, No authentication needed");
                 authenticateTLS();
                 authenticateNone();
                 break;
             case RfbProto.AuthTLSPlain:
-                Log.i(TAG, "Plain authentication needed");
+                Log.i(TAG, "authType == RfbProto.AuthTLSPlain, Plain authentication needed");
                 authenticateTLS();
                 authenticatePlain(us, pw);
                 break;
             case RfbProto.AuthTLSVnc:
-                Log.i(TAG, "VNC authentication needed");
+                Log.i(TAG, "authType == RfbProto.AuthTLSVnc, VNC authentication needed");
                 authenticateTLS();
                 authenticateVNC(pw);
                 break;
             case RfbProto.AuthX509None:
-                Log.i(TAG, "No authentication needed");
+                Log.i(TAG, "authType == RfbProto.AuthX509None, No authentication needed");
                 authenticateX509(cert);
                 authenticateNone();
                 break;
             case RfbProto.AuthX509Plain:
-                Log.i(TAG, "Plain authentication needed");
+                Log.i(TAG, "authType == RfbProto.AuthX509Plain, Plain authentication needed");
                 authenticateX509(cert);
                 authenticatePlain(us, pw);
                 break;
             case RfbProto.AuthX509Vnc:
-                Log.i(TAG, "VNC authentication needed");
+                Log.i(TAG, "authType == RfbProto.AuthX509Vnc,VNC authentication needed");
                 authenticateX509(cert);
                 authenticateVNC(pw);
                 break;
@@ -574,7 +609,7 @@ class RfbProto implements RfbConnectable {
             case SecTypeUltraVnc2:
                 if ((bitPref & 1) == 1)
                     return secType;
-                throw new Exception("Username required.");
+                throw new RfbUsernameRequiredException("Username required.");
             default:
                 throw new Exception("Unknown security type from RFB server: " + secType);
         }
@@ -789,10 +824,12 @@ class RfbProto implements RfbConnectable {
                 break;
             case VncAuthFailed:
                 if (clientMinor >= 8)
-                    readConnFailedReason();
-                throw new Exception(authType + ": failed");
+                    readConnFailedReason(false);
+                throw new RfbPasswordAuthenticationException(authType + ": failed");
             case VncAuthTooMany:
-                throw new Exception(authType + ": failed, too many tries");
+                throw new RfbPasswordAuthenticationException(authType + ": failed, too many tries");
+            case PlainAuthFailed:
+                throw new RfbPasswordAuthenticationException(authType + ": failed");
             default:
                 throw new Exception(authType + ": unknown result " + securityResult);
         }
@@ -804,12 +841,18 @@ class RfbProto implements RfbConnectable {
     //
 
     void readConnFailedReason() throws Exception {
+        readConnFailedReason(true);
+    }
+
+    void readConnFailedReason(boolean throwException) throws Exception {
         int reasonLen = is.readInt();
         byte[] reason = new byte[reasonLen];
         readFully(reason);
         String reasonString = new String(reason);
         Log.v(TAG, reasonString);
-        throw new Exception(reasonString);
+        if (throwException) {
+            throw new Exception(reasonString);
+        }
     }
 
     void prepareDH() throws Exception {
@@ -884,6 +927,8 @@ class RfbProto implements RfbConnectable {
                 SigEncodingZlib, "Zlib encoding");
         encodingCaps.add(EncodingTight, TightVncVendor,
                 SigEncodingTight, "Tight encoding");
+        encodingCaps.add(EncodingTightZstd, TightVncVendor,
+                SigEncodingTightZstd, "Tight Zstd encoding");
 
         // Supported pseudo-encoding types
         encodingCaps.add(EncodingCompressLevel0, TightVncVendor,
@@ -1809,6 +1854,8 @@ class RfbProto implements RfbConnectable {
                 return "RAW";
             case RfbProto.EncodingTight:
                 return "TIGHT";
+            case RfbProto.EncodingTightZstd:
+                return "TIGHTZSTD";
             case RfbProto.EncodingCoRRE:
                 return "CoRRE";
             case RfbProto.EncodingHextile:
@@ -1912,7 +1959,10 @@ class RfbProto implements RfbConnectable {
 
                             switch (updateRectEncoding) {
                                 case RfbProto.EncodingTight:
-                                    decoder.handleTightRect(this, updateRectX, updateRectY, updateRectW, updateRectH);
+                                    decoder.handleTightRect(this, updateRectX, updateRectY, updateRectW, updateRectH, false);
+                                    break;
+                                case RfbProto.EncodingTightZstd:
+                                    decoder.handleTightRect(this, updateRectX, updateRectY, updateRectW, updateRectH, true);
                                     break;
                                 case RfbProto.EncodingPointerPos:
                                     canvas.softCursorMove(updateRectX, updateRectY);
@@ -1998,6 +2048,10 @@ class RfbProto implements RfbConnectable {
                             // TODO implement chat interface
                         }
                         break;
+
+                    case 14:
+                        // This message is sent by UltraVNC when color < 24bit is requested by the client
+                        throw new RfbUltraVncColorMapException("Only 24bpp color supported with UltraVNC");
 
                     default:
                         throw new Exception("Unknown RFB message type " + msgType);

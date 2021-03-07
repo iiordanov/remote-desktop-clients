@@ -25,13 +25,8 @@ import android.content.Context;
 import net.sqlcipher.database.SQLiteDatabase;
 import net.sqlcipher.database.SQLiteOpenHelper;
 import android.util.Log;
-import com.iiordanov.bVNC.*;
-import com.iiordanov.freebVNC.*;
-import com.iiordanov.aRDP.*;
-import com.iiordanov.freeaRDP.*;
-import com.iiordanov.aSPICE.*;
-import com.iiordanov.freeaSPICE.*;
-import com.iiordanov.CustomClientPackage.*;
+
+import com.iiordanov.bVNC.input.AbstractMetaKeyBean;
 
 /**
  * @author Michael A. MacDonald
@@ -52,14 +47,16 @@ public class Database extends SQLiteOpenHelper {
     static final int DBV_2_1_3 = 360;
     static final int DBV_2_1_4 = 367;
     static final int DBV_2_1_5 = 374;
-    static final int CURRVERS = DBV_2_1_5;
+    static final int DBV_2_1_6 = 431;
+    static final int DBV_2_1_7 = 501;
+    static final int CURRVERS = DBV_2_1_7;
     private static String dbName = "VncDatabase";
     private static String password = "";
     
     public final static String TAG = Database.class.toString();
     
     public Database(Context context) {
-        super(context, dbName, null, DBV_2_1_5);
+        super(context, dbName, null, CURRVERS);
         SQLiteDatabase.loadLibs(context);
     }
 
@@ -359,5 +356,26 @@ public class Database extends SQLiteOpenHelper {
                     +AbstractConnectionBean.GEN_FIELD_REMOTESOUNDTYPE + " INTEGER DEFAULT " + Constants.REMOTE_SOUND_DISABLED);
             oldVersion = DBV_2_1_5;
         }
+
+        if (oldVersion == DBV_2_1_5) {
+            Log.i(TAG,"Doing upgrade from 374 to 430");
+            db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
+                    +AbstractConnectionBean.GEN_FIELD_FILENAME + " TEXT");
+            db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
+                    +AbstractConnectionBean.GEN_FIELD_X509KEYSIGNATURE + " TEXT");
+            db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
+                    +AbstractConnectionBean.GEN_FIELD_SCREENSHOTFILENAME + " TEXT");
+            oldVersion = DBV_2_1_6;
+        }
+
+        if (oldVersion == DBV_2_1_6) {
+            Log.i(TAG,"Doing upgrade from 430 to 501");
+            db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
+                    +AbstractConnectionBean.GEN_FIELD_ENABLEGFX + " BOOLEAN DEFAULT FALSE");
+            db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
+                    +AbstractConnectionBean.GEN_FIELD_ENABLEGFXH264 + " BOOLEAN DEFAULT FALSE");
+            oldVersion = DBV_2_1_7;
+        }
+
     }
 }

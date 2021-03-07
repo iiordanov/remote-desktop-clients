@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           xmlns:tools="http://schemas.android.com/tools"
           package="com.iiordanov.aSPICE" android:installLocation="auto"
-          android:versionCode="114302" android:versionName="v4.3.0">
+          android:versionCode="115039" android:versionName="v5.0.3">
 
     <uses-permission tools:node="removeAll"/>
     <uses-permission android:name="android.permission.INTERNET"> </uses-permission>
@@ -13,6 +13,7 @@
     <uses-permission android:name="android.permission.RECORD_AUDIO"> </uses-permission>
     <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
     <uses-feature android:name="android.hardware.microphone" android:required="false"/>
+    <uses-feature android:name="android.software.leanback" android:required="false" />
 
     <supports-screens
         android:xlargeScreens="true"
@@ -21,7 +22,26 @@
         android:smallScreens="true"
         android:anyDensity="true"/>
 		
-    <application android:icon="@drawable/icon_aspice" android:label="@string/aspice_app_name" android:allowBackup="false" android:theme="@style/AppTheme" android:name="com.iiordanov.bVNC.App" tools:replace="android:label,android:theme">
+    <application
+        android:banner="@drawable/banner_aspice"
+        android:icon="@drawable/icon_aspice"
+        android:label="@string/aspice_app_name"
+        android:allowBackup="false"
+        android:theme="@style/AppTheme"
+        android:name="com.iiordanov.bVNC.App"
+        tools:replace="android:label,android:theme">
+                <activity android:name="com.undatech.opaque.ConnectionGridActivity"
+                          android:configChanges="keyboardHidden"
+                          android:label="@string/aspice_app_name"
+                          android:theme="@android:style/Theme.DeviceDefault"
+                          android:resizeableActivity="true">
+                        <intent-filter>
+                                <action android:name="android.intent.action.MAIN" />
+                                <category android:name="android.intent.category.LAUNCHER" />
+                                <category android:name="android.intent.category.MULTIWINDOW_LAUNCHER" />
+                                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
+                        </intent-filter>
+                </activity>
                 <activity android:label="@string/aspice_app_name"
                           android:name="com.iiordanov.bVNC.aSPICE"
                           android:screenOrientation="unspecified"
@@ -29,18 +49,13 @@
                           android:windowSoftInputMode="stateHidden|adjustResize"
                           android:theme="@style/AppThemeWithToolbar"
                           android:resizeableActivity="true">
-                        <intent-filter>
-                                <action android:name="android.intent.action.MAIN"></action>
-                                <category android:name="android.intent.category.LAUNCHER"></category>
-                                <category android:name="android.intent.category.MULTIWINDOW_LAUNCHER"></category>
-                        </intent-filter>
                 </activity>
                 <activity android:screenOrientation="unspecified"
                           android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|density|screenLayout"
-		                  android:name="com.iiordanov.bVNC.RemoteCanvasActivity"
-		                  android:windowSoftInputMode="stateHidden|adjustResize"
+		          android:name="com.iiordanov.bVNC.RemoteCanvasActivity"
+		          android:windowSoftInputMode="stateHidden|adjustResize"
                           android:theme="@style/AppTheme"
-		                  android:resizeableActivity="true">
+		          android:resizeableActivity="true">
                        <intent-filter>
                                 <action android:name="android.intent.action.VIEW"></action>
                        </intent-filter>

@@ -24,6 +24,7 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Environment;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -35,6 +36,7 @@ import com.iiordanov.bVNC.Utils;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Paths;
 
 import org.xml.sax.SAXException;
 import com.iiordanov.bVNC.*;
@@ -44,6 +46,7 @@ import com.iiordanov.freeaRDP.*;
 import com.iiordanov.aSPICE.*;
 import com.iiordanov.freeaSPICE.*;
 import com.iiordanov.CustomClientPackage.*;
+import com.undatech.opaque.ConnectionSettings;
 import com.undatech.remoteClientUi.*;
 
 /**
@@ -51,19 +54,22 @@ import com.undatech.remoteClientUi.*;
  *
  */
 public class ImportExportDialog extends Dialog {
-
-    private MainConfiguration _configurationDialog;
+    public static final String TAG = "ImportExportDialog";
+    private Activity activity;
     private EditText _textLoadUrl;
     private EditText _textSaveUrl;
-    
-    
+    private Database database;
+    private boolean connectionsInSharedPrefs;
+
     /**
      * @param context
      */
-    public ImportExportDialog(MainConfiguration context) {
+    public ImportExportDialog(Activity context, Database database, boolean connectionsInSharedPrefs) {
         super((Context)context);
         setOwnerActivity((Activity)context);
-        _configurationDialog = context;
+        activity = context;
+        this.database = database;
+        this.connectionsInSharedPrefs = connectionsInSharedPrefs;
     }
 
     /* (non-Javadoc)
@@ -76,14 +82,11 @@ public class ImportExportDialog extends Dialog {
         setTitle(R.string.import_export_settings);
         _textLoadUrl = (EditText)findViewById(R.id.textImportUrl);
         _textSaveUrl = (EditText)findViewById(R.id.textExportPath);
-        
-        File f = BCFactory.getInstance().getStorageContext().getExternalStorageDir(_configurationDialog, null);
-        // Sdcard not mounted; nothing else to do
-        if (f == null)
-            return;
-        
-        f = new File(f, "settings.xml");
-        String path = "/sdcard/" + f.getName();
+
+        File f = new File(Environment.getExternalStorageDirectory().getPath());
+        f = new File(f, Utils.getExportFileName(getContext().getPackageName()));
+
+        String path = f.getAbsolutePath();
         _textSaveUrl.setText(path);
         _textLoadUrl.setText(path);
         
@@ -93,7 +96,11 @@ public class ImportExportDialog extends Dialog {
             @Override
             public void onClick(View v) {
                 try {
-                    Utils.exportSettingsToXml(_textSaveUrl.getText().toString(), _configurationDialog.getDatabaseHelper().getReadableDatabase());
+                    if (connectionsInSharedPrefs) {
+                        ConnectionSettings.exportSettingsFromSharedPrefsToJson(_textLoadUrl.getText().toString(), getContext());
+                    } else {
+                        Utils.exportSettingsToXml(_textSaveUrl.getText().toString(), database.getReadableDatabase());
+                    }
                     dismiss();
                 }
                 catch (IOException ioe)
@@ -112,9 +119,13 @@ public class ImportExportDialog extends Dialog {
             public void onClick(View v) {
                 try
                 {
-                    Utils.importSettingsFromXml(_textLoadUrl.getText().toString(), _configurationDialog.getDatabaseHelper().getWritableDatabase());
+                    if (connectionsInSharedPrefs) {
+                        ConnectionSettings.importSettingsFromJsonToSharedPrefs(_textSaveUrl.getText().toString(), getContext());
+                    } else {
+                        Utils.importSettingsFromXml(_textLoadUrl.getText().toString(), database.getWritableDatabase());
+                    }
                     dismiss();
-                    _configurationDialog.arriveOnPage();
+                    activity.recreate();
                 }
                 catch (IOException ioe)
                 {
@@ -131,7 +142,7 @@ public class ImportExportDialog extends Dialog {
     
     private void errorNotify(String msg, Throwable t)
     {
-        Log.i("com.iiordanov.bVNC.ImportExportDialog", msg, t);
+        Log.i(TAG, msg, t);
         Utils.showErrorMessage(this.getContext(), msg + ":" + t.getMessage());
     }
 

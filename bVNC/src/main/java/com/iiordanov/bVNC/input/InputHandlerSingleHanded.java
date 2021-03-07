@@ -20,7 +20,6 @@
 
 package com.iiordanov.bVNC.input;
 
-import android.os.Vibrator;
 import android.widget.RelativeLayout;
 import android.widget.ImageButton;
 import android.view.MotionEvent;
@@ -55,8 +54,8 @@ public class InputHandlerSingleHanded extends InputHandlerDirectSwipePan {
 	private boolean needInitPan;
 	
 	public InputHandlerSingleHanded(RemoteCanvasActivity activity, RemoteCanvas canvas,
-									RemotePointer pointer, Vibrator myVibrator) {
-		super(activity, canvas, pointer, myVibrator);
+									RemotePointer pointer) {
+		super(activity, canvas, pointer);
 		initializeButtons();
 	}
 

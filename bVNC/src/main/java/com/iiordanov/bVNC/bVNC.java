@@ -25,6 +25,7 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.AdapterView;
@@ -53,23 +54,13 @@ import com.antlersoft.android.dbimpl.*;
  */
 public class bVNC extends MainConfiguration {
     private final static String TAG = "androidVNC";
-    private Spinner connectionType;
-    private int selectedConnType;
-    private TextView sshCaption;
-    private LinearLayout sshCredentials;
-    private LinearLayout layoutUseSshPubkey;
     private LinearLayout layoutUseX11Vnc;
-    private LinearLayout sshServerEntry;
     private LinearLayout layoutAdvancedSettings;
     private EditText sshServer;
     private EditText sshPort;
     private EditText sshUser;
-    private EditText sshPassword;
-    private EditText sshPassphrase;
-    private EditText ipText;
     private EditText portText;
     private EditText passwordText;
-    private Button goButton;
     private Button repeaterButton;
     private Button buttonCustomizeX11Vnc;
     private ToggleButton toggleAdvancedSettings;
@@ -97,17 +88,10 @@ public class bVNC extends MainConfiguration {
         layoutID = R.layout.main;
         super.onCreate(icicle);
 
-        ipText = (EditText) findViewById(R.id.textIP);
         sshServer = (EditText) findViewById(R.id.sshServer);
         sshPort = (EditText) findViewById(R.id.sshPort);
         sshUser = (EditText) findViewById(R.id.sshUser);
-        sshPassword = (EditText) findViewById(R.id.sshPassword);
-        sshPassphrase = (EditText) findViewById(R.id.sshPassphrase);
-        sshCredentials = (LinearLayout) findViewById(R.id.sshCredentials);
-        sshCaption = (TextView) findViewById(R.id.sshCaption);
-        layoutUseSshPubkey = (LinearLayout) findViewById(R.id.layoutUseSshPubkey);
         layoutUseX11Vnc = (LinearLayout) findViewById(R.id.layoutUseX11Vnc);
-        sshServerEntry = (LinearLayout) findViewById(R.id.sshServerEntry);
         portText = (EditText) findViewById(R.id.textPORT);
         passwordText = (EditText) findViewById(R.id.textPASSWORD);
         textNickname = (EditText) findViewById(R.id.textNickname);
@@ -142,8 +126,9 @@ public class bVNC extends MainConfiguration {
         connectionType.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> ad, View view, int itemIndex, long id) {
-
                 selectedConnType = itemIndex;
+                selected.setConnectionType(selectedConnType);
+                selected.save(bVNC.this);
                 if (selectedConnType == Constants.CONN_TYPE_PLAIN ||
                         selectedConnType == Constants.CONN_TYPE_ANONTLS ||
                         selectedConnType == Constants.CONN_TYPE_STUNNEL) {
@@ -172,6 +157,7 @@ public class bVNC extends MainConfiguration {
                     ipText.setHint(R.string.address_caption_hint);
                     textUsername.setHint(R.string.username_hint_vencrypt);
                 }
+                updateViewFromSelected();
             }
 
             @Override
@@ -204,18 +190,6 @@ public class bVNC extends MainConfiguration {
         colorSpinner.setAdapter(colorSpinnerAdapter);
         colorSpinner.setSelection(0);
 
-        goButton = (Button) findViewById(R.id.buttonGO);
-        goButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (ipText.getText().length() != 0 && portText.getText().length() != 0) {
-                    canvasStart();
-                } else {
-                    Toast.makeText(view.getContext(), R.string.vnc_server_empty, Toast.LENGTH_LONG).show();
-                }
-            }
-        });
-
         spinnerVncGeometry = (Spinner) findViewById(R.id.spinnerVncGeometry);
         resWidth = (EditText) findViewById(R.id.rdpWidth);
         resHeight = (EditText) findViewById(R.id.rdpHeight);
@@ -234,18 +208,16 @@ public class bVNC extends MainConfiguration {
             }
         });
         repeaterText = (TextView) findViewById(R.id.textRepeaterId);
-    }
 
+        setConnectionTypeSpinnerAdapter(R.array.connection_type);
+    }
 
     /**
      * Makes the ssh-related widgets visible/invisible.
      */
-    private void setVisibilityOfSshWidgets(int visibility) {
-        sshCredentials.setVisibility(visibility);
-        sshCaption.setVisibility(visibility);
-        layoutUseSshPubkey.setVisibility(visibility);
+    protected void setVisibilityOfSshWidgets(int visibility) {
+        super.setVisibilityOfSshWidgets(visibility);
         layoutUseX11Vnc.setVisibility(visibility);
-        sshServerEntry.setVisibility(visibility);
     }
 
     /**
@@ -273,11 +245,7 @@ public class bVNC extends MainConfiguration {
      */
     @Override
     protected Dialog onCreateDialog(int id) {
-        if (id == R.layout.importexport) {
-            return new ImportExportDialog(this);
-        } else if (id == R.id.itemMainScreenHelp) {
-            return createHelpDialog();
-        } else if (id == R.layout.repeater_dialog) {
+        if (id == R.layout.repeater_dialog) {
             return new RepeaterDialog(this);
         } else if (id == R.layout.auto_x_customize) {
             Dialog d = new AutoXCustomizeDialog(this, database);
@@ -287,46 +255,16 @@ public class bVNC extends MainConfiguration {
         return null;
     }
 
-    /**
-     * Creates the help dialog for this activity.
-     */
-    private Dialog createHelpDialog() {
-        AlertDialog.Builder adb = new AlertDialog.Builder(this)
-                .setMessage(R.string.main_screen_help_text)
-                .setPositiveButton(R.string.close,
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog,
-                                                int whichButton) {
-                                // We don't have to do anything.
-                            }
-                        });
-        Dialog d = adb.setView(new ListView(this)).create();
-        WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
-        lp.copyFrom(d.getWindow().getAttributes());
-        lp.width = WindowManager.LayoutParams.MATCH_PARENT;
-        lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
-        d.show();
-        d.getWindow().setAttributes(lp);
-        return d;
-    }
-
     public void updateViewFromSelected() {
-        commonUpdateViewFromSelected();
-
         if (selected == null)
             return;
-        selectedConnType = selected.getConnectionType();
-        connectionType.setSelection(selectedConnType);
+        super.commonUpdateViewFromSelected();
+
         sshServer.setText(selected.getSshServer());
         sshPort.setText(Integer.toString(selected.getSshPort()));
         sshUser.setText(selected.getSshUser());
 
         checkboxUseSshPubkey.setChecked(selected.getUseSshPubKey());
-
-        if (selectedConnType == Constants.CONN_TYPE_SSH && selected.getAddress().equals(""))
-            ipText.setText("localhost");
-        else
-            ipText.setText(selected.getAddress());
 
         // If we are doing automatic X session discovery, then disable
         // vnc address, vnc port, and vnc password, and vice-versa
@@ -399,21 +337,12 @@ public class bVNC extends MainConfiguration {
         }
     }
 
-    /**
-     * Returns the current ConnectionBean.
-     */
-    public ConnectionBean getCurrentConnection() {
-        return selected;
-    }
-
     protected void updateSelectedFromView() {
-        commonUpdateSelectedFromView();
+        super.commonUpdateSelectedFromView();
 
         if (selected == null) {
             return;
         }
-        selected.setConnectionType(selectedConnType);
-        selected.setAddress(ipText.getText().toString());
         try {
             selected.setPort(Integer.parseInt(portText.getText().toString()));
             selected.setSshPort(Integer.parseInt(sshPort.getText().toString()));
@@ -424,13 +353,9 @@ public class bVNC extends MainConfiguration {
         selected.setSshServer(sshServer.getText().toString());
         selected.setSshUser(sshUser.getText().toString());
 
-        selected.setKeepSshPassword(false);
-
         // If we are using an SSH key, then the ssh password box is used
         // for the key pass-phrase instead.
         selected.setUseSshPubKey(checkboxUseSshPubkey.isChecked());
-        selected.setSshPassPhrase(sshPassphrase.getText().toString());
-        selected.setSshPassword(sshPassword.getText().toString());
         selected.setUserName(textUsername.getText().toString());
         selected.setForceFull(groupForceFullScreen.getCheckedRadioButtonId() == R.id.radioForceFullScreenAuto ? BitmapImplHint.AUTO : (groupForceFullScreen.getCheckedRadioButtonId() == R.id.radioForceFullScreenOn ? BitmapImplHint.FULL : BitmapImplHint.TILE));
         selected.setPassword(passwordText.getText().toString());
@@ -456,6 +381,14 @@ public class bVNC extends MainConfiguration {
             selected.setUseRepeater(true);
         } else {
             selected.setUseRepeater(false);
+        }
+    }
+
+    public void save(MenuItem item) {
+        if (ipText.getText().length() != 0 && portText.getText().length() != 0) {
+            saveConnectionAndCloseLayout();
+        } else {
+            Toast.makeText(this, R.string.vnc_server_empty, Toast.LENGTH_LONG).show();
         }
     }
 }

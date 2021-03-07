@@ -30,6 +30,7 @@ import android.os.Message;
 import android.util.Base64;
 import android.util.Log;
 
+import com.undatech.opaque.RemoteClientLibConstants;
 import com.undatech.opaque.RfbConnectable;
 
 import java.security.*;
@@ -130,7 +131,7 @@ public class X509Tunnel extends TLSTunnelBase {
               // Send a message containing the certificate to our handler.
               Message m = new Message();
               m.setTarget(handler);
-              m.what = Constants.DIALOG_X509_CERT;
+              m.what = RemoteClientLibConstants.DIALOG_X509_CERT;
               m.obj = certs[0];
               handler.sendMessage(m);
 

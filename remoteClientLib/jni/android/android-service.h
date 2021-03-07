@@ -38,6 +38,7 @@
 
 #ifdef __ANDROID__
 	JavaVM*                    jvm = NULL;
+	JNIEnv*                  g_env = NULL;
 	jclass    jni_connector_class  = NULL;
 	jmethodID jni_settings_changed = NULL;
 	jmethodID jni_graphics_update  = NULL;
@@ -56,6 +57,7 @@
 
 #ifdef __ANDROID__
 	extern JavaVM*                    jvm;
+	extern JNIEnv*                  g_env;
 	extern jclass     jni_connector_class;
 	extern jmethodID jni_settings_changed;
 	extern jmethodID  jni_graphics_update;
@@ -91,3 +93,5 @@ int CreateOvirtSession(JNIEnv *env, jobject obj, const gchar *uri, const gchar *
 
 int openUsbDevice (int vid, int pid);
 int get_usb_device_fd(libusb_device *device);
+
+void sendMessage (JNIEnv* env, const int messageID, const gchar *message_text);

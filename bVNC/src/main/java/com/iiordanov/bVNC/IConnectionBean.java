@@ -186,6 +186,12 @@ interface IConnectionBean {
     int getRemoteSoundType();
     @FieldAccessor
     boolean getViewOnly();
-	@FieldAccessor
+    @FieldAccessor
     String getLayoutMap();
+    @FieldAccessor
+    String getFilename();
+    @FieldAccessor
+    String getX509KeySignature();
+    @FieldAccessor
+    String getScreenshotFilename();
 }

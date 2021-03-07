@@ -23,25 +23,24 @@ package com.iiordanov.bVNC.dialogs;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.text.method.PasswordTransformationMethod;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
-import com.iiordanov.bVNC.*;
-import com.iiordanov.freebVNC.*;
-import com.iiordanov.aRDP.*;
-import com.iiordanov.freeaRDP.*;
-import com.iiordanov.aSPICE.*;
-import com.iiordanov.freeaSPICE.*;
-import com.iiordanov.CustomClientPackage.*;
+
 import com.undatech.remoteClientUi.*;
 
 public class GetTextFragment extends DialogFragment {
@@ -49,9 +48,24 @@ public class GetTextFragment extends DialogFragment {
     public static final int Plaintext = 1;
     public static final int Password = 2;
     public static final int MatchingPasswordTwice = 3;
+    public static final int Credentials = 4;
+    public static final int CredentialsWithDomain = 5;
+    public static final int CredentialsWithReadOnlyUser = 6;
+
+    public static final String DIALOG_ID_GET_PASSWORD                  = "DIALOG_ID_GET_PASSWORD";
+    public static final String DIALOG_ID_GET_MASTER_PASSWORD           = "DIALOG_ID_GET_MASTER_PASSWORD";
+    public static final String DIALOG_ID_GET_MATCHING_MASTER_PASSWORDS = "DIALOG_ID_GET_MATCHING_MASTER_PASSWORDS";
+    public static final String DIALOG_ID_GET_VERIFICATIONCODE          = "DIALOG_ID_GET_VERIFICATIONCODE";
+    public static final String DIALOG_ID_GET_SSH_CREDENTIALS           = "DIALOG_ID_GET_SSH_CREDENTIALS";
+    public static final String DIALOG_ID_GET_SSH_PASSPHRASE            = "DIALOG_ID_GET_SSH_PASSPHRASE";
+    public static final String DIALOG_ID_GET_VNC_CREDENTIALS           = "DIALOG_ID_GET_VNC_CREDENTIALS";
+    public static final String DIALOG_ID_GET_VNC_PASSWORD              = "DIALOG_ID_GET_VNC_PASSWORD";
+    public static final String DIALOG_ID_GET_RDP_CREDENTIALS           = "DIALOG_ID_GET_RDP_CREDENTIALS";
+    public static final String DIALOG_ID_GET_SPICE_PASSWORD            = "DIALOG_ID_GET_SPICE_PASSWORD";
+    public static final String DIALOG_ID_GET_OPAQUE_CREDENTIALS        = "DIALOG_ID_GET_OPAQUE_CREDENTIALS";
 
     public interface OnFragmentDismissedListener {
-        public void onTextObtained(String obtainedString, boolean dialogCancelled);
+        void onTextObtained(String dialogId, String[] obtainedStrings, boolean dialogCancelled, boolean save);
     }
 
     private class TextMatcher implements TextWatcher {
@@ -68,13 +82,21 @@ public class GetTextFragment extends DialogFragment {
 	private boolean wasCancelled = false;
     private TextView message;
     private TextView error;
+    private TextView textViewBox;
     private EditText textBox;
     private EditText textBox2;
+    private EditText textBox3;
     private Button buttonConfirm;
     private Button buttonCancel;
+    private CheckBox checkboxKeepPassword;
     private OnFragmentDismissedListener dismissalListener;
 	private String title;
-	
+    private String dialogId;
+    private String t1;
+    private String t2;
+    private String t3;
+    private boolean keepPassword;
+
     private int dialogType = 0;
     private int messageNum = 0;
     private int errorNum = 0;
@@ -82,17 +104,24 @@ public class GetTextFragment extends DialogFragment {
     public GetTextFragment () {
     }
 
-	public static GetTextFragment newInstance(String title, OnFragmentDismissedListener dismissalListener,
-	                                          int dialogType, int messageNum, int errorNum) {
+    public static GetTextFragment newInstance(String dialogId, String title,
+                                              OnFragmentDismissedListener dismissalListener,
+	                                          int dialogType, int messageNum, int errorNum,
+                                              String t1, String t2, String t3, boolean keepPassword) {
     	android.util.Log.i(TAG, "newInstance called");
     	GetTextFragment f = new GetTextFragment();
     	f.setDismissalListener(dismissalListener);
 
         Bundle args = new Bundle();
+        args.putString("dialogId", dialogId);
         args.putString("title", title);
         args.putInt("dialogType", dialogType);
         args.putInt("messageNum", messageNum);
         args.putInt("errorNum", errorNum);
+        args.putString("t1", t1);
+        args.putString("t2", t2);
+        args.putString("t3", t3);
+        args.putBoolean("keepPassword", keepPassword);
         f.setArguments(args);
         f.setRetainInstance(false);
 
@@ -103,10 +132,15 @@ public class GetTextFragment extends DialogFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
     	android.util.Log.i(TAG, "onCreate called");
+        dialogId = getArguments().getString("dialogId");
         title = getArguments().getString("title");
         dialogType = getArguments().getInt("dialogType");
         messageNum = getArguments().getInt("messageNum");
         errorNum = getArguments().getInt("errorNum");
+        t1 = getArguments().getString("t1");
+        t2 = getArguments().getString("t2");
+        t3 = getArguments().getString("t3");
+        keepPassword = getArguments().getBoolean("keepPassword");
     }
     
     @Override
@@ -133,6 +167,7 @@ public class GetTextFragment extends DialogFragment {
             v = inflater.inflate(R.layout.get_text, container, false);
             textBox = (EditText) v.findViewById(R.id.textBox);
             hideText(textBox);
+            checkboxKeepPassword = v.findViewById(R.id.checkboxKeepPassword);
             buttonConfirm = (Button) v.findViewById(R.id.buttonConfirm);
             buttonCancel = (Button) v.findViewById(R.id.buttonCancel);
             dismissOnCancel(buttonCancel);
@@ -150,11 +185,67 @@ public class GetTextFragment extends DialogFragment {
             dismissOnCancel(buttonCancel);
             ensureMatchingDismissOnConfirm (buttonConfirm, textBox, textBox2, error);
             break;
+        case CredentialsWithDomain:
+            v = inflater.inflate(R.layout.get_credentials_with_domain, container, false);
+            error = (TextView) v.findViewById(R.id.error);
+            textBox = (EditText) v.findViewById(R.id.textBox);
+            textBox2 = (EditText) v.findViewById(R.id.textBox2);
+            textBox3 = (EditText) v.findViewById(R.id.textBox3);
+            hideText(textBox3);
+            textBox3.requestFocus();
+            checkboxKeepPassword = v.findViewById(R.id.checkboxKeepPassword);
+            buttonConfirm = (Button) v.findViewById(R.id.buttonConfirm);
+            buttonCancel = (Button) v.findViewById(R.id.buttonCancel);
+            dismissOnCancel(buttonCancel);
+            dismissOnConfirm(buttonConfirm);
+            break;
+        case Credentials:
+            v = inflater.inflate(R.layout.get_credentials, container, false);
+            error = (TextView) v.findViewById(R.id.error);
+            textBox = (EditText) v.findViewById(R.id.textBox);
+            textBox2 = (EditText) v.findViewById(R.id.textBox2);
+            hideText(textBox2);
+            textBox2.requestFocus();
+            checkboxKeepPassword = v.findViewById(R.id.checkboxKeepPassword);
+            if (dialogId == DIALOG_ID_GET_OPAQUE_CREDENTIALS) {
+                checkboxKeepPassword.setVisibility(View.INVISIBLE);
+            }
+            buttonConfirm = (Button) v.findViewById(R.id.buttonConfirm);
+            buttonCancel = (Button) v.findViewById(R.id.buttonCancel);
+            dismissOnCancel(buttonCancel);
+            dismissOnConfirm(buttonConfirm);
+            break;
+        case CredentialsWithReadOnlyUser:
+            v = inflater.inflate(R.layout.get_credentials_with_read_only_user, container, false);
+            error = (TextView) v.findViewById(R.id.error);
+            textViewBox = v.findViewById(R.id.textViewBox);
+            textBox2 = (EditText) v.findViewById(R.id.textBox2);
+            hideText(textBox2);
+            textBox2.requestFocus();
+            checkboxKeepPassword = v.findViewById(R.id.checkboxKeepPassword);
+            buttonConfirm = (Button) v.findViewById(R.id.buttonConfirm);
+            buttonCancel = (Button) v.findViewById(R.id.buttonCancel);
+            dismissOnCancel(buttonCancel);
+            dismissOnConfirm(buttonConfirm);
+            break;
         default:
             getDialog().dismiss();
             break;
         }
-        
+
+        if (textViewBox != null)
+            textViewBox.setText(t1);
+        if (textBox != null && t1 != null)
+            textBox.setText(t1);
+        if (textBox2 != null && t2 != null)
+            textBox2.setText(t2);
+        if (textBox3 != null && t3 != null)
+            textBox3.setText(t3);
+
+        if (checkboxKeepPassword != null) {
+            checkboxKeepPassword.setChecked(keepPassword);
+        }
+
         message = (TextView) v.findViewById(R.id.message);
         message.setText(messageNum);
         
@@ -211,21 +302,30 @@ public class GetTextFragment extends DialogFragment {
     @Override
     public void onDismiss (DialogInterface dialog) {
     	android.util.Log.i(TAG, "onDismiss called: Sending data back to Activity");
-    	String result = textBox.getText().toString();
-    	if (wasCancelled || result.equals("")) {
-    	    wasCancelled = true;
-    	    result = "";
-    	}
-    	
-    	if (textBox != null) {
-    	    textBox.setText("");
-    	}
-    	if (textBox2 != null) {
-    	    textBox2.setText("");
-    	}
-    	if (dismissalListener != null) {
-            dismissalListener.onTextObtained(result, wasCancelled);
+        String[] results = new String[3];
+        if (textViewBox != null) {
+            results[0] = textViewBox.getText().toString();
+            textViewBox.setText("");
         }
+        if (textBox != null) {
+            results[0] = textBox.getText().toString();
+            textBox.setText("");
+        }
+        if (textBox2 != null) {
+            results[1] = textBox2.getText().toString();
+            textBox2.setText("");
+        }
+        if (textBox3 != null) {
+            results[2] = textBox3.getText().toString();
+            textBox3.setText("");
+        }
+        if (checkboxKeepPassword != null) {
+            keepPassword = checkboxKeepPassword.isChecked();
+        }
+    	if (dismissalListener != null) {
+            dismissalListener.onTextObtained(dialogId, results, wasCancelled, keepPassword);
+        }
+    	super.onDismiss(dialog);
     }
 
     @Override
@@ -234,4 +334,20 @@ public class GetTextFragment extends DialogFragment {
         getDialog().setOnDismissListener(null);
       super.onDestroyView();
     }
+
+    @Override
+    public void show(FragmentManager fm, String tag) {
+        try {
+            FragmentTransaction ft = fm.beginTransaction();
+            for (Fragment fragment : fm.getFragments()) {
+                fm.beginTransaction().remove(fragment).commit();
+            }
+            ft.add(this, tag); //.addToBackStack(null);
+            ft.commitAllowingStateLoss();
+        } catch (IllegalStateException e) {
+            Log.e("IllegalStateException", "Exception", e);
+            e.printStackTrace();
+        }
+    }
+
 }

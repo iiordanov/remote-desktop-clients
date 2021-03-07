@@ -25,35 +25,51 @@ public class RemoteClientLibConstants {
     public static final int SDK_INT = android.os.Build.VERSION.SDK_INT;
 
     public static final int DIALOG_X509_CERT       = 1;
-    public static final int LAUNCH_VNC_VIEWER      = 2;
-    public static final int VM_LAUNCHED            = 3;
+    public static final int DIALOG_SSH_CERT        = 2;
+    public static final int DIALOG_RDP_CERT        = 3;
     public static final int SPICE_CONNECT_SUCCESS  = 4;
     public static final int SPICE_CONNECT_FAILURE  = 5;
-    public static final int OVIRT_AUTH_FAILURE     = 6;
-    public static final int OVIRT_SSL_HANDSHAKE_FAILURE = 7;
-    public static final int VM_LOOKUP_FAILED       = 8;
-    public static final int NO_VM_FOUND_FOR_USER   = 9;
+    public static final int DIALOG_STUNNEL_CERT    = 6;
+    public static final int RDP_CONNECT_FAILURE    = 7;
+    public static final int RDP_UNABLE_TO_CONNECT  = 8;
+    public static final int RDP_AUTH_FAILED        = 9;
     public static final int GET_PASSWORD           = 10;
-    public static final int VV_FILE_ERROR          = 11;
-    public static final int OVIRT_TIMEOUT          = 12;
-    public static final int VV_OVER_HTTP_FAILURE   = 13;
-    public static final int VV_OVER_HTTPS_FAILURE  = 14;
-    public static final int PVE_FAILED_TO_AUTHENTICATE = 15;
-    public static final int PVE_FAILED_TO_CONNECT      = 16;
-    public static final int PVE_FAILED_TO_PARSE_JSON   = 17;
-    public static final int PVE_VMID_NOT_NUMERIC       = 18;
-    public static final int PVE_API_UNEXPECTED_CODE    = 19;
-    public static final int PVE_API_IO_ERROR           = 20;
-    public static final int PVE_TIMEOUT_COMMUNICATING  = 21;
-    public static final int PVE_NULL_DATA              = 22;
-    public static final int VV_DOWNLOAD_TIMEOUT        = 23;
-    public static final int GET_OTP_CODE               = 24;
-    public static final int DIALOG_RDP_CERT        = 25;
-    public static final int RDP_CONNECT_FAILURE    = 26;
-    public static final int RDP_UNABLE_TO_CONNECT  = 27;
-    public static final int RDP_AUTH_FAILED        = 28;
-    public static final int SERVER_CUT_TEXT        = 29;
-    public static final int DIALOG_DISPLAY_VMS     = 30;
+    public static final int GET_VERIFICATIONCODE   = 11;
+    public static final int GET_SSH_CREDENTIALS    = 12;
+    public static final int GET_SSH_PASSPHRASE     = 13;
+    public static final int GET_VNC_CREDENTIALS    = 14;
+    public static final int GET_VNC_PASSWORD       = 15;
+    public static final int REINIT_SESSION         = 16;
+    public static final int DISCONNECT_NO_MESSAGE  = 17;
+    public static final int DISCONNECT_WITH_MESSAGE = 18;
+    public static final int GET_RDP_CREDENTIALS    = 19;
+    public static final int GET_SPICE_PASSWORD     = 20;
+
+    public static final int LAUNCH_VNC_VIEWER      = 23;
+    public static final int VM_LAUNCHED            = 24;
+    public static final int OVIRT_AUTH_FAILURE     = 25;
+    public static final int OVIRT_SSL_HANDSHAKE_FAILURE = 26;
+    public static final int VM_LOOKUP_FAILED       = 27;
+    public static final int NO_VM_FOUND_FOR_USER   = 28;
+    public static final int VV_FILE_ERROR          = 29;
+    public static final int OVIRT_TIMEOUT          = 30;
+    public static final int VV_OVER_HTTP_FAILURE   = 31;
+    public static final int VV_OVER_HTTPS_FAILURE  = 32;
+    public static final int PVE_FAILED_TO_AUTHENTICATE = 33;
+    public static final int PVE_FAILED_TO_CONNECT      = 34;
+    public static final int PVE_FAILED_TO_PARSE_JSON   = 35;
+    public static final int PVE_VMID_NOT_NUMERIC       = 36;
+    public static final int PVE_API_UNEXPECTED_CODE    = 37;
+    public static final int PVE_API_IO_ERROR           = 38;
+    public static final int PVE_TIMEOUT_COMMUNICATING  = 39;
+    public static final int PVE_NULL_DATA              = 40;
+    public static final int VV_DOWNLOAD_TIMEOUT        = 41;
+    public static final int GET_OTP_CODE               = 42;
+    public static final int SERVER_CUT_TEXT        = 43;
+    public static final int DIALOG_DISPLAY_VMS     = 44;
+    public static final int SPICE_TLS_ERROR        = 45;
+    public static final int SPICE_CONNECT_FAILURE_IF_MAINTAINING_CONNECTION = 46;
+    public static final int PRO_FEATURE            = 99;
 
     public static final int EXTRA_KEYS_OFF         = 0;
     public static final int EXTRA_KEYS_ON          = 1;
@@ -62,8 +78,6 @@ public class RemoteClientLibConstants {
     public static final int ADVANCED_SETTINGS      = 1;
     public static final int DEFAULT_SETTINGS       = 2;
 
-    public static final int SHORT_VIBRATION        = 50;
-    
     public static final String DEFAULT_LAYOUT_MAP = "English (US)";
     
     public static final String ACTION_USB_PERMISSION = "com.undatech.opaque.USB_PERMISSION";
@@ -71,9 +85,7 @@ public class RemoteClientLibConstants {
     public static final int usbDevicePermissionTimeout = 15000;
     
     public static final String DEFAULT_SETTINGS_FILE = "defaultSettings";
-    public static final String EXPORT_SETTINGS_FILE = "OpaqueExportSettings.json";
 
-    
     public static final int URL_BUFFER_SIZE        = 3000;
     public static final int VV_GET_FILE_TIMEOUT    = 17000;
     

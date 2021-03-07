@@ -25,6 +25,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.net.Uri;
+import android.util.Log;
 import android.widget.ImageView;
 
 import org.json.JSONException;
@@ -41,12 +42,14 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.Serializable;
 import java.util.Iterator;
+import java.util.UUID;
 
 public class ConnectionSettings implements Connection, Serializable {
     private static final String TAG = "ConnectionSettings";
     private static final long serialVersionUID = 1L;
-    
-    private String filename = "";
+
+    private String id = "";
+    private String filename;
     private String connectionType = "";
     private String hostname = "";
     private String vmname = "";
@@ -65,12 +68,43 @@ public class ConnectionSettings implements Connection, Serializable {
     private String ovirtCaData = "";
     private String layoutMap = "";
     private String scaleMode = "";
+    private String screenshotFilename = UUID.randomUUID().toString() + ".png";
+    private String x509KeySignature = "";
 
     private int extraKeysToggleType = RemoteClientLibConstants.EXTRA_KEYS_ON;
     
     public ConnectionSettings(String filename) {
         super();
         this.filename = filename;
+    }
+
+    @Override
+    public String getLabel() {
+        String address = this.getAddress();
+        if (!"".equals(this.getUserName())) {
+            address = this.getUserName() + "\n" + address;
+        }
+        String vmName = getVmname();
+        String res = address;
+        if (!"".equals(vmName)) {
+            res = vmName + "\n" + address;
+        }
+        return res;
+    }
+
+    @Override
+    public String getId() {
+        return getRuntimeId();
+    }
+
+    @Override
+    public String getRuntimeId() {
+        return id;
+    }
+
+    @Override
+    public void setRuntimeId(String id) {
+        this.id = id;
     }
 
     @Override
@@ -83,9 +117,12 @@ public class ConnectionSettings implements Connection, Serializable {
 
     }
 
+    @Override
     public String getConnectionTypeString() {
         return connectionType;
     }
+
+    @Override
     public void setConnectionTypeString(String connectionType) {
         this.connectionType = connectionType;
     }
@@ -112,31 +149,37 @@ public class ConnectionSettings implements Connection, Serializable {
     public String getInputMethod() {
         return inputMethod;
     }
-    
+
     public void setInputMethod(String inputMethod) {
         this.inputMethod = inputMethod;
     }
-    
+
+    @Override
     public int getExtraKeysToggleType() {
         return extraKeysToggleType;
     }
-    
+
+    @Override
     public void setExtraKeysToggleType(int extraKeysToggleType) {
         this.extraKeysToggleType = extraKeysToggleType;
     }
-    
+
+    @Override
     public String getHostname() {
         return hostname;
     }
-    
+
+    @Override
     public void setHostname(String hostname) {
         this.hostname = hostname;
     }
-    
+
+    @Override
     public String getVmname() {
         return vmname.trim();
     }
-    
+
+    @Override
     public void setVmname(String vmname) {
         this.vmname = vmname;
     }
@@ -154,104 +197,138 @@ public class ConnectionSettings implements Connection, Serializable {
     public String getUser() {
         return user;
     }
-    
+
     public void setUser(String user) {
         this.user = user;
     }
-    
+
+    @Override
     public String getPassword() {
         return password;
     }
-    
+
+    @Override
     public void setPassword(String password) {
         this.password = password;
     }
-    
+
+    @Override
+    public boolean getKeepPassword() {
+        return false;
+    }
+
+    @Override
+    public void setKeepPassword(boolean keepPassword) {
+
+    }
+
+    @Override
     public String getOtpCode() {
         return otpCode;
     }
 
+    @Override
     public void setOtpCode(String otpCode) {
         this.otpCode = otpCode;
     }
 
+    @Override
     public String getFilename() {
         return filename;
     }
 
+    @Override
     public void setFilename(String filename) {
         this.filename = filename;
     }
 
+    @Override
     public boolean isRotationEnabled() {
         return rotationEnabled;
     }
 
+    @Override
     public void setRotationEnabled(boolean rotationEnabled) {
         this.rotationEnabled = rotationEnabled;
     }
 
+    @Override
     public boolean isRequestingNewDisplayResolution() {
         return requestingNewDisplayResolution;
     }
 
+    @Override
     public void setRequestingNewDisplayResolution(
             boolean requestingNewDisplayResolution) {
         this.requestingNewDisplayResolution = requestingNewDisplayResolution;
     }
 
+    @Override
     public boolean isAudioPlaybackEnabled() {
         return audioPlaybackEnabled;
     }
 
+    @Override
     public void setAudioPlaybackEnabled(boolean audioPlaybackEnabled) {
         this.audioPlaybackEnabled = audioPlaybackEnabled;
     }
 
+    @Override
     public boolean isUsingCustomOvirtCa() {
         return usingCustomOvirtCa;
     }
 
+    @Override
     public void setUsingCustomOvirtCa(boolean useCustomCa) {
         this.usingCustomOvirtCa = useCustomCa;
     }
 
+    @Override
     public boolean isSslStrict() {
         return sslStrict;
     }
 
+    @Override
     public void setSslStrict(boolean sslStrict) {
         this.sslStrict = sslStrict;
     }
-    
+
+    @Override
     public boolean isUsbEnabled() {
         return usbEnabled;
     }
 
+    @Override
     public void setUsbEnabled(boolean usbEnabled) {
         this.usbEnabled = usbEnabled;
     }
 
+    @Override
     public String getOvirtCaFile() {
         return ovirtCaFile;
     }
 
+    @Override
     public void setOvirtCaFile(String ovirtCaFile) {
         this.ovirtCaFile = ovirtCaFile;
     }
 
+    @Override
     public String getOvirtCaData() {
         return ovirtCaData;
     }
 
+    @Override
     public void setOvirtCaData(String ovirtCaData) {
         this.ovirtCaData = ovirtCaData;
     }
 
+    @Override
     public String getLayoutMap() {
         return layoutMap;
     }
 
+    @Override
     public void setLayoutMap(String layoutMap) {
         this.layoutMap = layoutMap;
     }
@@ -261,6 +338,7 @@ public class ConnectionSettings implements Connection, Serializable {
         save(c);
     }
 
+    @Override
     public void save(Context context) {
         this.saveToSharedPreferences(context);
     }
@@ -285,6 +363,8 @@ public class ConnectionSettings implements Connection, Serializable {
         editor.putString("ovirtCaData", ovirtCaData);
         editor.putString("layoutMap", layoutMap);
         editor.putString("scaleMode", scaleMode);
+        editor.putString("x509KeySignature", x509KeySignature);
+        editor.putString("screenshotFilename", screenshotFilename);
         editor.apply();
         // Make sure the CA gets saved to a file if necessary.
         ovirtCaFile = saveCaToFile (context, ovirtCaData);
@@ -296,12 +376,12 @@ public class ConnectionSettings implements Connection, Serializable {
 
     @Override
     public String getAddress() {
-        return null;
+        return getHostname();
     }
 
     @Override
     public void setAddress(String address) {
-
+        setHostname(address);
     }
 
     @Override
@@ -462,6 +542,8 @@ public class ConnectionSettings implements Connection, Serializable {
         vmname = sp.getString("vmname", "").trim();
         user = sp.getString("user", "").trim();
         password = sp.getString("password", "");
+        x509KeySignature = sp.getString("x509KeySignature", "").trim();
+        screenshotFilename = sp.getString("screenshotFilename", UUID.randomUUID().toString() + ".png").trim();
         loadAdvancedSettings (context, filename);
     }
 
@@ -498,12 +580,12 @@ public class ConnectionSettings implements Connection, Serializable {
                 fileName = context.getFilesDir() + "/ca" + Integer.toString(caCertData.hashCode()) + ".crt";
                 File file = new File(fileName);
                 if (!file.exists()) {
-                    android.util.Log.e(TAG, "Writing out CA to file: " + fileName);
+                    android.util.Log.d(TAG, "Writing out CA to file: " + fileName);
                     PrintWriter fout = new PrintWriter(fileName);
                     fout.println(caCertData);
                     fout.close();
                 } else {
-                    android.util.Log.e(TAG, "File already exists: " + fileName);
+                    android.util.Log.d(TAG, "File already exists: " + fileName);
                 }
             } catch (FileNotFoundException e) {
                 fileName = "";
@@ -1022,6 +1104,42 @@ public class ConnectionSettings implements Connection, Serializable {
 
     }
 
+    @Override
+    public String getScreenshotFilename() {
+        return screenshotFilename;
+    }
+
+    @Override
+    public void setScreenshotFilename(String screenshotFilename) {
+        this.screenshotFilename = screenshotFilename;
+    }
+
+    @Override
+    public String getX509KeySignature() {
+        return x509KeySignature;
+    }
+
+    @Override
+    public void setX509KeySignature(String x509KeySignature) {
+        this.x509KeySignature = x509KeySignature;
+    }
+
+    @Override
+    public boolean getEnableGfx() {
+        return false;
+    }
+
+    @Override
+    public void setEnableGfx(boolean enableGfx) {}
+
+    @Override
+    public boolean getEnableGfxH264() {
+        return false;
+    }
+
+    @Override
+    public void setEnableGfxH264(boolean enableGfxH264) {}
+
     /**
      * Exports preferences to a file.
      * @param context
@@ -1108,4 +1226,35 @@ public class ConnectionSettings implements Connection, Serializable {
 
         return connections.trim();
     }
+
+    public static void importSettingsFromJsonToSharedPrefs(String file, Context context) {
+        try {
+            String connections = ConnectionSettings.importPrefsFromFile(context, file);
+            SharedPreferences sp = context.getSharedPreferences("generalSettings", Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = sp.edit();
+            editor.putString("connections", connections);
+            editor.apply();
+        } catch (JSONException e) {
+            Log.e(TAG, "JSON Exception while importing settings " + e.getLocalizedMessage());
+            e.printStackTrace();
+        } catch (IOException e) {
+            Log.e(TAG, "IO Exception while importing settings " + e.getLocalizedMessage());
+            e.printStackTrace();
+        }
+    }
+
+    public static void exportSettingsFromSharedPrefsToJson(String file, Context context) {
+        SharedPreferences sp = context.getSharedPreferences("generalSettings", Context.MODE_PRIVATE);
+        String connections = sp.getString("connections", null);
+        try {
+            ConnectionSettings.exportPrefsToFile(context, connections, file);
+        } catch (JSONException e) {
+            Log.e(TAG, "JSON Exception while exporting settings " + e.getLocalizedMessage());
+            e.printStackTrace();
+        } catch (IOException e) {
+            Log.e(TAG, "IO Exception while exporting settings " + e.getLocalizedMessage());
+            e.printStackTrace();
+        }
+    }
+
 }

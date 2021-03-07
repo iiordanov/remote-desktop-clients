@@ -12,7 +12,7 @@
     <string name="auto_rotation">Screen rotation while connected</string>
     <string name="auto_request_new_res">Sync remote to display resolution</string>
     <string name="custom_ca_subject">Optional Cert Subject. Not needed if cert CN matches hostname</string>
-    <string name="custom_ca_import">Enter full path to your CA and tap Import</string>
+    <string name="custom_ca_import">Alternatively, enter full path to your CA and tap Import</string>
     <string name="custom_ca_paste">Paste (if not importing) the CA here</string>
     <string name="ca_ovirt_use_custom">Custom RHEV/oVirt CA</string>
     <string name="ca_spice_use_ovirt">Use RHEV/oVirt CA for SPICE</string>
@@ -33,6 +33,7 @@
     <string name="connection_setup_user">User@Domain</string>
     <string name="connection_setup_password">Password (saved if entered)</string>
     <string name="enter_password">Please enter password</string>
+    <string name="enter_password_auth_failed">Authentication failed. Please re-enter your credentials.</string>
     <string name="enter_otp_code">Please enter OTP code</string>
     <string name="hide_toolbar">Hide toolbar</string>
     <string name="manage_custom_ca_title">Manage custom CA</string>
@@ -47,6 +48,7 @@
     <string name="input_method_single_handed">Single Handed</string>
     <string name="input_method_touchpad">Simulated Touchpad</string>
 
+    <string name="toggle_keyboard">Toggle Keyboard</string>
     <string name="show_keyboard">Show Keyboard</string>
 
     <string name="input_method_help">Input Method Help</string>
@@ -83,7 +85,7 @@ Single Handed Method:
  - After choosing mode, swiping finger on screen performs selected gesture.
  - Lifting finger completes the gesture.
 
-All Input Method:
+All Input Methods:
  - Left-click: Tap once.
  - Double-click: Double-tap.
  - Right-click: Tap-hold and tap with a second finger (anywhere else on screen).
@@ -122,15 +124,15 @@ All Input Method:
     <string name="error_vv_download_timeout">Timeout downloading vv file.</string>
     <string name="message_please_wait">Please wait</string>
     <string name="message_please_install_bvnc">Please install &lt;a href="market://details?id=com.iiordanov.bVNC">bVNC&lt;/a> from Google Play to connect to the VNC console of this VM.</string>
-    <string name="ssl_strict">Require common name to match cert (on recommended)</string>
+    <string name="ssl_strict">Require common name to match cert (recommended)</string>
     <string name="usb">USB (plug in OTG cable first)</string>
-    
-    <string name="ad_donate_text0">The Pro version now has support for multi-factor authentication. In addition, it supports the much requested Master Password feature that prevents unauthorized use and also encrypts all connection settings including passwords and SSH keys to guard against theft. Enable it from the main Menu. If the Menu button is missing, please long-tap the running apps button for the Menu.</string>
+
+    <string name="ad_donate_text0">The Pro version now has support for multi-factor SSH authentication. In addition, it supports the much requested Master Password feature that prevents unauthorized use and also encrypts all connection settings including passwords and SSH keys to guard against theft. Enable it from the main Menu. If the Menu button is missing, please long-tap the running apps button for the Menu.</string>
     <string name="ad_donate_text1">Tap here to support the project with a small donation by buying the Pro version.</string>
     <string name="ad_donate_text2">The Pro version allows you to disable this dialog and gives you access to additional features.</string>
     <string name="ad_donate_text3">If you would like to support the project further, follow the following links for links to client apps for: </string>
     <string name="ad_donate_text_rdp">The Pro version of aRDP now supports sound redirection!</string>
-    <string name="ad_donate_text_spice">The Pro version of aSPICE now supports USB redirection! Just attach your OTG cable prior to connecting.</string>
+    <string name="ad_donate_text_spice"></string>
 
     <string name="address_caption">VNC Server</string>
     <string name="address_caption_hint">VNC Server</string>
@@ -151,7 +153,7 @@ All Input Method:
 
     <string name="auto">Auto</string>
     <string name="auto_x_cancel">Cancel</string>
-    <string name="auto_x_caption">bVNC can automatically discover existing and create new X sessions on Linux/UNIX systems (similar to NX). You need x11vnc to find, and Xvfb, Xvnc, or Xdummy to create sessions. If you have trouble connecting, try selecting a specific Remote Session Type in the AutoX Advanced Settings.</string>
+    <string name="auto_x_caption">The application can automatically discover existing and create new X sessions on Linux/UNIX systems (similar to NX). You need x11vnc to find, and Xvfb, Xvnc, or Xdummy to create sessions. If you have trouble connecting, try selecting a specific Remote Session Type in the AutoX Advanced Settings.</string>
     <string name="auto_x_confirm">Confirm</string>
     <string name="auto_x_descript_geom">Remote Desktop Size (WxH)</string>
     <string name="auto_x_descript_session">Remote Session Type</string>
@@ -219,6 +221,8 @@ All Input Method:
     <string name="color_mode">Color Mode</string>
 
     <string name="connect_button">Connect</string>
+    <string name="back_button">Go Back</string>
+    <string name="update_button">Update</string>
 
     <string name="connection_caption">Connection</string>
     <string-array name="connection_type">
@@ -240,6 +244,9 @@ All Input Method:
     <string name="connection_type_vnc_over_ssl">Secure VNC over AnonTLS</string>
     <string name="connection_type_vnc_over_stunnel">Secure VNC over SSL Tunnel</string>
     <string name="connection_type_vnc_over_vencrypt">Secure VNC over VeNCrypt</string>
+    <string name="connection_edit_delete_prompt">Do you want to edit or delete the connection</string>
+    <string name="connection_edit">Edit</string>
+    <string name="connection_delete">Delete</string>
 
     <string name="control_check">Ctrl</string>
 
@@ -273,7 +280,7 @@ All Input Method:
     <string name="error_rdp_connection_failed">RDP Connection failed! Either network connectivity was interrupted, the RDP server was turned off or disabled, or your session was taken over.</string>
     <string name="error_rdp_unable_to_connect">Could not connect to RDP server! Please ensure RDP Server setting is correct, the server is turned on, RDP is enabled, and that the server is on the same network as this device.</string>
     <string name="error_security_type">Server did not offer supported security type.</string>
-    <string name="error_spice_unable_to_connect">Unable to connect or authenticate, please check server address, password, and cert authority and subject.</string>
+    <string name="error_spice_unable_to_connect">Unable to connect or authenticate, please check server address and port.</string>
     <string name="error_ssh_could_not_exec_command">Could not execute remote command.</string>
     <string name="error_ssh_could_not_send_sudo_pwd">Could not send sudo password.</string>
     <string name="error_ssh_hostkey_changed">ERROR! The server host key has changed. If this is intentional, please delete and recreate the connection. Otherwise, this may be a man in the middle attack. Not continuing.</string>
@@ -456,8 +463,10 @@ Known issues:
     <string name="local_mouse_check">Local mouse pointer (select if pointer is invisible)</string>
 
     <string name="main_screen_help">Connection Help</string>
-    <string name="main_screen_help_text" tools:ignore="TypographyOther">
-"When you first start the application, you will see a connection configuration page. Here you can set up a new VNC connection, or choose a preexisting one. The page is divided into two sections. The top section contains a drop-down list of the connection configurations you've created previously. The first time your run the application, you will only be able to make a new connection. Next to the list is a Connect button. The Connect button will start the VNC client with the currently selected configuration. Below that is where you configure your connection.
+    <string name="vnc_connection_screen_help_text" tools:ignore="TypographyOther">
+"When you add or edit a connection, you will see a connection configuration page. Here you can set
+up a new VNC connection, or choose a preexisting one. At the top is a button that allows you to
+save the connection. Below that is where you configure your connection.
 
 If you are looking for a quick performance boost, try setting the Color mode to a lower value. Also, try removing any desktop background image on the VNC server. Finally, ensure your device has good network connectivity and avoid covering its antenna and reducing the signal strength.
 
@@ -634,8 +643,8 @@ Planned features of aRDP include:
 Known issues:
 </string>
     <string name="rdp_intro_title">aRDP: Intuitive, secure RDP client</string>
-    <string name="rdp_main_screen_help_text" tools:ignore="TypographyOther">
-"When you first start aRDP, you will see a connection configuration page. Here you can set up a new RDP connection, or choose a preexisting one. The page is divided into two sections. The top section contains a drop-down list of the connection configurations you've created previously. The first time your run aRDP, you will only be able to make a new connection. Next to the list is a Connect button. The Connect button will start the RDP client with the currently selected configuration. Below that is where you configure your connection.
+    <string name="rdp_connection_screen_help_text" tools:ignore="TypographyOther">
+"When you add or edit a connection, you will see a connection configuration page. Here you can set up a new RDP connection, or choose a preexisting one. At the top is a button that allows you to save the connection. Below that is where you configure your connection.
 
  - Connection Type: Here you choose the RDP connection type. Available connection types are:
    (a) RDP, which connects directly to a computer over the RDP protocol.
@@ -645,21 +654,21 @@ Known issues:
  
  - SSH Tunnel Settings: Available in RDP over SSH mode.
    (a) SSH Server/Port: The address and port of the SSH server that the connection will be tunnelled through. By default SSH listens on port 22.
-   (b) Username/Password: The username and password of the account on the SSH server. The password will be filled in on this page if you haven't quit aRDP since you last entered it.
+   (b) Username/Password: The username and password of the account on the SSH server. The password will be filled in on this page if you haven't quit the app since you last entered it.
    (c) Manage Key/Use Key: A button to manage public/private keys, and a checkbox indicating whether to use a key rather than password to authenticate. If you use the Copy to Clipboard button after generating a key-pair, you should be able to paste the public key once connected to the RDP server (the clipboard is synchronized to the server).
 
  - RDP Connection Settings:
    (a) RDP Server/Port: This is where you enter the host name or IP address and port of the computer running the RDP server that you wish to contact. In RDP over SSH mode, this address is as seen from the SSH Server. If the SSH Server and RDP server are the same physical computer, you can use localhost. RDP servers typically listen on port 3389.
    (b) RDP User: This is where you enter your Windows/UNIX account user name.
    (c) RDP Domain: Enter the domain your account belongs to.
-   (d) RDP Password: This si where you enter your Windows/UNIX account password. Secure storage is not used for passwords (they are in a database), and the password will be stored only if you check the "Keep" box. The password will be filled in on this page if you haven't quit aRDP since you last entered it.
+   (d) RDP Password: This si where you enter your Windows/UNIX account password. Secure storage is not used for passwords (they are in a database), and the password will be stored only if you check the "Keep" box. The password will be filled in on this page if you haven't quit the app since you last entered it.
 
  - Advanced settings: In this section you'll find a ways to customize the resolution of the desktop, and various RDP performance tweaks
  
- - Local Device Tweaks: These adjust the behavior of aRDP on your device.
+ - Local Device Tweaks: These adjust the behavior of the app on your device.
    (a) Use D-Pad for arrows: If you prefer, you can use the D-Pad of your Bluetooth keyboard or arrows on your on-screen keyboard to send arrows to the RDP server.
    (b) Rotate D-Pad: Phones paired with a Bluetooth keyboard may need the keyboard's D-pad to be rotated anti-clockwise to send correct directions to the server.
-   (c) Local mouse pointer: If the pointer is invisible, select this to force it to be drawn by aRDP.</string>
+   (c) Local mouse pointer: If the pointer is invisible, select this to force it to be drawn by the app.</string>
     <string name="rdp_password_hint">RDP Password</string>
     <string name="rdp_server_empty">RDP Server or port empty. Cannot connect!</string>
     <string name="rdp_username_hint">RDP Username</string>
@@ -775,8 +784,8 @@ Known issues:
 &lt;br&gt;
 </string>
     <string name="spice_intro_title">aSPICE: Intuitive, secure SPICE client</string>
-    <string name="spice_main_screen_help_text" tools:ignore="TypographyOther">
-"When you first start aSPICE, you will see a connection configuration page. Here you can set up a new SPICE connection, or choose a preexisting one. The page is divided into two sections. The top section contains a drop-down list of the connection configurations you've created previously. The first time your run aSPICE, you will only be able to make a new connection. Next to the list is a Connect button. The Connect button will start the SPICE client with the currently selected configuration. Below that is where you configure your connection.
+    <string name="spice_connection_screen_help_text" tools:ignore="TypographyOther">
+"When you add or edit a connection, you will see a connection configuration page. Here you can set up a new SPICE connection, or choose a preexisting one. At the top is a button that allows you to save the connection. Below that is where you configure your connection.
 
  - Connection Type: Here you choose the SPICE connection type. Available connection types are:
    (a) SPICE, which connects directly to a computer over the SPICE protocol.
@@ -786,18 +795,18 @@ Known issues:
  
  - SSH Tunnel Settings: Available in SPICE over SSH mode.
    (a) SSH Server/Port: The address and port of the SSH server that the connection will be tunnelled through. By default SSH listens on port 22.
-   (b) Username/Password: The username and password of the account on the SSH server. The password will be filled in on this page if you haven't quit aSPICE since you last entered it.
+   (b) Username/Password: The username and password of the account on the SSH server. The password will be filled in on this page if you haven't quit the app since you last entered it.
    (c) Manage Key/Use Key: A button to manage public/private keys, and a checkbox indicating whether to use a key rather than password to authenticate. If you use the Copy to Clipboard button after generating a key-pair, you should be able to paste the public key once connected to the SPICE server (the clipboard is synchronized to the server).
 
  - SPICE Connection Settings:
    (a) SPICE Server/Port: This is where you enter the host name or IP address and port of the computer running the SPICE server that you wish to contact. In SPICE over SSH mode, this address is as seen from the SSH Server. If the SSH Server and SPICE server are the same physical computer, you can use localhost. SPICE servers typically listen on port 5900 and up.
-   (d) SPICE Password: This is where you enter the password set to protect your SPICE session. Secure storage is not used for passwords (they are in a database), and the password will be stored only if you check the "Keep" box. The password will be filled in on this page if you haven't quit aSPICE since you last entered it.
+   (d) SPICE Password: This is where you enter the password set to protect your SPICE session. Secure storage is not used for passwords (they are in a database), and the password will be stored only if you check the "Keep" box. The password will be filled in on this page if you haven't quit the app since you last entered it.
 
  - Advanced settings: In this section you'll find any local device or SPICE performance tweaks
- - Local Device Tweaks: These adjust the behavior of aSPICE on your device.
+ - Local Device Tweaks: These adjust the behavior of the app on your device.
    (a) Use D-Pad for arrows: If you prefer, you can use the D-Pad of your Bluetooth keyboard or arrows on your on-screen keyboard to send arrows to the SPICE server.
    (b) Rotate D-Pad: Phones paired with a Bluetooth keyboard may need the keyboard's D-pad to be rotated anti-clockwise to send correct directions to the server.
-   (c) Local mouse pointer: If the pointer is invisible, select this to force it to be drawn by aSPICE.</string>
+   (c) Local mouse pointer: If the pointer is invisible, select this to force it to be drawn by the app.</string>
     <string name="spice_password_hint">SPICE Password</string>
     <string name="spice_server_empty">SPICE Server or port empty. Cannot connect!</string>
     <string name="spice_tls_port_hint">TLS Port</string>
@@ -826,6 +835,7 @@ Known issues:
     <string name="view_only">View-only mode</string>
 
     <string name="vnc_server_empty">VNC Server or port empty. Cannot connect!</string>
+    <string name="vnc_server_empty_no_save">VNC Server or port empty. Cannot save connection!</string>
 
     <string name="warning_cert_does_not_match">WARNING: The saved x509 certificate or passed in signature does not match the current server certificate! This could be a man-in-the-middle attack. If you are aware of the key change you may proceed. </string>
     <string name="copy_logcat">Copy Logcat</string>
@@ -859,4 +869,52 @@ Known issues:
     <string name="color_black_and_white"><![CDATA["Black & White (1 bpp)"]]></string>
     <string name="show">"Show"</string>
     <string name="hide">"Hide"</string>
+    <string name="search_connections">Search Connections</string>
+    <string name="user_not_specified">User not specified</string>
+    <string name="enter_ssh_credentials">Please enter SSH credentials</string>
+    <string name="enter_vnc_credentials">Please enter VNC credentials</string>
+    <string name="enter_vnc_password">Please enter VNC password</string>
+    <string name="enter_rdp_credentials">Please enter RDP credentials</string>
+    <string name="enter_spice_password">Please enter SPICE password</string>
+    <string name="enter_passphrase_title">Enter Key Passphrase</string>
+    <string name="enter_passphrase">Please enter Key Passphrase</string>
+    <string name="ssh_server_needs_password_in_addition_to_key">Your server needs password authentication in addition to key authentication.</string>
+    <string name="main_screen_help_text">"
+When the application is launched it displays a screen with saved connections on it.
+
+If there are no saved connections, the lower part of the screen is empty, and you will have to hit the plus button to create a new one.
+You can also control other aspects of the configuration from this screen by tapping on other tool-bar or menu options at the top, for
+instance to edit default settings, or import and export settings.
+
+Once you have a connection saved, you can connect to the remote server by tapping it once. You will also have a choice to delete or edit it by long-tapping it.
+
+Finally, you can use the Search Connections field to quickly find connections by filter shown connections."
+    </string>
+    <string name="opaque_connection_screen_help_text" tools:ignore="TypographyOther">
+"When you add or edit a connection, you will see a connection configuration page.
+Here you can set up a new Opaque connection or choose a preexisting one.
+At the top is a button that allows you to save the connection.
+Below that is where you configure your connection.
+
+ - Connection Type: Here you choose what Virtualization Environment you are connecting to.
+
+ - Server Address: The hostname or IP of the server. If it is listening on a non-standard port, you can add a port separated by colon.
+
+ - Virtual machine name: You can specify the name of the VM as it appears on your Virtualization platform or leave this field empty to get a list of VMs or containers to select from.
+
+ - User: Enter the user name to authenticate to your virtualization framework.
+
+ - Password: If you'd like to save the password, enter it here or leave the field empty to be queried for it every time.
+
+ - Advanced settings: In this section you'll find any local device, protocol, and performance tweaks.
+    </string>
+    <string name="help">Help</string>
+    <string name="support_forum">Support Forum</string>
+    <string name="report_bug">Report a bug</string>
+    <string name="download_from_server">Download from Server</string>
+    <string name="import_from_file">Import from File</string>
+    <string name="please_grant_permission_from_prefs">You may need to grant permissions to the application through Settings.</string>
+    <string name="rdp_adv_gfx">RDP Gfx</string>
+    <string name="rdp_adv_gfxh264">RDP Gfx H264</string>
+    <string name="more_debug_logging">More Debug Logging</string>
 </resources>

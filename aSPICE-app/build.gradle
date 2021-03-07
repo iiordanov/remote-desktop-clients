@@ -1,11 +1,12 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 28
+    compileSdkVersion 29
 
     defaultConfig {
-        targetSdkVersion 28
+        targetSdkVersion 29
         minSdkVersion project.getProperties().get("SDK_VERSION")
+        multiDexEnabled true
     }
 
     buildTypes {
@@ -14,9 +15,14 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
         }
     }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
 }
 
 dependencies {
+    api 'com.android.support:multidex:1.0.3'
     implementation project(':bVNC')
     implementation project(':pubkeyGenerator')
 }

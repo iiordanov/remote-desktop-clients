@@ -6,7 +6,7 @@ package com.iiordanov.bVNC;
 public abstract class AbstractConnectionBean extends com.antlersoft.android.dbimpl.IdImplementationBase implements IConnectionBean {
 
     public static final String GEN_TABLE_NAME = "CONNECTION_BEAN";
-    public static final int GEN_COUNT = 76;
+    public static final int GEN_COUNT = 81;
 
     // Field constants
     public static final String GEN_FIELD__ID = "_id";
@@ -162,6 +162,18 @@ public abstract class AbstractConnectionBean extends com.antlersoft.android.dbim
     public static final String GEN_FIELD_LAYOUTMAP = "LAYOUTMAP";
     public static final int GEN_ID_LAYOUTMAP = 75;
 
+    public static final String GEN_FIELD_FILENAME = "FILENAME";
+    public static final int GEN_ID_FILENAME = 76;
+    public static final String GEN_FIELD_X509KEYSIGNATURE = "X509KEYSIGNATURE";
+    public static final int GEN_ID_X509KEYSIGNATURE = 77;
+    public static final String GEN_FIELD_SCREENSHOTFILENAME = "SCREENSHOTFILENAME";
+    public static final int GEN_ID_SCREENSHOTFILENAME = 78;
+
+    public static final String GEN_FIELD_ENABLEGFX = "ENABLEGFX";
+    public static final int GEN_ID_ENABLEGFX = 79;
+    public static final String GEN_FIELD_ENABLEGFXH264 = "ENABLEGFXH264";
+    public static final int GEN_ID_ENABLEGFXH264 = 80;
+
     // SQL Command for creating the table
     public static String GEN_CREATE = "CREATE TABLE CONNECTION_BEAN (" +
     "_id INTEGER PRIMARY KEY AUTOINCREMENT," +
@@ -239,7 +251,12 @@ public abstract class AbstractConnectionBean extends com.antlersoft.android.dbim
     "ENABLERECORDING INTEGER," +
     "REMOTESOUNDTYPE INTEGER," +
     "VIEWONLY INTEGER," +
-    "LAYOUTMAP TEXT" +
+    "LAYOUTMAP TEXT," +
+    "FILENAME TEXT," +
+    "X509KEYSIGNATURE TEXT," +
+    "SCREENSHOTFILENAME TEXT," +
+    "ENABLEGFX INTEGER," +
+    "ENABLEGFXH264 INTEGER" +
     ")";
 
     // Members corresponding to defined fields
@@ -320,6 +337,12 @@ public abstract class AbstractConnectionBean extends com.antlersoft.android.dbim
     private boolean gen_viewOnly;
     private java.lang.String gen_layoutMap;
 
+    private java.lang.String gen_filename;
+    private java.lang.String gen_x509KeySignature;
+    private java.lang.String gen_screenshotFilename;
+
+    private boolean gen_enableGfx;
+    private boolean gen_enableGfxH264;
 
     public String Gen_tableName() { return GEN_TABLE_NAME; }
 
@@ -477,6 +500,18 @@ public abstract class AbstractConnectionBean extends com.antlersoft.android.dbim
     public java.lang.String getLayoutMap() { return gen_layoutMap; }
     public void setLayoutMap(java.lang.String arg_layoutMap) { gen_layoutMap = arg_layoutMap; }
 
+    public java.lang.String getFilename() { return gen_filename; }
+    public void setFilename(java.lang.String arg_filename) { gen_filename = arg_filename; }
+    public void setX509KeySignature(java.lang.String arg_x509KeySignature) { gen_x509KeySignature = arg_x509KeySignature; }
+    public java.lang.String getX509KeySignature() { return gen_x509KeySignature; }
+    public java.lang.String getScreenshotFilename() { return gen_screenshotFilename; }
+    public void setScreenshotFilename(java.lang.String arg_screenshotFilename) { gen_screenshotFilename = arg_screenshotFilename; }
+
+    public boolean getEnableGfx() { return gen_enableGfx; }
+    public void setEnableGfx(boolean arg_enableGfx) { gen_enableGfx = arg_enableGfx; }
+    public boolean getEnableGfxH264() { return gen_enableGfxH264; }
+    public void setEnableGfxH264(boolean arg_enableGfxH264) { gen_enableGfxH264 = arg_enableGfxH264; }
+
     public android.content.ContentValues Gen_getValues() {
         android.content.ContentValues values=new android.content.ContentValues();
         values.put(GEN_FIELD__ID,Long.toString(this.gen__Id));
@@ -555,6 +590,14 @@ public abstract class AbstractConnectionBean extends com.antlersoft.android.dbim
         values.put(GEN_FIELD_REMOTESOUNDTYPE,Integer.toString(this.gen_remoteSoundType));
         values.put(GEN_FIELD_VIEWONLY,(this.gen_viewOnly ? "1" : "0"));
         values.put(GEN_FIELD_LAYOUTMAP,this.gen_layoutMap);
+
+        values.put(GEN_FIELD_FILENAME,this.gen_filename);
+        values.put(GEN_FIELD_X509KEYSIGNATURE,this.gen_x509KeySignature);
+        values.put(GEN_FIELD_SCREENSHOTFILENAME,this.gen_screenshotFilename);
+
+        values.put(GEN_FIELD_ENABLEGFX,(this.gen_enableGfx ? "1" : "0"));
+        values.put(GEN_FIELD_ENABLEGFXH264,(this.gen_enableGfxH264 ? "1" : "0"));
+
         return values;
     }
 
@@ -645,6 +688,13 @@ public abstract class AbstractConnectionBean extends com.antlersoft.android.dbim
         result[73] = cursor.getColumnIndex(GEN_FIELD_REMOTESOUNDTYPE);
         result[74] = cursor.getColumnIndex(GEN_FIELD_VIEWONLY);
         result[75] = cursor.getColumnIndex(GEN_FIELD_LAYOUTMAP);
+
+        result[76] = cursor.getColumnIndex(GEN_FIELD_FILENAME);
+        result[77] = cursor.getColumnIndex(GEN_FIELD_X509KEYSIGNATURE);
+        result[78] = cursor.getColumnIndex(GEN_FIELD_SCREENSHOTFILENAME);
+
+        result[79] = cursor.getColumnIndex(GEN_FIELD_ENABLEGFX);
+        result[80] = cursor.getColumnIndex(GEN_FIELD_ENABLEGFXH264);
         return result;
     }
 
@@ -880,6 +930,23 @@ public abstract class AbstractConnectionBean extends com.antlersoft.android.dbim
         if ( columnIndices[GEN_ID_LAYOUTMAP] >= 0 && ! cursor.isNull(columnIndices[GEN_ID_LAYOUTMAP])) {
             gen_layoutMap = cursor.getString(columnIndices[GEN_ID_LAYOUTMAP]);
         }
+
+        if ( columnIndices[GEN_ID_FILENAME] >= 0 && ! cursor.isNull(columnIndices[GEN_ID_FILENAME])) {
+            gen_filename = cursor.getString(columnIndices[GEN_ID_FILENAME]);
+        }
+        if ( columnIndices[GEN_ID_X509KEYSIGNATURE] >= 0 && ! cursor.isNull(columnIndices[GEN_ID_X509KEYSIGNATURE])) {
+            gen_x509KeySignature = cursor.getString(columnIndices[GEN_ID_X509KEYSIGNATURE]);
+        }
+        if ( columnIndices[GEN_ID_SCREENSHOTFILENAME] >= 0 && ! cursor.isNull(columnIndices[GEN_ID_SCREENSHOTFILENAME])) {
+            gen_screenshotFilename = cursor.getString(columnIndices[GEN_ID_SCREENSHOTFILENAME]);
+        }
+
+        if ( columnIndices[GEN_ID_ENABLEGFX] >= 0 && ! cursor.isNull(columnIndices[GEN_ID_ENABLEGFX])) {
+            gen_enableGfx = (cursor.getInt(columnIndices[GEN_ID_ENABLEGFX]) != 0);
+        }
+        if ( columnIndices[GEN_ID_ENABLEGFXH264] >= 0 && ! cursor.isNull(columnIndices[GEN_ID_ENABLEGFXH264])) {
+            gen_enableGfxH264 = (cursor.getInt(columnIndices[GEN_ID_ENABLEGFXH264]) != 0);
+        }
     }
 
     /**
@@ -962,5 +1029,12 @@ public abstract class AbstractConnectionBean extends com.antlersoft.android.dbim
         gen_remoteSoundType = (int)values.getAsInteger(GEN_FIELD_REMOTESOUNDTYPE);
         gen_viewOnly = (values.getAsInteger(GEN_FIELD_VIEWONLY) != 0);
         gen_layoutMap = values.getAsString(GEN_FIELD_LAYOUTMAP);
+
+        gen_filename = values.getAsString(GEN_FIELD_FILENAME);
+        gen_x509KeySignature = values.getAsString(GEN_FIELD_X509KEYSIGNATURE);
+        gen_screenshotFilename = values.getAsString(GEN_FIELD_SCREENSHOTFILENAME);
+
+        gen_enableGfx = (values.getAsInteger(GEN_FIELD_ENABLEGFX) != 0);
+        gen_enableGfxH264 = (values.getAsInteger(GEN_FIELD_ENABLEGFXH264) != 0);
     }
 }

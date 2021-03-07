@@ -21,15 +21,6 @@
       android:background="?attr/colorPrimary">
     </android.support.v7.widget.Toolbar>
 
-<ImageButton android:id="@+id/keyStow"
-	android:background="@drawable/showkeys"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_gravity="bottom|center"
-    android:visibility="gone"
-    android:padding="10sp"
-    />
-
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/singleHandOpts"
 	android:layout_width="wrap_content"

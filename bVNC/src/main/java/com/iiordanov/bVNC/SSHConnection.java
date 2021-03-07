@@ -21,6 +21,7 @@ package com.iiordanov.bVNC;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.security.KeyPair;
@@ -33,6 +34,7 @@ import android.content.Context;
 import android.os.Handler;
 import android.util.Base64;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.iiordanov.pubkeygenerator.PubkeyUtils;
 import com.trilead.ssh2.Connection;
@@ -41,13 +43,8 @@ import com.trilead.ssh2.InteractiveCallback;
 import com.trilead.ssh2.KnownHosts;
 import com.trilead.ssh2.Session;
 import com.iiordanov.bVNC.dialogs.GetTextFragment;
-import com.iiordanov.bVNC.*;
-import com.iiordanov.freebVNC.*;
-import com.iiordanov.aRDP.*;
-import com.iiordanov.freeaRDP.*;
-import com.iiordanov.aSPICE.*;
-import com.iiordanov.freeaSPICE.*;
-import com.iiordanov.CustomClientPackage.*;
+import com.undatech.opaque.MessageDialogs;
+import com.undatech.opaque.RemoteClientLibConstants;
 import com.undatech.remoteClientUi.*;
 
 /**
@@ -57,7 +54,9 @@ import com.undatech.remoteClientUi.*;
 public class SSHConnection implements InteractiveCallback, GetTextFragment.OnFragmentDismissedListener {
     private final static String TAG = "SSHConnection";
     private final static int MAXTRIES = 3;
-    
+    private final static int MAX_AUTH_RETRIES = 3;
+    private final static int MAX_DECRYPTION_ATTEMPTS = 3;
+
     private Connection connection;
     private final int numPortTries = 1000;
     private ConnectionInfo connectionInfo;
@@ -89,6 +88,7 @@ public class SSHConnection implements InteractiveCallback, GetTextFragment.OnFra
     private int     sshRemoteCommandTimeout;
     private String  sshRemoteCommand;
     private BufferedInputStream remoteStdout;
+    private BufferedInputStream remoteStderr;
     private BufferedOutputStream remoteStdin;
     private boolean autoXEnabled;
     private int     autoXType;
@@ -97,10 +97,13 @@ public class SSHConnection implements InteractiveCallback, GetTextFragment.OnFra
     private String  autoXRandFileNm;
     private Context context;
     private Handler handler;
+    private int sshPasswordAuthAttempts = 0;
+    private int sshKeyDecryptionAttempts = 0;
+    private com.undatech.opaque.Connection conn;
 
     // Used to communicate the MFA verification code obtained.
     private String verificationCode;
-    private CountDownLatch vcLatch;
+    private CountDownLatch userInputLatch;
 
     public SSHConnection(com.undatech.opaque.Connection conn, Context cntxt, Handler handler) {
         host = conn.getSshServer();
@@ -125,9 +128,10 @@ public class SSHConnection implements InteractiveCallback, GetTextFragment.OnFra
         connection = new Connection(host, sshPort);
         autoXRandFileNm = conn.getAutoXRandFileNm();
         context = cntxt;
-        vcLatch = new CountDownLatch(1);
+        userInputLatch = new CountDownLatch(1);
         this.verificationCode = new String();
         this.handler = handler;
+        this.conn = conn;
     }
     
     String getServerHostKey() {
@@ -136,12 +140,73 @@ public class SSHConnection implements InteractiveCallback, GetTextFragment.OnFra
     String getIdHash() {
         return idHash;
     }
-    
+
     public void setVerificationCode(String verificationCode) {
         this.verificationCode = verificationCode;
-        this.vcLatch.countDown();
+        this.userInputLatch.countDown();
     }
-    
+
+    public void setUserAndPassword(String sshUser, String sshPassword, boolean keep) {
+        this.user = sshUser;
+        this.password = sshPassword;
+        this.conn.setSshUser(sshUser);
+        this.conn.setSshPassword(sshPassword);
+        this.conn.setKeepSshPassword(keep);
+        this.userInputLatch.countDown();
+    }
+
+    public void setPassphrase(String sshPassphrase, boolean keep) {
+        this.passphrase = sshPassphrase;
+        this.conn.setSshPassPhrase(sshPassphrase);
+        this.conn.setKeepSshPassword(keep);
+        this.userInputLatch.countDown();
+    }
+
+    private void attemptSshPasswordAuthentication() throws Exception {
+        Log.i(TAG, "attemptSshPasswordAuthentication");
+        while(!authenticateWithPassword() && canAuthWithPass()) {
+            sshPasswordAuthAttempts++;
+            if (sshPasswordAuthAttempts > MAX_AUTH_RETRIES) {
+                throw new Exception(context.getString(R.string.error_ssh_pwd_auth_fail));
+            }
+            userInputLatch = new CountDownLatch(1);
+            Log.i(TAG, "Requesting SSH password from user");
+            handler.sendEmptyMessage(RemoteClientLibConstants.GET_SSH_CREDENTIALS);
+            while (true) {
+                try {
+                    userInputLatch.await();
+                    break;
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    private void attemptSshKeyDecryption() throws Exception {
+        // Try to decrypt and recover keypair, and failing that, report error.
+        kp = PubkeyUtils.decryptAndRecoverKeyPair(sshPrivKey, passphrase);
+        while(kp == null) {
+            sshKeyDecryptionAttempts++;
+            if (sshKeyDecryptionAttempts > MAX_DECRYPTION_ATTEMPTS) {
+                throw new Exception(context.getString(R.string.error_ssh_keypair_decryption_failure));
+            }
+            userInputLatch = new CountDownLatch(1);
+            Log.i(TAG, "Requesting SSH passphrase from user");
+            handler.sendEmptyMessage(RemoteClientLibConstants.GET_SSH_PASSPHRASE);
+            while (true) {
+                try {
+                    userInputLatch.await();
+                    break;
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            kp = PubkeyUtils.decryptAndRecoverKeyPair(sshPrivKey, passphrase);
+        }
+    }
+
+
     /**
      * Initializes the SSH Tunnel
      * @return -1 if the target port was not determined, and the port obtained from x11vnc if it was
@@ -161,41 +226,59 @@ public class SSHConnection implements InteractiveCallback, GetTextFragment.OnFra
         
         // Authenticate and set up port forwarding.
         if (!usePubKey) {
+            Log.i(TAG, "SSH tunnel not configured to use public key, trying password auth");
             if (!canAuthWithPass()) {
+                Log.e(TAG, "SSH server does not support password authentication so throw an error");
                 String authMethods = Arrays.toString(connection.getRemainingAuthMethods(user));
                 throw new Exception(context.getString(R.string.error_ssh_kbd_auth_method_unavail) + " " + authMethods);
             }
-            if (!authenticateWithPassword())
-                throw new Exception(context.getString(R.string.error_ssh_pwd_auth_fail));
+            attemptSshPasswordAuthentication();
         } else {
+            Log.i(TAG, "SSH tunnel is configured to use public key, will attempt");
             if (canAuthWithPubKey()) {
+                Log.i(TAG, "SSH server supports pubkey authentication, continuing");
                 // Pubkey auth method is allowed so try it.
                 if (!authenticateWithPubKey()) {
                     if (!canAuthWithPubKey()) {
                         // If pubkey authentication is now no longer available, we know pubkey
                         // authentication succeeded but the server wants further authentication.
-                        if (!authenticateWithPassword()) {
-                            throw new Exception(context.getString(R.string.error_ssh_pwd_auth_fail));
-                        }
+                        Log.i(TAG, "SSH server needs more than key auth, trying password auth in addition");
+                        MessageDialogs.displayToast(context, handler,
+                                context.getString(R.string.ssh_server_needs_password_in_addition_to_key),
+                                Toast.LENGTH_LONG);
+                        attemptSshPasswordAuthentication();
                     } else {
+                        Log.e(TAG, "Failed to authenticate to SSH server with key");
                         throw new Exception(context.getString(R.string.error_ssh_key_auth_fail));
                     }
                 }
             } else {
                 // Pubkey authentication is not available, so try password if one was supplied.
-                if (!password.isEmpty() && canAuthWithPass() && !authenticateWithPassword()) {
-                    if (!canAuthWithPass()) {
+                if (canAuthWithPass()) {
+                    Log.i(TAG, "Key auth enabled, but server is asking for password, trying password auth");
+                    MessageDialogs.displayToast(context, handler,
+                            context.getString(R.string.ssh_server_needs_password_in_addition_to_key),
+                            Toast.LENGTH_LONG);
+                    attemptSshPasswordAuthentication();
+                    Log.d(TAG, "isAuthenticationComplete: " + connection.isAuthenticationComplete());
+                    Log.d(TAG, "isAuthenticationPartialSuccess: " + connection.isAuthenticationPartialSuccess());
+                    if (!connection.isAuthenticationComplete()) {
+                        Log.i(TAG, "Key auth enabled, password authenticated succeeded, and server is asking for key auth");
                         // If password authentication is now no longer available, we know password
                         // authentication succeeded but the server wants further authentication.
                         if (!authenticateWithPubKey()) {
+                            Log.e(TAG, "Key authentication failed");
                             throw new Exception(context.getString(R.string.error_ssh_key_auth_fail));
                         }
-                    } else {
+                    } else if (!connection.isAuthenticationComplete()) {
+                        Log.e(TAG, "Password authentication failed");
                         throw new Exception(context.getString(R.string.error_ssh_pwd_auth_fail));
                     }
                 } else {
+                    Log.e(TAG, "SSH server does not support key auth, but SSH tunnel is configured to use it");
                     String authMethods = Arrays.toString(connection.getRemainingAuthMethods(user));
-                    throw new Exception(context.getString(R.string.error_ssh_pubkey_auth_method_unavail) + " " + authMethods);
+                    throw new Exception(context.getString(R.string.error_ssh_pubkey_auth_method_unavail)
+                            + " " + authMethods);
                 }
             }
         }
@@ -229,7 +312,9 @@ public class SSHConnection implements InteractiveCallback, GetTextFragment.OnFra
             }
 
             if (port < 0) {
-                throw new Exception (context.getString(R.string.error_ssh_x11vnc_no_port_failure));
+                throw new Exception (context.getString(R.string.error_ssh_x11vnc_no_port_failure)
+                        + "  \n\n" + context.getString(R.string.error) + ":  \n\n"
+                        + bufferedInputStreamToString(remoteStderr));
             }
         }
         
@@ -313,8 +398,8 @@ public class SSHConnection implements InteractiveCallback, GetTextFragment.OnFra
     /**
      * Returns whether the server can authenticate either with pass or keyboard-interactive methods.
      */
-    private boolean canAuthWithPass () {
-        return hasPasswordAuth () || hasKeyboardInteractiveAuth ();
+    private boolean canAuthWithPass() {
+        return hasPasswordAuth() || hasKeyboardInteractiveAuth();
     }
     
     /**
@@ -370,7 +455,7 @@ public class SSHConnection implements InteractiveCallback, GetTextFragment.OnFra
                 isAuthenticated = connection.authenticateWithKeyboardInteractive(user, this);
             }
             if (!isAuthenticated && hasPasswordAuth()) {
-                Log.i(TAG, "Trying SSH password authentication.");
+                Log.i(TAG, "Trying SSH password authentication. " + user + " " + password);
                 isAuthenticated = connection.authenticateWithPassword(user, password);
             }
             return isAuthenticated;
@@ -385,21 +470,21 @@ public class SSHConnection implements InteractiveCallback, GetTextFragment.OnFra
      * @throws Exception 
      */
     private void decryptAndRecoverKey () throws Exception {
-        
+        Log.i(TAG, "decryptAndRecoverKey");
+
         // Detect an empty key (not generated).
-        if (sshPrivKey.length() == 0)
-            throw new Exception (context.getString(R.string.error_ssh_keypair_missing));
+        if (sshPrivKey.length() == 0) {
+            Log.e(TAG, "SSH key not generated yet");
+            throw new Exception(context.getString(R.string.error_ssh_keypair_missing));
+        }
         
         // Detect passphrase entered when key unencrypted and report error.
-        if (passphrase.length() != 0 &&
-            !PubkeyUtils.isEncrypted(sshPrivKey))
-                throw new Exception (context.getString(R.string.error_ssh_passphrase_but_keypair_unencrypted));
-        
-        // Try to decrypt and recover keypair, and failing that, report error.
-        kp = PubkeyUtils.decryptAndRecoverKeyPair(sshPrivKey, passphrase);
-        if (kp == null) 
-            throw new Exception (context.getString(R.string.error_ssh_keypair_decryption_failure));
-        
+        if (passphrase.length() != 0 && !PubkeyUtils.isEncrypted(sshPrivKey)) {
+            Log.e(TAG, "SSH key not encrypted but passphrase was entered");
+            throw new Exception(context.getString(R.string.error_ssh_passphrase_but_keypair_unencrypted));
+        }
+        attemptSshKeyDecryption();
+
         privateKey = kp.getPrivate();
         publicKey = kp.getPublic();
     }
@@ -408,7 +493,6 @@ public class SSHConnection implements InteractiveCallback, GetTextFragment.OnFra
      * Authenticates with a public/private key-pair.
      */
     private boolean authenticateWithPubKey () throws Exception {
-        
         decryptAndRecoverKey();
         Log.i(TAG, "Trying SSH pubkey authentication.");
         return connection.authenticateWithPublicKey(user, kp);
@@ -441,11 +525,14 @@ public class SSHConnection implements InteractiveCallback, GetTextFragment.OnFra
             session = connection.openSession();
             session.execCommand(command);
             remoteStdout = new BufferedInputStream(session.getStdout());
+            remoteStderr = new BufferedInputStream(session.getStderr());
             remoteStdin  = new BufferedOutputStream(session.getStdin());
             Thread.sleep(secTimeout*1000);
         } catch (Exception e) {
             e.printStackTrace();
-            throw new Exception (context.getString(R.string.error_ssh_could_not_exec_command));
+            throw new Exception (context.getString(R.string.error_ssh_could_not_exec_command)
+                    + "  \n\n" + context.getString(R.string.error) + ":  \n\n"
+                    + bufferedInputStreamToString(remoteStderr));
         }
     }
     
@@ -480,7 +567,9 @@ public class SSHConnection implements InteractiveCallback, GetTextFragment.OnFra
             remoteStdin.write(new String (password + '\n').getBytes());
         } catch (IOException e) {
             e.printStackTrace();
-            throw new Exception (context.getString(R.string.error_ssh_could_not_send_sudo_pwd));
+            throw new Exception (context.getString(R.string.error_ssh_could_not_send_sudo_pwd)
+                    + "  \n\n" + context.getString(R.string.error) + ":  \n\n"
+                    + bufferedInputStreamToString(remoteStderr));
         }
     }
 
@@ -530,6 +619,27 @@ public class SSHConnection implements InteractiveCallback, GetTextFragment.OnFra
         return port;
     }
 
+    String bufferedInputStreamToString(BufferedInputStream remote) {
+        int nRead;
+        byte[] dataBuf = new byte[1024];
+        ByteArrayOutputStream bufferOs = new ByteArrayOutputStream();
+
+        try {
+            while ((nRead = remote.read(dataBuf, 0, dataBuf.length)) != -1) {
+                bufferOs.write(dataBuf, 0, nRead);
+            }
+            String output = bufferOs.toString("UTF-8");
+
+            Log.d(TAG, "bufferedInputStreamToString:");
+            Log.d(TAG, output);
+            return output;
+        } catch (IOException e) {
+            Log.e (TAG, "Failed to read from remote stdout.");
+            e.printStackTrace();
+        }
+        return "";
+    }
+
     /**
      * Used for keyboard-interactive authentication.
      */
@@ -540,25 +650,25 @@ public class SSHConnection implements InteractiveCallback, GetTextFragment.OnFra
         String[] responses = new String[numPrompts];
         for (int x=0; x < numPrompts; x++) {
             if (prompt[0].indexOf("Verification code:") != -1) {
-                Log.e(TAG, prompt[x] + "  Will request verification code from user");
+                Log.i(TAG, prompt[x] + "  Will request verification code from user");
                 if (Utils.isFree(context)) {
-                    handler.sendEmptyMessage(Constants.PRO_FEATURE);
+                    handler.sendEmptyMessage(RemoteClientLibConstants.PRO_FEATURE);
                     responses[x] = "";
                 } else {
-                    vcLatch = new CountDownLatch(1);
-                    Log.e(TAG, "Requesting verification code from user");
-                    handler.sendEmptyMessage(Constants.GET_VERIFICATIONCODE);
+                    userInputLatch = new CountDownLatch(1);
+                    Log.i(TAG, "Requesting verification code from user");
+                    handler.sendEmptyMessage(RemoteClientLibConstants.GET_VERIFICATIONCODE);
                     while (true) {
                         try {
-                            vcLatch.await();
+                            userInputLatch.await();
                             break;
                         } catch (InterruptedException e) { e.printStackTrace(); }
                     }
-                    Log.e(TAG, prompt[0] + "  Sending verification code: " + verificationCode);
+                    Log.i(TAG, prompt[0] + "  Sending verification code: " + verificationCode);
                     responses[x] = verificationCode;
                 }
             } else {
-                Log.e(TAG, prompt[0] + "  Sending SSH password");
+                Log.i(TAG, prompt[0] + "  Sending SSH password");
                 responses[x] = password;
             }
         }
@@ -566,7 +676,28 @@ public class SSHConnection implements InteractiveCallback, GetTextFragment.OnFra
     }
     
     @Override
-    public void onTextObtained(String obtainedString, boolean dialogCancelled) {
-        setVerificationCode(obtainedString);
+    public void onTextObtained(String dialogId, String[] obtainedStrings, boolean dialogCancelled, boolean keep) {
+        if (dialogCancelled) {
+            handler.sendEmptyMessage(RemoteClientLibConstants.DISCONNECT_NO_MESSAGE);
+            return;
+        }
+
+        switch (dialogId) {
+            case GetTextFragment.DIALOG_ID_GET_VERIFICATIONCODE:
+                android.util.Log.i(TAG, "Text obtained from DIALOG_ID_GET_VERIFICATIONCODE.");
+                setVerificationCode(obtainedStrings[0]);
+                break;
+            case GetTextFragment.DIALOG_ID_GET_SSH_CREDENTIALS:
+                android.util.Log.i(TAG, "Text obtained from DIALOG_ID_GET_SSH_CREDENTIALS.");
+                setUserAndPassword(obtainedStrings[0], obtainedStrings[1], keep);
+                break;
+            case GetTextFragment.DIALOG_ID_GET_SSH_PASSPHRASE:
+                android.util.Log.i(TAG, "Text obtained from DIALOG_ID_GET_SSH_PASSPHRASE.");
+                setPassphrase(obtainedStrings[0], keep);
+                break;
+            default:
+                android.util.Log.e(TAG, "Unknown dialog type.");
+                break;
+        }
     }
 }

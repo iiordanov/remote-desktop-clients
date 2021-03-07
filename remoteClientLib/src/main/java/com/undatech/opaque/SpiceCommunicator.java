@@ -45,6 +45,7 @@ import org.freedesktop.gstreamer.GStreamer;
 
 import com.undatech.opaque.input.RemoteKeyboard;
 import com.undatech.opaque.input.RemotePointer;
+import com.undatech.opaque.util.GeneralUtils;
 
 public class SpiceCommunicator implements RfbConnectable {
     
@@ -119,12 +120,16 @@ public class SpiceCommunicator implements RfbConnectable {
     private int lastRequestedWidth = -1;
     private int lastRequestedHeight = -1;
 
-    public SpiceCommunicator (Context context, Handler handler, Viewable canvas, boolean res, boolean usb) {
+    private boolean debugLogging;
+
+    public SpiceCommunicator (Context context, Handler handler, Viewable canvas, boolean res,
+                              boolean usb, boolean debugLogging) {
         this.context = context;
         this.canvas = canvas;
         this.isRequestingNewDisplayResolution = res;
         this.usbEnabled = usb;
         this.handler = handler;
+        this.debugLogging = debugLogging;
         myself = this;
         mUsbManager = (UsbManager) context.getSystemService(Context.USB_SERVICE);
 
@@ -268,7 +273,8 @@ public class SpiceCommunicator implements RfbConnectable {
     }
 
     public void sendSpiceKeyEvent (boolean keyDown, int virtualKeyCode) {
-        //android.util.Log.d(TAG, "sendSpiceKeyEvent: down: " + keyDown + " code: " + virtualKeyCode);
+        GeneralUtils.debugLog(this.debugLogging, TAG, "sendSpiceKeyEvent: down: " + keyDown +
+                " code: " + virtualKeyCode);
         SpiceKeyEvent(keyDown, virtualKeyCode);
     }
     
@@ -327,24 +333,29 @@ public class SpiceCommunicator implements RfbConnectable {
     }
 
     private void sendModifierKeys(boolean keyDown) {
-        if ((remoteMetaState & RemoteKeyboard.CTRL_ON_MASK) != 0) {
-            android.util.Log.e("SpiceCommunicator", "Sending CTRL: " + LCONTROL + " down: " + keyDown);
+        if ((remoteMetaState & RemoteKeyboard.CTRL_MASK) != 0) {
+            GeneralUtils.debugLog(this.debugLogging, TAG,
+                    "sendModifierKeys: Sending CTRL: " + LCONTROL + " down: " + keyDown);
             sendSpiceKeyEvent(keyDown, LCONTROL);
         }
-        if ((remoteMetaState & RemoteKeyboard.ALT_ON_MASK) != 0) {
-            android.util.Log.e("SpiceCommunicator", "Sending ALT: " + LALT + " down: " + keyDown);
+        if ((remoteMetaState & RemoteKeyboard.ALT_MASK) != 0) {
+            GeneralUtils.debugLog(this.debugLogging, TAG,
+                    "sendModifierKeys: Sending LALT: " + LALT + " down: " + keyDown);
             sendSpiceKeyEvent(keyDown, LALT);
         }
-        if ((remoteMetaState & RemoteKeyboard.ALTGR_ON_MASK) != 0) {
-            android.util.Log.e("SpiceCommunicator", "Sending ALTGR: " + RALT + " down: " + keyDown);
+        if ((remoteMetaState & RemoteKeyboard.RALT_MASK) != 0) {
+            GeneralUtils.debugLog(this.debugLogging, TAG,
+                    "sendModifierKeys: Sending RALT: " + RALT + " down: " + keyDown);
             sendSpiceKeyEvent(keyDown, RALT);
         }
-        if ((remoteMetaState & RemoteKeyboard.SUPER_ON_MASK) != 0) {
-            android.util.Log.e("SpiceCommunicator", "Sending SUPER: " + LWIN + " down: " + keyDown);
+        if ((remoteMetaState & RemoteKeyboard.SUPER_MASK) != 0) {
+            GeneralUtils.debugLog(this.debugLogging, TAG,
+                    "sendModifierKeys: Sending LWIN: " + LWIN + " down: " + keyDown);
             sendSpiceKeyEvent(keyDown, LWIN);
         }
-        if ((remoteMetaState & RemoteKeyboard.SHIFT_ON_MASK) != 0) {
-            android.util.Log.e("SpiceCommunicator", "Sending SHIFT: " + LSHIFT + " down: " + keyDown);
+        if ((remoteMetaState & RemoteKeyboard.SHIFT_MASK) != 0) {
+            GeneralUtils.debugLog(this.debugLogging, TAG,
+                    "sendModifierKeys: Sending SHIFT: " + LSHIFT + " down: " + keyDown);
             sendSpiceKeyEvent(keyDown, LSHIFT);
         }
     }
@@ -354,8 +365,9 @@ public class SpiceCommunicator implements RfbConnectable {
             remoteMetaState = metaState;
             sendModifierKeys (true);
         }
-        
-        //android.util.Log.d("SpiceCommunicator", "Sending scanCode: " + key + ". Is it down: " + keyDown);
+
+        GeneralUtils.debugLog(this.debugLogging, TAG,
+                "writeKeyEvent: Sending scanCode: " + key + ". Is it down: " + keyDown);
         sendSpiceKeyEvent(keyDown, key);
         
         if (!keyDown) {
@@ -396,6 +408,7 @@ public class SpiceCommunicator implements RfbConnectable {
     }
 
     public void requestResolution() {
+        android.util.Log.d(TAG, "requestResolution()");
         if (isInNormalProtocol) {
             int currentWidth = this.width;
             int currentHeight = this.height;
@@ -405,7 +418,7 @@ public class SpiceCommunicator implements RfbConnectable {
                 lastRequestedWidth = canvas.getDesiredWidth();
                 lastRequestedHeight = canvas.getDesiredHeight();
                 if (currentWidth != lastRequestedWidth || currentHeight != lastRequestedHeight) {
-                    android.util.Log.d(TAG, "Requesting new res: " + lastRequestedWidth + "x" + lastRequestedHeight);
+                    android.util.Log.d(TAG, "Requesting new resolution: " + lastRequestedWidth + "x" + lastRequestedHeight);
                     SpiceRequestResolution (lastRequestedWidth, lastRequestedHeight);
                 } else {
                     android.util.Log.d(TAG, "Resolution request was satisfied.");

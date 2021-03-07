@@ -27,15 +27,17 @@ import java.io.FileReader;
 import java.io.IOException;
 
 import com.undatech.opaque.ConnectionSettings;
+import com.undatech.opaque.util.HttpsFileDownloader;
 import com.undatech.remoteClientUi.R;
 
 import android.app.Activity;
-import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.support.v4.app.DialogFragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -43,26 +45,42 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
-import android.widget.LinearLayout.LayoutParams;
 
-public class ManageCustomCaFragment extends DialogFragment {
+public class ManageCustomCaFragment extends DialogFragment
+                                    implements HttpsFileDownloader.OnDownloadFinishedListener {
     public static String TAG = "ManageCustomCaFragment";
     public static int TYPE_OVIRT = 0;
     public static int TYPE_SPICE = 1;
-    
+
+    @Override
+    public void onDownload(String contents) {
+        Log.d(TAG, "onDownload");
+        caTextContents = contents;
+        handler.post(setCaText);
+    }
+
     public interface OnFragmentDismissedListener {
-        public void onFragmentDismissed(ConnectionSettings currentConnection);
+        void onFragmentDismissed(ConnectionSettings currentConnection);
     }
     
     private OnFragmentDismissedListener dismissalListener;
     private int caPurpose;
     private ConnectionSettings currentConnection;
-    
+    private Handler handler;
+    private String caTextContents = "";
+    private Runnable setCaText = new Runnable() {
+        @Override
+        public void run() {
+            caCert.setText(caTextContents);
+        }
+    };
+
     private EditText caCertPath;
     private EditText caCert;
     private Button importButton;
+    private Button downloadButton;
     private Button helpButton;
-    
+
     public ManageCustomCaFragment () {}
     
     public void setOnFragmentDismissedListener (OnFragmentDismissedListener dismissalListener) {
@@ -95,7 +113,7 @@ public class ManageCustomCaFragment extends DialogFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        
+        handler = new Handler();
         caPurpose = getArguments().getInt("caPurpose");
         currentConnection = (ConnectionSettings)getArguments().getSerializable("currentConnection");
     }
@@ -113,13 +131,21 @@ public class ManageCustomCaFragment extends DialogFragment {
         // Set up the import button.
         importButton = (Button) v.findViewById(R.id.importButton);
         importButton.setOnClickListener(new View.OnClickListener() {
-            
             @Override
             public void onClick(View v) {
-                importCaCert();
+                importCaCertFromFile();
             }
         });
-        
+
+        // Set up the import from server button.
+        downloadButton = (Button) v.findViewById(R.id.downloadButton);
+        downloadButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                downloadFromServer();
+            }
+        });
+
         // Set up the help button.
         helpButton = (Button) v.findViewById(R.id.helpButton);
         helpButton.setOnClickListener(new View.OnClickListener() {
@@ -134,8 +160,20 @@ public class ManageCustomCaFragment extends DialogFragment {
         setWidgetStateAppropriately ();
         return v;
     }
-    
-    private void importCaCert () {
+
+    private void downloadFromServer() {
+        Log.d(TAG, "downloadFromServer");
+        String address = currentConnection.getAddress();
+        if (!currentConnection.getAddress().startsWith("http")) {
+            address = "https://" + address;
+        }
+        address += "/ovirt-engine/services/pki-resource?resource=ca-certificate&format=X509-PEM-CA";
+        new HttpsFileDownloader(address, false,
+                ManageCustomCaFragment.this).initiateDownload();
+    }
+
+    private void importCaCertFromFile () {
+        Log.d(TAG, "importCaCertFromFile");
         Context context = getActivity();
         File file = new File (caCertPath.getText().toString());
         FileReader freader;

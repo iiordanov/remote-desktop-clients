@@ -1,5 +1,130 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<resources>
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="action_import_settings">Import Settings</string>
+    <string name="action_new_connection">New Connection</string>
+    <string name="action_edit_default_settings">Edit Default Settings</string>
+    <string name="action_export_settings">Export Settings</string>
+    <string name="action_delete_connection">Delete Connection</string>
+    <string name="opaque_app_name">Opaque</string>
+    <string name="opaque_app_name_beta">Opaque Beta</string>
+    <string name="advanced_settings">Advanced Settings</string>
+    <string name="audio">Audio</string>
+    <string name="auto_rotation">Screen rotation while connected</string>
+    <string name="auto_request_new_res">Sync remote to display resolution</string>
+    <string name="custom_ca_subject">Optional Cert Subject. Not needed if cert CN matches hostname</string>
+    <string name="custom_ca_import">Enter full path to your CA and tap Import</string>
+    <string name="custom_ca_paste">Paste (if not importing) the CA here</string>
+    <string name="ca_ovirt_use_custom">Custom RHEV/oVirt CA</string>
+    <string name="ca_spice_use_ovirt">Use RHEV/oVirt CA for SPICE</string>
+    <string name="ca_ovirt_manage">Manage RHEV/oVirt CA</string>
+    <string name="ca_spice_manage">Manage SPICE CA</string>
+    <string name="ca_file_not_found">File not found. Please enter a valid file name in the text field (e.g. /sdcard/ca.crt).</string>
+    <string name="ca_file_error_reading">Error reading CA file. Please ensure it is readable.</string>
+    <string name="ca_new_or_changed">New or changed server certificate</string>
+    <string name="connection_type_text">Virtualization Environment (RHEV/oVirt or Proxmox)</string>
+    <string name="connection_type_ovirt">oVirt/RHEV</string>
+    <string name="connection_type_pve">Proxmox VE</string>
+    <string-array name="connection_types">
+        <item>@string/connection_type_ovirt</item>
+        <item>@string/connection_type_pve</item>
+    </string-array>
+    <string name="connection_setup_vm_name">Virtual machine name (optional)</string>
+    <string name="connection_setup_host_name">Server Address</string>
+    <string name="connection_setup_user">User@Domain</string>
+    <string name="connection_setup_password">Password (saved if entered)</string>
+    <string name="enter_password">Please enter password</string>
+    <string name="enter_otp_code">Please enter OTP code</string>
+    <string name="hide_toolbar">Hide toolbar</string>
+    <string name="manage_custom_ca_title">Manage custom CA</string>
+    <string name="save_button">Save</string>
+    <string name="input_method_mouse">Mouse Pointer Control</string>
+    <string name="select_vm_title">Select Virtual Machine</string>
+    <string name="vv_file_not_found">The .vv file was not found!</string>
+    <string name="vv_file_error">The .vv file is either missing or corrupt!</string>
+    <string name="info_cert">Do you accept this new or changed host certificate?\n\nFingerprints:\nMD5: %1$s\nSHA1: %2$s\nSHA256: %3$s\n\nIssued to: %4$s\nIssued by: %5$s\n\nValid from: %6$s\nValid until: %7$s\n</string>
+    <string name="input_method_direct_swipe_pan">Direct, Swipe Pan</string>
+    <string name="input_method_direct_drag_pan">Direct, Hold Pan</string>
+    <string name="input_method_single_handed">Single Handed</string>
+    <string name="input_method_touchpad">Simulated Touchpad</string>
+
+    <string name="show_keyboard">Show Keyboard</string>
+
+    <string name="input_method_help">Input Method Help</string>
+
+    <string name="ok">Ok</string>
+
+    <string name="input_methods">Input Method</string>
+    <string name="input_method_help_text">
+"In any Input Method, tap the keyboard icon to get the on-screen keyboard. Also, your device may have its own gesture which bring up the keyboard.
+
+Use the Direct input modes for more intuitive touch-screen control. Use Simulated Touchpad Mode for finer control over the mouse.
+
+Direct, Swipe Pan Method:
+ - Control the mouse directly through touch.
+ - Swipe to pan around.
+ - Tapping makes the mouse click where you tapped.
+ - Scroll events are sent between the two fingers where a two-finger swipe started.
+
+Direct, Hold Pan Method:
+ - Control the mouse directly through touch.
+ - Long-tap to start pan mode.
+ - Tapping makes the mouse click where you tapped.
+ - Scroll events are sent between the two fingers where a two-finger swipe started.
+
+Simulated Touchpad Method:
+ - Use your screen like a touchpad.
+ - Swipe to move the mouse pointer around.
+ - Move mouse beyond edge of screen to pan.
+ - Tapping makes the mouse click where the pointer is.
+ - Scroll events are sent where the mouse pointer is located.
+
+Single Handed Method:
+ - Same as Direct, Swipe Pan Mode, except long-tap opens menu with choice of modes.
+ - After choosing mode, swiping finger on screen performs selected gesture.
+ - Lifting finger completes the gesture.
+
+All Input Methods:
+ - Left-click: Tap once.
+ - Double-click: Double-tap.
+ - Right-click: Tap-hold and tap with a second finger (anywhere else on screen).
+ - Alternate Right-click: Use the \"Back\" button or gesture for your device.
+ - Middle-click: Tap-hold and tap with two more fingers (anywhere else on screen).
+ - Mouse-drag: Tap-hold-long and swipe.
+ - Scroll-wheel: Two-finger drag up/down and left/right. Quick drag scrolls faster.
+ - Zoom in/out: Pinch-zoom to control scaling.
+ - Ctrl/Alt key: Menu->Ctrl/Alt buttons. Don't forget to toggle off when done!
+ - Key combos: Menu->More->Send Keys.
+ - Send text: Either type on the on-screen keyboard, or use Menu->More->Send Text."
+</string>
+
+    <string name="error_failed_to_download_vv_http">Failed to download .vv file over HTTP. Perhaps your server is unreachable.</string>
+    <string name="error_failed_to_download_vv_https">Failed to download .vv file over HTTPS. Perhaps your server cert is untrusted (expired or self-signed) or your server is unreachable.</string>
+    <string name="error_failed_to_obtain_vv_content">Failed to obtain .vv file. Please download it again but this time, quickly open it from the Download folder in a File Manager.</string>
+    <string name="error_failed_to_obtain_vv_file">Failed to find .vv file. Please download it again, but this time, try to open it from the Notification area or directly from the Browser if possible.</string>
+    <string name="error_dialog_title">Error</string>
+    <string name="info_dialog_title">Info</string>
+    <string name="info_vm_launched_on_stand_by">Your VM was found powered off and has been started. Please try again in a couple of minutes. If you try too soon and get a connection failure, try again later.</string>
+    <string name="error_no_vm_found_for_user">No available Virtual Machines for the given user.</string>
+    <string name="error_no_such_vm_found_for_user">No Virtual Machine with the ID provided was found for the given user. Erase the ID to get a list of VMs.</string>
+    <string name="error_no_vnc_support_yet">VNC display type not supported yet, but it is an upcoming feature. Thanks for your understanding!</string>
+    <string name="error_not_connected_to_network">You do not appear to be connected to the Internet. Cannot continue without being connected!</string>
+    <string name="error_ovirt_timeout">The connection to your VM timed out. Please check that the address of the node running your VM is correct, that it is accessible from your current network, and that no firewall is blocking the connection.</string>
+    <string name="error_ovirt_auth_failure">Authentication failure. Please check the provided user and password.</string>
+    <string name="error_ovirt_ssl_handshake_failure">SSL handshake failure. There is a problem with the server SSL certificate. If you are using a self-signed certificate, you need to (re)import your certificate authority.</string>
+    <string name="error_pve_failed_to_authenticate">Failed to authenticate to Proxmox Virtual Environment. Please make sure you enter your username in user@realm format and that you password is correct.</string>
+    <string name="error_pve_failed_to_parse_json">Failed to parse response from Proxmox Virtual Environment.</string>
+    <string name="error_pve_vmid_not_numeric">VM ID not numeric. Please enter a numeric VM ID or leave empty to choose the VM from a list.</string>
+    <string name="error_pve_api_unexpected_code">Unexpected response from Proxmox Virtual Environment: </string>
+    <string name="error_pve_api_io_error">Connection to Proxmox Virtual Environment failed: </string>
+    <string name="error_pve_null_data">Proxmox Virtual Environment returned null data.</string>
+    <string name="error_pve_timeout_communicating">Timeout communicating with Proxmox Virtual Environment.</string>
+    <string name="error_vm_lookup_failed">Could not find a virtual machine with the name specified assigned to your user. Please erase the VM name specified to see a list of VMs assigned to the user.</string>
+    <string name="error_vv_download_timeout">Timeout downloading vv file.</string>
+    <string name="message_please_wait">Please wait</string>
+    <string name="message_please_install_bvnc">Please install &lt;a href="market://details?id=com.iiordanov.bVNC">bVNC&lt;/a> from Google Play to connect to the VNC console of this VM.</string>
+    <string name="ssl_strict">Require common name to match cert (on recommended)</string>
+    <string name="usb">USB (plug in OTG cable first)</string>
+
     <string name="ad_donate_text0">Профессиональная версия теперь поддерживает мультифакторную аутентификацию, а также установку мастер-пароля, защищающего устройства от несанкционированного использования и кражи информации с помощью шифрования настроек подключения (включая пароли и ключи безопасности). Установите его в главном меню. Если кнопка меню отсутствует, пожалуйста, нажмите и удерживайте кнопку отображения запущенных приложений, чтобы вызвать меню.</string>
     <string name="ad_donate_text1">Нажмите здесь и поддержите проект небольшим пожертвованием, купив Профессиональную версию!</string>
     <string name="ad_donate_text2">Профессиональная версия позволяет отключить этот диалог и дает доступ к дополнительным функциям.</string>
@@ -94,6 +219,8 @@
     <string name="color_mode">Цветовой режим</string>
 
     <string name="connect_button">Подключиться</string>
+    <string name="back_button">Go Back</string>
+    <string name="update_button">Update</string>
 
     <string name="connection_caption">Подключение</string>
     <string-array name="connection_type">
@@ -115,6 +242,9 @@
     <string name="connection_type_vnc_over_ssl">Secure VNC через AnonTLS</string>
     <string name="connection_type_vnc_over_stunnel">Secure VNC через SSL Tunnel</string>
     <string name="connection_type_vnc_over_vencrypt">Secure VNC через VeNCrypt</string>
+    <string name="connection_edit_delete_prompt">Do you want to edit or delete the connection</string>
+    <string name="connection_edit">Edit</string>
+    <string name="connection_delete">Delete</string>
 
     <string name="control_check">Ctrl</string>
 
@@ -133,7 +263,7 @@
 
     <string name="enable_recording">Включить запись</string>
     <string name="enable_sound">Включить звук</string>
-
+    <string name="enter_password_auth_failed">Authentication failed. Please re-enter your credentials.</string>
     <string name="enter_text">Отправить текст</string>
     <string name="enter_text_title">Введите текст для отправки</string>
 
@@ -331,7 +461,7 @@
     <string name="local_mouse_check">Локальный курсор мыши (выберите, если курсор мыши не виден)</string>
 
     <string name="main_screen_help">Помощь по подключению</string>
-    <string name="main_screen_help_text">
+    <string name="vnc_connection_screen_help_text">
 "При запуске bVNC вы увидите страницу настройки подключения. Здесь вы можете создать и настроить новое подключение, или выбрать существующее. Экран разделен на две части. Верхняя часть содержит выпадающее меню с списком ранее созданных подключений. Во время первого запуска bVNC, вы сможете только создать новое подключение. После выпадающего меню, находится кнопка Подключиться. Кнопка Подключиться создает подключение клиента VNC к выбранной конфигурации (серверу). Ниже находятся настройки подключения.
 
 Если вам необходима максимальная производительность (скорость), попробуйте установит цветовой режим на минимальное значение. Также можете попробовать отключить отображение обоев рабочего стола на VNC-сервере. В завершении, убедитесь, что ваше устройство имеет уверенный сигнал сети, и хорошую скорость.
@@ -357,7 +487,7 @@
    (b) VNC Пользователь: Доступен в UltraVNC с использованием Windows Logon режима или режима Secure VNC через VeNCrypt, это то, что вы ввели в Windows/UNIX имя пользователя.
    (c) VNC Пароль: Если ваша конфигурация VNC-сервера требует пароль, введите его сюда. В режимах UltraVNC через Windows Logon/VeNCrypt укажите здесь ваш пароль Windows/UNIX. Безопасное хранилище не используется для паролей, и пароль будет сохранен, только если вы поставите галочку "Запомнить". Пароль будет заполнен на этой странице, если вы не закрывал bVNC с момента вашего последнего ввода.
 
- — Цветовой режим: Клиент поддерживает несколько цветовых режимов.  Режимы с большей цветопередачей лучшее отображают экран, однако потребляют больше трафика и ресурсов процессора. Некоторые VNC-сервера не поддерживают все цветовые режимы (Пример: Удаленный рабочий стол OS/X требует 24-битный цветовой режим). Если вы испытываете проблемы с подключением, попробуйте другой цветовой режим.<string name="info_continue_connecting">"Продолжается соединение с: "</string>
+ — Цветовой режим: Клиент поддерживает несколько цветовых режимов.  Режимы с большей цветопередачей лучшее отображают экран, однако потребляют больше трафика и ресурсов процессора. Некоторые VNC-сервера не поддерживают все цветовые режимы (Пример: Удаленный рабочий стол OS/X требует 24-битный цветовой режим). Если вы испытываете проблемы с подключением, попробуйте другой цветовой режим.
 
  — Использовать D-Pad для имуляции стрелок: Если вы хотите, вы можете использовать D-Pad вашей Bluetooth-клавиатуры, или использовать стрелки на экране.
 
@@ -502,7 +632,7 @@
 Известные проблемы:"
 </string>
     <string name="rdp_intro_title">aRDP: интуитивный, безопасный RDP-клиент</string>
-    <string name="rdp_main_screen_help_text">
+    <string name="rdp_connection_screen_help_text">
 "При запуске aRDP появится страница настройки подключения. Здесь вы можете создать и настроить новое подключение или выбрать существующее. Экран разделен на две части. Верхняя часть содержит выпадающее меню с списком ранее созданных подключений. Во время первого запуска aRDP вы сможете только создать новое подключение. Справа от выпадающего меню находится кнопка "Подключиться". Она создает подключение RDP-клиента к выбранной конфигурации (серверу). Ниже находятся настройки подключения.
 
  — Тип подключения: Здесь вы можете выбрать требуемый тип подключения к RDP-серверу. Доступные типы подключения:
@@ -527,8 +657,7 @@
  — Настройки локального устройства: Настройки поведения aRDP на вашем устройстве.
    (a) Использовать D-Pad для эмуляции стрелок: Если вы хотите, вы можете использовать D-Pad вашей Bluetooth-клавиатуры или стрелки на экране.
    (b) Перевернуть D-Pad: Телефоны с подключенной Bluetooth-клавиатурой могут потребовать переворота D-pad для корректной отправки клавиш на сервер.
-   (c) Локальный указатель мыши: Если указатель мыши не виден, пожалуйста, включите эту опцию."
-    </string>
+   (c) Локальный указатель мыши: Если указатель мыши не виден, пожалуйста, включите эту опцию."</string>
     <string name="rdp_password_hint">RDP Пароль</string>
     <string name="rdp_server_empty">RDP-сервер или порт пусты. Соединение невозможно!</string>
     <string name="rdp_username_hint">RDP Имя пользователя</string>
@@ -644,7 +773,7 @@
 &lt;br&gt;"
     </string>
     <string name="spice_intro_title">aSPICE: интуитивный, безопасный SPICE-клиент</string>
-    <string name="spice_main_screen_help_text">
+    <string name="spice_connection_screen_help_text">
 "При запуске aSPICE появится страница настройки подключения. Здесь вы можете создать и настроить новое подключение или выбрать существующее. Экран разделен на две части. В верхней части находится выпадающее меню с списком ранее созданных подключений. Во время первого запуска aSPICE вы сможете только создать новое подключение. Справа от выпадающего меню находится кнопка "Подключиться". Кнопка "Подключиться" создает подключение клиента SPICE к выбранной конфигурации (серверу). Ниже находятся настройки подключения.
 
  — Тип подключения: Здесь вы можете выбрать требуемый тип подключения к aSPICE серверу. Доступные типы подключения:
@@ -683,7 +812,7 @@
 
     <string name="tap_disable">Выключить</string>
     <string name="tap_enable">Включить</string>
-
+    <string name="toggle_keyboard">Toggle Keyboard</string>
     <string name="username_caption">VNC Имя пользователя</string>
     <string name="username_hint">UltraVNC MS Logon Имя пользователя</string>
     <string name="username_hint_optional">VNC Имя польз. (необязат.)</string>
@@ -695,15 +824,81 @@
 
     <string name="view_only">Режим просмотра</string>
 
-    <string-array name="vnc_geometry">
-        <item>@string/rdp_geom_disabled</item>
-        <item>@string/rdp_geom_automatic</item>
-        <item>@string/rdp_geom_native_landscape</item>
-        <item>@string/rdp_geom_native_portrait</item>
-        <item>@string/rdp_geom_custom</item>
-    </string-array>
-
     <string name="vnc_server_empty">VNC-сервер или порт пусты. Соединение невозможно!</string>
+    <string name="vnc_server_empty_no_save">VNC Server or port empty. Cannot save connection!</string>
 
     <string name="warning_cert_does_not_match">ПРЕДУПРЕЖДЕНИЕ! Сохраненный x509 сертификат или предоставленная подпись не соответствует текущему сертификату сервера! Это может быть атака типа \"Man in the middle\". Если вам известно об изменении ключей, можете продолжить подключение. </string>
+    <string name="copy_logcat">Copy Logcat</string>
+    <string name="log_copied">Logcat copied to clipboard. You can now paste it in an email or on the support forum. Please look through for any personal data before posting.</string>
+    <string name="info_set_touchpad_input_mode">The server reports that it does not support Client Mode Mouse Input, and the current mouse input mode will not work correctly. If this persists, make sure spice tools is installed in the virtual machine or switch to Simulated Touchpad Input Mode from the Menu.</string>
+    <string name="ssh_tunnel_settings">SSH Tunnel Settings</string>
+    <string name="vnc_connection_settings">VNC Connection Settings</string>
+    <string name="show_advanced_settings">Show Advanced Settings</string>
+    <string name="use_no_compression_for_local_connections">No compression (local connections, Hextile encoding)</string>
+    <string name="rdp_connection_settings">RDP Connection Settings</string>
+    <string name="local_device_tweaks">Local Device Tweaks</string>
+    <string name="spice_connection_settings">SPICE Connection Settings</string>
+    <string name="ca_subject">Enter certificate subject name here. May not be needed if the cert common name (CN) matches the server hostname.</string>
+    <string name="path_to_ca">Enter a file path (for example /sdcard/ca-cert.pem) and tap Import to load your Certificate Authority.</string>
+    <string name="paste_ca">Enter the Certificate Authority here if you are not importing it as a file.</string>
+    <string name="cert_issuer">Certificate Issuer</string>
+    <string name="cert_fingerprint">Certificate Fingerprint</string>
+    <string name="error">Error</string>
+    <string name="panning">Panning Screen</string>
+    <string name="copy_of">Copy of</string>
+    <string name="ssh_key_generated">New key generated or imported successfully. You can now tap \'Generate/Export Key\' button to share, copy to clipboard, or export the public key.</string>
+    <string name="cursor_force_local">"Local"</string>
+    <string name="cursor_force_disable">"Disable"</string>
+    <string name="cursor_mode">"Cursor Mode:"</string>
+    <string name="rendering_mode">"Rendering Mode:"</string>
+    <string name="color_24_bit">"24-bit color (24 bpp)"</string>
+    <string name="color_256">"256 colors (8 bpp)"</string>
+    <string name="color_64">"64 colors (4 bpp)"</string>
+    <string name="color_8">"8 colors (2 bpp)"</string>
+    <string name="color_greyscale">"Greyscale (1 bpp)"</string>
+    <string name="color_black_and_white"><![CDATA["Black & White (1 bpp)"]]></string>
+    <string name="show">"Show"</string>
+    <string name="hide">"Hide"</string>
+    <string name="search_connections">Search Connections</string>
+    <string name="user_not_specified">User not specified</string>
+    <string name="enter_ssh_credentials">Please enter SSH credentials</string>
+    <string name="enter_vnc_credentials">Please enter VNC credentials</string>
+    <string name="enter_vnc_password">Please enter VNC password</string>
+    <string name="enter_rdp_credentials">Please enter RDP credentials</string>
+    <string name="enter_spice_password">Please enter SPICE password</string>
+    <string name="enter_passphrase_title">Enter Key Passphrase</string>
+    <string name="enter_passphrase">Please enter Key Passphrase</string>
+    <string name="ssh_server_needs_password_in_addition_to_key">Your server needs password authentication in addition to key authentication.</string>
+    <string name="main_screen_help_text">"
+When the application is launched it displays a screen with saved connections on it.
+
+If there are no saved connections, the lower part of the screen is empty, and you will have to hit the plus button to create a new one.
+You can also control other aspects of the configuration from this screen by tapping on other tool-bar or menu options at the top, for
+instance to edit default settings, or import and export settings.
+
+Once you have a connection saved, you can connect to the remote server by tapping it once. You will also have a choice to delete or edit it by long-tapping it.
+
+Finally, you can use the Search Connections field to quickly find connections by filter shown connections."
+    </string>
+    <string name="opaque_connection_screen_help_text" tools:ignore="TypographyOther">
+"When you add or edit a connection, you will see a connection configuration page.
+Here you can set up a new Opaque connection or choose a preexisting one.
+At the top is a button that allows you to save the connection.
+Below that is where you configure your connection.
+
+ - Connection Type: Here you choose what Virtualization Environment you are connecting to.
+
+ - Server Address: The hostname or IP of the server. If it is listening on a non-standard port, you can add a port separated by colon.
+
+ - Virtual machine name: You can specify the name of the VM as it appears on your Virtualization platform or leave this field empty to get a list of VMs or containers to select from.
+
+ - User: Enter the user name to authenticate to your virtualization framework.
+
+ - Password: If you'd like to save the password, enter it here or leave the field empty to be queried for it every time.
+
+ - Advanced settings: In this section you'll find any local device, protocol, and performance tweaks.
+    </string>
+    <string name="help">Help</string>
+    <string name="support_forum">Support Forum</string>
+    <string name="report_bug">Report a bug</string>
 </resources>

@@ -24,7 +24,6 @@ import java.util.LinkedList;
 import java.util.Queue;
 
 import android.os.SystemClock;
-import android.os.Vibrator;
 import android.view.GestureDetector;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
@@ -45,9 +44,6 @@ abstract class InputHandlerGeneric extends GestureDetector.SimpleOnGestureListen
 	protected RemoteCanvas canvas;
 	protected RemoteCanvasActivity activity;
 	protected PanRepeater panRepeater;
-	
-	// Used to generate haptic feedback
-    protected Vibrator myVibrator;
 	
 	// This is the initial "focal point" of the gesture (between the two fingers).
 	float xInitialFocus;
@@ -124,8 +120,7 @@ abstract class InputHandlerGeneric extends GestureDetector.SimpleOnGestureListen
 
 	protected RemotePointer pointer;
 
-	InputHandlerGeneric(RemoteCanvasActivity activity, RemoteCanvas canvas, RemotePointer pointer,
-                        Vibrator myVibrator) {
+	InputHandlerGeneric(RemoteCanvasActivity activity, RemoteCanvas canvas, RemotePointer pointer) {
 		this.activity = activity;
 		this.canvas   = canvas;
 		this.pointer  = pointer;
@@ -139,9 +134,8 @@ abstract class InputHandlerGeneric extends GestureDetector.SimpleOnGestureListen
 		
 		gestureDetector.setOnDoubleTapListener(this);
 		
-	    this.myVibrator = myVibrator;
 	    this.panRepeater = new PanRepeater (canvas, canvas.handler);
-	    
+
 	    displayDensity = canvas.getDisplayDensity();
 	    
         distXQueue = new LinkedList<Float>();
@@ -254,7 +248,8 @@ abstract class InputHandlerGeneric extends GestureDetector.SimpleOnGestureListen
 		// If the mouse was moved OR as reported, some external mice trigger this when a
 		// mouse button is pressed as well, so we check bstate here too.
 		case MotionEvent.ACTION_HOVER_MOVE:
-	    	canvas.movePanToMakePointerVisible();
+			activity.showToolbar();
+			canvas.movePanToMakePointerVisible();
 			switch (bstate) {
 			case MotionEvent.BUTTON_PRIMARY:
 				pointer.leftButtonDown(x, y, meta);
@@ -344,8 +339,8 @@ abstract class InputHandlerGeneric extends GestureDetector.SimpleOnGestureListen
 		// If we've performed a right/middle-click and the gesture is not over yet, do not start drag mode.
 		if (secondPointerWasDown || thirdPointerWasDown)
 			return;
-		
-		myVibrator.vibrate(Constants.SHORT_VIBRATION);
+
+		activity.sendShortVibration();
 
 		dragMode = true;
 		pointer.leftButtonDown(getX(e), getY(e), metaState);

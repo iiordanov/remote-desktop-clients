@@ -40,16 +40,19 @@ import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HTTP;
 
+import com.undatech.opaque.Connection;
 import com.undatech.opaque.ConnectionSettings;
 import com.undatech.opaque.RemoteClientLibConstants;
 
 import android.os.Handler;
 import android.os.Message;
 import android.util.Base64;
+import android.util.Log;
 
 // Examples taken from:
 // http://lukencode.com/2010/04/27/calling-web-services-in-android-using-httpclient
 public class RestClient {
+    public static final String TAG = MySSLSocketFactory.class.getName();
 
     private ArrayList<NameValuePair> params;
     private ArrayList<NameValuePair> headers;
@@ -59,7 +62,7 @@ public class RestClient {
 
     private String response;
     
-    private String ovirtCaData;
+    private Connection connection;
     private Handler handler;
 
     private String url;
@@ -98,14 +101,16 @@ public class RestClient {
                             m.obj = chain[0];
                             h.sendMessage(m);
                             // Block indefinitely until the x509 cert is accepted.
-                            while (ovirtCaData.isEmpty()) {
+                            while (connection.getOvirtCaData().isEmpty()) {
                                 try {
                                     h.wait();
                                 } catch (InterruptedException e) {
                                     e.printStackTrace();
+                                    Log.d(TAG, "The x509 cert was not accepted.");
                                     throw new CertificateException ("The x509 cert was not accepted.");
                                 }
                             }
+                            Log.d(TAG, "The x509 cert was accepted.");
                         }
                     } else {
                         try {
@@ -152,8 +157,8 @@ public class RestClient {
         return responseCode;
     }
 
-    public RestClient(String ovirtCaData, Handler handler) {
-        this.ovirtCaData = ovirtCaData;
+    public RestClient(Connection connection, Handler handler) {
+        this.connection = connection;
         this.handler = handler;
     }
 
@@ -164,7 +169,7 @@ public class RestClient {
             trustStore.load(null, null);
 
             // TODO: Make it an option whether to trust all certificates.
-            MySSLSocketFactory sslsf = new MySSLSocketFactory(trustStore, ovirtCaData.trim(), handler);
+            MySSLSocketFactory sslsf = new MySSLSocketFactory(trustStore, connection.getOvirtCaData().trim(), handler);
 
             Scheme https = new Scheme("https", sslsf, 8006);
             client.getConnectionManager().getSchemeRegistry().register(https);

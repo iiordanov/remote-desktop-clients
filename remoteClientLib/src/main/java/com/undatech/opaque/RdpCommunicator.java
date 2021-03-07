@@ -15,6 +15,13 @@ import com.freerdp.freerdpcore.services.LibFreeRDP;
 import com.undatech.opaque.input.RemoteKeyboard;
 import com.undatech.opaque.input.RdpKeyboardMapper;
 import com.undatech.opaque.input.RemotePointer;
+import com.undatech.opaque.util.GeneralUtils;
+
+import java.lang.reflect.Field;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
 
 public class RdpCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyProcessingListener,
                                         LibFreeRDP.UIEventListener, LibFreeRDP.EventListener {
@@ -55,11 +62,13 @@ public class RdpCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyPro
 
     private String username, password, domain;
 
-    public RdpCommunicator(Context context, Handler handler,
-                           Viewable viewable, String username, String domain, String password) {
+    private boolean debugLogging = false;
+
+    public RdpCommunicator(Context context, Handler handler, Viewable viewable, String username,
+                           String domain, String password, boolean debugLogging) {
         // This is necessary because it initializes a synchronizedMap referenced later.
         this.freeRdpApp = new GlobalApp();
-
+        patchFreeRdpCore();
         // Create a manual bookmark and populate it from settings.
         this.bookmark = new ManualBookmark();
         this.context = context;
@@ -69,7 +78,22 @@ public class RdpCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyPro
         this.username = username;
         this.domain = domain;
         this.password = password;
+        this.debugLogging = debugLogging;
         initSession(username, domain, password);
+    }
+
+    private void patchFreeRdpCore() {
+        Class cls = this.freeRdpApp.getClass();
+        try {
+            Log.i(TAG, "Initializing sessionMap in GlobalApp");
+            Field sessionMap = cls.getDeclaredField("sessionMap");
+            sessionMap.setAccessible(true);
+            sessionMap.set(this.freeRdpApp, Collections.synchronizedMap(new HashMap<Long, SessionState>()));
+        } catch (NoSuchFieldException e) {
+            Log.e(TAG, "There is no longer a sessionMap field in GlobalApp");
+        } catch (IllegalAccessException e) {
+            Log.e(TAG, "The field sessionMap in GlobalApp was not accessible despite our attempts");
+        }
     }
 
     @Override
@@ -151,7 +175,7 @@ public class RdpCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyPro
 
     public class DisconnectThread extends Thread {
         long instance;
-        
+
         public DisconnectThread (long i) {
             this.instance = i;
         }
@@ -227,10 +251,12 @@ public class RdpCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyPro
     // KeyboardMapper.KeyProcessingListener implementation
     @Override
     public void processVirtualKey(int virtualKeyCode, boolean down) {
+        GeneralUtils.debugLog(this.debugLogging, TAG, "processVirtualKey: " +
+                "Sending VK key: " + virtualKeyCode + ". Is it down: " + down);
+
         if (down) {
             sendModifierKeys(true);
         }
-        android.util.Log.d("RdpCommunicator", "Sending VK key: " + virtualKeyCode + ". Is it down: " + down);
         try { Thread.sleep(5); } catch (InterruptedException e) {}
         LibFreeRDP.sendKeyEvent(session.getInstance(), virtualKeyCode, down);
         if (!down) {
@@ -240,10 +266,11 @@ public class RdpCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyPro
 
     @Override
     public void processUnicodeKey(int unicodeKey) {
-        android.util.Log.e(TAG, "Unicode character: " + unicodeKey);
+        //android.util.Log.d(TAG, "Unicode character: " + unicodeKey);
         sendModifierKeys(true);
         try { Thread.sleep(5); } catch (InterruptedException e) {}
-        LibFreeRDP.sendUnicodeKeyEvent(session.getInstance(), unicodeKey);
+        LibFreeRDP.sendUnicodeKeyEvent(session.getInstance(), unicodeKey, true);
+        LibFreeRDP.sendUnicodeKeyEvent(session.getInstance(), unicodeKey, false);
         sendModifierKeys(false);
     }
 
@@ -275,7 +302,8 @@ public class RdpCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyPro
                                         int remoteHeight, boolean wallpaper, boolean fontSmoothing,
                                         boolean desktopComposition, boolean fullWindowDrag,
                                         boolean menuAnimations, boolean theming, boolean redirectSdCard,
-                                        boolean consoleMode, int redirectSound, boolean enableRecording) {
+                                        boolean consoleMode, int redirectSound, boolean enableRecording,
+                                        boolean enableRemoteFx, boolean enableGfx, boolean enableGfxH264) {
         // Set a writable data directory
         //LibFreeRDP.setDataDirectory(session.getInstance(), getContext().getFilesDir().toString());
         // Get the address and port (based on whether an SSH tunnel is being established or not).
@@ -297,13 +325,15 @@ public class RdpCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyPro
 
         // Set performance flags.
         BookmarkBase.PerformanceFlags performanceFlags = bookmark.getPerformanceFlags();
-        performanceFlags.setRemoteFX(false);
+        performanceFlags.setRemoteFX(enableRemoteFx);
         performanceFlags.setWallpaper(wallpaper);
         performanceFlags.setFontSmoothing(fontSmoothing);
         performanceFlags.setDesktopComposition(desktopComposition);
         performanceFlags.setFullWindowDrag(fullWindowDrag);
         performanceFlags.setMenuAnimations(menuAnimations);
         performanceFlags.setTheming(theming);
+        performanceFlags.setGfx(enableGfx);
+        performanceFlags.setH264(enableGfxH264);
 
         BookmarkBase.AdvancedSettings advancedSettings = bookmark.getAdvancedSettings();
         advancedSettings.setRedirectSDCard(redirectSdCard);
@@ -355,7 +385,7 @@ public class RdpCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyPro
             connect();
         } else if (authenticationAttempted && !myself.isInNormalProtocol()) {
             Log.v(TAG, "Sending message: RDP_AUTH_FAILED");
-            handler.sendEmptyMessage(RemoteClientLibConstants.RDP_AUTH_FAILED);
+            handler.sendEmptyMessage(RemoteClientLibConstants.GET_RDP_CREDENTIALS);
         } else if (!disconnectRequested && !myself.isInNormalProtocol()) {
             Log.v(TAG, "Sending message: RDP_UNABLE_TO_CONNECT");
             handler.sendEmptyMessage(RemoteClientLibConstants.RDP_UNABLE_TO_CONNECT);
@@ -385,13 +415,13 @@ public class RdpCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyPro
 
     @Override
     public void OnSettingsChanged(int width, int height, int bpp) {
-        android.util.Log.e(TAG, "OnSettingsChanged called, wxh: " + width + "x" + height);
+        android.util.Log.d(TAG, "OnSettingsChanged called, wxh: " + width + "x" + height);
         viewable.reallocateDrawable(width, height);
     }
 
     @Override
     public boolean OnAuthenticate(StringBuilder username, StringBuilder domain, StringBuilder password) {
-        android.util.Log.e(TAG, "OnAuthenticate called.");
+        android.util.Log.d(TAG, "OnAuthenticate called.");
         authenticationAttempted = true;
 
         username.setLength(0);
@@ -408,7 +438,7 @@ public class RdpCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyPro
     @Override
     public int OnVerifiyCertificate(String commonName, String subject,
                                     String issuer, String fingerprint, boolean mismatch) {
-        android.util.Log.e(TAG, "OnVerifiyCertificate called.");
+        android.util.Log.d(TAG, "OnVerifiyCertificate called.");
 
         // Send a message containing the certificate to our handler.
         Message m = new Message();
@@ -439,7 +469,7 @@ public class RdpCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyPro
     @Override
     public boolean OnGatewayAuthenticate(StringBuilder username,
                                          StringBuilder domain, StringBuilder password) {
-        android.util.Log.e(TAG, "OnGatewayAuthenticate called.");
+        android.util.Log.d(TAG, "OnGatewayAuthenticate called.");
         return this.OnAuthenticate(username, domain, password);
     }
 
@@ -447,19 +477,17 @@ public class RdpCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyPro
     public int OnVerifyChangedCertificate(String commonName, String subject,
                                           String issuer, String fingerprint, String oldSubject,
                                           String oldIssuer, String oldFingerprint) {
-        android.util.Log.e(TAG, "OnVerifyChangedCertificate called.");
+        android.util.Log.d(TAG, "OnVerifyChangedCertificate called.");
         return this.OnVerifiyCertificate(commonName, subject, issuer, fingerprint, true);
     }
 
     @Override
     public void OnGraphicsUpdate(int x, int y, int width, int height) {
-        //android.util.Log.e(TAG, "OnGraphicsUpdate called: " + x +", " + y + " + " + width + "x" + height );
+        //android.util.Log.v(TAG, "OnGraphicsUpdate called: " + x +", " + y + " + " + width + "x" + height );
         if (viewable != null && session != null) {
             Bitmap bitmap = viewable.getBitmap();
             if (bitmap != null) {
-                synchronized (viewable) {
-                    LibFreeRDP.updateGraphics(session.getInstance(), bitmap, x, y, width, height);
-                }
+                LibFreeRDP.updateGraphics(session.getInstance(), bitmap, x, y, width, height);
                 viewable.reDraw(x, y, width, height);
             }
         }
@@ -467,13 +495,13 @@ public class RdpCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyPro
 
     @Override
     public void OnGraphicsResize(int width, int height, int bpp) {
-        android.util.Log.e(TAG, "OnGraphicsResize called.");
+        android.util.Log.d(TAG, "OnGraphicsResize called.");
         OnSettingsChanged(width, height, bpp);
     }
 
     @Override
     public void OnRemoteClipboardChanged(String data) {
-        android.util.Log.e(TAG, "OnRemoteClipboardChanged called.");
+        android.util.Log.d(TAG, "OnRemoteClipboardChanged called.");
 
         // Send a message containing the text to our handler.
         Message m = new Message();

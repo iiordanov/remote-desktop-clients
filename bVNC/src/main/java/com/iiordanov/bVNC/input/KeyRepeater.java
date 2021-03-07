@@ -2,6 +2,7 @@ package com.iiordanov.bVNC.input;
 
 import android.os.Handler;
 import android.view.KeyEvent;
+import com.undatech.opaque.input.RemoteKeyboard;
 
 public class KeyRepeater implements Runnable {
 

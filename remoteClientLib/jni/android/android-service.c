@@ -58,7 +58,7 @@ inline void detachThreadFromJvm() {
 #endif
 
 static void
-spice_session_setup_from_vv(VirtViewerFile *file, SpiceSession *session)
+spice_session_setup_from_vv(VirtViewerFile *file, SpiceSession *session, gboolean enable_audio)
 {
     g_return_if_fail(VIRT_VIEWER_IS_FILE(file));
     g_return_if_fail(SPICE_IS_SESSION(session));
@@ -157,11 +157,15 @@ spice_session_setup_from_vv(VirtViewerFile *file, SpiceSession *session)
     if (virt_viewer_file_is_set(file, "disable-channels")) {
         //DEBUG_LOG("FIXME: disable-channels is not supported atm");
     }
+
+    __android_log_write(ANDROID_LOG_DEBUG, "spice_session_setup", "setting enable_audio");
+    g_object_set(session, "enable-audio", enable_audio, NULL);
 }
 
 void spice_session_setup(SpiceSession *session, const char *host, const char *port,
                             const char *tls_port, const char *password, const char *ca_file,
-                            GByteArray *ca_cert, const char *cert_subj, const char *proxy) {
+                            GByteArray *ca_cert, const char *cert_subj, const char *proxy,
+                            gboolean enable_audio) {
 
     g_return_if_fail(SPICE_IS_SESSION(session));
 
@@ -198,6 +202,12 @@ void spice_session_setup(SpiceSession *session, const char *host, const char *po
         __android_log_write(ANDROID_LOG_DEBUG, "spice_session_setup, setting proxy", proxy);
         g_object_set(session, "proxy", proxy, NULL);
     }
+    __android_log_write(ANDROID_LOG_DEBUG, "spice_session_setup", "setting enable_audio");
+    g_object_set(session, "enable-audio", enable_audio, NULL);
+    __android_log_write(ANDROID_LOG_DEBUG, "spice_session_setup", "disabling smartcard");
+    g_object_set(session, "enable-smartcard", FALSE, NULL);
+    __android_log_write(ANDROID_LOG_DEBUG, "spice_session_setup", "disabling usbredir");
+    g_object_set(session, "enable-usbredir", FALSE, NULL);
 }
 
 static void signal_handler(int signal, siginfo_t *info, void *reserved) {
@@ -250,6 +260,7 @@ JNIEXPORT jint JNICALL
 Java_com_undatech_opaque_SpiceCommunicator_SpiceClientConnect (JNIEnv *env, jobject obj, jstring h, jstring p,
                                                                jstring tp, jstring pw, jstring cf, jstring ca, jstring cs, jboolean sound)
 {
+	g_env = env;
 	const gchar *host = NULL;
 	const gchar *port = NULL;
 	const gchar *tls_port = NULL;
@@ -294,21 +305,23 @@ int spiceClientConnect (const gchar *h, const gchar *p, const gchar *tp,
                         const gchar *pw, const gchar *cf, GByteArray *cc,
                         const gchar *cs, const gboolean sound, const gchar *proxy)
 {
+    spice_util_set_debug(true);
 	spice_connection *conn;
 
     soundEnabled = sound;
     conn = connection_new();
-    spice_session_setup(conn->session, h, p, tp, pw, cf, cc, cs, proxy);
-    return connectSession(conn);
+	spice_session_setup(conn->session, h, p, tp, pw, cf, cc, cs, proxy, sound);
+	return connectSession(conn);
 }
 
 int spiceClientConnectVv (VirtViewerFile *vv_file, const gboolean sound)
 {
+    spice_util_set_debug(true);
     spice_connection *conn;
 
     soundEnabled = sound;
     conn = connection_new();
-	spice_session_setup_from_vv(vv_file, conn->session);
+	spice_session_setup_from_vv(vv_file, conn->session, sound);
 	return connectSession(conn);
 }
 
@@ -406,9 +419,8 @@ parse_ovirt_uri(const gchar *uri_str, char **rest_uri, char **name)
     return TRUE;
 }
 
-
 #ifdef __ANDROID__
-void static sendMessage (JNIEnv* env, const int messageID, const gchar *message_text) {
+void sendMessage (JNIEnv* env, const int messageID, const gchar *message_text) {
     gboolean attached = FALSE;
 	if (env == NULL) {
 	    attached = attachThreadToJvm (&env);
@@ -427,7 +439,8 @@ gboolean reportIfSslError (JNIEnv* env, const gchar *message) {
 	gboolean ssl_failed = ( g_strcmp0 (message, "SSL handshake failed") == 0 ||
 	                        g_strcmp0 (message, "Unacceptable TLS certificate") == 0 );
 	if (ssl_failed) {
-		sendMessage (env, 7, message); /* Constants.OVIRT_SSL_HANDSHAKE_FAILURE */
+		__android_log_write(ANDROID_LOG_ERROR, "reportIfSslError", "TLS Error.");
+		sendMessage (env, 26, message); /* Constants.OVIRT_SSL_HANDSHAKE_FAILURE */
 	}
 	return ssl_failed;
 }
@@ -439,7 +452,7 @@ authenticationCallback(RestProxy *proxy, G_GNUC_UNUSED RestProxyAuth *auth,
 	__android_log_write(ANDROID_LOG_DEBUG, "authenticationCallback", "authenticationCallback called.");
 	if (retrying) {
 		__android_log_write(ANDROID_LOG_ERROR, "authenticationCallback", "Authentication has failed.");
-		sendMessage (NULL, 6, "Authentication Failure."); /* Constants.OVIRT_AUTH_FAILURE */
+		sendMessage (NULL, 25, "Authentication Failure."); /* Constants.OVIRT_AUTH_FAILURE */
 	} else {
         g_object_set(G_OBJECT(proxy), "username", oVirtUser, "password", oVirtPassword, NULL);
 	}
@@ -449,6 +462,7 @@ authenticationCallback(RestProxy *proxy, G_GNUC_UNUSED RestProxyAuth *auth,
 #ifdef __ANDROID__
 JNIEXPORT jint JNICALL
 Java_com_undatech_opaque_SpiceCommunicator_StartSessionFromVvFile(JNIEnv *env, jobject obj, jstring vvFileName, jboolean sound) {
+    g_env = env;
     __android_log_write(ANDROID_LOG_INFO, "StartSessionFromVvFile", "Starting.");
 
     gchar *vv_file_name = NULL;
@@ -466,7 +480,7 @@ Java_com_undatech_opaque_SpiceCommunicator_StartSessionFromVvFile(JNIEnv *env, j
     if (error) {
         __android_log_write(ANDROID_LOG_ERROR, "StartSessionFromVvFile", "Error creating vv_file object, error:");
         __android_log_write(ANDROID_LOG_ERROR, "StartSessionFromVvFile", error->message);
-        sendMessage (env, 11, error->message); /* Constants.VV_FILE_ERROR */
+        sendMessage (env, 29, error->message); /* Constants.VV_FILE_ERROR */
         result = -1;
         goto error;
     }
@@ -490,6 +504,7 @@ Java_com_undatech_opaque_SpiceCommunicator_CreateOvirtSession(JNIEnv *env,
                                                                      jstring URI, jstring user, jstring pass,
                                                                      jstring sslCaFile,
                                                                      jboolean sound, jboolean sslStrict) {
+    g_env = env;
     __android_log_write(ANDROID_LOG_INFO, "CreateOvirtSession", "Starting.");
 
     const gchar *uri = NULL;
@@ -508,7 +523,7 @@ Java_com_undatech_opaque_SpiceCommunicator_CreateOvirtSession(JNIEnv *env,
 
 int CreateOvirtSession(JNIEnv *env, jobject obj, const gchar *uri, const gchar *user, const gchar *password,
                           const gchar *ovirt_ca_file, const gboolean sound, const gboolean sslStrict, const gboolean didPowerOn) {
-
+    g_env = env;
     OvirtApi *api = NULL;
     OvirtCollection *vms = NULL;
     OvirtProxy *proxy = NULL;
@@ -569,6 +584,7 @@ int CreateOvirtSession(JNIEnv *env, jobject obj, const gchar *uri, const gchar *
     if (error != NULL || api == NULL) {
     	// If this is not an SSL error, report a general connection error.
     	if (!reportIfSslError (env, error->message)) {
+    		__android_log_write(ANDROID_LOG_ERROR, "CreateOvirtSession", "Connection failure.");
     		sendMessage (env, 5, error->message); /* Constants.SPICE_CONNECT_FAILURE */
     	}
     	__android_log_write(ANDROID_LOG_ERROR, "CreateOvirtSession", "Failed to fetch API, error:");
@@ -595,7 +611,7 @@ int CreateOvirtSession(JNIEnv *env, jobject obj, const gchar *uri, const gchar *
 
     if (vm == NULL) {
         __android_log_write(ANDROID_LOG_ERROR, "CreateOvirtSession", "VM returned was null");
-        sendMessage (env, 8, "Could not find specified VM, please delete specified VM name and try again."); /* Constants.VM_LOOKUP_FAILED */
+        sendMessage (env, 27, "Could not find specified VM, please delete specified VM name and try again."); /* Constants.VM_LOOKUP_FAILED */
     	goto error;
     }
 
@@ -610,7 +626,7 @@ int CreateOvirtSession(JNIEnv *env, jobject obj, const gchar *uri, const gchar *
             // We still continue and attempt a connection even if powering on the VM fails.
         }
         // Wait a bit and then recursively create a new session setting didPowerOn to TRUE.
-        sleep (3);
+        sleep (15);
         CreateOvirtSession(env, obj, uri, user, password, ovirt_ca_file, sound, sslStrict, TRUE);
         goto error;
     }
@@ -696,6 +712,7 @@ Java_com_undatech_opaque_SpiceCommunicator_FetchVmNames(JNIEnv *env,
 		                                                         jobject obj,
 		                                                         jstring URI, jstring user, jstring password,
 		                                                         jstring sslCaFile, jboolean sslStrict) {
+    g_env = env;
 	__android_log_write(ANDROID_LOG_INFO, "FetchVmNames", "Starting.");
 
     OvirtApi *api = NULL;
@@ -754,6 +771,7 @@ Java_com_undatech_opaque_SpiceCommunicator_FetchVmNames(JNIEnv *env,
     if (error != NULL) {
     	// If this is not an SSL error, report a general connection error.
     	if (!reportIfSslError (env, error->message)) {
+    		__android_log_write(ANDROID_LOG_ERROR, "FetchVmNames", error->message);
     		sendMessage (env, 5, error->message); /* Constants.SPICE_CONNECT_FAILURE */
     	}
     	__android_log_write(ANDROID_LOG_ERROR, "FetchVmNames", "Failed to fetch API, error:");
@@ -778,7 +796,8 @@ Java_com_undatech_opaque_SpiceCommunicator_FetchVmNames(JNIEnv *env,
 
     name_to_vm_map = ovirt_collection_get_resources(vms);
     if (g_hash_table_size(name_to_vm_map) == 0) {
-    	sendMessage (env, 9, "No available VMs found for user."); /* Constants.NO_VM_FOUND_FOR_USER */
+        __android_log_write(ANDROID_LOG_ERROR, "FetchVmNames", "No VMs found for user.");
+    	sendMessage (env, 28, "No available VMs found for user."); /* Constants.NO_VM_FOUND_FOR_USER */
     }
 
     GHashTableIter iter;

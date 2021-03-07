@@ -91,18 +91,12 @@ static int update_mask (int button, gboolean down) {
 
 JNIEXPORT void JNICALL
 Java_com_undatech_opaque_SpiceCommunicator_SpiceRequestResolution(JNIEnv* env, jobject obj, jint x, jint y) {
+    __android_log_write(ANDROID_LOG_INFO, "android-io", "SpiceRequestResolution");
     SpiceDisplay* display = global_display;
     SpiceDisplayPrivate *d = SPICE_DISPLAY_GET_PRIVATE(display);
 
-    spice_main_update_display(d->main, get_display_id(display), 0, 0, x, y, TRUE);
-    spice_main_set_display_enabled(d->main, -1, TRUE);
-    // TODO: Sending the monitor config right away may be causing guest OS to shut down.
-	/*
-    if (spice_main_send_monitor_config(d->main)) {
-        __android_log_write(ANDROID_LOG_INFO, "android-io", "Successfully sent monitor config");
-    } else {
-        __android_log_write(ANDROID_LOG_ERROR, "android-io", "Failed to send monitor config");
-    }*/
+    spice_main_channel_update_display_enabled(d->main, get_display_id(display), TRUE, FALSE);
+    spice_main_channel_update_display(d->main, get_display_id(display), 0, 0, x, y, TRUE);
 }
 
 

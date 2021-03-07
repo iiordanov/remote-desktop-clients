@@ -1,11 +1,11 @@
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion 28
+    compileSdkVersion 29
 
     defaultConfig {
         minSdkVersion 8
-        targetSdkVersion 28
+        targetSdkVersion 29
     }
 
     buildTypes {
@@ -13,6 +13,10 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
         }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
 }
 
@@ -29,7 +33,7 @@ buildscript {
 apply plugin: "com.google.osdetector"
 
 dependencies {
-    api 'org.connectbot:sshlib:2.2.9'
+    api 'org.connectbot:sshlib:2.2.13'
     // https://mvnrepository.com/artifact/com.madgag.spongycastle/core
     api group: 'com.madgag.spongycastle', name: 'core', version: '1.58.0.0'
     api group: 'com.madgag.spongycastle', name: 'prov', version: '1.58.0.0'

@@ -10,4 +10,10 @@ public class GeneralUtils {
         }
         return remoteCanvasActivityClass;
     }
+
+    public static void debugLog(boolean enabled, String tag, String message) {
+        if (enabled) {
+            android.util.Log.d(tag, message);
+        }
+    }
 }

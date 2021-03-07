@@ -1,3 +1,28 @@
+v5.0.3
+- Mandatory Android API target update
+- Usability fixes
+- Password entry retry
+- Castillian Spanish localization
+- Android TV support improvements
+- Feature to turn on/off debug logging
+v5.0.2
+- Samsung DEX fixes
+- Better handling of Extra Keys visibility 
+- Debug logging of files in app directory
+- Main grid activity fixes.
+v5.0.1
+- Fix for annoying permissions request loop
+- Performance improvements
+- Security updates
+- Improved vibration for gestures and on-screen keys 
+- Deadlock in SPICE library fix
+- Many other bugfixes 
+v5.0.0
+- Many improvements and fixes
+- Improved UX and error messaging
+- Improved settings import/export functionality
+- Updated help
+- Bufixes and UX improvements for on-screen buttons 
 v4.3.0
 - Fix for SSH key generation instructions.
 - Fixes for devices with curved screens

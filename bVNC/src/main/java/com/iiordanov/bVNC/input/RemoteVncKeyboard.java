@@ -3,24 +3,27 @@ package com.iiordanov.bVNC.input;
 import android.os.Handler;
 import android.view.KeyEvent;
 
-import com.iiordanov.bVNC.MetaKeyBean;
+import com.iiordanov.bVNC.App;
 import com.iiordanov.bVNC.RemoteCanvas;
 import com.iiordanov.tigervnc.rfb.UnicodeToKeysym;
 import com.undatech.opaque.RfbConnectable;
+import com.undatech.opaque.util.GeneralUtils;
 
 public class RemoteVncKeyboard extends RemoteKeyboard {
     private final static String TAG = "RemoteKeyboard";
     public static boolean rAltAsIsoL3Shift = false;
-    
-    public RemoteVncKeyboard (RfbConnectable r, RemoteCanvas v, Handler h, boolean rAltAsIsoL3Shift) {
-        super(r, v, h);
+    protected RemoteCanvas canvas;
+
+    public RemoteVncKeyboard (RfbConnectable r, RemoteCanvas v, Handler h,
+                              boolean rAltAsIsoL3Shift, boolean debugLog) {
+        super(r, v.getContext(), h, debugLog);
+        canvas = v;
         // Indicate we want Right Alt to be ISO L3 SHIFT if preferred.
-        if (rAltAsIsoL3Shift)
-            RemoteVncKeyboard.rAltAsIsoL3Shift = rAltAsIsoL3Shift;
+        RemoteVncKeyboard.rAltAsIsoL3Shift = rAltAsIsoL3Shift;
     }
 
     public boolean processLocalKeyEvent(int keyCode, KeyEvent evt, int additionalMetaState) {
-        //android.util.Log.d(TAG, evt.toString() + " " + keyCode);
+        GeneralUtils.debugLog(App.debugLog, TAG, "processLocalKeyEvent: " + evt.toString() + " " + keyCode);
 
         if (rfb != null && rfb.isInNormalProtocol()) {
             RemotePointer pointer = canvas.getPointer();
@@ -126,12 +129,12 @@ public class RemoteVncKeyboard extends RemoteKeyboard {
                 // through to the VNC server so that they get handled there, but strip
                 // them from the character before retrieving the Unicode char from it.
                 // Don't clear Shift, we still want uppercase characters.
-                int metaMask = (0x00007000 | 0x00070000); // KeyEvent.META_CTRL_MASK | KeyEvent.META_META_MASK
+                int metaMask = (KeyEvent.META_CTRL_MASK | KeyEvent.META_META_MASK);
                 // When events come from a default hardware keyboard, we still want alt-key combinations to
                 // give us symbols, so we only strip out KeyEvent.META_ALT_MASK if we've decided to send
                 // over ALT as a separate key modifier in convertEventMetaState().
                 if ((metaState & ALT_MASK) != 0 || (metaState & RALT_MASK) != 0) {
-                    metaMask |= 0x00000032; /* KeyEvent.META_ALT_MASK */
+                    metaMask |= KeyEvent.META_ALT_MASK;
                 }
                 KeyEvent copy = new KeyEvent(evt.getDownTime(), evt.getEventTime(), evt.getAction(),
                         evt.getKeyCode(), evt.getRepeatCount(), evt.getMetaState() & ~metaMask,
@@ -195,17 +198,22 @@ public class RemoteVncKeyboard extends RemoteKeyboard {
                 }
                 
                 if (numchars == 1) {
-                    //android.util.Log.i(TAG, "Sending key. Down: " + down + ", key: " + key + ". keysym:" + keysym + ", metaState: " + metaState);
+                    GeneralUtils.debugLog(App.debugLog, TAG, "processLocalKeyEvent: Sending key. Down: " + down +
+                            ", key: " + key + ". keysym:" + keysym + ", metaState: " + metaState);
                     rfb.writeKeyEvent(keysym, metaState, down);
                     // If this is a unicode key, the up event will never come, so we artificially insert it.
-                    if (unicode)
+                    if (unicode) {
+                        GeneralUtils.debugLog(App.debugLog, TAG, "processLocalKeyEvent: Unicode key. Down: false" +
+                                ", key: " + key + ". keysym:" + keysym + ", metaState: " + metaState);
                         rfb.writeKeyEvent(keysym, metaState, false);
+                    }
 
                 } else if (numchars > 1) {
                     for (int i = 0; i < numchars; i++) {
                         key = evt.getCharacters().charAt(i);
                         keysym = UnicodeToKeysym.translate(key);
-                        //android.util.Log.i(TAG, "Sending multiple keys. Key: " + key + " keysym: " + keysym + ", metaState: " + metaState);
+                        GeneralUtils.debugLog(App.debugLog, TAG, "processLocalKeyEvent: Sending multiple keys. Key: " +
+                                key + " keysym: " + keysym + ", metaState: " + metaState);
                         rfb.writeKeyEvent(keysym, metaState, true);
                         rfb.writeKeyEvent(keysym, metaState, false);
                         lastDownMetaState = 0;
@@ -224,12 +232,10 @@ public class RemoteVncKeyboard extends RemoteKeyboard {
         int x = pointer.getX();
         int y = pointer.getY();
 
-        if (meta.isMouseClick())
-        {
+        if (meta.isMouseClick()) {
             rfb.writePointerEvent(x, y, meta.getMetaFlags()|onScreenMetaState|hardwareMetaState, meta.getMouseButtons(), false);
             rfb.writePointerEvent(x, y, meta.getMetaFlags()|onScreenMetaState|hardwareMetaState, 0, false);
-        }
-        else {
+        } else {
             rfb.writeKeyEvent(meta.getKeySym(), meta.getMetaFlags()|onScreenMetaState|hardwareMetaState, true);
             rfb.writeKeyEvent(meta.getKeySym(), meta.getMetaFlags()|onScreenMetaState|hardwareMetaState, false);
         }

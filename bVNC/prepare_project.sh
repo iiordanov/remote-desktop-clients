@@ -42,6 +42,9 @@ then
 fi
 
 DIR=$(dirname $0)
+
+. ${DIR}/../remoteClientLib/jni/libs/build-deps.conf
+
 pushd $DIR
 
 PRJ="$1"
@@ -83,15 +86,27 @@ fi
 
 if [ -n "${CUSTOM_CLIENT}" ]
 then
-  sed -i.bakautocustom "s/CUSTOM_APP_PACKAGE_NAME/$PRJ/" ../${CUSTOM_MANIFEST_EXTENSION}-app/src/main/AndroidManifest.xml
+  if ! grep -q CUSTOM_.*_APP_PACKAGE_NAME ../${CUSTOM_MANIFEST_EXTENSION}-app/src/main/AndroidManifest.xml
+  then
+    echo "Failed to find CUSTOM_.*_APP_PACKAGE_NAME in manifest."
+    exit 1
+  fi
+
+  sed -i.bakautocustom "s/CUSTOM_.*_APP_PACKAGE_NAME/$PRJ/" ../${CUSTOM_MANIFEST_EXTENSION}-app/src/main/AndroidManifest.xml
+
+  if grep -q CUSTOM_.*_APP_PACKAGE_NAME ../${CUSTOM_MANIFEST_EXTENSION}-app/src/main/AndroidManifest.xml
+  then
+    echo "Failed to set CUSTOM_.*_APP_PACKAGE_NAME in manifest."
+    exit 1
+  fi
 fi
 
 if [ "$SKIP_BUILD" == "false" ]
 then
   pushd ../remoteClientLib/jni/libs
   echo "Automatically installing Android NDK"
-  export ANDROID_NDK=$(install_ndk ./ r18b)
-  ./build-deps.sh -j 8 -n $ANDROID_NDK build $PRJ
+  export ANDROID_NDK=$(install_ndk ./ ${ndk_version})
+  ./build-deps.sh -j 8 build $PRJ
   popd
 
   if echo $PRJ | grep -qi "SPICE\|Opaque\|libs\|remoteClientLib"

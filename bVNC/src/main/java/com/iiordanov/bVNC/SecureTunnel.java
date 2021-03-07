@@ -37,6 +37,8 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 
+import com.undatech.opaque.RemoteClientLibConstants;
+
 // this is a secure tunnel meant to be established prior to creating the rfb connection
 // it can then be used with standard vnc security
 public class SecureTunnel implements X509TrustManager
@@ -147,7 +149,7 @@ public class SecureTunnel implements X509TrustManager
 			throw new CertificateException();
 		}
 		X509Certificate remoteCertificate = chain[0];
-        Message msg = Message.obtain(m_messageBus, Constants.DIALOG_X509_CERT, remoteCertificate);
+        Message msg = Message.obtain(m_messageBus, RemoteClientLibConstants.DIALOG_X509_CERT, remoteCertificate);
         m_messageBus.sendMessage(msg);
 	}
 

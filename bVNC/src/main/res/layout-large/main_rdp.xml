@@ -10,38 +10,12 @@
         android:orientation="vertical"
         android:padding="0dip">
 
-        <LinearLayout
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <Spinner
-                android:id="@+id/spinnerConnection"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:singleLine="true" />
-
-            <Button
-                android:id="@+id/buttonGO"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="0"
-                android:background="#444444"
-                android:singleLine="true"
-                android:text="@string/connect_button"
-                android:textAppearance="?android:attr/textAppearanceMedium"
-                android:textColor="#dddddd"
-                android:textSize="35sp" />
-        </LinearLayout>
-
         <TableLayout
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:padding="5dip">
 
             <TableRow>
-
                 <TextView
                     android:id="@+id/connectionTypeLabel"
                     android:layout_width="wrap_content"
@@ -51,7 +25,6 @@
             </TableRow>
 
             <TableRow>
-
                 <Spinner
                     android:id="@+id/connectionType"
                     android:layout_width="fill_parent"
@@ -62,7 +35,6 @@
             </TableRow>
 
             <TableRow>
-
                 <EditText
                     android:id="@+id/textNickname"
                     android:layout_width="fill_parent"
@@ -74,7 +46,6 @@
             </TableRow>
 
             <TableRow>
-
                 <TextView
                     android:id="@+id/sshCaption"
                     android:layout_width="wrap_content"
@@ -84,7 +55,6 @@
             </TableRow>
 
             <TableRow>
-
                 <LinearLayout
                     android:id="@+id/sshServerEntry"
                     android:layout_width="fill_parent"
@@ -119,41 +89,52 @@
             </TableRow>
 
             <TableRow>
-
                 <LinearLayout
                     android:id="@+id/sshCredentials"
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
+                    android:orientation="vertical"
                     android:layout_weight="1"
-                    android:orientation="horizontal"
                     android:visibility="gone">
 
-                    <EditText
-                        android:id="@+id/sshUser"
+                    <LinearLayout
                         android:layout_width="fill_parent"
                         android:layout_height="wrap_content"
-                        android:layout_weight=".5"
-                        android:hint="@string/username_hint_ssh"
-                        android:inputType="textNoSuggestions|textVisiblePassword"
-                        android:nextFocusDown="@+id/sshPassword"
                         android:singleLine="true"
-                        android:textAppearance="?android:attr/textAppearanceLarge" />
+                        android:orientation="horizontal"
+                        android:padding="0dp">
 
+                        <EditText
+                            android:id="@+id/sshUser"
+                            android:layout_width="fill_parent"
+                            android:layout_height="wrap_content"
+                            android:hint="@string/username_hint_ssh"
+                            android:inputType="textNoSuggestions|textVisiblePassword"
+                            android:nextFocusDown="@+id/sshPassword"
+                            android:layout_weight="1"
+                            android:textAppearance="?android:attr/textAppearanceLarge" />
+
+                        <EditText
+                            android:id="@+id/sshPassword"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:hint="@string/password_hint_ssh"
+                            android:inputType="textNoSuggestions|textPassword"
+                            android:layout_weight="0"
+                            android:textAppearance="?android:attr/textAppearanceLarge" />
+                    </LinearLayout>
                     <EditText
-                        android:id="@+id/sshPassword"
+                        android:id="@+id/sshPassphrase"
                         android:layout_width="fill_parent"
                         android:layout_height="wrap_content"
-                        android:layout_weight=".5"
-                        android:hint="@string/password_hint_ssh"
-                        android:inputType="textNoSuggestions"
-                        android:password="true"
+                        android:hint="@string/ssh_passphrase_hint"
+                        android:inputType="textNoSuggestions|textPassword"
                         android:singleLine="true"
                         android:textAppearance="?android:attr/textAppearanceLarge" />
                 </LinearLayout>
             </TableRow>
 
             <TableRow>
-
                 <LinearLayout
                     android:id="@+id/layoutUseSshPubkey"
                     android:layout_width="fill_parent"
@@ -167,17 +148,6 @@
                         android:layout_height="wrap_content"
                         android:orientation="horizontal">
 
-                        <EditText
-                            android:id="@+id/sshPassphrase"
-                            android:layout_width="fill_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_weight=".5"
-                            android:hint="@string/ssh_passphrase_hint"
-                            android:inputType="textNoSuggestions"
-                            android:password="true"
-                            android:singleLine="true"
-                            android:textAppearance="?android:attr/textAppearanceLarge" />
-
                         <CheckBox
                             android:id="@+id/checkboxUseSshPubkey"
                             android:layout_width="fill_parent"
@@ -186,6 +156,16 @@
                             android:checked="false"
                             android:singleLine="true"
                             android:text="@string/ssh_use_pubkey"
+                            android:textAppearance="?android:attr/textAppearanceLarge" />
+
+                        <CheckBox
+                            android:id="@+id/checkboxKeepSshPass"
+                            android:layout_width="fill_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_weight=".5"
+                            android:checked="false"
+                            android:singleLine="true"
+                            android:text="@string/keep_password_button"
                             android:textAppearance="?android:attr/textAppearanceLarge" />
                     </LinearLayout>
 
@@ -209,7 +189,6 @@
             </TableRow>
 
             <TableRow>
-
                 <LinearLayout
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
@@ -241,7 +220,6 @@
             </TableRow>
 
             <TableRow>
-
                 <EditText
                     android:id="@+id/textUsername"
                     android:layout_width="fill_parent"
@@ -280,8 +258,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:hint="@string/rdp_password_hint"
-                        android:inputType="textNoSuggestions"
-                        android:password="true"
+                        android:inputType="textNoSuggestions|textPassword"
                         android:singleLine="true"
                         android:textAppearance="?android:attr/textAppearanceLarge" />
 
@@ -486,6 +463,23 @@
                 android:layout_height="wrap_content"
                 android:gravity="left|center_vertical"
                 android:text="@string/rdp_adv_visual_styles"
+                android:textAppearance="?android:attr/textAppearanceLarge" />
+
+            <CheckBox
+                android:id="@+id/checkboxEnableGfx"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="left|center_vertical"
+                android:text="@string/rdp_adv_gfx"
+                android:textAppearance="?android:attr/textAppearanceLarge" />
+
+            <CheckBox
+                android:id="@+id/checkboxEnableGfxH264"
+                android:visibility="gone"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="left|center_vertical"
+                android:text="@string/rdp_adv_gfxh264"
                 android:textAppearance="?android:attr/textAppearanceLarge" />
 
             <TextView

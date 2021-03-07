@@ -23,6 +23,7 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.AdapterView;
@@ -54,22 +55,12 @@ import com.undatech.remoteClientUi.*;
  */
 public class aRDP extends MainConfiguration {
     private final static String TAG = "aRDP";
-    private Spinner connectionType;
-    private int selectedConnType;
-    private TextView sshCaption;
-    private LinearLayout sshCredentials;
-    private LinearLayout layoutUseSshPubkey;
-    private LinearLayout sshServerEntry;
     private LinearLayout layoutAdvancedSettings;
     private EditText sshServer;
     private EditText sshPort;
     private EditText sshUser;
-    private EditText sshPassword;
-    private EditText sshPassphrase;
-    private EditText ipText;
     private EditText portText;
     private EditText passwordText;
-    private Button goButton;
     private ToggleButton toggleAdvancedSettings;
     //private Spinner colorSpinner;
     private Spinner spinnerRdpGeometry;
@@ -92,22 +83,18 @@ public class aRDP extends MainConfiguration {
     private CheckBox checkboxVisualStyles;
     private CheckBox checkboxRotateDpad;
     private CheckBox checkboxUseSshPubkey;
-    
+    private CheckBox checkboxEnableGfx;
+    private CheckBox checkboxEnableGfxH264;
+
     @Override
     public void onCreate(Bundle icicle) {
         layoutID = R.layout.main_rdp;
+
         super.onCreate(icicle);
         
-        ipText = (EditText) findViewById(R.id.textIP);
         sshServer = (EditText) findViewById(R.id.sshServer);
         sshPort = (EditText) findViewById(R.id.sshPort);
         sshUser = (EditText) findViewById(R.id.sshUser);
-        sshPassword = (EditText) findViewById(R.id.sshPassword);
-        sshPassphrase = (EditText) findViewById(R.id.sshPassphrase);
-        sshCredentials = (LinearLayout) findViewById(R.id.sshCredentials);
-        sshCaption = (TextView) findViewById(R.id.sshCaption);
-        layoutUseSshPubkey = (LinearLayout) findViewById(R.id.layoutUseSshPubkey);
-        sshServerEntry = (LinearLayout) findViewById(R.id.sshServerEntry);
         portText = (EditText) findViewById(R.id.textPORT);
         passwordText = (EditText) findViewById(R.id.textPASSWORD);
         textUsername = (EditText) findViewById(R.id.textUsername);
@@ -115,44 +102,10 @@ public class aRDP extends MainConfiguration {
 
         // Here we say what happens when the Pubkey Checkbox is checked/unchecked.
         checkboxUseSshPubkey = (CheckBox) findViewById(R.id.checkboxUseSshPubkey);
-        
-        // Define what happens when somebody selects different VNC connection types.
-        connectionType = (Spinner) findViewById(R.id.connectionType);
-        connectionType.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> ad, View view, int itemIndex, long id) {
-
-                selectedConnType = itemIndex;
-                if (selectedConnType == Constants.CONN_TYPE_PLAIN) {
-                    setVisibilityOfSshWidgets (View.GONE);
-                } else if (selectedConnType == Constants.CONN_TYPE_SSH) {
-                    setVisibilityOfSshWidgets (View.VISIBLE);
-                    if (ipText.getText().toString().equals(""))
-                        ipText.setText("localhost");
-                }
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> ad) {
-            }
-        });
 
         checkboxKeepPassword = (CheckBox)findViewById(R.id.checkboxKeepPassword);
         checkboxUseDpadAsArrows = (CheckBox)findViewById(R.id.checkboxUseDpadAsArrows);
         checkboxRotateDpad = (CheckBox)findViewById(R.id.checkboxRotateDpad);
-
-        goButton = (Button) findViewById(R.id.buttonGO);
-        goButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (ipText.getText().length() != 0 && portText.getText().length() != 0) {
-                    canvasStart();
-                } else {
-                    Toast.makeText(view.getContext(), R.string.rdp_server_empty, Toast.LENGTH_LONG).show();
-                }
-            }
-        });
-        
         // The advanced settings button.
         toggleAdvancedSettings = (ToggleButton) findViewById(R.id.toggleAdvancedSettings);
         layoutAdvancedSettings = (LinearLayout) findViewById(R.id.layoutAdvancedSettings);
@@ -192,16 +145,9 @@ public class aRDP extends MainConfiguration {
         checkboxWindowContents = (CheckBox)findViewById(R.id.checkboxWindowContents);
         checkboxMenuAnimation = (CheckBox)findViewById(R.id.checkboxMenuAnimation);
         checkboxVisualStyles = (CheckBox)findViewById(R.id.checkboxVisualStyles);
-    }
-    
-    /**
-     * Makes the ssh-related widgets visible/invisible.
-     */
-    private void setVisibilityOfSshWidgets (int visibility) {
-        sshCredentials.setVisibility(visibility);
-        sshCaption.setVisibility(visibility);
-        layoutUseSshPubkey.setVisibility(visibility);
-        sshServerEntry.setVisibility(visibility);
+        checkboxEnableGfx = (CheckBox)findViewById(R.id.checkboxEnableGfx);
+        checkboxEnableGfxH264 = (CheckBox)findViewById(R.id.checkboxEnableGfxH264);
+        setConnectionTypeSpinnerAdapter(R.array.rdp_connection_type);
     }
 
     /**
@@ -216,74 +162,17 @@ public class aRDP extends MainConfiguration {
             rdpHeight.setEnabled(true);
         }
     }
-    
-    /* (non-Javadoc)
-     * @see android.app.Activity#onCreateDialog(int)
-     */
-    @Override
-    protected Dialog onCreateDialog(int id) {
-        if (id == R.layout.importexport) {
-            return new ImportExportDialog(this);
-        } else if (id == R.id.itemMainScreenHelp) {
-            return createHelpDialog();
-        }
-        return null;
-    }
-    
-    /**
-     * Creates the help dialog for this activity.
-     */
-    private Dialog createHelpDialog() {
-        AlertDialog.Builder adb = new AlertDialog.Builder(this)
-                .setMessage(R.string.rdp_main_screen_help_text)
-                .setPositiveButton(R.string.close,
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog,
-                                    int whichButton) {
-                                // We don't have to do anything.
-                            }
-                        });
-        Dialog d = adb.setView(new ListView (this)).create();
-        WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
-        lp.copyFrom(d.getWindow().getAttributes());
-        lp.width = WindowManager.LayoutParams.FILL_PARENT;
-        lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
-        d.show();
-        d.getWindow().setAttributes(lp);
-        return d;
-    }
-    
-    protected void updateViewFromSelected() {
-        commonUpdateViewFromSelected();
 
+    protected void updateViewFromSelected() {
         if (selected == null)
             return;
-        selectedConnType = selected.getConnectionType();
-        connectionType.setSelection(selectedConnType);
+        super.commonUpdateViewFromSelected();
+
         sshServer.setText(selected.getSshServer());
         sshPort.setText(Integer.toString(selected.getSshPort()));
         sshUser.setText(selected.getSshUser());
         
         checkboxUseSshPubkey.setChecked(selected.getUseSshPubKey());
-
-        if (selectedConnType == Constants.CONN_TYPE_SSH && selected.getAddress().equals(""))
-            ipText.setText("localhost");
-        else
-            ipText.setText(selected.getAddress());
-
-        // If we are doing automatic X session discovery, then disable
-        // vnc address, vnc port, and vnc password, and vice-versa
-        if (selectedConnType == 1 && selected.getAutoXEnabled()) {
-            ipText.setVisibility(View.GONE);
-            portText.setVisibility(View.GONE);
-            passwordText.setVisibility(View.GONE);
-            checkboxKeepPassword.setVisibility(View.GONE);
-        } else {
-            ipText.setVisibility(View.VISIBLE);
-            portText.setVisibility(View.VISIBLE);
-            passwordText.setVisibility(View.VISIBLE);
-            checkboxKeepPassword.setVisibility(View.VISIBLE);
-        }
 
         portText.setText(Integer.toString(selected.getPort()));
         
@@ -312,6 +201,8 @@ public class aRDP extends MainConfiguration {
         checkboxWindowContents.setChecked(selected.getWindowContents());
         checkboxMenuAnimation.setChecked(selected.getMenuAnimation());
         checkboxVisualStyles.setChecked(selected.getVisualStyles());
+        checkboxEnableGfx.setChecked(selected.getEnableGfx());
+        checkboxEnableGfxH264.setChecked(selected.getEnableGfxH264());
 
         /* TODO: Reinstate color spinner but for RDP settings.
         colorSpinner = (Spinner)findViewById(R.id.colorformat);
@@ -329,22 +220,13 @@ public class aRDP extends MainConfiguration {
             }
         }*/
     }
-    
-    /**
-     * Returns the current ConnectionBean.
-     */
-    public ConnectionBean getCurrentConnection () {
-        return selected;
-    }
-    
+
     protected void updateSelectedFromView() {
         commonUpdateSelectedFromView();
 
         if (selected == null) {
             return;
         }
-        selected.setConnectionType(selectedConnType);
-        selected.setAddress(ipText.getText().toString());
         try    {
             selected.setPort(Integer.parseInt(portText.getText().toString()));
             selected.setSshPort(Integer.parseInt(sshPort.getText().toString()));
@@ -354,13 +236,9 @@ public class aRDP extends MainConfiguration {
         selected.setSshServer(sshServer.getText().toString());
         selected.setSshUser(sshUser.getText().toString());
 
-        selected.setKeepSshPassword(false);
-        
         // If we are using an SSH key, then the ssh password box is used
         // for the key pass-phrase instead.
         selected.setUseSshPubKey(checkboxUseSshPubkey.isChecked());
-        selected.setSshPassPhrase(sshPassphrase.getText().toString());
-        selected.setSshPassword(sshPassword.getText().toString());
         selected.setUserName(textUsername.getText().toString());
         selected.setRdpDomain(rdpDomain.getText().toString());
         selected.setRdpResType(spinnerRdpGeometry.getSelectedItemPosition());
@@ -379,6 +257,9 @@ public class aRDP extends MainConfiguration {
         selected.setWindowContents(checkboxWindowContents.isChecked());
         selected.setMenuAnimation(checkboxMenuAnimation.isChecked());
         selected.setVisualStyles(checkboxVisualStyles.isChecked());
+        selected.setEnableGfx(checkboxEnableGfx.isChecked());
+        selected.setEnableGfxH264(checkboxEnableGfxH264.isChecked());
+
         selected.setPassword(passwordText.getText().toString());
         selected.setKeepPassword(checkboxKeepPassword.isChecked());
         selected.setUseDpadAsArrows(checkboxUseDpadAsArrows.isChecked());
@@ -396,6 +277,8 @@ public class aRDP extends MainConfiguration {
         if (Utils.isFree(this)) {
             IntroTextDialog.showIntroTextIfNecessary(this, database, true);
             b.setChecked(false);
+        } else {
+            permissionsManager.requestPermissions(this, true);
         }
         selected.setEnableRecording(b.isChecked());
     }
@@ -449,5 +332,14 @@ public class aRDP extends MainConfiguration {
             break;
         }
         groupRemoteSoundType.check(id);
+    }
+
+    public void save(MenuItem item) {
+        if (ipText.getText().length() != 0 && portText.getText().length() != 0) {
+            saveConnectionAndCloseLayout();
+        } else {
+            Toast.makeText(this, R.string.rdp_server_empty, Toast.LENGTH_LONG).show();
+        }
+
     }
 }

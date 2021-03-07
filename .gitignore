@@ -8,8 +8,10 @@ remoteClientLib/libs
 remoteClientLib/jni/libs/deps/
 remoteClientLib/jni/libs/cerbero/
 remoteClientLib/jni/libs/tar/
+remoteClientLib/jni/libs/CERBERO_BUILT_*
 remoteClientLib/jni/libs/FREERDP_BUILT
 remoteClientLib/jni/libs/android-ndk*
+remoteClientLib/jni/libs/cmake-*
 remoteClientLib/gst-build-*/
 remoteClientLib/debug/
 remoteClientLib/release/
@@ -114,6 +116,7 @@ obj/
 .idea/dynamic.xml
 .idea/caches
 .idea/codeStyles
+.idea/jarRepositories.xml
 
 Opaque/.idea/libraries/
 Opaque/.idea/workspace.xml
@@ -183,3 +186,8 @@ fabric.properties
 !/gradle/wrapper/gradle-wrapper.jar
 
 # End of AndroidStudio ###
+
+GITHUB_TOKEN
+build-*
+upload_*
+trigger-*
