@@ -1,5 +1,7 @@
 #!/bin/bash -e
 
+. build-libs.conf
+
 function realpath() {
     [[ $1 = /* ]] && echo "$1" || echo "$PWD/${1#./}"
 }
@@ -30,6 +32,7 @@ CLEAN=$2
 if git clone https://github.com/leetal/ios-cmake.git
 then
   pushd ios-cmake
+  git checkout ${IOS_CMAKE_VERSION}
   echo "Patching ios-cmake"
   patch -p1 < ../ios-cmake.patch
   popd
@@ -39,7 +42,7 @@ fi
 if git clone https://github.com/libjpeg-turbo/libjpeg-turbo.git
 then
   pushd libjpeg-turbo
-  git checkout 2.0.5
+  git checkout ${LIBJPEG_TURBO_VERSION}
 
   echo "Patching libjpeg-turbo"
   patch -p1 < ../libjpeg-turbo.patch
@@ -52,7 +55,9 @@ then
         -DENABLE_VISIBILITY=ON \
         -DENABLE_ARC=OFF
   do
-    echo "Failed to run cmake on libjpeg-turbo. Sometimes running sudo xcode-select --reset."
+    echo "Failed to build libjpeg-turbo for iphoneos. Sometimes you have to run:"
+    echo "xcode-select --install && sudo xcode-select --reset && sudo xcodebuild -license"
+    echo "Hit Ctrl-c to try running the above command and then retry."
     sleep 1
   done
   make -j 12
@@ -71,7 +76,9 @@ then
         -DENABLE_VISIBILITY=ON \
         -DENABLE_ARC=OFF
   do
-    echo "Failed to run cmake on libjpeg-turbo. Sometimes running sudo xcode-select --reset."
+    echo "Failed to build libjpeg-turbo for maccatalyst. Sometimes you have to run:"
+    echo "xcode-select --install && sudo xcode-select --reset && sudo xcodebuild -license"
+    echo "Hit Ctrl-c to try running the above command and then retry."
     sleep 1
   done
   make -j 12
@@ -121,7 +128,7 @@ sleep 2
 if git clone https://github.com/Jan-E/iSSH2.git
 then
   pushd iSSH2
-  git checkout catalyst
+  git checkout ${ISSH2_VERSION}
   echo "Patching Jan-E/iSSH2"
   patch -p1 < ../iSSH2.patch
   ./catalyst.sh
