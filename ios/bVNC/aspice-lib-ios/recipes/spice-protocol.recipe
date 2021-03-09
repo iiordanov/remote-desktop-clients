@@ -1,0 +1,17 @@
+# -*- Mode: Python -*- vi:si:et:sw=4:sts=4:ts=4:syntax=python
+
+
+class Recipe(recipe.Recipe):
+    name = 'spice-protocol'
+    version = '0.12.15'
+    # either LGPLv2.1 or MPLv1.1
+    licenses = [License.LGPLv2_1Plus]
+    remotes = {'origin': 'https://gitlab.freedesktop.org/spice/spice-protocol.git'}
+    commit = 'v%s' % version
+    autoreconf = True
+    autoreconf_sh = 'NOCONFIGURE=1 ./autogen.sh'
+    configure_tpl = './configure --prefix=%(prefix)s --datarootdir=%(prefix)s/lib %(options)s '
+
+    files_devel = ['include/spice-1',
+                   'lib/pkgconfig/spice-protocol.pc']
+

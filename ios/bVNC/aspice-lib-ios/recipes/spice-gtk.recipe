@@ -1,0 +1,56 @@
+# -*- Mode: Python -*- vi:si:et:sw=4:sts=4:ts=4:syntax=python
+
+class Recipe(recipe.Recipe):
+    name = 'spice-gtk'
+    version = '0.37'
+    remotes = {'origin': 'https://gitlab.freedesktop.org/spice/spice-gtk.git'}
+    commit = 'v%s' % version
+    # either LGPLv2.1 or MPLv1.1
+    licenses = [License.LGPLv2_1Plus]
+    autoreconf = True 
+    autoreconf_sh = 'NOCONFIGURE=1 ./autogen.sh && sed -i s/tests// subprojects/spice-common/Makefile.*'
+    make_check = None
+
+    deps = ['json-glib', 'glib', 'libpng', 'zlib', 'pixman', 'fontconfig', 'freetype', 'gtk-doc-lite',
+            'gstreamer-1.0', 'gst-plugins-base-1.0',
+            'spice-protocol', 'libjpeg8', 'opus', 'pyparsing', 'six', 'openssl']
+    platform_deps = {
+            Platform.WINDOWS: [ 'gtk+3', 'usbredir', 'phodav' ],
+            Platform.LINUX: [ 'gtk+3', 'usbredir', 'phodav' ],
+            Platform.DARWIN: [ 'gtk+3', 'phodav' ]
+            }
+
+    files_devel = ['include/spice-client-glib-2.0',
+                   'lib/pkgconfig/spice-client-glib-2.0.pc']
+
+    files_libs = ['libspice-client-glib-2.0']
+
+    def prepare(self):
+        self.configure_options += ' --disable-werror --disable-smartcard'
+        self.configure_options += ' --disable-vala --disable-controller'
+        self.configure_options += ' --disable-pulse --disable-builtin-mjpeg'
+
+        if self.config.target_platform in [Platform.IOS, 
+                                          Platform.ANDROID]:
+            self.configure_options += ' --enable-static --with-gtk=no --with-coroutine=gthread '
+            self.patches = ['spice-gtk/0003-Remove-missing-symbols-from-export-files.patch']
+        if self.config.target_platform == Platform.DARWIN:
+            self.configure_options += ' --with-coroutine=gthread --disable-introspection CPPFLAGS=" -xobjective-c"'
+        elif self.config.target_platform == Platform.WINDOWS:
+            self.configure_options += ' --enable-tools' # Build spicy for Windows Dashboard
+            self.configure_options += ' --enable-usbredir --with-usb-ids-path=./usb.ids'
+            if self.config.target_arch == Architecture.X86:
+                host = 'i686-w64-mingw32'
+            else:
+                host = 'x86_64-w64-mingw32'
+            directx_headers = os.path.join(self.config.toolchain_prefix, host, 'include', 'directx')
+            self.configure_options += ' CPPFLAGS=" -I' + directx_headers + ' -DWIN32_LEAN_AND_MEAN ${CPPFLAGS}"'
+            self.configure_options += ' LIBS=" -limm32"'
+        elif self.config.target_platform == Platform.LINUX:
+            self.use_system_libs = True
+            self.configure_options += ' --enable-usbredir --with-usb-ids-path=./usb.ids'
+
+    def post_install(self):
+        if self.config.target_platform in [Platform.WINDOWS, Platform.LINUX]:
+            shell.download("http://www.linux-usb.org/usb.ids",
+                           destination=os.path.join(self.config.prefix, 'bin', 'usb.ids'))

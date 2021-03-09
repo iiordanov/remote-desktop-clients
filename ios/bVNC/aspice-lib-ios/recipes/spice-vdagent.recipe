@@ -1,0 +1,17 @@
+# -*- Mode: Python -*- vi:si:et:sw=4:sts=4:ts=4:syntax=python
+
+
+class Recipe(recipe.Recipe):
+    name = 'spice-vdagent'
+    version = '0.17.0-flexvdi'
+    # either LGPLv2.1 or MPLv1.1
+    licenses = [License.LGPLv2_1Plus]
+    remotes = {'origin': 'https://git.flexvdi.com/scm/flexvdi/vd-agent-linux.git'}
+    commit = 'origin/master'
+    autoreconf = True
+    autoreconf_sh = 'NOCONFIGURE=1 ./autogen.sh'
+    configure_tpl = './configure --prefix=/ --exec-prefix=/usr --datarootdir=/usr/share %(options)s '
+    use_system_libs = True
+    deps = [ 'spice-protocol' ]
+    configure_options = '--disable-dependency-tracking'
+    make_install = 'make DESTDIR=target install'

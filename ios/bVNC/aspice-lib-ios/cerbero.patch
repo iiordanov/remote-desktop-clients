@@ -1,0 +1,260 @@
+diff --git a/Makefile b/Makefile
+index a0ea96c0..095e2a8a 100644
+--- a/Makefile
++++ b/Makefile
+@@ -5,13 +5,13 @@ else
+ endif
+ 
+ all:
+-	python setup.py build
++	python3 setup.py build
+ 
+ install:
+-	python setup.py install $(PREFIX_ARGS)
++	python3 setup.py install $(PREFIX_ARGS)
+ 
+ dist-tarball:
+-	python setup.py sdist --formats=bztar
++	python3 setup.py sdist --formats=bztar
+ 
+ check-pep8:
+ 	find cerbero ! -regex cerbero/packages/debian.py -name \*.py | sort -u | xargs pep8 --ignore=E128 --repeat
+@@ -26,4 +26,4 @@ coverage:
+ 	make show-coverage
+ 
+ show-coverage:
+-	python tools/show-coverage.py _trial_temp/coverage/cerbero.*
++	python3 tools/show-coverage.py _trial_temp/coverage/cerbero.*
+diff --git a/cerbero/bootstrap/osx.py b/cerbero/bootstrap/osx.py
+index 492fa073..d1de7521 100644
+--- a/cerbero/bootstrap/osx.py
++++ b/cerbero/bootstrap/osx.py
+@@ -40,7 +40,7 @@ class OSXBootstrapper (BootstrapperBase):
+         # skip system package install if not needed
+         if not self.config.distro_packages_install:
+             return
+-        self._install_perl_deps()
++        #self._install_perl_deps()
+ 
+     def _install_perl_deps(self):
+         cpanm_installer = os.path.join(self.config.local_sources, 'cpanm')
+diff --git a/config/ios.config b/config/ios.config
+index cddbdcf1..8da1943e 100644
+--- a/config/ios.config
++++ b/config/ios.config
+@@ -15,19 +15,22 @@ variants.override(['nopython', 'notestspackage'])
+ # used later. System libs are passed through the -isysroot option
+ allow_system_libs=False
+ 
+-ios_min_version = ios_min_version or '11.0'
++ios_min_version = ios_min_version or '13.2'
+ 
+ if target_distro_version == distro_version:
+     target_distro_version = None
+ 
+ if target_arch in [Architecture.X86, Architecture.X86_64]:
+-    ios_platform = 'iPhoneSimulator'
++    ios_platform = 'MacOSX'
+ else:
+     ios_platform = 'iPhoneOS'
+ 
+ iphone_platform = '/Applications/Xcode.app/Contents/Developer/Platforms/%s.platform/Developer' % ios_platform
+ toolchain_path = '%s/usr/bin' % iphone_platform
+ 
++if target_arch in [Architecture.X86, Architecture.X86_64]:
++    toolchain_path = '/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin'
++
+ def sdk_location_to_version_array(location):
+     match = re.fullmatch(ios_platform + r'(\d{1,2}\.\d).sdk', location)
+     if not match:
+@@ -68,6 +71,10 @@ else:
+ 
+ sysroot = version_array_to_sdk_location(best_version)
+ 
++print("======================================================")
++print("sysroot %s arch %s toolchain_path %s" % (sysroot, target_arch, toolchain_path))
++print("======================================================")
++
+ ccache = use_ccache and 'ccache ' or ''
+ extra_cflags = ''
+ extra_ldflags = '-Wno-error=unused-command-line-argument'
+@@ -124,8 +131,12 @@ if ios_platform == 'iPhoneOS':
+   env['LDFLAGS'] += '-miphoneos-version-min={0} -Wl,-iphoneos_version_min,{0} '.format(ios_min_version)
+   env['CCASFLAGS'] = '-miphoneos-version-min={} '.format(ios_min_version)
+ else:
+-  env['CFLAGS'] += '-mios-simulator-version-min={} '.format(ios_min_version)
+-  env['LDFLAGS'] += '-mios-simulator-version-min={0} -Wl,-ios_simulator_version_min,{0} '.format(ios_min_version)
++  env['CC']= 'clang --target=x86_64-apple-ios{0}-macabi'.format(ios_min_version)
++  env['CXX']= 'clang++ --target=x86_64-apple-ios{0}-macabi'.format(ios_min_version)
++  env['CFLAGS'] += '--target=x86_64-apple-ios{0}-macabi -miphoneos-version-min={0} '.format(ios_min_version)
++  env['LDFLAGS'] += '--target=x86_64-apple-ios{0}-macabi -miphoneos-version-min={0} '.format(ios_min_version)
++  env['CCASFLAGS'] = '-miphoneos-version-min={0} '.format(ios_min_version)
++
+ env['CFLAGS'] += extra_cflags
+ env['LDFLAGS'] += extra_ldflags
+ env['OBJCFLAGS'] = env['CFLAGS']
+@@ -134,11 +145,8 @@ env['CXXFLAGS'] =' -stdlib=libc++ ' +  env['CFLAGS']
+ env['OBJCXXFLAGS'] =' -stdlib=libc++ ' +  env['CFLAGS']
+ 
+ env['AS']= 'as'
+-if target_arch in [Architecture.X86, Architecture.X86_64]:
+-    env.pop('GAS', None)
+-else:
+-    env['GAS']= '%s %s %s -fembed-bitcode' % ('gas-preprocessor.pl', env['CC'], env['CFLAGS'])
+-
++env['GAS']= ''
++#env['GAS']= '%s %s %s -fembed-bitcode' % ('gas-preprocessor.pl', env['CC'], env['CFLAGS'])
+ 
+ 
+ if use_ccache:
+@@ -155,3 +163,7 @@ env['ac_cv_tls'] = 'none'
+ env['gl_cv_func_getcwd_abort_bug'] = 'no'
+ 
+ moltenvk_prefix = os.path.join(home_dir, 'moltenvk')
++
++print("======================================================")
++print(env)
++print("======================================================")
+diff --git a/recipes/gdk-pixbuf.recipe b/recipes/gdk-pixbuf.recipe
+index 0b3157ee..66a24683 100644
+--- a/recipes/gdk-pixbuf.recipe
++++ b/recipes/gdk-pixbuf.recipe
+@@ -16,7 +16,7 @@ class Recipe(recipe.Recipe):
+                      'builtin_loaders' : 'all',
+                      'gio_sniffing' : 'false',
+                      'x11' : 'false'}
+-    deps = ['libjpeg-turbo', 'glib', 'libpng', 'tiff', 'zlib' ]
++    deps = ['libjpeg8', 'glib', 'libpng', 'tiff', 'zlib' ]
+ 
+     files_libs = ['libgdk_pixbuf-2.0']
+     files_bins = ['gdk-pixbuf-query-loaders', 'gdk-pixbuf-csource']
+diff --git a/recipes/gst-plugins-base-1.0.recipe b/recipes/gst-plugins-base-1.0.recipe
+index 4b2e9497..ebf7aa2b 100644
+--- a/recipes/gst-plugins-base-1.0.recipe
++++ b/recipes/gst-plugins-base-1.0.recipe
+@@ -6,10 +6,10 @@ class Recipe(custom.GStreamer):
+     btype = BuildType.MESON
+     tarball_checksum = '762abdd1a950809a1cea62fff7f86b5f7d6bd5f6841e3e585c700b823cdb7897'
+     meson_options = {# enabled plugins
+-                     'gl': 'enabled',
+-                     'gl-graphene': 'enabled',
+-                     'gl-png': 'enabled',
+-                     'gl-jpeg': 'enabled',
++                     'gl': 'disabled',
++                     'gl-graphene': 'disabled',
++                     'gl-png': 'disabled',
++                     'gl-jpeg': 'disabled',
+                      'ogg': 'enabled',
+                      'opus': 'enabled',
+                      'pango': 'enabled',
+@@ -19,7 +19,7 @@ class Recipe(custom.GStreamer):
+                      'tremor': 'disabled'}
+     deps = ['glib', 'gstreamer-1.0', 'libogg', 'pango', 'libtheora',
+             'libvorbis', 'zlib', 'orc', 'opus', 'graphene',
+-            'libjpeg-turbo', 'libpng']
++            'libjpeg8', 'libpng']
+     platform_deps = {Platform.ANDROID: [ 'tremor' ], Platform.IOS: [ 'tremor' ] }
+     use_system_libs = True
+ 
+@@ -218,7 +218,7 @@ class Recipe(custom.GStreamer):
+             self.meson_options['gl-graphene'] = 'disabled'
+             self.meson_options['gl-png'] = 'disabled'
+             self.meson_options['gl-jpeg'] = 'disabled'
+-            for dep in ('graphene', 'libpng', 'libjpeg-turbo'):
++            for dep in ('graphene', 'libpng', 'libjpeg8'):
+                 self.deps.remove(dep)
+ 
+         if self.config.variants.nodebug:
+diff --git a/recipes/libjpeg-turbo.recipe b/recipes/libjpeg-turbo.recipe
+index c790335a..90ba2fd6 100644
+--- a/recipes/libjpeg-turbo.recipe
++++ b/recipes/libjpeg-turbo.recipe
+@@ -3,15 +3,14 @@
+ 
+ class Recipe(recipe.Recipe):
+     name = 'libjpeg-turbo'
+-    version = '1.5.3'
++    version = '2.0.6'
+     licenses = [{License.BSD_like: ['LICENSE.md']}]
+     stype = SourceType.TARBALL
+     url = 'sf://.tar.gz'
+-    tarball_checksum = 'b24890e2bb46e12e72a79f7e965f409f4e16466d00e1dd15d93d73ee6b592523'
++    btype = BuildType.CMAKE
++    tarball_checksum = 'd74b92ac33b0e3657123ddcf6728788c90dc84dcb6a52013d758af3c4af481bb'
+ 
+-    configure_tpl = "%(config-sh)s --prefix=%(prefix)s "\
+-                    "--libdir=%(libdir)s"
+-    configure_options = " --with-jpeg8"
++    configure_options = ''
+     patches = []
+ 
+     files_libs = ['libjpeg','libturbojpeg']
+diff --git a/recipes/libvpx.recipe b/recipes/libvpx.recipe
+index dd1b96ad..c5dff6c6 100644
+--- a/recipes/libvpx.recipe
++++ b/recipes/libvpx.recipe
+@@ -77,7 +77,7 @@ class Recipe(recipe.Recipe):
+                 platform = 'darwin12'
+         elif self.config.target_platform == Platform.IOS:
+             if self.config.target_arch == Architecture.X86 or self.config.target_arch == Architecture.X86_64:
+-                platform = 'iphonesimulator'
++                platform = 'darwin20'
+             else:
+                 platform = 'darwin'
+             if self.config.target_arch == Architecture.ARM:
+diff --git a/recipes/libvpx/0001-configure-add-darwin20-support.patch b/recipes/libvpx/0001-configure-add-darwin20-support.patch
+index 0c045a3a..265c1b4b 100644
+--- a/recipes/libvpx/0001-configure-add-darwin20-support.patch
++++ b/recipes/libvpx/0001-configure-add-darwin20-support.patch
+@@ -18,11 +18,12 @@ diff --git a/README b/README
+ index 8e0da5c..eccc571 100644
+ --- a/README
+ +++ b/README
+-@@ -62,6 +62,7 @@ COMPILING THE APPLICATIONS/LIBRARIES:
++@@ -62,6 +62,8 @@ COMPILING THE APPLICATIONS/LIBRARIES:
+  
+      arm64-android-gcc
+      arm64-darwin-gcc
+ +    arm64-darwin20-gcc
+++    x86_64-darwin20-gcc
+      arm64-linux-gcc
+      arm64-win64-gcc
+      arm64-win64-vs15
+@@ -64,8 +65,8 @@ index 4f3b32b..273fc81 100644
+        add_ldflags "-mmacosx-version-min=10.13"
+        ;;
+ +    *-darwin20-*)
+-+      add_cflags  "-mmacosx-version-min=10.16"
+-+      add_ldflags "-mmacosx-version-min=10.16"
+++      add_cflags  ""
+++      add_ldflags ""
+ +      ;;
+      *-iphonesimulator-*)
+        add_cflags  "-mios-simulator-version-min=${IOS_VERSION_MIN}"
+@@ -83,11 +84,12 @@ diff --git a/configure b/configure
+ index b681f1b..f097266 100755
+ --- a/configure
+ +++ b/configure
+-@@ -99,6 +99,7 @@ EOF
++@@ -99,6 +99,8 @@ EOF
+  # alphabetically by architecture, generic-gnu last.
+  all_platforms="${all_platforms} arm64-android-gcc"
+  all_platforms="${all_platforms} arm64-darwin-gcc"
+ +all_platforms="${all_platforms} arm64-darwin20-gcc"
+++all_platforms="${all_platforms} x86_64-darwin20-gcc"
+  all_platforms="${all_platforms} arm64-linux-gcc"
+  all_platforms="${all_platforms} arm64-win64-gcc"
+  all_platforms="${all_platforms} arm64-win64-vs15"
+diff --git a/recipes/tiff.recipe b/recipes/tiff.recipe
+index 1b7e7141..2b82c1f3 100644
+--- a/recipes/tiff.recipe
++++ b/recipes/tiff.recipe
+@@ -8,7 +8,7 @@ class Recipe(recipe.Recipe):
+     url = 'https://download.osgeo.org/libtiff/tiff-%(version)s.tar.gz'
+     tarball_checksum = '2c52d11ccaf767457db0c46795d9c7d1a8d8f76f68b0b800a3dfe45786b996e4'
+     licenses = [{License.BSD_like: ['COPYRIGHT']}]
+-    deps = [ 'zlib', 'libjpeg-turbo' ]
++    deps = [ 'zlib', 'libjpeg8' ]
+     configure_options = ' --disable-cxx no_gl=yes'
+ 
+     files_libs = ['libtiff']

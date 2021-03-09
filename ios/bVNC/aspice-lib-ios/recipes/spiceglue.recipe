@@ -1,0 +1,43 @@
+# -*- Mode: Python -*- vi:si:et:sw=4:sts=4:ts=4:syntax=python
+from cerbero.utils import shell
+
+class Recipe(recipe.Recipe):
+    name = 'spiceglue'
+    version = '2.2'
+    commit = 'origin/master'
+    remotes = {'origin': 'https://github.com/iiordanov/spiceglue'}
+
+    autoreconf = True 
+    autoreconf_sh = 'autoreconf -fiv'
+
+    config_sh = './configure'
+
+    licenses = [License.LGPLv2_1Plus]
+    deps = ['spice-protocol', 'spice-gtk', 'libiconv']
+    platform_deps = {
+            Platform.WINDOWS: ['flexvdi-spice-client', 'libusb', 'usbredir'],
+            Platform.DARWIN: ['gst-plugins-base-1.0-static', 
+            ]}
+    files_libs = ['libspiceglue']
+
+
+    def prepare(self):
+        if self.config.target_platform != Platform.WINDOWS:
+            self.configure_options += ' --disable-printing --disable-usbredir'
+            if self.config.target_platform != Platform.DARWIN:
+                self.configure_options += ' --disable-clipboard'
+        else:
+            self.append_env['CFLAGS'] = ' -O2 -fPIC'
+
+        cflags = self.get_env('CFLAGS')
+        if not cflags:
+            cflags = ""
+        self.append_env('CFLAGS', cflags + ' -DSPICEGLUE_DISABLE_POWER')
+
+    def post_install(self):
+        if self.config.target_platform == Platform.WINDOWS:
+            shell.call(' '.join([self.relative_path('spiceglue/find_dlls.sh'),
+                                 'deps.txt',
+                                 self.config.prefix,
+                                 os.path.join(self.config.prefix, 'bin', 'libspiceglue-0.dll')]),
+                       self.build_dir)

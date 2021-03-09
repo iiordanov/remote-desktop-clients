@@ -1,0 +1,28 @@
+# -*- Mode: Python -*- vi:si:et:sw=4:sts=4:ts=4:syntax=python
+
+
+class Recipe(recipe.Recipe):
+    name = 'six'
+    version = '1.9.0'
+    stype = SourceType.TARBALL
+    url = 'https://pypi.python.org/packages/source/s/six/six-%(version)s.tar.gz'
+    licenses = [License.LGPLv2Plus]
+    tarball_checksum = 'e24052411fc4fbd1f672635537c3fc2330d9481b18c0317695b46259512c91d5'
+    tarball_name = "six-%(version)s.tar.gz"
+    btype = BuildType.CUSTOM
+    files_python = [
+        'site-packages/six.py',
+    ]
+
+    def install(self):
+        flags = ""
+        if self.config.target_platform == Platform.DARWIN:
+            # numpy / setup.py seems to try to build a universal binary but fails.
+            # Force it to a single arch for now.
+            if self.config.target_arch == Architecture.X86:
+                flags = 'ARCHFLAGS="-arch i386" '
+            elif self.config.target_arch == Architecture.X86_64:
+                flags = 'ARCHFLAGS="-arch x86_64" '
+        shell.call(flags + 'python setup.py install --root / --prefix=%s' %
+                (self.config.prefix), self.build_dir)
+

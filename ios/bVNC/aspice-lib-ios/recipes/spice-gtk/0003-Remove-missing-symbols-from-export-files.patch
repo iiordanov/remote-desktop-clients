@@ -1,0 +1,37 @@
+From 3a8e4833e04dfee07f4cf34dbda598651cb8e33d Mon Sep 17 00:00:00 2001
+From: Javier Celaya <javier.celaya@flexvdi.com>
+Date: Tue, 1 Aug 2017 15:07:39 +0200
+Subject: [PATCH 3/3] Remove missing symbols from export files
+
+---
+ src/map-file            | 1 -
+ src/spice-glib-sym-file | 1 -
+ 2 files changed, 2 deletions(-)
+
+diff --git a/src/map-file b/src/map-file
+index c7d2553..699a1b2 100644
+--- a/src/map-file
++++ b/src/map-file
+@@ -161,7 +161,6 @@ spice_uri_set_scheme;
+ spice_uri_set_user;
+ spice_uri_to_string;
+ spice_usb_device_get_description;
+-spice_usb_device_get_libusb_device;
+ spice_usb_device_get_type;
+ spice_usb_device_manager_can_redirect_device;
+ spice_usb_device_manager_connect_device_async;
+diff --git a/src/spice-glib-sym-file b/src/spice-glib-sym-file
+index 7002391..ec4afb2 100644
+--- a/src/spice-glib-sym-file
++++ b/src/spice-glib-sym-file
+@@ -138,7 +138,6 @@ spice_uri_set_scheme
+ spice_uri_set_user
+ spice_uri_to_string
+ spice_usb_device_get_description
+-spice_usb_device_get_libusb_device
+ spice_usb_device_get_type
+ spice_usb_device_manager_can_redirect_device
+ spice_usb_device_manager_connect_device_async
+-- 
+2.17.0
+

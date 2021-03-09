@@ -1,0 +1,13 @@
+class Recipe(recipe.Recipe):
+    name = 'libjpeg8'
+    version = '8d'
+    licenses = [License.LGPLv2_1Plus]
+
+    remotes = {'origin': 'https://github.com/harkue/libjpeg.git'}
+    commit = 'origin/master'
+
+    files_libs = ['libjpeg']
+    files_devel = ['include/jpeglib.h', 'include/jerror.h', 'include/jconfig.h',
+            'include/jmorecfg.h']
+
+    make_install = 'make install'

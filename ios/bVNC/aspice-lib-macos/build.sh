@@ -1,5 +1,11 @@
 #!/bin/bash -e
 
+if [ "$1" == "clean" ]
+then
+  rm -rf gst-build spice-protocol spice-gtk libgovirt
+  exit 0
+fi
+
 # For spice-protocol and spice-gtk for macos
 export LDFLAGS="-framework Foundation -L/usr/local/opt/openssl@1.1/lib"
 export CPPFLAGS="-I/usr/local/opt/openssl@1.1/include"
@@ -10,17 +16,27 @@ $(pwd)/root_macos/lib/pkgconfig:\
 /usr/local/opt/zlib/lib/pkgconfig:\
 /usr/local/opt/jpeg-turbo/lib/pkgconfig:\
 /usr/local/opt/sqlite/lib/pkgconfig:\
-/usr/local/opt/icu4c/lib/pkgconfig
+/usr/local/opt/icu4c/lib/pkgconfig:\
+/usr/local//Cellar/glib/2.66.1/lib/pkgconfig:\
+/usr/local/Cellar/pixman/0.40.0/lib/pkgconfig:\
+/usr/local/Cellar/fontconfig/2.13.1/lib/pkgconfig:\
+/usr/local/Cellar/freetype/2.10.4/lib/pkgconfig
+
 export SDKROOT="/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk"
 # For brew installed bison to be available
-export PATH=/usr/local/bin:$(pwd)/root_macos/bin:${PATH}
+export PATH=/usr/local/Cellar/glib/2.66.1/bin/:\
+/usr/local/opt/pkg-config/bin/:\
+/usr/local/opt/bison/bin/:\
+/usr/local/bin:$(pwd)/root_macos/bin:${PATH}
 
-BREW_DEPS="xz bison meson libunistring nasm openssl python3 cairo zlib libpng jpeg-turbo gobject-introspection librest sqlite3 icu4c json-glib gobject-introspection"
-brew install ${BREW_DEPS}
+BREW_DEPS="xz bison meson libunistring nasm openssl python3 cairo zlib libpng jpeg-turbo gobject-introspection librest sqlite3 icu4c json-glib"
+brew install ${BREW_DEPS} || true
+brew unlink ${BREW_DEPS}
 brew link --overwrite ${BREW_DEPS}
-pip3 install six
+pip3 install six pyparsing
 
-brew unlink glib gobject-introspection
+#brew unlink glib gobject-introspection
+#brew unlink glib
 if [ ! -d gst-build ]
 then
 
@@ -29,17 +45,19 @@ then
   git checkout 1.18.0
   patch -p1 < ../gst-build-config.patch
 
+  echo "Start meson setup"
   meson setup --native-file ../macos-native-file.txt --prefix $(pwd)/../root_macos/ build_macos
+  echo "Done meson setup"
 
-  pushd subprojects/glib
-  git reset --hard
-  patch -p1 < ../../../gst-build-glib-fix-cocoa.patch
-  popd
+  #pushd subprojects/glib
+  #git reset --hard
+  #patch -p1 < ../../../gst-build-glib-fix-cocoa.patch
+  #popd
 
-  pushd subprojects/glib-networking
-  git reset --hard
-  patch -p1 < ../../../gst-build-glib-networking-disable-tls-tests.patch
-  popd
+  #pushd subprojects/glib-networking
+  #git reset --hard
+  #patch -p1 < ../../../gst-build-glib-networking-disable-tls-tests.patch
+  #popd
 
   ninja -C build_macos/
   ninja -C build_macos/ install

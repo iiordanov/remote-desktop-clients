@@ -15,7 +15,10 @@
 		AF043A2523B3DADB00C43ED7 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AF043A2323B3DADB00C43ED7 /* LaunchScreen.storyboard */; };
 		AF043A3023B3DADB00C43ED7 /* bVNCTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF043A2F23B3DADB00C43ED7 /* bVNCTests.swift */; };
 		AF043A3B23B3DADB00C43ED7 /* bVNCUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF043A3A23B3DADB00C43ED7 /* bVNCUITests.swift */; };
-		AF25C1A2243C086200513BBD /* superlib.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AF25C1A1243C085600513BBD /* superlib.a */; };
+		AF130CB225FA88160085C2E8 /* superlib.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AF25C1A1243C085600513BBD /* superlib.a */; };
+		AF130D0C25FA8D640085C2E8 /* libz.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AF130CCC25FA897F0085C2E8 /* libz.a */; };
+		AF130D1E25FA8F7F0085C2E8 /* spicelib.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AF130C5025FA783E0085C2E8 /* spicelib.a */; };
+		AF130D2325FA8FD80085C2E8 /* libiconv.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AF130C7B25FA81B40085C2E8 /* libiconv.a */; };
 		AF25C1AB2440FB2400513BBD /* StoreReviewHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF25C1AA2440FB2400513BBD /* StoreReviewHelper.swift */; };
 		AF291AD5242418A200DCD383 /* ToggleButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF291AD4242418A200DCD383 /* ToggleButton.swift */; };
 		AF30D196253396EF00BA7A62 /* SshPortForwarder.c in Sources */ = {isa = PBXBuildFile; fileRef = AF7421F3241D58EB00C552A7 /* SshPortForwarder.c */; };
@@ -99,6 +102,24 @@
 		AF043A3623B3DADB00C43ED7 /* bVNCUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = bVNCUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		AF043A3A23B3DADB00C43ED7 /* bVNCUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = bVNCUITests.swift; sourceTree = "<group>"; };
 		AF043A3C23B3DADB00C43ED7 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		AF130C5025FA783E0085C2E8 /* spicelib.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = spicelib.a; path = "aspice-lib-ios/cerbero/build/dist/ios_universal/lib/spicelib.a"; sourceTree = "<group>"; };
+		AF130C7B25FA81B40085C2E8 /* libiconv.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libiconv.a; path = "aspice-lib-ios/cerbero/build/dist/ios_universal/lib/libiconv.a"; sourceTree = "<group>"; };
+		AF130CC425FA897E0085C2E8 /* libopus.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libopus.a; path = "aspice-lib-ios/cerbero/build/dist/ios_universal/lib/libopus.a"; sourceTree = "<group>"; };
+		AF130CC525FA897E0085C2E8 /* libspiceglue.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libspiceglue.a; path = "aspice-lib-ios/cerbero/build/dist/ios_universal/lib/libspiceglue.a"; sourceTree = "<group>"; };
+		AF130CC625FA897F0085C2E8 /* libgobject-2.0.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libgobject-2.0.a"; path = "aspice-lib-ios/cerbero/build/dist/ios_universal/lib/libgobject-2.0.a"; sourceTree = "<group>"; };
+		AF130CC725FA897F0085C2E8 /* libfribidi.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libfribidi.a; path = "aspice-lib-ios/cerbero/build/dist/ios_universal/lib/libfribidi.a"; sourceTree = "<group>"; };
+		AF130CC825FA897F0085C2E8 /* libpixman-1.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libpixman-1.a"; path = "aspice-lib-ios/cerbero/build/dist/ios_universal/lib/libpixman-1.a"; sourceTree = "<group>"; };
+		AF130CC925FA897F0085C2E8 /* libpng16.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libpng16.a; path = "aspice-lib-ios/cerbero/build/dist/ios_universal/lib/libpng16.a"; sourceTree = "<group>"; };
+		AF130CCA25FA897F0085C2E8 /* libogg.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libogg.a; path = "aspice-lib-ios/cerbero/build/dist/ios_universal/lib/libogg.a"; sourceTree = "<group>"; };
+		AF130CCB25FA897F0085C2E8 /* libpangocairo-1.0.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libpangocairo-1.0.a"; path = "aspice-lib-ios/cerbero/build/dist/ios_universal/lib/libpangocairo-1.0.a"; sourceTree = "<group>"; };
+		AF130CCC25FA897F0085C2E8 /* libz.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libz.a; path = "aspice-lib-ios/cerbero/build/dist/ios_universal/lib/libz.a"; sourceTree = "<group>"; };
+		AF130CCD25FA897F0085C2E8 /* liborc-0.4.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "liborc-0.4.a"; path = "aspice-lib-ios/cerbero/build/dist/ios_universal/lib/liborc-0.4.a"; sourceTree = "<group>"; };
+		AF130CCE25FA89800085C2E8 /* libglib-2.0.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libglib-2.0.a"; path = "aspice-lib-ios/cerbero/build/dist/ios_universal/lib/libglib-2.0.a"; sourceTree = "<group>"; };
+		AF130CCF25FA89800085C2E8 /* libpango-1.0.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libpango-1.0.a"; path = "aspice-lib-ios/cerbero/build/dist/ios_universal/lib/libpango-1.0.a"; sourceTree = "<group>"; };
+		AF130CD025FA89800085C2E8 /* libintl.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libintl.a; path = "aspice-lib-ios/cerbero/build/dist/ios_universal/lib/libintl.a"; sourceTree = "<group>"; };
+		AF130CD125FA89800085C2E8 /* libgio-2.0.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libgio-2.0.a"; path = "aspice-lib-ios/cerbero/build/dist/ios_universal/lib/libgio-2.0.a"; sourceTree = "<group>"; };
+		AF130CD225FA89800085C2E8 /* libspice-client-glib-2.0.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libspice-client-glib-2.0.a"; path = "aspice-lib-ios/cerbero/build/dist/ios_universal/lib/libspice-client-glib-2.0.a"; sourceTree = "<group>"; };
+		AF130CD325FA89800085C2E8 /* libgmodule-2.0.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libgmodule-2.0.a"; path = "aspice-lib-ios/cerbero/build/dist/ios_universal/lib/libgmodule-2.0.a"; sourceTree = "<group>"; };
 		AF25C1A1243C085600513BBD /* superlib.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = superlib.a; path = bVNC.xcodeproj/libs_combined/lib/superlib.a; sourceTree = "<group>"; };
 		AF25C1AA2440FB2400513BBD /* StoreReviewHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreReviewHelper.swift; sourceTree = "<group>"; };
 		AF291AD4242418A200DCD383 /* ToggleButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToggleButton.swift; sourceTree = "<group>"; };
@@ -540,7 +561,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				AF25C1A2243C086200513BBD /* superlib.a in Frameworks */,
+				AF130D2325FA8FD80085C2E8 /* libiconv.a in Frameworks */,
+				AF130D1E25FA8F7F0085C2E8 /* spicelib.a in Frameworks */,
+				AF130D0C25FA8D640085C2E8 /* libz.a in Frameworks */,
+				AF130CB225FA88160085C2E8 /* superlib.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -668,6 +692,24 @@
 		AF48247C23B4783500826395 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				AF130CC725FA897F0085C2E8 /* libfribidi.a */,
+				AF130CD125FA89800085C2E8 /* libgio-2.0.a */,
+				AF130CCE25FA89800085C2E8 /* libglib-2.0.a */,
+				AF130CD325FA89800085C2E8 /* libgmodule-2.0.a */,
+				AF130CC625FA897F0085C2E8 /* libgobject-2.0.a */,
+				AF130CD025FA89800085C2E8 /* libintl.a */,
+				AF130CCA25FA897F0085C2E8 /* libogg.a */,
+				AF130CC425FA897E0085C2E8 /* libopus.a */,
+				AF130CCD25FA897F0085C2E8 /* liborc-0.4.a */,
+				AF130CCF25FA89800085C2E8 /* libpango-1.0.a */,
+				AF130CCB25FA897F0085C2E8 /* libpangocairo-1.0.a */,
+				AF130CC825FA897F0085C2E8 /* libpixman-1.a */,
+				AF130CC925FA897F0085C2E8 /* libpng16.a */,
+				AF130CD225FA89800085C2E8 /* libspice-client-glib-2.0.a */,
+				AF130CC525FA897E0085C2E8 /* libspiceglue.a */,
+				AF130CCC25FA897F0085C2E8 /* libz.a */,
+				AF130C7B25FA81B40085C2E8 /* libiconv.a */,
+				AF130C5025FA783E0085C2E8 /* spicelib.a */,
 				AF25C1A1243C085600513BBD /* superlib.a */,
 				AF8C75A5243AB48600AF0CF3 /* libturbojpeg.a */,
 				AF8C75A3243AB47700AF0CF3 /* libssl.a */,
@@ -1535,7 +1577,11 @@
 				GCC_OPTIMIZATION_LEVEL = 3;
 				GCC_STRICT_ALIASING = YES;
 				GENERATE_MASTER_OBJECT_FILE = NO;
-				HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/bVNC.xcodeproj/libs_combined/include";
+				HEADER_SEARCH_PATHS = (
+					"$(PROJECT_DIR)/bVNC.xcodeproj/libs_combined/include",
+					"$(PROJECT_DIR)/bVNC.xcodeproj/ios_universal/include/**",
+					"$(PROJECT_DIR)/bVNC.xcodeproj/ios_universal/lib/glib-2.0/include",
+				);
 				INFOPLIST_FILE = bVNC/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 13.2;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1549,6 +1595,9 @@
 				);
 				LLVM_LTO = NO;
 				MARKETING_VERSION = 1.0.5;
+				OTHER_LDFLAGS = "";
+				"OTHER_LDFLAGS[arch=*]" = "-lresolv";
+				PRELINK_LIBS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = com.iiordanov.bVNC;
 				PRODUCT_NAME = "bVNC Pro";
 				SUPPORTS_MACCATALYST = YES;
@@ -1556,7 +1605,10 @@
 				SWIFT_OBJC_BRIDGING_HEADER = "bVNC/bVNC-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 5.0;
-				"SYSTEM_HEADER_SEARCH_PATHS[arch=*]" = "$(PROJECT_DIR)/bVNC.xcodeproj/libs_combined/include";
+				"SYSTEM_HEADER_SEARCH_PATHS[arch=*]" = (
+					"$(PROJECT_DIR)/bVNC.xcodeproj/libs_combined/include",
+					"$(PROJECT_DIR)/bVNC.xcodeproj/ios_universal/include/**",
+				);
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -1582,7 +1634,11 @@
 				GCC_OPTIMIZATION_LEVEL = 3;
 				GCC_STRICT_ALIASING = YES;
 				GENERATE_MASTER_OBJECT_FILE = NO;
-				HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/bVNC.xcodeproj/libs_combined/include";
+				HEADER_SEARCH_PATHS = (
+					"$(PROJECT_DIR)/bVNC.xcodeproj/libs_combined/include",
+					"$(PROJECT_DIR)/bVNC.xcodeproj/ios_universal/include/**",
+					"$(PROJECT_DIR)/bVNC.xcodeproj/ios_universal/lib/glib-2.0/include",
+				);
 				INFOPLIST_FILE = bVNC/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 13.2;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1600,6 +1656,9 @@
 				);
 				LLVM_LTO = NO;
 				MARKETING_VERSION = 1.0.5;
+				OTHER_LDFLAGS = "";
+				"OTHER_LDFLAGS[arch=*]" = "-lresolv";
+				PRELINK_LIBS = "";
 				"PRELINK_LIBS[arch=*]" = "";
 				PRODUCT_BUNDLE_IDENTIFIER = com.iiordanov.bVNC;
 				PRODUCT_NAME = "bVNC Pro";
@@ -1608,7 +1667,10 @@
 				SWIFT_OBJC_BRIDGING_HEADER = "bVNC/bVNC-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 5.0;
-				"SYSTEM_HEADER_SEARCH_PATHS[arch=*]" = "$(PROJECT_DIR)/bVNC.xcodeproj/libs_combined/include";
+				"SYSTEM_HEADER_SEARCH_PATHS[arch=*]" = (
+					"$(PROJECT_DIR)/bVNC.xcodeproj/libs_combined/include",
+					"$(PROJECT_DIR)/bVNC.xcodeproj/ios_universal/include/**",
+				);
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;

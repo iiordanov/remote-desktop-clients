@@ -1,0 +1,30 @@
+# -*- Mode: Python -*- vi:si:et:sw=4:sts=4:ts=4:syntax=python
+
+
+class Recipe(recipe.Recipe):
+    name = 'pyparsing'
+    version = '2.4.7'
+    stype = SourceType.TARBALL
+    url = 'https://pypi.python.org/packages/source/p/pyparsing/pyparsing-%(version)s.tar.gz'
+    licenses = [License.LGPLv2Plus]
+    tarball_checksum = 'c203ec8783bf771a155b207279b9bccb8dea02d8f0c9e5f8ead507bc3246ecc1'
+    #06e729e1cbf5274703b1f47b6135ed8335999d547f9d8cf048b210fb8ebf844f'
+    tarball_name = "pyparsing-%(version)s.tar.gz"
+    btype = BuildType.CUSTOM
+    files_python = [
+        'site-packages/pyparsing.py',
+    ]
+
+    def install(self):
+        flags = ""
+        if self.config.target_platform == Platform.DARWIN:
+            # numpy / setup.py seems to try to build a universal binary but fails.
+            # Force it to a single arch for now.
+            if self.config.target_arch == Architecture.X86:
+                flags = 'ARCHFLAGS="-arch i386" '
+            elif self.config.target_arch == Architecture.X86_64:
+                flags = 'ARCHFLAGS="-arch x86_64" '
+        shell.call(flags + 'python setup.py install --root / --prefix=%s' %
+                (self.config.prefix), self.build_dir)
+
+

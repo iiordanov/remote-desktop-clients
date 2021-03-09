@@ -1,0 +1,21 @@
+# -*- Mode: Python -*- vi:si:et:sw=4:sts=4:ts=4:syntax=python
+
+
+class Recipe(recipe.Recipe):
+    name = 'spice-server-viubo'
+    version = '0.12.5'
+    licenses = [License.LGPLv2_1Plus]
+    remotes = {'origin': 'https://git.flexvdi.com/scm/flexvdi/spice-server.git'}
+    commit = 'origin/viubo'
+    autoreconf = True
+    autoreconf_sh = 'NOCONFIGURE=1 ./autogen.sh'
+    configure_options = '--without-sasl --disable-smartcard'
+    configure_tpl = './configure --prefix=%(prefix)s %(options)s '
+
+    deps = ['glib', 'pixman', 'openssl', 'opus', 'celt', 'nopoll', 'libjpeg8', 'six']
+
+    files_libs = ['libspice-server']
+
+    def prepare(self):
+        pass
+        #self.append_env['CFLAGS'] = " ${LDFLAGS} "

@@ -12,6 +12,8 @@
 #include "SshPortForwarder.h"
 #include "Utility.h"
 #include <signal.h>
+#include <glue-service.h>
+#include <pthread.h>
 
 char* USERNAME = NULL;
 char* PASSWORD = NULL;
@@ -20,6 +22,21 @@ int BYTES_PER_PIXEL = 4;
 int fbW = 0;
 int fbH = 0;
 bool maintainConnection = 0;
+
+pthread_t mainloop_worker;
+pthread_t spice_worker;
+
+// TODO: Usage: pthread_create(&spice_worker, NULL, (void *) &engine_spice_worker, NULL);
+void engine_spice_worker(void *data) {
+    int result;
+    result = SpiceGlibGlue_Connect("hostname", "6001", "-1", "-1", "password", NULL, NULL, FALSE);
+}
+
+// TODO: Usage: pthread_create(&mainloop_worker, NULL, (void *) &engine_mainloop_worker, NULL);
+void engine_mainloop_worker(void *data) {
+    SpiceGlibGlue_InitializeLoggingCallback(10, client_log_callback);
+    SpiceGlibGlue_MainLoop();
+}
 
 bool getMaintainConnection(void *c) {
     return maintainConnection;
@@ -215,6 +232,9 @@ void *initializeVnc(int instance,
         cl = NULL; /* rfbInitClient has already freed the client struct */
         cleanup(cl, "FAILED_TO_INIT_CONNECTION_TO_SERVER");
     }
+    
+    //pthread_create(&spice_worker, NULL, (void *) &engine_spice_worker, NULL);
+    //pthread_create(&mainloop_worker, NULL, (void *) &engine_mainloop_worker, NULL);
     rfbClientLog("Done initializing VNC session\n");
     return (void *)cl;
 }
