@@ -93,6 +93,17 @@ ca-bundle.crt provided to the app to validate your self-signed server certs if y
 
 The directory `bVNC/layouts` contains a utiliy `convert.py` that can be used to generate new layouts for the desktop clients.
 
+```bash
+sudo apt install qemu-keymaps
+cd bVNC/layouts
+python3 ./convert.py
+```
+
+If you would like to add a layout, the best way to do so would be to create a file with the correct format in
+`/usr/share/qemu/keymaps/`. Ideally, you should submit this file to the qemu project so everybody would be able to benefit
+from the new layout.
+
+
 ## III Building "Custom" VNC clients
 
 It is possible to programmatically build additional customized clients based on the VNC client contained in this project
