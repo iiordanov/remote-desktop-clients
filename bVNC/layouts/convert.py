@@ -64,7 +64,11 @@ def loadCommonKeyCodes (commonFile, keyMap):
     return keyMap
 
 def loadKeyMap (nameToUnicode, keyMapFile, keyMap):
-    f = open(keyMapFile)
+    try:
+        f = open(keyMapFile)
+    except:
+        logging.warning(f"Unable to open {keyMapFile} file, skipping")
+        return
     lines = f.readlines()
     deadKeys = {}
     for l in lines:
@@ -182,6 +186,6 @@ if __name__ == "__main__":
 
         f = open(targetLocation + str(v), "w")
         for u, s in sorted(keyMap.items()):
-            print(u, s)
+            #print(u, s)
             f.write(str(u) + " " + " ".join(map(str, s)) + "\n")
         f.close()
