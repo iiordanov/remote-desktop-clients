@@ -296,6 +296,10 @@ public abstract class RemoteKeyboard {
         }
         
         // Add shift, ctrl, alt, and super to metaState if necessary.
+        if ((eventMetaState & KeyEvent.META_SHIFT_ON) != 0) {
+            GeneralUtils.debugLog(debugLog, TAG, "convertEventMetaState: KeyEvent.META_SHIFT_ON");
+            metaState |= SHIFT_MASK;
+        }
         if ((eventMetaState & KeyEvent.META_SHIFT_LEFT_ON) != 0) {
             GeneralUtils.debugLog(debugLog, TAG, "convertEventMetaState: KeyEvent.META_SHIFT_LEFT_ON");
             metaState |= SHIFT_MASK;
@@ -303,6 +307,10 @@ public abstract class RemoteKeyboard {
         if ((eventMetaState & KeyEvent.META_SHIFT_RIGHT_ON) != 0) {
             GeneralUtils.debugLog(debugLog, TAG, "convertEventMetaState: KeyEvent.META_SHIFT_RIGHT_ON");
             metaState |= RSHIFT_MASK;
+        }
+        if ((eventMetaState & KeyEvent.META_CTRL_ON) != 0) {
+            GeneralUtils.debugLog(debugLog, TAG, "convertEventMetaState: KeyEvent.META_CTRL_ON");
+            metaState |= CTRL_MASK;
         }
         if ((eventMetaState & KeyEvent.META_CTRL_LEFT_ON) != 0) {
             GeneralUtils.debugLog(debugLog, TAG, "convertEventMetaState: KeyEvent.META_CTRL_LEFT_ON");
@@ -312,6 +320,10 @@ public abstract class RemoteKeyboard {
             GeneralUtils.debugLog(debugLog, TAG, "convertEventMetaState: KeyEvent.META_CTRL_RIGHT_ON");
             metaState |= RCTRL_MASK;
         }
+        if ((eventMetaState & KeyEvent.META_ALT_ON) != 0) {
+            GeneralUtils.debugLog(debugLog, TAG, "convertEventMetaState: KeyEvent.META_ALT_ON");
+            metaState |= ALT_MASK;
+        }
         if ((eventMetaState & leftAltMetaStateMask) !=0) {
             GeneralUtils.debugLog(debugLog, TAG, "convertEventMetaState: KeyEvent.META_ALT_LEFT_ON");
             metaState |= ALT_MASK;
@@ -319,6 +331,10 @@ public abstract class RemoteKeyboard {
         if ((eventMetaState & KeyEvent.META_ALT_RIGHT_ON) !=0) {
             GeneralUtils.debugLog(debugLog, TAG, "convertEventMetaState: KeyEvent.META_ALT_RIGHT_ON");
             metaState |= RALT_MASK;
+        }
+        if ((eventMetaState & KeyEvent.META_META_ON) != 0) {
+            GeneralUtils.debugLog(debugLog, TAG, "convertEventMetaState: KeyEvent.META_META_ON");
+            metaState |= SUPER_MASK;
         }
         if ((eventMetaState & KeyEvent.META_META_LEFT_ON) != 0) {
             GeneralUtils.debugLog(debugLog, TAG, "convertEventMetaState: KeyEvent.META_META_LEFT_ON");
