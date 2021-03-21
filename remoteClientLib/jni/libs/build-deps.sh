@@ -481,13 +481,14 @@ build() {
     if git clone https://gitlab.freedesktop.org/gstreamer/cerbero
     then
       pushd cerbero
-      git checkout 1.16
+      git checkout ${gstreamer_ver}
       popd
       cerbero/cerbero-uninstalled bootstrap
       echo "allow_parallel_build = True" >>  cerbero/config/cross-android-universal.cbc
       echo "toolchain_prefix = \"${ndkdir}\"" >> cerbero/config/cross-android-universal.cbc
     fi
 
+    echo "Running cerbero build for $1 in $(pwd)"
     cerbero/cerbero-uninstalled -c cerbero/config/cross-android-universal.cbc build \
       gstreamer-1.0 libxml2 libtasn1 pixman libsoup nettle gnutls openssl cairo json-glib gst-android-1.0 gst-plugins-bad-1.0 gst-plugins-good-1.0 gst-plugins-base-1.0 gst-plugins-ugly-1.0 gst-libav-1.0
 
