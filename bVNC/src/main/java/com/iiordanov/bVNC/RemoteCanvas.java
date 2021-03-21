@@ -54,6 +54,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Handler;
+import android.os.Message;
 import android.os.SystemClock;
 import android.provider.Settings;
 import android.text.ClipboardManager;
@@ -1971,7 +1972,7 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView
                 // We were told not to continue, so stop the activity
                 Log.i(TAG, "Certificate rejected by user.");
                 closeConnection();
-                ((Activity) getContext()).finish();
+                MessageDialogs.justFinish(getContext());
             }
         };
         DialogInterface.OnClickListener signatureYes = new DialogInterface.OnClickListener() {
@@ -2055,7 +2056,7 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView
             public void onClick(DialogInterface dialog, int which) {
                 // We were told not to continue, so stop the activity
                 closeConnection();
-                ((Activity) getContext()).finish();
+                MessageDialogs.justFinish(getContext());
             }
         };
         DialogInterface.OnClickListener signatureYes = new DialogInterface.OnClickListener() {
@@ -2104,7 +2105,7 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView
                     // We were told to not continue, so stop the activity
                     sshConnection.terminateSSHTunnel();
                     pd.dismiss();
-                    ((Activity) getContext()).finish();
+                    MessageDialogs.justFinish(getContext());
                 }
             };
             DialogInterface.OnClickListener signatureYes = new DialogInterface.OnClickListener() {

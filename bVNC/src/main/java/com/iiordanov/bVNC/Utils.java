@@ -81,6 +81,7 @@ import com.iiordanov.freeaSPICE.*;
 import com.iiordanov.CustomClientPackage.*;
 import com.undatech.opaque.ConnectionSettings;
 import com.undatech.opaque.ConnectionSetupActivity;
+import com.undatech.opaque.MessageDialogs;
 import com.undatech.opaque.RemoteClientLibConstants;
 import com.undatech.opaque.dialogs.MessageFragment;
 import com.undatech.opaque.util.FileUtils;
@@ -153,7 +154,7 @@ public class Utils {
                 dialog.dismiss();
                 Activity activity = Utils.getActivity(_context);
                 if (activity != null) {
-                    activity.finish();
+                    MessageDialogs.justFinish(activity);
                 }
             }
         });

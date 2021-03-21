@@ -166,7 +166,7 @@ public class SpiceCommunicator implements RfbConnectable {
      * Launches a new thread which performs a plain SPICE connection.
      */
     public void connectSpice(String ip, String port, String tport, String password, String cf, String ca, String cs, boolean sound) {
-        android.util.Log.e(TAG, "connectSpice: " + ip + ", " + port + ", " + tport + ", " + cf + ", " + cs);
+        android.util.Log.d(TAG, "connectSpice: " + ip + ", " + port + ", " + tport + ", " + cf + ", " + cs);
         thread = new SpiceThread(ip, port, tport, password, cf, ca, cs, sound);
         thread.start();
     }
@@ -178,7 +178,7 @@ public class SpiceCommunicator implements RfbConnectable {
                             String user, String password,
                             String sslCaFile,
                             boolean sound, boolean sslStrict) {
-        android.util.Log.e(TAG, "connectOvirt: " + ip + ", " + vmname + ", " + user);
+        android.util.Log.d(TAG, "connectOvirt: " + ip + ", " + vmname + ", " + user);
         thread = new OvirtThread(ip, vmname, user, password, sslCaFile, sound, sslStrict);
         thread.start();
     }
@@ -227,7 +227,7 @@ public class SpiceCommunicator implements RfbConnectable {
 
         public void run() {
             SpiceClientConnect (ip, port, tport, password, cf, ca, cs, sound);
-            android.util.Log.e(TAG, "SpiceClientConnect returned.");
+            android.util.Log.d(TAG, "SpiceClientConnect returned.");
 
             // If we've exited SpiceClientConnect, the connection is certainly
             // interrupted or was never established.
@@ -256,7 +256,7 @@ public class SpiceCommunicator implements RfbConnectable {
 
         public void run() {
             CreateOvirtSession ("ovirt://" + ip + "/" + vmname, user, password, sslCaFile, sound, sslStrict);
-            android.util.Log.e(TAG, "CreateOvirtSession returned.");
+            android.util.Log.d(TAG, "CreateOvirtSession returned.");
 
             // If we've exited CreateOvirtSession, the connection is certainly
             // interrupted or was never established.

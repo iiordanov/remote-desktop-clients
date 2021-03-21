@@ -343,6 +343,7 @@ int connectSession (spice_connection *conn)
         __android_log_write(ANDROID_LOG_ERROR, "connectSession", "Wrong hostname, port, or password.");
         result = 1;
     }
+    gst_deinit();
 
 	return result;
 }

@@ -24,12 +24,15 @@ import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.os.Build;
 import android.os.Handler;
 import android.text.Html;
 import android.text.Spanned;
 import android.text.method.LinkMovementMethod;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.iiordanov.bVNC.Utils;
 
 public class MessageDialogs {
     private static final String TAG = "MessageDialogs";
@@ -92,7 +95,9 @@ public class MessageDialogs {
                 final TextView message = new TextView(context);
                 message.setText(text);
                 message.setMovementMethod(LinkMovementMethod.getInstance());
-                message.setPaddingRelative(50, 50, 50, 50);
+                if (Build.VERSION.SDK_INT > Build.VERSION_CODES.JELLY_BEAN) {
+                    message.setPaddingRelative(50, 50, 50, 50);
+                }
                 builder.setView(message);
                 builder.setPositiveButton("OK", ok);
                 alertDialog = builder.create();
@@ -145,7 +150,7 @@ public class MessageDialogs {
                 new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        ((Activity) context).finish();
+                        MessageDialogs.justFinish(context);
                     }
                 });
     }
@@ -162,7 +167,7 @@ public class MessageDialogs {
                 new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        ((Activity) context).finish();
+                        MessageDialogs.justFinish(context);
                     }
                 });
     }

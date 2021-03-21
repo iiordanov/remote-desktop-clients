@@ -11,6 +11,7 @@ import com.iiordanov.bVNC.RemoteCanvas;
 import com.iiordanov.bVNC.Utils;
 import com.iiordanov.bVNC.dialogs.GetTextFragment;
 import com.undatech.opaque.Connection;
+import com.undatech.opaque.MessageDialogs;
 import com.undatech.opaque.RemoteClientLibConstants;
 import java.security.cert.X509Certificate;
 
@@ -141,7 +142,7 @@ public class RemoteCanvasHandler extends Handler {
                 break;
             case RemoteClientLibConstants.DISCONNECT_NO_MESSAGE:
                 c.closeConnection();
-                ((Activity)context).finish();
+                MessageDialogs.justFinish(context);
                 break;
             case RemoteClientLibConstants.SPICE_CONNECT_SUCCESS:
                 if (c.pd != null && c.pd.isShowing()) {
