@@ -264,6 +264,7 @@ build_one() {
         patch -p0 < "${basedir}/spice-gtk-log.patch"
         patch -p1 < "${basedir}/spice-gtk-exit.patch"
         patch -p1 < "${basedir}/spice-gtk-disable-agent-sync-audio-calls.patch"
+        patch -p0 < "${basedir}/spice-gtk-disable-mm-time-reset.patch"
         make $parallel
 
         # Patch to avoid SIGBUS due to unaligned accesses on ARM7
@@ -488,9 +489,22 @@ build() {
       echo "toolchain_prefix = \"${ndkdir}\"" >> cerbero/config/cross-android-universal.cbc
     fi
 
+    echo "Copying local recipes into cerbero"
+    git clone https://github.com/iiordanov/remote-desktop-clients-cerbero-recipes.git recipes || true
+    pushd recipes
+    git pull
+    popd
+    rsync -avP recipes/ cerbero/recipes/
+
     echo "Running cerbero build for $1 in $(pwd)"
     cerbero/cerbero-uninstalled -c cerbero/config/cross-android-universal.cbc build \
-      gstreamer-1.0 libxml2 pixman libsoup openssl cairo json-glib gst-android-1.0 gst-plugins-bad-1.0 gst-plugins-good-1.0 gst-plugins-base-1.0 gst-plugins-ugly-1.0 gst-libav-1.0
+      gstreamer-1.0 glib glib-networking libxml2 pixman libsoup openssl cairo json-glib gst-android-1.0 gst-plugins-bad-1.0 gst-plugins-good-1.0 gst-plugins-base-1.0 gst-plugins-ugly-1.0 gst-libav-1.0 spiceglue
+
+    SPICEDIR=cerbero/build/sources/android_universal/$1/spice-gtk-0.37
+    for f in ${SPICEDIR}/config.h ${SPICEDIR}/tools/*.h ${SPICEDIR}/src/*.h ${SPICEDIR}/spice-common/common ${SPICEDIR}/subprojects/spice-common/common
+    do
+        rsync -a $f ${gst}/include/spice-1/ || true
+    done
 
     # Workaround for non-existent lib-pthread.la dpendency snaking its way into some of the libraries.
     sed -i 's/[^ ]*lib-pthread.la//' cerbero/build/dist/android_universal/*/lib/*la

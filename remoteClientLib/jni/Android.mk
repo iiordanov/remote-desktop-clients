@@ -125,9 +125,9 @@ include $(PREBUILT_STATIC_LIBRARY)
 
 include $(CLEAR_VARS)
 LOCAL_MODULE            := spice-client-glib
-LOCAL_SRC_FILES         := $(PREBUILT_ROOT)/lib/libspice-client-glib-2.0.a
-LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH)/$(PREBUILT_ROOT)/include/spice-client-glib-2.0 \
-                           $(LOCAL_PATH)/$(PREBUILT_ROOT)/include/spice-1
+LOCAL_SRC_FILES         := $(GSTREAMER_ROOT)/lib/libspice-client-glib-2.0.a
+LOCAL_EXPORT_C_INCLUDES := $(GSTREAMER_ROOT)/include/spice-client-glib-2.0 \
+                           $(GSTREAMER_ROOT)/include/spice-1
 LOCAL_SHARED_LIBRARIES  := gstreamer_android
 LOCAL_STATIC_LIBRARIES  := opus
 include $(PREBUILT_STATIC_LIBRARY)
@@ -138,8 +138,9 @@ GSTREAMER_NDK_BUILD_PATH  := $(GSTREAMER_ROOT)/share/gst-android/ndk-build/
 GSTREAMER_JAVA_SRC_DIR	  := java
 include $(GSTREAMER_NDK_BUILD_PATH)/plugins.mk
 GSTREAMER_PLUGINS         := $(GSTREAMER_PLUGINS_CORE) $(GSTREAMER_PLUGINS_SYS) # TODO: test with additional codecs: $(GSTREAMER_PLUGINS_CODECS) $(GSTREAMER_PLUGINS_CODECS_GPL) $(GSTREAMER_PLUGINS_CODECS_RESTRICTED) $(GSTREAMER_PLUGINS_ENCODING) $(GSTREAMER_PLUGINS_PLAYBACK)
+G_IO_MODULES              := openssl
 GSTREAMER_EXTRA_DEPS      := pixman-1 gstreamer-app-1.0 libsoup-2.4 libxml-2.0 glib-2.0 gthread-2.0 \
-							 gobject-2.0 libjpeg openssl libssl # TODO: vpx
+							 gobject-2.0 libjpeg openssl libssl gstreamer-video-1.0 gstreamer-audio-1.0 # TODO: vpx
 include $(GSTREAMER_NDK_BUILD_PATH)/gstreamer-1.0.mk
 
 
@@ -152,7 +153,7 @@ LOCAL_CPPFLAGS  += -DSW_CANVAS_CACHE \
                    -D_REENTRANT -DWITH_GSTAUDIO
 
 LOCAL_C_INCLUDES += \
-                    $(LOCAL_PATH)/$(PREBUILT_ROOT)/include/spice-1 \
+                    $(GSTREAMER_ROOT)/include/spice-1 \
                     $(LOCAL_PATH)/$(PREBUILT_ROOT)/include/govirt-1.0 \
                     $(LOCAL_PATH)/$(PREBUILT_ROOT)/include/rest-0.7 \
                     $(LOCAL_PATH)/$(PREBUILT_ROOT)/include/libusb-1.0 \

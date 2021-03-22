@@ -5,6 +5,7 @@ gen
 dist
 *~
 remoteClientLib/libs
+remoteClientLib/jni/libs/recipes/
 remoteClientLib/jni/libs/deps/
 remoteClientLib/jni/libs/cerbero/
 remoteClientLib/jni/libs/tar/
