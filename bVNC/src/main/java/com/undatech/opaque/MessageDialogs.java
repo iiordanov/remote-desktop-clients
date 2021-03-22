@@ -173,7 +173,13 @@ public class MessageDialogs {
     }
 
     public static void justFinish(Context context) {
-        ((Activity)context).finish();
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.JELLY_BEAN &&
+                (Utils.isSpice(context.getPackageName()) ||
+                        Utils.isOpaque(context.getPackageName()))) {
+            android.os.Process.killProcess(android.os.Process.myPid());
+        } else {
+            ((Activity)context).finish();
+        }
     }
 
     public static void displayToast(final Context context, Handler handler,

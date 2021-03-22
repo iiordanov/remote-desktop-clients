@@ -40,7 +40,7 @@ docker-compose -f docker/docker-compose.yml up
 Building from scratch and working in Android Studio.
 
   - Install some packages. On Ubuntu:
-        apt install gnome-common gobject-introspection nasm
+        apt install gnome-common gobject-introspection nasm gtk-doc-tools
 
   - On Linux, install Android Studio
   - Install Android SDK from Tools -> SDK Tools

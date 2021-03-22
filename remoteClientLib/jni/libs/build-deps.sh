@@ -500,7 +500,8 @@ build() {
     cerbero/cerbero-uninstalled -c cerbero/config/cross-android-universal.cbc build \
       gstreamer-1.0 glib glib-networking libxml2 pixman libsoup openssl cairo json-glib gst-android-1.0 gst-plugins-bad-1.0 gst-plugins-good-1.0 gst-plugins-base-1.0 gst-plugins-ugly-1.0 gst-libav-1.0 spiceglue
 
-    SPICEDIR=cerbero/build/sources/android_universal/$1/spice-gtk-0.37
+    echo "Copying spice-gtk header files that it does not install automatically"
+    SPICEDIR=$(ls -d1 cerbero/build/sources/android_universal/${gstarch}/spice-gtk-* | tail -n 1)
     for f in ${SPICEDIR}/config.h ${SPICEDIR}/tools/*.h ${SPICEDIR}/src/*.h ${SPICEDIR}/spice-common/common ${SPICEDIR}/subprojects/spice-common/common
     do
         rsync -a $f ${gst}/include/spice-1/ || true
