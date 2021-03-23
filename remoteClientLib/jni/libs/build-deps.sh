@@ -274,7 +274,7 @@ build_one() {
         make install
 
         # Put some header files in a version-independent location.
-        for f in config.h tools/*.h src/*.h spice-common/common subprojects/spice-common/common
+        for f in config.h _builddir/subprojects/spice-common/common _builddir/config.h tools/*.h src/*.h spice-common/common subprojects/spice-common/common
         do
             rsync -a $f ${root}/include/spice-1/ || true
         done
@@ -502,7 +502,7 @@ build() {
 
     echo "Copying spice-gtk header files that it does not install automatically"
     SPICEDIR=$(ls -d1 cerbero/build/sources/android_universal/${gstarch}/spice-gtk-* | tail -n 1)
-    for f in ${SPICEDIR}/config.h ${SPICEDIR}/tools/*.h ${SPICEDIR}/src/*.h ${SPICEDIR}/spice-common/common ${SPICEDIR}/subprojects/spice-common/common
+    for f in ${SPICEDIR}/config.h ${SPICEDIR}/_builddir/subprojects/spice-common/common ${SPICEDIR}/_builddir/config.h ${SPICEDIR}/tools/*.h ${SPICEDIR}/src/*.h ${SPICEDIR}/spice-common/common ${SPICEDIR}/subprojects/spice-common/common
     do
         rsync -a $f ${gst}/include/spice-1/ || true
     done

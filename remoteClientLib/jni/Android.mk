@@ -154,6 +154,7 @@ LOCAL_CPPFLAGS  += -DSW_CANVAS_CACHE \
 
 LOCAL_C_INCLUDES += \
                     $(GSTREAMER_ROOT)/include/spice-1 \
+                    $(GSTREAMER_ROOT)/include/spice-client-glib-2.0 \
                     $(LOCAL_PATH)/$(PREBUILT_ROOT)/include/govirt-1.0 \
                     $(LOCAL_PATH)/$(PREBUILT_ROOT)/include/rest-0.7 \
                     $(LOCAL_PATH)/$(PREBUILT_ROOT)/include/libusb-1.0 \
