@@ -208,3 +208,15 @@ void uiCallbackSettingsChanged (gint instance, gint width, gint height, gint bpp
 void uiCallbackMouseMode(JNIEnv *env, gboolean relative) {
     (*env)->CallStaticVoidMethod(env, jni_connector_class, jni_mouse_mode, relative);
 }
+
+void uiCallbackShowMessage(const gchar *message_text) {
+    __android_log_write(ANDROID_LOG_DEBUG, "android-io", "uiCallbackShowMessage");
+    JNIEnv *env = NULL;
+    gboolean attached = attachThreadToJvm (&env);
+    jstring jmessage = (*env)->NewStringUTF(env, message_text);
+    (*env)->CallStaticVoidMethod(env, jni_connector_class, jni_show_message, jmessage);
+
+    if (attached) {
+    	detachThreadFromJvm ();
+    }
+}

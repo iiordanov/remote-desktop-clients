@@ -94,6 +94,12 @@ LOCAL_EXPORT_C_INCLUDES := $(GSTREAMER_ROOT)/lib/gstreamer-1.0/include
 include $(PREBUILT_STATIC_LIBRARY)
 
 include $(CLEAR_VARS)
+LOCAL_MODULE            := spiceglue
+LOCAL_SRC_FILES         := $(GSTREAMER_ROOT)/lib/libspiceglue.a
+LOCAL_EXPORT_C_INCLUDES := $(GSTREAMER_ROOT)/include
+include $(PREBUILT_STATIC_LIBRARY)
+
+include $(CLEAR_VARS)
 LOCAL_MODULE            := usb
 LOCAL_SRC_FILES         := $(PREBUILT_ROOT)/lib/libusb-1.0.a
 LOCAL_EXPORT_C_INCLUDES := $(PREBUILT_ROOT)/include/libusb-1.0
@@ -137,10 +143,10 @@ GSTREAMER_ROOT		  := $(LOCAL_PATH)/$(COMMON_ROOT)/gstreamer
 GSTREAMER_NDK_BUILD_PATH  := $(GSTREAMER_ROOT)/share/gst-android/ndk-build/
 GSTREAMER_JAVA_SRC_DIR	  := java
 include $(GSTREAMER_NDK_BUILD_PATH)/plugins.mk
-GSTREAMER_PLUGINS         := $(GSTREAMER_PLUGINS_CORE) $(GSTREAMER_PLUGINS_SYS) # TODO: test with additional codecs: $(GSTREAMER_PLUGINS_CODECS) $(GSTREAMER_PLUGINS_CODECS_GPL) $(GSTREAMER_PLUGINS_CODECS_RESTRICTED) $(GSTREAMER_PLUGINS_ENCODING) $(GSTREAMER_PLUGINS_PLAYBACK)
+GSTREAMER_PLUGINS         := $(GSTREAMER_PLUGINS_CORE) $(GSTREAMER_PLUGINS_SYS) $(GSTREAMER_PLUGINS_CODECS) $(GSTREAMER_PLUGINS_CODECS_GPL) $(GSTREAMER_PLUGINS_CODECS_RESTRICTED) $(GSTREAMER_PLUGINS_ENCODING) $(GSTREAMER_PLUGINS_PLAYBACK)
 G_IO_MODULES              := openssl
 GSTREAMER_EXTRA_DEPS      := pixman-1 gstreamer-app-1.0 libsoup-2.4 libxml-2.0 glib-2.0 gthread-2.0 \
-							 gobject-2.0 libjpeg openssl libssl gstreamer-video-1.0 gstreamer-audio-1.0 # TODO: vpx
+							 gobject-2.0 libjpeg openssl libssl gstreamer-video-1.0 gstreamer-audio-1.0 vpx
 include $(GSTREAMER_NDK_BUILD_PATH)/gstreamer-1.0.mk
 
 
@@ -179,7 +185,7 @@ LOCAL_EXPORT_LDLIBS += $(LOCAL_LDLIBS)
 LOCAL_ARM_MODE := arm
 LOCAL_SHARED_LIBRARIES := gstreamer_android
 LOCAL_STATIC_LIBRARIES := spice-client-glib govirt rest usb usbredirhost usbredirparser iconv \
-							intl gstaudio-1.0 gstvideo-1.0 orc # TODO: gstopenh264 gstx264 vpx gstvpx \
-							# TODO: gstisomp4 avcodec gstjpeg gstopenjpeg gstjpegformat
+							intl gstaudio-1.0 gstvideo-1.0 orc spiceglue gstopenh264 gstx264 vpx gstvpx \
+							gstisomp4 avcodec gstjpeg gstopenjpeg gstjpegformat
 LOCAL_DISABLE_FATAL_LINKER_WARNINGS := true
 include $(BUILD_SHARED_LIBRARY)

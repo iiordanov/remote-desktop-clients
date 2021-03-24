@@ -403,11 +403,7 @@ public class SpiceCommunicator implements RfbConnectable {
         // TODO Auto-generated method stub
     }
 
-    public void requestResolution(int x, int y) throws Exception {
-        requestResolution();
-    }
-
-    public void requestResolution() {
+    public void requestResolution(int width, int height) {
         android.util.Log.d(TAG, "requestResolution()");
         if (isInNormalProtocol) {
             int currentWidth = this.width;
@@ -415,18 +411,13 @@ public class SpiceCommunicator implements RfbConnectable {
             if (isRequestingNewDisplayResolution &&
                     lastRequestedWidth == -1 && lastRequestedHeight == -1) {
                 canvas.waitUntilInflated();
-                lastRequestedWidth = canvas.getDesiredWidth();
-                lastRequestedHeight = canvas.getDesiredHeight();
-                if (currentWidth != lastRequestedWidth || currentHeight != lastRequestedHeight) {
-                    android.util.Log.d(TAG, "Requesting new resolution: " + lastRequestedWidth + "x" + lastRequestedHeight);
-                    SpiceRequestResolution (lastRequestedWidth, lastRequestedHeight);
-                } else {
-                    android.util.Log.d(TAG, "Resolution request was satisfied.");
-                    lastRequestedWidth = -1;
-                    lastRequestedHeight = -1;
-                }
+                lastRequestedWidth = width;
+                lastRequestedHeight = height;
+                android.util.Log.d(TAG, "Requesting new resolution: " + width + "x" + height);
+                SpiceRequestResolution(width, height);
             } else {
                 android.util.Log.d(TAG, "Resolution request disabled or last request unsatisfied (resolution request loop?).");
+                isRequestingNewDisplayResolution = false;
                 lastRequestedWidth = -1;
                 lastRequestedHeight = -1;
             }
@@ -508,7 +499,7 @@ public class SpiceCommunicator implements RfbConnectable {
         android.util.Log.d(TAG, "sendMessage called with message: " + messageText);
         Bundle b = new Bundle();
         b.putString("message", messageText);
-        Message m = new Message();
+        Message m = myself.handler.obtainMessage();
         m.what = message;
         m.setData(b);
         myself.handler.sendMessage(m);
@@ -543,7 +534,12 @@ public class SpiceCommunicator implements RfbConnectable {
         handler.sendEmptyMessage(RemoteClientLibConstants.SPICE_CONNECT_SUCCESS);
 
         if (isRequestingNewDisplayResolution) {
-            requestResolution();
+            requestResolution(canvas.getDesiredWidth(), canvas.getDesiredHeight());
+            handler.postDelayed(new Runnable() {
+                public void run() {
+                    requestResolution(canvas.getDesiredWidth(), canvas.getDesiredHeight());
+                }
+            }, 1000);
         }
     }
     
@@ -572,5 +568,10 @@ public class SpiceCommunicator implements RfbConnectable {
     private static void OnMouseMode(boolean relative) {
         android.util.Log.i(TAG, "OnMouseMode called, relative: " + relative);
         myself.canvas.mouseMode(relative);
+    }
+
+    private static void ShowMessage(java.lang.String message) {
+        android.util.Log.i(TAG, "ShowMessage called, message: " + message);
+        sendMessageWithText(RemoteClientLibConstants.SHOW_TOAST, message);
     }
 }

@@ -38,9 +38,11 @@
 	jmethodID jni_graphics_update  = NULL;
 	jmethodID jni_mouse_update     = NULL;
 	jmethodID jni_mouse_mode       = NULL;
+	jmethodID jni_show_message     = NULL;
 	GMainLoop            *mainloop = NULL;
 	int                connections = 0;
 	gboolean          soundEnabled = FALSE;
+	gboolean          soundInitialized = FALSE;
 	const gchar*         oVirtUser = NULL;
 	const gchar*     oVirtPassword = NULL;
 #else
@@ -53,9 +55,11 @@
 	extern jmethodID  jni_graphics_update;
 	extern jmethodID     jni_mouse_update;
 	extern jmethodID       jni_mouse_mode;
+	extern jmethodID     jni_show_message;
 	extern GMainLoop*            mainloop;
 	extern int                connections;
 	extern gboolean          soundEnabled;
+	extern gboolean          soundInitialized;
 	extern gchar*               oVirtUser;
 	extern gchar*           oVirtPassword;
 #endif

@@ -460,7 +460,7 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView
     @Override
     public int getDesiredWidth() {
         int w = getWidth();
-        android.util.Log.e(TAG, "Width requested: " + w);
+        android.util.Log.d(TAG, "Width requested: " + w);
         return w;
     }
 
@@ -470,7 +470,7 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView
     @Override
     public int getDesiredHeight() {
         int h = getHeight();
-        android.util.Log.e(TAG, "Height requested: " + h);
+        android.util.Log.d(TAG, "Height requested: " + h);
         return h;
     }
 

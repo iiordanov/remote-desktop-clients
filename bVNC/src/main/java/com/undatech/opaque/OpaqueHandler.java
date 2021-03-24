@@ -14,8 +14,11 @@ import android.os.Message;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.util.Base64;
+import android.widget.Toast;
 
+import com.iiordanov.bVNC.Utils;
 import com.iiordanov.bVNC.dialogs.GetTextFragment;
+import com.iiordanov.bVNC.input.RemoteCanvasHandler;
 import com.undatech.opaque.dialogs.ChoiceFragment;
 import com.undatech.opaque.dialogs.MessageFragment;
 import com.undatech.opaque.dialogs.SelectTextElementFragment;
@@ -80,6 +83,8 @@ public class OpaqueHandler extends Handler {
             android.util.Log.d(TAG, "Ignoring message with ID 0");
             return;
         }
+        final String messageText = Utils.getStringFromMessage(msg, "message");
+
         switch (msg.what) {
         case RemoteClientLibConstants.VV_OVER_HTTP_FAILURE:
             MessageDialogs.displayMessageAndFinish(context, R.string.error_failed_to_download_vv_http,
@@ -231,6 +236,14 @@ public class OpaqueHandler extends Handler {
         case RemoteClientLibConstants.DISCONNECT_NO_MESSAGE:
             c.closeConnection();
             MessageDialogs.justFinish(context);
+            break;
+        case RemoteClientLibConstants.SHOW_TOAST:
+            this.post(new Runnable() {
+                public void run() {
+                    Toast.makeText(context, Utils.getStringResourceByName(context, messageText),
+                                        Toast.LENGTH_LONG).show();
+                }
+            });
             break;
         case RemoteClientLibConstants.REINIT_SESSION:
             c.reinitializeOpaque();

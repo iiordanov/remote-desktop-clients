@@ -69,6 +69,7 @@ public class RemoteClientLibConstants {
     public static final int DIALOG_DISPLAY_VMS     = 44;
     public static final int SPICE_TLS_ERROR        = 45;
     public static final int SPICE_CONNECT_FAILURE_IF_MAINTAINING_CONNECTION = 46;
+    public static final int SHOW_TOAST             = 47;
     public static final int PRO_FEATURE            = 99;
 
     public static final int EXTRA_KEYS_OFF         = 0;

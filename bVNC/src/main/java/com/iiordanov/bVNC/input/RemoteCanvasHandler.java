@@ -7,6 +7,8 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
+import android.widget.Toast;
+
 import com.iiordanov.bVNC.RemoteCanvas;
 import com.iiordanov.bVNC.Utils;
 import com.iiordanov.bVNC.dialogs.GetTextFragment;
@@ -49,10 +51,10 @@ public class RemoteCanvasHandler extends Handler {
     }
 
     @Override
-    public void handleMessage(Message msg) {
+    public void handleMessage(final Message msg) {
         Bundle s;
         android.util.Log.d(TAG, "Handling message, msg.what: " + msg.what);
-
+        final String messageText = Utils.getStringFromMessage(msg, "message");
         switch (msg.what) {
             case RemoteClientLibConstants.PRO_FEATURE:
                 if (c.pd != null && c.pd.isShowing()) {
@@ -133,11 +135,19 @@ public class RemoteCanvasHandler extends Handler {
                 c.validateRdpCert(s.getString("subject"), s.getString("issuer"), s.getString("fingerprint"));
                 break;
             case RemoteClientLibConstants.DISCONNECT_WITH_MESSAGE:
-                c.showFatalMessageAndQuit(getStringFromMessage(msg, "message"));
+                c.showFatalMessageAndQuit(messageText);
+                break;
+            case RemoteClientLibConstants.SHOW_TOAST:
+                this.post(new Runnable() {
+                    public void run() {
+                        Toast.makeText(context, Utils.getStringResourceByName(context, messageText),
+                                        Toast.LENGTH_LONG).show();
+                    }
+                });
                 break;
             case RemoteClientLibConstants.SPICE_CONNECT_FAILURE_IF_MAINTAINING_CONNECTION:
                 if (c.maintainConnection) {
-                    c.showFatalMessageAndQuit(getStringFromMessage(msg, "message"));
+                    c.showFatalMessageAndQuit(messageText);
                 }
                 break;
             case RemoteClientLibConstants.DISCONNECT_NO_MESSAGE:
@@ -191,12 +201,5 @@ public class RemoteCanvasHandler extends Handler {
         }
     }
 
-    public static String getStringFromMessage(Message msg, String key) {
-        Bundle s = msg.getData();
-        String value = "";
-        if (s != null) {
-            value = s.getString(key);
-        }
-        return value;
-    }
+
 }
