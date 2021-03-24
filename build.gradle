@@ -18,6 +18,6 @@ allprojects {
 
 ext {
     compileApi = properties.get('COMPILE_API', 30)
-    targetApi = properties.get('TARGET_API', 30)
+    targetApi = properties.get('TARGET_API', 29)
     minApi = properties.get('MIN_API', 21)
 }
