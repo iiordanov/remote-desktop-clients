@@ -112,7 +112,7 @@ then
   if echo $PRJ | grep -qi "SPICE\|Opaque\|libs\|remoteClientLib"
   then
     pushd ../remoteClientLib
-    ${ANDROID_NDK}/ndk-build -j 4
+    ${ANDROID_NDK}/ndk-build -j 2
 
     echo "Adding any custom certificate authority files in $(pwd)/certificate_authorities/ to certificate bundle from gstreamer."
     if [ -n "$(ls certificate_authorities/)" ]

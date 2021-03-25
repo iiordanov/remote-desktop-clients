@@ -16,6 +16,7 @@ remoteClientLib/jni/libs/cmake-*
 remoteClientLib/gst-build-*/
 remoteClientLib/debug/
 remoteClientLib/release/
+remoteClientLib/.cxx/
 */libs/sqlcipher-javadoc.jar
 */libs/sqlcipher.jar
 */libs/*/libgstreamer_android.so

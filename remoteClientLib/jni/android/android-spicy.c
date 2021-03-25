@@ -180,7 +180,7 @@ static void channel_new(SpiceSession *s, SpiceChannel *channel, gpointer data)
     if (soundEnabled && SPICE_IS_PLAYBACK_CHANNEL(channel)) {
         __android_log_write(ANDROID_LOG_INFO, "android-spicy", "new audio channel");
         SPICE_DEBUG("new audio channel");
-        pthread_create(&audio_initializer, NULL, (void *) &initialize_audio, s);
+        conn->audio = spice_audio_get(s, NULL);
     }
 
     if (SPICE_IS_USBREDIR_CHANNEL(channel)) {
