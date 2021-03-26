@@ -95,7 +95,6 @@ static NSUInteger const kMaxPercent = 100;
     }
 
     kr = vm_deallocate(mach_task_self(), (vm_offset_t)thread_list, thread_count * sizeof(thread_t));
-    assert(kr == KERN_SUCCESS);
 
     return total_cpu;
 }

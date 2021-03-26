@@ -16,9 +16,6 @@
 		AF043A3023B3DADB00C43ED7 /* bVNCTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF043A2F23B3DADB00C43ED7 /* bVNCTests.swift */; };
 		AF043A3B23B3DADB00C43ED7 /* bVNCUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF043A3A23B3DADB00C43ED7 /* bVNCUITests.swift */; };
 		AF130CB225FA88160085C2E8 /* superlib.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AF25C1A1243C085600513BBD /* superlib.a */; };
-		AF130D0C25FA8D640085C2E8 /* libz.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AF130CCC25FA897F0085C2E8 /* libz.a */; };
-		AF130D1E25FA8F7F0085C2E8 /* spicelib.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AF130C5025FA783E0085C2E8 /* spicelib.a */; };
-		AF130D2325FA8FD80085C2E8 /* libiconv.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AF130C7B25FA81B40085C2E8 /* libiconv.a */; };
 		AF25C1AB2440FB2400513BBD /* StoreReviewHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF25C1AA2440FB2400513BBD /* StoreReviewHelper.swift */; };
 		AF291AD5242418A200DCD383 /* ToggleButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF291AD4242418A200DCD383 /* ToggleButton.swift */; };
 		AF30D196253396EF00BA7A62 /* SshPortForwarder.c in Sources */ = {isa = PBXBuildFile; fileRef = AF7421F3241D58EB00C552A7 /* SshPortForwarder.c */; };
@@ -58,6 +55,7 @@
 		AF9E8F95242ADD9200752FC2 /* Utilities.m in Sources */ = {isa = PBXBuildFile; fileRef = AF9E8F94242ADD9200752FC2 /* Utilities.m */; };
 		AF9E8F99242AE4E900752FC2 /* SystemMonitor.m in Sources */ = {isa = PBXBuildFile; fileRef = AF9E8F98242AE4E900752FC2 /* SystemMonitor.m */; };
 		AFBBBD7B24C4A1E600F64E4A /* LocalizedStringKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFBBBD7A24C4A1E600F64E4A /* LocalizedStringKey.swift */; };
+		AFE02553260E51C4005E851E /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = AFE02552260E51C4005E851E /* libz.tbd */; };
 		AFE28DE62541405900F127A2 /* PhysicalKeyboardHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFE28DE52541405900F127A2 /* PhysicalKeyboardHandler.swift */; };
 		AFF244E22407985E00F5839B /* CustomTextInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFF244E12407985E00F5839B /* CustomTextInput.swift */; };
 		AFF244E42408AF9B00F5839B /* TouchEnabledUIImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFF244E32408AF9B00F5839B /* TouchEnabledUIImageView.swift */; };
@@ -546,6 +544,7 @@
 		AF9E8F98242AE4E900752FC2 /* SystemMonitor.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SystemMonitor.m; sourceTree = "<group>"; };
 		AFBBBD7924C3C6CD00F64E4A /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		AFBBBD7A24C4A1E600F64E4A /* LocalizedStringKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalizedStringKey.swift; sourceTree = "<group>"; };
+		AFE02552260E51C4005E851E /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/usr/lib/libz.tbd; sourceTree = DEVELOPER_DIR; };
 		AFE28DE52541405900F127A2 /* PhysicalKeyboardHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhysicalKeyboardHandler.swift; sourceTree = "<group>"; };
 		AFE7B0BF243A316900275C3A /* libvncclient.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libvncclient.a; path = bVNC.xcodeproj/libs_combined/lib/libvncclient.a; sourceTree = "<group>"; };
 		AFECDF212439D9C6000E1E9A /* libssh2.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libssh2.a; path = bVNC.xcodeproj/libs_combined/lib/libssh2.a; sourceTree = "<group>"; };
@@ -561,9 +560,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				AF130D2325FA8FD80085C2E8 /* libiconv.a in Frameworks */,
-				AF130D1E25FA8F7F0085C2E8 /* spicelib.a in Frameworks */,
-				AF130D0C25FA8D640085C2E8 /* libz.a in Frameworks */,
+				AFE02553260E51C4005E851E /* libz.tbd in Frameworks */,
 				AF130CB225FA88160085C2E8 /* superlib.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -692,6 +689,7 @@
 		AF48247C23B4783500826395 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				AFE02552260E51C4005E851E /* libz.tbd */,
 				AF130CC725FA897F0085C2E8 /* libfribidi.a */,
 				AF130CD125FA89800085C2E8 /* libgio-2.0.a */,
 				AF130CCE25FA89800085C2E8 /* libglib-2.0.a */,
@@ -1565,7 +1563,7 @@
 				CLANG_USE_OPTIMIZATION_PROFILE = NO;
 				CODE_SIGN_ENTITLEMENTS = "bVNC/bVNC Pro.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 29;
+				CURRENT_PROJECT_VERSION = 30;
 				DEVELOPMENT_ASSET_PATHS = "bVNC/Preview\\ Content";
 				DEVELOPMENT_TEAM = 96Z3MCQKZA;
 				ENABLE_BITCODE = NO;
@@ -1594,7 +1592,7 @@
 					"$(SDKROOT)/usr/lib/swift",
 				);
 				LLVM_LTO = NO;
-				MARKETING_VERSION = 1.0.5;
+				MARKETING_VERSION = 1.0.6;
 				OTHER_LDFLAGS = "";
 				"OTHER_LDFLAGS[arch=*]" = "-lresolv";
 				PRELINK_LIBS = "";
@@ -1622,7 +1620,7 @@
 				CLANG_USE_OPTIMIZATION_PROFILE = NO;
 				CODE_SIGN_ENTITLEMENTS = "bVNC/bVNC Pro.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 29;
+				CURRENT_PROJECT_VERSION = 30;
 				DEVELOPMENT_ASSET_PATHS = "bVNC/Preview\\ Content";
 				DEVELOPMENT_TEAM = 96Z3MCQKZA;
 				ENABLE_BITCODE = NO;
@@ -1655,7 +1653,7 @@
 					"$(SDKROOT)/usr/lib/swift",
 				);
 				LLVM_LTO = NO;
-				MARKETING_VERSION = 1.0.5;
+				MARKETING_VERSION = 1.0.6;
 				OTHER_LDFLAGS = "";
 				"OTHER_LDFLAGS[arch=*]" = "-lresolv";
 				PRELINK_LIBS = "";
