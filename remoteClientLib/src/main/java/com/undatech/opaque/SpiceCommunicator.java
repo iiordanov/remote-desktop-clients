@@ -117,8 +117,8 @@ public class SpiceCommunicator implements RfbConnectable {
     
     private Thread thread = null;
 
-    private int lastRequestedWidth = -1;
-    private int lastRequestedHeight = -1;
+    private int resolutionRequests = -1;
+    private int maxResolutionRequests = 5;
 
     private boolean debugLogging;
 
@@ -405,21 +405,26 @@ public class SpiceCommunicator implements RfbConnectable {
 
     public void requestResolution(int width, int height) {
         android.util.Log.d(TAG, "requestResolution()");
+        if (!isRequestingNewDisplayResolution) {
+            android.util.Log.d(TAG, "Requesting remote resolution is disabled");
+            return;
+        }
         if (isInNormalProtocol) {
             int currentWidth = this.width;
             int currentHeight = this.height;
-            if (isRequestingNewDisplayResolution &&
-                    lastRequestedWidth == -1 && lastRequestedHeight == -1) {
+            // Request new resolution at least once or keep requesting up to a maximum number of times.
+            if ((resolutionRequests == -1 || currentWidth != width || currentHeight != height) &&
+                    resolutionRequests < maxResolutionRequests) {
                 canvas.waitUntilInflated();
-                lastRequestedWidth = width;
-                lastRequestedHeight = height;
                 android.util.Log.d(TAG, "Requesting new resolution: " + width + "x" + height);
                 SpiceRequestResolution(width, height);
+                resolutionRequests++;
+            } else if (currentWidth == width && currentHeight == height) {
+                android.util.Log.d(TAG, "Resolution request satisfied, resetting resolutionRequests count");
+                resolutionRequests = 0;
             } else {
                 android.util.Log.d(TAG, "Resolution request disabled or last request unsatisfied (resolution request loop?).");
                 isRequestingNewDisplayResolution = false;
-                lastRequestedWidth = -1;
-                lastRequestedHeight = -1;
             }
         }
     }
@@ -539,7 +544,7 @@ public class SpiceCommunicator implements RfbConnectable {
                 public void run() {
                     requestResolution(canvas.getDesiredWidth(), canvas.getDesiredHeight());
                 }
-            }, 1000);
+            }, 2000);
         }
     }
     
