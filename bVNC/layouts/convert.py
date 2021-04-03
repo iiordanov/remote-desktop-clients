@@ -20,6 +20,7 @@ import sys
 import os
 import logging
 import collections
+import re
 
 root = logging.getLogger()
 root.setLevel(logging.DEBUG)
@@ -113,8 +114,13 @@ def loadKeyMap (nameToUnicode, keyMapFile, keyMap):
                 keyMap[(int(nameToUnicode[name], 16) - 0x20) | unicodeMask] = upperCaseScanCodes
             try:
                 keyMap[int(nameToUnicode[name], 16) | unicodeMask] = scanCodes
-            except KeyError:
-                #print ("Could not find unicode value for: " + e.__str__())
+            except KeyError as e:
+                if re.match('U[0-9A-Fa-f]{4}', name):
+                    logging.warning(f"Name {e} in qemu keymap looks like a unicode character, using its value to add to keymap")
+                    print(int(name[1:], 16) | unicodeMask, scanCodes)
+                    keyMap[int(name[1:], 16) | unicodeMask] = scanCodes
+                else:
+                    logging.error(f"Could not find unicode value for: {e}")
                 pass
 
             # Detect and store dead keys
