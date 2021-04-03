@@ -28,6 +28,8 @@ import android.net.Uri;
 import android.util.Log;
 import android.widget.ImageView;
 
+import com.iiordanov.bVNC.Constants;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -72,7 +74,11 @@ public class ConnectionSettings implements Connection, Serializable {
     private String x509KeySignature = "";
 
     private int extraKeysToggleType = RemoteClientLibConstants.EXTRA_KEYS_ON;
-    
+
+    private int rdpWidth = 0;
+    private int rdpHeight = 0;
+    private int rdpResType = Constants.RDP_GEOM_SELECT_CUSTOM;
+
     public ConnectionSettings(String filename) {
         super();
         this.filename = filename;
@@ -365,6 +371,8 @@ public class ConnectionSettings implements Connection, Serializable {
         editor.putString("scaleMode", scaleMode);
         editor.putString("x509KeySignature", x509KeySignature);
         editor.putString("screenshotFilename", screenshotFilename);
+        editor.putInt("rdpWidth", rdpWidth);
+        editor.putInt("rdpHeight", rdpHeight);
         editor.apply();
         // Make sure the CA gets saved to a file if necessary.
         ovirtCaFile = saveCaToFile (context, ovirtCaData);
@@ -416,12 +424,12 @@ public class ConnectionSettings implements Connection, Serializable {
 
     @Override
     public int getRdpResType() {
-        return 0;
+        return rdpResType;
     }
 
     @Override
     public void setRdpResType(int rdpResType) {
-
+        this.rdpResType = rdpResType;
     }
 
     @Override
@@ -560,6 +568,8 @@ public class ConnectionSettings implements Connection, Serializable {
         ovirtCaData = sp.getString("ovirtCaData", "").trim();
         layoutMap = sp.getString("layoutMap", RemoteClientLibConstants.DEFAULT_LAYOUT_MAP).trim();
         scaleMode = sp.getString("scaleMode", ImageView.ScaleType.MATRIX.toString()).trim();
+        rdpWidth = sp.getInt("rdpWidth", 0);
+        rdpHeight = sp.getInt("rdpHeight", 0);
         // Make sure the CAs get saved to files if necessary.
         ovirtCaFile = saveCaToFile (context, ovirtCaData);
     }
@@ -656,22 +666,22 @@ public class ConnectionSettings implements Connection, Serializable {
 
     @Override
     public int getRdpWidth() {
-        return 0;
+        return rdpWidth;
     }
 
     @Override
     public void setRdpWidth(int rdpWidth) {
-
+        this.rdpWidth = rdpWidth;
     }
 
     @Override
     public int getRdpHeight() {
-        return 0;
+        return rdpHeight;
     }
 
     @Override
     public void setRdpHeight(int rdpHeight) {
-
+        this.rdpHeight = rdpHeight;
     }
 
     @Override

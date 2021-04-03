@@ -258,7 +258,8 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView
         checkNetworkConnectivity();
         initializeClipboardMonitor();
         spicecomm = new SpiceCommunicator(getContext(), handler, this,
-                settings.isRequestingNewDisplayResolution(), settings.isUsbEnabled(), App.debugLog);
+                settings.isRequestingNewDisplayResolution() || settings.getRdpResType() == Constants.RDP_GEOM_SELECT_CUSTOM,
+                settings.isUsbEnabled(), App.debugLog);
         rfbconn = spicecomm;
         pointer = new RemoteSpicePointer(spicecomm, this, handler);
         try {
@@ -460,6 +461,9 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView
     @Override
     public int getDesiredWidth() {
         int w = getWidth();
+        if (connection.getRdpResType() == Constants.RDP_GEOM_SELECT_CUSTOM) {
+            w = connection.getRdpWidth();
+        }
         android.util.Log.d(TAG, "Width requested: " + w);
         return w;
     }
@@ -470,6 +474,9 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView
     @Override
     public int getDesiredHeight() {
         int h = getHeight();
+        if (connection.getRdpResType() == Constants.RDP_GEOM_SELECT_CUSTOM) {
+            h = connection.getRdpHeight();
+        }
         android.util.Log.d(TAG, "Height requested: " + h);
         return h;
     }
