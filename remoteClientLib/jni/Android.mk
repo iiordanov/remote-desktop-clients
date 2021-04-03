@@ -4,6 +4,12 @@ PREBUILT_ROOT   := $(COMMON_ROOT)/root
 GSTREAMER_ROOT  := $(COMMON_ROOT)/gstreamer
 
 include $(CLEAR_VARS)
+LOCAL_MODULE            := lz4
+LOCAL_SRC_FILES         := $(GSTREAMER_ROOT)/lib/liblz4.a
+LOCAL_EXPORT_C_INCLUDES := $(GSTREAMER_ROOT)/include
+include $(PREBUILT_STATIC_LIBRARY)
+
+include $(CLEAR_VARS)
 LOCAL_MODULE            := opus
 LOCAL_SRC_FILES         := $(GSTREAMER_ROOT)/lib/libopus.a
 LOCAL_EXPORT_C_INCLUDES := $(GSTREAMER_ROOT)/include
@@ -135,7 +141,7 @@ LOCAL_SRC_FILES         := $(GSTREAMER_ROOT)/lib/libspice-client-glib-2.0.a
 LOCAL_EXPORT_C_INCLUDES := $(GSTREAMER_ROOT)/include/spice-client-glib-2.0 \
                            $(GSTREAMER_ROOT)/include/spice-1
 LOCAL_SHARED_LIBRARIES  := gstreamer_android
-LOCAL_STATIC_LIBRARIES  := opus
+LOCAL_STATIC_LIBRARIES  := opus lz4
 include $(PREBUILT_STATIC_LIBRARY)
 
 include $(CLEAR_VARS)
