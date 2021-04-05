@@ -94,6 +94,7 @@ android {
         ndkBuild {
             path file('jni/Application.mk')
             path file('jni/Android.mk')
+            buildStagingDirectory 'src/main/jniLibs'
         }
     }
 

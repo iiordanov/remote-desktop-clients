@@ -1,4 +1,4 @@
-include ':freeRDPCore'
+include ':remoteClientLib:jni:libs:deps:FreeRDP:client:Android:Studio:freeRDPCore'
 include ':pubkeyGenerator'
 include ':bVNC'
 include ':bVNC-app'

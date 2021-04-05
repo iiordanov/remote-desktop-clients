@@ -7,21 +7,24 @@ Please see the LICENSE file for information on how the source is licensed.
 
 # Building
 
-There are two ways to build the applications. With pre-built libraries, or from
-scratch.
+There are different ways to build the applications depending on OS and whether you are using
+pre-built libraries, or building them from scratch.
 
-The build automation of requires Linux at the moment, due to the use of symlinks.
+## On Linux and WSL2
+
+These instructions should work on Ubuntu 18.04, 20.04, and Windows Subsystem for Linux 2.
+Builds are likely to also work on MacOS, feedback is welcome.
 
 Pick one of I-a, I-b, or I-c below, then move onto II.
 
-## I-a With Prebuilt Libraries
+### I-a With Prebuilt Libraries
 
 Building the projects with pre-built dependencies.
 
         ./download-prebuilt-dependencies.sh
         ./bVNC/prepare_project.sh --skip-build libs nopath
 
-## I-b From Scratch with Docker
+### I-b From Scratch with Docker
 
 Make sure you're running the commands below from the root of the project.
 Ensure ANDROID_SDK is set to the path to your SDK.
@@ -35,7 +38,7 @@ echo "CURRENT_WORKING_DIR=$(pwd)" >> docker/.env
 docker-compose -f docker/docker-compose.yml up
 ```
 
-## I-c From Scratch
+### I-c From Scratch
 
 Building from scratch and working in Android Studio.
 
@@ -51,7 +54,7 @@ Building from scratch and working in Android Studio.
 
     - If building a non-custom client, set PROJECT to libs. For a custom VNC client, set PROJECT to a string
       that stars with Custom and contains Vnc, i.e. `CustomYourVncClient` (see III below for details).
-      
+
     - Set the environment variables ANDROID_SDK to your SDK installation. The scripts will install the NDK automatically.
 
     - Example:
@@ -72,6 +75,22 @@ Building from scratch and working in Android Studio.
     - Switch to Android Studio, select the launch configuration you want to run, and run it on an emulator or device.
 
     - If using an emulator, choose x86_64 as the architecture to avoid "has text relocations" errors loading gstreamer on Android.
+
+## On Windows with Git Bash
+
+These instructions are for Windows without WSL2 installed. For now, only pre-build dependencies are
+supported in this configuration.
+
+- First [download and install install git from here](https://git-scm.com/downloads)
+- Then, start Git Bash, clone this project, cd into the project root directory and run:
+        ./download-prebuilt-dependencies.sh
+- Start Android Studio and open the project directory.
+- Click File->Sync Project with Gradle Files
+- If Android Studio reports any missing android versions (such as `android-28`, for instance),
+find and start SDK Manager and ensure any missing Android versions are installed. As of today
+the required versions are `android-28`, `android-29`, and `android-30`, but in future other versions
+will need to be installed if Android Studio shows an error.
+
 
 ## II Importing projects into Android Studio
 

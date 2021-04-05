@@ -21,5 +21,5 @@
         <activity android:name="com.iiordanov.bVNC.GlobalPreferencesActivity"></activity>
     </application>
 
-    <uses-sdk android:minSdkVersion="14" tools:overrideLibrary="com.github.luben.zstd"/>
+    <uses-sdk tools:overrideLibrary="com.github.luben.zstd"/>
 </manifest>

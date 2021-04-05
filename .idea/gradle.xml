@@ -22,6 +22,13 @@
             <option value="$PROJECT_DIR$/freebVNC-app" />
             <option value="$PROJECT_DIR$/pubkeyGenerator" />
             <option value="$PROJECT_DIR$/remoteClientLib" />
+            <option value="$PROJECT_DIR$/remoteClientLib/jni" />
+            <option value="$PROJECT_DIR$/remoteClientLib/jni/libs" />
+            <option value="$PROJECT_DIR$/remoteClientLib/jni/libs/deps" />
+            <option value="$PROJECT_DIR$/remoteClientLib/jni/libs/deps/FreeRDP" />
+            <option value="$PROJECT_DIR$/remoteClientLib/jni/libs/deps/FreeRDP/client" />
+            <option value="$PROJECT_DIR$/remoteClientLib/jni/libs/deps/FreeRDP/client/Android" />
+            <option value="$PROJECT_DIR$/remoteClientLib/jni/libs/deps/FreeRDP/client/Android/Studio" />
             <option value="$PROJECT_DIR$/remoteClientLib/jni/libs/deps/FreeRDP/client/Android/Studio/freeRDPCore" />
           </set>
         </option>
