@@ -83,8 +83,10 @@ supported in this configuration.
 
 - First [download and install install git from here](https://git-scm.com/downloads)
 - Then, start Git Bash, clone this project, cd into the project root directory and run:
-        ./download-prebuilt-dependencies.sh
-- Start Android Studio and open the project directory.
+```bash
+./download-prebuilt-dependencies.sh
+```
+- Start Android Studio and open the project directory
 - Click File->Sync Project with Gradle Files
 - If Android Studio reports any missing android versions (such as `android-28`, for instance),
 find and start SDK Manager and ensure any missing Android versions are installed. As of today
