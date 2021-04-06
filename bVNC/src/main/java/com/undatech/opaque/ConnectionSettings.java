@@ -373,6 +373,7 @@ public class ConnectionSettings implements Connection, Serializable {
         editor.putString("screenshotFilename", screenshotFilename);
         editor.putInt("rdpWidth", rdpWidth);
         editor.putInt("rdpHeight", rdpHeight);
+        editor.putInt("rdpResType", rdpResType);
         editor.apply();
         // Make sure the CA gets saved to a file if necessary.
         ovirtCaFile = saveCaToFile (context, ovirtCaData);
@@ -570,6 +571,7 @@ public class ConnectionSettings implements Connection, Serializable {
         scaleMode = sp.getString("scaleMode", ImageView.ScaleType.MATRIX.toString()).trim();
         rdpWidth = sp.getInt("rdpWidth", 0);
         rdpHeight = sp.getInt("rdpHeight", 0);
+        rdpResType = sp.getInt("rdpResType", Constants.RDP_GEOM_SELECT_CUSTOM);
         // Make sure the CAs get saved to files if necessary.
         ovirtCaFile = saveCaToFile (context, ovirtCaData);
     }
