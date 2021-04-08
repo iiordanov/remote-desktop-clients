@@ -46,7 +46,7 @@ dependencies {
     //implementation group: 'androidx.legacy', name: 'legacy-support-v4', version: '1.0.0'
     //implementation group: 'androidx.vectordrawable', name: 'vectordrawable', version: '1.1.0'
     //implementation group: 'androidx.preference', name: 'preference', version: '1.1.1'
-    implementation 'net.zetetic:android-database-sqlcipher:4.3.0@aar'
+    implementation 'net.zetetic:android-database-sqlcipher:4.2.0@aar'
     implementation "androidx.sqlite:sqlite:2.0.1"
     implementation files('libs/com.antlersoft.android.contentxml.jar')
     implementation files('libs/com.antlersoft.android.db.jar')
