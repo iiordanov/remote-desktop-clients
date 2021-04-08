@@ -252,8 +252,12 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
     public void onResume() {
         super.onResume();
         Log.i(TAG, "onResume of version " + Utils.getVersionAndCode(this));
-        loadSavedConnections();
-        IntroTextDialog.showIntroTextIfNecessary(this, database, Utils.isFree(this) && isStarting);
+        if (Utils.querySharedPreferenceBoolean(this, Constants.masterPasswordEnabledTag)) {
+            showGetTextFragment(getPassword);
+        } else {
+            loadSavedConnections();
+            IntroTextDialog.showIntroTextIfNecessary(this, database, Utils.isFree(this) && isStarting);
+        }
         isStarting = false;
     }
 
