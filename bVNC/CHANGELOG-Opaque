@@ -4,6 +4,7 @@ v5.0.4
 - SPICE library update
 - Master password fix
 - SQLCipher library update
+- Fix for washed out colors
 v5.0.3
 - Mandatory Android API target update
 - Usability fixes
