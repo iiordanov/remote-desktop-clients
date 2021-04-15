@@ -22,7 +22,6 @@
 #include "spice-client.h"
 
 #include "spice-grabsequence.h"
-#include "spice-widget-enums.h"
 #include "spice-util.h"
 #include "spice-gtk-session.h"
 

@@ -17,13 +17,27 @@
 #
 
 import sys
+import os
+import logging
+import collections
+import re
+
+root = logging.getLogger()
+root.setLevel(logging.DEBUG)
+
+handler = logging.StreamHandler(sys.stdout)
+handler.setLevel(logging.DEBUG)
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+handler.setFormatter(formatter)
+root.addHandler(handler)
 
 layoutLocation = "/usr/share/qemu/keymaps/"
 targetLocation = "../src/main/assets/layouts/"
 layouts = {"en-us" : "English (US)", "en-gb" : "English (UK)", "de" : "German (Germany)", "fr" : "French (France)",
            "es" : "Spanish (Spain, Traditional Sort)", "sv" : "Swedish (Sweden)", "pl" : "Polish (Programmers)",
            "it" : "Italian (Italy)", "hu" : "Hungarian (Hungary)", "da" : "Danish", "pt" : "Portuguese (Portugal)",
-           "pt-br" : "Portuguese (Brazil)", "de-ch" : "German (Switzerland)", "fr-ch" : "French (Switzerland)" }
+           "pt-br" : "Portuguese (Brazil)", "de-ch" : "German (Switzerland)", "fr-ch" : "French (Switzerland)",
+           "sl": "Slovenian" }
 commonKeyCodeFile = "common_keycodes.in"
 nameToUnicodeFile = "name_to_unicode.in"
 
@@ -51,7 +65,11 @@ def loadCommonKeyCodes (commonFile, keyMap):
     return keyMap
 
 def loadKeyMap (nameToUnicode, keyMapFile, keyMap):
-    f = open(keyMapFile)
+    try:
+        f = open(keyMapFile)
+    except:
+        logging.warning(f"Unable to open {keyMapFile} file, skipping")
+        return
     lines = f.readlines()
     deadKeys = {}
     for l in lines:
@@ -96,8 +114,13 @@ def loadKeyMap (nameToUnicode, keyMapFile, keyMap):
                 keyMap[(int(nameToUnicode[name], 16) - 0x20) | unicodeMask] = upperCaseScanCodes
             try:
                 keyMap[int(nameToUnicode[name], 16) | unicodeMask] = scanCodes
-            except KeyError:
-                #print ("Could not find unicode value for: " + e.__str__())
+            except KeyError as e:
+                if re.match('U[0-9A-Fa-f]{4}', name):
+                    logging.warning(f"Name {e} in qemu keymap looks like a unicode character, using its value to add to keymap")
+                    print(int(name[1:], 16) | unicodeMask, scanCodes)
+                    keyMap[int(name[1:], 16) | unicodeMask] = scanCodes
+                else:
+                    logging.error(f"Could not find unicode value for: {e}")
                 pass
 
             # Detect and store dead keys
@@ -136,14 +159,39 @@ def loadKeyMap (nameToUnicode, keyMapFile, keyMap):
                 #print ("Could not find: " + name)
                 pass
 
+def generateLayoutMap():
+    map = {}
+    for layout in os.listdir(layoutLocation):
+        f = open(os.path.join(layoutLocation, layout))
+        name = "NONE"
+        lines = f.readlines()
+        for l in lines:
+            if l.startswith("# name:"):
+                try:
+                    name = l.split()[2].replace('"', '')
+                    map[layout] = name
+                except:
+                    logging.error(f"Error parsing the name of layout {l}. Manually add it to layouts map.")
+                    pass
+                break
+    logging.info(f"Automatically generated map: {map}")
+    return map
+
 if __name__ == "__main__":
     nameToUnicode = loadNameToUnicode(nameToUnicodeFile)
-    for k, v in layouts.items():
+    # Generate keymaps automatically from qemu keymaps directory
+    auto_layouts = generateLayoutMap()
+    # Update with manually crafted names.
+    auto_layouts.update(layouts)
+
+    for k, v in auto_layouts.items():
         keyMap = {}
         loadCommonKeyCodes (commonKeyCodeFile, keyMap)
         loadKeyMap(nameToUnicode, layoutLocation + "common", keyMap)
         loadKeyMap(nameToUnicode, layoutLocation + str(k), keyMap)
+
         f = open(targetLocation + str(v), "w")
-        for u, s in keyMap.items():
+        for u, s in sorted(keyMap.items()):
+            #print(u, s)
             f.write(str(u) + " " + " ".join(map(str, s)) + "\n")
         f.close()

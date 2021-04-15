@@ -54,6 +54,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Handler;
+import android.os.Message;
 import android.os.SystemClock;
 import android.provider.Settings;
 import android.text.ClipboardManager;
@@ -257,7 +258,8 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView
         checkNetworkConnectivity();
         initializeClipboardMonitor();
         spicecomm = new SpiceCommunicator(getContext(), handler, this,
-                settings.isRequestingNewDisplayResolution(), settings.isUsbEnabled(), App.debugLog);
+                settings.isRequestingNewDisplayResolution() || settings.getRdpResType() == Constants.RDP_GEOM_SELECT_CUSTOM,
+                settings.isUsbEnabled(), App.debugLog);
         rfbconn = spicecomm;
         pointer = new RemoteSpicePointer(spicecomm, this, handler);
         try {
@@ -459,7 +461,11 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView
     @Override
     public int getDesiredWidth() {
         int w = getWidth();
-        android.util.Log.e(TAG, "Width requested: " + w);
+        if (!connection.isRequestingNewDisplayResolution() &&
+                connection.getRdpResType() == Constants.RDP_GEOM_SELECT_CUSTOM) {
+            w = connection.getRdpWidth();
+        }
+        android.util.Log.d(TAG, "Width requested: " + w);
         return w;
     }
 
@@ -469,7 +475,11 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView
     @Override
     public int getDesiredHeight() {
         int h = getHeight();
-        android.util.Log.e(TAG, "Height requested: " + h);
+        if (!connection.isRequestingNewDisplayResolution() &&
+                connection.getRdpResType() == Constants.RDP_GEOM_SELECT_CUSTOM) {
+            h = connection.getRdpHeight();
+        }
+        android.util.Log.d(TAG, "Height requested: " + h);
         return h;
     }
 
@@ -1971,7 +1981,7 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView
                 // We were told not to continue, so stop the activity
                 Log.i(TAG, "Certificate rejected by user.");
                 closeConnection();
-                ((Activity) getContext()).finish();
+                MessageDialogs.justFinish(getContext());
             }
         };
         DialogInterface.OnClickListener signatureYes = new DialogInterface.OnClickListener() {
@@ -2055,7 +2065,7 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView
             public void onClick(DialogInterface dialog, int which) {
                 // We were told not to continue, so stop the activity
                 closeConnection();
-                ((Activity) getContext()).finish();
+                MessageDialogs.justFinish(getContext());
             }
         };
         DialogInterface.OnClickListener signatureYes = new DialogInterface.OnClickListener() {
@@ -2104,7 +2114,7 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView
                     // We were told to not continue, so stop the activity
                     sshConnection.terminateSSHTunnel();
                     pd.dismiss();
-                    ((Activity) getContext()).finish();
+                    MessageDialogs.justFinish(getContext());
                 }
             };
             DialogInterface.OnClickListener signatureYes = new DialogInterface.OnClickListener() {

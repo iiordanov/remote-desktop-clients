@@ -60,8 +60,10 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.os.Message;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
@@ -81,6 +83,7 @@ import com.iiordanov.freeaSPICE.*;
 import com.iiordanov.CustomClientPackage.*;
 import com.undatech.opaque.ConnectionSettings;
 import com.undatech.opaque.ConnectionSetupActivity;
+import com.undatech.opaque.MessageDialogs;
 import com.undatech.opaque.RemoteClientLibConstants;
 import com.undatech.opaque.dialogs.MessageFragment;
 import com.undatech.opaque.util.FileUtils;
@@ -153,7 +156,7 @@ public class Utils {
                 dialog.dismiss();
                 Activity activity = Utils.getActivity(_context);
                 if (activity != null) {
-                    activity.finish();
+                    MessageDialogs.justFinish(activity);
                 }
             }
         });
@@ -543,4 +546,24 @@ public class Utils {
         }
         return result;
     }
+
+    public static String getStringFromMessage(Message msg, String key) {
+        Bundle s = msg.getData();
+        String value = "";
+        if (s != null) {
+            value = s.getString(key);
+        }
+        return value;
+    }
+
+    public static String getStringResourceByName(Context context, String stringName) {
+        String packageName = context.getPackageName();
+        int resId = context.getResources().getIdentifier(stringName, "string", packageName);
+        String message = "";
+        if (resId > 0) {
+            message = context.getString(resId);
+        }
+        return message;
+    }
+
 }

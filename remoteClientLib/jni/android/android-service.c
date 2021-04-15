@@ -253,6 +253,7 @@ gboolean getJvmAndMethodReferences (JNIEnv *env) {
 	jni_graphics_update  = (*env)->GetStaticMethodID (env, jni_connector_class, "OnGraphicsUpdate", "(IIIII)V");
 	jni_mouse_update     = (*env)->GetStaticMethodID (env, jni_connector_class, "OnMouseUpdate", "(II)V");
 	jni_mouse_mode       = (*env)->GetStaticMethodID (env, jni_connector_class, "OnMouseMode", "(Z)V");
+	jni_show_message     = (*env)->GetStaticMethodID (env, jni_connector_class, "ShowMessage", "(Ljava/lang/String;)V");
 	return TRUE;
 }
 
@@ -330,21 +331,20 @@ int connectSession (spice_connection *conn)
     int result = 0;
 
     __android_log_write(ANDROID_LOG_INFO, "connectSession", "Starting.");
-    g_thread_init(NULL);
-    g_type_init();
+
     mainloop = g_main_loop_new(NULL, FALSE);
 
     connection_connect(conn);
     if (connections > 0) {
         global_conn = conn;
         g_main_loop_run(mainloop);
-        g_object_unref(mainloop);
 	    __android_log_write(ANDROID_LOG_INFO, "connectSession", "Exiting main loop.");
     } else {
         __android_log_write(ANDROID_LOG_ERROR, "connectSession", "Wrong hostname, port, or password.");
         result = 1;
     }
 
+    g_object_unref(mainloop);
 	return result;
 }
 

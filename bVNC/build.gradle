@@ -10,6 +10,9 @@ android {
     }
 
     buildTypes {
+        debug {
+            debuggable true
+        }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
@@ -32,7 +35,7 @@ android {
 
 dependencies {
     implementation project(':pubkeyGenerator')
-    implementation project(':freeRDPCore')
+    implementation project(':remoteClientLib:jni:libs:deps:FreeRDP:client:Android:Studio:freeRDPCore')
     implementation project(':remoteClientLib')
     implementation 'com.android.support:appcompat-v7:28.0.0'
     implementation 'com.android.support:support-v4:28.0.0'
@@ -43,7 +46,8 @@ dependencies {
     //implementation group: 'androidx.legacy', name: 'legacy-support-v4', version: '1.0.0'
     //implementation group: 'androidx.vectordrawable', name: 'vectordrawable', version: '1.1.0'
     //implementation group: 'androidx.preference', name: 'preference', version: '1.1.1'
-    implementation 'net.zetetic:android-database-sqlcipher:3.5.9@aar'
+    implementation 'net.zetetic:android-database-sqlcipher:4.2.0@aar'
+    implementation "androidx.sqlite:sqlite:2.0.1"
     implementation files('libs/com.antlersoft.android.contentxml.jar')
     implementation files('libs/com.antlersoft.android.db.jar')
     implementation group: 'org.yaml', name: 'snakeyaml', version: '1.23'

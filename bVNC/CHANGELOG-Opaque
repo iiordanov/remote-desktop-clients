@@ -1,3 +1,9 @@
+v5.0.4
+- Fix for sending enter key
+- Keyboard Layout additions and fixes
+- SPICE library update
+- Master password fix
+- SQLCipher library update
 v5.0.3
 - Mandatory Android API target update
 - Usability fixes

@@ -31,3 +31,6 @@ void uiCallbackSettingsChanged (gint instance, gint width, gint height, gint bpp
 
 gint get_display_id(SpiceDisplay *display);
 
+void uiCallbackMouseMode(JNIEnv *env, gboolean relative);
+
+void uiCallbackShowMessage(const gchar *message_text);

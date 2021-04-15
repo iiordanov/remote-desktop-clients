@@ -20,9 +20,11 @@
 package com.undatech.opaque;
 
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.Arrays;
 import java.util.List;
 
+import com.iiordanov.bVNC.Constants;
 import com.iiordanov.util.PermissionsManager;
 import com.undatech.opaque.dialogs.ManageCustomCaFragment;
 
@@ -33,12 +35,15 @@ import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -55,6 +60,7 @@ public class AdvancedSettingsActivity extends FragmentActivity implements Manage
     private ToggleButton toggleAudioPlayback;
     private ToggleButton toggleAutoRotation;
     private ToggleButton toggleAutoRequestDisplayResolution;
+    private ToggleButton toggleCustomDisplayResolution;
     private ToggleButton toggleSslStrict;
     private ToggleButton toggleUsbEnabled;
     private ToggleButton toggleUsingCustomOvirtCa;
@@ -62,6 +68,10 @@ public class AdvancedSettingsActivity extends FragmentActivity implements Manage
     private Spinner layoutMapSpinner;
     private LinearLayout layoutManageOvirtCa;
     private LinearLayout layoutToggleUsingCustomOvirtCa;
+    private LinearLayout layoutCustomRemoteResolution;
+    private LinearLayout layoutToggleCustomRemoteResolution;
+    private EditText rdpWidth;
+    private EditText rdpHeight;
 
     @Override
     public void onCreate(Bundle icicle) {
@@ -79,9 +89,12 @@ public class AdvancedSettingsActivity extends FragmentActivity implements Manage
         
         toggleAutoRotation = (ToggleButton)findViewById(R.id.toggleAutoRotation);
         toggleAutoRotation.setChecked(currentConnection.isRotationEnabled());
-        
+
         toggleAutoRequestDisplayResolution = (ToggleButton)findViewById(R.id.toggleAutoRequestDisplayResolution);
         toggleAutoRequestDisplayResolution.setChecked(currentConnection.isRequestingNewDisplayResolution());
+
+        toggleCustomDisplayResolution = (ToggleButton)findViewById(R.id.toggleCustomDisplayResolution);
+        toggleCustomDisplayResolution.setChecked(currentConnection.getRdpResType() == Constants.RDP_GEOM_SELECT_CUSTOM);
 
         toggleSslStrict = (ToggleButton)findViewById(R.id.toggleSslStrict);
         toggleSslStrict.setChecked(currentConnection.isSslStrict());
@@ -119,7 +132,64 @@ public class AdvancedSettingsActivity extends FragmentActivity implements Manage
             @Override
             public void onNothingSelected(AdapterView<?> parent) { }
         });
-        
+
+        layoutToggleCustomRemoteResolution = (LinearLayout)findViewById(R.id.layoutToggleCustomRemoteResolution);
+        layoutCustomRemoteResolution = findViewById(R.id.layoutCustomRemoteResolution);
+
+        if (toggleCustomDisplayResolution.isChecked()) {
+            layoutCustomRemoteResolution.setVisibility(View.VISIBLE);
+        } else {
+            layoutCustomRemoteResolution.setVisibility(View.GONE);
+        }
+
+        if (!toggleAutoRequestDisplayResolution.isChecked()) {
+            layoutToggleCustomRemoteResolution.setVisibility(View.VISIBLE);
+        } else {
+            layoutToggleCustomRemoteResolution.setVisibility(View.GONE);
+            layoutCustomRemoteResolution.setVisibility(View.GONE);
+        }
+
+        rdpWidth = findViewById(R.id.rdpWidth);
+        rdpWidth.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {}
+            @Override
+            public void afterTextChanged(Editable s) {
+                int res = 0;
+                if (!s.toString().isEmpty()) {
+                    try {
+                        res = Integer.parseInt(s.toString());
+                    } catch (NumberFormatException e) {
+                        res = currentConnection.getRdpWidth();
+                    }
+                }
+                currentConnection.setRdpWidth(res);
+            }
+        });
+        rdpWidth.setText(Integer.toString(currentConnection.getRdpWidth()));
+        rdpHeight = findViewById(R.id.rdpHeight);
+        rdpHeight.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {}
+            @Override
+            public void afterTextChanged(Editable s) {
+                int res = 0;
+                if (!s.toString().isEmpty()) {
+                    try {
+                        res = Integer.parseInt(s.toString());
+                    } catch (NumberFormatException e) {
+                        res = currentConnection.getRdpHeight();
+                    }
+                }
+                currentConnection.setRdpHeight(res);
+            }
+        });
+        rdpHeight.setText(Integer.toString(currentConnection.getRdpHeight()));
+
         // Send the generated data back to the calling activity.
         Intent databackIntent = new Intent();
         databackIntent.putExtra("com.undatech.opaque.ConnectionSettings", currentConnection);
@@ -163,9 +233,36 @@ public class AdvancedSettingsActivity extends FragmentActivity implements Manage
      */
     public void toggleAutoRequestDisplayResolution (View view) {
         ToggleButton s = (ToggleButton) view;
-        currentConnection.setRequestingNewDisplayResolution(s.isChecked());
-    }    
-    
+        boolean autoDisplayResolution = s.isChecked();
+        currentConnection.setRequestingNewDisplayResolution(autoDisplayResolution);
+        if (autoDisplayResolution) {
+            layoutToggleCustomRemoteResolution.setVisibility(View.GONE);
+            layoutCustomRemoteResolution.setVisibility(View.GONE);
+        } else {
+            layoutToggleCustomRemoteResolution.setVisibility(View.VISIBLE);
+            layoutCustomRemoteResolution.setVisibility(View.VISIBLE);
+        }
+    }
+
+    /**
+     * Automatically linked with android:onClick to the toggleRotation button.
+     * @param view
+     */
+    public void toggleCustomDisplayResolution (View view) {
+        ToggleButton s = (ToggleButton) view;
+        boolean customDisplayResolution = s.isChecked();
+        int resType = 0;
+        if (customDisplayResolution) {
+            resType = Constants.RDP_GEOM_SELECT_CUSTOM;
+        }
+        currentConnection.setRdpResType(resType);
+        if (customDisplayResolution) {
+            layoutCustomRemoteResolution.setVisibility(View.VISIBLE);
+        } else {
+            layoutCustomRemoteResolution.setVisibility(View.GONE);
+        }
+    }
+
     /**
      * Automatically linked with android:onClick to the toggleSslStrict button.
      * @param view

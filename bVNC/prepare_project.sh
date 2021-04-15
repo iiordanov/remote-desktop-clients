@@ -112,7 +112,8 @@ then
   if echo $PRJ | grep -qi "SPICE\|Opaque\|libs\|remoteClientLib"
   then
     pushd ../remoteClientLib
-    ${ANDROID_NDK}/ndk-build
+    export NDK_LIBS_OUT=./src/main/jniLibs
+    ${ANDROID_NDK}/ndk-build -j 2
 
     echo "Adding any custom certificate authority files in $(pwd)/certificate_authorities/ to certificate bundle from gstreamer."
     if [ -n "$(ls certificate_authorities/)" ]
@@ -132,18 +133,20 @@ then
   echo "Done building libraries"
 fi
 
-freerdp_libs_dir=../freeRDPCore/src/main/jniLibs
-freerdp_libs_link=../freeRDPCore/src/main/libs
+freerdp_libs_dir=../remoteClientLib/jni/libs/deps/FreeRDP/client/Android/Studio/freeRDPCore/src/main/jniLibs
+freerdp_libs_link=../remoteClientLib/jni/libs/deps/FreeRDP/client/Android/Studio/freeRDPCore/src/main/libs
 if echo $PRJ | grep -iq "VNC"
 then
   clean_libs "sqlcipher" libs/
   clean_libs "sqlcipher" ../remoteClientLib/libs/
+  clean_libs "sqlcipher" ../remoteClientLib/src/main/jniLibs/
   [ -d ${freerdp_libs_dir} ] && rm -rf ${freerdp_libs_dir}.DISABLED && mv ${freerdp_libs_dir} ${freerdp_libs_dir}.DISABLED
   rm -rf ${freerdp_libs_link}
 elif echo $PRJ | grep -iq "RDP"
 then
   clean_libs "sqlcipher" libs/
   clean_libs "sqlcipher" ../remoteClientLib/libs/
+  clean_libs "sqlcipher" ../remoteClientLib/src/main/jniLibs/
   [ -d ${freerdp_libs_dir}.DISABLED ] && rm -rf ${freerdp_libs_dir} && mv ${freerdp_libs_dir}.DISABLED ${freerdp_libs_dir}
   rm -rf ${freerdp_libs_link}
   ln -s jniLibs ${freerdp_libs_link}

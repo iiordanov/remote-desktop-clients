@@ -350,7 +350,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
                     Intent bVncIntent = new Intent(this, cls);
                     startActivity(bVncIntent);
             	}
-            	finish();
+                MessageDialogs.justFinish(this);
             	return;
             }
         } else {
@@ -1114,7 +1114,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
         if (canvas.isVnc && connection.getRdpResType() == Constants.VNC_GEOM_SELECT_AUTOMATIC) {
             canvas.rfbconn.requestResolution(canvas.getWidth(), canvas.getHeight());
         } else if (canvas.isOpaque && connection.isRequestingNewDisplayResolution()) {
-            canvas.spicecomm.requestResolution();
+            canvas.spicecomm.requestResolution(canvas.getWidth(), canvas.getHeight());
         }
 
     }
@@ -1353,7 +1353,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
             return true;
         } else if (itemId == R.id.itemDisconnect) {
             canvas.closeConnection();
-            finish();
+            MessageDialogs.justFinish(this);
             return true;
         } else if (itemId == R.id.itemEnterText) {
             showDialog(R.layout.entertext);

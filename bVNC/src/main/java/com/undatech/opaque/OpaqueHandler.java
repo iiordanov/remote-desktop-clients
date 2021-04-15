@@ -14,8 +14,11 @@ import android.os.Message;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.util.Base64;
+import android.widget.Toast;
 
+import com.iiordanov.bVNC.Utils;
 import com.iiordanov.bVNC.dialogs.GetTextFragment;
+import com.iiordanov.bVNC.input.RemoteCanvasHandler;
 import com.undatech.opaque.dialogs.ChoiceFragment;
 import com.undatech.opaque.dialogs.MessageFragment;
 import com.undatech.opaque.dialogs.SelectTextElementFragment;
@@ -66,7 +69,7 @@ public class OpaqueHandler extends Handler {
                 new MessageFragment.OnFragmentDismissedListener() {
                     @Override
                     public void onDialogDismissed() {
-                        ((Activity)context).finish();
+                        MessageDialogs.justFinish(context);
                     }
                 });
         message.show(fm, "endingDialog");
@@ -80,6 +83,8 @@ public class OpaqueHandler extends Handler {
             android.util.Log.d(TAG, "Ignoring message with ID 0");
             return;
         }
+        final String messageText = Utils.getStringFromMessage(msg, "message");
+
         switch (msg.what) {
         case RemoteClientLibConstants.VV_OVER_HTTP_FAILURE:
             MessageDialogs.displayMessageAndFinish(context, R.string.error_failed_to_download_vv_http,
@@ -145,7 +150,7 @@ public class OpaqueHandler extends Handler {
             String uriString = "vnc://" + address + ":" + port + "?VncPassword=" + password;
             Intent intent = new Intent(Intent.ACTION_VIEW).setType("application/vnd.vnc").setData(Uri.parse(uriString));
             context.startActivity(intent);
-            ((Activity)context).finish();
+            MessageDialogs.justFinish(context);
             break;
         case RemoteClientLibConstants.GET_PASSWORD:
             c.pd.dismiss();
@@ -230,7 +235,15 @@ public class OpaqueHandler extends Handler {
             break;
         case RemoteClientLibConstants.DISCONNECT_NO_MESSAGE:
             c.closeConnection();
-            ((Activity)context).finish();
+            MessageDialogs.justFinish(context);
+            break;
+        case RemoteClientLibConstants.SHOW_TOAST:
+            this.post(new Runnable() {
+                public void run() {
+                    Toast.makeText(context, Utils.getStringResourceByName(context, messageText),
+                                        Toast.LENGTH_LONG).show();
+                }
+            });
             break;
         case RemoteClientLibConstants.REINIT_SESSION:
             c.reinitializeOpaque();
@@ -297,7 +310,7 @@ public class OpaqueHandler extends Handler {
                             }
                         } else {
                             android.util.Log.e(TAG, "We were told not to continue");
-                            ((Activity)context).finish();
+                            MessageDialogs.justFinish(context);
                         }
                     }
                 });

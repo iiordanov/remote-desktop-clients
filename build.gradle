@@ -5,7 +5,7 @@ buildscript {
         google()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.5.3'
+        classpath 'com.android.tools.build:gradle:3.5.4'
     }
 }
 
@@ -14,4 +14,10 @@ allprojects {
         jcenter()
         google()
     }
+}
+
+ext {
+    compileApi = properties.get('COMPILE_API', 30)
+    targetApi = properties.get('TARGET_API', 29)
+    minApi = properties.get('MIN_API', 21)
 }

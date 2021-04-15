@@ -120,6 +120,18 @@ static void main_channel_event(SpiceChannel *channel, SpiceChannelEvent event,
     }
 }
 
+pthread_t audio_initializer;
+void initialize_audio(void *data) {
+    __android_log_write(ANDROID_LOG_INFO, "android-spicy", "initialize_audio start");
+    uiCallbackShowMessage("audio_will_be_initialized");
+    sleep(16);
+    SpiceSession *s = (SpiceSession *)data;
+    global_conn->audio = spice_audio_get(s, NULL);
+    soundInitialized = TRUE;
+    uiCallbackShowMessage("audio_initialized");
+    __android_log_write(ANDROID_LOG_INFO, "android-spicy", "initialize_audio end");
+}
+
 static void channel_new(SpiceSession *s, SpiceChannel *channel, gpointer data)
 {
     spice_connection *conn = data;
@@ -134,33 +146,39 @@ static void channel_new(SpiceSession *s, SpiceChannel *channel, gpointer data)
         conn->main = SPICE_MAIN_CHANNEL(channel);
         g_signal_connect(channel, "channel-event",
                          G_CALLBACK(main_channel_event), conn);
-        //g_signal_connect(channel, "main-mouse-update",
-        //                 G_CALLBACK(main_mouse_update), conn);
-        //g_signal_connect(channel, "main-agent-update",
-        //                 G_CALLBACK(main_agent_update), conn);
-        //main_mouse_update(channel, conn);
-        //main_agent_update(channel, conn);
+        /*
+        g_signal_connect(channel, "main-mouse-update",
+                         G_CALLBACK(main_mouse_update), conn);
+        g_signal_connect(channel, "main-agent-update",
+                         G_CALLBACK(main_agent_update), conn);
+        g_signal_connect(channel, "new-file-transfer",
+                         G_CALLBACK(new_file_transfer), conn);
+        main_mouse_update(channel, conn);
+        main_agent_update(channel, conn);
+        */
     }
 
     if (SPICE_IS_DISPLAY_CHANNEL(channel)) {
+        __android_log_write(ANDROID_LOG_INFO, "android-spicy", "new display channel");
         if (id >= SPICE_N_ELEMENTS(conn->wins))
             return;
         if (conn->wins[id] != NULL)
             return;
         SPICE_DEBUG("new display channel (#%d)", id);
         conn->wins[id] = create_spice_window(conn, channel, id);
-        //g_signal_connect(channel, "display-mark",
-        //                 G_CALLBACK(display_mark), conn->wins[id]);
-        //update_auto_usbredir_sensitive(conn);
+        spice_channel_connect(channel);
     }
 
     if (SPICE_IS_INPUTS_CHANNEL(channel)) {
         SPICE_DEBUG("new inputs channel");
-        //g_signal_connect(channel, "inputs-modifiers",
-        //                 G_CALLBACK(inputs_modifiers), conn);
+        /*
+        g_signal_connect(channel, "inputs-modifiers",
+                         G_CALLBACK(inputs_modifiers), conn);
+        */
     }
 
     if (soundEnabled && SPICE_IS_PLAYBACK_CHANNEL(channel)) {
+        __android_log_write(ANDROID_LOG_INFO, "android-spicy", "new audio channel");
         SPICE_DEBUG("new audio channel");
         conn->audio = spice_audio_get(s, NULL);
     }
@@ -178,13 +196,15 @@ static void channel_new(SpiceSession *s, SpiceChannel *channel, gpointer data)
         }
     }
 
-    //if (SPICE_IS_PORT_CHANNEL(channel)) {
-    //    g_signal_connect(channel, "notify::port-opened",
-    //                     G_CALLBACK(port_opened), conn);
-    //    g_signal_connect(channel, "port-data",
-    //                     G_CALLBACK(port_data), conn);
-    //    spice_channel_connect(channel);
-    //}
+    /*
+    if (SPICE_IS_PORT_CHANNEL(channel)) {
+        g_signal_connect(channel, "notify::port-opened",
+                         G_CALLBACK(port_opened), conn);
+        g_signal_connect(channel, "port-data",
+                         G_CALLBACK(port_data), conn);
+        spice_channel_connect(channel);
+    }
+    */
 }
 
 static void channel_destroy(SpiceSession *s, SpiceChannel *channel, gpointer data)
@@ -219,10 +239,6 @@ static void channel_destroy(SpiceSession *s, SpiceChannel *channel, gpointer dat
         //update_auto_usbredir_sensitive(conn);
     }
 
-    //if (SPICE_IS_PORT_CHANNEL(channel)) {
-    //    if (SPICE_PORT_CHANNEL(channel) == stdin_port)
-    //        stdin_port = NULL;
-    //}
     conn->channels--;
     char buf[100];
     snprintf (buf, 100, "Number of channels: %d", conn->channels);
@@ -231,6 +247,12 @@ static void channel_destroy(SpiceSession *s, SpiceChannel *channel, gpointer dat
         return;
     }
 
+    /*
+    if (SPICE_IS_PORT_CHANNEL(channel)) {
+        if (SPICE_PORT_CHANNEL(channel) == stdin_port)
+            stdin_port = NULL;
+    }
+    */
     connection_destroy(conn);
 }
 
@@ -276,6 +298,8 @@ spice_connection *connection_new(void)
                      G_CALLBACK(channel_destroy), conn);
     g_signal_connect(conn->session, "notify::migration-state",
                      G_CALLBACK(migration_state), conn);
+    g_signal_connect(conn->session, "disconnected",
+                     G_CALLBACK(connection_destroy), conn);
 
     manager = spice_usb_device_manager_get(conn->session, NULL);
     if (manager) {
@@ -312,7 +336,8 @@ static void connection_destroy(spice_connection *conn)
 {
 	__android_log_write(ANDROID_LOG_INFO, "android-spicy", "connection_destroy called");
     g_object_unref(conn->session);
-    free(conn);
+    //g_hash_table_unref(conn->transfers);
+    g_free(conn);
 
     connections--;
     SPICE_DEBUG("%s (%d)", __FUNCTION__, connections);

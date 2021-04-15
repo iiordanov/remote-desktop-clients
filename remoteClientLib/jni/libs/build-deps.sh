@@ -264,6 +264,7 @@ build_one() {
         patch -p0 < "${basedir}/spice-gtk-log.patch"
         patch -p1 < "${basedir}/spice-gtk-exit.patch"
         patch -p1 < "${basedir}/spice-gtk-disable-agent-sync-audio-calls.patch"
+        patch -p0 < "${basedir}/spice-gtk-disable-mm-time-reset.patch"
         make $parallel
 
         # Patch to avoid SIGBUS due to unaligned accesses on ARM7
@@ -273,7 +274,7 @@ build_one() {
         make install
 
         # Put some header files in a version-independent location.
-        for f in config.h tools/*.h src/*.h spice-common/common subprojects/spice-common/common
+        for f in config.h _builddir/subprojects/spice-common/common _builddir/config.h tools/*.h src/*.h spice-common/common subprojects/spice-common/common
         do
             rsync -a $f ${root}/include/spice-1/ || true
         done
@@ -481,15 +482,30 @@ build() {
     if git clone https://gitlab.freedesktop.org/gstreamer/cerbero
     then
       pushd cerbero
-      git checkout 1.16
+      git checkout ${gstreamer_ver}
       popd
       cerbero/cerbero-uninstalled bootstrap
       echo "allow_parallel_build = True" >>  cerbero/config/cross-android-universal.cbc
       echo "toolchain_prefix = \"${ndkdir}\"" >> cerbero/config/cross-android-universal.cbc
     fi
 
+    echo "Copying local recipes into cerbero"
+    git clone https://github.com/iiordanov/remote-desktop-clients-cerbero-recipes.git recipes || true
+    pushd recipes
+    git pull
+    popd
+    rsync -avP recipes/ cerbero/recipes/
+
+    echo "Running cerbero build for $1 in $(pwd)"
     cerbero/cerbero-uninstalled -c cerbero/config/cross-android-universal.cbc build \
-      gstreamer-1.0 libxml2 libtasn1 pixman libsoup nettle gnutls openssl cairo json-glib gst-android-1.0 gst-plugins-bad-1.0 gst-plugins-good-1.0 gst-plugins-base-1.0 gst-plugins-ugly-1.0 gst-libav-1.0
+      gstreamer-1.0 glib glib-networking libxml2 pixman libsoup openssl cairo json-glib gst-android-1.0 gst-plugins-bad-1.0 gst-plugins-good-1.0 gst-plugins-base-1.0 gst-plugins-ugly-1.0 gst-libav-1.0 spiceglue
+
+    echo "Copying spice-gtk header files that it does not install automatically"
+    SPICEDIR=$(ls -d1 cerbero/build/sources/android_universal/${gstarch}/spice-gtk-* | tail -n 1)
+    for f in ${SPICEDIR}/config.h ${SPICEDIR}/_builddir/subprojects/spice-common/common ${SPICEDIR}/_builddir/config.h ${SPICEDIR}/tools/*.h ${SPICEDIR}/src/*.h ${SPICEDIR}/spice-common/common ${SPICEDIR}/subprojects/spice-common/common
+    do
+        rsync -a $f ${gst}/include/spice-1/ || true
+    done
 
     # Workaround for non-existent lib-pthread.la dpendency snaking its way into some of the libraries.
     sed -i 's/[^ ]*lib-pthread.la//' cerbero/build/dist/android_universal/*/lib/*la
@@ -602,6 +618,7 @@ build_freerdp() {
                -e 's/WITH_JPEG=.*/WITH_JPEG=1/'\
                -e 's/WITH_OPENH264=.*/WITH_OPENH264=1/'\
                -e 's/OPENH264_TAG=.*/OPENH264_TAG=v2.1.1/'\
+               -e 's/NDK_TARGET=26/NDK_TARGET=21/'\
                 ./scripts/android-build.conf
 
 #               -e 's/OPENSSL_TAG=.*/OPENSSL_TAG=OpenSSL_1_1_1g/'\
