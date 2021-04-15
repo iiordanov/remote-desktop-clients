@@ -8,7 +8,7 @@ buildscript {
         google()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.5.3'
+        classpath 'com.android.tools.build:gradle:4.1.3'
     }
 }
 
@@ -73,21 +73,8 @@ android {
         doNotStrip "gst-build-x86/*.so"
         doNotStrip "gst-build-x86_64/*.so"
 
-        pickFirst 'libs/arm64-v8a/libc++_shared.so'
-        pickFirst 'libs/arm64-v8a/libgstreamer_android.so'
-        pickFirst 'libs/arm64-v8a/libspice.so'
-
-        pickFirst 'libs/armeabi-v7a/libc++_shared.so'
-        pickFirst 'libs/armeabi-v7a/libgstreamer_android.so'
-        pickFirst 'libs/armeabi-v7a/libspice.so'
-
-        pickFirst 'libs/x86/libc++_shared.so'
-        pickFirst 'libs/x86/libgstreamer_android.so'
-        pickFirst 'libs/x86/libspice.so'
-
-        pickFirst 'libs/x86_64/libc++_shared.so'
-        pickFirst 'libs/x86_64/libgstreamer_android.so'
-        pickFirst 'libs/x86_64/libspice.so'
+        doNotStrip "**/*.so"
+        pickFirst '**/*.so'
     }
 
     externalNativeBuild {
@@ -105,7 +92,7 @@ tasks.all { task ->
     }
 }
 dependencies {
-    implementation project(':freeRDPCore')
+    implementation project(':remoteClientLib:jni:libs:deps:FreeRDP:client:Android:Studio:freeRDPCore')
     api 'com.android.support:multidex:1.0.3'
     implementation 'com.android.support:appcompat-v7:28.0.0'
     implementation 'org.apache.httpcomponents:httpcore:4.4.10'
