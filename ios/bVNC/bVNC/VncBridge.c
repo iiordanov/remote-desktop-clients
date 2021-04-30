@@ -12,7 +12,6 @@
 #include "SshPortForwarder.h"
 #include "Utility.h"
 #include <signal.h>
-#include <glue-service.h>
 #include <pthread.h>
 
 char* USERNAME = NULL;

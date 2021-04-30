@@ -1765,7 +1765,7 @@
 				CLANG_USE_OPTIMIZATION_PROFILE = NO;
 				CODE_SIGN_ENTITLEMENTS = "bVNC/bVNC Pro.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 29;
+				CURRENT_PROJECT_VERSION = 31;
 				DEVELOPMENT_ASSET_PATHS = "bVNC/Preview\\ Content";
 				DEVELOPMENT_TEAM = 96Z3MCQKZA;
 				ENABLE_BITCODE = NO;
@@ -1790,7 +1790,7 @@
 					"$(SDKROOT)/usr/lib/swift",
 				);
 				LLVM_LTO = NO;
-				MARKETING_VERSION = 1.0.5;
+				MARKETING_VERSION = 1.0.6;
 				PRODUCT_BUNDLE_IDENTIFIER = com.iiordanov.SimpleRemoteTest;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
@@ -1813,7 +1813,7 @@
 				CLANG_USE_OPTIMIZATION_PROFILE = NO;
 				CODE_SIGN_ENTITLEMENTS = "bVNC/bVNC Pro.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 29;
+				CURRENT_PROJECT_VERSION = 31;
 				DEVELOPMENT_ASSET_PATHS = "bVNC/Preview\\ Content";
 				DEVELOPMENT_TEAM = 96Z3MCQKZA;
 				ENABLE_BITCODE = NO;
@@ -1842,7 +1842,7 @@
 					"$(SDKROOT)/usr/lib/swift",
 				);
 				LLVM_LTO = NO;
-				MARKETING_VERSION = 1.0.5;
+				MARKETING_VERSION = 1.0.6;
 				"PRELINK_LIBS[arch=*]" = "";
 				PRODUCT_BUNDLE_IDENTIFIER = com.iiordanov.SimpleRemoteTest;
 				PRODUCT_NAME = "$(TARGET_NAME)";
