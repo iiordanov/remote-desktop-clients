@@ -18,7 +18,9 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
     static let tbSp = CGFloat(3.0)
     static let z = CGFloat(0.0)
     static let bBg = UIColor(red: 0.9, green: 0.9, blue: 0.9, alpha: 0.5)
-    
+    let lightbBG = UIColor.lightGray
+    let darkbBG = bBg
+
     let objectWillChange = PassthroughSubject<StateKeeper, Never>()
     var selectedConnection: [String: String]
     var connections: [Dictionary<String, String>]
@@ -91,44 +93,44 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
 
     // Dictionaries desctibing onscreen ToggleButton type buttons
     let topButtonData: [ String: [ String: Any ] ] = [
-        "f1Button": [ "title": "F1", "lx": 1*tbW+1*tbSp, "ly": z, "bg": bBg, "send": XK_F1, "tgl": false, "top": true, "right": false ],
-        "f2Button": [ "title": "F2", "lx": 2*tbW+2*tbSp, "ly": z, "bg": bBg, "send": XK_F2, "tgl": false, "top": true, "right": false ],
-        "f3Button": [ "title": "F3", "lx": 3*tbW+3*tbSp, "ly": z, "bg": bBg, "send": XK_F3, "tgl": false, "top": true, "right": false ],
-        "f4Button": [ "title": "F4", "lx": 4*tbW+4*tbSp, "ly": z, "bg": bBg, "send": XK_F4, "tgl": false, "top": true, "right": false ],
-        "f5Button": [ "title": "F5", "lx": 5*tbW+5*tbSp, "ly": z, "bg": bBg, "send": XK_F5, "tgl": false, "top": true, "right": false ],
-        "f6Button": [ "title": "F6", "lx": 6*tbW+6*tbSp, "ly": z, "bg": bBg, "send": XK_F6, "tgl": false, "top": true, "right": false ],
-        "f7Button": [ "title": "F7", "lx": 7*tbW+7*tbSp, "ly": z, "bg": bBg, "send": XK_F7, "tgl": false, "top": true, "right": false ],
-        "f8Button": [ "title": "F8", "lx": 8*tbW+8*tbSp, "ly": z, "bg": bBg, "send": XK_F8, "tgl": false, "top": true, "right": false ],
-        "f9Button": [ "title": "F9", "lx": 9*tbW+9*tbSp, "ly": z, "bg": bBg, "send": XK_F9, "tgl": false, "top": true, "right": false ],
-        "f10Button": [ "title": "F10", "lx": 10*tbW+10*tbSp, "ly": z, "bg": bBg, "send": XK_F10, "tgl": false, "top": true, "right": false ],
-        "f11Button": [ "title": "F11", "lx": 11*tbW+11*tbSp, "ly": z, "bg": bBg, "send": XK_F11, "tgl": false, "top": true, "right": false ],
-        "f12Button": [ "title": "F12", "lx": 12*tbW+12*tbSp, "ly": z, "bg": bBg, "send": XK_F12, "tgl": false, "top": true, "right": false ],
-        "pageUp": [ "title": "⇞", "lx": 13*tbW+13*tbSp, "ly": z, "bg": bBg, "send": XK_Page_Up, "tgl": false, "top": true, "right": false ],
-        "pageDown": [ "title": "⇟", "lx": 14*tbW+14*tbSp, "ly": z, "bg": bBg, "send": XK_Page_Down, "tgl": false, "top": true, "right": false ],
-        "home": [ "title": "⇤", "lx": 15*tbW+15*tbSp, "ly": z, "bg": bBg, "send": XK_Home, "tgl": false, "top": true, "right": false ],
-        "end": [ "title": "⇥", "lx": 16*tbW+16*tbSp, "ly": z, "bg": bBg, "send": XK_End, "tgl": false, "top": true, "right": false ],
+        "f1Button": [ "title": "F1", "lx": 1*tbW+1*tbSp, "ly": z, "send": XK_F1, "tgl": false, "top": true, "right": false ],
+        "f2Button": [ "title": "F2", "lx": 2*tbW+2*tbSp, "ly": z, "send": XK_F2, "tgl": false, "top": true, "right": false ],
+        "f3Button": [ "title": "F3", "lx": 3*tbW+3*tbSp, "ly": z, "send": XK_F3, "tgl": false, "top": true, "right": false ],
+        "f4Button": [ "title": "F4", "lx": 4*tbW+4*tbSp, "ly": z, "send": XK_F4, "tgl": false, "top": true, "right": false ],
+        "f5Button": [ "title": "F5", "lx": 5*tbW+5*tbSp, "ly": z, "send": XK_F5, "tgl": false, "top": true, "right": false ],
+        "f6Button": [ "title": "F6", "lx": 6*tbW+6*tbSp, "ly": z, "send": XK_F6, "tgl": false, "top": true, "right": false ],
+        "f7Button": [ "title": "F7", "lx": 7*tbW+7*tbSp, "ly": z, "send": XK_F7, "tgl": false, "top": true, "right": false ],
+        "f8Button": [ "title": "F8", "lx": 8*tbW+8*tbSp, "ly": z, "send": XK_F8, "tgl": false, "top": true, "right": false ],
+        "f9Button": [ "title": "F9", "lx": 9*tbW+9*tbSp, "ly": z, "send": XK_F9, "tgl": false, "top": true, "right": false ],
+        "f10Button": [ "title": "F10", "lx": 10*tbW+10*tbSp, "ly": z, "send": XK_F10, "tgl": false, "top": true, "right": false ],
+        "f11Button": [ "title": "F11", "lx": 11*tbW+11*tbSp, "ly": z, "send": XK_F11, "tgl": false, "top": true, "right": false ],
+        "f12Button": [ "title": "F12", "lx": 12*tbW+12*tbSp, "ly": z, "send": XK_F12, "tgl": false, "top": true, "right": false ],
+        "pageUp": [ "title": "⇞", "lx": 13*tbW+13*tbSp, "ly": z, "send": XK_Page_Up, "tgl": false, "top": true, "right": false ],
+        "pageDown": [ "title": "⇟", "lx": 14*tbW+14*tbSp, "ly": z, "send": XK_Page_Down, "tgl": false, "top": true, "right": false ],
+        "home": [ "title": "⇤", "lx": 15*tbW+15*tbSp, "ly": z, "send": XK_Home, "tgl": false, "top": true, "right": false ],
+        "end": [ "title": "⇥", "lx": 16*tbW+16*tbSp, "ly": z, "send": XK_End, "tgl": false, "top": true, "right": false ],
 
     ]
 
     let modifierButtonData: [ String: [ String: Any ] ] = [
-        "ctrlButton": [ "title": "⌃", "lx": 0*bW+0*bSp, "ly": 1*bH, "bg": bBg, "send": XK_Control_L, "tgl": true, "top": false, "right": false ],
-        "superButton": [ "title": "❖", "lx": 1*bW+1*bSp, "ly": 1*bH, "bg": bBg, "send": XK_Super_L, "tgl": true, "top": false, "right": false ],
-        "altButton": [ "title": "⎇", "lx": 2*bW+2*bSp, "ly": 1*bH, "bg": bBg, "send": XK_Alt_L, "tgl": true, "top": false, "right": false ],
-        "shiftButton": [ "title": "⇧", "lx": 2*bW+2*bSp, "ly": 2*bH+1*bSp, "bg": bBg, "send": XK_Shift_L, "tgl": true, "top": false, "right": false ],
+        "ctrlButton": [ "title": "⌃", "lx": 0*bW+0*bSp, "ly": 1*bH, "send": XK_Control_L, "tgl": true, "top": false, "right": false ],
+        "superButton": [ "title": "❖", "lx": 1*bW+1*bSp, "ly": 1*bH, "send": XK_Super_L, "tgl": true, "top": false, "right": false ],
+        "altButton": [ "title": "⎇", "lx": 2*bW+2*bSp, "ly": 1*bH, "send": XK_Alt_L, "tgl": true, "top": false, "right": false ],
+        "shiftButton": [ "title": "⇧", "lx": 2*bW+2*bSp, "ly": 2*bH+1*bSp, "send": XK_Shift_L, "tgl": true, "top": false, "right": false ],
     ]
     
     let keyboardButtonData: [ String: [ String: Any ] ] = [
-        "escButton": [ "title": "⎋", "lx": 0*bW+0*bSp, "ly": 2*bH+1*bSp, "bg": bBg, "send": XK_Escape, "tgl": false, "top": false, "right": false ],
-        "tabButton": [ "title": "↹", "lx": 1*bW+1*bSp, "ly": 2*bH+1*bSp, "bg": bBg, "send": XK_Tab, "tgl": false, "top": false, "right": false ],
-        "leftButton": [ "title": "←", "lx": 4*bW+3*bSp, "ly": 1*bH, "bg": bBg, "send": XK_Left, "tgl": false, "top": false, "right": true ],
-        "downButton": [ "title": "↓", "lx": 3*bW+2*bSp, "ly": 1*bH, "bg": bBg, "send": XK_Down, "tgl": false, "top": false, "right": true ],
-        "rightButton": [ "title": "→", "lx": 2*bW+1*bSp, "ly": 1*bH, "bg": bBg, "send": XK_Right, "tgl": false, "top": false, "right": true ],
-        "upButton": [ "title": "↑", "lx": 3*bW+2*bSp, "ly": 2*bH+1*bSp, "bg": bBg, "send": XK_Up, "tgl": false, "top": false, "right": true ],
+        "escButton": [ "title": "⎋", "lx": 0*bW+0*bSp, "ly": 2*bH+1*bSp, "send": XK_Escape, "tgl": false, "top": false, "right": false ],
+        "tabButton": [ "title": "↹", "lx": 1*bW+1*bSp, "ly": 2*bH+1*bSp, "send": XK_Tab, "tgl": false, "top": false, "right": false ],
+        "leftButton": [ "title": "←", "lx": 4*bW+3*bSp, "ly": 1*bH, "send": XK_Left, "tgl": false, "top": false, "right": true ],
+        "downButton": [ "title": "↓", "lx": 3*bW+2*bSp, "ly": 1*bH, "send": XK_Down, "tgl": false, "top": false, "right": true ],
+        "rightButton": [ "title": "→", "lx": 2*bW+1*bSp, "ly": 1*bH, "send": XK_Right, "tgl": false, "top": false, "right": true ],
+        "upButton": [ "title": "↑", "lx": 3*bW+2*bSp, "ly": 2*bH+1*bSp, "send": XK_Up, "tgl": false, "top": false, "right": true ],
     ]
 
     let interfaceButtonData: [ String: [ String: Any ] ] = [
-        "disconnectButton": [ "title": "", "lx": 1*bW+0*bSp, "ly": 2*bH+1*bSp, "bg": bBg, "send": Int32(-1), "tgl": false, "top": false, "right": true, "image": "arrowshape.turn.up.left" ],
-        "keyboardButton": [ "title": "", "lx": 1*bW+0*bSp, "ly": 1*bH+0*bSp, "bg": bBg, "send": Int32(-1), "tgl": false, "top": false, "right": true, "image": "keyboard" ],
+        "disconnectButton": [ "title": "", "lx": 1*bW+0*bSp, "ly": 2*bH+1*bSp, "send": Int32(-1), "tgl": false, "top": false, "right": true, "image": "arrowshape.turn.up.left"],
+        "keyboardButton": [ "title": "", "lx": 1*bW+0*bSp, "ly": 1*bH+0*bSp, "send": Int32(-1), "tgl": false, "top": false, "right": true, "image": "keyboard"]
     ]
 
     @objc func reDraw() {
@@ -558,7 +560,7 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
                 if let image = UIImage(systemName: imageName as! String) {
                     b.setImage(image, for: .normal)
                     b.tintColor = .white
-                    b.backgroundColor = StateKeeper.bBg
+                    b.backgroundColor = (UITraitCollection.current.userInterfaceStyle == .light ? lightbBG : darkbBG)
                 }
             }
             self.interfaceButtons["keyboardButton"] = b
@@ -581,7 +583,7 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
             let rightButton = b["right"] as! Bool
             if populateDict[button.key] == nil {
                 // Create the button only if not already in the dictionary
-                let background = b["bg"] as! UIColor
+                let background = (UITraitCollection.current.userInterfaceStyle == .light ? lightbBG : darkbBG)
                 let toSend = b["send"] as! Int32
                 let toggle = b["tgl"] as! Bool
                 let nb = ToggleButton(frame: CGRect(), title: title, background: background, stateKeeper: self, toSend: toSend, toggle: toggle)
@@ -596,6 +598,7 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
             } else {
                 // Otherwise, reuse the existing button.
                 newButtonDict[button.key] = populateDict[button.key]
+                newButtonDict[button.key]?.backgroundColor = (UITraitCollection.current.userInterfaceStyle == .light ? lightbBG : darkbBG)
             }
             
             // In either case, adjust the location of the button
