@@ -14,7 +14,10 @@ RUN sudo apt -yy install autotools-dev automake autoconf libtool g++ autopoint m
 libxv-dev libx11-dev libpulse-dev python3-dev texinfo gettext build-essential pkg-config doxygen curl libxext-dev libxi-dev \
 x11proto-record-dev libxrender-dev libgl1-mesa-dev libxfixes-dev libxdamage-dev libxcomposite-dev libasound2-dev libxml-simple-perl \
 dpkg-dev debhelper build-essential devscripts fakeroot transfig gperf libdbus-glib-1-dev wget glib-networking libxtst-dev libxrandr-dev \
-libglu1-mesa-dev libegl1-mesa-dev git subversion xutils-dev intltool ccache python3-setuptools libssl-dev chrpath libfuse-dev
+libglu1-mesa-dev libegl1-mesa-dev git subversion xutils-dev intltool ccache python3-setuptools python3-pip libssl-dev chrpath libfuse-dev
+
+# This layer is needed to install spice-gtk dependencies, requires pyparsing
+RUN python3 -m pip install pyparsing
 
 RUN mkdir -p $ANDROID_SDK $CURRENT_WORKING_DIR
 
