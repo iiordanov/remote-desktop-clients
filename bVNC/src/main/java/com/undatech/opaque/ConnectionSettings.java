@@ -57,6 +57,7 @@ public class ConnectionSettings implements Connection, Serializable {
     private String vmname = "";
     private String user = "";
     private String password = "";
+    private boolean keepPassword = true;
     private String otpCode = "";
     private String inputMethod = "DirectSwipePan";
     private boolean rotationEnabled = true;
@@ -65,7 +66,6 @@ public class ConnectionSettings implements Connection, Serializable {
     private boolean usingCustomOvirtCa = false;
     private boolean sslStrict = true;
     private boolean usbEnabled = true;
-
     private String ovirtCaFile = "";
     private String ovirtCaData = "";
     private String layoutMap = "";
@@ -220,12 +220,12 @@ public class ConnectionSettings implements Connection, Serializable {
 
     @Override
     public boolean getKeepPassword() {
-        return false;
+        return keepPassword;
     }
 
     @Override
     public void setKeepPassword(boolean keepPassword) {
-
+        this.keepPassword = keepPassword;
     }
 
     @Override
@@ -357,7 +357,10 @@ public class ConnectionSettings implements Connection, Serializable {
         editor.putString("hostname", hostname);
         editor.putString("vmname", vmname);
         editor.putString("user", user);
-        editor.putString("password", password);
+        if (keepPassword || password.isEmpty()) {
+            editor.putString("password", password);
+        }
+        editor.putBoolean("keepPassword", keepPassword);
         editor.putInt("extraKeysToggleType", extraKeysToggleType);
         editor.putString("inputMethod", inputMethod);
         editor.putBoolean("rotationEnabled", rotationEnabled);
@@ -551,6 +554,7 @@ public class ConnectionSettings implements Connection, Serializable {
         vmname = sp.getString("vmname", "").trim();
         user = sp.getString("user", "").trim();
         password = sp.getString("password", "");
+        keepPassword = sp.getBoolean("keepPassword", true);
         x509KeySignature = sp.getString("x509KeySignature", "").trim();
         screenshotFilename = sp.getString("screenshotFilename", UUID.randomUUID().toString() + ".png").trim();
         loadAdvancedSettings (context, filename);

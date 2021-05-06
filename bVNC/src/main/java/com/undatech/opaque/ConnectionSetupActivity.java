@@ -251,6 +251,12 @@ public class ConnectionSetupActivity extends Activity {
         currentConnection.setHostname(h);
         currentConnection.setVmname(vmname.getText().toString());
         currentConnection.setPassword(password.getText().toString());
+        if ((password.getText().toString()).isEmpty()){
+            currentConnection.setKeepPassword(false);
+        }
+        else {
+            currentConnection.setKeepPassword(true);
+        }
         currentConnection.saveToSharedPreferences(appContext);
     }
     

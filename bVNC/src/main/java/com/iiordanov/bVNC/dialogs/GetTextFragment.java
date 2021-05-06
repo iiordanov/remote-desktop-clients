@@ -63,6 +63,7 @@ public class GetTextFragment extends DialogFragment {
     public static final String DIALOG_ID_GET_RDP_CREDENTIALS           = "DIALOG_ID_GET_RDP_CREDENTIALS";
     public static final String DIALOG_ID_GET_SPICE_PASSWORD            = "DIALOG_ID_GET_SPICE_PASSWORD";
     public static final String DIALOG_ID_GET_OPAQUE_CREDENTIALS        = "DIALOG_ID_GET_OPAQUE_CREDENTIALS";
+    public static final String DIALOG_ID_GET_OPAQUE_PASSWORD           = "DIALOG_ID_GET_OPAQUE_PASSWORD";
 
     public interface OnFragmentDismissedListener {
         void onTextObtained(String dialogId, String[] obtainedStrings, boolean dialogCancelled, boolean save);
@@ -168,6 +169,9 @@ public class GetTextFragment extends DialogFragment {
             textBox = (EditText) v.findViewById(R.id.textBox);
             hideText(textBox);
             checkboxKeepPassword = v.findViewById(R.id.checkboxKeepPassword);
+            if (dialogId == DIALOG_ID_GET_OPAQUE_PASSWORD) {
+                checkboxKeepPassword.setVisibility(View.INVISIBLE);
+            }
             buttonConfirm = (Button) v.findViewById(R.id.buttonConfirm);
             buttonCancel = (Button) v.findViewById(R.id.buttonCancel);
             dismissOnCancel(buttonCancel);
