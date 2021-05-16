@@ -250,6 +250,9 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
 
         canvas = (RemoteCanvas) findViewById(R.id.canvas);
 
+	if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            canvas.setDefaultFocusHighlightEnabled(false);
+        }
         if (android.os.Build.VERSION.SDK_INT >= 9) {
             android.os.StrictMode.ThreadPolicy policy = new android.os.StrictMode.ThreadPolicy.Builder().permitAll().build();
             android.os.StrictMode.setThreadPolicy(policy);
