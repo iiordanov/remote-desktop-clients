@@ -57,15 +57,38 @@
                 android:singleLine="true"
                 android:ems="10"
                 android:inputType="textVisiblePassword" />
-                        
-            <EditText
-                android:id="@+id/password"
-                android:hint="@string/connection_setup_password"
+
+            <TableRow
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:ems="10"
                 android:singleLine="true"
-                android:inputType="textPassword" />
+                android:ems="10">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_weight="1">
+
+                    <EditText
+                        android:id="@+id/password"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:hint="@string/connection_setup_password"
+                        android:inputType="textPassword"
+                        android:singleLine="true" />
+
+                    <CheckBox
+                        android:id="@+id/checkboxKeepPassword"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="0"
+                        android:singleLine="true"
+                        android:text="@string/keep_password_button"
+                        android:textAppearance="?android:attr/textAppearanceMedium" />
+                </LinearLayout>
+            </TableRow>
             
             <Button
                 android:id="@+id/advancedSettingsButton"

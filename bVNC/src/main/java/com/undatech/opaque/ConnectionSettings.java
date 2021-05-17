@@ -57,7 +57,7 @@ public class ConnectionSettings implements Connection, Serializable {
     private String vmname = "";
     private String user = "";
     private String password = "";
-    private boolean keepPassword = true;
+    private boolean keepPassword = false;
     private String otpCode = "";
     private String inputMethod = "DirectSwipePan";
     private boolean rotationEnabled = true;
@@ -357,8 +357,11 @@ public class ConnectionSettings implements Connection, Serializable {
         editor.putString("hostname", hostname);
         editor.putString("vmname", vmname);
         editor.putString("user", user);
-        if (keepPassword || password.isEmpty()) {
+        if (keepPassword) {
             editor.putString("password", password);
+        }
+        else {
+            editor.putString("password", "");
         }
         editor.putBoolean("keepPassword", keepPassword);
         editor.putInt("extraKeysToggleType", extraKeysToggleType);
@@ -554,7 +557,13 @@ public class ConnectionSettings implements Connection, Serializable {
         vmname = sp.getString("vmname", "").trim();
         user = sp.getString("user", "").trim();
         password = sp.getString("password", "");
-        keepPassword = sp.getBoolean("keepPassword", true);
+        keepPassword = sp.getBoolean("keepPassword", false);
+        // keepPassword field did not exist before, set it to default False but we can assume if
+        // password field is set, the user intended to save the password and we can assume
+        // keepPassword should be set to true when loading a connection
+        if (!sp.contains("keepPassword") && !password.isEmpty()) {
+            keepPassword = true;
+        }
         x509KeySignature = sp.getString("x509KeySignature", "").trim();
         screenshotFilename = sp.getString("screenshotFilename", UUID.randomUUID().toString() + ".png").trim();
         loadAdvancedSettings (context, filename);
