@@ -483,6 +483,7 @@ build() {
     then
       pushd cerbero
       git checkout ${gstreamer_ver}
+      patch -p1 < ../cerbero-disable-assrender.patch
       popd
       cerbero/cerbero-uninstalled bootstrap
       echo "allow_parallel_build = True" >>  cerbero/config/cross-android-universal.cbc
