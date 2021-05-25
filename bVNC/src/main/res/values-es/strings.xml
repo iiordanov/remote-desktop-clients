@@ -31,7 +31,7 @@
     <string name="connection_setup_vm_name">Nombre de la máquina virtual (opcional)</string>
     <string name="connection_setup_host_name">Dirección del servidor</string>
     <string name="connection_setup_user">Usuario@dominio</string>
-    <string name="connection_setup_password">Contraseña (guardada si se ingresó)</string>
+    <string name="connection_setup_password">Contraseña</string>
     <string name="enter_password">Por favor, ingrese contraseña</string>
     <string name="enter_otp_code">Por favor, ingrese el código OTP</string>
     <string name="hide_toolbar">Esconder barra de herramientas</string>

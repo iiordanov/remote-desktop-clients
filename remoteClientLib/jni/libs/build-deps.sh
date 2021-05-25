@@ -474,50 +474,52 @@ build() {
 
     if [ -f CERBERO_BUILT_${1} ]
     then
-      echo ; echo
-      echo "Cerbero was previously built. Remove $(realpath CERBERO_BUILT_${1}) if you want to rebuild it."
-      echo ; echo
+        echo ; echo
+        echo "Cerbero was previously built. Remove $(realpath CERBERO_BUILT_${1}) if you want to rebuild it."
+        echo ; echo
     else
-    # Build GStreamer SDK
-    if git clone https://gitlab.freedesktop.org/gstreamer/cerbero
-    then
-      pushd cerbero
-      git checkout ${gstreamer_ver}
-      patch -p1 < ../cerbero-disable-assrender.patch
-      popd
-      cerbero/cerbero-uninstalled bootstrap
-      echo "allow_parallel_build = True" >>  cerbero/config/cross-android-universal.cbc
-      echo "toolchain_prefix = \"${ndkdir}\"" >> cerbero/config/cross-android-universal.cbc
-    fi
+        # Build GStreamer SDK
+        if git clone https://gitlab.freedesktop.org/gstreamer/cerbero
+        then
+            pushd cerbero
+            git checkout ${gstreamer_ver}
+            patch -p1 < ../cerbero-disable-assrender.patch
+            popd
+            cerbero/cerbero-uninstalled bootstrap
+            echo "allow_parallel_build = True" >>  cerbero/config/cross-android-universal.cbc
+            echo "toolchain_prefix = \"${ndkdir}\"" >> cerbero/config/cross-android-universal.cbc
+        fi
 
-    echo "Copying local recipes into cerbero"
-    git clone https://github.com/iiordanov/remote-desktop-clients-cerbero-recipes.git recipes || true
-    pushd recipes
-    git pull
-    popd
-    rsync -avP recipes/ cerbero/recipes/
+        echo "Copying local recipes into cerbero"
+        git clone https://github.com/iiordanov/remote-desktop-clients-cerbero-recipes.git recipes || true
+        pushd recipes
+        git pull
+        popd
+        rsync -avP recipes/ cerbero/recipes/
 
-    echo "Running cerbero build for $1 in $(pwd)"
-    cerbero/cerbero-uninstalled -c cerbero/config/cross-android-universal.cbc build \
-      gstreamer-1.0 glib glib-networking libxml2 pixman libsoup openssl cairo json-glib gst-android-1.0 gst-plugins-bad-1.0 gst-plugins-good-1.0 gst-plugins-base-1.0 gst-plugins-ugly-1.0 gst-libav-1.0 spiceglue
+        echo "Running cerbero build for $1 in $(pwd)"
+        cerbero/cerbero-uninstalled -c cerbero/config/cross-android-universal.cbc build \
+          gstreamer-1.0 glib glib-networking libxml2 pixman libsoup openssl cairo json-glib gst-android-1.0 gst-plugins-bad-1.0 gst-plugins-good-1.0 gst-plugins-base-1.0 gst-plugins-ugly-1.0 gst-libav-1.0 spiceglue
 
-    echo "Copying spice-gtk header files that it does not install automatically"
-    SPICEDIR=$(ls -d1 cerbero/build/sources/android_universal/${gstarch}/spice-gtk-* | tail -n 1)
-    for f in ${SPICEDIR}/config.h ${SPICEDIR}/_builddir/subprojects/spice-common/common ${SPICEDIR}/_builddir/config.h ${SPICEDIR}/tools/*.h ${SPICEDIR}/src/*.h ${SPICEDIR}/spice-common/common ${SPICEDIR}/subprojects/spice-common/common
-    do
-        rsync -a $f ${gst}/include/spice-1/ || true
-    done
+        echo "Copying spice-gtk header files that it does not install automatically"
+        SPICEDIR=$(ls -d1 cerbero/build/sources/android_universal/${gstarch}/spice-gtk-* | tail -n 1)
 
-    # Workaround for non-existent lib-pthread.la dpendency snaking its way into some of the libraries.
-    sed -i 's/[^ ]*lib-pthread.la//' cerbero/build/dist/android_universal/*/lib/*la
+        # Workaround for non-existent lib-pthread.la dpendency snaking its way into some of the libraries.
+        sed -i 's/[^ ]*lib-pthread.la//' cerbero/build/dist/android_universal/*/lib/*la
 
-    # Prepare gstreamer for current architecture
-    if [ ! -e "${gst}/lib/libglib-2.0.a" ] ; then
-        echo "Linking ../../cerbero/build/dist/android_universal/${gstarch} to ${gst}"
-        ln -sf "../../cerbero/build/dist/android_universal/${gstarch}" "${gst}"
-	ls -ld "${gst}"
-    fi
-    touch CERBERO_BUILT_${1}
+        # Prepare gstreamer for current architecture
+        if [ ! -e "${gst}/lib/libglib-2.0.a" ] ; then
+            echo "Linking ../../cerbero/build/dist/android_universal/${gstarch} to ${gst}"
+            ln -sf "../../cerbero/build/dist/android_universal/${gstarch}" "${gst}"
+            ls -ld "${gst}"
+        fi
+
+
+        for f in ${SPICEDIR}/config.h ${SPICEDIR}/_builddir/subprojects/spice-common/common ${SPICEDIR}/_builddir/config.h ${SPICEDIR}/tools/*.h ${SPICEDIR}/src/*.h ${SPICEDIR}/spice-common/common ${SPICEDIR}/subprojects/spice-common/common
+        do
+            rsync -a $f ${gst}/include/spice-1/ || true
+        done
+        touch CERBERO_BUILT_${1}
     fi
 
     # Build
