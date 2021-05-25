@@ -2187,6 +2187,22 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView
                 connection.save(getContext());
                 handler.sendEmptyMessage(RemoteClientLibConstants.REINIT_SESSION);
                 break;
+            case GetTextFragment.DIALOG_ID_GET_OPAQUE_PASSWORD:
+                android.util.Log.i(TAG, "Text obtained from DIALOG_ID_GET_OPAQUE_PASSWORD");
+                connection.setPassword(obtainedString[0]);
+                connection.setKeepPassword(save);
+                connection.save(getContext());
+                synchronized (spicecomm) {
+                    spicecomm.notify();
+                }
+                break;
+            case GetTextFragment.DIALOG_ID_GET_OPAQUE_OTP_CODE:
+                android.util.Log.i(TAG, "Text obtained from DIALOG_ID_GET_OPAQUE_OTP_CODE");
+                connection.setOtpCode(obtainedString[0]);
+                synchronized (spicecomm) {
+                   spicecomm.notify();
+                }
+                break;
             default:
                 android.util.Log.e(TAG, "Unknown dialog type.");
                 break;

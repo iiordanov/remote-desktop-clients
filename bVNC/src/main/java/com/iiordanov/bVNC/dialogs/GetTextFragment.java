@@ -63,6 +63,8 @@ public class GetTextFragment extends DialogFragment {
     public static final String DIALOG_ID_GET_RDP_CREDENTIALS           = "DIALOG_ID_GET_RDP_CREDENTIALS";
     public static final String DIALOG_ID_GET_SPICE_PASSWORD            = "DIALOG_ID_GET_SPICE_PASSWORD";
     public static final String DIALOG_ID_GET_OPAQUE_CREDENTIALS        = "DIALOG_ID_GET_OPAQUE_CREDENTIALS";
+    public static final String DIALOG_ID_GET_OPAQUE_PASSWORD           = "DIALOG_ID_GET_OPAQUE_PASSWORD";
+    public static final String DIALOG_ID_GET_OPAQUE_OTP_CODE           = "DIALOG_ID_GET_OPAQUE_OTP_CODE";
 
     public interface OnFragmentDismissedListener {
         void onTextObtained(String dialogId, String[] obtainedStrings, boolean dialogCancelled, boolean save);
@@ -158,6 +160,11 @@ public class GetTextFragment extends DialogFragment {
         case Plaintext:
             v = inflater.inflate(R.layout.get_text, container, false);
             textBox = (EditText) v.findViewById(R.id.textBox);
+            checkboxKeepPassword = v.findViewById(R.id.checkboxKeepPassword);
+            if (dialogId == DIALOG_ID_GET_OPAQUE_OTP_CODE) {
+                textBox.setHint("");
+                checkboxKeepPassword.setVisibility(View.INVISIBLE);
+            }
             buttonConfirm = (Button) v.findViewById(R.id.buttonConfirm);
             buttonCancel = (Button) v.findViewById(R.id.buttonCancel);
             dismissOnCancel(buttonCancel);
@@ -207,9 +214,6 @@ public class GetTextFragment extends DialogFragment {
             hideText(textBox2);
             textBox2.requestFocus();
             checkboxKeepPassword = v.findViewById(R.id.checkboxKeepPassword);
-            if (dialogId == DIALOG_ID_GET_OPAQUE_CREDENTIALS) {
-                checkboxKeepPassword.setVisibility(View.INVISIBLE);
-            }
             buttonConfirm = (Button) v.findViewById(R.id.buttonConfirm);
             buttonCancel = (Button) v.findViewById(R.id.buttonCancel);
             dismissOnCancel(buttonCancel);

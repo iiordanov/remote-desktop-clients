@@ -42,11 +42,6 @@ public class OpaqueHandler extends Handler {
         this.settings = settings;
         this.fm = ((FragmentActivity)context).getSupportFragmentManager();
     }
-    
-    private void showGetTextFragmentOpaque(String id, String title, boolean password) {
-        com.undatech.opaque.dialogs.GetTextFragment frag = com.undatech.opaque.dialogs.GetTextFragment.newInstance(id, title, (RemoteCanvasActivity)context, password);
-        frag.show(fm, id);
-    }
 
     private void showGetTextFragmentRemoteCanvas(String tag, String dialogId, String title,
                                                  GetTextFragment.OnFragmentDismissedListener dismissalListener,
@@ -153,12 +148,23 @@ public class OpaqueHandler extends Handler {
             MessageDialogs.justFinish(context);
             break;
         case RemoteClientLibConstants.GET_PASSWORD:
-            c.pd.dismiss();
-            showGetTextFragmentOpaque(RemoteClientLibConstants.GET_PASSWORD_ID, context.getString(R.string.enter_password), true);
+            showGetTextFragmentRemoteCanvas(context.getString(R.string.enter_password),
+                    GetTextFragment.DIALOG_ID_GET_OPAQUE_PASSWORD,
+                    context.getString(R.string.enter_password),
+                    c, GetTextFragment.Password,
+                    R.string.enter_password, R.string.enter_password,
+                    settings.getPassword(), null, null,
+                    settings.getKeepPassword());
             break;
         case RemoteClientLibConstants.GET_OTP_CODE:
             c.pd.dismiss();
-            showGetTextFragmentOpaque(RemoteClientLibConstants.GET_OTP_CODE_ID, context.getString(R.string.enter_otp_code), false);
+            showGetTextFragmentRemoteCanvas(context.getString(R.string.enter_otp_code),
+                    GetTextFragment.DIALOG_ID_GET_OPAQUE_OTP_CODE,
+                    context.getString(R.string.enter_otp_code),
+                    c, GetTextFragment.Plaintext,
+                    R.string.enter_otp_code, R.string.enter_otp_code,
+                    null, null, null,
+                    false);
             break;
         case RemoteClientLibConstants.PVE_FAILED_TO_AUTHENTICATE:
             if (c.retrievevvFileName() != null) {
@@ -174,7 +180,7 @@ public class OpaqueHandler extends Handler {
                         c, GetTextFragment.Credentials,
                         R.string.enter_password_auth_failed, R.string.enter_password_auth_failed,
                         settings.getUserName(), settings.getPassword(), null,
-                        true);
+                        settings.getKeepPassword());
                 break;
             }
         case RemoteClientLibConstants.OVIRT_AUTH_FAILURE:
@@ -190,7 +196,7 @@ public class OpaqueHandler extends Handler {
                         c, GetTextFragment.Credentials,
                         R.string.enter_password_auth_failed, R.string.enter_password_auth_failed,
                         settings.getUserName(), settings.getPassword(), null,
-                        true);
+                        settings.getKeepPassword());
                 break;
             }
         case RemoteClientLibConstants.DIALOG_DISPLAY_VMS:
