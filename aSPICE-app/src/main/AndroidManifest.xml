@@ -24,7 +24,7 @@
 		
     <application
         android:banner="@drawable/banner_aspice"
-        android:icon="@drawable/icon_aspice"
+        android:icon="@drawable/icon_ci"
         android:label="@string/aspice_app_name"
         android:allowBackup="false"
         android:theme="@style/AppTheme"

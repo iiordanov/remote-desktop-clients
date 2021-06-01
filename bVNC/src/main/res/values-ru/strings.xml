@@ -147,7 +147,7 @@ All Input Methods:
     <string name="arrow_right">Стрелка вправо</string>
     <string name="arrow_up">Стрелка вверх</string>
 
-    <string name="aspice_app_name">aSPICE Pro</string>
+    <string name="aspice_app_name">CI SPICE</string>
 
     <string name="auto">Автоматически</string>
     <string name="auto_x_cancel">Отмена</string>

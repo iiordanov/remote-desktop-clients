@@ -17,7 +17,7 @@
   <string name="arrow_left">左矢印</string>
   <string name="arrow_right">右矢印</string>
   <string name="arrow_up">上矢印</string>
-  <string name="aspice_app_name">aSPICE Pro</string>
+  <string name="aspice_app_name">CI SPICE</string>
   <string name="auto">自動</string>
   <string name="auto_x_cancel">キャンセル</string>
   <string name="auto_x_caption">bVNCは、既存のものを自動検索し、Linux/UNIXシステム上で、Xセッションを新規作成します(NXと類似)。検索には x11vncを、セッション作成には Xvfb, Xvnc, Xdummyが必要です。接続にお困りの場合、AutoX詳細設定にて、特定のリモートセッションタイプを選択してください。</string>

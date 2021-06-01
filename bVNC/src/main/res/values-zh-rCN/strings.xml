@@ -17,7 +17,7 @@
   <string name="arrow_left">向左箭头</string>
   <string name="arrow_right">向右箭头</string>
   <string name="arrow_up">向上箭头</string>
-  <string name="aspice_app_name">aSPICE Pro</string>
+  <string name="aspice_app_name">CI SPICE</string>
   <string name="auto">自动</string>
   <string name="auto_x_cancel">取消</string>
   <string name="auto_x_caption">bVNC在Linux/UNIX系统（类似于NX）上自动搜索现有的并创建新的X会话。搜索需要x11vnc，创建会话需要Xvfb、Xvnc或Xdummy。如果连接有问题，请尝试在AutoX高级设置中选择特定的远程会话类型。</string>

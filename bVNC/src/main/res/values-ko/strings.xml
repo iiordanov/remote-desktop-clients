@@ -17,7 +17,7 @@
   <string name="arrow_left">왼쪽 화살표</string>
   <string name="arrow_right">오른쪽 화살표</string>
   <string name="arrow_up">위쪽 화살표</string>
-  <string name="aspice_app_name">aSPICE Pro</string>
+  <string name="aspice_app_name">CI SPICE</string>
   <string name="auto">자동</string>
   <string name="auto_x_cancel">취소</string>
   <string name="auto_x_caption">bVNC은 기존내용을 자동 검색하고 Linux/UNIX 시스템상에서 X세션을 신규 작성합니다(NX와 유사).검색은 x11vnc세션 작성은 XvfbXvncXdummy가 필요합니다.연결에 문제가있을 경우 AutoX 상세 설정에서 특정 리모트 세션 타입을 선택하십시오.</string>
