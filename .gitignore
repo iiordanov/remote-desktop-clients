@@ -120,6 +120,20 @@ obj/
 .idea/codeStyles
 .idea/jarRepositories.xml
 
+# IntelliJ
+*.iml
+.idea/workspace.xml
+.idea/tasks.xml
+.idea/gradle.xml
+.idea/assetWizardSettings.xml
+.idea/dictionaries
+.idea/libraries
+# Android Studio 3 in .gitignore file.
+.idea/caches
+.idea/modules.xml
+# Comment next line if keeping position of elements in Navigation Editor is relevant for you
+.idea/navEditor.xml
+
 Opaque/.idea/libraries/
 Opaque/.idea/workspace.xml
 Opaque/.idea/tasks.xml
