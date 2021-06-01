@@ -24,6 +24,7 @@ remoteClientLib/.cxx/
 */libs/*/libsqlcipher.so
 remoteClientLib/src/main/assets/fontconfig/
 remoteClientLib/src/main/assets/ssl/
+remoteClientLib/src/main/jniLibs/**/**.so
 bVNC/debug/
 bVNC/gst-build-armeabi-v7a/
 bVNC/gst-build-x86/
@@ -37,6 +38,7 @@ bVNC/src/main/assets/
 bVNC/src2/main/assets/fontconfig/
 bVNC/src2/main/assets/ssl/
 CustomVnc-app/src/main/AndroidManifest.xml.bakautocustom
+remote-desktop-clients-libs-*.tar.gz
 
 ### AndroidStudio ###
 
