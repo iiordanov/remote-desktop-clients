@@ -30,7 +30,7 @@ import android.content.Context;
 import android.database.DataSetObserver;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.support.v7.widget.AppCompatImageView;
+import androidx.appcompat.widget.AppCompatImageView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -40,6 +40,7 @@ import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.iiordanov.bVNC.App;
 import com.undatech.remoteClientUi.R;
 
 public class LabeledImageApapter extends BaseAdapter {
@@ -74,7 +75,7 @@ public class LabeledImageApapter extends BaseAdapter {
         LayoutInflater inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         Connection c = filteredConnectionsByPosition.get(position);
 
-        String label = c.getLabel();
+        String label = App.cookie == null ? c.getLabel() : c.getNickname();
         android.util.Log.d(TAG, "Now setting label at position: " + position + " to: " + label);
 
         GridView gView = (GridView) ((Activity)context).findViewById(R.id.gridView);

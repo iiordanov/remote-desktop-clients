@@ -29,6 +29,7 @@ import android.util.Log;
 import android.widget.ImageView;
 
 import com.iiordanov.bVNC.Constants;
+import com.trinity.android.apiclient.models.Action;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -112,6 +113,12 @@ public class ConnectionSettings implements Connection, Serializable {
     public void setRuntimeId(String id) {
         this.id = id;
     }
+
+    @Override
+    public Action getAction() { return null; }
+
+    @Override
+    public void setAction(Action action) {};
 
     @Override
     public String getNickname() {

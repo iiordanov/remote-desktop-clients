@@ -22,10 +22,10 @@ package com.iiordanov.bVNC.dialogs;
 
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.support.v4.app.DialogFragment;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
+import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.text.method.PasswordTransformationMethod;
@@ -65,6 +65,7 @@ public class GetTextFragment extends DialogFragment {
     public static final String DIALOG_ID_GET_OPAQUE_CREDENTIALS        = "DIALOG_ID_GET_OPAQUE_CREDENTIALS";
     public static final String DIALOG_ID_GET_OPAQUE_PASSWORD           = "DIALOG_ID_GET_OPAQUE_PASSWORD";
     public static final String DIALOG_ID_GET_OPAQUE_OTP_CODE           = "DIALOG_ID_GET_OPAQUE_OTP_CODE";
+    public static final String DIALOG_ID_GET_MORPH_CREDENTIALS         = "DIALOG_ID_GET_MORPH_CREDENTIALS";
 
     public interface OnFragmentDismissedListener {
         void onTextObtained(String dialogId, String[] obtainedStrings, boolean dialogCancelled, boolean save);
@@ -214,6 +215,9 @@ public class GetTextFragment extends DialogFragment {
             hideText(textBox2);
             textBox2.requestFocus();
             checkboxKeepPassword = v.findViewById(R.id.checkboxKeepPassword);
+            if (dialogId == DIALOG_ID_GET_MORPH_CREDENTIALS) {
+                checkboxKeepPassword.setVisibility(View.INVISIBLE);
+            }
             buttonConfirm = (Button) v.findViewById(R.id.buttonConfirm);
             buttonCancel = (Button) v.findViewById(R.id.buttonCancel);
             dismissOnCancel(buttonCancel);
@@ -270,6 +274,7 @@ public class GetTextFragment extends DialogFragment {
         cancelButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
+                android.util.Log.i(TAG, "dismissOnCancel clicked");
                 wasCancelled = true;
                 getDialog().dismiss();
             }
@@ -280,6 +285,7 @@ public class GetTextFragment extends DialogFragment {
         buttonConfirm.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
+                android.util.Log.i(TAG, "dismissOnConfirm clicked");
                 getDialog().dismiss();
             }
         });
@@ -326,10 +332,12 @@ public class GetTextFragment extends DialogFragment {
         if (checkboxKeepPassword != null) {
             keepPassword = checkboxKeepPassword.isChecked();
         }
+        android.util.Log.i(TAG, "onDismiss almost finished: Sending data back to Activity");
     	if (dismissalListener != null) {
             dismissalListener.onTextObtained(dialogId, results, wasCancelled, keepPassword);
         }
     	super.onDismiss(dialog);
+        android.util.Log.i(TAG, "onDismiss finished: Sending data back to Activity");
     }
 
     @Override

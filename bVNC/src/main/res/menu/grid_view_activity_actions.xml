@@ -7,6 +7,7 @@
     <item android:id="@+id/copyLogcat" android:title="@string/copy_logcat" app:showAsAction="never" android:onClick="copyLogcat" />
     <item android:id="@+id/actionSupportForum" android:title="@string/support_forum" app:showAsAction="never" android:onClick="showSupportForum" />
     <item android:id="@+id/reportBug" android:title="@string/report_bug" app:showAsAction="never" android:onClick="reportBug" />
+    <item android:id="@+id/signIntoTrinity" android:title="@string/morpheusly_sign_in" app:showAsAction="never" android:onClick="signIntoMorpheuslyLabs" />
 
     <!-- New Connection, should appear as action button -->
     <item android:id="@+id/actionNewConnection"

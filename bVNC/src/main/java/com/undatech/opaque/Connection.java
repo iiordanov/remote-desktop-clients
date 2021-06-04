@@ -22,6 +22,8 @@ import android.content.Context;
 import android.net.Uri;
 import android.widget.ImageView.ScaleType;
 
+import com.trinity.android.apiclient.models.Action;
+
 public interface Connection {
     String getLabel();
 
@@ -29,6 +31,9 @@ public interface Connection {
 
     String getRuntimeId();
     void setRuntimeId(String id);
+
+    Action getAction();
+    void setAction(Action action);
 
     String getNickname();
     void setNickname(String nickname);

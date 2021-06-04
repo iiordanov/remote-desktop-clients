@@ -37,10 +37,16 @@ dependencies {
     implementation project(':pubkeyGenerator')
     implementation project(':remoteClientLib:jni:libs:deps:FreeRDP:client:Android:Studio:freeRDPCore')
     implementation project(':remoteClientLib')
+    implementation project(':apiclient')
+    implementation project(':stunnel-service')
     implementation 'com.android.support:appcompat-v7:28.0.0'
     implementation 'com.android.support:support-v4:28.0.0'
     implementation 'com.android.support:support-vector-drawable:28.0.0'
     implementation 'com.android.support:preference-v7:28.0.0'
+    implementation 'com.wireguard.android:tunnel:1.0.20201224'
+
+    implementation 'com.squareup.retrofit2:retrofit:2.4.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.4.0'
     // TODO: The libraries included in freeRdpCore clash with the following new libraries
     //implementation group: 'androidx.appcompat', name: 'appcompat', version: '1.2.0'
     //implementation group: 'androidx.legacy', name: 'legacy-support-v4', version: '1.0.0'
@@ -53,4 +59,5 @@ dependencies {
     implementation group: 'org.yaml', name: 'snakeyaml', version: '1.23'
     implementation 'org.apache.httpcomponents:httpcore:4.4.10'
     implementation "com.github.luben:zstd-jni:1.4.3-1@aar"
+    implementation 'com.google.code.gson:gson:2.8.7'
 }

@@ -6,5 +6,7 @@ dist
 gst-build
 libs/armeabi
 libs/armeabi-v7a
+java/org/freedesktop/gstreamer/androidmedia
+src/main/jniLibs
 obj
 *~

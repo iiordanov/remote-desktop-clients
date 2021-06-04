@@ -10,3 +10,7 @@ include ':freeaSPICE-app'
 include ':CustomVnc-app'
 include ':remoteClientLib'
 include ':Opaque-app'
+include ':apiclient'
+project(':apiclient').projectDir=new File('../portaproxy-android-new/apiclient')
+include ':stunnel-service'
+project(':stunnel-service').projectDir=new File('../portaproxy-android-new/stunnel-service')

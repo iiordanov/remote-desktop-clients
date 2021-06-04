@@ -106,7 +106,7 @@ import org.yaml.snakeyaml.scanner.Constant;
 
 import javax.security.auth.login.LoginException;
 
-public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView
+public class RemoteCanvas extends androidx.appcompat.widget.AppCompatImageView
         implements Viewable, GetTextFragment.OnFragmentDismissedListener {
     private final static String TAG = "RemoteCanvas";
 

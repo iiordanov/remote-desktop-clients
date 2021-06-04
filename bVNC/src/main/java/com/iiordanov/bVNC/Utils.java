@@ -64,9 +64,9 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
-import android.support.v7.app.AppCompatActivity;
+import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentManager;
+import androidx.appcompat.app.AppCompatActivity;
 import android.text.Html;
 import android.util.Log;
 import android.view.ViewConfiguration;
@@ -374,6 +374,15 @@ public class Utils {
     
     public static boolean querySharedPreferenceBoolean(Context context, String key) {
         boolean result = false;
+        if (context != null) {
+            SharedPreferences sp = context.getSharedPreferences(Constants.generalSettingsTag, Context.MODE_PRIVATE);
+            result = sp.getBoolean(key, false);
+        }
+        return result;
+    }
+
+    public static boolean querySharedPreferenceBooleanDefault(Context context, String key, boolean defaultBool) {
+        boolean result = defaultBool;
         if (context != null) {
             SharedPreferences sp = context.getSharedPreferences(Constants.generalSettingsTag, Context.MODE_PRIVATE);
             result = sp.getBoolean(key, false);

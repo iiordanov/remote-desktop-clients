@@ -27,16 +27,23 @@ import java.util.UUID;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import net.sqlcipher.database.SQLiteDatabase;
 import android.net.Uri;
 import android.util.Log;
 import android.widget.ImageView.ScaleType;
+import android.widget.Toast;
 
 import com.antlersoft.android.dbimpl.NewInstance;
 import com.iiordanov.bVNC.input.InputHandlerDirectSwipePan;
+import com.trinity.android.apiclient.utils.ClientAPISettings;
 import com.undatech.opaque.Connection;
 import com.undatech.remoteClientUi.*;
+
+import com.iiordanov.bVNC.App;
+
+import com.trinity.android.apiclient.models.Action;
 
 /**
  * @author Iordan Iordanov
@@ -54,6 +61,7 @@ public class ConnectionBean extends AbstractConnectionBean implements Connection
     private String idHash;
     private String masterPassword;
     private String id;
+    private Action action;
 
     public static final NewInstance<ConnectionBean> newInstance=new NewInstance<ConnectionBean>() {
         public ConnectionBean get() { return new ConnectionBean(c); }
@@ -163,6 +171,16 @@ public class ConnectionBean extends AbstractConnectionBean implements Connection
 
     public void setIdHash(String idHash) {
         this.idHash = idHash;
+    }
+
+    @Override
+    public Action getAction() {
+        return action;
+    }
+
+    @Override
+    public void setAction(Action action) {
+        this.action = action;
     }
 
     boolean isNew()
@@ -331,9 +349,11 @@ public class ConnectionBean extends AbstractConnectionBean implements Connection
     }
 
     public synchronized void save(Context c) {
-        Database database = new Database(c);
-        save(database.getWritableDatabase());
-        database.close();
+        if (App.cookie == null) {
+            Database database = new Database(c);
+            save(database.getWritableDatabase());
+            database.close();
+        }
     }
 
     @Override
@@ -342,20 +362,22 @@ public class ConnectionBean extends AbstractConnectionBean implements Connection
     }
 
     private synchronized void save(SQLiteDatabase database) {
-        ContentValues values = Gen_getValues();
-        values.remove(GEN_FIELD__ID);
-        // Never save the SSH password and passphrase.
-        if (!getKeepSshPassword()) {
-            values.put(GEN_FIELD_SSHPASSWORD, "");
-            values.put(GEN_FIELD_SSHPASSPHRASE, "");
-        }
-        if (!getKeepPassword()) {
-            values.put(GEN_FIELD_PASSWORD, "");
-        }
-        if (isNew()) {
-            set_Id(database.insert(GEN_TABLE_NAME, null, values));
-        } else {
-            database.update(GEN_TABLE_NAME, values, GEN_FIELD__ID + " = ?", new String[] { Long.toString(get_Id()) });
+        if (App.cookie == null) {
+            ContentValues values = Gen_getValues();
+            values.remove(GEN_FIELD__ID);
+            // Never save the SSH password and passphrase.
+            if (!getKeepSshPassword()) {
+                values.put(GEN_FIELD_SSHPASSWORD, "");
+                values.put(GEN_FIELD_SSHPASSPHRASE, "");
+            }
+            if (!getKeepPassword()) {
+                values.put(GEN_FIELD_PASSWORD, "");
+            }
+            if (isNew()) {
+                set_Id(database.insert(GEN_TABLE_NAME, null, values));
+            } else {
+                database.update(GEN_TABLE_NAME, values, GEN_FIELD__ID + " = ?", new String[]{Long.toString(get_Id())});
+            }
         }
     }
     
@@ -435,7 +457,7 @@ public class ConnectionBean extends AbstractConnectionBean implements Connection
     		hostCursor = queryDb.query(GEN_TABLE_NAME, new String[] { GEN_FIELD__ID }, GEN_FIELD_ADDRESS  + " = ?", new String[] { host }, null, null, null);
     	if (hostCursor != null && hostCursor.moveToFirst())
     	{
-    		Log.i(TAG, String.format(Locale.US, "Loding connection info from hostname: %s", host));
+    		Log.i(TAG, String.format(Locale.US, "Loading connection info from hostname: %s", host));
     		connection.Gen_populate(hostCursor, connection.Gen_columnIndices(hostCursor));
     		hostCursor.close();
     		database.close();
@@ -711,6 +733,11 @@ public class ConnectionBean extends AbstractConnectionBean implements Connection
     	// some other types probably require a username/password 
     	// however main screen doesn't validate this
     }
+
+    public static ConnectionBean createForAction(Context ctx) {
+        ConnectionBean connection = new ConnectionBean(ctx);
+        return connection;
+    }
     
     boolean isValidPort(int port) {
     	final int PORT_MAX = 65535;
@@ -781,41 +808,44 @@ public class ConnectionBean extends AbstractConnectionBean implements Connection
     }
 
     public void saveAndWriteRecent(boolean saveEmpty, Context c) {
-        Database database = new Database(c);
-        saveAndWriteRecent(saveEmpty, database);
+        if (App.cookie == null) {
+            Database database = new Database(c);
+            saveAndWriteRecent(saveEmpty, database);
+        }
     }
 
     private void saveAndWriteRecent(boolean saveEmpty, Database database) {
-        
-        // We need server address or SSH server to be filled out to save. Otherwise,
-        // we keep adding empty connections. 
-        // However, if there is partial data from a URI, we can present the edit screen. 
-        // Alternately, perhaps we could process some extra data
-        if ((getConnectionType() == Constants.CONN_TYPE_SSH && getSshServer().equals("")
-            || getAddress().equals("")) && !saveEmpty) {
-            return;
-        }
-
-        SQLiteDatabase db = database.getWritableDatabase();
-        db.beginTransaction();
-        try {
-            save(db);
-            MostRecentBean mostRecent = getMostRecent(db);
-            if (mostRecent == null) {
-                mostRecent = new MostRecentBean();
-                mostRecent.setConnectionId(get_Id());
-                mostRecent.Gen_insert(db);
-            } else {
-                mostRecent.setConnectionId(get_Id());
-                mostRecent.Gen_update(db);
+        if (App.cookie == null) {
+            // We need server address or SSH server to be filled out to save. Otherwise,
+            // we keep adding empty connections.
+            // However, if there is partial data from a URI, we can present the edit screen.
+            // Alternately, perhaps we could process some extra data
+            if ((getConnectionType() == Constants.CONN_TYPE_SSH && getSshServer().equals("")
+                    || getAddress().equals("")) && !saveEmpty) {
+                return;
             }
-            db.setTransactionSuccessful();
-        } finally {
-            db.endTransaction();
-            db.close();
-        }
-        if (db.isOpen()) {
-            db.close();
+
+            SQLiteDatabase db = database.getWritableDatabase();
+            db.beginTransaction();
+            try {
+                save(db);
+                MostRecentBean mostRecent = getMostRecent(db);
+                if (mostRecent == null) {
+                    mostRecent = new MostRecentBean();
+                    mostRecent.setConnectionId(get_Id());
+                    mostRecent.Gen_insert(db);
+                } else {
+                    mostRecent.setConnectionId(get_Id());
+                    mostRecent.Gen_update(db);
+                }
+                db.setTransactionSuccessful();
+            } finally {
+                db.endTransaction();
+                db.close();
+            }
+            if (db.isOpen()) {
+                db.close();
+            }
         }
     }
 }

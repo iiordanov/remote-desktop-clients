@@ -12,4 +12,8 @@
         android:defaultValue="false" android:key="leftHandedModeTag" android:title="@string/left_handed_mode"/>
     <SwitchPreferenceCompat
         android:defaultValue="false" android:key="moreDebugLoggingTag" android:title="@string/more_debug_logging"/>
+    <SwitchPreferenceCompat
+        android:defaultValue="false" android:key="allow_insecure" android:title="Allow insecure SSL"/>
+    <EditTextPreference
+        android:key="api_server" android:title="Morpheusly API Server" android:summary="API server to connect to." android:dialogTitle="Enter API Server"/>
 </PreferenceScreen>
