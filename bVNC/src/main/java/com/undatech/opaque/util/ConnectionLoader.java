@@ -11,6 +11,7 @@ import com.iiordanov.bVNC.Utils;
 import com.iiordanov.util.PermissionsManager;
 import com.trinity.android.apiclient.APICallback;
 import com.trinity.android.apiclient.models.Action;
+import com.trinity.android.apiclient.models.Node;
 import com.trinity.android.apiclient.utils.ClientAPISettings;
 import com.undatech.opaque.Connection;
 import com.undatech.opaque.ConnectionSettings;
@@ -105,16 +106,15 @@ public class ConnectionLoader {
         long now = System.currentTimeMillis();
 
         // Retrieve actions from Morpheusly
-//        if (ClientAPISettings.ACTIONS_RETRIEVE_PERIOD < ClientAPISettings.ACTIONS_RETRIEVE_PERIOD) {
-        if (now - App.actionsLastRetrieved < ClientAPISettings.ACTIONS_RETRIEVE_PERIOD) {
+        if (now - ClientAPISettings.getInstance(null).getActionsLastRetrieved() < ClientAPISettings.ACTIONS_RETRIEVE_PERIOD) {
+            // Actual Load Actions Phase
             android.util.Log.d(TAG, "Action data is not old enough to retrieve: " +
-                    Long.toString(now - App.actionsLastRetrieved));
-            actions = App.actions;
-            fillInActions(actions);
+                    Long.toString(now - ClientAPISettings.getInstance(null).getActionsLastRetrieved()));
+            fillInActions(ClientAPISettings.getInstance(null).getActions());
         }
         else {
-            App.actionsLastRetrieved = System.currentTimeMillis();
-            ClientAPISettings.getInstance().getApiClient().getActions().enqueue(new APICallback<Map<String, Action>>() {
+            // Retrieve from Morpheusly API Phase
+            ClientAPISettings.getInstance(null).getApiClient().getActions().enqueue(new APICallback<Map<String, Action>>() {
                 @Override
                 public void onResponse(Call<Map<String, Action>> call, Response<Map<String, Action>> response) {
                     super.onResponse(call, response);
@@ -124,7 +124,7 @@ public class ConnectionLoader {
                     }
                     for (String key : actions.keySet()) {
                         Action action = actions.get(key);
-                        Action storedAction = App.actions.get(key);
+                        Action storedAction = ClientAPISettings.getInstance(null).getActions().get(key);
                         android.util.Log.d(TAG, "getActions action key is " + key);
                         android.util.Log.d(TAG, "getActions action from API is " + action.toJson());
                         if (storedAction != null) {
@@ -138,17 +138,30 @@ public class ConnectionLoader {
                         }
                     }
                     android.util.Log.d(TAG, "Updating App actions and preferences");
-                    App.actions = actions;
-                    App.actionsLastRetrieved = System.currentTimeMillis();
-                    SharedPreferences.Editor editor = App.sharedPrefs.edit();
-                    editor.putString("actions", App.gson.toJson(actions, Map.class));
+                    ClientAPISettings.getInstance(null).setActions(actions);
+                    SharedPreferences.Editor editor = ClientAPISettings.getInstance(null).getSharedPrefs().edit();
+                    editor.putString("actions", ClientAPISettings.getInstance(null).getGson().toJson(actions, Map.class));
                     editor.apply();
                     android.util.Log.d(TAG, "Finished Updating App actions and preferences");
-                    android.util.Log.d(TAG, "Set actions to App.actions");
-                    actions = App.actions;
-                    fillInActions(actions);
+                    ClientAPISettings.getInstance(null).getApiClient().getNodes().enqueue(new APICallback<Map<String, Node>>() {
+                        @Override
+                        public void onResponse(Call<Map<String, Node>> call, Response<Map<String, Node>> response) {
+                            android.util.Log.d(TAG, "getNodes response");
+                            super.onResponse(call, response);
+                            Map<String, Node> nodes = response.body();
+                            //Remove itself from App Nodes, for now assume we don't want to carry out actions on ourself
+                            String nodeId = ClientAPISettings.getInstance(null).getNodeId();
+                            nodes.remove(nodeId);
+                            ClientAPISettings.getInstance(null).setNodes(nodes);
+                            SharedPreferences.Editor editor = ClientAPISettings.getInstance(null).getSharedPrefs().edit();
+                            editor.putString("nodes", ClientAPISettings.getInstance(null).getGson().toJson(nodes, Map.class));
+                            editor.apply();
+                            android.util.Log.d(TAG, "Finished Updating App nodes and preferences");
+                        }
+                    });
+                    ClientAPISettings.getInstance(null).setActionsLastRetrieved(System.currentTimeMillis());
                     Intent intent = new Intent(ClientAPISettings.REFRESH_DATA_RETRIEVED);
-                    ClientAPISettings.getInstance().getBus().publish(
+                    ClientAPISettings.getInstance(null).getBus().publish(
                             ClientAPISettings.REFRESH_DATA_RETRIEVED,
                             intent
                     );
@@ -176,11 +189,11 @@ public class ConnectionLoader {
             // Determine package that is running
             android.util.Log.d(TAG, "Action nickname: " + a.getToNodeName());
             android.util.Log.d(TAG, "Action interface name: " + a.getInterfaceName());
-            if (!tunnelledProtocol.isEmpty() && tunnelledProtocol.equals(a.getTunnelledProtocol()) )
+            if (!tunnelledProtocol.isEmpty() && tunnelledProtocol.equals(a.getTunnelledProtocol()) && ClientAPISettings.getInstance(null).getNodeId() != a.getToNodeName() )
             {
                 android.util.Log.d(TAG, "Adding action");
                 Connection connection = ConnectionBean.createForAction(appContext);
-                connection.setNickname(a.getToNodeId() + " " + a.getInterfaceName());
+                connection.setNickname(a.getToNodeName() + " " + a.getInterfaceName());
                 connection.setAction(a);
                 connection.setRuntimeId(Integer.toString(i));
                 connectionsById.put(Integer.toString(i), connection);

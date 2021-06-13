@@ -54,6 +54,7 @@ import android.widget.GridView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.gson.internal.LinkedHashTreeMap;
 import com.iiordanov.bVNC.App;
 import com.iiordanov.bVNC.Constants;
 import com.iiordanov.bVNC.Database;
@@ -65,14 +66,12 @@ import com.iiordanov.bVNC.dialogs.ImportExportDialog;
 import com.iiordanov.bVNC.dialogs.IntroTextDialog;
 import com.iiordanov.bVNC.input.InputHandlerDirectSwipePan;
 
-import com.portaproxy.stunnel.Utility;
-import com.trinity.android.apiclient.ApiClient;
+import com.trinity.android.apiclient.models.Node;
 import com.trinity.android.apiclient.models.TunnelValues;
-import com.trinity.android.apiclient.models.UpdateCommandNode;
 import com.trinity.android.apiclient.models.Action;
 import com.trinity.android.apiclient.utils.ClientAPISettings;
-
 import com.trinity.android.apiclient.utils.WireguardBaseRepository;
+
 import com.undatech.opaque.util.ConnectionLoader;
 import com.undatech.opaque.util.FileUtils;
 import com.undatech.opaque.util.GeneralUtils;
@@ -103,28 +102,35 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
     protected boolean isStarting = true;
     private AppCompatImageButton addNewConnection = null;
 
+    // Morpheusly Login Event Bus Function
     public void setLoginSuccessReceiver(Intent intent) {
         if (intent != null) {
             android.util.Log.i(TAG, "Login Success Receiver Triggered");
             Toast.makeText(App.getContext(), "Login success", Toast.LENGTH_SHORT).show();
 
-            App.cookie = intent.getStringExtra("cookie");
-            ClientAPISettings.getInstance().setCookie(App.cookie);
-            com.trinity.android.apiclient.utils.Utils.saveStringToSharedPrefs(getString(R.string.cookie_key), App.cookie);
+            ClientAPISettings.getInstance(null).setCookie(intent.getStringExtra("cookie"));
 
             android.util.Log.i(TAG, "Login Success Relaunching Main Activity");
             ConnectionGridActivity.this.recreate();
         }
     }
 
+    // Morpheusly Update Event Receiver
+    public void setUpdateSuccessReceiver(Intent intent) {
+        if (intent != null) {
+            android.util.Log.i(TAG, "Update Success");
+
+            ClientAPISettings.getInstance(null).setCookie(intent.getStringExtra("cookie"));
+        }
+    }
+
+    // Morpheusly Unauthorized Event Bus Function
     public void setUnauthorizedReceiver(Intent intent) {
         if (intent != null) {
             android.util.Log.i(TAG, "Unauthorized, clearing cookie.");
             Toast.makeText(App.getContext(), "Unauthorized, please re-login", Toast.LENGTH_LONG).show();
 
-            App.cookie = null;
-            ClientAPISettings.getInstance().setCookie(null);
-            com.trinity.android.apiclient.utils.Utils.saveStringToSharedPrefs(getString(R.string.cookie_key), null);
+            ClientAPISettings.getInstance(null).setCookie(null);
 
             android.util.Log.i(TAG, "Unauthorized, Relaunching Main Activity");
             ConnectionGridActivity.this.recreate();
@@ -132,6 +138,7 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
         }
     }
 
+    // Morpheusly RefreshData Event Bus Function
     public void setRefreshData(Intent intent) {
         if (intent != null) {
             android.util.Log.i(TAG, "Reloading Actions Now.");
@@ -140,18 +147,21 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
         }
     }
 
-
+    // Morpheusly StartURI Intent Receiver Event Bus Function
     public void setStartUriIntentReceiver(Intent intent) {
         if (intent != null) {
             android.util.Log.i(TAG, "Starting URI intent");
             String uriString = intent.getStringExtra("uriString");
+            android.util.Log.d(TAG, "Starting URI intent, uriString: " + uriString);
             String uriType = intent.getStringExtra("type");
+            android.util.Log.d(TAG, "Starting URI intent, uriType:" + uriType);
             String protocol = intent.getStringExtra("protocol");
+            android.util.Log.d(TAG, "Starting URI intent, protocol: " + protocol);
             Intent newIntent = new Intent(Intent.ACTION_VIEW).setType(uriType)
                     .setData(Uri.parse(uriString))
                     .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TASK);
             try {
-                ConnectionGridActivity.this.startActivity(newIntent);
+                startActivity(newIntent);
             } catch (ActivityNotFoundException e) {
                 android.util.Log.e(TAG, "User does not have app to handle " + protocol);
             }
@@ -163,15 +173,20 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
         super.onCreate(savedInstanceState);
         appContext = getApplicationContext();
         setContentView(R.layout.grid_view_activity);
-        App.cookie = App.sharedPrefs.getString(getString(R.string.cookie_key), null);
 
         //Create appropriate Event Listeners
         App.clientAPISettings.getBus().subscribe(ClientAPISettings.LOGIN_SUCCESS, this, (data) -> {
             setLoginSuccessReceiver((Intent) data);
         });
+
+        App.clientAPISettings.getBus().subscribe(ClientAPISettings.UPDATE_SUCCESS, this, (data) -> {
+            setUpdateSuccessReceiver((Intent) data);
+        });
+
         App.clientAPISettings.getBus().subscribe(ClientAPISettings.UNAUTHORIZED, this, (data) -> {
             setUnauthorizedReceiver((Intent) data);
         });
+
         App.clientAPISettings.getBus().subscribe(ClientAPISettings.REFRESH_DATA_RETRIEVED, this, (data) -> {
             setRefreshData((Intent) data);
         });
@@ -180,11 +195,12 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
             setStartUriIntentReceiver((Intent) data);
         });
 
-        if (App.cookie == null) {
+        if (ClientAPISettings.getInstance(null).getCookie() == null) {
             android.util.Log.d(TAG, "Cookie Not Set");
         }
         else {
             android.util.Log.d(TAG, "Cookie Set");
+            com.trinity.android.apiclient.utils.Utils.update();
         }
 
         gridView = (GridView) findViewById(R.id.gridView);
@@ -195,7 +211,8 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
             }
         });
 
-        if (App.cookie == null) {
+        //Turn Off Edit Connections if they are auto generated from Morpheusly API
+        if (ClientAPISettings.getInstance(null).getCookie()  == null) {
             gridView.setOnItemLongClickListener(new OnItemLongClickListener() {
                 @Override
                 public boolean onItemLongClick(AdapterView<?> parent, View v, int position, long id) {
@@ -252,17 +269,20 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
                     GetTextFragment.MatchingPasswordTwice, R.string.master_password_set_message,
                     R.string.master_password_set_error, null, null, null, false);
         }
+        // Morpheusly Login Text Fragment
         if (morpheuslyCreds == null){
             morpheuslyCreds = GetTextFragment.newInstance(GetTextFragment.DIALOG_ID_GET_MORPH_CREDENTIALS, 
                     getString(R.string.morpheusly_credentials), this,
                     GetTextFragment.Credentials, R.string.morpheusly_credentials_set_message,
                     R.string.morpheusly_credentials_set_error, null, null, null, false);
         }
+
         FileUtils.logFilesInPrivateStorage(this);
         FileUtils.deletePrivateFileIfExisting(this, ".config/freerdp/licenses");
 
         addNewConnection = findViewById(R.id.addNewConnection);
-        if (App.cookie == null) {
+        //Do not show addNewConnection option when viewing Morpheusly Actions
+        if (ClientAPISettings.getInstance(null).getCookie() == null) {
             addNewConnection.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -273,7 +293,6 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
         else {
             addNewConnection.setVisibility(View.INVISIBLE);
         }
-        refreshMorpheuslyData = true;
     }
 
     private void launchConnection(View v) {
@@ -285,7 +304,7 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
 
         isConnecting = true;
         String runtimeId = (String) ((TextView) v.findViewById(R.id.grid_item_id)).getText();
-        //If not associated with an Action assume normal operations
+        // If not associated with a Morpheusly Action assume normal operations
         if (connectionLoader.getConnectionsById().get(runtimeId).getAction() == null) {
             Intent intent = new Intent(ConnectionGridActivity.this, GeneralUtils.getClassByName("com.iiordanov.bVNC.RemoteCanvasActivity"));
             if (Utils.isOpaque(getPackageName())) {
@@ -299,63 +318,25 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
             startActivity(intent);
         }
         else {
-            android.util.Log.d(TAG, "Starting connection to Morpheusly Agent");
-            stopAllTunnelsIfRequestedOrDead(true);
+            // Connection associated with Morpheusly Action
+            android.util.Log.d(TAG, "Stopping dead tunnels before starting action.");
+            WireguardBaseRepository.stopAllWireguardTunnels();
             Action action = connectionLoader.getConnectionsById().get(runtimeId).getAction();
-            int port = com.trinity.android.apiclient.utils.Utils.retrievePortForAction(action, App.tunnels, App.actions);
+            int port = com.trinity.android.apiclient.utils.Utils.retrievePortForAction(action, ClientAPISettings.getInstance(null).getActions());
             if (port > 0) {
                 TunnelValues tunnelValues = new TunnelValues(
                         UUID.randomUUID(),
                         port,
-                        App.tunnels.size(),
+                        ClientAPISettings.getInstance(null).getTunnels().size(),
                         action.getToNodeName(),
                         action.getActionId(),
                         action.isPersistent()
                 );
-                App.tunnels.add(tunnelValues);
+                ClientAPISettings.getInstance(null).getTunnels().add(tunnelValues);
                 WireguardBaseRepository wireguardBaseRepository = new WireguardBaseRepository(tunnelValues, action, this);
                 wireguardBaseRepository.start();
             }
         }
-
-    }
-
-    public void stopAllTunnelsIfRequestedOrDead(boolean ignoreBundle) {
-        android.util.Log.d(TAG, "stopAllTunnelsIfRequestedOrDead called");
-        Intent intent = getIntent();
-        Bundle bundle = intent.getExtras();
-        boolean killTunnels = false;
-        android.util.Log.d(TAG, "stopAllTunnelsIfRequestedOrDead: killTunnels " + killTunnels);
-
-        ArrayList<TunnelValues> allTunnels = new ArrayList<>(App.tunnels);
-        for (TunnelValues tunnel : allTunnels) {
-            UUID requestId = tunnel.getRequestId();
-            String toNodeName = tunnel.getToNodeName();
-            if (killTunnels) {
-                android.util.Log.d(TAG, "stopAllTunnelsIfRequestedOrDead: stopping " +
-                        requestId + " to " + toNodeName);
-                Utility.stop(requestId);
-            } else if (!tunnel.isPersistent()) {
-                // Reap tunnels if they had any interruption and they are not persistent
-                android.util.Log.d(TAG, "stopAllTunnelsIfRequestedOrDead: reaping " +
-                        requestId + " to " + toNodeName + " if needed");
-                if (Utility.reapIfUnused(requestId, tunnel.getAge())) {
-                    App.tunnels.remove(tunnel);
-                }
-            } else {
-                // Reap persistent tunnels only if the server-side proxy refused a connection
-                android.util.Log.d(TAG, "stopAllTunnelsIfRequestedOrDead: reaping persistent " +
-                        requestId + " to " + toNodeName + " if connection refused");
-                if (Utility.reapIfConnectionRefused(requestId, tunnel.getAge())) {
-                    App.tunnels.remove(tunnel);
-                }
-            }
-        }
-        if (killTunnels || App.tunnels.isEmpty()) {
-            App.tunnels = new ArrayList<>();
-            ClientAPISettings.getInstance().setTunnels(App.tunnels);
-        }
-
 
     }
 
@@ -421,17 +402,14 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
     public void onResume() {
         super.onResume();
         Log.i(TAG, "onResume of version " + Utils.getVersionAndCode(this));
+        refreshMorpheuslyOnResume();
         if (Utils.querySharedPreferenceBoolean(this, Constants.masterPasswordEnabledTag)) {
             showGetTextFragment(getPassword);
         } else {
-            // TODO: ASK WHY WE ARE LOADING CONNECTIONS TWICE onResume() and onResumeFragments()
-            if (App.cookie == null || refreshMorpheuslyData) {
-                loadSavedConnections();
-                refreshMorpheuslyData = false;
-            }
+            // TODO: ASK WHY ARE WE LOADING CONNECTIONS TWICE onResume() and onResumeFragments()
+            loadSavedConnections();
             IntroTextDialog.showIntroTextIfNecessary(this, database, Utils.isFree(this) && isStarting);
         }
-        refreshMorpheuslyOnResume();
         destroyUnreferencedResourcesOnResume();
         isStarting = false;
     }
@@ -452,9 +430,8 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
         if (Utils.querySharedPreferenceBoolean(this, Constants.masterPasswordEnabledTag)) {
             showGetTextFragment(getPassword);
         } else {
-            if (App.cookie == null || refreshMorpheuslyData) {
+            if (ClientAPISettings.getInstance(null).getCookie() == null) {
                 loadSavedConnections();
-                refreshMorpheuslyData = false;
             }
         }
     }
@@ -462,7 +439,7 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
     private void loadSavedConnections() {
         boolean connectionsInSharedPrefs = Utils.isOpaque(getPackageName());
         connectionLoader = new ConnectionLoader(appContext, this, connectionsInSharedPrefs,
-                App.cookie);
+                ClientAPISettings.getInstance(null).getCookie() );
         if (connectionLoader.getNumConnections() > 0) {
             gridView.setNumColumns(2);
             gridView.setAdapter(new LabeledImageApapter(this,
@@ -473,17 +450,6 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
                     null,
                     search.getText().toString().toLowerCase().split(" "), 2));
         }
-    }
-
-    public void refreshMorpheuslyOnResume(){
-
-        ClientAPISettings.allowInsecure = Utils.querySharedPreferenceBoolean(
-                App.getContext(), "allow_insecure");
-        Log.d(TAG, "allowInsecure is set to " + ClientAPISettings.allowInsecure);
-        ClientAPISettings.apiServer = Utils.querySharedPreferenceString(App.getContext(),
-                "api_server", "127.0.0.1");
-        Log.d(TAG, "apiServer is set to " + ClientAPISettings.apiServer);
-        //ClientAPISettings.getInstance().setApiClient(new ApiClient(App.getContext()));
     }
 
     public void destroyUnreferencedResourcesOnResume(){
@@ -550,29 +516,37 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.grid_view_activity_actions, menu);
         inflater.inflate(R.menu.input_mode_menu_item, menu);
+
+        MenuItem itemSignIn = menu.findItem(R.id.signInMorpheusly);
+        MenuItem itemSignOut = menu.findItem(R.id.signOutMorpheusly);
+        MenuItem itemNewConnection = menu.findItem(R.id.actionNewConnection);
+        MenuItem itemWgTunnels = menu.findItem(R.id.shutdownWireguard);
+
+        if( ClientAPISettings.getInstance(null).getCookie() != null && (Utils.isRdp(getPackageName()) || Utils.isVnc(getPackageName()))){
+            itemSignIn.setVisible(false);
+            itemSignOut.setVisible(true);
+            itemNewConnection.setVisible(false);
+        }
+        else if ( ClientAPISettings.getInstance(null).getCookie() == null && (Utils.isRdp(getPackageName()) || Utils.isVnc(getPackageName())) ) {
+            itemSignIn.setVisible(true);
+            itemSignOut.setVisible(false);
+            itemNewConnection.setVisible(true);
+        }
+        else {
+            itemSignIn.setVisible(true);
+            itemSignOut.setVisible(true);
+            itemNewConnection.setVisible(true);
+        }
+
+        if (!WireguardBaseRepository.tunnelsRunning()) {
+            itemWgTunnels.setVisible(false);
+        }
+        else {
+            itemWgTunnels.setVisible(true);
+        }
         return super.onCreateOptionsMenu(menu);
     }
-    
-    /**
-     * This function is used to retrieve data returned by activities started with startActivityForResult.
-     */
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        android.util.Log.i(TAG, "onActivityResult");
 
-        super.onActivityResult(requestCode, resultCode, data);
-        switch(requestCode) {
-        case (RemoteClientLibConstants.DEFAULT_SETTINGS):
-            if (resultCode == Activity.RESULT_OK) {
-                Bundle b = data.getExtras();
-                ConnectionSettings defaultSettings = (ConnectionSettings)b.get("com.undatech.opaque.ConnectionSettings");
-                defaultSettings.saveToSharedPreferences(this);
-            } else {
-                android.util.Log.i (TAG, "Error during AdvancedSettingsActivity.");
-            }
-            break;
-        }
-    }
 
     /* (non-Javadoc)
      * @see android.app.Activity#onMenuOpened(int, android.view.Menu)
@@ -586,42 +560,6 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
             itemMasterPassword.setChecked(Utils.querySharedPreferenceBoolean(this, Constants.masterPasswordEnabledTag));
         } catch (NullPointerException e) {}
         return true;
-    }
-
-    /**
-     * Check the right item in the input mode sub-menu
-     */
-    void updateInputMenu(Menu inputMenu) {
-        MenuItem[] inputModeMenuItems = new MenuItem[RemoteCanvasActivity.inputModeIds.length];
-        for (int i = 0; i < RemoteCanvasActivity.inputModeIds.length; i++) {
-            inputModeMenuItems[i] = inputMenu.findItem(RemoteCanvasActivity.inputModeIds[i]);
-        }
-        String defaultInputHandlerId = Utils.querySharedPreferenceString(
-                this, Constants.defaultInputMethodTag, InputHandlerDirectSwipePan.ID);
-        android.util.Log.d(TAG, "Default Input Mode Item: " + defaultInputHandlerId);
-
-        try {
-            for (MenuItem item : inputModeMenuItems) {
-                android.util.Log.d(TAG, "Input Mode Item: " +
-                        RemoteCanvasActivity.inputModeMap.get(item.getItemId()));
-
-                if (defaultInputHandlerId.equals(RemoteCanvasActivity.inputModeMap.get(item.getItemId()))) {
-                    item.setChecked(true);
-                }
-            }
-        } catch (NullPointerException e) { }
-    }
-
-    /* (non-Javadoc)
-     * @see android.app.Activity#onCreateDialog(int)
-     */
-    @Override
-    protected Dialog onCreateDialog(int id) {
-        if (id == R.layout.importexport) {
-            boolean connectionsInSharedPrefs = Utils.isOpaque(getPackageName());
-            return new ImportExportDialog(this, database, connectionsInSharedPrefs);
-        }
-        return null;
     }
 
     /* (non-Javadoc)
@@ -650,6 +588,65 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
                     RemoteCanvasActivity.inputModeMap.get(item.getItemId()));
         }
         return true;
+    }
+
+    /**
+     * Check the right item in the input mode sub-menu
+     */
+    void updateInputMenu(Menu inputMenu) {
+        MenuItem[] inputModeMenuItems = new MenuItem[RemoteCanvasActivity.inputModeIds.length];
+        for (int i = 0; i < RemoteCanvasActivity.inputModeIds.length; i++) {
+            inputModeMenuItems[i] = inputMenu.findItem(RemoteCanvasActivity.inputModeIds[i]);
+        }
+        String defaultInputHandlerId = Utils.querySharedPreferenceString(
+                this, Constants.defaultInputMethodTag, InputHandlerDirectSwipePan.ID);
+        android.util.Log.d(TAG, "Default Input Mode Item: " + defaultInputHandlerId);
+
+        try {
+            for (MenuItem item : inputModeMenuItems) {
+                android.util.Log.d(TAG, "Input Mode Item: " +
+                        RemoteCanvasActivity.inputModeMap.get(item.getItemId()));
+
+                if (defaultInputHandlerId.equals(RemoteCanvasActivity.inputModeMap.get(item.getItemId()))) {
+                    item.setChecked(true);
+                }
+            }
+        } catch (NullPointerException e) { }
+    }
+    
+    /**
+     * This function is used to retrieve data returned by activities started with startActivityForResult.
+     */
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        android.util.Log.i(TAG, "onActivityResult");
+
+        super.onActivityResult(requestCode, resultCode, data);
+        switch(requestCode) {
+        case (RemoteClientLibConstants.DEFAULT_SETTINGS):
+            if (resultCode == Activity.RESULT_OK) {
+                Bundle b = data.getExtras();
+                ConnectionSettings defaultSettings = (ConnectionSettings)b.get("com.undatech.opaque.ConnectionSettings");
+                defaultSettings.saveToSharedPreferences(this);
+            } else {
+                android.util.Log.i (TAG, "Error during AdvancedSettingsActivity.");
+            }
+            break;
+        }
+    }
+
+
+
+    /* (non-Javadoc)
+     * @see android.app.Activity#onCreateDialog(int)
+     */
+    @Override
+    protected Dialog onCreateDialog(int id) {
+        if (id == R.layout.importexport) {
+            boolean connectionsInSharedPrefs = Utils.isOpaque(getPackageName());
+            return new ImportExportDialog(this, database, connectionsInSharedPrefs);
+        }
+        return null;
     }
 
     private boolean checkMasterPassword (String password) {
@@ -682,12 +679,34 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
     public void handleMorpheuslyLogin(String username, String password, Boolean wasCancelled){
         Log.d(TAG, "handleMorpheuslyLogin was called");
         if (!wasCancelled) {
-            Log.d(TAG, "apiServer is " + App.clientAPISettings.apiServer);
-            Log.d(TAG, "allowInsecure is set to " + App.clientAPISettings.allowInsecure.toString());
             android.util.Log.d(TAG, "Attempting command node registration");
             registerMorpheuslyCommandNode(username, password);
         }
         removeTextFragments();
+    }
+
+    public void signOutMorpheusly(MenuItem item){
+        Log.d(TAG, "signOutMorpheusly was called");
+        Log.d(TAG, "signOutMorpheusly: Signing out of Morpheusly Labs");
+
+        WireguardBaseRepository.stopAllWireguardTunnels();
+        com.trinity.android.apiclient.utils.Utils.deregister(ClientAPISettings.getInstance(null).getNodeId(), true);
+
+        ClientAPISettings.getInstance(null).setActions(new LinkedHashTreeMap<String, Action>());
+        ClientAPISettings.getInstance(null).setActionsLastRetrieved(0);
+
+        ClientAPISettings.getInstance(null).setNodes(new LinkedHashTreeMap<String, Node>());
+        ClientAPISettings.getInstance(null).setNodesLastRetrieved(0);
+
+        ClientAPISettings.getInstance(null).setCookie(null);
+        ConnectionGridActivity.this.recreate();
+    }
+
+    public void shutdownWireguard(MenuItem item){
+        Log.d(TAG, "shutdownWireguard was called");
+        Log.d(TAG, "shutdownWireguard: Shutting down Wireguard Tunnel");
+        WireguardBaseRepository.stopAllWireguardTunnels();
+        ConnectionGridActivity.this.recreate();
     }
 
     public void handlePassword(String providedPassword, boolean wasCancelled) {
@@ -775,12 +794,6 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
             tx.commit();
             fragmentManager.executePendingTransactions();
         }
-//        if (morpheuslyCreds.isAdded()) {
-//            FragmentTransaction tx = this.getSupportFragmentManager().beginTransaction();
-//            tx.remove(morpheuslyCreds);
-//            tx.commit();
-//            fragmentManager.executePendingTransactions();
-//        }
     }
 
     public void showMainScreenHelp(MenuItem item) {
@@ -805,31 +818,18 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
     }
 
     public void signIntoMorpheuslyLabs(MenuItem item) {
-        Log.d(TAG, "Showing login prompt for Morpheusly Labs.");
+        Log.d(TAG, "signIntoMorpheuslyLabs: Showing login prompt for Morpheusly Labs.");
         showGetTextFragment(morpheuslyCreds);
     }
 
     private void registerMorpheuslyCommandNode(String username, String password) {
-        android.util.Log.d(TAG, "Performing registration");
-        UpdateCommandNode updateCommandNode = getUpdateParameters();
-        ClientAPISettings.getInstance().getApiClient().register(username, password, updateCommandNode);
+        android.util.Log.d(TAG, "registerMorpheuslyCommandNode: Performing registration");
+        com.trinity.android.apiclient.utils.Utils.register(username, password);
     }
 
-    private UpdateCommandNode getUpdateParameters() {
-        String software_version = "";
-        try {
-            software_version = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
-        } catch (PackageManager.NameNotFoundException e) {
-            e.printStackTrace();
-        }
-        return new UpdateCommandNode(
-                ClientAPISettings.PLATFORM,
-                App.node_id,
-                ClientAPISettings.HARDWARE,
-                software_version,
-                App.certRepo.getSslCert(),
-                App.wireguardKeyRepo.getWgPub(),
-                App.wireguardKeyRepo.getWgPubInd()
-        );
+    public void refreshMorpheuslyOnResume(){
+        android.util.Log.d(TAG, "refreshMorpheuslyOnResume: Checking if apiClient should be refreshed");
+        boolean refreshApiClient = com.trinity.android.apiclient.utils.Utils.checkAndRefreshApiClient();
+        android.util.Log.d(TAG, "refreshMorpheuslyOnResume: apiClient refresh result is " + refreshApiClient);
     }
 }

@@ -41,6 +41,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.iiordanov.bVNC.App;
+import com.trinity.android.apiclient.utils.ClientAPISettings;
 import com.undatech.remoteClientUi.R;
 
 public class LabeledImageApapter extends BaseAdapter {
@@ -75,7 +76,7 @@ public class LabeledImageApapter extends BaseAdapter {
         LayoutInflater inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         Connection c = filteredConnectionsByPosition.get(position);
 
-        String label = App.cookie == null ? c.getLabel() : c.getNickname();
+        String label = ClientAPISettings.getInstance(null).getCookie() == null ? c.getLabel() : c.getNickname();
         android.util.Log.d(TAG, "Now setting label at position: " + position + " to: " + label);
 
         GridView gView = (GridView) ((Activity)context).findViewById(R.id.gridView);

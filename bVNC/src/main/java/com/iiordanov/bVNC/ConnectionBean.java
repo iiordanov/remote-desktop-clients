@@ -349,7 +349,8 @@ public class ConnectionBean extends AbstractConnectionBean implements Connection
     }
 
     public synchronized void save(Context c) {
-        if (App.cookie == null) {
+        // Save Connections if not logged into Morpheusly
+        if (ClientAPISettings.getInstance(null).getCookie() == null) {
             Database database = new Database(c);
             save(database.getWritableDatabase());
             database.close();
@@ -362,7 +363,7 @@ public class ConnectionBean extends AbstractConnectionBean implements Connection
     }
 
     private synchronized void save(SQLiteDatabase database) {
-        if (App.cookie == null) {
+        if (ClientAPISettings.getInstance(null).getCookie() == null) {
             ContentValues values = Gen_getValues();
             values.remove(GEN_FIELD__ID);
             // Never save the SSH password and passphrase.
@@ -808,14 +809,14 @@ public class ConnectionBean extends AbstractConnectionBean implements Connection
     }
 
     public void saveAndWriteRecent(boolean saveEmpty, Context c) {
-        if (App.cookie == null) {
+        if (ClientAPISettings.getInstance(null).getCookie() == null) {
             Database database = new Database(c);
             saveAndWriteRecent(saveEmpty, database);
         }
     }
 
     private void saveAndWriteRecent(boolean saveEmpty, Database database) {
-        if (App.cookie == null) {
+        if (ClientAPISettings.getInstance(null).getCookie() == null) {
             // We need server address or SSH server to be filled out to save. Otherwise,
             // we keep adding empty connections.
             // However, if there is partial data from a URI, we can present the edit screen.

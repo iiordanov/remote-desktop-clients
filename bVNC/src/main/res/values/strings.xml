@@ -526,10 +526,6 @@ If you are looking for a quick performance boost, try setting the Color mode to 
     <string name="morpheusly_credentials_set_error">Error Logging In: Please re-enter in your credentials</string>
     <string name="ssl_key_pref_key">client_ssl_key</string>
     <string name="ssl_cert_pref_key">client_ssl_cert</string>
-    <string name="wg_priv_pref_key">wg_priv_key</string>
-    <string name="wg_pub_pref_key">wg_pub_key</string>
-    <string name="wg_priv_ind_pref_key">wg_priv_ind_key</string>
-    <string name="wg_pub_ind_pref_key">wg_pub_ind_key</string>
     <string name="node_id_key">node_id</string>
     <string name="cookie_key">cookie</string>
 
@@ -932,4 +928,6 @@ Below that is where you configure your connection.
     <string name="rdp_adv_gfxh264">RDP Gfx H264</string>
     <string name="more_debug_logging">More Debug Logging</string>
     <string name="morpheusly_sign_in">Sign Into Morpheusly Labs</string>
+    <string name="morpheusly_sign_out">Sign Out Of Morpheusly Labs</string>
+    <string name="morpheusly_wireguard_shutoff">Shut Off Wireguard</string>
 </resources>

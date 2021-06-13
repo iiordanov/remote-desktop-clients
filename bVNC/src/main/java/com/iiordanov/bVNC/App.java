@@ -44,24 +44,8 @@ public class App extends MultiDexApplication {
     public static boolean debugLog = false;
 
     //Begin variables for Morpheusly API
+    public static App app;
     public static ClientAPISettings clientAPISettings;
-    public static ApiClient apiClient;
-    public static Gson gson;
-    public static EventLiveDataBus eldb;
-    public static SharedPreferences sharedPrefs;
-    public static CertRepository certRepo;
-    public static String node_id;
-    public static NodeAndSettings nodeAndSettings;
-    public static WireguardKeyRepository wireguardKeyRepo;
-    public static Backend backend;
-
-    public static Map<String, Action> actions;
-    public static long actionsLastRetrieved = 0;
-
-    public static CryptUtils cryptUtils;
-    volatile public static String cookie;
-
-    public static ArrayList<TunnelValues> tunnels;
     //End variables for Morpheusly API
 
     @Override
@@ -81,67 +65,48 @@ public class App extends MultiDexApplication {
         debugLog = Utils.querySharedPreferenceBoolean(getApplicationContext(), "moreDebugLoggingTag");
 
         //Begin variables for Morpheusly API
-        App.clientAPISettings = ClientAPISettings.getInstance();
-        App.clientAPISettings.setContext(App.getContext());
-        App.clientAPISettings.initUtility();
+        App.clientAPISettings = ClientAPISettings.getInstance(this);
 
-        App.gson = ClientAPISettings.gson;
-        App.eldb = this.clientAPISettings.getBus();
-        App.cryptUtils = ClientAPISettings.cryptUtils;
-
-        ClientAPISettings.allowInsecure = Utils.querySharedPreferenceBoolean(
-                getApplicationContext(), "allow_insecure");
-        ClientAPISettings.apiServer = Utils.querySharedPreferenceString(getApplicationContext(),
-                "api_server", "127.0.0.1");
-
-        ClientAPISettings.getInstance().setApiClient(new ApiClient(this));
-
-
-        App.sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
-        com.trinity.android.apiclient.utils.Utils.setSharedPrefs(App.sharedPrefs);
-        App.node_id = App.sharedPrefs.getString(getString(R.string.node_id_key), null);
-        if (App.node_id == null) {
-            App.node_id = java.util.UUID.randomUUID().toString();
-            com.trinity.android.apiclient.utils.Utils.saveStringToSharedPrefs(getString(R.string.node_id_key), App.node_id);
+        /* Start Load Nodes */
+        String nodesJson = ClientAPISettings.getInstance(null).getSharedPrefs().getString("nodes", null);
+        android.util.Log.d(TAG, "App nodes are " + nodesJson);
+        Map<String, Node> nodes = new LinkedHashTreeMap<String, Node>();
+        Map<String, LinkedTreeMap> tempNodes = ClientAPISettings.getInstance(null).getGson().fromJson(nodesJson, Map.class);
+        if (tempNodes == null) {
+            tempNodes = new HashMap<>();
         }
-        App.certRepo = new CertRepository(
-                getString(R.string.ssl_key_pref_key),
-                getString(R.string.ssl_cert_pref_key),
-                App.sharedPrefs);
-        ClientAPISettings.getInstance().setCertRepo(App.certRepo);
-        App.wireguardKeyRepo = new WireguardKeyRepository(
-                getString(R.string.wg_priv_pref_key),
-                getString(R.string.wg_pub_pref_key),
-                getString(R.string.wg_priv_ind_pref_key),
-                getString(R.string.wg_pub_ind_pref_key),
-                App.sharedPrefs);
-        ClientAPISettings.getInstance().setWireguardKeyRepo(App.wireguardKeyRepo);
+        for (String key : tempNodes.keySet()) {
+            android.util.Log.d(TAG, "App node key is " + key);
+            LinkedTreeMap tempMap = tempNodes.get(key);
+            String temp = ClientAPISettings.getInstance(null).getGson().toJson(tempMap, LinkedTreeMap.class);
+            Node node = ClientAPISettings.getInstance(null).getGson().fromJson(temp, Node.class);
+            android.util.Log.d(TAG, "Node is " + node.toString());
+            //android.util.Log.d(TAG, action.toString());
+            nodes.put(key, node);
+        }
+        ClientAPISettings.getInstance(null).setNodes(nodes);
+        /* End Load Nodes*/
 
         /* Start Load Actions */
-        String actionsJson = App.sharedPrefs.getString("actions", null);
+        String actionsJson = ClientAPISettings.getInstance(null).getSharedPrefs().getString("actions", null);
         android.util.Log.d(TAG, "App actions are " + actionsJson);
-        App.actions = new LinkedHashTreeMap<String, Action>();
-        Map<String, LinkedTreeMap> tempActions = App.gson.fromJson(actionsJson, Map.class);
+        Map<String, Action> actions = new LinkedHashTreeMap<String, Action>();
+        Map<String, LinkedTreeMap> tempActions = ClientAPISettings.getInstance(null).getGson().fromJson(actionsJson, Map.class);
         if (tempActions == null) {
             tempActions = new HashMap<>();
         }
         for (String key : tempActions.keySet()) {
             android.util.Log.d(TAG, "App action key is " + key);
             LinkedTreeMap tempMap = tempActions.get(key);
-            String temp = App.gson.toJson(tempMap, LinkedTreeMap.class);
-            Action action = App.gson.fromJson(temp, Action.class);
+            String temp = ClientAPISettings.getInstance(null).getGson().toJson(tempMap, LinkedTreeMap.class);
+            Action action = ClientAPISettings.getInstance(null).getGson().fromJson(temp, Action.class);
             android.util.Log.d(TAG, "Action is " + action.toString());
             //android.util.Log.d(TAG, action.toString());
-            App.actions.put(key, action);
+            actions.put(key, action);
         }
+        ClientAPISettings.getInstance(null).setActions(actions);
         /* End Load Actions */
 
-        if (App.tunnels == null) {
-            App.tunnels = new ArrayList<>();
-        }
-        ClientAPISettings.getInstance().setTunnels(App.tunnels);
-        App.backend = new GoBackend(this);
-        ClientAPISettings.getInstance().setBackend(App.backend);
         //End variables for Morpheusly API
     }
 

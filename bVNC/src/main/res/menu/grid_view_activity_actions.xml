@@ -2,12 +2,12 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
       xmlns:app="http://schemas.android.com/apk/res-auto"
       xmlns:tools="http://schemas.android.com/tools" >
+    <item android:id="@+id/shutdownWireguard" android:title="@string/morpheusly_wireguard_shutoff" app:showAsAction="never" android:onClick="shutdownWireguard"/>
     <item android:id="@+id/itemExportImport" android:title="@string/import_export_settings" app:showAsAction="never"/>
     <item android:id="@+id/itemMasterPassword" android:title="@string/master_password_enable" app:showAsAction="never" android:checkable="true"/>
     <item android:id="@+id/copyLogcat" android:title="@string/copy_logcat" app:showAsAction="never" android:onClick="copyLogcat" />
     <item android:id="@+id/actionSupportForum" android:title="@string/support_forum" app:showAsAction="never" android:onClick="showSupportForum" />
     <item android:id="@+id/reportBug" android:title="@string/report_bug" app:showAsAction="never" android:onClick="reportBug" />
-    <item android:id="@+id/signIntoTrinity" android:title="@string/morpheusly_sign_in" app:showAsAction="never" android:onClick="signIntoMorpheuslyLabs" />
 
     <!-- New Connection, should appear as action button -->
     <item android:id="@+id/actionNewConnection"
@@ -17,6 +17,22 @@
         android:showAsAction="never"
         app:showAsAction="never"
         android:onClick="addNewConnection" />
+
+    <item android:id="@+id/signInMorpheusly"
+        android:icon="@drawable/ic_baseline_account_circle_24"
+        android:title="@string/morpheusly_sign_in"
+        tools:ignore="AppCompatResource"
+        android:showAsAction="ifRoom"
+        app:showAsAction="ifRoom"
+        android:onClick="signIntoMorpheuslyLabs" />
+
+    <item android:id="@+id/signOutMorpheusly"
+        android:icon="@drawable/ic_baseline_login_24"
+        android:title="@string/morpheusly_sign_out"
+        tools:ignore="AppCompatResource"
+        android:showAsAction="ifRoom"
+        app:showAsAction="ifRoom"
+        android:onClick="signOutMorpheusly" />
 
     <item android:id="@+id/actionEditDefaultSettings"
         android:icon="@android:drawable/ic_menu_manage"

@@ -18,7 +18,7 @@
                                 <PersistentState>
                                   <option name="values">
                                     <map>
-                                      <entry key="url" value="jar:file:/home/iordan/software/android-studio/plugins/android/lib/android.jar!/images/material/icons/materialicons/add_to_queue/baseline_add_to_queue_24.xml" />
+                                      <entry key="url" value="jar:file:/snap/android-studio/103/android-studio/plugins/android/lib/android.jar!/images/material/icons/materialicons/login/baseline_login_24.xml" />
                                     </map>
                                   </option>
                                 </PersistentState>
@@ -29,7 +29,7 @@
                         <option name="values">
                           <map>
                             <entry key="color" value="a0a0a0" />
-                            <entry key="outputName" value="ic_add_connection_48" />
+                            <entry key="outputName" value="ic_baseline_login_24" />
                             <entry key="sourceFile" value="$USER_HOME$" />
                           </map>
                         </option>
