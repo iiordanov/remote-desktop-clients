@@ -158,8 +158,7 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
             String protocol = intent.getStringExtra("protocol");
             android.util.Log.d(TAG, "Starting URI intent, protocol: " + protocol);
             Intent newIntent = new Intent(Intent.ACTION_VIEW).setType(uriType)
-                    .setData(Uri.parse(uriString))
-                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    .setData(Uri.parse(uriString));
             try {
                 startActivity(newIntent);
             } catch (ActivityNotFoundException e) {

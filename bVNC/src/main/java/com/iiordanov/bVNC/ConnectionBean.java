@@ -57,6 +57,7 @@ public class ConnectionBean extends AbstractConnectionBean implements Connection
     static Context c = null;
     protected boolean readyForConnection = true; // saved connections are OK
     protected boolean readyToBeSaved = false;
+    private boolean createdLoadFromUri = false;
     private int idHashAlgorithm;
     private String idHash;
     private String masterPassword;
@@ -350,7 +351,7 @@ public class ConnectionBean extends AbstractConnectionBean implements Connection
 
     public synchronized void save(Context c) {
         // Save Connections if not logged into Morpheusly
-        if (ClientAPISettings.getInstance(null).getCookie() == null) {
+        if (ClientAPISettings.getInstance(null).getCookie() == null && !createdLoadFromUri) {
             Database database = new Database(c);
             save(database.getWritableDatabase());
             database.close();
@@ -363,7 +364,7 @@ public class ConnectionBean extends AbstractConnectionBean implements Connection
     }
 
     private synchronized void save(SQLiteDatabase database) {
-        if (ClientAPISettings.getInstance(null).getCookie() == null) {
+        if (ClientAPISettings.getInstance(null).getCookie() == null && !createdLoadFromUri) {
             ContentValues values = Gen_getValues();
             values.remove(GEN_FIELD__ID);
             // Never save the SSH password and passphrase.
@@ -404,6 +405,7 @@ public class ConnectionBean extends AbstractConnectionBean implements Connection
     {
         android.util.Log.d(TAG, "Creating connection from URI");
     	ConnectionBean connection = new ConnectionBean(ctx);
+    	connection.createdLoadFromUri = true;
     	if (dataUri == null) return connection;
 		Database database = new Database(ctx);
       	String host = dataUri.getHost();
@@ -809,14 +811,14 @@ public class ConnectionBean extends AbstractConnectionBean implements Connection
     }
 
     public void saveAndWriteRecent(boolean saveEmpty, Context c) {
-        if (ClientAPISettings.getInstance(null).getCookie() == null) {
+        if (ClientAPISettings.getInstance(null).getCookie() == null && !createdLoadFromUri) {
             Database database = new Database(c);
             saveAndWriteRecent(saveEmpty, database);
         }
     }
 
     private void saveAndWriteRecent(boolean saveEmpty, Database database) {
-        if (ClientAPISettings.getInstance(null).getCookie() == null) {
+        if (ClientAPISettings.getInstance(null).getCookie() == null && !createdLoadFromUri) {
             // We need server address or SSH server to be filled out to save. Otherwise,
             // we keep adding empty connections.
             // However, if there is partial data from a URI, we can present the edit screen.
