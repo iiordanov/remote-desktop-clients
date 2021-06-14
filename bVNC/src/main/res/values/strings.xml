@@ -927,7 +927,11 @@ Below that is where you configure your connection.
     <string name="rdp_adv_gfx">RDP Gfx</string>
     <string name="rdp_adv_gfxh264">RDP Gfx H264</string>
     <string name="more_debug_logging">More Debug Logging</string>
+
     <string name="morpheusly_sign_in">Sign Into Morpheusly Labs</string>
     <string name="morpheusly_sign_out">Sign Out Of Morpheusly Labs</string>
     <string name="morpheusly_wireguard_shutoff">Shut Off Wireguard</string>
+    <string name="morpheusly_verify_signout">Are you sure you want to sign out</string>
+    <string name="morpheusly_verify_signout_confirm">Confirm</string>
+    <string name="morpheusly_verify_signout_cancel">Cancel</string>
 </resources>

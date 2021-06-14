@@ -908,7 +908,11 @@ Debajo es donde configura su conexión.
     <string name="report_bug">Reportar un error</string>
     <string name="download_from_server">Descargar desde el servidor</string>
     <string name="import_from_file">Importar desde archivo</string>
+
     <string name="morpheusly_sign_in">Sign Into Morpheusly Labs</string>
     <string name="morpheusly_sign_out">Sign Out Of Morpheusly Labs</string>
     <string name="morpheusly_wireguard_shutoff">Shut Off Wireguard</string>
+    <string name="morpheusly_verify_signout">Are you sure you want to sign out</string>
+    <string name="morpheusly_verify_signout_confirm">Confirm</string>
+    <string name="morpheusly_verify_signout_cancel">Cancel</string>
 </resources>

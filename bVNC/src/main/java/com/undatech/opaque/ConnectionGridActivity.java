@@ -687,19 +687,37 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
 
     public void signOutMorpheusly(MenuItem item){
         Log.d(TAG, "signOutMorpheusly was called");
-        Log.d(TAG, "signOutMorpheusly: Signing out of Morpheusly Labs");
 
-        WireguardBaseRepository.stopAllWireguardTunnels();
-        com.trinity.android.apiclient.utils.Utils.deregister(ClientAPISettings.getInstance(null).getNodeId(), true);
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(ConnectionGridActivity.this);
+        alertDialogBuilder.setTitle(getString(R.string.morpheusly_verify_signout) + " ?");
+        CharSequence[] cs = {getString(R.string.morpheusly_verify_signout_confirm), getString(R.string.morpheusly_verify_signout_cancel)};
+        alertDialogBuilder.setNegativeButton(cs[1], new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int item) {
+                Log.d(TAG, "signOutMorpheusly: was cancelled");
+            }
+        });
+        alertDialogBuilder.setPositiveButton(cs[0], new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int item) {
+                Log.d(TAG, "signOutMorpheusly: was confirmed");
+                Log.d(TAG, "signOutMorpheusly: Signing out of Morpheusly Labs");
 
-        ClientAPISettings.getInstance(null).setActions(new LinkedHashTreeMap<String, Action>());
-        ClientAPISettings.getInstance(null).setActionsLastRetrieved(0);
+                WireguardBaseRepository.stopAllWireguardTunnels();
+                com.trinity.android.apiclient.utils.Utils.deregister(ClientAPISettings.getInstance(null).getNodeId(), true);
 
-        ClientAPISettings.getInstance(null).setNodes(new LinkedHashTreeMap<String, Node>());
-        ClientAPISettings.getInstance(null).setNodesLastRetrieved(0);
+                ClientAPISettings.getInstance(null).setActions(new LinkedHashTreeMap<String, Action>());
+                ClientAPISettings.getInstance(null).setActionsLastRetrieved(0);
 
-        ClientAPISettings.getInstance(null).setCookie(null);
-        ConnectionGridActivity.this.recreate();
+                ClientAPISettings.getInstance(null).setNodes(new LinkedHashTreeMap<String, Node>());
+                ClientAPISettings.getInstance(null).setNodesLastRetrieved(0);
+
+                ClientAPISettings.getInstance(null).setCookie(null);
+                ConnectionGridActivity.this.recreate();
+            }
+        });
+        AlertDialog alertDialog = alertDialogBuilder.create();
+        alertDialog.show();
     }
 
     public void shutdownWireguard(MenuItem item){

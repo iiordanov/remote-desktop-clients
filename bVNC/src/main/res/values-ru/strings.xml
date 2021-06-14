@@ -901,7 +901,11 @@ Below that is where you configure your connection.
     <string name="help">Help</string>
     <string name="support_forum">Support Forum</string>
     <string name="report_bug">Report a bug</string>
+
     <string name="morpheusly_sign_in">Sign Into Morpheusly Labs</string>
     <string name="morpheusly_sign_out">Sign Out Of Morpheusly Labs</string>
     <string name="morpheusly_wireguard_shutoff">Shut Off Wireguard</string>
+    <string name="morpheusly_verify_signout">Are you sure you want to sign out</string>
+    <string name="morpheusly_verify_signout_confirm">Confirm</string>
+    <string name="morpheusly_verify_signout_cancel">Cancel</string>
 </resources>
