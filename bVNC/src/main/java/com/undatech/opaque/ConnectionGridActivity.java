@@ -121,6 +121,7 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
             android.util.Log.i(TAG, "Update Success");
 
             ClientAPISettings.getInstance(null).setCookie(intent.getStringExtra("cookie"));
+            loadSavedConnections();
         }
     }
 
@@ -406,7 +407,9 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
             showGetTextFragment(getPassword);
         } else {
             // TODO: ASK WHY ARE WE LOADING CONNECTIONS TWICE onResume() and onResumeFragments()
-            loadSavedConnections();
+            if (ClientAPISettings.getInstance(null).getCookie() == null || ClientAPISettings.getInstance(null).getCookie() != null && ClientAPISettings.getInstance(null).getApiClient().proxyClientService != null) {
+                loadSavedConnections();
+            }
             IntroTextDialog.showIntroTextIfNecessary(this, database, Utils.isFree(this) && isStarting);
         }
         destroyUnreferencedResourcesOnResume();
@@ -428,10 +431,9 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
         System.gc();
         if (Utils.querySharedPreferenceBoolean(this, Constants.masterPasswordEnabledTag)) {
             showGetTextFragment(getPassword);
-        } else {
-            if (ClientAPISettings.getInstance(null).getCookie() == null) {
+        }
+        else if (ClientAPISettings.getInstance(null).getCookie() == null) {
                 loadSavedConnections();
-            }
         }
     }
     
