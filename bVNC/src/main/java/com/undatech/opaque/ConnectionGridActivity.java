@@ -130,6 +130,7 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
         if (intent != null) {
             android.util.Log.i(TAG, "Unauthorized, clearing cookie.");
             Toast.makeText(App.getContext(), "Unauthorized, please re-login", Toast.LENGTH_LONG).show();
+            removeTextFragments(null);
 
             ClientAPISettings.getInstance(null).setCookie(null);
 
@@ -683,7 +684,7 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
             android.util.Log.d(TAG, "Attempting command node registration");
             registerMorpheuslyCommandNode(username, password);
         }
-        removeTextFragments();
+        removeTextFragments(morpheuslyCreds);
     }
 
     public void signOutMorpheusly(MenuItem item){
@@ -748,7 +749,7 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
                     } else {
                         Utils.showErrorMessage(this, getResources().getString(R.string.master_password_error_failed_to_disable));
                     }
-                    removeTextFragments();
+                    removeTextFragments(null);
                     loadSavedConnections();
                 } else {
                     Log.i(TAG, "Entered password is wrong or dialog cancelled, so quitting.");
@@ -770,7 +771,7 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
                     Log.i(TAG, "Dialog cancelled, not setting master password.");
                     Utils.showErrorMessage(this, getResources().getString(R.string.master_password_error_password_not_set));
                 }
-                removeTextFragments();
+                removeTextFragments(null);
                 loadSavedConnections();
             }
         } else {
@@ -782,7 +783,7 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
             } else if (checkMasterPassword(providedPassword)) {
                 Log.i(TAG, "Entered password is correct, so proceeding.");
                 Database.setPassword(providedPassword);
-                removeTextFragments();
+                removeTextFragments(null);
                 loadSavedConnections();
             } else {
                 // Finish the activity if the password was wrong.
@@ -794,22 +795,28 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
 
     private void showGetTextFragment(GetTextFragment f) {
         if (!f.isVisible()) {
-            removeTextFragments();
+            removeTextFragments(null);
             f.setCancelable(false);
             f.show(fragmentManager, "");
         }
     }
 
-    private void removeTextFragments() {
-        if (getPassword.isAdded()) {
+    private void removeTextFragments(GetTextFragment excludeTextFragment) {
+        if (getPassword.isAdded() && excludeTextFragment != getPassword) {
             FragmentTransaction tx = this.getSupportFragmentManager().beginTransaction();
             tx.remove(getPassword);
             tx.commit();
             fragmentManager.executePendingTransactions();
         }
-        if (getNewPassword.isAdded()) {
+        if (getNewPassword.isAdded() && excludeTextFragment != getNewPassword) {
             FragmentTransaction tx = this.getSupportFragmentManager().beginTransaction();
             tx.remove(getNewPassword);
+            tx.commit();
+            fragmentManager.executePendingTransactions();
+        }
+        if (morpheuslyCreds.isAdded() && excludeTextFragment != morpheuslyCreds) {
+            FragmentTransaction tx = this.getSupportFragmentManager().beginTransaction();
+            tx.remove(morpheuslyCreds);
             tx.commit();
             fragmentManager.executePendingTransactions();
         }
