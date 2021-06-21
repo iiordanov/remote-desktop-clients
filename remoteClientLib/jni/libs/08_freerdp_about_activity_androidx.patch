@@ -1,0 +1,15 @@
+diff --git a/client/Android/Studio/freeRDPCore/src/main/java/com/freerdp/freerdpcore/presentation/AboutActivity.java b/client/Android/Studio/freeRDPCore/src/main/java/com/freerdp/freerdpcore/presentation/AboutActivity.java
+index 26a4e455f..8fdfa7a19 100644
+--- a/client/Android/Studio/freeRDPCore/src/main/java/com/freerdp/freerdpcore/presentation/AboutActivity.java
++++ b/client/Android/Studio/freeRDPCore/src/main/java/com/freerdp/freerdpcore/presentation/AboutActivity.java
+@@ -5,8 +5,8 @@ import android.content.res.Configuration;
+ import android.nfc.FormatException;
+ import android.os.Build;
+ import android.os.Bundle;
+-import android.support.v4.text.TextUtilsCompat;
+-import android.support.v7.app.AppCompatActivity;
++import androidx.core.text.TextUtilsCompat;
++import androidx.appcompat.app.AppCompatActivity;
+ import android.util.Log;
+ import android.webkit.WebSettings;
+ import android.webkit.WebView;

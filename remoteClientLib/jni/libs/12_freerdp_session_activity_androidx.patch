@@ -1,0 +1,13 @@
+diff --git a/client/Android/Studio/freeRDPCore/src/main/java/com/freerdp/freerdpcore/presentation/SessionActivity.java b/client/Android/Studio/freeRDPCore/src/main/java/com/freerdp/freerdpcore/presentation/SessionActivity.java
+index 2e64f856f..a2d25f141 100644
+--- a/client/Android/Studio/freeRDPCore/src/main/java/com/freerdp/freerdpcore/presentation/SessionActivity.java
++++ b/client/Android/Studio/freeRDPCore/src/main/java/com/freerdp/freerdpcore/presentation/SessionActivity.java
+@@ -33,7 +33,7 @@ import android.os.Build;
+ import android.os.Bundle;
+ import android.os.Handler;
+ import android.os.Message;
+-import android.support.v7.app.AppCompatActivity;
++import androidx.appcompat.app.AppCompatActivity;
+ import android.util.Log;
+ import android.view.KeyEvent;
+ import android.view.Menu;

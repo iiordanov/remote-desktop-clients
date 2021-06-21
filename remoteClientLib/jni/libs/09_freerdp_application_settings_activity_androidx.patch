@@ -1,0 +1,13 @@
+diff --git a/client/Android/Studio/freeRDPCore/src/main/java/com/freerdp/freerdpcore/presentation/ApplicationSettingsActivity.java b/client/Android/Studio/freeRDPCore/src/main/java/com/freerdp/freerdpcore/presentation/ApplicationSettingsActivity.java
+index 2a4fc5e89..2506e7103 100644
+--- a/client/Android/Studio/freeRDPCore/src/main/java/com/freerdp/freerdpcore/presentation/ApplicationSettingsActivity.java
++++ b/client/Android/Studio/freeRDPCore/src/main/java/com/freerdp/freerdpcore/presentation/ApplicationSettingsActivity.java
+@@ -22,7 +22,7 @@ import android.preference.Preference;
+ import android.preference.PreferenceFragment;
+ import android.preference.PreferenceManager;
+ import android.preference.PreferenceScreen;
+-import android.support.v7.app.AlertDialog;
++import androidx.appcompat.app.AlertDialog;
+ import android.widget.Toast;
+
+ import com.freerdp.freerdpcore.R;

@@ -1,0 +1,13 @@
+diff --git a/client/Android/Studio/freeRDPCore/src/main/java/com/freerdp/freerdpcore/presentation/HomeActivity.java b/client/Android/Studio/freeRDPCore/src/main/java/com/freerdp/freerdpcore/presentation/HomeActivity.java
+index b9f9680fb..f8cd21c96 100644
+--- a/client/Android/Studio/freeRDPCore/src/main/java/com/freerdp/freerdpcore/presentation/HomeActivity.java
++++ b/client/Android/Studio/freeRDPCore/src/main/java/com/freerdp/freerdpcore/presentation/HomeActivity.java
+@@ -16,7 +16,7 @@ import android.content.Intent;
+ import android.content.res.Configuration;
+ import android.net.Uri;
+ import android.os.Bundle;
+-import android.support.v7.app.AppCompatActivity;
++import androidx.appcompat.app.AppCompatActivity;
+ import android.text.Editable;
+ import android.text.TextWatcher;
+ import android.util.Log;

@@ -1,0 +1,13 @@
+diff --git a/client/Android/Studio/freeRDPCore/src/main/java/com/freerdp/freerdpcore/presentation/HelpActivity.java b/client/Android/Studio/freeRDPCore/src/main/java/com/freerdp/freerdpcore/presentation/HelpActivity.java
+index 8e1e6b2ed..8772c9e9f 100644
+--- a/client/Android/Studio/freeRDPCore/src/main/java/com/freerdp/freerdpcore/presentation/HelpActivity.java
++++ b/client/Android/Studio/freeRDPCore/src/main/java/com/freerdp/freerdpcore/presentation/HelpActivity.java
+@@ -12,7 +12,7 @@ package com.freerdp.freerdpcore.presentation;
+
+ import android.content.res.Configuration;
+ import android.os.Bundle;
+-import android.support.v7.app.AppCompatActivity;
++import androidx.appcompat.app.AppCompatActivity;
+ import android.util.Log;
+ import android.webkit.WebSettings;
+ import android.webkit.WebView;

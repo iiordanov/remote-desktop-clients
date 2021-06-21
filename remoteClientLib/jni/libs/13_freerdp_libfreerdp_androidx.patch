@@ -1,0 +1,13 @@
+diff --git a/client/Android/Studio/freeRDPCore/src/main/java/com/freerdp/freerdpcore/services/LibFreeRDP.java b/client/Android/Studio/freeRDPCore/src/main/java/com/freerdp/freerdpcore/services/LibFreeRDP.java
+index bab6345d3..6ee5d1fe9 100644
+--- a/client/Android/Studio/freeRDPCore/src/main/java/com/freerdp/freerdpcore/services/LibFreeRDP.java
++++ b/client/Android/Studio/freeRDPCore/src/main/java/com/freerdp/freerdpcore/services/LibFreeRDP.java
+@@ -13,7 +13,7 @@ package com.freerdp.freerdpcore.services;
+ import android.content.Context;
+ import android.graphics.Bitmap;
+ import android.net.Uri;
+-import android.support.v4.util.LongSparseArray;
++import androidx.collection.LongSparseArray;
+ import android.util.Log;
+
+ import com.freerdp.freerdpcore.application.GlobalApp;
