@@ -699,6 +699,8 @@ Known issues:
 
     <string name="rotate_dpad">Rotate Bluetooth or software D-Pad</string>
 
+    <string name="use_last_position_toolbar">Utilize Last Position of Toolbar On Canvas </string>
+
     <string name="save_as_copy">Save as Copy</string>
 
     <string name="scaling">Scaling</string>
@@ -927,6 +929,7 @@ Below that is where you configure your connection.
     <string name="rdp_adv_gfx">RDP Gfx</string>
     <string name="rdp_adv_gfxh264">RDP Gfx H264</string>
     <string name="more_debug_logging">More Debug Logging</string>
+    <string name="position_toolbar_last_used">Position Toolbar At Last Used (Applies to New Connections Only)</string>
 
     <string name="morpheusly_sign_in">Sign Into Morpheusly Labs</string>
     <string name="morpheusly_sign_out">Sign Out Of Morpheusly Labs</string>

@@ -64,12 +64,14 @@ public class AdvancedSettingsActivity extends FragmentActivity implements Manage
     private ToggleButton toggleSslStrict;
     private ToggleButton toggleUsbEnabled;
     private ToggleButton toggleUsingCustomOvirtCa;
+    private ToggleButton useLastPositionToolbar;
     private Button buttonManageOvirtCa;
     private Spinner layoutMapSpinner;
     private LinearLayout layoutManageOvirtCa;
     private LinearLayout layoutToggleUsingCustomOvirtCa;
     private LinearLayout layoutCustomRemoteResolution;
     private LinearLayout layoutToggleCustomRemoteResolution;
+    private LinearLayout layoutUseLastPositionToolbar;
     private EditText rdpWidth;
     private EditText rdpHeight;
 
@@ -103,6 +105,10 @@ public class AdvancedSettingsActivity extends FragmentActivity implements Manage
         layoutToggleUsingCustomOvirtCa = (LinearLayout)findViewById(R.id.layoutToggleUsingCustomOvirtCa);
         toggleUsingCustomOvirtCa = (ToggleButton)findViewById(R.id.toggleUsingCustomOvirtCa);
         toggleUsingCustomOvirtCa.setChecked(currentConnection.isUsingCustomOvirtCa());
+
+        layoutUseLastPositionToolbar = (LinearLayout)findViewById(R.id.layoutUseLastPositionToolbar);
+        useLastPositionToolbar = (ToggleButton)findViewById(R.id.useLastPositionToolbar);
+        useLastPositionToolbar.setChecked(currentConnection.getUseLastPositionToolbar());
 
         buttonManageOvirtCa = (Button)findViewById(R.id.buttonManageOvirtCa);
         buttonManageOvirtCa.setEnabled(currentConnection.isUsingCustomOvirtCa());
@@ -281,6 +287,16 @@ public class AdvancedSettingsActivity extends FragmentActivity implements Manage
         boolean usingCustomOvirtCa = s.isChecked();
         currentConnection.setUsingCustomOvirtCa(usingCustomOvirtCa);
         buttonManageOvirtCa.setEnabled(usingCustomOvirtCa);
+    }
+
+    /**
+     * Automatically linked with android:onClick to the positionToolbarLastUsed button.
+     * @param view
+     */
+    public void toggleUseLastPositionToolbar (View view) {
+        ToggleButton s = (ToggleButton) view;
+        boolean useLastPositionToolbar = s.isChecked();
+        currentConnection.setUseLastPositionToolbar(useLastPositionToolbar);
     }
     
     /**

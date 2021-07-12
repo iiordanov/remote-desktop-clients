@@ -63,6 +63,7 @@ tasks.all { task ->
 }
 dependencies {
     implementation project(':remoteClientLib:jni:libs:deps:FreeRDP:client:Android:Studio:freeRDPCore')
+    implementation project(':apiclient')
     api 'com.android.support:multidex:1.0.3'
     implementation 'com.android.support:appcompat-v7:28.0.0'
     implementation 'org.apache.httpcomponents:httpcore:4.4.10'

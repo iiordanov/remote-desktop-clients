@@ -565,6 +565,15 @@ public class Utils {
         return value;
     }
 
+    public static int getIntFromMessage(Message msg, String key) {
+        Bundle s = msg.getData();
+        int value = 0;
+        if (s != null) {
+            value = s.getInt(key);
+        }
+        return value;
+    }
+
     public static String getStringResourceByName(Context context, String stringName) {
         String packageName = context.getPackageName();
         int resId = context.getResources().getIdentifier(stringName, "string", packageName);

@@ -28,6 +28,7 @@ import java.util.UUID;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import net.sqlcipher.database.SQLiteDatabase;
 import android.net.Uri;
@@ -63,6 +64,11 @@ public class ConnectionBean extends AbstractConnectionBean implements Connection
     private String masterPassword;
     private String id;
     private Action action;
+
+    private boolean useLastPositionToolbar;
+    private int useLastPositionToolbarX;
+    private int useLastPositionToolbarY;
+
 
     public static final NewInstance<ConnectionBean> newInstance=new NewInstance<ConnectionBean>() {
         public ConnectionBean get() { return new ConnectionBean(c); }
@@ -151,13 +157,19 @@ public class ConnectionBean extends AbstractConnectionBean implements Connection
 
         setEnableGfx(false);
         setEnableGfxH264(false);
-        c = context;
 
         // These two are not saved in the database since we always save the cert data. 
         setIdHashAlgorithm(Constants.ID_HASH_SHA1);
         setIdHash("");
+
+        // These settings are saved in SharedPrefs
+        setUseLastPositionToolbar(false);
+        setUseLastPositionToolbarX(0);
+        setUseLastPositionToolbarY(0);
+
+        c = context;
     }
-    
+
     public int getIdHashAlgorithm() {
         return idHashAlgorithm;
     }
@@ -351,19 +363,43 @@ public class ConnectionBean extends AbstractConnectionBean implements Connection
 
     public synchronized void save(Context c) {
         // Save Connections if not logged into Morpheusly
+        android.util.Log.d(TAG, "save called");
         if (ClientAPISettings.getInstance(null).getCookie() == null && !createdLoadFromUri) {
             Database database = new Database(c);
             save(database.getWritableDatabase());
             database.close();
+            saveToSharedPreferences(c);
         }
     }
 
     @Override
     public void load(Context context) {
+        loadFromSharedPreferences(context);
+    }
 
+    public void loadFromSharedPreferences(Context context) {
+        android.util.Log.d(TAG, "Loading settings from file: " + Long.toString(get_Id()));
+        SharedPreferences sp = context.getSharedPreferences(Long.toString(get_Id()), Context.MODE_PRIVATE);
+        useLastPositionToolbar = sp.getBoolean("useLastPositionToolbar", false);
+        useLastPositionToolbarX = sp.getInt("useLastPositionToolbarX", 0);
+        useLastPositionToolbarY = sp.getInt("useLastPositionToolbarY", 0);
+        android.util.Log.d(TAG, "Loading settings from file useLastPositionToolbar: " + useLastPositionToolbar);
+        android.util.Log.d(TAG, "Loading settings from file X Coor: " + useLastPositionToolbarX);
+        android.util.Log.d(TAG, "Loading settings from file Y Coor: " + useLastPositionToolbarY);
+    }
+
+    public void saveToSharedPreferences(Context context) {
+        android.util.Log.d(TAG, "Saving settings to file: " + Long.toString(get_Id()));
+        SharedPreferences sp = context.getSharedPreferences(Long.toString(get_Id()), Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sp.edit();
+        editor.putBoolean("useLastPositionToolbar", useLastPositionToolbar);
+        editor.putInt("useLastPositionToolbarX", useLastPositionToolbarX);
+        editor.putInt("useLastPositionToolbarY", useLastPositionToolbarY);
+        editor.apply();
     }
 
     private synchronized void save(SQLiteDatabase database) {
+        android.util.Log.d(TAG, "save with database called");
         if (ClientAPISettings.getInstance(null).getCookie() == null && !createdLoadFromUri) {
             ContentValues values = Gen_getValues();
             values.remove(GEN_FIELD__ID);
@@ -400,6 +436,36 @@ public class ConnectionBean extends AbstractConnectionBean implements Connection
     {
         setScaleModeAsString(value.toString());
     }
+
+    @Override
+    public boolean getUseLastPositionToolbar() {
+        return useLastPositionToolbar;
+    }
+
+    @Override
+    public void setUseLastPositionToolbar(boolean useLastPositionToolbar) {
+        this.useLastPositionToolbar = useLastPositionToolbar;
+    };
+
+    @Override
+    public int getUseLastPositionToolbarX() {
+        return useLastPositionToolbarX;
+    }
+
+    @Override
+    public void setUseLastPositionToolbarX(int useLastPositionToolbarX) {
+        this.useLastPositionToolbarX = useLastPositionToolbarX;
+    };
+
+    @Override
+    public int getUseLastPositionToolbarY() {
+        return useLastPositionToolbarY;
+    }
+
+    @Override
+    public void setUseLastPositionToolbarY(int useLastPositionToolbarY) {
+        this.useLastPositionToolbarY = useLastPositionToolbarY;
+    };
     
     static ConnectionBean createLoadFromUri(Uri dataUri, Context ctx)
     {
@@ -701,6 +767,7 @@ public class ConnectionBean extends AbstractConnectionBean implements Connection
     		Database database = new Database(c);
     		save(database.getWritableDatabase());
     		database.close();
+    		saveToSharedPreferences(c);
     		readyToBeSaved = true;
     	}
     	
@@ -811,13 +878,16 @@ public class ConnectionBean extends AbstractConnectionBean implements Connection
     }
 
     public void saveAndWriteRecent(boolean saveEmpty, Context c) {
+        android.util.Log.d(TAG, "saveAndWriteRecent called");
         if (ClientAPISettings.getInstance(null).getCookie() == null && !createdLoadFromUri) {
             Database database = new Database(c);
             saveAndWriteRecent(saveEmpty, database);
+            saveToSharedPreferences(c);
         }
     }
 
     private void saveAndWriteRecent(boolean saveEmpty, Database database) {
+        android.util.Log.d(TAG, "saveAndWriteRecent with database called");
         if (ClientAPISettings.getInstance(null).getCookie() == null && !createdLoadFromUri) {
             // We need server address or SSH server to be filled out to save. Otherwise,
             // we keep adding empty connections.
@@ -825,6 +895,7 @@ public class ConnectionBean extends AbstractConnectionBean implements Connection
             // Alternately, perhaps we could process some extra data
             if ((getConnectionType() == Constants.CONN_TYPE_SSH && getSshServer().equals("")
                     || getAddress().equals("")) && !saveEmpty) {
+                android.util.Log.d(TAG, "saveAndWriteRecent returning with not saving");
                 return;
             }
 

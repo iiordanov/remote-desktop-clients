@@ -271,4 +271,10 @@ public interface Connection {
     void setEnableGfx(boolean enableGfx);
     boolean getEnableGfxH264();
     void setEnableGfxH264(boolean enableGfxH264);
+    boolean getUseLastPositionToolbar();
+    void setUseLastPositionToolbar(boolean useLastPositionToolbar);
+    int getUseLastPositionToolbarX();
+    void setUseLastPositionToolbarX(int useLastPositionToolbar);
+    int getUseLastPositionToolbarY();
+    void setUseLastPositionToolbarY(int useLastPositionToolbar);
 }
