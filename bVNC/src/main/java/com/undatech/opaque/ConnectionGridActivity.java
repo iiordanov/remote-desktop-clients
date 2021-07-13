@@ -67,7 +67,7 @@ import com.iiordanov.bVNC.dialogs.IntroTextDialog;
 import com.iiordanov.bVNC.input.InputHandlerDirectSwipePan;
 
 import com.trinity.android.apiclient.models.Node;
-import com.trinity.android.apiclient.models.TunnelValues;
+import com.trinity.android.apiclient.utils.TunnelValues;
 import com.trinity.android.apiclient.models.Action;
 import com.trinity.android.apiclient.utils.ClientAPISettings;
 import com.trinity.android.apiclient.utils.WireguardBaseRepository;
@@ -321,21 +321,28 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
         else {
             // Connection associated with Morpheusly Action
             android.util.Log.d(TAG, "Stopping dead tunnels before starting action.");
-            WireguardBaseRepository.stopAllWireguardTunnels();
             Action action = connectionLoader.getConnectionsById().get(runtimeId).getAction();
-            int port = com.trinity.android.apiclient.utils.Utils.retrievePortForAction(action, ClientAPISettings.getInstance(null).getActions());
-            if (port > 0) {
-                TunnelValues tunnelValues = new TunnelValues(
-                        UUID.randomUUID(),
-                        port,
-                        ClientAPISettings.getInstance(null).getTunnels().size(),
-                        action.getToNodeName(),
-                        action.getActionId(),
-                        action.isPersistent()
-                );
+
+            TunnelValues tunnelValues = TunnelValues.findByApiKey(ClientAPISettings.getInstance(null).getTunnels(), action.getToNodeId());
+            int port = 0;
+            if (tunnelValues == null) {
+                WireguardBaseRepository.stopAllWireguardTunnels();
+                port = com.trinity.android.apiclient.utils.Utils.retrievePortForAction(action, ClientAPISettings.getInstance(null).getActions());
+                tunnelValues = new TunnelValues(
+                        UUID.randomUUID(), port, ClientAPISettings.getInstance(null).getTunnels().size(), action.getToNodeName(),
+                        action.getActionId(), action.isPersistent(), action.getToNodeId());
                 ClientAPISettings.getInstance(null).getTunnels().add(tunnelValues);
-                WireguardBaseRepository wireguardBaseRepository = new WireguardBaseRepository(tunnelValues, action, this);
-                wireguardBaseRepository.start();
+            }
+            else {
+                port = tunnelValues.getLocalPort();
+            }
+            port = com.trinity.android.apiclient.utils.Utils.retrievePortForAction(action, ClientAPISettings.getInstance(null).getActions());
+            if (port > 0) {
+                WireguardBaseRepository wireguardRepositoryInstance = new WireguardBaseRepository(tunnelValues, action, this);
+                wireguardRepositoryInstance.start();
+            }
+            else {
+                Toast.makeText(App.getContext(), "Unable to allocate a local port for the WireGuard Tunnel", Toast.LENGTH_LONG).show();
             }
         }
 

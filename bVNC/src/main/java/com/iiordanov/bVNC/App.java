@@ -16,7 +16,7 @@ import com.trinity.android.apiclient.ApiClient;
 import com.trinity.android.apiclient.utils.CryptUtils;
 import com.trinity.android.apiclient.utils.EventLiveDataBus;
 import com.trinity.android.apiclient.utils.WireguardKeyRepository;
-import com.trinity.android.apiclient.models.TunnelValues;
+import com.trinity.android.apiclient.utils.TunnelValues;
 //End imports for Morpheusly API
 
 import android.content.Context;
