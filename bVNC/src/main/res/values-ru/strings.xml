@@ -15,6 +15,8 @@
     <string name="custom_ca_import">Enter full path to your CA and tap Import</string>
     <string name="custom_ca_paste">Paste (if not importing) the CA here</string>
     <string name="ca_ovirt_use_custom">Custom RHEV/oVirt CA</string>
+    <string name="position_toolbar_last_used">Position Toolbar At Last Used</string>
+    <string name="position_toolbar_last_used_summary">(Applies to New Connections Only)</string>
     <string name="ca_spice_use_ovirt">Use RHEV/oVirt CA for SPICE</string>
     <string name="ca_ovirt_manage">Manage RHEV/oVirt CA</string>
     <string name="ca_spice_manage">Manage SPICE CA</string>
@@ -677,6 +679,7 @@ All Input Methods:
     <string name="right_alt_as_iso_l3_shift">R-Alt как ISO L3 Shift (только VNC)</string>
 
     <string name="rotate_dpad">Перевернуть Bluetooth или программный D-Pad</string>
+    <string name="use_last_position_toolbar">Utilize Last Position of Toolbar On Canvas</string>
 
     <string name="save_as_copy">Сохранить копию</string>
 

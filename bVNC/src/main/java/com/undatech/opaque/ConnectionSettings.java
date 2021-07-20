@@ -79,6 +79,11 @@ public class ConnectionSettings implements Connection, Serializable {
     private int rdpHeight = 0;
     private int rdpResType = Constants.RDP_GEOM_SELECT_CUSTOM;
 
+    private boolean useLastPositionToolbar = false;
+    private int useLastPositionToolbarX;
+    private int useLastPositionToolbarY;
+    private boolean useLastPositionToolbarMoved = false;
+
     public ConnectionSettings(String filename) {
         super();
         this.filename = filename;
@@ -340,6 +345,46 @@ public class ConnectionSettings implements Connection, Serializable {
     }
 
     @Override
+    public boolean getUseLastPositionToolbar() {
+        return useLastPositionToolbar;
+    }
+
+    @Override
+    public void setUseLastPositionToolbar(boolean useLastPositionToolbar) {
+        this.useLastPositionToolbar = useLastPositionToolbar;
+    }
+
+    @Override
+    public int getUseLastPositionToolbarX() {
+        return useLastPositionToolbarX;
+    }
+
+    @Override
+    public void setUseLastPositionToolbarX(int useLastPositionToolbarX) {
+        this.useLastPositionToolbarX = useLastPositionToolbarX;
+    }
+
+    @Override
+    public int getUseLastPositionToolbarY() {
+        return useLastPositionToolbarY;
+    }
+
+    @Override
+    public void setUseLastPositionToolbarY(int useLastPositionToolbarY) {
+        this.useLastPositionToolbarY = useLastPositionToolbarY;
+    }
+
+    @Override
+    public void setUseLastPositionToolbarMoved(boolean useLastPositionToolbarMoved) {
+        this.useLastPositionToolbarMoved = useLastPositionToolbarMoved;
+    }
+
+    @Override
+    public boolean getUseLastPositionToolbarMoved() {
+        return useLastPositionToolbarMoved;
+    }
+
+    @Override
     public void saveAndWriteRecent(boolean saveEmpty, Context c) {
         save(c);
     }
@@ -380,11 +425,16 @@ public class ConnectionSettings implements Connection, Serializable {
         editor.putInt("rdpWidth", rdpWidth);
         editor.putInt("rdpHeight", rdpHeight);
         editor.putInt("rdpResType", rdpResType);
+        editor.putBoolean("useLastPositionToolbar", useLastPositionToolbar);
+        editor.putInt("useLastPositionToolbarX", useLastPositionToolbarX);
+        editor.putInt("useLastPositionToolbarY", useLastPositionToolbarY);
+        editor.putBoolean("useLastPositionToolbarMoved", useLastPositionToolbarMoved);
         editor.apply();
         // Make sure the CA gets saved to a file if necessary.
         ovirtCaFile = saveCaToFile (context, ovirtCaData);
     }
 
+    @Override
     public void load(Context context) {
         loadFromSharedPreferences(context);
     }
@@ -585,6 +635,10 @@ public class ConnectionSettings implements Connection, Serializable {
         rdpWidth = sp.getInt("rdpWidth", 0);
         rdpHeight = sp.getInt("rdpHeight", 0);
         rdpResType = sp.getInt("rdpResType", Constants.RDP_GEOM_SELECT_CUSTOM);
+        useLastPositionToolbar = sp.getBoolean("useLastPositionToolbar", false);
+        useLastPositionToolbarX = sp.getInt("useLastPositionToolbarX", 0);
+        useLastPositionToolbarY = sp.getInt("useLastPositionToolbarY", 0);
+        useLastPositionToolbarMoved = sp.getBoolean("useLastPositionToolbarMoved", false);
         // Make sure the CAs get saved to files if necessary.
         ovirtCaFile = saveCaToFile (context, ovirtCaData);
     }

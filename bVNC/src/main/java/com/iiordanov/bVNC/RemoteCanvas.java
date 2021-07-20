@@ -70,6 +70,8 @@ import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
 import android.widget.Toast;
 
+import androidx.appcompat.widget.AppCompatImageView;
+
 import com.iiordanov.android.bc.BCFactory;
 import com.iiordanov.bVNC.input.InputHandlerTouchpad;
 import com.iiordanov.bVNC.input.RemoteCanvasHandler;
@@ -106,7 +108,7 @@ import org.yaml.snakeyaml.scanner.Constant;
 
 import javax.security.auth.login.LoginException;
 
-public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView
+public class RemoteCanvas extends AppCompatImageView
         implements Viewable, GetTextFragment.OnFragmentDismissedListener {
     private final static String TAG = "RemoteCanvas";
 

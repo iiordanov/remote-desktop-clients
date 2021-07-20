@@ -5,8 +5,8 @@ import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
+import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentManager;
 import android.widget.Toast;
 
 import com.iiordanov.bVNC.RemoteCanvas;
@@ -35,6 +35,19 @@ public class RemoteCanvasHandler extends Handler {
         if (activity instanceof FragmentActivity) {
             this.fm = ((FragmentActivity) Utils.getActivity(context)).getSupportFragmentManager();
         }
+    }
+
+    public RemoteCanvasHandler(Context context) {
+        super();
+        context = context;
+    }
+
+    public Connection getConnection() {
+        return settings;
+    }
+
+    public void setConnection(Connection connection) {
+        this.settings = connection;
     }
 
     private void showGetTextFragment(String tag, String dialogId, String title,
@@ -197,6 +210,19 @@ public class RemoteCanvasHandler extends Handler {
                 break;
             case RemoteClientLibConstants.REINIT_SESSION:
                 c.reinitializeCanvas();
+                break;
+            case RemoteClientLibConstants.REPORT_TOOLBAR_POSITION:
+                android.util.Log.d(TAG, "Handling message, REPORT_TOOLBAR_POSITION");
+                if (settings.getUseLastPositionToolbar()) {
+                    int useLastPositionToolbarX = Utils.getIntFromMessage(msg, "useLastPositionToolbarX");
+                    int useLastPositionToolbarY = Utils.getIntFromMessage(msg, "useLastPositionToolbarY");
+                    boolean useLastPositionToolbarMoved = Utils.getBooleanFromMessage(msg, "useLastPositionToolbarMoved");
+                    android.util.Log.d(TAG, "Handling message, REPORT_TOOLBAR_POSITION, X Coordinate" + useLastPositionToolbarX);
+                    android.util.Log.d(TAG, "Handling message, REPORT_TOOLBAR_POSITION, Y Coordinate" + useLastPositionToolbarY);
+                    settings.setUseLastPositionToolbarX(useLastPositionToolbarX);
+                    settings.setUseLastPositionToolbarY(useLastPositionToolbarY);
+                    settings.setUseLastPositionToolbarMoved(useLastPositionToolbarMoved);
+                }
                 break;
         }
     }

@@ -22,7 +22,7 @@
             android:padding="10dp">
         </EditText>
 
-        <android.support.v7.widget.AppCompatImageButton
+        <androidx.appcompat.widget.AppCompatImageButton
             android:id="@+id/addNewConnection"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -30,7 +30,7 @@
             app:srcCompat="@drawable/ic_add_connection_48"
             android:title="@string/action_new_connection"
             android:contentDescription="@string/action_new_connection">
-        </android.support.v7.widget.AppCompatImageButton>
+        </androidx.appcompat.widget.AppCompatImageButton>
     </LinearLayout>
 
     <GridView

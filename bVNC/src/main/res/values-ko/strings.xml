@@ -499,6 +499,7 @@ aRDP지원 예정 기능:
   <string name="repeater_save">사용</string>
   <string name="right_alt_as_iso_l3_shift">SO L3 시프트용으로 오른쪽 Alt(VNC한정)</string>
   <string name="rotate_dpad">Bluetooth 혹은 소프트 D-Pad를 회전</string>
+  <string name="use_last_position_toolbar">Utilize Last Position of Toolbar On Canvas</string>
   <string name="save_as_copy">복사본을 저장</string>
   <string name="scaling">스케일링</string>
   <string name="scaling_zoomable">확대 축소 가능</string>
