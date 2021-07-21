@@ -1,3 +1,6 @@
+v5.0.5
+- Moved to AndroidX libraries
+- Toolbar position is now remembered if selected on connection options
 v5.0.4
 - Master password fix
 - SQLCipher library update

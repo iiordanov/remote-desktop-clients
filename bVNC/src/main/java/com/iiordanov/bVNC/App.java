@@ -1,9 +1,9 @@
 package com.iiordanov.bVNC;
 
 import android.content.Context;
-import android.support.multidex.MultiDex;
-import android.support.multidex.MultiDexApplication;
-import android.support.v7.app.AppCompatDelegate;
+import androidx.multidex.MultiDex;
+import androidx.multidex.MultiDexApplication;
+import androidx.appcompat.app.AppCompatDelegate;
 
 import java.lang.ref.WeakReference;
 

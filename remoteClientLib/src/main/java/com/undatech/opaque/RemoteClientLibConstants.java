@@ -44,6 +44,7 @@ public class RemoteClientLibConstants {
     public static final int DISCONNECT_WITH_MESSAGE = 18;
     public static final int GET_RDP_CREDENTIALS    = 19;
     public static final int GET_SPICE_PASSWORD     = 20;
+    public static final int REPORT_TOOLBAR_POSITION = 21;
 
     public static final int LAUNCH_VNC_VIEWER      = 23;
     public static final int VM_LAUNCHED            = 24;

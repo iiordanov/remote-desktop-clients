@@ -340,6 +340,7 @@
     <string name="right_alt_as_iso_l3_shift">R-Alt jako ISO L3 Shift (tylko VNC)</string>
 
     <string name="rotate_dpad">Obróć Bluetooth lub programowy D-Pad</string>
+    <string name="use_last_position_toolbar">Utilize Last Position of Toolbar On Canvas</string>
 
     <string name="save_as_copy">Zapisz jako kopię</string>
 

@@ -61,7 +61,7 @@
 			android:textAppearance="?android:attr/textAppearanceLarge"
 		/>
 	</LinearLayout>
-	<android.support.v7.widget.AppCompatImageView android:layout_width="fill_parent" android:layout_height="wrap_content" app:srcCompat="@android:drawable/divider_horizontal_bright"/>
+	<androidx.appcompat.widget.AppCompatImageView android:layout_width="fill_parent" android:layout_height="wrap_content" app:srcCompat="@android:drawable/divider_horizontal_bright"/>
 	<ScrollView
 		android:layout_height="fill_parent"
 		android:layout_width="fill_parent"	

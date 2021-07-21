@@ -496,6 +496,7 @@ aRDP对应预定的功能：
   <string name="repeater_save">使用</string>
   <string name="right_alt_as_iso_l3_shift">R-Alt作为ISO L3移位（仅限VNC）</string>
   <string name="rotate_dpad">旋转蓝牙或软件D-Pad</string>
+  <string name="use_last_position_toolbar">Utilize Last Position of Toolbar On Canvas</string>
   <string name="save_as_copy">另存为副本</string>
   <string name="scaling">缩放</string>
   <string name="scaling_zoomable">可缩放</string>

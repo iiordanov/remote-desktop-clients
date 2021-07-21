@@ -23,13 +23,13 @@
         android:paddingLeft="7dip"
         android:paddingRight="7dip" >
     </TextView>
-    <android.support.v7.widget.AppCompatImageView
+    <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/grid_item_image"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:scaleType="centerInside"
         android:background="@color/black_overlay"
         android:gravity="bottom">
-    </android.support.v7.widget.AppCompatImageView>
+    </androidx.appcompat.widget.AppCompatImageView>
 </LinearLayout>
 
