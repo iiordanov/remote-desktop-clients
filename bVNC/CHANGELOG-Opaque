@@ -1,4 +1,6 @@
 v5.0.5
+- Moved to AndroidX libraries
+- Toolbar position is now remembered if selected on connection options
 - Fix for colors being washed out
 - Custom resolution setting
 - Fix for 32-bit x86 Chromebooks
