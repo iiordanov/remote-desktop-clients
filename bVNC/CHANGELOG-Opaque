@@ -1,9 +1,14 @@
+v5.0.5
+- Fix for colors being washed out
+- Custom resolution setting
+- Fix for 32-bit x86 Chromebooks
 v5.0.4
 - Fix for sending enter key
 - Keyboard Layout additions and fixes
 - SPICE library update
 - Master password fix
 - SQLCipher library update
+- Fix for washed out colors
 v5.0.3
 - Mandatory Android API target update
 - Usability fixes

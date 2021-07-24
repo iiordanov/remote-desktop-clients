@@ -39,6 +39,7 @@ import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -54,6 +55,7 @@ public class ConnectionSetupActivity extends Activity {
     private EditText vmname = null;
     private EditText user = null;
     private EditText password = null;
+    private CheckBox keepPass = null;
     private Button   advancedSettingsButton = null;
     
     private Context appContext = null;
@@ -74,6 +76,7 @@ public class ConnectionSetupActivity extends Activity {
         vmname   = (EditText) findViewById(R.id.vmname);
         user     = (EditText) findViewById(R.id.user);
         password = (EditText) findViewById(R.id.password);
+        keepPass = (CheckBox) findViewById(R.id.checkboxKeepPassword);
         
         // Define what happens when one taps the Advanced Settings button.
         advancedSettingsButton = (Button) findViewById(R.id.advancedSettingsButton);
@@ -229,6 +232,7 @@ public class ConnectionSetupActivity extends Activity {
         vmname.setText(currentConnection.getVmname());
         user.setText(currentConnection.getUser());
         password.setText(currentConnection.getPassword());
+        keepPass.setChecked(currentConnection.getKeepPassword());
     }
     
     /**
@@ -251,6 +255,7 @@ public class ConnectionSetupActivity extends Activity {
         currentConnection.setHostname(h);
         currentConnection.setVmname(vmname.getText().toString());
         currentConnection.setPassword(password.getText().toString());
+        currentConnection.setKeepPassword(keepPass.isChecked());
         currentConnection.saveToSharedPreferences(appContext);
     }
     

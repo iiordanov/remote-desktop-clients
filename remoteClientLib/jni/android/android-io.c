@@ -46,6 +46,7 @@ Java_com_undatech_opaque_SpiceCommunicator_UpdateBitmap (JNIEnv* env, jobject ob
 			destpix[j + 0] = sourcepix[j + 2];
 			destpix[j + 1] = sourcepix[j + 1];
 			destpix[j + 2] = sourcepix[j + 0];
+			destpix[j + 3] = 0xff;
 		}
 		sourcepix = sourcepix + slen;
 		destpix   = destpix + slen;

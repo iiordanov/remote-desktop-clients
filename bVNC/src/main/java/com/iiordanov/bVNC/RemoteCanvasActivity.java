@@ -99,7 +99,6 @@ import com.iiordanov.bVNC.input.InputHandlerTouchpad;
 import com.iiordanov.bVNC.input.Panner;
 import com.iiordanov.bVNC.input.RemoteKeyboard;
 import com.undatech.opaque.Connection;
-import com.undatech.opaque.dialogs.GetTextFragment;
 import com.undatech.opaque.dialogs.SelectTextElementFragment;
 import com.undatech.opaque.ConnectionSettings;
 import com.undatech.opaque.MessageDialogs;
@@ -111,8 +110,7 @@ import com.undatech.opaque.util.OnTouchViewMover;
 import com.undatech.remoteClientUi.R;
 
 public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyListener,
-                                                                        SelectTextElementFragment.OnFragmentDismissedListener,
-                                                                        GetTextFragment.OnFragmentDismissedListener {
+                                                                        SelectTextElementFragment.OnFragmentDismissedListener {
     
     private final static String TAG = "RemoteCanvasActivity";
     
@@ -1579,25 +1577,6 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
         getSupportActionBar().show();
         handler.removeCallbacks(toolbarHider);
         handler.postAtTime(toolbarHider, SystemClock.uptimeMillis() + hideToolbarDelay);
-    }
-
-    @Override
-    public void onTextObtained(String id, String obtainedString) {
-        android.util.Log.i(TAG, "onTextObtained called with id: " + id);
-        canvas.pd.show();
-
-        if (id.equals(RemoteClientLibConstants.GET_PASSWORD_ID)) {
-            connection.setPassword(obtainedString);
-        } else if (id.equals(RemoteClientLibConstants.GET_OTP_CODE_ID)) {
-            connection.setOtpCode(obtainedString);
-        }
-
-        synchronized (canvas.spicecomm) {
-            canvas.spicecomm.notify();
-        }
-
-        FragmentManager fm = this.getSupportFragmentManager();
-        fm.beginTransaction().remove(fm.findFragmentByTag(id)).commit();
     }
 
     @Override
