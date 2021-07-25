@@ -47,14 +47,17 @@ fi
 
 CLEAN=$2
 
+
 if git clone https://github.com/leetal/ios-cmake.git
 then
   pushd ios-cmake
   git checkout ${IOS_CMAKE_VERSION}
-  echo "Patching ios-cmake"
-  patch -p1 < ../ios-cmake.patch
   popd
+else
+  echo "Found ios-cmake directory, run rm -rf ios-cmake to clone again."
+  sleep 2
 fi
+
 
 # Clone and build libjpeg-turbo
 if git clone https://github.com/libjpeg-turbo/libjpeg-turbo.git
@@ -62,29 +65,41 @@ then
   pushd libjpeg-turbo
   git checkout ${LIBJPEG_TURBO_VERSION}
 
-  echo "Patching libjpeg-turbo"
-  patch -p1 < ../libjpeg-turbo.patch
   mkdir -p build_iphoneos
   pushd build_iphoneos
-  while ! cmake .. -G"Unix Makefiles" -DCMAKE_TOOLCHAIN_FILE=$(realpath ../../ios-cmake/ios.toolchain.cmake) \
+
+  IOS_PLATFORMDIR=/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform
+  IOS_SYSROOT=($IOS_PLATFORMDIR/Developer/SDKs/iPhoneOS*.sdk)
+  export CFLAGS="-Wall -arch arm64 -miphoneos-version-min=8.0 -funwind-tables"
+  cat <<EOF >toolchain.cmake
+    set(CMAKE_SYSTEM_NAME Darwin)
+    set(CMAKE_SYSTEM_PROCESSOR aarch64)
+    set(CMAKE_C_COMPILER /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang)
+EOF
+  cmake -G"Unix Makefiles" -DCMAKE_TOOLCHAIN_FILE=toolchain.cmake \
+        -DCMAKE_OSX_SYSROOT=${IOS_SYSROOT[0]} \
         -DPLATFORM=OS64 -DDEPLOYMENT_TARGET=12.0 \
         -DCMAKE_INSTALL_PREFIX=./libs \
         -DENABLE_BITCODE=OFF \
         -DENABLE_VISIBILITY=ON \
-        -DENABLE_ARC=OFF
-  do
-    echo "Failed to build libjpeg-turbo for iphoneos. Sometimes you have to run:"
-    echo "xcode-select --install && sudo xcode-select --reset && sudo xcodebuild -license"
-    echo "Hit Ctrl-c to try running the above command and then retry."
-    sleep 1
-  done
+        -DENABLE_ARC=OFF ..
   make -j 12
   make install
   popd
 
   mkdir -p build_maccatalyst
   pushd build_maccatalyst
-  while ! cmake .. -G"Unix Makefiles" -DCMAKE_TOOLCHAIN_FILE=$(realpath ../../ios-cmake/ios.toolchain.cmake) \
+
+  IOS_PLATFORMDIR=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform
+  IOS_SYSROOT=($IOS_PLATFORMDIR/Developer/SDKs/MacOSX*.sdk)
+  export CFLAGS="-Wall -arch x86_64 -mmacosx-version-min=10.15 -funwind-tables"
+  cat <<EOF >toolchain.cmake
+    set(CMAKE_SYSTEM_NAME Darwin)
+    set(CMAKE_SYSTEM_PROCESSOR x86_64)
+    set(CMAKE_C_COMPILER /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang)
+EOF
+  cmake -G"Unix Makefiles" -DCMAKE_TOOLCHAIN_FILE=toolchain.cmake \
+        -DCMAKE_OSX_SYSROOT=${IOS_SYSROOT[0]} \
         -DPLATFORM=MAC_CATALYST -DDEPLOYMENT_TARGET=10.15 \
         -DCMAKE_INSTALL_PREFIX=./libs \
         -DCMAKE_CXX_FLAGS_MAC_CATALYST:STRING="-target x86_64-apple-ios13.2-macabi" \
@@ -92,19 +107,17 @@ then
         -DCMAKE_BUILD_TYPE=MAC_CATALYST \
         -DENABLE_BITCODE=OFF \
         -DENABLE_VISIBILITY=ON \
-        -DENABLE_ARC=OFF
-  do
-    echo "Failed to build libjpeg-turbo for maccatalyst. Sometimes you have to run:"
-    echo "xcode-select --install && sudo xcode-select --reset && sudo xcodebuild -license"
-    echo "Hit Ctrl-c to try running the above command and then retry."
-    sleep 1
-  done
+        -DENABLE_ARC=OFF ..
   make -j 12
   make install
   popd
 
   popd
+else
+  echo "Found libjpeg-turbo directory, run rm -rf libjpeg-turbo to build again."
+  sleep 2
 fi
+
 
 # Lipo together the architectures for libjpeg-turbo and copy them to the common directory.
 mkdir -p libjpeg-turbo/libs_combined/lib/
@@ -117,30 +130,6 @@ do
 done
 rsync -avP libjpeg-turbo/libs_combined/ ./bVNC.xcodeproj/libs_combined/
 
-echo
-echo
-echo "Checking whether there are links for the patch version e.g. 10.15.6 of Mac OS X present here in the form MacOSX10.15.7.sdk -> MacOSX.sdk"
-echo "If you do not, OpenSSL build for Mac Catalyst and Xcode builds may fail."
-echo
-echo
-if ! ls -1d /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.[0-9]*.[0-9]*.sdk
-then
-  SDK_VERSION=$(xcrun --show-sdk-version)
-  echo "It seems you are missing some symlinks of the form MacOSX${SDK_VERSION}.sdk -> MacOSX.sdk in"
-  echo "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/"
-  ls -l /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/
-  echo "Should we make a symlink automatically? Type y and hit enter for yes, any other key for no."
-  read response
-  if [ "${response}" == "y" ]
-  then
-    pushd /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/
-    sudo ln -s MacOSX.sdk MacOSX${SDK_VERSION}.sdk
-    popd
-  fi
-  echo
-  echo
-fi
-sleep 2
 
 # Clone and build libssh2
 if git clone https://github.com/Jan-E/iSSH2.git
@@ -153,7 +142,9 @@ then
   popd
 else
   echo "Found libssh2 directory, assuming it is built, please remove with 'rm -rf iSSH2' to rebuild"
+  sleep 2
 fi
+
 
 # Copy SSH libs and header files to project
 rsync -avP iSSH2/libssh2_iphoneos/ ./bVNC.xcodeproj/libs_combined/
