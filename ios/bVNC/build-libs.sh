@@ -29,10 +29,20 @@ function usage() {
   exit 1
 }
 
+function check_dependencies() {
+  if ! which cmake
+  then
+    echo "You must have cmake installed."
+    exit 1
+  fi
+}
+
 if [ "${1}" == "-h" ]
 then
   usage
 fi
+
+check_dependencies
 
 TYPE=$1
 if [ -z "$TYPE" ]
