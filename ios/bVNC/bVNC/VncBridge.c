@@ -105,8 +105,8 @@ static rfbBool resize (rfbClient *cl) {
 
 void disconnectVnc(void *c) {
     rfbClient *cl = (rfbClient *)c;
-    rfbClientLog("Setting maintainConnection to false\n");
     if (cl != NULL) {
+        rfbClientLog("Setting maintainConnection to false\n");
         maintainConnection = false;
         // Force force some communication with server in order to wake up the
         // background thread waiting for server messages.
@@ -264,10 +264,18 @@ void connectVnc(void *c) {
 
 void rfb_client_cleanup(rfbClient *cl) {
     if (cl != NULL) {
+        if (cl->sock != RFB_INVALID_SOCKET)
+        {
+            rfbCloseSocket(cl->sock);
+        }
+        if (cl->listenSock != RFB_INVALID_SOCKET)
+        {
+            rfbCloseSocket(cl->listenSock);
+        }
         if (cl->frameBuffer != NULL) {
             free(cl->frameBuffer);
         }
-        //rfbClientCleanup(cl);
+//        rfbClientCleanup(cl);
     }
 }
 

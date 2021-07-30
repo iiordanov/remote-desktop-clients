@@ -87,6 +87,12 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		690C707F2693606A004F2EA1 /* zh-Hant */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hant"; path = "zh-Hant.lproj/Localizable.strings"; sourceTree = "<group>"; };
+		690C70802693606A004F2EA1 /* zh-Hant */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = "zh-Hant"; path = "zh-Hant.lproj/LaunchScreen.storyboard"; sourceTree = "<group>"; };
+		690C708526937A5B004F2EA1 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/Localizable.strings"; sourceTree = "<group>"; };
+		690C708626937A5B004F2EA1 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = "zh-Hans"; path = "zh-Hans.lproj/LaunchScreen.storyboard"; sourceTree = "<group>"; };
+		690C70872693802F004F2EA1 /* ko */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ko; path = ko.lproj/Localizable.strings; sourceTree = "<group>"; };
+		690C708826938030004F2EA1 /* ko */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = ko; path = ko.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		AF043A1523B3DADA00C43ED7 /* bVNC Pro.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "bVNC Pro.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		AF043A1823B3DADA00C43ED7 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		AF043A1A23B3DADA00C43ED7 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -1222,6 +1228,9 @@
 				en,
 				ja,
 				Base,
+				"zh-Hant",
+				"zh-Hans",
+				ko,
 			);
 			mainGroup = AF043A0C23B3DADA00C43ED7;
 			productRefGroup = AF043A1623B3DADA00C43ED7 /* Products */;
@@ -1420,6 +1429,9 @@
 			children = (
 				AFF8083E2487525800A6B35E /* ja */,
 				AFBBBD7924C3C6CD00F64E4A /* Base */,
+				690C70802693606A004F2EA1 /* zh-Hant */,
+				690C708626937A5B004F2EA1 /* zh-Hans */,
+				690C708826938030004F2EA1 /* ko */,
 			);
 			name = LaunchScreen.storyboard;
 			sourceTree = "<group>";
@@ -1429,6 +1441,9 @@
 			children = (
 				AFF808422487533C00A6B35E /* en */,
 				AFF808442487534200A6B35E /* ja */,
+				690C707F2693606A004F2EA1 /* zh-Hant */,
+				690C708526937A5B004F2EA1 /* zh-Hans */,
+				690C70872693802F004F2EA1 /* ko */,
 			);
 			name = Localizable.strings;
 			sourceTree = "<group>";
@@ -1765,7 +1780,7 @@
 				CLANG_USE_OPTIMIZATION_PROFILE = NO;
 				CODE_SIGN_ENTITLEMENTS = "bVNC/bVNC Pro.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 32;
+				CURRENT_PROJECT_VERSION = 36;
 				DEVELOPMENT_ASSET_PATHS = "bVNC/Preview\\ Content";
 				DEVELOPMENT_TEAM = 96Z3MCQKZA;
 				ENABLE_BITCODE = NO;
@@ -1813,7 +1828,7 @@
 				CLANG_USE_OPTIMIZATION_PROFILE = NO;
 				CODE_SIGN_ENTITLEMENTS = "bVNC/bVNC Pro.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 32;
+				CURRENT_PROJECT_VERSION = 36;
 				DEVELOPMENT_ASSET_PATHS = "bVNC/Preview\\ Content";
 				DEVELOPMENT_TEAM = 96Z3MCQKZA;
 				ENABLE_BITCODE = NO;
