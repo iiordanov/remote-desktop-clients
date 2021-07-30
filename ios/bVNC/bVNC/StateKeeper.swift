@@ -33,6 +33,14 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
     let darkbBG = bBg
 
     let objectWillChange = PassthroughSubject<StateKeeper, Never>()
+    
+    // Enabled applications for HELP resources
+    let helpDialogAppIds = ["com.iiordanov.bVNC", "com.iiordanov.freebVNC", "com.iiordanov.aRDP",
+                            "com.iiordanov.freeaRDP", "com.iiordanov.aSPICE", "com.iiordanov.freeaSPICE"]
+    // Enabled application for SSH tunneling
+    let sshAppIds = ["com.iiordanov.bVNC", "com.iiordanov.freebVNC", "com.iiordanov.aRDP",
+                     "com.iiordanov.freeaRDP", "com.iiordanov.aSPICE", "com.iiordanov.freeaSPICE"]
+    
     var selectedConnection: [String: String]
     var connections: [Dictionary<String, String>]
     var connectionIndex: Int
@@ -140,7 +148,7 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
     ]
 
     let interfaceButtonData: [ String: [ String: Any ] ] = [
-        "disconnectButton": [ "title": "", "lx": 1*bW+0*bSp, "ly": 2*bH+1*bSp, "send": Int32(-1), "tgl": false, "top": false, "right": true, "image": "arrowshape.turn.up.left"],
+        "disconnectButton": [ "title": "", "lx": 1*bW+0*bSp, "ly": 2*bH+1*bSp, "send": Int32(-1), "tgl": false, "top": false, "right": true, "image": "clear.fill"],
         "keyboardButton": [ "title": "", "lx": 1*bW+0*bSp, "ly": 1*bH+0*bSp, "send": Int32(-1), "tgl": false, "top": false, "right": true, "image": "keyboard"]
     ]
 
@@ -553,6 +561,17 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
     
     func saveImageRect() {
         self.originalImageRect = imageView?.frame ?? CGRect()
+    }
+    
+    func localizedString(
+        for key: String, tableName: String = "OverrideLocalizable",
+        bundle: Bundle = .main, comment: String = ""
+    ) -> String {
+        let defaultValue = NSLocalizedString(key, comment: comment)
+        return NSLocalizedString(
+            key, tableName: tableName, bundle: bundle,
+            value: defaultValue, comment: comment
+        )
     }
     
     func setImageRect(newRect: CGRect) {

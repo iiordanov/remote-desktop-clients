@@ -186,6 +186,20 @@ struct ConnectionsList : View {
         ScrollView {
             VStack {
                 HStack() {
+                    VStack(alignment: .leading, spacing: 10) {
+                        Text(self.stateKeeper.localizedString(for: "APP_NAME"))
+                            .frame(width: 80)
+                            .lineLimit(1)
+                            .allowsTightening(true)
+                            .scaledToFit()
+                            .minimumScaleFactor(0.5)
+                        Text(self.stateKeeper.localizedString(for: "COMPANY_NAME"))
+                            .frame(width: 80)
+                            .lineLimit(1)
+                            .allowsTightening(true)
+                            .scaledToFit()
+                            .minimumScaleFactor(0.5)
+                    }.padding()
                     
                     Button(action: {
                         self.stateKeeper.addNewConnection()
@@ -198,9 +212,8 @@ struct ConnectionsList : View {
                             Text("NEW_LABEL")
                         }.padding()
                     }
-                    
                     Button(action: {
-                        self.stateKeeper.showHelp(messages: [ "MAIN_HELP_TEXT" ])
+                        self.stateKeeper.showHelp(messages: [ LocalizedStringKey(self.stateKeeper.localizedString(for: "MAIN_HELP_TEXT")) ])
                     }) {
                         VStack(spacing: 10) {
                             Image(systemName: "info")
@@ -264,9 +277,6 @@ struct ConnectionsList : View {
 }
 
 struct AddOrEditConnectionPage : View {
-    let sshEnabledAppIds = ["com.iiordanov.bVNC", "com.iiordanov.freebVNC", "com.iiordanov.aRDP",
-                            "com.iiordanov.freeaRDP", "com.iiordanov.aSPICE", "com.iiordanov.freeaSPICE"]
-    
     var settings: UserDefaults = UserDefaults.standard
     @ObservedObject var stateKeeper: StateKeeper
     @State var sshAddressText: String
@@ -288,73 +298,109 @@ struct AddOrEditConnectionPage : View {
     var body: some View {
         ScrollView {
             VStack {
-                HStack {
-                Button(action: {
-                    let selectedConnection: [String : String] = [
-                        "sshAddress": self.sshAddressText.trimmingCharacters(in: .whitespacesAndNewlines),
-                        "sshPort": self.sshPortText.trimmingCharacters(in: .whitespacesAndNewlines),
-                        "sshUser": self.sshUserText.trimmingCharacters(in: .whitespacesAndNewlines),
-                        "sshPass": self.sshPassText.trimmingCharacters(in: .whitespacesAndNewlines),
-                        "sshPassphrase": self.sshPassphraseText.trimmingCharacters(in: .whitespacesAndNewlines),
-                        "sshPrivateKey": self.sshPrivateKeyText.trimmingCharacters(in: .whitespacesAndNewlines),
-                        "address": self.addressText.trimmingCharacters(in: .whitespacesAndNewlines),
-                        "port": self.portText.trimmingCharacters(in: .whitespacesAndNewlines),
-                        "username": self.usernameText.trimmingCharacters(in: .whitespacesAndNewlines),
-                        "password": self.passwordText.trimmingCharacters(in: .whitespacesAndNewlines),
-                        "screenShotFile": self.screenShotFile.trimmingCharacters(in: .whitespacesAndNewlines),
-                        "allowZooming": String(self.allowZooming),
-                        "allowPanning": String(self.allowPanning),
-                        "showSshTunnelSettings": String(self.showSshTunnelSettings)
-                    ]
-                    self.stateKeeper.saveConnection(connection: selectedConnection)
-                }) {
+                HStack(spacing: 5) {
+                    
+                    VStack(alignment: .leading, spacing: 10) {
+                        Text(self.stateKeeper.localizedString(for: "APP_NAME"))
+                            .frame(width: 70)
+                            .lineLimit(1)
+                            .allowsTightening(true)
+                            .scaledToFit()
+                            .minimumScaleFactor(0.25)
+                        Text(self.stateKeeper.localizedString(for: "COMPANY_NAME"))
+                            .frame(width: 70)
+                            .lineLimit(1)
+                            .allowsTightening(true)
+                            .scaledToFit()
+                            .minimumScaleFactor(0.25)
+                    }.padding()
+                    
+                    Button(action: {
+                        let selectedConnection: [String : String] = [
+                            "sshAddress": self.sshAddressText.trimmingCharacters(in: .whitespacesAndNewlines),
+                            "sshPort": self.sshPortText.trimmingCharacters(in: .whitespacesAndNewlines),
+                            "sshUser": self.sshUserText.trimmingCharacters(in: .whitespacesAndNewlines),
+                            "sshPass": self.sshPassText.trimmingCharacters(in: .whitespacesAndNewlines),
+                            "sshPassphrase": self.sshPassphraseText.trimmingCharacters(in: .whitespacesAndNewlines),
+                            "sshPrivateKey": self.sshPrivateKeyText.trimmingCharacters(in: .whitespacesAndNewlines),
+                            "address": self.addressText.trimmingCharacters(in: .whitespacesAndNewlines),
+                            "port": self.portText.trimmingCharacters(in: .whitespacesAndNewlines),
+                            "username": self.usernameText.trimmingCharacters(in: .whitespacesAndNewlines),
+                            "password": self.passwordText.trimmingCharacters(in: .whitespacesAndNewlines),
+                            "screenShotFile": self.screenShotFile.trimmingCharacters(in: .whitespacesAndNewlines),
+                            "allowZooming": String(self.allowZooming),
+                            "allowPanning": String(self.allowPanning),
+                            "showSshTunnelSettings": String(self.showSshTunnelSettings)
+                        ]
+                        self.stateKeeper.saveConnection(connection: selectedConnection)
+                    }) {
                         VStack(spacing: 10) {
                             Image(systemName: "folder.badge.plus")
                                 .resizable()
                                 .scaledToFit()
-                                .frame(width: 32, height: 32)
+                                .frame(width: 40, height: 40)
                             Text("SAVE_LABEL")
+                                .lineLimit(1)
+                                .allowsTightening(true)
+                                .scaledToFit()
+                                .minimumScaleFactor(0.70)
                         }.padding()
                     }
-                Button(action: {
-                    self.stateKeeper.deleteCurrentConnection()
-                }) {
+                    
+                    Button(action: {
+                        self.stateKeeper.deleteCurrentConnection()
+                    }) {
                         VStack(spacing: 10) {
                             Image(systemName: "trash")
                                 .resizable()
                                 .scaledToFit()
-                                .frame(width: 32, height: 32)
+                                .frame(width: 40, height: 40)
                             Text("DELETE_LABEL")
+                                .lineLimit(1)
+                                .allowsTightening(true)
+                                .scaledToFit()
+                                .minimumScaleFactor(0.70)
                         }.padding()
                     }
-                Button(action: {
-                    self.stateKeeper.showConnections()
-                }) {
+                    
+                    Button(action: {
+                        self.stateKeeper.showConnections()
+                    }) {
                         VStack(spacing: 10) {
                             Image(systemName: "arrowshape.turn.up.left")
                                 .resizable()
                                 .scaledToFit()
-                                .frame(width: 32, height: 32)
+                                .frame(width: 40, height: 40)
                             Text("CANCEL_LABEL")
+                                .lineLimit(1)
+                                .allowsTightening(true)
+                                .scaledToFit()
+                                .minimumScaleFactor(0.70)
                         }.padding()
                     }
 
-                Button(action: {
-                    self.stateKeeper.showHelp(messages: [ "SSH_CONNECTION_SETUP_HELP_TEXT",
-                                                          "VNC_CONNECTION_SETUP_HELP_TEXT",
-                                                          "UI_SETUP_HELP_TEXT" ])
-                }) {
+                    Button(action: {
+                        var help_messages_list: [LocalizedStringKey] = ["VNC_CONNECTION_SETUP_HELP_TEXT", "UI_SETUP_HELP_TEXT"]
+                        if self.stateKeeper.sshAppIds.contains(UIApplication.appId ?? "") {
+                            help_messages_list.insert("SSH_CONNECTION_SETUP_HELP_TEXT", at: 0)
+                        }
+                        self.stateKeeper.showHelp(messages: help_messages_list)
+                    }) {
                         VStack(spacing: 10) {
                             Image(systemName: "info")
                                 .resizable()
                                 .scaledToFit()
-                                .frame(width: 32, height: 32)
+                                .frame(width: 40, height: 40)
                             Text("HELP_LABEL")
+                                .lineLimit(1)
+                                .allowsTightening(true)
+                                .scaledToFit()
+                                .minimumScaleFactor(0.70)
                         }.padding()
                     }
                 }
                 
-                if self.sshEnabledAppIds.contains(UIApplication.appId ?? "") {
+                if self.stateKeeper.sshAppIds.contains(UIApplication.appId ?? "") {
                     VStack {
                         Toggle(isOn: $showSshTunnelSettings) {
                             Text("SHOW_SSH_TUNNEL_SETTINGS_LABEL")
@@ -459,46 +505,48 @@ struct HelpDialog : View {
                 ForEach(self.stateKeeper.localizedMessages, id: \.self) { message in
                     Text(message).font(.body).padding()
                 }
-                VStack {
-                    Button(action: {
-                        UIApplication.shared.open(URL(string: "https://groups.google.com/forum/#!forum/bvnc-ardp-aspice-opaque-remote-desktop-clients")!, options: [:], completionHandler: nil)
+                if self.stateKeeper.helpDialogAppIds.contains(UIApplication.appId ?? "") {
+                    VStack {
+                        Button(action: {
+                            UIApplication.shared.open(URL(string: "https://groups.google.com/forum/#!forum/bvnc-ardp-aspice-opaque-remote-desktop-clients")!, options: [:], completionHandler: nil)
+                            
+                        }) {
+                            HStack(spacing: 10) {
+                                Image(systemName: "info.circle")
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(width: 32, height: 32)
+                                Text("SUPPORT_FORUM_LABEL")
+                            }.padding()
+                        }
                         
-                    }) {
-                        HStack(spacing: 10) {
-                            Image(systemName: "info.circle")
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 32, height: 32)
-                            Text("SUPPORT_FORUM_LABEL")
-                        }.padding()
-                    }
-                    
-                    Button(action: {
-                        UIApplication.shared.open(URL(string: "https://github.com/iiordanov/remote-desktop-clients/issues")!, options: [:], completionHandler: nil)
-                        
-                    }) {
-                        HStack(spacing: 10) {
-                            Image(systemName: "ant.circle")
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 32, height: 32)
-                            Text("REPORT_BUG_LABEL")
-                        }.padding()
-                    }
+                        Button(action: {
+                            UIApplication.shared.open(URL(string: "https://github.com/iiordanov/remote-desktop-clients/issues")!, options: [:], completionHandler: nil)
+                            
+                        }) {
+                            HStack(spacing: 10) {
+                                Image(systemName: "ant.circle")
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(width: 32, height: 32)
+                                Text("REPORT_BUG_LABEL")
+                            }.padding()
+                        }
 
-                    Button(action: {
-                        UIApplication.shared.open(URL(string: "https://www.youtube.com/watch?v=16pwo3wwv9w")!, options: [:], completionHandler: nil)
-                        
-                    }) {
-                        HStack(spacing: 10) {
-                            Image(systemName: "video.circle")
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 32, height: 32)
-                            Text("HELP_VIDEOS_LABEL")
-                        }.padding()
-                    }
+                        Button(action: {
+                            UIApplication.shared.open(URL(string: "https://www.youtube.com/watch?v=16pwo3wwv9w")!, options: [:], completionHandler: nil)
+                            
+                        }) {
+                            HStack(spacing: 10) {
+                                Image(systemName: "video.circle")
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(width: 32, height: 32)
+                                Text("HELP_VIDEOS_LABEL")
+                            }.padding()
+                        }
 
+                    }
                 }
             }
             Button(action: {
