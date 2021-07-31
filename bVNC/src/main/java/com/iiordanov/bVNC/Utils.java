@@ -64,9 +64,9 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
-import android.support.v7.app.AppCompatActivity;
+import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentManager;
+import androidx.appcompat.app.AppCompatActivity;
 import android.text.Html;
 import android.util.Log;
 import android.view.ViewConfiguration;
@@ -552,6 +552,24 @@ public class Utils {
         String value = "";
         if (s != null) {
             value = s.getString(key);
+        }
+        return value;
+    }
+
+    public static int getIntFromMessage(Message msg, String key) {
+        Bundle s = msg.getData();
+        int value = 0;
+        if (s != null) {
+            value = s.getInt(key);
+        }
+        return value;
+    }
+
+    public static boolean getBooleanFromMessage(Message msg, String key) {
+        Bundle s = msg.getData();
+        boolean value = false;
+        if (s != null) {
+            value = s.getBoolean(key);
         }
         return value;
     }

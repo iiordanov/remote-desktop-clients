@@ -18,15 +18,15 @@
 	<LinearLayout android:id="@+id/LinearLayout01" android:layout_width="fill_parent" android:layout_height="wrap_content" android:orientation="horizontal">
 		<Button android:text="@string/button_send_text" android:id="@+id/buttonSendText" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textAppearance="?android:attr/textAppearanceLarge"></Button>
 		<LinearLayout android:gravity="right" android:layout_width="fill_parent" android:layout_height="wrap_content" android:orientation="horizontal">
-			<android.support.v7.widget.AppCompatImageButton android:gravity="right|center_vertical" android:id="@+id/buttonPreviousEntry" app:srcCompat="@android:drawable/arrow_up_float" android:layout_width="wrap_content" android:layout_height="wrap_content" />
-			<android.support.v7.widget.AppCompatImageButton android:gravity="right|center_vertical" android:id="@+id/buttonNextEntry" app:srcCompat="@android:drawable/arrow_down_float" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+			<androidx.appcompat.widget.AppCompatImageButton android:gravity="right|center_vertical" android:id="@+id/buttonPreviousEntry" app:srcCompat="@android:drawable/arrow_up_float" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+			<androidx.appcompat.widget.AppCompatImageButton android:gravity="right|center_vertical" android:id="@+id/buttonNextEntry" app:srcCompat="@android:drawable/arrow_down_float" android:layout_width="wrap_content" android:layout_height="wrap_content" />
 		</LinearLayout>
 	</LinearLayout>
 	<LinearLayout android:layout_width="fill_parent" android:layout_height="12dp"/>
 	<LinearLayout android:layout_width="fill_parent" android:layout_height="fill_parent" android:gravity="bottom" android:orientation="horizontal">
 		<Button android:text="@string/button_send_without_saving" android:id="@+id/buttonSendWithoutSaving" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textAppearance="?android:attr/textAppearanceLarge"/>
 		<LinearLayout android:layout_width="fill_parent" android:layout_height="wrap_content" android:orientation="vertical" android:gravity="right|center_vertical">
-			<android.support.v7.widget.AppCompatImageButton android:id="@+id/buttonTextDelete" app:srcCompat="@android:drawable/ic_menu_delete" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+			<androidx.appcompat.widget.AppCompatImageButton android:id="@+id/buttonTextDelete" app:srcCompat="@android:drawable/ic_menu_delete" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
 		</LinearLayout>
 	</LinearLayout>
 
