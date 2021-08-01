@@ -383,9 +383,9 @@ Todos os métodos de entrada:
   - Arrasto com o mouse: Toque longo e deslizar.
   - Rolagem do mouse: Mover com dois dedos para cima/baixo e para a esquerda/direita. Movimento rápido rola mais rápido.
   - Zoom in/out: Apertar-zoom para controlar a escala.
-  - Tecla Ctrl/Alt: Menu-&gtCtrl/Alt botões. Não se esqueça de desligar quando estiver pronto!
-  - Teclas combos: Menu-&gtMais-&gtEnviar teclas.
-  - Enviar texto: Ou digite no teclado na tela, ou use Menu-&gtMais-&gtEnviar texto".</string>
+  - Tecla Ctrl/Alt: Menu-&gt;Ctrl/Alt botões. Não se esqueça de desligar quando estiver pronto!
+  - Teclas combos: Menu-&gt;Mais-&gt;Enviar teclas.
+  - Enviar texto: Ou digite no teclado na tela, ou use Menu-&gt;Mais-&gt;Enviar texto".</string>
     <string name="input_mode_mouse">Controle do ponteiro do mouse</string>
     <string name="input_mode_panning">Modo de movimento no Desktop</string>
     <string name="input_mode_single_handed">De uma mão</string>
