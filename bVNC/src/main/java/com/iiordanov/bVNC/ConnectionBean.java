@@ -155,9 +155,10 @@ public class ConnectionBean extends AbstractConnectionBean implements Connection
         setIdHash("");
 
         // These settings are saved in SharedPrefs
-        setUseLastPositionToolbar(false);
+        setUseLastPositionToolbar(true);
         setUseLastPositionToolbarX(0);
         setUseLastPositionToolbarY(0);
+        setUseLastPositionToolbarMoved(false);
 
     }
     
@@ -358,7 +359,7 @@ public class ConnectionBean extends AbstractConnectionBean implements Connection
     public void loadFromSharedPreferences(Context context) {
         android.util.Log.d(TAG, "loadFromSharedPreferences called");
         SharedPreferences sp = context.getSharedPreferences(Long.toString(get_Id()), Context.MODE_PRIVATE);
-        useLastPositionToolbar = sp.getBoolean("useLastPositionToolbar", false);
+        useLastPositionToolbar = sp.getBoolean("useLastPositionToolbar", true);
         useLastPositionToolbarX = sp.getInt("useLastPositionToolbarX", 0);
         useLastPositionToolbarY = sp.getInt("useLastPositionToolbarY", 0);
         useLastPositionToolbarMoved = sp.getBoolean("useLastPositionToolbarMoved", false);

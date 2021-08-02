@@ -693,7 +693,7 @@ Known issues:
     <string name="right_alt_as_iso_l3_shift">R-Alt as ISO L3 Shift (VNC only)</string>
 
     <string name="rotate_dpad">Rotate Bluetooth or software D-Pad</string>
-    <string name="use_last_position_toolbar">Utilize Last Position of Toolbar On Canvas</string>
+    <string name="use_last_position_toolbar">Restore Toolbar Position</string>
 
     <string name="save_as_copy">Save as Copy</string>
 

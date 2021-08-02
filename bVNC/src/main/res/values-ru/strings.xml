@@ -679,7 +679,7 @@ All Input Methods:
     <string name="right_alt_as_iso_l3_shift">R-Alt как ISO L3 Shift (только VNC)</string>
 
     <string name="rotate_dpad">Перевернуть Bluetooth или программный D-Pad</string>
-    <string name="use_last_position_toolbar">Utilize Last Position of Toolbar On Canvas</string>
+    <string name="use_last_position_toolbar">Restore Toolbar Position</string>
 
     <string name="save_as_copy">Сохранить копию</string>
 
