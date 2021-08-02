@@ -1,4 +1,6 @@
 v5.0.5
+- Added Portuguese translation
+- Disabled highlighting of canvasing when focused so colors are not washed out
 - Moved to AndroidX libraries
 - Toolbar position is now remembered if selected on connection options
 v5.0.4
