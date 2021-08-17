@@ -428,7 +428,12 @@ public class ConnectionSettings implements Connection, Serializable {
         editor.putBoolean("useLastPositionToolbar", useLastPositionToolbar);
         editor.putInt("useLastPositionToolbarX", useLastPositionToolbarX);
         editor.putInt("useLastPositionToolbarY", useLastPositionToolbarY);
-        editor.putBoolean("useLastPositionToolbarMoved", useLastPositionToolbarMoved);
+        if (useLastPositionToolbar) {
+            editor.putBoolean("useLastPositionToolbarMoved", useLastPositionToolbarMoved);
+        }
+        else {
+            editor.putBoolean("useLastPositionToolbarMoved", false);
+        }
         editor.apply();
         // Make sure the CA gets saved to a file if necessary.
         ovirtCaFile = saveCaToFile (context, ovirtCaData);

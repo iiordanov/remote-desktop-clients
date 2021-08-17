@@ -59,7 +59,7 @@ import android.os.Vibrator;
 import androidx.fragment.app.FragmentManager;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
+import com.undatech.opaque.util.RemoteToolbar;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.InputDevice;
@@ -163,7 +163,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
     boolean hardKeyboardExtended;
     boolean extraKeysHidden = false;
     volatile boolean softKeyboardUp;
-    Toolbar toolbar;
+    RemoteToolbar toolbar;
     View rootView;
 
     /**
@@ -449,7 +449,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
         
         panner = new Panner(this, canvas.handler);
 
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar = (RemoteToolbar) findViewById(R.id.toolbar);
         toolbar.setTitle("");
         toolbar.getBackground().setAlpha(64);
         toolbar.setLayoutParams(params);
@@ -500,6 +500,8 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
         int diffArrowKeysPosition = r.right - re.left - layoutArrowKeys.getRight();
         int diffLayoutKeysPosition = r.bottom - re.top - layoutKeysBottom;
         int diffToolbarPosition = r.bottom - re.top - toolbarBottom - r.bottom/2;
+        int diffToolbarPositionRightAbsolute = r.right - toolbar.getWidth();
+        int diffToolbarPositionTopAbsolute = r.bottom - re.top - toolbar.getHeight() - r.bottom/2;
         android.util.Log.d(TAG, "onGlobalLayout: before: r.bottom: " + r.bottom +
                 " rootViewHeight: " + rootViewHeight + " re.top: " + re.top + " re.bottom: " + re.bottom +
                 " layoutKeysBottom: " + layoutKeysBottom + " rootViewBottom: " + rootViewBottom + " toolbarBottom: " + toolbarBottom +
@@ -521,8 +523,12 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
                     toolbar.offsetTopAndBottom(diffToolbarPosition);
                 }
                 else {
-                    toolbar.setX(connection.getUseLastPositionToolbarX());
-                    toolbar.setY(connection.getUseLastPositionToolbarY());
+                    toolbar.makeVisible(connection.getUseLastPositionToolbarX(),
+                                        connection.getUseLastPositionToolbarY(),
+                                        r.right,
+                                        r.bottom,
+                                        diffToolbarPositionRightAbsolute,
+                                        diffToolbarPositionTopAbsolute);
                 }
                 android.util.Log.d(TAG, "onGlobalLayout: shifting arrow keys by: " + diffArrowKeysPosition);
                 layoutArrowKeys.offsetLeftAndRight(diffArrowKeysPosition);
@@ -544,8 +550,12 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
                     toolbar.offsetTopAndBottom(diffToolbarPosition);
                 }
                 else {
-                    toolbar.setX(connection.getUseLastPositionToolbarX());
-                    toolbar.setY(connection.getUseLastPositionToolbarY());
+                    toolbar.makeVisible(connection.getUseLastPositionToolbarX(),
+                                        connection.getUseLastPositionToolbarY(),
+                                        r.right,
+                                        r.bottom,
+                                        diffToolbarPositionRightAbsolute,
+                                        diffToolbarPositionTopAbsolute);
                 }
                 Log.d(TAG, "onGlobalLayout: shifting arrow keys by: " + diffArrowKeysPosition);
                 layoutArrowKeys.offsetLeftAndRight(diffArrowKeysPosition);
