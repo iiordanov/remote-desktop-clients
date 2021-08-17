@@ -546,6 +546,7 @@ All Input Methods:
     <string name="portrait_mode">Перейти в портретный режим при подключении.</string>
     <string name="position_toolbar_last_used">Оставить панель в текущем расположении</string>
     <string name="position_toolbar_last_used_summary">(Применимо только для новых соединений)</string>
+    <string name="position_toolbar_last_used_and_summary">Оставить панель в текущем расположении (Применимо только для новых соединений)</string>
     <string name="pro_feature_mfa">На сервере многофакторной аутентификации включен. Пожалуйста, поддержите проект, купив Pro версию, которая имеет поддержку этой функции. Ссылка на Pro версия доступна в диалоговом окне запуска.</string>
 
     <string name="rdp_address_caption_hint">RDP Server</string>
