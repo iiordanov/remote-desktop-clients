@@ -305,6 +305,9 @@ public class aSPICE extends MainConfiguration {
         selected.setUseDpadAsArrows(checkboxUseDpadAsArrows.isChecked());
         selected.setRotateDpad(checkboxRotateDpad.isChecked());
         selected.setUseLastPositionToolbar(checkboxUseLastPositionToolbar.isChecked());
+        if (!checkboxUseLastPositionToolbar.isChecked()) {
+            selected.setUseLastPositionToolbarMoved(false);
+        }
         selected.setEnableSound(checkboxEnableSound.isChecked());
         
         TextView selection = null;

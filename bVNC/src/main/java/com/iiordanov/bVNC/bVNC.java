@@ -379,6 +379,9 @@ public class bVNC extends MainConfiguration {
         selected.setUseDpadAsArrows(checkboxUseDpadAsArrows.isChecked());
         selected.setRotateDpad(checkboxRotateDpad.isChecked());
         selected.setUseLastPositionToolbar(checkboxUseLastPositionToolbar.isChecked());
+        if (!checkboxUseLastPositionToolbar.isChecked()) {
+            selected.setUseLastPositionToolbarMoved(false);
+        }
         if (checkboxPreferHextile.isChecked())
             selected.setPrefEncoding(RfbProto.EncodingHextile);
         else

@@ -270,6 +270,9 @@ public class aRDP extends MainConfiguration {
         selected.setUseDpadAsArrows(checkboxUseDpadAsArrows.isChecked());
         selected.setRotateDpad(checkboxRotateDpad.isChecked());
         selected.setUseLastPositionToolbar(checkboxUseLastPositionToolbar.isChecked());
+        if (!checkboxUseLastPositionToolbar.isChecked()) {
+            selected.setUseLastPositionToolbarMoved(false);
+        }
         // TODO: Reinstate Color model spinner but for RDP settings.
         //selected.setColorModel(((COLORMODEL)colorSpinner.getSelectedItem()).nameString());
     }

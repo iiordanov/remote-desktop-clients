@@ -363,6 +363,9 @@
   <string name="port_hint">端口</string>
   <string name="port_ssh_hint">端口</string>
   <string name="portrait_mode">连接后切换到纵放模式</string>
+  <string name="position_toolbar_last_used">工具栏放在上次使用的位置</string>
+  <string name="position_toolbar_last_used_summary">(仅限适用到新建连接)</string>
+  <string name="position_toolbar_last_used_and_summary">工具栏放在上次使用的位置 (仅限适用到新建连接)</string>
   <string name="pro_feature_mfa">看来您的服务器已启用多因素身份验证。请购买支持此功能的Pro版本。在开始对话框中有Pro版本的链接。</string>
   <string name="rdp_address_caption_hint">RDP服务器</string>
   <string name="rdp_adv_console_mode">控制台模式</string>
@@ -496,7 +499,6 @@ aRDP对应预定的功能：
   <string name="repeater_save">使用</string>
   <string name="right_alt_as_iso_l3_shift">R-Alt作为ISO L3移位（仅限VNC）</string>
   <string name="rotate_dpad">旋转蓝牙或软件D-Pad</string>
-  <string name="use_last_position_toolbar">Utilize Last Position of Toolbar On Canvas</string>
   <string name="save_as_copy">另存为副本</string>
   <string name="scaling">缩放</string>
   <string name="scaling_zoomable">可缩放</string>
@@ -624,6 +626,7 @@ aSPICE对应的功能如下：
   <string name="username_hint_optional">VNC用户名（可选）</string>
   <string name="username_hint_ssh">SSH用户名</string>
   <string name="username_hint_vencrypt">VNC用户名</string>
+  <string name="use_last_position_toolbar">工具栏位置初始化</string>
   <string name="verification_code">验证码</string>
   <string name="verification_code_message">请输入多因素身份验证验证码</string>
   <string name="view_only">仅查看模式</string>

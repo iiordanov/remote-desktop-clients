@@ -155,9 +155,10 @@ public class ConnectionBean extends AbstractConnectionBean implements Connection
         setIdHash("");
 
         // These settings are saved in SharedPrefs
-        setUseLastPositionToolbar(false);
+        setUseLastPositionToolbar(true);
         setUseLastPositionToolbarX(0);
         setUseLastPositionToolbarY(0);
+        setUseLastPositionToolbarMoved(false);
 
     }
     
@@ -358,7 +359,7 @@ public class ConnectionBean extends AbstractConnectionBean implements Connection
     public void loadFromSharedPreferences(Context context) {
         android.util.Log.d(TAG, "loadFromSharedPreferences called");
         SharedPreferences sp = context.getSharedPreferences(Long.toString(get_Id()), Context.MODE_PRIVATE);
-        useLastPositionToolbar = sp.getBoolean("useLastPositionToolbar", false);
+        useLastPositionToolbar = sp.getBoolean("useLastPositionToolbar", true);
         useLastPositionToolbarX = sp.getInt("useLastPositionToolbarX", 0);
         useLastPositionToolbarY = sp.getInt("useLastPositionToolbarY", 0);
         useLastPositionToolbarMoved = sp.getBoolean("useLastPositionToolbarMoved", false);
@@ -530,7 +531,7 @@ public class ConnectionBean extends AbstractConnectionBean implements Connection
     		readyToBeSaved = true;
     		return;
     	}
-    	
+
     	String host = dataUri.getHost();
     	if (host != null) {
     		setAddress(host);
@@ -549,6 +550,7 @@ public class ConnectionBean extends AbstractConnectionBean implements Connection
     	
     	final int PORT_NONE = -1;
         int port = dataUri.getPort();
+        boolean basePasswordParamInUri = false;
         if (port != PORT_NONE && !isValidPort(port)) {
         	throw new IllegalArgumentException("The specified VNC port is not valid.");
         }
@@ -588,13 +590,14 @@ public class ConnectionBean extends AbstractConnectionBean implements Connection
         for (String pwdParam : supportedPwdParams) {
             String password = dataUri.getQueryParameter(pwdParam);
             if (password != null) {
+                basePasswordParamInUri = true;
                 setPassword(password);
                 break;
             }
         }
         
     	setKeepPassword(false); // we should not store the password unless it is encrypted
-    	
+
     	String securityTypeParam = dataUri.getQueryParameter(Constants.PARAM_SECTYPE);
     	int secType = 0; //invalid
     	if (securityTypeParam != null) {
@@ -623,13 +626,13 @@ public class ConnectionBean extends AbstractConnectionBean implements Connection
     			throw new IllegalArgumentException("The specified security type is invalid or unsupported.");   
     		}
     	}
-    	
+
     	// ssh parameters
     	String sshHost = dataUri.getQueryParameter(Constants.PARAM_SSH_HOST);
     	if (sshHost != null) {
     	    setSshServer(sshHost);
     	}
-    	
+
     	String sshPortParam = dataUri.getQueryParameter(Constants.PARAM_SSH_PORT);
     	if (sshPortParam != null) {
     		int sshPort = Integer.parseInt(sshPortParam);
@@ -773,9 +776,9 @@ public class ConnectionBean extends AbstractConnectionBean implements Connection
     		// while we could have implemented tunnel/ssh without one 
     		// the user can supply a blank value and the server will not
     		// request it and it is better to support the common case
-    		if (Utils.isNullOrEmptry(getPassword())) {
+    		if (Utils.isNullOrEmptry(getPassword()) && !basePasswordParamInUri) {
     			readyForConnection = false;
-    			Log.i(TAG, "URI missing VNC password.");
+    			Log.i(TAG, "URI missing base protocol password.");
     		}
     	}
     	if (connType == Constants.CONN_TYPE_SSH) {

@@ -13,13 +13,13 @@
     >
 </com.iiordanov.bVNC.RemoteCanvas>
 
-    <androidx.appcompat.widget.Toolbar
+    <com.undatech.opaque.util.RemoteToolbar
       android:id="@+id/toolbar"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:layout_gravity="right|center"
       android:background="?attr/colorPrimary">
-    </androidx.appcompat.widget.Toolbar>
+    </com.undatech.opaque.util.RemoteToolbar>
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/singleHandOpts"
