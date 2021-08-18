@@ -2,8 +2,9 @@ v5.0.5
 - Added Portuguese translation
 - Disabled highlighting of canvasing when focused so colors are not washed out
 - Moved to AndroidX libraries
-- Toolbar position is now remembered if selected on connection options
-- Fix for 32-bit x86 Chromebooks
+- Toolbar position is now remembered by default
+- Fix for 32-bit x86 Chromebooks                        
+- Fixed SSH Intents for allowing blank passwords for base protocol
 v5.0.4
 - Fix for sending enter key
 - Keyboard Layout additions and fixes

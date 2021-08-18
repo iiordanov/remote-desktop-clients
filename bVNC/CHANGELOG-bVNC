@@ -2,7 +2,8 @@ v5.0.5
 - Added Portuguese translation
 - Disabled highlighting of canvasing when focused so colors are not washed out
 - Moved to AndroidX libraries
-- Toolbar position is now remembered if selected on connection options
+- Toolbar position is now remembered by default                        
+- Fixed SSH Intents for allowing blank passwords for base protocol
 v5.0.4
 - Master password fix
 - SQLCipher library update
