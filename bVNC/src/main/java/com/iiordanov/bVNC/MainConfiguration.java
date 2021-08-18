@@ -466,7 +466,6 @@ public abstract class MainConfiguration extends FragmentActivity {
     protected boolean useLastPositionToolbarDefault() {
         android.util.Log.d(TAG, "UseLastPositionToolbarDefault called");
         SharedPreferences sp = getSharedPreferences(Constants.generalSettingsTag, Context.MODE_PRIVATE);
-        android.util.Log.d(TAG, "UseLastPositionToolbarDefault boolean value is " + sp.getBoolean(Constants.positionToolbarLastUsed, false));
-        return sp.getBoolean(Constants.positionToolbarLastUsed, false);
+        return sp.getBoolean(Constants.positionToolbarLastUsed, true);
     }
 }
