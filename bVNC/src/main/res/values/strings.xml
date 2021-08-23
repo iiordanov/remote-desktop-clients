@@ -550,9 +550,8 @@ If you are looking for a quick performance boost, try setting the Color mode to 
     <string name="port_ssh_hint">Port</string>
 
     <string name="portrait_mode">Switch to portrait mode when connected</string>
-    <string name="position_toolbar_last_used">Position Toolbar At Last Used</string>
+    <string name="position_toolbar_last_used">Restore Toolbar Position</string>
     <string name="position_toolbar_last_used_summary">(Applies to New Connections Only)</string>
-    <string name="position_toolbar_last_used_and_summary">Position Toolbar At Last Used (Applies to New Connections Only)</string>
     <string name="pro_feature_mfa">It appears your server has multi-factor authentication enabled. Please support the project by purchasing the Pro version which has support for this feature. A link to the Pro version is available in the start dialog.</string>
 
     <string name="rdp_address_caption_hint">RDP Server</string>
@@ -832,7 +831,6 @@ Known issues:
     <string name="username_hint_optional">VNC Username (optional)</string>
     <string name="username_hint_ssh">SSH Username</string>
     <string name="username_hint_vencrypt">VNC Username</string>
-    <string name="use_last_position_toolbar">Restore Toolbar Position</string>
     <string name="verification_code">Verification Code</string>
     <string name="verification_code_message">Please enter the multi-factor authentication Verification Code</string>
 

@@ -222,10 +222,10 @@
                 android:padding="10dip">
 
                 <TextView
+                    android:id="@+id/textUseLastPositionToolbar"
                     android:layout_width="0dp"
                     android:layout_height="56dp"
                     android:layout_weight="4"
-                    android:text="@string/position_toolbar_last_used_and_summary"
                     android:textAppearance="?android:attr/textAppearanceMedium" />
 
                 <ToggleButton

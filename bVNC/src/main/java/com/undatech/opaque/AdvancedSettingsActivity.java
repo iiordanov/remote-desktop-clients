@@ -72,6 +72,7 @@ public class AdvancedSettingsActivity extends FragmentActivity implements Manage
     private LinearLayout layoutCustomRemoteResolution;
     private LinearLayout layoutToggleCustomRemoteResolution;
     private LinearLayout layoutUseLastPositionToolbar;
+    private TextView textUseLastPositionToolbar;
     private EditText rdpWidth;
     private EditText rdpHeight;
 
@@ -107,6 +108,9 @@ public class AdvancedSettingsActivity extends FragmentActivity implements Manage
         toggleUsingCustomOvirtCa.setChecked(currentConnection.isUsingCustomOvirtCa());
 
         layoutUseLastPositionToolbar = (LinearLayout)findViewById(R.id.layoutUseLastPositionToolbar);
+        textUseLastPositionToolbar = (TextView) findViewById(R.id.textUseLastPositionToolbar);
+        String textStrUseLastPositionToolbar = getString(R.string.position_toolbar_last_used) + "\n" + getString(R.string.position_toolbar_last_used_summary);
+        textUseLastPositionToolbar.setText(textStrUseLastPositionToolbar);
         toggleUseLastPositionToolbar = (ToggleButton)findViewById(R.id.toggleUseLastPositionToolbar);
         toggleUseLastPositionToolbar.setChecked(currentConnection.getUseLastPositionToolbar());
 
