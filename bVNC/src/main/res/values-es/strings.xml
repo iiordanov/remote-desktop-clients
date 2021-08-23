@@ -15,8 +15,6 @@
     <string name="custom_ca_import">Alternativamente, introduzca la ruta completa a su CA y toque Importar</string>
     <string name="custom_ca_paste">Pegue (si no está importando) el CA aquí</string>
     <string name="ca_ovirt_use_custom">RHEV/oVirt CA personalizado</string>
-    <string name="position_toolbar_last_used">Position Toolbar At Last Used</string>
-    <string name="position_toolbar_last_used_summary">(Applies to New Connections Only)</string>
     <string name="ca_spice_use_ovirt">Utilice RHEV/oVirt CA para SPICE</string>
     <string name="ca_ovirt_manage">Administrar RHEV/oVirt CA</string>
     <string name="ca_spice_manage">Administrar SPICE CA</string>
@@ -546,6 +544,8 @@ Si está buscando un aumento rápido del rendimiento, intente configurar el modo
     <string name="port_ssh_hint">Puerto</string>
 
     <string name="portrait_mode">Cambia al modo vertical cuando está conectado</string>
+    <string name="position_toolbar_last_used">Restore Toolbar Position</string>
+    <string name="position_toolbar_last_used_summary">(Applies to New Connections Only)</string>
 
     <string name="pro_feature_mfa">Parece que su servidor tiene habilitada la autenticación multifactor. Apoye el proyecto comprando la versión Pro que tiene soporte para esta función. Un enlace a la versión Pro está disponible en el cuadro de diálogo de inicio.</string>
 
@@ -686,7 +686,6 @@ Problemas conocidos:
     <string name="right_alt_as_iso_l3_shift">R-Alt como ISO L3 Shift (solo VNC)</string>
 
     <string name="rotate_dpad">Gire el D-Pad de software o Bluetooth</string>
-    <string name="use_last_position_toolbar">Restore Toolbar Position</string>
 
     <string name="save_as_copy">Guardar como copia</string>
 

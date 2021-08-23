@@ -363,9 +363,8 @@
   <string name="port_hint">포트</string>
   <string name="port_ssh_hint">포트</string>
   <string name="portrait_mode">연결될 때 세로 표시에 전환</string>
-  <string name="position_toolbar_last_used">마지막으로 사용 된 위치에 Toolbar를 배치</string>
+  <string name="position_toolbar_last_used">Toolbar 위치 초기화</string>
   <string name="position_toolbar_last_used_summary">(새 연결만 적용)</string>
-  <string name="position_toolbar_last_used_and_summary">마지막으로 사용 된 위치에 Toolbar를 배치 (새 연결만 적용)</string>
   <string name="pro_feature_mfa">서버의 다단계 인증이 활성화되어 있습니다.다단계 인증을 지원하고있는 Pro버전을 구입하십시오.Pro버전의 링크가 시작할 때 표시되는 화면에 있습니다</string>
   <string name="rdp_address_caption_hint">RDP 서버</string>
   <string name="rdp_adv_console_mode">콘솔 모드</string>
@@ -631,7 +630,6 @@ aSPICEで의 대응 기능는 이하와 같다 :
   <string name="username_hint_optional">VNC 사용자 이름(임의)</string>
   <string name="username_hint_ssh">SSH 사용자 이름</string>
   <string name="username_hint_vencrypt">VNC 사용자 이름</string>
-  <string name="use_last_position_toolbar">Toolbar 위치 초기화</string>
   <string name="verification_code">매칭 코드</string>
   <string name="verification_code_message">다단계 인증 매칭 코드를 입력하십시오.</string>
   <string name="view_only">열람 제한 모드</string>
