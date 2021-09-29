@@ -42,6 +42,7 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
                      "com.iiordanov.freeaRDP", "com.iiordanov.aSPICE", "com.iiordanov.freeaSPICE"]
     
     var selectedConnection: [String: String]
+    var cachedConnection: [String: String]
     var connections: [Dictionary<String, String>]
     var connectionIndex: Int
     var settings = UserDefaults.standard
@@ -230,6 +231,7 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
         // Load settings for current connection
         connectionIndex = -1
         selectedConnection = [:]
+        cachedConnection = [:]
         connections = self.settings.array(forKey: "connections") as? [Dictionary<String, String>] ?? []
         interfaceButtons = [:]
         keyboardButtons = [:]
@@ -242,6 +244,7 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
         // Load settings for current connection
         connectionIndex = -1
         selectedConnection = [:]
+        cachedConnection = [:]
         connections = self.settings.array(forKey: "connections") as? [Dictionary<String, String>] ?? []
         interfaceButtons = [:]
         keyboardButtons = [:]
@@ -356,6 +359,11 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
         StoreReviewHelper.checkAndAskForReview()
     }
     
+    @objc func scheduleDisconnectTimerFromButton() {
+        self.scheduleDisconnectTimer(interval: 1, wasDrawing: self.isDrawing)
+        self.showConnections()
+    }
+    
     @objc func scheduleDisconnectTimer(interval: Double = 1, wasDrawing: Bool) {
         UserInterface {
             log_callback_str(message: "Scheduling disconnect")
@@ -399,6 +407,13 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
             self.currentPage = "addOrEditConnection"
         }
     }
+    
+    func addOrEditConnection() {
+        log_callback_str(message: "Going to connection settings screen")
+        UserInterface {
+            self.currentPage = "addOrEditConnection"
+        }
+    }
 
     func deleteCurrentConnection() {
         log_callback_str(message: "Deleting connection at index \(self.connectionIndex) and navigating to list of connections screen")
@@ -410,13 +425,11 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
             self.connections.remove(at: self.connectionIndex)
             self.selectedConnection = [:]
             self.connectionIndex = -1
-            saveSettings()
+            self.saveSettings()
         } else {
             log_callback_str(message: "We were adding a new connection, so not deleting anything")
         }
-        UserInterface {
-            self.currentPage = "connectionsList"
-        }
+        self.showConnections()
     }
     
     func saveSettings() {
@@ -443,6 +456,7 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
     }
     
     func showConnections() {
+        self.cachedConnection = [:]
         UserInterface {
             let contentView = ContentView(stateKeeper: self)
             globalWindow!.rootViewController = MyUIHostingController(rootView: contentView)
@@ -596,7 +610,7 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
             self.interfaceButtons["keyboardButton"] = b
         }
         interfaceButtons = createButtonsFromData(populateDict: interfaceButtons, buttonData: interfaceButtonData, width: StateKeeper.bW, height: StateKeeper.bH, spacing: StateKeeper.bSp)
-        interfaceButtons["disconnectButton"]?.addTarget(self, action: #selector(self.scheduleDisconnectTimer), for: .touchDown)
+        interfaceButtons["disconnectButton"]?.addTarget(self, action: #selector(self.scheduleDisconnectTimerFromButton), for: .touchDown)
 
         topButtons = createButtonsFromData(populateDict: topButtons, buttonData: topButtonData, width: StateKeeper.tbW, height: StateKeeper.bH, spacing: StateKeeper.tbSp)
         modifierButtons = createButtonsFromData(populateDict: modifierButtons, buttonData: modifierButtonData, width: StateKeeper.bW, height: StateKeeper.bH, spacing: StateKeeper.bSp)
