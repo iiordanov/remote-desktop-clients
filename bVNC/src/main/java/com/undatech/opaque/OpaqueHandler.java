@@ -267,6 +267,9 @@ public class OpaqueHandler extends Handler {
                 settings.setUseLastPositionToolbarMoved(useLastPositionToolbarMoved);
             }
             break;
+        default:
+            android.util.Log.e(TAG, "Not handling unknown messageId: " + msg.what);
+            break;
         }
     }
     
