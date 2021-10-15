@@ -4,6 +4,7 @@ v5.0.5
 - Moved to AndroidX libraries
 - Toolbar position is now remembered by default
 - Fixed SSH Intents for allowing blank passwords for base protocol
+- Fix for Send Text dialog buttons.
 v5.0.4
 - Fix for upper-case characters
 - FreeRDP Library update

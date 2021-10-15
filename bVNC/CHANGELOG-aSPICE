@@ -5,6 +5,8 @@ v5.0.5
 - Toolbar position is now remembered by default
 - Fix for 32-bit x86 Chromebooks                        
 - Fixed SSH Intents for allowing blank passwords for base protocol
+- Fix for Send Text dialog buttons.
+- Fix for crash when connection cannot be established.
 v5.0.4
 - Fix for sending enter key
 - Keyboard Layout additions and fixes
