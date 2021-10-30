@@ -1669,6 +1669,7 @@
 				);
 				LLVM_LTO = NO;
 				MARKETING_VERSION = 1.0.6;
+				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = "";
 				"OTHER_LDFLAGS[arch=*]" = "-lresolv";
 				PRELINK_LIBS = "";
@@ -1858,6 +1859,7 @@
 				);
 				LLVM_LTO = NO;
 				MARKETING_VERSION = 1.0.6;
+				ONLY_ACTIVE_ARCH = YES;
 				"PRELINK_LIBS[arch=*]" = "";
 				PRODUCT_BUNDLE_IDENTIFIER = com.iiordanov.SimpleRemoteTest;
 				PRODUCT_NAME = "$(TARGET_NAME)";
