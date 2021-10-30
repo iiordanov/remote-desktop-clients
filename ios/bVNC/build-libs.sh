@@ -161,8 +161,9 @@ rsync -avP iSSH2/libssh2_iphoneos/ ./bVNC.xcodeproj/libs_combined/
 rsync -avP iSSH2/openssl_iphoneos/ ./bVNC.xcodeproj/libs_combined/
 
 git clone https://github.com/iiordanov/libvncserver.git || true
-
 pushd libvncserver/
+git pull
+git checkout ${LIBVNCSERVER_VERSION}
 
 if [ -n "${CLEAN}" ]
 then
