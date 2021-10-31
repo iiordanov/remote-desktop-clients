@@ -200,11 +200,16 @@ class TouchEnabledUIImageView: UIImageView, UIContextMenuInteractionDelegate {
     }
     
     func sendPointerEvent(scrolling: Bool, moving: Bool, firstDown: Bool, secondDown: Bool, thirdDown: Bool, fourthDown: Bool, fifthDown: Bool) {
+        guard let currentInstance = self.stateKeeper?.getCurrentInstance() else {
+            log_callback_str(message: "No currently connected instance, ignoring \(#function)")
+            return
+        }
+        
         //let timeNow = CACurrentMediaTime();
         //let timeDiff = timeNow - self.timeLast
         if !moving || (abs(self.lastX - self.newX) > 1.0 || abs(self.lastY - self.newY) > 1.0) {
-            let cl = self.stateKeeper!.cl[self.stateKeeper!.currInst]!
-            sendPointerEventToServer(cl, Float32(self.width), Float32(self.height), Float32(self.newX), Float32(self.newY), firstDown, secondDown, thirdDown, fourthDown, fifthDown)
+            sendPointerEventToServer(currentInstance, Float32(self.width), Float32(self.height), Float32(self.newX),
+                                     Float32(self.newY), firstDown, secondDown, thirdDown, fourthDown, fifthDown)
             self.lastX = self.newX
             self.lastY = self.newY
             //self.timeLast = timeNow

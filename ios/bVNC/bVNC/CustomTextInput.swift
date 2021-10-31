@@ -53,12 +53,17 @@ class CustomTextInput: UIButton, UIKeyInput {
         fatalError("init(coder:) has not been implemented")
     }
     
-    public func insertText(_ text: String){
+    public func insertText(_ text: String) {
+        guard let currentInstance = self.stateKeeper?.getCurrentInstance() else {
+            log_callback_str(message: "No currently connected instance, ignoring \(#function)")
+            return
+        }
+        
         //log_callback_str(message: "Sending: " + text + ", number of characters: " + String(text.count))
         for char in text.unicodeScalars {
             Background {
-                if !sendKeyEventInt(self.stateKeeper!.cl[self.stateKeeper!.currInst]!, Int32(String(char.value))!) {
-                    sendKeyEvent(self.stateKeeper!.cl[self.stateKeeper!.currInst]!, String(char))
+                if !sendKeyEventInt(currentInstance, Int32(String(char.value))!) {
+                    sendKeyEvent(currentInstance, String(char))
                 }
                 self.stateKeeper?.toggleModifiersIfDown()
             }
@@ -66,9 +71,14 @@ class CustomTextInput: UIButton, UIKeyInput {
         }
     }
     
-    public func deleteBackward(){
+    public func deleteBackward() {
+        guard let currentInstance = self.stateKeeper?.getCurrentInstance() else {
+            log_callback_str(message: "No currently connected instance, ignoring \(#function)")
+            return
+        }
+        
         Background {
-            sendKeyEventWithKeySym(self.stateKeeper!.cl[self.stateKeeper!.currInst]!, 0xff08);
+            sendKeyEventWithKeySym(currentInstance, 0xff08);
             self.stateKeeper?.toggleModifiersIfDown()
         }
         self.stateKeeper?.rescheduleScreenUpdateRequest(timeInterval: 0.5, fullScreenUpdate: false, recurring: false)

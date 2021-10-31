@@ -177,7 +177,12 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
     }
     
     @objc func sendSuperKeyUp() {
-        sendUniDirectionalKeyEventWithKeySym(self.cl[self.currInst], XK_Super_L, false)
+        guard let currentInstance = self.getCurrentInstance() else {
+            log_callback_str(message: "No currently connected instance, ignoring \(#function)")
+            return
+        }
+        
+        sendUniDirectionalKeyEventWithKeySym(currentInstance, XK_Super_L, false)
         self.modifiers[XK_Super_L] = false
         self.rescheduleScreenUpdateRequest(timeInterval: 0.2, fullScreenUpdate: false, recurring: false)
     }
@@ -332,6 +337,7 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
     }
 
     @objc func disconnect(sender: Timer) {
+        log_callback_str(message: "\(#function) called")
         self.currInst = (currInst + 1) % maxClCapacity
         let wasDrawing = (sender.userInfo as! Bool)
         if !disconnectedDueToBackgrounding {
@@ -756,18 +762,28 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
     }
     
     @objc func sendModifierIfNotDown(modifier: Int32) {
+        guard let currentInstance = self.getCurrentInstance() else {
+            log_callback_str(message: "No currently connected instance, ignoring \(#function)")
+            return
+        }
+        
         if !modifiers[modifier]! {
             modifiers[modifier] = true
             //print("Sending modifier", modifier)
-            sendUniDirectionalKeyEventWithKeySym(self.cl[self.currInst]!, modifier, true)
+            sendUniDirectionalKeyEventWithKeySym(currentInstance, modifier, true)
         }
     }
 
     @objc func releaseModifierIfDown(modifier: Int32) {
+        guard let currentInstance = self.getCurrentInstance() else {
+            log_callback_str(message: "No currently connected instance, ignoring \(#function)")
+            return
+        }
+        
         if modifiers[modifier]! {
             modifiers[modifier] = false
             //print("Releasing modifier", modifier)
-            sendUniDirectionalKeyEventWithKeySym(self.cl[self.currInst]!, modifier, false)
+            sendUniDirectionalKeyEventWithKeySym(currentInstance, modifier, false)
         }
     }
     
@@ -829,6 +845,18 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
             log_callback_str(message: error.localizedDescription)
             return false
         }
+    }
+    
+    func getCurrentInstance() -> UnsafeMutableRawPointer? {
+        if (self.currInst >= 0 && self.cl.endIndex > self.currInst) {
+            return self.cl[self.currInst]
+        } else {
+            return nil
+        }
+    }
+    
+    func setCurrentInstance(inst: UnsafeMutableRawPointer?) {
+        self.cl[self.currInst] = inst
     }
     
 	/*
