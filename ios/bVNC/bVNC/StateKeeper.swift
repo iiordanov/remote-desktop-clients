@@ -42,6 +42,7 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
                      "com.iiordanov.freeaRDP", "com.iiordanov.aSPICE", "com.iiordanov.freeaSPICE"]
     
     var selectedConnection: [String: String]
+    var editedConnection: [String: String]
     var connections: [Dictionary<String, String>]
     var connectionIndex: Int
     var settings = UserDefaults.standard
@@ -176,7 +177,12 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
     }
     
     @objc func sendSuperKeyUp() {
-        sendUniDirectionalKeyEventWithKeySym(self.cl[self.currInst], XK_Super_L, false)
+        guard let currentInstance = self.getCurrentInstance() else {
+            log_callback_str(message: "No currently connected instance, ignoring \(#function)")
+            return
+        }
+        
+        sendUniDirectionalKeyEventWithKeySym(currentInstance, XK_Super_L, false)
         self.modifiers[XK_Super_L] = false
         self.rescheduleScreenUpdateRequest(timeInterval: 0.2, fullScreenUpdate: false, recurring: false)
     }
@@ -230,6 +236,7 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
         // Load settings for current connection
         connectionIndex = -1
         selectedConnection = [:]
+        editedConnection = [:]
         connections = self.settings.array(forKey: "connections") as? [Dictionary<String, String>] ?? []
         interfaceButtons = [:]
         keyboardButtons = [:]
@@ -242,6 +249,7 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
         // Load settings for current connection
         connectionIndex = -1
         selectedConnection = [:]
+        editedConnection = [:]
         connections = self.settings.array(forKey: "connections") as? [Dictionary<String, String>] ?? []
         interfaceButtons = [:]
         keyboardButtons = [:]
@@ -329,6 +337,7 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
     }
 
     @objc func disconnect(sender: Timer) {
+        log_callback_str(message: "\(#function) called")
         self.currInst = (currInst + 1) % maxClCapacity
         let wasDrawing = (sender.userInfo as! Bool)
         if !disconnectedDueToBackgrounding {
@@ -354,6 +363,11 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
             showConnections()
         }
         StoreReviewHelper.checkAndAskForReview()
+    }
+    
+    @objc func scheduleDisconnectTimerFromButton() {
+        self.scheduleDisconnectTimer(interval: 1, wasDrawing: self.isDrawing)
+        self.showConnections()
     }
     
     @objc func scheduleDisconnectTimer(interval: Double = 1, wasDrawing: Bool) {
@@ -382,7 +396,11 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
             self.currentPage = "addOrEditConnection"
         }
     }
-
+    
+    func setEditedConnection(connection: [String: String]) {
+        self.editedConnection = connection
+    }
+    
     func showHelp(messages: [ LocalizedStringKey ]) {
         log_callback_str(message: "Showing help screen")
         self.localizedMessages = messages
@@ -391,10 +409,28 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
         }
     }
     
+    func dismissHelp() {
+        log_callback_str(message: "Dismissing help screen")
+        if (self.editedConnection.isEmpty) {
+            self.showConnections()
+        }
+        else {
+            self.selectedConnection = self.editedConnection
+            self.addOrEditConnection()
+        }
+    }
+    
     func editConnection(index: Int) {
         log_callback_str(message: "Editing connection at index \(index) and navigating to setup screen")
         self.connectionIndex = index
         self.selectedConnection = connections[index]
+        UserInterface {
+            self.currentPage = "addOrEditConnection"
+        }
+    }
+    
+    func addOrEditConnection() {
+        log_callback_str(message: "Going to connection settings screen")
         UserInterface {
             self.currentPage = "addOrEditConnection"
         }
@@ -410,13 +446,11 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
             self.connections.remove(at: self.connectionIndex)
             self.selectedConnection = [:]
             self.connectionIndex = -1
-            saveSettings()
+            self.saveSettings()
         } else {
             log_callback_str(message: "We were adding a new connection, so not deleting anything")
         }
-        UserInterface {
-            self.currentPage = "connectionsList"
-        }
+        self.showConnections()
     }
     
     func saveSettings() {
@@ -443,6 +477,7 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
     }
     
     func showConnections() {
+        self.editedConnection = [:]
         UserInterface {
             let contentView = ContentView(stateKeeper: self)
             globalWindow!.rootViewController = MyUIHostingController(rootView: contentView)
@@ -596,7 +631,7 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
             self.interfaceButtons["keyboardButton"] = b
         }
         interfaceButtons = createButtonsFromData(populateDict: interfaceButtons, buttonData: interfaceButtonData, width: StateKeeper.bW, height: StateKeeper.bH, spacing: StateKeeper.bSp)
-        interfaceButtons["disconnectButton"]?.addTarget(self, action: #selector(self.scheduleDisconnectTimer), for: .touchDown)
+        interfaceButtons["disconnectButton"]?.addTarget(self, action: #selector(self.scheduleDisconnectTimerFromButton), for: .touchDown)
 
         topButtons = createButtonsFromData(populateDict: topButtons, buttonData: topButtonData, width: StateKeeper.tbW, height: StateKeeper.bH, spacing: StateKeeper.tbSp)
         modifierButtons = createButtonsFromData(populateDict: modifierButtons, buttonData: modifierButtonData, width: StateKeeper.bW, height: StateKeeper.bH, spacing: StateKeeper.bSp)
@@ -727,18 +762,28 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
     }
     
     @objc func sendModifierIfNotDown(modifier: Int32) {
+        guard let currentInstance = self.getCurrentInstance() else {
+            log_callback_str(message: "No currently connected instance, ignoring \(#function)")
+            return
+        }
+        
         if !modifiers[modifier]! {
             modifiers[modifier] = true
             //print("Sending modifier", modifier)
-            sendUniDirectionalKeyEventWithKeySym(self.cl[self.currInst]!, modifier, true)
+            sendUniDirectionalKeyEventWithKeySym(currentInstance, modifier, true)
         }
     }
 
     @objc func releaseModifierIfDown(modifier: Int32) {
+        guard let currentInstance = self.getCurrentInstance() else {
+            log_callback_str(message: "No currently connected instance, ignoring \(#function)")
+            return
+        }
+        
         if modifiers[modifier]! {
             modifiers[modifier] = false
             //print("Releasing modifier", modifier)
-            sendUniDirectionalKeyEventWithKeySym(self.cl[self.currInst]!, modifier, false)
+            sendUniDirectionalKeyEventWithKeySym(currentInstance, modifier, false)
         }
     }
     
@@ -800,6 +845,18 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
             log_callback_str(message: error.localizedDescription)
             return false
         }
+    }
+    
+    func getCurrentInstance() -> UnsafeMutableRawPointer? {
+        if (self.currInst >= 0 && self.cl.endIndex > self.currInst) {
+            return self.cl[self.currInst]
+        } else {
+            return nil
+        }
+    }
+    
+    func setCurrentInstance(inst: UnsafeMutableRawPointer?) {
+        self.cl[self.currInst] = inst
     }
     
 	/*

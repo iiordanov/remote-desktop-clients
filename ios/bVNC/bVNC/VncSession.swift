@@ -378,7 +378,7 @@ class VncSession {
                            UnsafeMutablePointer<Int8>(mutating: (user as NSString).utf8String),
                            UnsafeMutablePointer<Int8>(mutating: (pass as NSString).utf8String))
                 if self.cl != nil {
-                    self.stateKeeper.cl[self.stateKeeper.currInst] = self.cl
+                    self.stateKeeper.setCurrentInstance(inst: self.cl)
                     connectVnc(self.cl)
                 } else {
                     title = "VNC_CONNECTION_FAILURE_TITLE"

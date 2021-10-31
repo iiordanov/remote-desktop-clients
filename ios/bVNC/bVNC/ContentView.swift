@@ -294,6 +294,26 @@ struct AddOrEditConnectionPage : View {
     @State var allowZooming: Bool
     @State var allowPanning: Bool
     @State var showSshTunnelSettings: Bool
+    
+    func retrieveConnectionDetails() -> [String : String] {
+        let connection = [
+            "sshAddress": self.sshAddressText.trimmingCharacters(in: .whitespacesAndNewlines),
+            "sshPort": self.sshPortText.trimmingCharacters(in: .whitespacesAndNewlines),
+            "sshUser": self.sshUserText.trimmingCharacters(in: .whitespacesAndNewlines),
+            "sshPass": self.sshPassText.trimmingCharacters(in: .whitespacesAndNewlines),
+            "sshPassphrase": self.sshPassphraseText.trimmingCharacters(in: .whitespacesAndNewlines),
+            "sshPrivateKey": self.sshPrivateKeyText.trimmingCharacters(in: .whitespacesAndNewlines),
+            "address": self.addressText.trimmingCharacters(in: .whitespacesAndNewlines),
+            "port": self.portText.trimmingCharacters(in: .whitespacesAndNewlines),
+            "username": self.usernameText.trimmingCharacters(in: .whitespacesAndNewlines),
+            "password": self.passwordText.trimmingCharacters(in: .whitespacesAndNewlines),
+            "screenShotFile": self.screenShotFile.trimmingCharacters(in: .whitespacesAndNewlines),
+            "allowZooming": String(self.allowZooming),
+            "allowPanning": String(self.allowPanning),
+            "showSshTunnelSettings": String(self.showSshTunnelSettings)
+        ]
+        return connection
+    }
 
     var body: some View {
         ScrollView {
@@ -316,22 +336,7 @@ struct AddOrEditConnectionPage : View {
                     }.padding()
                     
                     Button(action: {
-                        let selectedConnection: [String : String] = [
-                            "sshAddress": self.sshAddressText.trimmingCharacters(in: .whitespacesAndNewlines),
-                            "sshPort": self.sshPortText.trimmingCharacters(in: .whitespacesAndNewlines),
-                            "sshUser": self.sshUserText.trimmingCharacters(in: .whitespacesAndNewlines),
-                            "sshPass": self.sshPassText.trimmingCharacters(in: .whitespacesAndNewlines),
-                            "sshPassphrase": self.sshPassphraseText.trimmingCharacters(in: .whitespacesAndNewlines),
-                            "sshPrivateKey": self.sshPrivateKeyText.trimmingCharacters(in: .whitespacesAndNewlines),
-                            "address": self.addressText.trimmingCharacters(in: .whitespacesAndNewlines),
-                            "port": self.portText.trimmingCharacters(in: .whitespacesAndNewlines),
-                            "username": self.usernameText.trimmingCharacters(in: .whitespacesAndNewlines),
-                            "password": self.passwordText.trimmingCharacters(in: .whitespacesAndNewlines),
-                            "screenShotFile": self.screenShotFile.trimmingCharacters(in: .whitespacesAndNewlines),
-                            "allowZooming": String(self.allowZooming),
-                            "allowPanning": String(self.allowPanning),
-                            "showSshTunnelSettings": String(self.showSshTunnelSettings)
-                        ]
+                        let selectedConnection: [String : String] = self.retrieveConnectionDetails()
                         self.stateKeeper.saveConnection(connection: selectedConnection)
                     }) {
                         VStack(spacing: 10) {
@@ -384,6 +389,7 @@ struct AddOrEditConnectionPage : View {
                         if self.stateKeeper.sshAppIds.contains(UIApplication.appId ?? "") {
                             help_messages_list.insert("SSH_CONNECTION_SETUP_HELP_TEXT", at: 0)
                         }
+                        self.stateKeeper.setEditedConnection(connection: self.retrieveConnectionDetails())
                         self.stateKeeper.showHelp(messages: help_messages_list)
                     }) {
                         VStack(spacing: 10) {
@@ -550,7 +556,7 @@ struct HelpDialog : View {
                 }
             }
             Button(action: {
-                self.stateKeeper.showConnections()
+                self.stateKeeper.dismissHelp()
             }) {
                 HStack(spacing: 10) {
                     Image(systemName: "arrowshape.turn.up.left")

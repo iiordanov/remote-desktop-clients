@@ -82,7 +82,6 @@ static void update (rfbClient *cl, int x, int y, int w, int h) {
     if (!framebuffer_update_callback(cl->instance, cl->frameBuffer, fbW, fbH, x, y, w, h)) {
         // This session is a left-over backgrounded session and must quit.
         rfbClientLog("Must quit background session with instance number %d\n", cl->instance);
-        maintainConnection = false;
     }
 }
 

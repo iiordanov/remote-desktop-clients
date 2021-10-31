@@ -92,6 +92,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     override func pressesBegan(_ presses: Set<UIPress>,
                                with event: UIPressesEvent?) {
+        guard let currentInstance = self.stateKeeper.getCurrentInstance() else {
+            log_callback_str(message: "No currently connected instance, ignoring \(#function)")
+            return
+        }
         for p in presses {
             guard let key = p.key else {
                 continue
@@ -133,7 +137,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 }
                 if self.physicalKeyboardHandler.specialKeyToXKeySymMap[text] != nil {
                     let xKeySym = self.physicalKeyboardHandler.specialKeyToXKeySymMap[text]
-                    sendKeyEventWithKeySym(self.stateKeeper.cl[self.stateKeeper.currInst]!, xKeySym!)
+                    sendKeyEventWithKeySym(currentInstance, xKeySym!)
                 } else {
                     textInput?.insertText(text)
                 }
@@ -191,6 +195,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
     
     @objc func captureCmd(sender: UIKeyCommand) {
+        guard let currentInstance = self.stateKeeper.getCurrentInstance() else {
+            log_callback_str(message: "No currently connected instance, ignoring \(#function)")
+            return
+        }
+        
         var anotherModifier = false
         if sender.modifierFlags.contains(.control) {
             self.stateKeeper.sendModifierIfNotDown(modifier: XK_Control_L)
@@ -232,7 +241,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             if !self.stateKeeper.modifiers[XK_Super_L]! {
                 self.stateKeeper.modifiers[XK_Super_L] = true
                 print("Command key not down and sent with a different modifier or key, sending Super down")
-                sendUniDirectionalKeyEventWithKeySym(self.stateKeeper.cl[self.stateKeeper.currInst]!, XK_Super_L, true)
+                sendUniDirectionalKeyEventWithKeySym(currentInstance, XK_Super_L, true)
             }
             if sender.input != "" {
                 if self.stateKeeper.modifiers[XK_Shift_L]! {
@@ -247,7 +256,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             if self.stateKeeper.modifiers[XK_Super_L]! {
                 self.stateKeeper.modifiers[XK_Super_L] = false
                 print("Command key was previously marked as down, sending Super up")
-                sendUniDirectionalKeyEventWithKeySym(self.stateKeeper.cl[self.stateKeeper.currInst]!, XK_Super_L, false)
+                sendUniDirectionalKeyEventWithKeySym(currentInstance, XK_Super_L, false)
                 self.stateKeeper.releaseModifierIfDown(modifier: XK_Control_L)
                 self.stateKeeper.releaseModifierIfDown(modifier: XK_Alt_L)
                 self.stateKeeper.modifiers[XK_Shift_L] = false
