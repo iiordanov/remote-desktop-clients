@@ -389,7 +389,7 @@ struct AddOrEditConnectionPage : View {
                         if self.stateKeeper.sshAppIds.contains(UIApplication.appId ?? "") {
                             help_messages_list.insert("SSH_CONNECTION_SETUP_HELP_TEXT", at: 0)
                         }
-                        self.stateKeeper.cachedConnection = self.retrieveConnectionDetails()
+                        self.stateKeeper.setEditedConnection(connection: self.retrieveConnectionDetails())
                         self.stateKeeper.showHelp(messages: help_messages_list)
                     }) {
                         VStack(spacing: 10) {
@@ -556,13 +556,7 @@ struct HelpDialog : View {
                 }
             }
             Button(action: {
-                if (self.stateKeeper.cachedConnection.isEmpty) {
-                    self.stateKeeper.showConnections()
-                }
-                else {
-                    self.stateKeeper.selectedConnection = self.stateKeeper.cachedConnection
-                    self.stateKeeper.addOrEditConnection()
-                }
+                self.stateKeeper.dismissHelp()
             }) {
                 HStack(spacing: 10) {
                     Image(systemName: "arrowshape.turn.up.left")

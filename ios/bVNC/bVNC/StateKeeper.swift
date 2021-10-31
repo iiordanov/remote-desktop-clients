@@ -42,7 +42,7 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
                      "com.iiordanov.freeaRDP", "com.iiordanov.aSPICE", "com.iiordanov.freeaSPICE"]
     
     var selectedConnection: [String: String]
-    var cachedConnection: [String: String]
+    var editedConnection: [String: String]
     var connections: [Dictionary<String, String>]
     var connectionIndex: Int
     var settings = UserDefaults.standard
@@ -231,7 +231,7 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
         // Load settings for current connection
         connectionIndex = -1
         selectedConnection = [:]
-        cachedConnection = [:]
+        editedConnection = [:]
         connections = self.settings.array(forKey: "connections") as? [Dictionary<String, String>] ?? []
         interfaceButtons = [:]
         keyboardButtons = [:]
@@ -244,7 +244,7 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
         // Load settings for current connection
         connectionIndex = -1
         selectedConnection = [:]
-        cachedConnection = [:]
+        editedConnection = [:]
         connections = self.settings.array(forKey: "connections") as? [Dictionary<String, String>] ?? []
         interfaceButtons = [:]
         keyboardButtons = [:]
@@ -390,12 +390,27 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
             self.currentPage = "addOrEditConnection"
         }
     }
-
+    
+    func setEditedConnection(connection: [String: String]) {
+        self.editedConnection = connection
+    }
+    
     func showHelp(messages: [ LocalizedStringKey ]) {
         log_callback_str(message: "Showing help screen")
         self.localizedMessages = messages
         UserInterface {
             self.currentPage = "helpDialog"
+        }
+    }
+    
+    func dismissHelp() {
+        log_callback_str(message: "Dismissing help screen")
+        if (self.editedConnection.isEmpty) {
+            self.showConnections()
+        }
+        else {
+            self.selectedConnection = self.editedConnection
+            self.addOrEditConnection()
         }
     }
     
@@ -456,7 +471,7 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
     }
     
     func showConnections() {
-        self.cachedConnection = [:]
+        self.editedConnection = [:]
         UserInterface {
             let contentView = ContentView(stateKeeper: self)
             globalWindow!.rootViewController = MyUIHostingController(rootView: contentView)
