@@ -92,7 +92,8 @@ public abstract class RemoteKeyboard {
         this.rfb = r;
         this.context = v;
         this.handler = h;
-        
+        this.debugLog = debugLog;
+        android.util.Log.d(TAG, String.format("debugLog: %b", debugLog));
         keyRepeater = new KeyRepeater (this, h);
     }
 

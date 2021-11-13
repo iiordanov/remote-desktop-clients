@@ -66,7 +66,7 @@ public class RemoteSpiceKeyboard extends RemoteKeyboard {
         String line = in.readLine();
         HashMap<Integer,Integer[]> table = new HashMap<Integer,Integer[]> (500);
         while (line != null) {
-            //android.util.Log.i (TAG, "Layout " + file + " " + line);
+            GeneralUtils.debugLog(debugLog, TAG, "Layout " + file + " " + line);
             String[] tokens = line.split(" ");
             Integer[] scanCodes = new Integer[tokens.length-1];
             for (int i = 1; i < tokens.length; i++) {
@@ -157,7 +157,7 @@ public class RemoteSpiceKeyboard extends RemoteKeyboard {
 	}
 
 	public boolean keyEvent(int keyCode, KeyEvent event, int additionalMetaState) {
-        //android.util.Log.i(TAG, event.toString());
+        GeneralUtils.debugLog(debugLog, TAG, event.toString());
         int action = event.getAction();
         boolean down = (action == KeyEvent.ACTION_DOWN);
         // Combine current event meta state with any meta state passed in.
@@ -167,7 +167,7 @@ public class RemoteSpiceKeyboard extends RemoteKeyboard {
            my bluetooth keyboard and what the VM expects do not match. For example, d-pad does not send arrows.
         // If the event has a scan code, just send that along!
         if (event.getScanCode() != 0) {
-            android.util.Log.i(TAG, "Event has a scancode, sending that: " + event.getScanCode());
+            GeneralUtils.debugLog(debugLog, TAG, "Event has a scancode, sending that: " + event.getScanCode());
             spicecomm.writeKeyEvent(event.getScanCode(), 0, down);
             return true;
         }*/
@@ -198,7 +198,7 @@ public class RemoteSpiceKeyboard extends RemoteKeyboard {
 				if (s != null) {
                     int numchars = s.length();
 					for (int i = 0; i < numchars; i++) {
-						//android.util.Log.i(TAG, "Trying to convert unicode to KeyEvent: " + (int)s.charAt(i));
+                        GeneralUtils.debugLog(debugLog, TAG, "Trying to convert unicode to KeyEvent: " + (int)s.charAt(i));
 						if (!sendUnicode (s.charAt(i), additionalMetaState)) {
 						    writeKeyEvent(true, (int)s.charAt(i), metaState, true, true);
 						}
@@ -237,11 +237,11 @@ public class RemoteSpiceKeyboard extends RemoteKeyboard {
                 }
                 
                 if (unicode > 0) {
-                    //android.util.Log.d(TAG, "Got unicode value from event: " + unicode);
+                    GeneralUtils.debugLog(debugLog, TAG, String.format("Got unicode value: %d from event", unicode));
                     writeKeyEvent(true, unicode, unicodeMetaState, down, false);
                 } else {
                     // We were unable to obtain a unicode, or the list of scancodes was empty, so we have to try converting a keyCode.
-                    android.util.Log.w(TAG, "Could not get unicode or determine scancodes for event. Keycode: " + event.getKeyCode());
+                    GeneralUtils.debugLog(debugLog, TAG, "Could not get unicode or determine scancodes for event. Keycode: " + event.getKeyCode());
                     writeKeyEvent(false, event.getKeyCode(), metaState, down, false);
                 }
 			}
@@ -258,8 +258,11 @@ public class RemoteSpiceKeyboard extends RemoteKeyboard {
         
 	    if (isUnicode) {
 	        code |= UNICODE_MASK;
-	    }
-        //android.util.Log.d(TAG, "Trying to convert keycode or masked unicode: " + code);
+            Log.d(TAG, String.format("isUnicode true, adding UNICODE_MASK to code %d", code));
+	    } else {
+            Log.d(TAG, String.format("isUnicode false, not adding UNICODE_MASK to code %d", code));
+        }
+        //GeneralUtils.debugLog(debugLog, TAG, "Trying to convert keycode or masked unicode: " + code);
         Integer[] scanCode = null;
         try {
             scanCode = table.get(code);
@@ -270,22 +273,22 @@ public class RemoteSpiceKeyboard extends RemoteKeyboard {
             for (int i = 0; i < scanCode.length; i++) {
                 int scode = scanCode[i];
                 int meta = metaState;
-                //android.util.Log.d(TAG, "Got back possibly masked scanCode: " + scode);
+                //GeneralUtils.debugLog(debugLog, TAG, "Got back possibly masked scanCode: " + scode);
                 if ((scode & SCANCODE_SHIFT_MASK) != 0) {
-                    android.util.Log.d(TAG, "Found Shift mask.");
+                    GeneralUtils.debugLog(debugLog, TAG, "Found Shift mask.");
                     meta |= SHIFT_MASK;
                     scode &= ~SCANCODE_SHIFT_MASK;
                 }
                 if ((scode & SCANCODE_ALTGR_MASK) != 0) {
-                    android.util.Log.d(TAG, "Found AltGr mask.");
+                    GeneralUtils.debugLog(debugLog, TAG, "Found AltGr mask.");
                     meta |= RALT_MASK;
                     scode &= ~SCANCODE_ALTGR_MASK;
                 }
-                //android.util.Log.d(TAG, "Will send scanCode: " + scode + " with meta: " + meta);
+                GeneralUtils.debugLog(debugLog, TAG, "Will send scanCode: " + scode + " with meta: " + meta);
                 rfb.writeKeyEvent(scode, meta, down);
                 if (sendUpEvents) {
                     rfb.writeKeyEvent(scode, meta, false);
-                    android.util.Log.d(TAG, "UNsetting lastDownMetaState");
+                    GeneralUtils.debugLog(debugLog, TAG, "Unsetting lastDownMetaState");
                     lastDownMetaState = 0;
                 }
             }
@@ -300,7 +303,7 @@ public class RemoteSpiceKeyboard extends RemoteKeyboard {
         int y = pointer.getY();
         
         if (meta.isMouseClick()) {
-            //android.util.Log.i("RemoteRdpKeyboard", "is a mouse click");
+            GeneralUtils.debugLog(debugLog, TAG, "event is a mouse click");
             int button = meta.getMouseButtons();
             switch (button) {
             case RemoteVncPointer.MOUSE_BUTTON_LEFT:
