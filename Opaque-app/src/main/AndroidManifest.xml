@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="com.undatech.opaque"
-    android:versionCode="115054" android:versionName="v5.0.5">
+    android:versionCode="115055" android:versionName="v5.0.5">
 
     <uses-permission android:name="android.permission.INTERNET"></uses-permission>
     <uses-permission android:name="android.permission.VIBRATE" />
