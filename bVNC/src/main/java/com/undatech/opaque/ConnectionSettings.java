@@ -34,6 +34,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -41,8 +42,12 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.io.Reader;
 import java.io.Serializable;
+import java.io.Writer;
 import java.util.Iterator;
 import java.util.UUID;
 
@@ -1233,8 +1238,8 @@ public class ConnectionSettings implements Connection, Serializable {
      * @throws JSONException 
      * @throws IOException 
      */
-    public static String exportPrefsToFile(Context context, String connections, String externalFileName) throws JSONException, IOException {
-        android.util.Log.d(TAG, "Exporting settings to file: " + externalFileName);
+    public static void exportPrefsToFile(Context context, String connections, Writer w) throws JSONException, IOException {
+        android.util.Log.d(TAG, "Exporting settings to file");
         connections += " " + RemoteClientLibConstants.DEFAULT_SETTINGS_FILE;
         String[] preferenceFiles = connections.split(" ");
         JSONObject allPrefs = new JSONObject();
@@ -1246,29 +1251,23 @@ public class ConnectionSettings implements Connection, Serializable {
             allPrefs.put(file, prefs);
         }
 
-        File exportFile = new File(externalFileName);
-
-        PrintWriter writer = new PrintWriter(new FileWriter(exportFile));
+        PrintWriter writer = new PrintWriter(new BufferedWriter(w));
         writer.print(allPrefs.toString());
         writer.close();
-        return exportFile.getPath();
     }
 
 
     /**
      * Imports preferences from a file.
      * @param context
-     * @param externalFileName full path to file to load from
      * @return connection list as a space separated string
      * @throws IOException 
      * @throws JSONException 
      */
-    public static String importPrefsFromFile(Context context, String externalFileName) throws IOException, JSONException {
-        android.util.Log.d(TAG, "Importing settings from file: " + externalFileName);
-        File importFile = new File(externalFileName);
+    public static String importPrefsFromFile(Context context, Reader r) throws IOException, JSONException {
+        android.util.Log.d(TAG, "Importing settings");
+        BufferedReader reader = new BufferedReader(r);
         String connections = "";
-        InputStream is = new FileInputStream(importFile);
-        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
         StringBuilder sb = new StringBuilder();
         String line = null;
         while ((line = reader.readLine()) != null) {
@@ -1311,9 +1310,10 @@ public class ConnectionSettings implements Connection, Serializable {
         return connections.trim();
     }
 
-    public static void importSettingsFromJsonToSharedPrefs(String file, Context context) {
+    public static void importSettingsFromJsonToSharedPrefs(InputStream fin, Context context) {
         try {
-            String connections = ConnectionSettings.importPrefsFromFile(context, file);
+            Reader reader = new InputStreamReader(fin);
+            String connections = ConnectionSettings.importPrefsFromFile(context, reader);
             SharedPreferences sp = context.getSharedPreferences("generalSettings", Context.MODE_PRIVATE);
             SharedPreferences.Editor editor = sp.edit();
             editor.putString("connections", connections);
@@ -1327,11 +1327,12 @@ public class ConnectionSettings implements Connection, Serializable {
         }
     }
 
-    public static void exportSettingsFromSharedPrefsToJson(String file, Context context) {
+    public static void exportSettingsFromSharedPrefsToJson(OutputStream fout, Context context) {
         SharedPreferences sp = context.getSharedPreferences("generalSettings", Context.MODE_PRIVATE);
         String connections = sp.getString("connections", null);
         try {
-            ConnectionSettings.exportPrefsToFile(context, connections, file);
+            Writer writer = new OutputStreamWriter(fout);
+            ConnectionSettings.exportPrefsToFile(context, connections, writer);
         } catch (JSONException e) {
             Log.e(TAG, "JSON Exception while exporting settings " + e.getLocalizedMessage());
             e.printStackTrace();

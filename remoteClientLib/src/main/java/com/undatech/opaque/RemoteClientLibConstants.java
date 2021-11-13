@@ -79,6 +79,8 @@ public class RemoteClientLibConstants {
     
     public static final int ADVANCED_SETTINGS      = 1;
     public static final int DEFAULT_SETTINGS       = 2;
+    public static final int IMPORT_SETTINGS_REQUEST_CODE = 3;
+    public static final int EXPORT_SETTINGS_REQUEST_CODE = 4;
 
     public static final String DEFAULT_LAYOUT_MAP = "English (US)";
     

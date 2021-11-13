@@ -21,10 +21,11 @@
 package com.iiordanov.bVNC;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.Reader;
@@ -328,11 +329,14 @@ public class Utils {
         return bb;
     }
     
-    public static void exportSettingsToXml (String file, SQLiteDatabase db) throws SAXException, IOException {
-        File f = new File(file);
-        Writer writer = new OutputStreamWriter(new FileOutputStream(f, false));
-        SqliteElement.exportDbAsXmlToStream(db, writer);
-        writer.close();
+    public static void exportSettingsToXml (OutputStream f, SQLiteDatabase db) {
+        Writer writer = new OutputStreamWriter(f);
+        try {
+            SqliteElement.exportDbAsXmlToStream(db, writer);
+            writer.close();
+        } catch (SAXException | IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public static String getExportFileName(String packageName) {
@@ -348,9 +352,13 @@ public class Utils {
         return res;
     }
 
-    public static void importSettingsFromXml (String file, SQLiteDatabase db) throws SAXException, IOException {
-        Reader reader = new InputStreamReader(new FileInputStream(file));
-        SqliteElement.importXmlStreamToDb(db, reader, ReplaceStrategy.REPLACE_EXISTING);
+    public static void importSettingsFromXml (InputStream fin, SQLiteDatabase db) {
+        Reader reader = new InputStreamReader(fin);
+        try {
+            SqliteElement.importXmlStreamToDb(db, reader, ReplaceStrategy.REPLACE_EXISTING);
+        } catch (SAXException | IOException e) {
+            e.printStackTrace();
+        }
     }
     
     public static boolean isValidIpv6Address(final String address) {

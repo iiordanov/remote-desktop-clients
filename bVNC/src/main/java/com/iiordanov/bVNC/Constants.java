@@ -215,7 +215,7 @@ public class Constants {
     
     public static final int SHORT_VIBRATION        = 1;
 
-    
+
     /**
      * Returns a string matching a session selection index
      * @param index - index to convert

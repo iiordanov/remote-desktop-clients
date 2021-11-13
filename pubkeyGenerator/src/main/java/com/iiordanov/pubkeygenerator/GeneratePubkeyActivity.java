@@ -18,14 +18,20 @@
 
 package com.iiordanov.pubkeygenerator;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.PrivateKey;
@@ -40,10 +46,13 @@ import com.iiordanov.pubkeygenerator.PubkeyUtils;
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.FileUtils;
 import android.os.Handler;
 import android.os.Message;
 import android.text.Editable;
@@ -73,6 +82,9 @@ public class GeneratePubkeyActivity extends Activity implements OnEntropyGathere
 	final static int MIN_BITS_DSA = 512;
 	final static int DEFAULT_BITS_DSA = 1024;
 	final static int MAX_BITS_DSA = 1024;
+	private static final int SAVE_KEY_REQUEST = 1;
+	private static final int IMPORT_KEY_REQUEST = 2;
+	public static final int BUFFER_SIZE = 3000;
 
 	private LayoutInflater inflater = null;
 
@@ -89,7 +101,6 @@ public class GeneratePubkeyActivity extends Activity implements OnEntropyGathere
 	private ProgressDialog progress;
 
 	private EditText password1;
-	private EditText file_name;
 
 	private String keyType = PubkeyDatabase.KEY_TYPE_RSA;
 	private int minBits = MIN_BITS_RSA;
@@ -121,7 +132,6 @@ public class GeneratePubkeyActivity extends Activity implements OnEntropyGathere
 		bitsText = (EditText) findViewById(R.id.bits);
 		bitsSlider = (SeekBar) findViewById(R.id.bits_slider);
 
-		file_name = (EditText) findViewById(R.id.file_name);
 		password1 = (EditText) findViewById(R.id.password);
 
 		generate  = (Button) findViewById(R.id.generate);
@@ -256,75 +266,48 @@ public class GeneratePubkeyActivity extends Activity implements OnEntropyGathere
 		save.setOnClickListener(new OnClickListener() {
 			public void onClick(View view) {
 				hideSoftKeyboard(view);
-				
-				String fname = file_name.getText().toString();
-				if (fname.length() == 0) {
-					Toast.makeText(getBaseContext(), getString(R.string.enter_filename), Toast.LENGTH_SHORT).show();
-					return;
-				}
-					
-				File dir = Environment.getExternalStoragePublicDirectory (Environment.DIRECTORY_DOWNLOADS);
-				File file = new File(dir, fname);
-				fname = dir.getName() + "/" + fname;
-				try {
-			        dir.mkdirs();
-					file.createNewFile();
-					FileOutputStream fout = new FileOutputStream(file);
-					OutputStreamWriter writer = new OutputStreamWriter(fout);
-					writer.append(publicKeySSHFormat);
-					writer.close();
-					fout.close();
-				} catch (IOException e) {
-					Toast.makeText(getBaseContext(), getString(R.string.error_writing_file) + fname,
-							Toast.LENGTH_LONG).show();
-					Log.e (TAG, "Failed to output file " + fname);
-					e.printStackTrace();
-					return;
-				}
-
-				Toast.makeText(getBaseContext(), getString(R.string.success_writing_file) + fname,
-						Toast.LENGTH_LONG).show();
+				Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
+				intent.addCategory(Intent.CATEGORY_OPENABLE);
+				intent.setType("*/*");
+				intent.putExtra(Intent.EXTRA_MIME_TYPES, new String[] {
+						"*/*"
+				});
+				startActivityForResult(intent, SAVE_KEY_REQUEST);
 			}
 		});
 		
 		importKey.setOnClickListener(new OnClickListener() {
 			public void onClick(View view) {
 				hideSoftKeyboard(view);
-				
-				String fname = file_name.getText().toString();
-				if (fname.length() == 0) {
-					Toast.makeText(getBaseContext(), getString(R.string.error_importing), Toast.LENGTH_LONG).show();
-					return;
-				}
-				
-				File dir = Environment.getExternalStoragePublicDirectory (Environment.DIRECTORY_DOWNLOADS);
-				fname = dir.getAbsolutePath() + "/" + fname;
-				String data = "";
-				try {
-					data = readFile(fname);
-				} catch (IOException e) {
-					e.printStackTrace();
-					Log.e (TAG, "Failed to read key from file: " + fname);
-					Toast.makeText(getBaseContext(), getString(R.string.error_reading_file) + fname, Toast.LENGTH_LONG).show();
-					return;
-				}
-				
-				try {
-					passphrase = password1.getText().toString();
-					KeyPair pair = PubkeyUtils.tryImportingPemAndPkcs8(GeneratePubkeyActivity.this, data, passphrase);
-					converToBase64AndSendIntent (pair);
-				} catch (Exception e) {
-					e.printStackTrace();
-					Log.e (TAG, "Failed to decode key.");
-					Toast.makeText(getBaseContext(), e.getLocalizedMessage(), Toast.LENGTH_LONG).show();
-					return;
-				}
-				Toast.makeText(getBaseContext(), getString(R.string.success_importing), Toast.LENGTH_LONG).show();
-				finish();
+
+				Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+				intent.addCategory(Intent.CATEGORY_OPENABLE);
+				intent.setType("*/*");
+				intent.putExtra(Intent.EXTRA_MIME_TYPES, new String[] {
+						"*/*"
+				});
+				startActivityForResult(intent, IMPORT_KEY_REQUEST);
 			}
 		});
-}
-	
+	}
+
+	/**
+	 * Outputs the given InputStream to a file.
+	 * @param toOutput
+	 * @param out
+	 * @throws IOException
+	 */
+	public static void outputToStream(String toOutput, OutputStream out) {
+		BufferedOutputStream bos = new BufferedOutputStream(out);
+		try {
+			bos.write(toOutput.getBytes());
+			bos.close();
+			out.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
 	/**
 	 * Hides the soft keyboard.
 	 */
@@ -477,17 +460,21 @@ public class GeneratePubkeyActivity extends Activity implements OnEntropyGathere
 		return numSetBits;
 	}
 	
-	private static String readFile(String path) throws IOException {
-		FileInputStream stream = new FileInputStream(new File(path));
+	private static String readFile(InputStream i) {
+		BufferedInputStream bis = new BufferedInputStream(i);
+		ByteArrayOutputStream buffer = new ByteArrayOutputStream();
 		try {
-			FileChannel fc = stream.getChannel();
-			MappedByteBuffer bb = fc.map(FileChannel.MapMode.READ_ONLY, 0, fc.size());
-			/* Instead of using default, pass in a decoder. */
-			return Charset.defaultCharset().decode(bb).toString();
+			byte[] data = new byte[BUFFER_SIZE];
+			int current = 0;
+			while((current = bis.read(data, 0, data.length)) != -1){
+				buffer.write(data, 0, current);
+			}
+			i.close();
+			return buffer.toString("UTF-8");
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
-		finally {
-			stream.close();
-		}
+		return "";
 	}
 	
 	/**
@@ -511,5 +498,75 @@ public class GeneratePubkeyActivity extends Activity implements OnEntropyGathere
 		databackIntent.putExtra("PublicKey", sshPubKey);
 
 		setResult(Activity.RESULT_OK, databackIntent);
+	}
+
+	/**
+	 * This function is used to retrieve data returned by activities started with startActivityForResult.
+	 */
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+		android.util.Log.i(TAG, "onActivityResult");
+
+		super.onActivityResult(requestCode, resultCode, data);
+		switch(requestCode) {
+			case IMPORT_KEY_REQUEST:
+				if (resultCode == Activity.RESULT_OK) {
+					if (data != null && data.getData() != null) {
+						ContentResolver resolver = getContentResolver();
+						InputStream in = getInputStreamFromUri(resolver, data.getData());
+						String keyData = readFile(in);
+						try {
+							passphrase = password1.getText().toString();
+							KeyPair pair = PubkeyUtils.tryImportingPemAndPkcs8(GeneratePubkeyActivity.this, keyData, passphrase);
+							converToBase64AndSendIntent (pair);
+						} catch (Exception e) {
+							e.printStackTrace();
+							Log.e (TAG, "Failed to decode key.");
+							Toast.makeText(getBaseContext(), e.getLocalizedMessage(), Toast.LENGTH_LONG).show();
+							return;
+						}
+						Toast.makeText(getBaseContext(), getString(R.string.success_importing), Toast.LENGTH_LONG).show();
+					} else {
+						android.util.Log.e(TAG, "File uri not found, not importing key");
+					}
+				} else {
+					android.util.Log.e(TAG, "Error while selecting file to import key from");
+				}
+				break;
+			case SAVE_KEY_REQUEST:
+				if (resultCode == Activity.RESULT_OK) {
+					if (data != null && data.getData() != null) {
+						ContentResolver resolver = getContentResolver();
+
+						OutputStream out = getOutputStreamFromUri(resolver, data.getData());
+						outputToStream(publicKeySSHFormat, out);
+					} else {
+						android.util.Log.e(TAG, "File uri not found, not exporting pubkey");
+					}
+				} else {
+					android.util.Log.e(TAG, "Error while selecting file to export pubkey to");
+				}
+				break;
+		}
+	}
+
+	public static InputStream getInputStreamFromUri(ContentResolver resolver, Uri uri) {
+		InputStream in = null;
+		try {
+			in = resolver.openInputStream(uri);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return in;
+	}
+
+	public static OutputStream getOutputStreamFromUri(ContentResolver resolver, Uri uri) {
+		OutputStream out = null;
+		try {
+			out = resolver.openOutputStream(uri, "wt");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return out;
 	}
 }

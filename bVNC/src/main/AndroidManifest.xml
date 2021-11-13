@@ -17,9 +17,5 @@
         android:name="android.hardware.microphone"
         android:required="false" />
 
-    <application android:requestLegacyExternalStorage="true">
-        <activity android:name="com.iiordanov.bVNC.GlobalPreferencesActivity"></activity>
-    </application>
-
     <uses-sdk tools:overrideLibrary="com.github.luben.zstd"/>
 </manifest>
