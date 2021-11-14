@@ -5,6 +5,8 @@ v5.0.5
 - Toolbar position is now remembered by default                        
 - Fixed SSH Intents for allowing blank passwords for base protocol
 - Fix for Send Text dialog buttons.
+- Updated Target API to 30
+- New file picker for Import/Export Settings and Import/Export SSH Key
 v5.0.4
 - Master password fix
 - SQLCipher library update

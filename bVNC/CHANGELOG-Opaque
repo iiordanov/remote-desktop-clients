@@ -5,6 +5,8 @@ v5.0.5
 - Toolbar position is now remembered by default
 - Custom resolution setting
 - Fix for 32-bit x86 Chromebooks
+- Updated Target API to 30
+- New file picker for Import/Export Settings and Import/Export SSH Key
 v5.0.4
 - Fix for sending enter key
 - Keyboard Layout additions and fixes
