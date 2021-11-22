@@ -136,18 +136,5 @@
 			android:id="@+id/save"
 			android:text="@string/save"
 			android:enabled="false" />
-		<TextView
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"
-	        android:gravity="left"
-	        android:text="@string/prompt_file_will_be_saved" />
-		<EditText
-			android:id="@+id/file_name"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:inputType="text"
-			android:singleLine="true"
-			android:layout_weight="1"
-			android:hint="@string/prompt_file_name" />
 	</TableLayout>
 </ScrollView>

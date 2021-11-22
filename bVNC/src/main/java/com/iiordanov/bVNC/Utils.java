@@ -21,10 +21,11 @@
 package com.iiordanov.bVNC;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.Reader;
@@ -64,9 +65,9 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
-import android.support.v7.app.AppCompatActivity;
+import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentManager;
+import androidx.appcompat.app.AppCompatActivity;
 import android.text.Html;
 import android.util.Log;
 import android.view.ViewConfiguration;
@@ -328,11 +329,14 @@ public class Utils {
         return bb;
     }
     
-    public static void exportSettingsToXml (String file, SQLiteDatabase db) throws SAXException, IOException {
-        File f = new File(file);
-        Writer writer = new OutputStreamWriter(new FileOutputStream(f, false));
-        SqliteElement.exportDbAsXmlToStream(db, writer);
-        writer.close();
+    public static void exportSettingsToXml (OutputStream f, SQLiteDatabase db) {
+        Writer writer = new OutputStreamWriter(f);
+        try {
+            SqliteElement.exportDbAsXmlToStream(db, writer);
+            writer.close();
+        } catch (SAXException | IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public static String getExportFileName(String packageName) {
@@ -348,9 +352,13 @@ public class Utils {
         return res;
     }
 
-    public static void importSettingsFromXml (String file, SQLiteDatabase db) throws SAXException, IOException {
-        Reader reader = new InputStreamReader(new FileInputStream(file));
-        SqliteElement.importXmlStreamToDb(db, reader, ReplaceStrategy.REPLACE_EXISTING);
+    public static void importSettingsFromXml (InputStream fin, SQLiteDatabase db) {
+        Reader reader = new InputStreamReader(fin);
+        try {
+            SqliteElement.importXmlStreamToDb(db, reader, ReplaceStrategy.REPLACE_EXISTING);
+        } catch (SAXException | IOException e) {
+            e.printStackTrace();
+        }
     }
     
     public static boolean isValidIpv6Address(final String address) {
@@ -552,6 +560,24 @@ public class Utils {
         String value = "";
         if (s != null) {
             value = s.getString(key);
+        }
+        return value;
+    }
+
+    public static int getIntFromMessage(Message msg, String key) {
+        Bundle s = msg.getData();
+        int value = 0;
+        if (s != null) {
+            value = s.getInt(key);
+        }
+        return value;
+    }
+
+    public static boolean getBooleanFromMessage(Message msg, String key) {
+        Bundle s = msg.getData();
+        boolean value = false;
+        if (s != null) {
+            value = s.getBoolean(key);
         }
         return value;
     }

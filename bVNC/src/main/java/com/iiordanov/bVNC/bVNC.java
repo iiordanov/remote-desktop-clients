@@ -23,7 +23,9 @@ package com.iiordanov.bVNC;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
@@ -42,6 +44,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
+
+import android.util.Log;
 
 import com.iiordanov.bVNC.dialogs.AutoXCustomizeDialog;
 import com.iiordanov.bVNC.dialogs.ImportExportDialog;
@@ -74,6 +78,7 @@ public class bVNC extends MainConfiguration {
     private CheckBox checkboxKeepPassword;
     private CheckBox checkboxUseDpadAsArrows;
     private CheckBox checkboxRotateDpad;
+    private CheckBox checkboxUseLastPositionToolbar;
     private CheckBox checkboxUseSshPubkey;
     private CheckBox checkboxPreferHextile;
     private CheckBox checkboxViewOnly;
@@ -85,6 +90,7 @@ public class bVNC extends MainConfiguration {
 
     @Override
     public void onCreate(Bundle icicle) {
+        Log.d(TAG, "onCreate called");
         layoutID = R.layout.main;
         super.onCreate(icicle);
 
@@ -126,6 +132,7 @@ public class bVNC extends MainConfiguration {
         connectionType.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> ad, View view, int itemIndex, long id) {
+                android.util.Log.d(TAG, "connectionType onItemSelected called");
                 selectedConnType = itemIndex;
                 selected.setConnectionType(selectedConnType);
                 selected.save(bVNC.this);
@@ -185,6 +192,7 @@ public class bVNC extends MainConfiguration {
         checkboxKeepPassword = (CheckBox) findViewById(R.id.checkboxKeepPassword);
         checkboxUseDpadAsArrows = (CheckBox) findViewById(R.id.checkboxUseDpadAsArrows);
         checkboxRotateDpad = (CheckBox) findViewById(R.id.checkboxRotateDpad);
+        checkboxUseLastPositionToolbar = (CheckBox) findViewById(R.id.checkboxUseLastPositionToolbar);
         checkboxPreferHextile = (CheckBox) findViewById(R.id.checkboxPreferHextile);
         checkboxViewOnly = (CheckBox) findViewById(R.id.checkboxViewOnly);
         colorSpinner.setAdapter(colorSpinnerAdapter);
@@ -216,6 +224,7 @@ public class bVNC extends MainConfiguration {
      * Makes the ssh-related widgets visible/invisible.
      */
     protected void setVisibilityOfSshWidgets(int visibility) {
+        Log.d(TAG, "setVisibilityOfSshWidgets called");
         super.setVisibilityOfSshWidgets(visibility);
         layoutUseX11Vnc.setVisibility(visibility);
     }
@@ -224,6 +233,7 @@ public class bVNC extends MainConfiguration {
      * Enables and disables the EditText boxes for width and height of remote desktop.
      */
     private void setRemoteWidthAndHeight() {
+        Log.d(TAG, "setRemoteWidthAndHeight called");
         if (selected.getRdpResType() != Constants.VNC_GEOM_SELECT_CUSTOM) {
             resWidth.setEnabled(false);
             resHeight.setEnabled(false);
@@ -237,6 +247,7 @@ public class bVNC extends MainConfiguration {
      * Makes the uvnc-related widgets visible/invisible.
      */
     private void setVisibilityOfUltraVncWidgets(int visibility) {
+        Log.d(TAG, "setVisibilityOfUltraVncWidgets called");
         repeaterEntry.setVisibility(visibility);
     }
 
@@ -245,6 +256,7 @@ public class bVNC extends MainConfiguration {
      */
     @Override
     protected Dialog onCreateDialog(int id) {
+        Log.d(TAG, "onCreateDialog called");
         if (id == R.layout.repeater_dialog) {
             return new RepeaterDialog(this);
         } else if (id == R.layout.auto_x_customize) {
@@ -256,6 +268,7 @@ public class bVNC extends MainConfiguration {
     }
 
     public void updateViewFromSelected() {
+        Log.d(TAG, "updateViewFromSelected called");
         if (selected == null)
             return;
         super.commonUpdateViewFromSelected();
@@ -294,6 +307,7 @@ public class bVNC extends MainConfiguration {
         checkboxKeepPassword.setChecked(selected.getKeepPassword());
         checkboxUseDpadAsArrows.setChecked(selected.getUseDpadAsArrows());
         checkboxRotateDpad.setChecked(selected.getRotateDpad());
+        checkboxUseLastPositionToolbar.setChecked((!isNewConnection) ? selected.getUseLastPositionToolbar() : this.useLastPositionToolbarDefault());
         checkboxPreferHextile.setChecked(selected.getPrefEncoding() == RfbProto.EncodingHextile);
         checkboxViewOnly.setChecked(selected.getViewOnly());
         textNickname.setText(selected.getNickname());
@@ -326,6 +340,7 @@ public class bVNC extends MainConfiguration {
      * @param repeaterId If null or empty, show text for not using repeater
      */
     public void updateRepeaterInfo(boolean useRepeater, String repeaterId) {
+        Log.d(TAG, "updateRepeaterInfo called");
         if (useRepeater) {
             repeaterText.setText(repeaterId);
             repeaterTextSet = true;
@@ -338,6 +353,7 @@ public class bVNC extends MainConfiguration {
     }
 
     protected void updateSelectedFromView() {
+        Log.d(TAG, "updateSelectedFromView called");
         super.commonUpdateSelectedFromView();
 
         if (selected == null) {
@@ -362,6 +378,10 @@ public class bVNC extends MainConfiguration {
         selected.setKeepPassword(checkboxKeepPassword.isChecked());
         selected.setUseDpadAsArrows(checkboxUseDpadAsArrows.isChecked());
         selected.setRotateDpad(checkboxRotateDpad.isChecked());
+        selected.setUseLastPositionToolbar(checkboxUseLastPositionToolbar.isChecked());
+        if (!checkboxUseLastPositionToolbar.isChecked()) {
+            selected.setUseLastPositionToolbarMoved(false);
+        }
         if (checkboxPreferHextile.isChecked())
             selected.setPrefEncoding(RfbProto.EncodingHextile);
         else
@@ -385,6 +405,7 @@ public class bVNC extends MainConfiguration {
     }
 
     public void save(MenuItem item) {
+        Log.d(TAG, "save called");
         if (ipText.getText().length() != 0 && portText.getText().length() != 0) {
             saveConnectionAndCloseLayout();
         } else {

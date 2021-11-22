@@ -104,7 +104,8 @@ static void main_channel_event(SpiceChannel *channel, SpiceChannelEvent event,
         g_message("main channel: failed to connect");
         __android_log_write(ANDROID_LOG_ERROR, "main_channel_event", "Connection failed.");
         sendMessage(g_env, 5, "Connection failed."); /* SPICE_CONNECT_FAILURE */
-        connection_disconnect(conn);
+        // We cannot call connection_disconnect() at this point because it causes a SIGABRT signal
+        //connection_disconnect(conn);
         break;
     case SPICE_CHANNEL_ERROR_AUTH:
         g_warning("main channel: auth failure (wrong password?)");

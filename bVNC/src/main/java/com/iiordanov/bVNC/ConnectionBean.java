@@ -27,6 +27,7 @@ import java.util.UUID;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import net.sqlcipher.database.SQLiteDatabase;
 import android.net.Uri;
@@ -54,6 +55,11 @@ public class ConnectionBean extends AbstractConnectionBean implements Connection
     private String idHash;
     private String masterPassword;
     private String id;
+
+    private boolean useLastPositionToolbar;
+    private int useLastPositionToolbarX;
+    private int useLastPositionToolbarY;
+    private boolean useLastPositionToolbarMoved;
 
     public static final NewInstance<ConnectionBean> newInstance=new NewInstance<ConnectionBean>() {
         public ConnectionBean get() { return new ConnectionBean(c); }
@@ -147,6 +153,13 @@ public class ConnectionBean extends AbstractConnectionBean implements Connection
         // These two are not saved in the database since we always save the cert data. 
         setIdHashAlgorithm(Constants.ID_HASH_SHA1);
         setIdHash("");
+
+        // These settings are saved in SharedPrefs
+        setUseLastPositionToolbar(true);
+        setUseLastPositionToolbarX(0);
+        setUseLastPositionToolbarY(0);
+        setUseLastPositionToolbarMoved(false);
+
     }
     
     public int getIdHashAlgorithm() {
@@ -331,17 +344,41 @@ public class ConnectionBean extends AbstractConnectionBean implements Connection
     }
 
     public synchronized void save(Context c) {
+        android.util.Log.d(TAG, "save called");
         Database database = new Database(c);
         save(database.getWritableDatabase());
         database.close();
+        saveToSharedPreferences(c);
     }
 
     @Override
     public void load(Context context) {
-
+        loadFromSharedPreferences(context);
     }
 
+    public void loadFromSharedPreferences(Context context) {
+        android.util.Log.d(TAG, "loadFromSharedPreferences called");
+        SharedPreferences sp = context.getSharedPreferences(Long.toString(get_Id()), Context.MODE_PRIVATE);
+        useLastPositionToolbar = sp.getBoolean("useLastPositionToolbar", true);
+        useLastPositionToolbarX = sp.getInt("useLastPositionToolbarX", 0);
+        useLastPositionToolbarY = sp.getInt("useLastPositionToolbarY", 0);
+        useLastPositionToolbarMoved = sp.getBoolean("useLastPositionToolbarMoved", false);
+    }
+
+    public void saveToSharedPreferences(Context context) {
+        android.util.Log.d(TAG, "saveToSharedPreferences called");
+        SharedPreferences sp = context.getSharedPreferences(Long.toString(get_Id()), Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sp.edit();
+        editor.putBoolean("useLastPositionToolbar", useLastPositionToolbar);
+        editor.putInt("useLastPositionToolbarX", useLastPositionToolbarX);
+        editor.putInt("useLastPositionToolbarY", useLastPositionToolbarY);
+        editor.putBoolean("useLastPositionToolbarMoved", useLastPositionToolbarMoved);
+        editor.apply();
+    }
+
+
     private synchronized void save(SQLiteDatabase database) {
+        android.util.Log.d(TAG, "save called with database");
         ContentValues values = Gen_getValues();
         values.remove(GEN_FIELD__ID);
         // Never save the SSH password and passphrase.
@@ -376,7 +413,47 @@ public class ConnectionBean extends AbstractConnectionBean implements Connection
     {
         setScaleModeAsString(value.toString());
     }
-    
+
+    @Override
+    public boolean getUseLastPositionToolbar() {
+        return useLastPositionToolbar;
+    }
+
+    @Override
+    public void setUseLastPositionToolbar(boolean useLastPositionToolbar) {
+        this.useLastPositionToolbar = useLastPositionToolbar;
+    }
+
+    @Override
+    public int getUseLastPositionToolbarX() {
+        return useLastPositionToolbarX;
+    }
+
+    @Override
+    public void setUseLastPositionToolbarX(int useLastPositionToolbarX) {
+        this.useLastPositionToolbarX = useLastPositionToolbarX;
+    }
+
+    @Override
+    public int getUseLastPositionToolbarY() {
+        return useLastPositionToolbarY;
+    }
+
+    @Override
+    public void setUseLastPositionToolbarY(int useLastPositionToolbarY) {
+        this.useLastPositionToolbarY = useLastPositionToolbarY;
+    }
+
+    @Override
+    public void setUseLastPositionToolbarMoved(boolean useLastPositionToolbarMoved) {
+        this.useLastPositionToolbarMoved = useLastPositionToolbarMoved;
+    }
+
+    @Override
+    public boolean getUseLastPositionToolbarMoved() {
+        return useLastPositionToolbarMoved;
+    }
+
     static ConnectionBean createLoadFromUri(Uri dataUri, Context ctx)
     {
         android.util.Log.d(TAG, "Creating connection from URI");
@@ -454,7 +531,7 @@ public class ConnectionBean extends AbstractConnectionBean implements Connection
     		readyToBeSaved = true;
     		return;
     	}
-    	
+
     	String host = dataUri.getHost();
     	if (host != null) {
     		setAddress(host);
@@ -473,6 +550,7 @@ public class ConnectionBean extends AbstractConnectionBean implements Connection
     	
     	final int PORT_NONE = -1;
         int port = dataUri.getPort();
+        boolean basePasswordParamInUri = false;
         if (port != PORT_NONE && !isValidPort(port)) {
         	throw new IllegalArgumentException("The specified VNC port is not valid.");
         }
@@ -512,13 +590,14 @@ public class ConnectionBean extends AbstractConnectionBean implements Connection
         for (String pwdParam : supportedPwdParams) {
             String password = dataUri.getQueryParameter(pwdParam);
             if (password != null) {
+                basePasswordParamInUri = true;
                 setPassword(password);
                 break;
             }
         }
         
     	setKeepPassword(false); // we should not store the password unless it is encrypted
-    	
+
     	String securityTypeParam = dataUri.getQueryParameter(Constants.PARAM_SECTYPE);
     	int secType = 0; //invalid
     	if (securityTypeParam != null) {
@@ -547,13 +626,13 @@ public class ConnectionBean extends AbstractConnectionBean implements Connection
     			throw new IllegalArgumentException("The specified security type is invalid or unsupported.");   
     		}
     	}
-    	
+
     	// ssh parameters
     	String sshHost = dataUri.getQueryParameter(Constants.PARAM_SSH_HOST);
     	if (sshHost != null) {
     	    setSshServer(sshHost);
     	}
-    	
+
     	String sshPortParam = dataUri.getQueryParameter(Constants.PARAM_SSH_PORT);
     	if (sshPortParam != null) {
     		int sshPort = Integer.parseInt(sshPortParam);
@@ -676,6 +755,7 @@ public class ConnectionBean extends AbstractConnectionBean implements Connection
     		Database database = new Database(c);
     		save(database.getWritableDatabase());
     		database.close();
+            saveToSharedPreferences(c);
     		readyToBeSaved = true;
     	}
     	
@@ -696,9 +776,9 @@ public class ConnectionBean extends AbstractConnectionBean implements Connection
     		// while we could have implemented tunnel/ssh without one 
     		// the user can supply a blank value and the server will not
     		// request it and it is better to support the common case
-    		if (Utils.isNullOrEmptry(getPassword())) {
+    		if (Utils.isNullOrEmptry(getPassword()) && !basePasswordParamInUri) {
     			readyForConnection = false;
-    			Log.i(TAG, "URI missing VNC password.");
+    			Log.i(TAG, "URI missing base protocol password.");
     		}
     	}
     	if (connType == Constants.CONN_TYPE_SSH) {
@@ -781,20 +861,25 @@ public class ConnectionBean extends AbstractConnectionBean implements Connection
     }
 
     public void saveAndWriteRecent(boolean saveEmpty, Context c) {
+        android.util.Log.d(TAG, "saveAndWriteRecent called");
         Database database = new Database(c);
-        saveAndWriteRecent(saveEmpty, database);
+        if ((getConnectionType() == Constants.CONN_TYPE_SSH && getSshServer().equals("")
+                || getAddress().equals("")) && !saveEmpty) {
+            android.util.Log.d(TAG, "saveAndWriteRecent not saving");
+        }
+        else {
+            android.util.Log.d(TAG, "saveAndWriteRecent saving");
+            saveAndWriteRecent(saveEmpty, database);
+            saveToSharedPreferences(c);
+        }
     }
 
     private void saveAndWriteRecent(boolean saveEmpty, Database database) {
-        
+        android.util.Log.d(TAG, "saveAndWriteRecent called with database");
         // We need server address or SSH server to be filled out to save. Otherwise,
         // we keep adding empty connections. 
         // However, if there is partial data from a URI, we can present the edit screen. 
         // Alternately, perhaps we could process some extra data
-        if ((getConnectionType() == Constants.CONN_TYPE_SSH && getSshServer().equals("")
-            || getAddress().equals("")) && !saveEmpty) {
-            return;
-        }
 
         SQLiteDatabase db = database.getWritableDatabase();
         db.beginTransaction();

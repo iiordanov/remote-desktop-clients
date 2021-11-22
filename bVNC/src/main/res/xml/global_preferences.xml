@@ -12,4 +12,11 @@
         android:defaultValue="false" android:key="leftHandedModeTag" android:title="@string/left_handed_mode"/>
     <SwitchPreferenceCompat
         android:defaultValue="false" android:key="moreDebugLoggingTag" android:title="@string/more_debug_logging"/>
+    <SwitchPreferenceCompat
+        android:defaultValue="true"
+        android:key="positionToolbarLastUsed"
+        android:summaryOn="@string/position_toolbar_last_used_summary"
+        android:summaryOff="@string/position_toolbar_last_used_summary"
+        android:title="@string/position_toolbar_last_used"
+        />
 </PreferenceScreen>

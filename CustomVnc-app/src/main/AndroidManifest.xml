@@ -1,107 +1,106 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          xmlns:tools="http://schemas.android.com/tools"
-          package="com.iiordanov.CUSTOM_VNC_APP_PACKAGE_NAME"
-          android:installLocation="auto"
-          android:versionCode="115050" android:versionName="v5.0.5">
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.iiordanov.CUSTOM_VNC_APP_PACKAGE_NAME"
+    android:installLocation="auto"
+    android:versionCode="115056"
+    android:versionName="v5.0.5">
 
-    <uses-permission tools:node="removeAll"/>
-    <uses-permission android:name="android.permission.INTERNET"> </uses-permission>
-    <uses-permission android:name="android.permission.VIBRATE"> </uses-permission>
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"> </uses-permission>
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"> </uses-permission>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"> </uses-permission>
-    <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
-    <uses-feature android:name="android.hardware.microphone" android:required="false"/>
-    <uses-feature android:name="android.software.leanback" android:required="false" />
+    <uses-permission tools:node="removeAll" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
+    <uses-feature
+        android:name="android.hardware.touchscreen"
+        android:required="false" />
+    <uses-feature
+        android:name="android.hardware.microphone"
+        android:required="false" />
+    <uses-feature
+        android:name="android.software.leanback"
+        android:required="false" />
 
     <supports-screens
-        android:xlargeScreens="true"
+        android:anyDensity="true"
         android:largeScreens="true"
         android:normalScreens="true"
         android:smallScreens="true"
-        android:anyDensity="true"/>
-		
+        android:xlargeScreens="true" />
+
     <application
+        android:name="com.iiordanov.bVNC.App"
+        android:allowBackup="false"
         android:banner="@drawable/banner_bvnc"
         android:icon="@drawable/${custom_vnc_app_icon}"
         android:label="${custom_vnc_app_name}"
-        android:allowBackup="false"
         android:theme="@style/AppTheme"
-        android:name="com.iiordanov.bVNC.App"
         tools:replace="android:label,android:theme">
-                <activity android:name="com.undatech.opaque.ConnectionGridActivity"
-                          android:configChanges="keyboardHidden"
-                          android:label="${custom_vnc_app_name}"
-                          android:theme="@android:style/Theme.DeviceDefault"
-                          android:resizeableActivity="true">
-                        <intent-filter>
-                                <action android:name="android.intent.action.MAIN" />
-                                <category android:name="android.intent.category.LAUNCHER" />
-                                <category android:name="android.intent.category.MULTIWINDOW_LAUNCHER" />
-                                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
-                        </intent-filter>
-                </activity>
-                <activity android:label="${custom_vnc_app_name}"
-                          android:name="com.iiordanov.bVNC.CustomVnc"
-                          android:screenOrientation="unspecified"
-                          android:configChanges="orientation|keyboardHidden"
-                          android:windowSoftInputMode="stateHidden|adjustResize"
-                          android:theme="@style/AppThemeWithToolbar"
-                          android:resizeableActivity="true">
-                </activity>
-                <activity android:screenOrientation="unspecified"
-                          android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|density|screenLayout"
-		          android:name="com.iiordanov.bVNC.RemoteCanvasActivity"
-		          android:windowSoftInputMode="stateHidden|adjustResize"
-                          android:theme="@style/AppTheme"
-		          android:resizeableActivity="true">
-                       <intent-filter>
-                                <action android:name="android.intent.action.VIEW"></action>
-                       </intent-filter>
-                       <intent-filter>
-                                <action android:name="android.intent.action.VIEW" />
-                                <category android:name="android.intent.category.DEFAULT" />
-                                <category android:name="android.intent.category.BROWSABLE" />
-                                <data android:scheme="vnc" />
-                       </intent-filter>
-                       <intent-filter>
-                                <action android:name="android.intent.action.VIEW" />
-                                <category android:name="android.intent.category.DEFAULT" />
-                                <category android:name="android.intent.category.BROWSABLE" />
-                                <data android:scheme="intent" />
-                                <data android:mimeType="application/vnd.vnc" />
-                       </intent-filter>
-                </activity>
-                <activity android:name="com.iiordanov.bVNC.ConnectionListActivity"
-                          android:label="${custom_vnc_app_name}"
-                          android:windowSoftInputMode="stateHidden|adjustResize"
-                          android:theme="@style/AppThemeWithToolbar"
-                          android:resizeableActivity="true">
-                       <intent-filter>
-                                <action android:name="android.intent.action.CREATE_SHORTCUT" />
-                                <category android:name="android.intent.category.DEFAULT" />
-                       </intent-filter>
-                </activity>
-		<activity android:name="com.iiordanov.pubkeygenerator.GeneratePubkeyActivity"
-                  android:configChanges="keyboardHidden|orientation"
-                  android:windowSoftInputMode="stateHidden|adjustResize"
-                  android:screenOrientation="unspecified"
-                  tools:replace="android:screenOrientation"
-                  android:theme="@style/AppThemeWithToolbar"
-                  android:resizeableActivity="true"/>
-                <uses-library android:required="false" android:name="com.sec.android.app.multiwindow"> </uses-library>
-                <meta-data android:name="com.sec.android.support.multiwindow"
-                           android:value="true" />
-                <meta-data android:name="com.sec.android.multiwindow.DEFAULT_SIZE_W"
-                           android:resource="@dimen/app_defaultsize_w" />
-                <meta-data android:name="com.sec.android.multiwindow.DEFAULT_SIZE_H"
-                           android:resource="@dimen/app_defaultsize_h" />
-                <meta-data android:name="com.sec.android.multiwindow.MINIMUM_SIZE_W"
-                           android:resource="@dimen/app_minimumsize_w" />
-                <meta-data android:name="com.sec.android.multiwindow.MINIMUM_SIZE_H"
-                           android:resource="@dimen/app_minimumsize_h" />
-        <activity android:name=".presentation.ShortcutsActivity" tools:node="remove"/>
-        <meta-data android:name="com.samsung.android.keepalive.density" android:value="true"/>
+        <activity
+            android:name="com.undatech.opaque.ConnectionGridActivity"
+            android:configChanges="keyboardHidden"
+            android:exported="true"
+            android:label="${custom_vnc_app_name}"
+            android:resizeableActivity="true"
+            android:theme="@android:style/Theme.DeviceDefault">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.MULTIWINDOW_LAUNCHER" />
+                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="com.iiordanov.bVNC.CustomVnc"
+            android:configChanges="orientation|keyboardHidden"
+            android:label="${custom_vnc_app_name}"
+            android:resizeableActivity="true"
+            android:screenOrientation="unspecified"
+            android:theme="@style/AppThemeWithToolbar"
+            android:windowSoftInputMode="stateHidden|adjustResize" />
+        <activity
+            android:name="com.iiordanov.bVNC.RemoteCanvasActivity"
+            android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|density|screenLayout"
+            android:exported="true"
+            android:resizeableActivity="true"
+            android:screenOrientation="unspecified"
+            android:theme="@style/AppTheme"
+            android:windowSoftInputMode="stateHidden|adjustResize">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="vnc" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="intent" />
+                <data android:mimeType="application/vnd.vnc" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="com.iiordanov.bVNC.ConnectionListActivity"
+            android:exported="true"
+            android:label="${custom_vnc_app_name}"
+            android:resizeableActivity="true"
+            android:theme="@style/AppThemeWithToolbar"
+            android:windowSoftInputMode="stateHidden|adjustResize">
+            <intent-filter>
+                <action android:name="android.intent.action.CREATE_SHORTCUT" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
     </application>
 </manifest> 

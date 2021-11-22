@@ -10,9 +10,12 @@ import com.iiordanov.pubkeygenerator.GeneratePubkeyActivity;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Point;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
+
+import androidx.fragment.app.FragmentActivity;
+
 import android.text.ClipboardManager;
 import android.util.Log;
 import android.view.Display;
@@ -64,13 +67,15 @@ public abstract class MainConfiguration extends FragmentActivity {
     private EditText sshPassphrase;
     private CheckBox checkboxKeepSshPass;
 
-    private boolean isNewConnection;
+    protected boolean isNewConnection;
     private long connID = 0;
 
     protected abstract void updateViewFromSelected();
     protected abstract void updateSelectedFromView();
 
     public void commonUpdateViewFromSelected() {
+        Log.d(TAG, "commonUpdateViewFromSelected called");
+        selected.loadFromSharedPreferences(this);
         selectedConnType = selected.getConnectionType();
         connectionType.setSelection(selectedConnType);
         checkboxKeepSshPass.setChecked(selected.getKeepSshPassword());
@@ -102,6 +107,7 @@ public abstract class MainConfiguration extends FragmentActivity {
     }
 
     public void commonUpdateSelectedFromView() {
+        Log.d(TAG, "commonUpdateSelectedFromView called");
         selected.setConnectionType(selectedConnType);
         selected.setAddress(ipText.getText().toString());
         selected.setSshPassPhrase(sshPassphrase.getText().toString());
@@ -119,6 +125,7 @@ public abstract class MainConfiguration extends FragmentActivity {
 
     @Override
     public void onCreate(Bundle icicle) {
+        Log.d(TAG, "onCreate called");
         Intent intent = getIntent();
         isNewConnection = intent.getBooleanExtra("isNewConnection", false);
         if (!isNewConnection) {
@@ -212,6 +219,7 @@ public abstract class MainConfiguration extends FragmentActivity {
     }
 
     void setConnectionTypeSpinnerAdapter(int arrayId) {
+        Log.d(TAG, "setConnectionTypeSpinnerAdapter called");
         ArrayAdapter adapter = ArrayAdapter.createFromResource(this,
                 arrayId, R.layout.connection_list_entry);
         adapter.setDropDownViewResource(R.layout.connection_list_entry);
@@ -222,6 +230,7 @@ public abstract class MainConfiguration extends FragmentActivity {
      * Makes the ssh-related widgets visible/invisible.
      */
     protected void setVisibilityOfSshWidgets (int visibility) {
+        Log.d(TAG, "setVisibilityOfSshWidgets called");
         sshCredentials.setVisibility(visibility);
         sshCaption.setVisibility(visibility);
         layoutUseSshPubkey.setVisibility(visibility);
@@ -230,21 +239,21 @@ public abstract class MainConfiguration extends FragmentActivity {
 
     @Override
     protected void onStart() {
-        Log.i(TAG, "onStart called");
+        Log.d(TAG, "onStart called");
         super.onStart();
         System.gc();
     }
 
     @Override
     protected void onResume() {
-        Log.i(TAG, "onResume called");
+        Log.d(TAG, "onResume called");
         super.onResume();
         System.gc();
     }
 
     @Override
     protected void onResumeFragments() {
-        Log.i(TAG, "onResumeFragments called");
+        Log.d(TAG, "onResumeFragments called");
         super.onResumeFragments();
         arriveOnPage();
     }
@@ -254,14 +263,14 @@ public abstract class MainConfiguration extends FragmentActivity {
 
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
-        Log.i(TAG, "onConfigurationChanged called");
+        Log.d(TAG, "onConfigurationChanged called");
         super.onConfigurationChanged(newConfig);
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        Log.i(TAG, "onStop called");
+        Log.d(TAG, "onStop called");
         if (database != null)
             database.close();
     }
@@ -269,7 +278,7 @@ public abstract class MainConfiguration extends FragmentActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        Log.i(TAG, "onPause called");
+        Log.d(TAG, "onPause called");
         if (database != null)
             database.close();
         if (selected != null) {
@@ -280,6 +289,7 @@ public abstract class MainConfiguration extends FragmentActivity {
 
     @Override
     protected void onDestroy() {
+        Log.d(TAG, "onDestroy called");
         if (database != null)
             database.close();
         System.gc();
@@ -287,6 +297,7 @@ public abstract class MainConfiguration extends FragmentActivity {
     }
 
     protected void saveConnectionAndCloseLayout() {
+        Log.d(TAG, "saveConnectionAndCloseLayout called");
         if (selected != null) {
             updateSelectedFromView();
             selected.saveAndWriteRecent(false, this);
@@ -295,7 +306,7 @@ public abstract class MainConfiguration extends FragmentActivity {
     }
 
     public void arriveOnPage() {
-        Log.i(TAG, "arriveOnPage called");
+        Log.d(TAG, "arriveOnPage called");
         if(!isNewConnection) {
             SQLiteDatabase db = database.getReadableDatabase();
             ArrayList<ConnectionBean> connections = new ArrayList<ConnectionBean>();
@@ -323,6 +334,7 @@ public abstract class MainConfiguration extends FragmentActivity {
      * Starts the activity which manages keys.
      */
     protected void generatePubkey () {
+        Log.d(TAG, "generatePubkey called");
         updateSelectedFromView();
         selected.saveAndWriteRecent(true, this);
         Intent intent = new Intent(this, GeneratePubkeyActivity.class);
@@ -337,6 +349,7 @@ public abstract class MainConfiguration extends FragmentActivity {
      * @return the height in pixels.
      */
     public int getHeight () {
+        Log.d(TAG, "getHeight called");
         View v    = getWindow().getDecorView().findViewById(android.R.id.content);
         Display d = getWindowManager().getDefaultDisplay();
         int bottom = v.getBottom();
@@ -362,6 +375,7 @@ public abstract class MainConfiguration extends FragmentActivity {
      * @return the width in pixels.
      */
     public int getWidth () {
+        Log.d(TAG, "getWidth called");
         View v    = getWindow().getDecorView().findViewById(android.R.id.content);
         Display d = getWindowManager().getDefaultDisplay();
         int right = v.getRight();
@@ -382,6 +396,7 @@ public abstract class MainConfiguration extends FragmentActivity {
      */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        Log.d(TAG, "onCreateOptionsMenu called");
         getMenuInflater().inflate(R.menu.connectionsetupmenu, menu);
         return true;
     }
@@ -391,7 +406,7 @@ public abstract class MainConfiguration extends FragmentActivity {
      */
     @Override
     public boolean onMenuOpened(int featureId, Menu menu) {
-        android.util.Log.d(TAG, "onMenuOpened");
+        Log.d(TAG, "onMenuOpened called");
         try {
             menu.findItem(R.id.itemSaveAsCopy).setEnabled(selected != null && !selected.isNew());
         } catch (NullPointerException e) {}
@@ -404,6 +419,7 @@ public abstract class MainConfiguration extends FragmentActivity {
      */
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Log.d(TAG, "onActivityResult called");
         super.onActivityResult(requestCode, resultCode, data);
         switch(requestCode) {
         case (Constants.ACTIVITY_GEN_KEY):
@@ -425,10 +441,12 @@ public abstract class MainConfiguration extends FragmentActivity {
      * Returns the current ConnectionBean.
      */
     public ConnectionBean getCurrentConnection() {
+        Log.d(TAG, "getCurrentConnection called");
         return selected;
     }
 
     public void saveAsCopy(MenuItem item) {
+        Log.d(TAG, "saveAsCopy called");
         if (selected.getNickname().equals(textNickname.getText().toString()))
             textNickname.setText(new String(getString(R.string.copy_of) + " " + selected.getNickname()));
         selected.setScreenshotFilename(Utils.newScreenshotFileName());
@@ -440,7 +458,14 @@ public abstract class MainConfiguration extends FragmentActivity {
     }
 
     public void showConnectionScreenHelp(MenuItem item) {
+        Log.d(TAG, "showConnectionScreenHelp called");
         Log.d(TAG, "Showing connection screen help.");
         Utils.createConnectionScreenDialog(this);
+    }
+
+    protected boolean useLastPositionToolbarDefault() {
+        android.util.Log.d(TAG, "UseLastPositionToolbarDefault called");
+        SharedPreferences sp = getSharedPreferences(Constants.generalSettingsTag, Context.MODE_PRIVATE);
+        return sp.getBoolean(Constants.positionToolbarLastUsed, true);
     }
 }

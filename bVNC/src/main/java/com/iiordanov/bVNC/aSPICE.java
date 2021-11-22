@@ -28,7 +28,9 @@ import java.util.List;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.content.res.AssetManager;
 import android.content.res.Resources;
 import android.os.Bundle;
@@ -84,6 +86,7 @@ public class aSPICE extends MainConfiguration {
     private CheckBox checkboxKeepPassword;
     private CheckBox checkboxUseDpadAsArrows;
     private CheckBox checkboxRotateDpad;
+    private CheckBox checkboxUseLastPositionToolbar;
     private CheckBox checkboxUseSshPubkey;
     private CheckBox checkboxEnableSound;
     private Spinner layoutMapSpinner = null;
@@ -118,6 +121,7 @@ public class aSPICE extends MainConfiguration {
         checkboxKeepPassword = (CheckBox) findViewById(R.id.checkboxKeepPassword);
         checkboxUseDpadAsArrows = (CheckBox) findViewById(R.id.checkboxUseDpadAsArrows);
         checkboxRotateDpad = (CheckBox) findViewById(R.id.checkboxRotateDpad);
+        checkboxUseLastPositionToolbar = (CheckBox) findViewById(R.id.checkboxUseLastPositionToolbar);
         checkboxEnableSound = (CheckBox) findViewById(R.id.checkboxEnableSound);
 
         // The advanced settings button.
@@ -220,6 +224,7 @@ public class aSPICE extends MainConfiguration {
         checkboxKeepPassword.setChecked(selected.getKeepPassword());
         checkboxUseDpadAsArrows.setChecked(selected.getUseDpadAsArrows());
         checkboxRotateDpad.setChecked(selected.getRotateDpad());
+        checkboxUseLastPositionToolbar.setChecked((!isNewConnection) ? selected.getUseLastPositionToolbar() : this.useLastPositionToolbarDefault());
         if (selected.getEnableSound()) {
             permissionsManager.requestPermissions(this, true);
         }
@@ -299,6 +304,10 @@ public class aSPICE extends MainConfiguration {
         selected.setKeepPassword(checkboxKeepPassword.isChecked());
         selected.setUseDpadAsArrows(checkboxUseDpadAsArrows.isChecked());
         selected.setRotateDpad(checkboxRotateDpad.isChecked());
+        selected.setUseLastPositionToolbar(checkboxUseLastPositionToolbar.isChecked());
+        if (!checkboxUseLastPositionToolbar.isChecked()) {
+            selected.setUseLastPositionToolbarMoved(false);
+        }
         selected.setEnableSound(checkboxEnableSound.isChecked());
         
         TextView selection = null;

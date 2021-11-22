@@ -56,10 +56,10 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.os.Vibrator;
-import android.support.v4.app.FragmentManager;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
+import androidx.fragment.app.FragmentManager;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
+import com.undatech.opaque.util.RemoteToolbar;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.InputDevice;
@@ -108,6 +108,7 @@ import com.iiordanov.bVNC.input.MetaKeyBean;
 import com.undatech.opaque.util.FileUtils;
 import com.undatech.opaque.util.OnTouchViewMover;
 import com.undatech.remoteClientUi.R;
+import com.iiordanov.bVNC.input.RemoteCanvasHandler;
 
 public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyListener,
                                                                         SelectTextElementFragment.OnFragmentDismissedListener {
@@ -162,7 +163,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
     boolean hardKeyboardExtended;
     boolean extraKeysHidden = false;
     volatile boolean softKeyboardUp;
-    Toolbar toolbar;
+    RemoteToolbar toolbar;
     View rootView;
 
     /**
@@ -233,6 +234,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
 
     @Override
     public void onCreate(Bundle icicle) {
+        Log.d(TAG, "OnCreate called");
         super.onCreate(icicle);
         // TODO: Implement left-icon
         //requestWindowFeature(Window.FEATURE_LEFT_ICON);
@@ -248,6 +250,9 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
 
         canvas = (RemoteCanvas) findViewById(R.id.canvas);
 
+	if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            canvas.setDefaultFocusHighlightEnabled(false);
+        }
         if (android.os.Build.VERSION.SDK_INT >= 9) {
             android.os.StrictMode.ThreadPolicy policy = new android.os.StrictMode.ThreadPolicy.Builder().permitAll().build();
             android.os.StrictMode.setThreadPolicy(policy);
@@ -292,11 +297,12 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
         if (connection != null && connection.isReadyForConnection()) {
             continueConnecting();
         }
+        android.util.Log.d(TAG, "OnCreate complete");
     }
 
     @SuppressLint("SourceLockedOrientationActivity")
     void initialize (final Runnable setModes, final Runnable hideKeyboardAndExtraKeys) {
-        handler = new Handler ();
+        handler = new RemoteCanvasHandler(this);
 
         if (Utils.querySharedPreferenceBoolean(this, Constants.keepScreenOnTag))
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -316,6 +322,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
         }
         
         if (isSupportedScheme || !Utils.isNullOrEmptry(i.getType())) {
+            Log.d(TAG, "Initializing classic connection from Intent.");
             if (isMasterPasswordEnabled()) {
                 Utils.showFatalErrorMessage(this, getResources().getString(R.string.master_password_error_intents_not_supported));
                 return;
@@ -352,12 +359,17 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
             	return;
             }
         } else {
+            Log.d(TAG, "Initializing classic connection from Serializeable.");
         	connection = new ConnectionBean(this);
             Bundle extras = i.getExtras();
 
             if (extras != null) {
-                  connection.populateFromContentValues((ContentValues) extras.getParcelable(Utils.getConnectionString(this)));
+                Log.d(TAG, "Initializing classic connection from Serializeable, loading values.");
+                connection.populateFromContentValues((ContentValues) extras.getParcelable(Utils.getConnectionString(this)));
+                connection.load(this);
             }
+            Log.d(TAG, "Initializing classic connection from Serializeable, toolbar X coor " + connection.getUseLastPositionToolbarX());
+            Log.d(TAG, "Initializing classic connection from Serializeable, toolbar Y coor " + connection.getUseLastPositionToolbarY());
 
             // Parse a HOST:PORT entry but only if not ipv6 address
             String host = connection.getAddress();
@@ -376,6 +388,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
             if (connection.getSshPort() == 0)
                 connection.setSshPort(Constants.DEFAULT_SSH_PORT);
         }
+        ((RemoteCanvasHandler) handler).setConnection(connection);
         canvas.initializeCanvas(connection, setModes, hideKeyboardAndExtraKeys);
     }
 
@@ -436,7 +449,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
         
         panner = new Panner(this, canvas.handler);
 
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar = (RemoteToolbar) findViewById(R.id.toolbar);
         toolbar.setTitle("");
         toolbar.getBackground().setAlpha(64);
         toolbar.setLayoutParams(params);
@@ -487,6 +500,8 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
         int diffArrowKeysPosition = r.right - re.left - layoutArrowKeys.getRight();
         int diffLayoutKeysPosition = r.bottom - re.top - layoutKeysBottom;
         int diffToolbarPosition = r.bottom - re.top - toolbarBottom - r.bottom/2;
+        int diffToolbarPositionRightAbsolute = r.right - toolbar.getWidth();
+        int diffToolbarPositionTopAbsolute = r.bottom - re.top - toolbar.getHeight() - r.bottom/2;
         android.util.Log.d(TAG, "onGlobalLayout: before: r.bottom: " + r.bottom +
                 " rootViewHeight: " + rootViewHeight + " re.top: " + re.top + " re.bottom: " + re.bottom +
                 " layoutKeysBottom: " + layoutKeysBottom + " rootViewBottom: " + rootViewBottom + " toolbarBottom: " + toolbarBottom +
@@ -504,7 +519,17 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
             if (layoutKeys != null) {
                 android.util.Log.d(TAG, "onGlobalLayout: shifting on-screen buttons down by: " + diffLayoutKeysPosition);
                 layoutKeys.offsetTopAndBottom(diffLayoutKeysPosition);
-                toolbar.offsetTopAndBottom(diffToolbarPosition);
+                if(!connection.getUseLastPositionToolbar() || !connection.getUseLastPositionToolbarMoved()) {
+                    toolbar.offsetTopAndBottom(diffToolbarPosition);
+                }
+                else {
+                    toolbar.makeVisible(connection.getUseLastPositionToolbarX(),
+                                        connection.getUseLastPositionToolbarY(),
+                                        r.right,
+                                        r.bottom,
+                                        diffToolbarPositionRightAbsolute,
+                                        diffToolbarPositionTopAbsolute);
+                }
                 android.util.Log.d(TAG, "onGlobalLayout: shifting arrow keys by: " + diffArrowKeysPosition);
                 layoutArrowKeys.offsetLeftAndRight(diffArrowKeysPosition);
                 if (softKeyboardPositionChanged) {
@@ -519,16 +544,26 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
 
             //  Soft Kbd up, shift the meta keys and arrows up.
             if (layoutKeys != null) {
-                android.util.Log.d(TAG, "onGlobalLayout: shifting on-screen buttons up by: " + diffLayoutKeysPosition);
+                Log.d(TAG, "onGlobalLayout: shifting on-screen buttons up by: " + diffLayoutKeysPosition);
                 layoutKeys.offsetTopAndBottom(diffLayoutKeysPosition);
-                toolbar.offsetTopAndBottom(diffToolbarPosition);
-                android.util.Log.d(TAG, "onGlobalLayout: shifting arrow keys by: " + diffArrowKeysPosition);
+                if(!connection.getUseLastPositionToolbar() || !connection.getUseLastPositionToolbarMoved()) {
+                    toolbar.offsetTopAndBottom(diffToolbarPosition);
+                }
+                else {
+                    toolbar.makeVisible(connection.getUseLastPositionToolbarX(),
+                                        connection.getUseLastPositionToolbarY(),
+                                        r.right,
+                                        r.bottom,
+                                        diffToolbarPositionRightAbsolute,
+                                        diffToolbarPositionTopAbsolute);
+                }
+                Log.d(TAG, "onGlobalLayout: shifting arrow keys by: " + diffArrowKeysPosition);
                 layoutArrowKeys.offsetLeftAndRight(diffArrowKeysPosition);
                 if (extraKeysHidden) {
-                    android.util.Log.d(TAG, "onGlobalLayout: on-screen buttons should be hidden");
+                    Log.d(TAG, "onGlobalLayout: on-screen buttons should be hidden");
                     setExtraKeysVisibility(View.GONE, false);
                 } else {
-                    android.util.Log.d(TAG, "onGlobalLayout: on-screen buttons should be showing");
+                    Log.d(TAG, "onGlobalLayout: on-screen buttons should be showing");
                     setExtraKeysVisibility(View.VISIBLE, true);
                 }
                 canvas.invalidate();
@@ -1180,6 +1215,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
     /** {@inheritDoc} */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        Log.d(TAG, "OnCreateOptionsMenu called");
         try {
             getMenuInflater().inflate(R.menu.vnccanvasactivitymenu, menu);
             
@@ -1214,6 +1250,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
         } catch (NullPointerException e) {
             e.printStackTrace();
         }
+        Log.d(TAG, "OnCreateOptionsMenu complete");
         return true;
     }
 

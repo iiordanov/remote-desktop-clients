@@ -33,8 +33,8 @@ import android.content.Intent;
 import android.content.res.AssetManager;
 import android.content.res.Resources;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
+import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentManager;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -64,12 +64,15 @@ public class AdvancedSettingsActivity extends FragmentActivity implements Manage
     private ToggleButton toggleSslStrict;
     private ToggleButton toggleUsbEnabled;
     private ToggleButton toggleUsingCustomOvirtCa;
+    private ToggleButton toggleUseLastPositionToolbar;
     private Button buttonManageOvirtCa;
     private Spinner layoutMapSpinner;
     private LinearLayout layoutManageOvirtCa;
     private LinearLayout layoutToggleUsingCustomOvirtCa;
     private LinearLayout layoutCustomRemoteResolution;
     private LinearLayout layoutToggleCustomRemoteResolution;
+    private LinearLayout layoutUseLastPositionToolbar;
+    private TextView textUseLastPositionToolbar;
     private EditText rdpWidth;
     private EditText rdpHeight;
 
@@ -103,6 +106,13 @@ public class AdvancedSettingsActivity extends FragmentActivity implements Manage
         layoutToggleUsingCustomOvirtCa = (LinearLayout)findViewById(R.id.layoutToggleUsingCustomOvirtCa);
         toggleUsingCustomOvirtCa = (ToggleButton)findViewById(R.id.toggleUsingCustomOvirtCa);
         toggleUsingCustomOvirtCa.setChecked(currentConnection.isUsingCustomOvirtCa());
+
+        layoutUseLastPositionToolbar = (LinearLayout)findViewById(R.id.layoutUseLastPositionToolbar);
+        textUseLastPositionToolbar = (TextView) findViewById(R.id.textUseLastPositionToolbar);
+        String textStrUseLastPositionToolbar = getString(R.string.position_toolbar_last_used) + "\n" + getString(R.string.position_toolbar_last_used_summary);
+        textUseLastPositionToolbar.setText(textStrUseLastPositionToolbar);
+        toggleUseLastPositionToolbar = (ToggleButton)findViewById(R.id.toggleUseLastPositionToolbar);
+        toggleUseLastPositionToolbar.setChecked(currentConnection.getUseLastPositionToolbar());
 
         buttonManageOvirtCa = (Button)findViewById(R.id.buttonManageOvirtCa);
         buttonManageOvirtCa.setEnabled(currentConnection.isUsingCustomOvirtCa());
@@ -282,7 +292,17 @@ public class AdvancedSettingsActivity extends FragmentActivity implements Manage
         currentConnection.setUsingCustomOvirtCa(usingCustomOvirtCa);
         buttonManageOvirtCa.setEnabled(usingCustomOvirtCa);
     }
-    
+
+    /**
+     * Automatically linked with android:onClick to the positionToolbarLastUsed button.
+     * @param view
+     */
+    public void toggleUseLastPositionToolbar (View view) {
+        ToggleButton s = (ToggleButton) view;
+        boolean useLastPositionToolbar = s.isChecked();
+        currentConnection.setUseLastPositionToolbar(useLastPositionToolbar);
+    }
+
     /**
      * Automatically linked with android:onClick to the buttonManageOvirtCa button.
      * @param view

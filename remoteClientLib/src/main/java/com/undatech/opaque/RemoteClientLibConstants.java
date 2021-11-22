@@ -44,6 +44,7 @@ public class RemoteClientLibConstants {
     public static final int DISCONNECT_WITH_MESSAGE = 18;
     public static final int GET_RDP_CREDENTIALS    = 19;
     public static final int GET_SPICE_PASSWORD     = 20;
+    public static final int REPORT_TOOLBAR_POSITION = 21;
 
     public static final int LAUNCH_VNC_VIEWER      = 23;
     public static final int VM_LAUNCHED            = 24;
@@ -78,6 +79,8 @@ public class RemoteClientLibConstants {
     
     public static final int ADVANCED_SETTINGS      = 1;
     public static final int DEFAULT_SETTINGS       = 2;
+    public static final int IMPORT_SETTINGS_REQUEST_CODE = 3;
+    public static final int EXPORT_SETTINGS_REQUEST_CODE = 4;
 
     public static final String DEFAULT_LAYOUT_MAP = "English (US)";
     

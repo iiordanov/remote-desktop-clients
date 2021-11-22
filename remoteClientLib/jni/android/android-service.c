@@ -191,7 +191,7 @@ void spice_session_setup(SpiceSession *session, const char *host, const char *po
         g_object_set(session, "ca-file", ca_file, NULL);
     }
     if (ca_cert) {
-        __android_log_write(ANDROID_LOG_DEBUG, "spice_session_setup, setting ca", ca_cert);
+        __android_log_write(ANDROID_LOG_DEBUG, "spice_session_setup, setting ca", (char *)ca_cert->data);
         g_object_set(session, "ca", ca_cert, NULL);
     }
     if (cert_subj) {
@@ -211,9 +211,11 @@ void spice_session_setup(SpiceSession *session, const char *host, const char *po
 }
 
 static void signal_handler(int signal, siginfo_t *info, void *reserved) {
-    // TODO: Send message back to UI
-    __android_log_write(ANDROID_LOG_ERROR, "signal_handler", "Handling a signal.");
+    char buffer[50];
+    snprintf(buffer, 50, "Signal handler called with signal: %d,", signal);
+    __android_log_write(ANDROID_LOG_ERROR, "signal_handler", buffer);
     disconnect(NULL);
+    // At this point it appears impossible to exit gracefully.
     kill(getpid(), SIGKILL);
 }
 

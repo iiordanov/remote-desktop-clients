@@ -1,21 +1,32 @@
 package com.undatech.opaque.util;
 
+import android.content.ContentProviderClient;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
 import android.content.res.Resources;
+import android.net.Uri;
+import android.os.ParcelFileDescriptor;
+import android.os.RemoteException;
 import android.util.Log;
 
 import com.undatech.opaque.RemoteClientLibConstants;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -26,6 +37,7 @@ import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
+import java.util.stream.Collectors;
 
 import static android.content.Context.MODE_PRIVATE;
 
@@ -48,7 +60,7 @@ public class FileUtils {
      * @param file
      * @throws IOException
      */
-    public static void outputToFile (InputStream is, File file) throws IOException {
+    public static void outputToFile(InputStream is, File file) throws IOException {
         BufferedInputStream bis = new BufferedInputStream(is);
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
 
@@ -62,6 +74,26 @@ public class FileUtils {
         FileOutputStream fos = new FileOutputStream(file);
         fos.write(buffer.toByteArray());
         fos.close();
+    }
+
+    public static InputStream getInputStreamFromUri(ContentResolver resolver, Uri uri) {
+        InputStream in = null;
+        try {
+            in = resolver.openInputStream(uri);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return in;
+    }
+
+    public static OutputStream getOutputStreamFromUri(ContentResolver resolver, Uri uri) {
+        OutputStream out = null;
+        try {
+            out = resolver.openOutputStream(uri, "wt");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return out;
     }
 
     public static List<String> listFiles(Context context, String dirFrom) throws IOException {

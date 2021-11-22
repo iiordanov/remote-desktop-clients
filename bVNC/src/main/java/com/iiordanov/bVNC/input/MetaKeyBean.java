@@ -80,8 +80,7 @@ public class MetaKeyBean extends AbstractMetaKeyBean implements Comparable<MetaK
         allKeys.add(new MetaKeyBase("Page Down", 0xFF56));
         allKeys.add(new MetaKeyBase("End", 0xFF57));
         allKeys.add(new MetaKeyBase("Insert", 0xFF63));
-        allKeys.add(new MetaKeyBase("Delete", 0xFFFF, KeyEvent.KEYCODE_DEL));
-        allKeys.add(new MetaKeyBase("Delete Forward", 0xFFFF, KeyEvent.KEYCODE_FORWARD_DEL));
+        allKeys.add(new MetaKeyBase("Delete (Forward)", 0xFFFF, KeyEvent.KEYCODE_DEL));
         allKeys.add(new MetaKeyBase("Num Lock", 0xFF7F));
         allKeys.add(new MetaKeyBase("Break", 0xFF6b));
         allKeys.add(new MetaKeyBase("Scroll Lock", 0xFF14));

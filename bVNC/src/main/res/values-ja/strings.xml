@@ -365,6 +365,8 @@
   <string name="port_hint">ポート</string>
   <string name="port_ssh_hint">ポート</string>
   <string name="portrait_mode">接続時縦向き表示に切替</string>
+  <string name="position_toolbar_last_used">ツールバー位置の初期化</string>
+  <string name="position_toolbar_last_used_summary">(新規接続にのみ適用)</string>
   <string name="pro_feature_mfa">サーバーの多要素認証が有効になっています。多要素認証に対応している、Proバージョンをご購入ください。Proバージョンのリンクは、起動時に表示される画面上にあります。</string>
   <string name="rdp_address_caption_hint">RDPサーバー</string>
   <string name="rdp_adv_console_mode">コンソールモード</string>

@@ -363,6 +363,8 @@
   <string name="port_hint">端口</string>
   <string name="port_ssh_hint">端口</string>
   <string name="portrait_mode">連接後切換到縱放模式</string>
+  <string name="position_toolbar_last_used">工具欄位置初始化</string>
+  <string name="position_toolbar_last_used_summary">(僅限適用到新建連接)</string>
   <string name="pro_feature_mfa">看來您的伺服器已啟用多因素身份驗證。請購買支持此功能的Pro版本。在開始對話框中有Pro版本的鏈接。</string>
   <string name="rdp_address_caption_hint">RDP伺服器</string>
   <string name="rdp_adv_console_mode">控制台模式</string>

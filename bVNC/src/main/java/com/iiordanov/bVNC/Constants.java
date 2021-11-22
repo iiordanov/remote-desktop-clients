@@ -203,6 +203,7 @@ public class Constants {
     public static final String leftHandedModeTag = "leftHandedModeTag";
     public static final String defaultInputMethodTag = "defaultInputMethod";
     public static final String permissionsRequested = "permissionsRequested";
+    public static final String positionToolbarLastUsed = "positionToolbarLastUsed";
 
     public static final String ACTION_USB_PERMISSION = "com.iiordanov.aSPICE.USB_PERMISSION";
     public static final int usbDeviceTimeout = 5000;
@@ -214,7 +215,7 @@ public class Constants {
     
     public static final int SHORT_VIBRATION        = 1;
 
-    
+
     /**
      * Returns a string matching a session selection index
      * @param index - index to convert

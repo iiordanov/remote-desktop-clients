@@ -500,12 +500,13 @@ public class SpiceCommunicator implements RfbConnectable {
         myself.handler.sendEmptyMessage(message);
     }
 
-    public static void sendMessageWithText (int message, String messageText) {
-        android.util.Log.d(TAG, "sendMessage called with message: " + messageText);
+    public static void sendMessageWithText (int messageId, String messageText) {
+        android.util.Log.d(TAG, "sendMessageWithText called with messageId: "
+                + messageId + " and messageText: " + messageText);
         Bundle b = new Bundle();
         b.putString("message", messageText);
         Message m = myself.handler.obtainMessage();
-        m.what = message;
+        m.what = messageId;
         m.setData(b);
         myself.handler.sendMessage(m);
     }

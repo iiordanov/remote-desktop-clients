@@ -389,6 +389,14 @@
                 android:text="@string/rotate_dpad"
                 android:textAppearance="?android:attr/textAppearanceLarge" />
 
+            <CheckBox
+                android:id="@+id/checkboxUseLastPositionToolbar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="left|center_vertical"
+                android:text="@string/position_toolbar_last_used"
+                android:textAppearance="?android:attr/textAppearanceLarge" />
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

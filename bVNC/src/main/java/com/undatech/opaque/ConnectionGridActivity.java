@@ -24,6 +24,7 @@ import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -31,10 +32,6 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v7.widget.AppCompatImageButton;
 import android.text.ClipboardManager;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -51,25 +48,31 @@ import android.widget.GridView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.widget.AppCompatImageButton;
+import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+
 import com.iiordanov.bVNC.App;
+import com.iiordanov.bVNC.ConnectionBean;
 import com.iiordanov.bVNC.Constants;
 import com.iiordanov.bVNC.Database;
 import com.iiordanov.bVNC.RemoteCanvasActivity;
 import com.iiordanov.bVNC.Utils;
-import com.iiordanov.bVNC.ConnectionBean;
 import com.iiordanov.bVNC.dialogs.GetTextFragment;
 import com.iiordanov.bVNC.dialogs.ImportExportDialog;
 import com.iiordanov.bVNC.dialogs.IntroTextDialog;
 import com.iiordanov.bVNC.input.InputHandlerDirectSwipePan;
+import com.iiordanov.util.PermissionsManager;
 import com.undatech.opaque.util.ConnectionLoader;
 import com.undatech.opaque.util.FileUtils;
 import com.undatech.opaque.util.GeneralUtils;
 import com.undatech.opaque.util.LogcatReader;
-import com.iiordanov.util.PermissionsManager;
+import com.undatech.remoteClientUi.R;
 
 import java.io.File;
-
-import com.undatech.remoteClientUi.R;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 public class ConnectionGridActivity extends FragmentActivity implements GetTextFragment.OnFragmentDismissedListener {
     private static String TAG = "ConnectionGridActivity";
@@ -280,7 +283,7 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
             loadSavedConnections();
         }
     }
-    
+
     private void loadSavedConnections() {
         boolean connectionsInSharedPrefs = Utils.isOpaque(getPackageName());
         connectionLoader = new ConnectionLoader(appContext, this, connectionsInSharedPrefs);
@@ -358,7 +361,7 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
         inflater.inflate(R.menu.input_mode_menu_item, menu);
         return super.onCreateOptionsMenu(menu);
     }
-    
+
     /**
      * This function is used to retrieve data returned by activities started with startActivityForResult.
      */
@@ -368,13 +371,52 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
 
         super.onActivityResult(requestCode, resultCode, data);
         switch(requestCode) {
-        case (RemoteClientLibConstants.DEFAULT_SETTINGS):
+        case RemoteClientLibConstants.DEFAULT_SETTINGS:
             if (resultCode == Activity.RESULT_OK) {
                 Bundle b = data.getExtras();
                 ConnectionSettings defaultSettings = (ConnectionSettings)b.get("com.undatech.opaque.ConnectionSettings");
                 defaultSettings.saveToSharedPreferences(this);
             } else {
                 android.util.Log.i (TAG, "Error during AdvancedSettingsActivity.");
+            }
+            break;
+        case RemoteClientLibConstants.IMPORT_SETTINGS_REQUEST_CODE:
+            if (resultCode == Activity.RESULT_OK) {
+                if (data != null && data.getData() != null) {
+                    ContentResolver resolver = getContentResolver();
+
+                    boolean connectionsInSharedPrefs = Utils.isOpaque(getPackageName());
+                    InputStream in = FileUtils.getInputStreamFromUri(resolver, data.getData());
+                    if (connectionsInSharedPrefs) {
+                        ConnectionSettings.importSettingsFromJsonToSharedPrefs(in, this);
+                    } else {
+                        Utils.importSettingsFromXml(in, database.getWritableDatabase());
+                    }
+                    recreate();
+                } else {
+                    android.util.Log.e(TAG, "File uri not found, not importing settings");
+                }
+            } else {
+                android.util.Log.e(TAG, "Error while selecting file to import settings from");
+            }
+            break;
+        case RemoteClientLibConstants.EXPORT_SETTINGS_REQUEST_CODE:
+            if (resultCode == Activity.RESULT_OK) {
+                if (data != null && data.getData() != null) {
+                    ContentResolver resolver = getContentResolver();
+
+                    boolean connectionsInSharedPrefs = Utils.isOpaque(getPackageName());
+                    OutputStream out = FileUtils.getOutputStreamFromUri(resolver, data.getData());
+                    if (connectionsInSharedPrefs) {
+                        ConnectionSettings.exportSettingsFromSharedPrefsToJson(out, this);
+                    } else {
+                        Utils.exportSettingsToXml(out, database.getReadableDatabase());
+                    }
+                } else {
+                    android.util.Log.e(TAG, "File uri not found, not exporting settings");
+                }
+            } else {
+                android.util.Log.e(TAG, "Error while selecting file to export settings to");
             }
             break;
         }

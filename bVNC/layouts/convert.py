@@ -40,10 +40,19 @@ layouts = {"en-us" : "English (US)", "en-gb" : "English (UK)", "de" : "German (G
            "sl": "Slovenian" }
 commonKeyCodeFile = "common_keycodes.in"
 nameToUnicodeFile = "name_to_unicode.in"
+ignoreListFile = "ignore.in"
 
 unicodeMask = 0x100000
 shiftMask = 0x10000
 altGrMask = 0x20000
+
+def loadIgnoreList(ignoreListFile):
+    f = open(ignoreListFile)
+    ignoreList = []
+    for l in f.readlines():
+        ignoreList.append(l.strip())
+    return ignoreList
+
 
 def loadNameToUnicode (nameToUnicodeFile):
     f = open(nameToUnicodeFile)
@@ -55,21 +64,37 @@ def loadNameToUnicode (nameToUnicodeFile):
 
     return nameToUnicode
 
-def loadCommonKeyCodes (commonFile, keyMap):
+def loadCommonKeyCodes(commonFile, keyMap):
     f = open(commonFile)
     for l in f.readlines():
         l = l.split()
         if l != None:
-            keyMap[int(l[1])] = [int(l[2])]
+            key = int(l[1])
+            name = l[0]
+            rawScanCode = int(l[2])
+            scanCodes = [int(l[2])]
+            addKeyToKeyMap(commonFile, keyMap, key, name, rawScanCode, scanCodes)
 
     return keyMap
 
-def loadKeyMap (nameToUnicode, keyMapFile, keyMap):
+def addKeyToKeyMap(keyMapFile, keyMap, key, name, rawScanCode, scanCodes):
+    # We prefer smaller "raw" scancodes when creating the map to avoid using extended keyboard keys
+    # when there are more than one way of typing the same character. This makes the scancode more likely
+    # to result in a valid keystroke for the selected server-side keyboard layout.
+    if key not in keyMap or rawScanCode <= keyMap[key]["rawScanCode"]:
+        keyMap[key] = { "scanCodes": scanCodes, "name": name, "rawScanCode": rawScanCode }
+    else:
+        logging.info(f"While processing {keyMapFile}, discarded duplicate larger "
+                     f"rawScanCode: {rawScanCode} value for keyMap entry for {key}. "
+                     f"Value in keyMap[key]: {keyMap[key]}")
+    return keyMap
+
+def loadKeyMap(nameToUnicode, keyMapFile, keyMap, ignoreList):
     try:
         f = open(keyMapFile)
     except:
-        logging.warning(f"Unable to open {keyMapFile} file, skipping")
-        return
+        logging.info(f"Unable to open {keyMapFile} file, skipping")
+        return keyMap
     lines = f.readlines()
     deadKeys = {}
     for l in lines:
@@ -79,8 +104,9 @@ def loadKeyMap (nameToUnicode, keyMapFile, keyMap):
 
             scanCodes = list(l[1:])
 
-            # Convert first scancode to an integer (this is the actual scancode)
-            scanCodes[0] = int(scanCodes[0], 16)
+            # Convert first scancode to an decimal integer (this is the actual scancode)
+            rawScanCode = int(scanCodes[0], 16)
+            scanCodes[0] = rawScanCode
 
             # Go through the scan codes and apply shift, altGr mask and skip if numlock is found
             # We iterate on a copy of the list of scanCodes in order to be able to safely modify
@@ -111,16 +137,20 @@ def loadKeyMap (nameToUnicode, keyMapFile, keyMap):
             if addUpper:
                 upperCaseScanCodes = list(scanCodes)
                 upperCaseScanCodes[0] |= shiftMask
-                keyMap[(int(nameToUnicode[name], 16) - 0x20) | unicodeMask] = upperCaseScanCodes
+                key = (int(nameToUnicode[name], 16) - 0x20) | unicodeMask
+                addKeyToKeyMap(keyMapFile, keyMap, key, name, rawScanCode, upperCaseScanCodes)
             try:
-                keyMap[int(nameToUnicode[name], 16) | unicodeMask] = scanCodes
+                key = int(nameToUnicode[name], 16) | unicodeMask
+
+                addKeyToKeyMap(keyMapFile, keyMap, key, name, rawScanCode, scanCodes)
             except KeyError as e:
                 if re.match('U[0-9A-Fa-f]{4}', name):
-                    logging.warning(f"Name {e} in qemu keymap looks like a unicode character, using its value to add to keymap")
-                    print(int(name[1:], 16) | unicodeMask, scanCodes)
-                    keyMap[int(name[1:], 16) | unicodeMask] = scanCodes
+                    key = int(name[1:], 16) | unicodeMask
+                    logging.info(f"Name {e} in qemu keymap looks like a raw unicode character, adding the numeric value after U in its 'name' {name} with unicodeMask to keymap")
+                    addKeyToKeyMap(keyMapFile, keyMap, key, name, rawScanCode, scanCodes)
                 else:
-                    logging.error(f"Could not find unicode value for: {e}")
+                    if name not in ignoreList:
+                        logging.warning(f"Could not find unicode value for: {name}, ignoreList {ignoreList}")
                 pass
 
             # Detect and store dead keys
@@ -149,15 +179,18 @@ def loadKeyMap (nameToUnicode, keyMapFile, keyMap):
             unicode = int(unicode, 16) | unicodeMask
             plainLetterUnicode = int(nameToUnicode[name], 16) | unicodeMask
             try:
-                scodes += keyMap[plainLetterUnicode]
+                scodes += keyMap[plainLetterUnicode]["scanCodes"]
                 # Do not replace existing mappings with deadkey sequences as that would override
                 # key mappings that are directly accessible from a button on the keyboard. Examples
                 # are a, o, u umlaut in German
-                if not keyMap.__contains__(unicode):
-                    keyMap[unicode] = scodes
+                if unicode not in keyMap:
+                    logging.info(f"Generated scanCodes {scodes} for unicode key with accent (dead-key)")
+                    addKeyToKeyMap(keyMapFile, keyMap, unicode, name, scodes[0], scodes)
+
             except KeyError as e:
-                #print ("Could not find: " + name)
+                logging.warning(f"Could not find plainLetterUnicode {plainLetterUnicode} in keyMap {keyMapFile}, name: {name}, unicode: {unicode}")
                 pass
+    return keyMap
 
 def generateLayoutMap():
     map = {}
@@ -168,7 +201,7 @@ def generateLayoutMap():
         for l in lines:
             if l.startswith("# name:"):
                 try:
-                    name = l.split()[2].replace('"', '')
+                    name = l.replace("# name: ", "").replace('"', '').strip()
                     map[layout] = name
                 except:
                     logging.error(f"Error parsing the name of layout {l}. Manually add it to layouts map.")
@@ -186,12 +219,14 @@ if __name__ == "__main__":
 
     for k, v in auto_layouts.items():
         keyMap = {}
-        loadCommonKeyCodes (commonKeyCodeFile, keyMap)
-        loadKeyMap(nameToUnicode, layoutLocation + "common", keyMap)
-        loadKeyMap(nameToUnicode, layoutLocation + str(k), keyMap)
+        ignoreList = loadIgnoreList(ignoreListFile)
+        keyMap = loadCommonKeyCodes (commonKeyCodeFile, keyMap)
+        keyMap = loadKeyMap(nameToUnicode, layoutLocation + "common", keyMap, ignoreList)
+        keyMap = loadKeyMap(nameToUnicode, layoutLocation + str(k), keyMap, ignoreList)
 
         f = open(targetLocation + str(v), "w")
         for u, s in sorted(keyMap.items()):
-            #print(u, s)
-            f.write(str(u) + " " + " ".join(map(str, s)) + "\n")
+            name = str(keyMap[u]["name"])
+            f.write(str(u) + " " + " ".join(map(str, s["scanCodes"])) + "\n")
+            #f.write(name + " " + str(u) + " " + " ".join(map(str, s["scanCodes"])) + "\n")
         f.close()

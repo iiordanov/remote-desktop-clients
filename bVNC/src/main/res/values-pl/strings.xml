@@ -288,7 +288,8 @@
     <string name="port_ssh_hint">Port</string>
 
     <string name="portrait_mode">Przełącz do trybu pionowego przy połączeniu</string>
-
+    <string name="position_toolbar_last_used">Restore Toolbar Position</string>
+    <string name="position_toolbar_last_used_summary">(Applies to New Connections Only)</string>
     <string name="pro_feature_mfa"/>
 
     <string name="rdp_address_caption_hint">Serwer RDP</string>
