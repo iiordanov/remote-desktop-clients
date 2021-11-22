@@ -1,0 +1,131 @@
+diff --git a/client/iOS/Controllers/AboutController.h b/client/iOS/Controllers/AboutController.h
+index 7af340c74..08b26062f 100644
+--- a/client/iOS/Controllers/AboutController.h
++++ b/client/iOS/Controllers/AboutController.h
+@@ -10,10 +10,9 @@
+ 
+ #import <UIKit/UIKit.h>
+ 
+-@interface AboutController : UIViewController <UIWebViewDelegate>
++@interface AboutController : UIViewController
+ {
+ 	NSString *last_link_clicked;
+-	UIWebView *webView;
+ }
+ 
+ @end
+diff --git a/client/iOS/Controllers/AboutController.m b/client/iOS/Controllers/AboutController.m
+index 1d7f8a2ad..650e0a70b 100644
+--- a/client/iOS/Controllers/AboutController.m
++++ b/client/iOS/Controllers/AboutController.m
+@@ -45,13 +45,6 @@ - (void)dealloc
+ // Implement loadView to create a view hierarchy programmatically, without using a nib.
+ - (void)loadView
+ {
+-	webView = [[[UIWebView alloc] initWithFrame:CGRectZero] autorelease];
+-	[webView
+-	    setAutoresizingMask:(UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight)];
+-	[webView setAutoresizesSubviews:YES];
+-	[webView setDelegate:self];
+-	[webView setDataDetectorTypes:UIDataDetectorTypeNone];
+-	[self setView:webView];
+ }
+ 
+ // Implement viewDidLoad to do additional setup after loading the view, typically from a nib.
+@@ -67,13 +60,6 @@ - (void)viewDidLoad
+ 	                  encoding:NSUTF8StringEncoding
+ 	                     error:nil] autorelease];
+ 
+-	[webView
+-	    loadHTMLString:[NSString stringWithFormat:htmlString, TSXAppFullVersion(),
+-	                                              [[UIDevice currentDevice] systemName],
+-	                                              [[UIDevice currentDevice] systemVersion],
+-	                                              [[UIDevice currentDevice] model]]
+-	           baseURL:[NSURL fileURLWithPath:[[[NSBundle mainBundle] bundlePath]
+-	                                              stringByAppendingPathComponent:@"about_page"]]];
+ }
+ 
+ // Override to allow orientations other than the default portrait orientation.
+@@ -82,39 +68,4 @@ - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interface
+ 	return YES;
+ }
+ 
+-#pragma mark -
+-#pragma mark UIWebView callbacks
+-- (BOOL)webView:(UIWebView *)webView
+-    shouldStartLoadWithRequest:(NSURLRequest *)request
+-                navigationType:(UIWebViewNavigationType)navigationType
+-{
+-	if ([[request URL] isFileURL])
+-		return YES;
+-
+-	if (navigationType == UIWebViewNavigationTypeLinkClicked)
+-	{
+-		[last_link_clicked release];
+-		last_link_clicked = [[[request URL] absoluteString] retain];
+-		BlockAlertView *alert = [BlockAlertView
+-		    alertWithTitle:NSLocalizedString(@"External Link", @"External Link Alert Title")
+-		           message:[NSString stringWithFormat:
+-		                                 NSLocalizedString(
+-		                                     @"Open [%@] in Browser?",
+-		                                     @"Open link in browser (with link as parameter)"),
+-		                                 last_link_clicked]];
+-
+-		[alert setCancelButtonWithTitle:NSLocalizedString(@"No", @"No Button") block:nil];
+-		[alert addButtonWithTitle:NSLocalizedString(@"OK", @"OK Button")
+-		                    block:^{
+-			                    [[UIApplication sharedApplication]
+-			                        openURL:[NSURL URLWithString:last_link_clicked]];
+-		                    }];
+-
+-		[alert show];
+-
+-		return NO;
+-	}
+-	return YES;
+-}
+-
+ @end
+diff --git a/client/iOS/Controllers/HelpController.h b/client/iOS/Controllers/HelpController.h
+index 9e7b93341..3e9276470 100644
+--- a/client/iOS/Controllers/HelpController.h
++++ b/client/iOS/Controllers/HelpController.h
+@@ -10,8 +10,7 @@
+ 
+ #import <UIKit/UIKit.h>
+ 
+-@interface HelpController : UIViewController <UIWebViewDelegate>
++@interface HelpController : UIViewController
+ {
+-	UIWebView *webView;
+ }
+ @end
+diff --git a/client/iOS/Controllers/HelpController.m b/client/iOS/Controllers/HelpController.m
+index 7ea97c799..2a327ff31 100644
+--- a/client/iOS/Controllers/HelpController.m
++++ b/client/iOS/Controllers/HelpController.m
+@@ -34,13 +34,6 @@ - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
+ // Implement loadView to create a view hierarchy programmatically, without using a nib.
+ - (void)loadView
+ {
+-	webView = [[[UIWebView alloc] initWithFrame:CGRectZero] autorelease];
+-	[webView
+-	    setAutoresizingMask:(UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight)];
+-	[webView setAutoresizesSubviews:YES];
+-	[webView setDelegate:self];
+-	[webView setDataDetectorTypes:UIDataDetectorTypeNone];
+-	[self setView:webView];
+ }
+ 
+ - (void)dealloc
+@@ -61,10 +54,6 @@ - (void)viewDidLoad
+ 	                  encoding:NSUTF8StringEncoding
+ 	                     error:nil] autorelease];
+ 
+-	[webView
+-	    loadHTMLString:htmlString
+-	           baseURL:[NSURL fileURLWithPath:[[[NSBundle mainBundle] bundlePath]
+-	                                              stringByAppendingPathComponent:@"help_page"]]];
+ }
+ 
+ // Override to allow orientations other than the default portrait orientation.
