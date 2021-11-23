@@ -81,7 +81,10 @@ def addKeyToKeyMap(keyMapFile, keyMap, key, name, rawScanCode, scanCodes):
     # We prefer smaller "raw" scancodes when creating the map to avoid using extended keyboard keys
     # when there are more than one way of typing the same character. This makes the scancode more likely
     # to result in a valid keystroke for the selected server-side keyboard layout.
-    if key not in keyMap or rawScanCode <= keyMap[key]["rawScanCode"]:
+    #if key == 1048585 and keyMapFile == '/usr/share/qemu/keymaps/en-us':
+    #    print("Debug a key with breakpoint.")
+
+    if key not in keyMap or rawScanCode < keyMap[key]["rawScanCode"]:
         keyMap[key] = { "scanCodes": scanCodes, "name": name, "rawScanCode": rawScanCode }
     else:
         logging.info(f"While processing {keyMapFile}, discarded duplicate larger "
@@ -137,10 +140,12 @@ def loadKeyMap(nameToUnicode, keyMapFile, keyMap, ignoreList):
             if addUpper:
                 upperCaseScanCodes = list(scanCodes)
                 upperCaseScanCodes[0] |= shiftMask
-                key = (int(nameToUnicode[name], 16) - 0x20) | unicodeMask
+                unicode = int(nameToUnicode[name], 16) - 0x20
+                key = unicode | unicodeMask
                 addKeyToKeyMap(keyMapFile, keyMap, key, name, rawScanCode, upperCaseScanCodes)
             try:
-                key = int(nameToUnicode[name], 16) | unicodeMask
+                unicode = int(nameToUnicode[name], 16)
+                key = unicode | unicodeMask
 
                 addKeyToKeyMap(keyMapFile, keyMap, key, name, rawScanCode, scanCodes)
             except KeyError as e:
