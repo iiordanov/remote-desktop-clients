@@ -675,10 +675,13 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
             // Top and bottom buttons have different logic for when they go up and down.
             var locY = b["ly"] as! CGFloat + topButtonSpacing
             if !topButton {
-                locY = (globalWindow?.frame.height ?? 0) - (b["ly"] as! CGFloat) - self.keyboardHeight
+                locY = (globalWindow?.safeAreaInsets.top ?? 0) + (globalWindow?.safeAreaLayoutGuide.layoutFrame.size.height ?? 0) - (b["ly"] as! CGFloat) - self.keyboardHeight
             }
             // Top buttons can wrap around and go a row down if they are out of horizontal space.
             let windowWidth = globalWindow?.frame.maxX ?? 0
+            if topButton {
+                locY = locY + (globalWindow?.safeAreaInsets.top ?? 0)
+            }
             if topButton && locX + width > globalWindow?.frame.maxX ?? 0 {
                 //print ("Need to wrap button: \(title) to left and a row down")
                 locY = locY + height + spacing
