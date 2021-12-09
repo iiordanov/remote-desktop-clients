@@ -669,8 +669,15 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
             // In either case, adjust the location of the button
             // Left and right buttons have different logic for calculating x position
             var locX = b["lx"] as! CGFloat
+            
+            // Adjust locX to be left of safe area
+            locX = locX + (globalWindow?.safeAreaInsets.left ?? 0)
+            
+            // Establish the right border
+            let rightBorder = (globalWindow?.safeAreaInsets.left ?? 0) + (globalWindow?.safeAreaLayoutGuide.layoutFrame.size.width ?? 0)
+
             if rightButton {
-                locX = globalWindow!.frame.width - (b["lx"] as! CGFloat)
+                locX = rightBorder - (b["lx"] as! CGFloat)
             }
             // Top and bottom buttons have different logic for when they go up and down.
             var locY = b["ly"] as! CGFloat + topButtonSpacing
@@ -678,11 +685,11 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
                 locY = (globalWindow?.safeAreaInsets.top ?? 0) + (globalWindow?.safeAreaLayoutGuide.layoutFrame.size.height ?? 0) - (b["ly"] as! CGFloat) - self.keyboardHeight
             }
             // Top buttons can wrap around and go a row down if they are out of horizontal space.
-            let windowWidth = globalWindow?.frame.maxX ?? 0
+            let windowWidth = globalWindow?.safeAreaLayoutGuide.layoutFrame.size.width ?? 0
             if topButton {
                 locY = locY + (globalWindow?.safeAreaInsets.top ?? 0)
             }
-            if topButton && locX + width > globalWindow?.frame.maxX ?? 0 {
+            if topButton && locX + width > rightBorder {
                 //print ("Need to wrap button: \(title) to left and a row down")
                 locY = locY + height + spacing
                 locX = locX - windowWidth + width
