@@ -6,6 +6,9 @@
     android:versionCode="115056"
     android:versionName="v5.0.5">
 
+    <uses-feature android:name="android.hardware.usb.host" />
+    <uses-sdk android:minSdkVersion="12" />
+
     <uses-permission tools:node="removeAll" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.VIBRATE" />
@@ -89,6 +92,12 @@
 
                 <data android:scheme="intent" />
                 <data android:mimeType="application/vnd.spice" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.hardware.usb.action.USB_ACCESSORY_ATTACHED" />
             </intent-filter>
         </activity>
         <activity

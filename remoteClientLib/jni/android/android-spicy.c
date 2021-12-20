@@ -185,16 +185,8 @@ static void channel_new(SpiceSession *s, SpiceChannel *channel, gpointer data)
     }
 
     if (SPICE_IS_USBREDIR_CHANNEL(channel)) {
-        __android_log_write(ANDROID_LOG_INFO, "android-spice", "Created USB channel, attempting to add devices");
-        SpiceUsbDeviceManager *manager = spice_usb_device_manager_get(s, NULL);
-        GPtrArray *devices = spice_usb_device_manager_get_devices(manager);
-        if (devices) {
-            for (int i = 0; i < devices->len; i++) {
-                __android_log_write(ANDROID_LOG_INFO, "android-spicy", "Devices found, connecting...");
-                usb_device_added(manager, g_ptr_array_index(devices, i), NULL);
-            }
-            g_ptr_array_unref(devices);
-        }
+        __android_log_write(ANDROID_LOG_INFO, "android-spice", "Created USB channel");
+        conn->usb_redir_channel = channel;
     }
 
     /*
@@ -277,12 +269,10 @@ static void usb_device_error (SpiceUsbDeviceManager *manager, SpiceUsbDevice *de
 
 static void usb_device_added (SpiceUsbDeviceManager *manager, SpiceUsbDevice *device, gpointer user_data) {
     __android_log_write(ANDROID_LOG_INFO, "android-spicy", "device-added");
-    spice_usb_device_manager_connect_device_async(manager, device, NULL, NULL, NULL);
 }
 
 static void usb_device_removed (SpiceUsbDeviceManager *manager, SpiceUsbDevice *device, gpointer user_data) {
     __android_log_write(ANDROID_LOG_INFO, "android-spicy", "device-removed");
-    spice_usb_device_manager_disconnect_device(manager, device);
 }
 
 spice_connection *connection_new(void)
@@ -291,6 +281,8 @@ spice_connection *connection_new(void)
     SpiceUsbDeviceManager *manager;
 
     conn = g_new0(spice_connection, 1);
+    conn->usbDevices = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, NULL);
+
     conn->session = spice_session_new();
     //conn->gtk_session = spice_gtk_session_get(conn->session);
     g_signal_connect(conn->session, "channel-new",
@@ -304,6 +296,9 @@ spice_connection *connection_new(void)
 
     manager = spice_usb_device_manager_get(conn->session, NULL);
     if (manager) {
+        __android_log_write(ANDROID_LOG_INFO, "android-spicy", "Disabling auto-connect for USB manager");
+        g_object_set(manager, "auto-connect", FALSE, NULL);
+
         g_signal_connect(manager, "auto-connect-failed",
                          G_CALLBACK(usb_auto_connect_failed), NULL);
         g_signal_connect(manager, "device-error",

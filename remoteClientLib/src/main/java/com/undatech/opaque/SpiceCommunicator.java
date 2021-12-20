@@ -20,10 +20,13 @@
 
 package com.undatech.opaque;
 
+import static com.undatech.opaque.RemoteClientLibConstants.ACTION_USB_PERMISSION;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Objects;
 
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
@@ -46,27 +49,9 @@ import org.freedesktop.gstreamer.GStreamer;
 import com.undatech.opaque.input.RemoteKeyboard;
 import com.undatech.opaque.input.RemotePointer;
 import com.undatech.opaque.util.GeneralUtils;
+import com.undatech.opaque.util.UsbDeviceManager;
 
 public class SpiceCommunicator implements RfbConnectable {
-    
-    private HashMap<String, Integer> deviceToFdMap = new HashMap<String, Integer>();
-    UsbManager mUsbManager = null;
-    private final BroadcastReceiver mUsbReceiver = new BroadcastReceiver() {
-        public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-            if (RemoteClientLibConstants.ACTION_USB_PERMISSION.equals(action)) {
-                UsbDevice device = (UsbDevice)intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
-                if (device != null) {
-                    int vid = device.getVendorId();
-                    int pid = device.getProductId();
-                    String mapKey = Integer.toString(vid)+":"+Integer.toString(pid);
-                    synchronized (deviceToFdMap.get(mapKey)) {
-                        deviceToFdMap.get(mapKey).notify();
-                    }
-                }
-            }
-        }
-    };
     
     private final static String TAG = "SpiceCommunicator";
 
@@ -93,7 +78,9 @@ public class SpiceCommunicator implements RfbConnectable {
     public native void SpiceKeyEvent(boolean keyDown, int virtualKeyCode);
     public native void UpdateBitmap(Bitmap bitmap, int x, int y, int w, int h);
     public native void SpiceRequestResolution(int x, int y);
-    
+    public native boolean SpiceAttachUsbDeviceByFileDescriptor(int fileDescriptor);
+    public native boolean SpiceDetachUsbDeviceByFileDescriptor(int fileDescriptor);
+
     static {
         System.loadLibrary("gstreamer_android");
         System.loadLibrary("spice");
@@ -121,6 +108,7 @@ public class SpiceCommunicator implements RfbConnectable {
     private int maxResolutionRequests = 5;
 
     private boolean debugLogging;
+    UsbDeviceManager usbDeviceManager;
 
     public SpiceCommunicator (Context context, Handler handler, Viewable canvas, boolean res,
                               boolean usb, boolean debugLogging) {
@@ -131,13 +119,20 @@ public class SpiceCommunicator implements RfbConnectable {
         this.handler = handler;
         this.debugLogging = debugLogging;
         myself = this;
-        mUsbManager = (UsbManager) context.getSystemService(Context.USB_SERVICE);
 
         try {
             GStreamer.init(context);
         } catch (Exception e) {
             e.printStackTrace();
             Toast.makeText(context, e.getMessage(), Toast.LENGTH_LONG).show();
+        }
+
+        usbDeviceManager = new UsbDeviceManager(context, usbEnabled);
+        if (usbEnabled) {
+            context.registerReceiver(usbPermissionRequestedReceiver, new IntentFilter(ACTION_USB_PERMISSION));
+            IntentFilter filter = new IntentFilter();
+            filter.addAction("android.hardware.usb.action.USB_STATE");
+            context.registerReceiver(usbStateChangedReceiver, filter);
         }
     }
     
@@ -428,73 +423,23 @@ public class SpiceCommunicator implements RfbConnectable {
             }
         }
     }
-    
+
+    synchronized public void spiceAttachUsbDeviceByFileDescriptor(int fDesc) {
+        Log.d(TAG, "Attaching USB device by fd: " + fDesc);
+        if (!SpiceAttachUsbDeviceByFileDescriptor(fDesc)) {
+            Log.d(TAG, "Failed to attach USB device by fd: " + fDesc);
+        }
+    }
+
+    synchronized public void spiceDetachUsbDeviceByFileDescriptor(int fDesc) {
+        Log.d(TAG, "Detaching USB device by fd: " + fDesc);
+        if (!SpiceDetachUsbDeviceByFileDescriptor(fDesc)) {
+            Log.d(TAG, "Failed to detach USB device by fd: " + fDesc);
+        }
+    }
+
     /* Callbacks from jni and corresponding non-static methods */
 
-    
-    public static int openUsbDevice(int vid, int pid) throws InterruptedException {
-        Log.i(TAG, "Attempting to open a USB device and return a file descriptor.");
-        
-        if (!myself.usbEnabled || android.os.Build.VERSION.SDK_INT < 12) {
-            return -1;
-        }
-        
-        String mapKey = Integer.toString(vid)+":"+Integer.toString(pid);
-        myself.deviceToFdMap.put(mapKey, 0);
-        
-        boolean deviceFound = false;
-        UsbDevice device = null;
-        HashMap<String, UsbDevice> stringDeviceMap = null;
-        int timeout = RemoteClientLibConstants.usbDeviceTimeout;
-        while (!deviceFound && timeout > 0) {
-            stringDeviceMap = myself.mUsbManager.getDeviceList();
-            Collection<UsbDevice> usbDevices = stringDeviceMap.values();
-            
-            Iterator<UsbDevice> usbDeviceIter = usbDevices.iterator();
-            while (usbDeviceIter.hasNext()) {
-                UsbDevice ud = usbDeviceIter.next();
-                Log.i(TAG, "DEVICE: " + ud.toString());
-                if (ud.getVendorId() == vid && ud.getProductId() == pid) {
-                    Log.i(TAG, "USB device successfully matched.");
-                    deviceFound = true;
-                    device = ud;
-                    break;
-                }
-            }
-            timeout -= 100;
-            SystemClock.sleep(100);
-        }
-        
-        int fd = -1;
-        // If the device was located in the Java layer, we try to open it, and failing that
-        // we request permission and wait for it to be granted or denied, or for a timeout to occur.
-        if (device != null) {
-            UsbDeviceConnection deviceConnection = myself.mUsbManager.openDevice(device);
-            if (deviceConnection != null) {
-                fd = deviceConnection.getFileDescriptor();
-            } else {
-                // Request permission to access the device.
-                synchronized (myself.deviceToFdMap.get(mapKey)) {
-                    PendingIntent mPermissionIntent = PendingIntent.getBroadcast(myself.context, 0, new Intent(RemoteClientLibConstants.ACTION_USB_PERMISSION), 0);
-                    
-                    // TODO: Try putting this intent filter into the activity in the manifest file.
-                    IntentFilter filter = new IntentFilter(RemoteClientLibConstants.ACTION_USB_PERMISSION);
-                    myself.context.registerReceiver(myself.mUsbReceiver, filter);
-                    
-                    myself.mUsbManager.requestPermission(device, mPermissionIntent);
-                    // Wait for permission with a timeout. 
-                    myself.deviceToFdMap.get(mapKey).wait(RemoteClientLibConstants.usbDevicePermissionTimeout);
-                    
-                    deviceConnection = myself.mUsbManager.openDevice(device);
-                    if (deviceConnection != null) {
-                        fd = deviceConnection.getFileDescriptor();
-                    }
-                }
-            }
-        }
-        return fd;
-    }
-    
     public static void sendMessage (int message) {
         android.util.Log.d(TAG, "sendMessage called with message: " + message);
         myself.handler.sendEmptyMessage(message);
@@ -547,6 +492,7 @@ public class SpiceCommunicator implements RfbConnectable {
                 }
             }, 2000);
         }
+        usbDeviceManager.getUsbDevicePermissions();
     }
     
     private static void OnSettingsChanged(int inst, int width, int height, int bpp) {
@@ -580,4 +526,56 @@ public class SpiceCommunicator implements RfbConnectable {
         android.util.Log.i(TAG, "ShowMessage called, message: " + message);
         sendMessageWithText(RemoteClientLibConstants.SHOW_TOAST, message);
     }
+
+    BroadcastReceiver usbStateChangedReceiver = new BroadcastReceiver() {
+        synchronized public void onReceive(Context context, Intent intent) {
+            if (Objects.requireNonNull(intent.getExtras()).getBoolean("host_connected") ||
+                    intent.getExtras().getBoolean("connected") ) {
+                Log.d(TAG, "Detected USB device connected");
+                if (isInNormalProtocol) {
+                    usbDeviceManager.getUsbDevicePermissions();
+                }
+            } else {
+                Log.d(TAG, "Detected USB device disconnected");
+                UsbDevice d = usbDeviceManager.getRemoved();
+                while (d != null) {
+                    int fDesc = usbDeviceManager.getFileDescriptorForDevice(d);
+                    Log.d(TAG, "Disconnected USB fd: " + fDesc + " device: " + d);
+                    if (fDesc >= 0) {
+                        spiceDetachUsbDeviceByFileDescriptor(fDesc);
+                    }
+                    usbDeviceManager.removeRequested(d);
+                    d = usbDeviceManager.getRemoved();
+                }
+            }
+        }
+    };
+
+    private final BroadcastReceiver usbPermissionRequestedReceiver = new BroadcastReceiver() {
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            if (ACTION_USB_PERMISSION.equals(action)) {
+                Log.d(TAG, "Requesting permission for USB device.");
+                synchronized (this) {
+                    UsbDevice device = (UsbDevice)intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
+                    if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
+                        if(device != null && !usbDeviceManager.isRequested(device)) {
+                            Log.d(TAG, "Permission granted for USB device: " + device);
+                                int fDesc = usbDeviceManager.getFileDescriptorForUsbDevice(device);
+                                spiceAttachUsbDeviceByFileDescriptor(fDesc);
+                                usbDeviceManager.setPermission(device, true, fDesc);
+                        }
+                    } else {
+                        Log.d(TAG, "Permission denied for USB device: " + device);
+                        if(device != null) {
+                            usbDeviceManager.setPermission(device, false, -1);
+                        }
+                    }
+                    if (isInNormalProtocol) {
+                        usbDeviceManager.getUsbDevicePermissions();
+                    }
+                }
+            }
+        }
+    };
 }

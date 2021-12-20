@@ -321,6 +321,7 @@ build_one() {
         make install
         ;;
     usb)
+        autoreconf -fi
         do_configure \
                 --disable-udev
         make $parallel

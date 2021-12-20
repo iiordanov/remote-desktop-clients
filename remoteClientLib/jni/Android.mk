@@ -159,7 +159,7 @@ include $(GSTREAMER_NDK_BUILD_PATH)/gstreamer-1.0.mk
 include $(CLEAR_VARS)
 LOCAL_MODULE    := spice
 
-LOCAL_CPPFLAGS  += -DSW_CANVAS_CACHE \
+LOCAL_CPPFLAGS  += -DSW_CANVAS_CACHE -DUSE_USBREDIR \
                    -DSPICE_GTK_LOCALEDIR=\"/usr/local/share/locale\" \
                    -DHAVE_CONFIG_H -UHAVE_SYS_SHM_H -DSW_CANVAS_CACHE  \
                    -D_REENTRANT -DWITH_GSTAUDIO

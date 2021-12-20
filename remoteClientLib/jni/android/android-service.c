@@ -30,6 +30,9 @@
 #include "android-spicy.h"
 #include "virt-viewer-file.h"
 #include "libusb.h"
+#include "usb-device-manager.h"
+#include "channel-usbredir.h"
+#include "usb-backend.h"
 
 static gboolean disconnect(gpointer user_data);
 
@@ -206,8 +209,8 @@ void spice_session_setup(SpiceSession *session, const char *host, const char *po
     g_object_set(session, "enable-audio", enable_audio, NULL);
     __android_log_write(ANDROID_LOG_DEBUG, "spice_session_setup", "disabling smartcard");
     g_object_set(session, "enable-smartcard", FALSE, NULL);
-    __android_log_write(ANDROID_LOG_DEBUG, "spice_session_setup", "disabling usbredir");
-    g_object_set(session, "enable-usbredir", FALSE, NULL);
+    __android_log_write(ANDROID_LOG_DEBUG, "spice_session_setup", "enabling usbredir");
+    g_object_set(session, "enable-usbredir", TRUE, NULL);
 }
 
 static void signal_handler(int signal, siginfo_t *info, void *reserved) {
@@ -821,29 +824,102 @@ error:
     return success;
 }
 
-int openUsbDevice (int vid, int pid) {
-    JNIEnv* env = NULL;
-    gboolean attached = FALSE;
-    attached = attachThreadToJvm (&env);
+#define  LOGD(...)  __android_log_print(ANDROID_LOG_DEBUG, "android-service", __VA_ARGS__)
+#define  LOGI(...)  __android_log_print(ANDROID_LOG_INFO, "android-service", __VA_ARGS__)
+#define  LOGE(...)  __android_log_print(ANDROID_LOG_ERROR, "android-service", __VA_ARGS__)
 
-    jclass class  = (*env)->FindClass (env, "com/undatech/opaque/SpiceCommunicator");
-    jmethodID openUsbDevice = (*env)->GetStaticMethodID (env, class, "openUsbDevice", "(II)I");
-    int fd = (*env)->CallStaticIntMethod(env, class, openUsbDevice, vid, pid);
-
-    if (attached) {
-        detachThreadFromJvm ();
+static void connect_cb(GObject *gobject, GAsyncResult *res, gpointer user_data)
+{
+    LOGD("%s: start", __FUNCTION__);
+    SpiceUsbDeviceManager *manager = SPICE_USB_DEVICE_MANAGER(gobject);
+    GError *err = NULL;
+    spice_usb_device_manager_connect_device_finish(manager, res, &err);
+    if (err) {
+        LOGE("%s: failed to redirect device, error: %s", __FUNCTION__, err->message);
+    } else {
+        LOGI("%s: successfully redirected device", __FUNCTION__);
     }
-    return fd;
 }
 
-int get_usb_device_fd(libusb_device *device) {
-    __android_log_write(ANDROID_LOG_INFO, "channel-usbredir", "Trying to open USB device.");
-    struct libusb_device_descriptor desc;
-    int errcode = libusb_get_device_descriptor(device, &desc);
-    if (errcode < 0) {
-        return -1;
+JNIEXPORT bool JNICALL
+Java_com_undatech_opaque_SpiceCommunicator_SpiceAttachUsbDeviceByFileDescriptor(JNIEnv *env,
+                                                                        jobject obj,
+                                                                        jint fileDescriptor)
+{
+    GError *err = NULL;
+
+    LOGD("%s: calling spice_usb_device_manager_get", __FUNCTION__);
+    SpiceUsbDeviceManager *manager = spice_usb_device_manager_get(global_conn->session, &err);
+    if (manager == NULL) {
+        LOGE("%s: spice_usb_device_manager_get returned null manager", __FUNCTION__);
+        return FALSE;
+    } else if (err != NULL) {
+        LOGE("%s: spice_usb_device_manager_get returned error: %s", __FUNCTION__, err->message);
+        return FALSE;
     }
-    int vid = desc.idVendor;
-    int pid = desc.idProduct;
-    return openUsbDevice(vid, pid);
+
+    LOGI("%s: Allocating USB device via spice_usb_allocate_device_for_file_descriptor", __FUNCTION__);
+    SpiceUsbDevice *device = spice_usb_device_manager_allocate_device_for_file_descriptor(manager,
+                                                                                    fileDescriptor);
+    if (device == NULL) {
+        LOGE("%s: spice_usb_allocate_device_for_file_descriptor returned null", __FUNCTION__);
+        return FALSE;
+    }
+
+    LOGI("%s: Attaching USB device via spice_usb_device_manager_connect_device_async", __FUNCTION__);
+    spice_usb_device_manager_connect_device_async(manager, device, NULL, connect_cb, NULL);
+    g_hash_table_insert(global_conn->usbDevices, GINT_TO_POINTER(fileDescriptor), GINT_TO_POINTER(device));
+    return TRUE;
+}
+
+static void disconnect_cb(GObject *gobject, GAsyncResult *res, gpointer user_data)
+{
+    LOGD("%s: start", __FUNCTION__);
+    SpiceUsbDeviceManager *manager = SPICE_USB_DEVICE_MANAGER(gobject);
+    GError *err = NULL;
+    spice_usb_device_manager_connect_device_finish(manager, res, &err);
+    if (err) {
+        LOGE("%s: failed to disconnect device, error: %s", __FUNCTION__, err->message);
+    } else {
+        LOGI("%s: successfully disconnected device", __FUNCTION__);
+    }
+}
+
+JNIEXPORT bool JNICALL
+Java_com_undatech_opaque_SpiceCommunicator_SpiceDetachUsbDeviceByFileDescriptor(JNIEnv *env,
+                                                                        jobject obj,
+                                                                        jint fileDescriptor)
+{
+    GError *err = NULL;
+    SpiceUsbDevice *device = g_hash_table_lookup(global_conn->usbDevices, GINT_TO_POINTER(fileDescriptor));
+    if (device == NULL) {
+        LOGE("%s: USB device not found in hash table, not detaching", __FUNCTION__);
+        return FALSE;
+    }
+
+    if (global_conn->session == NULL || !SPICE_IS_SESSION(global_conn->session)) {
+        LOGE("%s: spice session not ready", __FUNCTION__);
+        return FALSE;
+    }
+
+    LOGD("%s: calling spice_usb_device_manager_get", __FUNCTION__);
+    SpiceUsbDeviceManager *manager = spice_usb_device_manager_get(global_conn->session, &err);
+    if (manager == NULL) {
+        LOGE("%s: spice_usb_device_manager_get returned null manager", __FUNCTION__);
+        return FALSE;
+    } else if (err != NULL) {
+        LOGE("%s: spice_usb_device_manager_get returned error: %s", __FUNCTION__, err->message);
+        return FALSE;
+    }
+
+    LOGI("%s: Detaching USB device via spice_usb_device_manager_disconnect_device_async", __FUNCTION__);
+    spice_usb_device_manager_disconnect_device_async(manager, device, NULL, disconnect_cb, NULL);
+
+    if (err != NULL) {
+        LOGE("%s: spice_usb_device_manager_disconnect_device_async call returned error: %s",
+            __FUNCTION__, err->message);
+        return FALSE;
+    }
+    g_hash_table_lookup(global_conn->usbDevices, GINT_TO_POINTER(fileDescriptor));
+    return TRUE;
 }

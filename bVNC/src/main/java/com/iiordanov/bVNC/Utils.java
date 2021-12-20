@@ -20,7 +20,6 @@
 
 package com.iiordanov.bVNC;
 
-import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -37,7 +36,6 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.UUID;
 
-import org.json.JSONException;
 import org.xml.sax.SAXException;
 
 import com.antlersoft.android.contentxml.SqliteElement;
@@ -62,32 +60,15 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
-import android.os.Handler;
 import android.os.Message;
-import androidx.fragment.app.FragmentActivity;
-import androidx.fragment.app.FragmentManager;
-import androidx.appcompat.app.AppCompatActivity;
 import android.text.Html;
 import android.util.Log;
 import android.view.ViewConfiguration;
 import android.view.WindowManager;
-import android.widget.ListView;
 import android.widget.ScrollView;
 
-import com.iiordanov.bVNC.*;
-import com.iiordanov.freebVNC.*;
-import com.iiordanov.aRDP.*;
-import com.iiordanov.freeaRDP.*;
-import com.iiordanov.aSPICE.*;
-import com.iiordanov.freeaSPICE.*;
-import com.iiordanov.CustomClientPackage.*;
-import com.undatech.opaque.ConnectionSettings;
 import com.undatech.opaque.ConnectionSetupActivity;
 import com.undatech.opaque.MessageDialogs;
-import com.undatech.opaque.RemoteClientLibConstants;
-import com.undatech.opaque.dialogs.MessageFragment;
-import com.undatech.opaque.util.FileUtils;
 import com.undatech.remoteClientUi.*;
 
 public class Utils {
@@ -591,5 +572,4 @@ public class Utils {
         }
         return message;
     }
-
 }

@@ -261,7 +261,7 @@ public class RemoteCanvas extends AppCompatImageView
         initializeClipboardMonitor();
         spicecomm = new SpiceCommunicator(getContext(), handler, this,
                 settings.isRequestingNewDisplayResolution() || settings.getRdpResType() == Constants.RDP_GEOM_SELECT_CUSTOM,
-                settings.isUsbEnabled(), App.debugLog);
+                !Utils.isFree(getContext()) && settings.isUsbEnabled(), App.debugLog);
         rfbconn = spicecomm;
         pointer = new RemoteSpicePointer(spicecomm, this, handler);
         try {
@@ -491,7 +491,9 @@ public class RemoteCanvas extends AppCompatImageView
      *
      */
     private void initializeSpiceConnection() throws Exception {
-        spicecomm = new SpiceCommunicator(getContext(), handler, this, true, true, App.debugLog);
+        spicecomm = new SpiceCommunicator(getContext(), handler, this, true,
+                                          !Utils.isFree(getContext()) && connection.isUsbEnabled(),
+                                          App.debugLog);
         rfbconn = spicecomm;
         pointer = new RemoteSpicePointer(rfbconn, RemoteCanvas.this, handler);
         keyboard = new RemoteSpiceKeyboard(getResources(), spicecomm, RemoteCanvas.this,

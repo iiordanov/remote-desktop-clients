@@ -315,7 +315,7 @@ public class ConnectionBean extends AbstractConnectionBean implements Connection
 
     @Override
     public boolean isUsbEnabled() {
-        return false;
+        return true;
     }
 
     @Override

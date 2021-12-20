@@ -1,4 +1,5 @@
 apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
 
 android {
     compileSdkVersion compileApi
@@ -48,4 +49,9 @@ dependencies {
     implementation group: 'org.yaml', name: 'snakeyaml', version: '1.23'
     implementation 'org.apache.httpcomponents:httpcore:4.4.10'
     implementation "com.github.luben:zstd-jni:1.4.3-1@aar"
+    implementation "androidx.core:core-ktx:1.7.0"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+}
+repositories {
+    mavenCentral()
 }

@@ -56,7 +56,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.os.Vibrator;
-import androidx.fragment.app.FragmentManager;
+
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import com.undatech.opaque.util.RemoteToolbar;
@@ -165,6 +165,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
     volatile boolean softKeyboardUp;
     RemoteToolbar toolbar;
     View rootView;
+    String pName = "";
 
     /**
      * This runnable enables immersive mode.
@@ -236,6 +237,9 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
     public void onCreate(Bundle icicle) {
         Log.d(TAG, "OnCreate called");
         super.onCreate(icicle);
+
+        pName = getPackageName();
+
         // TODO: Implement left-icon
         //requestWindowFeature(Window.FEATURE_LEFT_ICON);
         //setFeatureDrawableResource(Window.FEATURE_LEFT_ICON, R.drawable.icon);
@@ -250,7 +254,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
 
         canvas = (RemoteCanvas) findViewById(R.id.canvas);
 
-	if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             canvas.setDefaultFocusHighlightEnabled(false);
         }
         if (android.os.Build.VERSION.SDK_INT >= 9) {
@@ -280,16 +284,18 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
                     setModes();
                 } catch (NullPointerException e) {
                 }
-            }};
+            }
+        };
         Runnable hideKeyboardAndExtraKeys = new Runnable() {
             public void run() {
                 try {
                     hideKeyboardAndExtraKeys();
                 } catch (NullPointerException e) {
                 }
-            }};
+            }
+        };
 
-        if (Utils.isOpaque(getPackageName())) {
+        if (Utils.isOpaque(pName)) {
             initializeOpaque(setModes, hideKeyboardAndExtraKeys);
         } else {
             initialize(setModes, hideKeyboardAndExtraKeys);
@@ -347,9 +353,9 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
                     Log.i(TAG, "Insufficent information to connect, showing connection dialog.");
                     // launch appropriate activity
                     Class cls = bVNC.class;
-                    if (Utils.isRdp(getPackageName())) {
+                    if (Utils.isRdp(pName)) {
                         cls = aRDP.class;
-                    } else if (Utils.isSpice(getPackageName())) {
+                    } else if (Utils.isSpice(pName)) {
                         cls = aSPICE.class;
                     }
                     Intent bVncIntent = new Intent(this, cls);
@@ -1004,13 +1010,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
             layoutKeys.invalidate();
         }
     }
-    
-    /*
-     * TODO: REMOVE THIS AS SOON AS POSSIBLE.
-     * onPause: This is an ugly hack for the Playbook, because the Playbook hides the keyboard upon unlock.
-     * This causes the visible height to remain less, as if the soft keyboard is still up. This hack must go 
-     * away as soon as the Playbook doesn't need it anymore.
-     */
+
     @Override
     protected void onPause(){
         super.onPause();
@@ -1020,12 +1020,6 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
         } catch (NullPointerException e) { }
     }
 
-    /*
-     * TODO: REMOVE THIS AS SOON AS POSSIBLE.
-     * onResume: This is an ugly hack for the Playbook which hides the keyboard upon unlock. This causes the visible
-     * height to remain less, as if the soft keyboard is still up. This hack must go away as soon
-     * as the Playbook doesn't need it anymore.
-     */
     @Override
     protected void onResume(){
         super.onResume();
@@ -1717,4 +1711,6 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
             inputHandler.onKeyDown(KeyEvent.KEYCODE_BACK, new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_BACK));
         }
     }
+
+
 }

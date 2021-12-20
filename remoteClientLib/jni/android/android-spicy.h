@@ -75,8 +75,10 @@ static void spice_window_init (SpiceWindow *self) {}
 struct spice_connection {
     SpiceSession     *session;
     SpiceMainChannel *main;
+    SpiceChannel     *usb_redir_channel;
     SpiceWindow     *wins[CHANNELID_MAX * MONITORID_MAX];
     SpiceAudio       *audio;
+    GHashTable       *usbDevices;
     const char       *mouse_state;
     const char       *agent_state;
     gboolean         agent_connected;
@@ -87,7 +89,6 @@ struct spice_connection {
 spice_connection *connection_new(void);
 void connection_connect(spice_connection *conn);
 void connection_disconnect(spice_connection *conn);
-static void usb_device_added (SpiceUsbDeviceManager *manager, SpiceUsbDevice *device, gpointer user_data);
 
 /* ------------------------------------------------------------------ */
 
