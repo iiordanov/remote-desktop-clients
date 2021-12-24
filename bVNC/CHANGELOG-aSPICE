@@ -1,3 +1,7 @@
+v5.0.6
+- Updated Target API to 31
+- USB Redirection Support for Pro
+- Keyboard layout fixes
 v5.0.5
 - Added Portuguese translation
 - Disabled highlighting of canvasing when focused so colors are not washed out
