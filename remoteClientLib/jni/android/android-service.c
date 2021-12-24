@@ -860,9 +860,14 @@ Java_com_undatech_opaque_SpiceCommunicator_SpiceAttachUsbDeviceByFileDescriptor(
 
     LOGI("%s: Allocating USB device via spice_usb_allocate_device_for_file_descriptor", __FUNCTION__);
     SpiceUsbDevice *device = spice_usb_device_manager_allocate_device_for_file_descriptor(manager,
-                                                                                    fileDescriptor);
+                                                                                    fileDescriptor,
+                                                                                    &err);
     if (device == NULL) {
         LOGE("%s: spice_usb_allocate_device_for_file_descriptor returned null", __FUNCTION__);
+        return FALSE;
+    } else if (err != NULL) {
+        LOGE("%s: spice_usb_allocate_device_for_file_descriptor returned error: %s", __FUNCTION__,
+             err->message);
         return FALSE;
     }
 
