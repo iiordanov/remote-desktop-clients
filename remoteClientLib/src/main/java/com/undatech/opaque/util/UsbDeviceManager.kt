@@ -35,6 +35,14 @@ class UsbDeviceManager(val context: Context, val usbEnabled: Boolean) {
         requested[device] = Pair(permission, fDesc)
     }
 
+    fun getPermission(device: UsbDevice): Boolean {
+        var res = requested[device]?.first
+        if (res != true) {
+            res = false
+        }
+        return res
+    }
+
     @Synchronized fun removeRequested(device: UsbDevice) {
         val temp = requested.clone() as HashMap<UsbDevice, Pair<Boolean, Int>>
         temp.remove(device)

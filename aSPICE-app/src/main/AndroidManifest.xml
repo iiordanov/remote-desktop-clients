@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.iiordanov.aSPICE"
     android:installLocation="auto"
-    android:versionCode="115060"
+    android:versionCode="115061"
     android:versionName="v5.0.6">
 
     <uses-feature android:name="android.hardware.usb.host" />
@@ -67,7 +67,7 @@
             android:windowSoftInputMode="stateHidden|adjustResize" />
         <activity
             android:name="com.iiordanov.bVNC.RemoteCanvasActivity"
-            android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|density|screenLayout"
+            android:configChanges="colorMode|density|fontScale|fontWeightAdjustment|keyboard|keyboardHidden|layoutDirection|locale|mcc|mnc|navigation|orientation|screenLayout|screenSize|smallestScreenSize|touchscreen|uiMode"
             android:exported="true"
             android:resizeableActivity="true"
             android:screenOrientation="unspecified"
