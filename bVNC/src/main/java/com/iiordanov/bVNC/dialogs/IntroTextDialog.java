@@ -25,6 +25,7 @@ import com.iiordanov.bVNC.Database;
 
 import android.app.Activity;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import net.sqlcipher.database.SQLiteDatabase;
@@ -63,7 +64,8 @@ public class IntroTextDialog extends Dialog {
     public static void showIntroTextIfNecessary(Activity context, Database database, boolean show) {
         PackageInfo pi;
         try {
-            pi = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
+            String packageName = Utils.pName(context);
+            pi = context.getPackageManager().getPackageInfo(packageName, 0);
         }
         catch (PackageManager.NameNotFoundException nnfe) {
             return;
@@ -93,20 +95,20 @@ public class IntroTextDialog extends Dialog {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        
-        String pkgName = this.getContext().getPackageName();
+
+        String pkgName = Utils.pName(this.getContext());
         if (pkgName.contains("free")) {
             donate = true;
         }
         
         setContentView(R.layout.intro_dialog);
         getWindow().setLayout(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
-        
-        String packageName = getContext().getPackageName();
+
+        Context context = this.getContext();
         String title = getContext().getResources().getString(R.string.intro_title);
-        if (Utils.isRdp(packageName)) {
+        if (Utils.isRdp(context)) {
             title = getContext().getResources().getString(R.string.rdp_intro_title);
-        } else if (Utils.isSpice(packageName)) {
+        } else if (Utils.isSpice(context)) {
             title = getContext().getResources().getString(R.string.spice_intro_title);
         }
         StringBuilder sb = new StringBuilder(title);
@@ -147,11 +149,11 @@ public class IntroTextDialog extends Dialog {
         }
         
         sb.append(getContext().getResources().getString(R.string.intro_header));
-        if (Utils.isVnc(packageName)) {
+        if (Utils.isVnc(context)) {
             sb.append(getContext().getResources().getString(R.string.intro_text));
-        } else if (Utils.isRdp(packageName)) {
+        } else if (Utils.isRdp(context)) {
             sb.append(getContext().getResources().getString(R.string.rdp_intro_text));
-        } else if (Utils.isSpice(packageName)) {
+        } else if (Utils.isSpice(context)) {
             sb.append(getContext().getResources().getString(R.string.spice_intro_text));
         }
         sb.append("\n");

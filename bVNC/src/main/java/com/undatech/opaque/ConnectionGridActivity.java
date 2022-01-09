@@ -180,7 +180,7 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
         isConnecting = true;
         String runtimeId = (String) ((TextView) v.findViewById(R.id.grid_item_id)).getText();
         Intent intent = new Intent(ConnectionGridActivity.this, GeneralUtils.getClassByName("com.iiordanov.bVNC.RemoteCanvasActivity"));
-        if (Utils.isOpaque(getPackageName())) {
+        if (Utils.isOpaque(this)) {
             ConnectionSettings cs = (ConnectionSettings) connectionLoader.getConnectionsById().get(runtimeId);
             cs.loadFromSharedPreferences(appContext);
             intent.putExtra("com.undatech.opaque.ConnectionSettings", cs);
@@ -197,8 +197,8 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
         android.util.Log.d(TAG, "Modify Connection");
         String runtimeId = (String) ((TextView) v.findViewById(R.id.grid_item_id)).getText();
         Connection conn = connectionLoader.getConnectionsById().get(runtimeId);
-        Intent intent = new Intent(ConnectionGridActivity.this, Utils.getConnectionSetupClass(getPackageName()));
-        if (Utils.isOpaque(getPackageName())) {
+        Intent intent = new Intent(ConnectionGridActivity.this, Utils.getConnectionSetupClass(this));
+        if (Utils.isOpaque(this)) {
             ConnectionSettings cs = (ConnectionSettings) connectionLoader.getConnectionsById().get(runtimeId);
             intent.putExtra("com.undatech.opaque.connectionToEdit", cs.getFilename());
 
@@ -218,7 +218,7 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
                 new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int i) {
-                if (Utils.isOpaque(getPackageName())) {
+                if (Utils.isOpaque(ConnectionGridActivity.this)) {
 
                     String newListOfConnections = new String();
 
@@ -285,7 +285,7 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
     }
 
     private void loadSavedConnections() {
-        boolean connectionsInSharedPrefs = Utils.isOpaque(getPackageName());
+        boolean connectionsInSharedPrefs = Utils.isOpaque(this);
         connectionLoader = new ConnectionLoader(appContext, this, connectionsInSharedPrefs);
         if (connectionLoader.getNumConnections() > 0) {
             gridView.setNumColumns(2);
@@ -304,7 +304,7 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
      */
     public void addNewConnection () {
         Intent intent = new Intent(ConnectionGridActivity.this,
-                Utils.getConnectionSetupClass(getPackageName()));
+                Utils.getConnectionSetupClass(this));
         intent.putExtra("isNewConnection", true);
         startActivity(intent);
     }
@@ -341,7 +341,7 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
      */
     public void editDefaultSettings (MenuItem menuItem) {
         android.util.Log.d(TAG, "editDefaultSettings selected.");
-        if (Utils.isOpaque(getPackageName())) {
+        if (Utils.isOpaque(this)) {
             Intent intent = new Intent(ConnectionGridActivity.this, GeneralUtils.getClassByName("com.undatech.opaque.AdvancedSettingsActivity"));
             ConnectionSettings defaultConnection = new ConnectionSettings(RemoteClientLibConstants.DEFAULT_SETTINGS_FILE);
             defaultConnection.loadFromSharedPreferences(getApplicationContext());
@@ -385,7 +385,7 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
                 if (data != null && data.getData() != null) {
                     ContentResolver resolver = getContentResolver();
 
-                    boolean connectionsInSharedPrefs = Utils.isOpaque(getPackageName());
+                    boolean connectionsInSharedPrefs = Utils.isOpaque(this);
                     InputStream in = FileUtils.getInputStreamFromUri(resolver, data.getData());
                     if (connectionsInSharedPrefs) {
                         ConnectionSettings.importSettingsFromJsonToSharedPrefs(in, this);
@@ -405,7 +405,7 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
                 if (data != null && data.getData() != null) {
                     ContentResolver resolver = getContentResolver();
 
-                    boolean connectionsInSharedPrefs = Utils.isOpaque(getPackageName());
+                    boolean connectionsInSharedPrefs = Utils.isOpaque(this);
                     OutputStream out = FileUtils.getOutputStreamFromUri(resolver, data.getData());
                     if (connectionsInSharedPrefs) {
                         ConnectionSettings.exportSettingsFromSharedPrefsToJson(out, this);
@@ -466,7 +466,7 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
     @Override
     protected Dialog onCreateDialog(int id) {
         if (id == R.layout.importexport) {
-            boolean connectionsInSharedPrefs = Utils.isOpaque(getPackageName());
+            boolean connectionsInSharedPrefs = Utils.isOpaque(this);
             return new ImportExportDialog(this, database, connectionsInSharedPrefs);
         }
         return null;

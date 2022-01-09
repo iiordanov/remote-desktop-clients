@@ -103,11 +103,11 @@ public class ConnectionListActivity extends ListActivity {
         if (connection.Gen_read(database.getReadableDatabase(), id))
         {
             // create shortcut if requested
-            String packageName = getPackageName();
+            Context context = getApplicationContext();
             ShortcutIconResource icon = Intent.ShortcutIconResource.fromContext(this, R.drawable.icon);
-            if (Utils.isRdp(packageName)) {
+            if (Utils.isRdp(context)) {
                 icon = Intent.ShortcutIconResource.fromContext(this, R.drawable.icon_ardp);
-            } else if (Utils.isSpice(packageName)) {
+            } else if (Utils.isSpice(context)) {
                 icon = Intent.ShortcutIconResource.fromContext(this, R.drawable.icon_aspice);
             }
             

@@ -165,7 +165,6 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
     volatile boolean softKeyboardUp;
     RemoteToolbar toolbar;
     View rootView;
-    String pName = "";
 
     /**
      * This runnable enables immersive mode.
@@ -238,8 +237,6 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
         Log.d(TAG, "OnCreate called");
         super.onCreate(icicle);
 
-        pName = getPackageName();
-
         // TODO: Implement left-icon
         //requestWindowFeature(Window.FEATURE_LEFT_ICON);
         //setFeatureDrawableResource(Window.FEATURE_LEFT_ICON, R.drawable.icon);
@@ -295,7 +292,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
             }
         };
 
-        if (Utils.isOpaque(pName)) {
+        if (Utils.isOpaque(this)) {
             initializeOpaque(setModes, hideKeyboardAndExtraKeys);
         } else {
             initialize(setModes, hideKeyboardAndExtraKeys);
@@ -353,9 +350,9 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
                     Log.i(TAG, "Insufficent information to connect, showing connection dialog.");
                     // launch appropriate activity
                     Class cls = bVNC.class;
-                    if (Utils.isRdp(pName)) {
+                    if (Utils.isRdp(this)) {
                         cls = aRDP.class;
-                    } else if (Utils.isSpice(pName)) {
+                    } else if (Utils.isSpice(this)) {
                         cls = aSPICE.class;
                     }
                     Intent bVncIntent = new Intent(this, cls);

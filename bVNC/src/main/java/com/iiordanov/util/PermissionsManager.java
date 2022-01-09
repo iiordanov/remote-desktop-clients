@@ -25,12 +25,14 @@ public class PermissionsManager {
     private static String[] retrievePermissions(Context context) {
         Log.i(TAG, "Retrieving permissions.");
         try {
-            String [] requestedPermissions = context.getPackageManager().getPackageInfo(context
-                    .getPackageName(), PackageManager.GET_PERMISSIONS).requestedPermissions;
+            String packageName = Utils.pName(context);
+            String [] requestedPermissions = context.getPackageManager().getPackageInfo(
+                    packageName, PackageManager.GET_PERMISSIONS).requestedPermissions;
             android.util.Log.d(TAG, Arrays.toString(requestedPermissions));
             return requestedPermissions;
         } catch (PackageManager.NameNotFoundException e) {
-            throw new RuntimeException("This should have never happened.", e);
+            android.util.Log.e(TAG, "Failed to retrieve page info.", e);
+            return new String[]{};
         }
     }
 

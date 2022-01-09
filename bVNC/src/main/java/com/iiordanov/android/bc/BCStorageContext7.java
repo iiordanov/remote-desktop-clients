@@ -7,6 +7,7 @@ package com.iiordanov.android.bc;
 import java.io.File;
 
 import com.iiordanov.bVNC.MainConfiguration;
+import com.iiordanov.bVNC.Utils;
 
 import android.os.Environment;
 
@@ -22,7 +23,7 @@ public class BCStorageContext7 implements IBCStorageContext {
     @Override
     public File getExternalStorageDir(MainConfiguration context, String type) {
         File f = Environment.getExternalStorageDirectory();
-        String packageName = context.getPackageName();
+        String packageName = Utils.pName(context);
         f = new File(f, "Android/data/" + packageName + "/files");
         if (type != null)
             f=new File(f, type);

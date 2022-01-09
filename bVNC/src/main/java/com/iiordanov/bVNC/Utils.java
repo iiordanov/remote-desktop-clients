@@ -213,13 +213,23 @@ public class Utils {
           }
           catch (Exception e) {}
     }
-    
-    public static boolean isFree(Context ctx) {
-        return ctx.getPackageName().contains("free");
+
+    public static String pName(Context context) {
+        String pName = Constants.defaultPackageName;
+        try {
+            pName = context.getPackageName();
+        } catch (Exception e) {
+            Log.e(TAG, "Error obtaining package name from context, using default");
+        }
+        return pName;
     }
-    
-    public static String getConnectionString(Context ctx) {
-        return ctx.getPackageName() + ".CONNECTION";
+
+    public static boolean isFree(Context context) {
+        return Utils.pName(context).contains("free");
+    }
+
+    public static String getConnectionString(Context context) {
+        return Utils.pName(context) + ".CONNECTION";
     }
 
     public static String[] standardPackageNames = {
@@ -228,7 +238,8 @@ public class Utils {
                     "com.iiordanov.aSPICE", "com.iiordanov.freeaSPICE"
     };
 
-    public static boolean isCustom(String packageName) {
+    public static boolean isCustom(Context context) {
+        String packageName = Utils.pName(context);
         for (String s: standardPackageNames) {
             if (packageName.equals(s)) {
                 return false;
@@ -237,67 +248,71 @@ public class Utils {
         return true;
     }
 
-    public static boolean isVnc(String packageName) {
+    public static boolean isVnc(Context context) {
+        String packageName = Utils.pName(context);
         return packageName.toLowerCase().contains("vnc");
     }
-    
-    public static boolean isRdp(String packageName) {
+
+    public static boolean isRdp(Context context) {
+        String packageName = Utils.pName(context);
         return packageName.toLowerCase().contains("rdp");
     }
-    
-    public static boolean isSpice(String packageName) {
+
+    public static boolean isSpice(Context context) {
+        String packageName = Utils.pName(context);
         return packageName.toLowerCase().contains("spice");
     }
 
-    public static boolean isOpaque(String packageName) {
+    public static boolean isOpaque(Context context) {
+        String packageName = Utils.pName(context);
         return packageName.toLowerCase().contains("opaque");
     }
 
-    public static Class getConnectionSetupClass(String packageName) {
-        boolean custom = isCustom(packageName);
-        if (isOpaque(packageName)) {
+    public static Class getConnectionSetupClass(Context context) {
+        String packageName = Utils.pName(context);
+        boolean custom = isCustom(context);
+        if (isOpaque(context)) {
             return ConnectionSetupActivity.class;
-        } else if (isVnc(packageName)) {
+        } else if (isVnc(context)) {
             if (custom) {
                 return CustomVnc.class;
             } else {
                 return bVNC.class;
             }
-        } else if (isRdp(packageName)) {
+        } else if (isRdp(context)) {
             return aRDP.class;
-        } else if (isSpice(packageName)) {
+        } else if (isSpice(context)) {
             return aSPICE.class;
         } else {
             throw new IllegalArgumentException("Could not find appropriate connection setup activity class for package " + packageName);
         }
     }
 
-    public static String getConnectionScheme(Context ctx) {
-        String packageName = ctx.getPackageName();
+    public static String getConnectionScheme(Context context) {
+        String packageName = Utils.pName(context);
         String scheme = "unsupported";
-        if (isVnc(packageName))
+        if (isVnc(context))
             scheme = "vnc";
-        else if (isRdp(packageName))
+        else if (isRdp(context))
             scheme = "rdp";
-        else if (isSpice(packageName))
+        else if (isSpice(context))
             scheme = "spice";
         return scheme;
     }
-    
-    public static int getDefaultPort(Context ctx) {
+
+    public static int getDefaultPort(Context context) {
         int port = Constants.DEFAULT_PROTOCOL_PORT;
-        if (ctx != null) {
-            String packageName = ctx.getPackageName();
-            if (isRdp(packageName))
+        if (context != null) {
+            if (isRdp(context))
                 port = Constants.DEFAULT_RDP_PORT;
             else
                 port = Constants.DEFAULT_VNC_PORT;
         }
         return port;
     }
-    
+
     public static String getDonationPackageName(Context ctx) {
-        return ctx.getPackageName().replace("free", "");
+        return Utils.pName(ctx).replace("free", "");
     }
     
     public static boolean isBlackBerry () {
@@ -320,15 +335,16 @@ public class Utils {
         }
     }
 
-    public static String getExportFileName(String packageName) {
+    public static String getExportFileName(Context context) {
+        String packageName = Utils.pName(context);
         String res = "settings.xml";
-        if (isVnc(packageName))
+        if (isVnc(context))
             res = "vnc_" + res;
-        else if (isRdp(packageName))
+        else if (isRdp(context))
             res = "rdp_" + res;
-        else if (isSpice(packageName))
+        else if (isSpice(context))
             res = "spice_" + res;
-        else if (isOpaque(packageName))
+        else if (isOpaque(context))
             res = "opaque_settings.json";
         return res;
     }
@@ -471,11 +487,11 @@ public class Utils {
      */
     public static Dialog createConnectionScreenDialog(Context context) {
         int textId = R.string.vnc_connection_screen_help_text;
-        if (Utils.isRdp(context.getPackageName()))
+        if (Utils.isRdp(context))
             textId = R.string.rdp_connection_screen_help_text;
-        else if (Utils.isSpice(context.getPackageName()))
+        else if (Utils.isSpice(context))
             textId = R.string.spice_connection_screen_help_text;
-        else if (Utils.isOpaque(context.getPackageName()))
+        else if (Utils.isOpaque(context))
             textId = R.string.opaque_connection_screen_help_text;
         return createDialog(context, textId);
     }
@@ -526,7 +542,7 @@ public class Utils {
     public static String getVersionAndCode(Context context) {
         String result = "";
         try {
-            String packageName = context.getPackageName();
+            String packageName = Utils.pName(context);
             PackageInfo pInfo = context.getPackageManager().getPackageInfo(packageName, 0);
             result = pInfo.versionName + "_" + pInfo.versionCode;
             android.util.Log.d(TAG, "Version of " + packageName + " is " + result);
@@ -564,7 +580,7 @@ public class Utils {
     }
 
     public static String getStringResourceByName(Context context, String stringName) {
-        String packageName = context.getPackageName();
+        String packageName = Utils.pName(context);
         int resId = context.getResources().getIdentifier(stringName, "string", packageName);
         String message = "";
         if (resId > 0) {

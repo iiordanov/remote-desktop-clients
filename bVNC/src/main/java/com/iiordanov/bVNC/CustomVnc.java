@@ -27,14 +27,15 @@ public class CustomVnc extends bVNC {
         super.onCreate(icicle);
         try {
             View view;
+            String packageName = Utils.pName(this);
             CustomClientConfigFileReader configFileReader = new CustomClientConfigFileReader(
-                            getAssets().open(getPackageName() + ".yaml"));
+                            getAssets().open(packageName + ".yaml"));
             Map<String, Map> configData = configFileReader.getConfigData();
             Map<String, Integer> visibility = (Map<String, Integer>)configData.get("mainConfiguration").get("visibility");
 
             for (String s : visibility.keySet()){
                 android.util.Log.d(TAG, s);
-                int resID = getResources().getIdentifier(s, "id", getPackageName());
+                int resID = getResources().getIdentifier(s, "id", packageName);
                 view = findViewById(resID);
                 view.setVisibility(visibility.get(s));
             }
