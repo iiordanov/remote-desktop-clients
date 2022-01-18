@@ -59,6 +59,8 @@ import android.os.Vibrator;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.iiordanov.util.SamsungDexUtils;
 import com.undatech.opaque.util.RemoteToolbar;
 import android.util.Log;
 import android.view.Gravity;
@@ -1048,6 +1050,8 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
         }
         canvas.requestFocus();
         canvas.setDrawingCacheEnabled(false);
+
+        SamsungDexUtils.INSTANCE.dexMetaKeyCapture(this);
     }
 
     /*
