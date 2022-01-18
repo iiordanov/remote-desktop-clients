@@ -3,6 +3,7 @@ v5.0.6
 - USB Redirection Support
 - Keyboard layout fixes
 - Ignore all config changes to prevent connection interruptions
+- Capture modifier keys on Samsung devices
 v5.0.5
 - Added Portuguese translation
 - Disabled highlighting of canvasing when focused so colors are not washed out
