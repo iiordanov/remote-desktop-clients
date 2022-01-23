@@ -25,7 +25,7 @@
             android:configChanges="keyboardHidden|orientation"
             android:resizeableActivity="true"
             android:screenOrientation="unspecified"
-            android:theme="@style/AppThemeWithToolbar"
+            android:theme="@android:style/Theme.DeviceDefault"
             android:windowSoftInputMode="stateHidden|adjustResize"
             tools:replace="android:screenOrientation" />
         <uses-library

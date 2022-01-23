@@ -38,7 +38,7 @@
         android:banner="@drawable/banner_ardp"
         android:icon="@drawable/icon_ardp"
         android:label="@string/ardp_app_name"
-        android:theme="@style/AppTheme"
+        android:theme="@android:style/Theme.DeviceDefault"
         tools:replace="android:label,android:theme">
         <activity
             android:name="com.undatech.opaque.ConnectionGridActivity"
@@ -61,7 +61,7 @@
             android:label="@string/ardp_app_name"
             android:resizeableActivity="true"
             android:screenOrientation="unspecified"
-            android:theme="@style/AppThemeWithToolbar"
+            android:theme="@android:style/Theme.DeviceDefault"
             android:windowSoftInputMode="stateHidden|adjustResize" />
         <activity
             android:name="com.iiordanov.bVNC.RemoteCanvasActivity"
@@ -121,7 +121,7 @@
             android:exported="true"
             android:label="@string/shortcut_label_rdp"
             android:resizeableActivity="true"
-            android:theme="@style/AppThemeWithToolbar"
+            android:theme="@android:style/Theme.DeviceDefault"
             android:windowSoftInputMode="stateHidden|adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.CREATE_SHORTCUT" />

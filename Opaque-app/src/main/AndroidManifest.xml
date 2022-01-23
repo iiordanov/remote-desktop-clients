@@ -38,7 +38,7 @@
         android:banner="@drawable/banner_opaque"
         android:icon="@drawable/ic_launcher"
         android:label="@string/opaque_app_name"
-        android:theme="@style/AppTheme">
+        android:theme="@android:style/Theme.DeviceDefault"
         <uses-library
             android:name="org.apache.http.legacy"
             android:required="false" />
