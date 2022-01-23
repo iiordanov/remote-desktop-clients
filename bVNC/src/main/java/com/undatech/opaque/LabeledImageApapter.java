@@ -87,7 +87,13 @@ public class LabeledImageApapter extends BaseAdapter {
             gridView = inflater.inflate(R.layout.grid_item, null);
         }
 
-        GridView.LayoutParams lp = new GridView.LayoutParams(height, height);
+        ViewGroup.LayoutParams lp = gridView.getLayoutParams();
+        if (lp != null) {
+            lp.height = height;
+            lp.width = height;
+        } else {
+            lp = new GridView.LayoutParams(height, height);
+        }
         gridView.setLayoutParams(lp);
 
         TextView textView = (TextView) gridView.findViewById(R.id.grid_item_text);
