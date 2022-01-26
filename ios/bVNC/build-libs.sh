@@ -142,6 +142,7 @@ rsync -avP libjpeg-turbo/libs_combined/ ./bVNC.xcodeproj/libs_combined/
 
 
 # Clone and build libssh2
+export CFLAGS=""
 if git clone https://github.com/Jan-E/iSSH2.git
 then
   pushd iSSH2
