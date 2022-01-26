@@ -52,7 +52,10 @@
             android:name=".presentation.ShortcutsActivity"
             tools:node="remove" />
 
-        <activity android:name="com.iiordanov.bVNC.GlobalPreferencesActivity" />
+        <activity
+            android:name="com.iiordanov.bVNC.GlobalPreferencesActivity"
+            android:theme="@style/Theme.AppCompat"
+            />
 
         <meta-data
             android:name="com.samsung.android.keepalive.density"
