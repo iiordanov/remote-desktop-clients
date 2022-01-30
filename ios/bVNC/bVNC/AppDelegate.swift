@@ -169,8 +169,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         pressesEnded(presses, with: event)
     }
     
+    func isiOSAppOnMac() -> Bool {
+      if #available(iOS 14.0, *) {
+        return ProcessInfo.processInfo.isiOSAppOnMac
+      }
+      return false
+    }
+
     override var keyCommands: [UIKeyCommand]? {
-        if self.commands != nil {
+        // Do not do all the additional work of trying to capture modifiers on iOS devices because it causes soft keyboard lag
+        if !self.isiOSAppOnMac() || self.commands != nil {
             return self.commands
         }
         self.commands = (0...255).map({UIKeyCommand(input: String(UnicodeScalar($0)), modifierFlags: [.command], action: #selector(captureCmd))})
