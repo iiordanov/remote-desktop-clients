@@ -52,7 +52,7 @@ void cleanup(rfbClient *cl, char* message);
 void rfb_client_cleanup(rfbClient *cl);
 void (*lock_write_tls_callback)(int instance);
 void (*unlock_write_tls_callback)(int instance);
-void sendWholeScreenUpdateRequest(void *c, bool fullScreenUpdate);
+void sendWholeScreenUpdateRequest(void *c, bool incrementalUpdate);
 void setMaintainConnection(void *c, int state);
 void keepSessionFresh(void *c);
 void signal_handler(int signal, siginfo_t *info, void *reserved);

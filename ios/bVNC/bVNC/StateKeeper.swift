@@ -68,7 +68,9 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
     var reDrawTimer: Timer = Timer()
     var superUpKeyTimer: Timer = Timer()
     var orientationTimer: Timer = Timer()
-    var screenUpdateTimer: Timer = Timer()
+    var fullScreenUpdateTimer: Timer = Timer()
+    var partialScreenUpdateTimer: Timer = Timer()
+    var recurringPartialScreenUpdateTimer: Timer = Timer()
     var disconnectTimer: Timer = Timer()
     var fbW: Int32 = 0
     var fbH: Int32 = 0
@@ -189,41 +191,45 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
     
     @objc func requestFullScreenUpdate(sender: Timer) {
         if self.isDrawing && (sender.userInfo as! Int) == self.currInst {
-            //print("Firing off a whole screen update request.")
-            sendWholeScreenUpdateRequest(cl[currInst], true)
+            //print("Firing off a whole screen update request")
+            sendWholeScreenUpdateRequest(self.cl[self.currInst], false)
         }
     }
 
     @objc func requestPartialScreenUpdate(sender: Timer) {
         if self.isDrawing && (sender.userInfo as! Int) == self.currInst {
-            //print("Firing off a partial screen update request.")
-            sendWholeScreenUpdateRequest(cl[currInst], true)
+            //print("Firing off a partial screen update request")
+            Background {
+                sendWholeScreenUpdateRequest(self.cl[self.currInst], true)
+            }
         }
     }
 
     @objc func requestRecurringPartialScreenUpdate(sender: Timer) {
         if self.isDrawing && (sender.userInfo as! Int) == self.currInst {
-            //print("Firing off a recurring partial screen update request.")
-            sendWholeScreenUpdateRequest(cl[currInst], false)
+            //print("Firing off a recurring partial screen update request")
+            sendWholeScreenUpdateRequest(self.cl[self.currInst], true)
             UserInterface {
-                self.rescheduleScreenUpdateRequest(timeInterval: 30, fullScreenUpdate: false, recurring: true)
+                self.rescheduleScreenUpdateRequest(timeInterval: 20, fullScreenUpdate: false, recurring: true)
             }
         }
     }
     
     func rescheduleScreenUpdateRequest(timeInterval: TimeInterval, fullScreenUpdate: Bool, recurring: Bool) {
         UserInterface {
-            self.screenUpdateTimer.invalidate()
             if (self.isDrawing) {
                 if (fullScreenUpdate) {
+                    self.fullScreenUpdateTimer.invalidate()
                     //print("Scheduling full screen update")
-                    self.screenUpdateTimer = Timer.scheduledTimer(timeInterval: timeInterval, target: self, selector: #selector(self.requestFullScreenUpdate(sender:)), userInfo: self.currInst, repeats: false)
+                    self.fullScreenUpdateTimer = Timer.scheduledTimer(timeInterval: timeInterval, target: self, selector: #selector(self.requestFullScreenUpdate(sender:)), userInfo: self.currInst, repeats: false)
                 } else if !recurring {
+                    self.partialScreenUpdateTimer.invalidate()
                     //print("Scheduling non-recurring partial screen update")
-                    self.screenUpdateTimer = Timer.scheduledTimer(timeInterval: timeInterval, target: self, selector: #selector(self.requestRecurringPartialScreenUpdate), userInfo: self.currInst, repeats: false)
+                    self.partialScreenUpdateTimer = Timer.scheduledTimer(timeInterval: timeInterval, target: self, selector: #selector(self.requestPartialScreenUpdate), userInfo: self.currInst, repeats: false)
                 } else {
+                    self.recurringPartialScreenUpdateTimer.invalidate()
                     //print("Scheduling recurring partial screen update")
-                    self.screenUpdateTimer = Timer.scheduledTimer(timeInterval: timeInterval, target: self, selector: #selector(self.requestRecurringPartialScreenUpdate), userInfo: self.currInst, repeats: false)
+                    self.recurringPartialScreenUpdateTimer = Timer.scheduledTimer(timeInterval: timeInterval, target: self, selector: #selector(self.requestRecurringPartialScreenUpdate), userInfo: self.currInst, repeats: false)
                 }
             }
         }
@@ -333,7 +339,9 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
         self.deregisterFromNotifications()
         self.orientationTimer.invalidate()
         self.reDrawTimer.invalidate()
-        self.screenUpdateTimer.invalidate()
+        self.fullScreenUpdateTimer.invalidate()
+        self.partialScreenUpdateTimer.invalidate()
+        self.recurringPartialScreenUpdateTimer.invalidate()
     }
 
     @objc func disconnect(sender: Timer) {

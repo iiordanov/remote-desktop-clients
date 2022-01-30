@@ -213,7 +213,8 @@ class TouchEnabledUIImageView: UIImageView, UIContextMenuInteractionDelegate {
             self.lastX = self.newX
             self.lastY = self.newY
             //self.timeLast = timeNow
-            self.stateKeeper?.rescheduleScreenUpdateRequest(timeInterval: 0.2, fullScreenUpdate: false, recurring: false)
+            let isUp = !(firstDown||secondDown||thirdDown||fourthDown||fifthDown)
+            self.stateKeeper?.rescheduleScreenUpdateRequest(timeInterval: 0.3, fullScreenUpdate: isUp, recurring: false)
         }
     }
         
@@ -394,7 +395,7 @@ class TouchEnabledUIImageView: UIImageView, UIContextMenuInteractionDelegate {
         }
         sender.view?.transform = newTransform
         sender.scale = 1
-        self.stateKeeper?.rescheduleScreenUpdateRequest(timeInterval: 0.2, fullScreenUpdate: false, recurring: false)
+        self.stateKeeper?.rescheduleScreenUpdateRequest(timeInterval: 0.5, fullScreenUpdate: false, recurring: false)
     }
     
     @objc private func handleTap(_ sender: UITapGestureRecognizer) {
@@ -465,7 +466,7 @@ class TouchEnabledUIImageView: UIImageView, UIContextMenuInteractionDelegate {
             }
             view.center = CGPoint(x: newCenterX, y: newCenterY)
             sender.setTranslation(CGPoint.zero, in: view)
-            self.stateKeeper?.rescheduleScreenUpdateRequest(timeInterval: 0.2, fullScreenUpdate: false, recurring: false)
+            self.stateKeeper?.rescheduleScreenUpdateRequest(timeInterval: 0.5, fullScreenUpdate: false, recurring: false)
         }
     }
     
