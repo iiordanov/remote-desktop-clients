@@ -186,21 +186,6 @@ struct ConnectionsList : View {
         ScrollView {
             VStack {
                 HStack() {
-                    VStack(alignment: .leading, spacing: 10) {
-                        Text(self.stateKeeper.localizedString(for: "APP_NAME"))
-                            .frame(width: 80)
-                            .lineLimit(1)
-                            .allowsTightening(true)
-                            .scaledToFit()
-                            .minimumScaleFactor(0.5)
-                        Text(self.stateKeeper.localizedString(for: "COMPANY_NAME"))
-                            .frame(width: 80)
-                            .lineLimit(1)
-                            .allowsTightening(true)
-                            .scaledToFit()
-                            .minimumScaleFactor(0.5)
-                    }.padding()
-                    
                     Button(action: {
                         self.stateKeeper.addNewConnection()
                     }) {
@@ -237,7 +222,7 @@ struct ConnectionsList : View {
                         }.padding()
                     }
                 }.frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, alignment: .topTrailing).padding()
-
+                
                 ForEach(0 ..< stateKeeper.connections.count) { i in
                     Button(action: {
                     }) {
@@ -319,22 +304,6 @@ struct AddOrEditConnectionPage : View {
         ScrollView {
             VStack {
                 HStack(spacing: 5) {
-                    
-                    VStack(alignment: .leading, spacing: 10) {
-                        Text(self.stateKeeper.localizedString(for: "APP_NAME"))
-                            .frame(width: 70)
-                            .lineLimit(1)
-                            .allowsTightening(true)
-                            .scaledToFit()
-                            .minimumScaleFactor(0.25)
-                        Text(self.stateKeeper.localizedString(for: "COMPANY_NAME"))
-                            .frame(width: 70)
-                            .lineLimit(1)
-                            .allowsTightening(true)
-                            .scaledToFit()
-                            .minimumScaleFactor(0.25)
-                    }.padding()
-                    
                     Button(action: {
                         let selectedConnection: [String : String] = self.retrieveConnectionDetails()
                         self.stateKeeper.saveConnection(connection: selectedConnection)
