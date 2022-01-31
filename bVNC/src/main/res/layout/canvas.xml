@@ -1,194 +1,203 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    >
+    android:orientation="vertical">
 
-<com.iiordanov.bVNC.RemoteCanvas
-    android:id="@+id/canvas"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    android:layout_gravity="bottom|center"
-    >
-</com.iiordanov.bVNC.RemoteCanvas>
+	<com.iiordanov.bVNC.RemoteCanvas
+		android:id="@+id/canvas"
+		android:layout_width="fill_parent"
+		android:layout_height="fill_parent"
+		android:layout_gravity="bottom|center" />
 
-    <com.undatech.opaque.util.RemoteToolbar
-      android:id="@+id/toolbar"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:layout_gravity="right|center"
-      android:background="?attr/colorPrimary">
-    </com.undatech.opaque.util.RemoteToolbar>
-
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/singleHandOpts"
-	android:layout_width="wrap_content"
-	android:layout_height="wrap_content"
-	android:layout_gravity="center"
-	android:visibility="gone"
-	android:padding="0dip"
-	>
-	<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	<com.undatech.opaque.util.RemoteToolbar
+		android:id="@+id/toolbar"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-	    android:layout_gravity="center"
-   		android:orientation="vertical"
-		android:padding="0dip"
-		>
-		<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-		    android:layout_gravity="top|center"
-	   		android:orientation="horizontal"
-			android:paddingBottom="10sp"
-			>
-			<ImageButton android:id="@+id/singleDrag"
-		        android:background="@drawable/single_left"
-		        android:layout_width="wrap_content"
-		        android:layout_height="wrap_content"
-		        />
-			<ImageButton android:id="@+id/singleMiddle"
-		        android:background="@drawable/single_middle"
-		        android:layout_width="wrap_content"
-		        android:layout_height="wrap_content"
-		        />
-			<ImageButton android:id="@+id/singleRight"
-		        android:background="@drawable/single_right"
-		        android:layout_width="wrap_content"
-		        android:layout_height="wrap_content"
-		        />
-		</LinearLayout>
-		<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-		    android:layout_gravity="bottom|center"
-	   		android:orientation="horizontal"
-			android:padding="0dip"
-			>
-			<ImageButton android:id="@+id/singleScroll"
-		        android:background="@drawable/single_scroll"
-		        android:layout_width="wrap_content"
-		        android:layout_height="wrap_content"
-		        />
-			<ImageButton android:id="@+id/singleZoom"
-		        android:background="@drawable/single_zoom"
-		        android:layout_width="wrap_content"
-		        android:layout_height="wrap_content"
-		        />
-			<ImageButton android:id="@+id/singleCancel"
-		        android:background="@drawable/single_cancel"
-		        android:layout_width="wrap_content"
-		        android:layout_height="wrap_content"
-		        />
-		</LinearLayout>
-	</LinearLayout>
-</RelativeLayout>
+		android:layout_gravity="right|center"
+		android:background="?attr/colorPrimary" />
 
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/layoutKeys"
-	android:layout_width="fill_parent"
-	android:layout_height="wrap_content"
-	android:orientation="horizontal"
-	android:layout_gravity="bottom|center"
-	android:visibility="gone"
-	android:paddingBottom="2dip"
-	>
-	<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	    android:id="@+id/layoutMetaKeys"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:layout_alignParentLeft="true"
-		android:layout_alignParentBottom="true"
-		android:orientation="vertical"
-		android:padding="0sp"
-		>
-		<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    	    android:layout_gravity="top|left"
+    <RelativeLayout
+		android:id="@+id/singleHandOpts"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:padding="0dip"
+        android:visibility="gone">
+
+        <LinearLayout
 			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:orientation="horizontal"
-			android:padding="0sp"
-			>
-			<ImageButton android:id="@+id/keyTab"
-	    	    android:background="@drawable/taboff"
-	    	    android:layout_width="wrap_content"
-	    	    android:layout_height="wrap_content"
-	    	    />
-			<ImageButton android:id="@+id/keyEsc"
-	    	    android:background="@drawable/escoff"
-	    	    android:layout_width="wrap_content"
-	    	    android:layout_height="wrap_content"
-	    	    />
-			<ImageButton android:id="@+id/keyShift"
-	    	    android:background="@drawable/shiftoff"
-	    	    android:layout_width="wrap_content"
-	    	    android:layout_height="wrap_content"
-	    	    />
-		</LinearLayout>
-		<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:orientation="horizontal"
-			android:padding="0sp"
-			>
-			<ImageButton android:id="@+id/keyCtrl"
-		        android:background="@drawable/ctrloff"
-		        android:layout_width="wrap_content"
-		        android:layout_height="wrap_content"
-		        />
-			<ImageButton android:id="@+id/keySuper"
-		        android:background="@drawable/superoff"
-		        android:layout_width="wrap_content"
-		        android:layout_height="wrap_content"
-		        />
-			<ImageButton android:id="@+id/keyAlt"
-		        android:background="@drawable/altoff"
-		        android:layout_width="wrap_content"
-		        android:layout_height="wrap_content"
-		        />
-		</LinearLayout>
-	</LinearLayout>
-			
-	<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-		android:id="@+id/layoutArrowKeys"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:layout_alignParentRight="true"
-		android:layout_alignParentBottom="true"
-		android:orientation="vertical"
-		android:padding="0sp"
-		>
-		<ImageButton android:id="@+id/keyUpArrow"
-	        android:background="@drawable/upoff"
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"
-	        android:layout_gravity="top|center"
-	        />
-		<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_alignParentRight="true"
-		    android:layout_gravity="bottom|center"
-			android:padding="0sp"
-			>
-			<ImageButton android:id="@+id/keyLeftArrow"
-		        android:background="@drawable/leftoff"
-		        android:layout_width="wrap_content"
-		        android:layout_height="wrap_content"
-		        />
-			<ImageButton android:id="@+id/keyDownArrow"
-		        android:background="@drawable/downoff"
-		        android:layout_width="wrap_content"
-		        android:layout_height="wrap_content"
-		        />
-			<ImageButton android:id="@+id/keyRightArrow"
-		        android:background="@drawable/rightoff"
-		        android:layout_width="wrap_content"
-		        android:layout_height="wrap_content"
-		        />
-		</LinearLayout>
-	</LinearLayout>
-</RelativeLayout>
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:orientation="vertical"
+            android:padding="0dip">
+
+            <LinearLayout
+				android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="top|center"
+                android:orientation="horizontal"
+                android:paddingBottom="10sp">
+
+                <ImageButton
+                    android:id="@+id/singleDrag"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/single_left" />
+
+                <ImageButton
+                    android:id="@+id/singleMiddle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/single_middle" />
+
+                <ImageButton
+                    android:id="@+id/singleRight"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/single_right" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|center"
+                android:orientation="horizontal"
+                android:padding="0dip">
+
+                <ImageButton
+                    android:id="@+id/singleScroll"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/single_scroll" />
+
+                <ImageButton
+                    android:id="@+id/singleZoom"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/single_zoom" />
+
+                <ImageButton
+                    android:id="@+id/singleCancel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/single_cancel" />
+            </LinearLayout>
+        </LinearLayout>
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/layoutKeys"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|center"
+        android:orientation="horizontal"
+        android:paddingBottom="2dip"
+        android:visibility="gone">
+
+        <LinearLayout
+            android:id="@+id/layoutMetaKeys"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentBottom="true"
+            android:orientation="vertical"
+            android:padding="0sp">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="top|left"
+                android:orientation="horizontal"
+                android:padding="0sp">
+
+                <ImageButton
+                    android:id="@+id/keyTab"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/taboff" />
+
+                <ImageButton
+                    android:id="@+id/keyEsc"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/escoff" />
+
+                <ImageButton
+                    android:id="@+id/keyShift"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/shiftoff" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:padding="0sp">
+
+                <ImageButton
+                    android:id="@+id/keyCtrl"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/ctrloff" />
+
+                <ImageButton
+                    android:id="@+id/keySuper"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/superoff" />
+
+                <ImageButton
+                    android:id="@+id/keyAlt"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/altoff" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/layoutArrowKeys"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentBottom="true"
+            android:orientation="vertical"
+            android:padding="0sp">
+
+            <ImageButton
+                android:id="@+id/keyUpArrow"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="top|center"
+                android:background="@drawable/upoff" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_gravity="bottom|center"
+                android:padding="0sp">
+
+                <ImageButton
+                    android:id="@+id/keyLeftArrow"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/leftoff" />
+
+                <ImageButton
+                    android:id="@+id/keyDownArrow"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/downoff" />
+
+                <ImageButton
+                    android:id="@+id/keyRightArrow"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/rightoff" />
+            </LinearLayout>
+        </LinearLayout>
+    </RelativeLayout>
 
 </FrameLayout>

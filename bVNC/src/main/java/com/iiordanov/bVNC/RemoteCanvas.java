@@ -31,7 +31,6 @@
 package com.iiordanov.bVNC;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateEncodingException;
@@ -54,7 +53,6 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Handler;
-import android.os.Message;
 import android.os.SystemClock;
 import android.provider.Settings;
 import android.text.ClipboardManager;
@@ -104,7 +102,6 @@ import com.undatech.remoteClientUi.*;
 
 import org.apache.http.HttpException;
 import org.json.JSONException;
-import org.yaml.snakeyaml.scanner.Constant;
 
 import javax.security.auth.login.LoginException;
 
@@ -1812,6 +1809,33 @@ public class RemoteCanvas extends AppCompatImageView
         android.util.Log.d(TAG, "currentIme: " + currentIme);
         outAttrs.imeOptions |= EditorInfo.IME_FLAG_NO_FULLSCREEN;
         return bic;
+    }
+
+    private OnKeyEventListener onKeyEventListener;
+
+    public void setOnKeyEventListener(OnKeyEventListener listener) {
+        onKeyEventListener = listener;
+    }
+
+    public interface OnKeyEventListener {
+        void onKeyEvent(int keyCode, KeyEvent event);
+    }
+
+    @Override
+    public boolean onKeyPreIme(int keyCode, KeyEvent event) {
+        if (onKeyEventListener != null && keyCode == KeyEvent.KEYCODE_SPACE && event.isCtrlPressed()) {
+            Log.d(TAG, "onKeyPreIme inserting Ctrl+Space ACTION_DOWN event");
+            KeyEvent downEvent = new KeyEvent(event.getDownTime(),
+                    event.getEventTime(),
+                    KeyEvent.ACTION_DOWN,
+                    event.getKeyCode(),
+                    event.getRepeatCount(),
+                    event.getMetaState(),
+                    event.getDeviceId(),
+                    event.getScanCode());
+            onKeyEventListener.onKeyEvent(keyCode, downEvent);
+        }
+        return super.onKeyPreIme(keyCode, event);
     }
 
     public RemotePointer getPointer() {

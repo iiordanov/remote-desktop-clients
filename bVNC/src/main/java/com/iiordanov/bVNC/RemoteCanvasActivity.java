@@ -64,6 +64,7 @@ import com.iiordanov.util.PermissionGroups;
 import com.iiordanov.util.PermissionsManager;
 import com.iiordanov.util.SamsungDexUtils;
 import com.undatech.opaque.util.RemoteToolbar;
+
 import android.util.Log;
 import android.view.Gravity;
 import android.view.InputDevice;
@@ -73,7 +74,6 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.View.OnKeyListener;
 import android.view.View.OnLongClickListener;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
@@ -114,7 +114,7 @@ import com.undatech.opaque.util.OnTouchViewMover;
 import com.undatech.remoteClientUi.R;
 import com.iiordanov.bVNC.input.RemoteCanvasHandler;
 
-public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyListener,
+public class RemoteCanvasActivity extends AppCompatActivity implements View.OnKeyListener,
                                                                         SelectTextElementFragment.OnFragmentDismissedListener {
     
     private final static String TAG = "RemoteCanvasActivity";
@@ -429,6 +429,14 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
 
         canvas.setOnKeyListener(this);
         canvas.setFocusableInTouchMode(true);
+
+        canvas.setOnKeyEventListener(new RemoteCanvas.OnKeyEventListener() {
+            @Override
+            public void onKeyEvent(int keyCode, KeyEvent event) {
+                RemoteCanvasActivity.this.onKey(RemoteCanvasActivity.this.canvas, keyCode, event);
+            }
+        });
+
         canvas.setDrawingCacheEnabled(false);
         
         // This code detects when the soft keyboard is up and sets an appropriate visibleHeight in vncCanvas.
