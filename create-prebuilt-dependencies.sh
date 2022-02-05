@@ -17,7 +17,7 @@ PROJECT=libs
 
 tar --exclude='remoteClientLib/jni/libs/deps/FreeRDP/client/Android/Studio/freeRDPCore/build/intermediates/*' \
     -c -z -f remote-desktop-clients-libs-${DEPVER}.tar.gz \
-    remoteClientLib/libs bVNC/libs remoteClientLib/jni/libs/deps/FreeRDP/client/Android/Studio/freeRDPCore/
+    remoteClientLib/src/main/jniLibs remoteClientLib/libs bVNC/libs remoteClientLib/jni/libs/deps/FreeRDP/client/Android/Studio/freeRDPCore/
 
 echo "Done creating new dependencies archive."
 echo "Differences in repo at present:"
