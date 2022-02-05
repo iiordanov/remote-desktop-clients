@@ -38,6 +38,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 
+import com.iiordanov.util.PermissionGroups;
 import com.undatech.opaque.util.LogcatReader;
 import com.iiordanov.util.PermissionsManager;
 
@@ -52,7 +53,6 @@ public abstract class MainConfiguration extends FragmentActivity {
     protected int layoutID;
     private Button buttonGeneratePubkey;
     private TextView versionAndCode;
-    protected PermissionsManager permissionsManager;
     private RadioGroup radioCursor;
 
     protected Spinner connectionType;
@@ -143,8 +143,6 @@ public abstract class MainConfiguration extends FragmentActivity {
         setContentView(layoutID);
         System.gc();
 
-        permissionsManager = new PermissionsManager();
-
         textNickname = (EditText) findViewById(R.id.textNickname);
 
         // Here we say what happens when the Pubkey Generate button is pressed.
@@ -165,7 +163,6 @@ public abstract class MainConfiguration extends FragmentActivity {
         ((Button) findViewById(R.id.buttonImportExport)).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                permissionsManager.requestPermissions(MainConfiguration.this, true);
                 showDialog(R.layout.importexport);
             }
         });

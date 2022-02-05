@@ -19,7 +19,7 @@ public class RemoteRdpKeyboard extends RemoteKeyboard {
         super(r, v.getContext(), h, debugLog);
         canvas = v;
         keyboardMapper = new RdpKeyboardMapper();
-        keyboardMapper.init(context);
+        keyboardMapper.init(context, false);
         keyboardMapper.reset((RdpKeyboardMapper.KeyProcessingListener)r);
     }
     

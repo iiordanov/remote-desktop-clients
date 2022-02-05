@@ -63,6 +63,7 @@ import com.iiordanov.bVNC.dialogs.GetTextFragment;
 import com.iiordanov.bVNC.dialogs.ImportExportDialog;
 import com.iiordanov.bVNC.dialogs.IntroTextDialog;
 import com.iiordanov.bVNC.input.InputHandlerDirectSwipePan;
+import com.iiordanov.util.PermissionGroups;
 import com.iiordanov.util.PermissionsManager;
 import com.undatech.opaque.util.ConnectionLoader;
 import com.undatech.opaque.util.FileUtils;
@@ -79,7 +80,6 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
     FragmentManager fragmentManager = getSupportFragmentManager();
     private Context appContext;
     private GridView gridView;
-    protected PermissionsManager permissionsManager;
     private ConnectionLoader connectionLoader;
     private EditText search;
     private boolean isConnecting = false;
@@ -126,8 +126,6 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
                 return true;
             }
         });
-        permissionsManager = new PermissionsManager();
-        permissionsManager.requestPermissions(ConnectionGridActivity.this, false);
 
         search = findViewById(R.id.search);
         search.addTextChangedListener(new TextWatcher() {
@@ -479,7 +477,6 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
     public boolean onOptionsItemSelected(MenuItem item) {
         int itemId = item.getItemId();
         if (itemId == R.id.itemExportImport) {
-            permissionsManager.requestPermissions(ConnectionGridActivity.this, true);
             showDialog(R.layout.importexport);
         } else if (itemId == R.id.itemMasterPassword) {
             if (Utils.isFree(this)) {

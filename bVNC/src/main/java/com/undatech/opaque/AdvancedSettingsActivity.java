@@ -25,6 +25,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.iiordanov.bVNC.Constants;
+import com.iiordanov.util.PermissionGroups;
 import com.iiordanov.util.PermissionsManager;
 import com.undatech.opaque.dialogs.ManageCustomCaFragment;
 
@@ -213,8 +214,7 @@ public class AdvancedSettingsActivity extends FragmentActivity implements Manage
     public void toggleAudioPlaybackSetting (View view) {
         ToggleButton s = (ToggleButton) view;
         if (s.isChecked()) {
-            PermissionsManager permissionsManager = new PermissionsManager();
-            permissionsManager.requestPermissions(this, true);
+            PermissionsManager.requestPermissions(this, PermissionGroups.RECORD_AUDIO, true);
         }
         currentConnection.setAudioPlaybackEnabled(s.isChecked());
     }

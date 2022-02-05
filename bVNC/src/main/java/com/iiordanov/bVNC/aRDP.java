@@ -50,6 +50,8 @@ import com.iiordanov.freeaRDP.*;
 import com.iiordanov.aSPICE.*;
 import com.iiordanov.freeaSPICE.*;
 import com.iiordanov.CustomClientPackage.*;
+import com.iiordanov.util.PermissionGroups;
+import com.iiordanov.util.PermissionsManager;
 import com.undatech.remoteClientUi.*;
 
 /**
@@ -287,7 +289,7 @@ public class aRDP extends MainConfiguration {
             IntroTextDialog.showIntroTextIfNecessary(this, database, true);
             b.setChecked(false);
         } else {
-            permissionsManager.requestPermissions(this, true);
+            PermissionsManager.requestPermissions(this, PermissionGroups.RECORD_AND_MODIFY_AUDIO, true);
         }
         selected.setEnableRecording(b.isChecked());
     }

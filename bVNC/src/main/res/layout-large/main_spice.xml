@@ -371,6 +371,7 @@
                 android:layout_height="wrap_content"
                 android:gravity="left|center_vertical"
                 android:text="@string/enable_sound"
+                android:onClick="toggleEnableSound"
                 android:textAppearance="?android:attr/textAppearanceLarge" />
 
             <CheckBox

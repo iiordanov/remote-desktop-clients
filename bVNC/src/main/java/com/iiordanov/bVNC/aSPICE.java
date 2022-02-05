@@ -55,12 +55,14 @@ import android.widget.CompoundButton.OnCheckedChangeListener;
 import com.iiordanov.bVNC.dialogs.ImportExportDialog;
 import com.iiordanov.bVNC.dialogs.ImportTlsCaDialog;
 import com.iiordanov.bVNC.*;
+import com.iiordanov.bVNC.dialogs.IntroTextDialog;
 import com.iiordanov.freebVNC.*;
 import com.iiordanov.aRDP.*;
 import com.iiordanov.freeaRDP.*;
 import com.iiordanov.aSPICE.*;
 import com.iiordanov.freeaSPICE.*;
 import com.iiordanov.CustomClientPackage.*;
+import com.iiordanov.util.PermissionGroups;
 import com.iiordanov.util.PermissionsManager;
 import com.undatech.opaque.util.FileUtils;
 import com.undatech.remoteClientUi.*;
@@ -226,7 +228,7 @@ public class aSPICE extends MainConfiguration {
         checkboxRotateDpad.setChecked(selected.getRotateDpad());
         checkboxUseLastPositionToolbar.setChecked((!isNewConnection) ? selected.getUseLastPositionToolbar() : this.useLastPositionToolbarDefault());
         if (selected.getEnableSound()) {
-            permissionsManager.requestPermissions(this, true);
+            PermissionsManager.requestPermissions(this, PermissionGroups.RECORD_AUDIO, true);
         }
         checkboxEnableSound.setChecked(selected.getEnableSound());
         textNickname.setText(selected.getNickname());
@@ -317,6 +319,16 @@ public class aSPICE extends MainConfiguration {
         if (selection != null) {
             selected.setLayoutMap(selection.getText().toString());
         }
+    }
+
+    /**
+     * Automatically linked with android:onClick in the layout.
+     * @param view
+     */
+    public void toggleEnableSound (View view) {
+        CheckBox b = (CheckBox) view;
+        PermissionsManager.requestPermissions(this, PermissionGroups.RECORD_AND_MODIFY_AUDIO, true);
+        selected.setEnableSound(b.isChecked());
     }
 
     public void save(MenuItem item) {

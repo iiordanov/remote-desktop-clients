@@ -245,12 +245,15 @@ public class RdpKeyboardMapper
     private boolean isCtrlLocked = false;
     private boolean isAltLocked = false;
     private boolean isWinLocked = false;
-    
-    public void init(Context context)
+
+    private boolean forceUnicode;
+
+    public void init(Context context, boolean forceUnicode)
     {
         if(initialized == true)
             return;
 
+        this.forceUnicode = forceUnicode;
         keymapAndroid = new int[256];
 
         keymapAndroid[KeyEvent.KEYCODE_0] = VK_KEY_0;
@@ -460,6 +463,9 @@ public class RdpKeyboardMapper
 
     public boolean processAndroidKeyEvent(KeyEvent event) {
         int vkcode = getVirtualKeyCode(event.getKeyCode());
+        if (forceUnicode) {
+            vkcode = event.getUnicodeChar() & KEY_FLAG_UNICODE;
+        }
 
         switch(event.getAction())
         {

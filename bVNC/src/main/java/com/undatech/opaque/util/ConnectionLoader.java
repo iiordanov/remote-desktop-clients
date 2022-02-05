@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 
 import com.iiordanov.bVNC.Constants;
 import com.iiordanov.bVNC.Utils;
+import com.iiordanov.util.PermissionGroups;
 import com.iiordanov.util.PermissionsManager;
 import com.undatech.opaque.Connection;
 import com.undatech.opaque.ConnectionSettings;
@@ -25,7 +26,6 @@ public class ConnectionLoader {
     private Map<String, Connection> connectionsById;
     private String[] connectionPreferenceFiles;
     private int numConnections = 0;
-    private PermissionsManager permissionsManager;
     private Activity activity;
 
     public ConnectionLoader(Context appContext, Activity activity, boolean connectionsInSharedPrefs) {
@@ -33,12 +33,10 @@ public class ConnectionLoader {
         this.connectionsInSharedPrefs = connectionsInSharedPrefs;
         this.activity = activity;
         this.connectionsById = new HashMap<>();
-        permissionsManager = new PermissionsManager();
         load();
     }
 
     public void load() {
-        permissionsManager.requestPermissions(activity, false);
         if (connectionsInSharedPrefs) {
             loadFromSharedPrefs();
         } else {
