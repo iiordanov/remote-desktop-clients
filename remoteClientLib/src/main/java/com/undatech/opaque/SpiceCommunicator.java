@@ -200,9 +200,7 @@ public class SpiceCommunicator implements RfbConnectable {
         if (isInNormalProtocol) {
             SpiceClientDisconnect();
         }
-        if (thread != null && thread.isAlive()) {
-            try {thread.join(3000);} catch (InterruptedException e) {}
-        }
+        setIsInNormalProtocol(false);
     }
 
     class SpiceThread extends Thread {

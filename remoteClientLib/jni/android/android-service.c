@@ -334,15 +334,16 @@ int connectSession (spice_connection *conn)
 {
     int result = 0;
 
-    __android_log_write(ANDROID_LOG_INFO, "connectSession", "Starting.");
+    __android_log_write(ANDROID_LOG_INFO, "connectSession", "Calling connection_connect()");
 
     mainloop = g_main_loop_new(NULL, FALSE);
 
     connection_connect(conn);
     if (connections > 0) {
         global_conn = conn;
+        __android_log_write(ANDROID_LOG_INFO, "connectSession", "Starting main loop");
         g_main_loop_run(mainloop);
-	    __android_log_write(ANDROID_LOG_INFO, "connectSession", "Exiting main loop.");
+	    __android_log_write(ANDROID_LOG_INFO, "connectSession", "Exiting main loop");
     } else {
         __android_log_write(ANDROID_LOG_ERROR, "connectSession", "Wrong hostname, port, or password.");
         result = 1;

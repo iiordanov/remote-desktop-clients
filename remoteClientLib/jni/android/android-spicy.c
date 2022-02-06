@@ -29,11 +29,12 @@
 #include "spice-cmdline.h"
 #include "android-spicy.h"
 #include "android-service.h"
+#include "android-io.h"
 
 
 G_DEFINE_TYPE (SpiceWindow, spice_window, G_TYPE_OBJECT);
 
-static void connection_destroy(spice_connection *conn);
+static void connection_destroy(SpiceSession *session, spice_connection *conn);
 
 /* ------------------------------------------------------------------ */
 
@@ -104,8 +105,7 @@ static void main_channel_event(SpiceChannel *channel, SpiceChannelEvent event,
         g_message("main channel: failed to connect");
         __android_log_write(ANDROID_LOG_ERROR, "main_channel_event", "Connection failed.");
         sendMessage(g_env, 5, "Connection failed."); /* SPICE_CONNECT_FAILURE */
-        // We cannot call connection_disconnect() at this point because it causes a SIGABRT signal
-        //connection_disconnect(conn);
+        connection_disconnect(conn);
         break;
     case SPICE_CHANNEL_ERROR_AUTH:
         g_warning("main channel: auth failure (wrong password?)");
@@ -246,7 +246,7 @@ static void channel_destroy(SpiceSession *s, SpiceChannel *channel, gpointer dat
             stdin_port = NULL;
     }
     */
-    connection_destroy(conn);
+    connection_destroy(s, conn);
 }
 
 static void migration_state(GObject *session,
@@ -324,15 +324,19 @@ void connection_disconnect(spice_connection *conn)
 {
     if (conn->disconnecting)
         return;
+    connection_destroy(conn->session, conn);
     conn->disconnecting = true;
     spice_session_disconnect(conn->session);
 }
 
-static void connection_destroy(spice_connection *conn)
+static void connection_destroy(SpiceSession *session, spice_connection *conn)
 {
+    if (conn->disconnecting)
+        return;
+
 	__android_log_write(ANDROID_LOG_INFO, "android-spicy", "connection_destroy called");
-    g_object_unref(conn->session);
-    //g_hash_table_unref(conn->transfers);
+
+    g_object_unref(session);
     g_free(conn);
 
     connections--;
