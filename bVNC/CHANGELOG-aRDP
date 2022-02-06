@@ -4,6 +4,7 @@ v5.0.6
 - Theme visual improvements
 - Fix for Chromebook when app is on external display
 - Finer-grained permissions requests
+- Fix for layouts including QWERTZ, AZERTY
 v5.0.5
 - Added Portuguese translation
 - Disabled highlighting of canvasing when focused so colors are not washed out

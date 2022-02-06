@@ -156,6 +156,7 @@ public class RdpCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyPro
         // The key event is sent to the KeyboardMapper from RemoteRdpKeyboard, and
         // when processed through the keyboard mapper, it ends up in one of the KeyProcessingListener
         // methods defined here.
+        GeneralUtils.debugLog(this.debugLogging, TAG, "writeKeyEvent: setting metaState to: " + metaState);
         this.metaState = metaState;
     }
 
@@ -206,42 +207,42 @@ public class RdpCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyPro
 
     private void sendModifierKeys (boolean down) {
         if ((metaState & RemoteKeyboard.CTRL_MASK) != 0) {
-            //android.util.Log.d("RdpCommunicator", "Sending LCTRL " + down);
+            GeneralUtils.debugLog(this.debugLogging, TAG, "sendModifierKeys: LCTRL " + down);
             try { Thread.sleep(5); } catch (InterruptedException e) {}
             LibFreeRDP.sendKeyEvent(session.getInstance(), VK_LCONTROL, down);
         }
         if ((metaState & RemoteKeyboard.RCTRL_MASK) != 0) {
-            //android.util.Log.d("RdpCommunicator", "Sending RCTRL " + down);
+            GeneralUtils.debugLog(this.debugLogging, TAG, "sendModifierKeys: RCTRL " + down);
             try { Thread.sleep(5); } catch (InterruptedException e) {}
             LibFreeRDP.sendKeyEvent(session.getInstance(), VK_RCONTROL, down);
         }
         if ((metaState & RemoteKeyboard.ALT_MASK) != 0) {
-            //android.util.Log.d("RdpCommunicator", "Sending LALT " + down);
+            GeneralUtils.debugLog(this.debugLogging, TAG, "sendModifierKeys: LALT " + down);
             try { Thread.sleep(5); } catch (InterruptedException e) {}
             LibFreeRDP.sendKeyEvent(session.getInstance(), VK_LMENU, down);
         }
         if ((metaState & RemoteKeyboard.RALT_MASK) != 0) {
-            //android.util.Log.d("RdpCommunicator", "Sending RALT " + down);
+            GeneralUtils.debugLog(this.debugLogging, TAG, "sendModifierKeys: RALT " + down);
             try { Thread.sleep(5); } catch (InterruptedException e) {}
             LibFreeRDP.sendKeyEvent(session.getInstance(), VK_RMENU, down);
         }
         if ((metaState & RemoteKeyboard.SUPER_MASK) != 0) {
-            //android.util.Log.d("RdpCommunicator", "Sending LSUPER " + down);
+            GeneralUtils.debugLog(this.debugLogging, TAG, "sendModifierKeys: LSUPER " + down);
             try { Thread.sleep(5); } catch (InterruptedException e) {}
             LibFreeRDP.sendKeyEvent(session.getInstance(), VK_LWIN | VK_EXT_KEY, down);
         }
         if ((metaState & RemoteKeyboard.RSUPER_MASK) != 0) {
-            //android.util.Log.d("RdpCommunicator", "Sending RSUPER " + down);
+            GeneralUtils.debugLog(this.debugLogging, TAG, "sendModifierKeys: RSUPER " + down);
             try { Thread.sleep(5); } catch (InterruptedException e) {}
             LibFreeRDP.sendKeyEvent(session.getInstance(), VK_RWIN | VK_EXT_KEY, down);
         }
         if ((metaState & RemoteKeyboard.SHIFT_MASK) != 0) {
-            //android.util.Log.d("RdpCommunicator", "Sending LSHIFT " + down);
+            GeneralUtils.debugLog(this.debugLogging, TAG, "sendModifierKeys: LSHIFT " + down);
             try { Thread.sleep(5); } catch (InterruptedException e) {}
             LibFreeRDP.sendKeyEvent(session.getInstance(), VK_LSHIFT, down);
         }
         if ((metaState & RemoteKeyboard.RSHIFT_MASK) != 0) {
-            //android.util.Log.d("RdpCommunicator", "Sending RSHIFT " + down);
+            GeneralUtils.debugLog(this.debugLogging, TAG, "sendModifierKeys: RSHIFT " + down);
             try { Thread.sleep(5); } catch (InterruptedException e) {}
             LibFreeRDP.sendKeyEvent(session.getInstance(), VK_RSHIFT, down);
         }
@@ -252,26 +253,39 @@ public class RdpCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyPro
     @Override
     public void processVirtualKey(int virtualKeyCode, boolean down) {
         GeneralUtils.debugLog(this.debugLogging, TAG, "processVirtualKey: " +
-                "Sending VK key: " + virtualKeyCode + ". Is it down: " + down);
+                "Processing VK key: " + virtualKeyCode + ". Is it down: " + down);
 
         if (down) {
             sendModifierKeys(true);
         }
         try { Thread.sleep(5); } catch (InterruptedException e) {}
+
+        GeneralUtils.debugLog(this.debugLogging, TAG, "processVirtualKey: " +
+                "Sending VK key: " + virtualKeyCode + ". Is it down: " + down);
         LibFreeRDP.sendKeyEvent(session.getInstance(), virtualKeyCode, down);
+
         if (!down) {
             sendModifierKeys(false);
         }
     }
 
     @Override
-    public void processUnicodeKey(int unicodeKey) {
-        //android.util.Log.d(TAG, "Unicode character: " + unicodeKey);
-        sendModifierKeys(true);
+    public void processUnicodeKey(int unicodeKey, boolean down, boolean suppressMetaState) {
+        GeneralUtils.debugLog(this.debugLogging, TAG, "processUnicodeKey: " +
+                "Processing unicode key: " + unicodeKey + ", down: " + down +
+                ", metaState: " + metaState + ", suppressMetaState: " + suppressMetaState);
+
+        if (down && !suppressMetaState) {
+            sendModifierKeys(true);
+        }
         try { Thread.sleep(5); } catch (InterruptedException e) {}
-        LibFreeRDP.sendUnicodeKeyEvent(session.getInstance(), unicodeKey, true);
-        LibFreeRDP.sendUnicodeKeyEvent(session.getInstance(), unicodeKey, false);
-        sendModifierKeys(false);
+        GeneralUtils.debugLog(this.debugLogging, TAG, "processUnicodeKey: " +
+                "Sending unicode key: " + unicodeKey + ", down: " + down + ", metaState: " + metaState);
+        LibFreeRDP.sendUnicodeKeyEvent(session.getInstance(), unicodeKey, down);
+
+        if (!down && !suppressMetaState) {
+            sendModifierKeys(false);
+        }
     }
 
     @Override

@@ -18,8 +18,8 @@ public class RemoteRdpKeyboard extends RemoteKeyboard {
     public RemoteRdpKeyboard (RfbConnectable r, RemoteCanvas v, Handler h, boolean debugLog) {
         super(r, v.getContext(), h, debugLog);
         canvas = v;
-        keyboardMapper = new RdpKeyboardMapper();
-        keyboardMapper.init(context, false);
+        keyboardMapper = new RdpKeyboardMapper(true);
+        keyboardMapper.init(context);
         keyboardMapper.reset((RdpKeyboardMapper.KeyProcessingListener)r);
     }
     
@@ -69,16 +69,20 @@ public class RemoteRdpKeyboard extends RemoteKeyboard {
                 }
             }
 
-            // Update the meta-state with writeKeyEvent.
             metaState = onScreenMetaState|hardwareMetaState|metaState;
-            rfb.writeKeyEvent(keyCode, metaState, down);
+
+            // Update the meta-state with writeKeyEvent.
             if (down) {
+                rfb.writeKeyEvent(keyCode, metaState, down);
+                evt = injectMetaState(evt, metaState);
                 lastDownMetaState = metaState;
             } else {
+                rfb.writeKeyEvent(keyCode, lastDownMetaState, down);
+                evt = injectMetaState(evt, lastDownMetaState);
                 lastDownMetaState = 0;
             }
 
-            if (keyCode == 0 /*KEYCODE_UNKNOWN*/) {
+            if (keyCode == 0 && evt.getCharacters() != null /*KEYCODE_UNKNOWN*/) {
                 String s = evt.getCharacters();
                 GeneralUtils.debugLog(App.debugLog, TAG, "processLocalKeyEvent: getCharacters: " + s);
 

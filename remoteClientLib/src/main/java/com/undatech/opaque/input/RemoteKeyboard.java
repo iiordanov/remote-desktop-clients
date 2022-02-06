@@ -56,9 +56,9 @@ public abstract class RemoteKeyboard {
     //public final static int SCAN_END = 107;
     
     // Useful shortcuts for modifier masks.
-    public final static int CTRL_MASK   = KeyEvent.META_CTRL_ON;
-    public final static int SHIFT_MASK  = KeyEvent.META_SHIFT_ON;
-    public final static int ALT_MASK    = KeyEvent.META_ALT_ON;
+    public final static int CTRL_MASK   = KeyEvent.META_CTRL_LEFT_ON;
+    public final static int SHIFT_MASK  = KeyEvent.META_SHIFT_LEFT_ON;
+    public final static int ALT_MASK    = KeyEvent.META_ALT_LEFT_ON;
     public final static int SUPER_MASK  = KeyEvent.META_META_LEFT_ON;
     public final static int RCTRL_MASK  = KeyEvent.META_CTRL_RIGHT_ON;
     public final static int RSHIFT_MASK = KeyEvent.META_SHIFT_RIGHT_ON;
@@ -291,9 +291,10 @@ public abstract class RemoteKeyboard {
         // We have to leave KeyEvent.KEYCODE_ALT_LEFT for symbol input on a default hardware keyboard.
         boolean defaultHardwareKbd = (event.getScanCode() != 0 && event.getDeviceId() == 0);
         if (!defaultHardwareKbd) {
+            GeneralUtils.debugLog(debugLog, TAG, "convertEventMetaState: Will not ignore KeyEvent.META_ALT_LEFT_ON if present");
             leftAltMetaStateMask = KeyEvent.META_ALT_LEFT_ON;
         } else {
-            GeneralUtils.debugLog(debugLog, TAG, "convertEventMetaState: Ignoring KeyEvent.META_ALT_LEFT_ON to allow for symbol input.");
+            GeneralUtils.debugLog(debugLog, TAG, "convertEventMetaState: Ignoring KeyEvent.META_ALT_LEFT_ON to allow for symbol input on default hardware keyboards");
         }
         
         // Add shift, ctrl, alt, and super to metaState if necessary.
@@ -347,5 +348,23 @@ public abstract class RemoteKeyboard {
         }
         
         return metaState;
+    }
+
+    protected KeyEvent injectMetaState(KeyEvent event, int metaState) {
+        String s = event.getCharacters();
+        KeyEvent evt = null;
+        if (s != null) {
+            evt = new KeyEvent(event.getEventTime(), s, event.getDeviceId(), event.getFlags());
+        } else {
+            evt = new KeyEvent(event.getDownTime(),
+                    event.getEventTime(),
+                    event.getAction(),
+                    event.getKeyCode(),
+                    event.getRepeatCount(),
+                    event.getMetaState() | metaState,
+                    event.getDeviceId(),
+                    event.getScanCode());
+        }
+        return evt;
     }
 }

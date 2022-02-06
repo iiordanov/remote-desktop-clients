@@ -29,7 +29,7 @@ public class RdpKeyboardMapper
     // interface that gets called for input handling
     public interface KeyProcessingListener {
         abstract void processVirtualKey(int virtualKeyCode, boolean down);
-        abstract void processUnicodeKey(int unicodeKey);
+        abstract void processUnicodeKey(int unicodeKey, boolean down, boolean suppressMetaState);
         abstract void switchKeyboard(int keyboardType);
         abstract void modifiersChanged();
     }
@@ -246,14 +246,17 @@ public class RdpKeyboardMapper
     private boolean isAltLocked = false;
     private boolean isWinLocked = false;
 
-    private boolean forceUnicode;
+    private boolean preferSendingUnicode = true;
 
-    public void init(Context context, boolean forceUnicode)
+    public RdpKeyboardMapper(boolean preferSendingUnicode) {
+        this.preferSendingUnicode = preferSendingUnicode;
+    }
+
+    public void init(Context context)
     {
         if(initialized == true)
             return;
 
-        this.forceUnicode = forceUnicode;
         keymapAndroid = new int[256];
 
         keymapAndroid[KeyEvent.KEYCODE_0] = VK_KEY_0;
@@ -463,15 +466,23 @@ public class RdpKeyboardMapper
 
     public boolean processAndroidKeyEvent(KeyEvent event) {
         int vkcode = getVirtualKeyCode(event.getKeyCode());
-        if (forceUnicode) {
-            vkcode = event.getUnicodeChar() & KEY_FLAG_UNICODE;
+        int unicode = event.getUnicodeChar();
+
+        // If a different unicode character is generated with vs without the metastate, (e.g. ß
+        // which is generated with ALT), then we do not want to send Alt separately with unicode
+        // character, so we suppress sending of the metaState
+        boolean suppressMetaState = unicode != event.getUnicodeChar(0);
+        if (preferSendingUnicode && unicode > 0 && !isSpecialKey(vkcode)) {
+            vkcode = unicode | KEY_FLAG_UNICODE;
         }
 
         switch(event.getAction())
         {
             case KeyEvent.ACTION_UP:
             {
-                if (vkcode == VK_LCONTROL || vkcode == VK_RCONTROL) {
+                if((vkcode & KEY_FLAG_UNICODE) != 0) {
+                    listener.processUnicodeKey(vkcode & (~KEY_FLAG_UNICODE), false, suppressMetaState);
+                } else if (vkcode == VK_LCONTROL || vkcode == VK_RCONTROL) {
                     listener.processVirtualKey(vkcode, false);
                 }
                 return true;
@@ -487,13 +498,13 @@ public class RdpKeyboardMapper
                 //android.util.Log.e("KeyMapper", "VK KeyCode is: " + vkcode);
                 if((vkcode & KEY_FLAG_UNICODE) != 0) {
                     //android.util.Log.i("KeyMapper", "vkcode & KEY_FLAG_UNICODE " + vkcode);
-                    listener.processUnicodeKey(vkcode & (~KEY_FLAG_UNICODE));
+                    listener.processUnicodeKey(vkcode & (~KEY_FLAG_UNICODE), true, suppressMetaState);
                 } else if ((vkcode & KEY_FLAG_SHIFT) != 0){
                     //android.util.Log.i("KeyMapper", "vkcode & KEY_FLAG_SHIFT " + vkcode);
                     vkcode = vkcode & ~KEY_FLAG_SHIFT;
                     listener.processVirtualKey(VK_LSHIFT, true);
                     listener.processVirtualKey(vkcode, true);
-                    listener.processVirtualKey(vkcode, false);                                        
+                    listener.processVirtualKey(vkcode, false);
                     listener.processVirtualKey(VK_LSHIFT, false);
                 // if we got a valid vkcode send it - except for letters/numbers if a modifier is active
                 } else if (vkcode == VK_LCONTROL || vkcode == VK_RCONTROL) {
@@ -509,7 +520,7 @@ public class RdpKeyboardMapper
                     //KeyEvent copy = new KeyEvent(event.getDownTime(), event.getEventTime(),
                     //            event.getAction(), event.getKeyCode(), event.getRepeatCount(),
                     //            0, event.getDeviceId(), event.getScanCode());
-                    listener.processUnicodeKey(event.getUnicodeChar());
+                    listener.processUnicodeKey(event.getUnicodeChar(), true, suppressMetaState);
                 } else {
                     //android.util.Log.i("KeyMapper", "else " + vkcode);
                     return false;
@@ -525,7 +536,8 @@ public class RdpKeyboardMapper
             {
                 String str = event.getCharacters();
                 for(int i = 0; i < str.length(); i++) {
-                    listener.processUnicodeKey(str.charAt(i));
+                    listener.processUnicodeKey(str.charAt(i), true, suppressMetaState);
+                    listener.processUnicodeKey(str.charAt(i), false, suppressMetaState);
                 }
                 return true;
             }
@@ -556,10 +568,10 @@ public class RdpKeyboardMapper
         }
         
         // nope - see if we got a unicode or vk
-        if((extCode & KEY_FLAG_UNICODE) != 0)
-            listener.processUnicodeKey(extCode & (~KEY_FLAG_UNICODE));
-        else
-        {
+        if((extCode & KEY_FLAG_UNICODE) != 0) {
+            listener.processUnicodeKey(extCode & (~KEY_FLAG_UNICODE), true, false);
+            listener.processUnicodeKey(extCode & (~KEY_FLAG_UNICODE), false, false);
+        } else {
             listener.processVirtualKey(extCode, true);            
             listener.processVirtualKey(extCode, false);            
         }
@@ -577,6 +589,14 @@ public class RdpKeyboardMapper
 
     private boolean isModifierPressed() {
         return (shiftPressed || ctrlPressed || altPressed || winPressed);
+    }
+
+    private boolean isSpecialKey(int vkCode) {
+        return (vkCode == VK_LCONTROL || vkCode == VK_RCONTROL ||
+                vkCode == VK_LSHIFT || vkCode == VK_RSHIFT ||
+                vkCode == VK_LMENU || vkCode == VK_RMENU ||
+                vkCode == VK_LWIN || vkCode == VK_RWIN ||
+                vkCode == VK_RETURN || vkCode == VK_TAB);
     }
     
     public int getModifierState(int keycode) {
