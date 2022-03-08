@@ -15,10 +15,11 @@ public class RemoteRdpKeyboard extends RemoteKeyboard {
     protected RdpKeyboardMapper keyboardMapper;
     protected RemoteCanvas canvas;
 
-    public RemoteRdpKeyboard (RfbConnectable r, RemoteCanvas v, Handler h, boolean debugLog) {
+    public RemoteRdpKeyboard (RfbConnectable r, RemoteCanvas v, Handler h, boolean debugLog,
+                              boolean preferSendingUnicode) {
         super(r, v.getContext(), h, debugLog);
         canvas = v;
-        keyboardMapper = new RdpKeyboardMapper(true);
+        keyboardMapper = new RdpKeyboardMapper(preferSendingUnicode);
         keyboardMapper.init(context);
         keyboardMapper.reset((RdpKeyboardMapper.KeyProcessingListener)r);
     }

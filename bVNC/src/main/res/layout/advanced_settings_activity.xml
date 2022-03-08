@@ -214,6 +214,38 @@
             </LinearLayout>
 
             <LinearLayout
+                android:id="@+id/layoutManageOvirtCa"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:padding="10dip">
+
+                <Button
+                    android:id="@+id/buttonManageOvirtCa"
+                    style="?buttonBarButtonStyle"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:onClick="showManageOvirtCaDialog"
+                    android:text="@string/ca_ovirt_manage" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/layoutAppliesForNewConnections"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:padding="10dip">
+
+                <TextView
+                    android:id="@+id/textAppliesForNewConnections"
+                    android:text="@string/applies_to_new_connections_only"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceMedium" />
+
+            </LinearLayout>
+
+            <LinearLayout
                 android:id="@+id/layoutUseLastPositionToolbar"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
@@ -236,21 +268,6 @@
 
             </LinearLayout>
 
-            <LinearLayout
-                android:id="@+id/layoutManageOvirtCa"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:padding="10dip">
-
-                <Button
-                    android:id="@+id/buttonManageOvirtCa"
-                    style="?buttonBarButtonStyle"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:onClick="showManageOvirtCaDialog"
-                    android:text="@string/ca_ovirt_manage" />
-            </LinearLayout>
         </TableLayout>
     </FrameLayout>
 </ScrollView>

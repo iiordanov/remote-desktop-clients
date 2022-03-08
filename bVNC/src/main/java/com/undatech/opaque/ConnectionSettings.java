@@ -385,6 +385,17 @@ public class ConnectionSettings implements Connection, Serializable {
     }
 
     @Override
+    public boolean getPreferSendingUnicode() {
+        // Not used for Opaque
+        return false;
+    }
+
+    @Override
+    public void setPreferSendingUnicode(boolean preferSendingUnicode) {
+        // Not used for Opaque
+    }
+
+    @Override
     public boolean getUseLastPositionToolbarMoved() {
         return useLastPositionToolbarMoved;
     }

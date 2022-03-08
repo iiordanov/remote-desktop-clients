@@ -353,6 +353,14 @@
                     android:textAppearance="?android:attr/textAppearanceMedium" />
             </LinearLayout>
 
+            <CheckBox
+                android:id="@+id/checkboxPreferSendingUnicode"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="left|center_vertical"
+                android:text="@string/prefer_sending_unicode"
+                android:textAppearance="?android:attr/textAppearanceMedium" />
+
             <RadioGroup
                 android:id="@+id/groupRemoteSoundType"
                 android:layout_width="fill_parent"

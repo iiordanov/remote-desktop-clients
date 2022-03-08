@@ -206,6 +206,7 @@ public class Constants {
     public static final String defaultInputMethodTag = "defaultInputMethod";
     public static final String permissionsRequested = "permissionsRequested";
     public static final String positionToolbarLastUsed = "positionToolbarLastUsed";
+    public static final String preferSendingUnicode = "preferSendingUnicode";
 
     public static final String ACTION_USB_PERMISSION = "com.iiordanov.aSPICE.USB_PERMISSION";
     public static final int usbDeviceTimeout = 5000;

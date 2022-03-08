@@ -246,7 +246,7 @@ public class RdpKeyboardMapper
     private boolean isAltLocked = false;
     private boolean isWinLocked = false;
 
-    private boolean preferSendingUnicode = true;
+    private boolean preferSendingUnicode = false;
 
     public RdpKeyboardMapper(boolean preferSendingUnicode) {
         this.preferSendingUnicode = preferSendingUnicode;

@@ -6,7 +6,7 @@ package com.iiordanov.bVNC;
 public abstract class AbstractConnectionBean extends com.antlersoft.android.dbimpl.IdImplementationBase implements IConnectionBean {
 
     public static final String GEN_TABLE_NAME = "CONNECTION_BEAN";
-    public static final int GEN_COUNT = 81;
+    public static final int GEN_COUNT = 82;
 
     // Field constants
     public static final String GEN_FIELD__ID = "_id";
@@ -173,6 +173,9 @@ public abstract class AbstractConnectionBean extends com.antlersoft.android.dbim
     public static final int GEN_ID_ENABLEGFX = 79;
     public static final String GEN_FIELD_ENABLEGFXH264 = "ENABLEGFXH264";
     public static final int GEN_ID_ENABLEGFXH264 = 80;
+
+    public static final String GEN_FIELD_PREFERSENDINGUNICODE = "PREFERSENDINGUNICODE";
+    public static final int GEN_ID_PREFERSENDINGUNICODE = 81;
 
     // SQL Command for creating the table
     public static String GEN_CREATE = "CREATE TABLE CONNECTION_BEAN (" +
@@ -343,6 +346,7 @@ public abstract class AbstractConnectionBean extends com.antlersoft.android.dbim
 
     private boolean gen_enableGfx;
     private boolean gen_enableGfxH264;
+    private boolean gen_preferSendingUnicode;
 
     public String Gen_tableName() { return GEN_TABLE_NAME; }
 
@@ -511,6 +515,8 @@ public abstract class AbstractConnectionBean extends com.antlersoft.android.dbim
     public void setEnableGfx(boolean arg_enableGfx) { gen_enableGfx = arg_enableGfx; }
     public boolean getEnableGfxH264() { return gen_enableGfxH264; }
     public void setEnableGfxH264(boolean arg_enableGfxH264) { gen_enableGfxH264 = arg_enableGfxH264; }
+    public boolean getPreferSendingUnicode() { return gen_preferSendingUnicode; }
+    public void setPreferSendingUnicode(boolean arg_preferSendingUnicode) { gen_preferSendingUnicode = arg_preferSendingUnicode; }
 
     public android.content.ContentValues Gen_getValues() {
         android.content.ContentValues values=new android.content.ContentValues();
@@ -597,6 +603,8 @@ public abstract class AbstractConnectionBean extends com.antlersoft.android.dbim
 
         values.put(GEN_FIELD_ENABLEGFX,(this.gen_enableGfx ? "1" : "0"));
         values.put(GEN_FIELD_ENABLEGFXH264,(this.gen_enableGfxH264 ? "1" : "0"));
+
+        values.put(GEN_FIELD_PREFERSENDINGUNICODE,(this.gen_preferSendingUnicode ? "1" : "0"));
 
         return values;
     }
@@ -695,6 +703,8 @@ public abstract class AbstractConnectionBean extends com.antlersoft.android.dbim
 
         result[79] = cursor.getColumnIndex(GEN_FIELD_ENABLEGFX);
         result[80] = cursor.getColumnIndex(GEN_FIELD_ENABLEGFXH264);
+
+        result[81] = cursor.getColumnIndex(GEN_FIELD_PREFERSENDINGUNICODE);
         return result;
     }
 
@@ -947,6 +957,9 @@ public abstract class AbstractConnectionBean extends com.antlersoft.android.dbim
         if ( columnIndices[GEN_ID_ENABLEGFXH264] >= 0 && ! cursor.isNull(columnIndices[GEN_ID_ENABLEGFXH264])) {
             gen_enableGfxH264 = (cursor.getInt(columnIndices[GEN_ID_ENABLEGFXH264]) != 0);
         }
+        if ( columnIndices[GEN_ID_PREFERSENDINGUNICODE] >= 0 && ! cursor.isNull(columnIndices[GEN_ID_PREFERSENDINGUNICODE])) {
+            gen_preferSendingUnicode = (cursor.getInt(columnIndices[GEN_ID_PREFERSENDINGUNICODE]) != 0);
+        }
     }
 
     /**
@@ -1036,5 +1049,7 @@ public abstract class AbstractConnectionBean extends com.antlersoft.android.dbim
 
         gen_enableGfx = (values.getAsInteger(GEN_FIELD_ENABLEGFX) != 0);
         gen_enableGfxH264 = (values.getAsInteger(GEN_FIELD_ENABLEGFXH264) != 0);
+
+        gen_preferSendingUnicode = (values.getAsInteger(GEN_FIELD_PREFERSENDINGUNICODE) != 0);
     }
 }

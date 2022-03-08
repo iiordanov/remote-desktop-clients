@@ -275,4 +275,7 @@ public interface Connection {
     void setUseLastPositionToolbarY(int useLastPositionToolbarY);
     boolean getUseLastPositionToolbarMoved();
     void setUseLastPositionToolbarMoved(boolean useLastPositionToolbarMoved);
+
+    boolean getPreferSendingUnicode();
+    void setPreferSendingUnicode(boolean preferSendingUnicode);
 }

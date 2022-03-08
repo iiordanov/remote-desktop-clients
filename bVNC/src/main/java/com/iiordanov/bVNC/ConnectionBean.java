@@ -64,15 +64,24 @@ public class ConnectionBean extends AbstractConnectionBean implements Connection
     public static final NewInstance<ConnectionBean> newInstance=new NewInstance<ConnectionBean>() {
         public ConnectionBean get() { return new ConnectionBean(c); }
     };
+
     ConnectionBean(Context context)
     {
         String inputMode = InputHandlerDirectSwipePan.ID;
+        Boolean preferSendingUnicode = false;
+
+        if (context == null) {
+            context = App.getContext();
+        }
+
         if (context != null) {
             inputMode = Utils.querySharedPreferenceString(context, Constants.defaultInputMethodTag,
                     InputHandlerDirectSwipePan.ID);
+            preferSendingUnicode = Utils.querySharedPreferenceBoolean(context, Constants.preferSendingUnicode);
         } else {
-            android.util.Log.w(TAG, "Failed to query default input method, context is null.");
+            android.util.Log.e(TAG, "Failed to query defaults from shared preferences, context is null.");
         }
+
         set_Id(0);
         setAddress("");
         setPassword("");
@@ -148,6 +157,7 @@ public class ConnectionBean extends AbstractConnectionBean implements Connection
 
         setEnableGfx(false);
         setEnableGfxH264(false);
+        setPreferSendingUnicode(preferSendingUnicode);
         c = context;
 
         // These two are not saved in the database since we always save the cert data. 
@@ -159,7 +169,6 @@ public class ConnectionBean extends AbstractConnectionBean implements Connection
         setUseLastPositionToolbarX(0);
         setUseLastPositionToolbarY(0);
         setUseLastPositionToolbarMoved(false);
-
     }
     
     public int getIdHashAlgorithm() {

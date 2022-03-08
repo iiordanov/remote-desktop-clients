@@ -556,7 +556,7 @@ Se você estiver procurando um rápido aumento de desempenho, tente ajustar o Mo
 
     <string name="portrait_mode">Mudar para o modo retrato quando conectado</string>
     <string name="position_toolbar_last_used">Restore Toolbar Position</string>
-    <string name="position_toolbar_last_used_summary">(Applies to New Connections Only)</string>
+    <string name="applies_to_new_connections_only">Aplica-se apenas a novas conexões</string>
 
     <string name="pro_feature_mfa">Parece que seu servidor tem a autenticação de vários fatores ativada. Por favor contribua ao projeto adquirindo a versão Pro que tem suporte para esta funcionalidade. Um link para a versão Pro está disponível no diálogo iniciar.</string>
 

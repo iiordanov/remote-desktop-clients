@@ -90,6 +90,7 @@ public class aRDP extends MainConfiguration {
     private CheckBox checkboxUseSshPubkey;
     private CheckBox checkboxEnableGfx;
     private CheckBox checkboxEnableGfxH264;
+    private CheckBox checkboxPreferSendingUnicode;
 
     @Override
     public void onCreate(Bundle icicle) {
@@ -153,6 +154,7 @@ public class aRDP extends MainConfiguration {
         checkboxVisualStyles = (CheckBox)findViewById(R.id.checkboxVisualStyles);
         checkboxEnableGfx = (CheckBox)findViewById(R.id.checkboxEnableGfx);
         checkboxEnableGfxH264 = (CheckBox)findViewById(R.id.checkboxEnableGfxH264);
+        checkboxPreferSendingUnicode = (CheckBox)findViewById(R.id.checkboxPreferSendingUnicode);
         setConnectionTypeSpinnerAdapter(R.array.rdp_connection_type);
     }
 
@@ -210,6 +212,7 @@ public class aRDP extends MainConfiguration {
         checkboxVisualStyles.setChecked(selected.getVisualStyles());
         checkboxEnableGfx.setChecked(selected.getEnableGfx());
         checkboxEnableGfxH264.setChecked(selected.getEnableGfxH264());
+        checkboxPreferSendingUnicode.setChecked(selected.getPreferSendingUnicode());
 
         /* TODO: Reinstate color spinner but for RDP settings.
         colorSpinner = (Spinner)findViewById(R.id.colorformat);
@@ -272,9 +275,8 @@ public class aRDP extends MainConfiguration {
         selected.setUseDpadAsArrows(checkboxUseDpadAsArrows.isChecked());
         selected.setRotateDpad(checkboxRotateDpad.isChecked());
         selected.setUseLastPositionToolbar(checkboxUseLastPositionToolbar.isChecked());
-        if (!checkboxUseLastPositionToolbar.isChecked()) {
-            selected.setUseLastPositionToolbarMoved(false);
-        }
+        selected.setUseLastPositionToolbarMoved(checkboxUseLastPositionToolbar.isChecked());
+        selected.setPreferSendingUnicode(checkboxPreferSendingUnicode.isChecked());
         // TODO: Reinstate Color model spinner but for RDP settings.
         //selected.setColorModel(((COLORMODEL)colorSpinner.getSelectedItem()).nameString());
     }

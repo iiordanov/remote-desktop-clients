@@ -20,8 +20,6 @@
 package com.undatech.opaque;
 
 import java.io.IOException;
-import java.text.ParseException;
-import java.util.Arrays;
 import java.util.List;
 
 import com.iiordanov.bVNC.Constants;
@@ -31,14 +29,11 @@ import com.undatech.opaque.dialogs.ManageCustomCaFragment;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.content.res.AssetManager;
-import android.content.res.Resources;
 import android.os.Bundle;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
@@ -110,8 +105,7 @@ public class AdvancedSettingsActivity extends FragmentActivity implements Manage
 
         layoutUseLastPositionToolbar = (LinearLayout)findViewById(R.id.layoutUseLastPositionToolbar);
         textUseLastPositionToolbar = (TextView) findViewById(R.id.textUseLastPositionToolbar);
-        String textStrUseLastPositionToolbar = getString(R.string.position_toolbar_last_used) + "\n" + getString(R.string.position_toolbar_last_used_summary);
-        textUseLastPositionToolbar.setText(textStrUseLastPositionToolbar);
+        textUseLastPositionToolbar.setText(getString(R.string.position_toolbar_last_used));
         toggleUseLastPositionToolbar = (ToggleButton)findViewById(R.id.toggleUseLastPositionToolbar);
         toggleUseLastPositionToolbar.setChecked(currentConnection.getUseLastPositionToolbar());
 

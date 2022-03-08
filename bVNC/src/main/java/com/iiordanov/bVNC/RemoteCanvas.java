@@ -537,7 +537,8 @@ public class RemoteCanvas extends AppCompatImageView
                 App.debugLog);
         rfbconn = rdpcomm;
         pointer = new RemoteRdpPointer(rfbconn, RemoteCanvas.this, handler);
-        keyboard = new RemoteRdpKeyboard(rfbconn, RemoteCanvas.this, handler, App.debugLog);
+        keyboard = new RemoteRdpKeyboard(rfbconn, RemoteCanvas.this, handler, App.debugLog,
+                                         connection.getPreferSendingUnicode());
     }
 
     /**
