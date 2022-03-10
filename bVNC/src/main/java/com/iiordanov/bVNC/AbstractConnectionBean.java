@@ -259,7 +259,7 @@ public abstract class AbstractConnectionBean extends com.antlersoft.android.dbim
     "X509KEYSIGNATURE TEXT," +
     "SCREENSHOTFILENAME TEXT," +
     "ENABLEGFX INTEGER," +
-    "ENABLEGFXH264 INTEGER" +
+    "ENABLEGFXH264 INTEGER," +
     "PREFERSENDINGUNICODE INTEGER" +
     ")";
 
