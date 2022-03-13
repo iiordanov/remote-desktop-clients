@@ -228,7 +228,7 @@ func resize_callback(instance: Int32, cl: UnsafeMutableRawPointer?, fbW: Int32, 
     globalStateKeeper?.keepSessionRefreshed()
 }
 
-func draw(data: UnsafeMutablePointer<UInt8>?, fbW: Int32, fbH: Int32, x: Int32, y: Int32, w: Int32, h: Int32) {
+func draw(data: UnsafeMutablePointer<UInt8>?, fbW: Int32, fbH: Int32) {
     UserInterface {
         autoreleasepool {
             globalStateKeeper?.imageView?.image = UIImage(cgImage: imageFromARGB32Bitmap(pixels: data, withWidth: Int(fbW), withHeight: Int(fbH))!)
@@ -244,13 +244,17 @@ func update_callback(instance: Int32, data: UnsafeMutablePointer<UInt8>?, fbW: I
         return false
     }
     
+    globalStateKeeper!.data = data
+    globalStateKeeper!.fbW = fbW
+    globalStateKeeper!.fbH = fbH
+
     let timeNow = CACurrentMediaTime()
     if (timeNow - lastUpdate < 0.032) {
         //print("Last frame drawn less than 50ms ago, discarding frame, scheduling redraw")
-        globalStateKeeper!.rescheduleReDrawTimer(data: data, fbW: fbW, fbH: fbH)
+        globalStateKeeper!.rescheduleReDrawTimer()
     } else {
         //print("Drawing a frame normally.")
-        draw(data: data, fbW: fbW, fbH: fbH, x: x, y: y, w: w, h: h)
+        globalStateKeeper!.reDraw()
     }
     return true
 }

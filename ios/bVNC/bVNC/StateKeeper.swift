@@ -163,13 +163,12 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
         }
     }
     
-    func rescheduleReDrawTimer(data: UnsafeMutablePointer<UInt8>?, fbW: Int32, fbH: Int32) {
-        self.data = data
-        self.fbW = fbW
-        self.fbH = fbH
-        self.reDrawTimer.invalidate()
-        if (self.isDrawing) {
-            self.reDrawTimer = Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(reDraw), userInfo: nil, repeats: false)
+    func rescheduleReDrawTimer() {
+        UserInterface {
+            self.reDrawTimer.invalidate()
+            if (self.isDrawing) {
+                self.reDrawTimer = Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(self.reDraw), userInfo: nil, repeats: false)
+            }
         }
     }
     
