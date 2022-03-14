@@ -313,7 +313,7 @@ public class RdpKeyboardMapper
         keymapAndroid[111] = VK_ESCAPE;
         keymapAndroid[112] = VK_DELETE | VK_EXT_KEY;
         keymapAndroid[113] = VK_LCONTROL;
-        keymapAndroid[114] = VK_RCONTROL;
+        keymapAndroid[114] = VK_RCONTROL | VK_EXT_KEY;
         keymapAndroid[115] = VK_CAPITAL;
         keymapAndroid[116] = VK_SCROLL;
         keymapAndroid[120] = VK_PRINT;
@@ -358,8 +358,8 @@ public class RdpKeyboardMapper
         keymapAndroid[KeyEvent.KEYCODE_POUND] = VK_KEY_3 | KEY_FLAG_SHIFT;
         keymapAndroid[KeyEvent.KEYCODE_STAR] = VK_KEY_8 | KEY_FLAG_SHIFT;
 
-//        keymapAndroid[KeyEvent.KEYCODE_ALT_LEFT] = VK_LMENU;
-//        keymapAndroid[KeyEvent.KEYCODE_ALT_RIGHT] = VK_RMENU;
+        keymapAndroid[KeyEvent.KEYCODE_ALT_LEFT] = VK_LMENU;
+        keymapAndroid[KeyEvent.KEYCODE_ALT_RIGHT] = VK_RMENU | VK_EXT_KEY;
         
 //        keymapAndroid[KeyEvent.KEYCODE_AT] = (KEY_FLAG_UNICODE | 64);
 //        keymapAndroid[KeyEvent.KEYCODE_APOSTROPHE] = (KEY_FLAG_UNICODE | 39);
@@ -464,7 +464,7 @@ public class RdpKeyboardMapper
         this.listener = listener;
     }
 
-    public boolean processAndroidKeyEvent(KeyEvent event) {
+    public boolean processAndroidKeyEvent(KeyEvent event, boolean isRepeat) {
         int vkcode = getVirtualKeyCode(event.getKeyCode());
         int unicode = event.getUnicodeChar();
 
@@ -480,9 +480,9 @@ public class RdpKeyboardMapper
         {
             case KeyEvent.ACTION_UP:
             {
-                if((vkcode & KEY_FLAG_UNICODE) != 0) {
+                if((vkcode & KEY_FLAG_UNICODE) != 0 && !isRepeat) {
                     listener.processUnicodeKey(vkcode & (~KEY_FLAG_UNICODE), false, suppressMetaState);
-                } else if (vkcode == VK_LCONTROL || vkcode == VK_RCONTROL) {
+                } else if (vkcode > 0 && !isRepeat) {
                     listener.processVirtualKey(vkcode, false);
                 }
                 return true;
@@ -507,15 +507,10 @@ public class RdpKeyboardMapper
                     listener.processVirtualKey(vkcode, false);
                     listener.processVirtualKey(VK_LSHIFT, false);
                 // if we got a valid vkcode send it - except for letters/numbers if a modifier is active
-                } else if (vkcode == VK_LCONTROL || vkcode == VK_RCONTROL) {
-                    //android.util.Log.i("KeyMapper", "vkcode > 0" + vkcode);
-                    listener.processVirtualKey(vkcode, true);
                 } else if (vkcode > 0) {
                     //android.util.Log.i("KeyMapper", "vkcode > 0" + vkcode);
                     listener.processVirtualKey(vkcode, true);
-                    listener.processVirtualKey(vkcode, false);
-                }
-                else if(event.getUnicodeChar() != 0) {
+                } else if (event.getUnicodeChar() != 0) {
                     //android.util.Log.i("KeyMapper", "event.getUnicodeChar() != 0 " + vkcode);
                     //KeyEvent copy = new KeyEvent(event.getDownTime(), event.getEventTime(),
                     //            event.getAction(), event.getKeyCode(), event.getRepeatCount(),

@@ -14,14 +14,13 @@ import com.freerdp.freerdpcore.domain.ManualBookmark;
 import com.freerdp.freerdpcore.services.LibFreeRDP;
 import com.undatech.opaque.input.RemoteKeyboard;
 import com.undatech.opaque.input.RdpKeyboardMapper;
+import com.undatech.opaque.input.RemoteKeyboardState;
 import com.undatech.opaque.input.RemotePointer;
 import com.undatech.opaque.util.GeneralUtils;
 
 import java.lang.reflect.Field;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadPoolExecutor;
 
 public class RdpCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyProcessingListener,
                                         LibFreeRDP.UIEventListener, LibFreeRDP.EventListener {
@@ -64,6 +63,8 @@ public class RdpCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyPro
 
     private boolean debugLogging = false;
 
+    public RemoteKeyboardState remoteKeyboardState = null;
+
     public RdpCommunicator(Context context, Handler handler, Viewable viewable, String username,
                            String domain, String password, boolean debugLogging) {
         // This is necessary because it initializes a synchronizedMap referenced later.
@@ -79,6 +80,7 @@ public class RdpCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyPro
         this.domain = domain;
         this.password = password;
         this.debugLogging = debugLogging;
+        this.remoteKeyboardState = new RemoteKeyboardState(debugLogging);
         initSession(username, domain, password);
     }
 
@@ -206,45 +208,53 @@ public class RdpCommunicator implements RfbConnectable, RdpKeyboardMapper.KeyPro
     }
 
     private void sendModifierKeys (boolean down) {
-        if ((metaState & RemoteKeyboard.CTRL_MASK) != 0) {
+        if (remoteKeyboardState.shouldSendModifier(metaState, RemoteKeyboard.CTRL_MASK, down)) {
             GeneralUtils.debugLog(this.debugLogging, TAG, "sendModifierKeys: LCTRL " + down);
             try { Thread.sleep(5); } catch (InterruptedException e) {}
             LibFreeRDP.sendKeyEvent(session.getInstance(), VK_LCONTROL, down);
+            remoteKeyboardState.updateRemoteMetaState(RemoteKeyboard.CTRL_MASK, down);
         }
-        if ((metaState & RemoteKeyboard.RCTRL_MASK) != 0) {
+        if (remoteKeyboardState.shouldSendModifier(metaState, RemoteKeyboard.RCTRL_MASK, down)) {
             GeneralUtils.debugLog(this.debugLogging, TAG, "sendModifierKeys: RCTRL " + down);
             try { Thread.sleep(5); } catch (InterruptedException e) {}
             LibFreeRDP.sendKeyEvent(session.getInstance(), VK_RCONTROL, down);
+            remoteKeyboardState.updateRemoteMetaState(RemoteKeyboard.RCTRL_MASK | VK_EXT_KEY, down);
         }
-        if ((metaState & RemoteKeyboard.ALT_MASK) != 0) {
+        if (remoteKeyboardState.shouldSendModifier(metaState, RemoteKeyboard.ALT_MASK, down)) {
             GeneralUtils.debugLog(this.debugLogging, TAG, "sendModifierKeys: LALT " + down);
             try { Thread.sleep(5); } catch (InterruptedException e) {}
             LibFreeRDP.sendKeyEvent(session.getInstance(), VK_LMENU, down);
+            remoteKeyboardState.updateRemoteMetaState(RemoteKeyboard.ALT_MASK, down);
         }
-        if ((metaState & RemoteKeyboard.RALT_MASK) != 0) {
+        if (remoteKeyboardState.shouldSendModifier(metaState, RemoteKeyboard.RALT_MASK, down)) {
             GeneralUtils.debugLog(this.debugLogging, TAG, "sendModifierKeys: RALT " + down);
             try { Thread.sleep(5); } catch (InterruptedException e) {}
-            LibFreeRDP.sendKeyEvent(session.getInstance(), VK_RMENU, down);
+            LibFreeRDP.sendKeyEvent(session.getInstance(), VK_RMENU | VK_EXT_KEY, down);
+            remoteKeyboardState.updateRemoteMetaState(RemoteKeyboard.RALT_MASK, down);
         }
-        if ((metaState & RemoteKeyboard.SUPER_MASK) != 0) {
+        if (remoteKeyboardState.shouldSendModifier(metaState, RemoteKeyboard.SUPER_MASK, down)) {
             GeneralUtils.debugLog(this.debugLogging, TAG, "sendModifierKeys: LSUPER " + down);
             try { Thread.sleep(5); } catch (InterruptedException e) {}
             LibFreeRDP.sendKeyEvent(session.getInstance(), VK_LWIN | VK_EXT_KEY, down);
+            remoteKeyboardState.updateRemoteMetaState(RemoteKeyboard.SUPER_MASK, down);
         }
-        if ((metaState & RemoteKeyboard.RSUPER_MASK) != 0) {
+        if (remoteKeyboardState.shouldSendModifier(metaState, RemoteKeyboard.RSUPER_MASK, down)) {
             GeneralUtils.debugLog(this.debugLogging, TAG, "sendModifierKeys: RSUPER " + down);
             try { Thread.sleep(5); } catch (InterruptedException e) {}
             LibFreeRDP.sendKeyEvent(session.getInstance(), VK_RWIN | VK_EXT_KEY, down);
+            remoteKeyboardState.updateRemoteMetaState(RemoteKeyboard.RSUPER_MASK, down);
         }
-        if ((metaState & RemoteKeyboard.SHIFT_MASK) != 0) {
+        if (remoteKeyboardState.shouldSendModifier(metaState, RemoteKeyboard.SHIFT_MASK, down)) {
             GeneralUtils.debugLog(this.debugLogging, TAG, "sendModifierKeys: LSHIFT " + down);
             try { Thread.sleep(5); } catch (InterruptedException e) {}
             LibFreeRDP.sendKeyEvent(session.getInstance(), VK_LSHIFT, down);
+            remoteKeyboardState.updateRemoteMetaState(RemoteKeyboard.SHIFT_MASK, down);
         }
-        if ((metaState & RemoteKeyboard.RSHIFT_MASK) != 0) {
+        if (remoteKeyboardState.shouldSendModifier(metaState, RemoteKeyboard.RSHIFT_MASK, down)) {
             GeneralUtils.debugLog(this.debugLogging, TAG, "sendModifierKeys: RSHIFT " + down);
             try { Thread.sleep(5); } catch (InterruptedException e) {}
             LibFreeRDP.sendKeyEvent(session.getInstance(), VK_RSHIFT, down);
+            remoteKeyboardState.updateRemoteMetaState(RemoteKeyboard.RSHIFT_MASK, down);
         }
     }
     

@@ -66,7 +66,7 @@ public class RemoteSpiceKeyboard extends RemoteKeyboard {
         String line = in.readLine();
         HashMap<Integer,Integer[]> table = new HashMap<Integer,Integer[]> (500);
         while (line != null) {
-            GeneralUtils.debugLog(debugLog, TAG, "Layout " + file + " " + line);
+            GeneralUtils.debugLog(debugLogging, TAG, "Layout " + file + " " + line);
             String[] tokens = line.split(" ");
             Integer[] scanCodes = new Integer[tokens.length-1];
             for (int i = 1; i < tokens.length; i++) {
@@ -134,19 +134,19 @@ public class RemoteSpiceKeyboard extends RemoteKeyboard {
         
         // Add shift, ctrl, alt, and super to metaState if necessary.
         if ((eventMetaState & KeyEvent.META_SHIFT_MASK) != 0) {
-            GeneralUtils.debugLog(debugLog, TAG, "convertEventMetaState: KeyEvent.META_SHIFT_MASK");
+            GeneralUtils.debugLog(debugLogging, TAG, "convertEventMetaState: KeyEvent.META_SHIFT_MASK");
             metaState |= SHIFT_MASK;
         }
         if ((eventMetaState & KeyEvent.META_CTRL_MASK) != 0) {
-            GeneralUtils.debugLog(debugLog, TAG, "convertEventMetaState: KeyEvent.META_CTRL_MASK");
+            GeneralUtils.debugLog(debugLogging, TAG, "convertEventMetaState: KeyEvent.META_CTRL_MASK");
             metaState |= CTRL_MASK;
         }
         if ((eventMetaState & altMask) !=0) {
-            GeneralUtils.debugLog(debugLog, TAG, "convertEventMetaState: altMask: " + altMask);
+            GeneralUtils.debugLog(debugLogging, TAG, "convertEventMetaState: altMask: " + altMask);
             metaState |= ALT_MASK;
         }
         if ((eventMetaState &KeyEvent.META_META_MASK) != 0) {
-            GeneralUtils.debugLog(debugLog, TAG, "convertEventMetaState: KeyEvent.META_META_MASK");
+            GeneralUtils.debugLog(debugLogging, TAG, "convertEventMetaState: KeyEvent.META_META_MASK");
             metaState |= SUPER_MASK;
         }
         return metaState;
@@ -157,7 +157,7 @@ public class RemoteSpiceKeyboard extends RemoteKeyboard {
 	}
 
 	public boolean keyEvent(int keyCode, KeyEvent event, int additionalMetaState) {
-        GeneralUtils.debugLog(debugLog, TAG, event.toString());
+        GeneralUtils.debugLog(debugLogging, TAG, event.toString());
         int action = event.getAction();
         boolean down = (action == KeyEvent.ACTION_DOWN);
         // Combine current event meta state with any meta state passed in.
@@ -198,7 +198,7 @@ public class RemoteSpiceKeyboard extends RemoteKeyboard {
 				if (s != null) {
                     int numchars = s.length();
 					for (int i = 0; i < numchars; i++) {
-                        GeneralUtils.debugLog(debugLog, TAG, "Trying to convert unicode to KeyEvent: " + (int)s.charAt(i));
+                        GeneralUtils.debugLog(debugLogging, TAG, "Trying to convert unicode to KeyEvent: " + (int)s.charAt(i));
 						if (!sendUnicode (s.charAt(i), additionalMetaState)) {
 						    writeKeyEvent(true, (int)s.charAt(i), metaState, true, true);
 						}
@@ -237,11 +237,11 @@ public class RemoteSpiceKeyboard extends RemoteKeyboard {
                 }
                 
                 if (unicode > 0) {
-                    GeneralUtils.debugLog(debugLog, TAG, String.format("Got unicode value: %d from event", unicode));
+                    GeneralUtils.debugLog(debugLogging, TAG, String.format("Got unicode value: %d from event", unicode));
                     writeKeyEvent(true, unicode, unicodeMetaState, down, false);
                 } else {
                     // We were unable to obtain a unicode, or the list of scancodes was empty, so we have to try converting a keyCode.
-                    GeneralUtils.debugLog(debugLog, TAG, "Could not get unicode or determine scancodes for event. Keycode: " + event.getKeyCode());
+                    GeneralUtils.debugLog(debugLogging, TAG, "Could not get unicode or determine scancodes for event. Keycode: " + event.getKeyCode());
                     writeKeyEvent(false, event.getKeyCode(), metaState, down, false);
                 }
 			}
@@ -275,20 +275,20 @@ public class RemoteSpiceKeyboard extends RemoteKeyboard {
                 int meta = metaState;
                 //GeneralUtils.debugLog(debugLog, TAG, "Got back possibly masked scanCode: " + scode);
                 if ((scode & SCANCODE_SHIFT_MASK) != 0) {
-                    GeneralUtils.debugLog(debugLog, TAG, "Found Shift mask.");
+                    GeneralUtils.debugLog(debugLogging, TAG, "Found Shift mask.");
                     meta |= SHIFT_MASK;
                     scode &= ~SCANCODE_SHIFT_MASK;
                 }
                 if ((scode & SCANCODE_ALTGR_MASK) != 0) {
-                    GeneralUtils.debugLog(debugLog, TAG, "Found AltGr mask.");
+                    GeneralUtils.debugLog(debugLogging, TAG, "Found AltGr mask.");
                     meta |= RALT_MASK;
                     scode &= ~SCANCODE_ALTGR_MASK;
                 }
-                GeneralUtils.debugLog(debugLog, TAG, "Will send scanCode: " + scode + " with meta: " + meta);
+                GeneralUtils.debugLog(debugLogging, TAG, "Will send scanCode: " + scode + " with meta: " + meta);
                 rfb.writeKeyEvent(scode, meta, down);
                 if (sendUpEvents) {
                     rfb.writeKeyEvent(scode, meta, false);
-                    GeneralUtils.debugLog(debugLog, TAG, "Unsetting lastDownMetaState");
+                    GeneralUtils.debugLog(debugLogging, TAG, "Unsetting lastDownMetaState");
                     lastDownMetaState = 0;
                 }
             }
@@ -303,7 +303,7 @@ public class RemoteSpiceKeyboard extends RemoteKeyboard {
         int y = pointer.getY();
         
         if (meta.isMouseClick()) {
-            GeneralUtils.debugLog(debugLog, TAG, "event is a mouse click");
+            GeneralUtils.debugLog(debugLogging, TAG, "event is a mouse click");
             int button = meta.getMouseButtons();
             switch (button) {
             case RemoteVncPointer.MOUSE_BUTTON_LEFT:

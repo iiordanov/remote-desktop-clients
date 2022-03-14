@@ -26,6 +26,7 @@ import android.os.SystemClock;
 import android.view.KeyCharacterMap;
 import android.view.KeyEvent;
 
+import com.freerdp.freerdpcore.services.LibFreeRDP;
 import com.undatech.opaque.RfbConnectable;
 import com.undatech.opaque.util.GeneralUtils;
 
@@ -86,14 +87,16 @@ public abstract class RemoteKeyboard {
     // Variable holding the state of the last metaState resulting from a button press.
     protected int lastDownMetaState = 0;
 
-    protected boolean debugLog = false;
-    
-    public RemoteKeyboard (RfbConnectable r, Context v, Handler h, boolean debugLog) {
+    protected boolean debugLogging = false;
+
+    protected static int remoteKeyboardMetaState = 0;
+
+    public RemoteKeyboard (RfbConnectable r, Context v, Handler h, boolean debugLogging) {
         this.rfb = r;
         this.context = v;
         this.handler = h;
-        this.debugLog = debugLog;
-        android.util.Log.d(TAG, String.format("debugLog: %b", debugLog));
+        this.debugLogging = debugLogging;
+        android.util.Log.d(TAG, String.format("debugLog: %b", debugLogging));
         keyRepeater = new KeyRepeater (this, h);
     }
 
@@ -291,60 +294,64 @@ public abstract class RemoteKeyboard {
         // We have to leave KeyEvent.KEYCODE_ALT_LEFT for symbol input on a default hardware keyboard.
         boolean defaultHardwareKbd = (event.getScanCode() != 0 && event.getDeviceId() == 0);
         if (!defaultHardwareKbd) {
-            GeneralUtils.debugLog(debugLog, TAG, "convertEventMetaState: Will not ignore KeyEvent.META_ALT_LEFT_ON if present");
+            GeneralUtils.debugLog(debugLogging, TAG, "convertEventMetaState: Will not ignore KeyEvent.META_ALT_LEFT_ON if present");
             leftAltMetaStateMask = KeyEvent.META_ALT_LEFT_ON;
         } else {
-            GeneralUtils.debugLog(debugLog, TAG, "convertEventMetaState: Ignoring KeyEvent.META_ALT_LEFT_ON to allow for symbol input on default hardware keyboards");
+            GeneralUtils.debugLog(debugLogging, TAG, "convertEventMetaState: Ignoring KeyEvent.META_ALT_LEFT_ON to allow for symbol input on default hardware keyboards");
         }
         
         // Add shift, ctrl, alt, and super to metaState if necessary.
         if ((eventMetaState & KeyEvent.META_SHIFT_ON) != 0) {
-            GeneralUtils.debugLog(debugLog, TAG, "convertEventMetaState: KeyEvent.META_SHIFT_ON");
+            GeneralUtils.debugLog(debugLogging, TAG, "convertEventMetaState: KeyEvent.META_SHIFT_ON");
             metaState |= SHIFT_MASK;
         }
         if ((eventMetaState & KeyEvent.META_SHIFT_LEFT_ON) != 0) {
-            GeneralUtils.debugLog(debugLog, TAG, "convertEventMetaState: KeyEvent.META_SHIFT_LEFT_ON");
+            GeneralUtils.debugLog(debugLogging, TAG, "convertEventMetaState: KeyEvent.META_SHIFT_LEFT_ON");
             metaState |= SHIFT_MASK;
         }
         if ((eventMetaState & KeyEvent.META_SHIFT_RIGHT_ON) != 0) {
-            GeneralUtils.debugLog(debugLog, TAG, "convertEventMetaState: KeyEvent.META_SHIFT_RIGHT_ON");
+            GeneralUtils.debugLog(debugLogging, TAG, "convertEventMetaState: KeyEvent.META_SHIFT_RIGHT_ON");
             metaState |= RSHIFT_MASK;
+            metaState &= ~SHIFT_MASK;
         }
         if ((eventMetaState & KeyEvent.META_CTRL_ON) != 0) {
-            GeneralUtils.debugLog(debugLog, TAG, "convertEventMetaState: KeyEvent.META_CTRL_ON");
+            GeneralUtils.debugLog(debugLogging, TAG, "convertEventMetaState: KeyEvent.META_CTRL_ON");
             metaState |= CTRL_MASK;
         }
         if ((eventMetaState & KeyEvent.META_CTRL_LEFT_ON) != 0) {
-            GeneralUtils.debugLog(debugLog, TAG, "convertEventMetaState: KeyEvent.META_CTRL_LEFT_ON");
+            GeneralUtils.debugLog(debugLogging, TAG, "convertEventMetaState: KeyEvent.META_CTRL_LEFT_ON");
             metaState |= CTRL_MASK;
         }
         if ((eventMetaState & KeyEvent.META_CTRL_RIGHT_ON) != 0) {
-            GeneralUtils.debugLog(debugLog, TAG, "convertEventMetaState: KeyEvent.META_CTRL_RIGHT_ON");
+            GeneralUtils.debugLog(debugLogging, TAG, "convertEventMetaState: KeyEvent.META_CTRL_RIGHT_ON");
             metaState |= RCTRL_MASK;
+            metaState &= ~CTRL_MASK;
         }
         if ((eventMetaState & KeyEvent.META_ALT_ON) != 0) {
-            GeneralUtils.debugLog(debugLog, TAG, "convertEventMetaState: KeyEvent.META_ALT_ON");
+            GeneralUtils.debugLog(debugLogging, TAG, "convertEventMetaState: KeyEvent.META_ALT_ON");
             metaState |= ALT_MASK;
         }
         if ((eventMetaState & leftAltMetaStateMask) !=0) {
-            GeneralUtils.debugLog(debugLog, TAG, "convertEventMetaState: KeyEvent.META_ALT_LEFT_ON");
+            GeneralUtils.debugLog(debugLogging, TAG, "convertEventMetaState: KeyEvent.META_ALT_LEFT_ON");
             metaState |= ALT_MASK;
         }
         if ((eventMetaState & KeyEvent.META_ALT_RIGHT_ON) !=0) {
-            GeneralUtils.debugLog(debugLog, TAG, "convertEventMetaState: KeyEvent.META_ALT_RIGHT_ON");
+            GeneralUtils.debugLog(debugLogging, TAG, "convertEventMetaState: KeyEvent.META_ALT_RIGHT_ON");
             metaState |= RALT_MASK;
+            metaState &= ~ALT_MASK;
         }
         if ((eventMetaState & KeyEvent.META_META_ON) != 0) {
-            GeneralUtils.debugLog(debugLog, TAG, "convertEventMetaState: KeyEvent.META_META_ON");
+            GeneralUtils.debugLog(debugLogging, TAG, "convertEventMetaState: KeyEvent.META_META_ON");
             metaState |= SUPER_MASK;
         }
         if ((eventMetaState & KeyEvent.META_META_LEFT_ON) != 0) {
-            GeneralUtils.debugLog(debugLog, TAG, "convertEventMetaState: KeyEvent.META_META_LEFT_ON");
+            GeneralUtils.debugLog(debugLogging, TAG, "convertEventMetaState: KeyEvent.META_META_LEFT_ON");
             metaState |= SUPER_MASK;
         }
         if ((eventMetaState & KeyEvent.META_META_RIGHT_ON) != 0) {
-            GeneralUtils.debugLog(debugLog, TAG, "convertEventMetaState: KeyEvent.META_META_RIGHT_ON");
+            GeneralUtils.debugLog(debugLogging, TAG, "convertEventMetaState: KeyEvent.META_META_RIGHT_ON");
             metaState |= RSUPER_MASK;
+            metaState &= ~SUPER_MASK;
         }
         
         return metaState;
@@ -366,5 +373,28 @@ public abstract class RemoteKeyboard {
                     event.getScanCode());
         }
         return evt;
+    }
+
+    public boolean shouldDropRepeatModifierKeys(KeyEvent event) {
+        int keyCode = event.getKeyCode();
+        boolean shouldDrop = false;
+
+        switch(keyCode) {
+            case KeyEvent.KEYCODE_CTRL_LEFT:
+            case KeyEvent.KEYCODE_CTRL_RIGHT:
+            case KeyEvent.KEYCODE_ALT_LEFT:
+            case KeyEvent.KEYCODE_ALT_RIGHT:
+            case KeyEvent.KEYCODE_SHIFT_LEFT:
+            case KeyEvent.KEYCODE_SHIFT_RIGHT:
+            case KeyEvent.KEYCODE_META_LEFT:
+            case KeyEvent.KEYCODE_META_RIGHT:
+            case KeyEvent.KEYCODE_DPAD_CENTER:
+                if (event.getRepeatCount() > 0) {
+                    GeneralUtils.debugLog(this.debugLogging, TAG, "detected repeat modifier keys. Dropping...");
+                    shouldDrop = true;
+                }
+                break;
+        }
+        return shouldDrop;
     }
 }

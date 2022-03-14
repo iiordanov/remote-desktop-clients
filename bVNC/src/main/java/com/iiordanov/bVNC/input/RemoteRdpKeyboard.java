@@ -6,6 +6,7 @@ import android.view.KeyEvent;
 
 import com.iiordanov.bVNC.App;
 import com.iiordanov.bVNC.RemoteCanvas;
+import com.undatech.opaque.RdpCommunicator;
 import com.undatech.opaque.RfbConnectable;
 import com.undatech.opaque.input.RdpKeyboardMapper;
 import com.undatech.opaque.util.GeneralUtils;
@@ -14,10 +15,12 @@ public class RemoteRdpKeyboard extends RemoteKeyboard {
     private final static String TAG = "RemoteRdpKeyboard";
     protected RdpKeyboardMapper keyboardMapper;
     protected RemoteCanvas canvas;
+    private RdpCommunicator rdpcomm;
 
-    public RemoteRdpKeyboard (RfbConnectable r, RemoteCanvas v, Handler h, boolean debugLog,
+    public RemoteRdpKeyboard (RdpCommunicator r, RemoteCanvas v, Handler h, boolean debugLog,
                               boolean preferSendingUnicode) {
         super(r, v.getContext(), h, debugLog);
+        rdpcomm = r;
         canvas = v;
         keyboardMapper = new RdpKeyboardMapper(preferSendingUnicode);
         keyboardMapper.init(context);
@@ -26,8 +29,13 @@ public class RemoteRdpKeyboard extends RemoteKeyboard {
     
     public boolean processLocalKeyEvent(int keyCode, KeyEvent evt, int additionalMetaState) {
         GeneralUtils.debugLog(App.debugLog, TAG, "processLocalKeyEvent: " + evt.toString() + " " + keyCode);
+        // Drop repeated modifiers
+        if (shouldDropRepeatModifierKeys(evt))
+            return true;
+        boolean isRepeat = evt.getRepeatCount() > 0;
+        rdpcomm.remoteKeyboardState.detectHardwareMetaState(evt);
 
-        if (rfb != null && rfb.isInNormalProtocol()) {
+        if (rdpcomm != null && rdpcomm.isInNormalProtocol()) {
             RemotePointer pointer = canvas.getPointer();
             boolean down = (evt.getAction() == KeyEvent.ACTION_DOWN) ||
                            (evt.getAction() == KeyEvent.ACTION_MULTIPLE);            
@@ -36,49 +44,19 @@ public class RemoteRdpKeyboard extends RemoteKeyboard {
             if (keyCode == KeyEvent.KEYCODE_MENU)
                 return true;                           // Ignore menu key
 
-            if (pointer.hardwareButtonsAsMouseEvents(keyCode, evt, metaState|onScreenMetaState|hardwareMetaState))
+            if (pointer.hardwareButtonsAsMouseEvents(keyCode, evt, metaState|onScreenMetaState))
                 return true;
 
             // Detect whether this event is coming from a default hardware keyboard.
-            boolean defaultHardwareKbd = (evt.getDeviceId() == 0);
-            if (!down) {
-                switch (evt.getScanCode()) {
-                case SCAN_LEFTCTRL:
-                case SCAN_RIGHTCTRL:
-                    hardwareMetaState &= ~CTRL_MASK;
-                    break;
-                }
-                
-                switch(keyCode) {
-                case KeyEvent.KEYCODE_DPAD_CENTER:
-                    hardwareMetaState &= ~CTRL_MASK;
-                    break;
-                }
-            } else {
-                // Look for standard scan-codes from hardware keyboards
-                switch (evt.getScanCode()) {
-                case SCAN_LEFTCTRL:
-                case SCAN_RIGHTCTRL:
-                    hardwareMetaState |= CTRL_MASK;
-                    break;
-                }
-                
-                switch(keyCode) {
-                case KeyEvent.KEYCODE_DPAD_CENTER:
-                    hardwareMetaState |= CTRL_MASK;
-                    break;
-                }
-            }
-
-            metaState = onScreenMetaState|hardwareMetaState|metaState;
+            metaState = onScreenMetaState|metaState;
 
             // Update the meta-state with writeKeyEvent.
             if (down) {
-                rfb.writeKeyEvent(keyCode, metaState, down);
+                rdpcomm.writeKeyEvent(keyCode, metaState, down);
                 evt = injectMetaState(evt, metaState);
                 lastDownMetaState = metaState;
             } else {
-                rfb.writeKeyEvent(keyCode, lastDownMetaState, down);
+                rdpcomm.writeKeyEvent(keyCode, lastDownMetaState, down);
                 evt = injectMetaState(evt, lastDownMetaState);
                 lastDownMetaState = 0;
             }
@@ -91,13 +69,13 @@ public class RemoteRdpKeyboard extends RemoteKeyboard {
                     int numchars = s.length();
                     for (int i = 0; i < numchars; i++) {
                         KeyEvent event = new KeyEvent(evt.getEventTime(), s.substring(i, i+1), KeyCharacterMap.FULL, 0);
-                        keyboardMapper.processAndroidKeyEvent(event);
+                        keyboardMapper.processAndroidKeyEvent(event, isRepeat);
                     }
                 }
                 return true;
             } else {
                 // Send the key to be processed through the KeyboardMapper.
-                return keyboardMapper.processAndroidKeyEvent(evt);
+                return keyboardMapper.processAndroidKeyEvent(evt, isRepeat);
             }
         } else {
             return false;
@@ -114,33 +92,33 @@ public class RemoteRdpKeyboard extends RemoteKeyboard {
             int button = meta.getMouseButtons();
             switch (button) {
             case RemoteVncPointer.MOUSE_BUTTON_LEFT:
-                pointer.leftButtonDown(x, y, meta.getMetaFlags()|onScreenMetaState|hardwareMetaState);
+                pointer.leftButtonDown(x, y, meta.getMetaFlags()|onScreenMetaState);
                 break;
             case RemoteVncPointer.MOUSE_BUTTON_RIGHT:
-                pointer.rightButtonDown(x, y, meta.getMetaFlags()|onScreenMetaState|hardwareMetaState);
+                pointer.rightButtonDown(x, y, meta.getMetaFlags()|onScreenMetaState);
                 break;
             case RemoteVncPointer.MOUSE_BUTTON_MIDDLE:
-                pointer.middleButtonDown(x, y, meta.getMetaFlags()|onScreenMetaState|hardwareMetaState);
+                pointer.middleButtonDown(x, y, meta.getMetaFlags()|onScreenMetaState);
                 break;
             case RemoteVncPointer.MOUSE_BUTTON_SCROLL_UP:
-                pointer.scrollUp(x, y, meta.getMetaFlags()|onScreenMetaState|hardwareMetaState);
+                pointer.scrollUp(x, y, meta.getMetaFlags()|onScreenMetaState);
                 break;
             case RemoteVncPointer.MOUSE_BUTTON_SCROLL_DOWN:
-                pointer.scrollDown(x, y, meta.getMetaFlags()|onScreenMetaState|hardwareMetaState);
+                pointer.scrollDown(x, y, meta.getMetaFlags()|onScreenMetaState);
                 break;
             }
             try { Thread.sleep(50); } catch (InterruptedException e) {}
-            pointer.releaseButton(x, y, meta.getMetaFlags()|onScreenMetaState|hardwareMetaState);
+            pointer.releaseButton(x, y, meta.getMetaFlags()|onScreenMetaState);
 
-            //rfb.writePointerEvent(x, y, meta.getMetaFlags()|onScreenMetaState|hardwareMetaState, button);
-            //rfb.writePointerEvent(x, y, meta.getMetaFlags()|onScreenMetaState|hardwareMetaState, 0);
+            //rfb.writePointerEvent(x, y, meta.getMetaFlags()|onScreenMetaState, button);
+            //rfb.writePointerEvent(x, y, meta.getMetaFlags()|onScreenMetaState, 0);
         } else if (meta.equals(MetaKeyBean.keyCtrlAltDel)) {
             // TODO: I should not need to treat this specially anymore.
-            int savedMetaState = onScreenMetaState|hardwareMetaState;
+            int savedMetaState = onScreenMetaState;
             // Update the metastate
             rfb.writeKeyEvent(0, RemoteKeyboard.CTRL_MASK|RemoteKeyboard.ALT_MASK, false);
-            keyboardMapper.processAndroidKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, 112));
-            keyboardMapper.processAndroidKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, 112));
+            keyboardMapper.processAndroidKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, 112), false);
+            keyboardMapper.processAndroidKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, 112), false);
             rfb.writeKeyEvent(0, savedMetaState, false);
         } else {
             sendKeySym (meta.getKeySym(), meta.getMetaFlags());
