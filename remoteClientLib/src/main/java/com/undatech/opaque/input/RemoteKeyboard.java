@@ -16,8 +16,6 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307,
  * USA.
  */
-
-
 package com.undatech.opaque.input;
 
 import android.content.Context;
@@ -25,8 +23,6 @@ import android.os.Handler;
 import android.os.SystemClock;
 import android.view.KeyCharacterMap;
 import android.view.KeyEvent;
-
-import com.freerdp.freerdpcore.services.LibFreeRDP;
 import com.undatech.opaque.RfbConnectable;
 import com.undatech.opaque.util.GeneralUtils;
 
@@ -388,13 +384,13 @@ public abstract class RemoteKeyboard {
             case KeyEvent.KEYCODE_SHIFT_RIGHT:
             case KeyEvent.KEYCODE_META_LEFT:
             case KeyEvent.KEYCODE_META_RIGHT:
-            case KeyEvent.KEYCODE_DPAD_CENTER:
                 if (event.getRepeatCount() > 0) {
                     GeneralUtils.debugLog(this.debugLogging, TAG, "detected repeat modifier keys. Dropping...");
                     shouldDrop = true;
                 }
                 break;
         }
+
         return shouldDrop;
     }
 }

@@ -50,7 +50,7 @@ import com.undatech.remoteClientUi.*;
  * This class has no knowledge of the android-specific UI; it sees framebuffer updates
  * and input events as defined in the RFB protocol.
  */
-class RfbProto implements RfbConnectable {
+class RfbProto extends RfbConnectable {
 
     public class RfbPasswordAuthenticationException extends Exception {
         public RfbPasswordAuthenticationException(String errorMessage) {
@@ -341,7 +341,8 @@ class RfbProto implements RfbConnectable {
     //
     RfbProto(Decoder decoder, RemoteCanvas canvas, int preferredEncoding,
              boolean viewOnly, boolean sslTunneled, int hashAlgorithm,
-             String hash, String cert) {
+             String hash, String cert, boolean debugLogging) {
+        super(debugLogging);
         this.sslTunneled = sslTunneled;
         this.decoder = decoder;
         this.viewOnly = viewOnly;

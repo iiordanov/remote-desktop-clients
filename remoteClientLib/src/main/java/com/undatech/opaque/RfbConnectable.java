@@ -19,25 +19,38 @@
 
 package com.undatech.opaque;
 
-import java.io.IOException;
+import com.undatech.opaque.input.RemoteKeyboardState;
+import java.util.HashMap;
+import java.util.Map;
 
-public interface RfbConnectable {
-    int framebufferWidth ();
-    int framebufferHeight ();
-    String desktopName ();
-    void requestUpdate (boolean incremental);
-    void requestResolution (int x, int y) throws Exception;
-    void writeClientCutText (String text);
-    public void setIsInNormalProtocol (boolean state);
-    boolean isInNormalProtocol();
-    String getEncoding ();
-    void writePointerEvent(int x, int y, int metaState, int pointerMask, boolean relative);
-    void writeKeyEvent(int key, int metaState, boolean down);
-    void writeSetPixelFormat(int bitsPerPixel, int depth, boolean bigEndian,
-               boolean trueColour, int redMax, int greenMax, int blueMax,
-               int redShift, int greenShift, int blueShift, boolean fGreyScale);
-    void writeFramebufferUpdateRequest(int x, int y, int w, int h,    boolean b);
-    void close();
-    boolean isCertificateAccepted();
-    void setCertificateAccepted(boolean certificateAccepted);
+public abstract class RfbConnectable {
+    Map<Integer, Integer> modifierMap = new HashMap<>();
+    public RemoteKeyboardState remoteKeyboardState = null;
+    protected boolean debugLogging = false;
+    protected int metaState = 0;
+
+    public RfbConnectable(boolean debugLogging) {
+        this.debugLogging = debugLogging;
+        this.remoteKeyboardState = new RemoteKeyboardState(debugLogging);
+    }
+
+    public abstract int framebufferWidth ();
+    public abstract int framebufferHeight ();
+    public abstract String desktopName ();
+    public abstract void requestUpdate (boolean incremental);
+    public abstract void requestResolution (int x, int y) throws Exception;
+    public abstract void writeClientCutText (String text);
+    public abstract void setIsInNormalProtocol (boolean state);
+    public abstract boolean isInNormalProtocol();
+    public abstract String getEncoding ();
+    public abstract void writePointerEvent(int x, int y, int metaState, int pointerMask, boolean relative);
+    public abstract void writeKeyEvent(int key, int metaState, boolean down);
+    public abstract void writeSetPixelFormat(int bitsPerPixel, int depth, boolean bigEndian,
+                                             boolean trueColour, int redMax, int greenMax, int blueMax,
+                                             int redShift, int greenShift, int blueShift, boolean fGreyScale);
+
+    public abstract void writeFramebufferUpdateRequest(int x, int y, int w, int h,    boolean b);
+    public abstract void close();
+    public abstract boolean isCertificateAccepted();
+    public abstract void setCertificateAccepted(boolean certificateAccepted);
 }

@@ -573,7 +573,8 @@ public class RemoteCanvas extends AppCompatImageView
         boolean sslTunneled = connection.getConnectionType() == Constants.CONN_TYPE_STUNNEL;
         decoder = new Decoder(this, connection.getUseLocalCursor() == Constants.CURSOR_FORCE_LOCAL);
         rfb = new RfbProto(decoder, this, connection.getPrefEncoding(), connection.getViewOnly(),
-                sslTunneled, connection.getIdHashAlgorithm(), connection.getIdHash(), connection.getX509KeySignature());
+                sslTunneled, connection.getIdHashAlgorithm(), connection.getIdHash(), connection.getX509KeySignature(),
+                App.debugLog);
 
         rfbconn = rfb;
         pointer = new RemoteVncPointer(rfbconn, RemoteCanvas.this, handler);

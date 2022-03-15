@@ -7,7 +7,6 @@ import android.view.KeyEvent;
 import com.iiordanov.bVNC.App;
 import com.iiordanov.bVNC.RemoteCanvas;
 import com.undatech.opaque.RdpCommunicator;
-import com.undatech.opaque.RfbConnectable;
 import com.undatech.opaque.input.RdpKeyboardMapper;
 import com.undatech.opaque.util.GeneralUtils;
 

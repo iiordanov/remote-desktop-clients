@@ -78,86 +78,18 @@ public class RemoteSpiceKeyboard extends RemoteKeyboard {
         return table;
     }
 
-	/**
-	 * Sets the hardwareMetaState based on certain keys and scancodes being detected.
-	 * @param keyCode
-	 * @param event
-	 * @param down
-	 */
-	private void setHardwareMetaState (int keyCode, KeyEvent event, boolean down) {
-        // Detect whether this event is coming from a default hardware keyboard.
-        boolean defaultHardwareKbd = (event.getDeviceId() == 0);
-        
-		int metaMask = 0;
-		switch (event.getScanCode()) {
-		case SCAN_LEFTCTRL:
-		case SCAN_RIGHTCTRL:
-			metaMask |= CTRL_MASK;
-			break;
-		}
-		
-		switch(keyCode) {
-		case KeyEvent.KEYCODE_DPAD_CENTER:
-			metaMask |= CTRL_MASK;
-			break;
-        case KeyEvent.KEYCODE_ALT_LEFT:
-            // Leaving KeyEvent.KEYCODE_ALT_LEFT for symbol input on hardware keyboards.
-            if (!defaultHardwareKbd)
-                metaMask |= ALT_MASK;
-            break;
-		case KeyEvent.KEYCODE_ALT_RIGHT:
-			metaMask |= RALT_MASK;
-			break;
-		}
-		
-		if (!down) {
-			hardwareMetaState &= ~metaMask;
-		} else {
-			hardwareMetaState |= metaMask;
-		}
-	}
-
-	/**
-     * Converts event meta state to our meta state.
-     * @param event
-     * @return
-     */
-    protected int convertEventMetaState (KeyEvent event, int eventMetaState) {
-        int metaState = 0;
-        int altMask = KeyEvent.META_ALT_RIGHT_ON;
-        // Detect whether this event is coming from a default hardware keyboard.
-        // We have to leave KeyEvent.KEYCODE_ALT_LEFT for symbol input on a default hardware keyboard.
-        boolean defaultHardwareKbd = (event.getScanCode() != 0 && event.getDeviceId() == 0);
-        if (!defaultHardwareKbd) {
-            altMask = KeyEvent.META_ALT_MASK;
-        }
-        
-        // Add shift, ctrl, alt, and super to metaState if necessary.
-        if ((eventMetaState & KeyEvent.META_SHIFT_MASK) != 0) {
-            GeneralUtils.debugLog(debugLogging, TAG, "convertEventMetaState: KeyEvent.META_SHIFT_MASK");
-            metaState |= SHIFT_MASK;
-        }
-        if ((eventMetaState & KeyEvent.META_CTRL_MASK) != 0) {
-            GeneralUtils.debugLog(debugLogging, TAG, "convertEventMetaState: KeyEvent.META_CTRL_MASK");
-            metaState |= CTRL_MASK;
-        }
-        if ((eventMetaState & altMask) !=0) {
-            GeneralUtils.debugLog(debugLogging, TAG, "convertEventMetaState: altMask: " + altMask);
-            metaState |= ALT_MASK;
-        }
-        if ((eventMetaState &KeyEvent.META_META_MASK) != 0) {
-            GeneralUtils.debugLog(debugLogging, TAG, "convertEventMetaState: KeyEvent.META_META_MASK");
-            metaState |= SUPER_MASK;
-        }
-        return metaState;
-    }
-
 	public boolean processLocalKeyEvent(int keyCode, KeyEvent event, int additionalMetaState) {
 		return keyEvent(keyCode, event, additionalMetaState);
 	}
 
 	public boolean keyEvent(int keyCode, KeyEvent event, int additionalMetaState) {
         GeneralUtils.debugLog(debugLogging, TAG, event.toString());
+        // Drop repeated modifiers
+        if (shouldDropRepeatModifierKeys(event))
+            return true;
+        boolean isRepeat = event.getRepeatCount() > 0;
+        rfb.remoteKeyboardState.detectHardwareMetaState(event);
+
         int action = event.getAction();
         boolean down = (action == KeyEvent.ACTION_DOWN);
         // Combine current event meta state with any meta state passed in.
@@ -171,26 +103,15 @@ public class RemoteSpiceKeyboard extends RemoteKeyboard {
             spicecomm.writeKeyEvent(event.getScanCode(), 0, down);
             return true;
         }*/
-        
-	    // Drop some meta key events which may be used to produce unicode characters.
-	    if (down &&
-	        (keyCode == KeyEvent.KEYCODE_ALT_LEFT || keyCode == KeyEvent.KEYCODE_ALT_RIGHT ||
-	         keyCode == KeyEvent.KEYCODE_SHIFT_LEFT || keyCode == KeyEvent.KEYCODE_SHIFT_RIGHT)) {
-            lastDownMetaState = metaState;
-	        return true;
-	    }
-	    
-		// Set the hardware meta state from any special keys pressed.
-		setHardwareMetaState (keyCode, event, down);
-		
+
 		// Ignore menu key and handle other hardware buttons here.
 		if (keyCode == KeyEvent.KEYCODE_MENU ||
 			canvas.getPointer().hardwareButtonsAsMouseEvents(keyCode,
 															 event,
-															 metaState|onScreenMetaState|hardwareMetaState)) {
+															 metaState|onScreenMetaState)) {
 		} else if (rfb != null && rfb.isInNormalProtocol()) {
 			// Combine metaState
-			metaState = onScreenMetaState|hardwareMetaState|metaState;
+			metaState = onScreenMetaState|metaState;
 			
 			// If the event consists of multiple unicode characters, send them one by one.
 			if (action == KeyEvent.ACTION_MULTIPLE) {
@@ -224,7 +145,7 @@ public class RemoteSpiceKeyboard extends RemoteKeyboard {
                     } else {
                         // We managed to get a unicode value with ALT potentially enabled, and valid scancodes.
                         // So convert and send that over without sending ALT as meta-state.
-                        unicodeMetaState = additionalMetaState|onScreenMetaState|hardwareMetaState|
+                        unicodeMetaState = additionalMetaState|onScreenMetaState|
                                        convertEventMetaState(event, event.getMetaState()&~KeyEvent.META_SHIFT_MASK&~KeyEvent.META_ALT_MASK);
                     }
                 }
@@ -232,7 +153,7 @@ public class RemoteSpiceKeyboard extends RemoteKeyboard {
                 if (unicode <= 0) {
                     // Try to get a unicode value without ALT mask and if successful do not mask ALT out of the meta-state.
                     unicode = event.getUnicodeChar(event.getMetaState()&~UNICODE_META_MASK&~KeyEvent.META_ALT_MASK);
-                    unicodeMetaState = additionalMetaState|onScreenMetaState|hardwareMetaState|
+                    unicodeMetaState = additionalMetaState|onScreenMetaState|
                                        convertEventMetaState(event, event.getMetaState()&~KeyEvent.META_SHIFT_MASK);
                 }
                 
@@ -307,26 +228,26 @@ public class RemoteSpiceKeyboard extends RemoteKeyboard {
             int button = meta.getMouseButtons();
             switch (button) {
             case RemoteVncPointer.MOUSE_BUTTON_LEFT:
-                pointer.leftButtonDown(x, y, meta.getMetaFlags()|onScreenMetaState|hardwareMetaState);
+                pointer.leftButtonDown(x, y, meta.getMetaFlags()|onScreenMetaState);
                 break;
             case RemoteVncPointer.MOUSE_BUTTON_RIGHT:
-                pointer.rightButtonDown(x, y, meta.getMetaFlags()|onScreenMetaState|hardwareMetaState);
+                pointer.rightButtonDown(x, y, meta.getMetaFlags()|onScreenMetaState);
                 break;
             case RemoteVncPointer.MOUSE_BUTTON_MIDDLE:
-                pointer.middleButtonDown(x, y, meta.getMetaFlags()|onScreenMetaState|hardwareMetaState);
+                pointer.middleButtonDown(x, y, meta.getMetaFlags()|onScreenMetaState);
                 break;
             case RemoteVncPointer.MOUSE_BUTTON_SCROLL_UP:
-                pointer.scrollUp(x, y, meta.getMetaFlags()|onScreenMetaState|hardwareMetaState);
+                pointer.scrollUp(x, y, meta.getMetaFlags()|onScreenMetaState);
                 break;
             case RemoteVncPointer.MOUSE_BUTTON_SCROLL_DOWN:
-                pointer.scrollDown(x, y, meta.getMetaFlags()|onScreenMetaState|hardwareMetaState);
+                pointer.scrollDown(x, y, meta.getMetaFlags()|onScreenMetaState);
                 break;
             }
             try { Thread.sleep(50); } catch (InterruptedException e) {}
-            pointer.releaseButton(x, y, meta.getMetaFlags()|onScreenMetaState|hardwareMetaState);
+            pointer.releaseButton(x, y, meta.getMetaFlags()|onScreenMetaState);
 
-            //rfb.writePointerEvent(x, y, meta.getMetaFlags()|onScreenMetaState|hardwareMetaState, button);
-            //rfb.writePointerEvent(x, y, meta.getMetaFlags()|onScreenMetaState|hardwareMetaState, 0);
+            //rfb.writePointerEvent(x, y, meta.getMetaFlags()|onScreenMetaState, button);
+            //rfb.writePointerEvent(x, y, meta.getMetaFlags()|onScreenMetaState, 0);
         } else if (meta.equals(MetaKeyBean.keyCtrlAltDel)) {
             writeKeyEvent(false, KeyEvent.KEYCODE_FORWARD_DEL, RemoteKeyboard.CTRL_MASK|RemoteKeyboard.ALT_MASK,true, true);
         } else {

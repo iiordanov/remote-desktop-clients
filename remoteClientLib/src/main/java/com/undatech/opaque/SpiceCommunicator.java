@@ -23,24 +23,18 @@ package com.undatech.opaque;
 import static com.undatech.opaque.RemoteClientLibConstants.ACTION_USB_PERMISSION;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Objects;
 
-import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.hardware.usb.UsbDevice;
-import android.hardware.usb.UsbDeviceConnection;
 import android.hardware.usb.UsbManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.os.SystemClock;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -51,7 +45,7 @@ import com.undatech.opaque.input.RemotePointer;
 import com.undatech.opaque.util.GeneralUtils;
 import com.undatech.opaque.util.UsbDeviceManager;
 
-public class SpiceCommunicator implements RfbConnectable {
+public class SpiceCommunicator extends RfbConnectable {
     
     private final static String TAG = "SpiceCommunicator";
 
@@ -95,8 +89,6 @@ public class SpiceCommunicator implements RfbConnectable {
     final static int LWIN = 347;
     final static int RWIN = 348;
 
-    int remoteMetaState = 0;
-    
     private int width = 0;
     private int height = 0;
     
@@ -112,6 +104,7 @@ public class SpiceCommunicator implements RfbConnectable {
 
     public SpiceCommunicator (Context context, Handler handler, Viewable canvas, boolean res,
                               boolean usb, boolean debugLogging) {
+        super(debugLogging);
         this.context = context;
         this.canvas = canvas;
         this.isRequestingNewDisplayResolution = res;
@@ -134,6 +127,15 @@ public class SpiceCommunicator implements RfbConnectable {
             filter.addAction("android.hardware.usb.action.USB_STATE");
             context.registerReceiver(usbStateChangedReceiver, filter);
         }
+        modifierMap.put(RemoteKeyboard.CTRL_MASK, LCONTROL);
+        modifierMap.put(RemoteKeyboard.RCTRL_MASK, RCONTROL);
+        modifierMap.put(RemoteKeyboard.ALT_MASK, LALT);
+        modifierMap.put(RemoteKeyboard.RALT_MASK, RALT);
+        modifierMap.put(RemoteKeyboard.SUPER_MASK, LWIN);
+        modifierMap.put(RemoteKeyboard.RSUPER_MASK, RWIN);
+        modifierMap.put(RemoteKeyboard.SHIFT_MASK, LSHIFT);
+        modifierMap.put(RemoteKeyboard.RSHIFT_MASK, RSHIFT);
+
     }
     
     private static SpiceCommunicator myself = null;
@@ -317,7 +319,7 @@ public class SpiceCommunicator implements RfbConnectable {
 
     @Override
     public void writePointerEvent(int x, int y, int metaState, int pointerMask, boolean rel) {
-        remoteMetaState = metaState; 
+        this.metaState = metaState;
         if ((pointerMask & RemotePointer.POINTER_DOWN_MASK) != 0)
             sendModifierKeys(true);
         sendMouseEvent(x, y, metaState, pointerMask, rel);
@@ -325,37 +327,22 @@ public class SpiceCommunicator implements RfbConnectable {
             sendModifierKeys(false);
     }
 
-    private void sendModifierKeys(boolean keyDown) {
-        if ((remoteMetaState & RemoteKeyboard.CTRL_MASK) != 0) {
-            GeneralUtils.debugLog(this.debugLogging, TAG,
-                    "sendModifierKeys: Sending CTRL: " + LCONTROL + " down: " + keyDown);
-            sendSpiceKeyEvent(keyDown, LCONTROL);
-        }
-        if ((remoteMetaState & RemoteKeyboard.ALT_MASK) != 0) {
-            GeneralUtils.debugLog(this.debugLogging, TAG,
-                    "sendModifierKeys: Sending LALT: " + LALT + " down: " + keyDown);
-            sendSpiceKeyEvent(keyDown, LALT);
-        }
-        if ((remoteMetaState & RemoteKeyboard.RALT_MASK) != 0) {
-            GeneralUtils.debugLog(this.debugLogging, TAG,
-                    "sendModifierKeys: Sending RALT: " + RALT + " down: " + keyDown);
-            sendSpiceKeyEvent(keyDown, RALT);
-        }
-        if ((remoteMetaState & RemoteKeyboard.SUPER_MASK) != 0) {
-            GeneralUtils.debugLog(this.debugLogging, TAG,
-                    "sendModifierKeys: Sending LWIN: " + LWIN + " down: " + keyDown);
-            sendSpiceKeyEvent(keyDown, LWIN);
-        }
-        if ((remoteMetaState & RemoteKeyboard.SHIFT_MASK) != 0) {
-            GeneralUtils.debugLog(this.debugLogging, TAG,
-                    "sendModifierKeys: Sending SHIFT: " + LSHIFT + " down: " + keyDown);
-            sendSpiceKeyEvent(keyDown, LSHIFT);
+    private void sendModifierKeys(boolean down) {
+        for (int modifierMask: modifierMap.keySet()) {
+            if (remoteKeyboardState.shouldSendModifier(metaState, modifierMask, down)) {
+                int modifier = modifierMap.get(modifierMask);
+                GeneralUtils.debugLog(this.debugLogging, TAG, "sendModifierKeys, modifierMask:" +
+                        modifierMask + ", sending: " + modifier + ", down: " + down);
+                try { Thread.sleep(5); } catch (InterruptedException e) {}
+                sendSpiceKeyEvent(down, modifier);
+                remoteKeyboardState.updateRemoteMetaState(modifierMask, down);
+            }
         }
     }
     
     public void writeKeyEvent(int key, int metaState, boolean keyDown) {
         if (keyDown) {
-            remoteMetaState = metaState;
+            this.metaState = metaState;
             sendModifierKeys (true);
         }
 
@@ -365,7 +352,7 @@ public class SpiceCommunicator implements RfbConnectable {
         
         if (!keyDown) {
             sendModifierKeys (false);
-            remoteMetaState = 0;
+            this.metaState = 0;
         }
     }
     
