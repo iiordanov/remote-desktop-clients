@@ -333,7 +333,6 @@ public class SpiceCommunicator extends RfbConnectable {
                 int modifier = modifierMap.get(modifierMask);
                 GeneralUtils.debugLog(this.debugLogging, TAG, "sendModifierKeys, modifierMask:" +
                         modifierMask + ", sending: " + modifier + ", down: " + down);
-                try { Thread.sleep(5); } catch (InterruptedException e) {}
                 sendSpiceKeyEvent(down, modifier);
                 remoteKeyboardState.updateRemoteMetaState(modifierMask, down);
             }

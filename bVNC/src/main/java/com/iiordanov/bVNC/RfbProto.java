@@ -42,6 +42,7 @@ import com.iiordanov.aSPICE.*;
 import com.iiordanov.freeaSPICE.*;
 import com.iiordanov.CustomClientPackage.*;
 import com.undatech.opaque.RfbConnectable;
+import com.undatech.opaque.util.GeneralUtils;
 import com.undatech.remoteClientUi.*;
 
 /**
@@ -50,7 +51,7 @@ import com.undatech.remoteClientUi.*;
  * This class has no knowledge of the android-specific UI; it sees framebuffer updates
  * and input events as defined in the RFB protocol.
  */
-class RfbProto extends RfbConnectable {
+public class RfbProto extends RfbConnectable {
 
     public class RfbPasswordAuthenticationException extends Exception {
         public RfbPasswordAuthenticationException(String errorMessage) {
@@ -336,6 +337,19 @@ class RfbProto extends RfbConnectable {
     private String hash;
     private String cert;
 
+    public static int XK_LCTRL = 0xffe3;
+    public static int XK_RCTRL = 0xffe4;
+
+    public static int XK_LSHIFT = 0xffe1;
+    public static int XK_RSHIFT = 0xffe2;
+
+    public static int XK_LALT = 0xffe9;
+    public static int XK_RALT = 0xffea;
+
+    public static int XK_LSUPER = 0xffeb;
+    public static int XK_RSUPER = 0xffec;
+    public static int XL_ISOL3SHIFT = 0xfe03;
+
     //
     // Constructor
     //
@@ -354,6 +368,16 @@ class RfbProto extends RfbConnectable {
         timing = false;
         timeWaitedIn100us = 5;
         timedKbits = 0;
+        modifierMap.put(RemoteKeyboard.CTRL_MASK, XK_LCTRL);
+        modifierMap.put(RemoteKeyboard.RCTRL_MASK, XK_RCTRL);
+        modifierMap.put(RemoteKeyboard.ALT_MASK, XK_LALT);
+        modifierMap.put(RemoteKeyboard.RALT_MASK, XK_RALT);
+        modifierMap.put(RemoteKeyboard.SUPER_MASK, XK_LSUPER);
+        modifierMap.put(RemoteKeyboard.RSUPER_MASK, XK_RSUPER);
+        modifierMap.put(RemoteKeyboard.SHIFT_MASK, XK_LSHIFT);
+        modifierMap.put(RemoteKeyboard.RSHIFT_MASK, XK_RSHIFT);
+        if (RemoteVncKeyboard.rAltAsIsoL3Shift)
+            modifierMap.put(RemoteKeyboard.RALT_MASK, XL_ISOL3SHIFT);
     }
 
     // Make TCP connection to RFB server.
@@ -1602,35 +1626,17 @@ class RfbProto extends RfbConnectable {
     // Write key events to set the correct modifier state.
     //
 
-    int oldModifiers = 0;
-
     void writeModifierKeyEvents(int newModifiers) {
-        if ((newModifiers & RemoteKeyboard.CTRL_MASK) != (oldModifiers & RemoteKeyboard.CTRL_MASK))
-            writeKeyEvent(0xffe3, (newModifiers & RemoteKeyboard.CTRL_MASK) != 0);
-
-        if ((newModifiers & RemoteKeyboard.SHIFT_MASK) != (oldModifiers & RemoteKeyboard.SHIFT_MASK))
-            writeKeyEvent(0xffe1, (newModifiers & RemoteKeyboard.SHIFT_MASK) != 0);
-
-        if ((newModifiers & RemoteKeyboard.ALT_MASK) != (oldModifiers & RemoteKeyboard.ALT_MASK))
-            writeKeyEvent(0xffe9, (newModifiers & RemoteKeyboard.ALT_MASK) != 0);
-
-        if ((newModifiers & RemoteKeyboard.SUPER_MASK) != (oldModifiers & RemoteKeyboard.SUPER_MASK))
-            writeKeyEvent(0xffeb, (newModifiers & RemoteKeyboard.SUPER_MASK) != 0);
-
-        if ((newModifiers & RemoteKeyboard.RCTRL_MASK) != (oldModifiers & RemoteKeyboard.RCTRL_MASK))
-            writeKeyEvent(0xffe4, (newModifiers & RemoteKeyboard.RCTRL_MASK) != 0);
-
-        if ((newModifiers & RemoteKeyboard.RSHIFT_MASK) != (oldModifiers & RemoteKeyboard.RSHIFT_MASK))
-            writeKeyEvent(0xffe2, (newModifiers & RemoteKeyboard.RSHIFT_MASK) != 0);
-
-        if ((newModifiers & RemoteKeyboard.RALT_MASK) != (oldModifiers & RemoteKeyboard.RALT_MASK)) {
-            int ralt_xkeysym = 0xffea;
-            if (RemoteVncKeyboard.rAltAsIsoL3Shift)
-                ralt_xkeysym = 0xfe03;
-            writeKeyEvent(ralt_xkeysym, (newModifiers & RemoteKeyboard.RALT_MASK) != 0);
+        for (int modifierMask: modifierMap.keySet()) {
+            boolean down = (newModifiers & modifierMask) != 0;
+            if (remoteKeyboardState.shouldSendModifier(metaState, modifierMask, down)) {
+                int modifier = modifierMap.get(modifierMask);
+                GeneralUtils.debugLog(this.debugLogging, TAG, "sendModifierKeys, modifierMask:" +
+                        modifierMask + ", sending: " + modifier + ", down: " + down);
+                writeKeyEvent(modifier, down);
+                remoteKeyboardState.updateRemoteMetaState(modifierMask, down);
+            }
         }
-
-        oldModifiers = newModifiers;
     }
     //
     // Compress and write the data into the recorded session file. This

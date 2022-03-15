@@ -24,7 +24,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public abstract class RfbConnectable {
-    Map<Integer, Integer> modifierMap = new HashMap<>();
+    protected Map<Integer, Integer> modifierMap = new HashMap<>();
     public RemoteKeyboardState remoteKeyboardState = null;
     protected boolean debugLogging = false;
     protected int metaState = 0;

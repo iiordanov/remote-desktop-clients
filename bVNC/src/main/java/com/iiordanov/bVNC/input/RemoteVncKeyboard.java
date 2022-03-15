@@ -5,6 +5,7 @@ import android.view.KeyEvent;
 
 import com.iiordanov.bVNC.App;
 import com.iiordanov.bVNC.RemoteCanvas;
+import com.iiordanov.bVNC.RfbProto;
 import com.iiordanov.tigervnc.rfb.UnicodeToKeysym;
 import com.undatech.opaque.RfbConnectable;
 import com.undatech.opaque.util.GeneralUtils;
@@ -24,6 +25,10 @@ public class RemoteVncKeyboard extends RemoteKeyboard {
 
     public boolean processLocalKeyEvent(int keyCode, KeyEvent evt, int additionalMetaState) {
         GeneralUtils.debugLog(App.debugLog, TAG, "processLocalKeyEvent: " + evt.toString() + " " + keyCode);
+        // Drop repeated modifiers
+        if (shouldDropRepeatModifierKeys(evt))
+            return true;
+        rfb.remoteKeyboardState.detectHardwareMetaState(evt);
 
         if (rfb != null && rfb.isInNormalProtocol()) {
             RemotePointer pointer = canvas.getPointer();
@@ -116,6 +121,11 @@ public class RemoteVncKeyboard extends RemoteKeyboard {
             case 141 /* KEYCODE_F11 */:         keysym = 0xffc8; break;
             case 142 /* KEYCODE_F12 */:         keysym = 0xffc9; break;
             case 143 /* KEYCODE_NUM_LOCK */:    keysym = 0xff7f; break;
+            case KeyEvent.KEYCODE_ALT_LEFT:     keysym = RfbProto.XK_LALT; break;
+            case KeyEvent.KEYCODE_ALT_RIGHT:    keysym = RfbProto.XK_RALT; break;
+            case KeyEvent.KEYCODE_SHIFT_LEFT:   keysym = RfbProto.XK_LSHIFT; break;
+            case KeyEvent.KEYCODE_SHIFT_RIGHT:  keysym = RfbProto.XK_RSHIFT; break;
+
             case 0   /* KEYCODE_UNKNOWN */:
                 if (evt.getCharacters() != null) {
                     key = evt.getCharacters().charAt(0);
