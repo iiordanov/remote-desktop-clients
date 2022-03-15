@@ -1,5 +1,6 @@
 v5.0.7
 - Finer-grained permissions requests
+- Fixes for hardware keyboards
 v5.0.6
 - Updated Target API to 31
 - USB Redirection Support for Pro
