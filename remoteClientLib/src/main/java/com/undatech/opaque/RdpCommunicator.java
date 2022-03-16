@@ -75,10 +75,10 @@ public class RdpCommunicator extends RfbConnectable implements RdpKeyboardMapper
         this.username = username;
         this.domain = domain;
         this.password = password;
-        modifierMap.put(RemoteKeyboard.CTRL_MASK, VK_CONTROL);
-        modifierMap.put(RemoteKeyboard.RCTRL_MASK, VK_RCONTROL);
+        modifierMap.put(RemoteKeyboard.CTRL_MASK, VK_LCONTROL);
+        modifierMap.put(RemoteKeyboard.RCTRL_MASK, (VK_RCONTROL | VK_EXT_KEY));
         modifierMap.put(RemoteKeyboard.ALT_MASK, VK_LMENU);
-        modifierMap.put(RemoteKeyboard.RALT_MASK, VK_RMENU);
+        modifierMap.put(RemoteKeyboard.RALT_MASK, (VK_RMENU | VK_EXT_KEY));
         modifierMap.put(RemoteKeyboard.SUPER_MASK, (VK_LWIN | VK_EXT_KEY));
         modifierMap.put(RemoteKeyboard.RSUPER_MASK, (VK_RWIN | VK_EXT_KEY));
         modifierMap.put(RemoteKeyboard.SHIFT_MASK, VK_LSHIFT);

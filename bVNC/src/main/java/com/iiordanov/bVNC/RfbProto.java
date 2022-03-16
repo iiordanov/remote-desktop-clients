@@ -1499,7 +1499,7 @@ public class RfbProto extends RfbConnectable {
             return;
 
         eventBufLen = 0;
-        writeModifierKeyEvents(modifiers);
+        writeModifierKeyEvents(modifiers, true);
 
         eventBuf[eventBufLen++] = (byte) PointerEvent;
         eventBuf[eventBufLen++] = (byte) pointerMask;
@@ -1513,7 +1513,7 @@ public class RfbProto extends RfbConnectable {
         //
 
         if (pointerMask == 0) {
-            writeModifierKeyEvents(0);
+            writeModifierKeyEvents(modifiers, false);
         }
 
         try {
@@ -1530,17 +1530,17 @@ public class RfbProto extends RfbConnectable {
         try {
             // Press
             eventBufLen = 0;
-            writeModifierKeyEvents(CTRLALT);
+            writeModifierKeyEvents(CTRLALT, true);
             writeKeyEvent(DELETE, true);
             os.write(eventBuf, 0, eventBufLen);
 
             // Release
             eventBufLen = 0;
-            writeModifierKeyEvents(CTRLALT);
             writeKeyEvent(DELETE, false);
+            writeModifierKeyEvents(CTRLALT, false);
 
             // Reset VNC server modifiers state
-            writeModifierKeyEvents(0);
+            //writeModifierKeyEvents(0, false);
             os.write(eventBuf, 0, eventBufLen);
         } catch (IOException e) {
             e.printStackTrace();
@@ -1557,14 +1557,16 @@ public class RfbProto extends RfbConnectable {
             return;
 
         eventBufLen = 0;
-        if (down)
-            writeModifierKeyEvents(metaState);
+        if (down) {
+            writeModifierKeyEvents(metaState, down);
+        }
+
         if (keySym > 0)
             writeKeyEvent(keySym, down);
 
         // Always release all modifiers after an "up" event
         if (!down) {
-            writeModifierKeyEvents(0);
+            writeModifierKeyEvents(metaState, down);
         }
 
         try {
@@ -1581,8 +1583,12 @@ public class RfbProto extends RfbConnectable {
     //
 
     private void writeKeyEvent(int keysym, boolean down) {
+
         if (viewOnly)
             return;
+
+        GeneralUtils.debugLog(this.debugLogging, TAG, "writeKeyEvent, sending keysym:" +
+                keysym + ", down: " + down);
 
         eventBuf[eventBufLen++] = (byte) KeyboardEvent;
         eventBuf[eventBufLen++] = (byte) (down ? 1 : 0);
@@ -1626,9 +1632,8 @@ public class RfbProto extends RfbConnectable {
     // Write key events to set the correct modifier state.
     //
 
-    void writeModifierKeyEvents(int newModifiers) {
+    void writeModifierKeyEvents(int metaState, boolean down) {
         for (int modifierMask: modifierMap.keySet()) {
-            boolean down = (newModifiers & modifierMask) != 0;
             if (remoteKeyboardState.shouldSendModifier(metaState, modifierMask, down)) {
                 int modifier = modifierMap.get(modifierMask);
                 GeneralUtils.debugLog(this.debugLogging, TAG, "sendModifierKeys, modifierMask:" +

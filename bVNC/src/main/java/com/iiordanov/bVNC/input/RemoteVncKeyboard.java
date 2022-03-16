@@ -146,8 +146,13 @@ public class RemoteVncKeyboard extends RemoteKeyboard {
                 if ((metaState & ALT_MASK) != 0 || (metaState & RALT_MASK) != 0) {
                     metaMask |= KeyEvent.META_ALT_MASK;
                 }
+                // Add SHIFT to the metastate to get upper-case characters if onscreen shift is pressed
+                int addShift = 0;
+                if ((onScreenMetaState & SHIFT_MASK) != 0) {
+                    addShift |= KeyEvent.META_SHIFT_ON|KeyEvent.META_SHIFT_LEFT_ON;
+                }
                 KeyEvent copy = new KeyEvent(evt.getDownTime(), evt.getEventTime(), evt.getAction(),
-                        evt.getKeyCode(), evt.getRepeatCount(), evt.getMetaState() & ~metaMask,
+                        evt.getKeyCode(), evt.getRepeatCount(), evt.getMetaState() & ~metaMask|addShift,
                         evt.getDeviceId(), evt.getScanCode());
                 key = copy.getUnicodeChar();
                 keysym = UnicodeToKeysym.translate(key);
@@ -204,17 +209,18 @@ public class RemoteVncKeyboard extends RemoteKeyboard {
                 if (down) {
                     lastDownMetaState = metaState;
                 } else {
+                    metaState = lastDownMetaState;
                     lastDownMetaState = 0;
                 }
                 
                 if (numchars == 1) {
                     GeneralUtils.debugLog(App.debugLog, TAG, "processLocalKeyEvent: Sending key. Down: " + down +
-                            ", key: " + key + ". keysym:" + keysym + ", metaState: " + metaState);
+                            ", key: " + key + ", keysym:" + keysym + ", metaState: " + metaState);
                     rfb.writeKeyEvent(keysym, metaState, down);
                     // If this is a unicode key, the up event will never come, so we artificially insert it.
                     if (unicode) {
                         GeneralUtils.debugLog(App.debugLog, TAG, "processLocalKeyEvent: Unicode key. Down: false" +
-                                ", key: " + key + ". keysym:" + keysym + ", metaState: " + metaState);
+                                ", key: " + key + ", keysym:" + keysym + ", metaState: " + metaState);
                         rfb.writeKeyEvent(keysym, metaState, false);
                     }
 

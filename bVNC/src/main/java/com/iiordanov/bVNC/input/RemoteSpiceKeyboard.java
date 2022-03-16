@@ -173,6 +173,7 @@ public class RemoteSpiceKeyboard extends RemoteKeyboard {
         if (down) {
             lastDownMetaState = metaState;
         } else {
+            metaState = lastDownMetaState;
             lastDownMetaState = 0;
         }
         
@@ -208,8 +209,6 @@ public class RemoteSpiceKeyboard extends RemoteKeyboard {
                 rfb.writeKeyEvent(scode, meta, down);
                 if (sendUpEvents) {
                     rfb.writeKeyEvent(scode, meta, false);
-                    GeneralUtils.debugLog(debugLogging, TAG, "Unsetting lastDownMetaState");
-                    lastDownMetaState = 0;
                 }
             }
         } catch (NullPointerException e) {
