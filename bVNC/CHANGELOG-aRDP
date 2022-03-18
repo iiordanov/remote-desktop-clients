@@ -3,6 +3,7 @@ v5.0.7
 - Fix for layouts including QWERTZ, AZERTY
 - FreeRDP Upgrade
 - Fixes for hardware keyboards
+- Security library upgrade
 v5.0.6
 - Updated Target API to 31
 - Capture modifier keys on Samsung devices
