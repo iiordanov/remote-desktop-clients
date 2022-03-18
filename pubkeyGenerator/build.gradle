@@ -33,14 +33,11 @@ buildscript {
 apply plugin: "com.google.osdetector"
 
 dependencies {
-    api 'org.connectbot:sshlib:2.2.13'
-    // https://mvnrepository.com/artifact/com.madgag.spongycastle/core
-    api group: 'com.madgag.spongycastle', name: 'core', version: '1.58.0.0'
-    api group: 'com.madgag.spongycastle', name: 'prov', version: '1.58.0.0'
-    api group: 'com.madgag.spongycastle', name: 'pkix', version: '1.54.0.0'
-    api group: 'com.madgag.spongycastle', name: 'pg', version: '1.54.0.0'
+    api 'org.connectbot:sshlib:2.2.20'
+    implementation group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: '1.70'
+    implementation group: 'org.bouncycastle', name: 'bcpkix-jdk15on', version: '1.70'
+    implementation group: 'org.bouncycastle', name: 'bcpg-jdk15on', version: '1.70'
     api 'net.vrallev.ecc:ecc-25519-java:1.0.3'
-    api 'io.moatwel.crypto:eddsa:0.7.0-beta'
-    // https://mvnrepository.com/artifact/net.i2p.crypto/eddsa
+    api 'io.moatwel.crypto:eddsa:0.8.1'
     api group: 'net.i2p.crypto', name: 'eddsa', version: '0.3.0'
 }

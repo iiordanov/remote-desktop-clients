@@ -35,7 +35,6 @@ import java.security.interfaces.DSAParams;
 import java.security.interfaces.DSAPrivateKey;
 import java.security.interfaces.DSAPublicKey;
 import java.security.interfaces.RSAPrivateCrtKey;
-import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.DSAPublicKeySpec;
 import java.security.spec.InvalidKeySpecException;
@@ -170,7 +169,7 @@ public class PubkeyUtils {
 		PublicKey pub;
 		KeyFactory kf;
 		try {
-			kf = KeyFactory.getInstance(PubkeyDatabase.KEY_TYPE_RSA, new org.spongycastle.jce.provider.BouncyCastleProvider());
+			kf = KeyFactory.getInstance(PubkeyDatabase.KEY_TYPE_RSA, new org.bouncycastle.jce.provider.BouncyCastleProvider());
 			priv = kf.generatePrivate(privKeySpec);
 
 			pubKeySpec = new RSAPublicKeySpec(((RSAPrivateCrtKey) priv)
@@ -179,7 +178,7 @@ public class PubkeyUtils {
 
 			pub = kf.generatePublic(pubKeySpec);
         } catch (ClassCastException e) {
-            kf = KeyFactory.getInstance(PubkeyDatabase.KEY_TYPE_DSA, new org.spongycastle.jce.provider.BouncyCastleProvider());
+            kf = KeyFactory.getInstance(PubkeyDatabase.KEY_TYPE_DSA, new org.bouncycastle.jce.provider.BouncyCastleProvider());
             priv = kf.generatePrivate(privKeySpec);
 
             DSAParams params = ((DSAPrivateKey) priv).getParams();
@@ -262,11 +261,11 @@ public class PubkeyUtils {
 
         if (pk instanceof RSAPublicKey) {
             String data = "ssh-rsa ";
-            data += String.valueOf(Base64.encode(RSASHA1Verify.encodeSSHRSAPublicKey((RSAPublicKey)pk)));
+            data += String.valueOf(Base64.encode(RSASHA1Verify.get().encodePublicKey(pk)));
             return data + " " + nickname;
         } else if (pk instanceof DSAPublicKey) {
             String data = "ssh-dss ";
-            data += String.valueOf(Base64.encode(DSASHA1Verify.encodeSSHDSAPublicKey((DSAPublicKey)pk)));
+            data += String.valueOf(Base64.encode(DSASHA1Verify.get().encodePublicKey(pk)));
             return data + " " + nickname;
         }
 
