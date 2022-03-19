@@ -45,6 +45,8 @@ import com.undatech.opaque.RfbConnectable;
 import com.undatech.opaque.util.GeneralUtils;
 import com.undatech.remoteClientUi.*;
 
+import javax.net.ssl.SSLSocket;
+
 /**
  * Access the RFB protocol through a socket.
  * <p>
@@ -648,8 +650,6 @@ public class RfbProto extends RfbConnectable {
         android.util.Log.i(TAG, "(Re)Selecting security type.");
 
         int secType = SecTypeInvalid;
-        int currentapiVersion = android.os.Build.VERSION.SDK_INT;
-        boolean secTypeTlsAndNewSdk = false;
 
         // Read the list of security types.
         int nSecTypes = is.readUnsignedByte();
@@ -697,13 +697,9 @@ public class RfbProto extends RfbConnectable {
                     break;
                 }
 
-                // Only permit SecTypeTLS if we are running on pre-Marshmallow Android releases
-                // since Anon DH ciphers are deprecated in API >= 23
-                if (currentapiVersion < android.os.Build.VERSION_CODES.M && secTypes[i] == SecTypeTLS) {
+                if (secTypes[i] == SecTypeTLS) {
                     secType = secTypes[i];
                     break;
-                } else if (currentapiVersion >= android.os.Build.VERSION_CODES.M && secTypes[i] == SecTypeTLS) {
-                    secTypeTlsAndNewSdk = true;
                 }
 
                 if ((bitPref & 1) != 0 && secTypes[i] == SecTypeArd) {
@@ -717,12 +713,8 @@ public class RfbProto extends RfbConnectable {
             String message;
             // If the server tried to negotiate SecTypeTLS and this is an SDK >= Marshmallow, report
             // the appropriate error to the user.
-            if (secTypeTlsAndNewSdk) {
-                message = canvas.getContext().getString(R.string.error_anon_dh_unsupported);
-            } else {
-                message = canvas.getContext().getString(R.string.error_security_type)
-                        + " " + canvas.getContext().getString(R.string.error_pick_correct_item);
-            }
+            message = canvas.getContext().getString(R.string.error_security_type)
+                    + " " + canvas.getContext().getString(R.string.error_pick_correct_item);
             throw new Exception(message);
         } else {
             os.write(secType);
@@ -816,12 +808,13 @@ public class RfbProto extends RfbConnectable {
 
     void authenticateTLS() throws Exception {
         TLSTunnel tunnel = new TLSTunnel(sock);
-        tunnel.setup(this);
+        SSLSocket sslsock = tunnel.setup();
+        setStreams (sslsock.getInputStream(), sslsock.getOutputStream());
     }
 
     void authenticateX509(String certstr) throws Exception {
         X509Tunnel tunnel = new X509Tunnel(sock, certstr, canvas.handler, this);
-        tunnel.setup(this);
+        tunnel.setup();
     }
 
     void authenticatePlain(String User, String Password) throws Exception {

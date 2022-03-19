@@ -4,6 +4,7 @@ v5.0.7
 - Finer-grained permissions requests
 - Fixes for hardware keyboards
 - Security library upgrade
+- Reintroduced support for AnonTLS
 v5.0.6
 - Updated Target API to 31
 - Capture modifier keys on Samsung devices

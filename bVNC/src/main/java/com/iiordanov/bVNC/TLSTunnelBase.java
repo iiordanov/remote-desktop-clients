@@ -21,15 +21,18 @@
 package com.iiordanov.bVNC;
 
 import java.net.Socket;
-
+import java.security.SecureRandom;
+import java.security.Security;
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLParameters;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
+import org.bouncycastle.jsse.provider.BouncyCastleJsseProvider;
 
 import android.util.Log;
 
 public abstract class TLSTunnelBase {
-
+  
 private static final String TAG = "TLSTunnelBase";
 
 public TLSTunnelBase (Socket sock_) {
@@ -37,18 +40,21 @@ public TLSTunnelBase (Socket sock_) {
   }
 
   protected void initContext (SSLContext sc) throws java.security.GeneralSecurityException {
-    sc.init (null, null, null);
+    sc.init (null, null, new SecureRandom());
   }
 
-  public void setup (RfbProto cc) throws Exception {
+  public SSLSocket setup () throws Exception {
     try {
       SSLSocketFactory sslfactory;
       SSLSocket sslsock;
-      SSLContext sc = SSLContext.getInstance ("TLS");
+      Security.removeProvider(BouncyCastleJsseProvider.PROVIDER_NAME);
+      Security.insertProviderAt(new BouncyCastleJsseProvider(), 1);
+      SSLContext sc = SSLContext.getInstance("TLS", BouncyCastleJsseProvider.PROVIDER_NAME);
+
       Log.i(TAG, "Generating TLS context");
       initContext (sc);
       Log.i(TAG, "Doing TLS handshake");
-      sslfactory = sc.getSocketFactory ();
+      sslfactory = sc.getSocketFactory();
       sslsock = (SSLSocket) sslfactory.createSocket (sock,
 						     sock.getInetAddress().
 						     getHostName(),
@@ -67,8 +73,8 @@ public TLSTunnelBase (Socket sock_) {
       sslsock.startHandshake ();
 
       Log.i(TAG, "TLS done");
-      
-      cc.setStreams (sslsock.getInputStream(), sslsock.getOutputStream());
+
+      return sslsock;
     }
     catch (java.io.IOException e) {
       throw new Exception("TLS handshake failed " + e.toString ());
