@@ -36,7 +36,6 @@ dependencies {
     api 'org.connectbot:sshlib:2.2.20'
     implementation group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: '1.70'
     implementation group: 'org.bouncycastle', name: 'bcpkix-jdk15on', version: '1.70'
-    implementation group: 'org.bouncycastle', name: 'bcpg-jdk15on', version: '1.70'
     api 'net.vrallev.ecc:ecc-25519-java:1.0.3'
     api 'io.moatwel.crypto:eddsa:0.8.1'
     api group: 'net.i2p.crypto', name: 'eddsa', version: '0.3.0'

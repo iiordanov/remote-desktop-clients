@@ -36,6 +36,7 @@ android {
 
 dependencies {
     implementation project(':pubkeyGenerator')
+    implementation files('libs/bctls-jdk18on-1.70.jar')
     implementation project(':remoteClientLib:jni:libs:deps:FreeRDP:client:Android:Studio:freeRDPCore')
     implementation project(':remoteClientLib')
     implementation group: 'androidx.appcompat', name: 'appcompat', version: '1.4.1'
