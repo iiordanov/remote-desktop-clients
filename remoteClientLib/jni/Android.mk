@@ -22,12 +22,6 @@ LOCAL_EXPORT_C_INCLUDES := $(GSTREAMER_ROOT)/include
 include $(PREBUILT_STATIC_LIBRARY)
 
 include $(CLEAR_VARS)
-LOCAL_MODULE            := gstvideo-1.0
-LOCAL_SRC_FILES         := $(GSTREAMER_ROOT)/lib/libgstvideo-1.0.a
-LOCAL_EXPORT_C_INCLUDES := $(GSTREAMER_ROOT)/include
-include $(PREBUILT_STATIC_LIBRARY)
-
-include $(CLEAR_VARS)
 LOCAL_MODULE            := gstaudio-1.0
 LOCAL_SRC_FILES         := $(GSTREAMER_ROOT)/lib/libgstaudio-1.0.a
 LOCAL_EXPORT_C_INCLUDES := $(GSTREAMER_ROOT)/include
@@ -191,7 +185,7 @@ LOCAL_EXPORT_LDLIBS += $(LOCAL_LDLIBS)
 LOCAL_ARM_MODE := arm
 LOCAL_SHARED_LIBRARIES := gstreamer_android
 LOCAL_STATIC_LIBRARIES := spice-client-glib govirt rest usb usbredirhost usbredirparser iconv \
-							intl gstaudio-1.0 gstvideo-1.0 orc spiceglue gstopenh264 gstx264 vpx gstvpx \
+							intl gstaudio-1.0 orc spiceglue gstopenh264 gstx264 vpx gstvpx \
 							gstisomp4 avcodec gstjpeg gstopenjpeg gstjpegformat
 LOCAL_DISABLE_FATAL_LINKER_WARNINGS := true
 include $(BUILD_SHARED_LIBRARY)
