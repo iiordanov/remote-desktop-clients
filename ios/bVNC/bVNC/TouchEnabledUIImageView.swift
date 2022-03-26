@@ -213,8 +213,7 @@ class TouchEnabledUIImageView: UIImageView, UIContextMenuInteractionDelegate {
             self.lastX = self.newX
             self.lastY = self.newY
             //self.timeLast = timeNow
-            let isUp = !(firstDown||secondDown||thirdDown||fourthDown||fifthDown)
-            self.stateKeeper?.rescheduleScreenUpdateRequest(timeInterval: 0.3, fullScreenUpdate: isUp, recurring: false)
+            self.stateKeeper?.rescheduleScreenUpdateRequest(timeInterval: 0.3, fullScreenUpdate: false, recurring: false)
         }
     }
         
