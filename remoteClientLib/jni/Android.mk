@@ -22,12 +22,6 @@ LOCAL_EXPORT_C_INCLUDES := $(GSTREAMER_ROOT)/include
 include $(PREBUILT_STATIC_LIBRARY)
 
 include $(CLEAR_VARS)
-LOCAL_MODULE            := gstaudio-1.0
-LOCAL_SRC_FILES         := $(GSTREAMER_ROOT)/lib/libgstaudio-1.0.a
-LOCAL_EXPORT_C_INCLUDES := $(GSTREAMER_ROOT)/include
-include $(PREBUILT_STATIC_LIBRARY)
-
-include $(CLEAR_VARS)
 LOCAL_MODULE            := iconv
 LOCAL_SRC_FILES         := $(GSTREAMER_ROOT)/lib/libiconv.a
 LOCAL_EXPORT_C_INCLUDES := $(GSTREAMER_ROOT)/include
@@ -49,48 +43,6 @@ include $(CLEAR_VARS)
 LOCAL_MODULE            := avcodec
 LOCAL_SRC_FILES         := $(GSTREAMER_ROOT)/lib/libavcodec.a
 LOCAL_EXPORT_C_INCLUDES := $(GSTREAMER_ROOT)/include
-include $(PREBUILT_STATIC_LIBRARY)
-
-include $(CLEAR_VARS)
-LOCAL_MODULE            := gstvpx
-LOCAL_SRC_FILES         := $(GSTREAMER_ROOT)/lib/gstreamer-1.0/libgstvpx.a
-LOCAL_EXPORT_C_INCLUDES := $(GSTREAMER_ROOT)/lib/gstreamer-1.0/include
-include $(PREBUILT_STATIC_LIBRARY)
-
-include $(CLEAR_VARS)
-LOCAL_MODULE            := gstopenh264
-LOCAL_SRC_FILES         := $(GSTREAMER_ROOT)/lib/gstreamer-1.0/libgstopenh264.a
-LOCAL_EXPORT_C_INCLUDES := $(GSTREAMER_ROOT)/lib/gstreamer-1.0/include
-include $(PREBUILT_STATIC_LIBRARY)
-
-include $(CLEAR_VARS)
-LOCAL_MODULE            := gstx264
-LOCAL_SRC_FILES         := $(GSTREAMER_ROOT)/lib/gstreamer-1.0/libgstx264.a
-LOCAL_EXPORT_C_INCLUDES := $(GSTREAMER_ROOT)/lib/gstreamer-1.0/include
-include $(PREBUILT_STATIC_LIBRARY)
-
-include $(CLEAR_VARS)
-LOCAL_MODULE            := gstisomp4
-LOCAL_SRC_FILES         := $(GSTREAMER_ROOT)/lib/gstreamer-1.0/libgstisomp4.a
-LOCAL_EXPORT_C_INCLUDES := $(GSTREAMER_ROOT)/lib/gstreamer-1.0/include
-include $(PREBUILT_STATIC_LIBRARY)
-
-include $(CLEAR_VARS)
-LOCAL_MODULE            := gstjpeg
-LOCAL_SRC_FILES         := $(GSTREAMER_ROOT)/lib/gstreamer-1.0/libgstjpeg.a
-LOCAL_EXPORT_C_INCLUDES := $(GSTREAMER_ROOT)/lib/gstreamer-1.0/include
-include $(PREBUILT_STATIC_LIBRARY)
-
-include $(CLEAR_VARS)
-LOCAL_MODULE            := gstopenjpeg
-LOCAL_SRC_FILES         := $(GSTREAMER_ROOT)/lib/gstreamer-1.0/libgstopenjpeg.a
-LOCAL_EXPORT_C_INCLUDES := $(GSTREAMER_ROOT)/lib/gstreamer-1.0/include
-include $(PREBUILT_STATIC_LIBRARY)
-
-include $(CLEAR_VARS)
-LOCAL_MODULE            := gstjpegformat
-LOCAL_SRC_FILES         := $(GSTREAMER_ROOT)/lib/gstreamer-1.0/libgstjpegformat.a
-LOCAL_EXPORT_C_INCLUDES := $(GSTREAMER_ROOT)/lib/gstreamer-1.0/include
 include $(PREBUILT_STATIC_LIBRARY)
 
 include $(CLEAR_VARS)
@@ -185,7 +137,6 @@ LOCAL_EXPORT_LDLIBS += $(LOCAL_LDLIBS)
 LOCAL_ARM_MODE := arm
 LOCAL_SHARED_LIBRARIES := gstreamer_android
 LOCAL_STATIC_LIBRARIES := spice-client-glib govirt rest usb usbredirhost usbredirparser iconv \
-							intl gstaudio-1.0 orc spiceglue gstopenh264 gstx264 vpx gstvpx \
-							gstisomp4 avcodec gstjpeg gstopenjpeg gstjpegformat
+							intl orc spiceglue
 LOCAL_DISABLE_FATAL_LINKER_WARNINGS := true
 include $(BUILD_SHARED_LIBRARY)
