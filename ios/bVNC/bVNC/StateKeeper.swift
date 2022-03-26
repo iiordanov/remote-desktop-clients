@@ -169,7 +169,9 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
         self.fbH = fbH
         self.reDrawTimer.invalidate()
         if (self.isDrawing) {
-            self.reDrawTimer = Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(reDraw), userInfo: nil, repeats: false)
+            UserInterface{
+                self.reDrawTimer = Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(self.reDraw), userInfo: nil, repeats: false)
+            }
         }
     }
     
