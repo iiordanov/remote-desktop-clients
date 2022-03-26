@@ -17,7 +17,7 @@ object SamsungDexUtils {
                 "requestMetaKeyEvent", ComponentName::class.java, Boolean::class.java)
             requestMetaKeyEvent.invoke(manager, activity.componentName, true)
         }.onFailure {
-            Log.d(TAG, "Could not call com.samsung.android.view.SemWindowManager.requestMetaKeyEvent ", it)
+            Log.d(TAG, "Could not call com.samsung.android.view.SemWindowManager.requestMetaKeyEvent " + it.message)
         }
     }
 }

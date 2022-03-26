@@ -439,14 +439,17 @@ public class Utils {
         return result;
     }
 
-    static void writeScreenshotToFile(Context context, AbstractBitmapData drawable,
-                                      String filePath, int dstWidth, int dstHeight) {
+    static void writeScreenshotToFile(AbstractBitmapData drawable,
+                                      String filePath, int dstWidth) {
         try {
             if (drawable != null && drawable.mbitmap != null) {
                 // TODO: Add Filename to settings.
                 FileOutputStream out = new FileOutputStream(filePath);
+                double scaleReduction = (double)drawable.mbitmap.getWidth() / dstWidth;
+                int dstHeight = (int)((double)drawable.mbitmap.getHeight() / scaleReduction);
+                Log.d(TAG, "Desktop screenshot width: " + dstWidth + ", height " + dstHeight);
                 Bitmap tmp = Bitmap.createScaledBitmap(drawable.mbitmap, dstWidth, dstHeight, true);
-                drawable.mbitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
+                tmp.compress(Bitmap.CompressFormat.PNG, 100, out);
                 out.close();
                 tmp.recycle();
             }
