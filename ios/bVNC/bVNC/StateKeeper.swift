@@ -131,6 +131,7 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
         "pageDown": [ "title": "⇟", "lx": 14*tbW+14*tbSp, "ly": z, "send": XK_Page_Down, "tgl": false, "top": true, "right": false ],
         "home": [ "title": "⇤", "lx": 15*tbW+15*tbSp, "ly": z, "send": XK_Home, "tgl": false, "top": true, "right": false ],
         "end": [ "title": "⇥", "lx": 16*tbW+16*tbSp, "ly": z, "send": XK_End, "tgl": false, "top": true, "right": false ],
+        "del": [ "title": "Del", "lx": 17*tbW+17*tbSp, "ly": z, "send": XK_Delete, "tgl": false, "top": true, "right": false ],
     ]
 
     let modifierButtonData: [ String: [ String: Any ] ] = [
