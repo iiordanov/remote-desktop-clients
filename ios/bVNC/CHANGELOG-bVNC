@@ -1,0 +1,22 @@
+1.0.9
+  - Local window resizing
+1.0.8
+  - Bugfixes, including stability improvements.
+  - Better visibility for on-screen buttons.
+  - Delete on-screen button.
+  - Security library upgrades.
+1.0.4
+  - Japanese localization
+  - Simplified Chinese localization
+  - Traditional Chinese localization
+  - Korean localization
+  - Many bugfixes
+1.0.0
+  - Mac OS X built-in remote desktop server (ARD) authentication
+  - Windows, Mac, Linux, BSD, or any other OS with a VNC server installed
+  - Scrolling with a two-finger gesture
+  - Dynamic resolution changes
+  - SSH tunneling
+  - SSH public/private (pubkey)
+  - AnonTLS and VeNCrypt for secure connections
+  - TightVnc and CopyRect encodings for quick updates

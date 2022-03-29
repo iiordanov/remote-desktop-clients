@@ -90,4 +90,12 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         log_callback_str(message: "\(#function) called, disconnecting.")
         globalStateKeeper?.disconnectDueToBackgrounding()
     }
+    
+    func windowScene(_ windowScene: UIWindowScene,
+                    didUpdate previousCoordinateSpace: UICoordinateSpace,
+         interfaceOrientation previousInterfaceOrientation: UIInterfaceOrientation,
+                              traitCollection previousTraitCollection: UITraitCollection) {
+        log_callback_str(message: "\(#function) called.")
+        globalStateKeeper?.resizeWindow()
+    }
 }

@@ -881,6 +881,13 @@ class StateKeeper: NSObject, ObservableObject, KeyboardObserving, NSCoding {
         self.cl[self.currInst] = inst
     }
     
+    func resizeWindow() {
+        if currInst >= 0 {
+            resize_callback(instance: Int32(currInst), cl: cl[currInst], fbW: fbW, fbH: fbH)
+            reDraw()
+        }
+    }
+    
 	/*
     // Used to simulate failure with signal_handler
     @objc func fail() {
