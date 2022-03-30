@@ -169,6 +169,6 @@ public class X509Tunnel extends TLSTunnelBase {
       tmf.init (ks);
       myTM = tmf.getTrustManagers();
     }*/
-    sc.init (null, myTM, null);
+    sc.init (null, myTM, new SecureRandom());
   }
 }

@@ -814,7 +814,8 @@ public class RfbProto extends RfbConnectable {
 
     void authenticateX509(String certstr) throws Exception {
         X509Tunnel tunnel = new X509Tunnel(sock, certstr, canvas.handler, this);
-        tunnel.setup();
+        SSLSocket sslsock = tunnel.setup();
+        setStreams (sslsock.getInputStream(), sslsock.getOutputStream());
     }
 
     void authenticatePlain(String User, String Password) throws Exception {
