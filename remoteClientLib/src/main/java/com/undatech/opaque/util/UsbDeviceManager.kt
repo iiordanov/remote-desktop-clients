@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.hardware.usb.UsbDevice
 import android.hardware.usb.UsbManager
+import android.os.Build
 import android.util.Log
 import com.undatech.opaque.RemoteClientLibConstants
 import kotlin.collections.HashMap
@@ -69,8 +70,13 @@ class UsbDeviceManager(val context: Context, val usbEnabled: Boolean) {
         Log.i(TAG, "Requesting permissions for all USB devices")
         val d = this.getUnrequested()
         if (d != null) {
+            val flags = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                PendingIntent.FLAG_MUTABLE
+            } else {
+                0
+            };
             val mPermissionIntent = PendingIntent.getBroadcast(context, 0,
-                    Intent(RemoteClientLibConstants.ACTION_USB_PERMISSION), 0)
+                    Intent(RemoteClientLibConstants.ACTION_USB_PERMISSION), flags)
             Log.d(TAG, "Requesting permission to usbDevice: $d")
             mUsbManager.requestPermission(d, mPermissionIntent)
         } else {
