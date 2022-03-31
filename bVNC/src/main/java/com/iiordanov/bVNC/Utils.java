@@ -63,8 +63,10 @@ import android.os.Bundle;
 import android.os.Message;
 import android.text.Html;
 import android.util.Log;
+import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ScrollView;
 
 import com.undatech.opaque.ConnectionSetupActivity;
@@ -590,5 +592,19 @@ public class Utils {
             message = context.getString(resId);
         }
         return message;
+    }
+
+    public static void hideKeyboard(Context context, View view) {
+        if (view != null) {
+            InputMethodManager imm = (InputMethodManager)context.getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        }
+    }
+
+    public static void showKeyboard(Context context, View view) {
+        if (view != null) {
+            InputMethodManager imm = (InputMethodManager)context.getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.showSoftInput(view, 0);
+        }
     }
 }

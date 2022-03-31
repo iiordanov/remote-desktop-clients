@@ -1,6 +1,7 @@
 v5.0.8
 - Security library upgrade
 - Thumbnail bugfix 
+- Fix for keyboard covering dialogs
 v5.0.7
 - Finer-grained permissions requests
 - Fixes for hardware keyboards

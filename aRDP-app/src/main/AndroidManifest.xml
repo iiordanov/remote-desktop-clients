@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.iiordanov.aRDP"
     android:installLocation="auto"
-    android:versionCode="115083"
+    android:versionCode="115084"
     android:versionName="v5.0.8">
 
     <uses-permission tools:node="removeAll" />

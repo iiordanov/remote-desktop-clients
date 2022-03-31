@@ -169,6 +169,7 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
     }
 
     private void launchConnection(View v) {
+        Utils.hideKeyboard(this, getCurrentFocus());
         android.util.Log.i(TAG, "Launch Connection");
 
         ActivityManager.MemoryInfo info = Utils.getMemoryInfo(this);
