@@ -24,7 +24,6 @@ import java.net.Socket;
 import java.security.SecureRandom;
 import java.security.Security;
 import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLParameters;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 import org.bouncycastle.jsse.provider.BouncyCastleJsseProvider;
@@ -47,6 +46,9 @@ public TLSTunnelBase (Socket sock_) {
     try {
       SSLSocketFactory sslfactory;
       SSLSocket sslsock;
+
+      Security.setProperty("jdk.tls.disabledAlgorithms",
+              "SSLv3, TLSv1, TLSv1.1, RC4, DES, MD5withRSA, DH keySize < 1024, EC keySize < 224, 3DES_EDE_CBC, NULL");
       Security.removeProvider(BouncyCastleJsseProvider.PROVIDER_NAME);
       Security.insertProviderAt(new BouncyCastleJsseProvider(), 1);
       SSLContext sc = SSLContext.getInstance("TLS", BouncyCastleJsseProvider.PROVIDER_NAME);
