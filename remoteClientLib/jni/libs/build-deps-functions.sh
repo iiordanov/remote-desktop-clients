@@ -23,6 +23,6 @@ install_cmake() {
         tar xzf cmake-${VER}-Linux-x86_64.tar.gz >& /dev/null
     fi
     popd >&/dev/null
-    echo $(realpath ${DIR}/cmake-${VER}-Linux-x86_64)
+    echo $(realpath ${DIR}/cmake-${VER}-linux-x86_64)
 }
 

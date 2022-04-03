@@ -1,8 +1,8 @@
 diff --git a/client/Android/android_freerdp.c b/client/Android/android_freerdp.c
-index f269b4670..78af95df7 100644
+index e6f957e0e..b7932035e 100644
 --- a/client/Android/android_freerdp.c
 +++ b/client/Android/android_freerdp.c
-@@ -562,7 +562,7 @@ disconnect:
+@@ -563,7 +563,7 @@ disconnect:
  		wMessageQueue* input_queue =
  		    freerdp_get_message_queue(instance, FREERDP_INPUT_MESSAGE_QUEUE);
  		MessageQueue_PostQuit(input_queue, 0);

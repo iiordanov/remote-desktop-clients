@@ -622,10 +622,11 @@ build_freerdp() {
                -e 's/WITH_JPEG=.*/WITH_JPEG=1/'\
                -e 's/WITH_OPENH264=.*/WITH_OPENH264=1/'\
                -e 's/OPENH264_TAG=.*/OPENH264_TAG=v2.1.1/'\
+               -e 's/OPENSSL_TAG=.*/OPENSSL_TAG=OpenSSL_1_1_1n/'\
                -e 's/NDK_TARGET=26/NDK_TARGET=21/'\
                 ./scripts/android-build.conf
 
-#               -e 's/OPENSSL_TAG=.*/OPENSSL_TAG=OpenSSL_1_1_1g/'\
+#               -e 's/OPENSSL_TAG=.*/OPENSSL_TAG=OpenSSL_1_1_1n/'\
 #               -e "s/BUILD_ARCH=.*/BUILD_ARCH=\"${abis}\"/"\
 
         for f in ${basedir}/../*_freerdp_*.patch
