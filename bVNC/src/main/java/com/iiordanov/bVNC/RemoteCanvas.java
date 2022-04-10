@@ -605,7 +605,7 @@ public class RemoteCanvas extends AppCompatImageView
             showFatalMessageAndQuit(getContext().getString(R.string.error_anon_dh_unsupported));
         } catch (RfbProto.RfbPasswordAuthenticationException e) {
             Log.e(TAG, "Authentication failed, will prompt user for password");
-            handler.sendEmptyMessage(RemoteClientLibConstants.GET_VNC_CREDENTIALS);
+            handler.sendEmptyMessage(RemoteClientLibConstants.GET_VNC_PASSWORD);
             return;
         } catch (RfbProto.RfbUsernameRequiredException e) {
             Log.e(TAG, "Username required, will prompt user for username and password");

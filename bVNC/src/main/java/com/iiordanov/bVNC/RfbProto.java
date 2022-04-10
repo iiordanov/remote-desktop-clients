@@ -34,6 +34,13 @@ import android.util.Log;
 
 import com.undatech.opaque.input.RemoteKeyboard;
 import com.iiordanov.bVNC.input.RemoteVncKeyboard;
+import com.iiordanov.bVNC.*;
+import com.iiordanov.freebVNC.*;
+import com.iiordanov.aRDP.*;
+import com.iiordanov.freeaRDP.*;
+import com.iiordanov.aSPICE.*;
+import com.iiordanov.freeaSPICE.*;
+import com.iiordanov.CustomClientPackage.*;
 import com.undatech.opaque.RfbConnectable;
 import com.undatech.opaque.util.GeneralUtils;
 import com.undatech.remoteClientUi.*;
@@ -464,9 +471,7 @@ public class RfbProto extends RfbConnectable {
         writeVersionMsg();
         Log.i(TAG, "Using RFB protocol version " + clientMajor + "." + clientMinor);
 
-        boolean userNameSupplied = false;
-        if (us.length() > 0)
-            userNameSupplied = true;
+        boolean userNameSupplied = us.length() > 0;
         Log.d(TAG, "userNameSupplied: " + userNameSupplied);
         int secType = negotiateSecurity(userNameSupplied, connType);
         int authType;
@@ -843,7 +848,7 @@ public class RfbProto extends RfbConnectable {
             case VncAuthTooMany:
                 throw new RfbPasswordAuthenticationException(authType + ": failed, too many tries");
             case PlainAuthFailed:
-                throw new RfbPasswordAuthenticationException(authType + ": failed");
+                throw new RfbUsernameRequiredException(authType + ": failed");
             default:
                 throw new Exception(authType + ": unknown result " + securityResult);
         }
