@@ -1,3 +1,5 @@
+v5.0.9
+- Fix to interactively gather credentials for Mac OS X
 v5.0.8
 - Security library upgrade
 - Thumbnail bugfix 

@@ -199,7 +199,11 @@ public class GetTextFragment extends DialogFragment {
             textBox2 = (EditText) v.findViewById(R.id.textBox2);
             textBox3 = (EditText) v.findViewById(R.id.textBox3);
             hideText(textBox3);
-            textBox3.requestFocus();
+            if (t1 == null || t1.length() == 0) {
+                textBox.requestFocus();
+            } else {
+                textBox3.requestFocus();
+            }
             checkboxKeepPassword = v.findViewById(R.id.checkboxKeepPassword);
             buttonConfirm = (Button) v.findViewById(R.id.buttonConfirm);
             buttonCancel = (Button) v.findViewById(R.id.buttonCancel);
@@ -212,7 +216,11 @@ public class GetTextFragment extends DialogFragment {
             textBox = (EditText) v.findViewById(R.id.textBox);
             textBox2 = (EditText) v.findViewById(R.id.textBox2);
             hideText(textBox2);
-            textBox2.requestFocus();
+            if (t1 == null || t1.length() == 0) {
+                textBox.requestFocus();
+            } else {
+                textBox2.requestFocus();
+            }
             checkboxKeepPassword = v.findViewById(R.id.checkboxKeepPassword);
             buttonConfirm = (Button) v.findViewById(R.id.buttonConfirm);
             buttonCancel = (Button) v.findViewById(R.id.buttonCancel);

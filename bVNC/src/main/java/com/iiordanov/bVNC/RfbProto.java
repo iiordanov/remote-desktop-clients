@@ -34,13 +34,6 @@ import android.util.Log;
 
 import com.undatech.opaque.input.RemoteKeyboard;
 import com.iiordanov.bVNC.input.RemoteVncKeyboard;
-import com.iiordanov.bVNC.*;
-import com.iiordanov.freebVNC.*;
-import com.iiordanov.aRDP.*;
-import com.iiordanov.freeaRDP.*;
-import com.iiordanov.aSPICE.*;
-import com.iiordanov.freeaSPICE.*;
-import com.iiordanov.CustomClientPackage.*;
 import com.undatech.opaque.RfbConnectable;
 import com.undatech.opaque.util.GeneralUtils;
 import com.undatech.remoteClientUi.*;
@@ -471,11 +464,11 @@ public class RfbProto extends RfbConnectable {
         writeVersionMsg();
         Log.i(TAG, "Using RFB protocol version " + clientMajor + "." + clientMinor);
 
-        int bitPref = 0;
+        boolean userNameSupplied = false;
         if (us.length() > 0)
-            bitPref |= 1;
-        Log.d("debug", "bitPref = " + bitPref);
-        int secType = negotiateSecurity(bitPref, connType);
+            userNameSupplied = true;
+        Log.d(TAG, "userNameSupplied: " + userNameSupplied);
+        int secType = negotiateSecurity(userNameSupplied, connType);
         int authType;
         if (secType == RfbProto.SecTypeTight) {
             Log.i(TAG, "secType == RfbProto.SecTypeTight");
@@ -488,7 +481,7 @@ public class RfbProto extends RfbConnectable {
         } else if (secType == RfbProto.SecTypeTLS) {
             Log.i(TAG, "secType == RfbProto.SecTypeTLS");
             authenticateTLS();
-            authType = negotiateSecurity(bitPref, 0);
+            authType = negotiateSecurity(userNameSupplied, 0);
         } else if (secType == RfbProto.SecTypeUltra34 ||
                 secType == RfbProto.SecTypeUltraVnc2) {
             Log.i(TAG, "secType == RfbProto.SecTypeUltra34 or SecTypeUltraVnc2");
@@ -497,9 +490,7 @@ public class RfbProto extends RfbConnectable {
             Log.i(TAG, "secType == RfbProto.SecTypeArd");
             RFBSecurityARD ardAuth = new RFBSecurityARD(us, pw);
             ardAuth.perform(this);
-            if (is.readInt() == 1) {
-                throw new Exception("Error from VNC server: " + readString());
-            }
+            readSecurityResult("ARD Authentication");
             return;
         } else {
             authType = secType;
@@ -610,11 +601,11 @@ public class RfbProto extends RfbConnectable {
     // Negotiate the authentication scheme.
     //
 
-    int negotiateSecurity(int bitPref, int connType) throws Exception {
+    int negotiateSecurity(boolean userNameSupplied, int connType) throws Exception {
         if (clientMinor >= 7) {
-            return selectSecurityType(bitPref, connType);
+            return selectSecurityType(userNameSupplied, connType);
         } else {
-            return readSecurityType(bitPref);
+            return readSecurityType(userNameSupplied);
         }
     }
 
@@ -622,7 +613,7 @@ public class RfbProto extends RfbConnectable {
     // Read security type from the server (protocol version 3.3).
     //
 
-    int readSecurityType(int bitPref) throws Exception {
+    int readSecurityType(boolean userNameSupplied) throws Exception {
         int secType = is.readInt();
 
         switch (secType) {
@@ -634,8 +625,9 @@ public class RfbProto extends RfbConnectable {
                 return secType;
             case SecTypeUltra34:
             case SecTypeUltraVnc2:
-                if ((bitPref & 1) == 1)
+                if (userNameSupplied) {
                     return secType;
+                }
                 throw new RfbUsernameRequiredException("Username required.");
             default:
                 throw new Exception("Unknown security type from RFB server: " + secType);
@@ -646,7 +638,7 @@ public class RfbProto extends RfbConnectable {
     // Select security type from the server's list (protocol versions 3.7/3.8).
     //
 
-    int selectSecurityType(int bitPref, int connType) throws Exception {
+    int selectSecurityType(boolean userNameSupplied, int connType) throws Exception {
         android.util.Log.i(TAG, "(Re)Selecting security type.");
 
         int secType = SecTypeInvalid;
@@ -702,9 +694,12 @@ public class RfbProto extends RfbConnectable {
                     break;
                 }
 
-                if ((bitPref & 1) != 0 && secTypes[i] == SecTypeArd) {
-                    secType = secTypes[i];
-                    break;
+                if (secTypes[i] == SecTypeArd) {
+                    if (userNameSupplied) {
+                        secType = secTypes[i];
+                        break;
+                    }
+                    throw new RfbUsernameRequiredException("Username required.");
                 }
             }
         }
