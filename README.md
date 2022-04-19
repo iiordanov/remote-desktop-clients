@@ -5,6 +5,18 @@ clients for Android.
 
 Please see the LICENSE file for information on how the source is licensed.
 
+# Links to App Stores
+
+bVNC is a VNC client. It's released as a donation version at [bVNC Pro](https://play.google.com/store/apps/details?id=com.iiordanov.bVNC), and a free version at [bVNC](https://play.google.com/store/apps/details?id=com.iiordanov.freebVNC)
+
+aRDP is a RDP client. It's released as a donation version at, [aRDP Pro](https://play.google.com/store/apps/details?id=com.iiordanov.aRDP), and a free version at [aRDP](https://play.google.com/store/apps/details?id=com.iiordanov.freeaRDP)
+
+aSPICE is a SPICE Protocol client. It's available as a donation version at, [aSPICE Pro](https://play.google.com/store/apps/details?id=com.iiordanov.aSPICE), and a free version at [aSPICE](https://play.google.com/store/apps/details?id=com.iiordanov.freeaSPICE)
+
+Opaque is a oVirt, RHEV, and Proxmox client available at [Opaque](https://play.google.com/store/apps/details?id=com.undatech.opaque)
+
+The donation versions are also available on Amazon App Store at [bVNC](https://www.amazon.ca/Unda-Tech-VNC-Pro-Viewer/dp/B00OWZYE1A), [aRDP](https://www.amazon.ca/Unda-Tech-RDP-Pro-Client/dp/B00OX1RBAO), [aSPICE](https://www.amazon.ca/aSPICE-Pro-Secure-SPICE-Client/dp/B07B6K9BDB), [Opaque](https://www.amazon.ca/Opaque-oVirt-RHEV-Proxmox-Client/dp/B07HMTYT1L).
+
 # Building
 
 There are different ways to build the applications depending on OS and whether you are using
