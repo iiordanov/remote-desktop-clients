@@ -60,7 +60,7 @@ Building from scratch and working in Android Studio.
     - Example:
 
               export PROJECT=libs # or CustomSomethingOrOther
-              export ANDROID_SDK=${HOME}/Android/Sdk/
+              export ANDROID_SDK=${HOME}/Android/Sdk
               export PATH=$PATH:${ANDROID_SDK}/platform-tools/
               export PATH=$PATH:${ANDROID_SDK}/tools
 
