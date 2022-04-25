@@ -58,8 +58,8 @@
     <string name="ok">Ok</string>
 
     <string name="input_methods">Input Method</string>
-    <string name="input_method_help_text">
-"In any Input Method, tap the keyboard icon to get the on-screen keyboard. Also, your device may have its own gesture which bring up the keyboard.
+    <string name="input_method_help_text">"
+In any Input Method, tap the keyboard icon to get the on-screen keyboard. Also, your device may have its own gesture which bring up the keyboard.
 
 Use the Direct input modes for more intuitive touch-screen control. Use Simulated Touchpad Mode for finer control over the mouse.
 
@@ -98,8 +98,7 @@ All Input Methods:
  - Zoom in/out: Pinch-zoom to control scaling.
  - Ctrl/Alt key: Menu->Ctrl/Alt buttons. Don't forget to toggle off when done!
  - Key combos: Menu->More->Send Keys.
- - Send text: Either type on the on-screen keyboard, or use Menu->More->Send Text."
-</string>
+ - Send text: Either type on the on-screen keyboard, or use Menu->More->Send Text."</string>
 
     <string name="error_failed_to_download_vv_http">Failed to download .vv file over HTTP. Perhaps your server is unreachable.</string>
     <string name="error_failed_to_download_vv_https">Failed to download .vv file over HTTPS. Perhaps your server cert is untrusted (expired or self-signed) or your server is unreachable.</string>
@@ -347,8 +346,8 @@ All Input Methods:
     <string name="input_mode_drag_pan_zoom_mouse">Direct, Hold Pan</string>
     <string name="input_mode_fit_to_screen">No Pan; Trackball Mouse</string>
     <string name="input_mode_help">Input Mode Help</string>
-    <string name="input_mode_help_text">
-"In any Input Mode, tap the keyboard icon to get the on-screen keyboard. Also, your device may have its own gesture which bring up the keyboard.
+    <string name="input_mode_help_text">"
+In any Input Mode, tap the keyboard icon to get the on-screen keyboard. Also, your device may have its own gesture which bring up the keyboard.
 
 Use the Direct input modes for more intuitive touch-screen control. Use Simulated Touchpad Mode for finer control over the mouse.
 
@@ -387,8 +386,7 @@ All Input Modes:
  - Zoom in/out: In Zoomable scaling, pinch-zoom to control scaling.
  - Ctrl/Alt key: Menu-&gt;Ctrl/Alt buttons. Don't forget to toggle off when done!
  - Key combos: Menu-&gt;More-&gt;Send Keys.
- - Send text: Either type on the on-screen keyboard, or use Menu-&gt;More-&gt;Send Text."
-</string>
+ - Send text: Either type on the on-screen keyboard, or use Menu-&gt;More-&gt;Send Text."</string>
     <string name="input_mode_mouse">Mouse Pointer Control</string>
     <string name="input_mode_panning">Desktop Panning Mode</string>
     <string name="input_mode_single_handed">Single Handed</string>
@@ -399,7 +397,7 @@ All Input Modes:
     <string name="intro_dont_show">Don\'t show again</string>
     <string name="intro_header" />
     <string name="intro_text">
-"Current list of bVNC features:
+Current list of bVNC features:
 &lt;br&gt;
 - Plain VNC, Secure VNC over SSH, AnonTLS, and VeNCrypt, and UltraVNC Windows Logon with optional Repeater.
 &lt;br&gt;
@@ -445,8 +443,7 @@ All Input Modes:
 &lt;br&gt;
 &lt;br&gt;
 Known issues:
-&lt;br&gt;"
-</string>
+&lt;br&gt;</string>
     <string name="intro_title">bVNC: Intuitive, secure VNC client</string>
     <string name="intro_version_text" />
 
@@ -465,8 +462,8 @@ Known issues:
     <string name="local_mouse_check">Local mouse pointer (select if pointer is invisible)</string>
 
     <string name="main_screen_help">Connection Help</string>
-    <string name="vnc_connection_screen_help_text" tools:ignore="TypographyOther">
-"When you add or edit a connection, you will see a connection configuration page. Here you can set
+    <string name="vnc_connection_screen_help_text" tools:ignore="TypographyOther">"
+When you add or edit a connection, you will see a connection configuration page. Here you can set
 up a new VNC connection, or choose a preexisting one. At the top is a button that allows you to
 save the connection. Below that is where you configure your connection.
 
@@ -590,7 +587,7 @@ If you are looking for a quick performance boost, try setting the Color mode to 
         <item>@string/rdp_geom_custom</item>
     </string-array>
     <string name="rdp_intro_text">
-"Thank you for supporting aRDP and open-source software in general! For help with using aRDP, see the Help items in the Menu, and the description of the app in the market.
+Thank you for supporting aRDP and open-source software in general! For help with using aRDP, see the Help items in the Menu, and the description of the app in the market.
 &lt;br&gt;
 &lt;br&gt;
 Current list of aRDP features includes:
@@ -643,11 +640,10 @@ Planned features of aRDP include:
 - Sound
 &lt;br&gt;
 &lt;br&gt;
-Known issues:
-</string>
+Known issues:</string>
     <string name="rdp_intro_title">aRDP: Intuitive, secure RDP client</string>
-    <string name="rdp_connection_screen_help_text" tools:ignore="TypographyOther">
-"When you add or edit a connection, you will see a connection configuration page. Here you can set up a new RDP connection, or choose a preexisting one. At the top is a button that allows you to save the connection. Below that is where you configure your connection.
+    <string name="rdp_connection_screen_help_text" tools:ignore="TypographyOther">"
+When you add or edit a connection, you will see a connection configuration page. Here you can set up a new RDP connection, or choose a preexisting one. At the top is a button that allows you to save the connection. Below that is where you configure your connection.
 
  - Connection Type: Here you choose the RDP connection type. Available connection types are:
    (a) RDP, which connects directly to a computer over the RDP protocol.
@@ -671,7 +667,7 @@ Known issues:
  - Local Device Tweaks: These adjust the behavior of the app on your device.
    (a) Use D-Pad for arrows: If you prefer, you can use the D-Pad of your Bluetooth keyboard or arrows on your on-screen keyboard to send arrows to the RDP server.
    (b) Rotate D-Pad: Phones paired with a Bluetooth keyboard may need the keyboard's D-pad to be rotated anti-clockwise to send correct directions to the server.
-   (c) Local mouse pointer: If the pointer is invisible, select this to force it to be drawn by the app.</string>
+   (c) Local mouse pointer: If the pointer is invisible, select this to force it to be drawn by the app."</string>
     <string name="rdp_password_hint">RDP Password</string>
     <string name="rdp_server_empty">RDP Server or port empty. Cannot connect!</string>
     <string name="rdp_username_hint">RDP Username</string>
@@ -733,7 +729,7 @@ Known issues:
         <item>@string/connection_type_spice_over_ssh</item>
     </string-array>
     <string name="spice_intro_text">
-"Thank you for supporting aSPICE and open-source software in general! For help with using aSPICE, see the Help items in the Menu, and the description of the app in the market.
+Thank you for supporting aSPICE and open-source software in general! For help with using aSPICE, see the Help items in the Menu, and the description of the app in the market.
 &lt;br&gt;
 &lt;br&gt;
 Current list of aSPICE features includes:
@@ -787,8 +783,8 @@ Known issues:
 &lt;br&gt;
 </string>
     <string name="spice_intro_title">aSPICE: Intuitive, secure SPICE client</string>
-    <string name="spice_connection_screen_help_text" tools:ignore="TypographyOther">
-"When you add or edit a connection, you will see a connection configuration page. Here you can set up a new SPICE connection, or choose a preexisting one. At the top is a button that allows you to save the connection. Below that is where you configure your connection.
+    <string name="spice_connection_screen_help_text" tools:ignore="TypographyOther">"
+When you add or edit a connection, you will see a connection configuration page. Here you can set up a new SPICE connection, or choose a preexisting one. At the top is a button that allows you to save the connection. Below that is where you configure your connection.
 
  - Connection Type: Here you choose the SPICE connection type. Available connection types are:
    (a) SPICE, which connects directly to a computer over the SPICE protocol.
@@ -809,7 +805,7 @@ Known issues:
  - Local Device Tweaks: These adjust the behavior of the app on your device.
    (a) Use D-Pad for arrows: If you prefer, you can use the D-Pad of your Bluetooth keyboard or arrows on your on-screen keyboard to send arrows to the SPICE server.
    (b) Rotate D-Pad: Phones paired with a Bluetooth keyboard may need the keyboard's D-pad to be rotated anti-clockwise to send correct directions to the server.
-   (c) Local mouse pointer: If the pointer is invisible, select this to force it to be drawn by the app.</string>
+   (c) Local mouse pointer: If the pointer is invisible, select this to force it to be drawn by the app."</string>
     <string name="spice_password_hint">SPICE Password</string>
     <string name="spice_server_empty">SPICE Server or port empty. Cannot connect!</string>
     <string name="spice_tls_port_hint">TLS Port</string>
@@ -890,10 +886,9 @@ instance to edit default settings, or import and export settings.
 
 Once you have a connection saved, you can connect to the remote server by tapping it once. You will also have a choice to delete or edit it by long-tapping it.
 
-Finally, you can use the Search Connections field to quickly find connections by filter shown connections."
-    </string>
-    <string name="opaque_connection_screen_help_text" tools:ignore="TypographyOther">
-"When you add or edit a connection, you will see a connection configuration page.
+Finally, you can use the Search Connections field to quickly find connections by filter shown connections."</string>
+    <string name="opaque_connection_screen_help_text" tools:ignore="TypographyOther">"
+When you add or edit a connection, you will see a connection configuration page.
 Here you can set up a new Opaque connection or choose a preexisting one.
 At the top is a button that allows you to save the connection.
 Below that is where you configure your connection.
@@ -908,7 +903,7 @@ Below that is where you configure your connection.
 
  - Password: If you'd like to save the password, enter it here or leave the field empty to be queried for it every time.
 
- - Advanced settings: In this section you'll find any local device, protocol, and performance tweaks.
+ - Advanced settings: In this section you'll find any local device, protocol, and performance tweaks."
     </string>
     <string name="help">Help</string>
     <string name="support_forum">Support Forum</string>

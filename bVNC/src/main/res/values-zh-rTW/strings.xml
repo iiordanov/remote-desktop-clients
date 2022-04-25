@@ -58,7 +58,7 @@
   <string name="ok">OK</string>
 
   <string name="input_methods">輸入方式</string>
-  <string name="input_method_help_text">
+  <string name="input_method_help_text">"
 在所有輸入方式下都可以透過點選鍵盤圖標來顯示屏上鍵盤。鍵盤的顯示方法因使用的機器而異。
 
 使用直接輸入方式可以更直觀地控制觸摸屏。使用模擬觸摸板方式可以更好地控制滑鼠。
@@ -98,8 +98,7 @@
   -放大/縮小：縮放即可控制顯示的大小
   -Ctrl / Alt鍵：功能表-> Ctrl / Alt按鈕。完成後請不要忘記關閉！
   -按鍵組合：功能表->更多->發送按鍵
-  -發送文字：在屏幕鍵盤上輸入文字，或使用功能表->更多->發送文字
-</string>
+  -發送文字：在屏幕鍵盤上輸入文字，或使用功能表->更多->發送文字"</string>
 
   <string name="error_failed_to_download_vv_http">透過HTTP下載.vv檔案失敗了。 該伺服器可能無法存取。</string>
   <string name="error_failed_to_download_vv_https"> 透過HTTPS下載.vv檔案失敗了。伺服器憑證可能不受信任（過期或自簽），或者無法到達伺服器。</string>
@@ -318,8 +317,8 @@
   <string name="input_mode_drag_pan_zoom_mouse">直接、按住並平移</string>
   <string name="input_mode_fit_to_screen">無平移：軌跡球滑鼠</string>
   <string name="input_mode_help">輸入模式操作幫助</string>
-  <string name="input_mode_help_text">
-"在所有輸入模式下都可以透過點選鍵盤圖標來顯示屏上鍵盤。鍵盤的顯示方法因使用的機器而異。
+  <string name="input_mode_help_text">"
+在所有輸入模式下都可以透過點選鍵盤圖標來顯示屏上鍵盤。鍵盤的顯示方法因使用的機器而異。
 
 使用直接輸入模式可以更直觀地控制觸摸屏。 使用模擬觸摸板模式可以更好地控制滑鼠。
 
@@ -358,8 +357,7 @@
   -放大/縮小：縮放即可控制顯示的大小
   -Ctrl / Alt鍵：功能表-&gt; Ctrl / Alt按鈕。完成後請不要忘記關閉！
   -按鍵組合：功能表-&gt;更多-&gt;發送按鍵
-  -發送文字：在屏幕鍵盤上輸入文字，或使用菜單-&gt;更多-&gt;發送文字"
-  </string>
+  -發送文字：在屏幕鍵盤上輸入文字，或使用菜單-&gt;更多-&gt;發送文字"</string>
   <string name="input_mode_mouse">滑鼠指標控制</string>
   <string name="input_mode_panning">桌面平移模式</string>
   <string name="input_mode_single_handed">單手</string>
@@ -369,7 +367,7 @@
   <string name="intro_dont_show">不再顯示</string>
   <string name="intro_header" />
   <string name="intro_text">
-"bVNC對應的功能如下：
+bVNC對應的功能如下：
 &lt;br&gt;
 - Plain VNC／基於SSH的安全VNC／AnonTLS／VeNCrypt／UltraVNC Windows登入（帶有可選中繼器）
 &lt;br&gt;
@@ -415,8 +413,7 @@
 &lt;br&gt;
 &lt;br&gt;
 已知的問題：
-&lt;br&gt;"
-  </string>
+&lt;br&gt;</string>
   <string name="intro_title">bVNC：又直觀又安全的VNC客戶端</string>
   <string name="intro_version_text" />
   <string name="keep_password_button">保存</string>
@@ -428,7 +425,7 @@
   <string name="list_name_caption">一覽表名</string>
   <string name="local_mouse_check">本地滑鼠指標（指標不可見時選擇）</string>
   <string name="main_screen_help">連接操作幫助</string>
-  <string name="vnc_connection_screen_help_text" tools:ignore="TypographyOther">
+  <string name="vnc_connection_screen_help_text" tools:ignore="TypographyOther">"
 新建或編輯連接時連接設定畫面會顯示出來。在此可以設置新的VNC連接設定或選擇現有的連接。頂部有儲存連接的按鈕，下面可設定連接。
 
 如果要快速提高性能，請嘗試將“色彩”模式設置為較低的值。另外，請嘗試刪除VNC伺服器上的所有桌面背景圖像。最後，請確認您的設備具有良好的網絡連接性，並避免由於覆蓋其天線而降低信號強度。
@@ -464,46 +461,18 @@
 
 -自動/全屏位圖：VNC客戶端使用位圖表示遠端顯示。對於非常大的遠端顯示器，尤其是在適合於屏幕的模式下，由於每個進程的內存限制，您可能會遇到奇怪的視覺偽像。如果發生這種情況，請嘗試勾選此選項。 請記住，勾選該選項可能會導致應用程式中斷連接。
 
--中繼器：僅在UltraVNC模式下可用。 重要信息：如果您有UltraVNC中繼器，請在“ UltraVNC中繼器”對話框之外輸入其位址和端口，並在“ UltraVNC中繼器”對話框中輸入實際VNC伺服器的位址和端口。 用冒號分隔VNC伺服器的位址和端口，例如 192.168.0.100:5900。</string>
+-中繼器：僅在UltraVNC模式下可用。 重要信息：如果您有UltraVNC中繼器，請在“ UltraVNC中繼器”對話框之外輸入其位址和端口，並在“ UltraVNC中繼器”對話框中輸入實際VNC伺服器的位址和端口。 用冒號分隔VNC伺服器的位址和端口，例如 192.168.0.100:5900。"</string>
 
 
-  <string name="main_screen_help_text">
-"首次啟動本App時連接設定畫面會顯示出來。在此可以設置新的VNC連接設定或選擇現有的VNC連接。該頁面分為2個部分，頂部有下拉功能表顯示之前創建的連接設定。首次啟動本App時只能創建新的連接。下拉功能表旁邊有連接按鈕，按下它就按照當前的設定啟動VNC客戶端。在連接按鈕之下可設定連接。
+  <string name="main_screen_help_text">"
+當App啟動時會顯示的畫面是儲存的連接的。
 
-如果要快速提高性能，請嘗試將\"色彩\"模式設置為較低的值。另外，請嘗試刪除VNC伺服器上的所有桌面背景圖像。最後，請確認您的設備具有良好的網絡連接性，並避免由於覆蓋其天線而降低信號強度。
+如果沒有儲存的連接，畫面的下半部分是空的，請您按+按鈕來創建新的連接。
+也可以透過點選畫面上邊有的其他工具條或功能表選項等來進行默認設定的編輯、設定的匯入／匯出等的設定操作。
 
--連接類型：在此處選擇VNC連接類型。可用的連接類型如下：
-  （a）普通VNC：所有VNC伺服器都支持，但缺乏加密，並且由於密碼限制為8個字符，因此容易受到蠻力攻擊。
-  （b）透過SSH的安全VNC：它透過加密的SSH隧道連接。您需要運行SSHD服務以及VNC伺服器。只要VNC伺服器不直接連接到因特網，此連接類型就不會遭受任何已知的漏洞。在首次連接時需要驗證服務器證書籤名。
-  （c）UltraVNC：它為您提供Windows登入和UltraVNC轉發器選項。使用Windows登入不受8個字符的密碼限制，但是此模式不提供加密，因此您的會話很容易被嗅探。
-  （d）透過AnonTLS的安全VNC：這是透過相當於Stunnel連接的常規VNC。您要麼需要運行Stunnel，要麼使用像對應AnonTLS的Vino等VNC服務器。此模式為您提供會話加密，但受到8個字符的密碼限制，因此有可能受到中間人攻擊。
-  （e）透過VeNCrypt的安全VNC：它使用x509證書以及會話加密，密碼根據服務器設定，可以使用不受到8個字符限制的用戶/密碼憑據。此模式可防止中間人攻擊，以及提供會話隱私。 x11vnc和TigerVNC等服務器支持此模式，與透過SSH的VNC一樣安全。
+儲存設定後再按下就可以與遠端伺服器連接。也可以透過長按來進行連接目標的刪除或編輯。
 
--標題：您創建的每個連接都可以有一個暱稱，以便在列表中輕鬆識別它。
-
--SSH隧道設置：在SSH模式的VNC中可用。
-  （a）SSH服務器/端口：將透過隧道建立連接的SSH服務器的地址和端口。 默認端口是22。
-  （b）用戶名/密碼：SSH服務器上帳戶的用戶名和密碼。 未退出本App，密碼就保留在畫面上。
-  （c）管理密鑰/使用密鑰：用於管理公開金鑰／密鑰的按鈕，以及驗證方法是否從密碼改為密鑰的選項。如果在生成密鑰對後使用\"複製到剪貼板\"按鈕的話，連接到VNC服務器後可以粘貼公開金鑰（剪貼板同步到服務器）。
-
--設置AutoX：僅在SSH模式下的VNC中可用。 本App可以在UNIX系統（例如NX客戶端）上自動發現現有的X會話，並可以選擇創建新的X會話。您需要x11vnc來查找，並且需要在遠端系統上安裝Xvfb、Xvnc或Xdummy來創建會話。如果您的桌面看起來不正確或您僅獲得xterm窗口，則可能必須移走.dmrc文件並在主目錄中添加.xinit文件。
-
--VNC連接設置：
-  （a）VNC服務器／端口：在此輸入運行VNC服務器的計算機的主機名或IP地址與端口號。在透過SSH模式的VNC中，SSH服務器也咖已看到此IP地址。如果SSH服務器與VNC服務器在同一台計算機上，就可以使用localhost。VNC服務器通常從端口5900開始偵聽（第一個VNC屏幕，屏幕：0）。
-  （b）VNC用戶：在具有Windows登入模式的UltraVNC中可用，或透過VeNCrypt的安全VNC中可用。在此輸入Windows / UNIX帳戶用戶名。
-  （c）VNC密碼：如果您的VNC服務器設置需要密碼，在此輸入該密碼。具有Windows登錄或VeNCrypt模式的UltraVNC的話，在此輸入Windows / UNIX帳戶密碼。 密碼不使用安全存儲，只有選中\"保持\"選項，才會存儲密碼。未退出本App，密碼就保留在畫面上。
-
--顏色模式：客戶端支持幾種顏色模式。 如果選用具有更多顏色的模式，就可以提供更好的視覺體驗，但在設備上需要更大的帶寬和更多的CPU計算。 某些VNC服務器不支持所有顏色深度（例如OS / X遠端桌面需要24位顏色）。 如果連接時遇到問題，請嘗試其他顏色深度。
-
--D-Pad用於箭頭：想要將箭頭髮送到VNC服務器時，可以使用藍牙鍵盤的D-Pad或屏幕鍵盤上的箭頭。
-
--旋轉D-Pad：與Bluetooth鍵盤配對的裝置可能需要逆時針旋轉鍵盤的D-pad，才能將正確的方向發送到服務器。
-
--本地滑鼠指標：某些VNC服務器（例如OS / X遠端桌面）不會在客戶端上繪製滑鼠指標。 選中此選項將使本App在滑鼠位置繪製一個小方塊。
-
--自動/全屏位圖：VNC客戶端使用位圖表示遠程顯示。 對於非常大的遠程顯示器，尤其是在適合於屏幕的模式下，由於每個進程的內存限制，您可能會遇到奇怪的視覺偽像。 如果發生這種情況，請嘗試勾選此選項。 請記住，勾選該選項可能會導致本App中斷連接。
-
--中繼器：僅在UltraVNC模式下可用。 重要信息：如果您有UltraVNC中繼器，請在\" UltraVNC中繼器\"對話框之外輸入其地址和端口，並在\" UltraVNC中繼器\"對話框中輸入實際VNC服務器的地址和端口。 用冒號分隔VNC服務器的地址和端口，例如 192.168.0.100:5900。"
+使用“搜尋連接”字段的話，就可以透過過濾器來快速查找連接。"
   </string>
   <string name="master_password_enable">使主密碼有效</string>
   <string name="master_password_error_failed_to_disable">無法使主密碼無效。 請確認設備上的可用空間，然後重試。</string>
@@ -584,7 +553,7 @@
     <item>@string/rdp_geom_custom</item>
   </string-array>
   <string name="rdp_intro_text">
-"感謝您支援aRDP以及開源軟件！關於aRDP的用法，請參照功能表中的幫助項目以及應用的說明。
+感謝您支援aRDP以及開源軟件！關於aRDP的用法，請參照功能表中的幫助項目以及應用的說明。
 &lt;br&gt;
 &lt;br&gt;
 aRDP對應的功能如下：
@@ -636,10 +605,10 @@ aRDP對應預定的功能：
 &lt;br&gt;
 &lt;br&gt;
 已知的問題：
-&lt;br&gt;"
+&lt;br&gt;
   </string>
   <string name="rdp_intro_title">aRDP：又直觀又安全的RDP客戶端</string>
-  <string name="rdp_connection_screen_help_text" tools:ignore="TypographyOther">
+  <string name="rdp_connection_screen_help_text" tools:ignore="TypographyOther">"
 新建或編輯連接時連接設定畫面會顯示出來。在此可以設置新的RDP連接設定或選擇現有的連接。頂部有儲存連接的按鈕，下面可設定連接。
 
 -連接類型：在此處選擇RDP連接類型。可用的連接類型如下：
@@ -665,7 +634,7 @@ aRDP對應預定的功能：
 
  （b）旋轉D-Pad：與Bluetooth鍵盤配對的手機可能需要逆時針旋轉鍵盤的D-pad，才能將正確的方向發送到伺服器。
 
- （c）本地滑鼠指標：如果滑鼠指標隱藏的話，勾選此選項將使應用程式顯示滑鼠位置。</string>
+ （c）本地滑鼠指標：如果滑鼠指標隱藏的話，勾選此選項將使應用程式顯示滑鼠位置。"</string>
   <string name="rdp_main_screen_help_text">
 "首次啟動aRDP時連接設定畫面會顯示出來。在此可以設置新的RDP連接設定或選擇現有的RDP連接。該頁面分為2個部分，頂部有下拉功能表顯示之前創建的連接設定。首次啟動aRDP時只能創建新的連接。下拉功能表旁邊有連接按鈕，按下它就按照當前的設定啟動RDP客戶端。在連接按鈕之下可設定連接。
 
@@ -739,7 +708,7 @@ aRDP對應預定的功能：
     <item>@string/connection_type_spice_over_ssh</item>
   </string-array>
   <string name="spice_intro_text">
-"感謝您支援aSPICE以及開源軟件！關於aSPICE的用法，請參照功能表中的幫助項目以及應用的說明。
+感謝您支援aSPICE以及開源軟件！關於aSPICE的用法，請參照功能表中的幫助項目以及應用的說明。
 &lt;br&gt;
 &lt;br&gt;
 aSPICE對應的功能如下：
@@ -788,10 +757,10 @@ aSPICE對應的功能如下：
 已知的問題：
 &lt;br&gt;
 - 有非對應文本發送
-&lt;br&gt;"
+&lt;br&gt;
   </string>
   <string name="spice_intro_title">aSPICE：又直觀又安全的SPICE客戶端</string>
-  <string name="spice_connection_screen_help_text" tools:ignore="TypographyOther">
+  <string name="spice_connection_screen_help_text" tools:ignore="TypographyOther">"
 新建或編輯連接時連接設定畫面會顯示出來。在此可以設置新的SPICE連接設定或選擇現有的連接。頂部有儲存連接的按鈕，下面可設定連接。
 
 -連接類型：在此處選擇SPICE連接類型。可用的連接類型如下：
@@ -816,7 +785,7 @@ aSPICE對應的功能如下：
 
   （b）旋轉D-Pad：與Bluetooth鍵盤配對的裝置可能需要逆時針旋轉鍵盤的D-pad，才能將正確的方向發送到伺服器。
 
-  （c）本地滑鼠指標：如果滑鼠指標隱藏的話，勾選此選項將使應用程式顯示滑鼠位置。</string>
+  （c）本地滑鼠指標：如果滑鼠指標隱藏的話，勾選此選項將使應用程式顯示滑鼠位置。"</string>
   <string name="spice_main_screen_help_text">
 "首次啟動aSPICE時連接設定畫面會顯示出來。在此可以設置新的SPICE連接設定或選擇現有的SPICE連接。該頁面分為2個部分，頂部有下拉功能表顯示之前創建的連接設定。首次啟動aSPICE時只能創建新的連接。下拉功能表旁邊有連接按鈕，按下它就按照當前的設定啟動SPICE客戶端。在連接按鈕之下可設定連接。
 
@@ -907,7 +876,7 @@ aSPICE對應的功能如下：
   <string name="enter_passphrase_title">輸入密鑰密碼</string>
   <string name="enter_passphrase">請輸入密鑰密碼</string>
   <string name="ssh_server_needs_password_in_addition_to_key">您的伺服器除了金鑰鑑定外，還需要密碼鑑定。</string>
-  <string name="opaque_connection_screen_help_text" tools:ignore="TypographyOther">
+  <string name="opaque_connection_screen_help_text" tools:ignore="TypographyOther">"
 新建或編輯連接時連接設定畫面會顯示出來。在此可以設置新的OPAQUE連接設定或選擇現有的連接。頂部有儲存連接的按鈕，下面可設定連接。
 
 -連接類型：在此處選擇要連接的VE。
@@ -920,8 +889,7 @@ aSPICE對應的功能如下：
 
 - 密碼：如果你想儲存密碼，請在此輸入。或者將該字段留空，每次都被查問到密碼。
 
-- 高級設置：在此有本地設備、協議和性能的調整。
-    </string>
+- 高級設置：在此有本地設備、協議和性能的調整。"</string>
   <string name="help">說明</string>
   <string name="support_forum">支援論壇</string>
   <string name="report_bug">報告BUG</string>

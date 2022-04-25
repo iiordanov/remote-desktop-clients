@@ -1,5 +1,6 @@
 v5.0.9
 - Android localization: Updated translatations for ko, ja, zh-rCN, and zh-rTW
+- Removed Import/Export Button from Connection Setup Layout
 v5.0.8
 - Security library upgrade
 - Thumbnail bugfix 
