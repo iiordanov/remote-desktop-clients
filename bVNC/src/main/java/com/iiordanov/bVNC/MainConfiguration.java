@@ -159,14 +159,6 @@ public abstract class MainConfiguration extends FragmentActivity {
 
         database = ((App)getApplication()).getDatabase();
 
-        // Define what happens when the Import/Export button is pressed.
-        ((Button) findViewById(R.id.buttonImportExport)).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showDialog(R.layout.importexport);
-            }
-        });
-
         ((Button) findViewById(R.id.copyLogcat)).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

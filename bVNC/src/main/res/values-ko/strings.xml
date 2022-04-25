@@ -59,8 +59,8 @@
   <string name="ok">Ok</string>
 
   <string name="input_methods">입력 방식</string>
-  <string name="input_method_help_text">
-"어떤 입력 방법이든 키보드 아이콘을 탭하여 화면 키보드를 표시합니다. 또한 기기에 키보드를 표시하는 고유한 제스처가 있을 수 있습니다.
+  <string name="input_method_help_text">"
+어떤 입력 방법이든 키보드 아이콘을 탭하여 화면 키보드를 표시합니다. 또한 기기에 키보드를 표시하는 고유한 제스처가 있을 수 있습니다.
 
 직관적인 터치 스크린 제어에는 직접 입력 모드를 사용합니다. 마우스를 더 세밀하게 제어하려면 시뮬레이션된 터치패드 모드를 사용합니다.
 
@@ -99,8 +99,7 @@
    - 줌인/줌아웃: 핀치 줌으로 스케일링을 제어합니다.
    -Ctrl/Alt 키: 메뉴->Ctrl/Alt 버튼. 완료되면 끄는 것을 잊지 마십시오!
    - 키 조합: [메뉴]->[기타]->[키 보내기].
-   - 텍스트 보내기: 화면 키보드로 입력하거나 [메뉴]->[기타]->[텍스트 보내기]를 사용합니다."
-</string>
+   - 텍스트 보내기: 화면 키보드로 입력하거나 [메뉴]->[기타]->[텍스트 보내기]를 사용합니다."</string>
 
   <string name="error_failed_to_download_vv_http">HTTP를 통해 .vv 파일을 다운로드할 수 없습니다. 아마도 서버에 연결할 수 없습니다.</string>
   <string name="error_failed_to_download_vv_https">HTTPS를 통해 .vv 파일을 다운로드할 수 없습니다. 서버 인증서가 신뢰되지 않거나(만료되었거나 자체 서명된) 서버에 도달하지 못할 수 있습니다.</string>
@@ -319,8 +318,8 @@
   <string name="input_mode_drag_pan_zoom_mouse">직접, 길게 누르고 평행 이동</string>
   <string name="input_mode_fit_to_screen">평행 이동 없음; 트랙볼 마우스</string>
   <string name="input_mode_help">입력 모드 HELP</string>
-  <string name="input_mode_help_text">
-"키보드 아이콘을 탭하여 온 스크린 키보드를 표시(모든 입력 모드에 대응). 사용 기기에 따라 키보드 표시 방법은 다릅니다.
+  <string name="input_mode_help_text">"
+키보드 아이콘을 탭하여 온 스크린 키보드를 표시(모든 입력 모드에 대응). 사용 기기에 따라 키보드 표시 방법은 다릅니다.
 
 직접 입력 모드 사용하면 더 직관적 인 터치 스크린 조작이 가능합니다. 터치 패드 시뮬레이션 모드로하면 마우스를 사용한 손가락 조작이 가능합니다.
 
@@ -359,8 +358,7 @@
 ･확대/축소 : 핀치 인 /아웃에서 표시 크기 제어
 ･Ctrl/Alt 키 : 메뉴&gt; Ctrl/Alt 스위치 종료 후 해제하는 것을 잊지 마세요!
 ･키 콤보 : 메뉴&gt; 상세&gt; 키를 전송
-･텍스트 전송 : 온 스크린 키보드로 입력하거나 메뉴&gt; 상세&gt; 텍스트 전송에서 입력"
-  </string>
+･텍스트 전송 : 온 스크린 키보드로 입력하거나 메뉴&gt; 상세&gt; 텍스트 전송에서 입력"</string>
   <string name="input_mode_mouse">마우스 포인터 컨트롤</string>
   <string name="input_mode_panning">데스크톱 패닝 모드</string>
   <string name="input_mode_single_handed">한손</string>
@@ -370,7 +368,7 @@
   <string name="intro_dont_show">다음부터 비표시</string>
   <string name="intro_header" />
   <string name="intro_text">
-"bVNC의 대응 기능는 이하와 같습니다 :
+bVNC의 대응 기능는 이하와 같습니다 :
 
 &lt;br&gt;
 ･Plain VNC/SSH를 통해 안전한 VNC/AnonTLS/VeNCrypt/UltraVNC (리피터있는 Windows 로그온)
@@ -417,8 +415,7 @@
 &lt;br&gt;
 &lt;br&gt;
 문제:
-&lt;br&gt;"
-  </string>
+&lt;br&gt;</string>
   <string name="intro_title">bVNC: 직관적이고 안전한 VNC 클라이언트</string>
   <string name="intro_version_text" />
   <string name="keep_password_button">저장</string>
@@ -430,8 +427,8 @@
   <string name="list_name_caption">리스트 이름</string>
   <string name="local_mouse_check">로컬 마우스 포인터(포인터가 가시가능한 경우는 선택)</string>
   <string name="main_screen_help">연결 도움</string>
-  <string name="vnc_connection_screen_help_text" tools:ignore="TypographyOther">
-"연결을 추가하거나 수정하면 연결 구성 페이지가 표시됩니다. 여기에서 설정할 수 있습니다.
+  <string name="vnc_connection_screen_help_text" tools:ignore="TypographyOther">"
+연결을 추가하거나 수정하면 연결 구성 페이지가 표시됩니다. 여기에서 설정할 수 있습니다.
 새 VNC 연결을 설정하거나 기존 연결을 선택합니다. 상단에는 다음을 수행할 수 있는 버튼이 있습니다.
 연결을 저장합니다. 그 아래에 연결을 구성합니다.
 
@@ -464,42 +461,15 @@
 
  - 십자 키 회전: 블루투스 키보드와 페어링된 전화기에서는 서버에 올바른 방향을 보내려면 키보드의 십자 키를 반시계 방향으로 회전해야 할 수 있습니다."</string>
 
-  <string name="main_screen_help_text" tools:ignore="TypographyOther">
-"본  애플리케이션 시작할 때 연결 설정 화면이 표시됩니다. 여기에서는 새 VNC 연결 설정하거나 기존 연결 선택이 가능합니다. 페이지는 두 섹션으로 나누어 져 있으며, 화면 상단에서는 과거의 연결 설정 풀다운 메뉴에서 표시됩니다. 본  애플리케이션를 처음 실행하면 새 설정 화면 만 표시됩니다. 풀다운 메뉴 옆에있는 연결 스위치를 누르면, 선택한 설정으로 VNC 클라이언트가 시작됩니다. 연결 스위치 아래에서 연결 설정을합니다.
+  <string name="main_screen_help_text" tools:ignore="TypographyOther">"
+애플리케이션을 기동하면, 보존된 접속의 스크린 화면이 표시됩니다.
 
-간단한 성능 개선을 요구하는 경우 화면의 색상 설정을 낮은 것으로 변경하거나 또는 VNC 서버의 데스크탑 배경 이미지를 제거에도 효과적입니다. 사용중인 단말기의 네트워크 상태를 확인하고 안테나가 덮여 통신 강도가 떨어지는 일이 없도록하십시오.
+보존되고 있는 접속이 없을 경우는, 화면의 하부가 공란이 되고 있기 때문에, +버튼을 눌러서 신규접속을 작성해 주세요.
+또, 화면위로 있는 타툴바나, 화면상부의 menu option을 탭 하는 것에 의해, 디폴트 설정의 편집이나, 설정의 임포트, 익스포트 등, 다른 설정 조작이 가능합니다.
 
-･연결 타입 : 사용하는 VNC 연결 타입을 아래에서 선택하십시오.
-   (a) Plain VNC : 전체 VNC 서버에 대응하고 있습니다. 단, 암호화 비대응. 또한 Password 8문자 제한을 위해 무차별 대입 공격을 받기 쉽다.
-   (b) SSH를 통해 안전한 VNC : 암호화 된 SSH 터널을 통한 연결을 지원하고있다. VNC 서버와 SSHD 서비스가 필요합니다. VNC 서버가 인터넷에서 직접 연결을 지원하지 않으면 취약점의 두려움없이. 초기 연결시 서버 인증서 서명의 확인이 필요합니다.
-   (c) UltraVNC : Windows 로그온 및 UltraVNC 리피터 옵션을 사용할 수 있습니다. Windows 로그온 Password 8 문자 제한은 없지만, 암호화는 지원을 위해 sniffing되는 경우가 있습니다.
-   (d) AnonTLS 통해 안전한 VNC : Stunnnel 상당의 연결을 지원하는 일반적인 VNC. Stunnel을 가동 시키거나 AnonTLS에 대응하고있는, Vino 등의 VNC 서버의 사용이 필요합니다. 암호화에 대응하고 있지만, Password 8문자 제한을 위해 중앙 공격을받을 수 있습니다.
-   (e) VeNCrypt 통해 안전한 VNC : x509 인증서 사용 암호화를 지원합니다. Password 설정은 서버 측에 의존하고 사용자 이름/Password 인증 정보가 사용 가능하다. Password 8문자 제한은 없다. 중간자 공격을 방지 할 수 있습니다. x11vnc과 TigerVNC 등의 서버가 본 연결 유형을 지원하고 있으며, 안전 수준은 SSH경유한 VNC와 동등
+접속의 보존후, 탭 하는 것에 의해, 리모트 서버에의 접속이 가능합니다. 또, 롱 탭을 해서 접속처의 삭제혹은 편집을 선택하는 것도 가능합니다.
 
-･제목 : 작성한 연결에 이름을 붙일 수 있습니다.
-
-･SSH 터널 설정 : SSH를 통해 VNC를 모드 한정
-   (a) SSH 서버 / 포트 : SSH 서버 IP 주소와 포트 번호. 기본 포트 번호는 22.
-   (b) 사용자 이름 / Password : SSH 서버 Account 정보 (사용자 이름 / Password). 본  애플리케이션을 중단하지 않으면 입력 한 Password 입력 된 상태로 됩니다.
-   (c) 키 관리 / 키의 사용 : 공개 키 / 비밀 키 관리 용 스위치. 인증 방법 Password 대신 키 사용 여부 체크 박스. key-pair (공개 키와 비밀 키) 생성 후 클립 포 드에 복사를 실행한 경우 VNC 서버에 연결 한 후 공개 키 붙여 넣기가 가능합니다. (클립 보드는 서버에 동기화되는)
-
-· VNC 연결 설정 :
-   (a) VNC 서버/포트 : VNC 서버를 가동하는 컴퓨터의 호스트 이름 또는 IP 주소와 포트 번호를 입력합니다. SSH를 통해 VNC를 모드의 경우이 IP 주소는 SSH 서버에서도 볼 수있다. SSH 서버와 VNC 서버가 동일한 컴퓨터 인 경우 localhost를 사용할 수 있습니다. VNC 서버는 일반적으로 포트 5900에서 시작합니다. (첫 번째 VNC 화면, 스크린 : 0)
-   (b) VNC 사용자 : Windows 로그온 유의 UltraVNC 혹은 VeNCrypt 통해 안전한 VNC를 사용할 수 있습니다. Windows/UNIX Account의 사용자 이름을 입력합니다.
-   (c) VNC Password : VNC 서버 설정이 Password를 필요로하는 경우 여기에 입력한다. Windows 로그온 유의 UltraVNC/VeNCrypt 연결 타입의 경우 Windows/UNIX Account의 Password를 입력한다. Password용 secure storage는 사용되지 않습니다. "저장"에 체크 한 경우에만 Password 저장됩니다. 본  애플리케이션을 중단하지 않으면 입력 한 Password 입력 된 상태로됩니다.
-
-･컬러 모드 : 복수의 선택 사항이 있습니다. 색상 수가 많은 모드를 선택하면 단말기의 처리 능력과 CPU 연산 능력에 따라 더 아름다운 표시가 실현 가능합니다.
-
-･VNC 서버따라서는 모든 색상 심도에 대응하지 않을 수 있습니다. (예 : OS/X 원격 데스크톱은 24비트 컬러가 필요) 연결이 잘되지 않으면 다른 색상 심도를 시도해보십시오.
-
-･화살표 D-Pad를 사용 : VNC 서버에 화살표를 보내는 경우 Bluetooth 키보드의 D-Pad 혹은 온 스크린 키보드의 화살표가 사용 가능합니다.
-･D-Pad의 회전 : Bluetooth 키보드와 페어링 된 단말기의 경우,올바른 방향을 서버로 전송하기 위해 키보드의 D-Pad를 반 시계 방향으로 회전시킬 필요가 있습니다.
-
-･로컬 마우스 포인터 : VNC 서버따라서는 마우스 포인터가 클라이언트에 표시되지 않습니다. (예 : OS/X 리모트 데스크탑)이 기능을 사용하여 마우스 위치에 작은 사각형이 표시됩니다.
-
-· 자동/전체 화면 비트 맵 : 리모트 디스플레이에 VNC 클라이언트는 비트 맵을 사용합니다. 면적이 큰 리모트 디스플레이, 특히 Fit-to-screen 모드에서는 반드시 프로세스 별 메모리 제한의 영향으로 부 자연스러운 표시 될 수있습니다. 이 경우, 이 기능의 사용을 권장합니다. 주의점으로 이 기능을 사용하면 본  애플리케이션의 연결이 끊킬수도 있습니다.
-
-･리피터 : 연결 타입 UltraVNC 선택시에만 가능합니다. 중요 : UltraVNC 리피터를 가지고 계신 경우 IP주소 및 포트 번호는 \'UltraVNC Repeater\' 다이얼로그 밖에 입력하고 실제 VNC 서버의 IP주소 및 포트 번호는 \'UltraVNC Repeater\' 다이얼로그의 안에 입력한다. VNC 서버의 IP주소와 포트 번호는 콜론으로 구분합니다. (예 : 192.168.0.100 : 5900)"
+[접속의 검색]필드를 사용하면, 표시되어 있는 접속을 필터링해서 접속을 신속하게 찾을 수 있습니다."
   </string>
   <string name="master_password_enable">마스터 Password를 활성화하는</string>
   <string name="master_password_error_failed_to_disable">마스터 Password를 비활성화 할 수 없습니다.기기의 가능한 용량을 확인하고 다시 실행하십시오.</string>
@@ -580,7 +550,7 @@
     <item>@string/rdp_geom_custom</item>
   </string-array>
   <string name="rdp_intro_text">
-"aRDP 및 범용 오픈 소스 소프트웨어에 대한 지원에 감사합니다! aRDP의 사용에 관해서는 메뉴의 도움말 항목 애플리케이션 설명을 참조하십시오.
+aRDP 및 범용 오픈 소스 소프트웨어에 대한 지원에 감사합니다! aRDP의 사용에 관해서는 메뉴의 도움말 항목 애플리케이션 설명을 참조하십시오.
 &lt;br&gt;
 &lt;br&gt;
 aRDP의 대응 기능는 이하와 같다:
@@ -633,11 +603,11 @@ aRDP지원 예정 기능:
 ･사운드
 &lt;br&gt;
 &lt;br&gt;
-문제:"
+문제:
   </string>
   <string name="rdp_intro_title">aRDP: 직관적이고 안전한 RDP 클라이언트</string>
-  <string name="rdp_connection_screen_help_text" tools:ignore="TypographyOther">
-"연결을 추가하거나 편집하면 연결 구성 페이지가 표시됩니다. 여기에서 새 RDP 연결을 설정하거나 기존 연결을 선택할 수 있습니다. 상단에는 연결을 저장하는 버튼이 있습니다. 여기에 연결을 구성합니다.
+  <string name="rdp_connection_screen_help_text" tools:ignore="TypographyOther">"
+연결을 추가하거나 편집하면 연결 구성 페이지가 표시됩니다. 여기에서 새 RDP 연결을 설정하거나 기존 연결을 선택할 수 있습니다. 상단에는 연결을 저장하는 버튼이 있습니다. 여기에 연결을 구성합니다.
 
  - 연결 유형: 여기에서는 RDP 연결 유형을 선택합니다. 사용 가능한 연결 유형은 다음과 같습니다.
  (a) RDP. RDP 프로토콜을 통해 컴퓨터에 직접 연결합니다.
@@ -737,7 +707,7 @@ aRDP지원 예정 기능:
     <item>@string/connection_type_spice_over_ssh</item>
   </string-array>
   <string name="spice_intro_text">
-"aSPICE 및 범용 오픈 소스 소프트웨어에 대한 지원 감사합니다! 메뉴의 도움말 아이템 애플리케이션 설명을 참조하십시오.
+aSPICE 및 범용 오픈 소스 소프트웨어에 대한 지원 감사합니다! 메뉴의 도움말 아이템 애플리케이션 설명을 참조하십시오.
 &lt;br&gt;
 &lt;br&gt;  
 aSPICEで의 대응 기능는 이하와 같다 :
@@ -788,11 +758,10 @@ aSPICEで의 대응 기능는 이하와 같다 :
 문제 :
 &lt;br&gt;
 ・"텍스트 전송 "비 대응의 기호 있다
-&lt;br&gt;"
-  </string>
+&lt;br&gt;</string>
   <string name="spice_intro_title">aSPICE: 직관적이고 안전한 SPICE 클라이언트</string>
-  <string name="spice_connection_screen_help_text" tools:ignore="TypographyOther">
-"연결을 추가하거나 편집하면 연결 구성 페이지가 표시됩니다. 여기에서 새 SPICE 연결을 설정하거나 기존 연결을 선택할 수 있습니다. 상단에는 연결을 저장하는 버튼이 있습니다. 여기에 연결을 구성합니다.
+  <string name="spice_connection_screen_help_text" tools:ignore="TypographyOther">"
+연결을 추가하거나 편집하면 연결 구성 페이지가 표시됩니다. 여기에서 새 SPICE 연결을 설정하거나 기존 연결을 선택할 수 있습니다. 상단에는 연결을 저장하는 버튼이 있습니다. 여기에 연결을 구성합니다.
 
  - 연결 유형: 여기에서는 SPICE 연결 유형을 선택합니다. 사용 가능한 연결 유형은 다음과 같습니다.
  (a) SPICE. SPICE 프로토콜을 통해 컴퓨터에 직접 연결합니다.
@@ -905,7 +874,7 @@ aSPICEで의 대응 기능는 이하와 같다 :
   <string name="enter_passphrase">키 패스프레이즈를 입력하세요.</string>
   <string name="ssh_server_needs_password_in_addition_to_key">서버는 키 인증 외에도 비밀번호 인증이 필요합니다.</string>
   <string name="opaque_connection_screen_help_text" tools:ignore="TypographyOther">
-연결을 추가하거나 편집하면 연결 구성 페이지가 표시됩니다.
+"연결을 추가하거나 편집하면 연결 구성 페이지가 표시됩니다.
 여기에서 새 Opaque 연결을 구성하거나 기존 연결을 선택할 수 있습니다.
 상단에는 연결을 저장하는 버튼이 있습니다.
 그 아래에 연결을 구성합니다.
@@ -920,8 +889,7 @@ aSPICEで의 대응 기능는 이하와 같다 :
 
   - 비밀번호: 비밀번호를 저장하려면 여기에 입력하거나 필드를 비워두고 매번 조회합니다.
 
-  - 고급 설정: 이 섹션에서는 로컬 장치, 프로토콜 및 성능의 미세 조정을 확인할 수 있습니다.
-    </string>
+  - 고급 설정: 이 섹션에서는 로컬 장치, 프로토콜 및 성능의 미세 조정을 확인할 수 있습니다."</string>
   <string name="help">도움</string>
   <string name="support_forum">지원 포럼</string>
   <string name="report_bug">버그보고</string>
