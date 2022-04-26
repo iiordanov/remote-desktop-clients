@@ -561,12 +561,6 @@
                 android:textAppearance="?android:attr/textAppearanceLarge" />
         </LinearLayout>
 
-        <Button
-            android:id="@+id/buttonImportExport"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/import_export_settings"
-            android:textAppearance="?android:attr/textAppearanceLarge" />
 
         <Button
             android:id="@+id/copyLogcat"
