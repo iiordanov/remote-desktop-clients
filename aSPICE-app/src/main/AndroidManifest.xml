@@ -3,10 +3,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.iiordanov.aSPICE"
     android:installLocation="auto"
-    android:versionCode="115093"
+    android:versionCode="115094"
     android:versionName="v5.0.9">
 
-    <uses-feature android:name="android.hardware.usb.host" />
+    <uses-feature
+        android:name="android.hardware.usb.host"
+        android:required="false" />
     <uses-sdk android:minSdkVersion="12" />
 
     <uses-permission tools:node="removeAll" />
