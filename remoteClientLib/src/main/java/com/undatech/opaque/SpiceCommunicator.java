@@ -397,6 +397,7 @@ public class SpiceCommunicator extends RfbConnectable {
                 canvas.waitUntilInflated();
                 android.util.Log.d(TAG, "Requesting new resolution: " + width + "x" + height);
                 SpiceRequestResolution(width, height);
+                writePointerEvent(0, 0, 0, 0, true);
                 resolutionRequests++;
             } else if (currentWidth == width && currentHeight == height) {
                 android.util.Log.d(TAG, "Resolution request satisfied, resetting resolutionRequests count");
