@@ -54,7 +54,6 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Handler;
-import android.os.Message;
 import android.os.SystemClock;
 import android.provider.Settings;
 import android.text.ClipboardManager;
@@ -69,8 +68,6 @@ import android.view.inputmethod.BaseInputConnection;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
 import android.widget.Toast;
-
-import androidx.appcompat.widget.AppCompatImageView;
 
 import com.iiordanov.android.bc.BCFactory;
 import com.iiordanov.bVNC.input.InputHandlerTouchpad;
@@ -108,7 +105,7 @@ import org.yaml.snakeyaml.scanner.Constant;
 
 import javax.security.auth.login.LoginException;
 
-public class RemoteCanvas extends AppCompatImageView
+public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView
         implements Viewable, GetTextFragment.OnFragmentDismissedListener {
     private final static String TAG = "RemoteCanvas";
 
@@ -220,10 +217,10 @@ public class RemoteCanvas extends AppCompatImageView
         super(context, attrs);
 
         clipboard = (ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE);
-        isVnc = Utils.isVnc(getContext());
-        isRdp = Utils.isRdp(getContext());
-        isSpice = Utils.isSpice(getContext());
-        isOpaque = Utils.isOpaque(getContext());
+        isVnc = Utils.isVnc(getContext().getPackageName());
+        isRdp = Utils.isRdp(getContext().getPackageName());
+        isSpice = Utils.isSpice(getContext().getPackageName());
+        isOpaque = Utils.isOpaque(getContext().getPackageName());
 
         final Display display = ((Activity) context).getWindow().getWindowManager().getDefaultDisplay();
         displayWidth = display.getWidth();
@@ -260,8 +257,7 @@ public class RemoteCanvas extends AppCompatImageView
         checkNetworkConnectivity();
         initializeClipboardMonitor();
         spicecomm = new SpiceCommunicator(getContext(), handler, this,
-                settings.isRequestingNewDisplayResolution() || settings.getRdpResType() == Constants.RDP_GEOM_SELECT_CUSTOM,
-                !Utils.isFree(getContext()) && settings.isUsbEnabled(), App.debugLog);
+                settings.isRequestingNewDisplayResolution(), settings.isUsbEnabled(), App.debugLog);
         rfbconn = spicecomm;
         pointer = new RemoteSpicePointer(spicecomm, this, handler);
         try {
@@ -462,12 +458,8 @@ public class RemoteCanvas extends AppCompatImageView
      */
     @Override
     public int getDesiredWidth() {
-        int w = getRemoteWidth(getWidth(), getHeight());
-        if (!connection.isRequestingNewDisplayResolution() &&
-                connection.getRdpResType() == Constants.RDP_GEOM_SELECT_CUSTOM) {
-            w = connection.getRdpWidth();
-        }
-        android.util.Log.d(TAG, "Width requested: " + w);
+        int w = getWidth();
+        android.util.Log.e(TAG, "Width requested: " + w);
         return w;
     }
 
@@ -476,12 +468,8 @@ public class RemoteCanvas extends AppCompatImageView
      */
     @Override
     public int getDesiredHeight() {
-        int h = getRemoteHeight(getWidth(), getHeight());
-        if (!connection.isRequestingNewDisplayResolution() &&
-                connection.getRdpResType() == Constants.RDP_GEOM_SELECT_CUSTOM) {
-            h = connection.getRdpHeight();
-        }
-        android.util.Log.d(TAG, "Height requested: " + h);
+        int h = getHeight();
+        android.util.Log.e(TAG, "Height requested: " + h);
         return h;
     }
 
@@ -491,9 +479,7 @@ public class RemoteCanvas extends AppCompatImageView
      *
      */
     private void initializeSpiceConnection() throws Exception {
-        spicecomm = new SpiceCommunicator(getContext(), handler, this, true,
-                                          !Utils.isFree(getContext()) && connection.isUsbEnabled(),
-                                          App.debugLog);
+        spicecomm = new SpiceCommunicator(getContext(), handler, this, true, true, App.debugLog);
         rfbconn = spicecomm;
         pointer = new RemoteSpicePointer(rfbconn, RemoteCanvas.this, handler);
         keyboard = new RemoteSpiceKeyboard(getResources(), spicecomm, RemoteCanvas.this,
@@ -537,8 +523,7 @@ public class RemoteCanvas extends AppCompatImageView
                 App.debugLog);
         rfbconn = rdpcomm;
         pointer = new RemoteRdpPointer(rfbconn, RemoteCanvas.this, handler);
-        keyboard = new RemoteRdpKeyboard(rdpcomm, RemoteCanvas.this, handler, App.debugLog,
-                                         connection.getPreferSendingUnicode());
+        keyboard = new RemoteRdpKeyboard(rfbconn, RemoteCanvas.this, handler, App.debugLog);
     }
 
     /**
@@ -573,8 +558,7 @@ public class RemoteCanvas extends AppCompatImageView
         boolean sslTunneled = connection.getConnectionType() == Constants.CONN_TYPE_STUNNEL;
         decoder = new Decoder(this, connection.getUseLocalCursor() == Constants.CURSOR_FORCE_LOCAL);
         rfb = new RfbProto(decoder, this, connection.getPrefEncoding(), connection.getViewOnly(),
-                sslTunneled, connection.getIdHashAlgorithm(), connection.getIdHash(), connection.getX509KeySignature(),
-                App.debugLog);
+                sslTunneled, connection.getIdHashAlgorithm(), connection.getIdHash(), connection.getX509KeySignature());
 
         rfbconn = rfb;
         pointer = new RemoteVncPointer(rfbconn, RemoteCanvas.this, handler);
@@ -605,7 +589,7 @@ public class RemoteCanvas extends AppCompatImageView
             showFatalMessageAndQuit(getContext().getString(R.string.error_anon_dh_unsupported));
         } catch (RfbProto.RfbPasswordAuthenticationException e) {
             Log.e(TAG, "Authentication failed, will prompt user for password");
-            handler.sendEmptyMessage(RemoteClientLibConstants.GET_VNC_PASSWORD);
+            handler.sendEmptyMessage(RemoteClientLibConstants.GET_VNC_CREDENTIALS);
             return;
         } catch (RfbProto.RfbUsernameRequiredException e) {
             Log.e(TAG, "Username required, will prompt user for username and password");
@@ -1004,10 +988,8 @@ public class RemoteCanvas extends AppCompatImageView
             remoteWidth = reqWidth;
         } else if (connection.getRdpResType() == Constants.RDP_GEOM_SELECT_NATIVE_PORTRAIT) {
             remoteWidth = Math.min(viewWidth, viewHeight);
-        } else if (connection.getRdpResType() == Constants.RDP_GEOM_SELECT_NATIVE_LANDSCAPE) {
-            remoteWidth = Math.max(viewWidth, viewHeight);
         } else {
-            remoteWidth = viewWidth;
+            remoteWidth = Math.max(viewWidth, viewHeight);
         }
         // We make the resolution even if it is odd.
         if (remoteWidth % 2 == 1) remoteWidth--;
@@ -1026,10 +1008,8 @@ public class RemoteCanvas extends AppCompatImageView
             remoteHeight = reqHeight;
         } else if (connection.getRdpResType() == Constants.RDP_GEOM_SELECT_NATIVE_PORTRAIT) {
             remoteHeight = Math.max(viewWidth, viewHeight);
-        } else if (connection.getRdpResType() == Constants.RDP_GEOM_SELECT_NATIVE_LANDSCAPE) {
-            remoteHeight = Math.min(viewWidth, viewHeight);
         } else {
-            remoteHeight = viewHeight;
+            remoteHeight = Math.min(viewWidth, viewHeight);
         }
         // We make the resolution even if it is odd.
         if (remoteHeight % 2 == 1) remoteHeight--;
@@ -1374,7 +1354,7 @@ public class RemoteCanvas extends AppCompatImageView
         }
 
         Log.d(TAG, "Saving screenshot to " + getContext().getFilesDir() + "/" + connection.getScreenshotFilename());
-        Utils.writeScreenshotToFile(myDrawable, getContext().getFilesDir() + "/" + connection.getScreenshotFilename(), 720);
+        Utils.writeScreenshotToFile(getContext(), myDrawable, getContext().getFilesDir() + "/" + connection.getScreenshotFilename(), 720, 600);
         disposeDrawable ();
 
         onDestroy();
@@ -1813,10 +1793,16 @@ public class RemoteCanvas extends AppCompatImageView
         android.util.Log.d(TAG, "onCreateInputConnection called");
         BaseInputConnection bic = new BaseInputConnection(this, false);
         outAttrs.actionLabel = null;
-        outAttrs.inputType = InputType.TYPE_NULL;
+        outAttrs.inputType = InputType.TYPE_NULL |
+                EditorInfo.TYPE_TEXT_VARIATION_PASSWORD |
+                EditorInfo.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD |
+                EditorInfo.TYPE_TEXT_FLAG_NO_SUGGESTIONS;
         String currentIme = Settings.Secure.getString(getContext().getContentResolver(), Settings.Secure.DEFAULT_INPUT_METHOD);
         android.util.Log.d(TAG, "currentIme: " + currentIme);
-        outAttrs.imeOptions |= EditorInfo.IME_FLAG_NO_FULLSCREEN;
+        outAttrs.imeOptions |= EditorInfo.IME_FLAG_NO_FULLSCREEN |
+                EditorInfo.IME_FLAG_NO_EXTRACT_UI |
+                EditorInfo.IME_FLAG_NO_ENTER_ACTION |
+                EditorInfo.IME_ACTION_NONE;
         return bic;
     }
 
@@ -1991,7 +1977,7 @@ public class RemoteCanvas extends AppCompatImageView
                 // We were told not to continue, so stop the activity
                 Log.i(TAG, "Certificate rejected by user.");
                 closeConnection();
-                MessageDialogs.justFinish(getContext());
+                ((Activity) getContext()).finish();
             }
         };
         DialogInterface.OnClickListener signatureYes = new DialogInterface.OnClickListener() {
@@ -2075,7 +2061,7 @@ public class RemoteCanvas extends AppCompatImageView
             public void onClick(DialogInterface dialog, int which) {
                 // We were told not to continue, so stop the activity
                 closeConnection();
-                MessageDialogs.justFinish(getContext());
+                ((Activity) getContext()).finish();
             }
         };
         DialogInterface.OnClickListener signatureYes = new DialogInterface.OnClickListener() {
@@ -2124,7 +2110,7 @@ public class RemoteCanvas extends AppCompatImageView
                     // We were told to not continue, so stop the activity
                     sshConnection.terminateSSHTunnel();
                     pd.dismiss();
-                    MessageDialogs.justFinish(getContext());
+                    ((Activity) getContext()).finish();
                 }
             };
             DialogInterface.OnClickListener signatureYes = new DialogInterface.OnClickListener() {
@@ -2196,22 +2182,6 @@ public class RemoteCanvas extends AppCompatImageView
                 connection.setKeepPassword(save);
                 connection.save(getContext());
                 handler.sendEmptyMessage(RemoteClientLibConstants.REINIT_SESSION);
-                break;
-            case GetTextFragment.DIALOG_ID_GET_OPAQUE_PASSWORD:
-                android.util.Log.i(TAG, "Text obtained from DIALOG_ID_GET_OPAQUE_PASSWORD");
-                connection.setPassword(obtainedString[0]);
-                connection.setKeepPassword(save);
-                connection.save(getContext());
-                synchronized (spicecomm) {
-                    spicecomm.notify();
-                }
-                break;
-            case GetTextFragment.DIALOG_ID_GET_OPAQUE_OTP_CODE:
-                android.util.Log.i(TAG, "Text obtained from DIALOG_ID_GET_OPAQUE_OTP_CODE");
-                connection.setOtpCode(obtainedString[0]);
-                synchronized (spicecomm) {
-                   spicecomm.notify();
-                }
                 break;
             default:
                 android.util.Log.e(TAG, "Unknown dialog type.");

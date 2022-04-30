@@ -284,7 +284,7 @@ public class ConnectionBean extends AbstractConnectionBean implements Connection
 
     @Override
     public boolean isRequestingNewDisplayResolution() {
-        return false;
+        return true;
     }
 
     @Override

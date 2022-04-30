@@ -333,7 +333,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="0.4"
-                    android:entries="@array/rdp_geometry"
+                    android:entries="@array/spice_geometry"
                     android:textAppearance="?android:attr/textAppearanceLarge" />
 
                 <EditText

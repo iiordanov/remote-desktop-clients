@@ -579,6 +579,12 @@ If you are looking for a quick performance boost, try setting the Color mode to 
         <item>@string/rdp_geom_native_portrait</item>
         <item>@string/rdp_geom_custom</item>
     </string-array>
+    <string-array name="spice_geometry">
+        <item>@string/rdp_geom_native_landscape</item>
+        <item>@string/rdp_geom_native_portrait</item>
+        <item>@string/rdp_geom_custom</item>
+        <item>@string/rdp_geom_automatic</item>
+    </string-array>
     <string-array name="vnc_geometry">
         <item>@string/rdp_geom_disabled</item>
         <item>@string/rdp_geom_automatic</item>

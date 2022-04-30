@@ -1143,6 +1143,8 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
         // Automatic resolution update request handling
         if (canvas.isVnc && connection.getRdpResType() == Constants.VNC_GEOM_SELECT_AUTOMATIC) {
             canvas.rfbconn.requestResolution(canvas.getWidth(), canvas.getHeight());
+        } else if (canvas.isSpice && connection.getRdpResType() == Constants.RDP_GEOM_SELECT_AUTO) {
+            canvas.spicecomm.requestResolution(canvas.getWidth(), canvas.getHeight());
         } else if (canvas.isOpaque && connection.isRequestingNewDisplayResolution()) {
             canvas.spicecomm.requestResolution(canvas.getWidth(), canvas.getHeight());
         }
