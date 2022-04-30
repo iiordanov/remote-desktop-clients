@@ -1,5 +1,6 @@
 v5.0.9
 - Android localization: Updated translatations for ko, ja, zh-rCN, and zh-rTW
+- Primary and Secondary Button Stylus / S-Pen Support
 v5.0.8
 - Security library upgrade
 - Thumbnail bugfix 

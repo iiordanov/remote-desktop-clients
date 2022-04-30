@@ -191,11 +191,13 @@ abstract class InputHandlerGeneric extends GestureDetector.SimpleOnGestureListen
 				used = true;
 				break;
 			case MotionEvent.BUTTON_SECONDARY:
+			case MotionEvent.BUTTON_STYLUS_PRIMARY:
 		    	canvas.movePanToMakePointerVisible();
 				pointer.rightButtonDown(x, y, meta);
 				used = true;
 				break;
 			case MotionEvent.BUTTON_TERTIARY:
+			case MotionEvent.BUTTON_STYLUS_SECONDARY:
 		    	canvas.movePanToMakePointerVisible();
 				pointer.middleButtonDown(x, y, meta);
 				used = true;
@@ -212,6 +214,8 @@ abstract class InputHandlerGeneric extends GestureDetector.SimpleOnGestureListen
 			case MotionEvent.BUTTON_PRIMARY:
 			case MotionEvent.BUTTON_SECONDARY:
 			case MotionEvent.BUTTON_TERTIARY:
+			case MotionEvent.BUTTON_STYLUS_PRIMARY:
+			case MotionEvent.BUTTON_STYLUS_SECONDARY:
 		    	canvas.movePanToMakePointerVisible();
 				pointer.releaseButton(x, y, meta);
 				used = true;
@@ -255,9 +259,11 @@ abstract class InputHandlerGeneric extends GestureDetector.SimpleOnGestureListen
 				pointer.leftButtonDown(x, y, meta);
 				break;
 			case MotionEvent.BUTTON_SECONDARY:
+			case MotionEvent.BUTTON_STYLUS_PRIMARY:
 				pointer.rightButtonDown(x, y, meta);
 				break;
 			case MotionEvent.BUTTON_TERTIARY:
+			case MotionEvent.BUTTON_STYLUS_SECONDARY:
 				pointer.middleButtonDown(x, y, meta);
 				break;
 			default:
@@ -390,7 +396,7 @@ abstract class InputHandlerGeneric extends GestureDetector.SimpleOnGestureListen
     }
     
 	/*
-	 * @see com.iiordanov.bVNC.input.InputHandler#onTouchEvent(android.view.MotionEvent)
+	 * @see com.iiordanov.bVNC.input.InputHandler#0yonTouchEvent(android.view.MotionEvent)
 	 */
 	@Override
 	public boolean onTouchEvent(MotionEvent e) {
