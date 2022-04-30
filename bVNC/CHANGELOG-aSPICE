@@ -3,6 +3,8 @@ v5.0.9
 - Removed Import/Export Button from Connection Setup Layout
 - New option for automatic resolution sync on device rotation
 - Primary and Secondary Button Stylus / S-Pen Support
+- Fix for Chromebook touchpad scrolling
+- Single-finger scroll in fit-to-screen mode
 v5.0.8
 - Security library upgrade
 - Thumbnail bugfix 

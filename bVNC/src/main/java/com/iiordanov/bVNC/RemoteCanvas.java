@@ -1767,6 +1767,11 @@ public class RemoteCanvas extends AppCompatImageView
         }
     }
 
+    @Override
+    public boolean isAbleToPan() {
+        return canvasZoomer.isAbleToPan();
+    }
+
     /**
      * Moves soft cursor into a particular location.
      *

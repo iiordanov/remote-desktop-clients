@@ -26,16 +26,9 @@ import android.view.MotionEvent;
 import android.view.View.OnClickListener;
 import android.view.View;
 
-import com.iiordanov.bVNC.*;
-import com.iiordanov.freebVNC.*;
-import com.iiordanov.aRDP.*;
-import com.iiordanov.freeaRDP.*;
-import com.iiordanov.aSPICE.*;
-import com.iiordanov.freeaSPICE.*;
-import com.iiordanov.CustomClientPackage.*;
 import com.iiordanov.bVNC.RemoteCanvas;
 import com.iiordanov.bVNC.RemoteCanvasActivity;
-import com.iiordanov.bVNC.input.RemotePointer;
+import com.undatech.opaque.util.GeneralUtils;
 import com.undatech.remoteClientUi.*;
 
 public class InputHandlerSingleHanded extends InputHandlerDirectSwipePan {
@@ -54,8 +47,8 @@ public class InputHandlerSingleHanded extends InputHandlerDirectSwipePan {
 	private boolean needInitPan;
 	
 	public InputHandlerSingleHanded(RemoteCanvasActivity activity, RemoteCanvas canvas,
-									RemotePointer pointer) {
-		super(activity, canvas, pointer);
+									RemotePointer pointer, boolean debugLogging) {
+		super(activity, canvas, pointer, debugLogging);
 		initializeButtons();
 	}
 
@@ -104,7 +97,7 @@ public class InputHandlerSingleHanded extends InputHandlerDirectSwipePan {
 		scrollButton.setOnClickListener(new OnClickListener () {
 			@Override
 			public void onClick(View arg0) {
-				//android.util.Log.d(TAG, "scrollButton clicked. Setting inSwiping to true.");
+				GeneralUtils.debugLog(debugLogging, TAG, "scrollButton clicked. Setting inSwiping to true.");
 				startNewSingleHandedGesture();
 				canvas.cursorBeingMoved = true;
 				inSwiping = true;
@@ -138,6 +131,7 @@ public class InputHandlerSingleHanded extends InputHandlerDirectSwipePan {
 	 * Indicates the start of a single-handed gesture.
 	 */
 	private void startNewSingleHandedGesture() {
+		GeneralUtils.debugLog(debugLogging, TAG, "startNewSingleHandedGesture");
 		singleHandOpts.setVisibility(View.GONE);
 		endDragModesAndScrolling ();
 		singleHandedGesture = true;
@@ -168,7 +162,7 @@ public class InputHandlerSingleHanded extends InputHandlerDirectSwipePan {
 	 */
 	@Override
 	public void onLongPress(MotionEvent e) {
-		//android.util.Log.e(TAG, "Long press.");
+		GeneralUtils.debugLog(debugLogging, TAG, "onLongPress, e: " + e);
 
 		if (singleHandedGesture || singleHandedJustEnded)
 			return;
@@ -203,6 +197,8 @@ public class InputHandlerSingleHanded extends InputHandlerDirectSwipePan {
 	 */
 	@Override
 	public boolean onSingleTapConfirmed(MotionEvent e) {
+		GeneralUtils.debugLog(debugLogging, TAG, "onSingleTapConfirmed");
+
 		boolean buttonsVisible = (singleHandOpts.getVisibility() == View.VISIBLE);
 		
 		// If the single-handed gesture buttons are visible, reposition pointer.
@@ -220,6 +216,11 @@ public class InputHandlerSingleHanded extends InputHandlerDirectSwipePan {
 	 */
 	@Override
 	public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+		GeneralUtils.debugLog(debugLogging, TAG, "onScroll, e1: " + e1 + ", e2:" + e2);
+
+		if (consumeAsMouseWheel(e1, e2)) {
+			return true;
+		}
 
 		// If we are not in a single-handed gesture, simply pass events onto parent.
 		if (!singleHandedGesture)
@@ -227,7 +228,7 @@ public class InputHandlerSingleHanded extends InputHandlerDirectSwipePan {
 		
 		// Otherwise, handle scrolling and zooming here.
 		if (inSwiping) {
-			//android.util.Log.d(TAG, "inSwiping");
+			GeneralUtils.debugLog(debugLogging, TAG, "inSwiping");
 			scrollUp    = false;
 			scrollDown  = false;
 			scrollLeft  = false;
@@ -257,7 +258,7 @@ public class InputHandlerSingleHanded extends InputHandlerDirectSwipePan {
 			} else
 				accumulatedScroll = 0;
         } else if (inScaling) {
-            //android.util.Log.d(TAG, "inScaling");
+			GeneralUtils.debugLog(debugLogging, TAG, "inScaling");
             float scaleFactor = 1.0f + distanceY*0.01f;             
             if (canvas != null && canvas.canvasZoomer != null) {
                 float zoomFactor = canvas.canvasZoomer.getZoomFactor();

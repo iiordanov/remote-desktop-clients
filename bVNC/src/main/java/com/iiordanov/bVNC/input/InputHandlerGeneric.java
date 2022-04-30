@@ -24,18 +24,23 @@ import java.util.LinkedList;
 import java.util.Queue;
 
 import android.os.SystemClock;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 
+import androidx.core.view.InputDeviceCompat;
+
 import com.iiordanov.bVNC.Constants;
 import com.iiordanov.bVNC.RemoteCanvas;
 import com.iiordanov.bVNC.RemoteCanvasActivity;
+import com.undatech.opaque.util.GeneralUtils;
 
 abstract class InputHandlerGeneric extends GestureDetector.SimpleOnGestureListener 
 										   implements InputHandler, ScaleGestureDetector.OnScaleGestureListener {
 	private static final String TAG = "InputHandlerGeneric";
+	protected final boolean debugLogging;
 
 	protected GestureDetector gestureDetector;
 	protected MyScaleGestureDetector scalingGestureDetector;
@@ -120,11 +125,13 @@ abstract class InputHandlerGeneric extends GestureDetector.SimpleOnGestureListen
 
 	protected RemotePointer pointer;
 
-	InputHandlerGeneric(RemoteCanvasActivity activity, RemoteCanvas canvas, RemotePointer pointer) {
+	InputHandlerGeneric(RemoteCanvasActivity activity, RemoteCanvas canvas, RemotePointer pointer,
+						boolean debugLogging) {
 		this.activity = activity;
 		this.canvas   = canvas;
 		this.pointer  = pointer;
-		
+		this.debugLogging = debugLogging;
+
 		// TODO: Implement this
 		useDpadAsArrows = true; //activity.getUseDpadAsArrows();
 		rotateDpad      = false; //activity.getRotateDpad();
@@ -144,7 +151,7 @@ abstract class InputHandlerGeneric extends GestureDetector.SimpleOnGestureListen
         baseSwipeDist = baseSwipeDist * displayDensity;
         startSwipeDist = startSwipeDist * displayDensity;
         immersiveSwipeDistance = immersiveSwipeDistance * displayDensity;
-        android.util.Log.i(TAG, "displayDensity, baseSwipeDist, immersiveSwipeDistance: "
+		GeneralUtils.debugLog(debugLogging, TAG, "displayDensity, baseSwipeDist, immersiveSwipeDistance: "
                             + displayDensity + " " + baseSwipeDist + " " + immersiveSwipeDistance);
 	}
 
@@ -237,7 +244,8 @@ abstract class InputHandlerGeneric extends GestureDetector.SimpleOnGestureListen
 			} else if (vscroll > 0) {
 				swipeSpeed = (int)vscroll;
 				scrollUp   = true;
-			} else if (hscroll < 0) {
+			}
+			if (hscroll < 0) {
 				swipeSpeed = (int)(-1*hscroll);
 				scrollRight = true;					
 			} else if (hscroll > 0) {
@@ -283,16 +291,19 @@ abstract class InputHandlerGeneric extends GestureDetector.SimpleOnGestureListen
 	 * @param y
 	 * @param meta
 	 */
-	private void sendScrollEvents (int x, int y, int meta) {
-    	int numEvents = 0;
+	protected void sendScrollEvents (int x, int y, int meta) {
+		GeneralUtils.debugLog(debugLogging, TAG, "sendScrollEvents");
+
+		int numEvents = 0;
     	while (numEvents < swipeSpeed && numEvents < maxSwipeSpeed) {
-    		if         (scrollDown) {
+    		if (scrollDown) {
     			pointer.scrollDown(x, y, meta);
 				pointer.moveMouseButtonUp(x, y, meta);
     		} else if (scrollUp) {
     			pointer.scrollUp(x, y, meta);
 				pointer.moveMouseButtonUp(x, y, meta);
-    		} else if (scrollRight) {
+    		}
+    		if (scrollRight) {
     			pointer.scrollRight(x, y, meta);
 				pointer.moveMouseButtonUp(x, y, meta);
     		} else if (scrollLeft) {
@@ -309,6 +320,8 @@ abstract class InputHandlerGeneric extends GestureDetector.SimpleOnGestureListen
 	 */
 	@Override
 	public boolean onSingleTapConfirmed(MotionEvent e) {
+		GeneralUtils.debugLog(debugLogging, TAG, "onSingleTapConfirmed, e: " + e);
+
         int metaState   = e.getMetaState();
 		activity.showToolbar();
 		pointer.leftButtonDown(getX(e), getY(e), metaState);
@@ -323,6 +336,8 @@ abstract class InputHandlerGeneric extends GestureDetector.SimpleOnGestureListen
 	 */
 	@Override
 	public boolean onDoubleTap (MotionEvent e) {
+		GeneralUtils.debugLog(debugLogging, TAG, "onDoubleTap, e: " + e);
+
         int metaState   = e.getMetaState();
 		pointer.leftButtonDown(getX(e), getY(e), metaState);
 		SystemClock.sleep(50);
@@ -340,6 +355,8 @@ abstract class InputHandlerGeneric extends GestureDetector.SimpleOnGestureListen
 	 */
 	@Override
 	public void onLongPress(MotionEvent e) {
+		GeneralUtils.debugLog(debugLogging, TAG, "onLongPress, e: " + e);
+
         int metaState   = e.getMetaState();
 
 		// If we've performed a right/middle-click and the gesture is not over yet, do not start drag mode.
@@ -357,6 +374,8 @@ abstract class InputHandlerGeneric extends GestureDetector.SimpleOnGestureListen
 	 * @return
 	 */
 	protected boolean endDragModesAndScrolling () {
+		GeneralUtils.debugLog(debugLogging, TAG, "endDragModesAndScrolling");
+
     	canvas.cursorBeingMoved = false;
 		panMode               = false;
 		inScaling             = false;
@@ -379,12 +398,13 @@ abstract class InputHandlerGeneric extends GestureDetector.SimpleOnGestureListen
 	 * @param x new x coordinate.
 	 * @param y new y coordinate.
 	 */
-	private void setEventCoordinates(MotionEvent e, float x, float y) {
+	protected void setEventCoordinates(MotionEvent e, float x, float y) {
+		GeneralUtils.debugLog(debugLogging, TAG, "setEventCoordinates");
 		e.setLocation(x, y);
 	}
     
     private void detectImmersiveSwipe (float y) {
-        //android.util.Log.d(TAG, "detectImmersiveSwipe");
+		GeneralUtils.debugLog(debugLogging, TAG, "detectImmersiveSwipe");
         if (Constants.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT &&
             (y <= immersiveSwipeDistance || canvas.getHeight() - y <= immersiveSwipeDistance)) {
             inSwiping = true;
@@ -394,12 +414,14 @@ abstract class InputHandlerGeneric extends GestureDetector.SimpleOnGestureListen
             immersiveSwipe = false;
         }
     }
-    
+
 	/*
 	 * @see com.iiordanov.bVNC.input.InputHandler#0yonTouchEvent(android.view.MotionEvent)
 	 */
 	@Override
 	public boolean onTouchEvent(MotionEvent e) {
+		GeneralUtils.debugLog(debugLogging, TAG, "onTouchEvent, e: " + e);
+
         final int action     = e.getActionMasked();
         final int index      = e.getActionIndex();
         final int pointerID  = e.getPointerId(index);
@@ -549,7 +571,7 @@ abstract class InputHandlerGeneric extends GestureDetector.SimpleOnGestureListen
 	 */
 	@Override
 	public boolean onScale(ScaleGestureDetector detector) {
-		//android.util.Log.i(TAG, "onScale called");
+		GeneralUtils.debugLog(debugLogging, TAG, "onScale");
 		boolean eventConsumed = true;
 
 		// Get the current focus.
@@ -604,13 +626,13 @@ abstract class InputHandlerGeneric extends GestureDetector.SimpleOnGestureListen
 				
 				swipeSpeed = baseSwipeTime/elapsedTime;
 				if (swipeSpeed == 0)  swipeSpeed = 1;
-				//if (consumed)        Log.d(TAG,"Current swipe speed: " + swipeSpeed);
+				GeneralUtils.debugLog(debugLogging, TAG,"Current swipe speed: " + swipeSpeed);
 			}
 		}
 		
 		if (!inSwiping) {
 			if ( !inScaling && Math.abs(1.0 - detector.getScaleFactor()) < minScaleFactor ) {
-				//android.util.Log.i(TAG,"Not scaling due to small scale factor.");
+				GeneralUtils.debugLog(debugLogging, TAG,"Not scaling due to small scale factor");
 				eventConsumed = false;
 			}
 
@@ -618,7 +640,7 @@ abstract class InputHandlerGeneric extends GestureDetector.SimpleOnGestureListen
 				if (inScaling == false) {
 					inScaling = true;
 				}
-				//android.util.Log.i(TAG, "Changing zoom level: " + detector.getScaleFactor());
+				GeneralUtils.debugLog(debugLogging, TAG, "Changing zoom level: " + detector.getScaleFactor());
 				canvas.canvasZoomer.changeZoom(activity, detector.getScaleFactor(), xCurrentFocus, yCurrentFocus);
 			}
 		}
@@ -630,7 +652,7 @@ abstract class InputHandlerGeneric extends GestureDetector.SimpleOnGestureListen
 	 */
 	@Override
 	public boolean onScaleBegin(ScaleGestureDetector detector) {
-		//android.util.Log.i(TAG, "onScaleBegin ("+xInitialFocus+","+yInitialFocus+")");
+		GeneralUtils.debugLog(debugLogging, TAG, "onScaleBegin ("+xInitialFocus+","+yInitialFocus+")");
 		inScaling           = false;
 		scalingJustFinished = false;
 		// Cancel any swipes that may have been registered last time.
@@ -647,7 +669,7 @@ abstract class InputHandlerGeneric extends GestureDetector.SimpleOnGestureListen
 	 */
 	@Override
 	public void onScaleEnd(ScaleGestureDetector detector) {
-		//android.util.Log.d(TAG, "onScaleEnd");
+		GeneralUtils.debugLog(debugLogging, TAG, "onScaleEnd");
 		inScaling = false;
 		inSwiping = false;
 		scalingJustFinished = true;
@@ -657,16 +679,18 @@ abstract class InputHandlerGeneric extends GestureDetector.SimpleOnGestureListen
 	 * @see com.iiordanov.bVNC.input.InputHandler#onKeyDown(int, android.view.KeyEvent)
 	 */
 	@Override
-	public boolean onKeyDown(int keyCode, KeyEvent evt) {
-		return canvas.getKeyboard().keyEvent(keyCode, evt);
+	public boolean onKeyDown(int keyCode, KeyEvent e) {
+		GeneralUtils.debugLog(debugLogging, TAG, "onKeyDown, e: " + e);
+		return canvas.getKeyboard().keyEvent(keyCode, e);
 	}
 	
 	/*
 	 * @see com.iiordanov.bVNC.input.InputHandler#onKeyUp(int, android.view.KeyEvent)
 	 */
 	@Override
-	public boolean onKeyUp(int keyCode, KeyEvent evt) {
-		return canvas.getKeyboard().keyEvent(keyCode, evt);
+	public boolean onKeyUp(int keyCode, KeyEvent e) {
+		GeneralUtils.debugLog(debugLogging, TAG, "onKeyDown, e: " + e);
+		return canvas.getKeyboard().keyEvent(keyCode, e);
 	}
 
     /**
@@ -683,4 +707,47 @@ abstract class InputHandlerGeneric extends GestureDetector.SimpleOnGestureListen
         }
         return sign;
     }
+
+    boolean consumeAsMouseWheel(MotionEvent e1, MotionEvent e2) {
+		boolean useEvent = false;
+		if (!canvas.isAbleToPan()) {
+			GeneralUtils.debugLog(debugLogging, TAG, "consumeAsMouseWheel, fit-to-screen");
+			useEvent = true;
+		}
+
+    	if (e1.getSource() == InputDeviceCompat.SOURCE_MOUSE ||
+				e1.getSource() == InputDeviceCompat.SOURCE_CLASS_POINTER ||
+				e1.getSource() == InputDeviceCompat.SOURCE_CLASS_TRACKBALL ||
+				e1.getSource() == InputDeviceCompat.SOURCE_TOUCHPAD ||
+				e1.getSource() == InputDeviceCompat.SOURCE_DPAD
+			) {
+			GeneralUtils.debugLog(debugLogging, TAG, "consumeAsMouseWheel, mouse-like source");
+			useEvent = true;
+		}
+
+    	if (!useEvent) {
+    		return false;
+		}
+
+    	int meta = e1.getMetaState();
+		scrollUp    = false;
+		scrollDown  = false;
+		scrollLeft  = false;
+		scrollRight = false;
+		swipeSpeed = 1;
+
+		if (e1.getX() < e2.getX()) {
+			scrollLeft = true;
+		} else if (e1.getX() > e2.getX()) {
+			scrollRight = true;
+		}
+
+		if (e1.getY() < e2.getY()) {
+			scrollUp = true;
+		} else if (e1.getY() > e2.getY()) {
+			scrollDown = true;
+		}
+		sendScrollEvents (getX(e1), getY(e1), meta);
+		return true;
+	}
 }

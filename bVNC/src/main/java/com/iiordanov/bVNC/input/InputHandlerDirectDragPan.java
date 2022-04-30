@@ -22,16 +22,9 @@ package com.iiordanov.bVNC.input;
 
 import android.view.MotionEvent;
 
-import com.iiordanov.bVNC.*;
-import com.iiordanov.freebVNC.*;
-import com.iiordanov.aRDP.*;
-import com.iiordanov.freeaRDP.*;
-import com.iiordanov.aSPICE.*;
-import com.iiordanov.freeaSPICE.*;
-import com.iiordanov.CustomClientPackage.*;
-import com.iiordanov.bVNC.Constants;
 import com.iiordanov.bVNC.RemoteCanvas;
 import com.iiordanov.bVNC.RemoteCanvasActivity;
+import com.undatech.opaque.util.GeneralUtils;
 import com.undatech.remoteClientUi.*;
 
 public class InputHandlerDirectDragPan extends InputHandlerGeneric {
@@ -39,8 +32,8 @@ public class InputHandlerDirectDragPan extends InputHandlerGeneric {
 	public static final String ID = "TOUCH_ZOOM_MODE_DRAG_PAN";
 	
 	public InputHandlerDirectDragPan(RemoteCanvasActivity activity, RemoteCanvas canvas,
-									 RemotePointer pointer) {
-		super(activity, canvas, pointer);
+									 RemotePointer pointer, boolean debugLogging) {
+		super(activity, canvas, pointer, debugLogging);
 	}
 
 	/*
@@ -67,6 +60,7 @@ public class InputHandlerDirectDragPan extends InputHandlerGeneric {
 	 */
 	@Override
 	public void onLongPress(MotionEvent e) {
+		GeneralUtils.debugLog(debugLogging, TAG, "onLongPress, e: " + e);
 
 		// If we've performed a right/middle-click and the gesture is not over yet, do not start drag mode.
 		if (secondPointerWasDown || thirdPointerWasDown)
@@ -86,6 +80,12 @@ public class InputHandlerDirectDragPan extends InputHandlerGeneric {
 	 */
 	@Override
 	public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+		GeneralUtils.debugLog(debugLogging, TAG, "onScroll, e1: " + e1 + ", e2:" + e2);
+
+		if (consumeAsMouseWheel(e1, e2)) {
+			return true;
+		}
+
         RemotePointer p = canvas.getPointer();
 
         // If we are scaling, allow panning around by moving two fingers around the screen

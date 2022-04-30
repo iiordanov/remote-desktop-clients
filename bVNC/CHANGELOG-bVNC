@@ -3,6 +3,8 @@ v5.0.9
 - Fix to interactively gather credentials for Mac OS X
 - Removed Import/Export Button from Connection Setup Layout
 - Primary and Secondary Button Stylus / S-Pen Support
+- Fix for Chromebook touchpad scrolling
+- Single-finger scroll in fit-to-screen mode
 v5.0.8
 - Security library upgrade
 - Thumbnail bugfix 

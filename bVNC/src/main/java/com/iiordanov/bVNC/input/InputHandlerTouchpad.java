@@ -22,15 +22,9 @@ package com.iiordanov.bVNC.input;
 
 import android.view.MotionEvent;
 
-import com.iiordanov.bVNC.*;
-import com.iiordanov.freebVNC.*;
-import com.iiordanov.aRDP.*;
-import com.iiordanov.freeaRDP.*;
-import com.iiordanov.aSPICE.*;
-import com.iiordanov.freeaSPICE.*;
-import com.iiordanov.CustomClientPackage.*;
 import com.iiordanov.bVNC.RemoteCanvas;
 import com.iiordanov.bVNC.RemoteCanvasActivity;
+import com.undatech.opaque.util.GeneralUtils;
 import com.undatech.remoteClientUi.*;
 
 public class InputHandlerTouchpad extends InputHandlerGeneric {
@@ -38,8 +32,8 @@ public class InputHandlerTouchpad extends InputHandlerGeneric {
 	public static final String ID = "TOUCHPAD_MODE";
 
 	public InputHandlerTouchpad(RemoteCanvasActivity activity, RemoteCanvas canvas,
-								RemotePointer pointer) {
-		super(activity, canvas, pointer);
+								RemotePointer pointer, boolean debugLogging) {
+		super(activity, canvas, pointer, debugLogging);
 	}
 
 	/*
@@ -66,7 +60,13 @@ public class InputHandlerTouchpad extends InputHandlerGeneric {
 	 */
 	@Override
 	public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-        final int action = e2.getActionMasked();
+		GeneralUtils.debugLog(debugLogging, TAG, "onScroll, e1: " + e1 + ", e2:" + e2);
+
+		if (consumeAsMouseWheel(e1, e2)) {
+			return true;
+		}
+
+
         final int meta   = e2.getMetaState();
         
         // If we are scaling, allow panning around by moving two fingers around the screen
@@ -138,6 +138,7 @@ public class InputHandlerTouchpad extends InputHandlerGeneric {
 	 */
 	@Override
 	public boolean onDown(MotionEvent e) {
+		GeneralUtils.debugLog(debugLogging, TAG, "onDown, e: " + e);
 		panRepeater.stop();
 		return true;
 	}

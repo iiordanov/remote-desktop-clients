@@ -22,24 +22,18 @@ package com.iiordanov.bVNC.input;
 
 import android.view.MotionEvent;
 
-import com.iiordanov.bVNC.*;
-import com.iiordanov.freebVNC.*;
-import com.iiordanov.aRDP.*;
-import com.iiordanov.freeaRDP.*;
-import com.iiordanov.aSPICE.*;
-import com.iiordanov.freeaSPICE.*;
-import com.iiordanov.CustomClientPackage.*;
 import com.iiordanov.bVNC.RemoteCanvas;
 import com.iiordanov.bVNC.RemoteCanvasActivity;
+import com.undatech.opaque.util.GeneralUtils;
 import com.undatech.remoteClientUi.*;
 
 public class InputHandlerDirectSwipePan extends InputHandlerGeneric {
-	static final String TAG = "InputHandlerDirectSwipePan";
+	static final String TAG = "InputHandlerDirectSwipe";
 	public static final String ID = "TOUCH_ZOOM_MODE";
 	
 	public InputHandlerDirectSwipePan(RemoteCanvasActivity activity, RemoteCanvas canvas,
-									  RemotePointer pointer) {
-		super(activity, canvas, pointer);
+									  RemotePointer pointer, boolean debugLogging) {
+		super(activity, canvas, pointer, debugLogging);
 	}
 
 	/*
@@ -66,6 +60,7 @@ public class InputHandlerDirectSwipePan extends InputHandlerGeneric {
 	 */
 	@Override
 	public boolean onDown(MotionEvent e) {
+		GeneralUtils.debugLog(debugLogging, TAG, "onDown, e: " + e);
 		panRepeater.stop();
 		return true;
 	}
@@ -76,6 +71,11 @@ public class InputHandlerDirectSwipePan extends InputHandlerGeneric {
 	 */
 	@Override
 	public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+		GeneralUtils.debugLog(debugLogging, TAG, "onFling, e1: " + e1 + ", e2: " + e2);
+
+		if (consumeAsMouseWheel(e1, e2)) {
+			return true;
+		}
 
 		// TODO: Workaround for Android 4.2.
 		boolean twoFingers = false;
@@ -105,6 +105,11 @@ public class InputHandlerDirectSwipePan extends InputHandlerGeneric {
 	 */
 	@Override
 	public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+		GeneralUtils.debugLog(debugLogging, TAG, "onScroll, e1: " + e1 + ", e2: " + e2);
+
+		if (consumeAsMouseWheel(e1, e2)) {
+			return true;
+		}
 
 		if (!inScaling) {
 			// onScroll called while swiping gesture is in effect. We ignore the event and pretend it was

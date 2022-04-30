@@ -1309,13 +1309,13 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
             if (inputModeIds[i] == id) {
                 if (inputModeHandlers[i] == null) {
                     if (id == R.id.itemInputTouchPanZoomMouse) {
-                        inputModeHandlers[i] = new InputHandlerDirectSwipePan(this, canvas, canvas.getPointer());
+                        inputModeHandlers[i] = new InputHandlerDirectSwipePan(this, canvas, canvas.getPointer(), App.debugLog);
                     } else if (id == R.id.itemInputDragPanZoomMouse) {
-                        inputModeHandlers[i] = new InputHandlerDirectDragPan(this, canvas, canvas.getPointer());
+                        inputModeHandlers[i] = new InputHandlerDirectDragPan(this, canvas, canvas.getPointer(), App.debugLog);
                     } else if (id == R.id.itemInputTouchpad) {
-                        inputModeHandlers[i] = new InputHandlerTouchpad(this, canvas, canvas.getPointer());
+                        inputModeHandlers[i] = new InputHandlerTouchpad(this, canvas, canvas.getPointer(), App.debugLog);
                     } else if (id == R.id.itemInputSingleHanded) {
-                        inputModeHandlers[i] = new InputHandlerSingleHanded(this, canvas, canvas.getPointer());
+                        inputModeHandlers[i] = new InputHandlerSingleHanded(this, canvas, canvas.getPointer(), App.debugLog);
                     } else {
                         throw new IllegalStateException("Unexpected value: " + id);
                     }

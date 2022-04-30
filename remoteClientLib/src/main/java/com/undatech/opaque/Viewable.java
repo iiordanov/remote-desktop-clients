@@ -1,6 +1,7 @@
 package com.undatech.opaque;
 
 import android.graphics.Bitmap;
+import android.widget.ImageView;
 
 public interface Viewable {
     void waitUntilInflated();
@@ -11,4 +12,5 @@ public interface Viewable {
     void reDraw(int x, int y, int width, int height);
     void setMousePointerPosition(int x, int y);
     void mouseMode(boolean relative);
+    boolean isAbleToPan();
 }
