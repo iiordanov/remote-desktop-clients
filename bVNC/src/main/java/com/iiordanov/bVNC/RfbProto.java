@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 
 import android.util.Log;
 
@@ -1446,25 +1447,26 @@ public class RfbProto extends RfbConnectable {
     //
     // Write a ClientCutText message
     //
-
     synchronized void writeClientCutText(String text, int length) throws IOException {
         if (viewOnly)
             return;
 
-        byte[] b = new byte[8 + length];
+        byte[] rawData = text.getBytes(StandardCharsets.UTF_8);
+        int rawLength = rawData.length;
+
+        byte[] b = new byte[8 + rawLength];
 
         b[0] = (byte) ClientCutText;
-        b[4] = (byte) ((text.length() >> 24) & 0xff);
-        b[5] = (byte) ((text.length() >> 16) & 0xff);
-        b[6] = (byte) ((text.length() >> 8) & 0xff);
-        b[7] = (byte) (text.length() & 0xff);
+        b[4] = (byte) ((rawLength >> 24) & 0xff);
+        b[5] = (byte) ((rawLength >> 16) & 0xff);
+        b[6] = (byte) ((rawLength >> 8) & 0xff);
+        b[7] = (byte) (rawLength & 0xff);
 
-        System.arraycopy(text.getBytes(), 0, b, 8, length);
+        System.arraycopy(rawData, 0, b, 8, rawLength);
 
         os.write(b);
     }
-
-
+    
     //
     // A buffer for putting pointer and keyboard events before being sent.  This
     // is to ensure that multiple RFB events generated from a single Java Event
