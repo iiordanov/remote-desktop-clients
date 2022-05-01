@@ -362,7 +362,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
                     Intent bVncIntent = new Intent(this, cls);
                     startActivity(bVncIntent);
             	}
-                MessageDialogs.justFinish(this);
+                Utils.justFinish(this);
             	return;
             }
         } else {
@@ -1387,7 +1387,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
             return true;
         } else if (itemId == R.id.itemDisconnect) {
             canvas.closeConnection();
-            MessageDialogs.justFinish(this);
+            Utils.justFinish(this);
             return true;
         } else if (itemId == R.id.itemEnterText) {
             showDialog(R.layout.entertext);

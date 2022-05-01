@@ -64,7 +64,7 @@ public class OpaqueHandler extends Handler {
                 new MessageFragment.OnFragmentDismissedListener() {
                     @Override
                     public void onDialogDismissed() {
-                        MessageDialogs.justFinish(context);
+                        Utils.justFinish(context);
                     }
                 });
         message.show(fm, "endingDialog");
@@ -145,7 +145,7 @@ public class OpaqueHandler extends Handler {
             String uriString = "vnc://" + address + ":" + port + "?VncPassword=" + password;
             Intent intent = new Intent(Intent.ACTION_VIEW).setType("application/vnd.vnc").setData(Uri.parse(uriString));
             context.startActivity(intent);
-            MessageDialogs.justFinish(context);
+            Utils.justFinish(context);
             break;
         case RemoteClientLibConstants.GET_PASSWORD:
             showGetTextFragmentRemoteCanvas(context.getString(R.string.enter_password),
@@ -241,7 +241,7 @@ public class OpaqueHandler extends Handler {
             break;
         case RemoteClientLibConstants.DISCONNECT_NO_MESSAGE:
             c.closeConnection();
-            MessageDialogs.justFinish(context);
+            Utils.justFinish(context);
             break;
         case RemoteClientLibConstants.SHOW_TOAST:
             this.post(new Runnable() {
@@ -332,7 +332,7 @@ public class OpaqueHandler extends Handler {
                             }
                         } else {
                             android.util.Log.e(TAG, "We were told not to continue");
-                            MessageDialogs.justFinish(context);
+                            Utils.justFinish(context);
                         }
                     }
                 });

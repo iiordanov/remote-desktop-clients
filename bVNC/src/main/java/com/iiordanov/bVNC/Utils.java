@@ -46,6 +46,7 @@ import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.app.ActivityManager.MemoryInfo;
 import android.app.Dialog;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.DialogInterface;
@@ -140,7 +141,7 @@ public class Utils {
                 dialog.dismiss();
                 Activity activity = Utils.getActivity(_context);
                 if (activity != null) {
-                    MessageDialogs.justFinish(activity);
+                    Utils.justFinish(activity);
                 }
             }
         });
@@ -606,5 +607,22 @@ public class Utils {
             InputMethodManager imm = (InputMethodManager)context.getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.showSoftInput(view, 0);
         }
+    }
+
+    public static void justFinish(Context context) {
+        if (isOpaque(context) || isSpice(context)) {
+            triggerRestart(context);
+        } else {
+            ((Activity) context).finish();
+        }
+    }
+
+    public static void triggerRestart(Context context) {
+        PackageManager packageManager = context.getPackageManager();
+        Intent intent = packageManager.getLaunchIntentForPackage(context.getPackageName());
+        ComponentName componentName = intent.getComponent();
+        Intent mainIntent = Intent.makeRestartActivityTask(componentName);
+        context.startActivity(mainIntent);
+        Runtime.getRuntime().exit(0);
     }
 }

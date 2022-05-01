@@ -165,7 +165,7 @@ public class RemoteCanvasHandler extends Handler {
                 break;
             case RemoteClientLibConstants.DISCONNECT_NO_MESSAGE:
                 c.closeConnection();
-                MessageDialogs.justFinish(context);
+                Utils.justFinish(context);
                 break;
             case RemoteClientLibConstants.SPICE_CONNECT_SUCCESS:
                 if (c.pd != null && c.pd.isShowing()) {

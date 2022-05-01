@@ -150,7 +150,7 @@ public class MessageDialogs {
                 new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        MessageDialogs.justFinish(context);
+                        Utils.justFinish(context);
                     }
                 });
     }
@@ -167,13 +167,9 @@ public class MessageDialogs {
                 new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        MessageDialogs.justFinish(context);
+                        Utils.justFinish(context);
                     }
                 });
-    }
-
-    public static void justFinish(Context context) {
-        ((Activity)context).finish();
     }
 
     public static void displayToast(final Context context, Handler handler,

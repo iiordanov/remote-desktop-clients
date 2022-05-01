@@ -313,7 +313,7 @@ public class RemoteCanvas extends android.support.v7.widget.AppCompatImageView
         closeConnection();
         handler.post(new Runnable() {
             public void run() {
-                MessageDialogs.justFinish(getContext());
+                Utils.justFinish(getContext());
             }
         });
     }

@@ -317,7 +317,7 @@ public class RemoteCanvas extends AppCompatImageView
         closeConnection();
         handler.post(new Runnable() {
             public void run() {
-                MessageDialogs.justFinish(getContext());
+                Utils.justFinish(getContext());
             }
         });
     }
@@ -1996,7 +1996,7 @@ public class RemoteCanvas extends AppCompatImageView
                 // We were told not to continue, so stop the activity
                 Log.i(TAG, "Certificate rejected by user.");
                 closeConnection();
-                MessageDialogs.justFinish(getContext());
+                Utils.justFinish(getContext());
             }
         };
         DialogInterface.OnClickListener signatureYes = new DialogInterface.OnClickListener() {
@@ -2080,7 +2080,7 @@ public class RemoteCanvas extends AppCompatImageView
             public void onClick(DialogInterface dialog, int which) {
                 // We were told not to continue, so stop the activity
                 closeConnection();
-                MessageDialogs.justFinish(getContext());
+                Utils.justFinish(getContext());
             }
         };
         DialogInterface.OnClickListener signatureYes = new DialogInterface.OnClickListener() {
@@ -2129,7 +2129,7 @@ public class RemoteCanvas extends AppCompatImageView
                     // We were told to not continue, so stop the activity
                     sshConnection.terminateSSHTunnel();
                     pd.dismiss();
-                    MessageDialogs.justFinish(getContext());
+                    Utils.justFinish(getContext());
                 }
             };
             DialogInterface.OnClickListener signatureYes = new DialogInterface.OnClickListener() {
