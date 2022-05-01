@@ -70,6 +70,7 @@ public class SecureTunnel implements X509TrustManager
 		// create socket
 		Socket sock = new Socket(m_address, m_port);
 		sock.setTcpNoDelay(true);
+		sock.setSoTimeout(Constants.SOCKET_CONN_TIMEOUT);
 		// create secure tunnel
 		Log.i(TAG, "Generating TLS context.");	
 		SSLContext sc = SSLContext.getInstance("TLS");	

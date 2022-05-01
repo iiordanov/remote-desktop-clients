@@ -403,10 +403,10 @@ public class RfbProto extends RfbConnectable {
             sock = tunnel.getSocket();
         }
 
-
         if (sock == null) {
             sock = new Socket(host, port);
             sock.setTcpNoDelay(true);
+            sock.setSoTimeout(Constants.SOCKET_CONN_TIMEOUT);
         }
 
         this.sock = sock;
