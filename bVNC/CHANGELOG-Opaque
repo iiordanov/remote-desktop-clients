@@ -3,6 +3,7 @@ v5.0.9
 - Primary and Secondary Button Stylus / S-Pen Support
 - Fix for Chromebook touchpad scrolling
 - Single-finger scroll in fit-to-screen mode
+- Fix for sending right-click via Back button in certain apps 
 v5.0.8
 - Security library upgrade
 - Thumbnail bugfix 
