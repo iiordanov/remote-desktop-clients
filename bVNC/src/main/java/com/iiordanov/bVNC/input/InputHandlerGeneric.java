@@ -244,8 +244,7 @@ abstract class InputHandlerGeneric extends GestureDetector.SimpleOnGestureListen
 			} else if (vscroll > 0) {
 				swipeSpeed = (int)vscroll;
 				scrollUp   = true;
-			}
-			if (hscroll < 0) {
+			} else if (hscroll < 0) {
 				swipeSpeed = (int)(-1*hscroll);
 				scrollRight = true;					
 			} else if (hscroll > 0) {
