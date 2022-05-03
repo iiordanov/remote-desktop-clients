@@ -299,6 +299,7 @@ public class RdpKeyboardMapper
 
         keymapAndroid[KeyEvent.KEYCODE_DEL] = VK_BACK;
         keymapAndroid[KeyEvent.KEYCODE_ENTER] = VK_RETURN;
+        keymapAndroid[KeyEvent.KEYCODE_NUMPAD_ENTER] = VK_RETURN | VK_EXT_KEY;
         keymapAndroid[KeyEvent.KEYCODE_SPACE] = VK_SPACE;
         keymapAndroid[KeyEvent.KEYCODE_SHIFT_LEFT] = VK_LSHIFT;
         keymapAndroid[KeyEvent.KEYCODE_SHIFT_RIGHT] = VK_RSHIFT;

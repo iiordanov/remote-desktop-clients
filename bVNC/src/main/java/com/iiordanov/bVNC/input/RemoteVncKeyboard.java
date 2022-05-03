@@ -92,6 +92,7 @@ public class RemoteVncKeyboard extends RemoteKeyboard {
             case KeyEvent.KEYCODE_DPAD_DOWN:    keysym = 0xff54; break;
             case KeyEvent.KEYCODE_DEL:          keysym = 0xff08; break;
             case KeyEvent.KEYCODE_ENTER:        keysym = 0xff0d; break;
+            case KeyEvent.KEYCODE_NUMPAD_ENTER: keysym = 0xff0d; break;
             case KeyEvent.KEYCODE_TAB:          keysym = 0xff09; break;
             case 92 /* KEYCODE_PAGE_UP */:      keysym = 0xff55; break;
             case 93 /* KEYCODE_PAGE_DOWN */:    keysym = 0xff56; break;
