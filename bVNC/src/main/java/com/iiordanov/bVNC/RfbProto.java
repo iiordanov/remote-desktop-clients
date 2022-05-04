@@ -2064,11 +2064,14 @@ public class RfbProto extends RfbConnectable {
                 }
             }
         } catch (Exception e) {
+            String m = e.getMessage();
+            Log.e(TAG, "Exception caught while processing protocol: " + m);
+            e.printStackTrace();
             closeSocket();
             throw e;
         } finally {
-            closeSocket();
             Log.v(TAG, "Closing VNC Connection");
+            closeSocket();
         }
         closeSocket();
     }
