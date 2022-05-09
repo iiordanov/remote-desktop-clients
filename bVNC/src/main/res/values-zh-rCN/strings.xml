@@ -898,5 +898,5 @@ aSPICE对应的功能如下：
   <string name="rdp_adv_gfx">RDP Gfx</string>
   <string name="rdp_adv_gfxh264">RDP Gfx H264</string>
   <string name="more_debug_logging">更多调试记录</string>
-  <string name="prefer_sending_unicode">UUnicode输入(仅限Windows)</string>
+  <string name="prefer_sending_unicode">Unicode输入(仅限Windows)</string>
 </resources>
