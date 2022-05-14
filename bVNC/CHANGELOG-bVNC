@@ -6,6 +6,7 @@ v5.0.9
 - Fix to interactively gather credentials for Mac OS X
 - Removed Import/Export Button from Connection Setup Layout
 - Primary and Secondary Button Stylus / S-Pen Support
+- Request only password when VncAuth authentication fails.
 - Fix for Chromebook touchpad scrolling
 - Single-finger scroll in fit-to-screen mode
 - Fix for sending right-click via Back button in certain apps 
