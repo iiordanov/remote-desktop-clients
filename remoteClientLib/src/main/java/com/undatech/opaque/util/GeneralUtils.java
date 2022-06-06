@@ -1,5 +1,8 @@
 package com.undatech.opaque.util;
 
+import android.content.Context;
+import android.content.pm.PackageManager;
+
 public class GeneralUtils {
     public static Class<?> getClassByName(String name) {
         Class<?> remoteCanvasActivityClass = null;
@@ -15,5 +18,10 @@ public class GeneralUtils {
         if (enabled) {
             android.util.Log.d(tag, message);
         }
+    }
+
+    public static boolean isTv(Context context) {
+        return context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_TELEVISION)
+                || context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_LEANBACK);
     }
 }

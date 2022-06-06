@@ -14,6 +14,7 @@ import com.freerdp.freerdpcore.R;
 
 import android.content.Context;
 import android.view.KeyEvent;
+import com.undatech.opaque.util.GeneralUtils;
 
 public class RdpKeyboardMapper
 {
@@ -298,6 +299,9 @@ public class RdpKeyboardMapper
         keymapAndroid[KeyEvent.KEYCODE_Z] = VK_KEY_Z;
 
         keymapAndroid[KeyEvent.KEYCODE_DEL] = VK_BACK;
+        if (GeneralUtils.isTv(context)) {
+            keymapAndroid[KeyEvent.KEYCODE_DPAD_CENTER] = VK_RETURN;
+        }
         keymapAndroid[KeyEvent.KEYCODE_ENTER] = VK_RETURN;
         keymapAndroid[KeyEvent.KEYCODE_NUMPAD_ENTER] = VK_RETURN | VK_EXT_KEY;
         keymapAndroid[KeyEvent.KEYCODE_SPACE] = VK_SPACE;
