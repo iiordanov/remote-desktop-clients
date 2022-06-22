@@ -24,7 +24,9 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.Button;
@@ -35,6 +37,8 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
+import android.widget.Switch;
+import android.widget.TableLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
@@ -49,6 +53,9 @@ import com.iiordanov.aRDP.*;
 import com.iiordanov.freeaRDP.*;
 import com.iiordanov.aSPICE.*;
 import com.iiordanov.freeaSPICE.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * aRDP is the Activity for setting up RDP connections.
@@ -96,8 +103,19 @@ public class aRDP extends MainConfiguration {
     private CheckBox checkboxLocalCursor;
     private CheckBox checkboxUseSshPubkey;
     private CheckBox checkboxKioskMode;
+    private CheckBox switch_lock_settings;
 
     private Context _context=this;
+
+    ArrayList<View> settingsObjects=new ArrayList<>();
+    private void enableSettings(boolean enable) {
+        for (View v : settingsObjects
+             ) {
+            if (v != null){
+                v.setEnabled(enable);
+            }
+        }
+    }
 
     @Override
     public void onCreate(Bundle icicle) {
@@ -213,6 +231,25 @@ public class aRDP extends MainConfiguration {
         checkboxWindowContents = (CheckBox)findViewById(R.id.checkboxWindowContents);
         checkboxMenuAnimation = (CheckBox)findViewById(R.id.checkboxMenuAnimation);
         checkboxVisualStyles = (CheckBox)findViewById(R.id.checkboxVisualStyles);
+
+        settingsObjects.add(textNickname); settingsObjects.add(ipText);
+        settingsObjects.add(sshServer); settingsObjects.add(sshPort); settingsObjects.add(sshUser); settingsObjects.add(sshPassphrase); settingsObjects.add(sshPassword);
+        settingsObjects.add(portText); settingsObjects.add(passwordText);
+        settingsObjects.add(textUsername); settingsObjects.add(rdpDomain); settingsObjects.add(checkboxUseSshPubkey); settingsObjects.add(checkboxKeepPassword);
+        settingsObjects.add(checkboxKioskMode); settingsObjects.add(toggleAdvancedSettings);
+        enableSettings(false);
+        switch_lock_settings = (CheckBox) findViewById(R.id.switch_lock_settings);
+        final TableLayout view_table_settings = (TableLayout) findViewById(R.id.settings_tablelayout);
+        switch_lock_settings.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (switch_lock_settings.isChecked())
+                    enableSettings(false);
+                else
+                    enableSettings(true);
+            }
+        });
+
     }
     
     /**

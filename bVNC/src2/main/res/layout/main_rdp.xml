@@ -14,7 +14,8 @@ android:layout_height="fill_parent">
 		android:layout_width="fill_parent"
 		android:layout_height="wrap_content"
 		android:orientation="horizontal">
-		<Spinner 
+
+		<Spinner
 			android:id="@+id/spinnerConnection"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
@@ -31,158 +32,266 @@ android:layout_height="fill_parent">
 			android:layout_weight="0"
 			android:textSize="22sp"
 			android:singleLine="true"/>
-	</LinearLayout>	
-	<TableLayout 
+	</LinearLayout>
+
+	<TableLayout
+		android:id="@+id/settings_tablelayout"
 		android:layout_width="fill_parent"
 		android:layout_height="wrap_content"
 		android:padding="5dip">
+
 		<TableRow>
-		    <TextView
-				android:text="Connection Type"
-				android:textAppearance="?android:attr/textAppearanceMedium"
+
+			<TextView
 				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"/> 
+				android:layout_height="wrap_content"
+				android:text="Connection Type"
+				android:textAppearance="?android:attr/textAppearanceMedium" />
 		</TableRow>
+
 		<TableRow>
-			<Spinner 
-			    android:id="@+id/connectionType" 
-			    android:layout_width="fill_parent"
+
+			<Spinner
+				android:id="@+id/connectionType"
+				android:layout_width="fill_parent"
 				android:layout_height="wrap_content"
 				android:layout_weight="1"
 				android:entries="@array/rdp_connection_type"
-				android:textAppearance="?android:attr/textAppearanceMedium"/>
+				android:textAppearance="?android:attr/textAppearanceMedium" />
 		</TableRow>
+
 		<TableRow>
-			<EditText android:id="@+id/textNickname" android:layout_width="fill_parent" android:layout_height="wrap_content"
-				android:singleLine="true" android:layout_weight="1" android:textAppearance="?android:attr/textAppearanceMedium"
-				android:hint="@string/nickname_caption_hint"/>
+
+			<EditText
+				android:id="@+id/textNickname"
+				android:layout_width="fill_parent"
+				android:layout_height="wrap_content"
+				android:layout_weight="1"
+				android:hint="@string/nickname_caption_hint"
+				android:singleLine="true"
+				android:textAppearance="?android:attr/textAppearanceMedium" />
 		</TableRow>
+
 		<TableRow>
-		    <TextView
-			    android:id="@+id/sshCaption" 
+
+			<TextView
+				android:id="@+id/sshCaption"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
 				android:text="SSH Tunnel Settings"
-				android:textAppearance="?android:attr/textAppearanceMedium"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"/>
+				android:textAppearance="?android:attr/textAppearanceMedium" />
 		</TableRow>
+
 		<TableRow>
-	    	<LinearLayout
-	    	    android:id="@+id/sshServerEntry"
-				android:layout_width="fill_parent"
-				android:layout_height="wrap_content"
-				android:orientation="horizontal"
-				android:layout_weight="1"
-				android:visibility="gone">
-				<EditText android:id="@+id/sshServer" android:layout_width="fill_parent" android:layout_height="wrap_content"
-					android:singleLine="true" android:layout_weight="1" android:textAppearance="?android:attr/textAppearanceMedium"
-					android:hint="@string/address_caption_ssh_hint"	android:inputType="textNoSuggestions|textVisiblePassword"
-					android:nextFocusDown="@+id/sshPort"/>
-				<EditText android:id="@+id/sshPort"
-					android:text="22" android:hint="@string/port_ssh_hint" android:layout_width="wrap_content" 
-					android:layout_height="wrap_content" android:singleLine="true" android:layout_weight="0"
-					android:textAppearance="?android:attr/textAppearanceMedium" android:nextFocusDown="@+id/sshUser"
-					android:inputType="textNoSuggestions|textVisiblePassword"/>
-			</LinearLayout>
-		</TableRow>
-		<TableRow>
-	    	<LinearLayout
-	    	    android:id="@+id/sshCredentials"
-				android:layout_width="fill_parent"
-				android:layout_height="wrap_content"
-				android:orientation="horizontal"
-				android:layout_weight="1"
-				android:visibility="gone">
-				<EditText android:id="@+id/sshUser"
-					android:layout_width="fill_parent" android:layout_height="wrap_content"
-					android:singleLine="true" android:layout_weight=".5" android:textAppearance="?android:attr/textAppearanceMedium"
-					android:hint="@string/username_hint_ssh" android:inputType="textNoSuggestions|textVisiblePassword"
-					android:nextFocusDown="@+id/sshPassword"/>
-				<EditText android:id="@+id/sshPassword"
-				    android:password="true"
-					android:layout_width="fill_parent" android:layout_height="wrap_content"
-					android:singleLine="true" android:layout_weight=".5" android:textAppearance="?android:attr/textAppearanceMedium"
-					android:hint="@string/password_hint_ssh" android:inputType="textNoSuggestions"/>
-			</LinearLayout>
-		</TableRow>
-        <TableRow>
-            <LinearLayout
-                android:id="@+id/layoutUseSshPubkey"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_weight="1"
-                android:visibility="gone">
-                <LinearLayout
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal">
-                    <EditText android:id="@+id/sshPassphrase"
-                        android:password="true"
-                        android:layout_width="fill_parent" android:layout_height="wrap_content"
-                        android:singleLine="true" android:layout_weight=".5" android:textAppearance="?android:attr/textAppearanceMedium"
-                        android:hint="@string/ssh_passphrase_hint" android:inputType="textNoSuggestions"/>
-                    <CheckBox android:id="@+id/checkboxUseSshPubkey"
-                        android:layout_width="fill_parent" android:layout_height="wrap_content"
-                        android:text="@string/ssh_use_pubkey" android:layout_weight=".5" android:checked="false"
-                        android:textAppearance="?android:attr/textAppearanceMedium" android:singleLine="true"/>
-                 </LinearLayout>
-                 <Button android:id="@+id/buttonGeneratePubkey" android:text="@string/ssh_pubkey_button"
-                    android:textAppearance="?android:attr/textAppearanceMedium" android:enabled="true"
-                    android:layout_width="fill_parent" android:layout_height="wrap_content"/>
-            </LinearLayout>
-        </TableRow>
-		<TableRow>
-		    <TextView
-				android:text="RDP Connection Settings"
-				android:textAppearance="?android:attr/textAppearanceMedium"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"/> 
-		</TableRow>
-		<TableRow>
+
 			<LinearLayout
+				android:id="@+id/sshServerEntry"
 				android:layout_width="fill_parent"
 				android:layout_height="wrap_content"
+				android:layout_weight="1"
 				android:orientation="horizontal"
-				android:layout_weight="1">
-				<EditText android:id="@+id/textIP" android:layout_width="fill_parent" android:layout_height="wrap_content"
-					android:singleLine="true" android:layout_weight="1" android:textAppearance="?android:attr/textAppearanceMedium"
-					android:hint="@string/rdp_address_caption_hint" android:nextFocusDown="@+id/textPORT"
-					android:inputType="textNoSuggestions|textVisiblePassword"/>
-				<EditText android:id="@+id/textPORT"
-					android:text="3389" android:hint="@string/port_hint"
-					android:layout_width="wrap_content" android:layout_height="wrap_content" android:singleLine="true"
-					android:layout_weight="0" android:textAppearance="?android:attr/textAppearanceMedium"
-					android:inputType="textNoSuggestions|textVisiblePassword"/>
+				android:visibility="gone">
+
+				<EditText
+					android:id="@+id/sshServer"
+					android:layout_width="fill_parent"
+					android:layout_height="wrap_content"
+					android:layout_weight="1"
+					android:hint="@string/address_caption_ssh_hint"
+					android:inputType="textNoSuggestions|textVisiblePassword"
+					android:nextFocusDown="@+id/sshPort"
+					android:singleLine="true"
+					android:textAppearance="?android:attr/textAppearanceMedium" />
+
+				<EditText
+					android:id="@+id/sshPort"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_weight="0"
+					android:hint="@string/port_ssh_hint"
+					android:inputType="textNoSuggestions|textVisiblePassword"
+					android:nextFocusDown="@+id/sshUser"
+					android:singleLine="true"
+					android:text="22"
+					android:textAppearance="?android:attr/textAppearanceMedium" />
 			</LinearLayout>
 		</TableRow>
+
 		<TableRow>
-			<EditText android:id="@+id/textUsername" android:layout_width="fill_parent" 
-				android:hint="@string/rdp_username_hint" android:layout_height="wrap_content"
-				android:singleLine="true" android:layout_weight="1" android:textAppearance="?android:attr/textAppearanceMedium"
-				android:inputType="textNoSuggestions|textVisiblePassword"/>
-		</TableRow>
-		<TableRow>
-			<EditText android:id="@+id/rdpDomain" android:layout_width="fill_parent" 
-				android:hint="@string/rdp_domain_hint" android:layout_height="wrap_content"
-				android:singleLine="true" android:layout_weight="1" android:textAppearance="?android:attr/textAppearanceMedium"
-				android:inputType="textNoSuggestions|textVisiblePassword"/>
-		</TableRow>
-		<TableRow>
+
 			<LinearLayout
+				android:id="@+id/sshCredentials"
 				android:layout_width="fill_parent"
 				android:layout_height="wrap_content"
+				android:layout_weight="1"
 				android:orientation="horizontal"
-				android:layout_weight="1">
-				<EditText android:id="@+id/textPASSWORD"
+				android:visibility="gone">
+
+				<EditText
+					android:id="@+id/sshUser"
+					android:layout_width="fill_parent"
+					android:layout_height="wrap_content"
+					android:layout_weight=".5"
+					android:hint="@string/username_hint_ssh"
+					android:inputType="textNoSuggestions|textVisiblePassword"
+					android:nextFocusDown="@+id/sshPassword"
+					android:singleLine="true"
+					android:textAppearance="?android:attr/textAppearanceMedium" />
+
+				<EditText
+					android:id="@+id/sshPassword"
+					android:layout_width="fill_parent"
+					android:layout_height="wrap_content"
+					android:layout_weight=".5"
+					android:hint="@string/password_hint_ssh"
+					android:inputType="textNoSuggestions"
 					android:password="true"
-					android:layout_width="fill_parent" android:layout_height="wrap_content" android:singleLine="true" 
-					android:layout_weight="1" android:textAppearance="?android:attr/textAppearanceMedium"
+					android:singleLine="true"
+					android:textAppearance="?android:attr/textAppearanceMedium" />
+			</LinearLayout>
+		</TableRow>
+
+		<TableRow>
+
+			<LinearLayout
+				android:id="@+id/layoutUseSshPubkey"
+				android:layout_width="fill_parent"
+				android:layout_height="wrap_content"
+				android:layout_weight="1"
+				android:orientation="vertical"
+				android:visibility="gone">
+
+				<LinearLayout
+					android:layout_width="fill_parent"
+					android:layout_height="wrap_content"
+					android:orientation="horizontal">
+
+					<EditText
+						android:id="@+id/sshPassphrase"
+						android:layout_width="fill_parent"
+						android:layout_height="wrap_content"
+						android:layout_weight=".5"
+						android:hint="@string/ssh_passphrase_hint"
+						android:inputType="textNoSuggestions"
+						android:password="true"
+						android:singleLine="true"
+						android:textAppearance="?android:attr/textAppearanceMedium" />
+
+					<CheckBox
+						android:id="@+id/checkboxUseSshPubkey"
+						android:layout_width="fill_parent"
+						android:layout_height="wrap_content"
+						android:layout_weight=".5"
+						android:checked="false"
+						android:singleLine="true"
+						android:text="@string/ssh_use_pubkey"
+						android:textAppearance="?android:attr/textAppearanceMedium" />
+				</LinearLayout>
+
+				<Button
+					android:id="@+id/buttonGeneratePubkey"
+					android:layout_width="fill_parent"
+					android:layout_height="wrap_content"
+					android:enabled="true"
+					android:text="@string/ssh_pubkey_button"
+					android:textAppearance="?android:attr/textAppearanceMedium" />
+			</LinearLayout>
+		</TableRow>
+
+		<TableRow>
+
+			<TextView
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:text="RDP Connection Settings"
+				android:textAppearance="?android:attr/textAppearanceMedium" />
+		</TableRow>
+
+		<TableRow>
+
+			<LinearLayout
+				android:layout_width="fill_parent"
+				android:layout_height="wrap_content"
+				android:layout_weight="1"
+				android:orientation="horizontal">
+
+				<EditText
+					android:id="@+id/textIP"
+					android:layout_width="fill_parent"
+					android:layout_height="wrap_content"
+					android:layout_weight="1"
+					android:hint="@string/rdp_address_caption_hint"
+					android:inputType="textNoSuggestions|textVisiblePassword"
+					android:nextFocusDown="@+id/textPORT"
+					android:singleLine="true"
+					android:textAppearance="?android:attr/textAppearanceMedium" />
+
+				<EditText
+					android:id="@+id/textPORT"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_weight="0"
+					android:hint="@string/port_hint"
+					android:inputType="textNoSuggestions|textVisiblePassword"
+					android:singleLine="true"
+					android:text="3389"
+					android:textAppearance="?android:attr/textAppearanceMedium" />
+			</LinearLayout>
+		</TableRow>
+
+		<TableRow>
+
+			<EditText
+				android:id="@+id/textUsername"
+				android:layout_width="fill_parent"
+				android:layout_height="wrap_content"
+				android:layout_weight="1"
+				android:hint="@string/rdp_username_hint"
+				android:inputType="textNoSuggestions|textVisiblePassword"
+				android:singleLine="true"
+				android:textAppearance="?android:attr/textAppearanceMedium" />
+		</TableRow>
+
+		<TableRow>
+
+			<EditText
+				android:id="@+id/rdpDomain"
+				android:layout_width="fill_parent"
+				android:layout_height="wrap_content"
+				android:layout_weight="1"
+				android:hint="@string/rdp_domain_hint"
+				android:inputType="textNoSuggestions|textVisiblePassword"
+				android:singleLine="true"
+				android:textAppearance="?android:attr/textAppearanceMedium" />
+		</TableRow>
+
+		<TableRow>
+
+			<LinearLayout
+				android:layout_width="fill_parent"
+				android:layout_height="wrap_content"
+				android:layout_weight="1"
+				android:orientation="horizontal">
+
+				<EditText
+					android:id="@+id/textPASSWORD"
+					android:layout_width="fill_parent"
+					android:layout_height="wrap_content"
+					android:layout_weight="1"
 					android:hint="@string/rdp_password_hint"
-					android:inputType="textNoSuggestions"/>
-				<CheckBox android:id="@+id/checkboxKeepPassword"
-					android:layout_width="wrap_content" android:layout_height="wrap_content"
-					android:text="@string/keep_password_button"	android:layout_weight="0"
-					android:textAppearance="?android:attr/textAppearanceMedium" android:singleLine="true"/>
+					android:inputType="textNoSuggestions"
+					android:password="true"
+					android:singleLine="true"
+					android:textAppearance="?android:attr/textAppearanceMedium" />
+
+				<CheckBox
+					android:id="@+id/checkboxKeepPassword"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_weight="0"
+					android:singleLine="true"
+					android:text="@string/keep_password_button"
+					android:textAppearance="?android:attr/textAppearanceMedium" />
 			</LinearLayout>
 		</TableRow>
 		<!-- <TableRow>
@@ -223,6 +332,14 @@ android:layout_height="fill_parent">
 			android:layout_height="wrap_content"
 			android:text="enable Kioskmode"
 			android:textAppearance="?android:attr/textAppearanceSmall" />
+
+		<CheckBox
+			android:id="@+id/switch_lock_settings"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_weight="@integer/keycode_numpad_0"
+			android:checked="true"
+			android:text="Lock Settings" />
 	</LinearLayout>
 
     <LinearLayout
