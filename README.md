@@ -13,7 +13,7 @@ aRDP is a RDP client. It's released as a donation version at, [aRDP Pro](https:/
 
 aSPICE is a SPICE Protocol client. It's available as a donation version at, [aSPICE Pro](https://play.google.com/store/apps/details?id=com.iiordanov.aSPICE), and a free version at [aSPICE](https://play.google.com/store/apps/details?id=com.iiordanov.freeaSPICE)
 
-Opaque is a oVirt, RHEV, and Proxmox client available at [Opaque](https://play.google.com/store/apps/details?id=com.undatech.opaque)
+Opaque is an oVirt, RHEV, and Proxmox client available at [Opaque](https://play.google.com/store/apps/details?id=com.undatech.opaque)
 
 The donation versions are also available on Amazon App Store at [bVNC](https://www.amazon.ca/Unda-Tech-VNC-Pro-Viewer/dp/B00OWZYE1A), [aRDP](https://www.amazon.ca/Unda-Tech-RDP-Pro-Client/dp/B00OX1RBAO), [aSPICE](https://www.amazon.ca/aSPICE-Pro-Secure-SPICE-Client/dp/B07B6K9BDB), [Opaque](https://www.amazon.ca/Opaque-oVirt-RHEV-Proxmox-Client/dp/B07HMTYT1L).
 
@@ -93,7 +93,7 @@ Building from scratch and working in Android Studio.
 These instructions are for Windows without WSL2 installed. For now, only pre-build dependencies are
 supported in this configuration.
 
-- First [download and install install git from here](https://git-scm.com/downloads)
+- First [download and install git from here](https://git-scm.com/downloads)
 - Then, start Git Bash, clone this project, cd into the project root directory and run:
 ```bash
 ./download-prebuilt-dependencies.sh
@@ -101,7 +101,7 @@ supported in this configuration.
 - Start Android Studio and open the project directory
 - Click File->Sync Project with Gradle Files
 - If Android Studio reports any missing android versions (such as `android-28`, for instance),
-find and start SDK Manager and ensure any missing Android versions are installed. As of today
+find and start SDK Manager and ensure any missing Android versions are installed. As of today,
 the required versions are `android-28`, `android-29`, and `android-30`, but in future other versions
 will need to be installed if Android Studio shows an error.
 
@@ -165,7 +165,7 @@ without altering any of the source code of the project.
 
 ## Bugs
 
-Please post any bugs you find at the github issue tracker:
+Please post any bugs you find at the GitHub issue tracker:
 
 https://github.com/iiordanov/remote-desktop-clients/issues
 
