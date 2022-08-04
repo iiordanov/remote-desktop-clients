@@ -27,6 +27,7 @@ import net.sqlcipher.database.SQLiteOpenHelper;
 import android.util.Log;
 
 import com.iiordanov.bVNC.input.AbstractMetaKeyBean;
+import com.undatech.opaque.ConnectionGridActivity;
 
 /**
  * @author Michael A. MacDonald
@@ -385,5 +386,21 @@ public class Database extends SQLiteOpenHelper {
             oldVersion = DBV_2_1_8;
         }
 
+    }
+
+    public boolean checkMasterPassword(String password, Context context) {
+        Log.i(TAG, "Checking master password.");
+        boolean result = false;
+
+        Database testPassword = new Database(context);
+        testPassword.close();
+        try {
+            testPassword.getReadableDatabase(password);
+            result = true;
+        } catch (Exception e) {
+            result = false;
+        }
+        testPassword.close();
+        return result;
     }
 }

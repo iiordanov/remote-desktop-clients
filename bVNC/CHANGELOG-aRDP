@@ -1,7 +1,9 @@
+
 v5.1.0
 - Handling Keypad Return key
 - Handling of DPAD Center as Return key on Android TV
 - Fixes for left, middle and right mouse button drag and drop on Windows
+- Bugfix for master password
 v5.0.9
 - Android localization: Updated translatations for ko, ja, zh-rCN, and zh-rTW
 - Removed Import/Export Button from Connection Setup Layout

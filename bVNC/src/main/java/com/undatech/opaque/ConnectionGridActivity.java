@@ -63,8 +63,7 @@ import com.iiordanov.bVNC.dialogs.GetTextFragment;
 import com.iiordanov.bVNC.dialogs.ImportExportDialog;
 import com.iiordanov.bVNC.dialogs.IntroTextDialog;
 import com.iiordanov.bVNC.input.InputHandlerDirectSwipePan;
-import com.iiordanov.util.PermissionGroups;
-import com.iiordanov.util.PermissionsManager;
+import com.iiordanov.util.MasterPasswordDelegate;
 import com.undatech.opaque.util.ConnectionLoader;
 import com.undatech.opaque.util.FileUtils;
 import com.undatech.opaque.util.GeneralUtils;
@@ -148,7 +147,7 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
         if (getPassword == null) {
             getPassword = GetTextFragment.newInstance(GetTextFragment.DIALOG_ID_GET_MASTER_PASSWORD,
                     getString(R.string.master_password_verify), this,
-                    GetTextFragment.Password, R.string.master_password_verify_message,
+                    GetTextFragment.PasswordNoKeep, R.string.master_password_verify_message,
                     R.string.master_password_set_error, null, null, null, false);
         }
         if (getNewPassword == null) {
@@ -498,87 +497,24 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
         return true;
     }
 
-    private boolean checkMasterPassword (String password) {
-        Log.i(TAG, "Checking master password.");
-        boolean result = false;
-
-        Database testPassword = new Database(this);
-        testPassword.close();
-        try {
-            testPassword.getReadableDatabase(password);
-            result = true;
-        } catch (Exception e) {
-            result = false;
-        }
-        testPassword.close();
-        return result;
-    }
-
     public void onTextObtained(String dialogId, String[] obtainedStrings, boolean wasCancelled, boolean keep) {
+        Log.i(TAG, "onTextObtained");
         handlePassword(obtainedStrings[0], wasCancelled);
     }
 
-    public void handlePassword(String providedPassword, boolean wasCancelled) {
+    public void handlePassword(String providedPassword, boolean dialogWasCancelled) {
+        Log.i(TAG, "handlePassword");
+        boolean loadConnections;
+        MasterPasswordDelegate passwordDelegate = new MasterPasswordDelegate(this, database);
         if (togglingMasterPassword) {
-            Log.i(TAG, "Asked to toggle master pasword.");
-            // The user has requested the password to be enabled or disabled.
+            loadConnections = passwordDelegate.toggleMasterPassword(providedPassword, dialogWasCancelled);
             togglingMasterPassword = false;
-            if (Utils.querySharedPreferenceBoolean(this, Constants.masterPasswordEnabledTag)) {
-                Log.i(TAG, "Master password is enabled.");
-                // Master password is enabled
-                if (wasCancelled) {
-                    Log.i(TAG, "Dialog cancelled, so quitting.");
-                    Utils.showFatalErrorMessage(this, getResources().getString(R.string.master_password_error_password_necessary));
-                } else if (checkMasterPassword(providedPassword)) {
-                    Log.i(TAG, "Entered password correct, disabling password.");
-                    // Disable the password since the user input the correct password.
-                    Database.setPassword(providedPassword);
-                    if (database.changeDatabasePassword("")) {
-                        Utils.toggleSharedPreferenceBoolean(this, Constants.masterPasswordEnabledTag);
-                    } else {
-                        Utils.showErrorMessage(this, getResources().getString(R.string.master_password_error_failed_to_disable));
-                    }
-                    removeGetPasswordFragments();
-                    loadSavedConnections();
-                } else {
-                    Log.i(TAG, "Entered password is wrong or dialog cancelled, so quitting.");
-                    Utils.showFatalErrorMessage(this, getResources().getString(R.string.master_password_error_wrong_password));
-                }
-            } else {
-                Log.i(TAG, "Master password is disabled.");
-                if (!wasCancelled) {
-                    // The password is disabled, so set it in the preferences.
-                    Log.i(TAG, "Setting master password.");
-                    Database.setPassword("");
-                    if (database.changeDatabasePassword(providedPassword)) {
-                        Utils.toggleSharedPreferenceBoolean(this, Constants.masterPasswordEnabledTag);
-                    } else {
-                        Utils.showErrorMessage(this, getResources().getString(R.string.master_password_error_failed_to_enable));
-                    }
-                } else {
-                    // No need to show error message because user cancelled consciously.
-                    Log.i(TAG, "Dialog cancelled, not setting master password.");
-                    Utils.showErrorMessage(this, getResources().getString(R.string.master_password_error_password_not_set));
-                }
-                removeGetPasswordFragments();
-                loadSavedConnections();
-            }
         } else {
-            // We are just trying to check the password.
-            Log.i(TAG, "Just checking the password.");
-            if (wasCancelled) {
-                Log.i(TAG, "Dialog cancelled, so quitting.");
-                Utils.showFatalErrorMessage(this, getResources().getString(R.string.master_password_error_password_necessary));
-            } else if (checkMasterPassword(providedPassword)) {
-                Log.i(TAG, "Entered password is correct, so proceeding.");
-                Database.setPassword(providedPassword);
-                removeGetPasswordFragments();
-                loadSavedConnections();
-            } else {
-                // Finish the activity if the password was wrong.
-                Log.i(TAG, "Entered password is wrong, so quitting.");
-                Utils.showFatalErrorMessage(this, getResources().getString(R.string.master_password_error_wrong_password));
-            }
+            loadConnections = passwordDelegate.checkMasterPasswordAndQuitIfWrong(providedPassword, dialogWasCancelled);
+        }
+        if (loadConnections) {
+            removeGetPasswordFragments();
+            loadSavedConnections();
         }
     }
 

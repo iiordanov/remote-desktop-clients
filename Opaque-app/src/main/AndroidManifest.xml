@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="com.undatech.opaque"
-    android:versionCode="115104"
+    android:versionCode="115105"
     android:versionName="v5.1.0">
 
     <uses-feature

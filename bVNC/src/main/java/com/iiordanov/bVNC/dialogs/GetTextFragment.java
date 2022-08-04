@@ -51,6 +51,7 @@ public class GetTextFragment extends DialogFragment {
     public static final int Credentials = 4;
     public static final int CredentialsWithDomain = 5;
     public static final int CredentialsWithReadOnlyUser = 6;
+    public static final int PasswordNoKeep = 7;
 
     public static final String DIALOG_ID_GET_PASSWORD                  = "DIALOG_ID_GET_PASSWORD";
     public static final String DIALOG_ID_GET_MASTER_PASSWORD           = "DIALOG_ID_GET_MASTER_PASSWORD";
@@ -80,8 +81,9 @@ public class GetTextFragment extends DialogFragment {
         @Override
         public void afterTextChanged(Editable arg0) {}
     }
-    
-	private boolean wasCancelled = false;
+
+    private boolean wasCancelled = false;
+    private boolean wasConfirmed = false;
     private TextView message;
     private TextView error;
     private TextView textViewBox;
@@ -149,6 +151,7 @@ public class GetTextFragment extends DialogFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     	android.util.Log.i(TAG, "onCreateView called");
     	wasCancelled = false;
+        wasConfirmed = false;
     	
         getDialog().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN|WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
 
@@ -170,6 +173,7 @@ public class GetTextFragment extends DialogFragment {
             dismissOnCancel(buttonCancel);
             dismissOnConfirm(buttonConfirm);
             break;
+        case PasswordNoKeep:
         case Password:
             v = inflater.inflate(R.layout.get_text, container, false);
             textBox = (EditText) v.findViewById(R.id.textBox);
@@ -179,6 +183,9 @@ public class GetTextFragment extends DialogFragment {
             buttonCancel = (Button) v.findViewById(R.id.buttonCancel);
             dismissOnCancel(buttonCancel);
             dismissOnConfirm(buttonConfirm);
+            if (dialogType == PasswordNoKeep) {
+                checkboxKeepPassword.setVisibility(View.GONE);
+            }
             break;
         case MatchingPasswordTwice:
             v = inflater.inflate(R.layout.get_text_twice, container, false);
@@ -280,6 +287,7 @@ public class GetTextFragment extends DialogFragment {
         buttonConfirm.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
+                wasConfirmed = true;
                 getDialog().dismiss();
             }
         });
@@ -290,6 +298,7 @@ public class GetTextFragment extends DialogFragment {
             @Override
             public void onClick(View v) {
                 if (textBox1.getText().toString().equals(textBox2.getText().toString())) {
+                    wasConfirmed = true;
                     getDialog().dismiss();
                 } else {
                     error.setText(errorNum);
@@ -326,8 +335,11 @@ public class GetTextFragment extends DialogFragment {
         if (checkboxKeepPassword != null) {
             keepPassword = checkboxKeepPassword.isChecked();
         }
-    	if (dismissalListener != null) {
-            dismissalListener.onTextObtained(dialogId, results, wasCancelled, keepPassword);
+        if (dismissalListener != null && (wasConfirmed||wasCancelled)) {
+            boolean cancelled = wasCancelled;
+            wasCancelled = false;
+            wasConfirmed = false;
+            dismissalListener.onTextObtained(dialogId, results, cancelled, keepPassword);
         }
     	super.onDismiss(dialog);
     }

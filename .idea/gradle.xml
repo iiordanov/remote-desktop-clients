@@ -32,7 +32,6 @@
             <option value="$PROJECT_DIR$/remoteClientLib/jni/libs/deps/FreeRDP/client/Android/Studio/freeRDPCore" />
           </set>
         </option>
-        <option name="resolveModulePerSourceSet" value="false" />
       </GradleProjectSettings>
     </option>
   </component>
