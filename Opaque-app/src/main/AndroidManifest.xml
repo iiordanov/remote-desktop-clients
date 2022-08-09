@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="com.undatech.opaque"
-    android:versionCode="115106"
+    android:versionCode="115107"
     android:versionName="v5.1.0">
 
     <uses-feature
@@ -25,13 +25,6 @@
     <uses-feature
         android:name="android.software.leanback"
         android:required="false" />
-
-    <supports-screens
-        android:anyDensity="true"
-        android:largeScreens="true"
-        android:normalScreens="true"
-        android:smallScreens="true"
-        android:xlargeScreens="true" />
 
     <application
         android:name="com.iiordanov.bVNC.App"

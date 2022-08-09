@@ -17,6 +17,14 @@
 
     <uses-sdk tools:overrideLibrary="com.github.luben.zstd" />
 
+    <supports-screens
+        android:resizeable="true"
+        android:anyDensity="true"
+        android:largeScreens="true"
+        android:normalScreens="true"
+        android:smallScreens="true"
+        android:xlargeScreens="true" />
+
     <application>
         <activity
             android:name="com.iiordanov.pubkeygenerator.GeneratePubkeyActivity"
