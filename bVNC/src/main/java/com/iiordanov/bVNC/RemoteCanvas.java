@@ -1208,7 +1208,10 @@ public class RemoteCanvas extends AppCompatImageView
         }
 
         try {
-            if (isRdp || isOpaque || connection.getUseLocalCursor() == Constants.CURSOR_FORCE_LOCAL) {
+            if (
+                    ((isRdp || isOpaque) && connection.getUseLocalCursor() != Constants.CURSOR_FORCE_DISABLE)
+                    || connection.getUseLocalCursor() == Constants.CURSOR_FORCE_LOCAL
+            ) {
                 initializeSoftCursor();
             }
             handler.post(drawableSetter);
