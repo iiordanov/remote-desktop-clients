@@ -183,9 +183,8 @@ abstract class InputHandlerGeneric extends GestureDetector.SimpleOnGestureListen
         final int action = e.getActionMasked();
         final int meta   = e.getMetaState();
 		final int bstate = e.getButtonState();
-		float scale      = canvas.getZoomFactor();
-		int x = (int)(canvas.getAbsX() +  e.getX()                          / scale);
-		int y = (int)(canvas.getAbsY() + (e.getY() - 1.f * canvas.getTop()) / scale);
+		int x = getX(e);
+		int y = getY(e);
 
 		switch (action) {
 		// If a mouse button was pressed or mouse was moved.
