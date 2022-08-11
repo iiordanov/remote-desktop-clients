@@ -66,13 +66,21 @@ public class InputHandlerDirectDragPan extends InputHandlerGeneric {
 		if (secondPointerWasDown || thirdPointerWasDown)
 			return;
 
-		activity.sendShortVibration();
-
-		canvas.displayShortToastMessage(activity.getString(R.string.panning));
 		endDragModesAndScrolling();
-		panMode = true;
+		if(canvas.canvasZoomer.isAbleToPan()) {
+			activity.sendShortVibration();
+			canvas.displayShortToastMessage(activity.getString(R.string.panning));
+			panMode = true;
+		} else {
+			startDragAndDropMode(e);
+		}
 	}
-	
+
+	private void startDragAndDropMode(MotionEvent e) {
+		dragMode = true;
+		RemotePointer p = canvas.getPointer();
+		p.leftButtonDown(getX(e), getY(e), e.getMetaState());
+	}
 
 	/*
 	 * (non-Javadoc)
@@ -81,8 +89,6 @@ public class InputHandlerDirectDragPan extends InputHandlerGeneric {
 	@Override
 	public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
 		GeneralUtils.debugLog(debugLogging, TAG, "onScroll, e1: " + e1 + ", e2:" + e2);
-
-        RemotePointer p = canvas.getPointer();
 
         // If we are scaling, allow panning around by moving two fingers around the screen
         if (inScaling) {
@@ -108,10 +114,10 @@ public class InputHandlerDirectDragPan extends InputHandlerGeneric {
 			activity.showToolbar();
 			
 			if (!dragMode) {
-			    dragMode = true;
-			    p.leftButtonDown(getX(e1), getY(e1), e1.getMetaState());
+				startDragAndDropMode(e1);
 			} else {
-			    p.moveMouseButtonDown(getX(e2), getY(e2), e2.getMetaState());
+				RemotePointer p = canvas.getPointer();
+				p.moveMouseButtonDown(getX(e2), getY(e2), e2.getMetaState());
 			}
 		}
         canvas.movePanToMakePointerVisible();

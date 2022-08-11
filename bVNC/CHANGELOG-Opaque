@@ -3,6 +3,7 @@ v5.1.0
 - Bugfix for cursor visibility setting
 - Support for app resizing
 - Fix for drag&drop bug in Direct Drag Pan Mode
+- Improvement to Direct Drag Pan Mode in Fit-To-Screen mode
 v5.0.9
 - Android localization: Updated translatations for ko, ja, zh-rCN, and zh-rTW
 - Primary and Secondary Button Stylus / S-Pen Support

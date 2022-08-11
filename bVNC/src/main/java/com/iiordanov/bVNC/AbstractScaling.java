@@ -131,7 +131,7 @@ public abstract class AbstractScaling {
      * True if this scale type allows panning of the image
      * @return
      */
-    abstract boolean isAbleToPan();
+    public abstract boolean isAbleToPan();
     
     /**
      * True if the listed input mode is valid for this scaling mode

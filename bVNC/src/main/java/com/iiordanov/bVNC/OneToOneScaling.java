@@ -65,7 +65,7 @@ class OneToOneScaling extends AbstractScaling {
      * @see com.iiordanov.bVNC.AbstractScaling#isAbleToPan()
      */
     @Override
-    boolean isAbleToPan() {
+    public boolean isAbleToPan() {
         return true;
     }
 

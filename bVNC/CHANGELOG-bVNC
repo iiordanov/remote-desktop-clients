@@ -4,6 +4,7 @@ v5.1.0
 - Bugfix for master password
 - Support for app resizing
 - Fix for drag&drop bug in Direct Drag Pan Mode
+- Improvement to Direct Drag Pan Mode in Fit-To-Screen mode
 v5.0.9
 - Android localization: Updated translatations for ko, ja, zh-rCN, and zh-rTW
 - Fix to interactively gather credentials for Mac OS X
