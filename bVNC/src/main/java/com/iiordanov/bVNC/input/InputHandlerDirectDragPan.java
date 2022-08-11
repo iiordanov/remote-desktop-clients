@@ -82,10 +82,6 @@ public class InputHandlerDirectDragPan extends InputHandlerGeneric {
 	public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
 		GeneralUtils.debugLog(debugLogging, TAG, "onScroll, e1: " + e1 + ", e2:" + e2);
 
-		if (consumeAsMouseWheel(e1, e2)) {
-			return true;
-		}
-
         RemotePointer p = canvas.getPointer();
 
         // If we are scaling, allow panning around by moving two fingers around the screen
