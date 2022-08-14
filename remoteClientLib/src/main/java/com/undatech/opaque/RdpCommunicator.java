@@ -12,11 +12,12 @@ import com.freerdp.freerdpcore.application.SessionState;
 import com.freerdp.freerdpcore.domain.BookmarkBase;
 import com.freerdp.freerdpcore.domain.ManualBookmark;
 import com.freerdp.freerdpcore.services.LibFreeRDP;
-import com.undatech.opaque.input.RemoteKeyboard;
 import com.undatech.opaque.input.RdpKeyboardMapper;
-import com.undatech.opaque.input.RemoteKeyboardState;
+import com.undatech.opaque.input.RemoteKeyboard;
 import com.undatech.opaque.input.RemotePointer;
 import com.undatech.opaque.util.GeneralUtils;
+
+import org.apache.commons.validator.routines.InetAddressValidator;
 
 import java.lang.reflect.Field;
 import java.util.Collections;
@@ -296,7 +297,7 @@ public class RdpCommunicator extends RfbConnectable implements RdpKeyboardMapper
         //LibFreeRDP.setDataDirectory(session.getInstance(), getContext().getFilesDir().toString());
         // Get the address and port (based on whether an SSH tunnel is being established or not).
         bookmark.<ManualBookmark>get().setLabel(nickname);
-        bookmark.<ManualBookmark>get().setHostname(address);
+        bookmark.<ManualBookmark>get().setHostname(addBracketsToIpv6Address(address));
         bookmark.<ManualBookmark>get().setPort(rdpPort);
 
         BookmarkBase.DebugSettings debugSettings = bookmark.getDebugSettings();
@@ -329,6 +330,19 @@ public class RdpCommunicator extends RfbConnectable implements RdpKeyboardMapper
         advancedSettings.setRedirectSound(redirectSound);
         advancedSettings.setRedirectMicrophone(enableRecording);
         advancedSettings.setSecurity(0); // Automatic negotiation
+    }
+
+    /**
+     * Adds brackets around a valid IPv6 address that does not already start with [.
+     * @param address
+     * @return
+     */
+    private String addBracketsToIpv6Address(String address) {
+        InetAddressValidator validator = InetAddressValidator.getInstance();
+        if (validator.isValidInet6Address(address) && !address.startsWith("[")) {
+            address = "[" + address + "]";
+        }
+        return address;
     }
 
     public void connect() {
