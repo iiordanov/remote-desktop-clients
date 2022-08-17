@@ -40,15 +40,10 @@
   <string name="hide_toolbar">ツールバーを非表示</string>
   <string name="manage_custom_ca_title">カスタムCAを管理する</string>
   <string name="save_button">保存</string>
-  <string name="input_method_mouse">マウスポインタ制御</string>
   <string name="select_vm_title">仮想マシンを選択</string>
   <string name="vv_file_not_found">.vvファイルが見つかりませんでした！</string>
   <string name="vv_file_error">.vvファイルが見つからないか破損しています！</string>
   <string name="info_cert">この新しいまたは変更されたホスト証明書を受け入れますか？\ n \ n指紋：\ nMD5：％1 $ s \ nSHA1：％2 $ s \ nSHA256：％3 $ s \ n \ n発行先：％4 $ s \ n発行元： ％5 $ s \ n \ n有効期限：％6 $ s \ n有効期限：</string>
-  <string name="input_method_direct_swipe_pan">直接、スワイプパン</string>
-  <string name="input_method_direct_drag_pan">ダイレクト、ホールドパン</string>
-  <string name="input_method_single_handed">片手で</string>
-  <string name="input_method_touchpad">シミュレートされたタッチパッド</string>
 
   <string name="toggle_keyboard">キーボードの切り替え</string>
   <string name="show_keyboard">キーボードを表示</string>
@@ -313,8 +308,16 @@
   <string name="input_method_single_handed_description">片手操作：スワイプして自在に平行移動。左クリックは指1本で画面をタップ。長押しして、クリック(左/右/ミドル)、モード(ドラッグ/スクロール/ズーム)を選択。マルチタッチ操作も可能。</string>
   <string name="input_method_touchpad_description">タッチパッドシミュレーション：スワイプしてポインター移動。左クリックは指1本で画面をタップ。右クリックは、指2本。ミドルクリックは、指3本。指2本でスワイプしてスクロール。長押しでドラッグ＆ドロップ。</string>
   <string name="input_mode">入力モード</string>
-  <string name="input_mode_drag_pan_zoom_mouse">ダイレクト、長押し平行移動</string>
+
   <string name="input_mode_fit_to_screen">平行移動無し；トラックボールマウス</string>
+  <string name="input_mode_panning">デスクトップパニングモード</string>
+  <string name="input_method_mouse">マウスポインタ制御</string>
+
+  <string name="input_method_direct_swipe_pan">ダイレクト、スワイプパン</string>
+  <string name="input_method_direct_drag_pan">ダイレクト、ホールドパン</string>
+  <string name="input_method_single_handed">片手</string>
+  <string name="input_method_touchpad">タッチパッドシミュレーション </string>
+
   <string name="input_mode_help">入力モードヘルプ</string>
   <string name="input_mode_help_text">"
 キーボードアイコンをタップしてオンスクリーンキーボードを表示(全ての入力モードに対応)。ご使用の機器によってキーボード表示方法は異なります。
@@ -359,10 +362,6 @@
 ・テキスト送信：オンスクリーンキーボードで入力、或いはメニュー&gt;詳細&gt;テキスト送信から入力"
   </string>
   <string name="input_mode_mouse">マウスポインタ―コントロール</string>
-  <string name="input_mode_panning">デスクトップパニングモード</string>
-  <string name="input_mode_single_handed">片手</string>
-  <string name="input_mode_touch_pan_zoom_mouse">ダイレクト、スワイプ平行移動</string>
-  <string name="input_mode_touchpad">タッチパッドシミュレーション</string>
   <string name="intro_close">閉じる</string>
   <string name="intro_dont_show">次回から非表示</string>
   <string name="intro_header" />

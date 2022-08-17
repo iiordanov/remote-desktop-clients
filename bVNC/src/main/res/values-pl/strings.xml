@@ -175,12 +175,12 @@
     <string name="info_update_color_model_to">"Zmiana profilu kolorów do "</string>
 
     <string name="input_mode">Input Mode</string>
-    <string name="input_mode_help">Pomoc trybu wprowadzania</string>
 
     <string name="input_mode_mouse">Kontrola wskaźnika myszy</string>
-    <string name="input_mode_single_handed">Tryb jednej ręki</string>
-    <string name="input_mode_touchpad">Symulowany touchpad</string>
+    <string name="input_method_single_handed">Tryb jednej ręki</string>
+    <string name="input_method_touchpad">Symulowany touchpad</string>
 
+    <string name="input_mode_help">Pomoc trybu wprowadzania</string>
     <string name="intro_close">Zamknij</string>
     <string name="intro_dont_show">Nie pokazuj więcej</string>
 

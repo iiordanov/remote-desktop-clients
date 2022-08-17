@@ -28,7 +28,7 @@ import com.undatech.opaque.util.GeneralUtils;
 import com.undatech.remoteClientUi.*;
 
 public class InputHandlerDirectSwipePan extends InputHandlerGeneric {
-	static final String TAG = "InputHandlerDirectSwipe";
+	static final String TAG = "InputHandlerDirectSwipePan";
 	public static final String ID = "TOUCH_ZOOM_MODE";
 	
 	public InputHandlerDirectSwipePan(RemoteCanvasActivity activity, RemoteCanvas canvas,

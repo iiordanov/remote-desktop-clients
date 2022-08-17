@@ -37,15 +37,10 @@
     <string name="hide_toolbar">Esconder barra de herramientas</string>
     <string name="manage_custom_ca_title">Administrar CA personalizada</string>
     <string name="save_button">Guardar</string>
-    <string name="input_method_mouse">Control del puntero del ratón</string>
     <string name="select_vm_title">Seleccionar máquina virtual</string>
     <string name="vv_file_not_found">¡No se encontró el archivo .vv!</string>
     <string name="vv_file_error">¡Falta el archivo .vv o está dañado!</string>
     <string name="info_cert">¿Acepta este certificado de host nuevo o modificado?\n\nFingerprints:\nMD5: %1$s\nSHA1: %2$s\nSHA256: %3$s\n\nIssued to: %4$s\nIssued by: %5$s\n\nValid from: %6$s\nValid until: %7$s\n</string>
-    <string name="input_method_direct_swipe_pan">Directo, Deslice para desplazar</string>
-    <string name="input_method_direct_drag_pan">Directo, Agarre para desplazar</string>
-    <string name="input_method_single_handed">De una mano</string>
-    <string name="input_method_touchpad">Panel táctil simulado</string>
 
     <string name="show_keyboard">Mostrar teclado</string>
 
@@ -340,8 +335,16 @@ Todos los métodos de entrada:
     <string name="input_method_single_handed_description">De una mano: desliza el dedo para desplazarte. Toque con un dedo donde desee hacer clic con el botón izquierdo. Toque largo para elegir el modo de zoom/desplazamiento/arrastre izquierdo/derecho/medio. Los controles multitáctiles habituales también funcionan.</string>
     <string name="input_method_touchpad_description">Panel táctil simulado: deslice para mover el puntero. Toque en cualquier lugar con un dedo para hacer clic izquierdo, dos dedos para hacer clic derecho y tres dedos para hacer clic en el medio. Desliza dos dedos para desplazarte. Toque largo para arrastrar y soltar.</string>
     <string name="input_mode">Modo de entrada</string>
-    <string name="input_mode_drag_pan_zoom_mouse">Directo, Agarre para desplazar</string>
+
     <string name="input_mode_fit_to_screen">Sin desplazamiento; Ratón de bola</string>
+    <string name="input_mode_panning">Modo de desplazamiento de escriptorio</string>
+    <string name="input_method_mouse">Control del puntero del ratón</string>
+
+    <string name="input_method_direct_swipe_pan">Directo, Deslice para desplazar</string>
+    <string name="input_method_direct_drag_pan">Directo, Agarre para desplazar</string>
+    <string name="input_method_single_handed">De una mano</string>
+    <string name="input_method_touchpad">Panel táctil simulado</string>
+
     <string name="input_mode_help">Ayuda del modo de entrada</string>
     <string name="input_mode_help_text">
 "En cualquier método de entrada, toque el icono del teclado para obtener el teclado en pantalla. Además, su dispositivo puede tener su propio gesto para abrir el teclado.
@@ -385,12 +388,6 @@ Todos los métodos de entrada:
  - Combinaciones de teclas: Menú-&gt;Más-&gt;Enviar teclas.
  - Enviar texto: escriba en el teclado en pantalla o use Menú-&gt;Más-&gt;Enviar texto ".
 </string>
-    <string name="input_mode_mouse">Control del puntero del ratón</string>
-    <string name="input_mode_panning">Modo de desplazamiento de escriptorio</string>
-    <string name="input_mode_single_handed">Con una mano</string>
-    <string name="input_mode_touch_pan_zoom_mouse">Directo, Deslice para desplazar</string>
-    <string name="input_mode_touchpad">Panel táctil simulado</string>
-
     <string name="intro_close">Cerrar</string>
     <string name="intro_dont_show">No vuelvas a mostrar</string>
     <string name="intro_header" />

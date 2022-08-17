@@ -37,15 +37,10 @@
     <string name="hide_toolbar">Hide toolbar</string>
     <string name="manage_custom_ca_title">Manage custom CA</string>
     <string name="save_button">Save</string>
-    <string name="input_method_mouse">Mouse Pointer Control</string>
     <string name="select_vm_title">Select Virtual Machine</string>
     <string name="vv_file_not_found">The .vv file was not found!</string>
     <string name="vv_file_error">The .vv file is either missing or corrupt!</string>
     <string name="info_cert">Do you accept this new or changed host certificate?\n\nFingerprints:\nMD5: %1$s\nSHA1: %2$s\nSHA256: %3$s\n\nIssued to: %4$s\nIssued by: %5$s\n\nValid from: %6$s\nValid until: %7$s\n</string>
-    <string name="input_method_direct_swipe_pan">Direct, Swipe Pan</string>
-    <string name="input_method_direct_drag_pan">Direct, Hold Pan</string>
-    <string name="input_method_single_handed">Single Handed</string>
-    <string name="input_method_touchpad">Simulated Touchpad</string>
 
     <string name="show_keyboard">Show Keyboard</string>
 
@@ -340,7 +335,10 @@ All Input Methods:
     <string name="input_method_single_handed_description">Одной рукой: ведите пальцем для перемещения. Нажмите одним пальцем для имитации щелчка левой кнопки мыши, нажмите и удерживайте для выбора режима \"левый клик/правый клик/средний клик/перенос/прокрутка/увеличение. Также работает управление несколькими пальцами.</string>
     <string name="input_method_touchpad_description">Имитация тачпада: ведите пальцем для перемещения курсора мыши. Нажмите одним пальцем для имитации щелчка левой кнопки мыши, двумя пальцами — правой, тремя пальцами — средней. Проведите двумя пальцами для прокрутки. Нажмите и удерживайте для перемещения.</string>
     <string name="input_mode">Режим ввода</string>
-    <string name="input_mode_drag_pan_zoom_mouse">Прямой, Движение удержанием</string>
+
+    <string name="input_method_mouse">Mouse Pointer Control</string>
+
+    <string name="input_method_direct_drag_pan">Прямой, Движение удержанием</string>
     <string name="input_mode_fit_to_screen">Без панорамы; Трекбол мышь</string>
     <string name="input_mode_help">Помощь (режимы ввода)</string>
     <string name="input_mode_help_text">
@@ -387,9 +385,9 @@ All Input Methods:
 </string>
     <string name="input_mode_mouse">Управление указателем мыши</string>
     <string name="input_mode_panning">Режим панорамирования рабочего стола</string>
-    <string name="input_mode_single_handed">Одной рукой</string>
-    <string name="input_mode_touch_pan_zoom_mouse">Прямой, Движение пальцем.</string>
-    <string name="input_mode_touchpad">Имитация тачпада</string>
+    <string name="input_method_single_handed">Одной рукой</string>
+    <string name="input_method_direct_swipe_pan">Прямой, Движение пальцем.</string>
+    <string name="input_method_touchpad">Имитация тачпада</string>
 
     <string name="intro_close">Закрыть</string>
     <string name="intro_dont_show">Не показывать снова.</string>

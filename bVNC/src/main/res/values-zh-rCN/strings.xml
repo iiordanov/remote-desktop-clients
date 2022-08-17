@@ -40,16 +40,10 @@
   <string name="hide_toolbar">隐藏工具栏</string>
   <string name="manage_custom_ca_title">管理自定义CA</string>
   <string name="save_button">保存</string>
-  <string name="input_method_mouse">鼠标指针控制</string>
   <string name="select_vm_title">选择虚拟机</string>
   <string name="vv_file_not_found">找不到.vv文件</string>
   <string name="vv_file_error">.vv文件不是丢失了就是损坏了!</string>
   <string name="info_cert">你是否接受这个新的或变更的主机证书？\n\nFingerprints:\nMD5: %1$s\nSHA1: %2$s\nSHA256: %3$s\n\nIssued to: %4$s\nIssued by: %5$s\n\nValid from: %6$s\nValid until: %7$s\n</string>
-  <string name="input_method_direct_swipe_pan">直接、滑动平移</string>
-  <string name="input_method_direct_drag_pan">直接、按住并平移</string>
-  <string name="input_method_single_handed">单手</string>
-  <string name="input_method_touchpad">模拟模拟板</string>
-
   <string name="toggle_keyboard">切换式键盘</string>
   <string name="show_keyboard">显示键盘</string>
 
@@ -313,8 +307,16 @@
   <string name="input_method_single_handed_description">单手操作：滑动即可随意平移。 一根手指单击相当于鼠标左击。长按可选择左击/右击/中击/拖动/滚动/缩放模式。 通常的多点触摸操作也可以使用。</string>
   <string name="input_method_touchpad_description">模拟模拟板：滑动即可移动指针。一根手指单击相当于鼠标左击，用两根手指单击相当于鼠标右击，再用三根手指单击相当于鼠标中击。 用两根手指滑动即可滚动。 长按即可拖曳下拉。</string>
   <string name="input_mode">输入模式</string>
-  <string name="input_mode_drag_pan_zoom_mouse">直接、按住并平移</string>
+
   <string name="input_mode_fit_to_screen">无平移：轨迹球鼠标</string>
+  <string name="input_mode_panning">桌面平移模式</string>
+  <string name="input_method_mouse">鼠标指针控制</string>
+
+  <string name="input_method_direct_swipe_pan">直接、滑动平移</string>
+  <string name="input_method_direct_drag_pan">直接、按住并平移</string>
+  <string name="input_method_single_handed">单手</string>
+  <string name="input_method_touchpad">模拟触摸板</string>
+
   <string name="input_mode_help">输入模式操作帮助</string>
   <string name="input_mode_help_text">"
 在所有输入模式下都可以通过点击键盘图标来显示屏上键盘。键盘的显示方法因使用的机器而异。
@@ -357,11 +359,6 @@
   -Ctrl / Alt键：菜单-&gt; Ctrl / Alt按钮。完成后请不要忘记关闭！
   -按键组合：菜单-&gt;更多-&gt;发送按键
   -发送文字：在屏幕键盘上输入文字，或使用菜单-&gt;更多-&gt;发送文字"</string>
-  <string name="input_mode_mouse">鼠标指针控制</string>
-  <string name="input_mode_panning">桌面平移模式</string>
-  <string name="input_mode_single_handed">单手</string>
-  <string name="input_mode_touch_pan_zoom_mouse">直接、滑动平移</string>
-  <string name="input_mode_touchpad">模拟触摸板</string>
   <string name="intro_close">关闭</string>
   <string name="intro_dont_show">不再显示</string>
   <string name="intro_header" />

@@ -40,15 +40,10 @@
     <string name="hide_toolbar">Hide toolbar</string>
     <string name="manage_custom_ca_title">Manage custom CA</string>
     <string name="save_button">Save</string>
-    <string name="input_method_mouse">Mouse Pointer Control</string>
     <string name="select_vm_title">Select Virtual Machine</string>
     <string name="vv_file_not_found">The .vv file was not found!</string>
     <string name="vv_file_error">The .vv file is either missing or corrupt!</string>
     <string name="info_cert">Do you accept this new or changed host certificate?\n\nFingerprints:\nMD5: %1$s\nSHA1: %2$s\nSHA256: %3$s\n\nIssued to: %4$s\nIssued by: %5$s\n\nValid from: %6$s\nValid until: %7$s\n</string>
-    <string name="input_method_direct_swipe_pan">Direct, Swipe Pan</string>
-    <string name="input_method_direct_drag_pan">Direct, Hold Pan</string>
-    <string name="input_method_single_handed">Single Handed</string>
-    <string name="input_method_touchpad">Simulated Touchpad</string>
 
     <string name="toggle_keyboard">Toggle Keyboard</string>
     <string name="show_keyboard">Show Keyboard</string>
@@ -343,8 +338,16 @@ All Input Methods:
     <string name="input_method_single_handed_description">Single Handed: Swipe to pan around. Tap with one finger wherever you want to left-click. Long tap to choose left/right/middle drag/scroll/zoom mode. Usual multi-touch controls also work.</string>
     <string name="input_method_touchpad_description">Simulated Touchpad: Swipe to move pointer. Tap anywhere with one finger to left-click, two fingers to right-click, and three fingers to middle-click. Swipe with two fingers to scroll. Long tap to drag and drop.</string>
     <string name="input_mode">Input Mode</string>
-    <string name="input_mode_drag_pan_zoom_mouse">Direct, Hold Pan</string>
+
     <string name="input_mode_fit_to_screen">No Pan; Trackball Mouse</string>
+    <string name="input_mode_panning">Desktop Panning Mode</string>
+    <string name="input_method_mouse">Mouse Pointer Control</string>
+
+    <string name="input_method_direct_swipe_pan">Direct, Swipe Pan</string>
+    <string name="input_method_direct_drag_pan">Direct, Hold Pan</string>
+    <string name="input_method_single_handed">Single Handed</string>
+    <string name="input_method_touchpad">Simulated Touchpad</string>
+
     <string name="input_mode_help">Input Mode Help</string>
     <string name="input_mode_help_text">"
 In any Input Mode, tap the keyboard icon to get the on-screen keyboard. Also, your device may have its own gesture which bring up the keyboard.
@@ -387,11 +390,6 @@ All Input Modes:
  - Ctrl/Alt key: Menu-&gt;Ctrl/Alt buttons. Don't forget to toggle off when done!
  - Key combos: Menu-&gt;More-&gt;Send Keys.
  - Send text: Either type on the on-screen keyboard, or use Menu-&gt;More-&gt;Send Text."</string>
-    <string name="input_mode_mouse">Mouse Pointer Control</string>
-    <string name="input_mode_panning">Desktop Panning Mode</string>
-    <string name="input_mode_single_handed">Single Handed</string>
-    <string name="input_mode_touch_pan_zoom_mouse">Direct, Swipe Pan</string>
-    <string name="input_mode_touchpad">Simulated Touchpad</string>
 
     <string name="intro_close">Close</string>
     <string name="intro_dont_show">Don\'t show again</string>

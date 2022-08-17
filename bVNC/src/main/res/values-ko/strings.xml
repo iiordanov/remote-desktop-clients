@@ -40,16 +40,11 @@
   <string name="hide_toolbar">툴바 비표시</string>
   <string name="manage_custom_ca_title">커스텀 CA 관리</string>
   <string name="save_button">저장</string>
-  <string name="input_method_mouse">마우스 포인터 제어</string>
   <string name="select_vm_title">가상 머신 선택</string>
   <string name="vv_file_not_found">.vv 파일을 찾을 수 없습니다!</string>
   <string name="vv_file_error">.vv 파일을 찾을 수 없거나 파손되었습니다!</string>
   <string name="info_cert">이 새로운 또는 변경된 호스트 인증서를 수락하시겠습니까?
 \n\nFingerprints:\nMD5: %1$s\nSHA1: %2$s\nSHA256: %3$s\n\nIssued to: %4$s\nIssued by: %5$s\n\nValid from: %6$s\nValid until: %7$s\n</string>
-  <string name="input_method_direct_swipe_pan">다이렉트, 스와이프 팬</string>
-  <string name="input_method_direct_drag_pan">다이렉트, 홀드팬</string>
-  <string name="input_method_single_handed">한 손으로</string>
-  <string name="input_method_touchpad">시뮬레이션된 터치패드</string>
 
   <string name="toggle_keyboard">키보드 전환</string>
   <string name="show_keyboard">키보드 표시</string>
@@ -315,8 +310,16 @@
   <string name="input_method_single_handed_description">한손 조작: 스와이프하고 자유 자재로 평행 이동.왼쪽 클릭은 한 손가락으로 화면을 터치.길게하여 클릭(왼쪽/오른쪽/중간) 모드(드래그/스크롤/줌)을 선택합니다.멀티 터치 조작도 가능하다.</string>
   <string name="input_method_touchpad_description">터치 패드 시뮬레이션: 스와이프하면 포인터 이동.왼쪽 클릭은 한 손가락으로 화면을 터치.오른쪽 클릭은 손가락 2개.중간 클릭은 손가락 3개.두 손가락으로 스 와이프하여 스크롤.길게 눌러 드래그 앤 드롭.</string>
   <string name="input_mode">입력 모드</string>
-  <string name="input_mode_drag_pan_zoom_mouse">직접, 길게 누르고 평행 이동</string>
+
   <string name="input_mode_fit_to_screen">평행 이동 없음; 트랙볼 마우스</string>
+  <string name="input_mode_mouse">마우스 포인터 제어</string>
+  <string name="input_mode_panning">데스크톱 패닝 모드</string>
+
+  <string name="input_method_direct_swipe_pan">다이렉트, 스와이프팬</string>
+  <string name="input_method_direct_drag_pan">다이렉트, 홀드팬</string>
+  <string name="input_method_single_handed">한손</string>
+  <string name="input_method_touchpad">터치패드 시뮬레이션</string>
+
   <string name="input_mode_help">입력 모드 HELP</string>
   <string name="input_mode_help_text">"
 키보드 아이콘을 탭하여 온 스크린 키보드를 표시(모든 입력 모드에 대응). 사용 기기에 따라 키보드 표시 방법은 다릅니다.
@@ -359,11 +362,6 @@
 ･Ctrl/Alt 키 : 메뉴&gt; Ctrl/Alt 스위치 종료 후 해제하는 것을 잊지 마세요!
 ･키 콤보 : 메뉴&gt; 상세&gt; 키를 전송
 ･텍스트 전송 : 온 스크린 키보드로 입력하거나 메뉴&gt; 상세&gt; 텍스트 전송에서 입력"</string>
-  <string name="input_mode_mouse">마우스 포인터 컨트롤</string>
-  <string name="input_mode_panning">데스크톱 패닝 모드</string>
-  <string name="input_mode_single_handed">한손</string>
-  <string name="input_mode_touch_pan_zoom_mouse">직접,스와이프 평행 이동</string>
-  <string name="input_mode_touchpad">터치 패드 시뮬레이션</string>
   <string name="intro_close">닫기</string>
   <string name="intro_dont_show">다음부터 비표시</string>
   <string name="intro_header" />

@@ -43,10 +43,6 @@
     <string name="vv_file_not_found">O arquivo .vv não foi encontrado!</string>
     <string name="vv_file_error">Está faltando o arquivo .vv ou ele está corrompido!</string>
     <string name="info_cert">Aceita este novo ou alterado certificado de host?\n\nImpressões digitais:\nMD5: %1$s\nSHA1: %2$s\nSHA256: %3$s\n\nEmitido para: %4$s\nEmitido por: %5$s\n\nVálido desde: %6$s\nVálido até: %7$s\n</string>
-    <string name="input_method_direct_swipe_pan">Direto, Swipe Pan</string>
-    <string name="input_method_direct_drag_pan">Direto, Hold Pan</string>
-    <string name="input_method_single_handed">De uma mão</string>
-    <string name="input_method_touchpad">Touchpad Simulado</string>
 
     <string name="toggle_keyboard">Alternar o teclado</string>
     <string name="show_keyboard">Mostrar o teclado</string>
@@ -342,8 +338,16 @@ Todos os métodos de entrada:
     <string name="input_method_single_handed_description">De uma mão: Deslize para mover ao redor. Toque com um dedo onde quiser para clicar com o botão esquerdo de mouse. Toque longo para escolher o modo esquerda/direita/arrastamento médio/rolagem/zoom. Os controles multi-toque usuais também funcionam.</string>
     <string name="input_method_touchpad_description">Touchpad simulado: Deslizar para mover o ponteiro. Toque em qualquer lugar com um dedo para clicar com o botão esquerdo, dois dedos para clicar com o botão direito, e três dedos para clicar com o botão do meio. Deslize com dois dedos para rolagem. Toque longo para arrastar e soltar.</string>
     <string name="input_mode">Modo de entrada</string>
-    <string name="input_mode_drag_pan_zoom_mouse">Direto, Hold Pan</string>
+
     <string name="input_mode_fit_to_screen">No Pan; Trackball Mouse</string>
+    <string name="input_mode_panning">Modo de movimento no Desktop</string>
+    <string name="input_mode_mouse">Controle do ponteiro do mouse</string>
+
+    <string name="input_method_direct_swipe_pan">Direto, Swipe Pan</string>
+    <string name="input_method_direct_drag_pan">Direto, Hold Pan</string>
+    <string name="input_method_single_handed">De uma mão</string>
+    <string name="input_method_touchpad">Touchpad Simulado</string>
+    
     <string name="input_mode_help">Ajuda no modo de entrada</string>
     <string name="input_mode_help_text">
 "Em qualquer modo de entrada, toque no ícone do teclado para exibir ele na tela. Além disso, seu dispositivo pode ter seu próprio gesto, que traz o teclado de volta.
@@ -386,12 +390,6 @@ Todos os métodos de entrada:
   - Tecla Ctrl/Alt: Menu-&gt;Ctrl/Alt botões. Não se esqueça de desligar quando estiver pronto!
   - Teclas combos: Menu-&gt;Mais-&gt;Enviar teclas.
   - Enviar texto: Ou digite no teclado na tela, ou use Menu-&gt;Mais-&gt;Enviar texto".</string>
-    <string name="input_mode_mouse">Controle do ponteiro do mouse</string>
-    <string name="input_mode_panning">Modo de movimento no Desktop</string>
-    <string name="input_mode_single_handed">De uma mão</string>
-    <string name="input_mode_touch_pan_zoom_mouse">Direto, Swipe Pan</string>
-    <string name="input_mode_touchpad">Touchpad Simulado</string>
-
     <string name="intro_close">Fechar</string>
     <string name="intro_dont_show">Não voltar a mostrar</string>
     <string name="intro_header" />
