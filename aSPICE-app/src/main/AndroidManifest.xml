@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.iiordanov.aSPICE"
     android:installLocation="auto"
-    android:versionCode="115110"
+    android:versionCode="115111"
     android:versionName="v5.1.0">
 
     <uses-feature
