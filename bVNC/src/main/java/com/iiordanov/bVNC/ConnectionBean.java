@@ -20,16 +20,10 @@
 
 package com.iiordanov.bVNC;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.UUID;
-
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
-import net.sqlcipher.database.SQLiteDatabase;
 import android.net.Uri;
 import android.util.Log;
 import android.widget.ImageView.ScaleType;
@@ -37,7 +31,14 @@ import android.widget.ImageView.ScaleType;
 import com.antlersoft.android.dbimpl.NewInstance;
 import com.iiordanov.bVNC.input.InputHandlerDirectSwipePan;
 import com.undatech.opaque.Connection;
-import com.undatech.remoteClientUi.*;
+import com.undatech.remoteClientUi.R;
+
+import net.sqlcipher.database.SQLiteDatabase;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.UUID;
 
 /**
  * @author Iordan Iordanov
@@ -60,6 +61,7 @@ public class ConnectionBean extends AbstractConnectionBean implements Connection
     private int useLastPositionToolbarX;
     private int useLastPositionToolbarY;
     private boolean useLastPositionToolbarMoved;
+    private boolean showOnlyConnectionNicknames = false;
 
     public static final NewInstance<ConnectionBean> newInstance=new NewInstance<ConnectionBean>() {
         public ConnectionBean get() { return new ConnectionBean(c); }
@@ -81,6 +83,8 @@ public class ConnectionBean extends AbstractConnectionBean implements Connection
         } else {
             android.util.Log.e(TAG, "Failed to query defaults from shared preferences, context is null.");
         }
+
+        showOnlyConnectionNicknames = Utils.querySharedPreferenceBoolean(context, Constants.showOnlyConnectionNicknames);
 
         set_Id(0);
         setAddress("");
@@ -208,13 +212,16 @@ public class ConnectionBean extends AbstractConnectionBean implements Connection
         if (!"".equals(this.getNickname())) {
             nickname = this.getNickname() + "\n" ;
         }
-        String address = this.getAddress() + ":" + this.getPort();
-        if (!"".equals(this.getUserName())) {
-            address = this.getUserName() + "@" + address;
-        }
-        if (!"".equals(this.getSshServer())) {
-            address = "SSH " + this.getSshUser() + "@" + this.getSshServer() + ":" +
-                    this.getSshPort() + "\n" + address;
+        String address = "";
+        if (!showOnlyConnectionNicknames) {
+            address = this.getAddress() + ":" + this.getPort();
+            if (!"".equals(this.getUserName())) {
+                address = this.getUserName() + "@" + address;
+            }
+            if (!"".equals(this.getSshServer())) {
+                address = "SSH " + this.getSshUser() + "@" + this.getSshServer() + ":" +
+                        this.getSshPort() + "\n" + address;
+            }
         }
         return nickname + address;
     }

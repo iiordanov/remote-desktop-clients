@@ -919,4 +919,6 @@ Below that is where you configure your connection.
     <string name="rdp_adv_gfxh264">RDP Gfx H264</string>
     <string name="more_debug_logging">More Debug Logging</string>
     <string name="prefer_sending_unicode">Unicode input (Windows only)</string>
+    <string name="hide_connection_thumbnails">Hide Connection Thumbnails</string>
+    <string name="show_only_connection_nicknames">Show Only Connection Nicknames</string>
 </resources>

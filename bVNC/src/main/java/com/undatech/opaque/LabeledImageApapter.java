@@ -20,17 +20,10 @@
 
 package com.undatech.opaque;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 import android.app.Activity;
 import android.content.Context;
-import android.database.DataSetObserver;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import androidx.appcompat.widget.AppCompatImageView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -40,7 +33,16 @@ import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.appcompat.widget.AppCompatImageView;
+
+import com.iiordanov.bVNC.Constants;
+import com.iiordanov.bVNC.Utils;
 import com.undatech.remoteClientUi.R;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 public class LabeledImageApapter extends BaseAdapter {
     private static final String TAG = "LabeledImageApapter";
@@ -50,10 +52,11 @@ public class LabeledImageApapter extends BaseAdapter {
     private String defaultLabel = "Untitled";
     List<Connection> filteredConnectionsByPosition = new ArrayList<>();
     String[] filter = null;
+    private boolean doNotShowDesktopThumbnails = false;
 
-    public LabeledImageApapter(Context context, Map<String, Connection> connectionsByPosition, String[] filter, int numCols) {
+    public LabeledImageApapter(Context context, Map<String, Connection> connectionsByPosition, String[] filter, int maxNumCols) {
         this.context = context;
-        this.numCols = numCols;
+        this.numCols = maxNumCols;
         this.filter = filter;
         if (connectionsByPosition != null) {
             for (Connection c : connectionsByPosition.values()) {
@@ -67,6 +70,10 @@ public class LabeledImageApapter extends BaseAdapter {
                     this.filteredConnectionsByPosition.add(c);
                 }
             }
+        }
+        doNotShowDesktopThumbnails = Utils.querySharedPreferenceBoolean(context, Constants.doNotShowDesktopThumbnails);
+        if (doNotShowDesktopThumbnails) {
+            numCols = 1;
         }
     }
 
@@ -94,7 +101,6 @@ public class LabeledImageApapter extends BaseAdapter {
         } else {
             lp = new GridView.LayoutParams(height, height);
         }
-        gridView.setLayoutParams(lp);
 
         TextView textView = (TextView) gridView.findViewById(R.id.grid_item_text);
         if ("".equals(label)) {
@@ -104,14 +110,22 @@ public class LabeledImageApapter extends BaseAdapter {
         }
         String screenshotFilePath = context.getFilesDir() + "/" + c.getScreenshotFilename();
         AppCompatImageView imageView = gridView.findViewById(R.id.grid_item_image);
-        if (new File(screenshotFilePath).exists()) {
-            Log.d(TAG, "Setting screenshot from file " + screenshotFilePath);
-            Bitmap gridImage = BitmapFactory.decodeFile(screenshotFilePath);
-            imageView.setImageBitmap(gridImage);
+        if (doNotShowDesktopThumbnails) {
+            imageView.setVisibility(View.GONE);
+            lp.height = GridView.LayoutParams.WRAP_CONTENT;
         } else {
-            imageView.setImageResource(R.drawable.ic_screen_black_48dp);
-            imageView.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
+            boolean screenshotExists = new File(screenshotFilePath).exists();
+            if (screenshotExists) {
+                Log.d(TAG, "Setting screenshot from file " + screenshotFilePath);
+                Bitmap gridImage = BitmapFactory.decodeFile(screenshotFilePath);
+                imageView.setImageBitmap(gridImage);
+            } else {
+                imageView.setImageResource(R.drawable.ic_screen_black_48dp);
+                imageView.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
+            }
         }
+        gridView.setLayoutParams(lp);
+
 
         // This ID in a hidden TextView is used to send the right connection for editing or connection establishment
         // when the item is long-tapped or tapped respectively.
@@ -140,4 +154,7 @@ public class LabeledImageApapter extends BaseAdapter {
         return position;
     }
 
+    public int getNumCols() {
+        return numCols;
+    }
 }

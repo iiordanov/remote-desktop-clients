@@ -92,7 +92,10 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         appContext = getApplicationContext();
+        boolean connectionsInSharedPrefs = Utils.isOpaque(this);
+        connectionLoader = new ConnectionLoader(appContext, this, connectionsInSharedPrefs);
         setContentView(R.layout.grid_view_activity);
 
         gridView = (GridView) findViewById(R.id.gridView);
@@ -137,10 +140,7 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
                 if (connectionLoader == null) {
                     return;
                 }
-                gridView.setNumColumns(2);
-                gridView.setAdapter(new LabeledImageApapter(ConnectionGridActivity.this,
-                        connectionLoader.getConnectionsById(),
-                        search.getText().toString().toLowerCase().split(" "), 2));
+                createAndSetLabeledImageAdapterAndNumberOfColumns();
             }
         });
         database = ((App)getApplication()).getDatabase();
@@ -165,6 +165,16 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
                 addNewConnection();
             }
         });
+    }
+
+    private void createAndSetLabeledImageAdapterAndNumberOfColumns() {
+        LabeledImageApapter labeledImageApapter = new LabeledImageApapter(
+                ConnectionGridActivity.this,
+                connectionLoader.loadConnectionsById(),
+                search.getText().toString().toLowerCase().split(" "),
+                2);
+        gridView.setAdapter(labeledImageApapter);
+        gridView.setNumColumns(labeledImageApapter.getNumCols());
     }
 
     private void launchConnection(View v) {
@@ -283,18 +293,7 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
     }
 
     private void loadSavedConnections() {
-        boolean connectionsInSharedPrefs = Utils.isOpaque(this);
-        connectionLoader = new ConnectionLoader(appContext, this, connectionsInSharedPrefs);
-        if (connectionLoader.getNumConnections() > 0) {
-            gridView.setNumColumns(2);
-            gridView.setAdapter(new LabeledImageApapter(this,
-                    connectionLoader.getConnectionsById(),
-                    search.getText().toString().toLowerCase().split(" "), 2));
-        } else {
-            gridView.setAdapter(new LabeledImageApapter(this,
-                    null,
-                    search.getText().toString().toLowerCase().split(" "), 2));
-        }
+        createAndSetLabeledImageAdapterAndNumberOfColumns();
     }
 
     /**

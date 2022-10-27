@@ -4,18 +4,15 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 
-import com.iiordanov.bVNC.Constants;
-import com.iiordanov.bVNC.Utils;
-import com.iiordanov.util.PermissionGroups;
-import com.iiordanov.util.PermissionsManager;
+import com.iiordanov.bVNC.ConnectionBean;
+import com.iiordanov.bVNC.Database;
 import com.undatech.opaque.Connection;
 import com.undatech.opaque.ConnectionSettings;
 
+import net.sqlcipher.database.SQLiteDatabase;
+
 import java.util.ArrayList;
 import java.util.Collections;
-import net.sqlcipher.database.SQLiteDatabase;
-import com.iiordanov.bVNC.ConnectionBean;
-import com.iiordanov.bVNC.Database;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -33,15 +30,16 @@ public class ConnectionLoader {
         this.connectionsInSharedPrefs = connectionsInSharedPrefs;
         this.activity = activity;
         this.connectionsById = new HashMap<>();
-        load();
+        loadConnectionsById();
     }
 
-    public void load() {
+    public Map<String, Connection> loadConnectionsById() {
         if (connectionsInSharedPrefs) {
             loadFromSharedPrefs();
         } else {
             loadFromDatabase();
         }
+        return connectionsById;
     }
 
     private void loadFromDatabase() {
