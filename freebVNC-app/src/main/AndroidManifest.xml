@@ -4,7 +4,7 @@
     package="com.iiordanov.freebVNC"
     android:installLocation="auto"
     android:versionCode="115111"
-    android:versionName="v5.1.0">
+    android:versionName="v5.1.1">
 
     <uses-permission tools:node="removeAll" />
     <uses-permission android:name="android.permission.INTERNET" />
