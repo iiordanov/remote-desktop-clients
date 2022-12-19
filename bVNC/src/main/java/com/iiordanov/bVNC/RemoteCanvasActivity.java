@@ -23,19 +23,6 @@
 //
 package com.iiordanov.bVNC;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
-import java.net.URLConnection;
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Timer;
-import java.util.TimerTask;
-
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -56,14 +43,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.os.Vibrator;
-
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AppCompatActivity;
-
-import com.iiordanov.util.PermissionGroups;
-import com.iiordanov.util.PermissionsManager;
-import com.iiordanov.util.SamsungDexUtils;
-import com.undatech.opaque.util.RemoteToolbar;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.InputDevice;
@@ -92,6 +71,9 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.iiordanov.android.bc.BCFactory;
 import com.iiordanov.bVNC.dialogs.EnterTextDialog;
 import com.iiordanov.bVNC.dialogs.MetaKeyDialog;
@@ -100,19 +82,34 @@ import com.iiordanov.bVNC.input.InputHandlerDirectDragPan;
 import com.iiordanov.bVNC.input.InputHandlerDirectSwipePan;
 import com.iiordanov.bVNC.input.InputHandlerSingleHanded;
 import com.iiordanov.bVNC.input.InputHandlerTouchpad;
+import com.iiordanov.bVNC.input.MetaKeyBean;
 import com.iiordanov.bVNC.input.Panner;
+import com.iiordanov.bVNC.input.RemoteCanvasHandler;
 import com.iiordanov.bVNC.input.RemoteKeyboard;
+import com.iiordanov.util.SamsungDexUtils;
 import com.undatech.opaque.Connection;
-import com.undatech.opaque.dialogs.SelectTextElementFragment;
 import com.undatech.opaque.ConnectionSettings;
 import com.undatech.opaque.MessageDialogs;
 import com.undatech.opaque.OpaqueHandler;
 import com.undatech.opaque.RemoteClientLibConstants;
-import com.iiordanov.bVNC.input.MetaKeyBean;
+import com.undatech.opaque.dialogs.SelectTextElementFragment;
 import com.undatech.opaque.util.FileUtils;
 import com.undatech.opaque.util.OnTouchViewMover;
+import com.undatech.opaque.util.RemoteToolbar;
 import com.undatech.remoteClientUi.R;
-import com.iiordanov.bVNC.input.RemoteCanvasHandler;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+import java.net.URLConnection;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyListener,
                                                                         SelectTextElementFragment.OnFragmentDismissedListener {
@@ -1015,6 +1012,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
     @Override
     protected void onPause(){
         super.onPause();
+        Log.i(TAG, "onPause called.");
         try {
             InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(canvas.getWindowToken(), 0);
@@ -1167,6 +1165,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
     @Override
     protected void onStart() {
         super.onStart();
+        Log.i(TAG, "onStart called.");
         try {
             canvas.postInvalidateDelayed(800);
         } catch (NullPointerException e) { }
@@ -1175,11 +1174,13 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
     @Override
     protected void onStop() {
         super.onStop();
+        Log.i(TAG, "onStop called.");
     }
     
     @Override
     protected void onRestart() {
         super.onRestart();
+        Log.i(TAG, "onRestart called.");
         try {
             canvas.postInvalidateDelayed(1000);
         } catch (NullPointerException e) { }
@@ -1479,6 +1480,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        Log.i(TAG, "onDestroy called.");
         if (canvas != null)
             canvas.closeConnection();
         System.gc();
