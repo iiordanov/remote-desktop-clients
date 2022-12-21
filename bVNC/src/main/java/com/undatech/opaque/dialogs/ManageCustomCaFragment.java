@@ -20,31 +20,31 @@
 
 package com.undatech.opaque.dialogs;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-
-import com.undatech.opaque.ConnectionSettings;
-import com.undatech.opaque.util.HttpsFileDownloader;
-import com.undatech.remoteClientUi.R;
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
-import androidx.fragment.app.DialogFragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
+
+import androidx.fragment.app.DialogFragment;
+
+import com.undatech.opaque.ConnectionSettings;
+import com.undatech.opaque.util.HttpsFileDownloader;
+import com.undatech.remoteClientUi.R;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 
 public class ManageCustomCaFragment extends DialogFragment
                                     implements HttpsFileDownloader.OnDownloadFinishedListener {
@@ -57,6 +57,21 @@ public class ManageCustomCaFragment extends DialogFragment
         Log.d(TAG, "onDownload");
         caTextContents = contents;
         handler.post(setCaText);
+        handler.post(() -> Toast.makeText(
+                ManageCustomCaFragment.this.getActivity(),
+                android.R.string.yes,
+                Toast.LENGTH_SHORT
+        ).show());
+    }
+
+    @Override
+    public void onDownloadFailure() {
+        Log.d(TAG, "onDownloadFailure");
+        handler.post(() -> Toast.makeText(
+                ManageCustomCaFragment.this.getActivity(),
+                R.string.error_connection_failed,
+                Toast.LENGTH_SHORT
+        ).show());
     }
 
     public interface OnFragmentDismissedListener {

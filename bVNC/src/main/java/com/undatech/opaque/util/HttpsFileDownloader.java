@@ -24,6 +24,7 @@ public class HttpsFileDownloader {
 
     public interface OnDownloadFinishedListener {
         void onDownload(String contents);
+        void onDownloadFailure();
     }
 
     public HttpsFileDownloader(String url, boolean verifySslCerts, OnDownloadFinishedListener listener) {
@@ -93,6 +94,7 @@ public class HttpsFileDownloader {
                     resetDefaultTrustManager();
                     listener.onDownload(textBuilder.toString());
                 } catch (IOException e) {
+                    listener.onDownloadFailure();
                     e.printStackTrace();
                 }
             }
