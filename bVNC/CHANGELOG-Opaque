@@ -1,5 +1,7 @@
 v5.1.1
 - Bugfix for Simulated Touchpad Drag&Drop
+- Feedback on CA download success/failure
+- New file Picker for import CA from file
 v5.1.0
 - Stability during reconnection improvements
 - Bugfix for cursor visibility setting

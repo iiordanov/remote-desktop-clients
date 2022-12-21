@@ -18,31 +18,6 @@
 
 package com.iiordanov.pubkeygenerator;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.nio.MappedByteBuffer;
-import java.nio.channels.FileChannel;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.PrivateKey;
-import java.security.PublicKey;
-import java.security.SecureRandom;
-
-import com.iiordanov.pubkeygenerator.EntropyDialog;
-import com.iiordanov.pubkeygenerator.EntropyView;
-import com.iiordanov.pubkeygenerator.OnEntropyGatheredListener;
-import com.iiordanov.pubkeygenerator.PubkeyDatabase;
-import com.iiordanov.pubkeygenerator.PubkeyUtils;
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.ProgressDialog;
@@ -51,10 +26,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
-import android.os.FileUtils;
 import android.os.Handler;
 import android.os.Message;
+import android.text.ClipboardManager;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Base64;
@@ -67,11 +41,22 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RadioGroup;
-import android.widget.Toast;
 import android.widget.RadioGroup.OnCheckedChangeListener;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
-import android.text.ClipboardManager;
+import android.widget.Toast;
+
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.security.SecureRandom;
 
 public class GeneratePubkeyActivity extends Activity implements OnEntropyGatheredListener {
 	public final static String TAG = "GeneratePubkeyActivity";
@@ -460,7 +445,7 @@ public class GeneratePubkeyActivity extends Activity implements OnEntropyGathere
 		return numSetBits;
 	}
 	
-	private static String readFile(InputStream i) {
+	public static String readFile(InputStream i) {
 		BufferedInputStream bis = new BufferedInputStream(i);
 		ByteArrayOutputStream buffer = new ByteArrayOutputStream();
 		try {
