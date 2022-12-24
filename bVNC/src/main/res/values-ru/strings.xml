@@ -335,9 +335,6 @@ All Input Methods:
     <string name="input_method_single_handed_description">Одной рукой: ведите пальцем для перемещения. Нажмите одним пальцем для имитации щелчка левой кнопки мыши, нажмите и удерживайте для выбора режима \"левый клик/правый клик/средний клик/перенос/прокрутка/увеличение. Также работает управление несколькими пальцами.</string>
     <string name="input_method_touchpad_description">Имитация тачпада: ведите пальцем для перемещения курсора мыши. Нажмите одним пальцем для имитации щелчка левой кнопки мыши, двумя пальцами — правой, тремя пальцами — средней. Проведите двумя пальцами для прокрутки. Нажмите и удерживайте для перемещения.</string>
     <string name="input_mode">Режим ввода</string>
-
-    <string name="input_method_mouse">Mouse Pointer Control</string>
-
     <string name="input_method_direct_drag_pan">Прямой, Движение удержанием</string>
     <string name="input_mode_fit_to_screen">Без панорамы; Трекбол мышь</string>
     <string name="input_mode_help">Помощь (режимы ввода)</string>
@@ -383,7 +380,7 @@ All Input Methods:
  — Комбинации клавиш: Меню-&gt;Еще-&gt;Отправить комбинацию клавиш.
  — Отправить текст: Просто начните ввод на экранной клавиатуре, или используйте Меню-&gt;Еще-&gt;Отправить текст."
 </string>
-    <string name="input_mode_mouse">Управление указателем мыши</string>
+    <string name="input_method_mouse">Управление указателем мыши</string>
     <string name="input_mode_panning">Режим панорамирования рабочего стола</string>
     <string name="input_method_single_handed">Одной рукой</string>
     <string name="input_method_direct_swipe_pan">Прямой, Движение пальцем.</string>

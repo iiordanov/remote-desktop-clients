@@ -38,7 +38,6 @@
     <string name="hide_toolbar">Esconder a barra de ferramentas</string>
     <string name="manage_custom_ca_title">Administrar CA personalizado</string>
     <string name="save_button">Salvar</string>
-    <string name="input_method_mouse">Controle do ponteiro do mouse</string>
     <string name="select_vm_title">Selecione máquina virtual</string>
     <string name="vv_file_not_found">O arquivo .vv não foi encontrado!</string>
     <string name="vv_file_error">Está faltando o arquivo .vv ou ele está corrompido!</string>
@@ -341,7 +340,7 @@ Todos os métodos de entrada:
 
     <string name="input_mode_fit_to_screen">No Pan; Trackball Mouse</string>
     <string name="input_mode_panning">Modo de movimento no Desktop</string>
-    <string name="input_mode_mouse">Controle do ponteiro do mouse</string>
+    <string name="input_method_mouse">Controle do ponteiro do mouse</string>
 
     <string name="input_method_direct_swipe_pan">Direto, Swipe Pan</string>
     <string name="input_method_direct_drag_pan">Direto, Hold Pan</string>

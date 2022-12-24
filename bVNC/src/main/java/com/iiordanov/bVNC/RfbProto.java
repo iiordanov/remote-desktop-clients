@@ -358,7 +358,7 @@ public class RfbProto extends RfbConnectable {
     RfbProto(Decoder decoder, RemoteCanvas canvas, int preferredEncoding,
              boolean viewOnly, boolean sslTunneled, int hashAlgorithm,
              String hash, String cert, boolean debugLogging) {
-        super(debugLogging);
+        super(debugLogging, canvas.handler);
         this.sslTunneled = sslTunneled;
         this.decoder = decoder;
         this.viewOnly = viewOnly;
@@ -2043,8 +2043,7 @@ public class RfbProto extends RfbConnectable {
                         break;
 
                     case RfbProto.ServerCutText:
-                        canvas.serverJustCutText = true;
-                        canvas.setClipboardText(readServerCutText());
+                        remoteClipboardChanged(readServerCutText());
                         break;
 
                     case RfbProto.TextChat:

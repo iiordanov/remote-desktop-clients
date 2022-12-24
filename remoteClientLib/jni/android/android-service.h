@@ -22,6 +22,7 @@
 
 #include "android-spicy.h"
 #include "android-spice-widget.h"
+#include "android-clipboard.h"
 #include "virt-viewer-file.h"
 #include "libusb.h"
 #include <android/log.h>
@@ -39,12 +40,14 @@
 	jmethodID jni_mouse_update     = NULL;
 	jmethodID jni_mouse_mode       = NULL;
 	jmethodID jni_show_message     = NULL;
+	jmethodID jni_remote_clipboard_changed = NULL;
 	GMainLoop            *mainloop = NULL;
 	int                connections = 0;
 	gboolean          soundEnabled = FALSE;
 	gboolean          soundInitialized = FALSE;
 	const gchar*         oVirtUser = NULL;
 	const gchar*     oVirtPassword = NULL;
+	spice_clipboard* clipboard     = NULL;
 #else
 	extern SpiceDisplay*   global_display;
 	extern spice_connection*  global_conn;
@@ -56,12 +59,14 @@
 	extern jmethodID     jni_mouse_update;
 	extern jmethodID       jni_mouse_mode;
 	extern jmethodID     jni_show_message;
+	extern jmethodID jni_remote_clipboard_changed;
 	extern GMainLoop*            mainloop;
 	extern int                connections;
 	extern gboolean          soundEnabled;
 	extern gboolean          soundInitialized;
 	extern gchar*               oVirtUser;
 	extern gchar*           oVirtPassword;
+	extern spice_clipboard* clipboard;
 #endif
 
 gboolean attachThreadToJvm (JNIEnv** env);

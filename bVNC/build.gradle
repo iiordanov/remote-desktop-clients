@@ -54,6 +54,7 @@ dependencies {
     implementation "com.github.luben:zstd-jni:1.4.3-1@aar"
     implementation "androidx.core:core-ktx:1.7.0"
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation project(path: ':common')
 }
 repositories {
     mavenCentral()

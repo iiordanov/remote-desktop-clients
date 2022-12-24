@@ -48,7 +48,6 @@ public class RdpCommunicator extends RfbConnectable implements RdpKeyboardMapper
     private boolean isInNormalProtocol = false;
 
     private final RdpCommunicator myself;
-    private final Handler handler;
     private final Viewable viewable;
 
     // This variable indicates whether or not the user has accepted an untrusted
@@ -63,14 +62,13 @@ public class RdpCommunicator extends RfbConnectable implements RdpKeyboardMapper
 
     public RdpCommunicator(Context context, Handler handler, Viewable viewable, String username,
                            String domain, String password, boolean debugLogging) {
-        super(debugLogging);
+        super(debugLogging, handler);
         // This is necessary because it initializes a synchronizedMap referenced later.
         this.freeRdpApp = new GlobalApp();
         patchFreeRdpCore();
         // Create a manual bookmark and populate it from settings.
         this.bookmark = new ManualBookmark();
         this.context = context;
-        this.handler = handler;
         this.viewable = viewable;
         this.myself = this;
         this.username = username;
@@ -504,14 +502,6 @@ public class RdpCommunicator extends RfbConnectable implements RdpKeyboardMapper
     @Override
     public void OnRemoteClipboardChanged(String data) {
         android.util.Log.d(TAG, "OnRemoteClipboardChanged called.");
-
-        // Send a message containing the text to our handler.
-        Message m = new Message();
-        m.setTarget(handler);
-        m.what = RemoteClientLibConstants.SERVER_CUT_TEXT;
-        Bundle strings = new Bundle();
-        strings.putString("text", data);
-        m.obj = strings;
-        handler.sendMessage(m);
+        remoteClipboardChanged(data);
     }
 }

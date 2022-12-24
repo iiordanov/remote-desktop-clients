@@ -21,7 +21,6 @@
 package com.undatech.opaque.dialogs;
 
 import android.app.Activity;
-import android.content.ContentResolver;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -37,13 +36,12 @@ import android.widget.Toast;
 
 import androidx.fragment.app.DialogFragment;
 
-import com.iiordanov.pubkeygenerator.GeneratePubkeyActivity;
+import com.morpheusly.common.Utilities;
 import com.undatech.opaque.ConnectionSettings;
 import com.undatech.opaque.util.HttpsFileDownloader;
 import com.undatech.remoteClientUi.R;
 
 import java.io.File;
-import java.io.InputStream;
 
 public class ManageCustomCaFragment extends DialogFragment
         implements HttpsFileDownloader.OnDownloadFinishedListener {
@@ -204,14 +202,18 @@ public class ManageCustomCaFragment extends DialogFragment
         switch (requestCode) {
             case IMPORT_CA_REQUEST:
                 if (resultCode == Activity.RESULT_OK) {
-                    Activity activity = getActivity();
-                    if (data != null && data.getData() != null && activity != null) {
-                        ContentResolver resolver = activity.getContentResolver();
-                        InputStream in = GeneratePubkeyActivity.getInputStreamFromUri(resolver, data.getData());
-                        String keyData = GeneratePubkeyActivity.readFile(in);
+                    if (data != null && data.getData() != null) {
+                        String keyData = Utilities.Companion.getStringDataFromIntent(
+                                data,
+                                requireActivity()
+                        );
                         caCert.setText(keyData);
                     } else {
-                        Toast.makeText(activity, R.string.ca_file_error_reading, Toast.LENGTH_LONG).show();
+                        Toast.makeText(
+                                requireActivity(),
+                                R.string.ca_file_error_reading,
+                                Toast.LENGTH_LONG
+                        ).show();
                     }
                 }
         }

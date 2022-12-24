@@ -267,6 +267,11 @@ public class OpaqueHandler extends Handler {
                 settings.setUseLastPositionToolbarMoved(useLastPositionToolbarMoved);
             }
             break;
+        case RemoteClientLibConstants.SERVER_CUT_TEXT:
+            Bundle s = (Bundle) msg.obj;
+            c.serverJustCutText = true;
+            c.setClipboardText(s.getString("text"));
+            break;
         default:
             android.util.Log.e(TAG, "Not handling unknown messageId: " + msg.what);
             break;

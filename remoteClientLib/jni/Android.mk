@@ -120,7 +120,7 @@ LOCAL_C_INCLUDES += \
 
 LOCAL_SRC_FILES := virt-viewer/virt-viewer-file.c virt-viewer/virt-viewer-util.c \
                    android/android-service.c android/android-spicy.c android/android-spice-widget.c \
-                   android/android-io.c android/dummy.cpp
+                   android/android-io.c android/android-clipboard.c android/dummy.cpp
 
 LOCAL_LDLIBS 	+= -ljnigraphics -llog
 

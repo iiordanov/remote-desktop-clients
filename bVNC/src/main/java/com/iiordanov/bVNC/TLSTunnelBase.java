@@ -20,15 +20,17 @@
 
 package com.iiordanov.bVNC;
 
+import android.util.Log;
+
+import org.bouncycastle.jsse.provider.BouncyCastleJsseProvider;
+
 import java.net.Socket;
 import java.security.SecureRandom;
 import java.security.Security;
+
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
-import org.bouncycastle.jsse.provider.BouncyCastleJsseProvider;
-
-import android.util.Log;
 
 public abstract class TLSTunnelBase {
   

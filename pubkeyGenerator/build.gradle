@@ -39,4 +39,5 @@ dependencies {
     api 'net.vrallev.ecc:ecc-25519-java:1.0.3'
     api 'io.moatwel.crypto:eddsa:0.8.1'
     api group: 'net.i2p.crypto', name: 'eddsa', version: '0.3.0'
+    implementation project(':common')
 }

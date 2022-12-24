@@ -30,7 +30,8 @@
 #include "android-spicy.h"
 #include "android-service.h"
 #include "android-io.h"
-
+#include "spice/vd_agent.h"
+#include "android-clipboard.h"
 
 G_DEFINE_TYPE (SpiceWindow, spice_window, G_TYPE_OBJECT);
 
@@ -157,6 +158,7 @@ static void channel_new(SpiceSession *s, SpiceChannel *channel, gpointer data)
         main_mouse_update(channel, conn);
         main_agent_update(channel, conn);
         */
+        spice_clipboard_connect_signals(channel, conn);
     }
 
     if (SPICE_IS_DISPLAY_CHANNEL(channel)) {
@@ -199,6 +201,7 @@ static void channel_new(SpiceSession *s, SpiceChannel *channel, gpointer data)
     }
     */
 }
+
 
 static void channel_destroy(SpiceSession *s, SpiceChannel *channel, gpointer data)
 {

@@ -33,6 +33,7 @@
 #include "usb-device-manager.h"
 #include "channel-usbredir.h"
 #include "usb-backend.h"
+#include "android-clipboard.h"
 
 static gboolean disconnect(gpointer user_data);
 
@@ -258,6 +259,7 @@ gboolean getJvmAndMethodReferences (JNIEnv *env) {
 	jni_mouse_update     = (*env)->GetStaticMethodID (env, jni_connector_class, "OnMouseUpdate", "(II)V");
 	jni_mouse_mode       = (*env)->GetStaticMethodID (env, jni_connector_class, "OnMouseMode", "(Z)V");
 	jni_show_message     = (*env)->GetStaticMethodID (env, jni_connector_class, "ShowMessage", "(Ljava/lang/String;)V");
+	jni_remote_clipboard_changed = (*env)->GetStaticMethodID (env, jni_connector_class, "OnRemoteClipboardChanged", "(Ljava/lang/String;)V");
 	return TRUE;
 }
 
@@ -335,6 +337,8 @@ int connectSession (spice_connection *conn)
     int result = 0;
 
     __android_log_write(ANDROID_LOG_INFO, "connectSession", "Calling connection_connect()");
+
+    clipboard = spice_clipboard_alloc();
 
     mainloop = g_main_loop_new(NULL, FALSE);
 

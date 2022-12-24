@@ -176,7 +176,7 @@
 
     <string name="input_mode">Input Mode</string>
 
-    <string name="input_mode_mouse">Kontrola wskaźnika myszy</string>
+    <string name="input_method_mouse">Kontrola wskaźnika myszy</string>
     <string name="input_method_single_handed">Tryb jednej ręki</string>
     <string name="input_method_touchpad">Symulowany touchpad</string>
 

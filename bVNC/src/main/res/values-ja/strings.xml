@@ -361,7 +361,6 @@
 ・キーコンボ：メニュー&gt;詳細&gt;キーを送信
 ・テキスト送信：オンスクリーンキーボードで入力、或いはメニュー&gt;詳細&gt;テキスト送信から入力"
   </string>
-  <string name="input_mode_mouse">マウスポインタ―コントロール</string>
   <string name="intro_close">閉じる</string>
   <string name="intro_dont_show">次回から非表示</string>
   <string name="intro_header" />

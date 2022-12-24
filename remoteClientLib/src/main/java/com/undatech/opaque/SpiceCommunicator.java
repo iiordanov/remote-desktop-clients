@@ -74,6 +74,7 @@ public class SpiceCommunicator extends RfbConnectable {
     public native void SpiceRequestResolution(int x, int y);
     public native boolean SpiceAttachUsbDeviceByFileDescriptor(int fileDescriptor);
     public native boolean SpiceDetachUsbDeviceByFileDescriptor(int fileDescriptor);
+    public native void SpiceClientCutText(String text);
 
     static {
         System.loadLibrary("gstreamer_android");
@@ -104,12 +105,11 @@ public class SpiceCommunicator extends RfbConnectable {
 
     public SpiceCommunicator (Context context, Handler handler, Viewable canvas, boolean res,
                               boolean usb, boolean debugLogging) {
-        super(debugLogging);
+        super(debugLogging, handler);
         this.context = context;
         this.canvas = canvas;
         this.isRequestingNewDisplayResolution = res;
         this.usbEnabled = usb;
-        this.handler = handler;
         this.debugLogging = debugLogging;
         myself = this;
 
@@ -141,20 +141,11 @@ public class SpiceCommunicator extends RfbConnectable {
     private static SpiceCommunicator myself = null;
     private Viewable canvas = null;
     private Bitmap bitmap = null;
-    private Handler handler = null;
     private ArrayList<String> vmNames = null;
     private boolean isRequestingNewDisplayResolution = false;
     private boolean usbEnabled = false;
     private Context context = null;
-    
-    public void setHandler(Handler handler) {
-        this.handler = handler;
-    }
-    
-    public Handler getHandler() {
-        return handler;
-    }
-    
+
     public ArrayList<String> getVmNames() {
         return vmNames;
     }
@@ -296,14 +287,15 @@ public class SpiceCommunicator extends RfbConnectable {
 
     public void requestUpdate(boolean incremental) {
         // TODO Auto-generated method stub
-
     }
 
     public void writeClientCutText(String text) {
-        // TODO Auto-generated method stub
-
+        Log.i(TAG, "writeClientCutText");
+        if (isInNormalProtocol()) {
+            SpiceClientCutText(text);
+        }
     }
-    
+
     public void setIsInNormalProtocol(boolean state) {
         isInNormalProtocol = state;
     }
@@ -457,7 +449,7 @@ public class SpiceCommunicator extends RfbConnectable {
         android.util.Log.d(TAG, "Adding VM: " + vmname + "to list of VMs");
         myself.vmNames.add(vmname);
     }
-    
+
     public void onSettingsChanged(int width, int height, int bpp) {
         android.util.Log.i(TAG, "onSettingsChanged called, wxh: " + width + "x" + height);
 
@@ -510,6 +502,11 @@ public class SpiceCommunicator extends RfbConnectable {
     private static void ShowMessage(java.lang.String message) {
         android.util.Log.i(TAG, "ShowMessage called, message: " + message);
         sendMessageWithText(RemoteClientLibConstants.SHOW_TOAST, message);
+    }
+
+    public static void OnRemoteClipboardChanged(String data) {
+        android.util.Log.d(TAG, "OnRemoteClipboardChanged called.");
+        myself.remoteClipboardChanged(data);
     }
 
     BroadcastReceiver usbStateChangedReceiver = new BroadcastReceiver() {

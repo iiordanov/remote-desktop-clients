@@ -24,6 +24,7 @@
 #include "win32keymap.h"
 #include "android-io.h"
 #include "android-service.h"
+#include "spice/vd_agent.h"
 
 JNIEXPORT void JNICALL
 Java_com_undatech_opaque_SpiceCommunicator_UpdateBitmap (JNIEnv* env, jobject obj, jobject bitmap, gint x, gint y, gint width, gint height) {
@@ -179,6 +180,18 @@ Java_com_undatech_opaque_SpiceCommunicator_SpiceButtonEvent(JNIEnv * env, jobjec
     }
 }
 
+JNIEXPORT void JNICALL
+Java_com_undatech_opaque_SpiceCommunicator_SpiceClientCutText(JNIEnv *env, jobject obj, jstring text) {
+    __android_log_write(ANDROID_LOG_INFO, "android-io", "SpiceClientCutText");
+    SpiceDisplay* display = global_display;
+    SpiceDisplayPrivate *d = SPICE_DISPLAY_GET_PRIVATE(display);
+    g_return_if_fail(SPICE_IS_MAIN_CHANNEL(d->main));
+
+    size_t size = (*env)->GetStringUTFLength(env, text);
+    const guchar *convertedText = (const guchar*)(*env)->GetStringUTFChars(env, text, NULL);
+    spice_clipboard_selection_grab(d->main, convertedText, size);
+    g_free((gpointer)convertedText);
+}
 
 /* Callbacks to the UI layer to draw screen updates and invalidate part of the screen,
  * or to request a new bitmap. */

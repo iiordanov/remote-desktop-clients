@@ -19,19 +19,36 @@
 
 package com.undatech.opaque;
 
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+
 import com.undatech.opaque.input.RemoteKeyboardState;
+
 import java.util.HashMap;
 import java.util.Map;
 
 public abstract class RfbConnectable {
+    private final static String TAG = "RfbConnectable";
+
     protected Map<Integer, Integer> modifierMap = new HashMap<>();
     public RemoteKeyboardState remoteKeyboardState = null;
     protected boolean debugLogging = false;
     protected int metaState = 0;
+    protected Handler handler = null;
 
-    public RfbConnectable(boolean debugLogging) {
+    public RfbConnectable(boolean debugLogging, Handler handler) {
+        this.handler = handler;
         this.debugLogging = debugLogging;
         this.remoteKeyboardState = new RemoteKeyboardState(debugLogging);
+    }
+
+    public void setHandler(Handler handler) {
+        this.handler = handler;
+    }
+
+    public Handler getHandler() {
+        return handler;
     }
 
     public abstract int framebufferWidth ();
@@ -53,4 +70,16 @@ public abstract class RfbConnectable {
     public abstract void close();
     public abstract boolean isCertificateAccepted();
     public abstract void setCertificateAccepted(boolean certificateAccepted);
+
+    protected void remoteClipboardChanged(String data) {
+        android.util.Log.d(TAG, "remoteClipboardChanged called.");
+        // Send a message containing the text to our handler.
+        Message m = new Message();
+        m.setTarget(handler);
+        m.what = RemoteClientLibConstants.SERVER_CUT_TEXT;
+        Bundle strings = new Bundle();
+        strings.putString("text", data);
+        m.obj = strings;
+        handler.sendMessage(m);
+    }
 }
