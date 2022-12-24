@@ -19,16 +19,6 @@
 
 package com.iiordanov.bVNC.dialogs;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-
-import com.iiordanov.bVNC.ConnectionBean;
-import com.iiordanov.bVNC.Database;
-import com.iiordanov.bVNC.aSPICE;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -39,16 +29,13 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Toast;
 import android.widget.LinearLayout.LayoutParams;
-import com.iiordanov.bVNC.*;
-import com.iiordanov.freebVNC.*;
-import com.iiordanov.aRDP.*;
-import com.iiordanov.freeaRDP.*;
-import com.iiordanov.aSPICE.*;
-import com.iiordanov.freeaSPICE.*;
-import com.iiordanov.CustomClientPackage.*;
-import com.undatech.remoteClientUi.*;
+
+import com.iiordanov.bVNC.ConnectionBean;
+import com.iiordanov.bVNC.Database;
+import com.iiordanov.bVNC.aSPICE;
+import com.morpheusly.common.Utilities;
+import com.undatech.remoteClientUi.R;
 
 /**
  * @author Iordan K Iordanov
@@ -58,11 +45,11 @@ public class ImportTlsCaDialog extends AlertDialog {
     private aSPICE mainConfigPage;
     private ConnectionBean selected;
     private EditText certSubject;
-    private EditText caCertPath;
     private EditText caCert;
     private Button importButton;
     private Button helpButton;
     private Database database;
+    public static final int IMPORT_CA_REQUEST = 0;
 
     /**
      * @param context
@@ -110,32 +97,8 @@ public class ImportTlsCaDialog extends AlertDialog {
         selected = mainConfigPage.getCurrentConnection();
         certSubject.setText(selected.getCertSubject());
         caCert.setText(selected.getCaCert());
-        caCertPath.setText("/sdcard/");
     }
-    
-    private void importCaCert () {
-        File file = new File (caCertPath.getText().toString());
-        FileReader freader;
-        try {
-            freader = new FileReader(file);
-            BufferedReader reader = new BufferedReader(freader);
-            StringBuffer buf = new StringBuffer();
-            String line = null;
-            do {
-                try {
-                    line = reader.readLine();
-                    if (line != null)
-                        buf.append(line + '\n');
-                } catch (IOException e) {
-                    Toast.makeText(getContext(), R.string.spice_ca_file_error_reading, Toast.LENGTH_LONG).show();
-                }
-            } while (line != null);
-            caCert.setText(buf.toString());
-        } catch (FileNotFoundException e) {
-            Toast.makeText(getContext(), R.string.spice_ca_file_not_found, Toast.LENGTH_LONG).show();
-        }
-    }
-    
+
     /* (non-Javadoc)
      * @see android.app.Dialog#onCreate(android.os.Bundle)
      */
@@ -154,15 +117,14 @@ public class ImportTlsCaDialog extends AlertDialog {
 
         certSubject = (EditText) findViewById(R.id.certSubject);
         caCert      = (EditText) findViewById(R.id.caCert);
-        caCertPath  = (EditText) findViewById(R.id.caCertPath);
-        
+
         // Set up the import button.
         importButton = (Button) findViewById(R.id.importButton);
         importButton.setOnClickListener(new View.OnClickListener() {
-            
             @Override
             public void onClick(View v) {
-                importCaCert();
+                onBackPressed();
+                Utilities.Companion.importCaCertFromFile(getOwnerActivity(), IMPORT_CA_REQUEST);
             }
         });
         

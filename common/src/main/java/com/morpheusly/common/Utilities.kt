@@ -4,10 +4,12 @@ import android.app.Activity
 import android.content.ContentResolver
 import android.content.Intent
 import android.net.Uri
+import android.util.Log
 import java.io.*
 
 class Utilities {
     companion object {
+        private const val TAG = "Utilities"
         private const val BUFFER_SIZE = 3000
 
         /**
@@ -68,6 +70,19 @@ class Utilities {
             val resolver = activity.contentResolver
             val stream: InputStream? = getInputStreamFromUri(resolver, data.data)
             return readFileToUtf8String(stream)
+        }
+
+        fun importCaCertFromFile(activity: Activity, requestCode: Int) {
+            Log.d(TAG, "importCaCertFromFile")
+            val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
+            intent.addCategory(Intent.CATEGORY_OPENABLE)
+            intent.type = "*/*"
+            intent.putExtra(
+                Intent.EXTRA_MIME_TYPES, arrayOf(
+                    "*/*"
+                )
+            )
+            activity.startActivityForResult(intent, requestCode)
         }
     }
 }

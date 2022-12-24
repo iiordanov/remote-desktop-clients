@@ -48,7 +48,7 @@ public class ManageCustomCaFragment extends DialogFragment
     public static String TAG = "ManageCustomCaFragment";
     public static int TYPE_OVIRT = 0;
     public static int TYPE_SPICE = 1;
-    private static final int IMPORT_CA_REQUEST = 0;
+    public static final int IMPORT_CA_REQUEST = 0;
 
     @Override
     public void onDownload(String contents) {
@@ -145,7 +145,7 @@ public class ManageCustomCaFragment extends DialogFragment
         importButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                importCaCertFromFile();
+                Utilities.Companion.importCaCertFromFile(getActivity(), IMPORT_CA_REQUEST);
             }
         });
 
@@ -182,17 +182,6 @@ public class ManageCustomCaFragment extends DialogFragment
         address += "/ovirt-engine/services/pki-resource?resource=ca-certificate&format=X509-PEM-CA";
         new HttpsFileDownloader(address, false,
                 ManageCustomCaFragment.this).initiateDownload();
-    }
-
-    private void importCaCertFromFile() {
-        Log.d(TAG, "importCaCertFromFile");
-        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-        intent.addCategory(Intent.CATEGORY_OPENABLE);
-        intent.setType("*/*");
-        intent.putExtra(Intent.EXTRA_MIME_TYPES, new String[]{
-                "*/*"
-        });
-        startActivityForResult(intent, IMPORT_CA_REQUEST);
     }
 
     @Override

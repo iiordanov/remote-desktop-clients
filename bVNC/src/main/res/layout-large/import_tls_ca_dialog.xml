@@ -24,31 +24,14 @@
 
             <requestFocus />
         </EditText>
-       	<TextView
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"
-	        android:text="@string/path_to_ca"
-	        android:textAppearance="?android:attr/textAppearanceLarge" />
-        	    
-	    <LinearLayout
-	        android:layout_width="match_parent"
-	        android:layout_height="match_parent"
-	        android:orientation="horizontal" >
 
-	        <EditText
-	            android:id="@+id/caCertPath"
-	            android:layout_width="wrap_content"
-	            android:layout_height="wrap_content"
-	            android:layout_weight="1.79"
-	            android:ems="10" />
+		<Button
+			android:id="@+id/importButton"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:text="@string/import_from_file"
+			android:textAppearance="?android:attr/textAppearanceLarge" />
 
-	        <Button
-	            android:id="@+id/importButton"
-	            android:layout_width="wrap_content"
-	            android:layout_height="wrap_content"
-	            android:text="@string/import_settings" />
-	    </LinearLayout>
-        
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

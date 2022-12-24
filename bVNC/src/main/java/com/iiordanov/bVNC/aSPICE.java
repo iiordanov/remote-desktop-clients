@@ -19,53 +19,37 @@
 
 package com.iiordanov.bVNC;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.Arrays;
-import java.util.List;
-
-import android.app.AlertDialog;
+import android.app.Activity;
 import android.app.Dialog;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.SharedPreferences;
-import android.content.res.AssetManager;
-import android.content.res.Resources;
+import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
-import android.widget.CompoundButton.OnCheckedChangeListener;
 
-import com.iiordanov.bVNC.dialogs.ImportExportDialog;
 import com.iiordanov.bVNC.dialogs.ImportTlsCaDialog;
-import com.iiordanov.bVNC.*;
-import com.iiordanov.bVNC.dialogs.IntroTextDialog;
-import com.iiordanov.freebVNC.*;
-import com.iiordanov.aRDP.*;
-import com.iiordanov.freeaRDP.*;
-import com.iiordanov.aSPICE.*;
-import com.iiordanov.freeaSPICE.*;
-import com.iiordanov.CustomClientPackage.*;
 import com.iiordanov.util.PermissionGroups;
 import com.iiordanov.util.PermissionsManager;
+import com.morpheusly.common.Utilities;
 import com.undatech.opaque.util.FileUtils;
-import com.undatech.remoteClientUi.*;
+import com.undatech.remoteClientUi.R;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.List;
 
 /**
  * aSPICE is the Activity for setting up SPICE connections.
@@ -337,6 +321,26 @@ public class aSPICE extends MainConfiguration {
             saveConnectionAndCloseLayout();
         } else {
             Toast.makeText(this, R.string.spice_server_empty, Toast.LENGTH_LONG).show();
+        }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        android.util.Log.i(TAG, "onActivityResult");
+        super.onActivityResult(requestCode, resultCode, data);
+        switch (requestCode) {
+            case ImportTlsCaDialog.IMPORT_CA_REQUEST:
+                if (resultCode == Activity.RESULT_OK) {
+                    if (data != null && data.getData() != null) {
+                        String keyData = Utilities.Companion.getStringDataFromIntent(data, this);
+                        android.util.Log.i(TAG, keyData);
+                        selected.setCaCert(keyData);
+                        updateViewFromSelected();
+                        selected.saveAndWriteRecent(false, this);
+                    } else {
+                        Toast.makeText(this, R.string.ca_file_error_reading, Toast.LENGTH_LONG).show();
+                    }
+                }
         }
     }
 }
