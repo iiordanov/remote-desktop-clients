@@ -2,6 +2,8 @@ v5.1.1
 - Bugfix for Simulated Touchpad Drag&Drop
 - Feature to hide thumbnails
 - Feature to display only nicknames
+- New file picker for import CA from file
+- Clipboard copy/paste integration with remote VM
 v5.1.0
 - Stability during reconnection improvements
 - Fixes for synchronizing remote resolution
