@@ -337,6 +337,7 @@ public class aSPICE extends MainConfiguration {
                         selected.setCaCert(keyData);
                         updateViewFromSelected();
                         selected.saveAndWriteRecent(false, this);
+                        showDialog(R.layout.import_tls_ca_dialog);
                     } else {
                         Toast.makeText(this, R.string.ca_file_error_reading, Toast.LENGTH_LONG).show();
                     }
