@@ -310,6 +310,25 @@
             android:padding="5dip"
             android:visibility="gone">
 
+            <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+                <TextView
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/color_mode"
+                    android:layout_weight="0.4"
+                    android:textAppearance="?android:attr/textAppearanceLarge" />
+                <Spinner
+                    android:id="@+id/spinnerRdpColor"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:entries="@array/rdp_colors"
+                    android:layout_weight="0.6"
+                    android:textAppearance="?android:attr/textAppearanceLarge" />
+            </LinearLayout>
+
             <TextView
                 android:id="@+id/textDescriptGeom"
                 android:layout_width="wrap_content"

@@ -139,7 +139,7 @@ public class ConnectionBean extends AbstractConnectionBean implements Connection
         setRdpResType(0);
         setRdpWidth(0);
         setRdpHeight(0);
-        setRdpColor(0);
+        setRdpColor(16);
         setRemoteFx(false);
         setDesktopBackground(false);
         setFontSmoothing(false);

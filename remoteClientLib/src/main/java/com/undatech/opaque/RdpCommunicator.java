@@ -290,7 +290,8 @@ public class RdpCommunicator extends RfbConnectable implements RdpKeyboardMapper
                                         boolean desktopComposition, boolean fullWindowDrag,
                                         boolean menuAnimations, boolean theming, boolean redirectSdCard,
                                         boolean consoleMode, int redirectSound, boolean enableRecording,
-                                        boolean enableRemoteFx, boolean enableGfx, boolean enableGfxH264) {
+                                        boolean enableRemoteFx, boolean enableGfx, boolean enableGfxH264,
+                                        int colors) {
         // Set a writable data directory
         //LibFreeRDP.setDataDirectory(session.getInstance(), getContext().getFilesDir().toString());
         // Get the address and port (based on whether an SSH tunnel is being established or not).
@@ -308,7 +309,7 @@ public class RdpCommunicator extends RfbConnectable implements RdpKeyboardMapper
         BookmarkBase.ScreenSettings screenSettings = bookmark.getActiveScreenSettings();
         screenSettings.setWidth(remoteWidth);
         screenSettings.setHeight(remoteHeight);
-        screenSettings.setColors(16);
+        screenSettings.setColors(colors);
 
         // Set performance flags.
         BookmarkBase.PerformanceFlags performanceFlags = bookmark.getPerformanceFlags();

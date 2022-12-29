@@ -84,5 +84,9 @@ class Utilities {
             )
             activity.startActivityForResult(intent, requestCode)
         }
+
+        fun toList(array: Array<String>): List<String> {
+            return array.toList()
+        }
     }
 }

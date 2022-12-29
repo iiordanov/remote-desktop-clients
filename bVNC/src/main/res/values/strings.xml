@@ -583,6 +583,13 @@ If you are looking for a quick performance boost, try setting the Color mode to 
         <item>@string/rdp_geom_custom</item>
         <item>@string/rdp_geom_automatic</item>
     </string-array>
+    <string-array name="rdp_colors">
+        <item>32</item>
+        <item>24</item>
+        <item>16</item>
+        <item>15</item>
+        <item>8</item>
+    </string-array>
     <string-array name="vnc_geometry">
         <item>@string/rdp_geom_disabled</item>
         <item>@string/rdp_geom_automatic</item>

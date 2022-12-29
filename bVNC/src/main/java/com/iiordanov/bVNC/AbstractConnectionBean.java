@@ -474,7 +474,11 @@ public abstract class AbstractConnectionBean extends com.antlersoft.android.dbim
     public void setRdpWidth(int arg_rdpWidth) { gen_rdpWidth = arg_rdpWidth; }
     public int getRdpHeight() { return gen_rdpHeight; }
     public void setRdpHeight(int arg_rdpHeight) { gen_rdpHeight = arg_rdpHeight; }
-    public int getRdpColor() { return gen_rdpColor; }
+    public int getRdpColor() {
+        if (gen_rdpColor == 0)
+            return 16;
+        return gen_rdpColor;
+    }
     public void setRdpColor(int arg_rdpColor) { gen_rdpColor = arg_rdpColor; }
     public boolean getRemoteFx() { return gen_remoteFx; }
     public void setRemoteFx(boolean arg_remoteFx) { gen_remoteFx = arg_remoteFx; }

@@ -560,7 +560,8 @@ public class RemoteCanvas extends AppCompatImageView
                 connection.getMenuAnimation(), connection.getVisualStyles(),
                 connection.getRedirectSdCard(), connection.getConsoleMode(),
                 connection.getRemoteSoundType(), connection.getEnableRecording(),
-                connection.getRemoteFx(), connection.getEnableGfx(), connection.getEnableGfxH264());
+                connection.getRemoteFx(), connection.getEnableGfx(), connection.getEnableGfxH264(),
+                connection.getRdpColor());
         rdpcomm.connect();
         pd.dismiss();
     }

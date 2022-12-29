@@ -19,40 +19,27 @@
 
 package com.iiordanov.bVNC;
 
-import android.app.AlertDialog;
-import android.app.Dialog;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.WindowManager;
 import android.widget.AdapterView;
-import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
-import android.widget.CompoundButton.OnCheckedChangeListener;
-import com.iiordanov.bVNC.dialogs.ImportExportDialog;
+
 import com.iiordanov.bVNC.dialogs.IntroTextDialog;
-import com.iiordanov.bVNC.*;
-import com.iiordanov.freebVNC.*;
-import com.iiordanov.aRDP.*;
-import com.iiordanov.freeaRDP.*;
-import com.iiordanov.aSPICE.*;
-import com.iiordanov.freeaSPICE.*;
-import com.iiordanov.CustomClientPackage.*;
 import com.iiordanov.util.PermissionGroups;
 import com.iiordanov.util.PermissionsManager;
-import com.undatech.remoteClientUi.*;
+import com.morpheusly.common.Utilities;
+import com.undatech.remoteClientUi.R;
+
+import java.util.List;
 
 /**
  * aRDP is the Activity for setting up RDP connections.
@@ -91,6 +78,8 @@ public class aRDP extends MainConfiguration {
     private CheckBox checkboxEnableGfx;
     private CheckBox checkboxEnableGfxH264;
     private CheckBox checkboxPreferSendingUnicode;
+    private Spinner spinnerRdpColor;
+    private List<String> rdpColorArray;
 
     @Override
     public void onCreate(Bundle icicle) {
@@ -125,7 +114,19 @@ public class aRDP extends MainConfiguration {
                     layoutAdvancedSettings.setVisibility(View.GONE);
             }
         });
-        
+
+        rdpColorArray = Utilities.Companion.toList(getResources().getStringArray(R.array.rdp_colors));
+        spinnerRdpColor = (Spinner) findViewById(R.id.spinnerRdpColor);
+        spinnerRdpColor.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener () {
+            @Override
+            public void onItemSelected(AdapterView<?> arg0, View view, int itemIndex, long id) {
+                selected.setRdpColor(Integer.parseInt(rdpColorArray.get(itemIndex)));
+            }
+            @Override
+            public void onNothingSelected(AdapterView<?> arg0) {
+            }
+        });
+
         // The geometry type and dimensions boxes.
         spinnerRdpGeometry = (Spinner) findViewById(R.id.spinnerRdpGeometry);
         rdpWidth = (EditText) findViewById(R.id.rdpWidth);
@@ -195,6 +196,7 @@ public class aRDP extends MainConfiguration {
         textNickname.setText(selected.getNickname());
         textUsername.setText(selected.getUserName());
         rdpDomain.setText(selected.getRdpDomain());
+        spinnerRdpColor.setSelection(rdpColorArray.indexOf(String.valueOf(selected.getRdpColor())));
         spinnerRdpGeometry.setSelection(selected.getRdpResType());
         rdpWidth.setText(Integer.toString(selected.getRdpWidth()));
         rdpHeight.setText(Integer.toString(selected.getRdpHeight()));
