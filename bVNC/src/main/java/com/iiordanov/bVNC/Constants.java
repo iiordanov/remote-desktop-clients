@@ -48,7 +48,8 @@ public class Constants {
     public static volatile int DEFAULT_PROTOCOL_PORT = 5900;
     public static final int DEFAULT_VNC_PORT = 5900;
     public static final int DEFAULT_RDP_PORT = 3389;
-    
+    public static final int DEFAULT_RDP_COLOR_MODE = 16;
+
     // URI Parameters   
     public static final String PARAM_CONN_NAME = "ConnectionName";
     public static final String PARAM_RDP_USER = "RdpUsername";
