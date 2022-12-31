@@ -30,18 +30,6 @@
 
 package com.iiordanov.bVNC;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.CertificateEncodingException;
-import java.security.cert.X509Certificate;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Timer;
-
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -54,7 +42,6 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Handler;
-import android.os.Message;
 import android.os.SystemClock;
 import android.provider.Settings;
 import android.text.ClipboardManager;
@@ -73,6 +60,8 @@ import android.widget.Toast;
 import androidx.appcompat.widget.AppCompatImageView;
 
 import com.iiordanov.android.bc.BCFactory;
+import com.iiordanov.bVNC.dialogs.GetTextFragment;
+import com.iiordanov.bVNC.exceptions.AnonCipherUnsupportedException;
 import com.iiordanov.bVNC.input.InputHandlerTouchpad;
 import com.iiordanov.bVNC.input.RemoteCanvasHandler;
 import com.iiordanov.bVNC.input.RemoteKeyboard;
@@ -83,28 +72,35 @@ import com.iiordanov.bVNC.input.RemoteSpiceKeyboard;
 import com.iiordanov.bVNC.input.RemoteSpicePointer;
 import com.iiordanov.bVNC.input.RemoteVncKeyboard;
 import com.iiordanov.bVNC.input.RemoteVncPointer;
-
-import com.iiordanov.bVNC.dialogs.GetTextFragment;
-import com.iiordanov.bVNC.exceptions.AnonCipherUnsupportedException;
 import com.undatech.opaque.Connection;
 import com.undatech.opaque.MessageDialogs;
 import com.undatech.opaque.OpaqueHandler;
 import com.undatech.opaque.RdpCommunicator;
 import com.undatech.opaque.RemoteClientLibConstants;
 import com.undatech.opaque.RfbConnectable;
-import com.undatech.opaque.Viewable;
 import com.undatech.opaque.SpiceCommunicator;
+import com.undatech.opaque.Viewable;
 import com.undatech.opaque.proxmox.ProxmoxClient;
 import com.undatech.opaque.proxmox.pojo.PveRealm;
 import com.undatech.opaque.proxmox.pojo.PveResource;
 import com.undatech.opaque.proxmox.pojo.SpiceDisplay;
 import com.undatech.opaque.proxmox.pojo.VmStatus;
 import com.undatech.opaque.util.FileUtils;
-import com.undatech.remoteClientUi.*;
+import com.undatech.remoteClientUi.R;
 
 import org.apache.http.HttpException;
 import org.json.JSONException;
-import org.yaml.snakeyaml.scanner.Constant;
+
+import java.io.File;
+import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateEncodingException;
+import java.security.cert.X509Certificate;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Timer;
 
 import javax.security.auth.login.LoginException;
 
@@ -263,7 +259,7 @@ public class RemoteCanvas extends AppCompatImageView
                 settings.isRequestingNewDisplayResolution() || settings.getRdpResType() == Constants.RDP_GEOM_SELECT_CUSTOM,
                 !Utils.isFree(getContext()) && settings.isUsbEnabled(), App.debugLog);
         rfbconn = spicecomm;
-        pointer = new RemoteSpicePointer(spicecomm, this, handler);
+        pointer = new RemoteSpicePointer(spicecomm, this, handler, App.debugLog);
         try {
             keyboard = new RemoteSpiceKeyboard(getResources(), spicecomm, this, handler,
                     settings.getLayoutMap(), App.debugLog);
@@ -495,7 +491,7 @@ public class RemoteCanvas extends AppCompatImageView
                                           !Utils.isFree(getContext()) && connection.isUsbEnabled(),
                                           App.debugLog);
         rfbconn = spicecomm;
-        pointer = new RemoteSpicePointer(rfbconn, RemoteCanvas.this, handler);
+        pointer = new RemoteSpicePointer(rfbconn, RemoteCanvas.this, handler, App.debugLog);
         keyboard = new RemoteSpiceKeyboard(getResources(), spicecomm, RemoteCanvas.this,
                 handler, connection.getLayoutMap(), App.debugLog);
         //spicecomm.setUIEventListener(RemoteCanvas.this);
@@ -536,7 +532,7 @@ public class RemoteCanvas extends AppCompatImageView
                 connection.getUserName(), connection.getRdpDomain(), connection.getPassword(),
                 App.debugLog);
         rfbconn = rdpcomm;
-        pointer = new RemoteRdpPointer(rfbconn, RemoteCanvas.this, handler);
+        pointer = new RemoteRdpPointer(rfbconn, RemoteCanvas.this, handler, App.debugLog);
         keyboard = new RemoteRdpKeyboard(rdpcomm, RemoteCanvas.this, handler, App.debugLog,
                                          connection.getPreferSendingUnicode());
     }
@@ -578,7 +574,7 @@ public class RemoteCanvas extends AppCompatImageView
                 App.debugLog);
 
         rfbconn = rfb;
-        pointer = new RemoteVncPointer(rfbconn, RemoteCanvas.this, handler);
+        pointer = new RemoteVncPointer(rfbconn, RemoteCanvas.this, handler, App.debugLog);
         boolean rAltAsIsoL3Shift = Utils.querySharedPreferenceBoolean(this.getContext(),
                 Constants.rAltAsIsoL3ShiftTag);
         keyboard = new RemoteVncKeyboard(rfbconn, RemoteCanvas.this, handler,

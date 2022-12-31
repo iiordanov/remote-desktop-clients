@@ -20,10 +20,10 @@
 package com.iiordanov.bVNC.input;
 
 import android.os.Handler;
-import android.view.MotionEvent;
 
 import com.iiordanov.bVNC.RemoteCanvas;
 import com.undatech.opaque.RfbConnectable;
+import com.undatech.opaque.util.GeneralUtils;
 
 public class RemoteVncPointer extends RemotePointer {
     private static final String TAG = "RemotePointer";
@@ -37,8 +37,9 @@ public class RemoteVncPointer extends RemotePointer {
     public static final int MOUSE_BUTTON_SCROLL_LEFT = 32;
     public static final int MOUSE_BUTTON_SCROLL_RIGHT = 64;
 
-    public RemoteVncPointer (RfbConnectable r, RemoteCanvas v, Handler h) {
-        super(r,v,h);
+    public RemoteVncPointer (RfbConnectable rfb, RemoteCanvas canvas, Handler handler,
+                             boolean debugLogging) {
+        super(rfb, canvas, handler, debugLogging);
     }
 
     @Override
@@ -147,61 +148,8 @@ public class RemoteVncPointer extends RemotePointer {
             pointerY = canvas.getImageHeight() - 1;
         }
         canvas.invalidateMousePosition();
-        
+        GeneralUtils.debugLog(this.debugLogging, TAG, "Sending absolute mouse event at: " + pointerX +
+                ", " + pointerY + ", pointerMask: " + pointerMask);
         protocomm.writePointerEvent(pointerX, pointerY, combinedMetaState, pointerMask, false);
-    }
-    
-    public boolean processPointerEvent(int x, int y, int action, int modifiers, boolean mouseIsDown, boolean useRightButton,
-            boolean useMiddleButton, boolean useScrollButton, int direction) {
-
-        if (protocomm != null && protocomm.isInNormalProtocol()) {
-            if (mouseIsDown && useRightButton) {
-                //Log.i(TAG,"Right mouse button mask set");
-                pointerMask = MOUSE_BUTTON_RIGHT;
-            } else if (mouseIsDown && useMiddleButton) {
-                //Log.i(TAG,"Middle mouse button mask set");
-                pointerMask = MOUSE_BUTTON_MIDDLE;
-            } else if (mouseIsDown && useScrollButton) {
-                //Log.d(TAG, "Sending a Mouse Scroll event: " + direction);
-                if        ( direction == 0 ) {
-                    pointerMask = MOUSE_BUTTON_SCROLL_UP;
-                } else if ( direction == 1 ) {
-                    pointerMask = MOUSE_BUTTON_SCROLL_DOWN;
-                } else if ( direction == 2 ) {
-                    pointerMask = MOUSE_BUTTON_SCROLL_LEFT;
-                } else if ( direction == 3 ) {
-                    pointerMask = MOUSE_BUTTON_SCROLL_RIGHT;
-                }
-            } else if (mouseIsDown && (action == MotionEvent.ACTION_DOWN || action == MotionEvent.ACTION_MOVE)) {
-                //Log.i(TAG,"Left mouse button mask set");
-                pointerMask = MOUSE_BUTTON_LEFT;
-            } else {
-                //Log.i(TAG,"Mouse button mask cleared");
-                // If none of the conditions are satisfied, clear the pointer mask.
-                pointerMask = 0;
-            }
-
-            canvas.invalidateMousePosition();
-            pointerX = x;
-            pointerY = y;
-            
-            // Do not let mouse pointer leave the bounds of the desktop.
-            if (pointerX < 0) {
-                pointerX = 0;
-            } else if ( pointerX >= canvas.getImageWidth()) {
-                pointerX = canvas.getImageWidth() - 1;
-            }
-            if ( pointerY < 0) { 
-                pointerY = 0;
-            } else if ( pointerY >= canvas.getImageHeight()) {
-                pointerY = canvas.getImageHeight() - 1;
-            }
-            canvas.invalidateMousePosition();
-            
-            protocomm.writePointerEvent(pointerX, pointerY,
-                    modifiers|canvas.getKeyboard().getMetaState(), pointerMask, false);
-            return true;
-        }
-        return false;
     }
 }

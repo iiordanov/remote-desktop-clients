@@ -1,8 +1,5 @@
 package com.iiordanov.bVNC.input;
 
-import com.iiordanov.bVNC.RemoteCanvas;
-import com.undatech.opaque.RfbConnectable;
-
 import android.content.Context;
 import android.content.res.Configuration;
 import android.os.Build;
@@ -10,6 +7,9 @@ import android.os.Handler;
 import android.os.SystemClock;
 import android.view.InputDevice;
 import android.view.KeyEvent;
+
+import com.iiordanov.bVNC.RemoteCanvas;
+import com.undatech.opaque.RfbConnectable;
 
 public abstract class RemotePointer {
     
@@ -40,6 +40,8 @@ public abstract class RemotePointer {
     protected float sensitivity = DEFAULT_SENSITIVITY;
     protected boolean accelerated = DEFAULT_ACCELERATED;
 
+    protected boolean debugLogging = false;
+
     public class MouseScroller implements Runnable {
         int delay = 100;
         public int direction = 0;
@@ -56,7 +58,8 @@ public abstract class RemotePointer {
         }
     } 
 
-    public RemotePointer (RfbConnectable protocomm, RemoteCanvas canvas, Handler handler) {
+    public RemotePointer (RfbConnectable protocomm, RemoteCanvas canvas, Handler handler,
+                          boolean debugLogging) {
         this.protocomm = protocomm;
         this.canvas    = canvas;
         this.context   = canvas.getContext();
@@ -64,6 +67,7 @@ public abstract class RemotePointer {
         //pointerX  = canvas.getImageWidth()/2;
         //pointerY  = canvas.getImageHeight()/2;
         scroller = new MouseScroller();
+        this.debugLogging = debugLogging;
     }
     
     protected boolean shouldBeRightClick (KeyEvent e) {

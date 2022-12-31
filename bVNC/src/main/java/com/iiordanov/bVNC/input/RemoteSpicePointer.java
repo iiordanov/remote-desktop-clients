@@ -24,6 +24,7 @@ import android.os.Handler;
 
 import com.iiordanov.bVNC.RemoteCanvas;
 import com.undatech.opaque.RfbConnectable;
+import com.undatech.opaque.util.GeneralUtils;
 
 public class RemoteSpicePointer extends RemotePointer {
 	private static final String TAG = "RemoteSpicePointer";
@@ -34,8 +35,9 @@ public class RemoteSpicePointer extends RemotePointer {
     public static final int SPICE_MOUSE_BUTTON_UP     = 4;
     public static final int SPICE_MOUSE_BUTTON_DOWN   = 5;
 
-    public RemoteSpicePointer (RfbConnectable spicecomm, RemoteCanvas canvas, Handler handler) {
-        super(spicecomm, canvas, handler);
+    public RemoteSpicePointer (RfbConnectable spicecomm, RemoteCanvas canvas, Handler handler,
+							   boolean debugLogging) {
+        super(spicecomm, canvas, handler, debugLogging);
     }
 	
 	@Override
@@ -134,7 +136,7 @@ public class RemoteSpicePointer extends RemotePointer {
 		if (relativeEvents) {
 			int relX = x - pointerX;
 			int relY = y - pointerY;
-			//android.util.Log.d(TAG, "Sending relative mouse event: " + relX + ", " + relY);
+			GeneralUtils.debugLog(this.debugLogging, TAG, "Sending relative mouse event: " + relX + ", " + relY);
 			clearPointerMaskEvent(relX, relY, isMoving, combinedMetaState);
 			protocomm.writePointerEvent(relX, relY, combinedMetaState, pointerMask, relativeEvents);
 
@@ -154,6 +156,8 @@ public class RemoteSpicePointer extends RemotePointer {
 				pointerY = canvas.getImageHeight() - 1;
 			}
 			clearPointerMaskEvent(x, y, isMoving, combinedMetaState);
+			GeneralUtils.debugLog(this.debugLogging, TAG, "Sending absolute mouse event at: " + pointerX +
+								", " + pointerY + ", pointerMask: " + pointerMask);
 			protocomm.writePointerEvent(pointerX, pointerY, combinedMetaState, pointerMask,
 									    relativeEvents);
 			canvas.invalidateMousePosition();
