@@ -358,9 +358,11 @@ abstract class InputHandlerGeneric extends GestureDetector.SimpleOnGestureListen
 
         int metaState   = e.getMetaState();
 
-		// If we've performed a right/middle-click and the gesture is not over yet, do not start drag mode.
-		if (secondPointerWasDown || thirdPointerWasDown)
+		if (secondPointerWasDown || thirdPointerWasDown) {
+			GeneralUtils.debugLog(debugLogging, TAG,
+					"onLongPress: right/middle-click gesture in progress, not starting drag mode");
 			return;
+		}
 
 		activity.sendShortVibration();
 
@@ -370,11 +372,11 @@ abstract class InputHandlerGeneric extends GestureDetector.SimpleOnGestureListen
 
 	/**
 	 * Indicates that drag modes and scrolling have ended.
-	 * @return
+	 * @return whether any mode other than the drag modes was enabled
 	 */
-	protected boolean endDragModesAndScrolling () {
+	protected boolean endDragModesAndScrolling() {
 		GeneralUtils.debugLog(debugLogging, TAG, "endDragModesAndScrolling");
-
+    	boolean nonDragGesture = panMode||inScaling||inSwiping||inScrolling||immersiveSwipe;
     	canvas.cursorBeingMoved = false;
 		panMode               = false;
 		inScaling             = false;
@@ -382,13 +384,12 @@ abstract class InputHandlerGeneric extends GestureDetector.SimpleOnGestureListen
 		inScrolling           = false;
         immersiveSwipe        = false;
     	if (dragMode || rightDragMode || middleDragMode) {
+    		nonDragGesture    = false;
     		dragMode          = false;
 			rightDragMode     = false;
 			middleDragMode    = false;
-			return true;
-    	} else {
-    		return false;
     	}
+    	return nonDragGesture;
 	}
 
 	/**
@@ -445,8 +446,8 @@ abstract class InputHandlerGeneric extends GestureDetector.SimpleOnGestureListen
      		canvas.invalidate();
         }
 
+		GeneralUtils.debugLog(debugLogging, TAG, "onTouchEvent: pointerID: " + pointerID);
         switch (pointerID) {
-
         case 0:
         	switch (action) {
         	case MotionEvent.ACTION_DOWN:
@@ -482,23 +483,27 @@ abstract class InputHandlerGeneric extends GestureDetector.SimpleOnGestureListen
                     return true;
                 }
                 
-    			// If any drag modes were going on, end them and send a mouse up event.
-    			if (endDragModesAndScrolling()) {
-    				pointer.releaseButton(getX(e), getY(e), meta);
-    				return true;
-    			}
+                if (!endDragModesAndScrolling()) {
+                    // If no non-drag gestures were going on, send a mouse up event.
+                    GeneralUtils.debugLog(debugLogging, TAG,
+                                          "onTouchEvent: No non-drag gestures detected, sending mouse up event");
+                    pointer.releaseButton(getX(e), getY(e), meta);
+                }
     			break;
         	case MotionEvent.ACTION_MOVE:
+				GeneralUtils.debugLog(debugLogging, TAG, "onTouchEvent: ACTION_MOVE");
 				// Send scroll up/down events if swiping is happening.
                 if (panMode) {
                 	float scale = canvas.getZoomFactor();
             		canvas.relativePan(-(int)((e.getX() - dragX)*scale), -(int)((e.getY() - dragY)*scale));
         			dragX = e.getX();
         			dragY = e.getY();
+					GeneralUtils.debugLog(debugLogging, TAG, "onTouchEvent: ACTION_MOVE panMode");
         			return true;
                 } else if (dragMode || rightDragMode || middleDragMode) {
                 	canvas.movePanToMakePointerVisible();
         			pointer.moveMouseButtonDown(getX(e), getY(e), meta);
+					GeneralUtils.debugLog(debugLogging, TAG, "onTouchEvent: ACTION_MOVE in a drag mode, moving mouse with button down");
         			return true;
         		} else if (inSwiping) {
                 	// Save the coordinates and restore them afterward.
@@ -509,13 +514,14 @@ abstract class InputHandlerGeneric extends GestureDetector.SimpleOnGestureListen
                 	sendScrollEvents (getX(e), getY(e), meta);
                 	// Restore the coordinates so that onScale doesn't get all muddled up.
                 	setEventCoordinates(e, x, y);
+					GeneralUtils.debugLog(debugLogging, TAG, "onTouchEvent: ACTION_MOVE inSwiping, saving coordinates");
         		} else if (immersiveSwipe) {
                     // If this is part of swipe that shows the nav bar, consume.
+					GeneralUtils.debugLog(debugLogging, TAG, "onTouchEvent: ACTION_MOVE Gesture showing nav bar, no action");
                     return true;
                 }
         	}
         	break;
-
         case 1:
         	switch (action) {
         	case MotionEvent.ACTION_POINTER_DOWN:

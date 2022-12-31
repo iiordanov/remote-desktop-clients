@@ -77,6 +77,7 @@ public class InputHandlerDirectDragPan extends InputHandlerGeneric {
 	}
 
 	private void startDragAndDropMode(MotionEvent e) {
+		GeneralUtils.debugLog(debugLogging, TAG, "startDragAndDropMode, e: " + e);
 		dragMode = true;
 		RemotePointer p = canvas.getPointer();
 		p.leftButtonDown(getX(e), getY(e), e.getMetaState());
