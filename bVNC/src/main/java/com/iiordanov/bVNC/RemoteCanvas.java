@@ -1205,10 +1205,7 @@ public class RemoteCanvas extends AppCompatImageView
         }
 
         try {
-            if (
-                    ((isRdp || isOpaque) && connection.getUseLocalCursor() != Constants.CURSOR_FORCE_DISABLE)
-                    || connection.getUseLocalCursor() == Constants.CURSOR_FORCE_LOCAL
-            ) {
+            if (needsLocalCursor()) {
                 initializeSoftCursor();
             }
             handler.post(drawableSetter);
@@ -1222,6 +1219,17 @@ public class RemoteCanvas extends AppCompatImageView
         }
     }
 
+    /**
+     * Determines if the app should show a local cursor or not
+     */
+    private boolean needsLocalCursor() {
+        boolean isRdpSpiceOrOpaque = isRdp || isSpice || isOpaque;
+        boolean localCursorNotForceDisabled =
+                connection.getUseLocalCursor() != Constants.CURSOR_FORCE_DISABLE;
+        boolean localCursorForceEnabled =
+                connection.getUseLocalCursor() == Constants.CURSOR_FORCE_LOCAL;
+        return (isRdpSpiceOrOpaque && localCursorNotForceDisabled) || localCursorForceEnabled;
+    }
 
     /**
      * Disposes of the old drawable which holds the remote desktop data.
