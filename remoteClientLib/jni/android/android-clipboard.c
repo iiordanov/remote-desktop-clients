@@ -58,6 +58,7 @@ void spice_clipboard_selection_handler(
 
     clipboard->length = MIN(size, clipboard->available - 1);
     strncpy(clipboard->buffer, data, clipboard->length);
+    strncpy(clipboard->buffer + clipboard->length, "\0", 1);
     JNIEnv *env = NULL;
     gboolean attached = attachThreadToJvm(&env);
     jstring jdata = (*env)->NewStringUTF(env, clipboard->buffer);
@@ -92,14 +93,9 @@ void spice_clipboard_selection_release_handler(
     SpiceMainChannel* channel, guint selection, spice_connection *conn) {
 	__android_log_write(ANDROID_LOG_INFO, "android-spice",
         "spice_clipboard_selection_release_handler: Clipboard released in VM, sending buffer to UI");
-
-    JNIEnv *env = NULL;
-    gboolean attached = attachThreadToJvm(&env);
-    jstring jdata = (*env)->NewStringUTF(env, clipboard->buffer);
-    (*env)->CallStaticVoidMethod(env, jni_connector_class, jni_remote_clipboard_changed, jdata);
-    if (attached) {
-        detachThreadFromJvm();
-    }}
+    strncpy(clipboard->buffer, (const char *)"\0", 1);
+    clipboard->length = 0;
+}
 
 void spice_clipboard_selection_request_handler(
     SpiceMainChannel* channel, guint selection, guint type, spice_connection *conn) {
@@ -124,6 +120,7 @@ void spice_clipboard_selection_request_handler(
         clipboard->length
     );
 }
+
 
 void spice_clipboard_selection_grab(SpiceMainChannel* channel, const guchar* text, size_t size) {
     clipboard->length = MIN(size, clipboard->available - 1);
