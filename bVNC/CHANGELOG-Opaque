@@ -1,4 +1,5 @@
 v5.1.1
+- Bugfix for single-click with certain trackpads
 - Bugfix for Simulated Touchpad Drag&Drop
 - Feedback on CA download success/failure
 - New file picker for import CA from file
