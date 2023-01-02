@@ -916,4 +916,6 @@ aSPICEで対応済み機能は以下の通り：
   <string name="rdp_adv_gfxh264">RDP Gfx H264</string>
   <string name="more_debug_logging">その他のデバッグログ</string>
   <string name="prefer_sending_unicode">Unicode入力（Windowsのみ）</string>
+  <string name="hide_connection_thumbnails">サムネイル非表示</string>
+  <string name="show_only_connection_nicknames">ニックネーム表示</string>
 </resources>

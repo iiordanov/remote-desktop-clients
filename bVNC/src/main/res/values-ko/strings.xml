@@ -897,4 +897,6 @@ aSPICEで의 대응 기능는 이하와 같다 :
   <string name="rdp_adv_gfxh264">RDP Gfx H264</string>
   <string name="more_debug_logging">기타 디버그 로그</string>
   <string name="prefer_sending_unicode">유니코드 입력(Windows만 해당)</string>
+  <string name="hide_connection_thumbnails">썸네일 비표시</string>
+  <string name="show_only_connection_nicknames">닉네임 표시</string>
 </resources>

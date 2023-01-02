@@ -897,4 +897,6 @@ aSPICE對應的功能如下：
   <string name="rdp_adv_gfxh264">RDP Gfx H264</string>
   <string name="more_debug_logging">更多調試記錄</string>
   <string name="prefer_sending_unicode">Unicode輸入(僅限Windows)</string>
+  <string name="hide_connection_thumbnails">隱藏縮圖</string>
+  <string name="show_only_connection_nicknames">只顯示暱稱</string>
 </resources>
