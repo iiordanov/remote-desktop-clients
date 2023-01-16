@@ -5,19 +5,19 @@ import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.widget.Toast;
+
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
-import android.widget.Toast;
 
 import com.iiordanov.bVNC.RemoteCanvas;
 import com.iiordanov.bVNC.Utils;
 import com.iiordanov.bVNC.dialogs.GetTextFragment;
 import com.undatech.opaque.Connection;
-import com.undatech.opaque.MessageDialogs;
 import com.undatech.opaque.RemoteClientLibConstants;
-import java.security.cert.X509Certificate;
-
 import com.undatech.remoteClientUi.R;
+
+import java.security.cert.X509Certificate;
 
 public class RemoteCanvasHandler extends Handler {
     private static String TAG = "RemoteCanvasHandler";
