@@ -3,6 +3,7 @@ v5.1.1
 - Bugfix for Simulated Touchpad Drag&Drop
 - Feature to hide thumbnails
 - Feature to display only nicknames
+- Bugfix for master password
 v5.1.0
 - Handling Keypad Return key
 - Improved logging during at disconnection

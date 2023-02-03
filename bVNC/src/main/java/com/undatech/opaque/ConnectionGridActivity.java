@@ -79,7 +79,6 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
     FragmentManager fragmentManager = getSupportFragmentManager();
     private Context appContext;
     private GridView gridView;
-    private ConnectionLoader connectionLoader;
     private EditText search;
     private boolean isConnecting = false;
     protected Database database;
@@ -94,8 +93,6 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
         super.onCreate(savedInstanceState);
 
         appContext = getApplicationContext();
-        boolean connectionsInSharedPrefs = Utils.isOpaque(this);
-        connectionLoader = new ConnectionLoader(appContext, this, connectionsInSharedPrefs);
         setContentView(R.layout.grid_view_activity);
 
         gridView = (GridView) findViewById(R.id.gridView);
@@ -137,9 +134,6 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
             public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
             @Override
             public void afterTextChanged(Editable s) {
-                if (connectionLoader == null) {
-                    return;
-                }
                 createAndSetLabeledImageAdapterAndNumberOfColumns();
             }
         });
@@ -167,10 +161,16 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
         });
     }
 
+    private ConnectionLoader getConnectionLoader(Context context) {
+        boolean connectionsInSharedPrefs = Utils.isOpaque(context);
+        ConnectionLoader connectionLoader = new ConnectionLoader(appContext, this, connectionsInSharedPrefs);
+        return connectionLoader;
+    }
+
     private void createAndSetLabeledImageAdapterAndNumberOfColumns() {
         LabeledImageApapter labeledImageApapter = new LabeledImageApapter(
                 ConnectionGridActivity.this,
-                connectionLoader.loadConnectionsById(),
+                getConnectionLoader(this).loadConnectionsById(),
                 search.getText().toString().toLowerCase().split(" "),
                 2);
         gridView.setAdapter(labeledImageApapter);
@@ -188,6 +188,7 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
         isConnecting = true;
         String runtimeId = (String) ((TextView) v.findViewById(R.id.grid_item_id)).getText();
         Intent intent = new Intent(ConnectionGridActivity.this, GeneralUtils.getClassByName("com.iiordanov.bVNC.RemoteCanvasActivity"));
+        ConnectionLoader connectionLoader = getConnectionLoader(this);
         if (Utils.isOpaque(this)) {
             ConnectionSettings cs = (ConnectionSettings) connectionLoader.getConnectionsById().get(runtimeId);
             cs.loadFromSharedPreferences(appContext);
@@ -204,6 +205,7 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
     private void editConnection(View v) {
         android.util.Log.d(TAG, "Modify Connection");
         String runtimeId = (String) ((TextView) v.findViewById(R.id.grid_item_id)).getText();
+        ConnectionLoader connectionLoader = getConnectionLoader(this);
         Connection conn = connectionLoader.getConnectionsById().get(runtimeId);
         Intent intent = new Intent(ConnectionGridActivity.this, Utils.getConnectionSetupClass(this));
         if (Utils.isOpaque(this)) {
@@ -226,6 +228,7 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
                 new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int i) {
+                ConnectionLoader connectionLoader = getConnectionLoader(ConnectionGridActivity.this);
                 if (Utils.isOpaque(ConnectionGridActivity.this)) {
 
                     String newListOfConnections = new String();
