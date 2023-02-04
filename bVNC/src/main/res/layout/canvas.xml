@@ -3,6 +3,7 @@
     android:orientation="vertical"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
+	android:background="@android:color/background_dark"
     >
 
 <com.iiordanov.bVNC.RemoteCanvas
@@ -10,6 +11,7 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:layout_gravity="bottom|center"
+	android:background="@android:color/background_dark"
     >
 </com.iiordanov.bVNC.RemoteCanvas>
 
