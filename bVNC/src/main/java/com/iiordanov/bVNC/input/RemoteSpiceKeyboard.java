@@ -154,6 +154,7 @@ public class RemoteSpiceKeyboard extends RemoteKeyboard {
                     unicode = event.getUnicodeChar(event.getMetaState()&~UNICODE_META_MASK&~KeyEvent.META_ALT_MASK);
                     unicodeMetaState = additionalMetaState|onScreenMetaState|
                                        convertEventMetaState(event, event.getMetaState()&~KeyEvent.META_SHIFT_MASK);
+                    GeneralUtils.debugLog(debugLogging, TAG, String.format("Got unicode value: %d without ALT mask from event", unicode));
                 }
                 
                 if (unicode > 0) {
