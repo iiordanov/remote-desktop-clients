@@ -1381,8 +1381,10 @@ public class RemoteCanvas extends AppCompatImageView
             sshConnection = null;
         }
 
-        Log.d(TAG, "Saving screenshot to " + getContext().getFilesDir() + "/" + connection.getScreenshotFilename());
-        Utils.writeScreenshotToFile(myDrawable, getContext().getFilesDir() + "/" + connection.getScreenshotFilename(), 720);
+        if (connection != null) {
+            Log.d(TAG, "Saving screenshot to " + getContext().getFilesDir() + "/" + connection.getScreenshotFilename());
+            Utils.writeScreenshotToFile(myDrawable, getContext().getFilesDir() + "/" + connection.getScreenshotFilename(), 720);
+        }
         disposeDrawable ();
 
         onDestroy();

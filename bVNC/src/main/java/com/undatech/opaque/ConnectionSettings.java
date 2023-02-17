@@ -1,16 +1,16 @@
 /**
  * Copyright (C) 2013- Iordan Iordanov
- *
+ * <p>
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * This software is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License
  * along with this software; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307,
@@ -24,7 +24,6 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
-import android.net.Uri;
 import android.util.Log;
 import android.widget.ImageView;
 
@@ -36,9 +35,7 @@ import org.json.JSONObject;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -420,8 +417,7 @@ public class ConnectionSettings implements Connection, Serializable {
         editor.putString("user", user);
         if (keepPassword) {
             editor.putString("password", password);
-        }
-        else {
+        } else {
             editor.putString("password", "");
         }
         editor.putBoolean("keepPassword", keepPassword);
@@ -446,13 +442,12 @@ public class ConnectionSettings implements Connection, Serializable {
         editor.putInt("useLastPositionToolbarY", useLastPositionToolbarY);
         if (useLastPositionToolbar) {
             editor.putBoolean("useLastPositionToolbarMoved", useLastPositionToolbarMoved);
-        }
-        else {
+        } else {
             editor.putBoolean("useLastPositionToolbarMoved", false);
         }
         editor.apply();
         // Make sure the CA gets saved to a file if necessary.
-        ovirtCaFile = saveCaToFile (context, ovirtCaData);
+        ovirtCaFile = saveCaToFile(context, ovirtCaData);
     }
 
     @Override
@@ -637,10 +632,10 @@ public class ConnectionSettings implements Connection, Serializable {
         }
         x509KeySignature = sp.getString("x509KeySignature", "").trim();
         screenshotFilename = sp.getString("screenshotFilename", UUID.randomUUID().toString() + ".png").trim();
-        loadAdvancedSettings (context, filename);
+        loadAdvancedSettings(context, filename);
     }
 
-    public void loadAdvancedSettings (Context context, String file) {
+    public void loadAdvancedSettings(Context context, String file) {
         SharedPreferences sp = context.getSharedPreferences(file, Context.MODE_PRIVATE);
         extraKeysToggleType = sp.getInt("extraKeysToggleType", RemoteClientLibConstants.EXTRA_KEYS_ON);
         inputMethod = sp.getString("inputMethod", "DirectSwipePan").trim();
@@ -661,17 +656,18 @@ public class ConnectionSettings implements Connection, Serializable {
         useLastPositionToolbarY = sp.getInt("useLastPositionToolbarY", 0);
         useLastPositionToolbarMoved = sp.getBoolean("useLastPositionToolbarMoved", false);
         // Make sure the CAs get saved to files if necessary.
-        ovirtCaFile = saveCaToFile (context, ovirtCaData);
+        ovirtCaFile = saveCaToFile(context, ovirtCaData);
     }
-    
+
     /**
      * Saves provided CA to a file if it doesn't exist already, and returns file name
      * if it was saved or it already exists. Returns "" if caCertData is empty or an error
      * occurred.
+     *
      * @param caCertData
      * @return
      */
-    public String saveCaToFile (Context context, String caCertData) {
+    public String saveCaToFile(Context context, String caCertData) {
         String fileName = "";
         if (!caCertData.equals("")) {
             // Write out CA to file if it doesn't exist.
@@ -705,13 +701,23 @@ public class ConnectionSettings implements Connection, Serializable {
     }
 
     @Override
-    public void parseFromUri(Uri dataUri) {
+    public void setReadyForConnection(boolean readyToBeSaved) {
 
     }
 
     @Override
     public boolean isReadyToBeSaved() {
         return false;
+    }
+
+    @Override
+    public void setReadyToBeSaved(boolean readyToBeSaved) {
+
+    }
+
+    @Override
+    public void determineIfReadyForConnection(int secType) {
+
     }
 
     @Override
@@ -1230,7 +1236,8 @@ public class ConnectionSettings implements Connection, Serializable {
     }
 
     @Override
-    public void setEnableGfx(boolean enableGfx) {}
+    public void setEnableGfx(boolean enableGfx) {
+    }
 
     @Override
     public boolean getEnableGfxH264() {
@@ -1238,24 +1245,26 @@ public class ConnectionSettings implements Connection, Serializable {
     }
 
     @Override
-    public void setEnableGfxH264(boolean enableGfxH264) {}
+    public void setEnableGfxH264(boolean enableGfxH264) {
+    }
 
     /**
      * Exports preferences to a file.
+     *
      * @param context
-     * @param connections space separated list of connections
+     * @param connections      space separated list of connections
      * @param externalFileName file to save to
      * @return the full path to the file saved.
-     * @throws JSONException 
-     * @throws IOException 
+     * @throws JSONException
+     * @throws IOException
      */
     public static void exportPrefsToFile(Context context, String connections, Writer w) throws JSONException, IOException {
         android.util.Log.d(TAG, "Exporting settings to file");
         connections += " " + RemoteClientLibConstants.DEFAULT_SETTINGS_FILE;
         String[] preferenceFiles = connections.split(" ");
         JSONObject allPrefs = new JSONObject();
-        
-        for (String file: preferenceFiles) {
+
+        for (String file : preferenceFiles) {
             SharedPreferences sp = context.getSharedPreferences(file, Context.MODE_PRIVATE);
             JSONObject prefs = new JSONObject(sp.getAll());
             prefs.put("password", "");
@@ -1270,10 +1279,11 @@ public class ConnectionSettings implements Connection, Serializable {
 
     /**
      * Imports preferences from a file.
+     *
      * @param context
      * @return connection list as a space separated string
-     * @throws IOException 
-     * @throws JSONException 
+     * @throws IOException
+     * @throws JSONException
      */
     public static String importPrefsFromFile(Context context, Reader r) throws IOException, JSONException {
         android.util.Log.d(TAG, "Importing settings");
@@ -1288,7 +1298,7 @@ public class ConnectionSettings implements Connection, Serializable {
 
         JSONObject allPrefs = new JSONObject(sb.toString());
         Iterator<String> allPrefsItr = allPrefs.keys();
-        while(allPrefsItr.hasNext()) {
+        while (allPrefsItr.hasNext()) {
             String file = allPrefsItr.next();
             SharedPreferences sp = context.getSharedPreferences(file, Context.MODE_PRIVATE);
             Editor editor = sp.edit();
@@ -1296,20 +1306,20 @@ public class ConnectionSettings implements Connection, Serializable {
             JSONObject settings = allPrefs.getJSONObject(file);
 
             Iterator<String> keysItr = settings.keys();
-            while(keysItr.hasNext()) {
+            while (keysItr.hasNext()) {
                 String key = keysItr.next();
                 Object value = settings.get(key);
 
-                if(value instanceof String) {
-                    editor.putString(key, (String)value);
-                } else if(value instanceof Integer) {
-                    editor.putInt(key, (int)((Integer)value));
-                } else if(value instanceof Boolean) {
-                    editor.putBoolean(key, (boolean)((Boolean)value));
-                } else if(value instanceof Float) {
-                    editor.putFloat(key, (float)((Float)value));
-                } else if(value instanceof Long) {
-                    editor.putLong(key, (long)((Long)value));
+                if (value instanceof String) {
+                    editor.putString(key, (String) value);
+                } else if (value instanceof Integer) {
+                    editor.putInt(key, (int) ((Integer) value));
+                } else if (value instanceof Boolean) {
+                    editor.putBoolean(key, (boolean) ((Boolean) value));
+                } else if (value instanceof Float) {
+                    editor.putFloat(key, (float) ((Float) value));
+                } else if (value instanceof Long) {
+                    editor.putLong(key, (long) ((Long) value));
                 }
             }
             if (!file.equals(RemoteClientLibConstants.DEFAULT_SETTINGS_FILE)) {
