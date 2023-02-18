@@ -44,7 +44,6 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.Serializable;
-import java.io.Writer;
 import java.util.Iterator;
 import java.util.UUID;
 
@@ -1252,13 +1251,15 @@ public class ConnectionSettings implements Connection, Serializable {
      * Exports preferences to a file.
      *
      * @param context
-     * @param connections      space separated list of connections
-     * @param externalFileName file to save to
+     * @param connections  space separated list of connections
+     * @param outputStream output stream to save to
      * @return the full path to the file saved.
      * @throws JSONException
      * @throws IOException
      */
-    public static void exportPrefsToFile(Context context, String connections, Writer w) throws JSONException, IOException {
+    public static void exportPrefsToFile(
+            Context context, String connections, OutputStream outputStream
+    ) throws JSONException, IOException {
         android.util.Log.d(TAG, "Exporting settings to file");
         connections += " " + RemoteClientLibConstants.DEFAULT_SETTINGS_FILE;
         String[] preferenceFiles = connections.split(" ");
@@ -1271,8 +1272,12 @@ public class ConnectionSettings implements Connection, Serializable {
             allPrefs.put(file, prefs);
         }
 
-        PrintWriter writer = new PrintWriter(new BufferedWriter(w));
-        writer.print(allPrefs.toString());
+        PrintWriter writer = new PrintWriter(
+                new BufferedWriter(
+                        new OutputStreamWriter(outputStream)
+                )
+        );
+        writer.print(allPrefs);
         writer.close();
     }
 
@@ -1348,12 +1353,11 @@ public class ConnectionSettings implements Connection, Serializable {
         }
     }
 
-    public static void exportSettingsFromSharedPrefsToJson(OutputStream fout, Context context) {
+    public static void exportSettingsFromSharedPrefsToJson(OutputStream outputStream, Context context) {
         SharedPreferences sp = context.getSharedPreferences("generalSettings", Context.MODE_PRIVATE);
         String connections = sp.getString("connections", null);
         try {
-            Writer writer = new OutputStreamWriter(fout);
-            ConnectionSettings.exportPrefsToFile(context, connections, writer);
+            ConnectionSettings.exportPrefsToFile(context, connections, outputStream);
         } catch (JSONException e) {
             Log.e(TAG, "JSON Exception while exporting settings " + e.getLocalizedMessage());
             e.printStackTrace();
