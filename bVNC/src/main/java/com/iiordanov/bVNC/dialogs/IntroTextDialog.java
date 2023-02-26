@@ -20,33 +20,29 @@
 
 package com.iiordanov.bVNC.dialogs;
 
-import com.iiordanov.bVNC.ConnectionBean;
-import com.iiordanov.bVNC.Database;
-
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import net.sqlcipher.database.SQLiteDatabase;
 import android.os.Bundle;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.view.MenuItem.OnMenuItemClickListener;
+import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView;
-import com.iiordanov.bVNC.*;
-import com.iiordanov.freebVNC.*;
-import com.iiordanov.aRDP.*;
-import com.iiordanov.freeaRDP.*;
-import com.iiordanov.aSPICE.*;
-import com.iiordanov.freeaSPICE.*;
-import com.iiordanov.CustomClientPackage.*;
-import com.undatech.remoteClientUi.*;
+
+import com.iiordanov.bVNC.ConnectionBean;
+import com.iiordanov.bVNC.Database;
+import com.iiordanov.bVNC.MostRecentBean;
+import com.iiordanov.bVNC.Utils;
+import com.undatech.remoteClientUi.R;
+
+import net.sqlcipher.database.SQLiteDatabase;
 
 /**
  * @author Michael A. MacDonald
@@ -143,7 +139,7 @@ public class IntroTextDialog extends Dialog {
             sb.append(", ");
             sb.append("<a href=\"market://details?id=com.iiordanov.aSPICE\">SPICE</a>");
             sb.append(", ");
-            sb.append("<a href=\"market://details?id=com.undatech.opaque\">oVirt/RHEV</a>");
+            sb.append("<a href=\"market://details?id=com.undatech.opaque\">oVirt/RHEV/Proxmox</a>");
             sb.append("<br>");
             sb.append("<br>");
         }
