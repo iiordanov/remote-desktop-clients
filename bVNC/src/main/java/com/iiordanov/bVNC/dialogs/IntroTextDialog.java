@@ -123,10 +123,12 @@ public class IntroTextDialog extends Dialog {
         sb.append("<br>");
         sb.append("<br>");
         
-        String donationPackageName = Utils.getDonationPackageName(getContext());
         if (donate) {
-            sb.append("<a href=\"market://DETAILS?id=" + donationPackageName + "\">" +
-                      getContext().getResources().getString(R.string.ad_donate_text1) + "</a>");
+            sb.append("<a href=\"");
+            sb.append(Utils.getDonationPackageLink(getContext()));
+            sb.append("\">");
+            sb.append(getContext().getResources().getString(R.string.ad_donate_text1));
+            sb.append("</a>");
             sb.append("<br>");
             sb.append("<br>");
             sb.append(getContext().getResources().getString(R.string.ad_donate_text2));

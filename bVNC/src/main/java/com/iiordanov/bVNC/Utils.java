@@ -20,6 +20,42 @@
 
 package com.iiordanov.bVNC;
 
+import android.app.Activity;
+import android.app.ActivityManager;
+import android.app.ActivityManager.MemoryInfo;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.ContextWrapper;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.net.Uri;
+import android.os.Bundle;
+import android.os.Message;
+import android.text.Html;
+import android.util.Log;
+import android.view.View;
+import android.view.ViewConfiguration;
+import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.ScrollView;
+
+import com.antlersoft.android.contentxml.SqliteElement;
+import com.antlersoft.android.contentxml.SqliteElement.ReplaceStrategy;
+import com.undatech.opaque.ConnectionSetupActivity;
+import com.undatech.remoteClientUi.R;
+
+import net.sqlcipher.database.SQLiteDatabase;
+
+import org.xml.sax.SAXException;
+
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -35,44 +71,6 @@ import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.UUID;
-
-import org.xml.sax.SAXException;
-
-import com.antlersoft.android.contentxml.SqliteElement;
-import com.antlersoft.android.contentxml.SqliteElement.ReplaceStrategy;
-
-import android.app.Activity;
-import android.app.ActivityManager;
-import android.app.AlertDialog;
-import android.app.ActivityManager.MemoryInfo;
-import android.app.Dialog;
-import android.content.ComponentName;
-import android.content.Context;
-import android.content.ContextWrapper;
-import android.content.DialogInterface;
-import android.content.SharedPreferences;
-import android.content.DialogInterface.OnClickListener;
-import android.content.SharedPreferences.Editor;
-import android.content.Intent;
-import net.sqlcipher.database.SQLiteDatabase;
-
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.net.Uri;
-import android.os.Bundle;
-import android.os.Message;
-import android.text.Html;
-import android.util.Log;
-import android.view.View;
-import android.view.ViewConfiguration;
-import android.view.WindowManager;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.ScrollView;
-
-import com.undatech.opaque.ConnectionSetupActivity;
-import com.undatech.opaque.MessageDialogs;
-import com.undatech.remoteClientUi.*;
 
 public class Utils {
     private final static String TAG = "Utils";
@@ -317,7 +315,17 @@ public class Utils {
     public static String getDonationPackageName(Context ctx) {
         return Utils.pName(ctx).replace("free", "");
     }
-    
+
+    public static String getDonationPackageLink(Context context) {
+        String donationPackageName = getDonationPackageName(context);
+        return "market://details?id=" + donationPackageName;
+    }
+
+    public static String getDonationPackageUrl(Context context) {
+        String donationPackageName = getDonationPackageName(context);
+        return "https://play.google.com/store/apps/details?id=" + donationPackageName;
+    }
+
     public static boolean isBlackBerry () {
         boolean bb = false;
         if (android.os.Build.MODEL.contains("BlackBerry") ||
@@ -624,5 +632,12 @@ public class Utils {
         Intent mainIntent = Intent.makeRestartActivityTask(componentName);
         context.startActivity(mainIntent);
         Runtime.getRuntime().exit(0);
+    }
+
+    public static void startUriIntent(Context context, String url) {
+        Log.d(TAG, "showUrl: Starting intent with url: " + url);
+        Intent i = new Intent(Intent.ACTION_VIEW);
+        i.setData(Uri.parse(url));
+        context.startActivity(i);
     }
 }

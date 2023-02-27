@@ -1,15 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
-      xmlns:app="http://schemas.android.com/apk/res-auto"
-      xmlns:tools="http://schemas.android.com/tools" >
-    <item android:id="@+id/itemExportImport" android:title="@string/import_export_settings" app:showAsAction="never"/>
-    <item android:id="@+id/itemMasterPassword" android:title="@string/master_password_enable" app:showAsAction="never" android:checkable="true"/>
-    <item android:id="@+id/copyLogcat" android:title="@string/copy_logcat" app:showAsAction="never" android:onClick="copyLogcat" />
-    <item android:id="@+id/actionSupportForum" android:title="@string/support_forum" app:showAsAction="never" android:onClick="showSupportForum" />
-    <item android:id="@+id/reportBug" android:title="@string/report_bug" app:showAsAction="never" android:onClick="reportBug" />
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+    <item
+        android:id="@+id/itemExportImport"
+        android:title="@string/import_export_settings"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/itemMasterPassword"
+        android:checkable="true"
+        android:title="@string/master_password_enable"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/copyLogcat"
+        android:onClick="copyLogcat"
+        android:title="@string/copy_logcat"
+        app:showAsAction="never" />
 
     <!-- New Connection, should appear as action button -->
-    <item android:id="@+id/actionNewConnection"
+    <item
+        android:id="@+id/actionNewConnection"
         android:icon="@drawable/ic_baseline_add_to_queue_24"
         android:title="@string/action_new_connection"
         tools:ignore="AppCompatResource"
@@ -17,19 +27,21 @@
         app:showAsAction="never"
         android:onClick="addNewConnection" />
 
-    <item android:id="@+id/actionEditDefaultSettings"
+    <item
+        android:id="@+id/shareOrRate"
+        android:icon="@android:drawable/btn_star_big_on"
+        android:title="@string/action_rate_or_share_app"
+        tools:ignore="AppCompatResource"
+        android:showAsAction="ifRoom"
+        app:showAsAction="ifRoom"
+        android:onClick="rateOrShare" />
+
+    <item
+        android:id="@+id/actionEditDefaultSettings"
         android:icon="@android:drawable/ic_menu_manage"
         android:title="@string/action_edit_default_settings"
         tools:ignore="AppCompatResource"
         android:showAsAction="ifRoom"
         app:showAsAction="ifRoom"
         android:onClick="editDefaultSettings" />
-
-    <item android:id="@+id/actionHelp"
-        android:icon="@android:drawable/ic_menu_info_details"
-        android:title="@string/help"
-        tools:ignore="AppCompatResource"
-        android:showAsAction="ifRoom"
-        app:showAsAction="ifRoom"
-        android:onClick="showMainScreenHelp" />
 </menu>
