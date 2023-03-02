@@ -1,6 +1,7 @@
 v5.1.2
 - Completely dark background for better image on OLED screens
 - Improvements to URI Intent handling
+- Convenient buttons to get help, rate, share, etc
 v5.1.1
 - Bugfix for auto local cursor
 - Bugfix for single-click with certain trackpads

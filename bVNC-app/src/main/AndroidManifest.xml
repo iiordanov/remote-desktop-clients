@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.iiordanov.bVNC"
     android:installLocation="auto"
-    android:versionCode="115121"
+    android:versionCode="115122"
     android:versionName="v5.1.2">
 
     <uses-permission tools:node="removeAll" />
