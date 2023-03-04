@@ -85,7 +85,7 @@ public class RemoteSpiceKeyboard extends RemoteKeyboard {
 	public boolean keyEvent(int keyCode, KeyEvent event, int additionalMetaState) {
         GeneralUtils.debugLog(debugLogging, TAG, event.toString());
         // Drop repeated modifiers
-        if (shouldDropRepeatModifierKeys(event))
+        if (shouldDropModifierKeys(event))
             return true;
         rfb.remoteKeyboardState.detectHardwareMetaState(event);
 

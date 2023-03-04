@@ -29,7 +29,7 @@ public class RemoteRdpKeyboard extends RemoteKeyboard {
     public boolean processLocalKeyEvent(int keyCode, KeyEvent evt, int additionalMetaState) {
         GeneralUtils.debugLog(App.debugLog, TAG, "processLocalKeyEvent: " + evt.toString() + " " + keyCode);
         // Drop repeated modifiers
-        if (shouldDropRepeatModifierKeys(evt))
+        if (shouldDropModifierKeys(evt))
             return true;
         boolean isRepeat = evt.getRepeatCount() > 0;
         rdpcomm.remoteKeyboardState.detectHardwareMetaState(evt);

@@ -1,7 +1,8 @@
 package com.iiordanov.bVNC.input;
 
+import static com.undatech.opaque.util.InputUtils.isNoQwertyKbd;
+
 import android.content.Context;
-import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Handler;
 import android.os.SystemClock;
@@ -84,7 +85,7 @@ public abstract class RemotePointer {
             // Whether the source is a mouse (getSource() is not available pre-Gingerbread)
             boolean mouseSource = (!preGingerBread && e.getSource() == InputDevice.SOURCE_MOUSE);
             // Whether the device has a qwerty keyboard
-            boolean noQwertyKbd = (context.getResources().getConfiguration().keyboard != Configuration.KEYBOARD_QWERTY);
+            boolean noQwertyKbd = isNoQwertyKbd(context);
             // Whether the device is pre-Gingerbread or the event came from the "hard buttons"
             boolean fromVirtualHardKey = preGingerBread || (e.getFlags() & KeyEvent.FLAG_VIRTUAL_HARD_KEY) != 0;
             if (mouseSource || noQwertyKbd || fromVirtualHardKey) {
@@ -94,7 +95,7 @@ public abstract class RemotePointer {
         
         return result;
     }
-    
+
     public int getX() {
         return pointerX;
     }

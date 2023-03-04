@@ -1,5 +1,7 @@
 package com.iiordanov.bVNC.input;
 
+import static com.undatech.opaque.util.GeneralUtils.debugLog;
+
 import android.os.Handler;
 import android.view.KeyEvent;
 
@@ -8,7 +10,6 @@ import com.iiordanov.bVNC.RemoteCanvas;
 import com.iiordanov.bVNC.RfbProto;
 import com.iiordanov.tigervnc.rfb.UnicodeToKeysym;
 import com.undatech.opaque.RfbConnectable;
-import com.undatech.opaque.util.GeneralUtils;
 
 public class RemoteVncKeyboard extends RemoteKeyboard {
     private final static String TAG = "RemoteKeyboard";
@@ -24,9 +25,9 @@ public class RemoteVncKeyboard extends RemoteKeyboard {
     }
 
     public boolean processLocalKeyEvent(int keyCode, KeyEvent evt, int additionalMetaState) {
-        GeneralUtils.debugLog(App.debugLog, TAG, "processLocalKeyEvent: " + evt.toString() + " " + keyCode);
+        debugLog(App.debugLog, TAG, "processLocalKeyEvent: " + evt.toString() + " " + keyCode);
         // Drop repeated modifiers
-        if (shouldDropRepeatModifierKeys(evt))
+        if (shouldDropModifierKeys(evt))
             return true;
         rfb.remoteKeyboardState.detectHardwareMetaState(evt);
 
@@ -133,6 +134,8 @@ public class RemoteVncKeyboard extends RemoteKeyboard {
                     keysym = UnicodeToKeysym.translate(key);
                     numchars = evt.getCharacters().length();
                     unicode = true;
+                    debugLog(App.debugLog, TAG, "processLocalKeyEvent: KEYCODE_UNKNOWN, " +
+                            "unicode key: " + key);
                 }
                 break;
             default:
@@ -157,6 +160,8 @@ public class RemoteVncKeyboard extends RemoteKeyboard {
                         evt.getDeviceId(), evt.getScanCode());
                 key = copy.getUnicodeChar();
                 keysym = UnicodeToKeysym.translate(key);
+                debugLog(App.debugLog, TAG, "processLocalKeyEvent: extracted unicode key: " +
+                        key + ", keysym: " + keysym);
                 break;
             }
 
@@ -215,12 +220,12 @@ public class RemoteVncKeyboard extends RemoteKeyboard {
                 }
                 
                 if (numchars == 1) {
-                    GeneralUtils.debugLog(App.debugLog, TAG, "processLocalKeyEvent: Sending key. Down: " + down +
+                    debugLog(App.debugLog, TAG, "processLocalKeyEvent: Sending key. Down: " + down +
                             ", key: " + key + ", keysym:" + keysym + ", metaState: " + metaState);
                     rfb.writeKeyEvent(keysym, metaState, down);
                     // If this is a unicode key, the up event will never come, so we artificially insert it.
                     if (unicode) {
-                        GeneralUtils.debugLog(App.debugLog, TAG, "processLocalKeyEvent: Unicode key. Down: false" +
+                        debugLog(App.debugLog, TAG, "processLocalKeyEvent: Unicode key. Down: false" +
                                 ", key: " + key + ", keysym:" + keysym + ", metaState: " + metaState);
                         rfb.writeKeyEvent(keysym, metaState, false);
                     }
@@ -229,7 +234,7 @@ public class RemoteVncKeyboard extends RemoteKeyboard {
                     for (int i = 0; i < numchars; i++) {
                         key = evt.getCharacters().charAt(i);
                         keysym = UnicodeToKeysym.translate(key);
-                        GeneralUtils.debugLog(App.debugLog, TAG, "processLocalKeyEvent: Sending multiple keys. Key: " +
+                        debugLog(App.debugLog, TAG, "processLocalKeyEvent: Sending multiple keys. Key: " +
                                 key + " keysym: " + keysym + ", metaState: " + metaState);
                         rfb.writeKeyEvent(keysym, metaState, true);
                         rfb.writeKeyEvent(keysym, metaState, false);
