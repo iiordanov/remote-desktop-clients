@@ -1828,7 +1828,7 @@ public class RemoteCanvas extends AppCompatImageView
         android.util.Log.d(TAG, "onCreateInputConnection called");
         BaseInputConnection bic = new BaseInputConnection(this, false);
         outAttrs.actionLabel = null;
-        outAttrs.inputType = InputType.TYPE_NULL;
+        outAttrs.inputType = InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD;
         String currentIme = Settings.Secure.getString(getContext().getContentResolver(), Settings.Secure.DEFAULT_INPUT_METHOD);
         android.util.Log.d(TAG, "currentIme: " + currentIme);
         outAttrs.imeOptions |= EditorInfo.IME_FLAG_NO_FULLSCREEN;
