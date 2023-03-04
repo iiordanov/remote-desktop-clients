@@ -25,6 +25,7 @@ import android.app.ActivityManager;
 import android.app.ActivityManager.MemoryInfo;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.ContextWrapper;
@@ -635,9 +636,13 @@ public class Utils {
     }
 
     public static void startUriIntent(Context context, String url) {
-        Log.d(TAG, "showUrl: Starting intent with url: " + url);
-        Intent i = new Intent(Intent.ACTION_VIEW);
-        i.setData(Uri.parse(url));
-        context.startActivity(i);
+        try {
+            Log.d(TAG, "startUriIntent: Starting intent with url: " + url);
+            Intent i = new Intent(Intent.ACTION_VIEW);
+            i.setData(Uri.parse(url));
+            context.startActivity(i);
+        } catch (ActivityNotFoundException e) {
+            Log.e(TAG, "startUriIntent: ActivityNotFoundException caught.");
+        }
     }
 }
