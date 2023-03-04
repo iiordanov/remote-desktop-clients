@@ -20,6 +20,10 @@
 
 package com.undatech.opaque;
 
+import static com.iiordanov.bVNC.Utils.createMainScreenDialog;
+import static com.iiordanov.bVNC.Utils.setClipboard;
+import static com.iiordanov.bVNC.Utils.startUriIntent;
+
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.AlertDialog;
@@ -31,7 +35,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
-import android.text.ClipboardManager;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -52,10 +55,6 @@ import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
-import com.google.android.gms.tasks.Task;
-import com.google.android.play.core.review.ReviewInfo;
-import com.google.android.play.core.review.ReviewManager;
-import com.google.android.play.core.review.ReviewManagerFactory;
 import com.iiordanov.bVNC.App;
 import com.iiordanov.bVNC.ConnectionBean;
 import com.iiordanov.bVNC.Constants;
@@ -335,8 +334,7 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
      */
     public void copyLogcat (MenuItem menuItem) {
         LogcatReader logcatReader = new LogcatReader();
-        ClipboardManager cm = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-        cm.setText(logcatReader.getMyLogcat(RemoteClientLibConstants.LOGCAT_MAX_LINES));
+        setClipboard(this, logcatReader.getMyLogcat(RemoteClientLibConstants.LOGCAT_MAX_LINES));
         Toast.makeText(getBaseContext(), getResources().getString(R.string.log_copied),
                 Toast.LENGTH_LONG).show();
     }
@@ -562,55 +560,42 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
 
     public void showMainScreenHelp(View item) {
         Log.d(TAG, "showMainScreenHelp: Showing main screen help.");
-        Utils.createMainScreenDialog(this);
+        createMainScreenDialog(this);
     }
 
     public void showSupportForum(View item) {
-        Utils.startUriIntent(this, "https://groups.google.com/forum/#!forum/bvnc-ardp-aspice-opaque-remote-desktop-clients");
+        startUriIntent(this, "https://groups.google.com/forum/#!forum/bvnc-ardp-aspice-opaque-remote-desktop-clients");
     }
 
     public void emailUs(View item) {
-        Utils.startUriIntent(this, "mailto:support@morpheusly.com");
+        startUriIntent(this, "mailto:support@morpheusly.com");
     }
 
     public void reportBug(View item) {
-        Utils.startUriIntent(this, "https://github.com/iiordanov/remote-desktop-clients/issues");
+        startUriIntent(this, "https://github.com/iiordanov/remote-desktop-clients/issues");
     }
 
     public void rateApp(View item) {
         Log.d(TAG, "rateApp: Showing rate app functionality");
-        ReviewManager manager = ReviewManagerFactory.create(this);
-        Task<ReviewInfo> request = manager.requestReviewFlow();
-        request.addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                ReviewInfo reviewInfo = task.getResult();
-                Task<Void> flow = manager.launchReviewFlow(this, reviewInfo);
-                flow.addOnCompleteListener(completedTask -> {
-                    Log.d(TAG, "rateApp: Completed: " + completedTask.getResult());
-                });
-            } else {
-                Log.d(TAG, "rateApp: Error: " + task.getResult());
-            }
-        });
+        Utils.showRateAppDialog(this);
     }
 
     public void shareApp(View item) {
         Log.d(TAG, "shareApp: Copying app link to clipboard");
-        ClipboardManager cm = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
         String url = Utils.getDonationPackageUrl(this);
-        cm.setText(url);
+        setClipboard(this, url);
         Toast.makeText(appContext, R.string.share_app_toast, Toast.LENGTH_LONG).show();
     }
 
     public void donateToProject(View item) {
-        Utils.startUriIntent(this, Utils.getDonationPackageLink(this));
+        startUriIntent(this, Utils.getDonationPackageLink(this));
     }
 
     public void moreApps(View item) {
-        Utils.startUriIntent(this, "market://search?q=pub:\"Iordan Iordanov (Undatech)\"");
+        startUriIntent(this, "market://search?q=pub:\"Iordan Iordanov (Undatech)\"");
     }
 
     public void previousVersions(View item) {
-        Utils.startUriIntent(this, "https://github.com/iiordanov/remote-desktop-clients/releases");
+        startUriIntent(this, "https://github.com/iiordanov/remote-desktop-clients/releases");
     }
 }
