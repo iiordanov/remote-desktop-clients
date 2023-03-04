@@ -14,4 +14,9 @@
         android:defaultValue="false" android:key="doNotShowDesktopThumbnails" android:title="@string/hide_connection_thumbnails"/>
     <SwitchPreferenceCompat
         android:defaultValue="false" android:key="showOnlyConnectionNicknames" android:title="@string/show_only_connection_nicknames"/>
+    <PreferenceCategory
+        android:title="@string/applies_to_new_connections_only">
+    </PreferenceCategory>
+    <SwitchPreferenceCompat
+        android:defaultValue="true" android:key="positionToolbarLastUsed" android:title="@string/position_toolbar_last_used"/>
 </PreferenceScreen>
