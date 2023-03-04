@@ -33,6 +33,7 @@ import com.undatech.remoteClientUi.R
 class RateOrShareFragment : DialogFragment() {
     private var layout: TableLayout? = null
     private var donationButton: Button? = null
+    private var previousVersionsButton: Button? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -49,8 +50,12 @@ class RateOrShareFragment : DialogFragment() {
         val v = inflater.inflate(R.layout.rateorshare, container, false)
         layout = v.findViewById<View>(R.id.layout) as TableLayout
         donationButton = v.findViewById<Button>(R.id.buttonDonate);
+        previousVersionsButton = v.findViewById<Button>(R.id.buttonPreviousVersions);
         if (!Utils.isFree(activity)) {
             donationButton?.visibility = View.GONE
+        }
+        if (Utils.isOpaque(activity)) {
+            previousVersionsButton?.visibility = View.GONE
         }
         return v
     }
