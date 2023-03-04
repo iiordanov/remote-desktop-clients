@@ -10,10 +10,12 @@
 
 package com.undatech.opaque.input;
 
-import com.freerdp.freerdpcore.R;
+import static com.undatech.opaque.util.GeneralUtils.debugLog;
 
 import android.content.Context;
 import android.view.KeyEvent;
+
+import com.freerdp.freerdpcore.R;
 import com.undatech.opaque.util.GeneralUtils;
 
 public class RdpKeyboardMapper
@@ -26,6 +28,7 @@ public class RdpKeyboardMapper
     public static final int KEYSTATE_ON = 1;
     public static final int KEYSTATE_LOCKED = 2;
     public static final int KEYSTATE_OFF = 3;
+    private static final String TAG = "RdpKeyboardMapper";
 
     // interface that gets called for input handling
     public interface KeyProcessingListener {
@@ -248,9 +251,11 @@ public class RdpKeyboardMapper
     private boolean isWinLocked = false;
 
     private boolean preferSendingUnicode = false;
+    private boolean debugLog = false;
 
-    public RdpKeyboardMapper(boolean preferSendingUnicode) {
+    public RdpKeyboardMapper(boolean preferSendingUnicode, boolean debugLog) {
         this.preferSendingUnicode = preferSendingUnicode;
+        this.debugLog = debugLog;
     }
 
     public void init(Context context)
@@ -477,7 +482,10 @@ public class RdpKeyboardMapper
         // which is generated with ALT), then we do not want to send Alt separately with unicode
         // character, so we suppress sending of the metaState
         boolean suppressMetaState = unicode != event.getUnicodeChar(0);
-        if (preferSendingUnicode && unicode > 0 && !isSpecialKey(vkcode)) {
+        boolean isSpecialKey = isSpecialKey(vkcode);
+        debugLog(debugLog, TAG, "processAndroidKeyEvent: vkcode: " + vkcode + ", unicode: "
+                + unicode + ", preferSendingUnicode: " + preferSendingUnicode + ", isSpecialKey: " + isSpecialKey);
+        if (preferSendingUnicode && unicode > 0 && !isSpecialKey) {
             vkcode = unicode | KEY_FLAG_UNICODE;
         }
 

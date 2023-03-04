@@ -1,5 +1,7 @@
 package com.iiordanov.bVNC.input;
 
+import static com.undatech.opaque.util.GeneralUtils.debugLog;
+
 import android.os.Handler;
 import android.view.KeyCharacterMap;
 import android.view.KeyEvent;
@@ -8,7 +10,6 @@ import com.iiordanov.bVNC.App;
 import com.iiordanov.bVNC.RemoteCanvas;
 import com.undatech.opaque.RdpCommunicator;
 import com.undatech.opaque.input.RdpKeyboardMapper;
-import com.undatech.opaque.util.GeneralUtils;
 
 public class RemoteRdpKeyboard extends RemoteKeyboard {
     private final static String TAG = "RemoteRdpKeyboard";
@@ -21,13 +22,13 @@ public class RemoteRdpKeyboard extends RemoteKeyboard {
         super(r, v.getContext(), h, debugLog);
         rdpcomm = r;
         canvas = v;
-        keyboardMapper = new RdpKeyboardMapper(preferSendingUnicode);
+        keyboardMapper = new RdpKeyboardMapper(preferSendingUnicode, debugLog);
         keyboardMapper.init(context);
         keyboardMapper.reset((RdpKeyboardMapper.KeyProcessingListener)r);
     }
     
     public boolean processLocalKeyEvent(int keyCode, KeyEvent evt, int additionalMetaState) {
-        GeneralUtils.debugLog(App.debugLog, TAG, "processLocalKeyEvent: " + evt.toString() + " " + keyCode);
+        debugLog(App.debugLog, TAG, "processLocalKeyEvent: " + evt.toString() + " " + keyCode);
         // Drop repeated modifiers
         if (shouldDropModifierKeys(evt))
             return true;
@@ -62,7 +63,7 @@ public class RemoteRdpKeyboard extends RemoteKeyboard {
 
             if (keyCode == 0 && evt.getCharacters() != null /*KEYCODE_UNKNOWN*/) {
                 String s = evt.getCharacters();
-                GeneralUtils.debugLog(App.debugLog, TAG, "processLocalKeyEvent: getCharacters: " + s);
+                debugLog(App.debugLog, TAG, "processLocalKeyEvent: getCharacters: " + s);
 
                 if (s != null) {
                     int numchars = s.length();
