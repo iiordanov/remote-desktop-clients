@@ -666,7 +666,7 @@ public class Utils {
                         Log.d(TAG, "rateApp: Completed: " + completedTask.getResult());
                     });
                 } else {
-                    Log.d(TAG, "rateApp: Error: " + task.getResult());
+                    Log.d(TAG, "rateApp: task is not successful");
                 }
             }
         });
