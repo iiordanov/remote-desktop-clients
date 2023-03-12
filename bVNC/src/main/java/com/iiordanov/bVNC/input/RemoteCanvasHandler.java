@@ -145,7 +145,12 @@ public class RemoteCanvasHandler extends Handler {
             case RemoteClientLibConstants.DIALOG_RDP_CERT:
                 android.util.Log.d(TAG, "DIALOG_RDP_CERT");
                 s = (Bundle) msg.obj;
-                c.validateRdpCert(s.getString("subject"), s.getString("issuer"), s.getString("fingerprint"));
+                c.validateCert(
+                        s.getString("subject"),
+                        s.getString("issuer"),
+                        s.getString("fingerprint"),
+                        s.getBoolean("save", false)
+                );
                 break;
             case RemoteClientLibConstants.DISCONNECT_WITH_MESSAGE:
                 c.showFatalMessageAndQuit(messageText);

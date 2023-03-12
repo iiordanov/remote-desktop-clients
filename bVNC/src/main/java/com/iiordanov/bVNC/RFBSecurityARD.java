@@ -101,12 +101,12 @@ public class RFBSecurityARD {
         // 1. read the Diffie-Hellman parameters from the server
 
         byte[] generator = new byte[2];
-        rfb.is.readFully(generator, 0, 2);      // DH base generator value
+        rfb.readFully(generator, 0, 2);      // DH base generator value
         int keyLength = rfb.is.readShort();     // key length in bytes
         byte[] prime = new byte[keyLength];
-        rfb.is.readFully(prime);    // predetermined prime modulus
+        rfb.readFully(prime);    // predetermined prime modulus
         byte[] peerKey = new byte[keyLength];
-        rfb.is.readFully(peerKey);  // other party's public key
+        rfb.readFully(peerKey);  // other party's public key
 
         // 2. perform Diffie-Hellman key agreement to calculate
         //    the publicKey and privateKey

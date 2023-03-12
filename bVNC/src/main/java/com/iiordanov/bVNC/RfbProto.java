@@ -23,27 +23,22 @@
 
 package com.iiordanov.bVNC;
 
-import java.io.BufferedInputStream;
-import java.io.DataInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.Socket;
-
 import android.util.Log;
 
-import com.undatech.opaque.input.RemoteKeyboard;
 import com.iiordanov.bVNC.input.RemoteVncKeyboard;
-import com.iiordanov.bVNC.*;
-import com.iiordanov.freebVNC.*;
-import com.iiordanov.aRDP.*;
-import com.iiordanov.freeaRDP.*;
-import com.iiordanov.aSPICE.*;
-import com.iiordanov.freeaSPICE.*;
-import com.iiordanov.CustomClientPackage.*;
+import com.tigervnc.rdr.InStream;
+import com.tigervnc.rdr.OutStream;
+import com.tigervnc.rdr.RawInStream;
+import com.tigervnc.rdr.RawOutStream;
+import com.tigervnc.rfb.AuthFailureException;
+import com.tigervnc.rfb.CSecurityRSAAES;
 import com.undatech.opaque.RfbConnectable;
+import com.undatech.opaque.input.RemoteKeyboard;
 import com.undatech.opaque.util.GeneralUtils;
-import com.undatech.remoteClientUi.*;
+import com.undatech.remoteClientUi.R;
+
+import java.io.IOException;
+import java.net.Socket;
 
 import javax.net.ssl.SSLSocket;
 
@@ -99,6 +94,11 @@ public class RfbProto extends RfbConnectable {
             SecTypeUltraVnc4 = 115,
             SecTypeUltra34 = 0xfffffffa;
 
+    public static final int SecTypeRA2 = 5;
+    public static final int SecTypeRA2ne = 6;
+    public static final int SecTypeRA256     = 129;
+    public static final int SecTypeRAne256   = 130;
+
     /* VeNCrypt subtypes */
     public static final int secTypePlain = 256;
     public static final int secTypeTLSNone = 257;
@@ -110,6 +110,10 @@ public class RfbProto extends RfbConnectable {
     public static final int secTypeIdent = 265;
     public static final int secTypeTLSIdent = 266;
     public static final int secTypeX509Ident = 267;
+
+    /* RSA-AES subtypes */
+    public static final int secTypeRA2UserPass    = 1;
+    public static final int secTypeRA2Pass        = 2;
 
     // Supported tunneling types
     final static int
@@ -239,8 +243,8 @@ public class RfbProto extends RfbConnectable {
     String host;
     int port;
     Socket sock;
-    DataInputStream is;
-    OutputStream os;
+    InStream is;
+    OutStream os;
 
     DH dh;
     long dh_resp;
@@ -410,7 +414,7 @@ public class RfbProto extends RfbConnectable {
         }
 
         this.sock = sock;
-        setStreams(sock.getInputStream(), sock.getOutputStream());
+        setStreams(new RawInStream(sock.getInputStream()), new RawOutStream(sock.getOutputStream()));
     }
 
     public synchronized void closeSocket() {
@@ -448,7 +452,7 @@ public class RfbProto extends RfbConnectable {
 
     void initializeAndAuthenticate(String host, int port, String us, String pw,
                                    boolean useRepeater, String repeaterID, int connType,
-                                   String cert) throws Exception {
+                                   String cert) throws Exception, AuthFailureException {
         this.host = host;
         this.port = port;
         Log.v(TAG, "Connecting to server: " + this.host + " at port: " + this.port);
@@ -458,7 +462,7 @@ public class RfbProto extends RfbConnectable {
         if (useRepeater && repeaterID != null && repeaterID.length() > 0) {
             Log.i(TAG, "Negotiating repeater/proxy connection");
             byte[] protocolMsg = new byte[12];
-            is.read(protocolMsg);
+            is.readBytes(protocolMsg, 0, 12);
             byte[] buffer = new byte[250];
             System.arraycopy(repeaterID.getBytes(), 0, buffer, 0, repeaterID.length());
             os.write(buffer);
@@ -496,6 +500,30 @@ public class RfbProto extends RfbConnectable {
             RFBSecurityARD ardAuth = new RFBSecurityARD(us, pw);
             ardAuth.perform(this);
             readSecurityResult("ARD Authentication");
+            return;
+        } else if (secType == RfbProto.SecTypeRA2) {
+            Log.i(TAG, "secType == RfbProto.SecTypeRA2");
+            CSecurityRSAAES x = new CSecurityRSAAES(this, secType, 128, true);
+            x.processMsg(us, pw);
+            readSecurityResult("SecTypeRA2 Authentication");
+            return;
+        } else if (secType == RfbProto.SecTypeRA2ne) {
+            Log.i(TAG, "secType == RfbProto.secTypeRA2ne");
+            CSecurityRSAAES x = new CSecurityRSAAES(this, secType, 128, false);
+            x.processMsg(us, pw);
+            readSecurityResult("SecTypeRA2ne Authentication");
+            return;
+        } else if (secType == RfbProto.SecTypeRA256) {
+            Log.i(TAG, "secType == RfbProto.SecTypeRA2");
+            CSecurityRSAAES x = new CSecurityRSAAES(this, secType, 256, true);
+            x.processMsg( us, pw);
+            readSecurityResult("SecTypeRA256 Authentication");
+            return;
+        } else if (secType == RfbProto.SecTypeRAne256) {
+            Log.i(TAG, "secType == RfbProto.SecTypeRA2");
+            CSecurityRSAAES x = new CSecurityRSAAES(this, secType, 256, false);
+            x.processMsg(us, pw);
+            readSecurityResult("SecTypeRAne256 Authentication");
             return;
         } else {
             authType = secType;
@@ -669,39 +697,49 @@ public class RfbProto extends RfbConnectable {
         // Find first supported security type.
         for (int i = 0; i < nSecTypes; i++) {
             android.util.Log.i(TAG, "Received security type: " + secTypes[i]);
-
+            int currentSecType = secTypes[i] & 0xff;
             // If AnonTLS or VeNCrypt modes are enforced, then only accept them. Otherwise, accept it and all others.
             if (connType == Constants.CONN_TYPE_ANONTLS) {
-                if (secTypes[i] == SecTypeTLS) {
-                    secType = secTypes[i];
+                if (currentSecType == SecTypeTLS) {
+                    secType = currentSecType;
                     break;
                 }
             } else if (connType == Constants.CONN_TYPE_VENCRYPT) {
-                if (secTypes[i] == SecTypeVeNCrypt) {
-                    secType = secTypes[i];
+                if (currentSecType == SecTypeVeNCrypt) {
+                    secType = currentSecType;
                     break;
                 }
             } else if (connType == Constants.CONN_TYPE_ULTRAVNC) {
-                if (secTypes[i] == SecTypeNone || secTypes[i] == SecTypeVncAuth ||
-                        secTypes[i] == SecTypeUltraVnc2 || secTypes[i] == SecTypeUltra34) {
-                    secType = secTypes[i];
+                if (currentSecType == SecTypeNone || currentSecType == SecTypeVncAuth ||
+                        currentSecType == SecTypeUltraVnc2 || currentSecType == SecTypeUltra34) {
+                    secType = currentSecType;
                     break;
                 }
             } else {
-                if (secTypes[i] == SecTypeNone || secTypes[i] == SecTypeVncAuth ||
-                        secTypes[i] == SecTypeVeNCrypt) {
-                    secType = secTypes[i];
+                if (currentSecType == SecTypeRA256 || currentSecType == SecTypeRA2) {
+                    secType = currentSecType;
                     break;
                 }
 
-                if (secTypes[i] == SecTypeTLS) {
-                    secType = secTypes[i];
+                if (currentSecType == SecTypeRAne256 || currentSecType == SecTypeRA2ne) {
+                    secType = currentSecType;
                     break;
                 }
 
-                if (secTypes[i] == SecTypeArd) {
+                if (currentSecType == SecTypeNone || currentSecType == SecTypeVncAuth ||
+                        currentSecType == SecTypeVeNCrypt) {
+                    secType = currentSecType;
+                    break;
+                }
+
+                if (currentSecType == SecTypeTLS) {
+                    secType = currentSecType;
+                    break;
+                }
+
+                if (currentSecType == SecTypeArd) {
                     if (userNameSupplied) {
-                        secType = secTypes[i];
+                        secType = currentSecType;
                         break;
                     }
                     throw new RfbUsernameRequiredException("Username required.");
@@ -809,13 +847,13 @@ public class RfbProto extends RfbConnectable {
     void authenticateTLS() throws Exception {
         TLSTunnel tunnel = new TLSTunnel(sock);
         SSLSocket sslsock = tunnel.setup();
-        setStreams (sslsock.getInputStream(), sslsock.getOutputStream());
+        setStreams (new RawInStream(sslsock.getInputStream()), new RawOutStream(sslsock.getOutputStream()));
     }
 
     void authenticateX509(String certstr) throws Exception {
         X509Tunnel tunnel = new X509Tunnel(sock, certstr, canvas.handler, this);
         SSLSocket sslsock = tunnel.setup();
-        setStreams (sslsock.getInputStream(), sslsock.getOutputStream());
+        setStreams (new RawInStream(sslsock.getInputStream()), new RawOutStream(sslsock.getOutputStream()));
     }
 
     void authenticatePlain(String User, String Password) throws Exception {
@@ -1042,7 +1080,7 @@ public class RfbProto extends RfbConnectable {
     }
     viewer.options.disableShareDesktop();
     */
-        os.write(shareDesktop);
+        os.writeU8(shareDesktop);
     }
 
 
@@ -1682,7 +1720,7 @@ public class RfbProto extends RfbConnectable {
       before = System.currentTimeMillis();
      */
 
-        is.readFully(b, off, len);
+        is.readBytes(b, off, len);
 
     /*
     if (timing) {
@@ -1699,10 +1737,6 @@ public class RfbProto extends RfbConnectable {
       timedKbits += newKbits;
     }
     */
-    }
-
-    final int available() throws IOException {
-        return is.available();
     }
 
     final int readU8() throws IOException {
@@ -1738,10 +1772,19 @@ public class RfbProto extends RfbConnectable {
         return utf8string;
     }
 
-    public void setStreams(InputStream is_, OutputStream os_) {
+    public InStream getInStream() {
+        return is;
+    }
+
+    public OutStream getOutStream() {
+        return os;
+    }
+
+    public void setStreams(InStream is_, OutStream os_) {
         // After much testing, 8192 does seem like the best compromize between
         // responsiveness and throughput.
-        is = new DataInputStream(new BufferedInputStream(is_, 8192));
+        Log.d(TAG, "setStreams");
+        is = is_;
         os = os_;
     }
 
@@ -1952,8 +1995,9 @@ public class RfbProto extends RfbConnectable {
                     // Read message type from the server.
                     msgType = readServerMessageType();
                     canvas.doneWaiting();
-                } else
+                } else {
                     msgType = readServerMessageType();
+                }
 
                 // Process the message depending on its type.
                 switch (msgType) {

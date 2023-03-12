@@ -72,6 +72,7 @@ import com.iiordanov.bVNC.input.RemoteSpiceKeyboard;
 import com.iiordanov.bVNC.input.RemoteSpicePointer;
 import com.iiordanov.bVNC.input.RemoteVncKeyboard;
 import com.iiordanov.bVNC.input.RemoteVncPointer;
+import com.tigervnc.rfb.AuthFailureException;
 import com.undatech.opaque.Connection;
 import com.undatech.opaque.MessageDialogs;
 import com.undatech.opaque.OpaqueHandler;
@@ -606,6 +607,10 @@ public class RemoteCanvas extends AppCompatImageView
             return;
         } catch (RfbProto.RfbUsernameRequiredException e) {
             Log.e(TAG, "Username required, will prompt user for username and password");
+            handler.sendEmptyMessage(RemoteClientLibConstants.GET_VNC_CREDENTIALS);
+            return;
+        } catch (AuthFailureException e) {
+            Log.e(TAG, "TigerVNC AuthFailureException: " + e.getLocalizedMessage());
             handler.sendEmptyMessage(RemoteClientLibConstants.GET_VNC_CREDENTIALS);
             return;
         } catch (Exception e) {
@@ -2074,16 +2079,23 @@ public class RemoteCanvas extends AppCompatImageView
     }
 
     /**
-     * Permits the user to validate an RDP certificate.
+     * Permits the user to validate a certificate with subject, issuer and fingerprint.
      *
-     * @param subject
-     * @param issuer
-     * @param fingerprint
+     * @param subject optional subject
+     * @param issuer optional issuer
+     * @param fingerprint non-optional fingerprint that may be saved
+     * @param save whether to save the fingerprint and verify it if it is saved
      */
-    public void validateRdpCert(String subject, String issuer, final String fingerprint) {
-        // Since LibFreeRDP handles saving accepted certificates, if we ever get here, we must
-        // present the user with a query whether to accept the certificate or not.
-
+    public void validateCert(String subject, String issuer, final String fingerprint, boolean save) {
+        boolean certMismatch = false;
+        if (save) {
+            if (connection.getX509KeySignature().equals(fingerprint)) {
+                setCertificateAcceptedAndNotifyListeners();
+                return;
+            } else if (!connection.getX509KeySignature().equals("")) {
+                certMismatch = true;
+            }
+        }
         // Show a dialog with the key signature for approval.
         DialogInterface.OnClickListener signatureNo = new DialogInterface.OnClickListener() {
             @Override
@@ -2097,18 +2109,39 @@ public class RemoteCanvas extends AppCompatImageView
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 // Indicate the certificate was accepted.
-                rfbconn.setCertificateAccepted(true);
-                synchronized (rfbconn) {
-                    rfbconn.notifyAll();
+                if (save) {
+                    connection.setX509KeySignature(fingerprint);
+                    connection.save(getContext());
                 }
+                setCertificateAcceptedAndNotifyListeners();
             }
         };
-        Utils.showYesNoPrompt(getContext(), getContext().getString(R.string.info_continue_connecting) + connection.getAddress() + "?",
-            getContext().getString(R.string.info_cert_signatures) +
-            "\n" + getContext().getString(R.string.cert_subject) + ":     " + subject +
-            "\n" + getContext().getString(R.string.cert_issuer) + ":      " + issuer +
-            "\n" + getContext().getString(R.string.cert_fingerprint) + ": " + fingerprint +
-            getContext().getString(R.string.info_cert_signatures_identical), signatureYes, signatureNo);
+
+        String message = getContext().getString(R.string.info_cert_signatures);
+        if (!"".equals(subject)) {
+            message += "\n" + getContext().getString(R.string.cert_subject) + ":     " + subject;
+        }
+        if (!"".equals(issuer)) {
+            message += "\n" + getContext().getString(R.string.cert_issuer) + ":      " + issuer;
+        }
+        message += "\n" + getContext().getString(R.string.cert_fingerprint) + ": " + fingerprint +
+                getContext().getString(R.string.info_cert_signatures_identical);
+        if (certMismatch) {
+            message += "\n\n" + getContext().getString(R.string.warning_cert_does_not_match);
+        }
+        Utils.showYesNoPrompt(getContext(),
+                getContext().getString(R.string.info_continue_connecting) + connection.getAddress() + "?",
+                message,
+                signatureYes,
+                signatureNo
+        );
+    }
+
+    private void setCertificateAcceptedAndNotifyListeners() {
+        rfbconn.setCertificateAccepted(true);
+        synchronized (rfbconn) {
+            rfbconn.notifyAll();
+        }
     }
 
     /**
