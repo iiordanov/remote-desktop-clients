@@ -30,7 +30,6 @@
 
 package com.iiordanov.bVNC;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -47,7 +46,6 @@ import android.provider.Settings;
 import android.text.ClipboardManager;
 import android.text.InputType;
 import android.util.AttributeSet;
-import android.util.Base64;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
@@ -75,7 +73,6 @@ import com.iiordanov.bVNC.input.RemoteVncPointer;
 import com.tigervnc.rfb.AuthFailureException;
 import com.undatech.opaque.Connection;
 import com.undatech.opaque.MessageDialogs;
-import com.undatech.opaque.OpaqueHandler;
 import com.undatech.opaque.RdpCommunicator;
 import com.undatech.opaque.RemoteClientLibConstants;
 import com.undatech.opaque.RfbConnectable;
@@ -94,12 +91,8 @@ import org.json.JSONException;
 
 import java.io.File;
 import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.CertificateEncodingException;
-import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Timer;
 
@@ -386,10 +379,10 @@ public class RemoteCanvas extends AppCompatImageView
 
                         // Block while user decides whether to accept certificate or not.
                         // The activity ends if the user taps "No", so we block indefinitely here.
-                        synchronized (RemoteCanvas.this) {
+                        synchronized (handler) {
                             while (connection.getSshHostKey().equals("")) {
                                 try {
-                                    RemoteCanvas.this.wait();
+                                    handler.wait();
                                 } catch (InterruptedException e) {
                                     e.printStackTrace();
                                 }
@@ -510,12 +503,12 @@ public class RemoteCanvas extends AppCompatImageView
         // getPort when port/tport are positive.
         int port = connection.getPort();
         if (port > 0) {
-            port = getPort(port);
+            port = getRemoteProtocolPort(port);
         }
 
         int tport = connection.getTlsPort();
         if (tport > 0) {
-            tport = getPort(tport);
+            tport = getRemoteProtocolPort(tport);
         }
 
         spicecomm.connectSpice(address, Integer.toString(port), Integer.toString(tport), connection.getPassword(),
@@ -546,7 +539,7 @@ public class RemoteCanvas extends AppCompatImageView
 
         // Get the address and port (based on whether an SSH tunnel is being established or not).
         String address = getAddress();
-        int rdpPort = getPort(connection.getPort());
+        int rdpPort = getRemoteProtocolPort(connection.getPort());
         waitUntilInflated();
         int remoteWidth = getRemoteWidth(getWidth(), getHeight());
         int remoteHeight = getRemoteHeight(getWidth(), getHeight());
@@ -589,7 +582,7 @@ public class RemoteCanvas extends AppCompatImageView
 
         try {
             String address = getAddress();
-            int vncPort = getPort(connection.getPort());
+            int vncPort = getRemoteProtocolPort(connection.getPort());
             Log.i(TAG, "Establishing VNC session to: " + address + ", port: " + vncPort);
             // TODO: VNC Server cert is not set when the connection is SSH tunneled because there at
             // TODO: present it is assumed the connection is either SSH tunneled or x509 encrypted,
@@ -703,7 +696,7 @@ public class RemoteCanvas extends AppCompatImageView
                                     for (String s : vmNames) {
                                         vmNameToId.put(s, s);
                                     }
-                                    handler.sendMessage(OpaqueHandler.getMessageStringList(RemoteClientLibConstants.DIALOG_DISPLAY_VMS,
+                                    handler.sendMessage(RemoteCanvasHandler.getMessageStringList(RemoteClientLibConstants.DIALOG_DISPLAY_VMS,
                                             "vms", vmNames));
                                     synchronized(spicecomm) {
                                         spicecomm.wait();
@@ -779,12 +772,12 @@ public class RemoteCanvas extends AppCompatImageView
                     handler.sendEmptyMessage(RemoteClientLibConstants.PVE_VMID_NOT_NUMERIC);
                 }  catch (IOException e) {
                     android.util.Log.e(TAG, "IO Error communicating with PVE API: " + e.getMessage());
-                    handler.sendMessage(OpaqueHandler.getMessageString(RemoteClientLibConstants.PVE_API_IO_ERROR,
+                    handler.sendMessage(RemoteCanvasHandler.getMessageString(RemoteClientLibConstants.PVE_API_IO_ERROR,
                             "error", e.getMessage()));
                     e.printStackTrace();
                 } catch (HttpException e) {
                     android.util.Log.e(TAG, "PVE API returned error code: " + e.getMessage());
-                    handler.sendMessage(OpaqueHandler.getMessageString(RemoteClientLibConstants.PVE_API_UNEXPECTED_CODE,
+                    handler.sendMessage(RemoteCanvasHandler.getMessageString(RemoteClientLibConstants.PVE_API_UNEXPECTED_CODE,
                             "error", e.getMessage()));
                 }
                 // At this stage we have either retrieved display data or failed, so permit the UI thread to continue.
@@ -925,7 +918,7 @@ public class RemoteCanvas extends AppCompatImageView
                             }
                             // Get the user parseable names and display them
                             ArrayList<String> vms = new ArrayList<String>(vmNameToId.keySet());
-                            handler.sendMessage(OpaqueHandler.getMessageStringList(
+                            handler.sendMessage(RemoteCanvasHandler.getMessageStringList(
                                     RemoteClientLibConstants.DIALOG_DISPLAY_VMS, "vms", vms));
                             synchronized(spicecomm) {
                                 spicecomm.wait();
@@ -959,12 +952,12 @@ public class RemoteCanvas extends AppCompatImageView
                     handler.sendEmptyMessage(RemoteClientLibConstants.PVE_FAILED_TO_PARSE_JSON);
                 }  catch (IOException e) {
                     android.util.Log.e(TAG, "IO Error communicating with PVE API: " + e.getMessage());
-                    handler.sendMessage(OpaqueHandler.getMessageString(RemoteClientLibConstants.PVE_API_IO_ERROR,
+                    handler.sendMessage(RemoteCanvasHandler.getMessageString(RemoteClientLibConstants.PVE_API_IO_ERROR,
                             "error", e.getMessage()));
                     e.printStackTrace();
                 } catch (HttpException e) {
                     android.util.Log.e(TAG, "PVE API returned error code: " + e.getMessage());
-                    handler.sendMessage(OpaqueHandler.getMessageString(RemoteClientLibConstants.PVE_API_UNEXPECTED_CODE,
+                    handler.sendMessage(RemoteCanvasHandler.getMessageString(RemoteClientLibConstants.PVE_API_UNEXPECTED_CODE,
                             "error", e.getMessage()));
                 } catch (Throwable e) {
                     handleUncaughtException(e);
@@ -1120,12 +1113,11 @@ public class RemoteCanvas extends AppCompatImageView
      *
      * @return
      */
-    int getPort(int port) throws Exception {
+    int getRemoteProtocolPort(int port) throws Exception {
         int result = 0;
 
         if (sshTunneled) {
             sshConnection = new SSHConnection(connection, getContext(), handler);
-            // TODO: Take the AutoX stuff out to a separate function.
             int newPort = sshConnection.initializeSSHTunnel();
             if (newPort > 0)
                 port = newPort;
@@ -1955,247 +1947,12 @@ public class RemoteCanvas extends AppCompatImageView
      */
     public Handler handler;
 
-    /**
-     * If there is a saved cert, checks the one given against it. If a signature was passed in
-     * and no saved cert, then check that signature. Otherwise, presents the
-     * given cert's signature to the user for approval.
-     * <p>
-     * The saved data must always win over any passed-in URI data
-     *
-     * @param cert the given cert.
-     */
-    @SuppressLint("StringFormatInvalid")
-    public void validateX509Cert(final X509Certificate cert) {
-        android.util.Log.d(TAG, "Displaying dialog to validate X509 Cert");
-        boolean certMismatch = false;
-
-        int hashAlg = connection.getIdHashAlgorithm();
-        byte[] certData = null;
-        boolean isSigEqual = false;
-        try {
-            certData = cert.getEncoded();
-            isSigEqual = SecureTunnel.isSignatureEqual(hashAlg, connection.getIdHash(), certData);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            showFatalMessageAndQuit(getContext().getString(R.string.error_x509_could_not_generate_signature));
-            return;
-        }
-
-        // If there is no saved cert, then if a signature was provided,
-        // check the signature and save the cert if the signature matches.
-        if (connection.getX509KeySignature().equals("")) {
-            if (connection.getIdHash() != null && !connection.getIdHash().equals("")) {
-                if (isSigEqual) {
-                    Log.i(TAG, "Certificate validated from URI data.");
-                    saveAndAcceptCert(cert);
-                    return;
-                } else {
-                    certMismatch = true;
-                }
-            }
-            // If there is a saved cert, check against it.
-        } else if (connection.getX509KeySignature().equals(Base64.encodeToString(certData, Base64.DEFAULT))) {
-            Log.i(TAG, "Certificate validated from saved key.");
-            saveAndAcceptCert(cert);
-            return;
-        } else if (sshTunneled) {
-            Log.i(TAG, "X509 connection tunneled over SSH, so we have no place to save the cert fingerprint.");
-        } else {
-            certMismatch = true;
-        }
-
-        // Show a dialog with the key signature for approval.
-        DialogInterface.OnClickListener signatureNo = new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                // We were told not to continue, so stop the activity
-                Log.i(TAG, "Certificate rejected by user.");
-                closeConnection();
-                Utils.justFinish(getContext());
-            }
-        };
-        DialogInterface.OnClickListener signatureYes = new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                Log.i(TAG, "Certificate accepted by user.");
-                saveAndAcceptCert(cert);
-            }
-        };
-
-        // Display dialog to user with cert info and hash.
-        try {
-            // First build the message. If there was a mismatch, prepend a warning about it.
-            String message = "";
-            if (certMismatch) {
-                message = getContext().getString(R.string.warning_cert_does_not_match) + "\n\n";
-            }
-            byte[] certBytes = cert.getEncoded();
-            String certIdHash = SecureTunnel.computeSignatureByAlgorithm(hashAlg, certBytes);
-            String certInfo =
-                    String.format(Locale.US, getContext().getString(R.string.info_cert_tunnel),
-                            certIdHash,
-                            cert.getSubjectX500Principal().getName(),
-                            cert.getIssuerX500Principal().getName(),
-                            cert.getNotBefore(),
-                            cert.getNotAfter()
-                    );
-            certInfo = message + certInfo.replace(",", "\n");
-
-            // Actually display the message
-            Utils.showYesNoPrompt(getContext(),
-                    getContext().getString(R.string.info_continue_connecting) + connection.getAddress() + "?",
-                    certInfo,
-                    signatureYes, signatureNo);
-        } catch (NoSuchAlgorithmException e2) {
-            e2.printStackTrace();
-            showFatalMessageAndQuit(getContext().getString(R.string.error_x509_could_not_generate_signature));
-        } catch (CertificateEncodingException e) {
-            e.printStackTrace();
-            showFatalMessageAndQuit(getContext().getString(R.string.error_x509_could_not_generate_encoding));
-        }
-    }
-
-    /**
-     * Saves and accepts a x509 certificate.
-     *
-     * @param cert
-     */
-    private void saveAndAcceptCert(X509Certificate cert) {
-        android.util.Log.d(TAG, "Saving X509 cert fingerprint.");
-        String certificate = null;
-        try {
-            certificate = Base64.encodeToString(cert.getEncoded(), Base64.DEFAULT);
-        } catch (CertificateEncodingException e) {
-            e.printStackTrace();
-            showFatalMessageAndQuit(getContext().getString(R.string.error_x509_could_not_generate_encoding));
-        }
-        connection.setX509KeySignature(certificate);
-        connection.save(getContext());
-        // Indicate the certificate was accepted.
-        rfb.setCertificateAccepted(true);
-        synchronized (rfb) {
-            rfb.notifyAll();
-        }
-    }
-
-    /**
-     * Permits the user to validate a certificate with subject, issuer and fingerprint.
-     *
-     * @param subject optional subject
-     * @param issuer optional issuer
-     * @param fingerprint non-optional fingerprint that may be saved
-     * @param save whether to save the fingerprint and verify it if it is saved
-     */
-    public void validateCert(String subject, String issuer, final String fingerprint, boolean save) {
-        boolean certMismatch = false;
-        if (save) {
-            if (connection.getX509KeySignature().equals(fingerprint)) {
-                setCertificateAcceptedAndNotifyListeners();
-                return;
-            } else if (!connection.getX509KeySignature().equals("")) {
-                certMismatch = true;
-            }
-        }
-        // Show a dialog with the key signature for approval.
-        DialogInterface.OnClickListener signatureNo = new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                // We were told not to continue, so stop the activity
-                closeConnection();
-                Utils.justFinish(getContext());
-            }
-        };
-        DialogInterface.OnClickListener signatureYes = new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                // Indicate the certificate was accepted.
-                if (save) {
-                    connection.setX509KeySignature(fingerprint);
-                    connection.save(getContext());
-                }
-                setCertificateAcceptedAndNotifyListeners();
-            }
-        };
-
-        String message = getContext().getString(R.string.info_cert_signatures);
-        if (!"".equals(subject)) {
-            message += "\n" + getContext().getString(R.string.cert_subject) + ":     " + subject;
-        }
-        if (!"".equals(issuer)) {
-            message += "\n" + getContext().getString(R.string.cert_issuer) + ":      " + issuer;
-        }
-        message += "\n" + getContext().getString(R.string.cert_fingerprint) + ": " + fingerprint +
-                getContext().getString(R.string.info_cert_signatures_identical);
-        if (certMismatch) {
-            message += "\n\n" + getContext().getString(R.string.warning_cert_does_not_match);
-        }
-        Utils.showYesNoPrompt(getContext(),
-                getContext().getString(R.string.info_continue_connecting) + connection.getAddress() + "?",
-                message,
-                signatureYes,
-                signatureNo
-        );
-    }
-
-    private void setCertificateAcceptedAndNotifyListeners() {
-        rfbconn.setCertificateAccepted(true);
-        synchronized (rfbconn) {
-            rfbconn.notifyAll();
-        }
-    }
 
     /**
      * Function used to initialize an empty SSH HostKey for a new VNC over SSH connection.
      */
     public String retrievevvFileName() {
         return this.vvFileName;
-    }
-
-    /**
-     * Function used to initialize an empty SSH HostKey for a new VNC over SSH connection.
-     */
-    public void initializeSshHostKey() {
-        // If the SSH HostKey is empty, then we need to grab the HostKey from the server and save it.
-        Log.d(TAG, "Attempting to initialize SSH HostKey.");
-
-        displayShortToastMessage(getContext().getString(R.string.info_ssh_initializing_hostkey));
-
-        sshConnection = new SSHConnection(connection, getContext(), handler);
-        if (!sshConnection.connect()) {
-            // Failed to connect, so show error message and quit activity.
-            showFatalMessageAndQuit(getContext().getString(R.string.error_ssh_unable_to_connect));
-        } else {
-            // Show a dialog with the key signature.
-            DialogInterface.OnClickListener signatureNo = new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    // We were told to not continue, so stop the activity
-                    sshConnection.terminateSSHTunnel();
-                    pd.dismiss();
-                    Utils.justFinish(getContext());
-                }
-            };
-            DialogInterface.OnClickListener signatureYes = new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    // We were told to go ahead with the connection.
-                    connection.setIdHash(sshConnection.getIdHash()); // could prompt based on algorithm
-                    connection.setSshHostKey(sshConnection.getServerHostKey());
-                    connection.save(getContext());
-                    sshConnection.terminateSSHTunnel();
-                    sshConnection = null;
-                    synchronized (RemoteCanvas.this) {
-                        RemoteCanvas.this.notify();
-                    }
-                }
-            };
-
-            Utils.showYesNoPrompt(getContext(),
-                    getContext().getString(R.string.info_continue_connecting) + connection.getSshServer() + "?",
-                    getContext().getString(R.string.info_ssh_key_fingerprint) + sshConnection.getHostKeySignature() +
-                            getContext().getString(R.string.info_ssh_key_fingerprint_identical),
-                    signatureYes, signatureNo);
-        }
     }
 
     @Override

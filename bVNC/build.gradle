@@ -41,8 +41,8 @@ dependencies {
     implementation files('libs/com.antlersoft.android.contentxml.jar')
     implementation files('libs/com.antlersoft.android.db.jar')
     // Current version of bVNC is built with bouncycastle with DH anon ciphers enabled. See https://github.com/iiordanov/bc-java
-    implementation files('libs/bctls-jdk18on-1.70.jar')
-    //implementation group: 'org.bouncycastle', name: 'bctls-jdk15on', version: '1.70'
+    //implementation files("libs/bctls-jdk18on-1.70.jar")
+    implementation group: 'org.bouncycastle', name: 'bctls-jdk15on', version: '1.70'
     implementation group: 'androidx.appcompat', name: 'appcompat', version: '1.4.1'
     implementation group: 'androidx.legacy', name: 'legacy-support-v4', version: '1.0.0'
     implementation group: 'androidx.vectordrawable', name: 'vectordrawable', version: '1.1.0'

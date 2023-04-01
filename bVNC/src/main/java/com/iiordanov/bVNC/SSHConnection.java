@@ -19,6 +19,23 @@
 
 package com.iiordanov.bVNC;
 
+import android.content.Context;
+import android.os.Handler;
+import android.util.Base64;
+import android.util.Log;
+import android.widget.Toast;
+
+import com.iiordanov.bVNC.dialogs.GetTextFragment;
+import com.iiordanov.pubkeygenerator.PubkeyUtils;
+import com.trilead.ssh2.Connection;
+import com.trilead.ssh2.ConnectionInfo;
+import com.trilead.ssh2.InteractiveCallback;
+import com.trilead.ssh2.KnownHosts;
+import com.trilead.ssh2.Session;
+import com.undatech.opaque.MessageDialogs;
+import com.undatech.opaque.RemoteClientLibConstants;
+import com.undatech.remoteClientUi.R;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
@@ -29,23 +46,6 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.util.Arrays;
 import java.util.concurrent.CountDownLatch;
-
-import android.content.Context;
-import android.os.Handler;
-import android.util.Base64;
-import android.util.Log;
-import android.widget.Toast;
-
-import com.iiordanov.pubkeygenerator.PubkeyUtils;
-import com.trilead.ssh2.Connection;
-import com.trilead.ssh2.ConnectionInfo;
-import com.trilead.ssh2.InteractiveCallback;
-import com.trilead.ssh2.KnownHosts;
-import com.trilead.ssh2.Session;
-import com.iiordanov.bVNC.dialogs.GetTextFragment;
-import com.undatech.opaque.MessageDialogs;
-import com.undatech.opaque.RemoteClientLibConstants;
-import com.undatech.remoteClientUi.*;
 
 /**
  * @author Iordan K Iordanov
@@ -134,10 +134,10 @@ public class SSHConnection implements InteractiveCallback, GetTextFragment.OnFra
         this.conn = conn;
     }
     
-    String getServerHostKey() {
+    public String getServerHostKey() {
         return serverHostKey;
     }
-    String getIdHash() {
+    public String getIdHash() {
         return idHash;
     }
 

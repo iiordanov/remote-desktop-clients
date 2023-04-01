@@ -91,7 +91,6 @@ import com.iiordanov.util.UriIntentParser;
 import com.undatech.opaque.Connection;
 import com.undatech.opaque.ConnectionSettings;
 import com.undatech.opaque.MessageDialogs;
-import com.undatech.opaque.OpaqueHandler;
 import com.undatech.opaque.RemoteClientLibConstants;
 import com.undatech.opaque.dialogs.SelectTextElementFragment;
 import com.undatech.opaque.util.FileUtils;
@@ -443,7 +442,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
             connection = new ConnectionSettings(RemoteClientLibConstants.DEFAULT_SETTINGS_FILE);
             connection.load(getApplicationContext());
         }
-        handler = new OpaqueHandler(this, canvas, connection);
+        handler = new RemoteCanvasHandler(this, canvas, connection);
         canvas.init(connection, handler, setModes, hideKeyboardAndExtraKeys, vvFileName);
     }
 
