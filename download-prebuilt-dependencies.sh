@@ -5,7 +5,7 @@ pushd $DIR
 
 DEPVER=14
 
-if $(which wget)
+if which wget
 then
   wget -c https://github.com/iiordanov/remote-desktop-clients/releases/download/dependencies/remote-desktop-clients-libs-${DEPVER}.tar.gz
 else
