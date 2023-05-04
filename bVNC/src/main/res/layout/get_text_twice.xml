@@ -33,6 +33,13 @@
         android:hint="@string/master_password_hint_twice"
         android:inputType="textNoSuggestions|textVisiblePassword">
     </EditText>
+    <Switch
+        android:id="@+id/switch1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:padding="4dp"/>
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

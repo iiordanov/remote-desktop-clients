@@ -210,8 +210,9 @@ public class Constants {
     public static final String preferSendingUnicode = "preferSendingUnicode";
     public static final String doNotShowDesktopThumbnails = "doNotShowDesktopThumbnails";
     public static final String showOnlyConnectionNicknames = "showOnlyConnectionNicknames";
-
     public static final String softwareKeyboardType = "softwareKeyboardType";
+    public static final String masterPassword = "masterPassword";
+    public static final String onlyLockConnectionEditing = "onlyLockConnectionEditing";
 
     public static final String ACTION_USB_PERMISSION = "com.iiordanov.aSPICE.USB_PERMISSION";
     public static final int usbDeviceTimeout = 5000;
