@@ -1113,6 +1113,15 @@ public class RemoteCanvas extends AppCompatImageView
         });
     }
 
+    public void showFatalMessageAndQuitTimer(final String error) {
+        closeConnection();
+        handler.post(new Runnable() {
+            public void run() {
+                Utils.showFatalErrorMessageTimer(getContext(), error);
+            }
+        });
+    }
+
 
     /**
      * If necessary, initializes an SSH tunnel and returns local forwarded port, or
@@ -2199,7 +2208,7 @@ public class RemoteCanvas extends AppCompatImageView
     }
 
     @Override
-    public void onTextObtained(String dialogId, String[] obtainedString, boolean dialogCancelled, boolean save) {
+    public void onTextObtained(String dialogId, String[] obtainedString, boolean dialogCancelled, boolean save, boolean obtainedBooleans[]) {
         if (dialogCancelled) {
             handler.sendEmptyMessage(RemoteClientLibConstants.DISCONNECT_NO_MESSAGE);
             return;

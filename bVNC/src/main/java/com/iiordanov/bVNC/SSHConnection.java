@@ -676,7 +676,7 @@ public class SSHConnection implements InteractiveCallback, GetTextFragment.OnFra
     }
     
     @Override
-    public void onTextObtained(String dialogId, String[] obtainedStrings, boolean dialogCancelled, boolean keep) {
+    public void onTextObtained(String dialogId, String[] obtainedStrings, boolean dialogCancelled, boolean keep, boolean[] obtainedBooleans) {
         if (dialogCancelled) {
             handler.sendEmptyMessage(RemoteClientLibConstants.DISCONNECT_NO_MESSAGE);
             return;

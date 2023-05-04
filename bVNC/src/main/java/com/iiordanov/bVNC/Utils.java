@@ -31,6 +31,8 @@ import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
+import android.content.DialogInterface.OnShowListener;
+import android.widget.Button;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
@@ -39,6 +41,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.os.Message;
 import android.text.ClipboardManager;
 import android.text.Html;
@@ -58,6 +61,7 @@ import com.google.android.play.core.review.ReviewInfo;
 import com.google.android.play.core.review.ReviewManager;
 import com.google.android.play.core.review.ReviewManagerFactory;
 import com.undatech.opaque.ConnectionSetupActivity;
+import com.undatech.opaque.RemoteClientLibConstants;
 import com.undatech.remoteClientUi.R;
 
 import net.sqlcipher.database.SQLiteDatabase;
@@ -79,6 +83,8 @@ import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
+import java.util.Locale;
 
 public class Utils {
     private final static String TAG = "Utils";
@@ -137,7 +143,7 @@ public class Utils {
             public void onClick(DialogInterface dialog, int which) {
                 dialog.dismiss();
             }
-        });
+        }, null);
     }
 
     public static void showFatalErrorMessage(final Context _context, String message) {
@@ -150,10 +156,50 @@ public class Utils {
                     Utils.justFinish(activity);
                 }
             }
+        }, null);
+    }
+
+    public static void showFatalErrorMessageTimer(final Context _context, String message) {
+        showMessage(_context, _context.getString(R.string.error) + "!", message, android.R.drawable.ic_dialog_alert, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+                Activity activity = Utils.getActivity(_context);
+                if (activity != null) {
+                    Utils.justFinish(activity);
+                }
+            }
+        }, new DialogInterface.OnShowListener() {
+            private static final int AUTO_DISMISS_MILLIS = RemoteClientLibConstants.ON_SHOW_LISTENER_TIMER;
+            @Override
+            public void onShow(final DialogInterface dialog) {
+                final Button defaultButton = ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_POSITIVE);
+                final CharSequence negativeButtonText = defaultButton.getText();
+                new CountDownTimer(AUTO_DISMISS_MILLIS, RemoteClientLibConstants.ON_SHOW_LISTENER_CHECK_INTERVAL) {
+                    @Override
+                    public void onTick(long millisUntilFinished) {
+                        defaultButton.setText(String.format(
+                                Locale.getDefault(), "%s (%d)",
+                                negativeButtonText,
+                                TimeUnit.MILLISECONDS.toSeconds(millisUntilFinished) + 1 //add one so it never displays zero
+                        ));
+                    }
+                    @Override
+                    public void onFinish() {
+                        if (((AlertDialog) dialog).isShowing()) {
+                            dialog.dismiss();
+                            Activity activity = Utils.getActivity(_context);
+                            if (activity != null) {
+                                Utils.justFinish(activity);
+                            }
+                        }
+                    }
+                }.start();
+            }
         });
     }
     
-    public static void showMessage(Context _context, String title, String message, int icon, DialogInterface.OnClickListener ackHandler) {
+    public static void showMessage(Context _context, String title, String message, int icon, DialogInterface.OnClickListener ackHandler, DialogInterface.OnShowListener showHandler) {
         try {
             if (alertDialog != null && alertDialog.isShowing() && !isContextActivityThatIsFinishing(_context)) {
                 alertDialog.dismiss();
@@ -166,6 +212,9 @@ public class Utils {
             builder.setIcon(icon);
             if (!(alertDialog != null && alertDialog.isShowing()) && !isContextActivityThatIsFinishing(_context)) {
                 alertDialog = builder.create();
+                if ( showHandler != null ) {
+                    alertDialog.setOnShowListener(showHandler);
+                }
                 alertDialog.show();
             }
         } catch (IllegalArgumentException e) {
