@@ -5,6 +5,7 @@ v5.1.2
 - Improved debug logging
 - Fixes for extended software keyboards not showing when hardware keyboard is present
 - Fixes for typing certain unicode characters with software keyboards
+- Android API Update
 v5.1.1
 - Bugfix for auto local cursor
 - Bugfix for single-click with certain trackpads
