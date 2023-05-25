@@ -8,7 +8,7 @@ buildscript {
         google()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:4.1.3'
+        classpath 'com.android.tools.build:gradle:7.4.2'
     }
 }
 
@@ -55,6 +55,7 @@ android {
         }
     }
     */
+
 }
 tasks.all { task ->
     if (task.name.startsWith('compile') && task.name.endsWith('Ndk')) {
