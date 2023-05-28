@@ -354,20 +354,6 @@ public class Utils {
         }
     }
 
-    public static String getExportFileName(Context context) {
-        String packageName = Utils.pName(context);
-        String res = "settings.xml";
-        if (isVnc(context))
-            res = "vnc_" + res;
-        else if (isRdp(context))
-            res = "rdp_" + res;
-        else if (isSpice(context))
-            res = "spice_" + res;
-        else if (isOpaque(context))
-            res = "opaque_settings.json";
-        return res;
-    }
-
     public static void importSettingsFromXml (InputStream fin, SQLiteDatabase db) {
         Reader reader = new InputStreamReader(fin);
         try {
