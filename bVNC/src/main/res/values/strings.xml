@@ -938,4 +938,8 @@ Below that is where you configure your connection.
     <string name="donate_app">Donate ❤</string>
     <string name="more_apps">More Apps 📱</string>
     <string name="previous_versions">Previous Versions ⍼</string>
+    <string name="keyboard_type">Software Keyboard Type</string>
+    <string name="pref_keyboard_type_label_TYPE_NULL">Default (TYPE_NULL)</string>
+    <string name="pref_keyboard_type_label_VISIBLE_PASSWORD">Text/Numbers No Suggestions (VISIBLE_PASSWORD)</string>
+    <string name="pref_keyboard_type_label_TYPE_CLASS_TEXT">Text With Suggestions (TYPE_CLASS_TEXT)</string>
 </resources>
