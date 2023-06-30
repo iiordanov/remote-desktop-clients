@@ -162,7 +162,6 @@ build_one() {
     echo "Building ${1}..."
     basedir="$(pwd)"
     builddir="${build}/$(expand ${1}_build)"
-    echo "$builddir"
     pushd "$builddir" >/dev/null
     case "$1" in
     celt)
@@ -463,6 +462,11 @@ setup() {
         exit 1
     fi
     PATH="${toolchain}/bin:${origpath}"
+    git clone ${setuptools_url} -b ${setuptools_ver} || true
+    pushd setuptools
+    python bootstrap.py
+    python setup.py install
+    popd
 }
 
 build() {
