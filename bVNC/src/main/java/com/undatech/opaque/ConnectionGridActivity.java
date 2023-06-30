@@ -547,7 +547,7 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
         boolean loadConnections;
         if (dialogId == GetTextFragment.DIALOG_ID_GET_MATCHING_MASTER_PASSWORDS) {
             Utils.setSharedPreferenceString(this, Constants.masterPassword,
-                    BCrypt.with(LongPasswordStrategies.hashSha512(BCrypt.Version.VERSION_2A)).hashToString(6, providedPassword.toCharArray()));
+                    BCrypt.with(LongPasswordStrategies.hashSha512(BCrypt.Version.VERSION_2A)).hashToString(Constants.HASH_COST, providedPassword.toCharArray()));
             loadConnections = true;
         }
         else {

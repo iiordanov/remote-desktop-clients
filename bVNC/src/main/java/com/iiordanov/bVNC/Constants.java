@@ -213,6 +213,7 @@ public class Constants {
     public static final String softwareKeyboardType = "softwareKeyboardType";
     public static final String masterPassword = "masterPassword";
     public static final String onlyLockConnectionEditing = "onlyLockConnectionEditing";
+    public static final int HASH_COST = 6;
 
     public static final String ACTION_USB_PERMISSION = "com.iiordanov.aSPICE.USB_PERMISSION";
     public static final int usbDeviceTimeout = 5000;
@@ -221,7 +222,6 @@ public class Constants {
     public static final int REMOTE_SOUND_DISABLED = 2;
     public static final int REMOTE_SOUND_ON_SERVER = 1;
     public static final int REMOTE_SOUND_ON_DEVICE = 0;
-    
     public static final int SHORT_VIBRATION        = 1;
 
 

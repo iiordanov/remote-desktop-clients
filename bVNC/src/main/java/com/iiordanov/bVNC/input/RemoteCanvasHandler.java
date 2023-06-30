@@ -124,7 +124,7 @@ public class RemoteCanvasHandler extends Handler {
             c.pd.dismiss();
         }
         GetTextFragment frag = GetTextFragment.newInstance(dialogId, title, dismissalListener,
-                dialogType, messageNum, errorNum, t1, t2, t3, keep);
+                dialogType, messageNum, errorNum, t1, t2, t3, keep, false);
         frag.setCancelable(false);
         frag.show(fm, tag);
     }
