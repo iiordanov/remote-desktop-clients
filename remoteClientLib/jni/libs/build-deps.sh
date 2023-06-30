@@ -462,6 +462,11 @@ setup() {
         exit 1
     fi
     PATH="${toolchain}/bin:${origpath}"
+    git clone ${setuptools_url} -b ${setuptools_ver} || true
+    pushd setuptools
+    python bootstrap.py
+    python setup.py install
+    popd
 }
 
 build() {

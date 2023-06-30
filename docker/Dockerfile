@@ -17,17 +17,20 @@ dpkg-dev debhelper build-essential devscripts fakeroot transfig gperf libdbus-gl
 libglu1-mesa-dev libegl1-mesa-dev git subversion xutils-dev intltool ccache python3-setuptools python3-pip libssl-dev chrpath libfuse-dev
 
 # This layer is needed to install spice-gtk dependencies, requires pyparsing
-RUN python3 -m pip install pyparsing
+RUN python3 -m pip install pyparsing==2.4.7
+
 
 RUN mkdir -p $ANDROID_SDK $CURRENT_WORKING_DIR
 
 RUN groupadd -g $USER_GID remote-clients
 RUN useradd -u $USER_UID -g $USER_GID -m remote-clients
+RUN git config --global protocol.file.allow always
 
 RUN echo "remote-clients ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 
 USER remote-clients
 WORKDIR ${CURRENT_WORKING_DIR}
+RUN git config --global protocol.file.allow always
 
 CMD export PROJECT=libs && export ANDROID_SDK=$ANDROID_SDK && export PATH=$PATH:$ANDROID_SDK/platform-tools/ && export PATH=$PATH:$ANDROID_SDK/tools && \
 yes | $ANDROID_SDK/tools/bin/sdkmanager --licenses && \
