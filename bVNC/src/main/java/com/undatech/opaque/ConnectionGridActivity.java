@@ -72,6 +72,8 @@ import com.undatech.opaque.util.FileUtils;
 import com.undatech.opaque.util.GeneralUtils;
 import com.undatech.opaque.util.LogcatReader;
 import com.undatech.remoteClientUi.R;
+import at.favre.lib.crypto.bcrypt.BCrypt;
+import at.favre.lib.crypto.bcrypt.LongPasswordStrategies;
 
 import java.io.File;
 import java.io.InputStream;
@@ -90,6 +92,8 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
     GetTextFragment getNewPassword = null;
     protected boolean isStarting = true;
     private AppCompatImageButton addNewConnection = null;
+
+    private AlertDialog activeAlertDialog = null;
 
     private RateOrShareFragment rateOrShareFragment = new RateOrShareFragment();
 
@@ -126,6 +130,10 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
                     }
                 });
                 AlertDialog alertDialog = alertDialogBuilder.create();
+                if(Utils.querySharedPreferenceBoolean(appContext, Constants.onlyLockConnectionEditing)) {
+                    activeAlertDialog = alertDialog;
+                    showGetTextFragment(getPassword);
+                }
                 alertDialog.show();
                 return true;
             }
@@ -147,13 +155,15 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
             getPassword = GetTextFragment.newInstance(GetTextFragment.DIALOG_ID_GET_MASTER_PASSWORD,
                     getString(R.string.master_password_verify), this,
                     GetTextFragment.PasswordNoKeep, R.string.master_password_verify_message,
-                    R.string.master_password_set_error, null, null, null, false);
+                    R.string.master_password_set_error, null, null, null, false,
+                    false);
         }
         if (getNewPassword == null) {
             getNewPassword = GetTextFragment.newInstance(GetTextFragment.DIALOG_ID_GET_MATCHING_MASTER_PASSWORDS,
                     getString(R.string.master_password_set), this,
                     GetTextFragment.MatchingPasswordTwice, R.string.master_password_set_message,
-                    R.string.master_password_set_error, null, null, null, false);
+                    R.string.master_password_set_error, null, null, null, false,
+                    false);
         }
         FileUtils.logFilesInPrivateStorage(this);
         FileUtils.deletePrivateFileIfExisting(this, ".config/freerdp/licenses");
@@ -446,7 +456,7 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
         try {
             updateInputMenu(menu.findItem(R.id.itemInputMode).getSubMenu());
             MenuItem itemMasterPassword = menu.findItem(R.id.itemMasterPassword);
-            itemMasterPassword.setChecked(Utils.querySharedPreferenceBoolean(this, Constants.masterPasswordEnabledTag));
+            itemMasterPassword.setChecked(Utils.querySharedPreferenceBoolean(this, Constants.masterPasswordEnabledTag) || Utils.querySharedPreferenceBoolean(this, Constants.onlyLockConnectionEditing));
         } catch (NullPointerException e) {}
         return true;
     }
@@ -500,7 +510,7 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
                 IntroTextDialog.showIntroTextIfNecessary(this, database, true);
             } else {
                 togglingMasterPassword = true;
-                if (Utils.querySharedPreferenceBoolean(this, Constants.masterPasswordEnabledTag)) {
+                if (Utils.querySharedPreferenceBoolean(this, Constants.masterPasswordEnabledTag) || !((Utils.querySharedPreferenceString(this, Constants.masterPassword, "")).equals("")) && Utils.querySharedPreferenceBoolean(this, Constants.onlyLockConnectionEditing)) {
                     showGetTextFragment(getPassword);
                 } else {
                     showGetTextFragment(getNewPassword);
@@ -514,13 +524,52 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
         return true;
     }
 
-    public void onTextObtained(String dialogId, String[] obtainedStrings, boolean wasCancelled, boolean keep) {
+    public void onTextObtained(String dialogId, String[] obtainedStrings, boolean wasCancelled, boolean keep, boolean[] obtainedBooleans) {
         Log.i(TAG, "onTextObtained");
-        handlePassword(obtainedStrings[0], wasCancelled);
+        if (dialogId == GetTextFragment.DIALOG_ID_GET_MATCHING_MASTER_PASSWORDS && !wasCancelled)  {
+            Utils.setSharedPreferenceBoolean(this, Constants.onlyLockConnectionEditing, obtainedBooleans[0]);
+        }
+        handlePassword(obtainedStrings[0], wasCancelled, dialogId,
+            Utils.querySharedPreferenceBoolean(this, Constants.onlyLockConnectionEditing)
+        );
     }
 
-    public void handlePassword(String providedPassword, boolean dialogWasCancelled) {
+    public void handlePassword(String providedPassword, boolean dialogWasCancelled, String dialogId, boolean onlyLockEditingConnections) {
         Log.i(TAG, "handlePassword");
+        boolean loadConnections = onlyLockEditingConnections ? handlePasswordOnlyLockEditingConnections(providedPassword, dialogWasCancelled, dialogId) : handlePasswordDatabaseLock(providedPassword, dialogWasCancelled);
+        if (loadConnections) {
+            removeGetPasswordFragments();
+            loadSavedConnections();
+        }
+    }
+
+    private boolean handlePasswordOnlyLockEditingConnections(String providedPassword, boolean dialogWasCancelled, String dialogId) {
+        boolean loadConnections;
+        if (dialogId == GetTextFragment.DIALOG_ID_GET_MATCHING_MASTER_PASSWORDS) {
+            Utils.setSharedPreferenceString(this, Constants.masterPassword,
+                    BCrypt.with(LongPasswordStrategies.hashSha512(BCrypt.Version.VERSION_2A)).hashToString(Constants.HASH_COST, providedPassword.toCharArray()));
+            loadConnections = true;
+        }
+        else {
+            BCrypt.Result result = BCrypt.verifyer(BCrypt.Version.VERSION_2A, LongPasswordStrategies.hashSha512(BCrypt.Version.VERSION_2A)).verify(providedPassword.toCharArray(), Utils.querySharedPreferenceString(this, Constants.masterPassword, ""));
+            loadConnections = result.verified;
+            if(!loadConnections || dialogWasCancelled) {
+                String message = dialogWasCancelled ? this.getResources().getString(R.string.master_password_error_password_necessary) : this.getResources().getString(R.string.master_password_error_wrong_password);
+                Utils.showErrorMessage(this,message);
+                if (activeAlertDialog != null) {
+                    activeAlertDialog.dismiss();
+                    activeAlertDialog = null;
+                }
+            } else if (togglingMasterPassword) {
+                Utils.setSharedPreferenceBoolean(this, Constants.onlyLockConnectionEditing, false);
+                Utils.setSharedPreferenceString(this, Constants.masterPassword, null);
+                togglingMasterPassword = false;
+            }
+        }
+        return loadConnections;
+    }
+
+    private boolean handlePasswordDatabaseLock(String providedPassword, boolean dialogWasCancelled) {
         boolean loadConnections;
         MasterPasswordDelegate passwordDelegate = new MasterPasswordDelegate(this, database);
         if (togglingMasterPassword) {
@@ -529,10 +578,7 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
         } else {
             loadConnections = passwordDelegate.checkMasterPasswordAndQuitIfWrong(providedPassword, dialogWasCancelled);
         }
-        if (loadConnections) {
-            removeGetPasswordFragments();
-            loadSavedConnections();
-        }
+        return loadConnections;
     }
 
     private void showGetTextFragment(GetTextFragment f) {

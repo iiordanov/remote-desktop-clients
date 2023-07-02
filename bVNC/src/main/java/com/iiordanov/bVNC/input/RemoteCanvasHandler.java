@@ -111,7 +111,7 @@ public class RemoteCanvasHandler extends Handler {
             c.pd.dismiss();
         }
         GetTextFragment frag = GetTextFragment.newInstance(dialogId, title, dismissalListener,
-                dialogType, messageNum, errorNum, t1, t2, t3, keep);
+                dialogType, messageNum, errorNum, t1, t2, t3, keep, false);
         frag.setCancelable(false);
         frag.show(fm, tag);
     }
@@ -124,7 +124,7 @@ public class RemoteCanvasHandler extends Handler {
             c.pd.dismiss();
         }
         GetTextFragment frag = GetTextFragment.newInstance(dialogId, title, dismissalListener,
-                dialogType, messageNum, errorNum, t1, t2, t3, keep);
+                dialogType, messageNum, errorNum, t1, t2, t3, keep, false);
         frag.setCancelable(false);
         frag.show(fm, tag);
     }
@@ -452,7 +452,7 @@ public class RemoteCanvasHandler extends Handler {
                 break;
             case RemoteClientLibConstants.RDP_CONNECT_FAILURE:
                 if (c.maintainConnection) {
-                    c.showFatalMessageAndQuit(context.getString(R.string.error_rdp_connection_failed));
+                    c.showFatalMessageAndQuitTimer(context.getString(R.string.error_rdp_connection_failed));
                 }
                 break;
             case RemoteClientLibConstants.RDP_UNABLE_TO_CONNECT:

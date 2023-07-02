@@ -497,7 +497,7 @@ build() {
         fi
 
         echo "Copying local recipes into cerbero"
-        git clone https://github.com/iiordanov/remote-desktop-clients-cerbero-recipes.git recipes || true
+        git clone https://github.com/iiordanov/remote-desktop-clients-cerbero-recipes.git -b bugfix/spice-usb-location recipes || true
         pushd recipes
         git pull
         popd
