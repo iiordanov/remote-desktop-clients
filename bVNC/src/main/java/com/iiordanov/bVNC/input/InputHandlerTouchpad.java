@@ -68,7 +68,7 @@ public class InputHandlerTouchpad extends InputHandlerGeneric {
         if (inScaling) {
     		float scale = canvas.getZoomFactor();
     		activity.showToolbar();
-    		canvas.relativePan((int)(distanceX*scale), (int)(distanceY*scale));
+    		canvas.relativePan(Math.round(distanceX*scale), Math.round(distanceY*scale));
         } else {
 	        // TODO: This is a workaround for Android 4.2
 			boolean twoFingers = false;
@@ -118,8 +118,8 @@ public class InputHandlerTouchpad extends InputHandlerGeneric {
 	        distanceY = sensitivity * distanceY / displayDensity;
 	        
 			// Compute the absolute new mouse position.
-			int newX = (int) (pointer.getX() + getDelta(-distanceX));
-			int newY = (int) (pointer.getY() + getDelta(-distanceY));
+			int newX = Math.round(pointer.getX() + getDelta(-distanceX));
+			int newY = Math.round(pointer.getY() + getDelta(-distanceY));
 
 			pointer.moveMouse(newX, newY, meta);
         }
@@ -148,7 +148,7 @@ public class InputHandlerTouchpad extends InputHandlerGeneric {
 			float distanceX = e.getX() - dragX;
 			dragX = e.getX();
 			// Compute the absolute new X coordinate.
-			return (int) (p.getX() + getDelta(distanceX));
+			return Math.round(p.getX() + getDelta(distanceX));
 		}
 		dragX = e.getX();
 		return p.getX();
@@ -164,7 +164,7 @@ public class InputHandlerTouchpad extends InputHandlerGeneric {
 			float distanceY = e.getY() - dragY;
 			dragY = e.getY();
 			// Compute the absolute new Y coordinate.
-			return (int) (p.getY() + getDelta(distanceY));
+			return Math.round(p.getY() + getDelta(distanceY));
 		}
 		dragY = e.getY();
 		return p.getY();
