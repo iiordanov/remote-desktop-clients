@@ -471,7 +471,11 @@ public class RemoteCanvasHandler extends Handler {
                 c.setClipboardText(s.getString("text"));
                 break;
             case RemoteClientLibConstants.REINIT_SESSION:
-                c.reinitializeCanvas();
+                if (Utils.isOpaque(context)) {
+                    c.reinitializeOpaque();
+                } else {
+                    c.reinitializeCanvas();
+                }
                 break;
             case RemoteClientLibConstants.REPORT_TOOLBAR_POSITION:
                 android.util.Log.d(TAG, "Handling message, REPORT_TOOLBAR_POSITION");

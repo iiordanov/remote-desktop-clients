@@ -1,25 +1,25 @@
 package com.undatech.opaque.proxmox;
 
-import android.R.bool;
-import android.R.integer;
 import android.os.Handler;
 
 import com.undatech.opaque.Connection;
-import com.undatech.opaque.ConnectionSettings;
-import com.undatech.opaque.proxmox.pojo.*;
-import java.io.IOException;
-import java.lang.reflect.Array;
-import java.net.HttpURLConnection;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import javax.security.auth.login.LoginException;
+import com.undatech.opaque.proxmox.pojo.PveRealm;
+import com.undatech.opaque.proxmox.pojo.PveResource;
+import com.undatech.opaque.proxmox.pojo.SpiceDisplay;
+import com.undatech.opaque.proxmox.pojo.VmStatus;
+import com.undatech.opaque.proxmox.pojo.VncDisplay;
 
 import org.apache.http.HttpException;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.security.auth.login.LoginException;
 
 public class ProxmoxClient extends RestClient {
     private static final String TAG = "RestClient";
@@ -65,7 +65,7 @@ public class ProxmoxClient extends RestClient {
         addParam("username", user);
         addParam("password", password);
         addParam("realm", realm);
-        if (otp != null) {
+        if (otp != null && !"".equals(otp)) {
             addParam("otp", otp);
         }
         
