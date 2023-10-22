@@ -100,4 +100,7 @@ public class RemoteClientLibConstants {
     public static final String GET_OTP_CODE_ID = "getOtpCode";
     public static final String GET_PASSWORD_ID = "getPassword";
     public static final int LOGCAT_MAX_LINES = 500;
+
+    public static final int ON_SHOW_LISTENER_TIMER = 5000;
+    public static final int ON_SHOW_LISTENER_CHECK_INTERVAL = 100;
 }
