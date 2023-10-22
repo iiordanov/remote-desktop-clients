@@ -2124,6 +2124,7 @@ public class RfbProto extends RfbConnectable {
      * Protocol: https://github.com/rfbproto/rfbproto/blob/master/rfbproto.rst#extendeddesktopsize-pseudo-encoding
      */
     private void handleExtendedDesktopSize() throws Exception {
+        Log.d(TAG, "handleExtendedDesktopSize");
         // Is Supported:
         boolean firstUpdate = !this.isExtendedDesktopSizeSupported;
 
@@ -2165,12 +2166,11 @@ public class RfbProto extends RfbConnectable {
         }
 
         Log.d(TAG, "handleExtendedDesktopSize, wxh: " + width + "x" + height);
-
+        if (width != 0 && height != 0) {
+            setFramebufferSize(width, height);
+            canvas.updateFBSize();
+        }
         if (preferredFramebufferWidth != 0 && preferredFramebufferHeight != 0) {
-            if (width != 0 && height != 0) {
-                setFramebufferSize(width, height);
-                canvas.updateFBSize();
-            }
             // Notifiy Listeners on first update
             if (firstUpdate) {
                 requestResolution(this.preferredFramebufferWidth, this.preferredFramebufferHeight);
@@ -2185,8 +2185,10 @@ public class RfbProto extends RfbConnectable {
 
         // Is this encoding supported by the server?
         if (!this.isExtendedDesktopSizeSupported) {
+            Log.d(TAG, "requestResolution: ExtendedDesktopSize not supported, not continuing");
             return;
         }
+        Log.d(TAG, "requestResolution: ExtendedDesktopSize supported, continuing");
 
         byte[] setDesktopSizeBuff = new byte[24];
 
