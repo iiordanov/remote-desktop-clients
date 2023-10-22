@@ -217,6 +217,8 @@ All Input Methods:
     <string name="color_format_caption">Color Mode</string>
     <string name="color_mode">Color Mode</string>
 
+    <string name="scroll_sensitivity">Scroll Sensitivity</string>
+
     <string name="connect_button">Connect</string>
     <string name="back_button">Go Back</string>
     <string name="update_button">Update</string>

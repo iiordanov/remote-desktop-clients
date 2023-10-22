@@ -32,8 +32,8 @@ public class InputHandlerDirectSwipePan extends InputHandlerGeneric {
 	public static final String ID = "TOUCH_ZOOM_MODE";
 	
 	public InputHandlerDirectSwipePan(RemoteCanvasActivity activity, RemoteCanvas canvas,
-									  RemotePointer pointer, boolean debugLogging) {
-		super(activity, canvas, pointer, debugLogging);
+									  RemotePointer pointer, boolean debugLogging, int swipeSpeed) {
+		super(activity, canvas, pointer, debugLogging, swipeSpeed);
 	}
 
 	/*

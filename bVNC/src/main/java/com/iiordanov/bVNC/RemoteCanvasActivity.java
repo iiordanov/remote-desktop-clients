@@ -1346,13 +1346,13 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
             if (inputModeIds[i] == id) {
                 if (inputModeHandlers[i] == null) {
                     if (id == R.id.itemInputTouchPanZoomMouse) {
-                        inputModeHandlers[i] = new InputHandlerDirectSwipePan(this, canvas, canvas.getPointer(), App.debugLog);
+                        inputModeHandlers[i] = new InputHandlerDirectSwipePan(this, canvas, canvas.getPointer(), App.debugLog, getScrollSensitivitySetting());
                     } else if (id == R.id.itemInputDragPanZoomMouse) {
-                        inputModeHandlers[i] = new InputHandlerDirectDragPan(this, canvas, canvas.getPointer(), App.debugLog);
+                        inputModeHandlers[i] = new InputHandlerDirectDragPan(this, canvas, canvas.getPointer(), App.debugLog, getScrollSensitivitySetting());
                     } else if (id == R.id.itemInputTouchpad) {
-                        inputModeHandlers[i] = new InputHandlerTouchpad(this, canvas, canvas.getPointer(), App.debugLog);
+                        inputModeHandlers[i] = new InputHandlerTouchpad(this, canvas, canvas.getPointer(), App.debugLog, getScrollSensitivitySetting());
                     } else if (id == R.id.itemInputSingleHanded) {
-                        inputModeHandlers[i] = new InputHandlerSingleHanded(this, canvas, canvas.getPointer(), App.debugLog);
+                        inputModeHandlers[i] = new InputHandlerSingleHanded(this, canvas, canvas.getPointer(), App.debugLog, getScrollSensitivitySetting());
                     } else {
                         throw new IllegalStateException("Unexpected value: " + id);
                     }
@@ -1394,6 +1394,11 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
                 return id;
         }
         return R.id.itemInputTouchPanZoomMouse;
+    }
+
+    int getScrollSensitivitySetting() {
+        // SeekBar starts at 0 so +1 to ensure speed of at least 1
+        return Utils.querySharedPreferenceInt(this, Constants.scrollSensitivityTag, 6) + 1;
     }
 
     @Override
@@ -1760,5 +1765,14 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
         }
     }
 
+//    public boolean setScrollSensitivity(int sensitivity) {
+//        try {
+//            InputHandlerDirectSwipePan swipePan = (InputHandlerDirectSwipePan)inputHandler;
+//            swipePan.setScrollSensitivity(sensitivity);
+//            return true;
+//        } catch (ClassCastException e) {
+//            return false;
+//        }
+//    }
 
 }

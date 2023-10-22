@@ -212,6 +212,7 @@ public class Constants {
     public static final String showOnlyConnectionNicknames = "showOnlyConnectionNicknames";
 
     public static final String softwareKeyboardType = "softwareKeyboardType";
+    public static final String scrollSensitivityTag = "scrollSensitivity";
 
     public static final String ACTION_USB_PERMISSION = "com.iiordanov.aSPICE.USB_PERMISSION";
     public static final int usbDeviceTimeout = 5000;

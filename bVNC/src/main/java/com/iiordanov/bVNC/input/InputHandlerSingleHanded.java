@@ -47,8 +47,8 @@ public class InputHandlerSingleHanded extends InputHandlerDirectSwipePan {
 	private boolean needInitPan;
 	
 	public InputHandlerSingleHanded(RemoteCanvasActivity activity, RemoteCanvas canvas,
-									RemotePointer pointer, boolean debugLogging) {
-		super(activity, canvas, pointer, debugLogging);
+									RemotePointer pointer, boolean debugLogging, int swipeSpeed) {
+		super(activity, canvas, pointer, debugLogging, swipeSpeed);
 		initializeButtons();
 	}
 

@@ -75,7 +75,7 @@ abstract class InputHandlerGeneric extends GestureDetector.SimpleOnGestureListen
 	// The variables which indicates how many scroll events to send per swipe 
 	// event and the maximum number to send at one time.
 	long      swipeSpeed    = 1;
-	final int maxSwipeSpeed = 7;
+	int maxSwipeSpeed = 1;
 	
 	// If swipe events are registered once every baseSwipeTime miliseconds, then
 	// swipeSpeed will be one. If more often, swipe-speed goes up, if less, down.
@@ -126,11 +126,12 @@ abstract class InputHandlerGeneric extends GestureDetector.SimpleOnGestureListen
 	protected RemotePointer pointer;
 
 	InputHandlerGeneric(RemoteCanvasActivity activity, RemoteCanvas canvas, RemotePointer pointer,
-						boolean debugLogging) {
+						boolean debugLogging, int swipeSpeed) {
 		this.activity = activity;
 		this.canvas   = canvas;
 		this.pointer  = pointer;
 		this.debugLogging = debugLogging;
+		this.maxSwipeSpeed = swipeSpeed;
 
 		// TODO: Implement this
 		useDpadAsArrows = true; //activity.getUseDpadAsArrows();

@@ -34,4 +34,9 @@
         android:entryValues="@array/pref_keyboard_type_option_values"
         android:key="softwareKeyboardType"
         android:title="@string/keyboard_type" />
+    <SeekBarPreference
+        android:defaultValue="6"
+        android:max="9"
+        android:key="scrollSensitivity"
+        android:title="@string/scroll_sensitivity" />
 </PreferenceScreen>

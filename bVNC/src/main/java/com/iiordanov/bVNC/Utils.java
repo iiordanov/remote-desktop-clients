@@ -400,6 +400,15 @@ public class Utils {
         return result;
     }
 
+    public static int querySharedPreferenceInt(Context context, String key, int dftValue) {
+        int result = dftValue;
+        if (context != null) {
+            SharedPreferences sp = context.getSharedPreferences(Constants.generalSettingsTag, Context.MODE_PRIVATE);
+            result = sp.getInt(key, dftValue);
+        }
+        return result;
+    }
+
     public static void setSharedPreferenceString(Context context, String key, String value) {
         if (context != null) {
             SharedPreferences sp = context.getSharedPreferences(Constants.generalSettingsTag, Context.MODE_PRIVATE);
