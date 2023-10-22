@@ -1,22 +1,16 @@
 package com.iiordanov.util;
 
-import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.util.Log;
+import android.widget.Toast;
 
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
-import android.util.Log;
-import android.widget.Toast;
-
 import com.iiordanov.bVNC.Constants;
 import com.iiordanov.bVNC.Utils;
-import com.iiordanov.bVNC.input.InputHandlerDirectDragPan;
-import com.iiordanov.bVNC.input.InputHandlerDirectSwipePan;
-import com.iiordanov.bVNC.input.InputHandlerSingleHanded;
-import com.iiordanov.bVNC.input.InputHandlerTouchpad;
 import com.undatech.remoteClientUi.R;
 
 import java.util.Arrays;
@@ -29,8 +23,8 @@ import java.util.Map;
  */
 
 public class PermissionsManager {
-    public static String TAG = "PermissionsManager";
     private static final Map<PermissionGroups, String[]> permissionGroups;
+    public static String TAG = "PermissionsManager";
 
     static {
         Map<PermissionGroups, String[]> temp = new HashMap<>();

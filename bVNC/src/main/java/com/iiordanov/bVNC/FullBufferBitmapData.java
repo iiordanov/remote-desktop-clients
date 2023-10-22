@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2012 Iordan Iordanov
  * Copyright (C) 2010 Michael A. MacDonald
- *
+ * <p>
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
- * 
+ * <p>
  * This software is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ * <p>
  * You should have received a copy of the GNU General Public License
  * along with this software; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307,
@@ -20,13 +20,13 @@
 
 package com.iiordanov.bVNC;
 
-import java.util.Arrays;
-
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 
 import com.undatech.opaque.RfbConnectable;
+
+import java.util.Arrays;
 
 class FullBufferBitmapData extends AbstractBitmapData {
     /**
@@ -34,65 +34,11 @@ class FullBufferBitmapData extends AbstractBitmapData {
      * safety factor
      */
     static final int CAPACITY_MULTIPLIER = 6;
-    
+
     int xoffset;
     int yoffset;
     int dataWidth;
     int dataHeight;
-
-    class Drawable extends AbstractBitmapDrawable {
-        private final static String TAG = "Drawable";
-        int drawWidth;
-        int drawHeight; 
-        int xo, yo;
-        
-        /**
-         * @param data
-         */
-        public Drawable(AbstractBitmapData data) {
-            super(data);
-        }
-
-        /* (non-Javadoc)
-         * @see android.graphics.drawable.DrawableContainer#draw(android.graphics.Canvas)
-         */
-        @Override
-        public void draw(Canvas canvas) {
-            toDraw = canvas.getClipBounds();
-            
-            // To avoid artifacts, we need to enlarge the box by one pixel in all directions.
-            toDraw.set(toDraw.left-1, toDraw.top-1, toDraw.right+1, toDraw.bottom+1);
-            drawWidth  = toDraw.width();
-            drawHeight = toDraw.height();
-
-            if (toDraw.left < 0)
-                xo = 0;
-            else if (toDraw.left >= data.framebufferwidth)
-                return;
-            else
-                xo = toDraw.left;
-
-            if (toDraw.top < 0)
-                yo = 0;
-            else if (toDraw.top >= data.framebufferheight)
-                return;
-            else
-                yo = toDraw.top;
-
-            if (xo + drawWidth  >= data.framebufferwidth)
-                drawWidth  = data.framebufferwidth  - xo;
-            if (yo + drawHeight >= data.framebufferheight)
-                drawHeight = data.framebufferheight - yo;
-
-            try {
-                synchronized (this) {
-                    canvas.drawBitmap(data.bitmapPixels, offset(xo, yo), data.framebufferwidth,
-                            xo, yo, drawWidth, drawHeight, false, _defaultPaint);
-                    canvas.drawBitmap(softCursor, cursorRect.left, cursorRect.top, _defaultPaint);
-                }
-            } catch (Throwable e) { }
-        }
-    }
 
     /**
      * @param p
@@ -100,13 +46,13 @@ class FullBufferBitmapData extends AbstractBitmapData {
      */
     public FullBufferBitmapData(RfbConnectable p, RemoteCanvas c, int capacity) {
         super(p, c);
-        framebufferwidth=rfb.framebufferWidth();
-        framebufferheight=rfb.framebufferHeight();
-        bitmapwidth=framebufferwidth;
-        bitmapheight=framebufferheight;
-        dataWidth=framebufferwidth;
-        dataHeight=framebufferheight;
-        android.util.Log.i("FBBM", "bitmapsize = ("+bitmapwidth+","+bitmapheight+")");
+        framebufferwidth = rfb.framebufferWidth();
+        framebufferheight = rfb.framebufferHeight();
+        bitmapwidth = framebufferwidth;
+        bitmapheight = framebufferheight;
+        dataWidth = framebufferwidth;
+        dataHeight = framebufferheight;
+        android.util.Log.i("FBBM", "bitmapsize = (" + bitmapwidth + "," + bitmapheight + ")");
         bitmapPixels = new int[framebufferwidth * framebufferheight];
         drawable.startDrawing();
     }
@@ -119,7 +65,7 @@ class FullBufferBitmapData extends AbstractBitmapData {
         int srcOffset, dstOffset;
         int dstH = h;
         int dstW = w;
-        
+
         int startSrcY, endSrcY, dstY, deltaY;
         if (sy > dy) {
             startSrcY = sy;
@@ -138,7 +84,7 @@ class FullBufferBitmapData extends AbstractBitmapData {
             try {
                 System.arraycopy(bitmapPixels, srcOffset, bitmapPixels, dstOffset, dstW);
             } catch (Exception e) {
-                // There was an index out of bounds exception, but we continue copying what we can. 
+                // There was an index out of bounds exception, but we continue copying what we can.
                 e.printStackTrace();
             }
             dstY += deltaY;
@@ -159,20 +105,14 @@ class FullBufferBitmapData extends AbstractBitmapData {
     @Override
     void drawRect(int x, int y, int w, int h, Paint paint) {
         int color = paint.getColor();
-        int offset = offset(x,y);
-        if (w > 10)
-        {
-            for (int j = 0; j < h; j++, offset += framebufferwidth)
-            {
+        int offset = offset(x, y);
+        if (w > 10) {
+            for (int j = 0; j < h; j++, offset += framebufferwidth) {
                 Arrays.fill(bitmapPixels, offset, offset + w, color);
             }
-        }
-        else
-        {
-            for (int j = 0; j < h; j++, offset += framebufferwidth - w)
-            {
-                for (int k = 0; k < w; k++, offset++)
-                {
+        } else {
+            for (int j = 0; j < h; j++, offset += framebufferwidth - w) {
+                for (int k = 0; k < w; k++, offset++) {
                     bitmapPixels[offset] = color;
                 }
             }
@@ -200,24 +140,24 @@ class FullBufferBitmapData extends AbstractBitmapData {
      * @see com.iiordanov.bVNC.AbstractBitmapData#frameBufferSizeChanged(RfbProto)
      */
     @Override
-    public void frameBufferSizeChanged () {
-        framebufferwidth  = rfb.framebufferWidth();
+    public void frameBufferSizeChanged() {
+        framebufferwidth = rfb.framebufferWidth();
         framebufferheight = rfb.framebufferHeight();
-        bitmapwidth       = framebufferwidth;
-        bitmapheight      = framebufferheight;
-        android.util.Log.i("FBBM", "bitmapsize changed = ("+bitmapwidth+","+bitmapheight+")");
-        if ( dataWidth < framebufferwidth || dataHeight < framebufferheight ) {
+        bitmapwidth = framebufferwidth;
+        bitmapheight = framebufferheight;
+        android.util.Log.i("FBBM", "bitmapsize changed = (" + bitmapwidth + "," + bitmapheight + ")");
+        if (dataWidth < framebufferwidth || dataHeight < framebufferheight) {
             dispose();
             // Try to free up some memory.
             System.gc();
-            dataWidth    = framebufferwidth;
-            dataHeight   = framebufferheight;
+            dataWidth = framebufferwidth;
+            dataHeight = framebufferheight;
             bitmapPixels = new int[framebufferwidth * framebufferheight];
-            drawable     = createDrawable();
+            drawable = createDrawable();
             drawable.startDrawing();
         }
     }
-    
+
     /* (non-Javadoc)
      * @see com.iiordanov.bVNC.AbstractBitmapData#syncScroll()
      */
@@ -233,7 +173,7 @@ class FullBufferBitmapData extends AbstractBitmapData {
     public void updateBitmap(int x, int y, int w, int h) {
         // Don't need to do anything here
     }
-    
+
     /* (non-Javadoc)
      * @see com.iiordanov.bVNC.AbstractBitmapData#updateBitmap(Bitmap, int, int, int, int)
      */
@@ -250,5 +190,60 @@ class FullBufferBitmapData extends AbstractBitmapData {
         if (x + w > bitmapwidth || y + h > bitmapheight)
             return false;
         return true;
+    }
+
+    class Drawable extends AbstractBitmapDrawable {
+        private final static String TAG = "Drawable";
+        int drawWidth;
+        int drawHeight;
+        int xo, yo;
+
+        /**
+         * @param data
+         */
+        public Drawable(AbstractBitmapData data) {
+            super(data);
+        }
+
+        /* (non-Javadoc)
+         * @see android.graphics.drawable.DrawableContainer#draw(android.graphics.Canvas)
+         */
+        @Override
+        public void draw(Canvas canvas) {
+            toDraw = canvas.getClipBounds();
+
+            // To avoid artifacts, we need to enlarge the box by one pixel in all directions.
+            toDraw.set(toDraw.left - 1, toDraw.top - 1, toDraw.right + 1, toDraw.bottom + 1);
+            drawWidth = toDraw.width();
+            drawHeight = toDraw.height();
+
+            if (toDraw.left < 0)
+                xo = 0;
+            else if (toDraw.left >= data.framebufferwidth)
+                return;
+            else
+                xo = toDraw.left;
+
+            if (toDraw.top < 0)
+                yo = 0;
+            else if (toDraw.top >= data.framebufferheight)
+                return;
+            else
+                yo = toDraw.top;
+
+            if (xo + drawWidth >= data.framebufferwidth)
+                drawWidth = data.framebufferwidth - xo;
+            if (yo + drawHeight >= data.framebufferheight)
+                drawHeight = data.framebufferheight - yo;
+
+            try {
+                synchronized (this) {
+                    canvas.drawBitmap(data.bitmapPixels, offset(xo, yo), data.framebufferwidth,
+                            xo, yo, drawWidth, drawHeight, false, _defaultPaint);
+                    canvas.drawBitmap(softCursor, cursorRect.left, cursorRect.top, _defaultPaint);
+                }
+            } catch (Throwable e) {
+            }
+        }
     }
 }

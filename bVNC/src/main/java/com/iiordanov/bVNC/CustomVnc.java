@@ -3,19 +3,10 @@ package com.iiordanov.bVNC;
 import android.app.ActionBar;
 import android.os.Bundle;
 import android.view.View;
-import com.iiordanov.bVNC.*;
-import com.iiordanov.freebVNC.*;
-import com.iiordanov.aRDP.*;
-import com.iiordanov.freeaRDP.*;
-import com.iiordanov.aSPICE.*;
-import com.iiordanov.CustomClientPackage.*;
+
 import com.iiordanov.util.CustomClientConfigFileReader;
 
-import org.yaml.snakeyaml.Yaml;
-
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.Locale;
 import java.util.Map;
 
@@ -29,11 +20,11 @@ public class CustomVnc extends bVNC {
             View view;
             String packageName = Utils.pName(this);
             CustomClientConfigFileReader configFileReader = new CustomClientConfigFileReader(
-                            getAssets().open(packageName + ".yaml"));
+                    getAssets().open(packageName + ".yaml"));
             Map<String, Map> configData = configFileReader.getConfigData();
-            Map<String, Integer> visibility = (Map<String, Integer>)configData.get("mainConfiguration").get("visibility");
+            Map<String, Integer> visibility = (Map<String, Integer>) configData.get("mainConfiguration").get("visibility");
 
-            for (String s : visibility.keySet()){
+            for (String s : visibility.keySet()) {
                 android.util.Log.d(TAG, s);
                 int resID = getResources().getIdentifier(s, "id", packageName);
                 view = findViewById(resID);
@@ -44,13 +35,13 @@ public class CustomVnc extends bVNC {
             String currentLanguage = current.getLanguage();
             Map mainConfiguration = configData.get("mainConfiguration");
 
-            String title = (String)((Map)configData.get("mainConfiguration").get("title")).get("default");
-            String subtitle = (String)((Map)configData.get("mainConfiguration").get("subtitle")).get("default");
-            String currentLanguageTitle = (String)((Map)configData.get("mainConfiguration").get("title")).get(currentLanguage);
+            String title = (String) ((Map) configData.get("mainConfiguration").get("title")).get("default");
+            String subtitle = (String) ((Map) configData.get("mainConfiguration").get("subtitle")).get("default");
+            String currentLanguageTitle = (String) ((Map) configData.get("mainConfiguration").get("title")).get(currentLanguage);
             if (currentLanguageTitle != null) {
                 title = currentLanguageTitle;
             }
-            String currentLanguageSubTitle = (String)((Map)configData.get("mainConfiguration").get("subtitle")).get(currentLanguage);
+            String currentLanguageSubTitle = (String) ((Map) configData.get("mainConfiguration").get("subtitle")).get(currentLanguage);
             if (currentLanguageSubTitle != null) {
                 subtitle = currentLanguageSubTitle;
             }

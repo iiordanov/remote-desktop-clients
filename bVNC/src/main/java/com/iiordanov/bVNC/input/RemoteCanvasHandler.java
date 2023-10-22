@@ -65,12 +65,13 @@ public class RemoteCanvasHandler extends Handler {
 
     /**
      * Convenience function to create a message with a single key and String value pair in it.
+     *
      * @param what
      * @param key
      * @param value
      * @return
      */
-    public static Message getMessageString (int what, String key, String value) {
+    public static Message getMessageString(int what, String key, String value) {
         Message m = new Message();
         m.what = what;
         Bundle d = new Bundle();
@@ -81,12 +82,13 @@ public class RemoteCanvasHandler extends Handler {
 
     /**
      * Convenience function to create a message with a single key and String value pair in it.
+     *
      * @param what
      * @param key
      * @param value
      * @return
      */
-    public static Message getMessageStringList (int what, String key, ArrayList<String> value) {
+    public static Message getMessageStringList(int what, String key, ArrayList<String> value) {
         Message m = new Message();
         m.what = what;
         Bundle d = new Bundle();
@@ -104,9 +106,9 @@ public class RemoteCanvasHandler extends Handler {
     }
 
     private void showGetTextFragment(String tag, String dialogId, String title,
-                                      GetTextFragment.OnFragmentDismissedListener dismissalListener,
-                                      int dialogType, int messageNum, int errorNum,
-                                      String t1, String t2, String t3, boolean keep) {
+                                     GetTextFragment.OnFragmentDismissedListener dismissalListener,
+                                     int dialogType, int messageNum, int errorNum,
+                                     String t1, String t2, String t3, boolean keep) {
         if (c.pd != null && c.pd.isShowing()) {
             c.pd.dismiss();
         }
@@ -149,13 +151,13 @@ public class RemoteCanvasHandler extends Handler {
      * If there is a saved cert, checks the one given against it. If a signature was passed in
      * and no saved cert, then check that signature. Otherwise, presents the
      * given cert's signature to the user for approval.
-     *
+     * <p>
      * The saved data must always win over any passed-in URI data
      *
      * @param cert the given cert.
      */
     @SuppressLint("StringFormatInvalid")
-    private void validateX509Cert (final X509Certificate cert) {
+    private void validateX509Cert(final X509Certificate cert) {
         byte[] certDataTemp;
         try {
             certDataTemp = cert.getEncoded();
@@ -206,7 +208,7 @@ public class RemoteCanvasHandler extends Handler {
                     }
                 });
 
-        FragmentManager fm = ((FragmentActivity)context).getSupportFragmentManager();
+        FragmentManager fm = ((FragmentActivity) context).getSupportFragmentManager();
         certDialog.setCancelable(false);
         certDialog.show(fm, "certDialog");
     }
@@ -243,10 +245,10 @@ public class RemoteCanvasHandler extends Handler {
     /**
      * Permits the user to validate a certificate with subject, issuer and fingerprint.
      *
-     * @param subject optional subject
-     * @param issuer optional issuer
+     * @param subject     optional subject
+     * @param issuer      optional issuer
      * @param fingerprint non-optional fingerprint that may be saved
-     * @param save whether to save the fingerprint and verify it if it is saved
+     * @param save        whether to save the fingerprint and verify it if it is saved
      */
     public void validateCert(String subject, String issuer, final String fingerprint, boolean save) {
         boolean certMismatch = false;
@@ -580,8 +582,7 @@ public class RemoteCanvasHandler extends Handler {
                     MessageDialogs.displayMessageAndFinish(context, R.string.error_pve_failed_to_authenticate,
                             R.string.error_dialog_title);
                     break;
-                }
-                else {
+                } else {
                     c.maintainConnection = false;
                     showGetTextFragmentRemoteCanvas(context.getString(R.string.enter_password_auth_failed),
                             GetTextFragment.DIALOG_ID_GET_OPAQUE_CREDENTIALS,
@@ -596,8 +597,7 @@ public class RemoteCanvasHandler extends Handler {
                 if (c.retrievevvFileName() != null) {
                     c.disconnectAndShowMessage(R.string.error_ovirt_auth_failure, R.string.error_dialog_title);
                     break;
-                }
-                else {
+                } else {
                     c.maintainConnection = false;
                     showGetTextFragmentRemoteCanvas(context.getString(R.string.enter_password_auth_failed),
                             GetTextFragment.DIALOG_ID_GET_OPAQUE_CREDENTIALS,
@@ -613,10 +613,10 @@ public class RemoteCanvasHandler extends Handler {
                 ArrayList<String> vms = msg.getData().getStringArrayList("vms");
 
                 if (vms.size() > 0) {
-                    fm = ((FragmentActivity)context).getSupportFragmentManager();
+                    fm = ((FragmentActivity) context).getSupportFragmentManager();
                     SelectTextElementFragment displayVms = SelectTextElementFragment.newInstance(
                             context.getString(R.string.select_vm_title),
-                            vms, (RemoteCanvasActivity)context);
+                            vms, (RemoteCanvasActivity) context);
                     displayVms.setCancelable(false);
                     displayVms.show(fm, "selectVm");
                 }
@@ -625,7 +625,7 @@ public class RemoteCanvasHandler extends Handler {
                 if (c.pd != null && c.pd.isShowing()) {
                     c.pd.dismiss();
                 }
-                synchronized(c.spicecomm) {
+                synchronized (c.spicecomm) {
                     c.spiceUpdateReceived = true;
                     c.spicecomm.notifyAll();
                 }
@@ -651,7 +651,7 @@ public class RemoteCanvasHandler extends Handler {
                 break;
             case RemoteClientLibConstants.DIALOG_X509_CERT:
                 android.util.Log.d(TAG, "DIALOG_X509_CERT");
-                X509Certificate cert = (X509Certificate)msg.obj;
+                X509Certificate cert = (X509Certificate) msg.obj;
                 validateX509Cert(cert);
                 break;
             case RemoteClientLibConstants.DISCONNECT_NO_MESSAGE:

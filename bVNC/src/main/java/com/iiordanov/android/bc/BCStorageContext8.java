@@ -4,15 +4,14 @@
  */
 package com.iiordanov.android.bc;
 
-import java.io.File;
+import android.content.Context;
 
 import com.iiordanov.bVNC.MainConfiguration;
 
-import android.content.Context;
+import java.io.File;
 
 /**
  * @author Michael A. MacDonald
- *
  */
 class BCStorageContext8 implements IBCStorageContext {
 
@@ -21,7 +20,7 @@ class BCStorageContext8 implements IBCStorageContext {
      */
     @Override
     public File getExternalStorageDir(MainConfiguration context, String type) {
-        return ((Context)context).getExternalFilesDir(type);
+        return ((Context) context).getExternalFilesDir(type);
     }
 
 }

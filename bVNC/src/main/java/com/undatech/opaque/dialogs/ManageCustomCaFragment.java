@@ -45,10 +45,39 @@ import java.io.File;
 
 public class ManageCustomCaFragment extends DialogFragment
         implements HttpsFileDownloader.OnDownloadFinishedListener {
+    public static final int IMPORT_CA_REQUEST = 0;
     public static String TAG = "ManageCustomCaFragment";
     public static int TYPE_OVIRT = 0;
     public static int TYPE_SPICE = 1;
-    public static final int IMPORT_CA_REQUEST = 0;
+    private OnFragmentDismissedListener dismissalListener;
+    private int caPurpose;
+    private ConnectionSettings currentConnection;
+    private Handler handler;
+    private String caTextContents = "";
+    private EditText caCert;
+    private Runnable setCaText = new Runnable() {
+        @Override
+        public void run() {
+            caCert.setText(caTextContents);
+        }
+    };
+    private Button importButton;
+    private Button downloadButton;
+    private Button helpButton;
+    public ManageCustomCaFragment() {
+    }
+
+    public static ManageCustomCaFragment newInstance(int caPurpose, ConnectionSettings currentConnection) {
+        ManageCustomCaFragment f = new ManageCustomCaFragment();
+
+        // Supply the CA purpose as an argument.
+        Bundle args = new Bundle();
+        args.putInt("caPurpose", caPurpose);
+        args.putSerializable("currentConnection", currentConnection);
+        f.setArguments(args);
+
+        return f;
+    }
 
     @Override
     public void onDownload(String contents) {
@@ -72,44 +101,8 @@ public class ManageCustomCaFragment extends DialogFragment
         ).show());
     }
 
-    public interface OnFragmentDismissedListener {
-        void onFragmentDismissed(ConnectionSettings currentConnection);
-    }
-
-    private OnFragmentDismissedListener dismissalListener;
-    private int caPurpose;
-    private ConnectionSettings currentConnection;
-    private Handler handler;
-    private String caTextContents = "";
-    private Runnable setCaText = new Runnable() {
-        @Override
-        public void run() {
-            caCert.setText(caTextContents);
-        }
-    };
-
-    private EditText caCert;
-    private Button importButton;
-    private Button downloadButton;
-    private Button helpButton;
-
-    public ManageCustomCaFragment() {
-    }
-
     public void setOnFragmentDismissedListener(OnFragmentDismissedListener dismissalListener) {
         this.dismissalListener = dismissalListener;
-    }
-
-    public static ManageCustomCaFragment newInstance(int caPurpose, ConnectionSettings currentConnection) {
-        ManageCustomCaFragment f = new ManageCustomCaFragment();
-
-        // Supply the CA purpose as an argument.
-        Bundle args = new Bundle();
-        args.putInt("caPurpose", caPurpose);
-        args.putSerializable("currentConnection", currentConnection);
-        f.setArguments(args);
-
-        return f;
     }
 
     @Override
@@ -229,6 +222,10 @@ public class ManageCustomCaFragment extends DialogFragment
     public String getExternalSDCardDirectory() {
         File dir = Environment.getExternalStorageDirectory();
         return dir.getAbsolutePath() + "/";
+    }
+
+    public interface OnFragmentDismissedListener {
+        void onFragmentDismissed(ConnectionSettings currentConnection);
     }
 
 }

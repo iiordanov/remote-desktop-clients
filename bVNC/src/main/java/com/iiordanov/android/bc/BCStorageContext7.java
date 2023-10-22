@@ -4,16 +4,15 @@
  */
 package com.iiordanov.android.bc;
 
-import java.io.File;
+import android.os.Environment;
 
 import com.iiordanov.bVNC.MainConfiguration;
 import com.iiordanov.bVNC.Utils;
 
-import android.os.Environment;
+import java.io.File;
 
 /**
  * @author Michael A. MacDonald
- *
  */
 public class BCStorageContext7 implements IBCStorageContext {
 
@@ -26,7 +25,7 @@ public class BCStorageContext7 implements IBCStorageContext {
         String packageName = Utils.pName(context);
         f = new File(f, "Android/data/" + packageName + "/files");
         if (type != null)
-            f=new File(f, type);
+            f = new File(f, type);
         f.mkdirs();
         return f;
     }

@@ -21,27 +21,27 @@
     <item
         android:id="@+id/actionNewConnection"
         android:icon="@drawable/ic_baseline_add_to_queue_24"
-        android:title="@string/action_new_connection"
-        tools:ignore="AppCompatResource"
+        android:onClick="addNewConnection"
         android:showAsAction="never"
+        android:title="@string/action_new_connection"
         app:showAsAction="never"
-        android:onClick="addNewConnection" />
+        tools:ignore="AppCompatResource" />
 
     <item
         android:id="@+id/shareOrRate"
         android:icon="@android:drawable/btn_star_big_on"
-        android:title="@string/action_rate_or_share_app"
-        tools:ignore="AppCompatResource"
+        android:onClick="rateOrShare"
         android:showAsAction="ifRoom"
+        android:title="@string/action_rate_or_share_app"
         app:showAsAction="ifRoom"
-        android:onClick="rateOrShare" />
+        tools:ignore="AppCompatResource" />
 
     <item
         android:id="@+id/actionEditDefaultSettings"
         android:icon="@android:drawable/ic_menu_manage"
-        android:title="@string/action_edit_default_settings"
-        tools:ignore="AppCompatResource"
+        android:onClick="editDefaultSettings"
         android:showAsAction="ifRoom"
+        android:title="@string/action_edit_default_settings"
         app:showAsAction="ifRoom"
-        android:onClick="editDefaultSettings" />
+        tools:ignore="AppCompatResource" />
 </menu>

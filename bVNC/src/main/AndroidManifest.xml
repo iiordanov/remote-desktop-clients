@@ -18,10 +18,10 @@
     <uses-sdk tools:overrideLibrary="com.github.luben.zstd" />
 
     <supports-screens
-        android:resizeable="true"
         android:anyDensity="true"
         android:largeScreens="true"
         android:normalScreens="true"
+        android:resizeable="true"
         android:smallScreens="true"
         android:xlargeScreens="true" />
 
@@ -60,8 +60,7 @@
 
         <activity
             android:name="com.iiordanov.bVNC.GlobalPreferencesActivity"
-            android:theme="@style/Theme.AppCompat"
-            />
+            android:theme="@style/Theme.AppCompat" />
 
         <meta-data
             android:name="com.samsung.android.keepalive.density"

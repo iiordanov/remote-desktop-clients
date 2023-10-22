@@ -60,6 +60,27 @@ public class CSecurityRSAAES {
     private static final String TAG = "CSecurityRSAAES";
 
     private final RfbProto cc;
+    private final int secType;
+    private final int keySize;
+    private final boolean isAllEncrypted;
+    private PrivateKey clientKey;
+    private PublicKey serverKey;
+    private int serverKeyLength;
+    private byte[] serverKeyN;
+    private byte[] serverKeyE;
+    private int clientKeyLength;
+    private byte[] clientKeyN;
+    private byte[] clientKeyE;
+    private byte[] serverRandom;
+    private byte[] clientRandom;
+    private AESInStream rais;
+    private AESOutStream raos;
+    public CSecurityRSAAES(RfbProto cc, int secType, int keySize, boolean isAllEncrypted) {
+        this.cc = cc;
+        this.secType = secType;
+        this.keySize = keySize;
+        this.isAllEncrypted = isAllEncrypted;
+    }
 
     private static byte[] bigIntToBytes(BigInteger n, int bytes) {
         byte[] arr = n.toByteArray();
@@ -67,13 +88,6 @@ public class CSecurityRSAAES {
         byte[] res = new byte[bytes];
         System.arraycopy(arr, arr.length - len, res, bytes - len, len);
         return res;
-    }
-
-    public CSecurityRSAAES(RfbProto cc, int secType, int keySize, boolean isAllEncrypted) {
-        this.cc = cc;
-        this.secType = secType;
-        this.keySize = keySize;
-        this.isAllEncrypted = isAllEncrypted;
     }
 
     public void processMsg(String user, String pass) throws AuthFailureException, Exception {
@@ -328,22 +342,4 @@ public class CSecurityRSAAES {
     public int getType() {
         return secType;
     }
-
-    private final int secType;
-    private final int keySize;
-    private final boolean isAllEncrypted;
-
-    private PrivateKey clientKey;
-    private PublicKey serverKey;
-    private int serverKeyLength;
-    private byte[] serverKeyN;
-    private byte[] serverKeyE;
-    private int clientKeyLength;
-    private byte[] clientKeyN;
-    private byte[] clientKeyE;
-    private byte[] serverRandom;
-    private byte[] clientRandom;
-
-    private AESInStream rais;
-    private AESOutStream raos;
 }

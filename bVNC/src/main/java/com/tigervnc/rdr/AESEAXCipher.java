@@ -38,6 +38,11 @@ public class AESEAXCipher {
     private static final byte[] prefixBlock1 = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1};
     private static final byte[] prefixBlock2 = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2};
     private static final int[] lut = {0x0, 0x87, 0x0e, 0x89};
+    private SecretKeySpec keySpec;
+    private Cipher ctrCipher;
+    private Cipher cbcCipher;
+    private byte[] subKey1;
+    private byte[] subKey2;
 
     public AESEAXCipher(byte[] key) throws Exception {
         try {
@@ -136,10 +141,4 @@ public class AESEAXCipher {
         }
         encryptCTR(input, inputOffset, inputLength, output, outputOffset, nCMAC);
     }
-
-    private SecretKeySpec keySpec;
-    private Cipher ctrCipher;
-    private Cipher cbcCipher;
-    private byte[] subKey1;
-    private byte[] subKey2;
 }

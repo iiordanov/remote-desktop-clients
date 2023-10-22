@@ -16,6 +16,7 @@
             android:padding="5dip">
 
             <TableRow>
+
                 <TextView
                     android:id="@+id/connectionTypeLabel"
                     android:layout_width="wrap_content"
@@ -25,6 +26,7 @@
             </TableRow>
 
             <TableRow>
+
                 <Spinner
                     android:id="@+id/connectionType"
                     android:layout_width="fill_parent"
@@ -35,6 +37,7 @@
             </TableRow>
 
             <TableRow>
+
                 <EditText
                     android:id="@+id/textNickname"
                     android:layout_width="fill_parent"
@@ -46,6 +49,7 @@
             </TableRow>
 
             <TableRow>
+
                 <TextView
                     android:id="@+id/sshCaption"
                     android:layout_width="wrap_content"
@@ -55,6 +59,7 @@
             </TableRow>
 
             <TableRow>
+
                 <LinearLayout
                     android:id="@+id/sshServerEntry"
                     android:layout_width="fill_parent"
@@ -89,40 +94,42 @@
             </TableRow>
 
             <TableRow>
+
                 <LinearLayout
                     android:id="@+id/sshCredentials"
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
                     android:layout_weight="1"
+                    android:orientation="vertical"
                     android:visibility="gone">
 
                     <LinearLayout
                         android:layout_width="fill_parent"
                         android:layout_height="wrap_content"
-                        android:singleLine="true"
                         android:orientation="horizontal"
-                        android:padding="0dp">
+                        android:padding="0dp"
+                        android:singleLine="true">
 
                         <EditText
                             android:id="@+id/sshUser"
                             android:layout_width="fill_parent"
                             android:layout_height="wrap_content"
+                            android:layout_weight="1"
                             android:hint="@string/username_hint_ssh"
                             android:inputType="textNoSuggestions|textVisiblePassword"
                             android:nextFocusDown="@+id/sshPassword"
-                            android:layout_weight="1"
                             android:textAppearance="?android:attr/textAppearanceLarge" />
 
                         <EditText
                             android:id="@+id/sshPassword"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:layout_weight="0"
                             android:hint="@string/password_hint_ssh"
                             android:inputType="textNoSuggestions|textPassword"
-                            android:layout_weight="0"
                             android:textAppearance="?android:attr/textAppearanceLarge" />
                     </LinearLayout>
+
                     <EditText
                         android:id="@+id/sshPassphrase"
                         android:layout_width="fill_parent"
@@ -135,6 +142,7 @@
             </TableRow>
 
             <TableRow>
+
                 <LinearLayout
                     android:id="@+id/layoutUseSshPubkey"
                     android:layout_width="fill_parent"
@@ -189,6 +197,7 @@
             </TableRow>
 
             <TableRow>
+
                 <LinearLayout
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
@@ -220,6 +229,7 @@
             </TableRow>
 
             <TableRow>
+
                 <EditText
                     android:id="@+id/textUsername"
                     android:layout_width="fill_parent"
@@ -292,8 +302,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceMedium"
-                android:textOn="@string/hide"
-                android:textOff="@string/show" />
+                android:textOff="@string/show"
+                android:textOn="@string/hide" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -314,18 +324,20 @@
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
+
                 <TextView
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/color_mode"
                     android:layout_weight="0.4"
+                    android:text="@string/color_mode"
                     android:textAppearance="?android:attr/textAppearanceLarge" />
+
                 <Spinner
                     android:id="@+id/spinnerRdpColor"
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
-                    android:entries="@array/rdp_colors"
                     android:layout_weight="0.6"
+                    android:entries="@array/rdp_colors"
                     android:textAppearance="?android:attr/textAppearanceLarge" />
             </LinearLayout>
 
@@ -502,12 +514,12 @@
 
             <CheckBox
                 android:id="@+id/checkboxEnableGfxH264"
-                android:visibility="gone"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="left|center_vertical"
                 android:text="@string/rdp_adv_gfxh264"
-                android:textAppearance="?android:attr/textAppearanceLarge" />
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:visibility="gone" />
 
             <TextView
                 android:layout_width="wrap_content"

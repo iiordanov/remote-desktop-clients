@@ -19,24 +19,27 @@ package com.iiordanov.bVNC.input;
 import android.content.Context;
 import android.os.Build;
 import android.os.Handler;
-import androidx.annotation.RequiresApi;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.ViewConfiguration;
 
+import androidx.annotation.RequiresApi;
+
 public class MyScaleGestureDetector extends ScaleGestureDetector {
     private static final String TAG = "MyScaleGestureDetector";
-
+    private static final long TOUCH_STABILIZE_TIME = 128; // ms
+    private static final float SCALE_FACTOR = .5f;
+    private static final int ANCHORED_SCALE_MODE_NONE = 0;
+    private static final int ANCHORED_SCALE_MODE_DOUBLE_TAP = 1;
+    private static final int ANCHORED_SCALE_MODE_STYLUS = 2;
     private final Context mContext;
     private final OnScaleGestureListener mListener;
-
+    private final Handler mHandler;
     private float mFocusX;
     private float mFocusY;
-
     private boolean mQuickScaleEnabled;
     private boolean mStylusScaleEnabled;
-
     private float mCurrSpan;
     private float mPrevSpan;
     private float mInitialSpan;
@@ -49,19 +52,9 @@ public class MyScaleGestureDetector extends ScaleGestureDetector {
     private boolean mInProgress;
     private int mSpanSlop;
     private int mMinSpan;
-
-    private final Handler mHandler;
-
     private float mAnchoredScaleStartX;
     private float mAnchoredScaleStartY;
     private int mAnchoredScaleMode = ANCHORED_SCALE_MODE_NONE;
-
-    private static final long TOUCH_STABILIZE_TIME = 128; // ms
-    private static final float SCALE_FACTOR = .5f;
-    private static final int ANCHORED_SCALE_MODE_NONE = 0;
-    private static final int ANCHORED_SCALE_MODE_DOUBLE_TAP = 1;
-    private static final int ANCHORED_SCALE_MODE_STYLUS = 2;
-
     private GestureDetector mGestureDetector;
 
     private boolean mEventBeforeOrAboveStartingGestureEvent;
@@ -70,10 +63,9 @@ public class MyScaleGestureDetector extends ScaleGestureDetector {
      * Creates a ScaleGestureDetector with the supplied listener.
      * You may only use this constructor from a {@link android.os.Looper Looper} thread.
      *
-     * @param context the application's context
+     * @param context  the application's context
      * @param listener the listener invoked for all the callbacks, this must
-     * not be null.
-     *
+     *                 not be null.
      * @throws NullPointerException if {@code listener} is null.
      */
     public MyScaleGestureDetector(Context context, OnScaleGestureListener listener) {
@@ -82,14 +74,13 @@ public class MyScaleGestureDetector extends ScaleGestureDetector {
 
     /**
      * Creates a ScaleGestureDetector with the supplied listener.
-     * @see android.os.Handler#Handler()
      *
-     * @param context the application's context
+     * @param context  the application's context
      * @param listener the listener invoked for all the callbacks, this must
-     * not be null.
-     * @param handler the handler to use for running deferred listener events.
-     *
+     *                 not be null.
+     * @param handler  the handler to use for running deferred listener events.
      * @throws NullPointerException if {@code listener} is null.
+     * @see android.os.Handler#Handler()
      */
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     public MyScaleGestureDetector(Context context, OnScaleGestureListener listener,
@@ -122,7 +113,7 @@ public class MyScaleGestureDetector extends ScaleGestureDetector {
      *
      * @param event The event to process
      * @return true if the event was processed and the detector wants to receive the
-     *         rest of the MotionEvents in this event stream.
+     * rest of the MotionEvents in this event stream.
      */
     public boolean onTouchEvent(MotionEvent event) {
         mCurrTime = event.getEventTime();
@@ -247,7 +238,7 @@ public class MyScaleGestureDetector extends ScaleGestureDetector {
         }
 
         final int minSpan = inAnchoredScaleMode() ? mSpanSlop : mMinSpan;
-        if (!mInProgress && span >=  minSpan &&
+        if (!mInProgress && span >= minSpan &&
                 (wasInProgress || Math.abs(span - mInitialSpan) > mSpanSlop)) {
             mPrevSpanX = mCurrSpanX = spanX;
             mPrevSpanY = mCurrSpanY = spanY;
@@ -284,9 +275,18 @@ public class MyScaleGestureDetector extends ScaleGestureDetector {
     }
 
     /**
+     * Return whether the quick scale gesture, in which the user performs a double tap followed by a
+     * swipe, should perform scaling. {@see #setQuickScaleEnabled(boolean)}.
+     */
+    public boolean isQuickScaleEnabled() {
+        return mQuickScaleEnabled;
+    }
+
+    /**
      * Set whether the associated {@link OnScaleGestureListener} should receive onScale callbacks
      * when the user performs a doubleTap followed by a swipe. Note that this is enabled by default
      * if the app targets API 19 and newer.
+     *
      * @param scales true to enable quick scaling, false to disable
      */
     public void setQuickScaleEnabled(boolean scales) {
@@ -308,11 +308,11 @@ public class MyScaleGestureDetector extends ScaleGestureDetector {
     }
 
     /**
-     * Return whether the quick scale gesture, in which the user performs a double tap followed by a
-     * swipe, should perform scaling. {@see #setQuickScaleEnabled(boolean)}.
+     * Return whether the stylus scale gesture, in which the user uses a stylus and presses the
+     * button, should perform scaling. {@see #setStylusScaleEnabled(boolean)}
      */
-    public boolean isQuickScaleEnabled() {
-        return mQuickScaleEnabled;
+    public boolean isStylusScaleEnabled() {
+        return mStylusScaleEnabled;
     }
 
     /**
@@ -327,14 +327,6 @@ public class MyScaleGestureDetector extends ScaleGestureDetector {
     }
 
     /**
-     * Return whether the stylus scale gesture, in which the user uses a stylus and presses the
-     * button, should perform scaling. {@see #setStylusScaleEnabled(boolean)}
-     */
-    public boolean isStylusScaleEnabled() {
-        return mStylusScaleEnabled;
-    }
-
-    /**
      * Returns {@code true} if a scale gesture is in progress.
      */
     public boolean isInProgress() {
@@ -345,7 +337,7 @@ public class MyScaleGestureDetector extends ScaleGestureDetector {
      * Get the X coordinate of the current gesture's focal point.
      * If a gesture is in progress, the focal point is between
      * each of the pointers forming the gesture.
-     *
+     * <p>
      * If {@link #isInProgress()} would return false, the result of this
      * function is undefined.
      *
@@ -359,7 +351,7 @@ public class MyScaleGestureDetector extends ScaleGestureDetector {
      * Get the Y coordinate of the current gesture's focal point.
      * If a gesture is in progress, the focal point is between
      * each of the pointers forming the gesture.
-     *
+     * <p>
      * If {@link #isInProgress()} would return false, the result of this
      * function is undefined.
      *

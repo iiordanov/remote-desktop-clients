@@ -45,24 +45,22 @@ public class ConnectionBean extends AbstractConnectionBean implements Connection
 
     private static final String TAG = "ConnectionBean";
     static Context c = null;
+    public static final NewInstance<ConnectionBean> newInstance = new NewInstance<ConnectionBean>() {
+        public ConnectionBean get() {
+            return new ConnectionBean(c);
+        }
+    };
     private boolean readyForConnection = true; // saved connections are OK
     private boolean readyToBeSaved = false;
     private int idHashAlgorithm;
     private String idHash;
     private String masterPassword;
     private String id;
-
     private boolean useLastPositionToolbar;
     private int useLastPositionToolbarX;
     private int useLastPositionToolbarY;
     private boolean useLastPositionToolbarMoved;
     private boolean showOnlyConnectionNicknames = false;
-
-    public static final NewInstance<ConnectionBean> newInstance = new NewInstance<ConnectionBean>() {
-        public ConnectionBean get() {
-            return new ConnectionBean(c);
-        }
-    };
 
     public ConnectionBean(Context context) {
         String inputMode = InputHandlerDirectSwipePan.ID;
@@ -171,6 +169,22 @@ public class ConnectionBean extends AbstractConnectionBean implements Connection
         setUseLastPositionToolbarMoved(false);
     }
 
+    /**
+     * Return the object representing the app global state in the database, or null
+     * if the object hasn't been set up yet
+     *
+     * @param db App's database -- only needs to be readable
+     * @return Object representing the single persistent instance of MostRecentBean, which
+     * is the app's global state
+     */
+    public static MostRecentBean getMostRecent(SQLiteDatabase db) {
+        ArrayList<MostRecentBean> recents = new ArrayList<MostRecentBean>(1);
+        MostRecentBean.getAll(db, MostRecentBean.GEN_TABLE_NAME, recents, MostRecentBean.GEN_NEW);
+        if (recents.size() == 0)
+            return null;
+        return recents.get(0);
+    }
+
     public int getIdHashAlgorithm() {
         return idHashAlgorithm;
     }
@@ -227,13 +241,13 @@ public class ConnectionBean extends AbstractConnectionBean implements Connection
     }
 
     @Override
-    public String getId() {
-        return Long.toString(get_Id());
+    public void setRuntimeId(String id) {
+        this.id = id;
     }
 
     @Override
-    public void setRuntimeId(String id) {
-        this.id = id;
+    public String getId() {
+        return Long.toString(get_Id());
     }
 
     @Override
@@ -389,7 +403,6 @@ public class ConnectionBean extends AbstractConnectionBean implements Connection
         editor.apply();
     }
 
-
     private synchronized void save(SQLiteDatabase database) {
         android.util.Log.d(TAG, "save called with database");
         ContentValues values = Gen_getValues();
@@ -412,8 +425,16 @@ public class ConnectionBean extends AbstractConnectionBean implements Connection
         return readyForConnection;
     }
 
+    public void setReadyForConnection(boolean readyForConnection) {
+        this.readyForConnection = readyForConnection;
+    }
+
     public boolean isReadyToBeSaved() {
         return readyToBeSaved;
+    }
+
+    public void setReadyToBeSaved(boolean readyToBeSaved) {
+        this.readyToBeSaved = readyToBeSaved;
     }
 
     public ScaleType getScaleMode() {
@@ -455,13 +476,13 @@ public class ConnectionBean extends AbstractConnectionBean implements Connection
     }
 
     @Override
-    public void setUseLastPositionToolbarMoved(boolean useLastPositionToolbarMoved) {
-        this.useLastPositionToolbarMoved = useLastPositionToolbarMoved;
+    public boolean getUseLastPositionToolbarMoved() {
+        return useLastPositionToolbarMoved;
     }
 
     @Override
-    public boolean getUseLastPositionToolbarMoved() {
-        return useLastPositionToolbarMoved;
+    public void setUseLastPositionToolbarMoved(boolean useLastPositionToolbarMoved) {
+        this.useLastPositionToolbarMoved = useLastPositionToolbarMoved;
     }
 
     @Override
@@ -508,22 +529,6 @@ public class ConnectionBean extends AbstractConnectionBean implements Connection
             result = getSshPort() - another.getSshPort();
         }
         return result;
-    }
-
-    /**
-     * Return the object representing the app global state in the database, or null
-     * if the object hasn't been set up yet
-     *
-     * @param db App's database -- only needs to be readable
-     * @return Object representing the single persistent instance of MostRecentBean, which
-     * is the app's global state
-     */
-    public static MostRecentBean getMostRecent(SQLiteDatabase db) {
-        ArrayList<MostRecentBean> recents = new ArrayList<MostRecentBean>(1);
-        MostRecentBean.getAll(db, MostRecentBean.GEN_TABLE_NAME, recents, MostRecentBean.GEN_NEW);
-        if (recents.size() == 0)
-            return null;
-        return recents.get(0);
     }
 
     public void saveAndWriteRecent(boolean saveEmpty, Context c) {
@@ -579,13 +584,5 @@ public class ConnectionBean extends AbstractConnectionBean implements Connection
                 setReadyForConnection(false);
             }
         }
-    }
-
-    public void setReadyForConnection(boolean readyForConnection) {
-        this.readyForConnection = readyForConnection;
-    }
-
-    public void setReadyToBeSaved(boolean readyToBeSaved) {
-        this.readyToBeSaved = readyToBeSaved;
     }
 }

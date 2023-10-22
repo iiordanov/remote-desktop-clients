@@ -1,16 +1,16 @@
 /**
  * Copyright (C) 2013- Iordan Iordanov
- *
+ * <p>
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * This software is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License
  * along with this software; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307,
@@ -79,16 +79,16 @@ import java.io.OutputStream;
 
 public class ConnectionGridActivity extends FragmentActivity implements GetTextFragment.OnFragmentDismissedListener {
     private static String TAG = "ConnectionGridActivity";
+    protected Database database;
+    protected boolean isStarting = true;
     FragmentManager fragmentManager = getSupportFragmentManager();
+    GetTextFragment getPassword = null;
+    GetTextFragment getNewPassword = null;
     private Context appContext;
     private GridView gridView;
     private EditText search;
     private boolean isConnecting = false;
-    protected Database database;
     private boolean togglingMasterPassword = false;
-    GetTextFragment getPassword = null;
-    GetTextFragment getNewPassword = null;
-    protected boolean isStarting = true;
     private AppCompatImageButton addNewConnection = null;
 
     private RateOrShareFragment rateOrShareFragment = new RateOrShareFragment();
@@ -113,14 +113,13 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
                 AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(ConnectionGridActivity.this);
                 String gridItemText = (String) ((TextView) v.findViewById(R.id.grid_item_text)).getText();
                 alertDialogBuilder.setTitle(getString(R.string.connection_edit_delete_prompt) + " " + gridItemText + " ?");
-                CharSequence [] cs = {getString(R.string.connection_edit), getString(R.string.connection_delete)};
+                CharSequence[] cs = {getString(R.string.connection_edit), getString(R.string.connection_delete)};
                 alertDialogBuilder.setItems(cs, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int item) {
                         if (cs[item].toString() == getString(R.string.connection_edit)) {
                             editConnection(v);
-                        }
-                        else if (cs[item].toString() == getString(R.string.connection_delete)) {
+                        } else if (cs[item].toString() == getString(R.string.connection_delete)) {
                             deleteConnection(v);
                         }
                     }
@@ -134,15 +133,19 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
         search = findViewById(R.id.search);
         search.addTextChangedListener(new TextWatcher() {
             @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) { }
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
+
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
             @Override
             public void afterTextChanged(Editable s) {
                 createAndSetLabeledImageAdapterAndNumberOfColumns();
             }
         });
-        database = ((App)getApplication()).getDatabase();
+        database = ((App) getApplication()).getDatabase();
         if (getPassword == null) {
             getPassword = GetTextFragment.newInstance(GetTextFragment.DIALOG_ID_GET_MASTER_PASSWORD,
                     getString(R.string.master_password_verify), this,
@@ -198,8 +201,7 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
             ConnectionSettings cs = (ConnectionSettings) connectionLoader.getConnectionsById().get(runtimeId);
             cs.loadFromSharedPreferences(appContext);
             intent.putExtra("com.undatech.opaque.ConnectionSettings", cs);
-        }
-        else{
+        } else {
             ConnectionBean conn = (ConnectionBean) connectionLoader.getConnectionsById().get(runtimeId);
             intent.putExtra(Utils.getConnectionString(appContext), conn.Gen_getValues());
         }
@@ -217,8 +219,7 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
             ConnectionSettings cs = (ConnectionSettings) connectionLoader.getConnectionsById().get(runtimeId);
             intent.putExtra("com.undatech.opaque.connectionToEdit", cs.getFilename());
 
-        }
-        else {
+        } else {
             intent.putExtra("isNewConnection", false);
             intent.putExtra("connID", conn.getId());
         }
@@ -229,42 +230,41 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
         android.util.Log.d(TAG, "Delete Connection");
         String runtimeId = (String) ((TextView) v.findViewById(R.id.grid_item_id)).getText();
         String gridItemText = (String) ((TextView) v.findViewById(R.id.grid_item_text)).getText();
-        Utils.showYesNoPrompt(this, getString(R.string.delete_connection) + "?", getString(R.string.delete_connection) + " " + gridItemText+ " ?",
+        Utils.showYesNoPrompt(this, getString(R.string.delete_connection) + "?", getString(R.string.delete_connection) + " " + gridItemText + " ?",
                 new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int i) {
-                ConnectionLoader connectionLoader = getConnectionLoader(ConnectionGridActivity.this);
-                if (Utils.isOpaque(ConnectionGridActivity.this)) {
+                    @Override
+                    public void onClick(DialogInterface dialog, int i) {
+                        ConnectionLoader connectionLoader = getConnectionLoader(ConnectionGridActivity.this);
+                        if (Utils.isOpaque(ConnectionGridActivity.this)) {
 
-                    String newListOfConnections = new String();
+                            String newListOfConnections = new String();
 
-                    SharedPreferences sp = appContext.getSharedPreferences("generalSettings", Context.MODE_PRIVATE);
-                    String currentConnectionsStr = sp.getString("connections", null);
+                            SharedPreferences sp = appContext.getSharedPreferences("generalSettings", Context.MODE_PRIVATE);
+                            String currentConnectionsStr = sp.getString("connections", null);
 
-                    ConnectionSettings cs = (ConnectionSettings) connectionLoader.getConnectionsById().get(runtimeId);
-                    if (sp != null) {
-                        String [] currentConnections = currentConnectionsStr.split(" ");
-                        for (String connection : currentConnections) {
-                            if (!connection.equals(cs.getFilename())) {
-                                newListOfConnections += " " + connection;
+                            ConnectionSettings cs = (ConnectionSettings) connectionLoader.getConnectionsById().get(runtimeId);
+                            if (sp != null) {
+                                String[] currentConnections = currentConnectionsStr.split(" ");
+                                for (String connection : currentConnections) {
+                                    if (!connection.equals(cs.getFilename())) {
+                                        newListOfConnections += " " + connection;
+                                    }
+                                }
+                                android.util.Log.d(TAG, "Deleted connection, current list: " + newListOfConnections);
+                                Editor editor = sp.edit();
+                                editor.putString("connections", newListOfConnections.trim());
+                                editor.apply();
+                                File toDelete = new File(getFilesDir() + "/" + cs.getFilename() + ".png");
+                                toDelete.delete();
                             }
+                        } else {
+                            ConnectionBean conn = (ConnectionBean) connectionLoader.getConnectionsById().get(runtimeId);
+                            conn.Gen_delete(database.getWritableDatabase());
+                            database.close();
                         }
-                        android.util.Log.d(TAG, "Deleted connection, current list: " + newListOfConnections);
-                        Editor editor = sp.edit();
-                        editor.putString("connections", newListOfConnections.trim());
-                        editor.apply();
-                        File toDelete = new File (getFilesDir() + "/" + cs.getFilename() + ".png");
-                        toDelete.delete();
+                        onResume();
                     }
-                }
-                else {
-                    ConnectionBean conn = (ConnectionBean) connectionLoader.getConnectionsById().get(runtimeId);
-                    conn.Gen_delete(database.getWritableDatabase());
-                    database.close();
-                }
-                onResume();
-            }
-        }, null);
+                }, null);
     }
 
     @Override
@@ -307,7 +307,7 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
     /**
      * Starts a new connection.
      */
-    public void addNewConnection () {
+    public void addNewConnection() {
         Intent intent = new Intent(ConnectionGridActivity.this,
                 Utils.getConnectionSetupClass(this));
         intent.putExtra("isNewConnection", true);
@@ -317,7 +317,7 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
     /**
      * Linked with android:onClick to the add new connection action bar item.
      */
-    public void addNewConnection (MenuItem menuItem) {
+    public void addNewConnection(MenuItem menuItem) {
         addNewConnection();
     }
 
@@ -332,7 +332,7 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
      * Linked with android:onClick to the copyLogcat action bar item.
      * @param menuItem
      */
-    public void copyLogcat (MenuItem menuItem) {
+    public void copyLogcat(MenuItem menuItem) {
         LogcatReader logcatReader = new LogcatReader();
         setClipboard(this, logcatReader.getMyLogcat(RemoteClientLibConstants.LOGCAT_MAX_LINES));
         Toast.makeText(getBaseContext(), getResources().getString(R.string.log_copied),
@@ -343,7 +343,7 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
      * Linked with android:onClick to the edit default settings action bar item.
      * @param menuItem
      */
-    public void editDefaultSettings (MenuItem menuItem) {
+    public void editDefaultSettings(MenuItem menuItem) {
         android.util.Log.d(TAG, "editDefaultSettings selected.");
         if (Utils.isOpaque(this)) {
             Intent intent = new Intent(ConnectionGridActivity.this, GeneralUtils.getClassByName("com.undatech.opaque.AdvancedSettingsActivity"));
@@ -362,7 +362,7 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
      * Linked with android:onClick to share or rate action bar item.
      * @param menuItem
      */
-    public void rateOrShare (MenuItem menuItem) {
+    public void rateOrShare(MenuItem menuItem) {
         android.util.Log.d(TAG, "rateOrShare selected.");
         if (!rateOrShareFragment.isVisible()) {
             rateOrShareFragment.show(fragmentManager, "");
@@ -385,55 +385,55 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
         android.util.Log.i(TAG, "onActivityResult");
 
         super.onActivityResult(requestCode, resultCode, data);
-        switch(requestCode) {
-        case RemoteClientLibConstants.DEFAULT_SETTINGS:
-            if (resultCode == Activity.RESULT_OK) {
-                Bundle b = data.getExtras();
-                ConnectionSettings defaultSettings = (ConnectionSettings)b.get("com.undatech.opaque.ConnectionSettings");
-                defaultSettings.saveToSharedPreferences(this);
-            } else {
-                android.util.Log.i (TAG, "Error during AdvancedSettingsActivity.");
-            }
-            break;
-        case RemoteClientLibConstants.IMPORT_SETTINGS_REQUEST_CODE:
-            if (resultCode == Activity.RESULT_OK) {
-                if (data != null && data.getData() != null) {
-                    ContentResolver resolver = getContentResolver();
-
-                    boolean connectionsInSharedPrefs = Utils.isOpaque(this);
-                    InputStream in = FileUtils.getInputStreamFromUri(resolver, data.getData());
-                    if (connectionsInSharedPrefs) {
-                        ConnectionSettings.importSettingsFromJsonToSharedPrefs(in, this);
-                    } else {
-                        Utils.importSettingsFromXml(in, database.getWritableDatabase());
-                    }
-                    recreate();
+        switch (requestCode) {
+            case RemoteClientLibConstants.DEFAULT_SETTINGS:
+                if (resultCode == Activity.RESULT_OK) {
+                    Bundle b = data.getExtras();
+                    ConnectionSettings defaultSettings = (ConnectionSettings) b.get("com.undatech.opaque.ConnectionSettings");
+                    defaultSettings.saveToSharedPreferences(this);
                 } else {
-                    android.util.Log.e(TAG, "File uri not found, not importing settings");
+                    android.util.Log.i(TAG, "Error during AdvancedSettingsActivity.");
                 }
-            } else {
-                android.util.Log.e(TAG, "Error while selecting file to import settings from");
-            }
-            break;
-        case RemoteClientLibConstants.EXPORT_SETTINGS_REQUEST_CODE:
-            if (resultCode == Activity.RESULT_OK) {
-                if (data != null && data.getData() != null) {
-                    ContentResolver resolver = getContentResolver();
+                break;
+            case RemoteClientLibConstants.IMPORT_SETTINGS_REQUEST_CODE:
+                if (resultCode == Activity.RESULT_OK) {
+                    if (data != null && data.getData() != null) {
+                        ContentResolver resolver = getContentResolver();
 
-                    boolean connectionsInSharedPrefs = Utils.isOpaque(this);
-                    OutputStream out = FileUtils.getOutputStreamFromUri(resolver, data.getData());
-                    if (connectionsInSharedPrefs) {
-                        ConnectionSettings.exportSettingsFromSharedPrefsToJson(out, this);
+                        boolean connectionsInSharedPrefs = Utils.isOpaque(this);
+                        InputStream in = FileUtils.getInputStreamFromUri(resolver, data.getData());
+                        if (connectionsInSharedPrefs) {
+                            ConnectionSettings.importSettingsFromJsonToSharedPrefs(in, this);
+                        } else {
+                            Utils.importSettingsFromXml(in, database.getWritableDatabase());
+                        }
+                        recreate();
                     } else {
-                        Utils.exportSettingsToXml(out, database.getReadableDatabase());
+                        android.util.Log.e(TAG, "File uri not found, not importing settings");
                     }
                 } else {
-                    android.util.Log.e(TAG, "File uri not found, not exporting settings");
+                    android.util.Log.e(TAG, "Error while selecting file to import settings from");
                 }
-            } else {
-                android.util.Log.e(TAG, "Error while selecting file to export settings to");
-            }
-            break;
+                break;
+            case RemoteClientLibConstants.EXPORT_SETTINGS_REQUEST_CODE:
+                if (resultCode == Activity.RESULT_OK) {
+                    if (data != null && data.getData() != null) {
+                        ContentResolver resolver = getContentResolver();
+
+                        boolean connectionsInSharedPrefs = Utils.isOpaque(this);
+                        OutputStream out = FileUtils.getOutputStreamFromUri(resolver, data.getData());
+                        if (connectionsInSharedPrefs) {
+                            ConnectionSettings.exportSettingsFromSharedPrefsToJson(out, this);
+                        } else {
+                            Utils.exportSettingsToXml(out, database.getReadableDatabase());
+                        }
+                    } else {
+                        android.util.Log.e(TAG, "File uri not found, not exporting settings");
+                    }
+                } else {
+                    android.util.Log.e(TAG, "Error while selecting file to export settings to");
+                }
+                break;
         }
     }
 
@@ -447,7 +447,8 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
             updateInputMenu(menu.findItem(R.id.itemInputMode).getSubMenu());
             MenuItem itemMasterPassword = menu.findItem(R.id.itemMasterPassword);
             itemMasterPassword.setChecked(Utils.querySharedPreferenceBoolean(this, Constants.masterPasswordEnabledTag));
-        } catch (NullPointerException e) {}
+        } catch (NullPointerException e) {
+        }
         return true;
     }
 
@@ -472,7 +473,8 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
                     item.setChecked(true);
                 }
             }
-        } catch (NullPointerException e) { }
+        } catch (NullPointerException e) {
+        }
     }
 
     /* (non-Javadoc)

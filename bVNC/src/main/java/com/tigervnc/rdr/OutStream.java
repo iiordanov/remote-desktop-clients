@@ -32,6 +32,16 @@ abstract public class OutStream {
     // itemSize bytes.  Returns the number of items which fit (up to a maximum
     // of nItems).
 
+    static final int maxMessageSize = 8192;
+    protected byte[] b = new byte[maxMessageSize];
+
+    // writeU/SN() methods write unsigned and signed N-bit integers.
+    protected int ptr;
+    protected int end;
+
+    protected OutStream() {
+    }
+
     public final int check(int itemSize, int nItems) throws IOException {
         int nAvail;
 
@@ -43,18 +53,22 @@ abstract public class OutStream {
         return Math.min(nAvail, nItems);
     }
 
+    // writeBytes() writes an exact number of bytes from an array at an offset.
+
     public final void check(int itemSize) throws IOException {
         if (ptr + itemSize > end)
             overrun(itemSize, 1);
     }
 
-    // writeU/SN() methods write unsigned and signed N-bit integers.
+    // length() returns the length of the stream.
 
     public void writeU8(int u) throws IOException {
         check(1);
         b[ptr++] = (byte) u;
         flush();
     }
+
+    // flush() requests that the stream be flushed.
 
     public void writeU16(int u) throws IOException {
         check(2);
@@ -76,8 +90,6 @@ abstract public class OutStream {
         while (bytes-- > 0) writeU8(0);
     }
 
-    // writeBytes() writes an exact number of bytes from an array at an offset.
-
     public void writeBytes(byte[] data, int dataPtr, int length) throws IOException {
         int dataEnd = dataPtr + length;
         while (dataPtr < dataEnd) {
@@ -89,24 +101,12 @@ abstract public class OutStream {
         flush();
     }
 
-    // length() returns the length of the stream.
-
     abstract public int length();
-
-    // flush() requests that the stream be flushed.
 
     public void flush() throws IOException {
     }
 
     abstract protected int overrun(int itemSize, int nItems) throws IOException;
-
-    protected OutStream() {
-    }
-
-    static final int maxMessageSize = 8192;
-    protected byte[] b = new byte[maxMessageSize];
-    protected int ptr;
-    protected int end;
 
     public void write(byte b[]) throws IOException {
         this.writeBytes(b, 0, b.length);

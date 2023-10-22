@@ -28,60 +28,60 @@
 
 JNIEXPORT void JNICALL
 Java_com_undatech_opaque_SpiceCommunicator_UpdateBitmap (JNIEnv* env, jobject obj, jobject bitmap, gint x, gint y, gint width, gint height) {
-	uchar* pixels;
+    uchar* pixels;
     SpiceDisplayPrivate *d = SPICE_DISPLAY_GET_PRIVATE(global_display);
 
-	if (AndroidBitmap_lockPixels(env, bitmap, (void**)&pixels) < 0) {
-		__android_log_write(ANDROID_LOG_ERROR, "android-io", "AndroidBitmap_lockPixels() failed!");
-		return;
-	}
+    if (AndroidBitmap_lockPixels(env, bitmap, (void**)&pixels) < 0) {
+        __android_log_write(ANDROID_LOG_ERROR, "android-io", "AndroidBitmap_lockPixels() failed!");
+        return;
+    }
 
-	int slen = d->width * 4;
-	int offset = (slen * y) + (x * 4);
-	uchar *source = d->data;
-	uchar *sourcepix = (uchar*) &source[offset];
-	uchar *destpix   = (uchar*) &pixels[offset];
+    int slen = d->width * 4;
+    int offset = (slen * y) + (x * 4);
+    uchar *source = d->data;
+    uchar *sourcepix = (uchar*) &source[offset];
+    uchar *destpix   = (uchar*) &pixels[offset];
 
-	for (int i = 0; i < height; i++) {
-		for (int j = 0; j < width * 4; j += 4) {
-			destpix[j + 0] = sourcepix[j + 2];
-			destpix[j + 1] = sourcepix[j + 1];
-			destpix[j + 2] = sourcepix[j + 0];
-			destpix[j + 3] = 0xff;
-		}
-		sourcepix = sourcepix + slen;
-		destpix   = destpix + slen;
-	}
+    for (int i = 0; i < height; i++) {
+        for (int j = 0; j < width * 4; j += 4) {
+            destpix[j + 0] = sourcepix[j + 2];
+            destpix[j + 1] = sourcepix[j + 1];
+            destpix[j + 2] = sourcepix[j + 0];
+            destpix[j + 3] = 0xff;
+        }
+        sourcepix = sourcepix + slen;
+        destpix   = destpix + slen;
+    }
 
-	AndroidBitmap_unlockPixels(env, bitmap);
+    AndroidBitmap_unlockPixels(env, bitmap);
 }
 
 int win32key2spice (int keycode)
 {
-	int newKeyCode = keymap_win322xtkbd[keycode];
-	/*
-	char buf[100];
-	snprintf (buf, 100, "Converted win32 key: %d to linux key: %d", keycode, newKeyCode);
-	__android_log_write(ANDROID_LOG_DEBUG, "android-io", buf);
-	*/
-	return newKeyCode;
+    int newKeyCode = keymap_win322xtkbd[keycode];
+    /*
+    char buf[100];
+    snprintf (buf, 100, "Converted win32 key: %d to linux key: %d", keycode, newKeyCode);
+    __android_log_write(ANDROID_LOG_DEBUG, "android-io", buf);
+    */
+    return newKeyCode;
 }
 
 static int update_mask (int button, gboolean down) {
-	static int mask;
-	int update = 0;
-	if (button == SPICE_MOUSE_BUTTON_LEFT)
-		update = SPICE_MOUSE_BUTTON_MASK_LEFT;
-	else if (button == SPICE_MOUSE_BUTTON_MIDDLE)
-		update = SPICE_MOUSE_BUTTON_MASK_MIDDLE;
-	else if (button == SPICE_MOUSE_BUTTON_RIGHT)
-		update = SPICE_MOUSE_BUTTON_MASK_RIGHT;
-	if (down) {
-		mask |= update;
-	} else {
-		mask &= ~update;
-	}
-	return mask;
+    static int mask;
+    int update = 0;
+    if (button == SPICE_MOUSE_BUTTON_LEFT)
+        update = SPICE_MOUSE_BUTTON_MASK_LEFT;
+    else if (button == SPICE_MOUSE_BUTTON_MIDDLE)
+        update = SPICE_MOUSE_BUTTON_MASK_MIDDLE;
+    else if (button == SPICE_MOUSE_BUTTON_RIGHT)
+        update = SPICE_MOUSE_BUTTON_MASK_RIGHT;
+    if (down) {
+        mask |= update;
+    } else {
+        mask &= ~update;
+    }
+    return mask;
 }
 
 
@@ -109,12 +109,12 @@ Java_com_undatech_opaque_SpiceCommunicator_SpiceKeyEvent(JNIEnv * env, jobject  
     SPICE_DEBUG("%s %s: keycode: %d", __FUNCTION__, "Key", hardware_keycode);
 
     if (!d->inputs)
-    	return;
+        return;
 
     if (down) {
         send_key(display, hardware_keycode, 1);
     } else {
-		send_key(display, hardware_keycode, 0);
+        send_key(display, hardware_keycode, 0);
     }
 }
 
@@ -131,52 +131,52 @@ Java_com_undatech_opaque_SpiceCommunicator_SpiceButtonEvent(JNIEnv * env, jobjec
     //__android_log_write(ANDROID_LOG_DEBUG, "android-io", buf);
 
     if (d->inputs) {
-		gboolean down = (type & PTRFLAGS_DOWN) != 0;
-		int mouseButton = type &~ PTRFLAGS_DOWN;
-		int newMask = update_mask (mouseButton, down);
+        gboolean down = (type & PTRFLAGS_DOWN) != 0;
+        int mouseButton = type &~ PTRFLAGS_DOWN;
+        int newMask = update_mask (mouseButton, down);
 
-	    switch (d->mouse_mode) {
-	    case SPICE_MOUSE_MODE_CLIENT:
-	        //__android_log_write(ANDROID_LOG_DEBUG, "android-io", "spice mouse mode client");
-	        if (relative) {
-	            __android_log_write(ANDROID_LOG_ERROR, "android-io",
-	                                        "Relative mouse events sent in mouse mode client.");
+        switch (d->mouse_mode) {
+        case SPICE_MOUSE_MODE_CLIENT:
+            //__android_log_write(ANDROID_LOG_DEBUG, "android-io", "spice mouse mode client");
+            if (relative) {
+                __android_log_write(ANDROID_LOG_ERROR, "android-io",
+                                            "Relative mouse events sent in mouse mode client.");
                 uiCallbackMouseMode(env, false);
-	        } else if (x >= 0 && x < d->width && y >= 0 && y < d->height) {
-			    spice_inputs_position(d->inputs, x, y, d->channel_id, newMask);
-			} else {
-	            __android_log_write(ANDROID_LOG_ERROR, "android-io",
-	                                        "Absolute coordinates outside server resolution.");
-			}
-	        break;
-	    case SPICE_MOUSE_MODE_SERVER:
-	        //__android_log_write(ANDROID_LOG_DEBUG, "android-io", "spice mouse mode server");
+            } else if (x >= 0 && x < d->width && y >= 0 && y < d->height) {
+                spice_inputs_position(d->inputs, x, y, d->channel_id, newMask);
+            } else {
+                __android_log_write(ANDROID_LOG_ERROR, "android-io",
+                                            "Absolute coordinates outside server resolution.");
+            }
+            break;
+        case SPICE_MOUSE_MODE_SERVER:
+            //__android_log_write(ANDROID_LOG_DEBUG, "android-io", "spice mouse mode server");
             if (!relative) {
                 __android_log_write(ANDROID_LOG_ERROR, "android-io",
                                             "Absolute mouse event sent in mouse mode server");
                 uiCallbackMouseMode(env, true);
-	        } else {
+            } else {
                 spice_inputs_motion(d->inputs, x, y, newMask);
                 d->mouse_last_x = d->mouse_last_x == -1 ? 0 : d->mouse_last_x - x;
                 d->mouse_last_y = d->mouse_last_y == -1 ? 0 : d->mouse_last_y - y;
             }
-	        break;
-	    default:
-	        g_warn_if_reached();
-	        break;
-	    }
+            break;
+        default:
+            g_warn_if_reached();
+            break;
+        }
 
-		if (mouseButton != SPICE_MOUSE_BUTTON_INVALID) {
-			if (down) {
-			    //__android_log_write(ANDROID_LOG_DEBUG, "android-io", "Button press");
-				spice_inputs_button_press(d->inputs, mouseButton, newMask);
-			} else {
-			    //__android_log_write(ANDROID_LOG_DEBUG, "android-io", "Button release");
-			    // This sleep is an ugly hack to prevent stuck buttons after a drag/drop gesture.
-			    usleep(50000);
-				spice_inputs_button_release(d->inputs, mouseButton, newMask);
-			}
-		}
+        if (mouseButton != SPICE_MOUSE_BUTTON_INVALID) {
+            if (down) {
+                //__android_log_write(ANDROID_LOG_DEBUG, "android-io", "Button press");
+                spice_inputs_button_press(d->inputs, mouseButton, newMask);
+            } else {
+                //__android_log_write(ANDROID_LOG_DEBUG, "android-io", "Button release");
+                // This sleep is an ugly hack to prevent stuck buttons after a drag/drop gesture.
+                usleep(50000);
+                spice_inputs_button_release(d->inputs, mouseButton, newMask);
+            }
+        }
     }
 }
 
@@ -201,10 +201,10 @@ void uiCallbackInvalidate (SpiceDisplayPrivate *d, gint x, gint y, gint w, gint 
     gboolean attached = attachThreadToJvm (&env);
 
     // Tell the UI that it needs to send in the bitmap to be updated and to redraw.
-	(*env)->CallStaticVoidMethod(env, jni_connector_class, jni_graphics_update, 0, x, y, w, h);
+    (*env)->CallStaticVoidMethod(env, jni_connector_class, jni_graphics_update, 0, x, y, w, h);
 
     if (attached) {
-    	detachThreadFromJvm ();
+        detachThreadFromJvm ();
     }
 }
 
@@ -212,11 +212,11 @@ void uiCallbackSettingsChanged (gint instance, gint width, gint height, gint bpp
     JNIEnv* env;
     gboolean attached = attachThreadToJvm (&env);
 
-	// Ask for a new bitmap from the UI.
-	(*env)->CallStaticVoidMethod(env, jni_connector_class, jni_settings_changed, instance, width, height, bpp);
+    // Ask for a new bitmap from the UI.
+    (*env)->CallStaticVoidMethod(env, jni_connector_class, jni_settings_changed, instance, width, height, bpp);
 
     if (attached) {
-    	detachThreadFromJvm ();
+        detachThreadFromJvm ();
     }
 }
 
@@ -232,6 +232,6 @@ void uiCallbackShowMessage(const gchar *message_text) {
     (*env)->CallStaticVoidMethod(env, jni_connector_class, jni_show_message, jmessage);
 
     if (attached) {
-    	detachThreadFromJvm ();
+        detachThreadFromJvm ();
     }
 }

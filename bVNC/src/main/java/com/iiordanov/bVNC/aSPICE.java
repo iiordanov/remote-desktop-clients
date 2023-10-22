@@ -1,16 +1,16 @@
 /**
  * Copyright (C) 2012 Iordan Iordanov
- * 
+ * <p>
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
- * 
+ * <p>
  * This software is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ * <p>
  * You should have received a copy of the GNU General Public License
  * along with this software; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307,
@@ -82,7 +82,7 @@ public class aSPICE extends MainConfiguration {
     public void onCreate(Bundle icicle) {
         layoutID = R.layout.main_spice;
         super.onCreate(icicle);
-        
+
         sshServer = (EditText) findViewById(R.id.sshServer);
         sshPort = (EditText) findViewById(R.id.sshPort);
         sshUser = (EditText) findViewById(R.id.sshUser);
@@ -90,7 +90,7 @@ public class aSPICE extends MainConfiguration {
         tlsPort = (EditText) findViewById(R.id.tlsPort);
         passwordText = (EditText) findViewById(R.id.textPASSWORD);
         textNickname = (EditText) findViewById(R.id.textNickname);
-        
+
         buttonImportCa = (Button) findViewById(R.id.buttonImportCa);
         buttonImportCa.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -99,7 +99,7 @@ public class aSPICE extends MainConfiguration {
                 showDialog(R.layout.import_tls_ca_dialog);
             }
         });
-        
+
         // Here we say what happens when the Pubkey Checkbox is
         // checked/unchecked.
         checkboxUseSshPubkey = (CheckBox) findViewById(R.id.checkboxUseSshPubkey);
@@ -114,26 +114,27 @@ public class aSPICE extends MainConfiguration {
         toggleAdvancedSettings = (ToggleButton) findViewById(R.id.toggleAdvancedSettings);
         layoutAdvancedSettings = (LinearLayout) findViewById(R.id.layoutAdvancedSettings);
         toggleAdvancedSettings.setOnCheckedChangeListener(new OnCheckedChangeListener() {
-                    @Override
-                    public void onCheckedChanged(CompoundButton arg0,
-                            boolean checked) {
-                        if (checked)
-                            layoutAdvancedSettings.setVisibility(View.VISIBLE);
-                        else
-                            layoutAdvancedSettings.setVisibility(View.GONE);
-                    }
-                });
+            @Override
+            public void onCheckedChanged(CompoundButton arg0,
+                                         boolean checked) {
+                if (checked)
+                    layoutAdvancedSettings.setVisibility(View.VISIBLE);
+                else
+                    layoutAdvancedSettings.setVisibility(View.GONE);
+            }
+        });
 
         // The geometry type and dimensions boxes.
         spinnerGeometry = (Spinner) findViewById(R.id.spinnerRdpGeometry);
         resWidth = (EditText) findViewById(R.id.rdpWidth);
-        resHeight = (EditText) findViewById(R.id.rdpHeight);        
-        spinnerGeometry.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener () {
+        resHeight = (EditText) findViewById(R.id.rdpHeight);
+        spinnerGeometry.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> arg0, View view, int itemIndex, long id) {
                 selected.setRdpResType(itemIndex);
-                setRemoteWidthAndHeight ();
+                setRemoteWidthAndHeight();
             }
+
             @Override
             public void onNothingSelected(AdapterView<?> arg0) {
             }
@@ -147,7 +148,7 @@ public class aSPICE extends MainConfiguration {
         }
         layoutMapSpinner = (Spinner) findViewById(R.id.layoutMaps);
         // Create an ArrayAdapter using the string array and a default spinner layout
-        ArrayAdapter<String> adapter =  new ArrayAdapter<String> (this, android.R.layout.simple_spinner_item, spinnerArray);
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, spinnerArray);
         // Specify the layout to use when the list of choices appears
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         // Apply the adapter to the spinner
@@ -158,7 +159,7 @@ public class aSPICE extends MainConfiguration {
     /**
      * Enables and disables the EditText boxes for width and height of remote desktop.
      */
-    private void setRemoteWidthAndHeight () {
+    private void setRemoteWidthAndHeight() {
         if (selected.getRdpResType() != Constants.RDP_GEOM_SELECT_CUSTOM) {
             resWidth.setEnabled(false);
             resHeight.setEnabled(false);
@@ -167,10 +168,10 @@ public class aSPICE extends MainConfiguration {
             resHeight.setEnabled(true);
         }
     }
-    
+
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see android.app.Activity#onCreateDialog(int)
      */
     @Override
@@ -219,8 +220,8 @@ public class aSPICE extends MainConfiguration {
         spinnerGeometry.setSelection(selected.getRdpResType());
         resWidth.setText(Integer.toString(selected.getRdpWidth()));
         resHeight.setText(Integer.toString(selected.getRdpHeight()));
-        setRemoteWidthAndHeight ();
-        
+        setRemoteWidthAndHeight();
+
         // Write out CA to file if it doesn't exist.
         String caCertData = selected.getCaCert();
         try {
@@ -237,7 +238,7 @@ public class aSPICE extends MainConfiguration {
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
-        
+
         int selection = spinnerArray.indexOf(selected.getLayoutMap());
         if (selection < 0) {
             selection = spinnerArray.indexOf(Constants.DEFAULT_LAYOUT_MAP);
@@ -255,25 +256,27 @@ public class aSPICE extends MainConfiguration {
         if (!port.equals("")) {
             try {
                 selected.setPort(Integer.parseInt(portText.getText().toString()));
-            } catch (NumberFormatException nfe) { }
+            } catch (NumberFormatException nfe) {
+            }
         } else {
             selected.setPort(-1);
         }
-        
+
         String tlsport = tlsPort.getText().toString();
         if (!tlsport.equals("")) {
             try {
                 selected.setTlsPort(Integer.parseInt(tlsPort.getText().toString()));
-            } catch (NumberFormatException nfe) { }
+            } catch (NumberFormatException nfe) {
+            }
         } else {
             selected.setTlsPort(-1);
         }
-        
+
         try {
             selected.setSshPort(Integer.parseInt(sshPort.getText().toString()));
         } catch (NumberFormatException nfe) {
         }
-        
+
         selected.setNickname(textNickname.getText().toString());
         selected.setSshServer(sshServer.getText().toString());
         selected.setSshUser(sshUser.getText().toString());
@@ -282,10 +285,11 @@ public class aSPICE extends MainConfiguration {
         // for the key pass-phrase instead.
         selected.setUseSshPubKey(checkboxUseSshPubkey.isChecked());
         selected.setRdpResType(spinnerGeometry.getSelectedItemPosition());
-        try    {
+        try {
             selected.setRdpWidth(Integer.parseInt(resWidth.getText().toString()));
             selected.setRdpHeight(Integer.parseInt(resHeight.getText().toString()));
-        } catch (NumberFormatException nfe) {}
+        } catch (NumberFormatException nfe) {
+        }
         selected.setPassword(passwordText.getText().toString());
         selected.setKeepPassword(checkboxKeepPassword.isChecked());
         selected.setUseDpadAsArrows(checkboxUseDpadAsArrows.isChecked());
@@ -295,7 +299,7 @@ public class aSPICE extends MainConfiguration {
             selected.setUseLastPositionToolbarMoved(false);
         }
         selected.setEnableSound(checkboxEnableSound.isChecked());
-        
+
         TextView selection = null;
         if (layoutMapSpinner != null) {
             selection = (TextView) layoutMapSpinner.getSelectedView();
@@ -309,7 +313,7 @@ public class aSPICE extends MainConfiguration {
      * Automatically linked with android:onClick in the layout.
      * @param view
      */
-    public void toggleEnableSound (View view) {
+    public void toggleEnableSound(View view) {
         CheckBox b = (CheckBox) view;
         PermissionsManager.requestPermissions(this, PermissionGroups.RECORD_AND_MODIFY_AUDIO, true);
         selected.setEnableSound(b.isChecked());

@@ -1,11 +1,11 @@
 package com.undatech.opaque.proxmox.pojo;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 public class SpiceDisplay {
     private String password;
@@ -51,7 +51,7 @@ public class SpiceDisplay {
     public void setTlsPort(int tlsPort) {
         this.tlsPort = tlsPort;
     }
-    
+
     public String getHost() {
         return host;
     }
@@ -131,8 +131,8 @@ public class SpiceDisplay {
     public void setReleaseCursor(String releaseCursor) {
         this.releaseCursor = releaseCursor;
     }
-    
-    public void outputToFile (String tempVvFile, String proxyReplacement) throws IOException {
+
+    public void outputToFile(String tempVvFile, String proxyReplacement) throws IOException {
         File file = new File(tempVvFile);
         FileOutputStream fos = new FileOutputStream(file);
         fos.write("[virt-viewer]\n".getBytes());
@@ -142,7 +142,7 @@ public class SpiceDisplay {
         fos.write(("host-subject=" + hostSubject + "\n").getBytes());
         fos.write(("password=" + password + "\n").getBytes());
         if (proxyReplacement != null) {
-            fos.write(("proxy=" + proxy.replaceAll("//.*:", "//" + proxyReplacement + ":") + "\n").getBytes());            
+            fos.write(("proxy=" + proxy.replaceAll("//.*:", "//" + proxyReplacement + ":") + "\n").getBytes());
         } else {
             fos.write(("proxy=" + proxy + "\n").getBytes());
         }

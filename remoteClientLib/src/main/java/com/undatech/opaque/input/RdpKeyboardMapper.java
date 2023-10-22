@@ -18,8 +18,7 @@ import android.view.KeyEvent;
 import com.freerdp.freerdpcore.R;
 import com.undatech.opaque.util.GeneralUtils;
 
-public class RdpKeyboardMapper
-{
+public class RdpKeyboardMapper {
     public static final int KEYBOARD_TYPE_FUNCTIONKEYS = 1;
     public static final int KEYBOARD_TYPE_NUMPAD = 2;
     public static final int KEYBOARD_TYPE_CURSOR = 3;
@@ -28,22 +27,6 @@ public class RdpKeyboardMapper
     public static final int KEYSTATE_ON = 1;
     public static final int KEYSTATE_LOCKED = 2;
     public static final int KEYSTATE_OFF = 3;
-    private static final String TAG = "RdpKeyboardMapper";
-
-    // interface that gets called for input handling
-    public interface KeyProcessingListener {
-        abstract void processVirtualKey(int virtualKeyCode, boolean down);
-        abstract void processUnicodeKey(int unicodeKey, boolean down, boolean suppressMetaState);
-        abstract void switchKeyboard(int keyboardType);
-        abstract void modifiersChanged();
-    }
-
-    private KeyProcessingListener listener = null;
-
-    private static int[] keymapAndroid;
-    private static int[] keymapExt;
-    private static boolean initialized = false;
-
     final static int VK_LBUTTON = 0x01;
     final static int VK_RBUTTON = 0x02;
     final static int VK_CANCEL = 0x03;
@@ -51,7 +34,7 @@ public class RdpKeyboardMapper
     final static int VK_XBUTTON1 = 0x05;
     final static int VK_XBUTTON2 = 0x06;
     final static int VK_BACK = 0x08;
-    final static int VK_TAB     = 0x09;
+    final static int VK_TAB = 0x09;
     final static int VK_CLEAR = 0x0C;
     final static int VK_RETURN = 0x0D;
     final static int VK_SHIFT = 0x10;
@@ -74,7 +57,7 @@ public class RdpKeyboardMapper
     final static int VK_SPACE = 0x20;
     final static int VK_PRIOR = 0x21;
     final static int VK_NEXT = 0x22;
-    final static int VK_END     = 0x23;
+    final static int VK_END = 0x23;
     final static int VK_HOME = 0x24;
     final static int VK_LEFT = 0x25;
     final static int VK_UP = 0x26;
@@ -127,16 +110,16 @@ public class RdpKeyboardMapper
     final static int VK_RWIN = 0x5C;
     final static int VK_APPS = 0x5D;
     final static int VK_SLEEP = 0x5F;
-    final static int VK_NUMPAD0    = 0x60;
-    final static int VK_NUMPAD1    = 0x61;
-    final static int VK_NUMPAD2    = 0x62;
-    final static int VK_NUMPAD3    = 0x63;
-    final static int VK_NUMPAD4    = 0x64;
-    final static int VK_NUMPAD5    = 0x65;
-    final static int VK_NUMPAD6    = 0x66;
-    final static int VK_NUMPAD7    = 0x67;
-    final static int VK_NUMPAD8    = 0x68;
-    final static int VK_NUMPAD9    = 0x69;
+    final static int VK_NUMPAD0 = 0x60;
+    final static int VK_NUMPAD1 = 0x61;
+    final static int VK_NUMPAD2 = 0x62;
+    final static int VK_NUMPAD3 = 0x63;
+    final static int VK_NUMPAD4 = 0x64;
+    final static int VK_NUMPAD5 = 0x65;
+    final static int VK_NUMPAD6 = 0x66;
+    final static int VK_NUMPAD7 = 0x67;
+    final static int VK_NUMPAD8 = 0x68;
+    final static int VK_NUMPAD9 = 0x69;
     final static int VK_MULTIPLY = 0x6A;
     final static int VK_ADD = 0x6B;
     final static int VK_SEPARATOR = 0x6C;
@@ -195,7 +178,7 @@ public class RdpKeyboardMapper
     final static int VK_LAUNCH_APP2 = 0xB7;
     final static int VK_OEM_1 = 0xBA;
     final static int VK_OEM_SEMICOLON = 0xBA;
-    final static int VK_OEM_EQUALS = 0xBB;    
+    final static int VK_OEM_EQUALS = 0xBB;
     final static int VK_OEM_COMMA = 0xBC;
     final static int VK_OEM_MINUS = 0xBD;
     final static int VK_OEM_PERIOD = 0xBE;
@@ -218,38 +201,35 @@ public class RdpKeyboardMapper
     final static int VK_PLAY = 0xFA;
     final static int VK_ZOOM = 0xFB;
     final static int VK_NONAME = 0xFC;
-    final static int VK_PA1    = 0xFD;
+    final static int VK_PA1 = 0xFD;
     final static int VK_OEM_CLEAR = 0xFE;
     final static int VK_UNICODE = 0x80000000;
     final static int VK_EXT_KEY = 0x00000100;
-
-    // key codes to switch between custom keyboard 
-    private final static int EXTKEY_KBFUNCTIONKEYS = 0x1100; 
-    private final static int EXTKEY_KBNUMPAD = 0x1101; 
-    private final static int EXTKEY_KBCURSOR = 0x1102; 
-
-    // this flag indicates if we got a VK or a unicode character in our translation map 
+    private static final String TAG = "RdpKeyboardMapper";
+    // key codes to switch between custom keyboard
+    private final static int EXTKEY_KBFUNCTIONKEYS = 0x1100;
+    private final static int EXTKEY_KBNUMPAD = 0x1101;
+    private final static int EXTKEY_KBCURSOR = 0x1102;
+    // this flag indicates if we got a VK or a unicode character in our translation map
     private static final int KEY_FLAG_UNICODE = 0x80000000;
-
     // this flag indicates if the key is a toggle key (remains down when pressed and goes up if pressed again)
     private static final int KEY_FLAG_TOGGLE = 0x40000000;
-
     // Indicates we should add shift to the event.
     private static final int KEY_FLAG_SHIFT = 0x20000000;
-
+    private static int[] keymapAndroid;
+    private static int[] keymapExt;
+    private static boolean initialized = false;
+    private KeyProcessingListener listener = null;
     private boolean shiftPressed = false;
     private boolean ctrlPressed = false;
     private boolean altPressed = false;
     private boolean winPressed = false;
-    
     private long lastModifierTime;
     private int lastModifierKeyCode = -1;
-
     private boolean isShiftLocked = false;
     private boolean isCtrlLocked = false;
     private boolean isAltLocked = false;
     private boolean isWinLocked = false;
-
     private boolean preferSendingUnicode = false;
     private boolean debugLog = false;
 
@@ -258,9 +238,8 @@ public class RdpKeyboardMapper
         this.debugLog = debugLog;
     }
 
-    public void init(Context context)
-    {
-        if(initialized == true)
+    public void init(Context context) {
+        if (initialized == true)
             return;
 
         keymapAndroid = new int[256];
@@ -344,7 +323,7 @@ public class RdpKeyboardMapper
         keymapAndroid[141] = VK_F11;
         keymapAndroid[142] = VK_F12;
         keymapAndroid[143] = VK_NUMLOCK;
-        
+
         keymapAndroid[KeyEvent.KEYCODE_TAB] = VK_TAB;
 
         keymapAndroid[KeyEvent.KEYCODE_COMMA] = VK_OEM_COMMA;
@@ -357,12 +336,12 @@ public class RdpKeyboardMapper
         keymapAndroid[KeyEvent.KEYCODE_APOSTROPHE] = VK_OEM_7;
 
         keymapAndroid[KeyEvent.KEYCODE_BACKSLASH] = VK_OEM_5;
-        keymapAndroid[KeyEvent.KEYCODE_GRAVE] = VK_OEM_3;    
-        keymapAndroid[KeyEvent.KEYCODE_LEFT_BRACKET] = VK_OEM_4;        
-        keymapAndroid[KeyEvent.KEYCODE_RIGHT_BRACKET] = VK_OEM_6;        
+        keymapAndroid[KeyEvent.KEYCODE_GRAVE] = VK_OEM_3;
+        keymapAndroid[KeyEvent.KEYCODE_LEFT_BRACKET] = VK_OEM_4;
+        keymapAndroid[KeyEvent.KEYCODE_RIGHT_BRACKET] = VK_OEM_6;
 
         keymapAndroid[KeyEvent.KEYCODE_BACK] = VK_ESCAPE;
-        
+
         keymapAndroid[KeyEvent.KEYCODE_SLASH] = VK_OEM_2;
         keymapAndroid[KeyEvent.KEYCODE_AT] = VK_KEY_2 | KEY_FLAG_SHIFT;
         keymapAndroid[KeyEvent.KEYCODE_POUND] = VK_KEY_3 | KEY_FLAG_SHIFT;
@@ -370,13 +349,13 @@ public class RdpKeyboardMapper
 
         keymapAndroid[KeyEvent.KEYCODE_ALT_LEFT] = VK_LMENU;
         keymapAndroid[KeyEvent.KEYCODE_ALT_RIGHT] = VK_RMENU | VK_EXT_KEY;
-        
+
 //        keymapAndroid[KeyEvent.KEYCODE_AT] = (KEY_FLAG_UNICODE | 64);
 //        keymapAndroid[KeyEvent.KEYCODE_APOSTROPHE] = (KEY_FLAG_UNICODE | 39);
 //        keymapAndroid[KeyEvent.KEYCODE_BACKSLASH] = (KEY_FLAG_UNICODE | 92);
 //        keymapAndroid[KeyEvent.KEYCODE_COMMA] = (KEY_FLAG_UNICODE | 44);
 //        keymapAndroid[KeyEvent.KEYCODE_EQUALS] = (KEY_FLAG_UNICODE | 61);
-//        keymapAndroid[KeyEvent.KEYCODE_GRAVE] = (KEY_FLAG_UNICODE | 96);        
+//        keymapAndroid[KeyEvent.KEYCODE_GRAVE] = (KEY_FLAG_UNICODE | 96);
 //        keymapAndroid[KeyEvent.KEYCODE_LEFT_BRACKET] = (KEY_FLAG_UNICODE | 91);
 //        keymapAndroid[KeyEvent.KEYCODE_RIGHT_BRACKET] = (KEY_FLAG_UNICODE | 93);
 //        keymapAndroid[KeyEvent.KEYCODE_MINUS] = (KEY_FLAG_UNICODE | 45);
@@ -385,8 +364,8 @@ public class RdpKeyboardMapper
 //        keymapAndroid[KeyEvent.KEYCODE_POUND] = (KEY_FLAG_UNICODE | 35);
 //        keymapAndroid[KeyEvent.KEYCODE_SEMICOLON] = (KEY_FLAG_UNICODE | 59);
 //        keymapAndroid[KeyEvent.KEYCODE_SLASH] = (KEY_FLAG_UNICODE | 47);
-//        keymapAndroid[KeyEvent.KEYCODE_STAR] = (KEY_FLAG_UNICODE | 42);        
-        
+//        keymapAndroid[KeyEvent.KEYCODE_STAR] = (KEY_FLAG_UNICODE | 42);
+
         // special keys mapping
         keymapExt = new int[256];
         keymapExt[context.getResources().getInteger(R.integer.keycode_F1)] = VK_F1;
@@ -409,7 +388,7 @@ public class RdpKeyboardMapper
         keymapExt[context.getResources().getInteger(R.integer.keycode_end)] = VK_END | VK_EXT_KEY;
         keymapExt[context.getResources().getInteger(R.integer.keycode_pgup)] = VK_PRIOR | VK_EXT_KEY;
         keymapExt[context.getResources().getInteger(R.integer.keycode_pgdn)] = VK_NEXT | VK_EXT_KEY;
-    
+
         // numpad mapping
         keymapExt[context.getResources().getInteger(R.integer.keycode_numpad_0)] = VK_NUMPAD0;
         keymapExt[context.getResources().getInteger(R.integer.keycode_numpad_1)] = VK_NUMPAD1;
@@ -442,22 +421,22 @@ public class RdpKeyboardMapper
 
         // shared keys
         keymapExt[context.getResources().getInteger(R.integer.keycode_win)] = VK_LWIN | VK_EXT_KEY;
-        keymapExt[context.getResources().getInteger(R.integer.keycode_menu)] = VK_APPS | VK_EXT_KEY;    
+        keymapExt[context.getResources().getInteger(R.integer.keycode_menu)] = VK_APPS | VK_EXT_KEY;
         keymapExt[context.getResources().getInteger(R.integer.keycode_esc)] = VK_ESCAPE;
-        
-/*        keymapExt[context.getResources().getInteger(R.integer.keycode_modifier_ctrl)] = VK_LCONTROL;        
+
+/*        keymapExt[context.getResources().getInteger(R.integer.keycode_modifier_ctrl)] = VK_LCONTROL;
         keymapExt[context.getResources().getInteger(R.integer.keycode_modifier_alt)] = VK_LMENU;
-        keymapExt[context.getResources().getInteger(R.integer.keycode_modifier_shift)] = VK_LSHIFT;        
+        keymapExt[context.getResources().getInteger(R.integer.keycode_modifier_shift)] = VK_LSHIFT;
 */
         // get custom keyboard key codes
         keymapExt[context.getResources().getInteger(R.integer.keycode_specialkeys_keyboard)] = EXTKEY_KBFUNCTIONKEYS;
         keymapExt[context.getResources().getInteger(R.integer.keycode_numpad_keyboard)] = EXTKEY_KBNUMPAD;
         keymapExt[context.getResources().getInteger(R.integer.keycode_cursor_keyboard)] = EXTKEY_KBCURSOR;
 
-        keymapExt[context.getResources().getInteger(R.integer.keycode_toggle_shift)] = (KEY_FLAG_TOGGLE | VK_LSHIFT);        
-        keymapExt[context.getResources().getInteger(R.integer.keycode_toggle_ctrl)] = (KEY_FLAG_TOGGLE | VK_LCONTROL);        
+        keymapExt[context.getResources().getInteger(R.integer.keycode_toggle_shift)] = (KEY_FLAG_TOGGLE | VK_LSHIFT);
+        keymapExt[context.getResources().getInteger(R.integer.keycode_toggle_ctrl)] = (KEY_FLAG_TOGGLE | VK_LCONTROL);
         keymapExt[context.getResources().getInteger(R.integer.keycode_toggle_alt)] = (KEY_FLAG_TOGGLE | VK_LMENU);
-        keymapExt[context.getResources().getInteger(R.integer.keycode_toggle_win)] = (KEY_FLAG_TOGGLE | VK_LWIN);    
+        keymapExt[context.getResources().getInteger(R.integer.keycode_toggle_win)] = (KEY_FLAG_TOGGLE | VK_LWIN);
 
         initialized = true;
     }
@@ -470,7 +449,7 @@ public class RdpKeyboardMapper
         setKeyProcessingListener(listener);
     }
 
-    public void setKeyProcessingListener(KeyProcessingListener listener)  {
+    public void setKeyProcessingListener(KeyProcessingListener listener) {
         this.listener = listener;
     }
 
@@ -489,37 +468,34 @@ public class RdpKeyboardMapper
             vkcode = unicode | KEY_FLAG_UNICODE;
         }
 
-        switch(event.getAction())
-        {
-            case KeyEvent.ACTION_UP:
-            {
-                if((vkcode & KEY_FLAG_UNICODE) != 0 && !isRepeat) {
+        switch (event.getAction()) {
+            case KeyEvent.ACTION_UP: {
+                if ((vkcode & KEY_FLAG_UNICODE) != 0 && !isRepeat) {
                     listener.processUnicodeKey(vkcode & (~KEY_FLAG_UNICODE), false, suppressMetaState);
                 } else if (vkcode > 0 && !isRepeat) {
                     listener.processVirtualKey(vkcode, false);
                 }
                 return true;
             }
-            
-            case KeyEvent.ACTION_DOWN:
-            {
+
+            case KeyEvent.ACTION_DOWN: {
                 boolean modifierActive = isModifierPressed();
 
-                // if a modifier is pressed we will send a VK event (if possible) so that key combinations will be 
+                // if a modifier is pressed we will send a VK event (if possible) so that key combinations will be
                 // recognized correctly. Otherwise we will send the unicode key. At the end we will reset all modifiers
                 // and notifiy our listener.
                 //android.util.Log.e("KeyMapper", "VK KeyCode is: " + vkcode);
-                if((vkcode & KEY_FLAG_UNICODE) != 0) {
+                if ((vkcode & KEY_FLAG_UNICODE) != 0) {
                     //android.util.Log.i("KeyMapper", "vkcode & KEY_FLAG_UNICODE " + vkcode);
                     listener.processUnicodeKey(vkcode & (~KEY_FLAG_UNICODE), true, suppressMetaState);
-                } else if ((vkcode & KEY_FLAG_SHIFT) != 0){
+                } else if ((vkcode & KEY_FLAG_SHIFT) != 0) {
                     //android.util.Log.i("KeyMapper", "vkcode & KEY_FLAG_SHIFT " + vkcode);
                     vkcode = vkcode & ~KEY_FLAG_SHIFT;
                     listener.processVirtualKey(VK_LSHIFT, true);
                     listener.processVirtualKey(vkcode, true);
                     listener.processVirtualKey(vkcode, false);
                     listener.processVirtualKey(VK_LSHIFT, false);
-                // if we got a valid vkcode send it - except for letters/numbers if a modifier is active
+                    // if we got a valid vkcode send it - except for letters/numbers if a modifier is active
                 } else if (vkcode > 0) {
                     //android.util.Log.i("KeyMapper", "vkcode > 0" + vkcode);
                     listener.processVirtualKey(vkcode, true);
@@ -533,66 +509,62 @@ public class RdpKeyboardMapper
                     //android.util.Log.i("KeyMapper", "else " + vkcode);
                     return false;
                 }
-                             
+
                 // reset any pending toggle states if a modifier was pressed
-                if(modifierActive)
+                if (modifierActive)
                     resetModifierKeysAfterInput(false);
                 return true;
             }
 
-            case KeyEvent.ACTION_MULTIPLE:
-            {
+            case KeyEvent.ACTION_MULTIPLE: {
                 String str = event.getCharacters();
-                for(int i = 0; i < str.length(); i++) {
+                for (int i = 0; i < str.length(); i++) {
                     listener.processUnicodeKey(str.charAt(i), true, suppressMetaState);
                     listener.processUnicodeKey(str.charAt(i), false, suppressMetaState);
                 }
                 return true;
             }
-            
+
             default:
-                break;                
+                break;
         }
         return false;
     }
-    
+
     public void processCustomKeyEvent(int keycode) {
         int extCode = getExtendedKeyCode(keycode);
-        if(extCode == 0)
+        if (extCode == 0)
             return;
-        
+
         // toggle button pressed?
-        if((extCode & KEY_FLAG_TOGGLE) != 0)
-        {
+        if ((extCode & KEY_FLAG_TOGGLE) != 0) {
             processToggleButton(extCode & (~KEY_FLAG_TOGGLE));
             return;
         }
-        
+
         // keyboard switch button pressed?
-        if(extCode == EXTKEY_KBFUNCTIONKEYS || extCode == EXTKEY_KBNUMPAD || extCode == EXTKEY_KBCURSOR)
-        {
+        if (extCode == EXTKEY_KBFUNCTIONKEYS || extCode == EXTKEY_KBNUMPAD || extCode == EXTKEY_KBCURSOR) {
             switchKeyboard(extCode);
             return;
         }
-        
+
         // nope - see if we got a unicode or vk
-        if((extCode & KEY_FLAG_UNICODE) != 0) {
+        if ((extCode & KEY_FLAG_UNICODE) != 0) {
             listener.processUnicodeKey(extCode & (~KEY_FLAG_UNICODE), true, false);
             listener.processUnicodeKey(extCode & (~KEY_FLAG_UNICODE), false, false);
         } else {
-            listener.processVirtualKey(extCode, true);            
-            listener.processVirtualKey(extCode, false);            
+            listener.processVirtualKey(extCode, true);
+            listener.processVirtualKey(extCode, false);
         }
-        
+
         resetModifierKeysAfterInput(false);
     }
-    
-    public void sendAltF4()
-    {
-        listener.processVirtualKey(VK_LMENU, true);            
-        listener.processVirtualKey(VK_F4, true);            
-        listener.processVirtualKey(VK_F4, false);            
-        listener.processVirtualKey(VK_LMENU, false);                    
+
+    public void sendAltF4() {
+        listener.processVirtualKey(VK_LMENU, true);
+        listener.processVirtualKey(VK_F4, true);
+        listener.processVirtualKey(VK_F4, false);
+        listener.processVirtualKey(VK_LMENU, false);
     }
 
     private boolean isModifierPressed() {
@@ -606,185 +578,165 @@ public class RdpKeyboardMapper
                 vkCode == VK_LWIN || vkCode == VK_RWIN ||
                 vkCode == VK_RETURN || vkCode == VK_TAB);
     }
-    
+
     public int getModifierState(int keycode) {
         int modifierCode = getExtendedKeyCode(keycode);
-        
+
         // check and get real modifier keycode
-        if((modifierCode & KEY_FLAG_TOGGLE) == 0)
+        if ((modifierCode & KEY_FLAG_TOGGLE) == 0)
             return -1;
         modifierCode = modifierCode & (~KEY_FLAG_TOGGLE);
-        
-        switch(modifierCode)
-        {
-            case VK_LSHIFT:
-            {
+
+        switch (modifierCode) {
+            case VK_LSHIFT: {
                 return (shiftPressed ? (isShiftLocked ? KEYSTATE_LOCKED : KEYSTATE_ON) : KEYSTATE_OFF);
             }
-            case VK_LCONTROL:
-            {
+            case VK_LCONTROL: {
                 return (ctrlPressed ? (isCtrlLocked ? KEYSTATE_LOCKED : KEYSTATE_ON) : KEYSTATE_OFF);
             }
-            case VK_LMENU:
-            {
+            case VK_LMENU: {
                 return (altPressed ? (isAltLocked ? KEYSTATE_LOCKED : KEYSTATE_ON) : KEYSTATE_OFF);
             }
-            case VK_LWIN:
-            {
+            case VK_LWIN: {
                 return (winPressed ? (isWinLocked ? KEYSTATE_LOCKED : KEYSTATE_ON) : KEYSTATE_OFF);
             }
         }
-        
+
         return -1;
     }
-    
+
     private int getVirtualKeyCode(int keycode) {
-        if(keycode >= 0 && keycode <= 0xFF)
+        if (keycode >= 0 && keycode <= 0xFF)
             return keymapAndroid[keycode];
         return 0;
     }
-    
+
     private int getExtendedKeyCode(int keycode) {
-        if(keycode >= 0 && keycode <= 0xFF)
+        if (keycode >= 0 && keycode <= 0xFF)
             return keymapExt[keycode];
-        return 0;        
+        return 0;
     }
 
     private void processToggleButton(int keycode) {
-        switch(keycode)
-        {
-            case VK_LSHIFT:
-            {
-                if(!checkToggleModifierLock(VK_LSHIFT))
-                {
+        switch (keycode) {
+            case VK_LSHIFT: {
+                if (!checkToggleModifierLock(VK_LSHIFT)) {
                     isShiftLocked = false;
                     shiftPressed = !shiftPressed;
                     listener.processVirtualKey(VK_LSHIFT, shiftPressed);
-                }
-                else
+                } else
                     isShiftLocked = true;
                 break;
             }
-            case VK_LCONTROL:
-            {
-                if(!checkToggleModifierLock(VK_LCONTROL))
-                {
+            case VK_LCONTROL: {
+                if (!checkToggleModifierLock(VK_LCONTROL)) {
                     isCtrlLocked = false;
                     ctrlPressed = !ctrlPressed;
                     listener.processVirtualKey(VK_LCONTROL, ctrlPressed);
-                }
-                else
+                } else
                     isCtrlLocked = true;
                 break;
             }
-            case VK_LMENU:
-            {
-                if(!checkToggleModifierLock(VK_LMENU))
-                {
+            case VK_LMENU: {
+                if (!checkToggleModifierLock(VK_LMENU)) {
                     isAltLocked = false;
                     altPressed = !altPressed;
                     listener.processVirtualKey(VK_LMENU, altPressed);
-                }
-                else
+                } else
                     isAltLocked = true;
                 break;
             }
-            case VK_LWIN:
-            {
-                if(!checkToggleModifierLock(VK_LWIN))
-                {
+            case VK_LWIN: {
+                if (!checkToggleModifierLock(VK_LWIN)) {
                     isWinLocked = false;
                     winPressed = !winPressed;
                     listener.processVirtualKey(VK_LWIN | VK_EXT_KEY, winPressed);
-                }
-                else
-                    isWinLocked = true;                    
+                } else
+                    isWinLocked = true;
                 break;
             }
         }
         listener.modifiersChanged();
     }
-    
-    public void clearlAllModifiers() 
-    {
+
+    public void clearlAllModifiers() {
         resetModifierKeysAfterInput(true);
     }
-    
+
     private void resetModifierKeysAfterInput(boolean force) {
-        if(shiftPressed && (!isShiftLocked || force))
-        {
+        if (shiftPressed && (!isShiftLocked || force)) {
             listener.processVirtualKey(VK_LSHIFT, false);
             shiftPressed = false;
         }
-        if(ctrlPressed && (!isCtrlLocked || force))
-        {
+        if (ctrlPressed && (!isCtrlLocked || force)) {
             listener.processVirtualKey(VK_LCONTROL, false);
             ctrlPressed = false;
         }
-        if(altPressed && (!isAltLocked || force))
-        {
+        if (altPressed && (!isAltLocked || force)) {
             listener.processVirtualKey(VK_LMENU, false);
             altPressed = false;
         }
-        if(winPressed && (!isWinLocked || force))
-        {
+        if (winPressed && (!isWinLocked || force)) {
             listener.processVirtualKey(VK_LWIN | VK_EXT_KEY, false);
             winPressed = false;
         }
 
-        if(listener != null)
+        if (listener != null)
             listener.modifiersChanged();
     }
-    
+
     private void switchKeyboard(int keycode) {
-        switch(keycode)
-        {
-            case EXTKEY_KBFUNCTIONKEYS:
-            {
+        switch (keycode) {
+            case EXTKEY_KBFUNCTIONKEYS: {
                 listener.switchKeyboard(KEYBOARD_TYPE_FUNCTIONKEYS);
                 break;
             }
-        
-            case EXTKEY_KBNUMPAD:
-            {
+
+            case EXTKEY_KBNUMPAD: {
                 listener.switchKeyboard(KEYBOARD_TYPE_NUMPAD);
                 break;
             }
 
-            case EXTKEY_KBCURSOR:
-            {
+            case EXTKEY_KBCURSOR: {
                 listener.switchKeyboard(KEYBOARD_TYPE_CURSOR);
                 break;
             }
-            
+
             default:
                 break;
         }
     }
-    
+
     private boolean checkToggleModifierLock(int keycode) {
         long now = System.currentTimeMillis();
-        
+
         // was the same modifier hit?
-        if(lastModifierKeyCode != keycode)
-        {
+        if (lastModifierKeyCode != keycode) {
             lastModifierKeyCode = keycode;
             lastModifierTime = now;
-            return false;                    
+            return false;
         }
-        
+
         // within a certain time interval?
-        if(lastModifierTime + 800 > now) 
-        {
+        if (lastModifierTime + 800 > now) {
             lastModifierTime = 0;
             return true;
-        }
-        else
-        {
+        } else {
             lastModifierTime = now;
             return false;
         }
     }
-    
+
+    // interface that gets called for input handling
+    public interface KeyProcessingListener {
+        abstract void processVirtualKey(int virtualKeyCode, boolean down);
+
+        abstract void processUnicodeKey(int unicodeKey, boolean down, boolean suppressMetaState);
+
+        abstract void switchKeyboard(int keyboardType);
+
+        abstract void modifiersChanged();
+    }
+
 }
 

@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2012 Iordan Iordanov
  * Copyright (C) 2009 Michael A. MacDonald
- *
+ * <p>
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
- * 
+ * <p>
  * This software is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ * <p>
  * You should have received a copy of the GNU General Public License
  * along with this software; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307,
@@ -36,6 +36,8 @@ import com.undatech.opaque.RfbConnectable;
  *
  */
 abstract public class AbstractBitmapData {
+    public AbstractBitmapDrawable drawable;
+    public Paint paint;
     int framebufferwidth;
     int framebufferheight;
     int bitmapwidth;
@@ -46,16 +48,13 @@ abstract public class AbstractBitmapData {
     Canvas memGraphics;
     boolean waitingForInput;
     RemoteCanvas vncCanvas;
-    public AbstractBitmapDrawable drawable;
-    public Paint paint;
     int xoffset = 0;
     int yoffset = 0;
 
-    AbstractBitmapData(RfbConnectable p, RemoteCanvas c)
-    {
+    AbstractBitmapData(RfbConnectable p, RemoteCanvas c) {
         rfb = p;
         vncCanvas = c;
-        framebufferwidth  = rfb.framebufferWidth();
+        framebufferwidth = rfb.framebufferWidth();
         framebufferheight = rfb.framebufferHeight();
         drawable = createDrawable();
         paint = new Paint();
@@ -75,12 +74,12 @@ abstract public class AbstractBitmapData {
             drawable.moveCursorRect(x, y);
     }
 
-    void setSoftCursor (int[] newSoftCursorPixels) {
+    void setSoftCursor(int[] newSoftCursorPixels) {
         if (drawable != null)
-            drawable.setSoftCursor (newSoftCursorPixels);
+            drawable.setSoftCursor(newSoftCursorPixels);
     }
 
-    RectF getCursorRect () {
+    RectF getCursorRect() {
         if (drawable != null)
             return drawable.cursorRect;
         else // Return an empty new rectangle if drawable is null.
@@ -95,23 +94,26 @@ abstract public class AbstractBitmapData {
     }
 
     /**
-     * 
+     *
      * @return The smallest scale supported by the implementation; the scale at which
      * the bitmap would be smaller than the screen
      */
     float getMinimumScale() {
-        return Math.min((float)vncCanvas.getWidth()/framebufferwidth, (float)vncCanvas.getHeight()/framebufferheight);
+        return Math.min((float) vncCanvas.getWidth() / framebufferwidth, (float) vncCanvas.getHeight() / framebufferheight);
     }
 
     boolean widthRatioLessThanHeightRatio() {
-        return (float)vncCanvas.getWidth()/framebufferwidth < vncCanvas.getHeight()/framebufferheight;
+        return (float) vncCanvas.getWidth() / framebufferwidth < vncCanvas.getHeight() / framebufferheight;
     }
 
     /**
      * Send a request through the protocol to get the data for the currently held bitmap
      * @param incremental True if we want incremental update; false for full update
      */
-    public void prepareFullUpdateRequest(boolean incremental) {};
+    public void prepareFullUpdateRequest(boolean incremental) {
+    }
+
+    ;
 
     /**
      * Determine if a rectangle in full-frame coordinates can be drawn in the existing buffer
@@ -163,8 +165,7 @@ abstract public class AbstractBitmapData {
      * Sets the canvas's drawable
      * @param v ImageView displaying bitmap data
      */
-    void setImageDrawable(ImageView v)
-    {
+    void setImageDrawable(ImageView v) {
         v.setImageDrawable(drawable);
     }
 
@@ -173,8 +174,7 @@ abstract public class AbstractBitmapData {
      * Call in UI thread; tell ImageView we've changed
      * @param v ImageView displaying bitmap data
      */
-    void updateView(ImageView v)
-    {
+    void updateView(ImageView v) {
         v.invalidate();
     }
 
@@ -195,7 +195,7 @@ abstract public class AbstractBitmapData {
         for (int j = 0; j < h; j++) {
             try {
                 synchronized (mbitmap) {
-                    System.arraycopy(pix, (w * j), bitmapPixels, offset(x, y+j), w);
+                    System.arraycopy(pix, (w * j), bitmapPixels, offset(x, y + j), w);
                 }
                 //System.arraycopy(pix, (w * j), bitmapPixels, bitmapwidth * (y + j) + x, w);
             } catch (ArrayIndexOutOfBoundsException e) {
@@ -215,8 +215,8 @@ abstract public class AbstractBitmapData {
      * @param h height (pixels)
      * @param paint How to draw
      */
-    abstract void drawRect( int x, int y, int w, int h, Paint paint);
-    
+    abstract void drawRect(int x, int y, int w, int h, Paint paint);
+
     /**
      * Scroll position has changed.
      * <p>
@@ -225,7 +225,7 @@ abstract public class AbstractBitmapData {
      * @param newx Position of left edge of visible part in full-frame coordinates
      * @param newy Position of top edge of visible part in full-frame coordinates
      */
-    abstract void scrollChanged( int newx, int newy);
+    abstract void scrollChanged(int newx, int newy);
 
     /**
      * Remote framebuffer size has changed.
@@ -233,8 +233,8 @@ abstract public class AbstractBitmapData {
      * This method is called when the framebuffer has changed size and reinitializes the
      * necessary data structures to support that change.
      */
-    public abstract void frameBufferSizeChanged ();
-    
+    public abstract void frameBufferSizeChanged();
+
     /**
      * Sync scroll -- called from network thread; copies scroll changes from UI to network state
      */
@@ -250,33 +250,33 @@ abstract public class AbstractBitmapData {
 
         if (mbitmap != null)
             mbitmap.recycle();
-        mbitmap      = null;
+        mbitmap = null;
 
-        memGraphics  = null;
+        memGraphics = null;
         bitmapPixels = null;
     }
-    
-    public int fbWidth () {
+
+    public int fbWidth() {
         return framebufferwidth;
     }
 
-    public int fbHeight () {
+    public int fbHeight() {
         return framebufferheight;
     }
-    
-    public int bmWidth () {
+
+    public int bmWidth() {
         return bitmapwidth;
     }
 
-    public int bmHeight () {
+    public int bmHeight() {
         return bitmapheight;
     }
-    
-    public int getXoffset () {
+
+    public int getXoffset() {
         return xoffset;
     }
 
-    public int getYoffset () {
+    public int getYoffset() {
         return yoffset;
     }
 }

@@ -22,11 +22,6 @@ public class HttpsFileDownloader {
     boolean verifySslCerts;
     OnDownloadFinishedListener listener;
 
-    public interface OnDownloadFinishedListener {
-        void onDownload(String contents);
-        void onDownloadFailure();
-    }
-
     public HttpsFileDownloader(String url, boolean verifySslCerts, OnDownloadFinishedListener listener) {
         this.url = url;
         this.verifySslCerts = verifySslCerts;
@@ -46,9 +41,15 @@ public class HttpsFileDownloader {
         } else {
             TrustManager[] trustAllCerts = new TrustManager[]{
                     new X509TrustManager() {
-                        public java.security.cert.X509Certificate[] getAcceptedIssuers() { return null;}
-                        public void checkClientTrusted(java.security.cert.X509Certificate[] certs, String authType) {}
-                        public void checkServerTrusted(java.security.cert.X509Certificate[] certs, String authType) {}
+                        public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+                            return null;
+                        }
+
+                        public void checkClientTrusted(java.security.cert.X509Certificate[] certs, String authType) {
+                        }
+
+                        public void checkServerTrusted(java.security.cert.X509Certificate[] certs, String authType) {
+                        }
                     }
             };
 
@@ -76,11 +77,11 @@ public class HttpsFileDownloader {
     public void initiateDownload() {
         initDefaultTrustManager(this.verifySslCerts);
         // Spin up a thread to grab the file over the network.
-        Thread t = new Thread () {
+        Thread t = new Thread() {
             @Override
-            public void run () {
+            public void run() {
                 try {
-                    URL url = new URL (HttpsFileDownloader.this.url);
+                    URL url = new URL(HttpsFileDownloader.this.url);
                     URLConnection ucon = url.openConnection();
 
                     StringBuilder textBuilder = new StringBuilder();
@@ -100,5 +101,11 @@ public class HttpsFileDownloader {
             }
         };
         t.start();
+    }
+
+    public interface OnDownloadFinishedListener {
+        void onDownload(String contents);
+
+        void onDownloadFailure();
     }
 }

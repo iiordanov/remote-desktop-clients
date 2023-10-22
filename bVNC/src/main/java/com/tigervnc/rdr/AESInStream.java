@@ -24,7 +24,18 @@ import java.nio.ByteBuffer;
 public class AESInStream extends InStream {
 
     private static final int maxMessageSize = 65536;
-
+    private final AESEAXCipher cipher;
+    private final int start;
+    private final int bufSize;
+    private final byte[] message;
+    private final byte[] decryptedMessage;
+    private final byte[] counter;
+    private final InStream in;
+    private int offset;
+    private int state;
+    private int messageSize;
+    private int messageOffset;
+    private int decryptedMessageOffset;
     public AESInStream(InStream _in, byte[] key) {
         in = _in;
         offset = 0;
@@ -152,18 +163,4 @@ public class AESInStream extends InStream {
         state = 2;
         return true;
     }
-
-
-    private final AESEAXCipher cipher;
-    private int offset;
-    private final int start;
-    private final int bufSize;
-    private int state;
-    private int messageSize;
-    private int messageOffset;
-    private final byte[] message;
-    private int decryptedMessageOffset;
-    private final byte[] decryptedMessage;
-    private final byte[] counter;
-    private final InStream in;
 }

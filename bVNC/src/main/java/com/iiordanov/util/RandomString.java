@@ -2,8 +2,7 @@ package com.iiordanov.util;
 
 import java.util.Random;
 
-public class RandomString
-{
+public class RandomString {
     private Random r;
 
     public RandomString() {
@@ -12,8 +11,8 @@ public class RandomString
 
     public String randomString(final int length, int maxValue) {
         StringBuilder sb = new StringBuilder();
-        for(int i = 0; i < length; i++) {
-            char c = (char)(r.nextInt(maxValue)+32);
+        for (int i = 0; i < length; i++) {
+            char c = (char) (r.nextInt(maxValue) + 32);
             sb.append(c);
         }
         return sb.toString();
@@ -25,8 +24,8 @@ public class RandomString
 
     public String randomLowerCaseString(final int length) {
         StringBuilder sb = new StringBuilder();
-        for(int i = 0; i < length; i++) {
-            char c = (char)(r.nextInt(25) + 97); // Get only a-z
+        for (int i = 0; i < length; i++) {
+            char c = (char) (r.nextInt(25) + 97); // Get only a-z
             sb.append(c);
         }
         return sb.toString();

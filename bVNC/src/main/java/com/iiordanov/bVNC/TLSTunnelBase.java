@@ -33,63 +33,60 @@ import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 
 public abstract class TLSTunnelBase {
-  
-private static final String TAG = "TLSTunnelBase";
 
-public TLSTunnelBase (Socket sock_) {
-    sock = sock_;
-  }
+    private static final String TAG = "TLSTunnelBase";
+    Socket sock;
 
-  protected void initContext (SSLContext sc) throws java.security.GeneralSecurityException {
-    sc.init (null, null, new SecureRandom());
-  }
-
-  public SSLSocket setup () throws Exception {
-    try {
-      SSLSocketFactory sslfactory;
-      SSLSocket sslsock;
-
-      Security.setProperty("jdk.tls.disabledAlgorithms",
-              "SSLv3, TLSv1, TLSv1.1, RC4, DES, MD5withRSA, DH keySize < 1024, EC keySize < 224, 3DES_EDE_CBC, NULL");
-      Security.removeProvider(BouncyCastleJsseProvider.PROVIDER_NAME);
-      Security.insertProviderAt(new BouncyCastleJsseProvider(), 1);
-      SSLContext sc = SSLContext.getInstance("TLS", BouncyCastleJsseProvider.PROVIDER_NAME);
-
-      Log.i(TAG, "Generating TLS context");
-      initContext (sc);
-      Log.i(TAG, "Doing TLS handshake");
-      sslfactory = sc.getSocketFactory();
-      sslsock = (SSLSocket) sslfactory.createSocket (sock,
-						     sock.getInetAddress().
-						     getHostName(),
-						     sock.getPort(), true);
-
-      sslsock.setTcpNoDelay(true);
-      sslsock.setSoTimeout(Constants.SOCKET_CONN_TIMEOUT);
-
-      setParam (sslsock);
-
-      sslsock.setSoTimeout(0);
-
-      /* Not necessary - just ensures that we know what cipher
-       * suite we are using for the output of toString()
-       */
-      sslsock.startHandshake ();
-
-      Log.i(TAG, "TLS done");
-
-      return sslsock;
+    public TLSTunnelBase(Socket sock_) {
+        sock = sock_;
     }
-    catch (java.io.IOException e) {
-      throw new Exception("TLS handshake failed " + e.toString ());
-    }
-    catch (java.security.GeneralSecurityException e) {
-      throw new Exception("TLS handshake failed " + e.toString ());
-    }
-  }
 
-  protected abstract void setParam (SSLSocket sock) throws Exception;
+    protected void initContext(SSLContext sc) throws java.security.GeneralSecurityException {
+        sc.init(null, null, new SecureRandom());
+    }
 
-  Socket sock;
+    public SSLSocket setup() throws Exception {
+        try {
+            SSLSocketFactory sslfactory;
+            SSLSocket sslsock;
+
+            Security.setProperty("jdk.tls.disabledAlgorithms",
+                    "SSLv3, TLSv1, TLSv1.1, RC4, DES, MD5withRSA, DH keySize < 1024, EC keySize < 224, 3DES_EDE_CBC, NULL");
+            Security.removeProvider(BouncyCastleJsseProvider.PROVIDER_NAME);
+            Security.insertProviderAt(new BouncyCastleJsseProvider(), 1);
+            SSLContext sc = SSLContext.getInstance("TLS", BouncyCastleJsseProvider.PROVIDER_NAME);
+
+            Log.i(TAG, "Generating TLS context");
+            initContext(sc);
+            Log.i(TAG, "Doing TLS handshake");
+            sslfactory = sc.getSocketFactory();
+            sslsock = (SSLSocket) sslfactory.createSocket(sock,
+                    sock.getInetAddress().
+                            getHostName(),
+                    sock.getPort(), true);
+
+            sslsock.setTcpNoDelay(true);
+            sslsock.setSoTimeout(Constants.SOCKET_CONN_TIMEOUT);
+
+            setParam(sslsock);
+
+            sslsock.setSoTimeout(0);
+
+            /* Not necessary - just ensures that we know what cipher
+             * suite we are using for the output of toString()
+             */
+            sslsock.startHandshake();
+
+            Log.i(TAG, "TLS done");
+
+            return sslsock;
+        } catch (java.io.IOException e) {
+            throw new Exception("TLS handshake failed " + e.toString());
+        } catch (java.security.GeneralSecurityException e) {
+            throw new Exception("TLS handshake failed " + e.toString());
+        }
+    }
+
+    protected abstract void setParam(SSLSocket sock) throws Exception;
 
 }

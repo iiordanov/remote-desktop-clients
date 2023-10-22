@@ -2,43 +2,41 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/something"
-    android:gravity="top|center"
-    android:stretchMode="columnWidth"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:orientation="vertical">
+    android:gravity="top|center"
+    android:orientation="vertical"
+    android:stretchMode="columnWidth">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
+
         <EditText
             android:id="@+id/search"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="0.90"
             android:hint="@string/search_connections"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:padding="10dp">
-        </EditText>
+            android:padding="10dp"
+            android:textAppearance="?android:attr/textAppearanceMedium"></EditText>
 
         <androidx.appcompat.widget.AppCompatImageButton
             android:id="@+id/addNewConnection"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="0.10"
-            app:srcCompat="@drawable/ic_add_connection_48"
+            android:contentDescription="@string/action_new_connection"
             android:title="@string/action_new_connection"
-            android:contentDescription="@string/action_new_connection">
-        </androidx.appcompat.widget.AppCompatImageButton>
+            app:srcCompat="@drawable/ic_add_connection_48"></androidx.appcompat.widget.AppCompatImageButton>
     </LinearLayout>
 
     <GridView
         android:id="@+id/gridView"
-        android:numColumns="2"
-        android:gravity="top|center"
-        android:stretchMode="columnWidth"
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent">
-    </GridView>
+        android:layout_height="fill_parent"
+        android:gravity="top|center"
+        android:numColumns="2"
+        android:stretchMode="columnWidth"></GridView>
 </LinearLayout>

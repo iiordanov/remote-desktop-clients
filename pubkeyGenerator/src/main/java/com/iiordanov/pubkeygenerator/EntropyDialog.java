@@ -17,34 +17,32 @@
 
 package com.iiordanov.pubkeygenerator;
 
-import com.iiordanov.pubkeygenerator.R;
-
 import android.app.Dialog;
 import android.content.Context;
 import android.view.View;
 
 public class EntropyDialog extends Dialog implements OnEntropyGatheredListener {
 
-	public EntropyDialog(Context context) {
-		super(context);
+    public EntropyDialog(Context context) {
+        super(context);
 
-		this.setContentView(R.layout.dia_gatherentropy);
-		this.setTitle(R.string.gather_entropy);
+        this.setContentView(R.layout.dia_gatherentropy);
+        this.setTitle(R.string.gather_entropy);
 
-		((EntropyView) findViewById(R.id.entropy)).addOnEntropyGatheredListener(this);
-	}
+        ((EntropyView) findViewById(R.id.entropy)).addOnEntropyGatheredListener(this);
+    }
 
-	public EntropyDialog(Context context, View view) {
-		super(context);
+    public EntropyDialog(Context context, View view) {
+        super(context);
 
-		this.setContentView(view);
-		this.setTitle(R.string.gather_entropy);
+        this.setContentView(view);
+        this.setTitle(R.string.gather_entropy);
 
-		((EntropyView) findViewById(R.id.entropy)).addOnEntropyGatheredListener(this);
-	}
+        ((EntropyView) findViewById(R.id.entropy)).addOnEntropyGatheredListener(this);
+    }
 
-	public void onEntropyGathered(byte[] entropy) {
-		this.dismiss();
-	}
+    public void onEntropyGathered(byte[] entropy) {
+        this.dismiss();
+    }
 
 }

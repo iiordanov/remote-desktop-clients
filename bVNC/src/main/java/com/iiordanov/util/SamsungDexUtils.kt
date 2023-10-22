@@ -14,10 +14,14 @@ object SamsungDexUtils {
             val manager = getInstanceMethod.invoke(null)
 
             val requestMetaKeyEvent = semWindowManager.getDeclaredMethod(
-                "requestMetaKeyEvent", ComponentName::class.java, Boolean::class.java)
+                "requestMetaKeyEvent", ComponentName::class.java, Boolean::class.java
+            )
             requestMetaKeyEvent.invoke(manager, activity.componentName, true)
         }.onFailure {
-            Log.d(TAG, "Could not call com.samsung.android.view.SemWindowManager.requestMetaKeyEvent " + it.message)
+            Log.d(
+                TAG,
+                "Could not call com.samsung.android.view.SemWindowManager.requestMetaKeyEvent " + it.message
+            )
         }
     }
 }

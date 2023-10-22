@@ -1,23 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools" >
+    xmlns:tools="http://schemas.android.com/tools">
 
-    <item android:numericShortcut="1"
-        android:alphabeticShortcut="s"
+    <item
         android:id="@+id/itemSave"
+        android:alphabeticShortcut="s"
         android:icon="@android:drawable/ic_menu_save"
-        tools:ignore="AppCompatResource"
+        android:numericShortcut="1"
+        android:onClick="save"
         android:showAsAction="always"
-        app:showAsAction="always"
         android:title="@string/save_button"
-        android:onClick="save"/>
-
-    <item android:id="@+id/actionHelp"
-        android:icon="@android:drawable/ic_menu_info_details"
-        android:title="@string/help"
-        tools:ignore="AppCompatResource"
-        android:showAsAction="always"
         app:showAsAction="always"
-        android:onClick="showConnectionScreenHelp" />
+        tools:ignore="AppCompatResource" />
+
+    <item
+        android:id="@+id/actionHelp"
+        android:icon="@android:drawable/ic_menu_info_details"
+        android:onClick="showConnectionScreenHelp"
+        android:showAsAction="always"
+        android:title="@string/help"
+        app:showAsAction="always"
+        tools:ignore="AppCompatResource" />
 </menu>

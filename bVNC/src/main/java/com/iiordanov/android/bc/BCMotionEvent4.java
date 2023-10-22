@@ -7,9 +7,8 @@ import android.view.MotionEvent;
 
 /**
  * Pre-sdk 5 version; add fake multi-touch sensing later?
- * 
- * @author Michael A. MacDonald
  *
+ * @author Michael A. MacDonald
  */
 class BCMotionEvent4 implements IBCMotionEvent {
 

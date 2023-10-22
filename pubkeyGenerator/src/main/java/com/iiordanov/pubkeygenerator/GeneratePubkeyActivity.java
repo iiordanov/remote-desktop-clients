@@ -65,9 +65,8 @@ public class GeneratePubkeyActivity extends Activity implements OnEntropyGathere
     final static int MAX_BITS_DSA = 1024;
     private static final int SAVE_KEY_REQUEST = 1;
     private static final int IMPORT_KEY_REQUEST = 2;
-
+    ClipboardManager cm;
     private LayoutInflater inflater = null;
-
     private RadioGroup keyTypeGroup;
     private SeekBar bitsSlider;
     private EditText bitsText;
@@ -79,25 +78,61 @@ public class GeneratePubkeyActivity extends Activity implements OnEntropyGathere
     private Button save;
     private Dialog entropyDialog;
     private ProgressDialog progress;
-
     private EditText password1;
-
     private String keyType = PubkeyDatabase.KEY_TYPE_RSA;
     private int minBits = MIN_BITS_RSA;
     private int bits = DEFAULT_BITS_RSA;
-
     private byte[] entropy;
-
     // Variables we use to receive (from calling activity)
     // and recover all key-pair related information.
     private String passphrase;
     private String sshPrivKey;
     private String sshPubKey;
     private boolean recovered = false;
+    final private TextWatcher textChecker = new TextWatcher() {
+        public void afterTextChanged(Editable s) {
+        }
+
+        public void beforeTextChanged(CharSequence s, int start, int count,
+                                      int after) {
+        }
+
+        public void onTextChanged(CharSequence s, int start, int before,
+                                  int count) {
+            checkEntries();
+        }
+    };
     private KeyPair kp = null;
     private String publicKeySSHFormat;
+    private Handler handler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            progress.setMessage(getResources().getText(R.string.generated));
+            progress.dismiss();
+            GeneratePubkeyActivity.this.finish();
+        }
+    };
+    final private Runnable mKeyGen = new Runnable() {
+        public void run() {
+            try {
+                SecureRandom random = SecureRandom.getInstance("SHA1PRNG");
+                random.setSeed(entropy);
 
-    ClipboardManager cm;
+                KeyPairGenerator keyPairGen = KeyPairGenerator.getInstance(keyType);
+                keyPairGen.initialize(bits, random);
+
+                KeyPair pair = keyPairGen.generateKeyPair();
+                convertToBase64AndSendIntent(pair);
+
+            } catch (Exception e) {
+                Log.e(TAG, "Could not generate key pair");
+                e.printStackTrace();
+            }
+
+            handler.sendEmptyMessage(0);
+        }
+
+    };
 
     @Override
     public void onCreate(Bundle icicle) {
@@ -366,51 +401,6 @@ public class GeneratePubkeyActivity extends Activity implements OnEntropyGathere
         keyGenThread.setName("KeyGen");
         keyGenThread.start();
     }
-
-    private Handler handler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            progress.setMessage(getResources().getText(R.string.generated));
-            progress.dismiss();
-            GeneratePubkeyActivity.this.finish();
-        }
-    };
-
-    final private Runnable mKeyGen = new Runnable() {
-        public void run() {
-            try {
-                SecureRandom random = SecureRandom.getInstance("SHA1PRNG");
-                random.setSeed(entropy);
-
-                KeyPairGenerator keyPairGen = KeyPairGenerator.getInstance(keyType);
-                keyPairGen.initialize(bits, random);
-
-                KeyPair pair = keyPairGen.generateKeyPair();
-                convertToBase64AndSendIntent(pair);
-
-            } catch (Exception e) {
-                Log.e(TAG, "Could not generate key pair");
-                e.printStackTrace();
-            }
-
-            handler.sendEmptyMessage(0);
-        }
-
-    };
-
-    final private TextWatcher textChecker = new TextWatcher() {
-        public void afterTextChanged(Editable s) {
-        }
-
-        public void beforeTextChanged(CharSequence s, int start, int count,
-                                      int after) {
-        }
-
-        public void onTextChanged(CharSequence s, int start, int before,
-                                  int count) {
-            checkEntries();
-        }
-    };
 
     private int measureNumberOfSetBits(byte b) {
         int numSetBits = 0;

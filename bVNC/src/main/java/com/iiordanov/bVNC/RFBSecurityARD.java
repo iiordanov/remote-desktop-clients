@@ -41,55 +41,51 @@ import javax.crypto.spec.SecretKeySpec;
  * This class implements "Mac Authentication", which uses Diffie-Hellman
  * key agreement (along with MD5 and AES128) to authenticate users to
  * Apple Remote Desktop, the VNC server which is built-in to Mac OS X.
- *
+ * <p>
  * This authentication technique is based on the following steps:
- *
+ * <p>
  * 1. Perform Diffie-Hellman key agreement, so both sides have
- *    a shared secret key which can be used for further encryption.
+ * a shared secret key which can be used for further encryption.
  * 2. Take the MD5 hash of this DH secret key to produce a 128-bit
- *    value which we will use as the actual encryption key.
+ * value which we will use as the actual encryption key.
  * 3. Encrypt the username and password with this key using the AES
- *    128-bit symmetric cipher in electronic codebook (ECB) mode.  The
- *    username/password credentials are stored in a 128-byte structure,
- *    with 64 bytes for each, null-terminated.  Ideally, write random
- *    values into the portion of this 128-byte structure which is not
- *    occupied by the username or password, but no further padding for
- *    this block cipher.
- *
+ * 128-bit symmetric cipher in electronic codebook (ECB) mode.  The
+ * username/password credentials are stored in a 128-byte structure,
+ * with 64 bytes for each, null-terminated.  Ideally, write random
+ * values into the portion of this 128-byte structure which is not
+ * occupied by the username or password, but no further padding for
+ * this block cipher.
+ * <p>
  * The ciphertext from step 3 and the DH public key from step 2
  * are sent to the server.
  */
 public class RFBSecurityARD {
-    
+
     // The type and name identifies this authentication scheme to
     // the rest of the RFB code.
 
     private static final String NAME = "Mac Authentication";
-
-    public byte getType() {
-        return RfbProto.SecTypeArd;
-    }
-    public String getTypeName() {
-        return NAME;
-    }
-
+    private final static String MSG_NO_SUPPORT =
+            "Your device does not support the required cryptography to perform Mac Authentication.";
+    private final static String MSG_ERROR =
+            "A cryptography error occurred while trying to perform Mac Authentication.";
     // credentials
     private String username;
     private String password;
 
-    /**
-     * The DHResult class holds the output of the Diffie-Hellman
-     * key agreement.
-     */
-    private static class DHResult {
-        private byte[] publicKey;
-        private byte[] privateKey;
-        private byte[] secretKey;
-    };
-
     public RFBSecurityARD(String username, String password) {
         this.username = username;
         this.password = password;
+    }
+
+    ;
+
+    public byte getType() {
+        return RfbProto.SecTypeArd;
+    }
+
+    public String getTypeName() {
+        return NAME;
     }
 
     /**
@@ -112,10 +108,10 @@ public class RFBSecurityARD {
         //    the publicKey and privateKey
 
         DHResult dh = performDHKeyAgreement(
-            new BigInteger(+1, prime),
-            new BigInteger(+1, generator),
-            new BigInteger(+1, peerKey),
-            keyLength
+                new BigInteger(+1, prime),
+                new BigInteger(+1, generator),
+                new BigInteger(+1, peerKey),
+                keyLength
         );
 
         // 3. calculate the MD5 hash of the DH shared secret
@@ -135,7 +131,7 @@ public class RFBSecurityARD {
         System.arraycopy(userBytes, 0, credentials, 0, userLength);
         System.arraycopy(passBytes, 0, credentials, 64, passLength);
         credentials[userLength] = '\0';
-        credentials[64+passLength] = '\0';
+        credentials[64 + passLength] = '\0';
         byte[] ciphertext = performAES128(secret, credentials);
 
         // 5. send the ciphertext + DH public key
@@ -145,16 +141,11 @@ public class RFBSecurityARD {
         return true;
     }
 
-    private final static String MSG_NO_SUPPORT =
-        "Your device does not support the required cryptography to perform Mac Authentication.";
-    private final static String MSG_ERROR =
-        "A cryptography error occurred while trying to perform Mac Authentication.";
-
     private DHResult performDHKeyAgreement(
-        BigInteger prime,
-        BigInteger generator,
-        BigInteger peerKey,
-        int keyLength
+            BigInteger prime,
+            BigInteger generator,
+            BigInteger peerKey,
+            int keyLength
     ) throws IOException {
 
         // fetch instances of all needed Diffie-Hellman support classes
@@ -175,16 +166,16 @@ public class RFBSecurityARD {
 
             // parse the peerKey
             DHPublicKeySpec peerKeySpec = new DHPublicKeySpec(
-                peerKey,
-                prime,
-                generator
+                    peerKey,
+                    prime,
+                    generator
             );
             DHPublicKey peerPublicKey =
-                (DHPublicKey) keyFactory.generatePublic(peerKeySpec);
+                    (DHPublicKey) keyFactory.generatePublic(peerKeySpec);
 
             // generate my public/private key pair
             keyPairGenerator.initialize(
-                new DHParameterSpec(prime, generator)
+                    new DHParameterSpec(prime, generator)
             );
             KeyPair keyPair = keyPairGenerator.generateKeyPair();
 
@@ -245,11 +236,11 @@ public class RFBSecurityARD {
         byte[] bytes = bigInteger.toByteArray();
         if (bytes.length > length) {
             byte[] array = new byte[length];
-            System.arraycopy(bytes, bytes.length-length, array, 0, length);
+            System.arraycopy(bytes, bytes.length - length, array, 0, length);
             return array;
         } else if (bytes.length < length) {
             byte[] array = new byte[length];
-            System.arraycopy(bytes, 0, array, length-bytes.length, bytes.length);
+            System.arraycopy(bytes, 0, array, length - bytes.length, bytes.length);
             return array;
         } else {
             return bytes;
@@ -266,11 +257,21 @@ public class RFBSecurityARD {
             throw new IOException(MSG_ERROR + " (null key to bytes)");
         }
         if (key instanceof DHPublicKey) {
-            return convertBigIntegerToByteArray(((DHPublicKey)key).getY(), length);
+            return convertBigIntegerToByteArray(((DHPublicKey) key).getY(), length);
         } else if (key instanceof DHPrivateKey) {
-            return convertBigIntegerToByteArray(((DHPrivateKey)key).getX(), length);
+            return convertBigIntegerToByteArray(((DHPrivateKey) key).getX(), length);
         } else {
-            throw new IOException(MSG_ERROR + " (key "+key.getClass().getSimpleName()+" to bytes)");
+            throw new IOException(MSG_ERROR + " (key " + key.getClass().getSimpleName() + " to bytes)");
         }
+    }
+
+    /**
+     * The DHResult class holds the output of the Diffie-Hellman
+     * key agreement.
+     */
+    private static class DHResult {
+        private byte[] publicKey;
+        private byte[] privateKey;
+        private byte[] secretKey;
     }
 }

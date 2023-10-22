@@ -17,6 +17,8 @@
 
 package com.iiordanov.pubkeygenerator;
 
+import android.content.ContentValues;
+
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
@@ -27,211 +29,206 @@ import java.security.spec.EncodedKeySpec;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
 
-import com.iiordanov.pubkeygenerator.PubkeyDatabase;
-import com.iiordanov.pubkeygenerator.PubkeyUtils;
-import android.content.ContentValues;
-
 /**
  * @author Kenny Root
- *
  */
 public class PubkeyBean extends AbstractBean {
-	public static final String BEAN_NAME = "pubkey";
+    public static final String BEAN_NAME = "pubkey";
 
-	private static final String KEY_TYPE_RSA = "RSA";
+    private static final String KEY_TYPE_RSA = "RSA";
 
-	private static final String KEY_TYPE_DSA = "DSA";
+    private static final String KEY_TYPE_DSA = "DSA";
 
-	/* Database fields */
-	private long id;
-	private String nickname;
-	private String type;
-	private byte[] privateKey;
-	private PublicKey publicKey;
-	private boolean encrypted = false;
-	private boolean startup = false;
-	private boolean confirmUse = false;
-	private int lifetime = 0;
+    /* Database fields */
+    private long id;
+    private String nickname;
+    private String type;
+    private byte[] privateKey;
+    private PublicKey publicKey;
+    private boolean encrypted = false;
+    private boolean startup = false;
+    private boolean confirmUse = false;
+    private int lifetime = 0;
 
-	/* Transient values */
-	private boolean unlocked = false;
-	private Object unlockedPrivate = null;
+    /* Transient values */
+    private boolean unlocked = false;
+    private Object unlockedPrivate = null;
 
-	@Override
-	public String getBeanName() {
-		return BEAN_NAME;
-	}
+    @Override
+    public String getBeanName() {
+        return BEAN_NAME;
+    }
 
-	public void setId(long id) {
-		this.id = id;
-	}
+    public long getId() {
+        return id;
+    }
 
-	public long getId() {
-		return id;
-	}
+    public void setId(long id) {
+        this.id = id;
+    }
 
-	public void setNickname(String nickname) {
-		this.nickname = nickname;
-	}
+    public String getNickname() {
+        return nickname;
+    }
 
-	public String getNickname() {
-		return nickname;
-	}
+    public void setNickname(String nickname) {
+        this.nickname = nickname;
+    }
 
-	public void setType(String type) {
-		this.type = type;
-	}
+    public String getType() {
+        return type;
+    }
 
-	public String getType() {
-		return type;
-	}
+    public void setType(String type) {
+        this.type = type;
+    }
 
-	public void setPrivateKey(byte[] privateKey) {
-		if (privateKey == null)
-			this.privateKey = null;
-		else
-			this.privateKey = privateKey.clone();
-	}
+    public byte[] getPrivateKey() {
+        if (privateKey == null)
+            return null;
+        else
+            return privateKey.clone();
+    }
 
-	public byte[] getPrivateKey() {
-		if (privateKey == null)
-			return null;
-		else
-			return privateKey.clone();
-	}
+    public void setPrivateKey(byte[] privateKey) {
+        if (privateKey == null)
+            this.privateKey = null;
+        else
+            this.privateKey = privateKey.clone();
+    }
 
-	private PublicKey decodePublicKeyAs(EncodedKeySpec keySpec, String keyType) {
-		try {
-			final KeyFactory kf = KeyFactory.getInstance(keyType);
-			return kf.generatePublic(keySpec);
-		} catch (NoSuchAlgorithmException e) {
-			return null;
-		} catch (InvalidKeySpecException e) {
-			return null;
-		}
-	}
+    private PublicKey decodePublicKeyAs(EncodedKeySpec keySpec, String keyType) {
+        try {
+            final KeyFactory kf = KeyFactory.getInstance(keyType);
+            return kf.generatePublic(keySpec);
+        } catch (NoSuchAlgorithmException e) {
+            return null;
+        } catch (InvalidKeySpecException e) {
+            return null;
+        }
+    }
 
-	public void setPublicKey(byte[] encoded) {
-		if (encoded == null) return;
-		final X509EncodedKeySpec pubKeySpec = new X509EncodedKeySpec(encoded);
-		if (type != null) {
-			publicKey = decodePublicKeyAs(pubKeySpec, type);
-		} else {
-			publicKey = decodePublicKeyAs(pubKeySpec, KEY_TYPE_RSA);
-			if (publicKey != null) {
-				type = KEY_TYPE_RSA;
-			} else {
-				publicKey = decodePublicKeyAs(pubKeySpec, KEY_TYPE_DSA);
-				if (publicKey != null) {
-					type = KEY_TYPE_DSA;
-				}
-			}
-		}
-	}
+    public PublicKey getPublicKey() {
+        return publicKey;
+    }
 
-	public PublicKey getPublicKey() {
-		return publicKey;
-	}
+    public void setPublicKey(byte[] encoded) {
+        if (encoded == null) return;
+        final X509EncodedKeySpec pubKeySpec = new X509EncodedKeySpec(encoded);
+        if (type != null) {
+            publicKey = decodePublicKeyAs(pubKeySpec, type);
+        } else {
+            publicKey = decodePublicKeyAs(pubKeySpec, KEY_TYPE_RSA);
+            if (publicKey != null) {
+                type = KEY_TYPE_RSA;
+            } else {
+                publicKey = decodePublicKeyAs(pubKeySpec, KEY_TYPE_DSA);
+                if (publicKey != null) {
+                    type = KEY_TYPE_DSA;
+                }
+            }
+        }
+    }
 
-	public void setEncrypted(boolean encrypted) {
-		this.encrypted = encrypted;
-	}
+    public boolean isEncrypted() {
+        return encrypted;
+    }
 
-	public boolean isEncrypted() {
-		return encrypted;
-	}
+    public void setEncrypted(boolean encrypted) {
+        this.encrypted = encrypted;
+    }
 
-	public void setStartup(boolean startup) {
-		this.startup = startup;
-	}
+    public boolean isStartup() {
+        return startup;
+    }
 
-	public boolean isStartup() {
-		return startup;
-	}
+    public void setStartup(boolean startup) {
+        this.startup = startup;
+    }
 
-	public void setConfirmUse(boolean confirmUse) {
-		this.confirmUse = confirmUse;
-	}
+    public boolean isConfirmUse() {
+        return confirmUse;
+    }
 
-	public boolean isConfirmUse() {
-		return confirmUse;
-	}
+    public void setConfirmUse(boolean confirmUse) {
+        this.confirmUse = confirmUse;
+    }
 
-	public void setLifetime(int lifetime) {
-		this.lifetime = lifetime;
-	}
+    public int getLifetime() {
+        return lifetime;
+    }
 
-	public int getLifetime() {
-		return lifetime;
-	}
+    public void setLifetime(int lifetime) {
+        this.lifetime = lifetime;
+    }
 
-	public void setUnlocked(boolean unlocked) {
-		this.unlocked = unlocked;
-	}
+    public boolean isUnlocked() {
+        return unlocked;
+    }
 
-	public boolean isUnlocked() {
-		return unlocked;
-	}
+    public void setUnlocked(boolean unlocked) {
+        this.unlocked = unlocked;
+    }
 
-	public void setUnlockedPrivate(Object unlockedPrivate) {
-		this.unlockedPrivate = unlockedPrivate;
-	}
+    public Object getUnlockedPrivate() {
+        return unlockedPrivate;
+    }
 
-	public Object getUnlockedPrivate() {
-		return unlockedPrivate;
-	}
+    public void setUnlockedPrivate(Object unlockedPrivate) {
+        this.unlockedPrivate = unlockedPrivate;
+    }
 
-	public String getDescription() {
-		StringBuilder sb = new StringBuilder();
-		if (publicKey instanceof RSAPublicKey) {
-			int bits = ((RSAPublicKey) publicKey).getModulus().bitLength();
-			sb.append("RSA ");
-			sb.append(bits);
-			sb.append("-bit");
-		} else if (publicKey instanceof DSAPublicKey) {
-			sb.append("DSA 1024-bit");
-		} else {
-			sb.append("Unknown Key Type");
-		}
+    public String getDescription() {
+        StringBuilder sb = new StringBuilder();
+        if (publicKey instanceof RSAPublicKey) {
+            int bits = ((RSAPublicKey) publicKey).getModulus().bitLength();
+            sb.append("RSA ");
+            sb.append(bits);
+            sb.append("-bit");
+        } else if (publicKey instanceof DSAPublicKey) {
+            sb.append("DSA 1024-bit");
+        } else {
+            sb.append("Unknown Key Type");
+        }
 
-		if (encrypted)
-			sb.append(" (encrypted)");
+        if (encrypted)
+            sb.append(" (encrypted)");
 
-		return sb.toString();
-	}
+        return sb.toString();
+    }
 
-	/* (non-Javadoc)
-	 * @see com.iiordanov.bssh.bean.AbstractBean#getValues()
-	 */
-	@Override
-	public ContentValues getValues() {
-		ContentValues values = new ContentValues();
+    /* (non-Javadoc)
+     * @see com.iiordanov.bssh.bean.AbstractBean#getValues()
+     */
+    @Override
+    public ContentValues getValues() {
+        ContentValues values = new ContentValues();
 
-		values.put(PubkeyDatabase.FIELD_PUBKEY_NICKNAME, nickname);
-		values.put(PubkeyDatabase.FIELD_PUBKEY_TYPE, type);
-		values.put(PubkeyDatabase.FIELD_PUBKEY_PRIVATE, privateKey);
-		if (publicKey != null)
-			values.put(PubkeyDatabase.FIELD_PUBKEY_PUBLIC, publicKey.getEncoded());
-		values.put(PubkeyDatabase.FIELD_PUBKEY_ENCRYPTED, encrypted ? 1 : 0);
-		values.put(PubkeyDatabase.FIELD_PUBKEY_STARTUP, startup ? 1 : 0);
-		values.put(PubkeyDatabase.FIELD_PUBKEY_CONFIRMUSE, confirmUse ? 1 : 0);
-		values.put(PubkeyDatabase.FIELD_PUBKEY_LIFETIME, lifetime);
+        values.put(PubkeyDatabase.FIELD_PUBKEY_NICKNAME, nickname);
+        values.put(PubkeyDatabase.FIELD_PUBKEY_TYPE, type);
+        values.put(PubkeyDatabase.FIELD_PUBKEY_PRIVATE, privateKey);
+        if (publicKey != null)
+            values.put(PubkeyDatabase.FIELD_PUBKEY_PUBLIC, publicKey.getEncoded());
+        values.put(PubkeyDatabase.FIELD_PUBKEY_ENCRYPTED, encrypted ? 1 : 0);
+        values.put(PubkeyDatabase.FIELD_PUBKEY_STARTUP, startup ? 1 : 0);
+        values.put(PubkeyDatabase.FIELD_PUBKEY_CONFIRMUSE, confirmUse ? 1 : 0);
+        values.put(PubkeyDatabase.FIELD_PUBKEY_LIFETIME, lifetime);
 
-		return values;
-	}
+        return values;
+    }
 
-	public boolean changePassword(String oldPassword, String newPassword) throws Exception {
-		PrivateKey priv;
+    public boolean changePassword(String oldPassword, String newPassword) throws Exception {
+        PrivateKey priv;
 
-		try {
-			priv = PubkeyUtils.decodePrivate(getPrivateKey(), getType(), oldPassword);
-		} catch (Exception e) {
-			return false;
-		}
+        try {
+            priv = PubkeyUtils.decodePrivate(getPrivateKey(), getType(), oldPassword);
+        } catch (Exception e) {
+            return false;
+        }
 
-		setPrivateKey(PubkeyUtils.getEncodedPrivate(priv, newPassword));
-		setEncrypted(newPassword.length() > 0);
+        setPrivateKey(PubkeyUtils.getEncodedPrivate(priv, newPassword));
+        setEncrypted(newPassword.length() > 0);
 
-		return true;
-	}
+        return true;
+    }
 }

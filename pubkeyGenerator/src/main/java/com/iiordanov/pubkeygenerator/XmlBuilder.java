@@ -21,51 +21,50 @@ import com.trilead.ssh2.crypto.Base64;
 
 /**
  * @author Kenny Root
- *
  */
 public class XmlBuilder {
-	private StringBuilder sb;
+    private StringBuilder sb;
 
-	public XmlBuilder() {
-		sb = new StringBuilder();
-	}
+    public XmlBuilder() {
+        sb = new StringBuilder();
+    }
 
-	public XmlBuilder append(String data) {
-		sb.append(data);
+    public XmlBuilder append(String data) {
+        sb.append(data);
 
-		return this;
-	}
+        return this;
+    }
 
-	public XmlBuilder append(String field, Object data) {
-		if (data == null) {
-			sb.append(String.format("<%s/>", field));
-		} else if (data instanceof String) {
-			String input = (String) data;
-			boolean binary = false;
+    public XmlBuilder append(String field, Object data) {
+        if (data == null) {
+            sb.append(String.format("<%s/>", field));
+        } else if (data instanceof String) {
+            String input = (String) data;
+            boolean binary = false;
 
-			for (byte b : input.getBytes()) {
-				if (b < 0x20 || b > 0x7e) {
-					binary = true;
-					break;
-				}
-			}
+            for (byte b : input.getBytes()) {
+                if (b < 0x20 || b > 0x7e) {
+                    binary = true;
+                    break;
+                }
+            }
 
-			sb.append(String.format("<%s>%s</%s>", field,
-					binary ? new String(Base64.encode(input.getBytes())) : input, field));
-		} else if (data instanceof Integer) {
-			sb.append(String.format("<%s>%d</%s>", field, (Integer) data, field));
-		} else if (data instanceof Long) {
-			sb.append(String.format("<%s>%d</%s>", field, (Long) data, field));
-		} else if (data instanceof byte[]) {
-			sb.append(String.format("<%s>%s</%s>", field, new String(Base64.encode((byte[]) data)), field));
-		} else if (data instanceof Boolean) {
-			sb.append(String.format("<%s>%s</%s>", field, (Boolean) data, field));
-		}
+            sb.append(String.format("<%s>%s</%s>", field,
+                    binary ? new String(Base64.encode(input.getBytes())) : input, field));
+        } else if (data instanceof Integer) {
+            sb.append(String.format("<%s>%d</%s>", field, (Integer) data, field));
+        } else if (data instanceof Long) {
+            sb.append(String.format("<%s>%d</%s>", field, (Long) data, field));
+        } else if (data instanceof byte[]) {
+            sb.append(String.format("<%s>%s</%s>", field, new String(Base64.encode((byte[]) data)), field));
+        } else if (data instanceof Boolean) {
+            sb.append(String.format("<%s>%s</%s>", field, (Boolean) data, field));
+        }
 
-		return this;
-	}
+        return this;
+    }
 
-	public String toString() {
-		return sb.toString();
-	}
+    public String toString() {
+        return sb.toString();
+    }
 }

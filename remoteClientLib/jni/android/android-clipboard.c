@@ -43,7 +43,7 @@ void spice_clipboard_connect_signals(SpiceChannel* channel, spice_connection *co
 
 void spice_clipboard_selection_handler(
     SpiceMainChannel* channel, guint selection, guint type, gpointer data, guint size, spice_connection *conn) {
-	__android_log_write(ANDROID_LOG_INFO, "android-spice",
+    __android_log_write(ANDROID_LOG_INFO, "android-spice",
         "spice_clipboard_selection_handler: Appending clipboard to buffer and sending clipboard selection to UI");
 
     if (selection != VD_AGENT_CLIPBOARD_SELECTION_CLIPBOARD) {
@@ -91,7 +91,7 @@ void spice_clipboard_selection_grab_handler(
 
 void spice_clipboard_selection_release_handler(
     SpiceMainChannel* channel, guint selection, spice_connection *conn) {
-	__android_log_write(ANDROID_LOG_INFO, "android-spice",
+    __android_log_write(ANDROID_LOG_INFO, "android-spice",
         "spice_clipboard_selection_release_handler: Clipboard released in VM, sending buffer to UI");
     strncpy(clipboard->buffer, (const char *)"\0", 1);
     clipboard->length = 0;
@@ -99,7 +99,7 @@ void spice_clipboard_selection_release_handler(
 
 void spice_clipboard_selection_request_handler(
     SpiceMainChannel* channel, guint selection, guint type, spice_connection *conn) {
-	__android_log_write(ANDROID_LOG_INFO, "android-spice",
+    __android_log_write(ANDROID_LOG_INFO, "android-spice",
         "spice_clipboard_selection_request_handler: Getting clipboard data from UI");
 
     if (selection != VD_AGENT_CLIPBOARD_SELECTION_CLIPBOARD) {

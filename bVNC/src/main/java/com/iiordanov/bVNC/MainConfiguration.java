@@ -1,21 +1,12 @@
 package com.iiordanov.bVNC;
 
-import java.util.ArrayList;
-import java.util.Collections;
-
-import net.sqlcipher.database.SQLiteDatabase;
-
-import com.iiordanov.pubkeygenerator.GeneratePubkeyActivity;
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.graphics.Point;
 import android.os.Bundle;
-
-import androidx.fragment.app.FragmentActivity;
-
 import android.text.ClipboardManager;
 import android.util.Log;
 import android.view.Display;
@@ -34,15 +25,16 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
-import android.content.res.Configuration;
+import androidx.fragment.app.FragmentActivity;
 
-import com.iiordanov.util.PermissionGroups;
+import com.iiordanov.pubkeygenerator.GeneratePubkeyActivity;
 import com.undatech.opaque.util.LogcatReader;
-import com.iiordanov.util.PermissionsManager;
+import com.undatech.remoteClientUi.R;
 
-import com.undatech.remoteClientUi.*;
+import net.sqlcipher.database.SQLiteDatabase;
+
+import java.util.ArrayList;
+import java.util.Collections;
 
 public abstract class MainConfiguration extends FragmentActivity {
     private final static String TAG = "MainConfiguration";
@@ -51,14 +43,13 @@ public abstract class MainConfiguration extends FragmentActivity {
     protected Database database;
     protected EditText textNickname;
     protected int layoutID;
-    private Button buttonGeneratePubkey;
-    private TextView versionAndCode;
-    private RadioGroup radioCursor;
-
     protected Spinner connectionType;
     protected int selectedConnType;
     protected EditText ipText;
-
+    protected boolean isNewConnection;
+    private Button buttonGeneratePubkey;
+    private TextView versionAndCode;
+    private RadioGroup radioCursor;
     private TextView sshCaption;
     private LinearLayout sshCredentials;
     private LinearLayout layoutUseSshPubkey;
@@ -66,11 +57,10 @@ public abstract class MainConfiguration extends FragmentActivity {
     private EditText sshPassword;
     private EditText sshPassphrase;
     private CheckBox checkboxKeepSshPass;
-
-    protected boolean isNewConnection;
     private long connID = 0;
 
     protected abstract void updateViewFromSelected();
+
     protected abstract void updateSelectedFromView();
 
     public void commonUpdateViewFromSelected() {
@@ -150,14 +140,14 @@ public abstract class MainConfiguration extends FragmentActivity {
         buttonGeneratePubkey.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                generatePubkey ();
+                generatePubkey();
             }
         });
 
         versionAndCode = (TextView) findViewById(R.id.versionAndCode);
         versionAndCode.setText(Utils.getVersionAndCode(this));
 
-        database = ((App)getApplication()).getDatabase();
+        database = ((App) getApplication()).getDatabase();
 
         ((Button) findViewById(R.id.copyLogcat)).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -189,9 +179,9 @@ public abstract class MainConfiguration extends FragmentActivity {
                 selected.setConnectionType(selectedConnType);
                 selected.save(MainConfiguration.this);
                 if (selectedConnType == Constants.CONN_TYPE_PLAIN) {
-                    setVisibilityOfSshWidgets (View.GONE);
+                    setVisibilityOfSshWidgets(View.GONE);
                 } else if (selectedConnType == Constants.CONN_TYPE_SSH) {
-                    setVisibilityOfSshWidgets (View.VISIBLE);
+                    setVisibilityOfSshWidgets(View.VISIBLE);
                     if (ipText.getText().toString().equals(""))
                         ipText.setText("localhost");
                 }
@@ -218,7 +208,7 @@ public abstract class MainConfiguration extends FragmentActivity {
     /**
      * Makes the ssh-related widgets visible/invisible.
      */
-    protected void setVisibilityOfSshWidgets (int visibility) {
+    protected void setVisibilityOfSshWidgets(int visibility) {
         Log.d(TAG, "setVisibilityOfSshWidgets called");
         sshCredentials.setVisibility(visibility);
         sshCaption.setVisibility(visibility);
@@ -248,7 +238,8 @@ public abstract class MainConfiguration extends FragmentActivity {
     }
 
     @Override
-    public void onWindowFocusChanged (boolean visible) { }
+    public void onWindowFocusChanged(boolean visible) {
+    }
 
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
@@ -296,7 +287,7 @@ public abstract class MainConfiguration extends FragmentActivity {
 
     public void arriveOnPage() {
         Log.d(TAG, "arriveOnPage called");
-        if(!isNewConnection) {
+        if (!isNewConnection) {
             SQLiteDatabase db = database.getReadableDatabase();
             ArrayList<ConnectionBean> connections = new ArrayList<ConnectionBean>();
             ConnectionBean.getAll(db,
@@ -313,7 +304,7 @@ public abstract class MainConfiguration extends FragmentActivity {
             }
             database.close();
         }
-        if(selected == null) {
+        if (selected == null) {
             selected = new ConnectionBean(this);
         }
         updateViewFromSelected();
@@ -322,12 +313,12 @@ public abstract class MainConfiguration extends FragmentActivity {
     /**
      * Starts the activity which manages keys.
      */
-    protected void generatePubkey () {
+    protected void generatePubkey() {
         Log.d(TAG, "generatePubkey called");
         updateSelectedFromView();
         selected.saveAndWriteRecent(true, this);
         Intent intent = new Intent(this, GeneratePubkeyActivity.class);
-        intent.putExtra("PrivateKey",selected.getSshPrivKey());
+        intent.putExtra("PrivateKey", selected.getSshPrivKey());
         startActivityForResult(intent, Constants.ACTIVITY_GEN_KEY);
     }
 
@@ -335,11 +326,12 @@ public abstract class MainConfiguration extends FragmentActivity {
      * Returns the display height, or if the device has software
      * buttons, the 'bottom' of the view (in order to take into account the
      * software buttons.
+     *
      * @return the height in pixels.
      */
-    public int getHeight () {
+    public int getHeight() {
         Log.d(TAG, "getHeight called");
-        View v    = getWindow().getDecorView().findViewById(android.R.id.content);
+        View v = getWindow().getDecorView().findViewById(android.R.id.content);
         Display d = getWindowManager().getDefaultDisplay();
         int bottom = v.getBottom();
         Point outSize = new Point();
@@ -351,7 +343,7 @@ public abstract class MainConfiguration extends FragmentActivity {
             if (vc.hasPermanentMenuKey())
                 value = bottom;
         }
-        if (Utils.isBlackBerry ()) {
+        if (Utils.isBlackBerry()) {
             value = bottom;
         }
         return value;
@@ -361,11 +353,12 @@ public abstract class MainConfiguration extends FragmentActivity {
      * Returns the display width, or if the device has software
      * buttons, the 'right' of the view (in order to take into account the
      * software buttons.
+     *
      * @return the width in pixels.
      */
-    public int getWidth () {
+    public int getWidth() {
         Log.d(TAG, "getWidth called");
-        View v    = getWindow().getDecorView().findViewById(android.R.id.content);
+        View v = getWindow().getDecorView().findViewById(android.R.id.content);
         Display d = getWindowManager().getDefaultDisplay();
         int right = v.getRight();
         Point outSize = new Point();
@@ -398,7 +391,8 @@ public abstract class MainConfiguration extends FragmentActivity {
         Log.d(TAG, "onMenuOpened called");
         try {
             menu.findItem(R.id.itemSaveAsCopy).setEnabled(selected != null && !selected.isNew());
-        } catch (NullPointerException e) {}
+        } catch (NullPointerException e) {
+        }
         return true;
     }
 
@@ -410,19 +404,19 @@ public abstract class MainConfiguration extends FragmentActivity {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         Log.d(TAG, "onActivityResult called");
         super.onActivityResult(requestCode, resultCode, data);
-        switch(requestCode) {
-        case (Constants.ACTIVITY_GEN_KEY):
-            if (resultCode == Activity.RESULT_OK && data != null && data.getExtras() != null) {
-                Bundle b = data.getExtras();
-                String privateKey = (String)b.get("PrivateKey");
-                if (!privateKey.equals(selected.getSshPrivKey()) && privateKey.length() != 0)
-                    Toast.makeText(getBaseContext(), getString(R.string.ssh_key_generated), Toast.LENGTH_LONG).show();
-                selected.setSshPrivKey(privateKey);
-                selected.setSshPubKey((String)b.get("PublicKey"));
-                selected.saveAndWriteRecent(true, this);
-            } else
-                Log.i (TAG, "The user cancelled SSH key generation.");
-            break;
+        switch (requestCode) {
+            case (Constants.ACTIVITY_GEN_KEY):
+                if (resultCode == Activity.RESULT_OK && data != null && data.getExtras() != null) {
+                    Bundle b = data.getExtras();
+                    String privateKey = (String) b.get("PrivateKey");
+                    if (!privateKey.equals(selected.getSshPrivKey()) && privateKey.length() != 0)
+                        Toast.makeText(getBaseContext(), getString(R.string.ssh_key_generated), Toast.LENGTH_LONG).show();
+                    selected.setSshPrivKey(privateKey);
+                    selected.setSshPubKey((String) b.get("PublicKey"));
+                    selected.saveAndWriteRecent(true, this);
+                } else
+                    Log.i(TAG, "The user cancelled SSH key generation.");
+                break;
         }
     }
 

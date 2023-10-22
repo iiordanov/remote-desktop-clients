@@ -1,16 +1,16 @@
 /**
  * Copyright (C) 2021- Iordan Iordanov
- *
+ * <p>
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * This software is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License
  * along with this software; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307,
@@ -74,7 +74,7 @@ public class RemoteKeyboardState {
                     break;
             }
 
-            switch(keyCode) {
+            switch (keyCode) {
                 case KeyEvent.KEYCODE_CTRL_LEFT:
                     hardwareMetaState &= ~RemoteKeyboard.CTRL_MASK;
                     GeneralUtils.debugLog(this.debugLogging, TAG, "detected hardware LCTRL keyCode, down: " + down);
@@ -149,7 +149,7 @@ public class RemoteKeyboardState {
                     break;
             }
 
-            switch(keyCode) {
+            switch (keyCode) {
                 case KeyEvent.KEYCODE_CTRL_LEFT:
                     hardwareMetaState |= RemoteKeyboard.CTRL_MASK;
                     GeneralUtils.debugLog(this.debugLogging, TAG, "detected hardware LCTRL keyCode, down: " + down);
@@ -198,7 +198,7 @@ public class RemoteKeyboardState {
         boolean softwareMetaStateContainsModifier = (softwareMetaState & modifier) != 0;
         boolean isKeyDownAndRemoteUp = keyDown && (remoteKeyboardMetaState & modifier) == 0;
         boolean isKeyUpAndRemoteDown = !keyDown && (remoteKeyboardMetaState & modifier) != 0;
-        boolean hasChangedState = softwareMetaStateContainsModifier && (isKeyDownAndRemoteUp||isKeyUpAndRemoteDown);
+        boolean hasChangedState = softwareMetaStateContainsModifier && (isKeyDownAndRemoteUp || isKeyUpAndRemoteDown);
 
         // Send simulated modifier only if it wasn't sent as a hardware key already
         // and if it wasn't sent already to prevent multiple down events for the same modifier

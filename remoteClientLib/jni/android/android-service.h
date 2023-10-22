@@ -30,50 +30,50 @@
 #define PTRFLAGS_DOWN 0x8000
 
 #ifdef ANDROID_SERVICE_C
-	SpiceDisplay*   global_display = NULL;
-	spice_connection*  global_conn = NULL;
-	JavaVM*                    jvm = NULL;
-	JNIEnv*                  g_env = NULL;
-	jclass    jni_connector_class  = NULL;
-	jmethodID jni_settings_changed = NULL;
-	jmethodID jni_graphics_update  = NULL;
-	jmethodID jni_mouse_update     = NULL;
-	jmethodID jni_mouse_mode       = NULL;
-	jmethodID jni_show_message     = NULL;
-	jmethodID jni_remote_clipboard_changed = NULL;
-	GMainLoop            *mainloop = NULL;
-	int                connections = 0;
-	gboolean          soundEnabled = FALSE;
-	gboolean          soundInitialized = FALSE;
-	const gchar*         oVirtUser = NULL;
-	const gchar*     oVirtPassword = NULL;
-	spice_clipboard* clipboard     = NULL;
+    SpiceDisplay*   global_display = NULL;
+    spice_connection*  global_conn = NULL;
+    JavaVM*                    jvm = NULL;
+    JNIEnv*                  g_env = NULL;
+    jclass    jni_connector_class  = NULL;
+    jmethodID jni_settings_changed = NULL;
+    jmethodID jni_graphics_update  = NULL;
+    jmethodID jni_mouse_update     = NULL;
+    jmethodID jni_mouse_mode       = NULL;
+    jmethodID jni_show_message     = NULL;
+    jmethodID jni_remote_clipboard_changed = NULL;
+    GMainLoop            *mainloop = NULL;
+    int                connections = 0;
+    gboolean          soundEnabled = FALSE;
+    gboolean          soundInitialized = FALSE;
+    const gchar*         oVirtUser = NULL;
+    const gchar*     oVirtPassword = NULL;
+    spice_clipboard* clipboard     = NULL;
 #else
-	extern SpiceDisplay*   global_display;
-	extern spice_connection*  global_conn;
-	extern JavaVM*                    jvm;
-	extern JNIEnv*                  g_env;
-	extern jclass     jni_connector_class;
-	extern jmethodID jni_settings_changed;
-	extern jmethodID  jni_graphics_update;
-	extern jmethodID     jni_mouse_update;
-	extern jmethodID       jni_mouse_mode;
-	extern jmethodID     jni_show_message;
-	extern jmethodID jni_remote_clipboard_changed;
-	extern GMainLoop*            mainloop;
-	extern int                connections;
-	extern gboolean          soundEnabled;
-	extern gboolean          soundInitialized;
-	extern gchar*               oVirtUser;
-	extern gchar*           oVirtPassword;
-	extern spice_clipboard* clipboard;
+    extern SpiceDisplay*   global_display;
+    extern spice_connection*  global_conn;
+    extern JavaVM*                    jvm;
+    extern JNIEnv*                  g_env;
+    extern jclass     jni_connector_class;
+    extern jmethodID jni_settings_changed;
+    extern jmethodID  jni_graphics_update;
+    extern jmethodID     jni_mouse_update;
+    extern jmethodID       jni_mouse_mode;
+    extern jmethodID     jni_show_message;
+    extern jmethodID jni_remote_clipboard_changed;
+    extern GMainLoop*            mainloop;
+    extern int                connections;
+    extern gboolean          soundEnabled;
+    extern gboolean          soundInitialized;
+    extern gchar*               oVirtUser;
+    extern gchar*           oVirtPassword;
+    extern spice_clipboard* clipboard;
 #endif
 
 gboolean attachThreadToJvm (JNIEnv** env);
 void detachThreadFromJvm ();
 
 int spiceClientConnect (const gchar *h, const gchar *p, const gchar *tp,
-		                   const gchar *pw, const gchar *cf, GByteArray *cc,
+                           const gchar *pw, const gchar *cf, GByteArray *cc,
                            const gchar *cs, const gboolean sound, const gchar *proxy);
 
 int spiceClientConnectVv (VirtViewerFile *vv_file, const gboolean sound);

@@ -6,17 +6,17 @@
  * Copyright (C) 2001,2002 Constantin Kaplinsky.  All Rights Reserved.
  * Copyright (C) 2000 Tridia Corporation.  All Rights Reserved.
  * Copyright (C) 1999 AT&T Laboratories Cambridge.  All Rights Reserved.
- * 
+ * <p>
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
- * 
+ * <p>
  * This software is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ * <p>
  * You should have received a copy of the GNU General Public License
  * along with this software; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307,
@@ -25,21 +25,20 @@
 
 package com.iiordanov.bVNC;
 
-import java.io.IOException;
-import java.util.zip.DataFormatException;
-import java.util.zip.Inflater;
-
-import com.iiordanov.bVNC.input.RemotePointer;
-
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Rect;
 import android.graphics.Paint.Style;
 import android.graphics.RectF;
 import android.util.Log;
+
 import com.github.luben.zstd.Zstd;
+import com.iiordanov.bVNC.input.RemotePointer;
+
+import java.io.IOException;
+import java.util.zip.DataFormatException;
+import java.util.zip.Inflater;
 
 public class Decoder {
     private final static String TAG = "Decoder";
@@ -51,15 +50,15 @@ public class Decoder {
     private int[] colorPalette = null;
 
     // Tight decoder's data.
-    private Inflater[] tightInflaters  = new Inflater[4];
+    private Inflater[] tightInflaters = new Inflater[4];
     private Paint handleTightRectPaint = new Paint();
-    private byte[] solidColorBuf       = new byte[3];
-    private byte[] tightPalette8       = new byte[2];
-    private int[]  tightPalette24      = new int[256];
-    private byte[] colorBuf            = new byte[768];
-    private byte[] uncompDataBuf       = new byte[RfbProto.TightMinToCompress*3];
-    private byte[] zlibData            = new byte[4096];
-    private byte[] inflBuf             = new byte[8192];
+    private byte[] solidColorBuf = new byte[3];
+    private byte[] tightPalette8 = new byte[2];
+    private int[] tightPalette24 = new int[256];
+    private byte[] colorBuf = new byte[768];
+    private byte[] uncompDataBuf = new byte[RfbProto.TightMinToCompress * 3];
+    private byte[] zlibData = new byte[4096];
+    private byte[] inflBuf = new byte[8192];
     private BitmapFactory.Options bitmapopts = new BitmapFactory.Options();
     private boolean valid, useGradient;
     private int c, dx, dy, offset, boffset, idx, stream_id, comp_ctl, numColors, rowSize, dataSize, jpegDataLen;
@@ -68,9 +67,9 @@ public class Decoder {
     private byte[] zrleBuf;
     private int[] zrleTilePixels;
     private ZlibInStream zrleInStream;
-    private Paint handleZRLERectPaint   = new Paint();
+    private Paint handleZRLERectPaint = new Paint();
     private int[] handleZRLERectPalette = new int[128];
-    private byte[] readPixelsBuffer     = new byte[128];
+    private byte[] readPixelsBuffer = new byte[128];
 
     // Zlib decoder's data.
     private byte[] zlibBuf;
@@ -78,39 +77,39 @@ public class Decoder {
     private byte[] handleZlibRectBuffer = new byte[128];
 
     // RRE decoder's data.
-    private Paint handleRREPaint         = new Paint();
-    private byte[] bg_buf                = new byte[4];
-    private byte[] rre_buf               = new byte[128];
+    private Paint handleRREPaint = new Paint();
+    private byte[] bg_buf = new byte[4];
+    private byte[] rre_buf = new byte[128];
 
     // Raw decoder's data.
-    private byte[] handleRawRectBuffer   = new byte[128];
+    private byte[] handleRawRectBuffer = new byte[128];
 
     // Hextile decoder's data.
     // These colors should be kept between handleHextileSubrect() calls.
     private int hextile_bg, hextile_fg;
     private Paint handleHextileSubrectPaint = new Paint();
-    private byte[] backgroundColorBuffer    = new byte[4];
-    
+    private byte[] backgroundColorBuffer = new byte[4];
+
     private AbstractBitmapData bitmapData;
     private RemoteCanvas vncCanvas;
     private boolean discardCursorShapeUpdates;
 
-    public Decoder (RemoteCanvas v, boolean discardCursorShapeUpdates) {
+    public Decoder(RemoteCanvas v, boolean discardCursorShapeUpdates) {
         this.discardCursorShapeUpdates = discardCursorShapeUpdates;
         handleRREPaint.setStyle(Style.FILL);
         handleTightRectPaint.setStyle(Style.FILL);
-        bitmapopts.inPurgeable      = false;
-        bitmapopts.inDither         = false;
-        bitmapopts.inTempStorage    = new byte[32768];
-        bitmapopts.inPreferredConfig= Bitmap.Config.RGB_565;
-        bitmapopts.inScaled         = false;
+        bitmapopts.inPurgeable = false;
+        bitmapopts.inDither = false;
+        bitmapopts.inTempStorage = new byte[32768];
+        bitmapopts.inPreferredConfig = Bitmap.Config.RGB_565;
+        bitmapopts.inScaled = false;
         vncCanvas = v;
     }
-    
-    void setBitmapData (AbstractBitmapData b) {
+
+    void setBitmapData(AbstractBitmapData b) {
         bitmapData = b;
     }
-    
+
     void setPixelFormat(RfbProto rfb) throws IOException {
         pendingColorModel.setPixelFormat(rfb);
         bytesPerPixel = pendingColorModel.bpp();
@@ -118,17 +117,17 @@ public class Decoder {
         colorModel = pendingColorModel;
         pendingColorModel = null;
     }
-    
+
+    public COLORMODEL getColorModel() {
+        return colorModel;
+    }
+
     public void setColorModel(COLORMODEL cm) {
         // Only update if color model changes
         if (colorModel == null || !colorModel.equals(cm))
             pendingColorModel = cm;
     }
-    
-    public COLORMODEL getColorModel() {
-        return colorModel;
-    }
-    
+
     public boolean isChangedColorModel() {
         return (pendingColorModel != null);
     }
@@ -138,17 +137,17 @@ public class Decoder {
     }
 
     void handleRawRect(RfbProto rfb, int x, int y, int w, int h, boolean paint) throws IOException {
-        boolean valid=bitmapData.validDraw(x, y, w, h);
-        int[] pixels=bitmapData.bitmapPixels;
+        boolean valid = bitmapData.validDraw(x, y, w, h);
+        int[] pixels = bitmapData.bitmapPixels;
         if (bytesPerPixel == 1) {
             // 1 byte per pixel. Use palette lookup table.
-          if (w > handleRawRectBuffer.length) {
-              handleRawRectBuffer = new byte[w];
-          }
+            if (w > handleRawRectBuffer.length) {
+                handleRawRectBuffer = new byte[w];
+            }
             int i, offset;
             for (int dy = y; dy < y + h; dy++) {
                 rfb.readFully(handleRawRectBuffer, 0, w);
-                if ( ! valid)
+                if (!valid)
                     continue;
                 offset = bitmapData.offset(x, dy);
                 for (i = 0; i < w; i++) {
@@ -157,26 +156,26 @@ public class Decoder {
             }
         } else {
             // 4 bytes per pixel (argb) 24-bit color
-          
+
             final int l = w * 4;
-            if (l>handleRawRectBuffer.length) {
+            if (l > handleRawRectBuffer.length) {
                 handleRawRectBuffer = new byte[l];
             }
             int i, offset;
             for (int dy = y; dy < y + h; dy++) {
                 rfb.readFully(handleRawRectBuffer, 0, l);
-                if ( ! valid)
+                if (!valid)
                     continue;
                 offset = bitmapData.offset(x, dy);
                 for (i = 0; i < w; i++) {
-                  final int idx = i*4;
+                    final int idx = i * 4;
                     pixels[offset + i] = // 0xFF << 24 |
-                    (handleRawRectBuffer[idx + 2] & 0xff) << 16 | (handleRawRectBuffer[idx + 1] & 0xff) << 8 | (handleRawRectBuffer[idx] & 0xff);
+                            (handleRawRectBuffer[idx + 2] & 0xff) << 16 | (handleRawRectBuffer[idx + 1] & 0xff) << 8 | (handleRawRectBuffer[idx] & 0xff);
                 }
             }
         }
-        
-        if ( ! valid)
+
+        if (!valid)
             return;
 
         bitmapData.updateBitmap(x, y, w, h);
@@ -191,7 +190,7 @@ public class Decoder {
     void handleCopyRect(RfbProto rfb, int x, int y, int w, int h) throws IOException {
         // Read the source coordinates.
         rfb.readCopyRect();
-        
+
         if (!bitmapData.validDraw(x, y, w, h))
             return;
 
@@ -203,7 +202,7 @@ public class Decoder {
     // Handle an RRE-encoded rectangle.
     //
     void handleRRERect(RfbProto rfb, int x, int y, int w, int h) throws IOException {
-        boolean valid=bitmapData.validDraw(x, y, w, h);
+        boolean valid = bitmapData.validDraw(x, y, w, h);
         int nSubrects = rfb.is.readInt();
 
         rfb.readFully(bg_buf, 0, bytesPerPixel);
@@ -214,15 +213,15 @@ public class Decoder {
             pixel = Color.rgb(bg_buf[2] & 0xFF, bg_buf[1] & 0xFF, bg_buf[0] & 0xFF);
         }
         handleRREPaint.setColor(pixel);
-        if ( valid)
+        if (valid)
             bitmapData.drawRect(x, y, w, h, handleRREPaint);
 
         int len = nSubrects * (bytesPerPixel + 8);
         if (len > rre_buf.length)
             rre_buf = new byte[len];
-        
+
         rfb.readFully(rre_buf, 0, len);
-        if ( ! valid)
+        if (!valid)
             return;
 
         int sx, sy, sw, sh;
@@ -235,10 +234,14 @@ public class Decoder {
                 pixel = Color.rgb(rre_buf[i + 2] & 0xFF, rre_buf[i + 1] & 0xFF, rre_buf[i] & 0xFF);
                 i += 4;
             }
-            sx = x + ((rre_buf[i] & 0xff) << 8) + (rre_buf[i+1] & 0xff); i+=2;
-            sy = y + ((rre_buf[i] & 0xff) << 8) + (rre_buf[i+1] & 0xff); i+=2;
-            sw = ((rre_buf[i] & 0xff) << 8) + (rre_buf[i+1] & 0xff); i+=2;
-            sh = ((rre_buf[i] & 0xff) << 8) + (rre_buf[i+1] & 0xff); i+=2;
+            sx = x + ((rre_buf[i] & 0xff) << 8) + (rre_buf[i + 1] & 0xff);
+            i += 2;
+            sy = y + ((rre_buf[i] & 0xff) << 8) + (rre_buf[i + 1] & 0xff);
+            i += 2;
+            sw = ((rre_buf[i] & 0xff) << 8) + (rre_buf[i + 1] & 0xff);
+            i += 2;
+            sh = ((rre_buf[i] & 0xff) << 8) + (rre_buf[i + 1] & 0xff);
+            i += 2;
 
             handleRREPaint.setColor(pixel);
             bitmapData.drawRect(sx, sy, sw, sh, handleRREPaint);
@@ -252,7 +255,7 @@ public class Decoder {
     //
 
     void handleCoRRERect(RfbProto rfb, int x, int y, int w, int h) throws IOException {
-        boolean valid=bitmapData.validDraw(x, y, w, h);
+        boolean valid = bitmapData.validDraw(x, y, w, h);
         int nSubrects = rfb.is.readInt();
 
         rfb.readFully(bg_buf, 0, bytesPerPixel);
@@ -263,15 +266,15 @@ public class Decoder {
             pixel = Color.rgb(bg_buf[2] & 0xFF, bg_buf[1] & 0xFF, bg_buf[0] & 0xFF);
         }
         handleRREPaint.setColor(pixel);
-        if ( valid)
+        if (valid)
             bitmapData.drawRect(x, y, w, h, handleRREPaint);
 
         int len = nSubrects * (bytesPerPixel + 8);
         if (len > rre_buf.length)
             rre_buf = new byte[len];
-        
+
         rfb.readFully(rre_buf, 0, len);
-        if ( ! valid)
+        if (!valid)
             return;
 
         int sx, sy, sw, sh;
@@ -335,10 +338,10 @@ public class Decoder {
             return;
         }
 
-        boolean valid=bitmapData.validDraw(tx, ty, tw, th);
+        boolean valid = bitmapData.validDraw(tx, ty, tw, th);
         // Read and draw the background if specified.
         if (bytesPerPixel > backgroundColorBuffer.length) {
-          throw new RuntimeException("impossible colordepth");
+            throw new RuntimeException("impossible colordepth");
         }
         if ((subencoding & RfbProto.HextileBackgroundSpecified) != 0) {
             rfb.readFully(backgroundColorBuffer, 0, bytesPerPixel);
@@ -350,7 +353,7 @@ public class Decoder {
         }
         handleHextileSubrectPaint.setColor(hextile_bg);
         handleHextileSubrectPaint.setStyle(Paint.Style.FILL);
-        if ( valid )
+        if (valid)
             bitmapData.drawRect(tx, ty, tw, th, handleHextileSubrectPaint);
 
         // Read the foreground color if specified.
@@ -389,7 +392,7 @@ public class Decoder {
                 sy = ty + (b1 & 0xf);
                 sw = (b2 >> 4) + 1;
                 sh = (b2 & 0xf) + 1;
-                if ( valid)
+                if (valid)
                     bitmapData.drawRect(sx, sy, sw, sh, handleHextileSubrectPaint);
             }
         } else if (bytesPerPixel == 1) {
@@ -404,7 +407,7 @@ public class Decoder {
                 sw = (b2 >> 4) + 1;
                 sh = (b2 & 0xf) + 1;
                 handleHextileSubrectPaint.setColor(hextile_fg);
-                if ( valid)
+                if (valid)
                     bitmapData.drawRect(sx, sy, sw, sh, handleHextileSubrectPaint);
             }
 
@@ -421,7 +424,7 @@ public class Decoder {
                 sw = (b2 >> 4) + 1;
                 sh = (b2 & 0xf) + 1;
                 handleHextileSubrectPaint.setColor(hextile_fg);
-                if ( valid )
+                if (valid)
                     bitmapData.drawRect(sx, sy, sw, sh, handleHextileSubrectPaint);
             }
 
@@ -441,14 +444,14 @@ public class Decoder {
             throw new Exception("ZRLE decoder: illegal compressed data size");
 
         if (zrleBuf == null || zrleBuf.length < nBytes) {
-            zrleBuf = new byte[nBytes+4096];
+            zrleBuf = new byte[nBytes + 4096];
         }
 
         rfb.readFully(zrleBuf, 0, nBytes);
 
         zrleInStream.setUnderlying(new MemInStream(zrleBuf, 0, nBytes), nBytes);
-        
-        boolean valid=bitmapData.validDraw(x, y, w, h);
+
+        boolean valid = bitmapData.validDraw(x, y, w, h);
 
         for (int ty = y; ty < y + h; ty += 64) {
 
@@ -469,7 +472,7 @@ public class Decoder {
                     int c = (bytesPerPixel == 1) ? colorPalette[0xFF & pix] : (0xFF000000 | pix);
                     handleZRLERectPaint.setColor(c);
                     handleZRLERectPaint.setStyle(Paint.Style.FILL);
-                    if ( valid)
+                    if (valid)
                         bitmapData.drawRect(tx, ty, tw, th, handleZRLERectPaint);
                     continue;
                 }
@@ -487,7 +490,7 @@ public class Decoder {
                         readZrlePackedRLEPixels(tw, th, handleZRLERectPalette);
                     }
                 }
-                if ( valid )
+                if (valid)
                     handleUpdatedZrleTile(tx, ty, tw, th);
             }
         }
@@ -505,7 +508,7 @@ public class Decoder {
         int nBytes = rfb.is.readInt();
 
         if (zlibBuf == null || zlibBuf.length < nBytes) {
-            zlibBuf = new byte[nBytes*2];
+            zlibBuf = new byte[nBytes * 2];
         }
 
         rfb.readFully(zlibBuf, 0, nBytes);
@@ -514,18 +517,18 @@ public class Decoder {
             zlibInflater = new Inflater();
         }
         zlibInflater.setInput(zlibBuf, 0, nBytes);
-        
-        int[] pixels=bitmapData.bitmapPixels;
+
+        int[] pixels = bitmapData.bitmapPixels;
 
         if (bytesPerPixel == 1) {
             // 1 byte per pixel. Use palette lookup table.
-          if (w > handleZlibRectBuffer.length) {
-            handleZlibRectBuffer = new byte[w];
-          }
+            if (w > handleZlibRectBuffer.length) {
+                handleZlibRectBuffer = new byte[w];
+            }
             int i, offset;
             for (int dy = y; dy < y + h; dy++) {
-                zlibInflater.inflate(handleZlibRectBuffer,  0, w);
-                if ( ! valid)
+                zlibInflater.inflate(handleZlibRectBuffer, 0, w);
+                if (!valid)
                     continue;
                 offset = bitmapData.offset(x, dy);
                 for (i = 0; i < w; i++) {
@@ -534,23 +537,23 @@ public class Decoder {
             }
         } else {
             // 24-bit color (ARGB) 4 bytes per pixel.
-          final int l = w*4;
-          if (l > handleZlibRectBuffer.length) {
-              handleZlibRectBuffer = new byte[l];
-          }
+            final int l = w * 4;
+            if (l > handleZlibRectBuffer.length) {
+                handleZlibRectBuffer = new byte[l];
+            }
             int i, offset;
             for (int dy = y; dy < y + h; dy++) {
                 zlibInflater.inflate(handleZlibRectBuffer, 0, l);
-                if ( ! valid)
+                if (!valid)
                     continue;
                 offset = bitmapData.offset(x, dy);
                 for (i = 0; i < w; i++) {
-                  final int idx = i*4;
+                    final int idx = i * 4;
                     pixels[offset + i] = (handleZlibRectBuffer[idx + 2] & 0xFF) << 16 | (handleZlibRectBuffer[idx + 1] & 0xFF) << 8 | (handleZlibRectBuffer[idx] & 0xFF);
                 }
             }
         }
-        if ( ! valid)
+        if (!valid)
             return;
         bitmapData.updateBitmap(x, y, w, h);
 
@@ -573,21 +576,21 @@ public class Decoder {
 
     private void readPixels(InStream is, int[] dst, int count) throws Exception {
         if (bytesPerPixel == 1) {
-          if (count > readPixelsBuffer.length) {
-            readPixelsBuffer = new byte[count];
-          }
+            if (count > readPixelsBuffer.length) {
+                readPixelsBuffer = new byte[count];
+            }
             is.readBytes(readPixelsBuffer, 0, count);
             for (int i = 0; i < count; i++) {
                 dst[i] = (int) readPixelsBuffer[i] & 0xFF;
             }
         } else {
-          final int l = count * 3;
-      if (l > readPixelsBuffer.length) {
-            readPixelsBuffer = new byte[l];
-      }
+            final int l = count * 3;
+            if (l > readPixelsBuffer.length) {
+                readPixelsBuffer = new byte[l];
+            }
             is.readBytes(readPixelsBuffer, 0, l);
             for (int i = 0; i < count; i++) {
-              final int idx = i*3;
+                final int idx = i * 3;
                 dst[i] = ((readPixelsBuffer[idx + 2] & 0xFF) << 16 | (readPixelsBuffer[idx + 1] & 0xFF) << 8 | (readPixelsBuffer[idx] & 0xFF));
             }
         }
@@ -701,7 +704,7 @@ public class Decoder {
 
     private void handleUpdatedZrleTile(int x, int y, int w, int h) {
         int offsetSrc = 0;
-        int[] destPixels=bitmapData.bitmapPixels;
+        int[] destPixels = bitmapData.bitmapPixels;
         for (int j = 0; j < h; j++) {
             System.arraycopy(zrleTilePixels, offsetSrc, destPixels, bitmapData.offset(x, y + j), w);
             offsetSrc += w;
@@ -710,21 +713,21 @@ public class Decoder {
         bitmapData.updateBitmap(x, y, w, h);
     }
 
-    
+
     //
     // Handle a Tight-encoded rectangle.
     //
     void handleTightRect(RfbProto rfb, int x, int y, int w, int h, boolean zstd) throws Exception {
-        
+
         int[] pixels = bitmapData.bitmapPixels;
         valid = bitmapData.validDraw(x, y, w, h);
         comp_ctl = rfb.is.readUnsignedByte();
-        
+
         rowSize = w;
         boffset = 0;
         numColors = 0;
         useGradient = false;
-        
+
         // Flush zlib streams if we are told by the server to do so.
         for (stream_id = 0; stream_id < 4; stream_id++) {
             if ((comp_ctl & 1) != 0) {
@@ -745,8 +748,8 @@ public class Decoder {
                 handleTightRectPaint.setColor(colorPalette[0xFF & idx]);
             } else {
                 rfb.readFully(solidColorBuf, 0, 3);
-                handleTightRectPaint.setColor(0xFF000000 | (solidColorBuf[0] & 0xFF) << 16 
-                                                         | (solidColorBuf[1] & 0xFF) << 8 | (solidColorBuf[2] & 0xFF));
+                handleTightRectPaint.setColor(0xFF000000 | (solidColorBuf[0] & 0xFF) << 16
+                        | (solidColorBuf[1] & 0xFF) << 8 | (solidColorBuf[2] & 0xFF));
             }
             if (valid) {
                 bitmapData.drawRect(x, y, w, h, handleTightRectPaint);
@@ -759,7 +762,7 @@ public class Decoder {
             // Read JPEG data.
             jpegDataLen = rfb.readCompactLen();
             if (jpegDataLen > inflBuf.length) {
-                inflBuf = new byte[2*jpegDataLen];
+                inflBuf = new byte[2 * jpegDataLen];
             }
             rfb.readFully(inflBuf, 0, jpegDataLen);
             if (!valid)
@@ -770,7 +773,7 @@ public class Decoder {
 
             // Copy decoded data into bitmapData and recycle bitmap.
             //tightBitmap.getPixels(pixels, bitmapData.offset(x, y), bitmapData.bitmapwidth, 0, 0, w, h);
-            bitmapData.updateBitmap(tightBitmap, x, y, w, h);        
+            bitmapData.updateBitmap(tightBitmap, x, y, w, h);
             vncCanvas.reDraw(x, y, w, h);
             // To avoid running out of memory, recycle bitmap immediately.
             tightBitmap.recycle();
@@ -783,7 +786,7 @@ public class Decoder {
 
             if (filter_id == RfbProto.TightFilterPalette) {
                 numColors = rfb.is.readUnsignedByte() + 1;
-                
+
                 if (bytesPerPixel == 1) {
                     if (numColors != 2) {
                         throw new Exception("Incorrect tight palette size: " + numColors);
@@ -791,12 +794,12 @@ public class Decoder {
                     rfb.readFully(tightPalette8, 0, 2);
 
                 } else {
-                    rfb.readFully(colorBuf, 0, numColors*3);
+                    rfb.readFully(colorBuf, 0, numColors * 3);
                     for (c = 0; c < numColors; c++) {
-                        idx = c*3;
-                        tightPalette24[c] = ((colorBuf[idx]     & 0xFF) << 16 |
-                                             (colorBuf[idx + 1] & 0xFF) << 8  |
-                                             (colorBuf[idx + 2] & 0xFF));
+                        idx = c * 3;
+                        tightPalette24[c] = ((colorBuf[idx] & 0xFF) << 16 |
+                                (colorBuf[idx + 1] & 0xFF) << 8 |
+                                (colorBuf[idx + 2] & 0xFF));
                     }
                 }
 
@@ -830,7 +833,7 @@ public class Decoder {
                         decodeMonoData(x, y, w, h, uncompDataBuf, tightPalette8);
                     } else {
                         decodeMonoData(x, y, w, h, uncompDataBuf, tightPalette24);
-                    }    
+                    }
                 } else {
                     // 3..255 colors (assuming bytesPerPixel == 4).
                     boffset = 0;
@@ -852,16 +855,17 @@ public class Decoder {
                         offset = bitmapData.offset(x, dy);
                         for (dx = 0; dx < w; dx++) {
                             pixels[offset++] = colorPalette[0xFF & uncompDataBuf[boffset++]];
-                        }                        
+                        }
                     }
                 } else {
                     for (dy = y; dy < y + h; dy++) {
                         offset = bitmapData.offset(x, dy);
                         for (dx = 0; dx < w; dx++) {
-                            idx = boffset*3; boffset++;
-                            pixels[offset++] =  (uncompDataBuf[idx]     & 0xFF) << 16 | 
-                                                (uncompDataBuf[idx + 1] & 0xFF) << 8  |
-                                                (uncompDataBuf[idx + 2] & 0xFF);
+                            idx = boffset * 3;
+                            boffset++;
+                            pixels[offset++] = (uncompDataBuf[idx] & 0xFF) << 16 |
+                                    (uncompDataBuf[idx + 1] & 0xFF) << 8 |
+                                    (uncompDataBuf[idx + 2] & 0xFF);
                         }
                     }
                 }
@@ -949,20 +953,21 @@ public class Decoder {
                     for (dy = y; dy < y + h; dy++) {
                         offset = bitmapData.offset(x, dy);
                         for (dx = 0; dx < w; dx++) {
-                            idx = boffset*3; boffset++;
-                            pixels[offset++] =  (inflBuf[idx]     & 0xFF) << 16 |
-                                                (inflBuf[idx + 1] & 0xFF) << 8  |
-                                                (inflBuf[idx + 2] & 0xFF);
+                            idx = boffset * 3;
+                            boffset++;
+                            pixels[offset++] = (inflBuf[idx] & 0xFF) << 16 |
+                                    (inflBuf[idx + 1] & 0xFF) << 8 |
+                                    (inflBuf[idx + 2] & 0xFF);
                         }
                     }
                 }
             }
         }
-        
+
         bitmapData.updateBitmap(x, y, w, h);
         vncCanvas.reDraw(x, y, w, h);
     }
-      
+
     //
     // Decode 1bpp-encoded bi-color rectangle (8-bit and 24-bit versions).
     //
@@ -976,13 +981,13 @@ public class Decoder {
 
         for (dy = 0; dy < h; dy++) {
             for (dx = 0; dx < w / 8; dx++) {
-                b = src[dy*rowBytes+dx];
+                b = src[dy * rowBytes + dx];
                 for (n = 7; n >= 0; n--) {
                     pixels[i++] = colorPalette[0xFF & palette[b >> n & 1]];
                 }
             }
             for (n = 7; n >= 8 - w % 8; n--) {
-                pixels[i++] = colorPalette[0xFF & palette[src[dy*rowBytes+dx] >> n & 1]];
+                pixels[i++] = colorPalette[0xFF & palette[src[dy * rowBytes + dx] >> n & 1]];
             }
             i += (bitmapData.bitmapwidth - w);
         }
@@ -998,13 +1003,13 @@ public class Decoder {
 
         for (dy = 0; dy < h; dy++) {
             for (dx = 0; dx < w / 8; dx++) {
-                b = src[dy*rowBytes+dx];
+                b = src[dy * rowBytes + dx];
                 for (n = 7; n >= 0; n--) {
                     pixels[i++] = palette[b >> n & 1];
                 }
             }
             for (n = 7; n >= 8 - w % 8; n--) {
-                pixels[i++] = palette[src[dy*rowBytes+dx] >> n & 1];
+                pixels[i++] = palette[src[dy * rowBytes + dx] >> n & 1];
             }
             i += (bitmapData.bitmapwidth - w);
         }
@@ -1013,7 +1018,7 @@ public class Decoder {
     //
     // Decode data processed with the "Gradient" filter.
     //
-    void decodeGradientData (int x, int y, int w, int h, byte[] buf) {
+    void decodeGradientData(int x, int y, int w, int h, byte[] buf) {
 
         int dx, dy, c;
         byte[] prevRow = new byte[w * 3];
@@ -1028,7 +1033,7 @@ public class Decoder {
 
             /* First pixel in a row */
             for (c = 0; c < 3; c++) {
-                pix[c] = (byte)(prevRow[c] + buf[dy * w * 3 + c]);
+                pix[c] = (byte) (prevRow[c] + buf[dy * w * 3 + c]);
                 thisRow[c] = pix[c];
             }
             pixels[offset++] = (pix[0] & 0xFF) << 16 | (pix[1] & 0xFF) << 8 | (pix[2] & 0xFF);
@@ -1037,13 +1042,13 @@ public class Decoder {
             for (dx = 1; dx < w; dx++) {
                 for (c = 0; c < 3; c++) {
                     est[c] = ((prevRow[dx * 3 + c] & 0xFF) + (pix[c] & 0xFF) -
-                              (prevRow[(dx-1) * 3 + c] & 0xFF));
+                            (prevRow[(dx - 1) * 3 + c] & 0xFF));
                     if (est[c] > 0xFF) {
                         est[c] = 0xFF;
                     } else if (est[c] < 0x00) {
                         est[c] = 0x00;
                     }
-                    pix[c] = (byte)(est[c] + buf[(dy * w + dx) * 3 + c]);
+                    pix[c] = (byte) (est[c] + buf[(dy * w + dx) * 3 + c]);
                     thisRow[dx * 3 + c] = pix[c];
                 }
                 pixels[offset++] = (pix[0] & 0xFF) << 16 | (pix[1] & 0xFF) << 8 | (pix[2] & 0xFF);
@@ -1063,7 +1068,7 @@ public class Decoder {
         RemotePointer p = vncCanvas.getPointer();
         int x = p.getX();
         int y = p.getY();
-        
+
         if (w * h == 0)
             return;
 
@@ -1115,10 +1120,10 @@ public class Decoder {
             // Read foreground and background colors of the cursor.
             byte[] rgb = new byte[6];
             rfb.readFully(rgb);
-            int[] colors = { (0xFF000000 | (rgb[3] & 0xFF) << 16 |
+            int[] colors = {(0xFF000000 | (rgb[3] & 0xFF) << 16 |
                     (rgb[4] & 0xFF) << 8 | (rgb[5] & 0xFF)),
                     (0xFF000000 | (rgb[0] & 0xFF) << 16 |
-                            (rgb[1] & 0xFF) << 8 | (rgb[2] & 0xFF)) };
+                            (rgb[1] & 0xFF) << 8 | (rgb[2] & 0xFF))};
 
             // Read pixel and mask data.
             byte[] pixBuf = new byte[bytesMaskData];
@@ -1172,7 +1177,7 @@ public class Decoder {
                     for (n = 7; n >= 0; n--) {
                         if ((maskByte >> n & 1) != 0) {
                             if (bytesPerPixel == 1) {
-                                result =  colorPalette[0xFF & pixBuf[i]];
+                                result = colorPalette[0xFF & pixBuf[i]];
                             } else {
                                 result = 0xFF000000 |
                                         (pixBuf[i * 4 + 2] & 0xFF) << 16 |

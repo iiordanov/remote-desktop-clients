@@ -19,8 +19,7 @@ package com.iiordanov.pubkeygenerator;
 
 /**
  * @author kroot
- *
  */
 public interface OnDbWrittenListener {
-	public void onDbWritten();
+    public void onDbWritten();
 }

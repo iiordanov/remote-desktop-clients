@@ -33,6 +33,13 @@ abstract public class InStream {
     // itemSize bytes.  Returns the number of items in the buffer (up to a
     // maximum of nItems).
 
+    protected byte[] b;
+    protected int ptr;
+    protected int end;
+
+    protected InStream() {
+    }
+
     public int check(int itemSize, int nItems, boolean wait) throws IOException {
         int nAvail;
 
@@ -73,6 +80,8 @@ abstract public class InStream {
         return b0 << 24 | b1 << 16 | b2 << 8 | b3;
     }
 
+    // readBytes() reads an exact number of bytes
+
     public long readLong() throws Exception {
         check(8);
         long b0 = b[ptr++];
@@ -98,7 +107,10 @@ abstract public class InStream {
         return readInt() & 0xffffffff;
     }
 
-    // readBytes() reads an exact number of bytes
+    // overrun() is implemented by a derived class to cope with buffer overrun.
+    // It ensures there are at least itemSize bytes of buffer data.  Returns
+    // the number of items in the buffer (up to a maximum of nItems).  itemSize
+    // is supposed to be "small" (a few bytes).
 
     public void readBytes(ByteBuffer data, int length) throws IOException {
         while (length > 0) {
@@ -113,7 +125,6 @@ abstract public class InStream {
         readBytes(ByteBuffer.wrap(bytes, off, length), length);
     }
 
-
     public int getptr() {
         return ptr;
     }
@@ -122,17 +133,5 @@ abstract public class InStream {
         return end;
     }
 
-    // overrun() is implemented by a derived class to cope with buffer overrun.
-    // It ensures there are at least itemSize bytes of buffer data.  Returns
-    // the number of items in the buffer (up to a maximum of nItems).  itemSize
-    // is supposed to be "small" (a few bytes).
-
     abstract protected int overrun(int itemSize, int nItems, boolean wait) throws IOException;
-
-    protected InStream() {
-    }
-
-    protected byte[] b;
-    protected int ptr;
-    protected int end;
 }

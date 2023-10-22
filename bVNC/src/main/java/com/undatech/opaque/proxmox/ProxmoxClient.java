@@ -29,6 +29,7 @@ public class ProxmoxClient extends RestClient {
 
     /**
      * Initializes a connection to PVE's API.
+     *
      * @param address the address of PVE
      */
     public ProxmoxClient(String address, Connection connection, Handler handler) {
@@ -41,12 +42,12 @@ public class ProxmoxClient extends RestClient {
         //    execute(RestClient.RequestMethod.GET);
         //}
     }
-    
+
     public HashMap<String, PveRealm> getAvailableRealms()
             throws JSONException, IOException, HttpException {
         resetState(baseUrl + "/access/domains");
         execute(RestClient.RequestMethod.GET);
-        
+
         HashMap<String, PveRealm> result = null;
         if (getResponseCode() == HttpURLConnection.HTTP_OK) {
             JSONArray array = new JSONObject(getResponse()).getJSONArray("data");
@@ -57,7 +58,7 @@ public class ProxmoxClient extends RestClient {
 
         return result;
     }
-    
+
     public void login(String user, String realm, String password, String otp)
             throws JSONException, IOException, HttpException, LoginException {
         resetState(baseUrl + "/access/ticket");
@@ -68,7 +69,7 @@ public class ProxmoxClient extends RestClient {
         if (otp != null && !"".equals(otp)) {
             addParam("otp", otp);
         }
-        
+
         execute(RestClient.RequestMethod.POST);
 
         if (getResponseCode() == HttpURLConnection.HTTP_OK) {
@@ -84,8 +85,9 @@ public class ProxmoxClient extends RestClient {
 
     /**
      * Actually performs a request to PVE.
-     * @param resource the REST resource to affect
-     * @param method the method (GET, POST, etc)
+     *
+     * @param resource    the REST resource to affect
+     * @param method      the method (GET, POST, etc)
      * @param requestData the data to send
      * @return the data returned by PVE as a result of the request.
      * @throws JSONException
@@ -108,9 +110,9 @@ public class ProxmoxClient extends RestClient {
             for (Map.Entry<String, String> p : requestData.entrySet()) {
                 addParam(p.getKey(), p.getValue());
             }
-        
+
         execute(method);
-        
+
         if (isSuccessfulCode(getResponseCode())) {
             return new JSONObject(getResponse());
         } else if (getResponseCode() == HttpURLConnection.HTTP_UNAUTHORIZED) {
@@ -124,11 +126,13 @@ public class ProxmoxClient extends RestClient {
     /**
      * Checks if an HTTP code is successful (200 - 299) or not
      */
-    boolean isSuccessfulCode (int code) {
-        return (code/100 == 2);
+    boolean isSuccessfulCode(int code) {
+        return (code / 100 == 2);
     }
+
     /**
      * Retrieves a representation of the VNC display of a node.
+     *
      * @param node the name of the PVE node
      * @return the VNC display of the node
      * @throws LoginException
@@ -143,6 +147,7 @@ public class ProxmoxClient extends RestClient {
 
     /**
      * Retrieves a representation of the SPICE display of a node.
+     *
      * @param node the name of the PVE node
      * @return the SPICE display of the node
      * @throws LoginException
@@ -157,6 +162,7 @@ public class ProxmoxClient extends RestClient {
 
     /**
      * Retrieves a representation of the VNC display of a VM.
+     *
      * @param node the name of the PVE node
      * @param type of VM, one of qemu, lxc, or openvz (deprecated)
      * @param vmid the numeric VM ID
@@ -173,6 +179,7 @@ public class ProxmoxClient extends RestClient {
 
     /**
      * Retrieves a representation of the SPICE display of a VM.
+     *
      * @param node the name of the PVE node
      * @param type of VM, one of qemu, lxc, or openvz (deprecated)
      * @param vmid the numeric VM ID
@@ -189,6 +196,7 @@ public class ProxmoxClient extends RestClient {
 
     /**
      * Starts a VM.
+     *
      * @param node the name of the PVE node
      * @param type of VM, one of qemu, lxc, or openvz (deprecated)
      * @param vmid the numeric VM ID
@@ -202,9 +210,10 @@ public class ProxmoxClient extends RestClient {
         JSONObject jObj = request("/nodes/" + node + "/" + type + "/" + vmid + "/status/start", RestClient.RequestMethod.POST, null);
         return jObj.getString("data");
     }
-    
+
     /**
      * Gets the current status of a VM.
+     *
      * @param node the name of the PVE node
      * @param type of VM, one of qemu, lxc, or openvz (deprecated)
      * @param vmid the numeric VM ID
@@ -218,9 +227,10 @@ public class ProxmoxClient extends RestClient {
         JSONObject jObj = request("/nodes/" + node + "/" + type + "/" + vmid + "/status/current", RestClient.RequestMethod.GET, null);
         return new VmStatus(jObj.getJSONObject("data"));
     }
-    
+
     /**
      * Shows what resources are currently available on the PVE cluster
+     *
      * @return object representing resources available
      * @throws LoginException
      * @throws JSONException
@@ -230,7 +240,7 @@ public class ProxmoxClient extends RestClient {
     public Map<String, PveResource> getResources() throws LoginException, JSONException, IOException, HttpException {
         JSONObject jObj = request("/cluster/resources", RestClient.RequestMethod.GET, null);
         JSONArray jArr = jObj.getJSONArray("data");
-        HashMap<String, PveResource> result = new HashMap<String, PveResource>(); 
+        HashMap<String, PveResource> result = new HashMap<String, PveResource>();
         for (int i = 0; i < jArr.length(); i++) {
             PveResource r = new PveResource(jArr.getJSONObject(i));
             if (r.getName() != null && r.getNode() != null && r.getType() != null && r.getVmid() != null) {

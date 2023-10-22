@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2012 Iordan Iordanov
  * Copyright (C) 2010 Michael A. MacDonald
- * 
+ * <p>
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
- * 
+ * <p>
  * This software is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ * <p>
  * You should have received a copy of the GNU General Public License
  * along with this software; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307,
@@ -82,7 +82,14 @@ import java.util.UUID;
 
 public class Utils {
     private final static String TAG = "Utils";
+    private static final Intent docIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://code.google.com/p/android-vnc-viewer/wiki/Documentation"));
+    public static String[] standardPackageNames = {
+            "com.iiordanov.bVNC", "com.iiordanov.freebVNC",
+            "com.iiordanov.aRDP", "com.iiordanov.freeaRDP",
+            "com.iiordanov.aSPICE", "com.iiordanov.freeaSPICE"
+    };
     private static AlertDialog alertDialog;
+    private static int nextNoticeID = 0;
 
     public static void showYesNoPrompt(Context _context, String title, String message, OnClickListener onYesListener, OnClickListener onNoListener) {
         try {
@@ -104,28 +111,24 @@ public class Utils {
             e.printStackTrace();
         }
     }
-    
-    private static final Intent docIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://code.google.com/p/android-vnc-viewer/wiki/Documentation")); 
 
-    public static ActivityManager getActivityManager(Context context)
-    {
-        ActivityManager result = (ActivityManager)context.getSystemService(Context.ACTIVITY_SERVICE);
+    public static ActivityManager getActivityManager(Context context) {
+        ActivityManager result = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
         if (result == null)
             throw new UnsupportedOperationException("Could not retrieve ActivityManager");
         return result;
     }
-    
+
     public static MemoryInfo getMemoryInfo(Context _context) {
         MemoryInfo info = new MemoryInfo();
         getActivityManager(_context).getMemoryInfo(info);
         return info;
     }
-    
+
     public static void showDocumentation(Context c) {
         c.startActivity(docIntent);
     }
 
-    private static int nextNoticeID = 0;
     public static int nextNoticeID() {
         nextNoticeID++;
         return nextNoticeID;
@@ -152,7 +155,7 @@ public class Utils {
             }
         });
     }
-    
+
     public static void showMessage(Context _context, String title, String message, int icon, DialogInterface.OnClickListener ackHandler) {
         try {
             if (alertDialog != null && alertDialog.isShowing() && !isContextActivityThatIsFinishing(_context)) {
@@ -172,55 +175,54 @@ public class Utils {
             e.printStackTrace();
         }
     }
-    
+
     /**
      * Determine if a string is null or empty
      * @param s The string to comapare
      * @return true iff s is null or empty
      */
-    public static boolean isNullOrEmptry(String s)
-    {
-    	if (s == null || s.equals(""))
-    		return true;
-    	return false;
+    public static boolean isNullOrEmptry(String s) {
+        if (s == null || s.equals(""))
+            return true;
+        return false;
     }
-    
+
     /**
-     * Converts a given sequence of bytes to a human-readable colon-separated Hex format. 
+     * Converts a given sequence of bytes to a human-readable colon-separated Hex format.
      * @param bytes
      * @return
      */
     public static String toHexString(byte[] bytes) {
-        char[] hexArray = {'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
+        char[] hexArray = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
         char[] hexChars = new char[bytes.length * 3];
         int v, j;
-        for ( j = 0; j < bytes.length - 1; j++ ) {
+        for (j = 0; j < bytes.length - 1; j++) {
             v = bytes[j] & 0xFF;
-            hexChars[j*3] = hexArray[v/16];
-            hexChars[j*3 + 1] = hexArray[v%16];
-            hexChars[j*3 + 2] = ":".charAt(0);
+            hexChars[j * 3] = hexArray[v / 16];
+            hexChars[j * 3 + 1] = hexArray[v % 16];
+            hexChars[j * 3 + 2] = ":".charAt(0);
         }
         v = bytes[j] & 0xFF;
-        hexChars[j*3] = hexArray[v/16];
-        hexChars[j*3 + 1] = hexArray[v%16];
+        hexChars[j * 3] = hexArray[v / 16];
+        hexChars[j * 3 + 1] = hexArray[v % 16];
         return new String(hexChars);
     }
-    
+
     /**
      * Forces the appearance of a menu in the given context.
      * @param ctx
      */
-    public static void showMenu (Context ctx) {
+    public static void showMenu(Context ctx) {
         try {
             ViewConfiguration config = ViewConfiguration.get(ctx);
             Field menuKeyField = ViewConfiguration.class.getDeclaredField("sHasPermanentMenuKey");
 
             if (menuKeyField != null) {
-              menuKeyField.setAccessible(true);
-              menuKeyField.setBoolean(config, false);
+                menuKeyField.setAccessible(true);
+                menuKeyField.setBoolean(config, false);
             }
-          }
-          catch (Exception e) {}
+        } catch (Exception e) {
+        }
     }
 
     public static String pName(Context context) {
@@ -241,15 +243,9 @@ public class Utils {
         return Utils.pName(context) + ".CONNECTION";
     }
 
-    public static String[] standardPackageNames = {
-                    "com.iiordanov.bVNC", "com.iiordanov.freebVNC",
-                    "com.iiordanov.aRDP", "com.iiordanov.freeaRDP",
-                    "com.iiordanov.aSPICE", "com.iiordanov.freeaSPICE"
-    };
-
     public static boolean isCustom(Context context) {
         String packageName = Utils.pName(context);
-        for (String s: standardPackageNames) {
+        for (String s : standardPackageNames) {
             if (packageName.equals(s)) {
                 return false;
             }
@@ -334,17 +330,17 @@ public class Utils {
         return "https://play.google.com/store/apps/details?id=" + donationPackageName;
     }
 
-    public static boolean isBlackBerry () {
+    public static boolean isBlackBerry() {
         boolean bb = false;
         if (android.os.Build.MODEL.contains("BlackBerry") ||
-            android.os.Build.BRAND.contains("BlackBerry") || 
-            android.os.Build.MANUFACTURER.contains("BlackBerry")) {
+                android.os.Build.BRAND.contains("BlackBerry") ||
+                android.os.Build.MANUFACTURER.contains("BlackBerry")) {
             bb = true;
         }
         return bb;
     }
-    
-    public static void exportSettingsToXml (OutputStream f, SQLiteDatabase db) {
+
+    public static void exportSettingsToXml(OutputStream f, SQLiteDatabase db) {
         Writer writer = new OutputStreamWriter(f);
         try {
             SqliteElement.exportDbAsXmlToStream(db, writer);
@@ -354,7 +350,7 @@ public class Utils {
         }
     }
 
-    public static void importSettingsFromXml (InputStream fin, SQLiteDatabase db) {
+    public static void importSettingsFromXml(InputStream fin, SQLiteDatabase db) {
         Reader reader = new InputStreamReader(fin);
         try {
             SqliteElement.importXmlStreamToDb(db, reader, ReplaceStrategy.REPLACE_EXISTING);
@@ -362,7 +358,7 @@ public class Utils {
             e.printStackTrace();
         }
     }
-    
+
     public static boolean isValidIpv6Address(final String address) {
         try {
             return InetAddress.getByName(address) instanceof Inet6Address;
@@ -370,18 +366,18 @@ public class Utils {
             return false;
         }
     }
-    
-    public static String messageAndStackTraceAsString (Exception e) {
+
+    public static String messageAndStackTraceAsString(Exception e) {
         StringWriter sw = new StringWriter();
         PrintWriter pw = new PrintWriter(sw);
         e.printStackTrace(pw);
         String localizedMessage = e.getLocalizedMessage();
         if (localizedMessage == null)
             localizedMessage = "";
-            
+
         return "\n" + localizedMessage + "\n" + sw.toString();
     }
-    
+
     public static boolean querySharedPreferenceBoolean(Context context, String key) {
         boolean result = false;
         if (context != null) {
@@ -436,7 +432,7 @@ public class Utils {
     static boolean isContextActivityThatIsFinishing(Context _context) {
         boolean result = false;
         if (_context instanceof Activity) {
-            Activity activity = (Activity)_context;
+            Activity activity = (Activity) _context;
             if (activity.isFinishing()) {
                 result = true;
             }
@@ -450,8 +446,8 @@ public class Utils {
             if (drawable != null && drawable.mbitmap != null) {
                 // TODO: Add Filename to settings.
                 FileOutputStream out = new FileOutputStream(filePath);
-                double scaleReduction = (double)drawable.mbitmap.getWidth() / dstWidth;
-                int dstHeight = (int)((double)drawable.mbitmap.getHeight() / scaleReduction);
+                double scaleReduction = (double) drawable.mbitmap.getWidth() / dstWidth;
+                int dstHeight = (int) ((double) drawable.mbitmap.getHeight() / scaleReduction);
                 Log.d(TAG, "Desktop screenshot width: " + dstWidth + ", height " + dstHeight);
                 Bitmap tmp = Bitmap.createScaledBitmap(drawable.mbitmap, dstWidth, dstHeight, true);
                 tmp.compress(Bitmap.CompressFormat.PNG, 100, out);
@@ -540,9 +536,9 @@ public class Utils {
     public static Activity getActivity(Context context) {
         while (context instanceof ContextWrapper) {
             if (context instanceof Activity) {
-                return (Activity)context;
+                return (Activity) context;
             }
-            context = ((ContextWrapper)context).getBaseContext();
+            context = ((ContextWrapper) context).getBaseContext();
         }
         return null;
     }
@@ -599,14 +595,14 @@ public class Utils {
 
     public static void hideKeyboard(Context context, View view) {
         if (view != null) {
-            InputMethodManager imm = (InputMethodManager)context.getSystemService(Context.INPUT_METHOD_SERVICE);
+            InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
         }
     }
 
     public static void showKeyboard(Context context, View view) {
         if (view != null) {
-            InputMethodManager imm = (InputMethodManager)context.getSystemService(Context.INPUT_METHOD_SERVICE);
+            InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.showSoftInput(view, 0);
         }
     }

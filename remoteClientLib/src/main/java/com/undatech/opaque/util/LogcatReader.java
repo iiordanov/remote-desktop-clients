@@ -11,8 +11,8 @@ import java.util.List;
  */
 
 public class LogcatReader {
-    public static String TAG = "LogcatReader";
     private static final int LOGCAT_MAX_LINES = 1000;
+    public static String TAG = "LogcatReader";
     private List<String> logcatCommand = new ArrayList<String>();
 
     public LogcatReader() {

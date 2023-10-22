@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
     <string name="ad_donate_text0">Профессиональная версия теперь поддерживает мультифакторную аутентификацию, а также установку мастер-пароля, защищающего устройства от несанкционированного использования и кражи информации с помощью шифрования настроек подключения (включая пароли и ключи безопасности). Установите его в главном меню. Если кнопка меню отсутствует, пожалуйста, нажмите и удерживайте кнопку отображения запущенных приложений, чтобы вызвать меню.</string>
     <string name="ad_donate_text1">Нажмите здесь и поддержите проект небольшим пожертвованием, купив Профессиональную версию!</string>
     <string name="ad_donate_text2">Профессиональная версия позволяет отключить этот диалог и дает доступ к дополнительным функциям.</string>
@@ -174,7 +174,7 @@
     <string name="error_x509_could_not_generate_signature">Не удалось сгенерировать SHA1 или MD5-подпись сертификата. Алгоритм SHA1/MD5 не найден.</string>
 
     <string name="export_settings">Экспорт</string>
-    <string name="export_settings_path"/>
+    <string name="export_settings_path" />
 
     <string name="extra_keys_disable">Отключить клавиши</string>
     <string name="extra_keys_enable">Включить клавиши</string>
@@ -193,7 +193,7 @@
 
     <string name="import_export_settings">Импорт/экспорт настроек</string>
     <string name="import_settings">Импорт</string>
-    <string name="import_settings_file_url"/>
+    <string name="import_settings_file_url" />
 
     <string name="info">Информация</string>
     <string name="info_cert_signatures">"Информация сертификата: "</string>
@@ -268,7 +268,7 @@
 
     <string name="intro_close">Закрыть</string>
     <string name="intro_dont_show">Не показывать снова.</string>
-    <string name="intro_header"/>
+    <string name="intro_header" />
     <string name="intro_text">
 "Список возможностей bVNC:
 &lt;br&gt;
@@ -319,7 +319,7 @@
 &lt;br&gt;"
 </string>
     <string name="intro_title">bVNC: интуитивный, безопасный VNC клиент</string>
-    <string name="intro_version_text"/>
+    <string name="intro_version_text" />
 
     <string name="keep_password_button">Запомнить</string>
     <string name="keep_screen_awake_enable">Держать экран включенным</string>

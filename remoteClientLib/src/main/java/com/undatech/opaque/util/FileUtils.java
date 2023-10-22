@@ -1,6 +1,7 @@
 package com.undatech.opaque.util;
 
-import android.content.ContentProviderClient;
+import static android.content.Context.MODE_PRIVATE;
+
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -9,37 +10,22 @@ import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
 import android.content.res.Resources;
 import android.net.Uri;
-import android.os.ParcelFileDescriptor;
-import android.os.RemoteException;
 import android.util.Log;
 
 import com.undatech.opaque.RemoteClientLibConstants;
 
 import java.io.BufferedInputStream;
-import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
-import java.nio.file.DirectoryStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
-import java.util.stream.Collectors;
-
-import static android.content.Context.MODE_PRIVATE;
 
 public class FileUtils {
     public static String TAG = "FileUtils";
@@ -56,6 +42,7 @@ public class FileUtils {
 
     /**
      * Outputs the given InputStream to a file.
+     *
      * @param is
      * @param file
      * @throws IOException
@@ -67,7 +54,7 @@ public class FileUtils {
         byte[] data = new byte[RemoteClientLibConstants.URL_BUFFER_SIZE];
         int current = 0;
 
-        while((current = bis.read(data, 0, data.length)) != -1){
+        while ((current = bis.read(data, 0, data.length)) != -1) {
             buffer.write(data, 0, current);
         }
 
@@ -101,11 +88,9 @@ public class FileUtils {
         AssetManager am = res.getAssets();
         String fileList[] = am.list(dirFrom);
 
-        if (fileList != null)
-        {
-            for ( int i = 0;i<fileList.length;i++)
-            {
-                Log.d("",fileList[i]);
+        if (fileList != null) {
+            for (int i = 0; i < fileList.length; i++) {
+                Log.d("", fileList[i]);
             }
         }
         return (List<String>) Arrays.asList(fileList);
@@ -115,10 +100,11 @@ public class FileUtils {
      * Writes out a file from context.getResources().getAssets() to an output file in context.getFilesDir()
      * the file is written only if the application version changed since the previous time it was
      * saved, avoiding unnecessary flash writes.
-     *
+     * <p>
      * e.g. FileUtils.writeFileOutFromAssetsIfNeeded(getContext(), "ssl/certs/ca-certificates.crt", "ca-certificates.crt");
-     * @param context the context to get assets and resources from.
-     * @param fileName path to file in assets
+     *
+     * @param context     the context to get assets and resources from.
+     * @param fileName    path to file in assets
      * @param outFileName file name of file to write out.
      * @throws IOException
      * @throws PackageManager.NameNotFoundException
@@ -136,11 +122,11 @@ public class FileUtils {
         if (!file.exists() || !currentVersion.equals(lastVersion)) {
             // Open the asset file
             InputStream in = context.getAssets().open(fileName);
-            ByteArrayOutputStream outputStream=new ByteArrayOutputStream();
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             int size = 0;
             // Read the entire asset
             byte[] buffer = new byte[1024];
-            while( (size=in.read(buffer, 0, 1024)) >= 0 ) {
+            while ((size = in.read(buffer, 0, 1024)) >= 0) {
                 outputStream.write(buffer, 0, size);
             }
             in.close();

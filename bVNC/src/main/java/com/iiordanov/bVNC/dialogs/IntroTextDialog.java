@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2012 Iordan Iordanov
  * Copyright (C) 2010 Michael A. MacDonald
- *
+ * <p>
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
- * 
+ * <p>
  * This software is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ * <p>
  * You should have received a copy of the GNU General Public License
  * along with this software; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307,
@@ -50,31 +50,11 @@ import net.sqlcipher.database.SQLiteDatabase;
  */
 public class IntroTextDialog extends Dialog {
 
+    static IntroTextDialog dialog = null;
     private PackageInfo packageInfo;
     private Database database;
-    
-    static IntroTextDialog dialog = null;
-    
     private boolean donate = false;
-    
-    public static void showIntroTextIfNecessary(Activity context, Database database, boolean show) {
-        PackageInfo pi;
-        try {
-            String packageName = Utils.pName(context);
-            pi = context.getPackageManager().getPackageInfo(packageName, 0);
-        }
-        catch (PackageManager.NameNotFoundException nnfe) {
-            return;
-        }
-        MostRecentBean mr = ConnectionBean.getMostRecent(database.getReadableDatabase());
-        database.close();
-        
-        if (dialog == null && show && (mr == null || mr.getShowSplashVersion() != pi.versionCode)) {
-            dialog = new IntroTextDialog(context, pi, database);
-            dialog.show();
-        }
-    }
-    
+
     /**
      * @param context -- Containing dialog
      */
@@ -83,6 +63,23 @@ public class IntroTextDialog extends Dialog {
         setOwnerActivity(context);
         packageInfo = pi;
         this.database = database;
+    }
+
+    public static void showIntroTextIfNecessary(Activity context, Database database, boolean show) {
+        PackageInfo pi;
+        try {
+            String packageName = Utils.pName(context);
+            pi = context.getPackageManager().getPackageInfo(packageName, 0);
+        } catch (PackageManager.NameNotFoundException nnfe) {
+            return;
+        }
+        MostRecentBean mr = ConnectionBean.getMostRecent(database.getReadableDatabase());
+        database.close();
+
+        if (dialog == null && show && (mr == null || mr.getShowSplashVersion() != pi.versionCode)) {
+            dialog = new IntroTextDialog(context, pi, database);
+            dialog.show();
+        }
     }
 
     /* (non-Javadoc)
@@ -96,7 +93,7 @@ public class IntroTextDialog extends Dialog {
         if (pkgName.contains("free")) {
             donate = true;
         }
-        
+
         setContentView(R.layout.intro_dialog);
         getWindow().setLayout(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
 
@@ -122,7 +119,7 @@ public class IntroTextDialog extends Dialog {
         sb.append(getContext().getResources().getString(R.string.ad_donate_text0));
         sb.append("<br>");
         sb.append("<br>");
-        
+
         if (donate) {
             sb.append("<a href=\"");
             sb.append(Utils.getDonationPackageLink(getContext()));
@@ -145,7 +142,7 @@ public class IntroTextDialog extends Dialog {
             sb.append("<br>");
             sb.append("<br>");
         }
-        
+
         sb.append(getContext().getResources().getString(R.string.intro_header));
         if (Utils.isVnc(context)) {
             sb.append(getContext().getResources().getString(R.string.intro_text));
@@ -156,10 +153,10 @@ public class IntroTextDialog extends Dialog {
         }
         sb.append("\n");
         sb.append(getContext().getResources().getString(R.string.intro_version_text));
-        TextView introTextView = (TextView)findViewById(R.id.textIntroText);
+        TextView introTextView = (TextView) findViewById(R.id.textIntroText);
         introTextView.setText(Html.fromHtml(sb.toString()));
         introTextView.setMovementMethod(LinkMovementMethod.getInstance());
-        ((Button)findViewById(R.id.buttonCloseIntro)).setOnClickListener(new View.OnClickListener() {
+        ((Button) findViewById(R.id.buttonCloseIntro)).setOnClickListener(new View.OnClickListener() {
 
             /* (non-Javadoc)
              * @see android.view.View.OnClickListener#onClick(android.view.View)
@@ -168,10 +165,10 @@ public class IntroTextDialog extends Dialog {
             public void onClick(View v) {
                 showAgain(true);
             }
-            
+
         });
-            
-        Button buttonCloseIntroDontShow = (Button)findViewById(R.id.buttonCloseIntroDontShow);
+
+        Button buttonCloseIntroDontShow = (Button) findViewById(R.id.buttonCloseIntroDontShow);
         if (donate) {
             buttonCloseIntroDontShow.setVisibility(View.GONE);
         } else {
@@ -184,7 +181,7 @@ public class IntroTextDialog extends Dialog {
                 public void onClick(View v) {
                     showAgain(false);
                 }
-                
+
             });
         }
     }
@@ -195,7 +192,7 @@ public class IntroTextDialog extends Dialog {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
-        getOwnerActivity().getMenuInflater().inflate(R.menu.intro_dialog_menu,menu);
+        getOwnerActivity().getMenuInflater().inflate(R.menu.intro_dialog_menu, menu);
         // Disabling Manual/Wiki Menu item as the original does not correspond to this project anymore.
         /*
         menu.findItem(R.id.itemOpenDoc).setOnMenuItemClickListener(new OnMenuItemClickListener() {
@@ -226,16 +223,16 @@ public class IntroTextDialog extends Dialog {
         });
         return true;
     }
-    
-    /* 
+
+    /*
      * (non-Javadoc)
      * @see android.app.Dialog#onBackPressed()
      */
     @Override
-    public void onBackPressed () {
-        showAgain(true);        
+    public void onBackPressed() {
+        showAgain(true);
     }
-    
+
     private void showAgain(boolean show) {
         SQLiteDatabase db = database.getWritableDatabase();
         MostRecentBean mostRecent = ConnectionBean.getMostRecent(db);

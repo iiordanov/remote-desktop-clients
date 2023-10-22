@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2012 Iordan Iordanov
  * Copyright (C) 2009 Michael A. MacDonald
- *
+ * <p>
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
- * 
+ * <p>
  * This software is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ * <p>
  * You should have received a copy of the GNU General Public License
  * along with this software; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307,
@@ -19,30 +19,24 @@
  */
 
 package com.iiordanov.bVNC;
+
 import android.graphics.Matrix;
 import android.widget.ImageView.ScaleType;
-import com.iiordanov.bVNC.*;
-import com.iiordanov.freebVNC.*;
-import com.iiordanov.aRDP.*;
-import com.iiordanov.freeaRDP.*;
-import com.iiordanov.aSPICE.*;
-import com.iiordanov.freeaSPICE.*;
-import com.iiordanov.CustomClientPackage.*;
-import com.undatech.remoteClientUi.*;
+
+import com.undatech.remoteClientUi.R;
 
 /**
  * @author Michael A. MacDonald
  */
 class FitToScreenScaling extends AbstractScaling {
-    
+
     static final String TAG = "FitToScreenScaling";
-    
-    private Matrix matrix;
     int canvasXOffset;
     int canvasYOffset;
     float scaling;
     float minimumScale;
-    
+    private Matrix matrix;
+
     /**
      * @param id
      * @param scaleType
@@ -76,17 +70,16 @@ class FitToScreenScaling extends AbstractScaling {
     boolean isValidInputMode(int mode) {
         return true;
     }
-    
+
     /**
      * Call after scaling and matrix have been changed to resolve scrolling
      * @param activity
      */
-    private void resolveZoom(RemoteCanvasActivity activity)
-    {
+    private void resolveZoom(RemoteCanvasActivity activity) {
         activity.getCanvas().resetScroll();
         //activity.getCanvas().absolutePan(activity.getCanvas().absoluteXPosition,0);
     }
-    
+
     /* (non-Javadoc)
      * @see com.iiordanov.bVNC.AbstractScaling#getScale()
      */
@@ -95,8 +88,7 @@ class FitToScreenScaling extends AbstractScaling {
         return scaling;
     }
 
-    private void resetMatrix()
-    {
+    private void resetMatrix() {
         matrix.reset();
         matrix.preTranslate(canvasXOffset, canvasYOffset);
     }
@@ -112,7 +104,7 @@ class FitToScreenScaling extends AbstractScaling {
             return;
         canvasXOffset = -canvas.getCenteredXOffset();
         canvasYOffset = -canvas.getCenteredYOffset();
-        canvas.computeShiftFromFullToView ();
+        canvas.computeShiftFromFullToView();
         minimumScale = canvas.myDrawable.getMinimumScale();
         scaling = minimumScale;
         resetMatrix();
@@ -122,9 +114,9 @@ class FitToScreenScaling extends AbstractScaling {
         canvas.absoluteXPosition = 0;
         canvas.absoluteYPosition = 0;
         if (!canvas.myDrawable.widthRatioLessThanHeightRatio()) {
-            canvas.absoluteXPosition = - (int)(((canvas.getWidth() - canvas.rfbconn.framebufferWidth()*minimumScale)/2)/minimumScale);
+            canvas.absoluteXPosition = -(int) (((canvas.getWidth() - canvas.rfbconn.framebufferWidth() * minimumScale) / 2) / minimumScale);
         } else {
-            canvas.absoluteYPosition = - (int)(((canvas.getHeight() - canvas.rfbconn.framebufferHeight()*minimumScale)/2)/minimumScale);
+            canvas.absoluteYPosition = -(int) (((canvas.getHeight() - canvas.rfbconn.framebufferHeight() * minimumScale) / 2) / minimumScale);
         }
         resolveZoom(activity);
         canvas.relativePan(0, 0);

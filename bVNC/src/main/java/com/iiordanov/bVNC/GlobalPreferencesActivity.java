@@ -1,7 +1,8 @@
 package com.iiordanov.bVNC;
 
-import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 public class GlobalPreferencesActivity extends AppCompatActivity {
 

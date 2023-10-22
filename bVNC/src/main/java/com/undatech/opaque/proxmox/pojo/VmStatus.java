@@ -6,7 +6,7 @@ import org.json.JSONObject;
 public class VmStatus {
     public static String STOPPED = "stopped";
     public static String RUNNING = "running";
-    
+
     private String status;
 
     public VmStatus(JSONObject data) throws JSONException {

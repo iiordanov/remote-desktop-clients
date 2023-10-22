@@ -50,7 +50,7 @@
             android:label="@string/freebvnc_app_name"
             android:resizeableActivity="true"
             android:screenOrientation="unspecified"
-        android:theme="@android:style/Theme.DeviceDefault"
+            android:theme="@android:style/Theme.DeviceDefault"
             android:windowSoftInputMode="stateHidden|adjustResize" />
         <activity
             android:name="com.iiordanov.bVNC.RemoteCanvasActivity"

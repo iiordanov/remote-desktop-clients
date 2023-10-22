@@ -3,11 +3,12 @@
  */
 package com.iiordanov.android.bc;
 
-import android.view.View;
 import android.view.HapticFeedbackConstants;
+import android.view.View;
 
 /**
  * Implementation for SDK version >= 3
+ *
  * @author Michael A. MacDonald
  */
 class BCHapticDefault implements IBCHaptic {
@@ -17,8 +18,8 @@ class BCHapticDefault implements IBCHaptic {
      */
     @Override
     public boolean performLongPressHaptic(View v) {
-        return v.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS,HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING|HapticFeedbackConstants.FLAG_IGNORE_VIEW_SETTING
-                );
+        return v.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS, HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING | HapticFeedbackConstants.FLAG_IGNORE_VIEW_SETTING
+        );
     }
 
     /* (non-Javadoc)

@@ -1,16 +1,16 @@
 /**
  * Copyright (C) 2013- Iordan Iordanov
- *
+ * <p>
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * This software is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License
  * along with this software; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307,
@@ -42,13 +42,13 @@ public class MessageDialogs {
     /**
      * Converts a given sequence of bytes to a human-readable colon-separated
      * Hex format.
-     * 
+     *
      * @param bytes
      * @return
      */
     public static String toHexString(byte[] bytes) {
-        char[] hexArray = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
-                'A', 'B', 'C', 'D', 'E', 'F' };
+        char[] hexArray = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+                'A', 'B', 'C', 'D', 'E', 'F'};
         char[] hexChars = new char[bytes.length * 3];
         int v, j;
         for (j = 0; j < bytes.length - 1; j++) {
@@ -65,12 +65,12 @@ public class MessageDialogs {
 
     /**
      * Displays a generic dialog.
-     * 
+     *
      * @param context
      * @param ok
      */
     private static void displayDialog(final Context context, int alertTitleID,
-            int alertID, String appendText, DialogInterface.OnClickListener ok) {
+                                      int alertID, String appendText, DialogInterface.OnClickListener ok) {
         try {
             boolean show = true;
             if (alertDialog != null && alertDialog.isShowing()) {
@@ -142,7 +142,7 @@ public class MessageDialogs {
     /**
      * Displays an error dialog that dismisses the calling activity on pressing
      * OK.
-     * 
+     *
      * @param context
      */
     public static void displayMessageAndFinish(final Context context, int messageId, int titleId) {
@@ -158,7 +158,7 @@ public class MessageDialogs {
     /**
      * Displays an error dialog that dismisses the calling activity on pressing
      * OK.
-     * 
+     *
      * @param context
      */
     public static void displayMessageAndFinish(final Context context, int messageId, int titleId,

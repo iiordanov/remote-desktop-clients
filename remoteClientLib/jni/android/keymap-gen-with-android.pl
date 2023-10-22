@@ -68,7 +68,7 @@ sub help {
     print "Valid keymaps are:\n";
     print "\n";
     foreach my $name (sort { $a cmp $b } keys %maps) {
-	print "  $name\n";
+    print "  $name\n";
     }
     print "\n";
     exit (1);
@@ -105,25 +105,25 @@ while ($row = $csv->getline(\*CSV)) {
     $from->[$linux] = $linux;
 
     foreach my $name (keys %namecolumns) {
-	my $col = $namecolumns{$name};
-	my $val = $row->[$col];
+    my $col = $namecolumns{$name};
+    my $val = $row->[$col];
 
-	$val = "" unless defined $val;
+    $val = "" unless defined $val;
 
-	$names{$name}->[$linux] = $val;
+    $names{$name}->[$linux] = $val;
     }
 
     foreach my $name (keys %mapcolumns) {
-	my $col = $mapcolumns{$name};
-	my $val = $row->[$col];
+    my $col = $mapcolumns{$name};
+    my $val = $row->[$col];
 
-	next unless defined $val && $val ne "";
-	$val = hex($val) if $val =~ /0x/;
+    next unless defined $val && $val ne "";
+    $val = hex($val) if $val =~ /0x/;
 
-	$to = $maps{$name}->[0];
+    $to = $maps{$name}->[0];
         $from = $maps{$name}->[1];
-	$to->[$linux] = $val;
-	$from->[$val] = $linux;
+    $to->[$linux] = $val;
+    $from->[$val] = $linux;
     }
 
     # XXX there are some special cases in kbd to handle
@@ -133,8 +133,8 @@ while ($row = $csv->getline(\*CSV)) {
     # scancodes :-(
     ($to, $from) = @{$maps{xorgkbd}};
     if (defined $maps{xkbdxt}->[0]->[$linux]) {
-	$to->[$linux] = $maps{xkbdxt}->[0]->[$linux] + 8;
-	$from->[$to->[$linux]] = $linux;
+    $to->[$linux] = $maps{xkbdxt}->[0]->[$linux] + 8;
+    $from->[$to->[$linux]] = $linux;
     }
 
     # Xorg evdev is simply Linux keycodes offset by +8
@@ -145,8 +145,8 @@ while ($row = $csv->getline(\*CSV)) {
     # Xorg XQuartz is simply OS-X keycodes offset by +8
     ($to, $from) = @{$maps{xorgxquartz}};
     if (defined $maps{osx}->[0]->[$linux]) {
-	$to->[$linux] = $maps{osx}->[0]->[$linux] + 8;
-	$from->[$to->[$linux]] = $linux;
+    $to->[$linux] = $maps{osx}->[0]->[$linux] + 8;
+    $from->[$to->[$linux]] = $linux;
     }
 
     # RFB keycodes are XT kbd keycodes with a slightly
@@ -156,8 +156,8 @@ while ($row = $csv->getline(\*CSV)) {
     ($to, $from) = @{$maps{rfb}};
     my $xtkbd = $maps{xtkbd}->[0]->[$linux];
     if (defined $xtkbd) {
-	$to->[$linux] = $xtkbd ? (($xtkbd & 0x100)>>1) | ($xtkbd & 0x7f) : 0;
-	$from->[$to->[$linux]] = $linux;
+    $to->[$linux] = $xtkbd ? (($xtkbd & 0x100)>>1) | ($xtkbd & 0x7f) : 0;
+    $from->[$to->[$linux]] = $linux;
     }
 
     # Xorg Cygwin is the Xorg Cygwin XT codes offset by +8
@@ -166,8 +166,8 @@ while ($row = $csv->getline(\*CSV)) {
     # scancodes :-(
     ($to, $from) = @{$maps{xorgxwin}};
     if (defined $maps{xwinxt}->[0]->[$linux]) {
-	$to->[$linux] = $maps{xwinxt}->[0]->[$linux] + 8;
-	$from->[$to->[$linux]] = $linux;
+    $to->[$linux] = $maps{xwinxt}->[0]->[$linux] + 8;
+    $from->[$to->[$linux]] = $linux;
     }
 
 #    print $linux, "\n";
@@ -198,9 +198,9 @@ for (my $i = 0 ; $i <= $#{$srcmap} ; $i++) {
 
     my $comment;
     if ($src ne "linux" && $dst ne "linux") {
-	$comment = sprintf "%d%s => %d%s via %d%s", $i, $srcname, $j, $dstname, $linux, $vianame;
+    $comment = sprintf "%d%s => %d%s via %d%s", $i, $srcname, $j, $dstname, $linux, $vianame;
     } else {
-	$comment = sprintf "%d%s => %d%s", $i, $srcname, $j, $dstname;
+    $comment = sprintf "%d%s => %d%s", $i, $srcname, $j, $dstname;
     }
 
     my $data = sprintf "[0x%x] = 0x%x,", $i, $j;

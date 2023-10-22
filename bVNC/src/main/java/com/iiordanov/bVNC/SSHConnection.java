@@ -1,16 +1,16 @@
-/** 
+/**
  * Copyright (C) 2012 Iordan Iordanov
- * 
+ * <p>
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
- * 
+ * <p>
  * This software is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ * <p>
  * You should have received a copy of the GNU General Public License
  * along with this software; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307,
@@ -56,18 +56,17 @@ public class SSHConnection implements InteractiveCallback, GetTextFragment.OnFra
     private final static int MAXTRIES = 3;
     private final static int MAX_AUTH_RETRIES = 3;
     private final static int MAX_DECRYPTION_ATTEMPTS = 3;
-
-    private Connection connection;
     private final int numPortTries = 1000;
+    private Connection connection;
     private ConnectionInfo connectionInfo;
     private String serverHostKey;
     private Session session;
     private boolean passwordAuth = false;
     private boolean keyboardInteractiveAuth = false;
     private boolean pubKeyAuth = false;
-    private KeyPair    kp;
+    private KeyPair kp;
     private PrivateKey privateKey;
-    private PublicKey  publicKey;
+    private PublicKey publicKey;
 
     // Connection parameters
     private String host;
@@ -84,17 +83,17 @@ public class SSHConnection implements InteractiveCallback, GetTextFragment.OnFra
     private boolean usePubKey;
     private String sshPrivKey;
     private boolean useSshRemoteCommand;
-    private int     sshRemoteCommandType;
-    private int     sshRemoteCommandTimeout;
-    private String  sshRemoteCommand;
+    private int sshRemoteCommandType;
+    private int sshRemoteCommandTimeout;
+    private String sshRemoteCommand;
     private BufferedInputStream remoteStdout;
     private BufferedInputStream remoteStderr;
     private BufferedOutputStream remoteStdin;
     private boolean autoXEnabled;
-    private int     autoXType;
-    private String  autoXCommand;
+    private int autoXType;
+    private String autoXCommand;
     private boolean autoXUnixpw;
-    private String  autoXRandFileNm;
+    private String autoXRandFileNm;
     private Context context;
     private Handler handler;
     private int sshPasswordAuthAttempts = 0;
@@ -133,10 +132,11 @@ public class SSHConnection implements InteractiveCallback, GetTextFragment.OnFra
         this.handler = handler;
         this.conn = conn;
     }
-    
+
     public String getServerHostKey() {
         return serverHostKey;
     }
+
     public String getIdHash() {
         return idHash;
     }
@@ -164,7 +164,7 @@ public class SSHConnection implements InteractiveCallback, GetTextFragment.OnFra
 
     private void attemptSshPasswordAuthentication() throws Exception {
         Log.i(TAG, "attemptSshPasswordAuthentication");
-        while(!authenticateWithPassword() && canAuthWithPass()) {
+        while (!authenticateWithPassword() && canAuthWithPass()) {
             sshPasswordAuthAttempts++;
             if (sshPasswordAuthAttempts > MAX_AUTH_RETRIES) {
                 throw new Exception(context.getString(R.string.error_ssh_pwd_auth_fail));
@@ -186,7 +186,7 @@ public class SSHConnection implements InteractiveCallback, GetTextFragment.OnFra
     private void attemptSshKeyDecryption() throws Exception {
         // Try to decrypt and recover keypair, and failing that, report error.
         kp = PubkeyUtils.decryptAndRecoverKeyPair(sshPrivKey, passphrase);
-        while(kp == null) {
+        while (kp == null) {
             sshKeyDecryptionAttempts++;
             if (sshKeyDecryptionAttempts > MAX_DECRYPTION_ATTEMPTS) {
                 throw new Exception(context.getString(R.string.error_ssh_keypair_decryption_failure));
@@ -213,17 +213,17 @@ public class SSHConnection implements InteractiveCallback, GetTextFragment.OnFra
      *             determined with AutoX.
      * @throws Exception
      */
-    public int initializeSSHTunnel () throws Exception {
+    public int initializeSSHTunnel() throws Exception {
         int port = -1;
-        
+
         // Attempt to connect.
         if (!connect())
             throw new Exception(context.getString(R.string.error_ssh_unable_to_connect));
-        
+
         // Verify host key against saved one.
         if (!verifyHostKey())
             throw new Exception(context.getString(R.string.error_ssh_hostkey_changed));
-        
+
         // Authenticate and set up port forwarding.
         if (!usePubKey) {
             Log.i(TAG, "SSH tunnel not configured to use public key, trying password auth");
@@ -289,17 +289,17 @@ public class SSHConnection implements InteractiveCallback, GetTextFragment.OnFra
             while (port < 0 && tries < MAXTRIES) {
                 // If we're not using unix credentials, protect access with a temporary password file.
                 if (!autoXUnixpw) {
-                    writeStringToRemoteCommand(vncpassword, Constants.AUTO_X_CREATE_PASSWDFILE+
-                                                            Constants.AUTO_X_PWFILEBASENAME+autoXRandFileNm+
-                                                            Constants.AUTO_X_SYNC);
+                    writeStringToRemoteCommand(vncpassword, Constants.AUTO_X_CREATE_PASSWDFILE +
+                            Constants.AUTO_X_PWFILEBASENAME + autoXRandFileNm +
+                            Constants.AUTO_X_SYNC);
                 }
                 // Execute AutoX command.
                 execRemoteCommand(autoXCommand, 1);
-                
+
                 // If we are looking for the greeter, we give the password to sudo's stdin.
                 if (autoXType == Constants.AUTOX_SELECT_SUDO_FIND)
-                    writeStringToStdin (password+"\n");
-                
+                    writeStringToStdin(password + "\n");
+
                 // Try to find PORT=
                 port = parseRemoteStdoutForPort();
                 if (port < 0) {
@@ -307,26 +307,29 @@ public class SSHConnection implements InteractiveCallback, GetTextFragment.OnFra
                     tries++;
                     // Wait a little for x11vnc to recover.
                     if (tries < MAXTRIES)
-                        try { Thread.sleep(tries*3500); } catch (InterruptedException e1) { }
+                        try {
+                            Thread.sleep(tries * 3500);
+                        } catch (InterruptedException e1) {
+                        }
                 }
             }
 
             if (port < 0) {
-                throw new Exception (context.getString(R.string.error_ssh_x11vnc_no_port_failure)
+                throw new Exception(context.getString(R.string.error_ssh_x11vnc_no_port_failure)
                         + "  \n\n" + context.getString(R.string.error) + ":  \n\n"
                         + bufferedInputStreamToString(remoteStderr));
             }
         }
-        
+
         return port;
     }
-    
+
     /**
      * Creates a port forward to the given port and returns the local port forwarded.
      * @return the local port forwarded to the given remote port
      * @throws Exception
      */
-    int createLocalPortForward (int port) throws Exception {
+    int createLocalPortForward(int port) throws Exception {
         int localForwardedPort;
 
         // At this point we know we are authenticated.
@@ -339,13 +342,13 @@ public class SSHConnection implements InteractiveCallback, GetTextFragment.OnFra
         return localForwardedPort;
     }
 
-    
+
     /**
      * Connects to remote server.
      * @return
      */
     public boolean connect() {
-            
+
         try {
             connection.setCompression(false);
 
@@ -367,28 +370,29 @@ public class SSHConnection implements InteractiveCallback, GetTextFragment.OnFra
     /**
      * Return a string holding a Hex representation of the signature of the remote host's key.
      */
-    public String getHostKeySignature () {
+    public String getHostKeySignature() {
         return KnownHosts.createHexFingerprint(connectionInfo.serverHostKeyAlgorithm,
-                                               connectionInfo.serverHostKey);
+                connectionInfo.serverHostKey);
     }
 
     /**
      * Disconnects from remote server.
      */
-    public void terminateSSHTunnel () {
+    public void terminateSSHTunnel() {
         connection.close();
     }
 
-    private boolean verifyHostKey () {
-    	// first check data against URI hash
-    	try {
-    		byte[] rawKey = connectionInfo.serverHostKey;
-    		boolean isValid = SecureTunnel.isSignatureEqual(idHashAlg, savedIdHash, rawKey);
-    		if (isValid) {
-    			Log.i(TAG, "Validated against provided hash.");
-    			return true;
-    		}
-    	} catch (Exception ex) { }
+    private boolean verifyHostKey() {
+        // first check data against URI hash
+        try {
+            byte[] rawKey = connectionInfo.serverHostKey;
+            boolean isValid = SecureTunnel.isSignatureEqual(idHashAlg, savedIdHash, rawKey);
+            if (isValid) {
+                Log.i(TAG, "Validated against provided hash.");
+                return true;
+            }
+        } catch (Exception ex) {
+        }
         // Because JSch returns the host key base64 encoded, and trilead ssh returns it not base64 encoded,
         // we compare savedHostKey to serverHostKey both base64 encoded and not.
         return savedServerHostKey.equals(serverHostKey) ||
@@ -401,12 +405,12 @@ public class SSHConnection implements InteractiveCallback, GetTextFragment.OnFra
     private boolean canAuthWithPass() {
         return hasPasswordAuth() || hasKeyboardInteractiveAuth();
     }
-    
+
     /**
      * Returns whether the server supports passworde
      * @return
      */
-    private boolean hasPasswordAuth () {
+    private boolean hasPasswordAuth() {
         boolean passwordAuth = false;
         try {
             passwordAuth = connection.isAuthMethodAvailable(user, "password");
@@ -415,12 +419,12 @@ public class SSHConnection implements InteractiveCallback, GetTextFragment.OnFra
         }
         return passwordAuth;
     }
-    
+
     /**
      * Returns whether the server supports passworde
      * @return
      */
-    private boolean hasKeyboardInteractiveAuth () {
+    private boolean hasKeyboardInteractiveAuth() {
         boolean keyboardInteractiveAuth = false;
         try {
             keyboardInteractiveAuth = connection.isAuthMethodAvailable(user, "keyboard-interactive");
@@ -433,7 +437,7 @@ public class SSHConnection implements InteractiveCallback, GetTextFragment.OnFra
     /**
      * Returns whether the server can authenticate with a key.
      */
-    private boolean canAuthWithPubKey () {
+    private boolean canAuthWithPubKey() {
         boolean pubKeyAuth = false;
         try {
             pubKeyAuth = connection.isAuthMethodAvailable(user, "publickey");
@@ -446,7 +450,7 @@ public class SSHConnection implements InteractiveCallback, GetTextFragment.OnFra
     /**
      * Authenticates with a password.
      */
-    private boolean authenticateWithPassword () {
+    private boolean authenticateWithPassword() {
         boolean isAuthenticated = false;
 
         try {
@@ -467,9 +471,9 @@ public class SSHConnection implements InteractiveCallback, GetTextFragment.OnFra
 
     /**
      * Decrypts and recovers the key pair.
-     * @throws Exception 
+     * @throws Exception
      */
-    private void decryptAndRecoverKey () throws Exception {
+    private void decryptAndRecoverKey() throws Exception {
         Log.i(TAG, "decryptAndRecoverKey");
 
         // Detect an empty key (not generated).
@@ -477,7 +481,7 @@ public class SSHConnection implements InteractiveCallback, GetTextFragment.OnFra
             Log.e(TAG, "SSH key not generated yet");
             throw new Exception(context.getString(R.string.error_ssh_keypair_missing));
         }
-        
+
         // Detect passphrase entered when key unencrypted and report error.
         if (passphrase.length() != 0 && !PubkeyUtils.isEncrypted(sshPrivKey)) {
             Log.e(TAG, "SSH key not encrypted but passphrase was entered");
@@ -492,22 +496,22 @@ public class SSHConnection implements InteractiveCallback, GetTextFragment.OnFra
     /**
      * Authenticates with a public/private key-pair.
      */
-    private boolean authenticateWithPubKey () throws Exception {
+    private boolean authenticateWithPubKey() throws Exception {
         decryptAndRecoverKey();
         Log.i(TAG, "Trying SSH pubkey authentication.");
         return connection.authenticateWithPublicKey(user, kp);
     }
-    
-    private int createPortForward (int localPortStart, String remoteHost, int remotePort) {
+
+    private int createPortForward(int localPortStart, String remoteHost, int remotePort) {
         int portsTried = 0;
         while (portsTried < numPortTries) {
             try {
                 connection.createLocalPortForwarder(new InetSocketAddress("127.0.0.1", localPortStart + portsTried),
-                                                    remoteHost, remotePort);
+                        remoteHost, remotePort);
                 return localPortStart + portsTried;
             } catch (IOException e) {
                 portsTried++;
-            }            
+            }
         }
         return -1;
     }
@@ -518,29 +522,29 @@ public class SSHConnection implements InteractiveCallback, GetTextFragment.OnFra
      * @param secTimeout - amount of time in seconds to wait afterward.
      * @throws Exception
      */
-    private void execRemoteCommand (String command, int secTimeout) throws Exception {
-        Log.i (TAG, "Executing remote command: " + command);
+    private void execRemoteCommand(String command, int secTimeout) throws Exception {
+        Log.i(TAG, "Executing remote command: " + command);
 
         try {
             session = connection.openSession();
             session.execCommand(command);
             remoteStdout = new BufferedInputStream(session.getStdout());
             remoteStderr = new BufferedInputStream(session.getStderr());
-            remoteStdin  = new BufferedOutputStream(session.getStdin());
-            Thread.sleep(secTimeout*1000);
+            remoteStdin = new BufferedOutputStream(session.getStdin());
+            Thread.sleep(secTimeout * 1000);
         } catch (Exception e) {
             e.printStackTrace();
-            throw new Exception (context.getString(R.string.error_ssh_could_not_exec_command)
+            throw new Exception(context.getString(R.string.error_ssh_could_not_exec_command)
                     + "  \n\n" + context.getString(R.string.error) + ":  \n\n"
                     + bufferedInputStreamToString(remoteStderr));
         }
     }
-    
+
     /**
      * Writes the specified string to a stdin of a remote command.
      * @throws Exception
      */
-    private void writeStringToRemoteCommand (String s, String cmd) throws Exception {
+    private void writeStringToRemoteCommand(String s, String cmd) throws Exception {
         Log.i(TAG, "Writing string to stdin of remote command: " + cmd);
         execRemoteCommand(cmd, 0);
         remoteStdin.write(s.getBytes());
@@ -548,26 +552,26 @@ public class SSHConnection implements InteractiveCallback, GetTextFragment.OnFra
         remoteStdin.close();
         session.close();
     }
-    
+
     /**
      * Writes the specified string to a stdin of open session.
      * @throws Exception
      */
-    private void writeStringToStdin (String s) throws Exception {
+    private void writeStringToStdin(String s) throws Exception {
         Log.i(TAG, "Writing string to remote stdin.");
         remoteStdin.write(s.getBytes());
         remoteStdin.flush();
     }
-    
+
     // TODO: This doesn't work at the moment.
-    private void sendSudoPassword () throws Exception {
-        Log.i (TAG, "Sending sudo password.");
+    private void sendSudoPassword() throws Exception {
+        Log.i(TAG, "Sending sudo password.");
 
         try {
-            remoteStdin.write(new String (password + '\n').getBytes());
+            remoteStdin.write(new String(password + '\n').getBytes());
         } catch (IOException e) {
             e.printStackTrace();
-            throw new Exception (context.getString(R.string.error_ssh_could_not_send_sudo_pwd)
+            throw new Exception(context.getString(R.string.error_ssh_could_not_send_sudo_pwd)
                     + "  \n\n" + context.getString(R.string.error) + ":  \n\n"
                     + bufferedInputStreamToString(remoteStderr));
         }
@@ -576,8 +580,8 @@ public class SSHConnection implements InteractiveCallback, GetTextFragment.OnFra
     /**
      * Parses the remote stdout for PORT=
      */
-    private int parseRemoteStdoutForPort () {
-        Log.i (TAG, "Parsing remote stdout for PORT=");
+    private int parseRemoteStdoutForPort() {
+        Log.i(TAG, "Parsing remote stdout for PORT=");
 
         String sought = "PORT=";
         int soughtLength = sought.length();
@@ -587,7 +591,7 @@ public class SSHConnection implements InteractiveCallback, GetTextFragment.OnFra
             int i = 0;
             while (data != -1 && i < soughtLength) {
                 data = remoteStdout.read();
-                if (data == (int)sought.charAt(i)) {
+                if (data == (int) sought.charAt(i)) {
                     i = i + 1;
                 } else {
                     i = 0;
@@ -599,19 +603,19 @@ public class SSHConnection implements InteractiveCallback, GetTextFragment.OnFra
                 byte[] buffer = new byte[5];
                 remoteStdout.read(buffer);
                 // Get rid of any whitespace (e.g. if the port is less than 5 digits).
-                buffer = new String(buffer).replaceAll("\\s","").getBytes();
+                buffer = new String(buffer).replaceAll("\\s", "").getBytes();
                 port = Integer.parseInt(new String(buffer));
-                Log.i (TAG, "Found PORT=, set to: " + port);
+                Log.i(TAG, "Found PORT=, set to: " + port);
             } else {
-                Log.e (TAG, "Failed to find PORT= in remote stdout.");
+                Log.e(TAG, "Failed to find PORT= in remote stdout.");
                 port = -1;
             }
         } catch (IOException e) {
-            Log.e (TAG, "Failed to read from remote stdout.");
+            Log.e(TAG, "Failed to read from remote stdout.");
             e.printStackTrace();
             port = -1;
         } catch (NumberFormatException e) {
-            Log.e (TAG, "Failed to parse integer.");
+            Log.e(TAG, "Failed to parse integer.");
             e.printStackTrace();
             port = -1;
         }
@@ -634,7 +638,7 @@ public class SSHConnection implements InteractiveCallback, GetTextFragment.OnFra
             Log.d(TAG, output);
             return output;
         } catch (IOException e) {
-            Log.e (TAG, "Failed to read from remote stdout.");
+            Log.e(TAG, "Failed to read from remote stdout.");
             e.printStackTrace();
         }
         return "";
@@ -645,10 +649,10 @@ public class SSHConnection implements InteractiveCallback, GetTextFragment.OnFra
      */
     @Override
     public String[] replyToChallenge(String name, String instruction,
-                                    int numPrompts, String[] prompt,
-                                    boolean[] echo) throws Exception {
+                                     int numPrompts, String[] prompt,
+                                     boolean[] echo) throws Exception {
         String[] responses = new String[numPrompts];
-        for (int x=0; x < numPrompts; x++) {
+        for (int x = 0; x < numPrompts; x++) {
             if (prompt[0].indexOf("Verification code:") != -1) {
                 Log.i(TAG, prompt[x] + "  Will request verification code from user");
                 if (Utils.isFree(context)) {
@@ -662,7 +666,9 @@ public class SSHConnection implements InteractiveCallback, GetTextFragment.OnFra
                         try {
                             userInputLatch.await();
                             break;
-                        } catch (InterruptedException e) { e.printStackTrace(); }
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
                     }
                     Log.i(TAG, prompt[0] + "  Sending verification code: " + verificationCode);
                     responses[x] = verificationCode;
@@ -674,7 +680,7 @@ public class SSHConnection implements InteractiveCallback, GetTextFragment.OnFra
         }
         return responses;
     }
-    
+
     @Override
     public void onTextObtained(String dialogId, String[] obtainedStrings, boolean dialogCancelled, boolean keep) {
         if (dialogCancelled) {

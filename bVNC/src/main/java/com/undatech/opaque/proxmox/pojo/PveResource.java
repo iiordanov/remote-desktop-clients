@@ -4,20 +4,11 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class PveResource {
-    public static class Types {
-        public static String LXC = "lxc";
-        public static String QEMU = "qemu";
-        public static String OPENVZ = "openvz";
-        public static String NODE = "node";
-        public static String STORAGE = "storage";
-    }
-    
     private String node;
     private String type;
     private String id;
     private String vmid;
     private String name;
-
     public PveResource(JSONObject data) throws JSONException {
         if (!data.isNull("node"))
             node = data.getString("node");
@@ -69,5 +60,13 @@ public class PveResource {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public static class Types {
+        public static String LXC = "lxc";
+        public static String QEMU = "qemu";
+        public static String OPENVZ = "openvz";
+        public static String NODE = "node";
+        public static String STORAGE = "storage";
     }
 }

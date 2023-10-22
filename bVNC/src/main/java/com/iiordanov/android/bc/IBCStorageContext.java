@@ -4,24 +4,21 @@
  */
 package com.iiordanov.android.bc;
 
-import android.content.Context;
+import com.iiordanov.bVNC.MainConfiguration;
 
 import java.io.File;
-
-import com.iiordanov.bVNC.MainConfiguration;
 
 /**
  * Provides a way to access the directory on external storage as returned by
  * Context.getExternal... added in API 8 that will work with earlier API releases.
- * @author Michael A. MacDonald
  *
+ * @author Michael A. MacDonald
  */
 public interface IBCStorageContext {
     /**
-     * 
      * @param context Context within the application with which the storage will be associated
-     * @param type May be null; if specified, references a sub-directory within the base directory
-     * for the app in the external storage
+     * @param type    May be null; if specified, references a sub-directory within the base directory
+     *                for the app in the external storage
      * @return File representing abstract path of storage directory; refer to android.os.Environment to
      * see if the path is actually accessible
      */

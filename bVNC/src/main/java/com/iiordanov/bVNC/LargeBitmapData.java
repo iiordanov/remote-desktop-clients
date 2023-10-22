@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2012 Iordan Iordanov
  * Copyright (C) 2009 Michael A. MacDonald
- *
+ * <p>
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
- * 
+ * <p>
  * This software is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ * <p>
  * You should have received a copy of the GNU General Public License
  * along with this software; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307,
@@ -20,36 +20,24 @@
 
 package com.iiordanov.bVNC;
 
-import com.iiordanov.android.drawing.OverlappingCopy;
-import com.iiordanov.android.drawing.RectList;
-import com.iiordanov.util.ObjectPool;
-import com.undatech.opaque.RfbConnectable;
-
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 
+import com.iiordanov.android.drawing.OverlappingCopy;
+import com.iiordanov.android.drawing.RectList;
+import com.iiordanov.util.ObjectPool;
+import com.undatech.opaque.RfbConnectable;
+
 class LargeBitmapData extends AbstractBitmapData {
-    
+
     /**
      * Multiply this times total number of pixels to get estimate of process size with all buffers plus
      * safety factor
      */
     static int CAPACITY_MULTIPLIER = 18;
-    double scaleMultiplier = 0;
-
-    int scrolledToX;
-    int scrolledToY;
-    private Rect bitmapRect;
-    private Paint defaultPaint;
-    private RectList invalidList;
-    private RectList pendingList;
-    private int capacity;
-    private int displayWidth;
-    private int displayHeight;
-    
     /**
      * Pool of temporary rectangle objects.  Need to synchronize externally access from
      * multiple threads.
@@ -62,30 +50,21 @@ class LargeBitmapData extends AbstractBitmapData {
         @Override
         protected Rect itemForPool() {
             return new Rect();
-        }        
+        }
     };
-    
-    class LargeBitmapDrawable extends AbstractBitmapDrawable {
-        LargeBitmapDrawable() {
-            super(LargeBitmapData.this);
-        }
-        /* (non-Javadoc)
-         * @see android.graphics.drawable.DrawableContainer#draw(android.graphics.Canvas)
-         */
-        @Override
-        public void draw(Canvas canvas) {
-            //android.util.Log.i("LBM", "Drawing "+xoffset+" "+yoffset);
-            int xoff, yoff;
-            synchronized ( LargeBitmapData.this ) {
-                xoff=xoffset;
-                yoff=yoffset;
-                draw(canvas, xoff, yoff);
-            }
-        }
-    }
-    
+    double scaleMultiplier = 0;
+    int scrolledToX;
+    int scrolledToY;
+    private Rect bitmapRect;
+    private Paint defaultPaint;
+    private RectList invalidList;
+    private RectList pendingList;
+    private int capacity;
+    private int displayWidth;
+    private int displayHeight;
+
     /**
-     * 
+     *
      * @param p Protocol implementation
      * @param c View that will display screen
      * @param displayWidth
@@ -93,7 +72,7 @@ class LargeBitmapData extends AbstractBitmapData {
      * @param capacity Max process heap size in bytes
      */
     LargeBitmapData(RfbConnectable p, RemoteCanvas c, int displayWidth, int displayHeight, int capacity) {
-        super(p,c);
+        super(p, c);
         this.capacity = capacity;
         this.displayWidth = displayWidth;
         this.displayHeight = displayHeight;
@@ -101,17 +80,17 @@ class LargeBitmapData extends AbstractBitmapData {
     }
 
     @Override
-    AbstractBitmapDrawable createDrawable()    {
+    AbstractBitmapDrawable createDrawable() {
         return new LargeBitmapDrawable();
     }
 
     /**
-     * 
+     *
      * @return The smallest scale supported by the implementation; the scale at which
      * the bitmap would be smaller than the screen
      */
-    float getMinimumScale()    {
-        return Math.max((float)vncCanvas.getWidth()/bitmapwidth, (float)vncCanvas.getHeight()/bitmapheight);
+    float getMinimumScale() {
+        return Math.max((float) vncCanvas.getWidth() / bitmapwidth, (float) vncCanvas.getHeight() / bitmapheight);
     }
 
     /* (non-Javadoc)
@@ -123,7 +102,7 @@ class LargeBitmapData extends AbstractBitmapData {
         int dstH = h;
         int dstW = w;
         int xo, yo;
-        
+
         int startSrcY, endSrcY, dstY, deltaY;
         if (sy > dy) {
             startSrcY = sy;
@@ -139,31 +118,31 @@ class LargeBitmapData extends AbstractBitmapData {
         for (int y = startSrcY; y != endSrcY; y += deltaY) {
             srcOffset = offset(sx, y);
             dstOffset = offset(dx, dstY);
-            xo = sx-xoffset;
+            xo = sx - xoffset;
             if (xo < 0) xo = 0;
-            yo = y-yoffset;
+            yo = y - yoffset;
             if (yo < 0) yo = 0;
             if (sx + dstW > bitmapwidth) dstW = bitmapwidth - sx;
             try {
                 mbitmap.getPixels(bitmapPixels, srcOffset, bitmapwidth, xo, yo, dstW, 1);
                 System.arraycopy(bitmapPixels, srcOffset, bitmapPixels, dstOffset, dstW);
             } catch (Exception e) {
-                // There was an index out of bounds exception, but we continue copying what we can. 
+                // There was an index out of bounds exception, but we continue copying what we can.
                 e.printStackTrace();
             }
             dstY += deltaY;
         }
         updateBitmap(dx, dy, dstW, dstH);
     }
-    
+
     /* (non-Javadoc)
      * @see com.iiordanov.bVNC.AbstractBitmapData#drawRect(int, int, int, int, android.graphics.Paint)
      */
     @Override
     void drawRect(int x, int y, int w, int h, Paint paint) {
-        x-=xoffset;
-        y-=yoffset;
-        memGraphics.drawRect(x, y, x+w, y+h, paint);
+        x -= xoffset;
+        y -= yoffset;
+        memGraphics.drawRect(x, y, x + w, y + h, paint);
     }
 
     /* (non-Javadoc)
@@ -193,8 +172,8 @@ class LargeBitmapData extends AbstractBitmapData {
             if (newScrolledToX + bitmapwidth > framebufferwidth)
                 newScrolledToX = framebufferwidth - bitmapwidth;
         }
-        
-        if (newy - yoffset < 0 ) {
+
+        if (newy - yoffset < 0) {
             newScrolledToY = newy + visibleHeight / 2 - bitmapheight / 2;
             if (newScrolledToY < 0)
                 newScrolledToY = 0;
@@ -203,11 +182,11 @@ class LargeBitmapData extends AbstractBitmapData {
             if (newScrolledToY + bitmapheight > framebufferheight)
                 newScrolledToY = framebufferheight - bitmapheight;
         }
-        
+
         if (newScrolledToX != scrolledToX || newScrolledToY != scrolledToY) {
             scrolledToX = newScrolledToX;
             scrolledToY = newScrolledToY;
-            if ( waitingForInput)
+            if (waitingForInput)
                 syncScroll();
         }
     }
@@ -217,21 +196,21 @@ class LargeBitmapData extends AbstractBitmapData {
      */
     @Override
     public void updateBitmap(int x, int y, int w, int h) {
-        int xo = x-xoffset;
+        int xo = x - xoffset;
         if (xo < 0) xo = 0;
-        int yo = y-yoffset;
+        int yo = y - yoffset;
         if (yo < 0) yo = 0;
-        if (x + w > xoffset + bitmapwidth)  w = xoffset + bitmapwidth  - x;
+        if (x + w > xoffset + bitmapwidth) w = xoffset + bitmapwidth - x;
         if (y + h > yoffset + bitmapheight) h = yoffset + bitmapheight - y;
-        
+
         try {
-            mbitmap.setPixels(bitmapPixels, offset(x,y), bitmapwidth, xo, yo, w, h);
+            mbitmap.setPixels(bitmapPixels, offset(x, y), bitmapwidth, xo, yo, w, h);
         } catch (IllegalArgumentException e) {
             // Do not update the bitmap if the coordinates are out of bounds.
             e.printStackTrace();
         }
     }
-    
+
     /* (non-Javadoc)
      * @see com.iiordanov.bVNC.AbstractBitmapData#updateBitmap(Bitmap, int, int, int, int)
      */
@@ -245,11 +224,11 @@ class LargeBitmapData extends AbstractBitmapData {
      */
     @Override
     public synchronized boolean validDraw(int x, int y, int w, int h) {
-        boolean result = x-xoffset>=0 && x-xoffset+w<=bitmapwidth && y-yoffset>=0 && y-yoffset+h<=bitmapheight;
+        boolean result = x - xoffset >= 0 && x - xoffset + w <= bitmapwidth && y - yoffset >= 0 && y - yoffset + h <= bitmapheight;
         //android.util.Log.e("LBM", "Validate Drawing x:"+x+" y:"+y+" w:"+w+" h:"+h+" xoff:"+xoffset+" yoff:"+yoffset+" "+(x-xoffset>=0 && x-xoffset+w<=bitmapwidth && y-yoffset>=0 && y-yoffset+h<=bitmapheight));
         ObjectPool.Entry<Rect> entry = rectPool.reserve();
         Rect r = entry.get();
-        r.set(x, y, x+w, y+h);
+        r.set(x, y, x + w, y + h);
         pendingList.subtract(r);
         if (!result)
             invalidList.add(r);
@@ -264,13 +243,13 @@ class LargeBitmapData extends AbstractBitmapData {
      */
     @Override
     public synchronized void prepareFullUpdateRequest(boolean incremental) {
-        if (! incremental) {
+        if (!incremental) {
             ObjectPool.Entry<Rect> entry = rectPool.reserve();
             Rect r = entry.get();
-            r.left=xoffset;
-            r.top=yoffset;
-            r.right=xoffset + bitmapwidth;
-            r.bottom=yoffset + bitmapheight;
+            r.left = xoffset;
+            r.top = yoffset;
+            r.right = xoffset + bitmapwidth;
+            r.bottom = yoffset + bitmapheight;
             pendingList.add(r);
             invalidList.add(r);
             rectPool.release(entry);
@@ -282,31 +261,29 @@ class LargeBitmapData extends AbstractBitmapData {
      */
     @Override
     synchronized void syncScroll() {
-        
+
         int deltaX = xoffset - scrolledToX;
         int deltaY = yoffset - scrolledToY;
-        xoffset=scrolledToX;
-        yoffset=scrolledToY;
-        bitmapRect.top=scrolledToY;
-        bitmapRect.bottom=scrolledToY+bitmapheight;
-        bitmapRect.left=scrolledToX;
-        bitmapRect.right=scrolledToX+bitmapwidth;
+        xoffset = scrolledToX;
+        yoffset = scrolledToY;
+        bitmapRect.top = scrolledToY;
+        bitmapRect.bottom = scrolledToY + bitmapheight;
+        bitmapRect.left = scrolledToX;
+        bitmapRect.right = scrolledToX + bitmapwidth;
         invalidList.intersect(bitmapRect);
-        if ( deltaX != 0 || deltaY != 0)
-        {
+        if (deltaX != 0 || deltaY != 0) {
             boolean didOverlapping = false;
             if (Math.abs(deltaX) < bitmapwidth && Math.abs(deltaY) < bitmapheight) {
                 ObjectPool.Entry<Rect> sourceEntry = rectPool.reserve();
                 ObjectPool.Entry<Rect> addedEntry = rectPool.reserve();
-                try
-                {
+                try {
                     Rect added = addedEntry.get();
                     Rect sourceRect = sourceEntry.get();
-                    sourceRect.set(deltaX<0 ? -deltaX : 0,
-                            deltaY<0 ? -deltaY : 0,
-                            deltaX<0 ? bitmapwidth : bitmapwidth - deltaX,
+                    sourceRect.set(deltaX < 0 ? -deltaX : 0,
+                            deltaY < 0 ? -deltaY : 0,
+                            deltaX < 0 ? bitmapwidth : bitmapwidth - deltaX,
                             deltaY < 0 ? bitmapheight : bitmapheight - deltaY);
-                    if (! invalidList.testIntersect(sourceRect)) {
+                    if (!invalidList.testIntersect(sourceRect)) {
                         didOverlapping = true;
                         OverlappingCopy.Copy(mbitmap, memGraphics, defaultPaint, sourceRect, deltaX + sourceRect.left, deltaY + sourceRect.top, rectPool);
                         // Write request for side pixels
@@ -325,46 +302,44 @@ class LargeBitmapData extends AbstractBitmapData {
                             invalidList.add(added);
                         }
                     }
-                }
-                finally {
+                } finally {
                     rectPool.release(addedEntry);
                     rectPool.release(sourceEntry);
                 }
             }
-            if (! didOverlapping)
-            {
+            if (!didOverlapping) {
                 mbitmap.eraseColor(Color.GREEN);
                 vncCanvas.writeFullUpdateRequest(false);
             }
         }
         int size = pendingList.getSize();
-        for (int i=0; i<size; i++) {
+        for (int i = 0; i < size; i++) {
             invalidList.subtract(pendingList.get(i));
         }
         size = invalidList.getSize();
-        for (int i=0; i<size; i++) {
+        for (int i = 0; i < size; i++) {
             Rect invalidRect = invalidList.get(i);
-            rfb.writeFramebufferUpdateRequest(invalidRect.left, invalidRect.top, invalidRect.right-invalidRect.left, invalidRect.bottom-invalidRect.top, false);
+            rfb.writeFramebufferUpdateRequest(invalidRect.left, invalidRect.top, invalidRect.right - invalidRect.left, invalidRect.bottom - invalidRect.top, false);
             pendingList.add(invalidRect);
         }
-        waitingForInput=true;
+        waitingForInput = true;
         //android.util.Log.i("LBM", "pending "+pendingList.toString() + "invalid "+invalidList.toString());
     }
-    
+
     /* (non-Javadoc)
      * @see com.iiordanov.bVNC.AbstractBitmapData#frameBufferSizeChanged(RfbProto)
      */
     @Override
-    public void frameBufferSizeChanged () {
+    public void frameBufferSizeChanged() {
         xoffset = 0;
         yoffset = 0;
         scrolledToX = 0;
         scrolledToY = 0;
-        framebufferwidth  = rfb.framebufferWidth();
+        framebufferwidth = rfb.framebufferWidth();
         framebufferheight = rfb.framebufferHeight();
         initializeLargeBitmapData();
     }
-    
+
     /**
      * This function initializes the LBM, increasing the CAPACITY_MULTIPLIER until it doesn't run out of memory while
      * initializing.
@@ -383,7 +358,10 @@ class LargeBitmapData extends AbstractBitmapData {
                 // Try to free up some memory.
                 System.gc();
                 // Wait a second for the system to recover.
-                try { Thread.sleep(500); } catch (InterruptedException e1) { }
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException e1) {
+                }
             }
         }
         if (tryAgain) {
@@ -392,34 +370,54 @@ class LargeBitmapData extends AbstractBitmapData {
             allocateObjects();
         }
     }
-    
-    void allocateObjects () {
+
+    void allocateObjects() {
         dispose();
-        invalidList  = null;
-        pendingList  = null;
-        bitmapRect   = null;
+        invalidList = null;
+        pendingList = null;
+        bitmapRect = null;
         defaultPaint = null;
         // Try to free up some memory.
         System.gc();
-        scaleMultiplier = Math.sqrt((double)(capacity * 1024 * 1024) /
-                                    (double)(CAPACITY_MULTIPLIER * framebufferwidth * framebufferheight));
+        scaleMultiplier = Math.sqrt((double) (capacity * 1024 * 1024) /
+                (double) (CAPACITY_MULTIPLIER * framebufferwidth * framebufferheight));
         if (scaleMultiplier > 1)
             scaleMultiplier = 1;
-        bitmapwidth=(int)((double)framebufferwidth * scaleMultiplier);
-        if (bitmapwidth < displayWidth*1.2)
-            bitmapwidth  = (int)(displayWidth*1.2);
-        bitmapheight=(int)((double)framebufferheight * scaleMultiplier);
-        if (bitmapheight < displayHeight*1.2)
-            bitmapheight = (int)(displayHeight*1.2);
-        android.util.Log.i("LBM", "bitmapsize = ("+bitmapwidth+","+bitmapheight+")");
-        mbitmap      = Bitmap.createBitmap(bitmapwidth, bitmapheight, Bitmap.Config.RGB_565);
-        memGraphics  = new Canvas(mbitmap);
+        bitmapwidth = (int) ((double) framebufferwidth * scaleMultiplier);
+        if (bitmapwidth < displayWidth * 1.2)
+            bitmapwidth = (int) (displayWidth * 1.2);
+        bitmapheight = (int) ((double) framebufferheight * scaleMultiplier);
+        if (bitmapheight < displayHeight * 1.2)
+            bitmapheight = (int) (displayHeight * 1.2);
+        android.util.Log.i("LBM", "bitmapsize = (" + bitmapwidth + "," + bitmapheight + ")");
+        mbitmap = Bitmap.createBitmap(bitmapwidth, bitmapheight, Bitmap.Config.RGB_565);
+        memGraphics = new Canvas(mbitmap);
         bitmapPixels = new int[bitmapwidth * bitmapheight];
-        invalidList  = new RectList(rectPool);
-        pendingList  = new RectList(rectPool);
-        bitmapRect   = new Rect(0, 0, bitmapwidth, bitmapheight);
+        invalidList = new RectList(rectPool);
+        pendingList = new RectList(rectPool);
+        bitmapRect = new Rect(0, 0, bitmapwidth, bitmapheight);
         defaultPaint = new Paint();
-        drawable     = createDrawable();
+        drawable = createDrawable();
         drawable.startDrawing();
+    }
+
+    class LargeBitmapDrawable extends AbstractBitmapDrawable {
+        LargeBitmapDrawable() {
+            super(LargeBitmapData.this);
+        }
+
+        /* (non-Javadoc)
+         * @see android.graphics.drawable.DrawableContainer#draw(android.graphics.Canvas)
+         */
+        @Override
+        public void draw(Canvas canvas) {
+            //android.util.Log.i("LBM", "Drawing "+xoffset+" "+yoffset);
+            int xoff, yoff;
+            synchronized (LargeBitmapData.this) {
+                xoff = xoffset;
+                yoff = yoffset;
+                draw(canvas, xoff, yoff);
+            }
+        }
     }
 }

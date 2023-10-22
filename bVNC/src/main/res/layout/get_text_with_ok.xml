@@ -9,15 +9,16 @@
         android:id="@+id/textBox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:singleLine="true"
-        android:imeOptions="actionSend">
+        android:imeOptions="actionSend"
+        android:singleLine="true">
+
         <requestFocus />
     </EditText>
 
     <Button
         android:id="@+id/okButton"
+        style="?buttonBarButtonStyle"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        style="?buttonBarButtonStyle"
-        android:text="@string/ok"/>
+        android:text="@string/ok" />
 </LinearLayout>

@@ -108,44 +108,37 @@ public class RemoteCanvas extends AppCompatImageView
 
     // Connection parameters
     public Connection connection;
-
-    Database database;
     public SSHConnection sshConnection = null;
-
     // VNC protocol connection
     public RfbConnectable rfbconn = null;
     public RfbProto rfb = null;
-    private RdpCommunicator rdpcomm = null;
     public SpiceCommunicator spicecomm = null;
-    Map<String, String> vmNameToId = new HashMap<String, String>();
-
     public boolean maintainConnection = true;
-
+    public AbstractBitmapData myDrawable;
+    // Progress dialog shown at connection time.
+    public ProgressDialog pd;
+    public boolean serverJustCutText = false;
+    public Runnable setModes;
+    public Runnable hideKeyboardAndExtraKeys;
+    public boolean spiceUpdateReceived = false;
+    /**
+     * Handler for the dialogs that display the x509/RDP/SSH key signatures to the user.
+     * Also shows the dialogs which show various connection failures.
+     */
+    public Handler handler;
+    Database database;
+    Map<String, String> vmNameToId = new HashMap<String, String>();
     // RFB Decoder
     Decoder decoder = null;
-
     // The remote pointer and keyboard
     RemotePointer pointer;
     RemoteKeyboard keyboard;
-
-    // Internal bitmap data
-    private int capacity;
-    public AbstractBitmapData myDrawable;
     boolean useFull = false;
     boolean compact = false;
-
-    // Progress dialog shown at connection time.
-    public ProgressDialog pd;
-
     // Used to set the contents of the clipboard.
     ClipboardManager clipboard;
     Timer clipboardMonitorTimer;
     ClipboardMonitor clipboardMonitor;
-    public boolean serverJustCutText = false;
-
-    public Runnable setModes;
-    public Runnable hideKeyboardAndExtraKeys;
-
     /*
      * Position of the top left portion of the <i>visible</i> part of the screen, in
      * full-frame coordinates
@@ -189,16 +182,61 @@ public class RemoteCanvas extends AppCompatImageView
      * This flag indicates whether this is the Opaque client.
      */
     boolean isOpaque = false;
-
-    public boolean spiceUpdateReceived = false;
-
     boolean sshTunneled = false;
-
     long lastDraw;
-
     boolean userPanned = false;
-
     String vvFileName;
+    /**
+     * This runnable displays a message on the screen.
+     */
+    CharSequence screenMessage;
+    /**
+     * Shows a non-fatal error message.
+     *
+     * @param error
+     */
+    Runnable showDialogMessage = new Runnable() {
+        public void run() {
+            Utils.showErrorMessage(getContext(), String.valueOf(screenMessage));
+        }
+    };
+    Runnable invalidateCanvasRunnable = new Runnable() {
+        @Override
+        public void run() {
+            //Log.d(TAG, "invalidateCanvasRunnable");
+            postInvalidate();
+        }
+    };
+    private RdpCommunicator rdpcomm = null;
+    // Internal bitmap data
+    private int capacity;
+    /**
+     * This runnable sets the drawable (contained in myDrawable) for the VncCanvas (ImageView).
+     */
+    private Runnable drawableSetter = new Runnable() {
+        public void run() {
+            android.util.Log.d(TAG, "drawableSetter.run");
+            if (myDrawable != null) {
+                android.util.Log.d(TAG, "drawableSetter myDrawable not null");
+                myDrawable.setImageDrawable(RemoteCanvas.this);
+            } else {
+                android.util.Log.e(TAG, "drawableSetter myDrawable is null");
+            }
+        }
+    };
+    private Runnable showMessage = new Runnable() {
+        public void run() {
+            Toast.makeText(getContext(), screenMessage, Toast.LENGTH_SHORT).show();
+        }
+    };
+    /**
+     * This runnable causes a toast with information about the current connection to be shown.
+     */
+    private Runnable desktopInfo = new Runnable() {
+        public void run() {
+            showConnectionInfo();
+        }
+    };
 
     /**
      * Constructor used by the inflation apparatus
@@ -444,7 +482,6 @@ public class RemoteCanvas extends AppCompatImageView
         }
     }
 
-
     /**
      * Retreives the requested remote width.
      */
@@ -472,7 +509,6 @@ public class RemoteCanvas extends AppCompatImageView
         android.util.Log.d(TAG, "Height requested: " + h);
         return h;
     }
-
 
     /**
      * Initializes a SPICE connection.
@@ -965,7 +1001,6 @@ public class RemoteCanvas extends AppCompatImageView
         cThread.start();
     }
 
-
     /**
      * Sends over the unix username and password if this is VNC over SSH connectio and automatic sending of
      * UNIX credentials is enabled for AutoX (for x11vnc's "-unixpw" option).
@@ -1073,17 +1108,6 @@ public class RemoteCanvas extends AppCompatImageView
         return remoteHeight;
     }
 
-    /**
-     * Shows a non-fatal error message.
-     *
-     * @param error
-     */
-    Runnable showDialogMessage = new Runnable() {
-        public void run() {
-            Utils.showErrorMessage(getContext(), String.valueOf(screenMessage));
-        }
-    };
-
     void showMessage(final String error) {
         android.util.Log.d(TAG, "showMessage");
         screenMessage = error;
@@ -1104,7 +1128,6 @@ public class RemoteCanvas extends AppCompatImageView
             }
         });
     }
-
 
     /**
      * If necessary, initializes an SSH tunnel and returns local forwarded port, or
@@ -1131,7 +1154,6 @@ public class RemoteCanvas extends AppCompatImageView
         return result;
     }
 
-
     /**
      * Returns localhost if using SSH tunnel or saved VNC address.
      *
@@ -1143,7 +1165,6 @@ public class RemoteCanvas extends AppCompatImageView
         } else
             return connection.getAddress();
     }
-
 
     /**
      * Initializes the drawable and bitmap into which the remote desktop is drawn.
@@ -1237,7 +1258,6 @@ public class RemoteCanvas extends AppCompatImageView
         System.gc();
     }
 
-
     /**
      * The remote desktop's size has changed and this method
      * reinitializes local data structures to match.
@@ -1280,7 +1300,6 @@ public class RemoteCanvas extends AppCompatImageView
         myDrawable.syncScroll();
     }
 
-
     /**
      * Displays a short toast message on the screen.
      *
@@ -1291,7 +1310,6 @@ public class RemoteCanvas extends AppCompatImageView
         handler.removeCallbacks(showMessage);
         handler.post(showMessage);
     }
-
 
     /**
      * Displays a short toast message on the screen.
@@ -1304,14 +1322,12 @@ public class RemoteCanvas extends AppCompatImageView
         handler.post(showMessage);
     }
 
-
     /**
      * Lets the drawable know that an update from the remote server has arrived.
      */
     public void doneWaiting() {
         myDrawable.doneWaiting();
     }
-
 
     /**
      * Indicates that RemoteCanvas's scroll position should be synchronized with the
@@ -1321,6 +1337,25 @@ public class RemoteCanvas extends AppCompatImageView
         myDrawable.syncScroll();
     }
 
+    /*
+     * f(x,s) is a function that returns the coordinate in screen/scroll space corresponding
+     * to the coordinate x in full-frame space with scaling s.
+     *
+     * This function returns the difference between f(x,s1) and f(x,s2)
+     *
+     * f(x,s) = (x - i/2) * s + ((i - w)/2)) * s
+     *        = s (x - i/2 + i/2 + w/2)
+     *        = s (x + w/2)
+     *
+     *
+     * f(x,s) = (x - ((i - w)/2)) * s
+     * @param oldscaling
+     * @param scaling
+     * @param imageDim
+     * @param windowDim
+     * @param offset
+     * @return
+     */
 
     /**
      * Requests a remote desktop update at the specified rectangle.
@@ -1329,7 +1364,6 @@ public class RemoteCanvas extends AppCompatImageView
         myDrawable.prepareFullUpdateRequest(incremental);
         rfbconn.writeFramebufferUpdateRequest(x, y, w, h, incremental);
     }
-
 
     /**
      * Requests an update of the entire remote desktop.
@@ -1340,7 +1374,6 @@ public class RemoteCanvas extends AppCompatImageView
                 myDrawable.bmWidth(), myDrawable.bmHeight(), incremental);
     }
 
-
     /**
      * Set the device clipboard text with the string parameter.
      */
@@ -1349,7 +1382,6 @@ public class RemoteCanvas extends AppCompatImageView
             clipboard.setText(s);
         }
     }
-
 
     /**
      * Method that disconnects from the remote server.
@@ -1386,7 +1418,6 @@ public class RemoteCanvas extends AppCompatImageView
         onDestroy();
     }
 
-
     /**
      * Cleans up resources after a disconnection.
      */
@@ -1412,32 +1443,11 @@ public class RemoteCanvas extends AppCompatImageView
         disposeDrawable();
     }
 
-
     public void removeCallbacksAndMessages() {
         if (handler != null) {
             handler.removeCallbacksAndMessages(null);
         }
     }
-
-    /*
-     * f(x,s) is a function that returns the coordinate in screen/scroll space corresponding
-     * to the coordinate x in full-frame space with scaling s.
-     *
-     * This function returns the difference between f(x,s1) and f(x,s2)
-     *
-     * f(x,s) = (x - i/2) * s + ((i - w)/2)) * s
-     *        = s (x - i/2 + i/2 + w/2)
-     *        = s (x + w/2)
-     *
-     *
-     * f(x,s) = (x - ((i - w)/2)) * s
-     * @param oldscaling
-     * @param scaling
-     * @param imageDim
-     * @param windowDim
-     * @param offset
-     * @return
-     */
 
     /**
      * Computes the X and Y offset for converting coordinates from full-frame coordinates to view coordinates.
@@ -1458,7 +1468,6 @@ public class RemoteCanvas extends AppCompatImageView
                 (int) ((absoluteYPosition - shiftY) * scale));
     }
 
-
     /**
      * Make sure mouse is visible on displayable part of screen
      */
@@ -1470,7 +1479,7 @@ public class RemoteCanvas extends AppCompatImageView
         boolean panX = true;
         boolean panY = true;
 
-        // Don't pan in a certain direction if dimension scaled is already less 
+        // Don't pan in a certain direction if dimension scaled is already less
         // than the dimension of the visible part of the screen.
         if (rfbconn.framebufferWidth() < getVisibleDesktopWidth())
             panX = false;
@@ -1622,43 +1631,6 @@ public class RemoteCanvas extends AppCompatImageView
         }
     }
 
-
-    /**
-     * This runnable sets the drawable (contained in myDrawable) for the VncCanvas (ImageView).
-     */
-    private Runnable drawableSetter = new Runnable() {
-        public void run() {
-            android.util.Log.d(TAG, "drawableSetter.run");
-            if (myDrawable != null) {
-                android.util.Log.d(TAG, "drawableSetter myDrawable not null");
-                myDrawable.setImageDrawable(RemoteCanvas.this);
-            } else {
-                android.util.Log.e(TAG, "drawableSetter myDrawable is null");
-            }
-        }
-    };
-
-
-    /**
-     * This runnable displays a message on the screen.
-     */
-    CharSequence screenMessage;
-    private Runnable showMessage = new Runnable() {
-        public void run() {
-            Toast.makeText(getContext(), screenMessage, Toast.LENGTH_SHORT).show();
-        }
-    };
-
-
-    /**
-     * This runnable causes a toast with information about the current connection to be shown.
-     */
-    private Runnable desktopInfo = new Runnable() {
-        public void run() {
-            showConnectionInfo();
-        }
-    };
-
     @Override
     public Bitmap getBitmap() {
         Bitmap bitmap = null;
@@ -1667,15 +1639,6 @@ public class RemoteCanvas extends AppCompatImageView
         }
         return bitmap;
     }
-
-    Runnable invalidateCanvasRunnable = new Runnable() {
-        @Override
-        public void run() {
-            //Log.d(TAG, "invalidateCanvasRunnable");
-            postInvalidate();
-        }
-    };
-
 
     /**
      * Causes a redraw of the myDrawable to happen at the indicated coordinates.
@@ -1696,7 +1659,6 @@ public class RemoteCanvas extends AppCompatImageView
             handler.postDelayed(invalidateCanvasRunnable, 100);
         }
     }
-
 
     /**
      * This is a float-accepting version of reDraw().
@@ -1746,7 +1708,6 @@ public class RemoteCanvas extends AppCompatImageView
         }
         Toast.makeText(getContext(), msg, Toast.LENGTH_SHORT).show();
     }
-
 
     /**
      * Invalidates (to redraw) the location of the remote pointer.
@@ -1801,7 +1762,6 @@ public class RemoteCanvas extends AppCompatImageView
             reDraw(prevR.left, prevR.top, prevR.width(), prevR.height());
         }
     }
-
 
     /**
      * Initializes the data structure which holds the remote pointer data.
@@ -1864,15 +1824,15 @@ public class RemoteCanvas extends AppCompatImageView
         return (int) ((double) getWidth() / getZoomFactor() + 0.5);
     }
 
-    public void setVisibleDesktopHeight(int newHeight) {
-        visibleHeight = newHeight;
-    }
-
     public int getVisibleDesktopHeight() {
         if (visibleHeight > 0)
             return (int) ((double) visibleHeight / getZoomFactor() + 0.5);
         else
             return (int) ((double) getHeight() / getZoomFactor() + 0.5);
+    }
+
+    public void setVisibleDesktopHeight(int newHeight) {
+        visibleHeight = newHeight;
     }
 
     public int getImageWidth() {
@@ -1954,13 +1914,6 @@ public class RemoteCanvas extends AppCompatImageView
             }
         }
     }
-
-    /**
-     * Handler for the dialogs that display the x509/RDP/SSH key signatures to the user.
-     * Also shows the dialogs which show various connection failures.
-     */
-    public Handler handler;
-
 
     /**
      * Function used to initialize an empty SSH HostKey for a new VNC over SSH connection.

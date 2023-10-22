@@ -1,17 +1,22 @@
 package com.iiordanov.bVNC;
 
 import android.content.Context;
+
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.multidex.MultiDex;
 import androidx.multidex.MultiDexApplication;
-import androidx.appcompat.app.AppCompatDelegate;
+
 import java.lang.ref.WeakReference;
-import java.security.Security;
 
 public class App extends MultiDexApplication {
 
-    private Database database;
-    private static WeakReference<Context> context;
     public static boolean debugLog = false;
+    private static WeakReference<Context> context;
+    private Database database;
+
+    public static Context getContext() {
+        return context.get();
+    }
 
     @Override
     protected void attachBaseContext(Context base) {
@@ -31,9 +36,5 @@ public class App extends MultiDexApplication {
 
     public Database getDatabase() {
         return database;
-    }
-
-    public static Context getContext() {
-        return context.get();
     }
 }

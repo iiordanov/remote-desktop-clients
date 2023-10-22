@@ -5,8 +5,8 @@ package com.iiordanov.util;
 
 /**
  * Synchronized object pool
- * @author Michael A. MacDonald
  *
+ * @author Michael A. MacDonald
  */
 public abstract class SafeObjectPool<R> extends ObjectPool<R> {
 

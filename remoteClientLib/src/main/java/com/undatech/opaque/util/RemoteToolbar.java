@@ -6,8 +6,6 @@ import android.util.AttributeSet;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
 
-import android.util.Log;
-
 public class RemoteToolbar extends Toolbar {
     private static final String TAG = "RemoteToolbar";
 
@@ -24,13 +22,11 @@ public class RemoteToolbar extends Toolbar {
     }
 
     public void makeVisible(int XCoor, int YCoor, int rootRight, int rootBottom, int resetPositionX,
-                            int resetPositionY)
-    {
+                            int resetPositionY) {
         if (XCoor > rootRight || YCoor > rootBottom) {
             this.setX(resetPositionX);
             this.setY(resetPositionY);
-        }
-        else {
+        } else {
             this.setX(XCoor);
             this.setY(YCoor);
         }

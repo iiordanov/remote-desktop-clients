@@ -17,7 +17,7 @@ public class BCGestureDetectorDefault implements IBCGestureDetector {
      */
     @Override
     public GestureDetector createGestureDetector(Context context,
-            OnGestureListener listener) {
+                                                 OnGestureListener listener) {
         return new GestureDetector(context, listener);
     }
 

@@ -35,10 +35,11 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 package com.iiordanov.jcraft.jzlib;
 
 public class ZStreamException extends java.io.IOException {
-  public ZStreamException() {
-    super();
-  }
-  public ZStreamException(String s) {
-    super(s);
-  }
+    public ZStreamException() {
+        super();
+    }
+
+    public ZStreamException(String s) {
+        super(s);
+    }
 }

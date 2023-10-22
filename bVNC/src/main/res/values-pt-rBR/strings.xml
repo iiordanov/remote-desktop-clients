@@ -346,7 +346,7 @@ Todos os métodos de entrada:
     <string name="input_method_direct_drag_pan">Direto, Hold Pan</string>
     <string name="input_method_single_handed">De uma mão</string>
     <string name="input_method_touchpad">Touchpad Simulado</string>
-    
+
     <string name="input_mode_help">Ajuda no modo de entrada</string>
     <string name="input_mode_help_text">
 "Em qualquer modo de entrada, toque no ícone do teclado para exibir ele na tela. Além disso, seu dispositivo pode ter seu próprio gesto, que traz o teclado de volta.

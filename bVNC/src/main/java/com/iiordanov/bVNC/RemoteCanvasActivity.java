@@ -114,25 +114,14 @@ import java.util.TimerTask;
 public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyListener,
         SelectTextElementFragment.OnFragmentDismissedListener {
 
-    private final static String TAG = "RemoteCanvasActivity";
-
-    InputHandler inputHandler;
-    private Vibrator myVibrator;
-
-    private RemoteCanvas canvas;
-
-    private MenuItem[] inputModeMenuItems;
-    private MenuItem[] scalingModeMenuItems;
-    private InputHandler inputModeHandlers[];
-    private Connection connection;
     public static final int[] inputModeIds = {R.id.itemInputTouchpad,
             R.id.itemInputTouchPanZoomMouse,
             R.id.itemInputDragPanZoomMouse,
             R.id.itemInputSingleHanded};
+    public static final Map<Integer, String> inputModeMap;
+    private final static String TAG = "RemoteCanvasActivity";
     private static final int scalingModeIds[] = {R.id.itemZoomable, R.id.itemFitToScreen,
             R.id.itemOneToOne};
-
-    public static final Map<Integer, String> inputModeMap;
 
     static {
         Map<Integer, String> temp = new HashMap<>();
@@ -143,9 +132,10 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
         inputModeMap = Collections.unmodifiableMap(temp);
     }
 
+    final long hideToolbarDelay = 2500;
+    InputHandler inputHandler;
     Panner panner;
     Handler handler;
-
     RelativeLayout layoutKeys;
     LinearLayout layoutArrowKeys;
     ImageButton keyCtrl;
@@ -167,7 +157,13 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
     volatile boolean softKeyboardUp;
     RemoteToolbar toolbar;
     View rootView;
-
+    ToolbarHiderRunnable toolbarHider = new ToolbarHiderRunnable();
+    private Vibrator myVibrator;
+    private RemoteCanvas canvas;
+    private MenuItem[] inputModeMenuItems;
+    private MenuItem[] scalingModeMenuItems;
+    private InputHandler inputModeHandlers[];
+    private Connection connection;
     /**
      * This runnable enables immersive mode.
      */
@@ -193,15 +189,6 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
             }
         }
     };
-
-    /**
-     * Enables sticky immersive mode if supported.
-     */
-    private void enableImmersive() {
-        handler.removeCallbacks(immersiveEnabler);
-        handler.postDelayed(immersiveEnabler, 200);
-    }
-
     /**
      * This runnable disables immersive mode.
      */
@@ -219,6 +206,26 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
             }
         }
     };
+    /**
+     * This runnable fixes things up after a rotation.
+     */
+    private Runnable rotationCorrector = new Runnable() {
+        public void run() {
+            try {
+                correctAfterRotation();
+            } catch (Exception e) {
+            }
+        }
+    };
+    private MetaKeyBean lastSentKey;
+
+    /**
+     * Enables sticky immersive mode if supported.
+     */
+    private void enableImmersive() {
+        handler.removeCallbacks(immersiveEnabler);
+        handler.postDelayed(immersiveEnabler, 200);
+    }
 
     /**
      * Disables sticky immersive mode.
@@ -608,6 +615,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
 
     /**
      * Retrieves a vv file from the intent if possible and returns the path to it.
+     *
      * @param i
      * @return the vv file name or NULL if no file was discovered.
      */
@@ -1008,7 +1016,6 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
         }
     }
 
-
     /**
      * Sets the visibility of the extra keys appropriately.
      */
@@ -1136,18 +1143,6 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
     }
 
     /**
-     * This runnable fixes things up after a rotation.
-     */
-    private Runnable rotationCorrector = new Runnable() {
-        public void run() {
-            try {
-                correctAfterRotation();
-            } catch (Exception e) {
-            }
-        }
-    };
-
-    /**
      * This function is called by the rotationCorrector runnable
      * to fix things up after a rotation.
      */
@@ -1179,7 +1174,6 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
         }
 
     }
-
 
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
@@ -1246,7 +1240,9 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
         return true;
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         Log.d(TAG, "OnCreateOptionsMenu called");
@@ -1487,8 +1483,6 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
         return false;
     }
 
-    private MetaKeyBean lastSentKey;
-
     private void sendSpecialKeyAgain() {
         if (lastSentKey == null
                 || lastSentKey.get_Id() != connection.getLastMetaKeyId()) {
@@ -1652,9 +1646,6 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
         dialog.show();
     }
 
-    final long hideToolbarDelay = 2500;
-    ToolbarHiderRunnable toolbarHider = new ToolbarHiderRunnable();
-
     public void showToolbar() {
         getSupportActionBar().show();
         handler.removeCallbacks(toolbarHider);
@@ -1669,14 +1660,6 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
         connection.save(this);
         synchronized (canvas.spicecomm) {
             canvas.spicecomm.notify();
-        }
-    }
-
-    private class ToolbarHiderRunnable implements Runnable {
-        public void run() {
-            ActionBar toolbar = getSupportActionBar();
-            if (toolbar != null)
-                toolbar.hide();
         }
     }
 
@@ -1757,6 +1740,14 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
     public void onBackPressed() {
         if (inputHandler != null) {
             inputHandler.onKeyDown(KeyEvent.KEYCODE_BACK, new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_BACK));
+        }
+    }
+
+    private class ToolbarHiderRunnable implements Runnable {
+        public void run() {
+            ActionBar toolbar = getSupportActionBar();
+            if (toolbar != null)
+                toolbar.hide();
         }
     }
 

@@ -9,7 +9,7 @@ import android.view.GestureDetector;
 /**
  * Create a gesture detector in a version friendly way, avoiding incompatible API on older version
  * and deprecated API on newer version
- * 
+ *
  * @author Michael A. MacDonald
  */
 public interface IBCGestureDetector {

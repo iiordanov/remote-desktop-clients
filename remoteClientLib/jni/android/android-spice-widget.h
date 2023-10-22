@@ -61,9 +61,9 @@ struct _SpiceDisplayClass {
 
 typedef enum
 {
-	SPICE_DISPLAY_KEY_EVENT_PRESS = 1,
-	SPICE_DISPLAY_KEY_EVENT_RELEASE = 2,
-	SPICE_DISPLAY_KEY_EVENT_CLICK = 3,
+    SPICE_DISPLAY_KEY_EVENT_PRESS = 1,
+    SPICE_DISPLAY_KEY_EVENT_RELEASE = 2,
+    SPICE_DISPLAY_KEY_EVENT_CLICK = 3,
 } SpiceDisplayKeyEvent;
 
 GType spice_display_get_type(void);

@@ -8,7 +8,6 @@ import android.hardware.usb.UsbManager
 import android.os.Build
 import android.util.Log
 import com.undatech.opaque.RemoteClientLibConstants
-import kotlin.collections.HashMap
 
 class UsbDeviceManager(val context: Context, val usbEnabled: Boolean) {
     private val TAG: String = this::javaClass.name
@@ -44,7 +43,8 @@ class UsbDeviceManager(val context: Context, val usbEnabled: Boolean) {
         return res
     }
 
-    @Synchronized fun removeRequested(device: UsbDevice) {
+    @Synchronized
+    fun removeRequested(device: UsbDevice) {
         val temp = requested.clone() as HashMap<UsbDevice, Pair<Boolean, Int>>
         temp.remove(device)
         requested = temp
@@ -75,8 +75,10 @@ class UsbDeviceManager(val context: Context, val usbEnabled: Boolean) {
             } else {
                 0
             };
-            val mPermissionIntent = PendingIntent.getBroadcast(context, 0,
-                    Intent(RemoteClientLibConstants.ACTION_USB_PERMISSION), flags)
+            val mPermissionIntent = PendingIntent.getBroadcast(
+                context, 0,
+                Intent(RemoteClientLibConstants.ACTION_USB_PERMISSION), flags
+            )
             Log.d(TAG, "Requesting permission to usbDevice: $d")
             mUsbManager.requestPermission(d, mPermissionIntent)
         } else {

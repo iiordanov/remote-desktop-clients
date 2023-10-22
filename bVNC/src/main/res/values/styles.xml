@@ -18,7 +18,7 @@
         <item name="toolbarStyle">@style/ToolbarStyle</item>
         <item name="preferenceTheme">@style/PreferenceThemeOverlay</item>
     </style>
-    
+
     <style name="ToolbarStyle" parent="@style/Widget.AppCompat.Toolbar">
         <item name="contentInsetStart">0dp</item>
         <item name="android:background">@android:color/transparent</item>

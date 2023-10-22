@@ -22,6 +22,13 @@ import java.io.IOException;
 
 public class AESOutStream extends OutStream {
 
+    private final AESEAXCipher cipher;
+    private final int start;
+    private final int bufSize;
+    private final byte[] buffer;
+    private final byte[] counter;
+    private final OutStream out;
+    private int offset;
     public AESOutStream(OutStream _out, byte[] key) throws Exception {
         out = _out;
         bufSize = maxMessageSize;
@@ -83,12 +90,4 @@ public class AESOutStream extends OutStream {
         }
         return length;
     }
-
-    private final AESEAXCipher cipher;
-    private final int start;
-    private int offset;
-    private final int bufSize;
-    private final byte[] buffer;
-    private final byte[] counter;
-    private final OutStream out;
 }

@@ -74,7 +74,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:padding="10dip"
-				android:visibility="gone">
+                android:visibility="gone">
 
                 <TextView
                     android:layout_width="0dp"
@@ -121,19 +121,19 @@
                 android:orientation="horizontal"
                 android:padding="10dip">
 
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="4"
-                android:text="@string/rdp_geom_custom"
-                android:textAppearance="?android:attr/textAppearanceMedium" />
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="4"
+                    android:text="@string/rdp_geom_custom"
+                    android:textAppearance="?android:attr/textAppearanceMedium" />
 
-            <ToggleButton
-                android:id="@+id/toggleCustomDisplayResolution"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:onClick="toggleCustomDisplayResolution" />
+                <ToggleButton
+                    android:id="@+id/toggleCustomDisplayResolution"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:onClick="toggleCustomDisplayResolution" />
 
             </LinearLayout>
 
@@ -238,9 +238,9 @@
 
                 <TextView
                     android:id="@+id/textAppliesForNewConnections"
-                    android:text="@string/applies_to_new_connections_only"
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
+                    android:text="@string/applies_to_new_connections_only"
                     android:textAppearance="?android:attr/textAppearanceMedium" />
 
             </LinearLayout>

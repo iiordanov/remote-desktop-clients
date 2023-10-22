@@ -24,7 +24,7 @@ import java.util.Collections;
 import java.util.HashMap;
 
 public class RdpCommunicator extends RfbConnectable implements RdpKeyboardMapper.KeyProcessingListener,
-                                        LibFreeRDP.UIEventListener, LibFreeRDP.EventListener {
+        LibFreeRDP.UIEventListener, LibFreeRDP.EventListener {
     static final String TAG = "RdpCommunicator";
 
     private final static int VK_CONTROL = 0x11;
@@ -37,19 +37,14 @@ public class RdpCommunicator extends RfbConnectable implements RdpKeyboardMapper
     private final static int VK_LWIN = 0x5B;
     private final static int VK_RWIN = 0x5C;
     private final static int VK_EXT_KEY = 0x00000100;
-
+    private final RdpCommunicator myself;
+    private final Viewable viewable;
     private SessionState session;
     private BookmarkBase bookmark;
     // Keeps track of libFreeRDP instance
     private GlobalApp freeRdpApp;
-
-
     private Context context;
     private boolean isInNormalProtocol = false;
-
-    private final RdpCommunicator myself;
-    private final Viewable viewable;
-
     // This variable indicates whether or not the user has accepted an untrusted
     // security certificate. Used to control progress while the dialog asking the user
     // to confirm the authenticity of a certificate is displayed.
@@ -100,11 +95,11 @@ public class RdpCommunicator extends RfbConnectable implements RdpKeyboardMapper
     }
 
     @Override
-    public void setIsInNormalProtocol (boolean state) {
+    public void setIsInNormalProtocol(boolean state) {
         android.util.Log.d(TAG, "setIsInNormalProtocol: " + state);
         isInNormalProtocol = state;
     }
-    
+
     @Override
     public int framebufferWidth() {
         return session.getBookmark().getActiveScreenSettings().getWidth();
@@ -117,7 +112,7 @@ public class RdpCommunicator extends RfbConnectable implements RdpKeyboardMapper
 
     @Override
     public String desktopName() {
-        return ((ManualBookmark)session.getBookmark()).getHostname();
+        return ((ManualBookmark) session.getBookmark()).getHostname();
     }
 
     @Override
@@ -146,7 +141,10 @@ public class RdpCommunicator extends RfbConnectable implements RdpKeyboardMapper
         if ((pointerMask & RemotePointer.POINTER_DOWN_MASK) != 0) {
             sendModifierKeys(true);
         }
-        try { Thread.sleep(5); } catch (InterruptedException e) {}
+        try {
+            Thread.sleep(5);
+        } catch (InterruptedException e) {
+        }
         LibFreeRDP.sendCursorEvent(session.getInstance(), x, y, pointerMask);
         if ((pointerMask & RemotePointer.POINTER_DOWN_MASK) == 0) {
             sendModifierKeys(false);
@@ -165,30 +163,18 @@ public class RdpCommunicator extends RfbConnectable implements RdpKeyboardMapper
 
     @Override
     public void writeSetPixelFormat(int bitsPerPixel, int depth,
-            boolean bigEndian, boolean trueColour, int redMax, int greenMax,
-            int blueMax, int redShift, int greenShift, int blueShift,
-            boolean fGreyScale) {
+                                    boolean bigEndian, boolean trueColour, int redMax, int greenMax,
+                                    int blueMax, int redShift, int greenShift, int blueShift,
+                                    boolean fGreyScale) {
         // NOT USED for RDP.
     }
 
     @Override
     public void writeFramebufferUpdateRequest(int x, int y, int w, int h,
-            boolean b) {
+                                              boolean b) {
         // NOT USED for RDP.
     }
 
-    public class DisconnectThread extends Thread {
-        long instance;
-
-        public DisconnectThread (long i) {
-            this.instance = i;
-        }
-        public void run () {
-            LibFreeRDP.disconnect(instance);
-            //LibFreeRDP.freeInstance(instance);
-        }
-    }
-    
     @Override
     public void close() {
         setIsInNormalProtocol(false);
@@ -208,19 +194,22 @@ public class RdpCommunicator extends RfbConnectable implements RdpKeyboardMapper
         this.certificateAccepted = certificateAccepted;
     }
 
-    private void sendModifierKeys (boolean down) {
-        for (int modifierMask: modifierMap.keySet()) {
+    private void sendModifierKeys(boolean down) {
+        for (int modifierMask : modifierMap.keySet()) {
             if (remoteKeyboardState.shouldSendModifier(metaState, modifierMask, down)) {
                 int modifier = modifierMap.get(modifierMask);
                 GeneralUtils.debugLog(this.debugLogging, TAG, "sendModifierKeys, modifierMask:" +
-                                        modifierMask + ", sending: " + modifier + ", down: " + down);
-                try { Thread.sleep(5); } catch (InterruptedException e) {}
+                        modifierMask + ", sending: " + modifier + ", down: " + down);
+                try {
+                    Thread.sleep(5);
+                } catch (InterruptedException e) {
+                }
                 LibFreeRDP.sendKeyEvent(session.getInstance(), modifier, down);
                 remoteKeyboardState.updateRemoteMetaState(modifierMask, down);
             }
         }
     }
-    
+
     // ****************************************************************************
     // KeyboardMapper.KeyProcessingListener implementation
     @Override
@@ -231,7 +220,10 @@ public class RdpCommunicator extends RfbConnectable implements RdpKeyboardMapper
         if (down) {
             sendModifierKeys(true);
         }
-        try { Thread.sleep(5); } catch (InterruptedException e) {}
+        try {
+            Thread.sleep(5);
+        } catch (InterruptedException e) {
+        }
 
         GeneralUtils.debugLog(this.debugLogging, TAG, "processVirtualKey: " +
                 "Sending VK key: " + virtualKeyCode + ". Is it down: " + down);
@@ -251,7 +243,10 @@ public class RdpCommunicator extends RfbConnectable implements RdpKeyboardMapper
         if (down && !suppressMetaState) {
             sendModifierKeys(true);
         }
-        try { Thread.sleep(5); } catch (InterruptedException e) {}
+        try {
+            Thread.sleep(5);
+        } catch (InterruptedException e) {
+        }
         GeneralUtils.debugLog(this.debugLogging, TAG, "processUnicodeKey: " +
                 "Sending unicode key: " + unicodeKey + ", down: " + down + ", metaState: " + metaState);
         LibFreeRDP.sendUnicodeKeyEvent(session.getInstance(), unicodeKey, down);
@@ -333,6 +328,7 @@ public class RdpCommunicator extends RfbConnectable implements RdpKeyboardMapper
 
     /**
      * Adds brackets around a valid IPv6 address that does not already start with [.
+     *
      * @param address
      * @return
      */
@@ -348,15 +344,15 @@ public class RdpCommunicator extends RfbConnectable implements RdpKeyboardMapper
         session.connect(context);
     }
 
-    //////////////////////////////////////////////////////////////////////////////////
-    //  Implementation of LibFreeRDP.EventListener.  Through the functions implemented
-    //  below, FreeRDP communicates connection state information.
-    //////////////////////////////////////////////////////////////////////////////////
-
     @Override
     public void OnPreConnect(long instance) {
         Log.v(TAG, "OnPreConnect");
     }
+
+    //////////////////////////////////////////////////////////////////////////////////
+    //  Implementation of LibFreeRDP.EventListener.  Through the functions implemented
+    //  below, FreeRDP communicates connection state information.
+    //////////////////////////////////////////////////////////////////////////////////
 
     @Override
     public void OnConnectionSuccess(long instance) {
@@ -375,9 +371,9 @@ public class RdpCommunicator extends RfbConnectable implements RdpKeyboardMapper
     @Override
     public void OnDisconnecting(long instance) {
         Log.v(TAG, "OnDisconnecting, reattemptWithoutCredentials: " + reattemptWithoutCredentials +
-                         ", authenticationAttempted: " + authenticationAttempted +
-                         ", disconnectRequested: " + disconnectRequested +
-                         ", isInNormalProtocol: " + myself.isInNormalProtocol());
+                ", authenticationAttempted: " + authenticationAttempted +
+                ", disconnectRequested: " + disconnectRequested +
+                ", isInNormalProtocol: " + myself.isInNormalProtocol());
         if (reattemptWithoutCredentials && !myself.isInNormalProtocol()) {
             reattemptWithoutCredentials = false;
             // It could be bad credentials that caused the disconnection, so trying to connect
@@ -409,16 +405,16 @@ public class RdpCommunicator extends RfbConnectable implements RdpKeyboardMapper
         }
     }
 
-    //////////////////////////////////////////////////////////////////////////////////
-    //  Implementation of LibFreeRDP.UIEventListener. Through the functions implemented
-    //  below libspice and FreeRDP communicate remote desktop size and updates.
-    //////////////////////////////////////////////////////////////////////////////////
-
     @Override
     public void OnSettingsChanged(int width, int height, int bpp) {
         android.util.Log.d(TAG, "OnSettingsChanged called, wxh: " + width + "x" + height);
         viewable.reallocateDrawable(width, height);
     }
+
+    //////////////////////////////////////////////////////////////////////////////////
+    //  Implementation of LibFreeRDP.UIEventListener. Through the functions implemented
+    //  below libspice and FreeRDP communicate remote desktop size and updates.
+    //////////////////////////////////////////////////////////////////////////////////
 
     @Override
     public boolean OnAuthenticate(StringBuilder username, StringBuilder domain, StringBuilder password) {
@@ -504,5 +500,18 @@ public class RdpCommunicator extends RfbConnectable implements RdpKeyboardMapper
     public void OnRemoteClipboardChanged(String data) {
         android.util.Log.d(TAG, "OnRemoteClipboardChanged called.");
         remoteClipboardChanged(data);
+    }
+
+    public class DisconnectThread extends Thread {
+        long instance;
+
+        public DisconnectThread(long i) {
+            this.instance = i;
+        }
+
+        public void run() {
+            LibFreeRDP.disconnect(instance);
+            //LibFreeRDP.freeInstance(instance);
+        }
     }
 }

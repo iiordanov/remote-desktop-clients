@@ -1,16 +1,16 @@
-/** 
+/**
  * Copyright (C) 2012 Iordan Iordanov
- * 
+ * <p>
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
- * 
+ * <p>
  * This software is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ * <p>
  * You should have received a copy of the GNU General Public License
  * along with this software; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307,
@@ -86,7 +86,7 @@ public class aRDP extends MainConfiguration {
         layoutID = R.layout.main_rdp;
 
         super.onCreate(icicle);
-        
+
         sshServer = (EditText) findViewById(R.id.sshServer);
         sshPort = (EditText) findViewById(R.id.sshPort);
         sshUser = (EditText) findViewById(R.id.sshUser);
@@ -98,14 +98,14 @@ public class aRDP extends MainConfiguration {
         // Here we say what happens when the Pubkey Checkbox is checked/unchecked.
         checkboxUseSshPubkey = (CheckBox) findViewById(R.id.checkboxUseSshPubkey);
 
-        checkboxKeepPassword = (CheckBox)findViewById(R.id.checkboxKeepPassword);
-        checkboxUseDpadAsArrows = (CheckBox)findViewById(R.id.checkboxUseDpadAsArrows);
-        checkboxRotateDpad = (CheckBox)findViewById(R.id.checkboxRotateDpad);
+        checkboxKeepPassword = (CheckBox) findViewById(R.id.checkboxKeepPassword);
+        checkboxUseDpadAsArrows = (CheckBox) findViewById(R.id.checkboxUseDpadAsArrows);
+        checkboxRotateDpad = (CheckBox) findViewById(R.id.checkboxRotateDpad);
         checkboxUseLastPositionToolbar = (CheckBox) findViewById(R.id.checkboxUseLastPositionToolbar);
         // The advanced settings button.
         toggleAdvancedSettings = (ToggleButton) findViewById(R.id.toggleAdvancedSettings);
         layoutAdvancedSettings = (LinearLayout) findViewById(R.id.layoutAdvancedSettings);
-        toggleAdvancedSettings.setOnCheckedChangeListener(new OnCheckedChangeListener () {
+        toggleAdvancedSettings.setOnCheckedChangeListener(new OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton arg0, boolean checked) {
                 if (checked)
@@ -117,11 +117,12 @@ public class aRDP extends MainConfiguration {
 
         rdpColorArray = Utilities.Companion.toList(getResources().getStringArray(R.array.rdp_colors));
         spinnerRdpColor = (Spinner) findViewById(R.id.spinnerRdpColor);
-        spinnerRdpColor.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener () {
+        spinnerRdpColor.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> arg0, View view, int itemIndex, long id) {
                 selected.setRdpColor(Integer.parseInt(rdpColorArray.get(itemIndex)));
             }
+
             @Override
             public void onNothingSelected(AdapterView<?> arg0) {
             }
@@ -130,39 +131,40 @@ public class aRDP extends MainConfiguration {
         // The geometry type and dimensions boxes.
         spinnerRdpGeometry = (Spinner) findViewById(R.id.spinnerRdpGeometry);
         rdpWidth = (EditText) findViewById(R.id.rdpWidth);
-        rdpHeight = (EditText) findViewById(R.id.rdpHeight);        
-        spinnerRdpGeometry.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener () {
+        rdpHeight = (EditText) findViewById(R.id.rdpHeight);
+        spinnerRdpGeometry.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> arg0, View view, int itemIndex, long id) {
                 selected.setRdpResType(itemIndex);
-                setRemoteWidthAndHeight ();
+                setRemoteWidthAndHeight();
             }
+
             @Override
             public void onNothingSelected(AdapterView<?> arg0) {
             }
         });
 
-        groupRemoteSoundType = (RadioGroup)findViewById(R.id.groupRemoteSoundType); 
-        checkboxEnableRecording = (CheckBox)findViewById(R.id.checkboxEnableRecording);
-        checkboxConsoleMode = (CheckBox)findViewById(R.id.checkboxConsoleMode);
-        checkboxRedirectSdCard = (CheckBox)findViewById(R.id.checkboxRedirectSdCard);
-        checkboxRemoteFx = (CheckBox)findViewById(R.id.checkboxRemoteFx);
-        checkboxDesktopBackground = (CheckBox)findViewById(R.id.checkboxDesktopBackground);
-        checkboxFontSmoothing = (CheckBox)findViewById(R.id.checkboxFontSmoothing);
-        checkboxDesktopComposition = (CheckBox)findViewById(R.id.checkboxDesktopComposition);
-        checkboxWindowContents = (CheckBox)findViewById(R.id.checkboxWindowContents);
-        checkboxMenuAnimation = (CheckBox)findViewById(R.id.checkboxMenuAnimation);
-        checkboxVisualStyles = (CheckBox)findViewById(R.id.checkboxVisualStyles);
-        checkboxEnableGfx = (CheckBox)findViewById(R.id.checkboxEnableGfx);
-        checkboxEnableGfxH264 = (CheckBox)findViewById(R.id.checkboxEnableGfxH264);
-        checkboxPreferSendingUnicode = (CheckBox)findViewById(R.id.checkboxPreferSendingUnicode);
+        groupRemoteSoundType = (RadioGroup) findViewById(R.id.groupRemoteSoundType);
+        checkboxEnableRecording = (CheckBox) findViewById(R.id.checkboxEnableRecording);
+        checkboxConsoleMode = (CheckBox) findViewById(R.id.checkboxConsoleMode);
+        checkboxRedirectSdCard = (CheckBox) findViewById(R.id.checkboxRedirectSdCard);
+        checkboxRemoteFx = (CheckBox) findViewById(R.id.checkboxRemoteFx);
+        checkboxDesktopBackground = (CheckBox) findViewById(R.id.checkboxDesktopBackground);
+        checkboxFontSmoothing = (CheckBox) findViewById(R.id.checkboxFontSmoothing);
+        checkboxDesktopComposition = (CheckBox) findViewById(R.id.checkboxDesktopComposition);
+        checkboxWindowContents = (CheckBox) findViewById(R.id.checkboxWindowContents);
+        checkboxMenuAnimation = (CheckBox) findViewById(R.id.checkboxMenuAnimation);
+        checkboxVisualStyles = (CheckBox) findViewById(R.id.checkboxVisualStyles);
+        checkboxEnableGfx = (CheckBox) findViewById(R.id.checkboxEnableGfx);
+        checkboxEnableGfxH264 = (CheckBox) findViewById(R.id.checkboxEnableGfxH264);
+        checkboxPreferSendingUnicode = (CheckBox) findViewById(R.id.checkboxPreferSendingUnicode);
         setConnectionTypeSpinnerAdapter(R.array.rdp_connection_type);
     }
 
     /**
      * Enables and disables the EditText boxes for width and height of remote desktop.
      */
-    private void setRemoteWidthAndHeight () {
+    private void setRemoteWidthAndHeight() {
         if (selected.getRdpResType() != Constants.RDP_GEOM_SELECT_CUSTOM) {
             rdpWidth.setEnabled(false);
             rdpHeight.setEnabled(false);
@@ -180,12 +182,12 @@ public class aRDP extends MainConfiguration {
         sshServer.setText(selected.getSshServer());
         sshPort.setText(Integer.toString(selected.getSshPort()));
         sshUser.setText(selected.getSshUser());
-        
+
         checkboxUseSshPubkey.setChecked(selected.getUseSshPubKey());
 
         portText.setText(Integer.toString(selected.getPort()));
-        
-        if (selected.getKeepPassword() || selected.getPassword().length()>0) {
+
+        if (selected.getKeepPassword() || selected.getPassword().length() > 0) {
             passwordText.setText(selected.getPassword());
         }
 
@@ -200,7 +202,7 @@ public class aRDP extends MainConfiguration {
         spinnerRdpGeometry.setSelection(selected.getRdpResType());
         rdpWidth.setText(Integer.toString(selected.getRdpWidth()));
         rdpHeight.setText(Integer.toString(selected.getRdpHeight()));
-        setRemoteWidthAndHeight ();
+        setRemoteWidthAndHeight();
         setRemoteSoundTypeFromSettings(selected.getRemoteSoundType());
         checkboxEnableRecording.setChecked(selected.getEnableRecording());
         checkboxConsoleMode.setChecked(selected.getConsoleMode());
@@ -239,11 +241,12 @@ public class aRDP extends MainConfiguration {
         if (selected == null) {
             return;
         }
-        try    {
+        try {
             selected.setPort(Integer.parseInt(portText.getText().toString()));
             selected.setSshPort(Integer.parseInt(sshPort.getText().toString()));
-        } catch (NumberFormatException nfe) {}
-        
+        } catch (NumberFormatException nfe) {
+        }
+
         selected.setNickname(textNickname.getText().toString());
         selected.setSshServer(sshServer.getText().toString());
         selected.setSshUser(sshUser.getText().toString());
@@ -254,10 +257,11 @@ public class aRDP extends MainConfiguration {
         selected.setUserName(textUsername.getText().toString());
         selected.setRdpDomain(rdpDomain.getText().toString());
         selected.setRdpResType(spinnerRdpGeometry.getSelectedItemPosition());
-        try    {
+        try {
             selected.setRdpWidth(Integer.parseInt(rdpWidth.getText().toString()));
             selected.setRdpHeight(Integer.parseInt(rdpHeight.getText().toString()));
-        } catch (NumberFormatException nfe) {}
+        } catch (NumberFormatException nfe) {
+        }
         setRemoteSoundTypeFromView(groupRemoteSoundType);
         selected.setEnableRecording(checkboxEnableRecording.isChecked());
         selected.setConsoleMode(checkboxConsoleMode.isChecked());
@@ -286,7 +290,7 @@ public class aRDP extends MainConfiguration {
      * Automatically linked with android:onClick in the layout.
      * @param view
      */
-    public void toggleEnableRecording (View view) {
+    public void toggleEnableRecording(View view) {
         CheckBox b = (CheckBox) view;
         if (Utils.isFree(this)) {
             IntroTextDialog.showIntroTextIfNecessary(this, database, true);
@@ -296,28 +300,28 @@ public class aRDP extends MainConfiguration {
         }
         selected.setEnableRecording(b.isChecked());
     }
-    
+
     /**
      * Automatically linked with android:onClick in the layout.
      * @param view
      */
-    public void remoteSoundTypeToggled (View view) {
+    public void remoteSoundTypeToggled(View view) {
         if (Utils.isFree(this)) {
             IntroTextDialog.showIntroTextIfNecessary(this, database, true);
         }
     }
-    
+
     /**
      * Sets the remote sound type in the settings from the specified parameter.
      * @param view
      */
-    public void setRemoteSoundTypeFromView (View view) {
+    public void setRemoteSoundTypeFromView(View view) {
         RadioGroup g = (RadioGroup) view;
         if (Utils.isFree(this)) {
             IntroTextDialog.showIntroTextIfNecessary(this, database, true);
             g.check(R.id.radioRemoteSoundDisabled);
         }
-        
+
         int id = g.getCheckedRadioButtonId();
         int soundType = Constants.REMOTE_SOUND_DISABLED;
         if (id == R.id.radioRemoteSoundOnServer) {
@@ -328,22 +332,22 @@ public class aRDP extends MainConfiguration {
         selected.setRemoteSoundType(soundType);
     }
 
-    public void setRemoteSoundTypeFromSettings (int type) {
+    public void setRemoteSoundTypeFromSettings(int type) {
         if (Utils.isFree(this)) {
             type = Constants.REMOTE_SOUND_DISABLED;
         }
-        
+
         int id = 0;
         switch (type) {
-        case Constants.REMOTE_SOUND_DISABLED:
-            id = R.id.radioRemoteSoundDisabled;
-            break;
-        case Constants.REMOTE_SOUND_ON_DEVICE:
-            id = R.id.radioRemoteSoundOnDevice;
-            break;
-        case Constants.REMOTE_SOUND_ON_SERVER:
-            id = R.id.radioRemoteSoundOnServer;
-            break;
+            case Constants.REMOTE_SOUND_DISABLED:
+                id = R.id.radioRemoteSoundDisabled;
+                break;
+            case Constants.REMOTE_SOUND_ON_DEVICE:
+                id = R.id.radioRemoteSoundOnDevice;
+                break;
+            case Constants.REMOTE_SOUND_ON_SERVER:
+                id = R.id.radioRemoteSoundOnServer;
+                break;
         }
         groupRemoteSoundType.check(id);
     }

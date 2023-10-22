@@ -22,54 +22,53 @@ import android.text.AndroidCharacter;
 
 /**
  * @author Kenny Root
- *
  */
 public abstract class EastAsianWidth {
-	public static EastAsianWidth getInstance() {
-		if (PreferenceConstants.PRE_FROYO)
-			return PreFroyo.Holder.sInstance;
-		else
-			return FroyoAndBeyond.Holder.sInstance;
-	}
+    public static EastAsianWidth getInstance() {
+        if (PreferenceConstants.PRE_FROYO)
+            return PreFroyo.Holder.sInstance;
+        else
+            return FroyoAndBeyond.Holder.sInstance;
+    }
 
-	/**
-	 * @param charArray
-	 * @param i
-	 * @param position
-	 * @param wideAttribute
-	 */
-	public abstract void measure(char[] charArray, int start, int end,
-			byte[] wideAttribute, Paint paint, int charWidth);
+    /**
+     * @param charArray
+     * @param i
+     * @param position
+     * @param wideAttribute
+     */
+    public abstract void measure(char[] charArray, int start, int end,
+                                 byte[] wideAttribute, Paint paint, int charWidth);
 
-	private static class PreFroyo extends EastAsianWidth {
-		private static final int BUFFER_SIZE = 4096;
-		private float[] mWidths = new float[BUFFER_SIZE];
+    private static class PreFroyo extends EastAsianWidth {
+        private static final int BUFFER_SIZE = 4096;
+        private float[] mWidths = new float[BUFFER_SIZE];
 
-		private static class Holder {
-			private static final PreFroyo sInstance = new PreFroyo();
-		}
+        @Override
+        public void measure(char[] charArray, int start, int end,
+                            byte[] wideAttribute, Paint paint, int charWidth) {
+            paint.getTextWidths(charArray, start, end, mWidths);
+            final int N = end - start;
+            for (int i = 0; i < N; i++)
+                wideAttribute[i] = (byte) (((int) mWidths[i] != charWidth) ?
+                        AndroidCharacter.EAST_ASIAN_WIDTH_WIDE :
+                        AndroidCharacter.EAST_ASIAN_WIDTH_NARROW);
+        }
 
-		@Override
-		public void measure(char[] charArray, int start, int end,
-				byte[] wideAttribute, Paint paint, int charWidth) {
-			paint.getTextWidths(charArray, start, end, mWidths);
-			final int N = end - start;
-			for (int i = 0; i < N; i++)
-				wideAttribute[i] = (byte) (((int)mWidths[i] != charWidth) ?
-						AndroidCharacter.EAST_ASIAN_WIDTH_WIDE :
-						AndroidCharacter.EAST_ASIAN_WIDTH_NARROW);
-		}
-	}
+        private static class Holder {
+            private static final PreFroyo sInstance = new PreFroyo();
+        }
+    }
 
-	private static class FroyoAndBeyond extends EastAsianWidth {
-		private static class Holder {
-			private static final FroyoAndBeyond sInstance = new FroyoAndBeyond();
-		}
+    private static class FroyoAndBeyond extends EastAsianWidth {
+        @Override
+        public void measure(char[] charArray, int start, int end,
+                            byte[] wideAttribute, Paint paint, int charWidth) {
+            AndroidCharacter.getEastAsianWidths(charArray, start, end - start, wideAttribute);
+        }
 
-		@Override
-		public void measure(char[] charArray, int start, int end,
-				byte[] wideAttribute, Paint paint, int charWidth) {
-			AndroidCharacter.getEastAsianWidths(charArray, start, end - start, wideAttribute);
-		}
-	}
+        private static class Holder {
+            private static final FroyoAndBeyond sInstance = new FroyoAndBeyond();
+        }
+    }
 }

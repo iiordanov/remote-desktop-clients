@@ -1,16 +1,16 @@
 /**
  * Copyright (C) 2013- Iordan Iordanov
- *
+ * <p>
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * This software is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License
  * along with this software; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307,
@@ -19,19 +19,9 @@
 
 package com.undatech.opaque;
 
-import java.io.IOException;
-import java.util.List;
-
-import com.iiordanov.bVNC.Constants;
-import com.iiordanov.util.PermissionGroups;
-import com.iiordanov.util.PermissionsManager;
-import com.undatech.opaque.dialogs.ManageCustomCaFragment;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import androidx.fragment.app.FragmentActivity;
-import androidx.fragment.app.FragmentManager;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
@@ -45,13 +35,23 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
+import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentManager;
+
+import com.iiordanov.bVNC.Constants;
+import com.iiordanov.util.PermissionGroups;
+import com.iiordanov.util.PermissionsManager;
+import com.undatech.opaque.dialogs.ManageCustomCaFragment;
 import com.undatech.opaque.util.FileUtils;
 import com.undatech.remoteClientUi.R;
+
+import java.io.IOException;
+import java.util.List;
 
 
 public class AdvancedSettingsActivity extends FragmentActivity implements ManageCustomCaFragment.OnFragmentDismissedListener {
     private static String TAG = "AdvancedSettingsActivity";
-    
+
     private ConnectionSettings currentConnection;
     private ToggleButton toggleAudioPlayback;
     private ToggleButton toggleAutoRotation;
@@ -78,38 +78,38 @@ public class AdvancedSettingsActivity extends FragmentActivity implements Manage
         setContentView(R.layout.advanced_settings_activity);
 
         Intent i = getIntent();
-        currentConnection = (ConnectionSettings)i.getSerializableExtra("com.undatech.opaque.ConnectionSettings");
-        
-        toggleAudioPlayback = (ToggleButton)findViewById(R.id.toggleAudioPlayback);
+        currentConnection = (ConnectionSettings) i.getSerializableExtra("com.undatech.opaque.ConnectionSettings");
+
+        toggleAudioPlayback = (ToggleButton) findViewById(R.id.toggleAudioPlayback);
         toggleAudioPlayback.setChecked(currentConnection.isAudioPlaybackEnabled());
-        
-        toggleUsbEnabled = (ToggleButton)findViewById(R.id.toggleUsbEnabled);
+
+        toggleUsbEnabled = (ToggleButton) findViewById(R.id.toggleUsbEnabled);
         toggleUsbEnabled.setChecked(currentConnection.isUsbEnabled());
-        
-        toggleAutoRotation = (ToggleButton)findViewById(R.id.toggleAutoRotation);
+
+        toggleAutoRotation = (ToggleButton) findViewById(R.id.toggleAutoRotation);
         toggleAutoRotation.setChecked(currentConnection.isRotationEnabled());
 
-        toggleAutoRequestDisplayResolution = (ToggleButton)findViewById(R.id.toggleAutoRequestDisplayResolution);
+        toggleAutoRequestDisplayResolution = (ToggleButton) findViewById(R.id.toggleAutoRequestDisplayResolution);
         toggleAutoRequestDisplayResolution.setChecked(currentConnection.isRequestingNewDisplayResolution());
 
-        toggleCustomDisplayResolution = (ToggleButton)findViewById(R.id.toggleCustomDisplayResolution);
+        toggleCustomDisplayResolution = (ToggleButton) findViewById(R.id.toggleCustomDisplayResolution);
         toggleCustomDisplayResolution.setChecked(currentConnection.getRdpResType() == Constants.RDP_GEOM_SELECT_CUSTOM);
 
-        toggleSslStrict = (ToggleButton)findViewById(R.id.toggleSslStrict);
+        toggleSslStrict = (ToggleButton) findViewById(R.id.toggleSslStrict);
         toggleSslStrict.setChecked(currentConnection.isSslStrict());
 
-        layoutManageOvirtCa = (LinearLayout)findViewById(R.id.layoutManageOvirtCa);
-        layoutToggleUsingCustomOvirtCa = (LinearLayout)findViewById(R.id.layoutToggleUsingCustomOvirtCa);
-        toggleUsingCustomOvirtCa = (ToggleButton)findViewById(R.id.toggleUsingCustomOvirtCa);
+        layoutManageOvirtCa = (LinearLayout) findViewById(R.id.layoutManageOvirtCa);
+        layoutToggleUsingCustomOvirtCa = (LinearLayout) findViewById(R.id.layoutToggleUsingCustomOvirtCa);
+        toggleUsingCustomOvirtCa = (ToggleButton) findViewById(R.id.toggleUsingCustomOvirtCa);
         toggleUsingCustomOvirtCa.setChecked(currentConnection.isUsingCustomOvirtCa());
 
-        layoutUseLastPositionToolbar = (LinearLayout)findViewById(R.id.layoutUseLastPositionToolbar);
+        layoutUseLastPositionToolbar = (LinearLayout) findViewById(R.id.layoutUseLastPositionToolbar);
         textUseLastPositionToolbar = (TextView) findViewById(R.id.textUseLastPositionToolbar);
         textUseLastPositionToolbar.setText(getString(R.string.position_toolbar_last_used));
-        toggleUseLastPositionToolbar = (ToggleButton)findViewById(R.id.toggleUseLastPositionToolbar);
+        toggleUseLastPositionToolbar = (ToggleButton) findViewById(R.id.toggleUseLastPositionToolbar);
         toggleUseLastPositionToolbar.setChecked(currentConnection.getUseLastPositionToolbar());
 
-        buttonManageOvirtCa = (Button)findViewById(R.id.buttonManageOvirtCa);
+        buttonManageOvirtCa = (Button) findViewById(R.id.buttonManageOvirtCa);
         buttonManageOvirtCa.setEnabled(currentConnection.isUsingCustomOvirtCa());
 
         if (currentConnection.getConnectionTypeString()
@@ -119,11 +119,11 @@ public class AdvancedSettingsActivity extends FragmentActivity implements Manage
         }
 
         layoutMapSpinner = (Spinner) findViewById(R.id.layoutMaps);
-        
+
         layoutMapSpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view,
-                    int position, long id) {
+                                       int position, long id) {
                 layoutMapSpinner.setSelection(position);
                 TextView selection = null;
                 if (layoutMapSpinner != null) {
@@ -133,12 +133,13 @@ public class AdvancedSettingsActivity extends FragmentActivity implements Manage
                     currentConnection.setLayoutMap(selection.getText().toString());
                 }
             }
-            
+
             @Override
-            public void onNothingSelected(AdapterView<?> parent) { }
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
         });
 
-        layoutToggleCustomRemoteResolution = (LinearLayout)findViewById(R.id.layoutToggleCustomRemoteResolution);
+        layoutToggleCustomRemoteResolution = (LinearLayout) findViewById(R.id.layoutToggleCustomRemoteResolution);
         layoutCustomRemoteResolution = findViewById(R.id.layoutCustomRemoteResolution);
 
         if (toggleCustomDisplayResolution.isChecked()) {
@@ -157,9 +158,13 @@ public class AdvancedSettingsActivity extends FragmentActivity implements Manage
         rdpWidth = findViewById(R.id.rdpWidth);
         rdpWidth.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
             @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {}
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
+
             @Override
             public void afterTextChanged(Editable s) {
                 int res = 0;
@@ -177,9 +182,13 @@ public class AdvancedSettingsActivity extends FragmentActivity implements Manage
         rdpHeight = findViewById(R.id.rdpHeight);
         rdpHeight.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
             @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {}
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
+
             @Override
             public void afterTextChanged(Editable s) {
                 int res = 0;
@@ -200,42 +209,42 @@ public class AdvancedSettingsActivity extends FragmentActivity implements Manage
         databackIntent.putExtra("com.undatech.opaque.ConnectionSettings", currentConnection);
         setResult(Activity.RESULT_OK, databackIntent);
     }
-    
+
     /**
      * Automatically linked with android:onClick to the toggleAudio button.
      * @param view
      */
-    public void toggleAudioPlaybackSetting (View view) {
+    public void toggleAudioPlaybackSetting(View view) {
         ToggleButton s = (ToggleButton) view;
         if (s.isChecked()) {
             PermissionsManager.requestPermissions(this, PermissionGroups.RECORD_AUDIO, true);
         }
         currentConnection.setAudioPlaybackEnabled(s.isChecked());
     }
-    
+
     /**
      * Automatically linked with android:onClick to the toggleUsbEnabled button.
      * @param view
      */
-    public void toggleUsbEnabledSetting (View view) {
+    public void toggleUsbEnabledSetting(View view) {
         ToggleButton s = (ToggleButton) view;
         currentConnection.setUsbEnabled(s.isChecked());
     }
-    
+
     /**
      * Automatically linked with android:onClick to the toggleAutoRotation button.
      * @param view
      */
-    public void toggleAutoRotation (View view) {
+    public void toggleAutoRotation(View view) {
         ToggleButton s = (ToggleButton) view;
-        currentConnection.setRotationEnabled(s.isChecked());    
+        currentConnection.setRotationEnabled(s.isChecked());
     }
-    
+
     /**
      * Automatically linked with android:onClick to the toggleRotation button.
      * @param view
      */
-    public void toggleAutoRequestDisplayResolution (View view) {
+    public void toggleAutoRequestDisplayResolution(View view) {
         ToggleButton s = (ToggleButton) view;
         boolean autoDisplayResolution = s.isChecked();
         currentConnection.setRequestingNewDisplayResolution(autoDisplayResolution);
@@ -252,7 +261,7 @@ public class AdvancedSettingsActivity extends FragmentActivity implements Manage
      * Automatically linked with android:onClick to the toggleRotation button.
      * @param view
      */
-    public void toggleCustomDisplayResolution (View view) {
+    public void toggleCustomDisplayResolution(View view) {
         ToggleButton s = (ToggleButton) view;
         boolean customDisplayResolution = s.isChecked();
         int resType = 0;
@@ -271,16 +280,16 @@ public class AdvancedSettingsActivity extends FragmentActivity implements Manage
      * Automatically linked with android:onClick to the toggleSslStrict button.
      * @param view
      */
-    public void toggleSslStrict (View view) {
+    public void toggleSslStrict(View view) {
         ToggleButton s = (ToggleButton) view;
         currentConnection.setSslStrict(s.isChecked());
     }
-    
+
     /**
      * Automatically linked with android:onClick to the toggleUsingCustomOvirtCa button.
      * @param view
      */
-    public void toggleUsingCustomOvirtCa (View view) {
+    public void toggleUsingCustomOvirtCa(View view) {
         ToggleButton s = (ToggleButton) view;
         boolean usingCustomOvirtCa = s.isChecked();
         currentConnection.setUsingCustomOvirtCa(usingCustomOvirtCa);
@@ -291,7 +300,7 @@ public class AdvancedSettingsActivity extends FragmentActivity implements Manage
      * Automatically linked with android:onClick to the positionToolbarLastUsed button.
      * @param view
      */
-    public void toggleUseLastPositionToolbar (View view) {
+    public void toggleUseLastPositionToolbar(View view) {
         ToggleButton s = (ToggleButton) view;
         boolean useLastPositionToolbar = s.isChecked();
         currentConnection.setUseLastPositionToolbar(useLastPositionToolbar);
@@ -301,18 +310,18 @@ public class AdvancedSettingsActivity extends FragmentActivity implements Manage
      * Automatically linked with android:onClick to the buttonManageOvirtCa button.
      * @param view
      */
-    public void showManageOvirtCaDialog (View view) {
-        showCaDialog (ManageCustomCaFragment.TYPE_OVIRT);
+    public void showManageOvirtCaDialog(View view) {
+        showCaDialog(ManageCustomCaFragment.TYPE_OVIRT);
     }
-    
-    private void showCaDialog (int caPurpose) {
+
+    private void showCaDialog(int caPurpose) {
         FragmentManager fm = this.getSupportFragmentManager();
         ManageCustomCaFragment newFragment = ManageCustomCaFragment.newInstance(caPurpose, currentConnection);
         newFragment.show(fm, "customCa");
     }
 
     @Override
-    public void onResume () {
+    public void onResume() {
         super.onResume();
         // Load list of items from asset folder and populate this:
         List<String> spinnerArray = null;
@@ -321,21 +330,21 @@ public class AdvancedSettingsActivity extends FragmentActivity implements Manage
         } catch (IOException e) {
             e.printStackTrace();
         }
-        
+
         // Create an ArrayAdapter using the string array and a default spinner layout
-        ArrayAdapter<String> adapter =  new ArrayAdapter<String> (this, android.R.layout.simple_spinner_item, spinnerArray);
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, spinnerArray);
         // Specify the layout to use when the list of choices appears
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         // Apply the adapter to the spinner
         layoutMapSpinner.setAdapter(adapter);
-        
+
         int selection = spinnerArray.indexOf(currentConnection.getLayoutMap());
         if (selection < 0) {
             selection = spinnerArray.indexOf(RemoteClientLibConstants.DEFAULT_LAYOUT_MAP);
         }
         layoutMapSpinner.setSelection(selection);
     }
-    
+
     @Override
     public void onFragmentDismissed(ConnectionSettings currentConnection) {
         this.currentConnection = currentConnection;

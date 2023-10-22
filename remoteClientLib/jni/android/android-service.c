@@ -38,27 +38,27 @@
 static gboolean disconnect(gpointer user_data);
 
 inline gboolean attachThreadToJvm(JNIEnv** env) {
-	gboolean attached = FALSE;
+    gboolean attached = FALSE;
     int rs2 = 0;
     int rs1 = (*jvm)->GetEnv(jvm, (void**)env, JNI_VERSION_1_6);
     switch (rs1) {
     case JNI_OK:
-    	break;
+        break;
     case JNI_EDETACHED:
-    	rs2 = (*jvm)->AttachCurrentThread(jvm, env, NULL);
-    	if (rs2 != JNI_OK) {
-    		__android_log_write(ANDROID_LOG_ERROR, "android-io", "ERROR: Could not attach current thread to jvm.");
-    	} else {
-    		attached = TRUE;
-    	}
-    	break;
+        rs2 = (*jvm)->AttachCurrentThread(jvm, env, NULL);
+        if (rs2 != JNI_OK) {
+            __android_log_write(ANDROID_LOG_ERROR, "android-io", "ERROR: Could not attach current thread to jvm.");
+        } else {
+            attached = TRUE;
+        }
+        break;
     }
 
     return attached;
 }
 
 inline void detachThreadFromJvm() {
-	(*jvm)->DetachCurrentThread(jvm);
+    (*jvm)->DetachCurrentThread(jvm);
 }
 
 static void
@@ -242,69 +242,69 @@ Java_com_undatech_opaque_SpiceCommunicator_SpiceClientDisconnect (JNIEnv * env, 
 }
 
 gboolean getJvmAndMethodReferences (JNIEnv *env) {
-	// Get a reference to the JVM to get JNIEnv from in (other) threads.
+    // Get a reference to the JVM to get JNIEnv from in (other) threads.
     jint rs = (*env)->GetJavaVM(env, &jvm);
     if (rs != JNI_OK) {
-    	__android_log_write(ANDROID_LOG_ERROR, "getJvmAndMethodReferences", "ERROR: Could not obtain jvm reference.");
-    	return FALSE;
+        __android_log_write(ANDROID_LOG_ERROR, "getJvmAndMethodReferences", "ERROR: Could not obtain jvm reference.");
+        return FALSE;
     }
 
     // Find the jclass reference and get a Global reference for it for use in other threads.
     jclass local_class  = (*env)->FindClass (env, "com/undatech/opaque/SpiceCommunicator");
-	jni_connector_class = (jclass)((*env)->NewGlobalRef(env, local_class));
+    jni_connector_class = (jclass)((*env)->NewGlobalRef(env, local_class));
 
-	// Get global method IDs for callback methods.
-	jni_settings_changed = (*env)->GetStaticMethodID (env, jni_connector_class, "OnSettingsChanged", "(IIII)V");
-	jni_graphics_update  = (*env)->GetStaticMethodID (env, jni_connector_class, "OnGraphicsUpdate", "(IIIII)V");
-	jni_mouse_update     = (*env)->GetStaticMethodID (env, jni_connector_class, "OnMouseUpdate", "(II)V");
-	jni_mouse_mode       = (*env)->GetStaticMethodID (env, jni_connector_class, "OnMouseMode", "(Z)V");
-	jni_show_message     = (*env)->GetStaticMethodID (env, jni_connector_class, "ShowMessage", "(Ljava/lang/String;)V");
-	jni_remote_clipboard_changed = (*env)->GetStaticMethodID (env, jni_connector_class, "OnRemoteClipboardChanged", "(Ljava/lang/String;)V");
-	return TRUE;
+    // Get global method IDs for callback methods.
+    jni_settings_changed = (*env)->GetStaticMethodID (env, jni_connector_class, "OnSettingsChanged", "(IIII)V");
+    jni_graphics_update  = (*env)->GetStaticMethodID (env, jni_connector_class, "OnGraphicsUpdate", "(IIIII)V");
+    jni_mouse_update     = (*env)->GetStaticMethodID (env, jni_connector_class, "OnMouseUpdate", "(II)V");
+    jni_mouse_mode       = (*env)->GetStaticMethodID (env, jni_connector_class, "OnMouseMode", "(Z)V");
+    jni_show_message     = (*env)->GetStaticMethodID (env, jni_connector_class, "ShowMessage", "(Ljava/lang/String;)V");
+    jni_remote_clipboard_changed = (*env)->GetStaticMethodID (env, jni_connector_class, "OnRemoteClipboardChanged", "(Ljava/lang/String;)V");
+    return TRUE;
 }
 
 JNIEXPORT jint JNICALL
 Java_com_undatech_opaque_SpiceCommunicator_SpiceClientConnect (JNIEnv *env, jobject obj, jstring h, jstring p,
                                                                jstring tp, jstring pw, jstring cf, jstring ca, jstring cs, jboolean sound)
 {
-	g_env = env;
-	const gchar *host = NULL;
-	const gchar *port = NULL;
-	const gchar *tls_port = NULL;
-	const gchar *password = NULL;
-	const gchar *ca_file = NULL;
-	const gchar *ca_cert = NULL;
-	const gchar *cert_subj = NULL;
-	GByteArray *ba = NULL;
-	int result = 0;
+    g_env = env;
+    const gchar *host = NULL;
+    const gchar *port = NULL;
+    const gchar *tls_port = NULL;
+    const gchar *password = NULL;
+    const gchar *ca_file = NULL;
+    const gchar *ca_cert = NULL;
+    const gchar *cert_subj = NULL;
+    GByteArray *ba = NULL;
+    int result = 0;
 
     if (!getJvmAndMethodReferences (env)) {
-    	return -1;
+        return -1;
     }
 
-	host = (*env)->GetStringUTFChars(env, h, NULL);
-	port = (*env)->GetStringUTFChars(env, p, NULL);
-	tls_port  = (*env)->GetStringUTFChars(env, tp, NULL);
-	password  = (*env)->GetStringUTFChars(env, pw, NULL);
-	if (cf) {
-	    ca_file = (*env)->GetStringUTFChars(env, cf, NULL);
-	}
-	if (ca) {
-	    ca_cert = (*env)->GetStringUTFChars(env, ca, NULL);
-	    ba = g_byte_array_new_take((guint8 *)ca_cert, strlen(ca_cert) + 1);
-	}
+    host = (*env)->GetStringUTFChars(env, h, NULL);
+    port = (*env)->GetStringUTFChars(env, p, NULL);
+    tls_port  = (*env)->GetStringUTFChars(env, tp, NULL);
+    password  = (*env)->GetStringUTFChars(env, pw, NULL);
+    if (cf) {
+        ca_file = (*env)->GetStringUTFChars(env, cf, NULL);
+    }
+    if (ca) {
+        ca_cert = (*env)->GetStringUTFChars(env, ca, NULL);
+        ba = g_byte_array_new_take((guint8 *)ca_cert, strlen(ca_cert) + 1);
+    }
 
-	cert_subj = (*env)->GetStringUTFChars(env, cs, NULL);
+    cert_subj = (*env)->GetStringUTFChars(env, cs, NULL);
 
-	result = spiceClientConnect (host, port, tls_port, password, ca_file, ba, cert_subj, sound, NULL);
+    result = spiceClientConnect (host, port, tls_port, password, ca_file, ba, cert_subj, sound, NULL);
 
-	g_byte_array_unref(ba);
+    g_byte_array_unref(ba);
 
-	jvm                  = NULL;
-	jni_connector_class  = NULL;
-	jni_settings_changed = NULL;
-	jni_graphics_update  = NULL;
-	return result;
+    jvm                  = NULL;
+    jni_connector_class  = NULL;
+    jni_settings_changed = NULL;
+    jni_graphics_update  = NULL;
+    return result;
 }
 
 
@@ -313,12 +313,12 @@ int spiceClientConnect (const gchar *h, const gchar *p, const gchar *tp,
                         const gchar *cs, const gboolean sound, const gchar *proxy)
 {
     spice_util_set_debug(true);
-	spice_connection *conn;
+    spice_connection *conn;
 
     soundEnabled = sound;
     conn = connection_new();
-	spice_session_setup(conn->session, h, p, tp, pw, cf, cc, cs, proxy, sound);
-	return connectSession(conn);
+    spice_session_setup(conn->session, h, p, tp, pw, cf, cc, cs, proxy, sound);
+    return connectSession(conn);
 }
 
 int spiceClientConnectVv (VirtViewerFile *vv_file, const gboolean sound)
@@ -328,8 +328,8 @@ int spiceClientConnectVv (VirtViewerFile *vv_file, const gboolean sound)
 
     soundEnabled = sound;
     conn = connection_new();
-	spice_session_setup_from_vv(vv_file, conn->session, sound);
-	return connectSession(conn);
+    spice_session_setup_from_vv(vv_file, conn->session, sound);
+    return connectSession(conn);
 }
 
 int connectSession (spice_connection *conn)
@@ -347,30 +347,30 @@ int connectSession (spice_connection *conn)
         global_conn = conn;
         __android_log_write(ANDROID_LOG_INFO, "connectSession", "Starting main loop");
         g_main_loop_run(mainloop);
-	    __android_log_write(ANDROID_LOG_INFO, "connectSession", "Exiting main loop");
+        __android_log_write(ANDROID_LOG_INFO, "connectSession", "Exiting main loop");
     } else {
         __android_log_write(ANDROID_LOG_ERROR, "connectSession", "Wrong hostname, port, or password.");
         result = 1;
     }
 
     g_object_unref(mainloop);
-	return result;
+    return result;
 }
 
 
 JNIEXPORT jint JNICALL
 JNI_OnLoad(JavaVM* vm, void* reserved) {
-	struct sigaction handler;
-	memset(&handler, 0, sizeof(handler));
-	handler.sa_sigaction = signal_handler;
-	handler.sa_flags = SA_SIGINFO;
-	sigaction(SIGILL, &handler, NULL);
-	sigaction(SIGABRT, &handler, NULL);
-	sigaction(SIGBUS, &handler, NULL);
-	sigaction(SIGFPE, &handler, NULL);
-	sigaction(SIGSEGV, &handler, NULL);
-	sigaction(SIGSTKFLT, &handler, NULL);
-	return(JNI_VERSION_1_6);
+    struct sigaction handler;
+    memset(&handler, 0, sizeof(handler));
+    handler.sa_sigaction = signal_handler;
+    handler.sa_flags = SA_SIGINFO;
+    sigaction(SIGILL, &handler, NULL);
+    sigaction(SIGABRT, &handler, NULL);
+    sigaction(SIGBUS, &handler, NULL);
+    sigaction(SIGFPE, &handler, NULL);
+    sigaction(SIGSEGV, &handler, NULL);
+    sigaction(SIGSTKFLT, &handler, NULL);
+    return(JNI_VERSION_1_6);
 }
 
 static gboolean
@@ -430,39 +430,39 @@ parse_ovirt_uri(const gchar *uri_str, char **rest_uri, char **name)
 
 void sendMessage (JNIEnv* env, const int messageID, const gchar *message_text) {
     gboolean attached = FALSE;
-	if (env == NULL) {
-	    attached = attachThreadToJvm (&env);
-	}
+    if (env == NULL) {
+        attached = attachThreadToJvm (&env);
+    }
     jclass class  = (*env)->FindClass (env, "com/undatech/opaque/SpiceCommunicator");
-	jmethodID sendMessage = (*env)->GetStaticMethodID (env, class, "sendMessageWithText", "(ILjava/lang/String;)V");
+    jmethodID sendMessage = (*env)->GetStaticMethodID (env, class, "sendMessageWithText", "(ILjava/lang/String;)V");
     jstring messageText = (*env)->NewStringUTF(env, message_text);
-	(*env)->CallStaticVoidMethod(env, class, sendMessage, messageID, messageText);
+    (*env)->CallStaticVoidMethod(env, class, sendMessage, messageID, messageText);
 
     if (attached) {
-    	detachThreadFromJvm ();
+        detachThreadFromJvm ();
     }
 }
 
 gboolean reportIfSslError (JNIEnv* env, const gchar *message) {
-	gboolean ssl_failed = ( g_strcmp0 (message, "SSL handshake failed") == 0 ||
-	                        g_strcmp0 (message, "Unacceptable TLS certificate") == 0 );
-	if (ssl_failed) {
-		__android_log_write(ANDROID_LOG_ERROR, "reportIfSslError", "TLS Error.");
-		sendMessage (env, 26, message); /* Constants.OVIRT_SSL_HANDSHAKE_FAILURE */
-	}
-	return ssl_failed;
+    gboolean ssl_failed = ( g_strcmp0 (message, "SSL handshake failed") == 0 ||
+                            g_strcmp0 (message, "Unacceptable TLS certificate") == 0 );
+    if (ssl_failed) {
+        __android_log_write(ANDROID_LOG_ERROR, "reportIfSslError", "TLS Error.");
+        sendMessage (env, 26, message); /* Constants.OVIRT_SSL_HANDSHAKE_FAILURE */
+    }
+    return ssl_failed;
 }
 
 static gboolean
 authenticationCallback(RestProxy *proxy, G_GNUC_UNUSED RestProxyAuth *auth,
                 gboolean retrying, gpointer user_data) {
-	__android_log_write(ANDROID_LOG_DEBUG, "authenticationCallback", "authenticationCallback called.");
-	if (retrying) {
-		__android_log_write(ANDROID_LOG_ERROR, "authenticationCallback", "Authentication has failed.");
-		sendMessage (NULL, 25, "Authentication Failure."); /* Constants.OVIRT_AUTH_FAILURE */
-	} else {
+    __android_log_write(ANDROID_LOG_DEBUG, "authenticationCallback", "authenticationCallback called.");
+    if (retrying) {
+        __android_log_write(ANDROID_LOG_ERROR, "authenticationCallback", "Authentication has failed.");
+        sendMessage (NULL, 25, "Authentication Failure."); /* Constants.OVIRT_AUTH_FAILURE */
+    } else {
         g_object_set(G_OBJECT(proxy), "username", oVirtUser, "password", oVirtPassword, NULL);
-	}
+    }
     return !retrying;
 }
 
@@ -478,8 +478,8 @@ Java_com_undatech_opaque_SpiceCommunicator_StartSessionFromVvFile(JNIEnv *env, j
     int result = 0;
 
     if (!getJvmAndMethodReferences (env)) {
-    	result = -1;
-    	goto error;
+        result = -1;
+        goto error;
     }
 
     vv_file_name = (gchar*) (*env)->GetStringUTFChars(env, vvFileName, NULL);
@@ -553,8 +553,8 @@ int CreateOvirtSession(JNIEnv *env, jobject obj, const gchar *uri, const gchar *
     gchar *proxyuri = NULL;
 
     if (!getJvmAndMethodReferences (env)) {
-    	success = -1;
-    	goto error;
+        success = -1;
+        goto error;
     }
 
     // Set the global variables oVirtUser and oVirtPassword to be used in the callback later.
@@ -562,16 +562,16 @@ int CreateOvirtSession(JNIEnv *env, jobject obj, const gchar *uri, const gchar *
     oVirtPassword = password;
 
     if (!parse_ovirt_uri(uri, &rest_uri, &vm_name)) {
-    	__android_log_write(ANDROID_LOG_ERROR, "CreateOvirtSession", "ERROR: Could not parse oVirt URI");
+        __android_log_write(ANDROID_LOG_ERROR, "CreateOvirtSession", "ERROR: Could not parse oVirt URI");
         goto error;
     }
 
-	__android_log_write(ANDROID_LOG_DEBUG, "CreateOvirtSession", rest_uri);
-	__android_log_write(ANDROID_LOG_DEBUG, "CreateOvirtSession", vm_name);
+    __android_log_write(ANDROID_LOG_DEBUG, "CreateOvirtSession", rest_uri);
+    __android_log_write(ANDROID_LOG_DEBUG, "CreateOvirtSession", vm_name);
 
     proxy = ovirt_proxy_new(rest_uri);
     if (proxy == NULL) {
-    	__android_log_write(ANDROID_LOG_ERROR, "CreateOvirtSession", "ERROR: Could not instantiate oVirt proxy");
+        __android_log_write(ANDROID_LOG_ERROR, "CreateOvirtSession", "ERROR: Could not instantiate oVirt proxy");
         goto error;
     }
     g_signal_connect(G_OBJECT(proxy), "authenticate",
@@ -583,18 +583,18 @@ int CreateOvirtSession(JNIEnv *env, jobject obj, const gchar *uri, const gchar *
     // If we've been instructed to not be strict about SSL checks, then set the
     // requisite property.
     if (!sslStrict) {
-    	g_object_set(G_OBJECT(proxy), "ssl-strict", FALSE, NULL);
+        g_object_set(G_OBJECT(proxy), "ssl-strict", FALSE, NULL);
     }
 
     __android_log_write(ANDROID_LOG_INFO, "CreateOvirtSession", "Attempting to fetch API");
     api = ovirt_proxy_fetch_api(proxy, &error);
     if (error != NULL || api == NULL) {
-    	// If this is not an SSL error, report a general connection error.
-    	if (!reportIfSslError (env, error->message)) {
-    		__android_log_write(ANDROID_LOG_ERROR, "CreateOvirtSession", "Connection failure.");
-    		sendMessage (env, 5, error->message); /* Constants.SPICE_CONNECT_FAILURE */
-    	}
-    	__android_log_write(ANDROID_LOG_ERROR, "CreateOvirtSession", "Failed to fetch API, error:");
+        // If this is not an SSL error, report a general connection error.
+        if (!reportIfSslError (env, error->message)) {
+            __android_log_write(ANDROID_LOG_ERROR, "CreateOvirtSession", "Connection failure.");
+            sendMessage (env, 5, error->message); /* Constants.SPICE_CONNECT_FAILURE */
+        }
+        __android_log_write(ANDROID_LOG_ERROR, "CreateOvirtSession", "Failed to fetch API, error:");
         __android_log_write(ANDROID_LOG_ERROR, "CreateOvirtSession", error->message);
         g_debug("failed to fetch api: %s", error->message);
         goto error;
@@ -619,7 +619,7 @@ int CreateOvirtSession(JNIEnv *env, jobject obj, const gchar *uri, const gchar *
     if (vm == NULL) {
         __android_log_write(ANDROID_LOG_ERROR, "CreateOvirtSession", "VM returned was null");
         sendMessage (env, 27, "Could not find specified VM, please delete specified VM name and try again."); /* Constants.VM_LOOKUP_FAILED */
-    	goto error;
+        goto error;
     }
 
     __android_log_write(ANDROID_LOG_INFO, "CreateOvirtSession", "Checking the state of the VM");
@@ -639,9 +639,9 @@ int CreateOvirtSession(JNIEnv *env, jobject obj, const gchar *uri, const gchar *
     }
 
     if (!ovirt_vm_get_ticket(vm, proxy, &error)) {
-    	__android_log_write(ANDROID_LOG_ERROR, "CreateOvirtSession", "ERROR: Failed to get ticket for requested oVirt VM.");
-    	__android_log_write(ANDROID_LOG_ERROR, "CreateOvirtSession", vm_name);
-    	__android_log_write(ANDROID_LOG_ERROR, "CreateOvirtSession", error->message);
+        __android_log_write(ANDROID_LOG_ERROR, "CreateOvirtSession", "ERROR: Failed to get ticket for requested oVirt VM.");
+        __android_log_write(ANDROID_LOG_ERROR, "CreateOvirtSession", vm_name);
+        __android_log_write(ANDROID_LOG_ERROR, "CreateOvirtSession", error->message);
         g_debug("failed to get ticket for %s: %s", vm_name, error->message);
         sendMessage (env, 5, error->message); /* Constants.SPICE_CONNECT_FAILURE */
         goto error;
@@ -649,7 +649,7 @@ int CreateOvirtSession(JNIEnv *env, jobject obj, const gchar *uri, const gchar *
 
     g_object_get(G_OBJECT(vm), "display", &display, NULL);
     if (display == NULL) {
-    	__android_log_write(ANDROID_LOG_ERROR, "CreateOvirtSession", "ERROR: Failed to obtain requested oVirt VM display.");
+        __android_log_write(ANDROID_LOG_ERROR, "CreateOvirtSession", "ERROR: Failed to obtain requested oVirt VM display.");
         goto error;
     }
 
@@ -667,19 +667,19 @@ int CreateOvirtSession(JNIEnv *env, jobject obj, const gchar *uri, const gchar *
     gtlsport = g_strdup_printf("%d", secure_port);
 
     if (type != OVIRT_VM_DISPLAY_SPICE) {
-    	__android_log_write(ANDROID_LOG_INFO, "CreateOvirtSession", "VNC display type, trying to launch external app.");
+        __android_log_write(ANDROID_LOG_INFO, "CreateOvirtSession", "VNC display type, trying to launch external app.");
 
         // Get a reference to the static void method used to add VM names to SpiceCommunicator.
         jclass class  = (*env)->FindClass (env, "com/undatech/opaque/SpiceCommunicator");
-    	jmethodID launchVncViewer = (*env)->GetStaticMethodID (env, class, "LaunchVncViewer", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V");
-       	jstring vncAddress = (*env)->NewStringUTF(env, ghost);
-       	jstring vncPort    = (*env)->NewStringUTF(env, gport);
-       	jstring vncPassword  = (*env)->NewStringUTF(env, ticket);
+        jmethodID launchVncViewer = (*env)->GetStaticMethodID (env, class, "LaunchVncViewer", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V");
+           jstring vncAddress = (*env)->NewStringUTF(env, ghost);
+           jstring vncPort    = (*env)->NewStringUTF(env, gport);
+           jstring vncPassword  = (*env)->NewStringUTF(env, ticket);
         if (vncAddress != NULL && vncPort != NULL && vncPassword != NULL) {
-        	// Call back into SpiceCommunicator to start external app
-        	(*env)->CallStaticVoidMethod(env, class, launchVncViewer, vncAddress, vncPort, vncPassword);
+            // Call back into SpiceCommunicator to start external app
+            (*env)->CallStaticVoidMethod(env, class, launchVncViewer, vncAddress, vncPort, vncPassword);
         } else {
-        	__android_log_write(ANDROID_LOG_ERROR, "CreateOvirtSession", "One of the parameters was null");
+            __android_log_write(ANDROID_LOG_ERROR, "CreateOvirtSession", "One of the parameters was null");
         }
     } else {
         GByteArray *ca_cert;
@@ -716,11 +716,11 @@ error:
 
 JNIEXPORT jint JNICALL
 Java_com_undatech_opaque_SpiceCommunicator_FetchVmNames(JNIEnv *env,
-		                                                         jobject obj,
-		                                                         jstring URI, jstring user, jstring password,
-		                                                         jstring sslCaFile, jboolean sslStrict) {
+                                                                 jobject obj,
+                                                                 jstring URI, jstring user, jstring password,
+                                                                 jstring sslCaFile, jboolean sslStrict) {
     g_env = env;
-	__android_log_write(ANDROID_LOG_INFO, "FetchVmNames", "Starting.");
+    __android_log_write(ANDROID_LOG_INFO, "FetchVmNames", "Starting.");
 
     OvirtApi *api = NULL;
     OvirtCollection *vms = NULL;
@@ -743,22 +743,22 @@ Java_com_undatech_opaque_SpiceCommunicator_FetchVmNames(JNIEnv *env,
     oVirtPassword = (*env)->GetStringUTFChars(env, password, NULL);
 
     if (!getJvmAndMethodReferences (env)) {
-    	success = -1;
-    	goto error;
+        success = -1;
+        goto error;
     }
 
 /*
     if (!parse_ovirt_uri(uri, &rest_uri, &vm_name)) {
-    	__android_log_write(ANDROID_LOG_ERROR, "FetchVmNames", "ERROR: Could not parse oVirt URI");
-    	success = -1;
+        __android_log_write(ANDROID_LOG_ERROR, "FetchVmNames", "ERROR: Could not parse oVirt URI");
+        success = -1;
         goto error;
     }
-	__android_log_write(ANDROID_LOG_DEBUG, "FetchVmNames", rest_uri);
+    __android_log_write(ANDROID_LOG_DEBUG, "FetchVmNames", rest_uri);
 */
     proxy = ovirt_proxy_new(rest_uri);
     if (proxy == NULL) {
-    	__android_log_write(ANDROID_LOG_ERROR, "FetchVmNames", "ERROR: Could not instantiate oVirt proxy");
-    	success = -1;
+        __android_log_write(ANDROID_LOG_ERROR, "FetchVmNames", "ERROR: Could not instantiate oVirt proxy");
+        success = -1;
         goto error;
     }
     g_signal_connect(G_OBJECT(proxy), "authenticate",
@@ -770,21 +770,21 @@ Java_com_undatech_opaque_SpiceCommunicator_FetchVmNames(JNIEnv *env,
     // If we've been instructed to not be strict about SSL checks, then set the
     // requisite property.
     if (!sslStrict) {
-    	g_object_set(G_OBJECT(proxy), "ssl-strict", FALSE, NULL);
+        g_object_set(G_OBJECT(proxy), "ssl-strict", FALSE, NULL);
     }
 
     __android_log_write(ANDROID_LOG_INFO, "FetchVmNames", "Attempting to fetch API");
     api = ovirt_proxy_fetch_api(proxy, &error);
     if (error != NULL) {
-    	// If this is not an SSL error, report a general connection error.
-    	if (!reportIfSslError (env, error->message)) {
-    		__android_log_write(ANDROID_LOG_ERROR, "FetchVmNames", error->message);
-    		sendMessage (env, 5, error->message); /* Constants.SPICE_CONNECT_FAILURE */
-    	}
-    	__android_log_write(ANDROID_LOG_ERROR, "FetchVmNames", "Failed to fetch API, error:");
+        // If this is not an SSL error, report a general connection error.
+        if (!reportIfSslError (env, error->message)) {
+            __android_log_write(ANDROID_LOG_ERROR, "FetchVmNames", error->message);
+            sendMessage (env, 5, error->message); /* Constants.SPICE_CONNECT_FAILURE */
+        }
+        __android_log_write(ANDROID_LOG_ERROR, "FetchVmNames", "Failed to fetch API, error:");
         __android_log_write(ANDROID_LOG_ERROR, "FetchVmNames", error->message);
         g_debug("failed to fetch api: %s", error->message);
-    	success = -1;
+        success = -1;
         goto error;
     }
 
@@ -797,14 +797,14 @@ Java_com_undatech_opaque_SpiceCommunicator_FetchVmNames(JNIEnv *env,
         __android_log_write(ANDROID_LOG_ERROR, "FetchVmNames", "Failed to fetch VMs, error:");
         __android_log_write(ANDROID_LOG_ERROR, "FetchVmNames", error->message);
         g_debug("failed to fetch VMs: %s", error->message);
-    	success = -1;
+        success = -1;
         goto error;
     }
 
     name_to_vm_map = ovirt_collection_get_resources(vms);
     if (g_hash_table_size(name_to_vm_map) == 0) {
         __android_log_write(ANDROID_LOG_ERROR, "FetchVmNames", "No VMs found for user.");
-    	sendMessage (env, 28, "No available VMs found for user."); /* Constants.NO_VM_FOUND_FOR_USER */
+        sendMessage (env, 28, "No available VMs found for user."); /* Constants.NO_VM_FOUND_FOR_USER */
     }
 
     GHashTableIter iter;
@@ -813,16 +813,16 @@ Java_com_undatech_opaque_SpiceCommunicator_FetchVmNames(JNIEnv *env,
 
     // Get a reference to the static void method used to add VM names to SpiceCommunicator.
     jclass class  = (*env)->FindClass (env, "com/undatech/opaque/SpiceCommunicator");
-	jmethodID jniAddVm = (*env)->GetStaticMethodID (env, class, "AddVm", "(Ljava/lang/String;)V");
+    jmethodID jniAddVm = (*env)->GetStaticMethodID (env, class, "AddVm", "(Ljava/lang/String;)V");
 
     while (g_hash_table_iter_next (&iter, &vmname, &vm)) {
         __android_log_write(ANDROID_LOG_DEBUG, "FetchVmNames", (char*)vmname);
 
-    	jstring vmName = (*env)->NewStringUTF(env, vmname);
-    	if (vmName != NULL) {
-    		// Call back into SpiceCommunicator to add this VM to the list
-    		(*env)->CallStaticVoidMethod(env, class, jniAddVm, vmName);
-    	}
+        jstring vmName = (*env)->NewStringUTF(env, vmname);
+        if (vmName != NULL) {
+            // Call back into SpiceCommunicator to add this VM to the list
+            (*env)->CallStaticVoidMethod(env, class, jniAddVm, vmName);
+        }
     }
 
 error:

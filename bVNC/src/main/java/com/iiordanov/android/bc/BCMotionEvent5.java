@@ -7,7 +7,6 @@ import android.view.MotionEvent;
 
 /**
  * @author Michael A. MacDonald
- *
  */
 class BCMotionEvent5 implements IBCMotionEvent {
 

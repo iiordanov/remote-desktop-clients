@@ -1,16 +1,16 @@
 /**
  * Copyright (C) 2013- Iordan Iordanov
- *
+ * <p>
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * This software is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License
  * along with this software; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307,
@@ -46,12 +46,11 @@ import java.util.Map;
 
 public class LabeledImageApapter extends BaseAdapter {
     private static final String TAG = "LabeledImageApapter";
-
+    List<Connection> filteredConnectionsByPosition = new ArrayList<>();
+    String[] filter = null;
     private Context context;
     private int numCols = 2;
     private String defaultLabel = "Untitled";
-    List<Connection> filteredConnectionsByPosition = new ArrayList<>();
-    String[] filter = null;
     private boolean doNotShowDesktopThumbnails = false;
 
     public LabeledImageApapter(Context context, Map<String, Connection> connectionsByPosition, String[] filter, int maxNumCols) {
@@ -78,14 +77,14 @@ public class LabeledImageApapter extends BaseAdapter {
     }
 
     public View getView(int position, View convertView, ViewGroup parent) {
-        LayoutInflater inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         Connection c = filteredConnectionsByPosition.get(position);
 
         String label = c.getLabel();
         android.util.Log.d(TAG, "Now setting label at position: " + position + " to: " + label);
 
-        GridView gView = (GridView) ((Activity)context).findViewById(R.id.gridView);
-        int height = gView.getWidth()/numCols;
+        GridView gView = (GridView) ((Activity) context).findViewById(R.id.gridView);
+        int height = gView.getWidth() / numCols;
 
         View gridView;
         if (convertView != null) {

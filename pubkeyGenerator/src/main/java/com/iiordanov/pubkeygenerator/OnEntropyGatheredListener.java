@@ -18,5 +18,5 @@
 package com.iiordanov.pubkeygenerator;
 
 public interface OnEntropyGatheredListener {
-		void onEntropyGathered(byte[] entropy);
+    void onEntropyGathered(byte[] entropy);
 }

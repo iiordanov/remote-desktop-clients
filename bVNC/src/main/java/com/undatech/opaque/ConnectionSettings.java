@@ -90,6 +90,125 @@ public class ConnectionSettings implements Connection, Serializable {
         this.filename = filename;
     }
 
+    /**
+     * Exports preferences to a file.
+     *
+     * @param context
+     * @param connections  space separated list of connections
+     * @param outputStream output stream to save to
+     * @return the full path to the file saved.
+     * @throws JSONException
+     * @throws IOException
+     */
+    public static void exportPrefsToFile(
+            Context context, String connections, OutputStream outputStream
+    ) throws JSONException, IOException {
+        android.util.Log.d(TAG, "Exporting settings to file");
+        connections += " " + RemoteClientLibConstants.DEFAULT_SETTINGS_FILE;
+        String[] preferenceFiles = connections.split(" ");
+        JSONObject allPrefs = new JSONObject();
+
+        for (String file : preferenceFiles) {
+            SharedPreferences sp = context.getSharedPreferences(file, Context.MODE_PRIVATE);
+            JSONObject prefs = new JSONObject(sp.getAll());
+            prefs.put("password", "");
+            allPrefs.put(file, prefs);
+        }
+
+        PrintWriter writer = new PrintWriter(
+                new BufferedWriter(
+                        new OutputStreamWriter(outputStream)
+                )
+        );
+        writer.print(allPrefs);
+        writer.close();
+    }
+
+    /**
+     * Imports preferences from a file.
+     *
+     * @param context
+     * @return connection list as a space separated string
+     * @throws IOException
+     * @throws JSONException
+     */
+    public static String importPrefsFromFile(Context context, Reader r) throws IOException, JSONException {
+        android.util.Log.d(TAG, "Importing settings");
+        BufferedReader reader = new BufferedReader(r);
+        String connections = "";
+        StringBuilder sb = new StringBuilder();
+        String line = null;
+        while ((line = reader.readLine()) != null) {
+            sb.append(line);
+        }
+        reader.close();
+
+        JSONObject allPrefs = new JSONObject(sb.toString());
+        Iterator<String> allPrefsItr = allPrefs.keys();
+        while (allPrefsItr.hasNext()) {
+            String file = allPrefsItr.next();
+            SharedPreferences sp = context.getSharedPreferences(file, Context.MODE_PRIVATE);
+            Editor editor = sp.edit();
+
+            JSONObject settings = allPrefs.getJSONObject(file);
+
+            Iterator<String> keysItr = settings.keys();
+            while (keysItr.hasNext()) {
+                String key = keysItr.next();
+                Object value = settings.get(key);
+
+                if (value instanceof String) {
+                    editor.putString(key, (String) value);
+                } else if (value instanceof Integer) {
+                    editor.putInt(key, (int) ((Integer) value));
+                } else if (value instanceof Boolean) {
+                    editor.putBoolean(key, (boolean) ((Boolean) value));
+                } else if (value instanceof Float) {
+                    editor.putFloat(key, (float) ((Float) value));
+                } else if (value instanceof Long) {
+                    editor.putLong(key, (long) ((Long) value));
+                }
+            }
+            if (!file.equals(RemoteClientLibConstants.DEFAULT_SETTINGS_FILE)) {
+                connections += " " + file;
+            }
+            editor.apply();
+        }
+
+        return connections.trim();
+    }
+
+    public static void importSettingsFromJsonToSharedPrefs(InputStream fin, Context context) {
+        try {
+            Reader reader = new InputStreamReader(fin);
+            String connections = ConnectionSettings.importPrefsFromFile(context, reader);
+            SharedPreferences sp = context.getSharedPreferences("generalSettings", Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = sp.edit();
+            editor.putString("connections", connections);
+            editor.apply();
+        } catch (JSONException e) {
+            Log.e(TAG, "JSON Exception while importing settings " + e.getLocalizedMessage());
+            e.printStackTrace();
+        } catch (IOException e) {
+            Log.e(TAG, "IO Exception while importing settings " + e.getLocalizedMessage());
+            e.printStackTrace();
+        }
+    }
+
+    public static void exportSettingsFromSharedPrefsToJson(OutputStream outputStream, Context context) {
+        SharedPreferences sp = context.getSharedPreferences("generalSettings", Context.MODE_PRIVATE);
+        String connections = sp.getString("connections", null);
+        try {
+            ConnectionSettings.exportPrefsToFile(context, connections, outputStream);
+        } catch (JSONException e) {
+            Log.e(TAG, "JSON Exception while exporting settings " + e.getLocalizedMessage());
+            e.printStackTrace();
+        } catch (IOException e) {
+            Log.e(TAG, "IO Exception while exporting settings " + e.getLocalizedMessage());
+            e.printStackTrace();
+        }
+    }
+
     @Override
     public String getLabel() {
         String address = this.getAddress();
@@ -376,11 +495,6 @@ public class ConnectionSettings implements Connection, Serializable {
     }
 
     @Override
-    public void setUseLastPositionToolbarMoved(boolean useLastPositionToolbarMoved) {
-        this.useLastPositionToolbarMoved = useLastPositionToolbarMoved;
-    }
-
-    @Override
     public boolean getPreferSendingUnicode() {
         // Not used for Opaque
         return false;
@@ -394,6 +508,11 @@ public class ConnectionSettings implements Connection, Serializable {
     @Override
     public boolean getUseLastPositionToolbarMoved() {
         return useLastPositionToolbarMoved;
+    }
+
+    @Override
+    public void setUseLastPositionToolbarMoved(boolean useLastPositionToolbarMoved) {
+        this.useLastPositionToolbarMoved = useLastPositionToolbarMoved;
     }
 
     @Override
@@ -1245,126 +1364,6 @@ public class ConnectionSettings implements Connection, Serializable {
 
     @Override
     public void setEnableGfxH264(boolean enableGfxH264) {
-    }
-
-    /**
-     * Exports preferences to a file.
-     *
-     * @param context
-     * @param connections  space separated list of connections
-     * @param outputStream output stream to save to
-     * @return the full path to the file saved.
-     * @throws JSONException
-     * @throws IOException
-     */
-    public static void exportPrefsToFile(
-            Context context, String connections, OutputStream outputStream
-    ) throws JSONException, IOException {
-        android.util.Log.d(TAG, "Exporting settings to file");
-        connections += " " + RemoteClientLibConstants.DEFAULT_SETTINGS_FILE;
-        String[] preferenceFiles = connections.split(" ");
-        JSONObject allPrefs = new JSONObject();
-
-        for (String file : preferenceFiles) {
-            SharedPreferences sp = context.getSharedPreferences(file, Context.MODE_PRIVATE);
-            JSONObject prefs = new JSONObject(sp.getAll());
-            prefs.put("password", "");
-            allPrefs.put(file, prefs);
-        }
-
-        PrintWriter writer = new PrintWriter(
-                new BufferedWriter(
-                        new OutputStreamWriter(outputStream)
-                )
-        );
-        writer.print(allPrefs);
-        writer.close();
-    }
-
-
-    /**
-     * Imports preferences from a file.
-     *
-     * @param context
-     * @return connection list as a space separated string
-     * @throws IOException
-     * @throws JSONException
-     */
-    public static String importPrefsFromFile(Context context, Reader r) throws IOException, JSONException {
-        android.util.Log.d(TAG, "Importing settings");
-        BufferedReader reader = new BufferedReader(r);
-        String connections = "";
-        StringBuilder sb = new StringBuilder();
-        String line = null;
-        while ((line = reader.readLine()) != null) {
-            sb.append(line);
-        }
-        reader.close();
-
-        JSONObject allPrefs = new JSONObject(sb.toString());
-        Iterator<String> allPrefsItr = allPrefs.keys();
-        while (allPrefsItr.hasNext()) {
-            String file = allPrefsItr.next();
-            SharedPreferences sp = context.getSharedPreferences(file, Context.MODE_PRIVATE);
-            Editor editor = sp.edit();
-
-            JSONObject settings = allPrefs.getJSONObject(file);
-
-            Iterator<String> keysItr = settings.keys();
-            while (keysItr.hasNext()) {
-                String key = keysItr.next();
-                Object value = settings.get(key);
-
-                if (value instanceof String) {
-                    editor.putString(key, (String) value);
-                } else if (value instanceof Integer) {
-                    editor.putInt(key, (int) ((Integer) value));
-                } else if (value instanceof Boolean) {
-                    editor.putBoolean(key, (boolean) ((Boolean) value));
-                } else if (value instanceof Float) {
-                    editor.putFloat(key, (float) ((Float) value));
-                } else if (value instanceof Long) {
-                    editor.putLong(key, (long) ((Long) value));
-                }
-            }
-            if (!file.equals(RemoteClientLibConstants.DEFAULT_SETTINGS_FILE)) {
-                connections += " " + file;
-            }
-            editor.apply();
-        }
-
-        return connections.trim();
-    }
-
-    public static void importSettingsFromJsonToSharedPrefs(InputStream fin, Context context) {
-        try {
-            Reader reader = new InputStreamReader(fin);
-            String connections = ConnectionSettings.importPrefsFromFile(context, reader);
-            SharedPreferences sp = context.getSharedPreferences("generalSettings", Context.MODE_PRIVATE);
-            SharedPreferences.Editor editor = sp.edit();
-            editor.putString("connections", connections);
-            editor.apply();
-        } catch (JSONException e) {
-            Log.e(TAG, "JSON Exception while importing settings " + e.getLocalizedMessage());
-            e.printStackTrace();
-        } catch (IOException e) {
-            Log.e(TAG, "IO Exception while importing settings " + e.getLocalizedMessage());
-            e.printStackTrace();
-        }
-    }
-
-    public static void exportSettingsFromSharedPrefsToJson(OutputStream outputStream, Context context) {
-        SharedPreferences sp = context.getSharedPreferences("generalSettings", Context.MODE_PRIVATE);
-        String connections = sp.getString("connections", null);
-        try {
-            ConnectionSettings.exportPrefsToFile(context, connections, outputStream);
-        } catch (JSONException e) {
-            Log.e(TAG, "JSON Exception while exporting settings " + e.getLocalizedMessage());
-            e.printStackTrace();
-        } catch (IOException e) {
-            Log.e(TAG, "IO Exception while exporting settings " + e.getLocalizedMessage());
-            e.printStackTrace();
-        }
     }
 
 }

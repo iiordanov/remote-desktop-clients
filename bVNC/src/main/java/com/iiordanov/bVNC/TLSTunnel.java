@@ -21,40 +21,40 @@
 
 package com.iiordanov.bVNC;
 
-import java.net.Socket;
-import java.util.ArrayList;
-import javax.net.ssl.SSLSocket;
+import android.util.Log;
 
 import com.iiordanov.bVNC.exceptions.AnonCipherUnsupportedException;
 
-import android.util.Log;
+import java.net.Socket;
+import java.util.ArrayList;
 
-public class TLSTunnel extends TLSTunnelBase
-{
-  private static final String TAG = "TLSTunnel";
+import javax.net.ssl.SSLSocket;
 
-public TLSTunnel (Socket sock_) {
-    super (sock_);
-  }
+public class TLSTunnel extends TLSTunnelBase {
+    private static final String TAG = "TLSTunnel";
 
-  protected void setParam (SSLSocket sock) throws AnonCipherUnsupportedException {
-    String[]supported;
-    ArrayList<String> enabled = new ArrayList<String> ();
-
-    supported = sock.getSupportedCipherSuites ();
-
-    for (int i = 0; i < supported.length; i++) {
-      if (supported[i].matches (".*DH_anon.*")) {
-          enabled.add (supported[i]);
-          Log.i(TAG, "Adding cipher: " + supported[i]);
-      }
-    }
-    
-    if (enabled.isEmpty()) {
-        throw new AnonCipherUnsupportedException();
+    public TLSTunnel(Socket sock_) {
+        super(sock_);
     }
 
-    sock.setEnabledCipherSuites ((String[])enabled.toArray (new String[0]));
-  }
+    protected void setParam(SSLSocket sock) throws AnonCipherUnsupportedException {
+        String[] supported;
+        ArrayList<String> enabled = new ArrayList<String>();
+
+        supported = sock.getSupportedCipherSuites();
+
+        for (int i = 0; i < supported.length; i++) {
+            if (supported[i].matches(".*DH_anon.*")) {
+                enabled.add(supported[i]);
+                Log.i(TAG, "Adding cipher: " + supported[i]);
+            }
+        }
+
+        if (enabled.isEmpty()) {
+            throw new AnonCipherUnsupportedException();
+        }
+
+        sock.setEnabledCipherSuites((String[]) enabled.toArray(new String[0]));
+    }
 
 }

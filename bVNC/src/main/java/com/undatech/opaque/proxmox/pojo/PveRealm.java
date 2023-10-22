@@ -1,30 +1,18 @@
 package com.undatech.opaque.proxmox.pojo;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.HashMap;
+
 public class PveRealm {
-    
+
     private static final String TAG = "PveRealm";
-
-    public static HashMap<String, PveRealm> getRealmsFromJsonArray(JSONArray array) throws JSONException {
-        HashMap<String, PveRealm> result = new HashMap<String, PveRealm>();
-        for (int i = 0; i < array.length(); i++) {
-            PveRealm element = new PveRealm(array.getJSONObject(i));
-            result.put(element.getRealm(), element);
-        }
-        return result;
-    }
-
     private String type;
     private String realm;
     private String tfa;
     private String comment;
-    
     public PveRealm(JSONObject data) throws JSONException {
         if (!data.isNull("type"))
             type = data.getString("type");
@@ -34,6 +22,15 @@ public class PveRealm {
             tfa = data.getString("tfa");
         if (!data.isNull("comment"))
             comment = data.getString("comment");
+    }
+
+    public static HashMap<String, PveRealm> getRealmsFromJsonArray(JSONArray array) throws JSONException {
+        HashMap<String, PveRealm> result = new HashMap<String, PveRealm>();
+        for (int i = 0; i < array.length(); i++) {
+            PveRealm element = new PveRealm(array.getJSONObject(i));
+            result.put(element.getRealm(), element);
+        }
+        return result;
     }
 
     public String getType() {

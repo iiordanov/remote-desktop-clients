@@ -4,11 +4,10 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.SystemClock;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
-import android.util.Log;
-import androidx.appcompat.widget.Toolbar;
 
 import com.undatech.opaque.RemoteClientLibConstants;
 
@@ -21,19 +20,19 @@ public class OnTouchViewMover implements OnTouchListener {
     Runnable runnable;
     long delay;
     float dX, dY;
-    
+
     public OnTouchViewMover(View viewToMove, Handler handler, Runnable runnable, long delay) {
         this.viewToMove = viewToMove;
         this.handler = handler;
         this.runnable = runnable;
         this.delay = delay;
     }
-    
+
     @Override
     public boolean onTouch(View view, MotionEvent event) {
         Log.d(TAG, "onTouch called");
         Log.d(TAG, "Moving toolbar");
-        if (handler != null) { 
+        if (handler != null) {
             handler.removeCallbacks(runnable);
         }
         switch (event.getAction()) {
@@ -44,8 +43,8 @@ public class OnTouchViewMover implements OnTouchListener {
                 break;
             case MotionEvent.ACTION_MOVE:
                 Log.d(TAG, "onTouch called ACTION_MOVE");
-                viewToMove.animate().x(event.getRawX()+dX).y(event.getRawY()+dY).setDuration(0).start();
-                if (handler != null) { 
+                viewToMove.animate().x(event.getRawX() + dX).y(event.getRawY() + dY).setDuration(0).start();
+                if (handler != null) {
                     handler.postAtTime(runnable, SystemClock.uptimeMillis() + delay);
                 }
                 break;

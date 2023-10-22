@@ -7,6 +7,7 @@ import android.view.View;
 
 /**
  * Access the Haptic interfaces added in version 3 without breaking compatibility
+ *
  * @author Michael A. MacDonald
  */
 public interface IBCHaptic {

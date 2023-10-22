@@ -13,72 +13,49 @@ import com.iiordanov.bVNC.RemoteCanvas;
 import com.undatech.opaque.RfbConnectable;
 
 public abstract class RemotePointer {
-    
+
     public static final int POINTER_DOWN_MASK = 0x8000;
-    
+    public static float DEFAULT_SENSITIVITY = 2.0f;
+    public static boolean DEFAULT_ACCELERATED = true;
     /**
      * Current state of "mouse" buttons
      */
     protected int pointerMask = 0;
     protected int prevPointerMask = 0;
-    
     protected RemoteCanvas canvas;
     protected Context context;
     protected Handler handler;
     protected RfbConnectable protocomm;
-    MouseScroller scroller;
-
     /**
      * Indicates where the mouse pointer is located.
      */
     protected int pointerX, pointerY;
-
     protected boolean relativeEvents = false;
-
-    public static float DEFAULT_SENSITIVITY = 2.0f;
-    public static boolean DEFAULT_ACCELERATED = true;
-
     protected float sensitivity = DEFAULT_SENSITIVITY;
     protected boolean accelerated = DEFAULT_ACCELERATED;
-
     protected boolean debugLogging = false;
+    MouseScroller scroller;
 
-    public class MouseScroller implements Runnable {
-        int delay = 100;
-        public int direction = 0;
-
-        @Override
-        public void run() {
-            if (direction == 0) {
-                RemotePointer.this.scrollUp(pointerX, pointerY, 0);
-            } else {
-                RemotePointer.this.scrollDown(pointerX, pointerY, 0);
-            }
-            handler.postDelayed(this, delay);
-            
-        }
-    } 
-
-    public RemotePointer (RfbConnectable protocomm, RemoteCanvas canvas, Handler handler,
-                          boolean debugLogging) {
+    public RemotePointer(RfbConnectable protocomm, RemoteCanvas canvas, Handler handler,
+                         boolean debugLogging) {
         this.protocomm = protocomm;
-        this.canvas    = canvas;
-        this.context   = canvas.getContext();
-        this.handler   = handler;
+        this.canvas = canvas;
+        this.context = canvas.getContext();
+        this.handler = handler;
         //pointerX  = canvas.getImageWidth()/2;
         //pointerY  = canvas.getImageHeight()/2;
         scroller = new MouseScroller();
         this.debugLogging = debugLogging;
     }
-    
-    protected boolean shouldBeRightClick (KeyEvent e) {
+
+    protected boolean shouldBeRightClick(KeyEvent e) {
         boolean result = false;
         int keyCode = e.getKeyCode();
-        
+
         // If the camera button is pressed
         if (keyCode == KeyEvent.KEYCODE_CAMERA) {
             result = true;
-        // Or the back button is pressed
+            // Or the back button is pressed
         } else if (keyCode == KeyEvent.KEYCODE_BACK) {
             // Determine SDK
             boolean preGingerBread = android.os.Build.VERSION.SDK_INT < Build.VERSION_CODES.GINGERBREAD;
@@ -92,7 +69,7 @@ public abstract class RemotePointer {
                 result = true;
             }
         }
-        
+
         return result;
     }
 
@@ -100,12 +77,12 @@ public abstract class RemotePointer {
         return pointerX;
     }
 
-    public int getY() {
-        return pointerY;
-    }
-
     public void setX(int newX) {
         pointerX = newX;
+    }
+
+    public int getY() {
+        return pointerY;
     }
 
     public void setY(int newY) {
@@ -118,12 +95,12 @@ public abstract class RemotePointer {
     public void movePointer(int x, int y) {
         //android.util.Log.d("RemotePointer", "movePointer");
         canvas.invalidateMousePosition();
-        pointerX=x;
-        pointerY=y;
+        pointerX = x;
+        pointerY = y;
         canvas.invalidateMousePosition();
-        moveMouseButtonUp (x, y, 0);
+        moveMouseButtonUp(x, y, 0);
     }
-    
+
     /**
      * If necessary move the pointer to be visible.
      */
@@ -135,7 +112,7 @@ public abstract class RemotePointer {
             int vW = canvas.getVisibleDesktopWidth();
             int vH = canvas.getVisibleDesktopHeight();
             if (pointerX < absX || pointerX >= absX + vW ||
-                pointerY < absY || pointerY >= absY + vH) {
+                    pointerY < absY || pointerY >= absY + vH) {
                 movePointer(absX + vW / 2, absY + vH / 2);
             }
         }
@@ -147,12 +124,12 @@ public abstract class RemotePointer {
     public boolean hardwareButtonsAsMouseEvents(int keyCode, KeyEvent e, int combinedMetastate) {
         boolean used = false;
         boolean down = (e.getAction() == KeyEvent.ACTION_DOWN) ||
-                       (e.getAction() == KeyEvent.ACTION_MULTIPLE);
+                (e.getAction() == KeyEvent.ACTION_MULTIPLE);
         if (down)
             pointerMask = POINTER_DOWN_MASK;
         else
             pointerMask = 0;
-        
+
         if (shouldBeRightClick(e)) {
             rightButtonDown(getX(), getY(), combinedMetastate);
             SystemClock.sleep(50);
@@ -164,7 +141,7 @@ public abstract class RemotePointer {
             } else {
                 scroller.direction = 1;
             }
-            
+
             if (e.getAction() == KeyEvent.ACTION_DOWN) {
                 handler.post(scroller);
             } else {
@@ -175,18 +152,28 @@ public abstract class RemotePointer {
         }
         return used;
     }
-    
-    abstract public void leftButtonDown  (int x, int y, int metaState);
+
+    abstract public void leftButtonDown(int x, int y, int metaState);
+
     abstract public void middleButtonDown(int x, int y, int metaState);
-    abstract public void rightButtonDown (int x, int y, int metaState);
-    abstract public void scrollUp        (int x, int y, int metaState);
-    abstract public void scrollDown      (int x, int y, int metaState);
-    abstract public void scrollLeft      (int x, int y, int metaState);
-    abstract public void scrollRight     (int x, int y, int metaState);
-    abstract public void releaseButton   (int x, int y, int metaState);
-    abstract public void moveMouse       (int x, int y, int metaState);
-    abstract public void moveMouseButtonDown (int x, int y, int metaState);
-    abstract public void moveMouseButtonUp   (int x, int y, int metaState);
+
+    abstract public void rightButtonDown(int x, int y, int metaState);
+
+    abstract public void scrollUp(int x, int y, int metaState);
+
+    abstract public void scrollDown(int x, int y, int metaState);
+
+    abstract public void scrollLeft(int x, int y, int metaState);
+
+    abstract public void scrollRight(int x, int y, int metaState);
+
+    abstract public void releaseButton(int x, int y, int metaState);
+
+    abstract public void moveMouse(int x, int y, int metaState);
+
+    abstract public void moveMouseButtonDown(int x, int y, int metaState);
+
+    abstract public void moveMouseButtonUp(int x, int y, int metaState);
 
     public boolean isRelativeEvents() {
         return relativeEvents;
@@ -217,6 +204,22 @@ public abstract class RemotePointer {
 
     public void setAccelerated(boolean accelerated) {
         this.accelerated = accelerated;
+    }
+
+    public class MouseScroller implements Runnable {
+        public int direction = 0;
+        int delay = 100;
+
+        @Override
+        public void run() {
+            if (direction == 0) {
+                RemotePointer.this.scrollUp(pointerX, pointerY, 0);
+            } else {
+                RemotePointer.this.scrollDown(pointerX, pointerY, 0);
+            }
+            handler.postDelayed(this, delay);
+
+        }
     }
 
 }
