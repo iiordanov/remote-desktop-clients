@@ -92,7 +92,7 @@
                     android:scheme="http" />
                 <data
                     android:host="*"
-                    android:pathPattern=".*\\.rdp"
+                    android:pathPattern="/.*\\.rdp"
                     android:scheme="file" />
                 <data
                     android:host="*"
@@ -100,7 +100,7 @@
                     android:scheme="http" />
                 <data
                     android:host="*"
-                    android:pathPattern=".*\\.RDP"
+                    android:pathPattern="/.*\\.RDP"
                     android:scheme="file" />
                 <data android:mimeType="*/*" />
             </intent-filter>
