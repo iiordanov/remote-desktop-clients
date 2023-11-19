@@ -280,7 +280,7 @@ All Input Methods:
     <string name="error_spice_unable_to_connect">Unable to connect or authenticate, please check server address and port.</string>
     <string name="error_ssh_could_not_exec_command">Could not execute remote command.</string>
     <string name="error_ssh_could_not_send_sudo_pwd">Could not send sudo password.</string>
-    <string name="error_ssh_hostkey_changed">ERROR! The server host key has changed. If this is intentional, please delete and recreate the connection. Otherwise, this may be a man in the middle attack. Not continuing.</string>
+    <string name="error_ssh_hostkey_changed">ERROR! The server host key has changed. If this is intentional, you may continue. Otherwise, this may be a man in the middle attack.</string>
     <string name="error_ssh_kbd_auth_method_unavail">The SSH server supports neither \"password\" nor \"keyboard-interactive\" auth methods or requires \"publickey\" method first. Please configure it to allow at least one of the two methods, or reconfigure the application. Available auth methods: </string>
     <string name="error_ssh_key_auth_fail">Failed to authenticate to SSH server with a key-pair. Please check your SSH username, and ensure your public key is in the authorized_keys file on the remote side.</string>
     <string name="error_ssh_keypair_decryption_failure">Failed to decrypt key-pair. Please ensure you\'ve entered your passphrase correctly in the \'SSH Passphrase\' field on the main screen.</string>

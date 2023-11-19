@@ -20,7 +20,9 @@
 package com.iiordanov.bVNC;
 
 import android.content.Context;
+import android.os.Bundle;
 import android.os.Handler;
+import android.os.Message;
 import android.util.Base64;
 import android.util.Log;
 import android.widget.Toast;
@@ -49,7 +51,6 @@ import java.util.concurrent.CountDownLatch;
 
 /**
  * @author Iordan K Iordanov
- *
  */
 public class SSHConnection implements InteractiveCallback, GetTextFragment.OnFragmentDismissedListener {
     private final static String TAG = "SSHConnection";
@@ -95,7 +96,7 @@ public class SSHConnection implements InteractiveCallback, GetTextFragment.OnFra
     private boolean autoXUnixpw;
     private String autoXRandFileNm;
     private Context context;
-    private Handler handler;
+    private final Handler handler;
     private int sshPasswordAuthAttempts = 0;
     private int sshKeyDecryptionAttempts = 0;
     private com.undatech.opaque.Connection conn;
@@ -103,6 +104,8 @@ public class SSHConnection implements InteractiveCallback, GetTextFragment.OnFra
     // Used to communicate the MFA verification code obtained.
     private String verificationCode;
     private CountDownLatch userInputLatch;
+
+    private RemoteCanvas canvas;
 
     public SSHConnection(com.undatech.opaque.Connection conn, Context cntxt, Handler handler) {
         host = conn.getSshServer();
@@ -209,8 +212,9 @@ public class SSHConnection implements InteractiveCallback, GetTextFragment.OnFra
 
     /**
      * Initializes the SSH Tunnel
+     *
      * @return -1 if the target port was not determined, and the port obtained from x11vnc if it was
-     *             determined with AutoX.
+     * determined with AutoX.
      * @throws Exception
      */
     public int initializeSSHTunnel() throws Exception {
@@ -221,8 +225,9 @@ public class SSHConnection implements InteractiveCallback, GetTextFragment.OnFra
             throw new Exception(context.getString(R.string.error_ssh_unable_to_connect));
 
         // Verify host key against saved one.
-        if (!verifyHostKey())
-            throw new Exception(context.getString(R.string.error_ssh_hostkey_changed));
+        if (!verifyHostKey()) {
+            this.changeOrInitializeSshHostKey(true);
+        }
 
         // Authenticate and set up port forwarding.
         if (!usePubKey) {
@@ -326,6 +331,7 @@ public class SSHConnection implements InteractiveCallback, GetTextFragment.OnFra
 
     /**
      * Creates a port forward to the given port and returns the local port forwarded.
+     *
      * @return the local port forwarded to the given remote port
      * @throws Exception
      */
@@ -345,6 +351,7 @@ public class SSHConnection implements InteractiveCallback, GetTextFragment.OnFra
 
     /**
      * Connects to remote server.
+     *
      * @return
      */
     public boolean connect() {
@@ -408,6 +415,7 @@ public class SSHConnection implements InteractiveCallback, GetTextFragment.OnFra
 
     /**
      * Returns whether the server supports passworde
+     *
      * @return
      */
     private boolean hasPasswordAuth() {
@@ -422,6 +430,7 @@ public class SSHConnection implements InteractiveCallback, GetTextFragment.OnFra
 
     /**
      * Returns whether the server supports passworde
+     *
      * @return
      */
     private boolean hasKeyboardInteractiveAuth() {
@@ -471,6 +480,7 @@ public class SSHConnection implements InteractiveCallback, GetTextFragment.OnFra
 
     /**
      * Decrypts and recovers the key pair.
+     *
      * @throws Exception
      */
     private void decryptAndRecoverKey() throws Exception {
@@ -518,7 +528,8 @@ public class SSHConnection implements InteractiveCallback, GetTextFragment.OnFra
 
     /**
      * Executes a remote command, and waits a certain amount of time.
-     * @param command - the command to execute.
+     *
+     * @param command    - the command to execute.
      * @param secTimeout - amount of time in seconds to wait afterward.
      * @throws Exception
      */
@@ -542,6 +553,7 @@ public class SSHConnection implements InteractiveCallback, GetTextFragment.OnFra
 
     /**
      * Writes the specified string to a stdin of a remote command.
+     *
      * @throws Exception
      */
     private void writeStringToRemoteCommand(String s, String cmd) throws Exception {
@@ -555,6 +567,7 @@ public class SSHConnection implements InteractiveCallback, GetTextFragment.OnFra
 
     /**
      * Writes the specified string to a stdin of open session.
+     *
      * @throws Exception
      */
     private void writeStringToStdin(String s) throws Exception {
@@ -704,6 +717,37 @@ public class SSHConnection implements InteractiveCallback, GetTextFragment.OnFra
             default:
                 android.util.Log.e(TAG, "Unknown dialog type.");
                 break;
+        }
+    }
+
+    public void changeOrInitializeSshHostKey(boolean keyChangeDetected) {
+        if (keyChangeDetected) {
+            conn.setSshHostKey("");
+            conn.setIdHash("");
+        }
+        boolean sshTunneled = (conn.getConnectionType() == Constants.CONN_TYPE_SSH);
+        boolean emptySshHostKey = conn.getSshHostKey().equals("");
+        boolean emptySshHostKeyHash = Utils.isNullOrEmptry(conn.getIdHash());
+        boolean keyUninitialized = emptySshHostKey && emptySshHostKeyHash;
+        if (sshTunneled && (keyChangeDetected || keyUninitialized)) {
+            Message message = new Message();
+            Bundle messageData = new Bundle();
+            messageData.putBoolean("keyChangeDetected", keyChangeDetected);
+            message.what = RemoteClientLibConstants.DIALOG_SSH_CERT;
+            message.obj = messageData;
+            handler.sendMessage(message);
+
+            // Block while user decides whether to accept certificate or not.
+            // The activity ends if the user taps "No", so we block indefinitely here.
+            synchronized (handler) {
+                while (conn.getSshHostKey().equals("")) {
+                    try {
+                        handler.wait();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
         }
     }
 }

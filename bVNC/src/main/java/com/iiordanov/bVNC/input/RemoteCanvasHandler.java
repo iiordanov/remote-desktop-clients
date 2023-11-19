@@ -311,7 +311,7 @@ public class RemoteCanvasHandler extends Handler {
     /**
      * Function used to initialize an empty SSH HostKey for a new VNC over SSH connection.
      */
-    public void initializeSshHostKey() {
+    public void initializeSshHostKey(boolean keyChangeDetected) {
         // If the SSH HostKey is empty, then we need to grab the HostKey from the server and save it.
         Log.d(TAG, "Attempting to initialize SSH HostKey.");
 
@@ -347,18 +347,25 @@ public class RemoteCanvasHandler extends Handler {
                 }
             };
 
-            Utils.showYesNoPrompt(context,
+            String warning = keyChangeDetected ?
+                    context.getString(R.string.error_ssh_hostkey_changed) + "\n" : "\n";
+            Utils.showYesNoPrompt(
+                    context,
                     context.getString(R.string.info_continue_connecting) + connection.getSshServer() + "?",
-                    context.getString(R.string.info_ssh_key_fingerprint) + sshConnection.getHostKeySignature() +
+                    warning +
+                            context.getString(R.string.info_ssh_key_fingerprint) +
+                            sshConnection.getHostKeySignature() +
                             context.getString(R.string.info_ssh_key_fingerprint_identical),
-                    signatureYes, signatureNo);
+                    signatureYes,
+                    signatureNo
+            );
         }
     }
 
 
     @Override
     public void handleMessage(final Message msg) {
-        Bundle s;
+        Bundle messageData;
         android.util.Log.d(TAG, "Handling message, msg.what: " + msg.what);
         final String messageText = Utils.getStringFromMessage(msg, "message");
         switch (msg.what) {
@@ -429,16 +436,17 @@ public class RemoteCanvasHandler extends Handler {
                 break;
             case RemoteClientLibConstants.DIALOG_SSH_CERT:
                 android.util.Log.d(TAG, "DIALOG_SSH_CERT");
-                initializeSshHostKey();
+                messageData = (Bundle) msg.obj;
+                initializeSshHostKey(messageData.getBoolean("keyChangeDetected"));
                 break;
             case RemoteClientLibConstants.DIALOG_RDP_CERT:
                 android.util.Log.d(TAG, "DIALOG_RDP_CERT");
-                s = (Bundle) msg.obj;
+                messageData = (Bundle) msg.obj;
                 validateCert(
-                        s.getString("subject"),
-                        s.getString("issuer"),
-                        s.getString("fingerprint"),
-                        s.getBoolean("save", false)
+                        messageData.getString("subject"),
+                        messageData.getString("issuer"),
+                        messageData.getString("fingerprint"),
+                        messageData.getBoolean("save", false)
                 );
                 break;
             case RemoteClientLibConstants.DISCONNECT_WITH_MESSAGE:
@@ -468,9 +476,9 @@ public class RemoteCanvasHandler extends Handler {
                 }
                 break;
             case RemoteClientLibConstants.SERVER_CUT_TEXT:
-                s = (Bundle) msg.obj;
+                messageData = (Bundle) msg.obj;
                 c.serverJustCutText = true;
-                c.setClipboardText(s.getString("text"));
+                c.setClipboardText(messageData.getString("text"));
                 break;
             case RemoteClientLibConstants.REINIT_SESSION:
                 if (Utils.isOpaque(context)) {

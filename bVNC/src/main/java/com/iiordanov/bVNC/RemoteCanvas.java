@@ -408,24 +408,8 @@ public class RemoteCanvas extends AppCompatImageView
         Thread t = new Thread() {
             public void run() {
                 try {
-                    // Initialize SSH key if necessary
-                    if (sshTunneled && connection.getSshHostKey().equals("") &&
-                            Utils.isNullOrEmptry(connection.getIdHash())) {
-                        handler.sendEmptyMessage(RemoteClientLibConstants.DIALOG_SSH_CERT);
-
-                        // Block while user decides whether to accept certificate or not.
-                        // The activity ends if the user taps "No", so we block indefinitely here.
-                        synchronized (handler) {
-                            while (connection.getSshHostKey().equals("")) {
-                                try {
-                                    handler.wait();
-                                } catch (InterruptedException e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                        }
-                    }
-
+                    sshConnection = new SSHConnection(connection, getContext(), handler);
+                    sshConnection.changeOrInitializeSshHostKey(false);
                     if (isSpice) {
                         startSpiceConnection();
                     } else if (isRdp) {
