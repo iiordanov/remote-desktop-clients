@@ -427,6 +427,7 @@ public class RemoteCanvasHandler extends Handler {
                         connection.getKeepPassword());
                 break;
             case RemoteClientLibConstants.GET_SPICE_PASSWORD:
+                c.maintainConnection = false;
                 showGetTextFragment(context.getString(R.string.enter_spice_password),
                         GetTextFragment.DIALOG_ID_GET_SPICE_PASSWORD,
                         context.getString(R.string.enter_spice_password),
