@@ -38,45 +38,97 @@ public class UriIntentParser {
         ConnectionBean connectionByNickname = tryFindingByNickname(dataUri, ctx, connection);
         if (connectionByNickname != null) return connectionByNickname;
 
-        ConnectionBean connectionByHostname = tryFindingByHostname(dataUri, ctx, connection);
+        ConnectionBean connectionByHostname = tryFindingByHostnameAndPort(dataUri, ctx, connection);
         if (connectionByHostname != null) return connectionByHostname;
 
         return connection;
     }
 
-    private static ConnectionBean tryFindingByHostname(Uri dataUri, Context ctx, ConnectionBean connection) {
+    private static ConnectionBean tryFindingByHostnameAndPort(Uri dataUri, Context ctx, ConnectionBean connection) {
         String host = dataUri.getHost();
-        return tryFindingByField(ctx, connection, AbstractConnectionBean.GEN_FIELD_ADDRESS, host);
+        String port = String.format(Locale.US, "%d", dataUri.getPort());
+        return tryFindingByFields(
+                ctx,
+                connection,
+                AbstractConnectionBean.GEN_FIELD_ADDRESS,
+                host,
+                AbstractConnectionBean.GEN_FIELD_PORT,
+                port
+        );
     }
 
     private static ConnectionBean tryFindingByNickname(Uri dataUri, Context ctx, ConnectionBean connection) {
         String connectionName = dataUri.getQueryParameter(Constants.PARAM_CONN_NAME);
-        return tryFindingByField(ctx, connection, AbstractConnectionBean.GEN_FIELD_NICKNAME, connectionName);
+        return tryFindingByFields(
+                ctx,
+                connection,
+                AbstractConnectionBean.GEN_FIELD_NICKNAME,
+                connectionName,
+                null,
+                null
+        );
     }
 
-    private static ConnectionBean tryFindingByField(Context ctx, ConnectionBean connection, String field, String value) {
+    private static ConnectionBean tryFindingByFields(
+            Context ctx,
+            ConnectionBean connection,
+            String field,
+            String value,
+            String field2,
+            String value2
+    ) {
         Database database = new Database(ctx);
         SQLiteDatabase queryDb = database.getReadableDatabase();
-        Cursor cursor = null;
         ConnectionBean connectionByField = null;
-        if (field != null && value != null) {
-            cursor = queryDb.query(
-                    AbstractConnectionBean.GEN_TABLE_NAME,
-                    null,
-                    field + " = ?",
-                    new String[]{value},
-                    null,
-                    null,
-                    null);
-        }
+        Cursor cursor = getCursor(field, value, field2, value2, queryDb);
         if (cursor != null && cursor.moveToFirst()) {
-            Log.i(TAG, String.format(Locale.US, "Loading connection info from field: %s, value: %s", field, value));
+            Log.i(TAG, String.format(
+                    Locale.US,
+                    "Loading connection info from field: %s, value: %s, field2: %s, value2: %s",
+                    field, value, field2, value2
+                    )
+            );
             connectionByField = new ConnectionBean(ctx);
             connectionByField.Gen_populate(cursor, connection.Gen_columnIndices(cursor));
             cursor.close();
         }
         database.close();
         return connectionByField;
+    }
+
+    private static Cursor getCursor(String field, String value, String field2, String value2, SQLiteDatabase queryDb) {
+        Cursor cursor;
+        if (field2 == null && value2 == null) {
+            cursor = getCursorOneField(field, value, queryDb);
+        } else {
+            cursor = getCursorTwoFields(field, value, field2, value2, queryDb);
+        }
+        return cursor;
+    }
+
+    private static Cursor getCursorTwoFields(String field, String value, String field2, String value2, SQLiteDatabase queryDb) {
+        Cursor cursor;
+        cursor = queryDb.query(
+                AbstractConnectionBean.GEN_TABLE_NAME,
+                null,
+                field + " = ? AND " + field2 + " = ?",
+                new String[]{value, value2},
+                null,
+                null,
+                null);
+        return cursor;
+    }
+
+    private static Cursor getCursorOneField(String field, String value, SQLiteDatabase queryDb) {
+        Cursor cursor = queryDb.query(
+                AbstractConnectionBean.GEN_TABLE_NAME,
+                null,
+                field + " = ?",
+                new String[]{value},
+                null,
+                null,
+                null);
+        return cursor;
     }
 
     @Nullable
