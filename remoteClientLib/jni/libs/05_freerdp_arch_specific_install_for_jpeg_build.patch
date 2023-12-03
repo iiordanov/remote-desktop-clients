@@ -1,9 +1,0 @@
-diff --git a/scripts/android-build-jpeg.sh b/scripts/android-build-jpeg.sh
-index 7b06adf33..b06275bdf 100755
---- a/scripts/android-build-jpeg.sh
-+++ b/scripts/android-build-jpeg.sh
-@@ -39,3 +39,4 @@ common_clean $BUILD_DST
- build
- 
- common_copy $BUILD_SRC $BUILD_DST
-+common_copy $BUILD_SRC $BUILD_DST/"${BUILD_ARCH}"

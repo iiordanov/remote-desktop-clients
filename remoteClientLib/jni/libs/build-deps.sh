@@ -627,8 +627,10 @@ build_freerdp() {
                -e 's/WITH_JPEG=.*/WITH_JPEG=1/'\
                -e 's/WITH_OPENH264=.*/WITH_OPENH264=1/'\
                -e 's/OPENH264_TAG=.*/OPENH264_TAG=v2.1.1/'\
-               -e 's/OPENSSL_TAG=.*/OPENSSL_TAG=OpenSSL_1_1_1n/'\
+               -e 's/OPENSSL_TAG=.*/OPENSSL_TAG=openssl-1.1.1w/'\
                -e 's/NDK_TARGET=26/NDK_TARGET=21/'\
+               -e 's/453afa66dacb560bc5fd0468aabee90c483741571bca820a39a1c07f0362dc32/af173e90fce65f80722fa894e1af0d6b07572292e76de7b65273df4c0a8be678/'\
+               -e 's/d7939ce614029cdff0b6c20f0e2e5703158a489a72b2507b8bd51bf8c8fd10ca/cf3098950cb4d853ad95c0841f1f9c6d3dc102dccfcacd521d93925208b76ac8/'\
                 ./scripts/android-build.conf
 
 #               -e 's/OPENSSL_TAG=.*/OPENSSL_TAG=OpenSSL_1_1_1n/'\
