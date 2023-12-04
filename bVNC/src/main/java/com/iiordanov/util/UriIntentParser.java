@@ -186,9 +186,9 @@ public class UriIntentParser {
             }
         }
 
-        final int PORT_NONE = -1;
+        final int PORT_NONE = 0;
         int port = dataUri.getPort();
-        if (port != PORT_NONE && !isValidPort(port)) {
+        if (port > PORT_NONE && !isValidPort(port)) {
             throw new IllegalArgumentException("The specified VNC port is not valid.");
         }
         connection.setPort(port);
