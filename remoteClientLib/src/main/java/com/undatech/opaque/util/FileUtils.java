@@ -67,7 +67,8 @@ public class FileUtils {
         InputStream in = null;
         try {
             in = resolver.openInputStream(uri);
-        } catch (IOException e) {
+        } catch (Exception e) {
+            Log.e(TAG, "getInputStreamFromUri: uri: " + uri + ", exception: " + e);
             e.printStackTrace();
         }
         return in;

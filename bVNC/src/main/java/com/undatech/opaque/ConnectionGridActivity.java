@@ -34,6 +34,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -398,10 +399,16 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
             case RemoteClientLibConstants.IMPORT_SETTINGS_REQUEST_CODE:
                 if (resultCode == Activity.RESULT_OK) {
                     if (data != null && data.getData() != null) {
+                        Uri uri = data.getData();
                         ContentResolver resolver = getContentResolver();
 
                         boolean connectionsInSharedPrefs = Utils.isOpaque(this);
-                        InputStream in = FileUtils.getInputStreamFromUri(resolver, data.getData());
+                        InputStream in = FileUtils.getInputStreamFromUri(resolver, uri);
+                        if (in == null) {
+                            CharSequence error = getString(R.string.error) + ": " + uri;
+                            Toast.makeText(appContext, error, Toast.LENGTH_LONG).show();
+                            break;
+                        }
                         if (connectionsInSharedPrefs) {
                             ConnectionSettings.importSettingsFromJsonToSharedPrefs(in, this);
                         } else {
