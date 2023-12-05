@@ -32,6 +32,7 @@ package com.iiordanov.bVNC;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.ClipData;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Bitmap;
@@ -43,7 +44,7 @@ import android.net.Uri;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.provider.Settings;
-import android.text.ClipboardManager;
+import android.content.ClipboardManager;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -1363,7 +1364,13 @@ public class RemoteCanvas extends AppCompatImageView
      */
     public void setClipboardText(String s) {
         if (s != null && s.length() > 0) {
-            clipboard.setText(s);
+            try {
+                clipboard.setPrimaryClip(ClipData.newPlainText(null, s));
+            } catch (Exception e) {
+                String error = getContext().getString(R.string.error) + ": " + e;
+                displayShortToastMessage(error);
+                Log.e(TAG, "setClipboardText: exception: " + e);
+            }
         }
     }
 
