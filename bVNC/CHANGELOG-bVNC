@@ -4,6 +4,7 @@ v5.1.3
 - Feature to permit accepting changed SSH host key with a warning
 - Fix for reuse of URI intent connections to different ports on the same host
 - Fix for exceptions encountered during import of settings
+- Fix for potential crash caused by large clipboard copies
 v5.1.2
 - New Software Keyboard Type Global Preference
 - Completely dark background for better image on OLED screens
