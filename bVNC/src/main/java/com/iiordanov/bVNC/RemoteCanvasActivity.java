@@ -52,7 +52,6 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.View.OnKeyListener;
 import android.view.View.OnLongClickListener;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
@@ -85,6 +84,7 @@ import com.iiordanov.bVNC.input.InputHandlerTouchpad;
 import com.iiordanov.bVNC.input.MetaKeyBean;
 import com.iiordanov.bVNC.input.Panner;
 import com.iiordanov.bVNC.input.RemoteCanvasHandler;
+import com.iiordanov.bVNC.input.RemoteClientsOnKeyListener;
 import com.iiordanov.bVNC.input.RemoteKeyboard;
 import com.iiordanov.util.SamsungDexUtils;
 import com.iiordanov.util.UriIntentParser;
@@ -111,7 +111,7 @@ import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyListener,
+public class RemoteCanvasActivity extends AppCompatActivity implements
         SelectTextElementFragment.OnFragmentDismissedListener {
 
     public static final int[] inputModeIds = {R.id.itemInputTouchpad,
@@ -311,6 +311,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
         if (connection != null && connection.isReadyForConnection()) {
             continueConnecting();
         }
+
         android.util.Log.d(TAG, "OnCreate complete");
     }
 
@@ -458,7 +459,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
         // Initialize and define actions for on-screen keys.
         initializeOnScreenKeys();
 
-        canvas.setOnKeyListener(this);
+        setCanvasOnKeyListener();
         canvas.setFocusableInTouchMode(true);
         canvas.setDrawingCacheEnabled(false);
 
@@ -991,12 +992,12 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
     /**
      * Resets the state and image of the on-screen keys.
      */
-    private void resetOnScreenKeys(int keyCode) {
+    private int resetOnScreenKeys(int keyCode) {
         // Do not reset on-screen keys if keycode is SHIFT.
         switch (keyCode) {
             case KeyEvent.KEYCODE_SHIFT_LEFT:
             case KeyEvent.KEYCODE_SHIFT_RIGHT:
-                return;
+                return keyCode;
         }
         if (!keyCtrlToggled) {
             keyCtrl.setImageResource(R.drawable.ctrloff);
@@ -1014,6 +1015,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
             keyShift.setImageResource(R.drawable.shiftoff);
             canvas.getKeyboard().onScreenShiftOff();
         }
+        return keyCode;
     }
 
     /**
@@ -1069,7 +1071,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
      */
     void setModes() {
         Log.d(TAG, "setModes");
-        inputHandler = getInputHandlerByName(connection.getInputMode());
+        setInputHandler(getInputHandlerByName(connection.getInputMode()));
         AbstractScaling.getByScaleType(connection.getScaleMode()).setScaleTypeForActivity(this);
         initializeOnScreenKeys();
         try {
@@ -1078,7 +1080,6 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
         }
-        canvas.setOnKeyListener(this);
         canvas.setFocusableInTouchMode(true);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             canvas.setFocusedByDefault(true);
@@ -1465,7 +1466,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
     public boolean setInputMode(int id) {
         InputHandler input = getInputHandlerById(id);
         if (input != null) {
-            inputHandler = input;
+            setInputHandler(input);
             connection.setInputMode(input.getId());
             if (input.getId().equals(InputHandlerTouchpad.ID)) {
                 connection.setFollowMouse(true);
@@ -1481,6 +1482,18 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
             return true;
         }
         return false;
+    }
+
+    private void setInputHandler(InputHandler input) {
+        inputHandler = input;
+        setCanvasOnKeyListener();
+    }
+
+    private void setCanvasOnKeyListener() {
+        RemoteClientsOnKeyListener listener = new RemoteClientsOnKeyListener(
+                this, inputHandler, this::resetOnScreenKeys
+        );
+        canvas.setOnKeyListener(listener);
     }
 
     private void sendSpecialKeyAgain() {
@@ -1514,31 +1527,6 @@ public class RemoteCanvasActivity extends AppCompatActivity implements OnKeyList
         if (canvas != null)
             canvas.closeConnection();
         System.gc();
-    }
-
-    @Override
-    public boolean onKey(View v, int keyCode, KeyEvent evt) {
-
-        boolean consumed = false;
-
-        if (keyCode == KeyEvent.KEYCODE_MENU) {
-            if (evt.getAction() == KeyEvent.ACTION_DOWN)
-                return super.onKeyDown(keyCode, evt);
-            else
-                return super.onKeyUp(keyCode, evt);
-        }
-
-        try {
-            if (evt.getAction() == KeyEvent.ACTION_DOWN || evt.getAction() == KeyEvent.ACTION_MULTIPLE) {
-                consumed = inputHandler.onKeyDown(keyCode, evt);
-            } else if (evt.getAction() == KeyEvent.ACTION_UP) {
-                consumed = inputHandler.onKeyUp(keyCode, evt);
-            }
-            resetOnScreenKeys(keyCode);
-        } catch (NullPointerException e) {
-        }
-
-        return consumed;
     }
 
     public void showPanningState(boolean showLonger) {
