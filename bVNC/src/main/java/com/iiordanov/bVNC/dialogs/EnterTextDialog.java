@@ -33,7 +33,6 @@ import android.widget.ImageButton;
 import com.iiordanov.bVNC.Database;
 import com.iiordanov.bVNC.RemoteCanvasActivity;
 import com.iiordanov.bVNC.SentTextBean;
-import com.undatech.opaque.input.RemoteKeyboard;
 import com.undatech.remoteClientUi.R;
 
 import net.sqlcipher.database.SQLiteDatabase;
@@ -89,8 +88,7 @@ public class EnterTextDialog extends Dialog {
     }
 
     private void sendText(String s) {
-        RemoteKeyboard k = _canvasActivity.getCanvas().getKeyboard();
-        k.sendText(s);
+        _canvasActivity.inputListener.sendText(s);
     }
 
     /* (non-Javadoc)

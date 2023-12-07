@@ -321,7 +321,7 @@ public class SpiceCommunicator extends RfbConnectable {
         SpiceButtonEvent(x, y, metaState, pointerMask, rel);
     }
 
-    public void sendSpiceKeyEvent(boolean keyDown, int virtualKeyCode) {
+    public synchronized void sendSpiceKeyEvent(boolean keyDown, int virtualKeyCode) {
         GeneralUtils.debugLog(this.debugLogging, TAG, "sendSpiceKeyEvent: down: " + keyDown +
                 " code: " + virtualKeyCode);
         SpiceKeyEvent(keyDown, virtualKeyCode);
@@ -373,7 +373,7 @@ public class SpiceCommunicator extends RfbConnectable {
     }
 
     @Override
-    public void writePointerEvent(int x, int y, int metaState, int pointerMask, boolean rel) {
+    public synchronized void writePointerEvent(int x, int y, int metaState, int pointerMask, boolean rel) {
         this.metaState = metaState;
         if ((pointerMask & RemotePointer.POINTER_DOWN_MASK) != 0)
             sendModifierKeys(true);
@@ -396,7 +396,7 @@ public class SpiceCommunicator extends RfbConnectable {
         }
     }
 
-    public void writeKeyEvent(int key, int metaState, boolean keyDown) {
+    public synchronized void writeKeyEvent(int key, int metaState, boolean keyDown) {
         if (keyDown) {
             this.metaState = metaState;
             sendModifierKeys(true);

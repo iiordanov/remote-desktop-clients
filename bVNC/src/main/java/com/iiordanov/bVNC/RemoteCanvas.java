@@ -33,6 +33,7 @@ package com.iiordanov.bVNC;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Bitmap;
@@ -44,7 +45,6 @@ import android.net.Uri;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.provider.Settings;
-import android.content.ClipboardManager;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -60,7 +60,7 @@ import androidx.appcompat.widget.AppCompatImageView;
 import com.iiordanov.android.bc.BCFactory;
 import com.iiordanov.bVNC.dialogs.GetTextFragment;
 import com.iiordanov.bVNC.exceptions.AnonCipherUnsupportedException;
-import com.iiordanov.bVNC.input.InputHandlerTouchpad;
+import com.iiordanov.bVNC.input.KeyInputHandler;
 import com.iiordanov.bVNC.input.RemoteCanvasHandler;
 import com.iiordanov.bVNC.input.RemoteKeyboard;
 import com.iiordanov.bVNC.input.RemotePointer;
@@ -70,6 +70,7 @@ import com.iiordanov.bVNC.input.RemoteSpiceKeyboard;
 import com.iiordanov.bVNC.input.RemoteSpicePointer;
 import com.iiordanov.bVNC.input.RemoteVncKeyboard;
 import com.iiordanov.bVNC.input.RemoteVncPointer;
+import com.iiordanov.bVNC.input.TouchInputHandlerTouchpad;
 import com.tigervnc.rfb.AuthFailureException;
 import com.undatech.opaque.Connection;
 import com.undatech.opaque.MessageDialogs;
@@ -84,6 +85,7 @@ import com.undatech.opaque.proxmox.pojo.PveResource;
 import com.undatech.opaque.proxmox.pojo.SpiceDisplay;
 import com.undatech.opaque.proxmox.pojo.VmStatus;
 import com.undatech.opaque.util.FileUtils;
+import com.undatech.opaque.util.GeneralUtils;
 import com.undatech.remoteClientUi.R;
 
 import org.apache.http.HttpException;
@@ -98,8 +100,8 @@ import java.util.Timer;
 
 import javax.security.auth.login.LoginException;
 
-public class RemoteCanvas extends AppCompatImageView
-        implements Viewable, GetTextFragment.OnFragmentDismissedListener {
+public class RemoteCanvas extends AppCompatImageView implements KeyInputHandler,
+        Viewable, GetTextFragment.OnFragmentDismissedListener {
     private final static String TAG = "RemoteCanvas";
 
     public AbstractScaling canvasZoomer;
@@ -1718,7 +1720,7 @@ public class RemoteCanvas extends AppCompatImageView
 
     @Override
     public void mouseMode(boolean relative) {
-        if (relative && !connection.getInputMode().equals(InputHandlerTouchpad.ID)) {
+        if (relative && !connection.getInputMode().equals(TouchInputHandlerTouchpad.ID)) {
             showMessage(getContext().getString(R.string.info_set_touchpad_input_mode));
         } else {
             this.pointer.setRelativeEvents(relative);
@@ -1980,5 +1982,17 @@ public class RemoteCanvas extends AppCompatImageView
                 android.util.Log.e(TAG, "Unknown dialog type.");
                 break;
         }
+    }
+
+    @Override
+    public boolean onKeyDownEvent(int keyCode, KeyEvent e) {
+        GeneralUtils.debugLog(App.debugLog, TAG, "onKeyDownEvent, e: " + e);
+        return keyboard.keyEvent(keyCode, e);
+    }
+
+    @Override
+    public boolean onKeyUpEvent(int keyCode, KeyEvent e) {
+        GeneralUtils.debugLog(App.debugLog, TAG, "onKeyUpEvent, e: " + e);
+        return keyboard.keyEvent(keyCode, e);
     }
 }

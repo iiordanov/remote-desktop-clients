@@ -66,7 +66,7 @@ import com.iiordanov.bVNC.dialogs.GetTextFragment;
 import com.iiordanov.bVNC.dialogs.ImportExportDialog;
 import com.iiordanov.bVNC.dialogs.IntroTextDialog;
 import com.iiordanov.bVNC.dialogs.RateOrShareFragment;
-import com.iiordanov.bVNC.input.InputHandlerDirectSwipePan;
+import com.iiordanov.bVNC.input.TouchInputHandlerDirectSwipePan;
 import com.iiordanov.util.MasterPasswordDelegate;
 import com.undatech.opaque.util.ConnectionLoader;
 import com.undatech.opaque.util.FileUtils;
@@ -468,7 +468,7 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
             inputModeMenuItems[i] = inputMenu.findItem(RemoteCanvasActivity.inputModeIds[i]);
         }
         String defaultInputHandlerId = Utils.querySharedPreferenceString(
-                this, Constants.defaultInputMethodTag, InputHandlerDirectSwipePan.ID);
+                this, Constants.defaultInputMethodTag, TouchInputHandlerDirectSwipePan.ID);
         android.util.Log.d(TAG, "Default Input Mode Item: " + defaultInputHandlerId);
 
         try {

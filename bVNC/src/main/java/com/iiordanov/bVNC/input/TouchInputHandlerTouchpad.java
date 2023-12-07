@@ -27,12 +27,12 @@ import com.iiordanov.bVNC.RemoteCanvasActivity;
 import com.undatech.opaque.util.GeneralUtils;
 import com.undatech.remoteClientUi.R;
 
-public class InputHandlerTouchpad extends InputHandlerGeneric {
+public class TouchInputHandlerTouchpad extends TouchInputHandlerGeneric {
     public static final String ID = "TOUCHPAD_MODE";
     static final String TAG = "InputHandlerTouchpad";
 
-    public InputHandlerTouchpad(RemoteCanvasActivity activity, RemoteCanvas canvas,
-                                RemotePointer pointer, boolean debugLogging) {
+    public TouchInputHandlerTouchpad(RemoteCanvasActivity activity, RemoteCanvas canvas,
+                                     RemotePointer pointer, boolean debugLogging) {
         super(activity, canvas, pointer, debugLogging);
     }
 

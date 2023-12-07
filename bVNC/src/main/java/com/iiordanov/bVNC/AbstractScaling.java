@@ -105,9 +105,9 @@ public abstract class AbstractScaling {
         // it to identify Fit-to-screen scale mode. Instead of setting scaleType here, we hard-code MATRIX.
         canvas.setScaleType(ImageView.ScaleType.MATRIX);
         activity.getConnection().setScaleMode(scaleType);
-        if (activity.inputHandler == null || !isValidInputMode(activity.getModeIdFromHandler(activity.inputHandler))) {
-            activity.inputHandler = activity.getInputHandlerById(getDefaultHandlerId());
-            activity.getConnection().setInputMode(activity.inputHandler.getId());
+        if (activity.touchInputHandler == null || !isValidInputMode(activity.getModeIdFromHandler(activity.touchInputHandler))) {
+            activity.touchInputHandler = activity.getInputHandlerById(getDefaultHandlerId());
+            activity.getConnection().setInputMode(activity.touchInputHandler.getId());
         }
         activity.getConnection().save(activity);
         activity.updateInputMenu();

@@ -27,12 +27,12 @@ import com.iiordanov.bVNC.RemoteCanvasActivity;
 import com.undatech.opaque.util.GeneralUtils;
 import com.undatech.remoteClientUi.R;
 
-public class InputHandlerDirectDragPan extends InputHandlerGeneric {
+public class TouchInputHandlerDirectDragPan extends TouchInputHandlerGeneric {
     public static final String ID = "TOUCH_ZOOM_MODE_DRAG_PAN";
     static final String TAG = "InputHandlerDirectDragPan";
 
-    public InputHandlerDirectDragPan(RemoteCanvasActivity activity, RemoteCanvas canvas,
-                                     RemotePointer pointer, boolean debugLogging) {
+    public TouchInputHandlerDirectDragPan(RemoteCanvasActivity activity, RemoteCanvas canvas,
+                                          RemotePointer pointer, boolean debugLogging) {
         super(activity, canvas, pointer, debugLogging);
     }
 

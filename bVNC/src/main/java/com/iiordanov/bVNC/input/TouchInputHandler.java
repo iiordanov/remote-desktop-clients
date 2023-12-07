@@ -20,13 +20,9 @@
 
 package com.iiordanov.bVNC.input;
 
-import android.view.KeyEvent;
 import android.view.MotionEvent;
 
-public interface InputHandler {
-    boolean onKeyDown(int keyCode, KeyEvent event);
-
-    boolean onKeyUp(int keyCode, KeyEvent event);
+public interface TouchInputHandler {
 
     boolean onTouchEvent(MotionEvent event);
 

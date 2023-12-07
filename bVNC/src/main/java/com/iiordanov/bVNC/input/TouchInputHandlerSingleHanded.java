@@ -31,7 +31,7 @@ import com.iiordanov.bVNC.RemoteCanvasActivity;
 import com.undatech.opaque.util.GeneralUtils;
 import com.undatech.remoteClientUi.R;
 
-public class InputHandlerSingleHanded extends InputHandlerDirectSwipePan {
+public class TouchInputHandlerSingleHanded extends TouchInputHandlerDirectSwipePan {
     public static final String ID = "SINGLE_HANDED_MODE";
     static final String TAG = "InputHandlerSingleHand";
     int accumulatedScroll;
@@ -45,8 +45,8 @@ public class InputHandlerSingleHanded extends InputHandlerDirectSwipePan {
     private int eventStartX, eventStartY, eventAction, eventMeta;
     private boolean needInitPan;
 
-    public InputHandlerSingleHanded(RemoteCanvasActivity activity, RemoteCanvas canvas,
-                                    RemotePointer pointer, boolean debugLogging) {
+    public TouchInputHandlerSingleHanded(RemoteCanvasActivity activity, RemoteCanvas canvas,
+                                         RemotePointer pointer, boolean debugLogging) {
         super(activity, canvas, pointer, debugLogging);
         initializeButtons();
     }

@@ -27,7 +27,7 @@ import android.util.Log;
 import android.widget.ImageView.ScaleType;
 
 import com.antlersoft.android.dbimpl.NewInstance;
-import com.iiordanov.bVNC.input.InputHandlerDirectSwipePan;
+import com.iiordanov.bVNC.input.TouchInputHandlerDirectSwipePan;
 import com.undatech.opaque.Connection;
 import com.undatech.remoteClientUi.R;
 
@@ -63,7 +63,7 @@ public class ConnectionBean extends AbstractConnectionBean implements Connection
     private boolean showOnlyConnectionNicknames = false;
 
     public ConnectionBean(Context context) {
-        String inputMode = InputHandlerDirectSwipePan.ID;
+        String inputMode = TouchInputHandlerDirectSwipePan.ID;
         Boolean preferSendingUnicode = false;
 
         if (context == null) {
@@ -72,7 +72,7 @@ public class ConnectionBean extends AbstractConnectionBean implements Connection
 
         if (context != null) {
             inputMode = Utils.querySharedPreferenceString(context, Constants.defaultInputMethodTag,
-                    InputHandlerDirectSwipePan.ID);
+                    TouchInputHandlerDirectSwipePan.ID);
             preferSendingUnicode = Utils.querySharedPreferenceBoolean(context, Constants.preferSendingUnicode);
         } else {
             android.util.Log.e(TAG, "Failed to query defaults from shared preferences, context is null.");

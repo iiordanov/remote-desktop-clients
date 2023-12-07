@@ -136,7 +136,7 @@ public class RdpCommunicator extends RfbConnectable implements RdpKeyboardMapper
     }
 
     @Override
-    public void writePointerEvent(int x, int y, int metaState, int pointerMask, boolean rel) {
+    public synchronized void writePointerEvent(int x, int y, int metaState, int pointerMask, boolean rel) {
         this.metaState = metaState;
         if ((pointerMask & RemotePointer.POINTER_DOWN_MASK) != 0) {
             sendModifierKeys(true);
@@ -152,7 +152,7 @@ public class RdpCommunicator extends RfbConnectable implements RdpKeyboardMapper
     }
 
     @Override
-    public void writeKeyEvent(int key, int metaState, boolean down) {
+    public synchronized void writeKeyEvent(int key, int metaState, boolean down) {
         // Not used for actually sending keyboard events, but rather to record the current metastate.
         // The key event is sent to the KeyboardMapper from RemoteRdpKeyboard, and
         // when processed through the keyboard mapper, it ends up in one of the KeyProcessingListener

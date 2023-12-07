@@ -1545,7 +1545,7 @@ public class RfbProto extends RfbConnectable {
         }
     }
 
-    private void writeKeyEvent(int keysym, boolean down) {
+    private synchronized void writeKeyEvent(int keysym, boolean down) {
 
         if (viewOnly)
             return;

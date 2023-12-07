@@ -22,7 +22,6 @@ package com.iiordanov.bVNC.input;
 
 import android.os.SystemClock;
 import android.view.GestureDetector;
-import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 
@@ -36,8 +35,8 @@ import com.undatech.opaque.util.GeneralUtils;
 import java.util.LinkedList;
 import java.util.Queue;
 
-abstract class InputHandlerGeneric extends GestureDetector.SimpleOnGestureListener
-        implements InputHandler, ScaleGestureDetector.OnScaleGestureListener {
+abstract class TouchInputHandlerGeneric extends GestureDetector.SimpleOnGestureListener
+        implements TouchInputHandler, ScaleGestureDetector.OnScaleGestureListener {
     private static final String TAG = "InputHandlerGeneric";
     protected final boolean debugLogging;
     final int maxSwipeSpeed = 7;
@@ -105,8 +104,8 @@ abstract class InputHandlerGeneric extends GestureDetector.SimpleOnGestureListen
     Queue<Float> distXQueue;
     Queue<Float> distYQueue;
 
-    InputHandlerGeneric(RemoteCanvasActivity activity, RemoteCanvas canvas, RemotePointer pointer,
-                        boolean debugLogging) {
+    TouchInputHandlerGeneric(RemoteCanvasActivity activity, RemoteCanvas canvas, RemotePointer pointer,
+                             boolean debugLogging) {
         this.activity = activity;
         this.canvas = canvas;
         this.pointer = pointer;
@@ -658,24 +657,6 @@ abstract class InputHandlerGeneric extends GestureDetector.SimpleOnGestureListen
         inScaling = false;
         inSwiping = false;
         scalingJustFinished = true;
-    }
-
-    /*
-     * @see com.iiordanov.bVNC.input.InputHandler#onKeyDown(int, android.view.KeyEvent)
-     */
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent e) {
-        GeneralUtils.debugLog(debugLogging, TAG, "onKeyDown, e: " + e);
-        return canvas.getKeyboard().keyEvent(keyCode, e);
-    }
-
-    /*
-     * @see com.iiordanov.bVNC.input.InputHandler#onKeyUp(int, android.view.KeyEvent)
-     */
-    @Override
-    public boolean onKeyUp(int keyCode, KeyEvent e) {
-        GeneralUtils.debugLog(debugLogging, TAG, "onKeyDown, e: " + e);
-        return canvas.getKeyboard().keyEvent(keyCode, e);
     }
 
     /**

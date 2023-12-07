@@ -45,7 +45,6 @@ import android.os.SystemClock;
 import android.os.Vibrator;
 import android.util.Log;
 import android.view.Gravity;
-import android.view.InputDevice;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -76,16 +75,16 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.iiordanov.android.bc.BCFactory;
 import com.iiordanov.bVNC.dialogs.EnterTextDialog;
 import com.iiordanov.bVNC.dialogs.MetaKeyDialog;
-import com.iiordanov.bVNC.input.InputHandler;
-import com.iiordanov.bVNC.input.InputHandlerDirectDragPan;
-import com.iiordanov.bVNC.input.InputHandlerDirectSwipePan;
-import com.iiordanov.bVNC.input.InputHandlerSingleHanded;
-import com.iiordanov.bVNC.input.InputHandlerTouchpad;
 import com.iiordanov.bVNC.input.MetaKeyBean;
 import com.iiordanov.bVNC.input.Panner;
 import com.iiordanov.bVNC.input.RemoteCanvasHandler;
-import com.iiordanov.bVNC.input.RemoteClientsOnKeyListener;
+import com.iiordanov.bVNC.input.RemoteClientsInputListener;
 import com.iiordanov.bVNC.input.RemoteKeyboard;
+import com.iiordanov.bVNC.input.TouchInputHandler;
+import com.iiordanov.bVNC.input.TouchInputHandlerDirectDragPan;
+import com.iiordanov.bVNC.input.TouchInputHandlerDirectSwipePan;
+import com.iiordanov.bVNC.input.TouchInputHandlerSingleHanded;
+import com.iiordanov.bVNC.input.TouchInputHandlerTouchpad;
 import com.iiordanov.util.SamsungDexUtils;
 import com.iiordanov.util.UriIntentParser;
 import com.undatech.opaque.Connection;
@@ -125,15 +124,15 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
 
     static {
         Map<Integer, String> temp = new HashMap<>();
-        temp.put(R.id.itemInputTouchpad, InputHandlerTouchpad.ID);
-        temp.put(R.id.itemInputDragPanZoomMouse, InputHandlerDirectDragPan.ID);
-        temp.put(R.id.itemInputTouchPanZoomMouse, InputHandlerDirectSwipePan.ID);
-        temp.put(R.id.itemInputSingleHanded, InputHandlerSingleHanded.ID);
+        temp.put(R.id.itemInputTouchpad, TouchInputHandlerTouchpad.ID);
+        temp.put(R.id.itemInputDragPanZoomMouse, TouchInputHandlerDirectDragPan.ID);
+        temp.put(R.id.itemInputTouchPanZoomMouse, TouchInputHandlerDirectSwipePan.ID);
+        temp.put(R.id.itemInputSingleHanded, TouchInputHandlerSingleHanded.ID);
         inputModeMap = Collections.unmodifiableMap(temp);
     }
 
     final long hideToolbarDelay = 2500;
-    InputHandler inputHandler;
+    TouchInputHandler touchInputHandler;
     Panner panner;
     Handler handler;
     RelativeLayout layoutKeys;
@@ -162,8 +161,10 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
     private RemoteCanvas canvas;
     private MenuItem[] inputModeMenuItems;
     private MenuItem[] scalingModeMenuItems;
-    private InputHandler inputModeHandlers[];
+    private TouchInputHandler inputModeHandlers[];
     private Connection connection;
+    public RemoteClientsInputListener inputListener;
+
     /**
      * This runnable enables immersive mode.
      */
@@ -459,7 +460,6 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
         // Initialize and define actions for on-screen keys.
         initializeOnScreenKeys();
 
-        setCanvasOnKeyListener();
         canvas.setFocusableInTouchMode(true);
         canvas.setDrawingCacheEnabled(false);
 
@@ -1320,7 +1320,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
         try {
             for (MenuItem item : inputModeMenuItems) {
                 item.setEnabled(canvas.canvasZoomer.isValidInputMode(item.getItemId()));
-                if (getInputHandlerById(item.getItemId()) == inputHandler)
+                if (getInputHandlerById(item.getItemId()) == touchInputHandler)
                     item.setChecked(true);
             }
         } catch (NullPointerException e) {
@@ -1333,23 +1333,23 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
      * @param id
      * @return
      */
-    InputHandler getInputHandlerById(int id) {
+    TouchInputHandler getInputHandlerById(int id) {
         myVibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
 
         if (inputModeHandlers == null) {
-            inputModeHandlers = new InputHandler[inputModeIds.length];
+            inputModeHandlers = new TouchInputHandler[inputModeIds.length];
         }
         for (int i = 0; i < inputModeIds.length; ++i) {
             if (inputModeIds[i] == id) {
                 if (inputModeHandlers[i] == null) {
                     if (id == R.id.itemInputTouchPanZoomMouse) {
-                        inputModeHandlers[i] = new InputHandlerDirectSwipePan(this, canvas, canvas.getPointer(), App.debugLog);
+                        inputModeHandlers[i] = new TouchInputHandlerDirectSwipePan(this, canvas, canvas.getPointer(), App.debugLog);
                     } else if (id == R.id.itemInputDragPanZoomMouse) {
-                        inputModeHandlers[i] = new InputHandlerDirectDragPan(this, canvas, canvas.getPointer(), App.debugLog);
+                        inputModeHandlers[i] = new TouchInputHandlerDirectDragPan(this, canvas, canvas.getPointer(), App.debugLog);
                     } else if (id == R.id.itemInputTouchpad) {
-                        inputModeHandlers[i] = new InputHandlerTouchpad(this, canvas, canvas.getPointer(), App.debugLog);
+                        inputModeHandlers[i] = new TouchInputHandlerTouchpad(this, canvas, canvas.getPointer(), App.debugLog);
                     } else if (id == R.id.itemInputSingleHanded) {
-                        inputModeHandlers[i] = new InputHandlerSingleHanded(this, canvas, canvas.getPointer(), App.debugLog);
+                        inputModeHandlers[i] = new TouchInputHandlerSingleHanded(this, canvas, canvas.getPointer(), App.debugLog);
                     } else {
                         throw new IllegalStateException("Unexpected value: " + id);
                     }
@@ -1370,10 +1370,10 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
         inputModeHandlers = null;
     }
 
-    InputHandler getInputHandlerByName(String name) {
-        InputHandler result = null;
+    TouchInputHandler getInputHandlerByName(String name) {
+        TouchInputHandler result = null;
         for (int id : inputModeIds) {
-            InputHandler handler = getInputHandlerById(id);
+            TouchInputHandler handler = getInputHandlerById(id);
             if (handler.getId().equals(name)) {
                 result = handler;
                 break;
@@ -1385,7 +1385,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
         return result;
     }
 
-    int getModeIdFromHandler(InputHandler handler) {
+    int getModeIdFromHandler(TouchInputHandler handler) {
         for (int id : inputModeIds) {
             if (handler == getInputHandlerById(id))
                 return id;
@@ -1464,11 +1464,11 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
     }
 
     public boolean setInputMode(int id) {
-        InputHandler input = getInputHandlerById(id);
+        TouchInputHandler input = getInputHandlerById(id);
         if (input != null) {
             setInputHandler(input);
             connection.setInputMode(input.getId());
-            if (input.getId().equals(InputHandlerTouchpad.ID)) {
+            if (input.getId().equals(TouchInputHandlerTouchpad.ID)) {
                 connection.setFollowMouse(true);
                 connection.setFollowPan(true);
             } else {
@@ -1484,16 +1484,16 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
         return false;
     }
 
-    private void setInputHandler(InputHandler input) {
-        inputHandler = input;
-        setCanvasOnKeyListener();
-    }
-
-    private void setCanvasOnKeyListener() {
-        RemoteClientsOnKeyListener listener = new RemoteClientsOnKeyListener(
-                this, inputHandler, this::resetOnScreenKeys
+    private void setInputHandler(TouchInputHandler input) {
+        touchInputHandler = input;
+        inputListener = new RemoteClientsInputListener(
+                this,
+                canvas,
+                touchInputHandler,
+                this::resetOnScreenKeys,
+                connection.getUseDpadAsArrows()
         );
-        canvas.setOnKeyListener(listener);
+        canvas.setOnKeyListener(inputListener);
     }
 
     private void sendSpecialKeyAgain() {
@@ -1531,7 +1531,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
 
     public void showPanningState(boolean showLonger) {
         if (showLonger) {
-            final Toast t = Toast.makeText(this, inputHandler.getDescription(), Toast.LENGTH_LONG);
+            final Toast t = Toast.makeText(this, touchInputHandler.getDescription(), Toast.LENGTH_LONG);
             TimerTask tt = new TimerTask() {
                 @Override
                 public void run() {
@@ -1546,7 +1546,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
             new Timer().schedule(tt, 2000);
             t.show();
         } else {
-            Toast t = Toast.makeText(this, inputHandler.getDescription(), Toast.LENGTH_SHORT);
+            Toast t = Toast.makeText(this, touchInputHandler.getDescription(), Toast.LENGTH_SHORT);
             t.show();
         }
     }
@@ -1558,48 +1558,40 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
      */
     @Override
     public boolean onTrackballEvent(MotionEvent event) {
-        try {
-            // If we are using the Dpad as arrow keys, don't send the event to the inputHandler.
-            if (connection.getUseDpadAsArrows())
-                return false;
-            return inputHandler.onTouchEvent(event);
-        } catch (NullPointerException e) {
+        boolean consumed = false;
+        if (inputListener != null) {
+            consumed = inputListener.onTrackballEvent(event);
         }
-        return super.onTrackballEvent(event);
+        if (!consumed) {
+            consumed = super.onTrackballEvent(event);
+        }
+        return consumed;
     }
 
     // Send touch events or mouse events like button clicks to be handled.
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        try {
-            return inputHandler.onTouchEvent(event);
-        } catch (NullPointerException e) {
+        boolean consumed = false;
+        if (inputListener != null) {
+            consumed = inputListener.onTouchEvent(event);
         }
-        return super.onTouchEvent(event);
+        if (!consumed) {
+            consumed = super.onTrackballEvent(event);
+        }
+        return consumed;
     }
 
     // Send e.g. mouse events like hover and scroll to be handled.
     @Override
     public boolean onGenericMotionEvent(MotionEvent event) {
-        // Ignore TOOL_TYPE_FINGER events that come from the touchscreen with HOVER type action
-        // which cause pointer jumping trouble in simulated touchpad for some devices.
-        boolean toolTypeFinger = false;
-        if (Constants.SDK_INT >= android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-            toolTypeFinger = event.getToolType(0) == MotionEvent.TOOL_TYPE_FINGER;
+        boolean consumed = false;
+        if (inputListener != null) {
+            consumed = inputListener.onGenericMotionEvent(event);
         }
-        int a = event.getAction();
-        if (!((a == MotionEvent.ACTION_HOVER_ENTER ||
-                a == MotionEvent.ACTION_HOVER_EXIT ||
-                a == MotionEvent.ACTION_HOVER_MOVE) &&
-                event.getSource() == InputDevice.SOURCE_TOUCHSCREEN &&
-                toolTypeFinger
-        )) {
-            try {
-                return inputHandler.onTouchEvent(event);
-            } catch (NullPointerException e) {
-            }
+        if (!consumed) {
+            consumed = super.onGenericMotionEvent(event);
         }
-        return super.onGenericMotionEvent(event);
+        return consumed;
     }
 
     private void selectColorModel() {
@@ -1726,8 +1718,8 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
 
     @Override
     public void onBackPressed() {
-        if (inputHandler != null) {
-            inputHandler.onKeyDown(KeyEvent.KEYCODE_BACK, new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_BACK));
+        if (inputListener != null) {
+            inputListener.onKey(canvas, KeyEvent.KEYCODE_BACK, new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_BACK));
         }
     }
 
@@ -1738,6 +1730,4 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
                 toolbar.hide();
         }
     }
-
-
 }
