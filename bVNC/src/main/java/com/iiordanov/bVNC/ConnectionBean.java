@@ -600,7 +600,7 @@ public class ConnectionBean extends AbstractConnectionBean implements Connection
     private void parsePortIfIpv4Address() {
         // Parse a HOST:PORT entry but only if not ipv6 address
         String host = this.getAddress();
-        if (!NetworkUtils.INSTANCE.isValidIpv6Address(host) && host.indexOf(':') > -1) {
+        if (host.indexOf(':') > -1 && !NetworkUtils.INSTANCE.isValidIpv6Address(host)) {
             String p = host.substring(host.indexOf(':') + 1);
             try {
                 int parsedPort = Integer.parseInt(p);
