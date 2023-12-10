@@ -18,7 +18,6 @@ import androidx.fragment.app.FragmentManager;
 
 import com.iiordanov.bVNC.RemoteCanvas;
 import com.iiordanov.bVNC.RemoteCanvasActivity;
-import com.iiordanov.bVNC.SSHConnection;
 import com.iiordanov.bVNC.Utils;
 import com.iiordanov.bVNC.dialogs.GetTextFragment;
 import com.undatech.opaque.Connection;
@@ -42,8 +41,6 @@ public class RemoteCanvasHandler extends Handler {
     private RemoteCanvas c;
     private Connection connection;
     private FragmentManager fm;
-
-    private SSHConnection sshConnection;
 
     public RemoteCanvasHandler(Context context,
                                RemoteCanvas c,
@@ -311,55 +308,50 @@ public class RemoteCanvasHandler extends Handler {
     /**
      * Function used to initialize an empty SSH HostKey for a new VNC over SSH connection.
      */
-    public void initializeSshHostKey(boolean keyChangeDetected) {
+    public void initializeSshHostKey(
+            boolean keyChangeDetected,
+            String idHash,
+            String serverHostKey,
+            String hostKeySignature
+    ) {
         // If the SSH HostKey is empty, then we need to grab the HostKey from the server and save it.
         Log.d(TAG, "Attempting to initialize SSH HostKey.");
 
         c.displayShortToastMessage(context.getString(R.string.info_ssh_initializing_hostkey));
-
-        sshConnection = new SSHConnection(connection, context, this);
-        if (!sshConnection.connect()) {
-            // Failed to connect, so show error message and quit activity.
-            c.showFatalMessageAndQuit(context.getString(R.string.error_ssh_unable_to_connect));
-        } else {
-            // Show a dialog with the key signature.
-            DialogInterface.OnClickListener signatureNo = new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    // We were told to not continue, so stop the activity
-                    sshConnection.terminateSSHTunnel();
-                    c.pd.dismiss();
-                    Utils.justFinish(context);
+        // Show a dialog with the key signature.
+        DialogInterface.OnClickListener signatureNo = new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                // We were told to not continue, so stop the activity
+                c.pd.dismiss();
+                Utils.justFinish(context);
+            }
+        };
+        DialogInterface.OnClickListener signatureYes = new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                // We were told to go ahead with the connection.
+                connection.setIdHash(idHash); // could prompt based on algorithm
+                connection.setSshHostKey(serverHostKey);
+                connection.save(context);
+                synchronized (RemoteCanvasHandler.this) {
+                    RemoteCanvasHandler.this.notify();
                 }
-            };
-            DialogInterface.OnClickListener signatureYes = new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    // We were told to go ahead with the connection.
-                    connection.setIdHash(sshConnection.getIdHash()); // could prompt based on algorithm
-                    connection.setSshHostKey(sshConnection.getServerHostKey());
-                    connection.save(context);
-                    sshConnection.terminateSSHTunnel();
-                    sshConnection = null;
-                    synchronized (RemoteCanvasHandler.this) {
-                        RemoteCanvasHandler.this.notify();
-                    }
-                }
-            };
+            }
+        };
 
-            String warning = keyChangeDetected ?
-                    context.getString(R.string.error_ssh_hostkey_changed) + "\n" : "\n";
-            Utils.showYesNoPrompt(
-                    context,
-                    context.getString(R.string.info_continue_connecting) + connection.getSshServer() + "?",
-                    warning +
-                            context.getString(R.string.info_ssh_key_fingerprint) +
-                            sshConnection.getHostKeySignature() +
-                            context.getString(R.string.info_ssh_key_fingerprint_identical),
-                    signatureYes,
-                    signatureNo
-            );
-        }
+        String warning = keyChangeDetected ?
+                context.getString(R.string.error_ssh_hostkey_changed) + "\n" : "\n";
+        Utils.showYesNoPrompt(
+                context,
+                context.getString(R.string.info_continue_connecting) + connection.getSshServer() + "?",
+                warning +
+                        context.getString(R.string.info_ssh_key_fingerprint) +
+                        hostKeySignature +
+                        context.getString(R.string.info_ssh_key_fingerprint_identical),
+                signatureYes,
+                signatureNo
+        );
     }
 
 
@@ -438,7 +430,11 @@ public class RemoteCanvasHandler extends Handler {
             case RemoteClientLibConstants.DIALOG_SSH_CERT:
                 android.util.Log.d(TAG, "DIALOG_SSH_CERT");
                 messageData = (Bundle) msg.obj;
-                initializeSshHostKey(messageData.getBoolean("keyChangeDetected"));
+                boolean keyChangeDetected = messageData.getBoolean("keyChangeDetected");
+                String idHash = messageData.getString("idHash");
+                String serverHostKey = messageData.getString("serverHostKey");
+                String hostKeySignature = messageData.getString("hostKeySignature");
+                initializeSshHostKey(keyChangeDetected, idHash, serverHostKey, hostKeySignature);
                 break;
             case RemoteClientLibConstants.DIALOG_RDP_CERT:
                 android.util.Log.d(TAG, "DIALOG_RDP_CERT");

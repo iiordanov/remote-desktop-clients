@@ -279,6 +279,7 @@ public class RemoteCanvas extends AppCompatImageView implements KeyInputHandler,
 
         // Make this dialog cancellable only upon hitting the Back button and not touching outside.
         pd.setCanceledOnTouchOutside(false);
+        pd.setCancelable(false);
     }
 
     void init(final Connection settings, final Handler handler, final Runnable setModes, final Runnable hideKeyboardAndExtraKeys, final String vvFileName) {
@@ -411,8 +412,10 @@ public class RemoteCanvas extends AppCompatImageView implements KeyInputHandler,
         Thread t = new Thread() {
             public void run() {
                 try {
-                    sshConnection = new SSHConnection(connection, getContext(), handler);
-                    sshConnection.changeOrInitializeSshHostKey(false);
+                    if (sshTunneled) {
+                        sshConnection = new SSHConnection(connection, getContext(), handler);
+                        sshConnection.initializeSSHTunnel();
+                    }
                     if (isSpice) {
                         startSpiceConnection();
                     } else if (isRdp) {

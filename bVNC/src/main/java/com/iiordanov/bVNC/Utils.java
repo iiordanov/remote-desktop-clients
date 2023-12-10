@@ -75,10 +75,9 @@ import java.io.Reader;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.lang.reflect.Field;
-import java.net.Inet6Address;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.UUID;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 public class Utils {
     private final static String TAG = "Utils";
@@ -90,6 +89,8 @@ public class Utils {
     };
     private static AlertDialog alertDialog;
     private static int nextNoticeID = 0;
+
+    private static Executor executor = Executors.newSingleThreadExecutor();
 
     public static void showYesNoPrompt(Context _context, String title, String message, OnClickListener onYesListener, OnClickListener onNoListener) {
         try {
@@ -356,14 +357,6 @@ public class Utils {
             SqliteElement.importXmlStreamToDb(db, reader, ReplaceStrategy.REPLACE_EXISTING);
         } catch (SAXException | IOException e) {
             e.printStackTrace();
-        }
-    }
-
-    public static boolean isValidIpv6Address(final String address) {
-        try {
-            return InetAddress.getByName(address) instanceof Inet6Address;
-        } catch (final UnknownHostException ex) {
-            return false;
         }
     }
 

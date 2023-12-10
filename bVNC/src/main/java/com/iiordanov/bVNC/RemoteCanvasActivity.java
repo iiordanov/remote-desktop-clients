@@ -348,31 +348,6 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
             connection.populateFromContentValues((ContentValues) extras.getParcelable(Utils.getConnectionString(this)));
             connection.load(this);
         }
-        parsePortIfIpv4Address();
-        setDefaultProtocolAndSshPorts();
-    }
-
-    private void setDefaultProtocolAndSshPorts() {
-        if (connection.getPort() == 0)
-            connection.setPort(Constants.DEFAULT_PROTOCOL_PORT);
-
-        if (connection.getSshPort() == 0)
-            connection.setSshPort(Constants.DEFAULT_SSH_PORT);
-    }
-
-    private void parsePortIfIpv4Address() {
-        // Parse a HOST:PORT entry but only if not ipv6 address
-        String host = connection.getAddress();
-        if (!Utils.isValidIpv6Address(host) && host.indexOf(':') > -1) {
-            String p = host.substring(host.indexOf(':') + 1);
-            try {
-                int parsedPort = Integer.parseInt(p);
-                connection.setPort(parsedPort);
-                connection.setAddress(host.substring(0, host.indexOf(':')));
-            } catch (Exception e) {
-                Log.i(TAG, "Could not parse port from address, will use default");
-            }
-        }
     }
 
     private boolean handleSupportedUri(Uri data) {

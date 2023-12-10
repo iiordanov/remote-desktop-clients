@@ -28,6 +28,7 @@ import android.widget.ImageView.ScaleType;
 
 import com.antlersoft.android.dbimpl.NewInstance;
 import com.iiordanov.bVNC.input.TouchInputHandlerDirectSwipePan;
+import com.iiordanov.util.NetworkUtils;
 import com.undatech.opaque.Connection;
 import com.undatech.remoteClientUi.R;
 
@@ -381,6 +382,8 @@ public class ConnectionBean extends AbstractConnectionBean implements Connection
     @Override
     public void load(Context context) {
         loadFromSharedPreferences(context);
+        parsePortIfIpv4Address();
+        setDefaultProtocolAndSshPorts();
     }
 
     public void loadFromSharedPreferences(Context context) {
@@ -582,6 +585,29 @@ public class ConnectionBean extends AbstractConnectionBean implements Connection
             if (Utils.isNullOrEmptry(getSshServer())) {
                 Log.i(TAG, "URI SSH server when connection type is Constants.CONN_TYPE_SSH");
                 setReadyForConnection(false);
+            }
+        }
+    }
+
+    private void setDefaultProtocolAndSshPorts() {
+        if (this.getPort() == 0)
+            this.setPort(Constants.DEFAULT_PROTOCOL_PORT);
+
+        if (this.getSshPort() == 0)
+            this.setSshPort(Constants.DEFAULT_SSH_PORT);
+    }
+
+    private void parsePortIfIpv4Address() {
+        // Parse a HOST:PORT entry but only if not ipv6 address
+        String host = this.getAddress();
+        if (!NetworkUtils.INSTANCE.isValidIpv6Address(host) && host.indexOf(':') > -1) {
+            String p = host.substring(host.indexOf(':') + 1);
+            try {
+                int parsedPort = Integer.parseInt(p);
+                this.setPort(parsedPort);
+                this.setAddress(host.substring(0, host.indexOf(':')));
+            } catch (Exception e) {
+                Log.i(TAG, "Could not parse port from address, will use default");
             }
         }
     }
