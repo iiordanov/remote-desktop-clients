@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.undatech.opaque"
-    android:versionCode="115139"
-    android:versionName="v5.1.3">
+    android:versionCode="115140"
+    android:versionName="v5.1.4">
 
     <uses-feature
         android:name="android.hardware.usb.host"
