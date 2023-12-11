@@ -475,7 +475,7 @@ public class RfbProto extends RfbConnectable {
             authType = negotiateAuthenticationTight();
         } else if (secType == RfbProto.SecTypeVeNCrypt) {
             Log.i(TAG, "secType == RfbProto.SecTypeVeNCrypt");
-            authType = authenticateVeNCrypt();
+            authType = authenticateVeNCrypt(userNameSupplied);
         } else if (secType == RfbProto.SecTypeTLS) {
             Log.i(TAG, "secType == RfbProto.SecTypeTLS");
             authenticateTLS();
@@ -488,31 +488,31 @@ public class RfbProto extends RfbConnectable {
             Log.i(TAG, "secType == RfbProto.SecTypeArd");
             RFBSecurityARD ardAuth = new RFBSecurityARD(us, pw);
             ardAuth.perform(this);
-            readSecurityResult("ARD Authentication");
+            readSecurityResult(true,"ARD Authentication");
             return;
         } else if (secType == RfbProto.SecTypeRA2) {
             Log.i(TAG, "secType == RfbProto.SecTypeRA2");
             CSecurityRSAAES x = new CSecurityRSAAES(this, secType, 128, true);
             x.processMsg(us, pw);
-            readSecurityResult("SecTypeRA2 Authentication");
+            readSecurityResult(true, "SecTypeRA2 Authentication");
             return;
         } else if (secType == RfbProto.SecTypeRA2ne) {
             Log.i(TAG, "secType == RfbProto.secTypeRA2ne");
             CSecurityRSAAES x = new CSecurityRSAAES(this, secType, 128, false);
             x.processMsg(us, pw);
-            readSecurityResult("SecTypeRA2ne Authentication");
+            readSecurityResult(true, "SecTypeRA2ne Authentication");
             return;
         } else if (secType == RfbProto.SecTypeRA256) {
             Log.i(TAG, "secType == RfbProto.SecTypeRA2");
             CSecurityRSAAES x = new CSecurityRSAAES(this, secType, 256, true);
             x.processMsg(us, pw);
-            readSecurityResult("SecTypeRA256 Authentication");
+            readSecurityResult(true, "SecTypeRA256 Authentication");
             return;
         } else if (secType == RfbProto.SecTypeRAne256) {
             Log.i(TAG, "secType == RfbProto.SecTypeRA2");
             CSecurityRSAAES x = new CSecurityRSAAES(this, secType, 256, false);
             x.processMsg(us, pw);
-            readSecurityResult("SecTypeRAne256 Authentication");
+            readSecurityResult(true, "SecTypeRAne256 Authentication");
             return;
         } else {
             authType = secType;
@@ -640,13 +640,20 @@ public class RfbProto extends RfbConnectable {
                 return secType;
             case SecTypeUltra34:
             case SecTypeUltraVnc2:
-                if (userNameSupplied) {
-                    return secType;
-                }
-                throw new RfbUsernameRequiredException("Username required.");
+                return returnSecTypeIfUsernameSuppliedOrThrowError(userNameSupplied, secType);
             default:
                 throw new Exception("Unknown security type from RFB server: " + secType);
         }
+    }
+
+    private int returnSecTypeIfUsernameSuppliedOrThrowError(
+            boolean userNameSupplied,
+            int secType
+    ) throws RfbUserPassAuthFailedOrUsernameRequiredException {
+        if (userNameSupplied) {
+            return secType;
+        }
+        throw new RfbUserPassAuthFailedOrUsernameRequiredException("Username required.");
     }
 
     int selectSecurityType(boolean userNameSupplied, int connType) throws Exception {
@@ -720,7 +727,7 @@ public class RfbProto extends RfbConnectable {
                         secType = currentSecType;
                         break;
                     }
-                    throw new RfbUsernameRequiredException("Username required.");
+                    throw new RfbUserPassAuthFailedOrUsernameRequiredException("Username required.");
                 }
             }
         }
@@ -742,7 +749,7 @@ public class RfbProto extends RfbConnectable {
     // Initialize capability lists (TightVNC protocol extensions).
     //
 
-    int authenticateVeNCrypt() throws Exception {
+    int authenticateVeNCrypt(boolean userNameSupplied) throws Exception {
         int majorVersion = is.readUnsignedByte();
         int minorVersion = is.readUnsignedByte();
         int Version = (majorVersion << 8) | minorVersion;
@@ -767,8 +774,8 @@ public class RfbProto extends RfbConnectable {
                 case AuthVNC:
                 case AuthPlain:
                     writeInt(secTypes[i]);
-                    Log.i(TAG, "Selecting VeNCrypt subtype: " + secTypes[i]);
-                    return secTypes[i];
+                    Log.i(TAG, "Selecting AuthPlain VeNCrypt subtype: " + AuthPlain);
+                    return returnSecTypeIfUsernameSuppliedOrThrowError(userNameSupplied, secTypes[i]);
                 case AuthTLSNone:
                 case AuthTLSVnc:
                 case AuthTLSPlain:
@@ -776,11 +783,11 @@ public class RfbProto extends RfbConnectable {
                 case AuthX509Vnc:
                 case AuthX509Plain:
                     writeInt(secTypes[i]);
-                    Log.i(TAG, "Selecting VeNCrypt subtype: " + secTypes[i]);
+                    Log.i(TAG, "Selecting AuthX509Plain VeNCrypt subtype: " + AuthX509Plain);
                     if (readU8() == 0) {
                         throw new Exception("VeNCrypt setup on the server failed. Please check your certificate if applicable.");
                     }
-                    return secTypes[i];
+                    return returnSecTypeIfUsernameSuppliedOrThrowError(userNameSupplied, secTypes[i]);
             }
         }
 
@@ -793,7 +800,7 @@ public class RfbProto extends RfbConnectable {
 
     void authenticateNone() throws Exception {
         if (clientMinor >= 8)
-            readSecurityResult("No authentication");
+            readSecurityResult(false, "No authentication");
     }
 
     //
@@ -822,7 +829,7 @@ public class RfbProto extends RfbConnectable {
 
         os.write(challenge);
 
-        readSecurityResult("VNC authentication");
+        readSecurityResult(false, "VNC authentication");
     }
 
     //
@@ -853,14 +860,15 @@ public class RfbProto extends RfbConnectable {
         os.write(user);
         os.write(password);
 
-        readSecurityResult("Plain authentication");
+        readSecurityResult(true, "Plain authentication");
     }
 
     //
     // Write the client initialisation message
     //
 
-    void readSecurityResult(String authType) throws Exception {
+    void readSecurityResult(boolean userNameRequired, String authType) throws Exception {
+        Log.d(TAG, "readSecurityResult: authType: " + authType + ", userNameRequired: " + userNameRequired);
         int securityResult = is.readInt();
 
         switch (securityResult) {
@@ -870,13 +878,24 @@ public class RfbProto extends RfbConnectable {
             case VncAuthFailed:
                 if (clientMinor >= 8)
                     readConnFailedReason(false);
-                throw new RfbPasswordAuthenticationException(authType + ": failed");
+                throwAppropriateAuthException(userNameRequired, authType);
             case VncAuthTooMany:
-                throw new RfbPasswordAuthenticationException(authType + ": failed, too many tries");
+                throwAppropriateAuthException(userNameRequired, authType);
             case PlainAuthFailed:
-                throw new RfbUsernameRequiredException(authType + ": failed");
+                throw new RfbUserPassAuthFailedOrUsernameRequiredException(authType + ": failed");
             default:
                 throw new Exception(authType + ": unknown result " + securityResult);
+        }
+    }
+
+    private void throwAppropriateAuthException(
+            boolean userNameSupplied,
+            String authType
+    ) throws RfbUserPassAuthFailedOrUsernameRequiredException, RfbPasswordAuthenticationException {
+        if (userNameSupplied) {
+            throw new RfbUserPassAuthFailedOrUsernameRequiredException(authType + ": failed");
+        } else {
+            throw new RfbPasswordAuthenticationException(authType + ": failed");
         }
     }
 
@@ -894,7 +913,7 @@ public class RfbProto extends RfbConnectable {
         byte[] reason = new byte[reasonLen];
         readFully(reason);
         String reasonString = new String(reason);
-        Log.v(TAG, reasonString);
+        Log.d(TAG, "readConnFailedReason: " + reasonString);
         if (throwException) {
             throw new Exception(reasonString);
         }
@@ -938,7 +957,7 @@ public class RfbProto extends RfbConnectable {
         os.write(user);
         os.write(passwd);
 
-        readSecurityResult("VNC authentication");
+        readSecurityResult(true, "VNC authentication");
     }
 
     void initCapabilities() {
@@ -2185,8 +2204,8 @@ public class RfbProto extends RfbConnectable {
         }
     }
 
-    public class RfbUsernameRequiredException extends Exception {
-        public RfbUsernameRequiredException(String errorMessage) {
+    public class RfbUserPassAuthFailedOrUsernameRequiredException extends Exception {
+        public RfbUserPassAuthFailedOrUsernameRequiredException(String errorMessage) {
             super(errorMessage);
         }
     }

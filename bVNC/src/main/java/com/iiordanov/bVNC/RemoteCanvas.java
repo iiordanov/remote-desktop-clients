@@ -620,8 +620,8 @@ public class RemoteCanvas extends AppCompatImageView implements KeyInputHandler,
             Log.e(TAG, "Authentication failed, will prompt user for password");
             handler.sendEmptyMessage(RemoteClientLibConstants.GET_VNC_PASSWORD);
             return;
-        } catch (RfbProto.RfbUsernameRequiredException e) {
-            Log.e(TAG, "Username required, will prompt user for username and password");
+            } catch (RfbProto.RfbUserPassAuthFailedOrUsernameRequiredException e) {
+            Log.e(TAG, "Auth failed or username required, prompting for username and password");
             handler.sendEmptyMessage(RemoteClientLibConstants.GET_VNC_CREDENTIALS);
             return;
         } catch (AuthFailureException e) {
