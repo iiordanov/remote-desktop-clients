@@ -147,6 +147,7 @@ class SSHConnection(conn: Connection, cntxt: Context, handler: Handler) : Intera
         conn.sshUser = sshUser
         conn.sshPassword = sshPassword
         conn.keepSshPassword = keep
+        conn.save(context);
         userInputLatch.countDown()
     }
 
@@ -154,6 +155,7 @@ class SSHConnection(conn: Connection, cntxt: Context, handler: Handler) : Intera
         passphrase = sshPassphrase
         conn.sshPassPhrase = sshPassphrase
         conn.keepSshPassword = keep
+        conn.save(context);
         userInputLatch.countDown()
     }
 
@@ -219,7 +221,7 @@ class SSHConnection(conn: Connection, cntxt: Context, handler: Handler) : Intera
 
         // Verify host key against saved one.
         if (!verifyHostKey()) {
-            changeOrInitializeSshHostKey(true)
+            changeOrInitializeSshHostKey(conn.sshHostKey != "")
         }
 
         // Authenticate and set up port forwarding.
