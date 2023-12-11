@@ -488,7 +488,7 @@ public class RfbProto extends RfbConnectable {
             Log.i(TAG, "secType == RfbProto.SecTypeArd");
             RFBSecurityARD ardAuth = new RFBSecurityARD(us, pw);
             ardAuth.perform(this);
-            readSecurityResult(true,"ARD Authentication");
+            readSecurityResult(true, "ARD Authentication");
             return;
         } else if (secType == RfbProto.SecTypeRA2) {
             Log.i(TAG, "secType == RfbProto.SecTypeRA2");
