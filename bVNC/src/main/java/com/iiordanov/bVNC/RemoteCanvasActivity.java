@@ -318,8 +318,6 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
 
     @SuppressLint("SourceLockedOrientationActivity")
     void initialize(final Runnable setModes, final Runnable hideKeyboardAndExtraKeys) {
-        handler = new RemoteCanvasHandler(this);
-
         if (Utils.querySharedPreferenceBoolean(this, Constants.keepScreenOnTag))
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
@@ -334,7 +332,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
         } else {
             handleSerializedConnection(i);
         }
-        ((RemoteCanvasHandler) handler).setConnection(connection);
+        handler = new RemoteCanvasHandler(this, connection);
         canvas.initializeCanvas(connection, setModes, hideKeyboardAndExtraKeys);
     }
 

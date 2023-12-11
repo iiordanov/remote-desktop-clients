@@ -55,9 +55,10 @@ public class RemoteCanvasHandler extends Handler {
         }
     }
 
-    public RemoteCanvasHandler(Context context) {
+    public RemoteCanvasHandler(Context context, Connection connection) {
         super();
-        context = context;
+        this.connection = connection;
+        this.context = context;
     }
 
     /**
@@ -96,10 +97,6 @@ public class RemoteCanvasHandler extends Handler {
 
     public Connection getConnection() {
         return connection;
-    }
-
-    public void setConnection(Connection connection) {
-        this.connection = connection;
     }
 
     private void showGetTextFragment(String tag, String dialogId, String title,
