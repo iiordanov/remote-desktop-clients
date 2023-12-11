@@ -97,10 +97,10 @@ public class UriIntentParser {
     }
 
     private static Cursor getCursor(String field, String value, String field2, String value2, SQLiteDatabase queryDb) {
-        Cursor cursor;
-        if (field2 == null && value2 == null) {
+        Cursor cursor = null;
+        if (field != null && value != null && field2 == null && value2 == null) {
             cursor = getCursorOneField(field, value, queryDb);
-        } else {
+        } else if (field2 != null && value2 != null) {
             cursor = getCursorTwoFields(field, value, field2, value2, queryDb);
         }
         return cursor;
