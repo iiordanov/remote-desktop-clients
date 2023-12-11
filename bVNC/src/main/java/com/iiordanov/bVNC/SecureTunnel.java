@@ -24,6 +24,7 @@ import android.util.Log;
 
 import com.undatech.opaque.RemoteClientLibConstants;
 
+import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -96,9 +97,11 @@ public class SecureTunnel implements X509TrustManager {
     }
 
     public void setup() throws Exception {
-        // create socket
-        Socket sock = new Socket(m_address, m_port);
+        Socket sock =new Socket();
+        sock.setSoTimeout(Constants.SOCKET_CONN_TIMEOUT);
+        sock.connect(new InetSocketAddress(m_address, m_port), Constants.SOCKET_CONN_TIMEOUT);
         sock.setTcpNoDelay(true);
+
         // create secure tunnel
         Log.i(TAG, "Generating TLS context.");
         SSLContext sc = SSLContext.getInstance("TLS");

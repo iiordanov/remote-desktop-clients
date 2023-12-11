@@ -38,6 +38,7 @@ import com.undatech.opaque.util.GeneralUtils;
 import com.undatech.remoteClientUi.R;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 
 import javax.net.ssl.SSLSocket;
@@ -387,7 +388,9 @@ public class RfbProto extends RfbConnectable {
 
 
         if (sock == null) {
-            sock = new Socket(host, port);
+            sock = new Socket();
+            sock.setSoTimeout(Constants.SOCKET_CONN_TIMEOUT);
+            sock.connect(new InetSocketAddress(host, port), Constants.SOCKET_CONN_TIMEOUT);
             sock.setTcpNoDelay(true);
         }
 

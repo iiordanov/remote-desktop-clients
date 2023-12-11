@@ -36,7 +36,7 @@ public class Constants {
     public static final int CONN_TYPE_VENCRYPT = 4;
     public static final int CONN_TYPE_STUNNEL = 5;
 
-    public static final int SOCKET_CONN_TIMEOUT = 30 * 1000; //30 sec
+    public static final int SOCKET_CONN_TIMEOUT = 20 * 1000;
 
     public static final int DEFAULT_SSH_PORT = 22;
     public static final int LOGCAT_MAX_LINES = 500;
