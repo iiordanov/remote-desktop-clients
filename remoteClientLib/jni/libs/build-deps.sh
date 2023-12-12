@@ -345,27 +345,6 @@ build_one() {
         make $parallel
         make install
         ;;
-    gnutls)
-        # Build in normal root once to create artifact
-        do_configure \
-                --disable-crywrap \
-                --without-p11-kit \
-                --disable-doc \
-                --disable-tests \
-                --with-included-unistring
-        make $parallel || /bin/true
-        make install || /bin/true
-
-        # Build again over top of gstreamer's gnutls to upgrade it
-        do_configure install_in_gst \
-                --disable-crywrap \
-                --without-p11-kit \
-                --disable-doc \
-                --disable-tests \
-                --with-included-unistring
-        make $parallel || /bin/true
-        make install || /bin/true
-        ;;
     esac
 
     popd >/dev/null
@@ -484,6 +463,7 @@ build() {
         echo "Cerbero was previously built. Remove $(realpath CERBERO_BUILT_${1}) if you want to rebuild it."
         echo ; echo
     else
+        git config --global protocol.file.allow always
         # Build GStreamer SDK
         if git clone https://gitlab.freedesktop.org/gstreamer/cerbero
         then
@@ -502,6 +482,9 @@ build() {
         git pull
         popd
         rsync -avP recipes/ cerbero/recipes/
+
+        sed -i "s/version = '1.1.1.*'/version = '${openssl_ver}'/" cerbero/recipes/openssl.recipe
+        sed -i "s/0b7a3e5e59c34827fe0c3a74b7ec8baef302b98fa80088d7f9153aa16fa76bd1/cf3098950cb4d853ad95c0841f1f9c6d3dc102dccfcacd521d93925208b76ac8/" cerbero/recipes/openssl.recipe
 
         echo "Running cerbero build for $1 in $(pwd)"
         cerbero/cerbero-uninstalled -c cerbero/config/cross-android-universal.cbc build \
