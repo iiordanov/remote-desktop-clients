@@ -31,7 +31,7 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
-public class AESEAXCipher {
+public class AESCipher {
 
     private static final byte[] zeroBlock = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
     private static final byte[] prefixBlock0 = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
@@ -44,7 +44,7 @@ public class AESEAXCipher {
     private byte[] subKey1;
     private byte[] subKey2;
 
-    public AESEAXCipher(byte[] key) throws Exception {
+    public AESCipher(byte[] key) throws Exception {
         try {
             Cipher blockCipher = Cipher.getInstance("AES");
             cbcCipher = Cipher.getInstance("AES/CBC/NOPADDING");

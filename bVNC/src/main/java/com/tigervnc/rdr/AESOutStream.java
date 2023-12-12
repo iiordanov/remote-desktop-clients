@@ -22,7 +22,7 @@ import java.io.IOException;
 
 public class AESOutStream extends OutStream {
 
-    private final AESEAXCipher cipher;
+    private final AESCipher cipher;
     private final int start;
     private final int bufSize;
     private final byte[] buffer;
@@ -36,7 +36,7 @@ public class AESOutStream extends OutStream {
         buffer = new byte[bufSize + 16 + 2];
         ptr = offset = start = 0;
         end = start + bufSize;
-        cipher = new AESEAXCipher(key);
+        cipher = new AESCipher(key);
         counter = new byte[16];
     }
 

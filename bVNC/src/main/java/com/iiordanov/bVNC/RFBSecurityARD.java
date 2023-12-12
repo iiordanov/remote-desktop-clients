@@ -132,7 +132,7 @@ public class RFBSecurityARD {
         System.arraycopy(passBytes, 0, credentials, 64, passLength);
         credentials[userLength] = '\0';
         credentials[64 + passLength] = '\0';
-        byte[] ciphertext = performAES128(secret, credentials);
+        byte[] ciphertext = performAES(secret, credentials);
 
         // 5. send the ciphertext + DH public key
         rfb.os.write(ciphertext);
@@ -211,7 +211,7 @@ public class RFBSecurityARD {
         return output;
     }
 
-    private byte[] performAES128(byte[] key, byte[] plaintext) throws IOException {
+    private byte[] performAES(byte[] key, byte[] plaintext) throws IOException {
         byte[] ciphertext;
 
         try {

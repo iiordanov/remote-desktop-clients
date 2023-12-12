@@ -24,7 +24,7 @@ import java.nio.ByteBuffer;
 public class AESInStream extends InStream {
 
     private static final int maxMessageSize = 65536;
-    private final AESEAXCipher cipher;
+    private final AESCipher cipher;
     private final int start;
     private final int bufSize;
     private final byte[] message;
@@ -43,7 +43,7 @@ public class AESInStream extends InStream {
         b = new byte[bufSize];
         ptr = end = start = 0;
         try {
-            cipher = new AESEAXCipher(key);
+            cipher = new AESCipher(key);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
