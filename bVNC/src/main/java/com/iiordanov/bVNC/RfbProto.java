@@ -390,7 +390,9 @@ public class RfbProto extends RfbConnectable {
         if (sock == null) {
             sock = new Socket();
             sock.setSoTimeout(Constants.SOCKET_CONN_TIMEOUT);
+            sock.setKeepAlive(true);
             sock.connect(new InetSocketAddress(host, port), Constants.SOCKET_CONN_TIMEOUT);
+            sock.setSoTimeout(0);
             sock.setTcpNoDelay(true);
         }
 
