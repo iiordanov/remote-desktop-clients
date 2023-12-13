@@ -775,7 +775,7 @@ public class RfbProto extends RfbConnectable {
                 case AuthPlain:
                     writeInt(secTypes[i]);
                     Log.i(TAG, "Selecting AuthPlain VeNCrypt subtype: " + AuthPlain);
-                    return returnSecTypeIfUsernameSuppliedOrThrowError(userNameSupplied, secTypes[i]);
+                    return secTypes[i];
                 case AuthTLSNone:
                 case AuthTLSVnc:
                 case AuthTLSPlain:
@@ -787,7 +787,7 @@ public class RfbProto extends RfbConnectable {
                     if (readU8() == 0) {
                         throw new Exception("VeNCrypt setup on the server failed. Please check your certificate if applicable.");
                     }
-                    return returnSecTypeIfUsernameSuppliedOrThrowError(userNameSupplied, secTypes[i]);
+                    return secTypes[i];
             }
         }
 
@@ -852,13 +852,15 @@ public class RfbProto extends RfbConnectable {
         setStreams(new RawInStream(sslsock.getInputStream()), new RawOutStream(sslsock.getOutputStream()));
     }
 
-    void authenticatePlain(String User, String Password) throws Exception {
-        byte[] user = User.getBytes();
-        byte[] password = Password.getBytes();
-        writeInt(user.length);
-        writeInt(password.length);
-        os.write(user);
-        os.write(password);
+    void authenticatePlain(String user, String password) throws Exception {
+        // Workaround for certain servers simply closing the connection when they detect empty username
+        String username = "".equals(user) ? " " : user;
+        byte[] userBytes = username.getBytes();
+        byte[] passwordBytes = password.getBytes();
+        writeInt(userBytes.length);
+        writeInt(passwordBytes.length);
+        os.write(userBytes);
+        os.write(passwordBytes);
 
         readSecurityResult(true, "Plain authentication");
     }
