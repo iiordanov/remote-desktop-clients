@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.iiordanov.aSPICE"
     android:installLocation="auto"
-    android:versionCode="115146"
+    android:versionCode="115147"
     android:versionName="v5.1.4">
 
     <uses-feature
@@ -32,7 +32,7 @@
         android:name="com.iiordanov.bVNC.App"
         android:allowBackup="false"
         android:banner="@drawable/banner_aspice"
-        android:icon="@drawable/icon_aspice"
+        android:icon="@drawable/aspice_icon"
         android:label="@string/aspice_app_name"
         android:theme="@android:style/Theme.DeviceDefault"
         tools:replace="android:label,android:theme">

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.undatech.opaque"
-    android:versionCode="115146"
+    android:versionCode="115147"
     android:versionName="v5.1.4">
 
     <uses-feature
@@ -29,7 +29,7 @@
         android:name="com.iiordanov.bVNC.App"
         android:allowBackup="true"
         android:banner="@drawable/banner_opaque"
-        android:icon="@drawable/ic_launcher"
+        android:icon="@drawable/opaque_icon"
         android:label="@string/opaque_app_name"
         android:theme="@android:style/Theme.DeviceDefault">
         <uses-library
@@ -73,7 +73,7 @@
             android:windowSoftInputMode="stateHidden|adjustResize">
 
             <intent-filter
-                android:icon="@drawable/icon"
+                android:icon="@drawable/opaque_icon"
                 android:label="@string/opaque_app_name">
                 <action android:name="android.intent.action.VIEW" />
 
@@ -89,7 +89,7 @@
             </intent-filter>
 
             <intent-filter
-                android:icon="@drawable/icon"
+                android:icon="@drawable/opaque_icon"
                 android:label="@string/opaque_app_name">
                 <action android:name="android.intent.action.VIEW" />
 
@@ -107,7 +107,7 @@
             </intent-filter>
 
             <intent-filter
-                android:icon="@drawable/icon"
+                android:icon="@drawable/opaque_icon"
                 android:label="@string/opaque_app_name">
                 <action android:name="android.intent.action.VIEW" />
 
@@ -174,7 +174,7 @@
             </intent-filter>
 
             <intent-filter
-                android:icon="@drawable/icon"
+                android:icon="@drawable/opaque_icon"
                 android:label="@string/opaque_app_name">
                 <action android:name="android.intent.action.VIEW" />
 

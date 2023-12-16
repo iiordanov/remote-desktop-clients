@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.iiordanov.freebVNC"
     android:installLocation="auto"
-    android:versionCode="115146"
+    android:versionCode="115147"
     android:versionName="v5.1.4">
 
     <uses-permission tools:node="removeAll" />
@@ -25,7 +25,7 @@
         android:name="com.iiordanov.bVNC.App"
         android:allowBackup="false"
         android:banner="@drawable/banner_bvnc"
-        android:icon="@drawable/icon"
+        android:icon="@drawable/bvnc_icon"
         android:label="@string/freebvnc_app_name"
         android:theme="@android:style/Theme.DeviceDefault"
         tools:replace="android:label,android:theme">
