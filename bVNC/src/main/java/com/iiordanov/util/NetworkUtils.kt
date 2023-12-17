@@ -19,19 +19,44 @@
 
 package com.iiordanov.util
 
+import android.util.Log
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeout
 import java.net.Inet6Address
 import java.net.InetAddress
-import java.net.UnknownHostException
-import java.util.concurrent.Executor
-import java.util.concurrent.Executors
 
 object NetworkUtils {
-    private val executor: Executor = Executors.newSingleThreadExecutor()
+    private const val tag: String = "NetworkUtils"
+
     fun isValidIpv6Address(address: String?): Boolean {
+        return tryRunningCoroutineWithTimeout {
+            InetAddress.getByName(address) is Inet6Address
+        }
+    }
+
+    fun tryRunningCoroutineWithTimeout(
+        block: (CoroutineScope) -> Boolean?
+    ): Boolean {
+        return runBlocking {
+            this.tryRunningWithTimeoutAsync(block, false, 1000L)
+        } ?: false
+    }
+
+    private suspend inline fun <T, R> T.tryRunningWithTimeoutAsync(
+        crossinline block: T.() -> R, default: R, timeout: Long
+    ): R {
         return try {
-            executor.run { InetAddress.getByName(address) is Inet6Address }
-        } catch (ex: UnknownHostException) {
-            false
+            withTimeout(timeout) {
+                withContext(Dispatchers.IO) {
+                    block()
+                }
+            }
+        } catch (ex: Exception) {
+            Log.w(tag, "tryRunningWithTimeoutAsync: Exception caught, default $default returned")
+            default
         }
     }
 }

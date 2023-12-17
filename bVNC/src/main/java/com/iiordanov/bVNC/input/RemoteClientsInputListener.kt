@@ -1,3 +1,22 @@
+/**
+ * Copyright (C) 2023 Iordan Iordanov
+ * <p>
+ * This is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ * <p>
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with this software; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307,
+ * USA.
+ */
+
 package com.iiordanov.bVNC.input
 
 import android.app.Activity
@@ -10,6 +29,7 @@ import android.view.KeyEvent
 import android.view.MotionEvent
 import android.view.View
 import com.iiordanov.bVNC.Constants
+import com.iiordanov.util.NetworkUtils
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
@@ -19,25 +39,31 @@ class RemoteClientsInputListener(
     private val keyInputHandler: KeyInputHandler?,
     private val touchInputHandler: TouchInputHandler?,
     val resetOnScreenKeys: (input: Int) -> Int,
-    val useDpadAsArrows: Boolean,
+    private val useDpadAsArrows: Boolean,
 ) : View.OnKeyListener {
     private val tag: String = "OnKeyListener"
-    val workerPool: ExecutorService = Executors.newFixedThreadPool(1)
+    private val workerPool: ExecutorService = Executors.newSingleThreadExecutor()
 
     override fun onKey(v: View?, keyCode: Int, evt: KeyEvent): Boolean {
         var consumed = false
         if (keyCode == KeyEvent.KEYCODE_MENU) {
             return if (evt.action == KeyEvent.ACTION_DOWN) activity.onKeyDown(
-                keyCode,
-                evt
+                keyCode, evt
             ) else activity.onKeyUp(keyCode, evt)
         }
         try {
             if (evt.action == KeyEvent.ACTION_DOWN || evt.action == KeyEvent.ACTION_MULTIPLE) {
-                consumed =
-                    workerPool.run { keyInputHandler?.onKeyDownEvent(keyCode, evt) ?: false }
+                consumed = NetworkUtils.tryRunningCoroutineWithTimeout {
+                    keyInputHandler?.onKeyDownEvent(
+                        keyCode, evt
+                    )
+                }
             } else if (evt.action == KeyEvent.ACTION_UP) {
-                consumed = workerPool.run { keyInputHandler?.onKeyUpEvent(keyCode, evt) ?: false }
+                consumed = NetworkUtils.tryRunningCoroutineWithTimeout {
+                    keyInputHandler?.onKeyUpEvent(
+                        keyCode, evt
+                    )
+                }
             }
             resetOnScreenKeys(keyCode)
         } catch (e: NullPointerException) {
@@ -47,29 +73,25 @@ class RemoteClientsInputListener(
     }
 
     fun sendText(s: String) {
-        workerPool.submit { _sendText(s) }
+        workerPool.submit { sendTextSync(s) }
     }
 
-    fun _sendText(s: String) {
-        for (i in 0 until s.length) {
-            var event: KeyEvent? = null
+    private fun sendTextSync(s: String) {
+        for (i in s.indices) {
+            var event: KeyEvent?
             val c = s[i]
             if (Character.isISOControl(c)) {
                 if (c == '\n') {
                     val keyCode = KeyEvent.KEYCODE_ENTER
                     keyInputHandler?.onKeyDownEvent(
-                        keyCode,
-                        KeyEvent(KeyEvent.ACTION_DOWN, keyCode)
+                        keyCode, KeyEvent(KeyEvent.ACTION_DOWN, keyCode)
                     )
                     throttleInputByWaiting()
-                    keyInputHandler?.onKeyDownEvent(keyCode, KeyEvent(KeyEvent.ACTION_UP, keyCode))
+                    keyInputHandler?.onKeyUpEvent(keyCode, KeyEvent(KeyEvent.ACTION_UP, keyCode))
                 }
             } else {
                 event = KeyEvent(
-                    SystemClock.uptimeMillis(),
-                    s.substring(i, i + 1),
-                    KeyCharacterMap.FULL,
-                    0
+                    SystemClock.uptimeMillis(), s.substring(i, i + 1), KeyCharacterMap.FULL, 0
                 )
                 keyInputHandler?.onKeyDownEvent(event.keyCode, event)
                 throttleInputByWaiting()
@@ -88,8 +110,10 @@ class RemoteClientsInputListener(
     fun onTrackballEvent(event: MotionEvent?): Boolean {
         try {
             // If we are using the Dpad as arrow keys, don't send the event to the inputHandler.
-            return if (useDpadAsArrows) false else workerPool.run {
-                touchInputHandler!!.onTouchEvent(event)
+            return if (useDpadAsArrows) false else NetworkUtils.tryRunningCoroutineWithTimeout {
+                this.touchInputHandler?.onTouchEvent(
+                    event
+                )
             }
         } catch (e: NullPointerException) {
             Log.e(tag, "NullPointerException ignored")
@@ -100,7 +124,11 @@ class RemoteClientsInputListener(
     // Send touch events or mouse events like button clicks to be handled.
     fun onTouchEvent(event: MotionEvent?): Boolean {
         try {
-            return workerPool.run { touchInputHandler!!.onTouchEvent(event) }
+            return NetworkUtils.tryRunningCoroutineWithTimeout {
+                this.touchInputHandler?.onTouchEvent(
+                    event
+                )
+            }
         } catch (e: NullPointerException) {
             Log.e(tag, "NullPointerException ignored")
         }
@@ -118,14 +146,13 @@ class RemoteClientsInputListener(
         val a = event.action
         val isHoverEnter = a == MotionEvent.ACTION_HOVER_ENTER
         val isHoverExit = a == MotionEvent.ACTION_HOVER_EXIT
-        val isHoverEventFromFingerOnTouchscreen = (
-                a == MotionEvent.ACTION_HOVER_MOVE && event.source == InputDevice.SOURCE_TOUCHSCREEN && toolTypeFinger
-                )
+        val isHoverEventFromFingerOnTouchscreen =
+            (a == MotionEvent.ACTION_HOVER_MOVE && event.source == InputDevice.SOURCE_TOUCHSCREEN && toolTypeFinger)
         if (!(isHoverEnter || isHoverExit || isHoverEventFromFingerOnTouchscreen)) {
-            try {
-                return workerPool.run { touchInputHandler!!.onTouchEvent(event) }
-            } catch (e: NullPointerException) {
-                Log.e(tag, "NullPointerException ignored")
+            return NetworkUtils.tryRunningCoroutineWithTimeout {
+                this.touchInputHandler?.onTouchEvent(
+                    event
+                )
             }
         }
         return false
