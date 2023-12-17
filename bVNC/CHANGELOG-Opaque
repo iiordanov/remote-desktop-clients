@@ -3,6 +3,7 @@ v5.1.4
 - Performance improvements
 - Security upates
 - Vector icons
+- Fixes for ANRs
 v5.1.3
 - Fix for mouse pointer drift due to rounding errors
 - Fix for login issues on Proxmox upgraded from 7 to 8
