@@ -3,8 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.iiordanov.bVNC"
     android:installLocation="auto"
-    android:versionCode="115150"
-    android:versionName="v5.1.5">
+    android:versionCode="115160"
+    android:versionName="v5.1.6">
 
     <uses-permission tools:node="removeAll" />
     <uses-permission android:name="android.permission.INTERNET" />
