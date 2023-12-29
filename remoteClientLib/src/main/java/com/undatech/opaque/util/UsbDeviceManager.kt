@@ -71,7 +71,7 @@ class UsbDeviceManager(val context: Context, val usbEnabled: Boolean) {
         val d = this.getUnrequested()
         if (d != null) {
             val flags = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                PendingIntent.FLAG_MUTABLE
+                PendingIntent.FLAG_IMMUTABLE
             } else {
                 0
             };

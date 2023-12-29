@@ -29,6 +29,7 @@ import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -146,12 +147,7 @@ public class SpiceCommunicator extends RfbConnectable {
         }
 
         usbDeviceManager = new UsbDeviceManager(context, usbEnabled);
-        if (usbEnabled) {
-            context.registerReceiver(usbPermissionRequestedReceiver, new IntentFilter(ACTION_USB_PERMISSION));
-            IntentFilter filter = new IntentFilter();
-            filter.addAction("android.hardware.usb.action.USB_STATE");
-            context.registerReceiver(usbStateChangedReceiver, filter);
-        }
+        registerReceiversForUsbDevices(context);
         modifierMap.put(RemoteKeyboard.CTRL_MASK, LCONTROL);
         modifierMap.put(RemoteKeyboard.RCTRL_MASK, RCONTROL);
         modifierMap.put(RemoteKeyboard.ALT_MASK, LALT);
@@ -161,6 +157,23 @@ public class SpiceCommunicator extends RfbConnectable {
         modifierMap.put(RemoteKeyboard.SHIFT_MASK, LSHIFT);
         modifierMap.put(RemoteKeyboard.RSHIFT_MASK, RSHIFT);
 
+    }
+
+    private void registerReceiversForUsbDevices(Context context) {
+        if (usbEnabled) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                context.registerReceiver(usbPermissionRequestedReceiver, new IntentFilter(ACTION_USB_PERMISSION), Context.RECEIVER_NOT_EXPORTED);
+            } else {
+                context.registerReceiver(usbPermissionRequestedReceiver, new IntentFilter(ACTION_USB_PERMISSION));
+            }
+            IntentFilter filter = new IntentFilter();
+            filter.addAction("android.hardware.usb.action.USB_STATE");
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                context.registerReceiver(usbStateChangedReceiver, filter, Context.RECEIVER_NOT_EXPORTED);
+            } else {
+                context.registerReceiver(usbStateChangedReceiver, filter);
+            }
+        }
     }
 
     public static void sendMessage(int message) {
