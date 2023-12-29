@@ -601,7 +601,7 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
     }
 
     public void moreApps(View item) {
-        startUriIntent(this, "market://search?q=pub:\"Iordan Iordanov (Undatech)\"");
+        startUriIntent(this, "market://search?q=pub:\"Iordan Iordanov (Morpheusly)\"");
     }
 
     public void previousVersions(View item) {
