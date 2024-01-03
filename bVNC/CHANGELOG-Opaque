@@ -1,3 +1,5 @@
+v5.1.9
+- Fix for ActionBar visibility in SimulatedTouchpad input mode
 v5.1.7
 - Fix for USB handling on Android 14
 v5.1.5

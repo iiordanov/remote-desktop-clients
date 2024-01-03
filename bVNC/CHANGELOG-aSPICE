@@ -1,3 +1,5 @@
+v5.1.9
+- Fix for ActionBar visibility in SimulatedTouchpad input mode
 v5.1.8
 - SSH library upgrade for Terrapin mitigations
 v5.1.7
