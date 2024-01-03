@@ -156,7 +156,8 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
     volatile boolean softKeyboardUp;
     RemoteToolbar toolbar;
     View rootView;
-    ToolbarHiderRunnable toolbarHider = new ToolbarHiderRunnable();
+    ActionBarHider actionBarHider = new ActionBarHider();
+    ActionBarShower actionBarShower = new ActionBarShower();
     private Vibrator myVibrator;
     private RemoteCanvas canvas;
     private MenuItem[] inputModeMenuItems;
@@ -466,7 +467,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
         toolbar.getBackground().setAlpha(64);
         toolbar.setLayoutParams(params);
         setSupportActionBar(toolbar);
-        showToolbar();
+        showActionBar();
     }
 
     void relayoutViews(View rootView) {
@@ -534,7 +535,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
                 if (!connection.getUseLastPositionToolbar() || !connection.getUseLastPositionToolbarMoved()) {
                     toolbar.offsetTopAndBottom(diffToolbarPosition);
                 } else {
-                    toolbar.makeVisible(connection.getUseLastPositionToolbarX(),
+                    toolbar.setPositionToMakeVisible(connection.getUseLastPositionToolbarX(),
                             connection.getUseLastPositionToolbarY(),
                             r.right,
                             r.bottom,
@@ -560,7 +561,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
                 if (!connection.getUseLastPositionToolbar() || !connection.getUseLastPositionToolbarMoved()) {
                     toolbar.offsetTopAndBottom(diffToolbarPosition);
                 } else {
-                    toolbar.makeVisible(connection.getUseLastPositionToolbarX(),
+                    toolbar.setPositionToMakeVisible(connection.getUseLastPositionToolbarX(),
                             connection.getUseLastPositionToolbarY(),
                             r.right,
                             r.bottom,
@@ -1191,7 +1192,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
     @Override
     public void onPanelClosed(int featureId, Menu menu) {
         super.onPanelClosed(featureId, menu);
-        showToolbar();
+        showActionBar();
         enableImmersive();
     }
 
@@ -1199,7 +1200,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
     public boolean onMenuOpened(int featureId, Menu menu) {
         if (menu != null) {
             android.util.Log.i(TAG, "Menu opened, disabling hiding action bar");
-            handler.removeCallbacks(toolbarHider);
+            handler.removeCallbacks(actionBarHider);
             updateScalingMenu();
             updateInputMenu();
             disableImmersive();
@@ -1244,7 +1245,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
             else
                 menu.findItem(R.id.itemExtraKeys).setTitle(R.string.extra_keys_enable);
 
-            OnTouchListener moveListener = new OnTouchViewMover(toolbar, handler, toolbarHider, hideToolbarDelay);
+            OnTouchListener moveListener = new OnTouchViewMover(toolbar, handler, actionBarHider, hideToolbarDelay);
             ImageButton moveButton = new ImageButton(this);
 
             moveButton.setBackgroundResource(R.drawable.ic_all_out_gray_36dp);
@@ -1599,10 +1600,11 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
         dialog.show();
     }
 
-    public void showToolbar() {
-        getSupportActionBar().show();
-        handler.removeCallbacks(toolbarHider);
-        handler.postAtTime(toolbarHider, SystemClock.uptimeMillis() + hideToolbarDelay);
+    public void showActionBar() {
+        handler.removeCallbacks(actionBarShower);
+        handler.postAtTime(actionBarShower, SystemClock.uptimeMillis() + 50);
+        handler.removeCallbacks(actionBarHider);
+        handler.postAtTime(actionBarHider, SystemClock.uptimeMillis() + hideToolbarDelay);
     }
 
     @Override
@@ -1696,11 +1698,23 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
         }
     }
 
-    private class ToolbarHiderRunnable implements Runnable {
+    private class ActionBarHider implements Runnable {
         public void run() {
-            ActionBar toolbar = getSupportActionBar();
-            if (toolbar != null)
-                toolbar.hide();
+            ActionBar actionBar = getSupportActionBar();
+            if (actionBar != null) {
+                Log.d(TAG, "ActionBarHider: Hiding ActionBar");
+                actionBar.hide();
+            }
+        }
+    }
+
+    private class ActionBarShower implements Runnable {
+        public void run() {
+            ActionBar actionBar = getSupportActionBar();
+            if (actionBar != null) {
+                Log.d(TAG, "ActionBarShower: Showing ActionBar");
+                actionBar.show();
+            }
         }
     }
 }

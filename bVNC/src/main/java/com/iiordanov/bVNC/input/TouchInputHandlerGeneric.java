@@ -238,7 +238,7 @@ abstract class TouchInputHandlerGeneric extends GestureDetector.SimpleOnGestureL
             // If the mouse was moved OR as reported, some external mice trigger this when a
             // mouse button is pressed as well, so we check bstate here too.
             case MotionEvent.ACTION_HOVER_MOVE:
-                activity.showToolbar();
+                activity.showActionBar();
                 canvas.movePanToMakePointerVisible();
                 switch (bstate) {
                     case MotionEvent.BUTTON_PRIMARY:
@@ -301,7 +301,7 @@ abstract class TouchInputHandlerGeneric extends GestureDetector.SimpleOnGestureL
         GeneralUtils.debugLog(debugLogging, TAG, "onSingleTapConfirmed, e: " + e);
 
         int metaState = e.getMetaState();
-        activity.showToolbar();
+        activity.showActionBar();
         pointer.leftButtonDown(getX(e), getY(e), metaState);
         SystemClock.sleep(50);
         pointer.releaseButton(getX(e), getY(e), metaState);

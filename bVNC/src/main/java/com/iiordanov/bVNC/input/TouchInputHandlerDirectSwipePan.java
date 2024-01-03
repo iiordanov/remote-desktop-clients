@@ -94,7 +94,7 @@ public class TouchInputHandlerDirectSwipePan extends TouchInputHandlerGeneric {
             return true;
         }
 
-        activity.showToolbar();
+        activity.showActionBar();
         panRepeater.start(-velocityX, -velocityY);
         return true;
     }
@@ -150,7 +150,7 @@ public class TouchInputHandlerDirectSwipePan extends TouchInputHandlerGeneric {
         }
 
         float scale = canvas.getZoomFactor();
-        activity.showToolbar();
+        activity.showActionBar();
         canvas.relativePan((int) (distanceX * scale), (int) (distanceY * scale));
         return true;
     }

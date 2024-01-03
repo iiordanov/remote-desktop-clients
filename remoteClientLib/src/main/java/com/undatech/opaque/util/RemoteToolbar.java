@@ -21,8 +21,9 @@ public class RemoteToolbar extends Toolbar {
         super(context, attrs, defStyleAttr);
     }
 
-    public void makeVisible(int XCoor, int YCoor, int rootRight, int rootBottom, int resetPositionX,
-                            int resetPositionY) {
+    public void setPositionToMakeVisible(
+            int XCoor, int YCoor, int rootRight, int rootBottom, int resetPositionX, int resetPositionY
+    ) {
         if (XCoor > rootRight || YCoor > rootBottom) {
             this.setX(resetPositionX);
             this.setY(resetPositionY);

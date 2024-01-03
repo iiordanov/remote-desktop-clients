@@ -94,7 +94,7 @@ public class TouchInputHandlerDirectDragPan extends TouchInputHandlerGeneric {
         // If we are scaling, allow panning around by moving two fingers around the screen
         if (inScaling) {
             float scale = canvas.getZoomFactor();
-            activity.showToolbar();
+            activity.showActionBar();
             canvas.relativePan((int) (distanceX * scale), (int) (distanceY * scale));
         } else {
             // onScroll called while scaling/swiping gesture is in effect. We ignore the event and pretend it was
@@ -112,7 +112,7 @@ public class TouchInputHandlerDirectDragPan extends TouchInputHandlerGeneric {
             if (twoFingers || inSwiping)
                 return true;
 
-            activity.showToolbar();
+            activity.showActionBar();
 
             if (!dragMode) {
                 startDragAndDropMode(e1);
