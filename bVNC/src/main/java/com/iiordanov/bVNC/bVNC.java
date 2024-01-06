@@ -48,7 +48,7 @@ import com.undatech.remoteClientUi.R;
  * bVNC is the Activity for setting up VNC connections.
  */
 public class bVNC extends MainConfiguration {
-    private final static String TAG = "androidVNC";
+    private final static String TAG = "bVNC";
     private LinearLayout layoutUseX11Vnc;
     private LinearLayout layoutAdvancedSettings;
     private EditText sshServer;
