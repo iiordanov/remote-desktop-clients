@@ -28,20 +28,23 @@ public class UriIntentParser {
 
     public static ConnectionBean loadFromUriOrCreateNew(Uri dataUri, Context ctx) {
         android.util.Log.d(TAG, "loadFromUriOrCreateNew");
-        ConnectionBean connection = new ConnectionBean(ctx);
+        ConnectionBean newConnection = new ConnectionBean(ctx);
         if (dataUri == null) {
-            return connection;
+            return newConnection;
         }
-        ConnectionBean connectionById = tryFindingByWidgetId(dataUri, ctx, connection);
-        if (connectionById != null) return connectionById;
+        ConnectionBean connection = tryFindingByWidgetId(dataUri, ctx, new ConnectionBean(ctx));
+        if (connection != null) return connection;
 
-        ConnectionBean connectionByNickname = tryFindingByNickname(dataUri, ctx, connection);
-        if (connectionByNickname != null) return connectionByNickname;
+        connection = tryFindingByExternalId(dataUri, ctx, new ConnectionBean(ctx));
+        if (connection != null) return connection;
 
-        ConnectionBean connectionByHostname = tryFindingByHostnameAndPort(dataUri, ctx, connection);
-        if (connectionByHostname != null) return connectionByHostname;
+        connection = tryFindingByNickname(dataUri, ctx, new ConnectionBean(ctx));
+        if (connection != null) return connection;
 
-        return connection;
+        connection = tryFindingByHostnameAndPort(dataUri, ctx, new ConnectionBean(ctx));
+        if (connection != null) return connection;
+
+        return newConnection;
     }
 
     private static ConnectionBean tryFindingByHostnameAndPort(Uri dataUri, Context ctx, ConnectionBean connection) {
@@ -54,6 +57,18 @@ public class UriIntentParser {
                 host,
                 AbstractConnectionBean.GEN_FIELD_PORT,
                 port
+        );
+    }
+
+    private static ConnectionBean tryFindingByExternalId(Uri dataUri, Context ctx, ConnectionBean connection) {
+        String externalId = dataUri.getQueryParameter(Constants.PARAM_EXTERNAL_ID);
+        return tryFindingByFields(
+                ctx,
+                connection,
+                AbstractConnectionBean.GEN_FIELD_EXTERNALID,
+                externalId,
+                null,
+                null
         );
     }
 
@@ -83,9 +98,9 @@ public class UriIntentParser {
         Cursor cursor = getCursor(field, value, field2, value2, queryDb);
         if (cursor != null && cursor.moveToFirst()) {
             Log.i(TAG, String.format(
-                    Locale.US,
-                    "Loading connection info from field: %s, value: %s, field2: %s, value2: %s",
-                    field, value, field2, value2
+                            Locale.US,
+                            "Loading connection info from field: %s, value: %s, field2: %s, value2: %s",
+                            field, value, field2, value2
                     )
             );
             connectionByField = new ConnectionBean(ctx);
@@ -174,154 +189,106 @@ public class UriIntentParser {
             connection.setReadyToBeSaved(true);
             return;
         }
-
-        String host = dataUri.getHost();
-        if (host != null) {
-            connection.setAddress(host);
-
-            // by default, the connection name is the host name
-            String nickName = connection.getNickname();
-            if (Utils.isNullOrEmptry(nickName)) {
-                connection.setNickname(host);
-            }
-        }
-
-        final int PORT_NONE = 0;
-        int port = dataUri.getPort();
-        if (port > PORT_NONE && !isValidPort(port)) {
-            throw new IllegalArgumentException("The specified VNC port is not valid.");
-        }
-        connection.setPort(port);
-
-        // handle legacy android-vnc-viewer parsing vnc://host:port/colormodel/password
-        List<String> path = dataUri.getPathSegments();
-        if (path.size() >= 1) {
-            connection.setColorModel(path.get(0));
-        }
-
-        if (path.size() >= 2) {
-            connection.setPassword(path.get(1));
-        }
-
+        parseHost(connection, dataUri);
+        parsePort(connection, dataUri);
+        parseLegacyColorAndPasswordPaths(connection, dataUri);
         // query based parameters
-        String connectionName = dataUri.getQueryParameter(Constants.PARAM_CONN_NAME);
-
-        if (connectionName != null) {
-            connection.setNickname(connectionName);
-        }
-
-        ArrayList<String> supportedUserParams = new ArrayList<String>() {{
-            add(Constants.PARAM_RDP_USER);
-            add(Constants.PARAM_SPICE_USER);
-            add(Constants.PARAM_VNC_USER);
-        }};
-        for (String userParam : supportedUserParams) {
-            String username = dataUri.getQueryParameter(userParam);
-            if (username != null) {
-                connection.setUserName(username);
-                break;
-            }
-        }
-
-        ArrayList<String> supportedPwdParams = new ArrayList<String>() {{
-            add(Constants.PARAM_RDP_PWD);
-            add(Constants.PARAM_SPICE_PWD);
-            add(Constants.PARAM_VNC_PWD);
-        }};
-        for (String pwdParam : supportedPwdParams) {
-            String password = dataUri.getQueryParameter(pwdParam);
-            if (password != null) {
-                connection.setPassword(password);
-                break;
-            }
-        }
-
-        String securityTypeParam = dataUri.getQueryParameter(Constants.PARAM_SECTYPE);
-        int secType = 0; //invalid
-        if (securityTypeParam != null) {
-            secType = Integer.parseInt(securityTypeParam); // throw if invalid
-            switch (secType) {
-                case Constants.SECTYPE_NONE:
-                case Constants.SECTYPE_VNC:
-                    connection.setConnectionType(Constants.CONN_TYPE_PLAIN);
-                    break;
-                case Constants.SECTYPE_INTEGRATED_SSH:
-                    connection.setConnectionType(Constants.CONN_TYPE_SSH);
-                    break;
-                case Constants.SECTYPE_ULTRA:
-                    connection.setConnectionType(Constants.CONN_TYPE_ULTRAVNC);
-                    break;
-                case Constants.SECTYPE_TLS:
-                    connection.setConnectionType(Constants.CONN_TYPE_ANONTLS);
-                    break;
-                case Constants.SECTYPE_VENCRYPT:
-                    connection.setConnectionType(Constants.CONN_TYPE_VENCRYPT);
-                    break;
-                case Constants.SECTYPE_TUNNEL:
-                    connection.setConnectionType(Constants.CONN_TYPE_STUNNEL);
-                    break;
-                default:
-                    throw new IllegalArgumentException("The specified security type is invalid or unsupported.");
-            }
-        }
-
+        parseConnectionName(connection, dataUri);
+        parseUser(connection, dataUri);
+        parsePassword(connection, dataUri);
+        int secType = parseSecurityType(connection, dataUri);
         // ssh parameters
-        String sshHost = dataUri.getQueryParameter(Constants.PARAM_SSH_HOST);
-        if (sshHost != null) {
-            connection.setSshServer(sshHost);
-        }
-
-        String sshPortParam = dataUri.getQueryParameter(Constants.PARAM_SSH_PORT);
-        if (sshPortParam != null) {
-            int sshPort = Integer.parseInt(sshPortParam);
-            if (!isValidPort(sshPort))
-                throw new IllegalArgumentException("The specified SSH port is not valid.");
-            connection.setSshPort(sshPort);
-        }
-
-        String sshUser = dataUri.getQueryParameter(Constants.PARAM_SSH_USER);
-        if (sshUser != null) {
-            connection.setSshUser(sshUser);
-        }
-
-        String sshPassword = dataUri.getQueryParameter(Constants.PARAM_SSH_PWD);
-        if (sshPassword != null) {
-            connection.setSshPassword(sshPassword);
-        }
-
+        parseSshHost(connection, dataUri);
+        parseSshPort(connection, dataUri);
+        parseSshUser(connection, dataUri);
+        parseSshPassword(connection, dataUri);
         // security hashes
-        String idHashAlgParam = dataUri.getQueryParameter(Constants.PARAM_ID_HASH_ALG);
-        if (idHashAlgParam != null) {
-            int idHashAlg = Integer.parseInt(idHashAlgParam); // throw if invalid
-            switch (idHashAlg) {
-                case Constants.ID_HASH_MD5:
-                case Constants.ID_HASH_SHA1:
-                case Constants.ID_HASH_SHA256:
-                    connection.setIdHashAlgorithm(idHashAlg);
-                    break;
-                default:
-                    // we are given a bad parameter
-                    throw new IllegalArgumentException("The specified hash algorithm is invalid or unsupported.");
-            }
-        }
-
-        String idHash = dataUri.getQueryParameter(Constants.PARAM_ID_HASH);
-        if (idHash != null) {
-            connection.setIdHash(idHash);
-        }
-
-        String viewOnlyParam = dataUri.getQueryParameter(Constants.PARAM_VIEW_ONLY);
-        if (viewOnlyParam != null) connection.setViewOnly(Boolean.parseBoolean(viewOnlyParam));
-
-        String scaleModeParam = dataUri.getQueryParameter(Constants.PARAM_SCALE_MODE);
-        if (scaleModeParam != null)
-            connection.setScaleMode(ImageView.ScaleType.valueOf(scaleModeParam));
-
-        String extraKeysToggleParam = dataUri.getQueryParameter(Constants.PARAM_EXTRAKEYS_TOGGLE);
-        if (extraKeysToggleParam != null)
-            connection.setExtraKeysToggleType(Integer.parseInt(extraKeysToggleParam));
-
+        parseIdHashAndIdHashAlgorithm(connection, dataUri);
+        parseViewOnlyMode(connection, dataUri);
+        parseScaleMode(connection, dataUri);
+        parseExtraKeysVisibility(connection, dataUri);
         // color model
+        parseColorMode(connection, dataUri);
+        // Parse a passed-in TLS port number.
+        parseTlsPort(connection, dataUri);
+        // Parse a CA Cert path parameter
+        parseCaCertPath(connection, dataUri);
+        // Parse a Cert subject
+        parseCertSubject(connection, dataUri);
+        // Parse a keyboard layout parameter
+        parseKeyboardLayout(connection, dataUri);
+        parseExternalId(connection, dataUri);
+        parseRequiresVpn(connection, dataUri);
+        parseVpnScheme(connection, dataUri);
+
+        connection.determineIfReadyForConnection(secType);
+
+        boolean saveConnection = parseSaveConnection(dataUri);
+        if (saveConnection && connection.isReadyToBeSaved()) {
+            connection.saveAndWriteRecent(false, context);
+        }
+    }
+
+    private static void parseVpnScheme(Connection connection, Uri dataUri) {
+        String vpnUriScheme = dataUri.getQueryParameter(Constants.PARAM_VPN_URI_SCHEME);
+        if (vpnUriScheme != null) {
+            connection.setVpnUriScheme(vpnUriScheme);
+        }
+    }
+
+    private static void parseRequiresVpn(Connection connection, Uri dataUri) {
+        boolean requiresVpn = dataUri.getBooleanQueryParameter(Constants.PARAM_REQUIRES_VPN, false);
+        connection.setRequiresVpn(requiresVpn);
+    }
+
+    private static void parseExternalId(Connection connection, Uri dataUri) {
+        String externalId = dataUri.getQueryParameter(Constants.PARAM_EXTERNAL_ID);
+        if (externalId != null) {
+            connection.setExternalId(externalId);
+        }
+    }
+
+    private static void parseKeyboardLayout(Connection connection, Uri dataUri) {
+        String keyboardLayout = dataUri.getQueryParameter(Constants.PARAM_KEYBOARD_LAYOUT);
+        if (keyboardLayout != null) {
+            connection.setLayoutMap(keyboardLayout);
+        }
+    }
+
+    private static void parseCertSubject(Connection connection, Uri dataUri) {
+        String certSubject = dataUri.getQueryParameter(Constants.PARAM_CERT_SUBJECT);
+        if (certSubject != null) {
+            connection.setCertSubject(certSubject);
+        }
+    }
+
+    private static void parseCaCertPath(Connection connection, Uri dataUri) {
+        String caCertPath = dataUri.getQueryParameter(Constants.PARAM_CACERT_PATH);
+        if (caCertPath != null) {
+            connection.setCaCertPath(caCertPath);
+        }
+    }
+
+    private static void parseTlsPort(Connection connection, Uri dataUri) {
+        String tlsPortParam = dataUri.getQueryParameter(Constants.PARAM_TLS_PORT);
+        if (tlsPortParam != null) {
+            int tlsPort = Integer.parseInt(tlsPortParam);
+            if (!isValidPort(tlsPort))
+                throw new IllegalArgumentException("The specified TLS port is not valid.");
+            connection.setTlsPort(tlsPort);
+        }
+    }
+
+    private static boolean parseSaveConnection(Uri dataUri) {
+        String saveConnectionParam = dataUri.getQueryParameter(Constants.PARAM_SAVE_CONN);
+        boolean saveConnection = true;
+        if (saveConnectionParam != null) {
+            saveConnection = Boolean.parseBoolean(saveConnectionParam); // throw if invalid
+        }
+        return saveConnection;
+    }
+
+    private static void parseColorMode(Connection connection, Uri dataUri) {
         String colorModelParam = dataUri.getQueryParameter(Constants.PARAM_COLORMODEL);
         if (colorModelParam != null) {
             int colorModel = Integer.parseInt(colorModelParam); // throw if invalid
@@ -356,43 +323,179 @@ public class UriIntentParser {
                     throw new IllegalArgumentException("The specified color model is invalid or unsupported.");
             }
         }
-        String saveConnectionParam = dataUri.getQueryParameter(Constants.PARAM_SAVE_CONN);
-        boolean saveConnection = true;
-        if (saveConnectionParam != null) {
-            saveConnection = Boolean.parseBoolean(saveConnectionParam); // throw if invalid
+    }
+
+    private static void parseExtraKeysVisibility(Connection connection, Uri dataUri) {
+        String extraKeysToggleParam = dataUri.getQueryParameter(Constants.PARAM_EXTRAKEYS_TOGGLE);
+        if (extraKeysToggleParam != null)
+            connection.setExtraKeysToggleType(Integer.parseInt(extraKeysToggleParam));
+    }
+
+    private static void parseScaleMode(Connection connection, Uri dataUri) {
+        String scaleModeParam = dataUri.getQueryParameter(Constants.PARAM_SCALE_MODE);
+        if (scaleModeParam != null)
+            connection.setScaleMode(ImageView.ScaleType.valueOf(scaleModeParam));
+    }
+
+    private static void parseViewOnlyMode(Connection connection, Uri dataUri) {
+        String viewOnlyParam = dataUri.getQueryParameter(Constants.PARAM_VIEW_ONLY);
+        if (viewOnlyParam != null) connection.setViewOnly(Boolean.parseBoolean(viewOnlyParam));
+    }
+
+    private static void parseIdHashAndIdHashAlgorithm(Connection connection, Uri dataUri) {
+        String idHashAlgParam = dataUri.getQueryParameter(Constants.PARAM_ID_HASH_ALG);
+        if (idHashAlgParam != null) {
+            int idHashAlg = Integer.parseInt(idHashAlgParam); // throw if invalid
+            switch (idHashAlg) {
+                case Constants.ID_HASH_MD5:
+                case Constants.ID_HASH_SHA1:
+                case Constants.ID_HASH_SHA256:
+                    connection.setIdHashAlgorithm(idHashAlg);
+                    break;
+                default:
+                    // we are given a bad parameter
+                    throw new IllegalArgumentException("The specified hash algorithm is invalid or unsupported.");
+            }
         }
 
-        // Parse a passed-in TLS port number.
-        String tlsPortParam = dataUri.getQueryParameter(Constants.PARAM_TLS_PORT);
-        if (tlsPortParam != null) {
-            int tlsPort = Integer.parseInt(tlsPortParam);
-            if (!isValidPort(tlsPort))
-                throw new IllegalArgumentException("The specified TLS port is not valid.");
-            connection.setTlsPort(tlsPort);
+        String idHash = dataUri.getQueryParameter(Constants.PARAM_ID_HASH);
+        if (idHash != null) {
+            connection.setIdHash(idHash);
+        }
+    }
+
+    private static void parseSshPassword(Connection connection, Uri dataUri) {
+        String sshPassword = dataUri.getQueryParameter(Constants.PARAM_SSH_PWD);
+        if (sshPassword != null) {
+            connection.setSshPassword(sshPassword);
+        }
+    }
+
+    private static void parseSshUser(Connection connection, Uri dataUri) {
+        String sshUser = dataUri.getQueryParameter(Constants.PARAM_SSH_USER);
+        if (sshUser != null) {
+            connection.setSshUser(sshUser);
+        }
+    }
+
+    private static void parseSshPort(Connection connection, Uri dataUri) {
+        String sshPortParam = dataUri.getQueryParameter(Constants.PARAM_SSH_PORT);
+        if (sshPortParam != null) {
+            int sshPort = Integer.parseInt(sshPortParam);
+            if (!isValidPort(sshPort))
+                throw new IllegalArgumentException("The specified SSH port is not valid.");
+            connection.setSshPort(sshPort);
+        }
+    }
+
+    private static void parseSshHost(Connection connection, Uri dataUri) {
+        String sshHost = dataUri.getQueryParameter(Constants.PARAM_SSH_HOST);
+        if (sshHost != null) {
+            connection.setSshServer(sshHost);
+        }
+    }
+
+    private static int parseSecurityType(Connection connection, Uri dataUri) {
+        String securityTypeParam = dataUri.getQueryParameter(Constants.PARAM_SECTYPE);
+        int secType = 0; //invalid
+        if (securityTypeParam != null) {
+            secType = Integer.parseInt(securityTypeParam); // throw if invalid
+            switch (secType) {
+                case Constants.SECTYPE_NONE:
+                case Constants.SECTYPE_VNC:
+                    connection.setConnectionType(Constants.CONN_TYPE_PLAIN);
+                    break;
+                case Constants.SECTYPE_INTEGRATED_SSH:
+                    connection.setConnectionType(Constants.CONN_TYPE_SSH);
+                    break;
+                case Constants.SECTYPE_ULTRA:
+                    connection.setConnectionType(Constants.CONN_TYPE_ULTRAVNC);
+                    break;
+                case Constants.SECTYPE_TLS:
+                    connection.setConnectionType(Constants.CONN_TYPE_ANONTLS);
+                    break;
+                case Constants.SECTYPE_VENCRYPT:
+                    connection.setConnectionType(Constants.CONN_TYPE_VENCRYPT);
+                    break;
+                case Constants.SECTYPE_TUNNEL:
+                    connection.setConnectionType(Constants.CONN_TYPE_STUNNEL);
+                    break;
+                default:
+                    throw new IllegalArgumentException("The specified security type is invalid or unsupported.");
+            }
+        }
+        return secType;
+    }
+
+    private static void parsePassword(Connection connection, Uri dataUri) {
+        ArrayList<String> supportedPwdParams = new ArrayList<String>() {{
+            add(Constants.PARAM_RDP_PWD);
+            add(Constants.PARAM_SPICE_PWD);
+            add(Constants.PARAM_VNC_PWD);
+        }};
+        for (String pwdParam : supportedPwdParams) {
+            String password = dataUri.getQueryParameter(pwdParam);
+            if (password != null) {
+                connection.setPassword(password);
+                break;
+            }
+        }
+    }
+
+    private static void parseUser(Connection connection, Uri dataUri) {
+        ArrayList<String> supportedUserParams = new ArrayList<String>() {{
+            add(Constants.PARAM_RDP_USER);
+            add(Constants.PARAM_SPICE_USER);
+            add(Constants.PARAM_VNC_USER);
+        }};
+        for (String userParam : supportedUserParams) {
+            String username = dataUri.getQueryParameter(userParam);
+            if (username != null) {
+                connection.setUserName(username);
+                break;
+            }
+        }
+    }
+
+    private static void parseConnectionName(Connection connection, Uri dataUri) {
+        String connectionName = dataUri.getQueryParameter(Constants.PARAM_CONN_NAME);
+
+        if (connectionName != null) {
+            connection.setNickname(connectionName);
+        }
+    }
+
+    private static void parseLegacyColorAndPasswordPaths(Connection connection, Uri dataUri) {
+        // handle legacy android-vnc-viewer parsing vnc://host:port/colormodel/password
+        List<String> path = dataUri.getPathSegments();
+        if (path.size() >= 1) {
+            connection.setColorModel(path.get(0));
         }
 
-        // Parse a CA Cert path parameter
-        String caCertPath = dataUri.getQueryParameter(Constants.PARAM_CACERT_PATH);
-        if (caCertPath != null) {
-            connection.setCaCertPath(caCertPath);
+        if (path.size() >= 2) {
+            connection.setPassword(path.get(1));
         }
+    }
 
-        // Parse a Cert subject
-        String certSubject = dataUri.getQueryParameter(Constants.PARAM_CERT_SUBJECT);
-        if (certSubject != null) {
-            connection.setCertSubject(certSubject);
+    private static void parsePort(Connection connection, Uri dataUri) {
+        final int PORT_NONE = 0;
+        int port = dataUri.getPort();
+        if (port > PORT_NONE && !isValidPort(port)) {
+            throw new IllegalArgumentException("The specified VNC port is not valid.");
         }
+        connection.setPort(port);
+    }
 
-        // Parse a keyboard layout parameter
-        String keyboardLayout = dataUri.getQueryParameter(Constants.PARAM_KEYBOARD_LAYOUT);
-        if (keyboardLayout != null) {
-            connection.setLayoutMap(keyboardLayout);
-        }
+    private static void parseHost(Connection connection, Uri dataUri) {
+        String host = dataUri.getHost();
+        if (host != null) {
+            connection.setAddress(host);
 
-        connection.determineIfReadyForConnection(secType);
-
-        if (saveConnection && connection.isReadyToBeSaved()) {
-            connection.saveAndWriteRecent(false, context);
+            // by default, the connection name is the host name
+            String nickName = connection.getNickname();
+            if (Utils.isNullOrEmptry(nickName)) {
+                connection.setNickname(host);
+            }
         }
     }
 

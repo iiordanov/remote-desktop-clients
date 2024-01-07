@@ -73,6 +73,9 @@ public class Constants {
     public static final String PARAM_SCALE_MODE = "ScaleMode";
     public static final String PARAM_EXTRAKEYS_TOGGLE = "ExtraKeysToggle";
     public static final String PARAM_KEYBOARD_LAYOUT = "KeyboardLayout";
+    public static final String PARAM_EXTERNAL_ID = "ExternalId";
+    public static final String PARAM_REQUIRES_VPN = "RequiresVpn";
+    public static final String PARAM_VPN_URI_SCHEME = "VpnUriScheme";
     public static final int SECTYPE_NONE = 1;
     public static final int SECTYPE_VNC = 2;
     public static final int SECTYPE_ULTRA = 17;
