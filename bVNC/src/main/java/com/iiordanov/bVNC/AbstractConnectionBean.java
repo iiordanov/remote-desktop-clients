@@ -3,10 +3,12 @@
 // is being edited by hand.
 package com.iiordanov.bVNC;
 
-public abstract class AbstractConnectionBean extends com.antlersoft.android.dbimpl.IdImplementationBase implements IConnectionBean {
+import com.undatech.opaque.Connection;
+
+public abstract class AbstractConnectionBean extends com.antlersoft.android.dbimpl.IdImplementationBase implements Connection {
 
     public static final String GEN_TABLE_NAME = "CONNECTION_BEAN";
-    public static final int GEN_COUNT = 82;
+    public static final int GEN_COUNT = 85;
 
     // Field constants
     public static final String GEN_FIELD__ID = "_id";
@@ -177,6 +179,13 @@ public abstract class AbstractConnectionBean extends com.antlersoft.android.dbim
     public static final String GEN_FIELD_PREFERSENDINGUNICODE = "PREFERSENDINGUNICODE";
     public static final int GEN_ID_PREFERSENDINGUNICODE = 81;
 
+    public static final String GEN_FIELD_EXTERNALID = "EXTERNALID";
+    public static final int GEN_ID_EXTERNALID = 82;
+    public static final String GEN_FIELD_REQUIRESVPN = "REQUIRESVPN";
+    public static final int GEN_ID_REQUIRESVPN = 83;
+    public static final String GEN_FIELD_VPNURISCHEME = "VPNURISCHEME";
+    public static final int GEN_ID_VPNURISCHEME = 84;
+
     // SQL Command for creating the table
     public static String GEN_CREATE = "CREATE TABLE CONNECTION_BEAN (" +
             "_id INTEGER PRIMARY KEY AUTOINCREMENT," +
@@ -260,7 +269,10 @@ public abstract class AbstractConnectionBean extends com.antlersoft.android.dbim
             "SCREENSHOTFILENAME TEXT," +
             "ENABLEGFX INTEGER," +
             "ENABLEGFXH264 INTEGER," +
-            "PREFERSENDINGUNICODE INTEGER" +
+            "PREFERSENDINGUNICODE INTEGER," +
+            "EXTERNALID TEXT," +
+            "REQUIRESVPN INTEGER," +
+            "VPNURISCHEME TEXT" +
             ")";
 
     // Members corresponding to defined fields
@@ -348,6 +360,10 @@ public abstract class AbstractConnectionBean extends com.antlersoft.android.dbim
     private boolean gen_enableGfx;
     private boolean gen_enableGfxH264;
     private boolean gen_preferSendingUnicode;
+
+    private String gen_externalId;
+    private boolean gen_requiresVpn;
+    private String gen_vpnUriScheme;
 
     public String Gen_tableName() {
         return GEN_TABLE_NAME;
@@ -1012,6 +1028,30 @@ public abstract class AbstractConnectionBean extends com.antlersoft.android.dbim
         gen_preferSendingUnicode = arg_preferSendingUnicode;
     }
 
+    public String getExternalId() {
+        return gen_externalId;
+    }
+
+    public void setExternalId(String gen_externalId) {
+        this.gen_externalId = gen_externalId;
+    }
+
+    public boolean getRequiresVpn() {
+        return gen_requiresVpn;
+    }
+
+    public void setRequiresVpn(boolean gen_requiresVpn) {
+        this.gen_requiresVpn = gen_requiresVpn;
+    }
+
+    public String getVpnUriScheme() {
+        return gen_vpnUriScheme;
+    }
+
+    public void setVpnUriScheme(String gen_vpnUriScheme) {
+        this.gen_vpnUriScheme = gen_vpnUriScheme;
+    }
+
     public android.content.ContentValues Gen_getValues() {
         android.content.ContentValues values = new android.content.ContentValues();
         values.put(GEN_FIELD__ID, Long.toString(this.gen__Id));
@@ -1099,6 +1139,10 @@ public abstract class AbstractConnectionBean extends com.antlersoft.android.dbim
         values.put(GEN_FIELD_ENABLEGFXH264, (this.gen_enableGfxH264 ? "1" : "0"));
 
         values.put(GEN_FIELD_PREFERSENDINGUNICODE, (this.gen_preferSendingUnicode ? "1" : "0"));
+
+        values.put(GEN_FIELD_EXTERNALID, (this.gen_externalId));
+        values.put(GEN_FIELD_REQUIRESVPN, (this.gen_requiresVpn ? "1" : "0"));
+        values.put(GEN_FIELD_VPNURISCHEME, (this.gen_vpnUriScheme));
 
         return values;
     }
@@ -1200,6 +1244,11 @@ public abstract class AbstractConnectionBean extends com.antlersoft.android.dbim
         result[80] = cursor.getColumnIndex(GEN_FIELD_ENABLEGFXH264);
 
         result[81] = cursor.getColumnIndex(GEN_FIELD_PREFERSENDINGUNICODE);
+
+        result[82] = cursor.getColumnIndex(GEN_FIELD_EXTERNALID);
+        result[83] = cursor.getColumnIndex(GEN_FIELD_REQUIRESVPN);
+        result[84] = cursor.getColumnIndex(GEN_FIELD_VPNURISCHEME);
+
         return result;
     }
 
@@ -1455,6 +1504,16 @@ public abstract class AbstractConnectionBean extends com.antlersoft.android.dbim
         if (columnIndices[GEN_ID_PREFERSENDINGUNICODE] >= 0 && !cursor.isNull(columnIndices[GEN_ID_PREFERSENDINGUNICODE])) {
             gen_preferSendingUnicode = (cursor.getInt(columnIndices[GEN_ID_PREFERSENDINGUNICODE]) != 0);
         }
+
+        if (columnIndices[GEN_ID_EXTERNALID] >= 0 && !cursor.isNull(columnIndices[GEN_ID_EXTERNALID])) {
+            gen_externalId = cursor.getString(columnIndices[GEN_ID_EXTERNALID]);
+        }
+        if (columnIndices[GEN_ID_REQUIRESVPN] >= 0 && !cursor.isNull(columnIndices[GEN_ID_REQUIRESVPN])) {
+            gen_requiresVpn = (cursor.getInt(columnIndices[GEN_ID_REQUIRESVPN]) != 0);
+        }
+        if (columnIndices[GEN_ID_VPNURISCHEME] >= 0 && !cursor.isNull(columnIndices[GEN_ID_VPNURISCHEME])) {
+            gen_vpnUriScheme = cursor.getString(columnIndices[GEN_ID_VPNURISCHEME]);
+        }
     }
 
     /**
@@ -1546,5 +1605,9 @@ public abstract class AbstractConnectionBean extends com.antlersoft.android.dbim
         gen_enableGfxH264 = (values.getAsInteger(GEN_FIELD_ENABLEGFXH264) != 0);
 
         gen_preferSendingUnicode = (values.getAsInteger(GEN_FIELD_PREFERSENDINGUNICODE) != 0);
+
+        gen_externalId = values.getAsString(GEN_FIELD_EXTERNALID);
+        gen_requiresVpn = (values.getAsInteger(GEN_FIELD_REQUIRESVPN) != 0);
+        gen_vpnUriScheme = values.getAsString(GEN_FIELD_VPNURISCHEME);
     }
 }

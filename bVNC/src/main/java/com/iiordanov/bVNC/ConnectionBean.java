@@ -29,7 +29,6 @@ import android.widget.ImageView.ScaleType;
 import com.antlersoft.android.dbimpl.NewInstance;
 import com.iiordanov.bVNC.input.TouchInputHandlerDirectSwipePan;
 import com.iiordanov.util.NetworkUtils;
-import com.undatech.opaque.Connection;
 import com.undatech.remoteClientUi.R;
 
 import net.sqlcipher.database.SQLiteDatabase;
@@ -42,7 +41,7 @@ import java.util.UUID;
  * @author Michael A. MacDonald
  * @author David Warden
  */
-public class ConnectionBean extends AbstractConnectionBean implements Connection, Comparable<ConnectionBean> {
+public class ConnectionBean extends AbstractConnectionBean implements Comparable<ConnectionBean> {
 
     private static final String TAG = "ConnectionBean";
     static Context c = null;
@@ -157,6 +156,9 @@ public class ConnectionBean extends AbstractConnectionBean implements Connection
         setEnableGfx(false);
         setEnableGfxH264(false);
         setPreferSendingUnicode(preferSendingUnicode);
+        setExternalId("");
+        setRequiresVpn(false);
+        setVpnUriScheme(Constants.DEFAULT_VPN_URI_SCHEME);
         c = context;
 
         // These two are not saved in the database since we always save the cert data. 

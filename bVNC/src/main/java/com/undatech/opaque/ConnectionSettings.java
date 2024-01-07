@@ -506,6 +506,36 @@ public class ConnectionSettings implements Connection, Serializable {
     }
 
     @Override
+    public String getExternalId() {
+        return null;
+    }
+
+    @Override
+    public void setExternalId(String gen_externalId) {
+
+    }
+
+    @Override
+    public boolean getRequiresVpn() {
+        return false;
+    }
+
+    @Override
+    public void setRequiresVpn(boolean gen_requiresVpn) {
+
+    }
+
+    @Override
+    public String getVpnUriScheme() {
+        return null;
+    }
+
+    @Override
+    public void setVpnUriScheme(String gen_vpnUriScheme) {
+
+    }
+
+    @Override
     public boolean getUseLastPositionToolbarMoved() {
         return useLastPositionToolbarMoved;
     }

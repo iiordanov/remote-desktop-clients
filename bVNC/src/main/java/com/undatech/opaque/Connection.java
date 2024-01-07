@@ -430,4 +430,16 @@ public interface Connection {
     boolean getPreferSendingUnicode();
 
     void setPreferSendingUnicode(boolean preferSendingUnicode);
+
+    String getExternalId();
+
+    void setExternalId(String gen_externalId);
+
+    boolean getRequiresVpn();
+
+    void setRequiresVpn(boolean gen_requiresVpn);
+
+    String getVpnUriScheme();
+
+    void setVpnUriScheme(String gen_vpnUriScheme);
 }

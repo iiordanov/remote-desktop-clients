@@ -198,6 +198,7 @@ public class Constants {
     public static final int CURSOR_FORCE_DISABLE = 2;
     public static volatile int DEFAULT_PROTOCOL_PORT = 5900;
 
+    public static final String DEFAULT_VPN_URI_SCHEME = "vpn";
     /**
      * Returns a string matching a session selection index
      * @param index - index to convert

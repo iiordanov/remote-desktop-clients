@@ -53,8 +53,9 @@ public class Database extends SQLiteOpenHelper {
     static final int DBV_2_1_6 = 431;
     static final int DBV_2_1_7 = 501;
     static final int DBV_2_1_8 = 507;
-    static final int CURRVERS = DBV_2_1_8;
-    private static String dbName = "VncDatabase";
+    static final int DBV_2_1_9 = 521;
+    static final int CURRVERS = DBV_2_1_9;
+    private static final String dbName = "VncDatabase";
     private static String password = "";
 
     public Database(Context context) {
@@ -386,6 +387,16 @@ public class Database extends SQLiteOpenHelper {
             oldVersion = DBV_2_1_8;
         }
 
+        if (oldVersion == DBV_2_1_8) {
+            Log.i(TAG, "Doing upgrade from 507 to 521");
+            db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
+                    + AbstractConnectionBean.GEN_FIELD_EXTERNALID + " TEXT");
+            db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
+                    + AbstractConnectionBean.GEN_FIELD_REQUIRESVPN + " BOOLEAN DEFAULT FALSE");
+            db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
+                    + AbstractConnectionBean.GEN_FIELD_VPNURISCHEME + " TEXT");
+            oldVersion = DBV_2_1_9;
+        }
     }
 
     public boolean checkMasterPassword(String password, Context context) {
