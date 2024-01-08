@@ -256,4 +256,7 @@ public class Constants {
         }
         return "";
     }
+    public static final String opaqueConnectionSettingsClassPath = "com.undatech.opaque.ConnectionSettings";
+    public static final String remoteCanvasActivityClassPath = "com.iiordanov.bVNC.RemoteCanvasActivity";
+
 }

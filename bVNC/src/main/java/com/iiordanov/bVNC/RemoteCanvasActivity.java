@@ -413,7 +413,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
         String vvFileName = retrieveVvFileFromIntent(i);
         if (vvFileName == null) {
             android.util.Log.d(TAG, "Initializing session from connection settings.");
-            connection = (ConnectionSettings) i.getSerializableExtra("com.undatech.opaque.ConnectionSettings");
+            connection = (ConnectionSettings) i.getSerializableExtra(Constants.opaqueConnectionSettingsClassPath);
         } else {
             android.util.Log.d(TAG, "Initializing session from vv file: " + vvFileName);
             File f = new File(vvFileName);

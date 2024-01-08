@@ -88,7 +88,6 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
     private Context appContext;
     private GridView gridView;
     private EditText search;
-    private boolean isConnecting = false;
     private boolean togglingMasterPassword = false;
     private AppCompatImageButton addNewConnection = null;
 
@@ -194,20 +193,14 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
         if (info.lowMemory)
             System.gc();
 
-        isConnecting = true;
         String runtimeId = (String) ((TextView) v.findViewById(R.id.grid_item_id)).getText();
-        Intent intent = new Intent(ConnectionGridActivity.this, GeneralUtils.getClassByName("com.iiordanov.bVNC.RemoteCanvasActivity"));
-        ConnectionLoader connectionLoader = getConnectionLoader(this);
-        if (Utils.isOpaque(this)) {
-            ConnectionSettings cs = (ConnectionSettings) connectionLoader.getConnectionsById().get(runtimeId);
-            cs.loadFromSharedPreferences(appContext);
-            intent.putExtra("com.undatech.opaque.ConnectionSettings", cs);
-        } else {
-            ConnectionBean conn = (ConnectionBean) connectionLoader.getConnectionsById().get(runtimeId);
-            intent.putExtra(Utils.getConnectionString(appContext), conn.Gen_getValues());
-        }
+        Intent intent = new IntentHelper().getIntent(
+                getConnectionLoader(this),
+                runtimeId,
+                appContext,
+                this
+        );
         startActivity(intent);
-
     }
 
     private void editConnection(View v) {
@@ -331,6 +324,7 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
 
     /**
      * Linked with android:onClick to the copyLogcat action bar item.
+     *
      * @param menuItem
      */
     public void copyLogcat(MenuItem menuItem) {
@@ -342,6 +336,7 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
 
     /**
      * Linked with android:onClick to the edit default settings action bar item.
+     *
      * @param menuItem
      */
     public void editDefaultSettings(MenuItem menuItem) {
@@ -350,7 +345,7 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
             Intent intent = new Intent(ConnectionGridActivity.this, GeneralUtils.getClassByName("com.undatech.opaque.AdvancedSettingsActivity"));
             ConnectionSettings defaultConnection = new ConnectionSettings(RemoteClientLibConstants.DEFAULT_SETTINGS_FILE);
             defaultConnection.loadFromSharedPreferences(getApplicationContext());
-            intent.putExtra("com.undatech.opaque.ConnectionSettings", defaultConnection);
+            intent.putExtra(Constants.opaqueConnectionSettingsClassPath, defaultConnection);
             startActivityForResult(intent, RemoteClientLibConstants.DEFAULT_SETTINGS);
         } else {
             Intent intent = new Intent();
@@ -361,6 +356,7 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
 
     /**
      * Linked with android:onClick to share or rate action bar item.
+     *
      * @param menuItem
      */
     public void rateOrShare(MenuItem menuItem) {
@@ -390,7 +386,7 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
             case RemoteClientLibConstants.DEFAULT_SETTINGS:
                 if (resultCode == Activity.RESULT_OK) {
                     Bundle b = data.getExtras();
-                    ConnectionSettings defaultSettings = (ConnectionSettings) b.get("com.undatech.opaque.ConnectionSettings");
+                    ConnectionSettings defaultSettings = (ConnectionSettings) b.get(Constants.opaqueConnectionSettingsClassPath);
                     defaultSettings.saveToSharedPreferences(this);
                 } else {
                     android.util.Log.i(TAG, "Error during AdvancedSettingsActivity.");

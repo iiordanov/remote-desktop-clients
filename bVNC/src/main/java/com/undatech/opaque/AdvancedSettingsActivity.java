@@ -78,7 +78,7 @@ public class AdvancedSettingsActivity extends FragmentActivity implements Manage
         setContentView(R.layout.advanced_settings_activity);
 
         Intent i = getIntent();
-        currentConnection = (ConnectionSettings) i.getSerializableExtra("com.undatech.opaque.ConnectionSettings");
+        currentConnection = (ConnectionSettings) i.getSerializableExtra(Constants.opaqueConnectionSettingsClassPath);
 
         toggleAudioPlayback = (ToggleButton) findViewById(R.id.toggleAudioPlayback);
         toggleAudioPlayback.setChecked(currentConnection.isAudioPlaybackEnabled());
@@ -206,7 +206,7 @@ public class AdvancedSettingsActivity extends FragmentActivity implements Manage
 
         // Send the generated data back to the calling activity.
         Intent databackIntent = new Intent();
-        databackIntent.putExtra("com.undatech.opaque.ConnectionSettings", currentConnection);
+        databackIntent.putExtra(Constants.opaqueConnectionSettingsClassPath, currentConnection);
         setResult(Activity.RESULT_OK, databackIntent);
     }
 

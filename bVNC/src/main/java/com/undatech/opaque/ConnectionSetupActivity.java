@@ -40,6 +40,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.iiordanov.bVNC.Constants;
 import com.iiordanov.bVNC.Utils;
 import com.undatech.remoteClientUi.R;
 
@@ -84,7 +85,7 @@ public class ConnectionSetupActivity extends Activity {
                 saveSelectedPreferences(false);
 
                 Intent intent = new Intent(ConnectionSetupActivity.this, AdvancedSettingsActivity.class);
-                intent.putExtra("com.undatech.opaque.ConnectionSettings", currentConnection);
+                intent.putExtra(Constants.opaqueConnectionSettingsClassPath, currentConnection);
                 startActivityForResult(intent, RemoteClientLibConstants.ADVANCED_SETTINGS);
             }
         });
@@ -206,7 +207,7 @@ public class ConnectionSetupActivity extends Activity {
             case (RemoteClientLibConstants.ADVANCED_SETTINGS):
                 if (resultCode == Activity.RESULT_OK) {
                     Bundle b = data.getExtras();
-                    currentConnection = (ConnectionSettings) b.get("com.undatech.opaque.ConnectionSettings");
+                    currentConnection = (ConnectionSettings) b.get(Constants.opaqueConnectionSettingsClassPath);
                     saveSelectedPreferences(false);
                 } else {
                     android.util.Log.i(TAG, "Error during AdvancedSettingsActivity.");
