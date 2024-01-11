@@ -32,13 +32,8 @@ public class UriIntentParser {
         if (dataUri == null) {
             return newConnection;
         }
+
         ConnectionBean connection = tryFindingByWidgetId(dataUri, ctx, new ConnectionBean(ctx));
-        if (connection != null) return connection;
-
-        connection = tryFindingByExternalId(dataUri, ctx, new ConnectionBean(ctx));
-        if (connection != null) return connection;
-
-        connection = tryFindingByNickname(dataUri, ctx, new ConnectionBean(ctx));
         if (connection != null) return connection;
 
         connection = tryFindingByHostnameAndPort(dataUri, ctx, new ConnectionBean(ctx));
@@ -57,30 +52,6 @@ public class UriIntentParser {
                 host,
                 AbstractConnectionBean.GEN_FIELD_PORT,
                 port
-        );
-    }
-
-    private static ConnectionBean tryFindingByExternalId(Uri dataUri, Context ctx, ConnectionBean connection) {
-        String externalId = dataUri.getQueryParameter(Constants.PARAM_EXTERNAL_ID);
-        return tryFindingByFields(
-                ctx,
-                connection,
-                AbstractConnectionBean.GEN_FIELD_EXTERNALID,
-                externalId,
-                null,
-                null
-        );
-    }
-
-    private static ConnectionBean tryFindingByNickname(Uri dataUri, Context ctx, ConnectionBean connection) {
-        String connectionName = dataUri.getQueryParameter(Constants.PARAM_CONN_NAME);
-        return tryFindingByFields(
-                ctx,
-                connection,
-                AbstractConnectionBean.GEN_FIELD_NICKNAME,
-                connectionName,
-                null,
-                null
         );
     }
 
@@ -273,8 +244,9 @@ public class UriIntentParser {
         String tlsPortParam = dataUri.getQueryParameter(Constants.PARAM_TLS_PORT);
         if (tlsPortParam != null) {
             int tlsPort = Integer.parseInt(tlsPortParam);
-            if (!isValidPort(tlsPort))
+            if (isInvalidPort(tlsPort)) {
                 throw new IllegalArgumentException("The specified TLS port is not valid.");
+            }
             connection.setTlsPort(tlsPort);
         }
     }
@@ -382,8 +354,9 @@ public class UriIntentParser {
         String sshPortParam = dataUri.getQueryParameter(Constants.PARAM_SSH_PORT);
         if (sshPortParam != null) {
             int sshPort = Integer.parseInt(sshPortParam);
-            if (!isValidPort(sshPort))
+            if (isInvalidPort(sshPort)) {
                 throw new IllegalArgumentException("The specified SSH port is not valid.");
+            }
             connection.setSshPort(sshPort);
         }
     }
@@ -480,7 +453,7 @@ public class UriIntentParser {
     private static void parsePort(Connection connection, Uri dataUri) {
         final int PORT_NONE = 0;
         int port = dataUri.getPort();
-        if (port > PORT_NONE && !isValidPort(port)) {
+        if (port > PORT_NONE && isInvalidPort(port)) {
             throw new IllegalArgumentException("The specified VNC port is not valid.");
         }
         connection.setPort(port);
@@ -499,10 +472,8 @@ public class UriIntentParser {
         }
     }
 
-    static boolean isValidPort(int port) {
+    static boolean isInvalidPort(int port) {
         final int PORT_MAX = 65535;
-        if (port <= 0 || port > PORT_MAX)
-            return false;
-        return true;
+        return port <= 0 || port > PORT_MAX;
     }
 }
