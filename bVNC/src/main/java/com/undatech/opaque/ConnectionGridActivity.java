@@ -28,6 +28,7 @@ import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.ActivityNotFoundException;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -200,7 +201,13 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
                 appContext,
                 this
         );
-        startActivity(intent);
+        try {
+            startActivity(intent);
+        } catch (ActivityNotFoundException e) {
+            Log.e(TAG, "Error launching connection: " + e);
+            Toast.makeText(this, R.string.no_application_to_handle_vpn, Toast.LENGTH_LONG).show();
+            startUriIntent(this, "market://search?q=pub:\"Morpheusly\"");
+        }
     }
 
     private void editConnection(View v) {
