@@ -26,7 +26,6 @@ import com.undatech.opaque.RemoteClientLibConstants;
 import com.undatech.opaque.dialogs.ChoiceFragment;
 import com.undatech.opaque.dialogs.MessageFragment;
 import com.undatech.opaque.dialogs.SelectTextElementFragment;
-import com.undatech.opaque.util.GooglePlayUtils;
 import com.undatech.opaque.util.SslUtils;
 import com.undatech.remoteClientUi.R;
 
@@ -544,21 +543,21 @@ public class RemoteCanvasHandler extends Handler {
                 c.disconnectAndShowMessage(R.string.info_vm_launched_on_stand_by, R.string.info_dialog_title);
                 break;
             case RemoteClientLibConstants.LAUNCH_VNC_VIEWER:
-                android.util.Log.d(TAG, "Trying to launch VNC viewer");
-
-                if (!GooglePlayUtils.isPackageInstalled(context, "com.iiordanov.bVNC") &&
-                        !GooglePlayUtils.isPackageInstalled(context, "com.iiordanov.freebVNC")) {
+                Log.d(TAG, "Trying to launch VNC viewer");
+                try {
+                    String address = msg.getData().getString("address");
+                    String port = msg.getData().getString("port");
+                    String password = msg.getData().getString("password");
+                    String uriString = "vnc://" + address + ":" + port + "?VncPassword=" + password;
+                    Intent intent = new Intent(Intent.ACTION_VIEW).setType("application/vnd.vnc").setData(Uri.parse(uriString));
+                    context.startActivity(intent);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    Log.e(TAG, "Failed to launch VNC viewer: + " + e.getLocalizedMessage());
                     displayMessageAndFinish(R.string.info_dialog_title, R.string.message_please_install_bvnc, R.string.ok);
                     return;
                 }
-
-                String address = msg.getData().getString("address");
-                String port = msg.getData().getString("port");
-                String password = msg.getData().getString("password");
-                String uriString = "vnc://" + address + ":" + port + "?VncPassword=" + password;
-                Intent intent = new Intent(Intent.ACTION_VIEW).setType("application/vnd.vnc").setData(Uri.parse(uriString));
-                context.startActivity(intent);
-                Utils.justFinish(context);
+                c.disconnectAndShowMessage(R.string.vnc_viewer_started, R.string.info_dialog_title);
                 break;
             case RemoteClientLibConstants.GET_PASSWORD:
                 showGetTextFragmentRemoteCanvas(context.getString(R.string.enter_password),
