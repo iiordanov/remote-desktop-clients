@@ -30,6 +30,7 @@ import android.view.MotionEvent
 import android.view.View
 import com.iiordanov.bVNC.Constants
 import com.iiordanov.util.NetworkUtils
+import kotlinx.coroutines.Dispatchers
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
@@ -53,17 +54,17 @@ class RemoteClientsInputListener(
         }
         try {
             if (evt.action == KeyEvent.ACTION_DOWN || evt.action == KeyEvent.ACTION_MULTIPLE) {
-                consumed = NetworkUtils.tryRunningCoroutineWithTimeout {
+                consumed = NetworkUtils.tryRunningCoroutineWithTimeout({
                     keyInputHandler?.onKeyDownEvent(
                         keyCode, evt
                     )
-                }
+                }, Dispatchers.Default)
             } else if (evt.action == KeyEvent.ACTION_UP) {
-                consumed = NetworkUtils.tryRunningCoroutineWithTimeout {
+                consumed = NetworkUtils.tryRunningCoroutineWithTimeout({
                     keyInputHandler?.onKeyUpEvent(
                         keyCode, evt
                     )
-                }
+                }, Dispatchers.Default)
             }
             resetOnScreenKeys(keyCode)
         } catch (e: NullPointerException) {
@@ -110,11 +111,11 @@ class RemoteClientsInputListener(
     fun onTrackballEvent(event: MotionEvent?): Boolean {
         try {
             // If we are using the Dpad as arrow keys, don't send the event to the inputHandler.
-            return if (useDpadAsArrows) false else NetworkUtils.tryRunningCoroutineWithTimeout {
+            return if (useDpadAsArrows) false else NetworkUtils.tryRunningCoroutineWithTimeout({
                 this.touchInputHandler?.onTouchEvent(
                     event
                 )
-            }
+            }, Dispatchers.Default)
         } catch (e: NullPointerException) {
             Log.e(tag, "NullPointerException ignored")
         }
@@ -124,11 +125,11 @@ class RemoteClientsInputListener(
     // Send touch events or mouse events like button clicks to be handled.
     fun onTouchEvent(event: MotionEvent?): Boolean {
         try {
-            return NetworkUtils.tryRunningCoroutineWithTimeout {
+            return NetworkUtils.tryRunningCoroutineWithTimeout({
                 this.touchInputHandler?.onTouchEvent(
                     event
                 )
-            }
+            }, Dispatchers.Default)
         } catch (e: NullPointerException) {
             Log.e(tag, "NullPointerException ignored")
         }
@@ -149,11 +150,11 @@ class RemoteClientsInputListener(
         val isHoverEventFromFingerOnTouchscreen =
             (a == MotionEvent.ACTION_HOVER_MOVE && event.source == InputDevice.SOURCE_TOUCHSCREEN && toolTypeFinger)
         if (!(isHoverEnter || isHoverExit || isHoverEventFromFingerOnTouchscreen)) {
-            return NetworkUtils.tryRunningCoroutineWithTimeout {
+            return NetworkUtils.tryRunningCoroutineWithTimeout({
                 this.touchInputHandler?.onTouchEvent(
                     event
                 )
-            }
+            }, Dispatchers.Default)
         }
         return false
     }

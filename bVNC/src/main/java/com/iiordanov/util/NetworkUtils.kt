@@ -20,6 +20,7 @@
 package com.iiordanov.util
 
 import android.util.Log
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
@@ -32,25 +33,28 @@ object NetworkUtils {
     private const val tag: String = "NetworkUtils"
 
     fun isValidIpv6Address(address: String?): Boolean {
-        return tryRunningCoroutineWithTimeout {
-            InetAddress.getByName(address) is Inet6Address
-        }
+        return tryRunningCoroutineWithTimeout(
+            {
+                InetAddress.getByName(address) is Inet6Address
+            },
+            Dispatchers.IO
+        )
     }
 
     fun tryRunningCoroutineWithTimeout(
-        block: (CoroutineScope) -> Boolean?
+        block: (CoroutineScope) -> Boolean?, dispatcher: CoroutineDispatcher
     ): Boolean {
         return runBlocking {
-            this.tryRunningWithTimeoutAsync(block, false, 1000L)
+            this.tryRunningWithTimeoutAsync(block, false, 1000L, dispatcher)
         } ?: false
     }
 
     private suspend inline fun <T, R> T.tryRunningWithTimeoutAsync(
-        crossinline block: T.() -> R, default: R, timeout: Long
+        crossinline block: T.() -> R, default: R, timeout: Long, dispatcher: CoroutineDispatcher
     ): R {
         return try {
             withTimeout(timeout) {
-                withContext(Dispatchers.IO) {
+                withContext(dispatcher) {
                     block()
                 }
             }
