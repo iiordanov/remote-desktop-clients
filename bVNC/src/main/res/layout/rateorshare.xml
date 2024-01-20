@@ -135,5 +135,15 @@
         </TableRow>
 
         <TableRow android:gravity="center" />
+
+        <TableRow android:gravity="center">
+
+            <TextView
+                android:id="@+id/versionAndCode"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium" />
+
+        </TableRow>
     </TableLayout>
 </ScrollView>

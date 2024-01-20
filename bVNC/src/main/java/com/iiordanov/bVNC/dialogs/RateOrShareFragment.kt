@@ -25,6 +25,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TableLayout
+import android.widget.TextView
 import androidx.fragment.app.DialogFragment
 import com.iiordanov.bVNC.Utils
 import com.undatech.remoteClientUi.R
@@ -33,6 +34,7 @@ class RateOrShareFragment : DialogFragment() {
     private var layout: TableLayout? = null
     private var donationButton: Button? = null
     private var previousVersionsButton: Button? = null
+    private var versionAndCode: TextView? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,14 +50,17 @@ class RateOrShareFragment : DialogFragment() {
         dialog?.setTitle(getString(R.string.action_rate_or_share_app))
         val v = inflater.inflate(R.layout.rateorshare, container, false)
         layout = v.findViewById<View>(R.id.layout) as TableLayout
-        donationButton = v.findViewById<Button>(R.id.buttonDonate);
-        previousVersionsButton = v.findViewById<Button>(R.id.buttonPreviousVersions);
+        donationButton = v.findViewById(R.id.buttonDonate);
+        previousVersionsButton = v.findViewById(R.id.buttonPreviousVersions);
         if (!Utils.isFree(activity)) {
             donationButton?.visibility = View.GONE
         }
         if (Utils.isOpaque(activity)) {
             previousVersionsButton?.visibility = View.GONE
         }
+        versionAndCode = v.findViewById<View>(R.id.versionAndCode) as TextView
+        versionAndCode?.text = Utils.getVersionAndCode(v.context)
+
         return v
     }
 
