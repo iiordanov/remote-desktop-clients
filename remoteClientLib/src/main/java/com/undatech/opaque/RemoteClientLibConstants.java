@@ -29,7 +29,6 @@ public class RemoteClientLibConstants {
     public static final int DIALOG_RDP_CERT = 3;
     public static final int SPICE_CONNECT_SUCCESS = 4;
     public static final int SPICE_CONNECT_FAILURE = 5;
-    public static final int DIALOG_STUNNEL_CERT = 6;
     public static final int RDP_CONNECT_FAILURE = 7;
     public static final int RDP_UNABLE_TO_CONNECT = 8;
     public static final int RDP_AUTH_FAILED = 9;
@@ -72,11 +71,6 @@ public class RemoteClientLibConstants {
     public static final int SPICE_CONNECT_FAILURE_IF_MAINTAINING_CONNECTION = 46;
     public static final int SHOW_TOAST = 47;
     public static final int PRO_FEATURE = 99;
-
-    public static final int EXTRA_KEYS_OFF = 0;
-    public static final int EXTRA_KEYS_ON = 1;
-    public static final int EXTRA_KEYS_TIMEOUT = 2;
-
     public static final int ADVANCED_SETTINGS = 1;
     public static final int DEFAULT_SETTINGS = 2;
     public static final int IMPORT_SETTINGS_REQUEST_CODE = 3;
@@ -85,8 +79,6 @@ public class RemoteClientLibConstants {
     public static final String DEFAULT_LAYOUT_MAP = "English (US)";
 
     public static final String ACTION_USB_PERMISSION = "com.undatech.opaque.USB_PERMISSION";
-    public static final int usbDeviceTimeout = 5000;
-    public static final int usbDevicePermissionTimeout = 15000;
 
     public static final String DEFAULT_SETTINGS_FILE = "defaultSettings";
 
@@ -94,10 +86,6 @@ public class RemoteClientLibConstants {
     public static final int VV_GET_FILE_TIMEOUT = 17000;
 
     public static final String PVE_DEFAULT_REALM = "pam";
-    public static final String PVE_DEFAULT_NODE = "pve";
-    public static final String PVE_DEFAULT_VIRTUALIZATION = "qemu";
 
-    public static final String GET_OTP_CODE_ID = "getOtpCode";
-    public static final String GET_PASSWORD_ID = "getPassword";
     public static final int LOGCAT_MAX_LINES = 500;
 }

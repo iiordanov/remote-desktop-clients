@@ -74,7 +74,7 @@ public class ConnectionSettings implements Connection, Serializable {
     private String screenshotFilename = UUID.randomUUID().toString() + ".png";
     private String x509KeySignature = "";
 
-    private int extraKeysToggleType = RemoteClientLibConstants.EXTRA_KEYS_ON;
+    private int extraKeysToggleType = Constants.EXTRA_KEYS_ON;
 
     private int rdpWidth = 0;
     private int rdpHeight = 0;
@@ -785,7 +785,7 @@ public class ConnectionSettings implements Connection, Serializable {
 
     public void loadAdvancedSettings(Context context, String file) {
         SharedPreferences sp = context.getSharedPreferences(file, Context.MODE_PRIVATE);
-        extraKeysToggleType = sp.getInt("extraKeysToggleType", RemoteClientLibConstants.EXTRA_KEYS_ON);
+        extraKeysToggleType = sp.getInt("extraKeysToggleType", Constants.EXTRA_KEYS_ON);
         inputMethod = sp.getString("inputMethod", "DirectSwipePan").trim();
         audioPlaybackEnabled = sp.getBoolean("audioEnabled", false);
         rotationEnabled = sp.getBoolean("rotationEnabled", true);
