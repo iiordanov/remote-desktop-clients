@@ -1,3 +1,5 @@
+v5.2.2
+- Fix for SSH 2FA being requested twice.
 v5.2.1
 - Improvements for input responsiveness
 v5.2.0
