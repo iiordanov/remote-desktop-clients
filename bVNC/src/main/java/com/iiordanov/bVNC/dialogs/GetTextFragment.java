@@ -20,6 +20,7 @@
 
 package com.iiordanov.bVNC.dialogs;
 
+import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.text.Editable;
@@ -28,14 +29,15 @@ import android.text.method.PasswordTransformationMethod;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -51,7 +53,6 @@ public class GetTextFragment extends DialogFragment {
     public static final int CredentialsWithDomain = 5;
     public static final int CredentialsWithReadOnlyUser = 6;
     public static final int PasswordNoKeep = 7;
-    public static final String DIALOG_ID_GET_PASSWORD = "DIALOG_ID_GET_PASSWORD";
     public static final String DIALOG_ID_GET_MASTER_PASSWORD = "DIALOG_ID_GET_MASTER_PASSWORD";
     public static final String DIALOG_ID_GET_MATCHING_MASTER_PASSWORDS = "DIALOG_ID_GET_MATCHING_MASTER_PASSWORDS";
     public static final String DIALOG_ID_GET_VERIFICATIONCODE = "DIALOG_ID_GET_VERIFICATIONCODE";
@@ -67,14 +68,11 @@ public class GetTextFragment extends DialogFragment {
     public static String TAG = "GetTextFragment";
     private boolean wasCancelled = false;
     private boolean wasConfirmed = false;
-    private TextView message;
     private TextView error;
     private TextView textViewBox;
     private EditText textBox;
     private EditText textBox2;
     private EditText textBox3;
-    private Button buttonConfirm;
-    private Button buttonCancel;
     private CheckBox checkboxKeepPassword;
     private OnFragmentDismissedListener dismissalListener;
     private String title;
@@ -86,6 +84,7 @@ public class GetTextFragment extends DialogFragment {
     private int dialogType = 0;
     private int messageNum = 0;
     private int errorNum = 0;
+
     public GetTextFragment() {
     }
 
@@ -117,27 +116,35 @@ public class GetTextFragment extends DialogFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         android.util.Log.i(TAG, "onCreate called");
-        dialogId = getArguments().getString("dialogId");
-        title = getArguments().getString("title");
-        dialogType = getArguments().getInt("dialogType");
-        messageNum = getArguments().getInt("messageNum");
-        errorNum = getArguments().getInt("errorNum");
-        t1 = getArguments().getString("t1");
-        t2 = getArguments().getString("t2");
-        t3 = getArguments().getString("t3");
-        keepPassword = getArguments().getBoolean("keepPassword");
+        Bundle b = getArguments();
+        if (b != null) {
+            dialogId = b.getString("dialogId");
+            title = b.getString("title");
+            dialogType = b.getInt("dialogType");
+            messageNum = b.getInt("messageNum");
+            errorNum = b.getInt("errorNum");
+            t1 = b.getString("t1");
+            t2 = b.getString("t2");
+            t3 = b.getString("t3");
+            keepPassword = b.getBoolean("keepPassword");
+        }
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         android.util.Log.i(TAG, "onCreateView called");
         wasCancelled = false;
         wasConfirmed = false;
 
-        getDialog().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN | WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
-
-        // Set title for this dialog
-        getDialog().setTitle(title);
+        Dialog d = getDialog();
+        if (d != null) {
+            Window w = d.getWindow();
+            if (w != null) {
+                w.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN |
+                        WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+            }
+            d.setTitle(title);
+        }
         View v = null;
 
         switch (dialogType) {
@@ -145,12 +152,14 @@ public class GetTextFragment extends DialogFragment {
                 v = inflater.inflate(R.layout.get_text, container, false);
                 textBox = (EditText) v.findViewById(R.id.textBox);
                 checkboxKeepPassword = v.findViewById(R.id.checkboxKeepPassword);
-                if (dialogId == DIALOG_ID_GET_OPAQUE_OTP_CODE) {
+                if (DIALOG_ID_GET_OPAQUE_OTP_CODE.equals(dialogId) ||
+                        DIALOG_ID_GET_VERIFICATIONCODE.equals(dialogId)
+                ) {
                     textBox.setHint("");
                     checkboxKeepPassword.setVisibility(View.INVISIBLE);
                 }
-                buttonConfirm = (Button) v.findViewById(R.id.buttonConfirm);
-                buttonCancel = (Button) v.findViewById(R.id.buttonCancel);
+                Button buttonConfirm = (Button) v.findViewById(R.id.buttonConfirm);
+                Button buttonCancel = (Button) v.findViewById(R.id.buttonCancel);
                 dismissOnCancel(buttonCancel);
                 dismissOnConfirm(buttonConfirm);
                 break;
@@ -238,8 +247,13 @@ public class GetTextFragment extends DialogFragment {
             checkboxKeepPassword.setChecked(keepPassword);
         }
 
-        message = (TextView) v.findViewById(R.id.message);
-        message.setText(messageNum);
+        TextView message = null;
+        if (v != null) {
+            message = (TextView) v.findViewById(R.id.message);
+        }
+        if (message != null) {
+            message.setText(messageNum);
+        }
 
         this.setRetainInstance(true);
 
@@ -255,37 +269,35 @@ public class GetTextFragment extends DialogFragment {
     }
 
     private void dismissOnCancel(Button cancelButton) {
-        cancelButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                wasCancelled = true;
-                getDialog().dismiss();
-            }
+        cancelButton.setOnClickListener(v -> {
+            wasCancelled = true;
+            dismissSafely();
         });
     }
 
+    private void dismissSafely() {
+        Dialog d = getDialog();
+        if (d != null) {
+            d.dismiss();
+        }
+    }
+
     private void dismissOnConfirm(Button buttonConfirm) {
-        buttonConfirm.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                wasConfirmed = true;
-                getDialog().dismiss();
-            }
+        buttonConfirm.setOnClickListener(v -> {
+            wasConfirmed = true;
+            dismissSafely();
         });
     }
 
     private void ensureMatchingDismissOnConfirm(Button buttonConfirm, final EditText textBox1, final EditText textBox2, final TextView error) {
-        buttonConfirm.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (textBox1.getText().toString().equals(textBox2.getText().toString())) {
-                    wasConfirmed = true;
-                    getDialog().dismiss();
-                } else {
-                    error.setText(errorNum);
-                    error.setVisibility(View.VISIBLE);
-                    error.invalidate();
-                }
+        buttonConfirm.setOnClickListener(v -> {
+            if (textBox1.getText().toString().equals(textBox2.getText().toString())) {
+                wasConfirmed = true;
+                dismissSafely();
+            } else {
+                error.setText(errorNum);
+                error.setVisibility(View.VISIBLE);
+                error.invalidate();
             }
         });
 
@@ -294,7 +306,7 @@ public class GetTextFragment extends DialogFragment {
     }
 
     @Override
-    public void onDismiss(DialogInterface dialog) {
+    public void onDismiss(@NonNull DialogInterface dialog) {
         android.util.Log.i(TAG, "onDismiss called: Sending data back to Activity");
         String[] results = new String[3];
         if (textViewBox != null) {
