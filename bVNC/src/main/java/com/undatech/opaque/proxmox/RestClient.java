@@ -106,9 +106,11 @@ public class RestClient {
             trustStore.load(null, null);
 
             // TODO: Make it an option whether to trust all certificates.
-            MySSLSocketFactory sslsf = new MySSLSocketFactory(trustStore, connection.getOvirtCaData().trim(), handler);
+            MySSLSocketFactory sslsf = new MySSLSocketFactory(trustStore, connection.getX509KeySignature().trim(), handler);
 
-            Scheme https = new Scheme("https", sslsf, 8006);
+            Scheme https = new Scheme("https", sslsf, 443);
+            Scheme pve = new Scheme("https", sslsf, 8006);
+            client.getConnectionManager().getSchemeRegistry().register(pve);
             client.getConnectionManager().getSchemeRegistry().register(https);
         } catch (Exception e) {
             e.printStackTrace();

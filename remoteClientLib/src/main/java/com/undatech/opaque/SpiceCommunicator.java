@@ -251,7 +251,10 @@ public class SpiceCommunicator extends RfbConnectable {
                                          String user,
                                          String password,
                                          String sslCaFile,
-                                         boolean sound, boolean sslStrict);
+                                         boolean sound,
+                                         boolean sslStrict,
+                                         String ssoToken
+                                         );
 
     public native int StartSessionFromVvFile(String fileName, boolean sound);
 
@@ -296,12 +299,18 @@ public class SpiceCommunicator extends RfbConnectable {
     /**
      * Launches a new thread which performs an oVirt/RHEV session connection
      */
-    public void connectOvirt(String ip, String vmname,
-                             String user, String password,
-                             String sslCaFile,
-                             boolean sound, boolean sslStrict) {
-        android.util.Log.d(TAG, "connectOvirt: " + ip + ", " + vmname + ", " + user);
-        thread = new OvirtThread(ip, vmname, user, password, sslCaFile, sound, sslStrict);
+    public void connectOvirt(
+            String ip,
+            String vmname,
+            String user,
+            String password,
+            String sslCaFile,
+            boolean sound,
+            boolean sslStrict,
+            String ssoToken
+    ) {
+        android.util.Log.d(TAG, "connectOvirt: " + ip + ", " + vmname + ", " + user + ", token: " + ssoToken);
+        thread = new OvirtThread(ip, vmname, user, password, sslCaFile, sound, sslStrict, ssoToken);
         thread.start();
     }
 
@@ -545,12 +554,18 @@ public class SpiceCommunicator extends RfbConnectable {
 
     class OvirtThread extends Thread {
         boolean sound, sslStrict;
-        private String ip, vmname, user, password, sslCaFile;
+        final private String ip, vmname, user, password, sslCaFile, ssoToken;
 
-        public OvirtThread(String ip, String vmname,
-                           String user, String password,
-                           String sslCaFile,
-                           boolean sound, boolean sslStrict) {
+        public OvirtThread(
+                String ip,
+                String vmname,
+                String user,
+                String password,
+                String sslCaFile,
+                boolean sound,
+                boolean sslStrict,
+                String ssoToken
+        ) {
             this.ip = ip;
             this.vmname = vmname;
             this.user = user;
@@ -558,10 +573,19 @@ public class SpiceCommunicator extends RfbConnectable {
             this.sslCaFile = sslCaFile;
             this.sound = sound;
             this.sslStrict = sslStrict;
+            this.ssoToken = ssoToken;
         }
 
         public void run() {
-            CreateOvirtSession("ovirt://" + ip + "/" + vmname, user, password, sslCaFile, sound, sslStrict);
+            CreateOvirtSession(
+                    "ovirt://" + ip + "/" + vmname,
+                    user,
+                    password,
+                    sslCaFile,
+                    sound,
+                    sslStrict,
+                    ssoToken
+            );
             android.util.Log.d(TAG, "CreateOvirtSession returned.");
 
             // If we've exited CreateOvirtSession, the connection is certainly

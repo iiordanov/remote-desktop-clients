@@ -55,6 +55,7 @@ import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.widget.AppCompatImageView;
 
 import com.iiordanov.android.bc.BCFactory;
@@ -79,6 +80,7 @@ import com.undatech.opaque.RemoteClientLibConstants;
 import com.undatech.opaque.RfbConnectable;
 import com.undatech.opaque.SpiceCommunicator;
 import com.undatech.opaque.Viewable;
+import com.undatech.opaque.proxmox.OvirtClient;
 import com.undatech.opaque.proxmox.ProxmoxClient;
 import com.undatech.opaque.proxmox.pojo.PveRealm;
 import com.undatech.opaque.proxmox.pojo.PveResource;
@@ -95,6 +97,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Timer;
 
@@ -689,6 +692,13 @@ public class RemoteCanvas extends AppCompatImageView implements KeyInputHandler,
                         }
                     }
 
+                    Uri uri = Uri.parse(getUriToParse());
+                    int port = getApiPort(uri, 443);
+                    String host = uri.getHost();
+                    String oVirtUri = getApiUrl(uri, port, host);
+                    OvirtClient ovirtClient = new OvirtClient(oVirtUri, connection, handler);
+                    ovirtClient.tryLogin(connection.getUserName(), connection.getPassword());
+
                     String ovirtCaFile = null;
                     if (connection.isUsingCustomOvirtCa()) {
                         ovirtCaFile = connection.getOvirtCaFile();
@@ -727,12 +737,16 @@ public class RemoteCanvas extends AppCompatImageView implements KeyInputHandler,
                         }
                     }
                     spicecomm.setHandler(handler);
-                    spicecomm.connectOvirt(connection.getHostname(),
+                    spicecomm.connectOvirt(
+                            connection.getHostname(),
                             connection.getVmname(),
                             connection.getUserName(),
                             connection.getPassword(),
                             ovirtCaFile,
-                            connection.isAudioPlaybackEnabled(), connection.isSslStrict());
+                            connection.isAudioPlaybackEnabled(),
+                            connection.isSslStrict(),
+                            ovirtClient.getAccessToken()
+                    );
 
                     try {
                         synchronized (spicecomm) {
@@ -876,19 +890,10 @@ public class RemoteCanvas extends AppCompatImageView implements KeyInputHandler,
                     }
 
                     // Connect to the API and obtain available realms
-                    String uriToParse = connection.getHostname();
-                    if (!uriToParse.startsWith("http://") && !uriToParse.startsWith("https://")) {
-                        uriToParse = String.format("%s%s", "https://", uriToParse);
-                    }
-                    Uri uri = Uri.parse(uriToParse);
-                    String protocol = uri.getScheme();
+                    Uri uri = Uri.parse(getUriToParse());
+                    int port = getApiPort(uri, 8006);
                     String host = uri.getHost();
-                    int port = uri.getPort();
-                    if (port < 0) {
-                        port = 8006;
-                    }
-                    String pveUri = String.format("%s://%s:%d", protocol, host, port);
-
+                    String pveUri = getApiUrl(uri, port, host);
                     ProxmoxClient api = new ProxmoxClient(pveUri, connection, handler);
                     HashMap<String, PveRealm> realms = api.getAvailableRealms();
 
@@ -988,6 +993,28 @@ public class RemoteCanvas extends AppCompatImageView implements KeyInputHandler,
             }
         };
         cThread.start();
+    }
+
+    @NonNull
+    private static String getApiUrl(Uri uri, int port, String host) {
+        return String.format(Locale.US, "%s://%s:%d", uri.getScheme(), host, port);
+    }
+
+    private static int getApiPort(Uri uri, int defaultPort) {
+        int port = uri.getPort();
+        if (port < 0) {
+            port = defaultPort;
+        }
+        return port;
+    }
+
+    @NonNull
+    private String getUriToParse() {
+        String uriToParse = connection.getHostname();
+        if (!uriToParse.startsWith("http://") && !uriToParse.startsWith("https://")) {
+            uriToParse = String.format("%s%s", "https://", uriToParse);
+        }
+        return uriToParse;
     }
 
     /**

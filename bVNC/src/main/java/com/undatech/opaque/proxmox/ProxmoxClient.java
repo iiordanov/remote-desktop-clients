@@ -22,7 +22,7 @@ import java.util.Map;
 import javax.security.auth.login.LoginException;
 
 public class ProxmoxClient extends RestClient {
-    private static final String TAG = "RestClient";
+    private static final String TAG = "ProxmoxClient";
     private String baseUrl;
     private String ticket;
     private String csrfToken;
@@ -35,12 +35,6 @@ public class ProxmoxClient extends RestClient {
     public ProxmoxClient(String address, Connection connection, Handler handler) {
         super(connection, handler);
         this.baseUrl = String.format("%s%s", address, "/api2/json");
-        // Ensure we have let the user approve the certificate
-        //if (connection.getOvirtCaData().isEmpty()) {
-        //    android.util.Log.i(TAG, "Connecting over SSL to get the certificate.");
-        //    resetState(baseUrl);
-        //    execute(RestClient.RequestMethod.GET);
-        //}
     }
 
     public HashMap<String, PveRealm> getAvailableRealms()

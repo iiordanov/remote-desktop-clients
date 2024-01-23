@@ -506,11 +506,18 @@ error:
 
 
 JNIEXPORT jint JNICALL
-Java_com_undatech_opaque_SpiceCommunicator_CreateOvirtSession(JNIEnv *env,
-                                                                     jobject obj,
-                                                                     jstring URI, jstring user, jstring pass,
-                                                                     jstring sslCaFile,
-                                                                     jboolean sound, jboolean sslStrict) {
+Java_com_undatech_opaque_SpiceCommunicator_CreateOvirtSession(
+    JNIEnv *env,
+    jobject obj,
+    jstring URI,
+    jstring user,
+    jstring pass,
+    jstring sslCaFile,
+    jboolean sound,
+    jboolean ssl_strict,
+    jstring ssoToken
+    ) {
+
     g_env = env;
     __android_log_write(ANDROID_LOG_INFO, "CreateOvirtSession", "Starting.");
 
@@ -518,18 +525,23 @@ Java_com_undatech_opaque_SpiceCommunicator_CreateOvirtSession(JNIEnv *env,
     const gchar *username = NULL;
     const gchar *password = NULL;
     const gchar *ovirt_ca_file = NULL;
+    const gchar *sso_token = NULL;
 
     uri                = (*env)->GetStringUTFChars(env, URI, NULL);
     username           = (*env)->GetStringUTFChars(env, user, NULL);
     password           = (*env)->GetStringUTFChars(env, pass, NULL);
     ovirt_ca_file      = (*env)->GetStringUTFChars(env, sslCaFile, NULL);
+    if (ssoToken != NULL) {
+        sso_token      = (*env)->GetStringUTFChars(env, ssoToken, NULL);
+    }
 
-    return CreateOvirtSession(env, obj, uri, username, password, ovirt_ca_file, sound, sslStrict, FALSE);
+    return CreateOvirtSession(env, obj, uri, username, password, ovirt_ca_file, sound, ssl_strict, FALSE, sso_token);
 }
 
 
 int CreateOvirtSession(JNIEnv *env, jobject obj, const gchar *uri, const gchar *user, const gchar *password,
-                          const gchar *ovirt_ca_file, const gboolean sound, const gboolean sslStrict, const gboolean didPowerOn) {
+                       const gchar *ovirt_ca_file, const gboolean sound, const gboolean ssl_strict,
+                       const gboolean didPowerOn, const gchar *sso_token) {
     g_env = env;
     OvirtApi *api = NULL;
     OvirtCollection *vms = NULL;
@@ -580,9 +592,14 @@ int CreateOvirtSession(JNIEnv *env, jobject obj, const gchar *uri, const gchar *
     __android_log_write(ANDROID_LOG_DEBUG, "CreateOvirtSession", "Setting ssl-ca-file in ovirt proxy object");
     g_object_set(proxy, "ssl-ca-file", ovirt_ca_file, NULL);
 
+    if (sso_token != NULL) {
+        __android_log_write(ANDROID_LOG_DEBUG, "CreateOvirtSession", "Setting sso_token in ovirt proxy object");
+        g_object_set(proxy, "sso_token", sso_token, NULL);
+    }
+
     // If we've been instructed to not be strict about SSL checks, then set the
     // requisite property.
-    if (!sslStrict) {
+    if (!ssl_strict) {
         g_object_set(G_OBJECT(proxy), "ssl-strict", FALSE, NULL);
     }
 
@@ -634,7 +651,7 @@ int CreateOvirtSession(JNIEnv *env, jobject obj, const gchar *uri, const gchar *
         }
         // Wait a bit and then recursively create a new session setting didPowerOn to TRUE.
         sleep (15);
-        CreateOvirtSession(env, obj, uri, user, password, ovirt_ca_file, sound, sslStrict, TRUE);
+        CreateOvirtSession(env, obj, uri, user, password, ovirt_ca_file, sound, ssl_strict, TRUE, sso_token);
         goto error;
     }
 
@@ -718,7 +735,7 @@ JNIEXPORT jint JNICALL
 Java_com_undatech_opaque_SpiceCommunicator_FetchVmNames(JNIEnv *env,
                                                                  jobject obj,
                                                                  jstring URI, jstring user, jstring password,
-                                                                 jstring sslCaFile, jboolean sslStrict) {
+                                                                 jstring sslCaFile, jboolean ssl_strict) {
     g_env = env;
     __android_log_write(ANDROID_LOG_INFO, "FetchVmNames", "Starting.");
 
@@ -769,7 +786,7 @@ Java_com_undatech_opaque_SpiceCommunicator_FetchVmNames(JNIEnv *env,
 
     // If we've been instructed to not be strict about SSL checks, then set the
     // requisite property.
-    if (!sslStrict) {
+    if (!ssl_strict) {
         g_object_set(G_OBJECT(proxy), "ssl-strict", FALSE, NULL);
     }
 
