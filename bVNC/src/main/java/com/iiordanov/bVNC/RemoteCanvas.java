@@ -414,7 +414,6 @@ public class RemoteCanvas extends AppCompatImageView implements KeyInputHandler,
                 try {
                     if (sshTunneled) {
                         sshConnection = new SSHConnection(connection, getContext(), handler);
-                        sshConnection.initializeSSHTunnel();
                     }
                     if (isSpice) {
                         startSpiceConnection();
