@@ -223,6 +223,7 @@ public class RemoteCanvasHandler extends Handler {
         }
         connection.setX509KeySignature(certificate);
         connection.setOvirtCaData(certificate);
+        connection.setUsingCustomOvirtCa(true);
         connection.save(context);
 
         // Indicate the certificate was accepted.

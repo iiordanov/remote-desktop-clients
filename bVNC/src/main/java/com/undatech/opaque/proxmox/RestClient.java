@@ -36,7 +36,6 @@ import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
-import java.security.PublicKey;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
@@ -224,7 +223,7 @@ public class RestClient {
 
                 public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
 
-                    if (cert == null) {
+                    if (cert == null || !cert.equals(chain[0])) {
                         synchronized (h) {
                             // Send a message containing the certificate to our handler.
                             Message m = new Message();
@@ -233,6 +232,8 @@ public class RestClient {
                             m.obj = chain[0];
                             h.sendMessage(m);
                             // Block indefinitely until the x509 cert is accepted.
+                            connection.setX509KeySignature("");
+                            connection.setOvirtCaData("");
                             while (connection.getX509KeySignature().isEmpty() ||
                                     connection.getOvirtCaData().isEmpty()) {
                                 try {
@@ -244,16 +245,6 @@ public class RestClient {
                                 }
                             }
                             Log.d(TAG, "The x509 cert was accepted.");
-                        }
-                    } else {
-                        try {
-                            PublicKey publicKey = cert.getPublicKey();
-                            chain[0].verify(publicKey);
-                        } catch (Exception e) {
-                        }
-
-                        if (!cert.equals(chain[0])) {
-                            throw new CertificateException("The x509 cert does not match.");
                         }
                     }
                 }
