@@ -817,23 +817,21 @@ public class ConnectionSettings implements Connection, Serializable {
      */
     public String saveCaToFile(Context context, String caCertData) {
         String fileName = "";
-        if (!caCertData.equals("")) {
-            // Write out CA to file if it doesn't exist.
-            try {
-                // Write out a unique file containing the cert and return the path.
-                fileName = context.getFilesDir() + "/ca" + Integer.toString(caCertData.hashCode()) + ".crt";
-                File file = new File(fileName);
-                if (!file.exists()) {
-                    android.util.Log.d(TAG, "Writing out CA to file: " + fileName);
-                    PrintWriter fout = new PrintWriter(fileName);
-                    fout.println(caCertData);
-                    fout.close();
-                } else {
-                    android.util.Log.d(TAG, "File already exists: " + fileName);
-                }
-            } catch (FileNotFoundException e) {
-                fileName = "";
+        // Write out CA to file if it doesn't exist.
+        try {
+            // Write out a unique file containing the cert and return the path.
+            fileName = context.getFilesDir() + "/ca" + Integer.toString(caCertData.hashCode()) + ".crt";
+            File file = new File(fileName);
+            if (!file.exists()) {
+                android.util.Log.d(TAG, "Writing out CA to file: " + fileName);
+                PrintWriter fout = new PrintWriter(fileName);
+                fout.println(caCertData);
+                fout.close();
+            } else {
+                android.util.Log.d(TAG, "File already exists: " + fileName);
             }
+        } catch (FileNotFoundException e) {
+            fileName = "";
         }
         return fileName;
     }
