@@ -705,7 +705,7 @@ ${bufferedInputStreamToString(remoteStderr)}"""
     ): Array<String?> {
         val responses = arrayOfNulls<String>(numPrompts)
         for (x in 0 until numPrompts) {
-            if (prompt[0].indexOf("Verification code:") != -1) {
+            if (serverRequestsOtpCode(prompt)) {
                 Log.i(TAG, prompt[x] + "  Will request verification code from user")
                 if (Utils.isFree(context)) {
                     handler.sendEmptyMessage(RemoteClientLibConstants.PRO_FEATURE)
@@ -731,6 +731,11 @@ ${bufferedInputStreamToString(remoteStderr)}"""
             }
         }
         return responses
+    }
+
+    private fun serverRequestsOtpCode(prompt: Array<String>): Boolean {
+        val line = prompt[0];
+        return line.indexOf("Verification code:") != -1 || line.contains("OTP")
     }
 
     override fun onTextObtained(
