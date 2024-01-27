@@ -1,3 +1,5 @@
+v5.2.3
+- Support for SSH servers that call 2FA token OTP instead of Verification code
 v5.2.2
 - Fix for SSH 2FA being requested twice.
 v5.2.1
