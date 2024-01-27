@@ -233,7 +233,8 @@ public class RestClient {
                             m.obj = chain[0];
                             h.sendMessage(m);
                             // Block indefinitely until the x509 cert is accepted.
-                            while (connection.getOvirtCaData().isEmpty()) {
+                            while (connection.getX509KeySignature().isEmpty() ||
+                                    connection.getOvirtCaData().isEmpty()) {
                                 try {
                                     h.wait();
                                 } catch (InterruptedException e) {

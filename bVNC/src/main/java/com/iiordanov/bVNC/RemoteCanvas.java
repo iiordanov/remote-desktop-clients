@@ -697,7 +697,8 @@ public class RemoteCanvas extends AppCompatImageView implements KeyInputHandler,
                     String host = uri.getHost();
                     String oVirtUri = getApiUrl(uri, port, host);
                     OvirtClient ovirtClient = new OvirtClient(oVirtUri, connection, handler);
-                    ovirtClient.tryLogin(connection.getUserName(), connection.getPassword());
+                    ovirtClient.trySsoLogin(connection.getUserName(), connection.getPassword());
+                    String ssoToken = ovirtClient.getAccessToken();
 
                     String ovirtCaFile = null;
                     if (connection.isUsingCustomOvirtCa()) {
@@ -708,9 +709,14 @@ public class RemoteCanvas extends AppCompatImageView implements KeyInputHandler,
 
                     // If not VM name is specified, then get a list of VMs and let the user pick one.
                     if (connection.getVmname().equals("")) {
-                        int success = spicecomm.fetchOvirtVmNames(connection.getHostname(), connection.getUserName(),
-                                connection.getPassword(), ovirtCaFile,
-                                connection.isSslStrict());
+                        int success = spicecomm.fetchOvirtVmNames(
+                                connection.getHostname(),
+                                connection.getUserName(),
+                                connection.getPassword(),
+                                ovirtCaFile,
+                                connection.isSslStrict(),
+                                ssoToken
+                        );
                         // VM retrieval was unsuccessful we do not continue.
                         ArrayList<String> vmNames = spicecomm.getVmNames();
                         if (success != 0 || vmNames.isEmpty()) {
@@ -745,7 +751,7 @@ public class RemoteCanvas extends AppCompatImageView implements KeyInputHandler,
                             ovirtCaFile,
                             connection.isAudioPlaybackEnabled(),
                             connection.isSslStrict(),
-                            ovirtClient.getAccessToken()
+                            ssoToken
                     );
 
                     try {
@@ -759,6 +765,9 @@ public class RemoteCanvas extends AppCompatImageView implements KeyInputHandler,
                         handler.sendEmptyMessage(RemoteClientLibConstants.OVIRT_TIMEOUT);
                     }
 
+                } catch (LoginException e) {
+                    android.util.Log.e(TAG, "Failed to login to oVirt.");
+                    handler.sendEmptyMessage(RemoteClientLibConstants.OVIRT_AUTH_FAILURE);
                 } catch (Throwable e) {
                     handleUncaughtException(e);
                 }

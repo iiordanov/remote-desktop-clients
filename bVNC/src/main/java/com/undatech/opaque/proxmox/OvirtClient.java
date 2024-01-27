@@ -18,7 +18,6 @@ public class OvirtClient extends RestClient {
     private static final String TAG = "OvirtClient";
     private String baseUrl;
     private String accessToken;
-    private String tokenType;
 
     /**
      * Initializes a connection to oVirt's API.
@@ -30,36 +29,29 @@ public class OvirtClient extends RestClient {
         this.baseUrl = String.format("%s%s", address, "/ovirt-engine");
     }
 
-    public void login(String user, String password)
+    public void trySsoLogin(String user, String password)
             throws JSONException, IOException, HttpException, LoginException {
-        String url = String.format("%s/sso/oauth/token?grant_type=password&username=%s&password=%s&scope=ovirt-app-api", baseUrl, user, password);
+        String url = String.format(
+                "%s/sso/oauth/token?grant_type=password&username=%s&password=%s&scope=ovirt-app-api", baseUrl, user, password
+        );
         resetState(url);
         addHeader("Accept", "application/json");
         execute(RequestMethod.GET);
-        if (getResponseCode() == HttpURLConnection.HTTP_OK) {
+        int code = getResponseCode();
+        if (code == HttpURLConnection.HTTP_OK) {
             JSONObject data = new JSONObject(getResponse());
             accessToken = data.getString("access_token");
-            tokenType = data.getString("token_type");
-        } else if (getResponseCode() == HttpURLConnection.HTTP_UNAUTHORIZED) {
+        } else if (code == HttpURLConnection.HTTP_UNAUTHORIZED || code == HttpURLConnection.HTTP_BAD_REQUEST) {
             throw new LoginException(getErrorMessage());
+        } else if (code == HttpURLConnection.HTTP_NOT_FOUND) {
+            Log.d(TAG, "SSO Not supported on this server, proceeding without sso token");
         } else {
+            Log.e(TAG, "Throwing Exception due to unexpected HTTP code: " + code);
             throw new HttpException(getErrorMessage());
-        }
-    }
-
-    public void tryLogin(String user, String password) {
-        try {
-            login(user, password);
-        } catch (JSONException | IOException | HttpException | LoginException e) {
-            Log.d(TAG, "Ignoring exception during login: " + e);
         }
     }
 
     public String getAccessToken() {
         return accessToken;
-    }
-
-    public String getTokenType() {
-        return tokenType;
     }
 }

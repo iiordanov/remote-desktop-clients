@@ -48,8 +48,7 @@ android {
     sourceSets.main {
         java.srcDirs += 'src/main/java'
         java.srcDirs += 'java'
-        jni.srcDirs += 'jni'
-        jni.srcDirs += 'jni/android'
+        jni.srcDirs += 'src/main/cpp'
         jni.srcDirs += 'jni/libs/cerbero/build/sources/android_universal/armv7/spice-gtk-0.39/src'
         jni.srcDirs += 'jni/libs/cerbero/build/sources/android_universal/arm64/spice-gtk-0.39/src'
         jni.srcDirs += 'jni/libs/cerbero/build/sources/android_universal/x86/spice-gtk-0.39/src'

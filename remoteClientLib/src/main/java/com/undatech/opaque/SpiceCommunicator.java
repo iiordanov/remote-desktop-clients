@@ -245,16 +245,16 @@ public class SpiceCommunicator extends RfbConnectable {
         myself.remoteClipboardChanged(data);
     }
 
-    public native int FetchVmNames(String URI, String user, String password, String sslCaFile, boolean sslStrict);
-
-    public native int CreateOvirtSession(String uri,
-                                         String user,
-                                         String password,
-                                         String sslCaFile,
-                                         boolean sound,
-                                         boolean sslStrict,
-                                         String ssoToken
-                                         );
+    public native int CreateOvirtSession(
+            String uri,
+            String user,
+            String password,
+            String sslCaFile,
+            boolean sound,
+            boolean sslStrict,
+            String ssoToken,
+            boolean onlyFetchVmNames
+    );
 
     public native int StartSessionFromVvFile(String fileName, boolean sound);
 
@@ -309,7 +309,8 @@ public class SpiceCommunicator extends RfbConnectable {
             boolean sslStrict,
             String ssoToken
     ) {
-        android.util.Log.d(TAG, "connectOvirt: " + ip + ", " + vmname + ", " + user + ", token: " + ssoToken);
+        boolean tokenNull = ssoToken == null;
+        android.util.Log.d(TAG, "connectOvirt: " + ip + ", " + vmname + ", " + user + ", tokenNull: " + tokenNull);
         thread = new OvirtThread(ip, vmname, user, password, sslCaFile, sound, sslStrict, ssoToken);
         thread.start();
     }
@@ -325,9 +326,25 @@ public class SpiceCommunicator extends RfbConnectable {
     /**
      * Connects to an oVirt/RHEV server to fetch the names of all VMs available to the specified user.
      */
-    public int fetchOvirtVmNames(String ip, String user, String password, String sslCaFile, boolean sslStrict) {
+    public int fetchOvirtVmNames(
+            String ip,
+            String user,
+            String password,
+            String sslCaFile,
+            boolean sslStrict,
+            String ssoToken
+    ) {
         vmNames = new ArrayList<String>();
-        return FetchVmNames("https://" + ip + "//api", user, password, sslCaFile, sslStrict);
+        return CreateOvirtSession(
+                "https://" + ip + "/",
+                user,
+                password,
+                sslCaFile,
+                false,
+                sslStrict,
+                ssoToken,
+                true
+        );
     }
 
     public void disconnect() {
@@ -584,7 +601,8 @@ public class SpiceCommunicator extends RfbConnectable {
                     sslCaFile,
                     sound,
                     sslStrict,
-                    ssoToken
+                    ssoToken,
+                    false
             );
             android.util.Log.d(TAG, "CreateOvirtSession returned.");
 

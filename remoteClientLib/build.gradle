@@ -40,7 +40,7 @@ android {
     sourceSets.main {
         java.srcDirs += 'src/main/java'
         java.srcDirs += 'java'
-        jni.srcDirs += 'jni'
+        jni.srcDirs += 'src/main/cpp'
         jniLibs.srcDirs += 'src/main/jniLibs'
     }
 
