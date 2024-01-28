@@ -41,7 +41,6 @@ import android.graphics.BitmapFactory;
 import android.graphics.RectF;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.net.Uri;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.provider.Settings;
@@ -55,7 +54,6 @@ import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.widget.AppCompatImageView;
 
 import com.iiordanov.android.bc.BCFactory;
@@ -97,7 +95,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Timer;
 
@@ -692,11 +689,7 @@ public class RemoteCanvas extends AppCompatImageView implements KeyInputHandler,
                         }
                     }
 
-                    Uri uri = Uri.parse(getUriToParse());
-                    int port = getApiPort(uri, 443);
-                    String host = uri.getHost();
-                    String oVirtUri = getApiUrl(uri, port, host);
-                    OvirtClient ovirtClient = new OvirtClient(oVirtUri, connection, handler);
+                    OvirtClient ovirtClient = new OvirtClient(connection, handler);
                     ovirtClient.trySsoLogin(connection.getUserName(), connection.getPassword());
                     String ssoToken = ovirtClient.getAccessToken();
 
@@ -782,9 +775,9 @@ public class RemoteCanvas extends AppCompatImageView implements KeyInputHandler,
      * @return
      */
     // TODO: Switch away from writing out a file to initiating a connection directly.
-    String retrieveVvFileFromPve(final String hostname, final ProxmoxClient api, final String vmId,
+    String retrieveVvFileFromPve(final ProxmoxClient api, final String vmId,
                                  final String node, final String virt) {
-        android.util.Log.i(TAG, String.format("Trying to connect to PVE host: " + hostname));
+        android.util.Log.i(TAG, String.format("Trying to connect to PVE host: " + api.getHost()));
         final String tempVvFile = getContext().getFilesDir() + "/tempfile.vv";
         FileUtils.deleteFile(tempVvFile);
 
@@ -802,7 +795,7 @@ public class RemoteCanvas extends AppCompatImageView implements KeyInputHandler,
                     }
                     SpiceDisplay spiceData = api.spiceVm(node, virt, Integer.parseInt(vmId));
                     if (spiceData != null) {
-                        spiceData.outputToFile(tempVvFile, hostname);
+                        spiceData.outputToFile(tempVvFile, api.getHost());
                     } else {
                         android.util.Log.e(TAG, "PVE returned null data for display.");
                         handler.sendEmptyMessage(RemoteClientLibConstants.PVE_NULL_DATA);
@@ -899,11 +892,7 @@ public class RemoteCanvas extends AppCompatImageView implements KeyInputHandler,
                     }
 
                     // Connect to the API and obtain available realms
-                    Uri uri = Uri.parse(getUriToParse());
-                    int port = getApiPort(uri, 8006);
-                    String host = uri.getHost();
-                    String pveUri = getApiUrl(uri, port, host);
-                    ProxmoxClient api = new ProxmoxClient(pveUri, connection, handler);
+                    ProxmoxClient api = new ProxmoxClient(connection, handler);
                     HashMap<String, PveRealm> realms = api.getAvailableRealms();
 
                     // If selected realm has TFA enabled, then ask for the code
@@ -976,7 +965,7 @@ public class RemoteCanvas extends AppCompatImageView implements KeyInputHandler,
                     vmId = connection.getVmname();
                     // Only if we managed to obtain a VM name we try to get a .vv file for the display.
                     if (!vmId.isEmpty()) {
-                        String vvFileName = retrieveVvFileFromPve(host, api, vmId, node, virt);
+                        String vvFileName = retrieveVvFileFromPve(api, vmId, node, virt);
                         if (vvFileName != null) {
                             startFromVvFile(vvFileName);
                         }
@@ -1002,28 +991,6 @@ public class RemoteCanvas extends AppCompatImageView implements KeyInputHandler,
             }
         };
         cThread.start();
-    }
-
-    @NonNull
-    private static String getApiUrl(Uri uri, int port, String host) {
-        return String.format(Locale.US, "%s://%s:%d", uri.getScheme(), host, port);
-    }
-
-    private static int getApiPort(Uri uri, int defaultPort) {
-        int port = uri.getPort();
-        if (port < 0) {
-            port = defaultPort;
-        }
-        return port;
-    }
-
-    @NonNull
-    private String getUriToParse() {
-        String uriToParse = connection.getHostname();
-        if (!uriToParse.startsWith("http://") && !uriToParse.startsWith("https://")) {
-            uriToParse = String.format("%s%s", "https://", uriToParse);
-        }
-        return uriToParse;
     }
 
     /**

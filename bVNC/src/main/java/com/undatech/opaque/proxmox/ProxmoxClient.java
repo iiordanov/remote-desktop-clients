@@ -23,18 +23,17 @@ import javax.security.auth.login.LoginException;
 
 public class ProxmoxClient extends RestClient {
     private static final String TAG = "ProxmoxClient";
+    private static final int DEFAULT_PROXMOX_PORT = 8006;
     private String baseUrl;
     private String ticket;
     private String csrfToken;
 
     /**
      * Initializes a connection to PVE's API.
-     *
-     * @param address the address of PVE
      */
-    public ProxmoxClient(String address, Connection connection, Handler handler) {
-        super(connection, handler);
-        this.baseUrl = String.format("%s%s", address, "/api2/json");
+    public ProxmoxClient(Connection connection, Handler handler) {
+        super(connection, handler, DEFAULT_PROXMOX_PORT);
+        this.baseUrl = String.format("%s%s", getApiUrl(), "/api2/json");
     }
 
     public HashMap<String, PveRealm> getAvailableRealms()

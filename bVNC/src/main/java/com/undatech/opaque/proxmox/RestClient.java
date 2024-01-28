@@ -1,9 +1,12 @@
 package com.undatech.opaque.proxmox;
 
+import android.net.Uri;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Base64;
 import android.util.Log;
+
+import androidx.annotation.NonNull;
 
 import com.undatech.opaque.Connection;
 import com.undatech.opaque.RemoteClientLibConstants;
@@ -42,6 +45,7 @@ import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
+import java.util.Locale;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
@@ -57,13 +61,50 @@ public class RestClient {
     private int responseCode;
     private String message;
     private String response;
-    private Connection connection;
-    private Handler handler;
+    protected Connection connection;
+    private final Handler handler;
     private String url;
+    private final String host;
+    private final Uri uri;
+    private final int port;
 
-    public RestClient(Connection connection, Handler handler) {
+    public RestClient(Connection connection, Handler handler, int defaultPort) {
         this.connection = connection;
         this.handler = handler;
+        this.uri = Uri.parse(getUriToParse());
+        this.port = getApiPort(defaultPort);
+        this.host = uri.getHost();
+
+    }
+
+    private int getApiPort(int defaultPort) {
+        int port = uri.getPort();
+        if (port < 0) {
+            port = defaultPort;
+        }
+        return port;
+    }
+
+    @NonNull
+    public String getApiUrl() {
+        return String.format(Locale.US, "%s://%s:%d", uri.getScheme(), host, port);
+    }
+
+    @NonNull
+    private String getUriToParse() {
+        String uriToParse = connection.getHostname();
+        if (!uriToParse.startsWith("http://") && !uriToParse.startsWith("https://")) {
+            uriToParse = String.format("%s%s", "https://", uriToParse);
+        }
+        return uriToParse;
+    }
+
+    public String getHost() {
+        return host;
+    }
+
+    public int getPort() {
+        return port;
     }
 
     private static String convertStreamToString(InputStream is) {
@@ -72,7 +113,7 @@ public class RestClient {
         String line = null;
         try {
             while ((line = reader.readLine()) != null) {
-                sb.append((line + "\n"));
+                sb.append(line).append("\n");
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -104,7 +145,6 @@ public class RestClient {
             KeyStore trustStore = KeyStore.getInstance(KeyStore.getDefaultType());
             trustStore.load(null, null);
 
-            // TODO: Make it an option whether to trust all certificates.
             MySSLSocketFactory sslsf = new MySSLSocketFactory(trustStore, connection.getX509KeySignature().trim(), handler);
 
             Scheme https = new Scheme("https", sslsf, 443);

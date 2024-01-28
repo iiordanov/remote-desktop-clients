@@ -222,6 +222,7 @@ public class RemoteCanvasHandler extends Handler {
             c.showFatalMessageAndQuit(context.getString(R.string.error_x509_could_not_generate_encoding));
         }
         connection.setX509KeySignature(certificate);
+        // TODO: Automate download of oVirt CA data from API for oVirt connections
         connection.setOvirtCaData(certificate);
         connection.setUsingCustomOvirtCa(true);
         connection.save(context);

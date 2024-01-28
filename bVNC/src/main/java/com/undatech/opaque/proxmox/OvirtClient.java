@@ -16,17 +16,16 @@ import javax.security.auth.login.LoginException;
 
 public class OvirtClient extends RestClient {
     private static final String TAG = "OvirtClient";
+    private static final int DEFAULT_OVIRT_PORT = 443;
     private String baseUrl;
     private String accessToken;
 
     /**
      * Initializes a connection to oVirt's API.
-     *
-     * @param address the address of oVirt
      */
-    public OvirtClient(String address, Connection connection, Handler handler) {
-        super(connection, handler);
-        this.baseUrl = String.format("%s%s", address, "/ovirt-engine");
+    public OvirtClient(Connection connection, Handler handler) {
+        super(connection, handler, DEFAULT_OVIRT_PORT);
+        this.baseUrl = String.format("%s%s", getApiUrl(), "/ovirt-engine");
     }
 
     public void trySsoLogin(String user, String password)
@@ -54,4 +53,5 @@ public class OvirtClient extends RestClient {
     public String getAccessToken() {
         return accessToken;
     }
+
 }
