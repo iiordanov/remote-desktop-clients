@@ -54,7 +54,7 @@ import javax.net.ssl.X509TrustManager;
 // Examples taken from:
 // http://lukencode.com/2010/04/27/calling-web-services-in-android-using-httpclient
 public class RestClient {
-    public static final String TAG = MySSLSocketFactory.class.getName();
+    public static final String TAG = "RestClient";
     private static HttpClient client = new DefaultHttpClient();
     private ArrayList<NameValuePair> params;
     private ArrayList<NameValuePair> headers;
@@ -62,7 +62,7 @@ public class RestClient {
     private String message;
     private String response;
     protected Connection connection;
-    private final Handler handler;
+    protected final Handler handler;
     private String url;
     private final String host;
     private final Uri uri;
@@ -265,14 +265,15 @@ public class RestClient {
 
                     if (cert == null || !cert.equals(chain[0])) {
                         synchronized (h) {
-                            // Send a message containing the certificate to our handler.
+                            Log.d(TAG, "Sending a message containing the certificate to our handler.");
                             Message m = new Message();
                             m.setTarget(h);
                             m.what = RemoteClientLibConstants.DIALOG_X509_CERT;
                             m.obj = chain[0];
                             h.sendMessage(m);
                             connection.setX509KeySignature("");
-                            // Block indefinitely until the x509 cert is accepted.
+                            connection.setOvirtCaData("");
+                            Log.d(TAG, "Blocking indefinitely until the x509 cert is accepted.");
                             while (connection.getX509KeySignature().isEmpty() ||
                                     connection.getOvirtCaData().isEmpty()) {
                                 try {
@@ -283,7 +284,7 @@ public class RestClient {
                                     throw new CertificateException("The x509 cert was not accepted.");
                                 }
                             }
-                            Log.d(TAG, "The x509 cert was accepted.");
+                            Log.d(TAG, "The x509 cert was accepted and X509KeySignature and OvirtCaData set.");
                         }
                     }
                 }

@@ -4,6 +4,7 @@ import android.os.Handler;
 import android.util.Log;
 
 import com.undatech.opaque.Connection;
+import com.undatech.opaque.util.HttpsFileDownloader;
 
 import org.apache.http.HttpException;
 import org.json.JSONException;
@@ -54,4 +55,11 @@ public class OvirtClient extends RestClient {
         return accessToken;
     }
 
+    public void downloadFromServer(HttpsFileDownloader.OnDownloadFinishedListener listener) {
+        Log.d(TAG, "downloadFromServer");
+        String address = String.format("%s%s", baseUrl, "/services/pki-resource?resource=ca-certificate&format=X509-PEM-CA");
+        new HttpsFileDownloader(
+                address, true, handler, connection.getX509KeySignature().trim(), listener
+        ).initiateDownload();
+    }
 }

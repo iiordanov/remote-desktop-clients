@@ -26,6 +26,8 @@ import com.undatech.opaque.RemoteClientLibConstants;
 import com.undatech.opaque.dialogs.ChoiceFragment;
 import com.undatech.opaque.dialogs.MessageFragment;
 import com.undatech.opaque.dialogs.SelectTextElementFragment;
+import com.undatech.opaque.proxmox.OvirtClient;
+import com.undatech.opaque.util.HttpsFileDownloader;
 import com.undatech.opaque.util.SslUtils;
 import com.undatech.remoteClientUi.R;
 
@@ -34,7 +36,7 @@ import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 
-public class RemoteCanvasHandler extends Handler {
+public class RemoteCanvasHandler extends Handler implements HttpsFileDownloader.OnDownloadFinishedListener {
     private static String TAG = "RemoteCanvasHandler";
     private Context context;
     private RemoteCanvas c;
@@ -222,19 +224,26 @@ public class RemoteCanvasHandler extends Handler {
             c.showFatalMessageAndQuit(context.getString(R.string.error_x509_could_not_generate_encoding));
         }
         connection.setX509KeySignature(certificate);
-        // TODO: Automate download of oVirt CA data from API for oVirt connections
-        connection.setOvirtCaData(certificate);
-        connection.setUsingCustomOvirtCa(true);
+        handleSettingOvirtCaCert(certificate);
         connection.save(context);
+        setCertificateAcceptedAndNotifyListeners();
+    }
 
-        // Indicate the certificate was accepted.
-        c.rfbconn.setCertificateAccepted(true);
-        synchronized (c.rfbconn) {
-            c.rfbconn.notifyAll();
+    private void handleSettingOvirtCaCert(String certificate) {
+        if (isOvirtConnection()) {
+            new OvirtClient(connection, this).downloadFromServer(this);
+        } else if (isProxmoxConnection()) {
+            connection.setOvirtCaData(certificate);
+            connection.setUsingCustomOvirtCa(true);
         }
-        synchronized (RemoteCanvasHandler.this) {
-            RemoteCanvasHandler.this.notifyAll();
-        }
+    }
+
+    private boolean isProxmoxConnection() {
+        return connection.getConnectionTypeString().equals(context.getResources().getString(R.string.connection_type_pve));
+    }
+
+    private boolean isOvirtConnection() {
+        return connection.getConnectionTypeString().equals(context.getResources().getString(R.string.connection_type_ovirt));
     }
 
     /**
@@ -300,6 +309,9 @@ public class RemoteCanvasHandler extends Handler {
         c.rfbconn.setCertificateAccepted(true);
         synchronized (c.rfbconn) {
             c.rfbconn.notifyAll();
+        }
+        synchronized (RemoteCanvasHandler.this) {
+            RemoteCanvasHandler.this.notifyAll();
         }
     }
 
@@ -673,5 +685,18 @@ public class RemoteCanvasHandler extends Handler {
                 android.util.Log.e(TAG, "Not handling unknown messageId: " + msg.what);
                 break;
         }
+    }
+    @Override
+    public void onDownload(String contents) {
+        Log.d(TAG, "onDownload completed with contents: " + contents);
+        connection.setOvirtCaData(contents);
+        connection.setUsingCustomOvirtCa(true);
+        connection.save(context);
+        setCertificateAcceptedAndNotifyListeners();
+    }
+
+    @Override
+    public void onDownloadFailure() {
+        Log.e(TAG, "onDownloadFailure");
     }
 }

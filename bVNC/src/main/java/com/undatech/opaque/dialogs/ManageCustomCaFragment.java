@@ -38,6 +38,7 @@ import androidx.fragment.app.DialogFragment;
 
 import com.morpheusly.common.Utilities;
 import com.undatech.opaque.ConnectionSettings;
+import com.undatech.opaque.proxmox.OvirtClient;
 import com.undatech.opaque.util.HttpsFileDownloader;
 import com.undatech.remoteClientUi.R;
 
@@ -64,6 +65,7 @@ public class ManageCustomCaFragment extends DialogFragment
     private Button importButton;
     private Button downloadButton;
     private Button helpButton;
+
     public ManageCustomCaFragment() {
     }
 
@@ -168,13 +170,8 @@ public class ManageCustomCaFragment extends DialogFragment
 
     private void downloadFromServer() {
         Log.d(TAG, "downloadFromServer");
-        String address = currentConnection.getAddress();
-        if (!currentConnection.getAddress().startsWith("http")) {
-            address = "https://" + address;
-        }
-        address += "/ovirt-engine/services/pki-resource?resource=ca-certificate&format=X509-PEM-CA";
-        new HttpsFileDownloader(address, false,
-                ManageCustomCaFragment.this).initiateDownload();
+        OvirtClient ovirtClient = new OvirtClient(currentConnection, handler);
+        ovirtClient.downloadFromServer(this);
     }
 
     @Override
