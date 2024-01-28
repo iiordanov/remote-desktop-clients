@@ -1,3 +1,6 @@
+v5.2.4
+- oVirt SSO support including keycloak integration
+- Automatic download of oVirt CA upon Self-Signed SSL Cert acceptance
 v5.2.1
 - Improvements for input responsiveness
 - Fix for connecting to VNC consoles
