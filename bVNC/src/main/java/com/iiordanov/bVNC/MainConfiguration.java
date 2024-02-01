@@ -1,5 +1,6 @@
 package com.iiordanov.bVNC;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -24,7 +25,9 @@ import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.FragmentActivity;
 
 import com.iiordanov.pubkeygenerator.GeneratePubkeyActivity;
@@ -35,10 +38,10 @@ import net.sqlcipher.database.SQLiteDatabase;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Locale;
 
 public abstract class MainConfiguration extends FragmentActivity {
     private final static String TAG = "MainConfiguration";
-
     protected ConnectionBean selected;
     protected Database database;
     protected EditText textNickname;
@@ -47,8 +50,6 @@ public abstract class MainConfiguration extends FragmentActivity {
     protected int selectedConnType;
     protected EditText ipText;
     protected boolean isNewConnection;
-    private Button buttonGeneratePubkey;
-    private TextView versionAndCode;
     private RadioGroup radioCursor;
     private TextView sshCaption;
     private LinearLayout sshCredentials;
@@ -58,35 +59,59 @@ public abstract class MainConfiguration extends FragmentActivity {
     private EditText sshPassphrase;
     private CheckBox checkboxKeepSshPass;
     private long connID = 0;
+    protected EditText sshServer;
+    protected EditText sshPort;
+    protected EditText sshUser;
+    protected EditText portText;
+    protected EditText passwordText;
+    protected ToggleButton toggleAdvancedSettings;
+    protected EditText textUsername;
+    protected EditText resWidth;
+    protected EditText resHeight;
+    protected CheckBox checkboxKeepPassword;
+    protected CheckBox checkboxUseDpadAsArrows;
+    protected CheckBox checkboxRotateDpad;
+    protected CheckBox checkboxUseLastPositionToolbar;
+    protected CheckBox checkboxUseSshPubkey;
+    protected LinearLayout layoutAdvancedSettings;
 
-    protected abstract void updateViewFromSelected();
-
-    protected abstract void updateSelectedFromView();
-
-    public void commonUpdateViewFromSelected() {
-        Log.d(TAG, "commonUpdateViewFromSelected called");
+    @SuppressLint("SetTextI18n")
+    public void updateViewFromSelected() {
+        Log.d(TAG, "UpdateViewFromSelected called");
         selected.loadFromSharedPreferences(this);
+        textNickname.setText(selected.getNickname());
         selectedConnType = selected.getConnectionType();
         connectionType.setSelection(selectedConnType);
+        sshServer.setText(selected.getSshServer());
+        sshPort.setText(Integer.toString(selected.getSshPort()));
+        sshUser.setText(selected.getSshUser());
+        checkboxUseSshPubkey.setChecked(selected.getUseSshPubKey());
         checkboxKeepSshPass.setChecked(selected.getKeepSshPassword());
-
         if (selected.getKeepSshPassword() || selected.getSshPassword().length() > 0) {
             sshPassword.setText(selected.getSshPassword());
         } else {
             sshPassword.setText("");
         }
-
         if (selected.getKeepSshPassword() || selected.getSshPassPhrase().length() > 0) {
             sshPassphrase.setText(selected.getSshPassPhrase());
         } else {
             sshPassphrase.setText("");
         }
-
-        if (selectedConnType == Constants.CONN_TYPE_SSH && selected.getAddress().equals(""))
+        if (selectedConnType == Constants.CONN_TYPE_SSH && selected.getAddress().equals("")) {
             ipText.setText("localhost");
-        else
+        } else {
             ipText.setText(selected.getAddress());
-
+        }
+        portText.setText(Integer.toString(selected.getPort()));
+        if (selected.getKeepPassword() || selected.getPassword().length() > 0) {
+            passwordText.setText(selected.getPassword());
+        }
+        checkboxKeepPassword.setChecked(selected.getKeepPassword());
+        checkboxUseDpadAsArrows.setChecked(selected.getUseDpadAsArrows());
+        checkboxRotateDpad.setChecked(selected.getRotateDpad());
+        checkboxUseLastPositionToolbar.setChecked(
+                (!isNewConnection) ? selected.getUseLastPositionToolbar() : this.useLastPositionToolbarDefault()
+        );
         if (selected.getUseLocalCursor() == Constants.CURSOR_AUTO) {
             radioCursor.check(R.id.radioCursorAuto);
         } else if (selected.getUseLocalCursor() == Constants.CURSOR_FORCE_LOCAL) {
@@ -94,15 +119,36 @@ public abstract class MainConfiguration extends FragmentActivity {
         } else if (selected.getUseLocalCursor() == Constants.CURSOR_FORCE_DISABLE) {
             radioCursor.check(R.id.radioCursorForceDisable);
         }
+        resWidth.setText(Integer.toString(selected.getRdpWidth()));
+        resHeight.setText(Integer.toString(selected.getRdpHeight()));
     }
 
-    public void commonUpdateSelectedFromView() {
-        Log.d(TAG, "commonUpdateSelectedFromView called");
+    protected void updateSelectedFromView() {
+        Log.d(TAG, "updateSelectedFromView called");
         selected.setConnectionType(selectedConnType);
-        selected.setAddress(ipText.getText().toString());
+
+        selected.setNickname(textNickname.getText().toString());
+        selected.setSshServer(sshServer.getText().toString());
+        try {
+            selected.setSshPort(Integer.parseInt(sshPort.getText().toString()));
+        } catch (NumberFormatException nfe) {
+            logAndPrintStacktrace(nfe);
+        }
+        selected.setSshUser(sshUser.getText().toString());
         selected.setSshPassPhrase(sshPassphrase.getText().toString());
         selected.setSshPassword(sshPassword.getText().toString());
         selected.setKeepSshPassword(checkboxKeepSshPass.isChecked());
+        // If we are using an SSH key, then the ssh password box is used
+        // for the key pass-phrase instead.
+        selected.setUseSshPubKey(checkboxUseSshPubkey.isChecked());
+
+        selected.setAddress(ipText.getText().toString());
+
+        try {
+            selected.setPort(Integer.parseInt(portText.getText().toString()));
+        } catch (NumberFormatException nfe) {
+            logAndPrintStacktrace(nfe);
+        }
 
         if (radioCursor.getCheckedRadioButtonId() == R.id.radioCursorAuto) {
             selected.setUseLocalCursor(Constants.CURSOR_AUTO);
@@ -111,6 +157,21 @@ public abstract class MainConfiguration extends FragmentActivity {
         } else if (radioCursor.getCheckedRadioButtonId() == R.id.radioCursorForceDisable) {
             selected.setUseLocalCursor(Constants.CURSOR_FORCE_DISABLE);
         }
+
+        selected.setPassword(passwordText.getText().toString());
+        selected.setKeepPassword(checkboxKeepPassword.isChecked());
+        selected.setUseDpadAsArrows(checkboxUseDpadAsArrows.isChecked());
+        selected.setRotateDpad(checkboxRotateDpad.isChecked());
+        selected.setUseLastPositionToolbar(checkboxUseLastPositionToolbar.isChecked());
+        if (!checkboxUseLastPositionToolbar.isChecked()) {
+            selected.setUseLastPositionToolbarMoved(false);
+        }
+        try {
+            selected.setRdpWidth(Integer.parseInt(resWidth.getText().toString()));
+            selected.setRdpHeight(Integer.parseInt(resHeight.getText().toString()));
+        } catch (NumberFormatException nfe) {
+            logAndPrintStacktrace(nfe);
+        }
     }
 
     @Override
@@ -118,61 +179,55 @@ public abstract class MainConfiguration extends FragmentActivity {
         Log.d(TAG, "onCreate called");
         Intent intent = getIntent();
         isNewConnection = intent.getBooleanExtra("isNewConnection", false);
-        if (!isNewConnection) {
-            try {
-                connID = Long.parseLong(intent.getStringExtra("connID"));
-            } catch (NumberFormatException e) {
-                connID = 0;
-                Log.e(TAG, "Could not parse connection to edit from connID!");
-                e.printStackTrace();
-            }
-        }
-
+        initializeConnId(intent.getStringExtra("connID"));
         super.onCreate(icicle);
         Utils.showMenu(this);
         setContentView(layoutID);
         System.gc();
-
-        textNickname = (EditText) findViewById(R.id.textNickname);
-
+        textNickname = findViewById(R.id.textNickname);
+        sshServer = findViewById(R.id.sshServer);
+        sshPort = findViewById(R.id.sshPort);
+        sshUser = findViewById(R.id.sshUser);
+        sshPassword = findViewById(R.id.sshPassword);
+        checkboxKeepSshPass = findViewById(R.id.checkboxKeepSshPass);
+        sshPassphrase = findViewById(R.id.sshPassphrase);
+        ipText = findViewById(R.id.textIP);
+        portText = findViewById(R.id.textPORT);
+        passwordText = findViewById(R.id.textPASSWORD);
+        resWidth = findViewById(R.id.rdpWidth);
+        resHeight = findViewById(R.id.rdpHeight);
+        checkboxKeepPassword = findViewById(R.id.checkboxKeepPassword);
+        checkboxUseSshPubkey = findViewById(R.id.checkboxUseSshPubkey);
+        checkboxUseDpadAsArrows = findViewById(R.id.checkboxUseDpadAsArrows);
+        checkboxRotateDpad = findViewById(R.id.checkboxRotateDpad);
+        checkboxUseLastPositionToolbar = findViewById(R.id.checkboxUseLastPositionToolbar);
         // Here we say what happens when the Pubkey Generate button is pressed.
-        buttonGeneratePubkey = (Button) findViewById(R.id.buttonGeneratePubkey);
-        buttonGeneratePubkey.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                generatePubkey();
-            }
-        });
-
-        versionAndCode = (TextView) findViewById(R.id.versionAndCode);
+        Button buttonGeneratePubkey = findViewById(R.id.buttonGeneratePubkey);
+        buttonGeneratePubkey.setOnClickListener(view -> generatePubkey());
+        TextView versionAndCode = findViewById(R.id.versionAndCode);
         versionAndCode.setText(Utils.getVersionAndCode(this));
 
         database = ((App) getApplication()).getDatabase();
 
-        ((Button) findViewById(R.id.copyLogcat)).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                LogcatReader logcatReader = new LogcatReader();
-                ClipboardManager cm = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-                cm.setText(logcatReader.getMyLogcat(Constants.LOGCAT_MAX_LINES));
-                Toast.makeText(getBaseContext(), getResources().getString(R.string.log_copied),
-                        Toast.LENGTH_LONG).show();
-            }
+        (findViewById(R.id.copyLogcat)).setOnClickListener(v -> {
+            LogcatReader logcatReader = new LogcatReader();
+            ClipboardManager cm = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+            cm.setText(logcatReader.getMyLogcat(Constants.LOGCAT_MAX_LINES));
+            Toast.makeText(getBaseContext(), getResources().getString(R.string.log_copied),
+                    Toast.LENGTH_LONG).show();
         });
 
         radioCursor = findViewById(R.id.radioCursor);
 
-        sshCredentials = (LinearLayout) findViewById(R.id.sshCredentials);
-        sshCaption = (TextView) findViewById(R.id.sshCaption);
-        layoutUseSshPubkey = (LinearLayout) findViewById(R.id.layoutUseSshPubkey);
-        sshServerEntry = (LinearLayout) findViewById(R.id.sshServerEntry);
-        sshPassword = (EditText) findViewById(R.id.sshPassword);
-        sshPassphrase = (EditText) findViewById(R.id.sshPassphrase);
+        sshCredentials = findViewById(R.id.sshCredentials);
+        sshCaption = findViewById(R.id.sshCaption);
+        layoutUseSshPubkey = findViewById(R.id.layoutUseSshPubkey);
+        sshServerEntry = findViewById(R.id.sshServerEntry);
 
         // Define what happens when somebody selects different connection types.
-        connectionType = (Spinner) findViewById(R.id.connectionType);
-
+        connectionType = findViewById(R.id.connectionType);
         connectionType.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @SuppressLint("SetTextI18n")
             @Override
             public void onItemSelected(AdapterView<?> ad, View view, int itemIndex, long id) {
                 selectedConnType = itemIndex;
@@ -193,13 +248,47 @@ public abstract class MainConfiguration extends FragmentActivity {
             }
         });
 
-        ipText = (EditText) findViewById(R.id.textIP);
-        checkboxKeepSshPass = (CheckBox) findViewById(R.id.checkboxKeepSshPass);
+        // The advanced settings button.
+        toggleAdvancedSettings = findViewById(R.id.toggleAdvancedSettings);
+        layoutAdvancedSettings = findViewById(R.id.layoutAdvancedSettings);
+        toggleAdvancedSettings.setOnCheckedChangeListener((arg0, checked) -> {
+            if (checked)
+                layoutAdvancedSettings.setVisibility(View.VISIBLE);
+            else
+                layoutAdvancedSettings.setVisibility(View.GONE);
+        });
     }
+
+    private void initializeConnId(String connIdStr) {
+        if (!isNewConnection && connIdStr != null) {
+            try {
+                connID = Long.parseLong(connIdStr);
+            } catch (NumberFormatException e) {
+                connID = 0;
+                Log.e(TAG, "Could not parse connection to edit from connID!");
+                e.printStackTrace();
+            }
+        }
+    }
+
+    /**
+     * Enables and disables the EditText boxes for width and height of remote desktop.
+     */
+    protected void setRemoteWidthAndHeight(int customResType) {
+        Log.d(TAG, "setRemoteWidthAndHeight called");
+        if (selected.getRdpResType() != customResType) {
+            resWidth.setEnabled(false);
+            resHeight.setEnabled(false);
+        } else {
+            resWidth.setEnabled(true);
+            resHeight.setEnabled(true);
+        }
+    }
+
 
     void setConnectionTypeSpinnerAdapter(int arrayId) {
         Log.d(TAG, "setConnectionTypeSpinnerAdapter called");
-        ArrayAdapter adapter = ArrayAdapter.createFromResource(this,
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
                 arrayId, R.layout.connection_list_entry);
         adapter.setDropDownViewResource(R.layout.connection_list_entry);
         connectionType.setAdapter(adapter);
@@ -238,11 +327,7 @@ public abstract class MainConfiguration extends FragmentActivity {
     }
 
     @Override
-    public void onWindowFocusChanged(boolean visible) {
-    }
-
-    @Override
-    public void onConfigurationChanged(Configuration newConfig) {
+    public void onConfigurationChanged(@NonNull Configuration newConfig) {
         Log.d(TAG, "onConfigurationChanged called");
         super.onConfigurationChanged(newConfig);
     }
@@ -289,7 +374,7 @@ public abstract class MainConfiguration extends FragmentActivity {
         Log.d(TAG, "arriveOnPage called");
         if (!isNewConnection) {
             SQLiteDatabase db = database.getReadableDatabase();
-            ArrayList<ConnectionBean> connections = new ArrayList<ConnectionBean>();
+            ArrayList<ConnectionBean> connections = new ArrayList<>();
             ConnectionBean.getAll(db,
                     ConnectionBean.GEN_TABLE_NAME, connections,
                     ConnectionBean.newInstance);
@@ -337,16 +422,15 @@ public abstract class MainConfiguration extends FragmentActivity {
         Point outSize = new Point();
         d.getSize(outSize);
         int height = outSize.y;
-        int value = height;
         if (android.os.Build.VERSION.SDK_INT >= 14) {
             android.view.ViewConfiguration vc = ViewConfiguration.get(this);
             if (vc.hasPermanentMenuKey())
-                value = bottom;
+                height = bottom;
         }
         if (Utils.isBlackBerry()) {
-            value = bottom;
+            height = bottom;
         }
-        return value;
+        return height;
     }
 
     /**
@@ -387,11 +471,12 @@ public abstract class MainConfiguration extends FragmentActivity {
      * @see android.app.Activity#onMenuOpened(int, android.view.Menu)
      */
     @Override
-    public boolean onMenuOpened(int featureId, Menu menu) {
+    public boolean onMenuOpened(int featureId, @NonNull Menu menu) {
         Log.d(TAG, "onMenuOpened called");
         try {
             menu.findItem(R.id.itemSaveAsCopy).setEnabled(selected != null && !selected.isNew());
         } catch (NullPointerException e) {
+            logAndPrintStacktrace(e);
         }
         return true;
     }
@@ -404,19 +489,18 @@ public abstract class MainConfiguration extends FragmentActivity {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         Log.d(TAG, "onActivityResult called");
         super.onActivityResult(requestCode, resultCode, data);
-        switch (requestCode) {
-            case (Constants.ACTIVITY_GEN_KEY):
-                if (resultCode == Activity.RESULT_OK && data != null && data.getExtras() != null) {
-                    Bundle b = data.getExtras();
-                    String privateKey = (String) b.get("PrivateKey");
-                    if (!privateKey.equals(selected.getSshPrivKey()) && privateKey.length() != 0)
-                        Toast.makeText(getBaseContext(), getString(R.string.ssh_key_generated), Toast.LENGTH_LONG).show();
-                    selected.setSshPrivKey(privateKey);
-                    selected.setSshPubKey((String) b.get("PublicKey"));
-                    selected.saveAndWriteRecent(true, this);
-                } else
-                    Log.i(TAG, "The user cancelled SSH key generation.");
-                break;
+        if (requestCode == Constants.ACTIVITY_GEN_KEY) {
+            if (resultCode == Activity.RESULT_OK && data != null && data.getExtras() != null) {
+                Bundle b = data.getExtras();
+                String privateKey = (String) b.get("PrivateKey");
+                if (privateKey != null &&
+                        !privateKey.equals(selected.getSshPrivKey()) && privateKey.length() != 0)
+                    Toast.makeText(getBaseContext(), getString(R.string.ssh_key_generated), Toast.LENGTH_LONG).show();
+                selected.setSshPrivKey(privateKey);
+                selected.setSshPubKey((String) b.get("PublicKey"));
+                selected.saveAndWriteRecent(true, this);
+            } else
+                Log.i(TAG, "The user cancelled SSH key generation.");
         }
     }
 
@@ -431,7 +515,13 @@ public abstract class MainConfiguration extends FragmentActivity {
     public void saveAsCopy(MenuItem item) {
         Log.d(TAG, "saveAsCopy called");
         if (selected.getNickname().equals(textNickname.getText().toString()))
-            textNickname.setText(new String(getString(R.string.copy_of) + " " + selected.getNickname()));
+            textNickname.setText(
+                    String.format(
+                            Locale.getDefault(), "%s %s",
+                            getString(R.string.copy_of),
+                            selected.getNickname()
+                    )
+            );
         selected.setScreenshotFilename(Utils.newScreenshotFileName());
         updateSelectedFromView();
         selected.set_Id(0);
@@ -450,5 +540,10 @@ public abstract class MainConfiguration extends FragmentActivity {
         android.util.Log.d(TAG, "UseLastPositionToolbarDefault called");
         SharedPreferences sp = getSharedPreferences(Constants.generalSettingsTag, Context.MODE_PRIVATE);
         return sp.getBoolean(Constants.positionToolbarLastUsed, true);
+    }
+
+    protected static void logAndPrintStacktrace(Exception e) {
+        e.printStackTrace();
+        Log.d(TAG, "Ignoring Exception: " + e);
     }
 }

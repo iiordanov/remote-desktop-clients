@@ -19,19 +19,17 @@
 
 package com.iiordanov.bVNC;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
-import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.Toast;
-import android.widget.ToggleButton;
 
 import com.iiordanov.bVNC.dialogs.IntroTextDialog;
 import com.iiordanov.util.PermissionGroups;
@@ -46,21 +44,11 @@ import java.util.List;
  */
 public class aRDP extends MainConfiguration {
     private final static String TAG = "aRDP";
-    private LinearLayout layoutAdvancedSettings;
-    private EditText sshServer;
-    private EditText sshPort;
-    private EditText sshUser;
-    private EditText portText;
-    private EditText passwordText;
-    private ToggleButton toggleAdvancedSettings;
-    //private Spinner colorSpinner;
+
     private Spinner spinnerRdpGeometry;
-    private EditText textUsername;
     private EditText rdpDomain;
-    private EditText rdpWidth;
-    private EditText rdpHeight;
-    private CheckBox checkboxKeepPassword;
-    private CheckBox checkboxUseDpadAsArrows;
+    private EditText resWidth;
+    private EditText resHeight;
     private RadioGroup groupRemoteSoundType;
     private CheckBox checkboxEnableRecording;
     private CheckBox checkboxConsoleMode;
@@ -72,9 +60,6 @@ public class aRDP extends MainConfiguration {
     private CheckBox checkboxWindowContents;
     private CheckBox checkboxMenuAnimation;
     private CheckBox checkboxVisualStyles;
-    private CheckBox checkboxRotateDpad;
-    private CheckBox checkboxUseLastPositionToolbar;
-    private CheckBox checkboxUseSshPubkey;
     private CheckBox checkboxEnableGfx;
     private CheckBox checkboxEnableGfxH264;
     private CheckBox checkboxPreferSendingUnicode;
@@ -84,39 +69,11 @@ public class aRDP extends MainConfiguration {
     @Override
     public void onCreate(Bundle icicle) {
         layoutID = R.layout.main_rdp;
-
         super.onCreate(icicle);
-
-        sshServer = (EditText) findViewById(R.id.sshServer);
-        sshPort = (EditText) findViewById(R.id.sshPort);
-        sshUser = (EditText) findViewById(R.id.sshUser);
-        portText = (EditText) findViewById(R.id.textPORT);
-        passwordText = (EditText) findViewById(R.id.textPASSWORD);
-        textUsername = (EditText) findViewById(R.id.textUsername);
-        rdpDomain = (EditText) findViewById(R.id.rdpDomain);
-
-        // Here we say what happens when the Pubkey Checkbox is checked/unchecked.
-        checkboxUseSshPubkey = (CheckBox) findViewById(R.id.checkboxUseSshPubkey);
-
-        checkboxKeepPassword = (CheckBox) findViewById(R.id.checkboxKeepPassword);
-        checkboxUseDpadAsArrows = (CheckBox) findViewById(R.id.checkboxUseDpadAsArrows);
-        checkboxRotateDpad = (CheckBox) findViewById(R.id.checkboxRotateDpad);
-        checkboxUseLastPositionToolbar = (CheckBox) findViewById(R.id.checkboxUseLastPositionToolbar);
-        // The advanced settings button.
-        toggleAdvancedSettings = (ToggleButton) findViewById(R.id.toggleAdvancedSettings);
-        layoutAdvancedSettings = (LinearLayout) findViewById(R.id.layoutAdvancedSettings);
-        toggleAdvancedSettings.setOnCheckedChangeListener(new OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton arg0, boolean checked) {
-                if (checked)
-                    layoutAdvancedSettings.setVisibility(View.VISIBLE);
-                else
-                    layoutAdvancedSettings.setVisibility(View.GONE);
-            }
-        });
-
+        textUsername = findViewById(R.id.textUsername);
+        rdpDomain = findViewById(R.id.rdpDomain);
         rdpColorArray = Utilities.Companion.toList(getResources().getStringArray(R.array.rdp_colors));
-        spinnerRdpColor = (Spinner) findViewById(R.id.spinnerRdpColor);
+        spinnerRdpColor = findViewById(R.id.spinnerRdpColor);
         spinnerRdpColor.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> arg0, View view, int itemIndex, long id) {
@@ -129,14 +86,12 @@ public class aRDP extends MainConfiguration {
         });
 
         // The geometry type and dimensions boxes.
-        spinnerRdpGeometry = (Spinner) findViewById(R.id.spinnerRdpGeometry);
-        rdpWidth = (EditText) findViewById(R.id.rdpWidth);
-        rdpHeight = (EditText) findViewById(R.id.rdpHeight);
+        spinnerRdpGeometry = findViewById(R.id.spinnerRdpGeometry);
         spinnerRdpGeometry.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> arg0, View view, int itemIndex, long id) {
                 selected.setRdpResType(itemIndex);
-                setRemoteWidthAndHeight();
+                setRemoteWidthAndHeight(Constants.RDP_GEOM_SELECT_CUSTOM);
             }
 
             @Override
@@ -144,65 +99,33 @@ public class aRDP extends MainConfiguration {
             }
         });
 
-        groupRemoteSoundType = (RadioGroup) findViewById(R.id.groupRemoteSoundType);
-        checkboxEnableRecording = (CheckBox) findViewById(R.id.checkboxEnableRecording);
-        checkboxConsoleMode = (CheckBox) findViewById(R.id.checkboxConsoleMode);
-        checkboxRedirectSdCard = (CheckBox) findViewById(R.id.checkboxRedirectSdCard);
-        checkboxRemoteFx = (CheckBox) findViewById(R.id.checkboxRemoteFx);
-        checkboxDesktopBackground = (CheckBox) findViewById(R.id.checkboxDesktopBackground);
-        checkboxFontSmoothing = (CheckBox) findViewById(R.id.checkboxFontSmoothing);
-        checkboxDesktopComposition = (CheckBox) findViewById(R.id.checkboxDesktopComposition);
-        checkboxWindowContents = (CheckBox) findViewById(R.id.checkboxWindowContents);
-        checkboxMenuAnimation = (CheckBox) findViewById(R.id.checkboxMenuAnimation);
-        checkboxVisualStyles = (CheckBox) findViewById(R.id.checkboxVisualStyles);
-        checkboxEnableGfx = (CheckBox) findViewById(R.id.checkboxEnableGfx);
-        checkboxEnableGfxH264 = (CheckBox) findViewById(R.id.checkboxEnableGfxH264);
-        checkboxPreferSendingUnicode = (CheckBox) findViewById(R.id.checkboxPreferSendingUnicode);
+        groupRemoteSoundType = findViewById(R.id.groupRemoteSoundType);
+        checkboxEnableRecording = findViewById(R.id.checkboxEnableRecording);
+        checkboxConsoleMode = findViewById(R.id.checkboxConsoleMode);
+        checkboxRedirectSdCard = findViewById(R.id.checkboxRedirectSdCard);
+        checkboxRemoteFx = findViewById(R.id.checkboxRemoteFx);
+        checkboxDesktopBackground = findViewById(R.id.checkboxDesktopBackground);
+        checkboxFontSmoothing = findViewById(R.id.checkboxFontSmoothing);
+        checkboxDesktopComposition = findViewById(R.id.checkboxDesktopComposition);
+        checkboxWindowContents = findViewById(R.id.checkboxWindowContents);
+        checkboxMenuAnimation = findViewById(R.id.checkboxMenuAnimation);
+        checkboxVisualStyles = findViewById(R.id.checkboxVisualStyles);
+        checkboxEnableGfx = findViewById(R.id.checkboxEnableGfx);
+        checkboxEnableGfxH264 = findViewById(R.id.checkboxEnableGfxH264);
+        checkboxPreferSendingUnicode = findViewById(R.id.checkboxPreferSendingUnicode);
         setConnectionTypeSpinnerAdapter(R.array.rdp_connection_type);
     }
 
-    /**
-     * Enables and disables the EditText boxes for width and height of remote desktop.
-     */
-    private void setRemoteWidthAndHeight() {
-        if (selected.getRdpResType() != Constants.RDP_GEOM_SELECT_CUSTOM) {
-            rdpWidth.setEnabled(false);
-            rdpHeight.setEnabled(false);
-        } else {
-            rdpWidth.setEnabled(true);
-            rdpHeight.setEnabled(true);
-        }
-    }
-
-    protected void updateViewFromSelected() {
+    @SuppressLint("SetTextI18n")
+    public void updateViewFromSelected() {
         if (selected == null)
             return;
-        super.commonUpdateViewFromSelected();
-
-        sshServer.setText(selected.getSshServer());
-        sshPort.setText(Integer.toString(selected.getSshPort()));
-        sshUser.setText(selected.getSshUser());
-
-        checkboxUseSshPubkey.setChecked(selected.getUseSshPubKey());
-
-        portText.setText(Integer.toString(selected.getPort()));
-
-        if (selected.getKeepPassword() || selected.getPassword().length() > 0) {
-            passwordText.setText(selected.getPassword());
-        }
-
-        checkboxKeepPassword.setChecked(selected.getKeepPassword());
-        checkboxUseDpadAsArrows.setChecked(selected.getUseDpadAsArrows());
-        checkboxRotateDpad.setChecked(selected.getRotateDpad());
-        checkboxUseLastPositionToolbar.setChecked((!isNewConnection) ? selected.getUseLastPositionToolbar() : this.useLastPositionToolbarDefault());
-        textNickname.setText(selected.getNickname());
+        super.updateViewFromSelected();
         textUsername.setText(selected.getUserName());
         rdpDomain.setText(selected.getRdpDomain());
         spinnerRdpColor.setSelection(rdpColorArray.indexOf(String.valueOf(selected.getRdpColor())));
         spinnerRdpGeometry.setSelection(selected.getRdpResType());
-        rdpWidth.setText(Integer.toString(selected.getRdpWidth()));
-        rdpHeight.setText(Integer.toString(selected.getRdpHeight()));
-        setRemoteWidthAndHeight();
+        setRemoteWidthAndHeight(Constants.RDP_GEOM_SELECT_CUSTOM);
         setRemoteSoundTypeFromSettings(selected.getRemoteSoundType());
         checkboxEnableRecording.setChecked(selected.getEnableRecording());
         checkboxConsoleMode.setChecked(selected.getConsoleMode());
@@ -217,51 +140,16 @@ public class aRDP extends MainConfiguration {
         checkboxEnableGfx.setChecked(selected.getEnableGfx());
         checkboxEnableGfxH264.setChecked(selected.getEnableGfxH264());
         checkboxPreferSendingUnicode.setChecked(selected.getPreferSendingUnicode());
-
-        /* TODO: Reinstate color spinner but for RDP settings.
-        colorSpinner = (Spinner)findViewById(R.id.colorformat);
-        COLORMODEL[] models=COLORMODEL.values();
-        ArrayAdapter<COLORMODEL> colorSpinnerAdapter = new ArrayAdapter<COLORMODEL>(this, R.layout.connection_list_entry, models);
-        colorSpinner.setAdapter(colorSpinnerAdapter);
-        colorSpinner.setSelection(0);
-        COLORMODEL cm = COLORMODEL.valueOf(selected.getColorModel());
-        COLORMODEL[] colors=COLORMODEL.values();
-        for (int i=0; i<colors.length; ++i)
-        {
-            if (colors[i] == cm) {
-                colorSpinner.setSelection(i);
-                break;
-            }
-        }*/
     }
 
     protected void updateSelectedFromView() {
-        commonUpdateSelectedFromView();
-
         if (selected == null) {
             return;
         }
-        try {
-            selected.setPort(Integer.parseInt(portText.getText().toString()));
-            selected.setSshPort(Integer.parseInt(sshPort.getText().toString()));
-        } catch (NumberFormatException nfe) {
-        }
-
-        selected.setNickname(textNickname.getText().toString());
-        selected.setSshServer(sshServer.getText().toString());
-        selected.setSshUser(sshUser.getText().toString());
-
-        // If we are using an SSH key, then the ssh password box is used
-        // for the key pass-phrase instead.
-        selected.setUseSshPubKey(checkboxUseSshPubkey.isChecked());
+        super.updateSelectedFromView();
         selected.setUserName(textUsername.getText().toString());
         selected.setRdpDomain(rdpDomain.getText().toString());
         selected.setRdpResType(spinnerRdpGeometry.getSelectedItemPosition());
-        try {
-            selected.setRdpWidth(Integer.parseInt(rdpWidth.getText().toString()));
-            selected.setRdpHeight(Integer.parseInt(rdpHeight.getText().toString()));
-        } catch (NumberFormatException nfe) {
-        }
         setRemoteSoundTypeFromView(groupRemoteSoundType);
         selected.setEnableRecording(checkboxEnableRecording.isChecked());
         selected.setConsoleMode(checkboxConsoleMode.isChecked());
@@ -275,20 +163,11 @@ public class aRDP extends MainConfiguration {
         selected.setVisualStyles(checkboxVisualStyles.isChecked());
         selected.setEnableGfx(checkboxEnableGfx.isChecked());
         selected.setEnableGfxH264(checkboxEnableGfxH264.isChecked());
-
-        selected.setPassword(passwordText.getText().toString());
-        selected.setKeepPassword(checkboxKeepPassword.isChecked());
-        selected.setUseDpadAsArrows(checkboxUseDpadAsArrows.isChecked());
-        selected.setRotateDpad(checkboxRotateDpad.isChecked());
-        selected.setUseLastPositionToolbar(checkboxUseLastPositionToolbar.isChecked());
         selected.setPreferSendingUnicode(checkboxPreferSendingUnicode.isChecked());
-        // TODO: Reinstate Color model spinner but for RDP settings.
-        //selected.setColorModel(((COLORMODEL)colorSpinner.getSelectedItem()).nameString());
     }
 
     /**
      * Automatically linked with android:onClick in the layout.
-     * @param view
      */
     public void toggleEnableRecording(View view) {
         CheckBox b = (CheckBox) view;
@@ -303,7 +182,6 @@ public class aRDP extends MainConfiguration {
 
     /**
      * Automatically linked with android:onClick in the layout.
-     * @param view
      */
     public void remoteSoundTypeToggled(View view) {
         if (Utils.isFree(this)) {
@@ -313,7 +191,6 @@ public class aRDP extends MainConfiguration {
 
     /**
      * Sets the remote sound type in the settings from the specified parameter.
-     * @param view
      */
     public void setRemoteSoundTypeFromView(View view) {
         RadioGroup g = (RadioGroup) view;
@@ -353,11 +230,11 @@ public class aRDP extends MainConfiguration {
     }
 
     public void save(MenuItem item) {
+        Log.d(TAG, "save called");
         if (ipText.getText().length() != 0 && portText.getText().length() != 0) {
             saveConnectionAndCloseLayout();
         } else {
             Toast.makeText(this, R.string.rdp_server_empty, Toast.LENGTH_LONG).show();
         }
-
     }
 }
