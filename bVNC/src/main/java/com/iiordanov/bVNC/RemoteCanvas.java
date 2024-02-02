@@ -57,7 +57,6 @@ import android.widget.Toast;
 import androidx.appcompat.widget.AppCompatImageView;
 
 import com.iiordanov.android.bc.BCFactory;
-import com.iiordanov.bVNC.dialogs.GetTextFragment;
 import com.iiordanov.bVNC.exceptions.AnonCipherUnsupportedException;
 import com.iiordanov.bVNC.input.KeyInputHandler;
 import com.iiordanov.bVNC.input.RemoteCanvasHandler;
@@ -100,8 +99,7 @@ import java.util.Timer;
 
 import javax.security.auth.login.LoginException;
 
-public class RemoteCanvas extends AppCompatImageView implements KeyInputHandler,
-        Viewable, GetTextFragment.OnFragmentDismissedListener {
+public class RemoteCanvas extends AppCompatImageView implements KeyInputHandler, Viewable {
     private final static String TAG = "RemoteCanvas";
 
     public AbstractScaling canvasZoomer;
@@ -703,8 +701,8 @@ public class RemoteCanvas extends AppCompatImageView implements KeyInputHandler,
                     if (connection.getPassword().equals("")) {
                         android.util.Log.i(TAG, "Displaying a dialog to obtain user's password.");
                         handler.sendEmptyMessage(RemoteClientLibConstants.GET_PASSWORD);
-                        synchronized (spicecomm) {
-                            spicecomm.wait();
+                        synchronized (handler) {
+                            handler.wait();
                         }
                     }
 
@@ -895,8 +893,8 @@ public class RemoteCanvas extends AppCompatImageView implements KeyInputHandler,
                     if (connection.getPassword().equals("")) {
                         android.util.Log.i(TAG, "Displaying a dialog to obtain user's password.");
                         handler.sendEmptyMessage(RemoteClientLibConstants.GET_PASSWORD);
-                        synchronized (spicecomm) {
-                            spicecomm.wait();
+                        synchronized (handler) {
+                            handler.wait();
                         }
                     }
 
@@ -918,8 +916,8 @@ public class RemoteCanvas extends AppCompatImageView implements KeyInputHandler,
                     if (realms.get(realm).getTfa() != null) {
                         android.util.Log.i(TAG, "Displaying a dialog to obtain OTP/TFA.");
                         handler.sendEmptyMessage(RemoteClientLibConstants.GET_OTP_CODE);
-                        synchronized (spicecomm) {
-                            spicecomm.wait();
+                        synchronized (handler) {
+                            handler.wait();
                         }
                     }
 
@@ -1969,84 +1967,6 @@ public class RemoteCanvas extends AppCompatImageView implements KeyInputHandler,
      */
     public String retrievevvFileName() {
         return this.vvFileName;
-    }
-
-    @Override
-    public void onTextObtained(String dialogId, String[] obtainedString, boolean dialogCancelled, boolean save) {
-        if (dialogCancelled) {
-            handler.sendEmptyMessage(RemoteClientLibConstants.DISCONNECT_NO_MESSAGE);
-            return;
-        }
-
-        switch (dialogId) {
-            case GetTextFragment.DIALOG_ID_GET_VNC_CREDENTIALS:
-                android.util.Log.i(TAG, "Text obtained from DIALOG_ID_GET_VNC_CREDENTIALS.");
-                connection.setUserName(obtainedString[0]);
-                connection.setPassword(obtainedString[1]);
-                connection.setKeepPassword(save);
-                connection.save(getContext());
-                handler.sendEmptyMessage(RemoteClientLibConstants.REINIT_SESSION);
-                break;
-            case GetTextFragment.DIALOG_ID_GET_VNC_PASSWORD:
-                android.util.Log.i(TAG, "Text obtained from DIALOG_ID_GET_VNC_PASSWORD.");
-                connection.setPassword(obtainedString[0]);
-                connection.setKeepPassword(save);
-                connection.save(getContext());
-                handler.sendEmptyMessage(RemoteClientLibConstants.REINIT_SESSION);
-                break;
-            case GetTextFragment.DIALOG_ID_GET_RDP_CREDENTIALS:
-                android.util.Log.i(TAG, "Text obtained from DIALOG_ID_GET_RDP_CREDENTIALS.");
-                connection.setUserName(obtainedString[0]);
-                connection.setRdpDomain(obtainedString[1]);
-                connection.setPassword(obtainedString[2]);
-                connection.setKeepPassword(save);
-                connection.save(getContext());
-                handler.sendEmptyMessage(RemoteClientLibConstants.REINIT_SESSION);
-                break;
-            case GetTextFragment.DIALOG_ID_GET_RDP_GATEWAY_CREDENTIALS:
-                android.util.Log.i(TAG, "Text obtained from DIALOG_ID_GET_RDP_GATEWAY_CREDENTIALS.");
-                connection.setRdpGatewayUsername(obtainedString[0]);
-                connection.setRdpGatewayDomain(obtainedString[1]);
-                connection.setRdpGatewayPassword(obtainedString[2]);
-                connection.setKeepRdpGatewayPassword(save);
-                connection.save(getContext());
-                handler.sendEmptyMessage(RemoteClientLibConstants.REINIT_SESSION);
-                break;
-            case GetTextFragment.DIALOG_ID_GET_SPICE_PASSWORD:
-                android.util.Log.i(TAG, "Text obtained from DIALOG_ID_GET_SPICE_PASSWORD.");
-                connection.setPassword(obtainedString[0]);
-                connection.setKeepPassword(save);
-                connection.save(getContext());
-                handler.sendEmptyMessage(RemoteClientLibConstants.REINIT_SESSION);
-                break;
-            case GetTextFragment.DIALOG_ID_GET_OPAQUE_CREDENTIALS:
-                android.util.Log.i(TAG, "Text obtained from DIALOG_ID_GET_OPAQUE_CREDENTIALS");
-                connection.setUserName(obtainedString[0]);
-                connection.setPassword(obtainedString[1]);
-                connection.setKeepPassword(save);
-                connection.save(getContext());
-                handler.sendEmptyMessage(RemoteClientLibConstants.REINIT_SESSION);
-                break;
-            case GetTextFragment.DIALOG_ID_GET_OPAQUE_PASSWORD:
-                android.util.Log.i(TAG, "Text obtained from DIALOG_ID_GET_OPAQUE_PASSWORD");
-                connection.setPassword(obtainedString[0]);
-                connection.setKeepPassword(save);
-                connection.save(getContext());
-                synchronized (spicecomm) {
-                    spicecomm.notify();
-                }
-                break;
-            case GetTextFragment.DIALOG_ID_GET_OPAQUE_OTP_CODE:
-                android.util.Log.i(TAG, "Text obtained from DIALOG_ID_GET_OPAQUE_OTP_CODE");
-                connection.setOtpCode(obtainedString[0]);
-                synchronized (spicecomm) {
-                    spicecomm.notify();
-                }
-                break;
-            default:
-                android.util.Log.e(TAG, "Unknown dialog type.");
-                break;
-        }
     }
 
     @Override

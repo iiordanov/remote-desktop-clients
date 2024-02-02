@@ -16,6 +16,7 @@ import android.widget.Toast;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 
+import com.iiordanov.bVNC.CredentialsObtainer;
 import com.iiordanov.bVNC.RemoteCanvas;
 import com.iiordanov.bVNC.RemoteCanvasActivity;
 import com.iiordanov.bVNC.Utils;
@@ -43,6 +44,8 @@ public class RemoteCanvasHandler extends Handler implements HttpsFileDownloader.
     private Connection connection;
     private FragmentManager fm;
 
+    CredentialsObtainer obtainer;
+
     public RemoteCanvasHandler(Context context,
                                RemoteCanvas c,
                                Connection connection) {
@@ -54,6 +57,7 @@ public class RemoteCanvasHandler extends Handler implements HttpsFileDownloader.
         if (activity instanceof FragmentActivity) {
             this.fm = ((FragmentActivity) Utils.getActivity(context)).getSupportFragmentManager();
         }
+        obtainer = new CredentialsObtainer(connection, this, context);
     }
 
     public RemoteCanvasHandler(Context context, Connection connection) {
@@ -406,7 +410,7 @@ public class RemoteCanvasHandler extends Handler implements HttpsFileDownloader.
                 showGetTextFragment(context.getString(R.string.enter_vnc_password),
                         GetTextFragment.DIALOG_ID_GET_VNC_PASSWORD,
                         context.getString(R.string.enter_vnc_password),
-                        c, GetTextFragment.Password,
+                        obtainer, GetTextFragment.Password,
                         R.string.enter_vnc_password, R.string.enter_vnc_password,
                         connection.getPassword(), null, null, connection.getKeepPassword());
                 break;
@@ -414,7 +418,7 @@ public class RemoteCanvasHandler extends Handler implements HttpsFileDownloader.
                 showGetTextFragment(context.getString(R.string.enter_vnc_credentials),
                         GetTextFragment.DIALOG_ID_GET_VNC_CREDENTIALS,
                         context.getString(R.string.enter_vnc_credentials),
-                        c, GetTextFragment.Credentials,
+                        obtainer, GetTextFragment.Credentials,
                         R.string.enter_vnc_credentials, R.string.enter_vnc_credentials,
                         connection.getUserName(), connection.getPassword(), null,
                         connection.getKeepPassword());
@@ -423,7 +427,7 @@ public class RemoteCanvasHandler extends Handler implements HttpsFileDownloader.
                 showGetTextFragment(context.getString(R.string.enter_rdp_credentials),
                         GetTextFragment.DIALOG_ID_GET_RDP_CREDENTIALS,
                         context.getString(R.string.enter_rdp_credentials),
-                        c, GetTextFragment.CredentialsWithDomain,
+                        obtainer, GetTextFragment.CredentialsWithDomain,
                         R.string.enter_rdp_credentials, R.string.enter_rdp_credentials,
                         connection.getUserName(), connection.getRdpDomain(), connection.getPassword(),
                         connection.getKeepPassword());
@@ -432,7 +436,7 @@ public class RemoteCanvasHandler extends Handler implements HttpsFileDownloader.
                 showGetTextFragment(context.getString(R.string.enter_gateway_credentials),
                         GetTextFragment.DIALOG_ID_GET_RDP_GATEWAY_CREDENTIALS,
                         context.getString(R.string.enter_gateway_credentials),
-                        c, GetTextFragment.CredentialsWithDomain,
+                        obtainer, GetTextFragment.CredentialsWithDomain,
                         R.string.enter_gateway_credentials, R.string.enter_gateway_credentials,
                         connection.getRdpGatewayUsername(), connection.getRdpGatewayDomain(), connection.getRdpGatewayPassword(),
                         connection.getKeepRdpGatewayPassword());
@@ -442,7 +446,7 @@ public class RemoteCanvasHandler extends Handler implements HttpsFileDownloader.
                 showGetTextFragment(context.getString(R.string.enter_spice_password),
                         GetTextFragment.DIALOG_ID_GET_SPICE_PASSWORD,
                         context.getString(R.string.enter_spice_password),
-                        c, GetTextFragment.Password,
+                        obtainer, GetTextFragment.Password,
                         R.string.enter_spice_password, R.string.enter_spice_password,
                         connection.getPassword(), null, null, connection.getKeepPassword());
                 break;
@@ -586,7 +590,7 @@ public class RemoteCanvasHandler extends Handler implements HttpsFileDownloader.
                 showGetTextFragmentRemoteCanvas(context.getString(R.string.enter_password),
                         GetTextFragment.DIALOG_ID_GET_OPAQUE_PASSWORD,
                         context.getString(R.string.enter_password),
-                        c, GetTextFragment.Password,
+                        obtainer, GetTextFragment.Password,
                         R.string.enter_password, R.string.enter_password,
                         connection.getPassword(), null, null,
                         connection.getKeepPassword());
@@ -596,7 +600,7 @@ public class RemoteCanvasHandler extends Handler implements HttpsFileDownloader.
                 showGetTextFragmentRemoteCanvas(context.getString(R.string.enter_otp_code),
                         GetTextFragment.DIALOG_ID_GET_OPAQUE_OTP_CODE,
                         context.getString(R.string.enter_otp_code),
-                        c, GetTextFragment.Plaintext,
+                        obtainer, GetTextFragment.Plaintext,
                         R.string.enter_otp_code, R.string.enter_otp_code,
                         null, null, null,
                         false);
@@ -611,7 +615,7 @@ public class RemoteCanvasHandler extends Handler implements HttpsFileDownloader.
                     showGetTextFragmentRemoteCanvas(context.getString(R.string.enter_password_auth_failed),
                             GetTextFragment.DIALOG_ID_GET_OPAQUE_CREDENTIALS,
                             context.getString(R.string.enter_password_auth_failed),
-                            c, GetTextFragment.Credentials,
+                            obtainer, GetTextFragment.Credentials,
                             R.string.enter_password_auth_failed, R.string.enter_password_auth_failed,
                             connection.getUserName(), connection.getPassword(), null,
                             connection.getKeepPassword());
@@ -626,7 +630,7 @@ public class RemoteCanvasHandler extends Handler implements HttpsFileDownloader.
                     showGetTextFragmentRemoteCanvas(context.getString(R.string.enter_password_auth_failed),
                             GetTextFragment.DIALOG_ID_GET_OPAQUE_CREDENTIALS,
                             context.getString(R.string.enter_password_auth_failed),
-                            c, GetTextFragment.Credentials,
+                            obtainer, GetTextFragment.Credentials,
                             R.string.enter_password_auth_failed, R.string.enter_password_auth_failed,
                             connection.getUserName(), connection.getPassword(), null,
                             connection.getKeepPassword());
