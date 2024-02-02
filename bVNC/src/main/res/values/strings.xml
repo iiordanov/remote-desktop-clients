@@ -885,6 +885,7 @@ When you add or edit a connection, you will see a connection configuration page.
     <string name="enter_vnc_credentials">Please enter VNC credentials</string>
     <string name="enter_vnc_password">Please enter VNC password</string>
     <string name="enter_rdp_credentials">Please enter RDP credentials</string>
+    <string name="enter_gateway_credentials">Please enter Gateway credentials</string>
     <string name="enter_spice_password">Please enter SPICE password</string>
     <string name="enter_passphrase_title">Enter Key Passphrase</string>
     <string name="enter_passphrase">Please enter Key Passphrase</string>
@@ -944,4 +945,5 @@ Below that is where you configure your connection.
     <string name="pref_keyboard_type_label_TYPE_CLASS_TEXT">Text With Suggestions (TYPE_CLASS_TEXT)</string>
     <string name="no_application_to_handle_vpn">This connection is set to launch VPN via an external app. You need to install an app like Morpheusly to launch it.</string>
     <string name="vnc_viewer_started">VNC Viewer started</string>
+    <string name="enable_gateway">Enable Gateway</string>
 </resources>

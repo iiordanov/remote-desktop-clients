@@ -412,9 +412,7 @@ public class RemoteCanvas extends AppCompatImageView implements KeyInputHandler,
         Thread t = new Thread() {
             public void run() {
                 try {
-                    if (sshTunneled) {
-                        sshConnection = new SSHConnection(connection, getContext(), handler);
-                    }
+                    initSshTunnelIfNeeded();
                     if (isSpice) {
                         startSpiceConnection();
                     } else if (isRdp) {
@@ -441,6 +439,21 @@ public class RemoteCanvas extends AppCompatImageView implements KeyInputHandler,
         }
 
         return pointer;
+    }
+
+    private void initSshTunnelIfNeeded() {
+        if (sshTunneled && sshConnection == null) {
+            String targetAddress = getSshTunnelTargetAddress();
+            sshConnection = new SSHConnection(targetAddress, connection, getContext(), handler);
+        }
+    }
+
+    private String getSshTunnelTargetAddress() {
+        String address = connection.getAddress();
+        if (isRdp && connection.getRdpGatewayEnabled()) {
+            address = connection.getRdpGatewayHostname();
+        }
+        return address;
     }
 
     private void handleUncaughtException(Throwable e) {
@@ -560,12 +573,18 @@ public class RemoteCanvas extends AppCompatImageView implements KeyInputHandler,
 
         // Get the address and port (based on whether an SSH tunnel is being established or not).
         String address = getAddress();
+        String gatewayAddress = getGatewayAddress();
         int rdpPort = getRemoteProtocolPort(connection.getPort());
+        int gatewayPort = getGatewayPort(connection.getRdpGatewayPort());
         waitUntilInflated();
         int remoteWidth = getRemoteWidth(getWidth(), getHeight());
         int remoteHeight = getRemoteHeight(getWidth(), getHeight());
 
-        rdpcomm.setConnectionParameters(address, rdpPort, connection.getNickname(), remoteWidth,
+        rdpcomm.setConnectionParameters(
+                address, rdpPort,
+                connection.getRdpGatewayEnabled(), gatewayAddress, gatewayPort,
+                connection.getRdpGatewayUsername(), connection.getRdpGatewayDomain(), connection.getRdpGatewayPassword(),
+                connection.getNickname(), remoteWidth,
                 remoteHeight, connection.getDesktopBackground(), connection.getFontSmoothing(),
                 connection.getDesktopComposition(), connection.getWindowContents(),
                 connection.getMenuAnimation(), connection.getVisualStyles(),
@@ -1130,11 +1149,12 @@ public class RemoteCanvas extends AppCompatImageView implements KeyInputHandler,
     int getRemoteProtocolPort(int port) throws Exception {
         int result = 0;
 
-        if (sshTunneled) {
-            sshConnection = new SSHConnection(connection, getContext(), handler);
+        if (sshTunneled && !(isRdp && connection.getRdpGatewayEnabled())) {
+            initSshTunnelIfNeeded();
             int newPort = sshConnection.initializeSSHTunnel();
-            if (newPort > 0)
+            if (newPort > 0) {
                 port = newPort;
+            }
             result = sshConnection.createLocalPortForward(port);
         } else {
             if (isVnc && port <= 20) {
@@ -1147,15 +1167,46 @@ public class RemoteCanvas extends AppCompatImageView implements KeyInputHandler,
     }
 
     /**
-     * Returns localhost if using SSH tunnel or saved VNC address.
+     * If necessary, initializes an SSH tunnel and returns local forwarded port, or
+     * if SSH tunneling is not needed, returns the given port.
+     *
+     * @return
+     */
+    int getGatewayPort(int port) throws Exception {
+        int result = port;
+
+        if (sshTunneled) {
+            initSshTunnelIfNeeded();
+            sshConnection.initializeSSHTunnel();
+            result = sshConnection.createLocalPortForward(port);
+        }
+        return result;
+    }
+
+    /**
+     * Returns localhost if using SSH tunnel or saved address.
      *
      * @return
      */
     String getAddress() {
-        if (sshTunneled) {
-            return new String("127.0.0.1");
-        } else
+        if (sshTunneled && !(isRdp && connection.getRdpGatewayEnabled())) {
+            return "127.0.0.1";
+        } else {
             return connection.getAddress();
+        }
+    }
+
+    /**
+     * Returns localhost if using SSH tunnel or saved address.
+     *
+     * @return
+     */
+    String getGatewayAddress() {
+        if (sshTunneled) {
+            return "127.0.0.1";
+        } else {
+            return connection.getRdpGatewayHostname();
+        }
     }
 
     /**
@@ -1929,7 +1980,7 @@ public class RemoteCanvas extends AppCompatImageView implements KeyInputHandler,
 
         switch (dialogId) {
             case GetTextFragment.DIALOG_ID_GET_VNC_CREDENTIALS:
-                android.util.Log.i(TAG, "Text obtained from DIALOG_ID_GET_VNC_USERNAME.");
+                android.util.Log.i(TAG, "Text obtained from DIALOG_ID_GET_VNC_CREDENTIALS.");
                 connection.setUserName(obtainedString[0]);
                 connection.setPassword(obtainedString[1]);
                 connection.setKeepPassword(save);
@@ -1944,11 +1995,20 @@ public class RemoteCanvas extends AppCompatImageView implements KeyInputHandler,
                 handler.sendEmptyMessage(RemoteClientLibConstants.REINIT_SESSION);
                 break;
             case GetTextFragment.DIALOG_ID_GET_RDP_CREDENTIALS:
-                android.util.Log.i(TAG, "Text obtained from DIALOG_ID_GET_VNC_PASSWORD.");
+                android.util.Log.i(TAG, "Text obtained from DIALOG_ID_GET_RDP_CREDENTIALS.");
                 connection.setUserName(obtainedString[0]);
                 connection.setRdpDomain(obtainedString[1]);
                 connection.setPassword(obtainedString[2]);
                 connection.setKeepPassword(save);
+                connection.save(getContext());
+                handler.sendEmptyMessage(RemoteClientLibConstants.REINIT_SESSION);
+                break;
+            case GetTextFragment.DIALOG_ID_GET_RDP_GATEWAY_CREDENTIALS:
+                android.util.Log.i(TAG, "Text obtained from DIALOG_ID_GET_RDP_GATEWAY_CREDENTIALS.");
+                connection.setRdpGatewayUsername(obtainedString[0]);
+                connection.setRdpGatewayDomain(obtainedString[1]);
+                connection.setRdpGatewayPassword(obtainedString[2]);
+                connection.setKeepRdpGatewayPassword(save);
                 connection.save(getContext());
                 handler.sendEmptyMessage(RemoteClientLibConstants.REINIT_SESSION);
                 break;

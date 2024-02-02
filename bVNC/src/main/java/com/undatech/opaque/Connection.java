@@ -442,4 +442,32 @@ public interface Connection {
     String getVpnUriScheme();
 
     void setVpnUriScheme(String gen_vpnUriScheme);
+
+    boolean getRdpGatewayEnabled();
+
+    void setRdpGatewayEnabled(boolean gen_rdpGatewayEnabled);
+
+    String getRdpGatewayHostname();
+
+    void setRdpGatewayHostname(String rdpGatewayHostname);
+
+    int getRdpGatewayPort();
+
+    void setRdpGatewayPort(int rdpGatewayPort);
+
+    public String getRdpGatewayUsername();
+
+    public void setRdpGatewayUsername(String rdpGatewayUsername);
+
+    public String getRdpGatewayDomain();
+
+    public void setRdpGatewayDomain(String rdpGatewayDomain);
+
+    public String getRdpGatewayPassword();
+
+    public void setRdpGatewayPassword(String rdpGatewayPassword);
+
+    public boolean getKeepRdpGatewayPassword();
+
+    public void setKeepRdpGatewayPassword(boolean keepRdpGatewayPassword);
 }

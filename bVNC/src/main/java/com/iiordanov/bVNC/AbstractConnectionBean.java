@@ -8,7 +8,7 @@ import com.undatech.opaque.Connection;
 public abstract class AbstractConnectionBean extends com.antlersoft.android.dbimpl.IdImplementationBase implements Connection {
 
     public static final String GEN_TABLE_NAME = "CONNECTION_BEAN";
-    public static final int GEN_COUNT = 85;
+    public static final int GEN_COUNT = 92;
 
     // Field constants
     public static final String GEN_FIELD__ID = "_id";
@@ -186,6 +186,21 @@ public abstract class AbstractConnectionBean extends com.antlersoft.android.dbim
     public static final String GEN_FIELD_VPNURISCHEME = "VPNURISCHEME";
     public static final int GEN_ID_VPNURISCHEME = 84;
 
+    public static final String GEN_FIELD_RDPGATEWAYENABLED = "RDPGATEWAYENABLED";
+    public static final int GEN_ID_RDPGATEWAYENABLED = 85;
+    public static final String GEN_FIELD_RDPGATEWAYHOSTNAME = "RDPGATEWAYHOSTNAME";
+    public static final int GEN_ID_RDPGATEWAYHOSTNAME = 86;
+    public static final String GEN_FIELD_RDPGATEWAYPORT = "RDPGATEWAYPORT";
+    public static final int GEN_ID_RDPGATEWAYPORT = 87;
+    public static final String GEN_FIELD_RDPGATEWAYUSERNAME = "RDPGATEWAYUSERNAME";
+    public static final int GEN_ID_RDPGATEWAYUSERNAME = 88;
+    public static final String GEN_FIELD_RDPGATEWAYDOMAIN = "RDPGATEWAYDOMAIN";
+    public static final int GEN_ID_RDPGATEWAYDOMAIN = 89;
+    public static final String GEN_FIELD_RDPGATEWAYPASSWORD = "RDPGATEWAYPASSWORD";
+    public static final int GEN_ID_RDPGATEWAYPASSWORD = 90;
+    public static final String GEN_FIELD_KEEPRDPGATEWAYPASSWORD = "KEEPRDPGATEWAYPASSWORD";
+    public static final int GEN_ID_KEEPRDPGATEWAYPASSWORD = 91;
+
     // SQL Command for creating the table
     public static String GEN_CREATE = "CREATE TABLE CONNECTION_BEAN (" +
             "_id INTEGER PRIMARY KEY AUTOINCREMENT," +
@@ -272,7 +287,14 @@ public abstract class AbstractConnectionBean extends com.antlersoft.android.dbim
             "PREFERSENDINGUNICODE INTEGER," +
             "EXTERNALID TEXT," +
             "REQUIRESVPN INTEGER," +
-            "VPNURISCHEME TEXT" +
+            "VPNURISCHEME TEXT," +
+            "RDPGATEWAYENABLED INTEGER," +
+            "RDPGATEWAYHOSTNAME TEXT," +
+            "RDPGATEWAYPORT INTEGER," +
+            "RDPGATEWAYUSERNAME TEXT," +
+            "RDPGATEWAYDOMAIN TEXT," +
+            "RDPGATEWAYPASSWORD TEXT," +
+            "KEEPRDPGATEWAYPASSWORD INTEGER" +
             ")";
 
     // Members corresponding to defined fields
@@ -364,6 +386,14 @@ public abstract class AbstractConnectionBean extends com.antlersoft.android.dbim
     private String gen_externalId;
     private boolean gen_requiresVpn;
     private String gen_vpnUriScheme;
+
+    private boolean gen_rdpGatewayEnabled;
+    private String gen_rdpGatewayHostname;
+    private int gen_rdpGatewayPort;
+    private String gen_rdpGatewayUsername;
+    private String gen_rdpGatewayDomain;
+    private String gen_rdpGatewayPassword;
+    private boolean gen_keepRdpGatewayPassword;
 
     public String Gen_tableName() {
         return GEN_TABLE_NAME;
@@ -1052,6 +1082,62 @@ public abstract class AbstractConnectionBean extends com.antlersoft.android.dbim
         this.gen_vpnUriScheme = gen_vpnUriScheme;
     }
 
+    public boolean getRdpGatewayEnabled() {
+        return gen_rdpGatewayEnabled;
+    }
+
+    public void setRdpGatewayEnabled(boolean gen_rdpGatewayEnabled) {
+        this.gen_rdpGatewayEnabled = gen_rdpGatewayEnabled;
+    }
+
+    public String getRdpGatewayHostname() {
+        return gen_rdpGatewayHostname;
+    }
+
+    public void setRdpGatewayHostname(String rdpGatewayHostname) {
+        this.gen_rdpGatewayHostname = rdpGatewayHostname;
+    }
+
+    public int getRdpGatewayPort() {
+        return gen_rdpGatewayPort;
+    }
+
+    public void setRdpGatewayPort(int rdpGatewayPort) {
+        this.gen_rdpGatewayPort = rdpGatewayPort;
+    }
+
+    public String getRdpGatewayUsername() {
+        return gen_rdpGatewayUsername;
+    }
+
+    public void setRdpGatewayUsername(String rdpGatewayUsername) {
+        this.gen_rdpGatewayUsername = rdpGatewayUsername;
+    }
+
+    public String getRdpGatewayDomain() {
+        return gen_rdpGatewayDomain;
+    }
+
+    public void setRdpGatewayDomain(String rdpGatewayDomain) {
+        this.gen_rdpGatewayDomain = rdpGatewayDomain;
+    }
+
+    public String getRdpGatewayPassword() {
+        return gen_rdpGatewayPassword;
+    }
+
+    public void setRdpGatewayPassword(String rdpGatewayPassword) {
+        this.gen_rdpGatewayPassword = rdpGatewayPassword;
+    }
+
+    public boolean getKeepRdpGatewayPassword() {
+        return gen_keepRdpGatewayPassword;
+    }
+
+    public void setKeepRdpGatewayPassword(boolean keepRdpGatewayPassword) {
+        this.gen_keepRdpGatewayPassword = keepRdpGatewayPassword;
+    }
+
     public android.content.ContentValues Gen_getValues() {
         android.content.ContentValues values = new android.content.ContentValues();
         values.put(GEN_FIELD__ID, Long.toString(this.gen__Id));
@@ -1143,6 +1229,14 @@ public abstract class AbstractConnectionBean extends com.antlersoft.android.dbim
         values.put(GEN_FIELD_EXTERNALID, (this.gen_externalId));
         values.put(GEN_FIELD_REQUIRESVPN, (this.gen_requiresVpn ? "1" : "0"));
         values.put(GEN_FIELD_VPNURISCHEME, (this.gen_vpnUriScheme));
+
+        values.put(GEN_FIELD_RDPGATEWAYENABLED, (this.gen_rdpGatewayEnabled ? "1" : "0"));
+        values.put(GEN_FIELD_RDPGATEWAYHOSTNAME, (this.gen_rdpGatewayHostname));
+        values.put(GEN_FIELD_RDPGATEWAYPORT, (this.gen_rdpGatewayPort));
+        values.put(GEN_FIELD_RDPGATEWAYUSERNAME, (this.gen_rdpGatewayUsername));
+        values.put(GEN_FIELD_RDPGATEWAYDOMAIN, (this.gen_rdpGatewayDomain));
+        values.put(GEN_FIELD_RDPGATEWAYPASSWORD, (this.gen_rdpGatewayPassword));
+        values.put(GEN_FIELD_KEEPRDPGATEWAYPASSWORD, (this.gen_keepRdpGatewayPassword));
 
         return values;
     }
@@ -1249,6 +1343,14 @@ public abstract class AbstractConnectionBean extends com.antlersoft.android.dbim
         result[83] = cursor.getColumnIndex(GEN_FIELD_REQUIRESVPN);
         result[84] = cursor.getColumnIndex(GEN_FIELD_VPNURISCHEME);
 
+        result[85] = cursor.getColumnIndex(GEN_FIELD_RDPGATEWAYENABLED);
+        result[86] = cursor.getColumnIndex(GEN_FIELD_RDPGATEWAYHOSTNAME);
+        result[87] = cursor.getColumnIndex(GEN_FIELD_RDPGATEWAYPORT);
+        result[88] = cursor.getColumnIndex(GEN_FIELD_RDPGATEWAYUSERNAME);
+        result[89] = cursor.getColumnIndex(GEN_FIELD_RDPGATEWAYDOMAIN);
+        result[90] = cursor.getColumnIndex(GEN_FIELD_RDPGATEWAYPASSWORD);
+        result[91] = cursor.getColumnIndex(GEN_FIELD_KEEPRDPGATEWAYPASSWORD);
+
         return result;
     }
 
@@ -1263,13 +1365,13 @@ public abstract class AbstractConnectionBean extends com.antlersoft.android.dbim
             gen_nickname = cursor.getString(columnIndices[GEN_ID_NICKNAME]);
         }
         if (columnIndices[GEN_ID_CONNECTIONTYPE] >= 0 && !cursor.isNull(columnIndices[GEN_ID_CONNECTIONTYPE])) {
-            gen_connectionType = (int) cursor.getInt(columnIndices[GEN_ID_CONNECTIONTYPE]);
+            gen_connectionType = cursor.getInt(columnIndices[GEN_ID_CONNECTIONTYPE]);
         }
         if (columnIndices[GEN_ID_SSHSERVER] >= 0 && !cursor.isNull(columnIndices[GEN_ID_SSHSERVER])) {
             gen_sshServer = cursor.getString(columnIndices[GEN_ID_SSHSERVER]);
         }
         if (columnIndices[GEN_ID_SSHPORT] >= 0 && !cursor.isNull(columnIndices[GEN_ID_SSHPORT])) {
-            gen_sshPort = (int) cursor.getInt(columnIndices[GEN_ID_SSHPORT]);
+            gen_sshPort = cursor.getInt(columnIndices[GEN_ID_SSHPORT]);
         }
         if (columnIndices[GEN_ID_SSHUSER] >= 0 && !cursor.isNull(columnIndices[GEN_ID_SSHUSER])) {
             gen_sshUser = cursor.getString(columnIndices[GEN_ID_SSHUSER]);
@@ -1293,13 +1395,13 @@ public abstract class AbstractConnectionBean extends com.antlersoft.android.dbim
             gen_useSshPubKey = (cursor.getInt(columnIndices[GEN_ID_USESSHPUBKEY]) != 0);
         }
         if (columnIndices[GEN_ID_SSHREMOTECOMMANDOS] >= 0 && !cursor.isNull(columnIndices[GEN_ID_SSHREMOTECOMMANDOS])) {
-            gen_sshRemoteCommandOS = (int) cursor.getInt(columnIndices[GEN_ID_SSHREMOTECOMMANDOS]);
+            gen_sshRemoteCommandOS = cursor.getInt(columnIndices[GEN_ID_SSHREMOTECOMMANDOS]);
         }
         if (columnIndices[GEN_ID_SSHREMOTECOMMANDTYPE] >= 0 && !cursor.isNull(columnIndices[GEN_ID_SSHREMOTECOMMANDTYPE])) {
-            gen_sshRemoteCommandType = (int) cursor.getInt(columnIndices[GEN_ID_SSHREMOTECOMMANDTYPE]);
+            gen_sshRemoteCommandType = cursor.getInt(columnIndices[GEN_ID_SSHREMOTECOMMANDTYPE]);
         }
         if (columnIndices[GEN_ID_AUTOXTYPE] >= 0 && !cursor.isNull(columnIndices[GEN_ID_AUTOXTYPE])) {
-            gen_autoXType = (int) cursor.getInt(columnIndices[GEN_ID_AUTOXTYPE]);
+            gen_autoXType = cursor.getInt(columnIndices[GEN_ID_AUTOXTYPE]);
         }
         if (columnIndices[GEN_ID_AUTOXCOMMAND] >= 0 && !cursor.isNull(columnIndices[GEN_ID_AUTOXCOMMAND])) {
             gen_autoXCommand = cursor.getString(columnIndices[GEN_ID_AUTOXCOMMAND]);
@@ -1308,19 +1410,19 @@ public abstract class AbstractConnectionBean extends com.antlersoft.android.dbim
             gen_autoXEnabled = (cursor.getInt(columnIndices[GEN_ID_AUTOXENABLED]) != 0);
         }
         if (columnIndices[GEN_ID_AUTOXRESTYPE] >= 0 && !cursor.isNull(columnIndices[GEN_ID_AUTOXRESTYPE])) {
-            gen_autoXResType = (int) cursor.getInt(columnIndices[GEN_ID_AUTOXRESTYPE]);
+            gen_autoXResType = cursor.getInt(columnIndices[GEN_ID_AUTOXRESTYPE]);
         }
         if (columnIndices[GEN_ID_AUTOXWIDTH] >= 0 && !cursor.isNull(columnIndices[GEN_ID_AUTOXWIDTH])) {
-            gen_autoXWidth = (int) cursor.getInt(columnIndices[GEN_ID_AUTOXWIDTH]);
+            gen_autoXWidth = cursor.getInt(columnIndices[GEN_ID_AUTOXWIDTH]);
         }
         if (columnIndices[GEN_ID_AUTOXHEIGHT] >= 0 && !cursor.isNull(columnIndices[GEN_ID_AUTOXHEIGHT])) {
-            gen_autoXHeight = (int) cursor.getInt(columnIndices[GEN_ID_AUTOXHEIGHT]);
+            gen_autoXHeight = cursor.getInt(columnIndices[GEN_ID_AUTOXHEIGHT]);
         }
         if (columnIndices[GEN_ID_AUTOXSESSIONPROG] >= 0 && !cursor.isNull(columnIndices[GEN_ID_AUTOXSESSIONPROG])) {
             gen_autoXSessionProg = cursor.getString(columnIndices[GEN_ID_AUTOXSESSIONPROG]);
         }
         if (columnIndices[GEN_ID_AUTOXSESSIONTYPE] >= 0 && !cursor.isNull(columnIndices[GEN_ID_AUTOXSESSIONTYPE])) {
-            gen_autoXSessionType = (int) cursor.getInt(columnIndices[GEN_ID_AUTOXSESSIONTYPE]);
+            gen_autoXSessionType = cursor.getInt(columnIndices[GEN_ID_AUTOXSESSIONTYPE]);
         }
         if (columnIndices[GEN_ID_AUTOXUNIXPW] >= 0 && !cursor.isNull(columnIndices[GEN_ID_AUTOXUNIXPW])) {
             gen_autoXUnixpw = (cursor.getInt(columnIndices[GEN_ID_AUTOXUNIXPW]) != 0);
@@ -1335,7 +1437,7 @@ public abstract class AbstractConnectionBean extends com.antlersoft.android.dbim
             gen_sshRemoteCommand = cursor.getString(columnIndices[GEN_ID_SSHREMOTECOMMAND]);
         }
         if (columnIndices[GEN_ID_SSHREMOTECOMMANDTIMEOUT] >= 0 && !cursor.isNull(columnIndices[GEN_ID_SSHREMOTECOMMANDTIMEOUT])) {
-            gen_sshRemoteCommandTimeout = (int) cursor.getInt(columnIndices[GEN_ID_SSHREMOTECOMMANDTIMEOUT]);
+            gen_sshRemoteCommandTimeout = cursor.getInt(columnIndices[GEN_ID_SSHREMOTECOMMANDTIMEOUT]);
         }
         if (columnIndices[GEN_ID_USESSHREMOTECOMMAND] >= 0 && !cursor.isNull(columnIndices[GEN_ID_USESSHREMOTECOMMAND])) {
             gen_useSshRemoteCommand = (cursor.getInt(columnIndices[GEN_ID_USESSHREMOTECOMMAND]) != 0);
@@ -1347,7 +1449,7 @@ public abstract class AbstractConnectionBean extends com.antlersoft.android.dbim
             gen_address = cursor.getString(columnIndices[GEN_ID_ADDRESS]);
         }
         if (columnIndices[GEN_ID_PORT] >= 0 && !cursor.isNull(columnIndices[GEN_ID_PORT])) {
-            gen_port = (int) cursor.getInt(columnIndices[GEN_ID_PORT]);
+            gen_port = cursor.getInt(columnIndices[GEN_ID_PORT]);
         }
         if (columnIndices[GEN_ID_CACERT] >= 0 && !cursor.isNull(columnIndices[GEN_ID_CACERT])) {
             gen_caCert = cursor.getString(columnIndices[GEN_ID_CACERT]);
@@ -1356,7 +1458,7 @@ public abstract class AbstractConnectionBean extends com.antlersoft.android.dbim
             gen_caCertPath = cursor.getString(columnIndices[GEN_ID_CACERTPATH]);
         }
         if (columnIndices[GEN_ID_TLSPORT] >= 0 && !cursor.isNull(columnIndices[GEN_ID_TLSPORT])) {
-            gen_tlsPort = (int) cursor.getInt(columnIndices[GEN_ID_TLSPORT]);
+            gen_tlsPort = cursor.getInt(columnIndices[GEN_ID_TLSPORT]);
         }
         if (columnIndices[GEN_ID_CERTSUBJECT] >= 0 && !cursor.isNull(columnIndices[GEN_ID_CERTSUBJECT])) {
             gen_certSubject = cursor.getString(columnIndices[GEN_ID_CERTSUBJECT]);
@@ -1368,10 +1470,10 @@ public abstract class AbstractConnectionBean extends com.antlersoft.android.dbim
             gen_colorModel = cursor.getString(columnIndices[GEN_ID_COLORMODEL]);
         }
         if (columnIndices[GEN_ID_PREFENCODING] >= 0 && !cursor.isNull(columnIndices[GEN_ID_PREFENCODING])) {
-            gen_prefEncoding = (int) cursor.getInt(columnIndices[GEN_ID_PREFENCODING]);
+            gen_prefEncoding = cursor.getInt(columnIndices[GEN_ID_PREFENCODING]);
         }
         if (columnIndices[GEN_ID_EXTRAKEYSTOGGLETYPE] >= 0 && !cursor.isNull(columnIndices[GEN_ID_EXTRAKEYSTOGGLETYPE])) {
-            gen_extraKeysToggleType = (int) cursor.getInt(columnIndices[GEN_ID_EXTRAKEYSTOGGLETYPE]);
+            gen_extraKeysToggleType = cursor.getInt(columnIndices[GEN_ID_EXTRAKEYSTOGGLETYPE]);
         }
         if (columnIndices[GEN_ID_FORCEFULL] >= 0 && !cursor.isNull(columnIndices[GEN_ID_FORCEFULL])) {
             gen_forceFull = cursor.getLong(columnIndices[GEN_ID_FORCEFULL]);
@@ -1395,7 +1497,7 @@ public abstract class AbstractConnectionBean extends com.antlersoft.android.dbim
             gen_usePortrait = (cursor.getInt(columnIndices[GEN_ID_USEPORTRAIT]) != 0);
         }
         if (columnIndices[GEN_ID_USELOCALCURSOR] >= 0 && !cursor.isNull(columnIndices[GEN_ID_USELOCALCURSOR])) {
-            gen_useLocalCursor = (int) cursor.getInt(columnIndices[GEN_ID_USELOCALCURSOR]);
+            gen_useLocalCursor = cursor.getInt(columnIndices[GEN_ID_USELOCALCURSOR]);
         }
         if (columnIndices[GEN_ID_KEEPPASSWORD] >= 0 && !cursor.isNull(columnIndices[GEN_ID_KEEPPASSWORD])) {
             gen_keepPassword = (cursor.getInt(columnIndices[GEN_ID_KEEPPASSWORD]) != 0);
@@ -1431,16 +1533,16 @@ public abstract class AbstractConnectionBean extends com.antlersoft.android.dbim
             gen_DOUBLE_TAP_ACTION = cursor.getString(columnIndices[GEN_ID_DOUBLE_TAP_ACTION]);
         }
         if (columnIndices[GEN_ID_RDPRESTYPE] >= 0 && !cursor.isNull(columnIndices[GEN_ID_RDPRESTYPE])) {
-            gen_rdpResType = (int) cursor.getInt(columnIndices[GEN_ID_RDPRESTYPE]);
+            gen_rdpResType = cursor.getInt(columnIndices[GEN_ID_RDPRESTYPE]);
         }
         if (columnIndices[GEN_ID_RDPWIDTH] >= 0 && !cursor.isNull(columnIndices[GEN_ID_RDPWIDTH])) {
-            gen_rdpWidth = (int) cursor.getInt(columnIndices[GEN_ID_RDPWIDTH]);
+            gen_rdpWidth = cursor.getInt(columnIndices[GEN_ID_RDPWIDTH]);
         }
         if (columnIndices[GEN_ID_RDPHEIGHT] >= 0 && !cursor.isNull(columnIndices[GEN_ID_RDPHEIGHT])) {
-            gen_rdpHeight = (int) cursor.getInt(columnIndices[GEN_ID_RDPHEIGHT]);
+            gen_rdpHeight = cursor.getInt(columnIndices[GEN_ID_RDPHEIGHT]);
         }
         if (columnIndices[GEN_ID_RDPCOLOR] >= 0 && !cursor.isNull(columnIndices[GEN_ID_RDPCOLOR])) {
-            gen_rdpColor = (int) cursor.getInt(columnIndices[GEN_ID_RDPCOLOR]);
+            gen_rdpColor = cursor.getInt(columnIndices[GEN_ID_RDPCOLOR]);
         }
         if (columnIndices[GEN_ID_REMOTEFX] >= 0 && !cursor.isNull(columnIndices[GEN_ID_REMOTEFX])) {
             gen_remoteFx = (cursor.getInt(columnIndices[GEN_ID_REMOTEFX]) != 0);
@@ -1476,7 +1578,7 @@ public abstract class AbstractConnectionBean extends com.antlersoft.android.dbim
             gen_enableRecording = (cursor.getInt(columnIndices[GEN_ID_ENABLERECORDING]) != 0);
         }
         if (columnIndices[GEN_ID_REMOTESOUNDTYPE] >= 0 && !cursor.isNull(columnIndices[GEN_ID_REMOTESOUNDTYPE])) {
-            gen_remoteSoundType = (int) cursor.getInt(columnIndices[GEN_ID_REMOTESOUNDTYPE]);
+            gen_remoteSoundType = cursor.getInt(columnIndices[GEN_ID_REMOTESOUNDTYPE]);
         }
         if (columnIndices[GEN_ID_VIEWONLY] >= 0 && !cursor.isNull(columnIndices[GEN_ID_VIEWONLY])) {
             gen_viewOnly = (cursor.getInt(columnIndices[GEN_ID_VIEWONLY]) != 0);
@@ -1514,6 +1616,28 @@ public abstract class AbstractConnectionBean extends com.antlersoft.android.dbim
         if (columnIndices[GEN_ID_VPNURISCHEME] >= 0 && !cursor.isNull(columnIndices[GEN_ID_VPNURISCHEME])) {
             gen_vpnUriScheme = cursor.getString(columnIndices[GEN_ID_VPNURISCHEME]);
         }
+
+        if (columnIndices[GEN_ID_RDPGATEWAYENABLED] >= 0 && !cursor.isNull(columnIndices[GEN_ID_RDPGATEWAYENABLED])) {
+            gen_rdpGatewayEnabled = cursor.getInt(columnIndices[GEN_ID_RDPGATEWAYENABLED]) != 0;
+        }
+        if (columnIndices[GEN_ID_RDPGATEWAYHOSTNAME] >= 0 && !cursor.isNull(columnIndices[GEN_ID_RDPGATEWAYHOSTNAME])) {
+            gen_rdpGatewayHostname = cursor.getString(columnIndices[GEN_ID_RDPGATEWAYHOSTNAME]);
+        }
+        if (columnIndices[GEN_ID_RDPGATEWAYPORT] >= 0 && !cursor.isNull(columnIndices[GEN_ID_RDPGATEWAYPORT])) {
+            gen_rdpGatewayPort = cursor.getInt(columnIndices[GEN_ID_RDPGATEWAYPORT]);
+        }
+        if (columnIndices[GEN_ID_RDPGATEWAYUSERNAME] >= 0 && !cursor.isNull(columnIndices[GEN_ID_RDPGATEWAYUSERNAME])) {
+            gen_rdpGatewayUsername = cursor.getString(columnIndices[GEN_ID_RDPGATEWAYUSERNAME]);
+        }
+        if (columnIndices[GEN_ID_RDPGATEWAYDOMAIN] >= 0 && !cursor.isNull(columnIndices[GEN_ID_RDPGATEWAYDOMAIN])) {
+            gen_rdpGatewayDomain = cursor.getString(columnIndices[GEN_ID_RDPGATEWAYDOMAIN]);
+        }
+        if (columnIndices[GEN_ID_RDPGATEWAYPASSWORD] >= 0 && !cursor.isNull(columnIndices[GEN_ID_RDPGATEWAYPASSWORD])) {
+            gen_rdpGatewayPassword = cursor.getString(columnIndices[GEN_ID_RDPGATEWAYPASSWORD]);
+        }
+        if (columnIndices[GEN_ID_KEEPRDPGATEWAYPASSWORD] >= 0 && !cursor.isNull(columnIndices[GEN_ID_KEEPRDPGATEWAYPASSWORD])) {
+            gen_keepRdpGatewayPassword = (cursor.getInt(columnIndices[GEN_ID_KEEPRDPGATEWAYPASSWORD]) != 0);
+        }
     }
 
     /**
@@ -1522,9 +1646,9 @@ public abstract class AbstractConnectionBean extends com.antlersoft.android.dbim
     public void Gen_populate(android.content.ContentValues values) {
         gen__Id = values.getAsLong(GEN_FIELD__ID);
         gen_nickname = values.getAsString(GEN_FIELD_NICKNAME);
-        gen_connectionType = (int) values.getAsInteger(GEN_FIELD_CONNECTIONTYPE);
+        gen_connectionType = values.getAsInteger(GEN_FIELD_CONNECTIONTYPE);
         gen_sshServer = values.getAsString(GEN_FIELD_SSHSERVER);
-        gen_sshPort = (int) values.getAsInteger(GEN_FIELD_SSHPORT);
+        gen_sshPort = values.getAsInteger(GEN_FIELD_SSHPORT);
         gen_sshUser = values.getAsString(GEN_FIELD_SSHUSER);
         gen_sshPassword = values.getAsString(GEN_FIELD_SSHPASSWORD);
         gen_keepSshPassword = (values.getAsInteger(GEN_FIELD_KEEPSSHPASSWORD) != 0);
@@ -1532,33 +1656,33 @@ public abstract class AbstractConnectionBean extends com.antlersoft.android.dbim
         gen_sshPrivKey = values.getAsString(GEN_FIELD_SSHPRIVKEY);
         gen_sshPassPhrase = values.getAsString(GEN_FIELD_SSHPASSPHRASE);
         gen_useSshPubKey = (values.getAsInteger(GEN_FIELD_USESSHPUBKEY) != 0);
-        gen_sshRemoteCommandOS = (int) values.getAsInteger(GEN_FIELD_SSHREMOTECOMMANDOS);
-        gen_sshRemoteCommandType = (int) values.getAsInteger(GEN_FIELD_SSHREMOTECOMMANDTYPE);
-        gen_autoXType = (int) values.getAsInteger(GEN_FIELD_AUTOXTYPE);
+        gen_sshRemoteCommandOS = values.getAsInteger(GEN_FIELD_SSHREMOTECOMMANDOS);
+        gen_sshRemoteCommandType = values.getAsInteger(GEN_FIELD_SSHREMOTECOMMANDTYPE);
+        gen_autoXType = values.getAsInteger(GEN_FIELD_AUTOXTYPE);
         gen_autoXCommand = values.getAsString(GEN_FIELD_AUTOXCOMMAND);
         gen_autoXEnabled = (values.getAsInteger(GEN_FIELD_AUTOXENABLED) != 0);
-        gen_autoXResType = (int) values.getAsInteger(GEN_FIELD_AUTOXRESTYPE);
-        gen_autoXWidth = (int) values.getAsInteger(GEN_FIELD_AUTOXWIDTH);
-        gen_autoXHeight = (int) values.getAsInteger(GEN_FIELD_AUTOXHEIGHT);
+        gen_autoXResType = values.getAsInteger(GEN_FIELD_AUTOXRESTYPE);
+        gen_autoXWidth = values.getAsInteger(GEN_FIELD_AUTOXWIDTH);
+        gen_autoXHeight = values.getAsInteger(GEN_FIELD_AUTOXHEIGHT);
         gen_autoXSessionProg = values.getAsString(GEN_FIELD_AUTOXSESSIONPROG);
-        gen_autoXSessionType = (int) values.getAsInteger(GEN_FIELD_AUTOXSESSIONTYPE);
+        gen_autoXSessionType = values.getAsInteger(GEN_FIELD_AUTOXSESSIONTYPE);
         gen_autoXUnixpw = (values.getAsInteger(GEN_FIELD_AUTOXUNIXPW) != 0);
         gen_autoXUnixAuth = (values.getAsInteger(GEN_FIELD_AUTOXUNIXAUTH) != 0);
         gen_autoXRandFileNm = values.getAsString(GEN_FIELD_AUTOXRANDFILENM);
         gen_sshRemoteCommand = values.getAsString(GEN_FIELD_SSHREMOTECOMMAND);
-        gen_sshRemoteCommandTimeout = (int) values.getAsInteger(GEN_FIELD_SSHREMOTECOMMANDTIMEOUT);
+        gen_sshRemoteCommandTimeout = values.getAsInteger(GEN_FIELD_SSHREMOTECOMMANDTIMEOUT);
         gen_useSshRemoteCommand = (values.getAsInteger(GEN_FIELD_USESSHREMOTECOMMAND) != 0);
         gen_sshHostKey = values.getAsString(GEN_FIELD_SSHHOSTKEY);
         gen_address = values.getAsString(GEN_FIELD_ADDRESS);
-        gen_port = (int) values.getAsInteger(GEN_FIELD_PORT);
+        gen_port = values.getAsInteger(GEN_FIELD_PORT);
         gen_caCert = values.getAsString(GEN_FIELD_CACERT);
         gen_caCertPath = values.getAsString(GEN_FIELD_CACERTPATH);
-        gen_tlsPort = (int) values.getAsInteger(GEN_FIELD_TLSPORT);
+        gen_tlsPort = values.getAsInteger(GEN_FIELD_TLSPORT);
         gen_certSubject = values.getAsString(GEN_FIELD_CERTSUBJECT);
         gen_password = values.getAsString(GEN_FIELD_PASSWORD);
         gen_colorModel = values.getAsString(GEN_FIELD_COLORMODEL);
-        gen_prefEncoding = (int) values.getAsInteger(GEN_FIELD_PREFENCODING);
-        gen_extraKeysToggleType = (int) values.getAsInteger(GEN_FIELD_EXTRAKEYSTOGGLETYPE);
+        gen_prefEncoding = values.getAsInteger(GEN_FIELD_PREFENCODING);
+        gen_extraKeysToggleType = values.getAsInteger(GEN_FIELD_EXTRAKEYSTOGGLETYPE);
         gen_forceFull = values.getAsLong(GEN_FIELD_FORCEFULL);
         gen_repeaterId = values.getAsString(GEN_FIELD_REPEATERID);
         gen_inputMode = values.getAsString(GEN_FIELD_INPUTMODE);
@@ -1566,7 +1690,7 @@ public abstract class AbstractConnectionBean extends com.antlersoft.android.dbim
         gen_useDpadAsArrows = (values.getAsInteger(GEN_FIELD_USEDPADASARROWS) != 0);
         gen_rotateDpad = (values.getAsInteger(GEN_FIELD_ROTATEDPAD) != 0);
         gen_usePortrait = (values.getAsInteger(GEN_FIELD_USEPORTRAIT) != 0);
-        gen_useLocalCursor = (int) values.getAsInteger(GEN_FIELD_USELOCALCURSOR);
+        gen_useLocalCursor = values.getAsInteger(GEN_FIELD_USELOCALCURSOR);
         gen_keepPassword = (values.getAsInteger(GEN_FIELD_KEEPPASSWORD) != 0);
         gen_followMouse = (values.getAsInteger(GEN_FIELD_FOLLOWMOUSE) != 0);
         gen_useRepeater = (values.getAsInteger(GEN_FIELD_USEREPEATER) != 0);
@@ -1578,10 +1702,10 @@ public abstract class AbstractConnectionBean extends com.antlersoft.android.dbim
         gen_secureConnectionType = values.getAsString(GEN_FIELD_SECURECONNECTIONTYPE);
         gen_showZoomButtons = (values.getAsInteger(GEN_FIELD_SHOWZOOMBUTTONS) != 0);
         gen_DOUBLE_TAP_ACTION = values.getAsString(GEN_FIELD_DOUBLE_TAP_ACTION);
-        gen_rdpResType = (int) values.getAsInteger(GEN_FIELD_RDPRESTYPE);
-        gen_rdpWidth = (int) values.getAsInteger(GEN_FIELD_RDPWIDTH);
-        gen_rdpHeight = (int) values.getAsInteger(GEN_FIELD_RDPHEIGHT);
-        gen_rdpColor = (int) values.getAsInteger(GEN_FIELD_RDPCOLOR);
+        gen_rdpResType = values.getAsInteger(GEN_FIELD_RDPRESTYPE);
+        gen_rdpWidth = values.getAsInteger(GEN_FIELD_RDPWIDTH);
+        gen_rdpHeight = values.getAsInteger(GEN_FIELD_RDPHEIGHT);
+        gen_rdpColor = values.getAsInteger(GEN_FIELD_RDPCOLOR);
         gen_remoteFx = (values.getAsInteger(GEN_FIELD_REMOTEFX) != 0);
         gen_desktopBackground = (values.getAsInteger(GEN_FIELD_DESKTOPBACKGROUND) != 0);
         gen_fontSmoothing = (values.getAsInteger(GEN_FIELD_FONTSMOOTHING) != 0);
@@ -1593,7 +1717,7 @@ public abstract class AbstractConnectionBean extends com.antlersoft.android.dbim
         gen_consoleMode = (values.getAsInteger(GEN_FIELD_CONSOLEMODE) != 0);
         gen_enableSound = (values.getAsInteger(GEN_FIELD_ENABLESOUND) != 0);
         gen_enableRecording = (values.getAsInteger(GEN_FIELD_ENABLERECORDING) != 0);
-        gen_remoteSoundType = (int) values.getAsInteger(GEN_FIELD_REMOTESOUNDTYPE);
+        gen_remoteSoundType = values.getAsInteger(GEN_FIELD_REMOTESOUNDTYPE);
         gen_viewOnly = (values.getAsInteger(GEN_FIELD_VIEWONLY) != 0);
         gen_layoutMap = values.getAsString(GEN_FIELD_LAYOUTMAP);
 
@@ -1609,5 +1733,13 @@ public abstract class AbstractConnectionBean extends com.antlersoft.android.dbim
         gen_externalId = values.getAsString(GEN_FIELD_EXTERNALID);
         gen_requiresVpn = (values.getAsInteger(GEN_FIELD_REQUIRESVPN) != 0);
         gen_vpnUriScheme = values.getAsString(GEN_FIELD_VPNURISCHEME);
+
+        gen_rdpGatewayEnabled = values.getAsInteger(GEN_FIELD_RDPGATEWAYENABLED) != 0;
+        gen_rdpGatewayHostname = values.getAsString(GEN_FIELD_RDPGATEWAYHOSTNAME);
+        gen_rdpGatewayPort = values.getAsInteger(GEN_FIELD_RDPGATEWAYPORT);
+        gen_rdpGatewayUsername = values.getAsString(GEN_FIELD_RDPGATEWAYUSERNAME);
+        gen_rdpGatewayDomain = values.getAsString(GEN_FIELD_RDPGATEWAYDOMAIN);
+        gen_rdpGatewayPassword = values.getAsString(GEN_FIELD_RDPGATEWAYPASSWORD);
+        gen_keepRdpGatewayPassword = values.getAsBoolean(GEN_FIELD_KEEPRDPGATEWAYPASSWORD);
     }
 }

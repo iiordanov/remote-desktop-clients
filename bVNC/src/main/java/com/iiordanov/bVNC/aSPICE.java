@@ -163,9 +163,9 @@ public class aSPICE extends MainConfiguration {
             File file = new File(filename);
             if (!file.exists() && !caCertData.equals("")) {
                 Log.e(TAG, filename);
-                PrintWriter fout = new PrintWriter(filename);
-                fout.println(selected.getCaCert());
-                fout.close();
+                PrintWriter fOut = new PrintWriter(filename);
+                fOut.println(selected.getCaCert());
+                fOut.close();
             }
         } catch (FileNotFoundException e) {
             e.printStackTrace();

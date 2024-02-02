@@ -601,6 +601,7 @@ public class Utils {
     }
 
     public static void justFinish(Context context) {
+        Log.d(TAG, "justFinish");
         if (isOpaque(context) || isSpice(context)) {
             triggerRestart(context);
         } else {

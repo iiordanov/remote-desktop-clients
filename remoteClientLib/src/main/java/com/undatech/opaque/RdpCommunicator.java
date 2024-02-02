@@ -51,12 +51,15 @@ public class RdpCommunicator extends RfbConnectable implements RdpKeyboardMapper
     private boolean certificateAccepted = false;
     private boolean reattemptWithoutCredentials = true;
     private boolean authenticationAttempted = false;
+    private boolean gatewayAuthenticationAttempted = false;
     private boolean disconnectRequested = false;
+    private final String username, password, domain;
 
-    private String username, password, domain;
-
-    public RdpCommunicator(Context context, Handler handler, Viewable viewable, String username,
-                           String domain, String password, boolean debugLogging) {
+    public RdpCommunicator(
+            Context context, Handler handler, Viewable viewable,
+            String username, String domain, String password,
+            boolean debugLogging
+    ) {
         super(debugLogging, handler);
         // This is necessary because it initializes a synchronizedMap referenced later.
         this.freeRdpApp = new GlobalApp();
@@ -280,19 +283,32 @@ public class RdpCommunicator extends RfbConnectable implements RdpKeyboardMapper
         LibFreeRDP.setEventListener(this);
     }
 
-    public void setConnectionParameters(String address, int rdpPort, String nickname, int remoteWidth,
-                                        int remoteHeight, boolean wallpaper, boolean fontSmoothing,
-                                        boolean desktopComposition, boolean fullWindowDrag,
-                                        boolean menuAnimations, boolean theming, boolean redirectSdCard,
-                                        boolean consoleMode, int redirectSound, boolean enableRecording,
-                                        boolean enableRemoteFx, boolean enableGfx, boolean enableGfxH264,
-                                        int colors) {
+    public void setConnectionParameters(
+            String address, int rdpPort,
+            boolean gatewayEnabled, String gatewayHostname, int gatewayPort,
+            String gatewayUsername, String gatewayDomain, String gatewayPassword,
+            String nickname, int remoteWidth,
+            int remoteHeight, boolean wallpaper, boolean fontSmoothing,
+            boolean desktopComposition, boolean fullWindowDrag,
+            boolean menuAnimations, boolean theming, boolean redirectSdCard,
+            boolean consoleMode, int redirectSound, boolean enableRecording,
+            boolean enableRemoteFx, boolean enableGfx, boolean enableGfxH264,
+            int colors
+    ) {
         // Set a writable data directory
         //LibFreeRDP.setDataDirectory(session.getInstance(), getContext().getFilesDir().toString());
         // Get the address and port (based on whether an SSH tunnel is being established or not).
         bookmark.<ManualBookmark>get().setLabel(nickname);
         bookmark.<ManualBookmark>get().setHostname(addBracketsToIpv6Address(address));
         bookmark.<ManualBookmark>get().setPort(rdpPort);
+
+        bookmark.<ManualBookmark>get().setEnableGatewaySettings(gatewayEnabled);
+        ManualBookmark.GatewaySettings gatewaySettings = bookmark.<ManualBookmark>get().getGatewaySettings();
+        gatewaySettings.setUsername(gatewayUsername);
+        gatewaySettings.setDomain(gatewayDomain);
+        gatewaySettings.setPassword(gatewayPassword);
+        gatewaySettings.setHostname(gatewayHostname);
+        gatewaySettings.setPort(gatewayPort);
 
         BookmarkBase.DebugSettings debugSettings = bookmark.getDebugSettings();
         debugSettings.setDebugLevel("INFO");
@@ -381,8 +397,11 @@ public class RdpCommunicator extends RfbConnectable implements RdpKeyboardMapper
             initSession("", "", "");
             connect();
         } else if (authenticationAttempted && !myself.isInNormalProtocol()) {
-            Log.v(TAG, "Sending message: RDP_AUTH_FAILED");
+            Log.v(TAG, "Sending message: GET_RDP_CREDENTIALS");
             handler.sendEmptyMessage(RemoteClientLibConstants.GET_RDP_CREDENTIALS);
+        } else if (gatewayAuthenticationAttempted && !myself.isInNormalProtocol()) {
+            Log.v(TAG, "Sending message: GET_RDP_GATEWAY_CREDENTIALS");
+            handler.sendEmptyMessage(RemoteClientLibConstants.GET_RDP_GATEWAY_CREDENTIALS);
         } else if (!disconnectRequested && !myself.isInNormalProtocol()) {
             Log.v(TAG, "Sending message: RDP_UNABLE_TO_CONNECT");
             handler.sendEmptyMessage(RemoteClientLibConstants.RDP_UNABLE_TO_CONNECT);
@@ -420,16 +439,21 @@ public class RdpCommunicator extends RfbConnectable implements RdpKeyboardMapper
     public boolean OnAuthenticate(StringBuilder username, StringBuilder domain, StringBuilder password) {
         android.util.Log.d(TAG, "OnAuthenticate called.");
         authenticationAttempted = true;
+        setCredentialsStringBuildersToValues(
+                username, domain, password, this.username, this.domain, this.password
+        );
+        return true;
+    }
 
+    private void setCredentialsStringBuildersToValues(
+            StringBuilder username, StringBuilder domain, StringBuilder password,
+            String fromUsername, String fromDomain, String fromPassword) {
         username.setLength(0);
         domain.setLength(0);
         password.setLength(0);
-
-        username.append(this.username);
-        domain.append(this.domain);
-        password.append(this.password);
-
-        return true;
+        username.append(fromUsername);
+        domain.append(fromDomain);
+        password.append(fromPassword);
     }
 
     @Override
@@ -467,7 +491,11 @@ public class RdpCommunicator extends RfbConnectable implements RdpKeyboardMapper
     public boolean OnGatewayAuthenticate(StringBuilder username,
                                          StringBuilder domain, StringBuilder password) {
         android.util.Log.d(TAG, "OnGatewayAuthenticate called.");
-        return this.OnAuthenticate(username, domain, password);
+        gatewayAuthenticationAttempted = true;
+        setCredentialsStringBuildersToValues(
+                username, domain, password, this.username, this.domain, this.password
+        );
+        return true;
     }
 
     @Override

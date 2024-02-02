@@ -536,6 +536,76 @@ public class ConnectionSettings implements Connection, Serializable {
     }
 
     @Override
+    public boolean getRdpGatewayEnabled() {
+        return false;
+    }
+
+    @Override
+    public void setRdpGatewayEnabled(boolean gen_rdpGatewayEnabled) {
+
+    }
+
+    @Override
+    public String getRdpGatewayHostname() {
+        return null;
+    }
+
+    @Override
+    public void setRdpGatewayHostname(String rdpGatewayHostname) {
+
+    }
+
+    @Override
+    public int getRdpGatewayPort() {
+        return 0;
+    }
+
+    @Override
+    public void setRdpGatewayPort(int rdpGatewayPort) {
+
+    }
+
+    @Override
+    public String getRdpGatewayUsername() {
+        return null;
+    }
+
+    @Override
+    public void setRdpGatewayUsername(String rdpGatewayUsername) {
+
+    }
+
+    @Override
+    public String getRdpGatewayDomain() {
+        return null;
+    }
+
+    @Override
+    public void setRdpGatewayDomain(String rdpGatewayDomain) {
+
+    }
+
+    @Override
+    public String getRdpGatewayPassword() {
+        return null;
+    }
+
+    @Override
+    public void setRdpGatewayPassword(String rdpGatewayPassword) {
+
+    }
+
+    @Override
+    public boolean getKeepRdpGatewayPassword() {
+        return false;
+    }
+
+    @Override
+    public void setKeepRdpGatewayPassword(boolean keepRdpGatewayPassword) {
+
+    }
+
+    @Override
     public boolean getUseLastPositionToolbarMoved() {
         return useLastPositionToolbarMoved;
     }

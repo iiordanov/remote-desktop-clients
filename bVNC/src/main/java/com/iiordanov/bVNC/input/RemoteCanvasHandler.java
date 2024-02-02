@@ -428,6 +428,15 @@ public class RemoteCanvasHandler extends Handler implements HttpsFileDownloader.
                         connection.getUserName(), connection.getRdpDomain(), connection.getPassword(),
                         connection.getKeepPassword());
                 break;
+            case RemoteClientLibConstants.GET_RDP_GATEWAY_CREDENTIALS:
+                showGetTextFragment(context.getString(R.string.enter_gateway_credentials),
+                        GetTextFragment.DIALOG_ID_GET_RDP_GATEWAY_CREDENTIALS,
+                        context.getString(R.string.enter_gateway_credentials),
+                        c, GetTextFragment.CredentialsWithDomain,
+                        R.string.enter_gateway_credentials, R.string.enter_gateway_credentials,
+                        connection.getRdpGatewayUsername(), connection.getRdpGatewayDomain(), connection.getRdpGatewayPassword(),
+                        connection.getKeepRdpGatewayPassword());
+                break;
             case RemoteClientLibConstants.GET_SPICE_PASSWORD:
                 c.maintainConnection = false;
                 showGetTextFragment(context.getString(R.string.enter_spice_password),
@@ -670,6 +679,7 @@ public class RemoteCanvasHandler extends Handler implements HttpsFileDownloader.
                 validateX509Cert(cert);
                 break;
             case RemoteClientLibConstants.DISCONNECT_NO_MESSAGE:
+                Log.i(TAG, "DISCONNECT_NO_MESSAGE");
                 c.closeConnection();
                 Utils.justFinish(context);
                 break;

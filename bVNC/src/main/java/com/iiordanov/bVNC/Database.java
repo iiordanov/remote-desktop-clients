@@ -32,7 +32,6 @@ import java.io.File;
 
 /**
  * @author Michael A. MacDonald
- *
  */
 public class Database extends SQLiteOpenHelper {
     public final static String TAG = Database.class.toString();
@@ -54,7 +53,8 @@ public class Database extends SQLiteOpenHelper {
     static final int DBV_2_1_7 = 501;
     static final int DBV_2_1_8 = 507;
     static final int DBV_2_1_9 = 521;
-    static final int CURRVERS = DBV_2_1_9;
+    static final int DBV_2_2_0 = 525;
+    static final int CURRVERS = DBV_2_2_0;
     private static final String dbName = "VncDatabase";
     private static String password = "";
 
@@ -396,6 +396,42 @@ public class Database extends SQLiteOpenHelper {
             db.execSQL("ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
                     + AbstractConnectionBean.GEN_FIELD_VPNURISCHEME + " TEXT");
             oldVersion = DBV_2_1_9;
+        }
+
+        if (oldVersion == DBV_2_1_9) {
+            Log.i(TAG, "Doing upgrade from 521 to 525");
+            db.execSQL(
+                    "ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
+                            + AbstractConnectionBean.GEN_FIELD_RDPGATEWAYENABLED
+                            + " BOOLEAN DEFAULT FALSE"
+            );
+            db.execSQL(
+                    "ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
+                            + AbstractConnectionBean.GEN_FIELD_RDPGATEWAYHOSTNAME + " TEXT"
+            );
+            db.execSQL(
+                    "ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
+                            + AbstractConnectionBean.GEN_FIELD_RDPGATEWAYPORT + " INTEGER DEFAULT "
+                            + Constants.DEFAULT_RDP_GATEWAY_PORT
+            );
+            db.execSQL(
+                    "ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
+                            + AbstractConnectionBean.GEN_FIELD_RDPGATEWAYUSERNAME + " TEXT"
+            );
+            db.execSQL(
+                    "ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
+                            + AbstractConnectionBean.GEN_FIELD_RDPGATEWAYDOMAIN + " TEXT"
+            );
+            db.execSQL(
+                    "ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
+                            + AbstractConnectionBean.GEN_FIELD_RDPGATEWAYPASSWORD + " TEXT"
+            );
+            db.execSQL(
+                    "ALTER TABLE " + AbstractConnectionBean.GEN_TABLE_NAME + " ADD COLUMN "
+                            + AbstractConnectionBean.GEN_FIELD_KEEPRDPGATEWAYPASSWORD
+                            + " BOOLEAN DEFAULT FALSE"
+            );
+            oldVersion = DBV_2_2_0;
         }
     }
 

@@ -298,6 +298,112 @@
             android:padding="5dip">
 
             <ToggleButton
+                android:id="@+id/rdpGatewayEnabled"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:textOff="@string/no"
+                android:textOn="@string/yes" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/enable_gateway"
+                android:textAppearance="?android:attr/textAppearanceMedium" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/layoutRdpGatewaySettings"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="5dip"
+            android:visibility="gone">
+
+            <LinearLayout
+                android:id="@+id/rdpGatewayHostnameAndPortLayout"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="horizontal">
+
+                <EditText
+                    android:id="@+id/rdpGatewayHostname"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:hint="@string/rdp_address_caption_hint"
+                    android:inputType="textNoSuggestions|textVisiblePassword"
+                    android:singleLine="true"
+                    android:textAppearance="?android:attr/textAppearanceMedium" />
+
+                <EditText
+                    android:id="@+id/rdpGatewayPort"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0"
+                    android:hint="@string/port_ssh_hint"
+                    android:inputType="textNoSuggestions|textVisiblePassword"
+                    android:nextFocusDown="@+id/rdpGatewayUsername"
+                    android:singleLine="true"
+                    android:text="22"
+                    android:textAppearance="?android:attr/textAppearanceMedium" />
+            </LinearLayout>
+
+                <EditText
+                    android:id="@+id/rdpGatewayUsername"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:hint="@string/rdp_username_hint"
+                    android:inputType="textNoSuggestions|textVisiblePassword"
+                    android:singleLine="true"
+                    android:textAppearance="?android:attr/textAppearanceMedium" />
+
+                <EditText
+                    android:id="@+id/rdpGatewayDomain"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:hint="@string/rdp_domain_hint"
+                    android:inputType="textNoSuggestions|textVisiblePassword"
+                    android:singleLine="true"
+                    android:textAppearance="?android:attr/textAppearanceMedium" />
+
+                <LinearLayout
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="horizontal">
+
+                    <EditText
+                        android:id="@+id/rdpGatewayPassword"
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:hint="@string/rdp_password_hint"
+                        android:inputType="textNoSuggestions|textPassword"
+                        android:singleLine="true"
+                        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+                    <CheckBox
+                        android:id="@+id/checkboxKeepRdpGatewayPassword"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="0"
+                        android:singleLine="true"
+                        android:text="@string/keep_password_button"
+                        android:textAppearance="?android:attr/textAppearanceMedium" />
+                </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="5dip">
+
+            <ToggleButton
                 android:id="@+id/toggleAdvancedSettings"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -591,7 +697,6 @@
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceMedium" />
         </LinearLayout>
-
 
         <Button
             android:id="@+id/copyLogcat"

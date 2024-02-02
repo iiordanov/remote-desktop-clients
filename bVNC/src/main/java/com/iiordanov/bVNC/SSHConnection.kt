@@ -53,7 +53,9 @@ import java.util.concurrent.Executors
 /**
  * @author Iordan K Iordanov
  */
-class SSHConnection(conn: Connection, cntxt: Context, handler: Handler) : InteractiveCallback,
+class SSHConnection(
+    targetAddress: String, conn: Connection, cntxt: Context, handler: Handler
+) : InteractiveCallback,
     GetTextFragment.OnFragmentDismissedListener {
     private val numPortTries = 1000
     private val connection: com.trilead.ssh2.Connection
@@ -117,7 +119,6 @@ class SSHConnection(conn: Connection, cntxt: Context, handler: Handler) : Intera
         savedServerHostKey = conn.sshHostKey
         idHashAlg = conn.idHashAlgorithm
         savedIdHash = conn.idHash
-        targetAddress = conn.address
         usePubKey = conn.useSshPubKey
         sshPrivKey = conn.sshPrivKey
         useSshRemoteCommand = conn.useSshRemoteCommand
@@ -134,6 +135,7 @@ class SSHConnection(conn: Connection, cntxt: Context, handler: Handler) : Intera
         verificationCode = String()
         this.handler = handler
         this.conn = conn
+        this.targetAddress = targetAddress
     }
 
     fun setVerificationCode(verificationCode: String) {
@@ -226,43 +228,77 @@ class SSHConnection(conn: Connection, cntxt: Context, handler: Handler) : Intera
 
         // Authenticate and set up port forwarding.
         if (!usePubKey) {
-            Log.i(TAG, "SSH tunnel not configured to use public key, trying password auth")
-            if (!canAuthWithPass()) {
-                Log.e(TAG, "SSH server does not support password authentication so throw an error")
-                val authMethods = Arrays.toString(connection.getRemainingAuthMethods(user))
-                throw Exception(context.getString(R.string.error_ssh_kbd_auth_method_unavail) + " " + authMethods)
-            }
-            attemptSshPasswordAuthentication()
+            authenticateViaPasswordIfSupported()
         } else {
-            Log.i(TAG, "SSH tunnel is configured to use public key, will attempt")
-            if (canAuthWithPubKey()) {
-                Log.i(TAG, "SSH server supports pubkey authentication, continuing")
-                // Pubkey auth method is allowed so try it.
-                if (!authenticateWithPubKey()) {
-                    if (!canAuthWithPubKey()) {
-                        // If pubkey authentication is now no longer available, we know pubkey
-                        // authentication succeeded but the server wants further authentication.
-                        Log.i(
-                            TAG,
-                            "SSH server needs more than key auth, trying password auth in addition"
-                        )
-                        MessageDialogs.displayToast(
-                            context, handler,
-                            context.getString(R.string.ssh_server_needs_password_in_addition_to_key),
-                            Toast.LENGTH_LONG
-                        )
-                        attemptSshPasswordAuthentication()
-                    } else {
-                        Log.e(TAG, "Failed to authenticate to SSH server with key")
-                        throw Exception(context.getString(R.string.error_ssh_key_auth_fail))
-                    }
+            authenticateViaPubKey()
+        }
+
+        // Run a remote command if commanded to.
+        if (autoXEnabled) {
+            port = setupAutoX()
+        }
+        return port
+    }
+
+    private fun setupAutoX(): Int {
+        var port1 = -1
+        var tries = 0
+        while (port1 < 0 && tries < MAXTRIES) {
+            // If we're not using unix credentials, protect access with a temporary password file.
+            if (!autoXUnixpw) {
+                writeStringToRemoteCommand(
+                    vncpassword, Constants.AUTO_X_CREATE_PASSWDFILE +
+                            Constants.AUTO_X_PWFILEBASENAME + autoXRandFileNm +
+                            Constants.AUTO_X_SYNC
+                )
+            }
+            // Execute AutoX command.
+            execRemoteCommand(autoXCommand, 1)
+
+            // If we are looking for the greeter, we give the password to sudo's stdin.
+            if (autoXType == Constants.AUTOX_SELECT_SUDO_FIND) writeStringToStdin(
+                """
+        $password
+        
+        """.trimIndent()
+            )
+
+            // Try to find PORT=
+            port1 = parseRemoteStdoutForPort()
+            if (port1 < 0) {
+                session!!.close()
+                tries++
+                // Wait a little for x11vnc to recover.
+                if (tries < MAXTRIES) try {
+                    Thread.sleep((tries * 3500).toLong())
+                } catch (e1: InterruptedException) {
                 }
-            } else {
-                // Pubkey authentication is not available, so try password if one was supplied.
-                if (canAuthWithPass()) {
+            }
+        }
+        if (port1 < 0) {
+            throw Exception(
+                """${context.getString(R.string.error_ssh_x11vnc_no_port_failure)}  
+    
+    ${context.getString(R.string.error)}:  
+    
+    ${bufferedInputStreamToString(remoteStderr)}"""
+            )
+        }
+        return port1
+    }
+
+    private fun authenticateViaPubKey() {
+        Log.i(TAG, "SSH tunnel is configured to use public key, will attempt")
+        if (canAuthWithPubKey()) {
+            Log.i(TAG, "SSH server supports pubkey authentication, continuing")
+            // Pubkey auth method is allowed so try it.
+            if (!authenticateWithPubKey()) {
+                if (!canAuthWithPubKey()) {
+                    // If pubkey authentication is now no longer available, we know pubkey
+                    // authentication succeeded but the server wants further authentication.
                     Log.i(
                         TAG,
-                        "Key auth enabled, but server is asking for password, trying password auth"
+                        "SSH server needs more than key auth, trying password auth in addition"
                     )
                     MessageDialogs.displayToast(
                         context, handler,
@@ -270,86 +306,66 @@ class SSHConnection(conn: Connection, cntxt: Context, handler: Handler) : Intera
                         Toast.LENGTH_LONG
                     )
                     attemptSshPasswordAuthentication()
-                    Log.d(TAG, "isAuthenticationComplete: " + connection.isAuthenticationComplete)
-                    Log.d(
-                        TAG,
-                        "isAuthenticationPartialSuccess: " + connection.isAuthenticationPartialSuccess
-                    )
-                    if (!connection.isAuthenticationComplete) {
-                        Log.i(
-                            TAG,
-                            "Key auth enabled, password authenticated succeeded, and server is asking for key auth"
-                        )
-                        // If password authentication is now no longer available, we know password
-                        // authentication succeeded but the server wants further authentication.
-                        if (!authenticateWithPubKey()) {
-                            Log.e(TAG, "Key authentication failed")
-                            throw Exception(context.getString(R.string.error_ssh_key_auth_fail))
-                        }
-                    } else if (!connection.isAuthenticationComplete) {
-                        Log.e(TAG, "Password authentication failed")
-                        throw Exception(context.getString(R.string.error_ssh_pwd_auth_fail))
-                    }
                 } else {
-                    Log.e(
+                    Log.e(TAG, "Failed to authenticate to SSH server with key")
+                    throw Exception(context.getString(R.string.error_ssh_key_auth_fail))
+                }
+            }
+        } else {
+            // Pubkey authentication is not available, so try password if one was supplied.
+            if (canAuthWithPass()) {
+                Log.i(
+                    TAG,
+                    "Key auth enabled, but server is asking for password, trying password auth"
+                )
+                MessageDialogs.displayToast(
+                    context, handler,
+                    context.getString(R.string.ssh_server_needs_password_in_addition_to_key),
+                    Toast.LENGTH_LONG
+                )
+                attemptSshPasswordAuthentication()
+                Log.d(TAG, "isAuthenticationComplete: " + connection.isAuthenticationComplete)
+                Log.d(
+                    TAG,
+                    "isAuthenticationPartialSuccess: " + connection.isAuthenticationPartialSuccess
+                )
+                if (!connection.isAuthenticationComplete) {
+                    Log.i(
                         TAG,
-                        "SSH server does not support key auth, but SSH tunnel is configured to use it"
+                        "Key auth enabled, password authenticated succeeded, and server is asking for key auth"
                     )
-                    val authMethods = Arrays.toString(connection.getRemainingAuthMethods(user))
-                    throw Exception(
-                        context.getString(R.string.error_ssh_pubkey_auth_method_unavail)
-                                + " " + authMethods
-                    )
-                }
-            }
-        }
-
-        // Run a remote command if commanded to.
-        if (autoXEnabled) {
-            var tries = 0
-            while (port < 0 && tries < MAXTRIES) {
-                // If we're not using unix credentials, protect access with a temporary password file.
-                if (!autoXUnixpw) {
-                    writeStringToRemoteCommand(
-                        vncpassword, Constants.AUTO_X_CREATE_PASSWDFILE +
-                                Constants.AUTO_X_PWFILEBASENAME + autoXRandFileNm +
-                                Constants.AUTO_X_SYNC
-                    )
-                }
-                // Execute AutoX command.
-                execRemoteCommand(autoXCommand, 1)
-
-                // If we are looking for the greeter, we give the password to sudo's stdin.
-                if (autoXType == Constants.AUTOX_SELECT_SUDO_FIND) writeStringToStdin(
-                    """
-    $password
-    
-    """.trimIndent()
-                )
-
-                // Try to find PORT=
-                port = parseRemoteStdoutForPort()
-                if (port < 0) {
-                    session!!.close()
-                    tries++
-                    // Wait a little for x11vnc to recover.
-                    if (tries < MAXTRIES) try {
-                        Thread.sleep((tries * 3500).toLong())
-                    } catch (e1: InterruptedException) {
+                    // If password authentication is now no longer available, we know password
+                    // authentication succeeded but the server wants further authentication.
+                    if (!authenticateWithPubKey()) {
+                        Log.e(TAG, "Key authentication failed")
+                        throw Exception(context.getString(R.string.error_ssh_key_auth_fail))
                     }
+                } else if (!connection.isAuthenticationComplete) {
+                    Log.e(TAG, "Password authentication failed")
+                    throw Exception(context.getString(R.string.error_ssh_pwd_auth_fail))
                 }
-            }
-            if (port < 0) {
+            } else {
+                Log.e(
+                    TAG,
+                    "SSH server does not support key auth, but SSH tunnel is configured to use it"
+                )
+                val authMethods = Arrays.toString(connection.getRemainingAuthMethods(user))
                 throw Exception(
-                    """${context.getString(R.string.error_ssh_x11vnc_no_port_failure)}  
-
-${context.getString(R.string.error)}:  
-
-${bufferedInputStreamToString(remoteStderr)}"""
+                    context.getString(R.string.error_ssh_pubkey_auth_method_unavail)
+                            + " " + authMethods
                 )
             }
         }
-        return port
+    }
+
+    private fun authenticateViaPasswordIfSupported() {
+        Log.i(TAG, "SSH tunnel not configured to use public key, trying password auth")
+        if (!canAuthWithPass()) {
+            Log.e(TAG, "SSH server does not support password authentication so throw an error")
+            val authMethods = Arrays.toString(connection.getRemainingAuthMethods(user))
+            throw Exception(context.getString(R.string.error_ssh_kbd_auth_method_unavail) + " " + authMethods)
+        }
+        attemptSshPasswordAuthentication()
     }
 
     /**
@@ -745,6 +761,7 @@ ${bufferedInputStreamToString(remoteStderr)}"""
         keep: Boolean
     ) {
         if (dialogCancelled) {
+            userInputLatch.countDown()
             handler.sendEmptyMessage(RemoteClientLibConstants.DISCONNECT_NO_MESSAGE)
             return
         }

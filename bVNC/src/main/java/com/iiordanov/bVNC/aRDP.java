@@ -27,9 +27,11 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import com.iiordanov.bVNC.dialogs.IntroTextDialog;
 import com.iiordanov.util.PermissionGroups;
@@ -47,8 +49,14 @@ public class aRDP extends MainConfiguration {
 
     private Spinner spinnerRdpGeometry;
     private EditText rdpDomain;
-    private EditText resWidth;
-    private EditText resHeight;
+    private ToggleButton rdpGatewayEnabled;
+    private LinearLayout layoutRdpGatewaySettings;
+    private EditText rdpGatewayHostname;
+    private EditText rdpGatewayPort;
+    private EditText rdpGatewayUsername;
+    private EditText rdpGatewayDomain;
+    private EditText rdpGatewayPassword;
+    private CheckBox checkboxKeepRdpGatewayPassword;
     private RadioGroup groupRemoteSoundType;
     private CheckBox checkboxEnableRecording;
     private CheckBox checkboxConsoleMode;
@@ -70,35 +78,20 @@ public class aRDP extends MainConfiguration {
     public void onCreate(Bundle icicle) {
         layoutID = R.layout.main_rdp;
         super.onCreate(icicle);
+        setConnectionTypeSpinnerAdapter(R.array.rdp_connection_type);
+        initializeRdpSpecificConnectionParameters();
+        initializeRdpGatewaySettings();
+        initializeRdpColorSpinner();
+        initializeRdpResolutionSpinner();
+        initializeAdvancedSettings();
+    }
+
+    private void initializeRdpSpecificConnectionParameters() {
         textUsername = findViewById(R.id.textUsername);
         rdpDomain = findViewById(R.id.rdpDomain);
-        rdpColorArray = Utilities.Companion.toList(getResources().getStringArray(R.array.rdp_colors));
-        spinnerRdpColor = findViewById(R.id.spinnerRdpColor);
-        spinnerRdpColor.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> arg0, View view, int itemIndex, long id) {
-                selected.setRdpColor(Integer.parseInt(rdpColorArray.get(itemIndex)));
-            }
+    }
 
-            @Override
-            public void onNothingSelected(AdapterView<?> arg0) {
-            }
-        });
-
-        // The geometry type and dimensions boxes.
-        spinnerRdpGeometry = findViewById(R.id.spinnerRdpGeometry);
-        spinnerRdpGeometry.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> arg0, View view, int itemIndex, long id) {
-                selected.setRdpResType(itemIndex);
-                setRemoteWidthAndHeight(Constants.RDP_GEOM_SELECT_CUSTOM);
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> arg0) {
-            }
-        });
-
+    private void initializeAdvancedSettings() {
         groupRemoteSoundType = findViewById(R.id.groupRemoteSoundType);
         checkboxEnableRecording = findViewById(R.id.checkboxEnableRecording);
         checkboxConsoleMode = findViewById(R.id.checkboxConsoleMode);
@@ -113,7 +106,51 @@ public class aRDP extends MainConfiguration {
         checkboxEnableGfx = findViewById(R.id.checkboxEnableGfx);
         checkboxEnableGfxH264 = findViewById(R.id.checkboxEnableGfxH264);
         checkboxPreferSendingUnicode = findViewById(R.id.checkboxPreferSendingUnicode);
-        setConnectionTypeSpinnerAdapter(R.array.rdp_connection_type);
+    }
+
+    private void initializeRdpResolutionSpinner() {
+        // The geometry type and dimensions boxes.
+        spinnerRdpGeometry = findViewById(R.id.spinnerRdpGeometry);
+        spinnerRdpGeometry.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> arg0, View view, int itemIndex, long id) {
+                selected.setRdpResType(itemIndex);
+                setRemoteWidthAndHeight(Constants.RDP_GEOM_SELECT_CUSTOM);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> arg0) {
+            }
+        });
+    }
+
+    private void initializeRdpColorSpinner() {
+        rdpColorArray = Utilities.Companion.toList(getResources().getStringArray(R.array.rdp_colors));
+        spinnerRdpColor = findViewById(R.id.spinnerRdpColor);
+        spinnerRdpColor.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> arg0, View view, int itemIndex, long id) {
+                selected.setRdpColor(Integer.parseInt(rdpColorArray.get(itemIndex)));
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> arg0) {
+            }
+        });
+    }
+
+    private void initializeRdpGatewaySettings() {
+        layoutRdpGatewaySettings = findViewById(R.id.layoutRdpGatewaySettings);
+        rdpGatewayEnabled = findViewById(R.id.rdpGatewayEnabled);
+        rdpGatewayEnabled.setOnClickListener(v -> {
+            layoutRdpGatewaySettings.setVisibility(((ToggleButton)v).isChecked() ? View.VISIBLE : View.GONE);
+        });
+        rdpGatewayHostname = findViewById(R.id.rdpGatewayHostname);
+        rdpGatewayPort = findViewById(R.id.rdpGatewayPort);
+        rdpGatewayUsername = findViewById(R.id.rdpGatewayUsername);
+        rdpGatewayDomain = findViewById(R.id.rdpGatewayDomain);
+        rdpGatewayPassword = findViewById(R.id.rdpGatewayPassword);
+        checkboxKeepRdpGatewayPassword = findViewById(R.id.checkboxKeepRdpGatewayPassword);
     }
 
     @SuppressLint("SetTextI18n")
@@ -121,12 +158,38 @@ public class aRDP extends MainConfiguration {
         if (selected == null)
             return;
         super.updateViewFromSelected();
+        setRdpSpecificSettingsFromSelected();
+        setRdpColorSpinnerPositionFromSelected();
+        setRdpGeometrySpinnerPositionFromSelected();
+        setRemoteWidthAndHeight(Constants.RDP_GEOM_SELECT_CUSTOM);
+        setRemoteSoundTypeFromSelected(selected.getRemoteSoundType());
+        updateAdvancedSettingsViewsFromSelected();
+    }
+
+    @SuppressLint("SetTextI18n")
+    private void setRdpSpecificSettingsFromSelected() {
         textUsername.setText(selected.getUserName());
         rdpDomain.setText(selected.getRdpDomain());
-        spinnerRdpColor.setSelection(rdpColorArray.indexOf(String.valueOf(selected.getRdpColor())));
+        boolean isRdpGatewayEnabled = selected.getRdpGatewayEnabled();
+        rdpGatewayEnabled.setChecked(isRdpGatewayEnabled);
+        layoutRdpGatewaySettings.setVisibility(isRdpGatewayEnabled ? View.VISIBLE : View.GONE);
+        rdpGatewayHostname.setText(selected.getRdpGatewayHostname());
+        rdpGatewayPort.setText(Integer.toString(selected.getRdpGatewayPort()));
+        rdpGatewayUsername.setText(selected.getRdpGatewayUsername());
+        rdpGatewayDomain.setText(selected.getRdpGatewayDomain());
+        rdpGatewayPassword.setText(selected.getRdpGatewayPassword());
+        checkboxKeepRdpGatewayPassword.setChecked(selected.getKeepRdpGatewayPassword());
+    }
+
+    private void setRdpGeometrySpinnerPositionFromSelected() {
         spinnerRdpGeometry.setSelection(selected.getRdpResType());
-        setRemoteWidthAndHeight(Constants.RDP_GEOM_SELECT_CUSTOM);
-        setRemoteSoundTypeFromSettings(selected.getRemoteSoundType());
+    }
+
+    private void setRdpColorSpinnerPositionFromSelected() {
+        spinnerRdpColor.setSelection(rdpColorArray.indexOf(String.valueOf(selected.getRdpColor())));
+    }
+
+    private void updateAdvancedSettingsViewsFromSelected() {
         checkboxEnableRecording.setChecked(selected.getEnableRecording());
         checkboxConsoleMode.setChecked(selected.getConsoleMode());
         checkboxRedirectSdCard.setChecked(selected.getRedirectSdCard());
@@ -147,9 +210,32 @@ public class aRDP extends MainConfiguration {
             return;
         }
         super.updateSelectedFromView();
+        updateSelectedRdpSpecificSettingsFromViews();
+        updateSelectedRdpResolutionTypeFromRdpGeometrySpinnerPosition();
+        updateSelectedAdvancedSettingsFromViews();
+    }
+
+    private void updateSelectedRdpSpecificSettingsFromViews() {
         selected.setUserName(textUsername.getText().toString());
         selected.setRdpDomain(rdpDomain.getText().toString());
+        selected.setRdpGatewayEnabled(rdpGatewayEnabled.isChecked());
+        selected.setRdpGatewayHostname(rdpGatewayHostname.getText().toString());
+        try {
+            selected.setRdpGatewayPort(Integer.parseInt(rdpGatewayPort.getText().toString()));
+        } catch (NumberFormatException nfe) {
+            logAndPrintStacktrace(nfe);
+        }
+        selected.setRdpGatewayUsername(rdpGatewayUsername.getText().toString());
+        selected.setRdpGatewayDomain(rdpGatewayDomain.getText().toString());
+        selected.setRdpGatewayPassword(rdpGatewayPassword.getText().toString());
+        selected.setKeepRdpGatewayPassword(checkboxKeepRdpGatewayPassword.isChecked());
+    }
+
+    private void updateSelectedRdpResolutionTypeFromRdpGeometrySpinnerPosition() {
         selected.setRdpResType(spinnerRdpGeometry.getSelectedItemPosition());
+    }
+
+    private void updateSelectedAdvancedSettingsFromViews() {
         setRemoteSoundTypeFromView(groupRemoteSoundType);
         selected.setEnableRecording(checkboxEnableRecording.isChecked());
         selected.setConsoleMode(checkboxConsoleMode.isChecked());
@@ -209,7 +295,7 @@ public class aRDP extends MainConfiguration {
         selected.setRemoteSoundType(soundType);
     }
 
-    public void setRemoteSoundTypeFromSettings(int type) {
+    public void setRemoteSoundTypeFromSelected(int type) {
         if (Utils.isFree(this)) {
             type = Constants.REMOTE_SOUND_DISABLED;
         }

@@ -70,6 +70,8 @@ public class RemoteClientLibConstants {
     public static final int SPICE_TLS_ERROR = 45;
     public static final int SPICE_CONNECT_FAILURE_IF_MAINTAINING_CONNECTION = 46;
     public static final int SHOW_TOAST = 47;
+    public static final int GET_RDP_GATEWAY_CREDENTIALS = 48;
+
     public static final int PRO_FEATURE = 99;
     public static final int ADVANCED_SETTINGS = 1;
     public static final int DEFAULT_SETTINGS = 2;
