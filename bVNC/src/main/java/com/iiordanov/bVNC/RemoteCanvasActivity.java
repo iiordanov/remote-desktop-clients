@@ -160,6 +160,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
     ActionBarShower actionBarShower = new ActionBarShower();
     private Vibrator myVibrator;
     private RemoteCanvas canvas;
+    private RemoteConnection remoteConnection;
     private MenuItem[] inputModeMenuItems;
     private MenuItem[] scalingModeMenuItems;
     private TouchInputHandler inputModeHandlers[];
@@ -250,10 +251,6 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
         Log.d(TAG, "OnCreate called");
         super.onCreate(icicle);
 
-        // TODO: Implement left-icon
-        //requestWindowFeature(Window.FEATURE_LEFT_ICON);
-        //setFeatureDrawableResource(Window.FEATURE_LEFT_ICON, R.drawable.icon);
-
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
@@ -262,7 +259,8 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
 
         setContentView(R.layout.canvas);
 
-        canvas = (RemoteCanvas) findViewById(R.id.canvas);
+        canvas = findViewById(R.id.canvas);
+        remoteConnection = new RemoteConnection(this, canvas);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             canvas.setDefaultFocusHighlightEnabled(false);
@@ -311,6 +309,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
             initialize(setModes, hideKeyboardAndExtraKeys);
         }
         if (connection != null && connection.isReadyForConnection()) {
+            canvas.setParameters(remoteConnection.rfbConn, connection, handler, remoteConnection.getPointer(), setModes);
             continueConnecting();
         }
 
@@ -333,8 +332,8 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
         } else {
             handleSerializedConnection(i);
         }
-        handler = new RemoteCanvasHandler(this, connection);
-        canvas.initializeCanvas(connection, setModes, hideKeyboardAndExtraKeys);
+        handler = new RemoteCanvasHandler(this, null, null, connection);
+        remoteConnection.initializeConnection(connection, hideKeyboardAndExtraKeys);
     }
 
     private void handleSerializedConnection(Intent i) {
@@ -425,8 +424,8 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
             connection = new ConnectionSettings(RemoteClientLibConstants.DEFAULT_SETTINGS_FILE);
             connection.load(getApplicationContext());
         }
-        handler = new RemoteCanvasHandler(this, canvas, connection);
-        canvas.init(connection, handler, setModes, hideKeyboardAndExtraKeys, vvFileName);
+        handler = new RemoteCanvasHandler(this, canvas, remoteConnection, connection);
+        remoteConnection.init(connection, handler, hideKeyboardAndExtraKeys, vvFileName);
     }
 
     void continueConnecting() {
@@ -460,7 +459,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
             params.gravity = Gravity.CENTER | Gravity.RIGHT;
         }
 
-        panner = new Panner(this, canvas.handler);
+        panner = new Panner(this, handler);
 
         toolbar = (RemoteToolbar) findViewById(R.id.toolbar);
         toolbar.setTitle("");
@@ -491,7 +490,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
         Rect re = new Rect();
         getWindow().getDecorView().getWindowVisibleDisplayFrame(re);
         if (r.top == 0 || re.top > 0) {
-            if (canvas.myDrawable != null) {
+            if (canvas.getDrawable() != null) {
                 android.util.Log.d(TAG, "onGlobalLayout: Setting VisibleDesktopHeight to: " + (r.bottom - re.top));
                 canvas.setVisibleDesktopHeight(r.bottom - re.top);
                 canvas.relativePan(0, 0);
@@ -728,7 +727,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
         keyTab.setOnTouchListener(new OnTouchListener() {
             @Override
             public boolean onTouch(View arg0, MotionEvent e) {
-                RemoteKeyboard k = canvas.getKeyboard();
+                RemoteKeyboard k = remoteConnection.getKeyboard();
                 int key = KeyEvent.KEYCODE_TAB;
                 if (e.getAction() == MotionEvent.ACTION_DOWN) {
                     BCFactory.getInstance().getBCHaptic().performLongPressHaptic(canvas);
@@ -749,7 +748,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
         keyEsc.setOnTouchListener(new OnTouchListener() {
             @Override
             public boolean onTouch(View arg0, MotionEvent e) {
-                RemoteKeyboard k = canvas.getKeyboard();
+                RemoteKeyboard k = remoteConnection.getKeyboard();
                 int key = 111; /* KEYCODE_ESCAPE */
                 if (e.getAction() == MotionEvent.ACTION_DOWN) {
                     BCFactory.getInstance().getBCHaptic().performLongPressHaptic(canvas);
@@ -770,7 +769,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
         keyCtrl.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View arg0) {
-                boolean on = canvas.getKeyboard().onScreenCtrlToggle();
+                boolean on = remoteConnection.getKeyboard().onScreenCtrlToggle();
                 keyCtrlToggled = false;
                 if (on)
                     keyCtrl.setImageResource(R.drawable.ctrlon);
@@ -783,7 +782,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
             @Override
             public boolean onLongClick(View arg0) {
                 sendShortVibration();
-                boolean on = canvas.getKeyboard().onScreenCtrlToggle();
+                boolean on = remoteConnection.getKeyboard().onScreenCtrlToggle();
                 keyCtrlToggled = true;
                 if (on)
                     keyCtrl.setImageResource(R.drawable.ctrlon);
@@ -797,7 +796,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
         keySuper.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View arg0) {
-                boolean on = canvas.getKeyboard().onScreenSuperToggle();
+                boolean on = remoteConnection.getKeyboard().onScreenSuperToggle();
                 keySuperToggled = false;
                 if (on)
                     keySuper.setImageResource(R.drawable.superon);
@@ -810,7 +809,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
             @Override
             public boolean onLongClick(View arg0) {
                 sendShortVibration();
-                boolean on = canvas.getKeyboard().onScreenSuperToggle();
+                boolean on = remoteConnection.getKeyboard().onScreenSuperToggle();
                 keySuperToggled = true;
                 if (on)
                     keySuper.setImageResource(R.drawable.superon);
@@ -824,7 +823,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
         keyAlt.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View arg0) {
-                boolean on = canvas.getKeyboard().onScreenAltToggle();
+                boolean on = remoteConnection.getKeyboard().onScreenAltToggle();
                 keyAltToggled = false;
                 if (on)
                     keyAlt.setImageResource(R.drawable.alton);
@@ -837,7 +836,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
             @Override
             public boolean onLongClick(View arg0) {
                 sendShortVibration();
-                boolean on = canvas.getKeyboard().onScreenAltToggle();
+                boolean on = remoteConnection.getKeyboard().onScreenAltToggle();
                 keyAltToggled = true;
                 if (on)
                     keyAlt.setImageResource(R.drawable.alton);
@@ -851,7 +850,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
         keyShift.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View arg0) {
-                boolean on = canvas.getKeyboard().onScreenShiftToggle();
+                boolean on = remoteConnection.getKeyboard().onScreenShiftToggle();
                 keyShiftToggled = false;
                 if (on)
                     keyShift.setImageResource(R.drawable.shifton);
@@ -864,7 +863,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
             @Override
             public boolean onLongClick(View arg0) {
                 sendShortVibration();
-                boolean on = canvas.getKeyboard().onScreenShiftToggle();
+                boolean on = remoteConnection.getKeyboard().onScreenShiftToggle();
                 keyShiftToggled = true;
                 if (on)
                     keyShift.setImageResource(R.drawable.shifton);
@@ -875,14 +874,14 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
         });
 
         // TODO: Evaluate whether I should instead be using:
-        // vncCanvas.sendMetaKey(MetaKeyBean.keyArrowLeft);
+        // remoteConnection.sendMetaKey(MetaKeyBean.keyArrowLeft);
 
         // Define action of arrow keys.
         keyUp = (ImageButton) findViewById(R.id.keyUpArrow);
         keyUp.setOnTouchListener(new OnTouchListener() {
             @Override
             public boolean onTouch(View arg0, MotionEvent e) {
-                RemoteKeyboard k = canvas.getKeyboard();
+                RemoteKeyboard k = remoteConnection.getKeyboard();
                 int key = KeyEvent.KEYCODE_DPAD_UP;
                 if (e.getAction() == MotionEvent.ACTION_DOWN) {
                     sendShortVibration();
@@ -903,7 +902,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
         keyDown.setOnTouchListener(new OnTouchListener() {
             @Override
             public boolean onTouch(View arg0, MotionEvent e) {
-                RemoteKeyboard k = canvas.getKeyboard();
+                RemoteKeyboard k = remoteConnection.getKeyboard();
                 int key = KeyEvent.KEYCODE_DPAD_DOWN;
                 if (e.getAction() == MotionEvent.ACTION_DOWN) {
                     sendShortVibration();
@@ -924,7 +923,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
         keyLeft.setOnTouchListener(new OnTouchListener() {
             @Override
             public boolean onTouch(View arg0, MotionEvent e) {
-                RemoteKeyboard k = canvas.getKeyboard();
+                RemoteKeyboard k = remoteConnection.getKeyboard();
                 int key = KeyEvent.KEYCODE_DPAD_LEFT;
                 if (e.getAction() == MotionEvent.ACTION_DOWN) {
                     sendShortVibration();
@@ -945,7 +944,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
         keyRight.setOnTouchListener(new OnTouchListener() {
             @Override
             public boolean onTouch(View arg0, MotionEvent e) {
-                RemoteKeyboard k = canvas.getKeyboard();
+                RemoteKeyboard k = remoteConnection.getKeyboard();
                 int key = KeyEvent.KEYCODE_DPAD_RIGHT;
                 if (e.getAction() == MotionEvent.ACTION_DOWN) {
                     sendShortVibration();
@@ -975,19 +974,19 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
         }
         if (!keyCtrlToggled) {
             keyCtrl.setImageResource(R.drawable.ctrloff);
-            canvas.getKeyboard().onScreenCtrlOff();
+            remoteConnection.getKeyboard().onScreenCtrlOff();
         }
         if (!keyAltToggled) {
             keyAlt.setImageResource(R.drawable.altoff);
-            canvas.getKeyboard().onScreenAltOff();
+            remoteConnection.getKeyboard().onScreenAltOff();
         }
         if (!keySuperToggled) {
             keySuper.setImageResource(R.drawable.superoff);
-            canvas.getKeyboard().onScreenSuperOff();
+            remoteConnection.getKeyboard().onScreenSuperOff();
         }
         if (!keyShiftToggled) {
             keyShift.setImageResource(R.drawable.shiftoff);
-            canvas.getKeyboard().onScreenShiftOff();
+            remoteConnection.getKeyboard().onScreenShiftOff();
         }
         return keyCode;
     }
@@ -1050,7 +1049,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
         initializeOnScreenKeys();
         try {
             COLORMODEL cm = COLORMODEL.valueOf(connection.getColorModel());
-            canvas.setColorModel(cm);
+            remoteConnection.setColorModel(cm);
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
         }
@@ -1140,12 +1139,12 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
             canvas.resetScroll();
         }
         // Automatic resolution update request handling
-        if (canvas.isVnc && connection.getRdpResType() == Constants.VNC_GEOM_SELECT_AUTOMATIC) {
-            canvas.rfbconn.requestResolution(canvas.getWidth(), canvas.getHeight());
-        } else if (canvas.isSpice && connection.getRdpResType() == Constants.RDP_GEOM_SELECT_AUTO) {
-            canvas.spicecomm.requestResolution(canvas.getWidth(), canvas.getHeight());
-        } else if (canvas.isOpaque && connection.isRequestingNewDisplayResolution()) {
-            canvas.spicecomm.requestResolution(canvas.getWidth(), canvas.getHeight());
+        if (remoteConnection.isVnc && connection.getRdpResType() == Constants.VNC_GEOM_SELECT_AUTOMATIC) {
+            remoteConnection.rfbConn.requestResolution(canvas.getWidth(), canvas.getHeight());
+        } else if (remoteConnection.isSpice && connection.getRdpResType() == Constants.RDP_GEOM_SELECT_AUTO) {
+            remoteConnection.spiceComm.requestResolution(canvas.getWidth(), canvas.getHeight());
+        } else if (remoteConnection.isOpaque && connection.isRequestingNewDisplayResolution()) {
+            remoteConnection.spiceComm.requestResolution(canvas.getWidth(), canvas.getHeight());
         }
 
     }
@@ -1268,8 +1267,8 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
                 // If the entire framebuffer is NOT contained in the bitmap, fit-to-screen is meaningless.
                 if (item.getItemId() == R.id.itemFitToScreen) {
                     if (canvas != null && canvas.myDrawable != null &&
-                            (canvas.myDrawable.bitmapheight != canvas.myDrawable.framebufferheight ||
-                                    canvas.myDrawable.bitmapwidth != canvas.myDrawable.framebufferwidth)) {
+                            (canvas.myDrawable.getBitmapHeight() != canvas.myDrawable.getFramebufferHeight() ||
+                                    canvas.myDrawable.getBitmapWidth() != canvas.myDrawable.getFramebufferWidth())) {
                         item.setEnabled(false);
                     } else {
                         item.setEnabled(true);
@@ -1317,13 +1316,13 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
             if (inputModeIds[i] == id) {
                 if (inputModeHandlers[i] == null) {
                     if (id == R.id.itemInputTouchPanZoomMouse) {
-                        inputModeHandlers[i] = new TouchInputHandlerDirectSwipePan(this, canvas, canvas.getPointer(), App.debugLog);
+                        inputModeHandlers[i] = new TouchInputHandlerDirectSwipePan(this, canvas, remoteConnection.getPointer(), App.debugLog);
                     } else if (id == R.id.itemInputDragPanZoomMouse) {
-                        inputModeHandlers[i] = new TouchInputHandlerDirectDragPan(this, canvas, canvas.getPointer(), App.debugLog);
+                        inputModeHandlers[i] = new TouchInputHandlerDirectDragPan(this, canvas, remoteConnection.getPointer(), App.debugLog);
                     } else if (id == R.id.itemInputTouchpad) {
-                        inputModeHandlers[i] = new TouchInputHandlerTouchpad(this, canvas, canvas.getPointer(), App.debugLog);
+                        inputModeHandlers[i] = new TouchInputHandlerTouchpad(this, canvas, remoteConnection.getPointer(), App.debugLog);
                     } else if (id == R.id.itemInputSingleHanded) {
-                        inputModeHandlers[i] = new TouchInputHandlerSingleHanded(this, canvas, canvas.getPointer(), App.debugLog);
+                        inputModeHandlers[i] = new TouchInputHandlerSingleHanded(this, canvas, remoteConnection.getPointer(), App.debugLog);
                     } else {
                         throw new IllegalStateException("Unexpected value: " + id);
                     }
@@ -1369,13 +1368,13 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        RemoteKeyboard k = canvas.getKeyboard();
+        RemoteKeyboard k = remoteConnection.getKeyboard();
         if (k != null) {
             k.setAfterMenu(true);
         }
         int itemId = item.getItemId();
         if (itemId == R.id.itemInfo) {
-            canvas.showConnectionInfo();
+            remoteConnection.showConnectionInfo();
             return true;
         } else if (itemId == R.id.itemSpecialKeys) {
             showDialog(R.layout.metakey);
@@ -1390,18 +1389,18 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
             showPanningState(false);
             return true;
         } else if (itemId == R.id.itemCenterMouse) {
-            canvas.getPointer().movePointer(canvas.absoluteXPosition + canvas.getVisibleDesktopWidth() / 2,
+            remoteConnection.getPointer().movePointer(canvas.absoluteXPosition + canvas.getVisibleDesktopWidth() / 2,
                     canvas.absoluteYPosition + canvas.getVisibleDesktopHeight() / 2);
             return true;
         } else if (itemId == R.id.itemDisconnect) {
-            canvas.closeConnection();
+            remoteConnection.closeConnection();
             Utils.justFinish(this);
             return true;
         } else if (itemId == R.id.itemEnterText) {
             showDialog(R.layout.entertext);
             return true;
         } else if (itemId == R.id.itemCtrlAltDel) {
-            canvas.getKeyboard().sendMetaKey(MetaKeyBean.keyCtrlAltDel);
+            remoteConnection.getKeyboard().sendMetaKey(MetaKeyBean.keyCtrlAltDel);
             return true;
         } else if (itemId == R.id.itemSendKeyAgain) {
             sendSpecialKeyAgain();
@@ -1448,7 +1447,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
             } else {
                 connection.setFollowMouse(false);
                 connection.setFollowPan(false);
-                canvas.getPointer().setRelativeEvents(false);
+                remoteConnection.getPointer().setRelativeEvents(false);
             }
 
             showPanningState(true);
@@ -1462,7 +1461,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
         touchInputHandler = input;
         inputListener = new RemoteClientsInputListener(
                 this,
-                canvas,
+                remoteConnection,
                 touchInputHandler,
                 this::resetOnScreenKeys,
                 connection.getUseDpadAsArrows()
@@ -1491,7 +1490,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
             }
         }
         if (lastSentKey != null)
-            canvas.getKeyboard().sendMetaKey(lastSentKey);
+            remoteConnection.getKeyboard().sendMetaKey(lastSentKey);
     }
 
     @Override
@@ -1499,7 +1498,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
         super.onDestroy();
         Log.i(TAG, "onDestroy called.");
         if (canvas != null)
-            canvas.closeConnection();
+            remoteConnection.closeConnection();
         System.gc();
     }
 
@@ -1575,7 +1574,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
         for (int i = 0; i < choices.length; i++) {
             COLORMODEL cm = COLORMODEL.values()[i];
             choices[i] = cm.toString();
-            if (canvas.isColorModel(cm))
+            if (remoteConnection.isColorModel(cm))
                 currentSelection = i;
         }
 
@@ -1590,7 +1589,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
             public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
                 dialog.dismiss();
                 COLORMODEL cm = COLORMODEL.values()[arg2];
-                canvas.setColorModel(cm);
+                remoteConnection.setColorModel(cm);
                 connection.setColorModel(cm.nameString());
                 connection.save(RemoteCanvasActivity.this);
                 Toast.makeText(RemoteCanvasActivity.this, getString(R.string.info_update_color_model_to) + cm.toString(), Toast.LENGTH_SHORT).show();
@@ -1610,11 +1609,11 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
     @Override
     public void onTextSelected(String selectedString) {
         android.util.Log.i(TAG, "onTextSelected called with selectedString: " + selectedString);
-        canvas.pd.show();
-        connection.setVmname(canvas.vmNameToId.get(selectedString));
+        remoteConnection.pd.show();
+        connection.setVmname(remoteConnection.vmNameToId.get(selectedString));
         connection.save(this);
-        synchronized (canvas.spicecomm) {
-            canvas.spicecomm.notify();
+        synchronized (remoteConnection.spiceComm) {
+            remoteConnection.spiceComm.notify();
         }
     }
 
@@ -1696,6 +1695,10 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
         if (inputListener != null) {
             inputListener.onKey(canvas, KeyEvent.KEYCODE_BACK, new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_BACK));
         }
+    }
+
+    public RemoteConnection getRemoteConnection() {
+        return remoteConnection;
     }
 
     private class ActionBarHider implements Runnable {

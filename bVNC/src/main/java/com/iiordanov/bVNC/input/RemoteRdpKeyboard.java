@@ -7,21 +7,27 @@ import android.view.KeyCharacterMap;
 import android.view.KeyEvent;
 
 import com.iiordanov.bVNC.App;
-import com.iiordanov.bVNC.RemoteCanvas;
+import com.undatech.opaque.InputCarriable;
 import com.undatech.opaque.RdpCommunicator;
+import com.undatech.opaque.Viewable;
 import com.undatech.opaque.input.RdpKeyboardMapper;
+import com.undatech.opaque.input.RemotePointer;
 
 public class RemoteRdpKeyboard extends RemoteKeyboard {
     private final static String TAG = "RemoteRdpKeyboard";
     protected RdpKeyboardMapper keyboardMapper;
-    protected RemoteCanvas canvas;
+    protected Viewable canvas;
+    protected InputCarriable inputCarriable;
     private RdpCommunicator rdpcomm;
 
-    public RemoteRdpKeyboard(RdpCommunicator r, RemoteCanvas v, Handler h, boolean debugLog,
-                             boolean preferSendingUnicode) {
+    public RemoteRdpKeyboard(
+            RdpCommunicator r, Viewable v, InputCarriable i, Handler h,
+            boolean debugLog, boolean preferSendingUnicode
+    ) {
         super(r, v.getContext(), h, debugLog);
         rdpcomm = r;
         canvas = v;
+        inputCarriable = i;
         keyboardMapper = new RdpKeyboardMapper(preferSendingUnicode, debugLog);
         keyboardMapper.init(context);
         keyboardMapper.reset((RdpKeyboardMapper.KeyProcessingListener) r);
@@ -36,7 +42,7 @@ public class RemoteRdpKeyboard extends RemoteKeyboard {
         rdpcomm.remoteKeyboardState.detectHardwareMetaState(evt);
 
         if (rdpcomm != null && rdpcomm.isInNormalProtocol()) {
-            RemotePointer pointer = canvas.getPointer();
+            RemotePointer pointer = inputCarriable.getPointer();
             boolean down = (evt.getAction() == KeyEvent.ACTION_DOWN) ||
                     (evt.getAction() == KeyEvent.ACTION_MULTIPLE);
             int metaState = additionalMetaState | convertEventMetaState(evt);
@@ -83,7 +89,7 @@ public class RemoteRdpKeyboard extends RemoteKeyboard {
     }
 
     public void sendMetaKey(MetaKeyBean meta) {
-        RemotePointer pointer = canvas.getPointer();
+        RemotePointer pointer = inputCarriable.getPointer();
         int x = pointer.getX();
         int y = pointer.getY();
 

@@ -25,6 +25,7 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 
 import com.undatech.opaque.RfbConnectable;
+import com.undatech.opaque.Viewable;
 
 import java.util.Arrays;
 
@@ -44,10 +45,10 @@ class FullBufferBitmapData extends AbstractBitmapData {
      * @param p
      * @param c
      */
-    public FullBufferBitmapData(RfbConnectable p, RemoteCanvas c, int capacity) {
-        super(p, c);
-        framebufferwidth = rfb.framebufferWidth();
-        framebufferheight = rfb.framebufferHeight();
+    public FullBufferBitmapData(int width, int height, Viewable c, int capacity) {
+        super(width, height, c);
+        framebufferwidth = width;
+        framebufferheight = height;
         bitmapwidth = framebufferwidth;
         bitmapheight = framebufferheight;
         dataWidth = framebufferwidth;
@@ -103,7 +104,7 @@ class FullBufferBitmapData extends AbstractBitmapData {
      * @see com.iiordanov.bVNC.AbstractBitmapData#drawRect(int, int, int, int, android.graphics.Paint)
      */
     @Override
-    void drawRect(int x, int y, int w, int h, Paint paint) {
+    public void drawRect(int x, int y, int w, int h, Paint paint) {
         int color = paint.getColor();
         int offset = offset(x, y);
         if (w > 10) {
@@ -131,7 +132,7 @@ class FullBufferBitmapData extends AbstractBitmapData {
      * @see com.iiordanov.bVNC.AbstractBitmapData#scrollChanged(int, int)
      */
     @Override
-    void scrollChanged(int newx, int newy) {
+    public void scrollChanged(int newx, int newy) {
         xoffset = newx;
         yoffset = newy;
     }
@@ -140,9 +141,9 @@ class FullBufferBitmapData extends AbstractBitmapData {
      * @see com.iiordanov.bVNC.AbstractBitmapData#frameBufferSizeChanged(RfbProto)
      */
     @Override
-    public void frameBufferSizeChanged() {
-        framebufferwidth = rfb.framebufferWidth();
-        framebufferheight = rfb.framebufferHeight();
+    public void frameBufferSizeChanged(int width, int height) {
+        framebufferwidth = width;
+        framebufferheight = height;
         bitmapwidth = framebufferwidth;
         bitmapheight = framebufferheight;
         android.util.Log.i("FBBM", "bitmapsize changed = (" + bitmapwidth + "," + bitmapheight + ")");
@@ -162,7 +163,7 @@ class FullBufferBitmapData extends AbstractBitmapData {
      * @see com.iiordanov.bVNC.AbstractBitmapData#syncScroll()
      */
     @Override
-    void syncScroll() {
+    public void syncScroll() {
         // Don't need to do anything here
     }
 

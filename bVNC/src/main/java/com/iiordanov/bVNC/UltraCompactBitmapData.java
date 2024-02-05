@@ -24,6 +24,7 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 
 import com.undatech.opaque.RfbConnectable;
+import com.undatech.opaque.Viewable;
 
 class UltraCompactBitmapData extends AbstractBitmapData {
     /**
@@ -34,8 +35,8 @@ class UltraCompactBitmapData extends AbstractBitmapData {
     private final static String TAG = "UltraCompactBitmapData";
     Bitmap.Config cfg = Bitmap.Config.RGB_565;
 
-    UltraCompactBitmapData(RfbConnectable rfb, RemoteCanvas c, boolean trueColor) {
-        super(rfb, c);
+    UltraCompactBitmapData(int width, int height, Viewable c, boolean trueColor) {
+        super(width, height, c);
         bitmapwidth = framebufferwidth;
         bitmapheight = framebufferheight;
 
@@ -121,21 +122,21 @@ class UltraCompactBitmapData extends AbstractBitmapData {
     }
 
     @Override
-    void drawRect(int x, int y, int w, int h, Paint paint) {
+    public void drawRect(int x, int y, int w, int h, Paint paint) {
         synchronized (mbitmap) {
             memGraphics.drawRect(x, y, x + w, y + h, paint);
         }
     }
 
     @Override
-    void scrollChanged(int newx, int newy) {
+    public void scrollChanged(int newx, int newy) {
         // Don't need to do anything here
     }
 
     @Override
-    public void frameBufferSizeChanged() {
-        framebufferwidth = rfb.framebufferWidth();
-        framebufferheight = rfb.framebufferHeight();
+    public void frameBufferSizeChanged(int width, int height) {
+        framebufferwidth = width;
+        framebufferheight = height;
         if (bitmapwidth < framebufferwidth || bitmapheight < framebufferheight) {
             android.util.Log.i(TAG, "One or more bitmap dimensions increased, realloc = ("
                     + framebufferwidth + "," + framebufferheight + ")");
@@ -155,7 +156,7 @@ class UltraCompactBitmapData extends AbstractBitmapData {
     }
 
     @Override
-    void syncScroll() {
+    public void syncScroll() {
         // Don't need anything here either
     }
 

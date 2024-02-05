@@ -19,10 +19,12 @@
 
 package com.iiordanov.bVNC.input;
 
+import android.content.Context;
 import android.os.Handler;
 
-import com.iiordanov.bVNC.RemoteCanvas;
+import com.undatech.opaque.InputCarriable;
 import com.undatech.opaque.RfbConnectable;
+import com.undatech.opaque.Viewable;
 import com.undatech.opaque.util.GeneralUtils;
 
 public class RemoteVncPointer extends RemotePointer {
@@ -36,9 +38,15 @@ public class RemoteVncPointer extends RemotePointer {
     public static final int MOUSE_BUTTON_SCROLL_RIGHT = 64;
     private static final String TAG = "RemotePointer";
 
-    public RemoteVncPointer(RfbConnectable rfb, RemoteCanvas canvas, Handler handler,
-                            boolean debugLogging) {
-        super(rfb, canvas, handler, debugLogging);
+    public RemoteVncPointer(
+            RfbConnectable rfb,
+            Context context,
+            InputCarriable inputCarriable,
+            Viewable canvas,
+            Handler handler,
+            boolean debugLogging
+    ) {
+        super(rfb, context, inputCarriable, canvas, handler, debugLogging);
     }
 
     @Override
@@ -117,7 +125,7 @@ public class RemoteVncPointer extends RemotePointer {
      */
     private void sendPointerEvent(int x, int y, int metaState, boolean isMoving) {
 
-        int combinedMetaState = metaState | canvas.getKeyboard().getMetaState();
+        int combinedMetaState = metaState | inputCarriable.getKeyboard().getMetaState();
 
         // Save the previous pointer mask other than action_move, so we can
         // send it with the pointer flag "not down" to clear the action.

@@ -57,6 +57,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.play.core.review.ReviewInfo;
 import com.google.android.play.core.review.ReviewManager;
 import com.google.android.play.core.review.ReviewManagerFactory;
+import com.undatech.opaque.AbstractDrawableData;
 import com.undatech.opaque.ConnectionSetupActivity;
 import com.undatech.remoteClientUi.R;
 
@@ -433,16 +434,16 @@ public class Utils {
         return result;
     }
 
-    static void writeScreenshotToFile(AbstractBitmapData drawable,
+    static void writeScreenshotToFile(AbstractDrawableData drawable,
                                       String filePath, int dstWidth) {
         try {
-            if (drawable != null && drawable.mbitmap != null) {
+            if (drawable != null && drawable.getMbitmap() != null) {
                 // TODO: Add Filename to settings.
                 FileOutputStream out = new FileOutputStream(filePath);
-                double scaleReduction = (double) drawable.mbitmap.getWidth() / dstWidth;
-                int dstHeight = (int) ((double) drawable.mbitmap.getHeight() / scaleReduction);
+                double scaleReduction = (double) drawable.getMbitmap().getWidth() / dstWidth;
+                int dstHeight = (int) ((double) drawable.getMbitmap().getHeight() / scaleReduction);
                 Log.d(TAG, "Desktop screenshot width: " + dstWidth + ", height " + dstHeight);
-                Bitmap tmp = Bitmap.createScaledBitmap(drawable.mbitmap, dstWidth, dstHeight, true);
+                Bitmap tmp = Bitmap.createScaledBitmap(drawable.getMbitmap(), dstWidth, dstHeight, true);
                 tmp.compress(Bitmap.CompressFormat.PNG, 100, out);
                 out.close();
                 tmp.recycle();

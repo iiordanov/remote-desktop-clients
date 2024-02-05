@@ -2,24 +2,26 @@ package com.iiordanov.bVNC.input;
 
 import static com.undatech.opaque.util.GeneralUtils.debugLog;
 
+import android.content.Context;
 import android.os.Handler;
 import android.view.KeyEvent;
 
 import com.iiordanov.bVNC.App;
-import com.iiordanov.bVNC.RemoteCanvas;
 import com.iiordanov.bVNC.RfbProto;
 import com.iiordanov.tigervnc.rfb.UnicodeToKeysym;
+import com.undatech.opaque.InputCarriable;
 import com.undatech.opaque.RfbConnectable;
+import com.undatech.opaque.input.RemotePointer;
 
 public class RemoteVncKeyboard extends RemoteKeyboard {
     private final static String TAG = "RemoteKeyboard";
     public static boolean rAltAsIsoL3Shift = false;
-    protected RemoteCanvas canvas;
+    protected InputCarriable inputCarriable;
 
-    public RemoteVncKeyboard(RfbConnectable r, RemoteCanvas v, Handler h,
+    public RemoteVncKeyboard(RfbConnectable r, InputCarriable i, Context c, Handler h,
                              boolean rAltAsIsoL3Shift, boolean debugLog) {
-        super(r, v.getContext(), h, debugLog);
-        canvas = v;
+        super(r, c, h, debugLog);
+        inputCarriable = i;
         // Indicate we want Right Alt to be ISO L3 SHIFT if preferred.
         RemoteVncKeyboard.rAltAsIsoL3Shift = rAltAsIsoL3Shift;
     }
@@ -32,7 +34,7 @@ public class RemoteVncKeyboard extends RemoteKeyboard {
         rfb.remoteKeyboardState.detectHardwareMetaState(evt);
 
         if (rfb != null && rfb.isInNormalProtocol()) {
-            RemotePointer pointer = canvas.getPointer();
+            RemotePointer pointer = inputCarriable.getPointer();
             boolean down = (evt.getAction() == KeyEvent.ACTION_DOWN) ||
                     (evt.getAction() == KeyEvent.ACTION_MULTIPLE);
             boolean unicode = false;
@@ -376,7 +378,7 @@ public class RemoteVncKeyboard extends RemoteKeyboard {
     }
 
     public void sendMetaKey(MetaKeyBean meta) {
-        RemotePointer pointer = canvas.getPointer();
+        RemotePointer pointer = inputCarriable.getPointer();
         int x = pointer.getX();
         int y = pointer.getY();
 

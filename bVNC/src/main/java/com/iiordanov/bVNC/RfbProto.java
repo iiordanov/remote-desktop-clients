@@ -23,6 +23,7 @@
 
 package com.iiordanov.bVNC;
 
+import android.os.Handler;
 import android.util.Log;
 
 import com.iiordanov.bVNC.input.RemoteVncKeyboard;
@@ -32,7 +33,9 @@ import com.tigervnc.rdr.RawInStream;
 import com.tigervnc.rdr.RawOutStream;
 import com.tigervnc.rfb.AuthFailureException;
 import com.tigervnc.rfb.CSecurityRSAAES;
+import com.undatech.opaque.AbstractDrawableData;
 import com.undatech.opaque.RfbConnectable;
+import com.undatech.opaque.Viewable;
 import com.undatech.opaque.input.RemoteKeyboard;
 import com.undatech.opaque.util.GeneralUtils;
 import com.undatech.remoteClientUi.R;
@@ -268,7 +271,8 @@ public class RfbProto extends RfbConnectable {
     CapsContainer serverMsgCaps, clientMsgCaps;
     CapsContainer encodingCaps;
     // The remote canvas
-    RemoteCanvas canvas;
+    Viewable canvas;
+    RemoteConnection remoteConnection;
     byte[] writeIntBuffer = new byte[4];
     String desktopName;
     int framebufferWidth, framebufferHeight;
@@ -334,14 +338,15 @@ public class RfbProto extends RfbConnectable {
     //
     // Constructor
     //
-    RfbProto(Decoder decoder, RemoteCanvas canvas, int preferredEncoding,
+    RfbProto(Decoder decoder, Viewable canvas, RemoteConnection remoteConnection, Handler handler, int preferredEncoding,
              boolean viewOnly, boolean sslTunneled, int hashAlgorithm,
              String hash, String cert, boolean debugLogging) {
-        super(debugLogging, canvas.handler);
+        super(debugLogging, handler);
         this.sslTunneled = sslTunneled;
         this.decoder = decoder;
         this.viewOnly = viewOnly;
         this.canvas = canvas;
+        this.remoteConnection = remoteConnection;
         this.preferredEncoding = preferredEncoding;
         this.hashAlgorithm = hashAlgorithm;
         this.hash = hash;
@@ -372,7 +377,7 @@ public class RfbProto extends RfbConnectable {
         if (sslTunneled) {
             // If this is a tunneled connection, set up the tunnel and get its socket.
             Log.i(TAG, "Creating secure tunnel.");
-            SecureTunnel tunnel = new SecureTunnel(host, port, hashAlgorithm, hash, cert, canvas.handler);
+            SecureTunnel tunnel = new SecureTunnel(host, port, hashAlgorithm, hash, cert, handler);
             tunnel.setup();
             synchronized (this) {
                 while (!certificateAccepted) {
@@ -849,7 +854,7 @@ public class RfbProto extends RfbConnectable {
     //
 
     void authenticateX509(String certstr) throws Exception {
-        X509Tunnel tunnel = new X509Tunnel(sock, certstr, canvas.handler, this);
+        X509Tunnel tunnel = new X509Tunnel(sock, certstr, handler, this);
         SSLSocket sslsock = tunnel.setup();
         setStreams(new RawInStream(sslsock.getInputStream()), new RawOutStream(sslsock.getOutputStream()));
     }
@@ -1939,14 +1944,14 @@ public class RfbProto extends RfbConnectable {
 
         try {
             setEncodings();
-            canvas.writeFullUpdateRequest(false);
+            remoteConnection.writeFullUpdateRequest(false);
 
             //
             // main dispatch loop
             //
             while (maintainConnection) {
                 exitforloop = false;
-                if (!canvas.useFull) {
+                if (!canvas.isUseFull()) {
                     canvas.syncScroll();
                     // Read message type from the server.
                     msgType = readServerMessageType();
@@ -1986,7 +1991,7 @@ public class RfbProto extends RfbConnectable {
                                     break;
                                 case RfbProto.EncodingNewFBSize:
                                     setFramebufferSize(updateRectW, updateRectH);
-                                    canvas.updateFBSize();
+                                    canvas.reallocateDrawable(updateRectW, updateRectH);
                                     exitforloop = true;
                                     break;
                                 case RfbProto.EncodingRaw:
@@ -2028,10 +2033,10 @@ public class RfbProto extends RfbConnectable {
                         if (decoder.isChangedColorModel()) {
                             decoder.setPixelFormat(this);
                             //setEncodings();
-                            canvas.writeFullUpdateRequest(false);
+                            remoteConnection.writeFullUpdateRequest(false);
                         } else {
                             //setEncodings();
-                            canvas.writeFullUpdateRequest(true);
+                            remoteConnection.writeFullUpdateRequest(true);
                         }
                         break;
 
@@ -2124,7 +2129,7 @@ public class RfbProto extends RfbConnectable {
         Log.d(TAG, "handleExtendedDesktopSize, wxh: " + width + "x" + height);
         if (width != 0 && height != 0) {
             setFramebufferSize(width, height);
-            canvas.updateFBSize();
+            canvas.reallocateDrawable(width, height);
         }
         if (preferredFramebufferWidth != 0 && preferredFramebufferHeight != 0) {
             // Notifiy Listeners on first update
@@ -2218,5 +2223,10 @@ public class RfbProto extends RfbConnectable {
         public RfbUltraVncColorMapException(String errorMessage) {
             super(errorMessage);
         }
+    }
+
+    @Override
+    public void setBitmapData(AbstractDrawableData drawable) {
+        decoder.setBitmapData(drawable);
     }
 }

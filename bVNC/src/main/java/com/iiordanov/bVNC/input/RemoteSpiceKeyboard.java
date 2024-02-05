@@ -26,8 +26,10 @@ import android.util.Log;
 import android.view.KeyEvent;
 
 import com.iiordanov.bVNC.Constants;
-import com.iiordanov.bVNC.RemoteCanvas;
+import com.undatech.opaque.InputCarriable;
 import com.undatech.opaque.SpiceCommunicator;
+import com.undatech.opaque.Viewable;
+import com.undatech.opaque.input.RemotePointer;
 import com.undatech.opaque.util.GeneralUtils;
 
 import java.io.BufferedReader;
@@ -44,13 +46,22 @@ public class RemoteSpiceKeyboard extends RemoteKeyboard {
     final static int UNICODE_MASK = 0x100000;
     final static int UNICODE_META_MASK = KeyEvent.META_CTRL_MASK | KeyEvent.META_META_MASK | KeyEvent.META_CAPS_LOCK_ON;
     private final static String TAG = "RemoteSpiceKeyboard";
-    protected RemoteCanvas canvas;
+    protected Viewable canvas;
+    protected InputCarriable inputCarriable;
     private HashMap<Integer, Integer[]> table;
 
-    public RemoteSpiceKeyboard(Resources resources, SpiceCommunicator r, RemoteCanvas v, Handler h,
-                               String layoutMapFile, boolean debugLog) throws IOException {
+    public RemoteSpiceKeyboard(
+            Resources resources,
+            SpiceCommunicator r,
+            Viewable v,
+            InputCarriable i,
+            Handler h,
+            String layoutMapFile,
+            boolean debugLog
+    ) throws IOException {
         super(r, v.getContext(), h, debugLog);
         canvas = v;
+        inputCarriable = i;
         this.table = loadKeyMap(resources, "layouts/" + layoutMapFile);
     }
 
@@ -105,7 +116,7 @@ public class RemoteSpiceKeyboard extends RemoteKeyboard {
 
         // Ignore menu key and handle other hardware buttons here.
         if (keyCode == KeyEvent.KEYCODE_MENU ||
-                canvas.getPointer().hardwareButtonsAsMouseEvents(keyCode,
+                inputCarriable.getPointer().hardwareButtonsAsMouseEvents(keyCode,
                         event,
                         metaState | onScreenMetaState)) {
         } else if (rfb != null && rfb.isInNormalProtocol()) {
@@ -217,7 +228,7 @@ public class RemoteSpiceKeyboard extends RemoteKeyboard {
     }
 
     public void sendMetaKey(MetaKeyBean meta) {
-        RemotePointer pointer = canvas.getPointer();
+        RemotePointer pointer = inputCarriable.getPointer();
         int x = pointer.getX();
         int y = pointer.getY();
 

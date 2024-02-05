@@ -22,19 +22,21 @@ package com.undatech.opaque;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 
 import com.undatech.opaque.input.RemoteKeyboardState;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public abstract class RfbConnectable {
+public abstract class RfbConnectable implements DrawableReallocatedListener {
     private final static String TAG = "RfbConnectable";
     public RemoteKeyboardState remoteKeyboardState = null;
     protected Map<Integer, Integer> modifierMap = new HashMap<>();
     protected boolean debugLogging = false;
     protected int metaState = 0;
     protected Handler handler = null;
+    public boolean serverJustCutText;
 
     public RfbConnectable(boolean debugLogging, Handler handler) {
         this.handler = handler;
@@ -94,5 +96,10 @@ public abstract class RfbConnectable {
         strings.putString("text", data);
         m.obj = strings;
         handler.sendMessage(m);
+    }
+
+    @Override
+    public void setBitmapData(AbstractDrawableData drawable) {
+        Log.d(TAG, "Stub setBitmapData called");
     }
 }

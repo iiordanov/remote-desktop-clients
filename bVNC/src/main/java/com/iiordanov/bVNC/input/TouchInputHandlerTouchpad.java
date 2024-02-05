@@ -25,6 +25,7 @@ import android.view.MotionEvent;
 import com.iiordanov.bVNC.RemoteCanvas;
 import com.iiordanov.bVNC.RemoteCanvasActivity;
 import com.undatech.opaque.util.GeneralUtils;
+import com.undatech.opaque.input.RemotePointer;
 import com.undatech.remoteClientUi.R;
 
 public class TouchInputHandlerTouchpad extends TouchInputHandlerGeneric {
@@ -143,15 +144,14 @@ public class TouchInputHandlerTouchpad extends TouchInputHandlerGeneric {
      * @see com.iiordanov.bVNC.input.InputHandlerGeneric#getX(android.view.MotionEvent)
      */
     protected int getX(MotionEvent e) {
-        RemotePointer p = canvas.getPointer();
         if (dragMode || rightDragMode || middleDragMode) {
             float distanceX = e.getX() - dragX;
             dragX = e.getX();
             // Compute the absolute new X coordinate.
-            return Math.round(p.getX() + getDelta(distanceX));
+            return Math.round(pointer.getX() + getDelta(distanceX));
         }
         dragX = e.getX();
-        return p.getX();
+        return pointer.getX();
     }
 
     /*
@@ -159,15 +159,14 @@ public class TouchInputHandlerTouchpad extends TouchInputHandlerGeneric {
      * @see com.iiordanov.bVNC.input.InputHandlerGeneric#getY(android.view.MotionEvent)
      */
     protected int getY(MotionEvent e) {
-        RemotePointer p = canvas.getPointer();
         if (dragMode || rightDragMode || middleDragMode) {
             float distanceY = e.getY() - dragY;
             dragY = e.getY();
             // Compute the absolute new Y coordinate.
-            return Math.round(p.getY() + getDelta(distanceY));
+            return Math.round(pointer.getY() + getDelta(distanceY));
         }
         dragY = e.getY();
-        return p.getY();
+        return pointer.getY();
     }
 
     /**

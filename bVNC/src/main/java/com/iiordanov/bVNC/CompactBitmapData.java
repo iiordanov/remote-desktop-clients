@@ -24,8 +24,6 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 
-import com.undatech.opaque.RfbConnectable;
-
 class CompactBitmapData extends AbstractBitmapData {
     /**
      * Multiply this times total number of pixels to get estimate of process size with all buffers plus
@@ -35,8 +33,8 @@ class CompactBitmapData extends AbstractBitmapData {
     private final static String TAG = "CompactBitmapData";
     Bitmap.Config cfg = Bitmap.Config.RGB_565;
 
-    CompactBitmapData(RfbConnectable rfb, RemoteCanvas c, boolean trueColor) {
-        super(rfb, c);
+    CompactBitmapData(int width, int height, RemoteCanvas c, boolean trueColor) {
+        super(width, height, c);
         bitmapwidth = framebufferwidth;
         bitmapheight = framebufferheight;
         // To please createBitmap, we ensure the size it at least 1x1.
@@ -138,7 +136,7 @@ class CompactBitmapData extends AbstractBitmapData {
      * @see com.iiordanov.bVNC.AbstractBitmapData#drawRect(int, int, int, int, android.graphics.Paint)
      */
     @Override
-    void drawRect(int x, int y, int w, int h, Paint paint) {
+    public void drawRect(int x, int y, int w, int h, Paint paint) {
         synchronized (mbitmap) {
             memGraphics.drawRect(x, y, x + w, y + h, paint);
         }
@@ -148,7 +146,7 @@ class CompactBitmapData extends AbstractBitmapData {
      * @see com.iiordanov.bVNC.AbstractBitmapData#scrollChanged(int, int)
      */
     @Override
-    void scrollChanged(int newx, int newy) {
+    public void scrollChanged(int newx, int newy) {
         // Don't need to do anything here
     }
 
@@ -156,9 +154,9 @@ class CompactBitmapData extends AbstractBitmapData {
      * @see com.iiordanov.bVNC.AbstractBitmapData#frameBufferSizeChanged(RfbProto)
      */
     @Override
-    public void frameBufferSizeChanged() {
-        framebufferwidth = rfb.framebufferWidth();
-        framebufferheight = rfb.framebufferHeight();
+    public void frameBufferSizeChanged(int width, int height) {
+        framebufferwidth = width;
+        framebufferheight = height;
         if (bitmapwidth < framebufferwidth || bitmapheight < framebufferheight) {
             android.util.Log.i(TAG, "One or more bitmap dimensions increased, realloc = ("
                     + framebufferwidth + "," + framebufferheight + ")");
@@ -182,7 +180,7 @@ class CompactBitmapData extends AbstractBitmapData {
      * @see com.iiordanov.bVNC.AbstractBitmapData#syncScroll()
      */
     @Override
-    void syncScroll() {
+    public void syncScroll() {
         // Don't need anything here either
     }
 

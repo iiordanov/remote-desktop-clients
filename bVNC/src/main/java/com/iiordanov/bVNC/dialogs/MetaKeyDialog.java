@@ -500,7 +500,7 @@ public class MetaKeyDialog extends Dialog implements ConnectionSettable {
             _spinnerKeysInList.setSelection(index);
         }
         _connection.save(getContext());
-        _canvasActivity.getCanvas().getKeyboard().sendMetaKey(_currentKeyBean);
+        _canvasActivity.getRemoteConnection().getKeyboard().sendMetaKey(_currentKeyBean);
     }
 
     void setMetaKeyList() {

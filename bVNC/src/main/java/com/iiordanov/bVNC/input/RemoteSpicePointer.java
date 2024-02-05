@@ -20,10 +20,13 @@
 
 package com.iiordanov.bVNC.input;
 
+import android.content.Context;
 import android.os.Handler;
 
-import com.iiordanov.bVNC.RemoteCanvas;
+import com.undatech.opaque.InputCarriable;
 import com.undatech.opaque.RfbConnectable;
+import com.undatech.opaque.Viewable;
+import com.undatech.opaque.input.RemotePointer;
 import com.undatech.opaque.util.GeneralUtils;
 
 public class RemoteSpicePointer extends RemotePointer {
@@ -35,9 +38,15 @@ public class RemoteSpicePointer extends RemotePointer {
     public static final int SPICE_MOUSE_BUTTON_DOWN = 5;
     private static final String TAG = "RemoteSpicePointer";
 
-    public RemoteSpicePointer(RfbConnectable spicecomm, RemoteCanvas canvas, Handler handler,
-                              boolean debugLogging) {
-        super(spicecomm, canvas, handler, debugLogging);
+    public RemoteSpicePointer(
+            RfbConnectable protocomm,
+            Context context,
+            InputCarriable inputCarriable,
+            Viewable canvas,
+            Handler handler,
+            boolean debugLogging
+    ) {
+        super(protocomm, context, inputCarriable, canvas, handler, debugLogging);
     }
 
     @Override
@@ -124,6 +133,7 @@ public class RemoteSpicePointer extends RemotePointer {
 
     /**
      * Sends a pointer event to the server.
+     *
      * @param x
      * @param y
      * @param metaState
@@ -131,7 +141,7 @@ public class RemoteSpicePointer extends RemotePointer {
      */
     private void sendPointerEvent(int x, int y, int metaState, boolean isMoving) {
 
-        int combinedMetaState = metaState | canvas.getKeyboard().getMetaState();
+        int combinedMetaState = metaState | inputCarriable.getKeyboard().getMetaState();
 
         if (relativeEvents) {
             int relX = x - pointerX;

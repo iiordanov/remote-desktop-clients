@@ -29,6 +29,7 @@ import android.widget.RelativeLayout;
 import com.iiordanov.bVNC.RemoteCanvas;
 import com.iiordanov.bVNC.RemoteCanvasActivity;
 import com.undatech.opaque.util.GeneralUtils;
+import com.undatech.opaque.input.RemotePointer;
 import com.undatech.remoteClientUi.R;
 
 public class TouchInputHandlerSingleHanded extends TouchInputHandlerDirectSwipePan {
@@ -62,8 +63,7 @@ public class TouchInputHandlerSingleHanded extends TouchInputHandlerDirectSwipeP
             public void onClick(View arg0) {
                 startNewSingleHandedGesture();
                 dragMode = true;
-                RemotePointer p = canvas.getPointer();
-                p.leftButtonDown(eventStartX, eventStartY, eventMeta);
+                pointer.leftButtonDown(eventStartX, eventStartY, eventMeta);
                 canvas.displayShortToastMessage(R.string.single_left);
             }
         });
@@ -74,8 +74,7 @@ public class TouchInputHandlerSingleHanded extends TouchInputHandlerDirectSwipeP
             public void onClick(View arg0) {
                 startNewSingleHandedGesture();
                 rightDragMode = true;
-                RemotePointer p = canvas.getPointer();
-                p.rightButtonDown(eventStartX, eventStartY, eventMeta);
+                pointer.rightButtonDown(eventStartX, eventStartY, eventMeta);
                 canvas.displayShortToastMessage(R.string.single_right);
             }
         });
@@ -86,8 +85,7 @@ public class TouchInputHandlerSingleHanded extends TouchInputHandlerDirectSwipeP
             public void onClick(View arg0) {
                 startNewSingleHandedGesture();
                 middleDragMode = true;
-                RemotePointer p = canvas.getPointer();
-                p.middleButtonDown(eventStartX, eventStartY, eventMeta);
+                pointer.middleButtonDown(eventStartX, eventStartY, eventMeta);
                 canvas.displayShortToastMessage(R.string.single_middle);
             }
         });
@@ -100,8 +98,7 @@ public class TouchInputHandlerSingleHanded extends TouchInputHandlerDirectSwipeP
                 startNewSingleHandedGesture();
                 canvas.cursorBeingMoved = true;
                 inSwiping = true;
-                RemotePointer p = canvas.getPointer();
-                p.moveMouseButtonUp(eventStartX, eventStartY, eventMeta);
+                pointer.moveMouseButtonUp(eventStartX, eventStartY, eventMeta);
                 canvas.displayShortToastMessage(R.string.single_scroll);
             }
         });
@@ -186,8 +183,7 @@ public class TouchInputHandlerSingleHanded extends TouchInputHandlerDirectSwipeP
         singleHandOpts.setVisibility(View.VISIBLE);
 
         // Move pointer to where we're performing gesture.
-        RemotePointer p = canvas.getPointer();
-        p.moveMouseButtonUp(eventStartX, eventStartY, eventMeta);
+        pointer.moveMouseButtonUp(eventStartX, eventStartY, eventMeta);
     }
 
     /*

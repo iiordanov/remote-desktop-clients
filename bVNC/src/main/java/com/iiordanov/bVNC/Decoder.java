@@ -34,11 +34,15 @@ import android.graphics.RectF;
 import android.util.Log;
 
 import com.github.luben.zstd.Zstd;
-import com.iiordanov.bVNC.input.RemotePointer;
+import com.undatech.opaque.AbstractDrawableData;
+import com.undatech.opaque.InputCarriable;
+import com.undatech.opaque.Viewable;
+import com.undatech.opaque.input.RemotePointer;
 
 import java.io.IOException;
 import java.util.zip.DataFormatException;
 import java.util.zip.Inflater;
+
 
 public class Decoder {
     private final static String TAG = "Decoder";
@@ -90,11 +94,12 @@ public class Decoder {
     private Paint handleHextileSubrectPaint = new Paint();
     private byte[] backgroundColorBuffer = new byte[4];
 
-    private AbstractBitmapData bitmapData;
-    private RemoteCanvas vncCanvas;
+    private AbstractDrawableData bitmapData;
+    private Viewable vncCanvas;
+    private InputCarriable inputCarriable;
     private boolean discardCursorShapeUpdates;
 
-    public Decoder(RemoteCanvas v, boolean discardCursorShapeUpdates) {
+    public Decoder(Viewable v, InputCarriable c, boolean discardCursorShapeUpdates) {
         this.discardCursorShapeUpdates = discardCursorShapeUpdates;
         handleRREPaint.setStyle(Style.FILL);
         handleTightRectPaint.setStyle(Style.FILL);
@@ -104,9 +109,10 @@ public class Decoder {
         bitmapopts.inPreferredConfig = Bitmap.Config.RGB_565;
         bitmapopts.inScaled = false;
         vncCanvas = v;
+        inputCarriable = c;
     }
 
-    void setBitmapData(AbstractBitmapData b) {
+    void setBitmapData(AbstractDrawableData b) {
         bitmapData = b;
     }
 
@@ -138,7 +144,7 @@ public class Decoder {
 
     void handleRawRect(RfbProto rfb, int x, int y, int w, int h, boolean paint) throws IOException {
         boolean valid = bitmapData.validDraw(x, y, w, h);
-        int[] pixels = bitmapData.bitmapPixels;
+        int[] pixels = bitmapData.getBitmapPixels();
         if (bytesPerPixel == 1) {
             // 1 byte per pixel. Use palette lookup table.
             if (w > handleRawRectBuffer.length) {
@@ -518,7 +524,7 @@ public class Decoder {
         }
         zlibInflater.setInput(zlibBuf, 0, nBytes);
 
-        int[] pixels = bitmapData.bitmapPixels;
+        int[] pixels = bitmapData.getBitmapPixels();
 
         if (bytesPerPixel == 1) {
             // 1 byte per pixel. Use palette lookup table.
@@ -704,7 +710,7 @@ public class Decoder {
 
     private void handleUpdatedZrleTile(int x, int y, int w, int h) {
         int offsetSrc = 0;
-        int[] destPixels = bitmapData.bitmapPixels;
+        int[] destPixels = bitmapData.getBitmapPixels();
         for (int j = 0; j < h; j++) {
             System.arraycopy(zrleTilePixels, offsetSrc, destPixels, bitmapData.offset(x, y + j), w);
             offsetSrc += w;
@@ -719,7 +725,7 @@ public class Decoder {
     //
     void handleTightRect(RfbProto rfb, int x, int y, int w, int h, boolean zstd) throws Exception {
 
-        int[] pixels = bitmapData.bitmapPixels;
+        int[] pixels = bitmapData.getBitmapPixels();
         valid = bitmapData.validDraw(x, y, w, h);
         comp_ctl = rfb.is.readUnsignedByte();
 
@@ -975,7 +981,7 @@ public class Decoder {
 
         int dx, dy, n;
         int i = bitmapData.offset(x, y);
-        int[] pixels = bitmapData.bitmapPixels;
+        int[] pixels = bitmapData.getBitmapPixels();
         int rowBytes = (w + 7) / 8;
         byte b;
 
@@ -989,7 +995,7 @@ public class Decoder {
             for (n = 7; n >= 8 - w % 8; n--) {
                 pixels[i++] = colorPalette[0xFF & palette[src[dy * rowBytes + dx] >> n & 1]];
             }
-            i += (bitmapData.bitmapwidth - w);
+            i += (bitmapData.getBitmapWidth() - w);
         }
     }
 
@@ -997,7 +1003,7 @@ public class Decoder {
 
         int dx, dy, n;
         int i = bitmapData.offset(x, y);
-        int[] pixels = bitmapData.bitmapPixels;
+        int[] pixels = bitmapData.getBitmapPixels();
         int rowBytes = (w + 7) / 8;
         byte b;
 
@@ -1011,7 +1017,7 @@ public class Decoder {
             for (n = 7; n >= 8 - w % 8; n--) {
                 pixels[i++] = palette[src[dy * rowBytes + dx] >> n & 1];
             }
-            i += (bitmapData.bitmapwidth - w);
+            i += (bitmapData.getBitmapWidth() - w);
         }
     }
 
@@ -1025,7 +1031,7 @@ public class Decoder {
         byte[] thisRow = new byte[w * 3];
         byte[] pix = new byte[3];
         int[] est = new int[3];
-        int[] pixels = bitmapData.bitmapPixels;
+        int[] pixels = bitmapData.getBitmapPixels();
 
         int offset = bitmapData.offset(x, y);
 
@@ -1055,7 +1061,7 @@ public class Decoder {
             }
 
             System.arraycopy(thisRow, 0, prevRow, 0, w * 3);
-            offset += (bitmapData.bitmapwidth - w);
+            offset += (bitmapData.getBitmapWidth() - w);
         }
     }
 
@@ -1065,7 +1071,7 @@ public class Decoder {
     synchronized void
     handleCursorShapeUpdate(RfbProto rfb, int encodingType, int hotX, int hotY, int w, int h) throws IOException {
 
-        RemotePointer p = vncCanvas.getPointer();
+        RemotePointer p = inputCarriable.getPointer();
         int x = p.getX();
         int y = p.getY();
 

@@ -1,9 +1,11 @@
 package com.iiordanov.bVNC.input;
 
+import android.content.Context;
 import android.os.Handler;
 
-import com.iiordanov.bVNC.RemoteCanvas;
+import com.undatech.opaque.InputCarriable;
 import com.undatech.opaque.RfbConnectable;
+import com.undatech.opaque.Viewable;
 import com.undatech.opaque.util.GeneralUtils;
 
 public class RemoteRdpPointer extends RemotePointer {
@@ -22,9 +24,11 @@ public class RemoteRdpPointer extends RemotePointer {
     private static final int MOUSE_BUTTON_SCROLL_UP = PTRFLAGS_WHEEL | 0x0078;
     private static final int MOUSE_BUTTON_SCROLL_DOWN = PTRFLAGS_WHEEL | PTRFLAGS_WHEEL_NEGATIVE | 0x0088;
 
-    public RemoteRdpPointer(RfbConnectable spicecomm, RemoteCanvas canvas, Handler handler,
-                            boolean debugLogging) {
-        super(spicecomm, canvas, handler, debugLogging);
+    public RemoteRdpPointer(
+            RfbConnectable spicecomm, Context context, InputCarriable inputCarriable,
+            Viewable canvas, Handler handler, boolean debugLogging
+    ) {
+        super(spicecomm, context, inputCarriable, canvas, handler, debugLogging);
     }
 
     private void sendButtonDownOrMoveButtonDown(int x, int y, int metaState) {
@@ -110,7 +114,7 @@ public class RemoteRdpPointer extends RemotePointer {
      */
     private void sendPointerEvent(int x, int y, int metaState, boolean isMoving) {
 
-        int combinedMetaState = metaState | canvas.getKeyboard().getMetaState();
+        int combinedMetaState = metaState | inputCarriable.getKeyboard().getMetaState();
 
         // Save the previous pointer mask other than action_move, so we can
         // send it with the pointer flag "not down" to clear the action.

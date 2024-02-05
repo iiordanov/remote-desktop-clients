@@ -22,6 +22,8 @@ package com.iiordanov.bVNC;
 import android.content.Context;
 import android.text.ClipboardManager;
 
+import com.undatech.opaque.RfbConnectable;
+
 import java.util.TimerTask;
 
 /*
@@ -31,14 +33,15 @@ import java.util.TimerTask;
 
 public class ClipboardMonitor extends TimerTask {
     ClipboardManager clipboard;
-    RemoteCanvas vncCanvas;
     private String TAG = "ClipboardMonitor";
     private Context context;
     private String knownClipboardContents;
 
-    public ClipboardMonitor(Context c, RemoteCanvas vc) {
+    RfbConnectable rfbConnectable;
+
+    public ClipboardMonitor(Context c, RfbConnectable rfbConnectable) {
         context = c;
-        vncCanvas = vc;
+        this.rfbConnectable = rfbConnectable;
         clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
         knownClipboardContents = new String("");
     }
@@ -65,16 +68,16 @@ public class ClipboardMonitor extends TimerTask {
         String currentClipboardContents = getClipboardContents();
         //Log.d(TAG, "Current clipboard contents: " + currentClipboardContents);
         //Log.d(TAG, "Previously known clipboard contents: " + knownClipboardContents);
-        if (!vncCanvas.serverJustCutText && currentClipboardContents != null &&
+        if (!rfbConnectable.serverJustCutText && currentClipboardContents != null &&
                 !currentClipboardContents.equals(knownClipboardContents)) {
-            if (vncCanvas.rfbconn != null && vncCanvas.rfbconn.isInNormalProtocol()) {
-                vncCanvas.rfbconn.writeClientCutText(currentClipboardContents);
+            if (rfbConnectable != null && rfbConnectable.isInNormalProtocol()) {
+                rfbConnectable.writeClientCutText(currentClipboardContents);
                 knownClipboardContents = new String(currentClipboardContents);
                 //Log.d(TAG, "Wrote: " + knownClipboardContents + " to remote clipboard.");
             }
-        } else if (vncCanvas.serverJustCutText && currentClipboardContents != null) {
+        } else if (rfbConnectable.serverJustCutText && currentClipboardContents != null) {
             knownClipboardContents = new String(currentClipboardContents);
-            vncCanvas.serverJustCutText = false;
+            rfbConnectable.serverJustCutText = false;
             //Log.d(TAG, "Set knownClipboardContents to equal what server just sent over.");
         }
     }

@@ -31,6 +31,7 @@ import com.iiordanov.bVNC.Constants;
 import com.iiordanov.bVNC.RemoteCanvas;
 import com.iiordanov.bVNC.RemoteCanvasActivity;
 import com.undatech.opaque.util.GeneralUtils;
+import com.undatech.opaque.input.RemotePointer;
 
 import java.util.LinkedList;
 import java.util.Queue;
@@ -420,8 +421,6 @@ abstract class TouchInputHandlerGeneric extends GestureDetector.SimpleOnGestureL
         }
 
         if (action == MotionEvent.ACTION_UP) {
-            // Turn filtering back on and invalidate to make things pretty.
-            canvas.myDrawable.paint.setFilterBitmap(true);
             canvas.invalidate();
         }
 
@@ -443,8 +442,6 @@ abstract class TouchInputHandlerGeneric extends GestureDetector.SimpleOnGestureL
                         if (!singleHandedGesture)
                             endDragModesAndScrolling();
                         canvas.cursorBeingMoved = true;
-                        // If we are manipulating the desktop, turn off bitmap filtering for faster response.
-                        canvas.myDrawable.paint.setFilterBitmap(false);
                         // Indicate where we start dragging from.
                         dragX = e.getX();
                         dragY = e.getY();
