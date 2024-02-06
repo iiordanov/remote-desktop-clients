@@ -19,7 +19,7 @@ import androidx.fragment.app.FragmentManager;
 import com.iiordanov.bVNC.CredentialsObtainer;
 import com.iiordanov.bVNC.RemoteCanvas;
 import com.iiordanov.bVNC.RemoteCanvasActivity;
-import com.iiordanov.bVNC.RemoteConnection;
+import com.iiordanov.bVNC.protocol.RemoteConnection;
 import com.iiordanov.bVNC.Utils;
 import com.iiordanov.bVNC.dialogs.GetTextFragment;
 import com.undatech.opaque.Connection;
@@ -310,9 +310,9 @@ public class RemoteCanvasHandler extends Handler implements HttpsFileDownloader.
     }
 
     private void setCertificateAcceptedAndNotifyListeners() {
-        remoteConnection.rfbConn.setCertificateAccepted(true);
-        synchronized (remoteConnection.rfbConn) {
-            remoteConnection.rfbConn.notifyAll();
+        remoteConnection.getRfbConn().setCertificateAccepted(true);
+        synchronized (remoteConnection.getRfbConn()) {
+            remoteConnection.getRfbConn().notifyAll();
         }
         synchronized (RemoteCanvasHandler.this) {
             RemoteCanvasHandler.this.notifyAll();
@@ -501,11 +501,7 @@ public class RemoteCanvasHandler extends Handler implements HttpsFileDownloader.
                 remoteConnection.setClipboardText(messageData.getString("text"));
                 break;
             case RemoteClientLibConstants.REINIT_SESSION:
-                if (Utils.isOpaque(context)) {
-                    remoteConnection.reinitializeOpaque();
-                } else {
-                    remoteConnection.reinitializeConnection();
-                }
+                remoteConnection.reinitializeConnection();
                 break;
             case RemoteClientLibConstants.REPORT_TOOLBAR_POSITION:
                 android.util.Log.d(TAG, "Handling message, REPORT_TOOLBAR_POSITION");
@@ -606,7 +602,7 @@ public class RemoteCanvasHandler extends Handler implements HttpsFileDownloader.
                         false);
                 break;
             case RemoteClientLibConstants.PVE_FAILED_TO_AUTHENTICATE:
-                if (remoteConnection.retrieveVvFileName() != null) {
+                if (remoteConnection.getVvFileName() != null) {
                     MessageDialogs.displayMessageAndFinish(context, R.string.error_pve_failed_to_authenticate,
                             R.string.error_dialog_title);
                     break;
@@ -622,7 +618,7 @@ public class RemoteCanvasHandler extends Handler implements HttpsFileDownloader.
                     break;
                 }
             case RemoteClientLibConstants.OVIRT_AUTH_FAILURE:
-                if (remoteConnection.retrieveVvFileName() != null) {
+                if (remoteConnection.getVvFileName() != null) {
                     remoteConnection.disconnectAndShowMessage(R.string.error_ovirt_auth_failure, R.string.error_dialog_title);
                     break;
                 } else {
@@ -653,9 +649,9 @@ public class RemoteCanvasHandler extends Handler implements HttpsFileDownloader.
                 if (remoteConnection.pd != null && remoteConnection.pd.isShowing()) {
                     remoteConnection.pd.dismiss();
                 }
-                synchronized (remoteConnection.spiceComm) {
+                synchronized (remoteConnection.getRfbConn()) {
                     remoteConnection.spiceUpdateReceived = true;
-                    remoteConnection.spiceComm.notifyAll();
+                    remoteConnection.getRfbConn().notifyAll();
                 }
                 break;
             case RemoteClientLibConstants.SPICE_CONNECT_FAILURE:

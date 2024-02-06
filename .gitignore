@@ -5,7 +5,8 @@ gen
 dist
 *~
 freeRDPCore
-remoteClientLib/libs
+remoteClientLib/java/
+remoteClientLib/jni/java
 remoteClientLib/jni/libs/recipes/
 remoteClientLib/jni/libs/deps/
 remoteClientLib/jni/libs/cerbero/
@@ -15,6 +16,7 @@ remoteClientLib/jni/libs/FREERDP_BUILT
 remoteClientLib/jni/libs/android-ndk*
 remoteClientLib/jni/libs/cmake-*
 remoteClientLib/jni/libs/setuptools
+remoteClientLib/libs
 remoteClientLib/gst-build-*/
 remoteClientLib/jni/gst-build-*/
 remoteClientLib/debug/
@@ -204,3 +206,5 @@ trigger-*
 increment_*
 
 remote-desktop-clients-libs-*
+
+venv

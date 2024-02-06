@@ -28,7 +28,6 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
@@ -50,16 +49,11 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.View.OnClickListener;
-import android.view.View.OnLongClickListener;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
@@ -69,6 +63,7 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -85,6 +80,8 @@ import com.iiordanov.bVNC.input.TouchInputHandlerDirectDragPan;
 import com.iiordanov.bVNC.input.TouchInputHandlerDirectSwipePan;
 import com.iiordanov.bVNC.input.TouchInputHandlerSingleHanded;
 import com.iiordanov.bVNC.input.TouchInputHandlerTouchpad;
+import com.iiordanov.bVNC.protocol.RemoteConnection;
+import com.iiordanov.bVNC.protocol.RemoteConnectionFactory;
 import com.iiordanov.util.SamsungDexUtils;
 import com.iiordanov.util.UriIntentParser;
 import com.undatech.opaque.Connection;
@@ -110,6 +107,7 @@ import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
 
+@SuppressLint("ClickableViewAccessibility")
 public class RemoteCanvasActivity extends AppCompatActivity implements
         SelectTextElementFragment.OnFragmentDismissedListener {
 
@@ -119,7 +117,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
             R.id.itemInputSingleHanded};
     public static final Map<Integer, String> inputModeMap;
     private final static String TAG = "RemoteCanvasActivity";
-    private static final int scalingModeIds[] = {R.id.itemZoomable, R.id.itemFitToScreen,
+    private static final int[] scalingModeIds = {R.id.itemZoomable, R.id.itemFitToScreen,
             R.id.itemOneToOne};
 
     static {
@@ -151,7 +149,6 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
     ImageButton keyDown;
     ImageButton keyLeft;
     ImageButton keyRight;
-    boolean hardKeyboardExtended;
     boolean extraKeysHidden = false;
     volatile boolean softKeyboardUp;
     RemoteToolbar toolbar;
@@ -163,14 +160,14 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
     private RemoteConnection remoteConnection;
     private MenuItem[] inputModeMenuItems;
     private MenuItem[] scalingModeMenuItems;
-    private TouchInputHandler inputModeHandlers[];
+    private TouchInputHandler[] inputModeHandlers;
     private Connection connection;
     public RemoteClientsInputListener inputListener;
 
     /**
      * This runnable enables immersive mode.
      */
-    private Runnable immersiveEnabler = new Runnable() {
+    private final Runnable immersiveEnabler = new Runnable() {
         public void run() {
             try {
                 if (Utils.querySharedPreferenceBoolean(RemoteCanvasActivity.this,
@@ -189,13 +186,14 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
                 }
 
             } catch (Exception e) {
+                Log.d(TAG, "Ignored Exception while enabling immersive mode");
             }
         }
     };
     /**
      * This runnable disables immersive mode.
      */
-    private Runnable immersiveDisabler = new Runnable() {
+    private final Runnable immersiveDisabler = new Runnable() {
         public void run() {
             try {
                 if (Constants.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT) {
@@ -206,20 +204,42 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
                 }
 
             } catch (Exception e) {
+                Log.d(TAG, "Ignored Exception while disabling immersive mode");
             }
         }
     };
     /**
      * This runnable fixes things up after a rotation.
      */
-    private Runnable rotationCorrector = new Runnable() {
-        public void run() {
-            try {
-                correctAfterRotation();
-            } catch (Exception e) {
-            }
+    private final Runnable rotationCorrector = () -> {
+        try {
+            correctAfterRotation();
+        } catch (Exception e) {
+            Log.d(TAG, "Ignoring Exception on rotationCorrector run.");
         }
     };
+
+    private void correctAfterRotation() throws Exception {
+        Log.d(TAG, "correctAfterRotation");
+        canvas.waitUntilInflated();
+        // Its quite common to see NullPointerExceptions here when this function is called
+        // at the point of disconnection. Hence, we catch and ignore the error.
+        float oldScale = canvas.canvasZoomer.getZoomFactor();
+        int x = canvas.absoluteXPosition;
+        int y = canvas.absoluteYPosition;
+        canvas.canvasZoomer.setScaleTypeForActivity(this);
+        float newScale = canvas.canvasZoomer.getZoomFactor();
+        canvas.canvasZoomer.changeZoom(this, oldScale / newScale, 0, 0);
+        newScale = canvas.canvasZoomer.getZoomFactor();
+        if (newScale <= oldScale &&
+                canvas.canvasZoomer.getScaleType() != ImageView.ScaleType.FIT_CENTER) {
+            canvas.absoluteXPosition = x;
+            canvas.absoluteYPosition = y;
+            canvas.resetScroll();
+        }
+        remoteConnection.correctAfterRotation();
+    }
+
     private MetaKeyBean lastSentKey;
 
     /**
@@ -246,6 +266,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
         }
     }
 
+    @SuppressLint("ObsoleteSdkInt")
     @Override
     public void onCreate(Bundle icicle) {
         Log.d(TAG, "OnCreate called");
@@ -260,7 +281,6 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
         setContentView(R.layout.canvas);
 
         canvas = findViewById(R.id.canvas);
-        remoteConnection = new RemoteConnection(this, canvas);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             canvas.setDefaultFocusHighlightEnabled(false);
@@ -274,42 +294,41 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
 
         View decorView = getWindow().getDecorView();
         decorView.setOnSystemUiVisibilityChangeListener
-                (new View.OnSystemUiVisibilityChangeListener() {
-                    @Override
-                    public void onSystemUiVisibilityChange(int visibility) {
-                        try {
-                            correctAfterRotation();
-                        } catch (Exception e) {
-                            //e.printStackTrace();
-                        }
-                        //handler.postDelayed(rotationCorrector, 300);
+                (visibility -> {
+                    try {
+                        remoteConnection.correctAfterRotation();
+                    } catch (Exception e) {
+                        Log.d(TAG, "Ignoring Exception during SystemUiVisibilityChangeListener execution");
                     }
                 });
 
-        Runnable setModes = new Runnable() {
-            public void run() {
-                try {
-                    setModes();
-                } catch (NullPointerException e) {
-                }
+        Runnable setModes = () -> {
+            try {
+                setModes();
+            } catch (NullPointerException e) {
+                Log.d(TAG, "Ignored Exception while running setModes");
             }
         };
-        Runnable hideKeyboardAndExtraKeys = new Runnable() {
-            public void run() {
-                try {
-                    hideKeyboardAndExtraKeys();
-                } catch (NullPointerException e) {
-                }
+        Runnable hideKeyboardAndExtraKeys = () -> {
+            try {
+                hideKeyboardAndExtraKeys();
+            } catch (NullPointerException e) {
+                Log.d(TAG, "Ignoring NullPointerException while running hideKeyboardAndExtraKeys.");
             }
         };
 
+        String vvFileName = null;
         if (Utils.isOpaque(this)) {
-            initializeOpaque(setModes, hideKeyboardAndExtraKeys);
+            vvFileName = retrieveVvFileFromIntent(getIntent());
+            connection = getOpaqueConnection(vvFileName);
         } else {
-            initialize(setModes, hideKeyboardAndExtraKeys);
+            connection = getNonOpaqueConnection();
         }
         if (connection != null && connection.isReadyForConnection()) {
-            canvas.setParameters(remoteConnection.rfbConn, connection, handler, remoteConnection.getPointer(), setModes);
+            remoteConnection = new RemoteConnectionFactory(this, connection, canvas, vvFileName).build();
+            handler = new RemoteCanvasHandler(this, canvas, remoteConnection, connection);
+            remoteConnection.initializeConnection(connection, handler, hideKeyboardAndExtraKeys, vvFileName);
+            canvas.setParameters(remoteConnection.getRfbConn(), connection, handler, remoteConnection.getPointer(), setModes);
             continueConnecting();
         }
 
@@ -317,7 +336,8 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
     }
 
     @SuppressLint("SourceLockedOrientationActivity")
-    void initialize(final Runnable setModes, final Runnable hideKeyboardAndExtraKeys) {
+    Connection getNonOpaqueConnection() {
+        Connection connection;
         if (Utils.querySharedPreferenceBoolean(this, Constants.keepScreenOnTag))
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
@@ -328,17 +348,16 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
         Uri data = i.getData();
         boolean isSupportedScheme = isSupportedScheme(data);
         if (isSupportedScheme || !Utils.isNullOrEmptry(i.getType())) {
-            if (handleSupportedUri(data)) return;
+            connection = handleSupportedUri(data);
         } else {
-            handleSerializedConnection(i);
+            connection = loadSerializedConnection(i);
         }
-        handler = new RemoteCanvasHandler(this, null, null, connection);
-        remoteConnection.initializeConnection(connection, hideKeyboardAndExtraKeys);
+        return connection;
     }
 
-    private void handleSerializedConnection(Intent i) {
+    private Connection loadSerializedConnection(Intent i) {
         Log.d(TAG, "Initializing serialized connection");
-        connection = new ConnectionBean(this);
+        Connection connection = new ConnectionBean(this);
         Bundle extras = i.getExtras();
 
         if (extras != null) {
@@ -346,22 +365,23 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
             connection.populateFromContentValues((ContentValues) extras.getParcelable(Utils.getConnectionString(this)));
             connection.load(this);
         }
+        return connection;
     }
 
-    private boolean handleSupportedUri(Uri data) {
+    private Connection handleSupportedUri(Uri data) {
         Log.d(TAG, "Initializing classic connection from Intent.");
         if (isMasterPasswordEnabled()) {
             Utils.showFatalErrorMessage(this, getResources().getString(R.string.master_password_error_intents_not_supported));
-            return true;
+            return null;
         }
 
-        createConnectionFromUri(data);
-        if (showConnectionScreenOrExitIfNotReadyForConnection()) return true;
-        return false;
+        Connection connection = createConnectionFromUri(data);
+        showConnectionScreenOrExitIfNotReadyForConnecting(connection);
+        return connection;
     }
 
-    private void createConnectionFromUri(Uri data) {
-        connection = UriIntentParser.loadFromUriOrCreateNew(data, this);
+    private Connection createConnectionFromUri(Uri data) {
+        Connection connection = UriIntentParser.loadFromUriOrCreateNew(data, this);
         String host = null;
         if (data != null) {
             host = data.getHost();
@@ -369,22 +389,22 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
         if (host != null && !host.startsWith(Utils.getConnectionString(this))) {
             UriIntentParser.parseFromUri(this, connection, data);
         }
+        return connection;
     }
 
     private boolean isSupportedScheme(Uri data) {
         boolean isSupportedScheme = false;
         if (data != null) {
             String s = data.getScheme();
-            isSupportedScheme = s.equals("rdp") || s.equals("spice") || s.equals("vnc");
+            isSupportedScheme = "rdp".equals(s) || "spice".equals(s) || "vnc".equals(s);
         }
         return isSupportedScheme;
     }
 
-    private boolean showConnectionScreenOrExitIfNotReadyForConnection() {
+    private void showConnectionScreenOrExitIfNotReadyForConnecting(Connection connection) {
         // we need to save the connection to display the loading screen, so otherwise we should exit
         if (!connection.isReadyForConnection()) {
             Toast.makeText(this, getString(R.string.error_uri_noinfo_nosave), Toast.LENGTH_LONG).show();
-            ;
             if (connection.isReadyToBeSaved()) {
                 Log.i(TAG, "Exiting - Insufficent information to connect and connection was not saved.");
             } else {
@@ -396,38 +416,29 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
                 } else if (Utils.isSpice(this)) {
                     cls = aSPICE.class;
                 }
-                Intent bVncIntent = new Intent(this, cls);
-                startActivity(bVncIntent);
+                Intent Intent = new Intent(this, cls);
+                startActivity(Intent);
             }
             Utils.justFinish(this);
-            return true;
         }
-        return false;
     }
 
     @SuppressLint("SourceLockedOrientationActivity")
-    private void initializeOpaque(final Runnable setModes, final Runnable hideKeyboardAndExtraKeys) {
+    private Connection getOpaqueConnection(String vvFileName) {
+        Connection connection;
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
         Intent i = getIntent();
-        String vvFileName = retrieveVvFileFromIntent(i);
         if (vvFileName == null) {
             android.util.Log.d(TAG, "Initializing session from connection settings.");
             connection = (ConnectionSettings) i.getSerializableExtra(Constants.opaqueConnectionSettingsClassPath);
         } else {
-            android.util.Log.d(TAG, "Initializing session from vv file: " + vvFileName);
-            File f = new File(vvFileName);
-            if (!f.exists()) {
-                // Quit with an error if the file does not exist.
-                MessageDialogs.displayMessageAndFinish(this, R.string.vv_file_not_found, R.string.error_dialog_title);
-                return;
-            }
             connection = new ConnectionSettings(RemoteClientLibConstants.DEFAULT_SETTINGS_FILE);
             connection.load(getApplicationContext());
         }
-        handler = new RemoteCanvasHandler(this, canvas, remoteConnection, connection);
-        remoteConnection.init(connection, handler, hideKeyboardAndExtraKeys, vvFileName);
+        return connection;
     }
 
+    @SuppressLint("RtlHardcoded")
     void continueConnecting() {
         android.util.Log.d(TAG, "continueConnecting");
         // Initialize and define actions for on-screen keys.
@@ -442,12 +453,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
         // TODO: Move this into a separate thread, and post the visibility changes to the handler.
         //       to avoid occupying the UI thread with this.
         rootView = ((ViewGroup) findViewById(android.R.id.content)).getChildAt(0);
-        rootView.getViewTreeObserver().addOnGlobalLayoutListener(new OnGlobalLayoutListener() {
-            @Override
-            public void onGlobalLayout() {
-                relayoutViews(rootView);
-            }
-        });
+        rootView.getViewTreeObserver().addOnGlobalLayoutListener(() -> relayoutViews(rootView));
 
         FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.WRAP_CONTENT,
@@ -479,7 +485,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
         Rect r = new Rect();
 
         rootView.getWindowVisibleDisplayFrame(r);
-        android.util.Log.d(TAG, "onGlobalLayout: getWindowVisibleDisplayFrame: " + r.toString());
+        android.util.Log.d(TAG, "onGlobalLayout: getWindowVisibleDisplayFrame: " + r);
 
         // To avoid setting the visible height to a wrong value after an screen unlock event
         // (when r.bottom holds the width of the screen rather than the height due to a rotation)
@@ -579,8 +585,10 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
                 canvas.invalidate();
             }
         }
-        layoutKeysBottom = layoutKeys.getBottom();
-        rootViewBottom = layoutKeys.getRootView().getBottom();
+        if (layoutKeys != null) {
+            layoutKeysBottom = layoutKeys.getBottom();
+            rootViewBottom = layoutKeys.getRootView().getBottom();
+        }
         android.util.Log.d(TAG, "onGlobalLayout: after: r.bottom: " + r.bottom +
                 " rootViewHeight: " + rootViewHeight + " re.top: " + re.top + " re.bottom: " + re.bottom +
                 " layoutKeysBottom: " + layoutKeysBottom + " rootViewBottom: " + rootViewBottom + " toolbarBottom: " + toolbarBottom +
@@ -590,7 +598,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
     /**
      * Retrieves a vv file from the intent if possible and returns the path to it.
      *
-     * @param i
+     * @param i intent that started the activity
      * @return the vv file name or NULL if no file was discovered.
      */
     private String retrieveVvFileFromIntent(Intent i) {
@@ -599,10 +607,10 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
         final String tempVvFile = getFilesDir() + "/tempfile.vv";
         int msgId = 0;
 
-        android.util.Log.d(TAG, "Got intent: " + i.toString());
+        android.util.Log.d(TAG, "Got intent: " + i);
 
         if (data != null) {
-            android.util.Log.d(TAG, "Got data: " + data.toString());
+            android.util.Log.d(TAG, "Got data: " + data);
             final String dataString = data.toString();
             if (dataString.startsWith("http")) {
                 android.util.Log.d(TAG, "Intent is with http scheme.");
@@ -617,9 +625,8 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
                             // Download the file and write it out.
                             URL url = new URL(data.toString());
                             File file = new File(tempVvFile);
-
                             URLConnection ucon = url.openConnection();
-                            FileUtils.outputToFile(ucon.getInputStream(), new File(tempVvFile));
+                            FileUtils.outputToFile(ucon.getInputStream(), file);
 
                             synchronized (RemoteCanvasActivity.this) {
                                 RemoteCanvasActivity.this.notify();
@@ -640,7 +647,6 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
                     try {
                         this.wait(RemoteClientLibConstants.VV_GET_FILE_TIMEOUT);
                     } catch (InterruptedException e) {
-                        vvFileName = null;
                         e.printStackTrace();
                     }
                     vvFileName = tempVvFile;
@@ -694,11 +700,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
             return;
         }
         Drawable replacer;
-        if (connection.getExtraKeysToggleType() == Constants.EXTRA_KEYS_OFF) {
-            m.setVisible(false);
-        } else {
-            m.setVisible(true);
-        }
+        m.setVisible(connection.getExtraKeysToggleType() != Constants.EXTRA_KEYS_OFF);
         if (layoutKeys.getVisibility() == View.GONE)
             replacer = getResources().getDrawable(R.drawable.showkeys);
         else
@@ -724,153 +726,123 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
 
         // Define action of tab key and meta keys.
         keyTab = (ImageButton) findViewById(R.id.keyTab);
-        keyTab.setOnTouchListener(new OnTouchListener() {
-            @Override
-            public boolean onTouch(View arg0, MotionEvent e) {
-                RemoteKeyboard k = remoteConnection.getKeyboard();
-                int key = KeyEvent.KEYCODE_TAB;
-                if (e.getAction() == MotionEvent.ACTION_DOWN) {
-                    BCFactory.getInstance().getBCHaptic().performLongPressHaptic(canvas);
-                    keyTab.setImageResource(R.drawable.tabon);
-                    k.repeatKeyEvent(key, new KeyEvent(e.getAction(), key));
-                    return true;
-                } else if (e.getAction() == MotionEvent.ACTION_UP) {
-                    keyTab.setImageResource(R.drawable.taboff);
-                    resetOnScreenKeys(0);
-                    k.stopRepeatingKeyEvent();
-                    return true;
-                }
-                return false;
+        keyTab.setOnTouchListener((arg0, e) -> {
+            RemoteKeyboard k = remoteConnection.getKeyboard();
+            int key = KeyEvent.KEYCODE_TAB;
+            if (e.getAction() == MotionEvent.ACTION_DOWN) {
+                BCFactory.getInstance().getBCHaptic().performLongPressHaptic(canvas);
+                keyTab.setImageResource(R.drawable.tabon);
+                k.repeatKeyEvent(key, new KeyEvent(e.getAction(), key));
+                return true;
+            } else if (e.getAction() == MotionEvent.ACTION_UP) {
+                keyTab.setImageResource(R.drawable.taboff);
+                resetOnScreenKeys(0);
+                k.stopRepeatingKeyEvent();
+                return true;
             }
+            return false;
         });
 
         keyEsc = (ImageButton) findViewById(R.id.keyEsc);
-        keyEsc.setOnTouchListener(new OnTouchListener() {
-            @Override
-            public boolean onTouch(View arg0, MotionEvent e) {
-                RemoteKeyboard k = remoteConnection.getKeyboard();
-                int key = 111; /* KEYCODE_ESCAPE */
-                if (e.getAction() == MotionEvent.ACTION_DOWN) {
-                    BCFactory.getInstance().getBCHaptic().performLongPressHaptic(canvas);
-                    keyEsc.setImageResource(R.drawable.escon);
-                    k.repeatKeyEvent(key, new KeyEvent(e.getAction(), key));
-                    return true;
-                } else if (e.getAction() == MotionEvent.ACTION_UP) {
-                    keyEsc.setImageResource(R.drawable.escoff);
-                    resetOnScreenKeys(0);
-                    k.stopRepeatingKeyEvent();
-                    return true;
-                }
-                return false;
+        keyEsc.setOnTouchListener((arg0, e) -> {
+            RemoteKeyboard k = remoteConnection.getKeyboard();
+            int key = 111; /* KEYCODE_ESCAPE */
+            if (e.getAction() == MotionEvent.ACTION_DOWN) {
+                BCFactory.getInstance().getBCHaptic().performLongPressHaptic(canvas);
+                keyEsc.setImageResource(R.drawable.escon);
+                k.repeatKeyEvent(key, new KeyEvent(e.getAction(), key));
+                return true;
+            } else if (e.getAction() == MotionEvent.ACTION_UP) {
+                keyEsc.setImageResource(R.drawable.escoff);
+                resetOnScreenKeys(0);
+                k.stopRepeatingKeyEvent();
+                return true;
             }
+            return false;
         });
 
         keyCtrl = (ImageButton) findViewById(R.id.keyCtrl);
-        keyCtrl.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View arg0) {
-                boolean on = remoteConnection.getKeyboard().onScreenCtrlToggle();
-                keyCtrlToggled = false;
-                if (on)
-                    keyCtrl.setImageResource(R.drawable.ctrlon);
-                else
-                    keyCtrl.setImageResource(R.drawable.ctrloff);
-            }
+        keyCtrl.setOnClickListener(arg0 -> {
+            boolean on = remoteConnection.getKeyboard().onScreenCtrlToggle();
+            keyCtrlToggled = false;
+            if (on)
+                keyCtrl.setImageResource(R.drawable.ctrlon);
+            else
+                keyCtrl.setImageResource(R.drawable.ctrloff);
         });
 
-        keyCtrl.setOnLongClickListener(new OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View arg0) {
-                sendShortVibration();
-                boolean on = remoteConnection.getKeyboard().onScreenCtrlToggle();
-                keyCtrlToggled = true;
-                if (on)
-                    keyCtrl.setImageResource(R.drawable.ctrlon);
-                else
-                    keyCtrl.setImageResource(R.drawable.ctrloff);
-                return true;
-            }
+        keyCtrl.setOnLongClickListener(arg0 -> {
+            sendShortVibration();
+            boolean on = remoteConnection.getKeyboard().onScreenCtrlToggle();
+            keyCtrlToggled = true;
+            if (on)
+                keyCtrl.setImageResource(R.drawable.ctrlon);
+            else
+                keyCtrl.setImageResource(R.drawable.ctrloff);
+            return true;
         });
 
         keySuper = (ImageButton) findViewById(R.id.keySuper);
-        keySuper.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View arg0) {
-                boolean on = remoteConnection.getKeyboard().onScreenSuperToggle();
-                keySuperToggled = false;
-                if (on)
-                    keySuper.setImageResource(R.drawable.superon);
-                else
-                    keySuper.setImageResource(R.drawable.superoff);
-            }
+        keySuper.setOnClickListener(arg0 -> {
+            boolean on = remoteConnection.getKeyboard().onScreenSuperToggle();
+            keySuperToggled = false;
+            if (on)
+                keySuper.setImageResource(R.drawable.superon);
+            else
+                keySuper.setImageResource(R.drawable.superoff);
         });
 
-        keySuper.setOnLongClickListener(new OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View arg0) {
-                sendShortVibration();
-                boolean on = remoteConnection.getKeyboard().onScreenSuperToggle();
-                keySuperToggled = true;
-                if (on)
-                    keySuper.setImageResource(R.drawable.superon);
-                else
-                    keySuper.setImageResource(R.drawable.superoff);
-                return true;
-            }
+        keySuper.setOnLongClickListener(arg0 -> {
+            sendShortVibration();
+            boolean on = remoteConnection.getKeyboard().onScreenSuperToggle();
+            keySuperToggled = true;
+            if (on)
+                keySuper.setImageResource(R.drawable.superon);
+            else
+                keySuper.setImageResource(R.drawable.superoff);
+            return true;
         });
 
         keyAlt = (ImageButton) findViewById(R.id.keyAlt);
-        keyAlt.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View arg0) {
-                boolean on = remoteConnection.getKeyboard().onScreenAltToggle();
-                keyAltToggled = false;
-                if (on)
-                    keyAlt.setImageResource(R.drawable.alton);
-                else
-                    keyAlt.setImageResource(R.drawable.altoff);
-            }
+        keyAlt.setOnClickListener(arg0 -> {
+            boolean on = remoteConnection.getKeyboard().onScreenAltToggle();
+            keyAltToggled = false;
+            if (on)
+                keyAlt.setImageResource(R.drawable.alton);
+            else
+                keyAlt.setImageResource(R.drawable.altoff);
         });
 
-        keyAlt.setOnLongClickListener(new OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View arg0) {
-                sendShortVibration();
-                boolean on = remoteConnection.getKeyboard().onScreenAltToggle();
-                keyAltToggled = true;
-                if (on)
-                    keyAlt.setImageResource(R.drawable.alton);
-                else
-                    keyAlt.setImageResource(R.drawable.altoff);
-                return true;
-            }
+        keyAlt.setOnLongClickListener(arg0 -> {
+            sendShortVibration();
+            boolean on = remoteConnection.getKeyboard().onScreenAltToggle();
+            keyAltToggled = true;
+            if (on)
+                keyAlt.setImageResource(R.drawable.alton);
+            else
+                keyAlt.setImageResource(R.drawable.altoff);
+            return true;
         });
 
         keyShift = (ImageButton) findViewById(R.id.keyShift);
-        keyShift.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View arg0) {
-                boolean on = remoteConnection.getKeyboard().onScreenShiftToggle();
-                keyShiftToggled = false;
-                if (on)
-                    keyShift.setImageResource(R.drawable.shifton);
-                else
-                    keyShift.setImageResource(R.drawable.shiftoff);
-            }
+        keyShift.setOnClickListener(arg0 -> {
+            boolean on = remoteConnection.getKeyboard().onScreenShiftToggle();
+            keyShiftToggled = false;
+            if (on)
+                keyShift.setImageResource(R.drawable.shifton);
+            else
+                keyShift.setImageResource(R.drawable.shiftoff);
         });
 
-        keyShift.setOnLongClickListener(new OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View arg0) {
-                sendShortVibration();
-                boolean on = remoteConnection.getKeyboard().onScreenShiftToggle();
-                keyShiftToggled = true;
-                if (on)
-                    keyShift.setImageResource(R.drawable.shifton);
-                else
-                    keyShift.setImageResource(R.drawable.shiftoff);
-                return true;
-            }
+        keyShift.setOnLongClickListener(arg0 -> {
+            sendShortVibration();
+            boolean on = remoteConnection.getKeyboard().onScreenShiftToggle();
+            keyShiftToggled = true;
+            if (on)
+                keyShift.setImageResource(R.drawable.shifton);
+            else
+                keyShift.setImageResource(R.drawable.shiftoff);
+            return true;
         });
 
         // TODO: Evaluate whether I should instead be using:
@@ -878,87 +850,75 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
 
         // Define action of arrow keys.
         keyUp = (ImageButton) findViewById(R.id.keyUpArrow);
-        keyUp.setOnTouchListener(new OnTouchListener() {
-            @Override
-            public boolean onTouch(View arg0, MotionEvent e) {
-                RemoteKeyboard k = remoteConnection.getKeyboard();
-                int key = KeyEvent.KEYCODE_DPAD_UP;
-                if (e.getAction() == MotionEvent.ACTION_DOWN) {
-                    sendShortVibration();
-                    keyUp.setImageResource(R.drawable.upon);
-                    k.repeatKeyEvent(key, new KeyEvent(e.getAction(), key));
-                    return true;
-                } else if (e.getAction() == MotionEvent.ACTION_UP) {
-                    keyUp.setImageResource(R.drawable.upoff);
-                    resetOnScreenKeys(0);
-                    k.stopRepeatingKeyEvent();
-                    return true;
-                }
-                return false;
+        keyUp.setOnTouchListener((arg0, e) -> {
+            RemoteKeyboard k = remoteConnection.getKeyboard();
+            int key = KeyEvent.KEYCODE_DPAD_UP;
+            if (e.getAction() == MotionEvent.ACTION_DOWN) {
+                sendShortVibration();
+                keyUp.setImageResource(R.drawable.upon);
+                k.repeatKeyEvent(key, new KeyEvent(e.getAction(), key));
+                return true;
+            } else if (e.getAction() == MotionEvent.ACTION_UP) {
+                keyUp.setImageResource(R.drawable.upoff);
+                resetOnScreenKeys(0);
+                k.stopRepeatingKeyEvent();
+                return true;
             }
+            return false;
         });
 
         keyDown = (ImageButton) findViewById(R.id.keyDownArrow);
-        keyDown.setOnTouchListener(new OnTouchListener() {
-            @Override
-            public boolean onTouch(View arg0, MotionEvent e) {
-                RemoteKeyboard k = remoteConnection.getKeyboard();
-                int key = KeyEvent.KEYCODE_DPAD_DOWN;
-                if (e.getAction() == MotionEvent.ACTION_DOWN) {
-                    sendShortVibration();
-                    keyDown.setImageResource(R.drawable.downon);
-                    k.repeatKeyEvent(key, new KeyEvent(e.getAction(), key));
-                    return true;
-                } else if (e.getAction() == MotionEvent.ACTION_UP) {
-                    keyDown.setImageResource(R.drawable.downoff);
-                    resetOnScreenKeys(0);
-                    k.stopRepeatingKeyEvent();
-                    return true;
-                }
-                return false;
+        keyDown.setOnTouchListener((arg0, e) -> {
+            RemoteKeyboard k = remoteConnection.getKeyboard();
+            int key = KeyEvent.KEYCODE_DPAD_DOWN;
+            if (e.getAction() == MotionEvent.ACTION_DOWN) {
+                sendShortVibration();
+                keyDown.setImageResource(R.drawable.downon);
+                k.repeatKeyEvent(key, new KeyEvent(e.getAction(), key));
+                return true;
+            } else if (e.getAction() == MotionEvent.ACTION_UP) {
+                keyDown.setImageResource(R.drawable.downoff);
+                resetOnScreenKeys(0);
+                k.stopRepeatingKeyEvent();
+                return true;
             }
+            return false;
         });
 
         keyLeft = (ImageButton) findViewById(R.id.keyLeftArrow);
-        keyLeft.setOnTouchListener(new OnTouchListener() {
-            @Override
-            public boolean onTouch(View arg0, MotionEvent e) {
-                RemoteKeyboard k = remoteConnection.getKeyboard();
-                int key = KeyEvent.KEYCODE_DPAD_LEFT;
-                if (e.getAction() == MotionEvent.ACTION_DOWN) {
-                    sendShortVibration();
-                    keyLeft.setImageResource(R.drawable.lefton);
-                    k.repeatKeyEvent(key, new KeyEvent(e.getAction(), key));
-                    return true;
-                } else if (e.getAction() == MotionEvent.ACTION_UP) {
-                    keyLeft.setImageResource(R.drawable.leftoff);
-                    resetOnScreenKeys(0);
-                    k.stopRepeatingKeyEvent();
-                    return true;
-                }
-                return false;
+        keyLeft.setOnTouchListener((arg0, e) -> {
+            RemoteKeyboard k = remoteConnection.getKeyboard();
+            int key = KeyEvent.KEYCODE_DPAD_LEFT;
+            if (e.getAction() == MotionEvent.ACTION_DOWN) {
+                sendShortVibration();
+                keyLeft.setImageResource(R.drawable.lefton);
+                k.repeatKeyEvent(key, new KeyEvent(e.getAction(), key));
+                return true;
+            } else if (e.getAction() == MotionEvent.ACTION_UP) {
+                keyLeft.setImageResource(R.drawable.leftoff);
+                resetOnScreenKeys(0);
+                k.stopRepeatingKeyEvent();
+                return true;
             }
+            return false;
         });
 
         keyRight = (ImageButton) findViewById(R.id.keyRightArrow);
-        keyRight.setOnTouchListener(new OnTouchListener() {
-            @Override
-            public boolean onTouch(View arg0, MotionEvent e) {
-                RemoteKeyboard k = remoteConnection.getKeyboard();
-                int key = KeyEvent.KEYCODE_DPAD_RIGHT;
-                if (e.getAction() == MotionEvent.ACTION_DOWN) {
-                    sendShortVibration();
-                    keyRight.setImageResource(R.drawable.righton);
-                    k.repeatKeyEvent(key, new KeyEvent(e.getAction(), key));
-                    return true;
-                } else if (e.getAction() == MotionEvent.ACTION_UP) {
-                    keyRight.setImageResource(R.drawable.rightoff);
-                    resetOnScreenKeys(0);
-                    k.stopRepeatingKeyEvent();
-                    return true;
-                }
-                return false;
+        keyRight.setOnTouchListener((arg0, e) -> {
+            RemoteKeyboard k = remoteConnection.getKeyboard();
+            int key = KeyEvent.KEYCODE_DPAD_RIGHT;
+            if (e.getAction() == MotionEvent.ACTION_DOWN) {
+                sendShortVibration();
+                keyRight.setImageResource(R.drawable.righton);
+                k.repeatKeyEvent(key, new KeyEvent(e.getAction(), key));
+                return true;
+            } else if (e.getAction() == MotionEvent.ACTION_UP) {
+                keyRight.setImageResource(R.drawable.rightoff);
+                resetOnScreenKeys(0);
+                k.stopRepeatingKeyEvent();
+                return true;
             }
+            return false;
         });
     }
 
@@ -996,9 +956,6 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
      */
     private void setExtraKeysVisibility(int visibility, boolean forceVisible) {
         Configuration config = getResources().getConfiguration();
-        //Log.e(TAG, "Hardware kbd hidden: " + Integer.toString(config.hardKeyboardHidden));
-        //Log.e(TAG, "Any keyboard hidden: " + Integer.toString(config.keyboardHidden));
-        //Log.e(TAG, "Keyboard type: " + Integer.toString(config.keyboard));
 
         boolean makeVisible = forceVisible;
         if (config.hardKeyboardHidden == Configuration.HARDKEYBOARDHIDDEN_NO)
@@ -1025,6 +982,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
             InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(canvas.getWindowToken(), 0);
         } catch (NullPointerException e) {
+            Log.d(TAG, "Ignoring NullPointerException during onPause");
         }
     }
 
@@ -1035,6 +993,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
         try {
             canvas.postInvalidateDelayed(600);
         } catch (NullPointerException e) {
+            Log.d(TAG, "Ignoring NullPointerException during onResume");
         }
     }
 
@@ -1087,15 +1046,15 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
         AlertDialog.Builder adb = new AlertDialog.Builder(this)
                 .setMessage(R.string.input_mode_help_text)
                 .setPositiveButton(R.string.close,
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog,
-                                                int whichButton) {
-                                // We don't have to do anything.
-                            }
+                        (dialog, whichButton) -> {
+                            // We don't have to do anything.
                         });
         Dialog d = adb.setView(new ListView(this)).create();
         WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
-        lp.copyFrom(d.getWindow().getAttributes());
+        Window window = d.getWindow();
+        if (window != null) {
+            lp.copyFrom(window.getAttributes());
+        }
         lp.width = WindowManager.LayoutParams.MATCH_PARENT;
         lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
         d.show();
@@ -1116,41 +1075,8 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
             ((ConnectionSettable) dialog).setConnection(connection);
     }
 
-    /**
-     * This function is called by the rotationCorrector runnable
-     * to fix things up after a rotation.
-     */
-    private void correctAfterRotation() throws Exception {
-        Log.d(TAG, "correctAfterRotation");
-        canvas.waitUntilInflated();
-        // Its quite common to see NullPointerExceptions here when this function is called
-        // at the point of disconnection. Hence, we catch and ignore the error.
-        float oldScale = canvas.canvasZoomer.getZoomFactor();
-        int x = canvas.absoluteXPosition;
-        int y = canvas.absoluteYPosition;
-        canvas.canvasZoomer.setScaleTypeForActivity(RemoteCanvasActivity.this);
-        float newScale = canvas.canvasZoomer.getZoomFactor();
-        canvas.canvasZoomer.changeZoom(this, oldScale / newScale, 0, 0);
-        newScale = canvas.canvasZoomer.getZoomFactor();
-        if (newScale <= oldScale &&
-                canvas.canvasZoomer.getScaleType() != ImageView.ScaleType.FIT_CENTER) {
-            canvas.absoluteXPosition = x;
-            canvas.absoluteYPosition = y;
-            canvas.resetScroll();
-        }
-        // Automatic resolution update request handling
-        if (remoteConnection.isVnc && connection.getRdpResType() == Constants.VNC_GEOM_SELECT_AUTOMATIC) {
-            remoteConnection.rfbConn.requestResolution(canvas.getWidth(), canvas.getHeight());
-        } else if (remoteConnection.isSpice && connection.getRdpResType() == Constants.RDP_GEOM_SELECT_AUTO) {
-            remoteConnection.spiceComm.requestResolution(canvas.getWidth(), canvas.getHeight());
-        } else if (remoteConnection.isOpaque && connection.isRequestingNewDisplayResolution()) {
-            remoteConnection.spiceComm.requestResolution(canvas.getWidth(), canvas.getHeight());
-        }
-
-    }
-
     @Override
-    public void onConfigurationChanged(Configuration newConfig) {
+    public void onConfigurationChanged(@NonNull Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         enableImmersive();
         try {
@@ -1159,6 +1085,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
             // Correct a few times just in case. There is no visual effect.
             handler.postDelayed(rotationCorrector, 300);
         } catch (NullPointerException e) {
+            Log.d(TAG, "Ignoring NullPointerException during onConfigurationChanged");
         }
     }
 
@@ -1169,6 +1096,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
         try {
             canvas.postInvalidateDelayed(800);
         } catch (NullPointerException e) {
+            Log.d(TAG, "Ignoring NullPointerException during onStart");
         }
     }
 
@@ -1185,11 +1113,13 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
         try {
             canvas.postInvalidateDelayed(1000);
         } catch (NullPointerException e) {
+            Log.d(TAG, "Ignoring NullPointerException during onRestart");
+
         }
     }
 
     @Override
-    public void onPanelClosed(int featureId, Menu menu) {
+    public void onPanelClosed(int featureId, @NonNull Menu menu) {
         super.onPanelClosed(featureId, menu);
         showActionBar();
         enableImmersive();
@@ -1226,14 +1156,18 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
             Menu inputMenu = menu.findItem(R.id.itemInputMode).getSubMenu();
             inputModeMenuItems = new MenuItem[inputModeIds.length];
             for (int i = 0; i < inputModeIds.length; i++) {
-                inputModeMenuItems[i] = inputMenu.findItem(inputModeIds[i]);
+                if (inputMenu != null) {
+                    inputModeMenuItems[i] = inputMenu.findItem(inputModeIds[i]);
+                }
             }
             updateInputMenu();
 
             Menu scalingMenu = menu.findItem(R.id.itemScaling).getSubMenu();
             scalingModeMenuItems = new MenuItem[scalingModeIds.length];
             for (int i = 0; i < scalingModeIds.length; i++) {
-                scalingModeMenuItems[i] = scalingMenu.findItem(scalingModeIds[i]);
+                if (scalingMenu != null) {
+                    scalingModeMenuItems[i] = scalingMenu.findItem(scalingModeIds[i]);
+                }
             }
             updateScalingMenu();
 
@@ -1250,7 +1184,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
             moveButton.setBackgroundResource(R.drawable.ic_all_out_gray_36dp);
             MenuItem moveToolbar = menu.findItem(R.id.moveToolbar);
             moveToolbar.setActionView(moveButton);
-            moveToolbar.getActionView().setOnTouchListener(moveListener);
+            moveButton.setOnTouchListener(moveListener);
         } catch (NullPointerException e) {
             e.printStackTrace();
         }
@@ -1266,13 +1200,9 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
             for (MenuItem item : scalingModeMenuItems) {
                 // If the entire framebuffer is NOT contained in the bitmap, fit-to-screen is meaningless.
                 if (item.getItemId() == R.id.itemFitToScreen) {
-                    if (canvas != null && canvas.myDrawable != null &&
-                            (canvas.myDrawable.getBitmapHeight() != canvas.myDrawable.getFramebufferHeight() ||
-                                    canvas.myDrawable.getBitmapWidth() != canvas.myDrawable.getFramebufferWidth())) {
-                        item.setEnabled(false);
-                    } else {
-                        item.setEnabled(true);
-                    }
+                    item.setEnabled(canvas == null || canvas.myDrawable == null ||
+                            (canvas.myDrawable.getBitmapHeight() == canvas.myDrawable.getFramebufferHeight() &&
+                                    canvas.myDrawable.getBitmapWidth() == canvas.myDrawable.getFramebufferWidth()));
                 } else {
                     item.setEnabled(true);
                 }
@@ -1283,6 +1213,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
                 }
             }
         } catch (NullPointerException e) {
+            Log.d(TAG, "Ignoring NullPointerException during updateScalingMenu");
         }
     }
 
@@ -1297,14 +1228,12 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
                     item.setChecked(true);
             }
         } catch (NullPointerException e) {
+            Log.d(TAG, "Ignoring NullPointerException during updateInputMenu");
         }
     }
 
     /**
      * If id represents an input handler, return that; otherwise return null
-     *
-     * @param id
-     * @return
      */
     TouchInputHandler getInputHandlerById(int id) {
         myVibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
@@ -1333,16 +1262,6 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
         return null;
     }
 
-    void clearInputHandlers() {
-        if (inputModeHandlers == null)
-            return;
-
-        for (int i = 0; i < inputModeIds.length; ++i) {
-            inputModeHandlers[i] = null;
-        }
-        inputModeHandlers = null;
-    }
-
     TouchInputHandler getInputHandlerByName(String name) {
         TouchInputHandler result = null;
         for (int id : inputModeIds) {
@@ -1367,7 +1286,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         RemoteKeyboard k = remoteConnection.getKeyboard();
         if (k != null) {
             k.setAfterMenu(true);
@@ -1405,10 +1324,6 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
         } else if (itemId == R.id.itemSendKeyAgain) {
             sendSpecialKeyAgain();
             return true;
-            // Disabling Manual/Wiki Menu item as the original does not correspond to this project anymore.
-            //case R.id.itemOpenDoc:
-            //    Utils.showDocumentation(this);
-            //    return true;
         } else if (itemId == R.id.itemExtraKeys) {
             if (connection.getExtraKeysToggleType() == Constants.EXTRA_KEYS_ON) {
                 connection.setExtraKeysToggleType(Constants.EXTRA_KEYS_OFF);
@@ -1430,7 +1345,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
             boolean inputModeSet = setInputMode(item.getItemId());
             item.setChecked(inputModeSet);
             if (inputModeSet) {
-                return inputModeSet;
+                return true;
             }
         }
         return super.onOptionsItemSelected(item);
@@ -1472,7 +1387,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
     private void sendSpecialKeyAgain() {
         if (lastSentKey == null
                 || lastSentKey.get_Id() != connection.getLastMetaKeyId()) {
-            ArrayList<MetaKeyBean> keys = new ArrayList<MetaKeyBean>();
+            ArrayList<MetaKeyBean> keys = new ArrayList<>();
             Database database = new Database(this);
             Cursor c = database.getReadableDatabase().rawQuery(
                     MessageFormat.format("SELECT * FROM {0} WHERE {1} = {2}",
@@ -1512,6 +1427,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
                     try {
                         Thread.sleep(2000);
                     } catch (InterruptedException e) {
+                        Log.d(TAG, "Ignored InterruptedException during showPanningState");
                     }
                     t.show();
                 }
@@ -1581,19 +1497,17 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
         final Dialog dialog = new Dialog(this);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         ListView list = new ListView(this);
-        list.setAdapter(new ArrayAdapter<String>(this,
+        list.setAdapter(new ArrayAdapter<>(this,
                 android.R.layout.simple_list_item_checked, choices));
         list.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
         list.setItemChecked(currentSelection, true);
-        list.setOnItemClickListener(new OnItemClickListener() {
-            public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
-                dialog.dismiss();
-                COLORMODEL cm = COLORMODEL.values()[arg2];
-                remoteConnection.setColorModel(cm);
-                connection.setColorModel(cm.nameString());
-                connection.save(RemoteCanvasActivity.this);
-                Toast.makeText(RemoteCanvasActivity.this, getString(R.string.info_update_color_model_to) + cm.toString(), Toast.LENGTH_SHORT).show();
-            }
+        list.setOnItemClickListener((arg0, arg1, arg2, arg3) -> {
+            dialog.dismiss();
+            COLORMODEL cm = COLORMODEL.values()[arg2];
+            remoteConnection.setColorModel(cm);
+            connection.setColorModel(cm.nameString());
+            connection.save(RemoteCanvasActivity.this);
+            Toast.makeText(RemoteCanvasActivity.this, getString(R.string.info_update_color_model_to) + cm, Toast.LENGTH_SHORT).show();
         });
         dialog.setContentView(list);
         dialog.show();
@@ -1612,8 +1526,8 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
         remoteConnection.pd.show();
         connection.setVmname(remoteConnection.vmNameToId.get(selectedString));
         connection.save(this);
-        synchronized (remoteConnection.spiceComm) {
-            remoteConnection.spiceComm.notify();
+        synchronized (remoteConnection.getRfbConn()) {
+            remoteConnection.getRfbConn().notify();
         }
     }
 
@@ -1649,34 +1563,12 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
         }
     }
 
-    public void stopPanner() {
-        panner.stop();
-    }
-
     public Connection getConnection() {
         return connection;
     }
 
-    // Returns whether we are using D-pad/Trackball to send arrow key events.
-    public boolean getUseDpadAsArrows() {
-        return connection.getUseDpadAsArrows();
-    }
-
-    // Returns whether the D-pad should be rotated to accommodate BT keyboards paired with phones.
-    public boolean getRotateDpad() {
-        return connection.getRotateDpad();
-    }
-
     public RemoteCanvas getCanvas() {
         return canvas;
-    }
-
-    public Panner getPanner() {
-        return panner;
-    }
-
-    public void setPanner(Panner panner) {
-        this.panner = panner;
     }
 
     @Override
@@ -1720,4 +1612,6 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
             }
         }
     }
+
+
 }

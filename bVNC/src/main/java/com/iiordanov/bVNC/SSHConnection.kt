@@ -215,9 +215,7 @@ class SSHConnection(
      * @throws Exception
      */
     @Throws(Exception::class)
-    fun initializeSSHTunnel(): Int {
-        var port = -1
-
+    fun initializeSSHTunnel(): Unit {
         // Attempt to connect.
         if (!connect()) throw Exception(context.getString(R.string.error_ssh_unable_to_connect))
 
@@ -232,15 +230,16 @@ class SSHConnection(
         } else {
             authenticateViaPubKey()
         }
-
-        // Run a remote command if commanded to.
-        if (autoXEnabled) {
-            port = setupAutoX()
-        }
-        return port
     }
 
-    private fun setupAutoX(): Int {
+    /**
+     * Sets up AutoX
+     *
+     * @return -1 if the target port was not determined, and the port obtained from x11vnc if it was
+     * determined with AutoX.
+     * @throws Exception
+     */
+    fun setupAutoX(): Int {
         var port1 = -1
         var tries = 0
         while (port1 < 0 && tries < MAXTRIES) {

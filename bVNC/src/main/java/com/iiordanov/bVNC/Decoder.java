@@ -116,7 +116,7 @@ public class Decoder {
         bitmapData = b;
     }
 
-    void setPixelFormat(RfbProto rfb) throws IOException {
+    public void setPixelFormat(RfbProto rfb) throws IOException {
         pendingColorModel.setPixelFormat(rfb);
         bytesPerPixel = pendingColorModel.bpp();
         colorPalette = pendingColorModel.palette();

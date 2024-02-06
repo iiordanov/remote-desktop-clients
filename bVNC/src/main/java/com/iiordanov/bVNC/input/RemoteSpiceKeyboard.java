@@ -27,7 +27,7 @@ import android.view.KeyEvent;
 
 import com.iiordanov.bVNC.Constants;
 import com.undatech.opaque.InputCarriable;
-import com.undatech.opaque.SpiceCommunicator;
+import com.undatech.opaque.RfbConnectable;
 import com.undatech.opaque.Viewable;
 import com.undatech.opaque.input.RemotePointer;
 import com.undatech.opaque.util.GeneralUtils;
@@ -52,7 +52,7 @@ public class RemoteSpiceKeyboard extends RemoteKeyboard {
 
     public RemoteSpiceKeyboard(
             Resources resources,
-            SpiceCommunicator r,
+            RfbConnectable r,
             Viewable v,
             InputCarriable i,
             Handler h,

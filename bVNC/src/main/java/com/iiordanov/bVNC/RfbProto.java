@@ -27,6 +27,7 @@ import android.os.Handler;
 import android.util.Log;
 
 import com.iiordanov.bVNC.input.RemoteVncKeyboard;
+import com.iiordanov.bVNC.protocol.RemoteConnection;
 import com.tigervnc.rdr.InStream;
 import com.tigervnc.rdr.OutStream;
 import com.tigervnc.rdr.RawInStream;
@@ -338,9 +339,9 @@ public class RfbProto extends RfbConnectable {
     //
     // Constructor
     //
-    RfbProto(Decoder decoder, Viewable canvas, RemoteConnection remoteConnection, Handler handler, int preferredEncoding,
-             boolean viewOnly, boolean sslTunneled, int hashAlgorithm,
-             String hash, String cert, boolean debugLogging) {
+    public RfbProto(Decoder decoder, Viewable canvas, RemoteConnection remoteConnection, Handler handler, int preferredEncoding,
+                    boolean viewOnly, boolean sslTunneled, int hashAlgorithm,
+                    String hash, String cert, boolean debugLogging) {
         super(debugLogging, handler);
         this.sslTunneled = sslTunneled;
         this.decoder = decoder;
@@ -446,9 +447,9 @@ public class RfbProto extends RfbConnectable {
         return closed;
     }
 
-    void initializeAndAuthenticate(String host, int port, String us, String pw,
-                                   boolean useRepeater, String repeaterID, int connType,
-                                   String cert) throws Exception, AuthFailureException {
+    public void initializeAndAuthenticate(String host, int port, String us, String pw,
+                                          boolean useRepeater, String repeaterID, int connType,
+                                          String cert) throws Exception, AuthFailureException {
         this.host = host;
         this.port = port;
         Log.v(TAG, "Connecting to server: " + this.host + " at port: " + this.port);
@@ -1118,7 +1119,7 @@ public class RfbProto extends RfbConnectable {
     // Read the server message type
     //
 
-    void writeClientInit() throws IOException {
+    public void writeClientInit() throws IOException {
     /*- if (viewer.options.shareDesktop) {
       os.write(1);
     } else {
@@ -1134,7 +1135,7 @@ public class RfbProto extends RfbConnectable {
     // Read a FramebufferUpdate message
     //
 
-    void readServerInit() throws IOException {
+    public void readServerInit() throws IOException {
         android.util.Log.i(TAG, "Reading server init.");
         int framebufferWidth = is.readUnsignedShort();
         int framebufferHeight = is.readUnsignedShort();
@@ -1186,7 +1187,7 @@ public class RfbProto extends RfbConnectable {
      * @param width
      * @param height
      */
-    void setPreferredFramebufferSize(int width, int height) {
+    public void setPreferredFramebufferSize(int width, int height) {
         Log.d(TAG, "setPreferredFramebufferSize, wxh: " + width + "x" + height);
         preferredFramebufferWidth = width;
         preferredFramebufferHeight = height;
@@ -2228,5 +2229,13 @@ public class RfbProto extends RfbConnectable {
     @Override
     public void setBitmapData(AbstractDrawableData drawable) {
         decoder.setBitmapData(drawable);
+    }
+
+    public int getFramebufferWidth() {
+        return framebufferWidth;
+    }
+
+    public int getFramebufferHeight() {
+        return framebufferHeight;
     }
 }
