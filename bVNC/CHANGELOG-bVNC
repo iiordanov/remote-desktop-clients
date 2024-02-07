@@ -1,3 +1,7 @@
+v5.2.5
+- Bugfix for visual artifacts when moving pointer or panning
+- Removal of non-functional Color Mode menu item while connected
+- Significant code cleanup
 v5.2.3
 - Support for SSH servers that call 2FA token OTP instead of Verification code
 v5.2.2
