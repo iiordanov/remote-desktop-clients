@@ -382,4 +382,8 @@ abstract public class RemoteConnection implements KeyInputHandler, InputCarriabl
      * to fix things up after a rotation.
      */
     abstract public void correctAfterRotation() throws Exception;
+
+    public boolean canUpdateColorModelConnected() {
+        return false;
+    }
 }

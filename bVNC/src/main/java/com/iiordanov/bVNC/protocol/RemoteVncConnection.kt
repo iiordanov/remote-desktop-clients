@@ -268,4 +268,6 @@ class RemoteVncConnection(
             rfbConn.requestResolution(canvas.width, canvas.height)
         }
     }
+
+    override fun canUpdateColorModelConnected(): Boolean = true
 }

@@ -1141,6 +1141,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
     public boolean onPrepareOptionsMenu(Menu menu) {
         // Make sure extra keys stow item is gone if extra keys are disabled and vice versa.
         setKeyStowDrawableAndVisibility(menu.findItem(R.id.extraKeysToggle));
+        menu.findItem(R.id.itemColorMode).setVisible(remoteConnection.canUpdateColorModelConnected());
         return true;
     }
 
@@ -1151,7 +1152,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
     public boolean onCreateOptionsMenu(Menu menu) {
         Log.d(TAG, "OnCreateOptionsMenu called");
         try {
-            getMenuInflater().inflate(R.menu.vnccanvasactivitymenu, menu);
+            getMenuInflater().inflate(R.menu.canvasactivitymenu, menu);
 
             Menu inputMenu = menu.findItem(R.id.itemInputMode).getSubMenu();
             inputModeMenuItems = new MenuItem[inputModeIds.length];
