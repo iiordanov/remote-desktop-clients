@@ -93,6 +93,12 @@ public class aRDP extends MainConfiguration {
 
     private void initializeAdvancedSettings() {
         groupRemoteSoundType = findViewById(R.id.groupRemoteSoundType);
+        groupRemoteSoundType.setOnCheckedChangeListener((radioGroup, selection) -> {
+            if (Utils.isFree(aRDP.this) && selection != R.id.radioRemoteSoundDisabled) {
+                setRemoteSoundTypeFromSelected(Constants.REMOTE_SOUND_DISABLED);
+                IntroTextDialog.showIntroTextIfNecessary(aRDP.this, database, true);
+            }
+        });
         checkboxEnableRecording = findViewById(R.id.checkboxEnableRecording);
         checkboxConsoleMode = findViewById(R.id.checkboxConsoleMode);
         checkboxRedirectSdCard = findViewById(R.id.checkboxRedirectSdCard);
@@ -280,11 +286,6 @@ public class aRDP extends MainConfiguration {
      */
     public void setRemoteSoundTypeFromView(View view) {
         RadioGroup g = (RadioGroup) view;
-        if (Utils.isFree(this)) {
-            IntroTextDialog.showIntroTextIfNecessary(this, database, true);
-            g.check(R.id.radioRemoteSoundDisabled);
-        }
-
         int id = g.getCheckedRadioButtonId();
         int soundType = Constants.REMOTE_SOUND_DISABLED;
         if (id == R.id.radioRemoteSoundOnServer) {

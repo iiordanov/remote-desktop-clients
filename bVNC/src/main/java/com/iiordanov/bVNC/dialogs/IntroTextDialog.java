@@ -29,12 +29,13 @@ import android.os.Bundle;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
 import android.view.Menu;
-import android.view.MenuItem;
-import android.view.MenuItem.OnMenuItemClickListener;
 import android.view.View;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
 
 import com.iiordanov.bVNC.ConnectionBean;
 import com.iiordanov.bVNC.Database;
@@ -46,13 +47,12 @@ import net.sqlcipher.database.SQLiteDatabase;
 
 /**
  * @author Michael A. MacDonald
- *
  */
 public class IntroTextDialog extends Dialog {
 
     static IntroTextDialog dialog = null;
-    private PackageInfo packageInfo;
-    private Database database;
+    private final PackageInfo packageInfo;
+    private final Database database;
     private boolean donate = false;
 
     /**
@@ -75,7 +75,7 @@ public class IntroTextDialog extends Dialog {
         }
         MostRecentBean mr = ConnectionBean.getMostRecent(database.getReadableDatabase());
         database.close();
-
+        boolean newLaunchOrVersion = (mr == null || mr.getShowSplashVersion() != pi.versionCode);
         if (dialog == null && show && (mr == null || mr.getShowSplashVersion() != pi.versionCode)) {
             dialog = new IntroTextDialog(context, pi, database);
             dialog.show();
@@ -95,7 +95,10 @@ public class IntroTextDialog extends Dialog {
         }
 
         setContentView(R.layout.intro_dialog);
-        getWindow().setLayout(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+        Window window = getWindow();
+        if (window != null) {
+            window.setLayout(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+        }
 
         Context context = this.getContext();
         String title = getContext().getResources().getString(R.string.intro_title);
@@ -156,33 +159,19 @@ public class IntroTextDialog extends Dialog {
         TextView introTextView = (TextView) findViewById(R.id.textIntroText);
         introTextView.setText(Html.fromHtml(sb.toString()));
         introTextView.setMovementMethod(LinkMovementMethod.getInstance());
-        ((Button) findViewById(R.id.buttonCloseIntro)).setOnClickListener(new View.OnClickListener() {
-
-            /* (non-Javadoc)
-             * @see android.view.View.OnClickListener#onClick(android.view.View)
-             */
-            @Override
-            public void onClick(View v) {
-                showAgain(true);
-            }
-
-        });
+        /* (non-Javadoc)
+         * @see android.view.View.OnClickListener#onClick(android.view.View)
+         */
+        ((Button) findViewById(R.id.buttonCloseIntro)).setOnClickListener(v -> showAgain(true));
 
         Button buttonCloseIntroDontShow = (Button) findViewById(R.id.buttonCloseIntroDontShow);
         if (donate) {
             buttonCloseIntroDontShow.setVisibility(View.GONE);
         } else {
-            buttonCloseIntroDontShow.setOnClickListener(new View.OnClickListener() {
-
-                /* (non-Javadoc)
-                 * @see android.view.View.OnClickListener#onClick(android.view.View)
-                 */
-                @Override
-                public void onClick(View v) {
-                    showAgain(false);
-                }
-
-            });
+            /* (non-Javadoc)
+             * @see android.view.View.OnClickListener#onClick(android.view.View)
+             */
+            buttonCloseIntroDontShow.setOnClickListener(v -> showAgain(false));
         }
     }
 
@@ -190,36 +179,19 @@ public class IntroTextDialog extends Dialog {
      * @see android.app.Dialog#onCreateOptionsMenu(android.view.Menu)
      */
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
+    public boolean onCreateOptionsMenu(@NonNull Menu menu) {
         super.onCreateOptionsMenu(menu);
-        getOwnerActivity().getMenuInflater().inflate(R.menu.intro_dialog_menu, menu);
-        // Disabling Manual/Wiki Menu item as the original does not correspond to this project anymore.
-        /*
-        menu.findItem(R.id.itemOpenDoc).setOnMenuItemClickListener(new OnMenuItemClickListener() {
-
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                Utils.showDocumentation(getOwnerActivity());
-                dismiss();
-                return true;
-            }
+        Activity activity = getOwnerActivity();
+        if (activity != null) {
+            getOwnerActivity().getMenuInflater().inflate(R.menu.intro_dialog_menu, menu);
+        }
+        menu.findItem(R.id.itemClose).setOnMenuItemClickListener(item -> {
+            showAgain(true);
+            return true;
         });
-        */
-        menu.findItem(R.id.itemClose).setOnMenuItemClickListener(new OnMenuItemClickListener() {
-
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                showAgain(true);
-                return true;
-            }
-        });
-        menu.findItem(R.id.itemDontShowAgain).setOnMenuItemClickListener(new OnMenuItemClickListener() {
-
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                showAgain(false);
-                return true;
-            }
+        menu.findItem(R.id.itemDontShowAgain).setOnMenuItemClickListener(item -> {
+            showAgain(false);
+            return true;
         });
         return true;
     }
