@@ -41,12 +41,12 @@ public class RemoteVncPointer extends RemotePointer {
     public RemoteVncPointer(
             RfbConnectable rfb,
             Context context,
-            InputCarriable inputCarriable,
+            InputCarriable remoteInput,
             Viewable canvas,
             Handler handler,
             boolean debugLogging
     ) {
-        super(rfb, context, inputCarriable, canvas, handler, debugLogging);
+        super(rfb, context, remoteInput, canvas, handler, debugLogging);
     }
 
     @Override
@@ -125,7 +125,7 @@ public class RemoteVncPointer extends RemotePointer {
      */
     private void sendPointerEvent(int x, int y, int metaState, boolean isMoving) {
 
-        int combinedMetaState = metaState | inputCarriable.getKeyboard().getMetaState();
+        int combinedMetaState = metaState | remoteInput.getKeyboard().getMetaState();
 
         // Save the previous pointer mask other than action_move, so we can
         // send it with the pointer flag "not down" to clear the action.

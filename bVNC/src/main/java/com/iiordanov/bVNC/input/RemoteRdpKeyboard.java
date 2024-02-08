@@ -17,7 +17,7 @@ public class RemoteRdpKeyboard extends RemoteKeyboard {
     private final static String TAG = "RemoteRdpKeyboard";
     protected RdpKeyboardMapper keyboardMapper;
     protected Viewable canvas;
-    protected InputCarriable inputCarriable;
+    protected InputCarriable remoteInput;
     private RdpCommunicator rdpcomm;
 
     public RemoteRdpKeyboard(
@@ -27,7 +27,7 @@ public class RemoteRdpKeyboard extends RemoteKeyboard {
         super(r, v.getContext(), h, debugLog);
         rdpcomm = r;
         canvas = v;
-        inputCarriable = i;
+        remoteInput = i;
         keyboardMapper = new RdpKeyboardMapper(preferSendingUnicode, debugLog);
         keyboardMapper.init(context);
         keyboardMapper.reset((RdpKeyboardMapper.KeyProcessingListener) r);
@@ -42,7 +42,7 @@ public class RemoteRdpKeyboard extends RemoteKeyboard {
         rdpcomm.remoteKeyboardState.detectHardwareMetaState(evt);
 
         if (rdpcomm != null && rdpcomm.isInNormalProtocol()) {
-            RemotePointer pointer = inputCarriable.getPointer();
+            RemotePointer pointer = remoteInput.getPointer();
             boolean down = (evt.getAction() == KeyEvent.ACTION_DOWN) ||
                     (evt.getAction() == KeyEvent.ACTION_MULTIPLE);
             int metaState = additionalMetaState | convertEventMetaState(evt);
@@ -89,7 +89,7 @@ public class RemoteRdpKeyboard extends RemoteKeyboard {
     }
 
     public void sendMetaKey(MetaKeyBean meta) {
-        RemotePointer pointer = inputCarriable.getPointer();
+        RemotePointer pointer = remoteInput.getPointer();
         int x = pointer.getX();
         int y = pointer.getY();
 

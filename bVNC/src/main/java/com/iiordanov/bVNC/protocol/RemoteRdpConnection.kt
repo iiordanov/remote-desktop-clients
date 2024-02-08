@@ -1,11 +1,9 @@
 package com.iiordanov.bVNC.protocol
 
 import android.content.Context
-import android.os.Handler
 import android.util.Log
 import com.iiordanov.bVNC.App
 import com.iiordanov.bVNC.COLORMODEL
-import com.iiordanov.bVNC.Constants
 import com.iiordanov.bVNC.input.RemoteRdpKeyboard
 import com.iiordanov.bVNC.input.RemoteRdpPointer
 import com.undatech.opaque.Connection
@@ -15,8 +13,11 @@ import com.undatech.remoteClientUi.R
 
 class RemoteRdpConnection(
     context: Context,
-    canvas: Viewable
-) : RemoteConnection(context, canvas) {
+    connection: Connection?,
+    canvas: Viewable,
+    vvFileName: String?,
+    hideKeyboardAndExtraKeys: Runnable,
+) : RemoteConnection(context, connection, canvas, vvFileName, hideKeyboardAndExtraKeys) {
     private val tag: String = "RemoteRdpConnection"
     private var rdpComm: RdpCommunicator? = null
 
@@ -70,13 +71,8 @@ class RemoteRdpConnection(
         pd.dismiss()
     }
 
-    override fun initializeConnection(
-        conn: Connection?,
-        handler: Handler?,
-        hideKeyboardAndExtraKeys: Runnable?,
-        ignored: String?
-    ) {
-        super.initializeConnection(conn, handler, hideKeyboardAndExtraKeys, ignored)
+    override fun initializeConnection() {
+        super.initializeConnection()
 
         try {
             initializeRdpConnection()
@@ -143,7 +139,7 @@ class RemoteRdpConnection(
     /**
      * Returns localhost if using SSH tunnel or saved address.
      */
-    fun getGatewayAddress(): String? {
+    private fun getGatewayAddress(): String? {
         return if (sshTunneled) {
             "127.0.0.1"
         } else {
@@ -161,6 +157,8 @@ class RemoteRdpConnection(
 
     override fun isColorModel(cm: COLORMODEL) = false
     override fun setColorModel(cm: COLORMODEL?) {}
+
     @Throws(java.lang.Exception::class)
-    override fun correctAfterRotation() {}
+    override fun correctAfterRotation() {
+    }
 }

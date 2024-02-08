@@ -1,7 +1,6 @@
 package com.iiordanov.bVNC.protocol
 
 import android.content.Context
-import android.os.Handler
 import android.util.Log
 import com.iiordanov.bVNC.App
 import com.iiordanov.bVNC.COLORMODEL
@@ -18,20 +17,16 @@ import java.io.File
 
 open class RemoteOpaqueConnection(
     context: Context,
-    canvas: Viewable
-) : RemoteConnection(context, canvas) {
+    connection: Connection?,
+    canvas: Viewable,
+    vvFileName: String?,
+    hideKeyboardAndExtraKeys: Runnable,
+) : RemoteConnection(context, connection, canvas, vvFileName, hideKeyboardAndExtraKeys) {
     private val tag: String = "RemoteOpaqueConnection"
     protected var spiceComm: SpiceCommunicator? = null
 
-    override fun initializeConnection(
-        conn: Connection?,
-        h: Handler?,
-        hideKeyboardAndExtraKeys: Runnable?,
-        vvFileName: String?
-    ) {
-        super.initializeConnection(conn, h, hideKeyboardAndExtraKeys, vvFileName)
-
-        this.hideKeyboardAndExtraKeys = hideKeyboardAndExtraKeys
+    override fun initializeConnection() {
+        super.initializeConnection()
         checkNetworkConnectivity()
         spiceComm = SpiceCommunicator(
             context, handler, canvas,
@@ -91,4 +86,6 @@ open class RemoteOpaqueConnection(
             spiceComm?.requestResolution(canvas.width, canvas.height)
         }
     }
+
+    protected fun <T> castAsObject(someObject: T) = (someObject as Object)
 }

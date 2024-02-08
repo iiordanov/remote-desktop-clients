@@ -87,7 +87,7 @@ abstract public class RemoteConnection implements KeyInputHandler, InputCarriabl
     ClipboardManager clipboard;
     Timer clipboardMonitorTimer;
     ClipboardMonitor clipboardMonitor;
-    boolean sshTunneled = false;
+    boolean sshTunneled;
     String vvFileName;
     Context context;
     Viewable canvas;
@@ -95,12 +95,22 @@ abstract public class RemoteConnection implements KeyInputHandler, InputCarriabl
     /**
      * Constructor used by the inflation apparatus
      */
-    public RemoteConnection(final Context context, Viewable canvas) {
+    public RemoteConnection(
+            final Context context,
+            Connection connection,
+            Viewable canvas,
+            String vvFileName,
+            Runnable hideKeyboardAndExtraKeys
+    ) {
         this.context = context;
+        this.connection = connection;
         this.canvas = canvas;
-        clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
+        this.vvFileName = vvFileName;
+        this.hideKeyboardAndExtraKeys = hideKeyboardAndExtraKeys;
+        this.sshTunneled = connection.getConnectionType() == Constants.CONN_TYPE_SSH;
+        this.clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
         // Startup the connection thread with a progress dialog
-        pd = ProgressDialog.show(context, context.getString(R.string.info_progress_dialog_connecting),
+        this.pd = ProgressDialog.show(context, context.getString(R.string.info_progress_dialog_connecting),
                 context.getString(R.string.info_progress_dialog_establishing),
                 true, true, dialog -> {
                     closeConnection();
@@ -108,8 +118,8 @@ abstract public class RemoteConnection implements KeyInputHandler, InputCarriabl
                 });
 
         // Make this dialog cancellable only upon hitting the Back button and not touching outside.
-        pd.setCanceledOnTouchOutside(false);
-        pd.setCancelable(false);
+        this.pd.setCanceledOnTouchOutside(false);
+        this.pd.setCancelable(false);
     }
 
     public RfbConnectable getRfbConn() {
@@ -154,32 +164,17 @@ abstract public class RemoteConnection implements KeyInputHandler, InputCarriabl
         }
     }
 
-    /**
-     * Reinitialize Canvas
-     */
-    public void reinitializeConnection() {
-        Log.i(TAG, "Reinitializing remote canvas");
-        initializeConnection(this.connection, this.handler, this.hideKeyboardAndExtraKeys, this.vvFileName);
-        handler.post(this.hideKeyboardAndExtraKeys);
+    public void setHandler(Handler handler) {
+        this.handler = handler;
     }
 
     /**
      * Create a view showing a remote desktop connection
-     *
-     * @param conn Connection settings
      */
-    public void initializeConnection(
-            Connection conn,
-            Handler handler,
-            final Runnable hideKeyboardAndExtraKeys,
-            final String vvFileName
-    ) {
-        this.connection = conn;
-        this.handler = handler;
-        this.vvFileName = vvFileName;
-        this.hideKeyboardAndExtraKeys = hideKeyboardAndExtraKeys;
+    public void initializeConnection() {
+        Log.i(TAG, "Initializing remote connection");
         this.maintainConnection = true;
-        this.sshTunneled = connection.getConnectionType() == Constants.CONN_TYPE_SSH;
+        handler.post(this.hideKeyboardAndExtraKeys);
     }
 
     protected void constructSshConnectionIfNeeded() throws Exception {

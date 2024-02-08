@@ -41,12 +41,12 @@ public class RemoteSpicePointer extends RemotePointer {
     public RemoteSpicePointer(
             RfbConnectable protocomm,
             Context context,
-            InputCarriable inputCarriable,
+            InputCarriable remoteInput,
             Viewable canvas,
             Handler handler,
             boolean debugLogging
     ) {
-        super(protocomm, context, inputCarriable, canvas, handler, debugLogging);
+        super(protocomm, context, remoteInput, canvas, handler, debugLogging);
     }
 
     @Override
@@ -141,7 +141,7 @@ public class RemoteSpicePointer extends RemotePointer {
      */
     private void sendPointerEvent(int x, int y, int metaState, boolean isMoving) {
 
-        int combinedMetaState = metaState | inputCarriable.getKeyboard().getMetaState();
+        int combinedMetaState = metaState | remoteInput.getKeyboard().getMetaState();
 
         if (relativeEvents) {
             int relX = x - pointerX;

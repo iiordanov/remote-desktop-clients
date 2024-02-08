@@ -765,8 +765,8 @@ ${bufferedInputStreamToString(remoteStderr)}"""
             return
         }
         when (dialogId) {
-            GetTextFragment.DIALOG_ID_GET_VERIFICATIONCODE -> {
-                Log.i(TAG, "Text obtained from DIALOG_ID_GET_VERIFICATIONCODE.")
+            GetTextFragment.DIALOG_ID_GET_VERIFICATION_CODE -> {
+                Log.i(TAG, "Text obtained from DIALOG_ID_GET_VERIFICATION_CODE.")
                 setVerificationCode(obtainedStrings[0])
             }
 

@@ -19,9 +19,9 @@ import androidx.fragment.app.FragmentManager;
 import com.iiordanov.bVNC.CredentialsObtainer;
 import com.iiordanov.bVNC.RemoteCanvas;
 import com.iiordanov.bVNC.RemoteCanvasActivity;
-import com.iiordanov.bVNC.protocol.RemoteConnection;
 import com.iiordanov.bVNC.Utils;
 import com.iiordanov.bVNC.dialogs.GetTextFragment;
+import com.iiordanov.bVNC.protocol.RemoteConnection;
 import com.undatech.opaque.Connection;
 import com.undatech.opaque.MessageDialogs;
 import com.undatech.opaque.RemoteClientLibConstants;
@@ -39,26 +39,29 @@ import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 
 public class RemoteCanvasHandler extends Handler implements HttpsFileDownloader.OnDownloadFinishedListener {
-    private static String TAG = "RemoteCanvasHandler";
-    private Context context;
-    private RemoteCanvas c;
+    private static final String TAG = "RemoteCanvasHandler";
+    private final Context context;
+    private final RemoteCanvas c;
     RemoteConnection remoteConnection;
-    private Connection connection;
+    private final Connection connection;
     private FragmentManager fm;
-
     CredentialsObtainer obtainer;
+    Runnable setModes;
 
     public RemoteCanvasHandler(
             Context context,
             RemoteCanvas c,
             RemoteConnection remoteConnection,
-            Connection connection
+            Connection connection,
+            Runnable setModes
     ) {
         super();
         this.context = context;
         this.c = c;
         this.remoteConnection = remoteConnection;
+        this.remoteConnection.setHandler(this);
         this.connection = connection;
+        this.setModes = setModes;
         Activity activity = Utils.getActivity(context);
         if (activity instanceof FragmentActivity) {
             this.fm = ((FragmentActivity) Utils.getActivity(context)).getSupportFragmentManager();
@@ -68,11 +71,6 @@ public class RemoteCanvasHandler extends Handler implements HttpsFileDownloader.
 
     /**
      * Convenience function to create a message with a single key and String value pair in it.
-     *
-     * @param what
-     * @param key
-     * @param value
-     * @return
      */
     public static Message getMessageString(int what, String key, String value) {
         Message m = new Message();
@@ -85,11 +83,6 @@ public class RemoteCanvasHandler extends Handler implements HttpsFileDownloader.
 
     /**
      * Convenience function to create a message with a single key and String value pair in it.
-     *
-     * @param what
-     * @param key
-     * @param value
-     * @return
      */
     public static Message getMessageStringList(int what, String key, ArrayList<String> value) {
         Message m = new Message();
@@ -104,23 +97,19 @@ public class RemoteCanvasHandler extends Handler implements HttpsFileDownloader.
         return connection;
     }
 
-    private void showGetTextFragment(String tag, String dialogId, String title,
-                                     GetTextFragment.OnFragmentDismissedListener dismissalListener,
-                                     int dialogType, int messageNum, int errorNum,
-                                     String t1, String t2, String t3, boolean keep) {
-        if (remoteConnection.pd != null && remoteConnection.pd.isShowing()) {
-            remoteConnection.pd.dismiss();
-        }
-        GetTextFragment frag = GetTextFragment.newInstance(dialogId, title, dismissalListener,
-                dialogType, messageNum, errorNum, t1, t2, t3, keep);
-        frag.setCancelable(false);
-        frag.show(fm, tag);
-    }
-
-    private void showGetTextFragmentRemoteCanvas(String tag, String dialogId, String title,
-                                                 GetTextFragment.OnFragmentDismissedListener dismissalListener,
-                                                 int dialogType, int messageNum, int errorNum,
-                                                 String t1, String t2, String t3, boolean keep) {
+    private void showGetTextFragment(
+            String tag,
+            String dialogId,
+            String title,
+            GetTextFragment.OnFragmentDismissedListener dismissalListener,
+            int dialogType,
+            int messageNum,
+            int errorNum,
+            String t1,
+            String t2,
+            String t3,
+            boolean keep
+    ) {
         if (remoteConnection.pd != null && remoteConnection.pd.isShowing()) {
             remoteConnection.pd.dismiss();
         }
@@ -135,12 +124,7 @@ public class RemoteCanvasHandler extends Handler implements HttpsFileDownloader.
                 context.getString(titleTextId),
                 context.getString(messageTextId),
                 context.getString(buttonTextId),
-                new MessageFragment.OnFragmentDismissedListener() {
-                    @Override
-                    public void onDialogDismissed() {
-                        Utils.justFinish(context);
-                    }
-                });
+                () -> Utils.justFinish(context));
         message.show(fm, "endingDialog");
         remoteConnection.closeConnection();
     }
@@ -149,7 +133,7 @@ public class RemoteCanvasHandler extends Handler implements HttpsFileDownloader.
     /**
      * If there is a saved cert, checks the one given against it. If a signature was passed in
      * and no saved cert, then check that signature. Otherwise, presents the
-     * given cert's signature to the user for approval.
+     * given certificate signature to the user for approval.
      * <p>
      * The saved data must always win over any passed-in URI data
      *
@@ -193,17 +177,13 @@ public class RemoteCanvasHandler extends Handler implements HttpsFileDownloader.
                 certInfo,
                 "Accept",
                 "Reject",
-                new ChoiceFragment.OnFragmentDismissedListener() {
-
-                    @Override
-                    public void onResponseObtained(boolean result) {
-                        if (result) {
-                            android.util.Log.e(TAG, "We were told to continue");
-                            saveAndAcceptCert(cert);
-                        } else {
-                            android.util.Log.e(TAG, "We were told not to continue");
-                            Utils.justFinish(context);
-                        }
+                result -> {
+                    if (result) {
+                        Log.e(TAG, "We were told to continue");
+                        saveAndAcceptCert(cert);
+                    } else {
+                        Log.e(TAG, "We were told not to continue");
+                        Utils.justFinish(context);
                     }
                 });
 
@@ -215,8 +195,6 @@ public class RemoteCanvasHandler extends Handler implements HttpsFileDownloader.
 
     /**
      * Saves and accepts a x509 certificate.
-     *
-     * @param cert
      */
     private void saveAndAcceptCert(X509Certificate cert) {
         android.util.Log.d(TAG, "Saving X509 cert fingerprint.");
@@ -269,24 +247,18 @@ public class RemoteCanvasHandler extends Handler implements HttpsFileDownloader.
             }
         }
         // Show a dialog with the key signature for approval.
-        DialogInterface.OnClickListener signatureNo = new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                // We were told not to continue, so stop the activity
-                remoteConnection.closeConnection();
-                Utils.justFinish(context);
-            }
+        DialogInterface.OnClickListener signatureNo = (dialog, which) -> {
+            // We were told not to continue, so stop the activity
+            remoteConnection.closeConnection();
+            Utils.justFinish(context);
         };
-        DialogInterface.OnClickListener signatureYes = new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                // Indicate the certificate was accepted.
-                if (save) {
-                    connection.setX509KeySignature(fingerprint);
-                    connection.save(context);
-                }
-                setCertificateAcceptedAndNotifyListeners();
+        DialogInterface.OnClickListener signatureYes = (dialog, which) -> {
+            // Indicate the certificate was accepted.
+            if (save) {
+                connection.setX509KeySignature(fingerprint);
+                connection.save(context);
             }
+            setCertificateAcceptedAndNotifyListeners();
         };
 
         String message = context.getString(R.string.info_cert_signatures);
@@ -333,24 +305,18 @@ public class RemoteCanvasHandler extends Handler implements HttpsFileDownloader.
 
         c.displayShortToastMessage(context.getString(R.string.info_ssh_initializing_hostkey));
         // Show a dialog with the key signature.
-        DialogInterface.OnClickListener signatureNo = new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                // We were told to not continue, so stop the activity
-                remoteConnection.pd.dismiss();
-                Utils.justFinish(context);
-            }
+        DialogInterface.OnClickListener signatureNo = (dialog, which) -> {
+            // We were told to not continue, so stop the activity
+            remoteConnection.pd.dismiss();
+            Utils.justFinish(context);
         };
-        DialogInterface.OnClickListener signatureYes = new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                // We were told to go ahead with the connection.
-                connection.setIdHash(idHash); // could prompt based on algorithm
-                connection.setSshHostKey(serverHostKey);
-                connection.save(context);
-                synchronized (RemoteCanvasHandler.this) {
-                    RemoteCanvasHandler.this.notify();
-                }
+        DialogInterface.OnClickListener signatureYes = (dialog, which) -> {
+            // We were told to go ahead with the connection.
+            connection.setIdHash(idHash); // could prompt based on algorithm
+            connection.setSshHostKey(serverHostKey);
+            connection.save(context);
+            synchronized (RemoteCanvasHandler.this) {
+                RemoteCanvasHandler.this.notify();
             }
         };
 
@@ -383,7 +349,7 @@ public class RemoteCanvasHandler extends Handler implements HttpsFileDownloader.
                 break;
             case RemoteClientLibConstants.GET_VERIFICATIONCODE:
                 showGetTextFragment(context.getString(R.string.verification_code),
-                        GetTextFragment.DIALOG_ID_GET_VERIFICATIONCODE,
+                        GetTextFragment.DIALOG_ID_GET_VERIFICATION_CODE,
                         context.getString(R.string.verification_code),
                         remoteConnection.sshConnection, GetTextFragment.Plaintext,
                         R.string.verification_code_message, R.string.verification_code,
@@ -501,7 +467,8 @@ public class RemoteCanvasHandler extends Handler implements HttpsFileDownloader.
                 remoteConnection.setClipboardText(messageData.getString("text"));
                 break;
             case RemoteClientLibConstants.REINIT_SESSION:
-                remoteConnection.reinitializeConnection();
+                remoteConnection.initializeConnection();
+                c.setParameters(remoteConnection.getRfbConn(), connection, this, remoteConnection.getPointer(), setModes);
                 break;
             case RemoteClientLibConstants.REPORT_TOOLBAR_POSITION:
                 android.util.Log.d(TAG, "Handling message, REPORT_TOOLBAR_POSITION");
@@ -572,7 +539,7 @@ public class RemoteCanvasHandler extends Handler implements HttpsFileDownloader.
                     String port = msg.getData().getString("port");
                     String password = msg.getData().getString("password");
                     String uriString = "vnc://" + address + ":" + port + "?VncPassword=" + password;
-                    Intent intent = new Intent(Intent.ACTION_VIEW).setType("application/vnd.vnc").setData(Uri.parse(uriString));
+                    Intent intent = new Intent(Intent.ACTION_VIEW).setDataAndType(Uri.parse(uriString), "application/vnd.vnc");
                     context.startActivity(intent);
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -583,7 +550,7 @@ public class RemoteCanvasHandler extends Handler implements HttpsFileDownloader.
                 remoteConnection.disconnectAndShowMessage(R.string.vnc_viewer_started, R.string.info_dialog_title);
                 break;
             case RemoteClientLibConstants.GET_PASSWORD:
-                showGetTextFragmentRemoteCanvas(context.getString(R.string.enter_password),
+                showGetTextFragment(context.getString(R.string.enter_password),
                         GetTextFragment.DIALOG_ID_GET_OPAQUE_PASSWORD,
                         context.getString(R.string.enter_password),
                         obtainer, GetTextFragment.Password,
@@ -593,7 +560,7 @@ public class RemoteCanvasHandler extends Handler implements HttpsFileDownloader.
                 break;
             case RemoteClientLibConstants.GET_OTP_CODE:
                 remoteConnection.pd.dismiss();
-                showGetTextFragmentRemoteCanvas(context.getString(R.string.enter_otp_code),
+                showGetTextFragment(context.getString(R.string.enter_otp_code),
                         GetTextFragment.DIALOG_ID_GET_OPAQUE_OTP_CODE,
                         context.getString(R.string.enter_otp_code),
                         obtainer, GetTextFragment.Plaintext,
@@ -605,38 +572,36 @@ public class RemoteCanvasHandler extends Handler implements HttpsFileDownloader.
                 if (remoteConnection.getVvFileName() != null) {
                     MessageDialogs.displayMessageAndFinish(context, R.string.error_pve_failed_to_authenticate,
                             R.string.error_dialog_title);
-                    break;
                 } else {
                     remoteConnection.maintainConnection = false;
-                    showGetTextFragmentRemoteCanvas(context.getString(R.string.enter_password_auth_failed),
+                    showGetTextFragment(context.getString(R.string.enter_password_auth_failed),
                             GetTextFragment.DIALOG_ID_GET_OPAQUE_CREDENTIALS,
                             context.getString(R.string.enter_password_auth_failed),
                             obtainer, GetTextFragment.Credentials,
                             R.string.enter_password_auth_failed, R.string.enter_password_auth_failed,
                             connection.getUserName(), connection.getPassword(), null,
                             connection.getKeepPassword());
-                    break;
                 }
+                break;
             case RemoteClientLibConstants.OVIRT_AUTH_FAILURE:
                 if (remoteConnection.getVvFileName() != null) {
                     remoteConnection.disconnectAndShowMessage(R.string.error_ovirt_auth_failure, R.string.error_dialog_title);
-                    break;
                 } else {
                     remoteConnection.maintainConnection = false;
-                    showGetTextFragmentRemoteCanvas(context.getString(R.string.enter_password_auth_failed),
+                    showGetTextFragment(context.getString(R.string.enter_password_auth_failed),
                             GetTextFragment.DIALOG_ID_GET_OPAQUE_CREDENTIALS,
                             context.getString(R.string.enter_password_auth_failed),
                             obtainer, GetTextFragment.Credentials,
                             R.string.enter_password_auth_failed, R.string.enter_password_auth_failed,
                             connection.getUserName(), connection.getPassword(), null,
                             connection.getKeepPassword());
-                    break;
                 }
+                break;
             case RemoteClientLibConstants.DIALOG_DISPLAY_VMS:
                 remoteConnection.pd.dismiss();
                 ArrayList<String> vms = msg.getData().getStringArrayList("vms");
 
-                if (vms.size() > 0) {
+                if (vms != null && vms.size() > 0) {
                     fm = ((FragmentActivity) context).getSupportFragmentManager();
                     SelectTextElementFragment displayVms = SelectTextElementFragment.newInstance(
                             context.getString(R.string.select_vm_title),
@@ -684,18 +649,15 @@ public class RemoteCanvasHandler extends Handler implements HttpsFileDownloader.
                 Utils.justFinish(context);
                 break;
             case RemoteClientLibConstants.SHOW_TOAST:
-                this.post(new Runnable() {
-                    public void run() {
-                        Toast.makeText(context, Utils.getStringResourceByName(context, messageText),
-                                Toast.LENGTH_LONG).show();
-                    }
-                });
+                this.post(() -> Toast.makeText(context, Utils.getStringResourceByName(context, messageText),
+                        Toast.LENGTH_LONG).show());
                 break;
             default:
                 android.util.Log.e(TAG, "Not handling unknown messageId: " + msg.what);
                 break;
         }
     }
+
     @Override
     public void onDownload(String contents) {
         Log.d(TAG, "onDownload completed with contents: " + contents);

@@ -23,7 +23,7 @@ public abstract class RemotePointer {
      */
     protected int pointerMask = 0;
     protected int prevPointerMask = 0;
-    protected InputCarriable inputCarriable;
+    protected InputCarriable remoteInput;
     protected Viewable canvas;
     protected Context context;
     protected Handler handler;
@@ -41,14 +41,14 @@ public abstract class RemotePointer {
     public RemotePointer(
             RfbConnectable protocomm,
             Context context,
-            InputCarriable inputCarriable,
+            InputCarriable remoteInput,
             Viewable canvas,
             Handler handler,
             boolean debugLogging
     ) {
         this.protocomm = protocomm;
         this.context = context;
-        this.inputCarriable = inputCarriable;
+        this.remoteInput = remoteInput;
         this.canvas = canvas;
         this.handler = handler;
         //pointerX  = canvas.getImageWidth()/2;

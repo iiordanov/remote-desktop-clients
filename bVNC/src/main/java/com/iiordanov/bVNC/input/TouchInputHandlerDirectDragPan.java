@@ -24,8 +24,8 @@ import android.view.MotionEvent;
 
 import com.iiordanov.bVNC.RemoteCanvas;
 import com.iiordanov.bVNC.RemoteCanvasActivity;
+import com.undatech.opaque.InputCarriable;
 import com.undatech.opaque.util.GeneralUtils;
-import com.undatech.opaque.input.RemotePointer;
 import com.undatech.remoteClientUi.R;
 
 public class TouchInputHandlerDirectDragPan extends TouchInputHandlerGeneric {
@@ -33,8 +33,8 @@ public class TouchInputHandlerDirectDragPan extends TouchInputHandlerGeneric {
     static final String TAG = "InputHandlerDirectDragPan";
 
     public TouchInputHandlerDirectDragPan(RemoteCanvasActivity activity, RemoteCanvas canvas,
-                                          RemotePointer pointer, boolean debugLogging) {
-        super(activity, canvas, pointer, debugLogging);
+                                          InputCarriable remoteInput, boolean debugLogging) {
+        super(activity, canvas, remoteInput, debugLogging);
     }
 
     /*
@@ -80,7 +80,7 @@ public class TouchInputHandlerDirectDragPan extends TouchInputHandlerGeneric {
     private void startDragAndDropMode(MotionEvent e) {
         GeneralUtils.debugLog(debugLogging, TAG, "startDragAndDropMode, e: " + e);
         dragMode = true;
-        pointer.leftButtonDown(getX(e), getY(e), e.getMetaState());
+        remoteInput.getPointer().leftButtonDown(getX(e), getY(e), e.getMetaState());
     }
 
     /*
@@ -117,7 +117,7 @@ public class TouchInputHandlerDirectDragPan extends TouchInputHandlerGeneric {
             if (!dragMode) {
                 startDragAndDropMode(e1);
             } else {
-                pointer.moveMouseButtonDown(getX(e2), getY(e2), e2.getMetaState());
+                remoteInput.getPointer().moveMouseButtonDown(getX(e2), getY(e2), e2.getMetaState());
             }
         }
         canvas.movePanToMakePointerVisible();

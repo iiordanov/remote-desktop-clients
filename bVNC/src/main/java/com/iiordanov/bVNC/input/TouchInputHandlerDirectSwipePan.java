@@ -24,8 +24,8 @@ import android.view.MotionEvent;
 
 import com.iiordanov.bVNC.RemoteCanvas;
 import com.iiordanov.bVNC.RemoteCanvasActivity;
+import com.undatech.opaque.InputCarriable;
 import com.undatech.opaque.util.GeneralUtils;
-import com.undatech.opaque.input.RemotePointer;
 import com.undatech.remoteClientUi.R;
 
 public class TouchInputHandlerDirectSwipePan extends TouchInputHandlerGeneric {
@@ -33,8 +33,8 @@ public class TouchInputHandlerDirectSwipePan extends TouchInputHandlerGeneric {
     static final String TAG = "InputHandlerDirectSwipePan";
 
     public TouchInputHandlerDirectSwipePan(RemoteCanvasActivity activity, RemoteCanvas canvas,
-                                           RemotePointer pointer, boolean debugLogging) {
-        super(activity, canvas, pointer, debugLogging);
+                                           InputCarriable remoteInput, boolean debugLogging) {
+        super(activity, canvas, remoteInput, debugLogging);
     }
 
     /*

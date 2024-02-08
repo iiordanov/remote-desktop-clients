@@ -16,12 +16,12 @@ import com.undatech.opaque.input.RemotePointer;
 public class RemoteVncKeyboard extends RemoteKeyboard {
     private final static String TAG = "RemoteKeyboard";
     public static boolean rAltAsIsoL3Shift = false;
-    protected InputCarriable inputCarriable;
+    protected InputCarriable remoteInput;
 
     public RemoteVncKeyboard(RfbConnectable r, InputCarriable i, Context c, Handler h,
                              boolean rAltAsIsoL3Shift, boolean debugLog) {
         super(r, c, h, debugLog);
-        inputCarriable = i;
+        remoteInput = i;
         // Indicate we want Right Alt to be ISO L3 SHIFT if preferred.
         RemoteVncKeyboard.rAltAsIsoL3Shift = rAltAsIsoL3Shift;
     }
@@ -34,7 +34,7 @@ public class RemoteVncKeyboard extends RemoteKeyboard {
         rfb.remoteKeyboardState.detectHardwareMetaState(evt);
 
         if (rfb != null && rfb.isInNormalProtocol()) {
-            RemotePointer pointer = inputCarriable.getPointer();
+            RemotePointer pointer = remoteInput.getPointer();
             boolean down = (evt.getAction() == KeyEvent.ACTION_DOWN) ||
                     (evt.getAction() == KeyEvent.ACTION_MULTIPLE);
             boolean unicode = false;
@@ -378,7 +378,7 @@ public class RemoteVncKeyboard extends RemoteKeyboard {
     }
 
     public void sendMetaKey(MetaKeyBean meta) {
-        RemotePointer pointer = inputCarriable.getPointer();
+        RemotePointer pointer = remoteInput.getPointer();
         int x = pointer.getX();
         int y = pointer.getY();
 

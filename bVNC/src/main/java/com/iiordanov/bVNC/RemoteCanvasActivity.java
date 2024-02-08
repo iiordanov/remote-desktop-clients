@@ -325,10 +325,9 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
             connection = getNonOpaqueConnection();
         }
         if (connection != null && connection.isReadyForConnection()) {
-            remoteConnection = new RemoteConnectionFactory(this, connection, canvas, vvFileName).build();
-            handler = new RemoteCanvasHandler(this, canvas, remoteConnection, connection);
-            remoteConnection.initializeConnection(connection, handler, hideKeyboardAndExtraKeys, vvFileName);
-            canvas.setParameters(remoteConnection.getRfbConn(), connection, handler, remoteConnection.getPointer(), setModes);
+            remoteConnection = new RemoteConnectionFactory(this, connection, canvas, vvFileName, hideKeyboardAndExtraKeys).build();
+            handler = new RemoteCanvasHandler(this, canvas, remoteConnection, connection, setModes);
+            handler.sendEmptyMessage(RemoteClientLibConstants.REINIT_SESSION);
             continueConnecting();
         }
 
@@ -439,7 +438,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
     }
 
     @SuppressLint("RtlHardcoded")
-    void continueConnecting() {
+    public void continueConnecting() {
         android.util.Log.d(TAG, "continueConnecting");
         // Initialize and define actions for on-screen keys.
         initializeOnScreenKeys();
@@ -1246,13 +1245,13 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
             if (inputModeIds[i] == id) {
                 if (inputModeHandlers[i] == null) {
                     if (id == R.id.itemInputTouchPanZoomMouse) {
-                        inputModeHandlers[i] = new TouchInputHandlerDirectSwipePan(this, canvas, remoteConnection.getPointer(), App.debugLog);
+                        inputModeHandlers[i] = new TouchInputHandlerDirectSwipePan(this, canvas, remoteConnection, App.debugLog);
                     } else if (id == R.id.itemInputDragPanZoomMouse) {
-                        inputModeHandlers[i] = new TouchInputHandlerDirectDragPan(this, canvas, remoteConnection.getPointer(), App.debugLog);
+                        inputModeHandlers[i] = new TouchInputHandlerDirectDragPan(this, canvas, remoteConnection, App.debugLog);
                     } else if (id == R.id.itemInputTouchpad) {
-                        inputModeHandlers[i] = new TouchInputHandlerTouchpad(this, canvas, remoteConnection.getPointer(), App.debugLog);
+                        inputModeHandlers[i] = new TouchInputHandlerTouchpad(this, canvas, remoteConnection, App.debugLog);
                     } else if (id == R.id.itemInputSingleHanded) {
-                        inputModeHandlers[i] = new TouchInputHandlerSingleHanded(this, canvas, remoteConnection.getPointer(), App.debugLog);
+                        inputModeHandlers[i] = new TouchInputHandlerSingleHanded(this, canvas, remoteConnection, App.debugLog);
                     } else {
                         throw new IllegalStateException("Unexpected value: " + id);
                     }

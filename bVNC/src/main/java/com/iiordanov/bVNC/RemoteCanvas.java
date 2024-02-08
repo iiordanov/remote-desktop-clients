@@ -187,7 +187,7 @@ public class RemoteCanvas extends AppCompatImageView implements Viewable {
         displayDensity = metrics.density;
     }
 
-    void setParameters(
+    public void setParameters(
             DrawableReallocatedListener drawableReallocatedListener,
             Connection connection,
             Handler handler,
@@ -199,7 +199,6 @@ public class RemoteCanvas extends AppCompatImageView implements Viewable {
         this.handler = handler;
         this.pointer = pointer;
         this.setModes = setModes;
-
     }
 
     /**

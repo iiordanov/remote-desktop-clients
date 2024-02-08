@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.SystemClock
 import android.util.Log
 import com.iiordanov.bVNC.input.RemoteCanvasHandler
+import com.undatech.opaque.Connection
 import com.undatech.opaque.RemoteClientLibConstants
 import com.undatech.opaque.Viewable
 import com.undatech.opaque.proxmox.ProxmoxClient
@@ -18,8 +19,11 @@ import javax.security.auth.login.LoginException
 
 class RemoteProxmoxConnection(
     context: Context,
-    canvas: Viewable
-) : RemoteOpaqueConnection(context, canvas) {
+    connection: Connection?,
+    canvas: Viewable,
+    vvFileName: String?,
+    hideKeyboardAndExtraKeys: Runnable,
+) : RemoteOpaqueConnection(context, connection, canvas, vvFileName, hideKeyboardAndExtraKeys) {
     private val tag: String = "RemoteProxmoxConnection"
 
     fun retrieveVvFileFromPve(
@@ -75,7 +79,7 @@ class RemoteProxmoxConnection(
                     )
                 }
                 // At this stage we have either retrieved display data or failed, so permit the UI thread to continue.
-                synchronized(tempVvFile) { (tempVvFile as Object).notify() }
+                synchronized(tempVvFile) { castAsObject(tempVvFile).notify() }
             }
         }
         cThread.start()
@@ -83,7 +87,7 @@ class RemoteProxmoxConnection(
         // Wait until a timeout or until we are notified the worker thread trying to retrieve display data is done.
         synchronized(tempVvFile) {
             try {
-                (tempVvFile as Object).wait()
+                castAsObject(tempVvFile).wait()
             } catch (e: InterruptedException) {
                 handler.sendEmptyMessage(RemoteClientLibConstants.PVE_TIMEOUT_COMMUNICATING)
                 e.printStackTrace()
@@ -104,7 +108,7 @@ class RemoteProxmoxConnection(
                     if (connection.password == "") {
                         Log.i(tag, "Displaying a dialog to obtain user's password.")
                         handler.sendEmptyMessage(RemoteClientLibConstants.GET_PASSWORD)
-                        synchronized(handler) { (handler as Object).wait() }
+                        synchronized(handler) { castAsObject(handler).wait() }
                     }
                     var user = connection.userName
                     var realm = RemoteClientLibConstants.PVE_DEFAULT_REALM
@@ -125,7 +129,7 @@ class RemoteProxmoxConnection(
                     if (pveRealm != null && pveRealm.tfa != null) {
                         Log.i(tag, "Displaying a dialog to obtain OTP/TFA.")
                         handler.sendEmptyMessage(RemoteClientLibConstants.GET_OTP_CODE)
-                        synchronized(handler) { (handler as Object).wait() }
+                        synchronized(handler) { castAsObject(handler).wait() }
                     }
 
                     // Login with provided credentials
@@ -175,7 +179,7 @@ class RemoteProxmoxConnection(
                                     RemoteClientLibConstants.DIALOG_DISPLAY_VMS, "vms", vms
                                 )
                             )
-                            synchronized(rfbConn) { (rfbConn as Object).wait() }
+                            synchronized(rfbConn) { castAsObject(rfbConn).wait() }
                         }
 
                         // At this point, either the user selected a VM or there was an ID saved.

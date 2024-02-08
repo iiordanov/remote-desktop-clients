@@ -25,10 +25,10 @@ public class RemoteRdpPointer extends RemotePointer {
     private static final int MOUSE_BUTTON_SCROLL_DOWN = PTRFLAGS_WHEEL | PTRFLAGS_WHEEL_NEGATIVE | 0x0088;
 
     public RemoteRdpPointer(
-            RfbConnectable spicecomm, Context context, InputCarriable inputCarriable,
+            RfbConnectable spicecomm, Context context, InputCarriable remoteInput,
             Viewable canvas, Handler handler, boolean debugLogging
     ) {
-        super(spicecomm, context, inputCarriable, canvas, handler, debugLogging);
+        super(spicecomm, context, remoteInput, canvas, handler, debugLogging);
     }
 
     private void sendButtonDownOrMoveButtonDown(int x, int y, int metaState) {
@@ -114,7 +114,7 @@ public class RemoteRdpPointer extends RemotePointer {
      */
     private void sendPointerEvent(int x, int y, int metaState, boolean isMoving) {
 
-        int combinedMetaState = metaState | inputCarriable.getKeyboard().getMetaState();
+        int combinedMetaState = metaState | remoteInput.getKeyboard().getMetaState();
 
         // Save the previous pointer mask other than action_move, so we can
         // send it with the pointer flag "not down" to clear the action.

@@ -55,7 +55,7 @@ public class GetTextFragment extends DialogFragment {
     public static final int PasswordNoKeep = 7;
     public static final String DIALOG_ID_GET_MASTER_PASSWORD = "DIALOG_ID_GET_MASTER_PASSWORD";
     public static final String DIALOG_ID_GET_MATCHING_MASTER_PASSWORDS = "DIALOG_ID_GET_MATCHING_MASTER_PASSWORDS";
-    public static final String DIALOG_ID_GET_VERIFICATIONCODE = "DIALOG_ID_GET_VERIFICATIONCODE";
+    public static final String DIALOG_ID_GET_VERIFICATION_CODE = "DIALOG_ID_GET_VERIFICATION_CODE";
     public static final String DIALOG_ID_GET_SSH_CREDENTIALS = "DIALOG_ID_GET_SSH_CREDENTIALS";
     public static final String DIALOG_ID_GET_SSH_PASSPHRASE = "DIALOG_ID_GET_SSH_PASSPHRASE";
     public static final String DIALOG_ID_GET_VNC_CREDENTIALS = "DIALOG_ID_GET_VNC_CREDENTIALS";
@@ -147,6 +147,8 @@ public class GetTextFragment extends DialogFragment {
             d.setTitle(title);
         }
         View v = null;
+        Button buttonConfirm;
+        Button buttonCancel;
 
         switch (dialogType) {
             case Plaintext:
@@ -154,13 +156,13 @@ public class GetTextFragment extends DialogFragment {
                 textBox = (EditText) v.findViewById(R.id.textBox);
                 checkboxKeepPassword = v.findViewById(R.id.checkboxKeepPassword);
                 if (DIALOG_ID_GET_OPAQUE_OTP_CODE.equals(dialogId) ||
-                        DIALOG_ID_GET_VERIFICATIONCODE.equals(dialogId)
+                        DIALOG_ID_GET_VERIFICATION_CODE.equals(dialogId)
                 ) {
                     textBox.setHint("");
                     checkboxKeepPassword.setVisibility(View.INVISIBLE);
                 }
-                Button buttonConfirm = (Button) v.findViewById(R.id.buttonConfirm);
-                Button buttonCancel = (Button) v.findViewById(R.id.buttonCancel);
+                buttonConfirm = (Button) v.findViewById(R.id.buttonConfirm);
+                buttonCancel = (Button) v.findViewById(R.id.buttonCancel);
                 dismissOnCancel(buttonCancel);
                 dismissOnConfirm(buttonConfirm);
                 break;

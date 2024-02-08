@@ -1,7 +1,6 @@
 package com.iiordanov.bVNC.protocol
 
 import android.content.Context
-import android.os.Handler
 import android.os.SystemClock
 import android.util.Log
 import android.view.KeyEvent
@@ -22,18 +21,23 @@ import com.undatech.opaque.Connection
 import com.undatech.opaque.RemoteClientLibConstants
 import com.undatech.opaque.Viewable
 import com.undatech.remoteClientUi.R
+import kotlin.math.max
+import kotlin.math.min
 
 class RemoteVncConnection(
     context: Context,
-    canvas: Viewable
-) : RemoteConnection(context, canvas) {
+    connection: Connection?,
+    canvas: Viewable,
+    vvFileName: String?,
+    hideKeyboardAndExtraKeys: Runnable,
+) : RemoteConnection(context, connection, canvas, vvFileName, hideKeyboardAndExtraKeys) {
     private val tag: String = "RemoteVncConnection"
     private var rfb: RfbProto? = null
 
     /**
      * Determines the preferred remote width for VNC connections.
      */
-    fun getVncRemoteWidth(viewWidth: Int, viewHeight: Int): Int {
+    private fun getVncRemoteWidth(viewWidth: Int, viewHeight: Int): Int {
         var remoteWidth = 0
         val reqWidth = connection.rdpWidth
         val reqHeight = connection.rdpHeight
@@ -42,9 +46,9 @@ class RemoteVncConnection(
         } else if (connection.rdpResType == Constants.VNC_GEOM_SELECT_AUTOMATIC) {
             remoteWidth = viewWidth
         } else if (connection.rdpResType == Constants.VNC_GEOM_SELECT_NATIVE_PORTRAIT) {
-            remoteWidth = Math.min(viewWidth, viewHeight)
+            remoteWidth = min(viewWidth, viewHeight)
         } else if (connection.rdpResType == Constants.VNC_GEOM_SELECT_NATIVE_LANDSCAPE) {
-            remoteWidth = Math.max(viewWidth, viewHeight)
+            remoteWidth = max(viewWidth, viewHeight)
         }
         // We make the resolution even if it is odd.
         if (remoteWidth % 2 == 1) remoteWidth--
@@ -63,9 +67,9 @@ class RemoteVncConnection(
         } else if (connection.rdpResType == Constants.VNC_GEOM_SELECT_AUTOMATIC) {
             remoteHeight = viewHeight
         } else if (connection.rdpResType == Constants.VNC_GEOM_SELECT_NATIVE_PORTRAIT) {
-            remoteHeight = Math.max(viewWidth, viewHeight)
+            remoteHeight = max(viewWidth, viewHeight)
         } else if (connection.rdpResType == Constants.VNC_GEOM_SELECT_NATIVE_LANDSCAPE) {
-            remoteHeight = Math.min(viewWidth, viewHeight)
+            remoteHeight = min(viewWidth, viewHeight)
         }
         // We make the resolution even if it is odd.
         if (remoteHeight % 2 == 1) remoteHeight--
@@ -165,13 +169,8 @@ class RemoteVncConnection(
         }
     }
 
-    override fun initializeConnection(
-        conn: Connection?,
-        handler: Handler?,
-        hideKeyboardAndExtraKeys: Runnable?,
-        ignored: String?
-    ) {
-        super.initializeConnection(conn, handler, hideKeyboardAndExtraKeys, ignored)
+    override fun initializeConnection() {
+        super.initializeConnection()
 
         try {
             initializeVncConnection()
@@ -221,7 +220,7 @@ class RemoteVncConnection(
      * Sends over the unix username and password if this is VNC over SSH connection and automatic sending of
      * UNIX credentials is enabled for AutoX (for the x11vnc "-unixpw" option).
      */
-    fun sendUnixAuth() {
+    private fun sendUnixAuth() {
         // If the type of connection is ssh-tunneled and we are told to send the unix credentials, then do so.
         if (sshTunneled && connection.autoXUnixAuth) {
             keyboard.keyEvent(

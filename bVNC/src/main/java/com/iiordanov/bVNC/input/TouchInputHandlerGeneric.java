@@ -30,8 +30,8 @@ import androidx.core.view.InputDeviceCompat;
 import com.iiordanov.bVNC.Constants;
 import com.iiordanov.bVNC.RemoteCanvas;
 import com.iiordanov.bVNC.RemoteCanvasActivity;
+import com.undatech.opaque.InputCarriable;
 import com.undatech.opaque.util.GeneralUtils;
-import com.undatech.opaque.input.RemotePointer;
 
 import java.util.LinkedList;
 import java.util.Queue;
@@ -63,7 +63,7 @@ abstract class TouchInputHandlerGeneric extends GestureDetector.SimpleOnGestureL
     // These variables keep track of which pointers have seen ACTION_DOWN events.
     protected boolean secondPointerWasDown = false;
     protected boolean thirdPointerWasDown = false;
-    protected RemotePointer pointer;
+    protected InputCarriable remoteInput;
     // This is the initial "focal point" of the gesture (between the two fingers).
     float xInitialFocus;
     float yInitialFocus;
@@ -105,11 +105,11 @@ abstract class TouchInputHandlerGeneric extends GestureDetector.SimpleOnGestureL
     Queue<Float> distXQueue;
     Queue<Float> distYQueue;
 
-    TouchInputHandlerGeneric(RemoteCanvasActivity activity, RemoteCanvas canvas, RemotePointer pointer,
+    TouchInputHandlerGeneric(RemoteCanvasActivity activity, RemoteCanvas canvas, InputCarriable remoteInput,
                              boolean debugLogging) {
         this.activity = activity;
         this.canvas = canvas;
-        this.pointer = pointer;
+        this.remoteInput = remoteInput;
         this.debugLogging = debugLogging;
 
         // TODO: Implement this
@@ -174,19 +174,19 @@ abstract class TouchInputHandlerGeneric extends GestureDetector.SimpleOnGestureL
                 switch (bstate) {
                     case MotionEvent.BUTTON_PRIMARY:
                         canvas.movePanToMakePointerVisible();
-                        pointer.leftButtonDown(x, y, meta);
+                        remoteInput.getPointer().leftButtonDown(x, y, meta);
                         used = true;
                         break;
                     case MotionEvent.BUTTON_SECONDARY:
                     case MotionEvent.BUTTON_STYLUS_PRIMARY:
                         canvas.movePanToMakePointerVisible();
-                        pointer.rightButtonDown(x, y, meta);
+                        remoteInput.getPointer().rightButtonDown(x, y, meta);
                         used = true;
                         break;
                     case MotionEvent.BUTTON_TERTIARY:
                     case MotionEvent.BUTTON_STYLUS_SECONDARY:
                         canvas.movePanToMakePointerVisible();
-                        pointer.middleButtonDown(x, y, meta);
+                        remoteInput.getPointer().middleButtonDown(x, y, meta);
                         used = true;
                         break;
                 }
@@ -204,7 +204,7 @@ abstract class TouchInputHandlerGeneric extends GestureDetector.SimpleOnGestureL
                     case MotionEvent.BUTTON_STYLUS_PRIMARY:
                     case MotionEvent.BUTTON_STYLUS_SECONDARY:
                         canvas.movePanToMakePointerVisible();
-                        pointer.releaseButton(x, y, meta);
+                        remoteInput.getPointer().releaseButton(x, y, meta);
                         used = true;
                         break;
                 }
@@ -243,18 +243,18 @@ abstract class TouchInputHandlerGeneric extends GestureDetector.SimpleOnGestureL
                 canvas.movePanToMakePointerVisible();
                 switch (bstate) {
                     case MotionEvent.BUTTON_PRIMARY:
-                        pointer.leftButtonDown(x, y, meta);
+                        remoteInput.getPointer().leftButtonDown(x, y, meta);
                         break;
                     case MotionEvent.BUTTON_SECONDARY:
                     case MotionEvent.BUTTON_STYLUS_PRIMARY:
-                        pointer.rightButtonDown(x, y, meta);
+                        remoteInput.getPointer().rightButtonDown(x, y, meta);
                         break;
                     case MotionEvent.BUTTON_TERTIARY:
                     case MotionEvent.BUTTON_STYLUS_SECONDARY:
-                        pointer.middleButtonDown(x, y, meta);
+                        remoteInput.getPointer().middleButtonDown(x, y, meta);
                         break;
                     default:
-                        pointer.moveMouseButtonUp(x, y, meta);
+                        remoteInput.getPointer().moveMouseButtonUp(x, y, meta);
                         break;
                 }
                 used = true;
@@ -276,22 +276,22 @@ abstract class TouchInputHandlerGeneric extends GestureDetector.SimpleOnGestureL
         int numEvents = 0;
         while (numEvents < swipeSpeed && numEvents < maxSwipeSpeed) {
             if (scrollDown) {
-                pointer.scrollDown(x, y, meta);
-                pointer.moveMouseButtonUp(x, y, meta);
+                remoteInput.getPointer().scrollDown(x, y, meta);
+                remoteInput.getPointer().moveMouseButtonUp(x, y, meta);
             } else if (scrollUp) {
-                pointer.scrollUp(x, y, meta);
-                pointer.moveMouseButtonUp(x, y, meta);
+                remoteInput.getPointer().scrollUp(x, y, meta);
+                remoteInput.getPointer().moveMouseButtonUp(x, y, meta);
             }
             if (scrollRight) {
-                pointer.scrollRight(x, y, meta);
-                pointer.moveMouseButtonUp(x, y, meta);
+                remoteInput.getPointer().scrollRight(x, y, meta);
+                remoteInput.getPointer().moveMouseButtonUp(x, y, meta);
             } else if (scrollLeft) {
-                pointer.scrollLeft(x, y, meta);
-                pointer.moveMouseButtonUp(x, y, meta);
+                remoteInput.getPointer().scrollLeft(x, y, meta);
+                remoteInput.getPointer().moveMouseButtonUp(x, y, meta);
             }
             numEvents++;
         }
-        pointer.releaseButton(x, y, meta);
+        remoteInput.getPointer().releaseButton(x, y, meta);
     }
 
     /*
@@ -303,9 +303,9 @@ abstract class TouchInputHandlerGeneric extends GestureDetector.SimpleOnGestureL
 
         int metaState = e.getMetaState();
         activity.showActionBar();
-        pointer.leftButtonDown(getX(e), getY(e), metaState);
+        remoteInput.getPointer().leftButtonDown(getX(e), getY(e), metaState);
         SystemClock.sleep(50);
-        pointer.releaseButton(getX(e), getY(e), metaState);
+        remoteInput.getPointer().releaseButton(getX(e), getY(e), metaState);
         canvas.movePanToMakePointerVisible();
         return true;
     }
@@ -318,13 +318,13 @@ abstract class TouchInputHandlerGeneric extends GestureDetector.SimpleOnGestureL
         GeneralUtils.debugLog(debugLogging, TAG, "onDoubleTap, e: " + e);
 
         int metaState = e.getMetaState();
-        pointer.leftButtonDown(getX(e), getY(e), metaState);
+        remoteInput.getPointer().leftButtonDown(getX(e), getY(e), metaState);
         SystemClock.sleep(50);
-        pointer.releaseButton(getX(e), getY(e), metaState);
+        remoteInput.getPointer().releaseButton(getX(e), getY(e), metaState);
         SystemClock.sleep(50);
-        pointer.leftButtonDown(getX(e), getY(e), metaState);
+        remoteInput.getPointer().leftButtonDown(getX(e), getY(e), metaState);
         SystemClock.sleep(50);
-        pointer.releaseButton(getX(e), getY(e), metaState);
+        remoteInput.getPointer().releaseButton(getX(e), getY(e), metaState);
         canvas.movePanToMakePointerVisible();
         return true;
     }
@@ -347,7 +347,7 @@ abstract class TouchInputHandlerGeneric extends GestureDetector.SimpleOnGestureL
         activity.sendShortVibration();
 
         dragMode = true;
-        pointer.leftButtonDown(getX(e), getY(e), metaState);
+        remoteInput.getPointer().leftButtonDown(getX(e), getY(e), metaState);
     }
 
     /**
@@ -463,7 +463,7 @@ abstract class TouchInputHandlerGeneric extends GestureDetector.SimpleOnGestureL
                             // If no non-drag gestures were going on, send a mouse up event.
                             GeneralUtils.debugLog(debugLogging, TAG,
                                     "onTouchEvent: No non-drag gestures detected, sending mouse up event");
-                            pointer.releaseButton(getX(e), getY(e), meta);
+                            remoteInput.getPointer().releaseButton(getX(e), getY(e), meta);
                         }
                         break;
                     case MotionEvent.ACTION_MOVE:
@@ -478,7 +478,7 @@ abstract class TouchInputHandlerGeneric extends GestureDetector.SimpleOnGestureL
                             return true;
                         } else if (dragMode || rightDragMode || middleDragMode) {
                             canvas.movePanToMakePointerVisible();
-                            pointer.moveMouseButtonDown(getX(e), getY(e), meta);
+                            remoteInput.getPointer().moveMouseButtonDown(getX(e), getY(e), meta);
                             GeneralUtils.debugLog(debugLogging, TAG, "onTouchEvent: ACTION_MOVE in a drag mode, moving mouse with button down");
                             return true;
                         } else if (inSwiping) {
@@ -519,7 +519,7 @@ abstract class TouchInputHandlerGeneric extends GestureDetector.SimpleOnGestureL
                             // finger is down, we treat it as a middle mouse click. We ignore the lifting of the
                             // second index when the third index has gone down (using the thirdPointerWasDown variable)
                             // to prevent inadvertent right-clicks when a middle click has been performed.
-                            pointer.rightButtonDown(getX(e), getY(e), meta);
+                            remoteInput.getPointer().rightButtonDown(getX(e), getY(e), meta);
                             // Enter right-drag mode.
                             rightDragMode = true;
                             // Now the event must be passed on to the parent class in order to
@@ -535,7 +535,7 @@ abstract class TouchInputHandlerGeneric extends GestureDetector.SimpleOnGestureL
                         if (!inScaling) {
                             // This boolean prevents the right-click from firing simultaneously as a middle button click.
                             thirdPointerWasDown = true;
-                            pointer.middleButtonDown(getX(e), getY(e), meta);
+                            remoteInput.getPointer().middleButtonDown(getX(e), getY(e), meta);
                             // Enter middle-drag mode.
                             middleDragMode = true;
                         }

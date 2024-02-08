@@ -24,8 +24,8 @@ import android.view.MotionEvent;
 
 import com.iiordanov.bVNC.RemoteCanvas;
 import com.iiordanov.bVNC.RemoteCanvasActivity;
+import com.undatech.opaque.InputCarriable;
 import com.undatech.opaque.util.GeneralUtils;
-import com.undatech.opaque.input.RemotePointer;
 import com.undatech.remoteClientUi.R;
 
 public class TouchInputHandlerTouchpad extends TouchInputHandlerGeneric {
@@ -33,8 +33,8 @@ public class TouchInputHandlerTouchpad extends TouchInputHandlerGeneric {
     static final String TAG = "InputHandlerTouchpad";
 
     public TouchInputHandlerTouchpad(RemoteCanvasActivity activity, RemoteCanvas canvas,
-                                     RemotePointer pointer, boolean debugLogging) {
-        super(activity, canvas, pointer, debugLogging);
+                                     InputCarriable remoteInput, boolean debugLogging) {
+        super(activity, canvas, remoteInput, debugLogging);
     }
 
     /*
@@ -114,15 +114,15 @@ public class TouchInputHandlerTouchpad extends TouchInputHandlerGeneric {
             }
 
             // Make distanceX/Y display density independent.
-            float sensitivity = pointer.getSensitivity();
+            float sensitivity = remoteInput.getPointer().getSensitivity();
             distanceX = sensitivity * distanceX / displayDensity;
             distanceY = sensitivity * distanceY / displayDensity;
 
             // Compute the absolute new mouse position.
-            int newX = Math.round(pointer.getX() + getDelta(-distanceX));
-            int newY = Math.round(pointer.getY() + getDelta(-distanceY));
+            int newX = Math.round(remoteInput.getPointer().getX() + getDelta(-distanceX));
+            int newY = Math.round(remoteInput.getPointer().getY() + getDelta(-distanceY));
 
-            pointer.moveMouse(newX, newY, meta);
+            remoteInput.getPointer().moveMouse(newX, newY, meta);
         }
         canvas.movePanToMakePointerVisible();
         return true;
@@ -148,10 +148,10 @@ public class TouchInputHandlerTouchpad extends TouchInputHandlerGeneric {
             float distanceX = e.getX() - dragX;
             dragX = e.getX();
             // Compute the absolute new X coordinate.
-            return Math.round(pointer.getX() + getDelta(distanceX));
+            return Math.round(remoteInput.getPointer().getX() + getDelta(distanceX));
         }
         dragX = e.getX();
-        return pointer.getX();
+        return remoteInput.getPointer().getX();
     }
 
     /*
@@ -163,10 +163,10 @@ public class TouchInputHandlerTouchpad extends TouchInputHandlerGeneric {
             float distanceY = e.getY() - dragY;
             dragY = e.getY();
             // Compute the absolute new Y coordinate.
-            return Math.round(pointer.getY() + getDelta(distanceY));
+            return Math.round(remoteInput.getPointer().getY() + getDelta(distanceY));
         }
         dragY = e.getY();
-        return pointer.getY();
+        return remoteInput.getPointer().getY();
     }
 
     /**
@@ -187,7 +187,7 @@ public class TouchInputHandlerTouchpad extends TouchInputHandlerGeneric {
     private float computeAcceleration(float delta) {
         float origSign = getSign(delta);
         delta = Math.abs(delta);
-        boolean accelerated = pointer.isAccelerated();
+        boolean accelerated = remoteInput.getPointer().isAccelerated();
         if (delta <= 15) {
             delta = delta * 0.75f;
         } else if (accelerated && delta <= 70.0f) {

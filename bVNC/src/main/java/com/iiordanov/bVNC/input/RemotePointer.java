@@ -9,9 +9,9 @@ import com.undatech.opaque.Viewable;
 
 public abstract class RemotePointer extends com.undatech.opaque.input.RemotePointer {
     public RemotePointer(
-            RfbConnectable protocomm, Context context, InputCarriable inputCarriable,
+            RfbConnectable protocomm, Context context, InputCarriable remoteInput,
             Viewable canvas, Handler handler, boolean debugLogging
     ) {
-        super(protocomm, context, inputCarriable, canvas, handler, debugLogging);
+        super(protocomm, context, remoteInput, canvas, handler, debugLogging);
     }
 }

@@ -1,7 +1,6 @@
 package com.iiordanov.bVNC.protocol
 
 import android.content.Context
-import android.os.Handler
 import android.util.Log
 import com.iiordanov.bVNC.App
 import com.iiordanov.bVNC.COLORMODEL
@@ -16,8 +15,11 @@ import com.undatech.remoteClientUi.R
 
 class RemoteSpiceConnection(
     context: Context,
-    canvas: Viewable
-) : RemoteConnection(context, canvas) {
+    connection: Connection?,
+    canvas: Viewable,
+    vvFileName: String?,
+    hideKeyboardAndExtraKeys: Runnable,
+) : RemoteConnection(context, connection, canvas, vvFileName, hideKeyboardAndExtraKeys) {
     private val tag: String = "RemoteVncConnection"
     private var spiceComm: SpiceCommunicator? = null
 
@@ -59,19 +61,14 @@ class RemoteSpiceConnection(
             tlsPort = getRemoteProtocolPort(tlsPort)
         }
         spiceComm?.connectSpice(
-            address, Integer.toString(port), Integer.toString(tlsPort), connection.password,
+            address, port.toString(), tlsPort.toString(), connection.password,
             connection.caCertPath, null,  // TODO: Can send connection.getCaCert() here instead
             connection.certSubject, connection.enableSound
         )
     }
 
-    override fun initializeConnection(
-        conn: Connection?,
-        h: Handler?,
-        hideKeyboardAndExtraKeys: Runnable?,
-        vvFileName: String?
-    ) {
-        super.initializeConnection(conn, h, hideKeyboardAndExtraKeys, vvFileName)
+    override fun initializeConnection() {
+        super.initializeConnection()
 
         try {
             initializeSpiceConnection()

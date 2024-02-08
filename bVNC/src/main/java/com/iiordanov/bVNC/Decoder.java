@@ -96,7 +96,7 @@ public class Decoder {
 
     private AbstractDrawableData bitmapData;
     private Viewable vncCanvas;
-    private InputCarriable inputCarriable;
+    private InputCarriable remoteInput;
     private boolean discardCursorShapeUpdates;
 
     public Decoder(Viewable v, InputCarriable c, boolean discardCursorShapeUpdates) {
@@ -109,7 +109,7 @@ public class Decoder {
         bitmapopts.inPreferredConfig = Bitmap.Config.RGB_565;
         bitmapopts.inScaled = false;
         vncCanvas = v;
-        inputCarriable = c;
+        remoteInput = c;
     }
 
     void setBitmapData(AbstractDrawableData b) {
@@ -1071,7 +1071,7 @@ public class Decoder {
     synchronized void
     handleCursorShapeUpdate(RfbProto rfb, int encodingType, int hotX, int hotY, int w, int h) throws IOException {
 
-        RemotePointer p = inputCarriable.getPointer();
+        RemotePointer p = remoteInput.getPointer();
         int x = p.getX();
         int y = p.getY();
 

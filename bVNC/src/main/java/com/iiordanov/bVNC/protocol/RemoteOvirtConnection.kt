@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.Log
 import com.iiordanov.bVNC.Utils
 import com.iiordanov.bVNC.input.RemoteCanvasHandler
+import com.undatech.opaque.Connection
 import com.undatech.opaque.RemoteClientLibConstants
 import com.undatech.opaque.Viewable
 import com.undatech.opaque.proxmox.OvirtClient
@@ -13,8 +14,11 @@ import javax.security.auth.login.LoginException
 
 class RemoteOvirtConnection(
     context: Context,
-    canvas: Viewable
-) : RemoteOpaqueConnection(context, canvas) {
+    connection: Connection?,
+    canvas: Viewable,
+    vvFileName: String?,
+    hideKeyboardAndExtraKeys: Runnable,
+) : RemoteOpaqueConnection(context, connection, canvas, vvFileName, hideKeyboardAndExtraKeys) {
 
     private val tag: String = "RemoteOvirtConnection"
 
@@ -29,7 +33,7 @@ class RemoteOvirtConnection(
                     if (connection.password == "") {
                         Log.i(tag, "Displaying a dialog to obtain user's password.")
                         handler.sendEmptyMessage(RemoteClientLibConstants.GET_PASSWORD)
-                        synchronized(handler) { (handler as Object).wait() }
+                        synchronized(handler) { castAsObject(handler).wait() }
                     }
                     val ovirtClient = OvirtClient(connection, handler)
                     ovirtClient.trySsoLogin(connection.userName, connection.password)
@@ -72,7 +76,7 @@ class RemoteOvirtConnection(
                                             "vms", vmNames
                                         )
                                     )
-                                    synchronized(rfbConn) { (rfbConn as Object).wait() }
+                                    synchronized(rfbConn) { castAsObject(rfbConn).wait() }
                                 }
                             }
                         }
@@ -89,7 +93,7 @@ class RemoteOvirtConnection(
                         ssoToken
                     )
                     try {
-                        synchronized(rfbConn) { (rfbConn as Object).wait(35000) }
+                        synchronized(rfbConn) { castAsObject(rfbConn).wait(35000) }
                     } catch (e: InterruptedException) {
                         Log.w(tag, "Wait for SPICE connection interrupted.")
                     }
