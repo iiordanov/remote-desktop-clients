@@ -83,11 +83,13 @@ static void main_channel_event(SpiceChannel *channel, SpiceChannelEvent event,
         g_message("main channel: switching host");
         break;
     case SPICE_CHANNEL_CLOSED:
-        /* this event is only sent if the channel was succesfully opened before */
+        /* this event is only sent if the channel was successfully opened before */
         g_message("main channel: closed");
+        sendMessage(g_env, 5, "Connection failed."); /* SPICE_CONNECT_FAILURE */
         connection_disconnect(conn);
         break;
     case SPICE_CHANNEL_ERROR_IO:
+        sendMessage(g_env, 5, "Connection failed."); /* SPICE_CONNECT_FAILURE */
         connection_disconnect(conn);
         break;
     case SPICE_CHANNEL_ERROR_TLS:
