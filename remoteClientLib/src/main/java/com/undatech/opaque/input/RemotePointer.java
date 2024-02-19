@@ -15,7 +15,7 @@ import com.undatech.opaque.Viewable;
 
 public abstract class RemotePointer {
 
-    public static final int POINTER_DOWN_MASK = 0x8000;
+    public static final int POINTER_DOWN_MASK = 0x8000; // 32768
     public static float DEFAULT_SENSITIVITY = 2.0f;
     public static boolean DEFAULT_ACCELERATED = true;
     /**

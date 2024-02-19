@@ -11,24 +11,24 @@ import com.undatech.opaque.util.GeneralUtils;
 public class RemoteRdpPointer extends RemotePointer {
     private static final String TAG = "RemoteRdpPointer";
 
-    private final static int PTRFLAGS_WHEEL = 0x0200;
-    private final static int PTRFLAGS_WHEEL_NEGATIVE = 0x0100;
-    //private final static int PTRFLAGS_DOWN           = 0x8000;
-
+    private final static int POINTER_FLAGS_WHEEL = 0x0200; // 512
+    private final static int POINTER_FLAGS_WHEEL_NEGATIVE = 0x0100; // 256
+    /*
     private final static int MOUSE_BUTTON_NONE = 0x0000;
-    private final static int MOUSE_BUTTON_MOVE = 0x0800;
-    private final static int MOUSE_BUTTON_LEFT = 0x1000;
-    private final static int MOUSE_BUTTON_RIGHT = 0x2000;
+     */
+    private final static int MOUSE_BUTTON_MOVE = 0x0800; // 2048
+    private final static int MOUSE_BUTTON_LEFT = 0x1000; // 4096
+    private final static int MOUSE_BUTTON_RIGHT = 0x2000; // 8192
 
-    private static final int MOUSE_BUTTON_MIDDLE = 0x4000;
-    private static final int MOUSE_BUTTON_SCROLL_UP = PTRFLAGS_WHEEL | 0x0078;
-    private static final int MOUSE_BUTTON_SCROLL_DOWN = PTRFLAGS_WHEEL | PTRFLAGS_WHEEL_NEGATIVE | 0x0088;
+    private static final int MOUSE_BUTTON_MIDDLE = 0x4000; // 16384
+    private static final int MOUSE_BUTTON_SCROLL_UP = POINTER_FLAGS_WHEEL | 0x0078;
+    private static final int MOUSE_BUTTON_SCROLL_DOWN = POINTER_FLAGS_WHEEL | POINTER_FLAGS_WHEEL_NEGATIVE | 0x0088;
 
     public RemoteRdpPointer(
-            RfbConnectable spicecomm, Context context, InputCarriable remoteInput,
+            RfbConnectable rfbConnectable, Context context, InputCarriable remoteInput,
             Viewable canvas, Handler handler, boolean debugLogging
     ) {
-        super(spicecomm, context, remoteInput, canvas, handler, debugLogging);
+        super(rfbConnectable, context, remoteInput, canvas, handler, debugLogging);
     }
 
     private void sendButtonDownOrMoveButtonDown(int x, int y, int metaState) {
@@ -106,11 +106,6 @@ public class RemoteRdpPointer extends RemotePointer {
 
     /**
      * Sends a pointer event to the server.
-     *
-     * @param x
-     * @param y
-     * @param metaState
-     * @param isMoving
      */
     private void sendPointerEvent(int x, int y, int metaState, boolean isMoving) {
 
@@ -121,9 +116,10 @@ public class RemoteRdpPointer extends RemotePointer {
         if (!isMoving) {
             // If this is a new mouse down event, release previous button pressed to avoid confusing the remote OS.
             if (prevPointerMask != 0 && prevPointerMask != pointerMask) {
-                protocomm.writePointerEvent(pointerX, pointerY,
-                        combinedMetaState,
-                        prevPointerMask & ~POINTER_DOWN_MASK, false);
+                int upPointerMask = prevPointerMask & ~POINTER_DOWN_MASK;
+                GeneralUtils.debugLog(this.debugLogging, TAG, "Sending mouse up event at: " + pointerX +
+                        ", " + pointerY + " with prevPointerMask: " + prevPointerMask + ", upPointerMask: " + upPointerMask);
+                protocomm.writePointerEvent(pointerX, pointerY, combinedMetaState, upPointerMask, false);
             }
             prevPointerMask = pointerMask;
         }
@@ -145,7 +141,8 @@ public class RemoteRdpPointer extends RemotePointer {
         }
         canvas.invalidateMousePosition();
         GeneralUtils.debugLog(this.debugLogging, TAG, "Sending absolute mouse event at: " + pointerX +
-                ", " + pointerY + ", pointerMask: " + pointerMask);
+                ", " + pointerY + " with pointerMask: " + pointerMask);
+        protocomm.writePointerEvent(pointerX, pointerY, combinedMetaState, MOUSE_BUTTON_MOVE | pointerMask, false);
         protocomm.writePointerEvent(pointerX, pointerY, combinedMetaState, pointerMask, false);
     }
 
