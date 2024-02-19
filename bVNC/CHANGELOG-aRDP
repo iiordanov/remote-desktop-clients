@@ -1,3 +1,5 @@
+v5.2.6
+- Bugfix for RDP servers that do not support setting resolution automatically
 v5.2.5
 - RDP Gateway support
 - Bugfix for visual artifacts when moving pointer or panning
