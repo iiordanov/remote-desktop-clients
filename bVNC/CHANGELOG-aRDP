@@ -1,3 +1,5 @@
+v5.2.8
+- Bugfix for drag/drop on Ubuntu 22.04 Remote Desktop Sharing
 v5.2.7
 - Bugfix for RDP servers that do not support setting resolution automatically
 v5.2.5
