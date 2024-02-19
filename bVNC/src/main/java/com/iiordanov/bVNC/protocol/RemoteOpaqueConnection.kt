@@ -10,6 +10,7 @@ import com.iiordanov.bVNC.input.RemoteSpiceKeyboard
 import com.iiordanov.bVNC.input.RemoteSpicePointer
 import com.undatech.opaque.Connection
 import com.undatech.opaque.MessageDialogs
+import com.undatech.opaque.RemoteClientLibConstants
 import com.undatech.opaque.SpiceCommunicator
 import com.undatech.opaque.Viewable
 import com.undatech.remoteClientUi.R
@@ -30,7 +31,7 @@ open class RemoteOpaqueConnection(
         checkNetworkConnectivity()
         spiceComm = SpiceCommunicator(
             context, handler, canvas,
-            connection.isRequestingNewDisplayResolution || connection.rdpResType == Constants.RDP_GEOM_SELECT_CUSTOM,
+            connection.isRequestingNewDisplayResolution || connection.rdpResType == RemoteClientLibConstants.RDP_GEOM_SELECT_CUSTOM,
             !Utils.isFree(context) && connection.isUsbEnabled, App.debugLog
         )
         rfbConn = spiceComm

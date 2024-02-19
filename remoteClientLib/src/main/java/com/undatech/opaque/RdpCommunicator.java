@@ -55,12 +55,15 @@ public class RdpCommunicator extends RfbConnectable implements RdpKeyboardMapper
     private boolean disconnectRequested = false;
     private final String username, password, domain;
 
-    public RdpCommunicator(
+    private Connection connection;
+
+    public RdpCommunicator(Connection connection,
             Context context, Handler handler, Viewable viewable,
             String username, String domain, String password,
             boolean debugLogging
     ) {
         super(debugLogging, handler);
+        this.connection = connection;
         // This is necessary because it initializes a synchronizedMap referenced later.
         this.freeRdpApp = new GlobalApp();
         patchFreeRdpCore();
@@ -318,9 +321,7 @@ public class RdpCommunicator extends RfbConnectable implements RdpKeyboardMapper
 
         // Set screen settings to native res if instructed to, or if height or width are too small.
         BookmarkBase.ScreenSettings screenSettings = bookmark.getActiveScreenSettings();
-        screenSettings.setWidth(remoteWidth);
-        screenSettings.setHeight(remoteHeight);
-        screenSettings.setColors(colors);
+        setResolutionAndColor(remoteWidth, remoteHeight, colors, screenSettings);
 
         // Set performance flags.
         BookmarkBase.PerformanceFlags performanceFlags = bookmark.getPerformanceFlags();
@@ -427,7 +428,25 @@ public class RdpCommunicator extends RfbConnectable implements RdpKeyboardMapper
     @Override
     public void OnSettingsChanged(int width, int height, int bpp) {
         android.util.Log.d(TAG, "OnSettingsChanged called, wxh: " + width + "x" + height);
+        BookmarkBase.ScreenSettings settings = session.getBookmark().getActiveScreenSettings();
+        if (settings.getWidth() != width || settings.getHeight() != height) {
+            setResolutionAndColor(width, height, bpp, settings);
+            connection.setRdpResType(RemoteClientLibConstants.RDP_GEOM_SELECT_CUSTOM);
+            connection.setRdpWidth(width);
+            connection.setRdpHeight(height);
+            connection.setRdpColor(bpp);
+            connection.save(context);
+            close();
+            initSession(username, domain, password);
+            connect();
+        }
         viewable.reallocateDrawable(width, height);
+    }
+
+    private static void setResolutionAndColor(int width, int height, int bpp, BookmarkBase.ScreenSettings settings) {
+        settings.setWidth(width);
+        settings.setHeight(height);
+        settings.setColors(bpp);
     }
 
     //////////////////////////////////////////////////////////////////////////////////
@@ -511,7 +530,7 @@ public class RdpCommunicator extends RfbConnectable implements RdpKeyboardMapper
         //android.util.Log.v(TAG, "OnGraphicsUpdate called: " + x +", " + y + " + " + width + "x" + height );
         if (viewable != null && session != null) {
             Bitmap bitmap = viewable.getBitmap();
-            if (bitmap != null) {
+            if (bitmap != null && x + width <= bitmap.getWidth() && y + height <= bitmap.getHeight()) {
                 LibFreeRDP.updateGraphics(session.getInstance(), bitmap, x, y, width, height);
                 viewable.reDraw(x, y, width, height);
             }
@@ -520,7 +539,7 @@ public class RdpCommunicator extends RfbConnectable implements RdpKeyboardMapper
 
     @Override
     public void OnGraphicsResize(int width, int height, int bpp) {
-        android.util.Log.d(TAG, "OnGraphicsResize called.");
+        android.util.Log.d(TAG, "OnGraphicsResize called " + width + "x" + height + ", bpp:" + bpp);
         OnSettingsChanged(width, height, bpp);
     }
 

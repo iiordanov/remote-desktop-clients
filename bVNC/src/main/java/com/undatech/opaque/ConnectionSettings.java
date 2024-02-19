@@ -78,7 +78,7 @@ public class ConnectionSettings implements Connection, Serializable {
 
     private int rdpWidth = 0;
     private int rdpHeight = 0;
-    private int rdpResType = Constants.RDP_GEOM_SELECT_CUSTOM;
+    private int rdpResType = RemoteClientLibConstants.RDP_GEOM_SELECT_CUSTOM;
 
     private boolean useLastPositionToolbar = true;
     private int useLastPositionToolbarX;
@@ -868,7 +868,7 @@ public class ConnectionSettings implements Connection, Serializable {
         scaleMode = sp.getString("scaleMode", ImageView.ScaleType.MATRIX.toString()).trim();
         rdpWidth = sp.getInt("rdpWidth", 0);
         rdpHeight = sp.getInt("rdpHeight", 0);
-        rdpResType = sp.getInt("rdpResType", Constants.RDP_GEOM_SELECT_CUSTOM);
+        rdpResType = sp.getInt("rdpResType", RemoteClientLibConstants.RDP_GEOM_SELECT_CUSTOM);
         useLastPositionToolbar = sp.getBoolean("useLastPositionToolbar", true);
         useLastPositionToolbarX = sp.getInt("useLastPositionToolbarX", 0);
         useLastPositionToolbarY = sp.getInt("useLastPositionToolbarY", 0);

@@ -27,7 +27,7 @@ class RemoteRdpConnection(
     private fun initializeRdpConnection() {
         Log.i(tag, "initializeRdpConnection: Initializing RDP connection.")
         rdpComm = RdpCommunicator(
-            context, handler, canvas,
+            connection, context, handler, canvas,
             connection.userName, connection.rdpDomain, connection.password,
             App.debugLog
         )

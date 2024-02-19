@@ -37,6 +37,7 @@ import com.iiordanov.bVNC.dialogs.IntroTextDialog;
 import com.iiordanov.util.PermissionGroups;
 import com.iiordanov.util.PermissionsManager;
 import com.morpheusly.common.Utilities;
+import com.undatech.opaque.RemoteClientLibConstants;
 import com.undatech.remoteClientUi.R;
 
 import java.util.List;
@@ -121,7 +122,7 @@ public class aRDP extends MainConfiguration {
             @Override
             public void onItemSelected(AdapterView<?> arg0, View view, int itemIndex, long id) {
                 selected.setRdpResType(itemIndex);
-                setRemoteWidthAndHeight(Constants.RDP_GEOM_SELECT_CUSTOM);
+                setRemoteWidthAndHeight(RemoteClientLibConstants.RDP_GEOM_SELECT_CUSTOM);
             }
 
             @Override
@@ -167,7 +168,7 @@ public class aRDP extends MainConfiguration {
         setRdpSpecificSettingsFromSelected();
         setRdpColorSpinnerPositionFromSelected();
         setRdpGeometrySpinnerPositionFromSelected();
-        setRemoteWidthAndHeight(Constants.RDP_GEOM_SELECT_CUSTOM);
+        setRemoteWidthAndHeight(RemoteClientLibConstants.RDP_GEOM_SELECT_CUSTOM);
         setRemoteSoundTypeFromSelected(selected.getRemoteSoundType());
         updateAdvancedSettingsViewsFromSelected();
     }

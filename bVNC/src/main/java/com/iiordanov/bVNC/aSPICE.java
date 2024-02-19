@@ -40,6 +40,7 @@ import com.iiordanov.bVNC.dialogs.ImportTlsCaDialog;
 import com.iiordanov.util.PermissionGroups;
 import com.iiordanov.util.PermissionsManager;
 import com.morpheusly.common.Utilities;
+import com.undatech.opaque.RemoteClientLibConstants;
 import com.undatech.opaque.util.FileUtils;
 import com.undatech.remoteClientUi.R;
 
@@ -82,7 +83,7 @@ public class aSPICE extends MainConfiguration {
             @Override
             public void onItemSelected(AdapterView<?> arg0, View view, int itemIndex, long id) {
                 selected.setRdpResType(itemIndex);
-                setRemoteWidthAndHeight(Constants.RDP_GEOM_SELECT_CUSTOM);
+                setRemoteWidthAndHeight(RemoteClientLibConstants.RDP_GEOM_SELECT_CUSTOM);
             }
 
             @Override
@@ -143,7 +144,7 @@ public class aSPICE extends MainConfiguration {
         checkboxEnableSound.setChecked(selected.getEnableSound());
         spinnerGeometry.setSelection(selected.getRdpResType());
 
-        setRemoteWidthAndHeight(Constants.RDP_GEOM_SELECT_CUSTOM);
+        setRemoteWidthAndHeight(RemoteClientLibConstants.RDP_GEOM_SELECT_CUSTOM);
 
         // Write out CA to file if it doesn't exist.
         writeCaToFileIfNotThere(selected.getCaCert());

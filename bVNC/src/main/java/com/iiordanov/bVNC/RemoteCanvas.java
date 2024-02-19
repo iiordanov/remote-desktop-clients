@@ -53,6 +53,7 @@ import com.iiordanov.bVNC.input.TouchInputHandlerTouchpad;
 import com.undatech.opaque.AbstractDrawableData;
 import com.undatech.opaque.Connection;
 import com.undatech.opaque.DrawableReallocatedListener;
+import com.undatech.opaque.RemoteClientLibConstants;
 import com.undatech.opaque.Viewable;
 import com.undatech.opaque.input.RemotePointer;
 import com.undatech.remoteClientUi.R;
@@ -208,7 +209,7 @@ public class RemoteCanvas extends AppCompatImageView implements Viewable {
     public int getDesiredWidth() {
         int w = getRemoteWidth(getWidth(), getHeight());
         if (!connection.isRequestingNewDisplayResolution() &&
-                connection.getRdpResType() == Constants.RDP_GEOM_SELECT_CUSTOM) {
+                connection.getRdpResType() == RemoteClientLibConstants.RDP_GEOM_SELECT_CUSTOM) {
             w = connection.getRdpWidth();
         }
         Log.d(TAG, "Width requested: " + w);
@@ -222,7 +223,7 @@ public class RemoteCanvas extends AppCompatImageView implements Viewable {
     public int getDesiredHeight() {
         int h = getRemoteHeight(getWidth(), getHeight());
         if (!connection.isRequestingNewDisplayResolution() &&
-                connection.getRdpResType() == Constants.RDP_GEOM_SELECT_CUSTOM) {
+                connection.getRdpResType() == RemoteClientLibConstants.RDP_GEOM_SELECT_CUSTOM) {
             h = connection.getRdpHeight();
         }
         Log.d(TAG, "Height requested: " + h);
@@ -236,12 +237,12 @@ public class RemoteCanvas extends AppCompatImageView implements Viewable {
         int remoteWidth;
         int reqWidth = connection.getRdpWidth();
         int reqHeight = connection.getRdpHeight();
-        if (connection.getRdpResType() == Constants.RDP_GEOM_SELECT_CUSTOM &&
+        if (connection.getRdpResType() == RemoteClientLibConstants.RDP_GEOM_SELECT_CUSTOM &&
                 reqWidth >= 2 && reqHeight >= 2) {
             remoteWidth = reqWidth;
-        } else if (connection.getRdpResType() == Constants.RDP_GEOM_SELECT_NATIVE_PORTRAIT) {
+        } else if (connection.getRdpResType() == RemoteClientLibConstants.RDP_GEOM_SELECT_NATIVE_PORTRAIT) {
             remoteWidth = Math.min(viewWidth, viewHeight);
-        } else if (connection.getRdpResType() == Constants.RDP_GEOM_SELECT_NATIVE_LANDSCAPE) {
+        } else if (connection.getRdpResType() == RemoteClientLibConstants.RDP_GEOM_SELECT_NATIVE_LANDSCAPE) {
             remoteWidth = Math.max(viewWidth, viewHeight);
         } else {
             remoteWidth = viewWidth;
@@ -258,12 +259,12 @@ public class RemoteCanvas extends AppCompatImageView implements Viewable {
         int remoteHeight;
         int reqWidth = connection.getRdpWidth();
         int reqHeight = connection.getRdpHeight();
-        if (connection.getRdpResType() == Constants.RDP_GEOM_SELECT_CUSTOM &&
+        if (connection.getRdpResType() == RemoteClientLibConstants.RDP_GEOM_SELECT_CUSTOM &&
                 reqWidth >= 2 && reqHeight >= 2) {
             remoteHeight = reqHeight;
-        } else if (connection.getRdpResType() == Constants.RDP_GEOM_SELECT_NATIVE_PORTRAIT) {
+        } else if (connection.getRdpResType() == RemoteClientLibConstants.RDP_GEOM_SELECT_NATIVE_PORTRAIT) {
             remoteHeight = Math.max(viewWidth, viewHeight);
-        } else if (connection.getRdpResType() == Constants.RDP_GEOM_SELECT_NATIVE_LANDSCAPE) {
+        } else if (connection.getRdpResType() == RemoteClientLibConstants.RDP_GEOM_SELECT_NATIVE_LANDSCAPE) {
             remoteHeight = Math.min(viewWidth, viewHeight);
         } else {
             remoteHeight = viewHeight;

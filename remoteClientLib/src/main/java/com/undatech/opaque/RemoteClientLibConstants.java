@@ -24,6 +24,11 @@ public class RemoteClientLibConstants {
 
     public static final int SDK_INT = android.os.Build.VERSION.SDK_INT;
 
+    public final static int RDP_GEOM_SELECT_NATIVE_LANDSCAPE = 0;
+    public final static int RDP_GEOM_SELECT_NATIVE_PORTRAIT = 1;
+    public final static int RDP_GEOM_SELECT_CUSTOM = 2;
+    public final static int RDP_GEOM_SELECT_AUTO = 3;
+
     public static final int DIALOG_X509_CERT = 1;
     public static final int DIALOG_SSH_CERT = 2;
     public static final int DIALOG_RDP_CERT = 3;

@@ -9,6 +9,7 @@ import com.iiordanov.bVNC.Utils
 import com.iiordanov.bVNC.input.RemoteSpiceKeyboard
 import com.iiordanov.bVNC.input.RemoteSpicePointer
 import com.undatech.opaque.Connection
+import com.undatech.opaque.RemoteClientLibConstants
 import com.undatech.opaque.SpiceCommunicator
 import com.undatech.opaque.Viewable
 import com.undatech.remoteClientUi.R
@@ -114,7 +115,7 @@ class RemoteSpiceConnection(
 
     @Throws(java.lang.Exception::class)
     override fun correctAfterRotation() {
-        if (connection.rdpResType == Constants.RDP_GEOM_SELECT_AUTO) {
+        if (connection.rdpResType == RemoteClientLibConstants.RDP_GEOM_SELECT_AUTO) {
             spiceComm?.requestResolution(canvas.width, canvas.height)
         }
     }
