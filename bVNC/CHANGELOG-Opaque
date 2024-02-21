@@ -1,3 +1,5 @@
+v5.2.9
+- Touch input workaround for Android 6 and older
 v5.2.6
 - Improved connection failure detection and reporting
 v5.2.5

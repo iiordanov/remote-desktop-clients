@@ -1,3 +1,5 @@
+v5.2.9
+- Touch input workaround for Android 6 and older
 v5.2.8
 - Bugfix for drag/drop on Ubuntu 22.04 Remote Desktop Sharing
 v5.2.7
