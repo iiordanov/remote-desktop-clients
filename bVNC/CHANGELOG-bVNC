@@ -1,3 +1,5 @@
+v5.2.9
+- Touch input workaround for Android 6 and older androids.
 v5.2.5
 - Bugfix for visual artifacts when moving pointer or panning
 - Removal of non-functional Color Mode menu item while connected
