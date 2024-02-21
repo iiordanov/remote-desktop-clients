@@ -45,7 +45,7 @@ object NetworkUtils {
         block: (CoroutineScope) -> Boolean?, dispatcher: CoroutineDispatcher
     ): Boolean {
         return runBlocking {
-            this.tryRunningWithTimeoutAsync(block, false, 1000L, dispatcher)
+            this.tryRunningWithTimeoutAsync(block, false, 2000L, dispatcher)
         } ?: false
     }
 
@@ -58,8 +58,8 @@ object NetworkUtils {
                     block()
                 }
             }
-        } catch (ex: Exception) {
-            Log.w(tag, "tryRunningWithTimeoutAsync: Exception caught, default $default returned")
+        } catch (e: Exception) {
+            Log.w(tag, "tryRunningWithTimeoutAsync: Exception caught, default $default returned. Exception: '$e'")
             default
         }
     }
