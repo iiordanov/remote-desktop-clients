@@ -349,7 +349,9 @@ public class RdpKeyboardMapper {
 
         keymapAndroid[KeyEvent.KEYCODE_ALT_LEFT] = VK_LMENU;
         keymapAndroid[KeyEvent.KEYCODE_ALT_RIGHT] = VK_RMENU | VK_EXT_KEY;
-
+        keymapAndroid[KeyEvent.KEYCODE_META_LEFT] = VK_LWIN | VK_EXT_KEY;
+        keymapAndroid[KeyEvent.KEYCODE_META_RIGHT] = VK_RWIN | VK_EXT_KEY;
+    
 //        keymapAndroid[KeyEvent.KEYCODE_AT] = (KEY_FLAG_UNICODE | 64);
 //        keymapAndroid[KeyEvent.KEYCODE_APOSTROPHE] = (KEY_FLAG_UNICODE | 39);
 //        keymapAndroid[KeyEvent.KEYCODE_BACKSLASH] = (KEY_FLAG_UNICODE | 92);
