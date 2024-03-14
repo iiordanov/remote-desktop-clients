@@ -49,49 +49,6 @@
     <string name="ok">Ok</string>
 
     <string name="input_methods">Método de entrada</string>
-    <string name="input_method_help_text">
-"En cualquier método de entrada, toque el icono del teclado para obtener el teclado en pantalla. Además, su dispositivo puede tener su propio gesto para abrir el teclado.
-
-Utilice los modos de entrada directa para un control de pantalla táctil más intuitivo. Utilice el modo de panel táctil simulado para un control más preciso del ratón.
-
-Método Directo, Deslice para desplazar:
- - Controle el ratón directamente a través del tacto.
- - Desliza para desplazarte.
- - Tocar hace que el ratón haga clic en el lugar donde tocó.
- - Los eventos de desplazamiento vertical se envían entre los dos dedos donde comenzó un deslizamiento de dos dedos.
-
-Método Directo, Agarre para desplazar:
- - Controle el ratón directamente a través del tacto.
- - Toque largo para iniciar el modo panorámico.
- - Tocar hace que el ratón haga clic en el lugar donde tocó.
- - Los eventos de desplazamiento vertical se envían entre los dos dedos donde comenzó un deslizamiento de dos dedos.
-
-Método Panel táctil simulado:
- - Utilice su pantalla como un panel táctil.
- - Desliza para mover el puntero del ratón.
- - Mueva el ratón más allá del borde de la pantalla para desplazarse.
- - Al tocar, el ratón hace clic donde está el puntero.
- - Los eventos de desplazamiento vertical se envían donde se encuentra el puntero del ratón.
-
-Método De una mano:
- - Igual que el método Directo, Deslice para desplazar, excepto que un toque prolongado abre el menú con una selección de modos.
- - Después de elegir el modo, deslizar el dedo en la pantalla realiza el gesto seleccionado.
- - Levantar el dedo completa el gesto.
-
-Todos los métodos de entrada:
- - Clic izquierdo: toque una vez.
- - Doble clic: toque dos veces.
- - Clic derecho: mantenga pulsado y toque con un segundo dedo (en cualquier otro lugar de la pantalla).
- - Clic derecho alternativo: use el botón o gesto \"Atrás\" para su dispositivo.
- - Clic central: mantenga pulsado y toque con dos dedos más (en cualquier otro lugar de la pantalla).
- - Arrastre del ratón: mantenga presionado y deslice.
- - Rueda de desplazamiento: arrastre con dos dedos hacia arriba/abajo e izquierda/derecha. El arrastre rápido se desplaza más rápido.
- - Acercar/alejar: pellizcar y acercar para controlar la escala.
- - Tecla Ctrl/Alt: Menú->Botones Ctrl/Alt. ¡No olvide desactivar cuando haya terminado!
- - Combinaciones de teclas: Menú->Más->Enviar teclas.
- - Enviar texto: escriba en el teclado en pantalla o use Menú->Más->Enviar texto ".
-</string>
-
     <string name="error_failed_to_download_vv_http">No se pudo descargar el archivo .vv a través de HTTP. Quizás su servidor no esté disponible.</string>
     <string name="error_failed_to_download_vv_https">No se pudo descargar el archivo .vv a través de HTTPS. Quizás su certificado de servidor no sea de confianza (vencido o autofirmado) o su servidor no sea accesible.</string>
     <string name="error_failed_to_obtain_vv_content">No se pudo obtener el archivo .vv. Por favor descárguelo de nuevo, pero esta vez ábralo rápidamente desde la carpeta Descargas en un Administrador de archivos.</string>

@@ -54,48 +54,6 @@
     <string name="ok">Ok</string>
 
     <string name="input_methods">Input Method</string>
-    <string name="input_method_help_text">"
-In any Input Method, tap the keyboard icon to get the on-screen keyboard. Also, your device may have its own gesture which bring up the keyboard.
-
-Use the Direct input modes for more intuitive touch-screen control. Use Simulated Touchpad Mode for finer control over the mouse.
-
-Direct, Swipe Pan Method:
- - Control the mouse directly through touch.
- - Swipe to pan around.
- - Tapping makes the mouse click where you tapped.
- - Scroll events are sent between the two fingers where a two-finger swipe started.
-
-Direct, Hold Pan Method:
- - Control the mouse directly through touch.
- - Long-tap to start pan mode.
- - Tapping makes the mouse click where you tapped.
- - Scroll events are sent between the two fingers where a two-finger swipe started.
-
-Simulated Touchpad Method:
- - Use your screen like a touchpad.
- - Swipe to move the mouse pointer around.
- - Move mouse beyond edge of screen to pan.
- - Tapping makes the mouse click where the pointer is.
- - Scroll events are sent where the mouse pointer is located.
-
-Single Handed Method:
- - Same as Direct, Swipe Pan Mode, except long-tap opens menu with choice of modes.
- - After choosing mode, swiping finger on screen performs selected gesture.
- - Lifting finger completes the gesture.
-
-All Input Methods:
- - Left-click: Tap once.
- - Double-click: Double-tap.
- - Right-click: Tap-hold and tap with a second finger (anywhere else on screen).
- - Alternate Right-click: Use the \"Back\" button or gesture for your device.
- - Middle-click: Tap-hold and tap with two more fingers (anywhere else on screen).
- - Mouse-drag: Tap-hold-long and swipe.
- - Scroll-wheel: Two-finger drag up/down and left/right. Quick drag scrolls faster.
- - Zoom in/out: Pinch-zoom to control scaling.
- - Ctrl/Alt key: Menu->Ctrl/Alt buttons. Don't forget to toggle off when done!
- - Key combos: Menu->More->Send Keys.
- - Send text: Either type on the on-screen keyboard, or use Menu->More->Send Text."</string>
-
     <string name="error_failed_to_download_vv_http">Failed to download .vv file over HTTP. Perhaps your server is unreachable.</string>
     <string name="error_failed_to_download_vv_https">Failed to download .vv file over HTTPS. Perhaps your server cert is untrusted (expired or self-signed) or your server is unreachable.</string>
     <string name="error_failed_to_obtain_vv_content">Failed to obtain .vv file. Please download it again but this time, quickly open it from the Download folder in a File Manager.</string>

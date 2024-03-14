@@ -51,49 +51,6 @@
     <string name="ok">Ok</string>
 
     <string name="input_methods">Método de entrada</string>
-    <string name="input_method_help_text">
-"Em qualquer método de entrada, toque no ícone do teclado para exibir ele na tela. Além disso, seu dispositivo pode ter seu próprio gesto, que traz o teclado de volta.
-
-Use o modo de entrada direta para um controle mais intuitivo da tela de toque. Use o Modo Touchpad Simulado para um controle mais aperfeiçoado de mouse.
-
-Direto, Swipe Pan:
-  - Controle o mouse diretamente através do toque.
-  - Deslize para mover ao redor.
-  - O toque faz com que o mouse clique onde você tocou.
-  - Os eventos de rolagem são enviados entre os dois dedos onde um deslize de dois dedos começou.
-
-Direto, Hold Pan:
-  - Controle o mouse diretamente através do toque.
-  - Toque longo para iniciar movimento.
-  - O toque faz com que o mouse clique onde você tocou.
-  - Os eventos de rolagem são enviados entre os dois dedos onde um deslize de dois dedos começou.
-
-Método Touchpad Simulado:
-  - Use sua tela como um touchpad.
-  - Deslize para mover o ponteiro do mouse.
-  - Mova o mouse para além da borda da tela para mover.
-  - Tocar faz o mouse clicar onde o ponteiro está.
-  - Os eventos de rolagem são enviados para o local onde o ponteiro do mouse está localizado.
-
-Método com uma mão:
-  - O mesmo que modo Direto, Swipe Pan, exceto que, longo toque, abre o menu com a escolha dos modos.
-  - Depois de escolher o modo, deslizar o dedo na tela realiza um gesto selecionado.
-  - Levantar o dedo completa o gesto.
-
-Todos os métodos de entrada:
-  - Botão esquerdo do mouse: Tocar uma vez.
-  - Clicar dois vezes: Duplo-toque.
-  - Botão direito do mouse: Toque longo e tocar com um segundo dedo (em qualquer outro lugar na tela).
-  - Alternar clique com o botão direito do mouse: Use o botão \"Voltar\" ou gesto para seu aparelho.
-  - Botão do meio: Toque longo e tocar com mais dois dedos (em qualquer outro lugar na tela).
-  - Arrasto com o mouse: Toque longo e deslizar.
-  - Rolagem do mouse: Mover com dois dedos para cima/baixo e para a esquerda/direita. Movimento rápido rola mais rápido.
-  - Zoom in/out: Apertar-zoom para controlar a escala.
-  - Tecla Ctrl/Alt: Menu->Ctrl/Alt botões. Não se esqueça de desligar quando estiver pronto!
-  - Teclas combos: Menu->Mais->Enviar teclas.
-  - Enviar texto: Ou digite no teclado na tela, ou use Menu->Mais->Enviar texto".
-</string>
-
     <string name="error_failed_to_download_vv_http">Falha ao baixar o arquivo .vv por HTTP. Talvez seu servidor seja inalcançável.</string>
     <string name="error_failed_to_download_vv_https">Falha ao baixar o arquivo .vv sobre HTTPS. Talvez seu certificado de servidor não seja confiável (expirado ou autoassinado) ou seu servidor seja inalcançável.</string>
     <string name="error_failed_to_obtain_vv_content">Falha ao obter o arquivo .vv. Por favor, faça o download novamente, mas desta vez, abra-o rapidamente da pasta de Download num Gerenciador de arquivos.</string>
