@@ -1,3 +1,5 @@
+v5.3.1
+- Fix for launching external VNC application to handle VNC consoles
 v5.2.9
 - Touch input workaround for Android 6 and older
 v5.2.6
