@@ -539,7 +539,7 @@ public class RemoteCanvasHandler extends Handler implements HttpsFileDownloader.
                     String port = msg.getData().getString("port");
                     String password = msg.getData().getString("password");
                     String uriString = "vnc://" + address + ":" + port + "?VncPassword=" + password;
-                    Intent intent = new Intent(Intent.ACTION_VIEW).setDataAndType(Uri.parse(uriString), "application/vnd.vnc");
+                    Intent intent = new Intent(Intent.ACTION_VIEW).setDataAndType(Uri.parse(uriString), null);
                     context.startActivity(intent);
                 } catch (Exception e) {
                     e.printStackTrace();
