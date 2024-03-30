@@ -29,6 +29,7 @@
             android:layout_weight="0.10"
             android:contentDescription="@string/action_new_connection"
             android:title="@string/action_new_connection"
+            android:background="?android:selectableItemBackground"
             app:srcCompat="@drawable/ic_add_connection_48"></androidx.appcompat.widget.AppCompatImageButton>
     </LinearLayout>
 

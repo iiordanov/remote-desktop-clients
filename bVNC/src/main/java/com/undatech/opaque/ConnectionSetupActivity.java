@@ -296,12 +296,29 @@ public class ConnectionSetupActivity extends Activity {
         return true;
     }
 
+    public void showConnectionScreenHelp(View view) {
+        showConnectionScreenHelp();
+    }
+
     public void showConnectionScreenHelp(MenuItem item) {
+        showConnectionScreenHelp();
+    }
+
+    public void showConnectionScreenHelp() {
         Log.d(TAG, "Showing connection screen help.");
         Utils.createConnectionScreenDialog(this);
     }
 
+
+    public void save(View view) {
+        save();
+    }
+
     public void save(MenuItem item) {
+        save();
+    }
+
+    public void save() {
         String u = user.getText().toString();
         String h = hostname.getText().toString();
 

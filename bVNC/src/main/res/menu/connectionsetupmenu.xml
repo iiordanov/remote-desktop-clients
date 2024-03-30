@@ -3,6 +3,17 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <item
+        android:id="@+id/actionHelp"
+        android:alphabeticShortcut="h"
+        android:icon="@android:drawable/ic_menu_info_details"
+        android:numericShortcut="3"
+        android:onClick="showConnectionScreenHelp"
+        android:showAsAction="always"
+        android:title="@string/help"
+        app:showAsAction="always"
+        tools:ignore="AppCompatResource" />
+
+    <item
         android:id="@+id/itemSave"
         android:alphabeticShortcut="s"
         android:icon="@android:drawable/ic_menu_save"
@@ -22,16 +33,5 @@
         android:showAsAction="never"
         android:title="@string/save_as_copy"
         app:showAsAction="never"
-        tools:ignore="AppCompatResource" />
-
-    <item
-        android:id="@+id/actionHelp"
-        android:alphabeticShortcut="h"
-        android:icon="@android:drawable/ic_menu_info_details"
-        android:numericShortcut="3"
-        android:onClick="showConnectionScreenHelp"
-        android:showAsAction="always"
-        android:title="@string/help"
-        app:showAsAction="always"
         tools:ignore="AppCompatResource" />
 </menu>

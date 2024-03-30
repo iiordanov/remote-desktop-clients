@@ -35,7 +35,6 @@ import android.widget.LinearLayout;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.iiordanov.bVNC.dialogs.AutoXCustomizeDialog;
 import com.iiordanov.bVNC.dialogs.RepeaterDialog;
@@ -282,12 +281,11 @@ public class bVNC extends MainConfiguration {
         }
     }
 
+    public void save(View item) {
+        save(R.string.vnc_server_empty);
+    }
+
     public void save(MenuItem item) {
-        Log.d(TAG, "save called");
-        if (ipText.getText().length() != 0 && portText.getText().length() != 0) {
-            saveConnectionAndCloseLayout();
-        } else {
-            Toast.makeText(this, R.string.vnc_server_empty, Toast.LENGTH_LONG).show();
-        }
+        save(R.string.vnc_server_empty);
     }
 }

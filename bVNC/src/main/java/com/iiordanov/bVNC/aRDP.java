@@ -21,7 +21,6 @@ package com.iiordanov.bVNC;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
@@ -30,7 +29,6 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
-import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import com.iiordanov.bVNC.dialogs.IntroTextDialog;
@@ -317,12 +315,11 @@ public class aRDP extends MainConfiguration {
         groupRemoteSoundType.check(id);
     }
 
+    public void save(View item) {
+        save(R.string.rdp_server_empty);
+    }
+
     public void save(MenuItem item) {
-        Log.d(TAG, "save called");
-        if (ipText.getText().length() != 0 && portText.getText().length() != 0) {
-            saveConnectionAndCloseLayout();
-        } else {
-            Toast.makeText(this, R.string.rdp_server_empty, Toast.LENGTH_LONG).show();
-        }
+        save(R.string.rdp_server_empty);
     }
 }

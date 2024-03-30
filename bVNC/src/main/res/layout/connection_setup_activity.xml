@@ -98,5 +98,29 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="@string/advanced_settings" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="horizontal">
+            <Button
+                android:id="@+id/helpButton"
+                style="?buttonBarButtonStyle"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:onClick="showConnectionScreenHelp"
+                android:text="@string/menu_help" />
+            <Button
+                android:id="@+id/saveButton"
+                style="?buttonBarButtonStyle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:onClick="save"
+                android:text="@string/save_button" />
+        </LinearLayout>
+
     </TableLayout>
 </FrameLayout>

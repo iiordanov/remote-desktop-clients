@@ -530,7 +530,16 @@ public abstract class MainConfiguration extends FragmentActivity {
         finish();
     }
 
+
+    public void showConnectionScreenHelp(View view) {
+        showConnectionScreenHelp();
+    }
+
     public void showConnectionScreenHelp(MenuItem item) {
+        showConnectionScreenHelp();
+    }
+
+    public void showConnectionScreenHelp() {
         Log.d(TAG, "showConnectionScreenHelp called");
         Log.d(TAG, "Showing connection screen help.");
         Utils.createConnectionScreenDialog(this);
@@ -545,5 +554,14 @@ public abstract class MainConfiguration extends FragmentActivity {
     protected static void logAndPrintStacktrace(Exception e) {
         e.printStackTrace();
         Log.d(TAG, "Ignoring Exception: " + e);
+    }
+
+    public void save(int resource) {
+        Log.d(TAG, "save called");
+        if (ipText.getText().length() != 0 && portText.getText().length() != 0) {
+            saveConnectionAndCloseLayout();
+        } else {
+            Toast.makeText(this, resource, Toast.LENGTH_LONG).show();
+        }
     }
 }
