@@ -65,30 +65,39 @@ public class SpiceCommunicator extends RfbConnectable {
     }
 
     boolean isInNormalProtocol = false;
+    boolean usbPermissionRequested = false;
     UsbDeviceManager usbDeviceManager;
     private final BroadcastReceiver usbPermissionRequestedReceiver = new BroadcastReceiver() {
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
             if (ACTION_USB_PERMISSION.equals(action)) {
                 Log.d(TAG, "Requesting permission for USB device.");
-                synchronized (this) {
-                    UsbDevice device = (UsbDevice) intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
-                    if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
-                        if (device != null && !usbDeviceManager.isRequested(device)) {
-                            Log.d(TAG, "Permission granted for USB device: " + device);
-                            int fDesc = usbDeviceManager.getFileDescriptorForUsbDevice(device);
-                            spiceAttachUsbDeviceByFileDescriptor(fDesc);
-                            usbDeviceManager.setPermission(device, true, fDesc);
-                        }
-                    } else {
-                        Log.d(TAG, "Permission denied for USB device: " + device);
-                        if (device != null) {
-                            usbDeviceManager.setPermission(device, false, -1);
-                        }
+                requestPermissionsIfDeviceNotNull(intent);
+            }
+        }
+
+        private void requestPermissionsIfDeviceNotNull(Intent intent) {
+            UsbDevice device = (UsbDevice) intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
+            if (device != null) {
+                requestPermissionsForDevice(intent, device);
+            }
+        }
+
+        private void requestPermissionsForDevice(Intent intent, UsbDevice device) {
+            synchronized (this) {
+                if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
+                    if (!usbDeviceManager.isRequested(device)) {
+                        Log.d(TAG, "Permission granted for USB device: " + device);
+                        int fDesc = usbDeviceManager.getFileDescriptorForUsbDevice(device);
+                        spiceAttachUsbDeviceByFileDescriptor(fDesc);
+                        usbDeviceManager.setPermission(device, true, fDesc);
                     }
-                    if (isInNormalProtocol) {
-                        usbDeviceManager.getUsbDevicePermissions();
-                    }
+                } else {
+                    Log.d(TAG, "Permission denied for USB device: " + device);
+                    usbDeviceManager.setPermission(device, false, -1);
+                }
+                if (isInNormalProtocol) {
+                    usbDeviceManager.getUsbDevicePermissions();
                 }
             }
         }
