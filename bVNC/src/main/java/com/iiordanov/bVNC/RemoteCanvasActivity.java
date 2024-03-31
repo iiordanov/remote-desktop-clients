@@ -1312,8 +1312,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
                     canvas.absoluteYPosition + canvas.getVisibleDesktopHeight() / 2);
             return true;
         } else if (itemId == R.id.itemDisconnect) {
-            remoteConnection.closeConnection();
-            Utils.justFinish(this);
+            disconnectAndFinishActivity();
             return true;
         } else if (itemId == R.id.itemEnterText) {
             showDialog(R.layout.entertext);
@@ -1349,6 +1348,11 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
             }
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void disconnectAndFinishActivity() {
+        remoteConnection.closeConnection();
+        Utils.justFinish(this);
     }
 
     public boolean setInputMode(int id) {

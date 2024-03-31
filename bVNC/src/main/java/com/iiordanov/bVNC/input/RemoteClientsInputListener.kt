@@ -28,7 +28,9 @@ import android.view.KeyCharacterMap
 import android.view.KeyEvent
 import android.view.MotionEvent
 import android.view.View
+import com.iiordanov.bVNC.App
 import com.iiordanov.bVNC.Constants
+import com.undatech.opaque.util.GeneralUtils
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
@@ -40,15 +42,19 @@ class RemoteClientsInputListener(
     val resetOnScreenKeys: (input: Int) -> Int,
     private val useDpadAsArrows: Boolean,
 ) : View.OnKeyListener {
-    private val tag: String = "OnKeyListener"
+    private val tag: String = "RmtClientsInputListener"
     private val workerPool: ExecutorService = Executors.newSingleThreadExecutor()
+    private val isTv: Boolean = GeneralUtils.isTv(activity)
 
     override fun onKey(v: View?, keyCode: Int, evt: KeyEvent): Boolean {
+        GeneralUtils.debugLog(App.debugLog, tag, "onKey, evt: $evt")
         var consumed: Boolean? = false
         if (keyCode == KeyEvent.KEYCODE_MENU) {
             return if (evt.action == KeyEvent.ACTION_DOWN) activity.onKeyDown(
                 keyCode, evt
             ) else activity.onKeyUp(keyCode, evt)
+        } else if (isTv && keyCode == KeyEvent.KEYCODE_BACK) {
+            return false
         }
         try {
             if (evt.action == KeyEvent.ACTION_DOWN || evt.action == KeyEvent.ACTION_MULTIPLE) {
@@ -68,6 +74,7 @@ class RemoteClientsInputListener(
     }
 
     private fun sendTextSync(s: String) {
+        GeneralUtils.debugLog(App.debugLog, tag, "sendTextSync, s: $s")
         for (i in s.indices) {
             var event: KeyEvent?
             val c = s[i]
@@ -99,6 +106,7 @@ class RemoteClientsInputListener(
     }
 
     fun onTrackballEvent(event: MotionEvent?): Boolean {
+        GeneralUtils.debugLog(App.debugLog, tag, "onTrackballEvent, event: $event")
         try {
             // If we are using the Dpad as arrow keys, don't send the event to the inputHandler.
             return if (useDpadAsArrows) false else this.touchInputHandler?.onTouchEvent(event) ?: false
@@ -110,6 +118,7 @@ class RemoteClientsInputListener(
 
     // Send touch events or mouse events like button clicks to be handled.
     fun onTouchEvent(event: MotionEvent?): Boolean {
+        GeneralUtils.debugLog(App.debugLog, tag, "onTouchEvent, event: $event")
         try {
             return this.touchInputHandler?.onTouchEvent(event) ?: false
         } catch (e: NullPointerException) {
@@ -120,6 +129,7 @@ class RemoteClientsInputListener(
 
     // Send e.g. mouse events like hover and scroll to be handled.
     fun onGenericMotionEvent(event: MotionEvent): Boolean {
+        GeneralUtils.debugLog(App.debugLog, tag, "onGenericMotionEvent, event: $event")
         // Ignore TOOL_TYPE_FINGER events that come from the touchscreen with HOVER type action
         // which cause pointer jumping trouble in simulated touchpad for some devices.
         var toolTypeFinger = false
