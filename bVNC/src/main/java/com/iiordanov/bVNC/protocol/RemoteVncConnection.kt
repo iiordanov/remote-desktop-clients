@@ -89,7 +89,7 @@ class RemoteVncConnection(
             App.debugLog
         )
         rfbConn = rfb
-        pointer = RemoteVncPointer(rfbConn, context, this, canvas, handler, App.debugLog)
+        pointer = RemoteVncPointer(rfbConn, context, this, canvas, handler, !connection.useDpadAsArrows, App.debugLog)
         val rAltAsIsoL3Shift = Utils.querySharedPreferenceBoolean(
             this.context,
             Constants.rAltAsIsoL3ShiftTag

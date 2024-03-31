@@ -30,6 +30,8 @@ import android.view.MotionEvent
 import android.view.View
 import com.iiordanov.bVNC.App
 import com.iiordanov.bVNC.Constants
+import com.iiordanov.bVNC.RemoteCanvasActivity
+import com.undatech.opaque.input.InputConstants
 import com.undatech.opaque.util.GeneralUtils
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
@@ -38,6 +40,7 @@ import java.util.concurrent.Executors
 class RemoteClientsInputListener(
     val activity: Activity,
     private val keyInputHandler: KeyInputHandler?,
+    private val pointerInputHandler: PointerInputHandler?,
     private val touchInputHandler: TouchInputHandler?,
     val resetOnScreenKeys: (input: Int) -> Int,
     private val useDpadAsArrows: Boolean,
@@ -54,6 +57,7 @@ class RemoteClientsInputListener(
                 keyCode, evt
             ) else activity.onKeyUp(keyCode, evt)
         } else if (isTv && keyCode == KeyEvent.KEYCODE_BACK) {
+            Log.i(tag, "Not capturing back button on Android TV")
             return false
         }
         try {

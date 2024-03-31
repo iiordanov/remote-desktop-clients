@@ -652,6 +652,12 @@ public class RemoteCanvasHandler extends Handler implements HttpsFileDownloader.
                 this.post(() -> Toast.makeText(context, Utils.getStringResourceByName(context, messageText),
                         Toast.LENGTH_LONG).show());
                 break;
+            case RemoteClientLibConstants.SHOW_KEYBOARD:
+                ((RemoteCanvasActivity) context).showKeyboard();
+                break;
+            case RemoteClientLibConstants.SHOW_KEYBOARD_ICON:
+                ((RemoteCanvasActivity) context).showKeyboardIcon();
+                break;
             default:
                 android.util.Log.e(TAG, "Not handling unknown messageId: " + msg.what);
                 break;

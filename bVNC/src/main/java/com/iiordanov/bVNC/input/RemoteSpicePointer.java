@@ -44,9 +44,10 @@ public class RemoteSpicePointer extends RemotePointer {
             InputCarriable remoteInput,
             Viewable canvas,
             Handler handler,
+            boolean useDpadAsArrows,
             boolean debugLogging
     ) {
-        super(protocomm, context, remoteInput, canvas, handler, debugLogging);
+        super(protocomm, context, remoteInput, canvas, handler, useDpadAsArrows, debugLogging);
     }
 
     @Override
@@ -140,6 +141,8 @@ public class RemoteSpicePointer extends RemotePointer {
      * @param isMoving
      */
     private void sendPointerEvent(int x, int y, int metaState, boolean isMoving) {
+        GeneralUtils.debugLog(this.debugLogging, TAG, "sendPointerEvent: x: " + x +
+                ", y: " + y + ", metaState: " + metaState + ", isMoving: " + isMoving);
 
         int combinedMetaState = metaState | remoteInput.getKeyboard().getMetaState();
 

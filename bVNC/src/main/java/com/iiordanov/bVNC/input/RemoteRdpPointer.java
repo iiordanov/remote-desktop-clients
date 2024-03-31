@@ -26,9 +26,9 @@ public class RemoteRdpPointer extends RemotePointer {
 
     public RemoteRdpPointer(
             RfbConnectable rfbConnectable, Context context, InputCarriable remoteInput,
-            Viewable canvas, Handler handler, boolean debugLogging
+            Viewable canvas, Handler handler, boolean useDpadAsPointer, boolean debugLogging
     ) {
-        super(rfbConnectable, context, remoteInput, canvas, handler, debugLogging);
+        super(rfbConnectable, context, remoteInput, canvas, handler, useDpadAsPointer, debugLogging);
     }
 
     private void sendButtonDownOrMoveButtonDown(int x, int y, int metaState) {

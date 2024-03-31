@@ -36,7 +36,7 @@ class RemoteSpiceConnection(
             App.debugLog
         )
         rfbConn = spiceComm
-        pointer = RemoteSpicePointer(spiceComm, context, this, canvas, handler, App.debugLog)
+        pointer = RemoteSpicePointer(spiceComm, context, this, canvas, handler, !connection.useDpadAsArrows, App.debugLog)
         keyboard = RemoteSpiceKeyboard(
             context.resources, spiceComm, canvas, this,
             handler, connection.layoutMap, App.debugLog

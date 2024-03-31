@@ -10,6 +10,7 @@ import android.view.InputDevice;
 import android.view.KeyEvent;
 
 import com.undatech.opaque.InputCarriable;
+import com.undatech.opaque.RemoteClientLibConstants;
 import com.undatech.opaque.RfbConnectable;
 import com.undatech.opaque.Viewable;
 
@@ -35,8 +36,10 @@ public abstract class RemotePointer {
     protected boolean relativeEvents = false;
     protected float sensitivity = DEFAULT_SENSITIVITY;
     protected boolean accelerated = DEFAULT_ACCELERATED;
-    protected boolean debugLogging = false;
+    protected boolean debugLogging;
+    private final boolean useDpadAsPointer;
     MouseScroller scroller;
+    MouseMover mover;
 
     public RemotePointer(
             RfbConnectable protocomm,
@@ -44,6 +47,7 @@ public abstract class RemotePointer {
             InputCarriable remoteInput,
             Viewable canvas,
             Handler handler,
+            boolean useDpadAsPointer,
             boolean debugLogging
     ) {
         this.protocomm = protocomm;
@@ -54,7 +58,9 @@ public abstract class RemotePointer {
         //pointerX  = canvas.getImageWidth()/2;
         //pointerY  = canvas.getImageHeight()/2;
         scroller = new MouseScroller();
+        mover = new MouseMover();
         this.debugLogging = debugLogging;
+        this.useDpadAsPointer = useDpadAsPointer;
     }
 
     protected boolean shouldBeRightClick(KeyEvent e) {
@@ -140,26 +146,59 @@ public abstract class RemotePointer {
             pointerMask = 0;
 
         if (shouldBeRightClick(e)) {
-            rightButtonDown(getX(), getY(), combinedMetastate);
-            SystemClock.sleep(50);
-            releaseButton(getX(), getY(), combinedMetastate);
+            rightClickMouse(combinedMetastate);
             used = true;
         } else if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN || keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
-            if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
-                scroller.direction = 0;
-            } else {
-                scroller.direction = 1;
-            }
-
-            if (e.getAction() == KeyEvent.ACTION_DOWN) {
-                handler.post(scroller);
-            } else {
-                handler.removeCallbacks(scroller);
-            }
-            releaseButton(pointerX, pointerY, 0);
+            scrollMouse(keyCode, e);
+            used = true;
+        } else if (useDpadAsPointer && keyCode == KeyEvent.KEYCODE_DPAD_CENTER) {
+            sendMouseClickUpOrDown(down);
+            used = true;
+        } else if (useDpadAsPointer && InputConstants.INSTANCE.getDpadKeyCodes().contains(keyCode)) {
+            moveMouse(keyCode, e);
             used = true;
         }
+
         return used;
+    }
+
+    private void rightClickMouse(int combinedMetastate) {
+        rightButtonDown(getX(), getY(), combinedMetastate);
+        SystemClock.sleep(50);
+        releaseButton(getX(), getY(), combinedMetastate);
+    }
+
+    private void scrollMouse(int keyCode, KeyEvent e) {
+        if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
+            scroller.direction = 0;
+        } else {
+            scroller.direction = 1;
+        }
+
+        if (e.getAction() == KeyEvent.ACTION_DOWN) {
+            handler.post(scroller);
+        } else {
+            handler.removeCallbacks(scroller);
+        }
+        releaseButton(pointerX, pointerY, 0);
+    }
+
+    private void moveMouse(int keyCode, KeyEvent e) {
+        mover.direction = keyCode;
+        if (e.getAction() == KeyEvent.ACTION_DOWN) {
+            handler.post(mover);
+        } else {
+            handler.removeCallbacks(mover);
+        }
+    }
+
+    private void sendMouseClickUpOrDown(boolean down) {
+        if (down) {
+            handler.sendEmptyMessage(RemoteClientLibConstants.SHOW_KEYBOARD_ICON);
+            this.leftButtonDown(pointerX, pointerY, 0);
+        } else {
+            this.releaseButton(pointerX, pointerY, 0);
+        }
     }
 
     abstract public void leftButtonDown(int x, int y, int metaState);
@@ -227,7 +266,34 @@ public abstract class RemotePointer {
                 RemotePointer.this.scrollDown(pointerX, pointerY, 0);
             }
             handler.postDelayed(this, delay);
+        }
+    }
 
+    public class MouseMover implements Runnable {
+        public int direction = 0;
+        int delay = 50;
+        int pixelsToMove = 5;
+
+        @Override
+        public void run() {
+            int x = pointerX;
+            int y = pointerY;
+            if (direction == KeyEvent.KEYCODE_DPAD_LEFT) {
+                x -= pixelsToMove;
+            } else if (direction == KeyEvent.KEYCODE_DPAD_RIGHT) {
+                x += pixelsToMove;
+            } else if (direction == KeyEvent.KEYCODE_DPAD_UP) {
+                y -= pixelsToMove;
+            } else if (direction == KeyEvent.KEYCODE_DPAD_DOWN) {
+                y += pixelsToMove;
+            }
+            if (x < 0) {
+                RemotePointer.this.releaseButton(x, y, 0);
+                handler.sendEmptyMessage(RemoteClientLibConstants.SHOW_KEYBOARD);
+            } else {
+                RemotePointer.this.moveMouse(x, y, 0);
+                handler.postDelayed(this, delay);
+            }
         }
     }
 

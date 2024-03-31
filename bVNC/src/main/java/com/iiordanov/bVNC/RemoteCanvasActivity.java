@@ -23,6 +23,7 @@
 //
 package com.iiordanov.bVNC;
 
+import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -156,6 +157,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
     View rootView;
     ActionBarHider actionBarHider = new ActionBarHider();
     ActionBarShower actionBarShower = new ActionBarShower();
+    KeyboardIconShower keyboardIconShower = new KeyboardIconShower();
     private Vibrator myVibrator;
     private RemoteCanvas canvas;
     private RemoteConnection remoteConnection;
@@ -164,6 +166,8 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
     private TouchInputHandler[] inputModeHandlers;
     private Connection connection;
     public RemoteClientsInputListener inputListener;
+    private ImageButton keyboardIconForAndroidTv;
+    float keyboardIconForAndroidTvX = Float.MAX_VALUE;
 
     /**
      * This runnable enables immersive mode.
@@ -223,6 +227,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
     private void correctAfterRotation() throws Exception {
         Log.d(TAG, "correctAfterRotation");
         canvas.waitUntilInflated();
+
         // Its quite common to see NullPointerExceptions here when this function is called
         // at the point of disconnection. Hence, we catch and ignore the error.
         float oldScale = canvas.canvasZoomer.getZoomFactor();
@@ -282,6 +287,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
         setContentView(R.layout.canvas);
 
         canvas = findViewById(R.id.canvas);
+        keyboardIconForAndroidTv = findViewById(R.id.keyboardIconForAndroidTv);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             canvas.setDefaultFocusHighlightEnabled(false);
@@ -511,6 +517,10 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
         // We detect the keyboard if more than 19% of the screen is covered.
         // Use the visible display frame of the decor view to compute notch dimensions.
         int rootViewHeight = rootView.getHeight();
+
+        if (keyboardIconForAndroidTvX == Float.MAX_VALUE) {
+            keyboardIconForAndroidTvX = keyboardIconForAndroidTv.getX();
+        }
 
         int layoutKeysBottom = layoutKeys.getBottom();
         int toolbarBottom = toolbar.getBottom();
@@ -1526,6 +1536,13 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
         handler.postAtTime(actionBarHider, SystemClock.uptimeMillis() + hideToolbarDelay);
     }
 
+    public void showKeyboardIcon() {
+        handler.removeCallbacks(keyboardIconShower);
+        handler.postAtTime(keyboardIconShower, SystemClock.uptimeMillis() + 50);
+        handler.removeCallbacks(actionBarHider);
+        handler.postAtTime(actionBarHider, SystemClock.uptimeMillis() + hideToolbarDelay);
+    }
+
     @Override
     public void onTextSelected(String selectedString) {
         android.util.Log.i(TAG, "onTextSelected called with selectedString: " + selectedString);
@@ -1604,16 +1621,24 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
 
     private class ActionBarHider implements Runnable {
         public void run() {
-            ActionBar actionBar = getSupportActionBar();
-            if (actionBar != null) {
-                Log.d(TAG, "ActionBarHider: Hiding ActionBar");
-                actionBar.hide();
+            if (GeneralUtils.isTv(RemoteCanvasActivity.this)) {
+                keyboardIconForAndroidTv.setVisibility(View.GONE);
+            } else {
+                ActionBar actionBar = getSupportActionBar();
+                if (actionBar != null) {
+                    Log.d(TAG, "ActionBarHider: Hiding ActionBar");
+                    actionBar.hide();
+                }
             }
         }
     }
 
     private class ActionBarShower implements Runnable {
         public void run() {
+            showActionBar();
+        }
+
+        private void showActionBar() {
             ActionBar actionBar = getSupportActionBar();
             if (actionBar != null) {
                 Log.d(TAG, "ActionBarShower: Showing ActionBar");
@@ -1622,5 +1647,20 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
         }
     }
 
+    private class KeyboardIconShower implements Runnable {
+        public void run() {
+            if (GeneralUtils.isTv(RemoteCanvasActivity.this)) {
+                animateKeyboardIconForAndroidTv();
+            }
+        }
 
+        private void animateKeyboardIconForAndroidTv() {
+            keyboardIconForAndroidTv.setVisibility(View.VISIBLE);
+            Log.d(TAG, "ActionBarHider: keyboardIconForAndroidTv X position to: " + keyboardIconForAndroidTvX);
+            keyboardIconForAndroidTv.setX(keyboardIconForAndroidTvX);
+            ObjectAnimator animation = ObjectAnimator.ofFloat(keyboardIconForAndroidTv, "translationX", -100f);
+            animation.setDuration(1000);
+            animation.start();
+        }
+    }
 }

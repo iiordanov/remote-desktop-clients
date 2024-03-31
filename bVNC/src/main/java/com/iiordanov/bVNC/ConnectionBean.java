@@ -29,6 +29,7 @@ import android.widget.ImageView.ScaleType;
 import com.antlersoft.android.dbimpl.NewInstance;
 import com.iiordanov.bVNC.input.TouchInputHandlerDirectSwipePan;
 import com.iiordanov.util.NetworkUtils;
+import com.undatech.opaque.util.GeneralUtils;
 import com.undatech.remoteClientUi.R;
 
 import net.sqlcipher.database.SQLiteDatabase;
@@ -64,13 +65,14 @@ public class ConnectionBean extends AbstractConnectionBean implements Comparable
 
     public ConnectionBean(Context context) {
         String inputMode = TouchInputHandlerDirectSwipePan.ID;
-        Boolean preferSendingUnicode = false;
-
+        boolean preferSendingUnicode = false;
+        boolean useDpadAsArrows = true;
         if (context == null) {
             context = App.getContext();
         }
 
         if (context != null) {
+            useDpadAsArrows = !GeneralUtils.isTv(context);
             inputMode = Utils.querySharedPreferenceString(context, Constants.defaultInputMethodTag,
                     TouchInputHandlerDirectSwipePan.ID);
             preferSendingUnicode = Utils.querySharedPreferenceBoolean(context, Constants.preferSendingUnicode);
@@ -123,7 +125,7 @@ public class ConnectionBean extends AbstractConnectionBean implements Comparable
         setPrefEncoding(RfbProto.EncodingTight);
         setScaleMode(ScaleType.MATRIX);
         setInputMode(inputMode);
-        setUseDpadAsArrows(true);
+        setUseDpadAsArrows(useDpadAsArrows);
         setRotateDpad(false);
         setUsePortrait(false);
         setUseLocalCursor(Constants.CURSOR_AUTO);

@@ -2,6 +2,7 @@ package com.iiordanov.bVNC.protocol
 
 import android.content.Context
 import android.util.Log
+import android.view.KeyEvent
 import com.iiordanov.bVNC.App
 import com.iiordanov.bVNC.COLORMODEL
 import com.iiordanov.bVNC.Constants
@@ -35,7 +36,7 @@ open class RemoteOpaqueConnection(
             !Utils.isFree(context) && connection.isUsbEnabled, App.debugLog
         )
         rfbConn = spiceComm
-        pointer = RemoteSpicePointer(spiceComm, context, this, canvas, handler, App.debugLog)
+        pointer = RemoteSpicePointer(spiceComm, context, this, canvas, handler, !connection.useDpadAsArrows, App.debugLog)
         try {
             keyboard = RemoteSpiceKeyboard(
                 context.resources, spiceComm, canvas, this,

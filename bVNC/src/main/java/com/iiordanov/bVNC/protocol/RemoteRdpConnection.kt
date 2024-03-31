@@ -32,7 +32,7 @@ class RemoteRdpConnection(
             App.debugLog
         )
         rfbConn = rdpComm
-        pointer = RemoteRdpPointer(rfbConn, context, this, canvas, handler, App.debugLog)
+        pointer = RemoteRdpPointer(rfbConn, context, this, canvas, handler, !connection.useDpadAsArrows, App.debugLog)
         keyboard = RemoteRdpKeyboard(
             rdpComm, canvas, this, handler, App.debugLog,
             connection.preferSendingUnicode
