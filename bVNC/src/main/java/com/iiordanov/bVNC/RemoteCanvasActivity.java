@@ -90,6 +90,7 @@ import com.undatech.opaque.MessageDialogs;
 import com.undatech.opaque.RemoteClientLibConstants;
 import com.undatech.opaque.dialogs.SelectTextElementFragment;
 import com.undatech.opaque.util.FileUtils;
+import com.undatech.opaque.util.GeneralUtils;
 import com.undatech.opaque.util.OnTouchViewMover;
 import com.undatech.opaque.util.RemoteToolbar;
 import com.undatech.remoteClientUi.R;
@@ -1381,6 +1382,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
         inputListener = new RemoteClientsInputListener(
                 this,
                 remoteConnection,
+                remoteConnection,
                 touchInputHandler,
                 this::resetOnScreenKeys,
                 connection.getUseDpadAsArrows()
@@ -1588,6 +1590,9 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
 
     @Override
     public void onBackPressed() {
+        if (GeneralUtils.isTv(this)) {
+            disconnectAndFinishActivity();
+        }
         if (inputListener != null) {
             inputListener.onKey(canvas, KeyEvent.KEYCODE_BACK, new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_BACK));
         }
