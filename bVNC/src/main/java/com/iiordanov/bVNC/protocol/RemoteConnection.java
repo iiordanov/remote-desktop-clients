@@ -60,7 +60,7 @@ import java.util.Timer;
 
 abstract public class RemoteConnection implements KeyInputHandler, InputCarriable {
 
-    private final static String TAG = "RemoteCanvas";
+    private final static String TAG = "RemoteConnection";
 
     // Connection parameters
     public Connection connection;

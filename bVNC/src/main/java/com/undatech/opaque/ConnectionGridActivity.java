@@ -91,6 +91,7 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
     private EditText search;
     private boolean togglingMasterPassword = false;
     private AppCompatImageButton addNewConnection = null;
+    private AppCompatImageButton editDefaultSettings = null;
 
     private RateOrShareFragment rateOrShareFragment = new RateOrShareFragment();
 
@@ -162,12 +163,9 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
         FileUtils.logFilesInPrivateStorage(this);
         FileUtils.deletePrivateFileIfExisting(this, ".config/freerdp/licenses");
         addNewConnection = findViewById(R.id.addNewConnection);
-        addNewConnection.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                addNewConnection();
-            }
-        });
+        addNewConnection.setOnClickListener(v -> addNewConnection());
+        editDefaultSettings = findViewById(R.id.editDefaultSettings);
+        editDefaultSettings.setOnClickListener(v -> editDefaultSettings());
     }
 
     private ConnectionLoader getConnectionLoader(Context context) {
@@ -347,6 +345,10 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
      * @param menuItem
      */
     public void editDefaultSettings(MenuItem menuItem) {
+        editDefaultSettings();
+    }
+
+    public void editDefaultSettings() {
         android.util.Log.d(TAG, "editDefaultSettings selected.");
         if (Utils.isOpaque(this)) {
             Intent intent = new Intent(ConnectionGridActivity.this, GeneralUtils.getClassByName("com.undatech.opaque.AdvancedSettingsActivity"));
