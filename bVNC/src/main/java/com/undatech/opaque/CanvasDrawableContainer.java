@@ -26,6 +26,7 @@ import android.graphics.Paint;
 import android.graphics.PixelFormat;
 import android.graphics.RectF;
 import android.graphics.drawable.DrawableContainer;
+import android.util.Log;
 
 public class CanvasDrawableContainer extends DrawableContainer {
     static final int CAPACITY_FACTOR = 7;
@@ -118,7 +119,7 @@ public class CanvasDrawableContainer extends DrawableContainer {
     }
 
     public void frameBufferSizeChanged(int width, int height) {
-        android.util.Log.i("CanvasDrawableContainer", "bitmapsize changed = (" + bitmapW + "," + bitmapH + ")");
+        Log.i("CanvasDrawableContainer", "bitmapsize changed = (" + bitmapW + "," + bitmapH + ")");
         if (bitmapW < width || bitmapH < width) {
             destroy();
             // Try to free up some memory.

@@ -93,7 +93,7 @@ public class GetTextFragment extends DialogFragment {
                                               OnFragmentDismissedListener dismissalListener,
                                               int dialogType, int messageNum, int errorNum,
                                               String t1, String t2, String t3, boolean keepPassword) {
-        android.util.Log.i(TAG, "newInstance called");
+        Log.i(TAG, "newInstance called");
         GetTextFragment f = new GetTextFragment();
         f.setDismissalListener(dismissalListener);
 
@@ -116,7 +116,7 @@ public class GetTextFragment extends DialogFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        android.util.Log.i(TAG, "onCreate called");
+        Log.i(TAG, "onCreate called");
         Bundle b = getArguments();
         if (b != null) {
             dialogId = b.getString("dialogId");
@@ -133,7 +133,7 @@ public class GetTextFragment extends DialogFragment {
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        android.util.Log.i(TAG, "onCreateView called");
+        Log.i(TAG, "onCreateView called");
         wasCancelled = false;
         wasConfirmed = false;
 
@@ -310,7 +310,7 @@ public class GetTextFragment extends DialogFragment {
 
     @Override
     public void onDismiss(@NonNull DialogInterface dialog) {
-        android.util.Log.i(TAG, "onDismiss called: Sending data back to Activity");
+        Log.i(TAG, "onDismiss called: Sending data back to Activity");
         String[] results = new String[3];
         if (textViewBox != null) {
             results[0] = textViewBox.getText().toString();

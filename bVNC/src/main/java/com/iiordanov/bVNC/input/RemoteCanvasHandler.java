@@ -179,10 +179,10 @@ public class RemoteCanvasHandler extends Handler implements HttpsFileDownloader.
                 "Reject",
                 result -> {
                     if (result) {
-                        Log.e(TAG, "We were told to continue");
+                        Log.d(TAG, "We were told to continue");
                         saveAndAcceptCert(cert);
                     } else {
-                        Log.e(TAG, "We were told not to continue");
+                        Log.d(TAG, "We were told not to continue");
                         Utils.justFinish(context);
                     }
                 });
@@ -197,7 +197,7 @@ public class RemoteCanvasHandler extends Handler implements HttpsFileDownloader.
      * Saves and accepts a x509 certificate.
      */
     private void saveAndAcceptCert(X509Certificate cert) {
-        android.util.Log.d(TAG, "Saving X509 cert fingerprint.");
+        Log.d(TAG, "Saving X509 cert fingerprint.");
         String certificate = null;
         try {
             certificate = Base64.encodeToString(cert.getEncoded(), Base64.DEFAULT);
@@ -338,7 +338,7 @@ public class RemoteCanvasHandler extends Handler implements HttpsFileDownloader.
     @Override
     public void handleMessage(final Message msg) {
         Bundle messageData;
-        android.util.Log.d(TAG, "Handling message, msg.what: " + msg.what);
+        Log.d(TAG, "Handling message, msg.what: " + msg.what);
         final String messageText = Utils.getStringFromMessage(msg, "message");
         switch (msg.what) {
             case RemoteClientLibConstants.PRO_FEATURE:
@@ -417,7 +417,7 @@ public class RemoteCanvasHandler extends Handler implements HttpsFileDownloader.
                         connection.getPassword(), null, null, connection.getKeepPassword());
                 break;
             case RemoteClientLibConstants.DIALOG_SSH_CERT:
-                android.util.Log.d(TAG, "DIALOG_SSH_CERT");
+                Log.d(TAG, "DIALOG_SSH_CERT");
                 messageData = (Bundle) msg.obj;
                 boolean keyChangeDetected = messageData.getBoolean("keyChangeDetected");
                 String idHash = messageData.getString("idHash");
@@ -426,7 +426,7 @@ public class RemoteCanvasHandler extends Handler implements HttpsFileDownloader.
                 initializeSshHostKey(keyChangeDetected, idHash, serverHostKey, hostKeySignature);
                 break;
             case RemoteClientLibConstants.DIALOG_RDP_CERT:
-                android.util.Log.d(TAG, "DIALOG_RDP_CERT");
+                Log.d(TAG, "DIALOG_RDP_CERT");
                 messageData = (Bundle) msg.obj;
                 validateCert(
                         messageData.getString("subject"),
@@ -471,13 +471,13 @@ public class RemoteCanvasHandler extends Handler implements HttpsFileDownloader.
                 c.setParameters(remoteConnection.getRfbConn(), connection, this, remoteConnection.getPointer(), setModes);
                 break;
             case RemoteClientLibConstants.REPORT_TOOLBAR_POSITION:
-                android.util.Log.d(TAG, "Handling message, REPORT_TOOLBAR_POSITION");
+                Log.d(TAG, "Handling message, REPORT_TOOLBAR_POSITION");
                 if (connection.getUseLastPositionToolbar()) {
                     int useLastPositionToolbarX = Utils.getIntFromMessage(msg, "useLastPositionToolbarX");
                     int useLastPositionToolbarY = Utils.getIntFromMessage(msg, "useLastPositionToolbarY");
                     boolean useLastPositionToolbarMoved = Utils.getBooleanFromMessage(msg, "useLastPositionToolbarMoved");
-                    android.util.Log.d(TAG, "Handling message, REPORT_TOOLBAR_POSITION, X Coordinate" + useLastPositionToolbarX);
-                    android.util.Log.d(TAG, "Handling message, REPORT_TOOLBAR_POSITION, Y Coordinate" + useLastPositionToolbarY);
+                    Log.d(TAG, "Handling message, REPORT_TOOLBAR_POSITION, X Coordinate" + useLastPositionToolbarX);
+                    Log.d(TAG, "Handling message, REPORT_TOOLBAR_POSITION, Y Coordinate" + useLastPositionToolbarY);
                     connection.setUseLastPositionToolbarX(useLastPositionToolbarX);
                     connection.setUseLastPositionToolbarY(useLastPositionToolbarY);
                     connection.setUseLastPositionToolbarMoved(useLastPositionToolbarMoved);
@@ -639,7 +639,7 @@ public class RemoteCanvasHandler extends Handler implements HttpsFileDownloader.
                 remoteConnection.disconnectAndShowMessage(R.string.error_ovirt_timeout, R.string.error_dialog_title);
                 break;
             case RemoteClientLibConstants.DIALOG_X509_CERT:
-                android.util.Log.d(TAG, "DIALOG_X509_CERT");
+                Log.d(TAG, "DIALOG_X509_CERT");
                 X509Certificate cert = (X509Certificate) msg.obj;
                 validateX509Cert(cert);
                 break;
@@ -659,7 +659,7 @@ public class RemoteCanvasHandler extends Handler implements HttpsFileDownloader.
                 ((RemoteCanvasActivity) context).showKeyboardIcon();
                 break;
             default:
-                android.util.Log.e(TAG, "Not handling unknown messageId: " + msg.what);
+                Log.e(TAG, "Not handling unknown messageId: " + msg.what);
                 break;
         }
     }

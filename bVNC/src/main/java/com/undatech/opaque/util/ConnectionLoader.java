@@ -3,6 +3,7 @@ package com.undatech.opaque.util;
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.util.Log;
 
 import com.iiordanov.bVNC.ConnectionBean;
 import com.iiordanov.bVNC.Database;
@@ -51,7 +52,7 @@ public class ConnectionLoader {
         Collections.sort(connections);
         numConnections = connections.size();
         if (connections.size() == 0) {
-            android.util.Log.i(TAG, "No connections in the database");
+            Log.i(TAG, "No connections in the database");
         } else {
             for (int i = 0; i < connections.size(); i++) {
                 Connection connection = connections.get(i);
@@ -65,7 +66,7 @@ public class ConnectionLoader {
     private void loadFromSharedPrefs() {
         SharedPreferences sp = appContext.getSharedPreferences("generalSettings", Context.MODE_PRIVATE);
         String connections = sp.getString("connections", null);
-        android.util.Log.d(TAG, "Loading connections from this list: " + connections);
+        Log.d(TAG, "Loading connections from this list: " + connections);
         if (connections != null && !connections.equals("")) {
             connectionPreferenceFiles = connections.split(" ");
             numConnections = connectionPreferenceFiles.length;
@@ -73,7 +74,7 @@ public class ConnectionLoader {
                 Connection cs = new ConnectionSettings(connectionPreferenceFiles[i]);
                 cs.setRuntimeId(Integer.toString(i));
                 cs.load(appContext);
-                android.util.Log.d(TAG, "Adding label: " + cs.getLabel());
+                Log.d(TAG, "Adding label: " + cs.getLabel());
                 connectionsById.put(Integer.toString(i), cs);
             }
         }

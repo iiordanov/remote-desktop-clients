@@ -38,7 +38,7 @@ class RateOrShareFragment : DialogFragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Log.e(TAG, "onCreate called")
+        Log.d(TAG, "onCreate called")
     }
 
     override fun onCreateView(
@@ -46,7 +46,7 @@ class RateOrShareFragment : DialogFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        Log.e(TAG, "onCreateView called")
+        Log.d(TAG, "onCreateView called")
         dialog?.setTitle(getString(R.string.action_rate_or_share_app))
         val v = inflater.inflate(R.layout.rateorshare, container, false)
         layout = v.findViewById<View>(R.id.layout) as TableLayout

@@ -1,5 +1,7 @@
 package com.iiordanov.util;
 
+import android.util.Log;
+
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.BufferedReader;
@@ -23,7 +25,7 @@ public class CustomClientConfigFileReader {
         try {
             reader.close();
         } catch (IOException e) {
-            android.util.Log.e(TAG, "Error closing config reader.");
+            Log.e(TAG, "Error closing config reader.");
             e.printStackTrace();
         }
     }

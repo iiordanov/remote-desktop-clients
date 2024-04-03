@@ -40,10 +40,10 @@ public class PermissionsManager {
             String packageName = Utils.pName(context);
             String[] requestedPermissions = context.getPackageManager().getPackageInfo(
                     packageName, PackageManager.GET_PERMISSIONS).requestedPermissions;
-            android.util.Log.d(TAG, Arrays.toString(requestedPermissions));
+            Log.d(TAG, Arrays.toString(requestedPermissions));
             return requestedPermissions;
         } catch (PackageManager.NameNotFoundException e) {
-            android.util.Log.e(TAG, "Failed to retrieve page info.", e);
+            Log.e(TAG, "Failed to retrieve page info.", e);
             return new String[]{};
         }
     }

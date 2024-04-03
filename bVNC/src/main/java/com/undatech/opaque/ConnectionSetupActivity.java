@@ -95,7 +95,7 @@ public class ConnectionSetupActivity extends Activity {
 
         Intent i = getIntent();
         currentSelectedConnection = (String) i.getStringExtra("com.undatech.opaque.connectionToEdit");
-        android.util.Log.e(TAG, "currentSelectedConnection SET TO: " + currentSelectedConnection);
+        Log.d(TAG, "currentSelectedConnection set to: " + currentSelectedConnection);
 
         // If no currentSelectedConnection was passed in, then generate one.
         if (currentSelectedConnection == null) {
@@ -108,7 +108,7 @@ public class ConnectionSetupActivity extends Activity {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 if (view != null) {
-                    android.util.Log.e(TAG, "Selected connection type: " +
+                    Log.d(TAG, "Selected connection type: " +
                             Integer.toString(position) + " " + ((TextView) view).getText());
                 }
             }
@@ -151,7 +151,7 @@ public class ConnectionSetupActivity extends Activity {
                 }
             }
         }
-        android.util.Log.e(TAG, "nextLargestNumber determined: " + maxValue);
+        Log.d(TAG, "nextLargestNumber determined: " + maxValue);
         return Integer.toString(maxValue);
     }
 
@@ -184,7 +184,7 @@ public class ConnectionSetupActivity extends Activity {
                 }
             }
 
-            android.util.Log.d(TAG, "Saving list of connections: " + newListOfConnections);
+            Log.d(TAG, "Saving list of connections: " + newListOfConnections);
             SharedPreferences sp = appContext.getSharedPreferences("generalSettings", Context.MODE_PRIVATE);
             Editor editor = sp.edit();
             editor.putString("connections", newListOfConnections.trim());
@@ -200,7 +200,7 @@ public class ConnectionSetupActivity extends Activity {
      */
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        android.util.Log.i(TAG, "onActivityResult");
+        Log.i(TAG, "onActivityResult");
 
         super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
@@ -210,7 +210,7 @@ public class ConnectionSetupActivity extends Activity {
                     currentConnection = (ConnectionSettings) b.get(Constants.opaqueConnectionSettingsClassPath);
                     saveSelectedPreferences(false);
                 } else {
-                    android.util.Log.i(TAG, "Error during AdvancedSettingsActivity.");
+                    Log.i(TAG, "Error during AdvancedSettingsActivity.");
                 }
                 break;
         }
@@ -221,7 +221,7 @@ public class ConnectionSetupActivity extends Activity {
      */
     private void loadSelectedPreferences() {
         // We use the index as the file name to which to save the connection.
-        android.util.Log.i(TAG, "Loading current settings from file: " + currentSelectedConnection);
+        Log.i(TAG, "Loading current settings from file: " + currentSelectedConnection);
         currentConnection.loadFromSharedPreferences(appContext);
     }
 
@@ -239,7 +239,7 @@ public class ConnectionSetupActivity extends Activity {
      * Saves the preferences which are selected on-screen by the user into shared preferences.
      */
     private void saveSelectedPreferences(boolean saveInList) {
-        android.util.Log.i(TAG, "Saving current settings to file: " + currentSelectedConnection);
+        Log.i(TAG, "Saving current settings to file: " + currentSelectedConnection);
 
         String u = user.getText().toString();
         String h = hostname.getText().toString();
@@ -262,14 +262,14 @@ public class ConnectionSetupActivity extends Activity {
     @Override
     public void onStop() {
         super.onStop();
-        android.util.Log.e(TAG, "onStop");
+        Log.d(TAG, "onStop");
         //saveSelectedPreferences();
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        android.util.Log.e(TAG, "onResume");
+        Log.d(TAG, "onResume");
         loadSelectedPreferences();
         updateViewsFromPreferences();
     }

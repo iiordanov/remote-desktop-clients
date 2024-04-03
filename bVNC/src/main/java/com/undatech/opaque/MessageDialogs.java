@@ -29,6 +29,7 @@ import android.os.Handler;
 import android.text.Html;
 import android.text.Spanned;
 import android.text.method.LinkMovementMethod;
+import android.util.Log;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -115,7 +116,7 @@ public class MessageDialogs {
      */
     public static void displayMessage(final Handler handler, final Context context,
                                       final int infoId, final int titleId) {
-        android.util.Log.d(TAG, "displayMessage");
+        Log.d(TAG, "displayMessage");
         if (showMessageRunnable == null) {
             showMessageRunnable = new Runnable() {
                 @Override

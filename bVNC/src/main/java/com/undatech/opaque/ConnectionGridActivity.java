@@ -186,7 +186,7 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
 
     private void launchConnection(View v) {
         Utils.hideKeyboard(this, getCurrentFocus());
-        android.util.Log.i(TAG, "Launch Connection");
+        Log.i(TAG, "Launch Connection");
 
         ActivityManager.MemoryInfo info = Utils.getMemoryInfo(this);
         if (info.lowMemory)
@@ -209,7 +209,7 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
     }
 
     private void editConnection(View v) {
-        android.util.Log.d(TAG, "Modify Connection");
+        Log.d(TAG, "Modify Connection");
         String runtimeId = (String) ((TextView) v.findViewById(R.id.grid_item_id)).getText();
         ConnectionLoader connectionLoader = getConnectionLoader(this);
         Connection conn = connectionLoader.getConnectionsById().get(runtimeId);
@@ -226,7 +226,7 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
     }
 
     private void deleteConnection(View v) {
-        android.util.Log.d(TAG, "Delete Connection");
+        Log.d(TAG, "Delete Connection");
         String runtimeId = (String) ((TextView) v.findViewById(R.id.grid_item_id)).getText();
         String gridItemText = (String) ((TextView) v.findViewById(R.id.grid_item_text)).getText();
         Utils.showYesNoPrompt(this, getString(R.string.delete_connection) + "?", getString(R.string.delete_connection) + " " + gridItemText + " ?",
@@ -249,7 +249,7 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
                                         newListOfConnections += " " + connection;
                                     }
                                 }
-                                android.util.Log.d(TAG, "Deleted connection, current list: " + newListOfConnections);
+                                Log.d(TAG, "Deleted connection, current list: " + newListOfConnections);
                                 Editor editor = sp.edit();
                                 editor.putString("connections", newListOfConnections.trim());
                                 editor.apply();
@@ -349,7 +349,7 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
     }
 
     public void editDefaultSettings() {
-        android.util.Log.d(TAG, "editDefaultSettings selected.");
+        Log.d(TAG, "editDefaultSettings selected.");
         if (Utils.isOpaque(this)) {
             Intent intent = new Intent(ConnectionGridActivity.this, GeneralUtils.getClassByName("com.undatech.opaque.AdvancedSettingsActivity"));
             ConnectionSettings defaultConnection = new ConnectionSettings(RemoteClientLibConstants.DEFAULT_SETTINGS_FILE);
@@ -369,7 +369,7 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
      * @param menuItem
      */
     public void rateOrShare(MenuItem menuItem) {
-        android.util.Log.d(TAG, "rateOrShare selected.");
+        Log.d(TAG, "rateOrShare selected.");
         if (!rateOrShareFragment.isVisible()) {
             rateOrShareFragment.show(fragmentManager, "");
         }
@@ -388,7 +388,7 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
      */
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        android.util.Log.i(TAG, "onActivityResult");
+        Log.i(TAG, "onActivityResult");
 
         super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
@@ -398,7 +398,7 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
                     ConnectionSettings defaultSettings = (ConnectionSettings) b.get(Constants.opaqueConnectionSettingsClassPath);
                     defaultSettings.saveToSharedPreferences(this);
                 } else {
-                    android.util.Log.i(TAG, "Error during AdvancedSettingsActivity.");
+                    Log.i(TAG, "Error during AdvancedSettingsActivity.");
                 }
                 break;
             case RemoteClientLibConstants.IMPORT_SETTINGS_REQUEST_CODE:
@@ -421,10 +421,10 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
                         }
                         recreate();
                     } else {
-                        android.util.Log.e(TAG, "File uri not found, not importing settings");
+                        Log.e(TAG, "File uri not found, not importing settings");
                     }
                 } else {
-                    android.util.Log.e(TAG, "Error while selecting file to import settings from");
+                    Log.e(TAG, "Error while selecting file to import settings from");
                 }
                 break;
             case RemoteClientLibConstants.EXPORT_SETTINGS_REQUEST_CODE:
@@ -440,10 +440,10 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
                             Utils.exportSettingsToXml(out, database.getReadableDatabase());
                         }
                     } else {
-                        android.util.Log.e(TAG, "File uri not found, not exporting settings");
+                        Log.e(TAG, "File uri not found, not exporting settings");
                     }
                 } else {
-                    android.util.Log.e(TAG, "Error while selecting file to export settings to");
+                    Log.e(TAG, "Error while selecting file to export settings to");
                 }
                 break;
         }
@@ -454,7 +454,7 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
      */
     @Override
     public boolean onMenuOpened(int featureId, Menu menu) {
-        android.util.Log.d(TAG, "onMenuOpened");
+        Log.d(TAG, "onMenuOpened");
         try {
             updateInputMenu(menu.findItem(R.id.itemInputMode).getSubMenu());
             MenuItem itemMasterPassword = menu.findItem(R.id.itemMasterPassword);
@@ -474,11 +474,11 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
         }
         String defaultInputHandlerId = Utils.querySharedPreferenceString(
                 this, Constants.defaultInputMethodTag, TouchInputHandlerDirectSwipePan.ID);
-        android.util.Log.d(TAG, "Default Input Mode Item: " + defaultInputHandlerId);
+        Log.d(TAG, "Default Input Mode Item: " + defaultInputHandlerId);
 
         try {
             for (MenuItem item : inputModeMenuItems) {
-                android.util.Log.d(TAG, "Input Mode Item: " +
+                Log.d(TAG, "Input Mode Item: " +
                         RemoteCanvasActivity.inputModeMap.get(item.getItemId()));
 
                 if (defaultInputHandlerId.equals(RemoteCanvasActivity.inputModeMap.get(item.getItemId()))) {

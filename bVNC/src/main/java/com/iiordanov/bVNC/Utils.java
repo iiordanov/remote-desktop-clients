@@ -543,7 +543,7 @@ public class Utils {
             String packageName = Utils.pName(context);
             PackageInfo pInfo = context.getPackageManager().getPackageInfo(packageName, 0);
             result = pInfo.versionName + "_" + pInfo.versionCode;
-            android.util.Log.d(TAG, "Version of " + packageName + " is " + result);
+            Log.d(TAG, "Version of " + packageName + " is " + result);
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
         }

@@ -231,7 +231,7 @@ public class aSPICE extends MainConfiguration {
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        android.util.Log.i(TAG, "onActivityResult");
+        Log.i(TAG, "onActivityResult");
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == ImportTlsCaDialog.IMPORT_CA_REQUEST) {
             if (resultCode == Activity.RESULT_OK) {

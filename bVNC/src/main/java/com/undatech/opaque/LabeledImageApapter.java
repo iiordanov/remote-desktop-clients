@@ -81,7 +81,7 @@ public class LabeledImageApapter extends BaseAdapter {
         Connection c = filteredConnectionsByPosition.get(position);
 
         String label = c.getLabel();
-        android.util.Log.d(TAG, "Now setting label at position: " + position + " to: " + label);
+        Log.d(TAG, "Now setting label at position: " + position + " to: " + label);
 
         GridView gView = (GridView) ((Activity) context).findViewById(R.id.gridView);
         int height = gView.getWidth() / numCols;

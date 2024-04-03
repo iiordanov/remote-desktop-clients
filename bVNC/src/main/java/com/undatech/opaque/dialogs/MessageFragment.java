@@ -27,6 +27,7 @@ import android.os.Bundle;
 import android.text.Html;
 import android.text.Spanned;
 import android.text.method.LinkMovementMethod;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -50,7 +51,7 @@ public class MessageFragment extends DialogFragment {
 
     public static MessageFragment newInstance(String title, String messageText, String okButtonText,
                                               OnFragmentDismissedListener dismissalListener) {
-        android.util.Log.e(TAG, "newInstance called");
+        Log.d(TAG, "newInstance called");
         MessageFragment f = new MessageFragment();
         f.setOnFragmentDismissedListener(dismissalListener);
 
@@ -88,7 +89,7 @@ public class MessageFragment extends DialogFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        android.util.Log.e(TAG, "onCreate called");
+        Log.d(TAG, "onCreate called");
         title = getArguments().getString("title");
         messageText = getArguments().getString("messageText");
         okButtonText = getArguments().getString("okButtonText");
@@ -96,7 +97,7 @@ public class MessageFragment extends DialogFragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        android.util.Log.e(TAG, "onCreateView called");
+        Log.d(TAG, "onCreateView called");
 
         // Set title for this dialog
         getDialog().setTitle(title);
@@ -120,7 +121,7 @@ public class MessageFragment extends DialogFragment {
 
     @Override
     public void onDismiss(DialogInterface dialog) {
-        android.util.Log.i(TAG, "dismiss: sending back data to listener");
+        Log.i(TAG, "dismiss: sending back data to listener");
         if (dismissalListener != null) {
             dismissalListener.onDialogDismissed();
         }

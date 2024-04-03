@@ -23,8 +23,8 @@ package com.iiordanov.bVNC;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.util.Log;
 
-import com.undatech.opaque.RfbConnectable;
 import com.undatech.opaque.Viewable;
 
 import java.util.Arrays;
@@ -41,10 +41,6 @@ class FullBufferBitmapData extends AbstractBitmapData {
     int dataWidth;
     int dataHeight;
 
-    /**
-     * @param p
-     * @param c
-     */
     public FullBufferBitmapData(int width, int height, Viewable c, int capacity) {
         super(width, height, c);
         framebufferwidth = width;
@@ -53,7 +49,7 @@ class FullBufferBitmapData extends AbstractBitmapData {
         bitmapheight = framebufferheight;
         dataWidth = framebufferwidth;
         dataHeight = framebufferheight;
-        android.util.Log.i("FBBM", "bitmapsize = (" + bitmapwidth + "," + bitmapheight + ")");
+        Log.i("FBBM", "bitmapsize = (" + bitmapwidth + "," + bitmapheight + ")");
         bitmapPixels = new int[framebufferwidth * framebufferheight];
         drawable.startDrawing();
     }
@@ -146,7 +142,7 @@ class FullBufferBitmapData extends AbstractBitmapData {
         framebufferheight = height;
         bitmapwidth = framebufferwidth;
         bitmapheight = framebufferheight;
-        android.util.Log.i("FBBM", "bitmapsize changed = (" + bitmapwidth + "," + bitmapheight + ")");
+        Log.i("FBBM", "bitmapsize changed = (" + bitmapwidth + "," + bitmapheight + ")");
         if (dataWidth < framebufferwidth || dataHeight < framebufferheight) {
             dispose();
             // Try to free up some memory.

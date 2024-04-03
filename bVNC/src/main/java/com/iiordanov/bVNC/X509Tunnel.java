@@ -86,7 +86,7 @@ public class X509Tunnel extends TLSTunnelBase {
 
         String[] protocols = sock.getEnabledProtocols();
         ;
-        android.util.Log.d(TAG, "Supported TLS Protocols: " + Arrays.toString(protocols));
+        Log.d(TAG, "Supported TLS Protocols: " + Arrays.toString(protocols));
 
         for (int i = 0; i < supported.length; i++) {
             if (!supported[i].matches(".*DH_anon.*") &&
@@ -94,7 +94,7 @@ public class X509Tunnel extends TLSTunnelBase {
                 Log.d(TAG, "Adding cipher: " + supported[i]);
                 enabled.add(supported[i]);
             } else {
-                android.util.Log.d(TAG, "Omitting cipher: " + supported[i]);
+                Log.d(TAG, "Omitting cipher: " + supported[i]);
             }
         }
 

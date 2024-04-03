@@ -83,7 +83,7 @@ public class bVNC extends MainConfiguration {
             @SuppressLint("SetTextI18n")
             @Override
             public void onItemSelected(AdapterView<?> ad, View view, int itemIndex, long id) {
-                android.util.Log.d(TAG, "connectionType onItemSelected called");
+                Log.d(TAG, "connectionType onItemSelected called");
                 selectedConnType = itemIndex;
                 selected.setConnectionType(selectedConnType);
                 selected.save(bVNC.this);

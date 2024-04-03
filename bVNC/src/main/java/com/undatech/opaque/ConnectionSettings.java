@@ -103,7 +103,7 @@ public class ConnectionSettings implements Connection, Serializable {
     public static void exportPrefsToFile(
             Context context, String connections, OutputStream outputStream
     ) throws JSONException, IOException {
-        android.util.Log.d(TAG, "Exporting settings to file");
+        Log.d(TAG, "Exporting settings to file");
         connections += " " + RemoteClientLibConstants.DEFAULT_SETTINGS_FILE;
         String[] preferenceFiles = connections.split(" ");
         JSONObject allPrefs = new JSONObject();
@@ -133,7 +133,7 @@ public class ConnectionSettings implements Connection, Serializable {
      * @throws JSONException
      */
     public static String importPrefsFromFile(Context context, Reader r) throws IOException, JSONException {
-        android.util.Log.d(TAG, "Importing settings");
+        Log.d(TAG, "Importing settings");
         BufferedReader reader = new BufferedReader(r);
         String connections = "";
         StringBuilder sb = new StringBuilder();
@@ -626,7 +626,7 @@ public class ConnectionSettings implements Connection, Serializable {
     }
 
     public void saveToSharedPreferences(Context context) {
-        android.util.Log.d(TAG, "Saving settings to file: " + filename);
+        Log.d(TAG, "Saving settings to file: " + filename);
         SharedPreferences sp = context.getSharedPreferences(filename, Context.MODE_PRIVATE);
         Editor editor = sp.edit();
         editor.putString("connectionType", connectionType);
@@ -834,7 +834,7 @@ public class ConnectionSettings implements Connection, Serializable {
     }
 
     public void loadFromSharedPreferences(Context context) {
-        android.util.Log.d(TAG, "Loading settings from file: " + filename);
+        Log.d(TAG, "Loading settings from file: " + filename);
         SharedPreferences sp = context.getSharedPreferences(filename, Context.MODE_PRIVATE);
         connectionType = sp.getString("connectionType", "").trim();
         hostname = sp.getString("hostname", "").trim();
@@ -893,12 +893,12 @@ public class ConnectionSettings implements Connection, Serializable {
             fileName = context.getFilesDir() + "/ca" + Integer.toString(caCertData.hashCode()) + ".crt";
             File file = new File(fileName);
             if (!file.exists()) {
-                android.util.Log.d(TAG, "Writing out CA to file: " + fileName);
+                Log.d(TAG, "Writing out CA to file: " + fileName);
                 PrintWriter fout = new PrintWriter(fileName);
                 fout.println(caCertData);
                 fout.close();
             } else {
-                android.util.Log.d(TAG, "File already exists: " + fileName);
+                Log.d(TAG, "File already exists: " + fileName);
             }
         } catch (FileNotFoundException e) {
             fileName = "";

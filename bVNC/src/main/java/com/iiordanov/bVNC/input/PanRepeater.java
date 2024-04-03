@@ -45,7 +45,7 @@ public class PanRepeater implements Runnable {
         stop();
         this.velocityX = velocityX * speedFactor;
         this.velocityY = velocityY * speedFactor;
-        //android.util.Log.i ("PanRepeater", "Initial velocities: " + velocityX + "x" + velocityY);
+        //Log.i ("PanRepeater", "Initial velocities: " + velocityX + "x" + velocityY);
         handler.post(this);
     }
 
@@ -58,7 +58,7 @@ public class PanRepeater implements Runnable {
         float pX = Math.abs(velocityX);
         float pY = Math.abs(velocityY);
         if (pX >= 1 || pY >= 1) {
-            //android.util.Log.i ("PanRepeater", "Panning by: " + velocityX + "x" + velocityY);
+            //Log.i ("PanRepeater", "Panning by: " + velocityX + "x" + velocityY);
             canvas.relativePan((int) velocityX, (int) velocityY);
             velocityX = velocityX / 1.23f;
             velocityY = velocityY / 1.23f;

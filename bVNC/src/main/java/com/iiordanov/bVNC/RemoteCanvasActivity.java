@@ -338,7 +338,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
             continueConnecting();
         }
 
-        android.util.Log.d(TAG, "OnCreate complete");
+        Log.d(TAG, "OnCreate complete");
     }
 
     @SuppressLint("SourceLockedOrientationActivity")
@@ -435,7 +435,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
         Intent i = getIntent();
         if (vvFileName == null) {
-            android.util.Log.d(TAG, "Initializing session from connection settings.");
+            Log.d(TAG, "Initializing session from connection settings.");
             connection = (ConnectionSettings) i.getSerializableExtra(Constants.opaqueConnectionSettingsClassPath);
         } else {
             connection = new ConnectionSettings(RemoteClientLibConstants.DEFAULT_SETTINGS_FILE);
@@ -446,7 +446,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
 
     @SuppressLint("RtlHardcoded")
     public void continueConnecting() {
-        android.util.Log.d(TAG, "continueConnecting");
+        Log.d(TAG, "continueConnecting");
         // Initialize and define actions for on-screen keys.
         initializeOnScreenKeys();
 
@@ -482,16 +482,16 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
     }
 
     void relayoutViews(View rootView) {
-        android.util.Log.d(TAG, "onGlobalLayout: start");
+        Log.d(TAG, "onGlobalLayout: start");
         if (canvas == null) {
-            android.util.Log.d(TAG, "onGlobalLayout: canvas null, returning");
+            Log.d(TAG, "onGlobalLayout: canvas null, returning");
             return;
         }
 
         Rect r = new Rect();
 
         rootView.getWindowVisibleDisplayFrame(r);
-        android.util.Log.d(TAG, "onGlobalLayout: getWindowVisibleDisplayFrame: " + r);
+        Log.d(TAG, "onGlobalLayout: getWindowVisibleDisplayFrame: " + r);
 
         // To avoid setting the visible height to a wrong value after an screen unlock event
         // (when r.bottom holds the width of the screen rather than the height due to a rotation)
@@ -503,14 +503,14 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
         getWindow().getDecorView().getWindowVisibleDisplayFrame(re);
         if (r.top == 0 || re.top > 0) {
             if (canvas.getDrawable() != null) {
-                android.util.Log.d(TAG, "onGlobalLayout: Setting VisibleDesktopHeight to: " + (r.bottom - re.top));
+                Log.d(TAG, "onGlobalLayout: Setting VisibleDesktopHeight to: " + (r.bottom - re.top));
                 canvas.setVisibleDesktopHeight(r.bottom - re.top);
                 canvas.relativePan(0, 0);
             } else {
-                android.util.Log.d(TAG, "onGlobalLayout: canvas.myDrawable is null");
+                Log.d(TAG, "onGlobalLayout: canvas.myDrawable is null");
             }
         } else {
-            android.util.Log.d(TAG, "onGlobalLayout: Found r.top to be non-zero");
+            Log.d(TAG, "onGlobalLayout: Found r.top to be non-zero");
         }
 
         // Enable/show the toolbar if the keyboard is gone, and disable/hide otherwise.
@@ -530,14 +530,14 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
         int diffToolbarPosition = r.bottom - re.top - toolbarBottom - r.bottom / 2;
         int diffToolbarPositionRightAbsolute = r.right - toolbar.getWidth();
         int diffToolbarPositionTopAbsolute = r.bottom - re.top - toolbar.getHeight() - r.bottom / 2;
-        android.util.Log.d(TAG, "onGlobalLayout: before: r.bottom: " + r.bottom +
+        Log.d(TAG, "onGlobalLayout: before: r.bottom: " + r.bottom +
                 " rootViewHeight: " + rootViewHeight + " re.top: " + re.top + " re.bottom: " + re.bottom +
                 " layoutKeysBottom: " + layoutKeysBottom + " rootViewBottom: " + rootViewBottom + " toolbarBottom: " + toolbarBottom +
                 " diffLayoutKeysPosition: " + diffLayoutKeysPosition + " diffToolbarPosition: " + diffToolbarPosition);
 
         boolean softKeyboardPositionChanged = false;
         if (r.bottom > rootViewHeight * 0.81) {
-            android.util.Log.d(TAG, "onGlobalLayout: Less than 19% of screen is covered");
+            Log.d(TAG, "onGlobalLayout: Less than 19% of screen is covered");
             if (softKeyboardUp) {
                 softKeyboardPositionChanged = true;
             }
@@ -545,7 +545,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
 
             // Soft Kbd gone, shift the meta keys and arrows down.
             if (layoutKeys != null) {
-                android.util.Log.d(TAG, "onGlobalLayout: shifting on-screen buttons down by: " + diffLayoutKeysPosition);
+                Log.d(TAG, "onGlobalLayout: shifting on-screen buttons down by: " + diffLayoutKeysPosition);
                 layoutKeys.offsetTopAndBottom(diffLayoutKeysPosition);
                 if (!connection.getUseLastPositionToolbar() || !connection.getUseLastPositionToolbarMoved()) {
                     toolbar.offsetTopAndBottom(diffToolbarPosition);
@@ -557,16 +557,16 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
                             diffToolbarPositionRightAbsolute,
                             diffToolbarPositionTopAbsolute);
                 }
-                android.util.Log.d(TAG, "onGlobalLayout: shifting arrow keys by: " + diffArrowKeysPosition);
+                Log.d(TAG, "onGlobalLayout: shifting arrow keys by: " + diffArrowKeysPosition);
                 layoutArrowKeys.offsetLeftAndRight(diffArrowKeysPosition);
                 if (softKeyboardPositionChanged) {
-                    android.util.Log.d(TAG, "onGlobalLayout: hiding on-screen buttons");
+                    Log.d(TAG, "onGlobalLayout: hiding on-screen buttons");
                     setExtraKeysVisibility(View.GONE, false);
                     canvas.invalidate();
                 }
             }
         } else {
-            android.util.Log.d(TAG, "onGlobalLayout: More than 19% of screen is covered");
+            Log.d(TAG, "onGlobalLayout: More than 19% of screen is covered");
             softKeyboardUp = true;
 
             //  Soft Kbd up, shift the meta keys and arrows up.
@@ -599,7 +599,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
             layoutKeysBottom = layoutKeys.getBottom();
             rootViewBottom = layoutKeys.getRootView().getBottom();
         }
-        android.util.Log.d(TAG, "onGlobalLayout: after: r.bottom: " + r.bottom +
+        Log.d(TAG, "onGlobalLayout: after: r.bottom: " + r.bottom +
                 " rootViewHeight: " + rootViewHeight + " re.top: " + re.top + " re.bottom: " + re.bottom +
                 " layoutKeysBottom: " + layoutKeysBottom + " rootViewBottom: " + rootViewBottom + " toolbarBottom: " + toolbarBottom +
                 " diffLayoutKeysPosition: " + diffLayoutKeysPosition + " diffToolbarPosition: " + diffToolbarPosition);
@@ -617,10 +617,10 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
         final String tempVvFile = getFilesDir() + "/tempfile.vv";
         int msgId = 0;
 
-        android.util.Log.d(TAG, "Got intent: " + i);
+        Log.d(TAG, "Got intent: " + i);
 
         if (data != null) {
-            android.util.Log.d(TAG, "Got data: " + data);
+            Log.d(TAG, "Got data: " + data);
             final String dataString = data.toString();
             if (dataString.startsWith("http")) {
                 android.util.Log.d(TAG, "Intent is with http scheme.");
@@ -662,11 +662,11 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
                     vvFileName = tempVvFile;
                 }
             } else if (dataString.startsWith("file")) {
-                android.util.Log.d(TAG, "Intent is with file scheme.");
+                Log.d(TAG, "Intent is with file scheme.");
                 msgId = R.string.error_failed_to_obtain_vv_file;
                 vvFileName = data.getPath();
             } else if (dataString.startsWith("content")) {
-                android.util.Log.d(TAG, "Intent is with content scheme.");
+                Log.d(TAG, "Intent is with content scheme.");
                 msgId = R.string.error_failed_to_obtain_vv_content;
                 FileUtils.deleteFile(tempVvFile);
 
@@ -674,10 +674,10 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
                     FileUtils.outputToFile(getContentResolver().openInputStream(data), new File(tempVvFile));
                     vvFileName = tempVvFile;
                 } catch (IOException e) {
-                    android.util.Log.e(TAG, "Could not write temp file: IOException.");
+                    Log.e(TAG, "Could not write temp file: IOException.");
                     e.printStackTrace();
                 } catch (SecurityException e) {
-                    android.util.Log.e(TAG, "Could not write temp file: SecurityException.");
+                    Log.e(TAG, "Could not write temp file: SecurityException.");
                     e.printStackTrace();
                 }
             }

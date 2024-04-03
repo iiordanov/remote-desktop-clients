@@ -35,7 +35,7 @@ public class OverlappingCopy {
     }
 
     public static void Copy(Bitmap data, Canvas bitmapBackedCanvas, Paint paint, Rect source, int destX, int destY, ObjectPool<Rect> rectPool) {
-        //android.util.Log.i("LBM","Copy "+source.toString()+" to "+destX+","+destY);
+        //Log.i("LBM","Copy "+source.toString()+" to "+destX+","+destY);
         int deltaX = destX - source.left;
         int deltaY = destY - source.top;
         int absDeltaX = deltaX < 0 ? -deltaX : deltaX;
@@ -98,7 +98,7 @@ public class OverlappingCopy {
                     yStepDone = true;
                 }
                 stepSourceRect.set(stepLeft, stepTop, stepRight, stepBottom);
-                //android.util.Log.i("LBM","Copy transformed "+stepSourceRect.toString()+" "+deltaX+" "+deltaY);
+                //Log.i("LBM","Copy transformed "+stepSourceRect.toString()+" "+deltaX+" "+deltaY);
                 copyTransformedRect(stepSourceRect, stepDestRect, deltaX, deltaY, data, bitmapBackedCanvas, paint);
             }
         }

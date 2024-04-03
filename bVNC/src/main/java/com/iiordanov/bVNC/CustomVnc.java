@@ -2,6 +2,7 @@ package com.iiordanov.bVNC;
 
 import android.app.ActionBar;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 
 import com.iiordanov.util.CustomClientConfigFileReader;
@@ -25,7 +26,7 @@ public class CustomVnc extends bVNC {
             Map<String, Integer> visibility = (Map<String, Integer>) configData.get("mainConfiguration").get("visibility");
 
             for (String s : visibility.keySet()) {
-                android.util.Log.d(TAG, s);
+                Log.d(TAG, s);
                 int resID = getResources().getIdentifier(s, "id", packageName);
                 view = findViewById(resID);
                 view.setVisibility(visibility.get(s));
@@ -49,7 +50,7 @@ public class CustomVnc extends bVNC {
             ab.setTitle(title);
             ab.setSubtitle(subtitle);
         } catch (IOException e) {
-            android.util.Log.e(TAG, "Error opening config file from assets.");
+            Log.e(TAG, "Error opening config file from assets.");
             e.printStackTrace();
         }
     }

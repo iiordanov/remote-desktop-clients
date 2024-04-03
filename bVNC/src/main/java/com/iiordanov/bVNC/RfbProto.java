@@ -665,7 +665,7 @@ public class RfbProto extends RfbConnectable {
     }
 
     int selectSecurityType(boolean userNameSupplied, int connType) throws Exception {
-        android.util.Log.i(TAG, "(Re)Selecting security type.");
+        Log.i(TAG, "(Re)Selecting security type.");
 
         int secType = SecTypeInvalid;
 
@@ -689,7 +689,7 @@ public class RfbProto extends RfbConnectable {
 
         // Find first supported security type.
         for (int i = 0; i < nSecTypes; i++) {
-            android.util.Log.i(TAG, "Received security type: " + secTypes[i]);
+            Log.i(TAG, "Received security type: " + secTypes[i]);
             int currentSecType = secTypes[i] & 0xff;
             // If AnonTLS or VeNCrypt modes are enforced, then only accept them. Otherwise, accept it and all others.
             if (connType == Constants.CONN_TYPE_ANONTLS) {
@@ -1136,11 +1136,11 @@ public class RfbProto extends RfbConnectable {
     //
 
     public void readServerInit() throws IOException {
-        android.util.Log.i(TAG, "Reading server init.");
+        Log.i(TAG, "Reading server init.");
         int framebufferWidth = is.readUnsignedShort();
         int framebufferHeight = is.readUnsignedShort();
 
-        android.util.Log.i(TAG, "Read framebuffer size: " + framebufferWidth + "x" + framebufferHeight);
+        Log.i(TAG, "Read framebuffer size: " + framebufferWidth + "x" + framebufferHeight);
         this.setFramebufferSize(framebufferWidth, framebufferHeight);
         bitsPerPixel = is.readUnsignedByte();
         depth = is.readUnsignedByte();
@@ -1601,7 +1601,7 @@ public class RfbProto extends RfbConnectable {
         String x509subject = readString();
 
         if (x != 0 || y != 0 || w != 0 || h != 0) {
-            android.util.Log.e(TAG, "Ignoring ClientRedirect rect with non-zero position/size");
+            Log.e(TAG, "Ignoring ClientRedirect rect with non-zero position/size");
         } else {
             clientRedirect(port, host, x509subject);
         }
