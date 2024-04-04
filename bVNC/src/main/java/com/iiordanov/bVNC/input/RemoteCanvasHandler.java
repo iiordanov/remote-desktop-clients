@@ -470,19 +470,6 @@ public class RemoteCanvasHandler extends Handler implements HttpsFileDownloader.
                 remoteConnection.initializeConnection();
                 c.setParameters(remoteConnection.getRfbConn(), connection, this, remoteConnection.getPointer(), setModes);
                 break;
-            case RemoteClientLibConstants.REPORT_TOOLBAR_POSITION:
-                Log.d(TAG, "Handling message, REPORT_TOOLBAR_POSITION");
-                if (connection.getUseLastPositionToolbar()) {
-                    int useLastPositionToolbarX = Utils.getIntFromMessage(msg, "useLastPositionToolbarX");
-                    int useLastPositionToolbarY = Utils.getIntFromMessage(msg, "useLastPositionToolbarY");
-                    boolean useLastPositionToolbarMoved = Utils.getBooleanFromMessage(msg, "useLastPositionToolbarMoved");
-                    Log.d(TAG, "Handling message, REPORT_TOOLBAR_POSITION, X Coordinate" + useLastPositionToolbarX);
-                    Log.d(TAG, "Handling message, REPORT_TOOLBAR_POSITION, Y Coordinate" + useLastPositionToolbarY);
-                    connection.setUseLastPositionToolbarX(useLastPositionToolbarX);
-                    connection.setUseLastPositionToolbarY(useLastPositionToolbarY);
-                    connection.setUseLastPositionToolbarMoved(useLastPositionToolbarMoved);
-                }
-                break;
             case RemoteClientLibConstants.VV_OVER_HTTP_FAILURE:
                 MessageDialogs.displayMessageAndFinish(context, R.string.error_failed_to_download_vv_http,
                         R.string.error_dialog_title);

@@ -50,7 +50,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
@@ -168,6 +167,9 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
     public RemoteClientsInputListener inputListener;
     private ImageButton keyboardIconForAndroidTv;
     float keyboardIconForAndroidTvX = Float.MAX_VALUE;
+
+    OnTouchViewMover toolbarMover;
+    ActionBarPositionSaver toolbarPositionSaver = new ActionBarPositionSaver();
 
     /**
      * This runnable enables immersive mode.
@@ -528,63 +530,33 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
         int diffArrowKeysPosition = r.right - re.left - layoutArrowKeys.getRight();
         int diffLayoutKeysPosition = r.bottom - re.top - layoutKeysBottom;
         int diffToolbarPosition = r.bottom - re.top - toolbarBottom - r.bottom / 2;
-        int diffToolbarPositionRightAbsolute = r.right - toolbar.getWidth();
-        int diffToolbarPositionTopAbsolute = r.bottom - re.top - toolbar.getHeight() - r.bottom / 2;
+        int standardToolbarPositionX = r.right - toolbar.getWidth();
+        int standardToolbarPositionY = r.bottom - re.top - toolbar.getHeight() - r.bottom / 2;
         Log.d(TAG, "onGlobalLayout: before: r.bottom: " + r.bottom +
                 " rootViewHeight: " + rootViewHeight + " re.top: " + re.top + " re.bottom: " + re.bottom +
                 " layoutKeysBottom: " + layoutKeysBottom + " rootViewBottom: " + rootViewBottom + " toolbarBottom: " + toolbarBottom +
                 " diffLayoutKeysPosition: " + diffLayoutKeysPosition + " diffToolbarPosition: " + diffToolbarPosition);
 
-        boolean softKeyboardPositionChanged = false;
         if (r.bottom > rootViewHeight * 0.81) {
             Log.d(TAG, "onGlobalLayout: Less than 19% of screen is covered");
-            if (softKeyboardUp) {
-                softKeyboardPositionChanged = true;
-            }
-            softKeyboardUp = false;
-
+            String direction = "down";
             // Soft Kbd gone, shift the meta keys and arrows down.
             if (layoutKeys != null) {
-                Log.d(TAG, "onGlobalLayout: shifting on-screen buttons down by: " + diffLayoutKeysPosition);
-                layoutKeys.offsetTopAndBottom(diffLayoutKeysPosition);
-                if (!connection.getUseLastPositionToolbar() || !connection.getUseLastPositionToolbarMoved()) {
-                    toolbar.offsetTopAndBottom(diffToolbarPosition);
-                } else {
-                    toolbar.setPositionToMakeVisible(connection.getUseLastPositionToolbarX(),
-                            connection.getUseLastPositionToolbarY(),
-                            r.right,
-                            r.bottom,
-                            diffToolbarPositionRightAbsolute,
-                            diffToolbarPositionTopAbsolute);
-                }
-                Log.d(TAG, "onGlobalLayout: shifting arrow keys by: " + diffArrowKeysPosition);
-                layoutArrowKeys.offsetLeftAndRight(diffArrowKeysPosition);
-                if (softKeyboardPositionChanged) {
-                    Log.d(TAG, "onGlobalLayout: hiding on-screen buttons");
+                shiftLayoutArrowAndToolbar(r, diffArrowKeysPosition, diffLayoutKeysPosition, diffToolbarPosition, standardToolbarPositionX, standardToolbarPositionY, direction);
+                if (softKeyboardUp) {
+                    Log.d(TAG, "onGlobalLayout: softKeyboardUp was true, but keyboard is now hidden. Hiding on-screen buttons");
                     setExtraKeysVisibility(View.GONE, false);
                     canvas.invalidate();
                 }
             }
+            softKeyboardUp = false;
         } else {
             Log.d(TAG, "onGlobalLayout: More than 19% of screen is covered");
             softKeyboardUp = true;
-
+            String direction = "up";
             //  Soft Kbd up, shift the meta keys and arrows up.
             if (layoutKeys != null) {
-                Log.d(TAG, "onGlobalLayout: shifting on-screen buttons up by: " + diffLayoutKeysPosition);
-                layoutKeys.offsetTopAndBottom(diffLayoutKeysPosition);
-                if (!connection.getUseLastPositionToolbar() || !connection.getUseLastPositionToolbarMoved()) {
-                    toolbar.offsetTopAndBottom(diffToolbarPosition);
-                } else {
-                    toolbar.setPositionToMakeVisible(connection.getUseLastPositionToolbarX(),
-                            connection.getUseLastPositionToolbarY(),
-                            r.right,
-                            r.bottom,
-                            diffToolbarPositionRightAbsolute,
-                            diffToolbarPositionTopAbsolute);
-                }
-                Log.d(TAG, "onGlobalLayout: shifting arrow keys by: " + diffArrowKeysPosition);
-                layoutArrowKeys.offsetLeftAndRight(diffArrowKeysPosition);
+                shiftLayoutArrowAndToolbar(r, diffArrowKeysPosition, diffLayoutKeysPosition, diffToolbarPosition, standardToolbarPositionX, standardToolbarPositionY, direction);
                 if (extraKeysHidden) {
                     Log.d(TAG, "onGlobalLayout: on-screen buttons should be hidden");
                     setExtraKeysVisibility(View.GONE, false);
@@ -603,6 +575,30 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
                 " rootViewHeight: " + rootViewHeight + " re.top: " + re.top + " re.bottom: " + re.bottom +
                 " layoutKeysBottom: " + layoutKeysBottom + " rootViewBottom: " + rootViewBottom + " toolbarBottom: " + toolbarBottom +
                 " diffLayoutKeysPosition: " + diffLayoutKeysPosition + " diffToolbarPosition: " + diffToolbarPosition);
+    }
+
+    private void shiftLayoutArrowAndToolbar(Rect r, int diffArrowKeysPosition, int diffLayoutKeysPosition, int diffToolbarPosition, int standardToolbarPositionX, int standardToolbarPositionY, String direction) {
+        Log.d(TAG, String.format("onGlobalLayout: shifting on-screen buttons %s by: %d", direction, diffLayoutKeysPosition));
+        layoutKeys.offsetTopAndBottom(diffLayoutKeysPosition);
+        offsetOrRestoreSavedToolbarPosition(r, diffToolbarPosition, standardToolbarPositionX, standardToolbarPositionY);
+        Log.d(TAG, "onGlobalLayout: shifting arrow keys by: " + diffArrowKeysPosition);
+        layoutArrowKeys.offsetLeftAndRight(diffArrowKeysPosition);
+    }
+
+    private void offsetOrRestoreSavedToolbarPosition(Rect r, int diffToolbarPosition, int standardPositionX, int standardPositionY) {
+        boolean useLastPosition = connection.getUseLastPositionToolbar();
+        boolean toolbarMoved = connection.getUseLastPositionToolbarMoved();
+        if (!useLastPosition || !toolbarMoved) {
+            toolbar.offsetTopAndBottom(diffToolbarPosition);
+        } else {
+            toolbar.setPositionToMakeVisible(
+                    connection.getUseLastPositionToolbarX(),
+                    connection.getUseLastPositionToolbarY(),
+                    r.right,
+                    r.bottom,
+                    standardPositionX,
+                    standardPositionY);
+        }
     }
 
     /**
@@ -1189,13 +1185,13 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
             else
                 menu.findItem(R.id.itemExtraKeys).setTitle(R.string.extra_keys_enable);
 
-            OnTouchListener moveListener = new OnTouchViewMover(toolbar, handler, actionBarHider, hideToolbarDelay);
+            toolbarMover = new OnTouchViewMover(toolbar, handler, toolbarPositionSaver, actionBarHider, hideToolbarDelay);
             ImageButton moveButton = new ImageButton(this);
 
             moveButton.setBackgroundResource(R.drawable.ic_all_out_gray_36dp);
             MenuItem moveToolbar = menu.findItem(R.id.moveToolbar);
             moveToolbar.setActionView(moveButton);
-            moveButton.setOnTouchListener(moveListener);
+            moveButton.setOnTouchListener(toolbarMover);
         } catch (NullPointerException e) {
             e.printStackTrace();
         }
@@ -1617,6 +1613,15 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
 
     public RemoteConnection getRemoteConnection() {
         return remoteConnection;
+    }
+
+    private class ActionBarPositionSaver implements Runnable {
+        public void run() {
+            connection.setUseLastPositionToolbarX(toolbarMover.getLastX());
+            connection.setUseLastPositionToolbarY(toolbarMover.getLastY());
+            connection.setUseLastPositionToolbarMoved(true);
+            connection.save(RemoteCanvasActivity.this);
+        }
     }
 
     private class ActionBarHider implements Runnable {

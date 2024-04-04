@@ -1,15 +1,11 @@
 package com.undatech.opaque.util;
 
-import android.os.Bundle;
 import android.os.Handler;
-import android.os.Message;
 import android.os.SystemClock;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
-
-import com.undatech.opaque.RemoteClientLibConstants;
 
 
 public class OnTouchViewMover implements OnTouchListener {
@@ -17,23 +13,35 @@ public class OnTouchViewMover implements OnTouchListener {
 
     View viewToMove;
     Handler handler;
-    Runnable runnable;
+    Runnable runOnDrop;
+    Runnable runOnMoveWithDelay;
     long delay;
     float dX, dY;
+    int lastX, lastY;
 
-    public OnTouchViewMover(View viewToMove, Handler handler, Runnable runnable, long delay) {
+    public int getLastX() {
+        return lastX;
+    }
+
+    public int getLastY() {
+        return lastY;
+    }
+
+    public OnTouchViewMover(
+            View viewToMove, Handler handler, Runnable runOnDrop, Runnable runOnMoveWithDelay, long delay
+    ) {
         this.viewToMove = viewToMove;
         this.handler = handler;
-        this.runnable = runnable;
+        this.runOnDrop = runOnDrop;
+        this.runOnMoveWithDelay = runOnMoveWithDelay;
         this.delay = delay;
     }
 
     @Override
     public boolean onTouch(View view, MotionEvent event) {
-        Log.d(TAG, "onTouch called");
-        Log.d(TAG, "Moving toolbar");
+        Log.d(TAG, "onTouch called, moving toolbar");
         if (handler != null) {
-            handler.removeCallbacks(runnable);
+            handler.removeCallbacks(runOnMoveWithDelay);
         }
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
@@ -45,26 +53,16 @@ public class OnTouchViewMover implements OnTouchListener {
                 Log.d(TAG, "onTouch called ACTION_MOVE");
                 viewToMove.animate().x(event.getRawX() + dX).y(event.getRawY() + dY).setDuration(0).start();
                 if (handler != null) {
-                    handler.postAtTime(runnable, SystemClock.uptimeMillis() + delay);
+                    handler.postAtTime(runOnMoveWithDelay, SystemClock.uptimeMillis() + delay);
                 }
                 break;
             default:
                 Log.d(TAG, "onTouch called default");
+                lastX = (int)viewToMove.getX();
+                lastY = (int)viewToMove.getY();
                 if (handler != null) {
-                    Log.d(TAG, "onTouch called default, handler not null");
-                    handler.postAtTime(runnable, SystemClock.uptimeMillis() + delay);
-
-                    Message m = new Message();
-                    m.what = RemoteClientLibConstants.REPORT_TOOLBAR_POSITION;
-                    Bundle d = new Bundle();
-                    d.putInt("useLastPositionToolbarX", (int) viewToMove.getX());
-                    android.util.Log.d(TAG, "onTouch called default, handler not null, x coordinate" + viewToMove.getX());
-                    d.putInt("useLastPositionToolbarY", (int) viewToMove.getY());
-                    d.putBoolean("useLastPositionToolbarMoved", true);
-                    android.util.Log.d(TAG, "Moving toolbar, default, handler not null, y coordinate" + viewToMove.getY());
-                    m.setData(d);
-
-                    handler.handleMessage(m);
+                    handler.post(runOnDrop);
+                    handler.postAtTime(runOnMoveWithDelay, SystemClock.uptimeMillis() + delay);
                 }
                 return false;
         }
