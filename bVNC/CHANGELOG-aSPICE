@@ -1,3 +1,5 @@
+v5.3.4
+- Fix for toolbar position not restored
 v5.3.3
 - Back button disconnects on Android TV
 - Show default settings icon on Android TV
