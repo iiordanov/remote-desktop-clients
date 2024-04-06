@@ -26,8 +26,8 @@
     <application
         android:name="com.iiordanov.bVNC.App"
         android:allowBackup="false"
-        android:banner="@drawable/banner_aspice"
-        android:icon="@drawable/aspice_icon"
+        android:banner="@mipmap/banner_aspice"
+        android:icon="@mipmap/icon_aspice"
         android:label="@string/freeaspice_app_name"
         android:theme="@android:style/Theme.DeviceDefault"
         tools:replace="android:label,android:theme">

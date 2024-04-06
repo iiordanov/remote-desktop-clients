@@ -26,8 +26,8 @@
     <application
         android:name="com.iiordanov.bVNC.App"
         android:allowBackup="false"
-        android:banner="@drawable/banner_ardp"
-        android:icon="@drawable/ardp_icon"
+        android:banner="@mipmap/banner_ardp"
+        android:icon="@mipmap/icon_ardp"
         android:label="@string/ardp_app_name"
         android:theme="@android:style/Theme.DeviceDefault"
         tools:replace="android:label,android:theme">

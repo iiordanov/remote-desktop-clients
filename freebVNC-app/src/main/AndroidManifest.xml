@@ -24,8 +24,8 @@
     <application
         android:name="com.iiordanov.bVNC.App"
         android:allowBackup="false"
-        android:banner="@drawable/banner_bvnc"
-        android:icon="@drawable/bvnc_icon"
+        android:banner="@mipmap/banner_bvnc"
+        android:icon="@mipmap/icon_bvnc"
         android:label="@string/freebvnc_app_name"
         android:theme="@android:style/Theme.DeviceDefault"
         tools:replace="android:label,android:theme">

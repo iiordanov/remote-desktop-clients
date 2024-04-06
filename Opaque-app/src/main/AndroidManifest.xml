@@ -28,8 +28,8 @@
     <application
         android:name="com.iiordanov.bVNC.App"
         android:allowBackup="true"
-        android:banner="@drawable/banner_opaque"
-        android:icon="@drawable/opaque_icon"
+        android:banner="@mipmap/banner_opaque"
+        android:icon="@mipmap/ic_launcher"
         android:label="@string/opaque_app_name"
         android:theme="@android:style/Theme.DeviceDefault">
         <uses-library
