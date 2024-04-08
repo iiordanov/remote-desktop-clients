@@ -3,8 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.iiordanov.CUSTOM_VNC_APP_PACKAGE_NAME"
     android:installLocation="auto"
-    android:versionCode="115350"
-    android:versionName="v5.3.5">
+    android:versionCode="115390"
+    android:versionName="v5.3.9">
 
     <uses-permission tools:node="removeAll" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -24,7 +24,7 @@
     <application
         android:name="com.iiordanov.bVNC.App"
         android:allowBackup="false"
-        android:banner="@drawable/banner_bvnc"
+        android:banner="@mipmap/banner_bvnc"
         android:icon="@drawable/${custom_vnc_app_icon}"
         android:label="${custom_vnc_app_name}"
         android:theme="@android:style/Theme.DeviceDefault"
