@@ -29,7 +29,7 @@
         android:name="com.iiordanov.bVNC.App"
         android:allowBackup="true"
         android:banner="@mipmap/banner_opaque"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@mipmap/icon_opaque"
         android:label="@string/opaque_app_name"
         android:theme="@android:style/Theme.DeviceDefault">
         <uses-library
