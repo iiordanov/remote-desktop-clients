@@ -3,8 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.iiordanov.freeaSPICE"
     android:installLocation="auto"
-    android:versionCode="115420"
-    android:versionName="v5.4.2">
+    android:versionCode="115430"
+    android:versionName="v5.4.3">
 
     <uses-permission tools:node="removeAll" />
     <uses-permission android:name="android.permission.INTERNET" />
