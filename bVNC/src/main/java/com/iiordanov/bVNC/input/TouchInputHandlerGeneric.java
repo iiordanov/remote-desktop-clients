@@ -170,6 +170,7 @@ abstract class TouchInputHandlerGeneric extends GestureDetector.SimpleOnGestureL
         switch (action) {
             // If a mouse button was pressed or mouse was moved.
             case MotionEvent.ACTION_DOWN:
+            case MotionEvent.ACTION_BUTTON_PRESS:
             case MotionEvent.ACTION_MOVE:
                 switch (bstate) {
                     case MotionEvent.BUTTON_PRIMARY:
@@ -193,6 +194,7 @@ abstract class TouchInputHandlerGeneric extends GestureDetector.SimpleOnGestureL
                 break;
             // If a mouse button was released.
             case MotionEvent.ACTION_UP:
+            case MotionEvent.ACTION_BUTTON_RELEASE:
                 switch (bstate) {
                     case 0:
                         if (e.getToolType(0) != MotionEvent.TOOL_TYPE_MOUSE) {
