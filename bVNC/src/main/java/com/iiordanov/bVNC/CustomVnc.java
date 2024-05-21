@@ -25,12 +25,7 @@ public class CustomVnc extends bVNC {
             Map<String, Map> configData = configFileReader.getConfigData();
             Map<String, Integer> visibility = (Map<String, Integer>) configData.get("mainConfiguration").get("visibility");
 
-            for (String s : visibility.keySet()) {
-                Log.d(TAG, s);
-                int resID = getResources().getIdentifier(s, "id", packageName);
-                view = findViewById(resID);
-                view.setVisibility(visibility.get(s));
-            }
+            Utils.setVisibilityForViewElementsViaConfig(this, "mainConfiguration", findViewById(android.R.id.content).getRootView());
 
             Locale current = getResources().getConfiguration().locale;
             String currentLanguage = current.getLanguage();

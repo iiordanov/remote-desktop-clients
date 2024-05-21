@@ -81,6 +81,7 @@
         <TableRow android:gravity="center">
 
             <TextView
+                android:id="@+id/love_our_work"
                 android:text="@string/love_our_work"
                 android:textAppearance="?android:attr/textAppearanceMedium" />
         </TableRow>
