@@ -57,6 +57,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.play.core.review.ReviewInfo;
 import com.google.android.play.core.review.ReviewManager;
 import com.google.android.play.core.review.ReviewManagerFactory;
+import com.iiordanov.util.CustomClientConfigFileReader;
 import com.undatech.opaque.AbstractDrawableData;
 import com.undatech.opaque.ConnectionSetupActivity;
 import com.undatech.remoteClientUi.R;
@@ -76,6 +77,7 @@ import java.io.Reader;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.lang.reflect.Field;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -273,6 +275,38 @@ public class Utils {
     public static boolean isOpaque(Context context) {
         String packageName = Utils.pName(context);
         return packageName.toLowerCase().contains("opaque");
+    }
+
+    public static String getStringConfigAttribute(Context context, String configDataKey, String configDataKeyChild, String childAttribute) throws IOException {
+        try {
+            CustomClientConfigFileReader configFileReader = new CustomClientConfigFileReader(
+                    context.getAssets().open(Utils.pName(context) + ".yaml"));
+            Map<String, Map> configData = configFileReader.getConfigData();
+            String attr = (String) ((Map) configData.get(configDataKey).get(configDataKeyChild)).get(childAttribute);
+            return attr;
+        }
+        catch (IOException | NullPointerException e) {
+            throw e;
+        }
+    }
+
+    public static void setVisibilityForViewElementsViaConfig(Context context, String configDataKey, View view) throws IOException {
+        try {
+            String packageName = Utils.pName(context);
+            CustomClientConfigFileReader configFileReader = new CustomClientConfigFileReader(
+                    context.getAssets().open(packageName + ".yaml"));
+            Map<String, Map> configData = configFileReader.getConfigData();
+            Map<String, Integer> visibility = (Map<String, Integer>) configData.get(configDataKey).get("visibility");
+
+            for (String s : visibility.keySet()) {
+                int resID = context.getResources().getIdentifier(s, "id", packageName);
+                View viewElement = view.findViewById(resID);
+                viewElement.setVisibility(visibility.get(s));
+            }
+        }
+        catch (IOException | NullPointerException e) {
+            throw e;
+        }
     }
 
     public static Class getConnectionSetupClass(Context context) {
