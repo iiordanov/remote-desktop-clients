@@ -277,7 +277,7 @@ public class Utils {
         return packageName.toLowerCase().contains("opaque");
     }
 
-    public static String getStringConfigAttribute(Context context, String configDataKey, String configDataKeyChild, String childAttribute) throws IOException {
+    public static String getStringConfigAttribute(Context context, String configDataKey, String configDataKeyChild, String childAttribute) throws IOException, NullPointerException {
         try {
             CustomClientConfigFileReader configFileReader = new CustomClientConfigFileReader(
                     context.getAssets().open(Utils.pName(context) + ".yaml"));
@@ -290,7 +290,7 @@ public class Utils {
         }
     }
 
-    public static void setVisibilityForViewElementsViaConfig(Context context, String configDataKey, View view) throws IOException {
+    public static void setVisibilityForViewElementsViaConfig(Context context, String configDataKey, View view) throws IOException, NullPointerException {
         try {
             String packageName = Utils.pName(context);
             CustomClientConfigFileReader configFileReader = new CustomClientConfigFileReader(
