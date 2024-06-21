@@ -7,6 +7,8 @@
     <string name="action_edit_default_settings">編輯默認設定</string>
     <string name="action_export_settings">匯出設定</string>
     <string name="action_delete_connection">刪除連接設定</string>
+    <string name="action_rate_or_share_app">說明、評價、分享</string>
+    <string name="get_help">說明</string>
     <string name="opaque_app_name">Opaque</string>
     <string name="opaque_app_name_beta">Opaque Beta</string>
     <string name="advanced_settings">進階設定</string>
@@ -218,7 +220,7 @@
     <string name="error_spice_unable_to_connect">沒能執行遠端命令。</string>
     <string name="error_ssh_could_not_exec_command">沒能執行遠端命令。</string>
     <string name="error_ssh_could_not_send_sudo_pwd">沒能發送sudo密碼。</string>
-    <string name="error_ssh_hostkey_changed">ERROR！伺服器主機密鑰已更改。如果有意這樣做，請刪除並重試連接。否則，這可能是中間人的攻擊，不能繼續。</string>
+    <string name="error_ssh_hostkey_changed">ERROR！伺服器主機密鑰已更改。如果這不是您故意變更的，就有可能是中間人攻擊。</string>
     <string name="error_ssh_kbd_auth_method_unavail">SSH伺服器都不支持\"password\"與\"keyboard-interactive\"這兩種認證方式，或者先要執行\"publickey\"方式。請設定為允許這兩種方式中的至少一種。或者重新設定本App。有效的認證方式：</string>
     <string name="error_ssh_key_auth_fail">透過密鑰對來向SSH伺服器認證失敗了。請確認SSH用戶名，並確認您的公開金鑰在遠端端的authorized_keys文件中。</string>
     <string name="error_ssh_keypair_decryption_failure">解密密鑰對失敗了。請確認您在主畫面的\'SSH Passphrase\'欄位中正確輸入了密碼。</string>
@@ -827,6 +829,7 @@ aSPICE對應的功能如下：
     <string name="enter_vnc_credentials">請輸入VNC憑據</string>
     <string name="enter_vnc_password">請輸入VNC密碼</string>
     <string name="enter_rdp_credentials">請輸入RDP憑據</string>
+    <string name="enter_gateway_credentials">請輸入閘道的驗證資訊。</string>
     <string name="enter_spice_password">請輸入SPICE密碼</string>
     <string name="enter_passphrase_title">輸入密鑰密碼</string>
     <string name="enter_passphrase">請輸入密鑰密碼</string>
@@ -846,7 +849,9 @@ aSPICE對應的功能如下：
 
 - 高級設置：在此有本地設備、協議和性能的調整。"</string>
     <string name="help">說明</string>
+    <string name="need_help">需要說明嗎？</string>
     <string name="support_forum">支援論壇</string>
+    <string name="email_us">給我們發Email 📧</string>
     <string name="report_bug">報告BUG</string>
     <string name="download_from_server">從伺服器下載</string>
     <string name="import_from_file">從檔案匯入</string>
@@ -855,6 +860,20 @@ aSPICE對應的功能如下：
     <string name="rdp_adv_gfxh264">RDP Gfx H264</string>
     <string name="more_debug_logging">更多調試記錄</string>
     <string name="prefer_sending_unicode">Unicode輸入(僅限Windows)</string>
-    <string name="hide_connection_thumbnails">隱藏縮圖</string>
-    <string name="show_only_connection_nicknames">只顯示暱稱</string>
+    <string name="hide_connection_thumbnails">隱藏連接縮略圖</string>
+    <string name="show_only_connection_nicknames">只顯示連接綽號</string>
+    <string name="love_our_work">你喜歡我們的工作嗎？</string>
+    <string name="rate_app">評價 ⭐⭐⭐⭐⭐</string>
+    <string name="share_app">分享 🔗</string>
+    <string name="share_app_toast">在社交媒體上與朋友們分享該App！</string>
+    <string name="donate_app">捐贈 ❤</string>
+    <string name="more_apps">其他App 📱</string>
+    <string name="previous_versions">版本履歷 ⍼</string>
+    <string name="keyboard_type">軟體鍵盤的類型</string>
+    <string name="pref_keyboard_type_label_TYPE_NULL">默認(TYPE_NULL)</string>
+    <string name="pref_keyboard_type_label_VISIBLE_PASSWORD">沒有文字／數字的提示功能 (VISIBLE_PASSWORD)</string>
+    <string name="pref_keyboard_type_label_TYPE_CLASS_TEXT">有文字提示功能 (TYPE_CLASS_TEXT)</string>
+    <string name="no_application_to_handle_vpn">此連線設定為透過外部應用程式啟動VPN。 您需要安裝像Morpheusly這樣的應用程式才能啟動它。</string>
+    <string name="vnc_viewer_started">VNC檢視器已啟動</string>
+    <string name="enable_gateway">啟用網關</string>
 </resources>
