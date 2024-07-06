@@ -1,3 +1,5 @@
+v5.4.9
+- Fix for RemoteGfx
 v5.4.8
 - Support for ACTION_BUTTON_PRESS and ACTION_BUTTON_RELEASE mouse actions
 v5.4.7
