@@ -54,6 +54,7 @@ public class ConnectionSettings implements Connection, Serializable {
     private String id = "";
     private String filename;
     private String connectionType = "";
+    private String connectionConfigFile = null;
     private String hostname = "";
     private String vmname = "";
     private String user = "";
@@ -265,6 +266,16 @@ public class ConnectionSettings implements Connection, Serializable {
 
     @Override
     public void setConnectionType(int connectionType) {
+    }
+
+    @Override
+    public String getConnectionConfigFile() {
+        return this.connectionConfigFile;
+    }
+
+    @Override
+    public void setConnectionConfigFile(String connectionConfigFile) {
+        this.connectionConfigFile = connectionConfigFile;
     }
 
     @Override

@@ -28,7 +28,7 @@ class RemoteRdpConnection(
         Log.i(tag, "initializeRdpConnection: Initializing RDP connection.")
         rdpComm = RdpCommunicator(
             connection, context, handler, canvas,
-            connection.userName, connection.rdpDomain, connection.password,
+            vvFileName, connection.userName, connection.rdpDomain, connection.password,
             App.debugLog
         )
         rfbConn = rdpComm

@@ -78,7 +78,8 @@ public class RemoteClientLibConstants {
     public static final int GET_RDP_GATEWAY_CREDENTIALS = 48;
     public static final int SHOW_KEYBOARD = 49;
     public static final int SHOW_KEYBOARD_ICON = 50;
-
+    public static final int RDP_OVER_HTTP_FAILURE = 51;
+    public static final int RDP_OVER_HTTPS_FAILURE = 52;
     public static final int PRO_FEATURE = 99;
     public static final int ADVANCED_SETTINGS = 1;
     public static final int DEFAULT_SETTINGS = 2;
@@ -94,6 +95,7 @@ public class RemoteClientLibConstants {
     public static final int URL_BUFFER_SIZE = 3000;
     public static final int VV_GET_FILE_TIMEOUT = 17000;
 
+    public static final int RDP_GET_FILE_TIMEOUT = 17000;
     public static final String PVE_DEFAULT_REALM = "pam";
 
     public static final int LOGCAT_MAX_LINES = 500;

@@ -477,6 +477,13 @@ public class RemoteCanvasHandler extends Handler implements HttpsFileDownloader.
             case RemoteClientLibConstants.VV_OVER_HTTPS_FAILURE:
                 MessageDialogs.displayMessageAndFinish(context, R.string.error_failed_to_download_vv_https,
                         R.string.error_dialog_title);
+            case RemoteClientLibConstants.RDP_OVER_HTTP_FAILURE:
+                MessageDialogs.displayMessageAndFinish(context, R.string.error_failed_to_download_rdp_http,
+                        R.string.error_dialog_title);
+                break;
+            case RemoteClientLibConstants.RDP_OVER_HTTPS_FAILURE:
+                MessageDialogs.displayMessageAndFinish(context, R.string.error_failed_to_download_rdp_https,
+                        R.string.error_dialog_title);
             case RemoteClientLibConstants.VV_DOWNLOAD_TIMEOUT:
                 MessageDialogs.displayMessageAndFinish(context, R.string.error_vv_download_timeout,
                         R.string.error_dialog_title);

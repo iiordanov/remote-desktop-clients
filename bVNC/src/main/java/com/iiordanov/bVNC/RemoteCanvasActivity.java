@@ -167,6 +167,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
     public RemoteClientsInputListener inputListener;
     private ImageButton keyboardIconForAndroidTv;
     float keyboardIconForAndroidTvX = Float.MAX_VALUE;
+    private String connectionConfigFileName = null;
 
     OnTouchViewMover toolbarMover;
     ActionBarPositionSaver toolbarPositionSaver = new ActionBarPositionSaver();
@@ -326,15 +327,18 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
             }
         };
 
-        String vvFileName = null;
+        if(Utils.isOpaque(this) || Utils.isRdp(this)) {
+            // TODO: the above if is a hacky solution, find a better one.
+            this.connectionConfigFileName = retrieveConfigFileFromIntent(getIntent());
+        }
         if (Utils.isOpaque(this)) {
-            vvFileName = retrieveVvFileFromIntent(getIntent());
-            connection = getOpaqueConnection(vvFileName);
+            connection = getOpaqueConnection(connectionConfigFileName);
         } else {
             connection = getNonOpaqueConnection();
         }
+        connection.setConnectionConfigFile(this.connectionConfigFileName);
         if (connection != null && connection.isReadyForConnection()) {
-            remoteConnection = new RemoteConnectionFactory(this, connection, canvas, vvFileName, hideKeyboardAndExtraKeys).build();
+            remoteConnection = new RemoteConnectionFactory(this, connection, canvas, this.connectionConfigFileName, hideKeyboardAndExtraKeys).build();
             handler = new RemoteCanvasHandler(this, canvas, remoteConnection, connection, setModes);
             handler.sendEmptyMessage(RemoteClientLibConstants.REINIT_SESSION);
             continueConnecting();
@@ -607,10 +611,10 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
      * @param i intent that started the activity
      * @return the vv file name or NULL if no file was discovered.
      */
-    private String retrieveVvFileFromIntent(Intent i) {
+    private String retrieveConfigFileFromIntent(Intent i) {
         final Uri data = i.getData();
-        String vvFileName = null;
-        final String tempVvFile = getFilesDir() + "/tempfile.vv";
+        String configFileName = null;
+        final String tempConfigFile = getFilesDir() + (Utils.isOpaque(this) ? "/tempfile.vv" : "/tempfile.rdp");
         int msgId = 0;
 
         Log.d(TAG, "Got intent: " + i);
@@ -620,8 +624,8 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
             final String dataString = data.toString();
             if (dataString.startsWith("http")) {
                 android.util.Log.d(TAG, "Intent is with http scheme.");
-                msgId = R.string.error_failed_to_download_vv_http;
-                FileUtils.deleteFile(tempVvFile);
+                msgId = Utils.isOpaque(this) ? R.string.error_failed_to_download_vv_http : R.string.error_failed_to_download_rdp_http;
+                FileUtils.deleteFile(tempConfigFile);
 
                 // Spin up a thread to grab the file over the network.
                 Thread t = new Thread() {
@@ -630,7 +634,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
                         try {
                             // Download the file and write it out.
                             URL url = new URL(data.toString());
-                            File file = new File(tempVvFile);
+                            File file = new File(tempConfigFile);
                             URLConnection ucon = url.openConnection();
                             FileUtils.outputToFile(ucon.getInputStream(), file);
 
@@ -638,11 +642,11 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
                                 RemoteCanvasActivity.this.notify();
                             }
                         } catch (IOException e) {
-                            int what = RemoteClientLibConstants.VV_OVER_HTTP_FAILURE;
+                            int what = Utils.isOpaque(getApplicationContext()) ? RemoteClientLibConstants.VV_OVER_HTTP_FAILURE : RemoteClientLibConstants.RDP_OVER_HTTP_FAILURE;
                             if (dataString.startsWith("https")) {
-                                what = RemoteClientLibConstants.VV_OVER_HTTPS_FAILURE;
+                                what = Utils.isOpaque(getApplicationContext()) ? RemoteClientLibConstants.VV_OVER_HTTPS_FAILURE : RemoteClientLibConstants.RDP_OVER_HTTPS_FAILURE;
                             }
-                            // Quit with an error we could not download the .vv file.
+                            // Quit with an error we could not download the .vv or .rdp file.
                             handler.sendEmptyMessage(what);
                         }
                     }
@@ -651,24 +655,24 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
 
                 synchronized (this) {
                     try {
-                        this.wait(RemoteClientLibConstants.VV_GET_FILE_TIMEOUT);
+                        this.wait(Utils.isOpaque(this) ? RemoteClientLibConstants.VV_GET_FILE_TIMEOUT : RemoteClientLibConstants.RDP_GET_FILE_TIMEOUT);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-                    vvFileName = tempVvFile;
+                    configFileName = tempConfigFile;
                 }
             } else if (dataString.startsWith("file")) {
                 Log.d(TAG, "Intent is with file scheme.");
-                msgId = R.string.error_failed_to_obtain_vv_file;
-                vvFileName = data.getPath();
+                msgId = Utils.isOpaque(this) ? R.string.error_failed_to_obtain_vv_file : R.string.error_failed_to_obtain_rdp_file;
+                configFileName = data.getPath();
             } else if (dataString.startsWith("content")) {
                 Log.d(TAG, "Intent is with content scheme.");
-                msgId = R.string.error_failed_to_obtain_vv_content;
-                FileUtils.deleteFile(tempVvFile);
+                msgId = Utils.isOpaque(this) ? R.string.error_failed_to_obtain_vv_content : R.string.error_failed_to_obtain_rdp_content;
+                FileUtils.deleteFile(tempConfigFile);
 
                 try {
-                    FileUtils.outputToFile(getContentResolver().openInputStream(data), new File(tempVvFile));
-                    vvFileName = tempVvFile;
+                    FileUtils.outputToFile(getContentResolver().openInputStream(data), new File(tempConfigFile));
+                    configFileName = tempConfigFile;
                 } catch (IOException e) {
                     Log.e(TAG, "Could not write temp file: IOException.");
                     e.printStackTrace();
@@ -680,13 +684,13 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
 
             // Check if we were successful in obtaining a file and put up an error dialog if not.
             if (dataString.startsWith("http") || dataString.startsWith("file") || dataString.startsWith("content")) {
-                if (vvFileName == null)
+                if (configFileName == null)
                     MessageDialogs.displayMessageAndFinish(this, msgId, R.string.error_dialog_title);
             }
-            android.util.Log.d(TAG, "Got filename: " + vvFileName);
+            android.util.Log.d(TAG, "Got filename: " + configFileName);
         }
 
-        return vvFileName;
+        return configFileName;
     }
 
     public void extraKeysToggle(MenuItem m) {
