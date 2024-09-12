@@ -25,14 +25,19 @@
 
 package com.iiordanov.bVNC.protocol;
 
+import static com.undatech.opaque.RemoteClientLibConstants.GET_FILE_TIMEOUT;
+
+import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
+import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -41,15 +46,17 @@ import android.widget.Toast;
 import com.iiordanov.bVNC.App;
 import com.iiordanov.bVNC.COLORMODEL;
 import com.iiordanov.bVNC.ClipboardMonitor;
+import com.iiordanov.bVNC.ConnectionBean;
 import com.iiordanov.bVNC.Constants;
 import com.iiordanov.bVNC.Decoder;
-import com.iiordanov.bVNC.RemoteCanvasActivity;
 import com.iiordanov.bVNC.SSHConnection;
 import com.iiordanov.bVNC.Utils;
 import com.iiordanov.bVNC.input.KeyInputHandler;
 import com.iiordanov.bVNC.input.PointerInputHandler;
 import com.iiordanov.bVNC.input.RemoteKeyboard;
+import com.iiordanov.util.UriIntentParser;
 import com.undatech.opaque.Connection;
+import com.undatech.opaque.ConnectionSettings;
 import com.undatech.opaque.InputCarriable;
 import com.undatech.opaque.MessageDialogs;
 import com.undatech.opaque.RemoteClientLibConstants;
@@ -68,8 +75,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Timer;
 
-abstract public class RemoteConnection implements PointerInputHandler, KeyInputHandler, InputCarriable {
+;
 
+abstract public class RemoteConnection implements PointerInputHandler, KeyInputHandler, InputCarriable {
     private final static String TAG = "RemoteConnection";
 
     // Connection parameters
@@ -86,7 +94,7 @@ abstract public class RemoteConnection implements PointerInputHandler, KeyInputH
      * Handler for the dialogs that display the x509/RDP/SSH key signatures to the user.
      * Also shows the dialogs which show various connection failures.
      */
-    public Handler handler;
+    public static Handler handler;
     public Map<String, String> vmNameToId = new HashMap<>();
     // RFB Decoder
     Decoder decoder = null;
@@ -98,9 +106,15 @@ abstract public class RemoteConnection implements PointerInputHandler, KeyInputH
     Timer clipboardMonitorTimer;
     ClipboardMonitor clipboardMonitor;
     boolean sshTunneled;
-    String configFileName;
+    static String configFileName;
     Context context;
     Viewable canvas;
+
+    static String configFileExtension = "rdp";
+    static int failedToObtainConfigFileMessageId = R.string.error_failed_to_obtain_rdp_file;
+    static int failedToObtainConfigFileAsContentMessageId = R.string.error_failed_to_obtain_rdp_content;
+    static int failedToObtainConfigFileOverHttpMessageId = R.string.error_failed_to_download_rdp_http;
+    static int failedToObtainConfigFileOverHttpsMessageId = R.string.error_failed_to_download_rdp_https;
 
     /**
      * Constructor used by the inflation apparatus
@@ -109,13 +123,11 @@ abstract public class RemoteConnection implements PointerInputHandler, KeyInputH
             final Context context,
             Connection connection,
             Viewable canvas,
-            String configFileName,
             Runnable hideKeyboardAndExtraKeys
     ) {
         this.context = context;
         this.connection = connection;
         this.canvas = canvas;
-        this.configFileName = configFileName;
         this.hideKeyboardAndExtraKeys = hideKeyboardAndExtraKeys;
         this.sshTunneled = connection.getConnectionType() == Constants.CONN_TYPE_SSH;
         this.clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
@@ -132,86 +144,77 @@ abstract public class RemoteConnection implements PointerInputHandler, KeyInputH
         this.pd.setCancelable(false);
     }
 
-    static public String retrieveConfigFileFromIntent(Intent i, RemoteCanvasActivity remoteCanvasActivity) {
-        final Uri data = i.getData();
-        String configFileName = null;
-        final String tempConfigFile = remoteCanvasActivity.getFilesDir() + (Utils.isOpaque(remoteCanvasActivity) ? "/tempfile.vv" : "/tempfile.rdp");
-        int msgId = 0;
 
-        Log.d(TAG, "Got intent: " + i);
-
-        if (data != null) {
-            Log.d(TAG, "Got data: " + data);
-            final String dataString = data.toString();
-            if (dataString.startsWith("http")) {
-                android.util.Log.d(TAG, "Intent is with http scheme.");
-                msgId = Utils.isOpaque(remoteCanvasActivity) ? R.string.error_failed_to_download_vv_http : R.string.error_failed_to_download_rdp_http;
-                FileUtils.deleteFile(tempConfigFile);
-
-                // Spin up a thread to grab the file over the network.
-                Thread t = new Thread() {
-                    @Override
-                    public void run() {
-                    try {
-                        // Download the file and write it out.
-                        URL url = new URL(data.toString());
-                        File file = new File(tempConfigFile);
-                        URLConnection ucon = url.openConnection();
-                        FileUtils.outputToFile(ucon.getInputStream(), file);
-
-                        synchronized (remoteCanvasActivity) {
-                            remoteCanvasActivity.notify();
-                        }
-                    } catch (IOException e) {
-                        int what = Utils.isOpaque(remoteCanvasActivity) ? RemoteClientLibConstants.VV_OVER_HTTP_FAILURE : RemoteClientLibConstants.RDP_OVER_HTTP_FAILURE;
-                        if (dataString.startsWith("https")) {
-                            what = Utils.isOpaque(remoteCanvasActivity) ? RemoteClientLibConstants.VV_OVER_HTTPS_FAILURE : RemoteClientLibConstants.RDP_OVER_HTTPS_FAILURE;
-                        }
-                        // Quit with an error we could not download the .vv or .rdp file.
-                        remoteCanvasActivity.getHandler().sendEmptyMessage(what);
-                    }
-                    }
-                };
-                t.start();
-
-                synchronized (remoteCanvasActivity) {
-                    try {
-                        remoteCanvasActivity.wait(Utils.isOpaque(remoteCanvasActivity) ? RemoteClientLibConstants.VV_GET_FILE_TIMEOUT : RemoteClientLibConstants.RDP_GET_FILE_TIMEOUT);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                    configFileName = tempConfigFile;
-                }
-            } else if (dataString.startsWith("file")) {
-                Log.d(TAG, "Intent is with file scheme.");
-                msgId = Utils.isOpaque(remoteCanvasActivity) ? R.string.error_failed_to_obtain_vv_file : R.string.error_failed_to_obtain_rdp_file;
-                configFileName = data.getPath();
-            } else if (dataString.startsWith("content")) {
-                Log.d(TAG, "Intent is with content scheme.");
-                msgId = Utils.isOpaque(remoteCanvasActivity) ? R.string.error_failed_to_obtain_vv_content : R.string.error_failed_to_obtain_rdp_content;
-                FileUtils.deleteFile(tempConfigFile);
-
-                try {
-                    FileUtils.outputToFile(remoteCanvasActivity.getContentResolver().openInputStream(data), new File(tempConfigFile));
-                    configFileName = tempConfigFile;
-                } catch (IOException e) {
-                    Log.e(TAG, "Could not write temp file: IOException.");
-                    e.printStackTrace();
-                } catch (SecurityException e) {
-                    Log.e(TAG, "Could not write temp file: SecurityException.");
-                    e.printStackTrace();
-                }
-            }
-
-            // Check if we were successful in obtaining a file and put up an error dialog if not.
-            if (dataString.startsWith("http") || dataString.startsWith("file") || dataString.startsWith("content")) {
-                if (configFileName == null)
-                    MessageDialogs.displayMessageAndFinish(remoteCanvasActivity, msgId, R.string.error_dialog_title);
-            }
-            android.util.Log.d(TAG, "Got filename: " + configFileName);
+    public static Connection getRemoteConnectionSettings(Intent i, Context context, boolean masterPasswordEnabled) throws MasterPasswordNotSupportedForIntentsException {
+        Connection connection;
+        if (Utils.isOpaque(context)) {
+            return getOpaqueConnection(i, context);
         }
 
-        return configFileName;
+        Uri data = i.getData();
+        boolean isSupportedScheme = isSupportedScheme(data);
+        if (isSupportedScheme || !Utils.isNullOrEmptry(i.getType())) {
+            connection = handleSupportedUri(data, context, masterPasswordEnabled);
+        } else {
+            connection = loadSerializedConnection(i, context);
+        }
+        return connection;
+    }
+
+    @SuppressLint("SourceLockedOrientationActivity")
+    private static Connection getOpaqueConnection(Intent i, Context context) {
+        Connection connection;
+        if (configFileName == null) {
+            Log.d(TAG, "Initializing session from connection settings.");
+            connection = (ConnectionSettings) i.getSerializableExtra(Constants.opaqueConnectionSettingsClassPath);
+        } else {
+            connection = new ConnectionSettings(RemoteClientLibConstants.DEFAULT_SETTINGS_FILE);
+            connection.load(context);
+        }
+        return connection;
+    }
+
+    private static boolean isSupportedScheme(Uri data) {
+        boolean isSupportedScheme = false;
+        if (data != null) {
+            String s = data.getScheme();
+            isSupportedScheme = "rdp".equals(s) || "spice".equals(s) || "vnc".equals(s);
+        }
+        return isSupportedScheme;
+    }
+
+    private static Connection handleSupportedUri(Uri data, Context context, boolean masterPasswordEnabled) throws MasterPasswordNotSupportedForIntentsException {
+        Log.d(TAG, "Initializing classic connection from Intent.");
+        if (masterPasswordEnabled) {
+            throw new MasterPasswordNotSupportedForIntentsException();
+        }
+
+        return createConnectionFromUri(data, context);
+    }
+
+    private static Connection loadSerializedConnection(Intent i, Context context) {
+        Log.d(TAG, "Initializing serialized connection");
+        Connection connection = new ConnectionBean(context);
+        Bundle extras = i.getExtras();
+
+        if (extras != null) {
+            Log.d(TAG, "Loading values from serialized connection");
+            connection.populateFromContentValues((ContentValues) extras.getParcelable(Utils.getConnectionString(context)));
+            connection.load(context);
+        }
+        return connection;
+    }
+
+    private static Connection createConnectionFromUri(Uri data, Context context) {
+        Connection connection = UriIntentParser.loadFromUriOrCreateNew(data, context);
+        String host = null;
+        if (data != null) {
+            host = data.getHost();
+        }
+        if (host != null && !host.startsWith(Utils.getConnectionString(context))) {
+            UriIntentParser.parseFromUri(context, connection, data);
+        }
+        return connection;
     }
 
     public RfbConnectable getRfbConn() {
@@ -476,5 +479,101 @@ abstract public class RemoteConnection implements PointerInputHandler, KeyInputH
 
     public boolean onKeyAsPointerEvent(int keyCode, KeyEvent event) {
         return pointer.hardwareButtonsAsMouseEvents(keyCode, event, 0);
+    }
+
+    /**
+     * Retrieves a vv file from the intent if possible and returns the path to it.
+     *
+     * @param i intent that started the activity
+     * @return the vv file name or NULL if no file was discovered.
+     */
+    public static int retrieveConfigFileFromIntent(Intent i, String filesDir, Context context, Object waitOn) {
+        setFileExtensionAndErrorMessageStrings(context);
+        final Uri data = i.getData();
+        String configFileName = null;
+        final String tempConfigFile = filesDir + "/tempfile." + configFileExtension;
+        final int[] msgId = {failedToObtainConfigFileMessageId};
+
+        Log.d(TAG, "Got intent: " + i);
+
+        if (data != null) {
+            Log.d(TAG, "Got data: " + data);
+            final String dataString = data.toString();
+            if (dataString.startsWith("http")) {
+                android.util.Log.d(TAG, "Intent is with http scheme.");
+                FileUtils.deleteFile(tempConfigFile);
+
+                // Spin up a thread to grab the file over the network.
+                Thread t = new Thread() {
+                    @Override
+                    public void run() {
+                        try {
+                            // Download the file and write it out.
+                            URL url = new URL(data.toString());
+                            File file = new File(tempConfigFile);
+                            URLConnection ucon = url.openConnection();
+                            FileUtils.outputToFile(ucon.getInputStream(), file);
+
+                            synchronized (waitOn) {
+                                waitOn.notify();
+                            }
+                        } catch (IOException e) {
+                            msgId[0] = failedToObtainConfigFileOverHttpMessageId;
+                            if (dataString.startsWith("https")) {
+                                msgId[0] = failedToObtainConfigFileOverHttpsMessageId;
+                            }
+                        }
+                    }
+                };
+                t.start();
+
+                synchronized (waitOn) {
+                    try {
+                        waitOn.wait(GET_FILE_TIMEOUT);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    configFileName = tempConfigFile;
+                }
+            } else if (dataString.startsWith("file")) {
+                Log.d(TAG, "Intent is with file scheme.");
+                msgId[0] = failedToObtainConfigFileMessageId;
+                configFileName = data.getPath();
+            } else if (dataString.startsWith("content")) {
+                Log.d(TAG, "Intent is with content scheme.");
+                msgId[0] = failedToObtainConfigFileAsContentMessageId;
+                FileUtils.deleteFile(tempConfigFile);
+
+                try {
+                    FileUtils.outputToFile(context.getContentResolver().openInputStream(data), new File(tempConfigFile));
+                    configFileName = tempConfigFile;
+                } catch (IOException e) {
+                    Log.e(TAG, "Could not write temp file: IOException.");
+                    e.printStackTrace();
+                } catch (SecurityException e) {
+                    Log.e(TAG, "Could not write temp file: SecurityException.");
+                    e.printStackTrace();
+                }
+            }
+
+            // Check if we were successful in obtaining a file and put up an error dialog if not.
+            if (dataString.startsWith("http") || dataString.startsWith("file") || dataString.startsWith("content")
+                    && configFileName == null) {
+                return msgId[0];
+            }
+            android.util.Log.d(TAG, "Got filename: " + configFileName);
+        }
+        RemoteConnection.configFileName = configFileName;
+        return 0;
+    }
+
+    private static void setFileExtensionAndErrorMessageStrings(Context context) {
+        if (Utils.isOpaque(context)) {
+            configFileExtension = "vv";
+            failedToObtainConfigFileMessageId = R.string.error_failed_to_obtain_vv_file;
+            failedToObtainConfigFileAsContentMessageId = R.string.error_failed_to_obtain_vv_content;
+            failedToObtainConfigFileOverHttpMessageId = R.string.error_failed_to_download_vv_http;
+            failedToObtainConfigFileOverHttpsMessageId = R.string.error_failed_to_download_vv_https;
+        }
     }
 }

@@ -1,8 +1,8 @@
 package com.iiordanov.bVNC.protocol
 
 import android.content.Context
+import android.content.Intent
 import android.util.Log
-import android.view.KeyEvent
 import com.iiordanov.bVNC.App
 import com.iiordanov.bVNC.COLORMODEL
 import com.iiordanov.bVNC.Constants
@@ -10,6 +10,7 @@ import com.iiordanov.bVNC.Utils
 import com.iiordanov.bVNC.input.RemoteSpiceKeyboard
 import com.iiordanov.bVNC.input.RemoteSpicePointer
 import com.undatech.opaque.Connection
+import com.undatech.opaque.ConnectionSettings
 import com.undatech.opaque.MessageDialogs
 import com.undatech.opaque.RemoteClientLibConstants
 import com.undatech.opaque.SpiceCommunicator
@@ -21,9 +22,8 @@ open class RemoteOpaqueConnection(
     context: Context,
     connection: Connection?,
     canvas: Viewable,
-    configFileName: String?,
     hideKeyboardAndExtraKeys: Runnable,
-) : RemoteConnection(context, connection, canvas, configFileName, hideKeyboardAndExtraKeys) {
+) : RemoteConnection(context, connection, canvas, hideKeyboardAndExtraKeys) {
     private val tag: String = "RemoteOpaqueConnection"
     protected var spiceComm: SpiceCommunicator? = null
 

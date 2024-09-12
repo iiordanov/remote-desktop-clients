@@ -15,9 +15,8 @@ class RemoteRdpConnection(
     context: Context,
     connection: Connection?,
     canvas: Viewable,
-    configFileName: String?,
     hideKeyboardAndExtraKeys: Runnable,
-) : RemoteConnection(context, connection, canvas, configFileName, hideKeyboardAndExtraKeys) {
+) : RemoteConnection(context, connection, canvas, hideKeyboardAndExtraKeys) {
     private val tag: String = "RemoteRdpConnection"
     private var rdpComm: RdpCommunicator? = null
 

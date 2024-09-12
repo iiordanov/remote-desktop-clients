@@ -85,18 +85,11 @@ public class RemoteClientLibConstants {
     public static final int DEFAULT_SETTINGS = 2;
     public static final int IMPORT_SETTINGS_REQUEST_CODE = 3;
     public static final int EXPORT_SETTINGS_REQUEST_CODE = 4;
-
     public static final String DEFAULT_LAYOUT_MAP = "English (US)";
-
     public static final String ACTION_USB_PERMISSION = "com.undatech.opaque.USB_PERMISSION";
-
     public static final String DEFAULT_SETTINGS_FILE = "defaultSettings";
-
     public static final int URL_BUFFER_SIZE = 3000;
-    public static final int VV_GET_FILE_TIMEOUT = 17000;
-
-    public static final int RDP_GET_FILE_TIMEOUT = 17000;
+    public static final int GET_FILE_TIMEOUT = 17000;
     public static final String PVE_DEFAULT_REALM = "pam";
-
     public static final int LOGCAT_MAX_LINES = 500;
 }
