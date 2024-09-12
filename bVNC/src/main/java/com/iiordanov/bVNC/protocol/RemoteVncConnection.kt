@@ -28,9 +28,9 @@ class RemoteVncConnection(
     context: Context,
     connection: Connection?,
     canvas: Viewable,
-    vvFileName: String?,
+    configFileName: String?,
     hideKeyboardAndExtraKeys: Runnable,
-) : RemoteConnection(context, connection, canvas, vvFileName, hideKeyboardAndExtraKeys) {
+) : RemoteConnection(context, connection, canvas, configFileName, hideKeyboardAndExtraKeys) {
     private val tag: String = "RemoteVncConnection"
     private var rfb: RfbProto? = null
 

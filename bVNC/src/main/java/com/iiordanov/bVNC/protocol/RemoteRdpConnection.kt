@@ -15,9 +15,9 @@ class RemoteRdpConnection(
     context: Context,
     connection: Connection?,
     canvas: Viewable,
-    vvFileName: String?,
+    configFileName: String?,
     hideKeyboardAndExtraKeys: Runnable,
-) : RemoteConnection(context, connection, canvas, vvFileName, hideKeyboardAndExtraKeys) {
+) : RemoteConnection(context, connection, canvas, configFileName, hideKeyboardAndExtraKeys) {
     private val tag: String = "RemoteRdpConnection"
     private var rdpComm: RdpCommunicator? = null
 
@@ -28,7 +28,7 @@ class RemoteRdpConnection(
         Log.i(tag, "initializeRdpConnection: Initializing RDP connection.")
         rdpComm = RdpCommunicator(
             connection, context, handler, canvas,
-            vvFileName, connection.userName, connection.rdpDomain, connection.password,
+            configFileName, connection.userName, connection.rdpDomain, connection.password,
             App.debugLog
         )
         rfbConn = rdpComm

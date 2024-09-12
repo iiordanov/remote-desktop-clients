@@ -10,7 +10,7 @@ class RemoteConnectionFactory(
     val context: Context,
     val connection: Connection?,
     val viewable: Viewable,
-    private val vvFileName: String?,
+    private val configFileName: String?,
     private val hideKeyboardAndExtraKeys: Runnable,
 ) {
     // This flag indicates whether this is the VNC client
@@ -33,25 +33,25 @@ class RemoteConnectionFactory(
     private var isProxmox =
         connection?.connectionTypeString == context.resources.getString(R.string.connection_type_pve)
 
-    private var isOpaqueHandlingVvFile = isOpaque && vvFileName != null
+    private var isOpaqueHandlingVvFile = isOpaque && configFileName != null
 
     fun build(): RemoteConnection {
         val remoteConnection: RemoteConnection
         if (isSpice) {
             remoteConnection =
-                RemoteSpiceConnection(context, connection, viewable, vvFileName, hideKeyboardAndExtraKeys)
+                RemoteSpiceConnection(context, connection, viewable, configFileName, hideKeyboardAndExtraKeys)
         } else if (isRdp) {
-            remoteConnection = RemoteRdpConnection(context, connection, viewable, vvFileName, hideKeyboardAndExtraKeys)
+            remoteConnection = RemoteRdpConnection(context, connection, viewable, configFileName, hideKeyboardAndExtraKeys)
         } else if (isVnc) {
-            remoteConnection = RemoteVncConnection(context, connection, viewable, vvFileName, hideKeyboardAndExtraKeys)
+            remoteConnection = RemoteVncConnection(context, connection, viewable, configFileName, hideKeyboardAndExtraKeys)
         } else if (isOpaque) {
             remoteConnection = if (isOvirt) {
-                RemoteOvirtConnection(context, connection, viewable, vvFileName, hideKeyboardAndExtraKeys)
+                RemoteOvirtConnection(context, connection, viewable, configFileName, hideKeyboardAndExtraKeys)
             } else if (isProxmox) {
-                RemoteProxmoxConnection(context, connection, viewable, vvFileName, hideKeyboardAndExtraKeys)
+                RemoteProxmoxConnection(context, connection, viewable, configFileName, hideKeyboardAndExtraKeys)
             } else if (isOpaqueHandlingVvFile) {
                 // For handling vv files
-                RemoteOpaqueConnection(context, connection, viewable, vvFileName, hideKeyboardAndExtraKeys)
+                RemoteOpaqueConnection(context, connection, viewable, configFileName, hideKeyboardAndExtraKeys)
             } else {
                 throw IllegalStateException("Connection must be one of oVirt or Proxmox if app type is Opaque")
             }

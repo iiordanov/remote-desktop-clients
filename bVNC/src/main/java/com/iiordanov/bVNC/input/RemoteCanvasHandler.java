@@ -563,7 +563,7 @@ public class RemoteCanvasHandler extends Handler implements HttpsFileDownloader.
                         false);
                 break;
             case RemoteClientLibConstants.PVE_FAILED_TO_AUTHENTICATE:
-                if (remoteConnection.getVvFileName() != null) {
+                if (remoteConnection.getConfigFileName() != null) {
                     MessageDialogs.displayMessageAndFinish(context, R.string.error_pve_failed_to_authenticate,
                             R.string.error_dialog_title);
                 } else {
@@ -578,7 +578,7 @@ public class RemoteCanvasHandler extends Handler implements HttpsFileDownloader.
                 }
                 break;
             case RemoteClientLibConstants.OVIRT_AUTH_FAILURE:
-                if (remoteConnection.getVvFileName() != null) {
+                if (remoteConnection.getConfigFileName() != null) {
                     remoteConnection.disconnectAndShowMessage(R.string.error_ovirt_auth_failure, R.string.error_dialog_title);
                 } else {
                     remoteConnection.maintainConnection = false;

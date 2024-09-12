@@ -1619,6 +1619,8 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
         return remoteConnection;
     }
 
+    public Handler getHandler() { return handler; }
+
     private class ActionBarPositionSaver implements Runnable {
         public void run() {
             connection.setUseLastPositionToolbarX(toolbarMover.getLastX());

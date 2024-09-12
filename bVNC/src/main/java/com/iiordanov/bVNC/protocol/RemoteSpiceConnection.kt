@@ -18,9 +18,9 @@ class RemoteSpiceConnection(
     context: Context,
     connection: Connection?,
     canvas: Viewable,
-    vvFileName: String?,
+    configFileName: String?,
     hideKeyboardAndExtraKeys: Runnable,
-) : RemoteConnection(context, connection, canvas, vvFileName, hideKeyboardAndExtraKeys) {
+) : RemoteConnection(context, connection, canvas, configFileName, hideKeyboardAndExtraKeys) {
     private val tag: String = "RemoteVncConnection"
     private var spiceComm: SpiceCommunicator? = null
 
