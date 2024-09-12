@@ -51,12 +51,6 @@ import android.widget.ScrollView;
 
 import com.antlersoft.android.contentxml.SqliteElement;
 import com.antlersoft.android.contentxml.SqliteElement.ReplaceStrategy;
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GoogleApiAvailability;
-import com.google.android.gms.tasks.Task;
-import com.google.android.play.core.review.ReviewInfo;
-import com.google.android.play.core.review.ReviewManager;
-import com.google.android.play.core.review.ReviewManagerFactory;
 import com.undatech.opaque.AbstractDrawableData;
 import com.undatech.opaque.ConnectionSetupActivity;
 import com.undatech.remoteClientUi.R;
@@ -628,25 +622,6 @@ public class Utils {
         } catch (ActivityNotFoundException e) {
             Log.e(TAG, "startUriIntent: ActivityNotFoundException caught.");
         }
-    }
-
-    public static void showRateAppDialog(Activity activity) {
-        ReviewManager manager = ReviewManagerFactory.create(activity);
-        Task<ReviewInfo> request = manager.requestReviewFlow();
-        request.addOnCompleteListener(task -> {
-            GoogleApiAvailability apiAvailability = GoogleApiAvailability.getInstance();
-            if (apiAvailability.isGooglePlayServicesAvailable(activity) == ConnectionResult.SUCCESS) {
-                if (task.isSuccessful()) {
-                    ReviewInfo reviewInfo = task.getResult();
-                    Task<Void> flow = manager.launchReviewFlow(activity, reviewInfo);
-                    flow.addOnCompleteListener(completedTask -> {
-                        Log.d(TAG, "rateApp: Completed: " + completedTask.getResult());
-                    });
-                } else {
-                    Log.d(TAG, "rateApp: task is not successful");
-                }
-            }
-        });
     }
 
     public static void setClipboard(Context context, String url) {

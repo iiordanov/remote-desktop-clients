@@ -17,6 +17,16 @@ android {
         }
     }
 
+    flavorDimensions += "googleDependencies"
+    productFlavors {
+        withGoogle {
+            dimension "googleDependencies"
+        }
+        withoutGoogle {
+            dimension "googleDependencies"
+        }
+    }
+
     packagingOptions {
         exclude 'lib/armeabi/libsqlcipher.so'
         exclude 'lib/mips64/libsqlcipher.so'
@@ -52,10 +62,10 @@ dependencies {
     implementation "androidx.core:core-ktx:1.7.0"
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 
-    implementation 'com.google.android.play:review:2.0.1'
-    implementation 'com.google.android.play:review-ktx:2.0.1'
+    withGoogleImplementation 'com.google.android.play:review:2.0.1'
+    withGoogleImplementation 'com.google.android.play:review-ktx:2.0.1'
     implementation project(path: ':common')
-    implementation 'com.google.android.gms:play-services-base:18.0.1'
+    withGoogleImplementation 'com.google.android.gms:play-services-base:18.0.1'
 }
 repositories {
     mavenCentral()

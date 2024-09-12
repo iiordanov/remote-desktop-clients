@@ -61,6 +61,7 @@ import com.iiordanov.bVNC.App;
 import com.iiordanov.bVNC.ConnectionBean;
 import com.iiordanov.bVNC.Constants;
 import com.iiordanov.bVNC.Database;
+import com.iiordanov.bVNC.GoogleUtils;
 import com.iiordanov.bVNC.RemoteCanvasActivity;
 import com.iiordanov.bVNC.Utils;
 import com.iiordanov.bVNC.dialogs.GetTextFragment;
@@ -591,7 +592,7 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
 
     public void rateApp(View item) {
         Log.d(TAG, "rateApp: Showing rate app functionality");
-        Utils.showRateAppDialog(this);
+        GoogleUtils.showRateAppDialog(this);
     }
 
     public void shareApp(View item) {

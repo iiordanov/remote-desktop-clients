@@ -20,6 +20,18 @@ android {
         }
     }
 
+    flavorDimensions += "googleDependencies"
+    productFlavors {
+        withGoogle {
+            dimension "googleDependencies"
+            matchingFallbacks ["withGoogle"]
+        }
+        withoutGoogle {
+            dimension "googleDependencies"
+            matchingFallbacks ["withoutGoogle"]
+        }
+    }
+
     sourceSets.main {
         java.srcDirs += 'src/main/java'
     }
