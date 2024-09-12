@@ -20,10 +20,15 @@
 
 package com.iiordanov.bVNC.input;
 
+import android.content.Context;
+import android.graphics.Point;
+import android.os.Build;
 import android.os.SystemClock;
+import android.view.Display;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
+import android.view.WindowManager;
 
 import androidx.core.view.InputDeviceCompat;
 
@@ -145,12 +150,53 @@ abstract class TouchInputHandlerGeneric extends GestureDetector.SimpleOnGestureL
     }
 
     /**
+     * When in DeX mode (desktop mode), the app can be windowed, meaning there is a border around the
+     * app with a title bar at the top that contains buttons to close, minimize and maximize the app.
+     * <p>
+     * This function computes the height of the title bar, using the assumption that the bottom
+     * window border has the same thickness as the left and right borders.
+     *
+     * @return The height of the title bar, a non-negative integer (>= 0).
+     */
+    protected int getTitleBarHeight() {
+        Display display;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            display = activity.getDisplay();
+            if (display == null) {
+                return 0;
+            }
+        } else {
+            WindowManager windowManager = (WindowManager) activity.getSystemService(Context.WINDOW_SERVICE);
+            display = windowManager.getDefaultDisplay();
+        }
+
+        // 1. Get the window's total dimensions (including the window borders)
+        Point size = new Point();
+        display.getSize(size);
+        int totalWidth = size.x;
+        int totalHeight = size.y;
+
+        // 2. Get the height of the app without the window borders
+        int contentHeight = canvas.getHeight();
+
+        // 3. A bit of a hack here. The total height (including window borders) includes
+        // both the top and bottom borders. This method only returns the height of the top border.
+        // It is assumed that the bottom border has the same thickness as the left and right ones.
+        // Hence the left and right borders are used to compute and subtract the bottom one.
+        int contentWidth = canvas.getWidth();
+        int leftRightBorder = (totalWidth - contentWidth) / 2;
+
+        // Ensure the return value is non-negative
+        return Math.max(totalHeight - contentHeight - leftRightBorder, 0);
+    }
+
+    /**
      * Function to get appropriate Y coordinate from motion event for this input handler.
      * @return the appropriate Y coordinate.
      */
     protected int getY(MotionEvent e) {
         float scale = canvas.getZoomFactor();
-        return (int) (canvas.getAbsY() + (e.getY() - 1.f * canvas.getTop()) / scale);
+        return (int) (canvas.getAbsY() + (e.getY() - 1.f * canvas.getTop()) / scale) - (int) (1.f * getTitleBarHeight() / scale);
     }
 
     /**
@@ -165,7 +211,7 @@ abstract class TouchInputHandlerGeneric extends GestureDetector.SimpleOnGestureL
         final int bstate = e.getButtonState();
         float scale = canvas.getZoomFactor();
         int x = (int) (canvas.getAbsX() + e.getX() / scale);
-        int y = (int) (canvas.getAbsY() + (e.getY() - 1.f * canvas.getTop()) / scale);
+        int y = (int) (canvas.getAbsY() + (e.getY() - 1.f * canvas.getTop()) / scale) - (int) (1.f * getTitleBarHeight() / scale);
 
         switch (action) {
             // If a mouse button was pressed or mouse was moved.
