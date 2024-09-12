@@ -70,8 +70,13 @@ class UsbDeviceManager(val context: Context, val usbEnabled: Boolean) {
         Log.i(TAG, "Requesting permissions for all USB devices")
         val d = this.getUnrequested()
         if (d != null) {
-            val flags = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            val flags = if (Build.VERSION.SDK_INT > Build.VERSION_CODES.TIRAMISU) {
                 PendingIntent.FLAG_IMMUTABLE
+            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                // Special case for Android 13, because for some reasons FLAG_IMMUTABLE causes
+                // issues with USB forwarding.
+                // See https://github.com/iiordanov/remote-desktop-clients/issues/526
+                PendingIntent.FLAG_MUTABLE
             } else {
                 0
             };
