@@ -41,6 +41,7 @@ public class RdpCommunicator extends RfbConnectable implements RdpKeyboardMapper
     private final Viewable viewable;
     private SessionState session;
     private BookmarkBase bookmark;
+    private String rdpFileName;
     // Keeps track of libFreeRDP instance
     private GlobalApp freeRdpApp;
     private Context context;
@@ -59,7 +60,7 @@ public class RdpCommunicator extends RfbConnectable implements RdpKeyboardMapper
 
     public RdpCommunicator(Connection connection,
             Context context, Handler handler, Viewable viewable,
-            String username, String domain, String password,
+            String rdpFileName, String username, String domain, String password,
             boolean debugLogging
     ) {
         super(debugLogging, handler);
@@ -69,6 +70,7 @@ public class RdpCommunicator extends RfbConnectable implements RdpKeyboardMapper
         patchFreeRdpCore();
         // Create a manual bookmark and populate it from settings.
         this.bookmark = new ManualBookmark();
+        this.rdpFileName = rdpFileName;
         this.context = context;
         this.viewable = viewable;
         this.myself = this;
@@ -83,7 +85,7 @@ public class RdpCommunicator extends RfbConnectable implements RdpKeyboardMapper
         modifierMap.put(RemoteKeyboard.RSUPER_MASK, (VK_RWIN | VK_EXT_KEY));
         modifierMap.put(RemoteKeyboard.SHIFT_MASK, VK_LSHIFT);
         modifierMap.put(RemoteKeyboard.RSHIFT_MASK, VK_RSHIFT);
-        initSession(username, domain, password);
+        initSession(rdpFileName, username, domain, password);
     }
 
     private void patchFreeRdpCore() {
@@ -277,7 +279,8 @@ public class RdpCommunicator extends RfbConnectable implements RdpKeyboardMapper
         // TODO Auto-generated method stub
     }
 
-    private void initSession(String username, String domain, String password) {
+    private void initSession(String rdpFileName, String username, String domain, String password) {
+        bookmark.setRdpFileName(rdpFileName);
         bookmark.setUsername(username);
         bookmark.setDomain(domain);
         bookmark.setPassword(password);
@@ -395,7 +398,7 @@ public class RdpCommunicator extends RfbConnectable implements RdpKeyboardMapper
             reattemptWithoutCredentials = false;
             // It could be bad credentials that caused the disconnection, so trying to connect
             // once again with no credentials before reporting the type of failure.
-            initSession("", "", "");
+            initSession(null, "", "", "");
             connect();
         } else if (authenticationAttempted && !myself.isInNormalProtocol()) {
             Log.v(TAG, "Sending message: GET_RDP_CREDENTIALS");
@@ -437,7 +440,7 @@ public class RdpCommunicator extends RfbConnectable implements RdpKeyboardMapper
             connection.setRdpColor(bpp);
             connection.save(context);
             close();
-            initSession(username, domain, password);
+            initSession(rdpFileName, username, domain, password);
             connect();
         }
         viewable.reallocateDrawable(width, height);

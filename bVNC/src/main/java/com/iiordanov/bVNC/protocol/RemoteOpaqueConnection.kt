@@ -1,8 +1,8 @@
 package com.iiordanov.bVNC.protocol
 
 import android.content.Context
+import android.content.Intent
 import android.util.Log
-import android.view.KeyEvent
 import com.iiordanov.bVNC.App
 import com.iiordanov.bVNC.COLORMODEL
 import com.iiordanov.bVNC.Constants
@@ -10,6 +10,7 @@ import com.iiordanov.bVNC.Utils
 import com.iiordanov.bVNC.input.RemoteSpiceKeyboard
 import com.iiordanov.bVNC.input.RemoteSpicePointer
 import com.undatech.opaque.Connection
+import com.undatech.opaque.ConnectionSettings
 import com.undatech.opaque.MessageDialogs
 import com.undatech.opaque.RemoteClientLibConstants
 import com.undatech.opaque.SpiceCommunicator
@@ -21,9 +22,8 @@ open class RemoteOpaqueConnection(
     context: Context,
     connection: Connection?,
     canvas: Viewable,
-    vvFileName: String?,
     hideKeyboardAndExtraKeys: Runnable,
-) : RemoteConnection(context, connection, canvas, vvFileName, hideKeyboardAndExtraKeys) {
+) : RemoteConnection(context, connection, canvas, hideKeyboardAndExtraKeys) {
     private val tag: String = "RemoteOpaqueConnection"
     protected var spiceComm: SpiceCommunicator? = null
 
@@ -46,16 +46,16 @@ open class RemoteOpaqueConnection(
             handleUncaughtException(e, R.string.error_spice_unable_to_connect)
         }
         maintainConnection = true
-        if (vvFileName == null) {
+        if (configFileName == null) {
             startConnection()
         } else {
-            Log.d(tag, "Initializing session from vv file: $vvFileName")
-            val f = File(vvFileName)
+            Log.d(tag, "Initializing session from vv file: $configFileName")
+            val f = File(configFileName)
             if (!f.exists()) {
                 // Quit with an error if the file does not exist.
                 MessageDialogs.displayMessageAndFinish(context, R.string.vv_file_not_found, R.string.error_dialog_title)
             }
-            startFromVvFile(vvFileName)
+            startFromVvFile(configFileName)
         }
         initializeClipboardMonitor()
     }
@@ -64,11 +64,11 @@ open class RemoteOpaqueConnection(
 
     }
 
-    open fun startFromVvFile(vvFileName: String?) {
+    open fun startFromVvFile(configFileName: String?) {
         val cThread: Thread = object : Thread() {
             override fun run() {
                 try {
-                    spiceComm?.startSessionFromVvFile(vvFileName, connection.isAudioPlaybackEnabled)
+                    spiceComm?.startSessionFromVvFile(configFileName, connection.isAudioPlaybackEnabled)
                 } catch (e: Throwable) {
                     handleUncaughtException(e, R.string.error_spice_unable_to_connect)
                 }

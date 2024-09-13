@@ -51,6 +51,10 @@
     <string name="ok">Ok</string>
 
     <string name="input_methods">Método de entrada</string>
+    <string name="error_failed_to_download_rdp_http">Falha ao baixar o arquivo .rdp por HTTP. Talvez seu servidor seja inalcançável.</string>
+    <string name="error_failed_to_download_rdp_https">Falha ao baixar o arquivo .rdp sobre HTTPS. Talvez seu certificado de servidor não seja confiável (expirado ou autoassinado) ou seu servidor seja inalcançável.</string>
+    <string name="error_failed_to_obtain_rdp_content">Falha ao obter o arquivo .rdp. Por favor, faça o download novamente, mas desta vez, abra-o rapidamente da pasta de Download num Gerenciador de arquivos.</string>
+    <string name="error_failed_to_obtain_rdp_file">Falha ao encontrar o arquivo .rdp. Por favor, faça o download novamente, mas desta vez, tente abri-lo da área de Notificação ou diretamente do Navegador, se possível.</string>
     <string name="error_failed_to_download_vv_http">Falha ao baixar o arquivo .vv por HTTP. Talvez seu servidor seja inalcançável.</string>
     <string name="error_failed_to_download_vv_https">Falha ao baixar o arquivo .vv sobre HTTPS. Talvez seu certificado de servidor não seja confiável (expirado ou autoassinado) ou seu servidor seja inalcançável.</string>
     <string name="error_failed_to_obtain_vv_content">Falha ao obter o arquivo .vv. Por favor, faça o download novamente, mas desta vez, abra-o rapidamente da pasta de Download num Gerenciador de arquivos.</string>

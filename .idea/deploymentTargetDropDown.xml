@@ -2,6 +2,9 @@
 <project version="4">
   <component name="deploymentTargetDropDown">
     <value>
+      <entry key="CustomVnc-app">
+        <State />
+      </entry>
       <entry key="Opaque-app">
         <State />
       </entry>
@@ -15,6 +18,9 @@
         <State />
       </entry>
       <entry key="freeaRDP-app">
+        <State />
+      </entry>
+      <entry key="freeaSPICE-app">
         <State />
       </entry>
       <entry key="freebVNC-app">
