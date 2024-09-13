@@ -489,6 +489,7 @@ abstract public class RemoteConnection implements PointerInputHandler, KeyInputH
      * @return the vv file name or NULL if no file was discovered.
      */
     public static int retrieveConfigFileFromIntent(Intent i, String filesDir, Context context, Object waitOn) {
+        RemoteConnection.configFileName = null;
         setFileExtensionAndErrorMessageStrings(context);
         final Uri data = i.getData();
         String configFileName = null;
