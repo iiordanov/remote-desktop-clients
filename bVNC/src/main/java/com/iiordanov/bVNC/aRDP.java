@@ -109,7 +109,6 @@ public class aRDP extends MainConfiguration {
         checkboxMenuAnimation = findViewById(R.id.checkboxMenuAnimation);
         checkboxVisualStyles = findViewById(R.id.checkboxVisualStyles);
         checkboxEnableGfx = findViewById(R.id.checkboxEnableGfx);
-        checkboxEnableGfxH264 = findViewById(R.id.checkboxEnableGfxH264);
         checkboxPreferSendingUnicode = findViewById(R.id.checkboxPreferSendingUnicode);
     }
 
