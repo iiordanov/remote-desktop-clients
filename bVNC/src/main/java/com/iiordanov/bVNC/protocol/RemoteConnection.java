@@ -158,6 +158,7 @@ abstract public class RemoteConnection implements PointerInputHandler, KeyInputH
         } else {
             connection = loadSerializedConnection(i, context);
         }
+        connection.setConnectionConfigFile(configFileName);
         return connection;
     }
 
