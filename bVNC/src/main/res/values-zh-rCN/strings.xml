@@ -52,14 +52,10 @@
     <string name="ok">OK</string>
 
     <string name="input_methods">输入方式</string>
-    <string name="error_failed_to_download_rdp_http">通过HTTP下载.rdp文件失败了。 该服务器可能无法访问。</string>
-    <string name="error_failed_to_download_rdp_https">通过HTTPS下载.rdp文件失败了。 服务器证书可能不受信任（过期或自签），或者无法到达服务器。</string>
-    <string name="error_failed_to_obtain_rdp_content">获取.rdp文件失败了。请再次下载它。这次从文件管理器中的下载文件夹里迅速地打开它。</string>
-    <string name="error_failed_to_obtain_rdp_file">找不到.rdp文件。请再次下载。这次如果可能的话，请尝试从通知区或直接从浏览器中打开它。</string>
-    <string name="error_failed_to_download_vv_http">通过HTTP下载.vv文件失败了。 该服务器可能无法访问。</string>
-    <string name="error_failed_to_download_vv_https">通过HTTPS下载.vv文件失败了。 服务器证书可能不受信任（过期或自签），或者无法到达服务器。</string>
-    <string name="error_failed_to_obtain_vv_content">获取.vv文件失败了。请再次下载它。这次从文件管理器中的下载文件夹里迅速地打开它。</string>
-    <string name="error_failed_to_obtain_vv_file">找不到.vv文件。请再次下载。这次如果可能的话，请尝试从通知区或直接从浏览器中打开它。</string>
+    <string name="error_failed_to_download_http">通过HTTP下载文件失败了。 该服务器可能无法访问。</string>
+    <string name="error_failed_to_download_https">通过HTTPS下载文件失败了。 服务器证书可能不受信任（过期或自签），或者无法到达服务器。</string>
+    <string name="error_failed_to_obtain_content">获取文件失败了。请再次下载它。这次从文件管理器中的下载文件夹里迅速地打开它。</string>
+    <string name="error_failed_to_obtain_file">找不到文件。请再次下载。这次如果可能的话，请尝试从通知区或直接从浏览器中打开它。</string>
     <string name="error_dialog_title">错误</string>
     <string name="info_dialog_title">信息</string>
     <string name="info_vm_launched_on_stand_by">您的虚拟机已关闭电源并正在重新启动。请在几分钟后再试。如果由于您过早地尝试而连接失败，请稍后再试。</string>

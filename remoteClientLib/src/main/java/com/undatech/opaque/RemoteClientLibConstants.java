@@ -58,8 +58,6 @@ public class RemoteClientLibConstants {
     public static final int NO_VM_FOUND_FOR_USER = 28;
     public static final int VV_FILE_ERROR = 29;
     public static final int OVIRT_TIMEOUT = 30;
-    public static final int VV_OVER_HTTP_FAILURE = 31;
-    public static final int VV_OVER_HTTPS_FAILURE = 32;
     public static final int PVE_FAILED_TO_AUTHENTICATE = 33;
     public static final int PVE_FAILED_TO_CONNECT = 34;
     public static final int PVE_FAILED_TO_PARSE_JSON = 35;
@@ -78,8 +76,6 @@ public class RemoteClientLibConstants {
     public static final int GET_RDP_GATEWAY_CREDENTIALS = 48;
     public static final int SHOW_KEYBOARD = 49;
     public static final int SHOW_KEYBOARD_ICON = 50;
-    public static final int RDP_OVER_HTTP_FAILURE = 51;
-    public static final int RDP_OVER_HTTPS_FAILURE = 52;
     public static final int PRO_FEATURE = 99;
     public static final int ADVANCED_SETTINGS = 1;
     public static final int DEFAULT_SETTINGS = 2;

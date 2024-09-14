@@ -2,7 +2,6 @@ package com.iiordanov.bVNC.protocol
 
 import android.content.Context
 import com.iiordanov.bVNC.Utils
-import com.iiordanov.bVNC.protocol.RemoteConnection.configFileName
 import com.undatech.opaque.Connection
 import com.undatech.opaque.Viewable
 import com.undatech.remoteClientUi.R

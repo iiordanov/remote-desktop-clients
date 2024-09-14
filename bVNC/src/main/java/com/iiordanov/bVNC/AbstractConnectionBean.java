@@ -3,9 +3,30 @@
 // is being edited by hand.
 package com.iiordanov.bVNC;
 
+import static com.undatech.opaque.RemoteClientLibConstants.GET_FILE_TIMEOUT;
+
+import android.annotation.SuppressLint;
+import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
+import android.os.Bundle;
+import android.util.Log;
+
+import com.iiordanov.bVNC.protocol.GettingConnectionSettingsException;
+import com.iiordanov.util.UriIntentParser;
 import com.undatech.opaque.Connection;
+import com.undatech.opaque.ConnectionSettings;
+import com.undatech.opaque.RemoteClientLibConstants;
+import com.undatech.opaque.util.FileUtils;
+import com.undatech.remoteClientUi.R;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+import java.net.URLConnection;
 
 public abstract class AbstractConnectionBean extends com.antlersoft.android.dbimpl.IdImplementationBase implements Connection {
+    public static final String TAG = "AbstractConnectionBean";
 
     public static final String GEN_TABLE_NAME = "CONNECTION_BEAN";
     public static final int GEN_COUNT = 92;
@@ -1741,5 +1762,168 @@ public abstract class AbstractConnectionBean extends com.antlersoft.android.dbim
         gen_rdpGatewayDomain = values.getAsString(GEN_FIELD_RDPGATEWAYDOMAIN);
         gen_rdpGatewayPassword = values.getAsString(GEN_FIELD_RDPGATEWAYPASSWORD);
         gen_keepRdpGatewayPassword = values.getAsBoolean(GEN_FIELD_KEEPRDPGATEWAYPASSWORD);
+    }
+
+    /**
+     * Retrieves a vv file from the intent if possible and returns the path to it.
+     *
+     * @param i intent that started the activity
+     * @return the vv file name or NULL if no file was discovered.
+     */
+    public static String retrieveConfigFileFromIntent(Intent i, String filesDir, Context context, Object waitOn) throws GettingConnectionSettingsException {
+        final Uri data = i.getData();
+        String configFileName = null;
+        final String tempConfigFile = filesDir + "/tempfile." + Utils.getFileExtension(context);
+        final int[] msgId = {R.string.error_failed_to_obtain_file};
+
+        Log.d(TAG, "Got intent: " + i);
+
+        if (data != null) {
+            Log.d(TAG, "Got data: " + data);
+            final String dataString = data.toString();
+            if (dataString.startsWith("http")) {
+                android.util.Log.d(TAG, "Intent is with http scheme.");
+                FileUtils.deleteFile(tempConfigFile);
+
+                // Spin up a thread to grab the file over the network.
+                Thread t = new Thread() {
+                    @Override
+                    public void run() {
+                        try {
+                            // Download the file and write it out.
+                            URL url = new URL(data.toString());
+                            File file = new File(tempConfigFile);
+                            URLConnection ucon = url.openConnection();
+                            FileUtils.outputToFile(ucon.getInputStream(), file);
+
+                            synchronized (waitOn) {
+                                waitOn.notify();
+                            }
+                        } catch (IOException e) {
+                            msgId[0] = R.string.error_failed_to_download_http;
+                            if (dataString.startsWith("https")) {
+                                msgId[0] = R.string.error_failed_to_download_https;
+                            }
+                        }
+                    }
+                };
+                t.start();
+
+                synchronized (waitOn) {
+                    try {
+                        waitOn.wait(GET_FILE_TIMEOUT);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    configFileName = tempConfigFile;
+                }
+            } else if (dataString.startsWith("file")) {
+                Log.d(TAG, "Intent is with file scheme.");
+                msgId[0] = R.string.error_failed_to_obtain_file;
+                configFileName = data.getPath();
+            } else if (dataString.startsWith("content")) {
+                Log.d(TAG, "Intent is with content scheme.");
+                msgId[0] = R.string.error_failed_to_obtain_content;
+                FileUtils.deleteFile(tempConfigFile);
+
+                try {
+                    FileUtils.outputToFile(context.getContentResolver().openInputStream(data), new File(tempConfigFile));
+                    configFileName = tempConfigFile;
+                } catch (IOException e) {
+                    Log.e(TAG, "Could not write temp file: IOException.");
+                    e.printStackTrace();
+                } catch (SecurityException e) {
+                    Log.e(TAG, "Could not write temp file: SecurityException.");
+                    e.printStackTrace();
+                }
+            }
+
+            // Check if we were successful in obtaining a file and put up an error dialog if not.
+            if (dataString.startsWith("http") || dataString.startsWith("file") || dataString.startsWith("content")
+                    && configFileName == null) {
+                throw new GettingConnectionSettingsException(msgId[0]);
+            }
+            android.util.Log.d(TAG, "Got filename: " + configFileName);
+        }
+        return configFileName;
+    }
+
+    public static Connection getRemoteConnectionSettings(Intent i, Context context, boolean masterPasswordEnabled) throws GettingConnectionSettingsException {
+        Connection connection;
+        String configFileName = retrieveConfigFileFromIntent(i, context.getFilesDir().toString(), context, context);
+        if (Utils.isOpaque(context)) {
+            connection = getOpaqueConnection(i, context, configFileName);
+        } else {
+            connection = getConnection(i, context, masterPasswordEnabled);
+        }
+        connection.setConnectionConfigFile(configFileName);
+        return connection;
+    }
+
+    @SuppressLint("SourceLockedOrientationActivity")
+    private static Connection getOpaqueConnection(Intent i, Context context, String configFileName) {
+        Connection connection;
+        if (configFileName == null) {
+            Log.d(TAG, "Initializing session from connection settings.");
+            connection = (ConnectionSettings) i.getSerializableExtra(Constants.opaqueConnectionSettingsClassPath);
+        } else {
+            connection = new ConnectionSettings(RemoteClientLibConstants.DEFAULT_SETTINGS_FILE);
+            connection.load(context);
+        }
+        return connection;
+    }
+
+    private static Connection getConnection(Intent i, Context context, boolean masterPasswordEnabled) throws GettingConnectionSettingsException {
+        Connection connection;
+        Uri data = i.getData();
+        boolean isSupportedScheme = isSupportedScheme(data);
+        if (isSupportedScheme || !Utils.isNullOrEmptry(i.getType())) {
+            connection = handleSupportedUri(data, context, masterPasswordEnabled);
+        } else {
+            connection = loadSerializedConnection(i, context);
+        }
+        return connection;
+    }
+
+    private static boolean isSupportedScheme(Uri data) {
+        boolean isSupportedScheme = false;
+        if (data != null) {
+            String s = data.getScheme();
+            isSupportedScheme = "rdp".equals(s) || "spice".equals(s) || "vnc".equals(s);
+        }
+        return isSupportedScheme;
+    }
+
+    private static Connection handleSupportedUri(Uri data, Context context, boolean masterPasswordEnabled) throws GettingConnectionSettingsException {
+        Log.d(TAG, "Initializing classic connection from Intent.");
+        if (masterPasswordEnabled) {
+            throw new GettingConnectionSettingsException(R.string.master_password_error_intents_not_supported);
+        }
+        return createConnectionFromUri(data, context);
+    }
+
+    private static Connection loadSerializedConnection(Intent i, Context context) {
+        Log.d(TAG, "Initializing serialized connection");
+        Connection connection = new ConnectionBean(context);
+        Bundle extras = i.getExtras();
+
+        if (extras != null) {
+            Log.d(TAG, "Loading values from serialized connection");
+            connection.populateFromContentValues(extras.getParcelable(Utils.getConnectionString(context)));
+            connection.load(context);
+        }
+        return connection;
+    }
+
+    private static Connection createConnectionFromUri(Uri data, Context context) {
+        Connection connection = UriIntentParser.loadFromUriOrCreateNew(data, context);
+        String host = null;
+        if (data != null) {
+            host = data.getHost();
+        }
+        if (host != null && !host.startsWith(Utils.getConnectionString(context))) {
+            UriIntentParser.parseFromUri(context, connection, data);
+        }
+        return connection;
     }
 }

@@ -470,20 +470,6 @@ public class RemoteCanvasHandler extends Handler implements HttpsFileDownloader.
                 remoteConnection.initializeConnection();
                 c.setParameters(remoteConnection.getRfbConn(), connection, this, remoteConnection.getPointer(), setModes);
                 break;
-            case RemoteClientLibConstants.VV_OVER_HTTP_FAILURE:
-                MessageDialogs.displayMessageAndFinish(context, R.string.error_failed_to_download_vv_http,
-                        R.string.error_dialog_title);
-                break;
-            case RemoteClientLibConstants.VV_OVER_HTTPS_FAILURE:
-                MessageDialogs.displayMessageAndFinish(context, R.string.error_failed_to_download_vv_https,
-                        R.string.error_dialog_title);
-            case RemoteClientLibConstants.RDP_OVER_HTTP_FAILURE:
-                MessageDialogs.displayMessageAndFinish(context, R.string.error_failed_to_download_rdp_http,
-                        R.string.error_dialog_title);
-                break;
-            case RemoteClientLibConstants.RDP_OVER_HTTPS_FAILURE:
-                MessageDialogs.displayMessageAndFinish(context, R.string.error_failed_to_download_rdp_https,
-                        R.string.error_dialog_title);
             case RemoteClientLibConstants.VV_DOWNLOAD_TIMEOUT:
                 MessageDialogs.displayMessageAndFinish(context, R.string.error_vv_download_timeout,
                         R.string.error_dialog_title);
@@ -563,7 +549,7 @@ public class RemoteCanvasHandler extends Handler implements HttpsFileDownloader.
                         false);
                 break;
             case RemoteClientLibConstants.PVE_FAILED_TO_AUTHENTICATE:
-                if (remoteConnection.getConfigFileName() != null) {
+                if (connection.getConnectionConfigFile() != null) {
                     MessageDialogs.displayMessageAndFinish(context, R.string.error_pve_failed_to_authenticate,
                             R.string.error_dialog_title);
                 } else {
@@ -578,7 +564,7 @@ public class RemoteCanvasHandler extends Handler implements HttpsFileDownloader.
                 }
                 break;
             case RemoteClientLibConstants.OVIRT_AUTH_FAILURE:
-                if (remoteConnection.getConfigFileName() != null) {
+                if (connection.getConnectionConfigFile() != null) {
                     remoteConnection.disconnectAndShowMessage(R.string.error_ovirt_auth_failure, R.string.error_dialog_title);
                 } else {
                     remoteConnection.maintainConnection = false;

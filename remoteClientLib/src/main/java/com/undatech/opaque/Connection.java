@@ -39,9 +39,9 @@ public interface Connection {
 
     void setConnectionType(int connectionType);
 
-    public String getConnectionConfigFile();
+    String getConnectionConfigFile();
 
-    public void setConnectionConfigFile(String connectionConfigFile);
+    void setConnectionConfigFile(String connectionConfigFile);
 
     String getConnectionTypeString();
 

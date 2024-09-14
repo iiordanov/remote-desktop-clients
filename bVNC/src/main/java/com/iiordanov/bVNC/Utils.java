@@ -653,4 +653,15 @@ public class Utils {
         ClipboardManager cm = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
         cm.setText(url);
     }
+
+
+    public static String getFileExtension(Context context) {
+        String extension = "vnc";
+        if (isRdp(context)) {
+            extension = "rdp";
+        } else if (isOpaque(context)) {
+            extension = "vv";
+        }
+        return extension;
+    }
 }

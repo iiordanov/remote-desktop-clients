@@ -46,16 +46,17 @@ open class RemoteOpaqueConnection(
             handleUncaughtException(e, R.string.error_spice_unable_to_connect)
         }
         maintainConnection = true
-        if (configFileName == null) {
+        val connectionConfigFile = connection.connectionConfigFile;
+        if (connectionConfigFile == null) {
             startConnection()
         } else {
-            Log.d(tag, "Initializing session from vv file: $configFileName")
-            val f = File(configFileName)
+            Log.d(tag, "Initializing session from vv file: $connectionConfigFile")
+            val f = File(connectionConfigFile)
             if (!f.exists()) {
                 // Quit with an error if the file does not exist.
                 MessageDialogs.displayMessageAndFinish(context, R.string.vv_file_not_found, R.string.error_dialog_title)
             }
-            startFromVvFile(configFileName)
+            startFromVvFile(connectionConfigFile)
         }
         initializeClipboardMonitor()
     }

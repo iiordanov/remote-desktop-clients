@@ -53,14 +53,10 @@
     <string name="ok">Ok</string>
 
     <string name="input_methods">入力方式</string>
-    <string name="error_failed_to_download_rdp_http">HTTP経由で.rdpファイルをダウンロードできませんでした。おそらく、サーバーに到達できません。</string>
-    <string name="error_failed_to_download_rdp_https">HTTPS経由で.rdpファイルをダウンロードできませんでした。サーバー証明書が信頼されていない（期限切れまたは自己署名されている）か、サーバーに到達できない可能性があります。</string>
-    <string name="error_failed_to_obtain_rdp_content">.rdpファイルの取得に失敗しました。もう一度ダウンロードしてください。ただし、今回はファイルマネージャのダウンロードフォルダからすばやく開きます。</string>
-    <string name="error_failed_to_obtain_rdp_file">.rdpファイルが見つかりませんでした。もう一度ダウンロードしてください。ただし、今回は、通知領域から開くか、可能であればブラウザから直接開いてみてください。</string>
-    <string name="error_failed_to_download_vv_http">HTTP経由で.vvファイルをダウンロードできませんでした。おそらく、サーバーに到達できません。</string>
-    <string name="error_failed_to_download_vv_https">HTTPS経由で.vvファイルをダウンロードできませんでした。サーバー証明書が信頼されていない（期限切れまたは自己署名されている）か、サーバーに到達できない可能性があります。</string>
-    <string name="error_failed_to_obtain_vv_content">.vvファイルの取得に失敗しました。もう一度ダウンロードしてください。ただし、今回はファイルマネージャのダウンロードフォルダからすばやく開きます。</string>
-    <string name="error_failed_to_obtain_vv_file">.vvファイルが見つかりませんでした。もう一度ダウンロードしてください。ただし、今回は、通知領域から開くか、可能であればブラウザから直接開いてみてください。</string>
+    <string name="error_failed_to_download_http">HTTP経由でファイルをダウンロードできませんでした。おそらく、サーバーに到達できません。</string>
+    <string name="error_failed_to_download_https">HTTPS経由でファイルをダウンロードできませんでした。サーバー証明書が信頼されていない（期限切れまたは自己署名されている）か、サーバーに到達できない可能性があります。</string>
+    <string name="error_failed_to_obtain_content">ファイルの取得に失敗しました。もう一度ダウンロードしてください。ただし、今回はファイルマネージャのダウンロードフォルダからすばやく開きます。</string>
+    <string name="error_failed_to_obtain_file">ファイルが見つかりませんでした。もう一度ダウンロードしてください。ただし、今回は、通知領域から開くか、可能であればブラウザから直接開いてみてください。</string>
     <string name="error_dialog_title">エラー</string>
     <string name="info_dialog_title">情報</string>
     <string name="info_vm_launched_on_stand_by">VMの電源がオフになっていることが検出され、起動されました。数分後にもう一度お試しください。早すぎて接続に失敗した場合は、後でもう一度やり直してください。</string>

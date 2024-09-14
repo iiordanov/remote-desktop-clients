@@ -27,7 +27,6 @@ import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -37,7 +36,6 @@ import android.database.Cursor;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -80,26 +78,18 @@ import com.iiordanov.bVNC.input.TouchInputHandlerDirectDragPan;
 import com.iiordanov.bVNC.input.TouchInputHandlerDirectSwipePan;
 import com.iiordanov.bVNC.input.TouchInputHandlerSingleHanded;
 import com.iiordanov.bVNC.input.TouchInputHandlerTouchpad;
-import com.iiordanov.bVNC.protocol.MasterPasswordNotSupportedForIntentsException;
+import com.iiordanov.bVNC.protocol.GettingConnectionSettingsException;
 import com.iiordanov.bVNC.protocol.RemoteConnection;
 import com.iiordanov.bVNC.protocol.RemoteConnectionFactory;
 import com.iiordanov.util.SamsungDexUtils;
-import com.iiordanov.util.UriIntentParser;
 import com.undatech.opaque.Connection;
-import com.undatech.opaque.ConnectionSettings;
-import com.undatech.opaque.MessageDialogs;
 import com.undatech.opaque.RemoteClientLibConstants;
 import com.undatech.opaque.dialogs.SelectTextElementFragment;
-import com.undatech.opaque.util.FileUtils;
 import com.undatech.opaque.util.GeneralUtils;
 import com.undatech.opaque.util.OnTouchViewMover;
 import com.undatech.opaque.util.RemoteToolbar;
 import com.undatech.remoteClientUi.R;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
-import java.net.URLConnection;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -327,25 +317,12 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
             }
         };
 
-        if (Utils.isOpaque(this)) {
-            setVolumeControlStream(AudioManager.STREAM_MUSIC);
-        } else {
-            if (Utils.querySharedPreferenceBoolean(this, Constants.keepScreenOnTag))
-                getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        setApplicationSpecificSettings();
 
-            if (Utils.querySharedPreferenceBoolean(this, Constants.forceLandscapeTag))
-                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
-        }
-
-        int messageId = RemoteConnection.retrieveConfigFileFromIntent(getIntent(), getFilesDir().toString(), this, this);
-        if (messageId != 0) {
-            Utils.showFatalErrorMessage(this, getResources().getString(messageId));
-            return;
-        }
         try {
-            connection = RemoteConnection.getRemoteConnectionSettings(getIntent(), this, isMasterPasswordEnabled());
-        } catch (MasterPasswordNotSupportedForIntentsException e) {
-            Utils.showFatalErrorMessage(this, getResources().getString(R.string.master_password_error_intents_not_supported));
+            connection = AbstractConnectionBean.getRemoteConnectionSettings(getIntent(), this, isMasterPasswordEnabled());
+        } catch (GettingConnectionSettingsException e) {
+            Utils.showFatalErrorMessage(this, getResources().getString(e.getErrorStringId()));
             return;
         }
         remoteConnection = new RemoteConnectionFactory(this, connection, canvas, hideKeyboardAndExtraKeys).build();
@@ -359,6 +336,18 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
         }
 
         Log.d(TAG, "OnCreate complete");
+    }
+
+    private void setApplicationSpecificSettings() {
+        if (Utils.isOpaque(this)) {
+            setVolumeControlStream(AudioManager.STREAM_MUSIC);
+        } else {
+            if (Utils.querySharedPreferenceBoolean(this, Constants.keepScreenOnTag))
+                getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
+            if (Utils.querySharedPreferenceBoolean(this, Constants.forceLandscapeTag))
+                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
+        }
     }
 
     private void showConnectionScreenOrExitIfNotReadyForConnecting(Connection connection) {
@@ -381,20 +370,6 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
             }
             Utils.justFinish(this);
         }
-    }
-
-    @SuppressLint("SourceLockedOrientationActivity")
-    private Connection getOpaqueConnection(String vvFileName) {
-        Connection connection;
-        Intent i = getIntent();
-        if (vvFileName == null) {
-            Log.d(TAG, "Initializing session from connection settings.");
-            connection = (ConnectionSettings) i.getSerializableExtra(Constants.opaqueConnectionSettingsClassPath);
-        } else {
-            connection = new ConnectionSettings(RemoteClientLibConstants.DEFAULT_SETTINGS_FILE);
-            connection.load(getApplicationContext());
-        }
-        return connection;
     }
 
     @SuppressLint("RtlHardcoded")

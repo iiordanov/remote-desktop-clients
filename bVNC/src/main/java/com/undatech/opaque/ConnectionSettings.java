@@ -27,6 +27,7 @@ import android.content.SharedPreferences.Editor;
 import android.util.Log;
 import android.widget.ImageView;
 
+import com.iiordanov.bVNC.AbstractConnectionBean;
 import com.iiordanov.bVNC.Constants;
 
 import org.json.JSONException;
@@ -47,7 +48,7 @@ import java.io.Serializable;
 import java.util.Iterator;
 import java.util.UUID;
 
-public class ConnectionSettings implements Connection, Serializable {
+public class ConnectionSettings extends AbstractConnectionBean implements Serializable {
     private static final String TAG = "ConnectionSettings";
     private static final long serialVersionUID = 1L;
 
