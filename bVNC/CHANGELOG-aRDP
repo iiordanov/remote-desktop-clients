@@ -1,8 +1,8 @@
-v5.5.1
+v5.5.2
 - RDP File support
-- Removed toggle for GfxH264
+- Removed toggle for Gfx H264
 v5.5.0
-- Changed GfxH264 to off by default
+- Changed Gfx H264 to off by default
 v5.4.9
 - Fix for RemoteGfx
 v5.4.8
