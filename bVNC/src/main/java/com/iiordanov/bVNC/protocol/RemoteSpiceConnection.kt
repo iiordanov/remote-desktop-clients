@@ -4,24 +4,24 @@ import android.content.Context
 import android.util.Log
 import com.iiordanov.bVNC.App
 import com.iiordanov.bVNC.COLORMODEL
-import com.iiordanov.bVNC.Constants
 import com.iiordanov.bVNC.Utils
 import com.iiordanov.bVNC.input.RemoteSpiceKeyboard
 import com.iiordanov.bVNC.input.RemoteSpicePointer
 import com.undatech.opaque.Connection
+import com.undatech.opaque.MessageDialogs
 import com.undatech.opaque.RemoteClientLibConstants
 import com.undatech.opaque.SpiceCommunicator
 import com.undatech.opaque.Viewable
 import com.undatech.remoteClientUi.R
+import java.io.File
 
 class RemoteSpiceConnection(
     context: Context,
     connection: Connection?,
     canvas: Viewable,
     hideKeyboardAndExtraKeys: Runnable,
-) : RemoteConnection(context, connection, canvas, hideKeyboardAndExtraKeys) {
+) : RemoteOpaqueConnection(context, connection, canvas, hideKeyboardAndExtraKeys) {
     private val tag: String = "RemoteVncConnection"
-    private var spiceComm: SpiceCommunicator? = null
 
     /**
      * Initializes a SPICE connection.
@@ -48,6 +48,10 @@ class RemoteSpiceConnection(
     @Throws(Exception::class)
     private fun startSpiceConnection() {
         Log.d(tag, "startSpiceConnection")
+        startConnectionDirectlyOrFromFile()
+    }
+
+    override fun startConnection() {
         // Get the address and port (based on whether an SSH tunnel is being established or not).
         val address = address
         // To prevent an SSH tunnel being created when port or TLS port is not set, we only
@@ -69,12 +73,6 @@ class RemoteSpiceConnection(
 
     override fun initializeConnection() {
         super.initializeConnection()
-
-        try {
-            initializeSpiceConnection()
-        } catch (e: Throwable) {
-            handleUncaughtException(e, R.string.error_spice_unable_to_connect)
-        }
         initializeClipboardMonitor()
 
         val t: Thread = object : Thread() {
@@ -105,7 +103,7 @@ class RemoteSpiceConnection(
         return result
     }
 
-    override fun getSshTunnelTargetAddress(): String? {
+    override fun getSshTunnelTargetAddress(): String {
         return connection.address
     }
 

@@ -25,6 +25,12 @@ class RemoteProxmoxConnection(
 ) : RemoteOpaqueConnection(context, connection, canvas, hideKeyboardAndExtraKeys) {
     private val tag: String = "RemoteProxmoxConnection"
 
+    override fun initializeConnection() {
+        super.initializeConnection()
+        startConnectionDirectlyOrFromFile()
+        initializeClipboardMonitor()
+    }
+
     fun retrieveVvFileFromPve(
         api: ProxmoxClient, vmId: String,
         node: String?, virt: String?

@@ -2,10 +2,14 @@ package com.iiordanov.bVNC.protocol
 
 import android.content.Context
 import android.util.Log
+import com.iiordanov.bVNC.App
 import com.iiordanov.bVNC.Utils
 import com.iiordanov.bVNC.input.RemoteCanvasHandler
+import com.iiordanov.bVNC.input.RemoteSpiceKeyboard
+import com.iiordanov.bVNC.input.RemoteSpicePointer
 import com.undatech.opaque.Connection
 import com.undatech.opaque.RemoteClientLibConstants
+import com.undatech.opaque.SpiceCommunicator
 import com.undatech.opaque.Viewable
 import com.undatech.opaque.proxmox.OvirtClient
 import com.undatech.remoteClientUi.R
@@ -20,6 +24,12 @@ class RemoteOvirtConnection(
 ) : RemoteOpaqueConnection(context, connection, canvas, hideKeyboardAndExtraKeys) {
 
     private val tag: String = "RemoteOvirtConnection"
+
+    override fun initializeConnection() {
+        super.initializeConnection()
+        startConnectionDirectlyOrFromFile()
+        initializeClipboardMonitor()
+    }
 
     override fun startConnection() {
         connection.address = Utils.getHostFromUriString(connection.address)

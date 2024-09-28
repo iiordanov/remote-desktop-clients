@@ -47,7 +47,7 @@ class RemoteConnectionFactory(
             } else if (isProxmox) {
                 RemoteProxmoxConnection(context, connection, viewable, hideKeyboardAndExtraKeys)
             } else {
-                RemoteOpaqueConnection(context, connection, viewable, hideKeyboardAndExtraKeys)
+                RemoteSpiceConnection(context, connection, viewable, hideKeyboardAndExtraKeys)
             }
         } else {
             throw IllegalStateException("App type must be one of VNC, RDP, SPICE or Opaque")
