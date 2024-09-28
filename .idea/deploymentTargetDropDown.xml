@@ -9,7 +9,20 @@
         <State />
       </entry>
       <entry key="aRDP-app">
-        <State />
+        <State>
+          <runningDeviceTargetSelectedWithDropDown>
+            <Target>
+              <type value="RUNNING_DEVICE_TARGET" />
+              <deviceKey>
+                <Key>
+                  <type value="SERIAL_NUMBER" />
+                  <value value="R5CX61J9WAE" />
+                </Key>
+              </deviceKey>
+            </Target>
+          </runningDeviceTargetSelectedWithDropDown>
+          <timeTargetWasSelectedWithDropDown value="2024-09-28T18:52:45.749332343Z" />
+        </State>
       </entry>
       <entry key="aSPICE-app">
         <State />
