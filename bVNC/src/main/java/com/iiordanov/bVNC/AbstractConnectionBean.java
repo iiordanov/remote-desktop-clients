@@ -1853,10 +1853,9 @@ public abstract class AbstractConnectionBean extends com.antlersoft.android.dbim
         String configFileName = retrieveConfigFileFromIntent(i, context.getFilesDir().toString(), context, context);
         if (Utils.isOpaque(context)) {
             connection = getOpaqueConnection(i, context, configFileName);
+        } else if (configFileName != null && Utils.isFree(context)) {
+            throw new GettingConnectionSettingsException(R.string.pro_feature_generic);
         } else {
-            if (Utils.isFree(context)) {
-                throw new GettingConnectionSettingsException(R.string.pro_feature_generic);
-            }
             connection = getConnection(i, context, masterPasswordEnabled);
         }
         connection.setConnectionConfigFile(configFileName);
