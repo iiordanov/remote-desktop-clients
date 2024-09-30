@@ -17,6 +17,15 @@ Opaque is an oVirt, RHEV, and Proxmox client available at [Opaque](https://play.
 
 The donation versions are also available on Amazon App Store at [bVNC](https://www.amazon.ca/Unda-Tech-VNC-Pro-Viewer/dp/B00OWZYE1A), [aRDP](https://www.amazon.ca/Unda-Tech-RDP-Pro-Client/dp/B00OX1RBAO), [aSPICE](https://www.amazon.ca/aSPICE-Pro-Secure-SPICE-Client/dp/B07B6K9BDB), [Opaque](https://www.amazon.ca/Opaque-oVirt-RHEV-Proxmox-Client/dp/B07HMTYT1L).
 
+# Links to Pro APKs
+
+You can always get the latest Pro versions by supporting us as a Patreon member and keeping your membership active!
+
+[bVNC Pro](https://www.patreon.com/posts/113067871)
+[aRDP Pro](https://www.patreon.com/posts/113067997)
+[aSPICE Pro](https://www.patreon.com/posts/113067946)
+[Opaque](https://www.patreon.com/posts/113067670)
+
 # Building
 
 There are different ways to build the applications depending on OS and whether you are using
