@@ -77,10 +77,11 @@ public class RemoteClientLibConstants {
     public static final int SHOW_KEYBOARD = 49;
     public static final int SHOW_KEYBOARD_ICON = 50;
     public static final int PRO_FEATURE = 99;
-    public static final int ADVANCED_SETTINGS = 1;
-    public static final int DEFAULT_SETTINGS = 2;
+    public static final int ADVANCED_SETTINGS_REQUEST_CODE = 1;
+    public static final int DEFAULT_SETTINGS_REQUEST_CODE = 2;
     public static final int IMPORT_SETTINGS_REQUEST_CODE = 3;
     public static final int EXPORT_SETTINGS_REQUEST_CODE = 4;
+    public static final int LAUNCH_CONNECTION_REQUEST_CODE = 5;
     public static final String DEFAULT_LAYOUT_MAP = "English (US)";
     public static final String ACTION_USB_PERMISSION = "com.undatech.opaque.USB_PERMISSION";
     public static final String DEFAULT_SETTINGS_FILE = "defaultSettings";

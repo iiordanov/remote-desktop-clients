@@ -86,7 +86,7 @@ public class ConnectionSetupActivity extends Activity {
 
                 Intent intent = new Intent(ConnectionSetupActivity.this, AdvancedSettingsActivity.class);
                 intent.putExtra(Constants.opaqueConnectionSettingsClassPath, currentConnection);
-                startActivityForResult(intent, RemoteClientLibConstants.ADVANCED_SETTINGS);
+                startActivityForResult(intent, RemoteClientLibConstants.ADVANCED_SETTINGS_REQUEST_CODE);
             }
         });
 
@@ -204,7 +204,7 @@ public class ConnectionSetupActivity extends Activity {
 
         super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
-            case (RemoteClientLibConstants.ADVANCED_SETTINGS):
+            case (RemoteClientLibConstants.ADVANCED_SETTINGS_REQUEST_CODE):
                 if (resultCode == Activity.RESULT_OK) {
                     Bundle b = data.getExtras();
                     currentConnection = (ConnectionSettings) b.get(Constants.opaqueConnectionSettingsClassPath);

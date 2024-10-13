@@ -23,6 +23,8 @@ package com.undatech.opaque;
 import static com.iiordanov.bVNC.Utils.createMainScreenDialog;
 import static com.iiordanov.bVNC.Utils.setClipboard;
 import static com.iiordanov.bVNC.Utils.startUriIntent;
+import static com.undatech.opaque.RemoteClientLibConstants.DEFAULT_SETTINGS_REQUEST_CODE;
+import static com.undatech.opaque.RemoteClientLibConstants.LAUNCH_CONNECTION_REQUEST_CODE;
 
 import android.app.Activity;
 import android.app.ActivityManager;
@@ -94,6 +96,7 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
     private AppCompatImageButton editDefaultSettings = null;
 
     private RateOrShareFragment rateOrShareFragment = new RateOrShareFragment();
+    private boolean showMasterPasswordDialog = true;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -200,7 +203,7 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
                 this
         );
         try {
-            startActivity(intent);
+            startActivityForResult(intent, LAUNCH_CONNECTION_REQUEST_CODE);
         } catch (ActivityNotFoundException e) {
             Log.e(TAG, "Error launching connection: " + e);
             Toast.makeText(this, R.string.no_application_to_handle_vpn, Toast.LENGTH_LONG).show();
@@ -270,7 +273,7 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
     public void onResume() {
         super.onResume();
         Log.i(TAG, "onResume of version " + Utils.getVersionAndCode(this));
-        if (Utils.querySharedPreferenceBoolean(this, Constants.masterPasswordEnabledTag)) {
+        if (showMasterPasswordDialog && Utils.querySharedPreferenceBoolean(this, Constants.masterPasswordEnabledTag)) {
             showGetTextFragment(getPassword);
         } else {
             loadSavedConnections();
@@ -282,6 +285,7 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
     @Override
     protected void onPause() {
         super.onPause();
+        showMasterPasswordDialog = true;
         Log.i(TAG, "onPause");
         if (database != null)
             database.close();
@@ -292,7 +296,7 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
         Log.i(TAG, "onResumeFragments called");
         super.onResumeFragments();
         System.gc();
-        if (Utils.querySharedPreferenceBoolean(this, Constants.masterPasswordEnabledTag)) {
+        if (showMasterPasswordDialog && Utils.querySharedPreferenceBoolean(this, Constants.masterPasswordEnabledTag)) {
             showGetTextFragment(getPassword);
         } else {
             loadSavedConnections();
@@ -355,7 +359,7 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
             ConnectionSettings defaultConnection = new ConnectionSettings(RemoteClientLibConstants.DEFAULT_SETTINGS_FILE);
             defaultConnection.loadFromSharedPreferences(getApplicationContext());
             intent.putExtra(Constants.opaqueConnectionSettingsClassPath, defaultConnection);
-            startActivityForResult(intent, RemoteClientLibConstants.DEFAULT_SETTINGS);
+            startActivityForResult(intent, DEFAULT_SETTINGS_REQUEST_CODE);
         } else {
             Intent intent = new Intent();
             intent.setClassName(this, "com.iiordanov.bVNC.GlobalPreferencesActivity");
@@ -392,7 +396,11 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
 
         super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
-            case RemoteClientLibConstants.DEFAULT_SETTINGS:
+            case LAUNCH_CONNECTION_REQUEST_CODE:
+                Log.i(TAG, "onActivityResult LAUNCH_CONNECTION_REQUEST_CODE");
+                showMasterPasswordDialog = false;
+                break;
+            case DEFAULT_SETTINGS_REQUEST_CODE:
                 if (resultCode == Activity.RESULT_OK) {
                     Bundle b = data.getExtras();
                     ConnectionSettings defaultSettings = (ConnectionSettings) b.get(Constants.opaqueConnectionSettingsClassPath);

@@ -28,7 +28,20 @@
         <State />
       </entry>
       <entry key="bVNC-app">
-        <State />
+        <State>
+          <runningDeviceTargetSelectedWithDropDown>
+            <Target>
+              <type value="RUNNING_DEVICE_TARGET" />
+              <deviceKey>
+                <Key>
+                  <type value="SERIAL_NUMBER" />
+                  <value value="R5CX61J9WAE" />
+                </Key>
+              </deviceKey>
+            </Target>
+          </runningDeviceTargetSelectedWithDropDown>
+          <timeTargetWasSelectedWithDropDown value="2024-10-13T17:50:32.419813840Z" />
+        </State>
       </entry>
       <entry key="freeaRDP-app">
         <State />
