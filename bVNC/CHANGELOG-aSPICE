@@ -1,3 +1,5 @@
+v5.5.6
+- Stop asking for Master Password on disconnection
 v5.5.4
 - VV File support
 v5.4.8
