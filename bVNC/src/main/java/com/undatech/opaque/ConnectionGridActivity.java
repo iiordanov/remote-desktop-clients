@@ -273,13 +273,17 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
     public void onResume() {
         super.onResume();
         Log.i(TAG, "onResume of version " + Utils.getVersionAndCode(this));
+        showMasterPasswordDialogOrConnections();
+        IntroTextDialog.showIntroTextIfNecessary(this, database, Utils.isFree(this) && isStarting);
+        isStarting = false;
+    }
+
+    private void showMasterPasswordDialogOrConnections() {
         if (showMasterPasswordDialog && Utils.querySharedPreferenceBoolean(this, Constants.masterPasswordEnabledTag)) {
             showGetTextFragment(getPassword);
         } else {
             loadSavedConnections();
-            IntroTextDialog.showIntroTextIfNecessary(this, database, Utils.isFree(this) && isStarting);
         }
-        isStarting = false;
     }
 
     @Override
@@ -296,11 +300,7 @@ public class ConnectionGridActivity extends FragmentActivity implements GetTextF
         Log.i(TAG, "onResumeFragments called");
         super.onResumeFragments();
         System.gc();
-        if (showMasterPasswordDialog && Utils.querySharedPreferenceBoolean(this, Constants.masterPasswordEnabledTag)) {
-            showGetTextFragment(getPassword);
-        } else {
-            loadSavedConnections();
-        }
+        showMasterPasswordDialogOrConnections();
     }
 
     private void loadSavedConnections() {
