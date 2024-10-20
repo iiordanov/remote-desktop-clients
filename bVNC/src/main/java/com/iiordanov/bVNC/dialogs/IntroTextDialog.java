@@ -76,7 +76,7 @@ public class IntroTextDialog extends Dialog {
         MostRecentBean mr = ConnectionBean.getMostRecent(database.getReadableDatabase());
         database.close();
         boolean newLaunchOrVersion = (mr == null || mr.getShowSplashVersion() != pi.versionCode);
-        if (dialog == null && show && (mr == null || mr.getShowSplashVersion() != pi.versionCode)) {
+        if (dialog == null && show && newLaunchOrVersion) {
             dialog = new IntroTextDialog(context, pi, database);
             dialog.show();
         }
