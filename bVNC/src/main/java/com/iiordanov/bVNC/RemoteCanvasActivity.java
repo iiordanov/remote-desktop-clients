@@ -1264,7 +1264,7 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
     protected void onDestroy() {
         super.onDestroy();
         Log.i(TAG, "onDestroy called.");
-        if (canvas != null)
+        if (remoteConnection != null)
             remoteConnection.closeConnection();
         System.gc();
     }
