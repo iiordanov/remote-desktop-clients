@@ -245,8 +245,10 @@ public class RemoteCanvasActivity extends AppCompatActivity implements
      * Enables sticky immersive mode if supported.
      */
     private void enableImmersive() {
-        handler.removeCallbacks(immersiveEnabler);
-        handler.postDelayed(immersiveEnabler, 200);
+        if (handler != null) {
+            handler.removeCallbacks(immersiveEnabler);
+            handler.postDelayed(immersiveEnabler, 200);
+        }
     }
 
     /**
